@@ -18,7 +18,7 @@ SECTIONS
   .firmware_header (READONLY) :
   {
     KEEP(*(.fwdescription))
-  } > REGION_TEXT AT> REGION_TEXT_STORAGE
+  } > REGION_TEXT_STORAGE
   
   /* ISR vector to be loaded */
   .isr_vector :
