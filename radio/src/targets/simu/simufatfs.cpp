@@ -318,6 +318,7 @@ FRESULT f_read(FIL* fil, void* data, UINT size, UINT* read)
       sf->stream->read(static_cast<char*>(data), size);
       *read = static_cast<UINT>(sf->stream->gcount());
       fil->fptr += *read;
+      sf->stream->clear();
     }
   }
   return FR_OK;
