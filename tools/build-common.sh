@@ -116,6 +116,9 @@ get_target_build_options() {
         t18)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
             ;;
+        tx15)
+            BUILD_OPTIONS+="-DPCB=TX15 -DNANO=NO"
+            ;;
         tx16s)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
             ;;
@@ -157,6 +160,9 @@ get_target_build_options() {
             ;;
         st16)
             BUILD_OPTIONS+="-DPCB=ST16 -DNANO=NO"
+            ;;
+        pa01)
+            BUILD_OPTIONS+="-DPCB=PA01 -DNANO=NO"
             ;;
         dro1)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=DRO1"

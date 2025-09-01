@@ -6,33 +6,23 @@ on:
       - 'main'
     tags:
       - v*
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-      - 'fw.json'
+    paths:
+      - '.github/workflows/build_fw.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
   pull_request:
     branches:
       - 'main'
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-      - 'fw.json'
+    paths:
+      - '.github/workflows/build_fw.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
   workflow_dispatch:
 
 jobs:
@@ -43,6 +33,7 @@ jobs:
       matrix:
         target:
           - x9dp2019
+          - tx15
           - tx16s
           - nv14
           - el18
@@ -93,12 +84,14 @@ jobs:
         target:
           - nv14;el18
           - pl18;pl18ev;pl18u
+          - pa01
           - t12max
           - t15;t16;t18
           - zorro;pocket;mt12;commando8
           - tprov2;tpros;bumblebee
           - t20;t20v2;t14
           - tx12mk2;boxer;gx12
+          - tx15
           - tx16s
           - f16
           - v12;v14;v16

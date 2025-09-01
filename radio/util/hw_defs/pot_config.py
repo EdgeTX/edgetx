@@ -142,6 +142,10 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
     },
+    "tx15": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+    },
     "tx16s": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "MULTIPOS"},
@@ -241,6 +245,10 @@ POT_CONFIG = {
     "st16": {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+    },
+    "pa01": {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
     },

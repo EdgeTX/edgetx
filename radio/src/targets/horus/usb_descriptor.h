@@ -45,14 +45,14 @@
   #define USB_NAME                     "Fatfish F16"
   #define USB_MANUFACTURER             'F', 'A', 'T', 'F', 'I', 'S', 'H', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'F', 'F', ' ', 'F', '1', '6', ' ', ' '  /* 8 Bytes */
-#elif defined(PCBX10)
-  #define USB_NAME                     "FrSky X10"
-  #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'X', '1', '0', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_V16)
   #define USB_NAME                     "HelloRadioSky V16"
   #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'V', '1', '6', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(PCBX10)
+  #define USB_NAME                     "FrSky X10"
+  #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'X', '1', '0', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_DRO1)
   #define USB_NAME                     "DumboRC DRO1"
   #define USB_MANUFACTURER             'D', 'U', 'M', 'B', 'O', 'R', 'C', ' '  /* 8 bytes */
