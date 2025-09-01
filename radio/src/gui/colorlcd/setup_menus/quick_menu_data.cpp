@@ -120,7 +120,7 @@ QMTopDef qmTopItems[] = {
     []() {
       QuickMenu::selected();
       Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+      resetMenu->addLine(STR_RESET_SESSION, []() { flightReset(); });
       resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
       resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
       resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
@@ -239,7 +239,7 @@ PageDef toolsMenuItems[] = {
     []() {
       QuickMenu::selected();
       Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+      resetMenu->addLine(STR_RESET_SESSION, []() { flightReset(); });
       resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
       resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
       resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });

@@ -978,7 +978,7 @@
 #define TR_PASTE_BEFORE                "Paste Before"
 #define TR_DELETE                      "Delete"
 #define TR_INSERT                      "Insert"
-#define TR_RESET_FLIGHT                "Reset Flight"
+#define TR_RESET_SESSION               "Reset Flight"
 #define TR_RESET_TIMER1                "Reset Timer1"
 #define TR_RESET_TIMER2                "Reset Timer2"
 #define TR_RESET_TIMER3                "Reset Timer3"

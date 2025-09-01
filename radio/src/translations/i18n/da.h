@@ -989,7 +989,7 @@
 #define TR_PASTE_BEFORE                "Sæt ind før"
 #define TR_DELETE                      "Slet"
 #define TR_INSERT                      "Indsæt"
-#define TR_RESET_FLIGHT                "Nulstil flyvning"
+#define TR_RESET_SESSION               "Nulstil flyvning"
 #define TR_RESET_TIMER1                "Nulstil tidtag 1"
 #define TR_RESET_TIMER2                "Nulstil tidtag 2"
 #define TR_RESET_TIMER3                "Nulstil tidtag 3"

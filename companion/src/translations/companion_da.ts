@@ -2236,11 +2236,6 @@ Vil du indlæse indstillinger fra en fil?</translation>
         <translation>Tryk tilpasset kontakt %1</translation>
     </message>
     <message>
-        <location filename="../firmwares/customfunctiondata.cpp" line="303"/>
-        <source>Flight</source>
-        <translation>Flyvning</translation>
-    </message>
-    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="306"/>
         <source>Telemetry</source>
         <translation>Telemetri</translation>
@@ -2249,6 +2244,11 @@ Vil du indlæse indstillinger fra en fil?</translation>
         <location filename="../firmwares/customfunctiondata.cpp" line="154"/>
         <source>s</source>
         <translation>s</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="303"/>
+        <source>Session</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="309"/>

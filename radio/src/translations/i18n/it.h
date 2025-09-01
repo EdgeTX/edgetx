@@ -984,7 +984,7 @@
 #define TR_PASTE_BEFORE                 "Incolla Prima"
 #define TR_DELETE                       "Elimina"
 #define TR_INSERT                       TR("Inser.","Inserisci")
-#define TR_RESET_FLIGHT                 "Azzera volo"
+#define TR_RESET_SESSION                "Azzera volo"
 #define TR_RESET_TIMER1                 "Azzera Timer1"
 #define TR_RESET_TIMER2                 "Azzera Timer2"
 #define TR_RESET_TIMER3                 "Azzera Timer3"

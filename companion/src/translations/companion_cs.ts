@@ -2244,6 +2244,11 @@ Do you want to import settings from a file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="303"/>
+        <source>Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="309"/>
         <source>Trims</source>
         <translation type="unfinished"></translation>
@@ -2427,11 +2432,6 @@ Do you want to import settings from a file?</source>
         <location filename="../firmwares/customfunctiondata.cpp" line="122"/>
         <source>Bind Ext. Module</source>
         <translation type="unfinished">Bind ext. modulu</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/customfunctiondata.cpp" line="303"/>
-        <source>Flight</source>
-        <translation type="unfinished">Let</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="306"/>

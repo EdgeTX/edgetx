@@ -985,7 +985,7 @@
 #define TR_PASTE_BEFORE                 "Klistra in före"
 #define TR_DELETE                       "Radera"
 #define TR_INSERT                       "Addera"
-#define TR_RESET_FLIGHT                 "Återställ session"
+#define TR_RESET_SESSION                "Återställ session"
 #define TR_RESET_TIMER1                 "Återställ timer1"
 #define TR_RESET_TIMER2                 "Återställ timer2"
 #define TR_RESET_TIMER3                 "Återställ timer3"
