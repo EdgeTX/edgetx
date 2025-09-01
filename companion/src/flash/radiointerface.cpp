@@ -262,10 +262,6 @@ void FirmwareWriterWorker::runUf2()
     emit complete();
 
   } catch (const std::exception &e) {
-    QMessageBox::critical(nullptr,
-                          TR("Write Firmware"),
-                          TR("Your radio is likely stuck in the writing state and/or inoperable") % "!\n" %
-                          TR("To recover, disconnect and power off the radio, boot in DFU mode and try reflashing"));
     emit error(QString("UF2 failed: %1").arg(e.what()));
   }
 }
@@ -438,9 +434,6 @@ bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
   auto worker = std::make_unique<FirmwareReaderWorker>();
   connectProgress(worker.get(), progress);
 
-  // delete worker once the thread is finished
-  //worker->connect(worker.get(), &QThread::finished, worker.get(), &QObject::deleteLater);
-
   // connect closures
   progress->connect(worker.get(), &FirmwareReaderWorker::complete, progress, onComplete);
   progress->connect(worker.get(), &FirmwareReaderWorker::error, progress, onError);
@@ -457,8 +450,7 @@ bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
   connectProgress(worker.get(), progress);
 
   // write data to file on success
-  progress->connect(worker.get(), &FirmwareReaderWorker::complete, progress,
-                    onComplete);
+  progress->connect(worker.get(), &FirmwareReaderWorker::complete, progress, onComplete);
 
   // now start it!
   worker.release()->start();
@@ -492,7 +484,7 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
 {
   QFile f(filename);
   if (!f.open(QIODeviceBase::ReadOnly)) {
-    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR,
+    QMessageBox::critical(nullptr, TR("Write Firmware"),
                           TR("Cannot open file '%1': %2")
                           .arg(QDir::toNativeSeparators(filename))
                           .arg(f.errorString()));

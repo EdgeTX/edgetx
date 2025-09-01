@@ -324,27 +324,31 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         [this, &fw, progress, checkHw, backup, &backupPath](const QByteArray &_data) {
           qDebug() << "Read old firmware, size = " << _data.size();
           bool backupFail = false;
+          bool checkHwFail = false;
 
           if (backup) {
             qDebug() << "Writing backup to" << backupPath;
+            progress->addMessage(tr("Writing backup to: %1").arg(backupPath));
             QFile backupFile(backupPath);
             if (!backupFile.open(QIODevice::ReadWrite)) {
-              QMessageBox::critical(this, tr("Backup Radio Firmware"),
-                                    tr("Unable to open backup file: %1 (reason: %2)")
-                                    .arg(backupFile.fileName())
-                                    .arg(backupFile.errorString()));
-
+              QString errMsg(tr("Unable to open backup file: %1 (reason: %2)")
+                                .arg(backupFile.fileName())
+                                .arg(backupFile.errorString()));
+              progress->addMessage(errMsg, QtFatalMsg);
+              QMessageBox::critical(this, tr("Backup Radio Firmware"), errMsg);
             }
 
             if (backupFile.write(_data) <= 0) {
-              backupFail = true;
               qDebug() << "Backup failed";
-              QMessageBox::critical(this, tr("Backup Radio Firmware"),
-                                    tr("Error writing to file: %1 (reason: %2)")
-                                    .arg(backupFile.fileName())
-                                    .arg(backupFile.errorString()));
+              backupFail = true;
+              QString errMsg(tr("Error writing to file: %1 (reason: %2)")
+                                .arg(backupFile.fileName())
+                                .arg(backupFile.errorString()));
+              progress->addMessage(errMsg, QtFatalMsg);
+              QMessageBox::critical(this, tr("Backup Radio Firmware"), errMsg);
             } else {
               qDebug() << "Backup written";
+              progress->addMessage(tr("Backup finished"));
             }
 
             backupFile.close();
@@ -352,11 +356,13 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
 
           if (!backupFail && checkHw && !fw.isHardwareCompatible(FirmwareInterface(_data))) {
             qDebug() << "Firmware not compatible";
-            QMessageBox::warning(this, tr("Firmware check failed"),
-                tr("New firmware is not compatible with that currently installed!"));
+            checkHwFail = true;
+            QString errMsg(tr("New firmware not compatible"));
+            progress->addMessage(errMsg, QtFatalMsg);
+            QMessageBox::critical(this, tr("Firmware Compatibility Check"), errMsg);
           }
 
-          if (!backupFail) {
+          if (!backupFail && !checkHwFail) {
             qDebug() << "Start flashing firmware (if requested, backup and checks done)";
             if (writeFirmware(fw.getFlash(), progress)) {
               qDebug() << "Flashing firmware complete";
@@ -364,11 +370,11 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
               qDebug() << "Flashing firmware error";
             }
           } else {
-            qDebug() << "Abort flashing firmware as backup failed";
+            qDebug() << "Abort flashing firmware as backup or checks failed";
           }
         },
         [this](const QString &err) {
-          QMessageBox::critical(this, tr("Reading Firmware"),
+          QMessageBox::critical(this, tr("Flashing Firmware"),
                                 tr("Could not read current firmware: %1").arg(err));
         },
         progress);
