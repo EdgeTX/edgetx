@@ -2989,6 +2989,69 @@ static int luaGetStickMode(lua_State* const L)
   return 1;
 }
 
+/*luadoc
+@function setIMU_X(offset, range)
+
+@param offset: integer, offset in angular degree. -1 to offset to current X position
+
+@param range: integer, range in angular degree. 180° max.90 means min/max value will be reached at 45° from offset position
+
+@status current Introduced in 3.0
+*/
+
+static int luaSetIMU_X(lua_State* const L)
+{
+#if defined(IMU)
+  int16_t offset = luaL_checkinteger(L, 1);
+  int16_t range = luaL_checkinteger(L, 2);
+
+  if (offset < -180 || offset > 180) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+  if (range < 0 || range > 180) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  gyro.setIMU_X(offset, range);
+#endif
+  lua_pushboolean(L, true);
+  return 1;
+}
+
+/*luadoc
+@function setIMU_Y(offset, range)
+
+@param offset: integer, offset in angular degree. -1 to offset to current Y position
+
+@param range: integer, range in angular degree, 180° max. 90 means min/max value will be reached at 45° from offset position
+
+@status current Introduced in 3.0
+*/
+
+static int luaSetIMU_Y(lua_State* const L)
+{
+#if defined(IMU)
+  int16_t offset = luaL_checkinteger(L, 1);
+  int16_t range = luaL_checkinteger(L, 2);
+
+  if (offset < -180 || offset > 180) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+  if (range < 0 || range > 180) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  gyro.setIMU_Y(offset, range);
+#endif
+  lua_pushboolean(L, true);
+  return 1;
+}
+
+
 #define KEY_EVENTS(xxx, yyy)                                    \
   { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
   { "EVT_"#xxx"_BREAK", LRO_NUMVAL(EVT_KEY_BREAK(yyy)) },       \
@@ -3084,6 +3147,8 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( setCFSLedColor, luaSetCFSLedColor )
 #endif
   LROT_FUNCENTRY( getStickMode, luaGetStickMode )
+  LROT_FUNCENTRY( setIMU_X, luaSetIMU_X )
+  LROT_FUNCENTRY( setIMU_Y, luaSetIMU_Y )
 LROT_END(etxlib, NULL, 0)
 
 LROT_BEGIN(etxcst, NULL, 0)

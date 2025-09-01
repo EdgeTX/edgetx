@@ -8,7 +8,7 @@ if(APPLE)
   set(CMAKE_CXX_FLAGS_DEBUG "-Wno-deprecated-declarations")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-address-of-packed-member")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-address-of-packed-member -Wno-deprecated-declarations")
 
 if(MINGW OR WIN32)
   set(CMAKE_OBJECT_PATH_MAX 200)

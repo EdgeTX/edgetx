@@ -136,16 +136,6 @@ set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
 set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
 
-# qrc used by Companion and Simulator
-add_custom_command(OUTPUT ${HWDEFS_QRC}
-  COMMAND ${PYTHON_EXECUTABLE} ${HWDEFS_CMD}
-      -d ${HWDEFS_DIR}
-      -t ${HWDEFS_TMPL}
-      -p ${HWDEFS_PHDR}
-      -o ${HWDEFS_QRC}
-  DEPENDS ${HWDEFS_TMPL}
-)
-
 ############# Common lib ###############
 
 set(common_SRCS
@@ -161,13 +151,23 @@ set(common_MOC_HDRS
   modeledit/node.h
   )
 
+qt_wrap_cpp(common_SRCS ${common_MOC_HDRS})
+
+# qrc used by Companion and Simulator
+add_custom_command(OUTPUT ${HWDEFS_QRC}
+  COMMAND ${PYTHON_EXECUTABLE} ${HWDEFS_CMD}
+      -d ${HWDEFS_DIR}
+      -t ${HWDEFS_TMPL}
+      -p ${HWDEFS_PHDR}
+      -o ${HWDEFS_QRC}
+  DEPENDS ${HWDEFS_TMPL}
+)
+
 set(common_RESOURCES
   companion.qrc
   ${TRANSLATIONS_QRC}
   ${HWDEFS_QRC}
-  )
-
-qt_wrap_cpp(common_SRCS ${common_MOC_HDRS})
+)
 qt_add_resources(common_RCC ${common_RESOURCES})
 
 add_library(common ${common_SRCS} ${common_RCC})
@@ -203,6 +203,7 @@ add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
 add_subdirectory(updates)
+add_subdirectory(wizard)
 
 ############# Companion ###############
 
@@ -233,8 +234,6 @@ set(companion_NAMES
   radionotfound
   splashlibrarydialog
   styleeditdialog
-  wizarddata
-  wizarddialog
   dialogs/filesyncdialog
   )
 
@@ -278,6 +277,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   qcustomplot
   miniz
   updates
+  wizard
 )
 
 PrintTargetReport("${COMPANION_NAME}")
@@ -410,8 +410,7 @@ elseif(WIN32)
 
   # install libsim dlls into same directory as apps
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-          COMPONENT Runtime)
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 
   install(FILES ${LICENSE_FILE}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
@@ -431,14 +430,12 @@ elseif(WIN32)
 
     if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
       install(FILES "${LIBUSB1_LIBRARY_FILE}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-              COMPONENT Runtime)
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
     endif()
 
     if(DFU_UTIL_FOUND)
       install(FILES "${DFU_UTIL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-              COMPONENT Runtime)
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
     endif()
   endif(LIBUSB1_FOUND)
 
@@ -455,7 +452,6 @@ elseif(WIN32)
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
               DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-              COMPONENT Runtime
               FILES_MATCHING
                 PATTERN "libcrypto-*.dll"
                 PATTERN "libssl-*.dll")
@@ -464,13 +460,8 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   if(TARGET SDL2::SDL2)
-    # Get the SDL2 DLL location
-    get_target_property(SDL2_DLL_PATH SDL2::SDL2 IMPORTED_LOCATION)
-    if(SDL2_DLL_PATH)
-      install(FILES "${SDL2_DLL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-              COMPONENT Runtime)
-    endif()
+    install(FILES $<TARGET_FILE:SDL2::SDL2>
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
 elseif(APPLE)
@@ -565,6 +556,7 @@ if(WIN32)
         EXECUTABLE ${companion_executable_path}
         ADDITIONAL_EXECUTABLES ${simulator_executable_path}
         NO_TRANSLATIONS
+        NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
         VERBOSE
       )
@@ -592,12 +584,9 @@ if(WIN32)
 
     # The 'install' target prepares all the distro files, make sure it has been executed first.
     add_custom_target(installer
-      COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
       COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
-      # Hack to overwrite the pthread lib shipped with Qt
-      COMMAND "${CMAKE_COMMAND}" -E copy "${MINGW_BIN_DIR}/libwinpthread-1.dll" "${CMAKE_BINARY_DIR}/_install/bin/libwinpthread-1.dll"
       COMMAND "${NSIS_EXE}" "${NSI_FILE}"
-      DEPENDS "${NSI_FILE}" "${qt_deploy_script}"
+      DEPENDS install "${NSI_FILE}" "${qt_deploy_script}"
       COMMENT "Building Windows NSIS installer..."
     )
   endif()

@@ -430,9 +430,8 @@ static void draw_custom_switches()
         simuSetSwitch(i, active ? 1 : -1);
 
         ImGui::PopID();
+        n += 1;
       }
-
-      n += 1;
     }
 
     ImGui::PopStyleVar(3);

@@ -27,17 +27,10 @@
 
 #define LEN_ZONE_OPTION_STRING 12
 
-#if defined(_MSC_VER)
-  #define OPTION_VALUE_UNSIGNED(x)    { uint32_t(x) }
-  #define OPTION_VALUE_SIGNED(x)      { int32_t(x) }
-  #define OPTION_VALUE_BOOL(x)        {  bool(x) }
-  #define OPTION_VALUE_STRING(...)    { *(ZoneOptionValue *)(const char *) #__VA_ARGS__ }
-#else
-  #define OPTION_VALUE_UNSIGNED(x) ZoneOptionValue{ .unsignedValue = (x) }
-  #define OPTION_VALUE_SIGNED(x)   ZoneOptionValue{ .signedValue = (x) }
-  #define OPTION_VALUE_BOOL(x)     ZoneOptionValue{ .boolValue = (x) }
-  #define OPTION_VALUE_STRING(...) ZoneOptionValue{ .stringValue = { __VA_ARGS__ } }
-#endif
+#define OPTION_VALUE_UNSIGNED(x) ZoneOptionValue{ .unsignedValue = (x) }
+#define OPTION_VALUE_SIGNED(x)   ZoneOptionValue{ .signedValue = (x) }
+#define OPTION_VALUE_BOOL(x)     ZoneOptionValue{ .boolValue = (x) }
+#define OPTION_VALUE_STRING(...) ZoneOptionValue{ .stringValue = { __VA_ARGS__ } }
 
 union ZoneOptionValue
 {

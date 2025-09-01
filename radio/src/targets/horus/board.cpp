@@ -244,7 +244,9 @@ void boardInit()
 #if !defined(POWER_LED_BLUE)
   ledBlue();
 #else
+  #if defined(LED_GREEN_GPIO)
   ledGreen();
+  #endif
 #endif
 }
 #endif

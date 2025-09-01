@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S NV14 PL18 ST16)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S NV14 PL18 ST16 PA01 TX15)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FR HE HU IT JP KO NL PL PT RU SE SK UA)
 
@@ -88,6 +88,10 @@ elseif(PCB STREQUAL PL18)
   include(targets/pl18/CMakeLists.txt)
 elseif(PCB STREQUAL ST16)
   include(targets/st16/CMakeLists.txt)
+elseif(PCB STREQUAL PA01)
+  include(targets/pa01/CMakeLists.txt)
+elseif(PCB STREQUAL TX15)
+  include(targets/tx15/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
 elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
@@ -142,10 +146,11 @@ endforeach()
 
 set(RTL_LANGUAGES HE)
 if(TRANSLATIONS IN_LIST RTL_LANGUAGES)
-  add_definitions(-DTRANSLATION_IS_RTL=1)
+  set(TRANSLATION_IS_RTL 1)
 else()
-  add_definitions(-DTRANSLATION_IS_RTL=0)
+  set(TRANSLATION_IS_RTL 0)
 endif()
+add_definitions(-DTRANSLATION_IS_RTL=${TRANSLATION_IS_RTL})
 
 set(SRC ${SRC} debug.cpp)
 
@@ -625,6 +630,12 @@ endif()
 if (DEFINED TARGET_EXTRAM_SIZE)
   target_link_options(firmware PRIVATE
     -Wl,--defsym=__EXTRAM_SIZE__=${TARGET_EXTRAM_SIZE}
+  )
+endif()
+
+if (DEFINED TARGET_PSRAM_START)
+  target_link_options(firmware PRIVATE
+    -Wl,--defsym=__PSRAM_START__=${TARGET_PSRAM_START}
   )
 endif()
 

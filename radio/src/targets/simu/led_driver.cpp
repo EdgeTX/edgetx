@@ -29,6 +29,7 @@ void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
 void rgbLedColorApply() {}
+void rgbLedClearAll() {}
 
 bool fsLedState(uint8_t i)
 {
@@ -81,4 +82,14 @@ void fsLedRGB(uint8_t idx, uint32_t color)
 uint32_t fsGetLedRGB(uint8_t index)
 {
   return rgbGetLedColor(index);
+}
+
+void fsLedOn(uint8_t idx)
+{
+  rgbSetLedColor(idx, 0xFF, 0xFF, 0xFF);
+}
+
+void fsLedOff(uint8_t idx)
+{
+  rgbSetLedColor(idx, 0, 0, 0);
 }

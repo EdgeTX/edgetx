@@ -40,6 +40,11 @@ set(LVGL_SOURCES_MINIMAL
   misc/lv_utils.c
 )
 
+# Add BIDI support for RTL languages (needed for bootloader LVGL draw functions)
+if(TRANSLATION_IS_RTL)
+  list(APPEND LVGL_SOURCES_MINIMAL misc/lv_bidi.c)
+endif()
+
 set(LVGL_SOURCES
   ${LVGL_SOURCES_MINIMAL}
 
