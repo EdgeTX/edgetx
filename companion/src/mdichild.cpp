@@ -27,7 +27,7 @@
 #include "printdialog.h"
 #include "helpers.h"
 #include "appdata.h"
-#include "wizarddialog.h"
+#include "wizard/wizarddialog.h"
 #include "flashfirmwaredialog.h"
 #include "storage.h"
 #include "radiointerface.h"
