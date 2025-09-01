@@ -596,10 +596,16 @@ void MainWindow::readBackup()
 
 void MainWindow::readFlash()
 {
-  // default filename alternatives - use current radio profile or extract from firmware read in place of 'firmware'
-  const QString extn(isUf2DeviceFound() ? ".uf2" : ".bin");
-  const QString dfltPath = g.flashDir() % "/firmware-"
-                           % QDate(QDate::currentDate()).toString(Qt::ISODate) % extn;
+  // default filename alternatives - extract from firmware read in place of 'firmware'
+  // include time in file name as there could be multiple backups in a day and
+  // we do not want to replace earlier copies
+  const QString dfltPath(QString("%1/fw-%2-%3-%4.%5")
+                      .arg(g.flashDir())
+                      .arg(getCurrentFirmware()->getFlavour())
+                      .arg(QDate(QDate::currentDate()).toString("yyyyMMdd"))
+                      .arg(QTime(QTime::currentTime()).toString("HHmm"))
+                      .arg(isUf2DeviceFound() ? "uf2" : "bin"));
+
   QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"),
                        QDir::toNativeSeparators(dfltPath), getFirmwareFilesFilter());
 
