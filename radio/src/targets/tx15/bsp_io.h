@@ -48,6 +48,6 @@ uint32_t bsp_get_fs_switches();
 uint16_t bsp_input_get();
 struct stm32_switch_t;
 
-//TODO RAPH: compute me from json
+//TODO compute from json
 constexpr uint32_t EXP_1_MASK = 0xFF3F;
 constexpr uint32_t EXP_2_MASK = 0xFFF8;
