@@ -118,3 +118,4 @@ Uf2Info getUf2Info();
 bool isDfuDeviceFound();
 bool isUf2DeviceFound();
 bool isRadioConnected();
+bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget *progress, bool promptForFile = false);

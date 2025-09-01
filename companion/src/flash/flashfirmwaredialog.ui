@@ -61,7 +61,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout2">
+    <layout class="QHBoxLayout" name="horizontalLayout4">
      <item>
       <widget class="QLineEdit" name="firmwareFilename">
        <property name="enabled">
@@ -176,7 +176,7 @@
      <property name="frameShadow">
       <enum>QFrame::Shadow::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <layout class="QHBoxLayout" name="horizontalLayout3">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>

@@ -596,68 +596,16 @@ void MainWindow::readBackup()
 
 void MainWindow::readFlash()
 {
-  ProgressDialog progressDialog(this, tr("Read Radio Firmware to File"),
-                              CompanionIcon("read_flash.png"));
+  ProgressDialog progressDialog(this, tr("Write Radio Firmware to File"),
+                                CompanionIcon("read_flash.png"));
 
   auto progress = progressDialog.progress();
 
-  QString backupDir(g.flashDir());
+  QString backupDir(g.backupDir());
 
   readFirmware(
       [this, progress, &backupDir](const QByteArray &_data) {
-        FirmwareInterface fw(_data);
-        if (!fw.isValid()) {
-          QString errMsg(tr("Firmware read from radio invalid"));
-          qDebug() << errMsg;
-          progress->addMessage(errMsg, QtFatalMsg);
-          QMessageBox::critical(this, tr("Read Radio Firmware"), errMsg);
-          return;
-        }
-        // include time in file name as there could be multiple backups in a day and
-        // we do not want to replace earlier copies
-        QString dfltPath = QString("%1/fw-%2-%3-%4.%5")
-                            .arg(backupDir)
-                            .arg(fw.getFlavour())
-                            .arg(QDate(QDate::currentDate()).toString("yyyyMMdd"))
-                            .arg(QTime(QTime::currentTime()).toString("HHmm"))
-                            .arg(fw.typeFileExtn());
-
-        QString backupPath = QFileDialog::getSaveFileName(this,tr("Save Radio Firmware"),
-                              QDir::toNativeSeparators(dfltPath), getFirmwareFilesFilter());
-
-        if (backupPath.isEmpty())
-          return;
-
-        QString infoMsg(tr("Writing firmware to: %1").arg(backupPath));
-        qDebug() << infoMsg;
-        progress->addMessage(infoMsg);
-
-        QFile backupFile(backupPath);
-        if (!backupFile.open(QIODevice::ReadWrite)) {
-          QString errMsg(tr("Unable to open backup file: %1 (reason: %2)")
-                            .arg(backupFile.fileName())
-                            .arg(backupFile.errorString()));
-          qDebug() << errMsg;
-          progress->addMessage(errMsg, QtFatalMsg);
-          QMessageBox::critical(this, tr("Write Radio Firmware"), errMsg);
-          return;
-        }
-
-        if (backupFile.write(_data) <= 0) {
-          QString errMsg(tr("Error writing to file: %1 (reason: %2)")
-                            .arg(backupFile.fileName())
-                            .arg(backupFile.errorString()));
-          qDebug() << errMsg;
-          progress->addMessage(errMsg, QtFatalMsg);
-          QMessageBox::critical(this, tr("Write Radio Firmware"), errMsg);
-          return;
-        } else {
-          QString infoMsg(tr("Backup finished"));
-          qDebug() << infoMsg;
-          progress->addMessage(infoMsg);
-        }
-
-        backupFile.close();
+        writeFirmwareToFile(this, _data, progress, true);
       },
       [this](const QString &err) {
         qDebug() << tr("Could not read radio firmware: %1").arg(err);
@@ -665,7 +613,6 @@ void MainWindow::readFlash()
       progress);
 
   progressDialog.exec();
-  progressDialog.deleteLater();
 }
 
 void MainWindow::compare()

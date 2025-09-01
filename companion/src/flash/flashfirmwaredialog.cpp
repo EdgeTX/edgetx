@@ -324,46 +324,8 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
             return;
           }
 
-          if (backup) {
-            // include time in file name as there could be multiple backups in a day and
-            // we do not want to replace earlier copies
-            QString backupPath = QString("%1/fw-%2-%3-%4.%5")
-                                .arg(backupDir)
-                                .arg(oldfw.getFlavour())
-                                .arg(QDate(QDate::currentDate()).toString("yyyyMMdd"))
-                                .arg(QTime(QTime::currentTime()).toString("HHmm"))
-                                .arg(fw.typeFileExtn());
-
-            QString infoMsg(tr("Writing backup to: %1").arg(backupPath));
-            qDebug() << infoMsg;
-            progress->addMessage(infoMsg);
-
-            QFile backupFile(backupPath);
-            if (!backupFile.open(QIODevice::ReadWrite)) {
-              QString errMsg(tr("Unable to open backup file: %1 (reason: %2)")
-                                .arg(backupFile.fileName())
-                                .arg(backupFile.errorString()));
-              qDebug() << errMsg;
-              progress->addMessage(errMsg, QtFatalMsg);
-              QMessageBox::critical(this, tr("Backup Radio Firmware"), errMsg);
-              return;
-            }
-
-            if (backupFile.write(_data) <= 0) {
-              QString errMsg(tr("Error writing to file: %1 (reason: %2)")
-                                .arg(backupFile.fileName())
-                                .arg(backupFile.errorString()));
-              qDebug() << errMsg;
-              progress->addMessage(errMsg, QtFatalMsg);
-              QMessageBox::critical(this, tr("Backup Radio Firmware"), errMsg);
-              return;
-            } else {
-              QString infoMsg(tr("Backup finished"));
-              qDebug() << infoMsg;
-              progress->addMessage(infoMsg);
-            }
-
-            backupFile.close();
+          if (backup && !writeFirmwareToFile(this, _data, progress)) {
+            return;
           }
 
           if (checkHw && !fw.isHardwareCompatible(FirmwareInterface(_data))) {
@@ -400,8 +362,6 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
     qDebug() << "Removing temporary file" << filename;
     qunlink(filename);
   }
-
-  progressDialog.deleteLater();
 }
 
 void FlashFirmwareDialog::detectClicked(bool atLoad)
