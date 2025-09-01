@@ -601,10 +601,8 @@ void MainWindow::readFlash()
 
   auto progress = progressDialog.progress();
 
-  QString backupDir(g.backupDir());
-
   readFirmware(
-      [this, progress, &backupDir](const QByteArray &_data) {
+      [this, progress](const QByteArray &_data) {
         writeFirmwareToFile(this, _data, progress, true);
       },
       [this](const QString &err) {
