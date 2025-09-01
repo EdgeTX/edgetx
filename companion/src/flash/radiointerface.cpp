@@ -712,74 +712,95 @@ bool isRadioConnected()
 
 bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget *progress, bool promptForFile)
 {
+  QString msg(TR("Writing firmware..."));
+  progress->setInfo(msg);
+  progress->addMessage(msg);
+
   FirmwareInterface fw(data);
   if (!fw.isValid()) {
     QString errMsg(TR("Firmware is not invalid"));
-    qDebug() << errMsg;
     progress->addMessage(errMsg, QtFatalMsg);
-    QMessageBox::critical(parent, TR("Write Firmware"), errMsg);
+    progress->setInfo(errMsg);
     return false;
   }
 
-  QString backupDir = g.currentProfile().pBackupDir(); // TODO get profile based on fw.flavour
+  QString backupDir;
+
+  if (g.currentProfile().getVariantFromType() == fw.getFlavour()) {
+    qDebug() << "Current profile firmware type matches radio";
+    backupDir = g.currentProfile().pBackupDir();
+  }
+  else {
+    // try to find a profile but there could be more than one profile for same variant
+    // if more than one take safer approach and use global
+    qDebug() << "Trying to find a profile with firmware type that matches radio";
+    int cnt = 0;
+    int profId = 0;
+    QMap<int, QString> map;
+    map = g.getActiveProfiles();
+    if (map.size() > 0) {
+      QMapIterator<int, QString> i(map);
+      while (i.hasNext()) {
+          i.next();
+          if (g.getProfile(i.key()).getVariantFromType() == fw.getFlavour()) {
+            qDebug() << "Firmware type match found in profile" << i.key() << ":" << i.value();
+            profId = i.key();
+            cnt++;
+          }
+      }
+
+      qDebug() << cnt << "matches found. Using" << profId << g.getProfile(profId).name();
+      backupDir = g.getProfile(profId).pBackupDir();
+    }
+  }
+
   if (backupDir.isEmpty())
     backupDir = g.backupDir();
 
-  // include time in file name as there could be multiple backups in a day and
-  // we do not want to replace earlier copies
+  // include time in file name as there could be multiple backups in a day
   QString filePath = QString("%1/fw-%2-%3-%4.%5")
-                      .arg(backupDir)
+                      .arg(backupDir.replace("\\", "/"))  // for Windows
                       .arg(fw.getFlavour())
                       .arg(QDate(QDate::currentDate()).toString("yyyyMMdd"))
-                      .arg(QTime(QTime::currentTime()).toString("HHmm"))
+                      .arg(QTime(QTime::currentTime()).toString("HHmmss"))
                       .arg(fw.typeFileExtn());
 
   if (promptForFile) {
-    QString backupPath = QFileDialog::getSaveFileName(parent, TR("File to Save Firmware"),
-      QDir::toNativeSeparators(filePath), getFirmwareFilesFilter());
+      filePath = QFileDialog::getSaveFileName(parent, TR("Save Firmware to File"),
+                                              filePath, getFirmwareFilesFilter());
 
     if (filePath.isEmpty()) {
       return false;
     }
   } else if (backupDir.isEmpty()) {
-    QMessageBox::critical(parent, TR("Write Firmware"),
-                          TR("Backup directory not configured for profile or application")
-                          .arg(backupDir));
+    progress->addMessage(TR("Backup directory not configured for profile or application"),
+                         QtFatalMsg);
     return false;
   } else if (!QFileInfo::exists(backupDir)) {
-    QMessageBox::critical(parent, TR("Write Firmware"),
-                          TR("Directory %1 does not exist!")
-                          .arg(backupDir));
+    progress->addMessage(TR("Backup directory does not exist: %1")
+                         .arg(QDir::toNativeSeparators(backupDir)), QtFatalMsg);
     return false;
   }
 
-  QString infoMsg(TR("Writing firmware to: %1").arg(filePath));
-  qDebug() << infoMsg;
-  progress->addMessage(infoMsg);
+  progress->addMessage(TR("Writing firmware to: %1").arg(QDir::toNativeSeparators(filePath)));
 
   QFile f(filePath);
   if (!f.open(QIODevice::ReadWrite)) {
-    QString errMsg(TR("Error opening file for writing: %1 (reason: %2)")
-                      .arg(f.fileName())
-                      .arg(f.errorString()));
-    qDebug() << errMsg;
-    progress->addMessage(errMsg, QtFatalMsg);
-    QMessageBox::critical(parent, TR("Write Firmware"), errMsg);
+    progress->addMessage(TR("Error opening file for writing: %1 (reason: %2)")
+                         .arg(QDir::toNativeSeparators(f.fileName()))
+                         .arg(f.errorString()), QtFatalMsg);
     return false;
   }
 
   if (f.write(data) <= 0) {
-    QString errMsg(TR("Error writing to file: %1 (reason: %2)")
-                      .arg(f.fileName())
-                      .arg(f.errorString()));
-    qDebug() << errMsg;
-    progress->addMessage(errMsg, QtFatalMsg);
-    QMessageBox::critical(parent, TR("Write Radio Firmware"), errMsg);
+    progress->addMessage(TR("Error writing to file: %1 (reason: %2)")
+                         .arg(QDir::toNativeSeparators(f.fileName()))
+                         .arg(f.errorString()), QtFatalMsg);
     return false;
   } else {
-    QString infoMsg(TR("Writing finished"));
-    qDebug() << infoMsg;
-    progress->addMessage(infoMsg);
+    msg = TR("Writing finished");
+    progress->addMessage(msg);
+    progress->setInfo(msg);
   }
 
   f.close();

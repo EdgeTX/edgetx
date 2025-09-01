@@ -88,6 +88,7 @@ class FirmwareWriterWorker : public QThread
 
 class ProgressWidget;
 
+//  TODO make a class
 struct Uf2Info {
   QString version;
   QString board;

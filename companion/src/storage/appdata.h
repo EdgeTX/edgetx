@@ -467,6 +467,7 @@ class Profile: public CompStoreObj
   Q_OBJECT
   public:
     Profile & operator=(const Profile & rhs);
+    QString getVariantFromType() const { return fwType().section("-", 1, 1); }
 
   public slots:
     bool existsOnDisk();

@@ -335,7 +335,6 @@ void Profile::resetFwVariables()
     CompStoreObj::resetProperty(this, name);
 }
 
-
 // ** ComponentAssetData class********************
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)

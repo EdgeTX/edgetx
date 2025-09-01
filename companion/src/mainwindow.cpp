@@ -596,10 +596,11 @@ void MainWindow::readBackup()
 
 void MainWindow::readFlash()
 {
-  ProgressDialog progressDialog(this, tr("Write Radio Firmware to File"),
+  ProgressDialog progressDialog(this, tr("Read Radio Firmware"),
                                 CompanionIcon("read_flash.png"));
 
   auto progress = progressDialog.progress();
+  progress->lock(true);
 
   readFirmware(
       [this, progress](const QByteArray &_data) {
@@ -610,6 +611,7 @@ void MainWindow::readFlash()
       },
       progress);
 
+  progress->lock(false);
   progressDialog.exec();
 }
 
