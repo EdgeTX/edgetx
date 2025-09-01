@@ -27,6 +27,8 @@
 #include "edgetx.h"
 #include "lua/lua_states.h"
 
+#include <filesystem>
+
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 #define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())
 
@@ -218,6 +220,27 @@ TEST(Lua, testLegacyNames)
   luaExecStr("value = getValue('ele')");
   luaExecStr("if value ~= -1024 then error('ele not defined in Legacy') end");
 #endif
+}
+
+TEST(Lua, ioSeek)
+{
+  const char io_seek_tst[] =
+      "local file_name = \"seek-test.txt\"\n"
+      "local file = io.open(file_name, \"w\")\n"
+      "io.write(file, \"abcd\")\n"
+      "io.close(file)\n"
+      "file = io.open(file_name, \"r\")\n"
+      // the file should have 4 characters
+      "assert(#io.read(file, 32) == 4)\n"
+      // io.seek() should return 0 if it is successful
+      "assert(io.seek(file, 2) == 0)\n"
+      "local r = io.read(file, 32)\n"
+      // if reading from position 2,
+      // we should read 2 characters,
+      "assert(#r == 2)\n";
+
+  luaExecStr(io_seek_tst);
+  std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
 }
 
 #endif   // #if defined(LUA)
