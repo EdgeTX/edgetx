@@ -337,6 +337,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
             QString infoMsg(tr("Writing backup to: %1").arg(backupPath));
             qDebug() << infoMsg;
             progress->addMessage(infoMsg);
+
             QFile backupFile(backupPath);
             if (!backupFile.open(QIODevice::ReadWrite)) {
               QString errMsg(tr("Unable to open backup file: %1 (reason: %2)")
@@ -381,8 +382,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
           }
         },
         [this](const QString &err) {
-          QMessageBox::critical(this, tr("Flashing Firmware"),
-                                tr("Could not read current firmware: %1").arg(err));
+          qDebug() << tr("Could not read current firmware: %1").arg(err);
         },
         progress);
   } else {
@@ -400,6 +400,8 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
     qDebug() << "Removing temporary file" << filename;
     qunlink(filename);
   }
+
+  progressDialog.deleteLater();
 }
 
 void FlashFirmwareDialog::detectClicked(bool atLoad)
