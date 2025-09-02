@@ -330,11 +330,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
           }
 
           progress->addMessage(tr("Start flashing firmware"));
-          if (writeFirmware(fw.getFlash(), progress)) {
-            progress->addMessage(tr("Flashing firmware complete"));
-          } else {
-            progress->addMessage(tr("Flashing firmware error"));
-          }
+          writeFirmware(fw.getFlash(), progress);
         },
         [this, progress](const QString &err) {
           progress->addMessage(tr("Could not read current firmware: %1").arg(err));
@@ -342,11 +338,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         progress);
   } else {
     progress->addMessage(tr("Start flashing firmware (no backup or compatiblity check)"));
-    if (writeFirmware(fw.getFlash(), progress)) {
-      progress->addMessage(tr("Flashing firmware complete"));
-    } else {
-      progress->addMessage(tr("Flashing firmware error"));
-    }
+    writeFirmware(fw.getFlash(), progress);
   }
 
   progressDialog.exec();

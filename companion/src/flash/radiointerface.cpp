@@ -733,7 +733,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
   else {
     // try to find a profile but there could be more than one profile for same variant
     // if more than one take safer approach and use global
-    progress->addMessage(TR("Locating profile with firmware type for radio"));
+    progress->addMessage(TR("Searching profiles for firmware type..."));
     int cnt = 0;
     int profId = 0;
     QMap<int, QString> map;
@@ -751,7 +751,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
           }
       }
 
-      progress->addMessage(TR("%1 matches found. Using profile %2 - %3")
+      progress->addMessage(TR("%1 matches found. Using profile %2 %3")
                             .arg(QString::number(cnt))
                             .arg(QString::number(profId))
                             .arg(g.getProfile(profId).name()));
@@ -763,6 +763,8 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
 
   if (backupDir.isEmpty())
     backupDir = g.backupDir();
+
+  progress->addMessage(TR("Backup directory: %1").arg(QDir::toNativeSeparators(backupDir)));
 
   // include time in file name as there could be multiple backups in a day
   QString filePath = QString("%1/fw-%2-%3-%4.%5")
