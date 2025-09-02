@@ -73,7 +73,7 @@ int audioInit()
 
   memset(_dma_buffer, 0, sizeof(_dma_buffer));
 
-  if (tas2505_probe(&_tas2505, 0, 0x30 >> 1) < 0) {
+  if (tas2505_probe(&_tas2505, AUDIO_I2C, 0x30 >> 1) < 0) {
     return -1;
   }
 

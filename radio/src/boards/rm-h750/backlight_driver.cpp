@@ -28,7 +28,6 @@
 #include "board.h"
 
 #include "globals.h"
-#include "lcd_driver.h"
 
 static const stm32_pulse_timer_t _bl_timer = {
   .GPIO = (gpio_t)BACKLIGHT_GPIO,
@@ -63,16 +62,6 @@ uint8_t lastDutyCycle = 0;
 void backlightEnable(uint8_t dutyCycle)
 {
   stm32_pulse_set_cmp_val(&_bl_timer, dutyCycle);
-
-  if(!dutyCycle) {
-    //experimental to turn off LCD when no backlight
-    if(lcdOffFunction) lcdOffFunction();
-  }
-  else if(!lastDutyCycle) {
-    if(lcdOnFunction) lcdOnFunction();
-    else lcdInit();
-  }
-
   lastDutyCycle = dutyCycle;
 }
 
@@ -81,8 +70,6 @@ void lcdOff() {
 }
 
 void lcdOn(){
-  // if(lcdOnFunction) lcdOnFunction();
-  // else lcdInit();
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 

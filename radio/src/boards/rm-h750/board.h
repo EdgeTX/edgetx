@@ -200,10 +200,6 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
-#define USB_NAME                        "TX15"
-#define USB_MANUFACTURER                'R', 'M', ' ', ' ', ' ', ' ', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                     'T', 'X', '1', '5', ' ', ' ', ' ', ' '  /* 8 Bytes */
-
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif

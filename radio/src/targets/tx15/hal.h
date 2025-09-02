@@ -354,6 +354,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 
 // AUDIO
+#define AUDIO_I2C                       I2C_Bus_1
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
