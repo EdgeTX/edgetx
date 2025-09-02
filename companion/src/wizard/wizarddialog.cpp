@@ -31,30 +31,30 @@ WizardDialog::WizardDialog(const GeneralSettings & settings, unsigned int modelI
   setWindowIcon(CompanionIcon("wizard.png"));
   setWindowTitle(tr("Model Wizard"));
 
-  setPage(Page_Models, new ModelSelectionPage(this, "models", tr("Model Type"), tr("Enter model name and model type.")));
-  setPage(Page_Throttle, new ThrottlePage(this, "throttle", tr("Throttle"), tr("Has your model got a motor or an engine?"), Page_Wingtypes));
-  setPage(Page_Wingtypes, new WingtypeSelectionPage(this, "wingtype", tr("Wing Type"), tr("Is your model a flying wing/deltawing or has it a standard wing configuration?")));
-  setPage(Page_Ailerons, new AileronsPage(this, "ailerons", tr("Ailerons"), tr("Has your model got ailerons?"), Page_Flaps));
-  setPage(Page_Flaps, new FlapsPage(this, "flaps", tr("Flaps"), tr("Has your model got flaps?"), Page_Airbrakes));
-  setPage(Page_Airbrakes, new AirbrakesPage(this, "airbrakes", tr("Airbrakes"), tr("Has your model got airbrakes?"), Page_Tails));
-  setPage(Page_Elevons, new ElevonsPage(this, "elevons", tr("Flying-wing / Delta-wing"), tr("Select the elevons channels"), Page_Rudder));
-  setPage(Page_Rudder, new RudderPage(this, "rudder", tr("Rudder"), tr("Does your model have a rudder?"), Page_Options));
-  setPage(Page_Tails, new TailSelectionPage(this, "tails", tr("Tail Type"), tr("Select which type of tail your model is equiped with.")));
-  setPage(Page_Tail, new TailPage(this, "tail", tr("Tail"), tr("Select channels for tail control."), Page_Options));
-  setPage(Page_Vtail, new VTailPage(this, "vtail", tr("V-Tail"), tr("Select channels for tail control."), Page_Options));
-  setPage(Page_Simpletail, new SimpleTailPage(this, "simpletail", tr("Tail"), tr("Select elevator channel."), Page_Options));
-  setPage(Page_Cyclic, new CyclicPage(this, "cyclic", tr("Cyclic"), tr("Which type of swash control is installed in your helicopter?"), Page_Gyro));
-  setPage(Page_Gyro, new GyroPage(this, "gyro", tr("Tail Gyro"), tr("Has your helicopter got an adjustable gyro for the tail?"), Page_Flybar));
-  setPage(Page_Flybar, new FlybarSelectionPage(this, "flybar", tr("Rotor Type"), tr("Has your helicopter got a flybar?")));
-  setPage(Page_Fblheli, new FblPage(this, "fblheli", tr("Helicopter"), tr("Select the controls for your helicopter"), Page_Options));
-  setPage(Page_Helictrl, new HeliPage(this, "helictrl", tr("Helicopter"), tr("Select the controls for your helicopter"), Page_Options));
-  setPage(Page_Multirotor, new MultirotorPage(this, "multirotor", tr("Multirotor"), tr("Select the control channels for your multirotor"), Page_Options));
-  setPage(Page_Options, new OptionsPage(this, "options", tr("Model Options"), tr("Select additional options"), Page_Conclusion));
-  setPage(Page_Conclusion, new ConclusionPage(this, "conclusion", tr("Save Changes"), tr(
+  setPage(Plane::PAGE_MODELS, new ModelSelectionPage(this, "models", tr("Model Type"), tr("Enter model name and model type.")));
+  setPage(Plane::PAGE_THROTTLE, new ThrottlePage(this, "throttle", tr("Throttle"), tr("Has your model got a motor or an engine?"), Plane::PAGE_WINGTYPES));
+  setPage(Plane::PAGE_WINGTYPES, new WingtypeSelectionPage(this, "wingtype", tr("Wing Type"), tr("Is your model a flying wing/deltawing or has it a standard wing configuration?")));
+  setPage(Plane::PAGE_AILERONS, new AileronsPage(this, "ailerons", tr("Ailerons"), tr("Has your model got ailerons?"), Plane::PAGE_FLAPS));
+  setPage(Plane::PAGE_FLAPS, new FlapsPage(this, "flaps", tr("Flaps"), tr("Has your model got flaps?"), Plane::PAGE_AIRBRAKES));
+  setPage(Plane::PAGE_AIRBRAKES, new AirbrakesPage(this, "airbrakes", tr("Airbrakes"), tr("Has your model got airbrakes?"), Plane::PAGE_TAILS));
+  setPage(Plane::PAGE_ELEVONS, new ElevonsPage(this, "elevons", tr("Flying-wing / Delta-wing"), tr("Select the elevons channels"), Plane::PAGE_RUDDER));
+  setPage(Plane::PAGE_RUDDER, new RudderPage(this, "rudder", tr("Rudder"), tr("Does your model have a rudder?"), Plane::PAGE_OPTIONS));
+  setPage(Plane::PAGE_TAILS, new TailSelectionPage(this, "tails", tr("Tail Type"), tr("Select which type of tail your model is equiped with.")));
+  setPage(Plane::PAGE_TAIL, new TailPage(this, "tail", tr("Tail"), tr("Select channels for tail control."), Plane::PAGE_OPTIONS));
+  setPage(Plane::PAGE_VTAIL, new VTailPage(this, "vtail", tr("V-Tail"), tr("Select channels for tail control."), Plane::PAGE_OPTIONS));
+  setPage(Plane::PAGE_SIMPLETAIL, new SimpleTailPage(this, "simpletail", tr("Tail"), tr("Select elevator channel."), Plane::PAGE_OPTIONS));
+  setPage(Helicopter::PAGE_CYCLIC, new CyclicPage(this, "cyclic", tr("Cyclic"), tr("Which type of swash control is installed in your helicopter?"), Helicopter::PAGE_GYRO));
+  setPage(Helicopter::PAGE_GYRO, new GyroPage(this, "gyro", tr("Tail Gyro"), tr("Has your helicopter got an adjustable gyro for the tail?"), Helicopter::PAGE_FLYBAR));
+  setPage(Helicopter::PAGE_FLYBAR, new FlybarSelectionPage(this, "flybar", tr("Rotor Type"), tr("Has your helicopter got a flybar?")));
+  setPage(Helicopter::PAGE_FLYBARLESS, new FblPage(this, "fblheli", tr("Helicopter"), tr("Select the controls for your helicopter"), Plane::PAGE_OPTIONS));
+  setPage(Helicopter::PAGE_HELICONTROL, new HeliPage(this, "helictrl", tr("Helicopter"), tr("Select the controls for your helicopter"), Plane::PAGE_OPTIONS));
+  setPage(MultiRotor::PAGE_MULTIROTOR, new MultirotorPage(this, "multirotor", tr("Multirotor"), tr("Select the control channels for your multirotor"), Plane::PAGE_OPTIONS));
+  setPage(Plane::PAGE_OPTIONS, new OptionsPage(this, "options", tr("Model Options"), tr("Select additional options"), Plane::PAGE_CONCLUSION));
+  setPage(Plane::PAGE_CONCLUSION, new ConclusionPage(this, "conclusion", tr("Save Changes"), tr(
     "Manually check the direction of each control surface and reverse any channels that make controls move in the wrong direction. "
     "Remove the propeller/propellers before you try to control your model for the first time.<br>"
     "Please note that continuing removes all old model settings!"), -1));
-  setStartId(Page_Models);
+  setStartId(AirVehicle::PAGE_MODELS);
 
   // Workaround for Qt radio button rendering issue on Mac
   Q_FOREACH(QAbstractButton * rb, findChildren<QAbstractButton *>()) {
@@ -72,83 +72,61 @@ void WizardDialog::showHelp()
   QString message;
 
   switch (currentId()) {
-    case Page_Models:
+    case AirVehicle::PAGE_MODELS:
       message = tr("Enter a name for your model and select model type.");
       break;
-    case Page_Throttle:
+    case Plane::PAGE_THROTTLE:
       message = tr("Select the receiver channel that is connected to your ESC or throttle servo.<br><br>"
                    "Throttle - Spektrum: CH1, Futaba: CH3");
       break;
-    case Page_Wingtypes:
+    case Plane::PAGE_WINGTYPES:
       message = tr("Most aircraft have a main wing and a tail with control surfaces. Flying wings and delta winged aircraft only have a single wing. "
                    "The main control surface on a standard wing controls the roll of the aircraft. This surface is called an aileron.<br>"
                    "The control surface of a delta wing controls both roll and pitch. This surface is called an elevon. ");
       break;
-    case Page_Ailerons:
+    case Plane::PAGE_AILERONS:
       message = tr("Models use one or two channels to control the ailerons.<br>"
                    "A so called Y-cable can be used to connect a single receiver channel to two separate aileron servos. "
                    "If your servos are connected by a Y-cable you should select the single-servo option.<br><br>"
                    "Aileron - Spektrum: CH2, Futaba: CH1");
       break;
-    case Page_Flaps:
+    case Plane::PAGE_FLAPS:
       message = tr("This wizard assumes that your flaps are controlled by a switch. "
                    "If your flaps are controlled by a potentiometer you can change that manually later.");
       break;
-    case Page_Airbrakes:
+    case Plane::PAGE_AIRBRAKES:
       message = tr("Air brakes are used to reduce the speed of advanced sail planes.<br>"
                    "They are very uncommon on other types of planes.");
       break;
-    case Page_Elevons:
+    case Plane::PAGE_ELEVONS:
       message = tr("Models use two channels to control the elevons.<br>"
                    "Select these two channels");
       break;
-    case Page_Rudder:
+    case Plane::PAGE_RUDDER:
       message = tr("Select the receiver channel that is connected to your rudder.<br><br>"
                    "Rudder - Spektrum: CH4, Futaba: CH4");
       break;
-    case Page_Tails:
+    case Plane::PAGE_TAILS:
       message = tr("Select the tail type of your plane.");
       break;
-    case Page_Tail:
+    case Plane::PAGE_TAIL:
       message = tr("Select the Rudder and Elevator channels.<br><br>"
                    "Rudder - Spektrum: CH4, Futaba: CH4<br>"
                    "Elevator - Spektrum: CH3, Futaba: CH2");
       break;
-    case Page_Vtail:
+    case Plane::PAGE_VTAIL:
       message = tr("Select the Rudder and Elevator channels.<br><br>"
                    "Rudder - Spektrum: CH4, Futaba: CH4<br>"
                    "Elevator - Spektrum: CH3, Futaba: CH2");
       break;
-    case Page_Simpletail:
+    case Plane::PAGE_SIMPLETAIL:
       message = tr("Select the Elevator channel.<br><br>"
                    "Elevator - Spektrum: CH3, Futaba: CH2");
       break;
-    case Page_Flybar:
+    case Plane::PAGE_OPTIONS:
       message = tr("TBD.");
       break;
-    case Page_Cyclic:
-      message = tr("TBD.");
-      break;
-    case Page_Gyro:
-      message = tr("TBD.");
-      break;
-    case Page_Fblheli:
-      message = tr("TBD.");
-      break;
-    case Page_Helictrl:
-      message = tr("TBD.");
-      break;
-    case Page_Multirotor:
-      message = tr("Select the control channels for your multirotor.<br><br>"
-                   "Throttle - Spektrum: CH1, Futaba: CH3<br>"
-                   "Yaw - Spektrum: CH4, Futaba: CH4<br>"
-                   "Pitch - Spektrum: CH3, Futaba: CH2<br>"
-                   "Roll - Spektrum: CH2, Futaba: CH1");
-      break;
-    case Page_Options:
-      message = tr("TBD.");
-      break;
-    case Page_Conclusion:
+    case Plane::PAGE_CONCLUSION:
       message = tr("TBD.");
       break;
     default:
@@ -158,7 +136,7 @@ void WizardDialog::showHelp()
   QMessageBox::information(this, tr("Model Wizard Help"), message);
 }
 
-StandardPage::StandardPage(WizardPage currentPage, WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
+StandardPage::StandardPage(int currentPage, WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
   QWizardPage(),
   wizDlg(dlg),
   pageCurrent(currentPage),
@@ -174,7 +152,7 @@ StandardPage::StandardPage(WizardPage currentPage, WizardDialog *dlg, QString im
   setLayout(layout);
 }
 
-int StandardPage::getDefaultChannel(const Input input)
+int StandardPage::getDefaultChannel(const int input)
 {
   return wizDlg->settings.getDefaultChannel(input-1);
 }
@@ -182,7 +160,7 @@ int StandardPage::getDefaultChannel(const Input input)
 int StandardPage::nextFreeChannel(int channel)
 {
   for(int i=channel;i<8; i++)
-    if (wizDlg->mix.channel[i].page == Page_None)
+    if (wizDlg->mix.channel[i].page == Vehicle::PAGE_NONE)
       return i;
   return -1;
 }
@@ -191,7 +169,7 @@ int StandardPage::totalChannelsAvailable()
 {
   int c = 0;
   for(int i=0; i<WIZ_MAX_CHANNELS; i++)
-    if (wizDlg->mix.channel[i].page == Page_None)
+    if (wizDlg->mix.channel[i].page == Vehicle::PAGE_NONE)
       c++;
 
   return c;
@@ -203,7 +181,7 @@ void StandardPage::populateCB(QComboBox *cb, int preferred)
 
   // Add all unbooked channels and select the preferred one
   for (int i=0; i<WIZ_MAX_CHANNELS; i++) {
-    if (wizDlg->mix.channel[i].page == Page_None) {
+    if (wizDlg->mix.channel[i].page == Vehicle::PAGE_NONE) {
       cb->addItem(tr("Channel %1").arg(i+1), i);
       if (preferred == i) {
         cb->setCurrentIndex(cb->count()-1);
@@ -226,12 +204,12 @@ void StandardPage::populateCB(QComboBox *cb, int preferred)
   wizDlg->mix.channel[channel].prebooked = true;
 }
 
-bool StandardPage::bookChannel(QComboBox * cb, Input input1, int weight1, Input input2, int weight2 )
+bool StandardPage::bookChannel(QComboBox * cb, int input1, int weight1, int input2, int weight2 )
 {
   int channel = cb->itemData(cb->currentIndex()).toInt();
   if (channel<0 || channel>=WIZ_MAX_CHANNELS)
     return false;
-  if (wizDlg->mix.channel[channel].page != Page_None)
+  if (wizDlg->mix.channel[channel].page != Vehicle::PAGE_NONE)
     return false;
 
   wizDlg->mix.channel[channel].page = pageCurrent;
@@ -275,7 +253,7 @@ int StandardPage::nextId() const
 }
 
 ModelSelectionPage::ModelSelectionPage(WizardDialog *dlg, QString image, QString title, QString text)
-  : StandardPage(Page_Models, dlg, image, title, text)
+  : StandardPage(AirVehicle::PAGE_MODELS, dlg, image, title, text)
 {
   Firmware *fw = getCurrentFirmware();
   nameLineEdit = new QLineEdit;
@@ -320,15 +298,15 @@ bool ModelSelectionPage::validatePage()
 int ModelSelectionPage::nextId() const
 {
   if (helicopterRB->isChecked())
-    return Page_Cyclic;
+    return Helicopter::PAGE_CYCLIC;
   else if (multirotorRB->isChecked())
-    return Page_Multirotor;
+    return MultiRotor::PAGE_MULTIROTOR;
   else
-    return Page_Throttle;
+    return Plane::PAGE_THROTTLE;
 }
 
 WingtypeSelectionPage::WingtypeSelectionPage(WizardDialog *dlg, QString image, QString title, QString text)
-  : StandardPage(Page_Wingtypes, dlg, image, title, text)
+  : StandardPage(Plane::PAGE_WINGTYPES, dlg, image, title, text)
 {
   standardWingRB = new QRadioButton(tr("Standard Wing"));
   standardWingRB->setChecked(true);
@@ -342,13 +320,13 @@ WingtypeSelectionPage::WingtypeSelectionPage(WizardDialog *dlg, QString image, Q
 int WingtypeSelectionPage::nextId() const
 {
   if (deltaWingRB->isChecked())
-    return Page_Elevons;
+    return Plane::PAGE_ELEVONS;
   else
-    return Page_Ailerons;
+    return Plane::PAGE_AILERONS;
 }
 
 TailSelectionPage::TailSelectionPage(WizardDialog *dlg, QString image, QString title, QString text)
-  : StandardPage(Page_Tails, dlg, image, title, text)
+  : StandardPage(Plane::PAGE_TAILS, dlg, image, title, text)
 {
   standardTailRB = new QRadioButton(tr("Elevator and Rudder"));
   standardTailRB->setChecked(true);
@@ -365,15 +343,15 @@ TailSelectionPage::TailSelectionPage(WizardDialog *dlg, QString image, QString t
 int TailSelectionPage::nextId() const
 {
   if (simpleTailRB->isChecked())
-    return Page_Simpletail;
+    return Plane::PAGE_SIMPLETAIL;
   else if (vTailRB->isChecked())
-    return Page_Vtail;
+    return Plane::PAGE_VTAIL;
   else
-    return Page_Tail;
+    return Plane::PAGE_TAIL;
 }
 
 FlybarSelectionPage::FlybarSelectionPage(WizardDialog *dlg, QString image, QString title, QString text)
-  : StandardPage(Page_Flybar, dlg, image, title, text)
+  : StandardPage(Helicopter::PAGE_FLYBAR, dlg, image, title, text)
 {
   flybarRB = new QRadioButton(tr("Has Flybar"));
   flybarRB->setChecked(true);
@@ -388,13 +366,13 @@ FlybarSelectionPage::FlybarSelectionPage(WizardDialog *dlg, QString image, QStri
 int FlybarSelectionPage::nextId() const
 {
   if (flybarRB->isChecked())
-    return Page_Helictrl;
+    return Helicopter::PAGE_HELICONTROL;
   else
-    return Page_Fblheli;
+    return Helicopter::PAGE_FLYBARLESS;
 }
 
 ThrottlePage::ThrottlePage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage)
-  : StandardPage(Page_Throttle, dlg, image, title, text, nextPage)
+  : StandardPage(Plane::PAGE_THROTTLE, dlg, image, title, text, nextPage)
 {
   motorRB = new QRadioButton(tr("Yes"));
   noMotorRB = new QRadioButton(tr("No"));
@@ -412,7 +390,7 @@ ThrottlePage::ThrottlePage(WizardDialog *dlg, QString image, QString title, QStr
 
 void ThrottlePage::initializePage()
 {
-  populateCB(throttleCB, getDefaultChannel(THROTTLE_INPUT));
+  populateCB(throttleCB, getDefaultChannel(AirVehicle::THROTTLE_INPUT));
   StandardPage::initializePage();
 }
 
@@ -420,7 +398,7 @@ bool ThrottlePage::validatePage()
 {
   releaseBookings();
   if (motorRB->isChecked())
-    return bookChannel(throttleCB, THROTTLE_INPUT, 100);
+    return bookChannel(throttleCB, AirVehicle::THROTTLE_INPUT, 100);
   else
     return true;
 }
@@ -431,7 +409,7 @@ void ThrottlePage::onMotorStateChanged(bool toggled)
 }
 
 AileronsPage::AileronsPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage)
-  : StandardPage(Page_Ailerons, dlg, image, title, text, nextPage)
+  : StandardPage(Plane::PAGE_AILERONS, dlg, image, title, text, nextPage)
 {
   noAileronsRB = new QRadioButton(tr("No"));
   oneAileronRB = new QRadioButton(tr("Yes, controlled by a single channel"));
@@ -459,7 +437,7 @@ AileronsPage::AileronsPage(WizardDialog *dlg, QString image, QString title, QStr
 
 void AileronsPage::initializePage()
 {
-  populateCB(aileron1CB, getDefaultChannel(AILERONS_INPUT));
+  populateCB(aileron1CB, getDefaultChannel(AirVehicle::AILERONS_INPUT));
   populateCB(aileron2CB, nextFreeChannel(4));
   StandardPage::initializePage();
 }
@@ -471,10 +449,10 @@ bool AileronsPage::validatePage()
     return true;
   }
   if (oneAileronRB->isChecked()) {
-    return (bookChannel(aileron1CB, AILERONS_INPUT, 100 ));
+    return (bookChannel(aileron1CB, AirVehicle::AILERONS_INPUT, 100 ));
   }
-  return( bookChannel(aileron1CB, AILERONS_INPUT, 100 ) &&
-    bookChannel(aileron2CB, AILERONS_INPUT, -100 ));
+  return( bookChannel(aileron1CB, AirVehicle::AILERONS_INPUT, 100 ) &&
+    bookChannel(aileron2CB, AirVehicle::AILERONS_INPUT, -100 ));
 }
 
 void AileronsPage::noAileronChannel()
@@ -496,7 +474,7 @@ void AileronsPage::twoAileronChannels()
 }
 
 FlapsPage::FlapsPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Flaps, dlg, image, title, text, nextPage)
+  StandardPage(Plane::PAGE_FLAPS, dlg, image, title, text, nextPage)
 {
   noFlapsRB = new QRadioButton(tr("No"));
   oneFlapRB = new QRadioButton(tr("Yes, controlled by a single channel"));
@@ -535,10 +513,10 @@ bool FlapsPage::validatePage() {
     return true;
   }
   if (oneFlapRB->isChecked()) {
-    return (bookChannel(flap1CB, FLAPS_INPUT, 100 ));
+    return (bookChannel(flap1CB, AirVehicle::FLAPS_INPUT, 100 ));
   }
-  return( bookChannel(flap1CB, FLAPS_INPUT, 100 ) &&
-    bookChannel(flap2CB, FLAPS_INPUT, 100 ));
+  return( bookChannel(flap1CB, AirVehicle::FLAPS_INPUT, 100 ) &&
+    bookChannel(flap2CB, AirVehicle::FLAPS_INPUT, 100 ));
 }
 
 void FlapsPage::noFlapChannel()
@@ -560,7 +538,7 @@ void FlapsPage::twoFlapChannels()
 }
 
 AirbrakesPage::AirbrakesPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Airbrakes, dlg, image, title, text, nextPage)
+  StandardPage(Plane::PAGE_AIRBRAKES, dlg, image, title, text, nextPage)
 {
   noAirbrakesRB = new QRadioButton(tr("No"));
   oneAirbrakeRB = new QRadioButton(tr("Yes, controlled by a single channel"));
@@ -600,10 +578,10 @@ bool AirbrakesPage::validatePage()
     return true;
   }
   if (oneAirbrakeRB->isChecked()) {
-    return (bookChannel(airbrake1CB, AIRBRAKES_INPUT, 100 ));
+    return (bookChannel(airbrake1CB, AirVehicle::AIRBRAKES_INPUT, 100 ));
   }
-  return( bookChannel(airbrake1CB, AIRBRAKES_INPUT, 100 ) &&
-    bookChannel(airbrake2CB, AIRBRAKES_INPUT, 100 ));
+  return( bookChannel(airbrake1CB, AirVehicle::AIRBRAKES_INPUT, 100 ) &&
+    bookChannel(airbrake2CB, AirVehicle::AIRBRAKES_INPUT, 100 ));
 }
 
 void AirbrakesPage::noAirbrakeChannel()
@@ -625,7 +603,7 @@ void AirbrakesPage::twoAirbrakeChannels()
 }
 
 ElevonsPage::ElevonsPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Elevons, dlg, image, title, text, nextPage)
+  StandardPage(Plane::PAGE_ELEVONS, dlg, image, title, text, nextPage)
 {
   elevon1CB = new QComboBox();
   elevon2CB = new QComboBox();
@@ -639,20 +617,20 @@ ElevonsPage::ElevonsPage(WizardDialog *dlg, QString image, QString title, QStrin
 
 void ElevonsPage::initializePage()
 {
-  populateCB(elevon1CB, getDefaultChannel(ELEVATOR_INPUT));
-  populateCB(elevon2CB, getDefaultChannel(AILERONS_INPUT));
+  populateCB(elevon1CB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
+  populateCB(elevon2CB, getDefaultChannel(AirVehicle::AILERONS_INPUT));
   StandardPage::initializePage();
 }
 
 bool ElevonsPage::validatePage()
 {
   releaseBookings();
-  return (bookChannel(elevon1CB, AILERONS_INPUT, 50, ELEVATOR_INPUT, 50) &&
-      bookChannel(elevon2CB, AILERONS_INPUT, -50, ELEVATOR_INPUT, 50));
+  return (bookChannel(elevon1CB, AirVehicle::AILERONS_INPUT, 50, AirVehicle::ELEVATOR_INPUT, 50) &&
+      bookChannel(elevon2CB, AirVehicle::AILERONS_INPUT, -50, AirVehicle::ELEVATOR_INPUT, 50));
 }
 
 RudderPage::RudderPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Rudder, dlg, image, title, text, nextPage)
+  StandardPage(Plane::PAGE_RUDDER, dlg, image, title, text, nextPage)
 {
   noRudderRB = new QRadioButton(tr("No"));
   hasRudderRB = new QRadioButton(tr("Yes"));
@@ -672,7 +650,7 @@ RudderPage::RudderPage(WizardDialog *dlg, QString image, QString title, QString 
 
 void RudderPage::initializePage()
 {
-  populateCB(rudderCB, getDefaultChannel(RUDDER_INPUT));
+  populateCB(rudderCB, getDefaultChannel(AirVehicle::RUDDER_INPUT));
   StandardPage::initializePage();
 }
 
@@ -681,7 +659,7 @@ bool RudderPage::validatePage() {
   if (noRudderRB->isChecked())
     return true;
 
-  return (bookChannel(rudderCB, RUDDER_INPUT, 100));
+  return (bookChannel(rudderCB, AirVehicle::RUDDER_INPUT, 100));
 }
 
 void RudderPage::noRudder()
@@ -695,7 +673,7 @@ void RudderPage::hasRudder()
 }
 
 VTailPage::VTailPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage)
-  : StandardPage(Page_Tail, dlg, image, title, text, nextPage)
+  : StandardPage(Plane::PAGE_TAIL, dlg, image, title, text, nextPage)
 {
   tail1CB = new QComboBox();
   tail2CB = new QComboBox();
@@ -709,20 +687,20 @@ VTailPage::VTailPage(WizardDialog *dlg, QString image, QString title, QString te
 
 void VTailPage::initializePage()
 {
-  populateCB(tail1CB, getDefaultChannel(ELEVATOR_INPUT));
-  populateCB(tail2CB, getDefaultChannel(AILERONS_INPUT));
+  populateCB(tail1CB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
+  populateCB(tail2CB, getDefaultChannel(AirVehicle::AILERONS_INPUT));
   StandardPage::initializePage();
 }
 
 bool VTailPage::validatePage()
 {
   releaseBookings();
-  return (bookChannel(tail1CB, ELEVATOR_INPUT, 50, RUDDER_INPUT, 50) &&
-    bookChannel(tail2CB, ELEVATOR_INPUT, 50, RUDDER_INPUT, -50 ));
+  return (bookChannel(tail1CB, AirVehicle::ELEVATOR_INPUT, 50, AirVehicle::RUDDER_INPUT, 50) &&
+    bookChannel(tail2CB, AirVehicle::ELEVATOR_INPUT, 50, AirVehicle::RUDDER_INPUT, -50 ));
 }
 
 TailPage::TailPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Tail, dlg, image, title, text, nextPage)
+  StandardPage(Plane::PAGE_TAIL, dlg, image, title, text, nextPage)
 {
   elevatorCB = new QComboBox();
   rudderCB = new QComboBox();
@@ -738,8 +716,8 @@ TailPage::TailPage(WizardDialog *dlg, QString image, QString title, QString text
 
 void TailPage::initializePage()
 {
-  populateCB(elevatorCB, getDefaultChannel(ELEVATOR_INPUT));
-  populateCB(rudderCB, getDefaultChannel(RUDDER_INPUT));
+  populateCB(elevatorCB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
+  populateCB(rudderCB, getDefaultChannel(AirVehicle::RUDDER_INPUT));
   StandardPage::initializePage();
 
   if (totalChannelsAvailable() < 2) {
@@ -753,8 +731,8 @@ void TailPage::initializePage()
 bool TailPage::validatePage()
 {
   releaseBookings();
-  return( bookChannel(elevatorCB, ELEVATOR_INPUT, 100) &&
-    bookChannel(rudderCB, RUDDER_INPUT,   100));
+  return( bookChannel(elevatorCB, AirVehicle::ELEVATOR_INPUT, 100) &&
+    bookChannel(rudderCB, AirVehicle::RUDDER_INPUT,   100));
 }
 
 void TailPage::cleanupPage()
@@ -769,7 +747,7 @@ void TailPage::cleanupPage()
 }
 
 SimpleTailPage::SimpleTailPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage)
-  : StandardPage(Page_Simpletail, dlg, image, title, text, nextPage)
+  : StandardPage(Plane::PAGE_SIMPLETAIL, dlg, image, title, text, nextPage)
 {
   elevatorCB = new QComboBox();
 
@@ -780,18 +758,18 @@ SimpleTailPage::SimpleTailPage(WizardDialog *dlg, QString image, QString title, 
 
 void SimpleTailPage::initializePage()
 {
-  populateCB(elevatorCB, getDefaultChannel(ELEVATOR_INPUT));
+  populateCB(elevatorCB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
   StandardPage::initializePage();
 }
 
 bool SimpleTailPage::validatePage()
 {
   releaseBookings();
-  return( bookChannel(elevatorCB, ELEVATOR_INPUT, 100 ));
+  return( bookChannel(elevatorCB, AirVehicle::ELEVATOR_INPUT, 100 ));
 }
 
 CyclicPage::CyclicPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Cyclic, dlg, image, title, text, nextPage)
+  StandardPage(Helicopter::PAGE_CYCLIC, dlg, image, title, text, nextPage)
 {
   cyclic90RB = new QRadioButton(tr("90"));
   cyclic90RB->setChecked(true);
@@ -818,7 +796,7 @@ bool CyclicPage::validatePage()
 }
 
 GyroPage::GyroPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Gyro, dlg, image, title, text, nextPage)
+  StandardPage(Helicopter::PAGE_GYRO, dlg, image, title, text, nextPage)
 {
   noGyroRB = new QRadioButton(tr("No"));
   noGyroRB->setChecked(true);
@@ -842,7 +820,7 @@ bool GyroPage::validatePage() {
 }
 
 FblPage::FblPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Fblheli, dlg, image, title, text, nextPage)
+  StandardPage(Helicopter::PAGE_FLYBARLESS, dlg, image, title, text, nextPage)
 {
   throttleCB = new QComboBox();
   yawCB = new QComboBox();
@@ -862,24 +840,24 @@ FblPage::FblPage(WizardDialog *dlg, QString image, QString title, QString text, 
 
 void FblPage::initializePage()
 {
-  populateCB(throttleCB, getDefaultChannel(THROTTLE_INPUT));
-  populateCB(yawCB, getDefaultChannel(RUDDER_INPUT));
-  populateCB(pitchCB, getDefaultChannel(ELEVATOR_INPUT));
-  populateCB(rollCB, getDefaultChannel(AILERONS_INPUT));
+  populateCB(throttleCB, getDefaultChannel(AirVehicle::THROTTLE_INPUT));
+  populateCB(yawCB, getDefaultChannel(AirVehicle::RUDDER_INPUT));
+  populateCB(pitchCB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
+  populateCB(rollCB, getDefaultChannel(AirVehicle::AILERONS_INPUT));
   StandardPage::initializePage();
 }
 
 bool FblPage::validatePage()
 {
   releaseBookings();
-  return( bookChannel(throttleCB, THROTTLE_INPUT, 100 ) &&
-    bookChannel(      yawCB,      RUDDER_INPUT,   100 ) &&
-    bookChannel(      pitchCB,    ELEVATOR_INPUT, 100 ) &&
-    bookChannel(      rollCB,     AILERONS_INPUT,  100 ));
+  return( bookChannel(throttleCB, AirVehicle::THROTTLE_INPUT, 100 ) &&
+    bookChannel(      yawCB,      AirVehicle::RUDDER_INPUT,   100 ) &&
+    bookChannel(      pitchCB,    AirVehicle::ELEVATOR_INPUT, 100 ) &&
+    bookChannel(      rollCB,     AirVehicle::AILERONS_INPUT,  100 ));
 }
 
 HeliPage::HeliPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Helictrl, dlg, image, title, text, nextPage)
+  StandardPage(Helicopter::PAGE_HELICONTROL, dlg, image, title, text, nextPage)
 {
   throttleCB = new QComboBox();
   yawCB = new QComboBox();
@@ -899,24 +877,24 @@ HeliPage::HeliPage(WizardDialog *dlg, QString image, QString title, QString text
 
 void HeliPage::initializePage()
 {
-  populateCB(throttleCB, getDefaultChannel(THROTTLE_INPUT));
-  populateCB(yawCB, getDefaultChannel(RUDDER_INPUT));
-  populateCB(pitchCB, getDefaultChannel(ELEVATOR_INPUT));
-  populateCB(rollCB, getDefaultChannel(AILERONS_INPUT));
+  populateCB(throttleCB, getDefaultChannel(AirVehicle::THROTTLE_INPUT));
+  populateCB(yawCB, getDefaultChannel(AirVehicle::RUDDER_INPUT));
+  populateCB(pitchCB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
+  populateCB(rollCB, getDefaultChannel(AirVehicle::AILERONS_INPUT));
   StandardPage::initializePage();
 }
 
 bool HeliPage::validatePage()
 {
   releaseBookings();
-  return( bookChannel(throttleCB, THROTTLE_INPUT, 100 ) &&
-    bookChannel(      yawCB,      RUDDER_INPUT,   100 ) &&
-    bookChannel(      pitchCB,    ELEVATOR_INPUT, 100 ) &&
-    bookChannel(      rollCB,     AILERONS_INPUT,  100 ));
+  return( bookChannel(throttleCB, AirVehicle::THROTTLE_INPUT, 100 ) &&
+    bookChannel(      yawCB,      AirVehicle::RUDDER_INPUT,   100 ) &&
+    bookChannel(      pitchCB,    AirVehicle::ELEVATOR_INPUT, 100 ) &&
+    bookChannel(      rollCB,     AirVehicle::AILERONS_INPUT,  100 ));
 }
 
 MultirotorPage::MultirotorPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Multirotor, dlg, image, title, text, nextPage)
+  StandardPage(MultiRotor::PAGE_MULTIROTOR, dlg, image, title, text, nextPage)
 {
   throttleCB = new QComboBox();
   yawCB = new QComboBox();
@@ -936,24 +914,24 @@ MultirotorPage::MultirotorPage(WizardDialog *dlg, QString image, QString title, 
 
 void MultirotorPage::initializePage()
 {
-  populateCB(throttleCB, getDefaultChannel(THROTTLE_INPUT));
-  populateCB(yawCB, getDefaultChannel(RUDDER_INPUT));
-  populateCB(pitchCB, getDefaultChannel(ELEVATOR_INPUT));
-  populateCB(rollCB, getDefaultChannel(AILERONS_INPUT));
+  populateCB(throttleCB, getDefaultChannel(AirVehicle::THROTTLE_INPUT));
+  populateCB(yawCB, getDefaultChannel(AirVehicle::RUDDER_INPUT));
+  populateCB(pitchCB, getDefaultChannel(AirVehicle::ELEVATOR_INPUT));
+  populateCB(rollCB, getDefaultChannel(AirVehicle::AILERONS_INPUT));
   StandardPage::initializePage();
 }
 
 bool MultirotorPage::validatePage()
 {
   releaseBookings();
-  return( bookChannel(throttleCB, THROTTLE_INPUT, 100 ) &&
-    bookChannel(yawCB,            RUDDER_INPUT,   100 ) &&
-    bookChannel(pitchCB,          ELEVATOR_INPUT, 100 ) &&
-    bookChannel(rollCB,           AILERONS_INPUT,  100 ));
+  return( bookChannel(throttleCB, AirVehicle::THROTTLE_INPUT, 100 ) &&
+    bookChannel(yawCB,            AirVehicle::RUDDER_INPUT,   100 ) &&
+    bookChannel(pitchCB,          AirVehicle::ELEVATOR_INPUT, 100 ) &&
+    bookChannel(rollCB,           AirVehicle::AILERONS_INPUT,  100 ));
 }
 
 OptionsPage::OptionsPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
-  StandardPage(Page_Options, dlg, image, title, text, nextPage)
+  StandardPage(Plane::PAGE_OPTIONS, dlg, image, title, text, nextPage)
 {
   throttleCutRB = new QCheckBox(tr("Throttle Cut"));
   throttleTimerRB = new QCheckBox(tr("Throttle Timer"));
@@ -970,14 +948,14 @@ void OptionsPage::initializePage(){
 }
 
 bool OptionsPage::validatePage(){
-  wizDlg->mix.options[THROTTLE_CUT_OPTION] = throttleCutRB->isChecked();
-  wizDlg->mix.options[THROTTLE_TIMER_OPTION] = throttleTimerRB->isChecked();
-  wizDlg->mix.options[FLIGHT_TIMER_OPTION] = flightTimerRB->isChecked();
+  wizDlg->mix.options[AirVehicle::THROTTLE_CUT_OPTION] = throttleCutRB->isChecked();
+  wizDlg->mix.options[AirVehicle::THROTTLE_TIMER_OPTION] = throttleTimerRB->isChecked();
+  wizDlg->mix.options[AirVehicle::FLIGHT_TIMER_OPTION] = flightTimerRB->isChecked();
   return true;
 }
 
 ConclusionPage::ConclusionPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage)
-  : StandardPage(Page_Conclusion, dlg, image, title, text, nextPage)
+  : StandardPage(Plane::PAGE_CONCLUSION, dlg, image, title, text, nextPage)
 {
   textLabel = new QLabel();
   proceedCB = new QCheckBox(tr("OK, I understand."));
@@ -1002,27 +980,27 @@ bool ConclusionPage::validatePage()
 }
 
 
-QString WizardPrinter::inputName(Input input)
+QString WizardPrinter::inputName(int input)
 {
   switch (input) {
-    case THROTTLE_INPUT:
+    case AirVehicle::THROTTLE_INPUT:
       return "THR";
-    case RUDDER_INPUT:
+    case AirVehicle::RUDDER_INPUT:
       return "RUD";
-    case ELEVATOR_INPUT:
+    case AirVehicle::ELEVATOR_INPUT:
       return "ELE";
-    case AILERONS_INPUT:
+    case AirVehicle::AILERONS_INPUT:
       return "AIL";
-    case FLAPS_INPUT:
+    case AirVehicle::FLAPS_INPUT:
       return "FLP";
-    case AIRBRAKES_INPUT:
+    case AirVehicle::AIRBRAKES_INPUT:
       return "AIR";
     default:
       return "---";
   }
 }
 
-QString WizardPrinter::vehicleName(Vehicle vehicle)
+QString WizardPrinter::vehicleName(int vehicle)
 {
   switch (vehicle) {
     case PLANE:
@@ -1036,16 +1014,16 @@ QString WizardPrinter::vehicleName(Vehicle vehicle)
   }
 }
 
-WizardPrinter::WizardPrinter(WizMix *wizMix)
+WizardPrinter::WizardPrinter(Plane::WizMix *wizMix)
 {
   mix = wizMix;
 }
 
-QString WizardPrinter::printChannel( Input input1, int weight1, Input input2, int weight2 )
+QString WizardPrinter::printChannel( int input1, int weight1, int input2, int weight2 )
 {
   QString str;
   str =  QString("[%1, %2]").arg(inputName(input1)).arg(weight1);
-  if ( input2 != NO_INPUT )
+  if ( input2 != AirVehicle::NO_INPUT )
     str += QString("[%1, %2]").arg(inputName(input2)).arg(weight2);
   return str;
 }
@@ -1056,7 +1034,7 @@ QString WizardPrinter::print()
   str += tr("Model Type: ") + vehicleName(mix->vehicle) + "\n";
 
   str += tr("Options: ") + "[";
-  for (int i=0; i<WIZ_MAX_OPTIONS; i++) {
+  for (int i=0; i<AirVehicle::WIZ_MAX_OPTIONS; i++) {
     if (mix->options[i])
       str += "X";
     else
@@ -1065,9 +1043,9 @@ QString WizardPrinter::print()
   str += QString("]") + "\n";
 
   for (int i=0; i<WIZ_MAX_CHANNELS; i++) {
-    if (mix->channel[i].page != Page_None) {
-      Channel ch = mix->channel[i];
-      str += tr("Channel %1: ").arg(i+1);
+    if (mix->channel[i].page != Vehicle::PAGE_NONE) {
+      Plane::MixerChannel ch = mix->channel[i];
+      str += tr("Plane::MixerChannel %1: ").arg(i+1);
       str += printChannel(ch.input1, ch.weight1, ch.input2, ch.weight2 );
       str += QString("\n");
     }

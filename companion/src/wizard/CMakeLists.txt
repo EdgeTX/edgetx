@@ -2,7 +2,7 @@
 project(wizard)
 
 set(${PROJECT_NAME}_NAMES
-  wizarddata
+  wizarddataair
   wizarddialog
 )
 
@@ -10,7 +10,7 @@ AddHeadersSources()
 
 # AUTOMOC does not detect so manually process
 set(${PROJECT_NAME}_MOC
-  wizarddata.h
+  wizarddataair.h
   wizarddialog.h
 )
 

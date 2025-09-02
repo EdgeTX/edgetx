@@ -21,36 +21,36 @@
 
 #include <string.h>
 #include "eeprominterface.h"
-#include "wizarddata.h"
+#include "wizarddataair.h"
 
-Channel::Channel()
+Plane::MixerChannel::Channel()
 {
   clear();
 }
 
-void Channel::clear()
+void Plane::MixerChannel::clear()
 {
-  page = Page_None;
+  page = Vehicle::PAGE_NONE;
   prebooked = false;
-  input1 = NO_INPUT;
-  input2 = NO_INPUT;
+  input1 = AirVehicle::NO_INPUT;
+  input2 = AirVehicle::NO_INPUT;
   weight1 = 0;
   weight2 = 0;
 }
 
-WizMix::WizMix(const GeneralSettings & settings, unsigned int modelId, const ModelData & modelData):
+Plane::WizMix::WizMix(const GeneralSettings & settings, unsigned int modelId, const ModelData & modelData):
   complete(false),
   modelId(modelId),
   settings(settings),
   originalModelData(modelData),
-  vehicle(NOVEHICLE)
+  vehicle(Vehicle::TYPE)
 {
   memset(name, 0, sizeof(name));
   memcpy(name, originalModelData.name, sizeof(name) - 1);
   name[sizeof(name) - 1] = '\0';
 }
 
-void WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int weight)
+void Plane::WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int weight)
 {
   memset(mix.name, 0, sizeof(mix.name));
   strncpy(mix.name, name, sizeof(mix.name)-1);
@@ -60,29 +60,29 @@ void WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int wei
   mix.weight = weight;
 }
 
-void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int & mixIndex)
+void Plane::WizMix::addMix(ModelData &model, int input, int weight, int channel, int & mixIndex)
 {
-  if (input != NO_INPUT)  {
-    if (input >= RUDDER_INPUT && input <= AILERONS_INPUT) {
+  if (input != AirVehicle::NO_INPUT)  {
+    if (input >= AirVehicle::RUDDER_INPUT && input <= AirVehicle::AILERONS_INPUT) {
       MixData & mix = model.mixData[mixIndex++];
       mix.destCh = channel + 1;
       mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, settings.getDefaultChannel(input - 1) + 1);
       mix.weight = weight;
     }
-    else if (input==FLAPS_INPUT){
+    else if (input==AirVehicle::FLAPS_INPUT){
       // There ought to be some kind of constants for switches somewhere...
       maxMixSwitch((char *)tr("FlapUp").toLatin1().data(), model.mixData[mixIndex++], channel+1, SWITCH_SA0 - 1, weight);
       maxMixSwitch((char *)tr("FlapDn").toLatin1().data(), model.mixData[mixIndex++], channel+1, SWITCH_SA2 - 1, -weight);
 
     }
-    else if (input==AIRBRAKES_INPUT){
+    else if (input==AirVehicle::AIRBRAKES_INPUT){
       maxMixSwitch((char *)tr("ArbkOf").toLatin1().data(), model.mixData[mixIndex++], channel+1, SWITCH_SE0 - 1, -weight);
       maxMixSwitch((char *)tr("ArbkOn").toLatin1().data(),  model.mixData[mixIndex++], channel+1, SWITCH_SE2 - 1, weight);
     }
   }
 }
 
-WizMix::operator ModelData()
+Plane::WizMix::operator ModelData()
 {
   int throttleChannel = -1;
 
@@ -103,14 +103,14 @@ WizMix::operator ModelData()
   // Add the channel mixes
   for (int i=0; i<WIZ_MAX_CHANNELS; i++ )
   {
-    Channel ch = channel[i];
+    Plane::MixerChannel ch = channel[i];
 
     addMix(model, ch.input1, ch.weight1, i, mixIndex);
     addMix(model, ch.input2, ch.weight2, i, mixIndex);
 
-    if (ch.input1 == THROTTLE_INPUT || ch.input2 == THROTTLE_INPUT) {
+    if (ch.input1 == AirVehicle::THROTTLE_INPUT || ch.input2 == AirVehicle::THROTTLE_INPUT) {
       throttleChannel++;
-      if (options[THROTTLE_CUT_OPTION]) {
+      if (options[AirVehicle::THROTTLE_CUT_OPTION]) {
         // Add the Throttle Cut option
         MixData & mix = model.mixData[mixIndex++];
         mix.destCh = i+1;
@@ -120,23 +120,23 @@ WizMix::operator ModelData()
         mix.swtch.index = SWITCH_SF0;
         mix.mltpx = MLTPX_REP;
         memset(mix.name, 0, sizeof(mix.name));
-        strncpy(mix.name, WizMix::tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
+        strncpy(mix.name, Plane::WizMix::tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
       }
     }
   }
 
   // Add the Flight Timer option
-  if (options[FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
+  if (options[AirVehicle::FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, WizMix::tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+    strncpy(model.timers[timerIndex].name, Plane::WizMix::tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
     model.timers[timerIndex].mode = TimerData::TIMERMODE_START;
     timerIndex++;
   }
 
   // Add the Throttle Timer option
-  if (options[THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
+  if (options[AirVehicle::THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, WizMix::tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+    strncpy(model.timers[timerIndex].name, Plane::WizMix::tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
     model.timers[timerIndex].mode = TimerData::TIMERMODE_THR;
     timerIndex++;
   }
