@@ -49,12 +49,6 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
 
   ui->checkHardwareCompatibility->setChecked(g.checkHardwareCompatibility());
   ui->checkBackup->setChecked(g.backupOnFlash());
-  QString backupPath = g.profile[g.id()].pBackupDir();
-  if (backupPath.isEmpty())
-    backupPath = g.backupDir();
-
-  if (backupPath.isEmpty() || !QDir(backupPath).exists())
-    ui->checkBackup->setEnabled(false);
 
   detectClicked(true);
   updateUI();
@@ -67,7 +61,6 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
   connect(ui->writeButton, &QPushButton::clicked, this, &FlashFirmwareDialog::writeButtonClicked);
   connect(ui->cancelButton, &QPushButton::clicked, [=]() { close(); } );
-
 }
 
 FlashFirmwareDialog::~FlashFirmwareDialog()
