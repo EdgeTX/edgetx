@@ -22,6 +22,7 @@
 #pragma once
 
 #include "eeprominterface.h"
+#include "wizardwizmix.h"
 
 #include <QtCore>
 
