@@ -727,13 +727,13 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
   QString backupDir;
 
   if (g.currentProfile().getVariantFromType() == fw.getFlavour()) {
-    qDebug() << "Current profile firmware type matches radio";
+    progress->addMessage(TR("Current profile firmware type matches radio"));
     backupDir = g.currentProfile().pBackupDir();
   }
   else {
     // try to find a profile but there could be more than one profile for same variant
     // if more than one take safer approach and use global
-    qDebug() << "Trying to find a profile with firmware type that matches radio";
+    progress->addMessage(TR("Locating profile with firmware type for radio"));
     int cnt = 0;
     int profId = 0;
     QMap<int, QString> map;
@@ -743,14 +743,21 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
       while (i.hasNext()) {
           i.next();
           if (g.getProfile(i.key()).getVariantFromType() == fw.getFlavour()) {
-            qDebug() << "Firmware type match found in profile" << i.key() << ":" << i.value();
+            progress->addMessage(TR("Firmware type match found in profile %1 %2")
+                                  .arg(QString::number(i.key()))
+                                  .arg(i.value()));
             profId = i.key();
             cnt++;
           }
       }
 
-      qDebug() << cnt << "matches found. Using" << profId << g.getProfile(profId).name();
-      backupDir = g.getProfile(profId).pBackupDir();
+      progress->addMessage(TR("%1 matches found. Using profile %2 - %3")
+                            .arg(QString::number(cnt))
+                            .arg(QString::number(profId))
+                            .arg(g.getProfile(profId).name()));
+
+      if (cnt > 0)
+        backupDir = g.getProfile(profId).pBackupDir();
     }
   }
 
@@ -796,6 +803,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
     progress->addMessage(TR("Error writing to file: %1 (reason: %2)")
                          .arg(QDir::toNativeSeparators(f.fileName()))
                          .arg(f.errorString()), QtFatalMsg);
+    f.close();
     return false;
   } else {
     msg = TR("Writing finished");

@@ -292,67 +292,60 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
 
   FirmwareInterface fw(filename);
   auto progress = progressDialog.progress();
-
   bool backup = g.backupOnFlash();
-
-  QString backupDir;
-
-  if (backup) {
-    backupDir = g.currentProfile().pBackupDir();
-    if (backupDir.isEmpty())
-      backupDir = g.backupDir();
-
-    if (!QFileInfo::exists(backupDir)) {
-      QMessageBox::critical(this, tr("Backup Radio Firmware"),
-                            tr("Directory %1 does not exist!")
-                            .arg(backupDir));
-      return;
-    }
-  }
 
   if (g.checkHardwareCompatibility() || backup) {
     bool checkHw = g.checkHardwareCompatibility();
+
     readFirmware(
-        [this, &fw, progress, checkHw, backup, &backupDir](const QByteArray &_data) {
+        [this, &fw, progress, checkHw, backup](const QByteArray &_data) {
           qDebug() << "Read old firmware, size = " << _data.size();
           FirmwareInterface oldfw(_data);
           if (!oldfw.isValid()) {
             QString errMsg(tr("Firmware read from radio invalid"));
-            qDebug() << errMsg;
             progress->addMessage(errMsg, QtFatalMsg);
-            QMessageBox::critical(this, tr("Backup Radio Firmware"), errMsg);
+            progress->setInfo(errMsg);
             return;
           }
 
-          if (backup && !writeFirmwareToFile(this, _data, progress)) {
-            return;
-          }
-
-          if (checkHw && !fw.isHardwareCompatible(FirmwareInterface(_data))) {
-            QString errMsg(tr("New firmware not compatible"));
-            qDebug() << errMsg;
-            progress->addMessage(errMsg, QtFatalMsg);
-            QMessageBox::critical(this, tr("Firmware Compatibility Check"), errMsg);
-            return;
-          }
-
-          qDebug() << "Start flashing firmware (if requested, backup and checks done)";
-          if (writeFirmware(fw.getFlash(), progress)) {
-            qDebug() << "Flashing firmware complete";
+          if (backup) {
+            if (!writeFirmwareToFile(this, _data, progress)) {
+              return;
+            }
           } else {
-            qDebug() << "Flashing firmware error";
+            progress->addMessage(tr("Backup of old firmware not requested"));
+          }
+
+          if (checkHw) {
+            if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
+              QString errMsg(tr("New firmware is not compatible"));
+              progress->addMessage(errMsg, QtFatalMsg);
+              progress->setInfo(errMsg);
+              return;
+            } else {
+            progress->addMessage(tr("New firmware is compatible"));
+            }
+          } else {
+            progress->addMessage(tr("New firmware compatibity check not requested"));
+          }
+
+          progress->addMessage(tr("Start flashing firmware"));
+          if (writeFirmware(fw.getFlash(), progress)) {
+            progress->addMessage(tr("Flashing firmware complete"));
+          } else {
+            progress->addMessage(tr("Flashing firmware error"));
           }
         },
-        [this](const QString &err) {
-          qDebug() << tr("Could not read current firmware: %1").arg(err);
+        [this, progress](const QString &err) {
+          progress->addMessage(tr("Could not read current firmware: %1").arg(err));
         },
         progress);
   } else {
-    qDebug() << "Start flashing firmware (no backup or checks done)";
+    progress->addMessage(tr("Start flashing firmware (no backup or compatiblity check)"));
     if (writeFirmware(fw.getFlash(), progress)) {
-      qDebug() << "Flashing firmware complete";
+      progress->addMessage(tr("Flashing firmware complete"));
     } else {
-      qDebug() << "Flashing firmware error";
+      progress->addMessage(tr("Flashing firmware error"));
     }
   }
 
