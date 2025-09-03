@@ -53,6 +53,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Detect the boot mode of the connected radio</string>
+       </property>
        <property name="text">
         <string>Detect</string>
        </property>
@@ -95,6 +98,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Select and load a firmware file. The file extension must be one suitable for the boot mode.</string>
+       </property>
        <property name="text">
         <string>Load...</string>
        </property>
@@ -126,6 +132,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="version">
+        <property name="toolTip">
+         <string>Firmware build version</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -134,12 +143,15 @@
       <item row="2" column="0">
        <widget class="QLabel" name="buildLabel">
         <property name="text">
-         <string>Variant</string>
+         <string>Radio</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
        <widget class="QLineEdit" name="variant">
+        <property name="toolTip">
+         <string>Target radio for which the firmware was built</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -154,6 +166,9 @@
       </item>
       <item row="3" column="1">
        <widget class="QLineEdit" name="date">
+        <property name="toolTip">
+         <string>Buid timestamp</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -258,15 +273,18 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Allows Companion to write to older version of the firmware</string>
+      <string>Checks the new firmware matches the connected radio. If not the process will be aborted.</string>
      </property>
      <property name="text">
-      <string>Check hardware compatibility</string>
+      <string>Check hardware compatibility (recommended)</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkBackup">
+     <property name="toolTip">
+      <string>Read the connected radio firmware and write to the backup folder.</string>
+     </property>
      <property name="text">
       <string>Backup radio firmware before flashing</string>
      </property>
@@ -323,6 +341,9 @@
          <width>90</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Performing optional processes and write the loaded file to the conneced radio.</string>
        </property>
        <property name="text">
         <string>Write to TX</string>

@@ -601,7 +601,7 @@ void MainWindow::readFlash()
       tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
       tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
       tr("Note: USB mode is not suitable for flashing firmware."));
-      return;
+    return;
   }
 
   ProgressDialog progressDialog(this, tr("Read Radio Firmware"),
