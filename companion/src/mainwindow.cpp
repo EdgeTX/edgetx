@@ -596,11 +596,18 @@ void MainWindow::readBackup()
 
 void MainWindow::readFlash()
 {
+  if (!isRadioConnected()) {
+    QMessageBox::critical(this, tr("Detect Radio"),
+      tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
+      tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
+      tr("Note: USB mode is not suitable for flashing firmware."));
+      return;
+  }
+
   ProgressDialog progressDialog(this, tr("Read Radio Firmware"),
                                 CompanionIcon("read_flash.png"));
 
   auto progress = progressDialog.progress();
-  progress->lock(true);
 
   readFirmware(
       [this, progress](const QByteArray &_data) {
@@ -611,7 +618,6 @@ void MainWindow::readFlash()
       },
       progress);
 
-  progress->lock(false);
   progressDialog.exec();
 }
 
