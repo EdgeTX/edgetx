@@ -37,9 +37,9 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
 {
   ui->setupUi(this);
 
-  if (!g.profile[g.id()].splashFile().isEmpty()){
+  if (!g.currentProfile().splashFile().isEmpty()){
     imageSource = PROFILE;
-    imageFile = g.profile[g.id()].splashFile();
+    imageFile = g.currentProfile().splashFile();
     ui->useProfileSplash->setChecked(true);
   } else {
     imageSource = FIRMWARE;
@@ -110,7 +110,7 @@ void FlashFirmwareDialog::updateUI()
       break;
     case PROFILE:
       ui->useProfileSplash->setChecked(true);
-      image.load(g.profile[g.id()].splashFile());
+      image.load(g.currentProfile().splashFile());
       break;
     case LIBRARY:
       ui->useLibrarySplash->setChecked(true);
@@ -180,7 +180,7 @@ void FlashFirmwareDialog::useFirmwareSplashClicked()
 
 void FlashFirmwareDialog::useProfileSplashClicked()
 {
-  QString fileName = g.profile[g.id()].splashFile();
+  QString fileName = g.currentProfile().splashFile();
 
   if (!fileName.isEmpty()) {
     QImage image(fileName);
@@ -241,7 +241,7 @@ void FlashFirmwareDialog::useLibrarySplashClicked()
 void FlashFirmwareDialog::writeButtonClicked()
 {
   g.flashDir(QFileInfo(fwName).dir().absolutePath());
-  g.profile[g.id()].fwName(fwName);
+  g.currentProfile().fwName(fwName);
   g.checkHardwareCompatibility(ui->checkHardwareCompatibility->isChecked());
   g.backupOnFlash(ui->checkBackup->isChecked());
 
@@ -365,15 +365,22 @@ void FlashFirmwareDialog::detectClicked(bool atLoad)
       tr("Note: USB mode is not suitable for flashing firmware."));
   }
 
+  if (!isFileConnectionCompatible())
+    fwName.clear();
+
   if (!atLoad)
     updateUI();
 }
 
 bool FlashFirmwareDialog::isFileConnectionCompatible()
 {
-  if (connectionMode == CONNECTION_DFU ||
-     (connectionMode == CONNECTION_UF2 && !fwName.isEmpty() && QFileInfo(fwName).suffix().toLower() == "uf2"))
-    return true;
+  if (!fwName.isEmpty()) {
+    QString extn(QFileInfo(fwName).suffix().toLower());
+    if ((connectionMode == CONNECTION_DFU && (extn == "bin" || extn == "uf2")) ||
+        (connectionMode == CONNECTION_UF2 && extn == "uf2")) {
+      return true;
+    }
+  }
 
   return false;
 }
