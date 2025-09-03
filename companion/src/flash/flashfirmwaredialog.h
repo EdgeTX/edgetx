@@ -47,7 +47,7 @@ class FlashFirmwareDialog : public QDialog
 
   protected:
     void updateUI();
-    void startFlash(const QString &filename);
+    void startWrite(const QString &filename);
 
   private:
     enum ConnectionModes { CONNECTION_NONE, CONNECTION_UF2, CONNECTION_DFU };

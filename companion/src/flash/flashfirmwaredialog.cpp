@@ -270,13 +270,13 @@ void FlashFirmwareDialog::writeButtonClicked()
       return;
     }
 
-    startFlash(tempFile);
+    startWrite(tempFile);
   } else {
-    startFlash(fwName);
+    startWrite(fwName);
   }
 }
 
-void FlashFirmwareDialog::startFlash(const QString &filename)
+void FlashFirmwareDialog::startWrite(const QString &filename)
 {
   close();
 
