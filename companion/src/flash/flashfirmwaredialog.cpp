@@ -54,7 +54,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   updateUI();
 
   connect(ui->detectButton, &QPushButton::clicked, this, &FlashFirmwareDialog::detectClicked);
-  connect(ui->firmwareLoad, &QPushButton::clicked, this, &FlashFirmwareDialog::firmwareLoadClicked);
+  connect(ui->loadButton, &QPushButton::clicked, this, &FlashFirmwareDialog::loadClicked);
   connect(ui->useProfileSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useProfileSplashClicked);
   connect(ui->useFirmwareSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useFirmwareSplashClicked);
   connect(ui->useLibrarySplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useLibrarySplashClicked);
@@ -73,10 +73,10 @@ void FlashFirmwareDialog::updateUI()
   ui->firmwareFilename->setText(fwName);
 
   if (connectionMode) {
-    ui->firmwareLoad->setEnabled(true);
+    ui->loadButton->setEnabled(true);
     ui->writeButton->setEnabled(isFileConnectionCompatible() && QFile(fwName).exists());
   } else {
-    ui->firmwareLoad->setEnabled(false);
+    ui->loadButton->setEnabled(false);
     ui->writeButton->setEnabled(false);
   }
 
@@ -128,7 +128,7 @@ void FlashFirmwareDialog::updateUI()
   QTimer::singleShot(0, [=]() { adjustSize(); });
 }
 
-void FlashFirmwareDialog::firmwareLoadClicked()
+void FlashFirmwareDialog::loadClicked()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFirmwareFilesFilter());
   if (!fileName.isEmpty()) {

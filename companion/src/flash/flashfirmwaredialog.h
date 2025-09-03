@@ -38,7 +38,7 @@ class FlashFirmwareDialog : public QDialog
 
   private slots:
     void detectClicked(bool atLoad = false);
-    void firmwareLoadClicked();
+    void loadClicked();
     void writeButtonClicked();
     void useProfileSplashClicked();
     void useFirmwareSplashClicked();
