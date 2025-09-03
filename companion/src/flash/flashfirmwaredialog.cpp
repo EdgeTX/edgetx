@@ -283,18 +283,17 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
   ProgressDialog progressDialog(this, tr("Write Firmware to Radio"),
                                 CompanionIcon("write_flash.png"));
 
-  FirmwareInterface fw(filename);
   auto progress = progressDialog.progress();
+  bool checkHw = g.checkHardwareCompatibility();
   bool backup = g.backupOnFlash();
+  FirmwareInterface newfw(filename);
 
   if (g.checkHardwareCompatibility() || backup) {
-    bool checkHw = g.checkHardwareCompatibility();
-
     readFirmware(
-        [this, &fw, progress, checkHw, backup](const QByteArray &_data) {
+        [this, &newfw, progress, checkHw, backup](const QByteArray &_data) {
           qDebug() << "Read old firmware, size = " << _data.size();
-          FirmwareInterface oldfw(_data);
-          if (!oldfw.isValid()) {
+          FirmwareInterface currfw(_data);
+          if (!currfw.isValid()) {
             QString errMsg(tr("Firmware read from radio invalid"));
             progress->addMessage(errMsg, QtFatalMsg);
             progress->setInfo(errMsg);
@@ -310,7 +309,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
           }
 
           if (checkHw) {
-            if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
+            if (!newfw.isHardwareCompatible(currfw)) {
               QString errMsg(tr("New firmware is not compatible"));
               progress->addMessage(errMsg, QtFatalMsg);
               progress->setInfo(errMsg);
@@ -323,7 +322,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
           }
 
           progress->addMessage(tr("Start flashing firmware"));
-          writeFirmware(fw.getFlash(), progress);
+          writeFirmware(newfw.getFlash(), progress);
         },
         [this, progress](const QString &err) {
           progress->addMessage(tr("Could not read current firmware: %1").arg(err));
@@ -331,7 +330,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
         progress);
   } else {
     progress->addMessage(tr("Start flashing firmware (no backup or compatiblity check)"));
-    writeFirmware(fw.getFlash(), progress);
+    writeFirmware(newfw.getFlash(), progress);
   }
 
   progressDialog.exec();
