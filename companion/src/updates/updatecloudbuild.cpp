@@ -227,9 +227,9 @@ int UpdateCloudBuild::asyncInstall()
       bootmodes.append("UF2");
     }
 
-    QMessageBox::information(status()->progress(), CPN_STR_APP_NAME,
-                             tr("To continue, the radio must be connected and booted in %1 mode(s)")
-                             .arg(bootmodes));
+    QMessageBox::warning(status()->progress(), tr("Write Firmware to Radio"),
+                         tr("Before continuing, ensure the radio is connected and booted in %1 mode(s)")
+                         .arg(bootmodes));
 
     FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
     dlg->exec();
