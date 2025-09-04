@@ -130,36 +130,44 @@ void FlashFirmwareDialog::updateUI()
 
 void FlashFirmwareDialog::loadClicked()
 {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFirmwareFilesFilter());
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"),
+                                                  g.flashDir(),
+                                                  getFirmwareFilesFilter());
   if (!fileName.isEmpty()) {
     if (firmwareFileExtensions().contains(QFileInfo(fileName).suffix().toLower())) {
-      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 has an unsupported file extension").arg(fileName));
+      QMessageBox::critical(this, tr("Open Firmware File"),
+                            tr("%1 has an unsupported file extension")
+                            .arg(fileName));
       return;
     }
 
     FirmwareInterface fw(fileName);
 
     if (!fw.isValid()) {
-      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 is not a valid firmware file").arg(fileName));
+      QMessageBox::critical(this, tr("Open Firmware File"),
+                            tr("%1 is not a valid firmware file")
+                            .arg(fileName));
       return;
     }
 
     if (connectionMode == CONNECTION_UF2) {
       const Uf2Info uf2(getUf2Info());
       if (fw.getFlavour() != uf2.board) {
-        QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however connected radio is %3")
-                                                        .arg(fileName)
-                                                        .arg(fw.getFlavour())
-                                                        .arg(uf2.board));
+        QMessageBox::critical(this, tr("Open Firmware File"),
+                              tr("%1 \nFirmware file is for %2 radio however connected radio is %3")
+                              .arg(fileName)
+                              .arg(fw.getFlavour())
+                              .arg(uf2.board));
         return;
       }
     }
 
     if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
-      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however profile radio is %3")
-                                                      .arg(fileName)
-                                                      .arg(fw.getFlavour())
-                                                      .arg(getCurrentFirmware()->getFlavour()));
+      QMessageBox::critical(this, tr("Open Firmware File"),
+                            tr("%1 \nFirmware file is for %2 radio however profile radio is %3")
+                            .arg(fileName)
+                            .arg(fw.getFlavour())
+                            .arg(getCurrentFirmware()->getFlavour()));
       return;
     }
 
@@ -175,7 +183,8 @@ void FlashFirmwareDialog::useFirmwareSplashClicked()
   if (!firmware.isValid()) {
     QMessageBox::warning(this, CPN_STR_TTL_ERROR, tr( "The firmware file is not valid." ));
   } else if (!firmware.hasSplash()) {
-    QMessageBox::warning(this, CPN_STR_TTL_ERROR, tr( "There is no start screen image in the firmware file." ));
+    QMessageBox::warning(this, CPN_STR_TTL_ERROR,
+                         tr( "There is no start screen image in the firmware file." ));
   } else {
     imageSource = FIRMWARE;
   }
@@ -190,7 +199,8 @@ void FlashFirmwareDialog::useProfileSplashClicked()
   if (!fileName.isEmpty()) {
     QImage image(fileName);
     if (image.isNull()) {
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Profile image %1 is invalid.").arg(fileName));
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR,
+                            tr("Profile image %1 is invalid.").arg(fileName));
     } else {
       imageSource = PROFILE;
     }
@@ -207,14 +217,18 @@ void FlashFirmwareDialog::useExternalSplashClicked()
     supportedImageFormats += QLatin1String(" *.") + QImageReader::supportedImageFormats()[formatIndex];
   }
 
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open image file to use as radio start screen"), g.imagesDir(), tr("Images (%1)").arg(supportedImageFormats));
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open image file to use as radio start screen"),
+                                                  g.imagesDir(),
+                                                  tr("Images (%1)").arg(supportedImageFormats));
 
   if (!fileName.isEmpty()){
     g.imagesDir( QFileInfo(fileName).dir().absolutePath() );
     QImage image(fileName);
 
     if (image.isNull()) {
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Image could not be loaded from %1").arg(fileName));
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR,
+                            tr("Image could not be loaded from %1")
+                            .arg(fileName));
     } else {
       imageSource = EXTERNAL;
       imageFile = fileName;
