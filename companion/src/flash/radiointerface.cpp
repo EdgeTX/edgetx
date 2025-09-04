@@ -816,3 +816,17 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
   f.close();
   return true;
 }
+QStringList dfuFileExtensions()
+{
+  return QStringList() << "bin" << "uf2";
+}
+
+QStringList uf2FileExtensions()
+{
+  return QStringList() << "uf2";
+}
+
+QStringList firmwareFileExtensions()
+{
+  return dfuFileExtensions();
+}

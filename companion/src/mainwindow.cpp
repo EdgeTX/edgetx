@@ -588,6 +588,7 @@ void MainWindow::writeFlash(QString fileToFlash)
 {
   FlashFirmwareDialog * cd = new FlashFirmwareDialog(this);
   cd->exec();
+  cd->deleteLater();
 }
 
 void MainWindow::readBackup()

@@ -134,18 +134,22 @@ void FlashFirmwareDialog::loadClicked()
   if (!fileName.isEmpty()) {
     fwName = fileName;
 
-    if (!fwName.endsWith(".bin") && !fwName.endsWith(".uf2"))
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
+    if (firmwareFileExtensions().contains(QFileInfo(fwName).suffix().toLower())) {
+      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 has an unsupported file extension").arg(fwName));
+      return;
+    }
 
     FirmwareInterface fw(fwName);
 
-    if (!fw.isValid())
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
+    if (!fw.isValid()) {
+      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 is not a valid firmware file").arg(fwName));
+      return;
+    }
 
     if (connectionMode == CONNECTION_UF2) {
       const Uf2Info uf2(getUf2Info());
       if (fw.getFlavour() != uf2.board) {
-        QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nRadio type mismatch - Firmware: %2 Radio: %3")
+        QMessageBox::warning(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however connected radio is %3")
                                                         .arg(fwName)
                                                         .arg(fw.getFlavour())
                                                         .arg(uf2.board));
@@ -153,7 +157,7 @@ void FlashFirmwareDialog::loadClicked()
     }
 
     if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nRadio type mismatch - Firmware: %2 Profile: %3")
+      QMessageBox::warning(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however profile radio is %3")
                                                       .arg(fwName)
                                                       .arg(fw.getFlavour())
                                                       .arg(getCurrentFirmware()->getFlavour()));
@@ -375,9 +379,9 @@ void FlashFirmwareDialog::detectClicked(bool atLoad)
 bool FlashFirmwareDialog::isFileConnectionCompatible()
 {
   if (!fwName.isEmpty()) {
-    QString extn(QFileInfo(fwName).suffix().toLower());
-    if ((connectionMode == CONNECTION_DFU && (extn == "bin" || extn == "uf2")) ||
-        (connectionMode == CONNECTION_UF2 && extn == "uf2")) {
+    const QString extn(QFileInfo(fwName).suffix().toLower());
+    if ((connectionMode == CONNECTION_DFU && dfuFileExtensions().contains(extn)) ||
+        (connectionMode == CONNECTION_UF2 && uf2FileExtensions().contains(extn))) {
       return true;
     }
   }

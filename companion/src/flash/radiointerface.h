@@ -120,3 +120,6 @@ bool isDfuDeviceFound();
 bool isUf2DeviceFound();
 bool isRadioConnected();
 bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget *progress, bool promptForFile = false);
+QStringList dfuFileExtensions();
+QStringList uf2FileExtensions();
+QStringList firmwareFileExtensions();
