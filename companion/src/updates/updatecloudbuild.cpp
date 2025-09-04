@@ -25,6 +25,7 @@
 #include "eeprominterface.h"
 #include "flashfirmwaredialog.h"
 #include "firmwareinterface.h"
+#include "radiointerface.h"
 
 // these must match text strings in server response
 constexpr char CLOUD_BUILD_WAITING[]       {"WAITING_FOR_BUILD"};
@@ -214,6 +215,22 @@ int UpdateCloudBuild::asyncInstall()
 
   int ret = QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
   if (ret == QMessageBox::Yes) {
+    QString extn(QFileInfo(destPath).suffix().toLower());
+    QString bootmodes;
+    if (dfuFileExtensions().contains(extn))
+      bootmodes.append("DFU");
+
+    if (uf2FileExtensions().contains(extn)) {
+      if (!bootmodes.isEmpty()) {
+        bootmodes.append(tr(" or "));
+      }
+      bootmodes.append("UF2");
+    }
+
+    QMessageBox::information(status()->progress(), CPN_STR_APP_NAME,
+                             tr("To continue, the radio must be connected and booted in %1 mode(s)")
+                             .arg(bootmodes));
+
     FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
     dlg->exec();
     dlg->deleteLater();

@@ -132,37 +132,38 @@ void FlashFirmwareDialog::loadClicked()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFirmwareFilesFilter());
   if (!fileName.isEmpty()) {
-    fwName = fileName;
-
-    if (firmwareFileExtensions().contains(QFileInfo(fwName).suffix().toLower())) {
-      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 has an unsupported file extension").arg(fwName));
+    if (firmwareFileExtensions().contains(QFileInfo(fileName).suffix().toLower())) {
+      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 has an unsupported file extension").arg(fileName));
       return;
     }
 
-    FirmwareInterface fw(fwName);
+    FirmwareInterface fw(fileName);
 
     if (!fw.isValid()) {
-      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 is not a valid firmware file").arg(fwName));
+      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 is not a valid firmware file").arg(fileName));
       return;
     }
 
     if (connectionMode == CONNECTION_UF2) {
       const Uf2Info uf2(getUf2Info());
       if (fw.getFlavour() != uf2.board) {
-        QMessageBox::warning(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however connected radio is %3")
-                                                        .arg(fwName)
+        QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however connected radio is %3")
+                                                        .arg(fileName)
                                                         .arg(fw.getFlavour())
                                                         .arg(uf2.board));
+        return;
       }
     }
 
     if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
-      QMessageBox::warning(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however profile radio is %3")
-                                                      .arg(fwName)
+      QMessageBox::critical(this, tr("Open Firmware File"), tr("%1 \nFirmware file is for %2 radio however profile radio is %3")
+                                                      .arg(fileName)
                                                       .arg(fw.getFlavour())
                                                       .arg(getCurrentFirmware()->getFlavour()));
+      return;
     }
 
+    fwName = fileName;
     updateUI();
   }
 }
