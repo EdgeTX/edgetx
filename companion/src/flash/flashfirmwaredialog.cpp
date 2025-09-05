@@ -164,7 +164,7 @@ void FlashFirmwareDialog::loadClicked()
 
     if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
       QMessageBox::critical(this, tr("Open Firmware File"),
-                            tr("%1 \nFirmware file is for %2 radio however profile radio is %3")
+                            tr("%1 \nFirmware file is for %2 radio however profile is for %3 radio")
                             .arg(fileName)
                             .arg(fw.getFlavour())
                             .arg(getCurrentFirmware()->getFlavour()));
