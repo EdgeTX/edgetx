@@ -81,6 +81,8 @@ include_directories(
   ${SIMU_SRC_DIRECTORY}
   ${COMPANION_SRC_DIRECTORY}/thirdparty/qcustomplot
   ${COMPANION_SRC_DIRECTORY}/storage
+  ${COMPANION_SRC_DIRECTORY}/flash
+  ${COMPANION_SRC_DIRECTORY}/progress
 )
 
 ############# Do macro replacements on input files #############
@@ -175,6 +177,7 @@ add_library(common ${common_SRCS} ${common_RCC})
 target_link_libraries(common
   datamodels
   firmwares
+  progress
   shared
   simulation
   storage
@@ -196,8 +199,10 @@ include(FetchMaxLibQt)
 
 add_subdirectory(datamodels)
 add_subdirectory(firmwares)
+add_subdirectory(flash)
 add_subdirectory(generaledit)
 add_subdirectory(modeledit)
+add_subdirectory(progress)
 add_subdirectory(shared)
 add_subdirectory(simulation)
 add_subdirectory(storage)
@@ -211,10 +216,7 @@ include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_NAMES
   apppreferencesdialog
-  burnconfigdialog
   comparedialog
-  customizesplashdialog
-  flashfirmwaredialog
   helpers_html
   labels
   logsdialog
@@ -224,15 +226,7 @@ set(companion_NAMES
   modelslist
   multimodelprinter
   printdialog
-  process_copy
-  process_flash
-  process_sync
   profilechooser
-  progressdialog
-  progresswidget
-  radiointerface
-  radionotfound
-  splashlibrarydialog
   styleeditdialog
   dialogs/filesyncdialog
   )
@@ -254,11 +248,6 @@ set(companion_SRCS
   companion.cpp
 )
 
-set(companion_HDRS
-  ${companion_HDRS}
-  splashlabel.h
-)
-
 if(WIN32)
   set(icon_RC images/winicons/icon.rc)
 endif()
@@ -277,6 +266,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   qcustomplot
   miniz
   updates
+  flash
   wizard
 )
 
@@ -363,15 +353,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
           DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps"
           RENAME "${COMPANION_NAME}.svg")
 
-  # udev rules
-  install(FILES "${COMPANION_TARGETS_DIR}/45-companion-taranis.rules"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
-          RENAME "45-${COMPANION_NAME}-taranis.rules")
-
-  install(FILES "${COMPANION_TARGETS_DIR}/45-usbasp.rules"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
-          RENAME "45-${COMPANION_NAME}-usbasp.rules")
-
   if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
@@ -379,18 +360,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             FILES_MATCHING
               PATTERN "libcrypto.so.*"
               PATTERN "libssl.so.*")
-  endif()
-
-  if(LIBUSB1_FOUND)
-    get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
-    install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-            FILES_MATCHING PATTERN "libusb-1.0.so.*")
-    if(DFU_UTIL_FOUND)
-      # dfuutil is an app
-      install(FILES "${DFU_UTIL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
-    endif()
   endif()
 
   set(OperatingSystem "Linux")
@@ -414,30 +383,6 @@ elseif(WIN32)
 
   install(FILES ${LICENSE_FILE}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
-
-  # supporting utilities
-  if(LIBUSB1_FOUND)
-    cmake_path(GET LIBUSB1_LIBRARY
-               PARENT_PATH
-               LIBUSB1_LIBRARY_DIR)
-
-    if(MINGW)
-      # finds dll.a directory but we need dlls but should check extension just to be sure and future proof
-      set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_DIR}/../bin")
-    endif()
-
-    set(LIBUSB1_LIBRARY_FILE "${LIBUSB1_LIBRARY_DIR}/libusb-1.0.dll")
-
-    if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
-      install(FILES "${LIBUSB1_LIBRARY_FILE}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
-    endif()
-
-    if(DFU_UTIL_FOUND)
-      install(FILES "${DFU_UTIL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
-    endif()
-  endif(LIBUSB1_FOUND)
 
   if(OPENSSL_FOUND)
     cmake_path(GET OPENSSL_SSL_LIBRARY
@@ -511,14 +456,6 @@ elseif(APPLE)
   install(FILES ${MAC_ICON_FILE}
           DESTINATION ${companion_res_dir}
           COMPONENT Runtime)
-
-  if(DFU_UTIL_FOUND)
-    # Copy dfu-util, resolve symlink first
-    file(REAL_PATH "${DFU_UTIL_PATH}" DFU_UTIL_ABSOLUTE_PATH)
-    install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH}
-            DESTINATION ${companion_res_dir}
-            COMPONENT Runtime)
-  endif(DFU_UTIL_FOUND)
 endif()
 
 ############# Packaging ####################
@@ -605,7 +542,6 @@ elseif(APPLE)
     CONTENT "
       qt_deploy_runtime_dependencies(
         EXECUTABLE ${companion_app_dir}
-        ADDITIONAL_EXECUTABLES ${companion_res_dir}/dfu-util
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF

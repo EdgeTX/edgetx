@@ -53,7 +53,7 @@
 #define APP_COMPANION               QStringLiteral("EdgeTX Companion")
 #define APP_SIMULATOR               QStringLiteral("EdgeTX Simulator")
 
-//! Default location for EdgeTX-related user documents (settigns, logs, etc)
+//! Default location for EdgeTX-related user documents (settings, logs, etc)
 #define CPN_DOCUMENTS_LOCATION      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) % "/" % COMPANY
 //! Location for settings backup files. TODO: make option or remember last location.
 #define CPN_SETTINGS_BACKUP_DIR     CPN_DOCUMENTS_LOCATION % "/backup"
@@ -97,10 +97,10 @@
       T m_name;                               // Member variable.
   \endcode
 
-  If you only use this macro (w/out a \p PROPERTY*() macro) then you need to provide the getter, setter, and reset functions yourself. The initializer functoin is optional.
+  If you only use this macro (w/out a \p PROPERTY*() macro) then you need to provide the getter, setter, and reset functions yourself. The initializer function is optional.
   Those function names must match the expected signatures as defined in the \e Q_PROPERTY() macro.
 
-  \param TYPE   The data type (T).
+  \param TYPE  The data type (T).
   \param NAME  Name of the property.
   \param KEY   Settings key name, a const string. Can be the same as \a NAME.
   \param DFLT  Default value, must be compatible with \a TYPE.
@@ -185,7 +185,7 @@
 
 
 /*!
-  \brief CompStoreObj manages staic meta data on member properties (extending Qt's own property system) and provides utility functions for subclasses.
+  \brief CompStoreObj manages static meta data on member properties (extending Qt's own property system) and provides utility functions for subclasses.
 
   The extension is essentially used to provide some "integration" with \e QSettings by providing storage path/key mappings to properties.
   It also adds ability to access property default values, auto-initialization from saved settings (with fallback to default), and provides change notification signals.
@@ -467,6 +467,7 @@ class Profile: public CompStoreObj
   Q_OBJECT
   public:
     Profile & operator=(const Profile & rhs);
+    QString getVariantFromType() const { return fwType().section("-", 1, 1); }
 
   public slots:
     bool existsOnDisk();
@@ -756,18 +757,7 @@ class AppData: public CompStoreObj
     PROPERTYQBA (mdiWinGeo)
     PROPERTYQBA (mdiWinState)
     PROPERTYQBA (compareWinGeo)
-
-    PROPERTYSTR3(armMcu,          "arm_mcu",            QStringLiteral("at91sam3s4-9x"))
-    PROPERTYSTR2(avrArguments,    "avr_arguments")
-    PROPERTYSTR2(avrPort,         "avr_port")
-    PROPERTYSTR2(avrdudeLocation, "avrdudeLocation")
-    PROPERTYSTR3(dfuArguments,    "dfu_arguments",      QStringLiteral("-a 0"))
-    PROPERTYSTR2(dfuLocation,     "dfu_location")
-    PROPERTYSTR2(sambaLocation,   "samba_location")
-    PROPERTYSTR3(sambaPort,       "samba_port",         QStringLiteral("\\USBserial\\COM23"))
-
     PROPERTYSTR2(libDir,          "libraryPath")
-
     PROPERTYSTR3(backupDir,       "backupPath",         CPN_DOCUMENTS_LOCATION % "/backups")
     PROPERTYSTR3(eepromDir,       "lastDir",            CPN_DOCUMENTS_LOCATION % "/eeproms")
     PROPERTYSTR3(flashDir,        "lastFlashDir",       CPN_DOCUMENTS_LOCATION % "/flash")
@@ -789,13 +779,10 @@ class AppData: public CompStoreObj
 
     PROPERTYSTR (locale)
     PROPERTYSTR (gePath)
-    PROPERTYSTRD(mcu,        QStringLiteral("m64"))
-    PROPERTYSTRD(programmer, QStringLiteral("usbasp"))
 
     PROPERTY(NewModelAction, newModelAction, MODEL_ACT_WIZARD)
 
     PROPERTY4(int, embedSplashes,         "embedded_splashes",        0)
-    PROPERTY4(int, fwServerFails,         "fwserver",                 0)
     PROPERTY4(int, iconSize,              "icon_size",                2)
     PROPERTY4(int, historySize,           "history_size",             10)
     PROPERTY (int, generalEditTab,                                    0)
