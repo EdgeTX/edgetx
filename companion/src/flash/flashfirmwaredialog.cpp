@@ -264,8 +264,6 @@ void FlashFirmwareDialog::writeButtonClicked()
   g.checkHardwareCompatibility(ui->checkHardwareCompatibility->isChecked());
   g.backupOnFlash(ui->checkBackup->isChecked());
 
-  qDebug() << "flashing:" << fwName;
-
   if (imageSource != FIRMWARE) {
     // load the splash image
     const QPixmap pixmap = ui->splash->pixmap(Qt::ReturnByValue);
@@ -299,10 +297,11 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
 {
   close();
 
-  ProgressDialog progressDialog(this, tr("Write Firmware to Radio"),
+  ProgressDialog progressDialog(this, tr("Flash Firmware to Radio"),
                                 CompanionIcon("write_flash.png"));
 
   auto progress = progressDialog.progress();
+  progress->addMessage(tr("Flashing with file: %1").arg(filename));
   bool checkHw = g.checkHardwareCompatibility();
   bool backup = g.backupOnFlash();
   FirmwareInterface newfw(filename);
@@ -310,7 +309,6 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
   if (g.checkHardwareCompatibility() || backup) {
     readFirmware(
         [this, &newfw, progress, checkHw, backup](const QByteArray &_data) {
-          qDebug() << "Read old firmware, size = " << _data.size();
           FirmwareInterface currfw(_data);
           if (!currfw.isValid()) {
             QString errMsg(tr("Firmware read from radio invalid"));
