@@ -378,7 +378,7 @@ void FlashFirmwareDialog::detectClicked(bool atLoad)
   ui->connectionMode->setText(connectionMsg);
 
   if (!connectionMode) {
-    QMessageBox::critical((atLoad ? (QWidget *)parent(): this), tr("Detect Radio"),
+    QMessageBox::warning((atLoad ? (QWidget *)parent(): this), tr("Detect Radio"),
       tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
       tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
       tr("Note: USB mode is not suitable for flashing firmware."));
