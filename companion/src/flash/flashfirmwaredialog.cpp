@@ -60,7 +60,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   connect(ui->useLibrarySplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useLibrarySplashClicked);
   connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
   connect(ui->writeButton, &QPushButton::clicked, this, &FlashFirmwareDialog::writeButtonClicked);
-  connect(ui->cancelButton, &QPushButton::clicked, [=]() { close(); } );
+  connect(ui->cancelButton, &QPushButton::clicked, [this]() { close(); } );
 }
 
 FlashFirmwareDialog::~FlashFirmwareDialog()
