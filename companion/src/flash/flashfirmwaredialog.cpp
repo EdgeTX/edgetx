@@ -134,7 +134,7 @@ void FlashFirmwareDialog::loadClicked()
                                                   g.flashDir(),
                                                   getFirmwareFilesFilter());
   if (!fileName.isEmpty()) {
-    if (firmwareFileExtensions().contains(QFileInfo(fileName).suffix().toLower())) {
+    if (!firmwareFileExtensions().contains(QFileInfo(fileName).suffix().toLower())) {
       QMessageBox::critical(this, tr("Open Firmware File"),
                             tr("%1 has an unsupported file extension")
                             .arg(fileName));

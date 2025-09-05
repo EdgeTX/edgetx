@@ -712,7 +712,7 @@ bool isRadioConnected()
 
 bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget *progress, bool promptForFile)
 {
-  QString msg(TR("Writing firmware..."));
+  QString msg(TR("Writing radio firmware to file starting..."));
   progress->setInfo(msg);
   progress->addMessage(msg);
 
@@ -808,7 +808,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
     f.close();
     return false;
   } else {
-    msg = TR("Writing finished");
+    msg = TR("Writing radio firmware to file finished");
     progress->addMessage(msg);
     progress->setInfo(msg);
   }

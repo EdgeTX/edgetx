@@ -605,7 +605,7 @@ void MainWindow::readFlash()
     return;
   }
 
-  ProgressDialog progressDialog(this, tr("Read Radio Firmware"),
+  ProgressDialog progressDialog(this, tr("Read Firmware From Radio"),
                                 CompanionIcon("read_flash.png"));
 
   auto progress = progressDialog.progress();
