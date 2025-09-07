@@ -133,7 +133,7 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
   else if (func == FuncLCDtoVideo)
     return tr("LCD to Video");
   else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-    const int idx = Boards::getSwitchTypeOffset(Board::SWITCH_FUNC) + func - FuncPushCustomSwitch1 + 1;
+    const int idx = Boards::getSwitchIndexForCFSOffset(func - FuncPushCustomSwitch1) + 1;
     return tr("Push Custom Switch %1").arg(RawSource(SOURCE_TYPE_SWITCH, idx).toString(model));
   }
   else {

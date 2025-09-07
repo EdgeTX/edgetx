@@ -1081,7 +1081,12 @@ int Boards::getSwitchIndexForCFS(int cfsIdx, Board::Type board)
 {
   return getBoardJson(board)->getSwitchIndexForCFS(cfsIdx);
 }
-    
+
+int Boards::getSwitchIndexForCFSOffset(int offset, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchIndexForCFSOffset(offset);
+}
+
 QString Boards::getSwitchName(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchName(index);
