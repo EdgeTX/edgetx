@@ -678,6 +678,12 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_TEST:
       return false;
 #endif
+    case FUNC_PUSH_CUST_SWITCH:
+#if defined(FUNCTION_SWITCHES) || defined(CFN_ONLY)
+      return modelFunctions;
+#else
+      return false;
+#endif
     default:
       return true;
   }
