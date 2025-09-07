@@ -279,7 +279,8 @@ int CustomFunctionData::funcContext(const int index)
 
   if ((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) ||
       (index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) ||
-      (index >= FuncAdjustGV1 && index <= FuncAdjustGVLast))
+      (index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) ||
+      (index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast))
     ret &= ~GlobalFunctionsContext;
 
   return ret;
