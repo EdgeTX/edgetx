@@ -223,11 +223,12 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncSetScreen:
     def += std::to_string(rhs.param);
     break;
-  case FuncPushCustomSwitch1:
-    def += std::to_string(p1);
+  case FuncPushCustomSwitch1: {
+    int idx = Boards::getCFSIndexForSwitch(Boards::getSwitchIndexForCFSOffset(p1));
+    def += std::to_string(idx);
     def += ",";
     def += std::to_string(rhs.param);
-    break;
+  } break;
   default:
     add_comma = false;
     break;
@@ -393,7 +394,8 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   case FuncPushCustomSwitch1: {
     int sw = 0;
     def >> sw;
-    rhs.func = (AssignFunc)((int)rhs.func + sw);
+    int offset = Boards::getCFSOffsetForCFSIndex(sw);
+    rhs.func = (AssignFunc)((int)rhs.func + offset);
     def.ignore();
     int param = 0;
     def >> param;

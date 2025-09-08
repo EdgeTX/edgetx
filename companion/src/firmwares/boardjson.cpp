@@ -467,6 +467,28 @@ int BoardJson::getSwitchIndexForCFS(const SwitchesTable * switches, int cfsIdx)
   return -1;
 }
 
+const int BoardJson::getCFSOffsetForCFSIndex(int index) const
+{
+  return getCFSOffsetForCFSIndex(m_switches, index);
+}
+
+// static
+int BoardJson::getCFSOffsetForCFSIndex(const SwitchesTable * switches, const int index)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (switches->at(i).customSwitchIdx == index)
+        return cnt;
+      else
+        cnt++;
+    }
+  }
+
+  return -1;
+}
+
 const int BoardJson::getSwitchIndexForCFSOffset(int offset) const
 {
   return getSwitchIndexForCFSOffset(m_switches, offset);
