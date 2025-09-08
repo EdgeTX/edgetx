@@ -217,6 +217,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "tx15");
   else if (IS_RADIOMASTER_TX16SMK3(board))
     strcpy(bluetoothName, "tx16smk3");
+  else if (IS_RADIOMASTER_GX15(board))
+    strcpy(bluetoothName, "gx15");
   else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))

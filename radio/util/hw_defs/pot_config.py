@@ -162,6 +162,12 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
     },
+    "gx15": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
+    },
     "tx16s": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "MULTIPOS"},
