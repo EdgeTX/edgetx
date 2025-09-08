@@ -1,4 +1,4 @@
-/*
+Refresh rate/*
  * Copyright (C) EdgeTX
  *
  * Based on code named
@@ -294,10 +294,10 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
 #define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
-#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_FS_COLOR_LIST               "Custom","Off","Bianco","Rosso","Verde","Giallo","Arancio","Blue","Rosa"
 #define TR_GROUP                       "Gruppo"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_LUA_OVERRIDE                "Allow Lua override"
+#define TR_GROUP_ALWAYS_ON             "Sempre on"
+#define TR_LUA_OVERRIDE                "Ignora Lua"
 #define TR_GROUPS                      "Sempre in gruppi"
 #define TR_LAST                        "Ultimo"
 #define TR_MORE_INFO                   "Più info"
@@ -1256,5 +1256,5 @@
 /*
  * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
  * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
- * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
+ * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 08/09/2025
  */
