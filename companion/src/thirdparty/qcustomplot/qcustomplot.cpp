@@ -32993,8 +32993,10 @@ QCPPolarAxisAngular::SelectablePart QCPPolarAxisAngular::getPartAt(const QPointF
     return spTickLabels;
   else if (mAxisPainter->labelSelectionBox().contains(pos.toPoint()))
     return spAxisLabel;
-  else */
+  else
     return spNone;
+  */
+  return spNone;  // until TODO fix
 }
 
 /* inherits documentation from base class */
