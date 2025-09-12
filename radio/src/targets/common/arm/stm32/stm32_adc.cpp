@@ -782,6 +782,7 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
     // busy wait
     if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
       _adc_timeout_error = true;
+      return;
     }
   }
 }
