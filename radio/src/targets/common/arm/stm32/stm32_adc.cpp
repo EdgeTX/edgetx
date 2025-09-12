@@ -33,10 +33,14 @@
 #include <string.h>
 #include "FreeRTOSConfig.h"
 
-
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+  // Disable software oversampling as HW one is used
+  #define OVERSAMPLING 1
+#else
 #define OVERSAMPLING 4
+#endif
 
-#define SAMPLING_TIMEOUT_US 500
+#define SAMPLING_TIMEOUT_US 200
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2
@@ -78,6 +82,9 @@ static uint8_t _adc_run;
 static uint8_t _adc_oversampling_disabled;
 static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
 
+// Indicates ADC timeout has occured
+static volatile bool _adc_timeout_error;
+
 void stm32_hal_set_inputs_mask(uint32_t inputs)
 {
   _adc_input_inhibt_mask |= inputs;
@@ -88,6 +95,16 @@ uint32_t stm32_hal_get_inputs_mask()
   return _adc_input_inhibt_mask;
 }
 
+#if defined(STM32H7)
+  #if defined(ADC3)
+    #define VBAT_ADC ADC3
+  #else
+    #define VBAT_ADC ADC2
+  #endif
+#else
+  #define VBAT_ADC ADC1
+#endif
+
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
 // Measuring VBAT puts considerable drain (22 µA) on the battery instead of
 // normal drain (~10 nA)
@@ -96,7 +113,7 @@ void enableVBatBridge()
   if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return;
 
   // Set internal measurement path for vbat sensor
-  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_VBAT);
+  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(VBAT_ADC), LL_ADC_PATH_INTERNAL_VBAT);
 
   auto channel = adcGetInputOffset(ADC_INPUT_RTC_BAT);
   _adc_inhibit_mask &= ~(1 << channel);
@@ -110,13 +127,13 @@ void disableVBatBridge()
   _adc_inhibit_mask |= (1 << channel);
 
   // Set internal measurement path to none
-  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_NONE);
+  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(VBAT_ADC), LL_ADC_PATH_INTERNAL_NONE);
 }
 
 bool isVBatBridgeEnabled()
 {
   // && !(_adc_inhibit_mask & (1 << channel));
-  return LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1)) == LL_ADC_PATH_INTERNAL_VBAT;
+  return LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(VBAT_ADC)) == LL_ADC_PATH_INTERNAL_VBAT;
 }
 
 static void adc_enable_clock(ADC_TypeDef* ADCx)
@@ -222,6 +239,16 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
       wait_loop_index--;
     }
   }
+
+  /* Start ADC calibration in mode single-ended or differential */
+#if defined(STM32H7RS)
+  LL_ADC_StartCalibration(ADCx, LL_ADC_SINGLE_ENDED);
+#else
+  LL_ADC_StartCalibration(ADCx, LL_ADC_CALIB_OFFSET_LINEARITY, LL_ADC_SINGLE_ENDED);
+#endif
+
+  /* Wait for calibration completion */
+  while (LL_ADC_IsCalibrationOnGoing(ADCx) != 0UL);
 #endif
 
 #if defined(LL_ADC_RESOLUTION_12B_OPT)
@@ -242,6 +269,14 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
     adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_LIMITED;
 #endif
   }
+
+#if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
+  // set hardware oversampling
+  if (!_adc_oversampling_disabled) {
+    LL_ADC_ConfigOverSamplingRatioShift(ADCx, 16, LL_ADC_OVS_SHIFT_RIGHT_4);
+    LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
+  }
+#endif
 
   LL_ADC_REG_Init(ADCx, &adcRegInit);
 
@@ -686,6 +721,7 @@ static void adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
                               const stm32_adc_input_t* inputs, uint8_t n_inputs)
 {
+  _adc_timeout_error = false;
   _adc_completed = 0;
   _adc_run = 0;
 
@@ -745,9 +781,7 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
   while(!_adc_completed) {
     // busy wait
     if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
-      TRACE("ADC timeout");
-      _adc_started_mask = 0;
-      return;
+      _adc_timeout_error = true;
     }
   }
 }
@@ -766,7 +800,9 @@ static void _adc_mark_completed(const stm32_adc_t* adc)
 static void _adc_chain_conversions(const stm32_adc_t* adc)
 {
   _adc_mark_completed(adc);
+
   if (_adc_started_mask != 0) return;
+  if (_adc_timeout_error) return;
 
   if (!_adc_oversampling_disabled && (++_adc_run < OVERSAMPLING)) {
     adc_start_read(_adc_ADCs, _adc_n_ADC);
