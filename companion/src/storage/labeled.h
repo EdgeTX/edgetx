@@ -45,7 +45,7 @@ class LabelsStorageFormat : public StorageFormat
     virtual bool write(const RadioData & radioData);
 
   protected:
-    virtual bool loadFile(QByteArray & fileData, const QString & fileName) = 0;
+    virtual bool loadFile(QByteArray & fileData, const QString & fileName, bool optional = false) = 0;
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName) = 0;
     virtual bool getFileList(std::list<std::string>& filelist) = 0;
     virtual bool deleteFile(const QString & fileName) = 0;
