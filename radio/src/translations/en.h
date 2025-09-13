@@ -49,7 +49,11 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES            "OFF","Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "None","Toggle","2POS","3POS","Global"
+#else
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
+#endif
 #define TR_POTTYPES                    "None","Pot",TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Multipos Switch"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "OFF","Flight","Manual Reset"
 #define TR_COUNTRY_CODES               TR("US","America"),TR("JP","Japan"),TR("EU","Europe")
@@ -232,12 +236,11 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER_LONG                "[ENTER LONG]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(COLORLCD)
@@ -273,6 +276,7 @@
 #define TR_TIMER                       TR("Timer", "Timer ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("E.Limits", "Extended limits")
 #define TR_ETRIMS                      TR("E.Trims", "Extended trims")
 #define TR_TRIMINC                     "Trim Step"
@@ -293,8 +297,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
@@ -422,12 +425,7 @@
 #define TR_CALIBRATION                 "Calibration"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Calibration completed"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Press [Enter] to start"
-  #define TR_SETMIDPOINT               "Center sticks/pots/sliders and press [Enter]"
-  #define TR_MOVESTICKSPOTS            "Move axis/pots/sliders and press [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " TO START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTER AXIS/SLIDERS"
   #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #else
@@ -440,8 +438,10 @@
   #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
@@ -653,6 +653,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD card full"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"

@@ -36,6 +36,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "hal/audio_driver.h"
+#include "hal/rgbleds.h"
 
 #include "timers_driver.h"
 
@@ -53,7 +54,6 @@
 #endif
 
 #if defined(LIBOPENUI)
-  #include "libopenui.h"
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
@@ -293,6 +293,22 @@ void setDefaultOwnerId()
 }
 #endif
 
+void generalDefaultSwitches()
+{
+  for (uint8_t sw = 0; sw < switchGetMaxSwitches(); sw += 1) {
+    g_eeGeneral.switchConfig[sw].type = switchGetDefaultConfig(sw);
+    g_eeGeneral.switchConfig[sw].name[0] = 0;
+#if defined(FUNCTION_SWITCHES)
+    if (switchIsCustomSwitch(sw))
+      g_eeGeneral.switchConfig[sw].start = FS_START_PREVIOUS;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      g_eeGeneral.switchConfig[sw].onColor.setColor(0xFFFFFF);
+      g_eeGeneral.switchConfig[sw].offColor.setColor(0);
+#endif
+#endif
+  }
+}
+
 void generalDefault()
 {
   memclear(&g_eeGeneral, sizeof(g_eeGeneral));
@@ -318,7 +334,7 @@ void generalDefault()
   adcCalibDefaults();
 
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
-  g_eeGeneral.switchConfig = switchGetDefaultConfig();
+  generalDefaultSwitches();
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
@@ -386,6 +402,9 @@ void generalDefault()
 
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
+#if defined(RADIO_TX15)
+  g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
+#endif
 #endif
 
   // disable Custom Script
@@ -635,7 +654,6 @@ void checkSDfreeStorage() {
   }
 }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
 static void checkFailsafe()
 {
   for (int i=0; i<NUM_MODULES; i++) {
@@ -652,9 +670,6 @@ static void checkFailsafe()
     }
   }
 }
-#else
-#define checkFailsafe()
-#endif
 
 #if defined(GUI)
 void checkAll(bool isBootCheck)
@@ -1112,6 +1127,10 @@ void edgeTxClose(uint8_t shutdown)
 #endif
 
   sdDone();
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  turnOffRGBLeds();
+#endif
 }
 
 void edgeTxResume()

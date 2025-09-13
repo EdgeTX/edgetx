@@ -26,6 +26,11 @@
 #include "dma2d.h"
 #include "lua/lua_event.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 lua_State *lsStandalone = nullptr;
 
 #if defined(LUA_ALLOCATOR_TRACER)

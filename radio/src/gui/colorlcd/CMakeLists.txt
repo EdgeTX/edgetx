@@ -97,6 +97,7 @@ set(GUI_SRC
   radio/radio_tools.cpp
   radio/radio_trainer.cpp
   radio/radio_version.cpp
+  radio/radio_gps_tool.cpp
   )
 
 macro(add_gui_src src)
@@ -122,6 +123,7 @@ endif()
 
 if(FUNCTION_SWITCHES)
   add_gui_src(model/function_switches.cpp)
+  add_gui_src(radio/radio_cfs.cpp)
   add_gui_src(radio/radio_diagcustswitches.cpp)
 endif()
 

@@ -140,7 +140,9 @@ uint32_t SystemCoreClock = HSI_VALUE;
   * @retval None
   */
 
-void SystemInit(void)
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
+
+BOOTSTRAP void SystemInit(void)
 {
   /* Configure the Vector Table location -------------------------------------*/
   SCB->VTOR = INTVECT_START;

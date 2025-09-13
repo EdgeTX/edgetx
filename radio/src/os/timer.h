@@ -21,12 +21,11 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
 
 // OS specific implementation
-#if defined(POSIX_THREADS)
-  #include "timer_pthread.h"
+#if defined(NATIVE_THREADS)
+  #include "timer_native.h"
 #elif defined(FREE_RTOS)
   #include "timer_freertos.h"
 #endif

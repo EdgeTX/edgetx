@@ -424,13 +424,20 @@ QString MultiModelPrinter::printHeliSetup()
 
 QString MultiModelPrinter::printFlightModes()
 {
-  QString str = printTitle(tr("Flight modes"));
+  QString str = printTitle(Boards::getCapability(getCurrentBoard(), Board::Air)
+                               ? tr("Flight modes")
+                               : tr("Drive modes"));
   // Trims
   {
     MultiColumns columns(modelPrinterMap.size());
     columns.appendSectionTableStart();
-    QStringList hd = QStringList() << tr("Flight mode") << tr("Switch") << tr("F.In") << tr("F.Out");
-    for (int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+    QStringList hd = QStringList()
+                     << (Boards::getCapability(getCurrentBoard(), Board::Air)
+                             ? tr("Flight mode")
+                             : tr("Drive mode"))
+                     << tr("Switch") << tr("F.In") << tr("F.Out");
+    for (int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims);
+         i++) {
       hd << RawSource(SOURCE_TYPE_TRIM, i + 1).toString();
     }
     columns.appendRowHeader(hd);
@@ -502,7 +509,10 @@ QString MultiModelPrinter::printFlightModes()
       columns.appendRowEnd();
     }
 
-    columns.appendRowHeader(QStringList() << tr("Flight mode"));
+    columns.appendRowHeader(
+        QStringList() << (Boards::getCapability(getCurrentBoard(), Board::Air)
+                              ? tr("Flight mode")
+                              : tr("Drive mode")));
 
     for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
       columns.appendRowStart();
@@ -550,7 +560,7 @@ QString MultiModelPrinter::printOutputs()
   for (int i=0; i<firmware->getCapability(Outputs); i++) {
     int count = 0;
     for (int k=0; k < modelPrinterMap.size(); k++)
-      count = std::max(count, modelPrinterMap.value(k).first->mixes(i).size());
+      count = std::max(count, (int)modelPrinterMap.value(k).first->mixes(i).size());
     if (!count)
       continue;
     columns.appendRowStart();
@@ -606,7 +616,7 @@ QString MultiModelPrinter::printInputs()
   for (int i=0; i<std::max(4, firmware->getCapability(VirtualInputs)); i++) {
     int count = 0;
     for (int k=0; k < modelPrinterMap.size(); k++) {
-      count = std::max(count, modelPrinterMap.value(k).first->expos(i).size());
+      count = std::max(count, (int)modelPrinterMap.value(k).first->expos(i).size());
     }
     if (count > 0) {
       columns.appendRowStart();
@@ -636,7 +646,7 @@ QString MultiModelPrinter::printMixers()
   for (int i=0; i<firmware->getCapability(Outputs); i++) {
     int count = 0;
     for (int k=0; k < modelPrinterMap.size(); k++) {
-      count = std::max(count, modelPrinterMap.value(k).first->mixes(i).size());
+      count = std::max(count, (int)modelPrinterMap.value(k).first->mixes(i).size());
     }
     if (count > 0) {
       columns.appendRowStart();
@@ -975,7 +985,7 @@ QString MultiModelPrinter::printFunctionSwitches()
    columns.appendRowStart(tr("Name"), 20);
 
    for (int i = 0; i < numFS; i++) {
-     COMPARECELLWIDTH(model->functionSwitchNames[i], colwidth);
+     COMPARECELLWIDTH(model->customSwitches[i].name, colwidth);
    }
 
    columns.appendRowEnd();

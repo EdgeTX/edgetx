@@ -55,10 +55,10 @@
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
-#if !NARROW_LAYOUT
-  #define TR_SWTYPES                    "Ingen", "2 pos flipp","2 pos","3 pos"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                    "Ingen", "2 pos flipp","2 pos","3 pos","Global"
 #else
-  #define TR_SWTYPES                    "Ingen","Flipp","2 pos","3 pos"
+#define TR_SWTYPES                    "Ingen", "2 pos flipp","2 pos","3 pos"
 #endif
 
 #define TR_POTTYPES                     "Ingen","Vred",TR("Vred m. mitt","Vred med mittläge"),"Reglage",TR("Multipos","Flerlägesväljare"),"Axel X","Axel Y","Brytare"
@@ -245,6 +245,7 @@
 
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                      "[ENTER]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                      "[NÄSTA]"
@@ -285,6 +286,7 @@
 #define TR_TIMER                        TR("Timer","Timer ")
 #define TR_NO_TIMERS                    "Ingen timer"
 #define TR_START                        "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                      TR("Gränser++","Utökade gränser")
 #define TR_ETRIMS                       TR("Trimmar++","Utökade trimmar")
 #define TR_TRIMINC                      TR("Trimning","Trimmökning")
@@ -305,8 +307,7 @@
 #define TR_FS_COLOR_LIST                "Anpassad","Av","Vit","Röd","Grön","Gul","Orange","Blå","Rosa"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
-#define TR_FS_ON_COLOR                  TR("PÅ:","PÅ färg")
-#define TR_FS_OFF_COLOR                 TR("AV:","AV färg")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                       "Alltid på grupper"
 #define TR_LAST                         "Sist"
 #define TR_MORE_INFO                    "Mer info"
@@ -437,12 +438,7 @@
 #define TR_VTRIM                        "Trimm - +"
 #define TR_CALIB_DONE                   "Kalibrering färdig"
 
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART                "Tryck [Enter] för att börja"
-  #define TR_SETMIDPOINT                "Centrera axlar/vred/reglage och tryck [Enter]"
-  #define TR_MOVESTICKSPOTS             "Rör axlar/vred/reglage och tryck [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT                "CENTRERA AXLAR/REGLAGE"
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #else
@@ -455,9 +451,10 @@
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #endif
   #define TR_MENUWHENDONE               TR_ENTER " AVSLUTAR"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-
-#define TR_TXnRX                        "Tx:\0Rx:"
+#define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                          4
 #define TR_NODATA                       "DATA SAKNAS"
 #define TR_US                           "us"
@@ -665,6 +662,9 @@
 #define TR_POWER_METER_INT              "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spektrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spektrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                  "SD-kortet fullt"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT              TR_SDCARD_FULL "\nLoggar och skärmklipp inaktiverade"

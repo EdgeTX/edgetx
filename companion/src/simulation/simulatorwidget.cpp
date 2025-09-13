@@ -33,7 +33,7 @@
 #include "simulateduiwidget.h"
 #include "storage.h"
 #include "virtualjoystickwidget.h"
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
@@ -126,7 +126,7 @@ SimulatorWidget::~SimulatorWidget()
   delete radioUiWidget;
   delete vJoyLeft;
   delete vJoyRight;
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   delete joystick;
 #endif
   firmware = nullptr;
@@ -519,6 +519,9 @@ void SimulatorWidget::setupRadioWidgets()
       case RadioWidget::RADIO_WIDGET_KNOB   :
         ui->radioWidgetsHTLayout->removeWidget(rw);
         break;
+      case RadioWidget::RADIO_WIDGET_FUNC_SWITCH:
+        ui->radioWidgetsCSLayout->removeWidget(rw);
+        break;
       case RadioWidget::RADIO_WIDGET_FADER :
       case RadioWidget::RADIO_WIDGET_TRIM  :
         ui->VCGridLayout->removeWidget(rw);
@@ -534,22 +537,36 @@ void SimulatorWidget::setupRadioWidgets()
 
   // Now set up new widgets.
 
-  // switches
-  Board::SwitchType swcfg;
-  for (i = 0; i < ttlSwitches; ++i) {
-    if (!radioSettings.isSwitchAvailable(i) || Boards::isSwitchFunc(i))
-      continue;
-
-    swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);
-    wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i + 1).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
-    RadioSwitchWidget * sw = new RadioSwitchWidget(swcfg, wname, -1, ui->radioWidgetsHT);
-    sw->setIndex(i);
-    ui->radioWidgetsHTLayout->addWidget(sw);
-
-    m_radioWidgets.append(sw);
+  if (!Boards::getCapability(m_board, Board::FunctionSwitches)) {
+    ui->radioWidgetsCS->hide();
   }
 
-  midpos = (int)floorf(m_radioWidgets.size() / 2.0f);
+  // switches
+  int swCnt = 0;
+  for (i = 0; i < ttlSwitches; ++i) {
+    if (radioSettings.isSwitchAvailable(i)) {
+      wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i + 1).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
+      RadioWidget * sw;
+      Board::SwitchType swcfg;
+
+      if (Boards::isSwitchFunc(i)) {
+        swcfg = Board::SWITCH_2POS;  // TODO: get this from model settings
+        sw = new RadioFuncSwitchWidget(simulator, swcfg, wname, -1, ui->radioWidgetsCS);
+        ui->radioWidgetsCSLayout->addWidget(sw);
+      } else {
+        swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);
+        sw = new RadioSwitchWidget(swcfg, wname, -1, ui->radioWidgetsHT);
+        ui->radioWidgetsHTLayout->addWidget(sw);
+        swCnt += 1;
+      }
+
+      sw->setIndex(i);
+
+      m_radioWidgets.append(sw);
+    }
+  }
+
+  midpos = (int)floorf(swCnt / 2.0f);
 
   // pots in middle of switches
   for (i = 0; i < ttlInputs; ++i) {
@@ -607,7 +624,7 @@ void SimulatorWidget::setupRadioWidgets()
 
 void SimulatorWidget::setupJoysticks()
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   bool joysticksEnabled = false;
 
   if (g.jsSupport()) {
@@ -746,7 +763,7 @@ void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
 
 void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value)
 {
-  //qDebug() << type << index << value;
+  // qDebug() << type << index << value;
   if (!simulator || index < 0)
     return;
 
@@ -763,6 +780,10 @@ void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetTyp
       }
       else
         inpType = SimulatorInterface::INPUT_SRC_SWITCH;
+      break;
+
+    case RadioWidget::RADIO_WIDGET_FUNC_SWITCH:
+      inpType = SimulatorInterface::INPUT_SRC_SWITCH;
       break;
 
     case RadioWidget::RADIO_WIDGET_KNOB :
@@ -806,7 +827,7 @@ void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetTyp
 
 void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   static const int ttlSticks = 4;
   const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
   const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
@@ -855,7 +876,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 
 void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 
   if (!joystick || button >= MAX_JS_BUTTONS)
     return;

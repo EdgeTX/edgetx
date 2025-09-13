@@ -22,7 +22,6 @@
 #include "radio_diagkeys.h"
 
 #include "hal/rotary_encoder.h"
-#include "libopenui.h"
 #include "edgetx.h"
 
 #if defined(RADIO_PL18U)
@@ -125,14 +124,14 @@ class RadioKeyDiagsWindow : public Window
 
   void addSwitches(Window *form)
   {
-    switchValues = new lv_obj_t *[switchGetMaxSwitches()];
+    switchValues = new lv_obj_t *[switchGetMaxAllSwitches()];
     lv_obj_t *obj = form->getLvObj();
     uint8_t i;
     uint8_t row = 0;
 
     // SWITCHES
-    for (i = 0; i < switchGetMaxSwitches(); i++) {
-      if (SWITCH_EXISTS(i)) {
+    for (i = 0; i < switchGetMaxAllSwitches(); i++) {
+      if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         auto lbl = lv_label_create(obj);
         lv_label_set_text(lbl, "");
         lv_obj_set_pos(lbl, 0, row * EdgeTxStyles::STD_FONT_HEIGHT);
@@ -197,8 +196,8 @@ class RadioKeyDiagsWindow : public Window
   {
     uint8_t i;
 
-    for (i = 0; i < switchGetMaxSwitches(); i++) {
-      if (SWITCH_EXISTS(i)) {
+    for (i = 0; i < switchGetMaxAllSwitches(); i++) {
+      if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
         getvalue_t sw =
             ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));

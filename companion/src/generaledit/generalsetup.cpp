@@ -439,7 +439,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { NULL, NULL }};
 
   b->clear();
-  for (int i = 0; strings[i][0] != NULL; i++) {
+  for (int i = 0; !strings[i][0].isNull(); i++) {
     b->addItem(strings[i][0],strings[i][1]);
     if (generalSettings.ttsLanguage == strings[i][1]) {
       b->setCurrentIndex(b->count() - 1);

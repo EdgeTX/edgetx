@@ -22,12 +22,12 @@
 #include "widget_settings.h"
 
 #include "color_picker.h"
-#include "libopenui.h"
 #include "edgetx.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "view_main.h"
 #include "filechoice.h"
+#include "slider.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

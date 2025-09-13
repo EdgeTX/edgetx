@@ -20,7 +20,6 @@
  */
 
 #include "listbox.h"
-#include "libopenui.h"
 
 ListBox::ListBox(Window* parent, const rect_t& rect,
                  const std::vector<std::string>& names, uint8_t lineHeight) :

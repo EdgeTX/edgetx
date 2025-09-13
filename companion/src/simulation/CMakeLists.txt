@@ -24,9 +24,8 @@ set(${PROJECT_NAME}_NAMES
   simulateduiwidgetGeneric
 )
 
-if(SDL2_FOUND)
-  set(${PROJECT_NAME}_NAMES
-    ${${PROJECT_NAME}_NAMES}
+if(TARGET SDL2::SDL2)
+  list(APPEND ${PROJECT_NAME}_NAMES
     joystick
     joystickdialog
   )
@@ -47,7 +46,7 @@ set(${PROJECT_NAME}_HDRS
 )
 
 # AUTOMOC does not detect so manually process
-qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+qt_wrap_cpp(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_HDRS}
 )
 
@@ -58,8 +57,12 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
-    Qt5::Svg
+    Qt::Svg
 )
+
+if(TARGET SDL2::SDL2)
+  target_link_libraries(${PROJECT_NAME} PUBLIC SDL2::SDL2)
+endif()
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE

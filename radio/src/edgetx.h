@@ -353,6 +353,7 @@ uint16_t isqrt32(uint32_t n);
 
 void setDefaultOwnerId();
 void generalDefault();
+void generalDefaultSwitches();
 
 uint32_t hash(const void * ptr, uint32_t size);
 
@@ -502,30 +503,24 @@ enum AUDIO_SOUNDS {
   AU_STICK2_MIDDLE,
   AU_STICK3_MIDDLE,
   AU_STICK4_MIDDLE,
-#if defined(PCBFRSKY)
   AU_POT1_MIDDLE,
   AU_POT2_MIDDLE,
 #if defined(PCBX9E)
   AU_POT3_MIDDLE,
   AU_POT4_MIDDLE,
-#endif
+#endif //X9E
 #if defined(PCBX10)
   AU_POT4_MIDDLE,
   AU_POT5_MIDDLE,
   AU_POT6_MIDDLE,
   AU_POT7_MIDDLE,
-#endif
+#endif //X10
   AU_SLIDER1_MIDDLE,
   AU_SLIDER2_MIDDLE,
 #if defined(PCBX9E)
   AU_SLIDER3_MIDDLE,
   AU_SLIDER4_MIDDLE,
-#endif
-#else
-  AU_POT1_MIDDLE,
-  AU_POT2_MIDDLE,
-  AU_POT3_MIDDLE,
-#endif
+#endif // X9E
   AU_MIX_WARNING_1,
   AU_MIX_WARNING_2,
   AU_MIX_WARNING_3,
@@ -723,6 +718,7 @@ union ReusableBuffer
   struct {
     uint8_t bars[LCD_W];
     uint8_t max[LCD_W];
+    uint8_t peak[LCD_W];
     uint32_t freq;
     uint32_t span;
     uint32_t step;

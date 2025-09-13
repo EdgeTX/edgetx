@@ -22,7 +22,6 @@
 #include "view_channels.h"
 
 #include "channel_bar.h"
-#include "libopenui.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"

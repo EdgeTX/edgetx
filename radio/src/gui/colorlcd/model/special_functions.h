@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "libopenui.h"
 #include "list_line_button.h"
 #include "edgetx.h"
 #include "page.h"
@@ -44,9 +43,7 @@ class FunctionLineButton : public ListLineButton
   std::string getName() const override { return "FunctionButton"; }
 #endif
 
-  static void on_draw(lv_event_t *e);
-
-  void delayed_init();
+  void delayedInit() override;
 
   void refresh() override;
 
@@ -67,7 +64,6 @@ class FunctionLineButton : public ListLineButton
   static constexpr coord_t EN_Y = NM_Y + PAD_TINY;
 
  protected:
-  bool init = false;
   const CustomFunctionData *cfn;
   const char *prefix;
 
@@ -88,12 +84,9 @@ class FunctionEditPage : public Page
   FunctionEditPage(uint8_t index, EdgeTxIcon icon, const char *title,
                    const char *prefix);
 
-  static void on_draw(lv_event_t *e);
-
-  void delayed_init();
+  void delayedInit() override;
 
  protected:
-  bool init = false;
   uint8_t index;
   Window *specialFunctionOneWindow = nullptr;
   StaticText *headerSF = nullptr;

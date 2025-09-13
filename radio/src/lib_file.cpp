@@ -22,6 +22,11 @@
 #include <cinttypes>
 #include <stdarg.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 const char * getFileExtension(const char * filename, uint8_t size, uint8_t extMaxLen, uint8_t * fnlen, uint8_t * extlen)
 {
   int len = size;
@@ -109,7 +114,7 @@ FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
   return res;
 }
 
-#if !defined(BOOT) && !defined(SIMU)
+#if !defined(BOOT)
 
 // Replace FatFS implementation of f_puts and f_printf
 

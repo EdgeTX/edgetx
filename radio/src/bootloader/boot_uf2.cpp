@@ -34,8 +34,6 @@
 
 #define FRAME_INTERVAL_MS 20
 
-extern uf2_fat_write_state_t _uf2_write_state;
-
 void bootloaderUF2()
 {
   BootloaderState state = ST_START;
@@ -89,7 +87,7 @@ void bootloaderUF2()
           state = (state == ST_FLASH_DONE) ? ST_REBOOT : ST_START;
         } else {
           auto wr_st = uf2_fat_get_state();
-          if (wr_st->num_blocks != 0 && wr_st->num_blocks <= UF2_MAX_BLOCKS) {
+          if (wr_st->num_blocks != 0 && wr_st->num_blocks != UF2_INVALID_NUM_BLOCKS) {
             state = ST_FLASHING;
           }
         }
@@ -100,7 +98,7 @@ void bootloaderUF2()
         bootloaderDrawScreen(state, 0);
       } else if (state == ST_FLASHING) {
         auto wr_st = uf2_fat_get_state();
-        if (wr_st->num_blocks == 0 || wr_st->num_blocks > UF2_MAX_BLOCKS) {
+        if (wr_st->num_blocks == 0 || wr_st->num_blocks == UF2_INVALID_NUM_BLOCKS) {
           state = ST_USB;
         } else {
           uint32_t progress = (wr_st->num_written * 100) / wr_st->num_blocks;

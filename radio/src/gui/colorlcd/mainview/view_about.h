@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "libopenui.h"
+#include "dialog.h"
 
 class AboutUs : public BaseDialog
 {

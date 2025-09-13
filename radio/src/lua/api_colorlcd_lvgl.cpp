@@ -21,7 +21,6 @@
 
 #define LUA_LIB
 
-#include "libopenui.h"
 #include "lua_api.h"
 #include "lua_widget.h"
 #include "edgetx.h"
@@ -337,6 +336,7 @@ static int luaLvglGetScrollPos(lua_State *L)
   return 0;
 }
 
+extern "C" {
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(clear, luaLvglClear)
@@ -376,7 +376,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBox(); }); })
   LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
   LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true); })
-  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetDialog(); }, true); })
+  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetDialog(); }, true); })
   // Dialogs
   LROT_FUNCENTRY(confirm, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetConfirmDialog(); }); })
   LROT_FUNCENTRY(message, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMessageDialog(); }); })
@@ -481,7 +481,6 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(getScrollPos, luaLvglGetScrollPos)
 LROT_END(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
 
-extern "C" {
 LUALIB_API int luaopen_lvgl(lua_State *L)
 {
   luaL_rometatable(L, LVGL_SIMPLEMETATABLE, LROT_TABLEREF(lvgl_base_mt));

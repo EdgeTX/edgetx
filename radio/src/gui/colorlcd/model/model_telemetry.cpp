@@ -22,7 +22,6 @@
 #include "model_telemetry.h"
 
 #include "fullscreen_dialog.h"
-#include "libopenui.h"
 #include "list_line_button.h"
 #include "edgetx.h"
 #include "page.h"
@@ -214,12 +213,10 @@ class SensorButton : public ListLineButton
 
     check(isActive());
 
-    lv_obj_add_event_cb(lvobj, SensorButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                        nullptr);
+    delayLoad();
   }
 
  protected:
-  bool init = false;
   bool showId = false;
   lv_obj_t* numLabel = nullptr;
   lv_obj_t* idLabel = nullptr;
@@ -227,16 +224,6 @@ class SensorButton : public ListLineButton
   lv_obj_t* fresh = nullptr;
   uint32_t lastRefresh = 0;
   std::string valString;
-
-  static void on_draw(lv_event_t* e)
-  {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (SensorButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
-  }
 
   bool isActive() const override { return telemetryItems[index].isAvailable(); }
 
@@ -260,11 +247,9 @@ class SensorButton : public ListLineButton
     refresh();
   }
 
-  void delayed_init()
+  void delayedInit() override
   {
     char s[20];
-
-    init = true;
 
     lv_obj_enable_style_refresh(false);
 
@@ -302,7 +287,7 @@ class SensorButton : public ListLineButton
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     if (showId != g_model.showInstanceIds) setNumIdState();
 

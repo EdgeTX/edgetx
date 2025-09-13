@@ -174,6 +174,11 @@ void clearStruct(S &s)
   memset((void *)&s, 0, sizeof(S));
 }
 
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 template <size_t N>
 using offset_t = std::integral_constant<size_t, N>;
 

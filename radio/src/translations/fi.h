@@ -53,7 +53,11 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "None","Toggle","2POS","3POS","Global"
+#else
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
+#endif
 #define TR_POTTYPES                    "None",TR("Pot","Potikka"),TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Monias. Kytkin"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "OFF","Flight","Manual Reset"
 #define TR_COUNTRY_CODES               TR("US","Amerikk"),TR("JP","Japani"),TR("EU","Euroopp")
@@ -237,12 +241,11 @@
 #endif
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER_LONG                "[ENTER LONG]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -260,7 +263,6 @@
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT
 #endif
 
-#define TR_MENUWHENDONE                TR_ENTER " WHEN DONE"
 #define TR_FREE                        "free"
 #define TR_YES                         "Yes"
 #define TR_NO                          "No"
@@ -284,6 +286,7 @@
 #define TR_TIMER                       "Timer"
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("E.Limits", "Extended Limits")
 #define TR_ETRIMS                      TR("E.Trims", "Extended Trims")
 #define TR_TRIMINC                     "Trim Step"
@@ -304,8 +307,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
@@ -433,16 +435,23 @@
 #define TR_CALIBRATION                 "Calibration"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Calibration completed"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Press [Enter] to start"
-  #define TR_SETMIDPOINT               "Center sticks/pots/sliders and press [Enter]"
-  #define TR_MOVESTICKSPOTS            "Move sticks, pots and sliders and press [Enter]"
+#if defined(COLORLCD)
+  #define TR_SETMIDPOINT               "CENTER AXIS/SLIDERS"
+  #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #else
   #define TR_MENUTOSTART               TR_ENTER " TO START"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT               TR("SET STICKS MIDPOINT", "CENTER STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+  #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
@@ -658,6 +667,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD Card Full"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"

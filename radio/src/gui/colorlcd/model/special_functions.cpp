@@ -23,7 +23,6 @@
 
 #include "filechoice.h"
 #include "hal/adc_driver.h"
-#include "libopenui.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
@@ -84,24 +83,11 @@ FunctionLineButton::FunctionLineButton(Window *parent, const rect_t &rect,
   setHeight(FunctionsPage::SF_BUTTON_H);
   padAll(PAD_ZERO);
 
-  lv_obj_add_event_cb(lvobj, FunctionLineButton::on_draw,
-                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  delayLoad();
 }
 
-void FunctionLineButton::on_draw(lv_event_t *e)
+void FunctionLineButton::delayedInit()
 {
-  lv_obj_t *target = lv_event_get_target(e);
-  auto line = (FunctionLineButton *)lv_obj_get_user_data(target);
-  if (line) {
-    if (!line->init)
-      line->delayed_init();
-  }
-}
-
-void FunctionLineButton::delayed_init()
-{
-  init = true;
-
   lv_obj_enable_style_refresh(false);
 
   sfName = lv_label_create(lvobj);
@@ -135,7 +121,7 @@ void FunctionLineButton::delayed_init()
 
 void FunctionLineButton::refresh()
 {
-  if (!init) return;
+  if (!loaded) return;
 
   check(isActive());
 
@@ -220,7 +206,7 @@ void FunctionLineButton::refresh()
 
 #if defined(FUNCTION_SWITCHES)
     case FUNC_PUSH_CUST_SWITCH:
-      sprintf(s + strlen(s), "%s%d", STR_SWITCH, CFN_CS_INDEX(cfn) + 1);
+    strAppend(s + strlen(s), switchGetDefaultName(switchGetSwitchFromCustomIdx(CFN_CS_INDEX(cfn))));
       break;
 #endif
 
@@ -307,23 +293,12 @@ FunctionEditPage::FunctionEditPage(uint8_t index, EdgeTxIcon icon,
 {
   buildHeader(header, title, prefix);
 
-  lv_obj_add_event_cb(lvobj, FunctionEditPage::on_draw,
-                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  delayLoad();
 }
 
-void FunctionEditPage::on_draw(lv_event_t *e)
+void FunctionEditPage::delayedInit()
 {
-  lv_obj_t *target = lv_event_get_target(e);
-  auto page = (FunctionEditPage *)lv_obj_get_user_data(target);
-  if (page) page->delayed_init();
-}
-
-void FunctionEditPage::delayed_init()
-{
-  if (!init) {
-    init = true;
-    buildBody(body);
-  }
+  buildBody(body);
 }
 
 void FunctionEditPage::checkEvents()
@@ -505,10 +480,15 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
 #if defined(FUNCTION_SWITCHES)
     case FUNC_PUSH_CUST_SWITCH: {
         new StaticText(line, rect_t{}, STR_SWITCH);
-        auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_CS_INDEX(cfn)), STR_SWITCH);
+        auto choice = new Choice(line, rect_t{}, 0, switchGetMaxSwitches() - 1,
+                    [=]() { return switchGetSwitchFromCustomIdx(CFN_CS_INDEX(cfn)); },
+                    [=](int n) { CFN_CS_INDEX(cfn) = switchGetCustomSwitchIdx(n); },
+                    STR_SWITCH);
         choice->setTextHandler([=](int n) {
-          return std::string(STR_SWITCH) + std::to_string(n + 1);
+          return std::string(switchGetDefaultName(n));
         });
+        choice->setAvailableHandler(switchIsCustomSwitch);
+
         line = specialFunctionOneWindow->newLine(grid);
 
         auto edit = addNumberEdit(line, STR_INTERVAL, cfn, PUSH_CS_DURATION_MIN,

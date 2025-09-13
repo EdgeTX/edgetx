@@ -51,7 +51,11 @@
 #define TR_TRNMODE             "Wył",TR("+=","Dodaj"),TR(":=","Zastąp")
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
 #define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","LUA","CLI","GPS","Debug","SpaceMouse","Moduł zewnętrzny"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ","Globalne"
+#else
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
+#endif
 #define TR_POTTYPES            "Brak","Pot.",TR("Pot. z. zap.","Pot. z zapadką"),"Suwak",TR("Wielopoz.","Przeł.wielopoz."),"Oś X","Oś Y","Przełącznik"
 #define TR_VPERSISTENT         "Wyłącz","Lot","Ręczny Reset"
 #define TR_COUNTRY_CODES       TR("US","Ameryka"),TR("JP","Japonia"),TR("EU", "Europa")
@@ -228,14 +232,12 @@
 #endif
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER_LONG                "[ENTER LONG]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
-
 #if defined(PCBHORUS)
   #define TR_EXIT                      "RTN"
   #define TR_OK                        TR_ENTER
@@ -270,6 +272,7 @@
 #define TR_TIMER               TR("Timer", "Timer ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START               "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS             TR("Limi+25%", "Kanał +/- 125% ")
 #define TR_ETRIMS              TR("E.Trym ", "Poszer Trymery")
 #define TR_TRIMINC             "Krok Trym"
@@ -288,9 +291,9 @@
 #define TR_SWITCH              "Przełą"
 #define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
@@ -418,12 +421,7 @@
 #define TR_CALIBRATION                 "Kalibracja"
 #define TR_VTRIM               "Trym - +"
 #define TR_CALIB_DONE          "Kalibracja zakończona"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Naciśnij [Enter] aby zacząć"
-  #define TR_SETMIDPOINT               "Centruj drążki/pot./suwaki i naciśnij [Enter]"
-  #define TR_MOVESTICKSPOTS            "Poruszaj drążki/pot./suwaki i naciśnij [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " TO START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTRUJ DRĄŻKI/SUWAKI"
   #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/SUWAKI"
 #else
@@ -436,8 +434,10 @@
   #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/POT."
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " = KONIEC"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
+#define TR_TXnRX                     "Tx:\0Rx:"
 #define OFS_RX                        4
 #define TR_NODATA                     "Brak Danych"
 #define TR_US                         "us"
@@ -645,6 +645,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Pełna karta SD"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogi i zrzuty ekranu wyłączone"

@@ -40,13 +40,7 @@ static timer_handle_t _refresh_timer = TIMER_INITIALIZER;
 
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-#if defined(SIXPOS_SWITCH_INDEX)
-  ws2812_set_color(led + 6, r, g, b);
-#elif defined(RGB_LED_OFFSET)
-  ws2812_set_color(led + RGB_LED_OFFSET, r, g, b);
-#else
   ws2812_set_color(led, r, g, b);
-#endif
 }
 
 uint32_t rgbGetLedColor(uint8_t led)
@@ -85,7 +79,9 @@ static void rgbLedStart()
                  LED_STRIP_REFRESH_PERIOD, true);
   }
 
-  timer_start(&_refresh_timer);
+  if (timer_start(&_refresh_timer) != 0) {
+    TRACE("Failed to start RGB LED refresh timer");
+  };
 }
 
 void rgbLedStop()

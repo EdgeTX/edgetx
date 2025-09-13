@@ -28,10 +28,6 @@
 #include "strhelpers.h"
 #include "switches.h"
 
-#if defined(LIBOPENUI)
-#include "libopenui.h"
-#endif
-
 #include "model_audio.h"
 #include "hal/audio_driver.h"
 
@@ -146,7 +142,6 @@ const char * const audioFilenames[] = {
   "midstck2",
   "midstck3",
   "midstck4",
-#if defined(PCBFRSKY)
   "midpot1",
   "midpot2",
 #if defined(PCBX9E)
@@ -164,11 +159,6 @@ const char * const audioFilenames[] = {
 #if defined(PCBX9E)
   "midslid3",
   "midslid4",
-#endif
-#else
-  "midpot1",
-  "midpot2",
-  "midpot3",
 #endif
   "mixwarn1",
   "mixwarn2",
@@ -376,6 +366,17 @@ AudioQueue::AudioQueue()
 
 #define CODEC_ID_PCM_S16LE  1
 
+
+static void _audio_lock()
+{
+  mutex_lock(&audioMutex);
+}
+
+static void _audio_unlock()
+{
+  mutex_unlock(&audioMutex);
+}
+
 #if !defined(__SSAT)
   #define _sat_s16(x) ((int16_t)limit<int32_t>(INT16_MIN, (x), INT16_MAX))
 #else
@@ -395,7 +396,7 @@ inline void mixSample(audio_data_t * result, int16_t sample, unsigned int fade)
   *result = (audio_data_t)_sat_s16(tmp);
 #elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
   *result = (audio_data_t)_sat_u16((uint32_t)tmp);
-#endif 
+#endif
 }
 
 #define RIFF_CHUNK_SIZE 12
@@ -619,9 +620,9 @@ void AudioQueue::wakeup()
 
     // mix the normal context (tones and wavs)
     if (normalContext.isEmpty() && !fragmentsFifo.empty()) {
-      mutex_lock(&audioMutex);
+      _audio_lock();
       normalContext.setFragment(fragmentsFifo.get());
-      mutex_unlock(&audioMutex);
+      _audio_unlock();
     }
     result = normalContext.mixBuffer(buffer, g_eeGeneral.beepVolume, g_eeGeneral.wavVolume, fade);
     if (result > 0) {
@@ -701,11 +702,7 @@ bool AudioQueue::isPlaying(uint8_t id)
 
 void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags, int8_t freqIncr, int8_t fragmentVolume)
 {
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-  return;
-#endif
-
-  mutex_lock(&audioMutex);
+  _audio_lock();
 
   freq = limit<uint16_t>(BEEP_MIN_FREQ, freq, BEEP_MAX_FREQ);
 
@@ -728,7 +725,7 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
     }
   }
 
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t fragmentVolume)
@@ -737,11 +734,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
   TRACE("playFile(\"%s\", flags=%x, id=%d fragmentVolume=%d ee_general=%d)", filename, flags, id, fragmentVolume, g_eeGeneral.wavVolume);
   if (strlen(filename) > AUDIO_FILENAME_MAXLEN) {
     TRACE("file name too long! maximum length is %d characters", AUDIO_FILENAME_MAXLEN);
-    return;
   }
-  #if !defined(SIMU_AUDIO)
-  return;
-  #endif
 #endif
 
   if (!sdMounted())
@@ -755,7 +748,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
     return;
   }
 
-  mutex_lock(&audioMutex);
+  _audio_lock();
 
   if (flags & PLAY_BACKGROUND) {
     backgroundContext.clear();
@@ -765,25 +758,17 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
     fragmentsFifo.push(AudioFragment(filename, flags & 0x0f, fragmentVolume, id));
   }
 
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::stopPlay(uint8_t id)
 {
-#if defined(SIMU)
-  TRACE("stopPlay(id=%d)", id);
-#endif
-
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-  return;
-#endif
-
-  mutex_lock(&audioMutex);
+  _audio_lock();
 
   fragmentsFifo.removePromptById(id);
   backgroundContext.stop(id);
 
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::stopSD()
@@ -796,19 +781,19 @@ void AudioQueue::stopSD()
 void AudioQueue::stopAll()
 {
   flush();
-  mutex_lock(&audioMutex);
+  _audio_lock();
   priorityContext.clear();
   normalContext.clear();
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::flush()
 {
-  mutex_lock(&audioMutex);
+  _audio_lock();
   fragmentsFifo.clear();
   varioContext.clear();
   backgroundContext.clear();
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void audioPlay(unsigned int index, uint8_t id)
@@ -976,15 +961,11 @@ void audioEvent(unsigned int index)
       case AU_POT6_MIDDLE:
       case AU_POT7_MIDDLE:
 #endif
-#if defined(PCBFRSKY)
       case AU_SLIDER1_MIDDLE:
       case AU_SLIDER2_MIDDLE:
 #if defined(PCBX9E)
       case AU_SLIDER3_MIDDLE:
       case AU_SLIDER4_MIDDLE:
-#endif
-#else
-      case AU_POT3_MIDDLE:
 #endif
         audioQueue.playTone(BEEP_DEFAULT_FREQ + 1500, 80, 20, PLAY_NOW);
         break;

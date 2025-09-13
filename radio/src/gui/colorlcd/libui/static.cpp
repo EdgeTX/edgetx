@@ -237,9 +237,8 @@ void StaticImage::setSource(std::string filename)
     lv_img_set_src(image, fullpath.c_str());
     if (!hasImage()) {
       // Failed to load
-      TRACE("could not load image '%s'", filename.c_str());
-      lv_obj_del(image);
-      image = nullptr;
+      TRACE_ERROR("could not load image '%s'", filename.c_str());
+      clearSource();
     }
     setZoom();
   } else {
@@ -371,7 +370,13 @@ QRCode::QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string dat
                LcdFlags color, LcdFlags bgColor) :
     Window(parent, {x, y, sz, sz})
 {
-  auto qr = lv_qrcode_create(lvobj, sz, makeLvColor(color), makeLvColor(bgColor));
-  lv_qrcode_update(qr, data.c_str(), data.length());
+  qr = lv_qrcode_create(lvobj, sz, makeLvColor(color), makeLvColor(bgColor));
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setData(data);
+}
+
+void QRCode::setData(std::string data)
+{
+  if (qr)
+    lv_qrcode_update(qr, data.c_str(), data.length());
 }

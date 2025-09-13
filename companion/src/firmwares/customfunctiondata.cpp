@@ -203,6 +203,9 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
         return QString("%1= %2%3").arg(val < 0 ? "-" : "+").arg(abs(val)).arg(unit);
     }
   }
+  else if (func == FuncPlayScript || func == FuncRGBLed) {
+    return paramarm;
+  }
 
   return "";
 }
@@ -262,7 +265,7 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
-        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
+        ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
         ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) && !Boards::getCapability(fw->getBoard(), Board::FunctionSwitches))
         );
@@ -499,8 +502,7 @@ bool CustomFunctionData::isParamAvailable() const
     FuncBindExternalModule,
     FuncRacingMode,
     FuncDisableTouch,
-    FuncDisableAudioAmp,
-    FuncRGBLed
+    FuncDisableAudioAmp
   };
 
   return funcList.contains(func) ? false : true;

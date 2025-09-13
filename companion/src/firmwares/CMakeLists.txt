@@ -70,8 +70,6 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_BINARY_DIR}
   PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
-    "${CMAKE_CURRENT_LIST_DIR}/er9x"
-    "${CMAKE_CURRENT_LIST_DIR}/ersky9x"
     "${CMAKE_CURRENT_LIST_DIR}/opentx"
     "${CMAKE_CURRENT_LIST_DIR}/edgetx"
 )

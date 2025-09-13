@@ -111,7 +111,7 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
   f_close(&imgFile);
 
   if (!img) {
-    TRACE("loadBitmap(%s) failed: %s", filename, stbi_failure_reason());
+    TRACE_ERROR("loadBitmap(%s) failed: %s", filename, stbi_failure_reason());
     return nullptr;
   }
 
@@ -123,7 +123,7 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 
   BitmapBuffer *bmp = new BitmapBuffer(dst_fmt, w, h);
   if (bmp == nullptr) {
-    TRACE("loadBitmap: malloc failed");
+    TRACE_ERROR("loadBitmap: malloc failed");
     return nullptr;
   }
 
@@ -192,7 +192,7 @@ static uint8_t *convert_bitmap(uint8_t *img, int w, int h, int n)
 {
   uint8_t *bmp = (uint8_t *)lv_mem_alloc(((n == 4) ? 3 : 2) * w * h);
   if (bmp == nullptr) {
-    TRACE("convert_bitmap: lv_mem_alloc failed");
+    TRACE_ERROR("convert_bitmap: lv_mem_alloc failed");
     return nullptr;
   }
 
@@ -240,7 +240,7 @@ static lv_res_t decoder_open(lv_img_decoder_t *decoder,
       f_close(&imgFile);
 
       if (!img) {
-        TRACE("decoder_open(%s) failed: %s", fn, stbi_failure_reason());
+        TRACE_ERROR("decoder_open(%s) failed: %s", fn, stbi_failure_reason());
         return LV_RES_INV;
       }
 

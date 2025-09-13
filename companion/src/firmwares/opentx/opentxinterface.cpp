@@ -216,8 +216,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_HORUS_OR_TARANIS(board) ? 500 : (id.contains("ppmca") ? 125 : 0));
     case SYMLimits:
       return 1;
-    case OptrexDisplay:
-      return (board == BOARD_SKY9X ? true : false);
     case HasVario:
       return Boards::isAir(board);
     case HasVarioSink:
@@ -234,8 +232,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
     case HasPPMStart:
       return true;
-    case HastxCurrentCalibration:
-      return (IS_SKY9X(board) ? true : false);
     case HasVolume:
       return true;
     case HasBrightness:
@@ -330,7 +326,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
               IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
               IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board));
+              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
@@ -500,6 +496,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
   registerOpenTxFirmware(firmware);
 
+  /* FlySky PA01 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("pa01"), Firmware::tr("FlySky PA01"), BOARD_FLYSKY_PA01);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
   /* FlySky PL18 board */
   firmware = new OpenTxFirmware(FIRMWAREID("pl18"), Firmware::tr("FlySky PL18"), BOARD_FLYSKY_PL18);
   addOpenTxFrskyOptions(firmware);
@@ -614,6 +616,13 @@ void registerOpenTxFirmwares()
   addOpenTxTaranisOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, EU + FLEX);
+
+  /* HelloRadioSky V14 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("v14"), Firmware::tr("HelloRadioSky V14"), BOARD_HELLORADIOSKY_V14);
+  addOpenTxCommonOptions(firmware);
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
 
   /* HelloRadioSky V16 board */
   firmware = new OpenTxFirmware(FIRMWAREID("v16"), Firmware::tr("HelloRadioSky V16"), BOARD_HELLORADIOSKY_V16);
@@ -808,6 +817,13 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
+
+  /* Radiomaster TX15 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("tx15"), Firmware::tr("Radiomaster TX15"), BOARD_RADIOMASTER_TX15);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_bt, opt_internal_gps});
+  registerOpenTxFirmware(firmware);
 
   /* Radiomaster TX16S board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx16s"), Firmware::tr("Radiomaster TX16S / SE / Hall / Masterfire"), BOARD_RADIOMASTER_TX16S);

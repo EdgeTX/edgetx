@@ -34,15 +34,10 @@
 #include "sdcard.h"
 #include "api_filesystem.h"
 #include "switches.h"
+#include "lib_file.h"
 
 #if defined(COLORLCD)
   #include "standalone_lua.h"
-#endif
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
 #endif
 
 extern "C" {
@@ -168,12 +163,7 @@ void luaGetInputs(ScriptInputsOutputs & sid)
           case 0:
             luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
             luaL_checktype(lsScripts, -1, LUA_TSTRING); // value is string
-            { // To preserve the string value, truncate to 6 chars and move it to the main stack
-              char str[7] = {0};
-              strncpy(str, lua_tostring(lsScripts, -1), 6);
-              lua_pushstring(mainState, &str[0]);
-            }
-            lua_pop(lsScripts, 1);
+            lua_xmove(lsScripts, mainState, 1);          // To preserve the string value, move it to the main stack
             lua_pushnil(lsScripts);              // Keep the stack balanced
             lua_insert(mainState, -2);           // Keep the coroutine at the top of the main stack
             si->name = lua_tostring(mainState, -2);
@@ -1152,9 +1142,9 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             functionsContext = &globalFunctionsContext;
           }
 
-          if (CFN_ACTIVE(fn)) {
+          if (CFN_ACTIVE(fn) && CFN_SWITCH(fn)) {
             tmr10ms_t tmr10ms = get_tmr10ms();
-            if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
+            if (getSwitch(CFN_SWITCH(fn)) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
               lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
               functionsContext->lastFunctionTime[idx] = tmr10ms;
             }
@@ -1421,7 +1411,7 @@ bool readToolName(char * toolName, const char * filename)
   UINT count;
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Error opening file";
+    return false;
   }
 
   FRESULT res = f_read(&file, &buffer, sizeof(buffer), &count);

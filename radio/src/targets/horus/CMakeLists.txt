@@ -28,8 +28,6 @@ set(CPU_TYPE_FULL STM32F429xI)
 set(TARGET_LINKER_DIR stm32f429_sdram)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
 
-add_definitions(-DPCBFRSKY)
-
 # defines existing internal modules
 set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
 
@@ -259,7 +257,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/sdram_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
   drivers/frftl.cpp
@@ -292,6 +289,7 @@ endif()
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
+  targets/common/arm/stm32/sdram_driver.cpp
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)

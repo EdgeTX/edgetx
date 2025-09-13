@@ -21,37 +21,35 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "yaml_parser.h"
 
 #define NODE_STACK_DEPTH 12
 
 enum YamlDataType {
-    YDT_NONE=0,
-    YDT_IDX,
-    YDT_SIGNED,
-    YDT_UNSIGNED,
-    YDT_STRING,
-    YDT_ARRAY,
-    YDT_ENUM,
-    YDT_UNION,
-    YDT_PADDING,
-    YDT_CUSTOM
+  YDT_NONE = 0,
+  YDT_IDX,
+  YDT_SIGNED,
+  YDT_UNSIGNED,
+  YDT_STRING,
+  YDT_ARRAY,
+  YDT_ENUM,
+  YDT_UNION,
+  YDT_PADDING,
+  YDT_CUSTOM
 };
 
-PACK_NOT_SIMU(struct YamlIdStr
-{
-    int16_t      id;
-    const char*  str;
+PACK_NOT_SIMU(struct YamlIdStr {
+  int16_t id;
+  const char* str;
 });
 
 // return false if error
 typedef bool (*yaml_writer_func)(void* opaque, const char* str, size_t len);
 
-struct YamlNode
-{
+struct YamlNode {
   typedef bool (*is_active_func)(void* user, uint8_t* data, uint32_t bitoffs);
 
   typedef uint32_t (*cust_to_uint_func)(const YamlNode* node, const char* val,
@@ -74,8 +72,8 @@ struct YamlNode
                                   yaml_writer_func wf, void* opaque);
 
   uint16_t size;  // bits
-  uint8_t type:4;
-  uint16_t elmts:12;  // maximum number of array elements
+  uint8_t type : 4;
+  uint16_t elmts : 12;  // maximum number of array elements
   const char* tag;
   union {
     struct {
@@ -88,6 +86,7 @@ struct YamlNode
 
     struct {
       const YamlIdStr* choices;
+      is_active_func is_active;
     } _enum;
 
     struct {
@@ -109,103 +108,85 @@ struct YamlNode
   uint8_t tag_len() const { return tag ? strlen(tag) : 0; }
 };
 
-#if !defined(_MSC_VER)
+#define YAML_TAG(str) .tag = (str)
 
-#define YAML_TAG(str)                           \
-    .tag=(str)
+#define YAML_IDX {.size = 0, .type = YDT_IDX, .elmts = 0, YAML_TAG("idx")}
 
-#define YAML_IDX                                \
-    { .size=0, .type=YDT_IDX, .elmts=0, YAML_TAG("idx") }
+#define YAML_IDX_CUST(tag, f_read, f_write)                       \
+  {                                                               \
+    .size = 0, .type = YDT_IDX, .elmts = 0, YAML_TAG(tag), .u = { \
+      ._cust_idx = {.read = (f_read), .write = (f_write)}         \
+    }                                                             \
+  }
 
-#define YAML_IDX_CUST(tag, f_read, f_write)                             \
-    { .size=0, .type=YDT_IDX, .elmts=0, YAML_TAG(tag), .u={._cust_idx={.read=(f_read), .write=(f_write) }} }
+#define YAML_SIGNED(tag, bits) \
+  {.size = (bits), .type = YDT_SIGNED, .elmts = 0, YAML_TAG(tag)}
 
-#define YAML_SIGNED(tag, bits)                          \
-    { .size=(bits), .type=YDT_SIGNED, .elmts=0, YAML_TAG(tag) }
+#define YAML_UNSIGNED(tag, bits) \
+  {.size = (bits), .type = YDT_UNSIGNED, .elmts = 0, YAML_TAG(tag)}
 
-#define YAML_UNSIGNED(tag, bits)                        \
-    { .size=(bits), .type=YDT_UNSIGNED, .elmts=0, YAML_TAG(tag) }
+#define YAML_SIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)       \
+  {                                                                       \
+    .size = (bits), .type = YDT_SIGNED, .elmts = 0, YAML_TAG(tag), .u = { \
+      ._cust = {.cust_to_uint = f_cust_to_uint,                           \
+                .uint_to_cust = f_uint_to_cust}                           \
+    }                                                                     \
+  }
 
-#define YAML_SIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)     \
-    { .size=(bits), .type=YDT_SIGNED, .elmts=0, YAML_TAG(tag), .u={._cust={ .cust_to_uint=f_cust_to_uint, .uint_to_cust=f_uint_to_cust }} }
+#define YAML_UNSIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)       \
+  {                                                                         \
+    .size = (bits), .type = YDT_UNSIGNED, .elmts = 0, YAML_TAG(tag), .u = { \
+      ._cust = {.cust_to_uint = f_cust_to_uint,                             \
+                .uint_to_cust = f_uint_to_cust}                             \
+    }                                                                       \
+  }
 
-#define YAML_UNSIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)   \
-    { .size=(bits), .type=YDT_UNSIGNED, .elmts=0, YAML_TAG(tag), .u={._cust={ .cust_to_uint=f_cust_to_uint, .uint_to_cust=f_uint_to_cust }} }
+#define YAML_STRING(tag, max_len) \
+  {.size = ((max_len) << 3), .type = YDT_STRING, .elmts = 0, YAML_TAG(tag)}
 
-#define YAML_STRING(tag, max_len)                               \
-    { .size=((max_len)<<3), .type=YDT_STRING, .elmts=0, YAML_TAG(tag) }
+#define YAML_STRUCT(tag, bits, nodes, f_is_active)                       \
+  {                                                                      \
+    .size = (bits), .type = YDT_ARRAY, .elmts = 1, YAML_TAG(tag), .u = { \
+      ._array = {.child = (nodes), .u = {.is_active = (f_is_active)}}    \
+    }                                                                    \
+  }
 
-#define YAML_STRUCT(tag, bits, nodes, f_is_active)                     \
-    { .size=(bits), .type=YDT_ARRAY, .elmts=1, YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.is_active=(f_is_active)}}} }
+#define YAML_ARRAY(tag, bits, max_elmts, nodes, f_is_active)                \
+  {                                                                         \
+    .size = (bits), .type = YDT_ARRAY, .elmts = (max_elmts), YAML_TAG(tag), \
+    .u = {                                                                  \
+      ._array = {.child = (nodes), .u = {.is_active = (f_is_active)}}       \
+    }                                                                       \
+  }
 
-#define YAML_ARRAY(tag, bits, max_elmts, nodes, f_is_active)           \
-    { .size=(bits), .type=YDT_ARRAY, .elmts=(max_elmts), YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.is_active=(f_is_active)}}} }
+#define YAML_ENUM(tag, bits, id_strs, f_is_active)                      \
+  {                                                                     \
+    .size = (bits), .type = YDT_ENUM, .elmts = 0, YAML_TAG(tag), .u = { \
+      ._enum = {.choices = (id_strs), .is_active = (f_is_active)}       \
+    }                                                                   \
+  }
 
-#define YAML_ENUM(tag, bits, id_strs)                                   \
-    { .size=(bits), .type=YDT_ENUM, .elmts=0, YAML_TAG(tag), .u={._enum={ .choices=(id_strs) }} }
+#define YAML_UNION(tag, bits, nodes, f_sel_m)                            \
+  {                                                                      \
+    .size = (bits), .type = YDT_UNION, .elmts = 0, YAML_TAG(tag), .u = { \
+      ._array = {.child = (nodes), .u = {.select_member = (f_sel_m)}}    \
+    }                                                                    \
+  }
 
-#define YAML_UNION(tag, bits, nodes, f_sel_m)                       \
-    { .size=(bits), .type=YDT_UNION, .elmts=0, YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.select_member=(f_sel_m) }}} }
+#define YAML_PADDING(bits) {.size = (bits), .type = YDT_PADDING}
 
-#define YAML_PADDING(bits)                      \
-    { .size=(bits), .type=YDT_PADDING }
+#define YAML_CUSTOM(tag, f_read, f_write)                            \
+  {                                                                  \
+    .size = 0, .type = YDT_CUSTOM, .elmts = 0, YAML_TAG(tag), .u = { \
+      ._cust_attr = {.read = (f_read), .write = (f_write)}           \
+    }                                                                \
+  }
 
-#define YAML_CUSTOM(tag, f_read, f_write)       \
-    { .size=0, .type=YDT_CUSTOM, .elmts=0, YAML_TAG(tag), .u={._cust_attr={.read=(f_read), .write=(f_write) }} }
+#define YAML_END {.size = 0, .type = YDT_NONE}
 
-#define YAML_END                                \
-    { .size=0, .type=YDT_NONE }
-
-#define YAML_ROOT(nodes)                                                \
-    { .size=0, .type=YDT_ARRAY, .elmts=1, .tag=NULL,                  \
-            .u={                                                        \
-            ._array={ .child=(nodes),                                   \
-                      .u={.is_active=NULL}             \
-            }}                                                          \
-    }
-
-#else // MSVC++ compat
-
-#define YAML_TAG(str)                           \
-    (str)
-
-#define YAML_IDX                                \
-    { 0, YDT_IDX, .elmts=0, YAML_TAG("idx") }
-
-#define YAML_SIGNED(tag, bits)                          \
-    { (bits), YDT_SIGNED, .elmts=0, YAML_TAG(tag) }
-
-#define YAML_UNSIGNED(tag, bits)                        \
-    { (bits), YDT_UNSIGNED, .elmts=0, YAML_TAG(tag) }
-
-#define YAML_SIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)     \
-    { (bits), YDT_SIGNED, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)f_cust_to_uint, {{ (YamlNode::is_active_func)f_uint_to_cust, 0 }}}} }
-
-#define YAML_UNSIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)   \
-    { (bits), YDT_UNSIGNED, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)f_cust_to_uint, {{ (YamlNode::is_active_func)f_uint_to_cust, 0}}}} }
-
-#define YAML_STRING(tag, max_len)                               \
-    { ((max_len)<<3), YDT_STRING, .elmts=0, YAML_TAG(tag) }
-
-#define YAML_STRUCT(tag, bits, nodes, f_is_active)                     \
-    { (bits), YDT_ARRAY, 1, YAML_TAG(tag), {{ (nodes), {{ (f_is_active) }}}} }
-
-#define YAML_ARRAY(tag, bits, max_elmts, nodes, f_is_active)           \
-    { (bits), YDT_ARRAY, (max_elmts), YAML_TAG(tag), {{ (nodes), {{ (f_is_active) }}}} }
-
-#define YAML_ENUM(tag, bits, id_strs)                                   \
-    { (bits), YDT_ENUM, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)(id_strs) }} }
-
-#define YAML_UNION(tag, bits, nodes, f_sel_m)                       \
-    { (bits), YDT_UNION, .elmts=0, YAML_TAG(tag), {{ (nodes), {{ (YamlNode::is_active_func)(f_sel_m) }}}} }
-
-#define YAML_PADDING(bits)                      \
-    { (bits), YDT_PADDING }
-
-#define YAML_END                                \
-    { 0, YDT_NONE }
-
-#define YAML_ROOT(nodes)                                                \
-    { 0, YDT_ARRAY, 1, NULL, {{ (nodes), {{ NULL }}}} }
-
-#endif
+#define YAML_ROOT(nodes)                                          \
+  {                                                               \
+    .size = 0, .type = YDT_ARRAY, .elmts = 1, .tag = NULL, .u = { \
+      ._array = {.child = (nodes), .u = {.is_active = NULL}}      \
+    }                                                             \
+  }

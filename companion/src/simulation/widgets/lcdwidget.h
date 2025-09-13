@@ -47,7 +47,7 @@ class LcdWidget : public QWidget
       QWidget(parent),
       localBuf(NULL),
       lightEnable(false),
-      bgDefaultColor(QColor(198, 208, 199)),
+      bgDefaultColor(QColor(148, 156, 149)),
       fgDefaultColor(QColor(0, 0, 0))
   {
   }

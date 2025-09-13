@@ -33,6 +33,16 @@ class HWSticks : public Window
 {
  public:
   HWSticks(Window* parent);
+
+  // Absolute layout for Pots popup - due to performance issues with lv_textarea
+  // in a flex layout
+  static LAYOUT_VAL_SCALED(S_LBL_W, 60)
+  static constexpr coord_t S_NM_X = S_LBL_W + PAD_SMALL;
+  static LAYOUT_VAL_SCALED(S_NM_W, 64)
+  static constexpr coord_t S_INV_X = S_NM_X + S_NM_W + PAD_LARGE * 3;
+  static constexpr coord_t S_INV_W = ToggleSwitch::TOGGLE_W;
+  static constexpr coord_t S_ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
+  #define S_Y(i) (i * S_ROW_H + PAD_TINY)
 };
 
 class HWPots : public Window

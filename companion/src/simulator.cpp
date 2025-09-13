@@ -25,7 +25,9 @@
 #include <QMessageBox>
 #include <QString>
 #include <QTextStream>
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+#include <QRegularExpression>
+
+#if defined(USE_SDL)
   #include <SDL.h>
   #undef main
 #endif
@@ -148,8 +150,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 #ifdef Q_OS_WIN
   // For backwards compat. with QxtCommandOptions, convert Windows-style CLI switches (/opt) since QCommandLineParser doesn't support them
   for (int i=0; i < args.size(); ++i) {
-    args[i].replace(QRegExp("^/([^\\s]{2,10})$"), "--\\1");  // long opts
-    args[i].replace(QRegExp("^/([^\\s]){1}$"), "-\\1");      // short opts
+    args[i].replace(QRegularExpression("^/([^\\s]{2,10})$"), "--\\1");  // long opts
+    args[i].replace(QRegularExpression("^/([^\\s]){1}$"), "-\\1");      // short opts
   }
 #endif
 
@@ -180,6 +182,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     }
 
     *simOptions = g.profile[pId].simulatorOptions();
+    // refresh just in case the path has been changed. Note: can be overridden via CLI or startup ui
+    simOptions->sdPath = g.profile[pId].sdPath();
     cliOptsFound = true;
   }
 
@@ -200,7 +204,7 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
   if (cliOptions.positionalArguments().size()) {
     QString datasrc = cliOptions.positionalArguments().at(0);
-    if (datasrc.contains(QRegExp(".*\\.[\\w]{2,6}$"))) {
+    if (datasrc.contains(QRegularExpression(".*\\.[\\w]{2,6}$"))) {
       simOptions->dataFile = datasrc;
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
@@ -250,9 +254,6 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
 int main(int argc, char *argv[])
 {
-  /* From doc: This attribute must be set before Q(Gui)Application is constructed. */
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
   QApplication app(argc, argv);
   app.setApplicationName(APP_SIMULATOR);
   app.setApplicationVersion(VERSION);
@@ -278,18 +279,11 @@ int main(int argc, char *argv[])
 
   Translations::installTranslators();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
-  uint32_t sdlFlags = 0;
-  #ifdef JOYSTICKS
-    sdlFlags |= SDL_INIT_JOYSTICK;
-  #endif
-  #ifdef SIMU_AUDIO
-    sdlFlags |= SDL_INIT_AUDIO;
-  #endif
+#if defined(USE_SDL)
   #if defined(_WIN32) || defined(_WIN64)
   putenv("SDL_AUDIODRIVER=directsound");
   #endif
-  if (SDL_Init(sdlFlags) < 0) {
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0) {
     showMessage(QApplication::translate("SimulatorMain", "WARNING: couldn't initialize SDL:\n%1").arg(SDL_GetError()), QMessageBox::Warning);
   }
 #endif
@@ -403,7 +397,7 @@ int finish(int exitCode)
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+#if defined(USE_SDL)
   SDL_Quit();
 #endif
 

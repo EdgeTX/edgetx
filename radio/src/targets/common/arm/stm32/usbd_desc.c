@@ -297,6 +297,10 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 
   int vid, pid;
 
+  /* version has to be bcd coded */
+  uint8_t version_minor = ((VERSION_MINOR / 10) << 4) | (VERSION_MINOR % 10);
+  uint8_t version_major = ((VERSION_MAJOR / 10) << 4) | (VERSION_MAJOR % 10);
+
   switch (getSelectedUsbMode()) {
     case USB_JOYSTICK_MODE:
       vid = USBD_HID_VID;
@@ -316,16 +320,15 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
     case USB_DFU_MODE:
       vid = USBD_DFU_VID;
       pid = USBD_DFU_PID;
+      // H7RS and H750 both use 2.00 as 'bcdDevice' version
+      version_major = 0x02;
+      version_minor = 0x00;
       break;
 #endif
     default:
       vid = 0;
       pid = 0;
   }
-
-  /* version has to be bcd coded */
-  uint8_t version_minor = ((VERSION_MINOR / 10) << 4) | (VERSION_MINOR % 10);
-  uint8_t version_major = ((VERSION_MAJOR / 10) << 4) | (VERSION_MAJOR % 10);
 
   /* USB Standard Device Descriptor */
   __ALIGN_BEGIN const uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =

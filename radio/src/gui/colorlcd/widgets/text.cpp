@@ -32,6 +32,11 @@ class TextWidget : public Widget
              Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
     lv_style_init(&style);
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, lv_pct(100));
@@ -56,6 +61,8 @@ class TextWidget : public Widget
 
   void update() override
   {
+    if (!loaded) return;
+
     // Set text value from options
     lv_label_set_text(shadow, persistentData->options[0].value.stringValue);
     lv_label_set_text(label, persistentData->options[0].value.stringValue);

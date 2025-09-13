@@ -220,6 +220,7 @@ class EdgeTxStyles
   lv_style_t graph_position_line;
   lv_style_t div_line;
   lv_style_t div_line_edit;
+  lv_style_t div_line_warn;
   lv_style_t div_line_black;
   lv_style_t div_line_white;
 

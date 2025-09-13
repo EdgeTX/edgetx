@@ -1282,10 +1282,11 @@ static int luaModelSetCurve(lua_State *L)
     }
   }
   // Check how many points are set
-  uint8_t numPoints=0;
-  do {
-    numPoints++;
-  } while (yPoints[numPoints]!=-127 && numPoints < MAX_POINTS_PER_CURVE);
+  int numPoints = 0;
+  for (numPoints = 0; numPoints < MAX_POINTS_PER_CURVE; numPoints += 1) {
+    if (yPoints[numPoints] == -127)
+      break;
+  }
   newCurveHeader.points = numPoints - 5;
 
   if (numPoints < MIN_POINTS_PER_CURVE || numPoints > MAX_POINTS_PER_CURVE) {
@@ -1862,6 +1863,7 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
+extern "C" {
 LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
   LROT_FUNCENTRY( setInfo, luaModelSetInfo )
@@ -1905,3 +1907,4 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
 LROT_END(modellib, NULL, 0)
+}

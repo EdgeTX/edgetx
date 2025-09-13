@@ -27,19 +27,27 @@ class StaticText;
 
 class RadioCalibrationPage: public Page {
   public:
-    explicit RadioCalibrationPage(bool initial = false);
+    explicit RadioCalibrationPage();
 
     void checkEvents() override;
-    void onClicked() override;
     void onCancel() override;
 
   protected:
-    StaticText * text = nullptr;
-    TextButton * button = nullptr;
-    bool initial;
+    StaticText* title2 = nullptr;
+    TextButton* nxtBtn = nullptr;
+    TextButton* axisBtn = nullptr;
+    TextButton* potsBtn = nullptr;
     void nextStep();
     void buildHeader(Window * window);
     void buildBody(Window * window);
+    void setState();
+
+    static LAYOUT_VAL_SCALED(NXT_W, 80);
+    static constexpr coord_t NXT_X = LCD_W - NXT_W - PAD_LARGE * 4;
+    static LAYOUT_VAL_SCALED(AXIS_W, 80);
+    static constexpr coord_t AXIS_X = PAD_LARGE * 4;
+    static LAYOUT_VAL_SCALED(POTS_W, 80);
+    static constexpr coord_t POTS_X = AXIS_X + AXIS_W + PAD_LARGE;
 };
 
 void startCalibration();

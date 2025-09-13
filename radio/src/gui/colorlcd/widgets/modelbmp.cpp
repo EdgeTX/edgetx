@@ -38,6 +38,11 @@ class ModelBitmapWidget : public Widget
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
 
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
     label = new StaticText(this, rect_t{}, "");
     label->hide();
 
@@ -49,6 +54,8 @@ class ModelBitmapWidget : public Widget
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     Widget::checkEvents();
 
     if (getHash() != deps_hash) {
@@ -62,6 +69,8 @@ class ModelBitmapWidget : public Widget
 
   void update() override
   {
+    if (!loaded) return;
+
     isLarge = rect.h >= LARGE_H && rect.w >= LARGE_W;
 
     // get font size from options[1]

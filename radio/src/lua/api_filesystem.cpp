@@ -248,6 +248,7 @@ static int luaRename(lua_State * L)
   return 1;
 }
 
+extern "C" {
 LROT_BEGIN(dir_handle, NULL, LROT_MASK_GC)
   LROT_FUNCENTRY( __gc, dir_gc )
 LROT_END(dir_handle, NULL, LROT_MASK_GC)
@@ -261,9 +262,8 @@ LROT_BEGIN(etxdir, NULL, 0)
   LROT_FUNCENTRY( rename, luaRename )
 LROT_END(etxdir, NULL, 0)
 
-extern "C" {
-  LUAMOD_API int luaopen_etxdir(lua_State* L) {
-    luaL_rometatable( L, DIR_METATABLE,  LROT_TABLEREF(dir_handle));
-    return 0;
-  }
+LUAMOD_API int luaopen_etxdir(lua_State* L) {
+  luaL_rometatable( L, DIR_METATABLE,  LROT_TABLEREF(dir_handle));
+  return 0;
+}
 }

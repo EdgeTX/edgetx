@@ -475,16 +475,23 @@ QString ModelPrinter::printFlightModes(unsigned int flightModes)
   int numFlightModes = firmware->getCapability(FlightModes);
   if (numFlightModes && flightModes) {
     if (flightModes == (unsigned int)(1 << numFlightModes) - 1) {
-      return tr("Disabled in all flight modes");
-    }
-    else {
+      return (Boards::getCapability(getCurrentBoard(), Board::Air)
+                  ? tr("Disabled in all flight modes")
+                  : tr("Disabled in all drive modes"));
+    } else {
       QStringList list;
       for (int i = 0; i < numFlightModes; i++) {
         if (!(flightModes & (1 << i))) {
           list << printFlightModeName(i);
         }
       }
-      return (list.size() > 1 ? tr("Flight modes") : tr("Flight mode")) + QString("(%1)").arg(list.join(", "));
+      if (Boards::getCapability(getCurrentBoard(), Board::Air)) {
+        return (list.size() > 1 ? tr("Flight modes") : tr("Flight mode")) +
+               QString("(%1)").arg(list.join(", "));
+      } else {
+        return (list.size() > 1 ? tr("Drive modes") : tr("Drive mode")) +
+               QString("(%1)").arg(list.join(", "));
+      };
     }
   }
   else
@@ -765,20 +772,13 @@ QString ModelPrinter::printSwitchWarnings()
   uint64_t value;
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i);
-    if (switchInfo.type == Board::SWITCH_NOT_AVAILABLE || switchInfo.type == Board::SWITCH_TOGGLE) {
+    Board::SwitchType type = model.getSwitchType(i, generalSettings);
+    if (type != Board::SWITCH_2POS && type != Board::SWITCH_3POS) {
       continue;
     }
-    if (!(model.switchWarningEnable & (1 << i))) {
-      if (IS_HORUS_OR_TARANIS(board)) {
-        value = (switchStates >> (2 * i)) & 0x03;
-      }
-      else {
-        value = (i == 0 ? switchStates & 0x3 : switchStates & 0x1);
-        switchStates >>= (i == 0 ? 2 : 1);
-      }
-      str += RawSwitch(SWITCH_TYPE_SWITCH, 1 + i * 3 + value).toString(board, &generalSettings, &model);
-    }
+    value = (switchStates >> (2 * i)) & 0x03;
+    if (value > 0)
+      str += RawSwitch(SWITCH_TYPE_SWITCH, i * 3 + value).toString(board, &generalSettings, &model);
   }
   return (str.isEmpty() ? tr("None") : str.join(" ")) ;
 }

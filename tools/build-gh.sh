@@ -7,17 +7,6 @@ set -x
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
 
-# Allow variable core usage
-# default uses all cpu cores
-#
-if [ -f /usr/bin/nproc ]; then
-    num_cpus=$(nproc)
-elif [ -f /usr/sbin/sysctl ]; then
-    num_cpus=$(sysctl -n hw.logicalcpu)
-else
-    num_cpus=2
-fi
-: "${CORES:=$num_cpus}"
 
 # If no build target, exit
 #: "${FLAVOR:=ALL}"
@@ -25,14 +14,6 @@ fi
 for i in "$@"
 do
 case $i in
-    --jobs=*)
-      CORES="${i#*=}"
-      shift
-      ;;
-    -j*)
-      CORES="${i#*j}"
-      shift
-      ;;
     -Wno-error)
       WERROR=0
       shift
@@ -100,13 +81,12 @@ do
     fi
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    cmake --build . --target arm-none-eabi-configure
-    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
+    cmake --build . --target arm-none-eabi-configure --parallel ${MAX_JOBS}
+    cmake --build arm-none-eabi --target ${FIRMARE_TARGET} --parallel ${MAX_JOBS}
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 
-    #if [ -f arm-none-eabi/firmware.uf2 ]; then
-    if [ "$target_name" = "st16" ]; then
+    if [ -f "arm-none-eabi/firmware.uf2" ]; then
         mv arm-none-eabi/firmware.uf2 "../${fw_name}.uf2"
     else
         mv arm-none-eabi/firmware.bin "../${fw_name}.bin"

@@ -29,7 +29,12 @@ bool isExtensionMatching(const char * extension, const char * pattern, char * ma
 FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime);
 
 // comparison, not case sensitive.
-inline bool compare_nocase(const std::string & first, const std::string & second)
-{
-  return strcasecmp(first.c_str(), second.c_str()) < 0;
+static inline bool compare_nocase(const std::string& first, const std::string& second) {
+    return std::lexicographical_compare(
+        first.begin(), first.end(),
+        second.begin(), second.end(),
+        [](unsigned char a, unsigned char b) {
+            return std::tolower(a) < std::tolower(b);
+        }
+    );
 }

@@ -74,7 +74,7 @@ class AppPreferencesDialog : public QDialog
     void on_btn_appLogsDir_clicked();
     void on_btnClearPos_clicked();
 
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
     void on_joystickChkB_clicked();
     void on_joystickcalButton_clicked();
 #endif

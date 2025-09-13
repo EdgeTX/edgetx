@@ -19,11 +19,35 @@
  * GNU General Public License for more details.
  */
 
+#include "board.h"
+
 bool boardBacklightOn = false;
 bool isBacklightEnabled() { return boardBacklightOn; }
-void backlightFullOn() { boardBacklightOn = true; }
 
 void backlightInit() {}
-void backlightEnable(unsigned char) {}
-void backlightEnable(unsigned char, unsigned char) {}
-void backlightDisable() {}
+
+#if !defined(COLORLCD)
+
+void backlightFullOn() { boardBacklightOn = true; }
+
+void backlightEnable(unsigned char)
+{
+  boardBacklightOn = true;
+}
+
+void backlightEnable(unsigned char, unsigned char)
+{
+  boardBacklightOn = true;  
+}
+
+void backlightDisable()
+{
+  boardBacklightOn = false;
+}
+
+#else
+
+void backlightFullOn() { backlightEnable(BACKLIGHT_LEVEL_MAX); }
+void backlightEnable(uint8_t) {}
+
+#endif

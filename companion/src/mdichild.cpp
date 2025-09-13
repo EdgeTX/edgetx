@@ -27,7 +27,7 @@
 #include "printdialog.h"
 #include "helpers.h"
 #include "appdata.h"
-#include "wizarddialog.h"
+#include "wizard/wizarddialog.h"
 #include "flashfirmwaredialog.h"
 #include "storage.h"
 #include "radiointerface.h"
@@ -1426,7 +1426,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
 
 void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
 {
-  curFile.replace(QRegExp("\\.(eepe|bin|hex|otx|etx)$"), suffix + "." + ext);
+  curFile.replace(QRegularExpression("\\.(eepe|bin|hex|otx|etx)$"), suffix + "." + ext);
 }
 
 bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
@@ -1518,8 +1518,7 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
 
     QCheckBox *cb = new QCheckBox(tr("Do not show this message again"));
     msgbox.setCheckBox(cb);
-    connect(cb, &QCheckBox::stateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
-
+    connect(cb, &QCheckBox::checkStateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
     if (msgbox.exec() == QMessageBox::Abort)
       return;
   }

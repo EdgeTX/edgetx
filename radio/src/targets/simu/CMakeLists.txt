@@ -1,5 +1,5 @@
 
-option(SIMU_TARGET "Configure libsimulator/simu targets (can be turned off for compiling Companion only)" ON)
+option(SIMU_TARGET "Configure libsimulator/simu targets" ON)
 if(NOT SIMU_TARGET)
   message(STATUS "libsimulator/simu targets disabled")
   return()
@@ -10,6 +10,7 @@ set(SIMU_DRIVERS
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
+  audio_driver.cpp
   switch_driver.cpp
   adc_driver.cpp
   module_drivers.cpp
@@ -34,14 +35,6 @@ set(SIMU_DRIVERS ${SIMU_DRIVERS}
   ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
   )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-if(SDL2_FOUND)
-  include_directories(${SDL2_INCLUDE_DIRS})
-  add_definitions(-DJOYSTICKS)
-  if(TARGET SDL2::SDL2)
-    set(SDL2_LIBRARIES SDL2::SDL2)
-  endif()
-endif()
 
 if(SIMU_LUA_COMPILER)
   add_definitions(-DLUA_COMPILER)
@@ -84,30 +77,37 @@ set(SIMU_SRC ${SIMU_SRC} PARENT_SCOPE)
 # Set the options as well in parent scope to be used by unit tests
 set(SIMU_SRC_OPTIONS ${SIMU_SRC_OPTIONS} PARENT_SCOPE)
 
-if(Qt5Widgets_FOUND)
+if(Qt6Widgets_FOUND)
   set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
   set(SIMULATOR_TARGET ${SIMULATOR_FLAVOUR}-simulator)
 
   add_definitions(-DSIMULATOR_FLAVOUR="${SIMULATOR_FLAVOUR}")
   include_directories(${COMPANION_SRC_DIRECTORY} ${COMPANION_SRC_DIRECTORY}/simulation)
 
-  qt5_wrap_cpp(SIMULATOR_SRC
+  qt_wrap_cpp(SIMULATOR_SRC
     ${COMPANION_SRC_DIRECTORY}/simulation/simulatorinterface.h
     opentxsimulator.h
-    )
+  )
   list(APPEND SIMULATOR_SRC ${SIMU_SRC} opentxsimulator.cpp)
+
   add_library(${SIMULATOR_TARGET} SHARED ${SIMULATOR_SRC})
+  set_target_properties(${SIMULATOR_TARGET} PROPERTIES PREFIX "lib")
+
+  if(TARGET SDL2::SDL2)
+    set(SDL2_LIBRARIES SDL2::SDL2)
+    target_sources(${SIMULATOR_TARGET} PRIVATE simuaudio.cpp)
+  else()
+    target_sources(${SIMULATOR_TARGET} PRIVATE no_audio.cpp)
+  endif()
 
   target_compile_options(${SIMULATOR_TARGET} PRIVATE ${SIMU_SRC_OPTIONS})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})
-  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt5::Core Qt5::SerialPort)
+  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt::Core Qt::SerialPort)
 
   # Remove debug symbols on release builds
-  if(NOT CLANG)
-    if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-      add_custom_command(TARGET ${SIMULATOR_TARGET} POST_BUILD
-        COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${SIMULATOR_TARGET}>)
-    endif()
+  if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    add_custom_command(TARGET ${SIMULATOR_TARGET} POST_BUILD
+      COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:${SIMULATOR_TARGET}>)
   endif()
 
   add_custom_command(
@@ -115,7 +115,7 @@ if(Qt5Widgets_FOUND)
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/plugins/
     COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:${SIMULATOR_TARGET}> ${CMAKE_BINARY_DIR}/plugins/
-    )
+  )
 
   # Introduced at 2.5 - TODO replace with a code change
   # When compiled shared simulators using libopenui and Companion have classes named MainWindow
@@ -149,67 +149,43 @@ if(Qt5Widgets_FOUND)
   add_custom_target(all-simu-libs COMMAND ${all_libs_cmd} USES_TERMINAL WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
 
-if(WIN32)
-  include_directories(SYSTEM ${WIN_INCLUDE_DIRS})
-  if(Qt5Widgets_FOUND)
-    target_link_libraries(${SIMULATOR_TARGET} PRIVATE ${WIN_LINK_LIBRARIES})
-  endif()
-endif(WIN32)
+if(MINGW)
+  # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991 & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
+endif()
 
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "/EHsc")
-  if(NOT CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /LD /MP")
-  endif()
-else()
-  if(MINGW)
-    # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991 & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
-  endif()
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-  if(ASAN)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-  endif()
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+
+if(ASAN)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-
-if(FOX_FOUND)
-  add_executable(simu WIN32
+if(TARGET SDL2::SDL2)
+  add_executable(simu
     EXCLUDE_FROM_ALL
     ${SIMU_SRC}
-    ${RADIO_SRC_DIR}/simu.cpp)
+    simuaudio.cpp
+    display.cpp
+    widgets.cpp
+    knobs.cpp
+    arg_parser.cpp
+    sdl_simu.cpp
+  )
 
-  target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
-  target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL2_LIBRARIES})
-  target_compile_options(simu PRIVATE ${SIMU_SRC_OPTIONS})
+  include(FetchImgui)
+  target_compile_options(simu PUBLIC -DSIMU)
+
+  add_png_target(image_assets "assets/images/*.png")
+  add_dependencies(simu image_assets)
+
+  set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
+  target_include_directories(simu PUBLIC ${STB_DIR})
+  target_link_libraries(simu PUBLIC imgui)
 endif()
-
-if(APPLE)
-  # OS X compiler no longer automatically includes /Library/Frameworks in search path
-  set(CMAKE_SHARED_LINKER_FLAGS -F/Library/Frameworks)
-
-  set(SIMULATOR_BUNDLES)
-  foreach(library ${OPENTX_LIBRARIES})
-    set(SIMULATOR_BUNDLE "${library}-bundle")
-    add_custom_target(${SIMULATOR_BUNDLE}
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore lib${library}.dylib
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork lib${library}.dylib
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml lib${library}.dylib
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui lib${library}.dylib
-      COMMAND install_name_tool -change @rpath/SDL.framework/Versions/A/SDL @executable_path/../Frameworks/SDL.framework/Versions/A/SDL lib${library}.dylib
-      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-      COMMAND pwd
-      COMMAND cp lib${library}.dylib companion.app/Contents/Resources/
-      DEPENDS ${library}
-      )
-    list(APPEND SIMULATOR_BUNDLES ${SIMULATOR_BUNDLE})
-  endforeach()
-  add_custom_target(opentx-simulators-bundle DEPENDS ${SIMULATOR_BUNDLES})
-endif(APPLE)
 
 PrintTargetReport("simu/libsimulator")

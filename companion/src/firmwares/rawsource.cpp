@@ -203,7 +203,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
         if (model) {
           int fsindex = Boards::getSwitchTagNum(index - 1, board) - 1;
           if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
-            custName = QString(model->functionSwitchNames[fsindex]).trimmed();
+            custName = QString(model->customSwitches[fsindex].name).trimmed();
         }
       }
       else {

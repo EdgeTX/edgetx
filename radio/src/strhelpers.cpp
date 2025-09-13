@@ -420,19 +420,19 @@ char *getFlightModeString(char *dest, int8_t idx)
   return dest;
 }
 
-char *getCustomSwitchesGroupName(char *dest, uint8_t idx)
+char* getCustomSwitchesGroupName(char *dest, uint8_t idx)
 {
   dest = strAppendStringWithIndex(dest, "GR", idx + 1);
 
   return dest;
 }
 
-char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly)
+char* getSwitchName(char *dest, uint8_t idx, bool defaultOnly)
 {
-  if (!defaultOnly && switchHasCustomName(idx)) {
-    dest = strAppend(dest, switchGetCustomName(idx), LEN_SWITCH_NAME);
+  if (!defaultOnly && g_model.switchHasCustomName(idx)) {
+    dest = strAppend(dest, g_model.getSwitchCustomName(idx), LEN_SWITCH_NAME);
   } else {
-    dest = strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
+    dest = strAppend(dest, switchGetDefaultName(idx), LEN_SWITCH_NAME);
   }
 
   return dest;

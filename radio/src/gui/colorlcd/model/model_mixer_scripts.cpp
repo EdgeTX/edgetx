@@ -23,7 +23,6 @@
 
 #include "dataconstants.h"
 #include "filechoice.h"
-#include "libopenui.h"
 #include "list_line_button.h"
 #include "lua/lua_api.h"
 #include "menus.h"
@@ -146,10 +145,8 @@ class ScriptEditWindow : public Page
         auto lbl = new DynamicText(
             line, rect_t{},
             [=]() {
-              char s[16];
-              getSourceString(
-                  s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
-              return std::string(s, sizeof(s) - 1);
+              char* s = getSourceString(MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+              return std::string(s);
             });
         lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(
@@ -188,26 +185,12 @@ class ScriptLineButton : public ListLineButton
     lv_obj_set_style_pad_column(lvobj, PAD_SMALL, 0);
 
     lv_obj_update_layout(parent->getLvObj());
-    if (lv_obj_is_visible(lvobj)) delayed_init();
 
-    lv_obj_add_event_cb(lvobj, ScriptLineButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (ScriptLineButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     auto lbl = lv_label_create(lvobj);
     etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
@@ -265,7 +248,6 @@ class ScriptLineButton : public ListLineButton
   void refresh() override {}
 
  protected:
-  bool init = false;
   const ScriptData& scriptData;
   const ScriptInternalData* runtimeData;
 };

@@ -78,8 +78,7 @@ class MixLineButton : public InputMixButtonBase
   {
     mplex = new MPlexIcon(parent, index);
 
-    lv_obj_add_event_cb(lvobj, MixLineButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
   void deleteLater(bool detach = true, bool trash = true) override
@@ -88,14 +87,9 @@ class MixLineButton : public InputMixButtonBase
     ListLineButton::deleteLater(detach, trash);
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (MixLineButton*)lv_obj_get_user_data(target);
-    if (line && !line->init) {
-      line->init = true;
-      line->refresh();
-    }
+    refresh();
   }
 
   void refresh() override
@@ -168,7 +162,6 @@ class MixLineButton : public InputMixButtonBase
   static LAYOUT_VAL_SCALED(MPLEX_XO, 28)
 
  protected:
-  bool init = false;
   MPlexIcon* mplex = nullptr;
 
   bool isActive() const override { return isMixActive(index); }

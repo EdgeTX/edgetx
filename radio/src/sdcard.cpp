@@ -26,12 +26,7 @@
 #include "hal/storage.h"
 
 #include "edgetx.h"
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
-#endif
+#include "lib_file.h"
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "Variable sector size is not supported"
@@ -565,7 +560,7 @@ void sdDone()
 
 uint32_t sdMounted()
 {
-#if defined(SIMU)
+#if defined(SIMU) && !defined(SIMU_DISKIO)
   return true;
 #else
   return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);

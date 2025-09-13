@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
-void gyroInit() {}
-void gyroRead() {}
-void gyroRead(unsigned char*) {}
+#include "gyro.h"
+
+int gyroInit() { return -1; }
+int gyroRead(uint8_t*) { return -1; }

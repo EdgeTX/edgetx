@@ -52,6 +52,7 @@ if(NOT NO_LTO)
   target_compile_options(stm32_drivers PRIVATE -flto)
   target_compile_options(stm32_drivers_w_dbg_fw PRIVATE -flto)
   target_compile_options(stm32_drivers_w_dbg_bl PRIVATE -flto)
+  target_compile_options(board_bl PRIVATE -flto)
 endif()
 
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
@@ -83,6 +84,12 @@ if (DEFINED TARGET_EXTRAM_SIZE)
   )
 endif()
 
+if (DEFINED TARGET_PSRAM_START)
+  target_link_options(bootloader PRIVATE
+    -Wl,--defsym=__PSRAM_START__=${TARGET_PSRAM_START}
+  )
+endif()
+
 if (ENABLE_BOOTLOADER_DEBUG)
   target_compile_definitions(board_bl PRIVATE -DDEBUG)
   target_compile_definitions(bootloader PRIVATE -DDEBUG)
@@ -102,7 +109,7 @@ add_custom_command(
   COMMAND ${CMAKE_OBJCOPY} -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
 )
 
-if(PYTHONINTERP_FOUND)
+if(Python3_FOUND)
   add_custom_command(
     TARGET bootloader POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/bin2lbm.py ${CMAKE_BINARY_DIR}/bootloader.bin bootloader.lbm

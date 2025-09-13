@@ -5,7 +5,7 @@ on:
     - cron: '0 2 * * *' # run at 2 AM UTC
   workflow_dispatch:
 
-concurrency: 
+concurrency:
   group: 'nightly'
   cancel-in-progress: true
 
@@ -17,7 +17,8 @@ jobs:
       matrix:
         target:
           - nv14;el18
-          - pl18;pl18ev
+          - pl18;pl18ev;pl18u
+          - pa01
           - t12max
           - t15;t16;t18
           - zorro;pocket;mt12;commando8
@@ -35,6 +36,7 @@ jobs:
           - mt12
           - nb4p
           - st16
+          - tx15
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

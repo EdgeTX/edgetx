@@ -21,7 +21,11 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "dataconstants.h"
+#include "window.h"
+#include <vector>
+
+class MaskBitmap;
 
 class SliderIcon : public Window
 {
@@ -29,7 +33,8 @@ class SliderIcon : public Window
   SliderIcon(Window* parent);
 
  protected:
-  lv_obj_t* fill = nullptr;
+  lv_obj_t* mask = nullptr;
+  lv_obj_t* shadow = nullptr;
 };
 
 class MainViewSlider : public Window
@@ -48,19 +53,22 @@ class MainViewSlider : public Window
   static LAYOUT_VAL_SCALED(SLIDER_TICK_SPACING, 4)
   static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + SLIDER_BAR_SIZE;
   static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + SLIDER_BAR_SIZE;
+  static constexpr coord_t MASK_SHORT_DIM = SLIDER_ICON_SIZE - PAD_TINY;
+  static constexpr coord_t MASK_LONG_DIM = SLIDER_SIZE + 1;
 
  protected:
   uint8_t potIdx;
   int16_t value = 0;
   bool isVertical;
+  lv_obj_t* maskCanvas = nullptr;
   SliderIcon* sliderIcon = nullptr;
-  lv_point_t* tickPoints = nullptr;
+  static std::vector<MaskBitmap*> tickMasks;
 
   void setPos();
 
   void checkEvents() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  MaskBitmap* getTicksMask();
 };
 
 class MainViewHorizontalSlider : public MainViewSlider

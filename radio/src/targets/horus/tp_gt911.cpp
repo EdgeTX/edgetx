@@ -644,11 +644,28 @@ static const char *event2str(uint8_t ev)
 }
 #endif
 
+#if defined(CSD203_SENSOR)
+  extern bool IICReadStatusFlag;
+#endif
+
 struct TouchState touchPanelRead()
 {
   uint8_t state = 0;
 
   if (!touchEventOccured) return internalTouchState;
+#if defined(CSD203_SENSOR)
+  for(int a=0;a<6;a++)
+  {//IIC bus preemption
+    if(IICReadStatusFlag==false){
+      IICReadStatusFlag=true;
+      break;
+    } 
+    else if(a>6){
+      return internalTouchState;
+    }
+    delay_us(10);
+  }
+#endif  
 
   touchEventOccured = false;
 
@@ -659,6 +676,9 @@ struct TouchState touchPanelRead()
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+    #if defined(CSD203_SENSOR)
+      IICReadStatusFlag=false;
+    #endif  
       return internalTouchState;
     }
 
@@ -684,6 +704,9 @@ struct TouchState touchPanelRead()
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+      #if defined(CSD203_SENSOR)
+        IICReadStatusFlag=false;
+      #endif  
         return internalTouchState;
       }
         
@@ -734,6 +757,9 @@ struct TouchState touchPanelRead()
   }
 
   TRACE("touch event = %s", event2str(internalTouchState.event));
+#if defined(CSD203_SENSOR)
+  IICReadStatusFlag=false;
+#endif
   return internalTouchState;
 }
 
