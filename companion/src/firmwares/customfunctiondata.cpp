@@ -133,7 +133,7 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
   else if (func == FuncLCDtoVideo)
     return tr("LCD to Video");
   else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-    const int idx = Boards::getSwitchTypeOffset(Board::SWITCH_FUNC) + func - FuncPushCustomSwitch1 + 1;
+    const int idx = Boards::getSwitchIndexForCFSOffset(func - FuncPushCustomSwitch1) + 1;
     return tr("Push Custom Switch %1").arg(RawSource(SOURCE_TYPE_SWITCH, idx).toString(model));
   }
   else {
@@ -279,7 +279,8 @@ int CustomFunctionData::funcContext(const int index)
 
   if ((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) ||
       (index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) ||
-      (index >= FuncAdjustGV1 && index <= FuncAdjustGVLast))
+      (index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) ||
+      (index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast))
     ret &= ~GlobalFunctionsContext;
 
   return ret;
