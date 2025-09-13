@@ -255,7 +255,7 @@ bool LabelsStorageFormat::write(const RadioData & radioData)
 bool LabelsStorageFormat::loadChecklist(ModelData & model)
 {
   const QString fname("MODELS/" + model.getChecklistFilename());
-  qDebug() << "Searching for checklist file:" << fname;
+  //qDebug() << "Searching for checklist file:" << fname;
 
   if (!loadFile(model.checklistData, fname, true)) {
     setError(tr("Cannot load ") + fname);
@@ -271,7 +271,7 @@ bool LabelsStorageFormat::writeChecklist(const ModelData & model)
 
   // not every model has a checklist
   if (!model.checklistData.isEmpty()) {
-    qDebug() << "Writing checklist file:" << fname;
+    //qDebug() << "Writing checklist file:" << fname;
     if (!writeFile(model.checklistData, fname)) {
       setError(tr("Cannot write ") + fname);
       return false;
