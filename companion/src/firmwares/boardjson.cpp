@@ -437,27 +437,83 @@ int BoardJson::getNumericSuffix(const std::string str)
   return -1;
 }
 
-const int BoardJson::getSwitchIndex(const QString val, Board::LookupValueType lvt) const
+const int BoardJson::getCFSIndexForSwitch(int offset) const
 {
-  return getSwitchIndex(m_switches, val, lvt);
+  return getCFSIndexForSwitch(m_switches, offset);
 }
 
-const int BoardJson::getCFSIndexForSwitch(int sw) const
+// static
+int BoardJson::getCFSIndexForSwitch(const SwitchesTable * switches, int sw)
 {
-  if (sw < (int)m_switches->size() && m_switches->at(sw).isCustomSwitch)
-    return m_switches->at(sw).customSwitchIdx;
+  if (sw < (int)switches->size() && switches->at(sw).isCustomSwitch)
+    return switches->at(sw).customSwitchIdx;
 
   return -1;
 }
 
-const int BoardJson::getSwitchIndexForCFS(int cfsIdx) const
+const int BoardJson::getSwitchIndexForCFS(int offset) const
 {
-  for (int i = 0; i < (int)m_switches->size(); i++) {
-    if (m_switches->at(i).isCustomSwitch && m_switches->at(i).customSwitchIdx == cfsIdx)
+  return getSwitchIndexForCFS(m_switches, offset);
+}
+
+// static
+int BoardJson::getSwitchIndexForCFS(const SwitchesTable * switches, int cfsIdx)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch && switches->at(i).customSwitchIdx == cfsIdx)
       return i;
   }
 
   return -1;
+}
+
+const int BoardJson::getCFSOffsetForCFSIndex(int index) const
+{
+  return getCFSOffsetForCFSIndex(m_switches, index);
+}
+
+// static
+int BoardJson::getCFSOffsetForCFSIndex(const SwitchesTable * switches, const int index)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (switches->at(i).customSwitchIdx == index)
+        return cnt;
+      else
+        cnt++;
+    }
+  }
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndexForCFSOffset(int offset) const
+{
+  return getSwitchIndexForCFSOffset(m_switches, offset);
+}
+
+// static
+int BoardJson::getSwitchIndexForCFSOffset(const SwitchesTable * switches, const int offset)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (cnt == offset)
+        return i;
+      else
+        cnt++;
+    }
+  }
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndex(const QString val, Board::LookupValueType lvt) const
+{
+  return getSwitchIndex(m_switches, val, lvt);
 }
 
 // static
