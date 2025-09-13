@@ -62,14 +62,19 @@ void UpdateNetwork::cleanup()
 
 void UpdateNetwork::connectReplyCommon()
 {
-  connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), [=] (QNetworkReply::NetworkError code) {
+  connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), [&](QNetworkReply::NetworkError code) {
     m_success = false;
     m_status->reportProgress(tr("Network error has occurred. Error code: %1").arg(code), QtCriticalMsg);
   });
 
-  connect(m_reply, &QNetworkReply::sslErrors, [=]() {
+  connect(m_reply, &QNetworkReply::sslErrors, [&]() {
     m_success = false;
     m_status->reportProgress(tr("Ssl library version: %1").arg(QSslSocket::sslLibraryVersionString()), QtCriticalMsg);
+  });
+
+  connect(m_reply, &QNetworkReply::redirected, [&](const QUrl &url) {
+    m_finalUrl = url;
+    //qDebug() << "final url:" << m_finalUrl;
   });
 }
 
@@ -299,8 +304,10 @@ void UpdateNetwork::onGetFinished(QNetworkReply * reply, DownloadDataType type)
     if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile)
       m_file->remove();
   }
-  else
+  else {
     m_success = true;
+    m_status->reportProgress(tr("Download complete"), QtDebugMsg);
+  }
 
   if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile) {
     delete m_file;

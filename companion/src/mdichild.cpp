@@ -23,7 +23,6 @@
 #include "ui_mdichild.h"
 #include "modeledit/modeledit.h"
 #include "generaledit/generaledit.h"
-#include "burnconfigdialog.h"
 #include "printdialog.h"
 #include "helpers.h"
 #include "appdata.h"
@@ -1434,11 +1433,6 @@ bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
   QMessageBox::StandardButtons btns;
   QMessageBox::StandardButton dfltBtn;
 
-  if (from == Board::BOARD_X10 && to == Board::BOARD_JUMPER_T16) {
-    if (displayT16ImportWarning() == false)
-      return false;
-  }
-
   QString q = tr("<p><b>Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.</b></p>").arg(Boards::getBoardName(to)).arg(Boards::getBoardName(from)).arg(userFriendlyCurrentFile());
   if (newFile) {
     q.append(tr("Do you wish to continue with the conversion?"));
@@ -1526,7 +1520,7 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
   QString radioPath;
 
   if (toRadio) {
-    radioPath = findMassstoragePath("RADIO", true);
+    radioPath = findMassStoragePath("RADIO", true);
     qDebug() << "Searching for SD card, found" << radioPath;
   }
   else {

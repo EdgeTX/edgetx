@@ -69,18 +69,6 @@
     <file>images/wizard/throttle.png</file>
     <file>images/wizard/vtail.png</file>
     <file>images/wizard/wingtype.png</file>
-    <file>images/library/00001.png</file>
-    <file>images/library/00002.png</file>
-    <file>images/library/00003.png</file>
-    <file>images/library/00004.png</file>
-    <file>images/library/00005.png</file>
-    <file>images/library/00006.png</file>
-    <file>images/library/00007.png</file>
-    <file>images/library/00008.png</file>
-    <file>images/library/00009.png</file>
-    <file>images/library/00010.png</file>
-    <file>images/library/00011.png</file>
-    <file>images/library/00012.png</file>
     <file>images/library/00013.png</file>
     <file>images/library/00014.png</file>
     <file>images/library/00015.png</file>
@@ -89,25 +77,6 @@
     <file>images/library/00018.png</file>
     <file>images/library/00019.png</file>
     <file>images/library/00020.png</file>
-    <file>images/library/00021.png</file>
-    <file>images/library/00022.png</file>
-    <file>images/library/00050.png</file>
-    <file>images/library/00051.png</file>
-    <file>images/library/00052.png</file>
-    <file>images/library/00053.png</file>
-    <file>images/library/00054.png</file>
-    <file>images/library/00055.png</file>
-    <file>images/library/00056.png</file>
-    <file>images/library/00057.png</file>
-    <file>images/library/00058.png</file>
-    <file>images/library/00059.png</file>
-    <file>images/library/00060.png</file>
-    <file>images/library/00061.png</file>
-    <file>images/library/00062.png</file>
-    <file>images/library/00063.png</file>
-    <file>images/library/00064.png</file>
-    <file>images/library/00065.png</file>
-    <file>images/library/00066.png</file>
     <file>images/library/00100.png</file>
     <file>images/library/00101.png</file>
     <file>images/library/00102.png</file>
@@ -122,7 +91,6 @@
     <file>images/library/00301.png</file>
     <file>images/library/00302.png</file>
     <file>images/library/00303.png</file>
-    <file>images/library/00304.png</file>
     <file>images/library/00401.png</file>
     <file>images/library/00402.png</file>
     <file>images/library/00403.png</file>
@@ -144,8 +112,6 @@
     <file>images/library/10601.png</file>
     <file>images/library/10701.png</file>
     <file>images/library/10702.png</file>
-    <file>images/library/10801.png</file>
-    <file>images/library/10802.png</file>
     <file>themes/default/style.css</file>
     <file>themes/default/style-osx.css</file>
     <file>themes/default/modelprt.css</file>

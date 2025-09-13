@@ -94,8 +94,6 @@ class MainWindow : public QMainWindow
     void readFlash();
     void writeBackup();
     void readBackup();
-    void burnConfig();
-    void burnList();
     void sdsync(bool postUpdate = false);
     void changelog();
     void customizeSplash();
@@ -126,6 +124,8 @@ class MainWindow : public QMainWindow
     void viewRadioToolbar();
     void viewSettingsToolbar();
     void viewToolsToolbar();
+
+    void radioGetDevices();
 
   private:
     QAction * addAct(const QString & icon, const char * slot = NULL, const QKeySequence & shortcut = 0, QObject * slotObj = NULL, const char * signal = NULL);
@@ -209,8 +209,7 @@ class MainWindow : public QMainWindow
     QAction *editSplashAct;
     QAction *writeSettingsAct;
     QAction *readSettingsAct;
-    QAction *burnConfigAct;
-    QAction *burnListAct;
+    QAction *radioGetDevicesAct;
     QAction *writeFlashAct;
     QAction *readFlashAct;
     QAction *writeBUToRadioAct;

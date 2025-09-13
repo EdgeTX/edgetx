@@ -335,7 +335,6 @@ void Profile::resetFwVariables()
     CompStoreObj::resetProperty(this, name);
 }
 
-
 // ** ComponentAssetData class********************
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)
@@ -725,6 +724,14 @@ void AppData::convertSettings(QSettings & settings)
         settings.setValue(path.arg(i).arg("releaseId"), id);
       }
     }
+  }
+
+  if (savedMajMin < 0x300) {
+    //  3.0  CloudBuild copy filter changed to cater for uf2
+    qInfo().noquote() << "Deleting CloudBuild settings to force refresh";
+    static const QString path = QStringLiteral("Components/component6");
+    if (settings.contains(path))
+      settings.remove(path);
   }
 
   if (removeUnused)
