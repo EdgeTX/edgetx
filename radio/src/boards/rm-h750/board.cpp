@@ -153,11 +153,14 @@ void boardInit()
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
   // init_trainer();
+
+#if defined(FLYSKY_GIMBAL)
   auto inittime = flysky_gimbal_init();
   if (inittime)
     TRACE("Serial gimbal detected in %d ms", inittime);
   else
     TRACE("No serial gimbal detected");
+#endif
 
   usbInit();
 

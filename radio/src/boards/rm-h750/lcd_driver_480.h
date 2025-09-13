@@ -38,10 +38,6 @@
 typedef void (*lcdSpiInitFucPtr)(void);
 typedef unsigned int  LcdReadIDFucPtr( void );
 
-extern lcdSpiInitFucPtr lcdInitFunction;
-extern lcdSpiInitFucPtr lcdOffFunction;
-extern lcdSpiInitFucPtr lcdOnFunction;
-
 #define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
 #define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
 
