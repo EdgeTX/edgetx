@@ -1922,7 +1922,7 @@ void MdiChild::updateStatusBar()
   statusBarCount->setText(cnt.text());
 }
 
-void MdiChild::mergeSettings(StatusDialog * status)
+void MdiChild::writeSelectiveSettings(StatusDialog * status)
 {
   //  safeguard as the menu actions should be disabled
   int cnt = radioData.invalidModels();
