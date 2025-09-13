@@ -100,7 +100,7 @@ class MdiChild : public QWidget
     bool saveFile(const QString & fileName, bool setCurrent=true);
     void closeFile(bool force = false);
     void writeSettings(StatusDialog * status, bool toRadio = true);
-    void mergeSettings(StatusDialog * status);
+    void writeSelectiveSettings(StatusDialog * status);
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 
