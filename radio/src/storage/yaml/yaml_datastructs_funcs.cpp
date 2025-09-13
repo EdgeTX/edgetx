@@ -2497,5 +2497,5 @@ bool switchIsActive(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
-  return idx < switchGetMaxSwitches();
+  return idx < switchGetMaxAllSwitches();
 }
