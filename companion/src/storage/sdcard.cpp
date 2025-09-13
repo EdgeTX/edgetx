@@ -37,7 +37,7 @@ bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, boo
   QFile file(path);
   if (!file.exists()) {
     if (optional) {
-      qDebug() << "File not found:" << filename;
+      //qDebug() << "File not found:" << filename;
       return true;
     } else {
       return false;

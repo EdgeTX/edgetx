@@ -96,7 +96,7 @@ bool EtxFormat::loadFile(QByteArray & filedata, const QString & filename, bool o
   void * data = mz_zip_reader_extract_file_to_heap(&zip_archive, qPrintable(filename), &size, 0);
   if (!data) {
     if (optional) {
-      qDebug() << "File not found:" << filename;
+      //qDebug() << "File not found:" << filename;
       return true;
     } else {
       return false;
