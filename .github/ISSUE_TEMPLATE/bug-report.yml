@@ -90,6 +90,7 @@ body:
         - Flysky EL18
         - Flysky NB4+        
         - Flysky NV14
+        - Flysky PA01
         - Flysky PL18/PL18EV
         - Flysky ST16
         - FrSky Q X7 / Q X7S (ACCST)
@@ -122,6 +123,7 @@ body:
         - RadioMaster Pocket
         - RadioMaster T8
         - RadioMaster TX12 / TX12MK2
+        - RadioMaster TX15
         - RadioMaster TX16S / TX16SMK2
         - RadioMaster Zorro
         - Other (Please specify below)
