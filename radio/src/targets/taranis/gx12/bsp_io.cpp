@@ -56,12 +56,29 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
   } else {
+    // First safety level: reset TCA chip
+    TRACE("ERROR: resetting PCA95XX");
     gpio_clear(IO_RESET_GPIO);
-    TRACE("PCA95 was reset");
-    delay_us(1);  // Only 6ns are needed according to PCA datasheet, but lets be safe
+    delay_us(10);  // Only 4ns are needed according to PCA datasheet
     gpio_set(IO_RESET_GPIO);
+    delay_us(10);
+    // Re read
+    if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+      io->state = value;
+    } else {
+      // PCA reset did not work, I2C Bus needs reset
+      TRACE("ERROR: resetting PCA95XX I2C bus");
+      if (stm32_i2c_deinit(I2C_Bus_2) < 0)
+        TRACE("I2C B2 ReInit - I2C DeInit failed");
+      bsp_io_init();
+      if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+        io->state = value;
+      } else {
+        TRACE("ERROR: Unrecoverable error on PCA95XX");
+      }
+    }
   }
-  return io->state;  
+  return io->state;
 }
 
 static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
