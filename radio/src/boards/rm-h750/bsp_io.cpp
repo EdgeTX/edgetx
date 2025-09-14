@@ -66,7 +66,7 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
   } else {
-    // First safety level: reset TCA chip
+    // Unable to read PCA, reset it
     TRACE("ERROR: resetting PCA95XX");
     gpio_clear(IO_RESET_GPIO);
     delay_us(1);  // Only 4ns are needed according to PCA datasheet
@@ -75,7 +75,7 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
     if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
       io->state = value;
     } else {
-      // PCA reset did not work, I2C Bus needs reset
+      // PCA reset did not work, try resetting PCA I2C Bus
       TRACE("ERROR: resetting PCA95XX I2C bus");
       stm32_i2c_deinit(IO_EXPANDER_I2C_BUS);
       bsp_io_init();
