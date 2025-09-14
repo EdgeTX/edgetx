@@ -241,8 +241,8 @@
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[ДАЛЕЕ]"
 #else
-  #define TR_ENTER_LONG                "[ВВЕДИТЕ ПОДОЛГУ]"
-  #define TR_ENTER                     "[ВВЕДИТЕ]"
+  #define TR_ENTER_LONG                "[ВВОД ДОЛГО]"
+  #define TR_ENTER                     "[ВВОД]"
 #endif
 
 #if defined(COLORLCD)
