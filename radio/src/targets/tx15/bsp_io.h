@@ -24,7 +24,9 @@
 #include "drivers/pca95xx.h"
 #include "hal/switch_driver.h"
 
-#define IO_EXPANDER_I2C_BUS    I2C_Bus_1
+#define IO_EXPANDER_I2C_BUS     I2C_Bus_1
+#define IO_EXPANDER1_I2C_ADDR	0x74
+#define IO_EXPANDER2_I2C_ADDR	0x75
 
 // Port expander 2 (0x75)
 #define BSP_TR1U PCA95XX_PIN_13
@@ -50,5 +52,5 @@ uint16_t bsp_input_get();
 struct stm32_switch_t;
 
 //TODO compute from json
-constexpr uint32_t EXP_1_MASK = 0xFF3F;
-constexpr uint32_t EXP_2_MASK = 0xFFF8;
+constexpr uint32_t IO_EXPANDER1_MASK = 0xFF3F;
+constexpr uint32_t IO_EXPANDER2_MASK = 0xFFF8;
