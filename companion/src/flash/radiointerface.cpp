@@ -38,7 +38,7 @@
 constexpr int  UF2_TRANSFER_SIZE            {4 * 1024};
 constexpr char UF2_FIRMWARE_FILENAME[]      {"CURRENT.UF2"};
 constexpr char UF2_INFO_FILENAME[]          {"INFO_UF2.TXT"};
-constexpr char UF2_INDEX_FILENAME[]         {"INDEX.HTM"};
+//constexpr char UF2_INDEX_FILENAME[]         {"INDEX.HTM"};  // commented to stop compiler warning
 constexpr char UF2_NEW_FIRMWARE_FILENAME[]  {"firmware.uf2"};
 
 using namespace std::chrono_literals;
@@ -55,6 +55,8 @@ FirmwareReaderWorker::~FirmwareReaderWorker()
 
 void FirmwareReaderWorker::run()
 {
+  emit statusChanged(tr("Reading..."));
+  emit progressChanged(0, 100);
   isUf2DeviceFound() ? runUf2() : runDfu();
 }
 
@@ -70,7 +72,7 @@ void FirmwareReaderWorker::runDfu()
       throw std::runtime_error(tr("More than one DFU device found").toStdString());
     }
 
-    emit statusChanged("Resetting state...");
+    emit newMessage(tr("Resetting state..."));
     auto &device = devices[0];
     device.reset_state();
 
@@ -88,12 +90,11 @@ void FirmwareReaderWorker::runDfu()
       bytes_uploaded += single_xfer_size;
 
       emit progressChanged(bytes_uploaded, total_length);
-      emit statusChanged(tr("Reading %1 of %2").arg(bytes_uploaded).arg(total_length));
+      emit newMessage(tr("Reading %1 of %2").arg(bytes_uploaded).arg(total_length));
       data.append(ctx->upload(single_xfer_size));
     }
 
-    qDebug() << "Reading done";
-    emit statusChanged("Reading done");
+    emit statusChanged("Reading finished");
     emit complete(data);
 
     // TODO: handle shouldStop
@@ -111,12 +112,6 @@ void FirmwareReaderWorker::runUf2()
     QFile fw(path);
     char buf[UF2_TRANSFER_SIZE];
     const int blockstotal = (fw.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
-    emit progressChanged(0, blockstotal);
-    emit statusChanged(tr("Reading..."));
-
-    qDebug() << "Reading started - file:" << fw.fileName()
-             << "size:" << fw.size()
-             << "blocks:" << blockstotal;
 
     QByteArray data;
     if (fw.open(QIODevice::ReadOnly)) {
@@ -134,12 +129,11 @@ void FirmwareReaderWorker::runUf2()
 
       do
       {
-        // qDebug() << "read:" << read;
         bytesread += read;
         blockcnt++;
         data.append(buf, read);
         emit progressChanged(blockcnt, blockstotal);
-        emit statusChanged(tr("Read block %1 of %2").arg(blockcnt).arg(blockstotal));
+        emit newMessage(tr("Read block %1 of %2").arg(blockcnt).arg(blockstotal));
         read = fw.read(buf, UF2_TRANSFER_SIZE);
       } while (read > 0);
 
@@ -163,8 +157,8 @@ void FirmwareReaderWorker::runUf2()
     }
 
     fw.close();
-    qDebug() << "Reading done";
-    emit statusChanged("Reading done");
+
+    emit statusChanged("Reading finished");
     emit complete(data);
 
   } catch (const std::exception &e) {
@@ -185,6 +179,8 @@ FirmwareWriterWorker::~FirmwareWriterWorker()
 
 void FirmwareWriterWorker::run()
 {
+  emit statusChanged(tr("Initialising..."));
+  emit progressChanged(0, 100);
   isUf2DeviceFound() ? runUf2() : runDfu();
 }
 
@@ -205,16 +201,11 @@ void FirmwareWriterWorker::runUf2()
 
     QFile newfw(Helpers::concatPath(path, UF2_NEW_FIRMWARE_FILENAME));
     int blockstotal = (firmwareData.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
-    emit progressChanged(0, blockstotal);
-    emit statusChanged(tr("Writing..."));
 
     if (firmwareData.size() == 0)
       throw std::runtime_error(tr("No data to write to new firmware file").toStdString());
 
-    qDebug() << "Writing started - file:"
-             << newfw.fileName()
-             << "size:" << firmwareData.size()
-             << "blocks:" << blockstotal;
+    emit statusChanged(TR("Writing..."));
 
     if (newfw.open(QIODevice::ReadWrite)) {
       int blockcnt = 0;
@@ -239,7 +230,7 @@ void FirmwareWriterWorker::runUf2()
         byteswritten += written;
         blockcnt++;
         emit progressChanged(blockcnt, blockstotal);
-        emit statusChanged(tr("Writing block %1 of %2").arg(blockcnt).arg(blockstotal));
+        emit newMessage(tr("Writing block %1 of %2").arg(blockcnt).arg(blockstotal));
 
         ba.clear(); // just to be on the safe side
         ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
@@ -259,8 +250,7 @@ void FirmwareWriterWorker::runUf2()
     }
 
     newfw.close();
-    qDebug() << "Writing done";
-    emit statusChanged("Writing done");
+    emit statusChanged("Writing finished");
     emit complete();
 
   } catch (const std::exception &e) {
@@ -280,7 +270,7 @@ void FirmwareWriterWorker::runDfu()
       throw std::runtime_error(tr("More than one DFU device found").toStdString());
     }
 
-    emit statusChanged("Resetting state...");
+    emit newMessage("Resetting state...");
     auto &device = devices[0];
     device.reset_state();
 
@@ -296,7 +286,7 @@ void FirmwareWriterWorker::runDfu()
 
     device.leave();
 
-    emit statusChanged("Flashing done");
+    emit statusChanged("Writing finished");
     emit complete();
 
     // TODO: handle shouldStop
@@ -328,6 +318,8 @@ void FirmwareWriterWorker::writeUf2(DfuDevice &device, const SliceU8 &data)
 void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
                                        const SliceU8 &data)
 {
+  emit statusChanged(TR("Erasing..."));
+
   auto start_address = addr;
   auto end_address = start_address + data.size() - 1;
 
@@ -339,6 +331,8 @@ void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
     updateEraseStatus(i + 1, pages);
     ctx->page_erase(erase_pages[i]);
   }
+
+  emit statusChanged(TR("Writing..."));
 
   size_t bytes_downloaded = 0;
   auto data_ptr = data.data();
@@ -358,13 +352,13 @@ void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
 void FirmwareWriterWorker::updateEraseStatus(size_t page, size_t pages)
 {
   emit progressChanged(page, pages);
-  emit statusChanged(tr("Erasing page %1 of %2").arg(page).arg(pages));
+  emit newMessage(tr("Erasing page %1 of %2").arg(page).arg(pages));
 }
 
 void FirmwareWriterWorker::updateDownloadStatus(size_t bytes, size_t total)
 {
   emit progressChanged(bytes, total);
-  emit statusChanged(tr("Writing %1 of %2").arg(bytes).arg(total));
+  emit newMessage(tr("Writing %1 of %2").arg(bytes).arg(total));
 }
 
 template <typename Duration>
@@ -373,19 +367,19 @@ void FirmwareWriterWorker::rebootAndRediscover(DfuDevice &device, uint32_t addr,
                                                uint32_t reboot_addr,
                                                Duration timeout)
 {
-  emit statusChanged(tr("Rebooting into DFU..."));
+  emit newMessage(tr("Rebooting into DFU..."));
   emit progressChanged(0, 2);
 
   device.reboot(addr, data, reboot_addr);
   emit progressChanged(1, 2);
 
-  emit statusChanged(tr("Waiting for device to reconnect..."));
+  emit newMessage(tr("Waiting for device to reconnect..."));
 
   auto start = std::chrono::steady_clock::now();
 
   while (std::chrono::steady_clock::now() - start < timeout) {
     if (device.rediscover()) {
-      emit statusChanged(tr("Device reconnected"));
+      emit newMessage(tr("Device reconnected"));
       emit progressChanged(2, 2);
       return;
     }
@@ -418,8 +412,12 @@ void connectProgress(Worker *worker, ProgressWidget *progress)
 
   progress->connect(worker, &Worker::statusChanged, progress,
                     [progress](const QString& status) {
-                      progress->addMessage(status);
                       progress->setInfo(status);
+                    });
+
+  progress->connect(worker, &Worker::newMessage, progress,
+                    [progress](const QString& msg) {
+                      progress->addMessage(msg);
                     });
 
   progress->connect(worker, &Worker::error, progress,
@@ -466,11 +464,11 @@ bool readFirmware(const QString &filename, ProgressWidget *progress)
       [filename](const QByteArray &data) {
         QFile file(filename);
         if (!file.open(QFile::WriteOnly)) {
-          qDebug() << "Unable to write to " << filename;
+          //qDebug() << "Unable to write to " << filename;
         } else {
           file.write(data);
           file.close();
-          qDebug() << "Firmware written to " << filename;
+          //qDebug() << "Firmware written to " << filename;
         }
       },
       progress);
@@ -528,13 +526,13 @@ QString getDevicesInfo()
     auto device_filter = DfuDeviceFilter::empty_filter();
     auto devices = device_filter->find_devices();
     if (devices.empty()) {
-      return QString("No DFU devices found");
+      return QString(TR("No DFU devices found"));
     }
 
     return printDevicesInfo(devices);
 
   } catch (const std::exception& e) {
-    return QString("Error: %1").arg(e.what());
+    return QString("%1: %2").arg(TR("Error")).arg(e.what());
   }
 
   return QString();
@@ -608,13 +606,13 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
     if (!si.isReady() || si.isReadOnly() || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
 
-    qDebug() << "device:" << si.device()
+/*     qDebug() << "device:" << si.device()
              << "type:" << si.fileSystemType()
              << "block size:" << si.blockSize()
              << "capacity:" << si.bytesTotal() / 1000 / 1000 << "MB"
              << "available:" << si.bytesFree() / 1000/ 1000 << "MB"
              << "root path:" << si.rootPath();
-
+ */
     QString temppath = si.rootPath();
     QString probefile = Helpers::concatPath(temppath, filename);
     qDebug() << "Searching for" << probefile;
@@ -712,13 +710,12 @@ bool isRadioConnected()
 
 bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget *progress, bool promptForFile)
 {
-  QString msg(TR("Writing radio firmware to file starting..."));
-  progress->setInfo(msg);
-  progress->addMessage(msg);
+  progress->setInfo(TR("Initialising"));
+  progress->addMessage(TR("Performing checks"));
 
   FirmwareInterface fw(data);
   if (!fw.isValid()) {
-    QString errMsg(TR("Firmware is not invalid"));
+    QString errMsg(TR("Firmware is not valid"));
     progress->addMessage(errMsg, QtFatalMsg);
     progress->setInfo(errMsg);
     return false;
@@ -727,7 +724,6 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
   QString backupDir;
 
   if (g.currentProfile().getVariantFromType() == fw.getFlavour()) {
-    progress->addMessage(TR("Current profile firmware type matches radio"));
     backupDir = g.currentProfile().pBackupDir();
   }
   else {
@@ -764,8 +760,6 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
   if (backupDir.isEmpty())
     backupDir = g.backupDir();
 
-  progress->addMessage(TR("Backup directory: %1").arg(QDir::toNativeSeparators(backupDir)));
-
   // include time in file name as there could be multiple backups in a day
   QString filePath = QString("%1/fw-%2-%3-%4.%5")
                       .arg(backupDir.replace("\\", "/"))  // for Windows
@@ -775,7 +769,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
                       .arg(fw.typeFileExtn());
 
   if (promptForFile) {
-      filePath = QFileDialog::getSaveFileName(parent, TR("Save Firmware to File"),
+      filePath = QFileDialog::getSaveFileName(parent, TR("Firmware File"),
                                               filePath, getFirmwareFilesFilter());
 
     if (filePath.isEmpty()) {
@@ -786,36 +780,37 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
                          QtFatalMsg);
     return false;
   } else if (!QFileInfo::exists(backupDir)) {
-    progress->addMessage(TR("Backup directory does not exist: %1")
+    progress->addMessage(TR("Configured backup directory does not exist: %1")
                          .arg(QDir::toNativeSeparators(backupDir)), QtFatalMsg);
     return false;
   }
 
-  progress->addMessage(TR("Writing firmware to: %1").arg(QDir::toNativeSeparators(filePath)));
+  progress->setInfo(TR("Writing..."));
 
   QFile f(filePath);
   if (!f.open(QIODevice::ReadWrite)) {
-    progress->addMessage(TR("Error opening file for writing: %1 (reason: %2)")
+    progress->addMessage(TR("Error opening: %1 (reason: %2)")
                          .arg(QDir::toNativeSeparators(f.fileName()))
                          .arg(f.errorString()), QtFatalMsg);
+    progress->setInfo(TR("Writing failed"));
     return false;
   }
 
   if (f.write(data) <= 0) {
-    progress->addMessage(TR("Error writing to file: %1 (reason: %2)")
+    progress->addMessage(TR("Error writing: %1 (reason: %2)")
                          .arg(QDir::toNativeSeparators(f.fileName()))
                          .arg(f.errorString()), QtFatalMsg);
+    progress->setInfo(TR("Writing failed"));
     f.close();
     return false;
   } else {
-    msg = TR("Writing radio firmware to file finished");
-    progress->addMessage(msg);
-    progress->setInfo(msg);
+    progress->setInfo(TR("Writing finished"));
   }
 
   f.close();
   return true;
 }
+
 QStringList dfuFileExtensions()
 {
   return QStringList() << "bin" << "uf2";
