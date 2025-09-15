@@ -24,6 +24,7 @@
 #include "drivers/pca95xx.h"
 #include "hal/switch_driver.h"
 
+#define IO_EXPANDER_I2C_BUS    I2C_Bus_1
 
 // Port expander 2 (0x75)
 #define BSP_TR1U PCA95XX_PIN_13

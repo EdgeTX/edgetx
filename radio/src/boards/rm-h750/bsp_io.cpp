@@ -60,21 +60,38 @@ static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
   io->state = 0;
 }
 
+static void _expanders_reset()
+{
+  gpio_clear(IO_RESET_GPIO);
+  delay_us(1);  // Only 6ns needed according to TCA9539 datasheet
+  gpio_set(IO_RESET_GPIO);
+  delay_us(1);  // Chip time to reset is 400ns
+}
+
 static uint32_t _read_io_expander(bsp_io_expander* io)
 {
   uint16_t value = 0;
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
   } else {
-    gpio_clear(IO_RESET_GPIO);
-    delay_us(1);  // Only 4ns are needed according to PCA datasheet
-    gpio_set(IO_RESET_GPIO);
+    // Unable to read PCA, reset it
+    TRACE("ERROR: resetting PCA95XX");
+    _expanders_reset();
     // Re read
     if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
       io->state = value;
+    } else {
+      // PCA reset did not work, try resetting PCA I2C Bus
+      TRACE("ERROR: resetting PCA95XX I2C bus");
+      stm32_i2c_deinit(IO_EXPANDER_I2C_BUS);
+      bsp_io_init();
+      if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+        io->state = value;
+      } else {
+        TRACE("ERROR: Unrecoverable error on PCA95XX");
+      }
     }
   }
-
   return io->state;
 }
 
@@ -116,7 +133,7 @@ static void start_poll_timer()
 
 int bsp_io_init()
 {
-  int i2cError = i2c_init(I2C_Bus_1);
+  int i2cError = i2c_init(IO_EXPANDER_I2C_BUS);
   if (i2cError < 0) {
     TRACE("I2C INIT ERROR: %d", i2cError);
     return -1;
@@ -124,19 +141,18 @@ int bsp_io_init()
 
   // setup expanders reset pin
   gpio_init(IO_RESET_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(IO_RESET_GPIO);
-  gpio_set(IO_RESET_GPIO);
+  _expanders_reset();
 
   // configure expander 1
   _init_io_expander(&_io_fs_switches, EXP_1_MASK);
-  if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_1, 0x74) < 0) {
+  if (pca95xx_init(&_io_fs_switches.exp, IO_EXPANDER_I2C_BUS, 0x74) < 0) {
     TRACE("EXP1 INIT ERROR");
     return -1;
   }
 
   // configure expander 2
   _init_io_expander(&_io_switches, EXP_2_MASK);
-  if (pca95xx_init(&_io_switches.exp, I2C_Bus_1, 0x75) < 0) {
+  if (pca95xx_init(&_io_switches.exp, IO_EXPANDER_I2C_BUS, 0x75) < 0) {
     TRACE("EXP2 INIT ERROR");
     return -1;
   }
