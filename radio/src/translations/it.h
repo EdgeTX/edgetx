@@ -294,10 +294,10 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
 #define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
-#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_FS_COLOR_LIST               "Custom","Off","Bianco","Rosso","Verde","Giallo","Arancio","Blue","Rosa"
 #define TR_GROUP                       "Gruppo"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_LUA_OVERRIDE                "Allow Lua override"
+#define TR_GROUP_ALWAYS_ON             "Sempre on"
+#define TR_LUA_OVERRIDE                "Consenti sovrascrittura Lua"
 #define TR_GROUPS                      "Sempre in gruppi"
 #define TR_LAST                        "Ultimo"
 #define TR_MORE_INFO                   "Più info"
@@ -653,9 +653,9 @@
 #define TR_POWER_METER_INT              "Meter Potenza (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spettro (EST)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spettro (INT)"
-#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
-#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
-#define TR_REFRESH                     "Refresh"
+#define TR_GHOST_MODULE_CONFIG         "Config. modulo Ghost"
+#define TR_GPS_MODEL_LOCATOR           "Trova modello con GPS"
+#define TR_REFRESH                     "Ricarica"
 #define TR_SDCARD_FULL                  "SDCard piena"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogs e Screenshots disattivati"
@@ -778,7 +778,7 @@
 #define TR_DATE                         "Data"
 #define TR_MONTHS                       { "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic" }
 #define TR_ROTARY_ENCODER               "R.E."
-#define TR_ROTARY_ENC_MODE              TR("RotEnc Mode","Rotary Encoder Mode")
+#define TR_ROTARY_ENC_MODE              TR("Modo RotEnc","Modo Rotary Encoder")
 #define TR_CHANNELS_MONITOR             "MONITOR CANALI"
 #define TR_MIXERS_MONITOR               "MONITOR MIXER"
 #define TR_PATH_TOO_LONG                "Path troppo lungo"
@@ -1251,10 +1251,10 @@
 
 #define TR_WIDGET_SIZE            "Dimensione widget"
 
-#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+#define TR_DEL_DIR_NOT_EMPTY      "La directory non è vuota!"
 
 /*
  * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
- * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
+ * Update V2.11.x by: Marco Robustini <robustinimarco@gmail.com>
  * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
  */
