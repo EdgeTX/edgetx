@@ -60,6 +60,14 @@ static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
   io->state = 0;
 }
 
+static void _expanders_reset()
+{
+  gpio_clear(IO_RESET_GPIO);
+  delay_us(1);  // Only 4ns are needed according to PCA datasheet
+  gpio_set(IO_RESET_GPIO);
+  delay_us(1);  // Chip time to reset is 400ns
+}
+
 static uint32_t _read_io_expander(bsp_io_expander* io)
 {
   uint16_t value = 0;
@@ -68,9 +76,7 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   } else {
     // Unable to read PCA, reset it
     TRACE("ERROR: resetting PCA95XX");
-    gpio_clear(IO_RESET_GPIO);
-    delay_us(1);  // Only 4ns are needed according to PCA datasheet
-    gpio_set(IO_RESET_GPIO);
+    _expanders_reset();
     // Re read
     if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
       io->state = value;
@@ -135,8 +141,7 @@ int bsp_io_init()
 
   // setup expanders reset pin
   gpio_init(IO_RESET_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(IO_RESET_GPIO);
-  gpio_set(IO_RESET_GPIO);
+  _expanders_reset();
 
   // configure expander 1
   _init_io_expander(&_io_fs_switches, EXP_1_MASK);
