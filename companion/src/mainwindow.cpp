@@ -614,7 +614,7 @@ void MainWindow::readFlash()
       [this, progress](const QByteArray &_data) {
         writeFirmwareToFile(this, _data, progress, true);
       },
-      [this](const QString &err) {
+      [](const QString &err) {
         qDebug() << tr("Could not read radio firmware: %1").arg(err);
       },
       progress);

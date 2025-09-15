@@ -72,7 +72,7 @@ void FirmwareReaderWorker::runDfu()
       throw std::runtime_error(tr("More than one DFU device found").toStdString());
     }
 
-    emit newMessage(tr("Resetting state..."));
+    emit newMessage(tr("Reset state"));
     auto &device = devices[0];
     device.reset_state();
 
@@ -83,6 +83,8 @@ void FirmwareReaderWorker::runDfu()
     size_t xfer_size = ctx->get_transfer_size();
     size_t bytes_uploaded = 0;
 
+    emit newMessage("placeholder");  // anchor for updateMessage
+
     QByteArray data;
     while (bytes_uploaded < total_length) {
       auto rest_length = uint32_t(total_length - bytes_uploaded);
@@ -90,17 +92,17 @@ void FirmwareReaderWorker::runDfu()
       bytes_uploaded += single_xfer_size;
 
       emit progressChanged(bytes_uploaded, total_length);
-      emit newMessage(tr("Reading %1 of %2").arg(bytes_uploaded).arg(total_length));
+      emit updateMessage(tr("Reading %1 of %2").arg(bytes_uploaded).arg(total_length));
       data.append(ctx->upload(single_xfer_size));
     }
 
-    emit statusChanged("Reading finished");
+    emit statusChanged(tr("Reading finished"));
     emit complete(data);
 
     // TODO: handle shouldStop
 
   } catch (const std::exception &e) {
-    emit error(QString("DFU failed: %1").arg(e.what()));
+    emit error(tr("DFU failed: %1").arg(e.what()));
   }
 }
 
@@ -127,13 +129,15 @@ void FirmwareReaderWorker::runUf2()
                                  .arg(fw.errorString()).toStdString());
       }
 
+      emit newMessage("placeholder");  // anchor for updateMessage
+
       do
       {
         bytesread += read;
         blockcnt++;
         data.append(buf, read);
         emit progressChanged(blockcnt, blockstotal);
-        emit newMessage(tr("Read block %1 of %2").arg(blockcnt).arg(blockstotal));
+        emit updateMessage(tr("Read block %1 of %2").arg(blockcnt).arg(blockstotal));
         read = fw.read(buf, UF2_TRANSFER_SIZE);
       } while (read > 0);
 
@@ -158,11 +162,11 @@ void FirmwareReaderWorker::runUf2()
 
     fw.close();
 
-    emit statusChanged("Reading finished");
+    emit statusChanged(tr("Reading finished"));
     emit complete(data);
 
   } catch (const std::exception &e) {
-    emit error(QString("UF2 failed: %1").arg(e.what()));
+    emit error(tr("UF2 failed: %1").arg(e.what()));
   }
 }
 
@@ -179,7 +183,7 @@ FirmwareWriterWorker::~FirmwareWriterWorker()
 
 void FirmwareWriterWorker::run()
 {
-  emit statusChanged(tr("Initialising..."));
+  emit statusChanged(tr("Initialise"));
   emit progressChanged(0, 100);
   isUf2DeviceFound() ? runUf2() : runDfu();
 }
@@ -205,12 +209,14 @@ void FirmwareWriterWorker::runUf2()
     if (firmwareData.size() == 0)
       throw std::runtime_error(tr("No data to write to new firmware file").toStdString());
 
-    emit statusChanged(TR("Writing..."));
+    emit statusChanged(tr("Writing..."));
 
     if (newfw.open(QIODevice::ReadWrite)) {
       int blockcnt = 0;
       qint64 byteswritten = 0;
       QByteArray ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
+
+      emit newMessage("placeholder");  // anchor for updateMessage
 
       do
       {
@@ -230,7 +236,7 @@ void FirmwareWriterWorker::runUf2()
         byteswritten += written;
         blockcnt++;
         emit progressChanged(blockcnt, blockstotal);
-        emit newMessage(tr("Writing block %1 of %2").arg(blockcnt).arg(blockstotal));
+        emit updateMessage(tr("Writing block %1 of %2").arg(blockcnt).arg(blockstotal));
 
         ba.clear(); // just to be on the safe side
         ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
@@ -250,11 +256,11 @@ void FirmwareWriterWorker::runUf2()
     }
 
     newfw.close();
-    emit statusChanged("Writing finished");
+    emit statusChanged(tr("Writing finished"));
     emit complete();
 
   } catch (const std::exception &e) {
-    emit error(QString("UF2 failed: %1").arg(e.what()));
+    emit error(tr("UF2 failed: %1").arg(e.what()));
   }
 }
 
@@ -270,7 +276,7 @@ void FirmwareWriterWorker::runDfu()
       throw std::runtime_error(tr("More than one DFU device found").toStdString());
     }
 
-    emit newMessage("Resetting state...");
+    emit newMessage(tr("Reset state"));
     auto &device = devices[0];
     device.reset_state();
 
@@ -286,13 +292,13 @@ void FirmwareWriterWorker::runDfu()
 
     device.leave();
 
-    emit statusChanged("Writing finished");
+    emit statusChanged(tr("Writing finished"));
     emit complete();
 
     // TODO: handle shouldStop
 
   } catch (const std::exception &e) {
-    emit error(QString("DFU failed: %1").arg(e.what()));
+    emit error(tr("DFU failed: %1").arg(e.what()));
   }
 }
 
@@ -318,7 +324,7 @@ void FirmwareWriterWorker::writeUf2(DfuDevice &device, const SliceU8 &data)
 void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
                                        const SliceU8 &data)
 {
-  emit statusChanged(TR("Erasing..."));
+  emit statusChanged(tr("Erasing..."));
 
   auto start_address = addr;
   auto end_address = start_address + data.size() - 1;
@@ -327,16 +333,20 @@ void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
   auto erase_pages = ctx->get_erase_pages();
   auto pages = erase_pages.size();
 
+  emit newMessage("placeholder");  // anchor for updateMessage
+
   for (size_t i = 0; i < pages; i++) {
     updateEraseStatus(i + 1, pages);
     ctx->page_erase(erase_pages[i]);
   }
 
-  emit statusChanged(TR("Writing..."));
+  emit statusChanged(tr("Writing..."));
 
   size_t bytes_downloaded = 0;
   auto data_ptr = data.data();
   auto xfer_size = ctx->get_transfer_size();
+
+  emit newMessage("placeholder");  // anchor for updateMessage
 
   while (bytes_downloaded < data.size()) {
     auto single_xfer_size =
@@ -352,13 +362,13 @@ void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
 void FirmwareWriterWorker::updateEraseStatus(size_t page, size_t pages)
 {
   emit progressChanged(page, pages);
-  emit newMessage(tr("Erasing page %1 of %2").arg(page).arg(pages));
+  emit updateMessage(tr("Erasing page %1 of %2").arg(page).arg(pages));
 }
 
 void FirmwareWriterWorker::updateDownloadStatus(size_t bytes, size_t total)
 {
   emit progressChanged(bytes, total);
-  emit newMessage(tr("Writing %1 of %2").arg(bytes).arg(total));
+  emit updateMessage(tr("Writing %1 of %2").arg(bytes).arg(total));
 }
 
 template <typename Duration>
@@ -412,12 +422,17 @@ void connectProgress(Worker *worker, ProgressWidget *progress)
 
   progress->connect(worker, &Worker::statusChanged, progress,
                     [progress](const QString& status) {
-                      progress->setInfo(status);
+                      progress->updateInfoAndMessages(status);
                     });
 
   progress->connect(worker, &Worker::newMessage, progress,
                     [progress](const QString& msg) {
                       progress->addMessage(msg);
+                    });
+
+  progress->connect(worker, &Worker::updateMessage, progress,
+                    [progress](const QString& msg) {
+                      progress->updateLastMessage(msg);
                     });
 
   progress->connect(worker, &Worker::error, progress,
@@ -532,7 +547,7 @@ QString getDevicesInfo()
     return printDevicesInfo(devices);
 
   } catch (const std::exception& e) {
-    return QString("%1: %2").arg(TR("Error")).arg(e.what());
+    return TR("Error: %1").arg(e.what());
   }
 
   return QString();
@@ -710,8 +725,8 @@ bool isRadioConnected()
 
 bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget *progress, bool promptForFile)
 {
-  progress->setInfo(TR("Initialising"));
-  progress->addMessage(TR("Performing checks"));
+  progress->updateInfoAndMessages(TR("Writing..."));
+  progress->addMessage(TR("Initialise"));
 
   FirmwareInterface fw(data);
   if (!fw.isValid()) {
@@ -785,8 +800,6 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
     return false;
   }
 
-  progress->setInfo(TR("Writing..."));
-
   QFile f(filePath);
   if (!f.open(QIODevice::ReadWrite)) {
     progress->addMessage(TR("Error opening: %1 (reason: %2)")
@@ -804,7 +817,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
     f.close();
     return false;
   } else {
-    progress->setInfo(TR("Writing finished"));
+    progress->updateInfoAndMessages(TR("Writing finished"));
   }
 
   f.close();

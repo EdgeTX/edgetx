@@ -42,6 +42,7 @@ class FirmwareReaderWorker : public QThread
 
   signals:
     void newMessage(const QString &msg);
+    void updateMessage(const QString &msg);
     void progressChanged(int value, int total);
     void statusChanged(const QString &status);
     void error(const QString &error);
@@ -68,6 +69,7 @@ class FirmwareWriterWorker : public QThread
 
   signals:
     void newMessage(const QString &msg);
+    void updateMessage(const QString &msg);
     void progressChanged(int value, int total);
     void statusChanged(const QString &status);
     void error(const QString &error);

@@ -97,12 +97,27 @@ void ProgressWidget::setValue(int value)
   ui->progressBar->setValue(value);
 }
 
-void ProgressWidget::addText(const QString &text, const bool richText)
+void ProgressWidget::addText(const QString &text, const bool richText, const bool updateLast)
 {
   if (!m_hasDetails) {
     m_hasDetails = true;
     if (!m_forceOpen)
       toggleDetails();
+  }
+
+  //  TODO handle rich text
+  if (!richText && updateLast) {
+    // delete last message
+    ui->textEdit->setFocus();
+    QTextCursor cursor = ui->textEdit->textCursor();
+    if (cursor.position() > 0) {
+      cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+      cursor.deletePreviousChar();  // remove \n otherwise next instruction does nothing
+      cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+      cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+      cursor.removeSelectedText();
+      ui->textEdit->setTextCursor(cursor);
+    }
   }
 
   QTextCursor cursor(ui->textEdit->textCursor());
@@ -121,12 +136,12 @@ void ProgressWidget::addText(const QString &text, const bool richText)
   }
 }
 
-void ProgressWidget::addHtml(const QString & text)
+void ProgressWidget::addHtml(const QString & text, const bool updateLast)
 {
-  addText(text, true);
+  addText(text, true, updateLast);
 }
 
-void ProgressWidget::addMessage(const QString & text, const int & type, bool richText)
+void ProgressWidget::addMessage(const QString & text, const int & type, const bool richText, const bool updateLast)
 {
   QString color;
   switch (type) {
@@ -146,14 +161,15 @@ void ProgressWidget::addMessage(const QString & text, const int & type, bool ric
     default:
       break;
   }
+
   if (color.isEmpty()) {
     if (richText)
-      addHtml(text % "<br>");
+      addHtml(text % "<br>", updateLast);
     else
-      addText(text % "\n");
+      addText(text % "\n", false, updateLast);
   }
   else {
-    addHtml(QString("<font color=%1>").arg(color) % text % "</font><br>");
+    addHtml(QString("<font color=%1>").arg(color) % text % "</font><br>", updateLast);
   }
 }
 
@@ -217,4 +233,15 @@ void ProgressWidget::refresh()
   ui->info->update();
   ui->progressBar->update();
   ui->textEdit->update();
+}
+
+void ProgressWidget::updateInfoAndMessages(const QString & text, const int & type, const bool richText)
+{
+  setInfo(text);
+  addMessage(text, type, richText);
+}
+
+void ProgressWidget::updateLastMessage(const QString & text, const int & type, const bool richText)
+{
+  addMessage(text, type, richText, true);
 }
