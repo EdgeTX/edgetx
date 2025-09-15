@@ -1062,7 +1062,7 @@ PACK(struct RadioData {
   CUST_ARRAY(slidersConfig, struct_sliderConfig, MAX_POTS, nullptr);
   uint8_t stickInvert SKIP;
   potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
-  switchDef switchConfig[MAX_SWITCHES] FUNC(switchIsActive) NO_IDX; \
+  switchDef switchConfig[MAX_SWITCHES] FUNC(switchIsActive) NO_IDX;
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
 
   EXTRA_GENERAL_FIELDS

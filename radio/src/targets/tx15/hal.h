@@ -165,13 +165,16 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define SWITCHES_GPIO_PIN_D_H         PCA95XX_P7
 #define SWITCHES_GPIO_REG_D_L
 #define SWITCHES_GPIO_PIN_D_L         PCA95XX_P6
-#define SWITCHES_E_2POS
-#define SWITCHES_GPIO_REG_E
-#define SWITCHES_GPIO_PIN_E           PCA95XX_P16
-#define SWITCHES_F_2POS
-#define SWITCHES_GPIO_REG_F
-#define SWITCHES_GPIO_PIN_F           PCA95XX_P4
-
+#define SWITCHES_E_3POS
+#define SWITCHES_GPIO_REG_E_H
+#define SWITCHES_GPIO_PIN_E_H         PCA95XX_P17
+#define SWITCHES_GPIO_REG_E_L
+#define SWITCHES_GPIO_PIN_E_L         PCA95XX_P16
+#define SWITCHES_F_3POS
+#define SWITCHES_GPIO_REG_F_H
+#define SWITCHES_GPIO_PIN_F_H         PCA95XX_P4
+#define SWITCHES_GPIO_REG_F_L
+#define SWITCHES_GPIO_PIN_F_L         PCA95XX_P5
 
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
@@ -354,6 +357,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 
 // AUDIO
+#define AUDIO_I2C                       I2C_Bus_1
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)

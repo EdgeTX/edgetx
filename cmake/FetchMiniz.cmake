@@ -17,4 +17,4 @@ include_directories(
 )
 
 # suppress compiler warnings for this add-in only
-target_compile_options(miniz PRIVATE -Wno-unused-function)
+target_compile_options(miniz PRIVATE -Wno-unused-function -Wno-newline-eof)
