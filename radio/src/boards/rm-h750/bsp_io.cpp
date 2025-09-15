@@ -63,7 +63,7 @@ static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 static void _expanders_reset()
 {
   gpio_clear(IO_RESET_GPIO);
-  delay_us(1);  // Only 4ns are needed according to PCA datasheet
+  delay_us(1);  // Only 6ns needed according to TCA9539 datasheet
   gpio_set(IO_RESET_GPIO);
   delay_us(1);  // Chip time to reset is 400ns
 }
