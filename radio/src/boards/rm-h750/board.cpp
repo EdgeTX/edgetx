@@ -100,6 +100,7 @@ void boardBLEarlyInit()
   gpio_clear(AUDIO_RESET_PIN);
 
   timersInit();
+  delaysInit();
   bsp_io_init();
   usbChargerInit();
 }
@@ -141,7 +142,6 @@ void boardInit()
   delaysInit();
   timersInit();
 
-  bsp_io_init();
   usbChargerInit();
   gpio_set(LED_BLUE_GPIO);
   gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
