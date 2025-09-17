@@ -144,15 +144,15 @@ int bsp_io_init()
   _expanders_reset();
 
   // configure expander 1
-  _init_io_expander(&_io_fs_switches, EXP_1_MASK);
-  if (pca95xx_init(&_io_fs_switches.exp, IO_EXPANDER_I2C_BUS, 0x74) < 0) {
+  _init_io_expander(&_io_fs_switches, IO_EXPANDER1_MASK);
+  if (pca95xx_init(&_io_fs_switches.exp, IO_EXPANDER_I2C_BUS, IO_EXPANDER1_I2C_ADDR) < 0) {
     TRACE("EXP1 INIT ERROR");
     return -1;
   }
 
   // configure expander 2
-  _init_io_expander(&_io_switches, EXP_2_MASK);
-  if (pca95xx_init(&_io_switches.exp, IO_EXPANDER_I2C_BUS, 0x75) < 0) {
+  _init_io_expander(&_io_switches, IO_EXPANDER2_MASK);
+  if (pca95xx_init(&_io_switches.exp, IO_EXPANDER_I2C_BUS, IO_EXPANDER2_I2C_ADDR) < 0) {
     TRACE("EXP2 INIT ERROR");
     return -1;
   }
