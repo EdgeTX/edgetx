@@ -63,7 +63,7 @@ bool getFSLedState(uint8_t index) {
 
 uint32_t getFSLedRGBColor(uint8_t index)
 {
-  return rgbGetLedColor(index);
+  return fsGetLedRGB(index);
 }
 #else
 void setFSLedOFF(uint8_t index) {

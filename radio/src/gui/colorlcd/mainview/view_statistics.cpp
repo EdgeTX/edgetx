@@ -376,29 +376,6 @@ void DebugViewPage::build(Window* window)
   }
 #endif
 
-#if defined(DEBUG) && (defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5))
-  extern unsigned _adc_timeout_errors;
-
-  line = window->newLine(grid);
-  line->padAll(PAD_TINY);
-
-  new StaticText(line, rect_t{}, "ADC");
-
-  new DebugInfoNumber<uint32_t>(
-      line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return _adc_timeout_errors; }, "Timeout: ");
-
-  new DebugInfoNumber<uint32_t>(
-      line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 1 + ((ADC1->CFGR2 & ADC_CFGR2_OVSR_Msk) >> ADC_CFGR2_OVSR_Pos); }
-      , "ADC1 OVS: ");
-
-  new DebugInfoNumber<uint32_t>(
-       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-       [] { return 1 + ((ADC3->CFGR2 & ADC_CFGR2_OVSR_Msk) >> ADC_CFGR2_OVSR_Pos); }
-      , "ADC3 OVS: ");
-#endif
-
   line = window->newLine(grid2);
   line->padAll(PAD_SMALL);
 

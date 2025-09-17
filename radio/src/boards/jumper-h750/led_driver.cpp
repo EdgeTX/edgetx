@@ -127,3 +127,8 @@ void ledBlue()
   GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
 #endif
 }
+
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor(index + CFS_LED_STRIP_START);
+}
