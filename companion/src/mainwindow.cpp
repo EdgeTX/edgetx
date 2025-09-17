@@ -601,7 +601,7 @@ void MainWindow::readFlash()
     QMessageBox::critical(this, tr("Detect Radio"),
       tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
       tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
-      tr("Note: USB mode is not suitable for flashing firmware."));
+      tr("Note: USB mode is not suitable for reading firmware."));
     return;
   }
 
