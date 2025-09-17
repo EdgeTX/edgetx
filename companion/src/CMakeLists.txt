@@ -83,6 +83,7 @@ include_directories(
   ${COMPANION_SRC_DIRECTORY}/storage
   ${COMPANION_SRC_DIRECTORY}/flash
   ${COMPANION_SRC_DIRECTORY}/progress
+  ${COMPANION_SRC_DIRECTORY}/print
 )
 
 ############# Do macro replacements on input files #############
@@ -202,6 +203,7 @@ add_subdirectory(firmwares)
 add_subdirectory(flash)
 add_subdirectory(generaledit)
 add_subdirectory(modeledit)
+add_subdirectory(print)
 add_subdirectory(progress)
 add_subdirectory(shared)
 add_subdirectory(simulation)
@@ -222,10 +224,7 @@ set(companion_NAMES
   logsdialog
   mainwindow
   mdichild
-  modelprinter
   modelslist
-  multimodelprinter
-  printdialog
   profilechooser
   styleeditdialog
   dialogs/filesyncdialog
@@ -268,6 +267,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   updates
   flash
   wizard
+  print
 )
 
 PrintTargetReport("${COMPANION_NAME}")
