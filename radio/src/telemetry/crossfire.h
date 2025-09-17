@@ -46,6 +46,7 @@
 #define LINK_TX_ID                     0x1D
 #define ATTITUDE_ID                    0x1E
 #define FLIGHT_MODE_ID                 0x21
+#define EXTENDED_CHANNELS_ID           0x26
 #define PING_DEVICES_ID                0x28
 #define DEVICE_INFO_ID                 0x29
 #define REQUEST_SETTINGS_ID            0x2A
