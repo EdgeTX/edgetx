@@ -226,7 +226,6 @@ set(companion_NAMES
   mdichild
   modelslist
   profilechooser
-  styleeditdialog
   dialogs/filesyncdialog
   )
 

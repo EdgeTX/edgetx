@@ -5,6 +5,7 @@ set(${PROJECT_NAME}_NAMES
   modelprinter
   multimodelprinter
   printdialog
+  styleeditdialog
 )
 
 AddHeadersSources()
