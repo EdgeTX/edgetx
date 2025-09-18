@@ -2,6 +2,7 @@
 project(print)
 
 set(${PROJECT_NAME}_NAMES
+  comparedialog
   modelprinter
   multimodelprinter
   printdialog

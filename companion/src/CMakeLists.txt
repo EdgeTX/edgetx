@@ -218,7 +218,6 @@ include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_NAMES
   apppreferencesdialog
-  comparedialog
   helpers_html
   labels
   logsdialog
