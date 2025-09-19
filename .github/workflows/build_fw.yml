@@ -55,6 +55,7 @@ jobs:
           - gx12
           - nb4p
           - st16
+          - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -102,6 +103,7 @@ jobs:
           - mt12;gx12
           - nb4p
           - st16
+          - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

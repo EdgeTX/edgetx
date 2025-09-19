@@ -62,6 +62,7 @@ namespace Board {
     BOARD_JUMPER_T12MAX,
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
+    BOARD_JUMPER_T15PRO,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
     BOARD_RADIOMASTER_TX15,
@@ -532,6 +533,11 @@ inline bool IS_JUMPER_TPROS(Board::Type board)
 inline bool IS_JUMPER_T15(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T15;
+}
+
+inline bool IS_JUMPER_T15PRO(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T15PRO;
 }
 
 inline bool IS_JUMPER_T16(Board::Type board)

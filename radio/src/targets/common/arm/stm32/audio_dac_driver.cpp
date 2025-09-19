@@ -263,7 +263,7 @@ static void dac_close_dma_xfer()
                      DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
 
   // Disable DMA stream
-  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;  
+  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;
 }
 
 static void dac_start_dma_request(const audio_data_t* data, uint16_t length)
@@ -279,7 +279,7 @@ static void dac_start_dma_request(const audio_data_t* data, uint16_t length)
   AUDIO_DAC->SR = DAC_SR_DMAUDR1;
 
   // enable DAC
-  AUDIO_DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;  
+  AUDIO_DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;
 }
 
 void audioConsumeCurrentBuffer()
@@ -370,7 +370,7 @@ static void dac_periph_init()
 // Not sure why PB14 has not be allocated to the DAC, although it is an EXTRA function
 // So maybe it is automatically done
 void dacInit()
-{  
+{
 #if defined(AUDIO_MUTE_GPIO)
   // Mute before init anything
   gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
