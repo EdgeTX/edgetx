@@ -258,16 +258,15 @@ bool FirmwareInterface::isHardwareCompatible(const FirmwareInterface &previousFi
 {
   QString newFlavour = getFlavour();
 
-  if (newFlavour.isEmpty()) {
+  if (newFlavour.isEmpty())
     return true;
-  }
 
   QString previousFlavour = previousFirmware.getFlavour();
 
-  if (previousFlavour.isEmpty()) {
+  if (previousFlavour.isEmpty())
     return true;
-  }
 
+  qDebug() << "Firmware previous:" << previousFlavour << "new:" << newFlavour;
   return (newFlavour == previousFlavour);
 }
 

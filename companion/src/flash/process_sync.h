@@ -118,7 +118,7 @@ class SyncProcess : public QObject
     void fileCountChanged(int count);
     void statusUpdate(const SyncProcess::SyncStatus & status);
     void statusMessage(const QString & text, const int & type = QtInfoMsg);
-    void progressMessage(const QString & text, const int & type = QtInfoMsg, bool richText = false);
+    void progressMessage(const QString & text, const int & type = QtInfoMsg, bool richText = false, bool updateLast = false);
 
   protected:
     enum FileFilterResult { FILE_ALLOW, FILE_OVERSIZE, FILE_EXCLUDE, FILE_LINK_IGNORE };
