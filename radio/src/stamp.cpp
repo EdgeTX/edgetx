@@ -42,13 +42,15 @@
 #define DISPLAY_VERSION "-tbs"
 #elif defined(IMRC_RELEASE)
 #define DISPLAY_VERSION "-imrc"
+#elif defined(DUMBORC_RELEASE)
+#define DISPLAY_VERSION "-DRO"
 #else
 #define DISPLAY_VERSION
 #endif
 
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
-  #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)
+  #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE) || defined(DUMBORC_RELEASE)
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else
     #if defined(VERSION_TAG)
@@ -63,7 +65,7 @@
   const char vers_stamp[]   = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME;
 #elif defined(RADIOMASTER_RELEASE)
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
-#elif defined(JUMPER_RELEASE) || defined(IFLIGHT_RELEASE)
+#elif defined(JUMPER_RELEASE) || defined(IFLIGHT_RELEASE) || defined(DUMBORC_RELEASE)
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
 #else
   #if defined(VERSION_TAG)
