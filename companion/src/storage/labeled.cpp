@@ -160,6 +160,9 @@ bool LabelsStorageFormat::load(RadioData & radioData)
       return false;
     }
 
+    if (!loadChecklist(model))
+      return false;
+
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
@@ -235,12 +238,44 @@ bool LabelsStorageFormat::write(const RadioData & radioData)
     writeModelToYaml(model, modelData);
     if (!writeFile(modelData, modelFilename))
       return false;
+
+    if (!writeChecklist(model))
+      return false;
   }
 
   if (hasLabels) {
     QByteArray labelsListBuffer;
     if (!writeLabelsListToYaml(radioData, labelsListBuffer) || !writeFile(labelsListBuffer, "MODELS/labels.yml"))
       return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::loadChecklist(ModelData & model)
+{
+  const QString fname("MODELS/" + model.getChecklistFilename());
+  //qDebug() << "Searching for checklist file:" << fname;
+
+  if (!loadFile(model.checklistData, fname, true)) {
+    setError(tr("Cannot load ") + fname);
+    return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::writeChecklist(const ModelData & model)
+{
+  const QString fname("MODELS/" + model.getChecklistFilename());
+
+  // not every model has a checklist
+  if (!model.checklistData.isEmpty()) {
+    //qDebug() << "Writing checklist file:" << fname;
+    if (!writeFile(model.checklistData, fname)) {
+      setError(tr("Cannot write ") + fname);
+      return false;
+    }
   }
 
   return true;

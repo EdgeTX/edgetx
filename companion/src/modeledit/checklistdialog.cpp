@@ -24,31 +24,32 @@
 #include "helpers.h"
 
 #include <QFile>
-#include <QTextStream>
 
-ChecklistDialog::ChecklistDialog(QWidget *parent, const ModelData * model):
+ChecklistDialog::ChecklistDialog(QWidget *parent, ModelData * model):
   QDialog(parent),
   ui(new Ui::ChecklistDialog),
+  model(model),
   mDirty(false)
 {
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("edit.png"));
 
-  mChecklistFolder = Helpers::getChecklistsPath();
-  mModelChecklist = Helpers::getChecklistFilePath(model);
-  ui->file->setText("File: " + mModelChecklist);
-  ui->pteCheck->setPlainText(readFile(mModelChecklist, QFile::exists(mModelChecklist)));
-
-  QFont f("Courier", 12, QFont::Normal);    // fixed width font
+  QFont f("Courier", 10, QFont::Normal);    // fixed width font
   ui->pteCheck->setFont(f);
 
-  connect(ui->pteCheck, SIGNAL(textChanged()), this, SLOT(changed()));
-  connect(ui->pteCheck, SIGNAL(cursorPositionChanged()), this, SLOT(cursorChanged()));
-  connect(ui->pbImport, SIGNAL(clicked()), this, SLOT(import()));
-  connect(ui->pbCancel, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(ui->pbOK, SIGNAL(clicked()), this, SLOT(update()));
+  connect(ui->pteCheck, &QPlainTextEdit::textChanged, [&]() { mDirty = true; });
+  connect(ui->pteCheck, &QPlainTextEdit::cursorPositionChanged, [&]()
+    {
+      QTextCursor tc = ui->pteCheck->textCursor();
+      ui->lblCursorPos->setText(tr("Line %1, Col %2").arg(tc.blockNumber() + 1).arg(tc.positionInBlock() + 1));
+    }
+  );
+  connect(ui->pbImport, &QPushButton::clicked, this, &ChecklistDialog::import);
+  connect(ui->pbCancel, &QPushButton::clicked, [this]() { reject(); });
+  connect(ui->pbOK, &QPushButton::clicked, this, &ChecklistDialog::update);
 
-  cursorChanged();  // force label to update
+  ui->pteCheck->setPlainText(model->checklistData.data());
+  mDirty = false;
 }
 
 ChecklistDialog::~ChecklistDialog()
@@ -56,57 +57,45 @@ ChecklistDialog::~ChecklistDialog()
   delete ui;
 }
 
-void ChecklistDialog::changed()
+void ChecklistDialog::update()
 {
-  mDirty = true;
+  if (mDirty) {
+    model->checklistData = Helpers::removeAccents(ui->pteCheck->toPlainText()).toUtf8();
+    if (model->checklistData.trimmed().isEmpty())
+      model->checklistData.clear();
+    emit updated();
+  }
+
+  emit accept();
 }
 
 void ChecklistDialog::import()
 {
-  QString filename = QFileDialog::getOpenFileName(this, tr("Open Checklist"), mChecklistFolder, tr("Checklist Files (*.txt)"));
-  if (!filename.isNull())
-    ui->pteCheck->setPlainText(readFile(filename,true));
-  mDirty = true;
-}
+  QString filename = QFileDialog::getOpenFileName(this, tr("Import Checklist File"), QString(), tr("Checklist Files (*.txt)"));
 
-void ChecklistDialog::update()
-{
-  if (mDirty) {
-    QFile file(mModelChecklist);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
-      QMessageBox::critical(this, tr("Model Checklist"), tr("Cannot open file for writing %1:\n%2.").arg(mModelChecklist, file.errorString()));
-    }
-    else {
-      QTextStream out(&file);
-      if (out.status()==QTextStream::Ok) {
-        out << Helpers::removeAccents(ui->pteCheck->toPlainText());
-        if (!(out.status()==QTextStream::Ok)) {
-          QMessageBox::critical(this, tr("Model Checklist"), tr("Cannot write to file %1:\n%2.").arg(mModelChecklist, file.errorString()));
-          if (!file.flush()) {
-            QMessageBox::critical(this, tr("Model Checklist"), tr("Cannot write file %1:\n%2.").arg(mModelChecklist, file.errorString()));
-          }
-        }
-      }
-    }
-    file.close();
+  if (!filename.isEmpty()) {
+    ui->pteCheck->setPlainText(readFile(filename,true));
+    mDirty = true;
   }
-  emit accept();
 }
 
 QString ChecklistDialog::readFile(const QString & filepath, const bool exists)
 {
   QString data = "";
+
   if (!filepath.isNull()) {
     QFile file(filepath);
+
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
       if (exists) {
         QMessageBox::critical(this, tr("Model Checklist"), tr("Cannot open file %1:\n%2.").arg(QDir::toNativeSeparators(filepath), file.errorString()));
       }
-    }
-    else {
+    } else {
       QTextStream in(&file);
+
       if (in.status()==QTextStream::Ok) {
         data = Helpers::removeAccents(in.readAll());
+
         if (!(in.status()==QTextStream::Ok)) {
           QMessageBox::critical(this, tr("Model Checklist"), tr("Cannot read file %1:\n%2.").arg(QDir::toNativeSeparators(filepath), file.errorString()));
           data = "";
@@ -116,10 +105,4 @@ QString ChecklistDialog::readFile(const QString & filepath, const bool exists)
     file.close();
   }
   return data;
-}
-
-void ChecklistDialog::cursorChanged()
-{
-  QTextCursor tc = ui->pteCheck->textCursor();
-  ui->lblCursorPos->setText(tr("Line %1, Col %2").arg(tc.blockNumber() + 1).arg(tc.positionInBlock() + 1));
 }
