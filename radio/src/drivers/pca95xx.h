@@ -44,6 +44,8 @@
 #define PCA95XX_PIN_13 (1 << 13)
 #define PCA95XX_PIN_14 (1 << 14)
 #define PCA95XX_PIN_15 (1 << 15)
+#define PCA95XX_PIN_16 (1 << 16)
+#define PCA95XX_PIN_17 (1 << 17)
 
 #define PCA95XX_P0  PCA95XX_PIN_0
 #define PCA95XX_P1  PCA95XX_PIN_1

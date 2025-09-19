@@ -116,6 +116,9 @@ get_target_build_options() {
         t18)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
             ;;
+        t15pro)
+            BUILD_OPTIONS+="-DPCB=T15PRO"
+            ;;
         tx15)
             BUILD_OPTIONS+="-DPCB=TX15 -DNANO=NO"
             ;;

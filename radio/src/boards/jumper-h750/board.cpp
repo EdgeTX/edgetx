@@ -32,7 +32,6 @@
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/rgb_leds.h"
-#include "bsp_io.h"
 
 #include "hal/adc_driver.h"
 #include "hal/flash_driver.h"
@@ -43,7 +42,6 @@
 #include "hal/watchdog_driver.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
-#include "hal/rgbleds.h"
 
 #include "globals.h"
 #include "sdcard.h"
@@ -55,6 +53,7 @@
 #include "bitmapbuffer.h"
 #include "colors.h"
 
+
 #include "touch_driver.h"
 
 #include <string.h>
@@ -65,13 +64,14 @@ extern const etx_hal_adc_driver_t _adc_driver;
 // RGB LED timer
 extern const stm32_pulse_timer_t _led_timer;
 
+
 static void led_strip_off()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
     ws2812_set_color(i, 0, 0, 0);
   }
   ws2812_update(&_led_timer);
-}
+ }
 
 void INTERNAL_MODULE_ON()
 {
@@ -95,21 +95,12 @@ void EXTERNAL_MODULE_OFF()
 
 void boardBLEarlyInit()
 {
-  // TAS2505 requires reset pin to be low on power on
-  gpio_init(AUDIO_RESET_PIN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(AUDIO_RESET_PIN);
-
   timersInit();
-  delaysInit();
-  bsp_io_init();
   usbChargerInit();
 }
 
 void boardBLPreJump()
 {
-  // TAS2505 requires reset pin to be high only after power on
-  // https://www.ti.com/lit/ug/slau472c/slau472c.pd fig 4.2
-  gpio_set(AUDIO_RESET_PIN);
   ExtFLASH_Init();
   SDRAM_Init();
 
@@ -142,9 +133,7 @@ void boardInit()
   delaysInit();
   timersInit();
 
-  usbChargerInit();
   gpio_set(LED_BLUE_GPIO);
-  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   ExtFLASH_InitRuntime();
 
@@ -152,9 +141,10 @@ void boardInit()
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
-  // init_trainer();
-
 #if defined(FLYSKY_GIMBAL)
+  // TODO remove the next 2 lines they are ony for test with current proto board
+  gpio_init(GPIO_PIN(GPIOB, 10), GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(GPIO_PIN(GPIOB, 10));
   auto inittime = flysky_gimbal_init();
   if (inittime)
     TRACE("Serial gimbal detected in %d ms", inittime);
@@ -163,6 +153,21 @@ void boardInit()
 #endif
 
   usbInit();
+
+#if !defined(DEBUG_SEGGER_RTT)
+  // This is needed to prevent radio from starting when usb is plugged to charge
+  if (usbPlugged()) {
+    while (usbPlugged() && !pwrPressed()) {
+      delay_ms(1000);
+    }
+    if (!pwrPressed()) {
+      pwrOff();
+      // Wait power to drain
+      while (true) {
+      }
+    }
+  }
+#endif
 
   rgbLedInit();
   led_strip_off();
@@ -175,8 +180,7 @@ void boardInit()
   adcInit(&_adc_driver);
   hapticInit();
 
-  // RTC must be initialized before rambackupRestore() is called
-  rtcInit();
+  rtcInit(); // RTC must be initialized before rambackupRestore() is called
 }
 
 extern void rtcDisableBackupReg();
@@ -196,6 +200,7 @@ void boardOff()
 
   rtcDisableBackupReg();
 
+//    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
 
   // We reach here only in forced power situations, such as hw-debugging with external power  

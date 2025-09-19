@@ -301,12 +301,12 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
                                 CompanionIcon("write_flash.png"));
 
   auto progress = progressDialog.progress();
-  progress->addMessage(tr("Flashing with file: %1").arg(filename));
   bool checkHw = g.checkHardwareCompatibility();
   bool backup = g.backupOnFlash();
   FirmwareInterface newfw(filename);
 
   if (g.checkHardwareCompatibility() || backup) {
+    progress->updateInfoAndMessages(tr("Reading old firmware..."));
     readFirmware(
         [this, &newfw, progress, checkHw, backup](const QByteArray &_data) {
           FirmwareInterface currfw(_data);
@@ -318,42 +318,36 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
           }
 
           if (backup) {
+            progress->addMessage(tr("Backing up old firmware"));
             if (!writeFirmwareToFile(this, _data, progress)) {
               return;
             }
-          } else {
-            progress->addMessage(tr("Backup of old firmware not requested"));
           }
 
           if (checkHw) {
+            progress->addMessage(tr("Performing compatibity check"));
             if (!newfw.isHardwareCompatible(currfw)) {
-              QString errMsg(tr("New firmware is not compatible"));
-              progress->addMessage(errMsg, QtFatalMsg);
-              progress->setInfo(errMsg);
+              QString errMsg(tr("New firmware is not compatible with old firmware"));
+              progress->updateInfoAndMessages(errMsg, QtFatalMsg);
               return;
-            } else {
-            progress->addMessage(tr("New firmware is compatible"));
             }
-          } else {
-            progress->addMessage(tr("New firmware compatibity check not requested"));
           }
 
-          progress->addMessage(tr("Start flashing firmware"));
+          progress->addMessage(tr("Flashing new firmware"));
           writeFirmware(newfw.getFlash(), progress);
         },
-        [this, progress](const QString &err) {
+        [progress](const QString &err) {
           progress->addMessage(tr("Could not read current firmware: %1").arg(err));
         },
         progress);
   } else {
-    progress->addMessage(tr("Start flashing firmware (no backup or compatiblity check)"));
+    progress->setInfo(tr("Flashing new firmware..."));
     writeFirmware(newfw.getFlash(), progress);
   }
 
   progressDialog.exec();
 
   if (isTempFileName(filename)) {
-    qDebug() << "Removing temporary file" << filename;
     qunlink(filename);
   }
 }

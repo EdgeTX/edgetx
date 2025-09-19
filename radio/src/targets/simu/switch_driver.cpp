@@ -77,7 +77,7 @@ uint8_t boardGetMaxSwitches() { return n_switches; }
 SwitchConfig boardSwitchGetDefaultConfig(uint8_t idx) { return _switch_defs[idx].defaultType; }
 
 #if defined(FUNCTION_SWITCHES)
-bool boardIsCustomSwitch(uint8_t idx) { return _switch_defs[idx].isCustomSwitch; }
+bool boardIsCustomSwitch(uint8_t idx) { return (idx < n_switches) ? _switch_defs[idx].isCustomSwitch : false; }
 uint8_t boardGetCustomSwitchIdx(uint8_t idx) { return _switch_defs[idx].customSwitchIdx; }
 #endif
 
