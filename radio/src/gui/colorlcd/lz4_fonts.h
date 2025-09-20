@@ -77,6 +77,5 @@ typedef struct {
     // Pointers to cmaps, compressed data and buffer for uncompressed data
     const etxFontCmap* cmaps;
     const uint8_t* compressed;
-    uint8_t* lvglFontBuf;
     uint32_t lvglFontBufSize;
 } etxLz4Font;

@@ -27,6 +27,5 @@
 #define __INIT_HOOK
 #define __CCMRAM
 #define __IRAM
+#define __FLASH        __attribute__((section(".flash")))
 #define __SDRAM
-#define __SDRAMFONTS
-

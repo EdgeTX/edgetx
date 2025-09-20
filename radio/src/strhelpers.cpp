@@ -440,9 +440,9 @@ char* getSwitchName(char *dest, uint8_t idx, bool defaultOnly)
 
 static const char *_switch_state_str[]{
     " ",
-    STR_CHAR_UP,
+    CHAR_UP,
     "-",
-    STR_CHAR_DOWN,
+    CHAR_DOWN,
 };
 
 const char *getSwitchWarnSymbol(uint8_t pos)
@@ -489,7 +489,7 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
     s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
   } else if (idx <= SWSRC_LAST_TRIM) {
     idx -= SWSRC_FIRST_TRIM;
-    // TODO: 't' or STR_CHAR_TRIM
+    // TODO: 't' or CHAR_TRIM
     s = strAppend(s, getTrimLabel(idx / 2));
     *s++ = idx & 1 ? '+' : '-';
     *s = '\0';
@@ -652,9 +652,9 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_EMPTY, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_INPUT) {
     idx -= MIXSRC_FIRST_INPUT;
-    static_assert(L > sizeof(STR_CHAR_INPUT) - 1, "dest string too small");
-    dest_len -= sizeof(STR_CHAR_INPUT) - 1;
-    char *pos = strAppend(dest, STR_CHAR_INPUT, sizeof(STR_CHAR_INPUT) - 1);
+    static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
+    dest_len -= sizeof(CHAR_INPUT) - 1;
+    char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
     if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
         (dest_len > sizeof(g_model.inputNames[idx]))) {
       memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
@@ -672,9 +672,9 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS &&
         qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      static_assert(L > sizeof(STR_CHAR_LUA) - 1, "dest string too small");
-      dest_len -= sizeof(STR_CHAR_LUA) - 1;
-      char *pos = strAppend(dest, STR_CHAR_LUA, sizeof(STR_CHAR_LUA) - 1);
+      static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
+      dest_len -= sizeof(CHAR_LUA) - 1;
+      char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
 
       if (g_model.scriptsData[qr.quot].name[0] != '\0') {
         // instance Name is not empty : dest = InstanceName/OutputName
@@ -700,17 +700,17 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 
     const char *name;
     if (idx < MAX_STICKS) {
-      pos = strAppend(pos, STR_CHAR_STICK, sizeof(STR_CHAR_STICK) - 1);
-      dest_len -= sizeof(STR_CHAR_STICK) - 1;
+      pos = strAppend(pos, CHAR_STICK, sizeof(CHAR_STICK) - 1);
+      dest_len -= sizeof(CHAR_STICK) - 1;
       name = getMainControlLabel(idx, defaultOnly);
     } else {
       idx -= MAX_STICKS;
       if (IS_SLIDER(idx)) {
-        pos = strAppend(pos, STR_CHAR_SLIDER, sizeof(STR_CHAR_SLIDER) - 1);
-        dest_len -= sizeof(STR_CHAR_SLIDER) - 1;
+        pos = strAppend(pos, CHAR_SLIDER, sizeof(CHAR_SLIDER) - 1);
+        dest_len -= sizeof(CHAR_SLIDER) - 1;
       } else {
-        pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
-        dest_len -= sizeof(STR_CHAR_POT) - 1;
+        pos = strAppend(pos, CHAR_POT, sizeof(CHAR_POT) - 1);
+        dest_len -= sizeof(CHAR_POT) - 1;
       }
       // TODO: AXIS / SWITCH ???
       name = getPotLabel(idx, defaultOnly);
@@ -739,16 +739,16 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
   } else if (idx <= MIXSRC_LAST_TRIM) {
     idx -= MIXSRC_FIRST_TRIM;
-    char *pos = strAppend(dest, STR_CHAR_TRIM, sizeof(STR_CHAR_TRIM) - 1);
+    char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
     strAppend(pos, getTrimLabel(idx, defaultOnly));
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
-    char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
+    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
     getSwitchName(pos, idx, defaultOnly);
 #if defined(FUNCTION_SWITCHES)
   } else if (idx <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
     idx -= MIXSRC_FIRST_CUSTOMSWITCH_GROUP;
-    char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
+    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
     getCustomSwitchesGroupName(pos, idx);
 #endif
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
@@ -803,7 +803,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
   } else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div((uint16_t)idx, 3);
-    char* pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
+    char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
     pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
                     sizeof(g_model.telemetrySensors[qr.quot].label));
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
