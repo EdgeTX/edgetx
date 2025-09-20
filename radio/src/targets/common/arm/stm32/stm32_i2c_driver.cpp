@@ -390,20 +390,27 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
 static int i2c_enable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock enable */
-  if (instance == I2C1)
+  if (instance == I2C1) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-  else if (instance == I2C2)
+  } else if (instance == I2C2) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C2);
   } else if (instance == I2C3) {
 #if defined(LL_APB3_GRP1_PERIPH_I2C3)
     LL_APB3_GRP1_EnableClock(LL_APB3_GRP1_PERIPH_I2C3);
 #else
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
+#endif
 #if defined(I2C4)
-  else if (instance == I2C4)
+  } else if (instance == I2C4) {
+#if defined(LL_APB3_GRP1_PERIPH_I2C4)
+    LL_APB3_GRP1_EnableClock(LL_APB3_GRP1_PERIPH_I2C4);
+#else
     LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_I2C4);
 #endif
-  else return -1;
+#endif
+  } else {
+    return -1;
+  }
 
   return 0;
 }
@@ -411,21 +418,27 @@ static int i2c_enable_clock(I2C_TypeDef* instance)
 static int i2c_disable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock disable */
-  if (instance == I2C1)
+  if (instance == I2C1) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C1);
-  else if (instance == I2C2)
+  } else if (instance == I2C2) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C2);
-  else if (instance == I2C3)
+  } else if (instance == I2C3){
 #if defined(LL_APB3_GRP1_PERIPH_I2C3)
     LL_APB3_GRP1_DisableClock(LL_APB3_GRP1_PERIPH_I2C3);
 #else
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C3);
+#endif
 #if defined(I2C4)
-  else if (instance == I2C4)
+  } else if (instance == I2C4) {
+#if defined(LL_APB3_GRP1_PERIPH_I2C4)
+    LL_APB3_GRP1_DisableClock(LL_APB3_GRP1_PERIPH_I2C4);
+#else
     LL_APB4_GRP1_DisableClock(LL_APB4_GRP1_PERIPH_I2C4);
 #endif
-  else
+#endif
+  } else {
     return -1;
+  }
 
   return 0;
 }
