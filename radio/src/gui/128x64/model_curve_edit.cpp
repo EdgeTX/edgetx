@@ -87,7 +87,7 @@ void menuModelCurveOne(event_t event)
   CurveHeader & crv = g_model.curves[s_currIdxSubMenu];
   int8_t * points = curveAddress(s_currIdxSubMenu);
 
-  drawStringWithIndex(PSIZE(TR_MENUCURVES)*FW+FW, 0, STR_CV, s_currIdxSubMenu+1);
+  drawStringWithIndex(strlen(STR_MENUCURVES)*FW+FW, 0, STR_CV, s_currIdxSubMenu+1);
 
   uint8_t old_editMode = s_editMode;
   

@@ -21,7 +21,21 @@
 
 #pragma once
 
+<<<<<<<< HEAD:radio/src/targets/pa01/libopenui_config.h
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
 constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 8) + 8;
 
+========
+#include "pagegroup.h"
+
+class ModelMenu : public PageGroup
+{
+ public:
+  ModelMenu();
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "ModelMenu"; }
+#endif
+};
+>>>>>>>> 63f64f877 (New quick menu for 3.0.):radio/src/gui/colorlcd/setup_menus/menu_model.h

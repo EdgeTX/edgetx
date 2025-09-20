@@ -274,7 +274,7 @@ add_definitions(-DBATTGRAPH -DTHRTRACE)
 
 foreach(LANGUAGE ${TTS_LANGUAGES})
   string(TOLOWER ${LANGUAGE} lang_lower)
-  set(SRC ${SRC} translations/tts_${lang_lower}.cpp)
+  set(SRC ${SRC} translations/tts/tts_${lang_lower}.cpp)
 endforeach()
 
 set(SRC

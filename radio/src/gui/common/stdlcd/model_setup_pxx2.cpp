@@ -215,7 +215,7 @@ void runPopupRegister(event_t event)
     // RX name
     if (reusableBuffer.moduleSetup.pxx2.registerStep < REGISTER_RX_NAME_RECEIVED) {
       lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 4 + 2 * FH, STR_WAITING);
-      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 2 + 3 * FH, TR_EXIT, menuVerticalPosition == ITEM_REGISTER_BUTTONS ? INVERS : 0);
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 2 + 3 * FH, STR_EXIT, menuVerticalPosition == ITEM_REGISTER_BUTTONS ? INVERS : 0);
     }
     else {
       lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 4 + 2 * FH, STR_RX_NAME);
@@ -225,13 +225,13 @@ void runPopupRegister(event_t event)
                event, menuVerticalPosition == ITEM_REGISTER_RECEIVER_NAME, 0,
                backupEditMode);
 
-      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 2 + 3 * FH, TR_ENTER,
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y - 2 + 3 * FH, STR_ENTER,
                   menuVerticalPosition == ITEM_REGISTER_BUTTONS &&
                           menuHorizontalPosition == 0
                       ? INVERS
                       : 0);
 
-      lcdDrawText(WARNING_LINE_X + 8 * FW, WARNING_LINE_Y - 2 + 3 * FH, TR_EXIT,
+      lcdDrawText(WARNING_LINE_X + 8 * FW, WARNING_LINE_Y - 2 + 3 * FH, STR_EXIT,
                   menuVerticalPosition == ITEM_REGISTER_BUTTONS &&
                           menuHorizontalPosition == 1
                       ? INVERS

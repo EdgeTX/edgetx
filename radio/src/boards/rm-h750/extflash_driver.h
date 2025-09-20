@@ -21,6 +21,7 @@
 
 #pragma once
 
+<<<<<<<< HEAD:radio/src/targets/tx15/extflash_driver.h
 #include "hal/flash_driver.h"
 
 extern const etx_flash_driver_t extflash_driver;
@@ -31,3 +32,13 @@ int32_t ExtFLASH_Init();
 
 // init only runtime structures
 void ExtFLASH_InitRuntime();
+========
+#include "pagegroup.h"
+
+class RadioMenu : public PageGroup
+{
+ public:
+  RadioMenu();
+  ~RadioMenu();
+};
+>>>>>>>> 63f64f877 (New quick menu for 3.0.):radio/src/gui/colorlcd/setup_menus/menu_radio.h

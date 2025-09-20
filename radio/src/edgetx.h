@@ -205,14 +205,6 @@ extern void cancelSplash();
 
 extern uint8_t heartbeat;
 
-#define LEN_STD_CHARS 40
-
-#if defined(TRANSLATIONS_CZ)
-#define ZCHAR_MAX (LEN_STD_CHARS)
-#else
-#define ZCHAR_MAX (LEN_STD_CHARS + LEN_SPECIAL_CHARS)
-#endif
-
 #include "keys.h"
 #include "pwr.h"
 
@@ -555,7 +547,7 @@ enum AUDIO_SOUNDS {
 #endif
 
 #include "buzzer.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 #if defined(HAPTIC)
 #include "haptic.h"
@@ -665,7 +657,7 @@ union ReusableBuffer
     char originalName[SD_SCREEN_FILE_LENGTH+1];
 #if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
-    char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
+    char otaReceiverVersion[64];  // Large enough for TR_CURRENT_VERSION string plus version number
 #endif
   } sdManager;
 

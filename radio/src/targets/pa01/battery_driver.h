@@ -21,6 +21,7 @@
 
 #pragma once
 
+<<<<<<<< HEAD:radio/src/targets/pa01/battery_driver.h
 #include "board.h"
 #include "hal.h"
 
@@ -33,6 +34,47 @@ enum ChargeState
   CHARGE_NONE,
   CHARGE_STARTED,
   CHARGE_FINISHED
+========
+#include "form.h"
+#include "bitmaps.h"
+#include <vector>
+
+class ButtonBase;
+
+class QuickMenuGroup : public Window
+{
+ public:
+  QuickMenuGroup(Window* parent, const rect_t &rect);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "QuickMenuGroup"; }
+#endif
+
+  // Add a new button to the carousel
+  ButtonBase* addButton(EdgeTxIcon icon, const char* title,
+                 std::function<uint8_t(void)> pressHandler, bool visible = true);
+
+  void setGroup();
+  void setFocus();
+  void clearFocus();
+  void setDisabled(bool all);
+  void setEnabled();
+  void setCurrent(ButtonBase* b) { curBtn = b; }
+  void setCurrent(int b) { setCurrent(btns[b]); }
+
+  static LAYOUT_VAL_SCALED(FAB_BUTTON_WIDTH, 50)
+  static LAYOUT_VAL_SCALED(FAB_BUTTON_HEIGHT, 70)
+
+  static LAYOUT_VAL_SCALED(FAB_ICON_SIZE, 30)
+  static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH;
+
+ protected:
+  std::vector<ButtonBase*> btns;
+  ButtonBase* curBtn = nullptr;
+  lv_group_t* group = nullptr;
+
+  void deleteLater(bool detach = true, bool trash = true) override;
+>>>>>>>> 63f64f877 (New quick menu for 3.0.):radio/src/gui/colorlcd/setup_menus/quick_menu_group.h
 };
 
 enum PowerLevel {
