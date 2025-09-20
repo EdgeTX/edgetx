@@ -43,6 +43,7 @@
 #include "edgetx.h"
 #include "storage/modelslist.h"
 #include "etx_lv_theme.h"
+#include "model_heli.h"
 
 #if defined(USBJ_EX)
 #include "model_usbjoystick.h"
@@ -52,8 +53,8 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-ModelSetupPage::ModelSetupPage() :
-    PageTab(STR_MENU_MODEL_SETUP, ICON_MODEL_SETUP)
+ModelSetupPage::ModelSetupPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -76,7 +77,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     STR_RADIO_MENU_TABS, nullptr,
   },
   {
-    STR_THEME_EDITOR,
+    STR_MAIN_MENU_THEMES,
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.radioThemesDisabled),
@@ -363,13 +364,16 @@ void ModelSetupPage::build(Window * window)
     {STR_PREFLIGHT, []() { new PreflightChecks(); }},
     {STR_TRIMS, []() { new TrimsSetup(); }},
     {STR_THROTTLE_LABEL, []() { new ThrottleParams(); }},
-    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
+    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
 #if defined(USBJ_EX)
     {STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); }},
 #endif
 #if defined(FUNCTION_SWITCHES)
     {STR_FUNCTION_SWITCHES, []() { new ModelFunctionSwitches(); }},
 #endif
-    {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
+    {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
+#if defined(HELI)
+    {STR_MENUHELISETUP, []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
+#endif
   }, BTN_H);
 }

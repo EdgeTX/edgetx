@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ModelGVarsPage : public PageTab
+class ModelGVarsPage : public PageGroupItem
 {
  public:
-  ModelGVarsPage();
+  ModelGVarsPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelGVEnabled(); }
 

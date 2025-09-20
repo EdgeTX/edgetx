@@ -58,6 +58,7 @@ void Layer::pop(Window* w)
         return;
       }
     }
+    return;
   }
 
   if (!stack.empty()) {
@@ -79,6 +80,16 @@ Window* Layer::getFirstOpaque()
   for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
     auto w = layer->window;
     if (w && w->hasWindowFlag(OPAQUE)) return w;
+  }
+
+  return nullptr;
+}
+
+Window* Layer::walk(std::function<bool(Window* w)> check)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window && check(layer->window))
+      return layer->window;
   }
 
   return nullptr;

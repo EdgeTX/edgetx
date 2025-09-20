@@ -29,6 +29,7 @@
 #include "view_main.h"
 #include "storage/sdcard_yaml.h"
 #include "lib_file.h"
+#include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -539,16 +540,44 @@ void HeaderDateTime::setColor(LcdFlags color)
   etx_txt_color_from_flags(time, color);
 }
 
-HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
+HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> action) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
 {
-  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
+  this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
+  this->icon->center(width() - PAD_SMALL, height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
 }
 
-HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
+HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void()> action) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
 {
   (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
+}
+
+HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
+  StaticIcon(parent, LCD_W - PageGroup::PAGE_TOP_BAR_H, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
+{
+  (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
 }
 
 UsbSDConnected::UsbSDConnected() :

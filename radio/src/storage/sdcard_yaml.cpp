@@ -538,7 +538,7 @@ const char * backupModel(uint8_t idx)
   char * buf = reusableBuffer.modelsel.mainname;
 
   // check and create folder here
-  const char * error = sdCheckAndCreateDirectory(STR_BACKUP_PATH);
+  const char * error = sdCheckAndCreateDirectory(BACKUP_PATH);
   if (error) {
     return error;
   }
@@ -571,7 +571,7 @@ const char * backupModel(uint8_t idx)
   len = tmp - buf;
 #endif
 
-  strcpy(&buf[len], STR_YAML_EXT);
+  strcpy(&buf[len], YAML_EXT);
 
 #ifdef SIMU
   TRACE("SD-card backup filename=%s", buf);
@@ -579,22 +579,22 @@ const char * backupModel(uint8_t idx)
 
   char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(idx, model_idx);
-  strcat(model_idx, STR_YAML_EXT);
+  strcat(model_idx, YAML_EXT);
 
-  return sdCopyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
+  return sdCopyFile(model_idx, MODELS_PATH, buf, BACKUP_PATH);
 }
 
 const char * restoreModel(uint8_t idx, char *model_name)
 {
   char * buf = reusableBuffer.modelsel.mainname;
   strcpy(buf, model_name);
-  strcpy(&buf[strlen(buf)], STR_YAML_EXT);
+  strcpy(&buf[strlen(buf)], YAML_EXT);
 
   char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(idx, model_idx);
-  strcat(model_idx, STR_YAML_EXT);
+  strcat(model_idx, YAML_EXT);
 
-  const char* error = sdCopyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
+  const char* error = sdCopyFile(buf, BACKUP_PATH, model_idx, MODELS_PATH);
   if (!error) {
     loadModelHeader(idx, &modelHeaders[idx]);
   }

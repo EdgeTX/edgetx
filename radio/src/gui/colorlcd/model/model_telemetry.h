@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ModelTelemetryPage : public PageTab
+class ModelTelemetryPage : public PageGroupItem
 {
  public:
-  ModelTelemetryPage();
+  ModelTelemetryPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelTelemetryEnabled(); }
 

@@ -23,6 +23,7 @@
 
 #include "window.h"
 #include "module_setup.h"
+#include "form.h"
 
 class Choice;
 struct ModuleData;
