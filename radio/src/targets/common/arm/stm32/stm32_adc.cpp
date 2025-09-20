@@ -243,7 +243,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   }
 
   /* Start ADC calibration in mode single-ended or differential */
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
   LL_ADC_StartCalibration(ADCx, LL_ADC_SINGLE_ENDED);
 #else
   LL_ADC_StartCalibration(ADCx, LL_ADC_CALIB_OFFSET_LINEARITY, LL_ADC_SINGLE_ENDED);
