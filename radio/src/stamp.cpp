@@ -31,44 +31,42 @@
 #define TAB "\037\033"
 
 #if defined(FRSKY_RELEASE)
-#define DISPLAY_VERSION "-frsky"
+#define FACTORY_RELEASE "-frsky"
 #elif defined(JUMPER_RELEASE)
-#define DISPLAY_VERSION "-jumper"
+#define FACTORY_RELEASE "-jumper"
 #elif defined(RADIOMASTER_RELEASE)
-#define DISPLAY_VERSION "-RM"
+#define FACTORY_RELEASE "-RM"
 #elif defined(IFLIGHT_RELEASE)
-#define DISPLAY_VERSION "-IF"
+#define FACTORY_RELEASE "-IF"
 #elif defined(TBS_RELEASE)
-#define DISPLAY_VERSION "-tbs"
+#define FACTORY_RELEASE "-tbs"
 #elif defined(IMRC_RELEASE)
-#define DISPLAY_VERSION "-imrc"
+#define FACTORY_RELEASE "-imrc"
 #elif defined(BETAFPV_RELEASE)
-#define DISPLAY_VERSION "-betafpv"
-#else
-#define DISPLAY_VERSION
+#define FACTORY_RELEASE "-betafpv"
 #endif
 
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
-  #if defined(DISPLAY_VERSION) // DISPLAY_VERSION defined on ###_RELEASE builds
+  #if defined(FACTORY_RELEASE)
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else
     #if defined(VERSION_TAG)
-      const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\"" CODENAME "\"";
+      const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\"" CODENAME "\"";
     #else
-      const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+      const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX FACTORY_RELEASE " (" GIT_STR ")";
     #endif
   #endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
 #else // B&W / !COLOR_LCD
-  #if defined(DISPLAY_VERSION) // DISPLAY_VERSION defined on ###_RELEASE builds
+  #if defined(FACTORY_RELEASE)
     const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
   #else
     #if defined(VERSION_TAG)
-      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
+      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
     #else
-      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX DISPLAY_VERSION "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
+      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX FACTORY_RELEASE "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
     #endif
   #endif
 #endif
@@ -80,16 +78,16 @@
 #if defined(STM32) && !defined(SIMU)
   #if defined(COLORLCD)
     #if defined(VERSION_TAG)
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_TAG DISPLAY_VERSION " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_TAG FACTORY_RELEASE " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_TAG FACTORY_RELEASE " (" GIT_STR ")";
     #else
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX FACTORY_RELEASE " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX FACTORY_RELEASE " (" GIT_STR ")";
     #endif
   #else
   /* 128x64 does not have enough real estate to display more than basic VERSION */
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION FACTORY_RELEASE " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION FACTORY_RELEASE " (" GIT_STR ")";
   #endif
 
 /**
