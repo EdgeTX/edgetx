@@ -21,7 +21,6 @@
 
 #pragma once
 
-#if !defined(RADIO_H5TEST)
 #if defined(STM32F413xx)
   #define CPU_FREQ            100000000
   #define PERI1_FREQUENCY     50000000
@@ -3272,5 +3271,4 @@
 #else
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-#endif
 #endif
