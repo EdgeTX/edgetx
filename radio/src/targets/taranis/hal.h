@@ -3103,6 +3103,7 @@
 #define AUDIO_DMA_Stream_IRQn           GPDMA1_Channel5_IRQn
 #define AUDIO_DMA_Stream_IRQHandler     GPDMA1_Channel5_IRQHandler
 #define AUDIO_TIMER                     TIM6
+#define AUDIO_DMA_REQUEST               LL_GPDMA1_REQUEST_DAC1_CH1
 #define AUDIO_DAC                       DAC1
 #else
 #define AUDIO_DMA                       DMA1
