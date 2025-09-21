@@ -365,6 +365,9 @@ void setTopBatteryValue(uint32_t volts);
   #else
     #define VBAT_MOSFET_DROP   25 // * 10mV
   #endif
+#elif defined(RADIO_H5TEST)
+  #define VBAT_DIV_R1         120 // kOhms
+  #define VBAT_DIV_R2          39 // kOhms
 #else
   #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
     #define BATTERY_DIVIDER 50000

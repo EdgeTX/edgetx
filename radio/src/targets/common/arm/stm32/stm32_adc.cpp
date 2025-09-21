@@ -275,7 +275,11 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
 #if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
   // set hardware oversampling
   if (!_adc_oversampling_disabled) {
+#if defined(STM32H5)
+    LL_ADC_ConfigOverSamplingRatioShift(ADCx, LL_ADC_OVS_RATIO_16, LL_ADC_OVS_SHIFT_RIGHT_4);
+#else
     LL_ADC_ConfigOverSamplingRatioShift(ADCx, 16, LL_ADC_OVS_SHIFT_RIGHT_4);
+#endif
     LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
   }
 #endif
