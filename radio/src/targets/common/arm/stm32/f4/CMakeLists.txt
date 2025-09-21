@@ -121,4 +121,8 @@ if(NOT NATIVE_BUILD)
   # System and FreeRTOS port files
   #
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:freertos>)
+
+  if(CPU_TYPE_FULL STREQUAL STM32F429xI)
+    set(FIRMWARE_SRC ${FIRMWARE_SRC} fw_desc.c)
+  endif()
 endif()
