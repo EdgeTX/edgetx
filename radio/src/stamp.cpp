@@ -61,13 +61,15 @@
   #endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
-#elif defined(DISPLAY_VERSION) // DISPLAY_VERSION defined on ###_RELEASE builds
-  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
-#else
-  #if defined(VERSION_TAG)
-    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
+#else // B&W / !COLOR_LCD
+  #if defined(DISPLAY_VERSION) // DISPLAY_VERSION defined on ###_RELEASE builds
+    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
   #else
-    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX DISPLAY_VERSION "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
+    #if defined(VERSION_TAG)
+      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
+    #else
+      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX DISPLAY_VERSION "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
+    #endif
   #endif
 #endif
 
