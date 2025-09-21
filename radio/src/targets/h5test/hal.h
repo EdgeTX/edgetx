@@ -21,7 +21,6 @@
 
 #pragma once
 
-#if !defined(RADIO_H5TEST)
 #if defined(STM32F413xx)
   #define CPU_FREQ            100000000
   #define PERI1_FREQUENCY     50000000
@@ -2727,7 +2726,7 @@
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 3) // PB.03
 #elif defined(RADIO_X7)
   #define SPORT_MAX_BAUDRATE            250000 // < 400000
-  #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 2) // PB.02
+  #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 3) // PB.02
 #elif defined(PCBX9LITE)
   #define SPORT_MAX_BAUDRATE            250000 // not tested
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOE, 15) // PE.15
@@ -2815,7 +2814,6 @@
   #define TRAINER_MODULE_CPPM_GPIO_AF             GPIO_AF2
   // Trainer SBUS input on heartbeat pin
   #define TRAINER_MODULE_SBUS_USART               USART6
-  #define TRAINER_MODULE_SBUS_USART_IRQn          USART6_IRQn
   #define TRAINER_MODULE_SBUS_GPIO                INTMODULE_HEARTBEAT_GPIO
   #define TRAINER_MODULE_SBUS_DMA                 DMA2
   #define TRAINER_MODULE_SBUS_DMA_STREAM          DMA2_Stream1
@@ -3273,5 +3271,4 @@
 #else
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-#endif
 #endif
