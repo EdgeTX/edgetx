@@ -97,6 +97,10 @@ void audioUnmute()
 #define DAC_TRIGGER LL_DAC_TRIG_EXT_TIM6_TRGO
 #endif
 
+#if defined(STM32H5) || defined(STM32H7RS)
+LL_DMA_LinkNodeTypeDef dacDmaLinkNode;
+#endif
+
 // 16 bit, 1 channels
 #define DMA_BUFFER_HALF_LEN AUDIO_BUFFER_SIZE
 
@@ -146,10 +150,10 @@ static void dac_dma_init()
 
   LL_DMA_DeInit(AUDIO_DMA, AUDIO_DMA_Stream);
 
-  LL_DMA_InitTypeDef dmaInit;
-  LL_DMA_StructInit(&dmaInit);
 
 #if defined(STM32H7)
+  LL_DMA_InitTypeDef dmaInit;
+  LL_DMA_StructInit(&dmaInit);
   dmaInit.Mode = LL_DMA_MODE_CIRCULAR;
   dmaInit.PeriphRequest = AUDIO_DMA_Channel;
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
@@ -161,13 +165,78 @@ static void dac_dma_init()
       DAC1, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_LEFT_ALIGNED);
   dmaInit.MemoryOrM2MDstAddress = (uintptr_t)_dma_buffer;
   dmaInit.NbData = DMA_BUFFER_LEN;
-#elif defined(STM32H7RS)
-  #error not implemented
-#endif
+
   LL_DMA_Init(AUDIO_DMA, AUDIO_DMA_Stream, &dmaInit);
 
   NVIC_EnableIRQ(AUDIO_DMA_Stream_IRQn);
   NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
+
+#elif defined(STM32H7RS) || defined(STM32H5)
+  LL_DMA_InitNodeTypeDef nodeInit;
+  LL_DMA_NodeStructInit(&nodeInit);
+
+  nodeInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT0;
+  nodeInit.DestHWordExchange = LL_DMA_DEST_HALFWORD_PRESERVE;
+  nodeInit.DestByteExchange = LL_DMA_DEST_BYTE_PRESERVE;
+  nodeInit.DestBurstLength = 1;
+  nodeInit.DestIncMode = LL_DMA_DEST_FIXED;
+  nodeInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_WORD;
+  nodeInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT1;
+  nodeInit.SrcByteExchange = LL_DMA_SRC_BYTE_PRESERVE;
+  nodeInit.DataAlignment = LL_DMA_DATA_ALIGN_ZEROPADD;
+  nodeInit.SrcBurstLength = 1;
+  nodeInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
+  nodeInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_HALFWORD;
+  nodeInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
+  nodeInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
+  nodeInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
+  nodeInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+  nodeInit.Request = AUDIO_DMA_REQUEST;
+  nodeInit.UpdateRegisters = (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 | LL_DMA_UPDATE_CSAR
+                                | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR);
+  nodeInit.NodeType = LL_DMA_GPDMA_LINEAR_NODE;
+  /* Additional settings */
+  nodeInit.SrcAddress = (uintptr_t)_dma_buffer;
+  nodeInit.DestAddress = LL_DAC_DMA_GetRegAddr(AUDIO_DAC, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_LEFT_ALIGNED);
+  /* Size is always in bytes! Width is determined by source and destination numbers */
+  nodeInit.BlkDataLength = DMA_BUFFER_LEN*2;
+  LL_DMA_CreateLinkNode(&nodeInit, &dacDmaLinkNode);
+
+  /* Connect node to next node = to itself to achieve circular mode with one configuration */
+  LL_DMA_ConnectLinkNode(&dacDmaLinkNode, LL_DMA_CLLR_OFFSET5, &dacDmaLinkNode, LL_DMA_CLLR_OFFSET5);
+
+  /*
+   * Set first linked list address to DMA channel
+   *
+   * Set link update mechanism - DMA fetches first configuration from first node
+   * on the start of DMA operation
+   */
+  LL_DMA_SetLinkedListBaseAddr(AUDIO_DMA, AUDIO_DMA_Stream, (intptr_t)&dacDmaLinkNode);
+  LL_DMA_ConfigLinkUpdate(AUDIO_DMA, AUDIO_DMA_Stream,
+                          (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 | LL_DMA_UPDATE_CSAR
+                           | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR),
+			   (intptr_t)&dacDmaLinkNode);
+
+  LL_DMA_InitLinkedListTypeDef DMA_InitLinkedListStruct = {0};
+  /* Initialize linked list general setup for GPDMA CH0 - the way transfers are done */
+  DMA_InitLinkedListStruct.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+  DMA_InitLinkedListStruct.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
+  DMA_InitLinkedListStruct.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
+  DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_LAST_LLITEM_TRANSFER;
+  LL_DMA_List_Init(AUDIO_DMA, AUDIO_DMA_Stream, &DMA_InitLinkedListStruct);
+
+
+  LL_DMA_EnableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_EnableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_EnableIT_USE(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_EnableIT_ULE(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_EnableIT_DTE(AUDIO_DMA, AUDIO_DMA_Stream);
+
+  NVIC_EnableIRQ(AUDIO_DMA_Stream_IRQn);
+  NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
+//  LL_DAC_EnableIT_DMAUDR1(AUDIO_DAC);
+  //LL_DAC_EnableDMAReq(AUDIO_DAC, LL_DAC_CHANNEL_1);
+#endif
 }
 
 static void dac_close_dma_xfer()
@@ -351,6 +420,7 @@ static void dac_trigger_init()
 
 static void dac_periph_init()
 {
+
 #if defined(LL_APB1_GRP1_PERIPH_DAC12)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC12);
 #elif defined(LL_AHB2_GRP1_PERIPH_DAC1)
