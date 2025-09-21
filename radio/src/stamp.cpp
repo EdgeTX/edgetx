@@ -61,8 +61,6 @@
   #endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
-#elif defined(BOARD_NAME)
-  const char vers_stamp[]   = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME;
 #elif defined(DISPLAY_VERSION) // DISPLAY_VERSION defined on ###_RELEASE builds
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
 #else
