@@ -28,12 +28,16 @@
 
 extern void checkSpeakerVolume();
 
+constexpr const char* strip_leading_hyphen(const char* str) {
+    return (str[0] == '-') ? str + 1 : str;
+}
+
 #if defined(VERSION_TAG)
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
 #else
-const std::string ver_str = "" VERSION;
-const std::string nam_str = "" VERSION_SUFFIX;
+const std::string ver_str = "" VERSION_PREFIX VERSION;
+const std::string nam_str = strip_leading_hyphen("" VERSION_SUFFIX);
 const std::string git_str = "(" GIT_STR ")";
 #endif
 
