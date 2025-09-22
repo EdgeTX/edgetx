@@ -28,6 +28,9 @@
 #define STR2(s) #s
 #define DEFNUMSTR(s)  STR2(s)
 
+#define IS_EMPTY(x) IS_EMPTY_HELPER(x 1, 0)
+#define IS_EMPTY_HELPER(a, b, ...) b
+
 #define TAB "\037\033"
 
 #if defined(FRSKY_RELEASE)
@@ -52,7 +55,7 @@
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
   #if defined(VERSION_TAG)
     const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\"" CODENAME "\"";
-  #elif defined(FACTORY_RELEASE)
+  #elif defined(FACTORY_RELEASE) && !IS_EMPTY(FACTORY_RELEASE)
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else
     const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX " (" GIT_STR ")";
@@ -62,7 +65,7 @@
 #else // B&W / !COLOR_LCD
   #if defined(VERSION_TAG)
     const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
-  #elif defined(FACTORY_RELEASE)
+  #elif defined(FACTORY_RELEASE) && !IS_EMPTY(FACTORY_RELEASE)
     const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
   #else
     const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
