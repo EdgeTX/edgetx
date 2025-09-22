@@ -28,9 +28,6 @@
 #define STR2(s) #s
 #define DEFNUMSTR(s)  STR2(s)
 
-#define IS_EMPTY(x) IS_EMPTY_HELPER(x 1, 0)
-#define IS_EMPTY_HELPER(a, b, ...) b
-
 #define TAB "\037\033"
 
 #if defined(FRSKY_RELEASE)
@@ -47,25 +44,30 @@
 #define FACTORY_RELEASE "-imrc"
 #elif defined(BETAFPV_RELEASE)
 #define FACTORY_RELEASE "-betafpv"
+#endif
+
+// If factory release, append mfg tag to version
+#ifdef FACTORY_RELEASE
+#define WITH_FACTORY_RELEASE(base) base FACTORY_RELEASE
 #else
-#define FACTORY_RELEASE
+#define WITH_FACTORY_RELEASE(base) base
 #endif
 
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
-  #if defined(VERSION_TAG)
-    const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\"" CODENAME "\"";
-  #elif defined(FACTORY_RELEASE) && !IS_EMPTY(FACTORY_RELEASE)
+  #if defined(VERSION_TAG) // tagged release, possibly mfg build
+    const char vers_stamp[] = "VERS" TAB ": " WITH_FACTORY_RELEASE(VERSION_TAG) "\"" CODENAME "\"";
+  #elif defined(FACTORY_RELEASE) // mfg build of non-tagged release, show commit hash only
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
-  #else
+  #else // any other build (e.g. self, cloud, PR, nightly) will have prefix/suffix
     const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX " (" GIT_STR ")";
   #endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
 #else // B&W / !COLOR_LCD
   #if defined(VERSION_TAG)
-    const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
-  #elif defined(FACTORY_RELEASE) && !IS_EMPTY(FACTORY_RELEASE)
+    const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " WITH_FACTORY_RELEASE(VERSION_TAG) "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
+  #elif defined(FACTORY_RELEASE)
     const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
   #else
     const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
@@ -79,16 +81,16 @@
 #if defined(STM32) && !defined(SIMU)
   #if defined(COLORLCD)
     #if defined(VERSION_TAG)
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_TAG FACTORY_RELEASE " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_TAG FACTORY_RELEASE " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION_TAG) " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION_TAG) " (" GIT_STR ")";
     #else
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX FACTORY_RELEASE " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION "-" VERSION_SUFFIX FACTORY_RELEASE " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION "-" VERSION_SUFFIX) " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION "-" VERSION_SUFFIX) " (" GIT_STR ")";
     #endif
   #else
   /* 128x64 does not have enough real estate to display more than basic VERSION */
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION FACTORY_RELEASE " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION FACTORY_RELEASE " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
   #endif
 
 /**
