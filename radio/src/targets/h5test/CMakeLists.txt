@@ -95,7 +95,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/volume_i2c.cpp
+  ${ALT_TARGET_SRC_DIR}/volume_i2c.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
@@ -122,24 +122,6 @@ if(USE_RTC_CLOCK)
   add_definitions(-DRTCLOCK)
 endif()
 
-if(RGBLEDS)
-  add_definitions(-DRGBLEDS)
-endif()
-
-if(FLAVOUR STREQUAL gx12)
-  target_sources(board PRIVATE
-    drivers/pca95xx.cpp
-    ${TARGET_SRC_DIR}/gx12/bsp_io.cpp
-  )
-  target_include_directories(board PRIVATE ${TARGET_SRC_DIR}/gx12)
-endif()
-
-if(FLAVOUR STREQUAL xlites)
-  target_sources(board PRIVATE
-    ${TARGET_SRC_DIR}/shared_dsc_headphone.cpp
-  )
-endif()
-
 set(SRC ${SRC}
   io/frsky_firmware_update.cpp
   io/multi_firmware_update.cpp
@@ -156,12 +138,6 @@ set(GUI_SRC ${GUI_SRC}
   view_about.cpp
   bmp.cpp
 )
-
-if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    targets/common/arm/stm32/sticks_pwm_driver.cpp)
-endif()
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
