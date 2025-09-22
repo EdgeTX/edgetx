@@ -84,13 +84,13 @@
 __SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION_TAG) " (" GIT_STR ")";
 __SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION_TAG) " (" GIT_STR ")";
     #else
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION "-" VERSION_SUFFIX) " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION "-" VERSION_SUFFIX) " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) VERSION_SUFFIX " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) VERSION_SUFFIX " (" GIT_STR ")";
     #endif
-  #else
+  #else // B&W / !COLOR_LCD
   /* 128x64 does not have enough real estate to display more than basic VERSION */
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
   #endif
 
 /**
