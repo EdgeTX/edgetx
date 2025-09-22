@@ -31,7 +31,7 @@
   #if defined(VERSION_TAG)
     #define BOOTLOADER_TITLE               " Bootloader - " VERSION_TAG
   #else
-    #define BOOTLOADER_TITLE               " Bootloader " VERSION_PREFIX VERSION VERSION_SUFFIX
+    #define BOOTLOADER_TITLE               " Bootl." VERSION_PREFIX VERSION VERSION_SUFFIX
   #endif
 #else
   #if defined(VERSION_TAG)
