@@ -44,30 +44,28 @@
 #define FACTORY_RELEASE "-imrc"
 #elif defined(BETAFPV_RELEASE)
 #define FACTORY_RELEASE "-betafpv"
+#else
+#define FACTORY_RELEASE
 #endif
 
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
-  #if defined(FACTORY_RELEASE)
+  #if defined(VERSION_TAG)
+    const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\"" CODENAME "\"";
+  #elif defined(FACTORY_RELEASE)
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else
-    #if defined(VERSION_TAG)
-      const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\"" CODENAME "\"";
-    #else
-      const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX FACTORY_RELEASE " (" GIT_STR ")";
-    #endif
+    const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX " (" GIT_STR ")";
   #endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
 #else // B&W / !COLOR_LCD
-  #if defined(FACTORY_RELEASE)
-    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
+  #if defined(VERSION_TAG)
+    const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
+  #elif defined(FACTORY_RELEASE)
+    const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
   #else
-    #if defined(VERSION_TAG)
-      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG FACTORY_RELEASE "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
-    #else
-      const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX FACTORY_RELEASE "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
-    #endif
+    const char vers_stamp[] = "FW" TAB ": edgetx-" FLAVOUR "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
   #endif
 #endif
 
