@@ -282,7 +282,7 @@ fi
 error_status=0
 if run_pipeline "final" "final.log" "companion" "true"; then
     PACKAGE_FILE=$(find native/ -name "${PACKAGE_FILES}" -type f | head -n1)
-    if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null;
+    if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null; then
         echo "    ✅ All builds completed successfully!"
         echo "    📁 Package saved to: ${OUTDIR}"
         echo "    📄 Copied: $(basename "$PACKAGE_FILE")"
