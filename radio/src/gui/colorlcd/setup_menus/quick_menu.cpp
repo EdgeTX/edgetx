@@ -222,13 +222,15 @@ QuickMenu::QuickMenu() :
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  // if (modelHasNotes())
-  //   mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
-  //                       [=]() -> uint8_t {
-  //                         onSelect(true);
-  //                         readModelNotes(true);
-  //                         return 0;
-  //                       });
+  mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
+                      [=]() -> uint8_t {
+                        onSelect(true);
+                        readModelNotes(true);
+                        return 0;
+                      },
+                      [=]() -> bool {
+                        return modelHasNotes();
+                      });
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)
