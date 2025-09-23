@@ -52,10 +52,11 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build && mkdir build && cd build
+rm -rf build && mkdir build && cd build || exit
 
 get_platform_config() {
-    local platform=$(uname)
+    local platform
+    platform=$(uname)
     case "$platform" in
         "Darwin")
             PACKAGE_TARGET="package"
@@ -116,7 +117,7 @@ elif ! cmake_build_parallel native --target ${PACKAGE_TARGET} >> "$LOG_FILE" 2>&
     echo "    ❌ Packaging failed"
     cat "$LOG_FILE"
     error_status=1
-elif cp native/$PACKAGE_FILES "${OUTDIR}" 2>/dev/null; then
+elif cp "native/${PACKAGE_FILES}" "${OUTDIR}" 2>/dev/null; then
     echo "    ✅ Build completed successfully!"
     echo "    📁 Package saved to: ${OUTDIR}"
 else
