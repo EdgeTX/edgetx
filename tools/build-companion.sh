@@ -49,7 +49,7 @@ if [ "$(uname)" = "Linux" ] && [ -n "$GITHUB_ACTIONS" ]; then
   MAX_JOBS=3
 fi
 
-rm -rf build && mkdir build && cd build
+rm -rf build && mkdir build && cd build || exit
 
 # Function to output error logs (works in both GitHub Actions and terminal)
 output_error_log() {
@@ -140,7 +140,8 @@ clean_build() {
 }
 
 get_platform_config() {
-    local platform=$(uname)
+    local platform
+    platform=$(uname)
     case "$platform" in
         "Darwin")
             PACKAGE_TARGET="package"
@@ -280,7 +281,7 @@ fi
 
 error_status=0
 if run_pipeline "final" "final.log" "companion" "true"; then
-    if cp native/$PACKAGE_FILES "${OUTDIR}" 2>/dev/null; then
+    if cp "native/${PACKAGE_FILES}" "${OUTDIR}" 2>/dev/null; then
         echo "    ✅ All builds completed successfully!"
         echo "    📁 Package saved to: ${OUTDIR}"
     else
