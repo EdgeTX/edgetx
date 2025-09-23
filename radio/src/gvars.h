@@ -25,7 +25,7 @@
 #define GVAR_MAX                     1024
 #define GVAR_MIN                     -GVAR_MAX
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 #define MAX_GVARS                    15
 #else
 #define MAX_GVARS                    9

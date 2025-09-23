@@ -48,7 +48,7 @@ static inline void check_yaml_funcs()
 {
   static_assert(offsetof(ModuleData, ppm) == 4,"");
   check_size<ModuleData, 29>();
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   static_assert(MAX_GVARS == 15,"");
 #else
   static_assert(MAX_GVARS == 9,"");
