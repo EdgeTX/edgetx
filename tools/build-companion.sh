@@ -166,7 +166,7 @@ get_platform_config() {
             PACKAGE_EMOJI="🐧"
             ;;
         *)
-            PACKAGE_TARGET="installer"
+            PACKAGE_TARGET="install"
             PACKAGE_FILES="companion/*.exe"
             PACKAGE_NAME="Windows installer"
             PACKAGE_EMOJI="🪟"
