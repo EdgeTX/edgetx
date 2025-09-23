@@ -36,17 +36,11 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
-#if defined(STM32F413xx) || defined(STM32F407xG)
-#define FLASHSIZE                       0x100000 // 1M
-#else
 #define FLASHSIZE                       0x80000  // 512k
-#endif
 #define FLASH_PAGESIZE                  256
-#if defined(STM32H5)
+
 #define BOOTLOADER_SIZE                 0x10000
-#else
-#define BOOTLOADER_SIZE                 0x8000
-#endif
+
 #define FIRMWARE_ADDRESS                0x08000000
 #define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
 #define FIRMWARE_MAX_LEN                (FLASHSIZE - BOOTLOADER_SIZE)
@@ -54,13 +48,7 @@ void rotaryEncoderCheck();
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-#if defined(PCBXLITE)
-# define BOOTLOADER_KEYS                0x0F
-#elif defined(RADIO_MT12)
-# define BOOTLOADER_KEYS                0x06
-#else
 # define BOOTLOADER_KEYS                0x42
-#endif
 
 #if defined(RADIO_FAMILY_T20)
 # define SECONDARY_BOOTLOADER_KEYS      0x1200
@@ -96,19 +84,11 @@ enum {
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
 // POTS and SLIDERS default configuration
-#if defined(RADIO_BOXER)
-#define XPOS_CALIB_DEFAULT  {0x5, 0xd, 0x16, 0x1f, 0x28}
-#endif
 
 #if defined(FUNCTION_SWITCHES)
 
-#if defined(RADIO_GX12)
-#define NUM_FUNCTIONS_SWITCHES 8
-#define NUM_FUNCTIONS_GROUPS   4
-#else
 #define NUM_FUNCTIONS_SWITCHES 6
 #define NUM_FUNCTIONS_GROUPS   3
-#endif
 
 #else //FUNCTION_SWITCHES
 
@@ -129,43 +109,12 @@ PACK(typedef struct {
 extern HardwareOptions hardwareOptions;
 
 // Battery driver
-#if defined(PCBX9E)
-  // NI-MH 9.6V
-  #define BATTERY_WARN                  87 // 8.7V
-  #define BATTERY_MIN                   85 // 8.5V
-  #define BATTERY_MAX                   115 // 11.5V
-#elif defined(PCBXLITE) || defined(RADIO_FAMILY_T20)
   // 2 x Li-Ion
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
   #define BATTERY_MAX                   83 // 8.3V
-#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
-  // 1S Li-ion /  Lipo, LDO for 3.3V
-  #define BATTERY_WARN                  35 // 3.5V
-  #define BATTERY_MIN                   34 // 3.4V
-  #define BATTERY_MAX                   42 // 4.2V
-#elif defined(RADIO_COMMANDO8)
-  #define BATTERY_WARN                  32 // 3.5V
-  #define BATTERY_MIN                   30 // 3.0V
-  #define BATTERY_MAX                   42 // 4.2V
-#else
-  // NI-MH 7.2V
-  #define BATTERY_WARN                  65 // 6.5V
-  #define BATTERY_MIN                   60 // 6.0V
-  #define BATTERY_MAX                   80 // 8.0V
-#endif
 
-#if defined(PCBXLITE)
-  #define BATT_SCALE                    131
-#elif defined(PCBX7)
-  #define BATT_SCALE                    123
-#elif defined(PCBX9LITE)
-  #define BATT_SCALE                    117
-#elif defined(RADIO_X9DP2019)
-  #define BATT_SCALE                    117
-#else
   #define BATT_SCALE                    150
-#endif
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
@@ -201,11 +150,7 @@ void backlightDisable();
 void backlightFullOn();
 bool isBacklightEnabled();
 
-#if defined(PCBX9E) || defined(PCBX9DP)
-  void backlightEnable(uint8_t level, uint8_t color);
-  #define BACKLIGHT_ENABLE() \
-    backlightEnable(currentBacklightBright, g_eeGeneral.backlightColor)
-#elif defined(OLED_SCREEN)
+#if defined(OLED_SCREEN)
   #define BACKLIGHT_ENABLE() lcdSetRefVolt(currentBacklightBright)
 #else
   void backlightEnable(uint8_t level);
@@ -222,10 +167,6 @@ void debugPutc(const char c);
 // Audio driver
 void audioInit();
 
-#if defined(PCBXLITES)
-#define SHARED_DSC_HEADPHONE_JACK
-void handleJackConnection();
-#endif
 
 // Haptic driver
 void hapticInit();
@@ -279,9 +220,7 @@ void ledBlue();
 #define LCD_CONTRAST_MAX                30
 #endif
 
-#if defined(RADIO_MT12)
-#define LCD_BRIGHTNESS_DEFAULT          50
-#elif defined(RADIO_T12MAX)
+#if   defined(RADIO_T12MAX)
 #define LCD_BRIGHTNESS_DEFAULT          30
 #endif
 
@@ -331,17 +270,6 @@ void lcdSetContrast(bool useDefault = false);
 void lcdFlushed();
 
 // Top LCD driver
-#if defined(TOPLCD_GPIO)
-void toplcdInit();
-void toplcdOff();
-void toplcdRefreshStart();
-void toplcdRefreshEnd();
-void setTopFirstTimer(int32_t value);
-void setTopSecondTimer(uint32_t value);
-void setTopRssi(uint32_t rssi);
-void setTopBatteryState(int state, uint8_t blinking);
-void setTopBatteryValue(uint32_t volts);
-#endif
 
 #if defined(CROSSFIRE)
 #define TELEMETRY_FIFO_SIZE             128

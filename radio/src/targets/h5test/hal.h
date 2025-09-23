@@ -266,10 +266,7 @@
 #define EXTI4_IRQ_Priority 5
 
 // USB Charger
-#if defined(USB_CHARGER)
-  #define USB_CHARGER_GPIO              GPIO_PIN(GPIOD, 7)
-#endif
-
+#define USB_CHARGER_GPIO              GPIO_PIN(GPIOD, 7)
 
 // Trainer / Trainee from the module bay
 //TODO

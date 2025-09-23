@@ -11,6 +11,7 @@ option(RGBLEDS "WS2812 addressable LED support" OFF)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
+set(TARGET_DIR h5test)
 
 set(HSE_VALUE 8000000)
 set(PPM_LIMITS_SYMETRICAL YES)
@@ -51,19 +52,21 @@ endif()
 set(INTERNAL_MODULES MULTI;CRSF CACHE STRING "Internal modules")
 add_definitions(-DINTERNAL_MODULE_SERIAL)
 
-set(TARGET_DIR h5test)
-set(TARGET_SRC_DIR targets/${TARGET_DIR})
-include_directories(TARGET_SRC_DIR)
+set(BOARD generic_h5)
 
-set(ALT_TARGET_SRC_DIR targets/taranis)
+include_directories(boards/${BOARD})
+
+set(TARGET_SRC_DIR targets/${TARGET_DIR})
+set(BOARD_SRC_DIR boards/${BOARD})
 
 set(BOARD_COMMON_SRC
-  ${ALT_TARGET_SRC_DIR}/board.cpp
-  ${ALT_TARGET_SRC_DIR}/system_clock.cpp
-  ${ALT_TARGET_SRC_DIR}/led_driver.cpp
-  ${ALT_TARGET_SRC_DIR}/backlight_driver.cpp
-  ${TARGET_SRC_DIR}/haptic_driver.cpp
-  ${TARGET_SRC_DIR}/${LCD_DRIVER}
+  ${BOARD_SRC_DIR}/board.cpp
+  ${BOARD_SRC_DIR}/system_clock.cpp
+  ${BOARD_SRC_DIR}/led_driver.cpp
+  ${BOARD_SRC_DIR}/backlight_driver.cpp
+  ${BOARD_SRC_DIR}/haptic_driver.cpp
+  ${BOARD_SRC_DIR}/usb_charger_driver.cpp
+  ${BOARD_SRC_DIR}/${LCD_DRIVER}
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/flash_driver.cpp
@@ -80,7 +83,7 @@ endif()
 
 if(BLUETOOTH)
   list(APPEND BOARD_COMMON_SRC
-    targets/common/arm/stm32/bluetooth_driver.cpp
+    targets/common/arm/stm32/bluetooth_driver.cppBOARD_SRC_DIR
   )
 endif()
 
@@ -95,7 +98,6 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${ALT_TARGET_SRC_DIR}/volume_i2c.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
@@ -111,11 +113,6 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 if(USB_CHARGE_LED)
   add_definitions(-DUSB_CHARGE_LED)
-endif()
-
-if(USB_CHARGER)
-  add_definitions(-DUSB_CHARGER)
-  target_sources(board PRIVATE ${TARGET_SRC_DIR}/usb_charger_driver.cpp)
 endif()
 
 if(USE_RTC_CLOCK)
