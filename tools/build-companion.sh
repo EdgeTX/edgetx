@@ -117,13 +117,17 @@ elif ! cmake_build_parallel native --target ${PACKAGE_TARGET} >> "$LOG_FILE" 2>&
     echo "    ❌ Packaging failed"
     cat "$LOG_FILE"
     error_status=1
-elif cp "native/${PACKAGE_FILES}" "${OUTDIR}" 2>/dev/null; then
-    echo "    ✅ Build completed successfully!"
-    echo "    📁 Package saved to: ${OUTDIR}"
 else
-    echo "    ❌ Failed to copy package files to output directory"
-    ls -la native/ || echo "native/ directory not found"
-    error_status=1
+    PACKAGE_FILE=$(find native/ -name "${PACKAGE_FILES}" -type f | head -n1)
+    if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null; then
+        echo "    ✅ Build completed successfully!"
+        echo "    📁 Package saved to: ${OUTDIR}"
+        echo "    📄 Copied: $(basename "$PACKAGE_FILE")"
+    else
+        echo "    ❌ Failed to copy package files to output directory"
+        ls -la native/ || echo "native/ directory not found"
+        error_status=1
+    fi
 fi
 
 if [[ -n "$GITHUB_ACTIONS" ]]; then
