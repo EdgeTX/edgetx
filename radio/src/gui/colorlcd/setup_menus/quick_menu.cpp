@@ -99,9 +99,15 @@ void QuickSubMenu::setCurrent(QuickMenu::SubMenu n)
   enableSubMenu();
 }
 
+void QuickSubMenu::doLayout()
+{
+  if (subMenu)
+    subMenu->doLayout(QuickMenu::QM_SUB_COLS);
+}
+
 void QuickSubMenu::buildSubMenu()
 {
-  subMenu = new QuickMenuGroup(parent, LV_FLEX_FLOW_ROW_WRAP);
+  subMenu = new QuickMenuGroup(parent);
 
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
     subMenu->addButton(items[i].icon, items[i].qmTitle,
@@ -110,6 +116,7 @@ void QuickSubMenu::buildSubMenu()
         [=]() { QuickMenu::setCurrentPage(items[i].subMenu); });
   }
 
+  doLayout();
   subMenu->hide();
   subMenu->setDisabled(true);
 }
@@ -193,7 +200,7 @@ QuickMenu::QuickMenu() :
 
   auto box = new Window(this, {QM_MAIN_X, QM_MAIN_Y, QM_MAIN_W, QM_MAIN_H});
 
-  mainMenu = new QuickMenuGroup(box, (lv_flex_flow_t)QM_MAIN_FLOW);
+  mainMenu = new QuickMenuGroup(box);
 
   mainMenu->addButton(ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS,
                       [=]() -> uint8_t {
@@ -246,6 +253,10 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
             PageGroupBase* newPageGroup, SubMenu newCurPage)
 {
   Layer::push(this);
+
+  mainMenu->doLayout(QM_MAIN_COLS);
+  for (size_t i = 0; i < subMenus.size(); i += 1)
+    subMenus[i]->doLayout();
 
   this->cancelHandler = std::move(cancelHandler);
   this->selectHandler = std::move(selectHandler);

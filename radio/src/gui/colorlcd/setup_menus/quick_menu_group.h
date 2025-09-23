@@ -30,7 +30,7 @@ class ButtonBase;
 class QuickMenuGroup : public Window
 {
  public:
-  QuickMenuGroup(Window* parent, lv_flex_flow_t flow);
+  QuickMenuGroup(Window* parent);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "QuickMenuGroup"; }
@@ -49,6 +49,7 @@ class QuickMenuGroup : public Window
   void setEnabled();
   void setCurrent(ButtonBase* b);
   void setCurrent(int b) { setCurrent(btns[b]); }
+  void doLayout(int cols);
 
 #if PORTRAIT
   static LAYOUT_VAL_SCALED(QM_BUTTON_WIDTH, 72)

@@ -60,14 +60,10 @@ class QuickMenuButton : public ButtonBase
   QuickMenuButton(Window* parent, EdgeTxIcon icon, const char* title,
                   std::function<uint8_t(void)> pressHandler,
                   std::function<bool(void)> visibleHandler) :
-      ButtonBase(parent, {}, pressHandler, etx_quick_button_create)
+      ButtonBase(parent, {}, pressHandler, etx_quick_button_create),
+      visibleHandler(std::move(visibleHandler))
   {
     padAll(PAD_ZERO);
-
-    if (visibleHandler) {
-      show(visibleHandler());
-      setCheckHandler([=] { show(visibleHandler()); });
-    }
 
     iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
@@ -122,16 +118,22 @@ class QuickMenuButton : public ButtonBase
     lv_obj_clear_state(iconPtr->getLvObj(), LV_STATE_USER_1);
   }
 
+  bool isVisible() {
+    if (visibleHandler)
+      return visibleHandler();
+    return true;
+  }
+
  protected:
   StaticIcon* iconPtr = nullptr;
   StaticText* textPtr = nullptr;
+  std::function<bool(void)> visibleHandler = nullptr;
 };
 
-QuickMenuGroup::QuickMenuGroup(Window* parent, lv_flex_flow_t flow) :
-        Window(parent, {})
+QuickMenuGroup::QuickMenuGroup(Window* parent) :
+        Window(parent, {0, 0, parent->width(), parent->height()})
 {
   padAll(PAD_OUTLINE);
-  setFlexLayout(flow, QM_ICON_PAD, parent->width(), parent->height());
   group = lv_group_create();
 }
 
@@ -213,4 +215,20 @@ void QuickMenuGroup::setCurrent(ButtonBase* b)
 {
   curBtn = b;
   ((QuickMenuButton*)b)->setEnabled();
+}
+
+void QuickMenuGroup::doLayout(int cols)
+{
+  int n = 0;
+  for (size_t i = 0; i < btns.size(); i += 1) {
+    if (((QuickMenuButton*)btns[i])->isVisible()) {
+      coord_t x = (n % cols) * (QM_BUTTON_WIDTH + PAD_MEDIUM);
+      coord_t y = (n / cols) * (QM_BUTTON_HEIGHT + PAD_MEDIUM);
+      lv_obj_set_pos(btns[i]->getLvObj(), x, y);
+      btns[i]->show();
+      n += 1;
+    } else {
+      btns[i]->hide();
+    }
+  }
 }
