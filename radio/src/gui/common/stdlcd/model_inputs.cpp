@@ -364,8 +364,8 @@ void menuModelExposAll(event_t event)
     s_copyTgtOfs = next_ofs;
   }
   
-  lcdDrawNumber(FW*sizeof(TR_MENUINPUTS)+FW+FW/2, 0, getExposCount(), RIGHT);
-  lcdDrawText(FW*sizeof(TR_MENUINPUTS)+FW+FW/2, 0, STR_MAX(MAX_EXPOS));
+  lcdDrawNumber(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, getExposCount(), RIGHT);
+  lcdDrawText(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, STR_MAX(MAX_EXPOS));
 
 #if LCD_DEPTH > 1
   // Value

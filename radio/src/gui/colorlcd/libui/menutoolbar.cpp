@@ -20,7 +20,7 @@
 
 #include "menu.h"
 #include "etx_lv_theme.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 static const lv_obj_class_t menu_button_class = {
     .base_class = &button_class,

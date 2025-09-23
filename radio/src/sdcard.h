@@ -25,7 +25,7 @@
 
 extern FIL g_oLogFile;
 
-#include "translations.h"
+#include "translations/translations.h"
 
 #define FILE_COPY_PREFIX "cp_"
 

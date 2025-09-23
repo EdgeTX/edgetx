@@ -155,12 +155,12 @@ const char * loadRadioSettingsYaml(bool checks)
             f_unlink(RADIO_SETTINGS_YAML_PATH);
             result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
             if (result != FR_OK) {
-              ALERT(STR_STORAGE_WARNING, TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
+              ALERT(STR_STORAGE_WARNING, STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
               return SDCARD_ERROR(result);
             }
         }
         TRACE("Unable to recover radio data");
-        ALERT(STR_STORAGE_WARNING, p == NULL ? TR_RADIO_DATA_RECOVERED : TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
+        ALERT(STR_STORAGE_WARNING, p == NULL ? STR_RADIO_DATA_RECOVERED : STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
       }
     }
     return p;
@@ -560,10 +560,9 @@ const char * backupModel(uint8_t idx)
 
   if (len == 0) {
     uint8_t num = idx + 1;
-    strcpy(buf, STR_MODEL);
-    buf[PSIZE(TR_MODEL)] = (char)((num / 10) + '0');
-    buf[PSIZE(TR_MODEL) + 1] = (char)((num % 10) + '0');
-    len = PSIZE(TR_MODEL) + 2;
+    char* s = strAppend(buf, STR_MODEL);
+    strAppendUnsigned(s, num, 2);
+    len = strlen(buf);
   }
 
 #if defined(RTCLOCK)

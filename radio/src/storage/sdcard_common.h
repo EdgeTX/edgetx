@@ -22,7 +22,6 @@
 #pragma once
 
 #include "ff.h"
-#include "translations.h"
 #include "sdcard.h"
 
 #define MODEL_FILENAME_PREFIX    "model"
