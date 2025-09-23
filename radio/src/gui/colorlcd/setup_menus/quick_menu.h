@@ -120,11 +120,14 @@ class QuickMenu : public NavWindow
 
   static constexpr int QM_MAIN_BTNS = 6;
   static constexpr int QM_SUB_BTNS = 12;
-  static LAYOUT_ORIENTATION(QM_MAIN_FLOW, LV_FLEX_FLOW_ROW, LV_FLEX_FLOW_COLUMN)
-  static LAYOUT_ORIENTATION(QM_MAIN_W, GRP_W(6), GRP_W(1))
-  static LAYOUT_ORIENTATION(QM_MAIN_H, GRP_H(1), GRP_H(6))
-  static LAYOUT_ORIENTATION(QM_SUB_W, GRP_W(6), GRP_W(3))
-  static LAYOUT_ORIENTATION(QM_SUB_H, GRP_H(2), GRP_H(6))
+  static LAYOUT_ORIENTATION(QM_MAIN_COLS, 6, 1)
+  static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 1, 6)
+  static LAYOUT_ORIENTATION(QM_SUB_COLS, 6, 3)
+  static LAYOUT_ORIENTATION(QM_SUB_ROWS, 2, 6)
+  static constexpr int QM_MAIN_W = GRP_W(QM_MAIN_COLS);
+  static constexpr int QM_MAIN_H = GRP_H(QM_MAIN_ROWS);
+  static constexpr int QM_SUB_W = GRP_W(QM_SUB_COLS);
+  static constexpr int QM_SUB_H = GRP_H(QM_SUB_ROWS);
   static LAYOUT_ORIENTATION(QM_MAIN_X, (LCD_W - QM_MAIN_W) / 2, (LCD_W - QM_MAIN_W - QM_SUB_W - PAD_SMALL) / 2)
   static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY;
   static LAYOUT_ORIENTATION(QM_SUB_X, QM_MAIN_X, QM_MAIN_X + QM_MAIN_W + PAD_SMALL)
@@ -170,6 +173,7 @@ class QuickSubMenu
   uint8_t onPress(int n);
   void onSelect(bool close);
   int getPageNumber(int iconNumber);
+  void doLayout();
 
  protected:
   Window* parent;
