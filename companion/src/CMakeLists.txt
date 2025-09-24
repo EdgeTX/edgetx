@@ -407,6 +407,13 @@ elseif(WIN32)
             DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
+  include(FindMSVCRedist)
+
+  if(MSVC_REDIST_EXE)
+    install(FILES ${MSVC_REDIST_EXE}
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+  endif()
+
 elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
   # and trial and error. Do not hesitate to fix it for the better
@@ -514,6 +521,7 @@ if(WIN32)
 
     cmake_path(NATIVE_PATH CMAKE_INSTALL_PREFIX NORMALIZE NSIS_DISTRO)   # all files in here will be included in installer
     cmake_path(NATIVE_PATH COMPANION_TARGETS_DIR NORMALIZE NSIS_TARGETS_DIR)   # all files in here will be included in installer
+    cmake_path(GET MSVC_REDIST_EXE FILENAME NSIS_MSVC_REDIST_EXE)
     set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
     configure_file("${COMPANION_TARGETS_DIR}/companion.nsi.in" "${NSI_FILE}" @ONLY)
 

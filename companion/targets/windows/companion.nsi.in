@@ -8,7 +8,8 @@
   !include "MUI2.nsh"
   !include "nsDialogs.nsh"
   !include "@NSIS_TARGETS_DIR@\FileAssociation.nsh"
-
+  !include "LogicLib.nsh"
+  !include "@NSIS_TARGETS_DIR@\WordFunc.nsh"
 ;--------------------------------
 ;General
 
@@ -102,6 +103,47 @@
 ;--------------------------------
 ;Installer Sections
 
+; Visual C++ Redistributable (x64) is a required dependency
+;
+!define VCREDISTNAME "Microsoft Visual C++ 2015-2022 Redistributable"
+!define VCREDISTEXE "@NSIS_MSVC_REDIST_EXE@"
+!define VCREDISTVERS "14.44.35211.00"
+
+!insertmacro VersionCompare
+
+Section "${VCREDISTNAME}"
+  Push $0
+  Push $1
+  Call GetInstVCRedistVer
+  Pop $0
+  ${VersionCompare} "$0" "${VCREDISTVERS}" $R0
+  ${If} $R0 == "2"
+    SetOutPath "$TEMP"
+    File "@NSIS_DISTRO@\bin\${VCREDISTEXE}"
+    ExecWait "$TEMP\${VCREDISTEXE} /install /passive /norestart"
+    ;IfErrors InstallError ContinueInstall ; vc_redist exit code is unreliable
+    Call GetInstVCRedistVer
+    Pop $0
+    ${VersionCompare} "$0" "${VCREDISTVERS}" $R0
+    ${If} $R0 == "0"
+      Goto ContinueInstall
+    ${EndIf}
+
+    MessageBox MB_ICONSTOP "\
+      There was an unexpected error installing$\r$\n\
+      ${VCREDISTNAME}.$\r$\n\
+      The installation of @PROJECT_NAME@ cannot continue."
+    Abort
+  ${EndIf}
+
+  ContinueInstall:
+    Delete "$TEMP\${VCREDISTEXE}"
+    SetOutPath "$INSTDIR" ; Restore original output path
+    Pop $1
+    Pop $0
+
+SectionEnd
+
 Section "@PROJECT_NAME@ Companion @VERSION_FAMILY@" SecDummy
 
   SetOutPath "$INSTDIR"
@@ -165,6 +207,10 @@ SectionEnd
 
 ;--------------------------------
 ;Uninstaller Section
+
+Section "un.${VCREDISTNAME}"
+
+SectionEnd
 
 Section "un.@PROJECT_NAME@ Companion @VERSION_FAMILY@"
 
@@ -265,4 +311,14 @@ Function StartMenuLocationLeave
   ${Else}
     StrCpy $StartMenuLocationValue "current_user"
   ${Endif}
+FunctionEnd
+
+Function GetInstVCRedistVer
+  ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
+  StrCpy $R1 "$R0" 1 # get first character
+  ${If} $R1 == "v"
+    StrCpy $R1 "$R0" "" 1 # strip off v prefix
+  ${EndIf}
+
+  Push $R1
 FunctionEnd
