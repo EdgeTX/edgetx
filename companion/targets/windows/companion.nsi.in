@@ -7,8 +7,9 @@
 
   !include "MUI2.nsh"
   !include "nsDialogs.nsh"
-  !include "@NSIS_TARGETS_DIR@\FileAssociation.nsh"
   !include "LogicLib.nsh"
+  !include "@NSIS_TARGETS_DIR@\FileAssociation.nsh"
+  !include "@NSIS_TARGETS_DIR@\FileFunc.nsh"
   !include "@NSIS_TARGETS_DIR@\WordFunc.nsh"
 ;--------------------------------
 ;General
@@ -105,26 +106,50 @@
 
 ; Visual C++ Redistributable (x64) is a required dependency
 ;
-!define VCREDISTNAME "Microsoft Visual C++ 2015-2022 Redistributable"
-!define VCREDISTEXE "@NSIS_MSVC_REDIST_EXE@"
-!define VCREDISTVERS "14.44.35211.00"
 
+!macro GetInstalledVCVersionCall _RESULT
+  Call GetInstalledVCVersion
+  Pop ${_RESULT}
+!macroend
+
+!macro GetInstalledVCVersion
+	!ifndef GetInstalledVCVersion
+    !define GetInstalledVCVersion `!insertmacro GetInstalledVCVersionCall`
+
+    Function GetInstalledVCVersion
+      ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
+      StrCpy $R1 "$R0" 1 # get first character
+      ${If} $R1 == "v"
+        StrCpy $R1 "$R0" "" 1 # strip off v prefix
+      ${EndIf}
+
+      Push $R1
+    FunctionEnd
+	!endif
+!macroend
+
+!define VCREDISTNAME "Microsoft Visual C++ 2015-2022 Redistributable"
+!define VCREDISTEXE "@NSIS_DISTRO@\bin\@NSIS_MSVC_REDIST_EXE@"
+Var VCRedistExeVers
+Var VCInstVers
+
+!insertmacro GetFileVersion
 !insertmacro VersionCompare
+!insertmacro GetInstalledVCVersion
 
 Section "${VCREDISTNAME}"
   Push $0
   Push $1
-  Call GetInstVCRedistVer
-  Pop $0
-  ${VersionCompare} "$0" "${VCREDISTVERS}" $R0
+  ${GetFileVersion} "${VCREDISTEXE}" $VCRedistExeVers
+  ${GetInstalledVCVersion} $VCInstVers
+  ${VersionCompare} "$VCInstVers" "$VCRedistExeVers" $R0
   ${If} $R0 == "2"
     SetOutPath "$TEMP"
-    File "@NSIS_DISTRO@\bin\${VCREDISTEXE}"
+    File "${VCREDISTEXE}"
     ExecWait "$TEMP\${VCREDISTEXE} /install /passive /norestart"
     ;IfErrors InstallError ContinueInstall ; vc_redist exit code is unreliable
-    Call GetInstVCRedistVer
-    Pop $0
-    ${VersionCompare} "$0" "${VCREDISTVERS}" $R0
+    ${GetInstalledVCVersion} $VCInstVers
+    ${VersionCompare} "$VCInstVers" "$VCRedistExeVers" $R0
     ${If} $R0 == "0"
       Goto ContinueInstall
     ${EndIf}
@@ -311,14 +336,4 @@ Function StartMenuLocationLeave
   ${Else}
     StrCpy $StartMenuLocationValue "current_user"
   ${Endif}
-FunctionEnd
-
-Function GetInstVCRedistVer
-  ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
-  StrCpy $R1 "$R0" 1 # get first character
-  ${If} $R1 == "v"
-    StrCpy $R1 "$R0" "" 1 # strip off v prefix
-  ${EndIf}
-
-  Push $R1
 FunctionEnd
