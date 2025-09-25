@@ -837,3 +837,16 @@ inline bool HAS_EEPROM_YAML(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board);
 }
+
+inline bool IS_STM32H5(Board::Type board)
+{
+  return false;
+}
+
+inline bool IS_STM32H7(Board::Type board)
+{
+  return IS_FLYSKY_PA01(board) ||
+         IS_FLYSKY_ST16(board) ||
+         IS_JUMPER_T15PRO(board) ||
+         IS_RADIOMASTER_TX15(board);
+}

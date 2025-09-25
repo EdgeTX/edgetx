@@ -262,7 +262,7 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
          (model ? model->timers[index - FuncSetTimer1].isModeOff() : false))) ||
         ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
-        ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
+        ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && ((index - FuncAdjustGV1) >= fw->getCapability(Gvars))) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
