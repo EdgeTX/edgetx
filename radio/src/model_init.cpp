@@ -120,6 +120,7 @@ void initCustomSwitches()
 #endif
     }
   }
+  g_model.cfsSetGroupAlwaysOn(1, true);
 }
 #endif
 
