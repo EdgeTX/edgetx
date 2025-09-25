@@ -223,14 +223,18 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    customSwitches[i].type = Board::SWITCH_GLOBAL;
-    customSwitches[i].group = 0;
-    customSwitches[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+    customSwitches[i].type = Board::SWITCH_2POS;
+    customSwitches[i].group = 1;
+    if (i == 0)
+      customSwitches[i].start = ModelData::FUNC_SWITCH_START_ON;
+    else
+      customSwitches[i].start = ModelData::FUNC_SWITCH_START_OFF;
     customSwitches[i].state = 0;
     customSwitches[i].name[0] = 0;
     customSwitches[i].onColor.setColor(255, 255, 255);
     customSwitches[i].offColor.setColor(0, 0, 0);
   }
+  cfsGroupOn[1] = 1;
 }
 
 void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settings)
