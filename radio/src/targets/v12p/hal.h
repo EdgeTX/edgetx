@@ -74,74 +74,74 @@ USART6: EXTMODULE_USART
 #define TIMER_MULT_APB2         2
 
 // Keys
-#define KEYS_GPIO_REG_PAGEDN          GPIOI
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_4
-#define KEYS_GPIO_REG_SYS             GPIOI
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_5
 #define KEYS_GPIO_REG_ENTER           GPIOI
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_2
+#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8  // PI.08
+#define KEYS_GPIO_REG_PAGEUP          GPIOI
+#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_11 // PC.13
+#define KEYS_GPIO_REG_PAGEDN          GPIOI
+#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_10 // PI.11
 #define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_3
-#define KEYS_GPIO_REG_EXIT            GPIOI
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_8
-#define KEYS_GPIO_REG_TELE            GPIOE
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4
+#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5  // PI.06
+#define KEYS_GPIO_REG_EXIT            GPIOK
+#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5  // PI.04
+#define KEYS_GPIO_REG_SYS             GPIOJ
+#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3  // PI.07
+#define KEYS_GPIO_REG_TELE            GPIOK
+#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4  // PI.05
 
 // Trims
-#define TRIMS_GPIO_REG_LHL            GPIOI
-#define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_10
+#define TRIMS_GPIO_REG_LHL            GPIOB
+#define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_2
 
-#define TRIMS_GPIO_REG_LHR            GPIOI
-#define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_9
+#define TRIMS_GPIO_REG_LHR            GPIOJ
+#define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_4
 
-#define TRIMS_GPIO_REG_LVD            GPIOB
-#define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_13
+#define TRIMS_GPIO_REG_LVD            GPIOJ
+#define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_2
 
-#define TRIMS_GPIO_REG_LVU            GPIOB
-#define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_14
+#define TRIMS_GPIO_REG_LVU            GPIOI
+#define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_15
 
-#define TRIMS_GPIO_REG_RHL            GPIOG
-#define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_2
+#define TRIMS_GPIO_REG_RHL            GPIOB
+#define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_6
 
-#define TRIMS_GPIO_REG_RHR            GPIOG
-#define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_3
+#define TRIMS_GPIO_REG_RHR            GPIOB
+#define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_4
 
-#define TRIMS_GPIO_REG_RVD            GPIOB
-#define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_12
+#define TRIMS_GPIO_REG_RVD            GPIOC
+#define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_13
 
-#define TRIMS_GPIO_REG_RVU            GPIOB
-#define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_15
+#define TRIMS_GPIO_REG_RVU            GPIOE
+#define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_5
 
 // Switches
-#define SWITCHES_GPIO_REG_A_H           GPIOB
-#define SWITCHES_GPIO_PIN_A_H           LL_GPIO_PIN_0   // PB.00
-#define SWITCHES_GPIO_REG_A_L           GPIOC
-#define SWITCHES_GPIO_PIN_A_L           LL_GPIO_PIN_4   // PC.04
+// SWA
+#define STORAGE_SWITCH_A
+#define SWITCHES_GPIO_REG_A_H           GPIOH
+#define SWITCHES_GPIO_PIN_A_H           LL_GPIO_PIN_8   // PB.00
 #define SWITCHES_A_INVERTED
 
-#define SWITCHES_GPIO_REG_B_H           GPIOD
-#define SWITCHES_GPIO_PIN_B_H           LL_GPIO_PIN_4  // PD.04
-#define SWITCHES_GPIO_REG_B_L           GPIOJ
-#define SWITCHES_GPIO_PIN_B_L           LL_GPIO_PIN_7  // PJ.07
+// SWB
+#define STORAGE_SWITCH_B
+#define SWITCHES_GPIO_REG_B_H           GPIOH
+#define SWITCHES_GPIO_PIN_B_H           LL_GPIO_PIN_7  // PD.04
+#define SWITCHES_GPIO_REG_B_L           GPIOG
+#define SWITCHES_GPIO_PIN_B_L           LL_GPIO_PIN_3  // PJ.07
 #define SWITCHES_B_INVERTED
 
-#define SWITCHES_GPIO_REG_C_H           GPIOH
-#define SWITCHES_GPIO_PIN_C_H           LL_GPIO_PIN_3  // PH.03
-#define SWITCHES_GPIO_REG_C_L           GPIOJ
-#define SWITCHES_GPIO_PIN_C_L           LL_GPIO_PIN_0  // PJ.00
+// SWC
+#define STORAGE_SWITCH_C
+#define SWITCHES_GPIO_REG_C_H           GPIOD
+#define SWITCHES_GPIO_PIN_C_H           LL_GPIO_PIN_4  // PH.03
+#define SWITCHES_GPIO_REG_C_L           GPIOD
+#define SWITCHES_GPIO_PIN_C_L           LL_GPIO_PIN_11  // PJ.00
 #define SWITCHES_C_INVERTED
 
-#define SWITCHES_GPIO_REG_D_H           GPIOJ
-#define SWITCHES_GPIO_PIN_D_H           LL_GPIO_PIN_14 // PJ.14
-#define SWITCHES_GPIO_REG_D_L           GPIOH
-#define SWITCHES_GPIO_PIN_D_L           LL_GPIO_PIN_15 // PH.15
+// SWD
+#define STORAGE_SWITCH_D
+#define SWITCHES_GPIO_REG_D_H           GPIOI
+#define SWITCHES_GPIO_PIN_D_H           LL_GPIO_PIN_3 // PJ.14
 #define SWITCHES_D_INVERTED
-
-#define SWITCHES_GPIO_REG_E             GPIOE
-#define SWITCHES_GPIO_PIN_E             LL_GPIO_PIN_5  // PE.05
-
-#define SWITCHES_GPIO_REG_F             GPIOA
-#define SWITCHES_GPIO_PIN_F             LL_GPIO_PIN_15 // PA.15
 
 // function switches
 //SW1
