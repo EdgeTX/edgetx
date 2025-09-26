@@ -22,13 +22,13 @@
 #include "topbar.h"
 
 #include "layer.h"
-#include "menu_screen.h"
 #include "edgetx.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
 #include "topbar_impl.h"
 #include "view_main.h"
 #include "widgets_setup.h"
+#include "pagegroup.h"
 
 TopBar* TopbarFactory::create(Window* parent) { return new TopBar(parent); }
 
@@ -72,7 +72,7 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 
   // restore screen setting tab on top
-  new ScreenMenu(0);
+  (PageGroup::ScreenMenu())->setCurrentTab(1);
 
   storageDirty(EE_MODEL);
 }

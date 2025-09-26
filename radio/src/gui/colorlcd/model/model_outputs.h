@@ -21,14 +21,15 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class OutputLineButton;
 
-class ModelOutputsPage : public PageTab
+class ModelOutputsPage : public PageGroupItem
 {
  public:
-  ModelOutputsPage();
+  ModelOutputsPage(PageDef& pageDef);
+
   void build(Window* window) override;
 
   static constexpr coord_t ADD_TRIMS_X = PAD_SMALL;

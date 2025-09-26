@@ -332,8 +332,11 @@ class VersionDialog : public BaseDialog
 #endif
 };
 
-RadioVersionPage::RadioVersionPage() :
-    PageTab(STR_MENUVERSION, ICON_RADIO_VERSION)
+const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
+const std::string edgetx_url = "https://edgetx.org";
+
+RadioVersionPage::RadioVersionPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -344,7 +347,41 @@ extern const char* boardTouchType;
 
 void RadioVersionPage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
+  window->padAll(PAD_ZERO);
+
+  coord_t qw, qh, iw, ih, ix, iy;
+
+#if LANDSCAPE
+  qw = QR_SZ + PAD_LARGE * 2;
+  qh = window->height();
+  iw = window->width() - qw;
+  ih = qh;
+  ix = qw;
+  iy = 0;
+#else
+  qw = window->width();
+  qh = QR_SZ + EdgeTxStyles::STD_FONT_HEIGHT * 2 + PAD_LARGE + PAD_SMALL;
+  iw = qw;
+  ih = window->height() - qh;
+  ix = 0;
+  iy = qh;
+#endif
+
+  auto qrBox = new Window(window, {0, 0, qw, qh});
+  qrBox->padAll(PAD_ZERO);
+
+  new StaticText(qrBox, {0, PAD_SMALL, LV_PCT(100), 0}, copyright_str,
+                 COLOR_THEME_SECONDARY1_INDEX, CENTERED);
+
+  new StaticText(qrBox, {0, qh - QR_SZ - PAD_MEDIUM - EdgeTxStyles::STD_FONT_HEIGHT, LV_PCT(100), 0},
+                 edgetx_url, COLOR_THEME_SECONDARY1_INDEX, CENTERED);
+
+  new QRCode(qrBox, (qw - QR_SZ) / 2, qh - QR_SZ - PAD_MEDIUM, QR_SZ, edgetx_url);
+
+  auto infoBox = new Window(window, {ix, iy, iw, ih});
+  infoBox->padAll(PAD_SMALL);
+  infoBox->padLeft(PAD_LARGE);
+  infoBox->padRight(PAD_LARGE);
 
   std::string nl("\n");
   std::string version;
@@ -375,14 +412,12 @@ void RadioVersionPage::build(Window* window)
   version += boardTouchType;
 #endif
 
-  auto txt = new StaticText(window, rect_t{}, version);
-  lv_obj_set_width(txt->getLvObj(), lv_pct(100));
+  new StaticText(infoBox, {0, 0, LV_PCT(100), LV_SIZE_CONTENT}, version);
 
   // Module and receivers versions
-  auto btn = new TextButton(window, rect_t{}, STR_MODULES_RX_VERSION);
-  btn->setPressHandler([=]() -> uint8_t {
-    new VersionDialog();
-    return 0;
-  });
-  lv_obj_set_width(btn->getLvObj(), lv_pct(100));
+  new TextButton(infoBox, {0, ih - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_LARGE-PAD_SMALL, LV_PCT(100), 0},
+                  STR_MODULES_RX_VERSION, [=]() {
+                    new VersionDialog();
+                    return 0;
+                  });
 }
