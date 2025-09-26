@@ -150,6 +150,10 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
     },
+    "v12p": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+    },
     "tx16s": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "MULTIPOS"},

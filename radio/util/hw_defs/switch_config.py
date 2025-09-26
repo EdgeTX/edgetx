@@ -395,6 +395,19 @@ SWITCH_CONFIG = {
         "SK": {"default": "2POS"},
         "SL": {"default": "2POS"},
     },
+    "v12p": {
+        "SA": {"default": "2POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "2POS"},
+        # custom switches
+        "SG": {"default": "2POS"},
+        "SH": {"default": "2POS"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
+        "SK": {"default": "2POS"},
+        "SL": {"default": "2POS"},
+    },
     "tx15": {
         "SA": {"default": "3POS"},
         "SB": {"default": "3POS"},
