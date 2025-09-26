@@ -324,6 +324,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
     return false;
 
+  if (type == SOURCE_TYPE_GVAR && abs(index) > firmware->getCapability(Gvars))
+    return false;
+
   if (model) {
     if (type == SOURCE_TYPE_TIMER && model->timers[abs(index) - 1].isModeOff())
       return false;

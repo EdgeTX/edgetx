@@ -512,30 +512,46 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
 
 static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
 {
-  std::string val = node.as<std::string>();
-  if ((val.size() >= 4)
-      && (val[0] == '-')
-      && (val[1] == 'G')
-      && (val[2] == 'V')
-      && (val[3] >= '1')
-      && (val[3] <= '9')) {
-
-      return -10000 - std::stoi(val.substr(3));
-  }
-
-  if ((val.size() >= 3)
-      && (val[0] == 'G')
-      && (val[1] == 'V')
-      && (val[2] >= '1')
-      && (val[2] <= '9')) {
-
-    return 10000 + std::stoi(val.substr(2));
-  }
+  Firmware *firmware = getCurrentFirmware();
+  std::string val_str = node.as<std::string>();
 
   try {
-    return std::stoi(val) + shift;
+    return std::stoi(val_str) + shift;
   } catch(...) {
-    throw YAML::TypedBadConversion<int>(node.Mark());
+    try {
+      const char* val = val_str.data();
+      int multiplier = 1;
+
+      if (val_str.size() >= 4
+          && val[0] == '-') {
+
+        multiplier = -1;
+        val_str = val_str.substr(1);
+      }
+
+      if (val_str.size() >= 3
+          && val[0] == 'G'
+          && val[1] == 'V') {
+
+        int32_t num = 0;
+
+        try {
+          num = std::stoi(val_str.substr(2));
+        } catch (...) {
+          throw;
+        }
+
+        if (num <= firmware->getCapability(Gvars))
+          return ((10000 * multiplier) + (num * multiplier));
+        else
+          return 0;
+
+      } else {
+        throw "Invalid value";
+      }
+    } catch(...) {
+      throw YAML::TypedBadConversion<int>(node.Mark());
+    }
   }
 }
 

@@ -21,6 +21,7 @@
 
 #include "adjustmentreference.h"
 #include "modeldata.h"
+#include "eeprominterface.h"
 
 AdjustmentReference::AdjustmentReference(int value)
 {
@@ -80,5 +81,10 @@ QString AdjustmentReference::toString(const ModelData * model, const bool sign) 
 
 const bool AdjustmentReference::isAvailable() const
 {
+  Firmware *firmware = getCurrentFirmware();
+
+  if (type == ADJUST_REF_GVAR && abs(value) > firmware->getCapability(Gvars))
+    return false;
+
   return true;
 }
