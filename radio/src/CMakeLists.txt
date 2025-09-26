@@ -392,6 +392,10 @@ if(IFLIGHT_RELEASE)
   add_definitions(-DIFLIGHT_RELEASE)
 endif()
 
+if(BETAFPV_RELEASE)
+  add_definitions(-DBETAFPV_RELEASE)
+endif()
+
 if(HARDWARE_TRAINER_MULTI)
   add_definitions(-DHARDWARE_TRAINER_MULTI)
 endif()
@@ -657,11 +661,17 @@ else()
 endif()
 
 if(FIRMWARE_FORMAT_UF2)
+  if(VERSION_TAG)
+    set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
+  else()
+    set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} (${GIT_STR})")
+  endif()
+  
   add_custom_command(
     TARGET firmware POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
         --reboot auto --device "${FLAVOUR}"
-        --version "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})"
+        --version "${UF2_VERSION_STRING}"
         -i firmware.elf firmware.uf2
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM
