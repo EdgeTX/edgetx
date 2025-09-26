@@ -164,7 +164,7 @@
 #define TR_SURFACE_NAMES0               "Rod"
 #define TR_SURFACE_NAMES1               "Gas"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2              "Default","Hög"
 #endif
 
@@ -247,7 +247,7 @@
 #if defined(PCBFRSKY)
   #define TR_ENTER_LONG                 "[LÅNG ENTER]"
   #define TR_ENTER                      "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                      "[NÄSTA]"
 #else
   #define TR_ENTER                      "[MENY]"
@@ -360,7 +360,7 @@
 #define TR_MIXES                        "MIXAR"
 #define TR_CV                           "KU"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
   #define TR_GV                         "GV"
 #else
   #define TR_GV                         TR("G","GV")

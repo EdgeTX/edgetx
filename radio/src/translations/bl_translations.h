@@ -37,9 +37,6 @@
     #define BL_SELECT_KEY              "[TR4 Dn]"
     #define BL_EXIT_KEY                "[TR4 Up]"
   #endif
-#elif defined(PCBNV14)
-  #define BL_SELECT_KEY                "[R TRIM]"
-  #define BL_EXIT_KEY                  "[L TRIM]"
 #elif defined(RADIO_ST16)
   #define BL_SELECT_KEY                "[ENT]"
   #define BL_EXIT_KEY                  "[EXIT]"

@@ -200,7 +200,7 @@ class VersionDialog : public BaseDialog
     }
 #endif
 
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
     // NV14 AFHDS2A internal module is able to provide FW version
     extern uint32_t NV14internalModuleFwVersion;
     if (isModuleAFHDS2A(module)) {
@@ -337,7 +337,7 @@ RadioVersionPage::RadioVersionPage() :
 {
 }
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
 extern const char* boardLcdType;
 extern const char* boardTouchType;
 #endif
@@ -366,7 +366,7 @@ void RadioVersionPage::build(Window* window)
   version += '0' + hardwareOptions.pcbrev;
 #endif
 
-#if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
+#if defined(PCBPL18) && !defined(SIMU)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;

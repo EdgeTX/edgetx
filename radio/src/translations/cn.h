@@ -156,7 +156,7 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2             "Default","High"
 #endif
 
@@ -233,7 +233,7 @@
 #endif
 #endif
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
   #define TR_ENTER                     "[ENTER]"
@@ -345,7 +345,7 @@
 #define TR_SLOWUP                      "上行慢动作"
 #define TR_MIXES                       "混控设置"
 #define TR_CV                          "曲线"
-#if defined(PCBNV14)
+#if defined(PCBPL18)
   #define TR_GV                        "GV"
 #else
   #define TR_GV                        TR("G", "GV")

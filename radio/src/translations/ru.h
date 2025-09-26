@@ -161,7 +161,7 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2             "По умолч","Высокий"
 #endif
 
@@ -238,7 +238,7 @@
 #endif
 #endif
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
   #define TR_ENTER                     "[ДАЛЕЕ]"
 #else
   #define TR_ENTER_LONG                "[ВВОД ДОЛГО]"
@@ -351,7 +351,7 @@
 #define TR_SLOWUP                      "Замед вверх"
 #define TR_MIXES                       "МИКСЫ"
 #define TR_CV                          "CV"
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define TR_GV                          "GV"
 #else
 #define TR_GV                          TR("G", "GV")

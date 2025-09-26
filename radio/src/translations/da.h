@@ -158,7 +158,7 @@
 #define TR_SURFACE_NAMES0              "Sid"
 #define TR_SURFACE_NAMES1              "Gas"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2             "Standard","Høj"
 #endif
 
@@ -235,7 +235,7 @@
   #endif
 #endif
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
   #define TR_ENTER                     "[NÆSTE]"
 #else
   #define TR_ENTER_LONG                "[ENTER LONG]"
@@ -348,7 +348,7 @@
 #define TR_SLOWUP                      TR("Langsom op", "Langsom op")
 #define TR_MIXES                       "MIX"
 #define TR_CV                          "KU"
-#if defined(PCBNV14)
+#if defined(PCBPL18)
   #define TR_GV                        "GV"
 #else
   #define TR_GV                        TR("G", "GV")
