@@ -143,6 +143,8 @@ extern uint8_t MODULE_CHANNELS_ROWS(int moduleIdx);
 void onAntennaSwitchConfirm(const char * result);
 void checkExternalAntenna();
 void onAntennaSelection(const char* result);
+#elif defined(EXTERNAL_ANTENNA)
+void checkExternalAntenna();
 #endif
 
 #if defined(PXX2)

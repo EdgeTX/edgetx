@@ -1056,6 +1056,7 @@
 #define TR_ANTENNA_MODES_3           "モデル毎"
 #define TR_ANTENNA_MODES_4           "内部＋外部"
 #define TR_ANTENNA_MODES_5           "外部"
+#define TR_ANTENNA_SELECT             "内部","外部"
 #define TR_USE_INTERNAL_ANTENNA        TR("Use int. antenna", "内部アンテナを使用")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Use ext. antenna", "外部アンテナを使用")
 #define TR_ANTENNACONFIRM2             TR("Check antenna", "アンテナの装着を確認してください!!")

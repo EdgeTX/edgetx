@@ -1057,6 +1057,7 @@
 #define TR_ANTENNA_MODES_3     "Por modelo"
 #define TR_ANTENNA_MODES_4     "Interno + Externo"
 #define TR_ANTENNA_MODES_5     "Externa"
+#define TR_ANTENNA_SELECT            "Interna","Externa"
 #define TR_USE_INTERNAL_ANTENNA        TR("Usa antena int.", "Usa antena interna")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Use antena ext.", "Usa antena externa")
 #define TR_ANTENNACONFIRM2     TR("Revisa antena", "Revisa que la antena esté instalada!")

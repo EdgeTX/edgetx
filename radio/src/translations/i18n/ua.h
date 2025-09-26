@@ -1058,6 +1058,7 @@
 #define TR_ANTENNA_MODES_3           "На модель"
 #define TR_ANTENNA_MODES_4           "Внутрійшній + Зовнішній"
 #define TR_ANTENNA_MODES_5           "Зовнішній"
+#define TR_ANTENNA_SELECT             "Внутрішній","Зовнішній"
 #define TR_USE_INTERNAL_ANTENNA        TR("Вик. внурт. антену", "Використай внутрішню антену")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Вик. зовн. антену", "Використай зовнішню антену")
 #define TR_ANTENNACONFIRM2             TR("Перевір антену", "Впевнись, що антену встановлено!")

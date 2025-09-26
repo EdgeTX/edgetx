@@ -1062,6 +1062,7 @@
 #define TR_ANTENNA_MODES_3           "Per model"
 #define TR_ANTENNA_MODES_4           "Intern + Ekstern"
 #define TR_ANTENNA_MODES_5           "Ekstern"
+#define TR_ANTENNA_SELECT             "Intern","Ekstern"
 #define TR_USE_INTERNAL_ANTENNA        TR("Brug int. antenne", "Brug intern antenne")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Brug ext. antenne", "Brug ekstern antenne")
 #define TR_ANTENNACONFIRM2             TR("Check antenne", "Kontroller at antenne er installeret!")
