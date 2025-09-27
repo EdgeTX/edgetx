@@ -30,8 +30,19 @@ void usbChargerInit()
   gpio_init(UCHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #if defined(UCHARGER_PW)
   gpio_init(UCHARGER_PW, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  //gpio_set(UCHARGER_PW);
-  gpio_clear(UCHARGER_PW);
+  gpio_set(UCHARGER_PW);
+  //gpio_clear(UCHARGER_PW);  0=DISABLE 1=ENABLE
+#endif
+#if defined(UCHARGER_EN)
+  gpio_init(UCHARGER_EN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  //gpio_set(UCHARGER_EN);
+  gpio_clear(UCHARGER_EN);  //cherge EN  0=ENANLE 1=DISABLE
+#endif
+#if defined(USB_GPIO_SEL)
+  gpio_init(USB_GPIO_SEL, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(USB_GPIO_SEL);
+
+  //gpio_clear(USB_GPIO_SEL); // USB HUB SELECT 0->H7 MCU  1->CHARGE MCU
 #endif
 }
 
