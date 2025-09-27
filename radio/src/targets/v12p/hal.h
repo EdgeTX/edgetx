@@ -66,10 +66,10 @@ USART6: EXTMODULE_USART
 #ifndef _HAL_H_
 #define _HAL_H_
 
-#define CPU_FREQ                480000000
+#define CPU_FREQ                400000000
 
-#define PERI1_FREQUENCY         120000000
-#define PERI2_FREQUENCY         120000000
+#define PERI1_FREQUENCY         100000000
+#define PERI2_FREQUENCY         100000000
 #define TIMER_MULT_APB1         2
 #define TIMER_MULT_APB2         2
 
@@ -112,7 +112,7 @@ USART6: EXTMODULE_USART
 #define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_13
 
 #define TRIMS_GPIO_REG_RVU            GPIOE
-#define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_5
+#define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_6
 
 // Switches
 // SWA
@@ -283,19 +283,22 @@ USART6: EXTMODULE_USART
 #define BACKLIGHT_TEST                   GPIO_PIN(GPIOI,  2)
 
 // QSPI Flash
-#define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)
+#define QSPI_MAX_FREQ                   80000000U // 80 MHz
+#define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)  //OK
 #define QSPI_CLK_GPIO_AF                GPIO_AF9
-#define QSPI_CS_GPIO                    GPIO_PIN(GPIOG, 6)
-#define QSPI_CS_GPIO_AF                 GPIO_AF10
-#define QSPI_MISO_GPIO                  GPIO_PIN(GPIOF, 9)
+#define QSPI_CS_GPIO                    GPIO_PIN(GPIOB, 10)   //OK
+#define QSPI_CS_GPIO_AF                 GPIO_AF9
+#define QSPI_MISO_GPIO                  GPIO_PIN(GPIOF, 9)  //IO1
 #define QSPI_MISO_GPIO_AF               GPIO_AF10
-#define QSPI_MOSI_GPIO                  GPIO_PIN(GPIOF, 8)
+#define QSPI_MOSI_GPIO                  GPIO_PIN(GPIOF, 8)  //IO0
 #define QSPI_MOSI_GPIO_AF               GPIO_AF10
-#define QSPI_WP_GPIO                    GPIO_PIN(GPIOF, 7)
+#define QSPI_WP_GPIO                    GPIO_PIN(GPIOF, 7)  //IO2
 #define QSPI_WP_GPIO_AF                 GPIO_AF9
-#define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOF, 6)
+#define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOF, 6)  //IO3
 #define QSPI_HOLD_GPIO_AF               GPIO_AF9
-#define QSPI_FLASH_SIZE                 0x1000000
+#define QSPI_FLASH_SIZE                 0x800000
+#define QSPI_QE_REG                     1
+#define QSPI_QE_BIT                     (1 << 6)
 
 #define SD_SDIO                        SDMMC1
 #define SD_SDIO_CLK_DIV(fq)            (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
