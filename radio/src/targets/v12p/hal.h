@@ -75,19 +75,19 @@ USART6: EXTMODULE_USART
 
 // Keys
 #define KEYS_GPIO_REG_ENTER           GPIOI
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8  // PI.08
+#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8
 #define KEYS_GPIO_REG_PAGEUP          GPIOI
-#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_11 // PC.13
+#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_11
 #define KEYS_GPIO_REG_PAGEDN          GPIOI
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_10 // PI.11
+#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_10
 #define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5  // PI.06
+#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5 
 #define KEYS_GPIO_REG_EXIT            GPIOK
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5  // PI.04
+#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5 
 #define KEYS_GPIO_REG_SYS             GPIOJ
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3  // PI.07
+#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3 
 #define KEYS_GPIO_REG_TELE            GPIOK
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4  // PI.05
+#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4 
 
 // Trims
 #define TRIMS_GPIO_REG_LHL            GPIOB
@@ -118,29 +118,29 @@ USART6: EXTMODULE_USART
 // SWA
 #define STORAGE_SWITCH_A
 #define SWITCHES_GPIO_REG_A_H           GPIOH
-#define SWITCHES_GPIO_PIN_A_H           LL_GPIO_PIN_8   // PB.00
+#define SWITCHES_GPIO_PIN_A_H           LL_GPIO_PIN_8
 #define SWITCHES_A_INVERTED
 
 // SWB
 #define STORAGE_SWITCH_B
 #define SWITCHES_GPIO_REG_B_H           GPIOH
-#define SWITCHES_GPIO_PIN_B_H           LL_GPIO_PIN_7  // PD.04
+#define SWITCHES_GPIO_PIN_B_H           LL_GPIO_PIN_7
 #define SWITCHES_GPIO_REG_B_L           GPIOG
-#define SWITCHES_GPIO_PIN_B_L           LL_GPIO_PIN_3  // PJ.07
+#define SWITCHES_GPIO_PIN_B_L           LL_GPIO_PIN_3
 #define SWITCHES_B_INVERTED
 
 // SWC
 #define STORAGE_SWITCH_C
 #define SWITCHES_GPIO_REG_C_H           GPIOD
-#define SWITCHES_GPIO_PIN_C_H           LL_GPIO_PIN_4  // PH.03
+#define SWITCHES_GPIO_PIN_C_H           LL_GPIO_PIN_4
 #define SWITCHES_GPIO_REG_C_L           GPIOD
-#define SWITCHES_GPIO_PIN_C_L           LL_GPIO_PIN_11  // PJ.00
+#define SWITCHES_GPIO_PIN_C_L           LL_GPIO_PIN_11
 #define SWITCHES_C_INVERTED
 
 // SWD
 #define STORAGE_SWITCH_D
 #define SWITCHES_GPIO_REG_D_H           GPIOI
-#define SWITCHES_GPIO_PIN_D_H           LL_GPIO_PIN_3 // PJ.14
+#define SWITCHES_GPIO_PIN_D_H           LL_GPIO_PIN_3
 #define SWITCHES_D_INVERTED
 
 // function switches
@@ -240,6 +240,7 @@ USART6: EXTMODULE_USART
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
 
 // USB
+#define USB_GPIO_VBUS_OPEN_DRAIN
 #define USB_GPIO                        GPIOA
 #define USB_GPIO_VBUS                   GPIO_PIN(GPIOD, 13) // 
 #define USB_GPIO_SEL                    GPIO_PIN(GPIOH, 6)  // 
@@ -307,8 +308,9 @@ USART6: EXTMODULE_USART
 
 // Chargers (USB and wireless)
 // USB Chargers
-#define UCHARGER_GPIO               GPIO_PIN(GPIOJ, 5)  //
-#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOJ, 15) //
+#define UCHARGER_PW               GPIO_PIN(GPIOJ, 5)  //
+#define UCHARGER_GPIO               GPIO_PIN(GPIOJ, 15)  //
+//#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOJ, 15) //
 
 // Audio
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOB, 1) //
