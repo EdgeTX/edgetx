@@ -145,35 +145,6 @@ USART6: EXTMODULE_USART
 
 // function switches
 //SW1
-#define FUNCTION_SWITCH_1             SG
-#define SWITCHES_GPIO_REG_G           GPIOH
-#define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_11  // PH.11
-#define SWITCHES_G_CFS_IDX            0
-//SW2
-#define FUNCTION_SWITCH_2             SH
-#define SWITCHES_GPIO_REG_H           GPIOH
-#define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_9  // PH.09
-#define SWITCHES_H_CFS_IDX            1
-//SW3
-#define FUNCTION_SWITCH_3             SI
-#define SWITCHES_GPIO_REG_I           GPIOH
-#define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_10  // PH.10
-#define SWITCHES_I_CFS_IDX            2
-//SW4
-#define FUNCTION_SWITCH_4             SJ
-#define SWITCHES_GPIO_REG_J           GPIOH
-#define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_13  // PH.123
-#define SWITCHES_J_CFS_IDX            3
-//SW5
-#define FUNCTION_SWITCH_5             SK
-#define SWITCHES_GPIO_REG_K           GPIOH
-#define SWITCHES_GPIO_PIN_K           LL_GPIO_PIN_14  // PH.14
-#define SWITCHES_K_CFS_IDX            4
-//SW6
-#define FUNCTION_SWITCH_6             SL
-#define SWITCHES_GPIO_REG_L           GPIOH
-#define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_12  // PH.12
-#define SWITCHES_L_CFS_IDX            5
 
 // ADC
 #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_0      // PA.00 ADC1_INP16
@@ -181,21 +152,23 @@ USART6: EXTMODULE_USART
 #define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_1      // PA.01 ADC1_INP17
 #define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_2      // PA.02 ADC12_INP14
 
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_3      // PC.03 POT2 ADC12_INP13
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_2      // PC.02 POT1 ADC123_INP12
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_5      // PC.05 ADC12_INP8
+#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_0      // PC.03 POT2 ADC12_INP10
+#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PC.02 POT1 ADC123_INP11
+#define ADC_GPIO_PIN_POT3               LL_GPIO_PIN_5      // PC.02 POT1 ADC123_INP8
+#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PC.05 ADC12_INP13
 
 #define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV, ADC_GPIO_PIN_STICK_RH, ADC_GPIO_PIN_STICK_RV)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_BATT )
+#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 |ADC_GPIO_PIN_POT3| ADC_GPIO_PIN_BATT )
 
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_16
 #define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_15
 #define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_17
 #define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_14
 
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_13
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_12
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_8
+#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_10
+#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_11
+#define ADC_CHANNEL_POT3                LL_ADC_CHANNEL_8
+#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_13
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT  // ADC3 IMP17
 
 #define ADC_MAIN                        ADC1
@@ -268,7 +241,8 @@ USART6: EXTMODULE_USART
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOD, 13)  // PB.00
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOD, 13) // 
+#define USB_GPIO_SEL                    GPIO_PIN(GPIOH, 6)  // 
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
@@ -301,7 +275,6 @@ USART6: EXTMODULE_USART
 #define BACKLIGHT_TIMER_CHANNEL		      LL_TIM_CHANNEL_CH1
 #define BACKLIGHT_GPIO_AF               GPIO_AF1
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
 
 #define LED1_TEST                        GPIO_PIN(GPIOI,  12)
 #define LED2_TEST                        GPIO_PIN(GPIOI,  13)
@@ -356,7 +329,7 @@ USART6: EXTMODULE_USART
 
 // Haptic
 #define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOD, 12) // PA.15
+#define HAPTIC_GPIO                     GPIO_PIN(GPIOD, 12) //TIM4-CH1
 #define HAPTIC_GPIO_TIMER               TIM4
 #define HAPTIC_GPIO_AF                  GPIO_AF4
 #define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
@@ -385,9 +358,9 @@ USART6: EXTMODULE_USART
 #define STATUS_LEDS
 #define GPIO_LED_GPIO_ON              gpio_set
 #define GPIO_LED_GPIO_OFF             gpio_clear
-#define LED_RED_GPIO                  GPIO_PIN(GPIOA, 8)
-#define LED_GREEN_GPIO                GPIO_PIN(GPIOJ, 13)
-#define LED_BLUE_GPIO                 GPIO_PIN(GPIOG, 7)
+#define LED_RED_GPIO                  GPIO_PIN(GPIOI, 12)
+#define LED_GREEN_GPIO                GPIO_PIN(GPIOI, 14)
+#define LED_BLUE_GPIO                 GPIO_PIN(GPIOI, 13)
 
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 1)
@@ -473,21 +446,21 @@ USART6: EXTMODULE_USART
 //ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION
 // Rotary Encoder
-#define ROTARY_ENCODER_GPIO_A           GPIOA
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_6
-#define ROTARY_ENCODER_GPIO_B           GPIOA
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_7
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 6) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 6) & 0x02))
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_6
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_7
+#define ROTARY_ENCODER_GPIO_A           GPIOE
+#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_3
+#define ROTARY_ENCODER_GPIO_B           GPIOE
+#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_4
+#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 3) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 3) & 0x02))
+#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_3
+#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_4
 #if !defined(USE_EXTI9_5_IRQ)
   #define USE_EXTI9_5_IRQ
   #define EXTI9_5_IRQ_Priority  9
 #endif
-#define ROTARY_ENCODER_EXTI_PORT_A      LL_SYSCFG_EXTI_PORTA
-#define ROTARY_ENCODER_EXTI_PORT_B      LL_SYSCFG_EXTI_PORTA
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE6
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE7
+#define ROTARY_ENCODER_EXTI_PORT_A      LL_SYSCFG_EXTI_PORTE
+#define ROTARY_ENCODER_EXTI_PORT_B      LL_SYSCFG_EXTI_PORTE
+#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE3
+#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE4
 #define ROTARY_ENCODER_TIMER            TIM17
 #define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler

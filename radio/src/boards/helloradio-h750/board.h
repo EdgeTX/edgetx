@@ -30,6 +30,8 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
+#define FLASHSIZE                       0x800000
+#define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x10000
 #define BOOTLOADER_ADDRESS              0x08000000
 #define FIRMWARE_ADDRESS                0x90000000
