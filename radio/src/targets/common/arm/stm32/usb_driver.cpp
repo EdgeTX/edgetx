@@ -135,6 +135,12 @@ void usbInit()
 #else
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
 #endif
+
+#if defined(USB_GPIO_SEL)
+  gpio_init(USB_GPIO_SEL, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  //gpio_set(USB_GPIO_SEL);
+  gpio_clear(USB_GPIO_SEL);
+#endif
   // prime debounce state...
   usbPlugged();
 #endif
