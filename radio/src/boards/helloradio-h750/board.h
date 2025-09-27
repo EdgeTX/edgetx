@@ -125,8 +125,8 @@ void EXTERNAL_MODULE_OFF();
 // --- MOSFET ---- R1 --- MCU
 //                     |__ R2 --- GND
 //
-#define VBAT_DIV_R1       680  // kOhms
-#define VBAT_DIV_R2       158  // kOhms
+#define VBAT_DIV_R1       100  // kOhms
+#define VBAT_DIV_R2       56  // kOhms
 #define VBAT_MOSFET_DROP    0  // * 10mV
 
 // #define BATTERY_DIVIDER 1211 // = 2047 * 165k / (165k + 680k) * 10 / 3.3V
@@ -260,3 +260,4 @@ bool usbChargerLed();
 #endif
 
 #endif // _BOARD_H_
+

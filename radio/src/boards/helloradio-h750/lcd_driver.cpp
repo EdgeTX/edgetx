@@ -206,14 +206,14 @@ extern "C" void lcdInit()
 
   // hard reset
   lcdReset();
-/*
+
   // Init command start
   lcdWriteCommand( 0xFE );
   lcdWriteCommand( 0xEF );
 
   // Display orientation
   lcdWriteCommand( 0x36 );
-  lcdWriteData( 0xA0 );
+  lcdWriteData( 0x60 );
 
   // Color mode
   lcdWriteCommand( 0x3A );
@@ -320,8 +320,10 @@ extern "C" void lcdInit()
   lcdWriteCommand( 0x35 );
   
   // Exit sleep
-  lcdWriteCommand( 0x11 );*/
+  lcdWriteCommand( 0x11 );
 
+
+  /*
   lcdWriteCommand(0x11);     
 
   delay_ms(120);  
@@ -406,12 +408,11 @@ extern "C" void lcdInit()
 
   lcdWriteCommand(0x29);     
 
-  lcdWriteCommand(0x2C); 
-
-  // Init LCD RAM
-  memory_write((const uint16_t*)initialFrameBuffer, LCD_W * LCD_H);
+  lcdWriteCommand(0x2C); */
 
   lcdSetOn();
+  // Init LCD RAM
+  memory_write((const uint16_t*)initialFrameBuffer, LCD_W * LCD_H);
 
   lcdOnFunction = lcdSetOn;
   lcdOffFunction = lcdSetOff;
