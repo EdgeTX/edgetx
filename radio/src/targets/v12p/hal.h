@@ -271,17 +271,17 @@ USART6: EXTMODULE_USART
 //#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOJ, 9) // TIM2_CH1
-#define BACKLIGHT_TIMER                 TIM2
-#define BACKLIGHT_TIMER_CHANNEL		      LL_TIM_CHANNEL_CH1
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
+#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOI, 2) // TIM8_CH4
+#define BACKLIGHT_TIMER                 TIM8
+#define BACKLIGHT_TIMER_CHANNEL		      LL_TIM_CHANNEL_CH4
+#define BACKLIGHT_GPIO_AF               GPIO_AF3
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-#define LED1_TEST                        GPIO_PIN(GPIOI,  12)
-#define LED2_TEST                        GPIO_PIN(GPIOI,  13)
-#define LED3_TEST                        GPIO_PIN(GPIOI,  14)
+//#define LED1_TEST                        GPIO_PIN(GPIOI,  12)
+//#define LED2_TEST                        GPIO_PIN(GPIOI,  13)
+//#define LED3_TEST                        GPIO_PIN(GPIOI,  14)
 
-#define BACKLIGHT_TEST                   GPIO_PIN(GPIOI,  2)
+//#define BACKLIGHT_TEST                   GPIO_PIN(GPIOI,  2)
 
 // QSPI Flash
 #define QSPI_MAX_FREQ                   80000000U // 80 MHz
@@ -336,10 +336,10 @@ USART6: EXTMODULE_USART
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOD, 12) //TIM4-CH1
 #define HAPTIC_GPIO_TIMER               TIM4
-#define HAPTIC_GPIO_AF                  GPIO_AF4
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
+#define HAPTIC_GPIO_AF                  GPIO_AF2
+#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE;
+#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
+#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
 
 // LED Strip
 #define LED_STRIP_LENGTH                  7  // 6POS + 1 common (many leds in //)
