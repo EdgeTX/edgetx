@@ -626,16 +626,7 @@ TableLayout::TableLayout(QWidget * parent, int rowCount, const QStringList & hea
 
   int col = 0;
   foreach(QString text, headerLabels) {
-    QLabel *label = new QLabel();
-    label->setFrameShape(QFrame::Panel);
-    label->setFrameShadow(QFrame::Raised);
-    label->setMidLineWidth(0);
-    label->setAlignment(Qt::AlignCenter);
-    label->setMargin(5);
-    label->setText(text);
-    // if (!minimize)
-    //   label->setMinimumWidth(100);
-    gridWidget->addWidget(label, 0, col++);
+    addColumnHead(text, col++);
   }
 #endif
 }
@@ -715,6 +706,38 @@ void TableLayout::setColumnStretch(int col, int stretch)
 #if defined(TABLE_LAYOUT)
 #else
   gridWidget->setColumnStretch(col, stretch);
+#endif
+}
+
+void TableLayout::addColumnHead(QString text, int col, int colSpan)
+{
+  QLabel *label = new QLabel();
+  label->setFrameShape(QFrame::Panel);
+  label->setFrameShadow(QFrame::Raised);
+  label->setMidLineWidth(0);
+  label->setAlignment(Qt::AlignCenter);
+  label->setMargin(2);
+  label->setText(text);
+  // if (!minimize)
+  //   label->setMinimumWidth(100);
+  gridWidget->addWidget(label, 0, col, 1, colSpan);
+}
+
+void TableLayout::updateColumnHeading(int col, QString &text)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  QLayoutItem *item = gridWidget->itemAtPosition(0, col);
+
+  if (item) {
+    QWidget *widget = item->widget();
+    if (widget) {
+      QLabel *lbl = qobject_cast<QLabel*>(widget);
+      if (lbl) {
+        lbl->setText(text);
+      }
+    }
+  }
 #endif
 }
 

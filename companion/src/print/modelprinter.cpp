@@ -274,9 +274,9 @@ QString ModelPrinter::printCenterBeep()
   Board::Type board = getCurrentBoard();
   int inputs = Boards::getBoardCapability(board, Board::Inputs);
 
-  for (int i = 0; i < inputs + firmware->getCapability(RotaryEncoders); i++) {
+  for (int i = 0; i < inputs; i++) {
     if (model.beepANACenter & (0x01 << i)) {
-      RawSource src((i < inputs) ? SOURCE_TYPE_INPUT : SOURCE_TYPE_ROTARY_ENCODER, (i < inputs) ? i : inputs - i);
+      RawSource src(SOURCE_TYPE_INPUT, i + 1);
       strl << src.toString(&model, &generalSettings);
     }
   }
@@ -320,20 +320,6 @@ QString ModelPrinter::printGlobalVar(int flightModeIndex, int gvarIndex)
   }
   else {
     int num = fm.gvars[gvarIndex] - 1025;
-    if (num >= flightModeIndex) num++;
-    return tr("FM%1").arg(num);
-  }
-}
-
-QString ModelPrinter::printRotaryEncoder(int flightModeIndex, int reIndex)
-{
-  const FlightModeData & fm = model.flightModeData[flightModeIndex];
-
-  if (fm.rotaryEncoders[reIndex] <= 1024) {
-    return QString("%1").arg(fm.rotaryEncoders[reIndex]);
-  }
-  else {
-    int num = fm.rotaryEncoders[reIndex] - 1025;
     if (num >= flightModeIndex) num++;
     return tr("FM%1").arg(num);
   }

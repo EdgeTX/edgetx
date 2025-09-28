@@ -68,7 +68,7 @@ GeneralOptionsPanel::GeneralOptionsPanel(QWidget * parent, GeneralSettings & gen
     addParams();
   }
 
-  addLabel(tr("%1 Modes").arg(Boards::getRadioTypeString(board)));
+  addLabel(tr("%1 Modes").arg(Boards::getRadioModeString(board)));
   AutoCheckBox *fmDisable = new AutoCheckBox(this);
   fmDisable->setField(generalSettings.modelFMDisabled, this, true);
   params->append(fmDisable);

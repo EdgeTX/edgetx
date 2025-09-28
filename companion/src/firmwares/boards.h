@@ -465,7 +465,7 @@ class Boards
     static AbstractStaticItemModel * flexTypeItemModel();
 
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getRadioTypeString(Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getRadioModeString(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
