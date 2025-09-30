@@ -172,7 +172,7 @@ void RadioHardwarePage::build(Window* window)
   new InternalModuleWindow(window, grid);
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(STM32F4)
   new Subtitle(window, STR_EXTERNALRF);
   new ExternalModuleWindow(window, grid);
 #endif

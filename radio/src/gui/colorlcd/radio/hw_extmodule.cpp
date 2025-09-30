@@ -25,6 +25,7 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
+#if defined(STM32F4)
 ExternalModuleWindow::ExternalModuleWindow(Window *parent, FlexGridLayout& grid)
 {
   auto line = parent->newLine(grid);
@@ -39,3 +40,4 @@ ExternalModuleWindow::ExternalModuleWindow(Window *parent, FlexGridLayout& grid)
                restartModule(EXTERNAL_MODULE);
              });
 }
+#endif
