@@ -50,10 +50,6 @@ class GhostModuleConfigWindow : public Window
           COLOR_THEME_PRIMARY1_INDEX, FONT(L));
       etx_txt_color(menuLines[i][1]->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
-      etx_solid_bg(menuLines[i][1]->getLvObj(), COLOR_THEME_FOCUS_INDEX,
-                   LV_STATE_USER_1);
-      etx_txt_color(menuLines[i][1]->getLvObj(), COLOR_THEME_SECONDARY3_INDEX,
-                    LV_STATE_USER_1);
     }
   }
 
@@ -68,29 +64,33 @@ class GhostModuleConfigWindow : public Window
   void checkEvents() override
   {
     for (uint8_t i = 0; i < GHST_MENU_LINES; i += 1) {
-      if (reusableBuffer.ghostMenu.line[i].splitLine) {
-        menuLines[i][0]->setText(reusableBuffer.ghostMenu.line[i].menuText);
-        if (reusableBuffer.ghostMenu.line[i].lineFlags &
-            GHST_LINE_FLAGS_LABEL_SELECT)
-          lv_obj_add_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
+      menuLines[i][1]->setText("");
 
-        menuLines[i][1]->setText(reusableBuffer.ghostMenu.line[i].menuText +
-                                 reusableBuffer.ghostMenu.line[i].splitLine);
-        if (reusableBuffer.ghostMenu.line[i].lineFlags &
-            GHST_LINE_FLAGS_VALUE_SELECT)
-          lv_obj_add_state(menuLines[i][1]->getLvObj(), LV_STATE_USER_1);
+      if (reusableBuffer.ghostMenu.line[i].splitLine) {
+        if (reusableBuffer.ghostMenu.line[i].lineFlags & (GHST_LINE_FLAGS_LABEL_SELECT | GHST_LINE_FLAGS_VALUE_SELECT)) {
+          lv_obj_add_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
+        } else {
+          lv_obj_clear_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
+        }
+
+        if (reusableBuffer.ghostMenu.line[i].lineFlags & GHST_LINE_FLAGS_VALUE_SELECT) {
+          menuLines[i][0]->setText(reusableBuffer.ghostMenu.line[i].menuText +
+                                   reusableBuffer.ghostMenu.line[i].splitLine);
+        } else {
+          menuLines[i][0]->setText(reusableBuffer.ghostMenu.line[i].menuText);
+          menuLines[i][1]->setText(reusableBuffer.ghostMenu.line[i].menuText +
+                                   reusableBuffer.ghostMenu.line[i].splitLine);
+        }
       } else {
-        if (reusableBuffer.ghostMenu.line[i].lineFlags &
-                GHST_LINE_FLAGS_VALUE_EDIT &&
-            BLINK_ON_PHASE)
+        if (reusableBuffer.ghostMenu.line[i].lineFlags & GHST_LINE_FLAGS_VALUE_EDIT && BLINK_ON_PHASE)
           menuLines[i][0]->setText("");
         else
           menuLines[i][0]->setText(reusableBuffer.ghostMenu.line[i].menuText);
-        if (reusableBuffer.ghostMenu.line[i].lineFlags &
-            GHST_LINE_FLAGS_LABEL_SELECT)
-          lv_obj_add_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
 
-        menuLines[i][1]->setText("");
+        if (reusableBuffer.ghostMenu.line[i].lineFlags & GHST_LINE_FLAGS_LABEL_SELECT)
+          lv_obj_add_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
+        else
+          lv_obj_clear_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
       }
     }
   }
