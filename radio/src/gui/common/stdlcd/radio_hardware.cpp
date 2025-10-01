@@ -502,7 +502,7 @@ void menuRadioHardware(event_t event)
         }
         break;
 
-#if defined(STM32H2) || defined(STM32F4)
+#if defined(STM32F2) || defined(STM32F4)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
