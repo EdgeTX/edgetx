@@ -166,7 +166,7 @@ void menuModelLogicalSwitches(event_t event)
       drawSource(CSW_2ND_COLUMN, y, v1_val, attr1);
       if (horz == 1) {
         INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-        INCDEC_ENABLE_CHECK(isSourceAvailableInCustomSwitches);
+        INCDEC_ENABLE_CHECK(isSourceAvailable);
       }
       else {
         INCDEC_SET_FLAG(EE_MODEL);
