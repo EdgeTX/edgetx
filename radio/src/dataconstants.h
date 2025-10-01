@@ -660,7 +660,7 @@ enum HatsMode {
   HATSMODE_GLOBAL
 };
 
-#if defined(STM32H2) || defined(STM32F4)
+#if defined(STM32F2) || defined(STM32F4)
 enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,
