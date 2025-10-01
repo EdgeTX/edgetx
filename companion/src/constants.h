@@ -30,7 +30,7 @@
 #define CPN_MAX_EXPOS                  64
 #define CPN_MAX_CURVES                 32
 #define CPN_MAX_POINTS                 17
-#define CPN_MAX_GVARS                  9
+#define CPN_MAX_GVARS                  15 // 0, 9, 15
 #define CPN_MAX_ENCODERS               2  // rotary encoders
 #define CPN_MAX_CHNOUT                 32 // number of real output channels
 #define CPN_MAX_LOGICAL_SWITCHES       64 // number of custom switches
