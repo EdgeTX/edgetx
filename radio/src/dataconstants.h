@@ -669,12 +669,14 @@ enum HatsMode {
   HATSMODE_GLOBAL
 };
 
+#if defined(STM32F2) || defined(STM32F4)
 enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,
 
   UART_SAMPLE_MODE_MAX SKIP = UART_SAMPLE_MODE_ONEBIT
 };
+#endif
 
 // PXX2 constants
 #define PXX2_LEN_REGISTRATION_ID            8
