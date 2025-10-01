@@ -15,10 +15,15 @@ endif()
 if(DEFINED ENV{EDGETX_VERSION_TAG})
   set(VERSION_TAG "$ENV{EDGETX_VERSION_TAG}")
 else()
-  if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
-    set(VERSION_SUFFIX "$ENV{EDGETX_VERSION_SUFFIX}")
+  if(DEFINED ENV{EDGETX_VERSION_PREFIX})
+    set(VERSION_PREFIX "$ENV{EDGETX_VERSION_PREFIX}-")
   else()
-    set(VERSION_SUFFIX "selfbuild") # If not defined, set suffix to selfbuild
+    set(VERSION_PREFIX "pre-") # Default prefix for when not tagged
+  endif()
+  if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
+    set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
+  else()
+    set(VERSION_SUFFIX "-selfbuild") # Default suffix for when not in automated build environments
   endif()
 endif()
 
@@ -135,7 +140,7 @@ include(GenericDefinitions)
 if (VERSION_TAG)
   message(STATUS "EdgeTX ${VERSION_TAG} @ ${GIT_STR}")
 else()
-  message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
+  message(STATUS "EdgeTX ${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
 if(NATIVE_BUILD)
