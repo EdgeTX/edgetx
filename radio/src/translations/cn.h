@@ -1105,6 +1105,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_AUDIO_MUTE                  TR("自动静音","音频停播时自动静音")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC滤波器"
 #define TR_DEAD_ZONE                   "死区"
 #define TR_RTC_CHECK                   TR("检查时间电池", "检查时间驱动电池电压")
