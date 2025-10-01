@@ -2,11 +2,11 @@ if(WIN32)
     include(InstallRequiredSystemLibraries)
 
     # Determine architecture
-    if(CMAKE_CL_64)
+    # if(CMAKE_CL_64)
         set(MSVC_ARCH x64)
-    else()
-        set(MSVC_ARCH x86)
-    endif()
+    # else()
+    #     set(MSVC_ARCH x86)
+    # endif()
 
     # Attempt to find the vcredist executable
     find_program(MSVC_REDIST_EXE
