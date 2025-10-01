@@ -314,7 +314,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   memset((void*)&tab[ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE], HIDDEN_ROW, 3);
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(STM32F2) || defined(STM32F4))
   tab[ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE] = 0;
 #else
   tab[ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE] = HIDDEN_ROW;
@@ -502,12 +502,14 @@ void menuRadioHardware(event_t event)
         }
         break;
 
+#if defined(STM32F2) || defined(STM32F4)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
           restartModule(EXTERNAL_MODULE);
         }
         break;
+#endif
 
 #if defined(BLUETOOTH)
       case ITEM_RADIO_HARDWARE_BLUETOOTH_MODE:
