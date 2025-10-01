@@ -337,13 +337,6 @@ _DEFINE_CUSTOM_EXTI_IRQ_HANDLER(CUSTOM_EXTI_IRQ_NAME, CUSTOM_EXTI_IRQ_LINE, CUST
 
 #pragma GCC diagnostic pop // re-enable all warnings
 
-static bool _custom_has_handler(stm32_exti_handler_t* _handlers, uint8_t len)
-{
-  for (uint8_t i = 0; i < len; i++)
-    if (_handlers[i]) return true;
-  return false;
-}
-
 void stm32_exti_custom_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
 {
 #if defined(LL_APB2_GRP1_PERIPH_EXTI)
