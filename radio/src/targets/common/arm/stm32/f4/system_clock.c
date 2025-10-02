@@ -48,7 +48,10 @@
   * @param  None
   * @retval None
   */
-void SystemClock_Config(void)
+
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
+
+BOOTSTRAP void SystemClock_Config(void)
 {
   /* Enable HSE oscillator */
   LL_RCC_HSE_Enable();
