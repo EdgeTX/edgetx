@@ -729,7 +729,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   const char* title2 =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
-  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
   header->setTitle2(title2);
 
   body->setFlexLayout();

@@ -252,8 +252,8 @@ class ScriptLineButton : public ListLineButton
   const ScriptInternalData* runtimeData;
 };
 
-ModelMixerScriptsPage::ModelMixerScriptsPage() :
-    PageTab(STR_MENUCUSTOMSCRIPTS, ICON_MODEL_LUA_SCRIPTS)
+ModelMixerScriptsPage::ModelMixerScriptsPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 

@@ -38,6 +38,83 @@
  // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
+// Main menu
+#define TR_QM_MANAGE_MODELS             "Manage\nModels"
+#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_RADIO_SETUP               "Radio\nSetup"
+#define TR_QM_UI_SETUP                  "UI\nSetup"
+#define TR_QM_TOOLS                     "Tools"
+#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
+#define TR_QM_INPUTS                    "Inputs"
+#define TR_QM_MIXES                     "Mixes"
+#define TR_QM_OUTPUTS                   "Outputs"
+#define TR_QM_CURVES                    "Curves"
+#define TR_QM_GLOBAL_VARS               "Global\nVariables"
+#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
+#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
+#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_TELEM                     "Telemetry"
+#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
+#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_HARDWARE                  "Hardware"
+#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_THEMES                    "Themes"
+#define TR_QM_TOP_BAR                   "Top Bar"
+#define TR_QM_SCREEN_1                  "Screen 1"
+#define TR_QM_SCREEN_2                  "Screen 2"
+#define TR_QM_SCREEN_3                  "Screen 3"
+#define TR_QM_SCREEN_4                  "Screen 4"
+#define TR_QM_SCREEN_5                  "Screen 5"
+#define TR_QM_SCREEN_6                  "Screen 6"
+#define TR_QM_SCREEN_7                  "Screen 7"
+#define TR_QM_SCREEN_8                  "Screen 8"
+#define TR_QM_SCREEN_9                  "Screen 9"
+#define TR_QM_SCREEN_10                 "Screen 10"
+#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_APPS                      "Apps"
+#define TR_QM_STORAGE                   "Storage"
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
+#define TR_QM_CHAN_MON                  "Channel\nMonitor"
+#define TR_QM_LS_MON                    "LS\nMonitor"
+#define TR_QM_STATS                     "Statistics"
+#define TR_QM_DEBUG                     "Debug"
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_MANAGE_MODELS        "모델\n관리"
+#define TR_MAIN_MENU_MODEL_NOTES          "모델\n노트"
+#define TR_MAIN_MENU_CHANNEL_MONITOR      "채널\n모니터"
+#define TR_MONITOR_SWITCHES             "로직 스위치 모니터"
+#define TR_MAIN_MENU_MODEL_SETTINGS       "모델\n설정"
+#define TR_MAIN_MENU_RADIO_SETTINGS       "조종기\n설정"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_STATISTICS           "비행\n기록"
+#define TR_MAIN_MENU_ABOUT_EDGETX         "EdgeTX\n정보"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_MENU_THEMES                   "테마"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP                "헬리 설정"
+#define TR_MENUFLIGHTMODES                TRSA("주행 모드", "비행 모드")
+#define TR_MENUFLIGHTMODE                 TRSA("주행 모드", "비행 모드")
+#define TR_MENUINPUTS                   "입력"
+#define TR_MENULIMITS                   "출력"
+#define TR_MENUCURVES                   "커브"
+#define TR_MIXES                          "믹스"
+#define TR_MENU_GLOBAL_VARS               "전역 변수 설정"
+#define TR_MENULOGICALSWITCHES          "로직 스위치 목록"
+#define TR_MENUCUSTOMFUNC               "특수 기능"
+#define TR_MENUCUSTOMSCRIPTS            "사용자 스크립트"
+#define TR_MENUTELEMETRY                "테레메트리"
+#define TR_MENUSPECIALFUNCS             "전역 기능"
+#define TR_MENUTRAINER                  "트레이너"
+#define TR_HARDWARE                       "하드웨어"
+#define TR_USER_INTERFACE               "Top Bar"
+#define TR_SD_CARD                        "SD 카드"
+#define TR_DEBUG                          "디버그"
+#define TR_MENU_RADIO_SWITCHES          TR("스위치", "스위치 테스트")
+#define TR_MENUCALIBRATION              "입력 보정"
+#define TR_FUNCTION_SWITCHES              "사용자 설정 스위치"
+// End Main menu
+
 #define TR_MINUTE_SINGULAR            "분"
 #define TR_MINUTE_PLURAL1             "분"
 #define TR_MINUTE_PLURAL2             "분"
@@ -294,7 +371,6 @@
 #define TR_MS                         "ms"
 
 #define TR_SWITCH                         "스위치"
-#define TR_FUNCTION_SWITCHES              "사용자 설정 스위치"
 #define TR_FS_COLOR_LIST                  "사용자 정의", "끄기", "흰색", "빨강", "초록", "노랑", "주황", "파랑", "분홍"
 #define TR_GROUP                          "그룹"
 #define TR_GROUP_ALWAYS_ON                "항상 켜짐"
@@ -351,7 +427,6 @@
 #define TR_DELAYUP                        "상승 지연"
 #define TR_SLOWDOWN                       TR("느리게 내림", "하강 속도 조절")
 #define TR_SLOWUP                         "느리게 올림"
-#define TR_MIXES                          "믹스"
 #define TR_CV                             "CV"
 
  #if defined(PCBPL18)
@@ -445,19 +520,12 @@
  #define TR_MOVESTICKSPOTS               "스틱/포트 이동"
 #else
  #define TR_MENUTOSTART                TR_ENTER " -> 시작"
-#if defined(SURFACE_RADIO)
- #define TR_SETMIDPOINT                "포트 중앙 정렬"
- #define TR_MOVESTICKSPOTS             "스티어링/스로틀/포트/슬라이더 이동"
-#else
- #define TR_SETMIDPOINT                TR("스틱 중앙 정렬", "스틱/슬라이더 중앙 정렬")
- #define TR_MOVESTICKSPOTS             "스틱/포트 이동"
-#endif
+ #define TR_SETMIDPOINT                TRSA("포트 중앙 정렬", TR("스틱 중앙 정렬", "스틱/슬라이더 중앙 정렬"))
+ #define TR_MOVESTICKSPOTS             TRSA("스티어링/스로틀/포트/슬라이더 이동", "스틱/포트 이동")
  #define TR_MENUWHENDONE               TR_ENTER " -> 완료"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                       "데이터 없음"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -489,10 +557,7 @@
 #define TR_CH                         "채널"
 #define TR_MODEL                      "모델"
 
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "FM"
+#define TR_FM                          TRSA("DM", "FM")
 #endif
 
 #define TR_EEPROMLOWMEM                 "EEPROM 메모리 부족"
@@ -509,14 +574,10 @@
 #define TR_STORAGE_FORMAT               "스토리지 준비 중"
 #define TR_EEPROMOVERFLOW               "EEPROM 메모리 초과"
 #define TR_RADIO_SETUP                  "조종기 설정"
-#define TR_MENUTRAINER                  "트레이너"
-#define TR_MENUSPECIALFUNCS             "전역 기능"
 #define TR_MENUVERSION                  "버전 정보"
-#define TR_MENU_RADIO_SWITCHES          TR("스위치", "스위치 테스트")
 #define TR_MENU_RADIO_ANALOGS           TR("아날로그", "아날로그 테스트")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "보정된 아날로그"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW 아날로그 (5 Hz)"
-#define TR_MENUCALIBRATION              "입력 보정"
 #define TR_MENU_FSWITCH                 "사용자 스위치 설정"
 
 #if defined(COLORLCD)
@@ -531,25 +592,8 @@
 #define TR_MENUMODELSEL                 TR("모델 선택", "모델 선택 메뉴")
 #define TR_MENU_MODEL_SETUP             TR("설정", "모델 설정")
 
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES              "주행 모드"
-#define TR_MENUFLIGHTMODE               "주행 모드"
-#else
-#define TR_MENUFLIGHTMODES              "비행 모드"
-#define TR_MENUFLIGHTMODE               "비행 모드"
-#endif
-#define TR_MENUHELISETUP                "헬리 설정"
-#define TR_MENUINPUTS                   "입력"
-#define TR_MENULIMITS                   "출력"
-
-#define TR_MENUCURVES                   "커브"
 #define TR_MENUCURVE                    "커브 설정"
 #define TR_MENULOGICALSWITCH            "로직 스위치"
-#define TR_MENULOGICALSWITCHES          "로직 스위치 목록"
-#define TR_MENUCUSTOMFUNC               "특수 기능"
-#define TR_MENUCUSTOMSCRIPTS            "사용자 스크립트"
-
-#define TR_MENUTELEMETRY                "테레메트리"
 #define TR_MENUSTAT                     "통계"
 #define TR_MENUDEBUG                    "디버그"
 
@@ -557,7 +601,6 @@
 #define TR_MONITOR_CHANNELS2            "채널 모니터 9-16"
 #define TR_MONITOR_CHANNELS3            "채널 모니터 17-24"
 #define TR_MONITOR_CHANNELS4            "채널 모니터 25-32"
-#define TR_MONITOR_SWITCHES             "로직 스위치 모니터"
 #define TR_MONITOR_OUTPUT_DESC          "출력 상태"
 #define TR_MONITOR_MIXER_DESC           "믹서 상태"
 
@@ -733,8 +776,6 @@
 #define TR_V2                             "V2"
 #define TR_DURATION                       "지속 시간"
 #define TR_DELAY                          "지연"
-#define TR_SD_CARD                        "SD 카드"
-#define TR_SDHC_CARD                      "SD-HC 카드"
 
 #define TR_NO_SOUNDS_ON_SD                "SD 카드에 사운드 없음"
 #define TR_NO_MODELS_ON_SD                "SD 카드에 모델 없음"
@@ -755,7 +796,6 @@
 #define TR_SD_INFO                        "SD 카드 정보"
 #define TR_NA                             "N/A"
 
-#define TR_HARDWARE                       "하드웨어"
 #define TR_FORMATTING                     "포맷 중..."
 #define TR_TEMP_CALIB                     "온도 보정"
 #define TR_TIME                           "시간"
@@ -814,13 +854,11 @@
 #define TR_SD_SECTORS                     "섹터 수:"
 #define TR_SD_SIZE                        "용량:"
 #define TR_TYPE                           "유형"
-#define TR_GLOBAL_VARS                    "전역 변수"
 #define TR_GVARS                          "전역값"
 #define TR_GLOBAL_VAR                     "전역 변수"
-#define TR_MENU_GLOBAL_VARS               "전역 변수 설정"
 #define TR_OWN                            "사용자 설정"
 #define TR_DATE                           "날짜"
-#define TR_MONTHS                         { "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월" }
+#define TR_MONTHS                         "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"
 #define TR_ROTARY_ENCODER                 "로터리 인코더"
 
 #define TR_ROTARY_ENC_MODE                TR("인코더 모드", "로터리 인코더 모드")
@@ -943,7 +981,6 @@
 #define TR_RANGE_TEST                     "범위 테스트"
 #define TR_RECEIVER_OPTIONS               TR("수신기 옵션", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                      BUTTON("초기화")
-#define TR_DEBUG                          "디버그"
 #define TR_KEYS_BTN                       BUTTON("버튼")
 #define TR_ANALOGS_BTN                    BUTTON(TR("아날로그", "아날로그 입력"))
 #define TR_FS_BTN                         BUTTON(TR("사용자 스위치", TR_FUNCTION_SWITCHES))
@@ -1031,7 +1068,6 @@
 #define TR_TOUCH_PANEL                    "터치 패널:"
 #define TR_FILE_SIZE                      "파일 크기"
 #define TR_FILE_OPEN                      "강제로 열까요?"
-#define TR_TIMER_MODES                    {TR_OFFON, TR_START, TR_THROTTLE_LABEL, TR_THROTTLE_PERCENT_LABEL, TR_THROTTLE_START}
 
  // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME            "이름"
@@ -1055,7 +1091,7 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE     "서브트림 모드"
 #define TR_INVERTED                       "반전됨"
 
-#define TR_LSW_DESCRIPTIONS               { "비교 방식 또는 기능", "첫 번째 변수", "두 번째 변수 또는 상수", "두 번째 변수 또는 상수", "라인이 활성화되기 위한 추가 조건", "스위치 ON 유지 최소 시간", "ON 되기 위한 조건 지속 시간" }
+#define TR_LSW_DESCRIPTIONS               "비교 방식 또는 기능", "첫 번째 변수", "두 번째 변수 또는 상수", "두 번째 변수 또는 상수", "라인이 활성화되기 위한 추가 조건", "스위치 ON 유지 최소 시간", "ON 되기 위한 조건 지속 시간"
 
 #if defined(COLORLCD)
    // Horus layouts and widgets
@@ -1072,10 +1108,9 @@
  #define TR_ALIGNMENT                    "정렬"
  #define TR_ALIGN_LABEL                  "레이블 정렬"
  #define TR_ALIGN_VALUE                  "값 정렬"
- #define TR_ALIGN_OPTS                   { "왼쪽", "가운데", "오른쪽" }
+ #define TR_ALIGN_OPTS                   "왼쪽", "가운데", "오른쪽"
  #define TR_TEXT                         "텍스트"
  #define TR_COLOR                        "색상"
- #define TR_MAIN_VIEW_X                  "메인 뷰 X축"
  #define TR_PANEL1_BACKGROUND            "패널1 배경"
  #define TR_PANEL2_BACKGROUND            "패널2 배경"
  #define TR_WIDGET_GAUGE                 "게이지"
@@ -1135,11 +1170,9 @@
 #define TR_WIDGET_SETTINGS                "위젯 설정"
 #define TR_REMOVE_SCREEN                  "화면 제거"
 #define TR_SETUP_WIDGETS                  "위젯 구성"
-#define TR_USER_INTERFACE                 "사용자 인터페이스"
 #define TR_THEME                          "테마"
 #define TR_SETUP                          "설정"
 #define TR_LAYOUT                         "레이아웃"
-#define TR_ADD_MAIN_VIEW                  "메인 화면 추가"
 #define TR_TEXT_COLOR                     "텍스트 색상"
 #define TR_MENU_INPUTS                    STR_CHAR_INPUT "입력"
 #define TR_MENU_LUA                       STR_CHAR_LUA "Lua 스크립트"
@@ -1205,18 +1238,7 @@
 #define TR_CANCEL                         "취소"
 #define TR_EDIT_THEME                     "테마 편집"
 #define TR_DETAILS                        "세부 설정"
-#define TR_THEME_EDITOR                   "테마"
-// Main menu
-#define TR_MAIN_MENU_SELECT_MODEL         "모델\n선택"
-#define TR_MAIN_MENU_MANAGE_MODELS        "모델\n관리"
-#define TR_MAIN_MENU_MODEL_NOTES          "모델\n노트"
-#define TR_MAIN_MENU_CHANNEL_MONITOR      "채널\n모니터"
-#define TR_MAIN_MENU_MODEL_SETTINGS       "모델\n설정"
-#define TR_MAIN_MENU_RADIO_SETTINGS       "조종기\n설정"
-#define TR_MAIN_MENU_SCREEN_SETTINGS      "화면\n설정"
-#define TR_MAIN_MENU_RESET_TELEMETRY      "텔레메트리\n초기화"
-#define TR_MAIN_MENU_STATISTICS           "비행\n기록"
-#define TR_MAIN_MENU_ABOUT_EDGETX         "EdgeTX\n정보"
+
 // Voice in native language
 #define TR_VOICE_ENGLISH                "영어"
 #define TR_VOICE_CHINESE                "중국어"

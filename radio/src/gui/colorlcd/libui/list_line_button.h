@@ -23,7 +23,7 @@
 
 #include "button.h"
 #include "edgetx_types.h"
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ListLineButton : public ButtonBase
 {
@@ -113,10 +113,10 @@ class InputMixGroupBase : public Window
   std::list<InputMixButtonBase*> lines;
 };
 
-class InputMixPageBase : public PageTab
+class InputMixPageBase : public PageGroupItem
 {
  public:
-  InputMixPageBase(const char* title, EdgeTxIcon icon) : PageTab(title, icon) {}
+  InputMixPageBase(PageDef& pageDef) : PageGroupItem(pageDef) {}
 
  protected:
   std::list<InputMixButtonBase*> lines;

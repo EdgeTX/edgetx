@@ -2109,6 +2109,10 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     else
       header = new PageHeader(this, iconFile.c_str());
 
+#if defined(HARDWARE_TOUCH)
+    addCustomButton(0, 0, [=]() { onCancel(); });
+#endif
+    
     body = new Window(
         this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
     body->setWindowFlag(NO_FOCUS);
@@ -2122,10 +2126,6 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     lv_obj_set_scroll_dir(body->getLvObj(), scrollDir);
     if (showScrollBar)
       etx_scrollbar(body->getLvObj());
-
-#if defined(HARDWARE_TOUCH)
-    addBackButton();
-#endif
   }
 
   Window *getBody() { return body; }

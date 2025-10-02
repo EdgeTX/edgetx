@@ -407,7 +407,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
 class BacklightPage : public SubPage
 {
  public:
-  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_BACKLIGHT_LABEL, true)
+  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, true)
   {
     body->setFlexLayout();
 
@@ -584,7 +584,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     STR_RADIO_MENU_TABS, nullptr,
   },
   {
-    STR_THEME_EDITOR,
+    STR_MAIN_MENU_THEMES,
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
@@ -687,7 +687,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 class ManageModelsSetupPage : public SubPage
 {
  public:
-  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_RADIO_SETUP, STR_MANAGE_MODELS, true)
+  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MAIN_MENU_RADIO_SETTINGS, STR_MANAGE_MODELS, true)
   {
     body->setFlexLayout();
 
@@ -926,7 +926,7 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP, PAD_TINY) {}
+RadioSetupPage::RadioSetupPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
 
 void RadioSetupPage::build(Window* window)
 {
@@ -940,18 +940,18 @@ void RadioSetupPage::build(Window* window)
   // Sub-pages
   w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
 #if defined(AUDIO)
-    {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
+    {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
 #endif
 #if defined(VARIO)
-    {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
+    {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
 #endif
 #if defined(HAPTIC)
-    {STR_HAPTIC_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
+    {STR_HAPTIC_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
 #endif
-    {STR_ALARMS_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
+    {STR_ALARMS_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
     {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
-    {STR_GPS, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
-    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
+    {STR_GPS, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
+    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_MAIN_MENU_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
   }, BTN_H);
   y += w->height() + padding;

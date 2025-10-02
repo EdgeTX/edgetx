@@ -257,7 +257,7 @@ class RadioFunctionSwitch : public Window
 RadioFunctionSwitches::RadioFunctionSwitches() : Page(ICON_RADIO_HARDWARE)
 {
   header->setTitle(STR_HARDWARE);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 
   body->padAll(PAD_TINY);
   body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);

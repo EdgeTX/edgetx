@@ -343,8 +343,8 @@ class SwitchGroup : public Window
 
 ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
 {
-  header->setTitle(STR_MENU_MODEL_SETUP);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 
   body->padAll(PAD_TINY);
   body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);

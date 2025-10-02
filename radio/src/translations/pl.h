@@ -40,6 +40,83 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
+// Main menu
+#define TR_QM_MANAGE_MODELS             "Manage\nModels"
+#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_RADIO_SETUP               "Radio\nSetup"
+#define TR_QM_UI_SETUP                  "UI\nSetup"
+#define TR_QM_TOOLS                     "Tools"
+#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
+#define TR_QM_INPUTS                    "Inputs"
+#define TR_QM_MIXES                     "Mixes"
+#define TR_QM_OUTPUTS                   "Outputs"
+#define TR_QM_CURVES                    "Curves"
+#define TR_QM_GLOBAL_VARS               "Global\nVariables"
+#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
+#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
+#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_TELEM                     "Telemetry"
+#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
+#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_HARDWARE                  "Hardware"
+#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_THEMES                    "Themes"
+#define TR_QM_TOP_BAR                   "Top Bar"
+#define TR_QM_SCREEN_1                  "Screen 1"
+#define TR_QM_SCREEN_2                  "Screen 2"
+#define TR_QM_SCREEN_3                  "Screen 3"
+#define TR_QM_SCREEN_4                  "Screen 4"
+#define TR_QM_SCREEN_5                  "Screen 5"
+#define TR_QM_SCREEN_6                  "Screen 6"
+#define TR_QM_SCREEN_7                  "Screen 7"
+#define TR_QM_SCREEN_8                  "Screen 8"
+#define TR_QM_SCREEN_9                  "Screen 9"
+#define TR_QM_SCREEN_10                 "Screen 10"
+#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_APPS                      "Apps"
+#define TR_QM_STORAGE                   "Storage"
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
+#define TR_QM_CHAN_MON                  "Channel\nMonitor"
+#define TR_QM_LS_MON                    "LS\nMonitor"
+#define TR_QM_STATS                     "Statistics"
+#define TR_QM_DEBUG                     "Debug"
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer modeli"
+#define TR_MAIN_MENU_MODEL_NOTES        "Notatki modelu"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanałów"
+#define TR_MONITOR_SWITCHES    "MONITOR PRZEŁ. LOGICZNYCH"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia modelu"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia radia"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_STATISTICS         "Statystyki"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_MENU_THEMES                 "Szablony"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP       "USTAW HELI"
+#define TR_MENUFLIGHTMODES     TRSA("DRIVE MODES", "FAZY LOTU")
+#define TR_MENUFLIGHTMODE      TRSA("DRIVE MODE", "FAZA LOTU")
+#define TR_MENUINPUTS        "WEJŚCIA"
+#define TR_MENULIMITS        "WYJŚCIA"
+#define TR_MENUCURVES          "KRZYWE"
+#define TR_MIXES               "MIKSERY"
+#define TR_MENU_GLOBAL_VARS    "Zmienne Globalne"
+#define TR_MENULOGICALSWITCHES   TR("PRZEŁ. LOG.", "PRZEŁ. LOGICZNE")
+#define TR_MENUCUSTOMFUNC      "FUNKCJE SPECJALNE"
+#define TR_MENUCUSTOMSCRIPTS   "WŁASNE SKRYPTY"
+#define TR_MENUTELEMETRY       "TELEMETRIA"
+#define TR_MENUSPECIALFUNCS    "FUNKCJE GLOBALNE"
+#define TR_MENUTRAINER         "TRENER"
+#define TR_HARDWARE            "HARDWARE"
+#define TR_USER_INTERFACE               "Top Bar"
+#define TR_SD_CARD             "SD"
+#define TR_DEBUG                       "Debug"
+#define TR_MENU_RADIO_SWITCHES            TR("PRZEŁ","TEST PRZEŁ")
+#define TR_MENUCALIBRATION                "KALIBRACJA"
+#define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
+// End Main menu
+
 #define TR_MINUTE_SINGULAR     "minuta"
 #define TR_MINUTE_PLURAL1      "minuty"
 #define TR_MINUTE_PLURAL2      "minut"
@@ -289,7 +366,6 @@
 #define TR_WARN_5VOLTS                 "Uwaga: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_SWITCH              "Przełą"
-#define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -343,7 +419,6 @@
 #define TR_DELAYUP             "Opózn.(+)"
 #define TR_SLOWDOWN            "Spowoln.(-)"
 #define TR_SLOWUP              "Spowoln.(+)"
-#define TR_MIXES               "MIKSERY"
 #define TR_CV                  "Kr"
 #if defined(PCBPL18)
 #define TR_GV                  "ZG"
@@ -426,19 +501,12 @@
   #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/SUWAKI"
 #else
   #define TR_MENUTOSTART               TR_ENTER " = START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "USTAW ŚRODEK POT."
-  #define TR_MOVESTICKSPOTS            "RUSZAJ DR/TH/POT./OSIE"
-#else
-  #define TR_SETMIDPOINT               TR("USTAW ŚRODEK OSI", "CENTRUJ DRĄŻKI/SUWAKI")
-  #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/POT."
-#endif
+  #define TR_SETMIDPOINT               TRSA("USTAW ŚRODEK POT.", TR("USTAW ŚRODEK OSI", "CENTRUJ DRĄŻKI/SUWAKI"))
+  #define TR_MOVESTICKSPOTS            TRSA("RUSZAJ DR/TH/POT./OSIE", "RUSZAJ DRĄŻKI/POT.")
   #define TR_MENUWHENDONE              TR_ENTER " = KONIEC"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                     "Tx:\0Rx:"
-#define OFS_RX                        4
 #define TR_NODATA                     "Brak Danych"
 #define TR_US                         "us"
 #define TR_HZ                         "Hz"
@@ -468,10 +536,7 @@
 #define TR_PPM_TRAINER         "TR"
 #define TR_CH                  "KN"
 #define TR_MODEL               "MODEL"
-#if defined(SURFACE_RADIO)
-  #define TR_FM                "DM"
-#else
-  #define TR_FM                "FL"
+#define TR_FM                  TRSA("DM", "FL")
 #endif
 #define TR_EEPROMLOWMEM        "Mało pamięci EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Wciśnij guzik->ignoruj"
@@ -486,14 +551,10 @@
 #define TR_STORAGE_FORMAT      "Storage Preparation"
 #define TR_EEPROMOVERFLOW      "Przeładowany EEPROM"
 #define TR_RADIO_SETUP      "USTAWIENIA RADIA"
-#define TR_MENUTRAINER         "TRENER"
-#define TR_MENUSPECIALFUNCS    "FUNKCJE GLOBALNE"
 #define TR_MENUVERSION         "WERSJA"
-#define TR_MENU_RADIO_SWITCHES            TR("PRZEŁ","TEST PRZEŁ")
 #define TR_MENU_RADIO_ANALOGS             TR("WE-ANA","WEJŚCIA ANALOG.")
 #define TR_MENU_RADIO_ANALOGS_CALIB       "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS   "RAW ANALOGS (5 Hz)"
-#define TR_MENUCALIBRATION                "KALIBRACJA"
 #define TR_MENU_FSWITCH                   "USTAWIANE PRZEŁĄCZNIKI"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS     "Trymery => Subtrimy"
@@ -504,30 +565,12 @@
 #define TR_CHANNEL2FAILSAFE   "Channel=>Failsafe"
 #define TR_MENUMODELSEL        TR("WYB.MODEL","WYBÓR MODELU")
 #define TR_MENU_MODEL_SETUP    TR("USTAW","USTAW MODELU")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES   "DRIVE MODES"
-  #define TR_MENUFLIGHTMODE    "DRIVE MODE"
-#else
-  #define TR_MENUFLIGHTMODE    "FAZA LOTU"
-  #define TR_MENUFLIGHTMODES   "FAZY LOTU"
-#endif
-#define TR_MENUHELISETUP       "USTAW HELI"
-
-  #define TR_MENUINPUTS        "WEJŚCIA"
-  #define TR_MENULIMITS        "WYJŚCIA"
-
-#define TR_MENUCURVES          "KRZYWE"
 #define TR_MENUCURVE           "KRZYWA"
 #define TR_MENULOGICALSWITCH    "PRZEŁ. LOGICZNY"
-#define TR_MENULOGICALSWITCHES   TR("PRZEŁ. LOG.", "PRZEŁ. LOGICZNE")
-#define TR_MENUCUSTOMFUNC      "FUNKCJE SPECJALNE"
-#define TR_MENUCUSTOMSCRIPTS   "WŁASNE SKRYPTY"
-#define TR_MENUTELEMETRY       "TELEMETRIA"
 #define TR_MENUSTAT            "STAT"
 #define TR_MENUDEBUG           "DEBUG"
 #define TR_MONITOR_CHANNELS1   "MONITOR KANAŁÓW 1/8"
 #define TR_MONITOR_CHANNELS2   "MONITOR KANAŁÓW 9/16"
-#define TR_MONITOR_SWITCHES    "MONITOR PRZEŁ. LOGICZNYCH"
 #define TR_MONITOR_CHANNELS3   "MONITOR KANAŁÓW 17/24"
 #define TR_MONITOR_CHANNELS4   "MONITOR KANAŁÓW 25/32"
 #define TR_MONITOR_OUTPUT_DESC "Wyjścia"
@@ -686,8 +729,6 @@
 #define TR_V2                  "V2"
 #define TR_DURATION            "Czas trwania"
 #define TR_DELAY               "Opóźnienie"
-#define TR_SD_CARD             "SD"
-#define TR_SDHC_CARD           "SD-HC"
 #define TR_NO_SOUNDS_ON_SD     "Brak dźwięków na SD"
 #define TR_NO_MODELS_ON_SD     "Brak modelu na SD"
 #define TR_NO_BITMAPS_ON_SD    "Brak obrazków na SD"
@@ -706,7 +747,6 @@
 #define TR_REMOVED             " skasowane"
 #define TR_SD_INFO             "Informacje"
 #define TR_NA                  "[X]"
-#define TR_HARDWARE            "HARDWARE"
 #define TR_FORMATTING          "Formatowanie.."
 #define TR_TEMP_CALIB          "Temp. kalibracji"
 #define TR_TIME                "Czas"
@@ -761,13 +801,11 @@
 #define TR_SD_SECTORS          "Sektory :"
 #define TR_SD_SIZE             "Wielkość:"
 #define TR_TYPE                "Typ:"
-#define TR_GLOBAL_VARS         "Zmienne Globalne"
 #define TR_GVARS               "Zmien.Glob."
 #define TR_GLOBAL_VAR          "Zmienna Globalna"
-#define TR_MENU_GLOBAL_VARS      "ZMIENNE GLOBALNE"
 #define TR_OWN                 "Własność"
 #define TR_DATE                "Data"
-#define TR_MONTHS              { "Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru" }
+#define TR_MONTHS              "Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"
 #define TR_ROTARY_ENCODER      "R.E."
 #define TR_ROTARY_ENC_MODE     TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR    "MONITOR KANAŁÓW"
@@ -884,7 +922,6 @@
 #define TR_RANGE_TEST                  "Test zasięgu"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
 #define TR_RESET_BTN           "[Reset]"
-#define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogi"))
 #define TR_FS_BTN                      BUTTON(TR("Ust. łącz.", TR_FUNCTION_SWITCHES ))
@@ -972,7 +1009,6 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nazwa"
@@ -997,7 +1033,7 @@
 #define TR_INVERTED                    "Inverted"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS            "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1014,10 +1050,9 @@
   #define TR_ALIGNMENT                 "Wyrównaj"
   #define TR_ALIGN_LABEL               "Wyrównaj przywieszka"
   #define TR_ALIGN_VALUE               "Wyrównać wartość"
-  #define TR_ALIGN_OPTS                { "Lewy", "Centrum", "Prawe" }
+  #define TR_ALIGN_OPTS                "Lewy", "Centrum", "Prawe"
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Kolor"
-  #define TR_MAIN_VIEW_X               "Main view XX"
   #define TR_PANEL1_BACKGROUND         "Panel1 tło"
   #define TR_PANEL2_BACKGROUND         "Panel2 tło"
   #define TR_WIDGET_GAUGE              "Wskaźnik"
@@ -1082,11 +1117,9 @@
 #define TR_WIDGET_SETTINGS     "Ustawienia widżetu"
 #define TR_REMOVE_SCREEN       "Usuń ekran"
 #define TR_SETUP_WIDGETS       "Ustaw widżety"
-#define TR_USER_INTERFACE      "Interfejs użytkownika"
 #define TR_THEME               "Szablon"
 #define TR_SETUP               "Ustawienia"
 #define TR_LAYOUT              "Układ"
-#define TR_ADD_MAIN_VIEW       "Dodaj główny widok"
 #define TR_TEXT_COLOR          "Kolor tekstu"
 
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Wejścia"
@@ -1155,20 +1188,6 @@
 #define TR_CANCEL                       "Anuluj"
 #define TR_EDIT_THEME                   "Edytuj szablon"
 #define TR_DETAILS                      "Detale"
-#define TR_THEME_EDITOR                 "Szablony"
-
-// Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Wybierz\nmodel"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer\nmodeli"
-#define TR_MAIN_MENU_MODEL_NOTES        "Notatki\nmodelu"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanałów"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia\nmodelu"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia\nradia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Ustawienia\nekranów"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\ntelemetrii"
-#define TR_MAIN_MENU_STATISTICS         "Statystyki"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "O\nEdgeTX"
-// End Main menu
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "Angielski"

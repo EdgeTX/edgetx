@@ -41,6 +41,83 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
+// Main menu
+#define TR_QM_MANAGE_MODELS             "Manage\nModels"
+#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_RADIO_SETUP               "Radio\nSetup"
+#define TR_QM_UI_SETUP                  "UI\nSetup"
+#define TR_QM_TOOLS                     "Tools"
+#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
+#define TR_QM_INPUTS                    "Inputs"
+#define TR_QM_MIXES                     "Mixes"
+#define TR_QM_OUTPUTS                   "Outputs"
+#define TR_QM_CURVES                    "Curves"
+#define TR_QM_GLOBAL_VARS               "Global\nVariables"
+#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
+#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
+#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_TELEM                     "Telemetry"
+#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
+#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_HARDWARE                  "Hardware"
+#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_THEMES                    "Themes"
+#define TR_QM_TOP_BAR                   "Top Bar"
+#define TR_QM_SCREEN_1                  "Screen 1"
+#define TR_QM_SCREEN_2                  "Screen 2"
+#define TR_QM_SCREEN_3                  "Screen 3"
+#define TR_QM_SCREEN_4                  "Screen 4"
+#define TR_QM_SCREEN_5                  "Screen 5"
+#define TR_QM_SCREEN_6                  "Screen 6"
+#define TR_QM_SCREEN_7                  "Screen 7"
+#define TR_QM_SCREEN_8                  "Screen 8"
+#define TR_QM_SCREEN_9                  "Screen 9"
+#define TR_QM_SCREEN_10                 "Screen 10"
+#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_APPS                      "Apps"
+#define TR_QM_STORAGE                   "Storage"
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
+#define TR_QM_CHAN_MON                  "Channel\nMonitor"
+#define TR_QM_LS_MON                    "LS\nMonitor"
+#define TR_QM_STATS                     "Statistics"
+#define TR_QM_DEBUG                     "Debug"
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Hantera modell"
+#define TR_MAIN_MENU_MODEL_NOTES        "Modell- anteckn."
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal- monitor"
+#define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Modell- inställn."
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio- inställn."
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_STATISTICS         "Statistik"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Om EdgeTX"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_MENU_THEMES                 "TEMAN"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP                "HELIKOPTER"
+#define TR_MENUFLIGHTMODES              TRSA("KÖRLÄGEN", "FLYGLÄGEN")
+#define TR_MENUFLIGHTMODE               TRSA("KÖRLÄGE", "FLYGLÄGE")
+#define TR_MENUINPUTS                   "INPUT"
+#define TR_MENULIMITS                   "OUTPUT"
+#define TR_MENUCURVES                   "KURVOR"
+#define TR_MIXES                        "MIXAR"
+#define TR_MENU_GLOBAL_VARS             "Globala Variabler"
+#define TR_MENULOGICALSWITCHES          "LOGISKA BRYTARE"
+#define TR_MENUCUSTOMFUNC               "SPECIALFUNKTIONER"
+#define TR_MENUCUSTOMSCRIPTS            "SKRIPT"
+#define TR_MENUTELEMETRY                "TELEMETRI"
+#define TR_MENUSPECIALFUNCS             "GLOBALA FUNKTIONER"
+#define TR_MENUTRAINER                  "LÄRARE"
+#define TR_HARDWARE                     "HÅRDVARA"
+#define TR_USER_INTERFACE               "Top Bar"
+#define TR_SD_CARD                      "SD-KORT"
+#define TR_DEBUG                        "Debug"
+#define TR_MENU_RADIO_SWITCHES          TR("BRYTARE","TEST AV BRYTARE")
+#define TR_MENUCALIBRATION              "KALIBRERING"
+#define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
+// End Main menu
+
 #define TR_MINUTE_SINGULAR              "minut"
 #define TR_MINUTE_PLURAL1               "minuter"
 #define TR_MINUTE_PLURAL2               "minuter"
@@ -303,7 +380,6 @@
 #define TR_WARN_5VOLTS                  "VARNING: Spänning ut är 5 volt"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
-#define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
 #define TR_FS_COLOR_LIST                "Anpassad","Av","Vit","Röd","Grön","Gul","Orange","Blå","Rosa"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
@@ -357,7 +433,6 @@
 #define TR_DELAYUP                      TR("Dröj upp","Fördröj upp")
 #define TR_SLOWDOWN                     TR("Trög ner","Långsam ner")
 #define TR_SLOWUP                       TR("Trög upp","Långsam upp")
-#define TR_MIXES                        "MIXAR"
 #define TR_CV                           "KU"
 
 #if defined(PCBPL18)
@@ -443,19 +518,12 @@
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #else
   #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT                "CENTRERA VRED"
-  #define TR_MOVESTICKSPOTS             "RÖR ST/GA/VRED/AXLAR"
-#else
-  #define TR_SETMIDPOINT                TR("CENTRERA AXLAR", "CENTRERA AXLAR/REGLAGE")
-  #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
-#endif
+  #define TR_SETMIDPOINT                TRSA("CENTRERA VRED", TR("CENTRERA AXLAR", "CENTRERA AXLAR/REGLAGE"))
+  #define TR_MOVESTICKSPOTS             TRSA("RÖR ST/GA/VRED/AXLAR", "RÖR AXLAR/VRED")
   #define TR_MENUWHENDONE               TR_ENTER " AVSLUTAR"
 #define TR_AXISDIR                      "AXELRIKTNING"
 #define TR_MENUAXISDIR                  TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                        "Tx:\0Rx:"
-#define OFS_RX                          4
 #define TR_NODATA                       "DATA SAKNAS"
 #define TR_US                           "us"
 #define TR_HZ                           "Hz"
@@ -486,10 +554,7 @@
 #define TR_PPM_TRAINER                  "TR"
 #define TR_CH                           "KA"
 #define TR_MODEL                        "MODELL"
-#if defined(SURFACE_RADIO)
-#define TR_FM                           "KL"
-#else
-#define TR_FM                           "FL"
+#define TR_FM                           TRSA("KL", "FL")
 #endif
 #define TR_EEPROMLOWMEM                 "Minnesbrist"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "Avbryt med valfri knapp"
@@ -504,14 +569,10 @@
 #define TR_STORAGE_FORMAT               "SD-Lagring förbereds"
 #define TR_EEPROMOVERFLOW               "Minnesfel"
 #define TR_RADIO_SETUP                  "INSTÄLLNINGAR"
-#define TR_MENUTRAINER                  "LÄRARE"
-#define TR_MENUSPECIALFUNCS             "GLOBALA FUNKTIONER"
 #define TR_MENUVERSION                  "VERSION"
-#define TR_MENU_RADIO_SWITCHES          TR("BRYTARE","TEST AV BRYTARE")
 #define TR_MENU_RADIO_ANALOGS           TR("ANALOGA", "TEST AV ANALOGA")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
-#define TR_MENUCALIBRATION              "KALIBRERING"
 #define TR_MENU_FSWITCH                 "ANPASSNINGSBARA BRYTARE"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "[Spara trimvärden]"
@@ -522,31 +583,14 @@
 #define TR_CHANNEL2FAILSAFE             "Kanal=>Failsafe"
 #define TR_MENUMODELSEL                 TR("MODELL","VÄLJ MODELL")
 #define TR_MENU_MODEL_SETUP             TR("MODELLINSTÄLLNING","MODELLINSTÄLLNINGAR")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES            "KÖRLÄGEN"
-  #define TR_MENUFLIGHTMODE             "KÖRLÄGE"
-#else
-  #define TR_MENUFLIGHTMODE             "FLYGLÄGE"
-  #define TR_MENUFLIGHTMODES            "FLYGLÄGEN"
-#endif
-#define TR_MENUHELISETUP                "HELIKOPTER"
-
-#define TR_MENUINPUTS                   "INPUT"
-#define TR_MENULIMITS                   "OUTPUT"
-#define TR_MENUCURVES                   "KURVOR"
 #define TR_MENUCURVE                    "KURVA"
 #define TR_MENULOGICALSWITCH            "LOGISK BRYTARE"
-#define TR_MENULOGICALSWITCHES          "LOGISKA BRYTARE"
-#define TR_MENUCUSTOMFUNC               "SPECIALFUNKTIONER"
-#define TR_MENUCUSTOMSCRIPTS            "SKRIPT"
-#define TR_MENUTELEMETRY                "TELEMETRI"
 #define TR_MENUSTAT                     "STATISTIK"
 #define TR_MENUDEBUG                    "DEBUG"
 #define TR_MONITOR_CHANNELS1            "KANALÖVERSIKT - KA 1-8"
 #define TR_MONITOR_CHANNELS2            "KANALÖVERSIKT - KA 9-16"
 #define TR_MONITOR_CHANNELS3            "KANALÖVERSIKT - KA 17-24"
 #define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KA 25-32"
-#define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
 #define TR_MONITOR_OUTPUT_DESC          "Utdata"
 #define TR_MONITOR_MIXER_DESC           "Mixar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")
@@ -703,8 +747,6 @@
 #define TR_V2                           "Värde 2"
 #define TR_DURATION                     "Varaktighet"
 #define TR_DELAY                        "Fördröjning"
-#define TR_SD_CARD                      "SD-KORT"
-#define TR_SDHC_CARD                    "SD/HC-kort"
 #define TR_NO_SOUNDS_ON_SD              "Inga ljud på SD"
 #define TR_NO_MODELS_ON_SD              "Inga modeller på SD"
 #define TR_NO_BITMAPS_ON_SD             "Inga ikoner på SD"
@@ -723,7 +765,6 @@
 #define TR_REMOVED                      " borttagen"
 #define TR_SD_INFO                      "Information"
 #define TR_NA                           "N/A"
-#define TR_HARDWARE                     "HÅRDVARA"
 #define TR_FORMATTING                   "Formaterar..."
 #define TR_TEMP_CALIB                   "Temp. kalib."
 #define TR_TIME                         "Tid"
@@ -778,13 +819,11 @@
 #define TR_SD_SECTORS                   "Sektorer:"
 #define TR_SD_SIZE                      "Strl:"
 #define TR_TYPE                         "Typ"
-#define TR_GLOBAL_VARS                  "Globala variabler"
 #define TR_GVARS                        "GLOBAL V."
 #define TR_GLOBAL_VAR                   "Global variabel"
-#define TR_MENU_GLOBAL_VARS             "GLOBALA VARIABLER"
 #define TR_OWN                          "Egen"
 #define TR_DATE                         "Datum"
-#define TR_MONTHS                       { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
+#define TR_MONTHS                       "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"
 #define TR_ROTARY_ENCODER               "R.H."
 #define TR_ROTARY_ENC_MODE              TR("Rullhjulsinst.","Rullhjulsinställning")
 #define TR_CHANNELS_MONITOR             "Kanalöversikt"
@@ -903,7 +942,6 @@
 #define TR_RANGE_TEST                   "Test av radiolänkkvalitet (begränsad signalstyrka)"
 #define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGARALTERNATIV")
 #define TR_RESET_BTN                    TR(BUTTON("Nolla"), BUTTON("Återställ"))
-#define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
 #define TR_FS_BTN                       BUTTON(TR("Anp. bryt.", TR_FUNCTION_SWITCHES))
@@ -998,7 +1036,6 @@
 #define TR_TOUCH_PANEL                  "Pekskärm:"
 #define TR_FILE_SIZE                    "Filstorlek"
 #define TR_FILE_OPEN                    "Öppna ändå?"
-#define TR_TIMER_MODES                  {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME          "Namn"
@@ -1023,7 +1060,7 @@
 #define TR_INVERTED                     "Inverterad"
 
 // Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS             { "Jämförelsetyp eller funktion", "Första variabeln", "Andra variabeln eller konstant", "Andra variabeln eller konstant", "Ytterligare villkor för att raden ska aktiveras", "Minsta tid PÅ för den logiska brytaren", "Minsta varaktighet för SANT för att brytaren ska slås PÅ" }
+#define TR_LSW_DESCRIPTIONS             "Jämförelsetyp eller funktion", "Första variabeln", "Andra variabeln eller konstant", "Andra variabeln eller konstant", "Ytterligare villkor för att raden ska aktiveras", "Minsta tid PÅ för den logiska brytaren", "Minsta varaktighet för SANT för att brytaren ska slås PÅ"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1040,10 +1077,9 @@
   #define TR_ALIGNMENT                  "Justering"
   #define TR_ALIGN_LABEL                "Justera etikett"
   #define TR_ALIGN_VALUE                "Justera värde"
-  #define TR_ALIGN_OPTS                 { "Vänster", "Mitten", "Höger" }
+  #define TR_ALIGN_OPTS                 "Vänster", "Mitten", "Höger"
   #define TR_TEXT                       "Text"
   #define TR_COLOR                      "Färg"
-  #define TR_MAIN_VIEW_X                "Huvudvy XX"
   #define TR_PANEL1_BACKGROUND          "Panel 1 bakgrund"
   #define TR_PANEL2_BACKGROUND          "Panel 2 bakgrund"
   #define TR_WIDGET_GAUGE               "Mätare"
@@ -1114,11 +1150,9 @@
   #define TR_SETUP_WIDGETS              "Konfig. widgets"
 #endif
 
-#define TR_USER_INTERFACE               "Användargränssnitt"
 #define TR_THEME                        "Tema"
 #define TR_SETUP                        "Konfigurera"
 #define TR_LAYOUT                       "Layout"
-#define TR_ADD_MAIN_VIEW                "Lägg till huvudvy"
 #define TR_TEXT_COLOR                   "Textfärg"
 
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Input"
@@ -1189,20 +1223,6 @@
 #define TR_CANCEL                       "Avbryt"
 #define TR_EDIT_THEME                   "REDIGERA TEMA"
 #define TR_DETAILS                      "Temainformation"
-#define TR_THEME_EDITOR                 "TEMAN"
-
-// Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Hantera\nmodell"
-#define TR_MAIN_MENU_MODEL_NOTES        "Modell-\nanteckn."
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal-\nmonitor"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Modell-\ninställn."
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio-\ninställn."
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skärm-\ninställn."
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Återställ\ntelemetri"
-#define TR_MAIN_MENU_STATISTICS         "Statistik"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Om\nEdgeTX"
-// End Main menu
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "Engelska"

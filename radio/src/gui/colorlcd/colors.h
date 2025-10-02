@@ -24,6 +24,7 @@
 #include <lvgl/lvgl.h>
 
 #include "libopenui_defines.h"
+#include "edgetx_types.h"
 
 // TODO common code, not in target
 enum LcdColorIndex {

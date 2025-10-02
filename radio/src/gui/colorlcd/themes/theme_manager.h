@@ -180,8 +180,33 @@ class HeaderDateTime : public Window
 class HeaderIcon : public StaticIcon
 {
  public:
-  HeaderIcon(Window *parent, EdgeTxIcon icon);
-  HeaderIcon(Window *parent, const char* iconFile);
+  HeaderIcon(Window *parent, EdgeTxIcon icon, std::function<void()> action = nullptr);
+  HeaderIcon(Window *parent, const char* iconFile, std::function<void()> action = nullptr);
+
+  void setIcon(EdgeTxIcon newIcon) { icon->setIcon(newIcon); }
+
+ protected:
+  std::function<void()> action;
+  StaticIcon* icon = nullptr;
+
+  void onClicked() override
+  {
+    if (action) action();
+  }
+};
+
+class HeaderBackIcon : public StaticIcon
+{
+ public:
+  HeaderBackIcon(Window *parent, std::function<void()> action = nullptr);
+
+ protected:
+  std::function<void()> action;
+
+  void onClicked() override
+  {
+    if (action) action();
+  }
 };
 
 class UsbSDConnected : public Window
