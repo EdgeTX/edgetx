@@ -34,11 +34,13 @@
 
 Gyro gyro;
 
+#if !defined(IMU_ICM4207C)
 static float deg2RESX(float deg)
 {
   // [-90 : 90] -> [-RESX : RESX]
   return (deg * float(RESX)) / 90.0;
 }
+#endif
 
 void Gyro::wakeup()
 {
