@@ -424,6 +424,8 @@
 #define TR_SLOWDOWN                    "Langs.Dn"
 #define TR_SLOWUP                      "Langs.Up"
 #define TR_CV                          "KV"
+#define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #if defined(PCBPL18)
 #define TR_GV                          "GV"
 #else
@@ -541,7 +543,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODELL"
 #define TR_FM                          TRSA("DM", "FP")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM voll"
 #define TR_THROTTLE_NOT_IDLE           "Gas nicht Null!"
 #define TR_ALARMSDISABLED              "Alarme ausgeschaltet"
@@ -1138,8 +1139,10 @@
 #define TR_MENU_TRIMS                  STR_CHAR_TRIM "Trimmung"
 #define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Schalter"
 #define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Log. Schalter"
+#define TR_MENU_VIRTUAL_SWITCHES       STR_CHAR_SWITCH "Virt. Schalter"
 #define TR_MENU_TRAINER                STR_CHAR_TRAINER "Trainer"
 #define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Kanäle"
+#define TR_MENU_VCONTROL               "Virtuals"
 #define TR_MENU_GVARS                  STR_CHAR_SLIDER "Glob. Vars"
 #define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "Telemetrie"
 #define TR_MENU_DISPLAY                "TELM-SEITEN"
