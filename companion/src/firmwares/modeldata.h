@@ -125,19 +125,6 @@ class ModelData {
   public:
     ModelData();
     ModelData(const ModelData & src);
-    ModelData & operator = (const ModelData & src);
-
-    void convert(RadioDataConversionState & cstate);
-
-    ExpoData * insertInput(const int idx);
-    void removeInput(const int idx, bool clearName = true);
-
-    bool isInputValid(const unsigned int idx) const;
-    bool hasExpos(uint8_t inputIdx) const;
-    bool hasMixes(uint8_t output) const;
-
-    QVector<const ExpoData *> expos(int input) const;
-    QVector<const MixData *> mixes(int channel) const;
 
     char      semver[8 + 1];
     bool      used;
@@ -243,6 +230,22 @@ class ModelData {
     unsigned int usbJoystickCircularCut;
     USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
+    QByteArray checklistData;
+
+    ModelData & operator = (const ModelData & src);
+
+    void convert(RadioDataConversionState & cstate);
+
+    ExpoData * insertInput(const int idx);
+    void removeInput(const int idx, bool clearName = true);
+
+    bool isInputValid(const unsigned int idx) const;
+    bool hasExpos(uint8_t inputIdx) const;
+    bool hasMixes(uint8_t output) const;
+
+    QVector<const ExpoData *> expos(int input) const;
+    QVector<const MixData *> mixes(int channel) const;
+
     void clear();
     bool isEmpty() const;
     void setDefaultInputs(const GeneralSettings & settings);
@@ -283,7 +286,9 @@ class ModelData {
     bool isFunctionSwitchSourceAllowed(int index) const;
 
     const Board::SwitchType getSwitchType(int sw, const GeneralSettings & gs) const;
-  
+
+    QString getChecklistFilename() const;
+
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,
       REF_UPD_ACT_SHIFT,

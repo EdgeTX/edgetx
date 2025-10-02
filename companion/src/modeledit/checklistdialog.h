@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CHECKLISTDIALOG_H_
-#define _CHECKLISTDIALOG_H_
+#pragma once
 
 #include "modeldata.h"
 
@@ -34,21 +33,19 @@ class ChecklistDialog : public QDialog {
   Q_OBJECT
 
 public:
-  ChecklistDialog(QWidget *parent, const ModelData * model);
+  ChecklistDialog(QWidget *parent, ModelData * model);
   ~ChecklistDialog();
+
+signals:
+  void updated();
 
 private slots:
   void import();
   void update();
-  void changed();
-  void cursorChanged();
 
 private:
   Ui::ChecklistDialog *ui;
-  QString mModelChecklist;
-  QString mChecklistFolder;
-  QString readFile(const QString & filepath, const bool exists);
+  ModelData *model;
   bool mDirty;
+  QString readFile(const QString & filepath, const bool exists);
 };
-
-#endif // _CHECKLISTDIALOG_H_
