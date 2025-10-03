@@ -39,80 +39,80 @@
 #define TR_USE_PLURAL2 INT_MAX
 
 // Main menu
-#define TR_QM_MANAGE_MODELS             "Manage\nModels"
-#define TR_QM_MODEL_SETUP               "Model\nSetup"
-#define TR_QM_RADIO_SETUP               "Radio\nSetup"
-#define TR_QM_UI_SETUP                  "UI\nSetup"
-#define TR_QM_TOOLS                     "Tools"
-#define TR_QM_GEN_SETTINGS              "General\nSettings"
-#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
-#define TR_QM_INPUTS                    "Inputs"
-#define TR_QM_MIXES                     "Mixes"
-#define TR_QM_OUTPUTS                   "Outputs"
-#define TR_QM_CURVES                    "Curves"
-#define TR_QM_GLOBAL_VARS               "Global\nVariables"
-#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
-#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
-#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
-#define TR_QM_TELEM                     "Telemetry"
-#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
-#define TR_QM_TRAINER                   "Trainer"
-#define TR_QM_HARDWARE                  "Hardware"
-#define TR_QM_ABOUT                     "About\nEdgeTX"
-#define TR_QM_THEMES                    "Themes"
-#define TR_QM_TOP_BAR                   "Top Bar"
-#define TR_QM_SCREEN_1                  "Screen 1"
-#define TR_QM_SCREEN_2                  "Screen 2"
-#define TR_QM_SCREEN_3                  "Screen 3"
-#define TR_QM_SCREEN_4                  "Screen 4"
-#define TR_QM_SCREEN_5                  "Screen 5"
-#define TR_QM_SCREEN_6                  "Screen 6"
-#define TR_QM_SCREEN_7                  "Screen 7"
-#define TR_QM_SCREEN_8                  "Screen 8"
-#define TR_QM_SCREEN_9                  "Screen 9"
-#define TR_QM_SCREEN_10                 "Screen 10"
-#define TR_QM_ADD_SCREEN                "Add\nScreen"
-#define TR_QM_APPS                      "Apps"
-#define TR_QM_STORAGE                   "Storage"
-#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
-#define TR_QM_CHAN_MON                  "Channel\nMonitor"
-#define TR_QM_LS_MON                    "LS\nMonitor"
-#define TR_QM_STATS                     "Statistics"
+#define TR_QM_MANAGE_MODELS             "管理\n模型"
+#define TR_QM_MODEL_SETUP               "模型\n设置"
+#define TR_QM_RADIO_SETUP               "系统\n设置"
+#define TR_QM_UI_SETUP                  "界面\n设置"
+#define TR_QM_TOOLS                     "工具\nAPP"
+#define TR_QM_GEN_SETTINGS              "常规\n设置"
+#define TR_QM_FLIGHT_MODES              TRSA("驾驶\n模式", "飞行\n模式")
+#define TR_QM_INPUTS                    "输入"
+#define TR_QM_MIXES                     "混控"
+#define TR_QM_OUTPUTS                   "输出"
+#define TR_QM_CURVES                    "曲线"
+#define TR_QM_GLOBAL_VARS               "全局\n变量"
+#define TR_QM_LOGICAL_SW                "逻辑\n开关"
+#define TR_QM_SPEC_FUNC                 "特殊\n功能"
+#define TR_QM_CUSTOM_LUA                "自定义\nLUA脚本"
+#define TR_QM_TELEM                     "遥测\n回传"
+#define TR_QM_GLOB_FUNC                 "全局\n功能"
+#define TR_QM_TRAINER                   "教练"
+#define TR_QM_HARDWARE                  "硬件"
+#define TR_QM_ABOUT                     "关于\nEdgeTX"
+#define TR_QM_THEMES                    "主题"
+#define TR_QM_TOP_BAR                   "顶栏"
+#define TR_QM_SCREEN_1                  "屏幕 1"
+#define TR_QM_SCREEN_2                  "屏幕 2"
+#define TR_QM_SCREEN_3                  "屏幕 3"
+#define TR_QM_SCREEN_4                  "屏幕 4"
+#define TR_QM_SCREEN_5                  "屏幕 5"
+#define TR_QM_SCREEN_6                  "屏幕 6"
+#define TR_QM_SCREEN_7                  "屏幕 7"
+#define TR_QM_SCREEN_8                  "屏幕 8"
+#define TR_QM_SCREEN_9                  "屏幕 9"
+#define TR_QM_SCREEN_10                 "屏幕 10"
+#define TR_QM_ADD_SCREEN                "添加\n屏幕"
+#define TR_QM_APPS                      "APP\nLUA脚本"
+#define TR_QM_STORAGE                   "存储器"
+#define TR_QM_RESET                     TRSA("重置", "重置")
+#define TR_QM_CHAN_MON                  "通道\n监视器"
+#define TR_QM_LS_MON                    "逻辑开关\n监视器"
+#define TR_QM_STATS                     "统计"
 #define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_SETTINGS           "常规设置"
 #define TR_MAIN_MENU_MANAGE_MODELS    "模型管理"
 #define TR_MAIN_MENU_MODEL_NOTES      "模型说明"
-#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
-#define TR_MONITOR_SWITCHES            "逻辑开关查看"
+#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道监视器"
+#define TR_MONITOR_SWITCHES           "逻辑开关监视器"
 #define TR_MAIN_MENU_MODEL_SETTINGS   "模型设置"
 #define TR_MAIN_MENU_RADIO_SETTINGS   "系统设置"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_SCREEN_SETTINGS  "界面设置"
 #define TR_MAIN_MENU_STATISTICS       "统计信息"
 #define TR_MAIN_MENU_ABOUT_EDGETX     "关于"
-#define TR_MAIN_VIEW_X                  "Screen "
-#define TR_MAIN_MENU_THEMES               "主题"
-#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MAIN_VIEW_X                "屏幕 "
+#define TR_MAIN_MENU_THEMES           "主题"
+#define TR_MAIN_MENU_APPS             "APP/LUA脚本"
 #define TR_MENUHELISETUP               "直升机设置"
 #define TR_MENUFLIGHTMODES             TRSA("驾驶模式", "飞行模式设置")
 #define TR_MENUFLIGHTMODE              TRSA("驾驶模式", "飞行模式")
-#define TR_MENUINPUTS                  "输入设置"
-#define TR_MENULIMITS                  "输出设置"
-#define TR_MENUCURVES                  "曲线设置"
-#define TR_MIXES                       "混控设置"
-#define TR_MENU_GLOBAL_VARS            "全局变量功能"
-#define TR_MENULOGICALSWITCHES         "逻辑开关设置"
-#define TR_MENUCUSTOMFUNC              "特殊功能设置"
-#define TR_MENUCUSTOMSCRIPTS           "自定义脚本设置"
-#define TR_MENUTELEMETRY               "回传"
+#define TR_MENUINPUTS                  "输入"
+#define TR_MENULIMITS                  "输出"
+#define TR_MENUCURVES                  "曲线"
+#define TR_MIXES                       "混控"
+#define TR_MENU_GLOBAL_VARS            "全局变量"
+#define TR_MENULOGICALSWITCHES         "逻辑开关"
+#define TR_MENUCUSTOMFUNC              "特殊功能"
+#define TR_MENUCUSTOMSCRIPTS           "自定义脚本"
+#define TR_MENUTELEMETRY               "遥测/回传"
 #define TR_MENUSPECIALFUNCS            "全局功能"
 #define TR_MENUTRAINER                 "教练"
 #define TR_HARDWARE                    "硬件"
-#define TR_USER_INTERFACE               "Top Bar"
+#define TR_USER_INTERFACE              "顶栏"
 #define TR_SD_CARD                     "SD卡"
-#define TR_DEBUG                       "调试"
+#define TR_DEBUG                       "Debug"
 #define TR_MENU_RADIO_SWITCHES         TR("开关", "开关及按键测试")
 #define TR_MENUCALIBRATION             "校准"
-#define TR_FUNCTION_SWITCHES           "可自定义开关"
+#define TR_FUNCTION_SWITCHES           "自定义按键"
 // End Main menu
 
 #define TR_MINUTE_SINGULAR             "分钟"
@@ -126,16 +126,16 @@
 #define TR_TRNMODE                     "关","相加","替换"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","LUA脚本","CLI","GPS","Debug","SpaceMouse","外置发射"
+#define TR_AUX_SERIAL_MODES            "禁用","回传镜像","回传输入","SBUS教练","LUA脚本","CLI","GPS","Debug","SpaceMouse","外置发射"
 #if defined(FUNCTION_SWITCHES)
-#define TR_SWTYPES                     "无","回弹","2段","3段","全局"
+#define TR_SWTYPES                     "禁用","回弹","2段","3段","全局"
 #else
-#define TR_SWTYPES                     "无","回弹","2段","3段"
+#define TR_SWTYPES                     "禁用","回弹","2段","3段"
 #endif
-#define TR_POTTYPES                    "无","无中点旋钮",TR("中点旋钮","有中点旋钮"),"侧滑块",TR("多段","多段按键"),"X 轴","Y 轴","开关"
-#define TR_VPERSISTENT                 "禁用","随飞行记录复位","随手动复位"
+#define TR_POTTYPES                    "禁用","无中点旋钮",TR("中点旋钮","有中点旋钮"),"侧滑块",TR("多段","多段按键"),"X 轴","Y 轴","开关"
+#define TR_VPERSISTENT                 "禁用","随飞行记录复位","手动复位"
 #define TR_COUNTRY_CODES               "美国","日本","欧洲"
-#define TR_USBMODES                    "询问","游戏柄","U盘","串行"
+#define TR_USBMODES                    "询问","游戏柄","存储器","串行"
 #define TR_JACK_MODES                  "询问","音频","教练"
 
 #define TR_SBUS_INVERSION_VALUES       "正常","未反相"
@@ -178,9 +178,9 @@
 #define TR_SF_HAPTIC                   "振动"
 #define TR_SF_BG_MUSIC                 "播放背景音乐"
 #define TR_SF_BG_MUSIC_PAUSE           "暂停背景音乐"
-#define TR_SF_LOGS                     "记录日志到SD卡"
+#define TR_SF_LOGS                     "记录日志LOG"
 #define TR_ADJUST_GVAR                 "修改全局变量GV值"
-#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua脚本")
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "LUA脚本")
 #define TR_SF_BACKLIGHT                "背光"
 #define TR_SF_VARIO                    "Vario传感器"
 #define TR_SF_TEST                     "测试"
@@ -313,15 +313,15 @@
 #if defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[ENTER]"
-  #define TR_ENTER_LONG                "[ENTER LONG]"
+  #define TR_ENTER                     "[确认]"
+  #define TR_ENTER_LONG                "[长按确认]"
 #endif
 
 #if defined(COLORLCD)
-  #define TR_EXIT                      "RTN"
+  #define TR_EXIT                      "退出"
   #define TR_OK                        TR_ENTER
 #else
-  #define TR_EXIT                      "EXIT"
+  #define TR_EXIT                      "退出"
   #define TR_OK                        TR("\010" "\010" "\010" "[OK]", "\010" "\010" "\010" "\010" "\010" "[OK]")
 #endif
 
@@ -350,7 +350,7 @@
 #define TR_TIMER                       TR("计时器", "计时器 ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "开始"
-#define TR_NEXT                        "Next"
+#define TR_NEXT                        "下一步"
 #define TR_ELIMITS                     TR("扩展行程", "扩展通道行程")
 #define TR_ETRIMS                      TR("扩展微调", "扩展微调量")
 #define TR_TRIMINC                     "微调步幅"
@@ -366,18 +366,18 @@
 #define TR_WARN_5VOLTS                 "注意输出电平为5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "开关"
-#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
-#define TR_GROUP                       "Group"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_LUA_OVERRIDE                "Allow Lua override"
+#define TR_FS_COLOR_LIST               "自定义","关闭","白色","红色","绿色","黄色","橙色","蓝色","粉色"
+#define TR_GROUP                       "分组"
+#define TR_GROUP_ALWAYS_ON             "始终开启"
+#define TR_LUA_OVERRIDE                "允许LUA脚本控制"
 #define TR_GROUPS                      "Always on groups"
-#define TR_LAST                        "Last"
+#define TR_LAST                        "上一次"
 #define TR_MORE_INFO                   "More info"
-#define TR_SWITCH_TYPE                 "Type"
-#define TR_SWITCH_STARTUP              "Startup"
-#define TR_SWITCH_GROUP                "Group"
+#define TR_SWITCH_TYPE                 "类型"
+#define TR_SWITCH_STARTUP              "默认"
+#define TR_SWITCH_GROUP                "分组"
 #define TR_FUNCTION_SWITCH_GROUPS      "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
-#define TR_SF_SWITCH                   "Trigger"
+#define TR_SF_SWITCH                   "触发"
 #define TR_TRIMS                       "微调"
 #define TR_FADEIN                      "渐入"
 #define TR_FADEOUT                     "渐出"
@@ -455,7 +455,7 @@
 #define TR_TRAINER_STILL_CONNECTED     "教练信号未断开"
 #define TR_USB_STILL_CONNECTED         "USB未断开"
 #define TR_MODEL_SHUTDOWN              "关机 ?"
-#define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER键确认"
+#define TR_PRESS_ENTER_TO_CONFIRM      "确认"
 #define TR_THROTTLE_LABEL              "油门"
 #define TR_THROTTLE_START              "油门开始"
 #define TR_THROTTLEREVERSE             TR("油门反向", "油门反向")
@@ -473,7 +473,7 @@
 #define TR_PLAY_HELLO                  "开机语音"
 #define TR_PWR_ON_DELAY                "开机延迟"
 #define TR_PWR_OFF_DELAY               "关机延迟"
-#define TR_PWR_AUTO_OFF                TR("Pwr Auto Off","Power Auto Off")
+#define TR_PWR_AUTO_OFF                TR("自动关机","自动关机")
 #define TR_PWR_ON_OFF_HAPTIC           TR("开关机震动","开关机震动提示")
 #define TR_THROTTLE_WARNING            TR("油门状态", "油门状态")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("自定位置", "自定油门位置?")
@@ -497,8 +497,8 @@
 #define TR_VTRIM                       "微调-+"
 #define TR_CALIB_DONE                  "校准完成"
 #if defined(COLORLCD)
-  #define TR_SETMIDPOINT               "校准中点，按[Enter]保存"
-  #define TR_MOVESTICKSPOTS            "校准边界，按[Enter]保存并完成"
+  #define TR_SETMIDPOINT               "校准中点，按[确认]保存"
+  #define TR_MOVESTICKSPOTS            "校准边界，按[确认]保存并完成"
 #else
   #define TR_MENUTOSTART               "按" TR_ENTER " 开始"
   #define TR_SETMIDPOINT               TRSA("校准中点", TR("校准中点", "校准中点"))
@@ -514,7 +514,7 @@
 #define TR_FREE_STACK                  "Free stack"
 #define TR_INT_GPS_LABEL               "内置 GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
-#define TR_LUA_SCRIPTS_LABEL           "Lua 脚本"
+#define TR_LUA_SCRIPTS_LABEL           "LUA 脚本"
 #define TR_FREE_MEM_LABEL              "Free mem"
 #define TR_DURATION_MS                 TR("[D]","持续时间(ms): ")
 #define TR_INTERVAL_MS                 TR("[I]","间隔时间(ms): ")
@@ -529,15 +529,14 @@
 #define TR_GPS_HDOP                    "Hdop: "
 #define TR_STACK_MENU                  "选单: "
 #define TR_TIMER_LABEL                 "Timer"
-#define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
-#define TR_BATT_LABEL                  "Battery"
+#define TR_THROTTLE_PERCENT_LABEL      "油门 %"
+#define TR_BATT_LABEL                  "电池"
 #define TR_SESSION                     "Session"
-#define TR_MENUTORESET                 TR_ENTER " to reset"
+#define TR_MENUTORESET                 TR_ENTER " to 重置"
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "模型"
 #define TR_FM                          TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "按任意键跳过"
 #define TR_THROTTLE_NOT_IDLE           "请将油门拉至最低!"
@@ -552,10 +551,10 @@
 #define TR_EEPROMOVERFLOW              "存储超限"
 #define TR_RADIO_SETUP                 "系统设置"
 #define TR_MENUVERSION                 "版本"
-#define TR_MENU_RADIO_ANALOGS          TR("模拟", "模拟输入测试")
-#define TR_MENU_RADIO_ANALOGS_CALIB     "已校准的模拟值"
-#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始模拟值 (5 Hz)"
-#define TR_MENU_FSWITCH                "可自定义开关"
+#define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "ADC输入测试")
+#define TR_MENU_RADIO_ANALOGS_CALIB     "已校准的ADC值"
+#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始ADC值 (5 Hz)"
+#define TR_MENU_FSWITCH                "自定义按键"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "将当前微调量保存至中点"
 #else
@@ -569,7 +568,7 @@
 #define TR_MENUCURVE                   "曲线"
 #define TR_MENULOGICALSWITCH           "逻辑开关"
 #define TR_MENUSTAT                    "统计"
-#define TR_MENUDEBUG                   "调试"
+#define TR_MENUDEBUG                   "Debug"
 #define TR_MONITOR_CHANNELS1           "1-8通道查看"
 #define TR_MONITOR_CHANNELS2           "9-16通道查看"
 #define TR_MONITOR_CHANNELS3           "17-24通道查看"
@@ -689,14 +688,14 @@
 #define TR_MODULE_OPTIONS              "选项"
 #define TR_POWER                       "功率"
 #define TR_NO_TX_OPTIONS               "无发射机选项"
-#define TR_RTC_BATT                    "时间驱动电池电压"
+#define TR_RTC_BATT                    "RTC电池电压"
 #define TR_POWER_METER_EXT             "功率计 (外置)"
 #define TR_POWER_METER_INT             "功率计 (内置)"
 #define TR_SPECTRUM_ANALYSER_EXT       "频谱仪 (外置)"
 #define TR_SPECTRUM_ANALYSER_INT       "频谱仪 (内置)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
-#define TR_REFRESH                     "Refresh"
+#define TR_REFRESH                     "刷新"
 #define TR_SDCARD_FULL                 "SD卡已满"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\n日志和截屏功能将被禁用"
@@ -716,7 +715,7 @@
 #define TR_TEST_WARNING                TR("测试版", "测试版本")
 #define TR_TEST_NOTSAFE                "只用于测试"
 #define TR_WRONG_SDCARDVERSION         TR("需要版本: ", "请将SD卡文件更换为正确版本: ")
-#define TR_WARN_RTC_BATTERY_LOW        "时间驱动电池电压低"
+#define TR_WARN_RTC_BATTERY_LOW        "RTC纽扣电池电压低"
 #define TR_WARN_MULTI_LOWPOWER         "低功率模式"
 #define TR_BATTERY                     "电池"
 #define TR_WRONG_PCBREV                "错误的硬件类型"
@@ -729,7 +728,7 @@
 #define TR_CPU_TEMP                    "CPU 温度"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "主板温度"
-#define TR_TTL_WARNING                 "警告: TX和RX引脚电平不能超过3.3V !"
+#define TR_TTL_WARNING                 "重要提示: TX和RX引脚电平不能超过3.3V !"
 #define TR_FUNC                        "功能"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
@@ -903,11 +902,11 @@
 #define TR_AND_SWITCH                  "与开关"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
-#define TR_ANADIAGS_CALIB              "已校准的模拟量"
-#define TR_ANADIAGS_FILTRAWDEV         "经差值过滤的原始模拟量"
-#define TR_ANADIAGS_UNFILTRAW          "未经过滤的原始模拟量"
+#define TR_ANADIAGS_CALIB              "已校准的ADC值"
+#define TR_ANADIAGS_FILTRAWDEV         "经差值过滤的原始ADC值"
+#define TR_ANADIAGS_UNFILTRAW          "未经过滤的原始ADC值"
 #define TR_ANADIAGS_MINMAX             "最低值、最高值、行程量"
-#define TR_ANADIAGS_MOVE               "移动模拟量全行程以查看结果!"
+#define TR_ANADIAGS_MOVE               "移动ADC输入以查看行程量"
 #define TR_SPEAKER                     "扬声器"
 #define TR_BUZZER                      "蜂鸣器"
 #define TR_BYTES                       "bytes"
@@ -930,8 +929,8 @@
 #define TR_RECEIVER_OPTIONS            TR("选项", "接收机选项")
 #define TR_RESET_BTN                   BUTTON("复位")
 #define TR_KEYS_BTN                    BUTTON("按键")
-#define TR_ANALOGS_BTN                 BUTTON(TR("模拟", "模拟量"))
-#define TR_FS_BTN                      BUTTON(TR("自定义开关", TR_FUNCTION_SWITCHES))
+#define TR_ANALOGS_BTN                 BUTTON(TR("ADC", "ADC"))
+#define TR_FS_BTN                      BUTTON(TR("自定义按键", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "未找到触摸硬件"
 #define TR_TOUCH_EXIT                  "点击屏幕退出"
 #define TR_SET                         BUTTON("设置")
@@ -1004,7 +1003,7 @@
 #define STR_EEBACKUP                   "EEPROM 数据备份"
 #define STR_FACTORYRESET               "恢复出厂设置"
 #define TR_CONFIRMRESET                TR("是否清除?", "是否清除所有模型和设置数据?")
-#define TR_TOO_MANY_LUA_SCRIPTS        "Lua脚本数量超出限制!"
+#define TR_TOO_MANY_LUA_SCRIPTS        "LUA脚本数量超出限制!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 电源"
 #define TR_SPORT_UPDATE_POWER_MODES    "自动","开启"
 #define TR_NO_TELEMETRY_SCREENS        "无回传页面"
@@ -1142,7 +1141,7 @@
 #define TR_AUDIO_MUTE                  TR("自动静音","音频停播时自动静音")
 #define TR_JITTER_FILTER               "ADC滤波器"
 #define TR_DEAD_ZONE                   "死区"
-#define TR_RTC_CHECK                   TR("检查时间电池", "检查时间驱动电池电压")
+#define TR_RTC_CHECK                   TR("RTC电池", "RTC纽扣电池电压")
 #define TR_AUTH_FAILURE                "验证失败"
 #define TR_RACING_MODE                 "竞速模式"
 
@@ -1258,9 +1257,9 @@
 #define TR_CREATE_NEW             "新建"
 
 #define TR_MIX_SLOW_PREC          TR("慢放精度", "慢放精度 上行/下行")
-#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
+#define TR_MIX_DELAY_PREC         TR("延时精度", "延时精度 上行/下行")
 
-#define TR_THEME_EXISTS           "已存在同名主题目录 !"
+#define TR_THEME_EXISTS           "已存在同名主题文件夹 !"
 
 #define ROTORFLIGHT_LUA_CH        "按败板半保备闭标表并波补不菜参叉差偿超车持池出存打大带待怠单到等低地点电调定动度舵二翻方放飞副复负高跟关管航号何合后护环缓回混火或机积集几计加间减件降交角教接阶截进救距开控宽馈拉来累类连练量零灵率滤螺落门面敏模目逆爬盘偏频平其启器前曲取确然入刹上设身升失时使式释试数衰水瞬顺速缩他态体停通退陀微尾位文稳误息熄下陷限线相响向消小校斜新心信型行悬旋循压页一移仪益翼因应用油右预援源载增针正直值止置制中重轴主转准子自踪总最左耦"
 
@@ -1272,4 +1271,4 @@
 
 #define TR_WIDGET_SIZE            "小部件尺寸"
 
-#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+#define TR_DEL_DIR_NOT_EMPTY      "删除文件夹必须为空 !"
