@@ -545,7 +545,6 @@
 #define TR_CH                          "ערוץ "
 #define TR_MODEL                       "מודל"
 #define TR_FM                          TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "לחץ על המסך או על כפתור"
 #define TR_THROTTLE_NOT_IDLE           "סטיק מצערת פתוח"

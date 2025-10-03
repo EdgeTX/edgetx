@@ -541,7 +541,6 @@
 #define TR_CH                           "CH"
 #define TR_MODEL                        "MODELLO"
 #define TR_FM                          TRSA("DM", "FV")
-#endif
 #define TR_EEPROMLOWMEM                 "EEPROM quasi piena!"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "\010Premi un tasto"
 #define TR_THROTTLE_NOT_IDLE            "Gas non a minimo"

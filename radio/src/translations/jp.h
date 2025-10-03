@@ -540,7 +540,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "モデル名"
 #define TR_FM                          TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROMメモリ低"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "任意のキーを押してスキップします"
 #define TR_THROTTLE_NOT_IDLE           "Throttleがアイドル値ではありません"

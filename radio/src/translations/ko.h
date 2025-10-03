@@ -556,10 +556,7 @@
 #define TR_PPM_TRAINER                "TR"
 #define TR_CH                         "채널"
 #define TR_MODEL                      "모델"
-
 #define TR_FM                          TRSA("DM", "FM")
-#endif
-
 #define TR_EEPROMLOWMEM                 "EEPROM 메모리 부족"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "아무 키나 눌러 건너뛰기"
 #define TR_THROTTLE_NOT_IDLE            "스로틀이 유휴 상태가 아님"

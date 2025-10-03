@@ -539,7 +539,6 @@
 #define TR_CH                  "CH"
 #define TR_MODEL               "MODEL"
 #define TR_FM                  TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM        "EEPROM weinig geheugen"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Druk een toets.."
 #define TR_THROTTLE_NOT_IDLE     "Gas niet Dicht!"

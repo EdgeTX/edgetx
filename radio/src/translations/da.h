@@ -542,7 +542,6 @@
 #define TR_CH                          "KA"
 #define TR_MODEL                       "MODEL"
 #define TR_FM                          TRSA("DM", "FT")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM lav mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Tryk en tast ..."
 #define TR_THROTTLE_NOT_IDLE           TR("Gas ikke sat lav", "Gas ikke sat i tomgang")
