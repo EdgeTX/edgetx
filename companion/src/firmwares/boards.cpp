@@ -1182,7 +1182,7 @@ bool Boards::isSwitchFunc(int index, Board::Type board)
   return getBoardJson(board)->isSwitchFunc(index);
 }
 
-QString Boards::getRadioTypeString(Board::Type board)
+QString Boards::getRadioModeString(Board::Type board)
 {
   return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Board::Air) ? tr("Flight") : tr("Drive");
 }

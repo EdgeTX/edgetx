@@ -199,8 +199,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   const int ttlFlexInputs = Boards::getBoardCapability(board, Board::FlexInputs);
   const int ttlInputs = ttlSticks + ttlFlexInputs;
 
-  for (int i = 0; i < ttlInputs + firmware->getCapability(RotaryEncoders); i++) {
-    RawSource src((i < ttlInputs) ? SOURCE_TYPE_INPUT : SOURCE_TYPE_ROTARY_ENCODER, (i < ttlInputs) ? i + 1 : i - ttlInputs);
+  for (int i = 0; i < ttlInputs; i++) {
+    RawSource src(SOURCE_TYPE_INPUT, i + 1);
     QCheckBox * checkbox = new QCheckBox(this);
     checkbox->setProperty("index", i);
     checkbox->setText(src.toString(&model, &generalSettings));

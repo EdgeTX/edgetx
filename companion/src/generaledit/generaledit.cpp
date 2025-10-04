@@ -29,7 +29,7 @@
 #include "hardware.h"
 #include "../modeledit/customfunctions.h"
 #include "generaloptions.h"
-#include "verticalscrollarea.h"
+#include "scrollarea.h"
 #include "compounditemmodels.h"
 
 GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * firmware) :
@@ -96,7 +96,7 @@ void GeneralEdit::addTab(GenericPanel *panel, QString text)
   panels << panel;
   QWidget * widget = new QWidget(ui->tabWidget);
   QVBoxLayout *baseLayout = new QVBoxLayout(widget);
-  VerticalScrollArea * area = new VerticalScrollArea(widget, panel);
+  ScrollArea * area = new ScrollArea(widget, panel);
   baseLayout->addWidget(area);
   ui->tabWidget->addTab(widget, text);
   connect(panel, &GenericPanel::modified, this, &GeneralEdit::onTabModified);

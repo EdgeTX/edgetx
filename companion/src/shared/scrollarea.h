@@ -25,12 +25,12 @@
 
 class GenericPanel;
 
-class VerticalScrollArea : public QScrollArea
+class ScrollArea : public QScrollArea
 {
   Q_OBJECT
 
   public:
-    VerticalScrollArea(QWidget * parent, GenericPanel * panel);
+    ScrollArea(QWidget * parent, GenericPanel * panel);
 
   protected:
     virtual bool eventFilter(QObject * o, QEvent * e);

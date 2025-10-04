@@ -69,7 +69,6 @@ enum Capability {
   CustomAndSwitches,
   HasNegAndSwitches,
   LogicalSwitchesExt,
-  RotaryEncoders,
   Outputs,
   ChannelsName,
   ExtraInputs,

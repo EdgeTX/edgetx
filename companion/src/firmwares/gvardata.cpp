@@ -20,12 +20,17 @@
  */
 
 #include "gvardata.h"
-
 #include "radiodata.h"
+#include "compounditemmodels.h"
 
 QString GVarData::unitToString() const
 {
-  switch (unit) {
+  return unitToString(unit);
+}
+
+QString GVarData::unitToString(int val)
+{
+  switch (val) {
     case GVAR_UNIT_NUMBER:
       return tr("");
     case GVAR_UNIT_PERCENT:
@@ -37,7 +42,12 @@ QString GVarData::unitToString() const
 
 QString GVarData::precToString() const
 {
-  switch (prec) {
+  return precToString(prec);
+}
+
+QString GVarData::precToString(int val)
+{
+  switch (val) {
     case GVAR_PREC_MUL10:
       return tr("0._");
     case GVAR_PREC_MUL1:
@@ -95,4 +105,45 @@ float GVarData::getMaxPrec() const
 bool GVarData::isEmpty() const
 {
   return (name[0] == '\0' && min == 0 && max == 0 && (!popup) && prec == 0 && unit == 0);
+}
+
+AbstractStaticItemModel * GVarData::precItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GVARDATA_UNIT);
+
+  for (int i = 0; i < GVAR_PREC_COUNT; i++) {
+    mdl->appendToItemList(precToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+AbstractStaticItemModel * GVarData::unitItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GVARDATA_UNIT);
+
+  for (int i = 0; i < GVAR_UNIT_COUNT; i++) {
+    mdl->appendToItemList(unitToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QDataStream &operator<<(QDataStream &out, const GVarData &data) {
+  QByteArray name(data.name);
+  name.resize(sizeof(data.name));
+  out << name << data.min << data.max << data.prec << data.unit;
+  return out;
+}
+
+QDataStream &operator>>(QDataStream &in, GVarData &data) {
+  QByteArray name;
+  name.resize(sizeof(data.name));
+  in >> name >> data.min  >> data.max >> data.prec >> data.unit;
+  memcpy(data.name, name.constData(), sizeof(data.name));
+  return in;
 }

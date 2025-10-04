@@ -24,7 +24,7 @@
    <item row="1" column="1" colspan="3">
     <layout class="QGridLayout" name="TaranisReadOnlyUnlock" rowstretch="0,0" columnstretch="0,0,0,0,0,0,0,0,0">
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
      </property>
      <property name="topMargin">
       <number>0</number>
@@ -81,7 +81,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -140,7 +140,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -183,7 +183,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -226,7 +226,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -269,7 +269,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -312,7 +312,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -355,7 +355,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -466,7 +466,7 @@
         <bool>true</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>1</number>
@@ -489,7 +489,7 @@
      <item row="1" column="8">
       <spacer name="horizontalSpacer_6">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Orientation::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -503,16 +503,6 @@
    </item>
    <item row="0" column="3">
     <layout class="QGridLayout" name="gridLayout_3" columnstretch="0,0">
-     <item row="7" column="0">
-      <widget class="QLabel" name="varioVolume_label">
-       <property name="text">
-        <string>Vario volume</string>
-       </property>
-      </widget>
-     </item>
-     <item row="24" column="1">
-      <widget class="QComboBox" name="voiceLang_CB"/>
-     </item>
      <item row="14" column="0">
       <widget class="QLabel" name="label_BLBright">
        <property name="text">
@@ -520,128 +510,7 @@
        </property>
       </widget>
      </item>
-     <item row="30" column="0">
-      <widget class="QLabel" name="label_labelMultiMode">
-       <property name="text">
-        <string>Label matching</string>
-       </property>
-      </widget>
-     </item>
      <item row="22" column="1">
-      <widget class="QComboBox" name="countrycode_CB">
-       <item>
-        <property name="text">
-         <string>America</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Japan</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Europe</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_speakerPitch">
-       <property name="text">
-        <string>Speaker Pitch (spkr only)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="0">
-      <widget class="QLabel" name="blAlarm_LB">
-       <property name="text">
-        <string>Backlight flash on alarm</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QSlider" name="wavVolume_SL">
-       <property name="minimum">
-        <number>-2</number>
-       </property>
-       <property name="maximum">
-        <number>2</number>
-       </property>
-       <property name="pageStep">
-        <number>1</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Backlight Switch</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QSlider" name="varioVolume_SL">
-       <property name="minimum">
-        <number>-2</number>
-       </property>
-       <property name="maximum">
-        <number>2</number>
-       </property>
-       <property name="pageStep">
-        <number>1</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="17" column="1">
-      <layout class="QHBoxLayout" name="backlightColor_Layout">
-       <item>
-        <widget class="QLabel" name="backlightColor1_label">
-         <property name="text">
-          <string>Color 1</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="backlightColor_SL">
-         <property name="maximum">
-          <number>20</number>
-         </property>
-         <property name="pageStep">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="backlightColor2_label">
-         <property name="text">
-          <string>Color 2</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="31" column="0">
-      <widget class="QLabel" name="label_favMultiMode">
-       <property name="text">
-        <string>Favorites matching</string>
-       </property>
-      </widget>
-     </item>
-     <item row="22" column="0">
-      <widget class="QLabel" name="countrycode_label">
-       <property name="text">
-        <string>Country Code</string>
-       </property>
-      </widget>
-     </item>
-     <item row="23" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="TimezoneEdit" name="timezoneLE"/>
@@ -652,7 +521,7 @@
           <string>Automatically adjust the radio's clock if a GPS is connected to telemetry.</string>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
+          <enum>Qt::LayoutDirection::LeftToRight</enum>
          </property>
          <property name="text">
           <string>Adjust RTC</string>
@@ -661,30 +530,14 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_soundMode">
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Sound Mode</string>
+        <string>Backlight  Auto OFF after</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QSlider" name="beepVolume_SL">
-       <property name="minimum">
-        <number>-2</number>
-       </property>
-       <property name="maximum">
-        <number>2</number>
-       </property>
-       <property name="pageStep">
-        <number>1</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="20" column="1">
+     <item row="19" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QCheckBox" name="stickReverse1">
@@ -716,38 +569,181 @@
        </item>
       </layout>
      </item>
-     <item row="31" column="1">
-      <widget class="QComboBox" name="favMultiMode_CB">
-       <item>
-        <property name="text">
-         <string>Must match</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Optional match</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="25" column="1">
-      <widget class="QLineEdit" name="registrationId">
-       <property name="maxLength">
-        <number>8</number>
+     <item row="5" column="0">
+      <widget class="QLabel" name="wavVolume_label">
+       <property name="text">
+        <string>Wav volume</string>
        </property>
       </widget>
      </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="label_5">
+     <item row="29" column="1">
+      <widget class="QComboBox" name="labelMultiMode_CB">
+       <item>
+        <property name="text">
+         <string>Match all</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Match any</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="26" column="1">
+      <widget class="QCheckBox" name="modelQuickSelect_CB">
+       <property name="toolTip">
+        <string>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</string>
+       </property>
        <property name="text">
-        <string>Backlight  Auto OFF after</string>
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="18" column="0">
+      <widget class="QLabel" name="label_KeysBl">
+       <property name="text">
+        <string>Keys Backlight</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="bgVolume_label">
+       <property name="text">
+        <string>Background volume</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="varioR0_label">
+       <property name="text">
+        <string>Vario repeat at zero</string>
+       </property>
+      </widget>
+     </item>
+     <item row="24" column="0">
+      <widget class="QLabel" name="label_registrationId">
+       <property name="text">
+        <string>Owner Registration ID</string>
        </property>
       </widget>
      </item>
      <item row="28" column="0">
-      <widget class="QLabel" name="label_modelSelectLayout">
+      <widget class="QLabel" name="label_labelSingleSelect">
        <property name="text">
-        <string>Manage Models layout</string>
+        <string>Label selection mode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSlider" name="volume_SL">
+       <property name="maximum">
+        <number>23</number>
+       </property>
+       <property name="pageStep">
+        <number>5</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QSpinBox" name="BLBright_SB">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="29" column="0">
+      <widget class="QLabel" name="label_labelMultiMode">
+       <property name="text">
+        <string>Label matching</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QSlider" name="varioVolume_SL">
+       <property name="minimum">
+        <number>-2</number>
+       </property>
+       <property name="maximum">
+        <number>2</number>
+       </property>
+       <property name="pageStep">
+        <number>1</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="20" column="0">
+      <widget class="QLabel" name="label_faimode">
+       <property name="text">
+        <string>FAI Mode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="28" column="1">
+      <widget class="QComboBox" name="labelSingleSelect_CB">
+       <item>
+        <property name="text">
+         <string>Multi select</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Single select</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="31" column="0">
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Orientation::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="18" column="1">
+      <widget class="QCheckBox" name="keysBl_ChkB">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="0">
+      <widget class="QLabel" name="label_OFFBright">
+       <property name="text">
+        <string>Backlight OFF Brightness</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QComboBox" name="backlightswCB">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="whatsThis">
+        <string>This is the switch selectrion for turning on the backlight (if installed).
+
+</string>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
        </property>
       </widget>
      </item>
@@ -770,151 +766,6 @@
        </property>
       </widget>
      </item>
-     <item row="32" column="0">
-      <spacer name="verticalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="29" column="1">
-      <widget class="QComboBox" name="labelSingleSelect_CB">
-       <item>
-        <property name="text">
-         <string>Multi select</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Single select</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="30" column="1">
-      <widget class="QComboBox" name="labelMultiMode_CB">
-       <item>
-        <property name="text">
-         <string>Match all</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Match any</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="speakerPitchSB">
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="statusTip">
-        <string/>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;LCD Screen Contrast&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Values can be 20-45&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>20</number>
-       </property>
-       <property name="value">
-        <number>1</number>
-       </property>
-      </widget>
-     </item>
-     <item row="16" column="0">
-      <widget class="QLabel" name="label_OFFBright">
-       <property name="text">
-        <string>Backlight OFF Brightness</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="varioP0_label">
-       <property name="text">
-        <string>Vario pitch at zero</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="wavVolume_label">
-       <property name="text">
-        <string>Wav volume</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="1">
-      <widget class="QComboBox" name="backlightswCB">
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="statusTip">
-        <string/>
-       </property>
-       <property name="whatsThis">
-        <string>This is the switch selectrion for turning on the backlight (if installed).
-
-</string>
-       </property>
-       <property name="currentIndex">
-        <number>-1</number>
-       </property>
-      </widget>
-     </item>
-     <item row="25" column="0">
-      <widget class="QLabel" name="label_registrationId">
-       <property name="text">
-        <string>Owner Registration ID</string>
-       </property>
-      </widget>
-     </item>
-     <item row="23" column="0">
-      <widget class="QLabel" name="label_timezone">
-       <property name="text">
-        <string>Timeshift from UTC</string>
-       </property>
-      </widget>
-     </item>
-     <item row="27" column="0">
-      <widget class="QLabel" name="label_modelQuickSelect">
-       <property name="text">
-        <string>Model quick select</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="1">
-      <widget class="QCheckBox" name="blAlarm_ChkB">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="21" column="0">
-      <widget class="QLabel" name="label_faimode">
-       <property name="text">
-        <string>FAI Mode</string>
-       </property>
-      </widget>
-     </item>
-     <item row="19" column="1">
-      <widget class="QComboBox" name="re_CB"/>
-     </item>
      <item row="6" column="1">
       <widget class="QSlider" name="bgVolume_SL">
        <property name="minimum">
@@ -927,70 +778,93 @@ p, li { white-space: pre-wrap; }
         <number>1</number>
        </property>
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="27" column="1">
-      <widget class="QCheckBox" name="modelQuickSelect_CB">
+     <item row="20" column="1">
+      <widget class="QCheckBox" name="faimode_CB">
        <property name="toolTip">
-        <string>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</string>
+        <string>If you enable FAI, only RSSI and RxBt sensors will keep working. This function cannot be disabled by the radio.</string>
        </property>
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="bgVolume_label">
-       <property name="text">
-        <string>Background volume</string>
+     <item row="9" column="1">
+      <widget class="QSpinBox" name="varioPMax_SB">
+       <property name="suffix">
+        <string> Hz</string>
        </property>
-      </widget>
-     </item>
-     <item row="16" column="1">
-      <widget class="QSpinBox" name="OFFBright_SB">
        <property name="minimum">
-        <number>5</number>
+        <number>1300</number>
        </property>
        <property name="maximum">
-        <number>100</number>
+        <number>2900</number>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>1700</number>
        </property>
       </widget>
      </item>
-     <item row="26" column="0">
-      <widget class="QLabel" name="rotEncMode_label">
-       <property name="text">
-        <string>Rotary Encoder Mode</string>
-       </property>
+     <item row="27" column="1">
+      <widget class="QComboBox" name="modelSelectLayout_CB">
+       <item>
+        <property name="text">
+         <string>Large image (2 columns)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Small image (3 columns)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Name only (2 columns)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Name only (1 column)</string>
+        </property>
+       </item>
       </widget>
      </item>
-     <item row="24" column="0">
-      <widget class="QLabel" name="VoiceLang_label">
-       <property name="text">
-        <string>Voice Language</string>
-       </property>
-      </widget>
+     <item row="17" column="1">
+      <layout class="QHBoxLayout" name="backlightColor_Layout">
+       <item>
+        <widget class="QLabel" name="backlightColor1_label">
+         <property name="text">
+          <string>Color 1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="backlightColor_SL">
+         <property name="maximum">
+          <number>20</number>
+         </property>
+         <property name="pageStep">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="backlightColor2_label">
+         <property name="text">
+          <string>Color 2</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item row="14" column="1">
-      <widget class="QSpinBox" name="BLBright_SB">
-       <property name="maximum">
-        <number>100</number>
-       </property>
-      </widget>
-     </item>
-     <item row="20" column="0">
-      <widget class="QLabel" name="stickReverseLB">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Stick reverse</string>
-       </property>
-      </widget>
+     <item row="25" column="1">
+      <widget class="QComboBox" name="rotEncMode_CB"/>
      </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="soundModeCB">
@@ -1016,20 +890,68 @@ p, li { white-space: pre-wrap; }
        </item>
       </widget>
      </item>
-     <item row="21" column="1">
-      <widget class="QCheckBox" name="faimode_CB">
-       <property name="toolTip">
-        <string>If you enable FAI, only RSSI and RxBt sensors will keep working. This function cannot be disabled by the radio.</string>
-       </property>
+     <item row="7" column="0">
+      <widget class="QLabel" name="varioVolume_label">
        <property name="text">
-        <string/>
+        <string>Vario volume</string>
        </property>
       </widget>
      </item>
-     <item row="18" column="0">
-      <widget class="QLabel" name="label_KeysBl">
+     <item row="24" column="1">
+      <widget class="QLineEdit" name="registrationId">
+       <property name="maxLength">
+        <number>8</number>
+       </property>
+      </widget>
+     </item>
+     <item row="21" column="0">
+      <widget class="QLabel" name="countrycode_label">
        <property name="text">
-        <string>Keys Backlight</string>
+        <string>Country Code</string>
+       </property>
+      </widget>
+     </item>
+     <item row="23" column="0">
+      <widget class="QLabel" name="VoiceLang_label">
+       <property name="text">
+        <string>Voice Language</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_speakerPitch">
+       <property name="text">
+        <string>Speaker Pitch (spkr only)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="varioP0_label">
+       <property name="text">
+        <string>Vario pitch at zero</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="1">
+      <widget class="QSpinBox" name="OFFBright_SB">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="19" column="0">
+      <widget class="QLabel" name="stickReverseLB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Stick reverse</string>
        </property>
       </widget>
      </item>
@@ -1052,33 +974,69 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_volume">
-       <property name="text">
-        <string>Speaker Volume</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSlider" name="volume_SL">
-       <property name="maximum">
-        <number>23</number>
-       </property>
-       <property name="pageStep">
-        <number>5</number>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="18" column="1">
-      <widget class="QCheckBox" name="keysBl_ChkB">
+     <item row="13" column="1">
+      <widget class="QCheckBox" name="blAlarm_ChkB">
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="23" column="1">
+      <widget class="QComboBox" name="voiceLang_CB"/>
+     </item>
+     <item row="30" column="1">
+      <widget class="QComboBox" name="favMultiMode_CB">
+       <item>
+        <property name="text">
+         <string>Must match</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Optional match</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_soundMode">
+       <property name="text">
+        <string>Sound Mode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="22" column="0">
+      <widget class="QLabel" name="label_timezone">
+       <property name="text">
+        <string>Timeshift from UTC</string>
+       </property>
+      </widget>
+     </item>
+     <item row="17" column="0">
+      <widget class="QLabel" name="backlightColor_label">
+       <property name="text">
+        <string>Backlight color</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="beepVolume_label">
+       <property name="text">
+        <string>Beep volume</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="0">
+      <widget class="QLabel" name="blAlarm_LB">
+       <property name="text">
+        <string>Backlight flash on alarm</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Backlight Switch</string>
        </property>
       </widget>
      </item>
@@ -1110,41 +1068,109 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="28" column="1">
-      <widget class="QComboBox" name="modelSelectLayout_CB">
+     <item row="21" column="1">
+      <widget class="QComboBox" name="countrycode_CB">
        <item>
         <property name="text">
-         <string>Large image (2 columns)</string>
+         <string>America</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Small image (3 columns)</string>
+         <string>Japan</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Name only (2 columns)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Name only (1 column)</string>
+         <string>Europe</string>
         </property>
        </item>
       </widget>
      </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="varioR0_label">
+     <item row="27" column="0">
+      <widget class="QLabel" name="label_modelSelectLayout">
        <property name="text">
-        <string>Vario repeat at zero</string>
+        <string>Manage Models layout</string>
        </property>
       </widget>
      </item>
-     <item row="29" column="0">
-      <widget class="QLabel" name="label_labelSingleSelect">
+     <item row="5" column="1">
+      <widget class="QSlider" name="wavVolume_SL">
+       <property name="minimum">
+        <number>-2</number>
+       </property>
+       <property name="maximum">
+        <number>2</number>
+       </property>
+       <property name="pageStep">
+        <number>1</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="25" column="0">
+      <widget class="QLabel" name="rotEncMode_label">
        <property name="text">
-        <string>Label selection mode</string>
+        <string>Rotary Encoder Mode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSlider" name="beepVolume_SL">
+       <property name="minimum">
+        <number>-2</number>
+       </property>
+       <property name="maximum">
+        <number>2</number>
+       </property>
+       <property name="pageStep">
+        <number>1</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="26" column="0">
+      <widget class="QLabel" name="label_modelQuickSelect">
+       <property name="text">
+        <string>Model quick select</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_volume">
+       <property name="text">
+        <string>Speaker Volume</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="speakerPitchSB">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;LCD Screen Contrast&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Values can be 20-45&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>20</number>
+       </property>
+       <property name="value">
+        <number>1</number>
        </property>
       </widget>
      </item>
@@ -1155,55 +1181,19 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="17" column="0">
-      <widget class="QLabel" name="backlightColor_label">
+     <item row="30" column="0">
+      <widget class="QLabel" name="label_favMultiMode">
        <property name="text">
-        <string>Backlight color</string>
+        <string>Favorites matching</string>
        </property>
       </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="beepVolume_label">
-       <property name="text">
-        <string>Beep volume</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1">
-      <widget class="QSpinBox" name="varioPMax_SB">
-       <property name="suffix">
-        <string> Hz</string>
-       </property>
-       <property name="minimum">
-        <number>1300</number>
-       </property>
-       <property name="maximum">
-        <number>2900</number>
-       </property>
-       <property name="singleStep">
-        <number>10</number>
-       </property>
-       <property name="value">
-        <number>1700</number>
-       </property>
-      </widget>
-     </item>
-     <item row="19" column="0">
-      <widget class="QLabel" name="re_label">
-       <property name="text">
-        <string>RotEnc Navigation</string>
-       </property>
-      </widget>
-     </item>
-     <item row="26" column="1">
-      <widget class="QComboBox" name="rotEncMode_CB"/>
      </item>
     </layout>
    </item>
    <item row="0" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
      </property>
      <item row="12" column="1">
       <widget class="QComboBox" name="pwrOnDelay">
@@ -2326,7 +2316,7 @@ p, li { white-space: pre-wrap; }
      <item row="30" column="0">
       <spacer name="verticalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Orientation::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2367,7 +2357,7 @@ p, li { white-space: pre-wrap; }
         <number>1</number>
        </property>
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -2535,7 +2525,7 @@ p, li { white-space: pre-wrap; }
    <item row="0" column="2">
     <spacer name="horizontalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -2548,7 +2538,7 @@ p, li { white-space: pre-wrap; }
    <item row="2" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>

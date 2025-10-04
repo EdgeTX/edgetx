@@ -19,14 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#ifndef GVARDATA_H
-#define GVARDATA_H
+#pragma once
 
 #include <QtCore>
+
+constexpr char AIM_GVARDATA_PREC[]  {"gvardata.prec"};
+constexpr char AIM_GVARDATA_UNIT[]  {"gvardata.unit"};
 
 #define GVAR_NAME_LEN       3
 #define GVAR_MAX_VALUE      1024
 #define GVAR_MIN_VALUE      -GVAR_MAX_VALUE
+
+class AbstractStaticItemModel;
 
 class GVarData {
   Q_DECLARE_TR_FUNCTIONS(GVarData)
@@ -36,12 +40,14 @@ class GVarData {
 
     enum {
       GVAR_UNIT_NUMBER,
-      GVAR_UNIT_PERCENT
+      GVAR_UNIT_PERCENT,
+      GVAR_UNIT_COUNT
     };
 
     enum {
       GVAR_PREC_MUL10,
-      GVAR_PREC_MUL1
+      GVAR_PREC_MUL1,
+      GVAR_PREC_COUNT
     };
 
     char name[GVAR_NAME_LEN + 1];
@@ -53,7 +59,9 @@ class GVarData {
 
     void clear() {memset(this, 0, sizeof(GVarData)); }
     QString unitToString() const;
+    static QString unitToString(int val);
     QString precToString() const;
+    static QString precToString(int val);
     QString nameToString(int index) const;
     int multiplierSet();
     float multiplierGet() const;
@@ -64,7 +72,9 @@ class GVarData {
     float getMinPrec() const;
     float getMaxPrec() const;
     bool isEmpty() const;
+    static AbstractStaticItemModel * unitItemModel();
+    static AbstractStaticItemModel * precItemModel();
 };
 
-
-#endif // GVARDATA_H
+QDataStream &operator<<(QDataStream &out, const GVarData &obj);
+QDataStream &operator>>(QDataStream &in, GVarData &obj);

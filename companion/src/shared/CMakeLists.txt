@@ -18,7 +18,7 @@ set(${PROJECT_NAME}_NAMES
   curveimagewidget
   curvedialog
   genericpanel
-  verticalscrollarea
+  scrollarea
   textvalidator
 )
 

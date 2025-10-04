@@ -460,9 +460,10 @@ QString MultiModelPrinter::printFlightModes()
     str.append(columns.print());
   }
 
-  // GVars and Rotary Encoders
+  // GVars
   int gvars = firmware->getCapability(Gvars);
-  if ((gvars && firmware->getCapability(GvarsFlightModes)) || firmware->getCapability(RotaryEncoders)) {
+
+  if (gvars && firmware->getCapability(GvarsFlightModes)) {
     MultiColumns columns(modelPrinterMap.size());
     columns.appendSectionTableStart();
     QStringList hd = QStringList() << tr("Global vars");
@@ -470,9 +471,6 @@ QString MultiModelPrinter::printFlightModes()
       for (int i = 0; i < gvars; i++) {
         hd << tr("GV%1").arg(i + 1);
       }
-    }
-    for (int i=0; i<firmware->getCapability(RotaryEncoders); i++) {
-      hd << tr("RE%1").arg(i + 1);
     }
     columns.appendRowHeader(hd);
     int wd = 80 / gvars;
@@ -524,9 +522,7 @@ QString MultiModelPrinter::printFlightModes()
           COMPARECELL(modelPrinter->printGlobalVar(i, k));
         }
       }
-      for (int k = 0; k < firmware->getCapability(RotaryEncoders); k++) {
-        COMPARECELL(modelPrinter->printRotaryEncoder(i, k));
-      }
+
       columns.appendRowEnd();
     }
     columns.appendTableEnd();

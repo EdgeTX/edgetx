@@ -118,7 +118,6 @@ namespace Helpers
   QString concatPath(const QString & str1, const QString & str2, bool onlyonesep = true);
   QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
   QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
-
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
@@ -205,6 +204,8 @@ public:
   void pushRowsUp(int row);
   void pushColumnsLeft(int col);
   void setColumnStretch(int col, int stretch);
+  void addColumnHead(QString text, int col, int colSpan = 1);
+  void updateColumnHeading(int col, QString &text);
 
 private:
 #if defined(TABLE_LAYOUT)
