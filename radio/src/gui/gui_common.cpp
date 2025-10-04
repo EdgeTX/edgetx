@@ -809,7 +809,7 @@ void checkExternalAntenna()
         }
 #else
         POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
-        SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+        SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
 #endif
       }
     } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||

@@ -59,7 +59,7 @@ void menuModelCustomScriptOne(event_t event)
 {
   ScriptData & sd = g_model.scriptsData[s_currIdx];
 
-  drawStringWithIndex(PSIZE(TR_MENUCUSTOMSCRIPTS)*FW+FW, 0, "LUA", s_currIdx+1, 0);
+  drawStringWithIndex(strlen(STR_MENUCUSTOMSCRIPTS)*FW+FW, 0, "LUA", s_currIdx+1, 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, 0);
 
   uint8_t old_editMode = s_editMode;
@@ -90,7 +90,7 @@ void menuModelCustomScriptOne(event_t event)
       }
     }
     else if (i == ITEM_MODEL_CUSTOMSCRIPT_NAME) {
-      lcdDrawTextAlignedLeft(y, TR_NAME);
+      lcdDrawTextAlignedLeft(y, STR_NAME);
       editName(SCRIPT_ONE_2ND_COLUMN_POS, y, sd.name, sizeof(sd.name), event,
                (attr != 0), attr, old_editMode);
     } else if (i == ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL) {
