@@ -750,6 +750,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                  MODULE_TYPE_COUNT - 1, GET_DEFAULT(md->type));
 
   moduleChoice->setAvailableHandler([=](int8_t moduleType) {
+    if (moduleType == MODULE_TYPE_NONE) return true;
     return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType)
                                         : isExternalModuleAvailable(moduleType);
   });
