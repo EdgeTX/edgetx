@@ -95,6 +95,8 @@ void EXTERNAL_MODULE_OFF()
 
 void boardBLEarlyInit()
 {
+  pwrOn();
+
   timersInit();
   usbChargerInit();
 }
