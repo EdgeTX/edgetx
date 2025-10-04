@@ -549,7 +549,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODÈLE"
 #define TR_FM                          TRSA("DM", "PV")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM pleine!"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Touche pour ignorer"
 #define TR_THROTTLE_NOT_IDLE           "Gaz pas à zéro"

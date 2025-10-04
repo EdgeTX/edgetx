@@ -537,7 +537,6 @@
 #define TR_CH                  "KN"
 #define TR_MODEL               "MODEL"
 #define TR_FM                  TRSA("DM", "FL")
-#endif
 #define TR_EEPROMLOWMEM        "Mało pamięci EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Wciśnij guzik->ignoruj"
 #define TR_THROTTLE_NOT_IDLE     "Gaz nie na zerze"

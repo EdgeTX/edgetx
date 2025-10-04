@@ -542,7 +542,6 @@
 #define TR_CH                  "CH"
 #define TR_MODEL               "MODELO"
 #define TR_FM                  TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM        "EEPROM mem.baja"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Pulsar tecla para omitir"
 #define TR_THROTTLE_NOT_IDLE     "Aceler. Activado"

@@ -543,7 +543,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "Модель"
 #define TR_FM                          TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM Нехват памяти"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Нажмите любую кнопку"
 #define TR_THROTTLE_NOT_IDLE           "Газ не на ХХ"

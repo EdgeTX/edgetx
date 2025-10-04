@@ -543,7 +543,6 @@
 #define TR_CH                          "CH"		/* use english */
 #define TR_MODEL                       "МОДЕЛЬ"
 #define TR_FM                          TRSA("DM", "FM")
-#endif
 #define TR_EEPROMLOWMEM                "мало пам'яті EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Натисн. кнопку щоб пропустити"
 #define TR_THROTTLE_NOT_IDLE           "Газ не вільний"

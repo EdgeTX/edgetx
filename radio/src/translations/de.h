@@ -541,7 +541,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODELL"
 #define TR_FM                          TRSA("DM", "FP")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM voll"
 #define TR_THROTTLE_NOT_IDLE           "Gas nicht Null!"
 #define TR_ALARMSDISABLED              "Alarme ausgeschaltet"

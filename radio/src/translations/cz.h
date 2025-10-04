@@ -553,7 +553,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
 #define TR_FM                          TRSA("DM", "LR")
-#endif
 #define TR_EEPROMLOWMEM                "Dochází EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       TR("\003Klávesa >>> přeskočit", "Klávesa >>> přeskočit")
 #define TR_THROTTLE_NOT_IDLE           TR("\003Páka plynu je pohnutá", "Páka plynu není na nule")

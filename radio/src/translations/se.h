@@ -555,7 +555,6 @@
 #define TR_CH                           "KA"
 #define TR_MODEL                        "MODELL"
 #define TR_FM                           TRSA("KL", "FL")
-#endif
 #define TR_EEPROMLOWMEM                 "Minnesbrist"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "Avbryt med valfri knapp"
 #define TR_THROTTLE_NOT_IDLE            "Gasen är på!"

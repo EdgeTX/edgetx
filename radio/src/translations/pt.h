@@ -467,7 +467,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
 #define TR_FM                          TRSA("MD", "FM")
-#endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Press tecla p/ sair"
 #define TR_THROTTLE_NOT_IDLE           "Acelerador ativo"
