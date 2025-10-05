@@ -388,8 +388,9 @@ class ModuleWindow : public Window
     if (isModuleRFAccess(moduleIdx)) {
       for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE;
           receiverIdx++) {
-        char label[] = TR_RECEIVER " X";
-        label[sizeof(label) - 2] = '1' + receiverIdx;
+        char label[40];
+        char* s = strAppend(label, STR_RECEIVER);
+        strAppendUnsigned(s, receiverIdx + 1);
 
         auto line = newLine(grid);
         new StaticText(line, rect_t{}, label);

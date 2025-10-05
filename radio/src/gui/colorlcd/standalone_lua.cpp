@@ -21,7 +21,6 @@
 
 #include "standalone_lua.h"
 
-#include "translations.h"
 #include "view_main.h"
 #include "dma2d.h"
 #include "lua/lua_event.h"

@@ -447,7 +447,7 @@ if(GUI)
     ${SRC}
     keys.cpp
     maths.cpp
-    translations.cpp
+    translations/translations.cpp
     cfn_sort.cpp
     gui/gui_common.cpp
     )

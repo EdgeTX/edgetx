@@ -30,7 +30,6 @@
 #include "page.h"
 #include "sourcechoice.h"
 #include "etx_lv_theme.h"
-#include "translations.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

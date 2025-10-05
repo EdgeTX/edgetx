@@ -357,9 +357,9 @@ void ModelSetupPage::build(Window * window)
     {STR_EXTERNALRF, []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
     {STR_TRAINER, []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
     // Timer buttons
-    {TR_TIMER "1", []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
-    {TR_TIMER "2", []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
-    {TR_TIMER "3", []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
+    {STR_TIMER_1, []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
+    {STR_TIMER_2, []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
+    {STR_TIMER_3, []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
 
     {STR_PREFLIGHT, []() { new PreflightChecks(); }},
     {STR_TRIMS, []() { new TrimsSetup(); }},

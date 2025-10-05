@@ -24,8 +24,6 @@
 #include "board.h"
 #include "lcd.h"
 
-#include "translations.h"
-
 #include "fw_version.h"
 #include "translations/bl_translations.h"
 #include "bootloader/boot.h"

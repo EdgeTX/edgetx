@@ -24,7 +24,7 @@
 #include <list>
 
 #include "audio.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 #include "widgets_container_impl.h"
 #include "view_main_decoration.h"

@@ -151,7 +151,7 @@ void menuModelFlightModeOne(event_t event)
 
 #if defined(GVARS)
       case ITEM_MODEL_FLIGHT_MODE_GVARS_LABEL:
-        lcdDrawTextAlignedLeft(y, TR_MENU_GLOBAL_VARS);
+        lcdDrawTextAlignedLeft(y, STR_MENU_GLOBAL_VARS);
         break;
 
       default:

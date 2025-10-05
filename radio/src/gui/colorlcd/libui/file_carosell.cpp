@@ -21,7 +21,7 @@
 
 #include "file_carosell.h"
 
-#include "translations.h"
+#include "translations/translations.h"
 
 extern inline tmr10ms_t getTicks()
 {
