@@ -384,15 +384,25 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
 
-// Flysky Hall Stick
+#if defined(BLUETOOTH)
+// Bluetooth
+#define STORAGE_BLUETOOTH
+#define BT_USART                        UART4
+#define BT_USART_IRQn                   UART4_IRQn
+#define BT_TX_GPIO                      GPIO_PIN(GPIOB, 9)
+#define BT_RX_GPIO                      GPIO_PIN(GPIOB, 8)
+#endif
+
+#if defined(FLYSKY_GIMBAL)
+// FlySky Hall Sticks
 #define FLYSKY_HALL_SERIAL_USART                 UART4
 #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOB, 9)
 #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOB, 8)
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_UART4_RX
+#endif
 
 // LED Strip
 #define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
