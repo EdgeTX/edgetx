@@ -63,11 +63,6 @@ void boardBLEarlyInit()
 {
   videoSwitchInit();
 }
-#else
-void boardBLEarlyInit()
-{
-  pwrOn();
-}
 #endif
 
 extern "C" void SDRAM_Init();
