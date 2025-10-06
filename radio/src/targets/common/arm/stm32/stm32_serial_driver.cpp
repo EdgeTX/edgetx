@@ -383,7 +383,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
   }
 }
 
-static uint8_t stm32_serial_tx_completed(void* ctx)
+static bool stm32_serial_tx_completed(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
   if (!st) return 1;

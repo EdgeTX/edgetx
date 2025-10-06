@@ -254,4 +254,5 @@ const etx_proto_driver_t GhostDriver = {
   .processData = ghostProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

@@ -288,6 +288,7 @@ const etx_proto_driver_t MultiDriver = {
   .processData = multiProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };
 
 static void sendChannels(uint8_t*& p_buf, uint8_t module)
