@@ -21,6 +21,7 @@
 
 #include "layout_factory_impl.h"
 
+#include "edgetx.h"
 #include "sliders.h"
 #include "trims.h"
 #include "view_main.h"
@@ -92,6 +93,15 @@ rect_t Layout::getZone(unsigned int index) const
   if (isMirrored()) xo = z.w - xo - w;
 
   return {z.x + xo, z.y + yo, w, h};
+}
+
+void Layout::checkEvents()
+{
+  Window::checkEvents();
+  if (lastFM != mixerCurrentFlightMode) {
+    lastFM = mixerCurrentFlightMode;
+    updateZones();
+  }
 }
 
 const ZoneOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
