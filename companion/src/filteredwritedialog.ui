@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>303</width>
-    <height>423</height>
+    <height>391</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
      <x>10</x>
      <y>10</y>
      <width>281</width>
-     <height>311</height>
+     <height>281</height>
     </rect>
    </property>
    <property name="title">
@@ -44,35 +44,39 @@
      <string/>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>32</y>
+      <y>20</y>
       <width>258</width>
-      <height>272</height>
+      <height>248</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QCheckBox" name="chkCalibration">
-       <property name="text">
-        <string>Calibration</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="chkRadio">
-       <property name="text">
-        <string>Radio Settings</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QCheckBox" name="chkRadio">
+         <property name="text">
+          <string>Radio Settings</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkCalibration">
+         <property name="text">
+          <string>Calibration</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QCheckBox" name="chkAllModels">
@@ -97,8 +101,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>390</y>
+     <x>130</x>
+     <y>360</y>
      <width>166</width>
      <height>24</height>
     </rect>
@@ -114,7 +118,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>330</y>
+     <y>300</y>
      <width>281</width>
      <height>50</height>
     </rect>

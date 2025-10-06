@@ -1586,6 +1586,10 @@ void MainWindow::radioGetDevices()
 
 void MainWindow::filteredWriteSettings()
 {
+  StatusDialog *status = new StatusDialog(this, tr("Filtered writing models and settings to radio"), tr("In progress..."), 400);
+
   if (activeMdiChild())
-    activeMdiChild()->filteredWriteSettings();
+    activeMdiChild()->filteredWriteSettings(status);
+
+  delete status;
 }
