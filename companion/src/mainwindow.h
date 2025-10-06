@@ -90,7 +90,7 @@ class MainWindow : public QMainWindow
     void logFile();
     void writeSettings();
     void readSettings();
-    void writeSelectiveSettings();
+    void filteredWriteSettings();
     void writeFlash(QString fileToFlash="");
     void readFlash();
     void writeBackup();
@@ -211,7 +211,7 @@ class MainWindow : public QMainWindow
     QAction *writeSettingsAct;
     QAction *readSettingsAct;
     QAction *radioGetDevicesAct;
-    QAction *writeSelectiveSettingsAct;
+    QAction *filteredWriteSettingsAct;
     QAction *writeFlashAct;
     QAction *readFlashAct;
     QAction *writeBUToRadioAct;

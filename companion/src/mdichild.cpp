@@ -33,6 +33,7 @@
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
 #include "labels.h"
+#include "filteredwritedialog.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -1922,12 +1923,19 @@ void MdiChild::updateStatusBar()
   statusBarCount->setText(cnt.text());
 }
 
-void MdiChild::writeSelectiveSettings(StatusDialog * status)
+void MdiChild::filteredWriteSettings()
 {
-  //  safeguard as the menu actions should be disabled
+  FilteredWriteDialog::Params params;
+  FilteredWriteDialog dlg = FilteredWriteDialog(this, radioData, params);
+
+  if (!dlg.exec())
+    return;
+
+  return; //TESTING BLOCK
+
   int cnt = radioData.invalidModels();
   if (cnt) {
-    QMessageBox::critical(this, tr("Merge Models and Settings to Radio"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    QMessageBox::critical(this, tr("Write Models and Settings to Radio"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
     return;
   }
 
@@ -1957,7 +1965,7 @@ void MdiChild::writeSelectiveSettings(StatusDialog * status)
   else
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Profile radio does not match connected radio!"));
 
-  status->hide();
+  //status->hide();
 
   if (!result)
     QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings merged successfully"));
