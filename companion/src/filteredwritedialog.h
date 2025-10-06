@@ -37,7 +37,7 @@ class FilteredWriteDialog : public QDialog
 
     struct Params {
       bool calib;
-      bool genSettings;
+      bool radio;
       bool allModels;
       QList <int>modelList;
     };

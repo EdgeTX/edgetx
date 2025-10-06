@@ -1953,18 +1953,23 @@ void MdiChild::filteredWriteSettings(StatusDialog * status)
 
   Storage storage(radioPath);
 
-  if (params.calib) {
-
-  }
-
-  if (params.genSettings) {
+  if (params.radio) {
+    if (!params.calib) {
+      //  read current radio values
+      //  status msg
+      //  copy current to radioData
+      //  status msg
+    }
+    // write settings
+    // status msg
 
   }
 
   if (params.allModels) {
-
+    // std write models
   } else {
-
+    // write selected models
+    // BUT how to merge ?????
   }
 
   // read settings only at this stage
