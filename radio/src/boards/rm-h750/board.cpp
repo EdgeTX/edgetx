@@ -95,8 +95,6 @@ void EXTERNAL_MODULE_OFF()
 
 void boardBLEarlyInit()
 {
-  pwrOn();
-
   // TAS2505 requires reset pin to be low on power on
   gpio_init(AUDIO_RESET_PIN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_clear(AUDIO_RESET_PIN);
