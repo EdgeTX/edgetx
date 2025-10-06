@@ -45,7 +45,6 @@
 #include "constants.h"
 #include "updates/updates.h"
 #include "updates/updatefactories.h"
-#include "writemodsetsdialog.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -678,7 +677,7 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   readSettingsAct->setEnabled(true);
-  writeSelectiveSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
+  filteredWriteSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid() && !activeMdiChild()->invalidModels());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
@@ -830,7 +829,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
   trAct(writeSettingsAct,   tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
   trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
-  trAct(writeSelectiveSettingsAct,   tr("Write Selective Models and Settings to Radio"),  tr("Write Selective Models and Settings to Radio"));
+  trAct(filteredWriteSettingsAct,   tr("Filtered Write Models and Settings to Radio"),  tr("Filtered Write Models and Settings to Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
   trAct(radioGetDevicesAct, tr("Connected Radios"),                    tr("Get a list of connected radios"));
@@ -916,7 +915,7 @@ void MainWindow::createActions()
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
   readSettingsAct =        addAct("read_eeprom.png",        SLOT(readSettings()));
-  writeSelectiveSettingsAct = addAct("write_eeprom.png",    SLOT(writeSelectiveSettings()));
+  filteredWriteSettingsAct = addAct("write_eeprom.png",    SLOT(filteredWriteSettings()));
   writeBUToRadioAct =      addAct("write_eeprom_file.png",  SLOT(writeBackup()));
   readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
 
@@ -998,7 +997,7 @@ void MainWindow::createMenus()
   radioMenu = menuBar()->addMenu("");
   radioMenu->addAction(writeSettingsAct);
   radioMenu->addAction(readSettingsAct);
-  radioMenu->addAction(writeSelectiveSettingsAct);
+  radioMenu->addAction(filteredWriteSettingsAct);
   radioMenu->addSeparator();
   radioMenu->addAction(writeBUToRadioAct);
   radioMenu->addAction(readBUToFileAct);
@@ -1585,19 +1584,8 @@ void MainWindow::radioGetDevices()
   QMessageBox::information(this, tr("Connected Radios"), getDevicesInfo());
 }
 
-void MainWindow::writeSelectiveSettings()
+void MainWindow::filteredWriteSettings()
 {
-  // What to merge dialog with exit option
-  // pretty simple so dinamic build
-
-  return; // safety block
-
-  WriteModSetsDialog dlg = WriteModSetsDialog(this);
-
-  StatusDialog *status = new StatusDialog(this, tr("Write selective models and settings to radio"), tr("In progress..."), 400);
-
   if (activeMdiChild())
-    activeMdiChild()->writeSelectiveSettings(status);
-
-  delete status;
+    activeMdiChild()->filteredWriteSettings();
 }

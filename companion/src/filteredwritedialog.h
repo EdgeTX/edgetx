@@ -19,19 +19,32 @@
  * GNU General Public License for more details.
  */
 
-#include "writemodsetsdialog.h"
-#include "ui_writemodsetsdialog.h"
+#pragma once
 
-WriteModSetsDialog::WriteModSetsDialog(QWidget * parent):
-  QDialog(parent),
-  ui(new Ui::WriteModSetsDialog)
-{
-  ui->setupUi(this);
+#include <QDialog>
 
+class RadioData;
 
+namespace Ui {
+  class FilteredWriteDialog;
 }
 
-WriteModSetsDialog::~WriteModSetsDialog()
+class FilteredWriteDialog : public QDialog
 {
-  delete ui;
-}
+  Q_OBJECT
+
+  public:
+
+    struct Params {
+      bool calib;
+      bool genSettings;
+      bool allModels;
+      QList <int>modelList;
+    };
+
+    FilteredWriteDialog(QWidget * parent, RadioData & radioData, Params & params);
+    ~FilteredWriteDialog();
+
+  private:
+    Ui::FilteredWriteDialog *ui;
+};
