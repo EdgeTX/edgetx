@@ -37,12 +37,12 @@ FilteredWriteDialog::FilteredWriteDialog(QWidget * parent, RadioData & radioData
   }
 
   ui->chkRadio->setChecked(true);
-  ui->chkCalibration->setChecked(true);
+  ui->chkCalibration->setChecked(false);
   ui->chkAllModels->setChecked(true);
   ui->lstModels->setSelectionMode(QAbstractItemView::NoSelection);
 
   connect(ui->chkRadio, &QCheckBox::checkStateChanged, [=](bool checked) {
-    ui->chkCalibration->setChecked(checked);
+    ui->chkCalibration->setChecked(false);
     ui->chkCalibration->setEnabled(checked);
   });
 
@@ -62,7 +62,7 @@ FilteredWriteDialog::FilteredWriteDialog(QWidget * parent, RadioData & radioData
   connect(ui->buttonBox, &QDialogButtonBox::clicked, [&](QAbstractButton *button) {
     if (button == (QAbstractButton *)ui->buttonBox->button(QDialogButtonBox::Apply)) {
       params.calib = ui->chkCalibration->isChecked();
-      params.genSettings = ui->chkRadio->isChecked();
+      params.radio = ui->chkRadio->isChecked();
       params.allModels = ui->chkAllModels->isChecked();
       params.modelList.clear();
 
