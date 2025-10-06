@@ -113,6 +113,7 @@ class Layout: public LayoutBase
     std::unique_ptr<ViewMainDecoration> decoration;
     uint8_t zoneCount;
     uint8_t* zoneMap = nullptr;
+    uint8_t lastFM = 0;
 
     // Last time we refreshed the window
     uint32_t lastRefresh = 0;
@@ -122,6 +123,8 @@ class Layout: public LayoutBase
 
     unsigned int getZonesCount() const override { return zoneCount; }
     rect_t getZone(unsigned int index) const override;
+
+    void checkEvents() override;
 };
 
 template<class T>
