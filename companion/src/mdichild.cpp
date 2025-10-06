@@ -1536,14 +1536,12 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
     return;
   }
 
-  if (saveFile(radioPath, false)) {
-    status->hide();
+  status->hide();
+
+  if (saveFile(radioPath, false))
     QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
-  }
-  else {
-    status->hide();
+  else
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
-  }
 }
 
 bool MdiChild::loadBackup()
@@ -1923,8 +1921,17 @@ void MdiChild::updateStatusBar()
   statusBarCount->setText(cnt.text());
 }
 
-void MdiChild::filteredWriteSettings()
+void MdiChild::filteredWriteSettings(StatusDialog * status)
 {
+  status->hide();
+
+  int cnt = radioData.invalidModels();
+
+  if (cnt) {
+    QMessageBox::critical(this, tr("Filtered Write Models and Settings to Radio"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    return;
+  }
+
   FilteredWriteDialog::Params params;
   FilteredWriteDialog dlg = FilteredWriteDialog(this, radioData, params);
 
@@ -1933,26 +1940,32 @@ void MdiChild::filteredWriteSettings()
 
   return; //TESTING BLOCK
 
-  int cnt = radioData.invalidModels();
-  if (cnt) {
-    QMessageBox::critical(this, tr("Write Models and Settings to Radio"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
-    return;
-  }
-
   QString radioPath;
-
   radioPath = findMassStoragePath("RADIO", true);
-  qDebug() << "Searching for SD card, found" << radioPath;
 
   if (radioPath.isEmpty()) {
-    qDebug() << "Radio SD card not found";
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD card!"));
     return;
   }
 
+  status->setVisible(true);
   bool result = false;
 
   Storage storage(radioPath);
+
+  if (params.calib) {
+
+  }
+
+  if (params.genSettings) {
+
+  }
+
+  if (params.allModels) {
+
+  } else {
+
+  }
 
   // read settings only at this stage
   GeneralSettings gs;
@@ -1965,10 +1978,11 @@ void MdiChild::filteredWriteSettings()
   else
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Profile radio does not match connected radio!"));
 
-  //status->hide();
+  status->hide();
 
   if (!result)
-    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings merged successfully"));
+    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written successfully"));
   else
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error merging models and settings!"));
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
+
 }
