@@ -142,9 +142,22 @@ void applyDefaultTemplate()
 #endif
 
   // enable switch warnings
+  bool sw1found = false;
+  UNUSED(sw1found);
   for (uint64_t i = 0; i < switchGetMaxAllSwitches(); i++) {
-    if (SWITCH_WARNING_ALLOWED(i))
+    if (SWITCH_WARNING_ALLOWED(i)) {
+#if defined(FUNCTION_SWITCHES)
+      if (switchIsCustomSwitch(i) && !sw1found) {
+        g_model.setSwitchWarning(i, 3);
+        sw1found = true;
+      } else {
+        g_model.setSwitchWarning(i, 1);
+      }
+    }
+#else
       g_model.setSwitchWarning(i, 1);
+    }
+#endif
   }
 
 #if defined(USE_HATS_AS_KEYS)
