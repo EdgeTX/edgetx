@@ -44,6 +44,7 @@ static uint8_t getGhostModuleAddr()
 static uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
 {
   uint8_t * buf = frame;
+  memset(buf, 0, GHST_UL_RC_CHANS_SIZE + 2);
 
   *buf++ = getGhostModuleAddr();            // addr
   *buf++ = GHST_UL_RC_CHANS_SIZE;           // length
@@ -53,9 +54,7 @@ static uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
   // payload
   *buf++ = reusableBuffer.ghostMenu.buttonAction; // Joystick states, Up, Down, Left, Right, Press
   *buf++ = reusableBuffer.ghostMenu.menuAction;   // menu control, open, close, etc.
-  for (uint8_t i = 0; i < 8; i++) {
-    *buf++ = 0;   // padding to make this the same size as the pulses packet
-  }
+  buf+=8; // padding
 
   // crc
   *buf++ = crc8(crc_start, GHST_UL_RC_CHANS_SIZE - 1);
