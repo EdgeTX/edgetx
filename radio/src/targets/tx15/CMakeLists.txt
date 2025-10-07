@@ -7,8 +7,8 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
-option(BLUETOOTH "FrSky BT module support" ON)
-option(FLYSKY_GIMBAL "Serial gimbal support" OFF)
+option(BLUETOOTH "FrSky BT module support" OFF)
+option(FLYSKY_GIMBAL "Serial gimbal support" ON)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -30,8 +30,8 @@ set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 # BT and serial gimbal share same UART
-if(FLYSKY_GIMBAL)
-  set(BLUETOOTH OFF)
+if(BLUETOOTH)
+  set(FLYSKY_GIMBAL OFF)
 endif()
 
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
