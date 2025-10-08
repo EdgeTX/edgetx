@@ -156,7 +156,7 @@ void boardInit()
 
 #if !defined(DEBUG_SEGGER_RTT)
   // This is needed to prevent radio from starting when usb is plugged to charge
-  if (usbPlugged()) {
+  if (!UNEXPECTED_SHUTDOWN() && usbPlugged()) {
     while (usbPlugged() && !pwrPressed()) {
       delay_ms(1000);
     }
