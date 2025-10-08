@@ -146,7 +146,6 @@ void boardInit()
 
   usbChargerInit();
   gpio_set(LED_BLUE_GPIO);
-  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   ExtFLASH_InitRuntime();
 
