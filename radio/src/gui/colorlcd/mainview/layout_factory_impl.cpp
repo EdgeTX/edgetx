@@ -98,8 +98,9 @@ rect_t Layout::getZone(unsigned int index) const
 void Layout::checkEvents()
 {
   Window::checkEvents();
-  if (lastFM != mixerCurrentFlightMode) {
-    lastFM = mixerCurrentFlightMode;
+  rect_t z = getMainZone();
+  if (z.x != lastMainZone.x || z.y != lastMainZone.y || z.w != lastMainZone.w || z.h != lastMainZone.h) {
+    lastMainZone = z;
     updateZones();
   }
 }
