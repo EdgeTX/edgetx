@@ -142,9 +142,6 @@ void boardInit()
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
 #if defined(FLYSKY_GIMBAL)
-  // TODO remove the next 2 lines they are ony for test with current proto board
-  gpio_init(GPIO_PIN(GPIOB, 10), GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_set(GPIO_PIN(GPIOB, 10));
   auto inittime = flysky_gimbal_init();
   if (inittime)
     TRACE("Serial gimbal detected in %d ms", inittime);
