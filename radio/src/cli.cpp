@@ -1819,7 +1819,7 @@ const CliCommand cliCommands[] = {
 #if defined(TP_GT911)
   { "reset_gt911", cliResetGT911, ""},
 #endif
-  { "trigger_wathdog_reset", cliTriggerEM, ""},
+  { "trigger_watchdog_reset", cliTriggerEM, ""},
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
