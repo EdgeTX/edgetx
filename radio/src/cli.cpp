@@ -1736,6 +1736,14 @@ int cliCrypt(const char ** argv)
 }
 #endif
 
+int cliTriggerEM(const char** argv)
+{
+  // Prevent task switching
+  vTaskSuspendAll();
+  // Trigger watchdog
+  while(1);
+}
+
 #if defined(TP_GT911)
 // from tp_gt911.cpp
 extern uint8_t tp_gt911_cfgVer;
@@ -1811,6 +1819,7 @@ const CliCommand cliCommands[] = {
 #if defined(TP_GT911)
   { "reset_gt911", cliResetGT911, ""},
 #endif
+  { "trigger_watchdog_reset", cliTriggerEM, ""},
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
