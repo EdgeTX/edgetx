@@ -196,7 +196,7 @@ void FirmwareInterface::initFlash(const QByteArray& flashData)
 
   if (flashSize > 0) {
     type = (flash.startsWith("UF2\n") ? FIRMWARE_TYPE_UF2 : FIRMWARE_TYPE_BIN);
-    if (type == FIRMWARE_TYPE_UF2 && !convertUF2(flash)) {
+    if (type == FIRMWARE_TYPE_UF2 && !concatUF2Payloads(flash)) {
       qDebug() << "Unable to convert UF2 format";
       isValidFlag = false;
       return;
@@ -502,7 +502,7 @@ unsigned int FirmwareInterface::save(const QString & filename)
   return flashSize;
 }
 
-bool FirmwareInterface::convertUF2(QByteArray & flashData)
+bool FirmwareInterface::concatUF2Payloads(QByteArray & flashData)
 {
   qsizetype flashSize = flashData.size();
   int lastBlock = -1;

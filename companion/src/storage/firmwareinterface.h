@@ -54,7 +54,7 @@ class FirmwareInterface
       // 32 byte header
       uint32_t magicStart0;   // 0x0A324655 ("UF2\n")
       uint32_t magicStart1;   // 0x9E5D5157
-      uint32_t flags;         // see defines above
+      uint32_t flags;         // see cpp defines
       uint32_t targetAddr;    // Address in flash where the data should be written
       uint32_t payloadSize;   // Number of bytes used in data (often 256)
       uint32_t blockNo;       // Sequential block number; starts at 0
@@ -115,5 +115,5 @@ class FirmwareInterface
     void seekSplash();
     bool seekSplash(QByteArray sps, QByteArray spe, int size);
     bool seekSplash(QByteArray splash);
-    bool convertUF2(QByteArray & flashData);
+    bool concatUF2Payloads(QByteArray & flashData);
 };
