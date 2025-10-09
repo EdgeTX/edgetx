@@ -32,7 +32,7 @@ Stream6:
 Stream7:  TELEMETRY_DMA_Stream_TX
 
 DMA2
-Stream0:
+Stream0:  ADC_EXT_DMA_STREAM
 Stream1:  AUDIO_DMA_Stream
 Stream2:
 Stream3:  EXTMODULE_TIMER_DMA_STREAM
@@ -54,13 +54,6 @@ TIM14:    MS_TIMER
 TIM15:    HAPTIC_GPIO_TIMER
 TIM16:
 TIM17:	  ROTARY_ENCODER_TIMER
-
-USARTS
-USART1: INTMODULE_USART
-USART2: TELEMETRY_USART
-USART3: DGONE
-USART4: BT MODULE
-USART6: EXTMODULE_USART
 */
 
 #ifndef _HAL_H_
@@ -73,155 +66,7 @@ USART6: EXTMODULE_USART
 #define TIMER_MULT_APB1         2
 #define TIMER_MULT_APB2         2
 
-// Keys
-#define KEYS_GPIO_REG_PAGEDN          GPIOI
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_4
-#define KEYS_GPIO_REG_SYS             GPIOI
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_5
-#define KEYS_GPIO_REG_ENTER           GPIOI
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_2
-#define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_3
-#define KEYS_GPIO_REG_EXIT            GPIOI
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_8
-#define KEYS_GPIO_REG_TELE            GPIOE
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4
-
-// Trims
-#define TRIMS_GPIO_REG_LHL            GPIOI
-#define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_10
-
-#define TRIMS_GPIO_REG_LHR            GPIOI
-#define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_9
-
-#define TRIMS_GPIO_REG_LVD            GPIOB
-#define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_13
-
-#define TRIMS_GPIO_REG_LVU            GPIOB
-#define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_14
-
-#define TRIMS_GPIO_REG_RHL            GPIOG
-#define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_2
-
-#define TRIMS_GPIO_REG_RHR            GPIOG
-#define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_3
-
-#define TRIMS_GPIO_REG_RVD            GPIOB
-#define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_12
-
-#define TRIMS_GPIO_REG_RVU            GPIOB
-#define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_15
-
-// Switches
-#define SWITCHES_GPIO_REG_A_H           GPIOB
-#define SWITCHES_GPIO_PIN_A_H           LL_GPIO_PIN_0   // PB.00
-#define SWITCHES_GPIO_REG_A_L           GPIOC
-#define SWITCHES_GPIO_PIN_A_L           LL_GPIO_PIN_4   // PC.04
-#define SWITCHES_A_INVERTED
-
-#define SWITCHES_GPIO_REG_B_H           GPIOD
-#define SWITCHES_GPIO_PIN_B_H           LL_GPIO_PIN_4  // PD.04
-#define SWITCHES_GPIO_REG_B_L           GPIOJ
-#define SWITCHES_GPIO_PIN_B_L           LL_GPIO_PIN_7  // PJ.07
-#define SWITCHES_B_INVERTED
-
-#define SWITCHES_GPIO_REG_C_H           GPIOH
-#define SWITCHES_GPIO_PIN_C_H           LL_GPIO_PIN_3  // PH.03
-#define SWITCHES_GPIO_REG_C_L           GPIOJ
-#define SWITCHES_GPIO_PIN_C_L           LL_GPIO_PIN_0  // PJ.00
-#define SWITCHES_C_INVERTED
-
-#define SWITCHES_GPIO_REG_D_H           GPIOJ
-#define SWITCHES_GPIO_PIN_D_H           LL_GPIO_PIN_14 // PJ.14
-#define SWITCHES_GPIO_REG_D_L           GPIOH
-#define SWITCHES_GPIO_PIN_D_L           LL_GPIO_PIN_15 // PH.15
-#define SWITCHES_D_INVERTED
-
-#define SWITCHES_GPIO_REG_E             GPIOE
-#define SWITCHES_GPIO_PIN_E             LL_GPIO_PIN_5  // PE.05
-
-#define SWITCHES_GPIO_REG_F             GPIOA
-#define SWITCHES_GPIO_PIN_F             LL_GPIO_PIN_15 // PA.15
-
-// function switches
-//SW1
-#define FUNCTION_SWITCH_1             SG
-#define SWITCHES_GPIO_REG_G           GPIOH
-#define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_11  // PH.11
-#define SWITCHES_G_CFS_IDX            0
-//SW2
-#define FUNCTION_SWITCH_2             SH
-#define SWITCHES_GPIO_REG_H           GPIOH
-#define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_9  // PH.09
-#define SWITCHES_H_CFS_IDX            1
-//SW3
-#define FUNCTION_SWITCH_3             SI
-#define SWITCHES_GPIO_REG_I           GPIOH
-#define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_10  // PH.10
-#define SWITCHES_I_CFS_IDX            2
-//SW4
-#define FUNCTION_SWITCH_4             SJ
-#define SWITCHES_GPIO_REG_J           GPIOH
-#define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_13  // PH.123
-#define SWITCHES_J_CFS_IDX            3
-//SW5
-#define FUNCTION_SWITCH_5             SK
-#define SWITCHES_GPIO_REG_K           GPIOH
-#define SWITCHES_GPIO_PIN_K           LL_GPIO_PIN_14  // PH.14
-#define SWITCHES_K_CFS_IDX            4
-//SW6
-#define FUNCTION_SWITCH_6             SL
-#define SWITCHES_GPIO_REG_L           GPIOH
-#define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_12  // PH.12
-#define SWITCHES_L_CFS_IDX            5
-
-// ADC
-#define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_0      // PA.00 ADC1_INP16
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_3      // PA.03 ADC12_INP15
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_1      // PA.01 ADC1_INP17
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_2      // PA.02 ADC12_INP14
-
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_3      // PC.03 POT2 ADC12_INP13
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_2      // PC.02 POT1 ADC123_INP12
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_5      // PC.05 ADC12_INP8
-
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV, ADC_GPIO_PIN_STICK_RH, ADC_GPIO_PIN_STICK_RV)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_BATT )
-
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_16
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_15
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_17
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_14
-
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_13
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_12
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_8
-#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT  // ADC3 IMP17
-
-#define ADC_MAIN                        ADC1
-#define ADC_DMA                         DMA2
-#define ADC_DMA_CHANNEL                 LL_DMAMUX1_REQ_ADC1
-#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
-#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
-#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
-#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
-
-#define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                { ADC_CHANNEL_RTC_BAT }
-#define ADC_EXT_DMA                     DMA2
-#define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
-#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
-#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
-#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
-#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_8CYCLES_5
-
 #define ADC_VREF_PREC2                  330
-
-#define ADC_DIRECTION {       	 \
-0,-1,0,-1, 	/* gimbals */    \
-1,1        	/* pots */       \
-}
-
 
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 3)
@@ -279,7 +124,7 @@ USART6: EXTMODULE_USART
 // Backlight
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 5) // TIM2_CH1
 #define BACKLIGHT_TIMER                 TIM2
-#define BACKLIGHT_TIMER_CHANNEL		LL_TIM_CHANNEL_CH1
+#define BACKLIGHT_TIMER_CHANNEL			LL_TIM_CHANNEL_CH1
 #define BACKLIGHT_GPIO_AF               GPIO_AF1
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
@@ -341,6 +186,15 @@ USART6: EXTMODULE_USART
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
 
+// Flysky Hall Stick
+#define FLYSKY_HALL_SERIAL_USART                 USART3
+#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOB, 10)
+#define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOB, 11)
+#define FLYSKY_HALL_SERIAL_USART_IRQn            USART3_IRQn
+#define FLYSKY_HALL_SERIAL_DMA                   DMA1
+#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+#define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_USART3_RX
+
 // LED Strip
 #define LED_STRIP_LENGTH                  7  // 6POS + 1 common (many leds in //)
 #define BLING_LED_STRIP_START             6
@@ -361,11 +215,11 @@ USART6: EXTMODULE_USART
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-#define GPIO_LED_GPIO_ON              gpio_set
-#define GPIO_LED_GPIO_OFF             gpio_clear
-#define LED_RED_GPIO                  GPIO_PIN(GPIOA, 8)
-#define LED_GREEN_GPIO                GPIO_PIN(GPIOJ, 13)
-#define LED_BLUE_GPIO                 GPIO_PIN(GPIOG, 7)
+#define GPIO_LED_GPIO_ON                  gpio_set
+#define GPIO_LED_GPIO_OFF                 gpio_clear
+#define LED_RED_GPIO                      GPIO_PIN(GPIOB, 15)
+#define LED_GREEN_GPIO                    GPIO_PIN(GPIOB, 13)
+#define LED_BLUE_GPIO                     GPIO_PIN(GPIOB, 12)
 
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 1)
