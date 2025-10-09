@@ -102,7 +102,15 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
         "SL3": {"default": "SLIDER"},
-        "SL4": {"default": "SLIDER"},
+        "SL4": {"default": "SLIDER"}
+    },
+    "t22": {
+        "P1":  {"default": "POT_CENTER"},
+        "P2":  {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+        "SL3": {"default": "SLIDER"},
+        "SL4": {"default": "SLIDER"}
     },
     "t12": {
         "P1": {"default": "POT"},

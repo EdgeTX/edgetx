@@ -269,7 +269,6 @@ static void sdio_low_level_init(void)
 #endif
 }
 
-HAL_SD_CardInfoTypeDef cardInfo;
 static DSTATUS sdio_initialize(BYTE lun)
 {
 #if defined(SD2_PRESENT_GPIO)
@@ -297,8 +296,6 @@ static DSTATUS sdio_initialize(BYTE lun)
   sdio_low_level_init();
 
   /*!< Configure the SDIO peripheral */
-  /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
-  /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
 
   sdio.Instance = currentSD.periph;
   sdio.Init.ClockEdge = SD_SDIO_CLOCK_EDGE_RISING;
@@ -320,6 +317,7 @@ static DSTATUS sdio_initialize(BYTE lun)
     return STA_NOINIT;
   }
 
+  HAL_SD_CardInfoTypeDef cardInfo;
   HAL_StatusTypeDef es = HAL_SD_GetCardInfo(&sdio, &cardInfo);
   if(es != HAL_OK) {
     return STA_NOINIT;
@@ -426,6 +424,12 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
     return RES_ERROR;
   }
 
+  if (ReadStatus == 2) {
+    TRACE("SD read DMA error (s:%u c:%u)", sector, (uint32_t)count);
+    ReadStatus = 0;
+    return RES_ERROR;
+  }
+
   ReadStatus = 0;
   return RES_OK;
 }
@@ -480,6 +484,12 @@ static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 
   if (WriteStatus == 0) {
     TRACE("SD write timeout (s:%u/c:%u)", sector, (uint32_t)count);
+    return RES_ERROR;
+  }
+
+  if (WriteStatus == 2) {
+    TRACE("SD write DMA error (s:%u/c:%u)", sector, (uint32_t)count);
+    WriteStatus = 0;
     return RES_ERROR;
   }
 
@@ -570,7 +580,9 @@ DRESULT sdio_ioctl(BYTE lun, BYTE ctrl, void *buff)
 
     case CTRL_SYNC:
       /* Complete pending write process */
-      while (sdio_check_card_state() == SD_TRANSFER_BUSY);
+      if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
+        res = RES_ERROR;
+      }
       break;
 
     default:
@@ -617,13 +629,11 @@ extern "C" void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 }
 
 #if defined(SDMMC1)
-#if defined(SDMMC1)
 extern "C" void SDMMC1_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SDIO);
   HAL_SD_IRQHandler(&sdio);
 }
-#endif
 #if defined(SDMMC2) && defined(SD2_PRESENT_GPIO)
 extern "C" void SDMMC2_IRQHandler(void)
 {
