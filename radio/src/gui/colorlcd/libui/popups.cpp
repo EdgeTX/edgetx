@@ -88,11 +88,10 @@ void show_ui_popup()
   }
 }
 
-void POPUP_WARNING_ON_UI_TASK(const char* message, const char* info,
-                              bool waitForClose)
+bool POPUP_WARNING_ON_UI_TASK(const char* message, const char* info)
 {
-  // if already in a popup, and we don't want to wait, ignore call
-  if (!waitForClose && ui_popup_active) return;
+  // if already in a popup, ignore call
+  if (ui_popup_active) return false;
 
   // Wait in case already in popup.
   while (ui_popup_active) {
@@ -103,12 +102,7 @@ void POPUP_WARNING_ON_UI_TASK(const char* message, const char* info,
   ui_popup_info = info;
   ui_popup_active = true;
 
-  // Wait until closed
-  if (waitForClose) {
-    while (ui_popup_active) {
-      sleep_ms(20);
-    }
-  }
+  return true;
 }
 
 // Bubble popup style
