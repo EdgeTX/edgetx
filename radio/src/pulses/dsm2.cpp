@@ -298,6 +298,7 @@ const etx_proto_driver_t DSM2Driver = {
   .processData = nullptr,
   .processFrame = nullptr,
   .onConfigChange = dsm2ConfigChange,
+  .txCompleted = modulePortSerialTxCompleted,
 };
 
 const etx_proto_driver_t DSMPDriver = {
@@ -308,4 +309,5 @@ const etx_proto_driver_t DSMPDriver = {
   .processData = dsmpProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

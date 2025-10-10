@@ -262,6 +262,8 @@ class ProtoState
 
    void applyConfigFromModel();
 
+   bool fifoFull() { return trsp.fifoFull(); }
+
   protected:
 
     void resetConfig(uint8_t version);
@@ -1159,6 +1161,13 @@ static void sendPulses(void* ctx, uint8_t* buffer, int16_t* channels,
   p_state->sendFrame();
 }
 
+static bool txCompleted(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto p_state = (ProtoState*)mod_st->user_data;
+  return !p_state->fifoFull();
+}
+
 etx_proto_driver_t ProtoDriver = {
     .protocol = PROTOCOL_CHANNELS_AFHDS3,
     .init = initModule,
@@ -1167,6 +1176,7 @@ etx_proto_driver_t ProtoDriver = {
     .processData = processTelemetryData,
     .processFrame = nullptr,
     .onConfigChange = nullptr,
+    .txCompleted = txCompleted,
 };
 
 }  // namespace afhds3

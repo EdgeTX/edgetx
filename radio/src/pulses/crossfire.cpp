@@ -452,4 +452,5 @@ const etx_proto_driver_t CrossfireDriver = {
   .processData = nullptr,
   .processFrame = crossfireProcessFrame,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

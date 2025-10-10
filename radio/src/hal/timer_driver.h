@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 typedef struct {
@@ -33,4 +34,5 @@ typedef struct {
   void* (*init)(void* hw_def, const etx_timer_config_t* cfg);
   void (*deinit)(void* ctx);
   void (*send)(void* ctx, const etx_timer_config_t* cfg, const void* pulses, uint16_t length);
+  bool (*txCompleted)(void* ctx);
 } etx_timer_driver_t;

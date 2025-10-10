@@ -381,6 +381,7 @@ static void* null_drv_init(void* hw_def, const etx_serial_init* dev) { return nu
 static void null_drv_deinit(void* ctx) { }
 static void null_drv_send_byte(void* ctx, uint8_t b) { }
 static void null_drv_send_buffer(void* ctx, const uint8_t* b, uint32_t l) { }
+static bool null_drv_tx_completed(void* ctx) { return true; }
 static int null_drv_get_byte(void* ctx, uint8_t* b) { return 0; }
 static void null_drv_set_baudrate(void* ctx, uint32_t baudrate) { }
 
@@ -389,7 +390,7 @@ const etx_serial_driver_t null_drv = {
   .deinit = null_drv_deinit,
   .sendByte = null_drv_send_byte,
   .sendBuffer = null_drv_send_buffer,
-  .txCompleted = nullptr,
+  .txCompleted = null_drv_tx_completed,
   .waitForTxCompleted = nullptr,
   .enableRx = nullptr,
   .getByte = null_drv_get_byte,

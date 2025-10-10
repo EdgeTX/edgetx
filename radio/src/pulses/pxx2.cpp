@@ -833,7 +833,6 @@ static void pxx2ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* l
 }
 
 #include "hal/module_driver.h"
-// #include "extmodule_serial_driver.h"
 
 const etx_proto_driver_t Pxx2Driver = {
   .protocol = PROTOCOL_CHANNELS_PXX2,
@@ -843,4 +842,5 @@ const etx_proto_driver_t Pxx2Driver = {
   .processData = pxx2ProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };
