@@ -9,6 +9,7 @@ set(${PROJECT_NAME}_NAMES
   customfunctions
   expodialog
   flightmodes
+  gvars
   inputs
   heli
   logicalswitches

@@ -262,12 +262,13 @@ class ModelData {
     float getGVarValuePrec(int phaseIdx, int gvarIdx);
     int getGVarFlightModeIndex(const int phaseIdx, const int gvarIdx);
     void setGVarFlightModeIndexToValue(const int phaseIdx, const int gvarIdx, const int useFmIdx);
-
-    bool isREncLinked(int phaseIdx, int reIdx);
-    bool isREncLinkedCircular(int phaseIdx, int reIdx);
-    int getREncValue(int phaseIdx, int reIdx);
-    int getREncFlightModeIndex(const int phaseIdx, const int reIdx);
-    void setREncFlightModeIndexToValue(const int phaseIdx, const int reIdx, const int useFmIdx);
+    void gvarClear(const int index, bool updateRefs = true);
+    void gvarSetMax(const int index, const float value);
+    void gvarSetMin(const int index, const float value);
+    void gvarSwap(const int index1, const int index2);
+    void gvarDelete(const int index);
+    void gvarInsert(const int index);
+    bool gvarInsertAllowed(const int index);
 
     ModelData removeGlobalVars();
 

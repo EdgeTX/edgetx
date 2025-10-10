@@ -138,8 +138,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return getCapability(LogicalSwitches);
     case LogicalSwitchesExt:
       return true;
-    case RotaryEncoders:
-        return 0;
     case Outputs:
       return 32;
     case NumCurvePoints:

@@ -29,7 +29,7 @@
 #include "mixes.h"
 #include "channels.h"
 #include "curves.h"
-#include "verticalscrollarea.h"
+#include "scrollarea.h"
 #include "logicalswitches.h"
 #include "customfunctions.h"
 #include "telemetry.h"
@@ -38,6 +38,7 @@
 #include "modeloptions.h"
 #include "appdata.h"
 #include "compounditemmodels.h"
+#include "gvars.h"
 
 ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmware * firmware) :
   QDialog(parent),
@@ -57,6 +58,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
 
   GeneralSettings &generalSettings = radioData.generalSettings;
   ModelData &model = radioData.models[modelId];
+  QString radioMode = Boards::getRadioModeString(firmware->getBoard());
 
   sharedItemModels = new CompoundItemModelFactory(&generalSettings, &model);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
@@ -81,10 +83,10 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
     s1.report("Heli");
   }
 
-  QString radioType = QString(tr("%1 Modes").arg(Boards::getRadioTypeString(firmware->getBoard())));
-  FlightModesPanel *flightModesPanel = new FlightModesPanel(this, model, generalSettings, firmware, sharedItemModels);
-  addTab(flightModesPanel, radioType);
-  s1.report(radioType);
+  QString tabTitle = QString(tr("%1 Modes").arg(Boards::getRadioModeString(firmware->getBoard())));
+  FlightModesPanel *flightModesPanel = new FlightModesPanel(this, model, generalSettings, firmware, sharedItemModels, radioMode);
+  addTab(flightModesPanel, tabTitle);
+  s1.report(tabTitle);
 
   addTab(new InputsPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Inputs"));
   s1.report("Inputs");
@@ -98,6 +100,11 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
 
   addTab(new CurvesPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Curves"));
   s1.report("Curves");
+
+  if (firmware->getCapability(Gvars)) {
+    addTab(new GlobalVariablesPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Global Variables"));
+    s1.report("Global Variables");
+  }
 
   addTab(new LogicalSwitchesPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Logical Switches"));
   s1.report("Logical Switches");
@@ -149,7 +156,7 @@ void ModelEdit::addTab(GenericPanel *panel, QString text)
   panels << panel;
   QWidget * widget = new QWidget(ui->tabWidget);
   QVBoxLayout *baseLayout = new QVBoxLayout(widget);
-  VerticalScrollArea * area = new VerticalScrollArea(widget, panel);
+  ScrollArea * area = new ScrollArea(widget, panel);
   baseLayout->addWidget(area);
   ui->tabWidget->addTab(widget, text);
   connect(panel, &GenericPanel::modified, this, &ModelEdit::modified);
