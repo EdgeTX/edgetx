@@ -68,7 +68,7 @@ void menuModelSensor(event_t event)
     0 // Logs
   });
 
-  lcdDrawNumber(PSIZE(TR_MENUSENSOR)*FW+1, 0, s_currIdx+1, INVERS|LEFT);
+  lcdDrawNumber(strlen(STR_MENUSENSOR)*FW+1, 0, s_currIdx+1, INVERS|LEFT);
 
   if (!isGPSSensor(s_currIdx+1))
     drawSensorCustomValue(SENSOR_2ND_COLUMN, 0, s_currIdx, getValue(MIXSRC_FIRST_TELEM+3*s_currIdx), LEFT);

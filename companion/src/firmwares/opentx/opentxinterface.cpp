@@ -95,7 +95,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return id.contains("heli") ? 1 : 0;
     case Gvars:
-      if (IS_HORUS_OR_TARANIS(board))
+      if (IS_STM32H7(board) || IS_STM32H5(board))
+        return id.contains("nogvars") ? 0 : 15;
+      else if (IS_HORUS_OR_TARANIS(board))
         return id.contains("nogvars") ? 0 : 9;
       else if (id.contains("gvars"))
         return 9;
@@ -136,8 +138,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return getCapability(LogicalSwitches);
     case LogicalSwitchesExt:
       return true;
-    case RotaryEncoders:
-        return 0;
     case Outputs:
       return 32;
     case NumCurvePoints:

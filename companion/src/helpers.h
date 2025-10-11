@@ -110,9 +110,6 @@ namespace Helpers
 
   void exportAppSettings(QWidget * dlgParent = nullptr);
 
-  QString getChecklistsPath();
-  QString getChecklistFilename(const ModelData * model);
-  QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
   void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
@@ -121,7 +118,6 @@ namespace Helpers
   QString concatPath(const QString & str1, const QString & str2, bool onlyonesep = true);
   QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
   QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
-
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
@@ -208,6 +204,8 @@ public:
   void pushRowsUp(int row);
   void pushColumnsLeft(int col);
   void setColumnStretch(int col, int stretch);
+  void addColumnHead(QString text, int col, int colSpan = 1);
+  void updateColumnHeading(int col, QString &text);
 
 private:
 #if defined(TABLE_LAYOUT)

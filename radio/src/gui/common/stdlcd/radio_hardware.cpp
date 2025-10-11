@@ -314,7 +314,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   memset((void*)&tab[ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE], HIDDEN_ROW, 3);
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(STM32F2) || defined(STM32F4))
   tab[ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE] = 0;
 #else
   tab[ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE] = HIDDEN_ROW;
@@ -410,7 +410,7 @@ void menuRadioHardware(event_t event)
     switch(k) {
       case ITEM_RADIO_HARDWARE_LABEL_STICKS:
         lcdDrawTextAlignedLeft(y, STR_STICKS);
-        lcdDrawText(HW_SETTINGS_COLUMN2, y, BUTTON(TR_CALIBRATION), attr);
+        lcdDrawText(HW_SETTINGS_COLUMN2, y, STR_CALIBRATION, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuRadioCalibration);
         }
@@ -502,12 +502,14 @@ void menuRadioHardware(event_t event)
         }
         break;
 
+#if defined(STM32F2) || defined(STM32F4)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
           restartModule(EXTERNAL_MODULE);
         }
         break;
+#endif
 
 #if defined(BLUETOOTH)
       case ITEM_RADIO_HARDWARE_BLUETOOTH_MODE:
@@ -546,7 +548,7 @@ void menuRadioHardware(event_t event)
         if (!s_editMode && reusableBuffer.radioHardware.antennaMode != g_eeGeneral.antennaMode) {
           if (!isExternalAntennaEnabled() && (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_EXTERNAL || (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_PER_MODEL && g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode == ANTENNA_MODE_EXTERNAL))) {
             POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onHardwareAntennaSwitchConfirm);
-            SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+            SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
           }
           else {
             g_eeGeneral.antennaMode = reusableBuffer.radioHardware.antennaMode;

@@ -795,7 +795,7 @@ void menuRadioSetup(event_t event)
         expandState.viewOpt = expandableSection(y, STR_ENABLED_FEATURES, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
-        lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
+        lcdDrawText(INDENT_WIDTH-2, y, STR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
         g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event, g_model.radioGFDisabled);
@@ -804,7 +804,7 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event, g_model.radioTrainerDisabled);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
-        lcdDrawText(INDENT_WIDTH-2, y, TR_MODEL_MENU_TABS);
+        lcdDrawText(INDENT_WIDTH-2, y, STR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:

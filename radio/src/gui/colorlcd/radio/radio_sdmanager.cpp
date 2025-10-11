@@ -41,8 +41,8 @@ constexpr int WARN_FILE_LENGTH = 40 * 1024;
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-RadioSdManagerPage::RadioSdManagerPage() :
-  PageTab(STR_SD_CARD, ICON_RADIO_SD_MANAGER)
+RadioSdManagerPage::RadioSdManagerPage(PageDef& pageDef) :
+  PageGroupItem(pageDef)
 {
 }
 
@@ -134,7 +134,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
       uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
       if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
-        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
+        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
         tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
         *tmp++ = '.';
         tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
@@ -261,7 +261,7 @@ void RadioSdManagerPage::build(Window * window)
 
 void RadioSdManagerPage::checkEvents()
 {
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 
   if (loadPreview) {
     loadPreview -= 1;

@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S NV14 PL18 T15PRO ST16 PA01 TX15)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FR HE HU IT JP KO NL PL PT RU SE SK UA)
 
@@ -82,8 +82,6 @@ configure_file(stamp.h.in stamp.h @ONLY)
 
 if(PCB STREQUAL X12S OR PCB STREQUAL X10)
   include(targets/horus/CMakeLists.txt)
-elseif(PCB STREQUAL NV14)
-  include(targets/nv14/CMakeLists.txt)
 elseif(PCB STREQUAL PL18)
   include(targets/pl18/CMakeLists.txt)
 elseif(PCB STREQUAL T15PRO)
@@ -394,6 +392,10 @@ if(IFLIGHT_RELEASE)
   add_definitions(-DIFLIGHT_RELEASE)
 endif()
 
+if(BETAFPV_RELEASE)
+  add_definitions(-DBETAFPV_RELEASE)
+endif()
+
 if(DUMBORC_RELEASE)
   add_definitions(-DDUMBORC_RELEASE)
 endif()
@@ -449,7 +451,7 @@ if(GUI)
     ${SRC}
     keys.cpp
     maths.cpp
-    translations.cpp
+    translations/translations.cpp
     cfn_sort.cpp
     gui/gui_common.cpp
     )
@@ -663,11 +665,17 @@ else()
 endif()
 
 if(FIRMWARE_FORMAT_UF2)
+  if(VERSION_TAG)
+    set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
+  else()
+    set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} (${GIT_STR})")
+  endif()
+  
   add_custom_command(
     TARGET firmware POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
         --reboot auto --device "${FLAVOUR}"
-        --version "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})"
+        --version "${UF2_VERSION_STRING}"
         -i firmware.elf firmware.uf2
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM

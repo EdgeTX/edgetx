@@ -21,11 +21,9 @@
 
 #pragma once
 
-#include "bitmaps.h"
-#include "button.h"
 #include "static.h"
 
-class Page;
+class QuickMenu;
 
 class PageHeader : public Window
 {
@@ -60,14 +58,25 @@ class Page : public NavWindow
 
   void enableRefresh();
 
+  void openMenu();
+
  protected:
   PageHeader* header = nullptr;
   Window* body = nullptr;
+  QuickMenu* quickMenu = nullptr;
 
   void checkEvents() override;
   bool bubbleEvents() override { return false; }
 
+  NavWindow* navWindow();
+
 #if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
   void onLongPressRTN() override;
 #endif
 };

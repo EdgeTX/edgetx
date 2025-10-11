@@ -2920,7 +2920,7 @@ Overrides the LED color for a custom function switch
 
 @retval: true if LED index is valid, false otherwise
 
-@status current Introduced in ???
+@status current. Introduced in 3.0.0
 */
 
 static int luaSetCFSLedColor(lua_State * L)

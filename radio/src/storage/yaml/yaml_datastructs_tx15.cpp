@@ -407,7 +407,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 3 ),
-  YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
@@ -568,7 +567,7 @@ static const struct YamlNode struct_FlightModeData[] = {
   YAML_PADDING( 6 ),
   YAML_UNSIGNED( "fadeIn", 8 ),
   YAML_UNSIGNED( "fadeOut", 8 ),
-  YAML_ARRAY("gvars", 16, 9, struct_signed_16, gvar_is_active),
+  YAML_ARRAY("gvars", 16, 15, struct_signed_16, gvar_is_active),
   YAML_END
 };
 static const struct YamlNode struct_GVarData[] = {
@@ -903,11 +902,11 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
-  YAML_ARRAY("flightModeData", 384, 9, struct_FlightModeData, fmd_is_active),
+  YAML_ARRAY("flightModeData", 480, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 2, 32, struct_swtchWarn, nullptr),
-  YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
+  YAML_ARRAY("gvars", 56, 15, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rssiAlarms", 0, struct_RssiAlarmData, NULL),

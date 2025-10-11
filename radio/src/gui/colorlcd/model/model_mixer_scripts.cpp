@@ -30,7 +30,6 @@
 #include "page.h"
 #include "sourcechoice.h"
 #include "etx_lv_theme.h"
-#include "translations.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -252,8 +251,8 @@ class ScriptLineButton : public ListLineButton
   const ScriptInternalData* runtimeData;
 };
 
-ModelMixerScriptsPage::ModelMixerScriptsPage() :
-    PageTab(STR_MENUCUSTOMSCRIPTS, ICON_MODEL_LUA_SCRIPTS)
+ModelMixerScriptsPage::ModelMixerScriptsPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 

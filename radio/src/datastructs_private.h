@@ -621,7 +621,7 @@ PACK(struct CustomScreenData {
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14) || defined(PCBPL18) || defined(PCBST16)
+#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else
@@ -1072,7 +1072,9 @@ PACK(struct RadioData {
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);
 
+#if defined(STM32F2) || defined(STM32F4)
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+#endif
 
 #if defined(STICK_DEAD_ZONE)
   NOBACKUP(uint8_t  stickDeadZone:3);

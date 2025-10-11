@@ -466,7 +466,7 @@ class Boards
     static AbstractStaticItemModel * flexTypeItemModel();
 
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getRadioTypeString(Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getRadioModeString(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
@@ -843,4 +843,17 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 inline bool HAS_EEPROM_YAML(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board);
+}
+
+inline bool IS_STM32H5(Board::Type board)
+{
+  return false;
+}
+
+inline bool IS_STM32H7(Board::Type board)
+{
+  return IS_FLYSKY_PA01(board) ||
+         IS_FLYSKY_ST16(board) ||
+         IS_JUMPER_T15PRO(board) ||
+         IS_RADIOMASTER_TX15(board);
 }

@@ -22,7 +22,6 @@
 #include "hexinterface.h"
 #include "firmwareinterface.h"
 #include "helpers.h"
-#include "storage.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -34,6 +33,18 @@
 #define TIME_MARK   "TIME"
 #define EEPR_MARK   "EEPR"
 #define FSIZE_MAX   Boards::getFlashSize(Board::BOARD_UNKNOWN)
+
+#define UF2_HEADER_SIZE                 32
+#define UF2_BLOCK_SIZE                  512
+#define UF2_MAGICSTART0                 0x0A324655
+#define UF2_MAGICSTART1                 0x9E5D5157
+#define UF2_MAGICEND                    0x0AB16F30
+#define UF2_FLAG_NOT_MAIN_FLASH         0x00000001
+#define UF2_FLAG_FILE_CONTAINER         0x00001000
+#define UF2_FLAG_FAMILYID_PRESENT       0x00002000
+#define UF2_FLAG_MD5_CHECKSUM_PRESENT   0x00004000
+#define UF2_FLAG_EXT_FLAGS_PRESENT      0x00008000
+
 
 class RleBitmap
 {
@@ -185,6 +196,12 @@ void FirmwareInterface::initFlash(const QByteArray& flashData)
 
   if (flashSize > 0) {
     type = (flash.startsWith("UF2\n") ? FIRMWARE_TYPE_UF2 : FIRMWARE_TYPE_BIN);
+    if (type == FIRMWARE_TYPE_UF2 && !concatUF2Payloads(flash)) {
+      qDebug() << "Unable to concatenate UF2 payloads";
+      isValidFlag = false;
+      return;
+    }
+
     flavour = seekLabel(FW_MARK).remove("edgetx-");
     version = seekLabel(VERS_MARK);
 
@@ -483,4 +500,46 @@ unsigned int FirmwareInterface::save(const QString & filename)
 
   free(binflash);
   return flashSize;
+}
+
+bool FirmwareInterface::concatUF2Payloads(QByteArray & flashData)
+{
+  qsizetype flashSize = flashData.size();
+  int lastBlock = -1;
+  UF2_Block uf2Block;
+  QByteArray out;
+  QByteArray ba;
+  qsizetype totalBytesRead = 0;
+
+  do {
+    ba = flashData.mid(totalBytesRead, UF2_BLOCK_SIZE);
+    qsizetype bytesRead = ba.size();
+
+    if (bytesRead < UF2_BLOCK_SIZE) {
+      qDebug() << "bytes read" << bytesRead << "less than expected" << UF2_BLOCK_SIZE;
+      break;
+    }
+
+    totalBytesRead += bytesRead;
+
+    memcpy(&uf2Block, ba.constData(), sizeof(UF2_Block));
+
+    if (uf2Block.magicStart0 != UF2_MAGICSTART0 ||
+        uf2Block.magicStart1 != UF2_MAGICSTART1 ||
+        uf2Block.magicEnd != UF2_MAGICEND) {
+      qDebug() << "unexpected magic numbers";
+      return false;
+    }
+
+    if ((int)uf2Block.blockNo != ++lastBlock) {
+      qDebug() << "Block out of sequence";
+      return false;
+    }
+
+    out.append(ba.mid(UF2_HEADER_SIZE, uf2Block.payloadSize));
+
+  } while (totalBytesRead < flashSize);
+
+  flashData = out;
+  return true;
 }

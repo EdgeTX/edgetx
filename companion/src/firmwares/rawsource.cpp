@@ -188,9 +188,6 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
               (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsAir, index) :
                CHECK_IN_ARRAY(trimsSurface, index)));
 
-    case SOURCE_TYPE_ROTARY_ENCODER:
-      return CHECK_IN_ARRAY(rotary, index);
-
     case SOURCE_TYPE_MIN:
       return tr("MIN");
 
@@ -322,6 +319,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     return false;
 
   if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
+    return false;
+
+  if (type == SOURCE_TYPE_GVAR && abs(index) > firmware->getCapability(Gvars))
     return false;
 
   if (model) {

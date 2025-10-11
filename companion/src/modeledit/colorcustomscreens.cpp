@@ -333,7 +333,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
         str = tr("Top bar");
         break;
       case LAYOUT_OPTION_FM:
-        str = tr("%1 mode").arg(Boards::getRadioTypeString(firmware->getBoard()));
+        str = tr("%1 mode").arg(Boards::getRadioModeString(firmware->getBoard()));
         break;
       case LAYOUT_OPTION_SLIDERS:
         str = tr("Sliders");

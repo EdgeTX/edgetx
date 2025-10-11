@@ -82,7 +82,7 @@ AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
                                     line, [=]() { return md->flysky.mode; },
                                     [=](uint8_t v) { md->flysky.mode = v; });
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   line = newLine(grid);
   static const char* _rf_power[] = {"Default", "High"};
   afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
@@ -101,7 +101,7 @@ void AFHDS2ASettings::hideAFHDS2Options()
 {
   afhds2OptionsLabel->hide();
   afhds2ProtoOpts->hide();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   afhds2RFPowerText->hide();
   afhds2RFPowerChoice->hide();
 #endif
@@ -111,7 +111,7 @@ void AFHDS2ASettings::showAFHDS2Options()
 {
   afhds2OptionsLabel->show();
   afhds2ProtoOpts->show();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   bool showRFPower = (getNV14RfFwVersion() >= 0x1000E);
   afhds2RFPowerText->show(showRFPower);
   afhds2RFPowerChoice->show(showRFPower);

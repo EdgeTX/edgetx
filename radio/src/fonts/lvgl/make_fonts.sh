@@ -6,7 +6,7 @@ set -euo pipefail
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RADIO_SRC_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-TRANSLATIONS_DIR="${RADIO_SRC_DIR}/translations"
+TRANSLATIONS_DIR="${RADIO_SRC_DIR}/translations/i18n"
 
 SYMBOLS_FONT="${RADIO_SRC_DIR}/thirdparty/lvgl/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff"
 # test if realpath supports --relative-to as macOS BSD version doesn't

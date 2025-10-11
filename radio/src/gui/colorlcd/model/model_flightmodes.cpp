@@ -462,8 +462,8 @@ const lv_obj_class_t FlightModeBtn::fm_trim_value_class = {
     .instance_size = sizeof(lv_label_t),
 };
 
-ModelFlightModesPage::ModelFlightModesPage() :
-    PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES)
+ModelFlightModesPage::ModelFlightModesPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 

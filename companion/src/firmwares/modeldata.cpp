@@ -223,14 +223,18 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    customSwitches[i].type = Board::SWITCH_GLOBAL;
-    customSwitches[i].group = 0;
-    customSwitches[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+    customSwitches[i].type = Board::SWITCH_2POS;
+    customSwitches[i].group = 1;
+    if (i == 0)
+      customSwitches[i].start = ModelData::FUNC_SWITCH_START_ON;
+    else
+      customSwitches[i].start = ModelData::FUNC_SWITCH_START_OFF;
     customSwitches[i].state = 0;
     customSwitches[i].name[0] = 0;
     customSwitches[i].onColor.setColor(255, 255, 255);
     customSwitches[i].offColor.setColor(0, 0, 0);
   }
+  cfsGroupOn[1] = 1;
 }
 
 void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settings)
@@ -298,39 +302,6 @@ int ModelData::getGVarValue(int phaseIdx, int gvarIdx)
     phaseIdx = nextPhase;
   }
   return flightModeData[0].gvars[gvarIdx];  // circular linked so return FM0 value
-}
-
-bool ModelData::isREncLinked(int phaseIdx, int reIdx)
-{
-  return flightModeData[phaseIdx].rotaryEncoders[reIdx] > RENC_MAX_VALUE;
-}
-
-bool ModelData::isREncLinkedCircular(int phaseIdx, int reIdx)
-{
-  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
-    int val = flightModeData[phaseIdx].rotaryEncoders[reIdx];
-    if (phaseIdx == 0 || val <= RENC_MAX_VALUE)
-      return false;
-    int nextPhase = val - (RENC_MAX_VALUE + 1);
-    if (nextPhase >= phaseIdx)
-      nextPhase += 1;
-    phaseIdx = nextPhase;
-  }
-  return true;
-}
-
-int ModelData::getREncValue(int phaseIdx, int reIdx)
-{
-  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
-    int val = flightModeData[phaseIdx].rotaryEncoders[reIdx];
-    if (phaseIdx == 0 || val <= RENC_MAX_VALUE)
-      return val;
-    int nextPhase = val - (RENC_MAX_VALUE + 1);
-    if (nextPhase >= phaseIdx)
-      nextPhase += 1;
-    phaseIdx = nextPhase;
-  }
-  return flightModeData[0].rotaryEncoders[reIdx];  // circular linked so return FM0 value
 }
 
 void ModelData::setTrimValue(int phaseIdx, int trimIdx, int value)
@@ -1342,18 +1313,6 @@ void ModelData::setGVarFlightModeIndexToValue(const int phaseIdx, const int gvar
   flightModeData[phaseIdx].gvars[gvarIdx] = linkedFlightModeIndexToValue(phaseIdx, useFmIdx, GVAR_MAX_VALUE);
 }
 
-int ModelData::getREncFlightModeIndex(const int phaseIdx, const int reIdx)
-{
-  if (!isREncLinked(phaseIdx, reIdx))
-    return -1;
-  return (linkedFlightModeValueToIndex(phaseIdx, flightModeData[phaseIdx].rotaryEncoders[reIdx], RENC_MAX_VALUE));
-}
-
-void ModelData::setREncFlightModeIndexToValue(const int phaseIdx, const int reIdx, const int useFmIdx)
-{
-  flightModeData[phaseIdx].rotaryEncoders[reIdx] = linkedFlightModeIndexToValue(phaseIdx, useFmIdx, RENC_MAX_VALUE);
-}
-
 bool ModelData::isExpoParent(const int index)
 {
   const ExpoData &ed = expoData[index];
@@ -1490,7 +1449,7 @@ void ModelData::updateResetParam(CustomFunctionData * cfd)
       idxAdj = -2;   //  reverse earlier offset required for rawsource
       break;
     case REF_UPD_TYPE_SENSOR:
-      idxAdj = 5/*3 Timers + Flight + Telemetery*/ + firmware->getCapability(RotaryEncoders);
+      idxAdj = 5/*3 Timers + Flight + Telemetery*/;
       if (cfd->param < idxAdj || cfd->param > (idxAdj + firmware->getCapability(Sensors)))
         return;
       break;
@@ -2041,4 +2000,129 @@ const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings &
       return customSwitches[fsIndex].type;
   }
   return gs.switchConfig[sw].type;
+}
+
+QString ModelData::getChecklistFilename() const
+{
+  return QString(name).replace(" ", "_").append(".txt").toLower();
+}
+
+void ModelData::gvarClear(const int index, bool updateRefs)
+{
+  gvarData[index].clear();
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    FlightModeData &fm = flightModeData[i];
+    fm.gvars[index] = fm.linkedGVarFlightModeZero(i);
+  }
+
+  if (updateRefs) {
+    updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                        ModelData::REF_UPD_ACT_CLEAR, index);
+  }
+}
+
+void ModelData::gvarSetMax(const int index, const float value)
+{
+  gvarData[index].setMax(value);
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    if (!isGVarLinked(i, index)) {
+      if (flightModeData[i].gvars[index] > gvarData[index].getMax()) {
+        flightModeData[i].gvars[index] = gvarData[index].getMax();
+      }
+    }
+  }
+}
+
+void ModelData::gvarSetMin(const int index, const float value)
+{
+  gvarData[index].setMin(value);
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    if (!isGVarLinked(i, index)) {
+      if (flightModeData[i].gvars[index] < gvarData[index].getMin()) {
+        flightModeData[i].gvars[index] = gvarData[index].getMin();
+      }
+    }
+  }
+}
+
+void ModelData::gvarSwap(const int index1, const int index2)
+{
+  if (index1 != index2) {
+    GVarData gvtmp = gvarData[index2];
+    GVarData *gv1 = &gvarData[index1];
+    GVarData *gv2 = &gvarData[index2];
+    memcpy(gv2, gv1, sizeof(GVarData));
+    memcpy(gv1, &gvtmp, sizeof(GVarData));
+
+    for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+      FlightModeData &fm = flightModeData[i];
+      int gvar = fm.gvars[index2];
+      fm.gvars[index2] = fm.gvars[index1];
+      fm.gvars[index1] = gvar;
+    }
+
+    updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                        ModelData::REF_UPD_ACT_SWAP, index1, index2);
+  }
+}
+
+void ModelData::gvarDelete(const int index)
+{
+  memmove(&gvarData[index], &gvarData[index + 1],
+          (CPN_MAX_GVARS - (index + 1)) * sizeof(GVarData));
+  gvarData[CPN_MAX_GVARS - 1].clear();
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    for (int i = index; i < (CPN_MAX_GVARS - 1); i++) {
+      flightModeData[j].gvars[i] = flightModeData[j].gvars[i + 1];
+    }
+  }
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    flightModeData[j].gvars[CPN_MAX_GVARS - 1] = flightModeData[j].linkedGVarFlightModeZero(j);
+  }
+
+  updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                      ModelData::REF_UPD_ACT_SHIFT, index, 0, -1);
+}
+
+void ModelData::gvarInsert(const int index)
+{
+  memmove(&gvarData[index + 1], &gvarData[index],
+          (CPN_MAX_GVARS - (index + 1)) * sizeof(GVarData));
+  gvarData[index].clear();
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    for (int i = (CPN_MAX_GVARS - 1); i > index; i--) {
+      flightModeData[j].gvars[i] = flightModeData[j].gvars[i - 1];
+    }
+  }
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    flightModeData[j].gvars[index] = flightModeData[j].linkedGVarFlightModeZero(j);
+  }
+
+  updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                      ModelData::REF_UPD_ACT_SHIFT, index, 0, 1);
+}
+
+bool ModelData::gvarInsertAllowed(const int index)
+{
+  bool ret = true;
+  int gvars = getCurrentFirmware()->getCapability(Gvars);
+
+  if (index == (gvars - 1) || !gvarData[gvars - 1].isEmpty())
+    ret = false;
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    if (flightModeData[i].gvars[gvars - 1] !=
+          flightModeData[i].linkedGVarFlightModeZero(i))
+      ret = false;
+  }
+
+  return ret;
+
 }

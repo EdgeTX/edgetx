@@ -145,14 +145,6 @@ ui(new Ui::GeneralSetup)
     ui->faimode_CB->setChecked(generalSettings.fai);
   }
 
-  if (!firmware->getCapability(RotaryEncoderNavigation)) {
-    ui->rotEncMode_CB->hide();
-    ui->rotEncMode_label->hide();
-  }
-  else {
-    populateRotEncModeCB();
-  }
-
   if (!firmware->getCapability(HasPxxCountry)) {
     ui->countrycode_label->hide();
     ui->countrycode_CB->hide();
@@ -258,15 +250,6 @@ ui(new Ui::GeneralSetup)
   if (!firmware->getCapability(Haptic)) {
     ui->hapticStrength->setDisabled(true);
     ui->hapticmodeCB->setDisabled(true);
-  }
-
-  int reCount = firmware->getCapability(RotaryEncoders);
-  if (reCount == 0) {
-    ui->re_label->hide();
-    ui->re_CB->hide();
-  }
-  else {
-    populateRotEncCB(reCount);
   }
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
@@ -505,18 +488,6 @@ void GeneralSetupPanel::updateVarioPitchRange()
   ui->varioPMax_SB->setMinimum(700 + (generalSettings.varioPitch * 10) + 1000 - 800);
 }
 
-void GeneralSetupPanel::populateRotEncCB(int reCount)
-{
-  QString strings[] = { tr("No"), tr("RotEnc A"), tr("Rot Enc B"), tr("Rot Enc C"), tr("Rot Enc D"), tr("Rot Enc E")};
-  QComboBox * b = ui->re_CB;
-
-  b->clear();
-  for (int i = 0; i <= reCount; i++) {
-    b->addItem(strings[i]);
-  }
-  b->setCurrentIndex(generalSettings.reNavigation);
-}
-
 int pwrDelayFromYaml(int delay)
 {
   static int8_t vals[] = { 1, 4, 3, 2, 0 };
@@ -627,31 +598,6 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
     else {
       generalSettings.fai = false;
     }
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::populateRotEncModeCB()
-{
-  QComboBox * b = ui->rotEncMode_CB;
-  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate"),  tr("Normal, Edit Inverted") };
-  int itemCount = 5;
-
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
-    itemCount = 2;
-  }
-
-  b->clear();
-  for (int i = 0; i < itemCount; i++) {
-    b->addItem(strings[i], 0);
-  }
-  b->setCurrentIndex(generalSettings.rotEncMode);
-}
-
-void GeneralSetupPanel::on_rotEncMode_CB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.rotEncMode = index;
     emit modified();
   }
 }
@@ -831,14 +777,6 @@ void GeneralSetupPanel::on_vBatMaxDSB_editingFinished()
 {
   if (!lock) {
     generalSettings.vBatMax = ui->vBatMaxDSB->value() * 10 - 120;
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::on_re_CB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.reNavigation = ui->re_CB->currentIndex();
     emit modified();
   }
 }

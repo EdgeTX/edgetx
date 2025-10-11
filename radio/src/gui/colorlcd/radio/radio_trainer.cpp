@@ -28,8 +28,8 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-RadioTrainerPage::RadioTrainerPage() :
-    PageTab(STR_MENUTRAINER, ICON_RADIO_TRAINER)
+RadioTrainerPage::RadioTrainerPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -50,7 +50,6 @@ void RadioTrainerPage::build(Window* form)
   form->padAll(PAD_SMALL);
 
   if (SLAVE_MODE()) {
-    form->setHeight(TabsGroup::MENU_BODY_HEIGHT);
     auto txt = new StaticText(form, rect_t{}, STR_SLAVE, COLOR_THEME_PRIMARY1_INDEX, FONT(L));
     lv_obj_align(txt->getLvObj(), LV_ALIGN_CENTER, 0, 0);
   } else {
@@ -117,7 +116,7 @@ void RadioTrainerPage::build(Window* form)
     }
 
     // Trainer calibration
-    auto btn = new TextButton(line, rect_t{}, std::string(STR_CALIBRATION),
+    auto btn = new TextButton(line, rect_t{}, std::string(STR_MENUCALIBRATION),
                               [=]() -> uint8_t {
                                 memcpy(g_eeGeneral.trainer.calib, trainerInput,
                                        sizeof(g_eeGeneral.trainer.calib));

@@ -507,8 +507,8 @@ class GVarEditWindow : public Page
   }
 };
 
-ModelGVarsPage::ModelGVarsPage() :
-    PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS)
+ModelGVarsPage::ModelGVarsPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -534,7 +534,7 @@ void ModelGVarsPage::build(Window* window)
   if (modelFMEnabled()) {
     window->padTop(PAD_OUTLINE);
     hdr = new GVarHeader(window->getParent());
-    lv_obj_set_pos(hdr->getLvObj(), 0, TabsGroup::MENU_TITLE_TOP + TabsGroup::MENU_TITLE_HEIGHT);
+    lv_obj_set_pos(hdr->getLvObj(), 0, PageGroup::PAGE_TOP_BAR_H);
     yo = GVarHeader::HDR_H;
   }
 

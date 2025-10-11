@@ -626,16 +626,7 @@ TableLayout::TableLayout(QWidget * parent, int rowCount, const QStringList & hea
 
   int col = 0;
   foreach(QString text, headerLabels) {
-    QLabel *label = new QLabel();
-    label->setFrameShape(QFrame::Panel);
-    label->setFrameShadow(QFrame::Raised);
-    label->setMidLineWidth(0);
-    label->setAlignment(Qt::AlignCenter);
-    label->setMargin(5);
-    label->setText(text);
-    // if (!minimize)
-    //   label->setMinimumWidth(100);
-    gridWidget->addWidget(label, 0, col++);
+    addColumnHead(text, col++);
   }
 #endif
 }
@@ -718,22 +709,36 @@ void TableLayout::setColumnStretch(int col, int stretch)
 #endif
 }
 
-QString Helpers::getChecklistsPath()
+void TableLayout::addColumnHead(QString text, int col, int colSpan)
 {
-  return QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/MODELS/");   // TODO : add sub folder to constants
+  QLabel *label = new QLabel();
+  label->setFrameShape(QFrame::Panel);
+  label->setFrameShadow(QFrame::Raised);
+  label->setMidLineWidth(0);
+  label->setAlignment(Qt::AlignCenter);
+  label->setMargin(2);
+  label->setText(text);
+  // if (!minimize)
+  //   label->setMinimumWidth(100);
+  gridWidget->addWidget(label, 0, col, 1, colSpan);
 }
 
-QString Helpers::getChecklistFilename(const ModelData * model)
+void TableLayout::updateColumnHeading(int col, QString &text)
 {
-  QString name = model->name;
-  name.replace(" ", "_");
-  name.append(".txt");          // TODO : add to constants
-  return name;
-}
+#if defined(TABLE_LAYOUT)
+#else
+  QLayoutItem *item = gridWidget->itemAtPosition(0, col);
 
-QString Helpers::getChecklistFilePath(const ModelData * model)
-{
-  return getChecklistsPath() + getChecklistFilename(model);
+  if (item) {
+    QWidget *widget = item->widget();
+    if (widget) {
+      QLabel *lbl = qobject_cast<QLabel*>(widget);
+      if (lbl) {
+        lbl->setText(text);
+      }
+    }
+  }
+#endif
 }
 
 QString Helpers::removeAccents(const QString & str)

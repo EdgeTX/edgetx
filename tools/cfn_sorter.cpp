@@ -13,6 +13,7 @@
 #define LCD_W 480
 #define TR(a,b) b
 #define TR3(a, b, c) c
+#define TR_BW_COL(a, b) b
 
 #if defined(LNG_CN)
 #include "../radio/src/translations/cn.h"
@@ -122,8 +123,7 @@ int main()
     { TR_SF_SCREENSHOT, "FUNC_SCREENSHOT", FUNC_SCREENSHOT, "" },	
     { TR_SF_RACING_MODE, "FUNC_RACING_MODE", FUNC_RACING_MODE, "" },
     { TR_SF_DISABLE_TOUCH, "FUNC_DISABLE_TOUCH", FUNC_DISABLE_TOUCH, "defined(COLORLCD)" },
-    { TR_SF_SET_SCREEN, "FUNC_SET_SCREEN", FUNC_SET_SCREEN, "defined(COLORLCD)" },
-    { TR_SF_SET_TELEMSCREEN, "FUNC_SET_SCREEN", FUNC_SET_SCREEN, "!defined(COLORLCD)" },
+    { TR_SF_SET_SCREEN, "FUNC_SET_SCREEN", FUNC_SET_SCREEN, "" },
     { TR_SF_DISABLE_AUDIO_AMP, "FUNC_DISABLE_AUDIO_AMP", FUNC_DISABLE_AUDIO_AMP, "" },
     { TR_SF_RGBLEDS, "FUNC_RGB_LED", FUNC_RGB_LED, "" },
     { TR_SF_LCD_TO_VIDEO, "FUNC_LCD_TO_VIDEO", FUNC_LCD_TO_VIDEO, "defined(VIDEO_SWITCH)" },

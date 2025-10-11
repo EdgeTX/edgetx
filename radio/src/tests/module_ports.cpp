@@ -25,7 +25,7 @@
 #include "hal/serial_driver.h"
 #include "pulses/modules_constants.h"
 #include "pulses/pulses.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 TEST(ports, softserialFallback)
 {

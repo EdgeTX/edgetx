@@ -350,7 +350,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
 
     case HasIMU:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board));
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
 
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
@@ -1190,7 +1190,7 @@ bool Boards::isSwitchFunc(int index, Board::Type board)
   return getBoardJson(board)->isSwitchFunc(index);
 }
 
-QString Boards::getRadioTypeString(Board::Type board)
+QString Boards::getRadioModeString(Board::Type board)
 {
   return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Board::Air) ? tr("Flight") : tr("Drive");
 }

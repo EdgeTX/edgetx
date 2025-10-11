@@ -23,6 +23,7 @@
 
 #include "window.h"
 #include "module_setup.h"
+#include "form.h"
 
 class Choice;
 struct ModuleData;
@@ -35,7 +36,7 @@ class AFHDS2ASettings : public Window, public ModuleOptions
 
   Window* afhds2OptionsLabel = nullptr;
   Window* afhds2ProtoOpts = nullptr;
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   bool hasRFPower = false;
   Window* afhds2RFPowerText = nullptr;
   Choice* afhds2RFPowerChoice = nullptr;

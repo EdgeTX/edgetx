@@ -22,36 +22,23 @@
 #pragma once
 
 #include "datastructs.h"
-#include "menu_screen.h"
 #include "screen_user_interface.h"
+#include "radio_theme.h"
 
-class ScreenAddPage : public PageTab
+class ScreenSetupPage : public PageGroupItem
 {
  public:
-  ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex);
-
-  void build(Window* window) override;
-
-  void update(uint8_t index) override;
-
- protected:
-  ScreenMenu* menu;
-  uint8_t pageIndex;
-
-  static LAYOUT_VAL_SCALED(ADD_TXT_W, 200)
-};
-
-class ScreenSetupPage : public PageTab
-{
- public:
-  ScreenSetupPage(ScreenMenu* menu, unsigned customScreenIndex);
+  ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);
 
   void build(Window* form) override;
 
   void update(uint8_t index) override;
 
+  bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
+
+  static constexpr int FIRST_SCREEN_OFFSET = 2;
+
  protected:
-  ScreenMenu* menu;
   unsigned customScreenIndex;
   Window* layoutOptions = nullptr;
 

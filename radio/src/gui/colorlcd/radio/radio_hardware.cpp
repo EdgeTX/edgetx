@@ -53,8 +53,8 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-RadioHardwarePage::RadioHardwarePage() :
-    PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE, PAD_TINY)
+RadioHardwarePage::RadioHardwarePage(PageDef& pageDef) :
+    PageGroupItem(pageDef, PAD_TINY)
 {
   enableVBatBridge();
 }
@@ -172,7 +172,7 @@ void RadioHardwarePage::build(Window* window)
   new InternalModuleWindow(window, grid);
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(STM32F4)
   new Subtitle(window, STR_EXTERNALRF);
   new ExternalModuleWindow(window, grid);
 #endif
@@ -187,7 +187,7 @@ void RadioHardwarePage::build(Window* window)
 
   // Calibration
   new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, BTN_COLS, PAD_ZERO, {
-    {STR_CALIBRATION, []() { new RadioCalibrationPage(); }},
+    {STR_MENUCALIBRATION, []() { new RadioCalibrationPage(); }},
     {STR_STICKS, []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
     {STR_POTS, []() { new HWInputDialog<HWPots>(STR_POTS, HWPots::POTS_WINDOW_WIDTH); }},
     {STR_SWITCHES, []() { new HWInputDialog<HWSwitches>(STR_SWITCHES, HWSwitches::SW_WINDOW_WIDTH); }},
@@ -198,7 +198,7 @@ void RadioHardwarePage::build(Window* window)
 
   // Debugs
   new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, FS_BTN_COLS, PAD_ZERO, {
-    {STR_ANALOGS_BTN, []() { new RadioAnalogsDiagsViewPageGroup(); }},
+    {STR_ANALOGS_BTN, [=]() { new RadioAnalogsDiagsViewPageGroup(quickMenuId); }},
     {STR_KEYS_BTN, []() { new RadioKeyDiagsPage(); }},
 #if defined(FUNCTION_SWITCHES)
     {STR_FS_BTN, []() { new RadioCustSwitchesDiagsPage(); }},  

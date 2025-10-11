@@ -180,7 +180,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   if (!firmware->getCapability(HasDisplayText)) {
     ui->displayText->hide();
-    ui->editText->hide();
+    ui->editChecklist->hide();
   }
 
   if (!firmware->getCapability(GlobalFunctions)) {
@@ -199,8 +199,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   const int ttlFlexInputs = Boards::getBoardCapability(board, Board::FlexInputs);
   const int ttlInputs = ttlSticks + ttlFlexInputs;
 
-  for (int i = 0; i < ttlInputs + firmware->getCapability(RotaryEncoders); i++) {
-    RawSource src((i < ttlInputs) ? SOURCE_TYPE_INPUT : SOURCE_TYPE_ROTARY_ENCODER, (i < ttlInputs) ? i + 1 : i - ttlInputs);
+  for (int i = 0; i < ttlInputs; i++) {
+    RawSource src(SOURCE_TYPE_INPUT, i + 1);
     QCheckBox * checkbox = new QCheckBox(this);
     checkbox->setProperty("index", i);
     checkbox->setText(src.toString(&model, &generalSettings));
@@ -321,8 +321,6 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
       connect(modules[i], &ModulePanel::protocolChanged, modules[CPN_MAX_MODULES], &ModulePanel::updateTrainerModeItemModel);
     }
   }
-
-  disableMouseScrolling();
 
   lock = false;
 }
@@ -646,17 +644,12 @@ void SetupPanel::onBeepCenterToggled(bool checked)
   }
 }
 
-void SetupPanel::on_editText_clicked()
+void SetupPanel::on_editChecklist_clicked()
 {
-  const QString path = Helpers::getChecklistsPath();
-  QDir d(path);
-  if (!d.exists()) {
-    QMessageBox::critical(this, tr("Profile Settings"), tr("SD structure path not specified or invalid"));
-  }
-  else {
-    ChecklistDialog *g = new ChecklistDialog(this, model);
-    g->exec();
-  }
+  ChecklistDialog *chk = new ChecklistDialog(this, model);
+  connect(chk, &ChecklistDialog::updated, [this]() { emit modified(); });
+  chk->exec();
+  chk->deleteLater();
 }
 
 void SetupPanel::onTimerCustomContextMenuRequested(QPoint pos)
