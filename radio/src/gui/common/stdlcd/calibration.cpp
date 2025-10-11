@@ -38,7 +38,7 @@ void menuCommonCalibOptions(event_t event)
     uint8_t k = i + menuVerticalOffset;
     LcdFlags attr = (sub == k) ? INVERS : 0;
 
-    lcdDrawTextIndented(y, STR_CHAR_STICK);
+    lcdDrawTextIndented(y, CHAR_STICK);
     lcdDrawText(lcdNextPos, y, analogGetCanonicalName(ADC_INPUT_MAIN, i), 0);
     bool stickInversion = getStickInversion(i);
     lcdDrawChar(LCD_W / 3 * 2, y, stickInversion ? 127 : 126, attr);

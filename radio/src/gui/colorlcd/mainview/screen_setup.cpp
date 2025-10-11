@@ -251,7 +251,7 @@ void ScreenSetupPage::buildLayoutOptions()
 
     // Option label
     auto line = layoutOptions->newLine(grid);
-    new StaticText(line, rect_t{}, option->name);
+    new StaticText(line, rect_t{}, STR_VAL(option->name));
 
     // Option value
     switch (option->type) {

@@ -105,5 +105,5 @@ void Layout::checkEvents()
   }
 }
 
-const ZoneOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
-                                         LAYOUT_OPTIONS_END};
+const LayoutOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
+                                           LAYOUT_OPTIONS_END};

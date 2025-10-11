@@ -36,5 +36,6 @@ class Layer
 
   static Window* back();
   static Window* getFirstOpaque();
+  static Window* getPageGroup();
   static Window* walk(std::function<bool(Window* w)> check);
 };
