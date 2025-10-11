@@ -74,7 +74,7 @@ enum WarningType
 #if !defined(GUI)
   #define DISPLAY_WARNING(...)
   inline void POPUP_WAIT(const char * s) { }
-  inline void POPUP_WARNING(const char *, const char * = nullptr, bool waitForClose) { }
+  inline void POPUP_WARNING(const char *, const char * = nullptr) { }
   inline void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler) { }
   inline void POPUP_INPUT(const char * s, PopupFunc func) { }
   inline void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags) { }
@@ -83,7 +83,7 @@ enum WarningType
   extern void CLEAR_POPUP();
   extern void POPUP_WAIT(const char * s);
   extern void POPUP_INFORMATION(const char * s);
-  extern void POPUP_WARNING(const char * message, const char * info = nullptr, bool waitForClose = true);
+  extern void POPUP_WARNING(const char * message, const char * info = nullptr);
   extern void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags);
   extern void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler);
   extern void POPUP_INPUT(const char * s, PopupFunc func);
@@ -100,4 +100,4 @@ extern void POPUP_MENU_START(PopupMenuHandler handler);
 extern void POPUP_MENU_START(PopupMenuHandler handler, int count, ...);
 
 // For compatability with color LCD code base, not (currently) required for B&W
-#define POPUP_WARNING_ON_UI_TASK POPUP_WARNING
+bool POPUP_WARNING_ON_UI_TASK(const char *, const char * = nullptr);

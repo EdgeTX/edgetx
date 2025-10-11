@@ -249,7 +249,7 @@ void logsWrite()
         if (result) {
           if (result != error_displayed) {
             error_displayed = result;
-            POPUP_WARNING_ON_UI_TASK(result, nullptr, false);
+            POPUP_WARNING_ON_UI_TASK(result, nullptr);
           }
           return;
         }
@@ -354,7 +354,7 @@ void logsWrite()
 
       if (result<0 && !error_displayed) {
         error_displayed = STR_SDCARD_ERROR;
-        POPUP_WARNING_ON_UI_TASK(STR_SDCARD_ERROR, nullptr, false);
+        POPUP_WARNING_ON_UI_TASK(STR_SDCARD_ERROR, nullptr);
         logsClose();
       }
     }
