@@ -93,10 +93,6 @@ bool POPUP_WARNING_ON_UI_TASK(const char* message, const char* info)
   // if already in a popup, ignore call
   if (ui_popup_active) return false;
 
-  // Wait in case already in popup.
-  while (ui_popup_active) {
-    sleep_ms(20);
-  }
   ui_popup_title = "Warning";
   ui_popup_msg = message;
   ui_popup_info = info;
