@@ -295,7 +295,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case PwrButtonPress:
       return IS_HORUS_OR_TARANIS(board) && (board!=Board::BOARD_TARANIS_X9D) && (board!=Board::BOARD_TARANIS_X9DP);
     case Sensors:
-      if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
+      if (IS_STM32H7(board))
+        return 99;
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
         return 60;
       else
         return 40;
