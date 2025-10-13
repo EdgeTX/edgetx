@@ -42,6 +42,7 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   ui->setupUi(this);
   this->setWindowIcon(CompanionIcon("open.png"));
   ui->btnLoadSettings->setDisabled(g.currentProfile().generalSettings().isEmpty());
+  ui->btnClearSettings->setDisabled(g.currentProfile().generalSettings().isEmpty());
 
   editorItemModels = new CompoundItemModelFactory(&generalSettings, nullptr);
   // tabs created below expect these item models to be pre-registered
@@ -139,7 +140,8 @@ void GeneralEdit::on_btnSaveSettings_clicked()
   QDateTime dateTime = QDateTime::currentDateTime();
   g.currentProfile().timeStamp(dateTime.toString("yyyy-MM-dd hh:mm"));
   ui->btnLoadSettings->setEnabled(true);
-  QMessageBox::information(this, tr("Save Radio Settings to Profile"), tr("Sattings saved to profile."));
+  ui->btnClearSettings->setEnabled(true);
+  QMessageBox::information(this, tr("Save Radio Settings to Profile"), tr("Settings saved to profile."));
 }
 
 void GeneralEdit::on_btnClearSettings_clicked()
@@ -152,5 +154,6 @@ void GeneralEdit::on_btnClearSettings_clicked()
   g.currentProfile().generalSettings(QByteArray());
   g.currentProfile().timeStamp(QString());
   ui->btnLoadSettings->setEnabled(false);
+  ui->btnClearSettings->setEnabled(false);
   QMessageBox::information(this, tr("Profile Radio Settings"), tr("Settings cleared from profile."));
 }
