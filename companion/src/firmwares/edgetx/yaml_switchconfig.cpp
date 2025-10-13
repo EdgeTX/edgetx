@@ -112,6 +112,7 @@ void YamlStickConfig::copy(GeneralSettings::InputConfig* rhs) const
 {
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
     if (config[i].type == (unsigned int)Board::AIT_STICK) {
+      rhs[i].inverted = config[i].inverted;
       memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
     }
   }
