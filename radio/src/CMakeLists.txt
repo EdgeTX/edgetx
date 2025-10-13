@@ -611,8 +611,13 @@ set(LINKER_SCRIPT firmware.ld)
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/${LINKER_SCRIPT}
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
-  --specs=nano.specs
 )
+
+if(NANO)
+  target_link_options(firmware PRIVATE
+    --specs=nano.specs
+  )
+endif()
 
 if (DEFINED TARGET_FLASH_SIZE)
   # message("TARGET_FLASH_SIZE = ${TARGET_FLASH_SIZE}")
