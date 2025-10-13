@@ -337,7 +337,7 @@ void guiMain(event_t evt)
     maxLuaInterval = interval;
   }
 
-  luaDoGc(lsWidgets, true);
+  luaDoGc(lsWidgets, false);
 
   DEBUG_TIMER_START(debugTimerLua);
   luaTask(false);

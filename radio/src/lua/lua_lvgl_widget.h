@@ -39,7 +39,7 @@ struct LvglParamFuncOrValue
     uint32_t value;
   };
 
-  uint32_t currVal  = -1;
+  uint32_t currVal = -1;
 
   void parse(lua_State *L);
   void forceUpdate() { currVal = -1; }
@@ -54,7 +54,7 @@ struct LvglParamFuncOrString
  public:
   int function;
   std::string txt;
-  uint32_t txtHash  = -1;
+  uint32_t txtHash = -1;
 
   void parse(lua_State *L);
   void forceUpdate() { txtHash = -1; }
@@ -192,6 +192,7 @@ class LvglWidgetObjectBase
 
   virtual void show() = 0;
   virtual void hide() = 0;
+  virtual bool isVisible() = 0;
   virtual void enable() {};
   virtual void disable() {};
   virtual void close() {};
@@ -256,6 +257,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
   void show() override;
   void hide() override;
+  bool isVisible() override;
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
@@ -413,6 +415,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
   void show() override { window->show(); }
   void hide() override { window->hide(); }
+  bool isVisible() override { return window->isVisible(); }
   void enable() override { window->enable(); }
   void disable() override { window->disable(); }
 
@@ -475,11 +478,16 @@ class LvglWidgetBorderedObject : public LvglWidgetBox, public LvglThicknessParam
 
   void setColor(LcdFlags newColor) override;
   void setOpacity(uint8_t newOpa) override;
+  void setFilled(int newVal);
+
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
  protected:
-  bool filled = false;
+  LvglParamFuncOrValue filled = { .function = LUA_REFNIL, .value = false};
 
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -502,11 +510,7 @@ class LvglWidgetRoundObject : public LvglWidgetBorderedObject
   LvglParamFuncOrValue radius = { .function = LUA_REFNIL, .coord = 0};
 
   void parseParam(lua_State *L, const char *key) override;
-  void refresh() override
-  {
-    setRadius(radius.coord);
-    LvglWidgetObject::refresh();
-  }
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -970,7 +974,7 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
 class LvglWidgetFilePicker : public LvglWidgetPicker, public LvglTitleParam
 {
  public:
-   LvglWidgetFilePicker() : LvglWidgetPicker() {}
+  LvglWidgetFilePicker() : LvglWidgetPicker() {}
 
  protected:
   std::string folder;
