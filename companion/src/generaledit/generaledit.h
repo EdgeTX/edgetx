@@ -69,8 +69,9 @@ class GeneralEdit : public QDialog
   private slots:
     void onTabModified();
     void on_tabWidget_currentChanged(int index);
-    void on_calretrieve_PB_clicked();
-    void on_calstore_PB_clicked();
+    void on_btnClearSettings_clicked();
+    void on_btnLoadSettings_clicked();
+    void on_btnSaveSettings_clicked();
 
   private:
     Firmware * firmware;

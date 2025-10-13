@@ -35,7 +35,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="profileTab">
       <attribute name="title">
@@ -94,7 +94,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>General Settings</string>
+          <string>Radio Settings</string>
          </property>
         </widget>
        </item>
@@ -522,7 +522,7 @@ Mode 4:
           </sizepolicy>
          </property>
          <property name="text">
-          <string notr="true">General Settings Label</string>
+          <string notr="true">Radio Settings Label</string>
          </property>
         </widget>
        </item>

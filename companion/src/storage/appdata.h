@@ -471,7 +471,6 @@ class Profile: public CompStoreObj
 
   public slots:
     bool existsOnDisk();
-    void resetFwVariables();
 
   protected:
     explicit Profile();
@@ -506,38 +505,13 @@ class Profile: public CompStoreObj
     PROPERTY(bool, telemSimResetRssiOnStop, false)
     PROPERTY(QColor, radioSimCaseColor, QColor(Qt::black))
 
-    // Firmware Variables
-    PROPERTYSTR2(beeper,        "Beeper")
-    PROPERTYSTR2(countryCode,   "countryCode")
-    PROPERTYSTR2(display,       "Display")
-    PROPERTYSTR2(haptic,        "Haptic")
-    PROPERTYSTR2(speaker,       "Speaker")
-    PROPERTYSTR2(stickPotCalib, "StickPotCalib")
-    PROPERTYSTR2(timeStamp,     "TimeStamp")
-    PROPERTYSTR2(trainerCalib,  "TrainerCalib")
-    PROPERTYSTR2(controlTypes,  "ControlTypes")
-    PROPERTYSTR2(controlNames,  "ControlNames")
-
-    PROPERTY4(int, gsStickMode,   "GSStickMode",    0)
-    PROPERTY4(int, ppmMultiplier, "PPM_Multiplier", 0)
-    PROPERTY4(int, vBatWarn,      "vBatWarn",       0)  // not a typo.. vBat vs. Vbat
-    PROPERTY4(int, vBatMin,       "VbatMin",        0)
-    PROPERTY4(int, vBatMax,       "VbatMax",        0)
-    PROPERTY4(int, txCurrentCalibration, "currentCalib",  0)
-    PROPERTY4(int, txVoltageCalibration, "VbatCalib",     0)
+    // General settings
+    PROPERTYQBA(generalSettings)
+    PROPERTYSTR2(timeStamp, "TimeStamp")
 
     PROPERTYSTRD(jsName, "")
 
     int index;
-
-    static const QStringList fwVarsList()  //! for resetFwVariables()... TODO: make this go away
-    {
-      static const QStringList list({
-        "Beeper", "countryCode", "Display", "Haptic", "Speaker", "TimeStamp", "TrainerCalib", "StickPotCalib",
-        "ControlTypes", "ControlNames", "GSStickMode", "PPM_Multiplier", "vBatWarn", "VbatMin", "VbatMax", "currentCalib", "VbatCalib"
-      });
-      return list;
-    }
 };
 
 //! \brief ComponentAssetData class stores properties related to each updateable component.
