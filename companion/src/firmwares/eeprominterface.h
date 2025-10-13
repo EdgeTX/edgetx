@@ -270,6 +270,8 @@ class Firmware
 
     virtual bool isAvailable(PulsesProtocol proto, int port=0) = 0;
 
+    virtual QString getLanguage() const = 0;
+
     const int getFlashSize();
 
     static Firmware * getFirmwareForId(const QString & id);

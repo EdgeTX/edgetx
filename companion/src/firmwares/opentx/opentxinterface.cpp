@@ -388,6 +388,12 @@ QString OpenTxFirmware::getReleaseNotesUrl()
   return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
 }
 
+QString OpenTxFirmware::getLanguage() const
+{
+  QStringList strl = getId().split('-');
+  return strl.size() > 2 ? strl.at(2) : QString();
+}
+
 // Firmware registrations
 // NOTE: "recognized" build options are defined in /radio/util/fwoptions.py
 
