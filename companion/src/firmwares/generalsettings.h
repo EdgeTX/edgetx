@@ -46,6 +46,7 @@ constexpr char AIM_GS_UARTSAMPLEMODE[]     {"gs.uartsamplemode"};
 constexpr char AIM_GS_HATSMODE[]           {"gs.hatsmode"};
 constexpr char AIM_GS_STICKMODE[]          {"gs.stickmode"};
 constexpr char AIM_GS_TEMPLATESETUP[]      {"gs.templatesetup"};
+constexpr char AIM_GS_BACKLIGHTMODE[]      {"gs.backlightmode"};
 
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
@@ -213,6 +214,15 @@ class GeneralSettings {
     enum RadioTypeContext {
       RadioTypeContextAir     = 1 << 1,
       RadioTypeContextSurface = 1 << 2,
+    };
+
+    enum BacklightMode {
+      BACKLIGHT_MODE_OFF,
+      BACKLIGHT_MODE_KEYS,
+      BACKLIGHT_MODE_CTRL,
+      BACKLIGHT_MODE_KEYSCTRL,
+      BACKLIGHT_MODE_ON,
+      BACKLIGHT_MODE_COUNT,
     };
 
     GeneralSettings() { clear(); }
@@ -399,6 +409,7 @@ class GeneralSettings {
     bool isSwitchFlex(int index) const;
     bool isSwitchFunc(int index) const;
     bool unassignedInputFlexSwitches() const;
+    static bool isBacklightModeAvailable(int index);
 
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
@@ -408,6 +419,7 @@ class GeneralSettings {
     QString hatsModeToString() const;
     QString stickModeToString() const;
     QString templateSetupToString() const;
+    QString backlightModeToString() const;
 
     static QString antennaModeToString(int value);
     static QString bluetoothModeToString(int value);
@@ -419,6 +431,7 @@ class GeneralSettings {
     static QString hatsModeToString(int value);
     static QString stickModeToString(int value);
     static QString templateSetupToString(int value, bool isBoardAir);
+    static QString backlightModeToString(int value);
 
     static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
@@ -429,6 +442,7 @@ class GeneralSettings {
     static AbstractStaticItemModel * hatsModeItemModel(bool radio_setup = true);
     static AbstractStaticItemModel * stickModeItemModel();
     static AbstractStaticItemModel * templateSetupItemModel();
+    static AbstractStaticItemModel * backlightModeItemModel();
 
     void validateFlexSwitches();
 };

@@ -29,6 +29,7 @@
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
 constexpr char FIM_TEMPLATESETUP[]  {"Template Setup"};
+constexpr char FIM_BACKLIGHTMODE[]  {"Backlight Mode"};
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
@@ -46,6 +47,7 @@ ui(new Ui::GeneralSetup)
                                                                Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
                                                                                       GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
 
   QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
   QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
@@ -91,7 +93,8 @@ ui(new Ui::GeneralSetup)
 
   lock = true;
 
-  populateBacklightCB();
+  ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
+  ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
   if (!firmware->getCapability(MultiLangVoice)) {
     ui->VoiceLang_label->hide();
@@ -376,22 +379,6 @@ void GeneralSetupPanel::on_timezoneLE_textEdited(const QString &text)
     generalSettings.timezone = secs / 3600;
     generalSettings.timezoneMinutes = (secs % 3600) / (15 * 60); // timezoneMinutes in quarter hours
     emit modified();
-  }
-}
-
-void GeneralSetupPanel::populateBacklightCB()
-{
-  QComboBox * b = ui->backlightswCB;
-  const QStringList strings = { tr("OFF"), tr("Keys"), tr("Controls"), tr("Keys + Controls"), tr("ON") };
-
-  b->clear();
-  int startValue = (Boards::getCapability(firmware->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
-
-  for (int i = startValue; i < strings.size(); i++) {
-    b->addItem(strings[i], 0);
-    if (generalSettings.backlightMode == i) {
-      b->setCurrentIndex(b->count() - 1);
-    }
   }
 }
 

@@ -219,9 +219,9 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "taranis");
 
   contrast = IS_TARANIS(board) ? 25 : 0;
-  backlightBright = 0;  // 0 = 100%         TODO yaml housekeeping
-  backlightDelay = 2;   // 2 * 5 = 10 secs  TODO yaml housekeeping
-  backlightMode = 3;    // keys and sticks  TODO get rid of magic number
+  backlightBright = 0;  // 0 = 100%
+  backlightDelay = 2;   // 2 * 5 = 10 secs
+  backlightMode = BACKLIGHT_MODE_KEYSCTRL;
   backlightOffBright = IS_FAMILY_HORUS_OR_T16(board) ? 20 : 0;
 
   backgroundVolume = 1;
@@ -232,8 +232,13 @@ void GeneralSettings::init()
   inactivityTimer = 10;
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
-  ttsLanguage[0] = 'e';   // TODO retrieve from profile fw settings and check it is a valid
-  ttsLanguage[1] = 'n';   // TODO retrieve from profile fw settings and check it is a valid
+  QString lang = getCurrentFirmware()->getLanguage();
+  if (lang.size() > 1)
+    memcpy(ttsLanguage, lang.toLatin1().data(), 2);
+  else {
+    ttsLanguage[0] = 'e';
+    ttsLanguage[1] = 'n';
+  }
 
   stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
 }
@@ -910,4 +915,48 @@ void GeneralSettings::switchConfigClear()
 {
   for (int i = 0; i < CPN_MAX_SWITCHES; i++)
     switchConfig[i] = SwitchConfig();
+}
+
+bool GeneralSettings::isBacklightModeAvailable(int index)
+{
+  int start = (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
+  return index >= start;
+}
+
+QString GeneralSettings::backlightModeToString() const
+{
+  return backlightModeToString(stickMode);
+}
+
+//  static
+QString GeneralSettings::backlightModeToString(int value)
+{
+  switch(value) {
+    case BACKLIGHT_MODE_OFF:
+      return tr("OFF");
+    case BACKLIGHT_MODE_KEYS:
+      return tr("Keys");
+    case BACKLIGHT_MODE_CTRL:
+      return tr("Controls");
+    case BACKLIGHT_MODE_KEYSCTRL:
+      return tr("Keys + Controls");
+    case BACKLIGHT_MODE_ON:
+      return tr("ON");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::backlightModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_BACKLIGHTMODE);
+
+  for (int i = 0; i < BACKLIGHT_MODE_COUNT; i++) {
+    mdl->appendToItemList(backlightModeToString(i), i, isBacklightModeAvailable(i));
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }
