@@ -93,6 +93,7 @@ class QuickMenu : public NavWindow
   static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
             PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
+  static void shutdownQuickMenu();
 
   void onCancel() override;
   void onSelect(bool close);
@@ -149,7 +150,7 @@ class QuickMenu : public NavWindow
 
   void focusMainMenu();
 
-  void deleteLater(bool detach, bool trash) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 class QuickSubMenu

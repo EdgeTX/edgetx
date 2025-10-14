@@ -174,6 +174,11 @@ QuickMenu* QuickMenu::openQuickMenu(std::function<void()> cancelHandler,
   return instance;
 }
 
+void QuickMenu::shutdownQuickMenu()
+{
+  if (instance) instance->deleteLater();
+}
+
 QuickMenu::QuickMenu() :
     NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
@@ -245,6 +250,7 @@ void QuickMenu::deleteLater(bool detach, bool trash)
   if (_deleted) return;
 
   instance = nullptr;
+
   Window::deleteLater(detach, trash);
 }
 
