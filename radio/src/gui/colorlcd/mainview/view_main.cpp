@@ -102,6 +102,7 @@ ViewMain::~ViewMain() { _instance = nullptr; }
 void ViewMain::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
+  QuickMenu::shutdownQuickMenu();
   Window::deleteLater(detach, trash);
 }
 
