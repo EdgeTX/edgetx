@@ -297,6 +297,22 @@ uint8_t modulePortGetModule(etx_module_state_t* st)
   return st - _module_states;
 }
 
+bool modulePortSerialTxCompleted(void* ctx)
+{
+  auto st = (etx_module_state_t*)ctx;
+  auto drv = modulePortGetSerialDrv(st->tx);
+  auto drv_ctx = modulePortGetCtx(st->tx);
+  return drv->txCompleted(drv_ctx);
+}
+
+bool modulePortTimerTxCompleted(void* ctx)
+{
+  auto st = (etx_module_state_t*)ctx;
+  auto drv = modulePortGetTimerDrv(st->tx);
+  auto drv_ctx = modulePortGetCtx(st->tx);
+  return drv->txCompleted(drv_ctx);
+}
+
 bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port)
 {
   auto mod_st = modulePortGetState(module);

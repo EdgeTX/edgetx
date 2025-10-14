@@ -217,4 +217,5 @@ const etx_proto_driver_t SBusDriver = {
   .processData = sbusProcessTelemetryData,
   .processFrame = nullptr,
   .onConfigChange = sbusOnConfigChange,
+  .txCompleted = modulePortSerialTxCompleted,
 };

@@ -244,4 +244,5 @@ const etx_proto_driver_t PpmDriver = {
   .processData = ppmProcessTelemetryData,
   .processFrame = nullptr,
   .onConfigChange = ppmOnConfigChange,
+  .txCompleted = modulePortTimerTxCompleted,
 };
