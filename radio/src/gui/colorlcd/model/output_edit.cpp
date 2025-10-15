@@ -27,6 +27,7 @@
 #include "gvar_numberedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -95,8 +96,7 @@ void OutputEditWindow::buildHeader(Window *window)
 {
   statusBar = new OutputEditStatusBar(
       window,
-      {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
-           OUTPUT_EDIT_RIGHT_MARGIN,
+      {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH - PageGroup::PAGE_TOP_BAR_H,
        0, OUTPUT_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }

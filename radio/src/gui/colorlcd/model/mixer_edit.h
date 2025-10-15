@@ -31,7 +31,6 @@ class MixEditWindow : public Page
   MixEditWindow(int8_t channel, uint8_t index);
 
   static LAYOUT_SIZE_SCALED(MIX_STATUS_BAR_WIDTH, 250, 180)
-  static LAYOUT_SIZE(MIX_RIGHT_MARGIN, 0, 3)
 
  protected:
   uint8_t channel;

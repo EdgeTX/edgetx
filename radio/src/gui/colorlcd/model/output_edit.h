@@ -37,7 +37,6 @@ class OutputEditWindow : public Page
   explicit OutputEditWindow(uint8_t channel);
 
   static LAYOUT_SIZE_SCALED(OUTPUT_EDIT_STATUS_BAR_WIDTH, 250, 180)
-  static LAYOUT_SIZE(OUTPUT_EDIT_RIGHT_MARGIN, 0, 3)
 
  protected:
   uint8_t channel;
