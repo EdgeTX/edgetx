@@ -60,7 +60,7 @@
 #define CPN_SETTINGS_INI_FILE       QString(PRODUCT % " " % QCoreApplication::translate("Companion", "settings") % " %1.ini")
 #define CPN_SETTINGS_INI_PATH       QString(CPN_SETTINGS_BACKUP_DIR % "/" % CPN_SETTINGS_INI_FILE)
 
-#define MAX_PROFILES 32
+#define MAX_PROFILES 100
 #define MAX_JS_AXES 10
 #define MAX_JS_BUTTONS 32
 #define MAX_COMPONENTS 10
