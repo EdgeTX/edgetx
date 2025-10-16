@@ -274,12 +274,31 @@ LuaWidget::~LuaWidget()
 
 void LuaWidget::onClicked()
 {
-  if (!fullscreen) {
-    ButtonBase::onClicked();
+  if (fullscreen) {
+    LuaScriptManager::onClickedEvent();
     return;
   }
 
-  LuaScriptManager::onClickedEvent();
+  // DoubleClick to enter fullscreen mode
+  constexpr uint32_t DOUBLETAP_TIMEOUT_MS = 500;
+
+  uint32_t now = time_get_ms();
+  if (now - tapLastMs > DOUBLETAP_TIMEOUT_MS) {
+    tapCount = 0;
+  }
+  tapLastMs = now;
+  ++tapCount;
+
+  if (tapCount < 2) {
+    Widget::onClicked();
+  } else {
+    onDoubleClicked();
+  }
+}
+
+void LuaWidget::onDoubleClicked()
+{
+  setFullscreen(true);
 }
 
 void LuaWidget::onCancel()
