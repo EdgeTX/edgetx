@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>421</width>
-    <height>390</height>
+    <height>396</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -265,30 +265,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkHardwareCompatibility">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>Checks the new firmware matches the connected radio. If not the process will be aborted.</string>
-     </property>
-     <property name="text">
-      <string>Check hardware compatibility (recommended)</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QCheckBox" name="checkBackup">
      <property name="toolTip">
       <string>Read the connected radio firmware and write to the backup folder.</string>
      </property>
      <property name="text">
-      <string>Backup radio firmware before flashing</string>
+      <string>Backup current radio firmware before flashing</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="AutoCollapsibleSection" name="advancedWidget" native="true"/>
    </item>
    <item>
     <spacer name="spacer2">
@@ -354,6 +341,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AutoCollapsibleSection</class>
+   <extends>QWidget</extends>
+   <header>autocollapsiblesection.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>writeButton</tabstop>
   <tabstop>firmwareFilename</tabstop>
