@@ -57,7 +57,6 @@ set(GUI_SRC
   startup_shutdown.cpp
 
   model/curveedit.cpp
-  model/input_edit_adv.cpp
   model/input_edit.cpp
   model/mixer_edit_adv.cpp
   model/mixer_edit.cpp
