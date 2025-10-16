@@ -267,7 +267,7 @@ void PageGroupBase::onLongPressSYS()
     setCurrentTab(0);
   } else {
     onCancel();
-    PageGroup::RadioMenu();
+    PageGroup::ToolsMenu();
   }
 }
 
@@ -355,7 +355,7 @@ void PageGroup::openMenu()
 }
 
 PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems); }
-PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems); }
+PageGroup* PageGroup::ToolsMenu() { return new PageGroup(ICON_RADIO_TOOLS, STR_QM_TOOLS, toolsMenuItems); }
 PageGroup* PageGroup::ModelMenu() { return new PageGroup(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems); }
 
 //-----------------------------------------------------------------------------

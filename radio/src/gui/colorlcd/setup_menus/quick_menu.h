@@ -111,12 +111,12 @@ class QuickMenu : public NavWindow
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
-  // void onLongPressSYS() override;
-  // void onPressMDL() override;
-  // void onLongPressMDL() override;
-  // void onPressTELE() override;
-  // void onLongPressTELE() override;
-  // void onLongPressRTN() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+  void onLongPressRTN() override;
 #endif
 
   static constexpr int QM_MAIN_BTNS = 6;

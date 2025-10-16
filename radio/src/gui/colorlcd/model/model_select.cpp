@@ -551,7 +551,7 @@ void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();
   // Radio setup
-  PageGroup::RadioMenu();
+  PageGroup::ToolsMenu();
 }
 void ModelLabelsWindow::onPressMDL()
 {
