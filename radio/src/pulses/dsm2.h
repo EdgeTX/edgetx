@@ -21,10 +21,13 @@
 
 #pragma once
 
+#include "hal/module_port.h"
 #include "hal/module_driver.h"
+#include "timers_driver.h"
 
 // DSM2/DSMX
-extern const etx_proto_driver_t DSM2Driver;
 
-// Lemon RX DSMP
-extern const etx_proto_driver_t DSMPDriver;
+extern etx_module_state_t* dsmInit(uint8_t module, uint32_t baudrate,
+                                   uint16_t period, bool telemetry);
+extern void dsmDeInit(void* ctx);
+extern const etx_proto_driver_t DSM2Driver;

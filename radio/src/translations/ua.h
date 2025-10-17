@@ -578,6 +578,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Факт.потужн.", "Фактична потужність")
 #define TR_AFHDS3_POWER_SOURCE         TR("Джерело живл.", "Джерело живлення")
+#define TR_DSMP_ENABLE_AETR            TR("Enable AETR", "Enable AETR->TAER Mapping")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI")		/* use english */
 #define TR_GPS_COORDS_FORMAT           TR("Формат коорд.", "Формат координат")
 #define TR_VARIO                       TR("Варіо", "Варіометр")

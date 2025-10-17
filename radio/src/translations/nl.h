@@ -906,6 +906,7 @@
 #define TR_TELEMETRY_NEWSENSOR "Sensor toevoegen ..."
 #define TR_CHANNELRANGE        TR("Kanalen", "Uitgangs Kanalen")  //wg 9XR-Pro
 #define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequency")
+#define TR_DSMP_ENABLE_AETR    TR("Enable AETR", "Enable AETR")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
