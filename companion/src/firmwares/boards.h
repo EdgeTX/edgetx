@@ -698,6 +698,11 @@ inline bool IS_FLYSKY_PL18U(Board::Type board)
   return (board == Board::BOARD_FLYSKY_PL18U);
 }
 
+inline bool IS_FLYSKY_NB4P(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NB4P);
+}
+
 inline bool IS_FLYSKY_ST16(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_ST16);
@@ -705,7 +710,7 @@ inline bool IS_FLYSKY_ST16(Board::Type board)
 
 inline bool IS_FAMILY_PL18(Board::Type board)
 {
-  return IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18EV(board) || IS_FLYSKY_PL18U(board);
+  return IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18EV(board) || IS_FLYSKY_PL18U(board) || IS_FLYSKY_NB4P(board);
 }
 
 inline bool IS_TARANIS_XLITE(Board::Type board)
