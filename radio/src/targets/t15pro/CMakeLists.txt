@@ -27,7 +27,7 @@ set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
+#option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
 
 # IMU support
 set(IMU ON)
@@ -78,7 +78,7 @@ add_definitions(-DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
