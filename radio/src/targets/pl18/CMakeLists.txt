@@ -1,6 +1,6 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
-option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -147,7 +147,7 @@ if(WIRELESS_CHARGER)
   add_definitions(-DWIRELESS_CHARGER)
 endif()
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
