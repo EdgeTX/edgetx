@@ -121,6 +121,8 @@ extern const char CHR_INPUT;
 #define STR_SENSOR_GSPD                      "GSpd"
 #define STR_SENSOR_HDG                       "Hdg"
 #define STR_SENSOR_SATELLITES                "Sats"
+#define STR_SENSOR_LONRAW                    "LonR"
+#define STR_SENSOR_LATRAW                    "LatR"
 #define STR_SENSOR_CELLS                     "Cels"
 #define STR_SENSOR_GPSALT                    "GAlt"
 #define STR_SENSOR_GPSDATETIME               "Date"
