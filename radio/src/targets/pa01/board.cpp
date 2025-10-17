@@ -203,17 +203,19 @@ void boardInit()
   }
 
   // First stage: Detect initial button press and handle press duration
-  first_short_press = timersGetMsTick();
-  while (pwrPressed()) {
-    now = timersGetMsTick();
-    short_press = now;
-    last_pulse  = now;
-    updateBatteryState(RGB_STATE_BREATH);
+  if (!isChargerActive()) {
+    first_short_press = timersGetMsTick();
+    while (pwrPressed()) {
+      now = timersGetMsTick();
+      short_press = now;
+      last_pulse  = now;
+      updateBatteryState(RGB_STATE_BREATH);
 
-    // Shutdown after 10s continuous press
-    if (now - first_short_press > FRIST_PRESS_TIMEOUT) {
-      rgbLedClearAll();
-      boardOff();
+      // Shutdown after 10s continuous press
+      if (now - first_short_press > FIRST_PRESS_TIMEOUT) {
+        rgbLedClearAll();
+        boardOff();
+      }
     }
   }
   
@@ -247,7 +249,8 @@ void boardInit()
       // 1. Incomplete secondary press (released too soon)
       // 2. Timeout between press sequences
       if ((long_press != 0) || (now - short_press > INTER_PRESS_TIMEOUT)) {
-          boardOff();
+        rgbLedClearAll();
+        boardOff();
       }
     }
   }
