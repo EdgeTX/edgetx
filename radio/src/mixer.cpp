@@ -231,6 +231,8 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
           virtualInputsTrims[cur_chn] = -1;
         // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
+      } else {
+        anas[ed->chn] = 0;
       }
     }
   }
