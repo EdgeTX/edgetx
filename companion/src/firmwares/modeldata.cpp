@@ -223,12 +223,19 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    customSwitches[i].type = Board::SWITCH_2POS;
-    customSwitches[i].group = 1;
-    if (i == 0)
-      customSwitches[i].start = ModelData::FUNC_SWITCH_START_ON;
-    else
-      customSwitches[i].start = ModelData::FUNC_SWITCH_START_OFF;
+    auto nm = Boards::getSwitchName(Boards::getSwitchIndexForCFS(i,getCurrentFirmware()->getBoard()));
+    if (nm.startsWith("SW")) {
+      customSwitches[i].type = Board::SWITCH_2POS;
+      customSwitches[i].group = 1;
+      if (nm.startsWith("SW1"))
+        customSwitches[i].start = ModelData::FUNC_SWITCH_START_ON;
+      else
+        customSwitches[i].start = ModelData::FUNC_SWITCH_START_OFF;
+    } else {
+      customSwitches[i].type = Board::SWITCH_GLOBAL;
+      customSwitches[i].group = 0;
+      customSwitches[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+    }
     customSwitches[i].state = 0;
     customSwitches[i].name[0] = 0;
     customSwitches[i].onColor.setColor(255, 255, 255);
