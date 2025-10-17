@@ -153,6 +153,7 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
       return 0x4878746F;
     case BOARD_FLYSKY_PA01:
       return 0x4A78746F;
@@ -220,6 +221,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
@@ -281,6 +283,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
@@ -674,6 +677,8 @@ QString Boards::getBoardName(Board::Type board)
       return "FlySky PL18EV";
     case BOARD_FLYSKY_PL18U:
       return "FlySky PL18U";
+    case BOARD_FLYSKY_NB4P:
+      return "FlySky NB4+";
     case BOARD_FLYSKY_ST16:
       return "FlySky ST16";
     case BOARD_BETAFPV_LR3PRO:
@@ -786,6 +791,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TPROV2:
   case BOARD_FLYSKY_PL18:
   case BOARD_FLYSKY_PL18EV:
+  case BOARD_FLYSKY_NB4P:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
@@ -880,6 +886,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
       BR(35, 43, 37)
       break;
     case BOARD_FLYSKY_ST16:
