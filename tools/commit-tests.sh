@@ -7,32 +7,12 @@ set -x
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
 
-# Allow variable core usage
-# default uses all cpu cores
-#
-if [ -f /usr/bin/nproc ]; then
-    num_cpus=$(nproc)
-elif [ -f /usr/sbin/sysctl ]; then
-    num_cpus=$(sysctl -n hw.logicalcpu)
-else
-    num_cpus=2
-fi
-: "${CORES:=$num_cpus}"
-
 # If no build target, exit
 #: "${FLAVOR:=ALL}"
 
 for i in "$@"
 do
 case $i in
-    --jobs=*)
-      CORES="${i#*=}"
-      shift
-      ;;
-    -j*)
-      CORES="${i#*j}"
-      shift
-      ;;
     -Wno-error)
       WERROR=0
       shift
@@ -79,12 +59,12 @@ do
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
 
-    cmake --build . --target arm-none-eabi-configure
-    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
+    cmake --build . --target arm-none-eabi-configure --parallel
+    cmake --build arm-none-eabi --target ${FIRMARE_TARGET} --parallel
 
-    cmake --build . --target native-configure
-    cmake --build native -j"${CORES}" --target libsimulator
-    cmake --build native -j"${CORES}" --target tests-radio
+    cmake --build . --target native-configure --parallel
+    cmake --build native --target libsimulator --parallel
+    cmake --build native --target tests-radio --parallel
 
     rm -f CMakeCache.txt native/CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done
