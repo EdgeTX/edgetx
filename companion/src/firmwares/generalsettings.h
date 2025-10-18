@@ -338,6 +338,8 @@ class GeneralSettings {
 
     char selectedTheme[SELECTED_THEME_NAME_LEN + 1];
 
+    RawSource backlightSrc;
+
     // Radio level tabs control (global settings)
     bool radioThemesDisabled;
     bool radioGFDisabled;

@@ -668,6 +668,54 @@ void FlexSwitchesItemModel::update(const int event)
 }
 
 //
+// BacklightSourceItemModel
+//
+
+BacklightSourceItemModel::BacklightSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+  AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
+{
+  setId(IMID_BacklightSource);
+  setUpdateMask(IMUE_SystemRefresh);
+
+  addItems(SOURCE_TYPE_NONE,   1);
+  addItems(SOURCE_TYPE_INPUT,  board->getCapability(Board::Inputs), board->getCapability(Board::Sticks));
+  addItems(SOURCE_TYPE_SWITCH, board->getCapability(Board::Switches));
+}
+
+void BacklightSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
+{
+  item->setText(src.toString(modelData, generalSettings, boardType));
+  item->setData(src.isAvailable(modelData, generalSettings, boardType), IMDR_Available);
+}
+
+void BacklightSourceItemModel::addItems(const RawSourceType & type, int count, const int start)
+{
+  const int idxAdj = (type == SOURCE_TYPE_NONE ? -1 : 0);
+
+  for (int i = 1 + start; i <= count; ++i) {
+    const RawSource src = RawSource(type, i + idxAdj);
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(src.toValue(), IMDR_Id);
+    modelItem->setData(type, IMDR_Type);
+    setDynamicItemData(modelItem, src);
+    appendRow(modelItem);
+  }
+}
+
+void BacklightSourceItemModel::update(const int event)
+{
+  if (doUpdate(event)) {
+    emit aboutToBeUpdated();
+
+    for (int i = 0; i < rowCount(); ++i)
+      setDynamicItemData(item(i), RawSource(item(i)->data(IMDR_Id).toInt()));
+
+    emit updateComplete();
+  }
+}
+
+//
 // CompoundItemModelFactory
 //
 
@@ -721,6 +769,9 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_FlexSwitches:
       registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));
+      break;
+    case AbstractItemModel::IMID_BacklightSource:
+      registerItemModel(new BacklightSourceItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     default:
       qDebug() << "Error: unknown item model: id";
