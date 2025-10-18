@@ -678,6 +678,11 @@ BacklightSourceItemModel::BacklightSourceItemModel(const GeneralSettings * const
   setId(IMID_BacklightSource);
   setUpdateMask(IMUE_SystemRefresh);
 
+  // Descending source direction: inverted (!) sources
+  addItems(SOURCE_TYPE_SWITCH, -board->getCapability(Board::Switches));
+  addItems(SOURCE_TYPE_INPUT,  -board->getCapability(Board::Inputs), -board->getCapability(Board::Sticks));
+
+  // Ascending source direction (including zero)
   addItems(SOURCE_TYPE_NONE,   1);
   addItems(SOURCE_TYPE_INPUT,  board->getCapability(Board::Inputs), board->getCapability(Board::Sticks));
   addItems(SOURCE_TYPE_SWITCH, board->getCapability(Board::Switches));
@@ -686,14 +691,17 @@ BacklightSourceItemModel::BacklightSourceItemModel(const GeneralSettings * const
 void BacklightSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
 {
   item->setText(src.toString(modelData, generalSettings, boardType));
-  item->setData(src.isAvailable(modelData, generalSettings, boardType), IMDR_Available);
+  item->setData(src.isAvailable(modelData, generalSettings, boardType, RawSource::AVAILABLE_BACKLIGHTSRC), IMDR_Available);
 }
 
 void BacklightSourceItemModel::addItems(const RawSourceType & type, int count, const int start)
 {
   const int idxAdj = (type == SOURCE_TYPE_NONE ? -1 : 0);
 
-  for (int i = 1 + start; i <= count; ++i) {
+  int first = start + count < 0 ? start + count : start + 1;
+  int last = start + count < 0 ? start : start + count + 1;
+
+  for (int i = first; i < last; ++i) {
     const RawSource src = RawSource(type, i + idxAdj);
     QStandardItem * modelItem = new QStandardItem();
     modelItem->setData(src.toValue(), IMDR_Id);

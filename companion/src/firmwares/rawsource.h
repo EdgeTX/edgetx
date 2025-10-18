@@ -248,6 +248,12 @@ class RawSource {
       AllSourceGroups   = InputSourceGroups | GVarsGroup | TelemGroup | ScriptsGroup
     };
 
+    // flags to refine isAvailable
+    enum AvailableFlags {
+      AVAILABLE_ALL,
+      AVAILABLE_BACKLIGHTSRC = 0x001
+    };
+
     RawSource() { clear(); }
 
     explicit RawSource(int value):
@@ -272,7 +278,10 @@ class RawSource {
     RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags=0) const;
     bool isStick(Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isTimeBased(Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isAvailable(const ModelData * const model = nullptr,
+                     const GeneralSettings * const gs = nullptr,
+                     Board::Type board = Board::BOARD_UNKNOWN,
+                     const int flags = 0) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
     static StringTagMappingTable getSpecialTypesLookupTable();
