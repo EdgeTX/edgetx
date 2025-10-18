@@ -247,13 +247,6 @@ static bool isSourceTelemAvailable(int source) {
     return isTelemetryFieldComparisonAvailable(qr.quot);
 }
 
-static bool isSourceTelemCompAvailable(int source) {
-  if (!modelTelemetryEnabled())
-    return false;
-  div_t qr = div(source, 3);
-  return isTelemetryFieldComparisonAvailable(qr.quot);
-}
-
 struct sourceAvailableCheck {
   uint16_t first;
   uint16_t last;
@@ -287,7 +280,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
-  { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM_COMP, isSourceTelemCompAvailable },
   { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
 };
 
@@ -313,31 +305,6 @@ bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
             SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
-            );
-}
-
-// Used only in B&W radios for Global Functions when funcion is FUNC_PLAY_VALUE
-bool isSourceAvailableInGlobalFunctions(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_NONE
-            );
-}
-
-// Used only in B&W radios with wide screen LCD (212x64) for logical switches
-// V1 parameter when LS function is LS_FAMILY_OFS or LS_FAMILY_DIFF
-bool isSourceAvailableInCustomSwitches(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM_COMP | SRC_NONE
-            );
-}
-
-// Only used for B&W radios for Input source (color radios use isSourceAvailable)
-bool isSourceAvailableInInputs(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_CHANNEL_ALL | SRC_TELEM_COMP
             );
 }
 

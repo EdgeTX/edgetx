@@ -64,7 +64,7 @@ void insertExpo(uint8_t idx)
     } else {
       expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(i - 1);
     }
-    if (isSourceAvailableInInputs(expo->srcRaw)) {
+    if (isSourceAvailable(expo->srcRaw)) {
       break;
     }
   }
