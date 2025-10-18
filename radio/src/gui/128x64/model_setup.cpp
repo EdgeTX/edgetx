@@ -2380,7 +2380,7 @@ void menuModelSetup(event_t event)
 #if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: 
 #endif
-#if defined(MULTIMODULE) | defined(DSMP) | defined(AFHDS3)
+#if (defined(MULTIMODULE) | defined(DSMP) | defined(AFHDS3)) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS: 
       {
         // MultiModule & LemonDSMP & AFHDS3 Status
@@ -2390,7 +2390,7 @@ void menuModelSetup(event_t event)
         break;
       }
 #endif
-#if defined(DSMP)
+#if defined(DSMP) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_ENABLE_AETR:
         g_model.moduleData[EXTERNAL_MODULE].dsmp.enableAETR =
             editCheckBox(g_model.moduleData[EXTERNAL_MODULE].dsmp.enableAETR,
