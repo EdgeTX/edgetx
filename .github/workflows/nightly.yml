@@ -47,6 +47,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set parallel build level
+        uses: ./.github/actions/set-cmake-parallel
+
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
