@@ -1,0 +1,15 @@
+name: 'Set CMAKE_BUILD_PARALLEL_LEVEL'
+description: 'Sets CMAKE_BUILD_PARALLEL_LEVEL to CPU count minus 1 for Linux, macOS, and Windows'
+runs:
+  using: "composite"
+  steps:
+    - name: Set parallel build level
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "CMAKE_BUILD_PARALLEL_LEVEL=$(($(nproc --all) - 1))" >> $GITHUB_ENV
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          echo "CMAKE_BUILD_PARALLEL_LEVEL=$(($(sysctl -n hw.ncpu) - 1))" >> $GITHUB_ENV
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          echo "CMAKE_BUILD_PARALLEL_LEVEL=$((NUMBER_OF_PROCESSORS - 1))" >> $GITHUB_ENV
+        fi
+      shell: bash

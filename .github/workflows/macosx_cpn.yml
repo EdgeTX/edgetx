@@ -69,6 +69,9 @@ jobs:
 
       - name: Install SDL2
         run:  brew install SDL2
+      
+      - name: Set parallel build level
+        uses: ./.github/actions/set-cmake-parallel
 
       - name: Build
         working-directory: ${{github.workspace}}

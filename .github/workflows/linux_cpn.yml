@@ -42,6 +42,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set parallel build level
+        uses: ./.github/actions/set-cmake-parallel
+
       - name: Build
         working-directory: ${{github.workspace}}
         shell: bash

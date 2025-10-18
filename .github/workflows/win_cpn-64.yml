@@ -73,6 +73,9 @@ jobs:
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Set parallel build level
+        uses: ./.github/actions/set-cmake-parallel
+
       - name: Build
         run: |
           mkdir output && \
