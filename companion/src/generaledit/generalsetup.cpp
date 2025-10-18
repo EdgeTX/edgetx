@@ -527,16 +527,15 @@ void GeneralSetupPanel::setValues()
 
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
 
+  ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+
   if (Boards::getCapability(board, Board::HasColorLcd)) {
-    ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
     ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
     ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);
     ui->favMultiMode_CB->setCurrentIndex(generalSettings.favMultiMode);
     showLabelSelectOptions();
   } else {
-    ui->label_modelQuickSelect->hide();
-    ui->modelQuickSelect_CB->hide();
     ui->label_modelSelectLayout->hide();
     ui->modelSelectLayout_CB->hide();
     ui->label_labelSingleSelect->hide();

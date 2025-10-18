@@ -33,6 +33,8 @@ void onModelSelectMenu(const char * result)
         return;
     }
     selectModel(sub);
+    if (g_eeGeneral.modelQuickSelect && result == STR_SELECT_MODEL)
+      popMenu();
   }
   else if (result == STR_COPY_MODEL) {
     s_copyMode = COPY_MODE;
