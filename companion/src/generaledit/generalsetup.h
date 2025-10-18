@@ -111,7 +111,6 @@ class GeneralSetupPanel : public GeneralPanel
     void showLabelSelectOptions();
 
     void setValues();
-    void populateBacklightCB();
     void populateVoiceLangCB();
     void updateVarioPitchRange();
 };

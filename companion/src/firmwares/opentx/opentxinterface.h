@@ -91,6 +91,8 @@ class OpenTxFirmware: public Firmware
       return false;
     }
 
+    virtual QString getLanguage() const override;
+
   protected:
 
     QString getFirmwareBaseUrl() { return ""; }  //  depreciated;
