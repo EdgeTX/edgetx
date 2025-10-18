@@ -37,7 +37,11 @@ struct DSMPEnableAETR : public FormLine {
     cb = new ToggleSwitch(this, rect_t{}, GET_SET_DEFAULT(md->dsmp.enableAETR));
   }
 
-  void update() { cb->update(); }
+  void update()
+  {
+    show();
+    cb->update();
+  }
 
  private:
   ToggleSwitch* cb;
@@ -71,5 +75,6 @@ DSMPSettings::DSMPSettings(Window* parent,
   update();
 }
 
-void DSMPSettings::update() {
+void DSMPSettings::update() { 
+    enableAETR_line->update(); 
 }
