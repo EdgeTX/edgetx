@@ -849,71 +849,14 @@ void processSpektrumPacket(const uint8_t *packet)
  LemonRX+Sat+tele    0xb2   07     1
 
  */
-void processDSMBindPacket(uint8_t module, const uint8_t *packet)
+void processDSMBindPacket(const uint8_t *packet)
 {
   uint32_t debugval;
-
-#if defined(MULTIMODULE)
-  if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
-             g_model.moduleData[module].multi.rfProtocol ==
-             MODULE_SUBTYPE_MULTI_DSM2 &&
-             g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
-
-    // Only sets channel etc when in DSM/AUTO mode
-    int channels = packet[5];
-    if (channels > 12) {
-      channels = 12;
-    }
-    else if (channels < 3) {
-      channels = 3;
-    }
-
-    switch(packet[6]) {
-      case 0xa2:
-        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSMX_22;
-        break;
-      case 0x12:
-        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSM2_11;
-        if (channels == 7) {
-          channels = 12;    // change the number of channels if 7
-        }
-        break;
-      case 0x01:
-      case 0x02:
-        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSM2_22;
-        break;
-      default: // 0xb2 or unknown
-        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSMX_11;
-        if (channels == 7) {
-          channels = 12;    // change the number of channels if 7
-        }
-        break;
-    }
-
-    g_model.moduleData[module].channelsCount = channels - 8;
-    // clear the 11ms servo refresh rate flag
-    g_model.moduleData[module].multi.optionValue &= 0xFD;
-
-    storageDirty(EE_MODEL);
-  }
-#endif
   debugval = packet[7] << 24 | packet[6] << 16 | packet[5] << 8 | packet[4];
 
   /* log the bind packet as telemetry for quick debugging */
   setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_BIND, 0, 0,
                     debugval, UNIT_RAW, 0);
-
-  /* Finally stop binding as the rx just told us that it is bound */
-  if (getModuleMode(module) == MODULE_MODE_BIND) {
-    auto module_type = g_model.moduleData[module].type;
-#if defined(MULTIMODULE)
-    if (module_type == MODULE_TYPE_MULTIMODULE &&
-        g_model.moduleData[module].multi.rfProtocol ==
-            MODULE_SUBTYPE_MULTI_DSM2) {
-      setMultiBindStatus(module, MULTI_BIND_FINISHED);
-    }
-#endif
-  }
 }
   
 

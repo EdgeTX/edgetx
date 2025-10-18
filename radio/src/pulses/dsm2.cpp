@@ -116,8 +116,7 @@ static void setupPulsesDSM2(uint8_t module, uint8_t type, uint8_t*& p_buf)
     dsmDat[0] |= DSM2_SEND_RANGECHECK;
   }
 
-  dsmDat[1] = g_model.header
-                  .modelId[module];  // DSM2 Header second byte for model match
+  dsmDat[1] = g_model.header.modelId[module]; // DSM2 Header second byte for model match
 
   for (int i = 0; i < DSM2_CHANS; i++) {
     int channel = g_model.moduleData[module].channelsStart + i;

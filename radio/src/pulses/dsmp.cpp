@@ -289,7 +289,7 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
 
     // Convert DSMP bind to Spektrum compatible bind and continue with common Spektrum.cpp bind processing
     uint8_t newPacket[10] = {0, 0, 0, 0, rxType, channels, txMode, 0, 0, 0};
-    processDSMBindPacket(module, newPacket);
+    processDSMBindPacket(newPacket);
 
     // FARZU: Not-Needed, the module_setup.cpp page is restarting the module.
     // If we restart here, it seems to leave the TX module in a weird state that needs to retart the TX to fix it.

@@ -28,4 +28,4 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
 
 // Used directly by multi and DSMP telemetry protocol 
 void processSpektrumPacket(const uint8_t *packet);
-void processDSMBindPacket(uint8_t module, const uint8_t *packet);
+void processDSMBindPacket(const uint8_t *packet);
