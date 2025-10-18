@@ -22,6 +22,13 @@
 #include "audio.h"
 #include "simuaudio.h"
 
+#if defined(AUDIO_HP_DETECT_PIN)
+bool audioHeadphoneDetect()
+{
+  return false;
+}
+#endif
+
 #if !defined(SOFTWARE_VOLUME)
 static int _simu_volume = 0;
 

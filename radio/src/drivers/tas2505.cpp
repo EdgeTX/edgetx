@@ -133,7 +133,7 @@ int tas2505_init(tas2505_t* dev)
 // max value is 126
 #define VOLUME_MIN_DB     60
 
-void tas2505_set_volume(tas2505_t* dev, uint8_t volume)
+void tas2505_set_volume(tas2505_t* dev, uint8_t volume, bool headphone_mode = false)
 {
   if (volume > VOLUME_LEVEL_MAX) {
     volume = VOLUME_LEVEL_MAX;
@@ -145,7 +145,12 @@ void tas2505_set_volume(tas2505_t* dev, uint8_t volume)
   } else {
     uint32_t vol = (VOLUME_MIN_DB * 2) -
                    ((uint32_t)volume * (VOLUME_MIN_DB * 2)) / VOLUME_LEVEL_MAX;
-    tas2505_write_reg(dev, TAS2505_SPKVOL1, vol);
-    tas2505_write_reg(dev, TAS2505_HP_VOL, vol);
+    if (headphone_mode) {
+      tas2505_write_reg(dev, TAS2505_SPKVOL1, 0xFE);
+      tas2505_write_reg(dev, TAS2505_HP_VOL, vol);
+    } else {
+      tas2505_write_reg(dev, TAS2505_SPKVOL1, vol);
+      tas2505_write_reg(dev, TAS2505_HP_VOL, 0xFE);
+    }
   }
 }
