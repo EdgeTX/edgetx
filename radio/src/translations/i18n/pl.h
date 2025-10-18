@@ -1076,7 +1076,8 @@
 #define TR_CURVE_PRESET        "Predef..."
 #define TR_PRESET              "Predef."
 #define TR_MIRROR              "Lustro"
-#define TR_CLEAR               BUTTON("Wyczyść")
+#define TR_CLEAR               "Wyczyść"
+#define TR_CLEAR_BTN           BUTTON("Wyczyść")
 #define TR_RESET               "Resetuj"
 #define TR_RESET_SUBMENU       "Reset..."
 #define TR_COUNT               "Punkty"

@@ -1086,7 +1086,8 @@
 #define TR_CURVE_PRESET                 "Förinställd..."
 #define TR_PRESET                       "Lutning"
 #define TR_MIRROR                       "Spegla"
-#define TR_CLEAR                        BUTTON("Rensa")
+#define TR_CLEAR                        "Rensa"
+#define TR_CLEAR_BTN                    BUTTON("Rensa")
 #define TR_RESET                        "Återställ"
 #define TR_RESET_SUBMENU                "Återställ..."
 #define TR_COUNT                        "Antal"

@@ -1079,7 +1079,8 @@
 #define TR_CURVE_PRESET                "Preset..."
 #define TR_PRESET                      "Preset"
 #define TR_MIRROR                      "Espelhar"
-#define TR_CLEAR                       BUTTON("Clear")
+#define TR_CLEAR                       "Clear"
+#define TR_CLEAR_BTN                   BUTTON("Clear")
 #define TR_RESET                       "Reset"
 #define TR_RESET_SUBMENU               "Reset..."
 #define TR_COUNT                       "Quantidade"

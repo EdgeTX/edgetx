@@ -1081,7 +1081,8 @@
 #define TR_CURVE_PRESET                "Šablona"
 #define TR_PRESET                      "Šablona"
 #define TR_MIRROR                      "Zrcadlit"
-#define TR_CLEAR                       BUTTON("Smazat")
+#define TR_CLEAR                       "Smazat"
+#define TR_CLEAR_BTN                   BUTTON("Smazat")
 #define TR_RESET                       "Reset"
 #define TR_RESET_SUBMENU               "Inicializovat ..."
 #define TR_COUNT                       "Velikost"

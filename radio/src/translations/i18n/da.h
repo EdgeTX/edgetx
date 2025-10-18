@@ -1083,7 +1083,8 @@
 #define TR_CURVE_PRESET                TR ("Forudindstil", "Forudind.")
 #define TR_PRESET                      "Forudindstil"
 #define TR_MIRROR                      "Spejle"
-#define TR_CLEAR                       BUTTON("Slet")
+#define TR_CLEAR                       "Slet"
+#define TR_CLEAR_BTN                   BUTTON("Slet")
 #define TR_RESET                       "Nulstil"
 #define TR_RESET_SUBMENU               "Nulstil..."
 #define TR_COUNT                       "Tæller"

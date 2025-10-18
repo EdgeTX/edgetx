@@ -1081,7 +1081,8 @@
 #define TR_CURVE_PRESET                "Courbe standard..."
 #define TR_PRESET                      "Pente"
 #define TR_MIRROR                      "Miroir"
-#define TR_CLEAR                       BUTTON("Effacer")
+#define TR_CLEAR                       "Effacer"
+#define TR_CLEAR_BTN                   BUTTON("Effacer")
 #define TR_RESET                       "Réinit."
 #define TR_RESET_SUBMENU               "Réinit..."
 #define TR_COUNT                       "Nb points"
