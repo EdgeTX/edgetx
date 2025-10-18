@@ -459,13 +459,13 @@ void onBluetoothConnectMenu(const char * result)
 }
 #endif
 
-#include "common/stdlcd/model_setup_pxx1.cpp"
+#include "model_setup_pxx1.cpp"
 
 #if defined(PXX2)
-#include "common/stdlcd/model_setup_pxx2.cpp"
+#include "model_setup_pxx2.cpp"
 #endif
 #if defined(AFHDS3)
-#include "common/stdlcd/model_setup_afhds3.cpp"
+#include "model_setup_afhds3.cpp"
 #endif
 
 #if defined(USBJ_EX)
@@ -1358,7 +1358,7 @@ void menuModelSetup(event_t event)
           }
           if (bluetooth.distantAddr[0]) {
             lcdDrawText(INDENT_WIDTH, y+1, bluetooth.distantAddr, TINSIZE);
-            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_CLEAR, attr);
+            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_CLEAR_BTN, attr);
             if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
               bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
               memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));

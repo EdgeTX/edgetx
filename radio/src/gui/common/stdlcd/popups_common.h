@@ -26,6 +26,25 @@
 #include "lcd.h"
 #include "keys.h"
 
+#define POPUP_MENU_MAX_LINES           13
+#define MENU_MAX_DISPLAY_LINES         6
+#define MENU_LINE_LENGTH               (LEN_MODEL_NAME+12)
+
+enum {
+  MENU_OFFSET_INTERNAL,
+  MENU_OFFSET_EXTERNAL
+};
+
+enum WarningType
+{
+  WARNING_TYPE_WAIT,
+  WARNING_TYPE_INFO,
+  WARNING_TYPE_ASTERISK,
+  WARNING_TYPE_CONFIRM,
+  WARNING_TYPE_INPUT,
+  WARNING_TYPE_ALERT
+};
+
 extern const char * warningText;
 extern const char * warningInfoText;
 extern uint8_t      warningInfoLength;
@@ -60,16 +79,6 @@ void showAlertBox(const char * title, const char * text, const char * action , u
 // Full screen with 2 lines and a progress bar
 void drawProgressScreen(const char * title, const char * message, int num, int den);
 typedef void (* ProgressHandler)(const char *, const char *, int, int);
-
-enum WarningType
-{
-  WARNING_TYPE_WAIT,
-  WARNING_TYPE_INFO,
-  WARNING_TYPE_ASTERISK,
-  WARNING_TYPE_CONFIRM,
-  WARNING_TYPE_INPUT,
-  WARNING_TYPE_ALERT
-};
 
 #if !defined(GUI)
   #define DISPLAY_WARNING(...)

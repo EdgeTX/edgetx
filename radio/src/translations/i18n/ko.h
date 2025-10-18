@@ -1127,7 +1127,8 @@
 #define TR_CURVE_PRESET                   "프리셋..."
 #define TR_PRESET                         "프리셋"
 #define TR_MIRROR                         "미러"
-#define TR_CLEAR                          BUTTON("지우기")
+#define TR_CLEAR                          "지우기"
+#define TR_CLEAR_BTN                      BUTTON("지우기")
 #define TR_RESET                          "초기화"
 #define TR_RESET_SUBMENU                  "초기화..."
 #define TR_COUNT                          "카운트"

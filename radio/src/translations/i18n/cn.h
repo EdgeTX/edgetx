@@ -1078,7 +1078,8 @@
 #define TR_CURVE_PRESET                "预设..."
 #define TR_PRESET                      "预设"
 #define TR_MIRROR                      "镜像"
-#define TR_CLEAR                       BUTTON("清除")
+#define TR_CLEAR                       "清除"
+#define TR_CLEAR_BTN                   BUTTON("清除")
 #define TR_RESET                       "复位"
 #define TR_RESET_SUBMENU               "复位..."
 #define TR_COUNT                       "点数"

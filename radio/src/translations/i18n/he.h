@@ -1081,7 +1081,8 @@
 #define TR_CURVE_PRESET                "Preset..."
 #define TR_PRESET                      "Preset"
 #define TR_MIRROR                      "היפוך"
-#define TR_CLEAR                       BUTTON("ניקוי")
+#define TR_CLEAR                       "ניקוי"
+#define TR_CLEAR_BTN                   BUTTON("ניקוי")
 #define TR_RESET                       "איפוס"
 #define TR_RESET_SUBMENU               "...איפוס"
 #define TR_COUNT                       "ספירה"

@@ -1079,7 +1079,8 @@
 #define TR_CURVE_PRESET        "Preset..."
 #define TR_PRESET              "Preset"
 #define TR_MIRROR              "Spiegelen"
-#define TR_CLEAR               BUTTON("Wissen")
+#define TR_CLEAR               "Wissen"
+#define TR_CLEAR_BTN           BUTTON("Wissen")
 #define TR_RESET               "Reset Servowaardes"
 #define TR_RESET_SUBMENU       "Reset..."
 #define TR_COUNT               "Punten"

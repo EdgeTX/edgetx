@@ -1078,7 +1078,8 @@
 #define TR_CURVE_PRESET                    "Preimpostate..."
 #define TR_PRESET                          "Preimpostate"
 #define TR_MIRROR                          "Mirror"
-#define TR_CLEAR                           BUTTON("Cancella")
+#define TR_CLEAR                           "Cancella"
+#define TR_CLEAR_BTN                       BUTTON("Cancella")
 #define TR_RESET                           "Azzera"
 #define TR_RESET_SUBMENU                   "Azzera..."
 #define TR_COUNT                           "Punti"

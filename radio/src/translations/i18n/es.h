@@ -1079,7 +1079,8 @@
 #define TR_CURVE_PRESET        "Preset..."
 #define TR_PRESET              "Preset"
 #define TR_MIRROR              "Mirror"
-#define TR_CLEAR               BUTTON("Borrar")
+#define TR_CLEAR               "Borrar"
+#define TR_CLEAR_BTN           BUTTON("Borrar")
 #define TR_RESET               "Reset"
 #define TR_RESET_SUBMENU       "Reset..."
 #define TR_COUNT               "Puntos"

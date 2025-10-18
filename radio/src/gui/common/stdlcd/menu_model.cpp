@@ -21,7 +21,7 @@
 
 #include "edgetx.h"
 
-const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT] = {
+const MenuHandler menuTabModel[]  = {
   { menuModelSelect, nullptr },
   { menuModelSetup, nullptr },
 #if defined(HELI)
@@ -34,6 +34,9 @@ const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT] = {
   { menuModelMixAll, nullptr },
   { menuModelLimits, nullptr },
   { menuModelCurvesAll, modelCurvesEnabled },
+#if defined(GVARS) && defined(FLIGHT_MODES) && (LCD_W >= 212)
+  { menuModelGVars, modelGVEnabled },
+#endif
   { menuModelLogicalSwitches, modelLSEnabled },
   { menuModelSpecialFunctions, modelSFEnabled },
 #if defined(LUA_MODEL_SCRIPTS)
@@ -43,30 +46,12 @@ const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT] = {
   { menuModelDisplay, nullptr }
 };
 
-uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec)
-{
-  lcdDrawTextAlignedLeft(y, str);
-  lcdDrawNumber(MIXES_2ND_COLUMN, y, delay, attr|prec|LEFT);
-  if (attr) CHECK_INCDEC_MODELVAR_ZERO(event, delay, DELAY_MAX);
-  return delay;
-}
-
 uint8_t s_copyMode = 0;
 int8_t s_copySrcRow;
 int8_t s_copyTgtOfs;
 uint8_t s_maxLines = 8;
 uint8_t s_copySrcIdx;
 uint8_t s_copySrcCh;
-
-uint8_t editNameCursorPos = 0;
-
-void editSingleName(coord_t x, coord_t y, const char* label, char* name,
-                    uint8_t size, event_t event, uint8_t active,
-                    uint8_t old_editMode, coord_t lblX)
-{
-  lcdDrawText(lblX, y, label);
-  editName(x, y, name, size, event, active, 0, old_editMode);
-}
 
 uint8_t s_currIdx;
 uint8_t s_currIdxSubMenu;

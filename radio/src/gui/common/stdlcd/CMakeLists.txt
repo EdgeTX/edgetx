@@ -1,10 +1,12 @@
 set(GUI_SRC
   ${GUI_SRC}
-  ../common/stdlcd/menus.cpp
+  ../common/stdlcd/menu_model.cpp
+  ../common/stdlcd/menu_radio.cpp
+  ../common/stdlcd/menus_common.cpp
   ../common/stdlcd/draw_functions.cpp
   ../common/stdlcd/fonts.cpp
   ../common/stdlcd/utf8.cpp
-  ../common/stdlcd/popups.cpp
+  ../common/stdlcd/popups_common.cpp
   ../common/stdlcd/model_inputs.cpp
   ../common/stdlcd/model_mixes.cpp
   ../common/stdlcd/view_text.cpp
@@ -17,6 +19,8 @@ set(GUI_SRC
   ../common/stdlcd/calibration.cpp
   ../common/stdlcd/splash.cpp
   ../common/stdlcd/radio_sdmanager.cpp
+  ../common/stdlcd/widgets_common.cpp
+  ../common/stdlcd/lcd_common.cpp
   model_curve_edit.cpp
   )
 

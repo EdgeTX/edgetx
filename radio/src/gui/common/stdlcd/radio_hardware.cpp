@@ -367,6 +367,13 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
 #endif
 }
 
+static bool editInversion(bool state, event_t event, coord_t y, LcdFlags flags)
+{
+  lcdDrawChar(LCD_W - 8, y, state ? 127 : 126, flags);
+  if (flags & (~RIGHT)) state = checkIncDec(event, state, 0, 1, EE_GENERAL);
+  return state;
+}
+
 void menuRadioHardware(event_t event)
 {
   uint8_t old_editMode = s_editMode;
@@ -634,15 +641,10 @@ void menuRadioHardware(event_t event)
           // Sticks
           int idx = k - ITEM_RADIO_HARDWARE_STICK;
 
-          LcdFlags flags = menuHorizontalPosition == 0 ? attr : 0;
-          editStickHardwareSettings(HW_SETTINGS_COLUMN1, y,
-                                    idx, event, flags, old_editMode);
+          editStickHardwareSettings(HW_SETTINGS_COLUMN1, y, idx, event,
+                                    menuHorizontalPosition == 0 ? attr : 0, old_editMode);
           // ADC inversion
-          flags = menuHorizontalPosition == 1 ? attr : 0;
-          bool stickinversion = getStickInversion(idx);
-          lcdDrawChar(LCD_W - 8, y, stickinversion ? 127 : 126, flags);
-          if (flags & (~RIGHT)) stickinversion = checkIncDec(event, stickinversion, 0, 1, EE_GENERAL);
-          setStickInversion(idx, stickinversion);
+          setStickInversion(idx, editInversion(getStickInversion(idx), event, y, menuHorizontalPosition == 1 ? attr : 0));
 
         } else if (k <= ITEM_RADIO_HARDWARE_POT_END) {
           // Pots & sliders
@@ -673,11 +675,7 @@ void menuRadioHardware(event_t event)
 
           if (!IS_POT_MULTIPOS(idx)) {
             // ADC inversion
-            flags = menuHorizontalPosition == 2 ? attr : 0;
-            bool potinversion = getPotInversion(idx);
-            lcdDrawChar(LCD_W - 8, y, potinversion ? 127 : 126, flags);
-            if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, EE_GENERAL);
-            setPotInversion(idx, potinversion);
+            setPotInversion(idx, editInversion(getPotInversion(idx), event, y, menuHorizontalPosition == 2 ? attr : 0));
           } else if (getPotInversion(idx)) {
             setPotInversion(idx, 0);
             storageDirty(EE_GENERAL);

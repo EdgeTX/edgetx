@@ -1080,7 +1080,8 @@
 #define TR_CURVE_PRESET                "Предустановка..."
 #define TR_PRESET                      "Предустановка"
 #define TR_MIRROR                      "Зеркало"
-#define TR_CLEAR                       BUTTON("Очистить")
+#define TR_CLEAR                       "Очистить"
+#define TR_CLEAR_BTN                   BUTTON("Очистить")
 #define TR_RESET                       "Сброс"
 #define TR_RESET_SUBMENU               "Сброс..."
 #define TR_COUNT                       "Колличество"

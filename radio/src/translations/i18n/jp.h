@@ -1077,7 +1077,8 @@
 #define TR_CURVE_PRESET                "プリセット..."
 #define TR_PRESET                      "プリセット"
 #define TR_MIRROR                      "ミラー"
-#define TR_CLEAR                       BUTTON("消去")
+#define TR_CLEAR                       "消去"
+#define TR_CLEAR_BTN                   BUTTON("消去")
 #define TR_RESET                       "リセット"
 #define TR_RESET_SUBMENU               "リセット..."
 #define TR_COUNT                       "カウント"
