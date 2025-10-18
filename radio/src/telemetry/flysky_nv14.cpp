@@ -43,7 +43,7 @@
 struct FlyskyNv14Sensor {
   const uint16_t id;
   const uint8_t subId;
-  const char * name;
+  STR_TYP name;
   const TelemetryUnit unit;
   const uint8_t precision;
   const uint8_t offset;
@@ -58,30 +58,30 @@ union nv14SensorData {
   uint32_t UINT32;
 };
 
-FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
+FlyskyNv14Sensor defaultNv14Sensor = {0, 0, STR_DEF(STR_UNKNOWN), UNIT_RAW, 0, 0, 2, false};
 
 // clang-format off
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
-    {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_SENSOR_A1,          UNIT_VOLTS,         2, 0, 2, false},
-    {FLYSKY_SENSOR_RX_SIGNAL,  0, STR_SENSOR_RX_SIGNAL,   UNIT_RAW,           0, 0, 2, false},
-    {FLYSKY_SENSOR_RX_RSSI,    0, STR_SENSOR_RSSI,        UNIT_DB,            0, 0, 2, true,},
-    {FLYSKY_SENSOR_RX_NOISE,   0, STR_SENSOR_RX_NOISE,    UNIT_DB,            0, 0, 2, true},
-    {FLYSKY_SENSOR_RX_SNR,     0, STR_SENSOR_RX_SNR,      UNIT_DB,            0, 0, 2, false},
-    {FLYSKY_SENSOR_RX_SNR,     1, STR_SENSOR_RX_QUALITY,  UNIT_PERCENT,       0, 0, 2, false},
-    {FLYSKY_SENSOR_TEMP,       0, STR_SENSOR_TEMP1,       UNIT_CELSIUS,       1, 0, 2, true},
-    {FLYSKY_SENSOR_EXT_VOLTAGE,0, STR_SENSOR_A3,          UNIT_VOLTS,         2, 0, 2, false},
-    {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
-    {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
-    {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        2, 0, 2, true},
-//    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},
-    {FLYSKY_SENSOR_PRESSURE,   3, STR_SENSOR_VSPD,        UNIT_METERS_PER_SECOND,  2, 0, 2, true},   
-    {FLYSKY_SENSOR_GPS,        1, STR_SENSOR_SATELLITES,  UNIT_RAW,           0, 0, 1, false},
-    {FLYSKY_SENSOR_GPS,        2, STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,  0, 1, 4, true},
-    {FLYSKY_SENSOR_GPS,        3, STR_SENSOR_GPS,         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
-    {FLYSKY_SENSOR_GPS,        4, STR_SENSOR_ALT,         UNIT_METERS,        0, 8, 2, true},
-    {FLYSKY_SENSOR_GPS,        5, STR_SENSOR_GSPD,        UNIT_KMH,           1, 10, 2, false},
-    {FLYSKY_SENSOR_GPS,        6, STR_SENSOR_HDG,         UNIT_DEGREE,        3, 12, 2, false},
+    {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_DEF(STR_SENSOR_A1),          UNIT_VOLTS,         2, 0, 2, false},
+    {FLYSKY_SENSOR_RX_SIGNAL,  0, STR_DEF(STR_SENSOR_RX_SIGNAL),   UNIT_RAW,           0, 0, 2, false},
+    {FLYSKY_SENSOR_RX_RSSI,    0, STR_DEF(STR_SENSOR_RSSI),        UNIT_DB,            0, 0, 2, true,},
+    {FLYSKY_SENSOR_RX_NOISE,   0, STR_DEF(STR_SENSOR_RX_NOISE),    UNIT_DB,            0, 0, 2, true},
+    {FLYSKY_SENSOR_RX_SNR,     0, STR_DEF(STR_SENSOR_RX_SNR),      UNIT_DB,            0, 0, 2, false},
+    {FLYSKY_SENSOR_RX_SNR,     1, STR_DEF(STR_SENSOR_RX_QUALITY),  UNIT_PERCENT,       0, 0, 2, false},
+    {FLYSKY_SENSOR_TEMP,       0, STR_DEF(STR_SENSOR_TEMP1),       UNIT_CELSIUS,       1, 0, 2, true},
+    {FLYSKY_SENSOR_EXT_VOLTAGE,0, STR_DEF(STR_SENSOR_A3),          UNIT_VOLTS,         2, 0, 2, false},
+    {FLYSKY_SENSOR_MOTO_RPM,   0, STR_DEF(STR_SENSOR_RPM),         UNIT_RPMS,          0, 0, 2, false},
+    {FLYSKY_SENSOR_PRESSURE,   0, STR_DEF(STR_SENSOR_PRES),        UNIT_RAW,           1, 0, 2, false},
+    {FLYSKY_SENSOR_PRESSURE,   1, STR_DEF(STR_SENSOR_ALT),         UNIT_METERS,        2, 0, 2, true},
+//    {FLYSKY_SENSOR_PRESSURE,   2, STR_DEF(STR_SENSOR_TEMP2),       UNIT_CELSIUS,       1, 0, 4, true},
+    {FLYSKY_SENSOR_PRESSURE,   3, STR_DEF(STR_SENSOR_VSPD),        UNIT_METERS_PER_SECOND,  2, 0, 2, true},   
+    {FLYSKY_SENSOR_GPS,        1, STR_DEF(STR_SENSOR_SATELLITES),  UNIT_RAW,           0, 0, 1, false},
+    {FLYSKY_SENSOR_GPS,        2, STR_DEF(STR_SENSOR_GPS),         UNIT_GPS_LATITUDE,  0, 1, 4, true},
+    {FLYSKY_SENSOR_GPS,        3, STR_DEF(STR_SENSOR_GPS),         UNIT_GPS_LONGITUDE, 0, 5, 4, true},
+    {FLYSKY_SENSOR_GPS,        4, STR_DEF(STR_SENSOR_ALT),         UNIT_METERS,        0, 8, 2, true},
+    {FLYSKY_SENSOR_GPS,        5, STR_DEF(STR_SENSOR_GSPD),        UNIT_KMH,           1, 10, 2, false},
+    {FLYSKY_SENSOR_GPS,        6, STR_DEF(STR_SENSOR_HDG),         UNIT_DEGREE,        3, 12, 2, false},
 //    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false},
     defaultNv14Sensor
 };
@@ -115,7 +115,7 @@ void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
   telemetrySensor.subId = subId;
   telemetrySensor.instance = instance;
   const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
-  telemetrySensor.init(sensor->name, sensor->unit, sensor->precision);
+  telemetrySensor.init(STR_VAL(sensor->name), sensor->unit, sensor->precision);
   if (sensor->unit == UNIT_RPMS) {
     telemetrySensor.custom.ratio = 1;
     telemetrySensor.custom.offset = 1;

@@ -81,10 +81,10 @@ void menuRadioDiagFS(event_t event)
       if (r < 6) {
         uint8_t sw = switchGetCustomSwitchIdx(i);
         coord_t y = 2*FH + r*FH + 1;
-        lcdDrawTextIndented(y, STR_CHAR_SWITCH);
+        lcdDrawTextIndented(y, CHAR_SWITCH);
         lcdDrawText(lcdNextPos, y, switchGetDefaultName(i));
-        lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
-        lcdDrawText(FS_2ND_COLUMN + 5, y, g_model.cfsState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
+        lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? CHAR_DOWN : CHAR_UP);
+        lcdDrawText(FS_2ND_COLUMN + 5, y, g_model.cfsState(i) ? CHAR_DOWN : CHAR_UP);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
         lcdDrawText(FS_3RD_COLUMN, y, STR_FS_COLOR_LIST[getRGBColorIndex(rgbGetLedColor(sw))], 0);
 #else
