@@ -208,10 +208,10 @@
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
 
 #define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                                                \
-  {                                                                     \
-    ADC_CHANNEL_SWA, ADC_CHANNEL_SWB, ADC_CHANNEL_SWC, ADC_CHANNEL_SWD, \
-        ADC_CHANNEL_SWE, ADC_CHANNEL_SWF, ADC_CHANNEL_BATT              \
+#define ADC_EXT_CHANNELS                                                    \
+  {                                                                         \
+    ADC_CHANNEL_SWA, ADC_CHANNEL_SWB, ADC_CHANNEL_SWC, ADC_CHANNEL_SWD,     \
+    ADC_CHANNEL_SWE, ADC_CHANNEL_SWF, ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT \
   }
 
 #define ADC_EXT_DMA                     DMA2

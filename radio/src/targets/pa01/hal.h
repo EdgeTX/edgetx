@@ -184,7 +184,7 @@
 
 #define ADC_EXT                         ADC3
 #define ADC_EXT_CHANNELS                                                \
-  { ADC_CHANNEL_SWC, ADC_CHANNEL_SWD }
+  { ADC_CHANNEL_SWC, ADC_CHANNEL_SWD, ADC_CHANNEL_RTC_BAT }
 
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
