@@ -106,12 +106,18 @@ void initCustomSwitches()
   for (int i = 0; i < switchGetMaxSwitches(); i += 1) {
     if (switchIsCustomSwitch(i)) {
       uint8_t idx = switchGetCustomSwitchIdx(i);
-      g_model.customSwitches[idx].type = SWITCH_2POS;
-      g_model.customSwitches[idx].group = 1;
-      if (idx == 0)
-        g_model.customSwitches[idx].start = FS_START_ON;
-      else
-        g_model.customSwitches[idx].start = FS_START_OFF;
+      if (strncmp(switchGetDefaultName(i), "SW", 2) == 0) {
+        g_model.customSwitches[idx].type = SWITCH_2POS;
+        g_model.customSwitches[idx].group = 1;
+        if (strncmp(switchGetDefaultName(i), "SW1", 3) == 0)
+          g_model.customSwitches[idx].start = FS_START_ON;
+        else
+          g_model.customSwitches[idx].start = FS_START_OFF;
+      } else {
+        g_model.customSwitches[idx].type = SWITCH_GLOBAL;
+        g_model.customSwitches[idx].group = 0;
+        g_model.customSwitches[idx].start = FS_START_PREVIOUS;
+      }
       g_model.customSwitches[idx].state = 0;
       g_model.customSwitches[idx].name[0] = 0;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
