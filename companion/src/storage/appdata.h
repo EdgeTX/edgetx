@@ -776,7 +776,6 @@ class AppData: public CompStoreObj
     PROPERTY(bool, enableBackup,               false)
     PROPERTY(bool, backupOnFlash,              true)
     PROPERTY(bool, outputDisplayDetails,       false)
-    PROPERTY(bool, checkHardwareCompatibility, true)
     PROPERTY(bool, removeModelSlots,           true)
     PROPERTY(bool, maximized,                  false)
     PROPERTY(bool, tabbedMdi,                  false)

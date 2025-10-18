@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_NAMES
   autobitmappedcombobox
   autobitsetcheckbox
   autocheckbox
+  autocollapsiblesection
   autocombobox
   autodoublespinbox
   autohexspinbox
