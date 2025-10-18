@@ -576,6 +576,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Akt. strøm", "Aktuel strøm")
 #define TR_AFHDS3_POWER_SOURCE         TR("Strøm", "Strøm kilde")
+#define TR_DSMP_ENABLE_AETR            TR("Enable AETR", "Enable AETR")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden reskalering")
 #define TR_GPS_COORDS_FORMAT           TR("GPS kordi.", "Kordinat format")
 #define TR_VARIO                       TR("Vario", "Variometer")

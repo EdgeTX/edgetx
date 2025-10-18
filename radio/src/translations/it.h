@@ -572,6 +572,7 @@
 #define TR_MULTI_MAX_THROW              TR("Escurs. mass.", "Abilita escurs. mass.")
 #define TR_MULTI_RFCHAN                 TR("Canale RF", "Selez. canale RF")
 #define TR_AFHDS3_RX_FREQ               TR("RX freq.", "RX frequenza")
+#define TR_DSMP_ENABLE_AETR             TR("Enable AETR", "Enable AETR")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetria")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER          TR("Pot. att.", "Potenza Attuale")

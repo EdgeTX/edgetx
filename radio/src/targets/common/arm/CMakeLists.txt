@@ -11,6 +11,7 @@ option(DEBUG_TRACE_BUFFER "Debug Trace Screen" OFF)
 option(XJT "XJT TX Module" ON)
 option(PPM "PPM TX Module" ON)
 option(DSM2 "DSM2 TX Module" ON)
+option(DSMP "DSMP LemonRX TX Module" ON)
 option(SBUS "SBUS TX Module" ON)
 option(CROSSFIRE "Crossfire TX Module" ON)
 option(AFHDS2 "Support for AFHDS2" OFF)
@@ -192,6 +193,12 @@ if(DSM2)
   add_definitions(-DDSM2)
 endif()
 
+if(DSMP)
+  add_definitions(-DDSM2)
+  add_definitions(-DDSMP)
+endif()
+
+
 if(SBUS)
   add_definitions(-DSBUS)
 endif()
@@ -311,6 +318,14 @@ if(DSM2)
     dsm2.cpp
     )
 endif()
+
+if(DSMP)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    dsmp.cpp
+    )
+endif()
+
 
 if(SBUS)
   set(PULSES_SRC

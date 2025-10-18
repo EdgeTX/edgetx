@@ -21,11 +21,22 @@
 
 #pragma once
 
-#define SPEKTRUM_TELEMETRY_LENGTH 18
-#define DSM_BIND_PACKET_LENGTH 12
+#include "window.h"
+#include "module_setup.h"
 
-void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+class ToggleSwitch;
 
-// Used directly by multi and DSMP telemetry protocol 
-void processSpektrumPacket(const uint8_t *packet);
-void processDSMBindPacket(uint8_t module, const uint8_t *packet);
+struct ModuleData;
+struct DSMPEnableAETR;
+
+class DSMPSettings : public Window, public ModuleOptions
+{
+  ModuleData* md;
+  uint8_t moduleIdx;
+  DSMPEnableAETR *enableAETR_line;
+
+ public:
+  DSMPSettings(Window* parent, const FlexGridLayout& g,
+                      uint8_t moduleIdx);
+  void update() override;
+};

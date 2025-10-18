@@ -224,6 +224,15 @@ class VersionDialog : public BaseDialog
     }
 #endif
 
+    // DSMP is able to provide status
+    if (isModuleDSMP(module)) {
+      char statusText[64];
+
+      getModuleStatusString(module, statusText);
+      status->setText(statusText);
+      module_status_w->show();
+    }
+
 #if defined(PXX2)
     // PXX2 modules are able to provide status
     if (isModulePXX2(module)) {

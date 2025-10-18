@@ -590,6 +590,10 @@ extern const char STR_REG_OK[];
 extern const char STR_BIND_OK[];
 #endif
 
+#if defined(DSMP)
+extern const char STR_DSMP_ENABLE_AETR[];
+#endif
+
 extern const char STR_INTERNALRF[];
 extern const char STR_INTERNAL_MODULE[];
 extern const char STR_EXTERNAL_MODULE[];

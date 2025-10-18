@@ -613,6 +613,7 @@
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("단일/텔레메트리", "Unicast/텔레메트리 모드")
 #define TR_AFHDS3_ONE_TO_MANY           "멀티캐스트"
 
+#define TR_DSMP_ENABLE_AETR             TR("Enable AETR", "Enable AETR")
 #define TR_AFHDS3_ACTUAL_POWER          TR("실제 출력", "실제 RF 출력")
 #define TR_AFHDS3_POWER_SOURCE          TR("전원 소스", "전원 공급 방식")
 #define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI 값", "RSSI 값을 리스케일 없이 사용")

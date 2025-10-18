@@ -155,6 +155,10 @@ if(MULTIMODULE)
   add_gui_src(module/multi_rfprotos.cpp)
 endif()
 
+if(DSMP)
+ add_gui_src(module/dsmp_settings.cpp)
+endif()
+
 if(INTERNAL_MODULE_PXX1)
   add_gui_src(module/pxx1_settings.cpp)
 endif()

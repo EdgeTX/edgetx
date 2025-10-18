@@ -2265,7 +2265,7 @@ This function reads/writes the Multi protocol buffer to interact with a protocol
 
 @status current Introduced in 2.3.2
 */
-#if defined(MULTIMODULE)
+#if defined(MULTIMODULE) || defined(DSMP)
 uint8_t * Multi_Buffer = nullptr;
 
 static int luaMultiBuffer(lua_State * L)
@@ -2956,7 +2956,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )
   LROT_FUNCENTRY( ghostTelemetryPush, luaGhostTelemetryPush )
 #endif
-#if defined(MULTIMODULE)
+#if defined(MULTIMODULE) || defined(DSMP)
   LROT_FUNCENTRY( multiBuffer, luaMultiBuffer )
 #endif
   LROT_FUNCENTRY( setSerialBaudrate, luaSetSerialBaudrate )
