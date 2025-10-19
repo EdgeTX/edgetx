@@ -73,6 +73,8 @@ jobs:
 
       - name: Increase swap space
         run: |
+          cat /proc/swaps
+          df -T /
           fallocate -l 8G /swapfile2
           chmod 600 /swapfile2
           mkswap /swapfile2
