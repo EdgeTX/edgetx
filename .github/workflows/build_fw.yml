@@ -75,7 +75,7 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 2
-          CMAKE_JOB_POOLS: "link_pool=1"
+          EXTRA_OPTIONS: "-DCMAKE_JOB_POOLS:STRING=link_pool=1 -DCMAKE_JOB_POOL_LINK:STRING=link_pool"
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
@@ -159,7 +159,7 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 2
-          CMAKE_JOB_POOLS: "link_pool=1"
+          EXTRA_OPTIONS: "-DCMAKE_JOB_POOLS:STRING=link_pool=1 -DCMAKE_JOB_POOL_LINK:STRING=link_pool"
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
