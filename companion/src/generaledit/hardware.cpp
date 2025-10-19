@@ -543,7 +543,7 @@ void HardwarePanel::addSwitch(int index)
   type->setField(config.type, this);
   params->append(type);
 
-  if (!generalSettings.isSwitchFlex(index) && !generalSettings.isSwitchFunc(index)) {
+  if (!generalSettings.isSwitchFunc(index)) {
     connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
             emit refreshItemModels();
     });
