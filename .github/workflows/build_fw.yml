@@ -61,6 +61,7 @@ jobs:
           - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
+      options: --privileged
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -151,6 +152,7 @@ jobs:
           - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
+      options: --privileged
       volumes:
         - ${{ github.workspace }}:/src
     steps:
