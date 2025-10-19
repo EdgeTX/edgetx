@@ -46,7 +46,7 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: bash
         env:
-          CMAKE_BUILD_PARALLEL_LEVEL: 1
+          CMAKE_BUILD_PARALLEL_LEVEL: 3
         run: |
           mkdir output && \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
