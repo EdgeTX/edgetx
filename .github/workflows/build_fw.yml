@@ -144,7 +144,6 @@ jobs:
           - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
-      options: --privileged
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -156,8 +155,7 @@ jobs:
       - name: Build ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
-          CMAKE_BUILD_PARALLEL_LEVEL: 2
-          EXTRA_OPTIONS: "-DCMAKE_JOB_POOLS:STRING=link_pool=1 -DCMAKE_JOB_POOL_LINK:STRING=link_pool"
+          CMAKE_BUILD_PARALLEL_LEVEL: 1
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
