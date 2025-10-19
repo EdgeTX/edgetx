@@ -73,10 +73,12 @@ jobs:
 
       - name: Increase swap space
         run: |
-          dd if=/dev/zero of=/mnt/swapfile2 bs=1M count=8192
-          chmod 600 /mnt/swapfile2
-          mkswap /mnt/swapfile2
-          swapon /mnt/swapfile2 || dmesg | tail -30
+          swapoff /mnt/swapfile
+          rm /mnt/swapfile
+          dd if=/dev/zero of=/mnt/swapfile bs=1M count=12288
+          chmod 600 /mnt/swapfile
+          mkswap /mnt/swapfile
+          swapon /mnt/swapfile || dmesg | tail -30
 
       - name: Test ${{ matrix.target }}
         env:
@@ -163,10 +165,12 @@ jobs:
 
       - name: Increase swap space
         run: |
-          dd if=/dev/zero of=/mnt/swapfile2 bs=1M count=8192
-          chmod 600 /mnt/swapfile2
-          mkswap /mnt/swapfile2
-          swapon /mnt/swapfile2 || dmesg | tail -30
+          swapoff /mnt/swapfile
+          rm /mnt/swapfile
+          dd if=/dev/zero of=/mnt/swapfile bs=1M count=12288
+          chmod 600 /mnt/swapfile
+          mkswap /mnt/swapfile
+          swapon /mnt/swapfile || dmesg | tail -30
 
       - name: Build ${{ matrix.target }}
         env:
