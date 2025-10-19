@@ -937,8 +937,7 @@ PACK(struct TrainerData {
 #if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
-    NOBACKUP(uint8_t modelQuickSelect:1); \
-    NOBACKUP(uint8_t blOffBright:7); \
+    NOBACKUP(uint8_t blOffBright); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
 #else
   #define EXTRA_GENERAL_FIELDS \
@@ -1113,13 +1112,15 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
   NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
 
+  NOBACKUP(uint8_t modelQuickSelect:1);
+
 #if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:6 SKIP);
+  NOBACKUP(uint8_t spare:5 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:3 SKIP);
+  NOBACKUP(uint8_t spare:2 SKIP);
 #else
-  NOBACKUP(uint8_t spare:4 SKIP);
+  NOBACKUP(uint8_t spare:3 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

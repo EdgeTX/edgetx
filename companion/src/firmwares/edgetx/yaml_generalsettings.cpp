@@ -256,8 +256,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
   node["dontPlayHello"] = (int)rhs.dontPlayHello;
+  node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
   if (hasColorLcd) {
-    node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
     node["modelSelectLayout"] = rhs.modelSelectLayout;
     node["labelSingleSelect"] = rhs.labelSingleSelect;
     node["labelMultiMode"] = rhs.labelMultiMode;
