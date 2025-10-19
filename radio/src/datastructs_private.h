@@ -1128,21 +1128,13 @@ PACK(struct RadioData {
 
   NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
-#if defined(COLORLCD)
-  NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
-  NOBACKUP(uint8_t labelMultiMode:1);     // 0 = match all labels (AND), 1 = match any labels (OR)
-  NOBACKUP(uint8_t favMultiMode:1);       // 0 = match all (AND), 1 = match any (OR)
-  // Radio level tabs control (global settings)
-  NOBACKUP(uint8_t modelSelectLayout:2);
-  NOBACKUP(uint8_t radioThemesDisabled:1);
-#endif
-  NOBACKUP(uint8_t radioGFDisabled:1);
-  NOBACKUP(uint8_t radioTrainerDisabled:1);
+  NOBACKUP(int16_t radioGFDisabled:1);
+  NOBACKUP(int16_t radioTrainerDisabled:1);
   // Model level tabs control (global setting)
-  NOBACKUP(uint8_t modelHeliDisabled:1);
-  NOBACKUP(uint8_t modelFMDisabled:1);
-  NOBACKUP(uint8_t modelCurvesDisabled:1);
-  NOBACKUP(uint8_t modelGVDisabled:1);
+  NOBACKUP(int16_t modelHeliDisabled:1);
+  NOBACKUP(int16_t modelFMDisabled:1);
+  NOBACKUP(int16_t modelCurvesDisabled:1);
+  NOBACKUP(int16_t modelGVDisabled:1);
   NOBACKUP(uint8_t modelLSDisabled:1);
   NOBACKUP(uint8_t modelSFDisabled:1);
   NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
@@ -1151,6 +1143,15 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
 
   NOBACKUP(uint8_t modelQuickSelect:1);
+
+#if defined(COLORLCD)
+  NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
+  NOBACKUP(uint8_t labelMultiMode:1);     // 0 = match all labels (AND), 1 = match any labels (OR)
+  NOBACKUP(uint8_t favMultiMode:1);       // 0 = match all (AND), 1 = match any (OR)
+  // Radio level tabs control (global settings)
+  NOBACKUP(uint8_t modelSelectLayout:2);
+  NOBACKUP(uint8_t radioThemesDisabled:1);
+#endif
 
 #if defined(COLORLCD)
   NOBACKUP(uint8_t spare:3 SKIP);
