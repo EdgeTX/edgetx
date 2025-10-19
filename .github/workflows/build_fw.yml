@@ -75,40 +75,8 @@ jobs:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
-          echo "=== Pre-build resource check ==="
-          echo "CPUs: $(nproc --all)"
-          free -h
-          df -h
-          echo ""
-          
           echo "Running commit tests"
-          
-          # Start build in background
-          
-          ./tools/commit-tests.sh &
-          BUILD_PID=$!
-          
-          # Monitor resources while building
-          while kill -0 $BUILD_PID 2>/dev/null; do
-            echo "=== $(date) ==="
-            free -h | grep -E '(Mem|Swap)'
-            df -h | grep -E '(Filesystem|/$)'
-            echo "Top memory consumers:"
-            ps aux --sort=-%mem | head -10 | awk '{print $2, $3, $4, $11}'
-            echo ""
-            sleep 15
-          done
-          
-          # Wait for build to finish and capture exit code
-          wait $BUILD_PID
-          EXIT_CODE=$?
-          
-          echo "=== Post-build resource check ==="
-          free -h
-          df -h
-          
-          exit $EXIT_CODE
-
+          ./tools/commit-tests.sh
 
   build:
     name: Run builds
@@ -157,38 +125,8 @@ jobs:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
-          echo "=== Pre-build resource check ==="
-          echo "CPUs: $(nproc --all)"
-          free -h
-          df -h
-          echo ""
-          
           echo "Running firmware build"
-          
-          # Start build in background
-          ./tools/build-gh.sh &
-          BUILD_PID=$!
-          
-          # Monitor resources while building
-          while kill -0 $BUILD_PID 2>/dev/null; do
-            echo "=== $(date) ==="
-            free -h | grep -E '(Mem|Swap)'
-            df -h | grep -E '(Filesystem|/$)'
-            echo "Top memory consumers:"
-            ps aux --sort=-%mem | head -10 | awk '{print $2, $3, $4, $11}'
-            echo ""
-            sleep 15
-          done
-          
-          # Wait for build to finish and capture exit code
-          wait $BUILD_PID
-          EXIT_CODE=$?
-          
-          echo "=== Post-build resource check ==="
-          free -h
-          df -h
-          
-          exit $EXIT_CODE
+          ./tools/build-gh.sh
 
       - name: Upload ${{ matrix.target }}
         uses: actions/upload-artifact@v4
