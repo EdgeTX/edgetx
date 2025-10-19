@@ -165,7 +165,11 @@ jobs:
 
       - name: Increase swap space
         run: |
-          swapoff /mnt/swapfile
+          cat /proc/swaps
+          swapon --show
+          ls -lh /mnt/
+          swapoff -a
+          cat /proc/swaps
           rm /mnt/swapfile
           dd if=/dev/zero of=/mnt/swapfile bs=1M count=12288
           chmod 600 /mnt/swapfile
