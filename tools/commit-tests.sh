@@ -1,14 +1,11 @@
 #!/bin/bash
 
-# Stops on first error, echo on
+# Stop on first error, echo on
 set -e
 set -x
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
-
-# If no build target, exit
-#: "${FLAVOR:=ALL}"
 
 for i in "$@"
 do
@@ -41,6 +38,9 @@ COMMON_OPTIONS+=${EXTRA_OPTIONS}" "
 
 : ${FIRMARE_TARGET:="firmware-size"}
 
+# Determine parallel jobs
+determine_max_jobs
+
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
 
@@ -59,12 +59,12 @@ do
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
 
-    cmake --build . --target arm-none-eabi-configure --parallel
-    cmake --build arm-none-eabi --target ${FIRMARE_TARGET} --parallel
+    cmake_build_parallel . --target arm-none-eabi-configure
+    cmake_build_parallel arm-none-eabi --target ${FIRMARE_TARGET}
 
-    cmake --build . --target native-configure --parallel
-    cmake --build native --target libsimulator --parallel
-    cmake --build native --target tests-radio --parallel
+    cmake_build_parallel . --target native-configure
+    cmake_build_parallel native --target libsimulator
+    cmake_build_parallel native --target tests-radio
 
     rm -f CMakeCache.txt native/CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done
