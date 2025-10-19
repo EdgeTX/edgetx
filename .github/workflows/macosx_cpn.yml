@@ -31,7 +31,7 @@ jobs:
     runs-on: macos-13
     if: |
       github.event_name != 'pull_request' ||
-      !contains(github.event.pull_request.labels.*.name, 'ci: skip-macosx-cpn')
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-macos')
     steps:
       - name: Select XCode version
         uses: maxim-lobanov/setup-xcode@v1

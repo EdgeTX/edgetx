@@ -36,7 +36,7 @@ jobs:
     runs-on: windows-2022
     if: |
       github.event_name != 'pull_request' ||
-      !contains(github.event.pull_request.labels.*.name, 'ci: skip-win-cpn')
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-win')
     defaults:
       run:
         shell: bash
