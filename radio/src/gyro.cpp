@@ -79,7 +79,7 @@ void Gyro::wakeup()
 
   int16_t gx = values[0];
   int16_t gy = values[1];
-  int16_t gz = values[2];
+  // int16_t gz = values[2];
 
   // integrate gyro
   roll  -= gx * SCALE_FACT_GYRO * DT;
