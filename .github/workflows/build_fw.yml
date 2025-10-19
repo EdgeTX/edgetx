@@ -73,7 +73,7 @@ jobs:
       - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
-          CMAKE_BUILD_PARALLEL_LEVEL: 3
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
@@ -155,7 +155,7 @@ jobs:
       - name: Build ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
-          CMAKE_BUILD_PARALLEL_LEVEL: 1
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
