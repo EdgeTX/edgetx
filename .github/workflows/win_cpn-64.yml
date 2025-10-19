@@ -73,10 +73,9 @@ jobs:
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Set parallel build level
-        uses: ./.github/actions/set-cmake-parallel
-
       - name: Build
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 1
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$SDL2_ROOT" \

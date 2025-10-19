@@ -69,13 +69,12 @@ jobs:
 
       - name: Install SDL2
         run:  brew install SDL2
-      
-      - name: Set parallel build level
-        uses: ./.github/actions/set-cmake-parallel
 
       - name: Build
         working-directory: ${{github.workspace}}
         shell: bash
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 1
         run: |
           mkdir output && \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"

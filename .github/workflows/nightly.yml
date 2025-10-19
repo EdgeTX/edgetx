@@ -47,13 +47,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set parallel build level
-        uses: ./.github/actions/set-cmake-parallel
-
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
           EDGETX_VERSION_SUFFIX: nightly
+          CMAKE_BUILD_PARALLEL_LEVEL: 1
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
