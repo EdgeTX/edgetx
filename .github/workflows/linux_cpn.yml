@@ -28,6 +28,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-linux')
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

@@ -50,13 +50,26 @@ class FlashFirmwareDialog : public QDialog
     void startWrite(const QString &filename);
 
   private:
-    enum ConnectionModes { CONNECTION_NONE, CONNECTION_UF2, CONNECTION_DFU };
-    enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
+    enum ConnectionModes {
+      CONNECTION_NONE,
+      CONNECTION_UF2,
+      CONNECTION_DFU
+    };
+
+    enum ImageSource {
+      FIRMWARE,
+      PROFILE,
+      LIBRARY,
+      EXTERNAL
+    };
 
     Ui::FlashFirmwareDialog *ui;
     QString fwName;
     ImageSource imageSource;
     QString imageFile;
     int connectionMode;
+    QCheckBox *chkHWComp;
+    QCheckBox *chkProfComp;
     bool isFileConnectionCompatible();
+    void shrink();
 };

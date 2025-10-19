@@ -89,6 +89,7 @@ enum {
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_AUTO_OFF)
   CASE_HAPTIC(ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC)
+  ITEM_MODEL_QUICK_SELECT,
   CASE_PXX2(ITEM_RADIO_SETUP_OWNER_ID)
   CASE_GPS(ITEM_RADIO_SETUP_LABEL_GPS)
   CASE_GPS(ITEM_RADIO_SETUP_TIMEZONE)
@@ -220,6 +221,7 @@ void menuRadioSetup(event_t event)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_HAPTIC(0) // power on/off haptic
+    0, // Model quick select
     CASE_PXX2(0) /* owner registration ID */
     // GPS
     CASE_GPS(LABEL(GPS))
@@ -630,6 +632,13 @@ void menuRadioSetup(event_t event)
         break;
       }
 #endif
+
+      case ITEM_MODEL_QUICK_SELECT:
+        lcdDrawTextAlignedLeft(y, STR_MODEL_QUICK_SELECT);
+        g_eeGeneral.modelQuickSelect =
+            editCheckBox(g_eeGeneral.modelQuickSelect, LCD_W - 9, y,
+                          nullptr, attr, event);
+        break;
 
 #if defined(PXX2)
       case ITEM_RADIO_SETUP_OWNER_ID:

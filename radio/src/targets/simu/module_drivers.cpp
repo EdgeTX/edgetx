@@ -86,6 +86,7 @@ static void deinit(void* ctx)
 
 static void sendByte(void*, uint8_t) {}
 static void sendBuffer(void*, const uint8_t*, uint32_t) {}
+static bool txCompleted(void*) { return true; }
 static void waitForTxCompleted(void*) {}
 static int getByte(void*,uint8_t*) { return -1; }
 
@@ -94,7 +95,7 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .deinit = deinit,
     .sendByte = sendByte,
     .sendBuffer = sendBuffer,
-    .txCompleted = nullptr,
+    .txCompleted = txCompleted,
     .waitForTxCompleted = waitForTxCompleted,
     .enableRx = nullptr,
     .getByte = getByte,

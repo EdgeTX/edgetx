@@ -29,6 +29,7 @@
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
 constexpr char FIM_TEMPLATESETUP[]  {"Template Setup"};
+constexpr char FIM_BACKLIGHTMODE[]  {"Backlight Mode"};
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
@@ -46,6 +47,7 @@ ui(new Ui::GeneralSetup)
                                                                Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
                                                                                       GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
 
   QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
   QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
@@ -91,7 +93,8 @@ ui(new Ui::GeneralSetup)
 
   lock = true;
 
-  populateBacklightCB();
+  ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
+  ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
   if (!firmware->getCapability(MultiLangVoice)) {
     ui->VoiceLang_label->hide();
@@ -379,22 +382,6 @@ void GeneralSetupPanel::on_timezoneLE_textEdited(const QString &text)
   }
 }
 
-void GeneralSetupPanel::populateBacklightCB()
-{
-  QComboBox * b = ui->backlightswCB;
-  const QStringList strings = { tr("OFF"), tr("Keys"), tr("Controls"), tr("Keys + Controls"), tr("ON") };
-
-  b->clear();
-  int startValue = (Boards::getCapability(firmware->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
-
-  for (int i = startValue; i < strings.size(); i++) {
-    b->addItem(strings[i], 0);
-    if (generalSettings.backlightMode == i) {
-      b->setCurrentIndex(b->count() - 1);
-    }
-  }
-}
-
 void GeneralSetupPanel::populateVoiceLangCB()
 {
   QComboBox * b = ui->voiceLang_CB;
@@ -540,16 +527,15 @@ void GeneralSetupPanel::setValues()
 
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
 
+  ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+
   if (Boards::getCapability(board, Board::HasColorLcd)) {
-    ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
     ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
     ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);
     ui->favMultiMode_CB->setCurrentIndex(generalSettings.favMultiMode);
     showLabelSelectOptions();
   } else {
-    ui->label_modelQuickSelect->hide();
-    ui->modelQuickSelect_CB->hide();
     ui->label_modelSelectLayout->hide();
     ui->modelSelectLayout_CB->hide();
     ui->label_labelSingleSelect->hide();

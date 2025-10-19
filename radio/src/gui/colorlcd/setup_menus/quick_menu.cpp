@@ -174,6 +174,11 @@ QuickMenu* QuickMenu::openQuickMenu(std::function<void()> cancelHandler,
   return instance;
 }
 
+void QuickMenu::shutdownQuickMenu()
+{
+  if (instance) instance->deleteLater();
+}
+
 QuickMenu::QuickMenu() :
     NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
@@ -245,6 +250,7 @@ void QuickMenu::deleteLater(bool detach, bool trash)
   if (_deleted) return;
 
   instance = nullptr;
+
   Window::deleteLater(detach, trash);
 }
 
@@ -332,10 +338,10 @@ void QuickMenu::enableSubMenu()
 
 #if defined(HARDWARE_KEYS)
 void QuickMenu::onPressSYS() { closeMenu(); }
-// void QuickMenu::onLongPressSYS() { subMenus[1]->onPress(0); }
-// void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
-// void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
-// void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
-// void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
-// void QuickMenu::onLongPressRTN() { onCancel(); }
+void QuickMenu::onLongPressSYS() { subMenus[3]->onPress(0); }
+void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
+void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
+void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
+void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
+void QuickMenu::onLongPressRTN() { closeMenu(); }
 #endif

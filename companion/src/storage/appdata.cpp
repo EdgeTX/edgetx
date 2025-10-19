@@ -329,12 +329,6 @@ bool Profile::existsOnDisk()
   return m_settings.contains(settingsPath() % "Name");
 }
 
-void Profile::resetFwVariables()
-{
-  for (const QString & name : fwVarsList())
-    CompStoreObj::resetProperty(this, name);
-}
-
 // ** ComponentAssetData class********************
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)

@@ -47,6 +47,9 @@
 #if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
+#if defined(AUDIO_HP_DETECT_PIN)
+bool hpDetected = false;
+#endif
 #endif
 
 uint8_t currentBacklightBright = 0;
@@ -207,6 +210,13 @@ void handleUsbConnection()
 
 void checkSpeakerVolume()
 {
+#if defined(AUDIO_HP_DETECT_PIN)
+  // volume needs to be set on plug/unplug to set the the right volume on each device
+  if (hpDetected != audioHeadphoneDetect()) {
+    hpDetected = !hpDetected;
+    audioSetVolume(currentSpeakerVolume);
+  }
+#endif
 #if defined(AUDIO)
   if (currentSpeakerVolume != requiredSpeakerVolume) {
     currentSpeakerVolume = requiredSpeakerVolume;

@@ -45,9 +45,14 @@ class InputEditWindow : public Page
   getvalue_t lastCurveVal = 0;
   uint8_t lastActiveIndex = 255;
   StaticText * headerSwitchName = nullptr;
+  Window* advWindow = nullptr;
+  bool advEdit = false;
 
   void setTitle();
   void buildBody(Window *window);
 
+  void showAdvanced();
+
+  void onCancel() override;
   void checkEvents() override;
 };

@@ -401,8 +401,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("switchConfig", 80, 20, struct_switchDef, switchIsActive),
   YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),
   YAML_STRING("currModelFilename", 17),
-  YAML_UNSIGNED( "modelQuickSelect", 1 ),
-  YAML_UNSIGNED( "blOffBright", 7 ),
+  YAML_UNSIGNED( "blOffBright", 8 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
@@ -428,7 +427,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
   YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
   YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
-  YAML_PADDING( 6 ),
+  YAML_UNSIGNED( "modelQuickSelect", 1 ),
+  YAML_PADDING( 5 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
@@ -922,7 +922,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
-  YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
+  YAML_ARRAY("telemetrySensors", 112, 99, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 15776, 10, struct_CustomScreenData, NULL),
   YAML_STRUCT("topbarData", 8768, struct_TopBarPersistentData, NULL),
   YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),

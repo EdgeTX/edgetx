@@ -20,7 +20,6 @@
  */
 
 #include "edgetx.h"
-#include <stdarg.h>
 
 const char * warningText = nullptr;
 const char * warningInfoText;
@@ -267,16 +266,20 @@ void POPUP_INFORMATION(const char * s)
   popupFunc = runPopupWarning;
 }
 
-void POPUP_WARNING(const char * message, const char * info, bool waitForClose)
+void POPUP_WARNING(const char * message, const char * info)
 {
-  (void)waitForClose;
-
   warningText = message;
   warningInfoText = info;
   warningInfoLength = info ? strlen(info) : 0;
   warningInfoFlags = 0;
   warningType = WARNING_TYPE_ASTERISK;
   popupFunc = runPopupWarning;
+}
+
+bool POPUP_WARNING_ON_UI_TASK(const char * message, const char * info)
+{
+  POPUP_WARNING(message, info);
+  return true;
 }
 
 void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags)

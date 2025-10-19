@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Radio settings</string>
+   <string>Radio Settings</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -32,19 +32,26 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Panel</enum>
+      <enum>QFrame::Shape::Panel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
       </property>
       <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0">
-        <item row="1" column="1">
-         <widget class="QPushButton" name="calretrieve_PB">
+       <layout class="QGridLayout" name="gridLayout_6" rowstretch="0">
+        <item row="0" column="2">
+         <widget class="QPushButton" name="btnClearSettings">
+          <property name="text">
+           <string>Clear settings from profile</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QPushButton" name="btnSaveSettings">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -52,17 +59,17 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Retrieve calib. and hw settings from profile</string>
+           <string>Store settings in profile</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="0" column="1">
          <spacer name="horizontalSpacer_5">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
+           <enum>QSizePolicy::Policy::Expanding</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -72,8 +79,8 @@
           </property>
          </spacer>
         </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="calstore_PB">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="btnLoadSettings">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -81,12 +88,22 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Store calib. and hw settings in selected profile</string>
+           <string>Load settings from profile</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0" colspan="5">
-         <widget class="QComboBox" name="profile_CB"/>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>

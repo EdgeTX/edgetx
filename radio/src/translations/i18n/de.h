@@ -301,7 +301,7 @@
 #define TR_VTELEMUNIT_17               "mW"
 #define TR_VTELEMUNIT_18               "dB"
 #define TR_VTELEMUNIT_19               "rpm"
-#define TR_VTELEMUNIT_20               "rpm"
+#define TR_VTELEMUNIT_20               "g"
 #define TR_VTELEMUNIT_21               "°"
 #define TR_VTELEMUNIT_22               "rad"
 #define TR_VTELEMUNIT_23               "ml"
@@ -1078,7 +1078,8 @@
 #define TR_CURVE_PRESET                "Gerade 0 11 22 33 45"
 #define TR_PRESET                      "Preset"
 #define TR_MIRROR                      "Spiegeln"
-#define TR_CLEAR                       BUTTON("Löschen")
+#define TR_CLEAR                       "Löschen"
+#define TR_CLEAR_BTN                   BUTTON("Löschen")
 #define TR_RESET                       TR("Servowert reset","Servowerte zurücksetzen")
 #define TR_RESET_SUBMENU               TR("Reset Werte   ==>", "Reset=>Timer Flug Telem")
 #define TR_COUNT                       "Punkte"

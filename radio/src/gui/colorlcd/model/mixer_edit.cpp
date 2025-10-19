@@ -32,6 +32,7 @@
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "curveedit.h"
+#include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -70,7 +71,7 @@ void MixEditWindow::buildHeader(Window *window)
 
   new MixerEditStatusBar(
       window,
-      {window->getRect().w - MIX_STATUS_BAR_WIDTH - MIX_RIGHT_MARGIN, 0,
+      {window->getRect().w - MIX_STATUS_BAR_WIDTH - PageGroup::PAGE_TOP_BAR_H, 0,
        MIX_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }

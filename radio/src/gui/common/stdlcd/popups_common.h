@@ -26,6 +26,25 @@
 #include "lcd.h"
 #include "keys.h"
 
+#define POPUP_MENU_MAX_LINES           13
+#define MENU_MAX_DISPLAY_LINES         6
+#define MENU_LINE_LENGTH               (LEN_MODEL_NAME+12)
+
+enum {
+  MENU_OFFSET_INTERNAL,
+  MENU_OFFSET_EXTERNAL
+};
+
+enum WarningType
+{
+  WARNING_TYPE_WAIT,
+  WARNING_TYPE_INFO,
+  WARNING_TYPE_ASTERISK,
+  WARNING_TYPE_CONFIRM,
+  WARNING_TYPE_INPUT,
+  WARNING_TYPE_ALERT
+};
+
 extern const char * warningText;
 extern const char * warningInfoText;
 extern uint8_t      warningInfoLength;
@@ -61,20 +80,10 @@ void showAlertBox(const char * title, const char * text, const char * action , u
 void drawProgressScreen(const char * title, const char * message, int num, int den);
 typedef void (* ProgressHandler)(const char *, const char *, int, int);
 
-enum WarningType
-{
-  WARNING_TYPE_WAIT,
-  WARNING_TYPE_INFO,
-  WARNING_TYPE_ASTERISK,
-  WARNING_TYPE_CONFIRM,
-  WARNING_TYPE_INPUT,
-  WARNING_TYPE_ALERT
-};
-
 #if !defined(GUI)
   #define DISPLAY_WARNING(...)
   inline void POPUP_WAIT(const char * s) { }
-  inline void POPUP_WARNING(const char *, const char * = nullptr, bool waitForClose) { }
+  inline void POPUP_WARNING(const char *, const char * = nullptr) { }
   inline void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler) { }
   inline void POPUP_INPUT(const char * s, PopupFunc func) { }
   inline void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags) { }
@@ -83,7 +92,7 @@ enum WarningType
   extern void CLEAR_POPUP();
   extern void POPUP_WAIT(const char * s);
   extern void POPUP_INFORMATION(const char * s);
-  extern void POPUP_WARNING(const char * message, const char * info = nullptr, bool waitForClose = true);
+  extern void POPUP_WARNING(const char * message, const char * info = nullptr);
   extern void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags);
   extern void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler);
   extern void POPUP_INPUT(const char * s, PopupFunc func);
@@ -100,4 +109,4 @@ extern void POPUP_MENU_START(PopupMenuHandler handler);
 extern void POPUP_MENU_START(PopupMenuHandler handler, int count, ...);
 
 // For compatability with color LCD code base, not (currently) required for B&W
-#define POPUP_WARNING_ON_UI_TASK POPUP_WARNING
+bool POPUP_WARNING_ON_UI_TASK(const char *, const char * = nullptr);

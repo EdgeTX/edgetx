@@ -102,6 +102,7 @@ ViewMain::~ViewMain() { _instance = nullptr; }
 void ViewMain::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
+  QuickMenu::shutdownQuickMenu();
   Window::deleteLater(detach, trash);
 }
 
@@ -251,7 +252,7 @@ void ViewMain::onLongPressSYS()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
   // Radio setup
-  PageGroup::RadioMenu();
+  PageGroup::ToolsMenu();
 }
 void ViewMain::onPressMDL()
 {

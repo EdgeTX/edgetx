@@ -293,7 +293,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case PwrButtonPress:
       return IS_HORUS_OR_TARANIS(board) && (board!=Board::BOARD_TARANIS_X9D) && (board!=Board::BOARD_TARANIS_X9DP);
     case Sensors:
-      if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
+      if (IS_STM32H7(board))
+        return 99;
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
         return 60;
       else
         return 40;
@@ -326,8 +328,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
               IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
               IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) || 
-              IS_DUMBORC_DRO1(board));
+              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) ||
+              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) || IS_DUMBORC_DRO1(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board) || IS_DUMBORC_DRO1(board);
     case HasIntModuleMulti:
@@ -387,6 +389,12 @@ size_t getSizeA(T (&)[SIZE])
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
   return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
+}
+
+QString OpenTxFirmware::getLanguage() const
+{
+  QStringList strl = getId().split('-');
+  return strl.size() > 2 ? strl.last() : QString();
 }
 
 // Firmware registrations

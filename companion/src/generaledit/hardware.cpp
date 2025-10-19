@@ -142,6 +142,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   if (count > 0) {
     addLabel("");
     addLabel(tr("Name"));
+    addLabel(tr("Invert"));
     addParams();
     for (int i = 0; i < count; i++) {
       addStick(i);

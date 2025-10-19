@@ -190,11 +190,11 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_DELAY_UP:
-        md2->delayUp = EDIT_DELAY(y, event, attr, STR_DELAYUP, md2->delayUp, (md2->delayPrec ? PREC2 : PREC1));
+        md2->delayUp = editDelay(y, event, attr, STR_DELAYUP, md2->delayUp, (md2->delayPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_DELAY_DOWN:
-        md2->delayDown = EDIT_DELAY(y, event, attr, STR_DELAYDOWN, md2->delayDown, (md2->delayPrec ? PREC2 : PREC1));
+        md2->delayDown = editDelay(y, event, attr, STR_DELAYDOWN, md2->delayDown, (md2->delayPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_SLOW_PREC:
@@ -202,11 +202,11 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_SLOW_UP:
-        md2->speedUp = EDIT_DELAY(y, event, attr, STR_SLOWUP, md2->speedUp, (md2->speedPrec ? PREC2 : PREC1));
+        md2->speedUp = editDelay(y, event, attr, STR_SLOWUP, md2->speedUp, (md2->speedPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_SLOW_DOWN:
-        md2->speedDown = EDIT_DELAY(y, event, attr, STR_SLOWDOWN, md2->speedDown, (md2->speedPrec ? PREC2 : PREC1));
+        md2->speedDown = editDelay(y, event, attr, STR_SLOWDOWN, md2->speedDown, (md2->speedPrec ? PREC2 : PREC1));
         break;
     }
     y += FH;

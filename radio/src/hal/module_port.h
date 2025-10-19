@@ -162,6 +162,9 @@ inline void* modulePortGetCtx(const etx_module_driver_t& d) {
   return d.ctx;
 }
 
+bool modulePortSerialTxCompleted(void* ctx);
+bool modulePortTimerTxCompleted(void* ctx);
+
 bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port);
 bool modulePortIsPortUsed(uint8_t port);
 

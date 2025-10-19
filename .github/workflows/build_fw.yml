@@ -29,6 +29,9 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
     strategy:
       matrix:
         target:
@@ -80,6 +83,9 @@ jobs:
     name: Run builds
     needs: test
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
     strategy:
       matrix:
         target:

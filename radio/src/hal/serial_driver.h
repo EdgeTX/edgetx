@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 enum SerialEncoding {
@@ -79,7 +80,7 @@ typedef struct {
   void (*sendBuffer)(void* ctx, const uint8_t* data, uint32_t size);
 
   // Is TX phase completed
-  uint8_t (*txCompleted)(void* ctx);
+  bool (*txCompleted)(void* ctx);
   
   // Wait for last send operation to complete
   void (*waitForTxCompleted)(void* ctx);

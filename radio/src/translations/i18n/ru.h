@@ -302,7 +302,7 @@
 #define TR_VTELEMUNIT_17               "mW"
 #define TR_VTELEMUNIT_18               "dB"
 #define TR_VTELEMUNIT_19               "rpm"
-#define TR_VTELEMUNIT_20               "rpm"
+#define TR_VTELEMUNIT_20               "g"
 #define TR_VTELEMUNIT_21               "°"
 #define TR_VTELEMUNIT_22               "rad"
 #define TR_VTELEMUNIT_23               "ml"
@@ -1080,7 +1080,8 @@
 #define TR_CURVE_PRESET                "Предустановка..."
 #define TR_PRESET                      "Предустановка"
 #define TR_MIRROR                      "Зеркало"
-#define TR_CLEAR                       BUTTON("Очистить")
+#define TR_CLEAR                       "Очистить"
+#define TR_CLEAR_BTN                   BUTTON("Очистить")
 #define TR_RESET                       "Сброс"
 #define TR_RESET_SUBMENU               "Сброс..."
 #define TR_COUNT                       "Колличество"

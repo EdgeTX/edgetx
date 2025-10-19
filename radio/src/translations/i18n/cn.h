@@ -299,7 +299,7 @@
 #define TR_VTELEMUNIT_17               "mW"
 #define TR_VTELEMUNIT_18               "dB"
 #define TR_VTELEMUNIT_19               "rpm"
-#define TR_VTELEMUNIT_20               "rpm"
+#define TR_VTELEMUNIT_20               "g"
 #define TR_VTELEMUNIT_21               "°"
 #define TR_VTELEMUNIT_22               "rad"
 #define TR_VTELEMUNIT_23               "ml"
@@ -1078,7 +1078,8 @@
 #define TR_CURVE_PRESET                "预设..."
 #define TR_PRESET                      "预设"
 #define TR_MIRROR                      "镜像"
-#define TR_CLEAR                       BUTTON("清除")
+#define TR_CLEAR                       "清除"
+#define TR_CLEAR_BTN                   BUTTON("清除")
 #define TR_RESET                       "复位"
 #define TR_RESET_SUBMENU               "复位..."
 #define TR_COUNT                       "点数"

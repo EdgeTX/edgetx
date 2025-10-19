@@ -301,7 +301,7 @@
 #define TR_VTELEMUNIT_17                "mW"
 #define TR_VTELEMUNIT_18                "dB"
 #define TR_VTELEMUNIT_19                "rpm"
-#define TR_VTELEMUNIT_20                "rpm"
+#define TR_VTELEMUNIT_20                "g"
 #define TR_VTELEMUNIT_21                "°"
 #define TR_VTELEMUNIT_22                "rad"
 #define TR_VTELEMUNIT_23                "ml"
@@ -1086,7 +1086,8 @@
 #define TR_CURVE_PRESET                 "Förinställd..."
 #define TR_PRESET                       "Lutning"
 #define TR_MIRROR                       "Spegla"
-#define TR_CLEAR                        BUTTON("Rensa")
+#define TR_CLEAR                        "Rensa"
+#define TR_CLEAR_BTN                    BUTTON("Rensa")
 #define TR_RESET                        "Återställ"
 #define TR_RESET_SUBMENU                "Återställ..."
 #define TR_COUNT                        "Antal"

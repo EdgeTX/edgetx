@@ -416,4 +416,5 @@ const etx_proto_driver_t Pxx1Driver = {
   .processData = pxx1ProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

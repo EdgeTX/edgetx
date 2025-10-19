@@ -53,7 +53,11 @@
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
+#if defined(STM32H7)
+  #define MAX_TELEMETRY_SENSORS        99
+#else
   #define MAX_TELEMETRY_SENSORS        60
+#endif
   #define MAX_CUSTOM_SCREENS           10
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
@@ -584,9 +588,8 @@ enum SrcTypes {
   SRC_TX = 1 << 16,
   SRC_TIMER = 1 << 17,
   SRC_TELEM = 1 << 18,
-  SRC_TELEM_COMP = 1 << 19,
-  SRC_NONE = 1 << 20,
-  SRC_INVERT = 1 << 21,
+  SRC_NONE = 1 << 19,
+  SRC_INVERT = 1 << 20,
 };
 
 enum BacklightMode {

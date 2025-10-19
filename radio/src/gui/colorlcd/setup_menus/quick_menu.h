@@ -93,6 +93,7 @@ class QuickMenu : public NavWindow
   static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
             PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
+  static void shutdownQuickMenu();
 
   void onCancel() override;
   void onSelect(bool close);
@@ -110,12 +111,12 @@ class QuickMenu : public NavWindow
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
-  // void onLongPressSYS() override;
-  // void onPressMDL() override;
-  // void onLongPressMDL() override;
-  // void onPressTELE() override;
-  // void onLongPressTELE() override;
-  // void onLongPressRTN() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+  void onLongPressRTN() override;
 #endif
 
   static constexpr int QM_MAIN_BTNS = 6;
@@ -149,7 +150,7 @@ class QuickMenu : public NavWindow
 
   void focusMainMenu();
 
-  void deleteLater(bool detach, bool trash) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 class QuickSubMenu
