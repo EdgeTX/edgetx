@@ -82,6 +82,7 @@ class AbstractItemModel: public QStandardItemModel
        IMUE_Timers             = 1 << 9,
        IMUE_Modules            = 1 << 10,
        IMUE_FunctionSwitches   = 1 << 11,
+       IMUE_Hardware           = 1 << 12,
        IMUE_All                = IMUE_SystemRefresh | IMUE_Channels | IMUE_Curves | IMUE_FlightModes | IMUE_GVars | IMUE_Inputs |
                                  IMUE_LogicalSwitches | IMUE_Scripts | IMUE_TeleSensors | IMUE_Timers | IMUE_Modules | IMUE_FunctionSwitches
     };

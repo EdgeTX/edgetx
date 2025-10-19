@@ -676,7 +676,7 @@ BacklightSourceItemModel::BacklightSourceItemModel(const GeneralSettings * const
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_BacklightSource);
-  setUpdateMask(IMUE_SystemRefresh);
+  setUpdateMask(IMUE_Hardware);
 
   // Descending source direction: inverted (!) sources
   addItems(SOURCE_TYPE_SWITCH, -board->getCapability(Board::Switches));
