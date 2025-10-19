@@ -70,10 +70,12 @@ jobs:
           submodules: recursive
           # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
 
-      - name: Set Swap Space
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 12
+      - name: Increase swap space
+        run: |
+          fallocate -l 8G /swapfile2
+          chmod 600 /swapfile2
+          mkswap /swapfile2
+          swapon /swapfile2
 
       - name: Test ${{ matrix.target }}
         env:
@@ -157,10 +159,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set Swap Space
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 12
+      - name: Increase swap space
+        run: |
+          fallocate -l 8G /swapfile2
+          chmod 600 /swapfile2
+          mkswap /swapfile2
+          swapon /swapfile2
 
       - name: Build ${{ matrix.target }}
         env:
