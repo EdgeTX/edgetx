@@ -394,7 +394,7 @@ QString OpenTxFirmware::getReleaseNotesUrl()
 QString OpenTxFirmware::getLanguage() const
 {
   QStringList strl = getId().split('-');
-  return strl.size() > 2 ? strl.at(2) : QString();
+  return strl.size() > 2 ? strl.last() : QString();
 }
 
 // Firmware registrations
