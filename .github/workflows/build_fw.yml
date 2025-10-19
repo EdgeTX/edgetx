@@ -71,18 +71,11 @@ jobs:
           submodules: recursive
           # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
 
-      - name: Increase swap space
-        run: |
-          swapoff -a
-          dd if=/dev/zero of=/tmp/swapfile bs=1M count=12288
-          chmod 600 /tmp/swapfile
-          mkswap /tmp/swapfile
-          swapon /tmp/swapfile || dmesg | tail -30
-
       - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 2
+          CMAKE_JOB_POOLS="link_pool=1"
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
@@ -162,18 +155,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Increase swap space
-        run: |
-          swapoff -a
-          dd if=/dev/zero of=/tmp/swapfile bs=1M count=12288
-          chmod 600 /tmp/swapfile
-          mkswap /tmp/swapfile
-          swapon /tmp/swapfile || dmesg | tail -30
-
       - name: Build ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 2
+          CMAKE_JOB_POOLS="link_pool=1"
         run: |
           echo "=== Pre-build resource check ==="
           echo "CPUs: $(nproc --all)"
