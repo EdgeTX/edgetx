@@ -197,7 +197,7 @@ class PageGroup : public PageGroupBase
   bool isPageGroup() override { return true; }
 
   static PageGroup* ScreenMenu();
-  static PageGroup* RadioMenu();
+  static PageGroup* ToolsMenu();
   static PageGroup* ModelMenu();
 
   static LAYOUT_VAL_SCALED(PAGE_TOP_BAR_H, 45)

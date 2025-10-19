@@ -338,10 +338,10 @@ void QuickMenu::enableSubMenu()
 
 #if defined(HARDWARE_KEYS)
 void QuickMenu::onPressSYS() { closeMenu(); }
-// void QuickMenu::onLongPressSYS() { subMenus[1]->onPress(0); }
-// void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
-// void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
-// void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
-// void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
-// void QuickMenu::onLongPressRTN() { onCancel(); }
+void QuickMenu::onLongPressSYS() { subMenus[3]->onPress(0); }
+void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
+void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
+void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
+void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
+void QuickMenu::onLongPressRTN() { closeMenu(); }
 #endif

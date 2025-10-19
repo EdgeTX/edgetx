@@ -252,7 +252,7 @@ void ViewMain::onLongPressSYS()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
   // Radio setup
-  PageGroup::RadioMenu();
+  PageGroup::ToolsMenu();
 }
 void ViewMain::onPressMDL()
 {
