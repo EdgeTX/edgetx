@@ -431,15 +431,15 @@ void DSMPModuleStatus::getStatusString(char* statusText) const
 
   const char* mode;
 
-  mode = (flags & DSMP_FLAGS_DSMX) ? " DSMX" : " DSM2";
+  mode = (flags & DSMP_FLAGS_DSMX) ? " X" : " 2"; // DSMX or DSM2
   tmp = strAppend(tmp, mode, strlen(mode));
 
-  mode = (flags & DSMP_FLAGS_11mS) ? " 11ms" : " 22ms";
+  mode = (flags & DSMP_FLAGS_11mS) ? "_2F" : "_1F"; // 1 or 2 Frames (11ms/22ms)
   tmp = strAppend(tmp, mode, strlen(mode));
 
   // Good for Debugging bind, but not much for regular users
-  mode = (flags & DSMP_FLAGS_2048) ? " 2048" : " 1024";
-  tmp = strAppend(tmp, mode, strlen(mode));
+  //mode = (flags & DSMP_FLAGS_2048) ? " 2048" : " 1024";
+  //tmp = strAppend(tmp, mode, strlen(mode));
 }
 
 
