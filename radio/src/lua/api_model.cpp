@@ -143,7 +143,8 @@ Get RF module parameters
   * 13 SBUS
   * 14 XJT_LITE_PXX2
   * 15 MODULE_TYPE_FLYSKY_AFHDS3,
-  * 16 MODULE_TYPE_LEMON_DSMP
+  * 16 ??
+  * 17 MODULE_TYPE_LEMON_DSMP
 
 `subType` values for XJT_PXX1:
  * -1 OFF
