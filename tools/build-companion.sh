@@ -17,6 +17,9 @@ fi
 # Determine parallel jobs
 determine_max_jobs
 
+# Create a master log file for the entire build process
+MASTER_LOG="build-summary.log"
+
 QUIET_FLAGS=""
 if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
     QUIET_FLAGS="-- --quiet"
@@ -57,11 +60,20 @@ output_error_log() {
 
     if [[ -f "$log_file" ]]; then
         echo "------------------------------------------"
-        echo " Full error output from $log_file:"
+        echo " Full error output from $log_file ($context):"
         echo "------------------------------------------"
         cat "$log_file"
+        echo "------------------------------------------"
+        
+        # Also append to master log for aggregation
+        {
+            echo "=== Error from $log_file ($context) ==="
+            cat "$log_file"
+            echo "=== End of $log_file ==="
+        } >> "$MASTER_LOG"
     else
         echo "⚠️ Warning: Log file $log_file not found for $context"
+        echo "⚠️ Warning: Log file $log_file not found for $context" >> "$MASTER_LOG"
     fi
 }
 
