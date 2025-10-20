@@ -187,9 +187,24 @@ determine_max_jobs() {
 
 # Helper function to run cmake build with appropriate parallelism
 cmake_build_parallel() {
+  local args=()
+  local native_flags=""
+  
+  # Separate cmake args from native flags (anything after --)
+  for arg in "$@"; do
+    if [[ "$arg" == "--" ]]; then
+      # Capture everything after -- as native flags
+      shift
+      native_flags="-- $*"
+      break
+    fi
+    args+=("$arg")
+    shift
+  done
+  
   if [[ -n ${MAX_JOBS} ]]; then
-    cmake --build "$@" --parallel ${MAX_JOBS}
+    cmake --build "${args[@]}" --parallel ${MAX_JOBS} ${native_flags}
   else
-    cmake --build "$@" --parallel
+    cmake --build "${args[@]}" --parallel ${native_flags}
   fi
 }

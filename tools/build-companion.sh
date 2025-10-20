@@ -19,7 +19,7 @@ determine_max_jobs
 
 QUIET_FLAGS=""
 if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
-    QUIET_FLAGS="--quiet"
+    QUIET_FLAGS="-- --quiet"
 else
     # Assume Makefile generator for non-Ninja builds
     COMMON_OPTIONS="-DCMAKE_RULE_MESSAGES=OFF"
