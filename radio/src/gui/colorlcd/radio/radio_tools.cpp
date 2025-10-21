@@ -126,6 +126,12 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
       char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
       strcat(path, fno.fname);
       if (inFolder) {
+        // check if .lua with same name exists - skip folder to avoid duplicate entries
+        auto plen = strlen(path);
+        strcat(path, ".lua");
+        if (f_stat(path, nullptr) == FR_OK)
+          continue;
+        path[plen] = 0;
         strcat(path, "/main.lua");
         if (f_stat(path, nullptr) != FR_OK)
           continue;
