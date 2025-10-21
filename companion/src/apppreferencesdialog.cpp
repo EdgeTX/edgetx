@@ -807,8 +807,12 @@ void AppPreferencesDialog::populateFirmwareOptions(const Firmware * firmware)
 {
   const Firmware * baseFw = firmware->getFirmwareBase();
   QStringList currVariant = Firmware::getCurrentVariant()->getId().split('-');
-  const QString currLang = ui->langCombo->count() ? ui->langCombo->currentText() : currVariant.last();
+  QString fwLang = Firmware::getCurrentVariant()->getLanguage();
 
+  if (fwLang.isEmpty()) // try to detect os language
+    fwLang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+  const QString currLang = ui->langCombo->count() ? ui->langCombo->currentText() : fwLang;
   updateLock = true;
 
   ui->langCombo->clear();
