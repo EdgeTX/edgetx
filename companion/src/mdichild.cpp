@@ -1907,14 +1907,14 @@ void MdiChild::updateStatusBar()
 
   if (!invalidModels()) {
     statusBarIcon->setToolTip(tr("No errors"));
-    p.load(":/images/svg/circle-green.svg");
+    p.load(":/images/png/tick-green.png");
   }
   else {
     statusBarIcon->setToolTip(tr("Errors"));
-    p.load(":/images/svg/circle-red.svg");
+    p.load(":/images/png/cross-red.png");
     cnt.setText(QString::number(invalid));
   }
 
-  statusBarIcon->setPixmap(p.scaled(QSize(16, 16)));
+  statusBarIcon->setPixmap(p.scaled(QSize(24, 24)));
   statusBarCount->setText(cnt.text());
 }
