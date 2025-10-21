@@ -15,5 +15,5 @@
 		}
 	},
 	// Post-create command to set up the environment
-	"postCreateCommand": "git submodule update --init --recursive && mkdir -p build && echo 'EdgeTX development environment ready!"
+	"postCreateCommand": "git submodule update --init --recursive && mkdir -p build && echo 'EdgeTX development environment ready!'"
 }
