@@ -304,6 +304,10 @@ if run_pipeline "final" "final.log" "companion" "true"; then
 
         echo "Contents of native/ directory:"
         ls -la native/ || echo "native/ directory not found"
+        if [ "$PACKAGE_TARGET" == "installer" ]; then
+            echo "Contents of companion/ directory:"
+            ls -la companion/ || echo "companion/ directory not found"
+        fi        
         echo "Looking for files matching: $PACKAGE_FILES"
         find native/ -name "$PACKAGE_FILES" 2>/dev/null || echo "No matching files found"
         error_status=1
