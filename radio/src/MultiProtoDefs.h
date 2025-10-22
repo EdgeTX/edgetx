@@ -132,7 +132,8 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_KYOSHO3,
   MODULE_SUBTYPE_MULTI_XK2,
   MODULE_SUBTYPE_MULTI_YUXIANG,
-  MODULE_SUBTYPE_MULTI_JIABAILE, //100
+  MODULE_SUBTYPE_MULTI_PINECON, //100
+  MODULE_SUBTYPE_MULTI_JIABAILE,
   MODULE_SUBTYPE_MULTI_H36,
   //
   // spare entries - don't touch,
@@ -172,8 +173,8 @@ enum ModuleSubtypeMulti {
   "EazyRC", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSky L","Skyartc","ESkyV2","DSM_RX",\
   "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","WFLY2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
-  "Xerall","MT99XX2","Kyosho2","Scorpio","BlueFly","BumbleB","SGF22","Kyosho3","XK2", \
-  "Yuxiang","Jiabaile","H36"
+  "Xerall","MT99XX2","Kyosho2","Scorpio","BlueFly","BumbleB","SGF22","Kyosho3","XK2",\
+  "YuXiang","Pinecon","JIABAILE","H36"
 #define SPARE_PROTO_NAMES \
   "NN 1","NN 2","NN 3","NN 4","NN 5","NN 6","NN 7","NN 8","NN 9","NN 10"
 #define SPARE_SUBTYPE_NAMES \
