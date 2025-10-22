@@ -75,7 +75,7 @@ jobs:
 
       - name: Build
         env:
-          CMAKE_BUILD_PARALLEL_LEVEL: 4
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
         run: |
           mkdir output && mkdir logs && \
           CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$SDL2_ROOT" \

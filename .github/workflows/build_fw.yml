@@ -73,7 +73,7 @@ jobs:
       - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
-          CMAKE_BUILD_PARALLEL_LEVEL: 4
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
         run: |
           echo "Running commit tests"
           ./tools/commit-tests.sh
