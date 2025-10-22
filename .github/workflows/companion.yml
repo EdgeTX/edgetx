@@ -154,7 +154,7 @@ jobs:
 
   build-win64:
     name: Windows Companion
-    runs-on: windows-2022
+    runs-on: windows-latest
     needs: modules
     if: inputs.target == 'all' || inputs.target == 'windows' || inputs.target == ''
 
