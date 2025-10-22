@@ -56,6 +56,20 @@ static uint8_t AETR_TAER_MAP[] = {2, 0, 1};
 
 static DSMPModuleStatus dsmpStatus = DSMPModuleStatus();
 
+// Power cycle of the DSMP module
+// if we switch to send a Message Ch data before the DSMP has gotten the Setup
+// package (pass=0), servos jitter and jump to weird positions until the Setup Package is
+// received. Dangerous on electric motor Throttle stating unexpected!!
+// This will happen if the RX is power ON before the TX, Switch Models, or TX power cycle, 
+// all while the RX is still ON.
+// Solution:
+// Repetitively send the setup package multiple times to make sure is received by
+// the module before any CH data.
+
+#define SETUP_MESSAGE_INITIAL_COUNT  50  // About 1s  (22ms * 50 = 1100ms)
+static uint8_t pass = 0;
+static uint8_t initPass0_count =  SETUP_MESSAGE_INITIAL_COUNT;  
+
 DSMPModuleStatus& getDSMPStatus(uint8_t module)
 { 
     return dsmpStatus; 
@@ -65,6 +79,8 @@ static void* dsmpInit(uint8_t module)
 {
   // FARZU: This was 11ms cycle time... but from discusing with FMak (LemonRX), the DSMP is
   // using 22ms cycles
+  pass = 0;
+  initPass0_count = SETUP_MESSAGE_INITIAL_COUNT;
   return (void*)dsmInit(module, DSMP_BITRATE, 22 * 1000 /* 22ms in us */, true);
 }
 
@@ -125,6 +141,7 @@ static uint16_t getDSMPChannelValue(uint8_t module, uint8_t flags, uint8_t chann
   uint16_t pulse;
   // Use 11-bit ?
   if (flags & DSMP_FLAGS_2048) {
+    // Scale to 349/512=0.681, MultiModule is about 0.667
     pulse = limit(0, ((value * 349) >> 9) + 1024, 2047) | (channel << 11);
   } else {
     pulse = limit(0, ((value * 13) >> 5) + 512, 1023) | (channel << 10);
@@ -135,8 +152,6 @@ static uint16_t getDSMPChannelValue(uint8_t module, uint8_t flags, uint8_t chann
 
 static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 {
-  static uint8_t pass = 0; 
-
   const auto modelId = g_model.header.modelId[module];
   const auto& md = g_model.moduleData[module];
 
@@ -170,7 +185,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 
   // Setup packet
   if (pass == 0) {
-    flags &= DSMP_FLAGS_TXMODE; // Only the TXMODE part
+    flags &= DSMP_FLAGS_TXMODE;  // Only the TXMODE part
 
     if (module_mode == MODULE_MODE_BIND) {
       flags = DSMP_FLAGS_BIND | DSMP_FLAGS_AUTO;
@@ -183,16 +198,20 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
       pwr = DSMP_POWER_RANGE;
     }
     sendByte(p_buf, pwr);
-    sendByte(p_buf, channels );
+    sendByte(p_buf, channels);
 
     // Model number
-    sendByte(p_buf, modelId); // V1.0 ignores it, V2.0 use it
+    sendByte(p_buf, modelId);  // V1.0 ignores it, V2.0 use it
 
-    // Send only 1 single Setup packet
-    pass = 1;
+    if (initPass0_count == 0) {  
+      // Setup packet already sent multiple times, move to send Ch data
+      pass = 1;
+    } else {
+      initPass0_count--; // Keep sending Setup Packets
+    }
 
   } else {
-
+    //  Channel DATA messages
     uint8_t current_channel = 0;
     if (pass == 2) {
       current_channel += 7;
