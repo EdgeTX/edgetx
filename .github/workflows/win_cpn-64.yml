@@ -73,9 +73,9 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install NSIS
-        uses: repolevedavaj/install-nsis@v1.0.1
+        uses: repolevedavaj/install-nsis@v1.1.0
         with:
-          nsis-version: '3.10'
+          nsis-version: '3.11'
 
       - name: Build
         env:
