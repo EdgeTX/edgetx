@@ -129,6 +129,21 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
+bool pwrPressedDebounced()
+{
+  static bool debouncedState = 0;
+  static bool lastState = 0;
+
+  bool state = pwrPressed();
+
+  if (state == lastState)
+    debouncedState = state;
+  else
+    lastState = state;
+  
+  return debouncedState;
+}
+
 void boardInit()
 {
   // enable interrupts
@@ -190,7 +205,7 @@ void boardInit()
         is_charging = isChargerActive();
       }
       // Exit conditions: button pressed or charger disconnected
-      if (!pwrPressed() && is_charging) {
+      if (!pwrPressedDebounced() && is_charging) {
         updateBatteryState(RGB_STATE_CHARGE);
       } else {
         rgbLedClearAll();
@@ -205,7 +220,7 @@ void boardInit()
   // First stage: Detect initial button press and handle press duration
   if (!isChargerActive()) {
     first_short_press = timersGetMsTick();
-    while (pwrPressed()) {
+    while (pwrPressedDebounced()) {
       now = timersGetMsTick();
       short_press = now;
       last_pulse  = now;
@@ -224,7 +239,7 @@ void boardInit()
   {
     now = timersGetMsTick();
 
-    if (pwrPressed()) {
+    if (pwrPressedDebounced()) {
       if (long_press == 0) {
         updateBatteryState(RGB_STATE_OFF);
         long_press = now;
@@ -356,6 +371,7 @@ void boardOff()
 
   }
 }
+
 /*
 int usbPlugged()
 {
