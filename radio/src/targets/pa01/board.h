@@ -129,10 +129,10 @@ extern "C" {
 
 // Power driver
 #define SOFT_PWR_CTRL
-#define POWER_ON_DELAY               1500 // 1.5s
-#define POWER_ON_STEP                 150 // 150ms
-#define INTER_PRESS_TIMEOUT          5000 // 5s
-#define FIRST_PRESS_TIMEOUT         10000 // 10s
+#define POWER_ON_STEP                     200 // 200ms
+#define POWER_ON_DELAY    (POWER_ON_STEP * 5)
+#define INTER_PRESS_TIMEOUT              5000 // 5s
+#define FIRST_PRESS_TIMEOUT             10000 // 10s
 void pwrInit();
 void extModuleInit();
 uint32_t pwrCheck();
