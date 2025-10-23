@@ -77,8 +77,7 @@ class ColorEditorPopup : public BaseDialog
                    std::function<void(uint32_t)> _setValue,
                    std::function<void(uint32_t)> _preview,
                    COLOR_EDITOR_FMT fmt) :
-      BaseDialog(STR_COLOR_PICKER, false, COLOR_EDIT_WIDTH,
-                 LV_SIZE_CONTENT),
+      BaseDialog(STR_COLOR_PICKER, false, COLOR_EDIT_WIDTH, COLOR_EDIT_HEIGHT),
       origColor(color), setValue(std::move(_setValue)), format(fmt)
   {
     FlexGridLayout grid(col_dsc, row_dsc);
@@ -165,7 +164,12 @@ class ColorEditorPopup : public BaseDialog
   }
 
   static LAYOUT_VAL_SCALED(CE_SZ, 182)
+#if NARROW_LAYOUT
+  static LAYOUT_ORIENTATION(COLOR_EDIT_WIDTH, LCD_W * 0.95, LCD_W * 0.7)
+#else
   static LAYOUT_ORIENTATION(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
+#endif
+  static LAYOUT_ORIENTATION(COLOR_EDIT_HEIGHT, LCD_H * 0.9, LV_SIZE_CONTENT)
   static LAYOUT_VAL_SCALED(COLOR_PAD_WIDTH, 52)
   static LAYOUT_VAL_SCALED(BTN_W, 80)
   static LAYOUT_VAL_SCALED(BTN_PAD_TOP, 60)
