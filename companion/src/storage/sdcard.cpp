@@ -23,7 +23,7 @@
 #include <QFile>
 #include <QDir>
 
-bool SdcardFormat::write(const RadioData & radioData)
+bool SdcardFormat::write(RadioData & radioData)
 {
   QDir dir(filename);
   dir.mkdir("RADIO");

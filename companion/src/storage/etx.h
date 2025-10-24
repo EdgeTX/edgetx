@@ -37,7 +37,7 @@ class EtxFormat : public LabelsStorageFormat
 
     virtual QString name() { return "etx"; }
     virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData);
+    virtual bool write(RadioData & radioData);
 
   protected:
     virtual bool loadFile(QByteArray & fileData, const QString & fileName, bool optional = false);
