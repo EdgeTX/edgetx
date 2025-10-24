@@ -28,7 +28,11 @@
 #define MAX_WIDGET_OPTIONS  10
 
 static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTONS_LEFT, 47)
-static LAYOUT_VAL_SCALED(TOPBAR_ZONE_WIDTH, 70);
+#if LCD_W == 800  // TODO: handle this better
+static constexpr int TOPBAR_ZONE_WIDTH = 102;
+#else
+static LAYOUT_VAL_SCALED(TOPBAR_ZONE_WIDTH, 70)
+#endif
 static constexpr int MAX_TOPBAR_ZONES = (LCD_W - MENU_HEADER_BUTTONS_LEFT - 1 + TOPBAR_ZONE_WIDTH / 2) / TOPBAR_ZONE_WIDTH;
 
 #define MAX_TOPBAR_OPTIONS   1 // just because of VC++ which doesn't like 0-size arrays :(
