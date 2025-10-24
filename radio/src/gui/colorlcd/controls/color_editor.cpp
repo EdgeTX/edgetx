@@ -449,7 +449,7 @@ class FixedColorType : public ColorType
     });
   }
 
-  static LAYOUT_VAL_SCALED(BTN_W, 44)
+  static LAYOUT_VAL_SCALED(BTN_W, 42)
 };
 
 /////////////////////////////////////////////////////////////////////////
