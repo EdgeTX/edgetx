@@ -46,7 +46,7 @@ PageDef modelMenuItems[] = {
 #if defined(GVARS)
   { ICON_MODEL_GVARS, STR_QM_GLOBAL_VARS, STR_MENU_GLOBAL_VARS, PAGE_CREATE, QuickMenu::MODEL_GVARS, [](PageDef& pageDef) { return new ModelGVarsPage(pageDef); }, modelGVEnabled},
 #endif
-  { ICON_MODEL_LOGICAL_SWITCHES, STR_QM_LOGICAL_SW, STR_MENULOGICALSWITCHES, PAGE_CREATE, QuickMenu::MODEL_LS, [](PageDef& pageDef) { return new ModelLogicalSwitchesPage(pageDef); }, modelSFEnabled},
+  { ICON_MODEL_LOGICAL_SWITCHES, STR_QM_LOGICAL_SW, STR_MENULOGICALSWITCHES, PAGE_CREATE, QuickMenu::MODEL_LS, [](PageDef& pageDef) { return new ModelLogicalSwitchesPage(pageDef); }, modelLSEnabled},
   { ICON_MODEL_SPECIAL_FUNCTIONS, STR_QM_SPEC_FUNC, STR_MENUCUSTOMFUNC, PAGE_CREATE, QuickMenu::MODEL_SF, [](PageDef& pageDef) { return new SpecialFunctionsPage(pageDef); }, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)
   { ICON_MODEL_LUA_SCRIPTS, STR_QM_CUSTOM_LUA, STR_MENUCUSTOMSCRIPTS, PAGE_CREATE, QuickMenu::MODEL_SCRIPTS, [](PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
