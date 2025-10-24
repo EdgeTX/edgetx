@@ -191,6 +191,10 @@ void boardInit()
 
   pwrOn();
 
+  // Init debounce
+  pwrPressedDebounced();
+  pwrPressedDebounced();
+  
   // Handle charging state if charger is active
   if (isChargerActive()) {
     static uint32_t adc_sample_time = 0; // Hardware ADC sample tick
