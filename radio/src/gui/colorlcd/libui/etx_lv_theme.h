@@ -51,7 +51,7 @@
   #if LCD_W == 320
     #define LAYOUT_SCALE(x) (((x) * 8 + 5) / 10)
   #elif LCD_W == 800
-    #define LAYOUT_SCALE(x) (((x) * 3 + 1) / 2)
+    #define LAYOUT_SCALE(x) (((x) * 11 + 4) / 8)
   #endif
 #endif
 
