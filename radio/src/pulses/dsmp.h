@@ -29,7 +29,7 @@ struct DSMPModuleStatus {
   uint8_t	ch_order   = 0xFF;
   uint8_t	flags      = 0;
 
-  inline bool isValid() const { return (bool)(get_tmr10ms() - lastUpdate < 200);}
+  inline bool isValid() const { return (bool)(get_tmr10ms() - lastUpdate < 500);}
   void getStatusString(char *statusText) const;
 };
 
