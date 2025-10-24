@@ -27,6 +27,14 @@
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 static bool hasLedOverride[NUM_FUNCTIONS_SWITCHES] = { false };
 static RGBLedColor ledOverride[NUM_FUNCTIONS_SWITCHES];
+static int cfsEditOverride = -1;
+static uint32_t cfsEditColor;
+
+void setFSEditOverride(int index, uint32_t color)
+{
+  cfsEditOverride = index;
+  cfsEditColor = color;
+}
 
 void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b)
 {
@@ -38,21 +46,31 @@ void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b
 
 void setFSLedOFF(uint8_t index) {
   if (g_model.getSwitchType(index) != SWITCH_NONE) {
-    uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-    if (hasLedOverride[cfsIdx] && g_model.getSwitchOffColorLuaOverride(index))
-      fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
-    else
-      fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
+    if (cfsEditOverride >= 0) {
+      uint8_t cfsIdx = switchGetCustomSwitchIdx(cfsEditOverride);
+      fsLedRGB(cfsIdx, cfsEditColor);
+    } else {
+      uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
+      if (hasLedOverride[cfsIdx] && g_model.getSwitchOffColorLuaOverride(index))
+        fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+      else
+        fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
+    }
   }
 }
 
 void setFSLedON(uint8_t index) {
   if (g_model.getSwitchType(index) != SWITCH_NONE) {
-    uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-    if (hasLedOverride[cfsIdx] && g_model.getSwitchOnColorLuaOverride(index))
-      fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
-    else
-      fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
+    if (cfsEditOverride >= 0) {
+      uint8_t cfsIdx = switchGetCustomSwitchIdx(cfsEditOverride);
+      fsLedRGB(cfsIdx, cfsEditColor);
+    } else {
+      uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
+      if (hasLedOverride[cfsIdx] && g_model.getSwitchOnColorLuaOverride(index))
+        fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+      else
+        fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
+    }
   }
 }
 

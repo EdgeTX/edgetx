@@ -106,6 +106,7 @@ class RadioFunctionSwitch : public Window
           g_eeGeneral.switchOffColor(switchIndex).setColor(newValue);
 
           offValue = g_eeGeneral.switchOffColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
@@ -124,6 +125,7 @@ class RadioFunctionSwitch : public Window
           g_eeGeneral.switchOnColor(switchIndex).setColor(newValue);
 
           onValue = g_eeGeneral.switchOnColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
@@ -209,11 +211,7 @@ class RadioFunctionSwitch : public Window
   {
     // Convert color index to RGB
     newValue = color32ToRGB(newValue);
-    if (g_model.cfsState(switchIndex)) {
-        g_eeGeneral.switchOnColor(switchIndex).setColor(newValue);
-    } else {
-        g_eeGeneral.switchOffColor(switchIndex).setColor(newValue);
-    }
+    setFSEditOverride(switchIndex, newValue);
   }
 #endif
 

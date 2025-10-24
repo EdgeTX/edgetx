@@ -136,6 +136,7 @@ class FunctionSwitch : public Window
           g_model.cfsOffColor(switchIndex).setColor(newValue);
 
           offValue = g_model.cfsOffColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
@@ -154,6 +155,7 @@ class FunctionSwitch : public Window
           g_model.cfsOnColor(switchIndex).setColor(newValue);
 
           onValue = g_model.cfsOnColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
@@ -240,11 +242,7 @@ class FunctionSwitch : public Window
   {
     // Convert color index to RGB
     newValue = color32ToRGB(newValue);
-    if (g_model.cfsState(switchIndex)) {
-      g_model.cfsOnColor(switchIndex).setColor(newValue);
-    } else {
-      g_model.cfsOffColor(switchIndex).setColor(newValue);
-    }
+    setFSEditOverride(switchIndex, newValue);
   }
 #endif
 
