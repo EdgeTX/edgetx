@@ -49,8 +49,8 @@
 #define KEYS_GPIO_PIN_PAGEUP
 #define KEYS_GPIO_REG_PAGEDN
 #define KEYS_GPIO_PIN_PAGEDN
-#define KEYS_GPIO_REG_SYS
-#define KEYS_GPIO_PIN_SYS
+#define KEYS_GPIO_REG_MDL
+#define KEYS_GPIO_PIN_MDL
 #define KEYS_GPIO_REG_EXIT
 #define KEYS_GPIO_PIN_EXIT
 
@@ -360,11 +360,11 @@
 
 // LED Strip
 #define LED_STRIP_LENGTH                  14
-#define BLING_LED_STRIP_START             0
-#define BLING_LED_STRIP_LENGTH            10
-#define CFS_LED_STRIP_START               10
-#define CFS_LED_STRIP_LENGTH              4
-#define CFS_LEDS_PER_SWITCH               1
+#define BLING_LED_STRIP_START             10
+#define BLING_LED_STRIP_LENGTH            4
+#define CFS_LED_STRIP_START               0
+#define CFS_LED_STRIP_LENGTH              8
+#define CFS_LEDS_PER_SWITCH               2
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOF, 06)  // PF.06 / TIM16_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM16
