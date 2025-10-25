@@ -123,7 +123,7 @@ static void onHardwareAntennaSwitchConfirm(const char * result)
 #if defined(FUNCTION_SWITCHES)
 #define RADIO_SETUP_2ND_COLUMN           (LCD_W-11*FW)
 extern const char* _fct_sw_start[];
-static int swIndex;
+extern int swIndex;
 
 extern bool checkCFSTypeAvailable(int val);
 
@@ -142,6 +142,7 @@ enum CFSFields {
 };
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+extern bool menuCFSpreview;
 extern void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event);
 #endif
 
@@ -172,6 +173,10 @@ static void menuRadioCFSOne(event_t event)
   int8_t editMode = s_editMode;
 
   coord_t y = MENU_HEADER_HEIGHT + 1;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  menuCFSpreview = false;
+#endif
 
   for (int k = 0; k < NUM_BODY_LINES; k += 1) {
     int i = k + menuVerticalOffset;
@@ -241,6 +246,11 @@ static void menuRadioCFSOne(event_t event)
 
     y += FH;
   }
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  if (!menuCFSpreview)
+    setFSEditOverride(-1, 0);
+#endif
 }
 #endif
 
