@@ -590,7 +590,7 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
 
 #if defined(FUNCTION_SWITCHES)
 const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
-static int swIndex;
+int swIndex;
 static uint8_t cfsGroup;
 
 bool checkCFSTypeAvailable(int val)
@@ -614,13 +614,6 @@ static bool checkCFSSwitchAvailable(int sw)
   return (sw == -1) || (sw == switchGetMaxSwitches()) || (switchIsCustomSwitch(sw) && (g_model.cfsGroup(sw) == cfsGroup));
 }
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-static bool checkCFSColorAvailable(int col)
-{
-  return col > 0;
-}
-#endif
-
 enum CFSFields {
   CFS_FIELD_TYPE,
   CFS_FIELD_NAME,
@@ -637,6 +630,13 @@ enum CFSFields {
 };
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+bool menuCFSpreview;
+
+static bool checkCFSColorAvailable(int col)
+{
+  return col > 0;
+}
+
 void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event)
 {
   uint8_t selectedColor = getRGBColorIndex(color.getColor());
@@ -658,6 +658,11 @@ void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags att
   lcdDrawNumber(LCD_W, y, color.b, (menuHorizontalPosition == 3 ? attr : 0) | RIGHT);
   if (attr && menuHorizontalPosition == 3)
     color.b = checkIncDec(event, color.b, 0, 255, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
+
+  if ((attr & BLINK) && !menuCFSpreview) {
+    menuCFSpreview = true;
+    setFSEditOverride(swIndex, color.getColor());
+  }
 }
 #endif
 
@@ -689,6 +694,10 @@ static void menuModelCFSOne(event_t event)
   int8_t editMode = s_editMode;
 
   coord_t y = MENU_HEADER_HEIGHT + 1;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  menuCFSpreview = false;
+#endif
 
   for (int k = 0; k < NUM_BODY_LINES; k += 1) {
     int i = k + menuVerticalOffset;
@@ -776,6 +785,11 @@ static void menuModelCFSOne(event_t event)
 
     y += FH;
   }
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  if (!menuCFSpreview)
+    setFSEditOverride(-1, 0);
+#endif
 }
 #endif
 
