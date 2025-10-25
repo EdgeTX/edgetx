@@ -487,7 +487,7 @@ inline int8_t minModuleChannels(uint8_t idx)
   else if (isModuleSBUS(idx))
     return 16;
   else if (isModuleDSMP(idx))
-    return 1;  // FARZU:  module assume always start with Ch1. Was: maxModuleChannels(idx);
+    return 1;
   else
     return 1;
 }
