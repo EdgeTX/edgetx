@@ -78,7 +78,7 @@ static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
 
   } // switch
 
-  if (is_sport && len >= FRSKY_SPORT_PACKET_SIZE) {
+  if (is_sport && *len >= FRSKY_SPORT_PACKET_SIZE) {
     // end of frame detected
     dataState = STATE_DATA_IDLE;
     return true;
