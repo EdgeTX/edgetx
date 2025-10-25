@@ -359,8 +359,8 @@ void telemetryWakeup()
 #if defined(PCBFRSKY)
     if (isBadAntennaDetected()) {
       AUDIO_RAS_RED();
-      POPUP_WARNING_ON_UI_TASK(STR_WARNING, STR_ANTENNAPROBLEM);
-      SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
+      if (POPUP_WARNING_ON_UI_TASK(STR_WARNING, STR_ANTENNAPROBLEM))
+        SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
     }
 #endif
 
