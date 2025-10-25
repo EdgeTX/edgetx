@@ -22,7 +22,7 @@
 #include "edgetx.h"
 
 static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
-                                          uint8_t* buffer, uint8_t& len)
+                                          uint8_t* buffer, uint8_t* len)
 {
   static uint8_t dataState = STATE_DATA_IDLE;
 
@@ -31,12 +31,12 @@ static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
       if (data == START_STOP) {
         if (is_sport) {
           dataState = STATE_DATA_IN_FRAME ;
-          len = 0;
+          *len = 0;
         }
       }
       else {
-        if (len < TELEMETRY_RX_PACKET_SIZE) {
-          buffer[len++] = data;
+        if (*len < TELEMETRY_RX_PACKET_SIZE) {
+          buffer[*len++] = data;
         }
         dataState = STATE_DATA_IN_FRAME;
       }
@@ -49,7 +49,7 @@ static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
       else if (data == START_STOP) {
         if (is_sport) {
           dataState = STATE_DATA_IN_FRAME ;
-          len = 0;
+          *len = 0;
         } else {
           // end of frame detected
           dataState = STATE_DATA_IDLE;
@@ -57,28 +57,28 @@ static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
         }
         break;
       }
-      else if (len < TELEMETRY_RX_PACKET_SIZE) {
-        buffer[len++] = data;
+      else if (*len < TELEMETRY_RX_PACKET_SIZE) {
+        buffer[*len++] = data;
       }
       break;
 
     case STATE_DATA_XOR:
-      if (len < TELEMETRY_RX_PACKET_SIZE) {
-        buffer[len++] = data ^ STUFF_MASK;
+      if (*len < TELEMETRY_RX_PACKET_SIZE) {
+        buffer[*len++] = data ^ STUFF_MASK;
       }
       dataState = STATE_DATA_IN_FRAME;
       break;
 
     case STATE_DATA_IDLE:
       if (data == START_STOP) {
-        len = 0;
+        *len = 0;
         dataState = STATE_DATA_START;
       }
       break;
 
   } // switch
 
-  if (is_sport && len >= FRSKY_SPORT_PACKET_SIZE) {
+  if (is_sport && *len >= FRSKY_SPORT_PACKET_SIZE) {
     // end of frame detected
     dataState = STATE_DATA_IDLE;
     return true;
@@ -89,14 +89,14 @@ static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
 
 void processFrskyDTelemetryData(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  if (pushFrskyTelemetryData(false, data, buffer, *len)) {
+  if (pushFrskyTelemetryData(false, data, buffer, len)) {
     frskyDProcessPacket(module, buffer, *len);
   }
 }
 
 void processFrskySportTelemetryData(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  if (pushFrskyTelemetryData(true, data, buffer, *len)) {
+  if (pushFrskyTelemetryData(true, data, buffer, len)) {
     sportProcessTelemetryPacket(module, buffer, *len);
   }
 }
