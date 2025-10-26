@@ -39,7 +39,7 @@ struct LvglParamFuncOrValue
     uint32_t value;
   };
 
-  uint32_t currVal  = -1;
+  uint32_t currVal = -1;
 
   void parse(lua_State *L);
   void forceUpdate() { currVal = -1; }
@@ -54,7 +54,7 @@ struct LvglParamFuncOrString
  public:
   int function;
   std::string txt;
-  uint32_t txtHash  = -1;
+  uint32_t txtHash = -1;
 
   void parse(lua_State *L);
   void forceUpdate() { txtHash = -1; }
@@ -111,7 +111,7 @@ class LvglTitleParam
   LvglTitleParam() {}
 
  protected:
-  std::string title;
+  LvglParamFuncOrString title = { .function = LUA_REFNIL, .txt = ""};
 
   bool parseTitleParam(lua_State *L, const char *key);
 };
@@ -192,6 +192,7 @@ class LvglWidgetObjectBase
 
   virtual void show() = 0;
   virtual void hide() = 0;
+  virtual bool isVisible() = 0;
   virtual void enable() {};
   virtual void disable() {};
   virtual void close() {};
@@ -240,6 +241,7 @@ class LvglWidgetObjectBase
                        std::function<void(int)> update);
   bool pcallUpdate2Int(lua_State *L, int getFuncRef,
                        std::function<void(int, int)> update);
+  bool pcallUpdateStringVal(lua_State *L, int getFuncRef, std::function<void(const char*)> update);
   int pcallGetIntVal(lua_State *L, int getFuncRef);
   int pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal);
   void pcallSetIntVal(lua_State *L, int setFuncRef, int val);
@@ -256,6 +258,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
   void show() override;
   void hide() override;
+  bool isVisible() override;
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
@@ -413,6 +416,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
   void show() override { window->show(); }
   void hide() override { window->hide(); }
+  bool isVisible() override { return window->isVisible(); }
   void enable() override { window->enable(); }
   void disable() override { window->disable(); }
 
@@ -475,11 +479,16 @@ class LvglWidgetBorderedObject : public LvglWidgetBox, public LvglThicknessParam
 
   void setColor(LcdFlags newColor) override;
   void setOpacity(uint8_t newOpa) override;
+  void setFilled(int newVal);
+
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
  protected:
-  bool filled = false;
+  LvglParamFuncOrValue filled = { .function = LUA_REFNIL, .value = false};
 
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -502,11 +511,7 @@ class LvglWidgetRoundObject : public LvglWidgetBorderedObject
   LvglParamFuncOrValue radius = { .function = LUA_REFNIL, .coord = 0};
 
   void parseParam(lua_State *L, const char *key) override;
-  void refresh() override
-  {
-    setRadius(radius.coord);
-    LvglWidgetObject::refresh();
-  }
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -780,6 +785,8 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 //-----------------------------------------------------------------------------
 
+class WidgetPage;
+
 class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams
 {
  public:
@@ -791,9 +798,13 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public Lv
   coord_t getScrollX() override;
   coord_t getScrollY() override;
 
+  void setTitle(const char* s);
+  void setSubTitle(const char* s);
+
  protected:
-  std::string subtitle;
+  LvglParamFuncOrString subtitle = { .function = LUA_REFNIL, .txt = ""};
   std::string iconFile;
+  WidgetPage* page = nullptr;
 
   int backActionFunction = LUA_REFNIL;
 
@@ -844,6 +855,8 @@ class LvglWidgetMessageDialog : public LvglWidgetObject, public LvglTitleParam, 
  public:
   LvglWidgetMessageDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
+  void clearRefs(lua_State *L) override;
+
  protected:
   std::string details;
 
@@ -887,6 +900,8 @@ class LvglWidgetMenu : public LvglWidgetPicker, public LvglTitleParam, public Lv
 {
  public:
   LvglWidgetMenu() : LvglWidgetPicker() {}
+
+  void clearRefs(lua_State *L) override;
 
  protected:
   void build(lua_State *L) override;
@@ -970,7 +985,9 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
 class LvglWidgetFilePicker : public LvglWidgetPicker, public LvglTitleParam
 {
  public:
-   LvglWidgetFilePicker() : LvglWidgetPicker() {}
+  LvglWidgetFilePicker() : LvglWidgetPicker() {}
+
+  void clearRefs(lua_State *L) override;
 
  protected:
   std::string folder;

@@ -292,26 +292,26 @@ void luaDoGc(lua_State * L, bool full)
       else {
         lua_gc(L, LUA_GCSTEP, 10);
       }
-#if defined(DEBUG)
-      if (L == lsScripts) {
-        static uint32_t lastgcSctipts = 0;
-        uint32_t gc = luaGetMemUsed(L);
-        if (gc > (lastgcSctipts + GC_REPORT_TRESHOLD) || (gc + GC_REPORT_TRESHOLD) < lastgcSctipts) {
-          lastgcSctipts = gc;
-          TRACE("GC Use Scripts: %u bytes", gc);
-        }
-      }
-#if defined(COLORLCD)
-      if (L == lsWidgets) {
-        static uint32_t lastgcWidgets = 0;
-        uint32_t gc = luaGetMemUsed(L);
-        if (gc > (lastgcWidgets + GC_REPORT_TRESHOLD) || (gc + GC_REPORT_TRESHOLD) < lastgcWidgets) {
-          lastgcWidgets = gc;
-          TRACE("GC Use Widgets: %u bytes + Extra %u", gc, luaExtraMemoryUsage);
-        }
-      }
-#endif
-#endif
+// #if defined(DEBUG)
+//       if (L == lsScripts) {
+//         static uint32_t lastgcSctipts = 0;
+//         uint32_t gc = luaGetMemUsed(L);
+//         if (gc > (lastgcSctipts + GC_REPORT_TRESHOLD) || (gc + GC_REPORT_TRESHOLD) < lastgcSctipts) {
+//           lastgcSctipts = gc;
+//           TRACE("GC Use Scripts: %u bytes", gc);
+//         }
+//       }
+// #if defined(COLORLCD)
+//       if (L == lsWidgets) {
+//         static uint32_t lastgcWidgets = 0;
+//         uint32_t gc = luaGetMemUsed(L);
+//         if (gc > (lastgcWidgets + GC_REPORT_TRESHOLD) || (gc + GC_REPORT_TRESHOLD) < lastgcWidgets) {
+//           lastgcWidgets = gc;
+//           TRACE("GC Use Widgets: %u bytes + Extra %u", gc, luaExtraMemoryUsage);
+//         }
+//       }
+// #endif
+// #endif
     }
     else {
       // we disable Lua for the rest of the session
