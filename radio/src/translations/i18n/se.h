@@ -669,10 +669,7 @@
 #define TR_MENULOGICALSWITCH            "LOGISK BRYTARE"
 #define TR_MENUSTAT                     "STATISTIK"
 #define TR_MENUDEBUG                    "DEBUG"
-#define TR_MONITOR_CHANNELS1            "KANALÖVERSIKT - KA 1-8"
-#define TR_MONITOR_CHANNELS2            "KANALÖVERSIKT - KA 9-16"
-#define TR_MONITOR_CHANNELS3            "KANALÖVERSIKT - KA 17-24"
-#define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KA 25-32"
+#define TR_MONITOR_CHANNELS             "KANALÖVERSIKT - KA %d-%d"
 #define TR_MONITOR_OUTPUT_DESC          "Utdata"
 #define TR_MONITOR_MIXER_DESC           "Mixar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")

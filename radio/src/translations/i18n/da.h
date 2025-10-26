@@ -669,10 +669,7 @@
 #define TR_MENULOGICALSWITCH           "LOGISK FUNKTION"
 #define TR_MENUSTAT                    "STAT"
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "KANAL MONITOR 1-8"
-#define TR_MONITOR_CHANNELS2           "KANAL MONITOR 9-16"
-#define TR_MONITOR_CHANNELS3           "KANAL MONITOR 17-24"
-#define TR_MONITOR_CHANNELS4           "KANAL MONITOR 25-32"
+#define TR_MONITOR_CHANNELS            "KANAL MONITOR %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "Udgange"
 #define TR_MONITOR_MIXER_DESC          "Mix"
 #define TR_RECEIVER_NUM                TR("RxNr", "Rx modtager Nr.")

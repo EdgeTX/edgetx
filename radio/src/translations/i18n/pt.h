@@ -664,10 +664,7 @@
 #define TR_MENULOGICALSWITCH           "CHAVE LÓGICA"
 #define TR_MENUSTAT                    "STATS"
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "MONITOR CANAIS 1-8"
-#define TR_MONITOR_CHANNELS2           "MONITOR CANAIS 9-16"
-#define TR_MONITOR_CHANNELS3           "MONITOR CANAIS 17-24"
-#define TR_MONITOR_CHANNELS4           "MONITOR CANAIS 25-32"
+#define TR_MONITOR_CHANNELS            "MONITOR CANAIS %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "Saídas"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
   #define TR_RECEIVER_NUM              TR("# Rx", "# Recept")

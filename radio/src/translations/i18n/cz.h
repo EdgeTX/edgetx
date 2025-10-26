@@ -669,10 +669,7 @@
 #define TR_MENULOGICALSWITCH           "LOG. SPÍNAČ"
 #define TR_MENUSTAT                    "STATISTIKA"
 #define TR_MENUDEBUG                   "DIAG"
-#define TR_MONITOR_CHANNELS1           "MONITOR KANÁLŮ 1/8"
-#define TR_MONITOR_CHANNELS2           "MONITOR KANÁLŮ 9/16"
-#define TR_MONITOR_CHANNELS3           "MONITOR KANÁLŮ 17/24"
-#define TR_MONITOR_CHANNELS4           "MONITOR KANÁLŮ 25/32"
+#define TR_MONITOR_CHANNELS            "MONITOR KANÁLŮ %d/%d"
 #define TR_MONITOR_OUTPUT_DESC         "Výstupy"
 #define TR_MONITOR_MIXER_DESC          "Mixy"
 #define TR_RECEIVER_NUM                TR("RX číslo", "Číslo přijímače")

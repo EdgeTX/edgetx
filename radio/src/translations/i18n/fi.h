@@ -664,10 +664,7 @@
 #define TR_MENULOGICALSWITCH           "CUSTOM SWITCH"
 #define TR_MENUSTAT                    "STATS"
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "CHANNELS 1/8"
-#define TR_MONITOR_CHANNELS2           "CHANNELS 9/16"
-#define TR_MONITOR_CHANNELS3           "CHANNELS 17/24"
-#define TR_MONITOR_CHANNELS4           "CHANNELS 25/32"
+#define TR_MONITOR_CHANNELS            "CHANNELS %d/%d"
 #define TR_MONITOR_OUTPUT_DESC         "Outputs"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
 #define TR_RECEIVER_NUM                TR("RxNum", "Receiver No.")

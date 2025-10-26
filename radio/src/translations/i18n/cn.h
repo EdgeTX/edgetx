@@ -664,10 +664,7 @@
 #define TR_MENULOGICALSWITCH           "逻辑开关"
 #define TR_MENUSTAT                    "统计"
 #define TR_MENUDEBUG                   "Debug"
-#define TR_MONITOR_CHANNELS1           "1-8通道查看"
-#define TR_MONITOR_CHANNELS2           "9-16通道查看"
-#define TR_MONITOR_CHANNELS3           "17-24通道查看"
-#define TR_MONITOR_CHANNELS4           "25-32通道查看"
+#define TR_MONITOR_CHANNELS            "%d-%d通道查看"
 #define TR_MONITOR_OUTPUT_DESC         "输出查看"
 #define TR_MONITOR_MIXER_DESC          "混控查看"
 #define TR_RECEIVER_NUM                TR("RxNum", "接收机编号")

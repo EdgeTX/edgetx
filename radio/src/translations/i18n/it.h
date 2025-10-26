@@ -664,10 +664,7 @@
 #define TR_MENULOGICALSWITCH            "INTER. PERSON."
 #define TR_MENUSTAT                     "STATO"
 #define TR_MENUDEBUG                    "DEBUG"
-#define TR_MONITOR_CHANNELS1            "MONITOR CANALI 1/8"
-#define TR_MONITOR_CHANNELS2            "MONITOR CANALI 9/16"
-#define TR_MONITOR_CHANNELS3            "MONITOR CANALI 17/24"
-#define TR_MONITOR_CHANNELS4            "MONITOR CANALI 25/32"
+#define TR_MONITOR_CHANNELS             "MONITOR CANALI %d/%d"
 #define TR_MONITOR_OUTPUT_DESC          "Uscite"
 #define TR_MONITOR_MIXER_DESC           "Mixers"
 #define TR_RECEIVER_NUM                 TR("RxNum", "Ricevente N.")

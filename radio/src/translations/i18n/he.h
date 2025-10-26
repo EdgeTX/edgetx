@@ -667,10 +667,7 @@
 #define TR_MENULOGICALSWITCH           "מתג לוגי"
 #define TR_MENUSTAT                    "סטטוס"
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "מצגי ערוצים 8-1"
-#define TR_MONITOR_CHANNELS2           "מצגי ערוצים 16-9"
-#define TR_MONITOR_CHANNELS3           "מצגי ערוצים 24-17"
-#define TR_MONITOR_CHANNELS4           "מצגי ערוצים 32-25"
+#define TR_MONITOR_CHANNELS            "מצגי ערוצים %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "יציאות"
 #define TR_MONITOR_MIXER_DESC          "מיקסרים"
   #define TR_RECEIVER_NUM              TR("RxNum", "Receiver No.")
