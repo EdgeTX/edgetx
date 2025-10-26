@@ -2443,11 +2443,17 @@ static const struct YamlNode struct_cfsGroupOn[] {
   YAML_END,
 };
 
+#if NUM_FUNCTIION_SWITCHES > 6
+#define NUM_CFS_FOR_CONVERSION  6
+#else
+#define NUM_CFS_FOR_CONVERSION  NUM_FUNCTIONS_SWITCHES
+#endif
+
 static void r_functionSwitchConfig(void* user, uint8_t* data, uint32_t bitoffs,
                         const char* val, uint8_t val_len)
 {
   uint32_t v = yaml_str2uint(val, val_len);
-  for (int i = 0; i < 6; i += 1) {
+  for (int i = 0; i < NUM_CFS_FOR_CONVERSION; i += 1) {
     g_model.customSwitches[i].type = (SwitchConfig)bfGet<uint16_t>(v, 2 * i, 2);
   }
 }
@@ -2456,7 +2462,7 @@ static void r_functionSwitchStartConfig(void* user, uint8_t* data, uint32_t bito
                         const char* val, uint8_t val_len)
 {
   uint32_t v = yaml_str2uint(val, val_len);
-  for (int i = 0; i < 6; i += 1) {
+  for (int i = 0; i < NUM_CFS_FOR_CONVERSION; i += 1) {
     uint8_t b = bfGet<uint16_t>(v, 2 * i, 2);
     if (b < 2) b ^= 1;  // Swap On & Off
     g_model.customSwitches[i].start = (fsStartPositionType)b;
@@ -2467,7 +2473,7 @@ static void r_functionSwitchGroup(void* user, uint8_t* data, uint32_t bitoffs,
                         const char* val, uint8_t val_len)
 {
   uint32_t v = yaml_str2uint(val, val_len);
-  for (int i = 0; i < 6; i += 1) {
+  for (int i = 0; i < NUM_CFS_FOR_CONVERSION; i += 1) {
     g_model.customSwitches[i].group = bfGet<uint16_t>(v, 2 * i, 2);
   }
   for (int i = 0; i <= 3; i += 1) {
@@ -2479,7 +2485,7 @@ static void r_functionSwitchLogicalState(void* user, uint8_t* data, uint32_t bit
                         const char* val, uint8_t val_len)
 {
   uint32_t v = yaml_str2uint(val, val_len);
-  for (int i = 0; i < 6; i += 1) {
+  for (int i = 0; i < NUM_CFS_FOR_CONVERSION; i += 1) {
     g_model.customSwitches[i].state = bfGet<uint16_t>(v, 1 * i, 1);
   }
 }

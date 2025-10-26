@@ -223,12 +223,12 @@ function make_font_set() {
   make_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 25 "XL" "sml" "${chars}"
 
   # Large LCD fonts (800x480)
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 13 "XXS" "lrg" "${chars}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 19 "XS" "lrg" "${chars}"
-  make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 24 "STD" "lrg" "${chars}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 24 "STD" "lrg" "${chars}"
-  make_font_w_extra_sym "${name}" "${LATIN_FONT}" "${ttf_normal}" 36 "L" "lrg" "${chars}"
-  make_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 48 "XL" "lrg" "${chars}"
+  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 12 "XXS" "lrg" "${chars}"
+  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 18 "XS" "lrg" "${chars}"
+  make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 22 "STD" "lrg" "${chars}"
+  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 22 "STD" "lrg" "${chars}"
+  make_font_w_extra_sym "${name}" "${LATIN_FONT}" "${ttf_normal}" 33 "L" "lrg" "${chars}"
+  make_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 44 "XL" "lrg" "${chars}"
 }
 
 # Main execution starts here
@@ -252,7 +252,7 @@ main() {
     echo "Generating XXL fonts..."
     make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 64 "XXL" "std"
     make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 50 "XXL" "sml"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 96 "XXL" "lrg"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 88 "XXL" "lrg"
 
     # Language fonts
     echo "Generating language font sets..."

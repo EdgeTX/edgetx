@@ -50,6 +50,9 @@ class QuickMenuGroup : public Window
   void setCurrent(ButtonBase* b);
   void setCurrent(int b) { setCurrent(btns[b]); }
   void doLayout(int cols);
+  void nextEntry();
+  void prevEntry();
+  ButtonBase* getFocusedButton();
 
 #if PORTRAIT
   static LAYOUT_VAL_SCALED(QM_BUTTON_WIDTH, 72)

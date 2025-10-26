@@ -64,28 +64,28 @@ class OpenTxFirmware: public Firmware
       addLanguage("ua");
     }
 
-    virtual Firmware * getFirmwareVariant(const QString & id);
+    virtual Firmware * getFirmwareVariant(const QString & id) override;
 
-    virtual QString getStampUrl() { return ""; }  //  depreciated
+    virtual QString getStampUrl() override { return ""; }  //  depreciated
 
-    virtual QString getReleaseNotesUrl();
+    virtual QString getReleaseNotesUrl() override;
 
-    virtual QString getFirmwareUrl() { return ""; }  //  depreciated;
+    virtual QString getFirmwareUrl() override { return ""; }  //  depreciated;
 
-    virtual int getCapability(Capability);
+    virtual int getCapability(Capability) override;
 
-    virtual QString getCapabilityStr(Capability);
+    virtual QString getCapabilityStr(Capability) override;
 
-    virtual QString getAnalogInputName(unsigned int index)
+    virtual QString getAnalogInputName(unsigned int index) override
     {
       qDebug() << "WARNING: Depreciate function called. Always returns empty string!";
       return QString();
     }
 
-    virtual QTime getMaxTimerStart();
+    virtual QTime getMaxTimerStart() override;
 
     //  moved to ModuleData EdgeTX v2.9
-    virtual bool isAvailable(PulsesProtocol proto, int port=0)
+    virtual bool isAvailable(PulsesProtocol proto, int port=0) override
     {
       qDebug() << "WARNING: Depreciate function called. Always returns false!";
       return false;

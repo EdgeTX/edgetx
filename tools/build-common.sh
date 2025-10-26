@@ -170,3 +170,44 @@ get_target_build_options() {
             ;;
     esac
 }
+
+# Determine parallel job limit based on environment
+determine_max_jobs() {
+  if [[ -n ${CMAKE_BUILD_PARALLEL_LEVEL} ]]; then
+    MAX_JOBS=${CMAKE_BUILD_PARALLEL_LEVEL}
+  elif [ -n "$GITHUB_ACTIONS" ]; then
+    # Limit jobs in GitHub Actions to n-1 to avoid resource contention
+    if [ "$(uname)" = "Darwin" ]; then
+      MAX_JOBS=2  # macOS runners have 3 cores
+    else
+      MAX_JOBS=3  # Linux and Windows runners have 4 cores
+    fi
+  else
+    MAX_JOBS=""  # Let CMake/build system decide
+  fi
+  export MAX_JOBS
+}
+
+# Helper function to run cmake build with appropriate parallelism
+cmake_build_parallel() {
+  local args=()
+  local native_flags=""
+  
+  # Separate cmake args from native flags (anything after --)
+  for arg in "$@"; do
+    if [[ "$arg" == "--" ]]; then
+      # Capture everything after -- as native flags
+      shift
+      native_flags="-- $*"
+      break
+    fi
+    args+=("$arg")
+    shift
+  done
+  
+  if [[ -n ${MAX_JOBS} ]]; then
+    cmake --build "${args[@]}" --parallel ${MAX_JOBS} ${native_flags}
+  else
+    cmake --build "${args[@]}" --parallel ${native_flags}
+  fi
+}

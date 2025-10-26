@@ -245,7 +245,8 @@ class DateTimeWidget : public TopBarWidget
                  const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
   {
-    dateTime = new HeaderDateTime(this, DT_X, PAD_THREE);
+    coord_t x = rect.w - HeaderDateTime::HDR_DATE_WIDTH - DT_XO;
+    dateTime = new HeaderDateTime(this, x, PAD_THREE);
     update();
   }
 
@@ -255,6 +256,8 @@ class DateTimeWidget : public TopBarWidget
     uint32_t color;
     memcpy(&color, &persistentData->options[0].value.unsignedValue, sizeof(color));
     dateTime->setColor(color);
+    coord_t x = width() - HeaderDateTime::HDR_DATE_WIDTH - DT_XO;
+    dateTime->setPos(x, PAD_THREE);
   }
 
   HeaderDateTime* dateTime = nullptr;
@@ -263,7 +266,7 @@ class DateTimeWidget : public TopBarWidget
   static const ZoneOption options[];
 
   // Adjustment to make main view date/time align with model/radio settings views
-  static LAYOUT_SIZE_SCALED(DT_X, 24, 8)
+  static LAYOUT_VAL_SCALED(DT_XO, 1)
 };
 
 const ZoneOption DateTimeWidget::options[] = {

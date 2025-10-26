@@ -14,6 +14,12 @@ if [[ -z ${OUTDIR} ]]; then
   OUTDIR="$(pwd)/output"
 fi
 
+# Determine parallel jobs
+determine_max_jobs
+
+# Create a master log file for the entire build process
+MASTER_LOG="build-summary.log"
+
 QUIET_FLAGS=""
 if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
     QUIET_FLAGS="-- --quiet"
@@ -45,10 +51,6 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-if [ "$(uname)" = "Linux" ] && [ -n "$GITHUB_ACTIONS" ]; then
-  MAX_JOBS=3
-fi
-
 rm -rf build && mkdir build && cd build
 
 # Function to output error logs (works in both GitHub Actions and terminal)
@@ -58,11 +60,20 @@ output_error_log() {
 
     if [[ -f "$log_file" ]]; then
         echo "------------------------------------------"
-        echo " Full error output from $log_file:"
+        echo " Full error output from $log_file ($context):"
         echo "------------------------------------------"
         cat "$log_file"
+        echo "------------------------------------------"
+        
+        # Also append to master log for aggregation
+        {
+            echo "=== Error from $log_file ($context) ==="
+            cat "$log_file"
+            echo "=== End of $log_file ==="
+        } >> "$MASTER_LOG"
     else
         echo "⚠️ Warning: Log file $log_file not found for $context"
+        echo "⚠️ Warning: Log file $log_file not found for $context" >> "$MASTER_LOG"
     fi
 }
 
@@ -85,7 +96,7 @@ run_pipeline() {
     local log_file="${2:-/dev/null}"
     local context="$3"
     local show_details="${4:-false}"
-    local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
+    local cmake_opts="${QUIET_FLAGS}"
 
     case "$pipeline_type" in
         "plugin")
@@ -94,25 +105,25 @@ run_pipeline() {
                 output_error_log "$log_file" "$context (Configuration)"
                 return 1
             fi
-            if ! execute_with_output "🔧 Native config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
+            if ! execute_with_output "🔧 Native config" "cmake_build_parallel . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "$context (Native Configure)"
                 return 1
             fi
-            if ! execute_with_output "📦 Building lib" "cmake --build native --target libsimulator ${cmake_opts}" "$log_file" "$show_details"; then
+            if ! execute_with_output "📦 Building lib" "cmake_build_parallel native --target libsimulator ${cmake_opts}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "$context (Library Build)"
                 return 1
             fi
             ;;
         "final")
-            if ! execute_with_output "🔧 Final config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
+            if ! execute_with_output "🔧 Final config" "cmake_build_parallel . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "Final Configuration"
                 return 1
             fi
-            if ! execute_with_output "📦 Building companion" "cmake --build native --target companion ${cmake_opts}" "$log_file" "$show_details"; then
+            if ! execute_with_output "📦 Building companion" "cmake_build_parallel native --target companion ${cmake_opts}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "$context (Companion Build)"
                 return 1
             fi
-            if ! execute_with_output "📦 Packaging" "cmake --build native --target ${PACKAGE_TARGET}" "$log_file" "true"; then
+            if ! execute_with_output "📦 Packaging" "cmake_build_parallel native --target ${PACKAGE_TARGET}" "$log_file" "true"; then
                 output_error_log "$log_file" "Final Packaging"
                 return 1
             fi
