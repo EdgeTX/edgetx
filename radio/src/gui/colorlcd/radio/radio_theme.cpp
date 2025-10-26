@@ -622,7 +622,7 @@ void ThemeSetupPage::build(Window *window)
 
   // create listbox and setup menus
 #if LANDSCAPE
-  rect_t r = {0, 0, LIST_SIZE, window->height() - PAD_LARGE};
+  rect_t r = {0, 0, LIST_SIZE, window->height() - 2 * PAD_SMALL};
 #else
   rect_t r = {0, 0, window->width() - PAD_LARGE, LIST_SIZE};
 #endif
@@ -641,25 +641,25 @@ void ThemeSetupPage::build(Window *window)
   themeColorPreview->setWidth(r.w);
 
 #if LANDSCAPE
-  r.w = window->width() - LIST_SIZE - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_SMALL;
-  r.h = window->height() - PAD_LARGE;
+  r.w = window->width() - LIST_SIZE - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_MEDIUM;
+  r.h = window->height() - 2 * PAD_SMALL;
 #else
   r.w = window->width() - PAD_LARGE;
-  r.h = window->height() - LIST_SIZE - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_SMALL;
+  r.h = window->height() - LIST_SIZE - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_MEDIUM;
 #endif
 
   auto rw = new Window(window, r);
   rw->padAll(PAD_ZERO);
-  rw->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY, r.w);
+  rw->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, r.w);
 
-  r.h -= 46;
+  r.h -= 2 * EdgeTxStyles::STD_FONT_HEIGHT;
 
   // setup FileCarosell()
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames()
                                     : std::vector<std::string>();
   fileCarosell = new FileCarosell(rw, r, fileNames);
 
-  r.h = 20;
+  r.h = EdgeTxStyles::STD_FONT_HEIGHT;
 
   // author and name of theme on right side of screen
   nameText = new StaticText(rw, r, "");
