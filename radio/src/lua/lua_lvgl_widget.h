@@ -111,7 +111,7 @@ class LvglTitleParam
   LvglTitleParam() {}
 
  protected:
-  std::string title;
+  LvglParamFuncOrString title = { .function = LUA_REFNIL, .txt = ""};
 
   bool parseTitleParam(lua_State *L, const char *key);
 };
@@ -241,6 +241,7 @@ class LvglWidgetObjectBase
                        std::function<void(int)> update);
   bool pcallUpdate2Int(lua_State *L, int getFuncRef,
                        std::function<void(int, int)> update);
+  bool pcallUpdateStringVal(lua_State *L, int getFuncRef, std::function<void(const char*)> update);
   int pcallGetIntVal(lua_State *L, int getFuncRef);
   int pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal);
   void pcallSetIntVal(lua_State *L, int setFuncRef, int val);
@@ -784,6 +785,8 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 //-----------------------------------------------------------------------------
 
+class WidgetPage;
+
 class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams
 {
  public:
@@ -795,9 +798,13 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public Lv
   coord_t getScrollX() override;
   coord_t getScrollY() override;
 
+  void setTitle(const char* s);
+  void setSubTitle(const char* s);
+
  protected:
-  std::string subtitle;
+  LvglParamFuncOrString subtitle = { .function = LUA_REFNIL, .txt = ""};
   std::string iconFile;
+  WidgetPage* page = nullptr;
 
   int backActionFunction = LUA_REFNIL;
 
@@ -848,6 +855,8 @@ class LvglWidgetMessageDialog : public LvglWidgetObject, public LvglTitleParam, 
  public:
   LvglWidgetMessageDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
+  void clearRefs(lua_State *L) override;
+
  protected:
   std::string details;
 
@@ -891,6 +900,8 @@ class LvglWidgetMenu : public LvglWidgetPicker, public LvglTitleParam, public Lv
 {
  public:
   LvglWidgetMenu() : LvglWidgetPicker() {}
+
+  void clearRefs(lua_State *L) override;
 
  protected:
   void build(lua_State *L) override;
@@ -975,6 +986,8 @@ class LvglWidgetFilePicker : public LvglWidgetPicker, public LvglTitleParam
 {
  public:
   LvglWidgetFilePicker() : LvglWidgetPicker() {}
+
+  void clearRefs(lua_State *L) override;
 
  protected:
   std::string folder;
