@@ -34,6 +34,7 @@ SwitchWarnDialog::SwitchWarnDialog() :
 
 void SwitchWarnDialog::delayedInit()
 {
+  FullScreenDialog::build();
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
@@ -103,6 +104,7 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
 
 void ThrottleWarnDialog::delayedInit()
 {
+  FullScreenDialog::build();
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
 }

@@ -49,8 +49,6 @@ FullScreenDialog::FullScreenDialog(
 
   bringToTop();
 
-  build();
-
   delayLoad();
 }
 
