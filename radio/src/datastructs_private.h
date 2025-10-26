@@ -978,7 +978,9 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  rotEncMode:3);
 
 #if defined(STM32F2) || defined(STM32F4)
-  NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+  NOBACKUP(int8_t uartSampleMode:2); // See UartSampleModes
+#else
+  NOBACKUP(uint8_t uartSampleModeSpare:2 SKIP);
 #endif
 
 #if defined(STICK_DEAD_ZONE)
