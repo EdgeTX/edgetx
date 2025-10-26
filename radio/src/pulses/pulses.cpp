@@ -29,7 +29,14 @@
 
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
+
+#if defined(DSM2)
 #include "pulses/dsm2.h"
+#endif
+
+#if defined(DSMP)
+#include "pulses/dsmp.h"
+#endif
 
 #if defined(PPM)
 #include "pulses/ppm.h"
@@ -231,6 +238,11 @@ void getModuleStatusString(uint8_t moduleIdx, char * statusText)
     afhds3::getStatusString(moduleIdx, statusText);
   }
 #endif
+
+  if (isModuleDSMP(moduleIdx)) {
+    getDSMPStatus(moduleIdx).getStatusString(statusText);
+  }
+
 }
 
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)

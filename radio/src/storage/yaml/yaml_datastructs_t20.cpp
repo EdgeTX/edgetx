@@ -610,7 +610,8 @@ static const struct YamlNode struct_anonymous_12[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_13[] = {
-  YAML_UNSIGNED( "flags", 8 ),
+  YAML_UNSIGNED( "flags", 8 ), 
+  YAML_UNSIGNED("enableAETR", 1),
   YAML_END
 };
 static const struct YamlNode union_anonymous_4_elmts[] = {

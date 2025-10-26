@@ -911,6 +911,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
+#define TR_DSMP_ENABLE_AETR     TR("Enable AETR", "Enable AETR")
 #define TR_ANTENNACONFIRM1     "EXT. ANTENNA"
 #if defined(PCBX12S)
 #define TR_ANTENNA_MODES       "Internal","Ask","Per model","Internal + External"

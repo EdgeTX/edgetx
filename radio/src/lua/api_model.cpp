@@ -38,6 +38,10 @@
 #include "pulses/multi.h"
 #endif
 
+#if defined(DSMP)
+#include "pulses/dsmp.h"
+#endif
+
 /*luadoc
 @function model.getInfo()
 
@@ -138,6 +142,9 @@ Get RF module parameters
   * 12 R9M_LITE_PRO_PXX2
   * 13 SBUS
   * 14 XJT_LITE_PXX2
+  * 15 MODULE_TYPE_FLYSKY_AFHDS3,
+  * 16 ??
+  * 17 MODULE_TYPE_LEMON_DSMP
 
 `subType` values for XJT_PXX1:
  * -1 OFF
@@ -159,6 +166,8 @@ Get RF module parameters
  * `protocol` (number) protocol number (Multi only)
  * `subProtocol` (number) sub-protocol number (Multi only)
  * `channelsOrder` (number) first 4 channels expected order (Multi only)
+ * if the module type is LemonDSMP additional info is available
+ * `channelsOrder` (number) first 4 channels expected order (DSMP only)
 
 @status current Introduced in 2.2.0
 */
@@ -188,6 +197,16 @@ static int luaModelGetModule(lua_State *L)
       else {
         lua_pushtableinteger(L, "channelsOrder", -1);
       }
+    }
+#endif
+#if defined(DSMP)
+    if (module.type == MODULE_TYPE_LEMON_DSMP) {
+      auto& status = getDSMPStatus(idx);
+      int ch_order = -1;
+      if (status.isValid() && status.ch_order != 0xFF) {
+        ch_order = status.ch_order;
+      }
+      lua_pushtableinteger(L, "channelsOrder", ch_order);
     }
 #endif
   }

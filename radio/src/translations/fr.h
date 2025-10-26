@@ -912,6 +912,7 @@
 #define TR_TELEMETRY_NEWSENSOR         TR("Nouveau capteur...", "Ajouter nouveau")
 #define TR_CHANNELRANGE                TR("Canaux", "Plage de canaux")
 #define TR_AFHDS3_RX_FREQ              TR("RX freq.", "Fréquence RX")
+#define TR_DSMP_ENABLE_AETR            TR("Enable AETR", "Enable AETR")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetrie")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Puissance actuelle")
