@@ -117,6 +117,9 @@ class QuickMenu : public NavWindow
   void onPressTELE() override;
   void onLongPressTELE() override;
   void onLongPressRTN() override;
+  void onPressPGDN() override;
+  void onPressPGUP() override;
+  void afterPG();
 #endif
 
   static constexpr int QM_MAIN_BTNS = 6;
@@ -164,12 +167,14 @@ class QuickSubMenu
   {}
 
   bool isSubMenu(QuickMenu::SubMenu n);
+  bool isSubMenu(ButtonBase* b);
   int getIndex(QuickMenu::SubMenu n);
 
   ButtonBase* addButton();
   void enableSubMenu();
   void setDisabled(bool all);
   void setCurrent(QuickMenu::SubMenu n);
+  void activate();
   void buildSubMenu();
   uint8_t onPress(int n);
   void onSelect(bool close);

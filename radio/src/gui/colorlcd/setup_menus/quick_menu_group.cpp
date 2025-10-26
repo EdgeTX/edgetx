@@ -232,3 +232,28 @@ void QuickMenuGroup::doLayout(int cols)
     }
   }
 }
+
+void QuickMenuGroup::nextEntry()
+{
+  if (group)
+    lv_group_focus_next(group);
+}
+
+void QuickMenuGroup::prevEntry()
+{
+  if (group)
+    lv_group_focus_prev(group);
+}
+
+ButtonBase* QuickMenuGroup::getFocusedButton()
+{
+  if (group) {
+    lv_obj_t* b = lv_group_get_focused(group);
+    if (b) {
+      for (size_t i = 0; i < btns.size(); i += 1)
+        if (btns[i]->getLvObj() == b)
+          return btns[i];
+    }
+  }
+  return nullptr;
+}
