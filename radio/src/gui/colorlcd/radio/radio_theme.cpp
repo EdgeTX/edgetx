@@ -308,7 +308,7 @@ class ColorEditPage : public Page
 #endif
 
     // page tabs
-    rect_t r = {LCD_W - 2 * (BUTTON_WIDTH + PAD_SMALL + 1), PAD_MEDIUM, BUTTON_WIDTH, 0};
+    rect_t r = {LCD_W - 2 * (BUTTON_WIDTH + PAD_SMALL + 1) - EdgeTxStyles::MENU_HEADER_HEIGHT, PAD_MEDIUM, BUTTON_WIDTH, 0};
     _tabs.emplace_back(new TextButton(window, r, "RGB", [=]() {
       setActiveColorBar(0);
       return 1;
