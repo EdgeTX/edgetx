@@ -182,6 +182,7 @@ class Window
 
   virtual void show(bool visible = true);
   void hide() { show(false); }
+  bool isVisible();
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 

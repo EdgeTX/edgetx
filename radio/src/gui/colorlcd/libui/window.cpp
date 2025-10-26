@@ -404,6 +404,11 @@ void Window::show(bool visible)
   }
 }
 
+bool Window::isVisible()
+{
+  return !_deleted && lvobj && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+}
+
 void Window::enable(bool enabled)
 {
   if (!_deleted && lvobj) {
