@@ -70,7 +70,9 @@ enum PhysicalKeys
 
 static bool fct_state[4] = {false, false, false, false};
 static uint32_t keyState = 0;
+#if !defined(BOOT)
 static uint32_t nonReadCount = 0;
+#endif
 
 static uint32_t _readKeyMatrix()
 {

@@ -446,6 +446,18 @@ static void transpose_trims(uint32_t *keys)
 }
 #endif
 
+// Mapping for quick menu shortcut key on radios with limited keys
+uint16_t keyMapping(uint16_t event)
+{
+#if defined(RADIO_PA01)
+  if (event == EVT_KEY_BREAK(KEY_MODEL)) return EVT_KEY_BREAK(KEY_SYS);
+#endif
+#if defined(RADIO_ST16)
+  if (event == EVT_KEY_LONG(KEY_PAGEDN)) return EVT_KEY_BREAK(KEY_SYS);
+#endif
+  return event;
+}
+
 bool keysPollingCycle()
 {
   uint32_t trims_input;
@@ -467,6 +479,7 @@ bool keysPollingCycle()
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
       evt |= i;
+      evt = keyMapping(evt);
 #if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
       // Radio with single PAGEDN key
       if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
