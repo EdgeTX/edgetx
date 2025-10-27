@@ -38,7 +38,7 @@ class PreviewWindow : public Window
   static LAYOUT_VAL_SCALED(ICON_X2, 38)
   static LAYOUT_VAL_SCALED(ICON_X3, 71)
   static LAYOUT_VAL_SCALED(ICON_Y, 5)
-  static LAYOUT_VAL_SCALED(DATE_XO, 44)
+  static LAYOUT_VAL_SCALED(DATE_XO, 46)
   static LAYOUT_VAL_SCALED(CBT_Y, 44)
   static LAYOUT_VAL_SCALED(CBT_W, 100)
   static LAYOUT_VAL_SCALED(CB1_X, 100)
