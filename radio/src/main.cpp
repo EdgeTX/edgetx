@@ -44,12 +44,10 @@
 #include "lua/lua_event.h"
 #endif
 
-#if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 #if defined(AUDIO_HP_DETECT_PIN)
 bool hpDetected = false;
-#endif
 #endif
 
 uint8_t currentBacklightBright = 0;
@@ -217,14 +215,12 @@ void checkSpeakerVolume()
     audioSetVolume(currentSpeakerVolume);
   }
 #endif
-#if defined(AUDIO)
   if (currentSpeakerVolume != requiredSpeakerVolume) {
     currentSpeakerVolume = requiredSpeakerVolume;
 #if !defined(SOFTWARE_VOLUME)
     audioSetVolume(currentSpeakerVolume);
 #endif
   }
-#endif
 }
 
 #if defined(USE_HATS_AS_KEYS)

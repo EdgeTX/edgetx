@@ -299,11 +299,9 @@ void DebugViewPage::build(Window* window)
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return task_get_stack_usage(&mixerTaskId); }, STR_STACK_MIX);
-#if defined(AUDIO)
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return task_get_stack_usage(&audioTaskId); }, STR_STACK_AUDIO);
-#endif
 
 #if defined(DEBUG_LATENCY)
   line = window->newLine(grid2);

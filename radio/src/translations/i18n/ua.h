@@ -1011,8 +1011,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Неформатовані сирі аналоги"
 #define TR_ANADIAGS_MINMAX             "Min., max. і діапазон"
 #define TR_ANADIAGS_MOVE               "Перемістити аналоги до екстремумів!"
-#define TR_SPEAKER                     "Гучномовець"
-#define TR_BUZZER                      "Дзвоник"
 #define TR_BYTES                       "байти"
 #define TR_MODULE_BIND                 BUTTON(TR("Прив.", "Прив'язати"))
 #define TR_MODULE_UNBIND               BUTTON("Відв'язати")

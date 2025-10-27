@@ -1008,8 +1008,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Nefiltrované surové hodnoty analogů"
 #define TR_ANADIAGS_MINMAX             "Min., max. a rozsah"
 #define TR_ANADIAGS_MOVE               "Posuňte analogy do jejich maximálních poloh!"
-#define TR_SPEAKER                     "Repro"
-#define TR_BUZZER                      "Pípák"
 #define TR_BYTES                       "[B]"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Odpárovat")

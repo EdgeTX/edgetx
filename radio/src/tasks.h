@@ -55,9 +55,7 @@
 
 extern task_handle_t menusTaskId;
 
-#if defined(AUDIO)
 extern task_handle_t audioTaskId;
-#endif
 
 #if defined(CLI)
 extern task_handle_t cliTaskId;

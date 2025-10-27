@@ -197,9 +197,7 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 
 extern task_handle_t mixerTaskId;
 extern task_handle_t menusTaskId;
-#if defined(AUDIO)
 extern task_handle_t audioTaskId;
-#endif
 
 void simuStop()
 {

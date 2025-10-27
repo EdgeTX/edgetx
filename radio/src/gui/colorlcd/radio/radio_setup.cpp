@@ -187,11 +187,10 @@ class DateTimeWindow : public Window
   }
 };
 
-#if defined(AUDIO)
 static SetupLineDef soundPageSetupLines[] = {
   {
     // Beeps mode
-    STR_SPEAKER,
+    STR_MODE,
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VBEEPMODE, -2, 1,
                  GET_SET_DEFAULT(g_eeGeneral.beepMode));
@@ -254,7 +253,6 @@ static SetupLineDef soundPageSetupLines[] = {
     }
   },
 };
-#endif
 
 #if defined(VARIO)
 static SetupLineDef varioPageSetupLines[] = {
@@ -939,9 +937,7 @@ void RadioSetupPage::build(Window* window)
 
   // Sub-pages
   w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
-#if defined(AUDIO)
     {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
-#endif
 #if defined(VARIO)
     {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
 #endif

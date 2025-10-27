@@ -132,7 +132,6 @@ add_definitions(
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)

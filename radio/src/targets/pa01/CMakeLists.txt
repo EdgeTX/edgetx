@@ -73,7 +73,6 @@ add_definitions(
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})

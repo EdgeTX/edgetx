@@ -1010,8 +1010,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "未经过滤的原始ADC值"
 #define TR_ANADIAGS_MINMAX             "最低值、最高值、行程量"
 #define TR_ANADIAGS_MOVE               "移动ADC输入以查看行程量"
-#define TR_SPEAKER                     "扬声器"
-#define TR_BUZZER                      "蜂鸣器"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
 #define TR_MODULE_UNBIND               BUTTON("解绑")

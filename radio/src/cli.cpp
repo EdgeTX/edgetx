@@ -965,11 +965,9 @@ int cliStackInfo(const char ** argv)
   cliSerialPrint("[MIXER] %d available / %d bytes",
                  task_get_stack_usage(&mixerTaskId) * 4,
                  task_get_stack_size(&mixerTaskId));
-#if defined(AUDIO)
   cliSerialPrint("[AUDIO] %d available / %d bytes",
                  task_get_stack_usage(&audioTaskId) * 4,
                  task_get_stack_size(&audioTaskId));
-#endif
 #if defined(CLI)
   cliSerialPrint("[CLI] %d available / %d bytes",
                  task_get_stack_usage(&cliTaskId),
@@ -1080,7 +1078,7 @@ int cliSet(const char **argv)
       return -1;
     }
   }
-#if !defined(SOFTWARE_VOLUME) && defined(AUDIO)
+#if !defined(SOFTWARE_VOLUME)
   else if (!strcmp(argv[1], "volume")) {
     int level = 0;
     if (toInt(argv, 2, &level) > 0) {

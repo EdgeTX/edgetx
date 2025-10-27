@@ -181,7 +181,7 @@ set(RADIO_DEPENDENCIES
   )
 
 add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DCOLORLCD -DHARDWARE_KEYS)
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 

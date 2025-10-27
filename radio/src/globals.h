@@ -49,9 +49,7 @@ extern uint8_t trimsDisplayTimer;
 extern uint8_t trimsDisplayMask;
 extern uint32_t maxMixerDuration;
 
-#if defined(AUDIO)
 extern uint8_t requiredSpeakerVolume;
-#endif
 
 extern uint8_t requiredBacklightBright;
 

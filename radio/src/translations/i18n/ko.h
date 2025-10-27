@@ -1055,8 +1055,6 @@
 #define TR_ANADIAGS_UNFILTRAW             "필터링 안 된 원시 아날로그"
 #define TR_ANADIAGS_MINMAX                "최소, 최대, 범위"
 #define TR_ANADIAGS_MOVE                  "아날로그를 끝까지 움직이세요!"
-#define TR_SPEAKER                        "스피커"
-#define TR_BUZZER                         "부저"
 #define TR_BYTES                          "바이트"
 #define TR_MODULE_BIND                    BUTTON(TR("바인드", "바인딩"))
 #define TR_MODULE_UNBIND                  BUTTON("바인딩 해제")

@@ -544,11 +544,8 @@ enum AUDIO_SOUNDS {
   AU_NONE = 0xff
 };
 
-#if defined(AUDIO)
 #include "audio.h"
-#endif
 
-#include "buzzer.h"
 #include "translations/translations.h"
 
 #if defined(HAPTIC)
@@ -809,11 +806,7 @@ constexpr uint32_t EARTH_RADIUS = 6371009;
 
 void varioWakeup();
 
-#if defined(AUDIO) && defined(BUZZER)
-  #define IS_SOUND_OFF() (g_eeGeneral.buzzerMode==e_mode_quiet && g_eeGeneral.beepMode==e_mode_quiet)
-#else
-  #define IS_SOUND_OFF() (g_eeGeneral.beepMode == e_mode_quiet)
-#endif
+#define IS_SOUND_OFF() (g_eeGeneral.beepMode == e_mode_quiet)
 
 #define IS_IMPERIAL_ENABLE() (g_eeGeneral.imperial)
 

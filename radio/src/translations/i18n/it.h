@@ -1010,8 +1010,6 @@
 #define TR_ANADIAGS_UNFILTRAW           "Analogici RAW non filtrati"
 #define TR_ANADIAGS_MINMAX              "Min., max. e range"
 #define TR_ANADIAGS_MOVE                "Muovi analogici ai loro estremi!"
-#define TR_SPEAKER                      "Speaker"
-#define TR_BUZZER                       "Buzzer"
 #define TR_BYTES                        "Bytes"
 #define TR_MODULE_BIND                  TR("[Bnd]","[Bind]")
 #define TR_MODULE_UNBIND                BUTTON("Unbind")

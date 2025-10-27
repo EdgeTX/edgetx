@@ -40,10 +40,8 @@
 task_handle_t menusTaskId;
 TASK_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
-#if defined(AUDIO)
 task_handle_t audioTaskId;
 TASK_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
-#endif
 
 mutex_handle_t audioMutex;
 
@@ -149,10 +147,8 @@ void tasksStart()
   task_create(&menusTaskId, menusTask, "menus", menusStack, MENUS_STACK_SIZE,
               MENUS_TASK_PRIO);
 
-#if defined(AUDIO)
   task_create(&audioTaskId, audioTask, "audio", audioStack, AUDIO_STACK_SIZE,
               AUDIO_TASK_PRIO);
-#endif
 
   RTOS_START();
 }
