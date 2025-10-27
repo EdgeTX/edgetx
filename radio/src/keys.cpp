@@ -446,7 +446,10 @@ static void transpose_trims(uint32_t *keys)
 }
 #endif
 
-// Mapping for quick menu shortcut key on radios with limited keys
+// Mapping for:
+//  - quick menu shortcut key on radios with limited keys
+//  - radios with single PAGE key
+//  - radios with a SHIFT key
 uint16_t keyMapping(uint16_t event)
 {
 #if defined(RADIO_PA01)
@@ -454,6 +457,18 @@ uint16_t keyMapping(uint16_t event)
 #endif
 #if defined(RADIO_ST16)
   if (event == EVT_KEY_LONG(KEY_PAGEDN)) return EVT_KEY_BREAK(KEY_SYS);
+#endif
+#if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
+  // Radio with single PAGEDN key
+  if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
+    // Convert long press PAGEDN to short press PAGEUP
+    killEvents(KEY_PAGEDN);
+    return EVT_KEY_BREAK(KEY_PAGEUP);
+  }
+#endif
+#if defined(KEYS_GPIO_REG_SHIFT)
+  // SHIFT key should not trigger REPT events
+  if (event == EVT_KEY_REPT(KEY_SHIFT)) return 0;
 #endif
   return event;
 }
@@ -478,24 +493,8 @@ bool keysPollingCycle()
   for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
-      evt |= i;
-      evt = keyMapping(evt);
-#if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
-      // Radio with single PAGEDN key
-      if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
-        // Convert long press PAGEDN to short press PAGEUP
-        evt = EVT_KEY_BREAK(KEY_PAGEUP);
-        killEvents(KEY_PAGEDN);
-      }
-#endif
-#if defined(KEYS_GPIO_REG_SHIFT)
-      // SHIFT key should not trigger REPT events
-      if (evt != EVT_KEY_REPT(KEY_SHIFT)) {
-        pushEvent(evt);
-      }
-#else
-      pushEvent(evt);
-#endif
+      evt = keyMapping(evt | i);
+      if (evt) pushEvent(evt);
     }
   }
 
