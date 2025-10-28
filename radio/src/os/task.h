@@ -43,3 +43,15 @@ bool mutex_lock(mutex_handle_t* h);
 void mutex_unlock(mutex_handle_t* h);
 bool mutex_trylock(mutex_handle_t* h);
 
+class MutexLock
+{
+public:
+  MutexLock(mutex_handle_t* mtx):mutex(mtx),locked(false) {mutex_lock(mutex); locked = true;}
+  ~MutexLock() {if(locked) mutex_unlock(mutex);}
+  void lock() {if(!locked) mutex_lock(mutex); locked=true;}
+  void unlock() {if(locked) mutex_unlock(mutex); locked=false;}
+private:
+  mutex_handle_t* mutex;
+  bool locked;
+};
+

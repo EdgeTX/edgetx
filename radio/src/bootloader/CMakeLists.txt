@@ -58,6 +58,7 @@ endif()
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
 
+target_compile_definitions(stm32_drivers_w_dbg_bl PUBLIC BOOT)
 target_compile_definitions(bootloader PUBLIC BOOT)
 target_compile_definitions(board_bl PUBLIC BOOT)
 
