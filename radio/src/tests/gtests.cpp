@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     listeners.Append(new TersePrinter(defaultPrinter));
   }
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   lcdInitDisplayDriver();
 #endif
   

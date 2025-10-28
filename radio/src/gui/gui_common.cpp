@@ -596,7 +596,7 @@ bool isSwitch2POSWarningStateAvailable(int state)
 
 bool isThrottleSourceAvailable(int src)
 {
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   src = throttleSource2Source(src);
 #endif
   return isSourceAvailable(src) &&

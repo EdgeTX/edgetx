@@ -29,7 +29,7 @@
 #include "hal/watchdog_driver.h"
 #include "os/sleep.h"
 
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   #include "lib_file.h"
 #endif
 

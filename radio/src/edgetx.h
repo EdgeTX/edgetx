@@ -38,7 +38,7 @@
 #include "usbd_msc_conf.h"
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   #include "libopenui.h"
 #else
   #include "lib_file.h"

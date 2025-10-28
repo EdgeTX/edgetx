@@ -37,7 +37,7 @@
   #define CASE_ROTARY_ENCODER(x)
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 typedef std::function<bool(int)> IsValueAvailable;
 #else
 typedef bool (*IsValueAvailable)(int);
@@ -110,7 +110,7 @@ bool confirmModelChange();
 bool isSwitch2POSWarningStateAvailable(int state);
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 #define IS_INSTANT_TRIM_ALLOWED()     true
 #elif defined(GUI)
 #define IS_INSTANT_TRIM_ALLOWED()      (IS_MAIN_VIEW_DISPLAYED() || IS_TELEMETRY_VIEW_DISPLAYED() || IS_OTHER_VIEW_DISPLAYED())

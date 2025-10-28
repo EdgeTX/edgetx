@@ -33,7 +33,7 @@
 #include "tasks/mixer_task.h"
 
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 #include "startup_shutdown.h"
 #endif
 
@@ -53,7 +53,7 @@ bool perMainEnabled = true;
 
 static void menusTask()
 {
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   LvglWrapper::instance();
 #endif
 
