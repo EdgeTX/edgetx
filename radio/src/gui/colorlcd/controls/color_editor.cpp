@@ -215,22 +215,19 @@ class BarColorType : public ColorType
   {
     auto spacePerBar = (parent->width() / MAX_BARS);
 
-    int leftPos = 0;
     rect_t r;
     r.y = ColorEditor::BAR_MARGIN;
     r.w = spacePerBar - ColorEditor::BAR_MARGIN;
     r.h = parent->height() - (ColorEditor::BAR_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
 
     for (int i = 0; i < MAX_BARS; i++) {
-      r.x = leftPos + ColorEditor::BAR_MARGIN;
+      r.x = i * spacePerBar + ColorEditor::BAR_MARGIN / 2;
 
       bars[i] = new ColorBar(parent, r);
-      leftPos += spacePerBar;
 
       // bar labels
-      auto bar = bars[i];
-      auto x = bar->left();
-      auto y = bar->bottom();
+      auto x = bars[i]->left() + PAD_TINY;
+      auto y = bars[i]->bottom();
 
       barLabels[i] = create_bar_label(parent->getLvObj(), x, y + ColorEditor::LBL_YO);
       barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + PAD_THREE);
