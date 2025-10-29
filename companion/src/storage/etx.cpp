@@ -49,7 +49,7 @@ bool EtxFormat::load(RadioData & radioData)
   return result;
 }
 
-bool EtxFormat::write(const RadioData & radioData)
+bool EtxFormat::write(RadioData & radioData)
 {
   qDebug() << "Saving to archive" << filename;
 

@@ -36,7 +36,7 @@ class SdcardFormat : public LabelsStorageFormat
     }
 
     virtual QString name() { return "sdcard"; }
-    virtual bool write(const RadioData & radioData);
+    virtual bool write(RadioData & radioData);
 
   protected:
     virtual bool loadFile(QByteArray & fileData, const QString & fileName);
