@@ -52,6 +52,11 @@ FullScreenDialog::FullScreenDialog(
   delayLoad();
 }
 
+void FullScreenDialog::delayedInit()
+{
+  build();
+}
+
 void FullScreenDialog::build()
 {
   auto div = new Window(this, {0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT});
