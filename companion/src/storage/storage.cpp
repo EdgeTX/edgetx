@@ -62,57 +62,94 @@ void unregisterStorageFactories()
 
 bool Storage::load(RadioData & radioData)
 {
-  QFile file(filename);
-  if (!file.exists()) {
-    setError(tr("Unable to find file %1!").arg(filename));
+  if (!fileExists())
     return false;
-  }
 
   bool ret = false;
-  foreach (StorageFactory * factory, registeredStorageFactories) {
-    if (factory->probe(filename)) {
-      StorageFormat * format = factory->instance(filename);
-      if (format->load(radioData)) {
-        board = format->getBoard();
-        setWarning(format->warning());
-        ret = true;
-        delete format;
-        break;
-      }
-      else {
-        setError(format->error());
-      }
-      delete format;
+  StorageFormat *format = getStorageFormat();
+
+  if (format) {
+    if (format->load(radioData)) {
+      board = format->getBoard();
+      setWarning(format->warning());
+      ret = true;
+    } else {
+      setError(format->error());
     }
+
+    delete format;
   }
 
   return ret;
 }
 
-bool Storage::write(const RadioData & radioData)
+bool Storage::write(RadioData & radioData)
 {
   bool ret = false;
-  foreach (StorageFactory * factory, registeredStorageFactories) {
-    if (factory->probe(filename)) {
-      StorageFormat * format = factory->instance(filename);
-      ret = format->write(radioData);
-      delete format;
-      break;
-    }
+  StorageFormat *format = getStorageFormat();
+
+  if (format) {
+    ret = format->write(radioData);
+    delete format;
   }
+
   return ret;
 }
 
 bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
 {
   bool ret = false;
-  foreach (StorageFactory * factory, registeredStorageFactories) {
-    if (factory->probe(filename)) {
-      StorageFormat * format = factory->instance(filename);
-      ret = format->writeModel(radioData, modelIndex);
-      delete format;
-      break;
-    }
+  StorageFormat *format = getStorageFormat();
+
+  if (format) {
+    ret = format->writeModel(radioData, modelIndex);
+    delete format;
   }
+
+  return ret;
+}
+
+bool Storage::fileExists()
+{
+  QFile file(filename);
+
+  if (!file.exists()) {
+    setError(tr("Unable to find file %1!").arg(filename));
+    return false;
+  }
+
+  return true;
+}
+
+StorageFormat * Storage::getStorageFormat()
+{
+  foreach (StorageFactory * factory, registeredStorageFactories) {
+    if (factory->probe(filename))
+      return factory->instance(filename);
+  }
+
+  return nullptr;
+}
+
+bool Storage::load(GeneralSettings & generalSettings)
+{
+  if (!fileExists())
+    return false;
+
+  bool ret = false;
+  StorageFormat *format = getStorageFormat();
+
+  if (format) {
+    if (format->load(generalSettings)) {
+      board = format->getBoard();
+      setWarning(format->warning());
+      ret = true;
+    }
+    else
+      setError(format->error());
+
+    delete format;
+  }
+
   return ret;
 }
