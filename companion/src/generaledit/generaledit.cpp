@@ -25,7 +25,6 @@
 #include "appdata.h"
 #include "generalsetup.h"
 #include "trainer.h"
-#include "calibration.h"
 #include "hardware.h"
 #include "../modeledit/customfunctions.h"
 #include "generaloptions.h"
@@ -56,7 +55,6 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   addTab(new TrainerPanel(this, generalSettings, firmware, editorItemModels), tr("Trainer"));
   auto hwpnl = new HardwarePanel(this, generalSettings, firmware, editorItemModels);
   addTab(hwpnl, tr("Hardware"));
-  addTab(new CalibrationPanel(this, generalSettings, firmware), tr("Calibration"));
   addTab(new GeneralOptionsPanel(this, generalSettings, firmware), tr("Enabled Features"));
 
   connect(hwpnl, &HardwarePanel::internalModuleChanged, this, [&] { intModChanged = true; });
