@@ -190,6 +190,7 @@ void boardInit()
   uint32_t now = 0;
 
   pwrOn();
+  hapticInit();  // Ensure the hapatic is initialized during charging
 
   // Init debounce
   pwrPressedDebounced();
@@ -318,7 +319,6 @@ void boardInit()
   keysInit();
   switchInit();
   audioInit();
-  hapticInit();
 
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
