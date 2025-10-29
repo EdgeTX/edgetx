@@ -40,10 +40,6 @@ class ViewMainDecoration
   rect_t getMainZone() const;
 
  protected:
-  bool showTrims;
-  bool showSliders;
-  bool showFM;
-
   enum {
     SLIDERS_POT1 = 0,
     SLIDERS_POT2,
@@ -69,6 +65,9 @@ class ViewMainDecoration
   Window* w_bl;
   Window* w_bc;
   Window* w_br;
+  bool showTrims;
+  bool showSliders;
+  bool showFM;
 
   Window* sliders[SLIDERS_MAX] = { 0 };
   MainViewTrim* trims[TRIMS_MAX] = { 0 };
