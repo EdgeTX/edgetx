@@ -2,7 +2,6 @@
 project(generaledit)
 
 set(${PROJECT_NAME}_NAMES
-  calibration
   generaledit
   generaloptions
   generalsetup
