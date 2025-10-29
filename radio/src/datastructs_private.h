@@ -992,7 +992,7 @@ PACK(struct RadioData {
   uint8_t internalModule ENUM(ModuleType);
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
-  NOBACKUP(uint8_t buzzerModeSkip:2 SKIP); /* 2bits for aligntment */
+  NOBACKUP(int8_t buzzerModeSkip:2 SKIP); // 2 bits for alignment
   NOBACKUP(uint8_t fai:1);
   NOBACKUP(int8_t beepMode:2 ENUM(BeeperMode) CUST(r_beeperMode,w_beeperMode));
   NOBACKUP(uint8_t alarmsFlash:1);

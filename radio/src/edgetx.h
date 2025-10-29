@@ -544,7 +544,9 @@ enum AUDIO_SOUNDS {
   AU_NONE = 0xff
 };
 
+#if defined(AUDIO)
 #include "audio.h"
+#endif
 
 #include "translations/translations.h"
 

@@ -59,6 +59,7 @@ if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
 else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
 endif()
+option(AUDIO "Enable audio" ON)
 
 if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
   option(POWER_LED_BLUE  "Override Power LED to be normally Blue" ON)
@@ -456,6 +457,9 @@ if(GUI)
   endforeach()
 endif()
 
+if(AUDIO)
+  add_definitions(-DAUDIO)
+endif()
 
 if(USBJ_EX)
   add_definitions(-DUSBJ_EX)

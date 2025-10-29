@@ -52,6 +52,7 @@ class RadioInfoWidget : public TopBarWidget
                        COLOR_THEME_PRIMARY2_INDEX);
     usbIcon->hide();
 
+#if defined(AUDIO)
     audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, PAD_TINY,
                                 ICON_TOPMENU_VOLUME_SCALE,
                                 COLOR_THEME_PRIMARY3_INDEX);
@@ -64,6 +65,7 @@ class RadioInfoWidget : public TopBarWidget
       audioVol[i]->hide();
     }
     audioVol[0]->show();
+#endif
 
     batteryIcon = new StaticIcon(this, W_AUDIO_X, W_BATT_Y,
                                  ICON_TOPMENU_TXBATT,
@@ -130,6 +132,7 @@ class RadioInfoWidget : public TopBarWidget
     logsIcon->show(!usbPlugged() && isFunctionActive(FUNCTION_LOGS) &&
                    BLINK_ON_PHASE);
 
+#if defined(AUDIO)
     /* Audio volume */
     uint8_t vol = 4;
     if (requiredSpeakerVolume == 0 || g_eeGeneral.beepMode == e_mode_quiet)
@@ -145,6 +148,7 @@ class RadioInfoWidget : public TopBarWidget
       audioVol[lastVol]->hide();
       lastVol = vol;
     }
+#endif
 
 #if defined(USB_CHARGER)
     batteryChargeIcon->show(usbChargerLed());
@@ -210,8 +214,10 @@ class RadioInfoWidget : public TopBarWidget
   uint8_t lastRSSI = 0;
   StaticIcon* logsIcon;
   StaticIcon* usbIcon;
+#if defined(AUDIO)
   StaticIcon* audioScale;
   StaticIcon* audioVol[5];
+#endif
   StaticIcon* batteryIcon;
   lv_obj_t* batteryFill = nullptr;
   lv_obj_t* rssiBars[5] = {nullptr};

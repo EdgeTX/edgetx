@@ -55,6 +55,8 @@ add_definitions(-DTHREADSAFE_MALLOC)
 set(SDRAM ON)
 set(FIRMWARE_STRIP_BOOTLOADER ON)
 
+# add_definitions(-DRTCLOCK)
+
 # VCP CLI
 set(CLI ON CACHE BOOL "Enable CLI")
 

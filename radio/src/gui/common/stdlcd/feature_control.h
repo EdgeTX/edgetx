@@ -53,6 +53,12 @@
   #define CASE_RTCLOCK(x)
 #endif
 
+#if defined(AUDIO)
+  #define CASE_AUDIO(x) x,
+#else
+  #define CASE_AUDIO(x)
+#endif
+
 #if defined(GPS)
   #define CASE_GPS(x) x,
 #else

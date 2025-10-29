@@ -193,8 +193,10 @@ void menuStatisticsDebug(event_t event)
   lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&menusTaskId), LEFT);
   lcdDrawText(lcdLastRightPos+2, y+1, "[X]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&mixerTaskId), LEFT);
+#if defined(AUDIO)
   lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&audioTaskId), LEFT);
+#endif
   y += FH;
 
 #if defined(DEBUG_LATENCY)

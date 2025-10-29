@@ -870,7 +870,9 @@ STR(ELEVATOR)
 STR(SWASHRING)
 #endif
 
+#if defined(AUDIO)
 STR(BEEP_PITCH)
+#endif
 
 #if defined(HAPTIC)
 STR(PWR_ON_OFF_HAPTIC)

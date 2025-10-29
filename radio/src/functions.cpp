@@ -313,6 +313,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
+#if defined(AUDIO)
           case FUNC_VOLUME: {
             getvalue_t raw = getValue(CFN_PARAM(cfn));
             // only set volume if input changed more than hysteresis
@@ -324,6 +325,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                 2048;
             break;
           }
+#endif
 
           case FUNC_PLAY_SOUND:
           case FUNC_PLAY_TRACK:
@@ -531,8 +533,10 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_RANGE_CHECK;
   case FUNC_BIND:
     return STR_SF_MOD_BIND;
+#if defined(AUDIO)
   case FUNC_PLAY_SOUND:
     return STR_SOUND;
+#endif
   case FUNC_PLAY_TRACK:
     return STR_PLAY_TRACK;
   case FUNC_PLAY_VALUE:

@@ -329,10 +329,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               repeatLastCursorHorMove(event);
             }
           }
+#if defined(AUDIO)
           else if (func == FUNC_PLAY_SOUND) {
             val_max = AU_SPECIAL_SOUND_LAST-AU_SPECIAL_SOUND_FIRST-1;
             lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_FUNCSOUNDS, val_displayed, attr);
           }
+#endif
           else if (func == FUNC_SET_SCREEN) {
             val_min = 0;
             val_max = 4;
