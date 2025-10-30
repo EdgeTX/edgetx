@@ -1129,11 +1129,11 @@ PACK(struct RadioData {
   NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
   NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
-  NOBACKUP(uint16_t radioGFDisabled:1);
-  NOBACKUP(uint16_t radioTrainerDisabled:1);
+  NOBACKUP(int16_t radioGFDisabled:1);
+  NOBACKUP(int16_t radioTrainerDisabled:1);
   // Model level tabs control (global setting)
-  NOBACKUP(uint16_t modelHeliDisabled:1);
-  NOBACKUP(uint16_t modelFMDisabled:1);
+  NOBACKUP(int16_t modelHeliDisabled:1);
+  NOBACKUP(int16_t modelFMDisabled:1);
   NOBACKUP(uint8_t modelCurvesDisabled:1);
   NOBACKUP(uint8_t modelGVDisabled:1);
   NOBACKUP(uint8_t modelLSDisabled:1);
