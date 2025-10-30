@@ -207,14 +207,16 @@ class OutputsWidget : public Widget
     if (chan != firstChan) { firstChan= chan; changed = true; }
 
     // Get size
-    uint8_t n = height() / ChannelValue::ROW_HEIGHT;
+    if (width() != lastWidth) { lastWidth = width(); changed = true; }
+    if (height() != lastHeight) { lastHeight = height(); changed = true; }
+    uint8_t n = lastHeight / ChannelValue::ROW_HEIGHT;
     if (n != rows) { rows = n; changed = true; }
-    n = (width() > COLS_MIN_W) ? 2 : 1;
+    n = (lastWidth > COLS_MIN_W) ? 2 : 1;
     if (n != cols) { cols = n; changed = true; }
 
     if (changed) {
       clear();
-      coord_t colWidth = width() / cols;
+      coord_t colWidth = lastWidth / cols;
       uint8_t chan = firstChan;
       for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
         for (uint8_t r = 0; r < rows && chan <= MAX_OUTPUT_CHANNELS;
@@ -228,8 +230,8 @@ class OutputsWidget : public Widget
   static const ZoneOption options[];
 
  protected:
-  // Last time we refreshed the window
-  uint32_t lastRefresh = 0;
+  coord_t lastWidth = -1;
+  coord_t lastHeight = -1;
   uint8_t firstChan = 255;
   uint8_t cols = 0;
   uint8_t rows = 0;
