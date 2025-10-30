@@ -1127,21 +1127,22 @@ PACK(struct RadioData {
 #endif
 
   NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
-  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
   NOBACKUP(int16_t radioGFDisabled:1);
   NOBACKUP(int16_t radioTrainerDisabled:1);
-  // Model level tabs control (global setting)
   NOBACKUP(int16_t modelHeliDisabled:1);
   NOBACKUP(int16_t modelFMDisabled:1);
-  NOBACKUP(uint8_t modelCurvesDisabled:1);
-  NOBACKUP(uint8_t modelGVDisabled:1);
-  NOBACKUP(uint8_t modelLSDisabled:1);
-  NOBACKUP(uint8_t modelSFDisabled:1);
-  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
-  NOBACKUP(uint8_t modelTelemetryDisabled:1);
-  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
-  NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
+  NOBACKUP(int8_t modelCurvesDisabled:1);
+  NOBACKUP(int8_t modelGVDisabled:1);
+
+  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int8_t modelLSDisabled:1);
+  NOBACKUP(int8_t modelSFDisabled:1);
+  NOBACKUP(int8_t modelCustomScriptsDisabled:1);
+  NOBACKUP(int8_t modelTelemetryDisabled:1);
+  NOBACKUP(int8_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(int8_t disablePwrOnOffHaptic:1);
 
   NOBACKUP(uint8_t modelQuickSelect:1);
 
