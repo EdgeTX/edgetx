@@ -434,6 +434,7 @@ enum FunctionsActive {
   FUNCTION_RACING_MODE,
   FUNCTION_DISABLE_TOUCH,
   FUNCTION_DISABLE_AUDIO_AMP,
+  FUNCTION_VOLUME,
 };
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
@@ -893,3 +894,4 @@ int pwrDelayFromYaml(int delay);
 int pwrDelayToYaml(int delay);
 
 void calcBacklightValue(int16_t source);
+void calcVolumeValue(int16_t source);

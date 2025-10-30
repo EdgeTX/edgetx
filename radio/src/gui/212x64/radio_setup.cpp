@@ -56,6 +56,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_SPEAKER_PITCH,
   ITEM_RADIO_SETUP_WAV_VOLUME,
   ITEM_RADIO_SETUP_BACKGROUND_VOLUME,
+  ITEM_RADIO_SETUP_VOLUME_SOURCE,
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_VOLUME)
@@ -187,6 +188,7 @@ void menuRadioSetup(event_t event)
      SOUND_ROW(0), // speaker piutch
      SOUND_ROW(0), // wav volume
      SOUND_ROW(0), // background volume
+     SOUND_ROW(0), // volume control
      SOUND_ROW(0), // startup sound
     // Vario
     CASE_VARIO(LABEL(VARIO))
@@ -406,6 +408,15 @@ void menuRadioSetup(event_t event)
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.speakerPitch, 0, 20);
         }
+        break;
+
+      case ITEM_RADIO_SETUP_VOLUME_SOURCE:
+        lcdDrawTextIndented(y, STR_CONTROL);
+        drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.volumeSrc, STREXPANDED|attr);
+        if (attr)
+          g_eeGeneral.volumeSrc = checkIncDec(event, g_eeGeneral.volumeSrc,
+                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+                isSourceSwitchOrPotAvailable);
         break;
 
       case ITEM_RADIO_SETUP_START_SOUND:

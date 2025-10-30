@@ -95,6 +95,12 @@ ui(new Ui::GeneralSetup)
 
   lock = true;
 
+  ui->volumeCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->volumeCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTSRC));
+  ui->volumeCtrl_CB->setCurrentIndex(ui->volumeCtrl_CB->findData(generalSettings.volumeSrc.toValue()));
+  if (ui->volumeCtrl_CB->currentIndex() < 0 && generalSettings.volumeSrc.toValue() == 0)
+    ui->volumeCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->volumeCtrl_CB));
+
   ui->brightCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->brightCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTSRC));
   ui->brightCtrl_CB->setCurrentIndex(ui->brightCtrl_CB->findData(generalSettings.backlightSrc.toValue()));
@@ -734,6 +740,14 @@ void GeneralSetupPanel::on_OFFBright_SB_editingFinished()
       generalSettings.backlightOffBright = ui->OFFBright_SB->value();
       emit modified();
     }
+  }
+}
+
+void GeneralSetupPanel::on_volumeCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.volumeSrc = RawSource(ui->volumeCtrl_CB->itemData(ui->volumeCtrl_CB->currentIndex()).toInt());
+    emit modified();
   }
 }
 

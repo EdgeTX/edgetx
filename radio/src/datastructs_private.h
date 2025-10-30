@@ -1127,14 +1127,15 @@ PACK(struct RadioData {
 #endif
 
   NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
-  NOBACKUP(int16_t radioGFDisabled:1);
-  NOBACKUP(int16_t radioTrainerDisabled:1);
+  NOBACKUP(uint16_t radioGFDisabled:1);
+  NOBACKUP(uint16_t radioTrainerDisabled:1);
   // Model level tabs control (global setting)
-  NOBACKUP(int16_t modelHeliDisabled:1);
-  NOBACKUP(int16_t modelFMDisabled:1);
-  NOBACKUP(int16_t modelCurvesDisabled:1);
-  NOBACKUP(int16_t modelGVDisabled:1);
+  NOBACKUP(uint16_t modelHeliDisabled:1);
+  NOBACKUP(uint16_t modelFMDisabled:1);
+  NOBACKUP(uint8_t modelCurvesDisabled:1);
+  NOBACKUP(uint8_t modelGVDisabled:1);
   NOBACKUP(uint8_t modelLSDisabled:1);
   NOBACKUP(uint8_t modelSFDisabled:1);
   NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
@@ -1151,14 +1152,12 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
-#endif
-
-#if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:3 SKIP);
+  NOBACKUP(uint8_t spare:1 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
+  NOBACKUP(uint8_t spare:6 SKIP);
 #else
-  NOBACKUP(uint8_t spare:1 SKIP);
+  NOBACKUP(uint8_t spare:7 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

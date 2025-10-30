@@ -146,9 +146,6 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   }
 }
 
-#define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
-getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
-
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions  = 0;
@@ -315,14 +312,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
 #if defined(AUDIO)
           case FUNC_VOLUME: {
-            getvalue_t raw = getValue(CFN_PARAM(cfn));
-            // only set volume if input changed more than hysteresis
-            if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {
-              requiredSpeakerVolumeRawLast = raw;
-            }
-            requiredSpeakerVolume =
-                ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) /
-                2048;
+            newActiveFunctions |= (1u << FUNCTION_VOLUME);
+            calcVolumeValue(CFN_PARAM(cfn));
             break;
           }
 #endif

@@ -48,6 +48,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_BLBright_SB_editingFinished();
     void on_OFFBright_SB_editingFinished();
     void on_brightCtrl_CB_currentIndexChanged(int index);
+    void on_volumeCtrl_CB_currentIndexChanged(int index);
     void on_countrycode_CB_currentIndexChanged(int index);
     void on_units_CB_currentIndexChanged(int index);
     void on_ppm_units_CB_currentIndexChanged(int index);
