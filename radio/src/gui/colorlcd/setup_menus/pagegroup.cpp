@@ -381,12 +381,12 @@ class TabsGroupHeader : public PageGroupHeaderBase
     lv_obj_set_size(titleLabel, LCD_W, TabsGroup::PAGE_ALT_TITLE_H);
 #endif
 
-    new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_TOP_BAR_H * 3, PAD_MEDIUM, [=]() {
+    prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_TOP_BAR_H * 3, PAD_MEDIUM, [=]() {
       prevTab();
       return 0;
     });
 
-    new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_TOP_BAR_H * 2, PAD_MEDIUM, [=]() {
+    nextBtn = new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_TOP_BAR_H * 2, PAD_MEDIUM, [=]() {
       nextTab();
       return 0;
     });
@@ -405,7 +405,15 @@ class TabsGroupHeader : public PageGroupHeaderBase
     menu->setCurrentTab(idx);
   }
 
+  void hidePageButtons()
+  {
+    if (prevBtn) prevBtn->hide();
+    if (nextBtn) nextBtn->hide();
+  }
+
  protected:
+  IconButton* nextBtn = nullptr;
+  IconButton* prevBtn = nullptr;
 };
 
 //-----------------------------------------------------------------------------
@@ -443,4 +451,9 @@ void TabsGroup::openMenu()
           Layer::back()->onCancel();
       }
     }, p, subMenu);
+}
+
+void TabsGroup::hidePageButtons()
+{
+  ((TabsGroupHeader*)header)->hidePageButtons();
 }

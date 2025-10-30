@@ -685,10 +685,7 @@
 #define TR_MENUSTAT                     "통계"
 #define TR_MENUDEBUG                    "디버그"
 
-#define TR_MONITOR_CHANNELS1            "채널 모니터 1-8"
-#define TR_MONITOR_CHANNELS2            "채널 모니터 9-16"
-#define TR_MONITOR_CHANNELS3            "채널 모니터 17-24"
-#define TR_MONITOR_CHANNELS4            "채널 모니터 25-32"
+#define TR_MONITOR_CHANNELS             "채널 모니터 %d-%d"
 #define TR_MONITOR_OUTPUT_DESC          "출력 상태"
 #define TR_MONITOR_MIXER_DESC           "믹서 상태"
 

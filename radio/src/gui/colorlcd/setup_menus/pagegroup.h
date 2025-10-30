@@ -218,6 +218,8 @@ class TabsGroup : public PageGroupBase
   std::string getName() const override { return "TabsGroup"; }
 #endif
 
+  void hidePageButtons();
+
   static LAYOUT_ORIENTATION_SCALED(PAGE_TOP_BAR_H, 45, 48)
   static LAYOUT_ORIENTATION(PAGE_ALT_TITLE_H, 0, EdgeTxStyles::STD_FONT_HEIGHT)
   static constexpr coord_t TABS_GROUP_BODY_Y = PAGE_TOP_BAR_H + PAGE_ALT_TITLE_H;

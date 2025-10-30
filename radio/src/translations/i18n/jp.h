@@ -663,10 +663,7 @@
 #define TR_MENULOGICALSWITCH           "論理スイッチ"
 #define TR_MENUSTAT                    "統計"
 #define TR_MENUDEBUG                   "デバッグ"
-#define TR_MONITOR_CHANNELS1           "チャンネルモニター 1-8"
-#define TR_MONITOR_CHANNELS2           "チャンネルモニター 9-16"
-#define TR_MONITOR_CHANNELS3           "チャンネルモニター 17-24"
-#define TR_MONITOR_CHANNELS4           "チャンネルモニター 25-32"
+#define TR_MONITOR_CHANNELS            "チャンネルモニター %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "出力"
 #define TR_MONITOR_MIXER_DESC          "ミキサー"
 #define TR_RECEIVER_NUM                TR("RxNum", "受信機 No.")

@@ -665,10 +665,7 @@
 #define TR_MENULOGICALSWITCH           "ЛОГІЧНИЙ ПЕРЕМИКАЧ"
 #define TR_MENUSTAT                    "СТАТ."
 #define TR_MENUDEBUG                   "ВІДЛАГОДЖЕННЯ"
-#define TR_MONITOR_CHANNELS1           "МОНІТОР КАН 1-8"
-#define TR_MONITOR_CHANNELS2           "МОНІТОР КАН 9-16"
-#define TR_MONITOR_CHANNELS3           "МОНІТОР КАН 17-24"
-#define TR_MONITOR_CHANNELS4           "МОНІТОР КАН 25-32"
+#define TR_MONITOR_CHANNELS            "МОНІТОР КАН %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "Виходи"
 #define TR_MONITOR_MIXER_DESC          "Мікшери"
 #define TR_RECEIVER_NUM                TR("RxNum", "No. приймача")
