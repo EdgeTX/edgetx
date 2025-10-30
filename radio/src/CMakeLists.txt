@@ -595,6 +595,7 @@ endif()
 target_compile_definitions(board PUBLIC FREE_RTOS)
 target_compile_definitions(board_lib PUBLIC FREE_RTOS)
 target_compile_definitions(firmware PUBLIC FREE_RTOS)
+target_compile_definitions(stm32_drivers_w_dbg_fw PUBLIC FREE_RTOS)
 
 target_sources(firmware PUBLIC
   os/async_freertos.cpp
