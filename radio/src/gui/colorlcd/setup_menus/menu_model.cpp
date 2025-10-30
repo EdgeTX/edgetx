@@ -33,6 +33,7 @@
 #include "model_setup.h"
 #include "model_telemetry.h"
 #include "special_functions.h"
+#include "view_text.h"
 
 PageDef modelMenuItems[] = {
   { ICON_MODEL_SETUP, STR_QM_GEN_SETTINGS, STR_MAIN_MENU_SETTINGS, PAGE_CREATE, QuickMenu::MODEL_SETUP, [](PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
@@ -52,5 +53,6 @@ PageDef modelMenuItems[] = {
   { ICON_MODEL_LUA_SCRIPTS, STR_QM_CUSTOM_LUA, STR_MENUCUSTOMSCRIPTS, PAGE_CREATE, QuickMenu::MODEL_SCRIPTS, [](PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
 #endif
   { ICON_MODEL_TELEMETRY, STR_QM_TELEM, STR_MENUTELEMETRY, PAGE_CREATE, QuickMenu::MODEL_TELEMETRY, [](PageDef& pageDef) { return new ModelTelemetryPage(pageDef); }, modelTelemetryEnabled},
+  { ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, PAGE_CREATE, QuickMenu::MODEL_NOTES, [](PageDef& pageDef) { return new ModelNotesPage(pageDef); }, modelHasNotes},
   { EDGETX_ICONS_COUNT }
 };
