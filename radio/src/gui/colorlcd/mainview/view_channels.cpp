@@ -139,8 +139,9 @@ ChannelsViewMenu::ChannelsViewMenu() :
     int start = i;
     while (!isChannelUsed(start)) {
       start += 1;
-      if (start >= MAX_OUTPUT_CHANNELS) return;
+      if (start >= MAX_OUTPUT_CHANNELS) break;
     }
+    if (start >= MAX_OUTPUT_CHANNELS) break;
     int count = 1;
     int last = start;
     int end = start + 1;
