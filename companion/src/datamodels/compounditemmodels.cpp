@@ -668,14 +668,14 @@ void FlexSwitchesItemModel::update(const int event)
 }
 
 //
-// BacklightSourceItemModel
+// ControlSourceItemModel
 //
 
-BacklightSourceItemModel::BacklightSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+ControlSourceItemModel::ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
                                        Firmware * firmware, const Boards * const board, const Board::Type boardType) :
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
-  setId(IMID_BacklightSource);
+  setId(IMID_ControlSource);
   setUpdateMask(IMUE_Hardware);
 
   // Descending source direction: inverted (!) sources
@@ -688,13 +688,13 @@ BacklightSourceItemModel::BacklightSourceItemModel(const GeneralSettings * const
   addItems(SOURCE_TYPE_SWITCH, board->getCapability(Board::Switches));
 }
 
-void BacklightSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
+void ControlSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
 {
   item->setText(src.toString(modelData, generalSettings, boardType));
-  item->setData(src.isAvailable(modelData, generalSettings, boardType, RawSource::AVAILABLE_BACKLIGHTSRC), IMDR_Available);
+  item->setData(src.isAvailable(modelData, generalSettings, boardType, RawSource::AVAILABLE_CONTROLSRC), IMDR_Available);
 }
 
-void BacklightSourceItemModel::addItems(const RawSourceType & type, int count, const int start)
+void ControlSourceItemModel::addItems(const RawSourceType & type, int count, const int start)
 {
   const int idxAdj = (type == SOURCE_TYPE_NONE ? -1 : 0);
 
@@ -711,7 +711,7 @@ void BacklightSourceItemModel::addItems(const RawSourceType & type, int count, c
   }
 }
 
-void BacklightSourceItemModel::update(const int event)
+void ControlSourceItemModel::update(const int event)
 {
   if (doUpdate(event)) {
     emit aboutToBeUpdated();
@@ -778,8 +778,8 @@ void CompoundItemModelFactory::addItemModel(const int id)
     case AbstractItemModel::IMID_FlexSwitches:
       registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
-    case AbstractItemModel::IMID_BacklightSource:
-      registerItemModel(new BacklightSourceItemModel(generalSettings, modelData, firmware, board, boardType));
+    case AbstractItemModel::IMID_ControlSource:
+      registerItemModel(new ControlSourceItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     default:
       qDebug() << "Error: unknown item model: id";

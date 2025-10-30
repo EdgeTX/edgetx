@@ -47,7 +47,7 @@ class AbstractItemModel: public QStandardItemModel
       IMID_CurveRefType,
       IMID_CurveRefFunc,
       IMID_FlexSwitches,
-      IMID_BacklightSource,
+      IMID_ControlSource,
       IMID_ReservedCount,
       IMID_Custom
     };
@@ -351,13 +351,13 @@ class FlexSwitchesItemModel: public AbstractDynamicItemModel
     virtual void setDynamicItemData(QStandardItem * item, const int value) const;
 };
 
-class BacklightSourceItemModel: public AbstractDynamicItemModel
+class ControlSourceItemModel: public AbstractDynamicItemModel
 {
     Q_OBJECT
   public:
-    explicit BacklightSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+    explicit ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
                                 Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~BacklightSourceItemModel() {};
+    virtual ~ControlSourceItemModel() {};
 
   public slots:
     virtual void update(const int event = IMUE_SystemRefresh) override;

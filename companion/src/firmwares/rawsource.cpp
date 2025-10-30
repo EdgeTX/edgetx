@@ -395,7 +395,7 @@ bool RawSource::isAvailable(const ModelData * const model,
         gs->serialPort[GeneralSettings::SP_AUX2] == GeneralSettings::AUX_SERIAL_SPACEMOUSE))))
     return false;
 
-  if (type == SOURCE_TYPE_INPUT && (flags & AVAILABLE_BACKLIGHTSRC) &&
+  if (type == SOURCE_TYPE_INPUT && (flags & AVAILABLE_CONTROLSRC) &&
       Boards::isInputGyroAxis(abs(index) - 1, board))
     return false;
 

@@ -51,7 +51,7 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   editorItemModels->addItemModel(AbstractItemModel::IMID_RawSwitch);
   editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
   editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
-  editorItemModels->addItemModel(AbstractItemModel::IMID_BacklightSource);
+  editorItemModels->addItemModel(AbstractItemModel::IMID_ControlSource);
 
   addTab(new GeneralSetupPanel(this, generalSettings, firmware, editorItemModels), tr("Setup"));
   addTab(new CustomFunctionsPanel(this, nullptr, generalSettings, firmware, editorItemModels), tr("Global Functions"));

@@ -251,7 +251,7 @@ class RawSource {
     // flags to refine isAvailable
     enum AvailableFlags {
       AVAILABLE_ALL,
-      AVAILABLE_BACKLIGHTSRC = 0x001
+      AVAILABLE_CONTROLSRC = 0x001
     };
 
     RawSource() { clear(); }
