@@ -361,7 +361,7 @@ char *getGVarString(char *dest, int idx)
   return dest;
 }
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
                            LcdFlags flags, const char *suffix,
                            gvar_t offset, bool usePPMUnit)
@@ -766,7 +766,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     }
   } else if (idx <= MIXSRC_LAST_GVAR) {
     idx -= MIXSRC_FIRST_GVAR;
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
     char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
     if (!defaultOnly && g_model.gvars[idx].name[0]) {
       s = strAppend(s, ":");
@@ -884,7 +884,7 @@ char *getSwitchPositionName(swsrc_t idx, bool defaultOnly)
 
 char *getGVarString(int idx) { return getGVarString(_static_str_buffer, idx); }
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
                        LcdFlags flags)
 {
@@ -1139,7 +1139,7 @@ std::string getTelemTime(TelemetryItem &telemetryItem)
          formatNumberAsString(telemetryItem.datetime.sec, LEADING0 | LEFT, 2);
 }
 
-#endif  // defined(LIBOPENUI)
+#endif  // defined(COLORLCD)
 #endif  // !defined(BOOT)
 
 char *strAppendUnsigned(char *dest, uint32_t value, uint8_t digits,

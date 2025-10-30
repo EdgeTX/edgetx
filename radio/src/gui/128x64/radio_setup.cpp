@@ -51,7 +51,6 @@ enum {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_TIME)
   ITEM_RADIO_SETUP_SOUND_LABEL,
   CASE_AUDIO(ITEM_RADIO_SETUP_BEEP_MODE)
-  CASE_BUZZER(ITEM_RADIO_SETUP_BUZZER_MODE)
   ITEM_RADIO_SETUP_SPEAKER_VOLUME,
   ITEM_RADIO_SETUP_BEEP_VOLUME,
   ITEM_RADIO_SETUP_BEEP_LENGTH,
@@ -178,7 +177,6 @@ void menuRadioSetup(event_t event)
     // Sound
     0, 
      CASE_AUDIO(SOUND_ROW(0))
-     CASE_BUZZER(SOUND_ROW(0))
      SOUND_ROW(0),
      SOUND_ROW(0),
      SOUND_ROW(0),
@@ -343,21 +341,10 @@ void menuRadioSetup(event_t event)
 
 #if defined(AUDIO)
       case ITEM_RADIO_SETUP_BEEP_MODE:
-        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
-        break;
-
-#if defined(BUZZER) // AUDIO + BUZZER
-      case ITEM_RADIO_SETUP_BUZZER_MODE:
-        g_eeGeneral.buzzerMode = editChoice(LCD_W-2, y, STR_BUZZER, STR_VBEEPMODE, g_eeGeneral.buzzerMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
-        break;
-#endif
-#elif defined(BUZZER) // BUZZER only
-      case ITEM_RADIO_SETUP_BUZZER_MODE:
-        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
+        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_MODE, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
         break;
 #endif
 
-#if defined(VOICE)
       case ITEM_RADIO_SETUP_SPEAKER_VOLUME:
       {
         lcdDrawTextIndented(y, STR_VOLUME);
@@ -371,7 +358,6 @@ void menuRadioSetup(event_t event)
         }
         break;
       }
-#endif
 
       case ITEM_RADIO_SETUP_BEEP_VOLUME:
         g_eeGeneral.beepVolume = slider_5pos(y, g_eeGeneral.beepVolume, event, attr, STR_BEEP_VOLUME);

@@ -1012,8 +1012,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Неотфильтр необработ аналог сигн"
 #define TR_ANADIAGS_MINMAX             "Мин., Макс. и Диапазон"
 #define TR_ANADIAGS_MOVE               "Двигайте аналоговые датчики!"
-#define TR_SPEAKER                     "Динамик"
-#define TR_BUZZER                      "Звук сигнал"
 #define TR_BYTES                       "Байты"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Unbind")

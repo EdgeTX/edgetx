@@ -1009,8 +1009,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "素の状態のアナログ信号をフィルターしない値で表示"
 #define TR_ANADIAGS_MINMAX             "最低値、最高値、範囲を表示"
 #define TR_ANADIAGS_MOVE               "アナログ信号を末端まで動かした値を表示"
-#define TR_SPEAKER                     "スピーカー"
-#define TR_BUZZER                      "ブザー"
 #define TR_BYTES                       "バイト"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("バインド解除")

@@ -210,4 +210,4 @@ set(SRC ${SRC}
   ${RADIO_SRC_DIR}/thirdparty/lz4/lz4.c
 )
 
-add_definitions(-DLIBOPENUI)
+add_definitions(-DCOLORLCD)

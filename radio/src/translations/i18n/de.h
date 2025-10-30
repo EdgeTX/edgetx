@@ -1004,8 +1004,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "analoge Geber ungefiltert und unbearbeitet"
 #define TR_ANADIAGS_MINMAX             "Min., Max. und Bereich"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
-#define TR_SPEAKER                     "Lautspr"
-#define TR_BUZZER                      "Summer"
 #define TR_BYTES                       "Bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd","Binden"))   //9XR-Pro
 #define TR_MODULE_UNBIND               BUTTON("Trennen")

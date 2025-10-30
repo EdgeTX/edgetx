@@ -53,12 +53,6 @@
   #define CASE_RTCLOCK(x)
 #endif
 
-#if defined(BUZZER)
-  #define CASE_BUZZER(x) x,
-#else
-  #define CASE_BUZZER(x)
-#endif
-
 #if defined(AUDIO)
   #define CASE_AUDIO(x) x,
 #else

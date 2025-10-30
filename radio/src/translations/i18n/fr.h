@@ -1008,8 +1008,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Analog. bruts non filtrés"
 #define TR_ANADIAGS_MINMAX             "Min., max. et courses"
 #define TR_ANADIAGS_MOVE               "Déplacer les analogiques à leurs extrêmes!"
-#define TR_SPEAKER                     "HP."
-#define TR_BUZZER                      "Bipeur"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Délier")

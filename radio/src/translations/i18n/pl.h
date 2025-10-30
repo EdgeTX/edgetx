@@ -1003,8 +1003,6 @@
 #define TR_ANADIAGS_UNFILTRAW  "Unfiltered raw analogs"
 #define TR_ANADIAGS_MINMAX     "Min., max. and range"
 #define TR_ANADIAGS_MOVE       "Move analogs to their extremes!"
-#define TR_SPEAKER             "Głośnik"
-#define TR_BUZZER              "Brzęczyk"
 #define TR_BYTES               "bajty"
 #define TR_MODULE_BIND         TR("[BND]","[Bind]")
 #define TR_MODULE_UNBIND               BUTTON("Unbind")

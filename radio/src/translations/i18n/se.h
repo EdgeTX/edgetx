@@ -1011,8 +1011,6 @@
 #define TR_ANADIAGS_UNFILTRAW           "Ofiltrerade råa analoga"
 #define TR_ANADIAGS_MINMAX              "Min., max. och omfång"
 #define TR_ANADIAGS_MOVE                "Rör analoga till sina ytterlägen!"
-#define TR_SPEAKER                      "Högtalare"
-#define TR_BUZZER                       "Summer"
 #define TR_BYTES                        "byte"
 #define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Parkoppla"))
 #define TR_MODULE_UNBIND                BUTTON("Glöm")

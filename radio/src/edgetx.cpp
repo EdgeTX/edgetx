@@ -53,7 +53,7 @@
   #include "bluetooth_driver.h"
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
@@ -179,7 +179,7 @@ void per10ms()
 #if defined(GUI)
   if (lightOffCounter) lightOffCounter--;
   if (flashCounter) flashCounter--;
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   if (noHighlightCounter) noHighlightCounter--;
 #endif
 #endif
@@ -1366,7 +1366,7 @@ void edgeTxInit()
 {
   TRACE("edgeTxInit");
 
-  #if defined(COLORLCD)
+#if defined(COLORLCD)
   // SD_CARD_PRESENT() does not work properly on most
   // B&W targets, so that we need to delay the detection
   // until the SD card is mounted (requires RTOS scheduler running)
@@ -1379,7 +1379,7 @@ void edgeTxInit()
   if (!(startOptions & OPENTX_START_NO_SPLASH))
     startSplash();
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   initLvglTheme();
   // create ViewMain
   ViewMain::instance();
@@ -1387,9 +1387,7 @@ void edgeTxInit()
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
   menuHandlers[1] = menuModelSelect;
-#endif
 
-#if defined(GUI) && !defined(COLORLCD)
   lcdRefreshWait();
   lcdClear();
   lcdRefresh();
@@ -1555,11 +1553,11 @@ void edgeTxInit()
 #if defined(GUI)
     if (calibration_needed) {
       cancelSplash();
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
       startCalibration();
 #else
       chainMenu(menuFirstCalib);
-#endif // defined(LIBOPENUI)
+#endif // defined(COLORLCD)
     }
     else if (!(startOptions & OPENTX_START_NO_CHECKS)) {
       checkAlarm();

@@ -1015,8 +1015,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Ufilteret rå analog"
 #define TR_ANADIAGS_MINMAX             "Min., max. og interval"
 #define TR_ANADIAGS_MOVE               "Flyt analoge til deres yderpunkter!"
-#define TR_SPEAKER                     "Højttaler"
-#define TR_BUZZER                      "Biper"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Tils", "Tilslut"))
 #define TR_MODULE_UNBIND               BUTTON("Afkobl")
