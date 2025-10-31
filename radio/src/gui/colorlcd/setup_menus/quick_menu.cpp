@@ -172,20 +172,6 @@ void QuickSubMenu::onSelect(bool close)
 
 //-----------------------------------------------------------------------------
 
-QMTopDef qmTopItems[] = {
-  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_MANAGE_MODELS, QM_ACTION, QM_MANAGE_MODELS, nullptr,
-                      []() -> uint8_t {
-                        QuickMenu::selected();
-                        new ModelLabelsWindow();
-                        return 0;
-                      }},
-  { ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, QM_SUBMENU, QM_NONE, modelMenuItems},
-  { ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, QM_SUBMENU, QM_NONE, radioMenuItems},
-  { ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, QM_SUBMENU, QM_NONE, screensMenuItems},
-  { ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, QM_SUBMENU, QM_NONE, toolsMenuItems},
-  { EDGETX_ICONS_COUNT }
-};
-
 QuickMenu* QuickMenu::instance = nullptr;
 QMPage QuickMenu::curPage = QM_NONE;
 
