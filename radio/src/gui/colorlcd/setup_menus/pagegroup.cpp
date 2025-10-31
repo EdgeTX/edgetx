@@ -89,7 +89,7 @@ void PageGroupHeaderBase::addTab(PageGroupItem* page)
   pages.emplace_back(page);
 }
 
-bool PageGroupHeaderBase::hasSubMenu(QuickMenu::QMPage qmPage)
+bool PageGroupHeaderBase::hasSubMenu(QMPage qmPage)
 {
   for (uint8_t i = 0; i < pages.size(); i += 1) {
     if (pages[i]->subMenu() == qmPage)
@@ -256,52 +256,26 @@ void PageGroupBase::setCurrentTab(unsigned index)
 }
 
 #if defined(HARDWARE_KEYS)
-void PageGroupBase::onPressSYS()
+void PageGroupBase::doKeyShortcut(event_t event)
 {
-  if (!quickMenu) openMenu();
-}
-
-void PageGroupBase::onLongPressSYS()
-{
-  if (icon == ICON_RADIO) {
-    setCurrentTab(0);
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!quickMenu) openMenu();
   } else {
-    onCancel();
-    QuickMenu::openPage(QuickMenu::TOOLS_APPS);
+    if (QuickMenu::pageIcon(pg) == icon) {
+      setCurrentTab(QuickMenu::pageIndex(pg));
+    } else {
+      onCancel();
+      QuickMenu::openPage(pg);
+    }
   }
 }
-
-void PageGroupBase::onPressMDL()
-{
-  if (icon == ICON_MODEL) {
-    setCurrentTab(0);
-  } else {
-    onCancel();
-    QuickMenu::openPage(QuickMenu::MODEL_SETUP);
-  }
-}
-
-void PageGroupBase::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-
-void PageGroupBase::onPressTELE()
-{
-  if (icon != ICON_THEME) {
-    onCancel();
-    QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + ViewMain::instance()->getCurrentMainView()));
-  }
-}
-
-void PageGroupBase::onLongPressTELE()
-{
-  if (icon != ICON_MONITOR) {
-    onCancel();
-    new ChannelsViewMenu();
-  }
-}
+void PageGroupBase::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void PageGroupBase::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void PageGroupBase::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void PageGroupBase::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void PageGroupBase::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void PageGroupBase::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 
 void PageGroupBase::onPressPGUP() { header->prevTab(); }
 void PageGroupBase::onPressPGDN() { header->nextTab(); }
@@ -310,7 +284,7 @@ void PageGroupBase::onLongPressPGDN() { header->nextTab(); }
 void PageGroupBase::onLongPressRTN() { onCancel(); }
 #endif
 
-bool PageGroupBase::hasSubMenu(QuickMenu::QMPage qmPage)
+bool PageGroupBase::hasSubMenu(QMPage qmPage)
 {
   return header->hasSubMenu(qmPage);
 }
@@ -438,7 +412,7 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
 void TabsGroup::openMenu()
 {
   PageGroup* p = (PageGroup*)Layer::getPageGroup();
-  QuickMenu::QMPage qmPage = QuickMenu::NONE;
+  QMPage qmPage = QM_NONE;
   if (p)
     qmPage = p->getCurrentTab()->subMenu();
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },

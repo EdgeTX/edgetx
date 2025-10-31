@@ -182,6 +182,9 @@ const char * loadRadioSettings()
 
     adcCalibDefaults();
     generalDefaultSwitches();
+#if defined(COLORLCD)
+    g_eeGeneral.defaultKeyShortcuts();
+#endif
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {

@@ -244,35 +244,23 @@ void ViewMain::updateTopbarVisibility()
 }
 
 #if defined(HARDWARE_KEYS)
-void ViewMain::onPressSYS()
+void ViewMain::doKeyShortcut(event_t event)
 {
-  if (!viewMainMenu) openMenu();
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!viewMainMenu) openMenu();
+  } else {
+    if (viewMainMenu)
+      viewMainMenu->closeMenu();
+    QuickMenu::openPage(pg);
+  }
 }
-void ViewMain::onLongPressSYS()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  QuickMenu::openPage(QuickMenu::TOOLS_APPS);
-}
-void ViewMain::onPressMDL()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  QuickMenu::openPage(QuickMenu::MODEL_SETUP);
-}
-void ViewMain::onLongPressMDL()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  new ModelLabelsWindow();
-}
-void ViewMain::onPressTELE()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + getCurrentMainView()));
-}
-void ViewMain::onLongPressTELE()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  new ChannelsViewMenu();
-}
+void ViewMain::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void ViewMain::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void ViewMain::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void ViewMain::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void ViewMain::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void ViewMain::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {

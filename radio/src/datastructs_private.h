@@ -34,6 +34,10 @@
 #include "debug.h"
 #include "bitfield.h"
 
+#if defined(COLORLCD)
+#include "quick_menu.h"
+#endif
+
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
   #define TARANIS_FIELD(x) x;
@@ -989,6 +993,12 @@ PACK(struct switchDef {
 #endif
 });
 
+#if defined(COLORLCD)
+PACK(struct keyShortcut {
+  uint8_t shortcut ENUM(QMPage);
+});
+#endif
+
 PACK(struct RadioData {
 
   // Real attributes
@@ -1145,6 +1155,10 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
+#if defined(COLORLCD)
+  NOBACKUP(keyShortcut keyShortcuts[6]);
+#endif
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)
@@ -1171,6 +1185,12 @@ PACK(struct RadioData {
   void cfsSetOnColorLuaOverride(uint8_t n, bool v);
   void cfsSetOffColorLuaOverride(uint8_t n, bool v);
 #endif
+#endif
+
+#if defined(COLORLCD)
+  QMPage getKeyShortcut(event_t event);
+  void setKeyShortcut(event_t event, QMPage shortcut);
+  void defaultKeyShortcuts();
 #endif
 });
 

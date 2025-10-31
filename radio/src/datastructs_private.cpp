@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
- #include "edgetx.h"
- #include "hal/switch_driver.h"
+#include "edgetx.h"
+#include "hal/switch_driver.h"
+
+#if defined(COLORLCD)
+#include "view_main.h"
+#endif
 
 SwitchConfig ModelData::getSwitchType(uint8_t n)
 {
@@ -251,4 +255,72 @@ void RadioData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
   storageDirty(EE_GENERAL);
 }
 #endif
+#endif
+
+#if defined(COLORLCD)
+QMPage RadioData::getKeyShortcut(event_t event)
+{
+  QMPage page = QM_NONE;
+  switch(event) {
+    case EVT_KEY_BREAK(KEY_MODEL):
+      page = (QMPage)keyShortcuts[0].shortcut;
+      break;
+    case EVT_KEY_BREAK(KEY_SYS):
+      page = (QMPage)keyShortcuts[1].shortcut;
+      break;
+    case EVT_KEY_BREAK(KEY_TELE):
+      page = (QMPage)keyShortcuts[2].shortcut;
+      break;
+    case EVT_KEY_LONG(KEY_MODEL):
+      page = (QMPage)keyShortcuts[3].shortcut;
+      break;
+    case EVT_KEY_LONG(KEY_SYS):
+      page = (QMPage)keyShortcuts[4].shortcut;
+      break;
+    case EVT_KEY_LONG(KEY_TELE):
+      page = (QMPage)keyShortcuts[5].shortcut;
+      break;
+    default:
+      break;
+  }
+  if (page >= QM_UI_SCREEN1 && page <= QM_UI_SCREEN10)
+    page = (QMPage)(QM_UI_SCREEN1 + ViewMain::instance()->getCurrentMainView());
+  return page;
+}
+
+void RadioData::setKeyShortcut(event_t event, QMPage shortcut)
+{
+  switch(event) {
+    case EVT_KEY_BREAK(KEY_MODEL):
+      keyShortcuts[0].shortcut = shortcut;
+      break;
+    case EVT_KEY_BREAK(KEY_SYS):
+      keyShortcuts[1].shortcut = shortcut;
+      break;
+    case EVT_KEY_BREAK(KEY_TELE):
+      keyShortcuts[2].shortcut = shortcut;
+      break;
+    case EVT_KEY_LONG(KEY_MODEL):
+      keyShortcuts[3].shortcut = shortcut;
+      break;
+    case EVT_KEY_LONG(KEY_SYS):
+      keyShortcuts[4].shortcut = shortcut;
+      break;
+    case EVT_KEY_LONG(KEY_TELE):
+      keyShortcuts[5].shortcut = shortcut;
+      break;
+    default:
+      break;
+  }
+}
+
+void RadioData::defaultKeyShortcuts()
+{
+  setKeyShortcut(EVT_KEY_BREAK(KEY_MODEL), QM_MODEL_SETUP);
+  setKeyShortcut(EVT_KEY_LONG(KEY_MODEL), QM_MANAGE_MODELS);
+  setKeyShortcut(EVT_KEY_BREAK(KEY_SYS), QM_OPEN_QUICK_MENU);
+  setKeyShortcut(EVT_KEY_LONG(KEY_SYS), QM_TOOLS_APPS);
+  setKeyShortcut(EVT_KEY_BREAK(KEY_TELE), QM_UI_SCREEN1);
+  setKeyShortcut(EVT_KEY_LONG(KEY_TELE), QM_TOOLS_CHAN_MON);
+}
 #endif

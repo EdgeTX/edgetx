@@ -40,7 +40,7 @@ struct PageDef {
   STR_TYP qmTitle;
   STR_TYP title;
   PageDefAction pageAction;
-  QuickMenu::QMPage qmPage;
+  QMPage qmPage;
   std::function<PageGroupItem*(PageDef& pageDef)> create;
   std::function<bool()> enabled;
   std::function<void()> action;
@@ -61,7 +61,7 @@ struct QMTopDef {
   const char* qmTitle;
   const char* title;
   QMTopDefAction pageAction;
-  QuickMenu::QMPage qmPage;
+  QMPage qmPage;
   PageDef* subMenuItems;
   std::function<uint8_t(void)> action;
 };
@@ -73,7 +73,7 @@ extern QMTopDef qmTopItems[];
 class PageGroupItem
 {
  public:
-  PageGroupItem(std::string title, QuickMenu::QMPage qmPage = QuickMenu::NONE) :
+  PageGroupItem(std::string title, QMPage qmPage = QM_NONE) :
       title(std::move(title)), icon(ICON_EDGETX), qmPageId(qmPage), padding(PAD_SMALL)
   {}
 
@@ -101,12 +101,12 @@ class PageGroupItem
   virtual void update(uint8_t index) {}
   virtual void cleanup() {}
 
-  QuickMenu::QMPage subMenu() const { return qmPageId; }
+  QMPage subMenu() const { return qmPageId; }
 
  protected:
   std::string title;
   EdgeTxIcon icon;
-  QuickMenu::QMPage qmPageId = QuickMenu::NONE;
+  QMPage qmPageId = QM_NONE;
   PaddingSize padding;
 };
 
@@ -135,7 +135,7 @@ class PageGroupHeaderBase : public Window
     }
   }
 
-  bool hasSubMenu(QuickMenu::QMPage n);
+  bool hasSubMenu(QMPage n);
 
   PageGroupItem* pageTab(uint8_t idx) const { return pages[idx]; }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
@@ -166,7 +166,7 @@ class PageGroupBase : public NavWindow
 
   void addTab(PageGroupItem* page);
 
-  bool hasSubMenu(QuickMenu::QMPage n);
+  bool hasSubMenu(QMPage n);
 
   coord_t getScrollY();
   void setScrollY(coord_t y);
@@ -185,6 +185,7 @@ class PageGroupBase : public NavWindow
   void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(HARDWARE_KEYS)
+  void doKeyShortcut(event_t event);
   void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;

@@ -33,6 +33,7 @@
 #include "storage/modelslist.h"
 #include "tasks/mixer_task.h"
 #include "slider.h"
+#include "radio_key_shortcuts.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -980,6 +981,7 @@ void RadioSetupPage::build(Window* window)
     {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
     {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
+    {"Key Shortcuts", []() { new RadioKeyShortcutsPage(); }},
   }, BTN_H);
   y += w->height() + padding;
 

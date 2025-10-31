@@ -26,6 +26,54 @@
 #include <vector>
 #include "quick_menu_group.h"
 
+enum QMPage {
+  QM_NONE = 0,
+  QM_OPEN_QUICK_MENU,
+  QM_MANAGE_MODELS,
+  // Model menu
+  QM_MODEL_SETUP,
+  QM_MODEL_HELI,
+  QM_MODEL_FLIGHTMODES,
+  QM_MODEL_INPUTS,
+  QM_MODEL_MIXES,
+  QM_MODEL_OUTPUTS,
+  QM_MODEL_CURVES,
+  QM_MODEL_GVARS,
+  QM_MODEL_LS,
+  QM_MODEL_SF,
+  QM_MODEL_SCRIPTS,
+  QM_MODEL_TELEMETRY,
+  QM_MODEL_NOTES,
+  // Radio menu
+  QM_RADIO_SETUP,
+  QM_RADIO_GF,
+  QM_RADIO_TRAINER,
+  QM_RADIO_HARDWARE,
+  QM_RADIO_VERSION,
+  // UI menu
+  QM_UI_THEMES,
+  QM_UI_SETUP,
+  QM_UI_SCREEN1,
+  QM_UI_SCREEN2,
+  QM_UI_SCREEN3,
+  QM_UI_SCREEN4,
+  QM_UI_SCREEN5,
+  QM_UI_SCREEN6,
+  QM_UI_SCREEN7,
+  QM_UI_SCREEN8,
+  QM_UI_SCREEN9,
+  QM_UI_SCREEN10,
+  QM_UI_ADD_PG,
+  // Tools menu
+  QM_TOOLS_APPS,
+  QM_TOOLS_STORAGE,
+  QM_TOOLS_RESET,
+  QM_TOOLS_CHAN_MON,
+  QM_TOOLS_LS_MON,
+  QM_TOOLS_STATS,
+  QM_TOOLS_DEBUG,
+};
+
 class PageGroup;
 class PageGroupBase;
 class ButtonBase;
@@ -42,59 +90,12 @@ struct PageDef;
 class QuickMenu : public NavWindow
 {
  public:
-  enum QMPage {
-    NONE = 0,
-    MANAGE_MODELS,
-    FIRST_SUB_MENU_ITEM,
-    // Model menu
-    MODEL_SETUP = FIRST_SUB_MENU_ITEM,
-    MODEL_HELI,
-    MODEL_FLIGHTMODES,
-    MODEL_INPUTS,
-    MODEL_MIXES,
-    MODEL_OUTPUTS,
-    MODEL_CURVES,
-    MODEL_GVARS,
-    MODEL_LS,
-    MODEL_SF,
-    MODEL_SCRIPTS,
-    MODEL_TELEMETRY,
-    MODEL_NOTES,
-    // Radio menu
-    RADIO_SETUP,
-    RADIO_GF,
-    RADIO_TRAINER,
-    RADIO_HARDWARE,
-    RADIO_VERSION,
-    // UI menu
-    UI_THEMES,
-    UI_SETUP,
-    UI_SCREEN1,
-    UI_SCREEN2,
-    UI_SCREEN3,
-    UI_SCREEN4,
-    UI_SCREEN5,
-    UI_SCREEN6,
-    UI_SCREEN7,
-    UI_SCREEN8,
-    UI_SCREEN9,
-    UI_SCREEN10,
-    UI_ADD_PG,
-    // Tools menu
-    TOOLS_APPS,
-    TOOLS_STORAGE,
-    TOOLS_RESET,
-    TOOLS_CHAN_MON,
-    TOOLS_LS_MON,
-    TOOLS_STATS,
-    TOOLS_DEBUG,
-  };
 
   QuickMenu();
 
   static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
-            PageGroupBase* pageGroup = nullptr, QMPage curPage = NONE);
+            PageGroupBase* pageGroup = nullptr, QMPage curPage = QM_NONE);
   static void shutdownQuickMenu();
 
   void onCancel() override;
@@ -113,8 +114,11 @@ class QuickMenu : public NavWindow
 
   static void selected();
   static void openPage(QMPage page);
+  static EdgeTxIcon pageIcon(QMPage page);
+  static int pageIndex(QMPage page);
 
 #if defined(HARDWARE_KEYS)
+  void doKeyShortcut(event_t event);
   void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
@@ -171,14 +175,14 @@ class QuickSubMenu
     icon(icon), title(title), parentTitle(parentTitle), items(items)
   {}
 
-  bool isSubMenu(QuickMenu::QMPage n);
+  bool isSubMenu(QMPage n);
   bool isSubMenu(ButtonBase* b);
-  int getIndex(QuickMenu::QMPage n);
+  int getIndex(QMPage n);
 
   ButtonBase* addButton();
   void enableSubMenu();
   void setDisabled(bool all);
-  void setCurrent(QuickMenu::QMPage n);
+  void setCurrent(QMPage n);
   void activate();
   void buildSubMenu();
   uint8_t onPress(int n);

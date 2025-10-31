@@ -100,6 +100,7 @@ set(GUI_SRC
   radio/radio_trainer.cpp
   radio/radio_version.cpp
   radio/radio_gps_tool.cpp
+  radio/radio_key_shortcuts.cpp
   )
 
 macro(add_gui_src src)

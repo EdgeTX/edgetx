@@ -335,6 +335,9 @@ void generalDefault()
 
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
   generalDefaultSwitches();
+#if defined(COLORLCD)
+  g_eeGeneral.defaultKeyShortcuts();
+#endif
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;

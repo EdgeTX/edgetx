@@ -470,7 +470,7 @@ class AnaMinMaxViewWindow : public AnaViewWindow
 class AnaCalibratedViewPage : public PageGroupItem
 {
  public:
-  AnaCalibratedViewPage(QuickMenu::QMPage qmPage) :
+  AnaCalibratedViewPage(QMPage qmPage) :
     PageGroupItem(STR_ANADIAGS_CALIB, qmPage)
   {
     icon = ICON_STATS;
@@ -486,7 +486,7 @@ class AnaCalibratedViewPage : public PageGroupItem
 class AnaFilteredDevViewPage : public PageGroupItem
 {
  public:
-  AnaFilteredDevViewPage(QuickMenu::QMPage qmPage) :
+  AnaFilteredDevViewPage(QMPage qmPage) :
       PageGroupItem(STR_ANADIAGS_FILTRAWDEV, qmPage)
   {
     icon = ICON_STATS;
@@ -502,7 +502,7 @@ class AnaFilteredDevViewPage : public PageGroupItem
 class AnaUnfilteredRawViewPage : public PageGroupItem
 {
  public:
-  AnaUnfilteredRawViewPage(QuickMenu::QMPage qmPage) :
+  AnaUnfilteredRawViewPage(QMPage qmPage) :
       PageGroupItem(STR_ANADIAGS_UNFILTRAW, qmPage)
   {
     icon = ICON_STATS;
@@ -518,7 +518,7 @@ class AnaUnfilteredRawViewPage : public PageGroupItem
 class AnaMinMaxViewPage : public PageGroupItem
 {
  public:
-  AnaMinMaxViewPage(QuickMenu::QMPage qmPage) :
+  AnaMinMaxViewPage(QMPage qmPage) :
       PageGroupItem(STR_ANADIAGS_MINMAX, qmPage)
   {
     icon = ICON_STATS;
@@ -531,7 +531,7 @@ class AnaMinMaxViewPage : public PageGroupItem
   }
 };
 
-RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QuickMenu::QMPage qmPage) :
+RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QMPage qmPage) :
     TabsGroup(ICON_STATS, STR_ANALOGS_BTN)
 {
   addTab(new AnaCalibratedViewPage(qmPage));

@@ -72,7 +72,7 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 
   // restore screen setting tab on top
-  QuickMenu::openPage(QuickMenu::UI_SETUP);
+  QuickMenu::openPage(QM_UI_SETUP);
 
   storageDirty(EE_MODEL);
 }

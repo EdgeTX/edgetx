@@ -108,6 +108,50 @@ const struct YamlIdStr enum_fsStartPositionType[] = {
   {  FS_START_PREVIOUS, "START_PREVIOUS"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_QMPage[] = {
+  {  QM_NONE, "NONE"  },
+  {  QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU"  },
+  {  QM_MANAGE_MODELS, "MANAGE_MODELS"  },
+  {  QM_MODEL_SETUP, "MODEL_SETUP"  },
+  {  QM_MODEL_HELI, "MODEL_HELI"  },
+  {  QM_MODEL_FLIGHTMODES, "MODEL_FLIGHTMODES"  },
+  {  QM_MODEL_INPUTS, "MODEL_INPUTS"  },
+  {  QM_MODEL_MIXES, "MODEL_MIXES"  },
+  {  QM_MODEL_OUTPUTS, "MODEL_OUTPUTS"  },
+  {  QM_MODEL_CURVES, "MODEL_CURVES"  },
+  {  QM_MODEL_GVARS, "MODEL_GVARS"  },
+  {  QM_MODEL_LS, "MODEL_LS"  },
+  {  QM_MODEL_SF, "MODEL_SF"  },
+  {  QM_MODEL_SCRIPTS, "MODEL_SCRIPTS"  },
+  {  QM_MODEL_TELEMETRY, "MODEL_TELEMETRY"  },
+  {  QM_MODEL_NOTES, "MODEL_NOTES"  },
+  {  QM_RADIO_SETUP, "RADIO_SETUP"  },
+  {  QM_RADIO_GF, "RADIO_GF"  },
+  {  QM_RADIO_TRAINER, "RADIO_TRAINER"  },
+  {  QM_RADIO_HARDWARE, "RADIO_HARDWARE"  },
+  {  QM_RADIO_VERSION, "RADIO_VERSION"  },
+  {  QM_UI_THEMES, "UI_THEMES"  },
+  {  QM_UI_SETUP, "UI_SETUP"  },
+  {  QM_UI_SCREEN1, "UI_SCREEN1"  },
+  {  QM_UI_SCREEN2, "UI_SCREEN2"  },
+  {  QM_UI_SCREEN3, "UI_SCREEN3"  },
+  {  QM_UI_SCREEN4, "UI_SCREEN4"  },
+  {  QM_UI_SCREEN5, "UI_SCREEN5"  },
+  {  QM_UI_SCREEN6, "UI_SCREEN6"  },
+  {  QM_UI_SCREEN7, "UI_SCREEN7"  },
+  {  QM_UI_SCREEN8, "UI_SCREEN8"  },
+  {  QM_UI_SCREEN9, "UI_SCREEN9"  },
+  {  QM_UI_SCREEN10, "UI_SCREEN10"  },
+  {  QM_UI_ADD_PG, "UI_ADD_PG"  },
+  {  QM_TOOLS_APPS, "TOOLS_APPS"  },
+  {  QM_TOOLS_STORAGE, "TOOLS_STORAGE"  },
+  {  QM_TOOLS_RESET, "TOOLS_RESET"  },
+  {  QM_TOOLS_CHAN_MON, "TOOLS_CHAN_MON"  },
+  {  QM_TOOLS_LS_MON, "TOOLS_LS_MON"  },
+  {  QM_TOOLS_STATS, "TOOLS_STATS"  },
+  {  QM_TOOLS_DEBUG, "TOOLS_DEBUG"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -307,6 +351,11 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_PADDING( 3 ),
   YAML_END
 };
+static const struct YamlNode struct_keyShortcut[] = {
+  YAML_IDX,
+  YAML_ENUM("shortcut", 8, enum_QMPage, NULL),
+  YAML_END
+};
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
@@ -416,6 +465,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_PADDING( 5 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_ARRAY("keyShortcuts", 8, 6, struct_keyShortcut, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
