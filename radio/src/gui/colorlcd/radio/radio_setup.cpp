@@ -981,7 +981,7 @@ void RadioSetupPage::build(Window* window)
     {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
     {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
-    {"Key Shortcuts", []() { new RadioKeyShortcutsPage(); }},
+    {"Key Shortcuts", []() { new RadioKeyShortcutsPage(); }, nullptr, [=]() { return keysGetSupported() & ((1 << KEY_MODEL) | (1 << KEY_SYS) | (1 << KEY_TELE)); }},
   }, BTN_H);
   y += w->height() + padding;
 
