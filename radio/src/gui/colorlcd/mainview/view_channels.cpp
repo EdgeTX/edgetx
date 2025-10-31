@@ -120,7 +120,7 @@ class ChannelsViewPage : public PageGroupItem
 ChannelsViewMenu::ChannelsViewMenu() :
     TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
-  QuickMenu::setCurrentPage(QuickMenu::TOOLS_CHAN_MON);
+  QuickMenu::setCurrentPage(QM_TOOLS_CHAN_MON);
 
 #if PORTRAIT
     int cols = 1;

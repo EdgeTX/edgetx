@@ -155,7 +155,7 @@ void SetupWidgetsPage::onClicked()
 void SetupWidgetsPage::onCancel()
 {
   deleteLater();
-  QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + customScreenIdx));
+  QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + customScreenIdx));
 }
 
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)

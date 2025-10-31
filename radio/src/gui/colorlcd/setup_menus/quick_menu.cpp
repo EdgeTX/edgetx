@@ -56,7 +56,7 @@ ButtonBase* QuickSubMenu::addButton()
   return menuButton;
 }
 
-bool QuickSubMenu::isSubMenu(QuickMenu::QMPage n)
+bool QuickSubMenu::isSubMenu(QMPage n)
 {
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1)
     if (items[i].qmPage == n) return true;
@@ -70,7 +70,7 @@ bool QuickSubMenu::isSubMenu(ButtonBase* b)
   return false;
 }
 
-int QuickSubMenu::getIndex(QuickMenu::QMPage n)
+int QuickSubMenu::getIndex(QMPage n)
 {
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1)
     if (items[i].qmPage == n) return i;
@@ -92,7 +92,7 @@ void QuickSubMenu::setDisabled(bool all)
     subMenu->setDisabled(all);
 }
 
-void QuickSubMenu::setCurrent(QuickMenu::QMPage n)
+void QuickSubMenu::setCurrent(QMPage n)
 {
   if (!subMenu) buildSubMenu();
   quickMenu->getTopMenu()->setCurrent(menuButton);
@@ -173,21 +173,21 @@ void QuickSubMenu::onSelect(bool close)
 //-----------------------------------------------------------------------------
 
 QMTopDef qmTopItems[] = {
-  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_QM_MANAGE_MODELS, QM_ACTION, QuickMenu::MANAGE_MODELS, nullptr,
+  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_QM_MANAGE_MODELS, QM_ACTION, QM_MANAGE_MODELS, nullptr,
                       []() -> uint8_t {
                         QuickMenu::selected();
                         new ModelLabelsWindow();
                         return 0;
                       }},
-  { ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, QM_SUBMENU, QuickMenu::NONE, modelMenuItems},
-  { ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, QM_SUBMENU, QuickMenu::NONE, radioMenuItems},
-  { ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, QM_SUBMENU, QuickMenu::NONE, screensMenuItems},
-  { ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, QM_SUBMENU, QuickMenu::NONE, toolsMenuItems},
+  { ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, QM_SUBMENU, QM_NONE, modelMenuItems},
+  { ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, QM_SUBMENU, QM_NONE, radioMenuItems},
+  { ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, QM_SUBMENU, QM_NONE, screensMenuItems},
+  { ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, QM_SUBMENU, QM_NONE, toolsMenuItems},
   { EDGETX_ICONS_COUNT }
 };
 
 QuickMenu* QuickMenu::instance = nullptr;
-QuickMenu::QMPage QuickMenu::curPage = QuickMenu::NONE;
+QMPage QuickMenu::curPage = QM_NONE;
 
 QuickMenu* QuickMenu::openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler,
@@ -277,12 +277,12 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
     setFocus(curPage);
   } else {
     pageGroup = nullptr;
-    if (curPage >= QuickMenu::FIRST_SUB_MENU_ITEM) {
+    if (curPage > QM_MANAGE_MODELS) {
       mainMenu->setDisabled(false);
       mainMenu->clearFocus();
       setFocus(curPage);
     } else {
-      if (curPage == QuickMenu::MANAGE_MODELS)
+      if (curPage == QM_MANAGE_MODELS)
         mainMenu->setCurrent(0);
       focusMainMenu();
     }
@@ -291,11 +291,10 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
 
 void QuickMenu::selected()
 {
-  instance->onSelect(true);
+  if (instance)
+    instance->onSelect(true);
 }
 
-#pragma GCC push_options
-#pragma GCC optimize("0")
 void QuickMenu::openPage(QMPage page)
 {
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
@@ -311,7 +310,7 @@ void QuickMenu::openPage(QMPage page)
           if (sub[j].pageAction == PAGE_ACTION) {
             sub[j].action();
           } else {
-            auto pg = new PageGroup(qmTopItems[i].icon, qmTopItems[i].title, qmTopItems[i].subMenuItems);
+            auto pg = new PageGroup(qmTopItems[i].icon, qmTopItems[i].title, sub);
             pg->setCurrentTab(j);
             return;
           }
@@ -320,7 +319,34 @@ void QuickMenu::openPage(QMPage page)
     }
   }
 }
-#pragma GCC pop_options
+
+EdgeTxIcon QuickMenu::pageIcon(QMPage page)
+{
+  for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+    if (qmTopItems[i].pageAction == QM_ACTION) {
+      if (qmTopItems[i].qmPage == page) {
+        return qmTopItems[i].icon;
+        }
+    } else {
+      PageDef* sub = qmTopItems[i].subMenuItems;
+      for (int j = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
+        if (sub[j].qmPage == page) {
+          return sub[j].icon;
+        }
+      }
+    }
+  }
+  return EDGETX_ICONS_COUNT;
+}
+
+int QuickMenu::pageIndex(QMPage page)
+{
+  if (page >= QM_TOOLS_APPS) return page - QM_TOOLS_APPS;
+  if (page >= QM_UI_THEMES) return page - QM_UI_THEMES;
+  if (page >= QM_RADIO_SETUP) return page - QM_RADIO_SETUP;
+  if (page >= QM_MODEL_SETUP) return page - QM_MODEL_SETUP;
+  return 0;
+}
 
 void QuickMenu::focusMainMenu()
 {
@@ -349,7 +375,7 @@ void QuickMenu::onCancel()
 {
   if (inSubMenu) {
     focusMainMenu();
-    curPage = QuickMenu::NONE;
+    curPage = QM_NONE;
   } else {
     closeMenu();
   }
@@ -371,12 +397,22 @@ void QuickMenu::enableSubMenu()
 }
 
 #if defined(HARDWARE_KEYS)
-void QuickMenu::onPressSYS() { closeMenu(); }
-void QuickMenu::onLongPressSYS() { onSelect(true); QuickMenu::openPage(TOOLS_APPS); }
-void QuickMenu::onPressMDL() { onSelect(true); QuickMenu::openPage(MODEL_SETUP); }
-void QuickMenu::onLongPressMDL() { onSelect(true); QuickMenu::openPage(MANAGE_MODELS); }
-void QuickMenu::onPressTELE() { onSelect(true); QuickMenu::openPage(UI_SCREEN1); }
-void QuickMenu::onLongPressTELE() { onSelect(true); QuickMenu::openPage(TOOLS_CHAN_MON); }
+void QuickMenu::doKeyShortcut(event_t event)
+{
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg == QM_OPEN_QUICK_MENU) {
+    closeMenu();
+  } else {
+    onSelect(true);
+    QuickMenu::openPage(pg);
+  }
+}
+void QuickMenu::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void QuickMenu::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void QuickMenu::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void QuickMenu::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void QuickMenu::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void QuickMenu::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 void QuickMenu::onLongPressRTN() { closeMenu(); }
 
 void QuickMenu::afterPG()
@@ -390,7 +426,7 @@ void QuickMenu::afterPG()
       }
     }
     focusMainMenu();
-    curPage = QuickMenu::NONE;
+    curPage = QM_NONE;
   }
 }
 

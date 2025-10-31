@@ -19,12 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "radio_key_shortcuts.h"
+#include "edgetx.h"
 
-#include "pagegroup.h"
+#define SET_DIRTY()     storageDirty(EE_MODEL)
 
-class RadioAnalogsDiagsViewPageGroup : public TabsGroup
+RadioKeyShortcutsPage::RadioKeyShortcutsPage():
+        SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, "Key Shortcuts", true)
 {
- public:
-  RadioAnalogsDiagsViewPageGroup(QMPage qmPage);
-};
+}
