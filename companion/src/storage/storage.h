@@ -140,7 +140,7 @@ class Storage : public StorageFormat
     {
     }
 
-    virtual QString name() { return "storage"; }
+    virtual QString name() override { return "storage"; }
 
     void setError(const QString & error)
     {
@@ -154,8 +154,8 @@ class Storage : public StorageFormat
 
     virtual bool load(RadioData & radioData) override;
     virtual bool load(GeneralSettings & generalSettings) override;
-    virtual bool write(RadioData & radioData);
-    virtual bool writeModel(const RadioData & radioData, const int modelIndex);
+    virtual bool write(RadioData & radioData) override;
+    virtual bool writeModel(const RadioData & radioData, const int modelIndex) override;
 
   protected:
     bool fileExists();
