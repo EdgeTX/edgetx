@@ -1416,3 +1416,9 @@
 #define TR_WIDGET_SIZE                  "Widgetstorlek"
 
 #define TR_DEL_DIR_NOT_EMPTY            "Katalog måste var tom innan radering"
+
+#define TR_KEY_SHORTCUTS          "Key Shortcuts"
+#define TR_CURRENT_SCREEN         "Current Screen"
+#define TR_SHORT_PRESS            "Short Press"
+#define TR_LONG_PRESS             "Long Press"
+#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
