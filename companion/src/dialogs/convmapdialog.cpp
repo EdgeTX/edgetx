@@ -31,11 +31,22 @@
 
 ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate):
   QDialog(parent),
-  cstate(cstate)
+  cstate(cstate),
+  params(new QList<QWidget *>),
+  row(0)
 {
   buildToSticksItemModel();
   buildToInputsItemModel();
   buildToSwitchesItemModel();
+
+  // maybe inherit genericpanel ???????
+  setWindowTitle(tr("Radio Conversion"));
+  // set other attributes
+
+  // add scrollable area
+
+  // set initial size
+
   grid = new QGridLayout(this);
   int count = 0;
 

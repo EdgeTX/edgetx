@@ -40,22 +40,22 @@ class ConvMapDialog : public QDialog
 
   private:
     RadioDataConversionState &cstate;
-    QGridLayout *grid;
     QList<QWidget *> *params;
     int row;
+    QGridLayout *grid;
     AbstractStaticItemModel *toSticksItemModel;
     AbstractStaticItemModel *toInputsItemModel;
     AbstractStaticItemModel *toSwitchesItemModel;
 
-    void addStick(int index);
     void addFlex(int index);
-    void addSwitch(int index);
     void addLabel(QString text);
     void addLine();
     void addParams();
     void addSection(QString text);
-    void buildToSticksItemModel();
+    void addStick(int index);
+    void addSwitch(int index);
     void buildToInputsItemModel();
+    void buildToSticksItemModel();
     void buildToSwitchesItemModel();
 
 };
