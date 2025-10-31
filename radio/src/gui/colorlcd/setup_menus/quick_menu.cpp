@@ -173,7 +173,7 @@ void QuickSubMenu::onSelect(bool close)
 //-----------------------------------------------------------------------------
 
 QMTopDef qmTopItems[] = {
-  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_QM_MANAGE_MODELS, QM_ACTION, QM_MANAGE_MODELS, nullptr,
+  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_MANAGE_MODELS, QM_ACTION, QM_MANAGE_MODELS, nullptr,
                       []() -> uint8_t {
                         QuickMenu::selected();
                         new ModelLabelsWindow();

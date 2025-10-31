@@ -158,7 +158,16 @@ NavWindow* Page::navWindow()
 #if defined(HARDWARE_KEYS)
 void Page::onPressSYS()
 {
-  if (!quickMenu) openMenu();
+  QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!quickMenu) openMenu();
+  } else {
+    auto p = navWindow();
+    if (p) {
+      onCancel();
+      p->onPressSYS();
+    }
+  }
 }
 
 void Page::onLongPressSYS()
