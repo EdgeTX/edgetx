@@ -59,8 +59,8 @@ PageDef screensMenuItems[] = {
           g_model.setScreenLayoutId(newIdx, factory->getId());
           TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
 
-          subMenu->onPress(newIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
-
+          QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + newIdx));
+            
           storageDirty(EE_MODEL);
         } else {
           TRACE("Add screen: factory is NULL");

@@ -26,5 +26,5 @@
 class RadioAnalogsDiagsViewPageGroup : public TabsGroup
 {
  public:
-  RadioAnalogsDiagsViewPageGroup(QuickMenu::SubMenu subMenu);
+  RadioAnalogsDiagsViewPageGroup(QuickMenu::QMPage qmPage);
 };

@@ -30,8 +30,7 @@ PageDef toolsMenuItems[] = {
   { ICON_TOOLS_APPS, STR_DEF(STR_QM_APPS), STR_DEF(STR_MAIN_MENU_APPS), PAGE_CREATE, QuickMenu::TOOLS_APPS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
   { ICON_RADIO_SD_MANAGER, STR_DEF(STR_QM_STORAGE), STR_DEF(STR_SD_CARD), PAGE_CREATE, QuickMenu::TOOLS_STORAGE, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
   { ICON_TOOLS_RESET, STR_DEF(STR_QM_RESET), nullptr, PAGE_ACTION, QuickMenu::TOOLS_RESET, nullptr, nullptr,
-    [](QuickSubMenu* subMenu) {
-      subMenu->onSelect(true);
+    []() {
       Menu* resetMenu = new Menu();
       resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
       resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
@@ -41,8 +40,7 @@ PageDef toolsMenuItems[] = {
     }
   },
   { ICON_MONITOR, STR_DEF(STR_QM_CHAN_MON), nullptr, PAGE_ACTION, QuickMenu::TOOLS_CHAN_MON, nullptr, nullptr,
-    [](QuickSubMenu* subMenu) {
-      subMenu->onSelect(true);
+    []() {
       new ChannelsViewMenu();
     }
   },
