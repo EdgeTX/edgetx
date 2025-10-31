@@ -46,11 +46,6 @@ struct PageDef {
   std::function<void()> action;
 };
 
-extern PageDef modelMenuItems[];
-extern PageDef radioMenuItems[];
-extern PageDef screensMenuItems[];
-extern PageDef toolsMenuItems[];
-
 enum QMTopDefAction {
   QM_SUBMENU,
   QM_ACTION

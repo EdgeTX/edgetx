@@ -105,5 +105,12 @@ RadioKeyShortcutsPage::RadioKeyShortcutsPage():
   addKey(EVT_KEY_LONG(KEY_MODEL), qmPages, "MDL");
   addKey(EVT_KEY_LONG(KEY_TELE), qmPages, "TELE");
 
+  new TextButton(body, {LV_PCT(10), y + PAD_LARGE, LV_PCT(80), 0}, STR_SF_RESET,
+                  [=]() {
+                    g_eeGeneral.defaultKeyShortcuts();
+                    SET_DIRTY();
+                    return 0;
+                  });
+
   enableRefresh();
 }
