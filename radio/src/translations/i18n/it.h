@@ -1405,3 +1405,9 @@
  * Update V2.11.x by: Marco Robustini <robustinimarco@gmail.com>
  * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
  */
+
+#define TR_KEY_SHORTCUTS          "Key Shortcuts"
+#define TR_CURRENT_SCREEN         "Current Screen"
+#define TR_SHORT_PRESS            "Short Press"
+#define TR_LONG_PRESS             "Long Press"
+#define TR_OPEN_QUICK_MENU        "Open Quick Menu"

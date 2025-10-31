@@ -60,7 +60,7 @@ void RadioKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPag
               [=](int32_t newValue) {
                 g_eeGeneral.setKeyShortcut(event, (QMPage)newValue);
                 SET_DIRTY();
-              }, "Key Shortcuts");
+              }, STR_KEY_SHORTCUTS);
 
           c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
@@ -70,12 +70,12 @@ void RadioKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPag
 }
 
 RadioKeyShortcutsPage::RadioKeyShortcutsPage():
-        SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, "Key Shortcuts", true)
+        SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
 {
   std::vector<std::string> qmPages;
 
   qmPages.emplace_back(STR_NONE);
-  qmPages.emplace_back("Open Quick Menu");
+  qmPages.emplace_back(STR_OPEN_QUICK_MENU);
 
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
@@ -86,7 +86,7 @@ RadioKeyShortcutsPage::RadioKeyShortcutsPage():
         std::string s = qmTopItems[i].title;
         s += " - ";
         if (sub[j].qmPage >= QM_UI_SCREEN1 && sub[j].qmPage <= QM_UI_SCREEN10)
-          s += "Current Screen";
+          s += STR_CURRENT_SCREEN;
         else if (sub[j].title)
           s += sub[j].title;
         s = replaceAll(s, "\n", " ");
@@ -95,12 +95,12 @@ RadioKeyShortcutsPage::RadioKeyShortcutsPage():
     }
   }
 
-  setupLine("Short Press", nullptr);
+  setupLine(STR_SHORT_PRESS, nullptr);
   addKey(EVT_KEY_BREAK(KEY_SYS), qmPages, "SYS");
   addKey(EVT_KEY_BREAK(KEY_MODEL), qmPages, "MDL");
   addKey(EVT_KEY_BREAK(KEY_TELE), qmPages, "TELE");
 
-  setupLine("Long Press", nullptr);
+  setupLine(STR_LONG_PRESS, nullptr);
   addKey(EVT_KEY_LONG(KEY_SYS), qmPages, "SYS");
   addKey(EVT_KEY_LONG(KEY_MODEL), qmPages, "MDL");
   addKey(EVT_KEY_LONG(KEY_TELE), qmPages, "TELE");

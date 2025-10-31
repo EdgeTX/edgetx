@@ -1434,3 +1434,9 @@
 #define TR_HIGH_BATT_COLOR          "배터리 충전 색상"
 #define TR_WIDGET_SIZE              "위젯 크기"
 #define TR_DEL_DIR_NOT_EMPTY        "폴더를 삭제하려면 먼저 비워야 합니다"
+
+#define TR_KEY_SHORTCUTS          "Key Shortcuts"
+#define TR_CURRENT_SCREEN         "Current Screen"
+#define TR_SHORT_PRESS            "Short Press"
+#define TR_LONG_PRESS             "Long Press"
+#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
