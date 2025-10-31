@@ -56,10 +56,10 @@ ButtonBase* QuickSubMenu::addButton()
   return menuButton;
 }
 
-bool QuickSubMenu::isSubMenu(QuickMenu::SubMenu n)
+bool QuickSubMenu::isSubMenu(QuickMenu::QMPage n)
 {
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1)
-    if (items[i].subMenu == n) return true;
+    if (items[i].qmPage == n) return true;
   return false;
 }
 
@@ -70,10 +70,10 @@ bool QuickSubMenu::isSubMenu(ButtonBase* b)
   return false;
 }
 
-int QuickSubMenu::getIndex(QuickMenu::SubMenu n)
+int QuickSubMenu::getIndex(QuickMenu::QMPage n)
 {
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1)
-    if (items[i].subMenu == n) return i;
+    if (items[i].qmPage == n) return i;
   return -1;
 }
 
@@ -92,7 +92,7 @@ void QuickSubMenu::setDisabled(bool all)
     subMenu->setDisabled(all);
 }
 
-void QuickSubMenu::setCurrent(QuickMenu::SubMenu n)
+void QuickSubMenu::setCurrent(QuickMenu::QMPage n)
 {
   if (!subMenu) buildSubMenu();
   quickMenu->getTopMenu()->setCurrent(menuButton);
@@ -124,7 +124,7 @@ void QuickSubMenu::buildSubMenu()
     subMenu->addButton(items[i].icon, STR_VAL(items[i].qmTitle),
         std::bind(&QuickSubMenu::onPress, this, i),
         [=]() { return items[i].enabled ? items[i].enabled() : true; },
-        [=]() { QuickMenu::setCurrentPage(items[i].subMenu); });
+        [=]() { QuickMenu::setCurrentPage(items[i].qmPage); });
   }
 
   doLayout();
@@ -146,7 +146,7 @@ uint8_t QuickSubMenu::onPress(int n)
   if (items[n].pageAction == PAGE_CREATE) {
     quickMenu->getTopMenu()->clearFocus();
     int pgIdx = getPageNumber(n);
-    if (quickMenu->getPageGroup() && quickMenu->getPageGroup()->hasSubMenu(items[n].subMenu)) {
+    if (quickMenu->getPageGroup() && quickMenu->getPageGroup()->hasSubMenu(items[n].qmPage)) {
       quickMenu->onSelect(false);
       quickMenu->getPageGroup()->setCurrentTab(pgIdx);
     } else {
@@ -159,7 +159,8 @@ uint8_t QuickSubMenu::onPress(int n)
     quickMenu->getTopMenu()->setDisabled(false);
     quickMenu->getTopMenu()->clearFocus();
     enableSubMenu();
-    items[n].action(this);
+    onSelect(true);
+    items[n].action();
   }
   return 0;
 }
@@ -171,12 +172,26 @@ void QuickSubMenu::onSelect(bool close)
 
 //-----------------------------------------------------------------------------
 
+QMTopDef qmTopItems[] = {
+  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_QM_MANAGE_MODELS, QM_ACTION, QuickMenu::MANAGE_MODELS, nullptr,
+                      []() -> uint8_t {
+                        QuickMenu::selected();
+                        new ModelLabelsWindow();
+                        return 0;
+                      }},
+  { ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, QM_SUBMENU, QuickMenu::NONE, modelMenuItems},
+  { ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, QM_SUBMENU, QuickMenu::NONE, radioMenuItems},
+  { ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, QM_SUBMENU, QuickMenu::NONE, screensMenuItems},
+  { ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, QM_SUBMENU, QuickMenu::NONE, toolsMenuItems},
+  { EDGETX_ICONS_COUNT }
+};
+
 QuickMenu* QuickMenu::instance = nullptr;
-QuickMenu::SubMenu QuickMenu::curPage = QuickMenu::NONE;
+QuickMenu::QMPage QuickMenu::curPage = QuickMenu::NONE;
 
 QuickMenu* QuickMenu::openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler,
-            PageGroupBase* pageGroup, SubMenu curPage)
+            PageGroupBase* pageGroup, QMPage curPage)
 {
   if (!instance) {
     instance = new QuickMenu();
@@ -218,32 +233,17 @@ QuickMenu::QuickMenu() :
 
   mainMenu = new QuickMenuGroup(box);
 
-  mainMenu->addButton(ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS,
-                      [=]() -> uint8_t {
-                        onSelect(true);
-                        new ModelLabelsWindow();
-                        return 0;
-                      });
-
   box = new Window(this, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
 
-  QuickSubMenu* sub;
-
-  sub = new QuickSubMenu(box, this, ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems);
-  sub->addButton();
-  subMenus.emplace_back(sub);
-
-  sub = new QuickSubMenu(box, this, ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems);
-  sub->addButton();
-  subMenus.emplace_back(sub);
-
-  sub = new QuickSubMenu(box, this, ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems);
-  sub->addButton();
-  subMenus.emplace_back(sub);
-
-  sub = new QuickSubMenu(box, this, ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, toolsMenuItems);
-  sub->addButton();
-  subMenus.emplace_back(sub);
+  for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+    if (qmTopItems[i].pageAction == QM_ACTION) {
+      mainMenu->addButton(qmTopItems[i].icon, qmTopItems[i].qmTitle, qmTopItems[i].action);
+    } else {
+      auto sub = new QuickSubMenu(box, this, qmTopItems[i].icon, qmTopItems[i].qmTitle, qmTopItems[i].title, qmTopItems[i].subMenuItems);
+      sub->addButton();
+      subMenus.emplace_back(sub);
+    }
+  }
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)
@@ -257,7 +257,7 @@ void QuickMenu::deleteLater(bool detach, bool trash)
 
 void QuickMenu::openQM(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler,
-            PageGroupBase* newPageGroup, SubMenu newCurPage)
+            PageGroupBase* newPageGroup, QMPage newCurPage)
 {
   Layer::push(this);
 
@@ -288,6 +288,39 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
     }
   }
 }
+
+void QuickMenu::selected()
+{
+  instance->onSelect(true);
+}
+
+#pragma GCC push_options
+#pragma GCC optimize("0")
+void QuickMenu::openPage(QMPage page)
+{
+  for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+    if (qmTopItems[i].pageAction == QM_ACTION) {
+      if (qmTopItems[i].qmPage == page) {
+        qmTopItems[i].action();
+        return;
+        }
+    } else {
+      PageDef* sub = qmTopItems[i].subMenuItems;
+      for (int j = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
+        if (sub[j].qmPage == page) {
+          if (sub[j].pageAction == PAGE_ACTION) {
+            sub[j].action();
+          } else {
+            auto pg = new PageGroup(qmTopItems[i].icon, qmTopItems[i].title, qmTopItems[i].subMenuItems);
+            pg->setCurrentTab(j);
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+#pragma GCC pop_options
 
 void QuickMenu::focusMainMenu()
 {
@@ -322,7 +355,7 @@ void QuickMenu::onCancel()
   }
 }
 
-void QuickMenu::setFocus(SubMenu selection)
+void QuickMenu::setFocus(QMPage selection)
 {
   for(auto sub : subMenus) {
     if (sub->isSubMenu(selection)) {
@@ -339,11 +372,11 @@ void QuickMenu::enableSubMenu()
 
 #if defined(HARDWARE_KEYS)
 void QuickMenu::onPressSYS() { closeMenu(); }
-void QuickMenu::onLongPressSYS() { subMenus[3]->onPress(0); }
-void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
-void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
-void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
-void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
+void QuickMenu::onLongPressSYS() { onSelect(true); QuickMenu::openPage(TOOLS_APPS); }
+void QuickMenu::onPressMDL() { onSelect(true); QuickMenu::openPage(MODEL_SETUP); }
+void QuickMenu::onLongPressMDL() { onSelect(true); QuickMenu::openPage(MANAGE_MODELS); }
+void QuickMenu::onPressTELE() { onSelect(true); QuickMenu::openPage(UI_SCREEN1); }
+void QuickMenu::onLongPressTELE() { onSelect(true); QuickMenu::openPage(TOOLS_CHAN_MON); }
 void QuickMenu::onLongPressRTN() { closeMenu(); }
 
 void QuickMenu::afterPG()

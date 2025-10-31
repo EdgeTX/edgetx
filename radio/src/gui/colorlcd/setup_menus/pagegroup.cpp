@@ -89,10 +89,10 @@ void PageGroupHeaderBase::addTab(PageGroupItem* page)
   pages.emplace_back(page);
 }
 
-bool PageGroupHeaderBase::hasSubMenu(QuickMenu::SubMenu subMenu)
+bool PageGroupHeaderBase::hasSubMenu(QuickMenu::QMPage qmPage)
 {
   for (uint8_t i = 0; i < pages.size(); i += 1) {
-    if (pages[i]->subMenu() == subMenu)
+    if (pages[i]->subMenu() == qmPage)
       return true;
   }
   return false;
@@ -267,7 +267,7 @@ void PageGroupBase::onLongPressSYS()
     setCurrentTab(0);
   } else {
     onCancel();
-    PageGroup::ToolsMenu();
+    QuickMenu::openPage(QuickMenu::TOOLS_APPS);
   }
 }
 
@@ -277,7 +277,7 @@ void PageGroupBase::onPressMDL()
     setCurrentTab(0);
   } else {
     onCancel();
-    PageGroup::ModelMenu();
+    QuickMenu::openPage(QuickMenu::MODEL_SETUP);
   }
 }
 
@@ -291,7 +291,7 @@ void PageGroupBase::onPressTELE()
 {
   if (icon != ICON_THEME) {
     onCancel();
-    (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+    QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + ViewMain::instance()->getCurrentMainView()));
   }
 }
 
@@ -310,9 +310,9 @@ void PageGroupBase::onLongPressPGDN() { header->nextTab(); }
 void PageGroupBase::onLongPressRTN() { onCancel(); }
 #endif
 
-bool PageGroupBase::hasSubMenu(QuickMenu::SubMenu subMenu)
+bool PageGroupBase::hasSubMenu(QuickMenu::QMPage qmPage)
 {
-  return header->hasSubMenu(subMenu);
+  return header->hasSubMenu(qmPage);
 }
 
 coord_t PageGroupBase::getScrollY()
@@ -363,11 +363,6 @@ void PageGroup::openMenu()
         onCancel();
     }, this, currentTab->subMenu());
 }
-
-PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems); }
-PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems); }
-PageGroup* PageGroup::ToolsMenu() { return new PageGroup(ICON_RADIO_TOOLS, STR_QM_TOOLS, toolsMenuItems); }
-PageGroup* PageGroup::ModelMenu() { return new PageGroup(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems); }
 
 //-----------------------------------------------------------------------------
 
@@ -443,9 +438,9 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
 void TabsGroup::openMenu()
 {
   PageGroup* p = (PageGroup*)Layer::getPageGroup();
-  QuickMenu::SubMenu subMenu = QuickMenu::NONE;
+  QuickMenu::QMPage qmPage = QuickMenu::NONE;
   if (p)
-    subMenu = p->getCurrentTab()->subMenu();
+    qmPage = p->getCurrentTab()->subMenu();
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
@@ -456,7 +451,7 @@ void TabsGroup::openMenu()
         if (close)
           Layer::back()->onCancel();
       }
-    }, p, subMenu);
+    }, p, qmPage);
 }
 
 void TabsGroup::hidePageButtons()

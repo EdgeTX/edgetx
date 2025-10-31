@@ -40,10 +40,10 @@ struct PageDef {
   STR_TYP qmTitle;
   STR_TYP title;
   PageDefAction pageAction;
-  QuickMenu::SubMenu subMenu;
+  QuickMenu::QMPage qmPage;
   std::function<PageGroupItem*(PageDef& pageDef)> create;
   std::function<bool()> enabled;
-  std::function<void(QuickSubMenu* subMenu)> action;
+  std::function<void()> action;
 };
 
 extern PageDef modelMenuItems[];
@@ -51,17 +51,34 @@ extern PageDef radioMenuItems[];
 extern PageDef screensMenuItems[];
 extern PageDef toolsMenuItems[];
 
+enum QMTopDefAction {
+  QM_SUBMENU,
+  QM_ACTION
+};
+
+struct QMTopDef {
+  EdgeTxIcon icon;
+  const char* qmTitle;
+  const char* title;
+  QMTopDefAction pageAction;
+  QuickMenu::QMPage qmPage;
+  PageDef* subMenuItems;
+  std::function<uint8_t(void)> action;
+};
+
+extern QMTopDef qmTopItems[];
+
 //-----------------------------------------------------------------------------
 
 class PageGroupItem
 {
  public:
-  PageGroupItem(std::string title, QuickMenu::SubMenu subMenu = QuickMenu::NONE) :
-      title(std::move(title)), icon(ICON_EDGETX), quickMenuId(subMenu), padding(PAD_SMALL)
+  PageGroupItem(std::string title, QuickMenu::QMPage qmPage = QuickMenu::NONE) :
+      title(std::move(title)), icon(ICON_EDGETX), qmPageId(qmPage), padding(PAD_SMALL)
   {}
 
   PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
-      title(STR_VAL(pageDef.title)), icon(pageDef.icon), quickMenuId(pageDef.subMenu),
+      title(STR_VAL(pageDef.title)), icon(pageDef.icon), qmPageId(pageDef.qmPage),
       padding(padding)
   {}
 
@@ -84,12 +101,12 @@ class PageGroupItem
   virtual void update(uint8_t index) {}
   virtual void cleanup() {}
 
-  QuickMenu::SubMenu subMenu() const { return quickMenuId; }
+  QuickMenu::QMPage subMenu() const { return qmPageId; }
 
  protected:
   std::string title;
   EdgeTxIcon icon;
-  QuickMenu::SubMenu quickMenuId = QuickMenu::NONE;
+  QuickMenu::QMPage qmPageId = QuickMenu::NONE;
   PaddingSize padding;
 };
 
@@ -118,7 +135,7 @@ class PageGroupHeaderBase : public Window
     }
   }
 
-  bool hasSubMenu(QuickMenu::SubMenu n);
+  bool hasSubMenu(QuickMenu::QMPage n);
 
   PageGroupItem* pageTab(uint8_t idx) const { return pages[idx]; }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
@@ -149,7 +166,7 @@ class PageGroupBase : public NavWindow
 
   void addTab(PageGroupItem* page);
 
-  bool hasSubMenu(QuickMenu::SubMenu n);
+  bool hasSubMenu(QuickMenu::QMPage n);
 
   coord_t getScrollY();
   void setScrollY(coord_t y);
@@ -198,11 +215,6 @@ class PageGroup : public PageGroupBase
   PageGroupItem* getCurrentTab() const { return currentTab; }
 
   bool isPageGroup() override { return true; }
-
-  static PageGroup* ScreenMenu();
-  static PageGroup* RadioMenu();
-  static PageGroup* ToolsMenu();
-  static PageGroup* ModelMenu();
 
   static LAYOUT_VAL_SCALED(PAGE_TOP_BAR_H, 45)
 

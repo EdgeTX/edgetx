@@ -111,9 +111,9 @@ void Page::deleteLater(bool detach, bool trash)
 void Page::openMenu()
 {
   PageGroup* p = (PageGroup*)Layer::getPageGroup();
-  QuickMenu::SubMenu subMenu = QuickMenu::NONE;
+  QuickMenu::QMPage qmPage = QuickMenu::NONE;
   if (p)
-    subMenu = p->getCurrentTab()->subMenu();
+    qmPage = p->getCurrentTab()->subMenu();
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
@@ -124,7 +124,7 @@ void Page::openMenu()
         if (close)
           Layer::back()->onCancel();
       }
-    }, p, subMenu);
+    }, p, qmPage);
 }
 
 void Page::onCancel()

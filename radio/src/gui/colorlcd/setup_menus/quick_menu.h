@@ -42,7 +42,7 @@ struct PageDef;
 class QuickMenu : public NavWindow
 {
  public:
-  enum SubMenu {
+  enum QMPage {
     NONE = 0,
     MANAGE_MODELS,
     FIRST_SUB_MENU_ITEM,
@@ -94,22 +94,25 @@ class QuickMenu : public NavWindow
 
   static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
-            PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
+            PageGroupBase* pageGroup = nullptr, QMPage curPage = NONE);
   static void shutdownQuickMenu();
 
   void onCancel() override;
   void onSelect(bool close);
   void closeMenu();
 
-  void setFocus(SubMenu selection);
+  void setFocus(QMPage selection);
 
   void enableSubMenu();
 
-  SubMenu currentPage() const { return curPage; }
-  static void setCurrentPage(SubMenu newPage) { curPage = newPage; }
+  QMPage currentPage() const { return curPage; }
+  static void setCurrentPage(QMPage newPage) { curPage = newPage; }
 
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
+
+  static void selected();
+  static void openPage(QMPage page);
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
@@ -147,11 +150,11 @@ class QuickMenu : public NavWindow
   QuickMenuGroup* mainMenu = nullptr;
   std::vector<QuickSubMenu*> subMenus;
   PageGroupBase* pageGroup = nullptr;
-  static SubMenu curPage;
+  static QMPage curPage;
 
   void openQM(std::function<void()> cancelHandler,
               std::function<void(bool close)> selectHandler,
-              PageGroupBase* pageGroup, SubMenu curPage);
+              PageGroupBase* pageGroup, QMPage curPage);
 
   void focusMainMenu();
 
@@ -168,14 +171,14 @@ class QuickSubMenu
     icon(icon), title(title), parentTitle(parentTitle), items(items)
   {}
 
-  bool isSubMenu(QuickMenu::SubMenu n);
+  bool isSubMenu(QuickMenu::QMPage n);
   bool isSubMenu(ButtonBase* b);
-  int getIndex(QuickMenu::SubMenu n);
+  int getIndex(QuickMenu::QMPage n);
 
   ButtonBase* addButton();
   void enableSubMenu();
   void setDisabled(bool all);
-  void setCurrent(QuickMenu::SubMenu n);
+  void setCurrent(QuickMenu::QMPage n);
   void activate();
   void buildSubMenu();
   uint8_t onPress(int n);

@@ -550,18 +550,17 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();
-  // Radio setup
-  PageGroup::ToolsMenu();
+  QuickMenu::openPage(QuickMenu::TOOLS_APPS);
 }
 void ModelLabelsWindow::onPressMDL()
 {
   onCancel();
-  PageGroup::ModelMenu();
+  QuickMenu::openPage(QuickMenu::MODEL_SETUP);
 }
 void ModelLabelsWindow::onPressTELE()
 {
   onCancel();
-  (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + ViewMain::instance()->getCurrentMainView()));
 }
 void ModelLabelsWindow::onLongPressTELE()
 {

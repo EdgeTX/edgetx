@@ -470,8 +470,8 @@ class AnaMinMaxViewWindow : public AnaViewWindow
 class AnaCalibratedViewPage : public PageGroupItem
 {
  public:
-  AnaCalibratedViewPage(QuickMenu::SubMenu subMenu) :
-    PageGroupItem(STR_ANADIAGS_CALIB, subMenu)
+  AnaCalibratedViewPage(QuickMenu::QMPage qmPage) :
+    PageGroupItem(STR_ANADIAGS_CALIB, qmPage)
   {
     icon = ICON_STATS;
   }
@@ -486,8 +486,8 @@ class AnaCalibratedViewPage : public PageGroupItem
 class AnaFilteredDevViewPage : public PageGroupItem
 {
  public:
-  AnaFilteredDevViewPage(QuickMenu::SubMenu subMenu) :
-      PageGroupItem(STR_ANADIAGS_FILTRAWDEV, subMenu)
+  AnaFilteredDevViewPage(QuickMenu::QMPage qmPage) :
+      PageGroupItem(STR_ANADIAGS_FILTRAWDEV, qmPage)
   {
     icon = ICON_STATS;
   }
@@ -502,8 +502,8 @@ class AnaFilteredDevViewPage : public PageGroupItem
 class AnaUnfilteredRawViewPage : public PageGroupItem
 {
  public:
-  AnaUnfilteredRawViewPage(QuickMenu::SubMenu subMenu) :
-      PageGroupItem(STR_ANADIAGS_UNFILTRAW, subMenu)
+  AnaUnfilteredRawViewPage(QuickMenu::QMPage qmPage) :
+      PageGroupItem(STR_ANADIAGS_UNFILTRAW, qmPage)
   {
     icon = ICON_STATS;
   }
@@ -518,8 +518,8 @@ class AnaUnfilteredRawViewPage : public PageGroupItem
 class AnaMinMaxViewPage : public PageGroupItem
 {
  public:
-  AnaMinMaxViewPage(QuickMenu::SubMenu subMenu) :
-      PageGroupItem(STR_ANADIAGS_MINMAX, subMenu)
+  AnaMinMaxViewPage(QuickMenu::QMPage qmPage) :
+      PageGroupItem(STR_ANADIAGS_MINMAX, qmPage)
   {
     icon = ICON_STATS;
   }
@@ -531,11 +531,11 @@ class AnaMinMaxViewPage : public PageGroupItem
   }
 };
 
-RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QuickMenu::SubMenu subMenu) :
+RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QuickMenu::QMPage qmPage) :
     TabsGroup(ICON_STATS, STR_ANALOGS_BTN)
 {
-  addTab(new AnaCalibratedViewPage(subMenu));
-  addTab(new AnaFilteredDevViewPage(subMenu));
-  addTab(new AnaUnfilteredRawViewPage(subMenu));
-  addTab(new AnaMinMaxViewPage(subMenu));
+  addTab(new AnaCalibratedViewPage(qmPage));
+  addTab(new AnaFilteredDevViewPage(qmPage));
+  addTab(new AnaUnfilteredRawViewPage(qmPage));
+  addTab(new AnaMinMaxViewPage(qmPage));
 }

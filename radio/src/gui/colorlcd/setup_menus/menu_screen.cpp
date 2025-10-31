@@ -62,8 +62,8 @@ PageDef screensMenuItems[] = {
           TRACE("Add screen: add screen: LayoutId = %s",
                 screenData.LayoutId);
 
-          subMenu->onPress(newIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
-
+          QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + newIdx));
+            
           storageDirty(EE_MODEL);
         } else {
           TRACE("Add screen: factory is NULL");

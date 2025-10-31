@@ -251,13 +251,12 @@ void ViewMain::onPressSYS()
 void ViewMain::onLongPressSYS()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
-  // Radio setup
-  PageGroup::ToolsMenu();
+  QuickMenu::openPage(QuickMenu::TOOLS_APPS);
 }
 void ViewMain::onPressMDL()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
-  PageGroup::ModelMenu();
+  QuickMenu::openPage(QuickMenu::MODEL_SETUP);
 }
 void ViewMain::onLongPressMDL()
 {
@@ -267,7 +266,7 @@ void ViewMain::onLongPressMDL()
 void ViewMain::onPressTELE()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
-  (PageGroup::ScreenMenu())->setCurrentTab(getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  QuickMenu::openPage((QuickMenu::QMPage)(QuickMenu::UI_SCREEN1 + getCurrentMainView()));
 }
 void ViewMain::onLongPressTELE()
 {
