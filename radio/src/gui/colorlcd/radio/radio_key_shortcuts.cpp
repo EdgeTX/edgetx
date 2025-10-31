@@ -37,22 +37,30 @@ static std::string replaceAll(std::string str, const std::string& from, const st
     return str;
 }
 
-void RadioKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages)
+static bool hasKey(event_t event)
 {
+#if defined(USE_HATS_AS_KEYS)
+  return true;
+#else
   EnumKeys key = (EnumKeys)EVT_KEY_MASK(event);
-  auto keys = keysGetSupported();
-  if (keys & (1 << key)) {
+  return (keysGetSupported() & (1 << key));
+#endif
+}
+
+void RadioKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages, const char* nm)
+{
+  if (hasKey(event)) {
     extern uint16_t keyMapping(uint16_t event);
     event = keyMapping(event);
 
-    setupLine(keysGetLabel(key), [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
           auto c = new Choice(
-              parent, {LCD_W / 4, y, 0, 0}, qmPages, QM_NONE, QM_TOOLS_DEBUG,
+              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, QM_TOOLS_DEBUG,
               GET_DEFAULT(g_eeGeneral.getKeyShortcut(event)),
               [=](int32_t newValue) {
                 g_eeGeneral.setKeyShortcut(event, (QMPage)newValue);
                 SET_DIRTY();
-              });
+              }, "Key Shortcuts");
 
           c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
@@ -88,14 +96,14 @@ RadioKeyShortcutsPage::RadioKeyShortcutsPage():
   }
 
   setupLine("Short Press", nullptr);
-  addKey(EVT_KEY_BREAK(KEY_SYS), qmPages);
-  addKey(EVT_KEY_BREAK(KEY_MODEL), qmPages);
-  addKey(EVT_KEY_BREAK(KEY_TELE), qmPages);
+  addKey(EVT_KEY_BREAK(KEY_SYS), qmPages, "SYS");
+  addKey(EVT_KEY_BREAK(KEY_MODEL), qmPages, "MDL");
+  addKey(EVT_KEY_BREAK(KEY_TELE), qmPages, "TELE");
 
   setupLine("Long Press", nullptr);
-  addKey(EVT_KEY_LONG(KEY_SYS), qmPages);
-  addKey(EVT_KEY_LONG(KEY_MODEL), qmPages);
-  addKey(EVT_KEY_LONG(KEY_TELE), qmPages);
+  addKey(EVT_KEY_LONG(KEY_SYS), qmPages, "SYS");
+  addKey(EVT_KEY_LONG(KEY_MODEL), qmPages, "MDL");
+  addKey(EVT_KEY_LONG(KEY_TELE), qmPages, "TELE");
 
   enableRefresh();
 }

@@ -29,5 +29,5 @@ class RadioKeyShortcutsPage : public SubPage
   RadioKeyShortcutsPage();
 
  protected:
-  void addKey(event_t event, std::vector<std::string> qmPages);
+  void addKey(event_t event, std::vector<std::string> qmPages, const char* nm);
 };

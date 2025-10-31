@@ -956,6 +956,15 @@ static SetupLineDef setupLines[] = {
 
 RadioSetupPage::RadioSetupPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
 
+static bool hasShortcutKeys()
+{
+#if defined(USE_HATS_AS_KEYS)
+  return true;
+#else
+  return keysGetSupported() & ((1 << KEY_MODEL) | (1 << KEY_SYS) | (1 << KEY_TELE));
+#endif
+}
+
 void RadioSetupPage::build(Window* window)
 {
   coord_t y = 0;
@@ -981,7 +990,7 @@ void RadioSetupPage::build(Window* window)
     {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
     {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
-    {"Key Shortcuts", []() { new RadioKeyShortcutsPage(); }, nullptr, [=]() { return keysGetSupported() & ((1 << KEY_MODEL) | (1 << KEY_SYS) | (1 << KEY_TELE)); }},
+    {"Key Shortcuts", []() { new RadioKeyShortcutsPage(); }, nullptr, [=]() { return hasShortcutKeys(); }},
   }, BTN_H);
   y += w->height() + padding;
 
