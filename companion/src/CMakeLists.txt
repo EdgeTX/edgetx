@@ -226,7 +226,8 @@ set(companion_NAMES
   modelslist
   profilechooser
   dialogs/filesyncdialog
-  )
+  dialogs/convmapdialog
+)
 
 foreach(name ${companion_NAMES})
   set(companion_SRCS

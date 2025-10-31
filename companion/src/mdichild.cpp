@@ -33,6 +33,7 @@
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
 #include "labels.h"
+#include "dialogs/convmapdialog.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -1448,6 +1449,11 @@ bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
     return false;
 
   RadioDataConversionState cstate(from, to, &radioData);
+
+  ConvMapDialog *dlg = new ConvMapDialog(this, cstate);
+  dlg->exec();
+  delete dlg;
+
   if (!cstate.convert())
     return false;
   forceNewFilename("_converted");
