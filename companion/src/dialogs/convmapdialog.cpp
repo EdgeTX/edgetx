@@ -21,7 +21,7 @@
 
 #include "convmapdialog.h"
 #include "boards.h"
-#include "compounditemmodels.h"
+#include "filtereditemmodels.h"
 #include "generalsettings.h"
 
 #include <QFrame>
@@ -31,16 +31,16 @@
 #include <QScrollArea>
 #include <QSpacerItem>
 
+constexpr char FIM_STICKS[]   {"Sticks"};
+constexpr char FIM_POTS[]     {"Pots"};
+constexpr char FIM_SWITCHES[] {"Switches"};
+
 ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate):
   QDialog(parent),
   cstate(cstate),
   params(new QList<QWidget *>),
   row(0)
 {
-  buildToSticksItemModel();
-  buildToInputsItemModel();
-  buildToSwitchesItemModel();
-
   setWindowTitle(tr("Radio Conversion"));
   setSizeGripEnabled(true);
 
@@ -56,11 +56,16 @@ ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate
   sa->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   sa->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  int count = 0;
+  buildToSourcesItemModel();
+
+  toSourcesFilteredModels = new FilteredItemModelFactory();
+  toSourcesFilteredModels->registerItemModel(new FilteredItemModel(toSourcesItemModel, SticksGroup),   FIM_STICKS);
+  toSourcesFilteredModels->registerItemModel(new FilteredItemModel(toSourcesItemModel, PotsGroup),     FIM_POTS);
+  toSourcesFilteredModels->registerItemModel(new FilteredItemModel(toSourcesItemModel, SwitchesGroup), FIM_SWITCHES);
 
   addHeading();
 
-  count = Boards::getCapability(cstate.fromType, Board::Sticks);
+  int count = Boards::getCapability(cstate.fromType, Board::Sticks);
 
   if (count > 0) {
     addSection(tr("Axis"));
@@ -138,6 +143,12 @@ ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate
 
 }
 
+ConvMapDialog::~ConvMapDialog()
+{
+  delete toSourcesFilteredModels;
+  delete toSourcesItemModel;
+}
+
 void ConvMapDialog::addHeading()
 {
   QLabel *fromBd = new QLabel(QString("<b>%1</b>").arg(Boards::getBoardName(cstate.fromType)));
@@ -188,7 +199,7 @@ void ConvMapDialog::addStick(int index)
   addLabel(QString());
   addLabel(QString());
   QComboBox *cbo = new QComboBox();
-  cbo->setModel(toSticksItemModel);
+  cbo->setModel(toSourcesFilteredModels->getItemModel(FIM_STICKS));
   int idx = cbo->findText(dfltName);
   cbo->setCurrentIndex(idx >= 0 ? idx : 0);
   cbo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -204,7 +215,7 @@ void ConvMapDialog::addFlex(int index)
   addLabel(Boards::flexTypeToString(config.flexType));
   addLabel(QString());
   QComboBox *cbo = new QComboBox();
-  cbo->setModel(toInputsItemModel);
+  cbo->setModel(toSourcesFilteredModels->getItemModel(FIM_POTS));
   int idx = cbo->findText(dfltName);
   cbo->setCurrentIndex(idx >= 0 ? idx : 0);
   cbo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -226,7 +237,7 @@ void ConvMapDialog::addSwitch(int index)
 
   addLabel(Boards::switchTypeToString(config.type));
   QComboBox *cbo = new QComboBox();
-  cbo->setModel(toSwitchesItemModel);
+  cbo->setModel(toSourcesFilteredModels->getItemModel(FIM_SWITCHES));
   int idx = cbo->findText(dfltName);
   cbo->setCurrentIndex(idx >= 0 ? idx : 0);
   cbo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -234,44 +245,34 @@ void ConvMapDialog::addSwitch(int index)
   addParams();
 }
 
-void ConvMapDialog::buildToSticksItemModel()
+void ConvMapDialog::buildToSourcesItemModel()
 {
-  toSticksItemModel = new AbstractStaticItemModel();
+  toSourcesItemModel = new AbstractStaticItemModel();
 
-  toSticksItemModel->appendToItemList(CPN_STR_NONE_ITEM, -1);
+  unsigned int numSticks = Boards::getCapability(cstate.toType, Board::Sticks);
+  addSourceItems(SOURCE_TYPE_NONE,   NoneGroup,     1);
+  addSourceItems(SOURCE_TYPE_INPUT,  SticksGroup,   numSticks);
+  addSourceItems(SOURCE_TYPE_INPUT,  PotsGroup,     Boards::getCapability(cstate.toType, Board::Inputs) - numSticks, numSticks);
+  addSourceItems(SOURCE_TYPE_SWITCH, SwitchesGroup, Boards::getCapability(cstate.toType, Board::Switches));
 
-  for (int i = 0; i < Boards::getCapability(cstate.toType, Board::Sticks); i++) {
-    toSticksItemModel->appendToItemList(Boards::getInputName(i, cstate.toType), i);
-  }
-
-  toSticksItemModel->loadItemList();
+  toSourcesItemModel->loadItemList();
 }
 
-void ConvMapDialog::buildToInputsItemModel()
+void ConvMapDialog::addSourceItems(const RawSourceType & type, const int group, unsigned int count, unsigned int start)
 {
-  toInputsItemModel = new AbstractStaticItemModel();
+  const unsigned int idxAdj = (type == SOURCE_TYPE_NONE ? -1 : 0);
 
-  toInputsItemModel->appendToItemList(CPN_STR_NONE_ITEM, -1);
+  unsigned int first = start + 1;
+  unsigned int last = start + count + 1;
 
-  for (int i = Boards::getCapability(cstate.toType, Board::Sticks);
-       i < Boards::getCapability(cstate.toType, Board::Inputs); i++) {
-    if (Boards::isInputConfigurable(i, cstate.toType))
-      toInputsItemModel->appendToItemList(Boards::getInputName(i, cstate.toType), i);
+  for (unsigned int i = first; i < last; ++i) {
+    const RawSource src = RawSource(type, i + idxAdj);
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(src.toValue(), AbstractItemModel::IMDR_Id);
+    modelItem->setData(type, AbstractItemModel::IMDR_Type);
+    modelItem->setData(group, AbstractItemModel::IMDR_Flags);
+    modelItem->setText(src.toString(nullptr, cstate.toGS(), cstate.toType));
+    modelItem->setData(src.isAvailable(nullptr, cstate.toGS(), cstate.toType), AbstractItemModel::IMDR_Available);
+    toSourcesItemModel->appendRow(modelItem);
   }
-
-  toInputsItemModel->loadItemList();
-}
-
-void ConvMapDialog::buildToSwitchesItemModel()
-{
-  toSwitchesItemModel = new AbstractStaticItemModel();
-
-  toSwitchesItemModel->appendToItemList(CPN_STR_NONE_ITEM, -1);
-
-  for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-    if (Boards::isSwitchConfigurable(i, cstate.toType))
-      toSwitchesItemModel->appendToItemList(Boards::getSwitchName(i, cstate.toType), i);
-  }
-
-  toSwitchesItemModel->loadItemList();
 }

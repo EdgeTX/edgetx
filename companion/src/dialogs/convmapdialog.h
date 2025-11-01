@@ -22,13 +22,14 @@
 #pragma once
 
 #include "../firmwares/radiodataconversionstate.h"
+#include "../firmwares/rawsource.h"
 
 #include <QDialog>
 #include <QString>
 #include <QGridLayout>
 
 class AbstractStaticItemModel;
-class RadioDataConvesionState;
+class FilteredItemModelFactory;
 
 class ConvMapDialog : public QDialog
 {
@@ -36,16 +37,25 @@ class ConvMapDialog : public QDialog
 
   public:
     ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate);
-    virtual ~ConvMapDialog() {}
+    virtual ~ConvMapDialog();
 
   private:
+    enum ItemModelGroups {
+      NoneGroup,
+      SticksGroup   = 1 << 1,
+      PotsGroup     = 1 << 2,
+      SwitchesGroup = 1 << 3
+    };
+
+    enum ItemModelFilters {
+    };
+
     RadioDataConversionState &cstate;
     QList<QWidget *> *params;
     int row;
     QGridLayout *grid;
-    AbstractStaticItemModel *toSticksItemModel;
-    AbstractStaticItemModel *toInputsItemModel;
-    AbstractStaticItemModel *toSwitchesItemModel;
+    AbstractStaticItemModel *toSourcesItemModel;
+    FilteredItemModelFactory *toSourcesFilteredModels;
 
     void addFlex(int index);
     void addHeading();
@@ -55,8 +65,7 @@ class ConvMapDialog : public QDialog
     void addSection(QString text);
     void addStick(int index);
     void addSwitch(int index);
-    void buildToInputsItemModel();
-    void buildToSticksItemModel();
-    void buildToSwitchesItemModel();
+    void buildToSourcesItemModel();
+    void addSourceItems(const RawSourceType & type, const int group, unsigned int count, unsigned int start = 0);
 
 };
