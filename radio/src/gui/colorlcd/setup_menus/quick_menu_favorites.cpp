@@ -39,7 +39,7 @@ QMFavoritesPage::QMFavoritesPage():
               GET_DEFAULT(g_eeGeneral.qmFavorites[i].shortcut),
               [=](int32_t pg) {
                 g_eeGeneral.qmFavorites[i].shortcut = (QMPage)pg;
-                QuickMenu::shutdownQuickMenu();
+                changed = true;
                 SET_DIRTY();
               }, STR_QUICK_MENU_FAVORITES);
 
@@ -50,4 +50,17 @@ QMFavoritesPage::QMFavoritesPage():
   }
 
   enableRefresh();
+}
+
+void QMFavoritesPage::onCancel()
+{
+  if (changed) {
+    // Delete quick menu, and close parent page group (in case it is Favorites group)
+    QuickMenu::shutdownQuickMenu();
+    QuickMenu::setCurrentPage(QM_NONE);
+    Layer::pop(this);
+    Layer::back()->onCancel();
+  }
+
+  SubPage::onCancel();
 }

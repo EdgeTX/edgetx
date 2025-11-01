@@ -29,5 +29,9 @@ class QMFavoritesPage : public SubPage
   QMFavoritesPage();
 
  protected:
+  bool changed = false;
+
   void addKey(event_t event, std::vector<std::string> qmPages, const char* nm);
+
+  void onCancel() override;
 };
