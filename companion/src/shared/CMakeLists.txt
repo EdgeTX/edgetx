@@ -21,6 +21,7 @@ set(${PROJECT_NAME}_NAMES
   genericpanel
   scrollarea
   textvalidator
+  exclusivecombogroup
 )
 
 AddHeadersSources()
