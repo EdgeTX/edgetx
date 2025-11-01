@@ -33,7 +33,8 @@
 #include "storage/modelslist.h"
 #include "tasks/mixer_task.h"
 #include "slider.h"
-#include "radio_key_shortcuts.h"
+#include "key_shortcuts.h"
+#include "quick_menu_favorites.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -990,7 +991,8 @@ void RadioSetupPage::build(Window* window)
     {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
     {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
-    {STR_DEF(STR_KEY_SHORTCUTS), []() { new RadioKeyShortcutsPage(); }, nullptr, [=]() { return hasShortcutKeys(); }},
+    {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, [=]() { return hasShortcutKeys(); }},
+    {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
   }, BTN_H);
   y += w->height() + padding;
 

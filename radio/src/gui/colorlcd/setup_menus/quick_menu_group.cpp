@@ -138,12 +138,12 @@ QuickMenuGroup::QuickMenuGroup(Window* parent) :
 }
 
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
-                                  std::function<uint8_t(void)> pressHandler,
+                                  std::function<void(void)> pressHandler,
                                   std::function<bool(void)> visibleHandler,
                                   std::function<void(void)> focusHandler)
 {
-  ButtonBase* b = new QuickMenuButton(this, icon, title, pressHandler, visibleHandler);
-  b->setLongPressHandler(pressHandler);
+  ButtonBase* b = new QuickMenuButton(this, icon, title, [=]() { pressHandler(); return 0; }, visibleHandler);
+  b->setLongPressHandler([=]() { pressHandler(); return 0; });
   btns.push_back(b);
   if (group) lv_group_add_obj(group, b->getLvObj());
   b->setFocusHandler([=](bool focus) {

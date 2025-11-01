@@ -63,14 +63,14 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
 
     parentLabel = etx_label_create(lvobj);
     etx_txt_color(parentLabel, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_pos(parentLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PageHeader::PAGE_TITLE_TOP);
-    lv_obj_set_size(parentLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_pos(parentLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP);
+    lv_obj_set_size(parentLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_TOP_BAR_H * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_label_set_text(parentLabel, parentTitle);
 
     titleLabel = etx_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_pos(titleLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
-    lv_obj_set_size(titleLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_pos(titleLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_size(titleLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_TOP_BAR_H * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
     setTitle("");
 }
 
@@ -221,6 +221,8 @@ void PageGroupBase::setCurrentTab(unsigned index)
   if (tab != currentTab && !deleted()) {
     header->setTitle(tab->getTitle().c_str());
     header->setIcon(tab->getIcon());
+
+    QuickMenu::setCurrentPage(tab->subMenu(), icon);
 
     lv_obj_enable_style_refresh(false);
 

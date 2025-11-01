@@ -47,51 +47,67 @@
 #include "view_logical_switches.h"
 #include "view_channels.h"
 
+PageDef favoritesMenuItems[] = {
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
+  { EDGETX_ICONS_COUNT }
+};
+
 PageDef modelMenuItems[] = {
-  { ICON_MODEL_SETUP, STR_QM_GEN_SETTINGS, STR_MAIN_MENU_SETTINGS, PAGE_CREATE, QM_MODEL_SETUP, [](PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
+  { ICON_MODEL_SETUP, STR_DEF(STR_QM_MODEL_SETTINGS), STR_DEF(STR_MAIN_MODEL_SETTINGS), PAGE_CREATE, QM_MODEL_SETUP, [](PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
 #if defined(FLIGHT_MODES)
-  { ICON_MODEL_FLIGHT_MODES, STR_QM_FLIGHT_MODES, STR_MENUFLIGHTMODES, PAGE_CREATE, QM_MODEL_FLIGHTMODES, [](PageDef& pageDef) { return new ModelFlightModesPage(pageDef); }, modelFMEnabled},
+  { ICON_MODEL_FLIGHT_MODES, STR_DEF(STR_QM_FLIGHT_MODES), STR_DEF(STR_MENUFLIGHTMODES), PAGE_CREATE, QM_MODEL_FLIGHTMODES, [](PageDef& pageDef) { return new ModelFlightModesPage(pageDef); }, modelFMEnabled},
 #endif
-  { ICON_MODEL_INPUTS, STR_QM_INPUTS, STR_MENUINPUTS, PAGE_CREATE, QM_MODEL_INPUTS, [](PageDef& pageDef) { return new ModelInputsPage(pageDef); }},
-  { ICON_MODEL_MIXER, STR_QM_MIXES, STR_MIXES, PAGE_CREATE, QM_MODEL_MIXES, [](PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
-  { ICON_MODEL_OUTPUTS, STR_QM_OUTPUTS, STR_MENULIMITS, PAGE_CREATE, QM_MODEL_OUTPUTS, [](PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
-  { ICON_MODEL_CURVES, STR_QM_CURVES, STR_MENUCURVES, PAGE_CREATE, QM_MODEL_CURVES, [](PageDef& pageDef) { return new ModelCurvesPage(pageDef); }, modelCurvesEnabled},
+  { ICON_MODEL_INPUTS, STR_DEF(STR_QM_INPUTS), STR_DEF(STR_MENUINPUTS), PAGE_CREATE, QM_MODEL_INPUTS, [](PageDef& pageDef) { return new ModelInputsPage(pageDef); }},
+  { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
+  { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
+  { ICON_MODEL_CURVES, STR_DEF(STR_QM_CURVES), STR_DEF(STR_MENUCURVES), PAGE_CREATE, QM_MODEL_CURVES, [](PageDef& pageDef) { return new ModelCurvesPage(pageDef); }, modelCurvesEnabled},
 #if defined(GVARS)
-  { ICON_MODEL_GVARS, STR_QM_GLOBAL_VARS, STR_MENU_GLOBAL_VARS, PAGE_CREATE, QM_MODEL_GVARS, [](PageDef& pageDef) { return new ModelGVarsPage(pageDef); }, modelGVEnabled},
+  { ICON_MODEL_GVARS, STR_DEF(STR_QM_GLOBAL_VARS), STR_DEF(STR_MENU_GLOBAL_VARS), PAGE_CREATE, QM_MODEL_GVARS, [](PageDef& pageDef) { return new ModelGVarsPage(pageDef); }, modelGVEnabled},
 #endif
-  { ICON_MODEL_LOGICAL_SWITCHES, STR_QM_LOGICAL_SW, STR_MENULOGICALSWITCHES, PAGE_CREATE, QM_MODEL_LS, [](PageDef& pageDef) { return new ModelLogicalSwitchesPage(pageDef); }, modelLSEnabled},
-  { ICON_MODEL_SPECIAL_FUNCTIONS, STR_QM_SPEC_FUNC, STR_MENUCUSTOMFUNC, PAGE_CREATE, QM_MODEL_SF, [](PageDef& pageDef) { return new SpecialFunctionsPage(pageDef); }, modelSFEnabled},
+  { ICON_MODEL_LOGICAL_SWITCHES, STR_DEF(STR_QM_LOGICAL_SW), STR_DEF(STR_MENULOGICALSWITCHES), PAGE_CREATE, QM_MODEL_LS, [](PageDef& pageDef) { return new ModelLogicalSwitchesPage(pageDef); }, modelLSEnabled},
+  { ICON_MODEL_SPECIAL_FUNCTIONS, STR_DEF(STR_QM_SPEC_FUNC), STR_DEF(STR_MENUCUSTOMFUNC), PAGE_CREATE, QM_MODEL_SF, [](PageDef& pageDef) { return new SpecialFunctionsPage(pageDef); }, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)
-  { ICON_MODEL_LUA_SCRIPTS, STR_QM_CUSTOM_LUA, STR_MENUCUSTOMSCRIPTS, PAGE_CREATE, QM_MODEL_SCRIPTS, [](PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
+  { ICON_MODEL_LUA_SCRIPTS, STR_DEF(STR_QM_CUSTOM_LUA), STR_DEF(STR_MENUCUSTOMSCRIPTS), PAGE_CREATE, QM_MODEL_SCRIPTS, [](PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
 #endif
-  { ICON_MODEL_TELEMETRY, STR_QM_TELEM, STR_MENUTELEMETRY, PAGE_CREATE, QM_MODEL_TELEMETRY, [](PageDef& pageDef) { return new ModelTelemetryPage(pageDef); }, modelTelemetryEnabled},
-  { ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, PAGE_CREATE, QM_MODEL_NOTES, [](PageDef& pageDef) { return new ModelNotesPage(pageDef); }, modelHasNotes},
+  { ICON_MODEL_TELEMETRY, STR_DEF(STR_QM_TELEM), STR_DEF(STR_MENUTELEMETRY), PAGE_CREATE, QM_MODEL_TELEMETRY, [](PageDef& pageDef) { return new ModelTelemetryPage(pageDef); }, modelTelemetryEnabled},
+  { ICON_MODEL_NOTES, STR_DEF(STR_MAIN_MENU_MODEL_NOTES), STR_DEF(STR_MAIN_MENU_MODEL_NOTES), PAGE_CREATE, QM_MODEL_NOTES, [](PageDef& pageDef) { return new ModelNotesPage(pageDef); }, modelHasNotes},
   { EDGETX_ICONS_COUNT }
 };
 
 PageDef radioMenuItems[] = {
-  { ICON_RADIO_SETUP, STR_QM_GEN_SETTINGS, STR_MAIN_MENU_SETTINGS, PAGE_CREATE, QM_RADIO_SETUP, [](PageDef& pageDef) { return new RadioSetupPage(pageDef); }},
-  { ICON_RADIO_GLOBAL_FUNCTIONS, STR_QM_GLOB_FUNC, STR_MENUSPECIALFUNCS, PAGE_CREATE, QM_RADIO_GF, [](PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
-  { ICON_RADIO_TRAINER, STR_QM_TRAINER, STR_MENUTRAINER, PAGE_CREATE, QM_RADIO_TRAINER, [](PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
-  { ICON_RADIO_HARDWARE, STR_QM_HARDWARE, STR_HARDWARE, PAGE_CREATE, QM_RADIO_HARDWARE, [](PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
-  { ICON_RADIO_VERSION, STR_QM_ABOUT, STR_MAIN_MENU_ABOUT_EDGETX, PAGE_CREATE, QM_RADIO_VERSION, [](PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
+  { ICON_RADIO_SETUP, STR_DEF(STR_QM_RADIO_SETTINGS), STR_DEF(STR_MAIN_RADIO_SETTINGS), PAGE_CREATE, QM_RADIO_SETUP, [](PageDef& pageDef) { return new RadioSetupPage(pageDef); }},
+  { ICON_RADIO_GLOBAL_FUNCTIONS, STR_DEF(STR_QM_GLOB_FUNC), STR_DEF(STR_MENUSPECIALFUNCS), PAGE_CREATE, QM_RADIO_GF, [](PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
+  { ICON_RADIO_TRAINER, STR_DEF(STR_QM_TRAINER), STR_DEF(STR_MENUTRAINER), PAGE_CREATE, QM_RADIO_TRAINER, [](PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
+  { ICON_RADIO_HARDWARE, STR_DEF(STR_QM_HARDWARE), STR_DEF(STR_HARDWARE), PAGE_CREATE, QM_RADIO_HARDWARE, [](PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
+  { ICON_RADIO_VERSION, STR_DEF(STR_QM_ABOUT), STR_DEF(STR_MAIN_MENU_ABOUT_EDGETX), PAGE_CREATE, QM_RADIO_VERSION, [](PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
   { EDGETX_ICONS_COUNT }
 };
 
 PageDef screensMenuItems[] = {
-  { ICON_RADIO_EDIT_THEME, STR_QM_THEMES, STR_MAIN_MENU_THEMES, PAGE_CREATE, QM_UI_THEMES, [](PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
-  { ICON_THEME_SETUP, STR_QM_TOP_BAR, STR_USER_INTERFACE, PAGE_CREATE, QM_UI_SETUP, [](PageDef& pageDef) { return new ScreenUserInterfacePage(pageDef); }},
-  { ICON_THEME_VIEW1, STR_QM_SCREEN_1, STR_MAIN_VIEW_1, PAGE_CREATE, QM_UI_SCREEN1, [](PageDef& pageDef) { return new ScreenSetupPage(0, pageDef); }},
-  { ICON_THEME_VIEW2, STR_QM_SCREEN_2, STR_MAIN_VIEW_2, PAGE_CREATE, QM_UI_SCREEN2, [](PageDef& pageDef) { return new ScreenSetupPage(1, pageDef); }, []() { return customScreens[1] != nullptr; }},
-  { ICON_THEME_VIEW3, STR_QM_SCREEN_3, STR_MAIN_VIEW_3, PAGE_CREATE, QM_UI_SCREEN3, [](PageDef& pageDef) { return new ScreenSetupPage(2, pageDef); }, []() { return customScreens[2] != nullptr; }},
-  { ICON_THEME_VIEW4, STR_QM_SCREEN_4, STR_MAIN_VIEW_4, PAGE_CREATE, QM_UI_SCREEN4, [](PageDef& pageDef) { return new ScreenSetupPage(3, pageDef); }, []() { return customScreens[3] != nullptr; }},
-  { ICON_THEME_VIEW5, STR_QM_SCREEN_5, STR_MAIN_VIEW_5, PAGE_CREATE, QM_UI_SCREEN5, [](PageDef& pageDef) { return new ScreenSetupPage(4, pageDef); }, []() { return customScreens[4] != nullptr; }},
-  { ICON_THEME_VIEW6, STR_QM_SCREEN_6, STR_MAIN_VIEW_6, PAGE_CREATE, QM_UI_SCREEN6, [](PageDef& pageDef) { return new ScreenSetupPage(5, pageDef); }, []() { return customScreens[5] != nullptr; }},
-  { ICON_THEME_VIEW7, STR_QM_SCREEN_7, STR_MAIN_VIEW_7, PAGE_CREATE, QM_UI_SCREEN7, [](PageDef& pageDef) { return new ScreenSetupPage(6, pageDef); }, []() { return customScreens[6] != nullptr; }},
-  { ICON_THEME_VIEW8, STR_QM_SCREEN_8, STR_MAIN_VIEW_8, PAGE_CREATE, QM_UI_SCREEN8, [](PageDef& pageDef) { return new ScreenSetupPage(7, pageDef); }, []() { return customScreens[7] != nullptr; }},
-  { ICON_THEME_VIEW9, STR_QM_SCREEN_9, STR_MAIN_VIEW_9, PAGE_CREATE, QM_UI_SCREEN9, [](PageDef& pageDef) { return new ScreenSetupPage(8, pageDef); }, []() { return customScreens[8] != nullptr; }},
-  { ICON_THEME_VIEW10, STR_QM_SCREEN_10, STR_MAIN_VIEW_10, PAGE_CREATE, QM_UI_SCREEN10, [](PageDef& pageDef) { return new ScreenSetupPage(9, pageDef); }, []() { return customScreens[9] != nullptr; }},
-  { ICON_THEME_ADD_VIEW, STR_QM_ADD_SCREEN, nullptr, PAGE_ACTION, QM_UI_ADD_PG, nullptr, []() { return customScreens[9] == nullptr; },
+  { ICON_RADIO_EDIT_THEME, STR_DEF(STR_QM_THEMES), STR_DEF(STR_MAIN_MENU_THEMES), PAGE_CREATE, QM_UI_THEMES, [](PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
+  { ICON_THEME_SETUP, STR_DEF(STR_QM_TOP_BAR), STR_DEF(STR_USER_INTERFACE), PAGE_CREATE, QM_UI_SETUP, [](PageDef& pageDef) { return new ScreenUserInterfacePage(pageDef); }},
+  { ICON_THEME_VIEW1, STR_DEF(STR_QM_SCREEN_1), STR_DEF(STR_MAIN_VIEW_1), PAGE_CREATE, QM_UI_SCREEN1, [](PageDef& pageDef) { return new ScreenSetupPage(0, pageDef); }},
+  { ICON_THEME_VIEW2, STR_DEF(STR_QM_SCREEN_2), STR_DEF(STR_MAIN_VIEW_2), PAGE_CREATE, QM_UI_SCREEN2, [](PageDef& pageDef) { return new ScreenSetupPage(1, pageDef); }, []() { return customScreens[1] != nullptr; }},
+  { ICON_THEME_VIEW3, STR_DEF(STR_QM_SCREEN_3), STR_DEF(STR_MAIN_VIEW_3), PAGE_CREATE, QM_UI_SCREEN3, [](PageDef& pageDef) { return new ScreenSetupPage(2, pageDef); }, []() { return customScreens[2] != nullptr; }},
+  { ICON_THEME_VIEW4, STR_DEF(STR_QM_SCREEN_4), STR_DEF(STR_MAIN_VIEW_4), PAGE_CREATE, QM_UI_SCREEN4, [](PageDef& pageDef) { return new ScreenSetupPage(3, pageDef); }, []() { return customScreens[3] != nullptr; }},
+  { ICON_THEME_VIEW5, STR_DEF(STR_QM_SCREEN_5), STR_DEF(STR_MAIN_VIEW_5), PAGE_CREATE, QM_UI_SCREEN5, [](PageDef& pageDef) { return new ScreenSetupPage(4, pageDef); }, []() { return customScreens[4] != nullptr; }},
+  { ICON_THEME_VIEW6, STR_DEF(STR_QM_SCREEN_6), STR_DEF(STR_MAIN_VIEW_6), PAGE_CREATE, QM_UI_SCREEN6, [](PageDef& pageDef) { return new ScreenSetupPage(5, pageDef); }, []() { return customScreens[5] != nullptr; }},
+  { ICON_THEME_VIEW7, STR_DEF(STR_QM_SCREEN_7), STR_DEF(STR_MAIN_VIEW_7), PAGE_CREATE, QM_UI_SCREEN7, [](PageDef& pageDef) { return new ScreenSetupPage(6, pageDef); }, []() { return customScreens[6] != nullptr; }},
+  { ICON_THEME_VIEW8, STR_DEF(STR_QM_SCREEN_8), STR_DEF(STR_MAIN_VIEW_8), PAGE_CREATE, QM_UI_SCREEN8, [](PageDef& pageDef) { return new ScreenSetupPage(7, pageDef); }, []() { return customScreens[7] != nullptr; }},
+  { ICON_THEME_VIEW9, STR_DEF(STR_QM_SCREEN_9), STR_DEF(STR_MAIN_VIEW_9), PAGE_CREATE, QM_UI_SCREEN9, [](PageDef& pageDef) { return new ScreenSetupPage(8, pageDef); }, []() { return customScreens[8] != nullptr; }},
+  { ICON_THEME_VIEW10, STR_DEF(STR_QM_SCREEN_10), STR_DEF(STR_MAIN_VIEW_10), PAGE_CREATE, QM_UI_SCREEN10, [](PageDef& pageDef) { return new ScreenSetupPage(9, pageDef); }, []() { return customScreens[9] != nullptr; }},
+  { ICON_THEME_ADD_VIEW, STR_DEF(STR_QM_ADD_SCREEN), nullptr, PAGE_ACTION, QM_UI_ADD_PG, nullptr, []() { return customScreens[9] == nullptr; },
       []() {
         int newIdx = 1;
         for (; newIdx < MAX_CUSTOM_SCREENS; newIdx += 1)
@@ -128,39 +144,39 @@ PageDef screensMenuItems[] = {
 };
 
 PageDef toolsMenuItems[] = {
-  { ICON_TOOLS_APPS, STR_QM_APPS, STR_MAIN_MENU_APPS, PAGE_CREATE, QM_TOOLS_APPS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
-  { ICON_RADIO_SD_MANAGER, STR_QM_STORAGE, STR_SD_CARD, PAGE_CREATE, QM_TOOLS_STORAGE, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
-  { ICON_TOOLS_RESET, STR_QM_RESET, STR_QM_RESET, PAGE_ACTION, QM_TOOLS_RESET, nullptr, nullptr,
+  { ICON_TOOLS_APPS, STR_DEF(STR_QM_APPS), STR_DEF(STR_MAIN_MENU_APPS), PAGE_CREATE, QM_TOOLS_APPS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
+  { ICON_RADIO_SD_MANAGER, STR_DEF(STR_QM_STORAGE), STR_DEF(STR_SD_CARD), PAGE_CREATE, QM_TOOLS_STORAGE, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
+  { ICON_TOOLS_RESET, STR_DEF(STR_QM_RESET), STR_DEF(STR_QM_RESET), PAGE_ACTION, QM_TOOLS_RESET, nullptr, nullptr,
     []() {
       Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
-      resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
-      resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
-      resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
-      resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
+      resetMenu->addLine(STR_DEF(STR_RESET_FLIGHT), []() { flightReset(); });
+      resetMenu->addLine(STR_DEF(STR_RESET_TIMER1), []() { timerReset(0); });
+      resetMenu->addLine(STR_DEF(STR_RESET_TIMER2), []() { timerReset(1); });
+      resetMenu->addLine(STR_DEF(STR_RESET_TIMER3), []() { timerReset(2); });
+      resetMenu->addLine(STR_DEF(STR_RESET_TELEMETRY), []() { telemetryReset(); });
     }
   },
-  { ICON_MONITOR, STR_QM_CHAN_MON, STR_QM_CHAN_MON, PAGE_ACTION, QM_TOOLS_CHAN_MON, nullptr, nullptr,
+  { ICON_MONITOR, STR_DEF(STR_QM_CHAN_MON), STR_DEF(STR_QM_CHAN_MON), PAGE_ACTION, QM_TOOLS_CHAN_MON, nullptr, nullptr,
     []() {
       new ChannelsViewMenu();
     }
   },
-  { ICON_MONITOR_LOGICAL_SWITCHES, STR_QM_LS_MON, STR_MONITOR_SWITCHES, PAGE_CREATE, QM_TOOLS_LS_MON, [](PageDef& pageDef) { return new LogicalSwitchesViewPage(pageDef); }},
-  { ICON_STATS, STR_QM_STATS, STR_MAIN_MENU_STATISTICS, PAGE_CREATE, QM_TOOLS_STATS, [](PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
-  { ICON_STATS_DEBUG, STR_QM_DEBUG, STR_DEBUG, PAGE_CREATE, QM_TOOLS_DEBUG, [](PageDef& pageDef) { return new DebugViewPage(pageDef); }},
+  { ICON_MONITOR_LOGICAL_SWITCHES, STR_DEF(STR_QM_LS_MON), STR_DEF(STR_MONITOR_SWITCHES), PAGE_CREATE, QM_TOOLS_LS_MON, [](PageDef& pageDef) { return new LogicalSwitchesViewPage(pageDef); }},
+  { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), PAGE_CREATE, QM_TOOLS_STATS, [](PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
+  { ICON_STATS_DEBUG, STR_DEF(STR_QM_DEBUG), STR_DEF(STR_DEBUG), PAGE_CREATE, QM_TOOLS_DEBUG, [](PageDef& pageDef) { return new DebugViewPage(pageDef); }},
   { EDGETX_ICONS_COUNT }
 };
 
 QMTopDef qmTopItems[] = {
-  { ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS, STR_MANAGE_MODELS, QM_ACTION, QM_MANAGE_MODELS, nullptr,
-                      []() -> uint8_t {
-                        QuickMenu::selected();
-                        new ModelLabelsWindow();
-                        return 0;
-                      }},
-  { ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, QM_SUBMENU, QM_NONE, modelMenuItems},
-  { ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, QM_SUBMENU, QM_NONE, radioMenuItems},
-  { ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, QM_SUBMENU, QM_NONE, screensMenuItems},
-  { ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, QM_SUBMENU, QM_NONE, toolsMenuItems},
+  { ICON_EDGETX, STR_DEF(STR_FAVORITE_LABEL), STR_DEF(STR_FAVORITE_LABEL), QM_SUBMENU, QM_NONE, favoritesMenuItems, nullptr, []() { return favoritesMenuItems[0].icon != EDGETX_ICONS_COUNT; }},
+  { ICON_MODEL_SELECT, STR_DEF(STR_QM_MANAGE_MODELS), STR_DEF(STR_MANAGE_MODELS), QM_ACTION, QM_MANAGE_MODELS, nullptr,
+    []() {
+      QuickMenu::selected();
+      new ModelLabelsWindow();
+    }},
+  { ICON_MODEL, STR_DEF(STR_QM_MODEL_SETUP), STR_DEF(STR_MAIN_MENU_MODEL_SETTINGS), QM_SUBMENU, QM_NONE, modelMenuItems},
+  { ICON_RADIO, STR_DEF(STR_QM_RADIO_SETUP), STR_DEF(STR_MAIN_MENU_RADIO_SETTINGS), QM_SUBMENU, QM_NONE, radioMenuItems},
+  { ICON_THEME, STR_DEF(STR_QM_UI_SETUP), STR_DEF(STR_MAIN_MENU_SCREEN_SETTINGS), QM_SUBMENU, QM_NONE, screensMenuItems},
+  { ICON_RADIO_TOOLS, STR_DEF(STR_QM_TOOLS), STR_DEF(STR_QM_TOOLS), QM_SUBMENU, QM_NONE, toolsMenuItems},
   { EDGETX_ICONS_COUNT }
 };

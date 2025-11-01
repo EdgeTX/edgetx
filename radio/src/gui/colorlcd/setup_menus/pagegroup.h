@@ -46,6 +46,8 @@ struct PageDef {
   std::function<void()> action;
 };
 
+extern PageDef favoritesMenuItems[];
+
 enum QMTopDefAction {
   QM_SUBMENU,
   QM_ACTION
@@ -58,7 +60,8 @@ struct QMTopDef {
   QMTopDefAction pageAction;
   QMPage qmPage;
   PageDef* subMenuItems;
-  std::function<uint8_t(void)> action;
+  std::function<void()> action;
+  std::function<bool()> enabled;
 };
 
 extern QMTopDef qmTopItems[];
@@ -165,6 +168,8 @@ class PageGroupBase : public NavWindow
 
   coord_t getScrollY();
   void setScrollY(coord_t y);
+
+  EdgeTxIcon getIcon() const { return icon; }
 
  protected:
   PageGroupHeaderBase* header = nullptr;

@@ -333,7 +333,7 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_PADDING( 5 ),
   YAML_END
 };
-static const struct YamlNode struct_keyShortcut[] = {
+static const struct YamlNode struct_QuickMenuPage[] = {
   YAML_IDX,
   YAML_ENUM("shortcut", 8, enum_QMPage, NULL),
   YAML_END
@@ -447,7 +447,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_PADDING( 5 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
-  YAML_ARRAY("keyShortcuts", 8, 6, struct_keyShortcut, NULL),
+  YAML_ARRAY("keyShortcuts", 8, 6, struct_QuickMenuPage, NULL),
+  YAML_ARRAY("qmFavorites", 8, 12, struct_QuickMenuPage, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
