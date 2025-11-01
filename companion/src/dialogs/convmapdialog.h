@@ -48,6 +48,7 @@ class ConvMapDialog : public QDialog
     AbstractStaticItemModel *toSwitchesItemModel;
 
     void addFlex(int index);
+    void addHeading();
     void addLabel(QString text);
     void addLine();
     void addParams();

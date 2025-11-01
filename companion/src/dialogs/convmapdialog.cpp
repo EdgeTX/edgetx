@@ -28,6 +28,8 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QDialogButtonBox>
+#include <QScrollArea>
+#include <QSpacerItem>
 
 ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate):
   QDialog(parent),
@@ -39,22 +41,29 @@ ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate
   buildToInputsItemModel();
   buildToSwitchesItemModel();
 
-  // maybe inherit genericpanel ???????
   setWindowTitle(tr("Radio Conversion"));
-  // set other attributes
+  setSizeGripEnabled(true);
 
-  // add scrollable area
+  QVBoxLayout *baseLayout = new QVBoxLayout(this);
+  QWidget *wgt = new QWidget();
+  wgt->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+  grid = new QGridLayout(wgt);
 
-  // set initial size
+  QScrollArea *sa = new QScrollArea();
+  sa->setWidget(wgt);
+  baseLayout->addWidget(sa);
+  sa->setWidgetResizable(true);
+  sa->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  sa->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  grid = new QGridLayout(this);
   int count = 0;
+
+  addHeading();
 
   count = Boards::getCapability(cstate.fromType, Board::Sticks);
 
   if (count > 0) {
     addSection(tr("Axis"));
-    addLabel("");
     addLabel(tr("Name"));
     addParams();
 
@@ -67,7 +76,6 @@ ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate
 
   if (count > 0) {
     addSection(tr("Pots"));
-    addLabel("");
     addLabel(tr("Name"));
     addLabel(tr("Type"));
     addParams();
@@ -80,8 +88,8 @@ ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate
 
   if (Boards::getCapability(cstate.fromType, Board::Switches)) {
     addSection(tr("Switches"));
-    addLabel("");
     addLabel(tr("Name"));
+    addLabel("");
     addLabel(tr("Type"));
     addParams();
 
@@ -120,17 +128,29 @@ ConvMapDialog::ConvMapDialog(QWidget * parent, RadioDataConversionState & cstate
     }
   }
 
-  QDialogButtonBox *btns = new QDialogButtonBox(this);
-  //addVSpring(grid, 0, grid->rowCount());
-  //addHSpring(grid, grid->columnCount(), 0);
-  //disableMouseScrolling();
-  //delayed resize
+  QSpacerItem * hspacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  grid->addItem(hspacer, 0, grid->columnCount(), grid->rowCount());
+  QSpacerItem * vspacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding );
+  grid->addItem(vspacer, grid->rowCount(), 0, 1, grid->columnCount());
+
+  QDialogButtonBox *btns = new QDialogButtonBox(QDialogButtonBox::Ok & QDialogButtonBox::Cancel);
+  baseLayout->addWidget(btns);
+
+}
+
+void ConvMapDialog::addHeading()
+{
+  QLabel *fromBd = new QLabel(QString("<b>%1</b>").arg(Boards::getBoardName(cstate.fromType)));
+  grid->addWidget(fromBd, row, 0, 1, 3);
+  QLabel *toBd = new QLabel(QString("<b>%1</b>").arg(Boards::getBoardName(cstate.toType)));
+  grid->addWidget(toBd, row++, 3, 1, 2);
 }
 
 void ConvMapDialog::addLabel(QString text)
 {
   QLabel *label = new QLabel(this);
   label->setText(text);
+  label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   params->append(label);
 }
 
@@ -156,18 +176,22 @@ void ConvMapDialog::addParams()
 
 void ConvMapDialog::addSection(QString text)
 {
-  addLabel(QString("<b>%1</b>").arg(text));
-  addParams();
+  QLabel *lbl = new QLabel(QString("<b>%1</b>").arg(text));
+  grid->addWidget(lbl, row++, 0, 1, 3);
 }
 
 void ConvMapDialog::addStick(int index)
 {
   const GeneralSettings::InputConfig &config = cstate.fromGS()->inputConfig[index];
-  addLabel(Boards::getInputName(index, cstate.fromType));
-  addLabel(config.name);
+  const QString dfltName(Boards::getInputName(index, cstate.fromType));
+  addLabel(DataHelpers::getCompositeName(dfltName, config.name, true));
+  addLabel(QString());
+  addLabel(QString());
   QComboBox *cbo = new QComboBox();
   cbo->setModel(toSticksItemModel);
-  cbo->setCurrentIndex(cbo->findText(config.name));
+  int idx = cbo->findText(dfltName);
+  cbo->setCurrentIndex(idx >= 0 ? idx : 0);
+  cbo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   params->append(cbo);
   addParams();
 }
@@ -175,12 +199,15 @@ void ConvMapDialog::addStick(int index)
 void ConvMapDialog::addFlex(int index)
 {
   const GeneralSettings::InputConfig &config = cstate.fromGS()->inputConfig[index];
-  addLabel(Boards::getInputName(index, cstate.fromType));
-  addLabel(config.name);
+  const QString dfltName(Boards::getInputName(index, cstate.fromType));
+  addLabel(DataHelpers::getCompositeName(dfltName, config.name, true));
   addLabel(Boards::flexTypeToString(config.flexType));
+  addLabel(QString());
   QComboBox *cbo = new QComboBox();
   cbo->setModel(toInputsItemModel);
-  cbo->setCurrentIndex(cbo->findText(config.name));
+  int idx = cbo->findText(dfltName);
+  cbo->setCurrentIndex(idx >= 0 ? idx : 0);
+  cbo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   params->append(cbo);
   addParams();
 }
@@ -189,18 +216,20 @@ void ConvMapDialog::addSwitch(int index)
 {
   const GeneralSettings::SwitchConfig &config = cstate.fromGS()->switchConfig[index];
   Board::SwitchInfo info = Boards::getSwitchInfo(index);
+  const QString dfltName(Boards::getSwitchName(index, cstate.fromType));
+  addLabel(DataHelpers::getCompositeName(dfltName, config.name, true));
 
-  addLabel(Boards::getSwitchName(index));
-  addLabel(config.name);
-
-  if (cstate.fromGS()->isSwitchFlex(index)) {
+  if (cstate.fromGS()->isSwitchFlex(index))
     addLabel(QString::number(config.inputIdx));
-  }
+  else
+    addLabel(QString());
 
   addLabel(Boards::switchTypeToString(config.type));
   QComboBox *cbo = new QComboBox();
   cbo->setModel(toSwitchesItemModel);
-  cbo->setCurrentIndex(cbo->findText(config.name));
+  int idx = cbo->findText(dfltName);
+  cbo->setCurrentIndex(idx >= 0 ? idx : 0);
+  cbo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   params->append(cbo);
   addParams();
 }
