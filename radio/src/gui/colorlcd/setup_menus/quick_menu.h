@@ -115,7 +115,7 @@ class QuickMenu : public NavWindow
   static EdgeTxIcon pageIcon(QMPage page);
   static int pageIndex(QMPage page);
   static std::vector<std::string> menuPageNames();
-  static void copyPageDef(QMPage page, PageDef* pageDef);
+  static void setupFavorite(QMPage page, int f);
 
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event);
@@ -164,41 +164,4 @@ class QuickMenu : public NavWindow
   void focusMainMenu();
 
   void deleteLater(bool detach = true, bool trash = true) override;
-};
-
-class QuickSubMenu
-{
- public:
-  QuickSubMenu(Window* parent, QuickMenu* quickMenu,
-               EdgeTxIcon icon, const char* title, const char* parentTitle,
-               PageDef* items):
-    parent(parent), quickMenu(quickMenu),
-    icon(icon), title(title), parentTitle(parentTitle), items(items)
-  {}
-
-  bool isSubMenu(QMPage n);
-  bool isSubMenu(QMPage n, EdgeTxIcon icon);
-  bool isSubMenu(ButtonBase* b);
-  int getIndex(QMPage n);
-
-  ButtonBase* addButton();
-  void enableSubMenu();
-  void setDisabled(bool all);
-  void setCurrent(QMPage n);
-  void activate();
-  void buildSubMenu();
-  uint8_t onPress(int n);
-  void onSelect(bool close);
-  int getPageNumber(int iconNumber);
-  void doLayout();
-
- protected:
-  Window* parent;
-  QuickMenu* quickMenu;
-  EdgeTxIcon icon;
-  const char* title;
-  const char* parentTitle;
-  PageDef* items;
-  QuickMenuGroup* subMenu = nullptr;
-  ButtonBase* menuButton = nullptr;
 };
