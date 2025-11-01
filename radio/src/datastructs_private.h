@@ -1001,7 +1001,7 @@ PACK(struct switchDef {
 });
 
 #if defined(COLORLCD)
-PACK(struct keyShortcut {
+PACK(struct QuickMenuPage {
   uint8_t shortcut ENUM(QMPage);
 });
 #endif
@@ -1163,7 +1163,8 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
-  NOBACKUP(keyShortcut keyShortcuts[6]);
+  NOBACKUP(QuickMenuPage keyShortcuts[6]);
+  NOBACKUP(QuickMenuPage qmFavorites[12]);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const

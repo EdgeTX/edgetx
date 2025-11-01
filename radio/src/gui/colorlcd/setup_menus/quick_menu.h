@@ -92,11 +92,6 @@ class QuickMenu : public NavWindow
 
   QuickMenu();
 
-  static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
-            std::function<void(bool close)> selectHandler = nullptr,
-            PageGroupBase* pageGroup = nullptr, QMPage curPage = QM_NONE);
-  static void shutdownQuickMenu();
-
   void onCancel() override;
   void onSelect(bool close);
   void closeMenu();
@@ -105,16 +100,22 @@ class QuickMenu : public NavWindow
 
   void enableSubMenu();
 
-  QMPage currentPage() const { return curPage; }
-  static void setCurrentPage(QMPage newPage) { curPage = newPage; }
+  static void setCurrentPage(QMPage newPage, EdgeTxIcon newIcon = EDGETX_ICONS_COUNT);
 
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
 
+  static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
+            std::function<void(bool close)> selectHandler = nullptr,
+            PageGroupBase* pageGroup = nullptr, QMPage curPage = QM_NONE);
+
+  static void shutdownQuickMenu();
   static void selected();
   static void openPage(QMPage page);
   static EdgeTxIcon pageIcon(QMPage page);
   static int pageIndex(QMPage page);
+  static std::vector<std::string> menuPageNames();
+  static void copyPageDef(QMPage page, PageDef* pageDef);
 
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event);
@@ -154,6 +155,7 @@ class QuickMenu : public NavWindow
   std::vector<QuickSubMenu*> subMenus;
   PageGroupBase* pageGroup = nullptr;
   static QMPage curPage;
+  static EdgeTxIcon curIcon;
 
   void openQM(std::function<void()> cancelHandler,
               std::function<void(bool close)> selectHandler,
@@ -175,6 +177,7 @@ class QuickSubMenu
   {}
 
   bool isSubMenu(QMPage n);
+  bool isSubMenu(QMPage n, EdgeTxIcon icon);
   bool isSubMenu(ButtonBase* b);
   int getIndex(QMPage n);
 

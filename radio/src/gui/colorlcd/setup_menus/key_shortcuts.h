@@ -23,10 +23,10 @@
 
 #include "page.h"
 
-class RadioKeyShortcutsPage : public SubPage
+class QMKeyShortcutsPage : public SubPage
 {
  public:
-  RadioKeyShortcutsPage();
+  QMKeyShortcutsPage();
 
  protected:
   void addKey(event_t event, std::vector<std::string> qmPages, const char* nm);
