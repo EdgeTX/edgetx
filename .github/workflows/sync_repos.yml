@@ -1,0 +1,50 @@
+name: Sync from EdgeTX upstream
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM UTC
+  workflow_dispatch: # Manual trigger option
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_PAT }}
+      
+      - name: Configure git
+        run: |
+          git config user.name "EdgeTX Sync Bot"
+          git config user.email "sync-bot@edgetx.org"
+      
+      - name: Sync branches from upstream (hard reset)
+        env:
+          BRANCHES: "main 2.11" # Add/modify branches here as needed
+        run: |
+          git remote add upstream https://github.com/EdgeTX/edgetx.git
+          git fetch upstream
+          
+          for branch in $BRANCHES; do
+            echo "=== Syncing branch: $branch ==="
+            
+            # Check if upstream has this branch
+            if ! git ls-remote --heads upstream | grep -q "refs/heads/$branch"; then
+              echo "⚠️  Branch $branch does not exist in upstream, skipping..."
+              continue
+            fi
+            
+            # Hard reset to upstream (creates exact copy with same SHA)
+            git checkout -B $branch upstream/$branch
+            
+            # Force push to origin
+            git push origin $branch --force
+            
+            echo "✓ Branch $branch synced (SHA: $(git rev-parse HEAD))"
+          done
+          
+          echo ""
+          echo "=== Sync Complete ==="
+          echo "All specified branches are now exact copies of upstream"
