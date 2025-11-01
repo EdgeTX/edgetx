@@ -42,7 +42,7 @@ class LabelsStorageFormat : public StorageFormat
     }
 
     virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData);
+    virtual bool write(RadioData & radioData);
 
   protected:
     virtual bool loadFile(QByteArray & fileData, const QString & fileName) = 0;
@@ -51,4 +51,6 @@ class LabelsStorageFormat : public StorageFormat
     virtual bool deleteFile(const QString & fileName) = 0;
 
     StorageType probeFormat();
+
+    bool loadRadioSettings(GeneralSettings & generalSettings);
 };
