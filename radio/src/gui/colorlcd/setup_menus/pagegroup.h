@@ -55,8 +55,8 @@ enum QMTopDefAction {
 
 struct QMTopDef {
   EdgeTxIcon icon;
-  const char* qmTitle;
-  const char* title;
+  STR_TYP qmTitle;
+  STR_TYP title;
   QMTopDefAction pageAction;
   QMPage qmPage;
   PageDef* subMenuItems;

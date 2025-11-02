@@ -400,11 +400,11 @@ std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
     } else {
       PageDef* sub = qmTopItems[i].subMenuItems;
       for (int j = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
-        std::string s = STR_VAL(qmTopItems[i].title);
+        std::string s(STR_VAL(qmTopItems[i].title));
         s += " - ";
         if (!forFavorites && sub[j].qmPage >= QM_UI_SCREEN1 && sub[j].qmPage <= QM_UI_SCREEN10)
           s += STR_CURRENT_SCREEN;
-        else if (STR_VAL(sub[j].title))
+        else
           s += STR_VAL(sub[j].title);
         s = replaceAll(s, "\n", " ");
         qmPages.emplace_back(s);
@@ -423,8 +423,8 @@ void QuickMenu::setupFavorite(QMPage page, int f)
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
           fav.icon = qmTopItems[i].icon;
-          fav.qmTitle = STR_VAL(qmTopItems[i].qmTitle);
-          fav.title = STR_VAL(qmTopItems[i].title);
+          fav.qmTitle = qmTopItems[i].qmTitle;
+          fav.title = qmTopItems[i].title;
           fav.pageAction = PAGE_ACTION;
           fav.qmPage = qmTopItems[i].qmPage;
           fav.create = nullptr;
@@ -437,8 +437,8 @@ void QuickMenu::setupFavorite(QMPage page, int f)
       for (int j = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
         if (sub[j].qmPage == page) {
           fav.icon = sub[j].icon;
-          fav.qmTitle = STR_VAL(sub[j].qmTitle);
-          fav.title = STR_VAL(sub[j].title);
+          fav.qmTitle = sub[j].qmTitle;
+          fav.title = sub[j].title;
           fav.pageAction = sub[j].pageAction;
           fav.qmPage = sub[j].qmPage;
           fav.create = sub[j].create;

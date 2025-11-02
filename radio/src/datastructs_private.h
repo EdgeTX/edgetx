@@ -36,9 +36,6 @@
 
 #if defined(COLORLCD)
 #include "datastructs_screen.h"
-#endif
-
-#if defined(COLORLCD)
 #include "quick_menu.h"
 #endif
 
