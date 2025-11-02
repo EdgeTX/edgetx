@@ -241,6 +241,14 @@ void GeneralSettings::init()
   }
 
   stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
+
+  keyShortcuts[0] = QM_MODEL_SETUP;
+  keyShortcuts[1] = QM_OPEN_QUICK_MENU;
+  keyShortcuts[2] = QM_UI_SCREEN1;
+  keyShortcuts[3] = QM_MANAGE_MODELS;
+  keyShortcuts[4] = QM_TOOLS_APPS;
+  keyShortcuts[5] = QM_TOOLS_CHAN_MON;
+  for (int i = 0; i < 12; i += 1) qmFavorites[i] = QM_NONE;
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)

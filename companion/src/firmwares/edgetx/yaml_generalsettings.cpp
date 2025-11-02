@@ -136,6 +136,49 @@ static const YamlLookupTable hatsModeLut = {
   {  GeneralSettings::HATSMODE_SWITCHABLE, "SWITCHABLE"  },
 };
 
+static const YamlLookupTable QMPageLut = {
+  {  GeneralSettings::QM_NONE, "NONE" },
+  {  GeneralSettings::QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU" },
+  {  GeneralSettings::QM_MANAGE_MODELS, "MANAGE_MODELS" },
+  {  GeneralSettings::QM_MODEL_SETUP, "MODEL_SETUP" },
+  {  GeneralSettings::QM_MODEL_FLIGHTMODES, "MODEL_FLIGHTMODES" },
+  {  GeneralSettings::QM_MODEL_INPUTS, "MODEL_INPUTS" },
+  {  GeneralSettings::QM_MODEL_MIXES, "MODEL_MIXES" },
+  {  GeneralSettings::QM_MODEL_OUTPUTS, "MODEL_OUTPUTS" },
+  {  GeneralSettings::QM_MODEL_CURVES, "MODEL_CURVES" },
+  {  GeneralSettings::QM_MODEL_GVARS, "MODEL_GVARS" },
+  {  GeneralSettings::QM_MODEL_LS, "MODEL_LS" },
+  {  GeneralSettings::QM_MODEL_SF, "MODEL_SF" },
+  {  GeneralSettings::QM_MODEL_SCRIPTS, "MODEL_SCRIPTS" },
+  {  GeneralSettings::QM_MODEL_TELEMETRY, "MODEL_TELEMETRY" },
+  {  GeneralSettings::QM_MODEL_NOTES, "MODEL_NOTES" },
+  {  GeneralSettings::QM_RADIO_SETUP, "RADIO_SETUP" },
+  {  GeneralSettings::QM_RADIO_GF, "RADIO_GF" },
+  {  GeneralSettings::QM_RADIO_TRAINER, "RADIO_TRAINER" },
+  {  GeneralSettings::QM_RADIO_HARDWARE, "RADIO_HARDWARE" },
+  {  GeneralSettings::QM_RADIO_VERSION, "RADIO_VERSION" },
+  {  GeneralSettings::QM_UI_THEMES, "UI_THEMES" },
+  {  GeneralSettings::QM_UI_SETUP, "UI_SETUP" },
+  {  GeneralSettings::QM_UI_SCREEN1, "UI_SCREEN1" },
+  {  GeneralSettings::QM_UI_SCREEN2, "UI_SCREEN2" },
+  {  GeneralSettings::QM_UI_SCREEN3, "UI_SCREEN3" },
+  {  GeneralSettings::QM_UI_SCREEN4, "UI_SCREEN4" },
+  {  GeneralSettings::QM_UI_SCREEN5, "UI_SCREEN5" },
+  {  GeneralSettings::QM_UI_SCREEN6, "UI_SCREEN6" },
+  {  GeneralSettings::QM_UI_SCREEN7, "UI_SCREEN7" },
+  {  GeneralSettings::QM_UI_SCREEN8, "UI_SCREEN8" },
+  {  GeneralSettings::QM_UI_SCREEN9, "UI_SCREEN9" },
+  {  GeneralSettings::QM_UI_SCREEN10, "UI_SCREEN10" },
+  {  GeneralSettings::QM_UI_ADD_PG, "UI_ADD_PG" },
+  {  GeneralSettings::QM_TOOLS_APPS, "TOOLS_APPS" },
+  {  GeneralSettings::QM_TOOLS_STORAGE, "TOOLS_STORAGE" },
+  {  GeneralSettings::QM_TOOLS_RESET, "TOOLS_RESET" },
+  {  GeneralSettings::QM_TOOLS_CHAN_MON, "TOOLS_CHAN_MON" },
+  {  GeneralSettings::QM_TOOLS_LS_MON, "TOOLS_LS_MON" },
+  {  GeneralSettings::QM_TOOLS_STATS, "TOOLS_STATS" },
+  {  GeneralSettings::QM_TOOLS_DEBUG, "TOOLS_DEBUG" },
+};
+
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
     const unsigned int* moduleBaudrate)
 {
@@ -342,6 +385,15 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["modelSFDisabled"] = (int)rhs.modelSFDisabled;
   node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
+
+  if (hasColorLcd) {
+    for (int i = 0; i < 6; i += 1)
+      if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE)
+        node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
+    for (int i = 0; i < 12; i += 1)
+      if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE)
+        node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
+  }
 
   return node;
 }
@@ -652,6 +704,15 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["labelSingleSelect"] >> rhs.labelSingleSelect;
   node["labelMultiMode"] >> rhs.labelMultiMode;
   node["favMultiMode"] >> rhs.favMultiMode;
+
+  if (node["keyShortcuts"]) {
+    for (int i = 0; i < 6; i += 1)
+      node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
+  }
+  if (node["qmFavorites"]) {
+    for (int i = 0; i < 12; i += 1)
+      node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
+  }
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
