@@ -568,11 +568,11 @@ const char * backupModel(uint8_t idx)
   }
 
 #if defined(RTCLOCK)
-  char* tmp = strAppendDate(&buf[strlen(buf)]);
-  (void)tmp;  // Suppress unused variable warning if RTCLOCK is defined
+  char * tmp = strAppendDate(&buf[len]);
+  len = tmp - buf;
 #endif
 
-  strcat(buf, STR_YAML_EXT);
+  strcpy(&buf[len], STR_YAML_EXT);
 
 #ifdef SIMU
   TRACE("SD-card backup filename=%s", buf);
