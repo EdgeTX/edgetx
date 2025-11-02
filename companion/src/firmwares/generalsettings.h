@@ -225,6 +225,54 @@ class GeneralSettings {
       BACKLIGHT_MODE_COUNT,
     };
 
+    // Match equivalent enum in radio/src/gui/colorlcd/setup_menus/quick_menu.h
+    enum QMPage {
+      QM_NONE = 0,
+      QM_OPEN_QUICK_MENU,
+      QM_MANAGE_MODELS,
+      // Model menu
+      QM_MODEL_SETUP,
+      QM_MODEL_FLIGHTMODES,
+      QM_MODEL_INPUTS,
+      QM_MODEL_MIXES,
+      QM_MODEL_OUTPUTS,
+      QM_MODEL_CURVES,
+      QM_MODEL_GVARS,
+      QM_MODEL_LS,
+      QM_MODEL_SF,
+      QM_MODEL_SCRIPTS,
+      QM_MODEL_TELEMETRY,
+      QM_MODEL_NOTES,
+      // Radio menu
+      QM_RADIO_SETUP,
+      QM_RADIO_GF,
+      QM_RADIO_TRAINER,
+      QM_RADIO_HARDWARE,
+      QM_RADIO_VERSION,
+      // UI menu
+      QM_UI_THEMES,
+      QM_UI_SETUP,
+      QM_UI_SCREEN1,
+      QM_UI_SCREEN2,
+      QM_UI_SCREEN3,
+      QM_UI_SCREEN4,
+      QM_UI_SCREEN5,
+      QM_UI_SCREEN6,
+      QM_UI_SCREEN7,
+      QM_UI_SCREEN8,
+      QM_UI_SCREEN9,
+      QM_UI_SCREEN10,
+      QM_UI_ADD_PG,
+      // Tools menu
+      QM_TOOLS_APPS,
+      QM_TOOLS_STORAGE,
+      QM_TOOLS_RESET,
+      QM_TOOLS_CHAN_MON,
+      QM_TOOLS_LS_MON,
+      QM_TOOLS_STATS,
+      QM_TOOLS_DEBUG,
+    };
+
     GeneralSettings() { clear(); }
     void clear();
     void init();
@@ -394,6 +442,10 @@ class GeneralSettings {
     };
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
+
+    unsigned int keyShortcuts[6];
+    unsigned int qmFavorites[12];
+
     void switchConfigClear();
 
     bool switchPositionAllowed(int index) const;
