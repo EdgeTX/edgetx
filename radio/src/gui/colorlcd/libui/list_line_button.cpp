@@ -77,7 +77,7 @@ InputMixButtonBase::~InputMixButtonBase()
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 {
   if (!weight) {
-    weight = lv_label_create(lvobj);
+    weight = etx_label_create(lvobj);
     lv_obj_set_pos(weight, WGT_X, WGT_Y);
     lv_obj_set_size(weight, WGT_W, WGT_H);
     etx_font(weight, FONT_XS_INDEX, LV_STATE_USER_1);
@@ -96,7 +96,7 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 void InputMixButtonBase::setSource(mixsrc_t idx)
 {
   if (!source) {
-    source = lv_label_create(lvobj);
+    source = etx_label_create(lvobj);
     lv_obj_set_pos(source, SRC_X, SRC_Y);
     lv_obj_set_size(source, SRC_W, SRC_H);
     etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
@@ -114,7 +114,7 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
 void InputMixButtonBase::setOpts(const char* s)
 {
   if (!opts) {
-    opts = lv_label_create(lvobj);
+    opts = etx_label_create(lvobj);
     lv_obj_set_pos(opts, OPT_X, OPT_Y);
     lv_obj_set_size(opts, OPT_W, OPT_H);
     etx_font(opts, FONT_XS_INDEX, LV_STATE_USER_1);
@@ -226,8 +226,7 @@ InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
   padAll(PAD_ZERO);
 
-  label = lv_label_create(lvobj);
-  etx_font(label, FONT_STD_INDEX);
+  label = etx_label_create(lvobj);
 }
 
 void InputMixGroupBase::adjustHeight()

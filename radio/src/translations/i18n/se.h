@@ -334,12 +334,6 @@
 #define TR_SURFACE_NAMES0               "Rod"
 #define TR_SURFACE_NAMES1               "Gas"
 
-#define TR_RFPOWER_AFHDS2_1            "Default"
-#define TR_RFPOWER_AFHDS2_2            "Hög"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ROTARY_ENC_OPT_1           "Normal"
 #define TR_ROTARY_ENC_OPT_2           "Inverterad"
 #define TR_ROTARY_ENC_OPT_3           "V-I H-N"
@@ -426,7 +420,7 @@
 #define TR_VCELLINDEX_9                 "8"
 #define TR_VCELLINDEX_10                "Högsta"
 #define TR_VCELLINDEX_11                "Skillnad"
-#define TR_SUBTRIMMODES_1               STR_CHAR_DELTA " (endast center)"
+#define TR_SUBTRIMMODES_1               CHAR_DELTA " (endast center)"
 #define TR_SUBTRIMMODES_2               "= (symmetrisk)"
 #define TR_TIMER_DIR_1                  TR("Återst.", "Visa återstående")
 #define TR_TIMER_DIR_2                  TR("Förbrukad", "Visa förbrukad")
@@ -443,7 +437,6 @@
 #define TR_OK                           TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                         TR_BW_COL("EXIT", "RTN")
 
-#define TR_FREE                         "kvar"
 #define TR_YES                          "Ja"
 #define TR_NO                           "Nej"
 #define TR_DELETEMODEL                  "RADERA MODELL"
@@ -518,8 +511,6 @@
 #define TR_SIDE                         "Sida"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                         "Trimm"
-#define TR_DREX                         "DRex"
-#define DREX_CHBOX_OFFSET               30
 #define TR_CURVE                        "Kurva"
 #define TR_FLMODE                       TR("Flygläge","Flyglägen")
 #define TR_MIXWARNING                   "Varning"
@@ -1112,8 +1103,6 @@
 #define TR_SCRIPT                       "Programkod"
 #define TR_INPUTS                       "Inputs"
 #define TR_OUTPUTS                      "Outputs"
-#define STR_EEBACKUP                    "Säkerhetskopiera EEPROM"
-#define STR_FACTORYRESET                "Fabriksåterställning"
 #define TR_CONFIRMRESET                 "Radera ALLA modeller och inställningar?"
 #define TR_TOO_MANY_LUA_SCRIPTS         "För många Lua-skript!"
 #define TR_SPORT_UPDATE_POWER_MODE      "S.Port Pwr"
@@ -1167,6 +1156,8 @@
 #define TR_COLOR                      "Färg"
 #define TR_PANEL1_BACKGROUND          "Panel 1 bakgrund"
 #define TR_PANEL2_BACKGROUND          "Panel 2 bakgrund"
+#define TR_PANEL_BACKGROUND           "Background"
+#define TR_PANEL_COLOR                "  Color"
 #define TR_WIDGET_GAUGE               "Mätare"
 #define TR_WIDGET_MODELBMP            "Modellinfo"
 #define TR_WIDGET_OUTPUTS             "Output"
@@ -1235,20 +1226,20 @@
 #define TR_LAYOUT                       "Layout"
 #define TR_TEXT_COLOR                   "Textfärg"
 
-#define TR_MENU_INPUTS                  STR_CHAR_INPUT "Input"
-#define TR_MENU_LUA                     STR_CHAR_LUA "Lua-skript"
-#define TR_MENU_STICKS                  STR_CHAR_STICK "Axlar"
-#define TR_MENU_POTS                    STR_CHAR_POT "Vred"
-#define TR_MENU_MIN                     STR_CHAR_FUNCTION "MIN"
-#define TR_MENU_MAX                     STR_CHAR_FUNCTION "MAX"
-#define TR_MENU_HELI                    STR_CHAR_CYC "Cyklisk"
-#define TR_MENU_TRIMS                   STR_CHAR_TRIM "Trimm"
-#define TR_MENU_SWITCHES                STR_CHAR_SWITCH "Brytare"
-#define TR_MENU_LOGICAL_SWITCHES        STR_CHAR_SWITCH "Logiska brytare"
-#define TR_MENU_TRAINER                 STR_CHAR_TRAINER "Lärare"
-#define TR_MENU_CHANNELS                STR_CHAR_CHANNEL "Kanaler"
-#define TR_MENU_GVARS                   STR_CHAR_SLIDER "GVars"
-#define TR_MENU_TELEMETRY               STR_CHAR_TELEMETRY "Telemetri"
+#define TR_MENU_INPUTS                  CHAR_INPUT "Input"
+#define TR_MENU_LUA                     CHAR_LUA "Lua-skript"
+#define TR_MENU_STICKS                  CHAR_STICK "Axlar"
+#define TR_MENU_POTS                    CHAR_POT "Vred"
+#define TR_MENU_MIN                     CHAR_FUNCTION "MIN"
+#define TR_MENU_MAX                     CHAR_FUNCTION "MAX"
+#define TR_MENU_HELI                    CHAR_CYC "Cyklisk"
+#define TR_MENU_TRIMS                   CHAR_TRIM "Trimm"
+#define TR_MENU_SWITCHES                CHAR_SWITCH "Brytare"
+#define TR_MENU_LOGICAL_SWITCHES        CHAR_SWITCH "Logiska brytare"
+#define TR_MENU_TRAINER                 CHAR_TRAINER "Lärare"
+#define TR_MENU_CHANNELS                CHAR_CHANNEL "Kanaler"
+#define TR_MENU_GVARS                   CHAR_SLIDER "GVars"
+#define TR_MENU_TELEMETRY               CHAR_TELEMETRY "Telemetri"
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Övrigt"
 #define TR_MENU_INVERT                  "Invertera"
@@ -1298,7 +1289,6 @@
 #define TR_CANCEL                       "Avbryt"
 #define TR_EDIT_THEME                   "REDIGERA TEMA"
 #define TR_DETAILS                      "Temainformation"
-#define TR_THEME_EDITOR                 "TEMAN"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "Engelska"
@@ -1308,6 +1298,7 @@
 #define TR_VOICE_DEUTSCH                "Tyska"
 #define TR_VOICE_DUTCH                  "Holländska"
 #define TR_VOICE_ESPANOL                "Spanska"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "Franska"
 #define TR_VOICE_HUNGARIAN              "Ungerska"
 #define TR_VOICE_ITALIANO               "Italienska"

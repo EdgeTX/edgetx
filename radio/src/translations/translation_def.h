@@ -58,11 +58,11 @@
 #define TR_EMPTY                        "---"
 
 // '~' is remapped to 0x7B in B&W font
-#define TR_CHAR_TILDE                   TR_BW_COL("~", "{")
+#define CHAR_TILDE                      TR_BW_COL("~", "{")
 
 // String array groups
-#define TR_VCSWFUNC                     "---","a=x","a" TR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,\
-                                        "a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                     "---","a=x","a" CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,\
+                                        "a=b","a>b","a<b",CHAR_DELTA "≥x","|" CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX2                      "+=","*=",":="
 #define TR_PPMUNIT                      "0.--","0.0","us"
@@ -219,11 +219,9 @@
 #define TR_SPORT_UPDATE_POWER_MODES SA2(TR_SPORT_UPDATE_POWER_MODES)
 #define TR_VUSBJOYSTICK_EXTMODE     SA2(TR_VUSBJOYSTICK_EXTMODE)
 #define TR_SUBTRIMMODES             SA2(TR_SUBTRIMMODES)
-#define TR_RFPOWER_AFHDS2           SA2(TR_RFPOWER_AFHDS2)
 #define TR_IMU_VSRCRAW              SA2(TR_IMU_VSRCRAW)
 
 #define TR_EXIT_BTN     BUTTON(TR_EXIT)
-#define TR_RX           "Rx"
 #define TR_MAIN_VIEW_1  TR_MAIN_VIEW_X "1"
 #define TR_MAIN_VIEW_2  TR_MAIN_VIEW_X "2"
 #define TR_MAIN_VIEW_3  TR_MAIN_VIEW_X "3"

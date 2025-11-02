@@ -101,22 +101,22 @@ class RadioKeyDiagsWindow : public Window
     for (i = 0; i < keysGetMaxKeys(); i++) {
       auto k = get_ith_key(i);
 
-      auto lbl = lv_label_create(obj);
+      auto lbl = etx_label_create(obj);
       lv_label_set_text(lbl, keysGetLabel(k));
       lv_obj_set_pos(lbl, 0, i * EdgeTxStyles::STD_FONT_HEIGHT);
 
-      lbl = lv_label_create(obj);
+      lbl = etx_label_create(obj);
       lv_label_set_text(lbl, "");
       lv_obj_set_pos(lbl, KVAL_X, i * EdgeTxStyles::STD_FONT_HEIGHT);
       keyValues[i] = lbl;
     }
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-    auto lbl = lv_label_create(obj);
+    auto lbl = etx_label_create(obj);
     lv_label_set_text(lbl, STR_ROTARY_ENCODER);
     lv_obj_set_pos(lbl, 0, (i + 1) * EdgeTxStyles::STD_FONT_HEIGHT);
 
-    reValue = lv_label_create(obj);
+    reValue = etx_label_create(obj);
     lv_label_set_text(reValue, "");
     lv_obj_set_pos(reValue, KVAL_X, (i + 1) * EdgeTxStyles::STD_FONT_HEIGHT);
 #endif
@@ -132,7 +132,7 @@ class RadioKeyDiagsWindow : public Window
     // SWITCHES
     for (i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
-        auto lbl = lv_label_create(obj);
+        auto lbl = etx_label_create(obj);
         lv_label_set_text(lbl, "");
         lv_obj_set_pos(lbl, 0, row * EdgeTxStyles::STD_FONT_HEIGHT);
         switchValues[i] = lbl;
@@ -147,29 +147,29 @@ class RadioKeyDiagsWindow : public Window
     lv_obj_t *obj = form->getLvObj();
     char s[10];
 
-    auto lbl = lv_label_create(obj);
+    auto lbl = etx_label_create(obj);
     lv_label_set_text(lbl, STR_TRIMS);
     lv_obj_set_pos(lbl, 0, 0);
-    lbl = lv_label_create(obj);
+    lbl = etx_label_create(obj);
     lv_label_set_text(lbl, "-");
     lv_obj_set_pos(lbl, TRIM_MINUS_X, 0);
-    lbl = lv_label_create(obj);
+    lbl = etx_label_create(obj);
     lv_label_set_text(lbl, "+");
     lv_obj_set_pos(lbl, TRIM_PLUS_X, 0);
 
     // TRIMS
     for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-      lbl = lv_label_create(obj);
+      lbl = etx_label_create(obj);
       formatNumberAsString(s, 10, i + 1, 0, 10, "T");
       lv_label_set_text(lbl, s);
       lv_obj_set_pos(lbl, PAD_SMALL, i * EdgeTxStyles::STD_FONT_HEIGHT + EdgeTxStyles::STD_FONT_HEIGHT);
 
-      lbl = lv_label_create(obj);
+      lbl = etx_label_create(obj);
       lv_label_set_text(lbl, "");
       lv_obj_set_pos(lbl, TRIM_MINUS_X - PAD_TINY, i * EdgeTxStyles::STD_FONT_HEIGHT + EdgeTxStyles::STD_FONT_HEIGHT);
       trimValues[i * 2] = lbl;
 
-      lbl = lv_label_create(obj);
+      lbl = etx_label_create(obj);
       lv_label_set_text(lbl, "");
       lv_obj_set_pos(lbl, TRIM_PLUS_X, i * EdgeTxStyles::STD_FONT_HEIGHT + EdgeTxStyles::STD_FONT_HEIGHT);
       trimValues[i * 2 + 1] = lbl;

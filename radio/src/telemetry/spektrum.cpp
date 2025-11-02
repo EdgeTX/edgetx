@@ -139,7 +139,7 @@ struct SpektrumSensor {
   const SpektrumDataType dataType:4;
   const uint8_t precision;
   const TelemetryUnit unit;
-  const char *name;
+  STR_TYP name;
 };
 
 // clang-format off
@@ -148,182 +148,182 @@ struct SpektrumSensor {
 // IMPORTANT: Keep the sensor table incremtally sorted by i2caddress
 const SpektrumSensor spektrumSensors[] = {
   // 0x01 High voltage internal sensor
-  SS(I2C_VOLTAGE,      0,  int16,     STR_SENSOR_A1,                UNIT_VOLTS,     2), // 0.01V increments 
+  SS(I2C_VOLTAGE,      0,  int16,     STR_DEF(STR_SENSOR_A1),                UNIT_VOLTS,     2), // 0.01V increments 
 
   // 0x02 Temperature internal sensor
-  SS(I2C_TEMPERATURE,  0,  int16,     STR_SENSOR_TEMP1,             UNIT_FAHRENHEIT, 1), // Temperature in degrees Fahrenheit
+  SS(I2C_TEMPERATURE,  0,  int16,     STR_DEF(STR_SENSOR_TEMP1),             UNIT_FAHRENHEIT, 1), // Temperature in degrees Fahrenheit
 
   // 0x03 High current internal sensor (0x03), Resolution: 300A / 2048 = 0.196791 A/count
-  SS(I2C_HIGH_CURRENT, 0,  int16,     STR_SENSOR_CURR,              UNIT_AMPS,      1), // Range: +/- 150A 
+  SS(I2C_HIGH_CURRENT, 0,  int16,     STR_DEF(STR_SENSOR_CURR),              UNIT_AMPS,      1), // Range: +/- 150A 
 
   // 0x0A Powerbox (also mentioned as 0x7D but that is also transmitter frame data)
-  SS(I2C_PBOX,         0,  uint16,    STR_SENSOR_BATT1_VOLTAGE,     UNIT_VOLTS,     2),  // Volts, 0.01v
-  SS(I2C_PBOX,         2,  uint16,    STR_SENSOR_BATT2_VOLTAGE,     UNIT_VOLTS,     2),
-  SS(I2C_PBOX,         4,  uint16,    STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,       0),  // mAh, 1mAh
-  SS(I2C_PBOX,         6,  uint16,    STR_SENSOR_BATT2_CONSUMPTION, UNIT_MAH,       0),
+  SS(I2C_PBOX,         0,  uint16,    STR_DEF(STR_SENSOR_BATT1_VOLTAGE),     UNIT_VOLTS,     2),  // Volts, 0.01v
+  SS(I2C_PBOX,         2,  uint16,    STR_DEF(STR_SENSOR_BATT2_VOLTAGE),     UNIT_VOLTS,     2),
+  SS(I2C_PBOX,         4,  uint16,    STR_DEF(STR_SENSOR_BATT1_CONSUMPTION), UNIT_MAH,       0),  // mAh, 1mAh
+  SS(I2C_PBOX,         6,  uint16,    STR_DEF(STR_SENSOR_BATT2_CONSUMPTION), UNIT_MAH,       0),
 
   // 0x0B Lap Timer
-  SS(I2C_LAPTIMER,     0, uint8,      STR_SENSOR_LAP_NUMBER,        UNIT_RAW,       0), // Lap last finished
-  SS(I2C_LAPTIMER,     0, uint8,      STR_SENSOR_GATE_NUMBER,       UNIT_RAW,       0), // Last gate passed
-  SS(I2C_LAPTIMER,     0, uint32,     STR_SENSOR_LAP_TIME,          UNIT_SECONDS,   3), // Time of lap in 1ms increments
-  SS(I2C_LAPTIMER,     0, uint32,     STR_SENSOR_GATE_TIME,         UNIT_SECONDS,   3), // Duration between last 2 gates
+  SS(I2C_LAPTIMER,     0, uint8,      STR_DEF(STR_SENSOR_LAP_NUMBER),        UNIT_RAW,       0), // Lap last finished
+  SS(I2C_LAPTIMER,     0, uint8,      STR_DEF(STR_SENSOR_GATE_NUMBER),       UNIT_RAW,       0), // Last gate passed
+  SS(I2C_LAPTIMER,     0, uint32,     STR_DEF(STR_SENSOR_LAP_TIME),          UNIT_SECONDS,   3), // Time of lap in 1ms increments
+  SS(I2C_LAPTIMER,     0, uint32,     STR_DEF(STR_SENSOR_GATE_TIME),         UNIT_SECONDS,   3), // Duration between last 2 gates
 
   // Text Generator
-//SS(I2C_TEXTGEN,      0, uint32,     STR_SENSOR_FLIGHT_MODE,       UNIT_TEXT,      0),
+//SS(I2C_TEXTGEN,      0, uint32,     STR_DEF(STR_SENSOR_FLIGHT_MODE),       UNIT_TEXT,      0),
 
   // 0x11 AirSpeed
-  SS(I2C_AIRSPEED,     0,  int16,     STR_SENSOR_ASPD,              UNIT_KMH,       0), // 1 km/h increments
-//SS(I2C_AIRSPEED,     2,  int16,     STR_SENSOR_MAX_ASPD ?,        UNIT_KMH,       0), // 1 km/h increments
+  SS(I2C_AIRSPEED,     0,  int16,     STR_DEF(STR_SENSOR_ASPD),              UNIT_KMH,       0), // 1 km/h increments
+//SS(I2C_AIRSPEED,     2,  int16,     STR_DEF(STR_SENSOR_MAX_ASPD ?),        UNIT_KMH,       0), // 1 km/h increments
 
   // 0x012 Altitude
-  SS(I2C_ALTITUDE,     0,  int16,     STR_SENSOR_ALT,               UNIT_METERS,    1), // .1m increments
-//SS(I2C_ALTITUDE,     2,  int16,     STR_SENSOR_MAX_ALT ?,         UNIT_METERS,    1), // .1m increments
+  SS(I2C_ALTITUDE,     0,  int16,     STR_DEF(STR_SENSOR_ALT),               UNIT_METERS,    1), // .1m increments
+//SS(I2C_ALTITUDE,     2,  int16,     STR_DEF(STR_SENSOR_MAX_ALT ?),         UNIT_METERS,    1), // .1m increments
 
   // 0x14 G-Force
-  SS(I2C_GMETER,       0,  int16,     STR_SENSOR_ACCX,              UNIT_G,         2), // force is reported as .01G increments
-  SS(I2C_GMETER,       2,  int16,     STR_SENSOR_ACCY,              UNIT_G,         2), // 		Range = +/-4000 (+/- 40G) in Pro model
-  SS(I2C_GMETER,       4,  int16,     STR_SENSOR_ACCZ,              UNIT_G,         2), // 		Range = +/-800 (+/- 8G) in Standard model
-//SS(I2C_GMETER,       6,  int16,     STR_SENSOR_MAX_ACCX ?,        UNIT_G,         2), // abs(max G X-axis)   FORE/AFT
-//SS(I2C_GMETER,       8,  int16,     STR_SENSOR_MAX_ACCY ?,        UNIT_G,         2), // abs (max G Y-axis)  LEFT/RIGHT
-//SS(I2C_GMETER,      10,  int16,     STR_SENSOR_MAX_ACCZ ?,        UNIT_G,         2), // max G Z-axis        WING SPAR LOAD
-//SS(I2C_GMETER,      12,  int16,     STR_SENSOR_MIN_ACCZ ?,        UNIT_G,         2), // min G Z-axis        WING SPAR LOAD
+  SS(I2C_GMETER,       0,  int16,     STR_DEF(STR_SENSOR_ACCX),              UNIT_G,         2), // force is reported as .01G increments
+  SS(I2C_GMETER,       2,  int16,     STR_DEF(STR_SENSOR_ACCY),              UNIT_G,         2), // 		Range = +/-4000 (+/- 40G) in Pro model
+  SS(I2C_GMETER,       4,  int16,     STR_DEF(STR_SENSOR_ACCZ),              UNIT_G,         2), // 		Range = +/-800 (+/- 8G) in Standard model
+//SS(I2C_GMETER,       6,  int16,     STR_DEF(STR_SENSOR_MAX_ACCX ?),        UNIT_G,         2), // abs(max G X-axis)   FORE/AFT
+//SS(I2C_GMETER,       8,  int16,     STR_DEF(STR_SENSOR_MAX_ACCY ?),        UNIT_G,         2), // abs (max G Y-axis)  LEFT/RIGHT
+//SS(I2C_GMETER,      10,  int16,     STR_DEF(STR_SENSOR_MAX_ACCZ ?),        UNIT_G,         2), // max G Z-axis        WING SPAR LOAD
+//SS(I2C_GMETER,      12,  int16,     STR_DEF(STR_SENSOR_MIN_ACCZ ?),        UNIT_G,         2), // min G Z-axis        WING SPAR LOAD
 
   // 0x15,  JETCAT/TURBINE, BCD Encoded values
   // TODO: Add decoding of status information
-//SS(I2C_JETCAT,       0,  uint8,     STR_SENSOR_STATUS,            UNIT_BITFIELD,  0),
-  SS(I2C_JETCAT,       1,  uint8bcd,  STR_SENSOR_THROTTLE,          UNIT_PERCENT,   0),
-  SS(I2C_JETCAT,       2,  uint16bcd, STR_SENSOR_A1,                UNIT_VOLTS,     2),
-  SS(I2C_JETCAT,       4,  uint16bcd, STR_SENSOR_A2,                UNIT_VOLTS,     2),
-  SS(I2C_JETCAT,       6,  uint32bcd, STR_SENSOR_RPM,               UNIT_RPMS,      0),
-  SS(I2C_JETCAT,      10,  uint16bcd, STR_SENSOR_TEMP1,             UNIT_CELSIUS,   0),
+//SS(I2C_JETCAT,       0,  uint8,     STR_DEF(STR_SENSOR_STATUS),            UNIT_BITFIELD,  0),
+  SS(I2C_JETCAT,       1,  uint8bcd,  STR_DEF(STR_SENSOR_THROTTLE),          UNIT_PERCENT,   0),
+  SS(I2C_JETCAT,       2,  uint16bcd, STR_DEF(STR_SENSOR_A1),                UNIT_VOLTS,     2),
+  SS(I2C_JETCAT,       4,  uint16bcd, STR_DEF(STR_SENSOR_A2),                UNIT_VOLTS,     2),
+  SS(I2C_JETCAT,       6,  uint32bcd, STR_DEF(STR_SENSOR_RPM),               UNIT_RPMS,      0),
+  SS(I2C_JETCAT,      10,  uint16bcd, STR_DEF(STR_SENSOR_TEMP1),             UNIT_CELSIUS,   0),
 
   // 0x16  GPS LOG
-  SS(I2C_GPS_LOC,      0,  uint16bcd,  STR_SENSOR_GPSALT,           UNIT_METERS,    1), // Atl-Low BCD 3.1
-  SS(I2C_GPS_LOC,      2,  uint32bcd,  STR_SENSOR_GPS,              UNIT_GPS,       0), // LAT and LON
-  SS(I2C_GPS_LOC,     10,  uint16bcd,  STR_SENSOR_HDG,              UNIT_DEGREE,    1), // Course BCD 3.1
-//SS(I2C_GPS_LOC,     12,  uint8bcd,   STR_SENSOR_HDOP ?,           UNIT_RAW,       1), // HDOP BCD 1.1
+  SS(I2C_GPS_LOC,      0,  uint16bcd,  STR_DEF(STR_SENSOR_GPSALT),           UNIT_METERS,    1), // Atl-Low BCD 3.1
+  SS(I2C_GPS_LOC,      2,  uint32bcd,  STR_DEF(STR_SENSOR_GPS),              UNIT_GPS,       0), // LAT and LON
+  SS(I2C_GPS_LOC,     10,  uint16bcd,  STR_DEF(STR_SENSOR_HDG),              UNIT_DEGREE,    1), // Course BCD 3.1
+//SS(I2C_GPS_LOC,     12,  uint8bcd,   STR_DEF(STR_SENSOR_HDOP ?),           UNIT_RAW,       1), // HDOP BCD 1.1
 
   // 0x17  GPS STAT
-  SS(I2C_GPS_STAT,     0,  uint16bcd, STR_SENSOR_GSPD,              UNIT_KTS,       1), // BCD 3.1
-  SS(I2C_GPS_STAT,     2,  uint32bcd, STR_SENSOR_GPSDATETIME,       UNIT_DATETIME,  1), // BCD 6.1 HH:MM:SS.S
-  SS(I2C_GPS_STAT,     6,  uint8bcd,  STR_SENSOR_SATELLITES,        UNIT_RAW,       0), // BCD 2.0
+  SS(I2C_GPS_STAT,     0,  uint16bcd, STR_DEF(STR_SENSOR_GSPD),              UNIT_KTS,       1), // BCD 3.1
+  SS(I2C_GPS_STAT,     2,  uint32bcd, STR_DEF(STR_SENSOR_GPSDATETIME),       UNIT_DATETIME,  1), // BCD 6.1 HH:MM:SS.S
+  SS(I2C_GPS_STAT,     6,  uint8bcd,  STR_DEF(STR_SENSOR_SATELLITES),        UNIT_RAW,       0), // BCD 2.0
  
   // 0x18  Dual Batt Capacity monitor - Receiver
-  SS(I2C_RX_BATT,      0,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
-  SS(I2C_RX_BATT,      2,  uint16,    STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
-  SS(I2C_RX_BATT,      4,  uint16,    STR_SENSOR_BATT1_VOLTAGE,     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
-  SS(I2C_RX_BATT,      6,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
-  SS(I2C_RX_BATT,      8,  uint16,    STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
-  SS(I2C_RX_BATT,     10,  uint16,    STR_SENSOR_BATT1_VOLTAGE,     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
+  SS(I2C_RX_BATT,      0,  int16,     STR_DEF(STR_SENSOR_BATT1_CURRENT),     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
+  SS(I2C_RX_BATT,      2,  uint16,    STR_DEF(STR_SENSOR_BATT1_CONSUMPTION), UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
+  SS(I2C_RX_BATT,      4,  uint16,    STR_DEF(STR_SENSOR_BATT1_VOLTAGE),     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
+  SS(I2C_RX_BATT,      6,  int16,     STR_DEF(STR_SENSOR_BATT1_CURRENT),     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
+  SS(I2C_RX_BATT,      8,  uint16,    STR_DEF(STR_SENSOR_BATT1_CONSUMPTION), UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
+  SS(I2C_RX_BATT,     10,  uint16,    STR_DEF(STR_SENSOR_BATT1_VOLTAGE),     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
 
   // 0x19 Jetcat flow rate
-//SS(I2C_JETCAT_2,     0,  uint16bcd, STR_SENSOR_FUEL_CONSUMPTION,  UNIT_MILLILITERS_PER_MINUTE, 1), missing ml/min
-  SS(I2C_JETCAT_2,     2,  uint32bcd, STR_SENSOR_FUEL,              UNIT_MILLILITERS, 1),
+//SS(I2C_JETCAT_2,     0,  uint16bcd, STR_DEF(STR_SENSOR_FUEL_CONSUMPTION),  UNIT_MILLILITERS_PER_MINUTE, 1), missing ml/min
+  SS(I2C_JETCAT_2,     2,  uint32bcd, STR_DEF(STR_SENSOR_FUEL),              UNIT_MILLILITERS, 1),
 
   // 0x1a Gyro
-  SS(I2C_GYRO,         0,  int16,     STR_SENSOR_GYROX,             UNIT_DEGREE,    1), // Units are 0.1 deg/sec
-  SS(I2C_GYRO,         2,  int16,     STR_SENSOR_GYROY,             UNIT_DEGREE,    1),
-  SS(I2C_GYRO,         4,  int16,     STR_SENSOR_GYROZ,             UNIT_DEGREE,    1),
- //SS(I2C_GYRO,        6,  int16,     STR_SENSOR_MAX_GYROX ?,       UNIT_DEGREE,    1), // abs (max)
- //SS(I2C_GYRO,        8,  int16,     STR_SENSOR_MAX_GYROY ?,       UNIT_DEGREE,    1),
- //SS(I2C_GYRO,       10,  int16,     STR_SENSOR_MAX_GYROZ ?,       UNIT_DEGREE,    1),
+  SS(I2C_GYRO,         0,  int16,     STR_DEF(STR_SENSOR_GYROX),             UNIT_DEGREE,    1), // Units are 0.1 deg/sec
+  SS(I2C_GYRO,         2,  int16,     STR_DEF(STR_SENSOR_GYROY),             UNIT_DEGREE,    1),
+  SS(I2C_GYRO,         4,  int16,     STR_DEF(STR_SENSOR_GYROZ),             UNIT_DEGREE,    1),
+ //SS(I2C_GYRO,        6,  int16,     STR_DEF(STR_SENSOR_MAX_GYROX ?),       UNIT_DEGREE,    1), // abs (max)
+ //SS(I2C_GYRO,        8,  int16,     STR_DEF(STR_SENSOR_MAX_GYROY ?),       UNIT_DEGREE,    1),
+ //SS(I2C_GYRO,       10,  int16,     STR_DEF(STR_SENSOR_MAX_GYROZ ?),       UNIT_DEGREE,    1),
 
   // 0x1b Attitude & Mag Compass
   // mag Units are tbd so probably no sensor in existance, ignore them for now
-  SS(I2C_ATTMAG,       0,  int16,     STR_SENSOR_ROLL,              UNIT_DEGREE,    1), // Attitude, 3 axes.
-  SS(I2C_ATTMAG,       2,  int16,     STR_SENSOR_PITCH,             UNIT_DEGREE,    1), // Units are 0.1 deg
-  SS(I2C_ATTMAG,       4,  int16,     STR_SENSOR_YAW,               UNIT_DEGREE,    1),
-//SS(I2C_ATTMAG,       6,  int16,     STR_SENSOR_MAGX ?,            ??,             1), // Magnetic Compass, 3 axes
-//SS(I2C_ATTMAG,       8,  int16,     STR_SENSOR_MAGY ?,            ??,             1), // Units are 0.1mG
-//SS(I2C_ATTMAG,      10,  int16,     STR_SENSOR_MAXZ ?,            ??,             1),
-//SS(I2C_ATTMAG,      12,  int16,     STR_SENSOR_HDG ?,             UNIT_DEGREE,    1), // Heading, 0.1deg
+  SS(I2C_ATTMAG,       0,  int16,     STR_DEF(STR_SENSOR_ROLL),              UNIT_DEGREE,    1), // Attitude, 3 axes.
+  SS(I2C_ATTMAG,       2,  int16,     STR_DEF(STR_SENSOR_PITCH),             UNIT_DEGREE,    1), // Units are 0.1 deg
+  SS(I2C_ATTMAG,       4,  int16,     STR_DEF(STR_SENSOR_YAW),               UNIT_DEGREE,    1),
+//SS(I2C_ATTMAG,       6,  int16,     STR_DEF(STR_SENSOR_MAGX ?),            ??,             1), // Magnetic Compass, 3 axes
+//SS(I2C_ATTMAG,       8,  int16,     STR_DEF(STR_SENSOR_MAGY ?),            ??,             1), // Units are 0.1mG
+//SS(I2C_ATTMAG,      10,  int16,     STR_DEF(STR_SENSOR_MAXZ ?),            ??,             1),
+//SS(I2C_ATTMAG,      12,  int16,     STR_DEF(STR_SENSOR_HDG ?),             UNIT_DEGREE,    1), // Heading, 0.1deg
 
   // 0x20 Smart ESC telemetry
-  SS(I2C_ESC,          0,  uint16,    STR_SENSOR_ESC_RPM2,          UNIT_RPMS,      0), // Electrical RPM, 10RPM (0-655340 RPM)
-  SS(I2C_ESC,          2,  uint16,    STR_SENSOR_ESC_VIN,           UNIT_VOLTS,     2), // Volts, 0.01v (0-655.34V)
-  SS(I2C_ESC,          4,  uint16,    STR_SENSOR_ESC_TFET,          UNIT_CELSIUS,   1), // Temperature, 0.1C (0-6553.4C)
-  SS(I2C_ESC,          6,  uint16,    STR_SENSOR_ESC_CUR,           UNIT_AMPS,      2), // Current, 10mA (0-655.34A)
-  SS(I2C_ESC,          8,  uint16,    STR_SENSOR_ESC_TBEC,          UNIT_CELSIUS,   1), // Temperature, 0.1C (0-6553.4C)
-  SS(I2C_ESC,         10,  uint8,     STR_SENSOR_ESC_BCUR,          UNIT_AMPS,      1), // BEC Current, 100mA (0-25.4A)
-  SS(I2C_ESC,         11,  uint8,     STR_SENSOR_ESC_VBEC,          UNIT_VOLTS,     2), // BEC Volts, 0.05V (0-12.70V)
-  SS(I2C_ESC,         12,  uint8,     STR_SENSOR_ESC_THR,           UNIT_PERCENT,   0), // 0.5% (0-100%)
-  SS(I2C_ESC,         13,  uint8,     STR_SENSOR_ESC_POUT,          UNIT_PERCENT,   0), // Power Output, 0.5% (0-127%)
+  SS(I2C_ESC,          0,  uint16,    STR_DEF(STR_SENSOR_ESC_RPM2),          UNIT_RPMS,      0), // Electrical RPM, 10RPM (0-655340 RPM)
+  SS(I2C_ESC,          2,  uint16,    STR_DEF(STR_SENSOR_ESC_VIN),           UNIT_VOLTS,     2), // Volts, 0.01v (0-655.34V)
+  SS(I2C_ESC,          4,  uint16,    STR_DEF(STR_SENSOR_ESC_TFET),          UNIT_CELSIUS,   1), // Temperature, 0.1C (0-6553.4C)
+  SS(I2C_ESC,          6,  uint16,    STR_DEF(STR_SENSOR_ESC_CUR),           UNIT_AMPS,      2), // Current, 10mA (0-655.34A)
+  SS(I2C_ESC,          8,  uint16,    STR_DEF(STR_SENSOR_ESC_TBEC),          UNIT_CELSIUS,   1), // Temperature, 0.1C (0-6553.4C)
+  SS(I2C_ESC,         10,  uint8,     STR_DEF(STR_SENSOR_ESC_BCUR),          UNIT_AMPS,      1), // BEC Current, 100mA (0-25.4A)
+  SS(I2C_ESC,         11,  uint8,     STR_DEF(STR_SENSOR_ESC_VBEC),          UNIT_VOLTS,     2), // BEC Volts, 0.05V (0-12.70V)
+  SS(I2C_ESC,         12,  uint8,     STR_DEF(STR_SENSOR_ESC_THR),           UNIT_PERCENT,   0), // 0.5% (0-100%)
+  SS(I2C_ESC,         13,  uint8,     STR_DEF(STR_SENSOR_ESC_POUT),          UNIT_PERCENT,   0), // Power Output, 0.5% (0-127%)
 
   // 0x26 GPS Binary
-  SS(I2C_GPS_BIN,      0,  uint16,    STR_SENSOR_GPSALT,            UNIT_METERS,    0), // altitude m, 1000m offset
-  SS(I2C_GPS_BIN,      2,  int32,     STR_SENSOR_GPS,               UNIT_GPS,       0), // latitude+long degree / 10,000,000
-  SS(I2C_GPS_BIN,     10,  uint16,    STR_SENSOR_HDG,               UNIT_DEGREE,    1), // heading/course degree / 10
-  SS(I2C_GPS_BIN,     12,  uint8,     STR_SENSOR_GSPD,              UNIT_KMH,       0), // ground speed Km/h
-  SS(I2C_GPS_BIN,     13,  uint8,     STR_SENSOR_SATELLITES,        UNIT_RAW,       0), // count
+  SS(I2C_GPS_BIN,      0,  uint16,    STR_DEF(STR_SENSOR_GPSALT),            UNIT_METERS,    0), // altitude m, 1000m offset
+  SS(I2C_GPS_BIN,      2,  int32,     STR_DEF(STR_SENSOR_GPS),               UNIT_GPS,       0), // latitude+long degree / 10,000,000
+  SS(I2C_GPS_BIN,     10,  uint16,    STR_DEF(STR_SENSOR_HDG),               UNIT_DEGREE,    1), // heading/course degree / 10
+  SS(I2C_GPS_BIN,     12,  uint8,     STR_DEF(STR_SENSOR_GSPD),              UNIT_KMH,       0), // ground speed Km/h
+  SS(I2C_GPS_BIN,     13,  uint8,     STR_DEF(STR_SENSOR_SATELLITES),        UNIT_RAW,       0), // count
 
   // 0x34 Dual Batt Capacity monitor - Flight Pack
   // The difference with sensor 0x18 (RX capacity monitor) is the consumption magnitude. 
   // RX (0x18) is up to 3.2A, and flight pack is up to 32A (x 10 or 1 decimal place)
   // Right now they have the same sensor name... could this sensors (0x18 and 0x34) be used at the same time? 
-  SS(I2C_FP_BATT,       0,  int16le,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,     1), // Instantaneous current, 0.1A (0-3276.6A)
-  SS(I2C_FP_BATT,       2,  int16le,     STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,      0), // Integrated mAh used, 1mAh (0-32.766Ah)
-  SS(I2C_FP_BATT,       4,  int16le,     STR_SENSOR_BATT1_TEMP,        UNIT_CELSIUS,  1), // Temperature, 0.1C (0-150C)
-  SS(I2C_FP_BATT,       6,  int16le,     STR_SENSOR_BATT2_CURRENT,     UNIT_AMPS,     1), // Instantaneous current, 0.1A (0-3276.6A)
-  SS(I2C_FP_BATT,       8,  int16le,     STR_SENSOR_BATT2_CONSUMPTION, UNIT_MAH,      0), // Integrated mAh used, 1mAh (0-32.766Ah)
-  SS(I2C_FP_BATT,      10,  int16le,     STR_SENSOR_BATT2_TEMP,        UNIT_CELSIUS,  1), // Temperature, 0.1C (0-150C)
+  SS(I2C_FP_BATT,       0,  int16le,     STR_DEF(STR_SENSOR_BATT1_CURRENT),     UNIT_AMPS,     1), // Instantaneous current, 0.1A (0-3276.6A)
+  SS(I2C_FP_BATT,       2,  int16le,     STR_DEF(STR_SENSOR_BATT1_CONSUMPTION), UNIT_MAH,      0), // Integrated mAh used, 1mAh (0-32.766Ah)
+  SS(I2C_FP_BATT,       4,  int16le,     STR_DEF(STR_SENSOR_BATT1_TEMP),        UNIT_CELSIUS,  1), // Temperature, 0.1C (0-150C)
+  SS(I2C_FP_BATT,       6,  int16le,     STR_DEF(STR_SENSOR_BATT2_CURRENT),     UNIT_AMPS,     1), // Instantaneous current, 0.1A (0-3276.6A)
+  SS(I2C_FP_BATT,       8,  int16le,     STR_DEF(STR_SENSOR_BATT2_CONSUMPTION), UNIT_MAH,      0), // Integrated mAh used, 1mAh (0-32.766Ah)
+  SS(I2C_FP_BATT,      10,  int16le,     STR_DEF(STR_SENSOR_BATT2_TEMP),        UNIT_CELSIUS,  1), // Temperature, 0.1C (0-150C)
 
   // Tank pressure + custom input bits (ignore for now)
-//SS(0x38,              0,  uint16,    STR_SENSOR_STATUS_BITS,      UNIT_BITFIELD,  0),
-//SS(0x38,              0,  uint16,    STR_SENSOR_PRESSSURE,        UNIT_PSI,       1),
+//SS(0x38,              0,  uint16,    STR_DEF(STR_SENSOR_STATUS_BITS),      UNIT_BITFIELD,  0),
+//SS(0x38,              0,  uint16,    STR_DEF(STR_SENSOR_PRESSSURE),        UNIT_PSI,       1),
 
   // 0x3A Lipo 6s Monitor Cells
-  SS(I2C_CELLS,        0,  uint16le,    STR_SENSOR_CL01,              UNIT_VOLTS,     2), // Voltage across cell 1, .01V steps
-  SS(I2C_CELLS,        2,  uint16le,    STR_SENSOR_CL02,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        4,  uint16le,    STR_SENSOR_CL03,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        6,  uint16le,    STR_SENSOR_CL04,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        8,  uint16le,    STR_SENSOR_CL05,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,       10,  uint16le,    STR_SENSOR_CL06,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,       12,  uint16le,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   1), // Temperature, 0.1C (0-655.34C)
+  SS(I2C_CELLS,        0,  uint16le,    STR_DEF(STR_SENSOR_CL01),              UNIT_VOLTS,     2), // Voltage across cell 1, .01V steps
+  SS(I2C_CELLS,        2,  uint16le,    STR_DEF(STR_SENSOR_CL02),              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        4,  uint16le,    STR_DEF(STR_SENSOR_CL03),              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        6,  uint16le,    STR_DEF(STR_SENSOR_CL04),              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        8,  uint16le,    STR_DEF(STR_SENSOR_CL05),              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,       10,  uint16le,    STR_DEF(STR_SENSOR_CL06),              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,       12,  uint16le,    STR_DEF(STR_SENSOR_TEMP2),             UNIT_CELSIUS,   1), // Temperature, 0.1C (0-655.34C)
 
   // 0x40 Vario-S
-  SS(I2C_VARIO,         0,  int16,     STR_SENSOR_ALT,               UNIT_METERS,            1),
-  SS(I2C_VARIO,         2,  int16,     STR_SENSOR_VSPD,              UNIT_METERS_PER_SECOND, 1),
+  SS(I2C_VARIO,         0,  int16,     STR_DEF(STR_SENSOR_ALT),               UNIT_METERS,            1),
+  SS(I2C_VARIO,         2,  int16,     STR_DEF(STR_SENSOR_VSPD),              UNIT_METERS_PER_SECOND, 1),
 
   // 0x42 Smartbat
-//SS(I2C_SMART_BAT_REALTIME,     1,  int8,      STR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0),  // disabled because sensor is a duplicate of cells sensors ones
-  SS(I2C_SMART_BAT_REALTIME,     2,  uint32le,  STR_SENSOR_SMART_BAT_BCUR,    UNIT_MAH,    0),
-//SS(I2C_SMART_BAT_REALTIME,     6,  uint16le,  STR_SENSOR_SMART_BAT_BCAP,    UNIT_MAH,    0),
-//SS(I2C_SMART_BAT_REALTIME,     8,  uint16le,  STR_SENSOR_SMART_BAT_MIN_CEL, UNIT_VOLTS,  2),
-//SS(I2C_SMART_BAT_REALTIME,    10,  uint16le,  STR_SENSOR_SMART_BAT_MAX_CEL, UNIT_VOLTS,  2),
+//SS(I2C_SMART_BAT_REALTIME,     1,  int8,      STR_DEF(STR_SMART_BAT_BTMP),    UNIT_CELSIUS,             0),  // disabled because sensor is a duplicate of cells sensors ones
+  SS(I2C_SMART_BAT_REALTIME,     2,  uint32le,  STR_DEF(STR_SENSOR_SMART_BAT_BCUR),    UNIT_MAH,    0),
+//SS(I2C_SMART_BAT_REALTIME,     6,  uint16le,  STR_DEF(STR_SENSOR_SMART_BAT_BCAP),    UNIT_MAH,    0),
+//SS(I2C_SMART_BAT_REALTIME,     8,  uint16le,  STR_DEF(STR_SENSOR_SMART_BAT_MIN_CEL), UNIT_VOLTS,  2),
+//SS(I2C_SMART_BAT_REALTIME,    10,  uint16le,  STR_DEF(STR_SENSOR_SMART_BAT_MAX_CEL), UNIT_VOLTS,  2),
 //SS(I2C_SMART_BAT_REALTIME,    12,  uint16le,  "RFU[2]",                     UNIT_RAW,    0),   // disabled to save sensors slots
 
-  SS(I2C_SMART_BAT_CELLS_1_6,    1,  int8,      STR_SENSOR_SMART_BAT_BTMP,    UNIT_CELSIUS,  0),
-  SS(I2C_SMART_BAT_CELLS_1_6,    2,  uint16le,  STR_SENSOR_CL01,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_1_6,    4,  uint16le,  STR_SENSOR_CL02,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_1_6,    6,  uint16le,  STR_SENSOR_CL03,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_1_6,    8,  uint16le,  STR_SENSOR_CL04,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_1_6,   10,  uint16le,  STR_SENSOR_CL05,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_1_6,   12,  uint16le,  STR_SENSOR_CL06,              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_1_6,    1,  int8,      STR_DEF(STR_SENSOR_SMART_BAT_BTMP),    UNIT_CELSIUS,  0),
+  SS(I2C_SMART_BAT_CELLS_1_6,    2,  uint16le,  STR_DEF(STR_SENSOR_CL01),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_1_6,    4,  uint16le,  STR_DEF(STR_SENSOR_CL02),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_1_6,    6,  uint16le,  STR_DEF(STR_SENSOR_CL03),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_1_6,    8,  uint16le,  STR_DEF(STR_SENSOR_CL04),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_1_6,   10,  uint16le,  STR_DEF(STR_SENSOR_CL05),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_1_6,   12,  uint16le,  STR_DEF(STR_SENSOR_CL06),              UNIT_VOLTS,    2),
 
-  SS(I2C_SMART_BAT_CELLS_7_12,   1,  int8,      STR_SENSOR_SMART_BAT_BTMP,    UNIT_CELSIUS,  0),
-  SS(I2C_SMART_BAT_CELLS_7_12,   2,  uint16le,  STR_SENSOR_CL07,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_7_12,   4,  uint16le,  STR_SENSOR_CL08,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_7_12,   6,  uint16le,  STR_SENSOR_CL09,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_7_12,   8,  uint16le,  STR_SENSOR_CL10,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_7_12,  10,  uint16le,  STR_SENSOR_CL11,              UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_7_12,  12,  uint16le,  STR_SENSOR_CL12,              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_7_12,   1,  int8,      STR_DEF(STR_SENSOR_SMART_BAT_BTMP),    UNIT_CELSIUS,  0),
+  SS(I2C_SMART_BAT_CELLS_7_12,   2,  uint16le,  STR_DEF(STR_SENSOR_CL07),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_7_12,   4,  uint16le,  STR_DEF(STR_SENSOR_CL08),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_7_12,   6,  uint16le,  STR_DEF(STR_SENSOR_CL09),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_7_12,   8,  uint16le,  STR_DEF(STR_SENSOR_CL10),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_7_12,  10,  uint16le,  STR_DEF(STR_SENSOR_CL11),              UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_7_12,  12,  uint16le,  STR_DEF(STR_SENSOR_CL12),              UNIT_VOLTS,    2),
 
-  SS(I2C_SMART_BAT_CELLS_13_18,  1,  int8,     STR_SENSOR_SMART_BAT_BTMP,     UNIT_CELSIUS,  0),
-  SS(I2C_SMART_BAT_CELLS_13_18,  2,  uint16le, STR_SENSOR_CL13,               UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_13_18,  4,  uint16le, STR_SENSOR_CL14,               UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_13_18,  6,  uint16le, STR_SENSOR_CL15,               UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_13_18,  8,  uint16le, STR_SENSOR_CL16,               UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_13_18, 10,  uint16le, STR_SENSOR_CL17,               UNIT_VOLTS,    2),
-  SS(I2C_SMART_BAT_CELLS_13_18, 12,  uint16le, STR_SENSOR_CL18,               UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_13_18,  1,  int8,     STR_DEF(STR_SENSOR_SMART_BAT_BTMP),     UNIT_CELSIUS,  0),
+  SS(I2C_SMART_BAT_CELLS_13_18,  2,  uint16le, STR_DEF(STR_SENSOR_CL13),               UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_13_18,  4,  uint16le, STR_DEF(STR_SENSOR_CL14),               UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_13_18,  6,  uint16le, STR_DEF(STR_SENSOR_CL15),               UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_13_18,  8,  uint16le, STR_DEF(STR_SENSOR_CL16),               UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_13_18, 10,  uint16le, STR_DEF(STR_SENSOR_CL17),               UNIT_VOLTS,    2),
+  SS(I2C_SMART_BAT_CELLS_13_18, 12,  uint16le, STR_DEF(STR_SENSOR_CL18),               UNIT_VOLTS,    2),
 
   //SS(I2C_SMART_BAT_ID,              1,  uint8,  "chemistery",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_ID,              2,  uint8,  "number of cells",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_ID,              3,  uint8,  "manufacturer code",  UNIT_RAW, 0),   // disabled to save sensors slots
-  //SS(I2C_SMART_BAT_ID,              4,  uint16le,  STR_SENSOR_SMART_BAT_CYCLES,  UNIT_RAW,                 0),
+  //SS(I2C_SMART_BAT_ID,              4,  uint16le,  STR_DEF(STR_SENSOR_SMART_BAT_CYCLES),  UNIT_RAW,                 0),
   //SS(I2C_SMART_BAT_ID,              6,  uint8,  "uniqueID[8]",  UNIT_RAW, 0),   // disabled to save sensors slots
 
   //SS(I2C_SMART_BAT_LIMITS,          1,  uint8,  "rfu",  UNIT_RAW, 0),   // disabled to save sensors slots
-  //SS(I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_SENSOR_SMART_BAT_CAPACITY,UNIT_MAH,                 0),
+  //SS(I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_DEF(STR_SENSOR_SMART_BAT_CAPACITY),UNIT_MAH,                 0),
   //SS(I2C_SMART_BAT_LIMITS,          4,  uint16le,  "dischargeCurrentRating",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_LIMITS,          6,  uint16le,  "overDischarge_mV",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_LIMITS,          8,  uint16le,  "zeroCapacity_mV",  UNIT_RAW, 0),   // disabled to save sensors slots
@@ -338,23 +338,23 @@ const SpektrumSensor spektrumSensors[] = {
   // telemetry bus on the model itself
 
   // 0x7E RPM/Volts/Temperature
-  SS(I2C_RPM,          0,  uint16,    STR_SENSOR_RPM,               UNIT_RPMS,       0), // microseconds between pulse leading edges
-  SS(I2C_RPM,          2,  uint16,    STR_SENSOR_A3,                UNIT_VOLTS,      2), // 0.01V increments (typically flight pack voltage)
-  SS(I2C_RPM,          4,  int16,     STR_SENSOR_TEMP2,             UNIT_FAHRENHEIT, 0), // Temperature in degrees F.
+  SS(I2C_RPM,          0,  uint16,    STR_DEF(STR_SENSOR_RPM),               UNIT_RPMS,       0), // microseconds between pulse leading edges
+  SS(I2C_RPM,          2,  uint16,    STR_DEF(STR_SENSOR_A3),                UNIT_VOLTS,      2), // 0.01V increments (typically flight pack voltage)
+  SS(I2C_RPM,          4,  int16,     STR_DEF(STR_SENSOR_TEMP2),             UNIT_FAHRENHEIT, 0), // Temperature in degrees F.
 
   // 0x7f, QoS DATA, also called Flight Log
-  SS(I2C_QOS,          0,  uint16,    STR_SENSOR_QOS_A,             UNIT_RAW,       0), // A - Antenna Fades on Receiver A
-  SS(I2C_QOS,          2,  uint16,    STR_SENSOR_QOS_B,             UNIT_RAW,       0), // B - Antenna Fades on Receiver B
-  SS(I2C_QOS,          4,  uint16,    STR_SENSOR_QOS_L,             UNIT_RAW,       0), // L - Antenna Fades on left Receiver
-  SS(I2C_QOS,          6,  uint16,    STR_SENSOR_QOS_R,             UNIT_RAW,       0), // R - Antenna Fades on right Receiver
-  SS(I2C_QOS,          8,  uint16,    STR_SENSOR_QOS_F,             UNIT_RAW,       0), // F - Frame losses.
-  SS(I2C_QOS,          10, uint16,    STR_SENSOR_QOS_H,             UNIT_RAW,       0), // H - Holds
-  SS(I2C_QOS,          12, uint16,    STR_SENSOR_A2,                UNIT_VOLTS,     2), // Volts, .01V increment.
+  SS(I2C_QOS,          0,  uint16,    STR_DEF(STR_SENSOR_QOS_A),             UNIT_RAW,       0), // A - Antenna Fades on Receiver A
+  SS(I2C_QOS,          2,  uint16,    STR_DEF(STR_SENSOR_QOS_B),             UNIT_RAW,       0), // B - Antenna Fades on Receiver B
+  SS(I2C_QOS,          4,  uint16,    STR_DEF(STR_SENSOR_QOS_L),             UNIT_RAW,       0), // L - Antenna Fades on left Receiver
+  SS(I2C_QOS,          6,  uint16,    STR_DEF(STR_SENSOR_QOS_R),             UNIT_RAW,       0), // R - Antenna Fades on right Receiver
+  SS(I2C_QOS,          8,  uint16,    STR_DEF(STR_SENSOR_QOS_F),             UNIT_RAW,       0), // F - Frame losses.
+  SS(I2C_QOS,          10, uint16,    STR_DEF(STR_SENSOR_QOS_H),             UNIT_RAW,       0), // H - Holds
+  SS(I2C_QOS,          12, uint16,    STR_DEF(STR_SENSOR_A2),                UNIT_VOLTS,     2), // Volts, .01V increment.
 
-  SS(I2C_PSEUDO_TX,    0,  uint8,     STR_SENSOR_TX_RSSI,           UNIT_RAW,       0),
-  SS(I2C_PSEUDO_TX,    4,  uint32,    STR_SENSOR_BIND,              UNIT_RAW,       0),
-  SS(I2C_PSEUDO_TX,    8,  uint32,    STR_SENSOR_FLIGHT_MODE,       UNIT_TEXT,      0),
-  SS(I2C_PSEUDO_TX,    10, uint32,    STR_SENSOR_CELLS,             UNIT_CELLS,     2),
+  SS(I2C_PSEUDO_TX,    0,  uint8,     STR_DEF(STR_SENSOR_TX_RSSI),           UNIT_RAW,       0),
+  SS(I2C_PSEUDO_TX,    4,  uint32,    STR_DEF(STR_SENSOR_BIND),              UNIT_RAW,       0),
+  SS(I2C_PSEUDO_TX,    8,  uint32,    STR_DEF(STR_SENSOR_FLIGHT_MODE),       UNIT_TEXT,      0),
+  SS(I2C_PSEUDO_TX,    10, uint32,    STR_DEF(STR_SENSOR_CELLS),             UNIT_CELLS,     2),
   SS(0,                0,  int16,     NULL,                         UNIT_RAW,       0) //sentinel
 };
 // clang-format on
@@ -999,7 +999,7 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   if (sensor) {
     TelemetryUnit unit = sensor->unit;
     uint8_t prec = min<uint8_t>(2, sensor->precision);
-    telemetrySensor.init(sensor->name, unit, prec);
+    telemetrySensor.init(STR_VAL(sensor->name), unit, prec);
 
     if (unit == UNIT_RPMS) {
       telemetrySensor.custom.ratio = 1;

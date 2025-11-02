@@ -22,12 +22,12 @@
 #include "layout.h"
 #include "layout_factory_impl.h"
 
-const ZoneOption OPTIONS_LAYOUT_2x4[] = {
+const LayoutOption OPTIONS_LAYOUT_2x4[] = {
     LAYOUT_COMMON_OPTIONS,
-    {"Panel1 background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
-    {"Panel2 background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
+    {STR_DEF(STR_PANEL1_BACKGROUND), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
+    {STR_DEF(STR_PANEL_COLOR), ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
+    {STR_DEF(STR_PANEL2_BACKGROUND), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
+    {STR_DEF(STR_PANEL_COLOR), ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
     LAYOUT_OPTIONS_END};
 
 class Layout2x4 : public Layout

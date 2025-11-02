@@ -330,12 +330,6 @@
 #define TR_SURFACE_NAMES0             "스티어링"
 #define TR_SURFACE_NAMES1             "스로틀"
 
-#define TR_RFPOWER_AFHDS2_1           "기본"
-#define TR_RFPOWER_AFHDS2_2           "높음"
-
-#define TR_ROTARY_ENCODERS            "로터리 인코더"
-#define TR_ROTENC_SWITCHES            "인코더 스위치"
-
 #define TR_ON_ONE_SWITCHES_1          "개별"
 #define TR_ON_ONE_SWITCHES_2          "하나로"
 
@@ -424,7 +418,7 @@
 #define TR_VCELLINDEX_9                 "8"
 #define TR_VCELLINDEX_10                "최고"
 #define TR_VCELLINDEX_11                "차이"
-#define TR_SUBTRIMMODES_1               STR_CHAR_DELTA "(센터만)"
+#define TR_SUBTRIMMODES_1               CHAR_DELTA "(센터만)"
 #define TR_SUBTRIMMODES_2               "= (대칭)"
 #define TR_TIMER_DIR_1                  TR("남은 시간", "잔여 시간 표시")
 #define TR_TIMER_DIR_2                  TR("경과 시간", "경과 시간 표시")
@@ -441,7 +435,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[확인]", "\010\010\010\010\010[확인]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("나가기", "RTN")
 
-#define TR_FREE                       "사용 가능"
 #define TR_YES                        "예"
 #define TR_NO                         "아니오"
 #define TR_DELETEMODEL                "모델 삭제"
@@ -520,8 +513,6 @@
 #define TR_SIDE                           "방향"
 #define TR_OFFSET                         "오프셋"
 #define TR_TRIM                           "트림"
-#define TR_DREX                           "듀얼레이트/익스포"
-#define DREX_CHBOX_OFFSET                 30
 #define TR_CURVE                          "커브"
 #define TR_FLMODE                         TR("모드", "비행 모드")
 #define TR_MIXWARNING                     "경고"
@@ -1152,8 +1143,6 @@
 
 #define TR_INPUTS                         "입력"
 #define TR_OUTPUTS                        "출력"
-#define STR_EEBACKUP                      "EEPROM 백업"
-#define STR_FACTORYRESET                  "공장 초기화"
 #define TR_CONFIRMRESET                   TR("전체 삭제", "모델과 설정을 모두 삭제할까요?")
 #define TR_TOO_MANY_LUA_SCRIPTS           "Lua 스크립트가 너무 많습니다!"
 #define TR_SPORT_UPDATE_POWER_MODE        "S.Port 전원"
@@ -1207,6 +1196,8 @@
 #define TR_COLOR                        "색상"
 #define TR_PANEL1_BACKGROUND            "패널1 배경"
 #define TR_PANEL2_BACKGROUND            "패널2 배경"
+#define TR_PANEL_BACKGROUND             "Background"
+#define TR_PANEL_COLOR                  "  Color"
 #define TR_WIDGET_GAUGE                 "게이지"
 #define TR_WIDGET_MODELBMP              "모델 정보"
 #define TR_WIDGET_OUTPUTS               "출력"
@@ -1267,20 +1258,20 @@
 #define TR_SETUP                          "설정"
 #define TR_LAYOUT                         "레이아웃"
 #define TR_TEXT_COLOR                     "텍스트 색상"
-#define TR_MENU_INPUTS                    STR_CHAR_INPUT "입력"
-#define TR_MENU_LUA                       STR_CHAR_LUA "Lua 스크립트"
-#define TR_MENU_STICKS                    STR_CHAR_STICK "스틱"
-#define TR_MENU_POTS                      STR_CHAR_POT "포트"
-#define TR_MENU_MIN                       STR_CHAR_FUNCTION "최소값"
-#define TR_MENU_MAX                       STR_CHAR_FUNCTION "최대값"
-#define TR_MENU_HELI                      STR_CHAR_CYC "사이클릭"
-#define TR_MENU_TRIMS                     STR_CHAR_TRIM "트림"
-#define TR_MENU_SWITCHES                  STR_CHAR_SWITCH "스위치"
-#define TR_MENU_LOGICAL_SWITCHES          STR_CHAR_SWITCH "로직 스위치"
-#define TR_MENU_TRAINER                   STR_CHAR_TRAINER "트레이너"
-#define TR_MENU_CHANNELS                  STR_CHAR_CHANNEL "채널"
-#define TR_MENU_GVARS                     STR_CHAR_SLIDER "GVAR"
-#define TR_MENU_TELEMETRY                 STR_CHAR_TELEMETRY "텔레메트리"
+#define TR_MENU_INPUTS                    CHAR_INPUT "입력"
+#define TR_MENU_LUA                       CHAR_LUA "Lua 스크립트"
+#define TR_MENU_STICKS                    CHAR_STICK "스틱"
+#define TR_MENU_POTS                      CHAR_POT "포트"
+#define TR_MENU_MIN                       CHAR_FUNCTION "최소값"
+#define TR_MENU_MAX                       CHAR_FUNCTION "최대값"
+#define TR_MENU_HELI                      CHAR_CYC "사이클릭"
+#define TR_MENU_TRIMS                     CHAR_TRIM "트림"
+#define TR_MENU_SWITCHES                  CHAR_SWITCH "스위치"
+#define TR_MENU_LOGICAL_SWITCHES          CHAR_SWITCH "로직 스위치"
+#define TR_MENU_TRAINER                   CHAR_TRAINER "트레이너"
+#define TR_MENU_CHANNELS                  CHAR_CHANNEL "채널"
+#define TR_MENU_GVARS                     CHAR_SLIDER "GVAR"
+#define TR_MENU_TELEMETRY                 CHAR_TELEMETRY "텔레메트리"
 #define TR_MENU_DISPLAY                   "디스플레이"
 #define TR_MENU_OTHER                     "기타"
 #define TR_MENU_INVERT                    "반전"
@@ -1335,6 +1326,7 @@
 #define TR_VOICE_DEUTSCH                "독일어"
 #define TR_VOICE_DUTCH                  "네덜란드어"
 #define TR_VOICE_ESPANOL                "스페인어"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "프랑스어"
 #define TR_VOICE_HUNGARIAN              "헝가리어"
 #define TR_VOICE_ITALIANO               "이탈리아어"

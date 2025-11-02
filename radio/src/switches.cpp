@@ -944,12 +944,12 @@ void checkSwitches()
                 auto warn_pos = g_model.potsWarnPosition[i];
                 if (IS_SLIDER(i)) {
                   symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
-                    ? STR_CHAR_UP
-                    : STR_CHAR_DOWN;
+                    ? CHAR_UP
+                    : CHAR_DOWN;
                 } else {
                   symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
-                    ? STR_CHAR_RIGHT
-                    : STR_CHAR_LEFT;
+                    ? CHAR_RIGHT
+                    : CHAR_LEFT;
                 }
                 lcdDrawText(lcdNextPos, y, symbol, INVERS);
                 x = lcdNextPos + 3;

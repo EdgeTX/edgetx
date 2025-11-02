@@ -84,7 +84,7 @@ void SwitchWarnDialog::checkEvents()
       }
       if ((g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
-          warn_txt += STR_CHAR_POT;
+          warn_txt += CHAR_POT;
           warn_txt += getPotLabel(i);
           warn_txt += " ";
         }

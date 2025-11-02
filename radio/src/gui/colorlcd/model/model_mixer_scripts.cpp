@@ -190,7 +190,7 @@ class ScriptLineButton : public ListLineButton
 
   void delayedInit() override
   {
-    auto lbl = lv_label_create(lvobj);
+    auto lbl = etx_label_create(lvobj);
     etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
                          0, 1);
@@ -201,7 +201,7 @@ class ScriptLineButton : public ListLineButton
     if (runtimeData) {
       char s[20];
 
-      lbl = lv_label_create(lvobj);
+      lbl = etx_label_create(lvobj);
       etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER,
                            0, 1);
@@ -209,7 +209,7 @@ class ScriptLineButton : public ListLineButton
       strAppend(s, scriptData.name, LEN_SCRIPT_NAME);
       lv_label_set_text(lbl, s);
 
-      lbl = lv_label_create(lvobj);
+      lbl = etx_label_create(lvobj);
       etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER,
                            0, 1);
@@ -217,7 +217,7 @@ class ScriptLineButton : public ListLineButton
       strAppend(s, scriptData.file, LEN_SCRIPT_FILENAME);
       lv_label_set_text(lbl, s);
 
-      lbl = lv_label_create(lvobj);
+      lbl = etx_label_create(lvobj);
       etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 3, 1, LV_GRID_ALIGN_CENTER,
                            0, 1);

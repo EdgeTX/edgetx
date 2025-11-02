@@ -260,17 +260,16 @@ class BarColorType : public ColorType
 
   lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
   {
-    lv_obj_t* obj = lv_label_create(parent);
+    lv_obj_t* obj = etx_label_create(parent, FONT_XXS_INDEX);
     lv_obj_set_pos(obj, x, y);
     etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
-    etx_font(obj, FONT_XXS_INDEX);
     return obj;
   }
 
   lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x,
                                    lv_coord_t y)
   {
-    lv_obj_t* obj = lv_label_create(parent);
+    lv_obj_t* obj = etx_label_create(parent);
     lv_obj_set_pos(obj, x, y);
     etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
     return obj;

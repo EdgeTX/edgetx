@@ -126,12 +126,12 @@ void menuRadioDiagAnalogs(event_t event)
   uint8_t x = INDENT_WIDTH;
   lcdDrawText(x, y, "X:");
   lcdDrawNumber(x+3*FW-1, y, gyro.outputs[0] * 180 / 1024);
-  lcdDrawChar(lcdNextPos, y, STR_CHAR_BW_DEGREE);
+  lcdDrawChar(lcdNextPos, y, CHAR_BW_DEGREE);
   lcdDrawNumber(x+10*FW-1, y, gyro.scaledX(), RIGHT);
   x = LCD_W/2 + INDENT_WIDTH;
   lcdDrawText(x, y, "Y:");
   lcdDrawNumber(x+3*FW-1, y, gyro.outputs[1] * 180 / 1024);
-  lcdDrawChar(lcdNextPos, y, STR_CHAR_BW_DEGREE);
+  lcdDrawChar(lcdNextPos, y, CHAR_BW_DEGREE);
   lcdDrawNumber(x+10*FW-1, y, gyro.scaledY(), RIGHT);
 #endif
 }

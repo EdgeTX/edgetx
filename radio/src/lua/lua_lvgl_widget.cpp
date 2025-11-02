@@ -805,7 +805,7 @@ void LvglWidgetLabel::setAlign(LcdFlags newAlign)
 
 void LvglWidgetLabel::build(lua_State *L)
 {
-  lvobj = lv_label_create(lvglManager->getCurrentParent()->getLvObj());
+  lvobj = etx_label_create(lvglManager->getCurrentParent()->getLvObj());
   setPos(x, y);
   setSize(w, h);
   setText(txt.chars());
@@ -1491,7 +1491,7 @@ void LvglWidgetSetting::build(lua_State *L)
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
   window->padAll(PAD_OUTLINE);
-  auto lbl = lv_label_create(window->getLvObj());
+  auto lbl = etx_label_create(window->getLvObj());
   lv_obj_align(lbl, LV_ALIGN_LEFT_MID, 0, 0);
   etx_txt_color(lbl, COLOR_THEME_PRIMARY1_INDEX);
   lv_label_set_text(lbl, title.txt.c_str());

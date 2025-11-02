@@ -25,10 +25,10 @@
 // 6x1 layout: 6 rows, 1 column
 // Single column with 6 vertical zones
 
-const ZoneOption OPTIONS_LAYOUT_6x1[] = {
+const LayoutOption OPTIONS_LAYOUT_6x1[] = {
     LAYOUT_COMMON_OPTIONS,
-    {"Background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, RGB2FLAGS(50, 50, 50)},
+    {STR_DEF(STR_PANEL_BACKGROUND), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
+    {STR_DEF(STR_PANEL_COLOR), ZoneOption::Color, RGB2FLAGS(50, 50, 50)},
     LAYOUT_OPTIONS_END};
 
 class Layout6x1 : public Layout

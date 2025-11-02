@@ -18,7 +18,7 @@ SECTIONS
   .firmware_header (READONLY) :
   {
     KEEP(*(.fwdescription))
-  } > REGION_TEXT AT> REGION_TEXT_STORAGE
+  } > REGION_TEXT_STORAGE
   
   /* ISR vector to be loaded */
   .isr_vector :
@@ -51,6 +51,17 @@ SECTIONS
   _text_load = LOADADDR(.text);
 
   INCLUDE common_sections.ld
+
+  /* Assets in FLASH only */
+  .flash (READONLY) :
+  {
+    . = ALIGN(4);
+    _sflash = .;
+    *(.flash)
+
+    . = ALIGN(4);
+    _eflash = .;
+  } > REGION_TEXT_STORAGE
 
   .text_end_section : {} > REGION_TEXT AT > REGION_TEXT_STORAGE
   _firmware_length = LOADADDR(.text_end_section) - LOADADDR(.firmware_header);

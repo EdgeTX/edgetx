@@ -32,7 +32,7 @@ struct GhostSensor
   const uint16_t id;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  STR_TYP name;
 };
 
 // clang-format off
@@ -66,30 +66,30 @@ enum
 };
 
 const GhostSensor ghostSensors[] = {
-  GS(GHOST_ID_RX_RSSI,         STR_SENSOR_RSSI,             UNIT_DB,                0),
-  GS(GHOST_ID_RX_LQ,           STR_SENSOR_RX_QUALITY,       UNIT_PERCENT,           0),
-  GS(GHOST_ID_RX_SNR,          STR_SENSOR_RX_SNR,           UNIT_DB,                0),
+  GS(GHOST_ID_RX_RSSI,         STR_DEF(STR_SENSOR_RSSI),             UNIT_DB,                0),
+  GS(GHOST_ID_RX_LQ,           STR_DEF(STR_SENSOR_RX_QUALITY),       UNIT_PERCENT,           0),
+  GS(GHOST_ID_RX_SNR,          STR_DEF(STR_SENSOR_RX_SNR),           UNIT_DB,                0),
 
-  GS(GHOST_ID_FRAME_RATE,      STR_SENSOR_FRAME_RATE,       UNIT_RAW,               0),
-  GS(GHOST_ID_TX_POWER,        STR_SENSOR_TX_POWER,         UNIT_MILLIWATTS,        0),
-  GS(GHOST_ID_RF_MODE,         STR_SENSOR_RF_MODE,          UNIT_TEXT,              0),
-  GS(GHOST_ID_TOTAL_LATENCY,   STR_SENSOR_TOTAL_LATENCY,    UNIT_RAW,               0),
+  GS(GHOST_ID_FRAME_RATE,      STR_DEF(STR_SENSOR_FRAME_RATE),       UNIT_RAW,               0),
+  GS(GHOST_ID_TX_POWER,        STR_DEF(STR_SENSOR_TX_POWER),         UNIT_MILLIWATTS,        0),
+  GS(GHOST_ID_RF_MODE,         STR_DEF(STR_SENSOR_RF_MODE),          UNIT_TEXT,              0),
+  GS(GHOST_ID_TOTAL_LATENCY,   STR_DEF(STR_SENSOR_TOTAL_LATENCY),    UNIT_RAW,               0),
 
-  GS(GHOST_ID_VTX_FREQ,        STR_SENSOR_VTX_FREQ,         UNIT_RAW,               0),
-  GS(GHOST_ID_VTX_POWER,       STR_SENSOR_VTX_PWR,          UNIT_RAW,               0),
-  GS(GHOST_ID_VTX_CHAN,        STR_SENSOR_VTX_CHAN,         UNIT_RAW,               0),
-  GS(GHOST_ID_VTX_BAND,        STR_SENSOR_VTX_BAND,         UNIT_TEXT,              0),
+  GS(GHOST_ID_VTX_FREQ,        STR_DEF(STR_SENSOR_VTX_FREQ),         UNIT_RAW,               0),
+  GS(GHOST_ID_VTX_POWER,       STR_DEF(STR_SENSOR_VTX_PWR),          UNIT_RAW,               0),
+  GS(GHOST_ID_VTX_CHAN,        STR_DEF(STR_SENSOR_VTX_CHAN),         UNIT_RAW,               0),
+  GS(GHOST_ID_VTX_BAND,        STR_DEF(STR_SENSOR_VTX_BAND),         UNIT_TEXT,              0),
 
-  GS(GHOST_ID_PACK_VOLTS,      STR_SENSOR_BATT,             UNIT_VOLTS,             2),
-  GS(GHOST_ID_PACK_AMPS,       STR_SENSOR_CURR,             UNIT_AMPS,              2),
-  GS(GHOST_ID_PACK_MAH,        STR_SENSOR_CAPACITY,         UNIT_MAH,               0),
+  GS(GHOST_ID_PACK_VOLTS,      STR_DEF(STR_SENSOR_BATT),             UNIT_VOLTS,             2),
+  GS(GHOST_ID_PACK_AMPS,       STR_DEF(STR_SENSOR_CURR),             UNIT_AMPS,              2),
+  GS(GHOST_ID_PACK_MAH,        STR_DEF(STR_SENSOR_CAPACITY),         UNIT_MAH,               0),
 
-  GS(GHOST_ID_GPS_LAT,         STR_GPS,                     UNIT_GPS_LATITUDE,      0),
-  GS(GHOST_ID_GPS_LONG,        STR_GPS,                     UNIT_GPS_LONGITUDE,     0),
-  GS(GHOST_ID_GPS_GSPD,        STR_SENSOR_GSPD,             UNIT_KMH,               1),
-  GS(GHOST_ID_GPS_HDG,         STR_SENSOR_HDG,              UNIT_DEGREE,            3),
-  GS(GHOST_ID_GPS_ALT,         STR_SENSOR_GPSALT,           UNIT_METERS,            0),
-  GS(GHOST_ID_GPS_SATS,        STR_SENSOR_SATELLITES,       UNIT_RAW,               0),
+  GS(GHOST_ID_GPS_LAT,         STR_DEF(STR_GPS),                     UNIT_GPS_LATITUDE,      0),
+  GS(GHOST_ID_GPS_LONG,        STR_DEF(STR_GPS),                     UNIT_GPS_LONGITUDE,     0),
+  GS(GHOST_ID_GPS_GSPD,        STR_DEF(STR_SENSOR_GSPD),             UNIT_KMH,               1),
+  GS(GHOST_ID_GPS_HDG,         STR_DEF(STR_SENSOR_HDG),              UNIT_DEGREE,            3),
+  GS(GHOST_ID_GPS_ALT,         STR_DEF(STR_SENSOR_GPSALT),           UNIT_METERS,            0),
+  GS(GHOST_ID_GPS_SATS,        STR_DEF(STR_SENSOR_SATELLITES),       UNIT_RAW,               0),
 
   GS(0x00,                     NULL,                        UNIT_RAW,               0),
 };
@@ -335,7 +335,7 @@ void ghostSetDefault(int index, uint8_t id, uint8_t subId)
       unit = UNIT_GPS;
     }
     uint8_t prec = min<uint8_t>(2, sensor->precision);
-    telemetrySensor.init(sensor->name, unit, prec);
+    telemetrySensor.init(STR_VAL(sensor->name), unit, prec);
   }
   else
     telemetrySensor.init(id);

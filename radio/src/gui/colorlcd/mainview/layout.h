@@ -23,8 +23,16 @@
 
 #include <list>
 
+#include "definitions.h"
 #include "dataconstants.h"
 #include "widgets_container.h"
+
+struct LayoutOption
+{
+  STR_TYP name;
+  ZoneOption::Type type;
+  ZoneOptionValue deflt;
+};
 
 #define MAX_LAYOUT_ZONES 10
 #define MAX_LAYOUT_OPTIONS 10
@@ -49,7 +57,7 @@ class LayoutFactory
 
   virtual const MaskBitmap* getBitmap() const = 0;
 
-  virtual const ZoneOption* getLayoutOptions() const = 0;
+  virtual const LayoutOption* getLayoutOptions() const = 0;
 
   virtual WidgetsContainer* create(
       Window* parent, LayoutPersistentData* persistentData) const = 0;
