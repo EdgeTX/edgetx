@@ -80,6 +80,30 @@ inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
   return v.rawValue;
 }
 
+// Conversion for Lua API
+inline int sourceNumValToLuaInt(uint16_t val)
+{
+  SourceNumVal v;
+  v.rawValue = val;
+  return v.value + ((v.isSource) ? ((v.value < 0) ? -1024 : 1024) : 0);
+}
+
+inline uint16_t luaIntToSourceNumval(int val)
+{
+  SourceNumVal v;
+  if (val >= 1024) {
+    v.isSource = true;
+    v.value = val - 1024;
+  } else if (val <= -1024) {
+    v.isSource = true;
+    v.value = val + 1024;
+  } else {
+    v.isSource = false;
+    v.value = val;
+  }
+  return v.rawValue;
+}
+
 /*
  * Mixer structure
  */
