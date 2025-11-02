@@ -28,7 +28,7 @@
 QMFavoritesPage::QMFavoritesPage():
         SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_QUICK_MENU_FAVORITES, true)
 {
-  std::vector<std::string> qmPages = QuickMenu::menuPageNames();
+  std::vector<std::string> qmPages = QuickMenu::menuPageNames(true);
 
   for (int i = 0; i < 12; i += 1) {
     char nm[50];
@@ -45,7 +45,7 @@ QMFavoritesPage::QMFavoritesPage():
 
           c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
-              [=](int pg) { return (pg != QM_OPEN_QUICK_MENU) && (pg < QM_UI_SCREEN1 || pg > QM_UI_ADD_PG); });
+              [=](int pg) { return pg != QM_OPEN_QUICK_MENU; });
         });
   }
 

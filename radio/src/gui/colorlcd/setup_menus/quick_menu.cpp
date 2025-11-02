@@ -387,7 +387,7 @@ static std::string replaceAll(std::string str, const std::string& from, const st
     return str;
 }
 
-std::vector<std::string> QuickMenu::menuPageNames()
+std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
 {
   std::vector<std::string> qmPages;
 
@@ -402,7 +402,7 @@ std::vector<std::string> QuickMenu::menuPageNames()
       for (int j = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
         std::string s = STR_VAL(qmTopItems[i].title);
         s += " - ";
-        if (sub[j].qmPage >= QM_UI_SCREEN1 && sub[j].qmPage <= QM_UI_SCREEN10)
+        if (!forFavorites && sub[j].qmPage >= QM_UI_SCREEN1 && sub[j].qmPage <= QM_UI_SCREEN10)
           s += STR_CURRENT_SCREEN;
         else if (STR_VAL(sub[j].title))
           s += STR_VAL(sub[j].title);

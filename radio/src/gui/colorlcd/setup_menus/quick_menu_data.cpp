@@ -107,7 +107,7 @@ PageDef screensMenuItems[] = {
   { ICON_THEME_VIEW8, STR_DEF(STR_QM_SCREEN_8), STR_DEF(STR_MAIN_VIEW_8), PAGE_CREATE, QM_UI_SCREEN8, [](PageDef& pageDef) { return new ScreenSetupPage(7, pageDef); }, []() { return customScreens[7] != nullptr; }},
   { ICON_THEME_VIEW9, STR_DEF(STR_QM_SCREEN_9), STR_DEF(STR_MAIN_VIEW_9), PAGE_CREATE, QM_UI_SCREEN9, [](PageDef& pageDef) { return new ScreenSetupPage(8, pageDef); }, []() { return customScreens[8] != nullptr; }},
   { ICON_THEME_VIEW10, STR_DEF(STR_QM_SCREEN_10), STR_DEF(STR_MAIN_VIEW_10), PAGE_CREATE, QM_UI_SCREEN10, [](PageDef& pageDef) { return new ScreenSetupPage(9, pageDef); }, []() { return customScreens[9] != nullptr; }},
-  { ICON_THEME_ADD_VIEW, STR_DEF(STR_QM_ADD_SCREEN), nullptr, PAGE_ACTION, QM_UI_ADD_PG, nullptr, []() { return customScreens[9] == nullptr; },
+  { ICON_THEME_ADD_VIEW, STR_DEF(STR_QM_ADD_SCREEN), STR_DEF(STR_QM_ADD_SCREEN), PAGE_ACTION, QM_UI_ADD_PG, nullptr, []() { return customScreens[9] == nullptr; },
       []() {
         int newIdx = 1;
         for (; newIdx < MAX_CUSTOM_SCREENS; newIdx += 1)

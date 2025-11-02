@@ -114,7 +114,7 @@ class QuickMenu : public NavWindow
   static void openPage(QMPage page);
   static EdgeTxIcon pageIcon(QMPage page);
   static int pageIndex(QMPage page);
-  static std::vector<std::string> menuPageNames();
+  static std::vector<std::string> menuPageNames(bool forFavorites);
   static void setupFavorite(QMPage page, int f);
 
 #if defined(HARDWARE_KEYS)
