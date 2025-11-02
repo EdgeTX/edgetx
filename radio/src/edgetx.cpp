@@ -1415,10 +1415,7 @@ void edgeTxInit()
 #endif
 
 #if defined(STARTUP_ANIMATION)
-  if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-    pwrOn();
-  }
-  else {
+  if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     runStartupAnimation();
   }
 #else // defined(STARTUP_ANIMATION)

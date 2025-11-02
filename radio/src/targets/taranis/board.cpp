@@ -250,12 +250,6 @@ void boardInit()
   DBGMCU->APB2FZ = 0x00070003;
 #endif
 
-#if defined(PWR_BUTTON_PRESS)
-  if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-    pwrOn();
-  }
-#endif
-
 #if defined(TOPLCD_GPIO)
   toplcdInit();
 #endif
