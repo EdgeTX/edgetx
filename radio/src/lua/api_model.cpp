@@ -632,11 +632,11 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtablenstring(L, "inputName", g_model.inputNames[chn]);
     lua_pushtableinteger(L, "source", expo->srcRaw);
     lua_pushtableinteger(L, "scale", expo->scale);
-    lua_pushtableinteger(L, "weight", expo->weight);
-    lua_pushtableinteger(L, "offset", expo->offset);
+    lua_pushtableinteger(L, "weight", sourceNumValToLuaInt(expo->weight));
+    lua_pushtableinteger(L, "offset", sourceNumValToLuaInt(expo->offset));
     lua_pushtableinteger(L, "switch", expo->swtch);
     lua_pushtableinteger(L, "curveType", expo->curve.type);
-    lua_pushtableinteger(L, "curveValue", expo->curve.value);
+    lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(expo->curve.value));
     lua_pushtableinteger(L, "trimSource", - expo->trimSource);
     lua_pushtableinteger(L, "side", expo->mode);
     lua_pushtableinteger(L, "flightModes", expo->flightModes);
@@ -699,10 +699,10 @@ static int luaModelInsertInput(lua_State *L)
         expo->mode = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        expo->weight = luaL_checkunsigned(L, -1);
+        expo->weight = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "offset")) {
-        expo->offset = luaL_checkunsigned(L, -1);
+        expo->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
         expo->swtch = luaL_checkinteger(L, -1);
@@ -711,7 +711,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        expo->curve.value = luaL_checkunsigned(L, -1);
+        expo->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "trimSource")) {
         expo->trimSource = - luaL_checkinteger(L, -1);
@@ -838,8 +838,8 @@ Get configuration for specified Mix
 @retval table mix data:
  * `name` (string) mix line name
  * `source` (number) source index
- * `weight` (number) weight (1024 == 100%) value or GVAR1..9 = 4096..4011, -GVAR1..9 = 4095..4087
- * `offset` (number) offset value or GVAR1..9 = 4096..4011, -GVAR1..9 = 4095..4087
+ * `weight` (number) weight value (-512 to 511) or source (>= 1024 or <= -1024)
+ * `offset` (number) offset value (-512 to 511) or source (>= 1024 or <= -1024)
  * `switch` (number) switch index
  * `multiplex` (number) multiplex (0 = ADD, 1 = MULTIPLY, 2 = REPLACE)
  * `curveType` (number) curve type (function, expo, custom curve)
@@ -867,11 +867,11 @@ static int luaModelGetMix(lua_State *L)
     lua_newtable(L);
     lua_pushtablenstring(L, "name", mix->name);
     lua_pushtableinteger(L, "source", mix->srcRaw);
-    lua_pushtableinteger(L, "weight", mix->weight);
-    lua_pushtableinteger(L, "offset", mix->offset);
+    lua_pushtableinteger(L, "weight", sourceNumValToLuaInt(mix->weight));
+    lua_pushtableinteger(L, "offset", sourceNumValToLuaInt(mix->offset));
     lua_pushtableinteger(L, "switch", mix->swtch);
     lua_pushtableinteger(L, "curveType", mix->curve.type);
-    lua_pushtableinteger(L, "curveValue", mix->curve.value);
+    lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(mix->curve.value));
     lua_pushtableinteger(L, "multiplex", mix->mltpx);
     lua_pushtableinteger(L, "flightModes", mix->flightModes);
     lua_pushtableboolean(L, "carryTrim", mix->carryTrim);
@@ -926,18 +926,10 @@ static int luaModelInsertMix(lua_State *L)
         mix->srcRaw = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        int val = luaL_checkinteger(L, -1);
-        SourceNumVal v;
-        v.isSource = (abs(val) >= 1024);
-        v.value = val;
-        mix->weight = v.rawValue;
+        mix->weight = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "offset")) {
-        int val = luaL_checkinteger(L, -1);
-        SourceNumVal v;
-        v.isSource = (abs(val) >= 1024);
-        v.value = val;
-        mix->offset = v.rawValue;
+        mix->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
         mix->swtch = luaL_checkinteger(L, -1);
@@ -946,11 +938,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        int val = luaL_checkinteger(L, -1);
-        SourceNumVal v;
-        v.isSource = (abs(val) >= 1024);
-        v.value = val;
-        mix->curve.value = v.rawValue;
+        mix->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "multiplex")) {
         mix->mltpx = luaL_checkinteger(L, -1);
