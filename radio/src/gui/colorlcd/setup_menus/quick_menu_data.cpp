@@ -149,11 +149,11 @@ PageDef toolsMenuItems[] = {
   { ICON_TOOLS_RESET, STR_DEF(STR_QM_RESET), STR_DEF(STR_QM_RESET), PAGE_ACTION, QM_TOOLS_RESET, nullptr, nullptr,
     []() {
       Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_DEF(STR_RESET_FLIGHT), []() { flightReset(); });
-      resetMenu->addLine(STR_DEF(STR_RESET_TIMER1), []() { timerReset(0); });
-      resetMenu->addLine(STR_DEF(STR_RESET_TIMER2), []() { timerReset(1); });
-      resetMenu->addLine(STR_DEF(STR_RESET_TIMER3), []() { timerReset(2); });
-      resetMenu->addLine(STR_DEF(STR_RESET_TELEMETRY), []() { telemetryReset(); });
+      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+      resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
+      resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
+      resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
+      resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
     }
   },
   { ICON_MONITOR, STR_DEF(STR_QM_CHAN_MON), STR_DEF(STR_QM_CHAN_MON), PAGE_ACTION, QM_TOOLS_CHAN_MON, nullptr, nullptr,

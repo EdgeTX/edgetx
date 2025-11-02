@@ -829,7 +829,7 @@ static SetupLineDef setupLines[] = {
                       PageGroup* pg = (PageGroup*)Layer::getPageGroup();
                       coord_t y = pg->getScrollY();
                       pg->onCancel();
-                      PageGroup::RadioMenu();
+                      QuickMenu::openPage(QM_RADIO_SETUP);
                       pg = (PageGroup*)Layer::getPageGroup();
                       pg->setScrollY(y);
                       // Force QM rebuild for language change

@@ -35,7 +35,7 @@
 #include "bitfield.h"
 
 #if defined(COLORLCD)
-#include "quick_menu.h"
+#include "quick_menu_def.h"
 #endif
 
 #if defined(PCBTARANIS)
