@@ -27,53 +27,55 @@ class MainViewTrim;
 
 class ViewMainDecoration
 {
-  public:
-    ViewMainDecoration(Window* parent, bool showTrims = true, bool showSliders = true, bool showFM = true);
+ public:
+  ViewMainDecoration(Window* parent, bool showTrims = true, bool showSliders = true, bool showFM = true);
 
-    // Set decoration visibility
-    void setTrimsVisible(bool visible);
-    void setSlidersVisible(bool visible);
-    void setFlightModeVisible(bool visible);
+  // Set decoration visibility
+  void setTrimsVisible(bool visible);
+  void setSlidersVisible(bool visible);
+  void setFlightModeVisible(bool visible);
 
-    // Get the available space in the middle of the screen
-    // (without decoration)
-    rect_t getMainZone() const;
+  // Get the available space in the middle of the screen
+  // (without decoration)
+  rect_t getMainZone() const;
 
-  protected:
+ protected:
+  enum {
+    SLIDERS_POT1 = 0,
+    SLIDERS_POT2,
+    SLIDERS_POT3,
+    SLIDERS_REAR_LEFT,
+    SLIDERS_EXT1,
+    SLIDERS_REAR_RIGHT,
+    SLIDERS_EXT2,
+    SLIDERS_MAX
+  };
 
-    enum {
-      SLIDERS_POT1 = 0,
-      SLIDERS_POT2,
-      SLIDERS_POT3,
-      SLIDERS_REAR_LEFT,
-      SLIDERS_EXT1,
-      SLIDERS_REAR_RIGHT,
-      SLIDERS_EXT2,
-      SLIDERS_MAX
-    };
-  
-    enum {
-      TRIMS_LH = 0,
-      TRIMS_LV,
-      TRIMS_RV,
-      TRIMS_RH,
-      TRIMS_MAX
-    };
+  enum {
+    TRIMS_LH = 0,
+    TRIMS_LV,
+    TRIMS_RV,
+    TRIMS_RH,
+    TRIMS_MAX
+  };
 
-    Window* parent;
-    Window* w_ml;
-    Window* w_mr;
-    Window* w_bl;
-    Window* w_bc;
-    Window* w_br;
-  
-    Window* sliders[SLIDERS_MAX] = { 0 };
-    MainViewTrim* trims[TRIMS_MAX] = { 0 };
-    Window* flightMode = nullptr;
+  Window* parent;
+  Window* w_ml;
+  Window* w_mr;
+  Window* w_bl;
+  Window* w_bc;
+  Window* w_br;
+  bool showTrims;
+  bool showSliders;
+  bool showFM;
 
-    Window* layoutBox(Window* parent, lv_align_t align, lv_flex_flow_t flow);
+  Window* sliders[SLIDERS_MAX] = { 0 };
+  MainViewTrim* trims[TRIMS_MAX] = { 0 };
+  Window* flightMode = nullptr;
 
-    void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
-    void createTrims(Window* ml, Window* mr, Window* bl, Window* br);
-    void createFlightMode(Window* bc);
+  Window* layoutBox(Window* parent, lv_align_t align, lv_flex_flow_t flow);
+
+  void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
+  void createTrims(Window* ml, Window* mr, Window* bl, Window* br);
+  void createFlightMode(Window* bc);
 };

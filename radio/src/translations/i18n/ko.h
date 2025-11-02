@@ -685,10 +685,7 @@
 #define TR_MENUSTAT                     "통계"
 #define TR_MENUDEBUG                    "디버그"
 
-#define TR_MONITOR_CHANNELS1            "채널 모니터 1-8"
-#define TR_MONITOR_CHANNELS2            "채널 모니터 9-16"
-#define TR_MONITOR_CHANNELS3            "채널 모니터 17-24"
-#define TR_MONITOR_CHANNELS4            "채널 모니터 25-32"
+#define TR_MONITOR_CHANNELS             "채널 모니터 %d-%d"
 #define TR_MONITOR_OUTPUT_DESC          "출력 상태"
 #define TR_MONITOR_MIXER_DESC           "믹서 상태"
 
@@ -1055,8 +1052,6 @@
 #define TR_ANADIAGS_UNFILTRAW             "필터링 안 된 원시 아날로그"
 #define TR_ANADIAGS_MINMAX                "최소, 최대, 범위"
 #define TR_ANADIAGS_MOVE                  "아날로그를 끝까지 움직이세요!"
-#define TR_SPEAKER                        "스피커"
-#define TR_BUZZER                         "부저"
 #define TR_BYTES                          "바이트"
 #define TR_MODULE_BIND                    BUTTON(TR("바인드", "바인딩"))
 #define TR_MODULE_UNBIND                  BUTTON("바인딩 해제")

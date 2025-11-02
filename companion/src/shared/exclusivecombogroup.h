@@ -21,15 +21,27 @@
 
 #pragma once
 
-#include "generaledit.h"
+#include <QtCore>
+#include <QComboBox>
+#include <QList>
 
-class CalibrationPanel : public GeneralPanel
+class ExclusiveComboGroup: public QObject
 {
     Q_OBJECT
 
   public:
-    CalibrationPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
-    virtual ~CalibrationPanel() {};
+    typedef QList<QComboBox*> ComboBoxes;
+
+    ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter);
+
+    ComboBoxes* getComboBoxes() { return &combos; }
+
+    void addCombo(QComboBox *comboBox);
+    void handleActivated(QComboBox* target, int index);
 
   private:
+    static constexpr auto _role = Qt::UserRole + 500;
+
+    ComboBoxes combos;
+    std::function<bool(const QVariant&)> filter;
 };

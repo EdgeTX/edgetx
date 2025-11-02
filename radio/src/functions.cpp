@@ -537,12 +537,10 @@ const char* funcGetLabel(uint8_t func)
   case FUNC_PLAY_SOUND:
     return STR_SOUND;
 #endif
-#if defined(VOICE)
   case FUNC_PLAY_TRACK:
     return STR_PLAY_TRACK;
   case FUNC_PLAY_VALUE:
     return STR_PLAY_VALUE;
-#endif
 #if defined(LUA)
   case FUNC_PLAY_SCRIPT:
     return STR_SF_PLAY_SCRIPT;

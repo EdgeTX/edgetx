@@ -663,10 +663,7 @@
 #define TR_MENULOGICALSWITCH           "論理スイッチ"
 #define TR_MENUSTAT                    "統計"
 #define TR_MENUDEBUG                   "デバッグ"
-#define TR_MONITOR_CHANNELS1           "チャンネルモニター 1-8"
-#define TR_MONITOR_CHANNELS2           "チャンネルモニター 9-16"
-#define TR_MONITOR_CHANNELS3           "チャンネルモニター 17-24"
-#define TR_MONITOR_CHANNELS4           "チャンネルモニター 25-32"
+#define TR_MONITOR_CHANNELS            "チャンネルモニター %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "出力"
 #define TR_MONITOR_MIXER_DESC          "ミキサー"
 #define TR_RECEIVER_NUM                TR("RxNum", "受信機 No.")
@@ -1009,8 +1006,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "素の状態のアナログ信号をフィルターしない値で表示"
 #define TR_ANADIAGS_MINMAX             "最低値、最高値、範囲を表示"
 #define TR_ANADIAGS_MOVE               "アナログ信号を末端まで動かした値を表示"
-#define TR_SPEAKER                     "スピーカー"
-#define TR_BUZZER                      "ブザー"
 #define TR_BYTES                       "バイト"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("バインド解除")

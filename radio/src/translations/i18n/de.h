@@ -665,10 +665,7 @@
 #define TR_MENULOGICALSWITCH           "LOGIKSCHALTER"
 #define TR_MENUSTAT                    "STAT"
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "KANAL+MISCHER MONITOR 1-8"
-#define TR_MONITOR_CHANNELS2           "KANAL+MISCHER MONITOR 9-16"
-#define TR_MONITOR_CHANNELS3           "KANAL+MISCHER MONITOR 17-24"
-#define TR_MONITOR_CHANNELS4           "KANAL+MISCHER MONITOR 25-32"
+#define TR_MONITOR_CHANNELS            "KANAL+MISCHER MONITOR %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "Kanäle"
 #define TR_MONITOR_MIXER_DESC          "Mischer"
 #define TR_RECEIVER_NUM                TR("Empf Nr.", "Empfänger Nummer")
@@ -1004,8 +1001,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "analoge Geber ungefiltert und unbearbeitet"
 #define TR_ANADIAGS_MINMAX             "Min., Max. und Bereich"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
-#define TR_SPEAKER                     "Lautspr"
-#define TR_BUZZER                      "Summer"
 #define TR_BYTES                       "Bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd","Binden"))   //9XR-Pro
 #define TR_MODULE_UNBIND               BUTTON("Trennen")

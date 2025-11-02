@@ -33,10 +33,5 @@
 
 #include "translations/string_list.h"
 
-#if !(defined(AUDIO) && defined(BUZZER))
-#define STR_SPEAKER STR_MODE
-#define STR_BUZZER  STR_MODE
-#endif
-
 #undef STR
 #undef STRARRAY

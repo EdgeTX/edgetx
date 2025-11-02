@@ -191,7 +191,7 @@ class DateTimeWindow : public Window
 static SetupLineDef soundPageSetupLines[] = {
   {
     // Beeps mode
-    STR_SPEAKER,
+    STR_MODE,
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VBEEPMODE, -2, 1,
                  GET_SET_DEFAULT(g_eeGeneral.beepMode));

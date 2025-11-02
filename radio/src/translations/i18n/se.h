@@ -669,10 +669,7 @@
 #define TR_MENULOGICALSWITCH            "LOGISK BRYTARE"
 #define TR_MENUSTAT                     "STATISTIK"
 #define TR_MENUDEBUG                    "DEBUG"
-#define TR_MONITOR_CHANNELS1            "KANALÖVERSIKT - KA 1-8"
-#define TR_MONITOR_CHANNELS2            "KANALÖVERSIKT - KA 9-16"
-#define TR_MONITOR_CHANNELS3            "KANALÖVERSIKT - KA 17-24"
-#define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KA 25-32"
+#define TR_MONITOR_CHANNELS             "KANALÖVERSIKT - KA %d-%d"
 #define TR_MONITOR_OUTPUT_DESC          "Utdata"
 #define TR_MONITOR_MIXER_DESC           "Mixar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")
@@ -1011,8 +1008,6 @@
 #define TR_ANADIAGS_UNFILTRAW           "Ofiltrerade råa analoga"
 #define TR_ANADIAGS_MINMAX              "Min., max. och omfång"
 #define TR_ANADIAGS_MOVE                "Rör analoga till sina ytterlägen!"
-#define TR_SPEAKER                      "Högtalare"
-#define TR_BUZZER                       "Summer"
 #define TR_BYTES                        "byte"
 #define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Parkoppla"))
 #define TR_MODULE_UNBIND                BUTTON("Glöm")

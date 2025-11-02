@@ -669,10 +669,7 @@
 #define TR_MENULOGICALSWITCH           "INTER LOG."
 #define TR_MENUSTAT                    TR("STATS", "STATISTIQUES")
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "VOIES 1-8"
-#define TR_MONITOR_CHANNELS2           "VOIES 9-16"
-#define TR_MONITOR_CHANNELS3           "VOIES 17-24"
-#define TR_MONITOR_CHANNELS4           "VOIES 25-32"
+#define TR_MONITOR_CHANNELS            "VOIES %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "Sorties"
 #define TR_MONITOR_MIXER_DESC          "Mixeurs"
 #define TR_RECEIVER_NUM                TR("NumRx", "No. Récepteur")
@@ -1008,8 +1005,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Analog. bruts non filtrés"
 #define TR_ANADIAGS_MINMAX             "Min., max. et courses"
 #define TR_ANADIAGS_MOVE               "Déplacer les analogiques à leurs extrêmes!"
-#define TR_SPEAKER                     "HP."
-#define TR_BUZZER                      "Bipeur"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Délier")

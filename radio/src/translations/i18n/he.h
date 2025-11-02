@@ -667,10 +667,7 @@
 #define TR_MENULOGICALSWITCH           "מתג לוגי"
 #define TR_MENUSTAT                    "סטטוס"
 #define TR_MENUDEBUG                   "DEBUG"
-#define TR_MONITOR_CHANNELS1           "מצגי ערוצים 8-1"
-#define TR_MONITOR_CHANNELS2           "מצגי ערוצים 16-9"
-#define TR_MONITOR_CHANNELS3           "מצגי ערוצים 24-17"
-#define TR_MONITOR_CHANNELS4           "מצגי ערוצים 32-25"
+#define TR_MONITOR_CHANNELS            "מצגי ערוצים %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "יציאות"
 #define TR_MONITOR_MIXER_DESC          "מיקסרים"
   #define TR_RECEIVER_NUM              TR("RxNum", "Receiver No.")
@@ -1013,8 +1010,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Unfiltered raw analogs"
 #define TR_ANADIAGS_MINMAX             "Min., max. and range"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
-#define TR_SPEAKER                     "רמקול"
-#define TR_BUZZER                      "זמזם"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "צימוד"))
 #define TR_MODULE_UNBIND               BUTTON("Unbind")

@@ -25,7 +25,6 @@
 #include "edgetx.h"
 #include "quick_menu_group.h"
 #include "etx_lv_theme.h"
-#include "view_text.h"
 #include "view_main.h"
 #include "screen_setup.h"
 #include "theme_manager.h"
@@ -245,16 +244,6 @@ QuickMenu::QuickMenu() :
   sub = new QuickSubMenu(box, this, ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, toolsMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
-
-  mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
-                      [=]() -> uint8_t {
-                        onSelect(true);
-                        readModelNotes(true);
-                        return 0;
-                      },
-                      [=]() -> bool {
-                        return modelHasNotes();
-                      });
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)
@@ -288,7 +277,7 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
     setFocus(curPage);
   } else {
     pageGroup = nullptr;
-    if (curPage > QuickMenu::MANAGE_MODELS) {
+    if (curPage >= QuickMenu::FIRST_SUB_MENU_ITEM) {
       mainMenu->setDisabled(false);
       mainMenu->clearFocus();
       setFocus(curPage);

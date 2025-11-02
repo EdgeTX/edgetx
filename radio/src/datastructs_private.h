@@ -945,12 +945,6 @@ PACK(struct TrainerData {
     char bluetoothName[LEN_BLUETOOTH_NAME];
 #endif
 
-#if defined(BUZZER)
-  #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
-#else
-  #define BUZZER_FIELD int8_t spare2:2 SKIP
-#endif
-
 PACK(struct switchDef {
   CUST_IDX(sw, sw_idx_read, sw_idx_write);
   NOBACKUP(char name[LEN_SWITCH_NAME]);
@@ -998,7 +992,7 @@ PACK(struct RadioData {
   uint8_t internalModule ENUM(ModuleType);
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
-  NOBACKUP(BUZZER_FIELD); /* 2bits */
+  NOBACKUP(int8_t buzzerModeSkip:2 SKIP); // 2 bits for alignment
   NOBACKUP(uint8_t fai:1);
   NOBACKUP(int8_t beepMode:2 ENUM(BeeperMode) CUST(r_beeperMode,w_beeperMode));
   NOBACKUP(uint8_t alarmsFlash:1);

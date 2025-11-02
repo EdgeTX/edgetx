@@ -33,12 +33,14 @@
 #include "inactivity_timer.h"
 #include "hal.h"
 
+constexpr uint32_t I2C_TIMEOUT = 5; //ms
+
 int16_t getGyroTemperature()
 {
   uint8_t reg = TEMP_DATA_X0_REG;
   uint8_t buf[2] = {0};
 
-  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 2, 1000) < 0) {
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 2, I2C_TIMEOUT) < 0) {
     TRACE("ICM426xx ERROR: TEMP_DATA_X0_REG i2c read error");
     return -1;
   }
@@ -81,7 +83,7 @@ int gyroInit(void)
   }
 
   uint8_t data = 0;
-  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, 0x75, 1, &data, 1, 1000) < 0) {
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, 0x75, 1, &data, 1, I2C_TIMEOUT) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
@@ -153,7 +155,7 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 
   uint8_t buf[6];
   uint8_t reg = GYRO_DATA_X0_REG;
-  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, I2C_TIMEOUT) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
@@ -162,7 +164,7 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
   imu_raw.gyro_z = ((int16_t)(buf[4] << 8) | buf[5]); // z
 
   reg = ACCEL_DATA_X0_REG;
-  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, I2C_TIMEOUT) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }

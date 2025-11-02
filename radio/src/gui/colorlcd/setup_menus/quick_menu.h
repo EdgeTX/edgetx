@@ -45,8 +45,9 @@ class QuickMenu : public NavWindow
   enum SubMenu {
     NONE = 0,
     MANAGE_MODELS,
+    FIRST_SUB_MENU_ITEM,
     // Model menu
-    MODEL_SETUP,
+    MODEL_SETUP = FIRST_SUB_MENU_ITEM,
     MODEL_HELI,
     MODEL_FLIGHTMODES,
     MODEL_INPUTS,
@@ -58,6 +59,7 @@ class QuickMenu : public NavWindow
     MODEL_SF,
     MODEL_SCRIPTS,
     MODEL_TELEMETRY,
+    MODEL_NOTES,
     // Radio menu
     RADIO_SETUP,
     RADIO_GF,

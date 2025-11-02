@@ -49,9 +49,12 @@ FullScreenDialog::FullScreenDialog(
 
   bringToTop();
 
-  build();
-
   delayLoad();
+}
+
+void FullScreenDialog::delayedInit()
+{
+  build();
 }
 
 void FullScreenDialog::build()

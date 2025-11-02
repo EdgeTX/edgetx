@@ -28,7 +28,7 @@
 #include "edgetx.h"
 #include "lua/lua_states.h"
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 #include "LvglWrapper.h"
 #include "view_main.h"
 #include "startup_shutdown.h"
@@ -58,7 +58,7 @@ uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 static Menu* _usbMenu = nullptr;
 
 void closeUsbMenu()
@@ -337,7 +337,7 @@ void guiMain(event_t evt)
     maxLuaInterval = interval;
   }
 
-  luaDoGc(lsWidgets, true);
+  luaDoGc(lsWidgets, false);
 
   DEBUG_TIMER_START(debugTimerLua);
   luaTask(false);
@@ -539,7 +539,7 @@ void perMain()
   }
 
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
     LvglWrapper::instance()->run();
     usbConnectedWindow->checkEvents();
 #else
@@ -555,7 +555,7 @@ void perMain()
   checkFailsafeMulti();
 #endif
 
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   event_t evt = getEvent();
 #endif
 
@@ -565,7 +565,7 @@ void perMain()
 
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   guiMain(0);
   // For color screens show a popup deferred from another task
   show_ui_popup();

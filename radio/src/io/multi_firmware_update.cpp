@@ -37,7 +37,7 @@
 
 #include <memory>
 
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   #include "lib_file.h"
 #endif
 

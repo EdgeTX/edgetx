@@ -240,10 +240,10 @@ class ColorEditPage : public Page
     form->padAll(PAD_SMALL);
 #if LANDSCAPE
     form->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-    rect_t r = {0, 0, COLOR_LIST_SIZE, form->height() - PAD_LARGE};
+    rect_t r = {0, 0, COLOR_LIST_SIZE, form->height() - 2 * PAD_SMALL};
 #else
     form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
-    rect_t r = {0, 0, form->width() - PAD_LARGE, COLOR_LIST_SIZE};
+    rect_t r = {0, 0, form->width() - 2 * PAD_SMALL, COLOR_LIST_SIZE};
 #endif
 
     Window *colForm = new Window(form, r);
@@ -251,9 +251,9 @@ class ColorEditPage : public Page
     colForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL, r.w);
 
 #if LANDSCAPE
-    r.w = form->width() - COLOR_LIST_SIZE - PAD_MEDIUM * 2;
+    r.w = form->width() - COLOR_LIST_SIZE - 3 * PAD_SMALL;
 #else
-    r.h = form->height() - COLOR_LIST_SIZE - PAD_MEDIUM * 2;
+    r.h = form->height() - COLOR_LIST_SIZE - 3 * PAD_SMALL;
 #endif
     _previewWindow = new PreviewWindow(form, r, _theme->getColorList());
 
@@ -403,10 +403,10 @@ class ThemeEditPage : public Page
     form->padAll(PAD_SMALL);
 #if LANDSCAPE
     form->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-    rect_t r = {0, 0, ColorEditPage::COLOR_LIST_SIZE, form->height() - PAD_LARGE};
+    rect_t r = {0, 0, ColorEditPage::COLOR_LIST_SIZE, form->height() - 2 * PAD_SMALL};
 #else
     form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
-    rect_t r = {0, 0, form->width() - PAD_LARGE, ColorEditPage::COLOR_LIST_SIZE};
+    rect_t r = {0, 0, form->width() - 2 * PAD_SMALL, ColorEditPage::COLOR_LIST_SIZE};
 #endif
 
     _cList = new ColorList(form, r, _theme.getColorList());
@@ -414,9 +414,9 @@ class ThemeEditPage : public Page
     _cList->setPressHandler([=]() { editColorPage(); });
 
 #if LANDSCAPE
-    r.w = form->width() - ColorEditPage::COLOR_LIST_SIZE - PAD_MEDIUM * 2;
+    r.w = form->width() - ColorEditPage::COLOR_LIST_SIZE - 3 * PAD_SMALL;
 #else
-    r.h = form->height() - ColorEditPage::COLOR_LIST_SIZE - PAD_MEDIUM * 2;
+    r.h = form->height() - ColorEditPage::COLOR_LIST_SIZE - 3 * PAD_SMALL;
 #endif
     _previewWindow = new PreviewWindow(form, r, _theme.getColorList());
   }
@@ -605,9 +605,9 @@ void ThemeSetupPage::build(Window *window)
   pageWindow = window;
 
 #if LANDSCAPE
-  window->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);
+  window->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
 #else
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
 #endif
 
   auto tp = ThemePersistance::instance();
@@ -622,9 +622,9 @@ void ThemeSetupPage::build(Window *window)
 
   // create listbox and setup menus
 #if LANDSCAPE
-  rect_t r = {0, 0, LIST_SIZE, window->height() - PAD_LARGE};
+  rect_t r = {0, 0, LIST_SIZE, window->height() - 2 * PAD_SMALL};
 #else
-  rect_t r = {0, 0, window->width() - PAD_LARGE, LIST_SIZE};
+  rect_t r = {0, 0, window->width() - 2 * PAD_SMALL, LIST_SIZE};
 #endif
   setupListbox(window, r, tp);
 
@@ -641,25 +641,25 @@ void ThemeSetupPage::build(Window *window)
   themeColorPreview->setWidth(r.w);
 
 #if LANDSCAPE
-  r.w = window->width() - LIST_SIZE - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_SMALL;
-  r.h = window->height() - PAD_LARGE;
+  r.w = window->width() - LIST_SIZE - COLOR_PREVIEW_SIZE - 4 * PAD_SMALL;
+  r.h = window->height() - 2 * PAD_SMALL;
 #else
-  r.w = window->width() - PAD_LARGE;
-  r.h = window->height() - LIST_SIZE - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_SMALL;
+  r.w = window->width() - 2 * PAD_SMALL;
+  r.h = window->height() - LIST_SIZE - COLOR_PREVIEW_SIZE - 4 * PAD_SMALL;
 #endif
 
   auto rw = new Window(window, r);
   rw->padAll(PAD_ZERO);
-  rw->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY, r.w);
+  rw->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, r.w);
 
-  r.h -= 46;
+  r.h -= 2 * EdgeTxStyles::STD_FONT_HEIGHT;
 
   // setup FileCarosell()
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames()
                                     : std::vector<std::string>();
   fileCarosell = new FileCarosell(rw, r, fileNames);
 
-  r.h = 20;
+  r.h = EdgeTxStyles::STD_FONT_HEIGHT;
 
   // author and name of theme on right side of screen
   nameText = new StaticText(rw, r, "");

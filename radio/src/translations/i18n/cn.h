@@ -664,10 +664,7 @@
 #define TR_MENULOGICALSWITCH           "逻辑开关"
 #define TR_MENUSTAT                    "统计"
 #define TR_MENUDEBUG                   "Debug"
-#define TR_MONITOR_CHANNELS1           "1-8通道查看"
-#define TR_MONITOR_CHANNELS2           "9-16通道查看"
-#define TR_MONITOR_CHANNELS3           "17-24通道查看"
-#define TR_MONITOR_CHANNELS4           "25-32通道查看"
+#define TR_MONITOR_CHANNELS            "%d-%d通道查看"
 #define TR_MONITOR_OUTPUT_DESC         "输出查看"
 #define TR_MONITOR_MIXER_DESC          "混控查看"
 #define TR_RECEIVER_NUM                TR("RxNum", "接收机编号")
@@ -1010,8 +1007,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "未经过滤的原始ADC值"
 #define TR_ANADIAGS_MINMAX             "最低值、最高值、行程量"
 #define TR_ANADIAGS_MOVE               "移动ADC输入以查看行程量"
-#define TR_SPEAKER                     "扬声器"
-#define TR_BUZZER                      "蜂鸣器"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
 #define TR_MODULE_UNBIND               BUTTON("解绑")

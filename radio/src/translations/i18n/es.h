@@ -664,10 +664,7 @@
 #define TR_MENULOGICALSWITCH   "INTERRUP.LÓGICO"
 #define TR_MENUSTAT            TR("ESTAD.", "ESTADÍSTICAS")
 #define TR_MENUDEBUG           "DEBUG"
-#define TR_MONITOR_CHANNELS1   "MONITOR CANALES 1/8"
-#define TR_MONITOR_CHANNELS2   "MONITOR CANALES 9/16"
-#define TR_MONITOR_CHANNELS3   "MONITOR CANALES 17/24"
-#define TR_MONITOR_CHANNELS4   "MONITOR CANALES 25/32"
+#define TR_MONITOR_CHANNELS    "MONITOR CANALES %d/%d"
 #define TR_MONITOR_OUTPUT_DESC "SALIDAS"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
 #define TR_RECEIVER_NUM                TR("Num Rx", "Receptor No.")
@@ -1004,8 +1001,6 @@
 #define TR_ANADIAGS_UNFILTRAW  "Unfiltered raw analogs"
 #define TR_ANADIAGS_MINMAX     "Min., max. and range"
 #define TR_ANADIAGS_MOVE       "Move analogs to their extremes!"
-#define TR_SPEAKER             "Altavoz"
-#define TR_BUZZER              "Zumbador"
 #define TR_BYTES               "bytes"
 #define TR_MODULE_BIND         "[Enl.]"
 #define TR_MODULE_UNBIND               BUTTON("Unbind")

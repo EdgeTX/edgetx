@@ -51,7 +51,8 @@ class StorageFormat
     }
     virtual ~StorageFormat() {}
     virtual bool load(RadioData & radioData) = 0;
-    virtual bool write(const RadioData & radioData) = 0;
+    virtual bool load(GeneralSettings & generalSettings) { return false; }
+    virtual bool write(RadioData & radioData) = 0;
     virtual bool writeModel(const RadioData & radioData, const int modelIndex) { return false; }
 
     QString error() {
@@ -139,7 +140,7 @@ class Storage : public StorageFormat
     {
     }
 
-    virtual QString name() { return "storage"; }
+    virtual QString name() override { return "storage"; }
 
     void setError(const QString & error)
     {
@@ -151,9 +152,14 @@ class Storage : public StorageFormat
       _warning = warning;
     }
 
-    virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData);
-    virtual bool writeModel(const RadioData & radioData, const int modelIndex);
+    virtual bool load(RadioData & radioData) override;
+    virtual bool load(GeneralSettings & generalSettings) override;
+    virtual bool write(RadioData & radioData) override;
+    virtual bool writeModel(const RadioData & radioData, const int modelIndex) override;
+
+  protected:
+    bool fileExists();
+    StorageFormat * getStorageFormat();
 };
 
 void registerStorageFactories();

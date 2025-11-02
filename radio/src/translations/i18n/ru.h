@@ -666,10 +666,7 @@
 #define TR_MENULOGICALSWITCH           "ЛОГИЧ ТУМБЛ."
 #define TR_MENUSTAT                    "СТАТИСТИКА"
 #define TR_MENUDEBUG                   "ОТЛАДКА"
-#define TR_MONITOR_CHANNELS1           "МОНИТОР КАН 1-8"
-#define TR_MONITOR_CHANNELS2           "МОНИТОР КАН 9-16"
-#define TR_MONITOR_CHANNELS3           "МОНИТОР КАН 17-24"
-#define TR_MONITOR_CHANNELS4           "МОНИТОР КАН 25-32"
+#define TR_MONITOR_CHANNELS            "МОНИТОР КАН %d-%d"
 #define TR_MONITOR_OUTPUT_DESC         "Выходы"
 #define TR_MONITOR_MIXER_DESC          "Микшеры"
   #define TR_RECEIVER_NUM              TR("Rx Ном", "Номер")
@@ -1012,8 +1009,6 @@
 #define TR_ANADIAGS_UNFILTRAW          "Неотфильтр необработ аналог сигн"
 #define TR_ANADIAGS_MINMAX             "Мин., Макс. и Диапазон"
 #define TR_ANADIAGS_MOVE               "Двигайте аналоговые датчики!"
-#define TR_SPEAKER                     "Динамик"
-#define TR_BUZZER                      "Звук сигнал"
 #define TR_BYTES                       "Байты"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Unbind")
