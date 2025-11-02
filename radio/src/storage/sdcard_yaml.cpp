@@ -296,7 +296,7 @@ const char * writeGeneralSettings()
     g_eeGeneral.manuallyEdited = false;
 
     const char *p = writeFileYaml(RADIO_SETTINGS_TMPFILE_YAML_PATH, get_radiodata_nodes(),
-                        (uint8_t*)&g_eeGeneral, file_checksum);
+                         (uint8_t*)&g_eeGeneral, file_checksum);
     TRACE("generalSettings written with checksum %u", file_checksum);
 
     if (p != NULL) {
