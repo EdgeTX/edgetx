@@ -453,7 +453,7 @@ void menuRadioSetup(event_t event)
           lcdDrawTextIndented(y, STR_IMU_MAX);
           lcdDrawNumber(LCD_W-7, y, IMU_MAX_DEFAULT + g_eeGeneral.imuMax, attr|RIGHT);
           coord_t lp = lcdLastLeftPos - 2;
-          lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, attr);
+          lcdDrawChar(lcdLastRightPos, y, CHAR_BW_DEGREE, attr);
           if (attr) {
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuMax, IMU_MAX_DEFAULT - IMU_MAX_RANGE, IMU_MAX_DEFAULT + IMU_MAX_RANGE);
             lcdDrawText(lp, y, ")", RIGHT);
@@ -468,7 +468,7 @@ void menuRadioSetup(event_t event)
           lcdDrawTextIndented(y, STR_IMU_OFFSET);
           lcdDrawNumber(LCD_W-7, y, g_eeGeneral.imuOffset, attr|RIGHT);
           coord_t lp = lcdLastLeftPos - 2;
-          lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, attr);
+          lcdDrawChar(lcdLastRightPos, y, CHAR_BW_DEGREE, attr);
           if (attr) {
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuOffset, IMU_OFFSET_MIN, IMU_OFFSET_MAX);
             lcdDrawText(lp, y, ")", RIGHT);
@@ -676,12 +676,21 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_LANGUAGE:
         lcdDrawTextAlignedLeft(y, STR_VOICE_LANGUAGE);
+#if !defined(ALL_LANGS)
         lcdDrawText(LCD_W-2, y, currentLanguagePack->name, attr|RIGHT);
+#else
+        lcdDrawText(LCD_W-2, y, currentLanguagePack->name(), attr|RIGHT);
+#endif
         if (attr) {
           currentLanguagePackIdx = checkIncDec(event, currentLanguagePackIdx, 0, DIM(languagePacks)-2, EE_GENERAL);
           if (checkIncDec_Ret) {
             currentLanguagePack = languagePacks[currentLanguagePackIdx];
             strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
+#if defined(ALL_LANGS)
+            currentLangStrings = langStrings[currentLanguagePackIdx];
+            extern void setLanguageFont(int n);
+            setLanguageFont(currentLanguagePackIdx);
+#endif
           }
         }
         break;

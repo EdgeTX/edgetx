@@ -22,9 +22,6 @@
 #include "edgetx.h"
 #include "usb_joystick.h"
 
-#define _STR_MAX(x)                     "/" #x
-#define STR_MAX(x)                     _STR_MAX(x)
-
 #if LCD_W >= 212
   #define MODE_POS          5*FW
   #define SUBMODE_POS       MODE_POS+2*FW

@@ -148,7 +148,7 @@ extern void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFl
 
 static void menuRadioCFSOne(event_t event)
 {
-  std::string s(STR_CHAR_SWITCH);
+  std::string s(CHAR_SWITCH);
   s += switchGetDefaultName(swIndex);
 
   int config = g_eeGeneral.switchType(swIndex);
@@ -662,7 +662,7 @@ void menuRadioHardware(event_t event)
 
           // draw hw name
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
-          lcdDrawText(INDENT_WIDTH, y, STR_CHAR_POT, flags);
+          lcdDrawText(INDENT_WIDTH, y, CHAR_POT, flags);
           lcdDrawText(lcdNextPos, y, adcGetInputLabel(ADC_INPUT_FLEX, idx), flags);
 
           // draw custom name
@@ -696,7 +696,7 @@ void menuRadioHardware(event_t event)
           int config = g_eeGeneral.switchType(index);
 
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
-          lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, flags);
+          lcdDrawText(INDENT_WIDTH, y, CHAR_SWITCH, flags);
           lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), flags);
 
           if (switchIsFlex(index)) {
@@ -752,7 +752,7 @@ void menuRadioHardware(event_t event)
           int index = k - ITEM_RADIO_HARDWARE_CFS;
           int config = g_eeGeneral.switchType(index);
 
-          lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, attr);
+          lcdDrawText(INDENT_WIDTH, y, CHAR_SWITCH, attr);
           lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), attr);
 
           lcdDrawText(HW_SETTINGS_COLUMN2, y, STR_SWTYPES[config]);

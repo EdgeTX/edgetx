@@ -491,19 +491,17 @@ void ThemePersistance::insertDefaultTheme()
 HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
   Window(parent, {x, y, HDR_DATE_WIDTH, HDR_DATE_LINE2 + HDR_DATE_HEIGHT + 2})
 {
-  date = lv_label_create(lvobj);
+  date = etx_label_create(lvobj, FONT_XS_INDEX);
   lv_obj_set_pos(date, 0, 0);
   lv_obj_set_size(date, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(date, COLOR_THEME_PRIMARY2_INDEX);
-  etx_font(date, FONT_XS_INDEX);
 
-  time = lv_label_create(lvobj);
+  time = etx_label_create(lvobj, FONT_XS_INDEX);
   lv_obj_set_pos(time, 0, HDR_DATE_LINE2);
   lv_obj_set_size(time, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);
-  etx_font(time, FONT_XS_INDEX);
 
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);

@@ -318,42 +318,42 @@ class LogicalSwitchButton : public ListLineButton
   {
     lv_obj_enable_style_refresh(false);
 
-    lsName = lv_label_create(lvobj);
+    lsName = etx_label_create(lvobj);
     etx_obj_add_style(lsName, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsName, NM_X, NM_Y);
     lv_obj_set_size(lsName, NM_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    lsFunc = lv_label_create(lvobj);
+    lsFunc = etx_label_create(lvobj);
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsFunc, FN_X, FN_Y);
     lv_obj_set_size(lsFunc, FN_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsFunc, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsV1 = lv_label_create(lvobj);
+    lsV1 = etx_label_create(lvobj);
     etx_obj_add_style(lsV1, styles->text_align_center, LV_PART_MAIN);
     etx_font(lsV1, FONT_XS_INDEX, ETX_STATE_V1_SMALL_FONT);
     lv_obj_set_pos(lsV1, V1_X, V1_Y);
     lv_obj_set_size(lsV1, V1_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsV1, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsV2 = lv_label_create(lvobj);
+    lsV2 = etx_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsV2, V2_X, V2_Y);
     lv_obj_set_size(lsV2, V2_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsV2, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsAnd = lv_label_create(lvobj);
+    lsAnd = etx_label_create(lvobj);
     etx_obj_add_style(lsAnd, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsAnd, AND_X, AND_Y);
     lv_obj_set_size(lsAnd, AND_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsAnd, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsDuration = lv_label_create(lvobj);
+    lsDuration = etx_label_create(lvobj);
     etx_obj_add_style(lsDuration, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsDuration, DUR_X, DUR_Y);
     lv_obj_set_size(lsDuration, DUR_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    lsDelay = lv_label_create(lvobj);
+    lsDelay = etx_label_create(lvobj);
     etx_obj_add_style(lsDelay, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsDelay, DEL_X, DEL_Y);
     lv_obj_set_size(lsDelay, DEL_W, EdgeTxStyles::STD_FONT_HEIGHT);

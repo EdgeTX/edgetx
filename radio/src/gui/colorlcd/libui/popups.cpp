@@ -149,7 +149,7 @@ class BubbleDialog : public Window
 
     lv_obj_set_parent(lvobj, lv_layer_top());
 
-    auto label = lv_label_create(lvobj);
+    auto label = etx_label_create(lvobj);
     lv_label_set_text(label, message);
     lv_obj_center(label);
     lv_obj_set_width(label, lv_pct(100));

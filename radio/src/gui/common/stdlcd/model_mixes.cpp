@@ -25,8 +25,8 @@
 #include "input_mapping.h"
 #include "mixes.h"
 
-#define _STR_MAX(x)                     "/" #x
-#define STR_MAX(x)                     _STR_MAX(x)
+#define _STRING_MAX(x)                     "/" #x
+#define STRING_MAX(x)                     _STRING_MAX(x)
 
 bool reachMixesLimit()
 {
@@ -280,7 +280,7 @@ void menuModelMixAll(event_t event)
   }
 
   lcdDrawNumber(FW*strlen(STR_MIXES)+FW/2, 0, getMixCount(), 0);
-  lcdDrawText(lcdNextPos, 0, STR_MAX(MAX_MIXERS));
+  lcdDrawText(lcdNextPos, 0, STRING_MAX(MAX_MIXERS));
 
   // Value
   uint8_t index = mixAddress(s_currIdx)->destCh;

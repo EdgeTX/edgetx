@@ -511,7 +511,7 @@ class SetupTextButton : public TextButton
 {
  public:
   SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef& entry) :
-      TextButton(parent, rect, entry.title)
+      TextButton(parent, rect, STR_VAL(entry.title))
   {
     setPressHandler([=] {
       entry.createPage();
@@ -599,7 +599,11 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
   Window* w;
 
   for (int i = 0; i < lineCount; i += 1) {
+#if !defined(ALL_LANGS)
     w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
+#else
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title(), setupLines[i].createEdit);
+#endif
     y += w->height() + padding;
   }
 

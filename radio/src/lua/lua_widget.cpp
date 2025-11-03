@@ -493,12 +493,11 @@ void LuaWidget::refresh(BitmapBuffer* dc)
                         FONT(XS) | COLOR_THEME_WARNING);
     } else {
       if (errorLabel == nullptr) {
-        errorLabel = lv_label_create(lvobj);
+        errorLabel = etx_label_create(lvobj, FONT_XS_INDEX);
         lv_obj_set_pos(errorLabel, 0, 0);
         lv_obj_set_size(errorLabel, width(), height());
         lv_label_set_long_mode(errorLabel, LV_LABEL_LONG_WRAP);
         etx_txt_color(errorLabel, COLOR_THEME_WARNING_INDEX);
-        etx_font(errorLabel, FONT_XS_INDEX);
         etx_bg_color(errorLabel, COLOR_THEME_SECONDARY3_INDEX);
         etx_obj_add_style(errorLabel, styles->bg_opacity_75, LV_PART_MAIN);
       }

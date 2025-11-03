@@ -1256,7 +1256,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
 {
   const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-  return pdef->optionsstr;
+  return STR_VAL(pdef->optionsstr);
 }
 
 const char * getMultiOptionTitle(uint8_t moduleIdx)
@@ -1267,7 +1267,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     if (status.optionDisp >= getMaxMultiOptions()) {
       status.optionDisp = 1; // Unknown options are defaulted to type 1 (basic option)
     }
-    return mm_options_strings::options[status.optionDisp];
+    return STR_VAL(mm_options_strings::options[status.optionDisp]);
   }
 
   return getMultiOptionTitleStatic(moduleIdx);
@@ -1278,7 +1278,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, title);
-  lcdDrawText(LCD_W == 128 ? 120 : 200, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
+  lcdDrawText(LCD_W == 128 ? 120 : 200, y, value ? CHAR_UP : CHAR_DOWN, attr);
   if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
     value = !value;
     s_editMode = 0;

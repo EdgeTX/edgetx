@@ -121,7 +121,7 @@ void QuickSubMenu::buildSubMenu()
   subMenu = new QuickMenuGroup(parent);
 
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-    subMenu->addButton(items[i].icon, items[i].qmTitle,
+    subMenu->addButton(items[i].icon, STR_VAL(items[i].qmTitle),
         std::bind(&QuickSubMenu::onPress, this, i),
         [=]() { return items[i].enabled ? items[i].enabled() : true; },
         [=]() { QuickMenu::setCurrentPage(items[i].subMenu); });

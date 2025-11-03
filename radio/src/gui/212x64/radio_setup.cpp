@@ -645,12 +645,21 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_LANGUAGE:
         lcdDrawTextAlignedLeft(y, STR_VOICE_LANGUAGE);
+#if !defined(ALL_LANGS)
         lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, currentLanguagePack->name, attr);
+#else
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, currentLanguagePack->name(), attr);
+#endif
         if (attr) {
           currentLanguagePackIdx = checkIncDec(event, currentLanguagePackIdx, 0, DIM(languagePacks)-2, EE_GENERAL);
           if (checkIncDec_Ret) {
             currentLanguagePack = languagePacks[currentLanguagePackIdx];
             strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
+#if defined(ALL_LANGS)
+            currentLangStrings = langStrings[currentLanguagePackIdx];
+            extern void setLanguageFont(int n);
+            setLanguageFont(currentLanguagePackIdx);
+#endif
           }
         }
         break;

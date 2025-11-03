@@ -61,13 +61,13 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
 
     new HeaderBackIcon(this);
 
-    parentLabel = lv_label_create(lvobj);
+    parentLabel = etx_label_create(lvobj);
     etx_txt_color(parentLabel, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_pos(parentLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PageHeader::PAGE_TITLE_TOP);
     lv_obj_set_size(parentLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_label_set_text(parentLabel, parentTitle);
 
-    titleLabel = lv_label_create(lvobj);
+    titleLabel = etx_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_pos(titleLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_size(titleLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
@@ -315,6 +315,16 @@ bool PageGroupBase::hasSubMenu(QuickMenu::SubMenu subMenu)
   return header->hasSubMenu(subMenu);
 }
 
+coord_t PageGroupBase::getScrollY()
+{
+  return lv_obj_get_scroll_y(body->getLvObj());
+}
+
+void PageGroupBase::setScrollY(coord_t y)
+{
+  lv_obj_scroll_to_y(body->getLvObj(), y, LV_ANIM_OFF);
+}
+
 //-----------------------------------------------------------------------------
 
 PageGroup::PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages) :
@@ -355,6 +365,7 @@ void PageGroup::openMenu()
 }
 
 PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems); }
+PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems); }
 PageGroup* PageGroup::ToolsMenu() { return new PageGroup(ICON_RADIO_TOOLS, STR_QM_TOOLS, toolsMenuItems); }
 PageGroup* PageGroup::ModelMenu() { return new PageGroup(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems); }
 
@@ -431,15 +442,10 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
 
 void TabsGroup::openMenu()
 {
-  PageGroup* p = nullptr;
+  PageGroup* p = (PageGroup*)Layer::getPageGroup();
   QuickMenu::SubMenu subMenu = QuickMenu::NONE;
-  Window* w = Layer::walk([=](Window *w) mutable -> bool {
-    return w->isPageGroup();
-  });
-  if (w) {
-    p = (PageGroup*)w;
+  if (p)
     subMenu = p->getCurrentTab()->subMenu();
-  }
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();

@@ -35,11 +35,11 @@ class SourceChoiceMenuToolbar : public MenuToolbar
   SourceChoiceMenuToolbar(SourceChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu, FILTER_COLUMNS)
   {
-    addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
+    addButton(CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
               STR_MENU_INPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
     if (modelCustomScriptsEnabled())
-      addButton(STR_CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr,
+      addButton(CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr,
                 STR_MENU_LUA);
 #endif
 #if defined(PCBHORUS)
@@ -50,17 +50,17 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     auto lastSource = MIXSRC_LAST_STICK;
 #endif
     addButton(
-        STR_CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,
+        CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,
         [=](int16_t index) {
           if (index >= MIXSRC_FIRST_POT && index <= MIXSRC_LAST_POT)
             return false;
           return index >= MIXSRC_FIRST_STICK && index <= lastSource;
         },
         STR_MENU_STICKS);
-    addButton(STR_CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT, nullptr,
+    addButton(CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT, nullptr,
               STR_MENU_POTS);
     addButton(
-        STR_CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER,
+        CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER,
         [=](int16_t index) {
           return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) ||
                  (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
@@ -68,32 +68,32 @@ class SourceChoiceMenuToolbar : public MenuToolbar
         STR_MENU_OTHER);
 #if defined(HELI)
     if (modelHeliEnabled())
-      addButton(STR_CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, nullptr,
+      addButton(CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, nullptr,
                 STR_MENU_HELI);
 #endif
-    addButton(STR_CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr,
+    addButton(CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr,
               STR_MENU_TRIMS);
 #if defined(FUNCTION_SWITCHES)
-    addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_CUSTOMSWITCH_GROUP, nullptr,
+    addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_CUSTOMSWITCH_GROUP, nullptr,
               STR_MENU_SWITCHES);
 #else
-    addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr,
+    addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr,
               STR_MENU_SWITCHES);
 #endif
     if (modelLSEnabled())
       addButton("LS", MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH,
                 nullptr, STR_MENU_LOGICAL_SWITCHES);
-    addButton(STR_CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER,
+    addButton(CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER,
               nullptr, STR_MENU_TRAINER);
-    addButton(STR_CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
+    addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
               STR_MENU_CHANNELS);
 #if defined(GVARS)
     if (modelGVEnabled())
-      addButton(STR_CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, nullptr,
+      addButton(CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, nullptr,
                 STR_MENU_GVARS);
 #endif
     if (modelTelemetryEnabled())
-      addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
+      addButton(CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
                 nullptr, STR_MENU_TELEMETRY);
 
     if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
