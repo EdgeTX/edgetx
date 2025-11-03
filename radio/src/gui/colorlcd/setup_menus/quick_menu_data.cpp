@@ -168,7 +168,7 @@ PageDef toolsMenuItems[] = {
 };
 
 QMTopDef qmTopItems[] = {
-  { ICON_EDGETX, STR_DEF(STR_FAVORITE_LABEL), STR_DEF(STR_FAVORITE_LABEL), QM_SUBMENU, QM_NONE, favoritesMenuItems, nullptr, []() { return favoritesMenuItems[0].icon != EDGETX_ICONS_COUNT; }},
+  { ICON_QM_FAVORITES, STR_DEF(STR_FAVORITE_LABEL), STR_DEF(STR_FAVORITE_LABEL), QM_SUBMENU, QM_NONE, favoritesMenuItems, nullptr, []() { return favoritesMenuItems[0].icon != EDGETX_ICONS_COUNT; }},
   { ICON_MODEL_SELECT, STR_DEF(STR_QM_MANAGE_MODELS), STR_DEF(STR_MANAGE_MODELS), QM_ACTION, QM_MANAGE_MODELS, nullptr,
     []() {
       QuickMenu::selected();
