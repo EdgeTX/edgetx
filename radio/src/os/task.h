@@ -43,14 +43,74 @@ bool mutex_lock(mutex_handle_t* h);
 void mutex_unlock(mutex_handle_t* h);
 bool mutex_trylock(mutex_handle_t* h);
 
+
+// this helper class is only to be used on the stack and never to be shared outside the scope where it was created
+/* example usage
+ *
+ * void doWork()
+ * {
+ *   MutexLock lock = MutexLock::MakeInstance(mutex);
+ *   while(!queue.isEmpty)
+ *   {
+ *     lock.unlock();
+ *     auto item = queue.pop();
+ *     <do something with item>
+ *     lock.lock();
+ *   }
+ * } // auto mutex unlock, because lock is destructed here
+ *
+ * int sendMessage()
+ * {
+ *   MutexLock lock = MutexLock::MakeInstance(busMutex);
+ *   if(busSendData(...) != OK)
+ *     return ERROR; // auto mutex unlock, because lock is destructed here
+ *
+ *   lock.unlock();
+ *   <do some other stuff>
+ *   if(<something>)
+ *     return ERROR; // no auto mutex unlock, because already unlocked
+ *   lock.lock()
+ *   if(busSendData(...) != OK)
+ *     return ERROR; // auto mutex unlock, because lock is destructed here
+ *
+ *   return OK;
+ * } // auto mutex unlock here, because lock is destructed here
+ *
+ * int doSomething()
+ * {
+ *
+ *   <code here>
+ *   if(<bus usage condition>)
+ *   {
+ *     MutexLock lock = MutexLock::MakeInstance(busMutex);
+ *     if(busSendData(...) != OK)
+ *       return ERROR; // auto mutex unlock, because lock is destructed here
+ *   } // auto mutex unlock here, because lock is destructed here
+ *
+ *   <code here>
+ *
+ *   return OK;
+ * }
+ */
+
 class MutexLock
 {
 public:
-  MutexLock(mutex_handle_t* mtx):mutex(mtx),locked(false) {mutex_lock(mutex); locked = true;}
+  static MutexLock MakeInstance(mutex_handle_t* mtx) {return MutexLock(mtx);}
   ~MutexLock() {if(locked) mutex_unlock(mutex);}
   void lock() {if(!locked) mutex_lock(mutex); locked=true;}
   void unlock() {if(locked) mutex_unlock(mutex); locked=false;}
+
+  MutexLock(const MutexLock&)               = delete;
+  MutexLock(MutexLock&&)                    = delete;
+  MutexLock& operator   =(const MutexLock&) = delete;
+  MutexLock& operator   =(MutexLock&&)      = delete;
+  static void* operator new     (size_t)    = delete;
+  static void* operator new[]   (size_t)    = delete;
+  static void  operator delete  (void*)     = delete;
+  static void  operator delete[](void*)     = delete;
 private:
+  MutexLock(mutex_handle_t* mtx):mutex(mtx),locked(false) {mutex_lock(mutex); locked = true;}
   mutex_handle_t* mutex;
   bool locked;
 };
