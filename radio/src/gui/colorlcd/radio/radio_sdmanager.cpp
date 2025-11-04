@@ -370,12 +370,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
     if (!strcasecmp(ext, FIRMWARE_EXT)) {
-#if defined(FIRMWARE_FORMAT_UF2)
-      if (isUF2FirmwareFile(fullpath)) {
-        menu->addLine(STR_FLASH_BOOTLOADER,
-                      [=]() { FirmwareUpdate(fullpath); });
-      }
-#else
+#if !defined(FIRMWARE_FORMAT_UF2)
       if (isBootloader(fullpath)) {
         menu->addLine(STR_FLASH_BOOTLOADER,
                       [=]() { BootloaderUpdate(fullpath); });
