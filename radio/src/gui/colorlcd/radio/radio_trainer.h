@@ -29,7 +29,5 @@ class RadioTrainerPage : public PageGroupItem
  public:
   RadioTrainerPage(PageDef& pageDef);
 
-  bool isVisible() const override { return radioTrainerEnabled(); }
-
   void build(Window* window) override;
 };

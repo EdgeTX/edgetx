@@ -31,8 +31,6 @@ class ModelCurvesPage : public PageGroupItem
 
   static void pushEditCurve(int index, std::function<void(void)> refreshView, mixsrc_t source);
 
-  bool isVisible() const override { return modelCurvesEnabled(); }
-
   virtual void build(Window* window) override;
 
   static LAYOUT_ORIENTATION(PER_ROW, 3, 2)

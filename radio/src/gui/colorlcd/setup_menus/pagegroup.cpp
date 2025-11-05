@@ -92,7 +92,7 @@ void PageGroupHeaderBase::addTab(PageGroupItem* page)
 bool PageGroupHeaderBase::hasSubMenu(QMPage qmPage)
 {
   for (uint8_t i = 0; i < pages.size(); i += 1) {
-    if (pages[i]->subMenu() == qmPage)
+    if (pages[i]->pageId() == qmPage)
       return true;
   }
   return false;
@@ -222,7 +222,7 @@ void PageGroupBase::setCurrentTab(unsigned index)
     header->setTitle(tab->getTitle().c_str());
     header->setIcon(tab->getIcon());
 
-    QuickMenu::setCurrentPage(tab->subMenu(), icon);
+    QuickMenu::setCurrentPage(tab->pageId(), icon);
 
     lv_obj_enable_style_refresh(false);
 
@@ -337,7 +337,7 @@ void PageGroup::openMenu()
     [=](bool close) {
       if (close)
         onCancel();
-    }, this, currentTab->subMenu());
+    }, this, currentTab->pageId());
 }
 
 //-----------------------------------------------------------------------------
@@ -416,7 +416,7 @@ void TabsGroup::openMenu()
   PageGroup* p = (PageGroup*)Layer::getPageGroup();
   QMPage qmPage = QM_NONE;
   if (p)
-    qmPage = p->getCurrentTab()->subMenu();
+    qmPage = p->getCurrentTab()->pageId();
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
