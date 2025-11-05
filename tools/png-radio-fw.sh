@@ -1,9 +1,6 @@
 #!/bin/bash
 
 # Combined tool for EdgeTX radio PNG workflow
-# - --list  : scan SVGs and produce csv with dimensions (like png-radio.sh)
-# - --build : generate PNGs from csv (like png-generate.sh)
-# - --help  : show usage
 
 set -euo pipefail
 
@@ -14,12 +11,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_DIR="$SCRIPT_DIR/../radio/src/bitmaps"
 SRC_DIR="$BASE_DIR/img-src"
 
-# Resolution folders (note: repository uses 800x480)
+# Resolution folders
 RES1="320x240"
 RES2="480x272"
 RES3="800x480"
 
-# CSV and error file paths   
+# file paths   
 GFX_LIST_FILE="$SCRIPT_DIR/png_radio_fw_list.csv"
 
 # Color codes for output
