@@ -34,8 +34,6 @@ class ScreenSetupPage : public PageGroupItem
 
   void update(uint8_t index) override;
 
-  bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
-
  protected:
   unsigned customScreenIndex;
   Window* layoutOptions = nullptr;

@@ -29,8 +29,6 @@ class ModelLogicalSwitchesPage : public PageGroupItem
  public:
   ModelLogicalSwitchesPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelLSEnabled(); }
-
   virtual void build(Window* window) override;
 
  protected:

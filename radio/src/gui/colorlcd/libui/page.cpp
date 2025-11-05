@@ -113,7 +113,7 @@ void Page::openMenu()
   PageGroup* p = (PageGroup*)Layer::getPageGroup();
   QMPage qmPage = QM_NONE;
   if (p)
-    qmPage = p->getCurrentTab()->subMenu();
+    qmPage = p->getCurrentTab()->pageId();
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();

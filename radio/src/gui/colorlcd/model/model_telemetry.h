@@ -29,8 +29,6 @@ class ModelTelemetryPage : public PageGroupItem
  public:
   ModelTelemetryPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelTelemetryEnabled(); }
-
   void build(Window* window) override;
 
   static LAYOUT_SIZE_SCALED(NUM_EDIT_W, 100, 65)

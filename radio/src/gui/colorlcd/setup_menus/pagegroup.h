@@ -77,12 +77,12 @@ class PageGroupItem
 
   PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
       title(STR_VAL(pageDef.title)), icon(pageDef.icon), qmPageId(pageDef.qmPage),
-      padding(padding)
+      padding(padding), enabled(std::move(pageDef.enabled))
   {}
 
   virtual ~PageGroupItem() = default;
 
-  virtual bool isVisible() const { return true; }
+  bool isVisible() const { return enabled == nullptr || enabled(); }
 
   virtual void build(Window* window) = 0;
 
@@ -99,13 +99,14 @@ class PageGroupItem
   virtual void update(uint8_t index) {}
   virtual void cleanup() {}
 
-  QMPage subMenu() const { return qmPageId; }
+  QMPage pageId() const { return qmPageId; }
 
  protected:
   std::string title;
   EdgeTxIcon icon;
   QMPage qmPageId = QM_NONE;
   PaddingSize padding;
+  std::function<bool()> enabled = nullptr;
 };
 
 //-----------------------------------------------------------------------------
