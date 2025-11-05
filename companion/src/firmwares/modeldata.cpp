@@ -28,6 +28,7 @@
 #include "helpers.h"
 #include "adjustmentreference.h"
 #include "compounditemmodels.h"
+#include "sourcenumref.h"
 
 #include <QMessageBox>
 
@@ -636,8 +637,8 @@ int ModelData::updateReference()
       if (ed->srcRaw.isSet()) {
         updateSwitchRef(ed->swtch);
         updateCurveRef(ed->curve);
-        updateAdjustRef(ed->weight);
-        updateAdjustRef(ed->offset);
+        updateSourceNumRef(ed->weight);
+        updateSourceNumRef(ed->offset);
         updateFlightModeFlags(ed->flightModes);
       }
       else {
@@ -660,8 +661,8 @@ int ModelData::updateReference()
         if (md->srcRaw.isSet()) {
           updateSwitchRef(md->swtch);
           updateCurveRef(md->curve);
-          updateAdjustRef(md->weight);
-          updateAdjustRef(md->sOffset);
+          updateSourceNumRef(md->weight);
+          updateSourceNumRef(md->sOffset);
           updateFlightModeFlags(md->flightModes);
         }
         else {
@@ -976,8 +977,8 @@ void ModelData::updateTypeValueRef(R & curRef, const T type, const int idxAdj, c
 
 void ModelData::updateCurveRef(CurveReference & crv)
 {
-  if (updRefInfo.type == REF_UPD_TYPE_GLOBAL_VARIABLE && (crv.type == CurveReference::CURVE_REF_DIFF || crv.type == CurveReference::CURVE_REF_EXPO))
-    updateAdjustRef(crv.value);
+  if (crv.type == CurveReference::CURVE_REF_DIFF || crv.type == CurveReference::CURVE_REF_EXPO)
+    updateSourceNumRef(crv.value);
   else if (updRefInfo.type == REF_UPD_TYPE_CURVE && crv.type == CurveReference::CURVE_REF_CUSTOM)
     updateTypeValueRef<CurveReference, CurveReference::CurveRefType>(crv, CurveReference::CURVE_REF_CUSTOM, 1);
 }
@@ -2132,4 +2133,15 @@ bool ModelData::gvarInsertAllowed(const int index)
 
   return ret;
 
+}
+
+void ModelData::updateSourceNumRef(int & value)
+{
+  if (updRefInfo.type == REF_UPD_TYPE_CHANNEL ||
+      updRefInfo.type == REF_UPD_TYPE_GLOBAL_VARIABLE ||
+      updRefInfo.type == REF_UPD_TYPE_INPUT) {
+    SourceNumRef srcnum = SourceNumRef(value);
+    if (srcnum.isSource())
+      updateSourceIntRef(value);
+  }
 }
