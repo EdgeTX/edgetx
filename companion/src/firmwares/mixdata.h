@@ -45,7 +45,7 @@ class MixData {
 
     unsigned int destCh;            //        1..CPN_MAX_CHNOUT
     RawSource srcRaw;
-    int     weight;
+    RawSource weight;
     RawSwitch swtch;
     CurveReference curve;
     unsigned int delayPrec;
@@ -59,8 +59,8 @@ class MixData {
     MltpxValue mltpx;
     unsigned int mixWarn;
     unsigned int flightModes;       // -5=!FP4, 0=normal, 5=FP4
-    int    sOffset;
-    char   name[MIXDATA_NAME_LEN + 1];
+    RawSource offset;
+    char name[MIXDATA_NAME_LEN + 1];
 
     void convert(RadioDataConversionState & cstate);
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(MixData)); }

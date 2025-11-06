@@ -24,7 +24,6 @@
 #include "filtereditemmodels.h"
 #include "helpers.h"
 #include "namevalidator.h"
-#include "sourcenumref.h"
 
 ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, GeneralSettings & generalSettings,
                        Firmware * firmware, QString & inputName, CompoundItemModelFactory * sharedItemModels) :
@@ -90,8 +89,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
       lb_fp[i]->hide();
       cb_fp[i]->hide();
     }
-  }
-  else {
+  } else {
     ui->label_phases->setToolTip(tr("Popup menu available"));
     ui->label_phases->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->label_phases, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(label_phases_customContextMenuRequested(const QPoint &)));
@@ -108,28 +106,18 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     }
   }
 
-  if (firmware->getCapability(VirtualInputs)) {
-    ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
-    int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
-    flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
-    imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                     flags), "RawSource");
-    ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
-    ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
-    if (ui->sourceCB->currentIndex() < 0 && ed->srcRaw.toValue() == 0)
-      ui->sourceCB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->sourceCB));
-    ui->inputName->setValidator(new NameValidator(board, this));
-    ui->inputName->setText(inputName);
-  }
-  else {
-    ui->inputNameLabel->hide();
-    ui->inputName->hide();
-    ui->sourceLabel->hide();
-    ui->sourceCB->hide();
-    ui->trimLabel->hide();
-    ui->trimCB->hide();
-  }
+  ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
+  int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
+  flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
+  imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                                    flags), "RawSource");
+  ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
+  ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
+  if (ui->sourceCB->currentIndex() < 0 && ed->srcRaw.toValue() == 0)
+    ui->sourceCB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->sourceCB));
+  ui->inputName->setValidator(new NameValidator(board, this));
+  ui->inputName->setText(inputName);
 
   dialogFilteredItemModels->registerItemModel(new FilteredItemModel(ExpoData::carryTrimItemModel()), AIM_EXPO_CARRYTRIM);
   ui->trimCB->setModel(dialogFilteredItemModels->getItemModel(AIM_EXPO_CARRYTRIM));
