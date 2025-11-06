@@ -39,11 +39,21 @@ if ! command -v bc &> /dev/null; then
 fi
 
 # Define supported resolutions and their scales
-declare -A RESOLUTIONS=(
-    ["320x240"]=0.8
-    ["480x272"]=1.0
-    ["800x480"]=1.375
-)
+# Using parallel arrays for bash 3.x compatibility (macOS)
+RESOLUTIONS_LIST=("320x240" "480x272" "800x480")
+RESOLUTIONS_SCALE=("0.8" "1.0" "1.375")
+
+# Helper function to get scale for a resolution
+get_scale() {
+    local resolution=$1
+    for i in "${!RESOLUTIONS_LIST[@]}"; do
+        if [[ "${RESOLUTIONS_LIST[$i]}" == "$resolution" ]]; then
+            echo "${RESOLUTIONS_SCALE[$i]}"
+            return 0
+        fi
+    done
+    return 1
+}
 
 # Helper function to scale dimensions and round to nearest integer
 scale() {
@@ -70,11 +80,12 @@ run_resvg() {
 # Process a single resolution
 process_resolution() {
     local RESOLUTION=$1
-    local SCALE=${RESOLUTIONS[$RESOLUTION]}
+    local SCALE
+    SCALE=$(get_scale "$RESOLUTION")
     
     if [ -z "$SCALE" ]; then
         echo "Error: Unsupported resolution '$RESOLUTION'"
-        echo "Supported resolutions: ${!RESOLUTIONS[@]}"
+        echo "Supported resolutions: ${RESOLUTIONS_LIST[@]}"
         return 1
     fi
 
@@ -213,7 +224,7 @@ if [ $# -eq 0 ]; then
     REQUESTED_RESOLUTIONS=("480x272")
 elif [ "$1" = "all" ]; then
     # Process all supported resolutions
-    REQUESTED_RESOLUTIONS=("${!RESOLUTIONS[@]}")
+    REQUESTED_RESOLUTIONS=("${RESOLUTIONS_LIST[@]}")
 else
     # Use provided resolutions
     REQUESTED_RESOLUTIONS=("$@")
