@@ -33,8 +33,6 @@ MixesPanel::MixesPanel(QWidget *parent, ModelData & model, GeneralSettings & gen
 {
   connectItemModelEvents(AbstractItemModel::IMID_RawSource);
   connectItemModelEvents(AbstractItemModel::IMID_RawSwitch);
-  connectItemModelEvents(AbstractItemModel::IMID_Curve);
-  connectItemModelEvents(AbstractItemModel::IMID_GVarRef);
 
   QGridLayout * mixesLayout = new QGridLayout(this);
 
@@ -167,7 +165,7 @@ bool MixesPanel::gm_insertMix(int idx)
   memset(reinterpret_cast<void *>(&model->mixData[idx]), 0, sizeof(MixData));
   model->mixData[idx].srcRaw = RawSource(SOURCE_TYPE_NONE);
   model->mixData[idx].destCh = i;
-  model->mixData[idx].weight = 100;
+  model->mixData[idx].weight = RawSource(SOURCE_TYPE_NUMBER, 100);
   return true;
 }
 

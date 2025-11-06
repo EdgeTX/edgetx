@@ -21,11 +21,15 @@
 
 #pragma once
 
+#include "rawsource.h"
 #include "curvereference.h"
 
 #include <QtCore>
 
 #define LIMITDATA_NAME_LEN  6
+
+class RadioDataConversionState;
+class AbstractStaticItemModel;
 
 class LimitData {
   Q_DECLARE_TR_FUNCTIONS(LimitData)
@@ -33,21 +37,22 @@ class LimitData {
   public:
     LimitData() { clear(); }
 
-    int   min;
-    int   max;
-    bool  revert;
-    int   offset;
-    int   ppmCenter;
-    bool  symetrical;
-    int   failsafe;
-    char  name[LIMITDATA_NAME_LEN + 1];
-    CurveReference curve;
+    RawSource min;
+    RawSource max;
+    bool revert;
+    RawSource offset;
+    int ppmCenter;
+    bool symetrical;
+    int failsafe;
+    char name[LIMITDATA_NAME_LEN + 1];
+    RawSource curve;
 
     void clear();
     bool isEmpty() const;
-    QString minToString() const;
-    QString maxToString() const;
-    QString offsetToString() const;
     QString revertToString() const;
     QString nameToString(int index) const;
+    QString symetricalToString() const;
+    static QString symetricalToString(bool value);
+    void convert(RadioDataConversionState & cstate);
+    static AbstractStaticItemModel *symetricalModel();
 };

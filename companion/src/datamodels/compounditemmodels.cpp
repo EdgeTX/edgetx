@@ -35,8 +35,6 @@ QString AbstractItemModel::idToString(const int value)
       return "RawSource";
     case IMID_RawSwitch:
       return "RawSwitch";
-    case IMID_Curve:
-      return "Curve";
     case IMID_GVarRef:
       return "GVarRef";
     case IMID_ThrSource:
@@ -47,10 +45,6 @@ QString AbstractItemModel::idToString(const int value)
       return "CustomFuncResetParam";
     case IMID_TeleSource:
       return "TeleSource";
-    case IMID_CurveRefType:
-      return "CurveRefType";
-    case IMID_CurveRefFunc:
-      return "CurveRefFunc";
     case IMID_FlexSwitches:
       return "FlexSwitches";
     default:
@@ -105,11 +99,14 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_RawSource);
-  setUpdateMask(IMUE_All &~ (IMUE_Curves | IMUE_Scripts));
+  setUpdateMask(IMUE_All &~IMUE_Scripts);
 
   int groups = board->getCapability(Board::FunctionSwitchGroups);
-
+  int curves = firmware->getCapability(NumCurves);
   // Descending source direction: inverted (!) sources
+  if (curves)
+    addItems(SOURCE_TYPE_CURVE,          RawSource::CurvesGroup,   -curves);
+
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    -firmware->getCapability(Sensors) * 3);
   addItems(SOURCE_TYPE_TIMER,          RawSource::TelemGroup,    -firmware->getCapability(Timers));
   addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    -(SOURCE_TYPE_SPECIAL_COUNT - 1));
@@ -151,6 +148,10 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    SOURCE_TYPE_SPECIAL_COUNT - 1);
   addItems(SOURCE_TYPE_TIMER,          RawSource::TelemGroup,    firmware->getCapability(Timers));
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    firmware->getCapability(Sensors) * 3);
+  if (curves) {
+    addItems(SOURCE_TYPE_CURVE,        RawSource::CurvesGroup,     curves);
+    addItems(SOURCE_TYPE_CURVE_FUNC,   RawSource::CurveFuncsGroup, CURVE_FUNCS_COUNT);  // there is no inverted list
+  }
 }
 
 void RawSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
@@ -285,51 +286,6 @@ void RawSwitchItemModel::update(const int event)
 
     for (int i = 0; i < rowCount(); ++i)
       setDynamicItemData(item(i), RawSwitch(item(i)->data(IMDR_Id).toInt()));
-
-    emit updateComplete();
-  }
-}
-
-//
-// CurveItemModel
-//
-
-CurveItemModel::CurveItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                               Firmware * firmware, const Boards * const board, const Board::Type boardType) :
-    AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
-{
-  setId(IMID_Curve);
-
-  if (!modelData)
-    return;
-
-  setUpdateMask(IMUE_Curves);
-
-  const int count = firmware->getCapability(NumCurves);
-
-  for (int i = -count ; i <= count; ++i) {
-    QStandardItem * modelItem = new QStandardItem();
-    modelItem->setData(i, IMDR_Id);
-    modelItem->setData(i < 0 ? IMDG_Negative : i > 0 ? IMDG_Positive : IMDG_None, IMDR_Flags);
-    setDynamicItemData(modelItem, i);
-    appendRow(modelItem);
-  }
-}
-
-void CurveItemModel::setDynamicItemData(QStandardItem * item, const int value) const
-{
-  CurveReference cr = CurveReference(CurveReference::CURVE_REF_CUSTOM, value);
-  item->setText(cr.toString(modelData, false));
-  item->setData(cr.isAvailable(), IMDR_Available);
-}
-
-void CurveItemModel::update(const int event)
-{
-  if (doUpdate(event)) {
-    emit aboutToBeUpdated();
-
-    for (int i = 0; i < rowCount(); ++i)
-     setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
 
     emit updateComplete();
   }
@@ -558,44 +514,6 @@ void TelemetrySourceItemModel::update(const int event)
 }
 
 //
-// CurveRefTypeItemModel
-//
-
-CurveRefTypeItemModel::CurveRefTypeItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                             Firmware * firmware, const Boards * const board, const Board::Type boardType) :
-  AbstractStaticItemModel(generalSettings, modelData, firmware, board, boardType)
-{
-  setId(IMID_CurveRefType);
-
-  for (int i = 0; i <= CurveReference::MAX_CURVE_REF_TYPE; i++) {
-    QStandardItem * modelItem = new QStandardItem();
-    modelItem->setText(CurveReference::typeToString((CurveReference::CurveRefType)i));
-    modelItem->setData(i, IMDR_Id);
-    modelItem->setData(CurveReference::isTypeAvailable((CurveReference::CurveRefType)i), IMDR_Available);
-    appendRow(modelItem);
-  }
-}
-
-//
-// CurveRefFuncItemModel
-//
-
-CurveRefFuncItemModel::CurveRefFuncItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                             Firmware * firmware, const Boards * const board, const Board::Type boardType) :
-  AbstractStaticItemModel(generalSettings, modelData, firmware, board, boardType)
-{
-  setId(IMID_CurveRefFunc);
-
-  for (int i = 1; i <= CurveReference::functionCount(); i++) {
-    QStandardItem * modelItem = new QStandardItem();
-    modelItem->setText(CurveReference::functionToString(i));
-    modelItem->setData(i, IMDR_Id);
-    modelItem->setData(CurveReference::isFunctionAvailable(i), IMDR_Available);
-    appendRow(modelItem);
-  }
-}
-
-//
 // PrecisionItemModel
 //
 
@@ -751,9 +669,6 @@ void CompoundItemModelFactory::addItemModel(const int id)
     case AbstractItemModel::IMID_RawSwitch:
       registerItemModel(new RawSwitchItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
-    case AbstractItemModel::IMID_Curve:
-      registerItemModel(new CurveItemModel(generalSettings, modelData, firmware, board, boardType));
-      break;
     case AbstractItemModel::IMID_GVarRef:
       registerItemModel(new GVarReferenceItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
@@ -768,12 +683,6 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_TeleSource:
       registerItemModel(new TelemetrySourceItemModel(generalSettings, modelData, firmware, board, boardType));
-      break;
-    case AbstractItemModel::IMID_CurveRefType:
-      registerItemModel(new CurveRefTypeItemModel(generalSettings, modelData, firmware, board, boardType));
-      break;
-    case AbstractItemModel::IMID_CurveRefFunc:
-      registerItemModel(new CurveRefFuncItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     case AbstractItemModel::IMID_FlexSwitches:
       registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));

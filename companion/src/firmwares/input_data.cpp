@@ -30,6 +30,9 @@ void ExpoData::convert(RadioDataConversionState & cstate)
   cstate.setSubComp(RawSource(SOURCE_TYPE_VIRTUAL_INPUT, chn + 1).toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType) % tr(" (@%1)").arg(cstate.subCompIdx));
   srcRaw.convert(cstate);
   swtch.convert(cstate);
+  weight.convert(cstate);
+  offset.convert(cstate);
+  curve.convert(cstate);
 }
 
 bool ExpoData::isEmpty() const
@@ -73,6 +76,42 @@ AbstractStaticItemModel * ExpoData::carryTrimItemModel()
     tmp.carryTrim = -i;
     mdl->appendToItemList(tmp.carryTrimToString(), -i, true, 0, CarryTrimNotSticksGroup);
   }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString ExpoData::modeToString() const
+{
+  return modeToString(mode);
+}
+
+//  static
+QString ExpoData::modeToString(int val)
+{
+  switch (val) {
+    case INPUT_MODE_NEG:
+      return "x<0";
+    case INPUT_MODE_POS:
+      return "x>0";
+    case INPUT_MODE_BOTH:
+      return "---";
+    case INPUT_MODE_NONE:
+    // let fall thru as not valid
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  };
+}
+
+//  static
+AbstractStaticItemModel * ExpoData::modeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("expodata.mode");
+
+  // list in more logical sequence
+  for (int i = 3; i > 0; i--)
+    mdl->appendToItemList(modeToString(i), i);
 
   mdl->loadItemList();
   return mdl;
