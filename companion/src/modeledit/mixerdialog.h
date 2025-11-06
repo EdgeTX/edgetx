@@ -21,14 +21,12 @@
 
 #pragma once
 
-#include <QtWidgets>
 #include "eeprominterface.h"
+
+#include <QtWidgets>
 
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
-class CurveRefFilteredFactory;
-class CurveReferenceUIManager;
-class SourceNumRefEditor;
 
 namespace Ui {
   class MixerDialog;
@@ -58,12 +56,8 @@ class MixerDialog : public QDialog {
     Firmware * firmware;
     MixData *md;
     bool lock;
-    SourceNumRefEditor * weightEditor;
-    SourceNumRefEditor * offsetEditor;
-    CurveReferenceUIManager * curveGroup;
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
-    FilteredItemModelFactory *dialogFilteredItemModels;
-    CurveRefFilteredFactory *curveRefFilteredItemModels;
+    FilteredItemModelFactory *dlgFIM;
 
     void shrink();
 };

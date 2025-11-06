@@ -23,8 +23,9 @@
 
 #include "eeprominterface.h"
 #include "radiodata.h"
-#include "modeldata.h"
 #include "radiodataconversionstate.h"
+#include "helpers.h"
+#include "constants.h"
 
 #include <float.h>
 
@@ -172,7 +173,10 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
+QString RawSource::toString(const ModelData * model,
+  const GeneralSettings * const generalSettings, Board::Type board,
+  bool prefixCustomName, int numPrec, QString numPrefix,
+  QString numSuffix) const
 {
   if (index < 0)
     return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
@@ -196,7 +200,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     "", tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("Reserved3"), tr("Reserved4")
   };
 
-  static const QString rotary[]  = { "", tr("REa"), tr("REb") };
+  static const QString curveFunc[] = {
+    "", "x>0", "x<0", "|x|", "f>0", "f<0", "|f|"
+  };
 
   QString result;
   QString dfltName;
@@ -307,6 +313,22 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:
       return tr("GR%1").arg(index);
 
+    case SOURCE_TYPE_CURVE:
+      if (model && index <= CPN_MAX_CURVES)
+        result = QString(model->curves[index - 1].nameToString(index - 1)).trimmed();
+      if (result.isEmpty())
+        result = CurveData().nameToString(index - 1);
+      return result;
+
+    case SOURCE_TYPE_CURVE_FUNC:
+      return CHECK_IN_ARRAY(curveFunc, abs(index));
+
+    case SOURCE_TYPE_NUMBER:
+      result = numPrefix;
+      result.append(QString::number(double(index) / numPrec, 'f', Helpers::precisionToDecimals(numPrec)));
+      result.append(numSuffix);
+      return result;
+
     default:
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -370,6 +392,9 @@ bool RawSource::isAvailable(const ModelData * const model,
   if (type == SOURCE_TYPE_GVAR && abs(index) > firmware->getCapability(Gvars))
     return false;
 
+  if (type == SOURCE_TYPE_CURVE && abs(index) > firmware->getCapability(NumCurves))
+    return false;
+
   if (model) {
     if (type == SOURCE_TYPE_TIMER && model->timers[abs(index) - 1].isModeOff())
       return false;
@@ -402,8 +427,10 @@ bool RawSource::isAvailable(const ModelData * const model,
       else if (model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
         return false;
     }
-  }
-  else {
+
+    if (type == SOURCE_TYPE_CURVE && model->curves[abs(index) - 1].isEmpty())
+      return false;
+  } else {
     if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && b.getCapability(Board::FunctionSwitches))
       return false;
   }

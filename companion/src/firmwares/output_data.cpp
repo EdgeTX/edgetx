@@ -22,28 +22,22 @@
 #include "output_data.h"
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
+#include "compounditemmodels.h"
 
 void LimitData::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(LimitData));
-  min = -1000;
-  max = +1000;
+  offset = RawSource(SOURCE_TYPE_NUMBER, 0);
+  min = RawSource(SOURCE_TYPE_NUMBER, -1000);
+  max = RawSource(SOURCE_TYPE_NUMBER, 1000);
+  curve = RawSource();
+  ppmCenter = 1500;
 }
 
 bool LimitData::isEmpty() const
 {
   LimitData tmp;
   return !memcmp(this, &tmp, sizeof(LimitData));
-}
-
-QString LimitData::minToString() const
-{
-  return QString::number((qreal)min / 10);
-}
-
-QString LimitData::maxToString() const
-{
-  return QString::number((qreal)max / 10);
 }
 
 QString LimitData::revertToString() const
@@ -56,7 +50,34 @@ QString LimitData::nameToString(int index) const
   return RadioData::getElementName(tr("CH"), index + 1, name);
 }
 
-QString LimitData::offsetToString() const
+QString LimitData::symetricalToString() const
 {
-  return QString::number((qreal)offset / 10, 'f', 1);
+  return symetricalToString(symetrical);
+}
+
+QString LimitData::symetricalToString(bool value)
+{
+  return value ? tr("Symetrical") : tr("Center only");
+}
+
+void LimitData::convert(RadioDataConversionState & cstate)
+{
+  cstate.setComponent(tr("CH"), 9);
+  cstate.setSubComp(nameToString(cstate.subCompIdx));
+  min = min.convert(cstate.withComponentField("MIN"));
+  max = max.convert(cstate.withComponentField("MAX"));
+  offset = offset.convert(cstate.withComponentField("SUB-TRIM"));
+  curve = curve.convert(cstate.withComponentField("CURVE"));
+}
+
+AbstractStaticItemModel * LimitData::symetricalModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("limitdata.symetrical");
+
+  mdl->appendToItemList(symetricalToString(false), 0);
+  mdl->appendToItemList(symetricalToString(true), 1);
+
+  mdl->loadItemList();
+  return mdl;
 }

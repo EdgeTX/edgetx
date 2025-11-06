@@ -22,7 +22,6 @@
 #pragma once
 
 #include "boards.h"
-#include "constants.h"
 #include "datahelpers.h"
 
 #include <QtCore>
@@ -182,6 +181,9 @@ enum RawSourceType {
   SOURCE_TYPE_SPACEMOUSE,
   SOURCE_TYPE_TIMER,
   SOURCE_TYPE_FUNCTIONSWITCH_GROUP,
+  SOURCE_TYPE_CURVE,
+  SOURCE_TYPE_CURVE_FUNC,
+  SOURCE_TYPE_NUMBER,
   MAX_SOURCE_TYPE
 };
 
@@ -232,21 +234,25 @@ class RawSourceRange
 #define RANGE_DELTA_FUNCTION      1
 #define RANGE_ABS_FUNCTION        2
 
+constexpr int CURVE_FUNCS_COUNT { 6 };
+
 class RawSource {
   Q_DECLARE_TR_FUNCTIONS(RawSource)
 
   public:
     enum SourceGroups {
-      NoneGroup      = 0x001,
-      SourcesGroup   = 0x002,
-      TrimsGroup     = 0x004,
-      SwitchesGroup  = 0x008,
-      GVarsGroup     = 0x010,
-      TelemGroup     = 0x020,
-      InputsGroup    = 0x040,
-      ScriptsGroup   = 0x080,
-      NegativeGroup  = 0x100,
-      PositiveGroup  = 0x200,
+      NoneGroup       = 0x001,
+      SourcesGroup    = 0x002,
+      TrimsGroup      = 0x004,
+      SwitchesGroup   = 0x008,
+      GVarsGroup      = 0x010,
+      TelemGroup      = 0x020,
+      InputsGroup     = 0x040,
+      ScriptsGroup    = 0x080,
+      NegativeGroup   = 0x100,
+      PositiveGroup   = 0x200,
+      CurvesGroup     = 0x400,
+      CurveFuncsGroup = 0x800,
 
       InputSourceGroups = NoneGroup | SourcesGroup | TrimsGroup | SwitchesGroup | InputsGroup,
       AllSourceGroups   = InputSourceGroups | GVarsGroup | TelemGroup | ScriptsGroup
@@ -268,7 +274,7 @@ class RawSource {
 
     RawSource(RawSourceType type, int index = 0):
       type(type),
-      index(type != SOURCE_TYPE_NONE && index == 0 ? 1 : index)
+      index((type != SOURCE_TYPE_NONE && type != SOURCE_TYPE_NUMBER) && index == 0 ? 1 : index)
     {
     }
 
@@ -278,8 +284,13 @@ class RawSource {
     }
 
     RawSource convert(RadioDataConversionState & cstate);
-    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr, Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
-    RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags=0) const;
+    QString toString(const ModelData * model = nullptr,
+      const GeneralSettings * const generalSettings = nullptr,
+      Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true,
+      int numPrec = 1, QString numPrefix = QString(),
+      QString numSuffix = QString()) const;
+    RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings,
+      unsigned int flags=0) const;
     bool isStick(Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isTimeBased(Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isAvailable(const ModelData * const model = nullptr,

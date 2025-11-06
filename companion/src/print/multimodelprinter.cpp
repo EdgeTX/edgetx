@@ -522,21 +522,16 @@ QString MultiModelPrinter::printOutputs()
   QString str = printTitle(tr("Outputs"));
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
-  QStringList hd = QStringList() << tr("Channel") << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direct");
-  hd << tr("Curve");
-  if (firmware->getCapability(PPMCenter))
-    hd << tr("PPM");
-  hd << tr("Linear");
+  QStringList hd = QStringList() << tr("Channel") << tr("Subtrim") << tr("Min")
+      << tr("Max") << tr("Invert") << tr("Curve") << tr("PPM") << tr("Subtrim Mode");
   columns.appendRowHeader(hd);
-  int cols = 4;
-  cols++;
-  if (firmware->getCapability(PPMCenter))
-    cols++;
-  cols++;
-  int wd = 80/cols;
-  for (int i=0; i<firmware->getCapability(Outputs); i++) {
+  int cols = 7;
+  int wd = 80 / cols;
+  int outputs = firmware->getCapability(Outputs);
+
+  for (int i = 0; i < outputs; i++) {
     int count = 0;
-    for (int k=0; k < modelPrinterMap.size(); k++)
+    for (int k = 0; k < modelPrinterMap.size(); k++)
       count = std::max(count, (int)modelPrinterMap.value(k).first->mixes(i).size());
     if (!count)
       continue;
@@ -549,9 +544,7 @@ QString MultiModelPrinter::printOutputs()
     COMPARECELLWIDTH(modelPrinter->printOutputMax(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputRevert(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputCurve(i), wd);
-    if (firmware->getCapability(PPMCenter)) {
-      COMPARECELLWIDTH(modelPrinter->printOutputPpmCenter(i), wd);
-    }
+    COMPARECELLWIDTH(modelPrinter->printOutputPpmCenter(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputSymetrical(i), wd);
     columns.appendRowEnd();
   }

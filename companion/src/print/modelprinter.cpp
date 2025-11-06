@@ -27,7 +27,6 @@
 #include "appdata.h"
 #include "adjustmentreference.h"
 #include "curveimage.h"
-#include "sourcenumref.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -356,8 +355,8 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + tr("Scale(%1)").arg(input.scale * range.step).toHtmlEscaped();
   }
 
-  str += " " + tr("Weight(%1)").arg(SourceNumRef(input.weight).toString(&model, &generalSettings)).toHtmlEscaped();
-  if (input.curve.value)
+  str += " " + tr("Weight(%1)").arg(input.weight.toString(&model, &generalSettings)).toHtmlEscaped();
+  if (input.curve.isSet())
     str += " " + input.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(input.flightModes);
@@ -368,16 +367,14 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + tr("Switch(%1)").arg(input.swtch.toString(getCurrentBoard(), &generalSettings, &model)).toHtmlEscaped();
 
 
-  if (firmware->getCapability(VirtualInputs)) {
-    if ((input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_STICK_OFF) || (!input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_DEFAULT))
-      str += " " + tr("No Trim");
-    else if (input.carryTrim != CARRYTRIM_DEFAULT)
-      str += " " + input.carryTrimToString().toHtmlEscaped();
-  }
+  if ((input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_STICK_OFF) || (!input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_DEFAULT))
+    str += " " + tr("No Trim");
+  else if (input.carryTrim != CARRYTRIM_DEFAULT)
+    str += " " + input.carryTrimToString().toHtmlEscaped();
 
-  if (input.offset)
-    str += " " + tr("Offset(%1)").arg(SourceNumRef(input.offset).toString(&model, &generalSettings)).toHtmlEscaped();
-  if (firmware->getCapability(HasExpoNames) && input.name[0])
+  if (input.offset.isSet() && input.offset.index != 0)
+    str += " " + tr("Offset(%1)").arg(input.offset.toString(&model, &generalSettings)).toHtmlEscaped();
+  if (input.name[0])
     str += QString(" [%1]").arg(input.name).toHtmlEscaped();
 
   return str;
@@ -404,7 +401,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   }
   str += "&nbsp;" + source;
 
-  str += " " + tr("Weight(%1)").arg(SourceNumRef(mix.weight).toString(&model, &generalSettings)).toHtmlEscaped();
+  str += " " + tr("Weight(%1)").arg(mix.weight.toString(&model, &generalSettings)).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(mix.flightModes);
   if (!flightModesStr.isEmpty())
@@ -418,9 +415,11 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   else if (mix.carryTrim < 0)
     str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1) + 1).toString(&model, &generalSettings);
 
-  if (mix.sOffset)
-    str += " " + tr("Offset(%1)").arg(SourceNumRef(mix.sOffset).toString(&model, &generalSettings)).toHtmlEscaped();
-  if (mix.curve.value)
+  if (firmware->getCapability(HasNoExpo) && mix.noExpo)
+    str += " " + tr("No DR/Expo").toHtmlEscaped();
+  if (mix.offset.isSet() && mix.offset.index != 0)
+    str += " " + tr("Offset(%1)").arg(mix.offset.toString(&model, &generalSettings)).toHtmlEscaped();
+  if (mix.curve.isSet())
     str += " " + mix.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
   int scale = firmware->getCapability(SlowScale);
   if (scale == 0) scale = 1;
@@ -686,18 +685,16 @@ QString ModelPrinter::printGlobalVarPopup(int idx)
   return printBoolean(model.gvarData[idx].popup, BOOLEAN_YN);
 }
 
-QString ModelPrinter::printOutputValueGVar(int val)
+QString ModelPrinter::printOutputValueGVar(RawSource src)
 {
   QString result = "";
-  if (abs(val) > 10000) {
-    if (val < 0)
-      result = "-";
-    result.append(RawSource(SOURCE_TYPE_GVAR, (abs(val)-10001) + 1).toString(&model));
-  }
-  else {
-    if (val >= 0)
+
+  if (src.type == SOURCE_TYPE_GVAR) {
+    result.append(src.toString(&model, &generalSettings));
+  } else if (src.type == SOURCE_TYPE_NUMBER) {
+    if (src.index >= 0)
       result = "+";
-    result.append(QString::number((qreal)val/10, 'f', 1) + "%");
+    result.append(QString::number((qreal)src.index/10, 'f', 1) + "%");
   }
   return result;
 }
@@ -719,22 +716,22 @@ QString ModelPrinter::printOutputMax(int idx)
 
 QString ModelPrinter::printOutputRevert(int idx)
 {
-  return model.limitData[idx].revertToString();
+  return printBoolean(model.limitData[idx].revert, BOOLEAN_YN);
 }
 
 QString ModelPrinter::printOutputPpmCenter(int idx)
 {
-  return QString::number(model.limitData[idx].ppmCenter + 1500);
+  return QString::number(model.limitData[idx].ppmCenter);
 }
 
 QString ModelPrinter::printOutputCurve(int idx)
 {
-  return CurveReference(CurveReference::CURVE_REF_CUSTOM, model.limitData[idx].curve.value).toString(&model, false);
+  return model.limitData[idx].curve.toString(&model, &generalSettings);
 }
 
 QString ModelPrinter::printOutputSymetrical(int idx)
 {
-  return printBoolean(model.limitData[idx].symetrical, BOOLEAN_YN);
+  return model.limitData[idx].symetricalToString();
 }
 
 QString ModelPrinter::printSettingsOther()
