@@ -42,6 +42,7 @@
 #include <QRegularExpression>
 #include <QProcess>
 #include <QtGlobal>
+#include <QLineEdit>
 
 using namespace Helpers;
 
@@ -814,4 +815,36 @@ StatusDialog::~StatusDialog()
 void StatusDialog::update(QString text)
 {
   msg->setText(text);
+}
+
+int Helpers::calcQLineEditWidth(const int numchars)
+{
+    QLineEdit edit;
+    // Get font metrics
+    QFontMetrics fm = edit.fontMetrics();
+    // Calculate the width some dummy text
+    int textWidth = fm.horizontalAdvance(QString(numchars, 'X'));
+
+    // Get the widget's margins (text and contents)
+    QMargins tm = edit.textMargins();
+    QMargins cm = edit.contentsMargins();
+    int marginsWidth = tm.left() + tm.right() + cm.left() + cm.right();
+
+    // Use QStyle to correctly calculate frame padding (this is robust across different styles)
+    QStyleOptionFrame op;
+    op.initFrom(&edit);
+    QSize contentsSize(textWidth + marginsWidth, edit.height());
+    QSize perfectSize = edit.style()->sizeFromContents(QStyle::CT_LineEdit, &op, contentsSize, &edit);
+
+    return perfectSize.width();
+}
+
+int Helpers::precisionToDecimals(const int prec)
+{
+  return (prec == 1 ? 0 : (prec == 10 ? 1 : (prec == 100 ? 2 : 3)));
+}
+
+double Helpers::precisionToStep(const int prec)
+{
+  return (prec < 10 ? 1 : (prec == 10 ? 0.1 : (prec == 100 ? 0.01 : 0.001)));
 }

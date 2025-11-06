@@ -38,40 +38,44 @@ class FilteredItemModel;
   It would not make sense anyway as it equates to value 0 and thus ambiguous.
 */
 
-class SourceNumRef {
+class RawSourceNumber {
 
-  Q_DECLARE_TR_FUNCTIONS(SourceNumRef)
+  Q_DECLARE_TR_FUNCTIONS(RawSourceNumber)
 
   public:
-    SourceNumRef() : srcNum(RawSource()) {}
-    explicit SourceNumRef(int value) : srcNum(RawSource(value)) {}
-    SourceNumRef(RawSourceType type, int index = 0) : srcNum(RawSource(type, index)) {}
+    RawSourceNumber() : rawSource(RawSource()) {}
+    explicit RawSourceNumber(int value) : rawSource(RawSource(value)) {}
+    RawSourceNumber(RawSourceType type, int index = 0) : rawSource(RawSource(type, index)) {}
 
-    virtual ~SourceNumRef() {}
+    virtual ~RawSourceNumber() {}
 
-    int toValue() { return srcNum.toValue(); }
+    int toValue() { return rawSource.toValue(); }
 
-    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr,
-                     Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
+    QString toString(const ModelData * model = nullptr,
+                     const GeneralSettings * const generalSettings = nullptr,
+                     Board::Type board = Board::BOARD_UNKNOWN,
+                     bool prefixCustomName = true) const;
 
-    const bool isNumber() const { return srcNum.type == SOURCE_TYPE_NONE; }
-    const bool isSource() const { return srcNum.type != SOURCE_TYPE_NONE; }
+    const bool isNumber() const { return rawSource.type == SOURCE_TYPE_NONE; }
+    const bool isSource() const { return rawSource.type != SOURCE_TYPE_NONE; }
     static int getDefault(int useSource, int dflt);
 
   private:
-    RawSource srcNum;
+    RawSource rawSource;
 };
 
-class SourceNumRefEditor : public QObject {
+class RawSourceNumberUIManager : public QObject {
 
   Q_OBJECT
 
   public:
-    explicit SourceNumRefEditor(int & srcNumValue, QCheckBox * chkUseSource, QSpinBox * sbxValue, QComboBox * cboValue,
-                                int defValue, int minValue, int maxValue, int step,
-                                ModelData & model, FilteredItemModel * sourceItemModel, QObject * parent = nullptr);
+    explicit RawSourceNumberUIManager(RawSource & rawSource, QCheckBox * chkUseSource,
+                                   QSpinBox * sbxValue, QComboBox * cboValue,
+                                   int defValue, int minValue, int maxValue, int step,
+                                   ModelData & model, FilteredItemModel * sourceItemModel,
+                                   QObject * parent = nullptr);
 
-    virtual ~SourceNumRefEditor() {}
+    virtual ~RawSourceNumberUIManager() {}
 
     void setLock(bool state) { lock = state; }
     void setVisible(bool state);
@@ -86,7 +90,7 @@ class SourceNumRefEditor : public QObject {
     void cboValueChanged(int index);
 
   protected:
-    int &srcNumValue;
+    RawSource &rawSource;
     QCheckBox *chkUseSource;
     QSpinBox *sbxValue;
     QComboBox *cboValue;

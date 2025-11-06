@@ -57,7 +57,7 @@ void WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int wei
   mix.destCh = channel;
   mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
   mix.swtch  = RawSwitch(SWITCH_TYPE_SWITCH, sw + 1);
-  mix.weight = weight;
+  mix.weight = RawSource(weight ? SOURCE_TYPE_NUMBER : SOURCE_TYPE_NONE, weight);
 }
 
 void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int & mixIndex)
@@ -67,7 +67,7 @@ void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int 
       MixData & mix = model.mixData[mixIndex++];
       mix.destCh = channel + 1;
       mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, settings.getDefaultChannel(input - 1) + 1);
-      mix.weight = weight;
+      mix.weight = RawSource(weight ? SOURCE_TYPE_NUMBER : SOURCE_TYPE_NONE, weight);
     }
     else if (input==FLAPS_INPUT){
       // There ought to be some kind of constants for switches somewhere...
@@ -115,7 +115,7 @@ WizMix::operator ModelData()
         MixData & mix = model.mixData[mixIndex++];
         mix.destCh = i+1;
         mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
-        mix.weight = -100;
+        mix.weight = RawSource(SOURCE_TYPE_NUMBER, -100);
         mix.swtch.type = SWITCH_TYPE_SWITCH;
         mix.swtch.index = SWITCH_SF0;
         mix.mltpx = MLTPX_REP;

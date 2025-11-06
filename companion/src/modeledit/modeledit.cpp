@@ -63,14 +63,11 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   sharedItemModels = new CompoundItemModelFactory(&generalSettings, &model);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSwitch);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_Curve);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_GVarRef);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_ThrSource);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_TeleSource);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefType);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefFunc);
 
   s1.report("Init");
 

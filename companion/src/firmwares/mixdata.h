@@ -28,11 +28,13 @@
 #include <QtCore>
 
 class RadioDataConversionState;
+class AbstractStaticItemModel;
 
 enum MltpxValue {
   MLTPX_ADD,
   MLTPX_MUL,
-  MLTPX_REP
+  MLTPX_REP,
+  MLTPX_COUNT
 };
 
 #define MIXDATA_NAME_LEN  10
@@ -45,7 +47,7 @@ class MixData {
 
     unsigned int destCh;            //        1..CPN_MAX_CHNOUT
     RawSource srcRaw;
-    int     weight;
+    RawSource weight;
     RawSwitch swtch;
     CurveReference curve;
     unsigned int delayPrec;
@@ -59,10 +61,17 @@ class MixData {
     MltpxValue mltpx;
     unsigned int mixWarn;
     unsigned int flightModes;       // -5=!FP4, 0=normal, 5=FP4
-    int    sOffset;
-    char   name[MIXDATA_NAME_LEN + 1];
+    RawSource offset;
+    char name[MIXDATA_NAME_LEN + 1];
 
     void convert(RadioDataConversionState & cstate);
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(MixData)); }
     bool isEmpty() const;
+    QString mltpxToString() const;
+    static QString mltpxToString(int val);
+    static AbstractStaticItemModel * mltpxItemModel();
+    QString mixWarnToString() const;
+    static QString mixWarnToString(int val);
+    static AbstractStaticItemModel * mixWarnItemModel();
+    static AbstractStaticItemModel * precisionItemModel();
 };

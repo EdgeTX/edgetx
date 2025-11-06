@@ -274,8 +274,6 @@ class ModelData {
     void gvarInsert(const int index);
     bool gvarInsertAllowed(const int index);
 
-    ModelData removeGlobalVars();
-
     int linkedFlightModeIndexToValue(const int phaseIdx, const int useFmIdx, const int maxOwnValue);
     int linkedFlightModeValueToIndex(const int phaseIdx, const int val, const int maxOwnValue);
 
@@ -378,7 +376,6 @@ class ModelData {
     QStringList errorsList();
 
   protected:
-    void removeGlobalVar(int & var);
 
   private:
     int getMixLine(int index) const;
@@ -402,23 +399,41 @@ class ModelData {
     UpdateReferenceInfo updRefInfo;
 
     int updateReference();
-    void appendUpdateReferenceParams(const ReferenceUpdateType type, const ReferenceUpdateAction action, const int index1, const int index2 = 0, const int shift = 0);
+    void appendUpdateReferenceParams(const ReferenceUpdateType type,
+      const ReferenceUpdateAction action, const int index1, const int index2 = 0,
+      const int shift = 0);
+
     template <class R, typename T>
-    void updateTypeIndexRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defIndex = 0);
+    void updateTypeIndexRef(R & curref, const T type, const int idxAdj = 0,
+      const bool defClear = true, const int defType = 0, const int defIndex = 0);
+
     template <class R, typename T>
-    void updateTypeValueRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defValue = 0);
-    void updateAdjustRef(int & adj);
+    void updateTypeValueRef(R & curref, const T type, const int idxAdj = 0,
+      const bool defClear = true, const int defType = 0, const int defValue = 0);
+
     void updateAssignFunc(CustomFunctionData * cfd);
-    void updateCurveRef(CurveReference & crv);
     void updateDestCh(MixData * md);
-    void updateLimitCurveRef(CurveReference & crv);
     void updateFlightModeFlags(unsigned int & flags);
     void updateTelemetryRef(int & idx);
     void updateTelemetryRef(unsigned int & idx);
     void updateModuleFailsafes(ModuleData * md);
-    inline void updateSourceRef(RawSource & src) { updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType, 1); }
-    inline void updateSwitchRef(RawSwitch & swtch) { updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1); }
-    inline void updateTimerMode(RawSwitch & swtch) { updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1, false, (int)SWITCH_TYPE_TIMER_MODE, 0); }
+
+    inline void updateSourceRef(RawSource & src)
+    {
+      updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType, 1);
+    }
+
+    inline void updateSwitchRef(RawSwitch & swtch)
+    {
+      updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1);
+    }
+
+    inline void updateTimerMode(RawSwitch & swtch)
+    {
+      updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1,
+        false, (int)SWITCH_TYPE_TIMER_MODE, 0);
+    }
+
     inline void updateSourceIntRef(int & value)
     {
       RawSource src = RawSource(value);
@@ -426,6 +441,7 @@ class ModelData {
       if (value != src.toValue())
         value = src.toValue();
     }
+
     inline void updateSwitchIntRef(int & value)
     {
       RawSwitch swtch = RawSwitch(value);
@@ -433,6 +449,6 @@ class ModelData {
       if (value != swtch.toValue())
         value = swtch.toValue();
     }
+
     void updateResetParam(CustomFunctionData * cfd);
-    void updateSourceNumRef(int & value);
 };

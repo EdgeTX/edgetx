@@ -128,6 +128,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       c += sval - 1;
       src_str += c;
       break;
+    case SOURCE_TYPE_CURVE:
+    case SOURCE_TYPE_NUMBER:
+      src_str += std::to_string(sval);
+      break;
     default:
       src_str = "NONE";
       break;
@@ -153,7 +157,10 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     src_str_tmp = src_str_tmp.substr(1);
   }
 
-  if (val_len > 1 && val[0] == 'I'
+  int idx = std::stoi(src_str_tmp);
+  if (idx >= 0) {
+    rhs = RawSource(SOURCE_TYPE_NUMBER, idx);
+  } else if (val_len > 1 && val[0] == 'I'
       && (val[1] >= '0') && (val[1] <= '9')) {
 
     int idx = std::stoi(src_str_tmp.substr(1));

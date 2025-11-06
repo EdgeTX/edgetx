@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef FILTEREDITEMMODELS_H
-#define FILTEREDITEMMODELS_H
+#pragma once
 
 #include "compounditemmodels.h"
 
@@ -42,7 +41,7 @@ class FilteredItemModel: public QSortFilterProxyModel
     };
     Q_ENUM(DataFilters)
 
-    explicit FilteredItemModel(AbstractItemModel * sourceModel, int flags);
+    explicit FilteredItemModel(AbstractItemModel * sourceModel, int flags, bool isAvailable = true);
     explicit FilteredItemModel(AbstractItemModel * sourceModel) :
       FilteredItemModel(sourceModel, 0) {}
     virtual ~FilteredItemModel() {};
@@ -55,7 +54,7 @@ class FilteredItemModel: public QSortFilterProxyModel
     static void dumpItemModelContents(FilteredItemModel * itemModel);
 
   public slots:
-    void setFilterFlags(int flags);
+    void setFilterFlags(int flags, bool isAvailable = true);
     void update() const;
     void onAboutToBeUpdated();
     void onUpdateComplete();
@@ -96,21 +95,3 @@ class FilteredItemModelFactory
   protected:
     QVector<FilteredItemModel *> registeredItemModels;
 };
-
-class CurveRefFilteredFactory : public FilteredItemModelFactory
-{
-  public:
-    enum FilteredItemModelId {
-      CRFIM_CURVE,
-      CRFIM_GVARREF,
-      CRFIM_TYPE,
-      CRFIM_FUNC
-    };
-
-    explicit CurveRefFilteredFactory(CompoundItemModelFactory * sharedItemModels, const int curveFlags = 0, const int gvarRefFlags = 0);
-    virtual ~CurveRefFilteredFactory();
-
-    static QString fidToString(const int value);
-};
-
-#endif // FILTEREDITEMMODELS_H

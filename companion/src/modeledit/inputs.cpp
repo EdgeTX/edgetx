@@ -33,8 +33,6 @@ InputsPanel::InputsPanel(QWidget *parent, ModelData & model, GeneralSettings & g
 {
   connectItemModelEvents(AbstractItemModel::IMID_RawSource);
   connectItemModelEvents(AbstractItemModel::IMID_RawSwitch);
-  connectItemModelEvents(AbstractItemModel::IMID_Curve);
-  connectItemModelEvents(AbstractItemModel::IMID_GVarRef);
 
   inputsCount = firmware->getCapability(VirtualInputs);
   if (inputsCount == 0)
@@ -167,7 +165,7 @@ bool InputsPanel::gm_insertExpo(int idx)
 
   ExpoData *newExpo = model->insertInput(idx);
   newExpo->chn = chn;
-  newExpo->weight = 100;
+  newExpo->weight = RawSource(SOURCE_TYPE_NUMBER, 100);
   newExpo->mode = INPUT_MODE_BOTH;
 
   return true;

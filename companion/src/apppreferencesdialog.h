@@ -27,6 +27,7 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QLabel>
 
 class FilteredItemModelFactory;
 

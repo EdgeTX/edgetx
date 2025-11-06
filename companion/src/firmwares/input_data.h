@@ -62,8 +62,8 @@ class ExpoData {
     unsigned int chn;
     RawSwitch swtch;
     unsigned int flightModes;        // -5=!FP4, 0=normal, 5=FP4
-    int  weight;
-    int offset;
+    RawSource weight;
+    RawSource offset;
     CurveReference curve;
     int carryTrim;
     char name[EXPODATA_NAME_LEN + 1];
@@ -72,6 +72,9 @@ class ExpoData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ExpoData)); }
     bool isEmpty() const;
     QString carryTrimToString() const;
+    QString modeToString() const;
 
+    static QString modeToString(int val);
     static AbstractStaticItemModel * carryTrimItemModel();
+    static AbstractStaticItemModel * modeItemModel();
 };

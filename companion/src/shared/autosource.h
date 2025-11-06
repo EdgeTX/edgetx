@@ -21,38 +21,21 @@
 
 #pragma once
 
+#include "autowidget.h"
 #include "rawsource.h"
-#include "curvereference.h"
 
-#include <QtCore>
-
-#define LIMITDATA_NAME_LEN  6
-
-class RadioDataConversionState;
-class AbstractStaticItemModel;
-
-class LimitData {
-  Q_DECLARE_TR_FUNCTIONS(LimitData)
-
+class AutoSource : public AutoWidget
+{
   public:
-    LimitData() { clear(); }
+    explicit AutoSource() {}
+    virtual ~AutoSource() {}
 
-    RawSource min;
-    RawSource max;
-    bool revert;
-    RawSource offset;
-    int ppmCenter;
-    bool symetrical;
-    int failsafe;
-    char name[LIMITDATA_NAME_LEN + 1];
-    RawSource curve;
+    void setField(RawSource * field, GenericPanel * panel = nullptr);
 
-    void clear();
-    bool isEmpty() const;
-    QString revertToString() const;
-    QString nameToString(int index) const;
-    QString symetricalToString() const;
-    static QString symetricalToString(bool value);
-    void convert(RadioDataConversionState & cstate);
-    static AbstractStaticItemModel *symetricalModel();
+  protected:
+    RawSource getSource() const;
+    void setSource(const RawSource value);
+
+  private:
+    RawSource *m_rawSource;
 };

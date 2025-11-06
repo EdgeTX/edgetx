@@ -27,9 +27,6 @@
 
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
-class CurveRefFilteredFactory;
-class CurveReferenceUIManager;
-class SourceNumRefEditor;
 
 namespace Ui {
   class ExpoDialog;
@@ -51,6 +48,7 @@ class ExpoDialog : public QDialog {
     void fmClearAll();
     void fmSetAll();
     void fmInvertAll();
+    void sourceChanged();
 
   private:
     Ui::ExpoDialog * ui;
@@ -59,13 +57,9 @@ class ExpoDialog : public QDialog {
     Firmware * firmware;
     ExpoData * ed;
     QString & inputName;
-    SourceNumRefEditor * weightEditor;
-    SourceNumRefEditor * offsetEditor;
-    CurveReferenceUIManager * curveGroup;
     bool lock;
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
     FilteredItemModelFactory *dialogFilteredItemModels;
-    CurveRefFilteredFactory *curveRefFilteredItemModels;
     int carryTrimFilterFlags = 0;
 
     void shrink();
