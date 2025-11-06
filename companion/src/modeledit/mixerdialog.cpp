@@ -25,7 +25,6 @@
 #include "filtereditemmodels.h"
 #include "helpers.h"
 #include "namevalidator.h"
-#include "sourcenumref.h"
 
 MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, int index, GeneralSettings & generalSettings, Firmware * firmware,
                          CompoundItemModelFactory * sharedItemModels) :

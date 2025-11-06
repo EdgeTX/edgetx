@@ -62,8 +62,8 @@ class ExpoData {
     unsigned int chn;
     RawSwitch swtch;
     unsigned int flightModes;        // -5=!FP4, 0=normal, 5=FP4
-    int  weight;
-    int offset;
+    RawSource weight;
+    RawSource offset;
     CurveReference curve;
     int carryTrim;
     char name[EXPODATA_NAME_LEN + 1];
