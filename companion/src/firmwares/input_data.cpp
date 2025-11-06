@@ -30,6 +30,9 @@ void ExpoData::convert(RadioDataConversionState & cstate)
   cstate.setSubComp(RawSource(SOURCE_TYPE_VIRTUAL_INPUT, chn + 1).toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType) % tr(" (@%1)").arg(cstate.subCompIdx));
   srcRaw.convert(cstate);
   swtch.convert(cstate);
+  weight.convert(cstate);
+  offset.convert(cstate);
+  curve.convert(cstate);
 }
 
 bool ExpoData::isEmpty() const

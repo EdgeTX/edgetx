@@ -27,7 +27,6 @@
 #include "appdata.h"
 #include "adjustmentreference.h"
 #include "curveimage.h"
-#include "sourcenumref.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -355,8 +354,8 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + tr("Scale(%1)").arg(input.scale * range.step).toHtmlEscaped();
   }
 
-  str += " " + tr("Weight(%1)").arg(SourceNumRef(input.weight).toString(&model, &generalSettings)).toHtmlEscaped();
-  if (input.curve.value)
+  str += " " + tr("Weight(%1)").arg(input.weight.toString(&model, &generalSettings)).toHtmlEscaped();
+  if (input.curve.isSet())
     str += " " + input.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(input.flightModes);
@@ -374,8 +373,8 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
       str += " " + input.carryTrimToString().toHtmlEscaped();
   }
 
-  if (input.offset)
-    str += " " + tr("Offset(%1)").arg(SourceNumRef(input.offset).toString(&model, &generalSettings)).toHtmlEscaped();
+  if (input.offset.isSet())
+    str += " " + tr("Offset(%1)").arg(input.offset.toString(&model, &generalSettings)).toHtmlEscaped();
   if (firmware->getCapability(HasExpoNames) && input.name[0])
     str += QString(" [%1]").arg(input.name).toHtmlEscaped();
 
@@ -403,7 +402,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   }
   str += "&nbsp;" + source;
 
-  str += " " + tr("Weight(%1)").arg(SourceNumRef(mix.weight).toString(&model, &generalSettings)).toHtmlEscaped();
+  str += " " + tr("Weight(%1)").arg(mix.weight.toString(&model, &generalSettings)).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(mix.flightModes);
   if (!flightModesStr.isEmpty())
@@ -419,9 +418,9 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
 
   if (firmware->getCapability(HasNoExpo) && mix.noExpo)
     str += " " + tr("No DR/Expo").toHtmlEscaped();
-  if (mix.sOffset)
-    str += " " + tr("Offset(%1)").arg(SourceNumRef(mix.sOffset).toString(&model, &generalSettings)).toHtmlEscaped();
-  if (mix.curve.value)
+  if (mix.offset.isSet())
+    str += " " + tr("Offset(%1)").arg(mix.offset.toString(&model, &generalSettings)).toHtmlEscaped();
+  if (mix.curve.isSet())
     str += " " + mix.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
   int scale = firmware->getCapability(SlowScale);
   if (scale == 0) scale = 1;
@@ -731,7 +730,7 @@ QString ModelPrinter::printOutputPpmCenter(int idx)
 
 QString ModelPrinter::printOutputCurve(int idx)
 {
-  return CurveReference(CurveReference::CURVE_REF_CUSTOM, model.limitData[idx].curve.value).toString(&model, false);
+  return model.limitData[idx].curve.toString(&model, &generalSettings);
 }
 
 QString ModelPrinter::printOutputSymetrical(int idx)

@@ -22,6 +22,9 @@ set(${PROJECT_NAME}_NAMES
   scrollarea
   textvalidator
   exclusivecombogroup
+  rawsourcewidget
+  rawsourceextwidget
+  curvereferencewidget
 )
 
 AddHeadersSources()

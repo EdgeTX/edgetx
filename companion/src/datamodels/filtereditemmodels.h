@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef FILTEREDITEMMODELS_H
-#define FILTEREDITEMMODELS_H
+#pragma once
 
 #include "compounditemmodels.h"
 
@@ -96,21 +95,3 @@ class FilteredItemModelFactory
   protected:
     QVector<FilteredItemModel *> registeredItemModels;
 };
-
-class CurveRefFilteredFactory : public FilteredItemModelFactory
-{
-  public:
-    enum FilteredItemModelId {
-      CRFIM_CURVE,
-      CRFIM_GVARREF,
-      CRFIM_TYPE,
-      CRFIM_FUNC
-    };
-
-    explicit CurveRefFilteredFactory(CompoundItemModelFactory * sharedItemModels, const int curveFlags = 0, const int gvarRefFlags = 0);
-    virtual ~CurveRefFilteredFactory();
-
-    static QString fidToString(const int value);
-};
-
-#endif // FILTEREDITEMMODELS_H

@@ -32,6 +32,7 @@
 #include <QStandardItemModel>
 #include <QDialog>
 #include <QComboBox>
+#include <QLabel>
 
 extern const QColor colors[CPN_MAX_CURVES];
 

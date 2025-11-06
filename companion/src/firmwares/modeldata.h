@@ -271,8 +271,6 @@ class ModelData {
     void gvarInsert(const int index);
     bool gvarInsertAllowed(const int index);
 
-    ModelData removeGlobalVars();
-
     int linkedFlightModeIndexToValue(const int phaseIdx, const int useFmIdx, const int maxOwnValue);
     int linkedFlightModeValueToIndex(const int phaseIdx, const int val, const int maxOwnValue);
 
@@ -375,7 +373,6 @@ class ModelData {
     QStringList errorsList();
 
   protected:
-    void removeGlobalVar(int & var);
 
   private:
     int getMixLine(int index) const;
@@ -406,9 +403,7 @@ class ModelData {
     void updateTypeValueRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defValue = 0);
     void updateAdjustRef(int & adj);
     void updateAssignFunc(CustomFunctionData * cfd);
-    void updateCurveRef(CurveReference & crv);
     void updateDestCh(MixData * md);
-    void updateLimitCurveRef(CurveReference & crv);
     void updateFlightModeFlags(unsigned int & flags);
     void updateTelemetryRef(int & idx);
     void updateTelemetryRef(unsigned int & idx);

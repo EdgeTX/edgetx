@@ -101,7 +101,6 @@ class ChannelsPanel : public ModelPanel
     int chnCapability;
     CompoundItemModelFactory *sharedItemModels;
     FilteredItemModelFactory *dialogFilteredItemModels;
-    CurveRefFilteredFactory *curveRefFilteredItemModels;
     CurveReferenceUIManager *curveGroup[CPN_MAX_CHNOUT];
 
     bool hasClipboardData(QByteArray * data = nullptr) const;

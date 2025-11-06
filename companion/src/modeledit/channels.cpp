@@ -25,8 +25,9 @@
 #include "curveimagewidget.h"
 #include "namevalidator.h"
 
-LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
-                         int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
+LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row,
+                int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
+                int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
   firmware(firmware),
   spinbox(new QDoubleSpinBox()),
   value(value)
@@ -89,42 +90,37 @@ void LimitsGroup::updateMinMax(int max)
   }
 }
 
-ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
+ChannelsPanel::ChannelsPanel(QWidget * parent,
+                             ModelData & model,
+                             GeneralSettings & generalSettings,
+                             Firmware * firmware,
+                             CompoundItemModelFactory * sharedItemModels):
   ModelPanel(parent, model, generalSettings, firmware),
   sharedItemModels(sharedItemModels)
 {
   Board::Type board = firmware->getBoard();
-
   chnCapability = firmware->getCapability(Outputs);
-  int channelNameMaxLen = firmware->getCapability(ChannelsName);
 
   dialogFilteredItemModels = new FilteredItemModelFactory();
 
-  int crvid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_Curve)), "Curve");
+  int crvid = dialogFilteredItemModels->registerItemModel(
+    new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                          RawSource::CurvesGroup | RawSource::NoneGroup), "Curves");
   connectItemModelEvents(dialogFilteredItemModels->getItemModel(crvid));
 
-  int gvid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
-
-  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
-                                                           firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
+  int gvid = dialogFilteredItemModels->registerItemModel(
+    new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                          RawSource::GVarsGroup), "Global Variables");
 
   QStringList headerLabels;
-  headerLabels << "#";
-  if (channelNameMaxLen > 0) {
-    headerLabels << tr("Name");
-  }
-  headerLabels << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direction");
-  if (IS_HORUS_OR_TARANIS(board))
-    headerLabels << tr("Curve") << tr("Plot");
-  if (firmware->getCapability(PPMCenter))
-    headerLabels << tr("PPM Center");
-  if (firmware->getCapability(SYMLimits))
-    headerLabels << tr("Linear Subtrim");
+  headerLabels << "#" << tr("Name") << tr("Subtrim") << tr("Min") << tr("Max")
+               << tr("Direction") << tr("Curve") << tr("Plot") << tr("PPM Center")
+               << tr("Linear Subtrim");
+
   TableLayout *tableLayout = new TableLayout(this, chnCapability, headerLabels);
 
   for (int i = 0; i < chnCapability; i++) {
     int col = 0;
-
     // Channel label
     QLabel *label = new QLabel(this);
     label->setText(tr("CH%1").arg(i+1));
@@ -133,72 +129,70 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     label->setContextMenuPolicy(Qt::CustomContextMenu);
     label->setToolTip(tr("Popup menu available"));
     label->setMouseTracking(true);
-    connect(label, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+    connect(label, &QMenu::customContextMenuRequested, this,
+        &ChannelsPanel::onCustomContextMenuRequested);
     tableLayout->addWidget(i, col++, label);
 
     // Channel name
-    if (channelNameMaxLen > 0) {
-      name[i] = new QLineEdit(this);
-      name[i]->setProperty("index", i);
-      name[i]->setMaxLength(channelNameMaxLen);
-      name[i]->setValidator(new NameValidator(board, this));
-      connect(name[i], SIGNAL(editingFinished()), this, SLOT(nameEdited()));
-      tableLayout->addWidget(i, col++, name[i]);
-    }
+    name[i] = new QLineEdit(this);
+    name[i]->setProperty("index", i);
+    name[i]->setMaxLength(firmware->getCapability(ChannelsName));
+    name[i]->setValidator(new NameValidator(board, this));
+    connect(name[i], &QLineEdit::editingFinished, this, &ChannelsPanel::nameEdited);
+    tableLayout->addWidget(i, col++, name[i]);
 
     // Channel offset
-    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].offset, model, generalSettings, -1000, 1000, 0, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+      model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
+      dialogFilteredItemModels->getItemModel(gvid), this);
 
     // Channel min
-    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+      model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
+      dialogFilteredItemModels->getItemModel(gvid), this);
 
     // Channel max
-    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+      model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
+      dialogFilteredItemModels->getItemModel(gvid), this);
 
     // Channel inversion
     invCB[i] = new QComboBox(this);
     invCB[i]->insertItems(0, QStringList() << tr("---") << tr("INV"));
     invCB[i]->setProperty("index", i);
-    connect(invCB[i], SIGNAL(currentIndexChanged(int)), this, SLOT(invEdited()));
+    connect(invCB[i], &QComboBox::currentIndexChanged, this, &ChannelsPanel::invEdited);
     tableLayout->addWidget(i, col++, invCB[i]);
 
-    // Curve
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      curveCB[i] = new QComboBox(this);
-      curveCB[i]->setProperty("index", i);
-      tableLayout->addWidget(i, col++, curveCB[i]);
+    curveCB[i] = new QComboBox(this);
+    curveCB[i]->setProperty("index", i);
+    tableLayout->addWidget(i, col++, curveCB[i]);
 
-      curveImage[i] = new CurveImageWidget(this);
-      curveImage[i]->setProperty("index", i);
-      curveImage[i]->setFixedSize(QSize(100, 100));
-      tableLayout->addWidget(i, col++, curveImage[i]);
+    curveImage[i] = new CurveImageWidget(this);
+    curveImage[i]->setProperty("index", i);
+    curveImage[i]->setFixedSize(QSize(100, 100));
+    tableLayout->addWidget(i, col++, curveImage[i]);
 
-      curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i], model.limitData[i].curve, model, sharedItemModels,
-                                                  curveRefFilteredItemModels, this);
-    }
+    curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
+                          model.limitData[i].curve, model, sharedItemModels, this);
 
     // PPM center
     int ppmCenterMax = firmware->getCapability(PPMCenter);
-    if (ppmCenterMax) {
-      centerSB[i] = new QSpinBox(this);
-      centerSB[i]->setProperty("index", i);
-      centerSB[i]->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-      centerSB[i]->setSuffix("us");
-      centerSB[i]->setMinimum(1500 - ppmCenterMax);
-      centerSB[i]->setMaximum(1500 + ppmCenterMax);
-      centerSB[i]->setValue(1500);
-      connect(centerSB[i], SIGNAL(editingFinished()), this, SLOT(ppmcenterEdited()));
-      tableLayout->addWidget(i, col++, centerSB[i]);
-    }
+    centerSB[i] = new QSpinBox(this);
+    centerSB[i]->setProperty("index", i);
+    centerSB[i]->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    centerSB[i]->setSuffix("us");
+    centerSB[i]->setMinimum(1500 - ppmCenterMax);
+    centerSB[i]->setMaximum(1500 + ppmCenterMax);
+    centerSB[i]->setValue(1500);
+    connect(centerSB[i], &QSpinBox::editingFinished, this, &ChannelsPanel::ppmcenterEdited);
+    tableLayout->addWidget(i, col++, centerSB[i]);
 
     // Symetrical limits
-    if (firmware->getCapability(SYMLimits)) {
-      symlimitsChk[i] = new QCheckBox(this);
-      symlimitsChk[i]->setProperty("index", i);
-      symlimitsChk[i]->setChecked(model.limitData[i].symetrical);
-      connect(symlimitsChk[i], SIGNAL(toggled(bool)), this, SLOT(symlimitsEdited()));
-      tableLayout->addWidget(i, col++, symlimitsChk[i]);
-    }
+    symlimitsChk[i] = new QCheckBox(this);
+    symlimitsChk[i]->setProperty("index", i);
+    symlimitsChk[i]->setChecked(model.limitData[i].symetrical);
+    connect(symlimitsChk[i], &QCheckBox::toggled, this, &ChannelsPanel::symlimitsEdited);
+    tableLayout->addWidget(i, col++, symlimitsChk[i]);
   }
 
   update();
@@ -225,7 +219,6 @@ ChannelsPanel::~ChannelsPanel()
     delete curveGroup[i];
   }
   delete dialogFilteredItemModels;
-  delete curveRefFilteredItemModels;
 }
 
 void ChannelsPanel::symlimitsEdited()
@@ -293,20 +286,13 @@ void ChannelsPanel::updateLine(int i)
 {
   lock = true;
   LimitData &chn = model->limitData[i];
-
-  if (firmware->getCapability(ChannelsName) > 0) {
-    name[i]->setText(chn.name);
-  }
+  name[i]->setText(chn.name);
   chnOffset[i]->setValue(chn.offset);
   chnMin[i]->setValue(chn.min);
   chnMax[i]->setValue(chn.max);
   invCB[i]->setCurrentIndex((chn.revert) ? 1 : 0);
-  if (firmware->getCapability(PPMCenter)) {
-    centerSB[i]->setValue(chn.ppmCenter + 1500);
-  }
-  if (firmware->getCapability(SYMLimits)) {
-    symlimitsChk[i]->setChecked(chn.symetrical);
-  }
+  centerSB[i]->setValue(chn.ppmCenter + 1500);
+  symlimitsChk[i]->setChecked(chn.symetrical);
   lock = false;
 }
 
@@ -322,7 +308,8 @@ void ChannelsPanel::cmPaste()
 
 void ChannelsPanel::cmDelete()
 {
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Delete Channel. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Delete Channel. Are you sure?"),
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
 
   model->limitsDelete(selectedIndex);
@@ -344,7 +331,8 @@ void ChannelsPanel::cmCopy()
 
 void ChannelsPanel::cmCut()
 {
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Cut Channel. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Cut Channel. Are you sure?"),
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
 
   cmCopy();
@@ -356,20 +344,27 @@ void ChannelsPanel::onCustomContextMenuRequested(QPoint pos)
   QLabel *label = (QLabel *)sender();
   selectedIndex = label->property("index").toInt();
   QPoint globalPos = label->mapToGlobal(pos);
-
   QMenu contextMenu;
-  contextMenu.addAction(CompanionIcon("copy.png"), tr("Copy"),this,SLOT(cmCopy()));
-  contextMenu.addAction(CompanionIcon("cut.png"), tr("Cut"),this,SLOT(cmCut()));
-  contextMenu.addAction(CompanionIcon("paste.png"), tr("Paste"),this,SLOT(cmPaste()))->setEnabled(hasClipboardData());
-  contextMenu.addAction(CompanionIcon("clear.png"), tr("Clear"),this,SLOT(cmClear()));
+  contextMenu.addAction(CompanionIcon("copy.png"), tr("Copy"), this,
+                        SLOT(cmCopy()));
+  contextMenu.addAction(CompanionIcon("cut.png"), tr("Cut"), this,
+                        SLOT(cmCut()));
+  contextMenu.addAction(CompanionIcon("paste.png"), tr("Paste"), this,
+                        SLOT(cmPaste()))->setEnabled(hasClipboardData());
+  contextMenu.addAction(CompanionIcon("clear.png"), tr("Clear"), this,
+                        SLOT(cmClear()));
   contextMenu.addSeparator();
-  contextMenu.addAction(CompanionIcon("arrow-right.png"), tr("Insert"),this,SLOT(cmInsert()))->setEnabled(insertAllowed());
-  contextMenu.addAction(CompanionIcon("arrow-left.png"), tr("Delete"),this,SLOT(cmDelete()));
-  contextMenu.addAction(CompanionIcon("moveup.png"), tr("Move Up"),this,SLOT(cmMoveUp()))->setEnabled(moveUpAllowed());
-  contextMenu.addAction(CompanionIcon("movedown.png"), tr("Move Down"),this,SLOT(cmMoveDown()))->setEnabled(moveDownAllowed());
+  contextMenu.addAction(CompanionIcon("arrow-right.png"), tr("Insert"), this,
+                        SLOT(cmInsert()))->setEnabled(insertAllowed());
+  contextMenu.addAction(CompanionIcon("arrow-left.png"), tr("Delete"), this,
+                        SLOT(cmDelete()));
+  contextMenu.addAction(CompanionIcon("moveup.png"), tr("Move Up"), this,
+                        SLOT(cmMoveUp()))->setEnabled(moveUpAllowed());
+  contextMenu.addAction(CompanionIcon("movedown.png"), tr("Move Down"), this,
+                        SLOT(cmMoveDown()))->setEnabled(moveDownAllowed());
   contextMenu.addSeparator();
-  contextMenu.addAction(CompanionIcon("clear.png"), tr("Clear All"),this,SLOT(cmClearAll()));
-
+  contextMenu.addAction(CompanionIcon("clear.png"), tr("Clear All"), this,
+                      SLOT(cmClearAll()));
   contextMenu.exec(globalPos);
 }
 
@@ -387,7 +382,8 @@ bool ChannelsPanel::hasClipboardData(QByteArray * data) const
 
 bool ChannelsPanel::insertAllowed() const
 {
-  return ((selectedIndex < chnCapability - 1) && (model->limitData[chnCapability - 1].isEmpty()));
+  return ((selectedIndex < chnCapability - 1) &&
+          (model->limitData[chnCapability - 1].isEmpty()));
 }
 
 bool ChannelsPanel::moveDownAllowed() const
@@ -419,7 +415,8 @@ void ChannelsPanel::cmMoveDown()
 void ChannelsPanel::cmClear(bool prompt)
 {
   if (prompt) {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear Channel. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear Channel. Are you sure?"),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
   }
 
@@ -430,7 +427,8 @@ void ChannelsPanel::cmClear(bool prompt)
 
 void ChannelsPanel::cmClearAll()
 {
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Channels. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Channels. Are you sure?"),
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
 
   model->limitsClearAll();
@@ -450,8 +448,10 @@ void ChannelsPanel::cmInsert()
 
 void ChannelsPanel::connectItemModelEvents(const FilteredItemModel * itemModel)
 {
-  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, this, &ChannelsPanel::onItemModelAboutToBeUpdated);
-  connect(itemModel, &FilteredItemModel::updateComplete, this, &ChannelsPanel::onItemModelUpdateComplete);
+  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, this,
+    &ChannelsPanel::onItemModelAboutToBeUpdated);
+  connect(itemModel, &FilteredItemModel::updateComplete, this,
+    &ChannelsPanel::onItemModelUpdateComplete);
 }
 
 void ChannelsPanel::onItemModelAboutToBeUpdated()

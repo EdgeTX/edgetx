@@ -580,8 +580,7 @@ struct convert<LimitData> {
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
-    node["curve"] = rhs.curve.value;
-    // rhs.curve.type is not encoded
+    node["curve"] = rhs.curve.index;
     return node;
   }
 
@@ -600,8 +599,13 @@ struct convert<LimitData> {
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
-    node["curve"] >> rhs.curve.value;
-    rhs.curve.type = CurveReference::CURVE_REF_CUSTOM;  // this is not encoded but needed internally so force type
+    RawSource src;
+    if (node["curve"]) {
+      node["curve"] >> src.index;
+    }
+    if (src.index > 0)
+      src.type = SOURCE_TYPE_CURVE;
+    rhs.curve = src;
     return true;
   }
 };
