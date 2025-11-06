@@ -21,39 +21,16 @@
 
 #pragma once
 
-#include "helpers.h"
 #include "modeledit.h"
+#include "constants.h"
 
 #include <QtCore>
 
 class CompoundItemModelFactory;
-class FilteredItemModelFactory;
-class CurveImageWidget;
+class FilteredItemModel;
+class RawSourceWidget;
 
 constexpr char MIMETYPE_CHANNEL[] = "application/x-companion-channel";
-
-class GVarGroup;
-
-class LimitsGroup
-{
-  Q_DECLARE_TR_FUNCTIONS(LimitsGroup)
-
-  public:
-    LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
-                int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel = nullptr);
-    ~LimitsGroup();
-
-    void setValue(int val);
-    void updateMinMax(int max);
-
-  protected:
-    Firmware *firmware;
-    QDoubleSpinBox *spinbox;
-    GVarGroup *gvarGroup;
-    int &value;
-    double displayStep;
-    QCheckBox *gv;
-};
 
 class ChannelsPanel : public ModelPanel
 {
@@ -88,21 +65,17 @@ class ChannelsPanel : public ModelPanel
     void onItemModelUpdateComplete();
 
   private:
-    QLineEdit *name[CPN_MAX_CHNOUT];
-    LimitsGroup *chnOffset[CPN_MAX_CHNOUT];
-    LimitsGroup *chnMin[CPN_MAX_CHNOUT];
-    LimitsGroup *chnMax[CPN_MAX_CHNOUT];
-    QComboBox *invCB[CPN_MAX_CHNOUT];
-    QComboBox *curveCB[CPN_MAX_CHNOUT];
-    CurveImageWidget *curveImage[CPN_MAX_CHNOUT];
-    QSpinBox *centerSB[CPN_MAX_CHNOUT];
-    QCheckBox *symlimitsChk[CPN_MAX_CHNOUT];
+    QLineEdit *leName[CPN_MAX_CHNOUT];
+    QComboBox *cboInvert[CPN_MAX_CHNOUT];
+    QSpinBox *sbxCenter[CPN_MAX_CHNOUT];
+    QCheckBox *chkSymlimits[CPN_MAX_CHNOUT];
     int selectedIndex;
     int chnCapability;
     CompoundItemModelFactory *sharedItemModels;
-    FilteredItemModelFactory *dialogFilteredItemModels;
-    CurveRefFilteredFactory *curveRefFilteredItemModels;
-    CurveReferenceUIManager *curveGroup[CPN_MAX_CHNOUT];
+    RawSourceWidget *offset[CPN_MAX_CHNOUT];
+    RawSourceWidget *min[CPN_MAX_CHNOUT];
+    RawSourceWidget *max[CPN_MAX_CHNOUT];
+    RawSourceWidget *curve[CPN_MAX_CHNOUT];
 
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;
