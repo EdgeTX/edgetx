@@ -28,7 +28,6 @@ set(${PROJECT_NAME}_NAMES
   rawsource
   rawswitch
   sensordata
-  sourcenumref
   telem_data
   timerdata
   opentx/opentxinterface

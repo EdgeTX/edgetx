@@ -38,14 +38,11 @@ class AbstractItemModel: public QStandardItemModel
       IMID_Unknown,
       IMID_RawSource,
       IMID_RawSwitch,
-      IMID_Curve,
       IMID_GVarRef,
       IMID_ThrSource,
       IMID_CustomFuncAction,
       IMID_CustomFuncResetParam,
       IMID_TeleSource,
-      IMID_CurveRefType,
-      IMID_CurveRefFunc,
       IMID_FlexSwitches,
       IMID_ReservedCount,
       IMID_Custom
@@ -217,21 +214,6 @@ class RawSwitchItemModel: public AbstractDynamicItemModel
     void addItems(const RawSwitchType & type, int count);
 };
 
-class CurveItemModel: public AbstractDynamicItemModel
-{
-    Q_OBJECT
-  public:
-    explicit CurveItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                            Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~CurveItemModel() {};
-
-  public slots:
-    virtual void update(const int event = IMUE_SystemRefresh) override;
-
-  protected:
-    virtual void setDynamicItemData(QStandardItem * item, const int value) const;
-};
-
 class GVarReferenceItemModel: public AbstractDynamicItemModel
 {
     Q_OBJECT
@@ -306,24 +288,6 @@ class TelemetrySourceItemModel: public AbstractDynamicItemModel
 
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const int value) const;
-};
-
-class CurveRefTypeItemModel : public AbstractStaticItemModel
-{
-    Q_OBJECT
-  public:
-    explicit CurveRefTypeItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                   Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~CurveRefTypeItemModel() {};
-};
-
-class CurveRefFuncItemModel : public AbstractStaticItemModel
-{
-    Q_OBJECT
-  public:
-    explicit CurveRefFuncItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                   Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~CurveRefFuncItemModel() {};
 };
 
 class PrecisionItemModel : public AbstractStaticItemModel
