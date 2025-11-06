@@ -28,7 +28,6 @@
 #include "helpers.h"
 #include "adjustmentreference.h"
 #include "compounditemmodels.h"
-#include "sourcenumref.h"
 
 #include <QMessageBox>
 
@@ -362,9 +361,11 @@ void ModelData::setDefaultInputs(const GeneralSettings & settings)
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     ExpoData * expo = &expoData[i];
     expo->chn = i;
+    expo->curve.source = RawSource(SOURCE_TYPE_NUMBER, 0);
     expo->mode = INPUT_MODE_BOTH;
+    expo->offset = RawSource(SOURCE_TYPE_NUMBER, 0);
     expo->srcRaw = settings.getDefaultSource(i);
-    expo->weight = 100;
+    expo->weight = RawSource(SOURCE_TYPE_NUMBER, 100);
     strncpy(inputNames[i], Helpers::removeAccents(expo->srcRaw.toString(this)).toLatin1().constData(), sizeof(inputNames[i]) - 1);
   }
 }
@@ -375,8 +376,10 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
 
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     MixData * mix = &mixData[i];
+    mix->curve.source = RawSource(SOURCE_TYPE_NUMBER, 0);
     mix->destCh = i + 1;
-    mix->weight = 100;
+    mix->offset = RawSource(SOURCE_TYPE_NUMBER, 0);
+    mix->weight = RawSource(SOURCE_TYPE_NUMBER, 100);
     mix->srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, i + 1);
   }
 }
@@ -503,32 +506,6 @@ void ModelData::setTrimValue(int phaseIdx, int trimIdx, int value)
   }
 }
 
-void ModelData::removeGlobalVar(int & var)
-{
-  if (var >= 126 && var <= 130)
-    var = flightModeData[0].gvars[var - 126];
-  else if (var <= -126 && var >= -130)
-    var = - flightModeData[0].gvars[-126 - var];
-}
-
-ModelData ModelData::removeGlobalVars()
-{
-  ModelData result = *this;
-
-  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
-    removeGlobalVar(mixData[i].weight);
-    removeGlobalVar(mixData[i].curve.value);
-    removeGlobalVar(mixData[i].sOffset);
-  }
-
-  for (int i  =0; i < CPN_MAX_EXPOS; i++) {
-    removeGlobalVar(expoData[i].weight);
-    removeGlobalVar(expoData[i].curve.value);
-  }
-
-  return result;
-}
-
 int ModelData::getChannelsMax(bool forceExtendedLimits) const
 {
   if (forceExtendedLimits || extendedLimits)
@@ -627,6 +604,10 @@ void ModelData::convert(RadioDataConversionState & cstate)
 
   for (int i = 0; i < CPN_MAX_EXPOS; i++) {
     expoData[i].convert(cstate.withComponentIndex(i));
+  }
+
+  for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
+    limitData[i].convert(cstate.withComponentIndex(i));
   }
 
   for (int i = 0; i < CPN_MAX_LOGICAL_SWITCHES; i++) {
@@ -800,9 +781,9 @@ int ModelData::updateReference()
       updateSourceRef(ed->srcRaw);
       if (ed->srcRaw.isSet()) {
         updateSwitchRef(ed->swtch);
-        updateCurveRef(ed->curve);
-        updateSourceNumRef(ed->weight);
-        updateSourceNumRef(ed->offset);
+        updateSourceRef(ed->curve.source);
+        updateSourceRef(ed->weight);
+        updateSourceRef(ed->offset);
         updateFlightModeFlags(ed->flightModes);
       }
       else {
@@ -824,9 +805,9 @@ int ModelData::updateReference()
         updateSourceRef(md->srcRaw);
         if (md->srcRaw.isSet()) {
           updateSwitchRef(md->swtch);
-          updateCurveRef(md->curve);
-          updateSourceNumRef(md->weight);
-          updateSourceNumRef(md->sOffset);
+          updateSourceRef(md->curve.source);
+          updateSourceRef(md->weight);
+          updateSourceRef(md->offset);
           updateFlightModeFlags(md->flightModes);
         }
         else {
@@ -843,10 +824,10 @@ int ModelData::updateReference()
   for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     LimitData *ld = &limitData[i];
     if (!ld->isEmpty()) {
-      updateAdjustRef(ld->min);
-      updateAdjustRef(ld->max);
-      updateAdjustRef(ld->offset);
-      updateLimitCurveRef(ld->curve);
+      updateSourceRef(ld->min);
+      updateSourceRef(ld->max);
+      updateSourceRef(ld->offset);
+      updateSourceRef(ld->curve);
     }
   }
   //s1.report("Outputs");
@@ -1137,33 +1118,6 @@ void ModelData::updateTypeValueRef(R & curRef, const T type, const int idxAdj, c
     curRef = newRef;
     updRefInfo.updcnt++;
   }
-}
-
-void ModelData::updateCurveRef(CurveReference & crv)
-{
-  if (crv.type == CurveReference::CURVE_REF_DIFF || crv.type == CurveReference::CURVE_REF_EXPO)
-    updateSourceNumRef(crv.value);
-  else if (updRefInfo.type == REF_UPD_TYPE_CURVE && crv.type == CurveReference::CURVE_REF_CUSTOM)
-    updateTypeValueRef<CurveReference, CurveReference::CurveRefType>(crv, CurveReference::CURVE_REF_CUSTOM, 1);
-}
-
-void ModelData::updateLimitCurveRef(CurveReference & crv)
-{
-  CurveReference src = CurveReference(CurveReference::CURVE_REF_CUSTOM, crv.value);
-  updateCurveRef(src);
-  if (crv.value != src.value)
-    crv.value = src.value;
-}
-
-void ModelData::updateAdjustRef(int & value)
-{
-  if (updRefInfo.type != REF_UPD_TYPE_GLOBAL_VARIABLE)
-    return;
-
-  AdjustmentReference adj = AdjustmentReference(value);
-  updateTypeValueRef<AdjustmentReference, AdjustmentReference::AdjustRefType>(adj, AdjustmentReference::ADJUST_REF_GVAR, 1);
-  if (value != adj.toValue())
-    value = adj.toValue();
 }
 
 void ModelData::updateAssignFunc(CustomFunctionData * cfd)
@@ -2297,15 +2251,4 @@ bool ModelData::gvarInsertAllowed(const int index)
 
   return ret;
 
-}
-
-void ModelData::updateSourceNumRef(int & value)
-{
-  if (updRefInfo.type == REF_UPD_TYPE_CHANNEL ||
-      updRefInfo.type == REF_UPD_TYPE_GLOBAL_VARIABLE ||
-      updRefInfo.type == REF_UPD_TYPE_INPUT) {
-    SourceNumRef srcnum = SourceNumRef(value);
-    if (srcnum.isSource())
-      updateSourceIntRef(value);
-  }
 }

@@ -510,13 +510,15 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   return true;
 }
 
-static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
+static RawSource YamlReadLimitValue(const YAML::Node& node)
 {
+  // TODO read standard RawSource format
   Firmware *firmware = getCurrentFirmware();
   std::string val_str = node.as<std::string>();
 
   try {
-    return std::stoi(val_str) + shift;
+    int32_t val = std::stoi(val_str);
+    return RawSource(SOURCE_TYPE_NUMBER, val);
   } catch(...) {
     try {
       const char* val = val_str.data();
@@ -542,12 +544,12 @@ static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
         }
 
         if (num <= firmware->getCapability(Gvars))
-          return ((10000 * multiplier) + (num * multiplier));
+          return RawSource(SOURCE_TYPE_GVAR, num * multiplier);
         else
-          return 0;
+          return RawSource();
 
       } else {
-        throw "Invalid value";
+        throw "Invalid limit value";
       }
     } catch(...) {
       throw YAML::TypedBadConversion<int>(node.Mark());
@@ -555,17 +557,19 @@ static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
   }
 }
 
-static std::string YamlWriteLimitValue(int32_t sval, int32_t shift = 0)
+static std::string YamlWriteLimitValue(RawSource src)
 {
-  if (sval < -10000) {
-    int n = -sval - 10000;
-    return std::string("-GV") + std::to_string(n);
-  } else if (sval > 10000) {
-    int n = sval - 10000;
-    return std::string("GV") + std::to_string(n);
+  // TODO return stamdard source format
+  if (src.type == SOURCE_TYPE_GVAR) {
+    std::string str;
+    if (src.index < 0)
+      str.append("-");
+    str.append("GV");
+    str.append(std::to_string(src.index));
+    return str;
   }
 
-  return std::to_string(sval - shift);
+  return std::to_string(src.index);
 }
 
 template <>
@@ -573,35 +577,43 @@ struct convert<LimitData> {
   static Node encode(const LimitData& rhs)
   {
     Node node;
-    node["min"] = YamlWriteLimitValue(rhs.min, -1000);
-    node["max"] = YamlWriteLimitValue(rhs.max, 1000);
+    node["min"] = YamlWriteLimitValue(rhs.min);
+    node["max"] = YamlWriteLimitValue(rhs.max);
     node["revert"] = (int)rhs.revert;
     node["offset"] = YamlWriteLimitValue(rhs.offset);
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
-    node["curve"] = rhs.curve.value;
-    // rhs.curve.type is not encoded
+    node["curve"] = rhs.curve;
     return node;
   }
 
   static bool decode(const Node& node, LimitData& rhs)
   {
-    if (node["min"]) {
-      rhs.min = YamlReadLimitValue(node["min"], -1000);
-    }
-    if (node["max"]) {
-      rhs.max = YamlReadLimitValue(node["max"], 1000);
-    }
-    if (node["offset"]) {
+    if (node["min"])
+      rhs.min = YamlReadLimitValue(node["min"]);
+
+    if (node["max"])
+      rhs.max = YamlReadLimitValue(node["max"]);
+
+    if (node["offset"])
       rhs.offset = YamlReadLimitValue(node["offset"]);
-    }
+
     node["revert"] >> rhs.revert;
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
-    node["curve"] >> rhs.curve.value;
-    rhs.curve.type = CurveReference::CURVE_REF_CUSTOM;  // this is not encoded but needed internally so force type
+
+    int index = 0;
+
+    if (node["curve"])
+      node["curve"] >> index;
+
+    if (index > 0) {
+      rhs.curve.type = SOURCE_TYPE_CURVE;
+      rhs.curve.index = index;
+    }
+
     return true;
   }
 };

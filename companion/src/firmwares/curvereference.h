@@ -24,19 +24,11 @@
 #include "rawsource.h"
 
 #include <QtCore>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QLabel>
-#include <QSpinBox>
-#include <QStandardItemModel>
 
 class GeneralSettings;
 class ModelData;
-class CurveRefFilteredFactory;
-class CompoundItemModelFactory;
-class FilteredItemModel;
-class CurveImageWidget;
-class SourceNumRefEditor;
+class RadioDataConversionState;
+class AbstractItemModel;
 
 class CurveReference {
 
@@ -49,92 +41,35 @@ class CurveReference {
       CURVE_REF_EXPO,
       CURVE_REF_FUNC,
       CURVE_REF_CUSTOM,
-      MAX_CURVE_REF_TYPE = CURVE_REF_CUSTOM
+      MAX_CURVE_REF_COUNT
     };
 
-    enum CurveRefGroups {
-      NoneGroup      = 0x001,
-      NegativeGroup  = 0x002,
-      PositiveGroup  = 0x004,
+    CurveReference();
 
-      AllCurveRefGroups   = NoneGroup | NegativeGroup | PositiveGroup,
-      PositiveCurveRefGroups = AllCurveRefGroups &~ NegativeGroup
-    };
+    CurveReference(CurveRefType type, RawSource source) :
+      type(type),
+      source(source)
+    {}
 
-    CurveReference() { clear(); }
-    CurveReference(CurveRefType type, int value) : type(type), value(value) { ; }
-
-    void clear() { memset(this, 0, sizeof(CurveReference)); }
-    const bool isEmpty() const { return type == CURVE_REF_DIFF && value == 0; }
+    void clear();
+    const bool isEmpty() const { return type == CURVE_REF_DIFF && source.index == 0; }
     const bool isSet() const { return !isEmpty(); }
-    const bool isValueNumber() const;
-    const bool isValueReference() const { return !isValueNumber(); }
     const QString toString(const ModelData * model = nullptr, bool verbose = true, const GeneralSettings * const generalSettings = nullptr,
                            Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
-    const bool isAvailable() const;
+    CurveReference convert(RadioDataConversionState & cstate);
 
     CurveRefType type;
-    int value;
+    RawSource source;
 
     bool operator == ( const CurveReference & other) const {
-      return (this->type == other.type) && (this->value == other.value);
+      return (this->type == other.type) && (this->source == other.source);
     }
 
     bool operator != ( const CurveReference & other) const {
-      return (this->type != other.type) || (this->value != other.value);
+      return (this->type != other.type) || (this->source != other.source);
     }
 
-    static int getDefaultValue(const CurveRefType type, const bool isGVar = false);
-    static QString typeToString(const CurveRefType type);
-    static QString functionToString(const int value);
-    static bool isTypeAvailable(const CurveRefType type);
-    static bool isFunctionAvailable(const int value);
-    static int functionCount();
-};
-
-class CurveReferenceUIManager : public QObject {
-
-  Q_OBJECT
-
-  public:
-    explicit CurveReferenceUIManager(QComboBox * cboType, QCheckBox * chkUseSource, QSpinBox * sbxValue, QComboBox * cboSource,
-                                     QComboBox * cboCurveFunc, CurveImageWidget * curveImage, CurveReference & curveRef,
-                                     ModelData & model, CompoundItemModelFactory * sharedItemModels,
-                                     CurveRefFilteredFactory * curveRefFilteredFactory, FilteredItemModel * sourceItemModel,
-                                     QObject * parent = nullptr);
-
-    explicit CurveReferenceUIManager(QComboBox *cboCurveFunc, CurveImageWidget * curveImage, CurveReference & curveRef, ModelData & model,
-                                     CompoundItemModelFactory * sharedItemModels, CurveRefFilteredFactory * curveRefFilteredFactory,
-                                     QObject * parent = nullptr) :
-                CurveReferenceUIManager(nullptr, nullptr, nullptr, nullptr, cboCurveFunc, curveImage, curveRef, model, sharedItemModels,
-                                        curveRefFilteredFactory, nullptr, parent) {}
-
-    virtual ~CurveReferenceUIManager();
-
-  signals:
-    void resized();
-
-  protected slots:
-    void cboTypeChanged(int);
-    void cboCurveFuncChanged(int);
-    void update();
-    void curveImageDoubleClicked();
-    void onItemModelAboutToBeUpdated();
-    void onItemModelUpdateComplete();
-
-  private:
-    QComboBox *cboType;
-    QCheckBox *chkUseSource;
-    QSpinBox *sbxValue;
-    QComboBox *cboSource;
-    QComboBox *cboCurveFunc;
-    CurveImageWidget *curveImage;
-    CurveReference &curveRef;
-    ModelData &model;
-    CurveRefFilteredFactory *filteredModelFactory;
-    bool lock;
-    SourceNumRefEditor *srcNumRefEditor;
-
-    void connectItemModelEvents(const FilteredItemModel * itemModel);
-    void populateValueCB(QComboBox * cb);
+    static CurveReference getDefaultValue(const CurveRefType type);
+    static QString typeToString(const int type);
+    static AbstractItemModel *typeItemModel();
 };

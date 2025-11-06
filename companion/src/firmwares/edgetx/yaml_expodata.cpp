@@ -36,8 +36,8 @@ Node convert<ExpoData>::encode(const ExpoData& rhs)
   node["chn"] = rhs.chn;
   node["swtch"] = rhs.swtch;
   node["flightModes"] = YamlWriteFlightModes(rhs.flightModes);
-  node["weight"] = YamlSourceNumRefEncode(rhs.weight);
-  node["offset"] = YamlSourceNumRefEncode(rhs.offset);
+  node["weight"] = rhs.weight;
+  node["offset"] = rhs.offset;
   node["curve"] = rhs.curve;
   node["trimSource"] = rhs.carryTrim; // temporary for 2.8.1, trimSource in 2.9
   node["name"] = rhs.name;
@@ -54,12 +54,8 @@ bool convert<ExpoData>::decode(const Node& node, ExpoData& rhs)
   if (node["flightModes"]) {
     rhs.flightModes = YamlReadFlightModes(node["flightModes"]);
   }
-  if (node["weight"]) {
-    rhs.weight = YamlSourceNumRefDecode(node["weight"]);
-  }
-  if (node["offset"]) {
-    rhs.offset = YamlSourceNumRefDecode(node["offset"]);
-  }
+  node["weight"] >> rhs.weight;
+  node["offset"] >> rhs.offset;
   node["curve"] >> rhs.curve;
 if (node["carryTrim"]) { // 2.9 - change bugged carryTrim to trimSource
   node["carryTrim"] >> rhs.carryTrim;

@@ -21,13 +21,15 @@
 
 #include "filtereditemmodels.h"
 
-FilteredItemModel::FilteredItemModel(AbstractItemModel * sourceModel, int flags) :
+FilteredItemModel::FilteredItemModel(AbstractItemModel * sourceModel, int flags, bool isAvailable) :
   QSortFilterProxyModel(nullptr),
   filterFlags(0),
   m_id(0),
   m_name("")
 {
-  setFilterRole(AbstractItemModel::IMDR_Available);
+  if (isAvailable)
+    setFilterRole(AbstractItemModel::IMDR_Available);
+
   setFilterKeyColumn(0);
   setFilterFlags(flags);
   setDynamicSortFilter(true);
@@ -207,45 +209,5 @@ void FilteredItemModelFactory::dumpAllItemModelContents() const
 {
   foreach (FilteredItemModel * itemModel, registeredItemModels) {
     FilteredItemModel::dumpItemModelContents(itemModel);
-  }
-}
-
-//
-//  CurveRefFilteredFactory
-//
-
-CurveRefFilteredFactory::CurveRefFilteredFactory(CompoundItemModelFactory * sharedItemModels, const int curveFlags, const int gvarRefFlags)
-{
-  if (!sharedItemModels) {
-    qDebug() << "Error: invalid compound item model factory pointer";
-    return;
-  }
-
-  registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_Curve), curveFlags),
-                                          fidToString(CRFIM_CURVE), CRFIM_CURVE);
-  registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_CurveRefType)),
-                                          fidToString(CRFIM_TYPE), CRFIM_TYPE);
-  registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_CurveRefFunc)),
-                                          fidToString(CRFIM_FUNC), CRFIM_FUNC);
-}
-
-CurveRefFilteredFactory::~CurveRefFilteredFactory()
-{
-}
-
-//  static
-QString CurveRefFilteredFactory::fidToString(const int value)
-{
-  switch(value) {
-    case CRFIM_CURVE:
-      return "Curves";
-    case CRFIM_GVARREF:
-      return "Global Variables";
-    case CRFIM_TYPE:
-      return "Types";
-    case CRFIM_FUNC:
-      return "Functions";
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
   }
 }
