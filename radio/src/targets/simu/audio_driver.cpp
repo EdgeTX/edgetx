@@ -29,6 +29,10 @@ bool audioHeadphoneDetect()
 }
 #endif
 
+void btAudioInit() {}
+bool btAudioLinked() { return false; }
+void btAudioConnect() {}
+
 #if !defined(SOFTWARE_VOLUME)
 static int _simu_volume = 0;
 

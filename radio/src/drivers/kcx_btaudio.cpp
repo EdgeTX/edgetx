@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+* Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,25 +19,26 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
+#include "os/sleep.h"
 
-#include <stdint.h>
+void btAudioInit()
+{
+  gpio_init(BTAUDIO_LINKED_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(BTAUDIO_CONNECT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(BTAUDIO_CONNECT_GPIO);
+}
 
-// Audio volume is defined between 0 and VOLUME_LEVEL_MAX.
-#define VOLUME_LEVEL_MAX 23
-#define VOLUME_LEVEL_DEF 12
+bool btAudioLinked()
+{
+  return gpio_read(BTAUDIO_LINKED_GPIO);
+}
 
-#define AUDIO_SAMPLE_RATE 32000
-
-#define AUDIO_SAMPLE_FMT_S16 0
-#define AUDIO_SAMPLE_FMT_U16 1
-
-bool audioHeadphoneDetect();
-void audioSetVolume(uint8_t volume);
-void audioConsumeCurrentBuffer();
-
-#if defined(KCX_BTAUDIO)
-void btAudioInit();
-bool btAudioLinked();
-void btAudioConnect();
-#endif
+void btAudioConnect()
+{
+  gpio_clear(BTAUDIO_CONNECT_GPIO);
+  sleep_ms(100);
+  gpio_set(BTAUDIO_CONNECT_GPIO);
+}

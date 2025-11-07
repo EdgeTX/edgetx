@@ -255,6 +255,17 @@ static SetupLineDef soundPageSetupLines[] = {
                   GET_SET_DEFAULT(g_eeGeneral.backgroundVolume)))->setPos(x, y);
     }
   },
+#if defined(KCX_BTAUDIO)
+  {
+    STR_DEF(STR_BTAUDIO),
+    [](Window* parent, coord_t x, coord_t y) {
+      new TextButton(parent, {x, y, 0, 0}, "Pairing", [=]() {
+        btAudioConnect();
+        return 0;
+      });
+    }
+  },
+#endif
 };
 #endif
 
