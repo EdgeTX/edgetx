@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# Convert source SVG files to PNG icons for different screen resolutions
-# Usage: ./convert_icons.sh [320x240|480x272|800x480|all] [additional resolutions...]
-# Examples:
-#   ./convert_icons.sh                    # Generates 480x272 (default)
-#   ./convert_icons.sh 320x240            # Generates 320x240
-#   ./convert_icons.sh all                # Generates all resolutions
-#   ./convert_icons.sh 320x240 480x272    # Generates 320x240 and 480x272
-# Requires: resvg command line tool
-
 set -e  # Exit on error
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Define global paths
+SRC_LIST="$SCRIPT_DIR/convert-icons-list.csv"
+SRC_DIR="$SCRIPT_DIR/../radio/src/bitmaps/img-src"
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
 # Check if resvg is installed
 if ! command -v resvg &> /dev/null; then
@@ -35,6 +35,18 @@ if ! command -v bc &> /dev/null; then
     echo "  - Ubuntu/Debian: sudo apt-get install bc"
     echo "  - macOS: brew install bc"
     echo "  - Windows (Git Bash): bc is usually included"
+    exit 1
+fi
+
+# Check if CSV file list exists
+if [ ! -f "$SRC_LIST" ]; then
+    echo "Error: CSV files list not found: $SRC_LIST"
+    exit 1
+fi
+
+# Check if SVG source directory exists
+if [ ! -d "$SRC_DIR" ]; then
+    echo "Error: SVG source directory not found: $SRC_DIR"
     exit 1
 fi
 
@@ -92,15 +104,9 @@ process_resolution() {
     echo "Generating icons for resolution: $RESOLUTION (scale: ${SCALE}x)"
 
     # Base paths (relative to script location)
-    SRC_DIR="$SCRIPT_DIR/../radio/src/bitmaps/img-src"
     OUT_DIR="$SCRIPT_DIR/../radio/src/bitmaps/$RESOLUTION"
 
-    # Check if directories exist
-    if [ ! -d "$SRC_DIR" ]; then
-        echo "Error: Source directory not found: $SRC_DIR"
-        return 1
-    fi
-
+    # Check if output directory exists
     if [ ! -d "$OUT_DIR" ]; then
         echo "Error: Output directory not found: $OUT_DIR"
         return 1
@@ -108,126 +114,457 @@ process_resolution() {
 
     echo "Converting SVG files to PNG..."
 
-    # Multi-color images (base dimensions for 480x272)
-    echo "  - Multi-color images..."
-    run_resvg $(scale 111) $(scale 59) "$SRC_DIR/bootloader/bmp_plug_usb.svg" "$OUT_DIR/bootloader/bmp_plug_usb.png"
-    run_resvg $(scale 52) $(scale 54) "$SRC_DIR/bootloader/bmp_usb_plugged.svg" "$OUT_DIR/bootloader/bmp_usb_plugged.png"
-    run_resvg $(scale 90) $(scale 90) "$SRC_DIR/default_theme/alpha_stick_background.svg" "$OUT_DIR/default_theme/alpha_stick_background.png"
-    run_resvg $(scale 20) $(scale 20) "$SRC_DIR/default_theme/alpha_stick_pointer.svg" "$OUT_DIR/default_theme/alpha_stick_pointer.png"
-    run_resvg $(scale 271) $(scale 257) "$SRC_DIR/splash_logo.svg" "$OUT_DIR/splash_logo.png"
+    # Read CSV file and process each line (skip header)
+    local line_num=0
+    local has_errors=0
+    while IFS=';' read -r file width height || [ -n "$file" ]; do
+        line_num=$((line_num + 1))
+        
+        # Skip header line
+        if [ $line_num -eq 1 ]; then
+            continue
+        fi
+        
+        # Skip empty lines
+        if [ -z "$file" ]; then
+            continue
+        fi
+        
+        # Check if width or height is missing
+        if [ -z "$width" ] || [ -z "$height" ]; then
+            echo -e "  ${RED}Error: Skipping $file.svg - missing dimension(s) (width: '$width', height: '$height')${NC}"
+            has_errors=1
+            continue
+        fi
+        
+        # Run resvg conversion
+        run_resvg $(scale "$width") $(scale "$height") "$SRC_DIR/$file.svg" "$OUT_DIR/$file.png"
+    done < "$SRC_LIST"
 
-    # Grey scale icons
-    echo "  - Greyscale mask icons..."
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_btn_close.svg" "$OUT_DIR/default_theme/mask_btn_close.png"
-    run_resvg $(scale 26) $(scale 26) "$SRC_DIR/default_theme/mask_btn_next.svg" "$OUT_DIR/default_theme/mask_btn_next.png"
-    run_resvg $(scale 26) $(scale 26) "$SRC_DIR/default_theme/mask_btn_prev.svg" "$OUT_DIR/default_theme/mask_btn_prev.png"
-    run_resvg $(scale 96) $(scale 96) "$SRC_DIR/default_theme/mask_busy.svg" "$OUT_DIR/default_theme/mask_busy.png"
-    run_resvg $(scale 34) $(scale 51) "$SRC_DIR/default_theme/mask_currentmenu_bg.svg" "$OUT_DIR/default_theme/mask_currentmenu_bg.png"
-    run_resvg $(scale 13) $(scale 13) "$SRC_DIR/default_theme/mask_currentmenu_dot.svg" "$OUT_DIR/default_theme/mask_currentmenu_dot.png"
-    run_resvg $(scale 36) $(scale 53) "$SRC_DIR/default_theme/mask_currentmenu_shadow.svg" "$OUT_DIR/default_theme/mask_currentmenu_shadow.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_edgetx.svg" "$OUT_DIR/default_theme/mask_edgetx.png"
-    run_resvg $(scale 96) $(scale 96) "$SRC_DIR/default_theme/mask_error.svg" "$OUT_DIR/default_theme/mask_error.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_menu_model.svg" "$OUT_DIR/default_theme/mask_menu_model.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_menu_model_select.svg" "$OUT_DIR/default_theme/mask_menu_model_select.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_menu_notes.svg" "$OUT_DIR/default_theme/mask_menu_notes.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_menu_radio.svg" "$OUT_DIR/default_theme/mask_menu_radio.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_menu_stats.svg" "$OUT_DIR/default_theme/mask_menu_stats.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_menu_theme.svg" "$OUT_DIR/default_theme/mask_menu_theme.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_curves.svg" "$OUT_DIR/default_theme/mask_model_curves.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_flight_modes.svg" "$OUT_DIR/default_theme/mask_model_flight_modes.png"
-    run_resvg $(scale 26) $(scale 26) "$SRC_DIR/default_theme/mask_model_grid_large.svg" "$OUT_DIR/default_theme/mask_model_grid_large.png"
-    run_resvg $(scale 26) $(scale 26) "$SRC_DIR/default_theme/mask_model_grid_small.svg" "$OUT_DIR/default_theme/mask_model_grid_small.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_gvars.svg" "$OUT_DIR/default_theme/mask_model_gvars.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_heli.svg" "$OUT_DIR/default_theme/mask_model_heli.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_inputs.svg" "$OUT_DIR/default_theme/mask_model_inputs.png"
-    run_resvg $(scale 26) $(scale 26) "$SRC_DIR/default_theme/mask_model_list_one.svg" "$OUT_DIR/default_theme/mask_model_list_one.png"
-    run_resvg $(scale 26) $(scale 26) "$SRC_DIR/default_theme/mask_model_list_two.svg" "$OUT_DIR/default_theme/mask_model_list_two.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_logical_switches.svg" "$OUT_DIR/default_theme/mask_model_logical_switches.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_lua_scripts.svg" "$OUT_DIR/default_theme/mask_model_lua_scripts.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_mixer.svg" "$OUT_DIR/default_theme/mask_model_mixer.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_outputs.svg" "$OUT_DIR/default_theme/mask_model_outputs.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_setup.svg" "$OUT_DIR/default_theme/mask_model_setup.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_special_functions.svg" "$OUT_DIR/default_theme/mask_model_special_functions.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_telemetry.svg" "$OUT_DIR/default_theme/mask_model_telemetry.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_model_usb.svg" "$OUT_DIR/default_theme/mask_model_usb.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_monitor.svg" "$OUT_DIR/default_theme/mask_monitor.png"
-    run_resvg $(scale 11) $(scale 16) "$SRC_DIR/default_theme/mask_monitor_inver.svg" "$OUT_DIR/default_theme/mask_monitor_inver.png"
-    run_resvg $(scale 11) $(scale 16) "$SRC_DIR/default_theme/mask_monitor_lockch.svg" "$OUT_DIR/default_theme/mask_monitor_lockch.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_monitor_logsw.svg" "$OUT_DIR/default_theme/mask_monitor_logsw.png"
-    run_resvg $(scale 25) $(scale 17) "$SRC_DIR/default_theme/mask_mplex_add.svg" "$OUT_DIR/default_theme/mask_mplex_add.png"
-    run_resvg $(scale 25) $(scale 17) "$SRC_DIR/default_theme/mask_mplex_multi.svg" "$OUT_DIR/default_theme/mask_mplex_multi.png"
-    run_resvg $(scale 25) $(scale 17) "$SRC_DIR/default_theme/mask_mplex_replace.svg" "$OUT_DIR/default_theme/mask_mplex_replace.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_calibration.svg" "$OUT_DIR/default_theme/mask_radio_calibration.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_edit_theme.svg" "$OUT_DIR/default_theme/mask_radio_edit_theme.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_global_functions.svg" "$OUT_DIR/default_theme/mask_radio_global_functions.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_hardware.svg" "$OUT_DIR/default_theme/mask_radio_hardware.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_sd_browser.svg" "$OUT_DIR/default_theme/mask_radio_sd_browser.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_setup.svg" "$OUT_DIR/default_theme/mask_radio_setup.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_tools.svg" "$OUT_DIR/default_theme/mask_radio_tools.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_trainer.svg" "$OUT_DIR/default_theme/mask_radio_trainer.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_radio_version.svg" "$OUT_DIR/default_theme/mask_radio_version.png"
-    run_resvg $(scale 96) $(scale 96) "$SRC_DIR/default_theme/mask_shutdown.svg" "$OUT_DIR/default_theme/mask_shutdown.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_stats_analogs.svg" "$OUT_DIR/default_theme/mask_stats_analogs.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_stats_debug.svg" "$OUT_DIR/default_theme/mask_stats_debug.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_stats_timers.svg" "$OUT_DIR/default_theme/mask_stats_timers.png"
-    run_resvg $(scale 17) $(scale 17) "$SRC_DIR/default_theme/mask_textline_curve.svg" "$OUT_DIR/default_theme/mask_textline_curve.png"
-    run_resvg $(scale 17) $(scale 17) "$SRC_DIR/default_theme/mask_textline_fm.svg" "$OUT_DIR/default_theme/mask_textline_fm.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_add_view.svg" "$OUT_DIR/default_theme/mask_theme_add_view.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_setup.svg" "$OUT_DIR/default_theme/mask_theme_setup.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view1.svg" "$OUT_DIR/default_theme/mask_theme_view1.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view10.svg" "$OUT_DIR/default_theme/mask_theme_view10.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view2.svg" "$OUT_DIR/default_theme/mask_theme_view2.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view3.svg" "$OUT_DIR/default_theme/mask_theme_view3.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view4.svg" "$OUT_DIR/default_theme/mask_theme_view4.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view5.svg" "$OUT_DIR/default_theme/mask_theme_view5.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view6.svg" "$OUT_DIR/default_theme/mask_theme_view6.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view7.svg" "$OUT_DIR/default_theme/mask_theme_view7.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view8.svg" "$OUT_DIR/default_theme/mask_theme_view8.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_theme_view9.svg" "$OUT_DIR/default_theme/mask_theme_view9.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_tools_apps.svg" "$OUT_DIR/default_theme/mask_tools_apps.png"
-    run_resvg $(scale 30) $(scale 30) "$SRC_DIR/default_theme/mask_tools_reset.svg" "$OUT_DIR/default_theme/mask_tools_reset.png"
-    run_resvg $(scale 122) $(scale 25) "$SRC_DIR/default_theme/mask_top_logo.svg" "$OUT_DIR/default_theme/mask_top_logo.png"
-    run_resvg $(scale 45) $(scale 45) "$SRC_DIR/default_theme/mask_topleft.svg" "$OUT_DIR/default_theme/mask_topleft.png"
-    run_resvg $(scale 45) $(scale 45) "$SRC_DIR/default_theme/mask_topright.svg" "$OUT_DIR/default_theme/mask_topright.png"
-    run_resvg $(scale 15) $(scale 15) "$SRC_DIR/default_theme/mask_trim.svg" "$OUT_DIR/default_theme/mask_trim.png"
-    run_resvg $(scale 17) $(scale 17) "$SRC_DIR/default_theme/mask_trim_shadow.svg" "$OUT_DIR/default_theme/mask_trim_shadow.png"
-    run_resvg $(scale 18) $(scale 17) "$SRC_DIR/mask_antenna.svg" "$OUT_DIR/mask_antenna.png"
-    run_resvg $(scale 13) $(scale 13) "$SRC_DIR/mask_dot.svg" "$OUT_DIR/mask_dot.png"
-    run_resvg $(scale 4) $(scale 20) "$SRC_DIR/mask_round_title_left.svg" "$OUT_DIR/mask_round_title_left.png"
-    run_resvg $(scale 4) $(scale 20) "$SRC_DIR/mask_round_title_right.svg" "$OUT_DIR/mask_round_title_right.png"
-    run_resvg $(scale 75) $(scale 75) "$SRC_DIR/mask_shutdown_circle0.svg" "$OUT_DIR/mask_shutdown_circle0.png"
-    run_resvg $(scale 75) $(scale 75) "$SRC_DIR/mask_shutdown_circle1.svg" "$OUT_DIR/mask_shutdown_circle1.png"
-    run_resvg $(scale 75) $(scale 75) "$SRC_DIR/mask_shutdown_circle2.svg" "$OUT_DIR/mask_shutdown_circle2.png"
-    run_resvg $(scale 75) $(scale 75) "$SRC_DIR/mask_shutdown_circle3.svg" "$OUT_DIR/mask_shutdown_circle3.png"
-    run_resvg $(scale 62) $(scale 62) "$SRC_DIR/mask_timer.svg" "$OUT_DIR/mask_timer.png"
-    run_resvg $(scale 180) $(scale 70) "$SRC_DIR/mask_timer_bg.svg" "$OUT_DIR/mask_timer_bg.png"
-    run_resvg $(scale 18) $(scale 18) "$SRC_DIR/mask_topmenu_gps_18.svg" "$OUT_DIR/mask_topmenu_gps_18.png"
-    run_resvg $(scale 22) $(scale 10) "$SRC_DIR/mask_topmenu_usb.svg" "$OUT_DIR/mask_topmenu_usb.png"
-    run_resvg $(scale 24) $(scale 12) "$SRC_DIR/mask_txbat.svg" "$OUT_DIR/mask_txbat.png"
-    run_resvg $(scale 5) $(scale 15) "$SRC_DIR/mask_txbat_charging.svg" "$OUT_DIR/mask_txbat_charging.png"
-    run_resvg $(scale 211) $(scale 110) "$SRC_DIR/mask_usb_symbol.svg" "$OUT_DIR/mask_usb_symbol.png"
-    run_resvg $(scale 18) $(scale 16) "$SRC_DIR/volume/mask_volume_0.svg" "$OUT_DIR/volume/mask_volume_0.png"
-    run_resvg $(scale 15) $(scale 16) "$SRC_DIR/volume/mask_volume_1.svg" "$OUT_DIR/volume/mask_volume_1.png"
-    run_resvg $(scale 19) $(scale 16) "$SRC_DIR/volume/mask_volume_2.svg" "$OUT_DIR/volume/mask_volume_2.png"
-    run_resvg $(scale 24) $(scale 16) "$SRC_DIR/volume/mask_volume_3.svg" "$OUT_DIR/volume/mask_volume_3.png"
-    run_resvg $(scale 30) $(scale 16) "$SRC_DIR/volume/mask_volume_4.svg" "$OUT_DIR/volume/mask_volume_4.png"
-    run_resvg $(scale 15) $(scale 16) "$SRC_DIR/volume/mask_volume_scale.svg" "$OUT_DIR/volume/mask_volume_scale.png"
+    if [ $has_errors -eq 1 ]; then
+        echo ""
+        echo -e "${RED}Warning: Some files were skipped due to missing dimensions${NC}"
+        echo "Please run --validate png to see all entries with missing dimensions"
+    fi
 
     echo "Done! Icons generated for $RESOLUTION"
 }
 
+# Validate that all SVG sources exist in CSV and vice versa
+validate_svg() {
+    echo "Validating SVG source files"
+    echo "---------------------------"
+    
+    local has_errors=0
+    local has_dimension_errors=0
+    
+    # Part 0: Check for missing dimensions in CSV
+    echo ""
+    echo "Checking CSV for missing dimensions..."
+    local line_num=0
+    local missing_dimensions=0
+    
+    while IFS=';' read -r file width height || [ -n "$file" ]; do
+        line_num=$((line_num + 1))
+        
+        # Skip header line
+        if [ $line_num -eq 1 ]; then
+            continue
+        fi
+        
+        # Skip empty lines
+        if [ -z "$file" ]; then
+            continue
+        fi
+        
+        # Check if width or height is empty
+        if [ -z "$width" ] || [ -z "$height" ]; then
+            echo -e "  ${RED}CSV entry missing dimensions: $file (width: '$width', height: '$height')${NC}"
+            has_dimension_errors=1
+            has_errors=1
+            missing_dimensions=$((missing_dimensions + 1))
+        fi
+    done < "$SRC_LIST"
+    
+    if [ $missing_dimensions -gt 0 ]; then
+        echo "  Total entries with missing dimensions: $missing_dimensions"
+    else
+        echo -e "  ${GREEN}All CSV entries have dimensions${NC}"
+    fi
+    
+    # Part 1: Check CSV entries against SVG directory
+    echo ""
+    echo "Comparing CSV files list with SVG directory..."
+    line_num=0
+    local missing_in_dir=0
+    local found_in_dir=0
+    
+    while IFS=';' read -r file width height || [ -n "$file" ]; do
+        line_num=$((line_num + 1))
+        
+        # Skip header line
+        if [ $line_num -eq 1 ]; then
+            continue
+        fi
+        
+        # Skip empty lines
+        if [ -z "$file" ]; then
+            continue
+        fi
+        
+        # Check if SVG exists
+        if [ ! -f "$SRC_DIR/$file.svg" ]; then
+            echo -e "  ${RED}CSV entry missing SVG file: $file.svg${NC}"
+            has_errors=1
+            missing_in_dir=$((missing_in_dir + 1))
+        else
+            found_in_dir=$((found_in_dir + 1))
+        fi
+    done < "$SRC_LIST"
+    
+    echo "  CSV entries - Found: $found_in_dir, Missing in SVG dir: $missing_in_dir"
+    
+    # Part 2: Check SVG directory against CSV entries
+    
+    # Part 2: Check SVG directory against CSV entries
+    echo ""
+    echo "Comparing SVG directory with CSV files list..."
+    
+    # Build a list of files from CSV (without .svg extension)
+    local csv_files=()
+    line_num=0
+    while IFS=';' read -r file width height || [ -n "$file" ]; do
+        line_num=$((line_num + 1))
+        
+        # Skip header line
+        if [ $line_num -eq 1 ]; then
+            continue
+        fi
+        
+        # Skip empty lines
+        if [ -z "$file" ]; then
+            continue
+        fi
+        
+        csv_files+=("$file")
+    done < "$SRC_LIST"
+    
+    # Find all SVG files in directory and check if they're in CSV
+    local missing_in_csv=0
+    local found_in_csv=0
+    
+    find "$SRC_DIR" -name "*.svg" -type f | while read -r svg_path; do
+        # Get relative path from SRC_DIR and remove .svg extension
+        local rel_path="${svg_path#$SRC_DIR/}"
+        local file_base="${rel_path%.svg}"
+        
+        # Check if this file is in CSV list
+        local in_csv=0
+        for csv_file in "${csv_files[@]}"; do
+            if [ "$csv_file" = "$file_base" ]; then
+                in_csv=1
+                break
+            fi
+        done
+        
+        if [ $in_csv -eq 0 ]; then
+            echo -e "  ${RED}SVG file missing in CSV list: $file_base.svg${NC}"
+            has_errors=1
+            missing_in_csv=$((missing_in_csv + 1))
+        else
+            found_in_csv=$((found_in_csv + 1))
+        fi
+    done
+    
+    # Count total SVG files
+    local total_svg_files=$(find "$SRC_DIR" -name "*.svg" -type f | wc -l | tr -d ' ')
+    local svg_missing_in_csv=$((total_svg_files - found_in_dir))
+    
+    echo "  SVG files - Total: $total_svg_files, Missing in CSV: $svg_missing_in_csv"
+    
+    if [ $has_errors -eq 0 ] && [ $svg_missing_in_csv -eq 0 ]; then
+        echo ""
+        echo -e "${GREEN}SVG source files validation passed: All files match${NC}"
+        return 0
+    else
+        echo ""
+        echo -e "${RED}SVG source files validation failed${NC}"
+        
+        # If there are SVG files missing from CSV, offer to update the list
+        if [ $svg_missing_in_csv -gt 0 ]; then
+            echo ""
+            echo "Found $svg_missing_in_csv SVG file(s) not listed in CSV."
+            echo -n "Would you like to add them to the CSV now? (Y/n): "
+            read -r response
+            
+            # Default to Yes if empty response
+            if [ -z "$response" ] || [ "$response" = "Y" ] || [ "$response" = "y" ]; then
+                echo ""
+                update_csv_list
+                return $?
+            else
+                echo "Skipping CSV update."
+            fi
+        fi
+        
+        return 1
+    fi
+}
+
+# Validate that all PNGs exist for all resolutions
+validate_png() {
+    echo "Validating PNG files"
+    echo "--------------------"
+    
+    local has_errors=0
+    
+    # Check each resolution
+    for resolution in "${RESOLUTIONS_LIST[@]}"; do
+        echo ""
+        echo "Checking resolution: $resolution"
+        OUT_DIR="$SCRIPT_DIR/../radio/src/bitmaps/$resolution"
+        
+        if [ ! -d "$OUT_DIR" ]; then
+            echo "  Warning: Output directory not found: $OUT_DIR"
+            has_errors=1
+            continue
+        fi
+        
+        # Read CSV file and check each entry
+        local line_num=0
+        local missing_count=0
+        local found_count=0
+        
+        while IFS=';' read -r file width height || [ -n "$file" ]; do
+            line_num=$((line_num + 1))
+            
+            # Skip header line
+            if [ $line_num -eq 1 ]; then
+                continue
+            fi
+            
+            # Skip empty lines
+            if [ -z "$file" ]; then
+                continue
+            fi
+            
+            # Skip entries with missing dimensions (they're validated in SVG validation)
+            if [ -z "$width" ] || [ -z "$height" ]; then
+                continue
+            fi
+            
+            # Check if PNG exists
+            if [ ! -f "$OUT_DIR/$file.png" ]; then
+                echo -e "  ${RED}Missing PNG: $file.png${NC}"
+                has_errors=1
+                missing_count=$((missing_count + 1))
+            else
+                found_count=$((found_count + 1))
+            fi
+        done < "$SRC_LIST"
+        
+        echo "  Found: $found_count, Missing: $missing_count"
+    done
+    
+    echo ""
+    if [ $has_errors -eq 0 ]; then
+        echo -e "${GREEN}PNG validation passed: All PNG files exist${NC}"
+        return 0
+    else
+        echo -e "${RED}PNG validation failed: Some PNG files are missing${NC}"
+        return 1
+    fi
+}
+
+# Validate both SVG sources and PNG files
+validate_all() {
+    
+    local svg_result=0
+    local png_result=0
+    
+    # Temporarily disable exit on error to run both validations
+    set +e
+    
+    echo ""
+
+    validate_svg
+    svg_result=$?
+    
+    echo ""
+    
+    validate_png
+    png_result=$?
+    
+    # Re-enable exit on error
+    set -e
+    echo ""
+
+}
+
+# Update CSV list by adding missing SVG files
+update_csv_list() {
+    echo "Updating CSV list with missing SVG files"
+    echo "----------------------------------------"
+    
+    # Build a list of files from CSV (without .svg extension)
+    local csv_files=()
+    local line_num=0
+    while IFS=';' read -r file width height || [ -n "$file" ]; do
+        line_num=$((line_num + 1))
+        
+        # Skip header line
+        if [ $line_num -eq 1 ]; then
+            continue
+        fi
+        
+        # Skip empty lines
+        if [ -z "$file" ]; then
+            continue
+        fi
+        
+        csv_files+=("$file")
+    done < "$SRC_LIST"
+    
+    # Find all SVG files in directory and check if they're in CSV
+    local added_count=0
+    local files_to_add=()
+    
+    echo ""
+    echo "Scanning SVG directory for files not in CSV..."
+    
+    while IFS= read -r svg_path; do
+        # Get relative path from SRC_DIR and remove .svg extension
+        local rel_path="${svg_path#$SRC_DIR/}"
+        local file_base="${rel_path%.svg}"
+        
+        # Check if this file is in CSV list
+        local in_csv=0
+        for csv_file in "${csv_files[@]}"; do
+            if [ "$csv_file" = "$file_base" ]; then
+                in_csv=1
+                break
+            fi
+        done
+        
+        if [ $in_csv -eq 0 ]; then
+            echo -e "  ${GREEN}Found missing file: $file_base.svg${NC}"
+            files_to_add+=("$file_base")
+            added_count=$((added_count + 1))
+        fi
+    done < <(find "$SRC_DIR" -name "*.svg" -type f)
+    
+    if [ $added_count -eq 0 ]; then
+        echo ""
+        echo -e "${GREEN}No missing files found. CSV is up to date.${NC}"
+        return 0
+    fi
+    
+    echo ""
+    echo "Adding $added_count file(s) to CSV..."
+    
+    # Check if CSV file ends with a newline, if not add one
+    if [ -n "$(tail -c 1 "$SRC_LIST")" ]; then
+        echo "" >> "$SRC_LIST"
+    fi
+    
+    # Add missing files to CSV with default dimensions (needs manual review)
+    for file in "${files_to_add[@]}"; do
+        # Use default base resolution dimensions - these should be reviewed manually
+        echo "$file;;" >> "$SRC_LIST"
+        echo -e "  ${GREEN}Added: $file (default: 100;100 - REVIEW REQUIRED)${NC}"
+    done
+    
+    echo ""
+    echo -e "${GREEN}Update complete!${NC}"
+    echo -e "${RED}WARNING: Added files have no dimensions.${NC}"
+    echo -e "${RED}Please review and update $SRC_LIST with correct dimensions.${NC}"
+    
+    return 0
+}
+
 # Parse command line arguments
 REQUESTED_RESOLUTIONS=()
+VALIDATE_MODE=""
+UPDATE_MODE=""
 
 if [ $# -eq 0 ]; then
-    # No arguments, use default
-    REQUESTED_RESOLUTIONS=("480x272")
-elif [ "$1" = "all" ]; then
-    # Process all supported resolutions
-    REQUESTED_RESOLUTIONS=("${RESOLUTIONS_LIST[@]}")
+    # No arguments, display usage
+    echo "Converts source SVG files to PNG icons for different screen resolutions"
+    echo ""
+    echo "Usage: ./convert_icons.sh --validate [svg|png|all]"
+    echo "       ./convert_icons.sh --update-list"
+    echo "       ./convert_icons.sh --make [320x240|480x272|800x480|all] [additional resolutions...]"
+    echo "       ./convert_icons.sh --help"
+    echo ""
+    echo "Examples:"
+    echo "  ./convert_icons.sh                         Displays this help message"
+    echo "  ./convert_icons.sh --validate svg          Validates SVG source files"
+    echo "  ./convert_icons.sh --validate png          Validates PNG files"
+    echo "  ./convert_icons.sh --validate all          Validates both SVG and PNG files"
+    echo "  ./convert_icons.sh --update-list           Adds missing SVG files to CSV with no dimensions"
+    echo "  ./convert_icons.sh --make 320x240          Generates 320x240"
+    echo "  ./convert_icons.sh --make 320x240 480x272  Generates 320x240 and 480x272"
+    echo "  ./convert_icons.sh --make all              Generates all resolutions"
+    echo ""
+    echo "Requires: resvg command line tool"
+    echo ""
+    exit 0
+elif [ "$1" = "--validate" ]; then
+    shift
+    if [ $# -eq 0 ]; then
+        echo "Error: --validate requires an argument (svg, png, or all)"
+        exit 1
+    fi
+    if [ "$1" != "svg" ] && [ "$1" != "png" ] && [ "$1" != "all" ]; then
+        echo "Error: --validate argument must be 'svg', 'png', or 'all'"
+        exit 1
+    fi
+    VALIDATE_MODE="$1"
+elif [ "$1" = "--update-list" ]; then
+    UPDATE_MODE="list"
+elif [ "$1" = "--make" ]; then
+    shift  # Remove --make from arguments
+    if [ $# -eq 0 ]; then
+        echo "Error: --make requires at least one resolution argument"
+        exit 1
+    elif [ "$1" = "all" ]; then
+        # Process all supported resolutions
+        REQUESTED_RESOLUTIONS=("${RESOLUTIONS_LIST[@]}")
+    else
+        # Use provided resolutions
+        REQUESTED_RESOLUTIONS=("$@")
+    fi
 else
-    # Use provided resolutions
-    REQUESTED_RESOLUTIONS=("$@")
+    echo "Error: Unknown parameter '$1'"
+    echo "Use ./convert_icons.sh without parameters to see usage information"
+    exit 1
+fi
+
+# Execute based on mode
+if [ -n "$VALIDATE_MODE" ]; then
+    case "$VALIDATE_MODE" in
+        svg)
+            validate_svg
+            exit $?
+            ;;
+        png)
+            validate_png
+            exit $?
+            ;;
+        all)
+            validate_all
+            exit $?
+            ;;
+    esac
+fi
+
+if [ -n "$UPDATE_MODE" ]; then
+    case "$UPDATE_MODE" in
+        list)
+            update_csv_list
+            exit $?
+            ;;
+    esac
 fi
 
 # Process each requested resolution
