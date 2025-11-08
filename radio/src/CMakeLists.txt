@@ -72,7 +72,7 @@ if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
 else()
   option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
 endif()
-option(VCONTROLS "Enable virtual controls support" ON)
+option(VCONTROLS "Enable virtual controls support" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
