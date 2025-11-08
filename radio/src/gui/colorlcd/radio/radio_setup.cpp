@@ -259,7 +259,7 @@ static SetupLineDef soundPageSetupLines[] = {
   {
     STR_DEF(STR_BTAUDIO),
     [](Window* parent, coord_t x, coord_t y) {
-      new TextButton(parent, {x, y, 0, 0}, "Pairing", [=]() {
+      new TextButton(parent, {x, y, 0, 0}, STR_PAIRING, [=]() {
         btAudioConnect();
         return 0;
       });
