@@ -487,7 +487,7 @@ REQUESTED_RESOLUTIONS=()
 VALIDATE_MODE=""
 UPDATE_MODE=""
 
-if [ $# -eq 0 ]; then
+if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
     # No arguments, display usage
     echo "Converts source SVG files to PNG icons for different screen resolutions"
     echo ""
