@@ -241,14 +241,7 @@ void GeneralSettings::init()
   }
 
   stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
-
-  keyShortcuts[0] = QM_MODEL_SETUP;
-  keyShortcuts[1] = QM_OPEN_QUICK_MENU;
-  keyShortcuts[2] = QM_UI_SCREEN1;
-  keyShortcuts[3] = QM_MANAGE_MODELS;
-  keyShortcuts[4] = QM_TOOLS_APPS;
-  keyShortcuts[5] = QM_TOOLS_CHAN_MON;
-  for (int i = 0; i < 12; i += 1) qmFavorites[i] = QM_NONE;
+  setDefaultFavoritesKeys();
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
@@ -967,4 +960,137 @@ AbstractStaticItemModel * GeneralSettings::backlightModeItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+//  static
+QString GeneralSettings::quickMenuToString(int value, bool keys)
+{
+  switch(value) {
+    case QM_NONE:
+      return tr("None");
+    case QM_OPEN_QUICK_MENU:
+      return tr("Open Quick Menu");
+    case QM_MANAGE_MODELS:
+      return tr("MANAGE MODELS");
+    // Model menu
+    case QM_MODEL_SETUP:
+      return tr("Model Setup - Model Settings");
+    case QM_MODEL_FLIGHTMODES:
+      return tr("Model Setup - Flight Modes");
+    case QM_MODEL_INPUTS:
+      return tr("Model Setup - Inputs");
+    case QM_MODEL_MIXES:
+      return tr("Model Setup - Mixes");
+    case QM_MODEL_OUTPUTS:
+      return tr("Model Setup - Outputs");
+    case QM_MODEL_CURVES:
+      return tr("Model Setup - Curves");
+    case QM_MODEL_GVARS:
+      return tr("Model Setup - Global Variables");
+    case QM_MODEL_LS:
+      return tr("Model Setup - Logical Switches");
+    case QM_MODEL_SF:
+      return tr("Model Setup - Special Functions");
+    case QM_MODEL_SCRIPTS:
+      return tr("Model Setup - Mixer Scripts");
+    case QM_MODEL_TELEMETRY:
+      return tr("Model Setup - Telemetry");
+    case QM_MODEL_NOTES:
+      return tr("Model Setup - Notes");
+    // Radio menu
+    case QM_RADIO_SETUP:
+      return tr("Radio Setup - Radio Settings");
+    case QM_RADIO_GF:
+      return tr("Radio Setup - Global Functions");
+    case QM_RADIO_TRAINER:
+      return tr("Radio Setup - Trainer");
+    case QM_RADIO_HARDWARE:
+      return tr("Radio Setup - Hardware");
+    case QM_RADIO_VERSION:
+      return tr("Radio Setup - About EdgeTX");
+    // UI menu
+    case QM_UI_THEMES:
+      return tr("UI Setup - Themes");
+    case QM_UI_SETUP:
+      return tr("UI Setup - Top Bar");
+    case QM_UI_SCREEN1:
+      return keys ? tr("UI Setup - Current Screen") : tr("UI Setup - Screen 1");
+    case QM_UI_SCREEN2:
+      return tr("UI Setup - Screen 2");
+    case QM_UI_SCREEN3:
+      return tr("UI Setup - Screen 3");
+    case QM_UI_SCREEN4:
+      return tr("UI Setup - Screen 4");
+    case QM_UI_SCREEN5:
+      return tr("UI Setup - Screen 5");
+    case QM_UI_SCREEN6:
+      return tr("UI Setup - Screen 6");
+    case QM_UI_SCREEN7:
+      return tr("UI Setup - Screen 7");
+    case QM_UI_SCREEN8:
+      return tr("UI Setup - Screen 8");
+    case QM_UI_SCREEN9:
+      return tr("UI Setup - Screen 9");
+    case QM_UI_SCREEN10:
+      return tr("UI Setup - Screen 10");
+    case QM_UI_ADD_PG:
+      return tr("UI Setup - Add Screen");
+    // Tools menu
+    case QM_TOOLS_APPS:
+      return tr("Tools - Apps");
+    case QM_TOOLS_STORAGE:
+      return tr("Tools - Storage");
+    case QM_TOOLS_RESET:
+      return tr("Tools - Flight Reset");
+    case QM_TOOLS_CHAN_MON:
+      return tr("Tools - Channel Monitor");
+    case QM_TOOLS_LS_MON:
+      return tr("Tools - Logical Switch Monitor");
+    case QM_TOOLS_STATS:
+      return tr("Tools - Statistics");
+    case QM_TOOLS_DEBUG:
+      return tr("Tools - Debug");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+bool GeneralSettings::isQuickMenuAvailable(int value, bool keys)
+{
+  if (keys) {
+    if (value >= QM_UI_SCREEN2 && value <= QM_UI_ADD_PG)
+      return false;
+  } else if (value == QM_OPEN_QUICK_MENU)
+    return false;
+
+  return true;
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::quickMenuItemModel(bool keys)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_QMFAVOURITES);
+
+  for (int i = 0; i < QM_COUNT; i++) {
+    if (isQuickMenuAvailable(i, keys))
+      mdl->appendToItemList(quickMenuToString(i, keys), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+void GeneralSettings::setDefaultFavoritesKeys()
+{
+  keyShortcuts[0] = QM_MODEL_SETUP;
+  keyShortcuts[1] = QM_OPEN_QUICK_MENU;
+  keyShortcuts[2] = QM_UI_SCREEN1;
+  keyShortcuts[3] = QM_MANAGE_MODELS;
+  keyShortcuts[4] = QM_TOOLS_APPS;
+  keyShortcuts[5] = QM_TOOLS_CHAN_MON;
+
+  for (int i = 0; i < MAX_QMFAVOURITES; i++)
+    qmFavorites[i] = QM_NONE;
 }

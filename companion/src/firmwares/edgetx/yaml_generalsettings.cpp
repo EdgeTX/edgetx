@@ -387,10 +387,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
 
   if (hasColorLcd) {
-    for (int i = 0; i < 6; i += 1)
+    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
       if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE)
         node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
-    for (int i = 0; i < 12; i += 1)
+    for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
       if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE)
         node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
   }
@@ -706,11 +706,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["favMultiMode"] >> rhs.favMultiMode;
 
   if (node["keyShortcuts"]) {
-    for (int i = 0; i < 6; i += 1)
+    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
       node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
   }
   if (node["qmFavorites"]) {
-    for (int i = 0; i < 12; i += 1)
+    for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
       node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
   }
 
