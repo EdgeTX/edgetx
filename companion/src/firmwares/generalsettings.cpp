@@ -241,7 +241,8 @@ void GeneralSettings::init()
   }
 
   stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
-  setDefaultFavoritesKeys();
+  setDefaultFavorites();
+  setDefaultKeyShortcuts();
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
@@ -1082,7 +1083,13 @@ AbstractStaticItemModel * GeneralSettings::quickMenuItemModel(bool keys)
   return mdl;
 }
 
-void GeneralSettings::setDefaultFavoritesKeys()
+void GeneralSettings::setDefaultFavorites()
+{
+  for (int i = 0; i < MAX_QMFAVOURITES; i++)
+    qmFavorites[i] = QM_NONE;
+}
+
+void GeneralSettings::setDefaultKeyShortcuts()
 {
   keyShortcuts[0] = QM_MODEL_SETUP;       // MDL short
   keyShortcuts[1] = QM_OPEN_QUICK_MENU;   // SYS short
@@ -1090,7 +1097,4 @@ void GeneralSettings::setDefaultFavoritesKeys()
   keyShortcuts[3] = QM_MANAGE_MODELS;     // MDL long
   keyShortcuts[4] = QM_TOOLS_APPS;        // SYS long
   keyShortcuts[5] = QM_TOOLS_CHAN_MON;    // TELE long
-
-  for (int i = 0; i < MAX_QMFAVOURITES; i++)
-    qmFavorites[i] = QM_NONE;
 }

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "generalkeys.h"
+#include "generalkeyshortcuts.h"
 #include "autocombobox.h"
 #include "compounditemmodels.h"
 
@@ -62,7 +62,7 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
   QPushButton *reset = new QPushButton(tr("Reset"));
   connect(reset, &QPushButton::clicked, [&] ()
   {
-    generalSettings.setDefaultFavoritesKeys();
+    generalSettings.setDefaultKeyShortcuts();
 
     foreach(AutoComboBox *cb, findChildren<AutoComboBox*>())
       cb->updateValue();

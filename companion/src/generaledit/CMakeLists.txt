@@ -3,8 +3,8 @@ project(generaledit)
 
 set(${PROJECT_NAME}_NAMES
   generaledit
-  generalfavs
-  generalkeys
+  generalfavorites
+  generalkeyshortcuts
   generaloptions
   generalsetup
   hardware
