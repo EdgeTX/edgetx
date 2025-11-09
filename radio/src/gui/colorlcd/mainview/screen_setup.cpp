@@ -212,10 +212,11 @@ void ScreenSetupPage::build(Window* window)
           // ... and reload
           LayoutFactory::loadCustomScreens();
 
-          // Rest to first screen so user knows something has happened
+          // Reset to first screen so user knows something has happened
           PageGroup* menu = (PageGroup*)window->getParent();
           menu->setCurrentTab(FIRST_SCREEN_OFFSET);
 
+          storageDirty(EE_MODEL);
           return 0;
         });
     auto obj = btn->getLvObj();
