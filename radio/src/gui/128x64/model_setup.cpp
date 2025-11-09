@@ -718,6 +718,7 @@ static void menuModelCFSOne(event_t event)
             fsLedRGB(switchGetCustomSwitchIdx(swIndex), 0);
 #endif
           } else if (config == SWITCH_TOGGLE) {
+            setFSLogicalState(swIndex, 0);
             g_model.cfsSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
         }
