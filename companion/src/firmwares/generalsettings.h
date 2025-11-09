@@ -47,12 +47,17 @@ constexpr char AIM_GS_HATSMODE[]           {"gs.hatsmode"};
 constexpr char AIM_GS_STICKMODE[]          {"gs.stickmode"};
 constexpr char AIM_GS_TEMPLATESETUP[]      {"gs.templatesetup"};
 constexpr char AIM_GS_BACKLIGHTMODE[]      {"gs.backlightmode"};
+constexpr char AIM_GS_QMFAVOURITES[]       {"gs.qmfavourites"};
 
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
+constexpr int MAX_KEYSHORTCUTS             {6};
+constexpr int MAX_QMFAVOURITES             {12};
+
 static const QStringList moduleBaudratesList({"115K", "400K", "921K", "1.87M",
                                               "3.75M", "5.25M"});
+
 
 enum UartModes {
   UART_MODE_NONE,
@@ -271,6 +276,7 @@ class GeneralSettings {
       QM_TOOLS_LS_MON,
       QM_TOOLS_STATS,
       QM_TOOLS_DEBUG,
+      QM_COUNT,
     };
 
     GeneralSettings() { clear(); }
@@ -283,6 +289,7 @@ class GeneralSettings {
     RawSource getDefaultSource(unsigned int channel) const;
     int getDefaultChannel(unsigned int stick) const;
     bool fix6POSCalibration();
+    void setDefaultFavoritesKeys();
 
     bool manuallyEdited;
 
@@ -443,8 +450,8 @@ class GeneralSettings {
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
-    unsigned int keyShortcuts[6];
-    unsigned int qmFavorites[12];
+    unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
+    unsigned int qmFavorites[MAX_QMFAVOURITES];
 
     void switchConfigClear();
 
@@ -462,6 +469,7 @@ class GeneralSettings {
     bool isSwitchFunc(int index) const;
     bool unassignedInputFlexSwitches() const;
     static bool isBacklightModeAvailable(int index);
+    static bool isQuickMenuAvailable(int value, bool keys);
 
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
@@ -484,6 +492,7 @@ class GeneralSettings {
     static QString stickModeToString(int value);
     static QString templateSetupToString(int value, bool isBoardAir);
     static QString backlightModeToString(int value);
+    static QString quickMenuToString(int value, bool keys);
 
     static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
@@ -495,6 +504,7 @@ class GeneralSettings {
     static AbstractStaticItemModel * stickModeItemModel();
     static AbstractStaticItemModel * templateSetupItemModel();
     static AbstractStaticItemModel * backlightModeItemModel();
+    static AbstractStaticItemModel * quickMenuItemModel(bool keys);
 
     void validateFlexSwitches();
 };

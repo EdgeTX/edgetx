@@ -357,6 +357,10 @@ int OpenTxFirmware::getCapability(::Capability capability)
       } else {
         return 46;
       }
+    case QMFavourites:
+      return Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
+    case KeyShortcuts:
+      return Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
     default:
       return 0;
   }

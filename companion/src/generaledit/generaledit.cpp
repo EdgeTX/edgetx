@@ -31,6 +31,8 @@
 #include "scrollarea.h"
 #include "compounditemmodels.h"
 #include "firmwares/edgetx/edgetxinterface.h"
+#include "generalfavs.h"
+#include "generalkeys.h"
 
 GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * firmware) :
   QDialog(parent),
@@ -56,6 +58,10 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   auto hwpnl = new HardwarePanel(this, generalSettings, firmware, editorItemModels);
   addTab(hwpnl, tr("Hardware"));
   addTab(new GeneralOptionsPanel(this, generalSettings, firmware), tr("Enabled Features"));
+  if (firmware->getCapability(QMFavourites))
+    addTab(new GeneralFavsPanel(this, generalSettings, firmware), tr("Favourites"));
+  if (firmware->getCapability(KeyShortcuts))
+    addTab(new GeneralKeysPanel(this, generalSettings, firmware), tr("Key Shortcuts"));
 
   connect(hwpnl, &HardwarePanel::internalModuleChanged, this, [&] { intModChanged = true; });
 
