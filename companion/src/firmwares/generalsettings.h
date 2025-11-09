@@ -47,7 +47,7 @@ constexpr char AIM_GS_HATSMODE[]           {"gs.hatsmode"};
 constexpr char AIM_GS_STICKMODE[]          {"gs.stickmode"};
 constexpr char AIM_GS_TEMPLATESETUP[]      {"gs.templatesetup"};
 constexpr char AIM_GS_BACKLIGHTMODE[]      {"gs.backlightmode"};
-constexpr char AIM_GS_QMFAVOURITES[]       {"gs.qmfavourites"};
+constexpr char AIM_GS_QUICKMENU[]          {"gs.quickmenu"};
 
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
