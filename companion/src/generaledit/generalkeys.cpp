@@ -48,7 +48,7 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
     }
 
     for (int j = 0; j < (cnt / split); j++) {
-      addLabel(j == 0 ? tr("SYS") : (j == 1 ? tr("MDL") : tr("TELE")));
+      addLabel(j == 0 ? tr("MDL") : (j == 1 ? tr("SYS") : tr("TELE")));
       AutoComboBox *cbo = new AutoComboBox(this);
       cbo->setModel(mdl);
       cbo->setField(generalSettings.keyShortcuts[(i * (split + 1)) + j], this);

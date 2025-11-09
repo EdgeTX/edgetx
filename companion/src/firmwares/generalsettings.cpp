@@ -1084,12 +1084,12 @@ AbstractStaticItemModel * GeneralSettings::quickMenuItemModel(bool keys)
 
 void GeneralSettings::setDefaultFavoritesKeys()
 {
-  keyShortcuts[0] = QM_MODEL_SETUP;
-  keyShortcuts[1] = QM_OPEN_QUICK_MENU;
-  keyShortcuts[2] = QM_UI_SCREEN1;
-  keyShortcuts[3] = QM_MANAGE_MODELS;
-  keyShortcuts[4] = QM_TOOLS_APPS;
-  keyShortcuts[5] = QM_TOOLS_CHAN_MON;
+  keyShortcuts[0] = QM_MODEL_SETUP;       // MDL short
+  keyShortcuts[1] = QM_OPEN_QUICK_MENU;   // SYS short
+  keyShortcuts[2] = QM_UI_SCREEN1;        // TELE short
+  keyShortcuts[3] = QM_MANAGE_MODELS;     // MDL long
+  keyShortcuts[4] = QM_TOOLS_APPS;        // SYS long
+  keyShortcuts[5] = QM_TOOLS_CHAN_MON;    // TELE long
 
   for (int i = 0; i < MAX_QMFAVOURITES; i++)
     qmFavorites[i] = QM_NONE;
