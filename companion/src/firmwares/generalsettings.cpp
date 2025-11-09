@@ -1071,7 +1071,7 @@ bool GeneralSettings::isQuickMenuAvailable(int value, bool keys)
 AbstractStaticItemModel * GeneralSettings::quickMenuItemModel(bool keys)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_GS_QMFAVOURITES);
+  mdl->setName(AIM_GS_QUICKMENU);
 
   for (int i = 0; i < QM_COUNT; i++) {
     if (isQuickMenuAvailable(i, keys))
