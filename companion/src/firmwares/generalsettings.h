@@ -289,7 +289,8 @@ class GeneralSettings {
     RawSource getDefaultSource(unsigned int channel) const;
     int getDefaultChannel(unsigned int stick) const;
     bool fix6POSCalibration();
-    void setDefaultFavoritesKeys();
+    void setDefaultFavorites();
+    void setDefaultKeyShortcuts();
 
     bool manuallyEdited;
 

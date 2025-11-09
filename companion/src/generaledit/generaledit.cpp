@@ -31,8 +31,8 @@
 #include "scrollarea.h"
 #include "compounditemmodels.h"
 #include "firmwares/edgetx/edgetxinterface.h"
-#include "generalfavs.h"
-#include "generalkeys.h"
+#include "generalfavorites.h"
+#include "generalkeyshortcuts.h"
 
 GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * firmware) :
   QDialog(parent),

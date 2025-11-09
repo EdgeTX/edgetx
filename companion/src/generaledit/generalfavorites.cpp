@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "generalfavs.h"
+#include "generalfavorites.h"
 #include "autocombobox.h"
 #include "compounditemmodels.h"
 
@@ -38,13 +38,26 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
   grid = new QGridLayout(this);
 
   for (int i = 0; i < cnt; i++) {
-    addLabel(tr("Favourite %1").arg(i + 1));
+    addLabel(tr("Favorite %1").arg(i + 1));
     AutoComboBox *cbo = new AutoComboBox(this);
     cbo->setModel(mdl);
     cbo->setField(generalSettings.qmFavorites[i], this);
     params->append(cbo);
     addParams();
   }
+
+  addLine();
+
+  QPushButton *reset = new QPushButton(tr("Reset"));
+  connect(reset, &QPushButton::clicked, [&] ()
+  {
+    generalSettings.setDefaultFavorites();
+
+    foreach(AutoComboBox *cb, findChildren<AutoComboBox*>())
+      cb->updateValue();
+  });
+  params->append(reset);
+  addParams();
 
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
