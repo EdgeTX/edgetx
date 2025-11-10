@@ -17,6 +17,9 @@ NC='\033[0m'
 # Default conversion engine
 CONVERSION_ENGINE="rsvg-convert"
 
+# Update mode flag
+UPDATE_MODE=false
+
 # Function to check if conversion engine is available
 check_conversion_engine() {
     if [ "$CONVERSION_ENGINE" = "resvg" ]; then
@@ -151,12 +154,19 @@ process_resolution() {
         return 1
     fi
 
-    echo "Converting SVG files to PNG using $CONVERSION_ENGINE..."
+    if [ "$UPDATE_MODE" = true ]; then
+        echo "Converting SVG files to PNG using $CONVERSION_ENGINE (update mode - only changed files)..."
+    else
+        echo "Converting SVG files to PNG using $CONVERSION_ENGINE..."
+    fi
 
     # Read CSV file and process each line (skip header)
     local line_num=0
     local has_errors=0
-    while IFS=';' read -r file width height || [ -n "$file" ]; do
+    local processed_count=0
+    local skipped_count=0
+    
+    while IFS=';' read -r file width height csv_date || [ -n "$file" ]; do
         line_num=$((line_num + 1))
         
         # Skip header line
@@ -176,13 +186,78 @@ process_resolution() {
             continue
         fi
         
+        # In update mode, check if SVG is newer than CSV date or PNG file
+        if [ "$UPDATE_MODE" = true ]; then
+            svg_path="$SRC_DIR/$file.svg"
+            png_path="$OUT_DIR/$file.png"
+            
+            if [ ! -f "$svg_path" ]; then
+                echo -e "  ${RED}Error: SVG file not found: $file.svg${NC}"
+                has_errors=1
+                continue
+            fi
+            
+            # Get SVG modification date
+            svg_mod_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$svg_path" 2>/dev/null)
+            if [ -z "$svg_mod_date" ]; then
+                # Fallback for Linux
+                svg_mod_date=$(stat -c "%y" "$svg_path" 2>/dev/null | cut -d'.' -f1)
+            fi
+            
+            # Check if PNG exists and get its modification date
+            should_process=false
+            
+            if [ ! -f "$png_path" ]; then
+                # PNG doesn't exist, needs to be generated
+                echo "  Adding new: $file.svg (PNG missing for $RESOLUTION)"
+                should_process=true
+            elif [ -z "$csv_date" ]; then
+                # CSV date is empty, treat as newly added file
+                echo "  Adding new: $file.svg (no previous date in CSV)"
+                should_process=true
+            else
+                # PNG exists and CSV has a date - compare SVG date with CSV date
+                # This allows regeneration if SVG is newer, regardless of which resolution was previously built
+                if [[ "$svg_mod_date" > "$csv_date" ]]; then
+                    echo "  Updating: $file.svg (SVG: $svg_mod_date, CSV: $csv_date)"
+                    should_process=true
+                else
+                    # Also check if PNG is older than SVG (handles case where PNG was deleted)
+                    png_mod_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$png_path" 2>/dev/null)
+                    if [ -z "$png_mod_date" ]; then
+                        # Fallback for Linux
+                        png_mod_date=$(stat -c "%y" "$png_path" 2>/dev/null | cut -d'.' -f1)
+                    fi
+                    
+                    if [ -n "$png_mod_date" ] && [[ "$png_mod_date" < "$svg_mod_date" ]]; then
+                        echo "  Updating: $file.svg (PNG older than SVG for $RESOLUTION)"
+                        should_process=true
+                    else
+                        skipped_count=$((skipped_count + 1))
+                        continue
+                    fi
+                fi
+            fi
+            
+            if [ "$should_process" = false ]; then
+                skipped_count=$((skipped_count + 1))
+                continue
+            fi
+        fi
+        
         # Run conversion using selected engine
         if [ "$CONVERSION_ENGINE" = "resvg" ]; then
             run_resvg $(scale "$width") $(scale "$height") "$SRC_DIR/$file.svg" "$OUT_DIR/$file.png"
         else
             run_rsvg $(scale "$width") $(scale "$height") "$SRC_DIR/$file.svg" "$OUT_DIR/$file.png"
         fi
+        
+        processed_count=$((processed_count + 1))
     done < "$SRC_LIST"
+
+    if [ "$UPDATE_MODE" = true ]; then
+        echo "  Processed: $processed_count, Skipped (up-to-date): $skipped_count"
+    fi
 
     if [ $has_errors -eq 1 ]; then
         echo ""
@@ -435,10 +510,11 @@ if [ $# -eq 0 ]; then
     echo "Converts source SVG files to PNG icons for different screen resolutions"
     echo ""
     echo "Usage: ./convert_gfx.sh --validate [svg|png|all]"
-    echo "       ./convert_gfx.sh --make [320x240|480x272|800x480|all] [additional resolutions...] [--resvg]"
+    echo "       ./convert_gfx.sh --make [320x240|480x272|800x480|all] [additional resolutions...] [--update] [--resvg]"
     echo "       ./convert_gfx.sh --help"
     echo ""
     echo "Options:"
+    echo "  --update          Only regenerate PNGs for SVGs newer than CSV date (only with --make)"
     echo "  --resvg           Use resvg engine instead of rsvg-convert (default, only with --make)"
     echo ""
     echo "Examples:"
@@ -446,11 +522,14 @@ if [ $# -eq 0 ]; then
     echo "  ./convert_gfx.sh --validate svg                   Validates SVG source files"
     echo "  ./convert_gfx.sh --validate png                   Validates PNG files"
     echo "  ./convert_gfx.sh --validate all                   Validates both SVG and PNG files"
-    echo "  ./convert_gfx.sh --make 320x240                   Generates 320x240 (using rsvg-convert)"
-    echo "  ./convert_gfx.sh --make 320x240 480x272           Generates 320x240 and 480x272"
-    echo "  ./convert_gfx.sh --make all                       Generates all resolutions"
-    echo "  ./convert_gfx.sh --make 320x240 --resvg           Generates 320x240 (using resvg)"
-    echo "  ./convert_gfx.sh --make all --resvg               Generates all resolutions (using resvg)"
+    echo "  ./convert_gfx.sh --make 320x240                   Generates 320x240 PNGs"
+    echo "  ./convert_gfx.sh --make 320x240 480x272           Generates 320x240 and 480x272 PNGs"
+    echo "  ./convert_gfx.sh --make all                       Generates all resolutions PNGs"
+    echo "  ./convert_gfx.sh --make 320x240 --update          Updates only changed SVGs for 320x240"
+    echo "  ./convert_gfx.sh --make 320x240 480x272 --update  Updates only changed SVGs for 320x240 and 480x272"
+    echo "  ./convert_gfx.sh --make all --update              Updates only changed SVGs for all resolutions"
+    echo "  ./convert_gfx.sh --make 320x240 --resvg           Generates 320x240 PNGs (using resvg)"
+    echo "  ./convert_gfx.sh --make 320x240 --update --resvg  Updates only changed SVGs for 320x240 (using resvg)"
     echo ""
     echo "Requires: rsvg-convert (default) or resvg command line tool"
     echo ""
@@ -489,10 +568,15 @@ while [ $# -gt 0 ]; do
                 shift
             else
                 # Use provided resolutions
-                while [ $# -gt 0 ] && [ "$1" != "--resvg" ]; do
+                while [ $# -gt 0 ] && [ "$1" != "--update" ] && [ "$1" != "--resvg" ]; do
                     REQUESTED_RESOLUTIONS+=("$1")
                     shift
                 done
+            fi
+            # Check for --update parameter
+            if [ $# -gt 0 ] && [ "$1" = "--update" ]; then
+                UPDATE_MODE=true
+                shift
             fi
             # Check if --resvg is the last parameter
             if [ $# -gt 0 ] && [ "$1" = "--resvg" ]; then
@@ -501,9 +585,13 @@ while [ $# -gt 0 ]; do
             fi
             # No more parameters should remain
             if [ $# -gt 0 ]; then
-                echo "Error: --resvg must be the last parameter"
+                echo "Error: Invalid parameters. Use --update before --resvg"
                 exit 1
             fi
+            ;;
+        --update)
+            echo "Error: --update can only be used with --make"
+            exit 1
             ;;
         --resvg)
             echo "Error: --resvg can only be used as the last parameter with --make"
@@ -542,5 +630,48 @@ fi
 for resolution in "${REQUESTED_RESOLUTIONS[@]}"; do
     process_resolution "$resolution" || exit 1
 done
+
+# Update CSV modification dates if in update mode
+if [ "$UPDATE_MODE" = true ]; then
+    echo ""
+    echo "Updating CSV modification dates..."
+    
+    TEMP_CSV="$SRC_LIST.tmp"
+    line_num=0
+    
+    while IFS=';' read -r file width height csv_date || [ -n "$file" ]; do
+        line_num=$((line_num + 1))
+        
+        # Keep header line as-is
+        if [ $line_num -eq 1 ]; then
+            echo "$file;$width;$height;${csv_date:-modified}" >> "$TEMP_CSV"
+            continue
+        fi
+        
+        # Keep empty lines
+        if [ -z "$file" ]; then
+            echo "" >> "$TEMP_CSV"
+            continue
+        fi
+        
+        # Get current SVG modification date
+        svg_path="$SRC_DIR/$file.svg"
+        if [ -f "$svg_path" ]; then
+            mod_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$svg_path" 2>/dev/null)
+            if [ -z "$mod_date" ]; then
+                # Fallback for Linux
+                mod_date=$(stat -c "%y" "$svg_path" 2>/dev/null | cut -d'.' -f1)
+            fi
+            echo "$file;$width;$height;$mod_date" >> "$TEMP_CSV"
+        else
+            # Keep existing line if SVG doesn't exist
+            echo "$file;$width;$height;$csv_date" >> "$TEMP_CSV"
+        fi
+    done < "$SRC_LIST"
+    
+    # Replace original CSV with updated one
+    mv "$TEMP_CSV" "$SRC_LIST"
+    echo "CSV modification dates updated."
+fi
 
 echo "All done!"

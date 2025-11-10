@@ -1,68 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   width="6"
-   height="30"
-   viewBox="0 0 1.5874999 7.9374997"
-   version="1.1"
-   id="svg1"
-   xml:space="preserve"
-   inkscape:version="1.4.2 (1:1.4.2+202505120737+ebf0e940d0)"
-   sodipodi:docname="mask_round_title_right.svg"
-   inkscape:export-filename="mask_round_title_right.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#999999"
-     borderopacity="1"
-     inkscape:showpageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="px"
-     inkscape:zoom="11.313709"
-     inkscape:cx="30.007844"
-     inkscape:cy="12.197592"
-     inkscape:current-layer="layer1"
-     inkscape:export-bgcolor="#ffffffff"
-     showguides="false"
-     showgrid="false" /><defs
-     id="defs1"><inkscape:path-effect
-       effect="perspective-envelope"
-       up_left_point="106.49532,264.85378"
-       up_right_point="126.54248,265.64754"
-       down_left_point="97.367197,290.14567"
-       down_right_point="125.48415,290.14567"
-       id="path-effect2"
-       is_visible="true"
-       lpeversion="1"
-       deform_type="perspective"
-       horizontal_mirror="false"
-       vertical_mirror="false"
-       overflow_perspective="false" /><inkscape:path-effect
-       effect="perspective-envelope"
-       up_left_point="102.72306,268.22103"
-       up_right_point="118.25084,266.50124"
-       down_left_point="100.07723,295.78112"
-       down_right_point="124.07167,295.78112"
-       id="path-effect1"
-       is_visible="true"
-       lpeversion="1"
-       deform_type="perspective"
-       horizontal_mirror="false"
-       vertical_mirror="false"
-       overflow_perspective="false" /></defs><g
-     inkscape:label="Vrstva 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-289.06249)"><path
-       id="rect1"
-       style="stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:round"
-       d="m 1.1497554,289.46057 c -0.48192174,-0.46956 -1.146341,-0.39807 -1.146341,-0.39807 h -0.00455 V 297 h 1.5874955 v -6.50553 c 0,0 0.045317,-0.56434 -0.4366045,-1.0339 z"
-       sodipodi:nodetypes="zcccccz" /></g></svg>
+<svg width="4" height="20" viewBox="0 0 4 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="4" height="20" fill="white"/>
+<g style="mix-blend-mode:difference" clip-path="url(#clip0_4680_3335)">
+<rect x="-4" width="8" height="24" rx="4" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_4680_3335">
+<rect width="4" height="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>
