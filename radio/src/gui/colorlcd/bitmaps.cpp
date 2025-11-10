@@ -250,10 +250,10 @@ static const uint8_t mask_inline_fm[] = {
 #include "mask_inline_fm.lbm"
 };
 static const uint8_t mask_inline_inverted[] = {
-#include "mask_inline_invert.lbm"
+#include "mask_inline_inverted.lbm"
 };
 static const uint8_t mask_inline_locked[] = {
-#include "mask_inline_lock.lbm"
+#include "mask_inline_locked.lbm"
 };
 static const uint8_t mask_inline_multiply[] = {
 #include "mask_inline_multiply.lbm"
@@ -362,19 +362,19 @@ static const uint8_t mask_widget_usb[] = {
 #include "mask_widget_usb.lbm"
 };
 static const uint8_t mask_widget_volume0[] = {
-#include "mask_widget_volume_0.lbm"
+#include "mask_widget_volume0.lbm"
 };
 static const uint8_t mask_widget_volume1[] = {
-#include "mask_widget_volume_1.lbm"
+#include "mask_widget_volume1.lbm"
 };
 static const uint8_t mask_widget_volume2[] = {
-#include "mask_widget_volume_2.lbm"
+#include "mask_widget_volume2.lbm"
 };
 static const uint8_t mask_widget_volume3[] = {
-#include "mask_widget_volume_3.lbm"
+#include "mask_widget_volume3.lbm"
 };
 static const uint8_t mask_widget_volume4[] = {
-#include "mask_widget_volume_4.lbm"
+#include "mask_widget_volume4.lbm"
 };
 static const uint8_t mask_widget_volume_scale[] = {
 #include "mask_widget_volume_scale.lbm"
