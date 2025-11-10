@@ -22,6 +22,7 @@
 #include "generalfavorites.h"
 #include "autocombobox.h"
 #include "compounditemmodels.h"
+#include "exclusivecombogroup.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -33,15 +34,19 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
   row(0),
   col(0)
 {
-  AbstractItemModel *mdl = generalSettings.quickMenuItemModel(false);
-  const int cnt = firmware->getCapability(QMFavourites);
   grid = new QGridLayout(this);
+  // All values except QM_NONE are mutually exclusive
+  cboQMGrp = new ExclusiveComboGroup(this,
+                  [=](const QVariant &value) { return value == GeneralSettings::QM_NONE; });
+  const int cnt = firmware->getCapability(QMFavourites);
 
   for (int i = 0; i < cnt; i++) {
-    addLabel(tr("Favorite %1").arg(i + 1));
+    addLabel(tr("# %1").arg(i + 1));
     AutoComboBox *cbo = new AutoComboBox(this);
-    cbo->setModel(mdl);
+    // separate item model per combo box due to mutual exclusivity
+    cbo->setModel(generalSettings.quickMenuItemModel(false));
     cbo->setField(generalSettings.qmFavorites[i], this);
+    cboQMGrp->addCombo(cbo);
     params->append(cbo);
     addParams();
   }
@@ -55,10 +60,13 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
 
     foreach(AutoComboBox *cb, findChildren<AutoComboBox*>())
       cb->updateValue();
+
+    initComboQMGroup();
   });
   params->append(reset);
   addParams();
 
+  initComboQMGroup();
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
@@ -104,4 +112,13 @@ void GeneralFavsPanel::addSection(QString text)
 {
   addLabel(QString("<b>%1</b>").arg(text));
   row++;
+}
+
+void GeneralFavsPanel::initComboQMGroup()
+{
+  // force mutually exclusive update to lists
+  for (int i = 0; i < cboQMGrp->getComboBoxes()->size(); i++) {
+    QComboBox *cbo = cboQMGrp->getComboBoxes()->at(i);
+    cboQMGrp->handleActivated(cbo, cbo->currentIndex());
+  }
 }
