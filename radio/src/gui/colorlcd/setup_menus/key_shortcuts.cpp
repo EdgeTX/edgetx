@@ -52,7 +52,12 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
 
           c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
-              [=](int newValue) { return newValue <= QM_UI_SCREEN1 || newValue > QM_UI_ADD_PG; });
+              [=](int newValue) {
+                if (newValue == QM_NONE) return true;
+                if (g_eeGeneral.hasKeyShortcut((QMPage)newValue))
+                  return false;
+                return newValue <= QM_UI_SCREEN1 || newValue > QM_UI_ADD_PG; }
+              );
         });
   }
 }

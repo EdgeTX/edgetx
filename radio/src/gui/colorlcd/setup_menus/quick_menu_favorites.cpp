@@ -30,9 +30,9 @@ QMFavoritesPage::QMFavoritesPage():
 {
   std::vector<std::string> qmPages = QuickMenu::menuPageNames(true);
 
-  for (int i = 0; i < 12; i += 1) {
+  for (int i = 0; i < MAX_QM_FAVORITES; i += 1) {
     char nm[50];
-    strAppendUnsigned(strAppend(strAppend(nm, STR_FAVORITE_LABEL), " "), i + 1);
+    strAppendUnsigned(strAppend(strAppend(nm, "#"), " "), i + 1);
     setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
           auto c = new Choice(
               parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, QM_TOOLS_DEBUG,
@@ -45,7 +45,13 @@ QMFavoritesPage::QMFavoritesPage():
 
           c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
-              [=](int pg) { return pg != QM_OPEN_QUICK_MENU; });
+              [=](int pg) {
+                if (pg == QM_NONE) return true;
+                for (int i = 0; i < MAX_QM_FAVORITES; i += 1)
+                  if (g_eeGeneral.qmFavorites[i].shortcut == (QMPage)pg)
+                    return false;
+                return pg != QM_OPEN_QUICK_MENU; }
+              );
         });
   }
 
