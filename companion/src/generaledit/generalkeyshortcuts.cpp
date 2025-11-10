@@ -22,6 +22,7 @@
 #include "generalkeyshortcuts.h"
 #include "autocombobox.h"
 #include "compounditemmodels.h"
+#include "exclusivecombogroup.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -33,9 +34,11 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
   row(0),
   col(0)
 {
-  AbstractItemModel *mdl = generalSettings.quickMenuItemModel(true);
-  const int cnt = firmware->getCapability(KeyShortcuts);
   grid = new QGridLayout(this);
+  // All values except QM_NONE are mutually exclusive
+  cboQMGrp = new ExclusiveComboGroup(this,
+                  [=](const QVariant &value) { return value == GeneralSettings::QM_NONE; });
+  const int cnt = firmware->getCapability(KeyShortcuts);
 
   const int split = 2;
 
@@ -50,8 +53,10 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
     for (int j = 0; j < (cnt / split); j++) {
       addLabel(j == 0 ? tr("MDL") : (j == 1 ? tr("SYS") : tr("TELE")));
       AutoComboBox *cbo = new AutoComboBox(this);
-      cbo->setModel(mdl);
+      // separate item model per combo box due to mutual exclusivity
+      cbo->setModel(generalSettings.quickMenuItemModel(true));
       cbo->setField(generalSettings.keyShortcuts[(i * (split + 1)) + j], this);
+      cboQMGrp->addCombo(cbo);
       params->append(cbo);
       addParams();
     }
@@ -66,10 +71,13 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
 
     foreach(AutoComboBox *cb, findChildren<AutoComboBox*>())
       cb->updateValue();
+
+    initComboQMGroup();
   });
   params->append(reset);
   addParams();
 
+  initComboQMGroup();
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
@@ -115,4 +123,13 @@ void GeneralKeysPanel::addSection(QString text)
 {
   addLabel(QString("<b>%1</b>").arg(text));
   row++;
+}
+
+void GeneralKeysPanel::initComboQMGroup()
+{
+  // force mutually exclusive update to lists
+  for (int i = 0; i < cboQMGrp->getComboBoxes()->size(); i++) {
+    QComboBox *cbo = cboQMGrp->getComboBoxes()->at(i);
+    cboQMGrp->handleActivated(cbo, cbo->currentIndex());
+  }
 }

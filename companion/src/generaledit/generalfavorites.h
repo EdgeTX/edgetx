@@ -23,6 +23,7 @@
 
 #include "generaledit.h"
 
+class ExclusiveComboGroup;
 class QGridLayout;
 
 class GeneralFavsPanel : public GeneralPanel
@@ -39,9 +40,11 @@ class GeneralFavsPanel : public GeneralPanel
     QList<QWidget *> *params;
     int row;
     int col;
+    ExclusiveComboGroup *cboQMGrp;
 
     void addLabel(QString text);
     void addLine();
     void addParams();
     void addSection(QString text);
+    void initComboQMGroup();
 };
