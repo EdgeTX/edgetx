@@ -314,6 +314,14 @@ void RadioData::setKeyShortcut(event_t event, QMPage shortcut)
   }
 }
 
+bool RadioData::hasKeyShortcut(QMPage shortcut)
+{
+  for (int i = 0; i < MAX_KEY_SHORTCUTS; i += 1)
+    if (keyShortcuts[i].shortcut == shortcut)
+      return true;
+  return false;
+}
+
 void RadioData::defaultKeyShortcuts()
 {
   setKeyShortcut(EVT_KEY_BREAK(KEY_MODEL), QM_MODEL_SETUP);

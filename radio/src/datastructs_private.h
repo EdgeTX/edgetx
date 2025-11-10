@@ -994,6 +994,8 @@ PACK(struct switchDef {
 });
 
 #if defined(COLORLCD)
+#define MAX_KEY_SHORTCUTS 6
+#define MAX_QM_FAVORITES 12
 PACK(struct QuickMenuPage {
   uint8_t shortcut ENUM(QMPage);
 });
@@ -1156,8 +1158,8 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
-  NOBACKUP(QuickMenuPage keyShortcuts[6]);
-  NOBACKUP(QuickMenuPage qmFavorites[12]);
+  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
+  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const
@@ -1190,6 +1192,7 @@ PACK(struct RadioData {
 
 #if defined(COLORLCD)
   QMPage getKeyShortcut(event_t event);
+  bool hasKeyShortcut(QMPage shortcut);
   void setKeyShortcut(event_t event, QMPage shortcut);
   void defaultKeyShortcuts();
 #endif

@@ -251,7 +251,7 @@ QuickMenu::QuickMenu() :
   box = new Window(this, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
 
   int f = 0;
-  for (int i = 0; i < 12; i += 1) {
+  for (int i = 0; i < MAX_QM_FAVORITES; i += 1) {
     if (g_eeGeneral.qmFavorites[i].shortcut != QM_NONE) {
       setupFavorite((QMPage)g_eeGeneral.qmFavorites[i].shortcut, f);
       f += 1;
