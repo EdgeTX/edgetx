@@ -32,10 +32,10 @@
 uint8_t menuCalibrationState;
 
 static const uint8_t stick_pointer[] = {
-#include "alpha_stick_pointer.lbm"
+#include "bmp_radio_stick_pointer.lbm"
 };
 static const uint8_t stick_background[] = {
-#include "alpha_stick_background.lbm"
+#include "bmp_radio_stick_background.lbm"
 };
 
 class StickCalibrationWindow : public Window
