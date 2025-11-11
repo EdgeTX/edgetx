@@ -449,6 +449,7 @@ static void transpose_trims(uint32_t *keys)
 bool keysPollingCycle()
 {
   uint32_t trims_input;
+  pollKeys();
   uint32_t keys_input = readKeys();
 
 #if defined(USE_HATS_AS_KEYS)
