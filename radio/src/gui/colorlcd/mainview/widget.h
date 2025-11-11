@@ -22,7 +22,9 @@
 #pragma once
 
 #include <string.h>
+#if !defined(BACKUP)
 #include <vector>
+#endif
 
 #include "button.h"
 #include "widgets_container.h"
@@ -109,7 +111,9 @@ struct WidgetOption
   WidgetOptionValue max;
   const char * displayName;
   std::string fileSelectPath;
+#if !defined(BACKUP)
   std::vector<std::string> choiceValues;
+#endif
 };
 
 //-----------------------------------------------------------------------------
