@@ -22,7 +22,9 @@
 #pragma once
 
 #include <string.h>
+#if !defined(BACKUP)
 #include <vector>
+#endif
 
 #include "button.h"
 #include "widgets_container.h"
@@ -120,7 +122,9 @@ struct WidgetPersistentData {
 #if defined(YAML_GENERATOR)
   WidgetOptionValueTyped options[MAX_WIDGET_OPTIONS] FUNC(widget_option_is_active);
 #else
+#if !defined(BACKUP)
   std::vector<WidgetOptionValueTyped> options;
+#endif
   void addEntry(int idx);
   bool hasOption(int idx);
   void setDefault(int idx, const WidgetOption* opt, bool forced);
