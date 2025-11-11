@@ -476,6 +476,7 @@ uint16_t keyMapping(uint16_t event)
 bool keysPollingCycle()
 {
   uint32_t trims_input;
+  pollKeys();
   uint32_t keys_input = readKeys();
 
 #if defined(USE_HATS_AS_KEYS)
