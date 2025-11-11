@@ -23,8 +23,8 @@
 
 #if !defined(BACKUP)
 #include <vector>
-#endif
 #include <string>
+#endif
 
 #include "etx_lv_theme.h"
 
@@ -69,7 +69,9 @@ struct WidgetOptionValue
     int32_t signedValue;
     uint32_t boolValue;
   };
+#if !defined(BACKUP)
   std::string stringValue;
+#endif
 #endif
 };
 
@@ -93,7 +95,6 @@ struct WidgetPersistentData {
 #else
 #if !defined(BACKUP)
   std::vector<WidgetOptionValueTyped> options;
-#endif
   void addEntry(int idx);
   bool hasOption(int idx);
   void setDefault(int idx, const WidgetOption* opt, bool forced);
@@ -108,6 +109,7 @@ struct WidgetPersistentData {
   void setBoolValue(int idx, bool newValue);
   std::string getString(int idx);
   void setString(int idx, const char* s);
+#endif
 #endif
 };
 
@@ -148,7 +150,9 @@ struct ZonePersistentData {
 #if defined(YAML_GENERATOR)
   CUST_ATTR(widgetName, r_widget_name, w_widget_name);
 #else
+#if !defined(BACKUP)
   std::string widgetName;
+#endif
 #endif
   WidgetPersistentData widgetData FUNC(isAlwaysActive);
 #if !defined(YAML_GENERATOR)
@@ -175,7 +179,9 @@ struct CustomScreenData {
 #if defined(YAML_GENERATOR)
   CUST_ATTR(LayoutId, r_screen_id, w_screen_id);
 #else
+#if !defined(BACKUP)
   std::string LayoutId;
+#endif
 #endif
   LayoutPersistentData layoutData FUNC(isAlwaysActive);
 };
