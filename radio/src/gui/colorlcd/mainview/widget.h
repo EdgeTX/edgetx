@@ -22,6 +22,7 @@
 #pragma once
 
 #include <string.h>
+#include <vector>
 
 #include "button.h"
 #include "widgets_container.h"
