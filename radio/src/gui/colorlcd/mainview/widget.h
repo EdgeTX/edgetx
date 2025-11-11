@@ -22,9 +22,7 @@
 #pragma once
 
 #include <string.h>
-#if !defined(BACKUP)
 #include <vector>
-#endif
 
 #include "button.h"
 #include "widgets_container.h"
