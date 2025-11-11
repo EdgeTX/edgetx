@@ -32,34 +32,6 @@ class LayoutFactory;
 
 //-----------------------------------------------------------------------------
 
-enum LayoutOptionValueEnum {
-  LOV_None=0,
-  LOV_Bool,
-  LOV_Color
-};
-
-union LayoutOptionValue
-{
-#if defined(YAML_GENERATOR)
-  CUST_ATTR(unsignedValue, r_lov_unsigned, w_lov_unsigned);
-  CUST_ATTR(boolValue, r_lov_unsigned, w_lov_unsigned);
-  CUST_ATTR(color, r_lov_color, w_lov_color);
-#else
-  uint32_t unsignedValue;
-  uint32_t boolValue;
-#endif
-};
-
-struct LayoutOptionValueTyped
-{
-#if defined(YAML_GENERATOR)
-  CUST_ATTR(type, r_lov_type, w_lov_type);
-#else
-  LayoutOptionValueEnum type;
-#endif
-  LayoutOptionValue value FUNC(select_lov);
-};
-
 struct LayoutOption
 {
   enum Type {
@@ -106,47 +78,6 @@ extern const LayoutOption defaultLayoutOptions[];
 #define LAYOUT_MAP_2THIRD   40
 #define LAYOUT_MAP_3QTR     45
 #define LAYOUT_MAP_FULL     60
-
-#define MAX_LAYOUT_ZONES 10
-#define MAX_LAYOUT_OPTIONS 10
-
-#define WIDGET_NAME_LEN     20
-
-struct ZonePersistentData {
-#if defined(YAML_GENERATOR)
-  CUST_ATTR(widgetName, r_widget_name, w_widget_name);
-#else
-  char widgetName[WIDGET_NAME_LEN];
-#endif
-  WidgetPersistentData widgetData FUNC(isAlwaysActive);
-#if !defined(YAML_GENERATOR)
-  void clear();
-#endif
-};
-
-struct LayoutPersistentData {
-  ZonePersistentData zones[MAX_LAYOUT_ZONES] FUNC(widget_is_active);
-  LayoutOptionValueTyped options[MAX_LAYOUT_OPTIONS] FUNC(layout_option_is_active);
-#if !defined(YAML_GENERATOR)
-  void clearZone(int idx);
-  void clear();
-  const char* getWidgetName(int idx);
-  void setWidgetName(int idx, const char* s);
-  WidgetPersistentData* getWidgetData(int idx);
-  bool hasWidget(int idx);
-#endif
-};
-
-#define LAYOUT_ID_LEN 12
-
-struct CustomScreenData {
-#if defined(YAML_GENERATOR)
-  CUST_ATTR(LayoutId, r_screen_id, w_screen_id);
-#else
-  char LayoutId[LAYOUT_ID_LEN];
-#endif
-  LayoutPersistentData layoutData FUNC(isAlwaysActive);
-};
 
 //-----------------------------------------------------------------------------
 

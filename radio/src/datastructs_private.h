@@ -35,8 +35,7 @@
 #include "bitfield.h"
 
 #if defined(COLORLCD)
-#include "layout.h"
-#include "topbar.h"
+#include "datastructs_screen.h"
 #endif
 
 #if defined(PCBTARANIS)

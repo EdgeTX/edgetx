@@ -23,8 +23,6 @@
 
 #include "window.h"
 
-static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTONS_LEFT, 47)
-
 class Widget;
 class WidgetFactory;
 

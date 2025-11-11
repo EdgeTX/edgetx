@@ -29,61 +29,11 @@
 #include "button.h"
 #include "widgets_container.h"
 #include "storage/yaml/yaml_defs.h"
+#include "datastructs_screen.h"
 
 class WidgetFactory;
 
 //-----------------------------------------------------------------------------
-
-enum WidgetOptionAlign
-{
-  ALIGN_LEFT,
-  ALIGN_CENTER,
-  ALIGN_RIGHT,
-
-  // this one MUST be last
-  ALIGN_COUNT
-};
-
-enum WidgetOptionValueEnum {
-  WOV_Unsigned=0,
-  WOV_Signed,
-  WOV_Bool,
-  WOV_String,
-  WOV_Source,
-  WOV_Color
-};
-
-#define LEN_ZONE_OPTION_STRING 12
-
-#define WIDGET_OPTION_VALUE_SIGNED(x)   WidgetOptionValue{ .signedValue = (x) }
-#define WIDGET_OPTION_VALUE_STRING(...) WidgetOptionValue{ .stringValue = { __VA_ARGS__ } }
-
-union WidgetOptionValue
-{
-#if defined(YAML_GENERATOR)
-  CUST_ATTR(unsignedValue, r_wov_unsigned, w_wov_unsigned);
-  CUST_ATTR(signedValue, r_wov_signed, w_wov_signed);
-  CUST_ATTR(boolValue, r_wov_unsigned, w_wov_unsigned);
-  CUST_ATTR(stringValue, r_wov_string, w_wov_string);
-  CUST_ATTR(source, r_wov_source, w_wov_source);
-  CUST_ATTR(color, r_wov_color, w_wov_color);
-#else
-  uint32_t unsignedValue;
-  int32_t signedValue;
-  uint32_t boolValue;
-  char stringValue[LEN_ZONE_OPTION_STRING];
-#endif
-};
-
-struct WidgetOptionValueTyped
-{
-#if defined(YAML_GENERATOR)
-  CUST_ATTR(type, r_wov_type, w_wov_type);
-#else
-  WidgetOptionValueEnum type;
-#endif
-  WidgetOptionValue value FUNC(select_wov);
-};
 
 struct WidgetOption
 {
@@ -113,34 +63,6 @@ struct WidgetOption
   std::string fileSelectPath;
 #if !defined(BACKUP)
   std::vector<std::string> choiceValues;
-#endif
-};
-
-//-----------------------------------------------------------------------------
-
-#define MAX_WIDGET_OPTIONS 50   // For YAML parser
-
-struct WidgetPersistentData {
-#if defined(YAML_GENERATOR)
-  WidgetOptionValueTyped options[MAX_WIDGET_OPTIONS] FUNC(widget_option_is_active);
-#else
-#if !defined(BACKUP)
-  std::vector<WidgetOptionValueTyped> options;
-#endif
-  void addEntry(int idx);
-  bool hasOption(int idx);
-  void setDefault(int idx, const WidgetOption* opt, bool forced);
-  void clear();
-  WidgetOptionValueEnum getType(int idx);
-  void setType(int idx, WidgetOptionValueEnum typ);
-  int32_t getSignedValue(int idx);
-  void setSignedValue(int idx, int32_t newValue);
-  uint32_t getUnsignedValue(int idx);
-  void setUnsignedValue(int idx, uint32_t newValue);
-  bool getBoolValue(int idx);
-  void setBoolValue(int idx, bool newValue);
-  const char* getString(int idx);
-  void setString(int idx, const char* s);
 #endif
 };
 

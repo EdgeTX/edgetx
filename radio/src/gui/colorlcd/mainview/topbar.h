@@ -27,28 +27,6 @@ class HeaderIcon;
 
 //-----------------------------------------------------------------------------
 
-#if LCD_W == 800  // TODO: handle this better
-static constexpr int TOPBAR_ZONE_WIDTH = 102;
-#else
-static LAYOUT_VAL_SCALED(TOPBAR_ZONE_WIDTH, 70)
-#endif
-static constexpr int MAX_TOPBAR_ZONES = (LCD_W - MENU_HEADER_BUTTONS_LEFT - 1 + TOPBAR_ZONE_WIDTH / 2) / TOPBAR_ZONE_WIDTH;
-
-struct TopBarPersistentData {
-  ZonePersistentData zones[MAX_TOPBAR_ZONES] FUNC(widget_is_active);
-#if !defined(YAML_GENERATOR)
-  void clearZone(int idx);
-  void clear();
-  const char* getWidgetName(int idx);
-  void setWidgetName(int idx, const char* s);
-  WidgetPersistentData* getWidgetData(int idx);
-  bool hasWidget(int idx);
-  bool isWidget(int idx, const char* s);
-#endif
-};
-
-//-----------------------------------------------------------------------------
-
 class SetupTopBarWidgetsPage : public Window
 {
  public:
