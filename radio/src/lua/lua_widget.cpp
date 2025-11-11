@@ -229,10 +229,10 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 }
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
-                     const rect_t& rect, WidgetPersistentData* persistentData,
+                     const rect_t& rect, int screenNum, int zoneNum,
                      int zoneRectDataRef, int optionsDataRef,
                      int createFunctionRef, std::string path) :
-    Widget(factory, parent, rect, persistentData),
+    Widget(factory, parent, rect, screenNum, zoneNum),
     zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
@@ -350,26 +350,27 @@ void LuaWidget::update()
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
 
+  auto widgetData = getPersistentData();
+
   // Get options table and update values
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
   int i = 0;
-  for (const ZoneOption* option = getOptionDefinitions(); option->name; option++, i++) {
-    auto optVal = getOptionValue(i);
+  for (const WidgetOption* option = getOptionDefinitions(); option->name; option++, i++) {
     switch (option->type) {
-      case ZoneOption::String:
-      case ZoneOption::File:
+      case WidgetOption::String:
+      case WidgetOption::File:
         {
           char str[LEN_ZONE_OPTION_STRING + 1] = {0};
-          strncpy(str, optVal->stringValue, LEN_ZONE_OPTION_STRING);
+          strncpy(str, widgetData->getString(i), LEN_ZONE_OPTION_STRING);
           lua_pushstring(lsWidgets, str);
         }
         break;
-      case ZoneOption::Integer:
-      case ZoneOption::Switch:
-        lua_pushinteger(lsWidgets, optVal->signedValue);
+      case WidgetOption::Integer:
+      case WidgetOption::Switch:
+        lua_pushinteger(lsWidgets, widgetData->getSignedValue(i));
         break;
       default:
-        lua_pushinteger(lsWidgets, optVal->unsignedValue);
+        lua_pushinteger(lsWidgets, widgetData->getUnsignedValue(i));
         break;
     }
     lua_setfield(lsWidgets, -2, option->name);

@@ -37,7 +37,7 @@ constexpr int LEN_ZONE_OPTION_STRING  {12};
 constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
 constexpr int WIDGET_NAME_LEN         {20};
-constexpr int MAX_WIDGET_OPTIONS      {10};
+constexpr int MAX_WIDGET_OPTIONS      {50};
 constexpr int MAX_TOPBAR_ZONES        {6};  //  max 4 used for portrait
 constexpr int MAX_TOPBAR_OPTIONS      {1};
 constexpr int LAYOUT_ID_LEN           {12};

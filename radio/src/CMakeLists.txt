@@ -427,7 +427,8 @@ endif()
 set(SRC
   ${SRC}
   edgetx.cpp
-  datastructs_private.cpp
+  datastructs_model.cpp
+  datastructs_radio.cpp
   functions.cpp
   strhelpers.cpp
   switches.cpp

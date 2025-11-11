@@ -24,9 +24,10 @@
 #include "topbar.h"
 #include "window.h"
 
+class QuickMenu;
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
-class QuickMenu;
+class TopBar;
 
 class ViewMain : public NavWindow
 {

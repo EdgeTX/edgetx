@@ -25,12 +25,52 @@
 #include "edgetx.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "view_main.h"
 #include "widgets_setup.h"
 #include "pagegroup.h"
+#include "theme_manager.h"
+#include "widget.h"
 
-TopBar* TopbarFactory::create(Window* parent) { return new TopBar(parent); }
+//-----------------------------------------------------------------------------
+
+void TopBarPersistentData::clearZone(int idx)
+{
+  zones[idx].clear();
+}
+
+void TopBarPersistentData::clear()
+{
+  for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
+    clearZone(i);
+}
+
+const char* TopBarPersistentData::getWidgetName(int idx)
+{
+  return zones[idx].widgetName;
+}
+
+void TopBarPersistentData::setWidgetName(int idx, const char* s)
+{
+  strAppend(zones[idx].widgetName, s, WIDGET_NAME_LEN);
+}
+
+WidgetPersistentData* TopBarPersistentData::getWidgetData(int idx)
+{
+  return &zones[idx].widgetData;
+}
+
+bool TopBarPersistentData::hasWidget(int idx)
+{
+  return zones[idx].widgetName[0] != 0;
+}
+
+bool TopBarPersistentData::isWidget(int idx, const char* s)
+{
+  return strncmp(zones[idx].widgetName, "Date Time", WIDGET_NAME_LEN) == 0;
+}
+
+//-----------------------------------------------------------------------------
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage() :
     Window(ViewMain::instance(), rect_t{})
@@ -92,3 +132,156 @@ void SetupTopBarWidgetsPage::onEvent(event_t event)
   Window::onEvent(event);
 #endif
 }
+
+//-----------------------------------------------------------------------------
+
+constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
+
+TopBar::TopBar(Window * parent) :
+  WidgetsContainer(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, MAX_TOPBAR_ZONES)
+{
+  setWindowFlag(NO_FOCUS);
+  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+
+  headerIcon = new HeaderIcon(parent, ICON_EDGETX, [=]() { ViewMain::instance()->openMenu(); });
+}
+
+unsigned int TopBar::getZonesCount() const
+{
+  unsigned int zc = 0;
+  for (int i = 0; i < zoneCount; i += 1)
+    if (g_model.topbarWidgetWidth[i] > 0)
+      zc += 1;
+  return zc;
+}
+
+rect_t TopBar::getZone(unsigned int index) const
+{
+  coord_t x = MENU_HEADER_BUTTONS_LEFT + 1;
+
+  for (unsigned int i = 0; i < index; i += 1)
+    x += (g_model.topbarWidgetWidth[i] * (TOPBAR_ZONE_WIDTH + PAD_TINY));
+
+  coord_t size = ((g_model.topbarWidgetWidth[index] - 1) * (TOPBAR_ZONE_WIDTH + PAD_TINY) + TOPBAR_ZONE_WIDTH);
+
+  if ((x + size) > LCD_W) size = LCD_W - x;
+
+  return {x, PAD_THREE, size, TOPBAR_ZONE_HEIGHT};
+}
+
+void TopBar::setVisible(float visible) // 0.0 -> 1.0
+{
+  coord_t y = 0;
+  if (visible == 0.0) {
+    y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
+  } else if (visible > 0.0 && visible < 1.0){
+    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
+  }
+  if (y != top()) setTop(y);
+}
+
+void TopBar::setEdgeTxButtonVisible(float visible) // 0.0 -> 1.0
+{
+  coord_t y = 0;
+  if (visible == 0.0) {
+    y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
+  } else if (visible > 0.0 && visible < 1.0){
+    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
+  }
+  if (y != headerIcon->top()) headerIcon->setTop(y);
+}
+
+coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
+{
+  if (visible == 0.0) {
+    return 0;
+  }
+  else if (visible == 1.0) {
+    return EdgeTxStyles::MENU_HEADER_HEIGHT;
+  }
+
+  float h = (float)EdgeTxStyles::MENU_HEADER_HEIGHT * visible;
+  return (coord_t)h;
+}
+
+void TopBar::checkEvents()
+{
+  uint32_t now = lv_tick_get();
+  if (now - lastRefresh >= TOPBAR_REFRESH) {
+    lastRefresh = now;
+    WidgetsContainer::checkEvents();
+  }
+}
+
+void TopBar::removeWidget(unsigned int index)
+{
+  if (index >= zoneCount) return;
+
+  bool mark = false;
+
+  // If user manually removes 'system' widgets, mark name so widget does not get reloaded on restart
+  if ((index == (unsigned int)(zoneCount - 1)) && g_model.getTopbarData()->isWidget(index, "Date Time"))
+    mark = true;
+  if ((index == (unsigned int)(zoneCount - 2)) && g_model.getTopbarData()->isWidget(index, "Radio Info"))
+    mark = true;
+#if defined(INTERNAL_GPS)
+  if ((index == (unsigned int)(zoneCount - 3)) && g_model.getTopbarData()->isWidget(index, "Internal GPS"))
+    mark = true;
+#endif
+
+  // If user manually removes 'system' widgets, mark name so widget does not get reloaded on restart
+  if (mark)
+    g_model.getTopbarData()->setWidgetName(index, "---");
+
+  g_model.getTopbarData()->clearZone(index);
+
+  WidgetsContainer::removeWidget(index);
+}
+
+void TopBar::load()
+{
+  unsigned int count = getZonesCount();
+  for (unsigned int i = 0; i < count; i++) {
+    // remove old widget
+    if (widgets[i]) {
+      widgets[i]->deleteLater();
+      widgets[i] = nullptr;
+    }
+  }
+
+  for (unsigned int i = 0; i < count; i++) {
+    // and load new one if required
+    if (g_model.getTopbarData()->hasWidget(i)) {
+      char name[WIDGET_NAME_LEN + 1];
+      strAppend(name, g_model.getTopbarData()->getWidgetName(i), WIDGET_NAME_LEN);
+      widgets[i] = WidgetFactory::newWidget(name, this, getZone(i), -1, i);
+    }
+  }
+}
+
+Widget* TopBar::createWidget(unsigned int index,
+                      const WidgetFactory* factory)
+{
+  if (index >= zoneCount) return nullptr;
+
+  // remove old one if existing
+  removeWidget(index);
+
+  Widget* widget = nullptr;
+  if (factory) {
+    g_model.getTopbarData()->setWidgetName(index, factory->getName());
+    widget = factory->create(this, getZone(index), -1, index);
+  }
+  widgets[index] = widget;
+
+  if (widget) widget->attach(this);
+
+  return widget;
+}
+
+void TopBar::create()
+{
+  g_model.getTopbarData()->clear();
+}
+
+//-----------------------------------------------------------------------------

@@ -23,7 +23,6 @@
 
 #include "file_preview.h"
 #include "theme_manager.h"
-#include "topbar_impl.h"
 #include "view_main.h"
 
 #if LANDSCAPE

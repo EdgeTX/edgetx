@@ -162,9 +162,9 @@ class ChannelValue : public Window
 class OutputsWidget : public Widget
 {
  public:
-  OutputsWidget(const WidgetFactory* factory, Window* parent,
-                const rect_t& rect, Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+  OutputsWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+                int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     padAll(PAD_ZERO);
 
@@ -180,11 +180,13 @@ class OutputsWidget : public Widget
 
   void update() override
   {
+    auto widgetData = getPersistentData();
+
     // get background color from options[2]
-    etx_bg_color_from_flags(lvobj, persistentData->options[2].value.unsignedValue);
+    etx_bg_color_from_flags(lvobj, widgetData->options[2].value.unsignedValue);
 
     // Set background opacity from options[1]
-    if (persistentData->options[1].value.boolValue)
+    if (widgetData->options[1].value.boolValue)
       lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
@@ -195,13 +197,13 @@ class OutputsWidget : public Widget
     bool changed = false;
 
     // Colors
-    LcdFlags f = persistentData->options[3].value.unsignedValue;
+    LcdFlags f = widgetData->options[3].value.unsignedValue;
     if (f != txtColor) { txtColor = f; changed = true; }
-    f = persistentData->options[4].value.unsignedValue;
+    f = widgetData->options[4].value.unsignedValue;
     if (f != barColor) { barColor = f; changed = true; }
 
     // Setup channels
-    uint8_t chan = persistentData->options[0].value.unsignedValue;
+    uint8_t chan = widgetData->options[0].value.unsignedValue;
     if (chan != firstChan) { firstChan= chan; changed = true; }
 
     // Get size
@@ -225,7 +227,7 @@ class OutputsWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
   coord_t lastWidth = -1;
@@ -242,14 +244,13 @@ class OutputsWidget : public Widget
   static LAYOUT_VAL_SCALED(COLS_MIN_W, 300)
 };
 
-const ZoneOption OutputsWidget::options[] = {
-    {STR_FIRST_CHANNEL, ZoneOption::Integer, OPTION_VALUE_UNSIGNED(1),
-     OPTION_VALUE_UNSIGNED(1), OPTION_VALUE_UNSIGNED(32)},
-    {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
-    {STR_TEXT_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption OutputsWidget::options[] = {
+    {STR_FIRST_CHANNEL, WidgetOption::Integer, 1, 1, 32},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
+    {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
+    {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<OutputsWidget> outputsWidget("Outputs",
                                                OutputsWidget::options,

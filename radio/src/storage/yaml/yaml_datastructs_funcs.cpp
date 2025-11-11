@@ -551,65 +551,146 @@ static bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, 
 }
 
 #if defined(COLORLCD)
-static uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
+bool screen_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  data += bitoffs >> 3UL;
-  data -= offsetof(ZoneOptionValueTyped, value);
-  ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
-  if (*p_zovt > ZOV_Color) return 0;
-  return *p_zovt;
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto screenData = g_model.getScreenData(tw->getElmts());
+
+  return screenData->LayoutId[0] != 0;
 }
 
-void r_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
-                  const char* val, uint8_t val_len)
-{
-  data += bitoffs >> 3UL;
-  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
-  p_val->unsignedValue = r_mixSrcRaw(nullptr, val, val_len);
-}
-
-bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
-                  yaml_writer_func wf, void* opaque)
-{
-  data += bitoffs >> 3UL;
-  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
-  return w_mixSrcRaw(nullptr, p_val->unsignedValue, wf, opaque);
-}
-
-void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
+void r_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
                  const char* val, uint8_t val_len)
 {
-  data += bitoffs >> 3UL;
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto screenData = g_model.getScreenData(tw->getElmts(1));
 
-  ZoneOptionValue zov;
+  if (val_len > LAYOUT_ID_LEN) val_len = LAYOUT_ID_LEN;
+  strncpy(screenData->LayoutId, val, val_len);
+}
+
+bool w_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto screenData = g_model.getScreenData(tw->getElmts(1));
+
+  char s[LAYOUT_ID_LEN + 1];
+  strncpy(s, screenData->LayoutId, LAYOUT_ID_LEN);
+  s[LAYOUT_ID_LEN] = 0;
+  return wf(opaque, s, strlen(s));
+}
+
+static ZonePersistentData* get_zoneData(void* user)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  int lvl = tw->getLevel();
+  bool topBar = (lvl == 3) || (lvl == 4);
+  int o = (lvl == 3) || (lvl == 5) ? 0 : 1;
+
+  uint16_t zone = tw->getElmts(o);
+  if (topBar) {
+    // Top Bar
+    return &g_model.getTopbarData()->zones[zone];
+  } else {
+    // Screen
+    uint16_t screen = tw->getElmts(o + 3);
+    return &g_model.getScreenLayoutData(screen)->zones[zone];
+  }
+}
+
+bool widget_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto zoneData = get_zoneData(user);
+
+  return zoneData->widgetName[0] != 0;
+}
+
+void r_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto zoneData = get_zoneData(user);
+
+  if (val_len > WIDGET_NAME_LEN) val_len = WIDGET_NAME_LEN;
+  strncpy(zoneData->widgetName, val, val_len);
+}
+
+bool w_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto zoneData = get_zoneData(user);
+
+  char s[WIDGET_NAME_LEN + 1];
+  strncpy(s, zoneData->widgetName, WIDGET_NAME_LEN);
+  s[WIDGET_NAME_LEN] = 0;
+  return wf(opaque, s, strlen(s));
+}
+
+static WidgetPersistentData* get_widgetData(void* user, uint16_t& option)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  int lvl = tw->getLevel();
+  bool topBar = (lvl == 7) || (lvl == 8);
+  int o = ((lvl == 7) || (lvl == 9)) ? 1 : 2;
+
+  option = tw->getElmts(o);
+  uint16_t zone = tw->getElmts(o + 3);
+  if (topBar) {
+    // Top Bar
+    return g_model.getTopbarData()->getWidgetData(zone);
+  } else {
+    // Screen
+    uint16_t screen = tw->getElmts(o + 6);
+    return g_model.getScreenLayoutData(screen)->getWidgetData(zone);
+  }
+}
+
+bool widget_option_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  int lvl = tw->getLevel();
+  bool topBar = (lvl == 6);
+  int o = 0;
+
+  WidgetPersistentData* widgetData;
+
+  uint16_t option = tw->getElmts(o);
+  uint16_t zone = tw->getElmts(o + 3);
+  if (topBar) {
+    // Top Bar
+    widgetData = g_model.getTopbarData()->getWidgetData(zone);
+  } else {
+    // Screen
+    uint16_t screen = tw->getElmts(o + 6);
+    widgetData = g_model.getScreenLayoutData(screen)->getWidgetData(zone);
+  }
+
+  return widgetData->hasOption(option);
+}
+
+static uint32_t get_color(const char* val, uint8_t val_len)
+{
   if (strncmp(val, "COLIDX", 6) == 0) {
     val += 6; val_len -= 6;
-    zov.unsignedValue = COLOR2FLAGS(yaml_str2uint(val, val_len));
+    return COLOR2FLAGS(yaml_str2uint(val, val_len));
   } else {
     if (val_len < sizeof("0xFFFFFF")-1
         || val[0] != '0'
         || val[1] != 'x')
-      return;
+      return 0;
 
     val += 2; val_len -= 2;
 
     auto rgb24 = yaml_hex2uint(val, val_len);
-    zov.unsignedValue = RGB2FLAGS((rgb24 & 0xFF0000) >> 16,
-                                  (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+    return RGB2FLAGS((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
   }
-
-  memcpy(data, &zov, sizeof(ZoneOptionValue));
 }
 
-bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
-                 yaml_writer_func wf, void* opaque)
+static bool set_color(uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  data += bitoffs >> 3UL;
-
-  ZoneOptionValue zov;
-  memcpy(&zov, data, sizeof(ZoneOptionValue));
-
-  uint32_t val = zov.unsignedValue;
   if (val & RGB_FLAG) {
     val = COLOR_VAL(val);
     uint32_t color = (uint32_t)GET_RED(val) << 16 |
@@ -622,6 +703,239 @@ bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
     const char* str = yaml_unsigned2str(COLOR_VAL(val));
     return wf(opaque, str, strlen(str));
   }
+}
+
+static uint8_t select_wov(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  return widgetData->getType(option);
+}
+
+const struct YamlIdStr enum_WidgetOptionValueEnum[] = {
+  {  WOV_Unsigned, "Unsigned"  },
+  {  WOV_Signed, "Signed"  },
+  {  WOV_Bool, "Bool"  },
+  {  WOV_String, "String"  },
+  {  WOV_Source, "Source"  },
+  {  WOV_Color, "Color"  },
+  {  0, NULL  }
+};
+
+void r_wov_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  widgetData->setType(option, (WidgetOptionValueEnum)yaml_parse_enum(enum_WidgetOptionValueEnum, val, val_len));
+}
+
+bool w_wov_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  const char* str = yaml_output_enum(widgetData->getType(option), enum_WidgetOptionValueEnum);
+  return wf(opaque, str, strlen(str));
+}
+
+void r_wov_source(void* user, uint8_t* data, uint32_t bitoffs,
+                  const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  widgetData->setUnsignedValue(option, r_mixSrcRaw(nullptr, val, val_len));
+}
+
+bool w_wov_source(void* user, uint8_t* data, uint32_t bitoffs,
+                  yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  return w_mixSrcRaw(nullptr, widgetData->getUnsignedValue(option), wf, opaque);
+}
+
+void r_wov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  widgetData->setUnsignedValue(option, get_color(val, val_len));
+}
+
+bool w_wov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  return set_color(widgetData->getUnsignedValue(option), wf, opaque);
+}
+
+void r_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  char s[LEN_ZONE_OPTION_STRING + 1];
+  if (val_len > LEN_ZONE_OPTION_STRING) val_len = LEN_ZONE_OPTION_STRING;
+  strncpy(s, val, val_len);
+  s[val_len] = 0;
+  widgetData->setString(option, s);
+}
+
+bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  char s[LEN_ZONE_OPTION_STRING + 1];
+  strncpy(s, widgetData->getString(option), LEN_ZONE_OPTION_STRING);
+  s[LEN_ZONE_OPTION_STRING] = 0;
+  return wf(opaque, s, strlen(s));
+}
+
+void r_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  widgetData->setUnsignedValue(option, yaml_str2uint(val, val_len));
+}
+
+bool w_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  const char* str = yaml_unsigned2str(widgetData->getUnsignedValue(option));
+  return wf(opaque, str, strlen(str));
+}
+
+void r_wov_signed(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  widgetData->setSignedValue(option, yaml_str2int(val, val_len));
+}
+
+bool w_wov_signed(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto widgetData = get_widgetData(user, option);
+
+  const char* str = yaml_signed2str(widgetData->getSignedValue(option));
+  return wf(opaque, str, strlen(str));
+}
+
+static LayoutPersistentData* get_LayoutData(void* user, uint16_t& option)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  int lvl = tw->getLevel();
+  int o = (lvl == 6) ? 1 : 2;
+
+  option = tw->getElmts(o);
+  // Screen
+  uint16_t screen = tw->getElmts(o + 3);
+  return g_model.getScreenLayoutData(screen);
+}
+
+bool layout_option_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  int o = 0;
+
+  uint16_t option = tw->getElmts(o);
+  uint16_t screen = tw->getElmts(o + 3);
+  auto layoutData = g_model.getScreenLayoutData(screen);
+
+  return layoutData->options[option].type != LOV_None || layoutData->options[option].value.unsignedValue != 0;
+}
+
+static uint8_t select_lov(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  return layoutData->options[option].type;
+}
+
+const struct YamlIdStr enum_LayoutOptionValueEnum[] = {
+  {  LOV_None, "None"  },
+  {  LOV_Bool, "Bool"  },
+  {  LOV_Color, "Color"  },
+  {  0, NULL  }
+};
+
+void r_lov_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  layoutData->options[option].type = (LayoutOptionValueEnum)yaml_parse_enum(enum_LayoutOptionValueEnum, val, val_len);
+}
+
+bool w_lov_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  const char* str = yaml_output_enum(layoutData->options[option].type, enum_LayoutOptionValueEnum);
+  return wf(opaque, str, strlen(str));
+}
+
+void r_lov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  layoutData->options[option].value.unsignedValue = yaml_str2uint(val, val_len);
+}
+
+bool w_lov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  const char* str = yaml_unsigned2str(layoutData->options[option].value.unsignedValue);
+  return wf(opaque, str, strlen(str));
+}
+
+void r_lov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  layoutData->options[option].value.unsignedValue = get_color(val, val_len);
+}
+
+bool w_lov_color(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  uint16_t option;
+  auto layoutData = get_LayoutData(user, option);
+
+  return set_color(layoutData->options[option].value.unsignedValue, wf, opaque);
 }
 #endif
 
@@ -2496,11 +2810,6 @@ bool cfsGroupIsActive(void* user, uint8_t* data, uint32_t bitoffs)
   uint16_t idx = tw->getElmts();
   return idx > 0 && idx <= NUM_FUNCTIONS_GROUPS;
 }
-
-bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
-{
-  return true;
-}
 #endif
 
 bool switchIsActive(void* user, uint8_t* data, uint32_t bitoffs)
@@ -2508,4 +2817,9 @@ bool switchIsActive(void* user, uint8_t* data, uint32_t bitoffs)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
   return idx < switchGetMaxAllSwitches();
+}
+
+bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  return true;
 }

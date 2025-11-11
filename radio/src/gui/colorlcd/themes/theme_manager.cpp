@@ -25,7 +25,7 @@
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
 #include "etx_lv_theme.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "view_main.h"
 #include "storage/sdcard_yaml.h"
 #include "lib_file.h"

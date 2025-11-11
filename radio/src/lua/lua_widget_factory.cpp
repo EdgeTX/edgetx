@@ -28,7 +28,7 @@
 
 #define MAX_INSTRUCTIONS       (20000/100)
 
-LuaWidgetFactory::LuaWidgetFactory(const char* name, ZoneOption* widgetOptions, int optionDefinitionsReference,
+LuaWidgetFactory::LuaWidgetFactory(const char* name, WidgetOption* widgetOptions, int optionDefinitionsReference,
                                    int createFunction, int updateFunction, int refreshFunction,
                                    int backgroundFunction, int translateFunction, bool lvglLayout,
                                    const char* filename) :
@@ -61,12 +61,12 @@ LuaWidgetFactory::~LuaWidgetFactory() {
   }
 }
 
-Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
-                                 Widget::PersistentData* persistentData,
-                                 bool init) const
+Widget* LuaWidgetFactory::createNew(Window* parent, const rect_t& rect,
+                                    int screenNum, int zoneNum) const
 {
   if (lsWidgets == 0) return 0;
-  initPersistentData(persistentData, init);
+
+  auto widgetData = g_model.getWidgetData(screenNum, zoneNum);
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
 
@@ -85,29 +85,29 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   // Create options table
   lua_newtable(lsWidgets);
   int i = 0;
-  for (const ZoneOption* option = options; option->name; option++, i++) {
-    if (option->type == ZoneOption::String || option->type == ZoneOption::File) {
+  for (const WidgetOption* option = options; option->name; option++, i++) {
+    if (option->type == WidgetOption::String || option->type == WidgetOption::File) {
       lua_pushstring(lsWidgets, option->name);
       // Zero-terminated string for Lua
       char str[LEN_ZONE_OPTION_STRING + 1] = {0};
-      strncpy(str, persistentData->options[i].value.stringValue,
+      strncpy(str, widgetData->options[i].value.stringValue,
               LEN_ZONE_OPTION_STRING);
       lua_pushstring(lsWidgets, &str[0]);
       lua_settable(lsWidgets, -3);
-    } else if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
-      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.signedValue);
+    } else if (option->type == WidgetOption::Integer || option->type == WidgetOption::Switch) {
+      l_pushtableint(lsWidgets, option->name, widgetData->options[i].value.signedValue);
     } else {
-      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.unsignedValue);
+      l_pushtableint(lsWidgets, option->name, widgetData->options[i].value.unsignedValue);
     }
   }
 
   // Store the options data in registry for later updates
   int optionsDataRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
 
-  return new LuaWidget(this, parent, rect, persistentData, zoneRectDataRef, optionsDataRef, createFunction, path);
+  return new LuaWidget(this, parent, rect, screenNum, zoneNum, zoneRectDataRef, optionsDataRef, createFunction, path);
 }
 
-void LuaWidgetFactory::translateOptions(ZoneOption * options)
+void LuaWidgetFactory::translateOptions(WidgetOption * options)
 {
   if (lsWidgets == 0) return;
 
@@ -194,10 +194,10 @@ const void LuaWidgetFactory::parseOptionDefaults() const
   PROTECT_LUA()
   {
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionDefinitionsReference);
-    ZoneOption *option = (ZoneOption*)options;
+    WidgetOption *option = (WidgetOption*)options;
     for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2), option->name;
          lua_pop(lsWidgets, 1)) {
-      // TRACE("parsing option %d", count);
+      // TRACE("parseOptionDefaults parsing option %s", option->name);
       luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
       luaL_checktype(lsWidgets, -1, LUA_TTABLE);   // value is table
       uint8_t field = 0;
@@ -206,15 +206,15 @@ const void LuaWidgetFactory::parseOptionDefaults() const
         luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
         switch (field) {
           case 2:
-            if (option->type == ZoneOption::Switch) {
+            if (option->type == WidgetOption::Switch) {
               option->deflt.signedValue = switchValue();
-            } else if (option->type == ZoneOption::Source) {
+            } else if (option->type == WidgetOption::Source) {
               option->deflt.unsignedValue = sourceValue();
-            } else if (option->type == ZoneOption::Integer) {
+            } else if (option->type == WidgetOption::Integer) {
               option->deflt.signedValue = luaL_checkinteger(lsWidgets, -1);
-            } else if (option->type == ZoneOption::Bool) {
+            } else if (option->type == WidgetOption::Bool) {
               option->deflt.boolValue = (luaL_checkunsigned(lsWidgets, -1) != 0);
-            } else if (option->type == ZoneOption::String || option->type == ZoneOption::File) {
+            } else if (option->type == WidgetOption::String || option->type == WidgetOption::File) {
               strncpy(option->deflt.stringValue, luaL_checkstring(lsWidgets, -1),
                       LEN_ZONE_OPTION_STRING);
             } else {
@@ -222,28 +222,28 @@ const void LuaWidgetFactory::parseOptionDefaults() const
             }
             break;
           case 3:
-            if (option->type == ZoneOption::Switch) {
+            if (option->type == WidgetOption::Switch) {
               option->min.signedValue = switchValue();
-            } else if (option->type == ZoneOption::Source) {
+            } else if (option->type == WidgetOption::Source) {
               option->min.unsignedValue = sourceValue();
-            } else if (option->type == ZoneOption::Integer || option->type == ZoneOption::Slider) {
+            } else if (option->type == WidgetOption::Integer || option->type == WidgetOption::Slider) {
               option->min.signedValue = luaL_checkinteger(lsWidgets, -1);
-            } else if (option->type == ZoneOption::Choice) {
+            } else if (option->type == WidgetOption::Choice) {
               luaL_checktype(lsWidgets, -1, LUA_TTABLE); // value is a table
               option->choiceValues.clear();
               for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
                 option->choiceValues.push_back(luaL_checkstring(lsWidgets, -1));
               }
-            } else if (option->type == ZoneOption::File) {
+            } else if (option->type == WidgetOption::File) {
               option->fileSelectPath = luaL_checkstring(lsWidgets, -1);
             }
             break;
           case 4:
-            if (option->type == ZoneOption::Switch) {
+            if (option->type == WidgetOption::Switch) {
               option->max.signedValue = switchValue();
-            } else if (option->type == ZoneOption::Source) {
+            } else if (option->type == WidgetOption::Source) {
               option->max.unsignedValue = sourceValue();
-            } else if (option->type == ZoneOption::Integer || option->type == ZoneOption::Slider) {
+            } else if (option->type == WidgetOption::Integer || option->type == WidgetOption::Slider) {
               option->max.signedValue = luaL_checkinteger(lsWidgets, -1);
             }
             break;
@@ -264,7 +264,7 @@ const void LuaWidgetFactory::parseOptionDefaults() const
 
 // Parse options table to get name and type values.
 // Called on radio startup to build base data for all widgtes.
-ZoneOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
+WidgetOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
 {
   if (reference == LUA_REFNIL) {
     // TRACE("parseOptionDefinitions() no options");
@@ -284,7 +284,7 @@ ZoneOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
     // TRACE("limited to %d options", count);
   }
 
-  ZoneOption *options = new ZoneOption[count + 1];
+  WidgetOption *options = new WidgetOption[count + 1];
   if (!options) {
     return NULL;
   }
@@ -292,10 +292,10 @@ ZoneOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
   PROTECT_LUA()
   {
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, reference);
-    ZoneOption *option = options;
+    WidgetOption *option = options;
     for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2), count-- > 0;
          lua_pop(lsWidgets, 1)) {
-      // TRACE("parsing option %d", count);
+      // TRACE("parseOptionDefinitions parsing option %d", count);
       luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
       luaL_checktype(lsWidgets, -1, LUA_TTABLE);   // value is table
       uint8_t field = 0;
@@ -309,24 +309,24 @@ ZoneOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
             // TRACE("name = %s", option->name);
             break;
           case 1:
-            option->type = (ZoneOption::Type)luaL_checkinteger(lsWidgets, -1);
+            option->type = (WidgetOption::Type)luaL_checkinteger(lsWidgets, -1);
             option->deflt.unsignedValue = 0;
             // set some sensible defaults
-            if (option->type == ZoneOption::Integer) {
+            if (option->type == WidgetOption::Integer) {
               option->min.signedValue = -100;
               option->max.signedValue = 100;
-            } else if (option->type == ZoneOption::Switch) {
+            } else if (option->type == WidgetOption::Switch) {
               option->min.signedValue = SWSRC_FIRST;
               option->max.signedValue = SWSRC_LAST;
-            } else if (option->type == ZoneOption::Timer) {
+            } else if (option->type == WidgetOption::Timer) {
               option->min.unsignedValue = 0;
               option->max.unsignedValue = MAX_TIMERS - 1;
-            } else if (option->type == ZoneOption::TextSize) {
+            } else if (option->type == WidgetOption::TextSize) {
               option->min.unsignedValue = FONT_STD_INDEX;
               option->max.unsignedValue = FONTS_COUNT - 1;
-            } else if (option->type == ZoneOption::String || option->type == ZoneOption::File) {
+            } else if (option->type == WidgetOption::String || option->type == WidgetOption::File) {
               option->deflt.stringValue[0] = 0;
-            } else if (option->type == ZoneOption::Slider) {
+            } else if (option->type == WidgetOption::Slider) {
               option->min.unsignedValue = 0;
               option->max.unsignedValue = 9;
             }

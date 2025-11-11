@@ -19,8 +19,11 @@
  * GNU General Public License for more details.
  */
 
- #include "edgetx.h"
- #include "hal/switch_driver.h"
+#include "edgetx.h"
+#include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
+
+//-----------------------------------------------------------------------------
 
 SwitchConfig ModelData::getSwitchType(uint8_t n)
 {
@@ -43,7 +46,7 @@ char* ModelData::getSwitchCustomName(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
   if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
-    return g_model.cfsName(n);
+    return cfsName(n);
 #endif
   return g_eeGeneral.getSwitchCustomName(n);
 }
@@ -52,7 +55,7 @@ bool ModelData::switchHasCustomName(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
   if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
-    return g_model.cfsName(n)[0] != 0;
+    return cfsName(n)[0] != 0;
 #endif
   return g_eeGeneral.switchHasCustomName(n);
 }
@@ -66,29 +69,6 @@ uint8_t ModelData::getSwitchStateForWarning(uint8_t n)
 #endif
   extern swarnstate_t switches_states;
   return (switches_states >> (n * 2)) & 3;
-}
-
-char* RadioData::getSwitchCustomName(uint8_t n)
-{
-  return switchConfig[n].name;
-}
-
-bool RadioData::switchHasCustomName(uint8_t n)
-{
-  return switchConfig[n].name[0] != 0;
-}
-
-SwitchConfig RadioData::switchType(uint8_t n) {
-  return (SwitchConfig)switchConfig[n].type;
-}
-
-void RadioData::switchSetType(uint8_t n, SwitchConfig v) {
-  switchConfig[n].type = v;
-  storageDirty(EE_GENERAL);
-}
-
-char* RadioData::switchName(uint8_t n) {
-  return switchConfig[n].name;
 }
 
 #if defined(FUNCTION_SWITCHES)
@@ -214,41 +194,68 @@ void ModelData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
   storageDirty(EE_MODEL);
 }
 #endif
-
-fsStartPositionType RadioData::switchStart(uint8_t n) {
-  return (fsStartPositionType)switchConfig[n].start;
-}
-
-void RadioData::switchSetStart(uint8_t n, fsStartPositionType v) {
-  switchConfig[n].start = v;
-  storageDirty(EE_GENERAL);
-}
-
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-RGBLedColor& RadioData::switchOnColor(uint8_t n) {
-  return switchConfig[n].onColor;
-}
-
-RGBLedColor& RadioData::switchOffColor(uint8_t n) {
-  return switchConfig[n].offColor;
-}
-
-bool RadioData::cfsOnColorLuaOverride(uint8_t n) {
-  return switchConfig[n].onColorLuaOverride;
-}
-
-bool RadioData::cfsOffColorLuaOverride(uint8_t n) {
-  return switchConfig[n].offColorLuaOverride;
-}
-
-void RadioData::cfsSetOnColorLuaOverride(uint8_t n, bool v) {
-  switchConfig[n].onColorLuaOverride = v;
-  storageDirty(EE_GENERAL);
-}
-
-void RadioData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
-  switchConfig[n].offColorLuaOverride = v;
-  storageDirty(EE_GENERAL);
-}
 #endif
+
+#if defined(COLORLCD)
+static TopBarPersistentData _topbarData;
+static CustomScreenData* _screenData[MAX_CUSTOM_SCREENS];
+
+CustomScreenData* ModelData::getScreenData(int screenNum)
+{
+  if (_screenData[screenNum] == nullptr) {
+    _screenData[screenNum] = new CustomScreenData();
+    _screenData[screenNum]->LayoutId[0] = 0;
+    _screenData[screenNum]->layoutData.clear();
+  }
+
+  return _screenData[screenNum];
+}
+
+const char* ModelData::getScreenLayoutId(int screenNum)
+{
+  return getScreenData(screenNum)->LayoutId;
+}
+
+void ModelData::setScreenLayoutId(int screenNum, const char* s)
+{
+  strAppend(getScreenData(screenNum)->LayoutId, s, LAYOUT_ID_LEN);
+}
+
+TopBarPersistentData* ModelData::getTopbarData()
+{
+  return &_topbarData;
+}
+
+LayoutPersistentData* ModelData::getScreenLayoutData(int screenNum)
+{
+  return &getScreenData(screenNum)->layoutData;
+}
+
+WidgetPersistentData* ModelData::getWidgetData(int screenNum, int zoneNum)
+{
+  if (screenNum == -1)
+    return getTopbarData()->getWidgetData(zoneNum);
+  else
+    return getScreenLayoutData(screenNum)->getWidgetData(zoneNum);
+}
+
+void ModelData::removeScreenLayout(int idx)
+{
+  if (_screenData[idx]) delete _screenData[idx];
+
+  for (; idx < MAX_CUSTOM_SCREENS - 1; idx += 1)
+    _screenData[idx] = _screenData[idx + 1];
+
+  _screenData[idx] = nullptr;
+}
+
+void ModelData::initScreenData()
+{
+  _topbarData.clear();
+
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+    if (_screenData[i]) delete _screenData[i];
+    _screenData[i] = nullptr;
+  }
+}
 #endif
