@@ -116,7 +116,7 @@ void LuaWidgetFactory::translateOptions(WidgetOption * options)
   lang[1] = toupper(g_eeGeneral.ttsLanguage[1]);
   lang[2] = 0;
 #else
-  char* lang = TRANSLATIONS;
+  const char* lang = TRANSLATIONS;
 #endif
 
   auto option = options;
