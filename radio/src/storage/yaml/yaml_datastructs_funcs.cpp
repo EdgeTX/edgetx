@@ -556,7 +556,7 @@ bool screen_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto screenData = g_model.getScreenData(tw->getElmts());
 
-  return screenData->LayoutId[0] != 0;
+  return !screenData->LayoutId.empty();
 }
 
 void r_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
@@ -565,8 +565,7 @@ void r_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto screenData = g_model.getScreenData(tw->getElmts(1));
 
-  if (val_len > LAYOUT_ID_LEN) val_len = LAYOUT_ID_LEN;
-  strncpy(screenData->LayoutId, val, val_len);
+  screenData->LayoutId = val;
 }
 
 bool w_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
@@ -575,10 +574,7 @@ bool w_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto screenData = g_model.getScreenData(tw->getElmts(1));
 
-  char s[LAYOUT_ID_LEN + 1];
-  strncpy(s, screenData->LayoutId, LAYOUT_ID_LEN);
-  s[LAYOUT_ID_LEN] = 0;
-  return wf(opaque, s, strlen(s));
+  return wf(opaque, screenData->LayoutId.c_str(), screenData->LayoutId.size());
 }
 
 static ZonePersistentData* get_zoneData(void* user)
@@ -612,8 +608,7 @@ void r_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto zoneData = get_zoneData(user);
 
-  if (val_len > WIDGET_NAME_LEN) val_len = WIDGET_NAME_LEN;
-  strncpy(zoneData->widgetName, val, val_len);
+  zoneData->widgetName = val;
 }
 
 bool w_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
@@ -621,10 +616,7 @@ bool w_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto zoneData = get_zoneData(user);
 
-  char s[WIDGET_NAME_LEN + 1];
-  strncpy(s, zoneData->widgetName, WIDGET_NAME_LEN);
-  s[WIDGET_NAME_LEN] = 0;
-  return wf(opaque, s, strlen(s));
+  return wf(opaque, zoneData->widgetName.c_str(), zoneData->widgetName.size());
 }
 
 static WidgetPersistentData* get_widgetData(void* user, uint16_t& option)
@@ -784,11 +776,7 @@ void r_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  char s[LEN_ZONE_OPTION_STRING + 1];
-  if (val_len > LEN_ZONE_OPTION_STRING) val_len = LEN_ZONE_OPTION_STRING;
-  strncpy(s, val, val_len);
-  s[val_len] = 0;
-  widgetData->setString(option, s);
+  widgetData->setString(option, val);
 }
 
 bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
@@ -797,10 +785,7 @@ bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  char s[LEN_ZONE_OPTION_STRING + 1];
-  strncpy(s, widgetData->getString(option), LEN_ZONE_OPTION_STRING);
-  s[LEN_ZONE_OPTION_STRING] = 0;
-  return wf(opaque, s, strlen(s));
+  return wf(opaque, widgetData->getString(option).c_str(), widgetData->getString(option).size());
 }
 
 void r_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1318,8 +1303,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         val_len--;
     }
 
-    if (val_len > 3
-	&& ((val[0] == 'S' && val[1] >= 'W')
+    if (val_len > 3 && ((val[0] == 'S' && val[1] >= 'W')
 	    || (val[0] == 'F' && val[1] >= 'L'))
         && val[2] >= '0' && val[2] <= '9'
         && val[3] >= '0' && val[3] <= '2') {

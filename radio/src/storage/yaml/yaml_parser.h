@@ -68,7 +68,7 @@ class YamlParser
 
     // scratch buffer w/ 16 bytes
     // used for attribute and values
-    char    scratch_buf[MAX_STR];
+    char    scratch_buf[MAX_STR+1];
     uint16_t scratch_len;
 
     bool node_found;

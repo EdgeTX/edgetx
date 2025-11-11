@@ -54,12 +54,12 @@ void LayoutPersistentData::clear()
 
 const char* LayoutPersistentData::getWidgetName(int idx)
 {
-  return zones[idx].widgetName;
+  return zones[idx].widgetName.c_str();
 }
 
 void LayoutPersistentData::setWidgetName(int idx, const char* s)
 {
-  strAppend(zones[idx].widgetName, s, WIDGET_NAME_LEN);
+  zones[idx].widgetName = s;
 }
 
 WidgetPersistentData* LayoutPersistentData::getWidgetData(int idx)
@@ -430,9 +430,7 @@ void Layout::load()
   for (unsigned int i = 0; i < count; i++) {
     // and load new one if required
     if (g_model.getScreenLayoutData(screenNum)->hasWidget(i)) {
-      char name[WIDGET_NAME_LEN + 1];
-      strAppend(name, g_model.getScreenLayoutData(screenNum)->getWidgetName(i), WIDGET_NAME_LEN);
-      widgets[i] = WidgetFactory::newWidget(name, this, getZone(i), screenNum, i);
+      widgets[i] = WidgetFactory::newWidget(g_model.getScreenLayoutData(screenNum)->getWidgetName(i), this, getZone(i), screenNum, i);
     }
   }
 }

@@ -204,7 +204,6 @@ CustomScreenData* ModelData::getScreenData(int screenNum)
 {
   if (_screenData[screenNum] == nullptr) {
     _screenData[screenNum] = new CustomScreenData();
-    _screenData[screenNum]->LayoutId[0] = 0;
     _screenData[screenNum]->layoutData.clear();
   }
 
@@ -213,12 +212,12 @@ CustomScreenData* ModelData::getScreenData(int screenNum)
 
 const char* ModelData::getScreenLayoutId(int screenNum)
 {
-  return getScreenData(screenNum)->LayoutId;
+  return getScreenData(screenNum)->LayoutId.c_str();
 }
 
 void ModelData::setScreenLayoutId(int screenNum, const char* s)
 {
-  strAppend(getScreenData(screenNum)->LayoutId, s, LAYOUT_ID_LEN);
+  getScreenData(screenNum)->LayoutId = s;
 }
 
 TopBarPersistentData* ModelData::getTopbarData()

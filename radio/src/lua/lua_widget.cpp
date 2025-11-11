@@ -359,11 +359,7 @@ void LuaWidget::update()
     switch (option->type) {
       case WidgetOption::String:
       case WidgetOption::File:
-        {
-          char str[LEN_ZONE_OPTION_STRING + 1] = {0};
-          strncpy(str, widgetData->getString(i), LEN_ZONE_OPTION_STRING);
-          lua_pushstring(lsWidgets, str);
-        }
+        lua_pushstring(lsWidgets, widgetData->getString(i).c_str());
         break;
       case WidgetOption::Integer:
       case WidgetOption::Switch:

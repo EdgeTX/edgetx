@@ -136,7 +136,7 @@ void WidgetPersistentData::setBoolValue(int idx, bool newValue)
   options[idx].value.boolValue = newValue;
 }
 
-const char* WidgetPersistentData::getString(int idx)
+std::string WidgetPersistentData::getString(int idx)
 {
   addEntry(idx);
   return options[idx].value.stringValue;
@@ -145,7 +145,7 @@ const char* WidgetPersistentData::getString(int idx)
 void WidgetPersistentData::setString(int idx, const char* s)
 {
   addEntry(idx);
-  memcpy(options[idx].value.stringValue, s, LEN_ZONE_OPTION_STRING);
+  options[idx].value.stringValue = s;
 }
 
 //-----------------------------------------------------------------------------

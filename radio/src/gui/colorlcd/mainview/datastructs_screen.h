@@ -24,6 +24,7 @@
 #if !defined(BACKUP)
 #include <vector>
 #endif
+#include <string>
 
 #include "etx_lv_theme.h"
 
@@ -50,12 +51,10 @@ enum WidgetOptionValueEnum {
   WOV_Color
 };
 
-#define LEN_ZONE_OPTION_STRING 12
-
 #define WIDGET_OPTION_VALUE_SIGNED(x)   WidgetOptionValue{ .signedValue = (x) }
 #define WIDGET_OPTION_VALUE_STRING(...) WidgetOptionValue{ .stringValue = { __VA_ARGS__ } }
 
-union WidgetOptionValue
+struct WidgetOptionValue
 {
 #if defined(YAML_GENERATOR)
   CUST_ATTR(unsignedValue, r_wov_unsigned, w_wov_unsigned);
@@ -65,10 +64,12 @@ union WidgetOptionValue
   CUST_ATTR(source, r_wov_source, w_wov_source);
   CUST_ATTR(color, r_wov_color, w_wov_color);
 #else
-  uint32_t unsignedValue;
-  int32_t signedValue;
-  uint32_t boolValue;
-  char stringValue[LEN_ZONE_OPTION_STRING];
+  union {
+    uint32_t unsignedValue;
+    int32_t signedValue;
+    uint32_t boolValue;
+  };
+  std::string stringValue;
 #endif
 };
 
@@ -105,7 +106,7 @@ struct WidgetPersistentData {
   void setUnsignedValue(int idx, uint32_t newValue);
   bool getBoolValue(int idx);
   void setBoolValue(int idx, bool newValue);
-  const char* getString(int idx);
+  std::string getString(int idx);
   void setString(int idx, const char* s);
 #endif
 };
@@ -143,13 +144,11 @@ struct LayoutOptionValueTyped
 #define MAX_LAYOUT_ZONES 10
 #define MAX_LAYOUT_OPTIONS 10
 
-#define WIDGET_NAME_LEN     20
-
 struct ZonePersistentData {
 #if defined(YAML_GENERATOR)
   CUST_ATTR(widgetName, r_widget_name, w_widget_name);
 #else
-  char widgetName[WIDGET_NAME_LEN];
+  std::string widgetName;
 #endif
   WidgetPersistentData widgetData FUNC(isAlwaysActive);
 #if !defined(YAML_GENERATOR)
@@ -172,13 +171,11 @@ struct LayoutPersistentData {
 
 //-----------------------------------------------------------------------------
 
-#define LAYOUT_ID_LEN 12
-
 struct CustomScreenData {
 #if defined(YAML_GENERATOR)
   CUST_ATTR(LayoutId, r_screen_id, w_screen_id);
 #else
-  char LayoutId[LAYOUT_ID_LEN];
+  std::string LayoutId;
 #endif
   LayoutPersistentData layoutData FUNC(isAlwaysActive);
 };

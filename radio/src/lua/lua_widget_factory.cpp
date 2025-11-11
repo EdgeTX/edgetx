@@ -88,11 +88,7 @@ Widget* LuaWidgetFactory::createNew(Window* parent, const rect_t& rect,
   for (const WidgetOption* option = options; option->name; option++, i++) {
     if (option->type == WidgetOption::String || option->type == WidgetOption::File) {
       lua_pushstring(lsWidgets, option->name);
-      // Zero-terminated string for Lua
-      char str[LEN_ZONE_OPTION_STRING + 1] = {0};
-      strncpy(str, widgetData->options[i].value.stringValue,
-              LEN_ZONE_OPTION_STRING);
-      lua_pushstring(lsWidgets, &str[0]);
+      lua_pushstring(lsWidgets, widgetData->options[i].value.stringValue.c_str());
       lua_settable(lsWidgets, -3);
     } else if (option->type == WidgetOption::Integer || option->type == WidgetOption::Switch) {
       l_pushtableint(lsWidgets, option->name, widgetData->options[i].value.signedValue);
@@ -215,8 +211,7 @@ const void LuaWidgetFactory::parseOptionDefaults() const
             } else if (option->type == WidgetOption::Bool) {
               option->deflt.boolValue = (luaL_checkunsigned(lsWidgets, -1) != 0);
             } else if (option->type == WidgetOption::String || option->type == WidgetOption::File) {
-              strncpy(option->deflt.stringValue, luaL_checkstring(lsWidgets, -1),
-                      LEN_ZONE_OPTION_STRING);
+              option->deflt.stringValue = luaL_checkstring(lsWidgets, -1);
             } else {
               option->deflt.unsignedValue = luaL_checkunsigned(lsWidgets, -1);
             }
@@ -325,7 +320,7 @@ WidgetOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
               option->min.unsignedValue = FONT_STD_INDEX;
               option->max.unsignedValue = FONTS_COUNT - 1;
             } else if (option->type == WidgetOption::String || option->type == WidgetOption::File) {
-              option->deflt.stringValue[0] = 0;
+              option->deflt.stringValue.clear();
             } else if (option->type == WidgetOption::Slider) {
               option->min.unsignedValue = 0;
               option->max.unsignedValue = 9;

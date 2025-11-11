@@ -195,6 +195,18 @@ ModelTextEdit::ModelTextEdit(Window* parent, const rect_t& rect, char* value,
 {
 }
 
+ModelStringEdit::ModelStringEdit(Window* parent, const rect_t& rect, std::string value,
+                                 std::function<void(const char* s)> updateHandler) :
+    TextEdit(parent, rect, txt, MAX_STR_EDIT_LEN,
+             [=]() {
+               if (updateHandler) updateHandler(txt);
+               storageDirty(EE_MODEL);
+             })
+{
+  strncpy(txt, value.c_str(), length);
+  update();
+}
+
 RadioTextEdit::RadioTextEdit(Window* parent, const rect_t& rect, char* value,
                              uint8_t length) :
     TextEdit(parent, rect, value, length,

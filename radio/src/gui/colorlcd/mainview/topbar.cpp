@@ -47,12 +47,12 @@ void TopBarPersistentData::clear()
 
 const char* TopBarPersistentData::getWidgetName(int idx)
 {
-  return zones[idx].widgetName;
+  return zones[idx].widgetName.c_str();
 }
 
 void TopBarPersistentData::setWidgetName(int idx, const char* s)
 {
-  strAppend(zones[idx].widgetName, s, WIDGET_NAME_LEN);
+  zones[idx].widgetName = s;
 }
 
 WidgetPersistentData* TopBarPersistentData::getWidgetData(int idx)
@@ -62,12 +62,12 @@ WidgetPersistentData* TopBarPersistentData::getWidgetData(int idx)
 
 bool TopBarPersistentData::hasWidget(int idx)
 {
-  return zones[idx].widgetName[0] != 0;
+  return !zones[idx].widgetName.empty();
 }
 
 bool TopBarPersistentData::isWidget(int idx, const char* s)
 {
-  return strncmp(zones[idx].widgetName, "Date Time", WIDGET_NAME_LEN) == 0;
+  return zones[idx].widgetName == s;
 }
 
 //-----------------------------------------------------------------------------
@@ -252,9 +252,7 @@ void TopBar::load()
   for (unsigned int i = 0; i < count; i++) {
     // and load new one if required
     if (g_model.getTopbarData()->hasWidget(i)) {
-      char name[WIDGET_NAME_LEN + 1];
-      strAppend(name, g_model.getTopbarData()->getWidgetName(i), WIDGET_NAME_LEN);
-      widgets[i] = WidgetFactory::newWidget(name, this, getZone(i), -1, i);
+      widgets[i] = WidgetFactory::newWidget(g_model.getTopbarData()->getWidgetName(i), this, getZone(i), -1, i);
     }
   }
 }

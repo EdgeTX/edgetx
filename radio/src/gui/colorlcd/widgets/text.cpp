@@ -22,8 +22,7 @@
 #include "edgetx.h"
 #include "widget.h"
 
-#define TEXT_WIDGET_DEFAULT_LABEL \
-  'M', 'y', ' ', 'L', 'a', 'b', 'e', 'l'  // "My Label"
+#define TEXT_WIDGET_DEFAULT_LABEL "My Label"
 
 class TextWidget : public Widget
 {
@@ -66,8 +65,8 @@ class TextWidget : public Widget
     auto widgetData = getPersistentData();
 
     // Set text value from options
-    lv_label_set_text(shadow, widgetData->options[0].value.stringValue);
-    lv_label_set_text(label, widgetData->options[0].value.stringValue);
+    lv_label_set_text(shadow, widgetData->options[0].value.stringValue.c_str());
+    lv_label_set_text(label, widgetData->options[0].value.stringValue.c_str());
 
     // get font color from options[1]
     etx_txt_color_from_flags(label, widgetData->options[1].value.unsignedValue);

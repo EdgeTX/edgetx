@@ -33,14 +33,14 @@
 
 constexpr int MAX_CUSTOM_SCREENS      {10};
 constexpr int MAX_THEME_OPTIONS       {5};
-constexpr int LEN_ZONE_OPTION_STRING  {12};
+constexpr int LEN_ZONE_OPTION_STRING  {255};  // TODO: use std::string instead of fixed length char array
 constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
-constexpr int WIDGET_NAME_LEN         {20};
+constexpr int WIDGET_NAME_LEN         {255};  // TODO: use std::string instead of fixed length char array
 constexpr int MAX_WIDGET_OPTIONS      {50};
 constexpr int MAX_TOPBAR_ZONES        {6};  //  max 4 used for portrait
 constexpr int MAX_TOPBAR_OPTIONS      {1};
-constexpr int LAYOUT_ID_LEN           {12};
+constexpr int LAYOUT_ID_LEN           {255};  // TODO: use std::string instead of fixed length char array
 
 // Common 'ZoneOptionValue's among all layouts
 enum {

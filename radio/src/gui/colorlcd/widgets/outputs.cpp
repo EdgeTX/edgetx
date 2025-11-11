@@ -245,7 +245,7 @@ class OutputsWidget : public Widget
 };
 
 const WidgetOption OutputsWidget::options[] = {
-    {STR_FIRST_CHANNEL, WidgetOption::Integer, 1, 1, 32},
+    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {32}},
     {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
     {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
     {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},

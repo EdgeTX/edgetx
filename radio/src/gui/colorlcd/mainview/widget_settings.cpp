@@ -101,8 +101,10 @@ WidgetSettings::WidgetSettings(Widget* w) :
         break;
 
       case WidgetOption::String:
-        new ModelTextEdit(line, rect_t{},
-                          (char*)widgetData->getString(optIdx), LEN_ZONE_OPTION_STRING);
+        new ModelStringEdit(line, rect_t{}, widgetData->getString(optIdx),
+                            [=](const char* s) {
+                              widgetData->setString(optIdx, s);
+                            });
         break;
 
       case WidgetOption::TextSize:
@@ -196,12 +198,9 @@ WidgetSettings::WidgetSettings(Widget* w) :
         break;
 
       case WidgetOption::File:
-        new FileChoice(line, rect_t{}, opt->fileSelectPath, nullptr, LEN_ZONE_OPTION_STRING,
+        new FileChoice(line, rect_t{}, opt->fileSelectPath, nullptr, FF_MAX_LFN,
                         [=]() {
-                          char s[LEN_ZONE_OPTION_STRING + 1];
-                          strncpy(s, widgetData->getString(optIdx), LEN_ZONE_OPTION_STRING);
-                          s[LEN_ZONE_OPTION_STRING] = 0;
-                          return std::string(s);
+                          return widgetData->getString(optIdx);
                         },
                         [=](std::string s) {
                           widgetData->setString(optIdx, s.c_str());

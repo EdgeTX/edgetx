@@ -278,7 +278,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
             if (*c == '\r' || *c == '\n') {
                 // set attribute
                 if (node_found) {
-                    // TODO: trim spaces at the end?
+                    scratch_buf[scratch_len] = 0;
                     calls->set_attr(ctx, scratch_buf, scratch_len);
                 }
                 saved_state = state;
@@ -311,7 +311,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
     } // for each char
 
     if ((state == ps_Val) && eof && node_found) {
-        // TODO: trim spaces at the end?
+        scratch_buf[scratch_len] = 0;
         calls->set_attr(ctx, scratch_buf, scratch_len);
     }
     
