@@ -284,8 +284,6 @@
 #define QSPI_QE_BIT                     (1 << 6)
 
 // Storage
-#define STORAGE_USE_SDIO
-
 /*
  * SDIO pins:
  *  - SDMMC1_D0-D3 (PC.08-11)
@@ -293,7 +291,8 @@
  *  - SDMMC1_CMD   (PD.02)
  */
 #define SD_SDIO                        SDMMC1
-#define SD_SDIO_TRANSFER_CLK_DIV       SDMMC_HSPEED_CLK_DIV
+#define SD_SDIO_TRANSFER_CLK_DIV       SDMMC_NSPEED_CLK_DIV  // 25MHz
+#define STORAGE_USE_SDIO
 
 // Audio
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOE, 4) // PE.04
