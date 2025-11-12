@@ -225,8 +225,6 @@ validate_svg() {
     echo "  CSV entries - Found: $found_in_dir, Missing in SVG dir: $missing_in_dir"
     
     # Part 2: Check SVG directory against CSV entries
-    
-    # Part 2: Check SVG directory against CSV entries
     echo ""
     echo "Comparing SVG directory with CSV files list..."
     
