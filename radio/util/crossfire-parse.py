@@ -6,6 +6,7 @@
 from __future__ import division, print_function
 
 import sys, struct
+import math
 import argparse
 
 lineNumber = 0
@@ -29,6 +30,17 @@ crossfire_types = [
     "COMMAND",
     "VTX",
 ]
+
+cmd_status = [
+    "READY",
+    "START",
+    "PROGRESS",
+    "CONFIRMATION_NEEDED",
+    "CONFIRM",
+    "CANCEL",
+    "POLL",
+]
+
 
 def dump(data, maxLen=None):
     if maxLen and len(data) > maxLen:
@@ -88,6 +100,19 @@ def ParseBattery(payload):
     consumption = (payload[4] << 16) + (payload[5] << 8) + payload[6]
     return "[Battery] %.1fV %.1fA %dmAh" % (voltage, current, consumption)
 
+def ParseBaroAltVario(payload):
+    alt_packed = (payload[0] << 8) + payload[1]
+    altitude = float(alt_packed & 0x7fff) if (alt_packed & 0x8000) else (float(alt_packed - 10000) / 10)
+    if len(payload) == 3:
+        # per CRSF spec
+        vario_packed = float(payload[2])
+        vario = (math.exp(abs(vario_packed) * 0.026) - 1) * 100 * math.copysign(1, vario_packed)
+    else:
+        # ELRS and Rotorflight
+        vario = float(struct.unpack('>h', bytes(payload[2:4]))[0] / 100)
+
+    return "[Baro Altitude Vario] Altitude %.1f m, Vertical Speed %.2f m/s" % (altitude, vario)
+
 def ParseVtxTelem(payload):
     return "[VTX Telemetry] freq=%d, power=%d, pitmode=%d" % (int.from_bytes(payload[1:3], 'big'), int(payload[3]), int(payload[4]))
 
@@ -116,42 +141,91 @@ def ParseRadioId(payload):
     return '[RadioId] subcmd 0x%02x, interval %d, correction %d' % \
             (payload[2], int.from_bytes(payload[3:7], 'big')/10, int.from_bytes(payload[7:11], 'big', signed=True)/10)
 
+def ParseLinkStatisticsRX(payload):
+    return "[RX Link Stats] rssi=%d dBm rssi=%d%% lqi=%d snr=%d dB rf_power=%d dBm" % (payload[0], payload[1], payload[2], payload[3], payload[4])
+
 def ParseCommand(payload):
     if payload[2]==0x10 and payload[3]==5:
-        return '[Command] subcmd 0x10,0x05, set ModelId, data %d' % (payload[4])
+        return '[Command] subcmd Crossfire, set ModelId, data %d' % (payload[4])
+    if payload[2]==0x0a and payload[3]==0x70:
+        return '[Command] subcmd General, Speed Proposal, port_id %d, bitrate %d' % (payload[4], int.from_bytes(payload[5:9], 'big'))
+    if payload[2]==0x0a and payload[3]==0x71:
+        return '[Command] subcmd General, Speed Response, port_id %d, %s' % (payload[4], 'accepted' if payload[5] else 'rejected')
     return '[Command] subcmd 0x%02x, datatype 0x%02x, data %d' % \
             (payload[2], payload[3], payload[4])
 
 def ParseFieldsRequest(payload):
     return '[Fields request]'
 
+lastChunkRequested = 0
+chunkOutOfOrder = False
 def ParseFieldRequest(payload):
-    return '[Field request] device=0x%02x field=%d chunk=%d' % (payload[1], payload[2], payload[3])
+    global lastChunkRequested, chunkOutOfOrder
+    s = '[Field request] device=0x%02x field=%d chunk=%d' % (payload[1], payload[2], payload[3])
+    if lastChunkRequested > 0 and payload[3] != lastChunkRequested+1:
+        s += ' (OUT OF ORDER REQUEST!)'
+        chunkOutOfOrder = True
+    lastChunkRequested = payload[3]
+    return s
 
 def ParseFieldUpdate(payload):
-    return '[Field update] device=0x%02x field=%d' % (payload[1], payload[2])
+    return '[Field update] device=0x%02x field=%d value=%s' % (payload[1], payload[2], ' '.join(f'{byte:02x}' for byte in payload[3:]))
 
 def ParseELRSInfo(payload):
     return '[ELRS info] device=0x%02x bad=%d, good=%d, flags=0x%02x, flag_str=%s' % (payload[1], payload[2],
             int.from_bytes(payload[3:5], 'big'), payload[5], ''.join(map(chr, payload[6:-2])))
 
 fieldBuff = []
+lastChunk = 0
 def ParseField(payload):
-    global fieldBuff
+    global fieldBuff, lastChunk, lastChunkRequested, chunkOutOfOrder
 
     fieldBuff += payload[4:]
+    if lastChunk > 0 and payload[3] != lastChunk-1:
+        s = '[Field] device=0x%02x field=%d chunk=%d (OUT OF ORDER CHUNK!)' % (payload[1], payload[2], payload[3])
+        lastChunk = 0
+        fieldBuff = []
+        return s
     if payload[3] != 0:
+        lastChunk = payload[3]
         return '[Field] device=0x%02x field=%d chunk=%d' % (payload[1], payload[2], payload[3])
 
+    print("fieldBuff: ", " ".join(f'{byte:02x}' for byte in fieldBuff))
     name = ""
+    options = []
     i = 2
     try:
         while fieldBuff[i] != 0:
             name += chr(fieldBuff[i])
             i += 1
         i += 1
-        retstr = '[Field] %s device=0x%02x field=%d parent=%d type=%s' % (name, payload[1], payload[2], fieldBuff[0], crossfire_types[fieldBuff[1] & 0x7f])
+        ftype = crossfire_types[fieldBuff[1] & 0x7f]
+        retstr = '[Field] %s device=0x%02x field=%d parent=%d type=%s' % (name, payload[1], payload[2], fieldBuff[0], ftype)
+        if ftype == "TEXT_SELECTION":
+            name = ""
+            while fieldBuff[i] != 0:
+                if fieldBuff[i] == 0x3b:
+                    options.append(name)
+                    name = ""
+                    i += 1
+                    continue
+                name += chr(fieldBuff[i])
+                i += 1
+            options.append(name)
+            i += 1
+            retstr += ' selection=(%d) %s' % (fieldBuff[i], options[fieldBuff[i]])
+            retstr += ' options %s' % (", ".join(options))
+        if ftype == "INFO":
+            value = ""
+            while fieldBuff[i] != 0:
+                value += chr(fieldBuff[i])
+                i += 1
+            retstr += ' name=%s value=%s' % (name, value)
+        if ftype == "COMMAND":
+            retstr += ' status=%s, timeout=%d ms, info=%s' % (cmd_status[fieldBuff[i]], fieldBuff[i+1], ''.join(map(chr, fieldBuff[i+2:])))
         fieldBuff = []
+        lastChunk = 0
+        lastChunkRequested = 0
         return retstr
     except Exception as inst:
         print(type(inst))    # the exception instance
@@ -162,14 +236,18 @@ def ParseField(payload):
         print("len(payload): ", len(payload))
         if i < len(payload):
             print("payload[i-1]: ", payload[i-1])
+        fieldBuff = []
+        lastChunk = 0
         return '[Exception]'
 
 parsers = {
     0x02: ParseGPS,
     0x08: ParseBattery,
+    0x09: ParseBaroAltVario,
     0x10: ParseVtxTelem,
     0x14: ParseLinkStatistics,
     0x16: ParseChannels,
+    0x1c: ParseLinkStatisticsRX,
     0x1E: ParseAttitude,
     0x21: ParseFlightMode,
     0x28: ParsePingDevices,
@@ -184,7 +262,7 @@ parsers = {
 }
 
 def ParsePacket(packet):
-    global timeData, prevTimeData
+    global timeData, prevTimeData, fieldBuff
     length = packet[1]
     command = packet[2]
     payload = packet[3:-1]
@@ -195,8 +273,15 @@ def ParsePacket(packet):
     timeData = 0
     if crc != crc8(packet[2:-1]):
         print(prefix, dump(packet), "[CRC error]")
+        fieldBuff = []
+        lastChunk = 0
         return
     if args.ignore and command == 0x16:
+        return
+    if args.omit and ((command == 0x2d and payload[2] == 0x00) or \
+                      command == 0x2e):
+        return
+    if args.remove and command == 0x3a:
         return
     parser = parsers.get(command, None)
     if parser != None:
@@ -211,8 +296,8 @@ def ParseData(data):
     crossfireDataBuff += data
     # build packet for parsing
     # separate buffers for data sources so chunked data handled correctly
-    while len(crossfireDataBuff) > 4:
-        if crossfireDataBuff[0] != 0x00 and crossfireDataBuff[0] != 0xee and crossfireDataBuff[0] != 0xea:
+    while len(crossfireDataBuff) > 1:
+        if crossfireDataBuff[0] != 0xc8 and crossfireDataBuff[0] != 0x00 and crossfireDataBuff[0] != 0xee and crossfireDataBuff[0] != 0xea:
             print("Skipped 1 byte", dump(crossfireDataBuff[:1]))
             crossfireDataBuff = crossfireDataBuff[1:]
             continue
@@ -287,6 +372,10 @@ parser.add_argument('-f', '--format', default='sport',
                     help='Type of input file. bin=binary, hex=ascii hex, csv=salae async serial export, sport=s.port log')
 parser.add_argument('-i', '--ignore', action="store_true",
                     help='Ignore rc data (stick) packets')
+parser.add_argument('-o', '--omit', action="store_true",
+                    help='Ignore ELRS status request/response packets')
+parser.add_argument('-r', '--remove', action="store_true",
+                    help='Ignore RadioId CRSFshot messages')
 args = parser.parse_args()
 
 # open input
