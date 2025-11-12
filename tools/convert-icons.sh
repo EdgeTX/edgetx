@@ -139,7 +139,7 @@ process_resolution() {
         
         # Run resvg conversion
         run_resvg $(scale "$width") $(scale "$height") "$SRC_DIR/$file.svg" "$OUT_DIR/$file.png"
-    done < "$SRC_LIST"
+    done < <(tr -d '\r' < "$SRC_LIST")
 
     if [ $has_errors -eq 1 ]; then
         echo ""
@@ -184,7 +184,7 @@ validate_svg() {
             has_errors=1
             missing_dimensions=$((missing_dimensions + 1))
         fi
-    done < "$SRC_LIST"
+    done < <(tr -d '\r' < "$SRC_LIST")
     
     if [ $missing_dimensions -gt 0 ]; then
         echo "  Total entries with missing dimensions: $missing_dimensions"
@@ -220,7 +220,7 @@ validate_svg() {
         else
             found_in_dir=$((found_in_dir + 1))
         fi
-    done < "$SRC_LIST"
+    done < <(tr -d '\r' < "$SRC_LIST")
     
     echo "  CSV entries - Found: $found_in_dir, Missing in SVG dir: $missing_in_dir"
     
@@ -245,7 +245,7 @@ validate_svg() {
         fi
         
         csv_files+=("$file")
-    done < "$SRC_LIST"
+    done < <(tr -d '\r' < "$SRC_LIST")
     
     # Find all SVG files in directory and check if they're in CSV
     local missing_in_csv=0
@@ -359,7 +359,7 @@ validate_png() {
             else
                 found_count=$((found_count + 1))
             fi
-        done < "$SRC_LIST"
+        done < <(tr -d '\r' < "$SRC_LIST")
         
         echo "  Found: $found_count, Missing: $missing_count"
     done
@@ -421,7 +421,7 @@ update_csv_list() {
         fi
         
         csv_files+=("$file")
-    done < "$SRC_LIST"
+    done < <(tr -d '\r' < "$SRC_LIST")
     
     # Find all SVG files in directory and check if they're in CSV
     local added_count=0
