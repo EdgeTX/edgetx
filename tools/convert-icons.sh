@@ -6,7 +6,7 @@ set -e  # Exit on error
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Define global paths
-SRC_LIST="$SCRIPT_DIR/convert-icons-list.csv"
+SRC_LIST="$SCRIPT_DIR/../radio/src/bitmaps/convert-icons-list.csv"
 SRC_DIR="$SCRIPT_DIR/../radio/src/bitmaps/img-src"
 
 # Color codes for output
