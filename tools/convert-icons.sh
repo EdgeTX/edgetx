@@ -117,7 +117,7 @@ process_resolution() {
     # Read CSV file and process each line (skip header)
     local line_num=0
     local has_errors=0
-    while IFS=';' read -r file width height || [ -n "$file" ]; do
+    while IFS=',' read -r file width height || [ -n "$file" ]; do
         line_num=$((line_num + 1))
         
         # Skip header line
@@ -164,7 +164,7 @@ validate_svg() {
     local line_num=0
     local missing_dimensions=0
     
-    while IFS=';' read -r file width height || [ -n "$file" ]; do
+    while IFS=',' read -r file width height || [ -n "$file" ]; do
         line_num=$((line_num + 1))
         
         # Skip header line
@@ -199,7 +199,7 @@ validate_svg() {
     local missing_in_dir=0
     local found_in_dir=0
     
-    while IFS=';' read -r file width height || [ -n "$file" ]; do
+    while IFS=',' read -r file width height || [ -n "$file" ]; do
         line_num=$((line_num + 1))
         
         # Skip header line
@@ -233,7 +233,7 @@ validate_svg() {
     # Build a list of files from CSV (without .svg extension)
     local csv_files=()
     line_num=0
-    while IFS=';' read -r file width height || [ -n "$file" ]; do
+    while IFS=',' read -r file width height || [ -n "$file" ]; do
         line_num=$((line_num + 1))
         
         # Skip header line
@@ -335,7 +335,7 @@ validate_png() {
         local missing_count=0
         local found_count=0
         
-        while IFS=';' read -r file width height || [ -n "$file" ]; do
+        while IFS=',' read -r file width height || [ -n "$file" ]; do
             line_num=$((line_num + 1))
             
             # Skip header line
@@ -409,7 +409,7 @@ update_csv_list() {
     # Build a list of files from CSV (without .svg extension)
     local csv_files=()
     local line_num=0
-    while IFS=';' read -r file width height || [ -n "$file" ]; do
+    while IFS=',' read -r file width height || [ -n "$file" ]; do
         line_num=$((line_num + 1))
         
         # Skip header line
