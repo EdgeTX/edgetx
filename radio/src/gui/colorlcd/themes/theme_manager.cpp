@@ -429,7 +429,7 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   return false;
 }
 
-bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
+bool ThemePersistance::createNewTheme(const std::string& name, ThemeFile& theme)
 {
   char fullPath[FF_MAX_LFN + 1];
   char* s = strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);

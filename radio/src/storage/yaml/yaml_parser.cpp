@@ -50,7 +50,8 @@ void YamlParser::reset()
         indents[level] = indent;
         state = saved_state = ps_Indent;
     }
-    indent = scratch_len  = 0;
+    indent = 0;
+    scratch_buf.clear();
     node_found = false;
 }
 
@@ -79,17 +80,6 @@ uint8_t YamlParser::getLastIndent()
 YamlParser::YamlResult
 YamlParser::parse(const char* buffer, unsigned int size)
 {
-
-#define CONCAT_STR(s,s_len,c)                   \
-    {                                           \
-        if(s_len < MAX_STR)                     \
-            s[s_len++] = c;                     \
-        else {                                  \
-            TRACE_YAML("STRING_OVERFLOW");      \
-            return STRING_OVERFLOW;             \
-        }                                       \
-    }
-
     const char* c   = buffer;
     const char* end = c + size;
 
@@ -153,7 +143,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_AttrQuo;
                 break;
             }
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             break;
 
         case ps_AttrQuo:
@@ -161,7 +151,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_Attr;
                 break;
             }
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             break;
 
         case ps_Attr:
@@ -170,16 +160,15 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 break;
             }
             if ((*c != ':') && (*c != '\r') && (*c != '\n'))
-                CONCAT_STR(scratch_buf, scratch_len, *c);
+                scratch_buf += *c;
             // trap
         case ps_AttrSP:
             if (*c == '\r' || *c == '\n') {
                 if (state == ps_Attr) {
                     // TODO: trim spaces at the end?
-                    node_found = calls->find_node(ctx, scratch_buf, scratch_len);
+                    node_found = calls->find_node(ctx, scratch_buf.c_str(), scratch_buf.size());
                     if (!node_found) {
-                        TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (2)\n",
-                              scratch_len, scratch_buf);
+                        TRACE_YAML("YAML_PARSER: Could not find node '%s' (2)\n", scratch_buf.c_str());
                     }
                 }
                 saved_state = state;
@@ -189,10 +178,9 @@ YamlParser::parse(const char* buffer, unsigned int size)
             if (*c == ':') {
                 if (state == ps_Attr) {
                     // TODO: trim spaces at the end?
-                    node_found = calls->find_node(ctx, scratch_buf, scratch_len);
+                    node_found = calls->find_node(ctx, scratch_buf.c_str(), scratch_buf.size());
                     if (!node_found) {
-                        TRACE_YAML("YAML_PARSER: Could not find node '%.*s' (3)\n",
-                              scratch_len, scratch_buf);
+                        TRACE_YAML("YAML_PARSER: Could not find node '%s' (3)\n", scratch_buf.c_str);
                     }
                 }
                 state = ps_Sep;
@@ -209,7 +197,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 continue;
             }
             state = ps_Val;
-            scratch_len = 0;
+            scratch_buf.clear();
             if (*c == '\"') {
                 state = ps_ValQuo;
                 break;
@@ -218,7 +206,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValEsc;
                 break;
             }
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             break;
 
         case ps_ValQuo:
@@ -230,7 +218,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValEsc1;
                 break;
             }
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             break;
 
         case ps_ValEsc1:
@@ -238,22 +226,18 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValEsc2;
                 break;
             }
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             state = ps_ValQuo;
             break;
 
         case ps_ValEsc2:
-            if(scratch_len >= MAX_STR) {
-                TRACE_YAML("STRING_OVERFLOW");
-                return STRING_OVERFLOW;
-            }
-            else if (*c >= '0' && *c <= '9') {
-                scratch_buf[scratch_len] = (*c - '0') << 4;
+            if (*c >= '0' && *c <= '9') {
+                escHexVal = (*c - '0') << 4;
                 state = ps_ValEsc3;
                 break;
             }
             else if (*c >= 'A' && *c <= 'F') {
-                scratch_buf[scratch_len] = (*c - 'A' + 10) << 4;
+                escHexVal = (*c - 'A' + 10) << 4;
                 state = ps_ValEsc3;
                 break;
             }
@@ -262,12 +246,14 @@ YamlParser::parse(const char* buffer, unsigned int size)
 
         case ps_ValEsc3:
             if (*c >= '0' && *c <= '9') {
-                scratch_buf[scratch_len++] |= (*c - '0');
+                escHexVal |= (*c - '0');
+                scratch_buf += escHexVal;
                 state = ps_ValQuo;
                 break;
             }
             else if (*c >= 'A' && *c <= 'F') {
-                scratch_buf[scratch_len++] |= (*c - 'A' + 10);
+                escHexVal |= (*c - 'A' + 10);
+                scratch_buf += escHexVal;
                 state = ps_ValQuo;
                 break;
             }
@@ -278,8 +264,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
             if (*c == '\r' || *c == '\n') {
                 // set attribute
                 if (node_found) {
-                    scratch_buf[scratch_len] = 0;
-                    calls->set_attr(ctx, scratch_buf, scratch_len);
+                    calls->set_attr(ctx, scratch_buf.c_str(), scratch_buf.size());
                 }
                 saved_state = state;
                 state = ps_CRLF;
@@ -289,12 +274,12 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_ValEsc;
                 break;
             }
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             break;
 
         case ps_ValEsc:
             state = ps_Val;
-            CONCAT_STR(scratch_buf, scratch_len, *c);
+            scratch_buf += *c;
             break;
                 
         case ps_CRLF:
@@ -311,8 +296,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
     } // for each char
 
     if ((state == ps_Val) && eof && node_found) {
-        scratch_buf[scratch_len] = 0;
-        calls->set_attr(ctx, scratch_buf, scratch_len);
+        calls->set_attr(ctx, scratch_buf.c_str(), scratch_buf.size());
     }
     
     return CONTINUE_PARSING;

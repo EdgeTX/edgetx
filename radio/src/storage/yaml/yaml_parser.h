@@ -22,8 +22,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
 
-#define MAX_STR 256
 #define MAX_DEPTH 16 // 12 real + 4 virtual
 
 struct YamlParserCalls
@@ -31,8 +31,8 @@ struct YamlParserCalls
     bool (*to_parent)    (void* ctx);
     bool (*to_child)     (void* ctx);
     bool (*to_next_elmt) (void* ctx);
-    bool (*find_node)    (void* ctx, char* buf, uint8_t len);
-    void (*set_attr)     (void* ctx, char* buf, uint16_t len);
+    bool (*find_node)    (void* ctx, const char* buf, uint8_t len);
+    void (*set_attr)     (void* ctx, const char* buf, uint16_t len);
 };
 
 class YamlParser
@@ -65,11 +65,10 @@ class YamlParser
     // parser state
     uint8_t state;
     uint8_t saved_state;
+    char escHexVal;
 
-    // scratch buffer w/ 16 bytes
-    // used for attribute and values
-    char    scratch_buf[MAX_STR+1];
-    uint16_t scratch_len;
+    // scratch buffer used for attribute and values
+    std::string scratch_buf;
 
     bool node_found;
     bool eof;

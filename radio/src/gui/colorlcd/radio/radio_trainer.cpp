@@ -116,7 +116,7 @@ void RadioTrainerPage::build(Window* form)
     }
 
     // Trainer calibration
-    auto btn = new TextButton(line, rect_t{}, std::string(STR_MENUCALIBRATION),
+    auto btn = new TextButton(line, rect_t{}, STR_MENUCALIBRATION,
                               [=]() -> uint8_t {
                                 memcpy(g_eeGeneral.trainer.calib, trainerInput,
                                        sizeof(g_eeGeneral.trainer.calib));
