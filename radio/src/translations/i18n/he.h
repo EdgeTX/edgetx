@@ -1,6 +1,6 @@
-/*  translation by adir kahsharo
+/*  translation by adir kahsharo \ Motti Shonak. 
  *  make configure system by stav raviv
- *  Ver 1.023
+ *  Ver 1.024
  *
  * Copyright (C) EdgeTX
  *
@@ -73,7 +73,7 @@
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_SETTINGS           "הגדרות כלליות"
 #define TR_MAIN_MENU_MANAGE_MODELS      "ניהול מודלים"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "מצגי ערוצים"
@@ -83,7 +83,7 @@
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_STATISTICS         "סטטיסטיקות"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "מידע על EdgeTX"
-#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_VIEW_X                  "מסך "
 #define TR_MAIN_MENU_THEMES                 "ערכות נושא"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               "הגדרות מסוק"
@@ -101,7 +101,7 @@
 #define TR_MENUSPECIALFUNCS            "פונקציות לכל המודלים והשלט"
 #define TR_MENUTRAINER                 "טריינר"
 #define TR_HARDWARE                    "הגדרות חומרה"
-#define TR_USER_INTERFACE               "Top Bar"
+#define TR_USER_INTERFACE               "בר עליון"
 #define TR_SD_CARD                     "SD כרטיס"
 #define TR_DEBUG                       "איבחון"
 #define TR_MENU_RADIO_SWITCHES         TR("בדיקת מתגים וכפתורים", "SWITCHES")
@@ -143,7 +143,7 @@
 #define TR_AUX_SERIAL_MODES_7          "GPS"
 #define TR_AUX_SERIAL_MODES_8          "Debug"
 #define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "External module"
+#define TR_AUX_SERIAL_MODES_10         "מודול חיצוני"
 #define TR_SWTYPES_1                   "None"
 #define TR_SWTYPES_2                   "Toggle"
 #define TR_SWTYPES_3                   "2POS"
@@ -167,12 +167,12 @@
 #define TR_USBMODES_2                  TR("Joyst","חיבור משחק קבוע")
 #define TR_USBMODES_3                  TR("SDCard","העברת נתונים קבוע")
 #define TR_USBMODES_4                  "חיבור סיריילי קבוע"
-#define TR_JACK_MODES_1                "Ask"
-#define TR_JACK_MODES_2                "Audio"
-#define TR_JACK_MODES_3                "Trainer"
+#define TR_JACK_MODES_1                "בקש"
+#define TR_JACK_MODES_2                "סאונד"
+#define TR_JACK_MODES_3                "מדריך"
 
-#define TR_SBUS_INVERSION_VALUES_1     "normal"
-#define TR_SBUS_INVERSION_VALUES_2     "not inverted"
+#define TR_SBUS_INVERSION_VALUES_1     "נורמלי"
+#define TR_SBUS_INVERSION_VALUES_2     "לא מהופך"
 #define TR_MULTI_CUSTOM                "עיצוב מיוחד"
 #define TR_VTRIMINC_1                  TR("Expo","הולך ומתעצם")
 #define TR_VTRIMINC_2                  TR("ExFine","זז ב-1")
@@ -193,13 +193,13 @@
 #define TR_COUNTDOWNVALUES_3           "20s"
 #define TR_COUNTDOWNVALUES_4           "30s"
 #define TR_VVARIOCENTER_1              "Tone"
-#define TR_VVARIOCENTER_2              "Silent"
+#define TR_VVARIOCENTER_2              "שקט"
 #define TR_CURVE_TYPES_1               "סטנדרטי"
 #define TR_CURVE_TYPES_2               "עיצוב מיוחד"
 
-#define TR_ADCFILTERVALUES_1           "Global"
-#define TR_ADCFILTERVALUES_2           "Off"
-#define TR_ADCFILTERVALUES_3           "On"
+#define TR_ADCFILTERVALUES_1           "גלובאלי"
+#define TR_ADCFILTERVALUES_2           "כבוי"
+#define TR_ADCFILTERVALUES_3           "דלוק"
 
 #define TR_VCURVETYPE_1                "דיפרנציאלי"
 #define TR_VCURVETYPE_2                "אקספו"
@@ -211,19 +211,19 @@
 
 #define TR_CSWTIMER                    "שעון"
 #define TR_CSWSTICKY                   TR("Stky", "Stcky")
-#define TR_CSWSTAY                     "Edge"
+#define TR_CSWSTAY                     "קצה"
 
-#define TR_SF_TRAINER                  "Trainer"
+#define TR_SF_TRAINER                  "מדריך"
 #define TR_SF_INST_TRIM                "Inst. Trim"
-#define TR_SF_RESET                    "Reset"
+#define TR_SF_RESET                    "איפוס"
 #define TR_SF_SET_TIMER                "Set"
-#define TR_SF_VOLUME                   "Volume"
+#define TR_SF_VOLUME                   "עוצמת קול"
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "ModuleBind"
 #define TR_SF_RGBLEDS                  "RGB leds"
 
-#define TR_SOUND                       "Play Sound"
+#define TR_SOUND                       "הפעל סאונד"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Play Track")
 #define TR_PLAY_VALUE                  TR("Play Val","Play Value")
 #define TR_SF_HAPTIC                   "Haptic"
@@ -231,10 +231,10 @@
 #define TR_SF_BG_MUSIC                 "BgMusic"
 #define TR_SF_BG_MUSIC_PAUSE           "BgMusic ||"
 #define TR_SF_LOGS                     "SD Logs"
-#define TR_ADJUST_GVAR                 "Adjust"
-#define TR_SF_BACKLIGHT                "Backlight"
+#define TR_ADJUST_GVAR                 "התאם"
+#define TR_SF_BACKLIGHT                "אור אחורי"
 #define TR_SF_VARIO                    "Vario"
-#define TR_SF_TEST                     "Test"
+#define TR_SF_TEST                     "בדיקה"
 
 #define TR_SF_SAFETY                   TR("Overr.", "Override")
 
@@ -369,8 +369,8 @@
 #define TR_CYC_VSRCRAW_2             "CYC2"
 #define TR_CYC_VSRCRAW_3             "CYC3"
 
-#define TR_SRC_BATT                    "Batt"
-#define TR_SRC_TIME                    "Time"
+#define TR_SRC_BATT                    "סוללה"
+#define TR_SRC_TIME                    "זמן"
 #define TR_SRC_GPS                     "GPS"
 #define TR_SRC_TIMER                   "Tmr"
 
@@ -396,20 +396,20 @@
 #define TR_VFAILSAFE_4                 "ללא שינוי"
 #define TR_VFAILSAFE_5                 "מקלט"
 #define TR_VSENSORTYPES_1              "Custom"
-#define TR_VSENSORTYPES_2              "Calculated"
-#define TR_VFORMULAS_1                 "Add"
-#define TR_VFORMULAS_2                 "Average"
-#define TR_VFORMULAS_3                 "Min"
-#define TR_VFORMULAS_4                 "Max"
+#define TR_VSENSORTYPES_2              "מחושב"
+#define TR_VFORMULAS_1                 "הוסף"
+#define TR_VFORMULAS_2                 "ממוצא"
+#define TR_VFORMULAS_3                 "מינימלי"
+#define TR_VFORMULAS_4                 "מקסימלי"
 #define TR_VFORMULAS_5                 "Multiply"
 #define TR_VFORMULAS_6                 "Totalize"
 #define TR_VFORMULAS_7                 "Cell"
 #define TR_VFORMULAS_8                 "Consumpt"
-#define TR_VFORMULAS_9                 "Distance"
+#define TR_VFORMULAS_9                 "מרחק"
 #define TR_VPREC_1                     "0.--"
 #define TR_VPREC_2                     "0.0 "
 #define TR_VPREC_3                     "0.00"
-#define TR_VCELLINDEX_1                "Lowest"
+#define TR_VCELLINDEX_1                "הכי נמוך"
 #define TR_VCELLINDEX_2                "1"
 #define TR_VCELLINDEX_3                "2"
 #define TR_VCELLINDEX_4                "3"
@@ -418,8 +418,8 @@
 #define TR_VCELLINDEX_7                "6"
 #define TR_VCELLINDEX_8                "7"
 #define TR_VCELLINDEX_9                "8"
-#define TR_VCELLINDEX_10               "Highest"
-#define TR_VCELLINDEX_11               "Delta"
+#define TR_VCELLINDEX_10               "הכי גבוה"
+#define TR_VCELLINDEX_11               "הפרש"
 #define TR_SUBTRIMMODES_1              CHAR_DELTA " (center only)"
 #define TR_SUBTRIMMODES_2              "= (symmetrical)"
 #define TR_TIMER_DIR_1                 TR("Remain", "Show Remain")
@@ -443,7 +443,7 @@
 #define TR_COPYINGMODEL                "...מעתיק מודל"
 #define TR_MOVINGMODEL                 "...מעביר מודל"
 #define TR_LOADINGMODEL                "...טוען מודל"
-#define TR_UNLABELEDMODEL              "Unlabeled"
+#define TR_UNLABELEDMODEL              "ללא שם"
 #define TR_NAME                        "שם"
 #define TR_MODELNAME                   "שם המודל"
 #define TR_PHASENAME                   "שם המצב"
@@ -453,9 +453,9 @@
 #define TR_BITMAP                      "תמונה מודל"
 #define TR_NO_PICTURE                  "אין תמונה"
 #define TR_TIMER                       TR("שעון", "שעון ")
-#define TR_NO_TIMERS                   "No timers"
+#define TR_NO_TIMERS                   "ללא תזמון"
 #define TR_START                       "התחלה"
-#define TR_NEXT                        "Next"
+#define TR_NEXT                        "הבא"
 #define TR_ELIMITS                     TR("E.Limits", "הרחב תצוגות")
 #define TR_ETRIMS                      TR("E.Trims", "הרחב תצוגות")
 #define TR_TRIMINC                     "רגישות קיזוז"
@@ -469,7 +469,7 @@
 #define TR_PPMFRAME                    "PPM frame"
 #define TR_REFRESHRATE                 TR("Refresh", "Refresh rate")
 #define TR_WARN_BATTVOLTAGE           TR("Output is VBAT: ", "Warning: output level is VBAT: ")
-#define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
+#define TR_WARN_5VOLTS                 "אזהרה : מתח נמוך מ 5 וולט"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "מתג"
 #define TR_FS_COLOR_LIST_1             "Custom"
@@ -719,7 +719,7 @@
 #define TR_SELECT_MODE                 "בחירת מצב"
 #define TR_CREATE_MODEL                "יצירת מודל"
 #define TR_FAVORITE_LABEL              "מעודפים"
-#define TR_MODELS_MOVED                "Unused models moved to"
+#define TR_MODELS_MOVED                "מודל שלא בשימוש עבר ל"
 #define TR_NEW_MODEL                   "מודל חדש"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "עריכת לשונית"
@@ -729,7 +729,7 @@
 #define TR_ENTER_LABEL                 "הוספת לשונית"
 #define TR_LABEL                       "לשונית"
 #define TR_LABELS                      "לשוניות"
-#define TR_CURRENT_MODEL               "Current"
+#define TR_CURRENT_MODEL               "מודל נבחר" 
 #define TR_ACTIVE                      "פעיל"
 #define TR_NEW                         "חדש"
 #define TR_NEW_LABEL                   "לשונית חדשה"
@@ -749,11 +749,11 @@
 #define TR_WAITING_FOR_RX              "Waiting for RX..."
 #define TR_WAITING_FOR_TX              "Waiting for TX..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
-#define TR_NO_TOOLS                    "No tools available"
+#define TR_NO_TOOLS                    "אין כלי זמין"
 #define TR_NORMAL                      "רגיל"
 #define TR_NOT_INVERTED                "Not inv"
 #define TR_NOT_CONNECTED               TR("!Connected", "Not Connected")
-#define TR_CONNECTED                   "Connected"
+#define TR_CONNECTED                   "מחובר"
 #define TR_FLEX_915                    "Flex 915MHz"
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
@@ -781,7 +781,7 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
-#define TR_REFRESH                     "Refresh"
+#define TR_REFRESH                     "רעננן"
 #define TR_SDCARD_FULL                 "הדיסק מלא״"
 #define TR_SDCARD_FULL_EXT             TR_BW_COL(TR_SDCARD_FULL "\036לוגים" LCDW_128_LINEBREAK "ושמירת צילומי מסך מושבתים", TR_SDCARD_FULL "\036לוגים ושמירת צילומי מסך מושבתים")
 #define TR_NEEDS_FILE                  "NEEDS FILE"
@@ -801,20 +801,20 @@
 #define TR_WARN_MULTI_LOWPOWER         "מצב מתח נמוך"
 #define TR_BATTERY                     "סוללה"
 #define TR_WRONG_PCBREV                "Wrong PCB detected"
-#define TR_EMERGENCY_MODE              "EMERGENCY MODE"
+#define TR_EMERGENCY_MODE              "מצב חרום"
 #define TR_NO_FAILSAFE                 "מצב חירום לא הוגדר"
-#define TR_KEYSTUCK                    "Key stuck"
+#define TR_KEYSTUCK                    "כפתור לחוץ"
 #define TR_VOLUME                      "עוצמה"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "בהירות"
-#define TR_CPU_TEMP                    "CPU temp."
+#define TR_CPU_TEMP                    "טמפ' גבוה במעבד"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."
 #define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Function"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
-#define TR_DURATION                    "Duration"
+#define TR_DURATION                    "משך"
 #define TR_DELAY                       "דיליי"
 #define TR_NO_SOUNDS_ON_SD             "SD אין צלילים על"
 #define TR_NO_MODELS_ON_SD             "SD אין מודלים על"
@@ -823,14 +823,14 @@
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC                "Script panic"
 #define TR_SCRIPT_KILLED               "Script killed"
-#define TR_SCRIPT_ERROR                "Unknown error"
+#define TR_SCRIPT_ERROR                "תקלה לא ידוע"
 #define TR_PLAY_FILE                   "נגן"
 #define TR_DELETE_FILE                 "מחק"
 #define TR_COPY_FILE                   "העתק"
 #define TR_RENAME_FILE                 "שינוי שם"
-#define TR_ASSIGN_BITMAP               "Assign bitmap"
-#define TR_ASSIGN_SPLASH               "Splash screen"
-#define TR_EXECUTE_FILE                "Execute"
+#define TR_ASSIGN_BITMAP               "בחר תמונה"
+#define TR_ASSIGN_SPLASH               "בחר תמונת רקע"
+#define TR_EXECUTE_FILE                "בצע"
 #define TR_REMOVED                     " הוסר"
 #define TR_SD_INFO                     "מידע"
 #define TR_NA                          "N/A"
