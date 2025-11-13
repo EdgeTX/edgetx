@@ -149,9 +149,12 @@ class LuaWidget : public Widget, public LuaScriptManager
   int optionsDataRef;
   char* errorMessage;
   bool refreshed = false;
+  uint32_t tapLastMs = 0;
+  uint32_t tapCount = 0;
 
   // Window interface
   void onClicked() override;
+  void onDoubleClicked();
   void onCancel() override;
   void checkEvents() override;
   void onEvent(event_t event) override;
