@@ -198,7 +198,6 @@ class FunctionSwitch : public Window
   static constexpr coord_t COLLBL_YO = PAD_MEDIUM;
 #else
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
-  static constexpr coord_t ROW_HS = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
   static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
   static constexpr coord_t C1_Y = 0;
   static LAYOUT_VAL_SCALED(C1_W, 40)
