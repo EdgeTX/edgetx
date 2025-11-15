@@ -115,8 +115,8 @@ class FunctionSwitch : public Window
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #if NARROW_LAYOUT
-    new StaticText(this, {C1_X - C1_W - PAD_TINY, C1_Y + COLLBL_YO, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
-    new StaticText(this, {C2_X - C2_W - PAD_TINY, C2_Y + COLLBL_YO, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    offLabel = new StaticText(this, {C1_X - C1_W - PAD_TINY, C1_Y + COLLBL_YO, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    onLabel = new StaticText(this, {C2_X - C2_W - PAD_TINY, C2_Y + COLLBL_YO, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
 #endif
 
     offValue = g_model.cfsOffColor(switchIndex);
@@ -183,6 +183,7 @@ class FunctionSwitch : public Window
   static LAYOUT_VAL_SCALED(GR_W, 84)
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
   static LAYOUT_VAL_SCALED(ST_W, 60)
+  static constexpr coord_t ROW_HS = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
 #if NARROW_LAYOUT
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 3 + PAD_OUTLINE * 4;
   static constexpr coord_t C1_X = GR_X;
@@ -227,6 +228,10 @@ class FunctionSwitch : public Window
   Choice* groupChoice = nullptr;
   Choice* startChoice = nullptr;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(NARROW_LAYOUT)
+  StaticText *offLabel = nullptr;
+  StaticText *onLabel = nullptr;
+#endif
   ColorPicker* offColor = nullptr;
   ColorPicker* onColor = nullptr;
   RGBLedColor offValue;
@@ -252,6 +257,10 @@ class FunctionSwitch : public Window
     startChoice->show(typ == SWITCH_2POS && g_model.cfsGroup(switchIndex) == 0);
     groupChoice->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if NARROW_LAYOUT
+    offLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    onLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+#endif
     offColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
     onColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
     overrideLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
@@ -260,7 +269,7 @@ class FunctionSwitch : public Window
     if (typ != SWITCH_NONE && typ != SWITCH_GLOBAL)
       setHeight(ROW_H);
     else
-      setHeight(ROW_H - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE);
+      setHeight(ROW_HS);
 #endif
   }
 
