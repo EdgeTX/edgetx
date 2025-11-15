@@ -332,15 +332,17 @@ void QuickMenu::openPage(QMPage page)
         }
     } else {
       PageDef* sub = qmTopItems[i].subMenuItems;
-      for (int j = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
+      for (int j = 0, k = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
         if (sub[j].qmPage == page) {
           if (sub[j].pageAction == PAGE_ACTION) {
             sub[j].action();
           } else {
             auto pg = new PageGroup(qmTopItems[i].icon, STR_VAL(qmTopItems[i].title), sub);
-            pg->setCurrentTab(j);
+            pg->setCurrentTab(k);
             return;
           }
+        } else if (sub[j].pageAction == PAGE_CREATE) {
+          k += 1;
         }
       }
     }
@@ -368,10 +370,25 @@ EdgeTxIcon QuickMenu::pageIcon(QMPage page)
 
 int QuickMenu::pageIndex(QMPage page)
 {
-  if (page >= QM_TOOLS_APPS) return page - QM_TOOLS_APPS;
-  if (page >= QM_UI_THEMES) return page - QM_UI_THEMES;
-  if (page >= QM_RADIO_SETUP) return page - QM_RADIO_SETUP;
-  if (page >= QM_MODEL_SETUP) return page - QM_MODEL_SETUP;
+  for (int i = 1; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+    if (qmTopItems[i].pageAction == QM_ACTION) {
+      if (qmTopItems[i].qmPage == page) {
+        return 0;
+        }
+    } else {
+      PageDef* sub = qmTopItems[i].subMenuItems;
+      for (int j = 0, k = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
+        if (sub[j].qmPage == page) {
+          if (sub[j].pageAction == PAGE_CREATE)
+            return k;
+          else
+            return 0;
+        } else if (sub[j].pageAction == PAGE_CREATE) {
+          k += 1;
+        }
+      }
+    }
+  }
   return 0;
 }
 
