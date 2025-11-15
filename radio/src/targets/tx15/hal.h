@@ -401,8 +401,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_clear
-#define GPIO_LED_GPIO_OFF                 gpio_set
+#define GPIO_LED_GPIO_ON                  gpio_set
+#define GPIO_LED_GPIO_OFF                 gpio_clear
 #define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
 #define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
