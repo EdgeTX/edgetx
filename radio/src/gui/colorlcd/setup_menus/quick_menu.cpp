@@ -133,7 +133,7 @@ class QuickSubMenu
     for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
       subMenu->addButton(items[i].icon, STR_VAL(items[i].qmTitle),
           std::bind(&QuickSubMenu::onPress, this, i),
-          [=]() { return items[i].enabled ? items[i].enabled() : true; },
+          items[i].enabled,
           [=]() { QuickMenu::setCurrentPage(items[i].qmPage, icon); });
     }
 
