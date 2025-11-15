@@ -35,7 +35,7 @@
 struct stm32_i2c_device {
   I2C_HandleTypeDef handle;
   const stm32_i2c_hw_def_t* hw_def;
-#if !defined(BOOT) && !defined(RADIO_PA01)
+#if !defined(BOOT)
   mutex_handle_t mutex;
 #endif
 };
@@ -54,7 +54,7 @@ static I2C_HandleTypeDef* i2c_get_handle(uint8_t bus)
   return &_i2c_devs[bus].handle;
 }
 
-#if !defined(BOOT) && !defined(RADIO_PA01)
+#if !defined(BOOT)
 #define I2CMutex(bus) MutexLock mutexLock = MutexLock::MakeInstance(&i2c_get_device(bus)->mutex)
 #else
 #define I2CMutex(bus)
@@ -525,9 +525,9 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   }
 #endif
 
-#if !defined(BOOT) && !defined(RADIO_PA01)
-   mutex_create(&dev->mutex);
- #endif
+#if !defined(BOOT)
+  mutex_create(&dev->mutex);
+#endif
   return 1;
 }
 
