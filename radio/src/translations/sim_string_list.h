@@ -912,6 +912,7 @@
 #define STR_SF_VOLUME currentLangStrings->STR_SF_VOLUME
 #define STR_SF currentLangStrings->STR_SF
 #define STR_SHARE currentLangStrings->STR_SHARE
+#define STR_SHOW_ACTIVE currentLangStrings->STR_SHOW_ACTIVE
 #define STR_SHOW_INSTANCE_ID currentLangStrings->STR_SHOW_INSTANCE_ID
 #define STR_SIDE currentLangStrings->STR_SIDE
 #define STR_SIGNAL_OUTPUT currentLangStrings->STR_SIGNAL_OUTPUT
