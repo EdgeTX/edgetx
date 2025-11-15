@@ -28,7 +28,6 @@
 #include "helpers.h"
 #include "adjustmentreference.h"
 #include "compounditemmodels.h"
-#include "sourcenumref.h"
 
 #include <QMessageBox>
 
@@ -955,17 +954,6 @@ void ModelData::updateTypeValueRef(R & curRef, const T type, const int idxAdj, c
     curRef = newRef;
     updRefInfo.updcnt++;
   }
-}
-
-void ModelData::updateAdjustRef(int & value)
-{
-  if (updRefInfo.type != REF_UPD_TYPE_GLOBAL_VARIABLE)
-    return;
-
-  AdjustmentReference adj = AdjustmentReference(value);
-  updateTypeValueRef<AdjustmentReference, AdjustmentReference::AdjustRefType>(adj, AdjustmentReference::ADJUST_REF_GVAR, 1);
-  if (value != adj.toValue())
-    value = adj.toValue();
 }
 
 void ModelData::updateAssignFunc(CustomFunctionData * cfd)
@@ -2099,15 +2087,4 @@ bool ModelData::gvarInsertAllowed(const int index)
 
   return ret;
 
-}
-
-void ModelData::updateSourceNumRef(int & value)
-{
-  if (updRefInfo.type == REF_UPD_TYPE_CHANNEL ||
-      updRefInfo.type == REF_UPD_TYPE_GLOBAL_VARIABLE ||
-      updRefInfo.type == REF_UPD_TYPE_INPUT) {
-    SourceNumRef srcnum = SourceNumRef(value);
-    if (srcnum.isSource())
-      updateSourceIntRef(value);
-  }
 }
