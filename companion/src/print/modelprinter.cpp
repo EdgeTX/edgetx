@@ -687,18 +687,16 @@ QString ModelPrinter::printGlobalVarPopup(int idx)
   return printBoolean(model.gvarData[idx].popup, BOOLEAN_YN);
 }
 
-QString ModelPrinter::printOutputValueGVar(int val)
+QString ModelPrinter::printOutputValueGVar(RawSource src)
 {
   QString result = "";
-  if (abs(val) > 10000) {
-    if (val < 0)
-      result = "-";
-    result.append(RawSource(SOURCE_TYPE_GVAR, (abs(val)-10001) + 1).toString(&model));
-  }
-  else {
-    if (val >= 0)
+
+  if (src.type == SOURCE_TYPE_GVAR) {
+    result.append(src.toString(&model, &generalSettings));
+  } else if (src.type == SOURCE_TYPE_NUMBER) {
+    if (src.index >= 0)
       result = "+";
-    result.append(QString::number((qreal)val/10, 'f', 1) + "%");
+    result.append(QString::number((qreal)src.index/10, 'f', 1) + "%");
   }
   return result;
 }

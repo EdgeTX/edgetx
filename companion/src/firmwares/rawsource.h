@@ -274,11 +274,18 @@ class RawSource {
     }
 
     RawSource convert(RadioDataConversionState & cstate);
-    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr, Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true, int prec = 1) const;
-    RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags=0) const;
+    QString toString(const ModelData * model = nullptr,
+      const GeneralSettings * const generalSettings = nullptr,
+      Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true,
+      int numDecimals = 0, QString numPrefix = QString(),
+      QString numSuffix = QString()) const;
+    RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings,
+      unsigned int flags=0) const;
     bool isStick(Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isTimeBased(Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isAvailable(const ModelData * const model = nullptr,
+      const GeneralSettings * const gs = nullptr,
+      Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
     static StringTagMappingTable getSpecialTypesLookupTable();

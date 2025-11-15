@@ -30,18 +30,20 @@ RawSourceExtWidget::RawSourceExtWidget(QWidget * parent,
                                        ModelData * modelData,
                                        CompoundItemModelFactory * sharedItemModels,
                                        RawSource * rawSource,
-                                       RawSource dflt,
+                                       RawSource defValue,
                                        int filterFlags,
+                                       int uiFlags,
+                                       QString chkUseLabel,
                                        int minValue,
                                        int maxValue,
                                        double stepValue,
-                                       QString suffixValue,
-                                       QString chkUseLabel,
-                                       int uiFlags) :
+                                       int decimals,
+                                       QString suffixValue) :
   RawSourceWidget(parent, modelData, sharedItemModels, rawSource, dflt, filterFlags),
   minValue(minValue),
   maxValue(maxValue),
   stepValue(stepValue),
+  decimals(decimals),
   suffixValue(suffixValue),
   chkUseLabel(chkUseLabel),
   uiFlags(uiFlags),
@@ -50,7 +52,7 @@ RawSourceExtWidget::RawSourceExtWidget(QWidget * parent,
   dsbValue(nullptr)
 {
   init(modelData, sharedItemModels, rawSource, dflt, filterFlags,
-       minValue, maxValue, stepValue, suffixValue, chkUseLabel, uiFlags);
+       uiFlags, chkUseLabel, minValue, maxValue, stepValue, decimals, suffixValue);
 }
 
 RawSourceExtWidget::~RawSourceExtWidget()
@@ -61,19 +63,21 @@ RawSourceExtWidget::~RawSourceExtWidget()
 void RawSourceExtWidget::init(ModelData * modelData,
                               CompoundItemModelFactory * sharedItemModels,
                               RawSource * rawSource,
-                              RawSource dflt,
+                              RawSource defValue,
                               int filterFlags,
+                              int uiFlags,
+                              QString chkUseLabel,
                               int minValue,
                               int maxValue,
                               double stepValue,
-                              QString suffixValue,
-                              QString chkUseLabel,
-                              int uiFlags)
+                              int decimals,
+                              QString suffixValue)
 {
   RawSourceWidget::init(modelData, sharedItemModels, rawSource, dflt, filterFlags);
   this->minValue = minValue;
   this->maxValue = maxValue;
   this->stepValue = stepValue;
+  this->decimals = decimals;
   this->suffixValue = suffixValue;
   this->chkUseLabel = chkUseLabel;
   this->uiFlags = uiFlags;
@@ -97,6 +101,7 @@ void RawSourceExtWidget::init(ModelData * modelData,
 
   if (uiFlags & UI_FLAG_DBLSPINBOX) {
     dsbValue = new QDoubleSpinBox(this);
+    dsbValue->setDecimals(decimals);
     dsbValue->setMinimum(minValue);
     dsbValue->setMaximum(maxValue);
     dsbValue->setSingleStep(stepValue);

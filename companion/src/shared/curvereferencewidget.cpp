@@ -32,20 +32,22 @@ CurveReferenceWidget::CurveReferenceWidget(QWidget * parent,
                                            CurveReference * curveRef,
                                            RawSource dflt,
                                            int filterFlags,
+                                           int uiFlags,
+                                           QString chkUseLabel,
                                            int minValue,
                                            int maxValue,
                                            double stepValue,
-                                           QString suffixValue,
-                                           QString chkUseLabel,
-                                           int uiFlags) :
-  RawSourceExtWidget(parent, modelData, sharedItemModels, &curveRef->source, dflt, filterFlags,
-                     minValue, maxValue, stepValue, suffixValue, chkUseLabel, uiFlags),
+                                           int decimals,
+                                           QString suffixValue) :
+  RawSourceExtWidget(parent, modelData, sharedItemModels, &curveRef->source,
+                     dflt, filterFlags, uiFlags, chkUseLabel, minValue, maxValue,
+                     stepValue, decimals, suffixValue),
   curveRef(curveRef),
   cboType(nullptr),
   curveImage(nullptr)
 {
   init(modelData, sharedItemModels, rawSource, dflt, filterFlags,
-       minValue, maxValue, stepValue, suffixValue, chkUseLabel, uiFlags);
+       uiFlags, chkUseLabel, minValue, maxValue, stepValue, decimals, suffixValue);
 }
 
 CurveReferenceWidget::~CurveReferenceWidget()
@@ -54,19 +56,21 @@ CurveReferenceWidget::~CurveReferenceWidget()
 }
 
 void CurveReferenceWidget::init(ModelData * modelData,
-                              CompoundItemModelFactory * sharedItemModels,
-                              RawSource * rawSource,
-                              RawSource dflt,
-                              int filterFlags,
-                              int minValue,
-                              int maxValue,
-                              double stepValue,
-                              QString suffixValue,
-                              QString chkUseLabel,
-                              int uiFlags)
+                                CompoundItemModelFactory * sharedItemModels,
+                                RawSource * rawSource,
+                                RawSource dflt,
+                                int filterFlags,
+                                int uiFlags,
+                                QString chkUseLabel,
+                                int minValue,
+                                int maxValue,
+                                double stepValue,
+                                int decimals,
+                                QString suffixValue)
 {
   RawSourceExtWidget::init(modelData, sharedItemModels, rawSource, dflt, filterFlags,
-                      minValue, maxValue, stepValue, suffixValue, chkUseLabel, uiFlags);
+                           uiFlags, chkUseLabel, minValue, maxValue, stepValue,
+                           decimals, suffixValue);
 
   if (uiFlags & UI_FLAG_CURVE_TYPE) {
     cboType = new QComboBox(this);

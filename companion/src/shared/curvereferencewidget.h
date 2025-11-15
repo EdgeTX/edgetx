@@ -23,7 +23,6 @@
 
 #include "curvereference.h"
 #include "rawsourceextwidget.h"
-#include <QComboBox>
 
 class CurveImageWidget;
 
@@ -35,18 +34,19 @@ class CurveReferenceWidget : public RawSourceExtWidget {
   Q_OBJECT
 
   public:
-    explicit CurveReferenceWidget(QWidget * parent = nullptr,
+    explicit CurveReferenceWidget(QWidget * parent,
                                   ModelData * modelData = nullptr,
                                   CompoundItemModelFactory * sharedItemModels = nullptr,
                                   CurveReference * curveRef = nullptr,
                                   RawSource defValue = RawSource(),
                                   int filterFlags = 0,
+                                  int uiFlags = UI_FLAG_NONE,
+                                  QString chkUseLabel = QString(),
                                   int minValue = 0,
                                   int maxValue = 100,
                                   double stepValue = 1,
-                                  QString suffixValue = QString(),
-                                  QString chkUseLabel = QString(),
-                                  int uiFlags = UI_FLAG_NONE);
+                                  int decimals = 0,
+                                  QString suffixValue = QString());
 
     virtual ~CurveReferenceWidget();
 
@@ -55,12 +55,13 @@ class CurveReferenceWidget : public RawSourceExtWidget {
               RawSource * rawSource,
               RawSource defValue = RawSource(),
               int filterFlags = 0,
+              int uiFlags = UI_FLAG_NONE,
+              QString chkUseLabel = QString(),
               int minValue = 0,
               int maxValue = 100,
               double stepValue = 1,
-              QString suffixValue = QString(),
-              QString chkUseLabel = QString(),
-              int uiFlags = UI_FLAG_NONE);
+              int decimals = 0,
+              QString suffixValue = QString());
 
   signals:
     void dataChanged();

@@ -130,8 +130,10 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings,
-                            Board::Type board, bool prefixCustomName, int prec) const
+QString RawSource::toString(const ModelData * model,
+  const GeneralSettings * const generalSettings, Board::Type board,
+  bool prefixCustomName, int numPrec, QString numPrefix,
+  QString numSuffix) const
 {
   if (index < 0)
     return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
@@ -269,13 +271,20 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("GR%1").arg(index);
 
     case SOURCE_TYPE_CURVE:
-      return tr("CV%1").arg(index);
+      if (model && index <= CPN_MAX_CURVES)
+        result = QString(model->curves[index - 1].nameToString(index - 1)).trimmed();
+      if (result.isEmpty())
+        result = CurveData().nameToString(index - 1);
+      return result;
 
     case SOURCE_TYPE_CURVE_FUNC:
       return CHECK_IN_ARRAY(curveFunc, abs(index));
 
     case SOURCE_TYPE_NUMBER:
-      return QString::number(qreal(index) / prec);
+      result = numPrefix;
+      result.append(QString::number(qreal(index) / numPrec));
+      result.append(numSuffix);
+      return result;
 
     default:
       return QString(CPN_STR_UNKNOWN_ITEM);

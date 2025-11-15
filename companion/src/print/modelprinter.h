@@ -66,7 +66,7 @@ class ModelPrinter: public QObject
     QString printGlobalVarMin(int idx);
     QString printGlobalVarMax(int idx);
     QString printGlobalVarPopup(int idx);
-    QString printOutputValueGVar(int val);
+    QString printOutputValueGVar(RawSource src);
     QString printOutputOffset(int idx);
     QString printOutputMin(int idx);
     QString printOutputMax(int idx);

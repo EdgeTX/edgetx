@@ -37,7 +37,7 @@ class RawSourceWidget : public QWidget {
   Q_OBJECT
 
   public:
-    explicit RawSourceWidget(QWidget * parent = nullptr,
+    explicit RawSourceWidget(QWidget * parent,
                              ModelData * modelData = nullptr,
                              CompoundItemModelFactory * sharedItemModels = nullptr,
                              RawSource * rawSource = nullptr,

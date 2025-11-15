@@ -35,18 +35,19 @@ class RawSourceExtWidget : public RawSourceWidget {
   Q_OBJECT
 
   public:
-    explicit RawSourceExtWidget(QWidget * parent = nullptr,
+    explicit RawSourceExtWidget(QWidget * parent,
                                 ModelData * modelData = nullptr,
                                 CompoundItemModelFactory * sharedItemModels = nullptr,
                                 RawSource * rawSource = nullptr,
                                 RawSource defValue = RawSource(),
                                 int filterFlags = 0,
+                                int uiFlags = UI_FLAG_NONE,
+                                QString chkUseLabel = QString(),
                                 int minValue = 0,
                                 int maxValue = 100,
                                 double stepValue = 1,
-                                QString suffixValue = QString(),
-                                QString chkUseLabel = QString(),
-                                int uiFlags = UI_FLAG_NONE);
+                                int decimals = 0,
+                                QString suffixValue = QString());
 
     virtual ~RawSourceExtWidget();
 
@@ -55,12 +56,13 @@ class RawSourceExtWidget : public RawSourceWidget {
               RawSource * rawSource,
               RawSource defValue = RawSource(),
               int filterFlags = 0,
+              int uiFlags = UI_FLAG_NONE,
+              QString chkUseLabel = QString(),
               int minValue = 0,
               int maxValue = 100,
               double stepValue = 1,
-              QString suffixValue = QString(),
-              QString chkUseLabel = QString(),
-              int uiFlags = UI_FLAG_NONE);
+              int decimals = 0,
+              QString suffixValue = QString());
 
     void setVisible(bool state);
     void update(bool notify = true);
@@ -77,6 +79,7 @@ class RawSourceExtWidget : public RawSourceWidget {
     int minValue;
     int maxValue;
     double stepValue;
+    int decimals;
     QString suffixValue;
     QString chkUseLabel;
     int uiFlags;

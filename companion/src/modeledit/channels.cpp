@@ -24,71 +24,72 @@
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 #include "namevalidator.h"
+#include "curvereferencewidget.h"
 
-LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row,
-                int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
-                int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
-  firmware(firmware),
-  spinbox(new QDoubleSpinBox()),
-  value(value)
-{
-  spinbox->setProperty("index", row);
-  spinbox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-  spinbox->setAccelerated(true);
-  spinbox->setDecimals(1);
+// LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row,
+//                 int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
+//                 int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
+//   firmware(firmware),
+//   spinbox(new QDoubleSpinBox()),
+//   value(value)
+// {
+//   spinbox->setProperty("index", row);
+//   spinbox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+//   spinbox->setAccelerated(true);
+//   spinbox->setDecimals(1);
 
-  if (generalSettings.ppmunit == GeneralSettings::PPM_US) {
-    displayStep = 0.512;
-    spinbox->setSuffix("us");
-  }
-  else {
-    displayStep = 0.1;
-    spinbox->setSuffix("%");
-  }
+//   if (generalSettings.ppmunit == GeneralSettings::PPM_US) {
+//     displayStep = 0.512;
+//     spinbox->setSuffix("us");
+//   }
+//   else {
+//     displayStep = 0.1;
+//     spinbox->setSuffix("%");
+//   }
 
-  spinbox->setSingleStep(displayStep);
-  spinbox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+//   spinbox->setSingleStep(displayStep);
+//   spinbox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-  QHBoxLayout *horizontalLayout = new QHBoxLayout();
-  gv = new QCheckBox(tr("GV"));
-  gv->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  horizontalLayout->addWidget(gv);
-  QComboBox *cb = new QComboBox();
-  cb->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-  horizontalLayout->addWidget(cb);
-  horizontalLayout->addWidget(spinbox);
-  tableLayout->addLayout(row, col, horizontalLayout);
-  gvarGroup = new GVarGroup(gv, spinbox, cb, value, model, deflt, min, max, displayStep, gvarModel);
-  QObject::connect(gvarGroup, &GVarGroup::valueChanged, panel, &ModelPanel::modified);
-}
+//   QHBoxLayout *horizontalLayout = new QHBoxLayout();
+//   gv = new QCheckBox(tr("GV"));
+//   gv->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+//   horizontalLayout->addWidget(gv);
+//   QComboBox *cb = new QComboBox();
+//   cb->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+//   horizontalLayout->addWidget(cb);
+//   horizontalLayout->addWidget(spinbox);
+//   tableLayout->addLayout(row, col, horizontalLayout);
+//   gvarGroup = new GVarGroup(gv, spinbox, cb, value, model, deflt, min, max, displayStep, gvarModel);
+//   QObject::connect(gvarGroup, &GVarGroup::valueChanged, panel, &ModelPanel::modified);
+// }
 
-LimitsGroup::~LimitsGroup()
-{
-  delete gvarGroup;
-}
+// LimitsGroup::~LimitsGroup()
+// {
+//   delete gvarGroup;
+// }
 
-void LimitsGroup::setValue(int val)
-{
-  gvarGroup->setWeight(val);
-}
+// void LimitsGroup::setValue(int val)
+// {
+//   gvarGroup->setWeight(val);
+// }
 
-void LimitsGroup::updateMinMax(int max)
-{
-  if (spinbox->maximum() == 0) {
-    spinbox->setMinimum(-max * displayStep);
-    gvarGroup->setMinimum(-max);
-    if (!gv->isChecked() && value < -max) {
-      value = -max;
-    }
-  }
-  if (spinbox->minimum() == 0) {
-    spinbox->setMaximum(max * displayStep);
-    gvarGroup->setMaximum(max);
-    if (!gv->isChecked() && value > max) {
-      value = max;
-    }
-  }
-}
+// void LimitsGroup::updateMinMax(int max)
+// {
+//   if (spinbox->maximum() == 0) {
+//     spinbox->setMinimum(-max * displayStep);
+//     gvarGroup->setMinimum(-max);
+//     if (!gv->isChecked() && value < -max) {
+//       value = -max;
+//     }
+//   }
+//   if (spinbox->minimum() == 0) {
+//     spinbox->setMaximum(max * displayStep);
+//     gvarGroup->setMaximum(max);
+//     if (!gv->isChecked() && value > max) {
+//       value = max;
+//     }
+//   }
+// }
 
 ChannelsPanel::ChannelsPanel(QWidget * parent,
                              ModelData & model,
@@ -142,20 +143,44 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     tableLayout->addWidget(i, col++, name[i]);
 
     // Channel offset
-    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-      model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
-      dialogFilteredItemModels->getItemModel(gvid), this);
+    // chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+    //   model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
+    //   dialogFilteredItemModels->getItemModel(gvid), this);
 
+    double displayStep;
+    QString suffix;
+
+    if (generalSettings.ppmunit == GeneralSettings::PPM_US) {
+      displayStep = 0.512;
+      suffix = tr("us");
+    } else {
+      displayStep = 0.1;
+      suffix = tr("us");
+    }
+
+    chnOffset[i] = new RawSourceExtWidget(this, &model, sharedItemModels,
+      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
+      RawSource::GVarsGroup | RawSource::NoneGroup,
+      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE, tr("GV"),
+      -1000, 1000, displayStep, 1, suffix);
     // Channel min
-    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-      model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
-      dialogFilteredItemModels->getItemModel(gvid), this);
-
+    // chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+    //   model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
+    //   dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMin[i] = new RawSourceExtWidget(this, &model, sharedItemModels,
+      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
+      RawSource::GVarsGroup | RawSource::NoneGroup,
+      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE, tr("GV"),
+      -1000, 1000, displayStep, 1, suffix);
     // Channel max
-    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-      model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
-      dialogFilteredItemModels->getItemModel(gvid), this);
-
+    // chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+    //   model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
+    //   dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMax[i] = new RawSourceExtWidget(this, &model, sharedItemModels,
+      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
+      RawSource::GVarsGroup | RawSource::NoneGroup,
+      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE, tr("GV"),
+      -1000, 1000, displayStep, 1, suffix);
     // Channel inversion
     invCB[i] = new QComboBox(this);
     invCB[i]->insertItems(0, QStringList() << tr("---") << tr("INV"));
@@ -163,18 +188,21 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     connect(invCB[i], &QComboBox::currentIndexChanged, this, &ChannelsPanel::invEdited);
     tableLayout->addWidget(i, col++, invCB[i]);
 
-    curveCB[i] = new QComboBox(this);
-    curveCB[i]->setProperty("index", i);
-    tableLayout->addWidget(i, col++, curveCB[i]);
+    // curveCB[i] = new QComboBox(this);
+    // curveCB[i]->setProperty("index", i);
+    // tableLayout->addWidget(i, col++, curveCB[i]);
 
-    curveImage[i] = new CurveImageWidget(this);
-    curveImage[i]->setProperty("index", i);
-    curveImage[i]->setFixedSize(QSize(100, 100));
-    tableLayout->addWidget(i, col++, curveImage[i]);
+    // curveImage[i] = new CurveImageWidget(this);
+    // curveImage[i]->setProperty("index", i);
+    // curveImage[i]->setFixedSize(QSize(100, 100));
+    // tableLayout->addWidget(i, col++, curveImage[i]);
 
-    curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
-                          model.limitData[i].curve, model, sharedItemModels, this);
-
+    // curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
+    //                       model.limitData[i].curve, model, sharedItemModels, this);
+    curve[i] = new CurveReferenceWidget(this, &model, sharedItemModels,
+      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
+      RawSource::CurvesGroup | RawSource::NoneGroup,
+      UI_FLAG_SOURCE | UI_FLAG_CURVE_IMAGE);
     // PPM center
     int ppmCenterMax = firmware->getCapability(PPMCenter);
     centerSB[i] = new QSpinBox(this);
