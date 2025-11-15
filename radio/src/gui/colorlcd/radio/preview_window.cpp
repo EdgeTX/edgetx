@@ -25,7 +25,7 @@
 #include "sliders.h"
 #include "etx_lv_theme.h"
 #include "trims.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 
 extern inline tmr10ms_t getTicks() { return g_tmr10ms; }
 

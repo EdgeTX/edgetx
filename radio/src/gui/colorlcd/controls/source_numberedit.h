@@ -38,7 +38,7 @@ class SourceNumberEdit : public Window
                    int32_t vdefault = 0);
 
   void switchSourceMode();
-  void setSuffix(std::string value);
+  void setSuffix(const std::string& value);
 
   void setFastStep(int value) { num_field->setFastStep(value); }
   void setAccelFactor(int value) { num_field->setAccelFactor(value); }

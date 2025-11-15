@@ -56,7 +56,7 @@ extern PageDef toolsMenuItems[];
 class PageGroupItem
 {
  public:
-  PageGroupItem(std::string title, QuickMenu::SubMenu subMenu = QuickMenu::NONE) :
+  PageGroupItem(const std::string& title, QuickMenu::SubMenu subMenu = QuickMenu::NONE) :
       title(std::move(title)), icon(ICON_EDGETX), quickMenuId(subMenu), padding(PAD_SMALL)
   {}
 
@@ -73,7 +73,7 @@ class PageGroupItem
 
   virtual void checkEvents() {}
 
-  void setTitle(std::string value) { title = std::move(value); }
+  void setTitle(const std::string& value) { title = std::move(value); }
   std::string getTitle() const { return title; }
 
   void setIcon(EdgeTxIcon icon) { this->icon = icon; }

@@ -144,7 +144,7 @@ void luaLoadWidgetCallback(const char* filename)
   }
 
   if (name && createFunction) {
-    ZoneOption * options = LuaWidgetFactory::parseOptionDefinitions(optionDefinitionsReference);
+    WidgetOption * options = LuaWidgetFactory::parseOptionDefinitions(optionDefinitionsReference);
     if (options) {
       new LuaWidgetFactory(strdup(name), options, optionDefinitionsReference,
               createFunction, updateFunction, refreshFunction, backgroundFunction,

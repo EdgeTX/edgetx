@@ -22,7 +22,7 @@
 #pragma once
 
 #include "pagegroup.h"
-#include "widgets_container.h"
+#include "topbar.h"
 
 class ThemeView;
 class Choice;

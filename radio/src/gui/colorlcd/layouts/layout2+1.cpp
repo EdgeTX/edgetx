@@ -20,7 +20,6 @@
  */
 
 #include "layout.h"
-#include "layout_factory_impl.h"
 
 static const uint8_t zmap[] = {
     LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_FULL,     // ordered to match previous implementation
@@ -29,7 +28,7 @@ static const uint8_t zmap[] = {
 };
 
 BaseLayoutFactory<Layout> layout2P1("Layout2P1", "2 + 1",
-                                    defaultZoneOptions,
+                                    defaultLayoutOptions,
                                     3, (uint8_t*)zmap);
 
 const LayoutFactory* defaultLayout = &layout2P1;

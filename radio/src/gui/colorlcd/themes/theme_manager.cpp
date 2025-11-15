@@ -25,7 +25,7 @@
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
 #include "etx_lv_theme.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "view_main.h"
 #include "storage/sdcard_yaml.h"
 #include "lib_file.h"
@@ -429,7 +429,7 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   return false;
 }
 
-bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
+bool ThemePersistance::createNewTheme(const std::string& name, ThemeFile& theme)
 {
   char fullPath[FF_MAX_LFN + 1];
   char* s = strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);

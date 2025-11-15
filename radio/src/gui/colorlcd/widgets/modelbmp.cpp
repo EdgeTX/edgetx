@@ -29,10 +29,9 @@
 class ModelBitmapWidget : public Widget
 {
  public:
-  ModelBitmapWidget(const WidgetFactory* factory, Window* parent,
-                    const rect_t& rect,
-                    Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+  ModelBitmapWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+                    int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
@@ -71,18 +70,20 @@ class ModelBitmapWidget : public Widget
   {
     if (!loaded) return;
 
+    auto widgetData = getPersistentData();
+
     isLarge = rect.h >= LARGE_H && rect.w >= LARGE_W;
 
     // get font size from options[1]
     etx_font(label->getLvObj(),
-             (FontIndex)persistentData->options[1].value.unsignedValue);
+             (FontIndex)widgetData->options[1].value.unsignedValue);
 
     // set font colour from options[0], if use theme color option off
-    if (persistentData->options[4].value.boolValue) {
+    if (widgetData->options[4].value.boolValue) {
       etx_txt_color(label->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
     } else {
-      etx_txt_color_from_flags(label->getLvObj(), persistentData->options[0].value.unsignedValue);
+      etx_txt_color_from_flags(label->getLvObj(), widgetData->options[0].value.unsignedValue);
     }
 
     // Set label position
@@ -92,10 +93,10 @@ class ModelBitmapWidget : public Widget
       lv_obj_set_pos(label->getLvObj(), 0, 0);
 
     // get fill color from options[3]
-    etx_bg_color_from_flags(lvobj, persistentData->options[3].value.unsignedValue);
+    etx_bg_color_from_flags(lvobj, widgetData->options[3].value.unsignedValue);
 
     // Set background opacity from options[2]
-    if (persistentData->options[2].value.boolValue)
+    if (widgetData->options[2].value.boolValue)
       lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
@@ -126,7 +127,7 @@ class ModelBitmapWidget : public Widget
     label->show(isLarge || !image->hasImage());
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
   bool isLarge = false;
@@ -143,13 +144,13 @@ class ModelBitmapWidget : public Widget
   static LAYOUT_VAL_SCALED(LARGE_IMG_H, 38)
 };
 
-const ZoneOption ModelBitmapWidget::options[] = {
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
-    {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(FONT_STD_INDEX)},
-    {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
-    {STR_USE_THEME_COLOR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption ModelBitmapWidget::options[] = {
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
+    {STR_SIZE, WidgetOption::TextSize, FONT_STD_INDEX},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
+    {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
+    {STR_USE_THEME_COLOR, WidgetOption::Bool, true},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget(
     "ModelBmp", ModelBitmapWidget::options, STR_WIDGET_MODELBMP);

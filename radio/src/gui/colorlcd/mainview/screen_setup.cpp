@@ -24,7 +24,7 @@
 #include <algorithm>
 
 #include "color_picker.h"
-#include "layout_factory_impl.h"
+#include "layout.h"
 #include "edgetx.h"
 #include "topbar.h"
 #include "view_main.h"
@@ -150,7 +150,7 @@ void ScreenSetupPage::build(Window* window)
         clearLayoutOptions();
 
         // If screen is not App Mode then save option values
-        auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
+        auto layoutData = g_model.getScreenLayoutData(customScreenIndex);
         auto layout = (Layout*)customScreens[customScreenIndex];
         bool restoreOptions = false;
         bool hasTopbar = true, hasFM = true, hasSliders = true, hasTrims = true, isMirrored = false;
@@ -204,7 +204,7 @@ void ScreenSetupPage::build(Window* window)
     Window* btn =
         new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, [=]() -> uint8_t {
           // Remove this screen from the model
-          LayoutFactory::disposeCustomScreen(customScreenIndex);
+          g_model.removeScreenLayout(customScreenIndex);
 
           // Delete all custom screens
           LayoutFactory::deleteCustomScreens();
@@ -247,8 +247,8 @@ void ScreenSetupPage::buildLayoutOptions()
 
   int index = 0;
   for (auto* option = factory->getLayoutOptions(); option->name; option++, index++) {
-    auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
-    ZoneOptionValue* value = &layoutData->options[index].value;
+    auto layoutData = g_model.getScreenLayoutData(customScreenIndex);
+    LayoutOptionValue* value = &layoutData->options[index].value;
 
     // Option label
     auto line = layoutOptions->newLine(grid);
@@ -256,7 +256,7 @@ void ScreenSetupPage::buildLayoutOptions()
 
     // Option value
     switch (option->type) {
-      case ZoneOption::Bool:
+      case LayoutOption::Bool:
         new ToggleSwitch(line, rect_t{},
                          GET_DEFAULT(value->boolValue),
                          [=](int newValue) {
@@ -265,7 +265,7 @@ void ScreenSetupPage::buildLayoutOptions()
                          });
         break;
 
-      case ZoneOption::Color:
+      case LayoutOption::Color:
         new ColorPicker(line, rect_t{}, GET_SET_DEFAULT(value->unsignedValue));
         break;
 

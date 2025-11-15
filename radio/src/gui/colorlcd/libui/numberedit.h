@@ -50,19 +50,19 @@ class NumberEdit : public TextButton
   void setAccelFactor(int value) { accelFactor = value; }
   void setValue(int value);
 
-  void setPrefix(std::string value)
+  void setPrefix(const std::string& value)
   {
     prefix = std::move(value);
     update();
   }
 
-  void setSuffix(std::string value)
+  void setSuffix(const std::string& value)
   {
     suffix = std::move(value);
     update();
   }
 
-  void setZeroText(std::string value)
+  void setZeroText(const std::string& value)
   {
     zeroText = std::move(value);
     update();

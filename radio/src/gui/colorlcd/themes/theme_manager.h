@@ -64,10 +64,10 @@ class ThemeFile
         return nullptr;
     }
     
-    void setName(std::string name) { this->name = name; }
-    void setAuthor(std::string author) { this->author = author; }
-    void setInfo(std::string info) { this->info = info; }
-    void setPath(std::string path) { this->path = path; }
+    void setName(const std::string& name) { this->name = name; }
+    void setAuthor(const std::string& author) { this->author = author; }
+    void setInfo(const std::string& info) { this->info = info; }
+    void setPath(const std::string& path) { this->path = path; }
 
     std::vector<ColorEntry>& getColorList() { return colorList; }
     void setColor(LcdColorIndex colorIndex, uint32_t color);
@@ -107,7 +107,7 @@ class ThemePersistance
     void setDefaultTheme(int index);
     static char **getColorNames();
     bool deleteThemeByIndex(int index);
-    bool createNewTheme(std::string name, ThemeFile &theme);
+    bool createNewTheme(const std::string& name, ThemeFile &theme);
 
     std::vector<std::string> getNames()
     {

@@ -103,7 +103,7 @@ void SourceNumberEdit::switchSourceMode()
   update();
 }
 
-void SourceNumberEdit::setSuffix(std::string value)
+void SourceNumberEdit::setSuffix(const std::string& value)
 {
   num_field->setSuffix(value);
 }

@@ -344,6 +344,9 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       extern void initCustomSwitches();
       initCustomSwitches();
 #endif
+#if defined(COLORLCD)
+      g_model.initScreenData();
+#endif
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values

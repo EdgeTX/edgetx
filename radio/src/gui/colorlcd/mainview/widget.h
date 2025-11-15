@@ -22,37 +22,69 @@
 #pragma once
 
 #include <string.h>
-
-#include <list>
+#if !defined(BACKUP)
+#include <vector>
+#endif
 
 #include "button.h"
 #include "widgets_container.h"
+#include "storage/yaml/yaml_defs.h"
+#include "datastructs_screen.h"
 
 class WidgetFactory;
+
+//-----------------------------------------------------------------------------
+
+struct WidgetOption
+{
+  // First two entries must match luaScriptInputType enum
+  // TODO: should be cleaned up
+  enum Type {
+    Integer,
+    Source,
+    Bool,
+    String,
+    TextSize,
+    Timer,
+    Switch,
+    Color,
+    Align,
+    Slider,
+    Choice,
+    File,
+  };
+
+  const char * name;
+  Type type;
+  WidgetOptionValue deflt;
+  WidgetOptionValue min;
+  WidgetOptionValue max;
+  const char * displayName;
+  std::string fileSelectPath;
+#if !defined(BACKUP)
+  std::vector<std::string> choiceValues;
+#endif
+};
+
+//-----------------------------------------------------------------------------
 
 class Widget : public ButtonBase
 {
  public:
-  typedef WidgetPersistentData PersistentData;
 
   Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-         WidgetPersistentData* persistentData);
+         int screenNum, int zoneNum);
 
   ~Widget() override = default;
 
   const WidgetFactory* getFactory() const { return factory; }
 
-  const ZoneOption* getOptionDefinitions() const;
+  const WidgetOption* getOptionDefinitions() const;
   bool hasOptions() const { return getOptionDefinitions() && getOptionDefinitions()->name; }
 
   virtual const char* getErrorMessage() const { return nullptr; }
 
-  ZoneOptionValue* getOptionValue(unsigned int index) const
-  {
-    return &persistentData->options[index].value;
-  }
-
-  PersistentData* getPersistentData() { return persistentData; }
+  WidgetPersistentData* getPersistentData();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Widget"; }
@@ -89,7 +121,8 @@ class Widget : public ButtonBase
 
  protected:
   const WidgetFactory* factory;
-  PersistentData* persistentData;
+  int screenNum;
+  int zoneNum;
   bool fullscreen = false;
   bool fsAllowed = true;
   bool closeFS = false;
@@ -104,10 +137,12 @@ class Widget : public ButtonBase
   void openMenu();
 };
 
+//-----------------------------------------------------------------------------
+
 class WidgetFactory
 {
  public:
-  explicit WidgetFactory(const char* name, const ZoneOption* options = nullptr,
+  explicit WidgetFactory(const char* name, const WidgetOption* options = nullptr,
                          const char* displayName = nullptr) :
       name(name), displayName(displayName), options(options)
   {
@@ -118,7 +153,7 @@ class WidgetFactory
 
   const char* getName() const { return name; }
 
-  const ZoneOption* getDefaultOptions() const { return options; }
+  const WidgetOption* getDefaultOptions() const { return options; }
   virtual const void parseOptionDefaults() const {}
 
   const char* getDisplayName() const
@@ -126,12 +161,11 @@ class WidgetFactory
     return displayName ? displayName : name;
   }
 
-  void initPersistentData(Widget::PersistentData* persistentData,
-                          bool setDefault) const;
+  Widget* create(Window* parent, const rect_t& rect,
+                         int screenNum, int zoneNum,
+                         bool init = true) const;
 
-  virtual Widget* create(Window* parent, const rect_t& rect,
-                         Widget::PersistentData* persistentData,
-                         bool init = true) const = 0;
+  virtual Widget* createNew(Window* parent, const rect_t& rect, int screenNum, int zoneNum) const = 0;
 
   virtual bool isLuaWidgetFactory() const { return false; }
 
@@ -140,29 +174,31 @@ class WidgetFactory
   static void unregisterWidget(const WidgetFactory* factory);
   static const WidgetFactory* getWidgetFactory(const char* name);
   static Widget* newWidget(const char* name, Window* parent, const rect_t& rect,
-                           Widget::PersistentData* persistentData);
+                           int screenNum, int zoneNum);
 
  protected:
   const char* name = nullptr;
   const char* displayName = nullptr;
-  const ZoneOption* options = nullptr;
+  const WidgetOption* options = nullptr;
 };
+
+//-----------------------------------------------------------------------------
 
 template <class T>
 class BaseWidgetFactory : public WidgetFactory
 {
  public:
-  BaseWidgetFactory(const char* name, const ZoneOption* options,
+  BaseWidgetFactory(const char* name, const WidgetOption* options,
                     const char* displayName = nullptr) :
       WidgetFactory(name, options, displayName)
   {
   }
 
-  Widget* create(Window* parent, const rect_t& rect,
-                 Widget::PersistentData* persistentData,
-                 bool init = true) const override
+  Widget* createNew(Window* parent, const rect_t& rect,
+                 int screenNum, int zoneNum) const override
   {
-    initPersistentData(persistentData, init);
-    return new T(this, parent, rect, persistentData);
+    return new T(this, parent, rect, screenNum, zoneNum);
   }
 };
+
+//-----------------------------------------------------------------------------

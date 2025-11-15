@@ -20,12 +20,12 @@
  */
 
 #include "layout.h"
-#include "layout_factory_impl.h"
+#include "translations/translations.h"
 
 static const uint8_t zmap[] = {
     LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
 };
 
 BaseLayoutFactory<Layout> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
-                                    defaultZoneOptions,
+                                    defaultLayoutOptions,
                                     1, (uint8_t*)zmap);

@@ -23,10 +23,11 @@
 
 #include "model_select.h"
 #include "edgetx.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "quick_menu.h"
 #include "view_channels.h"
 #include "screen_setup.h"
+#include "widget.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -94,7 +95,7 @@ ViewMain::ViewMain() :
                       nullptr);
 
   // create last to be on top
-  topbar = TopbarFactory::create(this);
+  topbar = new TopBar(this);
 }
 
 ViewMain::~ViewMain() { _instance = nullptr; }
@@ -408,7 +409,7 @@ bool ViewMain::hasTopbar()
 bool ViewMain::hasTopbar(unsigned view)
 {
   if (view < MAX_CUSTOM_SCREENS)
-    return g_model.screenData[view].layoutData.options[LAYOUT_OPTION_TOPBAR].value.boolValue;
+    return g_model.getScreenLayoutData(view)->options[LAYOUT_OPTION_TOPBAR].value.boolValue;
   return false;
 }
 
