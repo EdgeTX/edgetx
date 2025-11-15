@@ -24,53 +24,52 @@
 #include "modeldata.h"
 #include "generalsettings.h"
 #include "compounditemmodels.h"
-#include "curveimagewidget.h"
 
 CurveReferenceWidget::CurveReferenceWidget(QWidget * parent,
                                            ModelData * modelData,
                                            CompoundItemModelFactory * sharedItemModels,
-                                           CurveReference * curveRef,
-                                           RawSource dflt,
-                                           int filterFlags,
+                                           int imFilter,
                                            int uiFlags,
-                                           QString chkUseLabel,
-                                           int minValue,
-                                           int maxValue,
-                                           double stepValue,
+                                           CurveReference * curveRef,
+                                           CurveReference dflt,
+                                           QString useLabel,
+                                           int min,
+                                           int max,
+                                           int precision,
                                            int decimals,
-                                           QString suffixValue) :
-  RawSourceExtWidget(parent, modelData, sharedItemModels, &curveRef->source,
-                     dflt, filterFlags, uiFlags, chkUseLabel, minValue, maxValue,
-                     stepValue, decimals, suffixValue),
+                                           double step,
+                                           QString prefix,
+                                           QString suffix) :
+  RawSourceCurveWidget(parent, modelData, sharedItemModels,
+                     &curveRef->source, dflt.source, imFilter, uiFlags),
   curveRef(curveRef),
-  cboType(nullptr),
-  curveImage(nullptr)
+  cboType(nullptr)
 {
-  init(modelData, sharedItemModels, rawSource, dflt, filterFlags,
-       uiFlags, chkUseLabel, minValue, maxValue, stepValue, decimals, suffixValue);
+  init(modelData, sharedItemModels, imFilter, uiFlags, curveRef, dflt,
+       useLabel, min, max, precision, decimals, step, prefix, suffix);
 }
 
 CurveReferenceWidget::~CurveReferenceWidget()
 {
-
 }
 
 void CurveReferenceWidget::init(ModelData * modelData,
                                 CompoundItemModelFactory * sharedItemModels,
-                                RawSource * rawSource,
-                                RawSource dflt,
-                                int filterFlags,
+                                int imFilter,
                                 int uiFlags,
-                                QString chkUseLabel,
-                                int minValue,
-                                int maxValue,
-                                double stepValue,
+                                CurveReference * curveRef,
+                                CurveReference dflt,
+                                QString useLabel,
+                                int min,
+                                int max,
+                                int precision,
                                 int decimals,
-                                QString suffixValue)
+                                double step,
+                                QString prefix,
+                                QString suffix)
 {
-  RawSourceExtWidget::init(modelData, sharedItemModels, rawSource, dflt, filterFlags,
-                           uiFlags, chkUseLabel, minValue, maxValue, stepValue,
-                           decimals, suffixValue);
+  RawSourceCurveWidget::init(modelData, sharedItemModels,
+                           &curveRef->source, dflt.source, imFilter, uiFlags);
 
   if (uiFlags & UI_FLAG_CURVE_TYPE) {
     cboType = new QComboBox(this);
@@ -78,13 +77,6 @@ void CurveReferenceWidget::init(ModelData * modelData,
     cboType->setModel(CurveReference::typeItemModel());
     cboType->setCurrentIndex(cboType->findData((int)curveRef->type));
     connect(cboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CurveReferenceWidget::cboTypeChanged);
-  }
-
-  if (uiFlags & UI_FLAG_CURVE_IMAGE) {
-    curveImage = new CurveImageWidget(this);
-    curveImage->set(modelData, getCurrentFirmware(), sharedItemModels, curveRef->source.index, Qt::black, 3);
-    curveImage->setGrid(Qt::gray, 2);
-    connect(curveImage, &CurveImageWidget::doubleClicked, this, &CurveReferenceWidget::curveImageDoubleClicked);
   }
 
   update(false);
@@ -98,10 +90,10 @@ void CurveReferenceWidget::update(bool notify)
     cboType->setCurrentIndex(cboType->findData(curveRef->type));
 
   if (curveRef->type == CurveReference::CURVE_REF_DIFF || curveRef->type == CurveReference::CURVE_REF_EXPO) {
-    RawSourceExtWidget::setVisible(true);
-    RawSourceExtWidget::update();
+    RawSourceWidget::setVisible(true);
+    RawSourceWidget::update();
   } else {
-    RawSourceExtWidget::setVisible(false);
+    RawSourceWidget::setVisible(false);
   }
 
   if (curveImage) {
@@ -136,10 +128,4 @@ void CurveReferenceWidget::cboTypeChanged(int index)
     *curveRef = CurveReference::getDefaultValue(type);
     update();
   }
-}
-
-void CurveReferenceWidget::curveImageDoubleClicked()
-{
-  if (curveRef->type == CurveReference::CURVE_REF_CUSTOM && abs(curveRef->source.index) > 0)
-    curveImage->edit();
 }

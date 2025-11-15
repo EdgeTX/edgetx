@@ -24,6 +24,7 @@ set(${PROJECT_NAME}_NAMES
   exclusivecombogroup
   rawsourcewidget
   rawsourceextwidget
+  rawsourcecurvewidget
   curvereferencewidget
 )
 

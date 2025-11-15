@@ -21,61 +21,49 @@
 
 #pragma once
 
-#include "rawsource.h"
+#include "rawsourcewidget.h"
 
-#include <QWidget>
-#include <QComboBox>
+constexpr int UI_FLAG_CURVE_IMAGE { 1 << 4 };
 
-class CompoundItemModelFactory;
-class FilteredItemModel;
+class CurveImageWidget;
 
-constexpr int UI_FLAG_NONE   { 0 };
-constexpr int UI_FLAG_SOURCE { 1 << 1 };
-
-class RawSourceWidget : public QWidget {
+class RawSourceCurveWidget : public RawSourceWidget {
 
   Q_OBJECT
 
   public:
-    explicit RawSourceWidget(QWidget * parent,
-                             ModelData * modelData = nullptr,
-                             CompoundItemModelFactory * sharedItemModels = nullptr,
-                             int imFlags = SOURCE_TYPE_NONE,
-                             RawSource * src = nullptr,
-                             RawSource dflt = RawSource());
+    explicit RawSourceCurveWidget(QWidget * parent,
+                                ModelData * modelData = nullptr,
+                                CompoundItemModelFactory * sharedItemModels = nullptr,
+                                RawSource * src = nullptr,
+                                RawSource dflt = RawSource(),
+                                int imFilter = RawSource::CurvesGroup | RawSource::NoneGroup,
+                                int uiFlags = UI_FLAG_SOURCE | UI_FLAG_CURVE_IMAGE);
 
-    virtual ~RawSourceWidget();
+    virtual ~RawSourceCurveWidget();
 
     // if the widget is included in a .ui definition file
     // this function must be called after setupUi(this)
     // as only the parent widget is passed to the constructor
     void init(ModelData * modelData,
               CompoundItemModelFactory * sharedItemModels,
-              int imFlags,
               RawSource * src,
-              RawSource dflt = RawSource());
+              RawSource dflt = RawSource(),
+              int imFilter = RawSource::CurvesGroup | RawSource::NoneGroup,
+              int uiFlags = UI_FLAG_SOURCE | UI_FLAG_CURVE_IMAGE);
 
-    void setDefault(RawSource value);
-    void setFilterFlags(int flags);
     void setVisible(bool state);
 
   signals:
     void dataChanged();
-    void resize();
-
-  protected slots:
 
   protected:
-    ModelData *modelData;
-    RawSource *src;
-    RawSource dflt;
-    bool lock;
+    int uiFlags;
 
+  protected slots:
     void update(bool notify = true);
 
-  private:
-    FilteredItemModel *fimSource;
-    QComboBox *cboSource;
 
-    void connectItemModelEvents(const FilteredItemModel * itemModel);
+  private:
+    CurveImageWidget *curveImage;
 };

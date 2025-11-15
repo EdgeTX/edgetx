@@ -29,71 +29,78 @@
 RawSourceExtWidget::RawSourceExtWidget(QWidget * parent,
                                        ModelData * modelData,
                                        CompoundItemModelFactory * sharedItemModels,
-                                       RawSource * rawSource,
-                                       RawSource defValue,
-                                       int filterFlags,
+                                       int imFilter,
                                        int uiFlags,
-                                       QString chkUseLabel,
-                                       int minValue,
-                                       int maxValue,
-                                       double stepValue,
+                                       RawSource * src,
+                                       RawSource dflt,
+                                       QString useLabel,
+                                       int min,
+                                       int max,
+                                       int precision,
                                        int decimals,
-                                       QString suffixValue) :
-  RawSourceWidget(parent, modelData, sharedItemModels, rawSource, dflt, filterFlags),
-  minValue(minValue),
-  maxValue(maxValue),
-  stepValue(stepValue),
-  decimals(decimals),
-  suffixValue(suffixValue),
-  chkUseLabel(chkUseLabel),
+                                       double step,
+                                       QString prefix,
+                                       QString suffix) :
+  RawSourceWidget(parent, modelData, sharedItemModels, imFilter, src, dflt),
   uiFlags(uiFlags),
+  useLabel(useLabel),
+  min(min),
+  max(max),
+  precision(precision),
+  decimals(decimals),
+  step(step),
+  prefix(prefix),
+  suffix(suffix),
   chkUse(nullptr),
   sbValue(nullptr),
   dsbValue(nullptr)
 {
-  init(modelData, sharedItemModels, rawSource, dflt, filterFlags,
-       uiFlags, chkUseLabel, minValue, maxValue, stepValue, decimals, suffixValue);
+  init(modelData, sharedItemModels, imFilter, uiFlags, src, dflt,
+       useLabel, min, max, precision, decimals, step, prefix, suffix);
 }
 
 RawSourceExtWidget::~RawSourceExtWidget()
 {
-
 }
 
 void RawSourceExtWidget::init(ModelData * modelData,
                               CompoundItemModelFactory * sharedItemModels,
-                              RawSource * rawSource,
-                              RawSource defValue,
-                              int filterFlags,
+                              int imFilter,
                               int uiFlags,
-                              QString chkUseLabel,
-                              int minValue,
-                              int maxValue,
-                              double stepValue,
+                              RawSource * src,
+                              RawSource dflt,
+                              QString useLabel,
+                              int min,
+                              int max,
+                              int precision,
                               int decimals,
-                              QString suffixValue)
+                              double step,
+                              QString prefix,
+                              QString suffix)
 {
-  RawSourceWidget::init(modelData, sharedItemModels, rawSource, dflt, filterFlags);
-  this->minValue = minValue;
-  this->maxValue = maxValue;
-  this->stepValue = stepValue;
-  this->decimals = decimals;
-  this->suffixValue = suffixValue;
-  this->chkUseLabel = chkUseLabel;
+  RawSourceWidget::init(modelData, sharedItemModels, imFilter, src, dflt);
   this->uiFlags = uiFlags;
+  this->useLabel = useLabel;
+  this->min = min;
+  this->max = max;
+  this->step = step;
+  this->precision = precision;
+  this->decimals = decimals;
+  this->prefix = prefix;
+  this->suffix = suffix;
 
   if (uiFlags & UI_FLAG_USE) {
-    chkUse = new QCheckBox(chkUseLabel);
+    chkUse = new QCheckBox(useLabel);
     connect(chkUse, &QCheckBox::checkStateChanged, this,
             &RawSourceExtWidget::useChanged);
   }
 
   if (uiFlags & UI_FLAG_SPINBOX) {
     sbValue = new QSpinBox(this);
-    sbValue->setMinimum(minValue);
-    sbValue->setMaximum(maxValue);
-    sbValue->setSingleStep((int)stepValue);
-    sbValue->setSuffix(suffixValue);
+    sbValue->setMinimum(min);
+    sbValue->setMaximum(max);
+    sbValue->setSingleStep((int)step);
+    sbValue->setSuffix(suffix);
     sbValue->setValue(dflt.index);
     connect(sbValue, &QSpinBox::editingFinished, this,
             &RawSourceExtWidget::valueChanged);
@@ -102,10 +109,10 @@ void RawSourceExtWidget::init(ModelData * modelData,
   if (uiFlags & UI_FLAG_DBLSPINBOX) {
     dsbValue = new QDoubleSpinBox(this);
     dsbValue->setDecimals(decimals);
-    dsbValue->setMinimum(minValue);
-    dsbValue->setMaximum(maxValue);
-    dsbValue->setSingleStep(stepValue);
-    dsbValue->setSuffix(suffixValue);
+    dsbValue->setMinimum(min);
+    dsbValue->setMaximum(max);
+    dsbValue->setSingleStep(step);
+    dsbValue->setSuffix(suffix);
     dsbValue->setValue(dflt.index); // conversion / step ????
     connect(dsbValue, &QDoubleSpinBox::editingFinished, this,
             &RawSourceExtWidget::valueChanged);
@@ -118,14 +125,14 @@ void RawSourceExtWidget::useChanged(int state)
 {
   if (!lock) {
     if (state == Qt::Checked) {
-      *rawSource = dflt;
+      *src = dflt;
     }
     else {
-      *rawSource = RawSource(SOURCE_TYPE_NUMBER);
+      *src = RawSource(SOURCE_TYPE_NUMBER);
       if (sbValue)
-        sbValue->setValue(rawSource->index);
+        sbValue->setValue(src->index);
       if (dsbValue)
-        dsbValue->setValue(rawSource->index);  //   this needs fixing probably / step
+        dsbValue->setValue(src->index);  //   this needs fixing probably / step
     }
 
     update();
@@ -135,11 +142,11 @@ void RawSourceExtWidget::useChanged(int state)
 void RawSourceExtWidget::valueChanged()
 {
   if (!lock) {
-    rawSource->type = SOURCE_TYPE_NUMBER;
+    src->type = SOURCE_TYPE_NUMBER;
     if (sbValue)
-      rawSource->index = sbValue->value();
+      src->index = sbValue->value();
     else if(dsbValue)
-      rawSource->index = round(dsbValue->value() / stepValue); // ???????? might need to be raw
+      src->index = round(dsbValue->value() / step); // ???????? might need to be raw
     update();
   }
 }
@@ -158,14 +165,14 @@ void RawSourceExtWidget::update(bool notify)
 {
   lock = true;
 
-  if (rawSource->type == SOURCE_TYPE_NUMBER) {
+  if (src->type == SOURCE_TYPE_NUMBER) {
     RawSourceWidget::setVisible(false);
 
     if (sbValue)
-      sbValue->setValue(rawSource->index);
+      sbValue->setValue(src->index);
 
     if (dsbValue)
-      dsbValue->setValue(rawSource->index); // fix this
+      dsbValue->setValue(src->index); // fix this
   }
   else {
     RawSourceWidget::setVisible(true);

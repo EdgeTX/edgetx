@@ -22,14 +22,13 @@
 #pragma once
 
 #include "curvereference.h"
-#include "rawsourceextwidget.h"
+#include "rawsourcecurvewidget.h"
 
 class CurveImageWidget;
 
-constexpr int UI_FLAG_CURVE_TYPE  { 1 << 4 };
-constexpr int UI_FLAG_CURVE_IMAGE { 1 << 5 };
+constexpr int UI_FLAG_CURVE_TYPE  { 1 << 5 };
 
-class CurveReferenceWidget : public RawSourceExtWidget {
+class CurveReferenceWidget : public RawSourceCurveWidget {
 
   Q_OBJECT
 
@@ -37,31 +36,38 @@ class CurveReferenceWidget : public RawSourceExtWidget {
     explicit CurveReferenceWidget(QWidget * parent,
                                   ModelData * modelData = nullptr,
                                   CompoundItemModelFactory * sharedItemModels = nullptr,
+                                  int imFilter = SOURCE_TYPE_CURVE,
+                                  int uiFlags = UI_FLAG_SOURCE,
                                   CurveReference * curveRef = nullptr,
-                                  RawSource defValue = RawSource(),
-                                  int filterFlags = 0,
-                                  int uiFlags = UI_FLAG_NONE,
-                                  QString chkUseLabel = QString(),
-                                  int minValue = 0,
-                                  int maxValue = 100,
-                                  double stepValue = 1,
+                                  CurveReference dflt = CurveReference(),
+                                  QString useLabel = "",
+                                  int min = -100,
+                                  int max = 100,
+                                  int precision = 1,
                                   int decimals = 0,
-                                  QString suffixValue = QString());
+                                  double step = 1,
+                                  QString prefix = "",
+                                  QString suffix = "");
 
     virtual ~CurveReferenceWidget();
 
+    // if the widget is included in a .ui definition file
+    // this function must be called after setupUi(this)
+    // as only the parent widget is passed to the constructor
     void init(ModelData * modelData,
               CompoundItemModelFactory * sharedItemModels,
-              RawSource * rawSource,
-              RawSource defValue = RawSource(),
-              int filterFlags = 0,
-              int uiFlags = UI_FLAG_NONE,
-              QString chkUseLabel = QString(),
-              int minValue = 0,
-              int maxValue = 100,
-              double stepValue = 1,
+              int imFilter,
+              int uiFlags,
+              CurveReference * curveRef,
+              CurveReference dflt = CurveReference(),
+              QString useLabel = "",
+              int min = -100,
+              int max = 100,
+              int precision = 1,
               int decimals = 0,
-              QString suffixValue = QString());
+              double step = 1,
+              QString prefix = "",
+              QString suffix = "");
 
   signals:
     void dataChanged();
@@ -69,11 +75,9 @@ class CurveReferenceWidget : public RawSourceExtWidget {
 
   protected slots:
     void cboTypeChanged(int);
-    void curveImageDoubleClicked();
     void update(bool notify = true);
 
   private:
     CurveReference *curveRef;
     QComboBox *cboType;
-    CurveImageWidget *curveImage;
 };

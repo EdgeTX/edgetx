@@ -29,8 +29,7 @@
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class FilteredItemModel;
-class CurveImageWidget;
-class CurveReferenceWidget;
+class RawSourceCurveWidget;
 class RawSourceExtWidget;
 
 constexpr char MIMETYPE_CHANNEL[] = "application/x-companion-channel";
@@ -79,7 +78,7 @@ class ChannelsPanel : public ModelPanel
     RawSourceExtWidget *chnOffset[CPN_MAX_CHNOUT];
     RawSourceExtWidget *chnMin[CPN_MAX_CHNOUT];
     RawSourceExtWidget *chnMax[CPN_MAX_CHNOUT];
-    CurveReferenceWidget *curve[CPN_MAX_CHNOUT];
+    RawSourceCurveWidget *curve[CPN_MAX_CHNOUT];
 
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;

@@ -24,7 +24,6 @@
 #include "filtereditemmodels.h"
 #include "helpers.h"
 #include "namevalidator.h"
-#include "sourcenumref.h"
 
 ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, GeneralSettings & generalSettings,
                        Firmware * firmware, QString & inputName, CompoundItemModelFactory * sharedItemModels) :

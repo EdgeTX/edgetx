@@ -27,35 +27,35 @@
 RawSourceWidget::RawSourceWidget(QWidget * parent,
                                  ModelData * modelData,
                                  CompoundItemModelFactory * sharedItemModels,
-                                 RawSource * rawSource,
-                                 RawSource dflt,
-                                 int filterFlags) :
+                                 int imFlags,
+                                 RawSource * src,
+                                 RawSource dflt) :
   QWidget(parent),
   lock(false),
-  fimRawSource(nullptr),
+  fimSource(nullptr),
   cboSource(nullptr)
 {
-  init(modelData, sharedItemModels, rawSource, dflt, filterFlags);
+  init(modelData, sharedItemModels, imFlags, src, dflt);
 }
 
 void RawSourceWidget::init(ModelData * modelData,
                            CompoundItemModelFactory * sharedItemModels,
-                           RawSource * rawSource,
-                           RawSource defValue,
-                           int filterFlags)
+                           int imFlags,
+                           RawSource * src,
+                           RawSource dflt)
 {
-  fimRawSource = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource), filterFlags);
-  connectItemModelEvents(fimRawSource);
+  fimSource = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource), imFlags);
+  connectItemModelEvents(fimSource);
 
   cboSource = new QComboBox(this);
-  cboSource->setModel(fimRawSource);
+  cboSource->setModel(fimSource);
   cboSource->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   cboSource->setMaxVisibleItems(10);
   cboSource->setCurrentIndex(Helpers::getFirstPosValueIndex(cboSource));
   connect(cboSource, QOverload<int>::of(&QComboBox::currentIndexChanged), [&] (int index)
   {
     if (!lock) {
-      *rawSource = RawSource(cboSource->itemData(index).toInt());
+      *src = RawSource(cboSource->itemData(index).toInt());
       update();
     }
   });
@@ -65,8 +65,8 @@ void RawSourceWidget::init(ModelData * modelData,
 
 RawSourceWidget::~RawSourceWidget()
 {
-  if (fimRawSource)
-    delete fimRawSource;
+  if (fimSource)
+    delete fimSource;
 }
 
 void RawSourceWidget::setDefault(RawSource value)
@@ -76,7 +76,7 @@ void RawSourceWidget::setDefault(RawSource value)
 
 void RawSourceWidget::setFilterFlags(int flags)
 {
-  fimRawSource->setFilterFlags(flags);
+  fimSource->setFilterFlags(flags);
 }
 
 void RawSourceWidget::setVisible(bool state)
@@ -90,7 +90,7 @@ void RawSourceWidget::update(bool notify)
 {
   lock = true;
 
-  cboSource->setCurrentIndex(cboSource->findData(rawSource->toValue()));
+  cboSource->setCurrentIndex(cboSource->findData(src->toValue()));
   if (cboSource->currentIndex() < 0)
     cboSource->setCurrentIndex(Helpers::getFirstPosValueIndex(cboSource));
 

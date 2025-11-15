@@ -159,28 +159,28 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     }
 
     chnOffset[i] = new RawSourceExtWidget(this, &model, sharedItemModels,
-      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
-      RawSource::GVarsGroup | RawSource::NoneGroup,
-      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE, tr("GV"),
-      -1000, 1000, displayStep, 1, suffix);
+      RawSource::GVarsGroup,
+      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE,
+      &model.limitData[i].offset, RawSource(SOURCE_TYPE_NUMBER),
+      tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
     // Channel min
     // chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++,
     //   model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
     chnMin[i] = new RawSourceExtWidget(this, &model, sharedItemModels,
-      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
-      RawSource::GVarsGroup | RawSource::NoneGroup,
-      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE, tr("GV"),
-      -1000, 1000, displayStep, 1, suffix);
+      RawSource::GVarsGroup,
+      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE,
+      &model.limitData[i].min, RawSource(SOURCE_TYPE_NUMBER),
+      tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
     // Channel max
     // chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++,
     //   model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
     chnMax[i] = new RawSourceExtWidget(this, &model, sharedItemModels,
-      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
-      RawSource::GVarsGroup | RawSource::NoneGroup,
-      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE, tr("GV"),
-      -1000, 1000, displayStep, 1, suffix);
+      RawSource::GVarsGroup,
+      UI_FLAG_USE | UI_FLAG_DBLSPINBOX | UI_FLAG_SOURCE,
+      &model.limitData[i].max, RawSource(SOURCE_TYPE_NUMBER),
+      tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
     // Channel inversion
     invCB[i] = new QComboBox(this);
     invCB[i]->insertItems(0, QStringList() << tr("---") << tr("INV"));
@@ -199,10 +199,9 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
 
     // curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
     //                       model.limitData[i].curve, model, sharedItemModels, this);
-    curve[i] = new CurveReferenceWidget(this, &model, sharedItemModels,
-      &model.limitData[i].offset,RawSource(SOURCE_TYPE_NUMBER),
-      RawSource::CurvesGroup | RawSource::NoneGroup,
-      UI_FLAG_SOURCE | UI_FLAG_CURVE_IMAGE);
+    curve[i] = new RawSourceCurveWidget(this, &model, sharedItemModels,
+      &model.limitData[i].curve);
+
     // PPM center
     int ppmCenterMax = firmware->getCapability(PPMCenter);
     centerSB[i] = new QSpinBox(this);

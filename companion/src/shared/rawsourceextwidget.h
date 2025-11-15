@@ -38,31 +38,38 @@ class RawSourceExtWidget : public RawSourceWidget {
     explicit RawSourceExtWidget(QWidget * parent,
                                 ModelData * modelData = nullptr,
                                 CompoundItemModelFactory * sharedItemModels = nullptr,
-                                RawSource * rawSource = nullptr,
-                                RawSource defValue = RawSource(),
-                                int filterFlags = 0,
-                                int uiFlags = UI_FLAG_NONE,
-                                QString chkUseLabel = QString(),
-                                int minValue = 0,
-                                int maxValue = 100,
-                                double stepValue = 1,
+                                int imFilter = SOURCE_TYPE_NONE,
+                                int uiFlags = UI_FLAG_SOURCE | UI_FLAG_USE,
+                                RawSource * src = nullptr,
+                                RawSource dflt = RawSource(),
+                                QString useLabel = "",
+                                int min = -100,
+                                int max = 100,
+                                int precision = 1,
                                 int decimals = 0,
-                                QString suffixValue = QString());
+                                double step = 1,
+                                QString prefix = "",
+                                QString suffix = "");
 
     virtual ~RawSourceExtWidget();
 
+    // if the widget is included in a .ui definition file
+    // this function must be called after setupUi(this)
+    // as only the parent widget is passed to the constructor
     void init(ModelData * modelData,
               CompoundItemModelFactory * sharedItemModels,
-              RawSource * rawSource,
-              RawSource defValue = RawSource(),
-              int filterFlags = 0,
-              int uiFlags = UI_FLAG_NONE,
-              QString chkUseLabel = QString(),
-              int minValue = 0,
-              int maxValue = 100,
-              double stepValue = 1,
+              int imFilter,
+              int uiFlags,
+              RawSource * src,
+              RawSource dflt = RawSource(),
+              QString useLabel = "",
+              int min = -100,
+              int max = 100,
+              int precision = 1,
               int decimals = 0,
-              QString suffixValue = QString());
+              double step = 1,
+              QString prefix = "",
+              QString suffix = "");
 
     void setVisible(bool state);
     void update(bool notify = true);
@@ -76,13 +83,15 @@ class RawSourceExtWidget : public RawSourceWidget {
     void valueChanged();
 
   protected:
-    int minValue;
-    int maxValue;
-    double stepValue;
-    int decimals;
-    QString suffixValue;
-    QString chkUseLabel;
     int uiFlags;
+    QString useLabel;
+    int min;
+    int max;
+    int precision;
+    int decimals;
+    double step;
+    QString prefix;
+    QString suffix;
 
   private:
     QCheckBox *chkUse;
