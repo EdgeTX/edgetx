@@ -805,6 +805,7 @@
 #define TR_VOLUME                      "Загальна гучн."
 #define TR_LCD                         "LCD"		/*use english*/
 #define TR_BRIGHTNESS                  "Яскравість"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                    "CPU темп."
 #define TR_COPROC                      "Сопроцессор"
 #define TR_COPROC_TEMP                 "MB темп."

@@ -839,6 +839,7 @@
 #define TR_VOLUME                         "볼륨"
 #define TR_LCD                            "LCD"
 #define TR_BRIGHTNESS                     "밝기"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                       "CPU 온도"
 #define TR_COPROC                         "보조 프로세서"
 #define TR_COPROC_TEMP                    "메인보드 온도"

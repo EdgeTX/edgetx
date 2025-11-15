@@ -799,6 +799,7 @@
 #define TR_VOLUME                      "Lautstärke"
 #define TR_LCD                         "Bildschirm"
 #define TR_BRIGHTNESS                  "Helligkeit"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                    "CPU-Temp.\016>"
 #define TR_COPROC                      "CoProz."
 #define TR_COPROC_TEMP                 "MB Temp. \016>"

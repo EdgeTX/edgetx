@@ -430,6 +430,11 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
     customFn[i].convert(cstate.withComponentIndex(i));
   }
 
+  cstate.setComponent("");
+  cstate.setSubComp(tr("Backlight Source"));
+  backlightSrc.convert(cstate);
+  cstate.setSubComp(tr("Volume Source"));
+  volumeSrc.convert(cstate);
 }
 
 QString GeneralSettings::antennaModeToString() const

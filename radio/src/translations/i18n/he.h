@@ -807,6 +807,7 @@
 #define TR_VOLUME                      "עוצמה"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "בהירות"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                    "טמפ' גבוה במעבד"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."

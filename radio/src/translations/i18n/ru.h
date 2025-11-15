@@ -806,6 +806,7 @@
 #define TR_VOLUME                      "Громкость"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Подсветка"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                    "Темпер проц"
 #define TR_COPROC                      "Сопроцессор"
 #define TR_COPROC_TEMP                 "Темпер сопроц"

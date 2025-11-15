@@ -803,6 +803,7 @@
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "輝度"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                    "CPU温度"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB温度"

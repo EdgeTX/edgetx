@@ -445,6 +445,7 @@
 #define STR_CONNECTED currentLangStrings->STR_CONNECTED
 #define STR_CONSTANT currentLangStrings->STR_CONSTANT
 #define STR_CONTRAST currentLangStrings->STR_CONTRAST
+#define STR_CONTROL currentLangStrings->STR_CONTROL
 #define STR_COPROC_TEMP currentLangStrings->STR_COPROC_TEMP
 #define STR_COPROC currentLangStrings->STR_COPROC
 #define STR_COPY_FILE currentLangStrings->STR_COPY_FILE

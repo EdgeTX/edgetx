@@ -799,6 +799,7 @@
 #define TR_VOLUME                      "Äänenvoimakkuus"
 #define TR_LCD                         "LCD-näyttö"
 #define TR_BRIGHTNESS                  "Kirkkaus"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP                    "CPU:n lämpötila\016>"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp. \016>"

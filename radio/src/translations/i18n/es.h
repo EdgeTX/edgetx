@@ -799,6 +799,7 @@
 #define TR_VOLUME              "Volumen"
 #define TR_LCD                 "LCD"
 #define TR_BRIGHTNESS          "Brillo"
+#define TR_CONTROL                     "Control"
 #define TR_CPU_TEMP            "CPU Temp.\016>"
 #define TR_COPROC              "CoProc."
 #define TR_COPROC_TEMP         "MB Temp. \016>"
