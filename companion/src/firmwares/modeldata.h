@@ -43,6 +43,7 @@
 class GeneralSettings;
 class RadioDataConversionState;
 class AbstractStaticItemModel;
+class SourceNumRef;
 
 constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
 constexpr char AIM_MODELDATA_FUNCSWITCHCONFIG[]  {"modeldata.funcswitchconfig"};
@@ -430,4 +431,5 @@ class ModelData {
         value = swtch.toValue();
     }
     void updateResetParam(CustomFunctionData * cfd);
+    void updateSourceNumRef(int & value);
 };
