@@ -33,6 +33,8 @@
 #include "storage/modelslist.h"
 #include "tasks/mixer_task.h"
 #include "slider.h"
+#include "key_shortcuts.h"
+#include "quick_menu_favorites.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -827,7 +829,7 @@ static SetupLineDef setupLines[] = {
                       PageGroup* pg = (PageGroup*)Layer::getPageGroup();
                       coord_t y = pg->getScrollY();
                       pg->onCancel();
-                      PageGroup::RadioMenu();
+                      QuickMenu::openPage(QM_RADIO_SETUP);
                       pg = (PageGroup*)Layer::getPageGroup();
                       pg->setScrollY(y);
                       // Force QM rebuild for language change
@@ -955,6 +957,15 @@ static SetupLineDef setupLines[] = {
 
 RadioSetupPage::RadioSetupPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
 
+static bool hasShortcutKeys()
+{
+#if defined(USE_HATS_AS_KEYS)
+  return true;
+#else
+  return keysGetSupported() & ((1 << KEY_MODEL) | (1 << KEY_SYS) | (1 << KEY_TELE));
+#endif
+}
+
 void RadioSetupPage::build(Window* window)
 {
   coord_t y = 0;
@@ -980,6 +991,8 @@ void RadioSetupPage::build(Window* window)
     {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
     {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
+    {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, [=]() { return hasShortcutKeys(); }},
+    {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
   }, BTN_H);
   y += w->height() + padding;
 

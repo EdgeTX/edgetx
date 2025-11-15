@@ -154,8 +154,6 @@ class SpecialFunctionsPage : public FunctionsPage
  public:
   SpecialFunctionsPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelSFEnabled(); }
-
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;
   FunctionEditPage* editPage(uint8_t index) const override;
@@ -170,8 +168,6 @@ class GlobalFunctionsPage : public FunctionsPage
 {
  public:
   GlobalFunctionsPage(PageDef& pageDef);
-
-  bool isVisible() const override { return radioGFEnabled(); }
 
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;

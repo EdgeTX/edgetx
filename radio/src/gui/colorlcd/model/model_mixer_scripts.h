@@ -29,8 +29,6 @@ class ModelMixerScriptsPage : public PageGroupItem
  public:
   ModelMixerScriptsPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelCustomScriptsEnabled(); }
-
   virtual void build(Window* window) override { build(window, 0); }
 
  protected:

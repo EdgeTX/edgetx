@@ -521,7 +521,7 @@ class ModelLayoutButton : public IconButton
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 {
-  QuickMenu::setCurrentPage(QuickMenu::MANAGE_MODELS);
+  QuickMenu::setCurrentPage(QM_MANAGE_MODELS);
 
   buildHead(header);
   buildBody(body);
@@ -550,23 +550,22 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();
-  // Radio setup
-  PageGroup::ToolsMenu();
+  Page::onLongPressSYS();
 }
 void ModelLabelsWindow::onPressMDL()
 {
   onCancel();
-  PageGroup::ModelMenu();
+  Page::onPressMDL();
 }
 void ModelLabelsWindow::onPressTELE()
 {
   onCancel();
-  (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  Page::onPressTELE();
 }
 void ModelLabelsWindow::onLongPressTELE()
 {
   onCancel();
-  new ChannelsViewMenu();
+  Page::onLongPressTELE();
 }
 void ModelLabelsWindow::onPressPG(bool isNext)
 {

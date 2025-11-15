@@ -29,8 +29,6 @@ class ModelFlightModesPage : public PageGroupItem
  public:
   ModelFlightModesPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelFMEnabled(); }
-
   void build(Window* window) override;
 
  protected:

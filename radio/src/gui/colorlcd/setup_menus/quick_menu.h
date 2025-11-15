@@ -25,6 +25,7 @@
 #include "bitmaps.h"
 #include <vector>
 #include "quick_menu_group.h"
+#include "quick_menu_def.h"
 
 class PageGroup;
 class PageGroupBase;
@@ -42,76 +43,36 @@ struct PageDef;
 class QuickMenu : public NavWindow
 {
  public:
-  enum SubMenu {
-    NONE = 0,
-    MANAGE_MODELS,
-    FIRST_SUB_MENU_ITEM,
-    // Model menu
-    MODEL_SETUP = FIRST_SUB_MENU_ITEM,
-    MODEL_HELI,
-    MODEL_FLIGHTMODES,
-    MODEL_INPUTS,
-    MODEL_MIXES,
-    MODEL_OUTPUTS,
-    MODEL_CURVES,
-    MODEL_GVARS,
-    MODEL_LS,
-    MODEL_SF,
-    MODEL_SCRIPTS,
-    MODEL_TELEMETRY,
-    MODEL_NOTES,
-    // Radio menu
-    RADIO_SETUP,
-    RADIO_GF,
-    RADIO_TRAINER,
-    RADIO_HARDWARE,
-    RADIO_VERSION,
-    // UI menu
-    UI_THEMES,
-    UI_SETUP,
-    UI_SCREEN1,
-    UI_SCREEN2,
-    UI_SCREEN3,
-    UI_SCREEN4,
-    UI_SCREEN5,
-    UI_SCREEN6,
-    UI_SCREEN7,
-    UI_SCREEN8,
-    UI_SCREEN9,
-    UI_SCREEN10,
-    UI_ADD_PG,
-    // Tools menu
-    TOOLS_APPS,
-    TOOLS_STORAGE,
-    TOOLS_RESET,
-    TOOLS_CHAN_MON,
-    TOOLS_LS_MON,
-    TOOLS_STATS,
-    TOOLS_DEBUG,
-  };
 
   QuickMenu();
-
-  static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
-            std::function<void(bool close)> selectHandler = nullptr,
-            PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
-  static void shutdownQuickMenu();
 
   void onCancel() override;
   void onSelect(bool close);
   void closeMenu();
 
-  void setFocus(SubMenu selection);
+  void setFocus(QMPage selection);
 
   void enableSubMenu();
 
-  SubMenu currentPage() const { return curPage; }
-  static void setCurrentPage(SubMenu newPage) { curPage = newPage; }
+  static void setCurrentPage(QMPage newPage, EdgeTxIcon newIcon = EDGETX_ICONS_COUNT);
 
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
 
+  static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
+            std::function<void(bool close)> selectHandler = nullptr,
+            PageGroupBase* pageGroup = nullptr, QMPage curPage = QM_NONE);
+
+  static void shutdownQuickMenu();
+  static void selected();
+  static void openPage(QMPage page);
+  static EdgeTxIcon pageIcon(QMPage page);
+  static int pageIndex(QMPage page);
+  static std::vector<std::string> menuPageNames(bool forFavorites);
+  static void setupFavorite(QMPage page, int f);
+
 #if defined(HARDWARE_KEYS)
+  void doKeyShortcut(event_t event);
   void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
@@ -147,49 +108,14 @@ class QuickMenu : public NavWindow
   QuickMenuGroup* mainMenu = nullptr;
   std::vector<QuickSubMenu*> subMenus;
   PageGroupBase* pageGroup = nullptr;
-  static SubMenu curPage;
+  static QMPage curPage;
+  static EdgeTxIcon curIcon;
 
   void openQM(std::function<void()> cancelHandler,
               std::function<void(bool close)> selectHandler,
-              PageGroupBase* pageGroup, SubMenu curPage);
+              PageGroupBase* pageGroup, QMPage curPage);
 
   void focusMainMenu();
 
   void deleteLater(bool detach = true, bool trash = true) override;
-};
-
-class QuickSubMenu
-{
- public:
-  QuickSubMenu(Window* parent, QuickMenu* quickMenu,
-               EdgeTxIcon icon, const char* title, const char* parentTitle,
-               PageDef* items):
-    parent(parent), quickMenu(quickMenu),
-    icon(icon), title(title), parentTitle(parentTitle), items(items)
-  {}
-
-  bool isSubMenu(QuickMenu::SubMenu n);
-  bool isSubMenu(ButtonBase* b);
-  int getIndex(QuickMenu::SubMenu n);
-
-  ButtonBase* addButton();
-  void enableSubMenu();
-  void setDisabled(bool all);
-  void setCurrent(QuickMenu::SubMenu n);
-  void activate();
-  void buildSubMenu();
-  uint8_t onPress(int n);
-  void onSelect(bool close);
-  int getPageNumber(int iconNumber);
-  void doLayout();
-
- protected:
-  Window* parent;
-  QuickMenu* quickMenu;
-  EdgeTxIcon icon;
-  const char* title;
-  const char* parentTitle;
-  PageDef* items;
-  QuickMenuGroup* subMenu = nullptr;
-  ButtonBase* menuButton = nullptr;
 };
