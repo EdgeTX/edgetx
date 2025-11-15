@@ -99,7 +99,7 @@ void Page::deleteLater(bool detach, bool trash)
   Layer::pop(this);
   Layer::back()->show();
 
-  Window::deleteLater(detach, trash);
+  NavWindow::deleteLater(detach, trash);
 }
 
 void Page::onCancel() { deleteLater(); }
