@@ -124,6 +124,8 @@ class PageGroupHeaderBase : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return pages.size(); }
 
+  void deleteLater(bool detach = true, bool trash = true) override;
+
  protected:
   uint8_t currentIndex = 0;
   lv_obj_t* titleLabel = nullptr;
