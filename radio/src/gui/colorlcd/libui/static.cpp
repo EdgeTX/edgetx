@@ -186,6 +186,7 @@ void StaticIcon::deleteLater(bool detach, bool trash)
   if (_deleted) return;
   if (mask) free(mask);
   mask = nullptr;
+  Window::deleteLater(detach, trash);
 }
 
 void StaticIcon::setColor(LcdColorIndex color)
