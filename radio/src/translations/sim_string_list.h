@@ -412,6 +412,8 @@
 #define STR_BEEPCTR currentLangStrings->STR_BEEPCTR
 #define STR_BG_VOLUME currentLangStrings->STR_BG_VOLUME
 #define STR_BIND currentLangStrings->STR_BIND
+#define STR_PAIRING currentLangStrings->STR_PAIRING
+#define STR_BTAUDIO currentLangStrings->STR_BTAUDIO
 #define STR_BINDING_CH1_8_TELEM_OFF currentLangStrings->STR_BINDING_CH1_8_TELEM_OFF
 #define STR_BINDING_CH1_8_TELEM_ON currentLangStrings->STR_BINDING_CH1_8_TELEM_ON
 #define STR_BINDING_CH9_16_TELEM_OFF currentLangStrings->STR_BINDING_CH9_16_TELEM_OFF

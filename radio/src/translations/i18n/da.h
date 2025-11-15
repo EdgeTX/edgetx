@@ -1017,6 +1017,8 @@
 #define TR_RECEIVER_RESET              "Nulstil modtager?"
 #define TR_SHARE                       "Del"
 #define TR_BIND                        "Tilslut"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrer"))
 #define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
 #define TR_RANGE_TEST                  "Test af rækkevidde"

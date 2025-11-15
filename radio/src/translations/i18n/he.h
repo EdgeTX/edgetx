@@ -1015,6 +1015,8 @@
 #define TR_RECEIVER_RESET              "? איפוס מקלט"
 #define TR_SHARE                       "שיתוף"
 #define TR_BIND                        "צימוד"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Reg", "Register"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "בדיקת טווח קליטה"))
 #define TR_RANGE_TEST                  "בדיקת טווח"

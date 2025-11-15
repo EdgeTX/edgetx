@@ -1058,6 +1058,8 @@
 #define TR_RECEIVER_RESET                 "수신기를 초기화할까요?"
 #define TR_SHARE                          "공유"
 #define TR_BIND                           "바인딩"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                       BUTTON(TR("등록", "등록"))
 #define TR_MODULE_RANGE                   BUTTON(TR("범위", "범위 테스트"))
 #define TR_RANGE_TEST                     "범위 테스트"

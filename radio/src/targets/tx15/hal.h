@@ -513,6 +513,9 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define BT_TX_GPIO                          GPIO_PIN(GPIOB, 9)
 #define BT_RX_GPIO                          GPIO_PIN(GPIOB, 8)
 #define BT_EN_GPIO                          GPIO_PIN(GPIOH, 11)
+#elif defined(KCX_BTAUDIO)
+#define BTAUDIO_LINKED_GPIO                 GPIO_PIN(GPIOH, 11)
+#define BTAUDIO_CONNECT_GPIO                GPIO_PIN(GPIOB, 9)
 #endif
 
 #if defined(FLYSKY_GIMBAL)

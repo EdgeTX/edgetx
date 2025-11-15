@@ -1006,6 +1006,8 @@
 #define TR_RECEIVER_RESET              "Reset receptor?"
 #define TR_SHARE                       "Compartido"
 #define TR_BIND                        "Emparejar"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER             BUTTON(TR("Reg", "Registrar"))
 #define TR_MODULE_RANGE        "[Lim.]"
 #define TR_RANGE_TEST                  "Range test"

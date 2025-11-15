@@ -1012,6 +1012,8 @@
 #define TR_RECEIVER_RESET              "是否复位接收机?"
 #define TR_SHARE                       "分享"
 #define TR_BIND                        "对频"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("注册", "注册"))
 #define TR_MODULE_RANGE                BUTTON(TR("测距", "测距"))
 #define TR_RANGE_TEST                  "距离测试(低功率)"

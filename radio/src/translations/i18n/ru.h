@@ -1014,6 +1014,8 @@
 #define TR_RECEIVER_RESET              "Сбросить приемник?"
 #define TR_SHARE                       "Поделиться"
 #define TR_BIND                        "Bind"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Рег", "Регистр"))
 #define TR_MODULE_RANGE                BUTTON(TR("Диап", "Диапазон"))
 #define TR_RANGE_TEST                  "Тест диапазона"

@@ -8,7 +8,8 @@ option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(BLUETOOTH "FrSky BT module support" OFF)
-option(FLYSKY_GIMBAL "Serial gimbal support" ON)
+option(FLYSKY_GIMBAL "Serial gimbal support" OFF)
+option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -31,6 +32,9 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 # BT and serial gimbal share same UART
 if(BLUETOOTH)
+  set(FLYSKY_GIMBAL OFF)
+  set(KCX_BTAUDIO OFF)
+elseif(KCX_BTAUDIO)
   set(FLYSKY_GIMBAL OFF)
 endif()
 
@@ -148,6 +152,13 @@ if(BLUETOOTH)
   set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
     targets/common/arm/stm32/bluetooth_driver.cpp
   )
+endif()
+
+if(KCX_BTAUDIO)
+  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
+    drivers/kcx_btaudio.cpp
+  )
+  add_definitions(-DKCX_BTAUDIO)
 endif()
 
 # Bootloader board library

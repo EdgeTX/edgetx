@@ -1011,6 +1011,8 @@
 #define TR_RECEIVER_RESET              "受信機をリセットしますか？"
 #define TR_SHARE                       "共有"
 #define TR_BIND                        "Bind"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Reg", "登録"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "受信強度"))
 #define TR_RANGE_TEST                  "受信強度テスト"

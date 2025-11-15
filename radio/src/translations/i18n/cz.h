@@ -1010,6 +1010,8 @@
 #define TR_RECEIVER_RESET              "Resetovat přijímač?"
 #define TR_SHARE                       "Sdílet"
 #define TR_BIND                        "Párovat"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrovat"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
 #define TR_RANGE_TEST                  "Test dosahu"

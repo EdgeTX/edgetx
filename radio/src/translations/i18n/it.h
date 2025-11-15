@@ -1012,6 +1012,8 @@
 #define TR_RECEIVER_RESET               "Resetto RX?"
 #define TR_SHARE                        "Condividere"
 #define TR_BIND                         "Bind"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registrare"))
 #define TR_MODULE_RANGE                 TR("[Rng]","[Range]")
 #define TR_RANGE_TEST                  "Test del link radio a bassa potenza"

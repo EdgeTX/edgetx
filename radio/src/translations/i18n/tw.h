@@ -1009,6 +1009,8 @@
 #define TR_RECEIVER_RESET              "是否重啟接收機?"
 #define TR_SHARE                       "分享"
 #define TR_BIND                        "對頻"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("註冊", "註冊"))
 #define TR_MODULE_RANGE                BUTTON(TR("測距", "測距"))
 #define TR_RANGE_TEST                  "距離測試(低功率)"

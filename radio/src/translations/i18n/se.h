@@ -1013,6 +1013,8 @@
 #define TR_RECEIVER_RESET               "Återställ mottagare?"
 #define TR_SHARE                        "Dela"
 #define TR_BIND                         "Parkopplar"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registrera"))
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
 #define TR_RANGE_TEST                   "Test av radiolänkkvalitet (begränsad signalstyrka)"
