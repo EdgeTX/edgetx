@@ -26,10 +26,7 @@
 #include "etx_lv_theme.h"
 #include "trims.h"
 #include "topbar.h"
-
-extern inline tmr10ms_t getTicks() { return g_tmr10ms; }
-
-#define PREVIEW_WINDOW_REFRESH_INTERVAL ((1000 / 10) * 1)
+#include "quick_menu_group.h"
 
 // class to hold a color list and apply / restore it while drawing standard
 // controls
@@ -146,34 +143,55 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY3_INDEX);
 
-  auto topbar = new Window(this, {0, 0, LV_PCT(100), TopBar::TOPBAR_ZONE_HEIGHT});
+  auto topbar = new Window(this, {0, 0, LV_PCT(100), EdgeTxStyles::MENU_HEADER_HEIGHT});
   etx_solid_bg(topbar->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
 
-  new StaticIcon(topbar, ICON_X1, ICON_Y, ICON_RADIO,
-                 COLOR_THEME_PRIMARY2_INDEX);
-  new StaticIcon(topbar, ICON_X2, ICON_Y, ICON_RADIO_TOOLS,
-                 COLOR_THEME_PRIMARY2_INDEX);
-  new StaticIcon(topbar, ICON_X3, ICON_Y, ICON_RADIO_SETUP,
-                 COLOR_THEME_PRIMARY2_INDEX);
+  new HeaderIcon(topbar, ICON_EDGETX);
 
-  new StaticText(this, {ICON_X1, CBT_Y, CBT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_CHECKBOX);
+  new StaticText(this, {CBT_X, CBT_Y, CBT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_CHECKBOX);
   new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, 0}, true);
   new ThemedCheckBox(this, {CB2_X, CB_Y, CB_W, 0}, false);
   (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, 0}, STR_THEME_ACTIVE, true))
       ->check(true);
   new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, 0}, STR_THEME_REGULAR, false);
-  new MainViewTrim(this, {ICON_X1, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
-  new MainViewSlider(this, {ICON_X1, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
-  new StaticText(this, {ICON_X1, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING, 
+  new MainViewTrim(this, {CBT_X, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
+  new MainViewSlider(this, {CBT_X, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
+  new StaticText(this, {CBT_X, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING, 
                  COLOR_THEME_WARNING_INDEX);
-  new StaticText(this, {ICON_X1, TXT2_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_DISABLED, 
+  new StaticText(this, {CBT_X, TXT2_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_DISABLED, 
                  COLOR_THEME_DISABLED_INDEX);
 
-  new ThemedTextEdit(this, {ICON_X1, EDT_Y, TXT_W, 0}, STR_THEME_EDIT, true);
-  new ThemedTextEdit(this, {EDT2_X, EDT_Y, TXT_W, 0}, STR_THEME_FOCUS, false);
-  ticks = 0;
+  new ThemedTextEdit(this, {CBT_X, EDT_Y, EDY_W, 0}, STR_THEME_EDIT, true);
+  new ThemedTextEdit(this, {EDT2_X, EDT_Y, EDY_W, 0}, STR_THEME_FOCUS, false);
 
   new HeaderDateTime(this, width() - DATE_XO, PAD_SMALL);
+
+  auto qm = new Window(this, {QM_X, QM_Y, QM_W, QM_H});
+  etx_solid_bg(qm->getLvObj(), COLOR_THEME_QM_BG_INDEX);
+  etx_obj_add_style(qm->getLvObj(), styles->bg_opacity_90, LV_PART_MAIN);
+  auto sep = lv_obj_create(qm->getLvObj());
+  etx_solid_bg(sep, COLOR_THEME_QM_FG_INDEX);
+  lv_obj_set_size(sep, LCD_W, PAD_THREE);
+  auto mask = getBuiltinIcon(ICON_TOP_LOGO);
+  new StaticIcon(qm, (QM_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
+
+  auto qmb = new Window(qm, {PAD_SMALL, mask->height + PAD_SMALL, QuickMenuGroup::QM_BUTTON_WIDTH, QuickMenuGroup::QM_BUTTON_HEIGHT});
+  etx_obj_add_style(qmb->getLvObj(), styles->rounded, LV_PART_MAIN);
+  etx_txt_color(qmb->getLvObj(), COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
+  etx_solid_bg(qmb->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
+  auto iconPtr = new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
+                  ICON_MODEL_SELECT, COLOR_THEME_QM_FG_INDEX);
+  auto textPtr = new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+                  STR_QM_MANAGE_MODELS, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XS));
+
+  qmb = new Window(qm, {QuickMenuGroup::QM_BUTTON_WIDTH + PAD_SMALL * 2, mask->height + PAD_SMALL, QuickMenuGroup::QM_BUTTON_WIDTH, QuickMenuGroup::QM_BUTTON_HEIGHT});
+  etx_obj_add_style(qmb->getLvObj(), styles->rounded, LV_PART_MAIN);
+  etx_txt_color(qmb->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
+  etx_solid_bg(qmb->getLvObj(), COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
+  iconPtr = new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
+                  ICON_MODEL, COLOR_THEME_QM_BG_INDEX);
+  textPtr = new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+                  STR_QM_MODEL_SETUP, COLOR_THEME_QM_BG_INDEX, CENTERED | FONT(XS));
 
   lv_group_set_default(def_group);
 
