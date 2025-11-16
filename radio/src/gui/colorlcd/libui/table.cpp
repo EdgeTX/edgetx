@@ -323,12 +323,14 @@ void TableField::setAutoEdit()
 
 void TableField::deleteLater(bool detach, bool trash)
 {
-  if (!deleted())
+  if (!deleted()) {
     if (autoedit) {
       lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
       if (g) {
         lv_group_set_focus_cb(g, nullptr);
         lv_group_set_editing(g, false);
       }
+      Window::deleteLater(detach, trash);
     }
+  }
 }

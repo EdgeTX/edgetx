@@ -104,7 +104,7 @@ ViewMain::~ViewMain() { _instance = nullptr; }
 void ViewMain::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
-  Window::deleteLater(detach, trash);
+  NavWindow::deleteLater(detach, trash);
 }
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
