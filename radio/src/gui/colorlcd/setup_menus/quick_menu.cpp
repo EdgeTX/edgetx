@@ -252,7 +252,7 @@ void QuickMenu::deleteLater(bool detach, bool trash)
 
   instance = nullptr;
 
-  Window::deleteLater(detach, trash);
+  NavWindow::deleteLater(detach, trash);
 }
 
 void QuickMenu::openQM(std::function<void()> cancelHandler,

@@ -81,7 +81,7 @@ void PageGroupHeaderBase:: setTitle(const char* title)
 
 void PageGroupHeaderBase::setIcon(EdgeTxIcon newIcon)
 {
-  hdrIcon->setIcon(newIcon);
+  if (hdrIcon) hdrIcon->setIcon(newIcon);
 }
 
 void PageGroupHeaderBase::addTab(PageGroupItem* page)
@@ -96,6 +96,17 @@ bool PageGroupHeaderBase::hasSubMenu(QuickMenu::SubMenu subMenu)
       return true;
   }
   return false;
+}
+
+void PageGroupHeaderBase::deleteLater(bool detach, bool trash)
+{
+  if (deleted()) return;
+
+  for (uint8_t i = 0; i < pages.size(); i += 1)
+    delete pages[i];
+  pages.clear();
+
+  Window::deleteLater(detach, trash);
 }
 
 //-----------------------------------------------------------------------------
@@ -171,7 +182,7 @@ void PageGroupBase::checkEvents()
 {
   if (deleted()) return;
 
-  Window::checkEvents();
+  NavWindow::checkEvents();
   if (currentTab) {
     currentTab->checkEvents();
   }
@@ -185,7 +196,7 @@ void PageGroupBase::deleteLater(bool detach, bool trash)
   Layer::pop(this);
   Layer::back()->show();
 
-  Window::deleteLater(detach, trash);
+  NavWindow::deleteLater(detach, trash);
 }
 
 void PageGroupBase::onClicked() { Keyboard::hide(false); }
