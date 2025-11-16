@@ -110,6 +110,7 @@ void ledOff()
 void ledRed()
 {
 #if defined(LED_RED_GPIO)
+  ledOff();
   GPIO_LED_GPIO_ON(LED_RED_GPIO);
 #endif
 }
@@ -117,6 +118,7 @@ void ledRed()
 void ledGreen()
 {
 #if defined(LED_GREEN_GPIO)
+  ledOff();
   GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
 #endif
 }
@@ -124,6 +126,7 @@ void ledGreen()
 void ledBlue()
 {
 #if defined(LED_BLUE_GPIO)
+  ledOff();
   GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
 #endif
 }
