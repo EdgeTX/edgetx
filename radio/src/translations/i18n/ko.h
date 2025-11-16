@@ -1303,6 +1303,8 @@
 #define TR_THEME_COLOR_ACTIVE             "활성 항목"
 #define TR_THEME_COLOR_WARNING            "경고"
 #define TR_THEME_COLOR_DISABLED           "비활성"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM             "사용자 정의"
 #define TR_THEME_CHECKBOX                 "체크박스"
 #define TR_THEME_ACTIVE                   "활성"

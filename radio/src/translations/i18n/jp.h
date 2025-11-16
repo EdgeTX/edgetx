@@ -1257,6 +1257,8 @@
 #define TR_THEME_COLOR_ACTIVE           "有効"
 #define TR_THEME_COLOR_WARNING          "警告"
 #define TR_THEME_COLOR_DISABLED         "無効"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "カスタム"
 #define TR_THEME_CHECKBOX               "チェック"
 #define TR_THEME_ACTIVE                 "有効"

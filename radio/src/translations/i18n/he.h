@@ -1261,6 +1261,8 @@
 #define TR_THEME_COLOR_ACTIVE           "פעיל"
 #define TR_THEME_COLOR_WARNING          "אזהרה"
 #define TR_THEME_COLOR_DISABLED         "לא פעיל"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "מתקדם"
 #define TR_THEME_CHECKBOX               "Checkbox"
 #define TR_THEME_ACTIVE                 "פעיל"

@@ -1258,6 +1258,8 @@
 #define TR_THEME_COLOR_ACTIVE           "ATTIVO"
 #define TR_THEME_COLOR_WARNING          "ATTENZIONE"
 #define TR_THEME_COLOR_DISABLED         "DISABILITATO"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "PERSONALE"
 #define TR_THEME_CHECKBOX               "Casella di spunta"
 #define TR_THEME_ACTIVE                 "Attivo"

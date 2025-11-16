@@ -1260,6 +1260,8 @@
 #define TR_THEME_COLOR_ACTIVE           "АКТИВНАЯ"
 #define TR_THEME_COLOR_WARNING          "ПРЕД-НИЕ"
 #define TR_THEME_COLOR_DISABLED         "ОТКЛ-НАЯ"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "ПОЛ-КАЯ"
 #define TR_THEME_CHECKBOX               "Checkbox"
 #define TR_THEME_ACTIVE                 "АКТИВНАЯ"

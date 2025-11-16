@@ -1261,6 +1261,8 @@
 #define TR_THEME_COLOR_ACTIVE          "Aktiv"
 #define TR_THEME_COLOR_WARNING         "Warnung"
 #define TR_THEME_COLOR_DISABLED        "Deaktiviert"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM          "Eigene"
 #define TR_THEME_CHECKBOX              "Schalter"
 #define TR_THEME_ACTIVE                "Aktiv"

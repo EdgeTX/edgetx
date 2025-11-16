@@ -1262,6 +1262,8 @@
 #define TR_THEME_COLOR_ACTIVE           "AKTIVNÍ"
 #define TR_THEME_COLOR_WARNING          "VAROVÁNÍ"
 #define TR_THEME_COLOR_DISABLED         "VYPNUTÉ"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "VLASTNÍ"
 #define TR_THEME_CHECKBOX               "Pole výběru"
 #define TR_THEME_ACTIVE                 "Aktivní"
