@@ -182,7 +182,7 @@ void PageGroupBase::checkEvents()
 {
   if (deleted()) return;
 
-  Window::checkEvents();
+  NavWindow::checkEvents();
   if (currentTab) {
     currentTab->checkEvents();
   }
