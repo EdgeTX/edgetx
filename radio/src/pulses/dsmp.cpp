@@ -28,6 +28,8 @@
 
 #define DSMP_BITRATE        115200
 
+#define MAX_REG_CHANNELS    12
+
 // DSMP Flags
 #define DSMP_FLAGS_DSMX 0x01
 #define DSMP_FLAGS_DSM2 0x00
@@ -51,6 +53,8 @@
 #define DSMP_CH_AETR       ((3<<6)|(2<<4)|(1<<2)|0)
 #define DSMP_CH_TAER       ((3<<6)|(0<<4)|(2<<2)|1)
 
+#define DSMP_NO_CHANNEL     0xFF
+
 // MAP AETR->TAER:     
 static uint8_t AETR_TAER_MAP[] = {2, 0, 1};  
 
@@ -71,8 +75,23 @@ static DSMPModuleStatus dsmpStatus = DSMPModuleStatus();
 // The only way to properly fix it is at the DSMP firmware level.. (fixed on DSMP V2).
 
 
-#define FAST_INITIAL_SETUP_COUNT  200  // 3*22*100=6.6 sec of sending fast status after module activation
+#define FAST_INITIAL_SETUP_COUNT  50  // 3*22*50=3.3 sec of sending fast status after module activation
+
+// Using 22.06ms instead of 22ms for V1 module.. This is becuase the module try to send 4 RF
+// packets to the RX with with spacing 4/7/4/7 (22ms cycle) just after receiving
+// the message from the TX (perfect world). But the timing is not perfect on the
+// DSMP module, is really 4.025/7.033/4.025/6.x and the last will be cut too short
+// to 6.88 by the new TX message (needs to be at least 6.92, up to 7.05). That
+// can create problems in some RXs (Servos not moving smoth). Compensating for
+// that little extra delay to make the last closer to 7ms spacing. 
+
+#define SCHEDULER_PERIOD_V1       22060
+#define SCHEDULER_PERIOD_V2       11000
+
 static uint8_t pass;
+static uint8_t pass0_counter;
+static uint8_t pass0_period;
+
 static uint16_t fastSetup_count;  
 
 DSMPModuleStatus& getDSMPStatus(uint8_t module)
@@ -82,13 +101,12 @@ DSMPModuleStatus& getDSMPStatus(uint8_t module)
 
 static void* dsmpInit(uint8_t module)
 {
-    // FARZU: This was 11ms cycle time... but from discusing with FMak (LemonRX), the DSMP is
-    // using 22ms cycles
     TRACE("[DSMP] dsmpInit()");
-    moduleState[module].counter = 2; // Send Setup every 2 ch data packages
-    pass = 1;
+    pass0_counter = 2;  // Send Setup every 2 ch data packages
+    pass = 1;           // Start Sending channels
+    pass0_period = 100; // Send pass0 every 100 messages
     fastSetup_count = FAST_INITIAL_SETUP_COUNT;
-    return (void*)dsmInit(module, DSMP_BITRATE, 22 * 1000 /* 22ms in us */, true);
+    return (void*)dsmInit(module, DSMP_BITRATE, SCHEDULER_PERIOD_V1, true);
 }
 
 
@@ -138,16 +156,12 @@ static uint16_t getDSMPChannelValue(uint8_t module, uint8_t flags, uint8_t chann
     // Map from AETR->TAER ???
     if ((flags & DSMP_FLAGS_FUTABA) && (channel < 3)) { 
         txChannel = AETR_TAER_MAP[channel];
-
-        //if (moduleState[module].counter == 10) {
-        //  TRACE("[DSMP] Channel Mapping: Ch%d -> Ch%d", txChannel, channel);
-        //}
     }
 
     int value = channelOutputs[txChannel] + 2 * PPM_CH_CENTER(txChannel) - 2 * PPM_CENTER;
     uint16_t pulse;
-    // Use 11-bit ?
-    if (flags & DSMP_FLAGS_2048) {
+    
+    if (flags & DSMP_FLAGS_2048) {  // Use 11-bit ?
         // Scale to 349/512=0.681, MultiModule is about 0.667
         pulse = limit(0, ((value * 349) >> 9) + 1024, 2047) | (channel << 11);
     } else {
@@ -166,18 +180,19 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
     auto channels   = md.getChannelsCount();
     auto flags      = md.dsmp.flags;
     auto module_mode = getModuleMode(module);
+    auto version     = dsmpStatus.version[0];
 
     if (md.dsmp.enableAETR) { // Move GUI settings to flags
         flags |= DSMP_FLAGS_FUTABA;  
     }
 
-    if (moduleState[module].counter == 50) {
+    if (pass0_counter == pass0_period/2) {
         // update status String.. about each second
         updateModuleStatus(flags);
     }
 
 #if defined(LUA)
-    if (isFPDataReady()) {  // Sent any forward prog data??
+    if ((version> 1) && isFPDataReady()) {  // Sent any forward prog data??
         sendFPLemonDSMP(p_buf);
         Multi_Buffer[3] = 0x00;  // Data sent, clear LUA to send more
         return;
@@ -194,7 +209,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 
         if (module_mode == MODULE_MODE_BIND) {
             flags = DSMP_FLAGS_BIND | DSMP_FLAGS_AUTO;
-            channels = 12;
+            channels = min<uint8_t>(channels, MAX_REG_CHANNELS);
         }
         sendByte(p_buf, flags);
 
@@ -217,17 +232,19 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 
         // Send channels
         for (int i=0; i<7; i++) {
-            if (current_channel < channels) {
-                uint16_t pulse = getDSMPChannelValue(module, flags, current_channel);   
+            uint16_t pulse = 0xFFFF;  // NO-DATA
+            uint8_t ch_to_send = DSMP_NO_CHANNEL;
 
-                sendByte(p_buf, pulse >> 8);
-                sendByte(p_buf, pulse & 0xFF);
-            } else {
-                // Outside of announced number of channels:
-                // -> send invalid value
-                sendByte(p_buf, 0xFF);
-                sendByte(p_buf, 0xFF);
+            if (current_channel < min<uint8_t>(channels,MAX_REG_CHANNELS)) {
+              ch_to_send = current_channel;
             }
+
+            if (ch_to_send != DSMP_NO_CHANNEL) {
+              pulse = getDSMPChannelValue(module, flags, ch_to_send);
+            }
+            
+            sendByte(p_buf, pulse >> 8);
+            sendByte(p_buf, pulse & 0xFF);
             current_channel++;
         }  // For
     }
@@ -237,14 +254,13 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 
     if (module_mode == MODULE_MODE_BIND) { // Force setup packet in Bind mode.
         pass = 0;
-    }
-    else if (--moduleState[module].counter == 0) {
+    } else if (--pass0_counter == 0) {
         pass = 0;
         updateModuleStatus(flags);
-        if (--fastSetup_count > 0) {
-            moduleState[module].counter = 2;    // Keep sendint setup every 2 ch messages
+        if ((version == 1) && (-- fastSetup_count > 0)) {
+            pass0_counter = 2;  // Keep sendint setup every 2 ch messages
         } else {
-            moduleState[module].counter = 100;  // every 100th packet is setup (about 2,200ms)
+          pass0_counter = pass0_period;  // restar counter
         }
     }
 }
@@ -291,8 +307,8 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
     g_model.moduleData[module].dsmp.flags = flags & DSMP_FLAGS_TXMODE;
 
     // save number of channels
-    if (channels > 12) {
-      channels = 12;
+    if (channels > MAX_REG_CHANNELS) {
+      channels = MAX_REG_CHANNELS;
     }
     g_model.moduleData[module].channelsCount = channels - 8;
     if (dsmpStatus.version[0] == 1) { // V1.0 always use modelId=0
@@ -312,9 +328,8 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
     uint8_t newPacket[10] = {0, 0, 0, 0, rxType, channels, txMode, 0, 0, 0};
     processDSMBindPacket(newPacket);
 
-    // FARZU: Not-Needed, the module_setup.cpp page is restarting the module.
-    // If we restart here, it seems to leave the TX module in a weird state that needs to retart the TX to fix it.
-    // restartModuleAsync(module, 50);  // ~500ms
+    // FARZU:.. The real problem was using module[moduleID].counter.. is actually used by the restart mechanism
+    restartModuleAsync(module, 10);  // ~100ms
 }
 
 
@@ -325,6 +340,12 @@ static void processDSMPManufacturerData(uint8_t module, uint8_t* packet)
     dsmpStatus.version[1] = packet[5];  // Minor
 
     TRACE("LemonDSMP: Ver [%d.%d]", dsmpStatus.version[0], dsmpStatus.version[1]);
+
+    if (dsmpStatus.version[0] > 1 && mixerSchedulerGetPeriod(module) != SCHEDULER_PERIOD_V2) {
+      // V2 suppors 11ms 
+      mixerSchedulerSetPeriod(module, SCHEDULER_PERIOD_V2);
+      pass0_period = 200; // extend period
+    }
 }
 
 static void dsmpTelemetryData(uint8_t module, uint8_t data,
@@ -426,6 +447,9 @@ void DSMPModuleStatus::getStatusString(char* statusText) const
         return;
     }
 
+    const auto& md = g_model.moduleData[EXTERNAL_MODULE];
+    auto channels = md.getChannelsCount();
+
     char* tmp = statusText;
 
     // Version
@@ -458,9 +482,24 @@ void DSMPModuleStatus::getStatusString(char* statusText) const
     mode = (flags & DSMP_FLAGS_11mS)? "_2F" : "_1F"; // 1 or 2 Frames (11ms/22ms)
     tmp = strAppend(tmp, mode, strlen(mode));
 
-    // Good for Debugging bind, but not much for regular users
+#if 0
+    // Good for Debugging, but not much for regular users
+    
     //mode = (flags & DSMP_FLAGS_2048)? " 2048" : " 1024";
     //tmp = strAppend(tmp, mode, strlen(mode));
+
+    tmp = strAppend(tmp, "  S:", 4);
+    uint16_t servoRefresh = (mixerSchedulerGetPeriod(EXTERNAL_MODULE) / 1000); 
+    if (channels > 7) servoRefresh *= 2;
+    tmp = strAppendUnsigned(tmp, servoRefresh);
+    tmp = strAppend(tmp, "ms", 2);
+
+    servoRefresh = mixerSchedulerGetPeriod(EXTERNAL_MODULE);
+    tmp = strAppend(tmp, "  TX:", 5);
+    tmp = strAppendUnsigned(tmp, servoRefresh);
+    tmp = strAppend(tmp, "us", 2);
+#endif
+
 }
 
 const etx_proto_driver_t DSMPDriver = {
