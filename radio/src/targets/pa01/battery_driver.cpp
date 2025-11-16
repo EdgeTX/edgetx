@@ -376,7 +376,8 @@ void handle_battery_charge(uint32_t last_press_time)
 #endif
 }
 
-#define BRIGHTNESS_MAX 255
+#define MAX_BRIGHT      255
+#define CHARGING_BRIGHT  20
 
 void rgbPowerOn(uint8_t color) {
   // Sequential RGB On
@@ -384,25 +385,25 @@ void rgbPowerOn(uint8_t color) {
   switch (power_on_step)
   {
     case RGB_STEP_POWER_AROUND:
-      setLedGroupColor(4, color, BRIGHTNESS_MAX);
-      setLedGroupColor(5, color, BRIGHTNESS_MAX);
-      setLedGroupColor(6, color, BRIGHTNESS_MAX);
+      setLedGroupColor(4, color, MAX_BRIGHT);
+      setLedGroupColor(5, color, MAX_BRIGHT);
+      setLedGroupColor(6, color, MAX_BRIGHT);
       break;
 
     case RGB_STEP_FUNC1:
-      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(0, color, MAX_BRIGHT);
       break;
       
     case RGB_STEP_FUNC2:
-      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, MAX_BRIGHT);
       break;   
 
     case RGB_STEP_FUNC3:
-      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, MAX_BRIGHT);
       break;  
 
     case RGB_STEP_FUNC4:
-      setLedGroupColor(3, color, BRIGHTNESS_MAX);
+      setLedGroupColor(3, color, MAX_BRIGHT);
       break;  
 
   default:
@@ -441,7 +442,7 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
     color = RGB_COLOR_PURPLE;
     if (rgb_state == RGB_STATE_CHARGE) {
       breath_index |= RGB_GROUP_MASK_FUNC_2;
-      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(0, color, CHARGING_BRIGHT);
       setLedGroupColor(2, color, 0);
       setLedGroupColor(3, color, 0);
     }
@@ -451,8 +452,8 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
     color = RGB_COLOR_YELLOW;
     if (rgb_state == RGB_STATE_CHARGE) {
       breath_index |= RGB_GROUP_MASK_FUNC_3;
-      setLedGroupColor(0, color, BRIGHTNESS_MAX);
-      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(0, color, CHARGING_BRIGHT);
+      setLedGroupColor(1, color, CHARGING_BRIGHT);
       setLedGroupColor(3, color, 0);
     }
     break;  
@@ -461,19 +462,19 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
     color = RGB_COLOR_GREEN;   
     if (rgb_state == RGB_STATE_CHARGE) {
       breath_index |= RGB_GROUP_MASK_FUNC_4;
-      setLedGroupColor(0, color, BRIGHTNESS_MAX);
-      setLedGroupColor(1, color, BRIGHTNESS_MAX);
-      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+      setLedGroupColor(0, color, CHARGING_BRIGHT);
+      setLedGroupColor(1, color, CHARGING_BRIGHT);
+      setLedGroupColor(2, color, CHARGING_BRIGHT);
     }
     break;  
 
   case POWER_LEVEL_FULL:
     color = RGB_COLOR_GREEN;
     if (rgb_state == RGB_STATE_CHARGE) {
-      setLedGroupColor(0, color, BRIGHTNESS_MAX);
-      setLedGroupColor(1, color, BRIGHTNESS_MAX);
-      setLedGroupColor(2, color, BRIGHTNESS_MAX);
-      setLedGroupColor(3, color, BRIGHTNESS_MAX);
+      setLedGroupColor(0, color, CHARGING_BRIGHT);
+      setLedGroupColor(1, color, CHARGING_BRIGHT);
+      setLedGroupColor(2, color, CHARGING_BRIGHT);
+      setLedGroupColor(3, color, CHARGING_BRIGHT);
     }
     break;  
 
@@ -554,10 +555,10 @@ void setLedGroupColor(uint8_t index, uint8_t color, uint8_t brightness) {
   ws2812_set_color(rgbMapping[index] + 1, scaled_r, scaled_g, scaled_b);
 }
 
-uint8_t ledBreathBright(float angle) {
+uint8_t ledBreathBright(float angle, uint8_t maxBright) {
   float brightness = sin(angle) * 0.5 + 0.5; // map range 0-1
   brightness = pow(brightness, GAMMA); // gamma correction
-  uint8_t bright = (uint8_t)(brightness * 255);
+  uint8_t bright = (uint8_t)(brightness * maxBright);
   return bright;
 }
 
@@ -573,7 +574,7 @@ void ledBreathUpdate(uint8_t state, uint8_t color, uint8_t group) {
   uint8_t bright = 0;
   static float breath_angle = 0;
  
-  bright = ledBreathBright(breath_angle);
+  bright = ledBreathBright(breath_angle, state == RGB_STATE_CHARGE ? CHARGING_BRIGHT : MAX_BRIGHT);
   breath_angle += BREATH_STEP;
   if (breath_angle > PI) breath_angle = 0; // reset angle
 

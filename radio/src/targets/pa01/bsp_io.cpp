@@ -88,3 +88,14 @@ uint16_t bsp_input_get()
   bsp_input_read();
   return inputState;
 }
+
+SwitchHwPos boardSwitchGetPosition(uint8_t idx)
+{
+  if (idx < 6) {
+    extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
+    const stm32_switch_t* sw = boardGetSwitchDef(idx);
+    return stm32_switch_get_position(sw);
+  }
+
+  return getFctKeyState(idx - 6) ? SWITCH_HW_DOWN : SWITCH_HW_UP;
+}

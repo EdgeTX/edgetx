@@ -63,6 +63,8 @@ PageDef screensMenuItems[] = {
                 screenData.LayoutId);
 
           subMenu->onPress(newIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+
+          storageDirty(EE_MODEL);
         } else {
           TRACE("Add screen: factory is NULL");
         }

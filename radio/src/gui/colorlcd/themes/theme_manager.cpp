@@ -556,7 +556,8 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
   action(std::move(action))
 {
-  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
+  this->icon = new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX);
+  this->icon->center(width(), height());
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
