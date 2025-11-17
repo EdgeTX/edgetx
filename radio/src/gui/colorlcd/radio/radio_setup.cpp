@@ -190,6 +190,26 @@ class DateTimeWindow : public Window
   }
 };
 
+class ControlTextOverride : public StaticText
+{
+ public:
+  ControlTextOverride(Window* parent, const rect_t& rect, FunctionsActive func) :
+        StaticText(parent, rect, "", COLOR_THEME_WARNING_INDEX), func(func)
+  {
+    std::string s("SF/GF ");
+    s += STR_SF_SAFETY;
+    setText(s);
+  }
+
+  void checkEvents() override
+  {
+    show(isFunctionActive(func));
+  }
+
+ protected:
+  FunctionsActive func;
+};
+
 #if defined(AUDIO)
 static SetupLineDef soundPageSetupLines[] = {
   {
@@ -263,6 +283,7 @@ static SetupLineDef soundPageSetupLines[] = {
       auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
               GET_SET_DEFAULT(g_eeGeneral.volumeSrc), true);
       choice->setAvailableHandler(isSourceSwitchOrPotAvailable);
+      new ControlTextOverride(parent, {x + PAD_LARGE * 10, y + PAD_MEDIUM, 0, 0}, FUNCTION_VOLUME);
       }
   },
 };
@@ -500,6 +521,7 @@ class BacklightPage : public SubPage
           auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
                   GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
           choice->setAvailableHandler(isSourceSwitchOrPotAvailable);
+          new ControlTextOverride(parent, {x + PAD_LARGE * 10, y + PAD_MEDIUM, 0, 0}, FUNCTION_BACKLIGHT);
         });
 
     // Flash beep
