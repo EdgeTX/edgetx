@@ -33,6 +33,7 @@ jobs:
           - x9dp2019
           - tx15
           - tx16s
+          - tx16smk3
           - nv14
           - el18
           - pl18
@@ -95,6 +96,7 @@ jobs:
           - tx12mk2;boxer;gx12
           - tx15
           - tx16s
+          - tx16smk3
           - f16
           - v12;v14;v16
           - x10;x10express

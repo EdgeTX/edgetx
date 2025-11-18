@@ -101,6 +101,11 @@ class ADCInputParser:
             'suffix': 'RTC_BAT',
         },
         {
+            'type': 'LUX',
+            'name': 'LUX',
+            'suffix': 'LUX',
+        },
+        {
             'range': AZ_seq(),
             'type': ADCInput.TYPE_SWITCH,
             'suffix': 'SW{}',
@@ -237,7 +242,7 @@ class ADCInputParser:
                 if 'PWM_STICKS' in self.hw_defs:
                     ch = self.hw_defs.get(f'STICK_PWM_CHANNEL_{adc_input.name}')
                     adc_input.pwm_channel = idx if ch is None else ch
-            if adc_input.type != 'VBAT' and adc_input.type != 'RTC_BAT':
+            if adc_input.type != 'VBAT' and adc_input.type != 'RTC_BAT' and adc_input.type != 'LUX':
                 d = self.dirs[idx]
                 if d < 0:
                     adc_input.inverted = True

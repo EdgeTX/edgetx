@@ -48,12 +48,22 @@ static const etx_hal_adc_input_t _rtc_bat_inputs[] = {
   {% endfor %}
 };
 
-{% set n_inputs = rtc_bat_offset + n_rtc_bat %}
+{% set lux_offset = rtc_bat_offset + n_rtc_bat %}
+{% set lux_inputs = adc_inputs.inputs | selectattr('type', '==', 'LUX') | list %}
+{% set n_lux = lux_inputs | count %}
+static const etx_hal_adc_input_t _lux_inputs[] = {
+  {% for input in lux_inputs %}
+    { "{{ input.name }}", nullptr, nullptr },
+  {% endfor %}
+};
+
+{% set n_inputs = lux_offset + n_lux %}
 static const etx_hal_adc_inputs_t _hal_inputs[] = {
   { {{ n_mains }}, 0, _main_inputs },
   { {{ n_flex }}, {{ flex_offset }}, _flex_inputs },
   { {{ n_vbat }}, {{ vbat_offset }}, _vbat_inputs },
   { {{ n_rtc_bat }}, {{ rtc_bat_offset }}, _rtc_bat_inputs },
+  { {{ n_lux }}, {{ lux_offset }}, _lux_inputs },
   { {{ n_inputs }}, 0, nullptr },
 };
 

@@ -372,6 +372,10 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
 #endif
 
+#if defined(LUMINOSITY_SENSOR)
+    {MIXSRC_LIGHT, "light", "Light Sensor"},
+#endif
+
 #if defined(PCBHORUS)
     {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
     {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
