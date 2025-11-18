@@ -66,10 +66,10 @@ void SetupTopBarWidgetsPage::onCancel() { deleteLater(); }
 
 void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 {
-  Layer::pop(this);
-
   // and continue async deletion...
   Window::deleteLater(detach, trash);
+
+  Layer::pop(this);
 
   // restore screen setting tab on top
   (PageGroup::ScreenMenu())->setCurrentTab(1);

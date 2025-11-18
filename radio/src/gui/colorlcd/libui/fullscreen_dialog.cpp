@@ -160,8 +160,8 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
   if (running) {
     running = false;
   } else {
-    Layer::pop(this);
     Window::deleteLater(detach, trash);
+    Layer::pop(this);
   }
 }
 

@@ -70,8 +70,6 @@ class MenuBody : public TableField
   {
     // Allow encoder acceleration
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-    // Add scroll bar if needed
-    etx_scrollbar(lvobj);
 
     setColumnWidth(0, rect.w);
 
