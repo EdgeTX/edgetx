@@ -57,10 +57,17 @@
 #endif
 #if LV_MEM_CUSTOM == 0
     /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
-    #if defined(SIMU)
-        #define LV_MEM_SIZE (4 * 1024U * 1024U)      /*[bytes]*/
+    #if defined(SDRAM_32M)
+        #define LV_MEM 8
+    #elif defined(SDRAM_16M)
+        #define LV_MEM 4
     #else
-        #define LV_MEM_SIZE (2 * 1024U * 1024U)      /*[bytes]*/
+        #define LV_MEM 2
+    #endif
+    #if defined(SIMU)
+        #define LV_MEM_SIZE (LV_MEM * 2 * 1024U * 1024U)  /*[bytes]*/
+    #else
+        #define LV_MEM_SIZE (LV_MEM * 1024U * 1024U)      /*[bytes]*/
     #endif
 
     /*Set an address for the memory pool instead of allocating it as a normal array. Can be in external SRAM too.*/

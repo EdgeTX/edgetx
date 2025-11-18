@@ -450,6 +450,11 @@ void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value,
   else if (source == MIXSRC_TX_VOLTAGE) {
     lcdDrawNumber(x, y, value, flags|PREC1);
   }
+#if defined(LUMINOSITY_SENSOR)
+  else if (source == MIXSRC_LIGHT) {
+    lcdDrawNumber(x, y, value, flags);
+  }
+#endif
 #if defined(INTERNAL_GPS)
     else if (source == MIXSRC_TX_GPS) {
     if (gpsData.fix) {

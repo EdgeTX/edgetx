@@ -78,6 +78,10 @@
 #include "lua/custom_allocator.h"
 #endif
 
+#if defined(LUMINOSITY_SENSOR)
+#include "luminosity_sensor.h"
+#endif
+
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
@@ -236,6 +240,10 @@ void per10ms()
   if (mixWarning & 1) if(((g_tmr10ms&0xFF)==  0)) AUDIO_MIX_WARNING(1);
   if (mixWarning & 2) if(((g_tmr10ms&0xFF)== 64) || ((g_tmr10ms&0xFF)== 72)) AUDIO_MIX_WARNING(2);
   if (mixWarning & 4) if(((g_tmr10ms&0xFF)==128) || ((g_tmr10ms&0xFF)==136) || ((g_tmr10ms&0xFF)==144)) AUDIO_MIX_WARNING(3);
+#endif
+
+#if defined(LUMINOSITY_SENSOR)
+  getPeriodicLuxSensorValue();
 #endif
 
   outputTelemetryBuffer.per10ms();
@@ -2016,6 +2024,12 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     if (flags)
       *flags |= PREC1;
   }
+#if defined(LUMINOSITY_SENSOR)
+  else if (asrc == MIXSRC_LIGHT) {
+    valMax = 100;
+    valMin = -valMax;
+  }
+#endif
   else if (asrc == MIXSRC_TX_TIME) {
     valMax =  23 * 60 + 59;
     valMin = 0;

@@ -42,13 +42,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
       addButton(CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr,
                 STR_MENU_LUA);
 #endif
-#if defined(PCBHORUS)
-    auto lastSource = MIXSRC_LAST_SPACEMOUSE;
-#elif defined(IMU)
-    auto lastSource = MIXSRC_TILT_Y;
-#else
-    auto lastSource = MIXSRC_LAST_STICK;
-#endif
+    auto lastSource = MIXSRC_MIN - 1;
     addButton(
         CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,
         [=](int16_t index) {
@@ -62,6 +56,9 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     addButton(
         CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER,
         [=](int16_t index) {
+#if defined(LUMINOSITY_SENSOR)
+          if (index == MIXSRC_LIGHT) return true;
+#endif
           return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) ||
                  (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
         },
