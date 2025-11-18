@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "stamp.h"
+
 enum QMPage {
   QM_NONE = 0,
   QM_OPEN_QUICK_MENU,

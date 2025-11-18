@@ -39,11 +39,11 @@ struct ModelButtonLayout {
   uint16_t columns;
 };
 
-static constexpr coord_t L0_W = (ModelLabelsWindow::MDLS_W - PAD_BORDER * 3) / 2;
+static constexpr coord_t L0_W = (ModelLabelsWindow::MDLS_W - PAD_OUTLINE * 3) / 2;
 static constexpr coord_t L0_H = L0_W * 11 / 20;
-static constexpr coord_t L1_W = (ModelLabelsWindow::MDLS_W - PAD_BORDER * 4) / 3;
+static constexpr coord_t L1_W = (ModelLabelsWindow::MDLS_W - PAD_OUTLINE * 4) / 3;
 static constexpr coord_t L1_H = L1_W * 11 / 20;
-static constexpr coord_t L3_W = ModelLabelsWindow::MDLS_W - PAD_BORDER * 2;
+static constexpr coord_t L3_W = ModelLabelsWindow::MDLS_W - PAD_OUTLINE * 2;
 
 ModelButtonLayout modelLayouts[] = {
     {L0_W, L0_H, true, FONT(STD), 2},
@@ -679,7 +679,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
 
 #if !PORTRAIT
   // new model button
-  new TextButton(hdr, {LCD_W - PageGroup::PAGE_TOP_BAR_H - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
+  new TextButton(hdr, {LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu();
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -687,7 +687,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     return 0;
   });
 
-  mdlLayout = new ModelLayoutButton(this, LCD_W - PageGroup::PAGE_TOP_BAR_H - LAYOUT_BTN_XO, PAD_MEDIUM, g_eeGeneral.modelSelectLayout, [=]() {
+  mdlLayout = new ModelLayoutButton(this, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W - LAYOUT_BTN_XO, PAD_MEDIUM, g_eeGeneral.modelSelectLayout, [=]() {
     uint8_t l = mdlLayout->getLayout();
     l = (l + 1) & 3;
     mdlLayout->setLayout(l);
