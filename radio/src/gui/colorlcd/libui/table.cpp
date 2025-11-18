@@ -306,31 +306,36 @@ bool TableField::onLongPress()
   return true;
 }
 
+extern void _assign_lv_group(lv_group_t* g);
+
 void TableField::setAutoEdit()
 {
   autoedit = true;
-  lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-  if (g) {
-    setFocusHandler([=](bool focus) {
-      if (focus) {
-        lv_group_set_focus_cb(g, TableField::force_editing);
-      } else {
-        lv_group_set_focus_cb(g, nullptr);
-      }
-    });
-    lv_group_set_editing(g, true);
-  }
+
+  oldGroup = lv_group_get_default();
+  group = lv_group_create();
+  lv_group_add_obj(group, lvobj);
+  _assign_lv_group(group);
+
+  setFocusHandler([=](bool focus) {
+    if (focus) {
+      lv_group_set_focus_cb(group, TableField::force_editing);
+    } else {
+      lv_group_set_focus_cb(group, nullptr);
+    }
+  });
+  lv_group_set_editing(group, true);
 }
 
 void TableField::deleteLater(bool detach, bool trash)
 {
   if (!deleted()) {
     if (autoedit) {
-      lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-      if (g) {
-        lv_group_set_focus_cb(g, nullptr);
-        lv_group_set_editing(g, false);
-      }
+      lv_group_del(group);
+      if (oldGroup)
+        _assign_lv_group(oldGroup);
+      else
+        lv_group_set_default(nullptr);
     }
     Window::deleteLater(detach, trash);
   }
