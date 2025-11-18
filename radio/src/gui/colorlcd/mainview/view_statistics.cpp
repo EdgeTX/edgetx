@@ -27,6 +27,7 @@
 #include "tasks/mixer_task.h"
 #include "mixer_scheduler.h"
 #include "lua/lua_states.h"
+#include "quick_menu.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
@@ -128,6 +129,11 @@ class ThrottleCurveWindow : public Window
   int16_t graphSize = 0;
 };
 
+StatisticsViewPage::StatisticsViewPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
+{
+}
+
 void StatisticsViewPage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
@@ -199,6 +205,11 @@ void StatisticsViewPage::build(Window* window)
 
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 4,
                        LV_GRID_ALIGN_START, 0, 1);
+}
+
+DebugViewPage::DebugViewPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
+{
 }
 
 void DebugViewPage::build(Window* window)

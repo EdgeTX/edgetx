@@ -25,6 +25,19 @@
 #include "screen_user_interface.h"
 #include "radio_theme.h"
 
+#if VERSION_MAJOR == 2
+class ScreenAddPage : public PageGroupItem
+{
+ public:
+  ScreenAddPage(PageDef& pageDef);
+
+  void build(Window* window) override;
+
+ protected:
+  static LAYOUT_VAL_SCALED(ADD_TXT_W, 200)
+};
+#endif
+
 class ScreenSetupPage : public PageGroupItem
 {
  public:

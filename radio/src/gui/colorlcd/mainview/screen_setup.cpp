@@ -274,3 +274,47 @@ void ScreenSetupPage::buildLayoutOptions()
     }
   }
 }
+
+#if VERSION_MAJOR == 2
+ScreenAddPage::ScreenAddPage(PageDef& pageDef) : PageGroupItem(pageDef)
+{
+}
+
+void ScreenAddPage::build(Window* window)
+{
+  std::string s = replaceAll(STR_QM_ADD_SCREEN, "\n", " ");
+
+  new TextButton(window,
+                 rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+                 s, [this]() -> uint8_t {
+                    int newIdx = 1;
+                    for (; newIdx < MAX_CUSTOM_SCREENS; newIdx += 1)
+                      if (customScreens[newIdx] == nullptr)
+                        break;
+
+                    TRACE("Add screen: add screen: newIdx = %d", newIdx);
+
+                    auto& screen = customScreens[newIdx];
+
+                    const LayoutFactory* factory = defaultLayout;
+                    if (factory) {
+                      TRACE("Add screen: add screen: factory = %p", factory);
+
+                      auto viewMain = ViewMain::instance();
+                      screen = factory->create(viewMain, newIdx);
+                      viewMain->addMainView(screen, newIdx);
+
+                      g_model.setScreenLayoutId(newIdx, factory->getId());
+                      TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
+
+                      Layer::getPageGroup()->deleteLater();
+                      QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + newIdx));
+
+                      storageDirty(EE_MODEL);
+                    } else {
+                      TRACE("Add screen: factory is NULL");
+                    }
+                    return 0;
+                 });
+}
+#endif

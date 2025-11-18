@@ -51,7 +51,8 @@ class CurveButton : public Button
 
     hdrLeft = new StaticIcon(this, 0, 0, ICON_ROUND_TITLE_LEFT,
                              COLOR_THEME_SECONDARY2_INDEX);
-    hdrRight = new StaticIcon(this, width() - PAD_LARGE, 0,
+    auto mask = getBuiltinIcon(ICON_ROUND_TITLE_RIGHT);
+    hdrRight = new StaticIcon(this, width() - mask->width - PAD_BORDER * 2, 0,
                               ICON_ROUND_TITLE_RIGHT,
                               COLOR_THEME_SECONDARY2_INDEX);
 

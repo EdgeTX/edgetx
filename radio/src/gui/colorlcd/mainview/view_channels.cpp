@@ -25,6 +25,9 @@
 #include "libopenui.h"
 #include "model_select.h"
 #include "edgetx.h"
+#if VERSION_MAJOR == 2
+#include "view_logical_switches.h"
+#endif
 
 // TODO: find better way to detect only used channels!
 #define ALL_CHANNELS true
@@ -160,6 +163,10 @@ ChannelsViewMenu::ChannelsViewMenu() :
     pages += 1;
     i = end;
   }
+
+#if VERSION_MAJOR == 2
+  addTab(new LogicalSwitchesViewPage());
+#endif
 
   if (pages < 2) hidePageButtons();
 }

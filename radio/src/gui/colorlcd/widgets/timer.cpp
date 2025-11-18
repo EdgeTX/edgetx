@@ -212,11 +212,11 @@ class TimerWidget : public Widget
   static LAYOUT_VAL_SCALED(NM_LRG_W, 93)
   static LAYOUT_VAL_SCALED(U0_X, 111)
   static LAYOUT_VAL_SCALED(U0_Y, 33)
-  static LAYOUT_VAL_SCALED(U1_X, 161)
+  static LAYOUT_VAL_SCALED(U1_X, 162)
   static LAYOUT_VAL_SCALED(U1_Y, 33)
-  static LAYOUT_VAL_SCALED(D0_X, 76)
+  static LAYOUT_VAL_SCALED(D0_X, 74)
   static LAYOUT_VAL_SCALED(D0_Y, 31)
-  static LAYOUT_VAL_SCALED(D1_X, 126)
+  static LAYOUT_VAL_SCALED(D1_X, 125)
   static LAYOUT_VAL_SCALED(D1_Y, 31)
 
  protected:
