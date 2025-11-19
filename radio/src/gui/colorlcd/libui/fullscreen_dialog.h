@@ -39,7 +39,7 @@ class FullScreenDialog : public Window
   }
 #endif
 
-  void setMessage(std::string text);
+  void setMessage(const char* text);
 
   void onEvent(event_t event) override;
   void onCancel() override;
@@ -83,9 +83,7 @@ class FullScreenDialog : public Window
   bool running = false;
   std::function<bool(void)> closeCondition;
   std::function<void(void)> confirmHandler;
-  StaticText* messageLabel;
+  StaticText* messageLabel = nullptr;
 
   void build();
-
-  void delayedInit() override;
 };
