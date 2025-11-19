@@ -115,12 +115,12 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 ScreenSetupPage::ScreenSetupPage(unsigned index, PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
-  update(index + FIRST_SCREEN_OFFSET);
+  update(index + QuickMenu::pageIndex(QM_UI_SCREEN1));
 }
 
 void ScreenSetupPage::update(uint8_t index)
 {
-  customScreenIndex = index - FIRST_SCREEN_OFFSET;
+  customScreenIndex = index - QuickMenu::pageIndex(QM_UI_SCREEN1);
 }
 
 void ScreenSetupPage::build(Window* window)
@@ -214,7 +214,7 @@ void ScreenSetupPage::build(Window* window)
 
           // Reset to first screen so user knows something has happened
           PageGroup* menu = (PageGroup*)window->getParent();
-          menu->setCurrentTab(FIRST_SCREEN_OFFSET);
+          menu->setCurrentTab(QuickMenu::pageIndex(QM_UI_SCREEN1));
 
           storageDirty(EE_MODEL);
           return 0;

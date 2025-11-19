@@ -39,8 +39,6 @@ class ThemeSetupPage : public PageGroupItem
   void build(Window *window) override;
   void checkEvents() override;
 
-  bool isVisible() const override { return radioThemesEnabled(); }
-
   static LAYOUT_VAL_SCALED(COLOR_PREVIEW_SIZE, 18)
   static LAYOUT_ORIENTATION(LIST_SIZE, (LCD_W - PAD_MEDIUM * 2) / 2 - COLOR_PREVIEW_SIZE, LCD_H / 2 - LAYOUT_SCALE(38));
 

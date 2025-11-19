@@ -20,10 +20,7 @@
  */
 
 #include "edgetx.h"
-#include "tasks/mixer_task.h"
-#include "hal/adc_driver.h"
-
-//-----------------------------------------------------------------------------
+#include "hal/switch_driver.h"
 
 SwitchConfig ModelData::getSwitchType(uint8_t n)
 {

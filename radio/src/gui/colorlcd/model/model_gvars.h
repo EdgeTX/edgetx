@@ -29,8 +29,6 @@ class ModelGVarsPage : public PageGroupItem
  public:
   ModelGVarsPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelGVEnabled(); }
-
   void cleanup() override;
 
  protected:

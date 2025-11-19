@@ -36,6 +36,7 @@
 
 #if defined(COLORLCD)
 #include "datastructs_screen.h"
+#include "quick_menu_def.h"
 #endif
 
 #if defined(PCBTARANIS)
@@ -996,6 +997,14 @@ PACK(struct switchDef {
 #endif
 });
 
+#if defined(COLORLCD)
+#define MAX_KEY_SHORTCUTS 6
+#define MAX_QM_FAVORITES 12
+PACK(struct QuickMenuPage {
+  uint8_t shortcut ENUM(QMPage);
+});
+#endif
+
 PACK(struct RadioData {
 
   // Real attributes
@@ -1152,6 +1161,11 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
+#if defined(COLORLCD)
+  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
+  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+#endif
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)
@@ -1178,6 +1192,13 @@ PACK(struct RadioData {
   void cfsSetOnColorLuaOverride(uint8_t n, bool v);
   void cfsSetOffColorLuaOverride(uint8_t n, bool v);
 #endif
+#endif
+
+#if defined(COLORLCD)
+  QMPage getKeyShortcut(event_t event);
+  bool hasKeyShortcut(QMPage shortcut);
+  void setKeyShortcut(event_t event, QMPage shortcut);
+  void defaultKeyShortcuts();
 #endif
 });
 

@@ -108,9 +108,10 @@
 #define STR_MAIN_MENU_MODEL_SETTINGS currentLangStrings->STR_MAIN_MENU_MODEL_SETTINGS
 #define STR_MAIN_MENU_RADIO_SETTINGS currentLangStrings->STR_MAIN_MENU_RADIO_SETTINGS
 #define STR_MAIN_MENU_SCREEN_SETTINGS currentLangStrings->STR_MAIN_MENU_SCREEN_SETTINGS
-#define STR_MAIN_MENU_SETTINGS currentLangStrings->STR_MAIN_MENU_SETTINGS
 #define STR_MAIN_MENU_STATISTICS currentLangStrings->STR_MAIN_MENU_STATISTICS
 #define STR_MAIN_MENU_THEMES currentLangStrings->STR_MAIN_MENU_THEMES
+#define STR_MAIN_MODEL_SETTINGS currentLangStrings->STR_MAIN_MODEL_SETTINGS
+#define STR_MAIN_RADIO_SETTINGS currentLangStrings->STR_MAIN_RADIO_SETTINGS
 #define STR_MANAGE_MODELS currentLangStrings->STR_MANAGE_MODELS
 #define STR_MEM_USED_EXTRA currentLangStrings->STR_MEM_USED_EXTRA
 #define STR_MEM_USED_SCRIPT currentLangStrings->STR_MEM_USED_SCRIPT
@@ -192,7 +193,6 @@
 #define STR_QM_CUSTOM_LUA currentLangStrings->STR_QM_CUSTOM_LUA
 #define STR_QM_DEBUG currentLangStrings->STR_QM_DEBUG
 #define STR_QM_FLIGHT_MODES currentLangStrings->STR_QM_FLIGHT_MODES
-#define STR_QM_GEN_SETTINGS currentLangStrings->STR_QM_GEN_SETTINGS
 #define STR_QM_GLOB_FUNC currentLangStrings->STR_QM_GLOB_FUNC
 #define STR_QM_GLOBAL_VARS currentLangStrings->STR_QM_GLOBAL_VARS
 #define STR_QM_HARDWARE currentLangStrings->STR_QM_HARDWARE
@@ -201,8 +201,10 @@
 #define STR_QM_LS_MON currentLangStrings->STR_QM_LS_MON
 #define STR_QM_MANAGE_MODELS currentLangStrings->STR_QM_MANAGE_MODELS
 #define STR_QM_MIXES currentLangStrings->STR_QM_MIXES
+#define STR_QM_MODEL_SETTINGS currentLangStrings->STR_QM_MODEL_SETTINGS
 #define STR_QM_MODEL_SETUP currentLangStrings->STR_QM_MODEL_SETUP
 #define STR_QM_OUTPUTS currentLangStrings->STR_QM_OUTPUTS
+#define STR_QM_RADIO_SETTINGS currentLangStrings->STR_QM_RADIO_SETTINGS
 #define STR_QM_RADIO_SETUP currentLangStrings->STR_QM_RADIO_SETUP
 #define STR_QM_RESET currentLangStrings->STR_QM_RESET
 #define STR_QM_SCREEN_1 currentLangStrings->STR_QM_SCREEN_1
@@ -224,6 +226,19 @@
 #define STR_QM_TOP_BAR currentLangStrings->STR_QM_TOP_BAR
 #define STR_QM_TRAINER currentLangStrings->STR_QM_TRAINER
 #define STR_QM_UI_SETUP currentLangStrings->STR_QM_UI_SETUP
+#define STR_QUICK_MENU_FAVORITES currentLangStrings->STR_QUICK_MENU_FAVORITES
+#define STR_CURRENT_SCREEN currentLangStrings->STR_CURRENT_SCREEN
+#define STR_MAIN_MENU_APPS currentLangStrings->STR_MAIN_MENU_APPS
+#define STR_MAIN_VIEW_1 currentLangStrings->STR_MAIN_VIEW_1
+#define STR_MAIN_VIEW_10 currentLangStrings->STR_MAIN_VIEW_10
+#define STR_MAIN_VIEW_2 currentLangStrings->STR_MAIN_VIEW_2
+#define STR_MAIN_VIEW_3 currentLangStrings->STR_MAIN_VIEW_3
+#define STR_MAIN_VIEW_4 currentLangStrings->STR_MAIN_VIEW_4
+#define STR_MAIN_VIEW_5 currentLangStrings->STR_MAIN_VIEW_5
+#define STR_MAIN_VIEW_6 currentLangStrings->STR_MAIN_VIEW_6
+#define STR_MAIN_VIEW_7 currentLangStrings->STR_MAIN_VIEW_7
+#define STR_MAIN_VIEW_8 currentLangStrings->STR_MAIN_VIEW_8
+#define STR_MAIN_VIEW_9 currentLangStrings->STR_MAIN_VIEW_9
 // Main Menu
 
 #else // !COLORLCD
@@ -587,6 +602,7 @@
 #define STR_JITTER_FILTER currentLangStrings->STR_JITTER_FILTER
 #define STR_KEYS_BTN currentLangStrings->STR_KEYS_BTN
 #define STR_KEYSTUCK currentLangStrings->STR_KEYSTUCK
+#define STR_KEY_SHORTCUTS currentLangStrings->STR_KEY_SHORTCUTS
 #define STR_LCD currentLangStrings->STR_LCD
 #define STR_LENGTH currentLangStrings->STR_LENGTH
 #define STR_LIMITS_HEADERS_DIRECTION currentLangStrings->STR_LIMITS_HEADERS_DIRECTION
@@ -595,19 +611,9 @@
 #define STR_LIMITS_HEADERS_SUBTRIMMODE currentLangStrings->STR_LIMITS_HEADERS_SUBTRIMMODE
 #define STR_LOADINGMODEL currentLangStrings->STR_LOADINGMODEL
 #define STR_LOGS currentLangStrings->STR_LOGS
+#define STR_LONG_PRESS currentLangStrings->STR_LONG_PRESS
 #define STR_LOWALARM currentLangStrings->STR_LOWALARM
 #define STR_LUA_SCRIPTS_LABEL currentLangStrings->STR_LUA_SCRIPTS_LABEL
-#define STR_MAIN_MENU_APPS currentLangStrings->STR_MAIN_MENU_APPS
-#define STR_MAIN_VIEW_1 currentLangStrings->STR_MAIN_VIEW_1
-#define STR_MAIN_VIEW_10 currentLangStrings->STR_MAIN_VIEW_10
-#define STR_MAIN_VIEW_2 currentLangStrings->STR_MAIN_VIEW_2
-#define STR_MAIN_VIEW_3 currentLangStrings->STR_MAIN_VIEW_3
-#define STR_MAIN_VIEW_4 currentLangStrings->STR_MAIN_VIEW_4
-#define STR_MAIN_VIEW_5 currentLangStrings->STR_MAIN_VIEW_5
-#define STR_MAIN_VIEW_6 currentLangStrings->STR_MAIN_VIEW_6
-#define STR_MAIN_VIEW_7 currentLangStrings->STR_MAIN_VIEW_7
-#define STR_MAIN_VIEW_8 currentLangStrings->STR_MAIN_VIEW_8
-#define STR_MAIN_VIEW_9 currentLangStrings->STR_MAIN_VIEW_9
 #define STR_MAX currentLangStrings->STR_MAX
 #define STR_MAXBAUDRATE currentLangStrings->STR_MAXBAUDRATE
 #define STR_MEMORYWARNING currentLangStrings->STR_MEMORYWARNING
@@ -767,6 +773,7 @@
 #define STR_OFFSET currentLangStrings->STR_OFFSET
 #define STR_OK currentLangStrings->STR_OK
 #define STR_ONLYPOSITIVE currentLangStrings->STR_ONLYPOSITIVE
+#define STR_OPEN_QUICK_MENU currentLangStrings->STR_OPEN_QUICK_MENU
 #define STR_OPTIONS currentLangStrings->STR_OPTIONS
 #define STR_OTA_UPDATE_ERROR currentLangStrings->STR_OTA_UPDATE_ERROR
 #define STR_OTA_UPDATE currentLangStrings->STR_OTA_UPDATE
@@ -912,6 +919,7 @@
 #define STR_SF_VOLUME currentLangStrings->STR_SF_VOLUME
 #define STR_SF currentLangStrings->STR_SF
 #define STR_SHARE currentLangStrings->STR_SHARE
+#define STR_SHORT_PRESS currentLangStrings->STR_SHORT_PRESS
 #define STR_SHOW_INSTANCE_ID currentLangStrings->STR_SHOW_INSTANCE_ID
 #define STR_SIDE currentLangStrings->STR_SIDE
 #define STR_SIGNAL_OUTPUT currentLangStrings->STR_SIGNAL_OUTPUT

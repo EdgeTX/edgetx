@@ -34,10 +34,6 @@ class ScreenSetupPage : public PageGroupItem
 
   void update(uint8_t index) override;
 
-  bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
-
-  static constexpr int FIRST_SCREEN_OFFSET = 2;
-
  protected:
   unsigned customScreenIndex;
   Window* layoutOptions = nullptr;

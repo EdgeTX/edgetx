@@ -155,7 +155,7 @@ void SetupWidgetsPage::onClicked()
 void SetupWidgetsPage::onCancel()
 {
   deleteLater();
-  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + customScreenIdx));
 }
 
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)

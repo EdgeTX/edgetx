@@ -54,8 +54,6 @@ class ModelNotesPage : public PageGroupItem
  public:
   ModelNotesPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelHasNotes(); }
-
   void build(Window* window) override;
 
   void cleanup() override;
