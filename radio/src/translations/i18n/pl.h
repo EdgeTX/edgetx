@@ -1260,6 +1260,8 @@
 #define TR_THEME_COLOR_ACTIVE           "AKTYWNY"
 #define TR_THEME_COLOR_WARNING          "OSTRZEŻENIE"
 #define TR_THEME_COLOR_DISABLED         "WYŁĄCZONY"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "WŁASNY"
 #define TR_THEME_CHECKBOX               "Pole wyboru"
 #define TR_THEME_ACTIVE                 "Aktywny"

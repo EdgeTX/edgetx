@@ -1277,6 +1277,8 @@
 #define TR_THEME_COLOR_ACTIVE           "AKTIV"
 #define TR_THEME_COLOR_WARNING          "VARNING"
 #define TR_THEME_COLOR_DISABLED         "INAKTIV"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "ANPASSAD"
 #define TR_THEME_CHECKBOX               "Kryssruta"
 #define TR_THEME_ACTIVE                 "Aktiv"

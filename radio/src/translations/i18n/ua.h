@@ -1261,6 +1261,8 @@
 #define TR_THEME_COLOR_ACTIVE          "АКТИВНИЙ"
 #define TR_THEME_COLOR_WARNING         "WARNING"
 #define TR_THEME_COLOR_DISABLED        "ДЕАКТИВОВАНИЙ"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM          "КОРИСТУВАЦЬКИЙ"
 #define TR_THEME_CHECKBOX              "Checkbox"
 #define TR_THEME_ACTIVE                "Активний"

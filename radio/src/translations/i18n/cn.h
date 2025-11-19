@@ -1260,6 +1260,8 @@
 #define TR_THEME_COLOR_ACTIVE         "激活"
 #define TR_THEME_COLOR_WARNING        "警告"
 #define TR_THEME_COLOR_DISABLED       "禁用"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM         "自定义"
 #define TR_THEME_CHECKBOX             "复选框"
 #define TR_THEME_ACTIVE               "激活"
