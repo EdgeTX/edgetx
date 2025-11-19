@@ -24,7 +24,7 @@
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "model_select.h"
 #include "os/time.h"
 #include "view_channels.h"

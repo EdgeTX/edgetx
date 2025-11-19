@@ -88,11 +88,6 @@ void GVarNumberEdit::switchGVarMode()
 #endif
 }
 
-void GVarNumberEdit::setSuffix(std::string value)
-{
-  num_field->setSuffix(value);
-}
-
 void GVarNumberEdit::onEvent(event_t event)
 {
   if (event == EVT_KEY_LONG(KEY_ENTER)) {

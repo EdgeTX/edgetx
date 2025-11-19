@@ -47,20 +47,17 @@ PageDef screensMenuItems[] = {
         TRACE("Add screen: add screen: newIdx = %d", newIdx);
 
         auto& screen = customScreens[newIdx];
-        auto& screenData = g_model.screenData[newIdx];
 
         const LayoutFactory* factory = defaultLayout;
         if (factory) {
           TRACE("Add screen: add screen: factory = %p", factory);
 
           auto viewMain = ViewMain::instance();
-          screen = factory->create(viewMain, &screenData.layoutData);
+          screen = factory->create(viewMain, newIdx);
           viewMain->addMainView(screen, newIdx);
 
-          strncpy(screenData.LayoutId, factory->getId(),
-                  sizeof(screenData.LayoutId));
-          TRACE("Add screen: add screen: LayoutId = %s",
-                screenData.LayoutId);
+          g_model.setScreenLayoutId(newIdx, factory->getId());
+          TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
 
           subMenu->onPress(newIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 

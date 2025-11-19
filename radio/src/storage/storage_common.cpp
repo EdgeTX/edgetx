@@ -167,19 +167,19 @@ void postModelLoad(bool alarms)
       g_model.topbarWidgetWidth[i] = 1;
 
     // Load 'date time' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-1)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-1, "Date Time");
       storageDirty(EE_MODEL);
     }
     // Load 'radio info' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-2)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-2, "Radio Info");
       storageDirty(EE_MODEL);
     }
 #if defined(INTERNAL_GPS)
     // Load 'internal gps' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-3)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-3, "Internal GPS");
       storageDirty(EE_MODEL);
     }
 #endif

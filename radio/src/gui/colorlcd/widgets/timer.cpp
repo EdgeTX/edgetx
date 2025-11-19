@@ -33,8 +33,8 @@ class TimerWidget : public Widget
 {
  public:
   TimerWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-              Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+              int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     delayLoad();
   }
@@ -109,7 +109,9 @@ class TimerWidget : public Widget
 
     Widget::checkEvents();
 
-    uint32_t index = persistentData->options[0].value.unsignedValue;
+    auto widgetData = getPersistentData();
+
+    uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
     TimerState& timerState = timersStates[index];
 
@@ -196,7 +198,7 @@ class TimerWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
   static LAYOUT_VAL_SCALED(SMALL_TXT_MAX_W, 100)
   static LAYOUT_VAL_SCALED(SMALL_TXT_MAX_H, 40)
@@ -236,10 +238,12 @@ class TimerWidget : public Widget
   {
     if (!loaded) return;
 
+    auto widgetData = getPersistentData();
+
     // Set up widget from options.
     char s[16];
 
-    uint32_t index = persistentData->options[0].value.unsignedValue;
+    uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
 
     bool hasName = ZLEN(timerData.name) > 0;
@@ -304,9 +308,9 @@ class TimerWidget : public Widget
   }
 };
 
-const ZoneOption TimerWidget::options[] = {
-    {STR_TIMER_SOURCE, ZoneOption::Timer, OPTION_VALUE_UNSIGNED(0)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption TimerWidget::options[] = {
+    {STR_TIMER_SOURCE, WidgetOption::Timer, 0},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<TimerWidget> timerWidget("Timer", TimerWidget::options,
                                            STR_WIDGET_TIMER);

@@ -26,8 +26,8 @@ class GaugeWidget : public Widget
 {
  public:
   GaugeWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-              Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+              int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     delayLoad();
   }
@@ -60,9 +60,11 @@ class GaugeWidget : public Widget
 
   int16_t getGuageValue()
   {
-    mixsrc_t index = persistentData->options[0].value.unsignedValue;
-    int32_t min = persistentData->options[1].value.signedValue;
-    int32_t max = persistentData->options[2].value.signedValue;
+    auto widgetData = getPersistentData();
+
+    mixsrc_t index = widgetData->options[0].value.unsignedValue;
+    int32_t min = widgetData->options[1].value.signedValue;
+    int32_t max = widgetData->options[2].value.signedValue;
 
     int32_t value = getValue(index);
 
@@ -80,7 +82,9 @@ class GaugeWidget : public Widget
   {
     if (!loaded) return;
 
-    mixsrc_t index = persistentData->options[0].value.unsignedValue;
+    auto widgetData = getPersistentData();
+
+    mixsrc_t index = widgetData->options[0].value.unsignedValue;
     sourceText->setText(getSourceString(index));
 
     if (width() < ALIGN_MAX_W)
@@ -88,10 +92,10 @@ class GaugeWidget : public Widget
     else
       lv_obj_clear_state(valueText->getLvObj(), LV_STATE_USER_1);
 
-    etx_bg_color_from_flags(bar, persistentData->options[3].value.unsignedValue);
+    etx_bg_color_from_flags(bar, widgetData->options[3].value.unsignedValue);
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
   int16_t lastValue = -10000;
@@ -118,14 +122,14 @@ class GaugeWidget : public Widget
   static LAYOUT_VAL_SCALED(ALIGN_MAX_W, 90)
 };
 
-const ZoneOption GaugeWidget::options[] = {
-    {STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(1)},
-    {STR_MIN, ZoneOption::Integer, OPTION_VALUE_SIGNED(-RESX),
-     OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(RESX)},
-    {STR_MAX, ZoneOption::Integer, OPTION_VALUE_SIGNED(RESX),
-     OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(RESX)},
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption GaugeWidget::options[] = {
+    {STR_SOURCE, WidgetOption::Source, 1},
+    {STR_MIN, WidgetOption::Integer, WIDGET_OPTION_VALUE_SIGNED(-RESX),
+     WIDGET_OPTION_VALUE_SIGNED(-RESX), WIDGET_OPTION_VALUE_SIGNED(RESX)},
+    {STR_MAX, WidgetOption::Integer, WIDGET_OPTION_VALUE_SIGNED(RESX),
+     WIDGET_OPTION_VALUE_SIGNED(-RESX), WIDGET_OPTION_VALUE_SIGNED(RESX)},
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX)},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<GaugeWidget> gaugeWidget("Gauge", GaugeWidget::options,
                                            STR_WIDGET_GAUGE);

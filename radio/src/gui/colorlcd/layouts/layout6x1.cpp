@@ -20,15 +20,15 @@
  */
 
 #include "layout.h"
-#include "layout_factory_impl.h"
+#include "translations/translations.h"
 
 // 6x1 layout: 6 rows, 1 column
 // Single column with 6 vertical zones
 
 const LayoutOption OPTIONS_LAYOUT_6x1[] = {
     LAYOUT_COMMON_OPTIONS,
-    {STR_DEF(STR_PANEL_BACKGROUND), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {STR_DEF(STR_PANEL_COLOR), ZoneOption::Color, RGB2FLAGS(50, 50, 50)},
+    {STR_DEF(STR_PANEL_BACKGROUND), LayoutOption::Bool, true},
+    {STR_DEF(STR_PANEL_COLOR), LayoutOption::Color, RGB2FLAGS(50, 50, 50)},
     LAYOUT_OPTIONS_END};
 
 class Layout6x1 : public Layout
@@ -40,9 +40,9 @@ class Layout6x1 : public Layout
   };
 
   Layout6x1(Window* parent, const LayoutFactory* factory,
-                   Layout::PersistentData* persistentData, uint8_t zoneCount,
+                   int screenNum, uint8_t zoneCount,
                    uint8_t* zoneMap) :
-      Layout(parent, factory, persistentData, zoneCount, zoneMap)
+      Layout(parent, factory, screenNum, zoneCount, zoneMap)
   {
     panel = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(panel, LV_OPA_COVER, LV_PART_MAIN);
