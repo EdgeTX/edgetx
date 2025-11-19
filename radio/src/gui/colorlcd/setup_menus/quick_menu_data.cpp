@@ -111,26 +111,23 @@ PageDef screensMenuItems[] = {
       []() {
         int newIdx = 1;
         for (; newIdx < MAX_CUSTOM_SCREENS; newIdx += 1)
-        if (customScreens[newIdx] == nullptr)
-          break;
+          if (customScreens[newIdx] == nullptr)
+            break;
 
         TRACE("Add screen: add screen: newIdx = %d", newIdx);
 
         auto& screen = customScreens[newIdx];
-        auto& screenData = g_model.screenData[newIdx];
 
         const LayoutFactory* factory = defaultLayout;
         if (factory) {
           TRACE("Add screen: add screen: factory = %p", factory);
 
           auto viewMain = ViewMain::instance();
-          screen = factory->create(viewMain, &screenData.layoutData);
+          screen = factory->create(viewMain, newIdx);
           viewMain->addMainView(screen, newIdx);
 
-          strncpy(screenData.LayoutId, factory->getId(),
-                  sizeof(screenData.LayoutId));
-          TRACE("Add screen: add screen: LayoutId = %s",
-                screenData.LayoutId);
+          g_model.setScreenLayoutId(newIdx, factory->getId());
+          TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
 
           QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + newIdx));
 
