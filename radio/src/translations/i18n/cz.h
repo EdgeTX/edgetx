@@ -806,6 +806,7 @@
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Jas"
 #define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "Tepl. CPU\016>"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "Tepl. MB \016>"

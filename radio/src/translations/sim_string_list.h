@@ -135,6 +135,7 @@
 #define STR_SAVE currentLangStrings->STR_SAVE
 #define STR_SELECT_TEMPLATE_FOLDER currentLangStrings->STR_SELECT_TEMPLATE_FOLDER
 #define STR_SELECT_TEMPLATE currentLangStrings->STR_SELECT_TEMPLATE
+#define STR_SF_OVERRIDDEN currentLangStrings->STR_SF_OVERRIDDEN
 #define STR_SHADOW currentLangStrings->STR_SHADOW
 #define STR_SHOW_MIXER_MONITORS currentLangStrings->STR_SHOW_MIXER_MONITORS
 #define STR_SIZE currentLangStrings->STR_SIZE

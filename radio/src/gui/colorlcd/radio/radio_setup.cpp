@@ -193,18 +193,17 @@ class DateTimeWindow : public Window
 class ControlTextOverride : public StaticText
 {
  public:
-  ControlTextOverride(Window* parent, const rect_t& rect, FunctionsActive func) :
-        StaticText(parent, rect, "", COLOR_THEME_WARNING_INDEX), func(func)
+  ControlTextOverride(Window* parent, coord_t x, coord_t y, FunctionsActive func) :
+        StaticText(parent, {x, y + PAD_MEDIUM, 0, 0}, STR_SF_OVERRIDDEN, COLOR_THEME_WARNING_INDEX, FONT_SZ), func(func)
   {
-    std::string s("SF/GF ");
-    s += STR_SF_SAFETY;
-    setText(s);
   }
 
   void checkEvents() override
   {
     show(isFunctionActive(func));
   }
+
+  static LAYOUT_ORIENTATION(FONT_SZ, FONT(STD), FONT(XS))
 
  protected:
   FunctionsActive func;
@@ -283,7 +282,7 @@ static SetupLineDef soundPageSetupLines[] = {
       auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
               GET_SET_DEFAULT(g_eeGeneral.volumeSrc), true);
       choice->setAvailableHandler(isSourceSwitchOrPotAvailable);
-      new ControlTextOverride(parent, {x + PAD_LARGE * 10, y + PAD_MEDIUM, 0, 0}, FUNCTION_VOLUME);
+      new ControlTextOverride(parent, x + PAD_LARGE * 7, y, FUNCTION_VOLUME);
       }
   },
 };
@@ -521,7 +520,7 @@ class BacklightPage : public SubPage
           auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
                   GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
           choice->setAvailableHandler(isSourceSwitchOrPotAvailable);
-          new ControlTextOverride(parent, {x + PAD_LARGE * 10, y + PAD_MEDIUM, 0, 0}, FUNCTION_BACKLIGHT);
+          new ControlTextOverride(parent, x + PAD_LARGE * 7, y, FUNCTION_BACKLIGHT);
         });
 
     // Flash beep
