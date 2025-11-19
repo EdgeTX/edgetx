@@ -156,11 +156,9 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
   if (running) {
     running = false;
   } else {
-    Layer::pop(this);
     Window::deleteLater(detach, trash);
+    Layer::pop(this);
   }
-  // Window* p = Layer::back();
-  // if (p) p->show();
 }
 
 void FullScreenDialog::setMessage(std::string text)

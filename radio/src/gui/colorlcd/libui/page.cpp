@@ -96,10 +96,10 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 
 void Page::deleteLater(bool detach, bool trash)
 {
+  NavWindow::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
-
-  NavWindow::deleteLater(detach, trash);
 }
 
 void Page::onCancel() { deleteLater(); }

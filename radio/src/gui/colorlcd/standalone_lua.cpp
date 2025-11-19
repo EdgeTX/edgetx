@@ -215,6 +215,8 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaScriptManager = nullptr;
 
+  Window::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
 
@@ -233,8 +235,6 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
   luaState = prevLuaState;
 
   luaEmptyEventBuffer();
-
-  Window::deleteLater(detach, trash);
 }
 
 void StandaloneLuaWindow::checkEvents()

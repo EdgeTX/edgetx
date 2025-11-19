@@ -154,8 +154,8 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
 void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
   if (closeHandler) closeHandler();
-  Layer::pop(this);
   Window::deleteLater(detach, trash);
+  Layer::pop(this);
 }
 
 void ViewMainMenu::onClicked() { deleteLater(); }
