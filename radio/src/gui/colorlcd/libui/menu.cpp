@@ -349,7 +349,7 @@ class MenuWindowContent : public Window
     body->addLine(icon_mask, text, onPress, isChecked, update);
   }
 
-  static constexpr coord_t MENUS_WIDTH = 200;
+  static LAYOUT_VAL_SCALED(MENUS_WIDTH, 200)
 
  protected:
   StaticText* header = nullptr;
