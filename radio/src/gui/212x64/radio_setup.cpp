@@ -57,6 +57,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_WAV_VOLUME,
   ITEM_RADIO_SETUP_BACKGROUND_VOLUME,
   ITEM_RADIO_SETUP_VOLUME_SOURCE,
+  ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE,
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_VOLUME)
@@ -81,6 +82,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_CONTRAST,
   CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
   ITEM_RADIO_SETUP_BACKLIGHT_SOURCE,
+  ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE,
   ITEM_RADIO_SETUP_FLASH_BEEP,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -131,6 +133,8 @@ PACK(struct ExpandState {
 static struct ExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
+static uint8_t SOUND_WARNING_ROW(uint8_t value) { return expandState.sound && isFunctionActive(FUNCTION_VOLUME) ? value : HIDDEN_ROW; }
+static uint8_t BACKLIGHT_WARNING_ROW(uint8_t value) { return isFunctionActive(FUNCTION_BACKLIGHT) ? value : HIDDEN_ROW; }
 
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
 
@@ -189,6 +193,7 @@ void menuRadioSetup(event_t event)
      SOUND_ROW(0), // wav volume
      SOUND_ROW(0), // background volume
      SOUND_ROW(0), // volume control
+     SOUND_WARNING_ROW(LABEL(0)), // volume control override warning
      SOUND_ROW(0), // startup sound
     // Vario
     CASE_VARIO(LABEL(VARIO))
@@ -216,6 +221,8 @@ void menuRadioSetup(event_t event)
       0, // brightness
       0, // contrast
       CASE_PCBX9E_PCBX9DP(0) // backlight color
+      0, // backlight control
+      BACKLIGHT_WARNING_ROW(LABEL(0)), // backlight control override warning
       0, // flash beep
     CASE_SPLASH_PARAM(0) // disable splash
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
@@ -419,6 +426,10 @@ void menuRadioSetup(event_t event)
                 isSourceSwitchOrPotAvailable);
         break;
 
+      case ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE:
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
+        break;
+
       case ITEM_RADIO_SETUP_START_SOUND:
         g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, RADIO_SETUP_2ND_COLUMN, y, STR_PLAY_HELLO, attr, event, INDENT_WIDTH) ;
         break;
@@ -581,6 +592,10 @@ void menuRadioSetup(event_t event)
           g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
                 MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
                 isSourceSwitchOrPotAvailable);
+        break;
+
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
         break;
 
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:

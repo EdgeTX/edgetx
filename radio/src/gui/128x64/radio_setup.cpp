@@ -58,6 +58,7 @@ enum {
   CASE_AUDIO(ITEM_RADIO_SETUP_WAV_VOLUME)
   CASE_AUDIO(ITEM_RADIO_SETUP_BACKGROUND_VOLUME)
   CASE_AUDIO(ITEM_RADIO_SETUP_VOLUME_SOURCE)
+  CASE_AUDIO(ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE)
   CASE_AUDIO(ITEM_RADIO_SETUP_START_SOUND)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_VOLUME)
@@ -84,6 +85,7 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
   CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE)
+  CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -132,6 +134,8 @@ PACK(struct ExpandState {
 static struct ExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
+static uint8_t SOUND_WARNING_ROW(uint8_t value) { return expandState.sound && isFunctionActive(FUNCTION_VOLUME) ? value : HIDDEN_ROW; }
+static uint8_t BACKLIGHT_WARNING_ROW(uint8_t value) { return isFunctionActive(FUNCTION_BACKLIGHT) ? value : HIDDEN_ROW; }
 
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
 
@@ -186,6 +190,7 @@ void menuRadioSetup(event_t event)
      CASE_AUDIO(SOUND_ROW(0))
      CASE_AUDIO(SOUND_ROW(0))
      CASE_AUDIO(SOUND_ROW(0))
+     CASE_AUDIO(SOUND_WARNING_ROW(LABEL(0)))
      CASE_AUDIO(SOUND_ROW(0))
     // Vario
     CASE_VARIO(LABEL(VARIO))
@@ -217,6 +222,7 @@ void menuRadioSetup(event_t event)
      CASE_BACKLIGHT(0)
      CASE_CONTRAST(0)
      CASE_BACKLIGHT(0)
+     CASE_BACKLIGHT(BACKLIGHT_WARNING_ROW(LABEL(0)))
      CASE_BACKLIGHT(0)
     CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
@@ -398,6 +404,10 @@ void menuRadioSetup(event_t event)
           g_eeGeneral.volumeSrc = checkIncDec(event, g_eeGeneral.volumeSrc,
                 MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
                 isSourceSwitchOrPotAvailable);
+        break;
+
+      case ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE:
+        lcdDrawText(LCD_W, y, STR_SF_OVERRIDDEN, RIGHT);
         break;
 
       case ITEM_RADIO_SETUP_START_SOUND:
@@ -584,6 +594,10 @@ void menuRadioSetup(event_t event)
           g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
                 MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
                 isSourceSwitchOrPotAvailable);
+        break;
+
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:
+        lcdDrawText(LCD_W, y, STR_SF_OVERRIDDEN, RIGHT);
         break;
 #endif
 

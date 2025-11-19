@@ -135,7 +135,6 @@
 #define STR_SAVE currentLangStrings->STR_SAVE
 #define STR_SELECT_TEMPLATE_FOLDER currentLangStrings->STR_SELECT_TEMPLATE_FOLDER
 #define STR_SELECT_TEMPLATE currentLangStrings->STR_SELECT_TEMPLATE
-#define STR_SF_OVERRIDDEN currentLangStrings->STR_SF_OVERRIDDEN
 #define STR_SHADOW currentLangStrings->STR_SHADOW
 #define STR_SHOW_MIXER_MONITORS currentLangStrings->STR_SHOW_MIXER_MONITORS
 #define STR_SIZE currentLangStrings->STR_SIZE
@@ -907,6 +906,7 @@
 #define STR_SF_LCD_TO_VIDEO currentLangStrings->STR_SF_LCD_TO_VIDEO
 #define STR_SF_LOGS currentLangStrings->STR_SF_LOGS
 #define STR_SF_MOD_BIND currentLangStrings->STR_SF_MOD_BIND
+#define STR_SF_OVERRIDDEN currentLangStrings->STR_SF_OVERRIDDEN
 #define STR_SF_PLAY_SCRIPT currentLangStrings->STR_SF_PLAY_SCRIPT
 #define STR_SF_RACING_MODE currentLangStrings->STR_SF_RACING_MODE
 #define STR_SF_RANGE_CHECK currentLangStrings->STR_SF_RANGE_CHECK
