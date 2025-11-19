@@ -101,9 +101,9 @@ ViewMain::~ViewMain() { _instance = nullptr; }
 
 void ViewMain::deleteLater(bool detach, bool trash)
 {
+  NavWindow::deleteLater(detach, trash);
   Layer::pop(this);
   QuickMenu::shutdownQuickMenu();
-  NavWindow::deleteLater(detach, trash);
 }
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)

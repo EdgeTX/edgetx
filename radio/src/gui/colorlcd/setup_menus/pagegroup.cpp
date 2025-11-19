@@ -193,10 +193,10 @@ void PageGroupBase::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
 
+  NavWindow::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
-
-  NavWindow::deleteLater(detach, trash);
 }
 
 void PageGroupBase::onClicked() { Keyboard::hide(false); }

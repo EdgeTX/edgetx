@@ -86,8 +86,8 @@ void MainWindow::shutdown()
 
   // clear layer stack first
   for (Window* w = Layer::back(); w; w = Layer::back()) {
-    Layer::pop(w);
     w->deleteLater();
+    Layer::pop(w);
   }
 
   children.clear();
