@@ -54,9 +54,9 @@ enum WidgetOptionValueEnum {
 #define WIDGET_OPTION_VALUE_SIGNED(x)   WidgetOptionValue{ .signedValue = (x) }
 #define WIDGET_OPTION_VALUE_STRING(...) WidgetOptionValue{ .stringValue = { __VA_ARGS__ } }
 
-struct WidgetOptionValue
-{
 #if defined(YAML_GENERATOR)
+union WidgetOptionValue
+{
   CUST_ATTR(unsignedValue, r_wov_unsigned, w_wov_unsigned);
   CUST_ATTR(signedValue, r_wov_signed, w_wov_signed);
   CUST_ATTR(boolValue, r_wov_unsigned, w_wov_unsigned);
@@ -64,6 +64,8 @@ struct WidgetOptionValue
   CUST_ATTR(source, r_wov_source, w_wov_source);
   CUST_ATTR(color, r_wov_color, w_wov_color);
 #else
+struct WidgetOptionValue
+{
   union {
     uint32_t unsignedValue;
     int32_t signedValue;
