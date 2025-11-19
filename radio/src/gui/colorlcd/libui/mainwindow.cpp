@@ -85,7 +85,10 @@ void MainWindow::shutdown()
   LayoutFactory::deleteCustomScreens();
 
   // clear layer stack first
-  for (Window* w = Layer::back(); w; w = Layer::back()) w->deleteLater();
+  for (Window* w = Layer::back(); w; w = Layer::back()) {
+    w->deleteLater();
+    Layer::pop(w);
+  }
 
   children.clear();
   clear();

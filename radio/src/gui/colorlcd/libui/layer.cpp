@@ -23,7 +23,7 @@ std::list<Layer> Layer::stack;
 Layer::Layer(Window* w, lv_group_t* g) : window(w), group(g) {}
 Layer::~Layer() { lv_group_del(group); }
 
-static void _assign_lv_group(lv_group_t* g)
+void _assign_lv_group(lv_group_t* g)
 {
   lv_group_set_default(g);
 

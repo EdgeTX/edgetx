@@ -155,6 +155,8 @@ void SetupWidgetsPage::onCancel() { deleteLater(); }
 
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 {
+  Window::deleteLater(detach, trash);
+
   // restore screen setting tab on top
   Layer::pop(this);
 
@@ -165,7 +167,6 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->setCurrentMainView(savedView);
     viewMain->showTopBarEdgeTxButton();
   }
-  Window::deleteLater(detach, trash);
   new ScreenMenu(customScreenIdx + 1);
 
   storageDirty(EE_MODEL);

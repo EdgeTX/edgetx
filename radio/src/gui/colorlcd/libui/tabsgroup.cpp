@@ -327,10 +327,10 @@ void TabsGroup::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
 
+  Window::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
-
-  Window::deleteLater(detach, trash);
 }
 
 void TabsGroup::addTab(PageTab* page)

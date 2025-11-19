@@ -60,6 +60,8 @@ class TableField : public Window
  protected:
   bool autoedit = false;
   std::function<void()> longPressHandler = nullptr;
+  lv_group_t* group = nullptr;
+  lv_group_t* oldGroup = nullptr;
 
   void onEvent(event_t event) override;
   bool onLongPress() override;
