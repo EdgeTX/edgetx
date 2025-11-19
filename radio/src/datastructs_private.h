@@ -36,7 +36,7 @@
 
 #if defined(COLORLCD)
 #include "datastructs_screen.h"
-#include "quick_menu.h"
+#include "quick_menu_def.h"
 #endif
 
 #if defined(PCBTARANIS)
