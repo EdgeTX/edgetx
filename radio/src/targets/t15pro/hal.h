@@ -219,16 +219,7 @@ USART6: EXTMODULE_USART
 
 #define ADC_DIRECTION {       	 \
 0,-1,0,-1, 	/* gimbals */    \
-1,1,       	/* pots */       \
-0,0,     	/* sliders */    \
-0,	     	/* vbat */       \
-0,       	/* rtc_bat */    \
-0,       	/* SWA */        \
-0,       	/* SWB */        \
-0,       	/* SWC */        \
-0,       	/* SWD */        \
-0,       	/* SWE */        \
-0        	/* SWF */        \
+1,1        	/* pots */       \
 }
 
 
