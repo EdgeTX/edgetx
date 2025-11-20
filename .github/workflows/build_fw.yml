@@ -59,6 +59,7 @@ jobs:
           - nb4p
           - st16
           - t15pro
+          - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -110,6 +111,7 @@ jobs:
           - nb4p
           - st16
           - t15pro
+          - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
