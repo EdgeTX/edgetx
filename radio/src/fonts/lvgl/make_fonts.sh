@@ -276,12 +276,12 @@ function make_en_font_set() {
   make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 25 "XL" "sml"
 
   # Large LCD fonts (800x480)
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 13 "XXS" "lrg"
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 19 "XS" "lrg"
-  make_en_font "${name}" "${LATIN_FONT}" 24 "STD" "lrg"
-  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 24 "STD" "lrg"
-  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 36 "L" "lrg"
-  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 48 "XL" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 12 "XXS" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 18 "XS" "lrg"
+  make_en_font "${name}" "${LATIN_FONT}" 22 "STD" "lrg"
+  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 22 "STD" "lrg"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 33 "L" "lrg"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 44 "XL" "lrg"
 }
 
 function make_font_set() {
