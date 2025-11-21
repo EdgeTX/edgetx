@@ -49,7 +49,7 @@ bool EtxFormat::load(RadioData & radioData)
   return result;
 }
 
-bool EtxFormat::write(const RadioData & radioData)
+bool EtxFormat::write(RadioData & radioData)
 {
   qDebug() << "Saving to archive" << filename;
 
@@ -90,12 +90,17 @@ bool EtxFormat::write(const RadioData & radioData)
   return result;
 }
 
-bool EtxFormat::loadFile(QByteArray & filedata, const QString & filename)
+bool EtxFormat::loadFile(QByteArray & filedata, const QString & filename, bool optional)
 {
   size_t size;
   void * data = mz_zip_reader_extract_file_to_heap(&zip_archive, qPrintable(filename), &size, 0);
   if (!data) {
-    return false;
+    if (optional) {
+      //qDebug() << "File not found:" << filename;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   qDebug() << QString("Extracted file %1, size=%2").arg(filename).arg(size);

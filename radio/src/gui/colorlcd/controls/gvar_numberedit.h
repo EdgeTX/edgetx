@@ -37,7 +37,6 @@ class GVarNumberEdit : public Window
                  LcdFlags textFlags = 0, int32_t voffset = 0, int32_t vdefault = 0);
 
   void switchGVarMode();
-  void setSuffix(std::string value);
 
   void setFastStep(int value) { num_field->setFastStep(value); }
   void setAccelFactor(int value) { num_field->setAccelFactor(value); }

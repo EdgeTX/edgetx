@@ -69,7 +69,6 @@ enum Capability {
   CustomAndSwitches,
   HasNegAndSwitches,
   LogicalSwitchesExt,
-  RotaryEncoders,
   Outputs,
   ChannelsName,
   ExtraInputs,
@@ -173,6 +172,8 @@ enum Capability {
   HasIntModuleELRS,
   HasIntModuleFlySky,
   BacklightLevelMin,
+  QMFavourites,
+  KeyShortcuts,
 };
 
 float ValToTim(int value);
@@ -270,6 +271,8 @@ class Firmware
     virtual QTime getMaxTimerStart() = 0;
 
     virtual bool isAvailable(PulsesProtocol proto, int port=0) = 0;
+
+    virtual QString getLanguage() const = 0;
 
     const int getFlashSize();
 

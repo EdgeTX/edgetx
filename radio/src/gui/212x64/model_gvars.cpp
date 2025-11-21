@@ -23,36 +23,6 @@
 
 static int numFlightModes() { return modelFMEnabled() ? MAX_FLIGHT_MODES : 1; }
 
-void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t flightMode, LcdFlags flags)
-{
-  FlightModeData * fm = &g_model.flightModeData[flightMode];
-  gvar_t * v = &fm->gvars[gvar];
-  int16_t vmin, vmax;
-  if (*v > GVAR_MAX) {
-    uint8_t fm = *v - GVAR_MAX - 1;
-    if (fm >= flightMode) fm++;
-    drawFlightMode(x, y, fm + 1, flags&(~LEFT));
-    vmin = GVAR_MAX + 1;
-    vmax = GVAR_MAX + MAX_FLIGHT_MODES - 1;
-  }
-  else {
-    drawGVarValue(x, y, gvar, *v, flags);
-    vmin = GVAR_MIN + g_model.gvars[gvar].min;
-    vmax = GVAR_MAX - g_model.gvars[gvar].max;
-  }
-
-  if (flags & INVERS) {
-    if (event == EVT_KEY_LONG(KEY_ENTER) && flightMode > 0) {
-      killEvents(event);
-      *v = (*v > GVAR_MAX ? 0 : GVAR_MAX+1);
-      storageDirty(EE_MODEL);
-    }
-    else if (s_editMode > 0) {
-      *v = checkIncDec(event, *v, vmin, vmax, EE_MODEL);
-    }
-  }
-}
-
 enum GVarFields {
   GVAR_FIELD_NAME,
   GVAR_FIELD_UNIT,
@@ -72,7 +42,7 @@ void menuModelGVarOne(event_t event)
 {
   GVarData * gvar = &g_model.gvars[s_currIdx];
 
-  drawStringWithIndex(PSIZE(TR_GVARS)*FW+FW, 0, STR_GV, s_currIdx+1, 0);
+  drawStringWithIndex(strlen(STR_GVARS)*FW+FW, 0, STR_GV, s_currIdx+1, 0);
   drawGVarValue(32*FW, 0, s_currIdx, getGVarValue(s_currIdx, getFlightMode()));
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 

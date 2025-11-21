@@ -25,6 +25,8 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "keyboard_base.h"
+#include "quick_menu.h"
+#include "pagegroup.h"
 
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
@@ -75,6 +77,14 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
     lv_obj_enable_style_refresh(false);
 
   header = new PageHeader(this, icon);
+
+  new HeaderBackIcon(header);
+
+#if defined(HARDWARE_TOUCH)
+  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+#endif
+
   body = new Window(this,
                     {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
@@ -88,21 +98,41 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   Layer::push(this);
 
   body->padAll(padding);
-
-#if defined(HARDWARE_TOUCH)
-  addBackButton();
-#endif
 }
 
 void Page::deleteLater(bool detach, bool trash)
 {
+  NavWindow::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
-
-  Window::deleteLater(detach, trash);
 }
 
-void Page::onCancel() { deleteLater(); }
+void Page::openMenu()
+{
+  PageGroup* p = (PageGroup*)Layer::getPageGroup();
+  QMPage qmPage = QM_NONE;
+  if (p)
+    qmPage = p->getCurrentTab()->pageId();
+  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
+    [=](bool close) {
+      onCancel();
+      if (p) {
+        while (!Layer::back()->isPageGroup()) {
+          Layer::back()->deleteLater();
+        }
+        if (close)
+          Layer::back()->onCancel();
+      }
+    }, p, qmPage);
+}
+
+void Page::onCancel()
+{
+  if (quickMenu) quickMenu->closeMenu();
+  quickMenu = nullptr;
+  deleteLater();
+}
 
 void Page::onClicked() { Keyboard::hide(false); }
 
@@ -118,7 +148,73 @@ void Page::enableRefresh()
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
+NavWindow* Page::navWindow()
+{
+  auto p = Layer::back();
+  if (p->isNavWindow()) return (NavWindow*)p;
+  return nullptr;
+}
+
 #if defined(HARDWARE_KEYS)
+void Page::onPressSYS()
+{
+  QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!quickMenu) openMenu();
+  } else {
+    auto p = navWindow();
+    if (p) {
+      onCancel();
+      p->onPressSYS();
+    }
+  }
+}
+
+void Page::onLongPressSYS()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onLongPressSYS();
+  }
+}
+
+void Page::onPressMDL()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onPressMDL();
+  }
+}
+
+void Page::onLongPressMDL()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onLongPressMDL();
+  }
+}
+
+void Page::onPressTELE()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onPressTELE();
+  }
+}
+
+void Page::onLongPressTELE()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onLongPressTELE();
+  }
+}
+
 void Page::onLongPressRTN() { onCancel(); }
 #endif
 

@@ -313,8 +313,10 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   // Disable IRQ based RX
   LL_USART_DisableIT_RXNE(usart->USARTx);
 
-  // In case TX DMA is used and IDLE IRQ is not, disable the ISR completely
-  if (usart->txDMA && !LL_USART_IsEnabledIT_IDLE(usart->USARTx)) {
+  // In case TX DMA is used, IDLE IRQ is not, and not half-duplex,
+  // disable the ISR completely
+  if (usart->txDMA && !LL_USART_IsEnabledIT_IDLE(usart->USARTx) &&
+      !IS_HALF_DUPLEX(usart)) {
     NVIC_DisableIRQ(usart->IRQn);
   }
 
@@ -558,6 +560,12 @@ void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
 
 void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, uint32_t size)
 {
+
+  if (!stm32_usart_tx_completed(usart)) {
+    // Transmission is already in progress, abort
+    return;
+  }
+
   _half_duplex_output(usart);
 
   if (usart->txDMA) {

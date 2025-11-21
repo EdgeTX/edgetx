@@ -107,6 +107,49 @@ const struct YamlIdStr enum_SwitchConfig[] = {
   {  SWITCH_3pos, "3pos"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_QMPage[] = {
+  {  QM_NONE, "NONE"  },
+  {  QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU"  },
+  {  QM_MANAGE_MODELS, "MANAGE_MODELS"  },
+  {  QM_MODEL_SETUP, "MODEL_SETUP"  },
+  {  QM_MODEL_FLIGHTMODES, "MODEL_FLIGHTMODES"  },
+  {  QM_MODEL_INPUTS, "MODEL_INPUTS"  },
+  {  QM_MODEL_MIXES, "MODEL_MIXES"  },
+  {  QM_MODEL_OUTPUTS, "MODEL_OUTPUTS"  },
+  {  QM_MODEL_CURVES, "MODEL_CURVES"  },
+  {  QM_MODEL_GVARS, "MODEL_GVARS"  },
+  {  QM_MODEL_LS, "MODEL_LS"  },
+  {  QM_MODEL_SF, "MODEL_SF"  },
+  {  QM_MODEL_SCRIPTS, "MODEL_SCRIPTS"  },
+  {  QM_MODEL_TELEMETRY, "MODEL_TELEMETRY"  },
+  {  QM_MODEL_NOTES, "MODEL_NOTES"  },
+  {  QM_RADIO_SETUP, "RADIO_SETUP"  },
+  {  QM_RADIO_GF, "RADIO_GF"  },
+  {  QM_RADIO_TRAINER, "RADIO_TRAINER"  },
+  {  QM_RADIO_HARDWARE, "RADIO_HARDWARE"  },
+  {  QM_RADIO_VERSION, "RADIO_VERSION"  },
+  {  QM_UI_THEMES, "UI_THEMES"  },
+  {  QM_UI_SETUP, "UI_SETUP"  },
+  {  QM_UI_SCREEN1, "UI_SCREEN1"  },
+  {  QM_UI_SCREEN2, "UI_SCREEN2"  },
+  {  QM_UI_SCREEN3, "UI_SCREEN3"  },
+  {  QM_UI_SCREEN4, "UI_SCREEN4"  },
+  {  QM_UI_SCREEN5, "UI_SCREEN5"  },
+  {  QM_UI_SCREEN6, "UI_SCREEN6"  },
+  {  QM_UI_SCREEN7, "UI_SCREEN7"  },
+  {  QM_UI_SCREEN8, "UI_SCREEN8"  },
+  {  QM_UI_SCREEN9, "UI_SCREEN9"  },
+  {  QM_UI_SCREEN10, "UI_SCREEN10"  },
+  {  QM_UI_ADD_PG, "UI_ADD_PG"  },
+  {  QM_TOOLS_APPS, "TOOLS_APPS"  },
+  {  QM_TOOLS_STORAGE, "TOOLS_STORAGE"  },
+  {  QM_TOOLS_RESET, "TOOLS_RESET"  },
+  {  QM_TOOLS_CHAN_MON, "TOOLS_CHAN_MON"  },
+  {  QM_TOOLS_LS_MON, "TOOLS_LS_MON"  },
+  {  QM_TOOLS_STATS, "TOOLS_STATS"  },
+  {  QM_TOOLS_DEBUG, "TOOLS_DEBUG"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -207,15 +250,6 @@ const struct YamlIdStr enum_TelemetrySensorType[] = {
   {  TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
-  {  ZOV_Unsigned, "Unsigned"  },
-  {  ZOV_Signed, "Signed"  },
-  {  ZOV_Bool, "Bool"  },
-  {  ZOV_String, "String"  },
-  {  ZOV_Source, "Source"  },
-  {  ZOV_Color, "Color"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_USBJoystickIfMode[] = {
   {  USBJOYS_JOYSTICK, "JOYSTICK"  },
   {  USBJOYS_GAMEPAD, "GAMEPAD"  },
@@ -295,6 +329,11 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
   YAML_PADDING( 5 ),
+  YAML_END
+};
+static const struct YamlNode struct_QuickMenuPage[] = {
+  YAML_IDX,
+  YAML_ENUM("shortcut", 8, enum_QMPage, NULL),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -378,8 +417,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("switchConfig", 32, 20, struct_switchDef, switchIsActive),
   YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),
   YAML_STRING("currModelFilename", 17),
-  YAML_UNSIGNED( "modelQuickSelect", 1 ),
-  YAML_UNSIGNED( "blOffBright", 7 ),
+  YAML_UNSIGNED( "blOffBright", 8 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
@@ -404,8 +442,11 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
   YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
   YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
-  YAML_PADDING( 6 ),
+  YAML_UNSIGNED( "modelQuickSelect", 1 ),
+  YAML_PADDING( 5 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_ARRAY("keyShortcuts", 8, 6, struct_QuickMenuPage, NULL),
+  YAML_ARRAY("qmFavorites", 8, 12, struct_QuickMenuPage, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -784,45 +825,56 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNION("cfg", 32, union_anonymous_17_elmts, select_sensor_cfg),
   YAML_END
 };
-static const struct YamlNode union_ZoneOptionValue_elmts[] = {
-  YAML_UNSIGNED( "unsignedValue", 32 ),
-  YAML_SIGNED( "signedValue", 32 ),
-  YAML_UNSIGNED( "boolValue", 32 ),
-  YAML_STRING("stringValue", 12),
-  YAML_CUSTOM("source",r_zov_source,w_zov_source),
-  YAML_CUSTOM("color",r_zov_color,w_zov_color),
+static const struct YamlNode union_WidgetOptionValue_elmts[] = {
+  YAML_CUSTOM("unsignedValue",r_wov_unsigned,w_wov_unsigned),
+  YAML_CUSTOM("signedValue",r_wov_signed,w_wov_signed),
+  YAML_CUSTOM("boolValue",r_wov_unsigned,w_wov_unsigned),
+  YAML_CUSTOM("stringValue",r_wov_string,w_wov_string),
+  YAML_CUSTOM("source",r_wov_source,w_wov_source),
+  YAML_CUSTOM("color",r_wov_color,w_wov_color),
   YAML_END
 };
-static const struct YamlNode struct_ZoneOptionValueTyped[] = {
+static const struct YamlNode struct_WidgetOptionValueTyped[] = {
   YAML_IDX,
-  YAML_ENUM("type", 32, enum_ZoneOptionValueEnum, NULL),
-  YAML_UNION("value", 96, union_ZoneOptionValue_elmts, select_zov),
+  YAML_CUSTOM("type",r_wov_type,w_wov_type),
+  YAML_UNION("value", 0, union_WidgetOptionValue_elmts, select_wov),
   YAML_END
 };
 static const struct YamlNode struct_WidgetPersistentData[] = {
-  YAML_ARRAY("options", 128, 10, struct_ZoneOptionValueTyped, NULL),
+  YAML_ARRAY("options", 0, 50, struct_WidgetOptionValueTyped, widget_option_is_active),
   YAML_END
 };
 static const struct YamlNode struct_ZonePersistentData[] = {
   YAML_IDX,
-  YAML_STRING("widgetName", 20),
-  YAML_STRUCT("widgetData", 1280, struct_WidgetPersistentData, NULL),
+  YAML_CUSTOM("widgetName",r_widget_name,w_widget_name),
+  YAML_STRUCT("widgetData", 0, struct_WidgetPersistentData, isAlwaysActive),
+  YAML_END
+};
+static const struct YamlNode union_LayoutOptionValue_elmts[] = {
+  YAML_CUSTOM("unsignedValue",r_lov_unsigned,w_lov_unsigned),
+  YAML_CUSTOM("boolValue",r_lov_unsigned,w_lov_unsigned),
+  YAML_CUSTOM("color",r_lov_color,w_lov_color),
+  YAML_END
+};
+static const struct YamlNode struct_LayoutOptionValueTyped[] = {
+  YAML_IDX,
+  YAML_CUSTOM("type",r_lov_type,w_lov_type),
+  YAML_UNION("value", 0, union_LayoutOptionValue_elmts, select_lov),
   YAML_END
 };
 static const struct YamlNode struct_LayoutPersistentData[] = {
-  YAML_ARRAY("zones", 1440, 10, struct_ZonePersistentData, NULL),
-  YAML_ARRAY("options", 128, 10, struct_ZoneOptionValueTyped, NULL),
+  YAML_ARRAY("zones", 0, 10, struct_ZonePersistentData, widget_is_active),
+  YAML_ARRAY("options", 0, 10, struct_LayoutOptionValueTyped, layout_option_is_active),
   YAML_END
 };
 static const struct YamlNode struct_CustomScreenData[] = {
   YAML_IDX,
-  YAML_STRING("LayoutId", 12),
-  YAML_STRUCT("layoutData", 15680, struct_LayoutPersistentData, NULL),
+  YAML_CUSTOM("LayoutId",r_screen_id,w_screen_id),
+  YAML_STRUCT("layoutData", 0, struct_LayoutPersistentData, isAlwaysActive),
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 1440, 6, struct_ZonePersistentData, NULL),
-  YAML_ARRAY("options", 128, 1, struct_ZoneOptionValueTyped, NULL),
+  YAML_ARRAY("zones", 0, 6, struct_ZonePersistentData, widget_is_active),
   YAML_END
 };
 static const struct YamlNode struct_USBJoystickChData[] = {
@@ -886,8 +938,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
-  YAML_ARRAY("screenData", 15776, 10, struct_CustomScreenData, NULL),
-  YAML_STRUCT("topbarData", 8768, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("screenData", 0, 10, struct_CustomScreenData, screen_is_active),
+  YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
   YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),

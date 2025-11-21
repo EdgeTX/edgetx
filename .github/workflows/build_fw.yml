@@ -29,6 +29,9 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
     strategy:
       matrix:
         target:
@@ -55,6 +58,7 @@ jobs:
           - gx12
           - nb4p
           - st16
+          - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -69,15 +73,18 @@ jobs:
       - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
           echo "Running commit tests"
           ./tools/commit-tests.sh
-
 
   build:
     name: Run builds
     needs: test
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
     strategy:
       matrix:
         target:
@@ -102,6 +109,7 @@ jobs:
           - mt12;gx12
           - nb4p
           - st16
+          - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -115,6 +123,7 @@ jobs:
       - name: Build ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
           echo "Running firmware build"
           ./tools/build-gh.sh

@@ -129,7 +129,7 @@ rxStatStruct *getRxStatLabels() {
       rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
       break;
 
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
     case MODULE_TYPE_FLYSKY_AFHDS2A:
       extern uint32_t NV14internalModuleFwVersion;
 
@@ -335,8 +335,8 @@ void telemetryWakeup()
 #if defined(PXX1) || defined(PXX2)
     if (isBadAntennaDetected()) {
       AUDIO_RAS_RED();
-      POPUP_WARNING_ON_UI_TASK(STR_WARNING, STR_ANTENNAPROBLEM);
-      SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
+      if (POPUP_WARNING_ON_UI_TASK(STR_WARNING, STR_ANTENNAPROBLEM))
+        SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
     }
 #endif
 

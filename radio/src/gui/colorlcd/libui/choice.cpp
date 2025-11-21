@@ -66,7 +66,7 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
   lv_obj_set_pos(img, 0, PAD_TINY);
 
   // Add label
-  label = lv_label_create(lvobj);
+  label = etx_label_create(lvobj);
   lv_obj_set_pos(label, type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W, PAD_TINY);
   etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
 }

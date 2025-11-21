@@ -21,24 +21,22 @@
 
 #pragma once
 
-#include "tabsgroup.h"
-#include "widgets_container.h"
+#include "pagegroup.h"
+#include "topbar.h"
 
-class ScreenMenu;
 class ThemeView;
 class Choice;
 
-class ScreenUserInterfacePage : public PageTab
+class ScreenUserInterfacePage : public PageGroupItem
 {
  public:
-  ScreenUserInterfacePage(ScreenMenu* menu);
+  ScreenUserInterfacePage(PageDef& pageDef);
 
   void build(Window* window) override;
 
   static LAYOUT_VAL_SCALED(WWBTN_W, 60)
 
  protected:
-  ScreenMenu* menu;
   Choice* widths[MAX_TOPBAR_ZONES];
   ThemeView* themeView = nullptr;
 };

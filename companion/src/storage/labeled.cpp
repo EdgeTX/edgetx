@@ -57,21 +57,8 @@ bool LabelsStorageFormat::load(RadioData & radioData)
       qDebug() << tr("Found %1").arg(filename);
   }
 
-  QByteArray radioSettingsBuffer;
-  if (!loadFile(radioSettingsBuffer, "RADIO/radio.yml")) {
-    setError(tr("Cannot extract RADIO/radio.yml"));
+  if (!loadRadioSettings(radioData.generalSettings))
     return false;
-  }
-
-  try {
-    if (!loadRadioSettingsFromYaml(radioData.generalSettings, radioSettingsBuffer)) {
-      setError(tr("Cannot load RADIO/radio.yml"));
-      return false;
-    }
-  } catch(const std::runtime_error& e) {
-    setError(tr("Cannot load RADIO/radio.yml") + ":\n" + QString(e.what()));
-    return false;
-  }
 
   board = (Board::Type)radioData.generalSettings.variant;
 
@@ -160,6 +147,9 @@ bool LabelsStorageFormat::load(RadioData & radioData)
       return false;
     }
 
+    if (!loadChecklist(model))
+      return false;
+
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
@@ -184,8 +174,34 @@ bool LabelsStorageFormat::load(RadioData & radioData)
   return true;
 }
 
-bool LabelsStorageFormat::write(const RadioData & radioData)
+bool LabelsStorageFormat::write(RadioData & radioData)
 {
+  // TODO
+  // move all unique radio settings to a separate file eg RADIO/hardware.yml.
+  // These settings/values should never be transferred to another radio.
+  // Also some are at a point in time eg calibration and
+  // therefore not restored to the radio from say an etx file
+
+  // may not exist on a new sd card or path
+  if (QFile(filename + "/RADIO/radio.yml").exists()) {
+    GeneralSettings gsCur;
+
+    if (loadRadioSettings(gsCur)) {
+      GeneralSettings & gsNew = radioData.generalSettings;
+      gsNew.txCurrentCalibration = gsCur.txCurrentCalibration;
+      gsNew.txVoltageCalibration = gsCur.txVoltageCalibration;
+
+      for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+        gsNew.inputConfig[i].calib = gsCur.inputConfig[i].calib;
+      }
+
+      qDebug() << "Hardware specific settings preserved";
+    } else {
+      setError("Error reading current settings from radio");
+      return false;
+    }
+  }
+
   QByteArray radioSettingsBuffer;
   if (!writeRadioSettingsToYaml(radioData.generalSettings, radioSettingsBuffer))
     return false;
@@ -235,12 +251,69 @@ bool LabelsStorageFormat::write(const RadioData & radioData)
     writeModelToYaml(model, modelData);
     if (!writeFile(modelData, modelFilename))
       return false;
+
+    if (!writeChecklist(model))
+      return false;
   }
 
   if (hasLabels) {
     QByteArray labelsListBuffer;
     if (!writeLabelsListToYaml(radioData, labelsListBuffer) || !writeFile(labelsListBuffer, "MODELS/labels.yml"))
       return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::loadChecklist(ModelData & model)
+{
+  const QString fname("MODELS/" + model.getChecklistFilename());
+  //qDebug() << "Searching for checklist file:" << fname;
+
+  if (!loadFile(model.checklistData, fname, true)) {
+    setError(tr("Cannot load ") + fname);
+    return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::writeChecklist(const ModelData & model)
+{
+  const QString fname("MODELS/" + model.getChecklistFilename());
+
+  // not every model has a checklist
+  if (!model.checklistData.isEmpty()) {
+    //qDebug() << "Writing checklist file:" << fname;
+    if (!writeFile(model.checklistData, fname)) {
+      setError(tr("Cannot write ") + fname);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::loadRadioSettings(GeneralSettings & generalSettings)
+{
+  QByteArray radioSettingsBuffer;
+
+  const QString file("RADIO/radio.yml");
+  const QString filePath(QDir::toNativeSeparators(filename + "/" + file));
+
+  if (!loadFile(radioSettingsBuffer, file)) {
+    setError(tr("Cannot extract %1").arg(filePath));
+    return false;
+  }
+
+  try {
+    if (!loadRadioSettingsFromYaml(generalSettings, radioSettingsBuffer)) {
+      setError(tr("Cannot load %1").arg(filePath));
+      return false;
+    }
+  } catch(const std::runtime_error& e) {
+    setError(tr("Cannot load %1").arg(filePath) + ":\n" + QString(e.what()));
+    return false;
   }
 
   return true;

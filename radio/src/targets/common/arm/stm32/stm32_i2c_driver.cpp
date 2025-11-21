@@ -25,6 +25,9 @@
 #include "stm32_hal.h"
 
 #include "timers_driver.h"
+#if !defined(BOOT)
+#include "os/task.h"
+#endif
 #include "debug.h"
 
 #define MAX_I2C_DEVICES 2
@@ -32,6 +35,9 @@
 struct stm32_i2c_device {
   I2C_HandleTypeDef handle;
   const stm32_i2c_hw_def_t* hw_def;
+#if !defined(BOOT) && !defined(RADIO_PA01)
+  mutex_handle_t mutex;
+#endif
 };
 
 static stm32_i2c_device _i2c_devs[MAX_I2C_DEVICES] = {};
@@ -47,6 +53,12 @@ static I2C_HandleTypeDef* i2c_get_handle(uint8_t bus)
   if (bus >= MAX_I2C_DEVICES) return nullptr;
   return &_i2c_devs[bus].handle;
 }
+
+#if !defined(BOOT) && !defined(RADIO_PA01)
+#define I2CMutex(bus) MutexLock mutexLock = MutexLock::MakeInstance(&i2c_get_device(bus)->mutex)
+#else
+#define I2CMutex(bus)
+#endif
 
 #if defined(STM32H7) || defined(STM32H7RS)
 
@@ -513,6 +525,9 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   }
 #endif
 
+#if !defined(BOOT) && !defined(RADIO_PA01)
+  mutex_create(&dev->mutex);
+#endif
   return 1;
 }
 
@@ -542,6 +557,7 @@ int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
   
+  I2CMutex(bus);
   if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -555,6 +571,7 @@ int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
   
+  I2CMutex(bus);
   if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -568,6 +585,7 @@ int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
 
+  I2CMutex(bus);
   if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -580,7 +598,8 @@ int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
 {
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
-  
+
+  I2CMutex(bus);
   if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -593,6 +612,7 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;
 
+  I2CMutex(bus);
   HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, retries, timeout);
   if (err != HAL_OK) return -1;
 
@@ -601,5 +621,6 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_
 
 int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
 {
+  I2CMutex(bus);
   return stm32_i2c_is_dev_ready(bus, addr, 1, timeout);
 }

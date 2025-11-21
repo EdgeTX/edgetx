@@ -80,7 +80,8 @@ LogsDialog::LogsDialog(QWidget *parent) :
   timeTicker->setDateTimeFormat("hh:mm:ss.zzz");
   axisRect->axis(QCPAxis::atBottom)->setTicker(timeTicker);
   QDateTime now = QDateTime::currentDateTime();
-  axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60 * 60 * 2).toMSecsSinceEpoch(), now.toMSecsSinceEpoch());
+  axisRect->axis(QCPAxis::atBottom)->setRange(QCPAxisTickerDateTime::dateTimeToKey(now.addSecs(-60 * 60 * 2)),
+                                              QCPAxisTickerDateTime::dateTimeToKey(now));
   axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
   axisRect->addAxis(QCPAxis::atLeft);
   axisRect->addAxis(QCPAxis::atRight);
@@ -882,12 +883,8 @@ void LogsDialog::plotLogs()
       if (plotCoords.min_y > y) plotCoords.min_y = y;
       if (plotCoords.max_y < y) plotCoords.max_y = y;
 
-      if (time_str.contains('.')) {
-        time = QDateTime::fromString(time_str, "yyyy-MM-dd HH:mm:ss.zzz").toMSecsSinceEpoch();
-        time += time_str.mid(time_str.indexOf('.')).toDouble();
-      } else {
-        time = QDateTime::fromString(time_str, "yyyy-MM-dd HH:mm:ss").toMSecsSinceEpoch();
-      }
+      QString fmt(time_str.contains('.') ? "yyyy-MM-dd HH:mm:ss.zzz" :"yyyy-MM-dd HH:mm:ss");
+      time = QCPAxisTickerDateTime::dateTimeToKey(QDateTime::fromString(time_str, fmt));
 
       plotCoords.x.push_back(time);
 

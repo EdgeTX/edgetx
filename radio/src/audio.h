@@ -467,14 +467,6 @@ void codecsInit();
 void audioEvent(unsigned int index);
 void audioPlay(unsigned int index, uint8_t id=0);
 
-#if defined(AUDIO) && defined(BUZZER)
-  #define AUDIO_BUZZER(a, b)  do { a; b; } while(0)
-#elif defined(AUDIO)
-  #define AUDIO_BUZZER(a, b)  a
-#else
-  #define AUDIO_BUZZER(a, b)  b
-#endif
-
 void onKeyError();
 
 void audioKeyPress();
@@ -492,18 +484,18 @@ void audioTimerCountdown(uint8_t timer, int value);
 
 #define AUDIO_HELLO()            audioPlay(AUDIO_HELLO)
 #define AUDIO_BYE()              audioPlay(AU_BYE, ID_PLAY_PROMPT_BASE + AU_BYE)
-#define AUDIO_WARNING1()         AUDIO_BUZZER(audioEvent(AU_WARNING1), beep(3))
-#define AUDIO_WARNING2()         AUDIO_BUZZER(audioEvent(AU_WARNING2), beep(2))
-#define AUDIO_TX_BATTERY_LOW()   AUDIO_BUZZER(audioEvent(AU_TX_BATTERY_LOW), beep(4))
-#define AUDIO_ERROR()            AUDIO_BUZZER(audioEvent(AU_ERROR), beep(4))
+#define AUDIO_WARNING1()         audioEvent(AU_WARNING1)
+#define AUDIO_WARNING2()         audioEvent(AU_WARNING2)
+#define AUDIO_TX_BATTERY_LOW()   audioEvent(AU_TX_BATTERY_LOW)
+#define AUDIO_ERROR()            audioEvent(AU_ERROR)
 #define AUDIO_TIMER_COUNTDOWN(idx, val) audioTimerCountdown(idx, val)
-#define AUDIO_TIMER_ELAPSED(idx) AUDIO_BUZZER(audioEvent(AU_TIMER1_ELAPSED+idx), beep(3))
-#define AUDIO_INACTIVITY()       AUDIO_BUZZER(audioEvent(AU_INACTIVITY), beep(3))
-#define AUDIO_MIX_WARNING(x)     AUDIO_BUZZER(audioEvent(AU_MIX_WARNING_1+x-1), beep(1))
-#define AUDIO_POT_MIDDLE(x)      AUDIO_BUZZER(audioEvent(AU_STICK1_MIDDLE+x), beep(2))
-#define AUDIO_TRIM_MIDDLE()      AUDIO_BUZZER(audioEvent(AU_TRIM_MIDDLE), beep(2))
-#define AUDIO_TRIM_MIN()         AUDIO_BUZZER(audioEvent(AU_TRIM_MIN), beep(2))
-#define AUDIO_TRIM_MAX()         AUDIO_BUZZER(audioEvent(AU_TRIM_MAX), beep(2))
+#define AUDIO_TIMER_ELAPSED(idx) audioEvent(AU_TIMER1_ELAPSED+idx)
+#define AUDIO_INACTIVITY()       audioEvent(AU_INACTIVITY)
+#define AUDIO_MIX_WARNING(x)     audioEvent(AU_MIX_WARNING_1+x-1)
+#define AUDIO_POT_MIDDLE(x)      audioEvent(AU_STICK1_MIDDLE+x)
+#define AUDIO_TRIM_MIDDLE()      audioEvent(AU_TRIM_MIDDLE)
+#define AUDIO_TRIM_MIN()         audioEvent(AU_TRIM_MIN)
+#define AUDIO_TRIM_MAX()         audioEvent(AU_TRIM_MAX)
 #define AUDIO_TRIM_PRESS(val)    audioTrimPress(val)
 #define AUDIO_PLAY(p)            audioEvent(p)
 #define AUDIO_VARIO(fq, t, p, f) audioQueue.playTone(fq, t, p, f)
@@ -518,8 +510,6 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
 
 #else // AUDIO
-
-#include "buzzer.h"
 
 #define AUDIO_TIMER_COUNTDOWN(idx, val) 
 #define AUDIO_TIMER_ELAPSED(idx) 
@@ -557,7 +547,6 @@ void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t fragmentVolume = USE_SETT
 void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void playModelName();
 
-#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
 #define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id, fragmentVolume)
 #define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id, fragmentVolume)
 #define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id, fragmentVolume)

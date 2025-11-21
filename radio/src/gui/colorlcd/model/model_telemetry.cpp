@@ -748,8 +748,8 @@ class SensorEditWindow : public SubPage
   static LAYOUT_SIZE(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(80))
 };
 
-ModelTelemetryPage::ModelTelemetryPage() :
-    PageTab(STR_MENUTELEMETRY, ICON_MODEL_TELEMETRY)
+ModelTelemetryPage::ModelTelemetryPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
   tsStyle.init();
 }
@@ -770,7 +770,7 @@ void ModelTelemetryPage::checkEvents()
     lastKnownIndex = _lastKnownIndex;
   }
 
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 }
 
 void ModelTelemetryPage::editSensor(uint8_t index)

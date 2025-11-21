@@ -129,6 +129,21 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
+bool pwrPressedDebounced()
+{
+  static bool debouncedState = 0;
+  static bool lastState = 0;
+
+  bool state = pwrPressed();
+
+  if (state == lastState)
+    debouncedState = state;
+  else
+    lastState = state;
+  
+  return debouncedState;
+}
+
 void boardInit()
 {
   // enable interrupts
@@ -175,7 +190,12 @@ void boardInit()
   uint32_t now = 0;
 
   pwrOn();
+  hapticInit();  // Ensure the hapatic is initialized during charging
 
+  // Init debounce
+  pwrPressedDebounced();
+  pwrPressedDebounced();
+  
   // Handle charging state if charger is active
   if (isChargerActive()) {
     static uint32_t adc_sample_time = 0; // Hardware ADC sample tick
@@ -190,7 +210,7 @@ void boardInit()
         is_charging = isChargerActive();
       }
       // Exit conditions: button pressed or charger disconnected
-      if (!pwrPressed() && is_charging) {
+      if (!pwrPressedDebounced() && is_charging) {
         updateBatteryState(RGB_STATE_CHARGE);
       } else {
         rgbLedClearAll();
@@ -203,17 +223,19 @@ void boardInit()
   }
 
   // First stage: Detect initial button press and handle press duration
-  first_short_press = timersGetMsTick();
-  while (pwrPressed()) {
-    now = timersGetMsTick();
-    short_press = now;
-    last_pulse  = now;
-    updateBatteryState(RGB_STATE_BREATH);
+  if (!isChargerActive()) {
+    first_short_press = timersGetMsTick();
+    while (pwrPressedDebounced()) {
+      now = timersGetMsTick();
+      short_press = now;
+      last_pulse  = now;
+      updateBatteryState(RGB_STATE_BREATH);
 
-    // Shutdown after 10s continuous press
-    if (now - first_short_press > FRIST_PRESS_TIMEOUT) {
-      rgbLedClearAll();
-      boardOff();
+      // Shutdown after 10s continuous press
+      if (now - first_short_press > FIRST_PRESS_TIMEOUT) {
+        rgbLedClearAll();
+        boardOff();
+      }
     }
   }
   
@@ -222,7 +244,7 @@ void boardInit()
   {
     now = timersGetMsTick();
 
-    if (pwrPressed()) {
+    if (pwrPressedDebounced()) {
       if (long_press == 0) {
         updateBatteryState(RGB_STATE_OFF);
         long_press = now;
@@ -247,7 +269,8 @@ void boardInit()
       // 1. Incomplete secondary press (released too soon)
       // 2. Timeout between press sequences
       if ((long_press != 0) || (now - short_press > INTER_PRESS_TIMEOUT)) {
-          boardOff();
+        rgbLedClearAll();
+        boardOff();
       }
     }
   }
@@ -296,7 +319,6 @@ void boardInit()
   keysInit();
   switchInit();
   audioInit();
-  hapticInit();
 
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
@@ -353,6 +375,7 @@ void boardOff()
 
   }
 }
+
 /*
 int usbPlugged()
 {

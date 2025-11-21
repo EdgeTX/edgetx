@@ -34,11 +34,13 @@
 
 Gyro gyro;
 
+#if !defined(IMU_ICM4207C)
 static float deg2RESX(float deg)
 {
   // [-90 : 90] -> [-RESX : RESX]
   return (deg * float(RESX)) / 90.0;
 }
+#endif
 
 void Gyro::wakeup()
 {
@@ -77,7 +79,7 @@ void Gyro::wakeup()
 
   int16_t gx = values[0];
   int16_t gy = values[1];
-  int16_t gz = values[2];
+  // int16_t gz = values[2];
 
   // integrate gyro
   roll  -= gx * SCALE_FACT_GYRO * DT;

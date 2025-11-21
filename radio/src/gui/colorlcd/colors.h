@@ -24,6 +24,7 @@
 #include <lvgl/lvgl.h>
 
 #include "libopenui_defines.h"
+#include "edgetx_types.h"
 
 // TODO common code, not in target
 enum LcdColorIndex {
@@ -39,6 +40,8 @@ enum LcdColorIndex {
   COLOR_THEME_ACTIVE_INDEX,
   COLOR_THEME_WARNING_INDEX,
   COLOR_THEME_DISABLED_INDEX,
+  COLOR_THEME_QM_BG_INDEX,
+  COLOR_THEME_QM_FG_INDEX,
   CUSTOM_COLOR_INDEX,
 
   // Variable count
@@ -135,6 +138,8 @@ extern const uint16_t defaultColors[];
 #define COLOR_THEME_ACTIVE COLOR(COLOR_THEME_ACTIVE_INDEX)
 #define COLOR_THEME_WARNING COLOR(COLOR_THEME_WARNING_INDEX)
 #define COLOR_THEME_DISABLED COLOR(COLOR_THEME_DISABLED_INDEX)
+#define COLOR_THEME_QM_BG COLOR(COLOR_THEME_QM_BG_INDEX)
+#define COLOR_THEME_QM_FG COLOR(COLOR_THEME_QM_FG_INDEX)
 #define CUSTOM_COLOR COLOR(CUSTOM_COLOR_INDEX)
 
 constexpr int MAX_SATURATION = 100;

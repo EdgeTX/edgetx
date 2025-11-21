@@ -153,6 +153,7 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
       return 0x4878746F;
     case BOARD_FLYSKY_PA01:
       return 0x4A78746F;
@@ -209,6 +210,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_X10:
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
+    case BOARD_JUMPER_T15PRO:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
@@ -219,6 +221,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
@@ -269,6 +272,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_X10:
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
+    case BOARD_JUMPER_T15PRO:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
@@ -279,6 +283,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
@@ -344,7 +349,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
 
     case HasIMU:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board));
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
 
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
@@ -384,7 +389,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
-      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board))
+      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board))
         return 320;
       else if (IS_FLYSKY_PA01(board))
         return 240;
@@ -630,6 +635,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T14";
     case BOARD_JUMPER_T15:
       return "Jumper T15";
+    case BOARD_JUMPER_T15PRO:
+      return "Jumper T15Pro";
     case BOARD_JUMPER_T16:
       return "Jumper T16";
     case BOARD_JUMPER_T18:
@@ -670,6 +677,8 @@ QString Boards::getBoardName(Board::Type board)
       return "FlySky PL18EV";
     case BOARD_FLYSKY_PL18U:
       return "FlySky PL18U";
+    case BOARD_FLYSKY_NB4P:
+      return "FlySky NB4+";
     case BOARD_FLYSKY_ST16:
       return "FlySky ST16";
     case BOARD_BETAFPV_LR3PRO:
@@ -782,6 +791,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TPROV2:
   case BOARD_FLYSKY_PL18:
   case BOARD_FLYSKY_PL18EV:
+  case BOARD_FLYSKY_NB4P:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
@@ -794,6 +804,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T12MAX:
   case BOARD_JUMPER_T14:
   case BOARD_JUMPER_T15:
+  case BOARD_JUMPER_T15PRO:
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_TPROS:
   case BOARD_JUMPER_T20V2:
@@ -875,6 +886,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
       BR(35, 43, 37)
       break;
     case BOARD_FLYSKY_ST16:
@@ -1177,7 +1189,7 @@ bool Boards::isSwitchFunc(int index, Board::Type board)
   return getBoardJson(board)->isSwitchFunc(index);
 }
 
-QString Boards::getRadioTypeString(Board::Type board)
+QString Boards::getRadioModeString(Board::Type board)
 {
   return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Board::Air) ? tr("Flight") : tr("Drive");
 }

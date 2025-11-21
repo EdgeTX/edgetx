@@ -141,8 +141,7 @@ void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)
 
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
     if (i == 0)
-      memcpy(&customScreens.customScreenData[i].layoutId, layoutId,
-             LAYOUT_ID_LEN);
+      strncpy(customScreens.customScreenData[i].layoutId, layoutId, LAYOUT_ID_LEN);
 
     LayoutPersistentData& persistentData =
         customScreens.customScreenData[i].layoutPersistentData;

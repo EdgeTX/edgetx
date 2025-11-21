@@ -52,6 +52,18 @@ class ModelTextEdit : public TextEdit
                 uint8_t length, std::function<void(void)> updateHandler = nullptr);
 };
 
+class ModelStringEdit : public TextEdit
+{
+ public:
+  ModelStringEdit(Window* parent, const rect_t& rect, std::string value,
+                  std::function<void(const char* s)> updateHandler);
+
+  static constexpr int MAX_STR_EDIT_LEN = 255;
+
+ protected:
+  char txt[MAX_STR_EDIT_LEN+1];
+};
+
 class RadioTextEdit : public TextEdit
 {
  public:

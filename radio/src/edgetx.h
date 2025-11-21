@@ -38,7 +38,7 @@
 #include "usbd_msc_conf.h"
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   #include "libopenui.h"
 #else
   #include "lib_file.h"
@@ -205,14 +205,6 @@ extern void cancelSplash();
 
 extern uint8_t heartbeat;
 
-#define LEN_STD_CHARS 40
-
-#if defined(TRANSLATIONS_CZ)
-#define ZCHAR_MAX (LEN_STD_CHARS)
-#else
-#define ZCHAR_MAX (LEN_STD_CHARS + LEN_SPECIAL_CHARS)
-#endif
-
 #include "keys.h"
 #include "pwr.h"
 
@@ -251,6 +243,8 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 }
 
 #else // !COLORLCD && GUI
+
+#include "popups.h"
 
 inline void RAISE_ALERT(const char *title, const char *msg, const char *info,
                         uint8_t sound)
@@ -554,8 +548,7 @@ enum AUDIO_SOUNDS {
 #include "audio.h"
 #endif
 
-#include "buzzer.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 #if defined(HAPTIC)
 #include "haptic.h"
@@ -665,7 +658,7 @@ union ReusableBuffer
     char originalName[SD_SCREEN_FILE_LENGTH+1];
 #if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
-    char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
+    char otaReceiverVersion[64];  // Large enough for TR_CURRENT_VERSION string plus version number
 #endif
   } sdManager;
 
@@ -815,11 +808,7 @@ constexpr uint32_t EARTH_RADIUS = 6371009;
 
 void varioWakeup();
 
-#if defined(AUDIO) && defined(BUZZER)
-  #define IS_SOUND_OFF() (g_eeGeneral.buzzerMode==e_mode_quiet && g_eeGeneral.beepMode==e_mode_quiet)
-#else
-  #define IS_SOUND_OFF() (g_eeGeneral.beepMode == e_mode_quiet)
-#endif
+#define IS_SOUND_OFF() (g_eeGeneral.beepMode == e_mode_quiet)
 
 #define IS_IMPERIAL_ENABLE() (g_eeGeneral.imperial)
 

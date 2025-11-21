@@ -50,6 +50,20 @@ class FirmwareInterface
       FIRMWARE_TYPE_UF2
     };
 
+    struct UF2_Block {
+      // 32 byte header
+      uint32_t magicStart0;   // 0x0A324655 ("UF2\n")
+      uint32_t magicStart1;   // 0x9E5D5157
+      uint32_t flags;         // see cpp defines
+      uint32_t targetAddr;    // Address in flash where the data should be written
+      uint32_t payloadSize;   // Number of bytes used in data (often 256)
+      uint32_t blockNo;       // Sequential block number; starts at 0
+      uint32_t numBlocks;     // Total number of blocks in file
+      uint32_t fileSize;      // or familyID;
+      uint8_t  data[476];     // Data, padded with zeros
+      uint32_t magicEnd;      // 0x0AB16F30
+    };
+
     explicit FirmwareInterface(const QString &filename, QDialog* parent = nullptr);
     explicit FirmwareInterface(const QByteArray &flashData, QDialog* parent = nullptr);
 
@@ -95,10 +109,11 @@ class FirmwareInterface
     bool isValidFlag = false;
     FirmwareType type;
 
-    void initFlash(const QByteArray& flashData);
+    void initFlash(const QByteArray & flashData);
     QString seekString(const QString & string);
     QString seekLabel(const QString & label);
     void seekSplash();
     bool seekSplash(QByteArray sps, QByteArray spe, int size);
     bool seekSplash(QByteArray splash);
+    bool concatUF2Payloads(QByteArray & flashData);
 };

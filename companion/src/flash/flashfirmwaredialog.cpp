@@ -29,26 +29,41 @@
 #include "progresswidget.h"
 #include "splashlibrarydialog.h"
 #include "storage.h"
+#include "autocollapsiblesection.h"
+
+#include <QTimer>
 
 FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
-  fwName(g.profile[g.id()].fwName())
+  fwName(g.profile[g.id()].fwName()),
+  imageSource(FIRMWARE),
+  imageFile(""),
+  connectionMode(CONNECTION_NONE)
 {
   ui->setupUi(this);
+  ui->checkBackup->setChecked(g.backupOnFlash());
 
-  if (!g.currentProfile().splashFile().isEmpty()){
+  ui->advancedWidget->setTitle(tr("Advanced"));
+  ui->advancedWidget->setAnimationDuration(300);
+  QVBoxLayout *advLayout = new QVBoxLayout();
+  chkHWComp = new QCheckBox(tr("check hardware compatibility (recommended)"), ui->advancedWidget);
+  chkHWComp->setChecked(true);
+  advLayout->addWidget(chkHWComp);
+  chkProfComp = new QCheckBox(tr("check profile compatibility"), ui->advancedWidget);
+  chkProfComp->setChecked(true);
+  advLayout->addWidget(chkProfComp);
+  ui->advancedWidget->setContentLayout(*advLayout);
+
+  const QString splashFile(g.currentProfile().splashFile());
+
+  if (!splashFile.isEmpty() && QFile(splashFile).exists()){
     imageSource = PROFILE;
-    imageFile = g.currentProfile().splashFile();
+    imageFile = splashFile;
     ui->useProfileSplash->setChecked(true);
   } else {
-    imageSource = FIRMWARE;
-    imageFile = "";
     ui->useProfileSplash->setDisabled(true);
   }
-
-  ui->checkHardwareCompatibility->setChecked(g.checkHardwareCompatibility());
-  ui->checkBackup->setChecked(g.backupOnFlash());
 
   detectClicked(true);
   updateUI();
@@ -60,7 +75,8 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   connect(ui->useLibrarySplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useLibrarySplashClicked);
   connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
   connect(ui->writeButton, &QPushButton::clicked, this, &FlashFirmwareDialog::writeButtonClicked);
-  connect(ui->cancelButton, &QPushButton::clicked, [this]() { close(); } );
+  connect(ui->cancelButton, &QPushButton::clicked, [this] () { close(); } );
+  connect(ui->advancedWidget, &AutoCollapsibleSection::resized, this, &FlashFirmwareDialog::shrink);
 }
 
 FlashFirmwareDialog::~FlashFirmwareDialog()
@@ -70,62 +86,65 @@ FlashFirmwareDialog::~FlashFirmwareDialog()
 
 void FlashFirmwareDialog::updateUI()
 {
-  ui->firmwareFilename->setText(fwName);
-
-  if (connectionMode) {
+  if (connectionMode && isFileConnectionCompatible() && QFile(fwName).exists()) {
+    ui->firmwareFilename->setText(fwName);
     ui->loadButton->setEnabled(true);
-    ui->writeButton->setEnabled(isFileConnectionCompatible() && QFile(fwName).exists());
-  } else {
-    ui->loadButton->setEnabled(false);
-    ui->writeButton->setEnabled(false);
-  }
+    ui->writeButton->setEnabled(true);
 
-  FirmwareInterface firmware(fwName);
-  if (firmware.isValid()) {
-    ui->firmwareInfoFrame->show();
-    ui->date->setText(firmware.getDate() + " " + firmware.getTime());
-    ui->version->setText(firmware.getVersion());
-    ui->variant->setText(firmware.getFlavour());
-    ui->date->setEnabled(true);
-    ui->version->setEnabled(true);
-    ui->variant->setEnabled(true);
+    FirmwareInterface firmware(fwName);
 
-    if (firmware.hasSplash()) {
-      ui->splashFrame->show();
-      ui->splash->setFixedSize(firmware.getSplashWidth(), firmware.getSplashHeight());
+    if (firmware.isValid()) {
+      ui->firmwareInfoFrame->show();
+      ui->date->setText(firmware.getDate() + " " + firmware.getTime());
+      ui->version->setText(firmware.getVersion());
+      ui->variant->setText(firmware.getFlavour());
+
+      if (firmware.hasSplash()) {
+        ui->splashFrame->show();
+        ui->splash->setFixedSize(firmware.getSplashWidth(), firmware.getSplashHeight());
+
+        QImage image;
+        switch (imageSource) {
+          case FIRMWARE:
+            ui->useFirmwareSplash->setChecked(true);
+            image = firmware.getSplash();
+            break;
+          case PROFILE:
+            ui->useProfileSplash->setChecked(true);
+            image.load(g.currentProfile().splashFile());
+            break;
+          case LIBRARY:
+            ui->useLibrarySplash->setChecked(true);
+            image.load(imageFile);
+            break;
+          case EXTERNAL:
+            ui->useExternalSplash->setChecked(true);
+            image.load(imageFile);
+            break;
+        }
+
+        if (!image.isNull())
+          ui->splash->setPixmap(makePixMap(image));
+        else
+          ui->splash->setPixmap(QPixmap());
+
+      } else {
+        ui->splashFrame->hide();
+      }
     } else {
+      ui->firmwareInfoFrame->hide();
       ui->splashFrame->hide();
     }
   } else {
-    imageSource = FIRMWARE;
+    ui->firmwareFilename->setText("");
+    ui->loadButton->setEnabled(false);
+    ui->writeButton->setEnabled(false);
     ui->firmwareInfoFrame->hide();
     ui->splashFrame->hide();
   }
 
-  QImage image;
-  switch (imageSource) {
-    case FIRMWARE:
-      ui->useFirmwareSplash->setChecked(true);
-      image = firmware.getSplash();
-      break;
-    case PROFILE:
-      ui->useProfileSplash->setChecked(true);
-      image.load(g.currentProfile().splashFile());
-      break;
-    case LIBRARY:
-      ui->useLibrarySplash->setChecked(true);
-      image.load(imageFile);
-      break;
-    case EXTERNAL:
-      ui->useExternalSplash->setChecked(true);
-      image.load(imageFile);
-      break;
-  }
-
-  if (!image.isNull())
-    ui->splash->setPixmap(makePixMap(image));
-
-  QTimer::singleShot(0, [=]() { adjustSize(); });
+  // add resize event to queue after changes above
+  QTimer::singleShot(0, [=]() { shrink(); });
 }
 
 void FlashFirmwareDialog::loadClicked()
@@ -133,6 +152,7 @@ void FlashFirmwareDialog::loadClicked()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"),
                                                   g.flashDir(),
                                                   getFirmwareFilesFilter());
+
   if (!fileName.isEmpty()) {
     if (!firmwareFileExtensions().contains(QFileInfo(fileName).suffix().toLower())) {
       QMessageBox::critical(this, tr("Open Firmware File"),
@@ -141,32 +161,35 @@ void FlashFirmwareDialog::loadClicked()
       return;
     }
 
-    FirmwareInterface fw(fileName);
+    FirmwareInterface newfw(fileName);
 
-    if (!fw.isValid()) {
-      QMessageBox::critical(this, tr("Open Firmware File"),
-                            tr("%1 is not a valid firmware file")
-                            .arg(fileName));
-      return;
-    }
-
-    if (connectionMode == CONNECTION_UF2) {
-      const Uf2Info uf2(getUf2Info());
-      if (fw.getFlavour() != uf2.board) {
+    if (chkHWComp->isChecked()) {
+      if (!newfw.isValid()) {
         QMessageBox::critical(this, tr("Open Firmware File"),
-                              tr("%1 \nFirmware file is for %2 radio however connected radio is %3")
-                              .arg(fileName)
-                              .arg(fw.getFlavour())
-                              .arg(uf2.board));
+                              tr("Error - %1 is not a valid firmware file")
+                              .arg(fileName));
         return;
+      }
+
+      if (connectionMode == CONNECTION_UF2) {
+        const Uf2Info uf2(getUf2Info());
+        if (newfw.getFlavour() != uf2.board) {
+          QMessageBox::critical(this, tr("Open Firmware File"),
+                                tr("%1 \nIncompatability - File: '%2' Connected radio: '%3'")
+                                .arg(fileName)
+                                .arg(newfw.getFlavour())
+                                .arg(uf2.board));
+          return;
+        }
       }
     }
 
-    if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+    if (chkProfComp->isChecked() &&
+        newfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
       QMessageBox::critical(this, tr("Open Firmware File"),
-                            tr("%1 \nFirmware file is for %2 radio however profile is for %3 radio")
+                            tr("%1 \nIncompatability - File: '%2' Profile: '%3'")
                             .arg(fileName)
-                            .arg(fw.getFlavour())
+                            .arg(newfw.getFlavour())
                             .arg(getCurrentFirmware()->getFlavour()));
       return;
     }
@@ -184,7 +207,7 @@ void FlashFirmwareDialog::useFirmwareSplashClicked()
     QMessageBox::warning(this, CPN_STR_TTL_ERROR, tr( "The firmware file is not valid." ));
   } else if (!firmware.hasSplash()) {
     QMessageBox::warning(this, CPN_STR_TTL_ERROR,
-                         tr( "There is no start screen image in the firmware file." ));
+                         tr( "The firmware file does not cntain a start screen image." ));
   } else {
     imageSource = FIRMWARE;
   }
@@ -261,7 +284,6 @@ void FlashFirmwareDialog::writeButtonClicked()
 {
   g.flashDir(QFileInfo(fwName).dir().absolutePath());
   g.currentProfile().fwName(fwName);
-  g.checkHardwareCompatibility(ui->checkHardwareCompatibility->isChecked());
   g.backupOnFlash(ui->checkBackup->isChecked());
 
   if (imageSource != FIRMWARE) {
@@ -301,59 +323,72 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
                                 CompanionIcon("write_flash.png"));
 
   auto progress = progressDialog.progress();
-  progress->addMessage(tr("Flashing with file: %1").arg(filename));
-  bool checkHw = g.checkHardwareCompatibility();
+  bool checkHw = chkHWComp->isChecked();
+  bool checkProfile = chkProfComp->isChecked();
   bool backup = g.backupOnFlash();
   FirmwareInterface newfw(filename);
 
-  if (g.checkHardwareCompatibility() || backup) {
+  if (checkHw || checkProfile || backup) {
+    progress->updateInfoAndMessages(tr("Reading old firmware..."));
     readFirmware(
-        [this, &newfw, progress, checkHw, backup](const QByteArray &_data) {
+        [this, &newfw, progress, checkHw, checkProfile, backup](const QByteArray &_data) {
           FirmwareInterface currfw(_data);
-          if (!currfw.isValid()) {
-            QString errMsg(tr("Firmware read from radio invalid"));
-            progress->addMessage(errMsg, QtFatalMsg);
-            progress->setInfo(errMsg);
-            return;
-          }
 
-          if (backup) {
-            if (!writeFirmwareToFile(this, _data, progress)) {
-              return;
-            }
-          } else {
-            progress->addMessage(tr("Backup of old firmware not requested"));
-          }
+          qDebug() << "profile:" << getCurrentFirmware()->getFlavour()
+                    << "current:" << currfw.getFlavour()
+                    << "new:" << newfw.getFlavour();
 
           if (checkHw) {
-            if (!newfw.isHardwareCompatible(currfw)) {
-              QString errMsg(tr("New firmware is not compatible"));
+            if (!currfw.isValid()) {
+              QString errMsg(tr("Firmware read from radio invalid"));
               progress->addMessage(errMsg, QtFatalMsg);
               progress->setInfo(errMsg);
               return;
-            } else {
-            progress->addMessage(tr("New firmware is compatible"));
             }
-          } else {
-            progress->addMessage(tr("New firmware compatibity check not requested"));
+
+            progress->addMessage(tr("Performing hardware compatibity check"));
+            if (!newfw.isHardwareCompatible(currfw)) {
+              QString errMsg(tr("New firmware is not compatible with current firmware"));
+              progress->updateInfoAndMessages(errMsg, QtFatalMsg);
+              return;
+            }
           }
 
-          progress->addMessage(tr("Start flashing firmware"));
+          if (checkProfile) {
+            progress->addMessage(tr("Performing profile compatibity check"));
+            if (currfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+              QString errMsg(tr("Current firmware is not compatible with profile"));
+              progress->updateInfoAndMessages(errMsg, QtFatalMsg);
+              return;
+            } else if (newfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+              QString errMsg(tr("New firmware is not compatible with profile"));
+              progress->updateInfoAndMessages(errMsg, QtFatalMsg);
+              return;
+            }
+          }
+
+          if (backup) {
+            progress->addMessage(tr("Backing up current firmware"));
+            if (!writeFirmwareToFile(this, _data, progress)) {
+              return;
+            }
+          }
+
+          progress->addMessage(tr("Flashing new firmware"));
           writeFirmware(newfw.getFlash(), progress);
         },
-        [this, progress](const QString &err) {
+        [progress](const QString &err) {
           progress->addMessage(tr("Could not read current firmware: %1").arg(err));
         },
         progress);
   } else {
-    progress->addMessage(tr("Start flashing firmware (no backup or compatiblity check)"));
+    progress->setInfo(tr("Flashing new firmware..."));
     writeFirmware(newfw.getFlash(), progress);
   }
 
   progressDialog.exec();
 
   if (isTempFileName(filename)) {
-    qDebug() << "Removing temporary file" << filename;
     qunlink(filename);
   }
 }
@@ -370,7 +405,7 @@ void FlashFirmwareDialog::detectClicked(bool atLoad)
     connectionMsg = tr("Radio connection mode: DFU");
   } else {
     connectionMode = CONNECTION_NONE;
-    connectionMsg = tr("ALERT: No radio connected");
+    connectionMsg = tr("ALERT: No radio detected");
   }
 
   ui->connectionMode->setText(connectionMsg);
@@ -381,9 +416,6 @@ void FlashFirmwareDialog::detectClicked(bool atLoad)
       tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
       tr("Note: USB mode is not suitable for flashing firmware."));
   }
-
-  if (!isFileConnectionCompatible())
-    fwName.clear();
 
   if (!atLoad)
     updateUI();
@@ -400,4 +432,10 @@ bool FlashFirmwareDialog::isFileConnectionCompatible()
   }
 
   return false;
+}
+
+void FlashFirmwareDialog::shrink()
+{
+  this->adjustSize();
+  this->resize(0, 0);
 }

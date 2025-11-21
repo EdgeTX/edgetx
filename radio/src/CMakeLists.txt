@@ -1,9 +1,9 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S NV14 PL18 ST16 PA01 TX15)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
-set(TTS_LANGUAGES CN CZ DA DE EN ES FR HE HU IT JP KO NL PL PT RU SE SK UA)
+set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
 set(PCB "X9D+" CACHE STRING "Radio type, one of: ${PCB_TYPES}")
 set_property(CACHE PCB PROPERTY STRINGS ${PCB_TYPES})
@@ -41,7 +41,7 @@ option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
-option(NANO "Use nano newlib and binalloc")
+option(NANO "Use nano newlib and binalloc" ON)
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
 option(MODULE_PROTOCOL_LBT "Add support for EU/LBT modules" ON)
@@ -58,6 +58,13 @@ if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
 else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
+endif()
+option(AUDIO "Enable audio" ON)
+
+if(NATIVE_BUILD)
+  option(ALL_LANGUAGES "Enable runtime language selection" ON)
+else()
+  option(ALL_LANGUAGES "Enable runtime language selection" OFF)
 endif()
 
 if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
@@ -82,10 +89,10 @@ configure_file(stamp.h.in stamp.h @ONLY)
 
 if(PCB STREQUAL X12S OR PCB STREQUAL X10)
   include(targets/horus/CMakeLists.txt)
-elseif(PCB STREQUAL NV14)
-  include(targets/nv14/CMakeLists.txt)
 elseif(PCB STREQUAL PL18)
   include(targets/pl18/CMakeLists.txt)
+elseif(PCB STREQUAL T15PRO)
+  include(targets/t15pro/CMakeLists.txt)
 elseif(PCB STREQUAL ST16)
   include(targets/st16/CMakeLists.txt)
 elseif(PCB STREQUAL PA01)
@@ -392,13 +399,17 @@ if(IFLIGHT_RELEASE)
   add_definitions(-DIFLIGHT_RELEASE)
 endif()
 
+if(BETAFPV_RELEASE)
+  add_definitions(-DBETAFPV_RELEASE)
+endif()
+
 if(HARDWARE_TRAINER_MULTI)
   add_definitions(-DHARDWARE_TRAINER_MULTI)
 endif()
 
 add_definitions(-DPOPUP_LEVEL=${POPUP_LEVEL})
 
-if(INTERNAL_MODULE_MULTI)
+if(INTERNAL_MODULE_MULTI OR INTERNAL_MODULE_CRSF)
   set(DEFAULT_TEMPLATE_SETUP 21 CACHE STRING "")
 else()
   set(DEFAULT_TEMPLATE_SETUP 0 CACHE STRING "")
@@ -416,7 +427,8 @@ endif()
 set(SRC
   ${SRC}
   edgetx.cpp
-  datastructs_private.cpp
+  datastructs_model.cpp
+  datastructs_radio.cpp
   functions.cpp
   strhelpers.cpp
   switches.cpp
@@ -443,7 +455,7 @@ if(GUI)
     ${SRC}
     keys.cpp
     maths.cpp
-    translations.cpp
+    translations/translations.cpp
     cfn_sort.cpp
     gui/gui_common.cpp
     )
@@ -452,6 +464,35 @@ if(GUI)
   endforeach()
 endif()
 
+if(AUDIO)
+  add_definitions(-DAUDIO)
+endif()
+
+if(ALL_LANGUAGES)
+  add_definitions(-DALL_LANGS)
+  set(SRC
+    ${SRC}
+    translations/sim/lang_cn.cpp
+    translations/sim/lang_cz.cpp
+    translations/sim/lang_da.cpp
+    translations/sim/lang_de.cpp
+    translations/sim/lang_en.cpp
+    translations/sim/lang_es.cpp
+    translations/sim/lang_fi.cpp
+    translations/sim/lang_fr.cpp
+    translations/sim/lang_he.cpp
+    translations/sim/lang_it.cpp
+    translations/sim/lang_jp.cpp
+    translations/sim/lang_ko.cpp
+    translations/sim/lang_nl.cpp
+    translations/sim/lang_pl.cpp
+    translations/sim/lang_pt.cpp
+    translations/sim/lang_ru.cpp
+    translations/sim/lang_se.cpp
+    translations/sim/lang_tw.cpp
+    translations/sim/lang_ua.cpp
+  )
+endif()
 
 if(USBJ_EX)
   add_definitions(-DUSBJ_EX)
@@ -587,6 +628,7 @@ endif()
 target_compile_definitions(board PUBLIC FREE_RTOS)
 target_compile_definitions(board_lib PUBLIC FREE_RTOS)
 target_compile_definitions(firmware PUBLIC FREE_RTOS)
+target_compile_definitions(stm32_drivers_w_dbg_fw PUBLIC FREE_RTOS)
 
 target_sources(firmware PUBLIC
   os/async_freertos.cpp
@@ -607,8 +649,13 @@ set(LINKER_SCRIPT firmware.ld)
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/${LINKER_SCRIPT}
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
-  --specs=nano.specs
 )
+
+if(NANO)
+  target_link_options(firmware PRIVATE
+    --specs=nano.specs
+  )
+endif()
 
 if (DEFINED TARGET_FLASH_SIZE)
   # message("TARGET_FLASH_SIZE = ${TARGET_FLASH_SIZE}")
@@ -657,11 +704,17 @@ else()
 endif()
 
 if(FIRMWARE_FORMAT_UF2)
+  if(VERSION_TAG)
+    set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
+  else()
+    set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} (${GIT_STR})")
+  endif()
+  
   add_custom_command(
     TARGET firmware POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
         --reboot auto --device "${FLAVOUR}"
-        --version "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})"
+        --version "${UF2_VERSION_STRING}"
         -i firmware.elf firmware.uf2
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM

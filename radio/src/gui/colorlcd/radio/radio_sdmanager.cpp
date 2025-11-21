@@ -41,8 +41,8 @@ constexpr int WARN_FILE_LENGTH = 40 * 1024;
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-RadioSdManagerPage::RadioSdManagerPage() :
-  PageTab(STR_SD_CARD, ICON_RADIO_SD_MANAGER)
+RadioSdManagerPage::RadioSdManagerPage(PageDef& pageDef) :
+  PageGroupItem(pageDef)
 {
 }
 
@@ -134,7 +134,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
       uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
       if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
-        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
+        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
         tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
         *tmp++ = '.';
         tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
@@ -261,7 +261,7 @@ void RadioSdManagerPage::build(Window * window)
 
 void RadioSdManagerPage::checkEvents()
 {
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 
   if (loadPreview) {
     loadPreview -= 1;
@@ -370,12 +370,8 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
     if (!strcasecmp(ext, FIRMWARE_EXT)) {
-#if defined(FIRMWARE_FORMAT_UF2)
-      if (isUF2FirmwareFile(fullpath)) {
-        menu->addLine(STR_FLASH_BOOTLOADER,
-                      [=]() { FirmwareUpdate(fullpath); });
-      }
-#else
+//TODO: Find out why UF2FirmwareUpdate is bricking
+#if !defined(FIRMWARE_FORMAT_UF2)
       if (isBootloader(fullpath)) {
         menu->addLine(STR_FLASH_BOOTLOADER,
                       [=]() { BootloaderUpdate(fullpath); });

@@ -38,18 +38,18 @@
  #endif
 #elif defined(PCBTX15)
  #include "yaml_datastructs_tx15.cpp"
+#elif defined(PCBT15)
+ #include "yaml_datastructs_t15pro.cpp"
 #elif defined(PCBPL18)
  #if defined(RADIO_NB4P)
   #include "yaml_datastructs_nb4p.cpp"
- #elif defined(RADIO_NV14_FAMILY)
-  #include "yaml_datastructs_nv14_family.cpp"
+ #elif defined(RADIO_NV14_FAMILY)  
+  #include "yaml_datastructs_nv14.cpp"
  #elif defined(RADIO_PL18U)  
   #include "yaml_datastructs_pl18u.cpp"
  #else
   #include "yaml_datastructs_pl18.cpp"
  #endif
-#elif defined(PCBNV14)
- #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBST16)
  #include "yaml_datastructs_st16.cpp"
 #elif defined(PCBPA01)
@@ -83,6 +83,3 @@
 #else
 #error "Board not supported by YAML storage"
 #endif
-
-static_assert(MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN,
-              "MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN");

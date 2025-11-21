@@ -30,8 +30,8 @@ class ValueWidget : public Widget
 {
  public:
   ValueWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-              Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+              int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     delayLoad();
   }
@@ -46,29 +46,27 @@ class ValueWidget : public Widget
     lv_style_set_width(&valueStyle, lv_pct(100));
     lv_style_set_height(&valueStyle, lv_pct(100));
 
-    labelShadow = lv_label_create(lvobj);
+    labelShadow = etx_label_create(lvobj);
     lv_obj_add_style(labelShadow, &labelStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(labelShadow, lv_color_black(), LV_PART_MAIN);
     lv_label_set_text(labelShadow, "");
 
-    label = lv_label_create(lvobj);
+    label = etx_label_create(lvobj);
     lv_obj_add_style(label, &labelStyle, LV_PART_MAIN);
     etx_txt_color(label, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(label, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
     lv_label_set_text(label, "");
 
-    valueShadow = lv_label_create(lvobj);
+    valueShadow = etx_label_create(lvobj, FONT_L_INDEX);
     lv_obj_add_style(valueShadow, &valueStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(valueShadow, lv_color_black(), LV_PART_MAIN);
-    etx_font(valueShadow, FONT_L_INDEX);
     etx_font(valueShadow, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
     lv_label_set_text(valueShadow, "");
 
-    value = lv_label_create(lvobj);
+    value = etx_label_create(lvobj, FONT_L_INDEX);
     lv_obj_add_style(value, &valueStyle, LV_PART_MAIN);
     etx_txt_color(value, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(value, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
-    etx_font(value, FONT_L_INDEX);
     etx_font(value, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
     lv_label_set_text(value, "");
 
@@ -84,8 +82,10 @@ class ValueWidget : public Widget
 
     bool changed = false;
 
+    auto widgetData = getPersistentData();
+
     // get source from options[0]
-    mixsrc_t field = persistentData->options[0].value.unsignedValue;
+    mixsrc_t field = widgetData->options[0].value.unsignedValue;
 
     // if value changed
     auto newValue = getValue(field);
@@ -168,7 +168,7 @@ class ValueWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
   int32_t lastValue = -10000;
@@ -190,18 +190,20 @@ class ValueWidget : public Widget
   {
     if (!loaded) return;
 
+    auto widgetData = getPersistentData();
+
     // get source from options[0]
-    mixsrc_t field = persistentData->options[0].value.unsignedValue;
+    mixsrc_t field = widgetData->options[0].value.unsignedValue;
 
     // get color from options[1]
-    etx_txt_color_from_flags(label, persistentData->options[1].value.unsignedValue);
-    etx_txt_color_from_flags(value, persistentData->options[1].value.unsignedValue);
+    etx_txt_color_from_flags(label, widgetData->options[1].value.unsignedValue);
+    etx_txt_color_from_flags(value, widgetData->options[1].value.unsignedValue);
 
     // get label alignment from options[3]
-    LcdFlags lblAlign = persistentData->options[3].value.unsignedValue;
+    LcdFlags lblAlign = widgetData->options[3].value.unsignedValue;
 
     // get value alignment from options[4]
-    LcdFlags valAlign = persistentData->options[4].value.unsignedValue;
+    LcdFlags valAlign = widgetData->options[4].value.unsignedValue;
 
     lv_coord_t labelX = 0;
     lv_coord_t labelY = 0;
@@ -272,7 +274,7 @@ class ValueWidget : public Widget
     lv_obj_set_pos(value, valueX, valueY);
 
     // Show / hide shadow
-    if (persistentData->options[2].value.boolValue) {
+    if (widgetData->options[2].value.boolValue) {
       lv_obj_clear_flag(labelShadow, LV_OBJ_FLAG_HIDDEN);
       lv_obj_clear_flag(valueShadow, LV_OBJ_FLAG_HIDDEN);
     } else {
@@ -282,13 +284,13 @@ class ValueWidget : public Widget
   }
 };
 
-const ZoneOption ValueWidget::options[] = {
-    {STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(MIXSRC_FIRST_STICK)},
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
-    {STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_ALIGN_LABEL, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
-    {STR_ALIGN_VALUE, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption ValueWidget::options[] = {
+    {STR_SOURCE, WidgetOption::Source, MIXSRC_FIRST_STICK},
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_SHADOW, WidgetOption::Bool, false},
+    {STR_ALIGN_LABEL, WidgetOption::Align, ALIGN_LEFT},
+    {STR_ALIGN_VALUE, WidgetOption::Align, ALIGN_LEFT},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<ValueWidget> ValueWidget("Value", ValueWidget::options,
                                            STR_WIDGET_VALUE);

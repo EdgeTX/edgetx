@@ -108,8 +108,8 @@ class LuaWidget : public Widget, public LuaScriptManager
 
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-            WidgetPersistentData* persistentData, int zoneRectDataRef,
-            int optionsDataRef, int createFunctionRef, std::string path);
+            int screenNum, int zoneNum, int zoneRectDataRef,
+            int optionsDataRef, int createFunctionRef, const std::string& path);
   ~LuaWidget() override;
 
 #if defined(DEBUG_WINDOWS)

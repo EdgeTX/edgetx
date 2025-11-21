@@ -215,7 +215,6 @@ void AppPreferencesDialog::accept()
     }
     Firmware::setCurrentVariant(newFw);
     profile.fwName("");
-    profile.resetFwVariables();
     profile.fwType(newFw->getId());
     fwchange = true;
   }
@@ -362,7 +361,8 @@ void AppPreferencesDialog::initSettings()
   ui->profileNameLE->setText(profile.name());
 
   QString hwSettings;
-  if (profile.stickPotCalib() == "" ) {
+
+  if (profile.generalSettings().isEmpty()) {
     hwSettings = tr("EMPTY: No radio settings stored in profile");
   }
   else  {
@@ -372,6 +372,7 @@ void AppPreferencesDialog::initSettings()
     else
       hwSettings = tr("AVAILABLE: Radio settings stored %1").arg(str);
   }
+
   ui->lblGeneralSettings->setText(hwSettings);
   ui->chkPromptSDSync->setChecked(profile.runSDSync());
   ui->lblRadioColorSample->setPalette(QPalette(profile.radioSimCaseColor()));
@@ -806,8 +807,12 @@ void AppPreferencesDialog::populateFirmwareOptions(const Firmware * firmware)
 {
   const Firmware * baseFw = firmware->getFirmwareBase();
   QStringList currVariant = Firmware::getCurrentVariant()->getId().split('-');
-  const QString currLang = ui->langCombo->count() ? ui->langCombo->currentText() : currVariant.last();
+  QString fwLang = Firmware::getCurrentVariant()->getLanguage();
 
+  if (fwLang.isEmpty()) // try to detect os language
+    fwLang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+  const QString currLang = ui->langCombo->count() ? ui->langCombo->currentText() : fwLang;
   updateLock = true;
 
   ui->langCombo->clear();

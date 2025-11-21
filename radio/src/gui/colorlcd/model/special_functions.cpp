@@ -90,19 +90,19 @@ void FunctionLineButton::delayedInit()
 {
   lv_obj_enable_style_refresh(false);
 
-  sfName = lv_label_create(lvobj);
+  sfName = etx_label_create(lvobj);
   lv_obj_set_pos(sfName, NM_X, NM_Y);
   lv_obj_set_size(sfName, NM_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-  sfSwitch = lv_label_create(lvobj);
+  sfSwitch = etx_label_create(lvobj);
   lv_obj_set_pos(sfSwitch, SW_X, SW_Y);
   lv_obj_set_size(sfSwitch, SW_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-  sfFunc = lv_label_create(lvobj);
+  sfFunc = etx_label_create(lvobj);
   lv_obj_set_pos(sfFunc, FN_X, FN_Y);
   lv_obj_set_size(sfFunc, FN_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-  sfRepeat = lv_label_create(lvobj);
+  sfRepeat = etx_label_create(lvobj);
   lv_obj_set_pos(sfRepeat, RP_X, RP_Y);
   lv_obj_set_size(sfRepeat, RP_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
@@ -691,9 +691,9 @@ void FunctionEditPage::buildBody(Window *form)
 
 //-----------------------------------------------------------------------------
 
-FunctionsPage::FunctionsPage(CustomFunctionData *functions, const char *title,
-                             const char *prefix, EdgeTxIcon icon) :
-    PageTab(title, icon), functions(functions), title(title), prefix(prefix)
+FunctionsPage::FunctionsPage(CustomFunctionData *functions, PageDef& pageDef,
+                             const char *prefix) :
+    PageGroupItem(pageDef), functions(functions), prefix(prefix)
 {
 }
 
@@ -961,9 +961,8 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-SpecialFunctionsPage::SpecialFunctionsPage() :
-    FunctionsPage(g_model.customFn, STR_MENUCUSTOMFUNC, "SF",
-                  ICON_MODEL_SPECIAL_FUNCTIONS)
+SpecialFunctionsPage::SpecialFunctionsPage(PageDef& pageDef) :
+    FunctionsPage(g_model.customFn, pageDef, "SF")
 {
 }
 
@@ -1042,9 +1041,8 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-GlobalFunctionsPage::GlobalFunctionsPage() :
-    FunctionsPage(g_eeGeneral.customFn, STR_MENUSPECIALFUNCS, "GF",
-                  ICON_RADIO_GLOBAL_FUNCTIONS)
+GlobalFunctionsPage::GlobalFunctionsPage(PageDef& pageDef) :
+    FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
 {
 }
 

@@ -4,7 +4,7 @@ import argparse
 import struct
 import sys
 
-from typing import BinaryIO, Literal, Optional
+from typing import BinaryIO, Literal, Optional, Iterator
 from elftools.elf.elffile import ELFFile
 
 DATA_BLOCK_SIZE = 256
@@ -74,7 +74,7 @@ class UF2Writer:
     def _write_block(
         self,
         addr: int,
-        payload: bytes,
+        payload: bytes | bytearray,
         nblocks: int,
         /,
         flags=0,
@@ -146,7 +146,7 @@ class ELFReader:
 
         return segments
 
-    def iter_blocks(self, chunks, *, block_size=DATA_BLOCK_SIZE):
+    def iter_blocks(self, chunks, *, block_size=DATA_BLOCK_SIZE) -> Iterator[bytearray]:
         buffer = bytearray()
         for i, size in chunks:
             # fill buffer first
@@ -235,21 +235,27 @@ def elf_to_uf2(args: argparse.Namespace) -> None:
 
     insert_block = None
     if args.reboot is not None:
+        insert = None
+        addr = None
+        start = None
+
         if args.reboot == "auto":
-            addr, _ = reader.get_section(".reboot_buffer")
-            start, bl_size = reader.get_section(".bootloader")
-            insert = start + bl_size
+            if len(reader.segments) > 1:
+                addr, _ = reader.get_section(".reboot_buffer")
+                start, bl_size = reader.get_section(".bootloader")
+                insert = start + bl_size
         else:
             insert, addr, start = args.reboot
 
-        print(f"Insert reboot block @{insert:08X} ({addr:08X}/{start:08X})")
-        insert_block = UF2InsertBlock(
-            insert,
-            addr,
-            b"BDFU",
-            extensions=[UF2Extension(UF2_REBOOT_TAG, start.to_bytes(4, "little"))],
-            flags=1,
-        )
+        if insert and addr and start:
+            print(f"Insert reboot block @{insert:08X} ({addr:08X}/{start:08X})")
+            insert_block = UF2InsertBlock(
+                insert,
+                addr,
+                b"BDFU",
+                extensions=[UF2Extension(UF2_REBOOT_TAG, start.to_bytes(4, "little"))],
+                flags=1,
+            )
 
     uf2 = UF2Writer(
         args.output, family=args.family, device=args.device, version=args.version

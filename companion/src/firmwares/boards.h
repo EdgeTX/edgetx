@@ -62,6 +62,7 @@ namespace Board {
     BOARD_JUMPER_T12MAX,
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
+    BOARD_JUMPER_T15PRO,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
     BOARD_RADIOMASTER_TX15,
@@ -79,6 +80,7 @@ namespace Board {
     BOARD_FLYSKY_PL18,
     BOARD_FLYSKY_PL18EV,
     BOARD_FLYSKY_PL18U,
+    BOARD_FLYSKY_NB4P,
     BOARD_FLYSKY_ST16,
     BOARD_RADIOMASTER_ZORRO,
     BOARD_JUMPER_TPRO,
@@ -464,7 +466,7 @@ class Boards
     static AbstractStaticItemModel * flexTypeItemModel();
 
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getRadioTypeString(Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getRadioModeString(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
@@ -532,6 +534,11 @@ inline bool IS_JUMPER_TPROS(Board::Type board)
 inline bool IS_JUMPER_T15(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T15;
+}
+
+inline bool IS_JUMPER_T15PRO(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T15PRO;
 }
 
 inline bool IS_JUMPER_T16(Board::Type board)
@@ -830,4 +837,17 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 inline bool HAS_EEPROM_YAML(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board);
+}
+
+inline bool IS_STM32H5(Board::Type board)
+{
+  return false;
+}
+
+inline bool IS_STM32H7(Board::Type board)
+{
+  return IS_FLYSKY_PA01(board) ||
+         IS_FLYSKY_ST16(board) ||
+         IS_JUMPER_T15PRO(board) ||
+         IS_RADIOMASTER_TX15(board);
 }

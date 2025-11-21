@@ -31,23 +31,6 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-static const lv_coord_t cfs_line_col_dsc1[] = {LV_GRID_CONTENT,
-    LV_GRID_TEMPLATE_LAST};
-
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-static const lv_coord_t cfs_line_col_dsc2[] = {
-  LV_GRID_FR(13), LV_GRID_FR(11), LV_GRID_FR(11),
-  LV_GRID_FR(12), LV_GRID_FR(10), LV_GRID_FR(7), LV_GRID_FR(7),
-  LV_GRID_TEMPLATE_LAST};
-#else
-static const lv_coord_t cfs_line_col_dsc2[] = {
-  LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
-  LV_GRID_FR(12), LV_GRID_FR(8),  LV_GRID_TEMPLATE_LAST};
-#endif
-
-static const lv_coord_t cfs_line_row_dsc[] = {LV_GRID_CONTENT,
-   LV_GRID_TEMPLATE_LAST};
-
 extern const char* _fct_sw_start[];
 extern const char* edgetx_fs_manual_url;
 
@@ -59,7 +42,7 @@ class RadioFunctionSwitch : public Window
   {
     padAll(PAD_TINY);
 
-    std::string s(STR_CHAR_SWITCH);
+    std::string s(CHAR_SWITCH);
     s += switchGetDefaultName(switchIndex);
 
     new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);
@@ -102,15 +85,15 @@ class RadioFunctionSwitch : public Window
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #if NARROW_LAYOUT
-    new StaticText(this, rect_t{C1_X - C1_W - PAD_TINY, C1_Y + PAD_SMALL, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
-    new StaticText(this, rect_t{C2_X - C2_W - PAD_TINY, C2_Y + PAD_SMALL, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    new StaticText(this, {C1_X - C1_W - PAD_TINY, C1_Y + COLLBL_YO, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    new StaticText(this, {C2_X - C2_W - PAD_TINY, C2_Y + COLLBL_YO, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
 #endif
 
     offValue = g_eeGeneral.switchOffColor(switchIndex);
     onValue = g_eeGeneral.switchOnColor(switchIndex);
 
     offColor = new ColorPicker(
-        this, {C1_X, 0, C1_W, 0},
+        this, {C1_X, C1_Y, C1_W, 0},
         [=]() -> int {  // getValue
           return g_eeGeneral.switchOffColor(switchIndex).getColor() | RGB888_FLAG;
         },
@@ -123,12 +106,13 @@ class RadioFunctionSwitch : public Window
           g_eeGeneral.switchOffColor(switchIndex).setColor(newValue);
 
           offValue = g_eeGeneral.switchOffColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 
     onColor = new ColorPicker(
-        this, {C2_X, 0, C2_W, 0},
+        this, {C2_X, C2_Y, C2_W, 0},
         [=]() -> int {  // getValue
           return g_eeGeneral.switchOnColor(switchIndex).getColor() | RGB888_FLAG;
         },
@@ -141,13 +125,14 @@ class RadioFunctionSwitch : public Window
           g_eeGeneral.switchOnColor(switchIndex).setColor(newValue);
 
           onValue = g_eeGeneral.switchOnColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 
-    overrideLabel = new StaticText(this, {GR_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, GR_W + ST_W - PAD_LARGE, 0},
+    overrideLabel = new StaticText(this, {OVRLBL_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, OVRLBL_W, 0},
                                    STR_LUA_OVERRIDE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
-    offOverride = new ToggleSwitch(this, {C1_X - PAD_MEDIUM * 2, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
+    offOverride = new ToggleSwitch(this, {OVROFF_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
                                   [=]() { return g_model.cfsOffColorLuaOverride(switchIndex); },
                                   [=](bool v) { g_model.cfsSetOffColorLuaOverride(switchIndex, v); });
     onOverride = new ToggleSwitch(this, {C2_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
@@ -170,12 +155,16 @@ class RadioFunctionSwitch : public Window
   static LAYOUT_VAL_SCALED(ST_W, 60)
 #if NARROW_LAYOUT
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 3 + PAD_OUTLINE * 4;
-  static constexpr coord_t C1_X = TP_X;
+  static constexpr coord_t C1_X = GR_X;
   static constexpr coord_t C1_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_VAL_SCALED(C1_W, 40)
-  static constexpr coord_t C2_X = GR_X;
+  static constexpr coord_t C2_X = ST_X;
   static constexpr coord_t C2_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_VAL_SCALED(C2_W, 40)
+  static constexpr coord_t OVRLBL_X = NM_X;
+  static constexpr coord_t OVRLBL_W = NM_W + TP_W;
+  static constexpr coord_t OVROFF_X = C1_X;
+  static constexpr coord_t COLLBL_YO = PAD_MEDIUM;
 #else
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
   static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
@@ -184,6 +173,10 @@ class RadioFunctionSwitch : public Window
   static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
   static constexpr coord_t C2_Y = 0;
   static LAYOUT_VAL_SCALED(C2_W, 40)
+  static constexpr coord_t OVRLBL_X = GR_X;
+  static constexpr coord_t OVRLBL_W = GR_W + ST_W - PAD_LARGE;
+  static constexpr coord_t OVROFF_X = C1_X - PAD_MEDIUM * 2;
+  static constexpr coord_t COLLBL_YO = PAD_SMALL;
 #endif
 #else
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
@@ -218,11 +211,7 @@ class RadioFunctionSwitch : public Window
   {
     // Convert color index to RGB
     newValue = color32ToRGB(newValue);
-    if (g_model.cfsState(switchIndex)) {
-        g_eeGeneral.switchOnColor(switchIndex).setColor(newValue);
-    } else {
-        g_eeGeneral.switchOffColor(switchIndex).setColor(newValue);
-    }
+    setFSEditOverride(switchIndex, newValue);
   }
 #endif
 
@@ -257,26 +246,21 @@ class RadioFunctionSwitch : public Window
 RadioFunctionSwitches::RadioFunctionSwitches() : Page(ICON_RADIO_HARDWARE)
 {
   header->setTitle(STR_HARDWARE);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 
   body->padAll(PAD_TINY);
   body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid1(cfs_line_col_dsc1, cfs_line_row_dsc, PAD_TINY);
-  FlexGridLayout grid2(cfs_line_col_dsc2, cfs_line_row_dsc, PAD_TINY);
-
-  auto line = body->newLine(grid2);
-  new StaticText(line, rect_t{}, STR_SWITCHES);
-  new StaticText(line, rect_t{}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
+  auto box = new Window(body, {0, 0, LV_PCT(100), LV_SIZE_CONTENT});
+  new StaticText(box, {0, 0, RadioFunctionSwitch::SW_W, 0}, STR_SWITCHES);
+  new StaticText(box, {RadioFunctionSwitch::NM_X + PAD_OUTLINE, 0, RadioFunctionSwitch::NM_W, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, {RadioFunctionSwitch::TP_X + PAD_OUTLINE, 0, RadioFunctionSwitch::TP_W, 0}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  grid2.nextColumn(); 
-  // new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
+  startupHeader = new StaticText(box, {RadioFunctionSwitch::ST_X + PAD_OUTLINE, 0, RadioFunctionSwitch::ST_W, 0}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  new StaticText(line, rect_t{}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(line, rect_t{}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+#if defined(FUNCTION_SWITCHES_RGB_LEDS) && !NARROW_LAYOUT
+  new StaticText(box, {RadioFunctionSwitch::C1_X + PAD_OUTLINE, 0, RadioFunctionSwitch::C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, {RadioFunctionSwitch::C2_X + PAD_OUTLINE, 0, RadioFunctionSwitch::C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #endif
 
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i += 1) {
@@ -284,20 +268,21 @@ RadioFunctionSwitches::RadioFunctionSwitches() : Page(ICON_RADIO_HARDWARE)
       new RadioFunctionSwitch(body, i);
   }
 
-  setState();
+#if defined(HARDWARE_TOUCH)
+  body->padBottom(PAD_LARGE);
 
-  line = body->newLine(grid1);
+  box = new Window(body, {0, 0, LV_PCT(100), LV_SIZE_CONTENT});
 
-  new StaticText(line, rect_t{}, STR_MORE_INFO);
+  new StaticText(box, rect_t{}, STR_MORE_INFO);
 
-  line = body->newLine(grid1);
-  line->padBottom(PAD_LARGE);
-  line->padLeft((width() - 150) / 2);
-
-  auto qr = lv_qrcode_create(line->getLvObj(), 150,
+  auto qr = lv_qrcode_create(box->getLvObj(), 150,
                              makeLvColor(COLOR_THEME_SECONDARY1),
                              makeLvColor(COLOR_THEME_SECONDARY3));
   lv_qrcode_update(qr, edgetx_fs_manual_url, strlen(edgetx_fs_manual_url));
+  lv_obj_set_pos(qr, (LCD_W - 150) / 2, EdgeTxStyles::STD_FONT_HEIGHT);
+#endif
+
+  setState();
 }
 
 void RadioFunctionSwitches::setState()

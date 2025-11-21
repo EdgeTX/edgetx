@@ -23,7 +23,7 @@
 #include <QFile>
 #include <QDir>
 
-bool SdcardFormat::write(const RadioData & radioData)
+bool SdcardFormat::write(RadioData & radioData)
 {
   QDir dir(filename);
   dir.mkdir("RADIO");
@@ -31,10 +31,19 @@ bool SdcardFormat::write(const RadioData & radioData)
   return LabelsStorageFormat::write(radioData);
 }
 
-bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename)
+bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, bool optional)
 {
   QString path = this->filename + "/" + filename;
   QFile file(path);
+  if (!file.exists()) {
+    if (optional) {
+      //qDebug() << "File not found:" << filename;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   if (!file.open(QFile::ReadOnly)) {
     setError(tr("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
     return false;

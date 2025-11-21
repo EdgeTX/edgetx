@@ -201,7 +201,7 @@ class StaticLZ4Image : public Window
  protected:
   uint8_t *imgData = nullptr;
 
-  void deleteLater(bool detach, bool trash) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 //-----------------------------------------------------------------------------

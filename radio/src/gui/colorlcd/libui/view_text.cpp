@@ -27,7 +27,7 @@
 #include "fullscreen_dialog.h"
 #include "lib_file.h"
 
-// Used on startup to block until checlist is closed.
+// Used on startup to block until checklist is closed.
 static bool checkListOpen = false;
 
 // Check Box
@@ -67,198 +67,236 @@ static lv_obj_t* checkbox_create(lv_obj_t* parent)
 
 constexpr int maxTxtBuffSize = 64 * 1024;
 
+class TextViewer
+{
+ public:
+  TextViewer(const std::string path, const std::string name) : name(std::move(name))
+  {
+    fullPath = path + std::string(PATH_SEPARATOR) + name;
+    extractNameSansExt();
+  }
+
+  ~TextViewer()
+  {
+    if (buffer) {
+      free(buffer);
+      buffer = nullptr;
+    }
+  }
+
+  void onEvent(event_t event)
+  {
+  #if defined(HARDWARE_KEYS)
+    if (int(bufSize) < fileLength) {
+      if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
+        offset += bufSize;
+      }
+
+      if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
+        offset -= bufSize;
+      }
+
+      offset = std::max(offset, 0);
+      offset = std::min(offset, fileLength - (int)bufSize);
+
+      sdReadTextFileBlock(bufSize, offset);
+      lv_label_set_text_static(lb, buffer);
+    }
+  #endif
+  }
+
+  void build(Window* window)
+  {
+    if (openFile()) {
+      auto obj = window->getLvObj();
+      lv_obj_add_flag(
+          obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
+                  LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      etx_scrollbar(obj);
+      // prevents resetting the group's edit mode
+      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
+      auto g = lv_group_get_default();
+      lb = lv_label_create(obj);
+      lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
+      etx_obj_add_style(lb, styles->pad_medium, LV_PART_MAIN);
+
+      lv_group_add_obj(g, obj);
+      lv_group_set_editing(g, true);
+      lv_label_set_text_static(lb, buffer);
+
+      if (openFromEnd)
+        lv_obj_scroll_to_y(obj, LV_COORD_MAX, LV_ANIM_OFF);
+      else
+        lv_obj_scroll_to_y(obj, 0, LV_ANIM_OFF);
+    }
+  }
+
+ protected:
+  std::string name;
+  std::string fullPath;
+
+  lv_obj_t* lb;
+
+  int offset = 0;
+  char* buffer = nullptr;
+  size_t bufSize = 0;
+  int fileLength = 0;
+  bool openFromEnd;
+
+  void extractNameSansExt()
+  {
+    uint8_t nameLength;
+    uint8_t extLength;
+
+    const char* ext =
+        getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
+
+    openFromEnd = !strcmp(ext, LOGS_EXT);
+  }
+
+  bool openFile()
+  {
+    FILINFO info;
+
+    if (buffer) {
+      free(buffer);
+      buffer = nullptr;
+      bufSize = 0;
+    }
+
+    auto res = f_stat((TCHAR*)fullPath.c_str(), &info);
+    if (res == FR_OK) {
+      fileLength = int(info.fsize);
+      bufSize = std::min(fileLength, maxTxtBuffSize) + 1;
+
+      buffer = (char*)malloc(bufSize);
+      if (buffer) {
+        offset = std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
+        if (sdReadTextFileBlock(bufSize, offset) == FR_OK) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  FRESULT sdReadTextFileBlock(const uint32_t bufSize, const uint32_t offset)
+  {
+    FIL file;
+    char escape_chars[4];
+    int escape = 0;
+
+    auto res =
+        f_open(&file, (TCHAR*)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ);
+    if (res == FR_OK) {
+      res = f_lseek(&file, offset);
+      if (res == FR_OK) {
+        UINT br;
+        char c;
+        char* ptr = buffer;
+        for (int i = 0; i < (int)bufSize; i++) {
+          res = f_read(&file, &c, 1, &br);
+          if (res == FR_OK && br == 1) {
+            if (c == '\\' && escape == 0) {
+              escape = 1;
+              continue;
+            } else if (c != '\\' && escape > 0 &&
+                      escape < (int)sizeof(escape_chars)) {
+              escape_chars[escape - 1] = c;
+
+              if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
+                *ptr++ = CHAR_UP[0];
+                c = CHAR_UP[1];
+                escape = 0;
+              } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
+                *ptr++ = CHAR_DOWN[0];
+                c = CHAR_DOWN[1];
+                escape = 0;
+              } else if (escape == 3) {
+                int val = atoi(escape_chars);
+                if (val >= 200 && val < 225) {
+                  *ptr++ = '\302';
+                  c = '\200' + val - 200;
+                }
+              } else if (escape == 1 && c == '~') {
+                c = 'z' + 1;
+              } else {
+                escape++;
+                continue;
+              }
+            } else if (c == '\t') {
+              c = 0x1D;  // tab
+            }
+            escape = 0;
+
+            if (c == 0xA && *(ptr - 1) == 0xD) {
+              *(ptr - 1) = '\n';
+              continue;
+            }
+            *ptr++ = c;
+          }
+        }
+        *ptr = '\0';
+      }
+      f_close(&file);
+    }
+    return res;
+  }
+};
+
 ViewTextWindow::ViewTextWindow(const std::string path, const std::string name,
                                EdgeTxIcon icon) :
-    Page(icon, PAD_ZERO), path(std::move(path)), name(std::move(name))
+    Page(icon, PAD_ZERO)
 {
-  fullPath = this->path + std::string(PATH_SEPARATOR) + this->name;
-  extractNameSansExt();
+  textViewer = new TextViewer(path, name);
 
-  header->setTitle(this->name);
+  header->setTitle(name);
 
   delayLoad();
 };
 
 void ViewTextWindow::delayedInit()
 {
-  if (buffer == nullptr) buildBody(body);
+  textViewer->build(body);
 }
 
 void ViewTextWindow::onCancel()
 {
+  if (textViewer) delete textViewer;
   Page::onCancel();
   checkListOpen = false;
-}
-
-void ViewTextWindow::extractNameSansExt()
-{
-  uint8_t nameLength;
-  uint8_t extLength;
-
-  const char* ext =
-      getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
-  extension = std::string(ext);
-
-  openFromEnd = !strcmp(ext, LOGS_EXT);
-}
-
-bool ViewTextWindow::openFile()
-{
-  FILINFO info;
-
-  if (buffer) {
-    free(buffer);
-    buffer = nullptr;
-    bufSize = 0;
-  }
-
-  auto res = f_stat((TCHAR*)fullPath.c_str(), &info);
-  if (res == FR_OK) {
-    fileLength = int(info.fsize);
-    bufSize = std::min(fileLength, maxTxtBuffSize) + 1;
-
-    buffer = (char*)malloc(bufSize);
-    if (buffer) {
-      offset =
-          std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
-      TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,
-            int(info.fsize) - bufSize + 1);
-      if (sdReadTextFileBlock(bufSize, offset) == FR_OK) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-void ViewTextWindow::buildBody(Window* window)
-{
-  if (openFile()) {
-    auto obj = window->getLvObj();
-    lv_obj_add_flag(
-        obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
-                 LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
-    etx_scrollbar(obj);
-    // prevents resetting the group's edit mode
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-
-    auto g = lv_group_get_default();
-    lb = lv_label_create(obj);
-    lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
-    etx_obj_add_style(lb, styles->pad_medium, LV_PART_MAIN);
-
-    lv_group_add_obj(g, obj);
-    lv_group_set_editing(g, true);
-    lv_label_set_text_static(lb, buffer);
-
-    if (openFromEnd)
-      lv_obj_scroll_to_y(obj, LV_COORD_MAX, LV_ANIM_OFF);
-    else
-      lv_obj_scroll_to_y(obj, 0, LV_ANIM_OFF);
-  }
-}
-
-FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
-                                            const uint32_t offset)
-{
-  FIL file;
-  char escape_chars[4];
-  int escape = 0;
-
-  auto res =
-      f_open(&file, (TCHAR*)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ);
-  if (res == FR_OK) {
-    res = f_lseek(&file, offset);
-    if (res == FR_OK) {
-      UINT br;
-      char c;
-      char* ptr = buffer;
-      for (int i = 0; i < (int)bufSize; i++) {
-        res = f_read(&file, &c, 1, &br);
-        if (res == FR_OK && br == 1) {
-          if (c == '\\' && escape == 0) {
-            escape = 1;
-            continue;
-          } else if (c != '\\' && escape > 0 &&
-                     escape < (int)sizeof(escape_chars)) {
-            escape_chars[escape - 1] = c;
-
-            if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-              *ptr++ = STR_CHAR_UP[0];
-              c = STR_CHAR_UP[1];
-              escape = 0;
-            } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-              *ptr++ = STR_CHAR_DOWN[0];
-              c = STR_CHAR_DOWN[1];
-              escape = 0;
-            } else if (escape == 3) {
-              int val = atoi(escape_chars);
-              if (val >= 200 && val < 225) {
-                *ptr++ = '\302';
-                c = '\200' + val - 200;
-              }
-            } else if (escape == 1 && c == '~') {
-              c = 'z' + 1;
-            } else {
-              escape++;
-              continue;
-            }
-          } else if (c == '\t') {
-            c = 0x1D;  // tab
-          }
-          escape = 0;
-
-          if (c == 0xA && *(ptr - 1) == 0xD) {
-            *(ptr - 1) = '\n';
-            continue;
-          }
-          *ptr++ = c;
-        }
-      }
-      *ptr = '\0';
-    }
-    f_close(&file);
-  }
-  return res;
 }
 
 void ViewTextWindow::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
-  if (int(bufSize) < fileLength) {
-    TRACE("BEFORE offset=%d", offset);
-    if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
-      offset += bufSize;
-      TRACE("event=DOWN");
-    }
-
-    if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
-      TRACE("event=UP");
-      offset -= bufSize;
-    }
-
-    offset = std::max(offset, 0);
-    offset = std::min(offset, fileLength - (int)bufSize);
-
-    TRACE("AFTER offset=%d", offset);
-    sdReadTextFileBlock(bufSize, offset);
-    lv_label_set_text_static(lb, buffer);
-  }
+  if (textViewer) textViewer->onEvent(event);
 
   if (event == EVT_KEY_BREAK(KEY_EXIT)) onCancel();
 #endif
 }
 
-class ViewChecklistWindow : public ViewTextWindow
+class ViewChecklistWindow : public Page, public TextViewer
 {
  public:
   ViewChecklistWindow(const std::string path, const std::string name,
                       EdgeTxIcon icon) :
-      ViewTextWindow(path, name, icon)
+      Page(icon, PAD_ZERO), TextViewer(path, name)
   {
     header->setTitle(g_model.header.name);
     header->setTitle2(STR_PREFLIGHT);
+
+    fullPath = path + std::string(PATH_SEPARATOR) + name;
+    extractNameSansExt();
+
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
+    if (buffer == nullptr) buildBody(body);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -267,7 +305,10 @@ class ViewChecklistWindow : public ViewTextWindow
 
   void onCancel() override
   {
-    if (allChecked()) ViewTextWindow::onCancel();
+    if (allChecked()) {
+      Page::onCancel();
+      checkListOpen = false;
+    }
   }
 
  protected:
@@ -330,7 +371,7 @@ class ViewChecklistWindow : public ViewTextWindow
     if (vtw) vtw->updateCheckboxes();
   }
 
-  void buildBody(Window* window) override
+  void buildBody(Window* window)
   {
     if (openFile()) {
       auto obj = window->getLvObj();
@@ -388,7 +429,7 @@ class ViewChecklistWindow : public ViewTextWindow
             checkBoxes.push_back(cb);
           }
 
-          auto lbl = lv_label_create(row);
+          auto lbl = etx_label_create(row);
           lv_obj_set_width(lbl, w);
           lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
           lv_label_set_text_static(lbl, &buffer[cur]);
@@ -456,27 +497,19 @@ static std::string getModelNotesFile()
   return std::string("");
 }
 
-static bool openNotes(std::string modelNotesName,
-                      bool fromMenu = false)
-{
-  std::string fullPath = std::string(MODELS_PATH) + PATH_SEPARATOR + modelNotesName;
-
-  if (isFileAvailable(fullPath.c_str())) {
-    if (fromMenu || !g_model.checklistInteractive)
-      new ViewTextWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
-    else
-      new ViewChecklistWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
-    return true;
-  } else {
-    return false;
-  }
-}
-
 void readModelNotes(bool fromMenu)
 {
   std::string modelNotesName = getModelNotesFile();
   if (!modelNotesName.empty()) {
-    openNotes(modelNotesName, fromMenu);
+    std::string fullPath = std::string(MODELS_PATH) + PATH_SEPARATOR + modelNotesName;
+
+    if (isFileAvailable(fullPath.c_str())) {
+      if (fromMenu || !g_model.checklistInteractive)
+        new ViewTextWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
+      else
+        new ViewChecklistWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
+    } else {
+    }
   }
 }
 
@@ -500,8 +533,10 @@ class CheckListDialog : public FullScreenDialog
 
   bool warningInactive()
   {
-    if (!checkListOpen)
+    if (!checkListOpen) {
       LED_ERROR_END();
+      deleteLater();
+    }
     return !checkListOpen;
   }
 };
@@ -514,4 +549,20 @@ void readChecklist()
     auto dialog = new CheckListDialog();
     dialog->runForever();
   }
+}
+
+ModelNotesPage::ModelNotesPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)
+{
+}
+
+void ModelNotesPage::build(Window* window)
+{
+  if (!textViewer) textViewer = new TextViewer(MODELS_PATH, getModelNotesFile());
+  if (textViewer) textViewer->build(window);
+}
+
+void ModelNotesPage::cleanup()
+{
+  if (textViewer) delete textViewer;
+  textViewer = nullptr;
 }

@@ -34,7 +34,7 @@
 #include "telemetry/multi.h"
 #endif
 
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
@@ -80,7 +80,7 @@ extern uint32_t NV14internalModuleFwVersion;
   // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
   // Keep the order of the fields that the so that the size stays small
   struct mm_options_strings {
-    static const char* const options[];
+    static STR_TYP const options[];
   };
 
   const uint8_t getMaxMultiOptions();
@@ -91,7 +91,7 @@ extern uint32_t NV14internalModuleFwVersion;
     bool failsafe:1;
     bool disable_ch_mapping:1;
     const char* const* subTypeString;
-    const char* optionsstr;
+    STR_TYP optionsstr;
   });
 
   const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
@@ -624,7 +624,7 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 
 inline uint32_t getNV14RfFwVersion()
 {
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
   return  NV14internalModuleFwVersion;
 #else
   return 0;
@@ -634,7 +634,7 @@ inline uint32_t getNV14RfFwVersion()
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
   bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx) && !isModuleCrossfire(moduleIdx);
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
   ret = ret &&
         (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
 #elif defined(AFHDS3)

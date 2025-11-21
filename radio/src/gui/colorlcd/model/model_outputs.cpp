@@ -46,7 +46,7 @@ class OutputLineButton : public ListLineButton
   {
     lv_obj_enable_style_refresh(false);
 
-    source = lv_label_create(lvobj);
+    source = etx_label_create(lvobj);
     lv_obj_set_pos(source, SRC_X, SRC_Y);
     lv_obj_set_size(source, SRC_W, SRC_H);
 
@@ -56,24 +56,24 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_style_text_line_space(source, -PAD_THREE, ETX_STATE_NAME_FONT_SMALL);
 #endif
 
-    min = lv_label_create(lvobj);
+    min = etx_label_create(lvobj);
     etx_obj_add_style(min, styles->text_align_right, LV_PART_MAIN);
     etx_font(min, FONT_BOLD_INDEX, ETX_STATE_MINMAX_BOLD);
     lv_obj_set_pos(min, MIN_X, MIN_Y);
     lv_obj_set_size(min, MIN_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    max = lv_label_create(lvobj);
+    max = etx_label_create(lvobj);
     etx_obj_add_style(max, styles->text_align_right, LV_PART_MAIN);
     etx_font(max, FONT_BOLD_INDEX, ETX_STATE_MINMAX_BOLD);
     lv_obj_set_pos(max, MAX_X, MAX_Y);
     lv_obj_set_size(max, MAX_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    offset = lv_label_create(lvobj);
+    offset = etx_label_create(lvobj);
     etx_obj_add_style(offset, styles->text_align_right, LV_PART_MAIN);
     lv_obj_set_pos(offset, OFF_X, OFF_Y);
     lv_obj_set_size(offset, OFF_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    center = lv_label_create(lvobj);
+    center = etx_label_create(lvobj);
     etx_obj_add_style(center, styles->text_align_right, LV_PART_MAIN);
     lv_obj_set_pos(center, CTR_X, CTR_Y);
     lv_obj_set_size(center, CTR_W, EdgeTxStyles::STD_FONT_HEIGHT);
@@ -117,9 +117,12 @@ class OutputLineButton : public ListLineButton
 #if !NARROW_LAYOUT
       lv_obj_add_state(source, ETX_STATE_NAME_FONT_SMALL);
 #endif
-      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u",
-                            getSourceString(MIXSRC_FIRST_CH + index),
-                            index + 1);
+      char chanStr[LEN_CHANNEL_NAME + 16];
+      char* s = strAppend(chanStr, getSourceString(MIXSRC_FIRST_CH + index));
+      s = strAppend(s, "\n");
+      s = strAppend(s, STR_CH);
+      strAppendUnsigned(s, index + 1);
+      lv_label_set_text(source, chanStr);
     } else {
 #if !NARROW_LAYOUT
       lv_obj_clear_state(source, ETX_STATE_NAME_FONT_SMALL);
@@ -145,7 +148,7 @@ class OutputLineButton : public ListLineButton
     lv_label_set_text(offset, s);
 
     lv_label_set_text_fmt(center, "%d%s", PPM_CENTER + output->ppmCenter,
-                          output->symetrical ? " =" : STR_CHAR_DELTA);
+                          output->symetrical ? " =" : CHAR_DELTA);
 
     curve->show(output->curve);
   }
@@ -210,8 +213,8 @@ class OutputLineButton : public ListLineButton
   }
 };
 
-ModelOutputsPage::ModelOutputsPage() :
-    PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
+ModelOutputsPage::ModelOutputsPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 

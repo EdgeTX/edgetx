@@ -42,6 +42,8 @@ void onModelSelectMenu(const char * result)
         return;
     }
     selectModel(sub);
+    if (g_eeGeneral.modelQuickSelect && result == STR_SELECT_MODEL)
+      popMenu();
   }
   else if (result == STR_COPY_MODEL) {
     s_copyMode = COPY_MODE;
@@ -60,8 +62,8 @@ void onModelSelectMenu(const char * result)
   else if (result == STR_RESTORE_MODEL || result == STR_UPDATE_LIST) {
     const char* ext = nullptr;
     const char* path = nullptr;
-    ext = STR_YAML_EXT;
-    path = STR_BACKUP_PATH;
+    ext = YAML_EXT;
+    path = BACKUP_PATH;
     if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else

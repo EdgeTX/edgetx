@@ -88,27 +88,17 @@ void show_ui_popup()
   }
 }
 
-void POPUP_WARNING_ON_UI_TASK(const char* message, const char* info,
-                              bool waitForClose)
+bool POPUP_WARNING_ON_UI_TASK(const char* message, const char* info)
 {
-  // if already in a popup, and we don't want to wait, ignore call
-  if (!waitForClose && ui_popup_active) return;
+  // if already in a popup, ignore call
+  if (ui_popup_active) return false;
 
-  // Wait in case already in popup.
-  while (ui_popup_active) {
-    sleep_ms(20);
-  }
   ui_popup_title = "Warning";
   ui_popup_msg = message;
   ui_popup_info = info;
   ui_popup_active = true;
 
-  // Wait until closed
-  if (waitForClose) {
-    while (ui_popup_active) {
-      sleep_ms(20);
-    }
-  }
+  return true;
 }
 
 // Bubble popup style
@@ -159,7 +149,7 @@ class BubbleDialog : public Window
 
     lv_obj_set_parent(lvobj, lv_layer_top());
 
-    auto label = lv_label_create(lvobj);
+    auto label = etx_label_create(lvobj);
     lv_label_set_text(label, message);
     lv_obj_center(label);
     lv_obj_set_width(label, lv_pct(100));

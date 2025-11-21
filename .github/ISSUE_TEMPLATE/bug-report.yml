@@ -109,7 +109,8 @@ body:
         - HelloRadioSky V16
         - Jumper T12
         - Jumper T14
-        - Jumper T15        
+        - Jumper T15
+        - Jumper T15Pro
         - Jumper T16
         - Jumper T18
         - Jumper T20/T20S

@@ -53,7 +53,11 @@
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
+#if defined(STM32H7)
+  #define MAX_TELEMETRY_SENSORS        99
+#else
   #define MAX_TELEMETRY_SENSORS        60
+#endif
   #define MAX_CUSTOM_SCREENS           10
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
@@ -584,9 +588,8 @@ enum SrcTypes {
   SRC_TX = 1 << 16,
   SRC_TIMER = 1 << 17,
   SRC_TELEM = 1 << 18,
-  SRC_TELEM_COMP = 1 << 19,
-  SRC_NONE = 1 << 20,
-  SRC_INVERT = 1 << 21,
+  SRC_NONE = 1 << 19,
+  SRC_INVERT = 1 << 20,
 };
 
 enum BacklightMode {
@@ -660,12 +663,14 @@ enum HatsMode {
   HATSMODE_GLOBAL
 };
 
+#if defined(STM32F2) || defined(STM32F4)
 enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,
 
   UART_SAMPLE_MODE_MAX SKIP = UART_SAMPLE_MODE_ONEBIT
 };
+#endif
 
 // PXX2 constants
 #define PXX2_LEN_REGISTRATION_ID            8

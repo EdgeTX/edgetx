@@ -22,12 +22,12 @@
 #include "view_channels.h"
 
 #include "channel_bar.h"
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
+#include "libopenui.h"
 #include "model_select.h"
 #include "edgetx.h"
-#include "view_logical_switches.h"
+
+// TODO: find better way to detect only used channels!
+#define ALL_CHANNELS true
 
 //-----------------------------------------------------------------------------
 
@@ -35,8 +35,7 @@ class ChannelsViewFooter : public Window
 {
  public:
   explicit ChannelsViewFooter(Window* parent) :
-      Window(parent, {0, parent->height() - LEG_COLORBOX - PAD_SMALL * 2 - 2, LCD_W,
-                      LEG_COLORBOX + PAD_SMALL * 2 + 2})
+      Window(parent, {0, parent->height() - FOOTER_H, LCD_W, FOOTER_H})
   {
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
@@ -65,43 +64,53 @@ class ChannelsViewFooter : public Window
 
   static LAYOUT_VAL_SCALED(LEG_COLORBOX, 14)
   static LAYOUT_VAL_SCALED(TXT_H, 18)
+  static constexpr coord_t FOOTER_H = LEG_COLORBOX + PAD_SMALL * 2 + PAD_TINY;
 };
 
 //-----------------------------------------------------------------------------
 
-class ChannelsViewPage : public PageTab
+class ChannelsViewPage : public PageGroupItem
 {
  public:
-  explicit ChannelsViewPage(uint8_t pageIndex = 0) :
-      PageTab(STR_MONITOR_CHANNELS[pageIndex],
-              (EdgeTxIcon)(ICON_MONITOR_CHANNELS1 + pageIndex)),
-      pageIndex(pageIndex)
+  explicit ChannelsViewPage(uint8_t startChan, int rows, int cols, const char* title) :
+      PageGroupItem(title), startChan(startChan), rows(rows), cols(cols)
   {
+    icon = ICON_MONITOR;
   }
 
+  static constexpr coord_t CHANS_H = 3 * ChannelBar::BAR_HEIGHT + PAD_THREE;
+
  protected:
-  uint8_t pageIndex = 0;
+  uint8_t startChan;
+  int rows;
+  int cols;
 
   void build(Window* window) override
   {
-    constexpr coord_t hmargin = PAD_SMALL;
     window->padAll(PAD_ZERO);
 
-    // Channels bars
-    for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
 #if PORTRAIT
-      coord_t width = window->width() - (hmargin * 2);
-      coord_t xPos = hmargin;
-      coord_t yPos = (chan % 8) *
-                     ((window->height() - PAD_LARGE* 3) / 8);
+    coord_t w = window->width() - (PAD_SMALL * 2);
 #else
-      coord_t width = window->width() / 2 - (hmargin * 2);
-      coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
-      coord_t yPos = (chan % 4) *
-                     ((window->height() - (PAD_LARGE * 3 - 1)) / 4);
+    coord_t w = window->width() / 2 - (PAD_SMALL * 2);
 #endif
-      new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + PAD_THREE},
-                          chan);
+
+    // Channels bars
+    for (uint8_t i = 0, j = 0; j < rows * cols; i += 1) {
+      uint8_t chan = startChan + i;
+      if (chan >= MAX_OUTPUT_CHANNELS) break;
+      if (ALL_CHANNELS || isChannelUsed(chan)) {
+#if PORTRAIT
+        coord_t xPos = PAD_SMALL;
+        coord_t yPos = j * ((window->height() - PAD_LARGE * 3) / rows);
+#else
+        coord_t xPos = (j & 1) ? w + (PAD_SMALL * 2) : PAD_SMALL;
+        coord_t yPos = (j / cols) * ((window->height() - ChannelsViewFooter::FOOTER_H) / rows);
+#endif
+        new ComboChannelBar(window, {xPos, yPos, w, CHANS_H}, chan);
+
+        j += 1;
+      }
     }
 
     // Footer
@@ -111,47 +120,46 @@ class ChannelsViewPage : public PageTab
 
 //-----------------------------------------------------------------------------
 
-ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
-    TabsGroup(ICON_MONITOR), parentMenu(parent)
+ChannelsViewMenu::ChannelsViewMenu() :
+    TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
-  addTab(new ChannelsViewPage(0));
-  addTab(new ChannelsViewPage(1));
-  addTab(new ChannelsViewPage(2));
-  addTab(new ChannelsViewPage(3));
-  addTab(new LogicalSwitchesViewPage());
-}
+  QuickMenu::setCurrentPage(QM_TOOLS_CHAN_MON);
 
-#if defined(HARDWARE_KEYS)
-void ChannelsViewMenu::onPressSYS()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new RadioMenu();
-}
-void ChannelsViewMenu::onLongPressSYS()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
-}
-void ChannelsViewMenu::onPressMDL()
-{
-  onCancel();
-  if (!parentMenu) {
-    new ModelMenu();
-  }
-}
-void ChannelsViewMenu::onLongPressMDL()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new ModelLabelsWindow();
-}
-void ChannelsViewMenu::onPressTELE()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new ScreenMenu();
-}
+#if PORTRAIT
+    int cols = 1;
+    int rows = 8;
+#else
+    int cols = 2;
+    int rows = (LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - ChannelsViewFooter::FOOTER_H) / ChannelsViewPage::CHANS_H;
 #endif
+
+  int pages = 0;
+  int chansPerPage = rows * cols;
+
+  char s[50];
+
+  for (int i = 0; i < MAX_OUTPUT_CHANNELS;) {
+    int start = i;
+    while (!ALL_CHANNELS && !isChannelUsed(start)) {
+      start += 1;
+      if (start >= MAX_OUTPUT_CHANNELS) break;
+    }
+    if (start >= MAX_OUTPUT_CHANNELS) break;
+    int count = 1;
+    int last = start;
+    int end = start + 1;
+    while (end < MAX_OUTPUT_CHANNELS && count < chansPerPage) {
+      if (ALL_CHANNELS || isChannelUsed(end)) {
+        count += 1;
+        last = end;
+      }
+      end += 1;
+    }
+    sprintf(s, STR_MONITOR_CHANNELS, start + 1, last + 1);
+    addTab(new ChannelsViewPage(start, rows, cols, s));
+    pages += 1;
+    i = end;
+  }
+
+  if (pages < 2) hidePageButtons();
+}

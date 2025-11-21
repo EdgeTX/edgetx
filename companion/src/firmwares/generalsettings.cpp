@@ -196,30 +196,8 @@ void GeneralSettings::clear()
 
 void GeneralSettings::init()
 {
-  Firmware * firmware = Firmware::getCurrentVariant();
-  Board::Type board = firmware->getBoard();
-
-  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
+  Board::Type board = Firmware::getCurrentVariant()->getBoard();
   Boards::getBattRange(board, vBatMin, vBatMax, vBatWarn);
-
-  backlightMode = 3; // keys and sticks
-  backlightDelay = 2; // 2 * 5 = 10 secs
-  inactivityTimer = 10;
-
-  hatsMode = HATSMODE_SWITCHABLE;
-
-  // backlightBright = 0; // 0 = 100%
-
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    backlightOffBright = 20;
-  }
-
-  speakerVolume = 12;
-  wavVolume = 2;
-  backgroundVolume = 1;
-
-  if (IS_TARANIS(board))
-    contrast = 25;
 
   if (IS_JUMPER_T16(board))
     strcpy(bluetoothName, "t16");
@@ -240,110 +218,31 @@ void GeneralSettings::init()
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
     strcpy(bluetoothName, "taranis");
 
-  ttsLanguage[0] = 'e';
-  ttsLanguage[1] = 'n';
+  contrast = IS_TARANIS(board) ? 25 : 0;
+  backlightBright = 0;  // 0 = 100%
+  backlightDelay = 2;   // 2 * 5 = 10 secs
+  backlightMode = BACKLIGHT_MODE_KEYSCTRL;
+  backlightOffBright = IS_FAMILY_HORUS_OR_T16(board) ? 20 : 0;
 
-  templateSetup = g.profile[g.sessionId()].channelOrder();
-  stickMode = g.profile[g.sessionId()].defaultMode();
+  backgroundVolume = 1;
+  speakerVolume = 12;
+  wavVolume = 2;
 
-  QString t_calib = g.profile[g.sessionId()].stickPotCalib();
-  if (!t_calib.isEmpty()) {
-    QString t_trainercalib=g.profile[g.sessionId()].trainerCalib();
-    int8_t t_txVoltageCalibration=(int8_t)g.profile[g.sessionId()].txVoltageCalibration();
-    int8_t t_txCurrentCalibration=(int8_t)g.profile[g.sessionId()].txCurrentCalibration();
-    int8_t t_PPM_Multiplier=(int8_t)g.profile[g.sessionId()].ppmMultiplier();
-    uint8_t t_stickMode=(uint8_t)g.profile[g.sessionId()].gsStickMode();
-    uint8_t t_vBatWarn=(uint8_t)g.profile[g.sessionId()].vBatWarn();
-    QString t_DisplaySet=g.profile[g.sessionId()].display();
-    QString t_BeeperSet=g.profile[g.sessionId()].beeper();
-    QString t_HapticSet=g.profile[g.sessionId()].haptic();
-    QString t_SpeakerSet=g.profile[g.sessionId()].speaker();
-    QString t_CountrySet=g.profile[g.sessionId()].countryCode();
-
-    if ((t_calib.length() == (Boards::getInputsCalibrated() * 12)) && (t_trainercalib.length() == 16)) {
-      QString Byte;
-      int16_t byte16;
-      bool ok;
-      for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-        if (Boards::isInputCalibrated(i)) {
-          Byte = t_calib.mid(i * 12, 4);
-          byte16 = (int16_t)Byte.toInt(&ok, 16);
-          if (ok) inputConfig[i].calib.mid = byte16;
-          Byte = t_calib.mid(4 + i * 12, 4);
-          byte16 = (int16_t)Byte.toInt(&ok, 16);
-          if (ok) inputConfig[i].calib.spanNeg = byte16;
-          Byte = t_calib.mid(8 + i * 12, 4);
-          byte16 = (int16_t)Byte.toInt(&ok, 16);
-          if (ok) inputConfig[i].calib.spanPos = byte16;
-        }
-      }
-      for (int i = 0; i < Boards::getCapability(board, Board::Sticks); i++) {
-        Byte = t_trainercalib.mid(i * 4, 4);
-        byte16 = (int16_t)Byte.toInt(&ok, 16);
-        if (ok) trainer.calib[i] = byte16;
-      }
-      txCurrentCalibration = t_txCurrentCalibration;
-      txVoltageCalibration = t_txVoltageCalibration;
-      vBatWarn = t_vBatWarn;
-      PPM_Multiplier = t_PPM_Multiplier;
-      stickMode = t_stickMode;
-    }
-    if ((t_DisplaySet.length()==6) && (t_BeeperSet.length()==4) && (t_HapticSet.length()==6) && (t_SpeakerSet.length()==6)) {
-      uint8_t byte8u;
-      int8_t byte8;
-      bool ok;
-      byte8=(int8_t)t_DisplaySet.mid(0,2).toInt(&ok,16);
-      if (ok)
-        optrexDisplay=(byte8==1 ? true : false);
-      byte8u=(uint8_t)t_DisplaySet.mid(2,2).toUInt(&ok,16);
-      if (ok)
-        contrast=byte8u;
-      byte8u=(uint8_t)t_DisplaySet.mid(4,2).toUInt(&ok,16);
-      if (ok)
-        backlightBright=byte8u;
-      byte8=(int8_t)t_BeeperSet.mid(0,2).toUInt(&ok,16);
-      if (ok)
-        beeperMode=(BeeperMode)byte8;
-      byte8=(int8_t)t_BeeperSet.mid(2,2).toInt(&ok,16);
-      if (ok)
-        beeperLength=byte8;
-      byte8=(int8_t)t_HapticSet.mid(0,2).toUInt(&ok,16);
-      if (ok)
-        hapticMode=(BeeperMode)byte8;
-      byte8=(int8_t)t_HapticSet.mid(2,2).toInt(&ok,16);
-      if (ok)
-        hapticStrength=byte8;
-      byte8=(int8_t)t_HapticSet.mid(4,2).toInt(&ok,16);
-      if (ok)
-        hapticLength=byte8;
-      byte8u=(uint8_t)t_SpeakerSet.mid(0,2).toUInt(&ok,16);
-      if (ok)
-        speakerMode=byte8u;
-      byte8u=(uint8_t)t_SpeakerSet.mid(2,2).toUInt(&ok,16);
-      if (ok)
-        speakerPitch=byte8u;
-      byte8u=(uint8_t)t_SpeakerSet.mid(4,2).toUInt(&ok,16);
-      if (ok)
-        speakerVolume=byte8u;
-      if (t_CountrySet.length()==6) {
-        byte8u=(uint8_t)t_CountrySet.mid(0,2).toUInt(&ok,16);
-        if (ok)
-          countryCode=byte8u;
-        byte8u=(uint8_t)t_CountrySet.mid(2,2).toUInt(&ok,16);
-        if (ok)
-          imperial=byte8u;
-        QString chars = t_CountrySet.mid(4, 2);
-        ttsLanguage[0] = chars[0].toLatin1();
-        ttsLanguage[1] = chars[1].toLatin1();
-      }
-    }
-  }
-
+  hatsMode = HATSMODE_SWITCHABLE;
+  inactivityTimer = 10;
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
-  if (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board))
-    stickDeadZone = 2;
+  QString lang = getCurrentFirmware()->getLanguage();
+  if (lang.size() > 1)
+    memcpy(ttsLanguage, lang.toLatin1().data(), 2);
+  else {
+    ttsLanguage[0] = 'e';
+    ttsLanguage[1] = 'n';
+  }
 
+  stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
+  setDefaultFavorites();
+  setDefaultKeyShortcuts();
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
@@ -1018,4 +917,184 @@ void GeneralSettings::switchConfigClear()
 {
   for (int i = 0; i < CPN_MAX_SWITCHES; i++)
     switchConfig[i] = SwitchConfig();
+}
+
+bool GeneralSettings::isBacklightModeAvailable(int index)
+{
+  int start = (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
+  return index >= start;
+}
+
+QString GeneralSettings::backlightModeToString() const
+{
+  return backlightModeToString(stickMode);
+}
+
+//  static
+QString GeneralSettings::backlightModeToString(int value)
+{
+  switch(value) {
+    case BACKLIGHT_MODE_OFF:
+      return tr("OFF");
+    case BACKLIGHT_MODE_KEYS:
+      return tr("Keys");
+    case BACKLIGHT_MODE_CTRL:
+      return tr("Controls");
+    case BACKLIGHT_MODE_KEYSCTRL:
+      return tr("Keys + Controls");
+    case BACKLIGHT_MODE_ON:
+      return tr("ON");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::backlightModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_BACKLIGHTMODE);
+
+  for (int i = 0; i < BACKLIGHT_MODE_COUNT; i++) {
+    mdl->appendToItemList(backlightModeToString(i), i, isBacklightModeAvailable(i));
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+QString GeneralSettings::quickMenuToString(int value, bool keys)
+{
+  switch(value) {
+    case QM_NONE:
+      return tr("None");
+    case QM_OPEN_QUICK_MENU:
+      return tr("Open Quick Menu");
+    case QM_MANAGE_MODELS:
+      return tr("MANAGE MODELS");
+    // Model menu
+    case QM_MODEL_SETUP:
+      return tr("Model Setup - Model Settings");
+    case QM_MODEL_FLIGHTMODES:
+      return tr("Model Setup - Flight Modes");
+    case QM_MODEL_INPUTS:
+      return tr("Model Setup - Inputs");
+    case QM_MODEL_MIXES:
+      return tr("Model Setup - Mixes");
+    case QM_MODEL_OUTPUTS:
+      return tr("Model Setup - Outputs");
+    case QM_MODEL_CURVES:
+      return tr("Model Setup - Curves");
+    case QM_MODEL_GVARS:
+      return tr("Model Setup - Global Variables");
+    case QM_MODEL_LS:
+      return tr("Model Setup - Logical Switches");
+    case QM_MODEL_SF:
+      return tr("Model Setup - Special Functions");
+    case QM_MODEL_SCRIPTS:
+      return tr("Model Setup - Mixer Scripts");
+    case QM_MODEL_TELEMETRY:
+      return tr("Model Setup - Telemetry");
+    case QM_MODEL_NOTES:
+      return tr("Model Setup - Notes");
+    // Radio menu
+    case QM_RADIO_SETUP:
+      return tr("Radio Setup - Radio Settings");
+    case QM_RADIO_GF:
+      return tr("Radio Setup - Global Functions");
+    case QM_RADIO_TRAINER:
+      return tr("Radio Setup - Trainer");
+    case QM_RADIO_HARDWARE:
+      return tr("Radio Setup - Hardware");
+    case QM_RADIO_VERSION:
+      return tr("Radio Setup - About EdgeTX");
+    // UI menu
+    case QM_UI_THEMES:
+      return tr("UI Setup - Themes");
+    case QM_UI_SETUP:
+      return tr("UI Setup - Top Bar");
+    case QM_UI_SCREEN1:
+      return keys ? tr("UI Setup - Current Screen") : tr("UI Setup - Screen 1");
+    case QM_UI_SCREEN2:
+      return tr("UI Setup - Screen 2");
+    case QM_UI_SCREEN3:
+      return tr("UI Setup - Screen 3");
+    case QM_UI_SCREEN4:
+      return tr("UI Setup - Screen 4");
+    case QM_UI_SCREEN5:
+      return tr("UI Setup - Screen 5");
+    case QM_UI_SCREEN6:
+      return tr("UI Setup - Screen 6");
+    case QM_UI_SCREEN7:
+      return tr("UI Setup - Screen 7");
+    case QM_UI_SCREEN8:
+      return tr("UI Setup - Screen 8");
+    case QM_UI_SCREEN9:
+      return tr("UI Setup - Screen 9");
+    case QM_UI_SCREEN10:
+      return tr("UI Setup - Screen 10");
+    case QM_UI_ADD_PG:
+      return tr("UI Setup - Add Screen");
+    // Tools menu
+    case QM_TOOLS_APPS:
+      return tr("Tools - Apps");
+    case QM_TOOLS_STORAGE:
+      return tr("Tools - Storage");
+    case QM_TOOLS_RESET:
+      return tr("Tools - Flight Reset");
+    case QM_TOOLS_CHAN_MON:
+      return tr("Tools - Channel Monitor");
+    case QM_TOOLS_LS_MON:
+      return tr("Tools - Logical Switch Monitor");
+    case QM_TOOLS_STATS:
+      return tr("Tools - Statistics");
+    case QM_TOOLS_DEBUG:
+      return tr("Tools - Debug");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+bool GeneralSettings::isQuickMenuAvailable(int value, bool keys)
+{
+  if (keys) {
+    if (value >= QM_UI_SCREEN2 && value <= QM_UI_ADD_PG)
+      return false;
+  } else if (value == QM_OPEN_QUICK_MENU)
+    return false;
+
+  return true;
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::quickMenuItemModel(bool keys)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_QUICKMENU);
+
+  for (int i = 0; i < QM_COUNT; i++) {
+    if (isQuickMenuAvailable(i, keys))
+      mdl->appendToItemList(quickMenuToString(i, keys), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+void GeneralSettings::setDefaultFavorites()
+{
+  for (int i = 0; i < MAX_QMFAVOURITES; i++)
+    qmFavorites[i] = QM_NONE;
+}
+
+void GeneralSettings::setDefaultKeyShortcuts()
+{
+  keyShortcuts[0] = QM_MODEL_SETUP;       // MDL short
+  keyShortcuts[1] = QM_OPEN_QUICK_MENU;   // SYS short
+  keyShortcuts[2] = QM_UI_SCREEN1;        // TELE short
+  keyShortcuts[3] = QM_MANAGE_MODELS;     // MDL long
+  keyShortcuts[4] = QM_TOOLS_APPS;        // SYS long
+  keyShortcuts[5] = QM_TOOLS_CHAN_MON;    // TELE long
 }

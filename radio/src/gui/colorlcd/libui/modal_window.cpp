@@ -57,8 +57,8 @@ ModalWindow::ModalWindow(bool closeWhenClickOutside) :
 void ModalWindow::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
-  Layer::pop(this);
   Window::deleteLater(detach, trash);
+  Layer::pop(this);
 }
 
 void ModalWindow::onClicked()

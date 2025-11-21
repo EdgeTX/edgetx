@@ -21,6 +21,8 @@
 
  #pragma once
 
+#include "translations/translation_def.h"
+
 // Bootloader strings - ASCII characters only (no extended ASCII or unicode)
 
 #if defined(PCBPL18)
@@ -37,9 +39,6 @@
     #define BL_SELECT_KEY              "[TR4 Dn]"
     #define BL_EXIT_KEY                "[TR4 Up]"
   #endif
-#elif defined(PCBNV14)
-  #define BL_SELECT_KEY                "[R TRIM]"
-  #define BL_EXIT_KEY                  "[L TRIM]"
 #elif defined(RADIO_ST16)
   #define BL_SELECT_KEY                "[ENT]"
   #define BL_EXIT_KEY                  "[EXIT]"
@@ -66,17 +65,10 @@
     #define TR_BL_ENABLE                  "Povoleno"
     #define TR_BL_DISABLE                 "Zakazano"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Neplatny soubor s firmwarem"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "Drzet [ENT] pro zahajeni nahravani"
-        #define TR_BL_INVALID_FIRMWARE       "Neplatny firmware soubor!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "Drzet [ENT] pro zahajeni"
-        #define TR_BL_INVALID_FIRMWARE       "Neplatny firmware!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Drzet [ENT] pro zahajeni", "Drzet [ENT] pro zahajeni nahravani")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Neplatny firmware!", "Neplatny soubor s firmwarem")
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Stisknete tlacitko napajeni."
@@ -112,17 +104,10 @@
     #define TR_BL_ENABLE                  "Aktiver"
     #define TR_BL_DISABLE                 "Deaktiver"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Ikke en installationsfil!"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "[ENT] for at starte installation"
-        #define TR_BL_INVALID_FIRMWARE       "Ikke en installationsfil!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "[ENT] for at starte"
-        #define TR_BL_INVALID_FIRMWARE       "Ikke en installationsfil!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("[ENT] for at starte", "[ENT] for at starte installation")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         "Ikke en installationsfil!"
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Tryk power knap."
@@ -158,17 +143,11 @@
     #define TR_BL_ENABLE                  "Aktivieren"
     #define TR_BL_DISABLE                 "Deaktivieren"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmwaredatei"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    "Oder schließen Sie ein USB-Kabel " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "Halte [ENT] gedrückt, um mit dem Schreiben zu beginnen"
-        #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmwaredatei!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "Zum Starten [ENT] halten"
-        #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmware!"
+    #if !defined(COLORLCD)
+      #define TR_BL_OR_PLUGIN_USB_CABLE    TR(TR_BL_USB_PLUGIN, "Oder schließen Sie ein USB-Kabel " TR_BL_USB_MASS_STORE)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Zum Starten [ENT] halten", "Halte [ENT] gedrückt, um mit dem Schreiben zu beginnen")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Keine gültige Firmware!", "Keine gültige Firmwaredatei!")
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Drücke den Power Knopf."
@@ -204,17 +183,10 @@
     #define TR_BL_ENABLE                  "Activer"
     #define TR_BL_DISABLE                 "Désactiver"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Fichier firmware non valide"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "Appui [ENT] pour demarrer ecriture"
-        #define TR_BL_INVALID_FIRMWARE       "Fichier firmware non valide!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "Appui [ENT] pour demarrer"
-        #define TR_BL_INVALID_FIRMWARE       "Firmware non valide!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Appui [ENT] pour demarrer", "Appui [ENT] pour demarrer ecriture")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Firmware non valide!", "Fichier firmware non valide!")
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Appuyez sur le bouton power."
@@ -250,17 +222,10 @@
     #define TR_BL_ENABLE                  "Abilita"
     #define TR_BL_DISABLE                 "Disabilita"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Firmware non valido"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "Premi [ENT] per iniziare la scrittura"
-        #define TR_BL_INVALID_FIRMWARE       "Non è un file Firmware valido!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "Premi [ENT] per partire"
-        #define TR_BL_INVALID_FIRMWARE       "Non è un file Firmware valido!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Premi [ENT] per partire", "Premi [ENT] per iniziare la scrittura")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         "Non è un file Firmware valido!"
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Premi il bottone d'accensione"
@@ -296,17 +261,10 @@
     #define TR_BL_ENABLE                  "Enable"
     #define TR_BL_DISABLE                 "Disable"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Nieprawidlowy plik firmware"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "Przytrzymaj [ENT] by zaczac zapis"
-        #define TR_BL_INVALID_FIRMWARE       "Nieprawidlowy plik firmware!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "Przytrzymaj [ENT] by zaczac"
-        #define TR_BL_INVALID_FIRMWARE       "011Nieprawidlowy firmware!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Przytrzymaj [ENT] by zaczac", "Przytrzymaj [ENT] by zaczac zapis")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Nieprawidlowy firmware!", "Nieprawidlowy plik firmware!")
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Nacisnij przycisk Power"
@@ -343,17 +301,10 @@
     #define TR_BL_ENABLE                   "Aktivera"
     #define TR_BL_DISABLE                  "Inaktivera"
 
-    #if LCD_W >= 480
-        #define TR_BL_INVALID_FIRMWARE        "Ej en giltig firmwarefil"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START     "Tryck [ENT] foer att boerja skriva  "
-        #define TR_BL_INVALID_FIRMWARE        "Ej en giltig firmwarefil!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE     TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START     "Tryck [ENT] för att boerja"
-        #define TR_BL_INVALID_FIRMWARE        "Ej en giltig firmware!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START     TR("Tryck [ENT] för att boerja", "Tryck [ENT] foer att boerja skriva")
     #endif
+    #define TR_BL_INVALID_FIRMWARE          TR("Ej en giltig firmware!", "Ej en giltig firmwarefil!")
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                 "Tryck paa startknappen."
@@ -389,17 +340,10 @@
     #define TR_BL_ENABLE                  "Enable"
     #define TR_BL_DISABLE                 "Disable"
 
-    #if defined(COLORLCD)
-        #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
-    #elif LCD_W >= 212
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE
-        #define TR_BL_HOLD_ENTER_TO_START    "Hold [ENT] to start writing"
-        #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file!"
-    #else
-        #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-        #define TR_BL_HOLD_ENTER_TO_START    "Hold [ENT] to start"
-        #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware!"
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Hold [ENT] to start", "Hold [ENT] to start writing")
     #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Not a valid firmware!", "Not a valid firmware file!")
 
     // Bootloader Taranis specific - ASCII characters only
     #define TR_BL_POWER_KEY                "Press the power button."
@@ -418,6 +362,10 @@
     #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " to exit"
 
+#endif
+
+#if !defined(COLORLCD) && !defined(TR_BL_OR_PLUGIN_USB_CABLE)
+  #define TR_BL_OR_PLUGIN_USB_CABLE  TR(TR_BL_USB_PLUGIN, TR_BL_USB_PLUGIN " " TR_BL_USB_MASS_STORE)
 #endif
 
 #define TR_BL_DFU_MODE          "DFU mode"

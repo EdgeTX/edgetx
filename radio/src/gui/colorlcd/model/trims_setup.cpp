@@ -41,7 +41,7 @@ static SetupLineDef setupLines[] = {
 #if defined(USE_HATS_AS_KEYS)
   {
     // Hats mode for NV14/EL18
-    STR_HATSMODE,
+    STR_DEF(STR_HATSMODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, TrimsSetup::HATSMODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL,
                 GET_SET_DEFAULT(g_model.hatsMode));
@@ -55,7 +55,7 @@ static SetupLineDef setupLines[] = {
 #endif
   {
     // Trim step
-    STR_TRIMINC,
+    STR_DEF(STR_TRIMINC),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VTRIMINC, -2, 2,
                 GET_SET_DEFAULT(g_model.trimInc));
@@ -63,7 +63,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Extended trims
-    STR_ETRIMS,
+    STR_DEF(STR_ETRIMS),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.extendedTrims));
     }
@@ -71,7 +71,7 @@ static SetupLineDef setupLines[] = {
   {
     // Display trims
     // TODO: move to "Screen setup" ?
-    STR_DISPLAY_TRIMS,
+    STR_DEF(STR_DISPLAY_TRIMS),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VDISPLAYTRIMS, 0, 2,
                 GET_SET_DEFAULT(g_model.displayTrims));
@@ -79,6 +79,6 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-TrimsSetup::TrimsSetup() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_TRIMS, setupLines, DIM(setupLines))
+TrimsSetup::TrimsSetup() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_TRIMS, setupLines, DIM(setupLines))
 {
 }

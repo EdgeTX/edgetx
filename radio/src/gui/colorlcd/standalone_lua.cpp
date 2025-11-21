@@ -21,7 +21,6 @@
 
 #include "standalone_lua.h"
 
-#include "translations.h"
 #include "view_main.h"
 #include "dma2d.h"
 #include "lua/lua_event.h"
@@ -138,12 +137,11 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
 
-    lv_obj_t* lbl = lv_label_create(lvobj);
+    lv_obj_t* lbl = etx_label_create(lvobj, FONT_XL_INDEX);
     lv_obj_set_pos(lbl, 0, 0);
     lv_obj_set_size(lbl, LCD_W, LCD_H);
     etx_solid_bg(lbl, COLOR_THEME_PRIMARY1_INDEX);
     etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
-    etx_font(lbl, FONT_XL_INDEX);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
     lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::STD_FONT_HEIGHT) / 2, LV_PART_MAIN);
     lv_label_set_text(lbl, STR_LOADING);
@@ -220,6 +218,8 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaScriptManager = nullptr;
 
+  Window::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
 
@@ -238,8 +238,6 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
   luaState = prevLuaState;
 
   luaEmptyEventBuffer();
-
-  Window::deleteLater(detach, trash);
 }
 
 void StandaloneLuaWindow::checkEvents()
@@ -397,20 +395,18 @@ void StandaloneLuaWindow::showError(bool firstCall, const char* title, const cha
     lv_obj_set_size(errorModal, LCD_W, LCD_H);
     etx_bg_color(errorModal, COLOR_BLACK_INDEX);
     etx_obj_add_style(errorModal, styles->bg_opacity_75, LV_PART_MAIN);
-    errorTitle = lv_label_create(errorModal);
+    errorTitle = etx_label_create(errorModal, FONT_L_INDEX);
     lv_obj_set_pos(errorTitle, ERR_TTL_X, ERR_TTL_Y);
     lv_obj_set_size(errorTitle, LCD_W - ERR_TTL_X * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT);
     etx_txt_color(errorTitle, COLOR_THEME_PRIMARY2_INDEX);
     etx_solid_bg(errorTitle, COLOR_THEME_SECONDARY1_INDEX);
-    etx_font(errorTitle, FONT_L_INDEX);
     etx_obj_add_style(errorTitle, styles->text_align_center, LV_PART_MAIN);
-    errorMsg = lv_label_create(errorModal);
+    errorMsg = etx_label_create(errorModal);
     lv_obj_set_pos(errorMsg, ERR_TTL_X, ERR_MSG_Y);
     lv_obj_set_size(errorMsg, LCD_W - ERR_TTL_X * 2, LCD_H - ERR_MSG_HO);
     lv_obj_set_style_pad_all(errorMsg, PAD_SMALL, LV_PART_MAIN);
     etx_txt_color(errorMsg, COLOR_THEME_PRIMARY1_INDEX);
     etx_solid_bg(errorMsg, COLOR_THEME_SECONDARY3_INDEX);
-    etx_font(errorMsg, FONT_STD_INDEX);
     etx_obj_add_style(errorMsg, styles->text_align_center, LV_PART_MAIN);
   }
 

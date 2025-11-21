@@ -30,6 +30,7 @@
 #include "autobitmappedcombobox.h"
 #include "autobitmappedcheckbox.h"
 #include "namevalidator.h"
+#include "exclusivecombogroup.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -46,60 +47,8 @@ constexpr char FIM_FLEXSWITCHES[]      {"Flex Switches"};
 constexpr char FIM_FLEXTYPE_SWITCH[]   {"Flex Type Switch"};
 constexpr char FIM_FLEXTYPE_NOSWITCH[] {"Flex Type No Switch"};
 
-class ExclusiveComboGroup: public QObject
-{
-  public:
-    ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
-      QObject(parent), filter(std::move(filter))
-    {
-    }
-
-    typedef QList<QComboBox*> ComboBoxes;
-
-    ComboBoxes* getComboBoxes()
-    {
-     return &combos;
-    }
-
-    void addCombo(QComboBox *comboBox)
-    {
-      connect(comboBox, QOverload<int>::of(&QComboBox::activated),
-              [=](int index) { this->handleActivated(comboBox, index); });
-      combos.append(comboBox);
-    }
-
-    void handleActivated(QComboBox* target, int index) {
-      auto data = target->itemData(index);
-      auto targetidx = combos.indexOf(target);
-      for (auto combo : combos) {
-        if (target == combo) continue;
-        auto view = dynamic_cast<QListView*>(combo->view());
-        Q_ASSERT(view);
-
-        auto previous = combo->findData(targetidx, _role);
-        if (previous >= 0) {
-          view->setRowHidden(previous, false);
-          combo->setItemData(previous, QVariant(), _role);
-        }
-        if (!filter(data)) {
-          auto idx = combo->findData(data);
-          if (idx >= 0) {
-            view->setRowHidden(idx, true);
-            combo->setItemData(idx, targetidx, _role);
-          }
-        }
-      }
-    }
-
-  private:
-    static constexpr auto _role = Qt::UserRole + 500;
-
-    ComboBoxes combos;
-    std::function<bool(const QVariant&)> filter;
-
-};
-
-HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
+HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings,
+                             Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
   GeneralPanel(parent, generalSettings, firmware),
   board(firmware->getBoard()),
   editorItemModels(sharedItemModels),
@@ -142,6 +91,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   if (count > 0) {
     addLabel("");
     addLabel(tr("Name"));
+    addLabel(tr("Invert"));
     addParams();
     for (int i = 0; i < count; i++) {
       addStick(i);

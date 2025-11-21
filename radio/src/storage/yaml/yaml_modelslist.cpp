@@ -82,7 +82,7 @@ static bool to_next_elmt(void* ctx)
     return true;
 }
 
-static bool find_node(void* ctx, char* buf, uint8_t len)
+static bool find_node(void* ctx, const char* buf, uint8_t len)
 {
     modelslist_iter* mi = (modelslist_iter*)ctx;
 
@@ -95,7 +95,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     return true;
 }
 
-static void set_attr(void* ctx, char* buf, uint16_t len)
+static void set_attr(void* ctx, const char* buf, uint16_t len)
 {
   char fnamebuf[LEN_MODEL_FILENAME + 1];
   modelslist_iter* mi = (modelslist_iter*)ctx;

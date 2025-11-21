@@ -53,7 +53,7 @@
   #include "bluetooth_driver.h"
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
@@ -179,7 +179,7 @@ void per10ms()
 #if defined(GUI)
   if (lightOffCounter) lightOffCounter--;
   if (flashCounter) flashCounter--;
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   if (noHighlightCounter) noHighlightCounter--;
 #endif
 #endif
@@ -335,6 +335,9 @@ void generalDefault()
 
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
   generalDefaultSwitches();
+#if defined(COLORLCD)
+  g_eeGeneral.defaultKeyShortcuts();
+#endif
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
@@ -820,7 +823,7 @@ void checkThrottleStick()
   }
   // first - display warning; also deletes inputs if any have been before
   LED_ERROR_BEGIN();
-  RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
+  RAISE_ALERT(STR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
 
 #if defined(PWR_BUTTON_PRESS)
   bool refresh = false;
@@ -842,7 +845,7 @@ void checkThrottleStick()
       refresh = true;
     }
     else if (power == e_power_on && refresh) {
-      RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+      RAISE_ALERT(STR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
       refresh = false;
     }
 #else
@@ -1366,7 +1369,7 @@ void edgeTxInit()
 {
   TRACE("edgeTxInit");
 
-  #if defined(COLORLCD)
+#if defined(COLORLCD)
   // SD_CARD_PRESENT() does not work properly on most
   // B&W targets, so that we need to delay the detection
   // until the SD card is mounted (requires RTOS scheduler running)
@@ -1379,7 +1382,7 @@ void edgeTxInit()
   if (!(startOptions & OPENTX_START_NO_SPLASH))
     startSplash();
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   initLvglTheme();
   // create ViewMain
   ViewMain::instance();
@@ -1387,9 +1390,7 @@ void edgeTxInit()
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
   menuHandlers[1] = menuModelSelect;
-#endif
 
-#if defined(GUI) && !defined(COLORLCD)
   lcdRefreshWait();
   lcdClear();
   lcdRefresh();
@@ -1555,11 +1556,11 @@ void edgeTxInit()
 #if defined(GUI)
     if (calibration_needed) {
       cancelSplash();
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
       startCalibration();
 #else
       chainMenu(menuFirstCalib);
-#endif // defined(LIBOPENUI)
+#endif // defined(COLORLCD)
     }
     else if (!(startOptions & OPENTX_START_NO_CHECKS)) {
       checkAlarm();
@@ -1755,14 +1756,14 @@ uint32_t pwrCheck()
           POPUP_CONFIRMATION(STR_MODEL_SHUTDOWN, nullptr);
 
           const char* msg = STR_MODEL_STILL_POWERED;
-          uint8_t msg_len = sizeof(TR_MODEL_STILL_POWERED);
+          uint8_t msg_len = strlen(STR_MODEL_STILL_POWERED);
           if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
             msg = STR_USB_STILL_CONNECTED;
-            msg_len = sizeof(TR_USB_STILL_CONNECTED);
+            msg_len = strlen(STR_USB_STILL_CONNECTED);
           }
           else if (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm) {
             msg = STR_TRAINER_STILL_CONNECTED;
-            msg_len = sizeof(TR_TRAINER_STILL_CONNECTED);
+            msg_len = strlen(STR_TRAINER_STILL_CONNECTED);
           }
           event_t evt = getEvent();
           SET_WARNING_INFO(msg, msg_len, 0);

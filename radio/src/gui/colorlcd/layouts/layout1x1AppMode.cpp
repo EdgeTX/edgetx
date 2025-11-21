@@ -20,17 +20,16 @@
  */
 
 #include "layout.h"
-#include "layout_factory_impl.h"
 
-const ZoneOption OPTIONS_LAYOUT_APPMODE[] = {LAYOUT_OPTIONS_END};
+const LayoutOption OPTIONS_LAYOUT_APPMODE[] = {LAYOUT_OPTIONS_END};
 
 class LayoutAppMode : public Layout
 {
  public:
   LayoutAppMode(Window* parent, const LayoutFactory* factory,
-            Layout::PersistentData* persistentData, uint8_t zoneCount,
+            int screenNum, uint8_t zoneCount,
             uint8_t* zoneMap) :
-      Layout(parent, factory, persistentData, zoneCount, zoneMap)
+      Layout(parent, factory, screenNum, zoneCount, zoneMap)
   {
   }
 

@@ -1493,10 +1493,11 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to Tx
+void MdiChild::writeSettings(StatusDialog * status, bool toRadio)
 {
   //  safeguard as the menu actions should be disabled
   int cnt = radioData.invalidModels();
+
   if (cnt) {
     QMessageBox::critical(this, tr("Write Models and Settings"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
     return;
@@ -1522,8 +1523,7 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
   if (toRadio) {
     radioPath = findMassStoragePath("RADIO", true);
     qDebug() << "Searching for SD card, found" << radioPath;
-  }
-  else {
+  } else {
     radioPath = g.currentProfile().sdPath();
     if (!QFile(radioPath % "/RADIO").exists())
       radioPath.clear();
@@ -1538,8 +1538,7 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
   if (saveFile(radioPath, false)) {
     status->hide();
     QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
-  }
-  else {
+  } else {
     status->hide();
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
   }
@@ -1907,14 +1906,14 @@ void MdiChild::updateStatusBar()
 
   if (!invalidModels()) {
     statusBarIcon->setToolTip(tr("No errors"));
-    p.load(":/images/svg/circle-green.svg");
+    p.load(":/images/png/tick-green.png");
   }
   else {
     statusBarIcon->setToolTip(tr("Errors"));
-    p.load(":/images/svg/circle-red.svg");
+    p.load(":/images/png/cross-red.png");
     cnt.setText(QString::number(invalid));
   }
 
-  statusBarIcon->setPixmap(p.scaled(QSize(16, 16)));
+  statusBarIcon->setPixmap(p.scaled(QSize(24, 24)));
   statusBarCount->setText(cnt.text());
 }

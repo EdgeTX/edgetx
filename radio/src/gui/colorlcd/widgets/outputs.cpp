@@ -60,15 +60,13 @@ class ChannelValue : public Window
     lv_obj_set_size(bar, 0, ROW_HEIGHT - 1);
     etx_bg_color_from_flags(bar, barColor);
 
-    valueLabel = lv_label_create(lvobj);
-    etx_font(valueLabel, FONT_XS_INDEX);
+    valueLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(valueLabel, styles->text_align_right, LV_PART_MAIN);
     etx_txt_color_from_flags(valueLabel, txtColor);
     lv_obj_add_style(valueLabel, &style, LV_PART_MAIN);
     lv_label_set_text(valueLabel, "");
 
-    chanLabel = lv_label_create(lvobj);
-    etx_font(chanLabel, FONT_XS_INDEX);
+    chanLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(chanLabel, styles->text_align_left, LV_PART_MAIN);
     etx_txt_color_from_flags(chanLabel, txtColor);
     lv_label_set_text(chanLabel, "");
@@ -164,9 +162,9 @@ class ChannelValue : public Window
 class OutputsWidget : public Widget
 {
  public:
-  OutputsWidget(const WidgetFactory* factory, Window* parent,
-                const rect_t& rect, Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+  OutputsWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+                int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     padAll(PAD_ZERO);
 
@@ -182,11 +180,13 @@ class OutputsWidget : public Widget
 
   void update() override
   {
+    auto widgetData = getPersistentData();
+
     // get background color from options[2]
-    etx_bg_color_from_flags(lvobj, persistentData->options[2].value.unsignedValue);
+    etx_bg_color_from_flags(lvobj, widgetData->options[2].value.unsignedValue);
 
     // Set background opacity from options[1]
-    if (persistentData->options[1].value.boolValue)
+    if (widgetData->options[1].value.boolValue)
       lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
@@ -197,24 +197,26 @@ class OutputsWidget : public Widget
     bool changed = false;
 
     // Colors
-    LcdFlags f = persistentData->options[3].value.unsignedValue;
+    LcdFlags f = widgetData->options[3].value.unsignedValue;
     if (f != txtColor) { txtColor = f; changed = true; }
-    f = persistentData->options[4].value.unsignedValue;
+    f = widgetData->options[4].value.unsignedValue;
     if (f != barColor) { barColor = f; changed = true; }
 
     // Setup channels
-    uint8_t chan = persistentData->options[0].value.unsignedValue;
+    uint8_t chan = widgetData->options[0].value.unsignedValue;
     if (chan != firstChan) { firstChan= chan; changed = true; }
 
     // Get size
-    uint8_t n = height() / ChannelValue::ROW_HEIGHT;
+    if (width() != lastWidth) { lastWidth = width(); changed = true; }
+    if (height() != lastHeight) { lastHeight = height(); changed = true; }
+    uint8_t n = lastHeight / ChannelValue::ROW_HEIGHT;
     if (n != rows) { rows = n; changed = true; }
-    n = (width() > COLS_MIN_W) ? 2 : 1;
+    n = (lastWidth > COLS_MIN_W) ? 2 : 1;
     if (n != cols) { cols = n; changed = true; }
 
     if (changed) {
       clear();
-      coord_t colWidth = width() / cols;
+      coord_t colWidth = lastWidth / cols;
       uint8_t chan = firstChan;
       for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
         for (uint8_t r = 0; r < rows && chan <= MAX_OUTPUT_CHANNELS;
@@ -225,11 +227,11 @@ class OutputsWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
-  // Last time we refreshed the window
-  uint32_t lastRefresh = 0;
+  coord_t lastWidth = -1;
+  coord_t lastHeight = -1;
   uint8_t firstChan = 255;
   uint8_t cols = 0;
   uint8_t rows = 0;
@@ -242,14 +244,13 @@ class OutputsWidget : public Widget
   static LAYOUT_VAL_SCALED(COLS_MIN_W, 300)
 };
 
-const ZoneOption OutputsWidget::options[] = {
-    {STR_FIRST_CHANNEL, ZoneOption::Integer, OPTION_VALUE_UNSIGNED(1),
-     OPTION_VALUE_UNSIGNED(1), OPTION_VALUE_UNSIGNED(32)},
-    {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
-    {STR_TEXT_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption OutputsWidget::options[] = {
+    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {32}},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
+    {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
+    {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<OutputsWidget> outputsWidget("Outputs",
                                                OutputsWidget::options,

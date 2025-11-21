@@ -33,8 +33,8 @@ class TimerWidget : public Widget
 {
  public:
   TimerWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-              Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+              int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     delayLoad();
   }
@@ -52,10 +52,9 @@ class TimerWidget : public Widget
     timerIcon = new StaticIcon(this, PAD_THREE, PAD_SMALL, ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
 
     // Timer name
-    nameLabel = lv_label_create(lvobj);
+    nameLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     lv_label_set_text(nameLabel, "");
     lv_obj_add_style(nameLabel, &style, LV_PART_MAIN);
-    etx_font(nameLabel, FONT_XS_INDEX);
     etx_obj_add_style(nameLabel, styles->text_align_left, LV_PART_MAIN);
     etx_obj_add_style(nameLabel, styles->text_align_right,
                       LV_PART_MAIN | EXT_NAME_ALIGN_RIGHT);
@@ -66,7 +65,7 @@ class TimerWidget : public Widget
                   LV_PART_MAIN | ETX_NAME_COLOR_WHITE);
 
     // Timer value - on small size widgets
-    valLabel = lv_label_create(lvobj);
+    valLabel = etx_label_create(lvobj);
     lv_label_set_text(valLabel, "");
     lv_obj_add_style(valLabel, &style, LV_PART_MAIN);
     etx_txt_color(valLabel, COLOR_THEME_PRIMARY2_INDEX);
@@ -110,7 +109,9 @@ class TimerWidget : public Widget
 
     Widget::checkEvents();
 
-    uint32_t index = persistentData->options[0].value.unsignedValue;
+    auto widgetData = getPersistentData();
+
+    uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
     TimerState& timerState = timersStates[index];
 
@@ -197,7 +198,7 @@ class TimerWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
   static LAYOUT_VAL_SCALED(SMALL_TXT_MAX_W, 100)
   static LAYOUT_VAL_SCALED(SMALL_TXT_MAX_H, 40)
@@ -237,10 +238,12 @@ class TimerWidget : public Widget
   {
     if (!loaded) return;
 
+    auto widgetData = getPersistentData();
+
     // Set up widget from options.
     char s[16];
 
-    uint32_t index = persistentData->options[0].value.unsignedValue;
+    uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
 
     bool hasName = ZLEN(timerData.name) > 0;
@@ -286,7 +289,7 @@ class TimerWidget : public Widget
 
   lv_obj_t* createUnitLabel()
   {
-    auto lbl = lv_label_create(lvobj);
+    auto lbl = etx_label_create(lvobj);
     lv_label_set_text(lbl, "");
     lv_obj_add_style(lbl, &style, LV_PART_MAIN);
     etx_txt_color(lbl, COLOR_THEME_SECONDARY1_INDEX);
@@ -305,9 +308,9 @@ class TimerWidget : public Widget
   }
 };
 
-const ZoneOption TimerWidget::options[] = {
-    {STR_TIMER_SOURCE, ZoneOption::Timer, OPTION_VALUE_UNSIGNED(0)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption TimerWidget::options[] = {
+    {STR_TIMER_SOURCE, WidgetOption::Timer, 0},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<TimerWidget> timerWidget("Timer", TimerWidget::options,
                                            STR_WIDGET_TIMER);

@@ -232,20 +232,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 #define ADC_DIRECTION {       	 \
     0,-1,0,-1,  /* gimbals */    \
-    -1,-1,   	/* pots */       \
-    0,0,     	/* sliders */    \
-    0,	     	/* vbat */       \
-    0,       	/* rtc_bat */    \
-    0,       	/* SWA */        \
-    0,       	/* SWB */        \
-    0,       	/* SWC */        \
-    0,       	/* SWD */        \
-    0,       	/* SWE */        \
-    0        	/* SWF */        \
+    -1,-1   	/* pots */       \
   }
-
-// Serial gimbal sync port
-#define HALL_SYNC                   GPIO_PIN(GPIOH, 11)
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
@@ -384,16 +372,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
 
-// Flysky Hall Stick
-#define FLYSKY_HALL_SERIAL_USART                 UART4
-#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOB, 9)
-#define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOB, 8)
-#define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-
-#define FLYSKY_HALL_SERIAL_DMA                   DMA1
-#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
-#define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_UART4_RX
-
 // LED Strip
 #define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
 #define BLING_LED_STRIP_START             6
@@ -414,8 +392,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_clear
-#define GPIO_LED_GPIO_OFF                 gpio_set
+#define GPIO_LED_GPIO_ON                  gpio_set
+#define GPIO_LED_GPIO_OFF                 gpio_clear
 #define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
 #define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
@@ -517,6 +495,27 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUX2_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_6
 #define AUX2_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_USART3_RX
 #define AUX2_SERIAL_PWR_GPIO                GPIO_PIN(GPIOC, 13) // PC.13
+
+#if defined(BLUETOOTH)
+// Bluetooth
+#define STORAGE_BLUETOOTH
+#define BT_USART                            UART4
+#define BT_USART_IRQn                       UART4_IRQn
+#define BT_TX_GPIO                          GPIO_PIN(GPIOB, 9)
+#define BT_RX_GPIO                          GPIO_PIN(GPIOB, 8)
+#define BT_EN_GPIO                          GPIO_PIN(GPIOH, 11)
+#endif
+
+#if defined(FLYSKY_GIMBAL)
+// FlySky Hall Sticks
+#define FLYSKY_HALL_SERIAL_USART                 UART4
+#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOB, 9)
+#define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOB, 8)
+#define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
+#define FLYSKY_HALL_SERIAL_DMA                   DMA1
+#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+#define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_UART4_RX
+#endif
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1

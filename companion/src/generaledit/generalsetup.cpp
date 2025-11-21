@@ -29,6 +29,7 @@
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
 constexpr char FIM_TEMPLATESETUP[]  {"Template Setup"};
+constexpr char FIM_BACKLIGHTMODE[]  {"Backlight Mode"};
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
@@ -46,6 +47,7 @@ ui(new Ui::GeneralSetup)
                                                                Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
                                                                                       GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
 
   QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
   QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
@@ -91,7 +93,8 @@ ui(new Ui::GeneralSetup)
 
   lock = true;
 
-  populateBacklightCB();
+  ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
+  ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
   if (!firmware->getCapability(MultiLangVoice)) {
     ui->VoiceLang_label->hide();
@@ -143,14 +146,6 @@ ui(new Ui::GeneralSetup)
   }
   else {
     ui->faimode_CB->setChecked(generalSettings.fai);
-  }
-
-  if (!firmware->getCapability(RotaryEncoderNavigation)) {
-    ui->rotEncMode_CB->hide();
-    ui->rotEncMode_label->hide();
-  }
-  else {
-    populateRotEncModeCB();
   }
 
   if (!firmware->getCapability(HasPxxCountry)) {
@@ -258,15 +253,6 @@ ui(new Ui::GeneralSetup)
   if (!firmware->getCapability(Haptic)) {
     ui->hapticStrength->setDisabled(true);
     ui->hapticmodeCB->setDisabled(true);
-  }
-
-  int reCount = firmware->getCapability(RotaryEncoders);
-  if (reCount == 0) {
-    ui->re_label->hide();
-    ui->re_CB->hide();
-  }
-  else {
-    populateRotEncCB(reCount);
   }
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
@@ -396,22 +382,6 @@ void GeneralSetupPanel::on_timezoneLE_textEdited(const QString &text)
   }
 }
 
-void GeneralSetupPanel::populateBacklightCB()
-{
-  QComboBox * b = ui->backlightswCB;
-  const QStringList strings = { tr("OFF"), tr("Keys"), tr("Controls"), tr("Keys + Controls"), tr("ON") };
-
-  b->clear();
-  int startValue = (Boards::getCapability(firmware->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
-
-  for (int i = startValue; i < strings.size(); i++) {
-    b->addItem(strings[i], 0);
-    if (generalSettings.backlightMode == i) {
-      b->setCurrentIndex(b->count() - 1);
-    }
-  }
-}
-
 void GeneralSetupPanel::populateVoiceLangCB()
 {
   QComboBox * b = ui->voiceLang_CB;
@@ -422,6 +392,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Danish"), "da" },
     { tr("Dutch"), "nl" },
     { tr("English"), "en" },
+    { tr("Finnish"), "fi" },
     { tr("French"), "fr" },
     { tr("German"), "de" },
     { tr("Hebrew"), "he" },
@@ -435,6 +406,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Slovak"), "sk" },
     { tr("Spanish"), "es" },
     { tr("Swedish"), "se" },
+    { tr("Taiwanese"), "tw" },
     { tr("Ukrainian"), "ua" },
     { NULL, NULL }};
 
@@ -505,18 +477,6 @@ void GeneralSetupPanel::updateVarioPitchRange()
   ui->varioPMax_SB->setMinimum(700 + (generalSettings.varioPitch * 10) + 1000 - 800);
 }
 
-void GeneralSetupPanel::populateRotEncCB(int reCount)
-{
-  QString strings[] = { tr("No"), tr("RotEnc A"), tr("Rot Enc B"), tr("Rot Enc C"), tr("Rot Enc D"), tr("Rot Enc E")};
-  QComboBox * b = ui->re_CB;
-
-  b->clear();
-  for (int i = 0; i <= reCount; i++) {
-    b->addItem(strings[i]);
-  }
-  b->setCurrentIndex(generalSettings.reNavigation);
-}
-
 int pwrDelayFromYaml(int delay)
 {
   static int8_t vals[] = { 1, 4, 3, 2, 0 };
@@ -569,16 +529,15 @@ void GeneralSetupPanel::setValues()
 
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
 
+  ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+
   if (Boards::getCapability(board, Board::HasColorLcd)) {
-    ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
     ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
     ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);
     ui->favMultiMode_CB->setCurrentIndex(generalSettings.favMultiMode);
     showLabelSelectOptions();
   } else {
-    ui->label_modelQuickSelect->hide();
-    ui->modelQuickSelect_CB->hide();
     ui->label_modelSelectLayout->hide();
     ui->modelSelectLayout_CB->hide();
     ui->label_labelSingleSelect->hide();
@@ -627,31 +586,6 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
     else {
       generalSettings.fai = false;
     }
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::populateRotEncModeCB()
-{
-  QComboBox * b = ui->rotEncMode_CB;
-  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate"),  tr("Normal, Edit Inverted") };
-  int itemCount = 5;
-
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
-    itemCount = 2;
-  }
-
-  b->clear();
-  for (int i = 0; i < itemCount; i++) {
-    b->addItem(strings[i], 0);
-  }
-  b->setCurrentIndex(generalSettings.rotEncMode);
-}
-
-void GeneralSetupPanel::on_rotEncMode_CB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.rotEncMode = index;
     emit modified();
   }
 }
@@ -831,14 +765,6 @@ void GeneralSetupPanel::on_vBatMaxDSB_editingFinished()
 {
   if (!lock) {
     generalSettings.vBatMax = ui->vBatMaxDSB->value() * 10 - 120;
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::on_re_CB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.reNavigation = ui->re_CB->currentIndex();
     emit modified();
   }
 }

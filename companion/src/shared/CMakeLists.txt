@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_NAMES
   autobitmappedcombobox
   autobitsetcheckbox
   autocheckbox
+  autocollapsiblesection
   autocombobox
   autodoublespinbox
   autohexspinbox
@@ -18,8 +19,9 @@ set(${PROJECT_NAME}_NAMES
   curveimagewidget
   curvedialog
   genericpanel
-  verticalscrollarea
+  scrollarea
   textvalidator
+  exclusivecombogroup
 )
 
 AddHeadersSources()

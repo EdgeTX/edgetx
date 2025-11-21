@@ -129,6 +129,7 @@ struct CommandFifo {
   }
 
   inline bool isEmpty() const { return (getIndex == setIndex); }
+  inline bool isFull() const { return nextIndex(setIndex) == getIndex; }
 
   inline void skip() { getIndex = nextIndex(getIndex); }
 
@@ -203,6 +204,8 @@ class Transport
                uint8_t byteContent = 0);
 
   void sendBuffer();
+
+  bool fifoFull() { return fifo.isFull(); }
 
   /**
    * Process retransmissions

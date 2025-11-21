@@ -442,7 +442,7 @@ void YamlTreeWalker::toNextAttr()
     }
 }
 
-void YamlTreeWalker::setAttrValue(char* buf, uint16_t len)
+void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
 {
     if (!buf || !len || isIdxInvalid())
         return;
@@ -686,12 +686,12 @@ static bool to_next_elmt(void* ctx)
     return ((YamlTreeWalker*)ctx)->toNextElmt();
 }
 
-static bool find_node(void* ctx, char* buf, uint8_t len)
+static bool find_node(void* ctx, const char* buf, uint8_t len)
 {
     return ((YamlTreeWalker*)ctx)->findNode(buf,len);
 }
 
-static void set_attr(void* ctx, char* buf, uint16_t len)
+static void set_attr(void* ctx, const char* buf, uint16_t len)
 {
     ((YamlTreeWalker*)ctx)->setAttrValue(buf,len);
 }

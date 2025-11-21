@@ -21,18 +21,16 @@
 
 #pragma once
 
-#define __INIT_HOOK    __attribute__((section(".init_hook")))
+#define __INIT_HOOK    __attribute__((section(".init_hook"), used))
 
 #define __CCMRAM       __attribute__((section(".ccm"), aligned(4)))
 #define __DMA          __attribute__((section(".ram"), aligned(4)))
 #define __DMA_NO_CACHE __DMA
+#define __FLASH        __attribute__((section(".flash")))
 #define __IRAM
 
 #if defined(SDRAM)
   #define __SDRAM      __attribute__((section(".sdram"), aligned(4)))
-  #define __SDRAMFONTS __attribute__((section(".sdram_fonts"), aligned(4)))
 #else
   #define __SDRAM
-  #define __SDRAMFONTS
 #endif
-

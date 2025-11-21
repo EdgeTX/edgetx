@@ -27,6 +27,7 @@
 #include "gvar_numberedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -95,8 +96,7 @@ void OutputEditWindow::buildHeader(Window *window)
 {
   statusBar = new OutputEditStatusBar(
       window,
-      {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
-           OUTPUT_EDIT_RIGHT_MARGIN,
+      {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH - PageGroup::PAGE_TOP_BAR_H,
        0, OUTPUT_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }
@@ -127,7 +127,7 @@ void OutputEditWindow::buildBody(Window *form)
   new ModelTextEdit(line, rect_t{}, output->name, sizeof(output->name));
 
   // Offset
-  new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIM);
+  new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_SUBTRIM);
   auto off = new GVarNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                 GET_SET_DEFAULT(output->offset), PREC1);
   off->setFastStep(20);
@@ -140,7 +140,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Min
   line = form->newLine(grid);
-  minText = new StaticText(line, rect_t{}, TR_MIN);
+  minText = new StaticText(line, rect_t{}, STR_MIN);
   etx_solid_bg(minText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(minText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   minEdit = new GVarNumberEdit(line, -limit, 0,
@@ -156,7 +156,7 @@ void OutputEditWindow::buildBody(Window *form)
   });
 
   // Max
-  maxText = new StaticText(line, rect_t{}, TR_MAX);
+  maxText = new StaticText(line, rect_t{}, STR_MAX);
   etx_solid_bg(maxText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(maxText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   maxEdit = new GVarNumberEdit(line, 0, +limit,
@@ -181,12 +181,12 @@ void OutputEditWindow::buildBody(Window *form)
                    });
 
   // Curve
-  new StaticText(line, rect_t{}, TR_CURVE);
+  new StaticText(line, rect_t{}, STR_CURVE);
   new CurveChoice(line, GET_SET_DEFAULT(output->curve), nullptr, channel + MIXSRC_FIRST_CH);
 
   // PPM center
   line = form->newLine(grid);
-  auto label = new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_PPMCENTER);
+  auto label = new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_PPMCENTER);
   lv_label_set_long_mode(label->getLvObj(), LV_LABEL_LONG_WRAP);
   lv_obj_set_style_grid_cell_x_align(label->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
@@ -200,7 +200,7 @@ void OutputEditWindow::buildBody(Window *form)
   center->setDefault(PPM_CENTER);
 
   // Subtrims mode
-  label = new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIMMODE);
+  label = new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_SUBTRIMMODE);
   lv_label_set_long_mode(label->getLvObj(), LV_LABEL_LONG_WRAP);
   lv_obj_set_style_grid_cell_x_align(label->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);

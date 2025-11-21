@@ -49,8 +49,8 @@
 #define KEYS_GPIO_PIN_PAGEUP
 #define KEYS_GPIO_REG_PAGEDN
 #define KEYS_GPIO_PIN_PAGEDN
-#define KEYS_GPIO_REG_SYS
-#define KEYS_GPIO_PIN_SYS
+#define KEYS_GPIO_REG_MDL
+#define KEYS_GPIO_PIN_MDL
 #define KEYS_GPIO_REG_EXIT
 #define KEYS_GPIO_PIN_EXIT
 
@@ -184,7 +184,7 @@
 
 #define ADC_EXT                         ADC3
 #define ADC_EXT_CHANNELS                                                \
-  { ADC_CHANNEL_SWC, ADC_CHANNEL_SWD }
+  { ADC_CHANNEL_SWC, ADC_CHANNEL_SWD, ADC_CHANNEL_RTC_BAT }
 
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
@@ -296,8 +296,6 @@
 #define QSPI_QE_BIT                     (1 << 6)
 
 // Storage
-#define STORAGE_USE_SDIO
-
 /*
  * SDIO pins:
  *  - SDMMC1_D0-D3 (PC.08-11)
@@ -305,7 +303,8 @@
  *  - SDMMC1_CMD   (PD.02)
  */
 #define SD_SDIO                        SDMMC1
-#define SD_SDIO_TRANSFER_CLK_DIV       SDMMC_HSPEED_CLK_DIV
+#define SD_SDIO_TRANSFER_CLK_DIV       SDMMC_NSPEED_CLK_DIV  // 25MHz
+#define STORAGE_USE_SDIO
 
 // Audio
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOE, 4) // PE.04
@@ -360,11 +359,11 @@
 
 // LED Strip
 #define LED_STRIP_LENGTH                  14
-#define BLING_LED_STRIP_START             0
-#define BLING_LED_STRIP_LENGTH            10
-#define CFS_LED_STRIP_START               10
-#define CFS_LED_STRIP_LENGTH              4
-#define CFS_LEDS_PER_SWITCH               1
+#define BLING_LED_STRIP_START             10
+#define BLING_LED_STRIP_LENGTH            4
+#define CFS_LED_STRIP_START               0
+#define CFS_LED_STRIP_LENGTH              8
+#define CFS_LEDS_PER_SWITCH               2
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOF, 06)  // PF.06 / TIM16_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM16

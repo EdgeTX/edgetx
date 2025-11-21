@@ -62,22 +62,23 @@
 
   #define STR_MULTI_DEFAULT                    QT_TRANSLATE_NOOP("Multiprotocols", "DEFAULT")
   STRLIST(NO_SUBTYPE, {STR_MULTI_DEFAULT})
+  #define STR_DEF(x) x
 #elif defined(MULTIMODULE)
   #define STRLIST(x, ...) const char* const x[] = __VA_ARGS__;
   #define PROTODEF(...) const mm_protocol_definition multi_protocols[] = __VA_ARGS__
 
-  const char* const mm_options_strings::options[] = {
+  STR_TYP const mm_options_strings::options[] = {
     nullptr,
-    STR_MULTI_OPTION,
-    STR_MULTI_RFTUNE,
-    STR_MULTI_VIDFREQ,
-    STR_MULTI_FIXEDID,
-    STR_MULTI_TELEMETRY,
-    STR_MULTI_SERVOFREQ,
-    STR_MULTI_MAX_THROW,
-    STR_MULTI_RFCHAN,
-    STR_MULTI_RFPOWER,
-    STR_MULTI_WBUS               // probably not used by MPM anymore
+    STR_DEF(STR_MULTI_OPTION),
+    STR_DEF(STR_MULTI_RFTUNE),
+    STR_DEF(STR_MULTI_VIDFREQ),
+    STR_DEF(STR_MULTI_FIXEDID),
+    STR_DEF(STR_MULTI_TELEMETRY),
+    STR_DEF(STR_MULTI_SERVOFREQ),
+    STR_DEF(STR_MULTI_MAX_THROW),
+    STR_DEF(STR_MULTI_RFCHAN),
+    STR_DEF(STR_MULTI_RFPOWER),
+    STR_DEF(STR_MULTI_WBUS)               // probably not used by MPM anymore
   };
 
   #define NO_SUBTYPE nullptr
@@ -166,85 +167,85 @@ STRLIST(STR_SUBTYPE_NN,        { SPARE_SUBTYPE_NAMES })
 //
 PROTODEF ({
   {MODULE_SUBTYPE_MULTI_FLYSKY,     4, false, true,   STR_SUBTYPE_FLYSKY,    nullptr},
-  {MODULE_SUBTYPE_MULTI_HUBSAN,     2, false, false,  STR_SUBTYPE_HUBSAN,    STR_MULTI_VIDFREQ},
-  {MODULE_SUBTYPE_MULTI_FRSKY,      1, false, false,  STR_SUBTYPE_FRSKYD,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_HUBSAN,     2, false, false,  STR_SUBTYPE_HUBSAN,    STR_DEF(STR_MULTI_VIDFREQ)},
+  {MODULE_SUBTYPE_MULTI_FRSKY,      1, false, false,  STR_SUBTYPE_FRSKYD,    STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_HISKY,      1, true,  true,   STR_SUBTYPE_HISKY,     nullptr},
   {MODULE_SUBTYPE_MULTI_V2X2,       2, false, false,  STR_SUBTYPE_V2X2,      nullptr},
-  {MODULE_SUBTYPE_MULTI_DSM2,       5, false, true,   STR_SUBTYPE_DSM,       STR_MULTI_MAX_THROW},
-  {MODULE_SUBTYPE_MULTI_DEVO,       4, true,  true,   STR_SUBTYPE_DEVO,      STR_MULTI_FIXEDID},
+  {MODULE_SUBTYPE_MULTI_DSM2,       5, false, true,   STR_SUBTYPE_DSM,       STR_DEF(STR_MULTI_MAX_THROW)},
+  {MODULE_SUBTYPE_MULTI_DEVO,       4, true,  true,   STR_SUBTYPE_DEVO,      STR_DEF(STR_MULTI_FIXEDID)},
   {MODULE_SUBTYPE_MULTI_YD717,      4, false, false,  STR_SUBTYPE_YD717,     nullptr},
   {MODULE_SUBTYPE_MULTI_KN,         1, false, false,  STR_SUBTYPE_KN,        nullptr},
   {MODULE_SUBTYPE_MULTI_SYMAX,      1, false, false,  STR_SUBTYPE_SYMAX,     nullptr},
-  {MODULE_SUBTYPE_MULTI_SLT,        4, false, true,   STR_SUBTYPE_SLT,       STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_SLT,        4, false, true,   STR_SUBTYPE_SLT,       STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_CX10,       6, false, false,  STR_SUBTYPE_CX10,      nullptr},
   {MODULE_SUBTYPE_MULTI_CG023,      1, false, false,  STR_SUBTYPE_CG023,     nullptr},
-  {MODULE_SUBTYPE_MULTI_BAYANG,     5, false, false,  STR_SUBTYPE_BAYANG,    STR_MULTI_TELEMETRY},
-  {MODULE_SUBTYPE_MULTI_FRSKYX,     5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_BAYANG,     5, false, false,  STR_SUBTYPE_BAYANG,    STR_DEF(STR_MULTI_TELEMETRY)},
+  {MODULE_SUBTYPE_MULTI_FRSKYX,     5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_ESky,       1, false, true,   STR_SUBTYPE_ESky,      nullptr},
   {MODULE_SUBTYPE_MULTI_MT99XX,     7, false, false,  STR_SUBTYPE_MT99,      nullptr},
   {MODULE_SUBTYPE_MULTI_MJXQ,       6, false, false,  STR_SUBTYPE_MJXQ,      nullptr},
   {MODULE_SUBTYPE_MULTI_SHENQI,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_FY326,      1, false, false,  STR_SUBTYPE_FY326,     nullptr},
-  {MODULE_SUBTYPE_MULTI_FUTABA,     0, true,  true,   STR_SUBTYPE_FUTABA,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FUTABA,     0, true,  true,   STR_SUBTYPE_FUTABA,    STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_J6PRO,      0, false, true,   NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_FQ777,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_ASSAN,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  {MODULE_SUBTYPE_MULTI_FRSKYV,     0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYV,     0, false, false,  NO_SUBTYPE,            STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_HONTAI,     3, false, false,  STR_SUBTYPE_HONTAI,    nullptr},
   // MODULE_SUBTYPE_MULTI_OLRS non selectable and masked out for selection
-  {MODULE_SUBTYPE_MULTI_FS_AFHDS2A, 7, true,  true,   STR_SUBTYPE_AFHDS2A,   STR_MULTI_SERVOFREQ},
+  {MODULE_SUBTYPE_MULTI_FS_AFHDS2A, 7, true,  true,   STR_SUBTYPE_AFHDS2A,   STR_DEF(STR_MULTI_SERVOFREQ)},
   {MODULE_SUBTYPE_MULTI_Q2X2,       2, false, false,  STR_SUBTYPE_Q2X2,      nullptr},
   {MODULE_SUBTYPE_MULTI_WK_2X01,    5, true,  true,   STR_SUBTYPE_WK2x01,    nullptr},
   {MODULE_SUBTYPE_MULTI_Q303,       3, false, false,  STR_SUBTYPE_Q303,      nullptr},
   {MODULE_SUBTYPE_MULTI_GW008,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_DM002,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  {MODULE_SUBTYPE_MULTI_CABELL,     7, false, false,  STR_SUBTYPE_CABELL,    STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_CABELL,     7, false, false,  STR_SUBTYPE_CABELL,    STR_DEF(STR_MULTI_OPTION)},
   {MODULE_SUBTYPE_MULTI_ESKY150,    1, false, false,  STR_SUBTYPE_ESKY150,   nullptr},
   {MODULE_SUBTYPE_MULTI_H83D,       3, false, false,  STR_SUBTYPE_H83D,      nullptr},
-  {MODULE_SUBTYPE_MULTI_CORONA,     2, false, false,  STR_SUBTYPE_CORONA,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_CORONA,     2, false, false,  STR_SUBTYPE_CORONA,    STR_DEF(STR_MULTI_RFTUNE)},
   // MODULE_SUBTYPE_MULTI_CFLIE non selectable and masked out for selection
-  {MODULE_SUBTYPE_MULTI_HITEC,      2, false, false,  STR_SUBTYPE_HITEC,     STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_HITEC,      2, false, false,  STR_SUBTYPE_HITEC,     STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_WFLY,       0, true,  false,  STR_SUBTYPE_WFLY,      nullptr},
   {MODULE_SUBTYPE_MULTI_BUGS,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_BUGS_MINI,  1, false, false,  STR_SUBTYPE_BUGS_MINI, nullptr},
   {MODULE_SUBTYPE_MULTI_TRAXXAS,    0, false, false,  STR_SUBTYPE_TRAXXAS,   nullptr},
   {MODULE_SUBTYPE_MULTI_NCC1701,    0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_E01X,       1, false, false,  STR_SUBTYPE_E01X,      nullptr},
-  {MODULE_SUBTYPE_MULTI_V911S,      1, false, false,  STR_SUBTYPE_V911S,     STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_GD00X,      1, false, false,  STR_SUBTYPE_GD00X,     STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_V911S,      1, false, false,  STR_SUBTYPE_V911S,     STR_DEF(STR_MULTI_RFTUNE)},
+  {MODULE_SUBTYPE_MULTI_GD00X,      1, false, false,  STR_SUBTYPE_GD00X,     STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_V761,       2, false, false,  STR_SUBTYPE_V761,      nullptr},
-  {MODULE_SUBTYPE_MULTI_KF606,      2, false, false,  STR_SUBTYPE_KF606,     STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_REDPINE,    1, false, false,  STR_SUBTYPE_REDPINE,   STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_KF606,      2, false, false,  STR_SUBTYPE_KF606,     STR_DEF(STR_MULTI_RFTUNE)},
+  {MODULE_SUBTYPE_MULTI_REDPINE,    1, false, false,  STR_SUBTYPE_REDPINE,   STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_POTENSIC,   0, false, false,  STR_SUBTYPE_POTENSIC,  nullptr},
   {MODULE_SUBTYPE_MULTI_ZSX,        0, false, false,  STR_SUBTYPE_ZSX,       nullptr},
   {MODULE_SUBTYPE_MULTI_HEIGHT,     1, false, false,  STR_SUBTYPE_HEIGHT,    nullptr},
   // MODULE_SUBTYPE_MULTI_SCANNER non selectable and masked out for selection
-  {MODULE_SUBTYPE_MULTI_FRSKYX_RX,  3, false, false,  STR_SUBTYPE_FRSKYX_RX, STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYX_RX,  3, false, false,  STR_SUBTYPE_FRSKYX_RX, STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_AFHDS2A_RX, 1, false, false,  STR_SUBTYPE_RX,        nullptr}, //new
-  {MODULE_SUBTYPE_MULTI_HOTT,       1, true,  false,  STR_SUBTYPE_HOTT,      STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_HOTT,       1, true,  false,  STR_SUBTYPE_HOTT,      STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_FX,         2, false, false,  STR_SUBTYPE_FX,        nullptr},
   {MODULE_SUBTYPE_MULTI_BAYANG_RX,  1, false, false,  STR_SUBTYPE_RX,        nullptr}, //new
   {MODULE_SUBTYPE_MULTI_PELIKAN,    2, false, true,   STR_SUBTYPE_PELIKAN,   nullptr},
   {MODULE_SUBTYPE_MULTI_TIGER,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  {MODULE_SUBTYPE_MULTI_XK,         1, false, false,  STR_SUBTYPE_XK,        STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_XN297DUMP,  5, false, false,  STR_SUBTYPE_XN297DUMP, STR_MULTI_RFCHAN},
-  {MODULE_SUBTYPE_MULTI_FRSKYX2,    5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_XK,         1, false, false,  STR_SUBTYPE_XK,        STR_DEF(STR_MULTI_RFTUNE)},
+  {MODULE_SUBTYPE_MULTI_XN297DUMP,  5, false, false,  STR_SUBTYPE_XN297DUMP, STR_DEF(STR_MULTI_RFCHAN)},
+  {MODULE_SUBTYPE_MULTI_FRSKYX2,    5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_FRSKY_R9,   7, true,  false,  STR_SUBTYPE_FRSKYR9,   nullptr},
   {MODULE_SUBTYPE_MULTI_PROPEL,     0, false, false,  STR_SUBTYPE_PROPEL,    nullptr},
-  {MODULE_SUBTYPE_MULTI_FRSKYL,     1, false, false,  STR_SUBTYPE_FRSKYL,    STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_SKYARTEC,   0, false, true,   NO_SUBTYPE,            STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_ESKY150V2,  0, false, true,   STR_SUBTYPE_ESKY150V2, STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYL,     1, false, false,  STR_SUBTYPE_FRSKYL,    STR_DEF(STR_MULTI_RFTUNE)},
+  {MODULE_SUBTYPE_MULTI_SKYARTEC,   0, false, true,   NO_SUBTYPE,            STR_DEF(STR_MULTI_RFTUNE)},
+  {MODULE_SUBTYPE_MULTI_ESKY150V2,  0, false, true,   STR_SUBTYPE_ESKY150V2, STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_DSM_RX,     3, false, true,   STR_SUBTYPE_DSM_RX,    nullptr}, //new
   {MODULE_SUBTYPE_MULTI_JJRC345,    1, false, false,  STR_SUBTYPE_JJRC345,   nullptr},
-  {MODULE_SUBTYPE_MULTI_Q90C,       0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_Q90C,       0, false, false,  NO_SUBTYPE,            STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_KYOSHO,     1, false, true,   STR_SUBTYPE_KYOSHO,    nullptr},
-  {MODULE_SUBTYPE_MULTI_RLINK,      2, false, false,  STR_SUBTYPE_RLINK,     STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_RLINK,      2, false, false,  STR_SUBTYPE_RLINK,     STR_DEF(STR_MULTI_RFTUNE)},
   // MODULE_SUBTYPE_MULTI_ELRS non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_REALACC,    0, false, false,  STR_SUBTYPE_REALACC,   nullptr},
-  {MODULE_SUBTYPE_MULTI_OMP,        0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_OMP,        0, false, false,  NO_SUBTYPE,            STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_MLINK,      0, true,  false,  NO_SUBTYPE,            nullptr},
-  {MODULE_SUBTYPE_MULTI_WFLY2,      0, true,  false,  STR_SUBTYPE_WFLY2,     STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_E016HV2,    0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_WFLY2,      0, true,  false,  STR_SUBTYPE_WFLY2,     STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_E016HV2,    0, false, false,  NO_SUBTYPE,            STR_DEF(STR_MULTI_RFTUNE)},
   {MODULE_SUBTYPE_MULTI_E010R5,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_LOLI,       0, true,  false,  NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_E129,       1, false, false,  STR_SUBTYPE_E129,      nullptr}, //new
@@ -254,25 +255,25 @@ PROTODEF ({
   // MODULE_SUBTYPE_MULTI_IKEAANSLUTA non selectable and masked out for selection
   // MODULE_SUBTYPE_MULTI_WILLIFM non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_LOSI,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  {MODULE_SUBTYPE_MULTI_MOULDKG,    1, false, false,  STR_SUBTYPE_MOULDKG,   STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_MOULDKG,    1, false, false,  STR_SUBTYPE_MOULDKG,   STR_DEF(STR_MULTI_OPTION)},
   {MODULE_SUBTYPE_MULTI_XERALL,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_MT99XX2,    0, false, false,  STR_SUBTYPE_MT992,     nullptr},
   {MODULE_SUBTYPE_MULTI_KYOSHO2,    0, false, false,  STR_SUBTYPE_KYOSHO2,   nullptr},
   {MODULE_SUBTYPE_MULTI_SCORPIO,    0, false, true,   NO_SUBTYPE,            nullptr},
-  {MODULE_SUBTYPE_MULTI_NN1,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN2,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN3,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN4,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN5,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN6,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN7,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN8,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN9,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN10,       7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN1,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN2,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN3,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN4,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN5,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN6,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN7,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN8,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN9,        7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
+  {MODULE_SUBTYPE_MULTI_NN10,       7, true,  true,   STR_SUBTYPE_NN,        STR_DEF(STR_MULTI_OPTION)},
   //
   // most likely no longer required
   //
-  {MM_RF_CUSTOM_SELECTED,           0, true,  false,  NO_SUBTYPE,            STR_MULTI_OPTION},
+  {MM_RF_CUSTOM_SELECTED,           0, true,  false,  NO_SUBTYPE,            STR_DEF(STR_MULTI_OPTION)},
 
   // Sentinel and default for protocols not listed above (MM_RF_CUSTOM is 0xff)
   {MODULE_SUBTYPE_MULTI_SENTINEL,   0, false, false,  NO_SUBTYPE,            nullptr},

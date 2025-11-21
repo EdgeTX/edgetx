@@ -43,6 +43,7 @@
 class GeneralSettings;
 class RadioDataConversionState;
 class AbstractStaticItemModel;
+class SourceNumRef;
 
 constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
 constexpr char AIM_MODELDATA_FUNCSWITCHCONFIG[]  {"modeldata.funcswitchconfig"};
@@ -125,19 +126,6 @@ class ModelData {
   public:
     ModelData();
     ModelData(const ModelData & src);
-    ModelData & operator = (const ModelData & src);
-
-    void convert(RadioDataConversionState & cstate);
-
-    ExpoData * insertInput(const int idx);
-    void removeInput(const int idx, bool clearName = true);
-
-    bool isInputValid(const unsigned int idx) const;
-    bool hasExpos(uint8_t inputIdx) const;
-    bool hasMixes(uint8_t output) const;
-
-    QVector<const ExpoData *> expos(int input) const;
-    QVector<const MixData *> mixes(int channel) const;
 
     char      semver[8 + 1];
     bool      used;
@@ -243,6 +231,22 @@ class ModelData {
     unsigned int usbJoystickCircularCut;
     USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
+    QByteArray checklistData;
+
+    ModelData & operator = (const ModelData & src);
+
+    void convert(RadioDataConversionState & cstate);
+
+    ExpoData * insertInput(const int idx);
+    void removeInput(const int idx, bool clearName = true);
+
+    bool isInputValid(const unsigned int idx) const;
+    bool hasExpos(uint8_t inputIdx) const;
+    bool hasMixes(uint8_t output) const;
+
+    QVector<const ExpoData *> expos(int input) const;
+    QVector<const MixData *> mixes(int channel) const;
+
     void clear();
     bool isEmpty() const;
     void setDefaultInputs(const GeneralSettings & settings);
@@ -259,12 +263,13 @@ class ModelData {
     float getGVarValuePrec(int phaseIdx, int gvarIdx);
     int getGVarFlightModeIndex(const int phaseIdx, const int gvarIdx);
     void setGVarFlightModeIndexToValue(const int phaseIdx, const int gvarIdx, const int useFmIdx);
-
-    bool isREncLinked(int phaseIdx, int reIdx);
-    bool isREncLinkedCircular(int phaseIdx, int reIdx);
-    int getREncValue(int phaseIdx, int reIdx);
-    int getREncFlightModeIndex(const int phaseIdx, const int reIdx);
-    void setREncFlightModeIndexToValue(const int phaseIdx, const int reIdx, const int useFmIdx);
+    void gvarClear(const int index, bool updateRefs = true);
+    void gvarSetMax(const int index, const float value);
+    void gvarSetMin(const int index, const float value);
+    void gvarSwap(const int index1, const int index2);
+    void gvarDelete(const int index);
+    void gvarInsert(const int index);
+    bool gvarInsertAllowed(const int index);
 
     ModelData removeGlobalVars();
 
@@ -283,7 +288,9 @@ class ModelData {
     bool isFunctionSwitchSourceAllowed(int index) const;
 
     const Board::SwitchType getSwitchType(int sw, const GeneralSettings & gs) const;
-  
+
+    QString getChecklistFilename() const;
+
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,
       REF_UPD_ACT_SHIFT,
@@ -424,4 +431,5 @@ class ModelData {
         value = swtch.toValue();
     }
     void updateResetParam(CustomFunctionData * cfd);
+    void updateSourceNumRef(int & value);
 };

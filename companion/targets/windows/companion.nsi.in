@@ -7,8 +7,10 @@
 
   !include "MUI2.nsh"
   !include "nsDialogs.nsh"
+  !include "LogicLib.nsh"
   !include "@NSIS_TARGETS_DIR@\FileAssociation.nsh"
-
+  !include "@NSIS_TARGETS_DIR@\FileFunc.nsh"
+  !include "@NSIS_TARGETS_DIR@\WordFunc.nsh"
 ;--------------------------------
 ;General
 
@@ -23,6 +25,7 @@
   InstallDirRegKey HKCU "Software\@PROJECT_NAME@\Companion @VERSION_FAMILY@" ""
 
   ;Compressor options
+  ;SetCompress off
   SetCompressor /FINAL /SOLID lzma
   SetCompressorDictSize 64
 
@@ -102,7 +105,75 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "@PROJECT_NAME@ Companion @VERSION_FAMILY@" SecDummy
+; Visual C++ Redistributable (x64) is a required dependency
+;
+
+!macro GetInstalledVCVersionCall _RESULT
+  Call GetInstalledVCVersion
+  Pop ${_RESULT}
+!macroend
+
+!macro GetInstalledVCVersion
+	!ifndef GetInstalledVCVersion
+    !define GetInstalledVCVersion `!insertmacro GetInstalledVCVersionCall`
+
+    Function GetInstalledVCVersion
+      ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
+      StrCpy $R1 "$R0" 1 # get first character
+      ${If} $R1 == "v"
+        StrCpy $R1 "$R0" "" 1 # strip off v prefix
+      ${EndIf}
+
+      Push $R1
+    FunctionEnd
+	!endif
+!macroend
+
+!define VCREDISTNAME "Microsoft Visual C++ 2015-2022 Redistributable"
+!define VCREDISTFILE "@NSIS_DISTRO@\bin\@NSIS_MSVC_REDIST_EXE@"
+!define VCREDISTEXE "@NSIS_MSVC_REDIST_EXE@"
+Var VCRedistExeVers
+Var VCInstVers
+
+!insertmacro GetFileVersion
+!insertmacro VersionCompare
+!insertmacro GetInstalledVCVersion
+
+Section "${VCREDISTNAME}" SecMSVC
+  Push $0
+  Push $1
+  SetOutPath "$TEMP"
+  File "${VCREDISTFILE}"
+  ${GetFileVersion} "$TEMP\${VCREDISTEXE}" $VCRedistExeVers
+  ${GetInstalledVCVersion} $VCInstVers
+  ${VersionCompare} "$VCInstVers" "$VCRedistExeVers" $R0
+  DetailPrint "VC++ Installed: $VCInstVers Redist: $VCRedistExeVers Result: $R0"
+  ${If} $R0 == "2"
+    DetailPrint "Installing ${VCREDISTNAME}..."
+    ExecWait "$TEMP\${VCREDISTEXE} /install /passive /norestart"
+    ;IfErrors InstallError ContinueInstall ; vc_redist exit code is unreliable
+    ${GetInstalledVCVersion} $VCInstVers
+    ${VersionCompare} "$VCInstVers" "$VCRedistExeVers" $R0
+    ${If} $R0 == "0"
+      Goto ContinueInstall
+    ${EndIf}
+
+    MessageBox MB_ICONSTOP "\
+      There was an unexpected error installing$\r$\n\
+      ${VCREDISTNAME}.$\r$\n\
+      The installation of @PROJECT_NAME@ cannot continue."
+    Abort
+  ${EndIf}
+
+  ContinueInstall:
+    Delete "$TEMP\${VCREDISTEXE}"
+    SetOutPath "$INSTDIR" ; Restore original output path
+    Pop $1
+    Pop $0
+
+SectionEnd
+
+Section "@PROJECT_NAME@ Companion @VERSION_FAMILY@" SecCpn
 
   SetOutPath "$INSTDIR"
 
@@ -147,8 +218,11 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecDummy    ${LANG_ENGLISH} "Models and settings editor for @PROJECT_NAME@"
-  LangString DESC_SecDummy    ${LANG_FRENCH} "Editeur de r�glages et mod�les pour @PROJECT_NAME@"
+  LangString DESC_SecCpn      ${LANG_ENGLISH} "Models and settings editor for @PROJECT_NAME@"
+  LangString DESC_SecCpn      ${LANG_FRENCH}  "Editeur de r glages et mod les pour @PROJECT_NAME@"
+  LangString DESC_SecMSVC     ${LANG_ENGLISH} "Install or update runtime library support files necessary for Companion"
+  LangString DESC_SecMSVC     ${LANG_FRENCH}  "Fichiers de support de bibliothèque d'exécution nécessaires pour Companion"
+  
   LangString SML_SubTitle     ${LANG_ENGLISH} "Choose a location for the Start Menu shortcuts"
   LangString SML_SubTitle     ${LANG_FRENCH}  "Choisissez un emplacement pour les raccourcis de l'application"
   LangString SML_MainLabel    ${LANG_ENGLISH} "Create start menu shortcuts for:"
@@ -160,11 +234,16 @@ SectionEnd
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDummy} $(DESC_SecDummy)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCpn}  $(DESC_SecCpn)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMSVC} $(DESC_SecMSVC)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
 ;Uninstaller Section
+
+Section "un.${VCREDISTNAME}"
+
+SectionEnd
 
 Section "un.@PROJECT_NAME@ Companion @VERSION_FAMILY@"
 

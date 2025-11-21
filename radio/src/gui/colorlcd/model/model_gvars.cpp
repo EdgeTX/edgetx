@@ -110,7 +110,7 @@ class GVarButton : public ListLineButton
 
     currentFlightMode = getFlightMode();
 
-    auto nm = lv_label_create(lvobj);
+    auto nm = etx_label_create(lvobj);
     lv_label_set_text(nm, getGVarString(index));
     lv_obj_set_pos(nm, PAD_TINY, GVAR_NM_Y);
     lv_obj_set_size(nm, GVAR_NAME_SIZE, EdgeTxStyles::STD_FONT_HEIGHT);
@@ -128,7 +128,7 @@ class GVarButton : public ListLineButton
         updateValueText(flightMode);
       }
     } else {
-      valueTexts[0] = lv_label_create(lvobj);
+      valueTexts[0] = etx_label_create(lvobj);
       lv_obj_set_pos(valueTexts[0], GVAR_NAME_SIZE + PAD_MEDIUM, (BTN_H - EdgeTxStyles::STD_FONT_HEIGHT - PAD_SMALL) / 2);
 
       updateValueText(0);
@@ -507,8 +507,8 @@ class GVarEditWindow : public Page
   }
 };
 
-ModelGVarsPage::ModelGVarsPage() :
-    PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS)
+ModelGVarsPage::ModelGVarsPage(PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -534,7 +534,7 @@ void ModelGVarsPage::build(Window* window)
   if (modelFMEnabled()) {
     window->padTop(PAD_OUTLINE);
     hdr = new GVarHeader(window->getParent());
-    lv_obj_set_pos(hdr->getLvObj(), 0, TabsGroup::MENU_TITLE_TOP + TabsGroup::MENU_TITLE_HEIGHT);
+    lv_obj_set_pos(hdr->getLvObj(), 0, PageGroup::PAGE_TOP_BAR_H);
     yo = GVarHeader::HDR_H;
   }
 

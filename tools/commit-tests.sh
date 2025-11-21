@@ -1,38 +1,15 @@
 #!/bin/bash
 
-# Stops on first error, echo on
+# Stop on first error, echo on
 set -e
 set -x
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
 
-# Allow variable core usage
-# default uses all cpu cores
-#
-if [ -f /usr/bin/nproc ]; then
-    num_cpus=$(nproc)
-elif [ -f /usr/sbin/sysctl ]; then
-    num_cpus=$(sysctl -n hw.logicalcpu)
-else
-    num_cpus=2
-fi
-: "${CORES:=$num_cpus}"
-
-# If no build target, exit
-#: "${FLAVOR:=ALL}"
-
 for i in "$@"
 do
 case $i in
-    --jobs=*)
-      CORES="${i#*=}"
-      shift
-      ;;
-    -j*)
-      CORES="${i#*j}"
-      shift
-      ;;
     -Wno-error)
       WERROR=0
       shift
@@ -57,9 +34,12 @@ if (( $WERROR )); then COMMON_OPTIONS+=" -DWARNINGS_AS_ERRORS=YES "; fi
 
 : ${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}
 
-COMMON_OPTIONS+=${EXTRA_OPTIONS}
+COMMON_OPTIONS+=${EXTRA_OPTIONS}" "
 
 : ${FIRMARE_TARGET:="firmware-size"}
+
+# Determine parallel jobs
+determine_max_jobs
 
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
@@ -79,12 +59,12 @@ do
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
 
-    cmake --build . --target arm-none-eabi-configure
-    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
+    cmake_build_parallel . --target arm-none-eabi-configure
+    cmake_build_parallel arm-none-eabi --target ${FIRMARE_TARGET}
 
-    cmake --build . --target native-configure
-    cmake --build native -j"${CORES}" --target libsimulator
-    cmake --build native -j"${CORES}" --target tests-radio
+    cmake_build_parallel . --target native-configure
+    cmake_build_parallel native --target libsimulator
+    cmake_build_parallel native --target tests-radio
 
     rm -f CMakeCache.txt native/CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done

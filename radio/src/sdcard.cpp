@@ -191,7 +191,7 @@ const char * getBasename(const char * path)
   return path;
 }
 
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
 bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)
 {
   static uint16_t lastpopupMenuOffset = 0;
@@ -341,7 +341,7 @@ bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen
   return popupMenuItemsCount;
 }
 
-#endif // !LIBOPENUI
+#endif // !COLORLCD
 
 const char * sdCopyFile(const char * srcPath, const char * destPath)
 {

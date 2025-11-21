@@ -22,6 +22,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QTextCursor>
 
 namespace Ui {
   class ProgressWidget;
@@ -41,9 +42,9 @@ class ProgressWidget : public QWidget
 
   public slots:
     void lock(bool lock);
-    void addText(const QString &text, const bool richText = false);
-    void addHtml(const QString &text);
-    void addMessage(const QString & text, const int & type = QtInfoMsg, bool richText = false);
+    void addText(const QString &text, const bool richText = false, const bool updateLast = false);
+    void addHtml(const QString &text, const bool updateLast = false);
+    void addMessage(const QString & text, const int & type = QtInfoMsg, const bool richText = false, const bool updateLast = false);
     void setInfo(const QString &text);
     void setMaximum(int value);
     void setValue(int value);
@@ -54,6 +55,8 @@ class ProgressWidget : public QWidget
     void clearDetails() const;
     void forceKeepOpen(bool value);
     void refresh();
+    void updateInfoAndMessages(const QString & text, const int & type = QtInfoMsg, const bool richText = false);
+    void updateLastMessage(const QString & text, const int & type = QtInfoMsg, const bool richText = false);
 
   signals:
     void detailsToggled();

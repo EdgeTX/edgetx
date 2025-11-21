@@ -388,8 +388,9 @@ class ModuleWindow : public Window
     if (isModuleRFAccess(moduleIdx)) {
       for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE;
           receiverIdx++) {
-        char label[] = TR_RECEIVER " X";
-        label[sizeof(label) - 2] = '1' + receiverIdx;
+        char label[40];
+        char* s = strAppend(label, STR_RECEIVER);
+        strAppendUnsigned(s, receiverIdx + 1);
 
         auto line = newLine(grid);
         new StaticText(line, rect_t{}, label);
@@ -729,7 +730,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   const char* title2 =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
-  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
   header->setTitle2(title2);
 
   body->setFlexLayout();
@@ -750,6 +751,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                  MODULE_TYPE_COUNT - 1, GET_DEFAULT(md->type));
 
   moduleChoice->setAvailableHandler([=](int8_t moduleType) {
+    if (moduleType == MODULE_TYPE_NONE) return true;
     return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType)
                                         : isExternalModuleAvailable(moduleType);
   });

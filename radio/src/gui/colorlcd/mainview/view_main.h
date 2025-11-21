@@ -24,9 +24,10 @@
 #include "topbar.h"
 #include "window.h"
 
+class QuickMenu;
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
-class ViewMainMenu;
+class TopBar;
 
 class ViewMain : public NavWindow
 {
@@ -95,7 +96,7 @@ class ViewMain : public NavWindow
   TopBar* topbar = nullptr;
   bool widget_select = false;
   lv_timer_t* widget_select_timer = nullptr;
-  ViewMainMenu* viewMainMenu = nullptr;
+  QuickMenu* viewMainMenu = nullptr;
 
   void deleteLater(bool detach = true, bool trash = true) override;
 
@@ -110,6 +111,7 @@ class ViewMain : public NavWindow
   static void ws_timer(lv_timer_t* t);
 
 #if defined(HARDWARE_KEYS)
+  void doKeyShortcut(event_t event);
   void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;

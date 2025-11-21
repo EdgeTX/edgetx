@@ -7,6 +7,7 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -26,8 +27,6 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 YES)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
-
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 
 # IMU support
 set(IMU ON)
@@ -67,20 +66,18 @@ set(FUNCTION_SWITCHES ON)
 add_definitions(
   -DSTM32H750ZBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
-  -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
   -DWS2812_MAX_LEDS=24
 )
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
@@ -133,7 +130,6 @@ set(BOARD_COMMON_SRC
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/system_clock.c
   ${TARGET_SRC_DIR}/sdram_driver.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
@@ -141,6 +137,8 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board_bl minimal_board_lib)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
+
+set(CMSIS_SRC ${TARGET_SRC_DIR}/system_clock.c)
 
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL

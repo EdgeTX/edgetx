@@ -2,8 +2,9 @@
 project(generaledit)
 
 set(${PROJECT_NAME}_NAMES
-  calibration
   generaledit
+  generalfavorites
+  generalkeyshortcuts
   generaloptions
   generalsetup
   hardware

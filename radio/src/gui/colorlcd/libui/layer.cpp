@@ -23,7 +23,7 @@ std::list<Layer> Layer::stack;
 Layer::Layer(Window* w, lv_group_t* g) : window(w), group(g) {}
 Layer::~Layer() { lv_group_del(group); }
 
-static void _assign_lv_group(lv_group_t* g)
+void _assign_lv_group(lv_group_t* g)
 {
   lv_group_set_default(g);
 
@@ -58,6 +58,7 @@ void Layer::pop(Window* w)
         return;
       }
     }
+    return;
   }
 
   if (!stack.empty()) {
@@ -82,4 +83,22 @@ Window* Layer::getFirstOpaque()
   }
 
   return nullptr;
+}
+
+Window* Layer::walk(std::function<bool(Window* w)> check)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window && check(layer->window))
+      return layer->window;
+  }
+
+  return nullptr;
+}
+
+Window* Layer::getPageGroup()
+{
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->isPageGroup();
+  });
+  return w;
 }

@@ -23,7 +23,6 @@
 #include "multi_rfprotos.h"
 #include "strhelpers.h"
 #include "audio.h"
-#include "translations.h"
 #include "pulses/modules_helpers.h"
 #include "pulses/pulses.h"
 #include "gui_common.h"

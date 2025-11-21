@@ -37,7 +37,7 @@
   #define CASE_ROTARY_ENCODER(x)
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 typedef std::function<bool(int)> IsValueAvailable;
 #else
 typedef bool (*IsValueAvailable)(int);
@@ -53,18 +53,16 @@ enum SwitchContext
 
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
+bool isChannelUsed(int channel);
 bool checkSourceAvailable(int source, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
 bool isInputAvailable(int input);
-bool isSourceAvailableInInputs(int source);
 bool isThrottleSourceAvailable(int source);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailable(int source);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
-bool isSourceAvailableInGlobalFunctions(int source);
-bool isSourceAvailableInCustomSwitches(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);
 bool isSourceAvailableInGlobalResetSpecialFunction(int index);
 bool isSwitchAvailable(int swtch, SwitchContext context);
@@ -113,7 +111,7 @@ bool confirmModelChange();
 bool isSwitch2POSWarningStateAvailable(int state);
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 #define IS_INSTANT_TRIM_ALLOWED()     true
 #elif defined(GUI)
 #define IS_INSTANT_TRIM_ALLOWED()      (IS_MAIN_VIEW_DISPLAYED() || IS_TELEMETRY_VIEW_DISPLAYED() || IS_OTHER_VIEW_DISPLAYED())

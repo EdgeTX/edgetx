@@ -69,10 +69,12 @@ static bool _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t*
 
   // S.PORT specific HW settings
   if (port->port == ETX_MOD_PORT_SPORT && params->baudrate >= 400000) {
+#if defined(STM32F2) || defined(STM32F4)
     // one-bit
     if (g_eeGeneral.uartSampleMode == UART_SAMPLE_MODE_ONEBIT) {
       if (drv->setHWOption) drv->setHWOption(d->ctx, ETX_HWOption_ONEBIT);
     }
+#endif
   }
 
   // setup polarity
@@ -293,6 +295,22 @@ etx_module_state_t* modulePortGetState(uint8_t module)
 uint8_t modulePortGetModule(etx_module_state_t* st)
 {
   return st - _module_states;
+}
+
+bool modulePortSerialTxCompleted(void* ctx)
+{
+  auto st = (etx_module_state_t*)ctx;
+  auto drv = modulePortGetSerialDrv(st->tx);
+  auto drv_ctx = modulePortGetCtx(st->tx);
+  return drv->txCompleted(drv_ctx);
+}
+
+bool modulePortTimerTxCompleted(void* ctx)
+{
+  auto st = (etx_module_state_t*)ctx;
+  auto drv = modulePortGetTimerDrv(st->tx);
+  auto drv_ctx = modulePortGetCtx(st->tx);
+  return drv->txCompleted(drv_ctx);
 }
 
 bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port)

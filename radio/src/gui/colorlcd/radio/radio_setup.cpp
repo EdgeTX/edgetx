@@ -33,6 +33,8 @@
 #include "storage/modelslist.h"
 #include "tasks/mixer_task.h"
 #include "slider.h"
+#include "key_shortcuts.h"
+#include "quick_menu_favorites.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -191,7 +193,7 @@ class DateTimeWindow : public Window
 static SetupLineDef soundPageSetupLines[] = {
   {
     // Beeps mode
-    STR_SPEAKER,
+    STR_DEF(STR_MODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VBEEPMODE, -2, 1,
                  GET_SET_DEFAULT(g_eeGeneral.beepMode));
@@ -199,7 +201,7 @@ static SetupLineDef soundPageSetupLines[] = {
   },
   {
     // Main volume
-    STR_VOLUME,
+    STR_DEF(STR_VOLUME),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -VOLUME_LEVEL_DEF,
                   VOLUME_LEVEL_MAX - VOLUME_LEVEL_DEF,
@@ -208,7 +210,7 @@ static SetupLineDef soundPageSetupLines[] = {
   },
   {
     // Beeps volume
-    STR_BEEP_VOLUME,
+    STR_DEF(STR_BEEP_VOLUME),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.beepVolume)))->setPos(x, y);
@@ -216,7 +218,7 @@ static SetupLineDef soundPageSetupLines[] = {
   },
   {
     // Beeps length
-    STR_BEEP_LENGTH,
+    STR_DEF(STR_BEEP_LENGTH),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.beepLength)))->setPos(x, y);
@@ -224,7 +226,7 @@ static SetupLineDef soundPageSetupLines[] = {
   },
   {
     // Beeps pitch
-    STR_BEEP_PITCH,
+    STR_DEF(STR_BEEP_PITCH),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(parent, rect_t{x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 300,
                                 GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
@@ -239,7 +241,7 @@ static SetupLineDef soundPageSetupLines[] = {
   },
   {
     // Wav volume
-    STR_WAV_VOLUME,
+    STR_DEF(STR_WAV_VOLUME),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                  GET_SET_DEFAULT(g_eeGeneral.wavVolume)))->setPos(x, y);
@@ -247,7 +249,7 @@ static SetupLineDef soundPageSetupLines[] = {
   },
   {
     // Background volume
-    STR_BG_VOLUME,
+    STR_DEF(STR_BG_VOLUME),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.backgroundVolume)))->setPos(x, y);
@@ -260,14 +262,14 @@ static SetupLineDef soundPageSetupLines[] = {
 static SetupLineDef varioPageSetupLines[] = {
   {
     // Vario volume
-    STR_VOLUME,
+    STR_DEF(STR_VOLUME),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.varioVolume)))->setPos(x, y);
     }
   },
   {
-    STR_PITCH_AT_ZERO,
+    STR_DEF(STR_PITCH_AT_ZERO),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(
           parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
@@ -279,7 +281,7 @@ static SetupLineDef varioPageSetupLines[] = {
     }
   },
   {
-    STR_PITCH_AT_MAX,
+    STR_DEF(STR_PITCH_AT_MAX),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(
           parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 900, 2500,
@@ -294,7 +296,7 @@ static SetupLineDef varioPageSetupLines[] = {
     }
   },
   {
-    STR_REPEAT_AT_ZERO,
+    STR_DEF(STR_REPEAT_AT_ZERO),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(
           parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 200, 1000,
@@ -312,7 +314,7 @@ static SetupLineDef varioPageSetupLines[] = {
 static SetupLineDef hapticPageSetupLines[] = {
   {
     // Haptic mode
-    STR_MODE,
+    STR_DEF(STR_MODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VBEEPMODE, -2, 1,
                  GET_SET_DEFAULT(g_eeGeneral.hapticMode));
@@ -320,7 +322,7 @@ static SetupLineDef hapticPageSetupLines[] = {
   },
   {
     // Haptic duration
-    STR_LENGTH,
+    STR_DEF(STR_LENGTH),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.hapticLength)))->setPos(x, y);
@@ -328,7 +330,7 @@ static SetupLineDef hapticPageSetupLines[] = {
   },
   {
     // Haptic strength
-    STR_STRENGTH,
+    STR_DEF(STR_STRENGTH),
     [](Window* parent, coord_t x, coord_t y) {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.hapticStrength)))->setPos(x, y);
@@ -340,7 +342,7 @@ static SetupLineDef hapticPageSetupLines[] = {
 static SetupLineDef alarmsPageSetupLines[] = {
   {
     // Battery warning
-    STR_BATTERYWARNING,
+    STR_DEF(STR_BATTERYWARNING),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 30, 120,
                                 GET_SET_DEFAULT(g_eeGeneral.vBatWarn), PREC1);
@@ -349,7 +351,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
   },
   {
     // Inactivity alarm
-    STR_INACTIVITYALARM,
+    STR_DEF(STR_INACTIVITYALARM),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW * 3 / 2, 0}, 0, 250,
                                  GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
@@ -380,7 +382,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
   },
   {
     // Alarms warning
-    STR_ALARMWARNING,
+    STR_DEF(STR_ALARMWARNING),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0},
                        GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
@@ -388,7 +390,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
   },
   {
     // RSSI shutdown alarm
-    STR_RSSI_SHUTDOWN_ALARM,
+    STR_DEF(STR_RSSI_SHUTDOWN_ALARM),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0},
                        GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
@@ -396,7 +398,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
   },
   {
     // Trainer shutdown alarm
-    STR_TRAINER_SHUTDOWN_ALARM,
+    STR_DEF(STR_TRAINER_SHUTDOWN_ALARM),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0},
                        GET_SET_INVERTED(g_eeGeneral.disableTrainerPoweroffAlarm));
@@ -407,7 +409,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
 class BacklightPage : public SubPage
 {
  public:
-  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_BACKLIGHT_LABEL, true)
+  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, true)
   {
     body->setFlexLayout();
 
@@ -534,7 +536,7 @@ class BacklightPage : public SubPage
 static SetupLineDef gpsPageSetupLines[] = {
   {
     // Timezone
-    STR_TIMEZONE,
+    STR_DEF(STR_TIMEZONE),
     [](Window* parent, coord_t x, coord_t y) {
       auto tz = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, minTimezone(), maxTimezone(),
                               []() {
@@ -551,14 +553,14 @@ static SetupLineDef gpsPageSetupLines[] = {
   },
   {
     // Adjust RTC (from telemetry)
-    STR_ADJUST_RTC,
+    STR_DEF(STR_ADJUST_RTC),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
     }
   },
   {
     // GPS format
-    STR_GPS_COORDS_FORMAT,
+    STR_DEF(STR_GPS_COORDS_FORMAT),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_GPSFORMAT, 0, 1,
                  GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
@@ -581,10 +583,10 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
 
 static SetupLineDef viewOptionsPageSetupLines[] = {
   {
-    STR_RADIO_MENU_TABS, nullptr,
+    STR_DEF(STR_RADIO_MENU_TABS), nullptr,
   },
   {
-    STR_THEME_EDITOR,
+    STR_DEF(STR_MAIN_MENU_THEMES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
@@ -592,7 +594,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENUSPECIALFUNCS,
+    STR_DEF(STR_MENUSPECIALFUNCS),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
@@ -600,7 +602,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENUTRAINER,
+    STR_DEF(STR_MENUTRAINER),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled),
@@ -608,11 +610,11 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MODEL_MENU_TABS, nullptr,
+    STR_DEF(STR_MODEL_MENU_TABS), nullptr,
   },
 #if defined(HELI)
   {
-    STR_MENUHELISETUP,
+    STR_DEF(STR_MENUHELISETUP),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled),
@@ -622,7 +624,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 #endif
 #if defined(FLIGHT_MODES)
   {
-    STR_MENUFLIGHTMODES,
+    STR_DEF(STR_MENUFLIGHTMODES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelFMDisabled),
@@ -632,7 +634,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 #endif
 #if defined(GVARS)
   {
-    STR_MENU_GLOBAL_VARS,
+    STR_DEF(STR_MENU_GLOBAL_VARS),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelGVDisabled),
@@ -641,7 +643,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   },
 #endif
   {
-    STR_MENUCURVES,
+    STR_DEF(STR_MENUCURVES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
@@ -649,7 +651,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENULOGICALSWITCHES,
+    STR_DEF(STR_MENULOGICALSWITCHES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelLSDisabled),
@@ -657,7 +659,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENUCUSTOMFUNC,
+    STR_DEF(STR_MENUCUSTOMFUNC),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),
@@ -666,7 +668,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   },
 #if defined(LUA_MODEL_SCRIPTS)
   {
-    STR_MENUCUSTOMSCRIPTS,
+    STR_DEF(STR_MENUCUSTOMSCRIPTS),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled),
@@ -675,7 +677,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   },
 #endif
   {
-    STR_MENUTELEMETRY,
+    STR_DEF(STR_MENUTELEMETRY),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled),
@@ -687,7 +689,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 class ManageModelsSetupPage : public SubPage
 {
  public:
-  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_RADIO_SETUP, STR_MANAGE_MODELS, true)
+  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MAIN_MENU_RADIO_SETTINGS, STR_MANAGE_MODELS, true)
   {
     body->setFlexLayout();
 
@@ -739,7 +741,7 @@ class ManageModelsSetupPage : public SubPage
 static SetupLineDef setupLines[] = {
   {
     // Splash screen
-    STR_SPLASHSCREEN,
+    STR_DEF(STR_SPLASHSCREEN),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(
           parent, {x, y, 0, 0}, STR_SPLASHSCREEN_DELAYS, 0, 7,
@@ -752,7 +754,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Play startup sound
-    STR_PLAY_HELLO,
+    STR_DEF(STR_PLAY_HELLO),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
     }
@@ -760,7 +762,7 @@ static SetupLineDef setupLines[] = {
 #if defined(PWR_BUTTON_PRESS)
   {
     // Pwr Off Delay
-    STR_PWR_OFF_DELAY,
+    STR_DEF(STR_PWR_OFF_DELAY),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(
           parent, {x, y, 0, 0}, STR_PWR_OFF_DELAYS, 0, 4,
@@ -774,7 +776,7 @@ static SetupLineDef setupLines[] = {
 
   // Pwr Off If Inactive
   {
-    STR_PWR_AUTO_OFF,
+    STR_DEF(STR_PWR_AUTO_OFF),
      [](Window* parent, coord_t x, coord_t y) {
        auto edit = new NumberEdit(parent,{x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0,
            255, GET_SET_DEFAULT(g_eeGeneral.pwrOffIfInactive));
@@ -785,7 +787,7 @@ static SetupLineDef setupLines[] = {
 #if defined(HAPTIC)
   {
     // Power on/off haptic alarm
-      STR_PWR_ON_OFF_HAPTIC,
+      STR_DEF(STR_PWR_ON_OFF_HAPTIC),
       [](Window* parent, coord_t x, coord_t y) {
         new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
       }
@@ -794,7 +796,7 @@ static SetupLineDef setupLines[] = {
 #if defined(PXX2)
   {
     // Owner ID
-    STR_OWNER_ID,
+    STR_DEF(STR_OWNER_ID),
     [](Window* parent, coord_t x, coord_t y) {
       new RadioTextEdit(parent, {x, y, 0, 0}, g_eeGeneral.ownerRegistrationID,
                         PXX2_LEN_REGISTRATION_ID);
@@ -803,7 +805,7 @@ static SetupLineDef setupLines[] = {
 #endif
   {
     // Country code
-    STR_COUNTRY_CODE,
+    STR_DEF(STR_COUNTRY_CODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_COUNTRY_CODES, 0, 2,
                 GET_SET_DEFAULT(g_eeGeneral.countryCode));
@@ -811,7 +813,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Audio language
-    STR_VOICE_LANGUAGE,
+    STR_DEF(STR_VOICE_LANGUAGE),
     [](Window* parent, coord_t x, coord_t y) {
       auto choice =
           new Choice(parent, {x, y, 0, 0}, 0, DIM(languagePacks) - 2,
@@ -820,14 +822,41 @@ static SetupLineDef setupLines[] = {
                       currentLanguagePack = languagePacks[currentLanguagePackIdx];
                       strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
                       SET_DIRTY();
+#if defined(ALL_LANGS)
+                      currentLangStrings = langStrings[currentLanguagePackIdx];
+                      extern void setLanguageFont(int idx);
+                      setLanguageFont(currentLanguagePackIdx);
+                      PageGroup* pg = (PageGroup*)Layer::getPageGroup();
+                      coord_t y = pg->getScrollY();
+                      pg->onCancel();
+                      QuickMenu::openPage(QM_RADIO_SETUP);
+                      pg = (PageGroup*)Layer::getPageGroup();
+                      pg->setScrollY(y);
+                      // Force QM rebuild for language change
+                      QuickMenu::shutdownQuickMenu();
+#endif
                     });
+#if !defined(ALL_LANGS)
       choice->setTextHandler(
           [](uint8_t value) { return languagePacks[value]->name; });
+#else
+      choice->setTextHandler(
+          [](uint8_t value) {
+            // TODO: language name should always be in the language of the name, not
+            //       the current UI language. Needs translation characters to be
+            //       always available for all language names in the base font.
+            //       temp solution - prepend language id to name.
+            std::string s(languagePacks[value]->id);
+            s += " - ";
+            s += languagePacks[value]->name();
+            return s;
+          });
+#endif
     }
   },
   {
     // Imperial units
-    STR_UNITS_SYSTEM,
+    STR_DEF(STR_UNITS_SYSTEM),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_VUNITSSYSTEM, 0, 1,
                 GET_SET_DEFAULT(g_eeGeneral.imperial));
@@ -835,7 +864,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // PPM units
-    STR_UNITS_PPM,
+    STR_DEF(STR_UNITS_PPM),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
                 GET_SET_DEFAULT(g_eeGeneral.ppmunit));
@@ -843,7 +872,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Switches delay
-    STR_SWITCHES_DELAY,
+    STR_DEF(STR_SWITCHES_DELAY),
     [](Window* parent, coord_t x, coord_t y) {
       auto edit =
           new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 100,
@@ -855,7 +884,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // USB mode
-    STR_USBMODE,
+    STR_DEF(STR_USBMODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
                 GET_SET_DEFAULT(g_eeGeneral.USBMode));
@@ -863,7 +892,7 @@ static SetupLineDef setupLines[] = {
   },
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   {
-    STR_ROTARY_ENC_MODE,
+    STR_DEF(STR_ROTARY_ENC_MODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
                 ROTARY_ENCODER_MODE_INVERT_BOTH,
@@ -873,7 +902,7 @@ static SetupLineDef setupLines[] = {
 #endif
 #if defined(USE_HATS_AS_KEYS)
   {
-    STR_HATSMODE,
+    STR_DEF(STR_HATSMODE),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, RadioSetupPage::HATS_MODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
                 HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
@@ -887,7 +916,7 @@ static SetupLineDef setupLines[] = {
 #endif
   {
     // RX channel order
-    STR_DEF_CHAN_ORD,
+    STR_DEF(STR_DEF_CHAN_ORD),
     [](Window* parent, coord_t x, coord_t y) {
       uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
       auto max_order = inputMappingGetMaxChannelOrder() - 1;
@@ -905,7 +934,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Stick mode
-    STR_MODE,
+    STR_DEF(STR_MODE),
     [](Window* parent, coord_t x, coord_t y) {
       auto choice = new Choice(parent, {x, y, 0, 0}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                           [=](uint8_t newValue) {
@@ -926,7 +955,16 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP, PAD_TINY) {}
+RadioSetupPage::RadioSetupPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
+
+static bool hasShortcutKeys()
+{
+#if defined(USE_HATS_AS_KEYS)
+  return true;
+#else
+  return keysGetSupported() & ((1 << KEY_MODEL) | (1 << KEY_SYS) | (1 << KEY_TELE));
+#endif
+}
 
 void RadioSetupPage::build(Window* window)
 {
@@ -940,19 +978,21 @@ void RadioSetupPage::build(Window* window)
   // Sub-pages
   w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
 #if defined(AUDIO)
-    {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
+    {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
 #endif
 #if defined(VARIO)
-    {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
+    {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
 #endif
 #if defined(HAPTIC)
-    {STR_HAPTIC_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
+    {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
 #endif
-    {STR_ALARMS_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
-    {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
-    {STR_GPS, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
-    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
-    {STR_MAIN_MENU_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
+    {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
+    {STR_DEF(STR_BACKLIGHT_LABEL), []() { new BacklightPage(); }},
+    {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
+    {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
+    {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
+    {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, [=]() { return hasShortcutKeys(); }},
+    {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
   }, BTN_H);
   y += w->height() + padding;
 

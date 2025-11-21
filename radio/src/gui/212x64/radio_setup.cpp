@@ -85,6 +85,7 @@ enum MenuRadioSetupItems {
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_AUTO_OFF)
   CASE_HAPTIC(ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC)
+  ITEM_MODEL_QUICK_SELECT,
 #if defined(PXX2)
   ITEM_RADIO_SETUP_OWNER_ID,
 #endif
@@ -218,6 +219,7 @@ void menuRadioSetup(event_t event)
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed
     CASE_PWR_BUTTON_PRESS(0) // pwr auto off
     CASE_HAPTIC(0) // power on/off haptic
+    0, // Model quick select
     CASE_PXX2(0) // owner registration ID
     // GPS
     CASE_GPS(LABEL(GPS))
@@ -362,7 +364,7 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_BEEP_MODE:
-        g_eeGeneral.beepMode = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr, event, INDENT_WIDTH);
+        g_eeGeneral.beepMode = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_MODE, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_RADIO_SETUP_GENERAL_VOLUME:
@@ -599,6 +601,13 @@ void menuRadioSetup(event_t event)
       }
 #endif
 
+      case ITEM_MODEL_QUICK_SELECT:
+        lcdDrawTextAlignedLeft(y, STR_MODEL_QUICK_SELECT);
+        g_eeGeneral.modelQuickSelect =
+            editCheckBox(g_eeGeneral.modelQuickSelect, RADIO_SETUP_2ND_COLUMN, y,
+                          nullptr, attr, event);
+        break;
+
 #if defined(GPS)
       case ITEM_RADIO_SETUP_LABEL_GPS:
         lcdDrawTextAlignedLeft(y, STR_GPS);
@@ -636,12 +645,21 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_LANGUAGE:
         lcdDrawTextAlignedLeft(y, STR_VOICE_LANGUAGE);
+#if !defined(ALL_LANGS)
         lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, currentLanguagePack->name, attr);
+#else
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, currentLanguagePack->name(), attr);
+#endif
         if (attr) {
           currentLanguagePackIdx = checkIncDec(event, currentLanguagePackIdx, 0, DIM(languagePacks)-2, EE_GENERAL);
           if (checkIncDec_Ret) {
             currentLanguagePack = languagePacks[currentLanguagePackIdx];
             strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
+#if defined(ALL_LANGS)
+            currentLangStrings = langStrings[currentLanguagePackIdx];
+            extern void setLanguageFont(int n);
+            setLanguageFont(currentLanguagePackIdx);
+#endif
           }
         }
         break;
@@ -741,7 +759,7 @@ void menuRadioSetup(event_t event)
         expandState.viewOpt = expandableSection(y, STR_ENABLED_FEATURES, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
-        lcdDrawTextIndented(y, TR_RADIO_MENU_TABS);
+        lcdDrawTextIndented(y, STR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
         g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event, g_model.radioGFDisabled);
@@ -750,7 +768,7 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event, g_model.radioTrainerDisabled);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
-        lcdDrawTextIndented(y, TR_MODEL_MENU_TABS);
+        lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:

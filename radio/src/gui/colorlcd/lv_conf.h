@@ -440,6 +440,8 @@
 
 #if !defined(BOOT)
 
+#if !defined(SIMU)
+
 #if defined(TRANSLATIONS_CN)
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_cn_STD)
   #define LV_FONT_DEFAULT &lv_font_cn_STD
@@ -464,6 +466,12 @@
 #else
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_en_STD)
   #define LV_FONT_DEFAULT &lv_font_en_STD
+#endif
+
+#else
+/* Simulator font */
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_en_STD)
+#define LV_FONT_DEFAULT &lv_font_en_STD
 #endif
 
 #else
@@ -523,7 +531,11 @@
 /*Support bidirectional texts. Allows mixing Left-to-Right and Right-to-Left texts.
  *The direction will be processed according to the Unicode Bidirectional Algorithm:
  *https://www.w3.org/International/articles/inline-bidi-markup/uba-basics*/
+#if defined(SIMU)
+#define LV_USE_BIDI 1
+#else
 #define LV_USE_BIDI TRANSLATION_IS_RTL
+#endif
 #if LV_USE_BIDI
     /*Set the default direction. Supported values:
     *`LV_BASE_DIR_LTR` Left-to-Right

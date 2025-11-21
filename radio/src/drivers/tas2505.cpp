@@ -128,14 +128,18 @@ int tas2505_init(tas2505_t* dev)
   return 0;
 }
 
-void tas2505_set_volume(tas2505_t* dev, uint8_t volume)
+void tas2505_set_volume(tas2505_t* dev, uint8_t volume, bool headphone_mode = false)
 {
   // maximum volume is 0x00 and total silence is 0xFE
-  if (volume == 0)
-  {
-    volume = 0xfe;
+  if (volume == 0) {
+    volume = 0xFE;
+  } 
+    
+  if (headphone_mode) {
+    tas2505_write_reg(dev, TAS2505_SPKVOL1, 0xFE);
+    tas2505_write_reg(dev, TAS2505_HP_VOL, volume);
+  } else {
+    tas2505_write_reg(dev, TAS2505_SPKVOL1, volume);
+    tas2505_write_reg(dev, TAS2505_HP_VOL, 0xFE);
   }
-
-  tas2505_write_reg(dev, TAS2505_SPKVOL1, volume);
-  tas2505_write_reg(dev, TAS2505_HP_VOL, volume);
 }

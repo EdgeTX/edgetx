@@ -30,8 +30,7 @@
 #define CPN_MAX_EXPOS                  64
 #define CPN_MAX_CURVES                 32
 #define CPN_MAX_POINTS                 17
-#define CPN_MAX_GVARS                  9
-#define CPN_MAX_ENCODERS               2  // rotary encoders
+#define CPN_MAX_GVARS                  15 // 0, 9, 15
 #define CPN_MAX_CHNOUT                 32 // number of real output channels
 #define CPN_MAX_LOGICAL_SWITCHES       64 // number of custom switches
 #define CPN_MAX_SPECIAL_FUNCTIONS      64 // number of functions assigned to switches
@@ -43,7 +42,7 @@
 #define CPN_MAX_SWITCHES_FUNCTION      8
 #define CPN_MAX_SWITCHES_STD           20
 #define CPN_MAX_SWITCHES               (CPN_MAX_SWITCHES_STD + CPN_MAX_SWITCHES_FLEX + CPN_MAX_SWITCHES_FUNCTION)
-#define CPN_MAX_SENSORS                60
+#define CPN_MAX_SENSORS                99
 #define CPN_MAX_SCRIPTS                9
 #define CPN_MAX_SCRIPT_INPUTS          10
 #define CPN_MAX_SPACEMOUSE             6

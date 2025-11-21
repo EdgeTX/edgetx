@@ -229,10 +229,10 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 }
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
-                     const rect_t& rect, WidgetPersistentData* persistentData,
+                     const rect_t& rect, int screenNum, int zoneNum,
                      int zoneRectDataRef, int optionsDataRef,
-                     int createFunctionRef, std::string path) :
-    Widget(factory, parent, rect, persistentData),
+                     int createFunctionRef, const std::string& path) :
+    Widget(factory, parent, rect, screenNum, zoneNum),
     zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
@@ -350,26 +350,23 @@ void LuaWidget::update()
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
 
+  auto widgetData = getPersistentData();
+
   // Get options table and update values
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
   int i = 0;
-  for (const ZoneOption* option = getOptionDefinitions(); option->name; option++, i++) {
-    auto optVal = getOptionValue(i);
+  for (const WidgetOption* option = getOptionDefinitions(); option->name; option++, i++) {
     switch (option->type) {
-      case ZoneOption::String:
-      case ZoneOption::File:
-        {
-          char str[LEN_ZONE_OPTION_STRING + 1] = {0};
-          strncpy(str, optVal->stringValue, LEN_ZONE_OPTION_STRING);
-          lua_pushstring(lsWidgets, str);
-        }
+      case WidgetOption::String:
+      case WidgetOption::File:
+        lua_pushstring(lsWidgets, widgetData->getString(i).c_str());
         break;
-      case ZoneOption::Integer:
-      case ZoneOption::Switch:
-        lua_pushinteger(lsWidgets, optVal->signedValue);
+      case WidgetOption::Integer:
+      case WidgetOption::Switch:
+        lua_pushinteger(lsWidgets, widgetData->getSignedValue(i));
         break;
       default:
-        lua_pushinteger(lsWidgets, optVal->unsignedValue);
+        lua_pushinteger(lsWidgets, widgetData->getUnsignedValue(i));
         break;
     }
     lua_setfield(lsWidgets, -2, option->name);
@@ -493,12 +490,11 @@ void LuaWidget::refresh(BitmapBuffer* dc)
                         FONT(XS) | COLOR_THEME_WARNING);
     } else {
       if (errorLabel == nullptr) {
-        errorLabel = lv_label_create(lvobj);
+        errorLabel = etx_label_create(lvobj, FONT_XS_INDEX);
         lv_obj_set_pos(errorLabel, 0, 0);
         lv_obj_set_size(errorLabel, width(), height());
         lv_label_set_long_mode(errorLabel, LV_LABEL_LONG_WRAP);
         etx_txt_color(errorLabel, COLOR_THEME_WARNING_INDEX);
-        etx_font(errorLabel, FONT_XS_INDEX);
         etx_bg_color(errorLabel, COLOR_THEME_SECONDARY3_INDEX);
         etx_obj_add_style(errorLabel, styles->bg_opacity_75, LV_PART_MAIN);
       }

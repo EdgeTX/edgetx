@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class RadioAnalogsDiagsViewPageGroup : public TabsGroup
 {
  public:
-  RadioAnalogsDiagsViewPageGroup();
+  RadioAnalogsDiagsViewPageGroup(QMPage qmPage);
 };

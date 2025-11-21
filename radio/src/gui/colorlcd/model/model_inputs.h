@@ -22,12 +22,12 @@
 #pragma once
 
 #include "list_line_button.h"
-#include <list>
+#include "pagegroup.h"
 
 class ModelInputsPage : public InputMixPageBase
 {
  public:
-  ModelInputsPage();
+  ModelInputsPage(PageDef& pageDef);
 
   void build(Window *window) override;
 

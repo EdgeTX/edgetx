@@ -20,8 +20,11 @@
 
 #pragma once
 
-#include "ff.h"
 #include "page.h"
+#include "pagegroup.h"
+#include "gui_common.h"
+
+class TextViewer;
 
 class ViewTextWindow : public Page
 {
@@ -32,42 +35,31 @@ class ViewTextWindow : public Page
   FRESULT sdReadTextFileBlock(const uint32_t bufSize,
                               const uint32_t offset);
 
-  ~ViewTextWindow()
-  {
-    if (buffer) {
-      free(buffer);
-      buffer = nullptr;
-    }
-  }
-
   void onCancel() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewTextWindow"; };
 #endif
 
+  void delayedInit() override;
+
  protected:
-  std::string path;
-  std::string name;
-  std::string fullPath;
-  std::string extension;
-
-  lv_obj_t* lb;
-
-  int offset = 0;
-  char* buffer = nullptr;
-  size_t bufSize = 0;
-  int fileLength = 0;
-  bool openFromEnd;
-
-  void extractNameSansExt(void);
-  virtual void buildBody(Window* window);
-
-  bool openFile();
+  TextViewer* textViewer = nullptr;
 
   void onEvent(event_t event) override;
+};
 
-  void delayedInit() override;
+class ModelNotesPage : public PageGroupItem
+{
+ public:
+  ModelNotesPage(PageDef& pageDef);
+
+  void build(Window* window) override;
+
+  void cleanup() override;
+
+ protected:
+  TextViewer* textViewer = nullptr;
 };
 
 void readModelNotes(bool fromMenu = false);

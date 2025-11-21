@@ -601,7 +601,7 @@ void MainWindow::readFlash()
     QMessageBox::critical(this, tr("Detect Radio"),
       tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
       tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
-      tr("Note: USB mode is not suitable for flashing firmware."));
+      tr("Note: USB mode is not suitable for reading firmware."));
     return;
   }
 
@@ -614,7 +614,7 @@ void MainWindow::readFlash()
       [this, progress](const QByteArray &_data) {
         writeFirmwareToFile(this, _data, progress, true);
       },
-      [this](const QString &err) {
+      [](const QString &err) {
         qDebug() << tr("Could not read radio firmware: %1").arg(err);
       },
       progress);

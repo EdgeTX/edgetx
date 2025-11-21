@@ -67,17 +67,17 @@ class RadioCustSwitchesDiagsWindow : public Window
     for (uint8_t i = 0, r = 0; i < switchGetMaxSwitches(); i += 1) {
       if (switchIsCustomSwitch(i)) {
         coord_t y = (r + 2) * EdgeTxStyles::STD_FONT_HEIGHT;
-          std::string s(STR_CHAR_SWITCH);
+          std::string s(CHAR_SWITCH);
           s += switchGetDefaultName(i);
           new StaticText(this, {PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT}, s);
         new DynamicText(
             this, {FS_1ST_COLUMN + PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
             [=]() {
-              return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
+              return getFSPhysicalState(i) ? CHAR_DOWN : CHAR_UP;
             });
         new DynamicText(
             this, {FS_2ND_COLUMN + 10, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
-            [=]() { return g_model.cfsState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
+            [=]() { return g_model.cfsState(i) ? CHAR_DOWN : CHAR_UP; });
           
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
         colorBox[r] = new ColorSwatch(this, {FS_3RD_COLUMN, y, FS_COLOR_WIDTH,
@@ -105,8 +105,8 @@ class RadioCustSwitchesDiagsWindow : public Window
 
 void RadioCustSwitchesDiagsPage::buildHeader(Window *window)
 {
-  header->setTitle(STR_RADIO_SETUP);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle(STR_HARDWARE);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 }
 
 void RadioCustSwitchesDiagsPage::buildBody(Window *window)

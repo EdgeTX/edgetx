@@ -36,10 +36,10 @@ class SdcardFormat : public LabelsStorageFormat
     }
 
     virtual QString name() { return "sdcard"; }
-    virtual bool write(const RadioData & radioData);
+    virtual bool write(RadioData & radioData);
 
   protected:
-    virtual bool loadFile(QByteArray & fileData, const QString & fileName);
+    virtual bool loadFile(QByteArray & fileData, const QString & fileName, bool optional = false);
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName);
     virtual bool getFileList(std::list<std::string>& filelist);
     virtual bool deleteFile(const QString & fileName);

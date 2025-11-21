@@ -31,6 +31,10 @@
 #include "thirdparty/FatFs/ff.h"
 #include "thirdparty/uf2/uf2.h"
 
+#ifndef BOOTLOADER_ADDRESS
+#define BOOTLOADER_ADDRESS FIRMWARE_ADDRESS
+#endif
+
 #define UF2_BLOCK_SIZE 512
 
 bool isUF2Block(const void* block, uint32_t len)

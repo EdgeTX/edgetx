@@ -133,7 +133,7 @@ void menuModelLimitsOne(event_t event)
         break;
 
       case ITEM_OUTPUTONE_OFFSET:
-        ld->offset = gvValEdit(TR_LIMITS_HEADERS_SUBTRIM, ld->offset, 0, -1000, 1000, y, attr, event, active, 0);
+        ld->offset = gvValEdit(STR_LIMITS_HEADERS_SUBTRIM, ld->offset, 0, -1000, 1000, y, attr, event, active, 0);
         break;
 
       case ITEM_OUTPUTONE_MIN:
@@ -164,19 +164,16 @@ void menuModelLimitsOne(event_t event)
 
 #if defined(PPM_CENTER_ADJUSTABLE)
       case ITEM_OUTPUTONE_PPM_CENTER:
-        lcdDrawTextAlignedLeft(y, TR_LIMITS_HEADERS_PPMCENTER);
-        lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, PPM_CENTER+ld->ppmCenter, attr);
-        if (active) {
-          CHECK_INCDEC_MODELVAR(event, ld->ppmCenter, -PPM_CENTER_MAX, +PPM_CENTER_MAX);
-        }
+        ld->ppmCenter = editNumberField(STR_LIMITS_HEADERS_PPMCENTER, 0, LIMITS_ONE_2ND_COLUMN, y, ld->ppmCenter,
+                                        -PPM_CENTER_MAX, PPM_CENTER_MAX, attr, event, nullptr, PPM_CENTER);
         break;
 #endif
 
 #if defined(PPM_LIMITS_SYMETRICAL)
       case ITEM_OUTPUTONE_SYMETRICAL:
-        lcdDrawTextAlignedLeft(y, TR_LIMITS_HEADERS_SUBTRIMMODE);
+        lcdDrawTextAlignedLeft(y, STR_LIMITS_HEADERS_SUBTRIMMODE);
         lcdDrawSizedText(LIMITS_ONE_2ND_COLUMN, y,
-                         ld->symetrical ? "=" : STR_CHAR_DELTA, 2, attr);
+                         ld->symetrical ? "=" : CHAR_DELTA, 2, attr);
         if (active) {
           CHECK_INCDEC_MODELVAR_ZERO(event, ld->symetrical, 1);
         }
@@ -322,7 +319,7 @@ void menuModelLimits(event_t event)
           break;
 
         case ITEM_OUTPUTS_SYMETRICAL:
-          lcdDrawSizedText(LCD_W-FW, y, ld->symetrical ? "=" : STR_CHAR_DELTA, 2, 0);
+          lcdDrawSizedText(LCD_W-FW, y, ld->symetrical ? "=" : CHAR_DELTA, 2, 0);
           break;
       }
     }

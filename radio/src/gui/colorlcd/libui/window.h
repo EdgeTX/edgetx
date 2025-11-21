@@ -22,6 +22,7 @@
 #include <list>
 #include <string>
 
+#include "definitions.h"
 #include "LvglWrapper.h"
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
@@ -166,12 +167,15 @@ class Window
 
 #if defined(HARDWARE_TOUCH)
   void addBackButton();
+  void addCustomButton(coord_t x, coord_t y, std::function<void()> action);
 #endif
 
   inline lv_obj_t *getLvObj() { return lvobj; }
 
   virtual bool isTopBar() { return false; }
   virtual bool isWidgetsContainer() { return false; }
+  virtual bool isNavWindow() { return false; }
+  virtual bool isPageGroup() { return false; }
 
   virtual bool isBubblePopup() { return false; }
 
@@ -182,6 +186,7 @@ class Window
 
   virtual void show(bool visible = true);
   void hide() { show(false); }
+  bool isVisible();
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 
@@ -229,7 +234,8 @@ class NavWindow : public Window
   NavWindow(Window *parent, const rect_t &rect,
             LvglCreate objConstruct = nullptr);
 
- protected:
+  bool isNavWindow() override { return true; }
+
 #if defined(HARDWARE_KEYS)
   virtual void onPressSYS() {}
   virtual void onLongPressSYS() {}
@@ -243,17 +249,24 @@ class NavWindow : public Window
   virtual void onLongPressPGDN() {}
   virtual void onLongPressRTN() {}
 #endif
+
+ protected:
   virtual bool bubbleEvents() { return true; }
   void onEvent(event_t event) override;
 };
 
 struct PageButtonDef {
-  const char* title;
+  STR_TYP title;
   std::function<void()> createPage;
   std::function<bool()> isActive;
+  std::function<bool()> enabled;
 
-  PageButtonDef(const char* title, std::function<void()> createPage, std::function<bool()> isActive = nullptr) :
-    title(title), createPage(std::move(createPage)), isActive(std::move(isActive))
+  PageButtonDef(
+                STR_TYP title,
+                std::function<void()> createPage,
+                std::function<bool()> isActive = nullptr,
+                std::function<bool()> enabled = nullptr) :
+    title(title), createPage(std::move(createPage)), isActive(std::move(isActive)), enabled(std::move(enabled))
   {}
 };
 
@@ -269,7 +282,7 @@ class SetupButtonGroup : public Window
 };
 
 struct SetupLineDef {
-  const char* title;
+  STR_TYP title;
   std::function<void(Window*, coord_t, coord_t)> createEdit;
 };
 

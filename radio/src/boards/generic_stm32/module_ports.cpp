@@ -277,6 +277,7 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
 #define TELEMETRY_USART_IRQ_PRIORITY 0
 #define TELEMETRY_DMA_IRQ_PRIORITY   0
 
+#if !defined(STM32H7) && !defined(STM32H7RS)
 static void _set_sport_input(uint8_t enable)
 {
 #if defined(TELEMETRY_DIR_GPIO)
@@ -289,6 +290,7 @@ static void _set_sport_input(uint8_t enable)
   (void)enable;
 #endif
 }
+#endif
 
 #if defined(TELEMETRY_USART)
 static const stm32_usart_t sportUSART = {
@@ -309,7 +311,7 @@ static const stm32_usart_t sportUSART = {
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
 #endif
-#if defined(STM32H7) || (STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS)
   .set_input = nullptr,
 #else
   .set_input = _set_sport_input,
@@ -456,14 +458,14 @@ static void _external_module_set_pwr(uint8_t enable)
 {
   if (enable) {
     EXTERNAL_MODULE_ON();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
     if (hardwareOptions.pcbrev == PCBREV_NV14) {
       gpio_clear(EXTMODULE_PWR_FIX_GPIO);
     }
 #endif
   } else {
     EXTERNAL_MODULE_OFF();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
     if (hardwareOptions.pcbrev == PCBREV_NV14) {
       gpio_set(EXTMODULE_PWR_FIX_GPIO);
     }
@@ -619,7 +621,7 @@ void boardInitModulePorts()
   _extmod_init_inverter();
 #endif  
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   if (hardwareOptions.pcbrev == PCBREV_NV14) {
     // pin must be pulled to V+ (voltage of board - VCC is not enough to fully close transistor)
     // for additional transistor to ensuring module is completely disabled

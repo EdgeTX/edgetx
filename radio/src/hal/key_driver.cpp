@@ -45,4 +45,3 @@ const char* keysGetLabel(EnumKeys key)
 {
   return _key_labels[key];
 }
-

@@ -34,6 +34,7 @@ SwitchWarnDialog::SwitchWarnDialog() :
 
 void SwitchWarnDialog::delayedInit()
 {
+  FullScreenDialog::delayedInit();
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
@@ -83,7 +84,7 @@ void SwitchWarnDialog::checkEvents()
       }
       if ((g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
-          warn_txt += STR_CHAR_POT;
+          warn_txt += CHAR_POT;
           warn_txt += getPotLabel(i);
           warn_txt += " ";
         }
@@ -95,7 +96,7 @@ void SwitchWarnDialog::checkEvents()
 }
 
 ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
-    FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE, msg,
+    FullScreenDialog(WARNING_TYPE_ALERT, STR_THROTTLE_UPPERCASE, msg,
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
   setCloseCondition(std::bind(&ThrottleWarnDialog::warningInactive, this));
@@ -103,6 +104,7 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
 
 void ThrottleWarnDialog::delayedInit()
 {
+  FullScreenDialog::delayedInit();
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
 }

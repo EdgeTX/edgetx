@@ -51,6 +51,7 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
           EDGETX_VERSION_SUFFIX: nightly
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}

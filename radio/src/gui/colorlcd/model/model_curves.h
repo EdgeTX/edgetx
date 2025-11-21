@@ -22,15 +22,14 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ModelCurvesPage : public PageTab
+class ModelCurvesPage : public PageGroupItem
 {
  public:
-  ModelCurvesPage();
-  static void pushEditCurve(int index, std::function<void(void)> refreshView, mixsrc_t source);
+  ModelCurvesPage(PageDef& pageDef);
 
-  bool isVisible() const override { return modelCurvesEnabled(); }
+  static void pushEditCurve(int index, std::function<void(void)> refreshView, mixsrc_t source);
 
   virtual void build(Window* window) override;
 

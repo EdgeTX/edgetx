@@ -50,8 +50,6 @@ FullScreenDialog::FullScreenDialog(
   bringToTop();
 
   build();
-
-  delayLoad();
 }
 
 void FullScreenDialog::build()
@@ -101,7 +99,7 @@ void FullScreenDialog::build()
   } else {
     if (type == WARNING_TYPE_CONFIRM) {
       auto btn = new TextButton(
-          this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_EXIT,
+          this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_CANCEL,
           [=]() {
             deleteLater();
             return 0;
@@ -157,16 +155,14 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
   if (running) {
     running = false;
   } else {
-    Layer::pop(this);
     Window::deleteLater(detach, trash);
+    Layer::pop(this);
   }
-  // Window* p = Layer::back();
-  // if (p) p->show();
 }
 
-void FullScreenDialog::setMessage(std::string text)
+void FullScreenDialog::setMessage(const char* text)
 {
-  messageLabel->setText(text);
+  if (messageLabel) messageLabel->setText(text);
 }
 
 static void run_ui_manually()

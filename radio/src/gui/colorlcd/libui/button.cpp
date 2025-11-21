@@ -86,7 +86,8 @@ bool ButtonBase::onLongPress()
 {
   if (longPressHandler) {
     check(longPressHandler());
-    lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+    if (!deleted())
+      lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
     lv_indev_wait_release(lv_indev_get_act());
     return false;
   }
@@ -108,9 +109,17 @@ TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
     ButtonBase(parent, rect, pressHandler, button_create),
     text(std::move(text))
 {
-  label = lv_label_create(lvobj);
+  label = etx_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
+}
+
+void TextButton::setText(std::string value)
+{
+  if (value != text) {
+    text = std::move(value);
+    lv_label_set_text(label, text.c_str());
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -136,7 +145,7 @@ MomentaryButton::MomentaryButton(Window* parent, const rect_t& rect, std::string
     releaseHandler(std::move(releaseHandler)),
     text(std::move(text))
 {
-  label = lv_label_create(lvobj);
+  label = etx_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
 }

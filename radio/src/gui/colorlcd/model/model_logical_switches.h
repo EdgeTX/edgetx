@@ -21,15 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ModelLogicalSwitchesPage : public PageTab
+class ModelLogicalSwitchesPage : public PageGroupItem
 {
  public:
-  ModelLogicalSwitchesPage();
-
-  bool isVisible() const override { return modelLSEnabled(); }
+  ModelLogicalSwitchesPage(PageDef& pageDef);
 
   virtual void build(Window* window) override;
 

@@ -96,7 +96,6 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_serial_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_usart_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio_driver.cpp
-    ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_timer.cpp
     ${STM32_DRIVER_DIR}/stm32_dma.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio.cpp
@@ -121,10 +120,12 @@ if(NOT NATIVE_BUILD)
   add_library(stm32_drivers_w_dbg_fw OBJECT EXCLUDE_FROM_ALL
       ${STM32_DRIVER_DIR}/sdcard_spi.cpp
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
+      ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
   )
   add_library(stm32_drivers_w_dbg_bl OBJECT EXCLUDE_FROM_ALL
       ${STM32_DRIVER_DIR}/sdcard_spi.cpp
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
+      ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
   )
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)

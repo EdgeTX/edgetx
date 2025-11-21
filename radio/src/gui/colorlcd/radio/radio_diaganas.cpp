@@ -467,10 +467,14 @@ class AnaMinMaxViewWindow : public AnaViewWindow
   static LAYOUT_SIZE(GRIDCOLS, 10, 5)
 };
 
-class AnaCalibratedViewPage : public PageTab
+class AnaCalibratedViewPage : public PageGroupItem
 {
  public:
-  AnaCalibratedViewPage() : PageTab(STR_ANADIAGS_CALIB, ICON_STATS_ANALOGS) {}
+  AnaCalibratedViewPage(QMPage qmPage) :
+    PageGroupItem(STR_ANADIAGS_CALIB, qmPage)
+  {
+    icon = ICON_STATS;
+  }
 
  protected:
   void build(Window* window) override
@@ -479,12 +483,13 @@ class AnaCalibratedViewPage : public PageTab
   }
 };
 
-class AnaFilteredDevViewPage : public PageTab
+class AnaFilteredDevViewPage : public PageGroupItem
 {
  public:
-  AnaFilteredDevViewPage() :
-      PageTab(STR_ANADIAGS_FILTRAWDEV, ICON_STATS_THROTTLE_GRAPH)
+  AnaFilteredDevViewPage(QMPage qmPage) :
+      PageGroupItem(STR_ANADIAGS_FILTRAWDEV, qmPage)
   {
+    icon = ICON_STATS;
   }
 
  protected:
@@ -494,12 +499,13 @@ class AnaFilteredDevViewPage : public PageTab
   }
 };
 
-class AnaUnfilteredRawViewPage : public PageTab
+class AnaUnfilteredRawViewPage : public PageGroupItem
 {
  public:
-  AnaUnfilteredRawViewPage() :
-      PageTab(STR_ANADIAGS_UNFILTRAW, ICON_RADIO_HARDWARE)
+  AnaUnfilteredRawViewPage(QMPage qmPage) :
+      PageGroupItem(STR_ANADIAGS_UNFILTRAW, qmPage)
   {
+    icon = ICON_STATS;
   }
 
  protected:
@@ -509,10 +515,14 @@ class AnaUnfilteredRawViewPage : public PageTab
   }
 };
 
-class AnaMinMaxViewPage : public PageTab
+class AnaMinMaxViewPage : public PageGroupItem
 {
  public:
-  AnaMinMaxViewPage() : PageTab(STR_ANADIAGS_MINMAX, ICON_RADIO_CALIBRATION) {}
+  AnaMinMaxViewPage(QMPage qmPage) :
+      PageGroupItem(STR_ANADIAGS_MINMAX, qmPage)
+  {
+    icon = ICON_STATS;
+  }
 
  protected:
   void build(Window* window) override
@@ -521,11 +531,11 @@ class AnaMinMaxViewPage : public PageTab
   }
 };
 
-RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup() :
-    TabsGroup(ICON_STATS)
+RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QMPage qmPage) :
+    TabsGroup(ICON_STATS, STR_ANALOGS_BTN)
 {
-  addTab(new AnaCalibratedViewPage());
-  addTab(new AnaFilteredDevViewPage());
-  addTab(new AnaUnfilteredRawViewPage());
-  addTab(new AnaMinMaxViewPage());
+  addTab(new AnaCalibratedViewPage(qmPage));
+  addTab(new AnaFilteredDevViewPage(qmPage));
+  addTab(new AnaUnfilteredRawViewPage(qmPage));
+  addTab(new AnaMinMaxViewPage(qmPage));
 }

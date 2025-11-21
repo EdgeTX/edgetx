@@ -5,13 +5,11 @@ SWITCH_CONFIG = {
         # left side
         "SA": {"default": "2POS",   "display": [0, 0]},
         "SB": {"default": "3POS",   "display": [0, 1]},
-        "SE": {"default": "3POS",   "display": [0, 2]},
-        "SG": {"default": "2POS",   "display": [0, 3]},
+        "SE": {"default": "2POS",   "display": [0, 2]},
         # right side
         "SC": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "2POS",   "display": [1, 1]},
         "SF": {"default": "TOGGLE", "display": [1, 2]},
-        "SH": {"default": "2POS", "display": [1, 3]},
     },
     "gx12": {
         # left side
@@ -381,6 +379,21 @@ SWITCH_CONFIG = {
         "SD": {"default": "TOGGLE", "display": [1, 1]},
         "SF": {"default": "3POS",   "display": [1, 2]},
         "SH": {"default": "NONE",   "display": [1, 3]}
+    },
+    "t15pro": {
+        "SA": {"default": "3POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "3POS"},
+        "SE": {"default": "2POS"},
+        "SF": {"default": "2POS"},
+        # custom switches
+        "SG": {"default": "2POS"},
+        "SH": {"default": "2POS"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
+        "SK": {"default": "2POS"},
+        "SL": {"default": "2POS"},
     },
     "tx15": {
         "SA": {"default": "3POS"},

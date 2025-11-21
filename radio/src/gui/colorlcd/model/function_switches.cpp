@@ -31,7 +31,7 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-const char* _fct_sw_start[] = {STR_CHAR_UP, STR_CHAR_DOWN, STR_LAST};
+const char* _fct_sw_start[] = {CHAR_UP, CHAR_DOWN, STR_LAST};
 
 const char* edgetx_fs_manual_url =
     "https://edgetx.gitbook.io/edgetx-user-manual/b-and-w-radios/model-select/"
@@ -45,7 +45,7 @@ class FunctionSwitch : public Window
   {
     padAll(PAD_TINY);
 
-    std::string s(STR_CHAR_SWITCH);
+    std::string s(CHAR_SWITCH);
     s += switchGetDefaultName(switchIndex);
 
     new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);
@@ -115,8 +115,8 @@ class FunctionSwitch : public Window
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #if NARROW_LAYOUT
-    new StaticText(this, rect_t{C1_X - C1_W - PAD_TINY, C1_Y + PAD_SMALL, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
-    new StaticText(this, rect_t{C2_X - C2_W - PAD_TINY, C2_Y + PAD_SMALL, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    offLabel = new StaticText(this, {C1_X - C1_W - PAD_TINY, C1_Y + COLLBL_YO, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    onLabel = new StaticText(this, {C2_X - C2_W - PAD_TINY, C2_Y + COLLBL_YO, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
 #endif
 
     offValue = g_model.cfsOffColor(switchIndex);
@@ -136,6 +136,7 @@ class FunctionSwitch : public Window
           g_model.cfsOffColor(switchIndex).setColor(newValue);
 
           offValue = g_model.cfsOffColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
@@ -154,13 +155,14 @@ class FunctionSwitch : public Window
           g_model.cfsOnColor(switchIndex).setColor(newValue);
 
           onValue = g_model.cfsOnColor(switchIndex);
+          setFSEditOverride(-1, 0);
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 
-    overrideLabel = new StaticText(this, {GR_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, GR_W + ST_W - PAD_LARGE, 0},
+    overrideLabel = new StaticText(this, {OVRLBL_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, OVRLBL_W, 0},
                                    STR_LUA_OVERRIDE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
-    offOverride = new ToggleSwitch(this, {C1_X - PAD_MEDIUM * 2, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
+    offOverride = new ToggleSwitch(this, {OVROFF_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
                                   [=]() { return g_model.cfsOffColorLuaOverride(switchIndex); },
                                   [=](bool v) { g_model.cfsSetOffColorLuaOverride(switchIndex, v); });
     onOverride = new ToggleSwitch(this, {C2_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
@@ -181,14 +183,19 @@ class FunctionSwitch : public Window
   static LAYOUT_VAL_SCALED(GR_W, 84)
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
   static LAYOUT_VAL_SCALED(ST_W, 60)
+  static constexpr coord_t ROW_HS = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
 #if NARROW_LAYOUT
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 3 + PAD_OUTLINE * 4;
-  static constexpr coord_t C1_X = TP_X;
+  static constexpr coord_t C1_X = GR_X;
   static constexpr coord_t C1_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_VAL_SCALED(C1_W, 40)
-  static constexpr coord_t C2_X = GR_X;
+  static constexpr coord_t C2_X = ST_X;
   static constexpr coord_t C2_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_VAL_SCALED(C2_W, 40)
+  static constexpr coord_t OVRLBL_X = NM_X;
+  static constexpr coord_t OVRLBL_W = NM_W + TP_W;
+  static constexpr coord_t OVROFF_X = C1_X;
+  static constexpr coord_t COLLBL_YO = PAD_MEDIUM;
 #else
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
   static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
@@ -197,6 +204,10 @@ class FunctionSwitch : public Window
   static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
   static constexpr coord_t C2_Y = 0;
   static LAYOUT_VAL_SCALED(C2_W, 40)
+  static constexpr coord_t OVRLBL_X = GR_X;
+  static constexpr coord_t OVRLBL_W = GR_W + ST_W - PAD_LARGE;
+  static constexpr coord_t OVROFF_X = C1_X - PAD_MEDIUM * 2;
+  static constexpr coord_t COLLBL_YO = PAD_SMALL;
 #endif
 #else
   static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
@@ -217,6 +228,10 @@ class FunctionSwitch : public Window
   Choice* groupChoice = nullptr;
   Choice* startChoice = nullptr;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(NARROW_LAYOUT)
+  StaticText *offLabel = nullptr;
+  StaticText *onLabel = nullptr;
+#endif
   ColorPicker* offColor = nullptr;
   ColorPicker* onColor = nullptr;
   RGBLedColor offValue;
@@ -232,11 +247,7 @@ class FunctionSwitch : public Window
   {
     // Convert color index to RGB
     newValue = color32ToRGB(newValue);
-    if (g_model.cfsState(switchIndex)) {
-      g_model.cfsOnColor(switchIndex).setColor(newValue);
-    } else {
-      g_model.cfsOffColor(switchIndex).setColor(newValue);
-    }
+    setFSEditOverride(switchIndex, newValue);
   }
 #endif
 
@@ -246,6 +257,10 @@ class FunctionSwitch : public Window
     startChoice->show(typ == SWITCH_2POS && g_model.cfsGroup(switchIndex) == 0);
     groupChoice->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if NARROW_LAYOUT
+    offLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    onLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+#endif
     offColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
     onColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
     overrideLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
@@ -254,7 +269,7 @@ class FunctionSwitch : public Window
     if (typ != SWITCH_NONE && typ != SWITCH_GLOBAL)
       setHeight(ROW_H);
     else
-      setHeight(ROW_H - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE);
+      setHeight(ROW_HS);
 #endif
   }
 
@@ -343,23 +358,23 @@ class SwitchGroup : public Window
 
 ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
 {
-  header->setTitle(STR_MENU_MODEL_SETUP);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 
   body->padAll(PAD_TINY);
   body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
   auto box = new Window(body, {0, 0, LV_PCT(100), LV_SIZE_CONTENT});
-  new StaticText(box, rect_t{0, 0, FunctionSwitch::SW_W, 0}, STR_SWITCHES);
-  new StaticText(box, rect_t{FunctionSwitch::NM_X + PAD_OUTLINE, 0, FunctionSwitch::NM_W, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(box, rect_t{FunctionSwitch::TP_X + PAD_OUTLINE, 0, FunctionSwitch::TP_W, 0}, STR_SWITCH_TYPE,
+  new StaticText(box, {0, 0, FunctionSwitch::SW_W, 0}, STR_SWITCHES);
+  new StaticText(box, {FunctionSwitch::NM_X + PAD_OUTLINE, 0, FunctionSwitch::NM_W, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, {FunctionSwitch::TP_X + PAD_OUTLINE, 0, FunctionSwitch::TP_W, 0}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(box, rect_t{FunctionSwitch::GR_X + PAD_OUTLINE, 0, FunctionSwitch::GR_W, 0}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  startupHeader = new StaticText(box, rect_t{FunctionSwitch::ST_X + PAD_OUTLINE, 0, FunctionSwitch::ST_W, 0}, STR_SWITCH_STARTUP,
+  new StaticText(box, {FunctionSwitch::GR_X + PAD_OUTLINE, 0, FunctionSwitch::GR_W, 0}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  startupHeader = new StaticText(box, {FunctionSwitch::ST_X + PAD_OUTLINE, 0, FunctionSwitch::ST_W, 0}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #if defined(FUNCTION_SWITCHES_RGB_LEDS) && !NARROW_LAYOUT
-  new StaticText(box, rect_t{FunctionSwitch::C1_X + PAD_OUTLINE, 0, FunctionSwitch::C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(box, rect_t{FunctionSwitch::C2_X + PAD_OUTLINE, 0, FunctionSwitch::C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, {FunctionSwitch::C1_X + PAD_OUTLINE, 0, FunctionSwitch::C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, {FunctionSwitch::C2_X + PAD_OUTLINE, 0, FunctionSwitch::C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #endif
 
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i += 1) {

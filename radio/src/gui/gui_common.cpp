@@ -247,13 +247,6 @@ static bool isSourceTelemAvailable(int source) {
     return isTelemetryFieldComparisonAvailable(qr.quot);
 }
 
-static bool isSourceTelemCompAvailable(int source) {
-  if (!modelTelemetryEnabled())
-    return false;
-  div_t qr = div(source, 3);
-  return isTelemetryFieldComparisonAvailable(qr.quot);
-}
-
 struct sourceAvailableCheck {
   uint16_t first;
   uint16_t last;
@@ -287,7 +280,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
-  { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM_COMP, isSourceTelemCompAvailable },
   { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
 };
 
@@ -313,31 +305,6 @@ bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
             SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
-            );
-}
-
-// Used only in B&W radios for Global Functions when funcion is FUNC_PLAY_VALUE
-bool isSourceAvailableInGlobalFunctions(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_NONE
-            );
-}
-
-// Used only in B&W radios with wide screen LCD (212x64) for logical switches
-// V1 parameter when LS function is LS_FAMILY_OFS or LS_FAMILY_DIFF
-bool isSourceAvailableInCustomSwitches(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM_COMP | SRC_NONE
-            );
-}
-
-// Only used for B&W radios for Input source (color radios use isSourceAvailable)
-bool isSourceAvailableInInputs(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_CHANNEL_ALL | SRC_TELEM_COMP
             );
 }
 
@@ -629,7 +596,7 @@ bool isSwitch2POSWarningStateAvailable(int state)
 
 bool isThrottleSourceAvailable(int src)
 {
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   src = throttleSource2Source(src);
 #endif
   return isSourceAvailable(src) &&
@@ -809,7 +776,7 @@ void checkExternalAntenna()
         }
 #else
         POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
-        SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+        SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
 #endif
       }
     } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
@@ -1289,7 +1256,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
 {
   const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-  return pdef->optionsstr;
+  return STR_VAL(pdef->optionsstr);
 }
 
 const char * getMultiOptionTitle(uint8_t moduleIdx)
@@ -1300,7 +1267,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     if (status.optionDisp >= getMaxMultiOptions()) {
       status.optionDisp = 1; // Unknown options are defaulted to type 1 (basic option)
     }
-    return mm_options_strings::options[status.optionDisp];
+    return STR_VAL(mm_options_strings::options[status.optionDisp]);
   }
 
   return getMultiOptionTitleStatic(moduleIdx);
@@ -1311,7 +1278,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, title);
-  lcdDrawText(LCD_W == 128 ? 120 : 200, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
+  lcdDrawText(LCD_W == 128 ? 120 : 200, y, value ? CHAR_UP : CHAR_DOWN, attr);
   if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
     value = !value;
     s_editMode = 0;

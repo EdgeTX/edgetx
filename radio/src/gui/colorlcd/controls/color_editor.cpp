@@ -215,22 +215,19 @@ class BarColorType : public ColorType
   {
     auto spacePerBar = (parent->width() / MAX_BARS);
 
-    int leftPos = 0;
     rect_t r;
     r.y = ColorEditor::BAR_MARGIN;
     r.w = spacePerBar - ColorEditor::BAR_MARGIN;
     r.h = parent->height() - (ColorEditor::BAR_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
 
     for (int i = 0; i < MAX_BARS; i++) {
-      r.x = leftPos + ColorEditor::BAR_MARGIN;
+      r.x = i * spacePerBar + ColorEditor::BAR_MARGIN / 2;
 
       bars[i] = new ColorBar(parent, r);
-      leftPos += spacePerBar;
 
       // bar labels
-      auto bar = bars[i];
-      auto x = bar->left();
-      auto y = bar->bottom();
+      auto x = bars[i]->left() + PAD_TINY;
+      auto y = bars[i]->bottom();
 
       barLabels[i] = create_bar_label(parent->getLvObj(), x, y + ColorEditor::LBL_YO);
       barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + PAD_THREE);
@@ -263,17 +260,16 @@ class BarColorType : public ColorType
 
   lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
   {
-    lv_obj_t* obj = lv_label_create(parent);
+    lv_obj_t* obj = etx_label_create(parent, FONT_XXS_INDEX);
     lv_obj_set_pos(obj, x, y);
     etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
-    etx_font(obj, FONT_XXS_INDEX);
     return obj;
   }
 
   lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x,
                                    lv_coord_t y)
   {
-    lv_obj_t* obj = lv_label_create(parent);
+    lv_obj_t* obj = etx_label_create(parent);
     lv_obj_set_pos(obj, x, y);
     etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
     return obj;
@@ -369,7 +365,7 @@ class ThemeColorType : public ColorType
     m_color = color;
 
     auto vbox = new Window(parent, rect_t{});
-    vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
+    vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
     makeButtonsRow(vbox, COLOR_THEME_PRIMARY1_INDEX, COLOR_THEME_PRIMARY2_INDEX,
                   COLOR_THEME_PRIMARY3_INDEX);
@@ -379,6 +375,8 @@ class ThemeColorType : public ColorType
                   COLOR_THEME_ACTIVE_INDEX);
     makeButtonsRow(vbox, COLOR_THEME_WARNING_INDEX, COLOR_THEME_DISABLED_INDEX,
                   COLOR_THEME_DISABLED_INDEX);
+    makeButtonsRow(vbox, COLOR_THEME_QM_BG_INDEX, COLOR_THEME_QM_FG_INDEX,
+                  COLOR_THEME_QM_FG_INDEX);
   }
 
   uint32_t getRGB() { return m_color; }
@@ -401,13 +399,13 @@ class ThemeColorType : public ColorType
   void makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2, uint16_t c3)
   {
     auto hbox = new Window(parent, rect_t{});
-    hbox->padAll(PAD_TINY);
-    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
+    hbox->padAll(PAD_OUTLINE);
+    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_OUTLINE);
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
     makeButton(hbox, c1);
-    makeButton(hbox, c2);
+    if (c2 != c1) makeButton(hbox, c2);
     if (c3 != c2) makeButton(hbox, c3);
   }
 
@@ -449,7 +447,7 @@ class FixedColorType : public ColorType
     });
   }
 
-  static LAYOUT_VAL_SCALED(BTN_W, 44)
+  static LAYOUT_VAL_SCALED(BTN_W, 42)
 };
 
 /////////////////////////////////////////////////////////////////////////

@@ -173,6 +173,8 @@ static int nameCharIdx(char v)
   return 0;
 }
 
+uint8_t editNameCursorPos = 0;
+
 void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
               uint8_t active, LcdFlags attr, uint8_t old_editMode)
 {
@@ -285,7 +287,7 @@ void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode)
 {
-  lcdDrawTextIndented(y, STR_CHAR_STICK);
+  lcdDrawTextIndented(y, CHAR_STICK);
   lcdDrawText(lcdNextPos, y, analogGetCanonicalName(ADC_INPUT_MAIN, idx), 0);
 
   if (analogHasCustomLabel(ADC_INPUT_MAIN, idx) || (flags && s_editMode > 0))
@@ -598,8 +600,117 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
     const char* s = getSourceString(idx);
 #if LCD_W < 212
     if (idx >= MIXSRC_FIRST_TELEM && idx <= MIXSRC_LAST_TELEM)
-      s += strlen(STR_CHAR_TELEMETRY);
+      s += strlen(CHAR_TELEMETRY);
 #endif
     lcdDrawText(x, y, s, att);
   }
+}
+
+void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr)
+{
+  if (value)
+    lcdDrawChar(x+1, y, '#');
+  if (attr)
+    lcdDrawSolidFilledRect(x, y, 7, 7);
+  else
+    lcdDrawSquare(x, y, 7);
+}
+
+void drawScreenIndex(uint8_t index, uint8_t count, uint8_t attr)
+{
+  lcdDrawNumber(LCD_W, 0, count, RIGHT | attr);
+  coord_t x = 1+LCD_W-FW*(count>9 ? 3 : 2);
+  lcdDrawChar(x, 0, '/', attr);
+  lcdDrawNumber(x, 0, index+1, RIGHT | attr);
+}
+
+void drawVerticalScrollbar(coord_t x, coord_t y, coord_t h, uint16_t offset, uint16_t count, uint8_t visible)
+{
+  lcdDrawVerticalLine(x, y, h, DOTTED);
+  coord_t yofs = (h * offset) / count;
+  coord_t yhgt = (h * visible) / count;
+  if (yhgt + yofs > h)
+    yhgt = h - yofs;
+  lcdDrawVerticalLine(x, y + yofs, yhgt, SOLID, FORCE);
+}
+
+void title(const char * s)
+{
+  lcdDrawText(0, 0, s, INVERS);
+}
+
+#if defined(GVARS)
+void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags flags)
+{
+  uint8_t prec = g_model.gvars[gvar].prec;
+  if (prec > 0) {
+    flags |= (prec == 1 ? PREC1 : PREC2);
+  }
+  drawValueWithUnit(x, y, value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
+}
+#endif
+
+char statusLineMsg[STATUS_LINE_LENGTH];
+static tmr10ms_t statusLineTime = 0;
+static uint8_t statusLineHeight = 0;
+
+void showStatusLine()
+{
+  statusLineTime = get_tmr10ms();
+}
+
+#define STATUS_LINE_DELAY (3 * 100) /* 3s */
+void drawStatusLine()
+{
+  if (statusLineTime) {
+    if ((tmr10ms_t)(get_tmr10ms() - statusLineTime) <= (tmr10ms_t)STATUS_LINE_DELAY) {
+      if (statusLineHeight < FH) statusLineHeight++;
+    }
+    else if (statusLineHeight) {
+      statusLineHeight--;
+    }
+    else {
+      statusLineTime = 0;
+    }
+
+    lcdDrawFilledRect(0, LCD_H-statusLineHeight, LCD_W, FH, SOLID, ERASE);
+    lcdDrawText(5, LCD_H+1-statusLineHeight, statusLineMsg);
+    lcdDrawFilledRect(0, LCD_H-statusLineHeight, LCD_W, FH, SOLID);
+  }
+}
+
+void drawGauge(coord_t x, coord_t y, coord_t w, coord_t h, int32_t val, int32_t max)
+{
+#if defined(PCBX7) || defined(PCBX9LITE) || defined(PCBX9LITES) // X7/X9 LCD doesn't like too many horizontal lines
+  h++;
+#else
+  lcdDrawRect(x, y, w+1, h);
+#endif
+  lcdDrawFilledRect(x+1, y+1, w-1, 4, SOLID, ERASE);
+  coord_t len = limit((uint8_t)1, uint8_t((abs(val) * w/2 + max/2) / max), uint8_t(w/2));
+  coord_t x0 = (val>0) ? x+w/2 : x+1+w/2-len;
+  for (coord_t i=h-2; i>0; i--)
+    lcdDrawSolidHorizontalLine(x0, y+i, len);
+}
+
+void drawSlider(coord_t x, coord_t y, uint8_t width, uint8_t value, uint8_t max, uint8_t attr)
+{
+  lcdDrawChar(x + (value * (width - FWNUM)) / max, y, '$');
+  lcdDrawSolidHorizontalLine(x, y + 3, width, FORCE);
+  if (attr && (!(attr & BLINK) || !BLINK_ON_PHASE)) {
+    lcdDrawSolidFilledRect(x, y, width, FH - 1);
+  }
+}
+
+void drawSlider(coord_t x, coord_t y, uint8_t value, uint8_t max, uint8_t attr)
+{
+  drawSlider(x, y, 5*FW - 1, value, max, attr);
+}
+
+void drawStick(coord_t centrex, int16_t xval, int16_t yval)
+{
+  lcdDrawSquare(centrex-BOX_WIDTH/2, BOX_CENTERY-BOX_WIDTH/2, BOX_WIDTH);
+  lcdDrawSolidVerticalLine(centrex, BOX_CENTERY-1, 3);
+  lcdDrawSolidHorizontalLine(centrex-1, BOX_CENTERY, 3);
+  lcdDrawSquare(centrex + (xval/((2*RESX)/(BOX_WIDTH-MARKER_WIDTH))) - MARKER_WIDTH/2, BOX_CENTERY - (yval/((2*RESX)/(BOX_WIDTH-MARKER_WIDTH))) - MARKER_WIDTH/2, MARKER_WIDTH, ROUND);
 }

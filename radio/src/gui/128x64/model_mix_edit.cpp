@@ -98,7 +98,7 @@ void menuModelMixOne(event_t event)
   }
 
   MixData * md2 = mixAddress(s_currIdx) ;
-  putsChn(PSIZE(TR_MIXES)*FW+FW, 0, md2->destCh+1,0);
+  putsChn(strlen(STR_MIXES)*FW+FW, 0, md2->destCh+1,0);
 
   uint8_t old_editMode = s_editMode;
   
@@ -172,12 +172,7 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_WARNING:
-        lcdDrawTextAlignedLeft(y, STR_MIXWARNING);
-        if (md2->mixWarn)
-          lcdDrawNumber(MIXES_2ND_COLUMN, y, md2->mixWarn, attr|LEFT);
-        else
-          lcdDrawText(MIXES_2ND_COLUMN, y, STR_OFF, attr);
-        if (attr) CHECK_INCDEC_MODELVAR_ZERO(event, md2->mixWarn, 3);
+        md2->mixWarn = editNumberField(STR_MIXWARNING, 0, MIXES_2ND_COLUMN, y, md2->mixWarn, 0, 3, attr, event, STR_OFF);
         break;
 
       case MIX_FIELD_MLTPX:
@@ -189,11 +184,11 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_DELAY_UP:
-        md2->delayUp = EDIT_DELAY(0, y, event, attr, STR_DELAYUP, md2->delayUp, (md2->delayPrec ? PREC2 : PREC1));
+        md2->delayUp = editDelay(y, event, attr, STR_DELAYUP, md2->delayUp, (md2->delayPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_DELAY_DOWN:
-        md2->delayDown = EDIT_DELAY(0, y, event, attr, STR_DELAYDOWN, md2->delayDown, (md2->delayPrec ? PREC2 : PREC1));
+        md2->delayDown = editDelay(y, event, attr, STR_DELAYDOWN, md2->delayDown, (md2->delayPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_SLOW_PREC:
@@ -201,11 +196,11 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_SLOW_UP:
-        md2->speedUp = EDIT_DELAY(0, y, event, attr, STR_SLOWUP, md2->speedUp, (md2->speedPrec ? PREC2 : PREC1));
+        md2->speedUp = editDelay(y, event, attr, STR_SLOWUP, md2->speedUp, (md2->speedPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_SLOW_DOWN:
-        md2->speedDown = EDIT_DELAY(0, y, event, attr, STR_SLOWDOWN, md2->speedDown, (md2->speedPrec ? PREC2 : PREC1));
+        md2->speedDown = editDelay(y, event, attr, STR_SLOWDOWN, md2->speedDown, (md2->speedPrec ? PREC2 : PREC1));
         break;
     }
     y += FH;

@@ -378,9 +378,10 @@ void Window::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding,
                            coord_t width, coord_t height)
 {
   lv_obj_set_flex_flow(lvobj, flow);
-  if (_LV_FLEX_COLUMN & flow) {
+  if ((_LV_FLEX_COLUMN & flow) || (_LV_FLEX_WRAP & flow)) {
     lv_obj_set_style_pad_row(lvobj, padding, LV_PART_MAIN);
-  } else {
+  }
+  if (!(_LV_FLEX_COLUMN & flow) || (_LV_FLEX_WRAP & flow)) {
     lv_obj_set_style_pad_column(lvobj, padding, LV_PART_MAIN);
   }
   lv_obj_set_width(lvobj, width);
@@ -402,6 +403,11 @@ void Window::show(bool visible)
         lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     }
   }
+}
+
+bool Window::isVisible()
+{
+  return !_deleted && lvobj && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
 }
 
 void Window::enable(bool enabled)
@@ -426,6 +432,17 @@ void Window::addBackButton()
         return 0;
       },
       window_create);
+}
+
+void Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
+{
+  new ButtonBase(
+    this, {x, y, EdgeTxStyles::MENU_HEADER_HEIGHT, EdgeTxStyles::MENU_HEADER_HEIGHT},
+    [=]() -> uint8_t {
+      action();
+      return 0;
+    },
+    window_create);
 }
 #endif
 
@@ -490,6 +507,26 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
   setWindowFlag(OPAQUE);
 }
 
+class SetupTextButton : public TextButton
+{
+ public:
+  SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef& entry) :
+      TextButton(parent, rect, STR_VAL(entry.title))
+  {
+    setPressHandler([=] {
+      entry.createPage();
+      return 0;
+    });
+    setCheckHandler([=]() {
+      if (entry.isActive) check(entry.isActive());
+      if (entry.enabled) show(entry.enabled());
+    });
+    setWrap();
+  }
+
+ protected:
+};
+
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
                                    PaddingSize padding, PageDefs pages, coord_t btnHeight) :
     Window(parent, rect)
@@ -523,19 +560,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    // TODO: sort out all caps title strings VS quick menu strings
-    std::string title(entry.title);
-    for (std::string::iterator it = title.begin(); it != title.end(); ++it) {
-      if (*it == '\n')
-        *it = ' ';
-    }
-
-    auto btn = new TextButton(this, rect_t{x, y, buttonWidth, btnHeight}, title, [&, entry]() {
-      entry.createPage();
-      return 0;
-    });
-    btn->setWrap();
-    if (entry.isActive) btn->setCheckHandler([=]() { btn->check(entry.isActive()); });
+    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
     n += 1;
     remaining -= 1;
   }
@@ -574,7 +599,11 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
   Window* w;
 
   for (int i = 0; i < lineCount; i += 1) {
+#if !defined(ALL_LANGS)
     w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
+#else
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title ? setupLines[i].title() : nullptr, setupLines[i].createEdit);
+#endif
     y += w->height() + padding;
   }
 
