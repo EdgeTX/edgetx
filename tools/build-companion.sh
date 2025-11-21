@@ -223,7 +223,7 @@ declare -a simulator_plugins=(
     commando8 boxer pocket mt12 gx12
     tlite tpro tprov2 tpros bumblebee lr3pro t14
     nv14 el18 pl18 pl18ev pl18u st16 pa01
-    f16 v14 v16
+    f16 v12 v14 v14lcd v16
 )
 
 get_platform_config
