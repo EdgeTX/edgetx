@@ -251,7 +251,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       if (sensorID < 128) {
         // Treating frame as Cells sensor
         // We can handle only up to 8 cells
-        for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
+        for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 3);  i++) {
           getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
           const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
           setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, 0,
