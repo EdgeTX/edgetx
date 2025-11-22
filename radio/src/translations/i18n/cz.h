@@ -660,6 +660,10 @@
 
 #define TR_MENUCURVE                   "\002K"
 #define TR_MENULOGICALSWITCH           "LOG. SPÍNAČ"
+#define TR_MENU_VIRTUAL_SWITCHES       CHAR_SWITCH "Virt. switches"
+#define TR_MENU_VCONTROL               "Virtuals"
+#define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #define TR_MENUSTAT                    "STATISTIKA"
 #define TR_MENUDEBUG                   "DIAG"
 #define TR_MONITOR_CHANNELS            "MONITOR KANÁLŮ %d/%d"
