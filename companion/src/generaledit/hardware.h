@@ -41,7 +41,8 @@ class HardwarePanel : public GeneralPanel
 
   signals:
     void internalModuleChanged();
-    void InputFlexTypeChanged();
+    void inputFlexTypeChanged(AutoComboBox *cb, int index);
+    void refreshItemModels();
 
   private slots:
     void on_internalModuleChanged();
@@ -73,4 +74,5 @@ class HardwarePanel : public GeneralPanel
 
     void setFlexTypeModel(AutoComboBox * cb, int index);
     void updateSerialPortUSBVCP();
+    void updateItemModels();
 };

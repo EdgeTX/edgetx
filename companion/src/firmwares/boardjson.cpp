@@ -752,6 +752,11 @@ bool BoardJson::isInputFlex(const InputDefn & defn)
   return defn.type == Board::AIT_FLEX;
 }
 
+const bool BoardJson::isInputFlexGyroAxis(int index) const
+{
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexGyroAxis(m_inputs->at(index)) : false;
+}
+
 // static
 bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 {
@@ -759,6 +764,11 @@ bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 
   return (defn.type == Board::AIT_FLEX && defn.tag.size() > 5 &&
           val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
+}
+
+const bool BoardJson::isInputFlexJoystickAxis(int index) const
+{
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexJoystickAxis(m_inputs->at(index)) : false;
 }
 
 // static
