@@ -268,6 +268,10 @@ bool getHatsAsKeys()
 }
 #endif
 
+void pollKeys()
+{
+}
+
 uint32_t readKeys()
 {
   uint32_t result = 0;

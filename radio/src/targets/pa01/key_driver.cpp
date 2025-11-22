@@ -74,7 +74,7 @@ static uint32_t keyState = 0;
 static uint32_t nonReadCount = 0;
 #endif
 
-static uint32_t _readKeyMatrix()
+void pollKeys()
 {
 #if !defined(BOOT)
   if(!bsp_get_shouldReadKeys() && nonReadCount < 10)
@@ -83,7 +83,6 @@ static uint32_t _readKeyMatrix()
       keyState |= 1<<ENT;
 
     nonReadCount++;
-    return keyState;
   }
   nonReadCount = 0;
 #endif
@@ -98,13 +97,17 @@ static uint32_t _readKeyMatrix()
     uint8_t ui8ReadInProgress = 0;
   } syncelem;
 
-  if (syncelem.ui8ReadInProgress != 0) return syncelem.oldResult;
+  if (syncelem.ui8ReadInProgress != 0) {
+    keyState = syncelem.oldResult;
+  }
 
   // ui8ReadInProgress was 0, increment it
   syncelem.ui8ReadInProgress++;
   // Double check before continuing, as non-atomic, non-blocking so far
   // If ui8ReadInProgress is above 1, then there was concurrent task calling it, exit
-  if (syncelem.ui8ReadInProgress > 1) return syncelem.oldResult;
+  if (syncelem.ui8ReadInProgress > 1) {
+    keyState = syncelem.oldResult;
+  }
 
   // If we land here, we have exclusive access to Matrix
   bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT1);
@@ -170,8 +173,6 @@ static uint32_t _readKeyMatrix()
   fct_state[3] = (result & 1<<KEY4)?true:false;
 
   keyState = result;
-
-  return result;
 }
 
 void keysInit()
@@ -183,7 +184,7 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
 
-  uint32_t mkeys = _readKeyMatrix();
+  uint32_t mkeys = keyState;
   if (mkeys & (1 << PGUP)) result |= 1 << KEY_PAGEUP;
   if (mkeys & (1 << PGDN)) result |= 1 << KEY_PAGEDN;
   if (mkeys & (1 << RTN))  result |= 1 << KEY_EXIT;
@@ -195,7 +196,7 @@ uint32_t readKeys()
 
 uint32_t readTrims()
 {
-  uint32_t mkeys = _readKeyMatrix();
+  uint32_t mkeys = keyState;
 
   return mkeys & 0xff;  // Mask only the trims output
 }
