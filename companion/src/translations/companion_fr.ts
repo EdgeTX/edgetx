@@ -7025,12 +7025,17 @@ Cette fonction ne peut pas être désactivée sur la radio.
         <translation>Visualiseur de Log</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common axis</source>
+        <translation>Utiliser un axe commun</translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>Nom de fichier</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>Ouvrir fichier de Log</translation>
     </message>

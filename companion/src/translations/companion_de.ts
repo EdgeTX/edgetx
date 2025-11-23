@@ -6967,12 +6967,17 @@ Sind Sie sicher?</translation>
         <translation>Companion Log ansehen</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common axis</source>
+        <translation>Gemeinsame Achse verwenden</translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>Öffne LogDatei</translation>
     </message>
@@ -7000,6 +7005,11 @@ Sind Sie sicher?</translation>
         <location filename="../logsdialog.ui" line="173"/>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Gemeinsame Achse verwenden</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="25"/>

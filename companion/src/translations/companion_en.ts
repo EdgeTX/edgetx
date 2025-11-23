@@ -6921,12 +6921,17 @@ Are you sure ?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common axis</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation></translation>
     </message>

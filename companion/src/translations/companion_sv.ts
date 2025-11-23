@@ -7092,12 +7092,17 @@ att fungera. Detta går inte att ändra från radion.
         <translation>Companion loggläsare</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common axis</source>
+        <translation>Använd gemensam axel</translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>Filnamn</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>Öppna loggfil</translation>
     </message>

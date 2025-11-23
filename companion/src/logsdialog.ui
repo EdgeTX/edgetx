@@ -153,14 +153,14 @@
        </property>
       </widget>
      </item>
-     <item>
+      <item>
       <widget class="QCheckBox" name="ZoomX_ChkB">
        <property name="text">
         <string>X</string>
        </property>
       </widget>
      </item>
-     <item>
+      <item>
       <widget class="QCheckBox" name="ZoomY_ChkB">
        <property name="text">
         <string>Y</string>
@@ -187,6 +187,17 @@
        </property>
       </spacer>
      </item>
+    </layout>
+   </item>
+   <item row="3" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+        <widget class="QCheckBox" name="CommonAxes_ChkB">
+          <property name="text">
+            <string>Use common axis</string>
+          </property>
+        </widget>
+      </item>
     </layout>
    </item>
    <item row="13" column="0">
@@ -341,6 +352,7 @@
   <tabstop>mapsButton</tabstop>
   <tabstop>ZoomX_ChkB</tabstop>
   <tabstop>ZoomY_ChkB</tabstop>
+  <tabstop>CommonAxes_ChkB</tabstop>
   <tabstop>Reset_PB</tabstop>
   <tabstop>sessions_CB</tabstop>
  </tabstops>

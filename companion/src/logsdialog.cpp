@@ -125,6 +125,7 @@ LogsDialog::LogsDialog(QWidget *parent) :
   connect(ui->FieldsTW, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
   connect(ui->logTable, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
   connect(ui->Reset_PB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
+  connect(ui->CommonAxes_ChkB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
   connect(ui->SaveSession_PB, &QPushButton::clicked, this, &LogsDialog::saveSession);
   connect(ui->fileOpen_PB, &QPushButton::clicked, this, &LogsDialog::fileOpen);
   connect(ui->mapsButton, &QPushButton::clicked, this, &LogsDialog::mapsButtonClicked);
@@ -822,6 +823,50 @@ void LogsDialog::sessionsCurrentIndexChanged(int index)
   plotLogs();
 }
 
+std::pair<double, double> LogsDialog::GetMinMaxY() const
+{
+  double minVal = 0.0;
+  double maxVal = 0.0;
+  bool found = false;
+
+  // determine selected rows in the log table
+  QModelIndexList sel = ui->logTable->selectionModel()->selectedRows();
+  bool hasSelection = !sel.isEmpty();
+  QVarLengthArray<int> selectedRows;
+
+  if (hasSelection) {
+    selectedRows.reserve(sel.size());
+    for (const QModelIndex &idx : sel) selectedRows.append(idx.row());
+  }
+
+  // iterate over selected fields and rows to compute global min/max Y
+  for (QTableWidgetItem *fieldItem : ui->FieldsTW->selectedItems()) {
+    const int col = fieldItem->row() + 2;  // Date and Time are first two columns
+    const int rows = hasSelection ? selectedRows.length() : ui->logTable->rowCount();
+
+    for (int r = 0; r < rows; ++r) {
+      const int tableRow = hasSelection ? selectedRows.at(r) : r;
+      QTableWidgetItem *cell = ui->logTable->item(tableRow, col);
+      if (!cell) continue;
+
+      bool ok = false;
+      const double v = cell->text().toDouble(&ok);
+      if (!ok) continue;
+      
+      if (!found) {
+        minVal = maxVal = v;
+        found = true;
+      } else {
+        if (v < minVal) minVal = v;
+        if (v > maxVal) maxVal = v;
+      }
+    }
+  }
+
+  if (!found) return {0.0, 0.0};
+  return {minVal, maxVal};
+}
+
 void LogsDialog::plotLogs()
 {
   if (plotLock) return;
@@ -836,6 +881,7 @@ void LogsDialog::plotLogs()
   QModelIndexList selection = ui->logTable->selectionModel()->selectedRows();
   int rowCount = selection.length();
   bool hasLogSelection;
+  bool useCommonAxes = ui->CommonAxes_ChkB->isChecked();
   QVarLengthArray<int> selectedRows;
 
   if (rowCount) {
@@ -922,7 +968,8 @@ void LogsDialog::plotLogs()
         plots.coords.at(i).max_y < yAxesRanges[plots.coords.at(i).yaxis].min)
       ) {
 
-      switch (plots.coords[i].yaxis) {
+    if (!useCommonAxes) {
+        switch (plots.coords[i].yaxis) {
         case firstLeft:
           plots.coords[i].yaxis = firstRight;
           break;
@@ -939,6 +986,7 @@ void LogsDialog::plotLogs()
           break;
       }
       if (plots.tooManyRanges) break;
+    }
 
       actualRange = yAxesRanges[plots.coords.at(i).yaxis].max
         - yAxesRanges[plots.coords.at(i).yaxis].min;
@@ -986,9 +1034,12 @@ void LogsDialog::plotLogs()
   removeAllGraphs();
 
   axisRect->axis(QCPAxis::atBottom)->setRange(plots.min_x, plots.max_x);
-
-  axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min,
-    yAxesRanges[firstLeft].max);
+  if (useCommonAxes) {
+    auto [min, max] = this->GetMinMaxY();
+    axisRect->axis(QCPAxis::atLeft)->setRange(min, max);
+  } else {
+      axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
+  }
 
   if (plots.tooManyRanges) {
     axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
