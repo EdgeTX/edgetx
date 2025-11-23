@@ -602,7 +602,7 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
 #if !defined(ALL_LANGS)
     w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
 #else
-    w = new SetupLine(parent, y, col2, padding, setupLines[i].title(), setupLines[i].createEdit);
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title ? setupLines[i].title() : nullptr, setupLines[i].createEdit);
 #endif
     y += w->height() + padding;
   }

@@ -25,7 +25,7 @@
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
 #include "etx_lv_theme.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "view_main.h"
 #include "storage/sdcard_yaml.h"
 #include "lib_file.h"
@@ -104,6 +104,8 @@ static const struct YamlNode struct_YAMLThemeColors[] = {
     YAML_UNSIGNED_CUST("ACTIVE", 32, r_color, w_color),
     YAML_UNSIGNED_CUST("WARNING", 32, r_color, w_color),
     YAML_UNSIGNED_CUST("DISABLED", 32, r_color, w_color),
+    YAML_UNSIGNED_CUST("QM_BG", 32, r_color, w_color),
+    YAML_UNSIGNED_CUST("QM_FG", 32, r_color, w_color),
     YAML_END};
 
 // This hack is required to ensure the YAML file written is backward compatible
@@ -131,7 +133,8 @@ static const char* const colorNames[THEME_COLOR_COUNT] = {
     STR_THEME_COLOR_SECONDARY2, STR_THEME_COLOR_SECONDARY3,
     STR_THEME_COLOR_FOCUS,      STR_THEME_COLOR_EDIT,
     STR_THEME_COLOR_ACTIVE,     STR_THEME_COLOR_WARNING,
-    STR_THEME_COLOR_DISABLED,   STR_THEME_COLOR_CUSTOM,
+    STR_THEME_COLOR_DISABLED,   STR_THEME_COLOR_QM_BG,
+    STR_THEME_COLOR_QM_FG,      STR_THEME_COLOR_CUSTOM,
 };
 
 ThemeFile::ThemeFile(std::string themePath, bool loadYAML) : path(themePath)
@@ -200,6 +203,10 @@ void ThemeFile::deSerialize()
 {
   struct YAMLTheme yt;
   struct YamlNode themeRootNode = YAML_ROOT(r_struct_YAMLTheme);
+
+  // initialize the color table to defaults (in case of missing entries)
+  for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i < THEME_COLOR_COUNT - 1; i += 1)
+    yt.colors.colors[i] = defaultColors[i];
 
   YamlTreeWalker tree;
   tree.reset(&themeRootNode, (uint8_t*)&yt);
@@ -429,7 +436,7 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   return false;
 }
 
-bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
+bool ThemePersistance::createNewTheme(const std::string& name, ThemeFile& theme)
 {
   char fullPath[FF_MAX_LFN + 1];
   char* s = strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);
@@ -475,9 +482,8 @@ class DefaultEdgeTxTheme : public ThemeFile
     setAuthor("EdgeTX Team");
     setInfo("Default EdgeTX Color Scheme");
 
-    // initializze the default color table
-    for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX;
-         i <= COLOR_THEME_DISABLED_INDEX; i += 1)
+    // initialize the default color table
+    for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i < THEME_COLOR_COUNT - 1; i += 1)
       colorList.emplace_back(ColorEntry{(LcdColorIndex)i, defaultColors[i]});
   }
 };

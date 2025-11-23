@@ -102,18 +102,18 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 
 void Page::deleteLater(bool detach, bool trash)
 {
+  NavWindow::deleteLater(detach, trash);
+
   Layer::pop(this);
   Layer::back()->show();
-
-  NavWindow::deleteLater(detach, trash);
 }
 
 void Page::openMenu()
 {
   PageGroup* p = (PageGroup*)Layer::getPageGroup();
-  QuickMenu::SubMenu subMenu = QuickMenu::NONE;
+  QMPage qmPage = QM_NONE;
   if (p)
-    subMenu = p->getCurrentTab()->subMenu();
+    qmPage = p->getCurrentTab()->pageId();
   quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
@@ -124,7 +124,7 @@ void Page::openMenu()
         if (close)
           Layer::back()->onCancel();
       }
-    }, p, subMenu);
+    }, p, qmPage);
 }
 
 void Page::onCancel()
@@ -158,7 +158,16 @@ NavWindow* Page::navWindow()
 #if defined(HARDWARE_KEYS)
 void Page::onPressSYS()
 {
-  if (!quickMenu) openMenu();
+  QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!quickMenu) openMenu();
+  } else {
+    auto p = navWindow();
+    if (p) {
+      onCancel();
+      p->onPressSYS();
+    }
+  }
 }
 
 void Page::onLongPressSYS()

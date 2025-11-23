@@ -58,7 +58,7 @@
 #define TR_EMPTY                        "---"
 
 // '~' is remapped to 0x7B in B&W font
-#define CHAR_TILDE                      TR_BW_COL("~", "{")
+#define CHAR_TILDE                      TR_BW_COL("{", "~")
 
 // String array groups
 #define TR_VCSWFUNC                     "---","a=x","a" CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,\

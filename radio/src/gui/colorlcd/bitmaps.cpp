@@ -69,6 +69,10 @@ MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed)
   return raw;
 }
 
+static const uint8_t mask_menu_favs[] = {
+#include "mask_menu_favs.lbm"
+};
+
 static const uint8_t mask_menu_model[] = {
 #include "mask_menu_model.lbm"
 };
@@ -388,6 +392,7 @@ struct _BuiltinIcon {
 // Note: Order must match EdgeTxIcon enum
 static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_EDGETX, mask_edgetx),
+    BI(ICON_QM_FAVORITES, mask_menu_favs),
     BI(ICON_RADIO, mask_menu_radio),
     BI(ICON_RADIO_SETUP, mask_radio_setup),
     BI(ICON_RADIO_SD_MANAGER, mask_radio_sd_browser),

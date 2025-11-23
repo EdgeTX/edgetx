@@ -38,6 +38,8 @@ const uint16_t defaultColors[] = {
     RGB(255, 222, 0),    // ACTIVE
     RGB(224, 0, 0),      // WARNING
     RGB(140, 140, 140),  // DISABLED
+    RGB(0, 0, 0),        // Quick Menu Background
+    RGB(255, 255, 255),  // Quick Menu Foreground
     RGB(170, 85, 0),     // CUSTOM
     // Fixed
     RGB(0x00, 0x00, 0x00), // BLACK
@@ -76,6 +78,8 @@ uint16_t lcdColorTable[] = {
     RGB(255, 222, 0),    // ACTIVE
     RGB(224, 0, 0),      // WARNING
     RGB(140, 140, 140),  // DISABLED
+    RGB(0, 0, 0),        // Quick Menu Background
+    RGB(255, 255, 255),  // Quick Menu Foreground
     RGB(170, 85, 0),     // CUSTOM
     // Fixed
     RGB(0x00, 0x00, 0x00), // BLACK

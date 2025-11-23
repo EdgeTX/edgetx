@@ -155,7 +155,7 @@ public:
 
     bool isElmtEmpty(uint8_t* data);
 
-    void setAttrValue(char* buf, uint16_t len);
+    void setAttrValue(const char* buf, uint16_t len);
 
     bool generate(yaml_writer_func wf, void* opaque);
 

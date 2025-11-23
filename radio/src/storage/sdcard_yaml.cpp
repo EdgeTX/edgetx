@@ -182,6 +182,9 @@ const char * loadRadioSettings()
 
     adcCalibDefaults();
     generalDefaultSwitches();
+#if defined(COLORLCD)
+    g_eeGeneral.defaultKeyShortcuts();
+#endif
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {
@@ -343,6 +346,9 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 #if defined(FUNCTION_SWITCHES)
       extern void initCustomSwitches();
       initCustomSwitches();
+#endif
+#if defined(COLORLCD)
+      g_model.initScreenData();
 #endif
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)

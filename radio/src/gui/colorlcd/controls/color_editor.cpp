@@ -365,7 +365,7 @@ class ThemeColorType : public ColorType
     m_color = color;
 
     auto vbox = new Window(parent, rect_t{});
-    vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
+    vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
     makeButtonsRow(vbox, COLOR_THEME_PRIMARY1_INDEX, COLOR_THEME_PRIMARY2_INDEX,
                   COLOR_THEME_PRIMARY3_INDEX);
@@ -375,6 +375,8 @@ class ThemeColorType : public ColorType
                   COLOR_THEME_ACTIVE_INDEX);
     makeButtonsRow(vbox, COLOR_THEME_WARNING_INDEX, COLOR_THEME_DISABLED_INDEX,
                   COLOR_THEME_DISABLED_INDEX);
+    makeButtonsRow(vbox, COLOR_THEME_QM_BG_INDEX, COLOR_THEME_QM_FG_INDEX,
+                  COLOR_THEME_QM_FG_INDEX);
   }
 
   uint32_t getRGB() { return m_color; }
@@ -397,13 +399,13 @@ class ThemeColorType : public ColorType
   void makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2, uint16_t c3)
   {
     auto hbox = new Window(parent, rect_t{});
-    hbox->padAll(PAD_TINY);
-    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
+    hbox->padAll(PAD_OUTLINE);
+    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_OUTLINE);
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
     makeButton(hbox, c1);
-    makeButton(hbox, c2);
+    if (c2 != c1) makeButton(hbox, c2);
     if (c3 != c2) makeButton(hbox, c3);
   }
 

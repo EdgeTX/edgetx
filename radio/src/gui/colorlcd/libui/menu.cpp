@@ -70,8 +70,6 @@ class MenuBody : public TableField
   {
     // Allow encoder acceleration
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-    // Add scroll bar if needed
-    etx_scrollbar(lvobj);
 
     setColumnWidth(0, rect.w);
 
@@ -351,7 +349,7 @@ class MenuWindowContent : public Window
     body->addLine(icon_mask, text, onPress, isChecked, update);
   }
 
-  static constexpr coord_t MENUS_WIDTH = 200;
+  static LAYOUT_VAL_SCALED(MENUS_WIDTH, 200)
 
  protected:
   StaticText* header = nullptr;

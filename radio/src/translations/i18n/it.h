@@ -35,7 +35,8 @@
 #define TR_QM_RADIO_SETUP               "Radio\nSetup"
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
-#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#define TR_QM_MODEL_SETTINGS            "Model\nSettings"
+#define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
 #define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
@@ -70,7 +71,8 @@
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MODEL_SETTINGS          "Model Settings"
+#define TR_MAIN_RADIO_SETTINGS          "Radio Settings"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestione Modelli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Note Modello"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canali"
@@ -1258,6 +1260,8 @@
 #define TR_THEME_COLOR_ACTIVE           "ATTIVO"
 #define TR_THEME_COLOR_WARNING          "ATTENZIONE"
 #define TR_THEME_COLOR_DISABLED         "DISABILITATO"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "PERSONALE"
 #define TR_THEME_CHECKBOX               "Casella di spunta"
 #define TR_THEME_ACTIVE                 "Attivo"
@@ -1405,3 +1409,10 @@
  * Update V2.11.x by: Marco Robustini <robustinimarco@gmail.com>
  * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
  */
+
+#define TR_KEY_SHORTCUTS          "Key Shortcuts"
+#define TR_CURRENT_SCREEN         "Current Screen"
+#define TR_SHORT_PRESS            "Short Press"
+#define TR_LONG_PRESS             "Long Press"
+#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
+#define TR_QUICK_MENU_FAVORITES   "Quick Menu Favorites"

@@ -172,6 +172,8 @@ enum Capability {
   HasIntModuleELRS,
   HasIntModuleFlySky,
   BacklightLevelMin,
+  QMFavourites,
+  KeyShortcuts,
 };
 
 float ValToTim(int value);

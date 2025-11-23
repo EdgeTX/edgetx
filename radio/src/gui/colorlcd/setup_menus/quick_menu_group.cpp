@@ -29,11 +29,11 @@ static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
                                          lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
-  etx_txt_color(obj, COLOR_WHITE_INDEX, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->pad_medium, LV_PART_MAIN);
-  etx_solid_bg(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
+  etx_txt_color(obj, COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
+  etx_solid_bg(obj, COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
 
-  etx_solid_bg(obj, COLOR_WHITE_INDEX, LV_PART_MAIN | LV_STATE_FOCUSED);
+  etx_solid_bg(obj, COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN | LV_STATE_FOCUSED);
 }
 
 static const lv_obj_class_t etx_quick_button_class = {
@@ -63,16 +63,14 @@ class QuickMenuButton : public ButtonBase
       ButtonBase(parent, {}, pressHandler, etx_quick_button_create),
       visibleHandler(std::move(visibleHandler))
   {
-    padAll(PAD_ZERO);
-
-    iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_WHITE_INDEX);
+    iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_THEME_QM_FG_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
-    etx_img_color(iconPtr->getLvObj(), COLOR_BLACK_INDEX, LV_STATE_USER_1);
+    etx_img_color(iconPtr->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_STATE_USER_1);
 
     textPtr = new StaticText(this, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
-                   title, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
+                   title, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
-    etx_txt_color(textPtr->getLvObj(), COLOR_BLACK_INDEX, LV_STATE_USER_1);
+    etx_txt_color(textPtr->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_STATE_USER_1);
 
     lv_obj_add_event_cb(lvobj, QuickMenuButton::focused_cb, LV_EVENT_FOCUSED, nullptr);
     lv_obj_add_event_cb(lvobj, QuickMenuButton::defocused_cb, LV_EVENT_DEFOCUSED, nullptr);
@@ -138,12 +136,12 @@ QuickMenuGroup::QuickMenuGroup(Window* parent) :
 }
 
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
-                                  std::function<uint8_t(void)> pressHandler,
+                                  std::function<void(void)> pressHandler,
                                   std::function<bool(void)> visibleHandler,
                                   std::function<void(void)> focusHandler)
 {
-  ButtonBase* b = new QuickMenuButton(this, icon, title, pressHandler, visibleHandler);
-  b->setLongPressHandler(pressHandler);
+  ButtonBase* b = new QuickMenuButton(this, icon, title, [=]() { pressHandler(); return 0; }, visibleHandler);
+  b->setLongPressHandler([=]() { pressHandler(); return 0; });
   btns.push_back(b);
   if (group) lv_group_add_obj(group, b->getLvObj());
   b->setFocusHandler([=](bool focus) {

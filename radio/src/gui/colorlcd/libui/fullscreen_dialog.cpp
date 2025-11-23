@@ -49,11 +49,6 @@ FullScreenDialog::FullScreenDialog(
 
   bringToTop();
 
-  delayLoad();
-}
-
-void FullScreenDialog::delayedInit()
-{
   build();
 }
 
@@ -160,14 +155,14 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
   if (running) {
     running = false;
   } else {
-    Layer::pop(this);
     Window::deleteLater(detach, trash);
+    Layer::pop(this);
   }
 }
 
-void FullScreenDialog::setMessage(std::string text)
+void FullScreenDialog::setMessage(const char* text)
 {
-  messageLabel->setText(text);
+  if (messageLabel) messageLabel->setText(text);
 }
 
 static void run_ui_manually()

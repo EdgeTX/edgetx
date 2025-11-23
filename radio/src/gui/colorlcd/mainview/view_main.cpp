@@ -23,10 +23,11 @@
 
 #include "model_select.h"
 #include "edgetx.h"
-#include "topbar_impl.h"
+#include "topbar.h"
 #include "quick_menu.h"
 #include "view_channels.h"
 #include "screen_setup.h"
+#include "widget.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -94,16 +95,16 @@ ViewMain::ViewMain() :
                       nullptr);
 
   // create last to be on top
-  topbar = TopbarFactory::create(this);
+  topbar = new TopBar(this);
 }
 
 ViewMain::~ViewMain() { _instance = nullptr; }
 
 void ViewMain::deleteLater(bool detach, bool trash)
 {
+  NavWindow::deleteLater(detach, trash);
   Layer::pop(this);
   QuickMenu::shutdownQuickMenu();
-  NavWindow::deleteLater(detach, trash);
 }
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
@@ -244,36 +245,23 @@ void ViewMain::updateTopbarVisibility()
 }
 
 #if defined(HARDWARE_KEYS)
-void ViewMain::onPressSYS()
+void ViewMain::doKeyShortcut(event_t event)
 {
-  if (!viewMainMenu) openMenu();
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!viewMainMenu) openMenu();
+  } else {
+    if (viewMainMenu)
+      viewMainMenu->closeMenu();
+    QuickMenu::openPage(pg);
+  }
 }
-void ViewMain::onLongPressSYS()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  // Radio setup
-  PageGroup::ToolsMenu();
-}
-void ViewMain::onPressMDL()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  PageGroup::ModelMenu();
-}
-void ViewMain::onLongPressMDL()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  new ModelLabelsWindow();
-}
-void ViewMain::onPressTELE()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  (PageGroup::ScreenMenu())->setCurrentTab(getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
-}
-void ViewMain::onLongPressTELE()
-{
-  if (viewMainMenu) viewMainMenu->closeMenu();
-  new ChannelsViewMenu();
-}
+void ViewMain::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void ViewMain::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void ViewMain::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void ViewMain::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void ViewMain::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void ViewMain::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {
@@ -408,7 +396,7 @@ bool ViewMain::hasTopbar()
 bool ViewMain::hasTopbar(unsigned view)
 {
   if (view < MAX_CUSTOM_SCREENS)
-    return g_model.screenData[view].layoutData.options[LAYOUT_OPTION_TOPBAR].value.boolValue;
+    return g_model.getScreenLayoutData(view)->options[LAYOUT_OPTION_TOPBAR].value.boolValue;
   return false;
 }
 

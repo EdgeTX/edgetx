@@ -26,6 +26,9 @@
 #include "model_select.h"
 #include "edgetx.h"
 
+// TODO: find better way to detect only used channels!
+#define ALL_CHANNELS true
+
 //-----------------------------------------------------------------------------
 
 class ChannelsViewFooter : public Window
@@ -96,7 +99,7 @@ class ChannelsViewPage : public PageGroupItem
     for (uint8_t i = 0, j = 0; j < rows * cols; i += 1) {
       uint8_t chan = startChan + i;
       if (chan >= MAX_OUTPUT_CHANNELS) break;
-      if (isChannelUsed(chan)) {
+      if (ALL_CHANNELS || isChannelUsed(chan)) {
 #if PORTRAIT
         coord_t xPos = PAD_SMALL;
         coord_t yPos = j * ((window->height() - PAD_LARGE * 3) / rows);
@@ -120,7 +123,7 @@ class ChannelsViewPage : public PageGroupItem
 ChannelsViewMenu::ChannelsViewMenu() :
     TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
-  QuickMenu::setCurrentPage(QuickMenu::TOOLS_CHAN_MON);
+  QuickMenu::setCurrentPage(QM_TOOLS_CHAN_MON);
 
 #if PORTRAIT
     int cols = 1;
@@ -137,7 +140,7 @@ ChannelsViewMenu::ChannelsViewMenu() :
 
   for (int i = 0; i < MAX_OUTPUT_CHANNELS;) {
     int start = i;
-    while (!isChannelUsed(start)) {
+    while (!ALL_CHANNELS && !isChannelUsed(start)) {
       start += 1;
       if (start >= MAX_OUTPUT_CHANNELS) break;
     }
@@ -146,7 +149,7 @@ ChannelsViewMenu::ChannelsViewMenu() :
     int last = start;
     int end = start + 1;
     while (end < MAX_OUTPUT_CHANNELS && count < chansPerPage) {
-      if (isChannelUsed(end)) {
+      if (ALL_CHANNELS || isChannelUsed(end)) {
         count += 1;
         last = end;
       }

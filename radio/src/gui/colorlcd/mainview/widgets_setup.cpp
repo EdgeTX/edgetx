@@ -155,11 +155,13 @@ void SetupWidgetsPage::onClicked()
 void SetupWidgetsPage::onCancel()
 {
   deleteLater();
-  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + customScreenIdx));
 }
 
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 {
+  Window::deleteLater(detach, trash);
+
   // restore screen setting tab on top
   Layer::pop(this);
 
@@ -170,7 +172,6 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->setCurrentMainView(savedView);
     viewMain->showTopBarEdgeTxButton();
   }
-  Window::deleteLater(detach, trash);
 
   storageDirty(EE_MODEL);
 }

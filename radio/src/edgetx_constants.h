@@ -52,11 +52,6 @@ enum fsStartPositionType {
   FS_START_PREVIOUS
 };
 
-enum booleanEnum {
-  BOOL_OFF,
-  BOOL_ON
-};
-
 enum CalibrationState {
   CALIB_START,
   CALIB_SET_MIDPOINT,
