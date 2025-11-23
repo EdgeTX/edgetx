@@ -153,14 +153,14 @@
        </property>
       </widget>
      </item>
-      <item>
+     <item>
       <widget class="QCheckBox" name="ZoomX_ChkB">
        <property name="text">
         <string>X</string>
        </property>
       </widget>
      </item>
-      <item>
+     <item>
       <widget class="QCheckBox" name="ZoomY_ChkB">
        <property name="text">
         <string>Y</string>
