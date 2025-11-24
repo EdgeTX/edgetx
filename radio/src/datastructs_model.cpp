@@ -194,7 +194,7 @@ void ModelData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
 #endif
 
 #if defined(COLORLCD)
-static TopBarPersistentData* _topbarData = nullptr;
+static TopBarPersistentData _topbarData;
 static CustomScreenData* _screenData[MAX_CUSTOM_SCREENS];
 
 CustomScreenData* ModelData::getScreenData(int screenNum)
@@ -219,7 +219,7 @@ void ModelData::setScreenLayoutId(int screenNum, const char* s)
 
 TopBarPersistentData* ModelData::getTopbarData()
 {
-  return _topbarData;
+  return &_topbarData;
 }
 
 LayoutPersistentData* ModelData::getScreenLayoutData(int screenNum)
@@ -245,10 +245,9 @@ void ModelData::removeScreenLayout(int idx)
   _screenData[idx] = nullptr;
 }
 
-void ModelData::initScreenData()
+void ModelData::resetScreenData()
 {
-  if (!_topbarData) _topbarData = new TopBarPersistentData();
-  _topbarData->clear();
+  _topbarData.clear();
 
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
     if (_screenData[i]) delete _screenData[i];
