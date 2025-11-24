@@ -1144,6 +1144,7 @@ void edgeTxResume()
 
   luaInitMainState();
 #if defined(COLORLCD) && defined(LUA)
+  g_model.initScreenData();
   // reload widgets
   luaInitThemesAndWidgets();
 #endif
@@ -1466,6 +1467,7 @@ void edgeTxInit()
   luaInitMainState();
 #if defined(COLORLCD) && defined(LUA)
   if (!UNEXPECTED_SHUTDOWN()) {
+    g_model.initScreenData();
     // lua widget state must be prepared before the call to storageReadAll()
     luaInitThemesAndWidgets();
   }
