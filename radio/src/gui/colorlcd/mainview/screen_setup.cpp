@@ -186,8 +186,9 @@ void ScreenSetupPage::build(Window* window)
 #endif
   btn = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
                        [=]() -> uint8_t {
+    auto idx = customScreenIndex;
     window->getParent()->deleteLater();
-    new SetupWidgetsPage(customScreenIndex);
+    new SetupWidgetsPage(idx);
     return 0;
   });
   lv_obj_set_style_grid_cell_y_align(btn->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
