@@ -67,6 +67,10 @@ void rtcInit()
   __HAL_RCC_PWR_CLK_ENABLE();
 #endif
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  __HAL_RCC_BKPRAM_CLK_ENABLE();
+#endif
+
   // Enable LSE Oscillator
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
