@@ -67,6 +67,10 @@ void rtcInit()
   __HAL_RCC_PWR_CLK_ENABLE();
 #endif
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  __HAL_RCC_BKPRAM_CLK_ENABLE();
+#endif
+
   HAL_PWR_EnableBkUpAccess();
 #if defined(LSE_DRIVE_STRENGTH)
   __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
