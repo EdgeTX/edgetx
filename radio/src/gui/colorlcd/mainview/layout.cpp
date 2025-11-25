@@ -33,7 +33,7 @@ const LayoutOption defaultLayoutOptions[] = {LAYOUT_COMMON_OPTIONS,
 
 void ZonePersistentData::clear()
 {
-  widgetName[0] = 0;
+  widgetName.clear();
   widgetData.clear();
 }
 
@@ -69,7 +69,7 @@ WidgetPersistentData* LayoutPersistentData::getWidgetData(int idx)
 
 bool LayoutPersistentData::hasWidget(int idx)
 {
-  return zones[idx].widgetName[0] != 0;
+  return !zones[idx].widgetName.empty();
 }
 
 //-----------------------------------------------------------------------------
@@ -280,9 +280,8 @@ void LayoutFactory::initPersistentData(int screenNum, bool setDefault) const
       // TODO compiler bug? The CPU freezes ... persistentData->options[i++]
       // = option->deflt;
       auto optVal = &layoutData->options[i];
-      if (setDefault) {
-        memcpy(&optVal->value, &option->deflt, sizeof(LayoutOptionValue));
-      }
+      if (setDefault)
+        optVal->value.unsignedValue = option->deflt.unsignedValue;
       optVal->type = layoutValueEnumFromType(option->type);
     }
   }

@@ -245,7 +245,7 @@ void ModelData::removeScreenLayout(int idx)
   _screenData[idx] = nullptr;
 }
 
-void ModelData::initScreenData()
+void ModelData::resetScreenData()
 {
   _topbarData.clear();
 
