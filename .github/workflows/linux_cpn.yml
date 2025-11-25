@@ -2,18 +2,13 @@ name: Linux Companion
 
 on:
   push:
-    tags:
-      - v*
-    paths:
+    paths: &trigger-paths
       - '.github/workflows/linux_cpn.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
 
   pull_request:
-    paths:
-      - '.github/workflows/linux_cpn.yml'
-      - 'companion/**'
-      - 'tools/build-companion.sh'
+    paths: *trigger-paths
 
   workflow_dispatch:
 
