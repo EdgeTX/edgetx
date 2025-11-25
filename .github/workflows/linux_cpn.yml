@@ -2,8 +2,6 @@ name: Linux Companion
 
 on:
   push:
-    branches:
-      - 'main'
     tags:
       - v*
     paths:
@@ -12,8 +10,6 @@ on:
       - 'tools/build-companion.sh'
 
   pull_request:
-    branches:
-      - 'main'
     paths:
       - '.github/workflows/linux_cpn.yml'
       - 'companion/**'

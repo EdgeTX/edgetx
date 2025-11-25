@@ -2,8 +2,6 @@
 name: Run tests and package firmware
 on:
   push:
-    branches:
-      - 'main'
     tags:
       - v*
     paths:
@@ -14,8 +12,6 @@ on:
       - '.gitmodules'
       - 'CMakeLists.txt'
   pull_request:
-    branches:
-      - 'main'
     paths:
       - '.github/workflows/build_fw.yml'
       - 'cmake/**'
