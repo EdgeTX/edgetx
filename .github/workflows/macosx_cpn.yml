@@ -2,8 +2,6 @@ name: MacOSX Companion
 
 on:
   push:
-    branches:
-      - '2.11'
     tags:
       - v*
     paths:
@@ -12,8 +10,6 @@ on:
       - 'tools/build-companion.sh'
 
   pull_request:
-    branches:
-      - '2.11'
     paths:
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'

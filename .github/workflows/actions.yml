@@ -2,37 +2,23 @@
 name: Run tests and package firmware
 on:
   push:
-    branches:
-      - '2.11'
     tags:
       - v*
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-      - 'fw.json'
+    paths:
+      - '.github/workflows/actions.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
   pull_request:
-    branches:
-      - '2.11'
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-      - 'fw.json'
+    paths:
+      - '.github/workflows/actions.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
   workflow_dispatch:
 
 jobs:
