@@ -2,9 +2,7 @@
 name: Run tests and package firmware
 on:
   push:
-    tags:
-      - v*
-    paths:
+    paths: &trigger-paths
       - '.github/workflows/build_fw.yml'
       - 'cmake/**'
       - 'radio/**'
@@ -12,13 +10,7 @@ on:
       - '.gitmodules'
       - 'CMakeLists.txt'
   pull_request:
-    paths:
-      - '.github/workflows/build_fw.yml'
-      - 'cmake/**'
-      - 'radio/**'
-      - 'tools/build-gh.sh'
-      - '.gitmodules'
-      - 'CMakeLists.txt'
+    paths: *trigger-paths
   workflow_dispatch:
 
 jobs:
