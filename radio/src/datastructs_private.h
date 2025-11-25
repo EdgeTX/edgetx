@@ -831,7 +831,7 @@ PACK(struct ModelData {
   NOBACKUP(uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES]);
   NOBACKUP(uint8_t view);
 
-  void initScreenData();
+  void resetScreenData();
   const char* getScreenLayoutId(int screenNum);
   void setScreenLayoutId(int screenNum, const char* s);
   TopBarPersistentData* getTopbarData();
