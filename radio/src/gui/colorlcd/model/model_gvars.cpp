@@ -534,7 +534,7 @@ void ModelGVarsPage::build(Window* window)
   if (modelFMEnabled()) {
     window->padTop(PAD_OUTLINE);
     hdr = new GVarHeader(window->getParent());
-    lv_obj_set_pos(hdr->getLvObj(), 0, PageGroup::PAGE_TOP_BAR_H);
+    lv_obj_set_pos(hdr->getLvObj(), 0, PageGroup::PAGE_GROUP_BODY_Y);
     yo = GVarHeader::HDR_H;
   }
 

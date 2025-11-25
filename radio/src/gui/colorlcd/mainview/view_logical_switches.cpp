@@ -24,6 +24,7 @@
 #include "edgetx.h"
 #include "switches.h"
 #include "etx_lv_theme.h"
+#include "quick_menu.h"
 
 #if PORTRAIT
 
@@ -233,6 +234,12 @@ class LogicalSwitchDisplayButton : public TextButton
   unsigned index = 0;
   bool value = false;
 };
+
+LogicalSwitchesViewPage::LogicalSwitchesViewPage() :
+    PageGroupItem(STR_MONITOR_SWITCHES, QM_TOOLS_LS_MON)
+{
+  setIcon(ICON_MONITOR_LOGICAL_SWITCHES);
+}
 
 LogicalSwitchesViewPage::LogicalSwitchesViewPage(PageDef& pageDef) :
     PageGroupItem(pageDef)

@@ -25,6 +25,7 @@
 #include "tasks/mixer_task.h"
 
 #if defined(COLORLCD)
+#include "quick_menu_def.h"
 #include "view_main.h"
 #endif
 
@@ -159,8 +160,13 @@ void RadioData::defaultKeyShortcuts()
 {
   setKeyShortcut(EVT_KEY_BREAK(KEY_MODEL), QM_MODEL_SETUP);
   setKeyShortcut(EVT_KEY_LONG(KEY_MODEL), QM_MANAGE_MODELS);
+#if VERSION_MAJOR == 2
+  setKeyShortcut(EVT_KEY_BREAK(KEY_SYS), QM_TOOLS_APPS);
+  setKeyShortcut(EVT_KEY_LONG(KEY_SYS), QM_RADIO_SETUP);
+#else
   setKeyShortcut(EVT_KEY_BREAK(KEY_SYS), QM_OPEN_QUICK_MENU);
   setKeyShortcut(EVT_KEY_LONG(KEY_SYS), QM_TOOLS_APPS);
+#endif
   setKeyShortcut(EVT_KEY_BREAK(KEY_TELE), QM_UI_SCREEN1);
   setKeyShortcut(EVT_KEY_LONG(KEY_TELE), QM_TOOLS_CHAN_MON);
 }

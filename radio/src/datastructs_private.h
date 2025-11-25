@@ -1162,8 +1162,13 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
+#if VERSION_MAJOR == 2
+  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS] SKIP);
+  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES] SKIP);
+#else
   NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
   NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+#endif
 #endif
 
   NOBACKUP(uint8_t getBrightness() const
