@@ -32,6 +32,7 @@
 #include "stm32_ws2812.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
+extern bool suspendTimerTask;
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -68,6 +69,10 @@ static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
 {
   (void)ulParameter2;
   _poll_switches_in_queue = false;
+
+  // Suspend hardware reads when required
+  if (suspendTimerTask) return;
+  
   bsp_io_read_switches();
   bsp_io_read_fs_switches();
 }
