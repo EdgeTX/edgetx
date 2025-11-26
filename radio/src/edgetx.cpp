@@ -1392,8 +1392,6 @@ void edgeTxInit()
   lcdSetContrast();
 #endif
 
-  BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
-
 #if defined(STARTUP_ANIMATION)
   if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     pwrOn();
@@ -1475,7 +1473,6 @@ void edgeTxInit()
 #endif
 
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.getBrightness();
-
 
   referenceSystemAudioFiles();
   audioQueue.start();

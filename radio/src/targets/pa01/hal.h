@@ -257,7 +257,7 @@
 #define LCD_SPI_CLK                     GPIO_PIN(GPIOG, 11)
 #define LCD_SPI_MOSI                    GPIO_PIN(GPIOB,  5)
 #define LCD_SPI_MISO                    GPIO_PIN(GPIOG,  9)
-#define LCD_SPI_BAUD                    100000000
+#define LCD_SPI_BAUD                    50000000
 
 // Backlight
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOB, 03) // TIM2_CH2
