@@ -258,8 +258,8 @@
 #define TR_FUNCSOUNDS_1                TR("Píp1","Pípnutie1")
 #define TR_FUNCSOUNDS_2                TR("Píp2","Pípnutie2")
 #define TR_FUNCSOUNDS_3                TR("Píp3","Pípnutie3")
-#define TR_FUNCSOUNDS_4                TR("Var1","Varovánie1")
-#define TR_FUNCSOUNDS_5                TR("Var2","Varovánie2")
+#define TR_FUNCSOUNDS_4                TR("Var1","Varovanie1")
+#define TR_FUNCSOUNDS_5                TR("Var2","Varovanie2")
 #define TR_FUNCSOUNDS_6                TR("Chee","Cheep")
 #define TR_FUNCSOUNDS_7                TR("Rata", "Ratata")
 #define TR_FUNCSOUNDS_8                "Tick"
@@ -713,7 +713,7 @@
 #define TR_SELECT_MODE                 "Vybrať mód"
 #define TR_CREATE_MODEL                "Nový model"
 #define TR_FAVORITE_LABEL              "Obľúbené"
-#define TR_MODELS_MOVED                "Nepoužívané modely přesunuté do"
+#define TR_MODELS_MOVED                "Nepoužívané modely peesunuté do"
 #define TR_NEW_MODEL                   "Nový model"
 #define TR_INVALID_MODEL               "Neplatný model"
 #define TR_EDIT_LABELS                 "Upraviť štítok"
@@ -804,7 +804,7 @@
 #define TR_CPU_TEMP                    "Tepl. CPU\016>"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "Tepl. MB \016>"
-#define TR_TTL_WARNING                 "Varovanie: Nepřekračovať napätie 3.3V pri pinoch pre TX/RX!"
+#define TR_TTL_WARNING                 "Varovanie: Neprekračovať napätie 3.3V pri pinoch pre TX/RX!"
 #define TR_FUNC                        "Funkcie"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
@@ -908,13 +908,13 @@
 #define TR_FLASH_BOOTLOADER            "Zápis bootloadera"
 #define TR_FLASH_DEVICE                TR("Zápis zar.","Zápis zariadenia")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Zápis S.Portom", "Zápis cez S.Port")
-#define TR_FLASH_RECEIVER_OTA          "Zápis príjímača cez OTA"
+#define TR_FLASH_RECEIVER_OTA          "Zápis prijímača cez OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Zápis RX cez ext. OTA"
 #define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Zápis RX cez int. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Zápis FC cez ext. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Zápis FC cez int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Zápis modulu BT", "Zápis modulu Bluetooth")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Zápis riadenia spotr.", "Flash jednotky řízení spotřeby")
+#define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Zápis riadenia spotr.", "Flash jednotky riadenia spotreby")
 #define TR_DEVICE_NO_RESPONSE          TR("Zařízení neodpovídá", "Zařízení neodpovídá")
 #define TR_DEVICE_FILE_ERROR           TR("Zař. soubor problém", "Zařízení-problém se souborem")
 #define TR_DEVICE_DATA_REFUSED         TR("Zař. data odmítnuta", "Zařízení-data odmítnuta")
