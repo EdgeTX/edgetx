@@ -23,7 +23,7 @@
 
 #include "edgetx.h"
 #include "translations/translation_def.h"
-#include "translations/i18n/cz.h"
+#include "translations/i18n/sk.h"
 
 // Static string
 #define STR(x) static const char LNG_STR_##x[] = TR_##x;
@@ -40,6 +40,6 @@
 // Static string array
 #define STRARRAY(x) LNG_STR_##x,
 
-const LangStrings czLangStrings = {
+const LangStrings skLangStrings = {
 #include "translations/string_list.h"
 };
