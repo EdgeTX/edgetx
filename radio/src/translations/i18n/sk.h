@@ -258,8 +258,8 @@
 #define TR_FUNCSOUNDS_1                TR("Píp1","Pípnutie1")
 #define TR_FUNCSOUNDS_2                TR("Píp2","Pípnutie2")
 #define TR_FUNCSOUNDS_3                TR("Píp3","Pípnutie3")
-#define TR_FUNCSOUNDS_4                TR("Var1","Varovanie1")
-#define TR_FUNCSOUNDS_5                TR("Var2","Varovanie2")
+#define TR_FUNCSOUNDS_4                TR("Var1","Varovánie1")
+#define TR_FUNCSOUNDS_5                TR("Var2","Varovánie2")
 #define TR_FUNCSOUNDS_6                TR("Chee","Cheep")
 #define TR_FUNCSOUNDS_7                TR("Rata", "Ratata")
 #define TR_FUNCSOUNDS_8                "Tick"
@@ -312,7 +312,7 @@
 
 #define TR_VTELEMSCREENTYPE_1          "Nič"
 #define TR_VTELEMSCREENTYPE_2          "Hodnota"
-#define TR_VTELEMSCREENTYPE_3          "Ukazovatel"
+#define TR_VTELEMSCREENTYPE_3          "Ukazovateľ"
 #define TR_VTELEMSCREENTYPE_4          "Skript"
 #define TR_GPSFORMAT_1                 "DMS"
 #define TR_GPSFORMAT_2                 "NMEA"
@@ -465,7 +465,7 @@
 #define TR_PPMFRAME                    "PPM modulácia"
 #define TR_REFRESHRATE                 TR("Obnoviť", "Obn. frekv.")
 #define TR_WARN_BATTVOLTAGE            TR("Výstup VBAT: ", "Varovanie: výstupná hodnota VBAT: ")
-#define TR_WARN_5VOLTS                 "Varovánie: výstupná úroveň je 5 voltov"
+#define TR_WARN_5VOLTS                 "Varovanie: výstupná úroveň je 5 voltov"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Spínač"
 #define TR_FS_COLOR_LIST_1             "Vlastný"
@@ -536,7 +536,7 @@
 #define TR_IMU_MAX                     "Max"
 #define TR_CONTRAST                    "Kontrast LCD"
 #define TR_ALARMS_LABEL                "Alarmy"
-#define TR_BATTERY_RANGE               TR("Ukazovatel bat.", "Ukazovatel batérie")
+#define TR_BATTERY_RANGE               TR("Ukazovateľ bat.", "Ukazovateľ batérie")
 #define TR_BATTERYCHARGING             "Nabíjanie..."
 #define TR_BATTERYFULL                 "Batéria nabitá"
 #define TR_BATTERYNONE                 "Žiadna batéria!"
@@ -638,16 +638,16 @@
 #define TR_BADEEPROMDATA               TR("\006Chyba dát EEPROM", "Chyba dát EEPROM")
 #define TR_BAD_RADIO_DATA              "Chybajúce alebo poškodené dáta vysielača"
 #define TR_RADIO_DATA_RECOVERED        TR3(" Použitie zálohy dát TX","Použitie zálohy dát vysielača","Nastavenie vysielača bolo obnovené zo zálohy")
-#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Neplatné nastavení TX","Neplatné nastavení vysílače", "Nelze načíst platné nastavení vysílače")
-#define TR_EEPROMFORMATTING            TR("\004Formatování EEPROM", "Formatování EEPROM")
-#define TR_STORAGE_FORMAT              "Příprava úložiště"
-#define TR_EEPROMOVERFLOW              "Přetekla EEPROM"
-#define TR_RADIO_SETUP                 "NASTAVENÍ RÁDIA"
-#define TR_MENUVERSION                 "VERZE"
-#define TR_MENU_RADIO_ANALOGS          "ANALOGY"
-#define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBROVAT ANALOGY"
-#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGY (5 Hz)"
-#define TR_MENU_FSWITCH                 "NASTAVITELNÉ PŘEPÍNAČE"
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Neplatné nastavenie TX","Neplatné nastavenie vysielača", "Nelze načíst platné nastavenie vysielača")
+#define TR_EEPROMFORMATTING            TR("\004Formátovanie EEPROM", "Formátovanie EEPROM")
+#define TR_STORAGE_FORMAT              "Príprava úložiska"
+#define TR_EEPROMOVERFLOW              "Pretiekla EEPROM"
+#define TR_RADIO_SETUP                 "NASTAVENIE RÁDIA"
+#define TR_MENUVERSION                 "Verzie"
+#define TR_MENU_RADIO_ANALOGS          "ANALÓGY"
+#define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBROVAŤ ANALÓGY"
+#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALÓGY (5 Hz)"
+#define TR_MENU_FSWITCH                 "NASTAVITEĽNÉ PŘEPÍNAČE"
 #define   TR_TRIMS2OFFSETS              TR_BW_COL("\006Trimy => Subtrimy", "Trimy => Subtrimy")
 #define TR_CHANNELS2FAILSAFE           "Kanály=>Failsafe"
 #define TR_CHANNEL2FAILSAFE            "Kanál=>Failsafe"
@@ -667,14 +667,14 @@
 #define TR_MULTI_RFPOWER               "RF výkon"
 #define TR_MULTI_WBUS                  "Výstup"
 #define TR_MULTI_TELEMETRY             "Telemetria"
-#define TR_MULTI_VIDFREQ               TR("Freq. videa", "Frekvence videa")
+#define TR_MULTI_VIDFREQ               TR("Freq. videa", "Frekvencie videa")
 #define TR_RF_POWER                    "Výkon RF"
 #define TR_MULTI_FIXEDID               TR("PevnéID", "Pevné ID")
 #define TR_MULTI_OPTION                TR("Možnosti", "Hodnota")
-#define TR_MULTI_AUTOBIND              TR("Bind Ch.","Bind pri zapnutí")
+#define TR_MULTI_AUTOBIND              TR("Párovať Ch.","Párovať pri zapnutí")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Vypnúť mapovanie kanálov")
 #define TR_DISABLE_TELEM               TR("No Telem", "Vypnúť telemetriu")
-#define TR_MULTI_LOWPOWER              TR("Nízký výkon", "Režim nízkeho výkonu")
+#define TR_MULTI_LOWPOWER              TR("Nízky výkon", "Režim nízkeho výkonu")
 #define TR_MULTI_LNA_DISABLE           "LNA vypnuté"
 #define TR_MODULE_TELEMETRY            TR("S.Port", "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("Zap", "Zapnuté")
@@ -683,7 +683,7 @@
 #define TR_MODULE_NO_INPUT             TR("Žiadny vstup", "Žiadny sériový vstup")
 #define TR_MODULE_NO_TELEMETRY         TR3("Bez telemetrie", "Bez Multi_Telemetria", "Nedetekovaná Multi_Telemetria")
 #define TR_MODULE_WAITFORBIND          "Párovať pri zavedení protokolu"
-#define TR_MODULE_BINDING              TR("Bind...","Párovanie")
+#define TR_MODULE_BINDING              TR("Párovať...","Párovanie")
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Nutná aktualizácia modulu", "Modul\nnutná aktualizácia")
 #define TR_MODULE_UPGRADE              TR("Upg. advised", "Doporučuje sa aktualizácia modulu")
 #define TR_REBIND                      "Je nutné prepárovať"
@@ -705,7 +705,7 @@
 #define TR_PITCH_AT_MAX                "Tón na maxime"
 #define TR_REPEAT_AT_ZERO              TR("Opak. na nule", "Opakovanie na nule")
 #define TR_BATT_CALIB                  "Kalib. bat."
-#define TR_CURRENT_CALIB               "+=\006Proud"
+#define TR_CURRENT_CALIB               "+=\006Prúd"
 #define TR_VOLTAGE                     "Napätie"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_MANAGE_MODELS               "Nastavenie Modelu"
@@ -713,7 +713,7 @@
 #define TR_SELECT_MODE                 "Vybrať mód"
 #define TR_CREATE_MODEL                "Nový model"
 #define TR_FAVORITE_LABEL              "Obľúbené"
-#define TR_MODELS_MOVED                "Nepoužívané modely peesunuté do"
+#define TR_MODELS_MOVED                "Nepoužívané modely presunuté do"
 #define TR_NEW_MODEL                   "Nový model"
 #define TR_INVALID_MODEL               "Neplatný model"
 #define TR_EDIT_LABELS                 "Upraviť štítok"
@@ -868,11 +868,11 @@
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Hľadať"
 #define TR_BLUETOOTH_INIT              "Init"
-#define TR_BLUETOOTH_DIST_ADDR         "Vzdial. addr"
-#define TR_BLUETOOTH_LOCAL_ADDR        "Lokál. addr"
+#define TR_BLUETOOTH_DIST_ADDR         "Vzdial. adr"
+#define TR_BLUETOOTH_LOCAL_ADDR        "Lokál. adr"
 #define TR_BLUETOOTH_PIN_CODE          TR("PIN kód", "PIN kód")
 #define TR_BLUETOOTH_NODEVICES         "Nebolo nájdené žiadne zariadenie"
-#define TR_BLUETOOTH_SCANNING          "Skenovánie..."
+#define TR_BLUETOOTH_SCANNING          "Skenovanie..."
 #define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #define TR_BLUETOOTH_MODES_1           "---"
 #define TR_BLUETOOTH_MODES_2           "Telemetria"
@@ -908,247 +908,247 @@
 #define TR_FLASH_BOOTLOADER            "Zápis bootloadera"
 #define TR_FLASH_DEVICE                TR("Zápis zar.","Zápis zariadenia")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Zápis S.Portom", "Zápis cez S.Port")
-#define TR_FLASH_RECEIVER_OTA          "Zápis prijímača cez OTA"
+#define TR_FLASH_RECEIVER_OTA          "Zápis príjímača cez OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Zápis RX cez ext. OTA"
 #define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Zápis RX cez int. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Zápis FC cez ext. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Zápis FC cez int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Zápis modulu BT", "Zápis modulu Bluetooth")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Zápis riadenia spotr.", "Flash jednotky riadenia spotreby")
-#define TR_DEVICE_NO_RESPONSE          TR("Zařízení neodpovídá", "Zařízení neodpovídá")
-#define TR_DEVICE_FILE_ERROR           TR("Zař. soubor problém", "Zařízení-problém se souborem")
-#define TR_DEVICE_DATA_REFUSED         TR("Zař. data odmítnuta", "Zařízení-data odmítnuta")
-#define TR_DEVICE_WRONG_REQUEST        TR("Zař. přístup problém", "Zařízení-problém s přístupem")
-#define TR_DEVICE_FILE_REJECTED        TR("Zař. soubor odmítnut", "Zařízení-soubor odmítnut")
-#define TR_DEVICE_FILE_WRONG_SIG       TR("Zař. podpis souboru", "Zařízení-neodpovídá podpis")
-#define TR_CURRENT_VERSION             TR("Současná ver. ", "Současná verze: ")
+#define TR_DEVICE_NO_RESPONSE          TR("Zariadenie neodpovedá", "Zariadenie neodpovedá")
+#define TR_DEVICE_FILE_ERROR           TR("Zar. súbor problém", "Zariadenie-problém sa súborom")
+#define TR_DEVICE_DATA_REFUSED         TR("Zar. dáta odmietnuté", "Zariadenie-dáta odmietnuté")
+#define TR_DEVICE_WRONG_REQUEST        TR("Zar. prístup problém", "Zariadenie-problém s prístupom")
+#define TR_DEVICE_FILE_REJECTED        TR("Zar. súbor odmietnutý", "Zariadenie-súbor odmietnutý")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Zar. podpis súboru", "Zariadenie-neodpovedá podpis")
+#define TR_CURRENT_VERSION             TR("Súčasná ver. ", "Súčasná verzia: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash vnitř. modulu", "Flash interního modulu")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash int. Multi", "Flash interního modulu Multi")
-#define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. modulu", "Flash externího modulu")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Flash ext. Multi", "Flash externího modulu Multi")
-#define TR_FLASH_EXTERNAL_ELRS         TR("Flash ext. ELRS", "Flash externího modulu ELRS")
+#define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. modulu", "Flash externého modulu")
+#define TR_FLASH_EXTERNAL_MULTI        TR("Flash ext. Multi", "Flash externého modulu Multi")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Flash ext. ELRS", "Flash externého modulu ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("Chyba zápisu FW", "Chyba zápisu firmware")
-#define TR_FIRMWARE_UPDATE_SUCCESS     "Úspěšný zápis FW"
-#define TR_WRITING                     "Zapisuji..."
+#define TR_FIRMWARE_UPDATE_SUCCESS     "Úspešný zápis FW"
+#define TR_WRITING                     "Zapisujem..."
 #define TR_CONFIRM_FORMAT              "Formátovat?"
-#define TR_INTERNALRF                  "Interní RF modul"
-#define TR_INTERNAL_MODULE             "Interní modul"
-#define TR_EXTERNAL_MODULE             "Externí modul"
-#define TR_EDGETX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
-#define TR_TELEMETRY_DISABLED          "Telem. zakázána"
-#define TR_MORE_OPTIONS_AVAILABLE      TR("Více možností", "Více dostupných možností")
-#define TR_NO_MODULE_INFORMATION       "Žádné info o modulu"
-#define TR_EXTERNALRF                  "Externí RF modul"
+#define TR_INTERNALRF                  "Interný RF modul"
+#define TR_INTERNAL_MODULE             "Interný modul"
+#define TR_EXTERNAL_MODULE             "Externý modul"
+#define TR_EDGETX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadovaná aktualizácia EdgeTX")
+#define TR_TELEMETRY_DISABLED          "Telem. zakázaná"
+#define TR_MORE_OPTIONS_AVAILABLE      TR("Viac možností", "Viac dostupných možností")
+#define TR_NO_MODULE_INFORMATION       "Žiadne info o module"
+#define TR_EXTERNALRF                  "Externý RF modul"
 #define TR_FAILSAFE                    TR("Failsafe", "Mód Failsafe")
-#define TR_FAILSAFESET                 "NASTAVENÍ FAILSAFE"
-#define TR_REG_ID                      TR("Reg. ID", "Registrační ID")
+#define TR_FAILSAFESET                 "NASTAVENIE FAILSAFE"
+#define TR_REG_ID                      TR("Reg. ID", "Registračné ID")
 #define TR_OWNER_ID                    "ID vlastníka"
-#define TR_HOLD                        "Držet"
-#define TR_HOLD_UPPERCASE              "DRŽET"
-#define TR_NONE                        "Nic"
-#define TR_NONE_UPPERCASE              "NIC"
+#define TR_HOLD                        "Držať"
+#define TR_HOLD_UPPERCASE              "DRŽAŤ"
+#define TR_NONE                        "Nič"
+#define TR_NONE_UPPERCASE              "NIČ"
 #define TR_MENUSENSOR                  "SENZOR"
 #define TR_POWERMETER_PEAK             "Špička"
 #define TR_POWERMETER_POWER            "Výkon"
-#define TR_POWERMETER_ATTN             "Útlum"
+#define TR_POWERMETER_ATTN             "Útlm"
 #define TR_POWERMETER_FREQ             "Frek."
 #define TR_MENUTOOLS                   "NÁSTROJE"
-#define TR_TURN_OFF_RECEIVER           "Vypněte přijímač"
-#define TR_STOPPING                    "Zastavuji..."
-#define TR_MENU_SPECTRUM_ANALYSER      "SPEKTRÁLNÍ ANALYZÉR"
-#define TR_MENU_POWER_METER            "MĚŘIČ VÝKONU"
+#define TR_TURN_OFF_RECEIVER           "Vypnite prijímač"
+#define TR_STOPPING                    "Zastavujem..."
+#define TR_MENU_SPECTRUM_ANALYSER      "SPEKTRÁLNY ANALYZÁTOR"
+#define TR_MENU_POWER_METER            "MERAČ VÝKONU"
 #define TR_SENSOR                      "SENZOR"
-#define TR_COUNTRY_CODE                "Kód regionu"
+#define TR_COUNTRY_CODE                "Kód regiónu"
 #define TR_USBMODE                     "Režim USB"
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
 #define TR_UNITS_SYSTEM                "Jednotky"
 #define TR_UNITS_PPM                   "PPM jednotky"
-#define TR_EDIT                        "Upravit"
-#define TR_INSERT_BEFORE               "Vložit před"
-#define TR_INSERT_AFTER                "Vložit za"
-#define TR_COPY                        "Kopírovat"
-#define TR_MOVE                        "Přesunout"
-#define TR_PASTE                       "Vložit"
-#define TR_PASTE_AFTER                 "Vložit za"
-#define TR_PASTE_BEFORE                "Vložit před"
-#define TR_DELETE                      "Odstranit"
-#define TR_INSERT                      "Přidat"
-#define TR_RESET_FLIGHT                "Reset relace"
+#define TR_EDIT                        "Upraviť"
+#define TR_INSERT_BEFORE               "Vložiť pred"
+#define TR_INSERT_AFTER                "Vložiť za"
+#define TR_COPY                        "Kopírovať"
+#define TR_MOVE                        "Presunúť"
+#define TR_PASTE                       "Vložiť"
+#define TR_PASTE_AFTER                 "Vložiť za"
+#define TR_PASTE_BEFORE                "Vložiť pred"
+#define TR_DELETE                      "Odstrániť"
+#define TR_INSERT                      "Pridať"
+#define TR_RESET_FLIGHT                "Reset relácie"
 #define TR_RESET_TIMER1                "Čas1"
 #define TR_RESET_TIMER2                "Čas2"
 #define TR_RESET_TIMER3                "Čas3"
-#define TR_RESET_TELEMETRY             "Telemetrii"
+#define TR_RESET_TELEMETRY             "Telemetria"
 #define TR_STATISTICS                  "Statistika"
 #define TR_ABOUT_US                    "O nás"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Disk (SD)"
 #define TR_USB_SERIAL                  "USB Serial (VCP)"
-#define TR_SETUP_SCREENS               "Obrazovky nastavení"
+#define TR_SETUP_SCREENS               "Obrazovky nastavenie"
 #define TR_MONITOR_SCREENS             "Monitory"
 #define TR_AND_SWITCH                  "AND Spínač"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
-#define TR_ANADIAGS_CALIB              "Kalibrovat analogy"
-#define TR_ANADIAGS_FILTRAWDEV         "Filtrované surové hodnoty analogů s odchylkou"
-#define TR_ANADIAGS_UNFILTRAW          "Nefiltrované surové hodnoty analogů"
+#define TR_ANADIAGS_CALIB              "Kalibrovať analógy"
+#define TR_ANADIAGS_FILTRAWDEV         "Filtrované surové hodnoty analógov s odchýlkou"
+#define TR_ANADIAGS_UNFILTRAW          "Nefiltrované surové hodnoty analógov"
 #define TR_ANADIAGS_MINMAX             "Min., max. a rozsah"
-#define TR_ANADIAGS_MOVE               "Posuňte analogy do jejich maximálních poloh!"
+#define TR_ANADIAGS_MOVE               "Posuňte analógy do ich maximálnych polôh!"
 #define TR_BYTES                       "[B]"
-#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
+#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Párovať"))
 #define TR_MODULE_UNBIND               BUTTON("Odpárovat")
-#define TR_POWERMETER_ATTN_NEEDED     "Útlumový člen nutný!"
+#define TR_POWERMETER_ATTN_NEEDED     "Útlmový člen nutný!"
 #define TR_PXX2_SELECT_RX              "Vyber RX..."
 #define TR_PXX2_DEFAULT                "<výchozí>"
-#define TR_BT_SELECT_DEVICE            "Vyberte zařízení"
-#define TR_DISCOVER                    BUTTON("Hledat")
+#define TR_BT_SELECT_DEVICE            "Vyberte zariadenie"
+#define TR_DISCOVER                    BUTTON("Hľadať")
 #define TR_BUTTON_INIT                 BUTTON("Init")
-#define TR_WAITING                     "Čekám..."
-#define TR_RECEIVER_DELETE             "Smazat přijímač?"
-#define TR_RECEIVER_RESET              "Resetovat přijímač?"
-#define TR_SHARE                       "Sdílet"
-#define TR_BIND                        "Párovat"
-#define TR_REGISTER                    BUTTON(TR("Reg", "Registrovat"))
+#define TR_WAITING                     "Čakám..."
+#define TR_RECEIVER_DELETE             "Zmazať prijímač?"
+#define TR_RECEIVER_RESET              "Resetovať prijímač?"
+#define TR_SHARE                       "Zdieľať"
+#define TR_BIND                        "Párovať"
+#define TR_REGISTER                    BUTTON(TR("Reg", "Registrovať"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
 #define TR_RANGE_TEST                  "Test dosahu"
-#define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
+#define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PRIJÍMAČE")
 #define TR_RESET_BTN                   BUTTON("Reset")
-#define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
-#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))
-#define TR_FS_BTN                      BUTTON(TR("Vlastní Sw", TR_FUNCTION_SWITCHES))
-#define TR_TOUCH_NOTFOUND              "Dotyková obrazovka nenalezena"
-#define TR_TOUCH_EXIT                  "Dotkněte se obrazovky pro ukončení"
+#define TR_KEYS_BTN                    BUTTON(TR("SW","Prepínače"))
+#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analógy"))
+#define TR_FS_BTN                      BUTTON(TR("Vlastný Sw", TR_FUNCTION_SWITCHES))
+#define TR_TOUCH_NOTFOUND              "Dotyková obrazovka nenájdená"
+#define TR_TOUCH_EXIT                  "Dotknite sa obrazovky pre ukončenie"
 #define TR_SET                         BUTTON("Nast")
 #define TR_TRAINER                     "Trenér"
 #define TR_CHANS                       "Kanály"
 #define TR_ANTENNAPROBLEM              "Problém s TX anténou!"
-#define TR_MODELIDUSED                 TR("ID již použito","ID modelu je již použito")
-#define TR_MODELIDUNIQUE               "ID je unikátní"
+#define TR_MODELIDUSED                 TR("ID už použité","ID modelu je už použité")
+#define TR_MODELIDUNIQUE               "ID je unikátne"
 #define TR_MODULE                      "Modul"
-#define TR_RX_NAME                     "Jméno RX"
+#define TR_RX_NAME                     "Meno RX"
 #define TR_TELEMETRY_TYPE              TR("Typ", "Typ telemetrie")
 #define TR_TELEMETRY_SENSORS           "Senzory"
 #define TR_VALUE                       "Hodnota"
-#define TR_PERIOD                      "Perioda"
+#define TR_PERIOD                      "Perióda"
 #define TR_INTERVAL                    "Interval"
-#define TR_REPEAT                      "Opakovat"
-#define TR_ENABLE                      "Povoleno"
-#define TR_DISABLE                     "Zakazano"
-#define TR_TOPLCDTIMER                 "Stopky horního LCD"
+#define TR_REPEAT                      "Opakovať"
+#define TR_ENABLE                      "Povolené"
+#define TR_DISABLE                     "Zakázané"
+#define TR_TOPLCDTIMER                 "Stopky horného LCD"
 #define TR_UNIT                        "Jednotky"
-#define TR_TELEMETRY_NEWSENSOR         "Přidat senzor ručně"
-#define TR_CHANNELRANGE                TR("Kanály", "Rozsah kanálů")
-#define TR_AFHDS3_RX_FREQ              TR("RX frek.", "RX frekvence")
-#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetrie")
+#define TR_TELEMETRY_NEWSENSOR         "Pridať senzor ručne"
+#define TR_CHANNELRANGE                TR("Kanály", "Rozsah kanálov")
+#define TR_AFHDS3_RX_FREQ              TR("RX frek.", "RX frekvencia")
+#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetria")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
-#define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Aktuální výkon")
+#define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Aktuálny výkon")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", TR("Power src.", "Power source"))
-#define TR_ANTENNACONFIRM1             "Opravdu přepnout?"
-#define TR_ANTENNA_MODES_1           "Interní"
-#define TR_ANTENNA_MODES_2           "Zeptat se"
-#define TR_ANTENNA_MODES_3           "Dle modelu"
-#define TR_ANTENNA_MODES_4           "Interní + Externí"
-#define TR_ANTENNA_MODES_5           "Externí"
-#define TR_USE_INTERNAL_ANTENNA        TR("Použít int. ant.", "Použít interní anténu")
-#define TR_USE_EXTERNAL_ANTENNA        TR("Použít ext. ant.", "Použít externí anténu")
-#define TR_ANTENNACONFIRM2             TR("Zkont. anténu", "Ujistěte se, že je anténa připojena!")
+#define TR_ANTENNACONFIRM1             "Skutočne prepnúť?"
+#define TR_ANTENNA_MODES_1           "Interný"
+#define TR_ANTENNA_MODES_2           "Spýtať sa"
+#define TR_ANTENNA_MODES_3           "Podľa modelu"
+#define TR_ANTENNA_MODES_4           "Interný + Externý"
+#define TR_ANTENNA_MODES_5           "Externý"
+#define TR_USE_INTERNAL_ANTENNA        TR("Použiť int. ant.", "Použiť internú anténu")
+#define TR_USE_EXTERNAL_ANTENNA        TR("Použiť ext. ant.", "Použiť externú anténu")
+#define TR_ANTENNACONFIRM2             TR("Zkont. anténu", "Uistite sa, že je anténa pripojená!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1   "Vyžaduje FLEX"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "Vyžaduje FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "Vyžaduje EU"
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "firmware."
-#define TR_LOWALARM                    "Nízký Alarm"
+#define TR_LOWALARM                    "Nízky Alarm"
 #define TR_CRITICALALARM               "Kritický Alarm"
-#define TR_DISABLE_ALARM               TR("Vypnout alarmy", "Vypnout alarmy telemetrie")
-#define TR_POPUP                       "Vyskočit"
+#define TR_DISABLE_ALARM               TR("Vypnúť alarmy", "Vypnúť alarmy telemetrie")
+#define TR_POPUP                       "Vyskočiť"
 #define TR_MIN                         "Min"
 #define TR_MAX                         "Max"
 #define TR_CURVE_PRESET                "Šablona"
 #define TR_PRESET                      "Šablona"
-#define TR_MIRROR                      "Zrcadlit"
-#define TR_CLEAR                       "Smazat"
-#define TR_CLEAR_BTN                   BUTTON("Smazat")
+#define TR_MIRROR                      "Zrkadliť"
+#define TR_CLEAR                       "Zmazať"
+#define TR_CLEAR_BTN                   BUTTON("Zmazať")
 #define TR_RESET                       "Reset"
-#define TR_RESET_SUBMENU               "Inicializovat ..."
-#define TR_COUNT                       "Velikost"
+#define TR_RESET_SUBMENU               "Inicializovať ..."
+#define TR_COUNT                       "Veľkosť"
 #define TR_PT                          "č."
 #define TR_PTS                         "b."
 #define TR_SMOOTH                      "Hladká"
-#define TR_COPY_STICKS_TO_OFS          TR("Kop. osy->subtrim", "Kopírovat osy do subtrimu")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopie min/max do všech",  "Kopírovat min/max/střed do všech výstupů")
-#define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
-#define TR_INCDEC                      "Zvětšit/Zmenšit"
-#define TR_GLOBALVAR                   "Glob. proměnná"
+#define TR_COPY_STICKS_TO_OFS          TR("Kop. osi->subtrim", "Kopírovať osi do subtrimu")
+#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kópia min/max do všetkých",  "Kopírovať min/max/střed do všetkých výstupů")
+#define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovať trimy do subtrimů")
+#define TR_INCDEC                      "Zvätšiť/Zmenšiť"
+#define TR_GLOBALVAR                   "Glob. premenná"
 #define TR_MIXSOURCE                   "Zdroj (%)"
 #define TR_MIXSOURCERAW                "Zdroj (hodnota)"
-#define TR_CONSTANT                    "Konstanta"
+#define TR_CONSTANT                    "Konštanta"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_1 "Vyp"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_2 "Zap"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_3 "Auto"
-#define TR_PREFLIGHT                   "Předletová kontrola"
+#define TR_PREFLIGHT                   "Predletová kontrola"
 #define TR_CHECKLIST                   TR("Poznámky", "Zobrazit poznámky")
-#define TR_CHECKLIST_INTERACTIVE       TR3("S-interkativni", "Interaktivní seznam", "Interaktivní seznam")
+#define TR_CHECKLIST_INTERACTIVE       TR3("S-interaktívny", "Interaktívny zoznam", "Interaktívny zoznam")
 #define TR_AUX_SERIAL_MODE             "Seriový port"
 #define TR_AUX2_SERIAL_MODE            "Seriový port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Výkon portu"
 #define TR_SCRIPT                      "Skript"
 #define TR_INPUTS                      "Vstupy"
 #define TR_OUTPUTS                     "Výstupy"
-#define TR_CONFIRMRESET                TR("Smazat vše?", "Smazat modely a nastavení?")
-#define TR_TOO_MANY_LUA_SCRIPTS        "Příliš mnoho skriptů!"
+#define TR_CONFIRMRESET                TR("Zmazať všetko?", "Zmazať modely a nastavenie?")
+#define TR_TOO_MANY_LUA_SCRIPTS        "Príliš mnoho skriptov!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP výkon"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"
 #define TR_SPORT_UPDATE_POWER_MODES_2  "ON"
-#define TR_NO_TELEMETRY_SCREENS        "Žádné obrazovky telemetrie"
+#define TR_NO_TELEMETRY_SCREENS        "Žiadne obrazovky telemetrie"
 #define TR_TOUCH_PANEL                 "Dotyková obrazovka:"
-#define TR_FILE_SIZE                   "Velikost souboru"
-#define TR_FILE_OPEN                   "Otevřít?"
+#define TR_FILE_SIZE                   "Veľkosť súboru"
+#define TR_FILE_OPEN                   "Otvoriť?"
 
 // Horus and Taranis column headers
-#define TR_PHASES_HEADERS_NAME         "Název"
+#define TR_PHASES_HEADERS_NAME         "Názov"
 #define TR_PHASES_HEADERS_SW           "Spínač"
 #define TR_PHASES_HEADERS_RUD_TRIM     "Trim směrovky"
 #define TR_PHASES_HEADERS_ELE_TRIM     "Trim výškovky"
 #define TR_PHASES_HEADERS_THT_TRIM     "Trim plynu"
-#define TR_PHASES_HEADERS_AIL_TRIM     "Trim křidélek"
+#define TR_PHASES_HEADERS_AIL_TRIM     "Trim krídelok"
 #define TR_PHASES_HEADERS_CH5_TRIM     "Trim 5"
 #define TR_PHASES_HEADERS_CH6_TRIM     "Trim 6"
-#define TR_PHASES_HEADERS_FAD_IN       "Přechod náběhu"
-#define TR_PHASES_HEADERS_FAD_OUT      "Přechod konce"
+#define TR_PHASES_HEADERS_FAD_IN       "Prechod nábehu"
+#define TR_PHASES_HEADERS_FAD_OUT      "Prechod konca"
 
-#define TR_LIMITS_HEADERS_NAME         "Název"
+#define TR_LIMITS_HEADERS_NAME         "Názov"
 #define TR_LIMITS_HEADERS_SUBTRIM      "Subtrim"
 #define TR_LIMITS_HEADERS_MIN          "Min"
 #define TR_LIMITS_HEADERS_MAX          "Max"
-#define TR_LIMITS_HEADERS_DIRECTION    "Invertovat"
-#define TR_LIMITS_HEADERS_CURVE        "Křivka"
-#define TR_LIMITS_HEADERS_PPMCENTER    "Střed PPM"
+#define TR_LIMITS_HEADERS_DIRECTION    "Invertovať"
+#define TR_LIMITS_HEADERS_CURVE        "Krivka"
+#define TR_LIMITS_HEADERS_PPMCENTER    "Stred PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Symetrické"
-#define TR_INVERTED                    "Invertováno"
+#define TR_INVERTED                    "Invertované"
 
 // Horus layouts and widgets
-#define TR_FIRST_CHANNEL             "První kanál"
-#define TR_FILL_BACKGROUND           "Vyplnit pozadí?"
-#define TR_BG_COLOR                  "Barva pozadí"
-#define TR_SLIDERS_TRIMS             "Slidery+Trimy"
-#define TR_SLIDERS                   "Slidery"
+#define TR_FIRST_CHANNEL             "Prvý kanál"
+#define TR_FILL_BACKGROUND           "Vyplniť pozadie?"
+#define TR_BG_COLOR                  "Farba pozadie"
+#define TR_SLIDERS_TRIMS             "Ťah. ovl.+Trimy"
+#define TR_SLIDERS                   "Ťah. ovl."
 #define TR_FLIGHT_MODE               "Letový režim"
-#define TR_INVALID_FILE              "Neplatný soubor"
+#define TR_INVALID_FILE              "Neplatný súbor"
 #define TR_TIMER_SOURCE              "Časovač zdroj"
-#define TR_SIZE                      "Velikost"
-#define TR_SHADOW                    "Stíny"
-#define TR_ALIGNMENT                 "Zarovnání"
-#define TR_ALIGN_LABEL               "Zarovnat název"
-#define TR_ALIGN_VALUE               "Zarovnat hodnotu"
-#define TR_ALIGN_OPTS_1              "Vlevo"
-#define TR_ALIGN_OPTS_2              "Uprostřed"
+#define TR_SIZE                      "Veľkosť"
+#define TR_SHADOW                    "Tiene"
+#define TR_ALIGNMENT                 "Zarovnanie"
+#define TR_ALIGN_LABEL               "Zarovnať názov"
+#define TR_ALIGN_VALUE               "Zarovnať hodnotu"
+#define TR_ALIGN_OPTS_1              "Vľavo"
+#define TR_ALIGN_OPTS_2              "Uprostred"
 #define TR_ALIGN_OPTS_3              "Vpravo"
 #define TR_TEXT                      "Text"
-#define TR_COLOR                     "Barva"
-#define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
-#define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
-#define TR_PANEL_BACKGROUND          "Background"
-#define TR_PANEL_COLOR               "  Color"
-#define TR_WIDGET_GAUGE              "Měřidlo"
+#define TR_COLOR                     "Farba"
+#define TR_PANEL1_BACKGROUND         "Panel1 pozadie"
+#define TR_PANEL2_BACKGROUND         "Panel2 pozadie"
+#define TR_PANEL_BACKGROUND          "Pozadie"
+#define TR_PANEL_COLOR               "Farba"
+#define TR_WIDGET_GAUGE              "Meradlo"
 #define TR_WIDGET_MODELBMP           "Model info"
 #define TR_WIDGET_OUTPUTS            "Výstupy"
 #define TR_WIDGET_TEXT               "Text"
@@ -1163,7 +1163,7 @@
 
 #define TR_BEEP_VOLUME                 "Upozornění"
 #define TR_WAV_VOLUME                  "Zvuky WAV"
-#define TR_BG_VOLUME                   "WAV na pozadí"
+#define TR_BG_VOLUME                   "WAV na pozadie"
 
 #define TR_TOP_BAR                     "Horní lišta"
 #define TR_FLASH_ERASE                 "Mazaní flash..."
@@ -1172,8 +1172,8 @@
 #define TR_MODULE_RESET                "Reset modulu..."
 #define TR_UNKNOWN_RX                  "Neznámý RX"
 #define TR_UNSUPPORTED_RX              "Nepodporovaný RX"
-#define TR_OTA_UPDATE_ERROR            "Chyba aktualizace"
-#define TR_DEVICE_RESET                "Reset zařízení..."
+#define TR_OTA_UPDATE_ERROR            "Chyba aktualizácia"
+#define TR_DEVICE_RESET                "Reset zariadenie..."
 #define TR_ALTITUDE                    "Výška"
 #define TR_SCALE                       "Měřítko"
 #define TR_VIEW_CHANNELS               "Zobrazit kanály"
@@ -1201,17 +1201,17 @@
 #define TR_DISCOVER_SENSORS            "Detekovat nové senzory"
 #define TR_STOP_DISCOVER_SENSORS       "Zastavit autodetekci"
 #define TR_DELETE_ALL_SENSORS          "Odebrat všechny senzory"
-#define TR_CONFIRMDELETE               "Opravdu " LCDW_128_LINEBREAK "odstranit vše?"
+#define TR_CONFIRMDELETE               "Skutočne " LCDW_128_LINEBREAK "odstranit všetko?"
 #define TR_SELECT_WIDGET               "Zvolit widget"
 #define TR_WIDGET_FULLSCREEN           "Celá obrazovka"
-#define TR_REMOVE_WIDGET               "Odstranit widget"
+#define TR_REMOVE_WIDGET               "Odstrániť widget"
 #define TR_WIDGET_SETTINGS             "Nastavení widgetu"
-#define TR_REMOVE_SCREEN               "Odstranit panel"
+#define TR_REMOVE_SCREEN               "Odstrániť panel"
 #define TR_SETUP_WIDGETS               "Nastavit widgety"
 #define TR_THEME                       "Motiv"
 #define TR_SETUP                       "Nastavení"
 #define TR_LAYOUT                      "Rozložení"
-#define TR_TEXT_COLOR                  "Barva textu"
+#define TR_TEXT_COLOR                  "Farba textu"
 
 #define TR_MENU_INPUTS                 CHAR_INPUT "Vstupy"
 #define TR_MENU_LUA                    CHAR_LUA "Lua skripty"
@@ -1226,10 +1226,10 @@
 #define TR_MENU_TRAINER                CHAR_TRAINER "Trenér"
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Kanály"
 #define TR_MENU_GVARS                  CHAR_SLIDER "Glob.proměnné"
-#define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetrie"
+#define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetria"
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Ostatní"
-#define TR_MENU_INVERT                 "Invertovat"
+#define TR_MENU_INVERT                 "Invertovať"
 #define TR_AUDIO_MUTE                  TR("Ztlumení zvuku","Ztlumení, pokud není slyšet zvuk")
 #define TR_JITTER_FILTER               "ADC Filtr"
 #define TR_DEAD_ZONE                   "Dead zone"
@@ -1237,7 +1237,7 @@
 #define TR_AUTH_FAILURE                "Auth-selhala"
 #define TR_RACING_MODE                 "Závodní režim"
 
-#define TR_USE_THEME_COLOR              "Použít barevný motiv"
+#define TR_USE_THEME_COLOR              "Použiť barevný motiv"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Trimy do subtrimů"
 #define TR_DUPLICATE                    "Duplikovat"
@@ -1266,7 +1266,7 @@
 #define TR_THEME_REGULAR                "Normální"
 #define TR_THEME_WARNING                "Varování"
 #define TR_THEME_DISABLED               "Vypnuté"
-#define TR_THEME_EDIT                   "Upravit"
+#define TR_THEME_EDIT                   "Upraviť"
 #define TR_THEME_FOCUS                  "Vybrané"
 #define TR_AUTHOR                       "Autor"
 #define TR_DESCRIPTION                  "Popis"
@@ -1378,10 +1378,10 @@
 
 #define TR_SELECT_MENU_ALL        "Vše"
 #define TR_SELECT_MENU_CLR        "Vymazat"
-#define TR_SELECT_MENU_INV        "Invertovat"
+#define TR_SELECT_MENU_INV        "Invertovať"
 
-#define TR_SORT_ORDERS_1          "Název A-Z"
-#define TR_SORT_ORDERS_2          "Název Z-A"
+#define TR_SORT_ORDERS_1          "Názov A-Z"
+#define TR_SORT_ORDERS_2          "Názov Z-A"
 #define TR_SORT_ORDERS_3          "Nejméne používané"
 #define TR_SORT_ORDERS_4          "Nejvíce používané"
 #define TR_SORT_MODELS_BY         "Seřadit modely podle"
@@ -1390,7 +1390,7 @@
 #define TR_MIX_SLOW_PREC          TR("Přesnost zpomal", "Přesnost zpomalení")
 #define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
-#define TR_THEME_EXISTS           "Adresář vzhledu s tímto názvem již existuje."
+#define TR_THEME_EXISTS           "Adresář vzhledu s tímto názvem už existuje."
 
 #define TR_DATE_TIME_WIDGET       "Datum a čas"
 #define TR_RADIO_INFO_WIDGET      "Informace o vysílačce"
@@ -1398,6 +1398,6 @@
 #define TR_MID_BATT_COLOR         "Středně nabitá baterie"
 #define TR_HIGH_BATT_COLOR        "Plně nabitá baterie"
 
-#define TR_WIDGET_SIZE            "Velikost widgetu"
+#define TR_WIDGET_SIZE            "Veľkosť widgetu"
 
 #define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
