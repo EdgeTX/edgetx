@@ -169,7 +169,7 @@ void checkValidMCU(void)
 static bool evalFSok = false;
 #endif
 
-static bool suspendTimerTask = false;
+bool suspendTimerTask = false;
 
 void per10ms()
 {
