@@ -204,11 +204,12 @@ static FAT_BootBlock const BootBlock = {
     .ReservedSectors      = RESERVED_SECTORS,
     .FATCopies            = 2,
     .RootDirectoryEntries = (ROOT_DIR_SECTORS * DIRENTRIES_PER_SECTOR),
-    .TotalSectors16       = NUM_FAT_BLOCKS - 2,
+    .TotalSectors16       = 0,
     .MediaDescriptor      = 0xF8,
     .SectorsPerFAT        = SECTORS_PER_FAT,
     .SectorsPerTrack      = 1,
     .Heads                = 1,
+    .TotalSectors32       = NUM_FAT_BLOCKS - 2,
     .PhysicalDriveNum     = 0x80, // to match MediaDescriptor of 0xF8
     .ExtendedBootSig      = 0x29,
     .VolumeSerialNumber   = 0x00000000,
@@ -259,6 +260,9 @@ static uint32_t current_flash_size(void)
     if (is_firmware_valid(fw_desc)) {
       // round up to 256 bytes
       result = (fw_desc->length + BOOTLOADER_SIZE + 255U) & (~255U);
+      // Sometime corrupted firmware return very large size, leave not enough space to flash a fix
+      if (result >= UF2_MAX_FW_SIZE)
+        result = UF2_MAX_FW_SIZE;
     } else {
       result = UF2_MAX_FW_SIZE;
     }

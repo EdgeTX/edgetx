@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#define UF2_NUM_BLOCKS 32768 // at least 16MB
+#define UF2_NUM_BLOCKS 65536 // at least 32MB
 #define UF2_INVALID_NUM_BLOCKS 0xFFFFFFFF
 
 #if !defined(UF2_MAX_FW_SIZE)
