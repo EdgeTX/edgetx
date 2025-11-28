@@ -68,6 +68,8 @@ enum PhysicalKeys
   ENT  = 16
 };
 
+extern bool suspendI2CTasks;
+
 static bool fct_state[4] = {false, false, false, false};
 static uint32_t keyState = 0;
 static uint32_t nonReadCount = 0;
@@ -84,6 +86,9 @@ void pollKeys()
   }
   nonReadCount = 0;
 #endif
+
+  if (suspendI2CTasks) return;
+  
   // This function avoids concurrent matrix agitation
 
   uint32_t result = 0;
