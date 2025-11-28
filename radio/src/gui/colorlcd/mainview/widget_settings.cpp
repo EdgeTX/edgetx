@@ -197,7 +197,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
         break;
 
       case ZoneOption::File:
-        new FileChoice(line, rect_t{}, opt->fileSelectPath, nullptr, LEN_ZONE_OPTION_STRING,
+        new FileChoice(line, rect_t{}, opt->fileSelectPath, "", LEN_ZONE_OPTION_STRING,
                         [=]() {
                           char s[LEN_ZONE_OPTION_STRING + 1];
                           strncpy(s, optVal->stringValue, LEN_ZONE_OPTION_STRING);

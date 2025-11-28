@@ -92,8 +92,8 @@ class FileChoiceMenuToolbar : public MenuToolbar
  protected:
 };
 
-FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
-                       const char *extension, int maxlen,
+FileChoice::FileChoice(Window *parent, const rect_t &rect, const std::string folder,
+                       const std::string extension, int maxlen,
                        std::function<std::string()> getValue,
                        std::function<void(std::string)> setValue,
                        bool stripExtension, const char *title) :
@@ -101,7 +101,7 @@ FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
         parent, rect, 0, 0, [=]() { return selectedIdx; },
         [=](int val) { setValue(getString(val)); selectedIdx = val; }, title, CHOICE_TYPE_FOLDER),
     folder(std::move(folder)),
-    extension(extension),
+    extension(std::move(extension)),
     maxlen(maxlen),
     getValue(std::move(getValue)),
     stripExtension(stripExtension)
@@ -113,9 +113,9 @@ std::string FileChoice::getLabelText() { return getValue(); }
 
 void FileChoice::loadFiles()
 {
-  if (loaded) return;
+  if (filesLoaded) return;
 
-  loaded = true;
+  filesLoaded = true;
 
   FILINFO fno;
   DIR dir;
@@ -137,7 +137,7 @@ void FileChoice::loadFiles()
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
 
-      if (extension && (!fnExt || !isExtensionMatching(fnExt, extension)))
+      if (!extension.empty() && (!fnExt || !isExtensionMatching(fnExt, extension.c_str())))
         continue;  // wrong extension
 
       if (stripExtension) fnLen -= extLen;

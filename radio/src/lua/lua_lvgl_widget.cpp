@@ -2690,7 +2690,7 @@ void LvglWidgetFilePicker::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = 0;
   auto c = new FileChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      folder.c_str(), extension.c_str(), maxLen,
+      folder, extension, maxLen,
       [=]() { return pcallGetStringVal(L, getFunction); },
       [=](std::string val) { pcallSetStringVal(L, setFunction, val.c_str()); },
       hideExtension, title.txt.c_str());
