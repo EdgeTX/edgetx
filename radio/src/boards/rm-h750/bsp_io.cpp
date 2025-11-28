@@ -38,7 +38,7 @@
 #include "debug.h"
 
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
-extern bool suspendTimerTask;
+extern bool suspendI2CTasks;
 
 struct bsp_io_expander {
     pca95xx_t exp;
@@ -110,7 +110,7 @@ static void _poll_switches(void *param1, uint32_t trigger_source)
   }
 
   // Suspend hardware reads when required
-  if (suspendTimerTask) return;
+  if (suspendI2CTasks) return;
 
   _read_io_expander(&_io_switches);
   _read_io_expander(&_io_fs_switches);

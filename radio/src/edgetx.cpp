@@ -169,7 +169,7 @@ void checkValidMCU(void)
 static bool evalFSok = false;
 #endif
 
-bool suspendTimerTask = false;
+bool suspendI2CTasks = false;
 
 void per10ms()
 {
@@ -177,8 +177,6 @@ void per10ms()
   DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
 
   g_tmr10ms++;
-
-  if (suspendTimerTask) return;
 
 #if defined(GUI)
   if (lightOffCounter) lightOffCounter--;
@@ -1093,7 +1091,7 @@ void edgeTxClose(uint8_t shutdown)
   TRACE("edgeTxClose");
 
   watchdogSuspend(2000/*20s*/);
-  suspendTimerTask = true;
+  suspendI2CTasks = true;
 
   if (shutdown) {
     pulsesStop();
@@ -1145,7 +1143,7 @@ void edgeTxResume()
 {
   TRACE("edgeTxResume");
 
-  suspendTimerTask = false;
+  suspendI2CTasks = false;
   if (!sdMounted()) sdInit();
 
   luaInitMainState();
