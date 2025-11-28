@@ -386,7 +386,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
 
-  if (hasColorLcd && VERSION_MAJOR > 2) {
+  if (hasColorLcd) {
     for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
       if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE)
         node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
