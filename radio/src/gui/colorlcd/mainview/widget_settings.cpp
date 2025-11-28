@@ -198,7 +198,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
         break;
 
       case WidgetOption::File:
-        new FileChoice(line, rect_t{}, opt->fileSelectPath, nullptr, FF_MAX_LFN,
+        new FileChoice(line, rect_t{}, opt->fileSelectPath, "", FF_MAX_LFN,
                         [=]() {
                           return widgetData->getString(optIdx);
                         },
