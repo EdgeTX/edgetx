@@ -509,6 +509,7 @@ void QuickMenu::onSelect(bool close)
 {
   closeMenu();
   if (selectHandler) selectHandler(close);
+  selectHandler = nullptr;
 }
 
 void QuickMenu::closeMenu()
@@ -516,6 +517,7 @@ void QuickMenu::closeMenu()
   Layer::pop(this);
   hide();
   if (cancelHandler) cancelHandler();
+  cancelHandler = nullptr;
 }
 
 void QuickMenu::onCancel()
