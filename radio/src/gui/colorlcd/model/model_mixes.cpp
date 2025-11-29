@@ -90,6 +90,7 @@ class MixLineButton : public InputMixButtonBase
   void delayedInit() override
   {
     refresh();
+    ((InputMixGroupBase*)parent)->adjustHeight();
   }
 
   void refresh() override
@@ -212,6 +213,7 @@ class MixGroup : public InputMixGroupBase
     coord_t y = monitorVisible ? CHNUM_Y : PAD_OUTLINE;
     for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
       auto line = *it;
+      line->updateHeight();
       line->updatePos(InputMixButtonBase::LN_X, y);
       y += line->height() + PAD_OUTLINE;
     }
