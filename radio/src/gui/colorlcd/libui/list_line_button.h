@@ -67,7 +67,11 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL_SCALED(FM_CANVAS_HEIGHT, 17)
   static LAYOUT_VAL_SCALED(FM_CANVAS_WIDTH, 90)
 
+#if WIDE_LAYOUT
+  static LAYOUT_VAL_SCALED(LN_X, 78)
+#else
   static LAYOUT_VAL_SCALED(LN_X, 73)
+#endif
   static constexpr coord_t BTN_W = ListLineButton::GRP_W - LN_X - PAD_BORDER * 2 - PAD_OUTLINE;
   static constexpr coord_t WGT_X = PAD_TINY;
   static constexpr coord_t WGT_Y = PAD_TINY;
@@ -75,7 +79,11 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL_SCALED(WGT_H, 21)
   static constexpr coord_t SRC_X = WGT_X + WGT_W + PAD_TINY;
   static constexpr coord_t SRC_Y = WGT_Y;
+#if WIDE_LAYOUT
+  static LAYOUT_VAL_SCALED(SRC_W, 80)
+#else
   static LAYOUT_VAL_SCALED(SRC_W, 72)
+#endif
   static constexpr coord_t SRC_H = WGT_H;
   static constexpr coord_t OPT_X = SRC_X + SRC_W + PAD_TINY;
   static constexpr coord_t OPT_Y = WGT_Y;

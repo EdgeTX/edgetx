@@ -45,8 +45,14 @@ class Window;
 
 #if PORTRAIT || LCD_W == 320
   #define NARROW_LAYOUT true
+  #define WIDE_LAYOUT false
 #else
   #define NARROW_LAYOUT false
+  #if LCD_W >= 800
+    #define WIDE_LAYOUT true
+  #else
+    #define WIDE_LAYOUT false
+  #endif
 #endif
 
 #if LANDSCAPE
