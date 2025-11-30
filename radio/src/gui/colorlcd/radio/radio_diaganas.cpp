@@ -159,8 +159,6 @@ class AnaViewWindow : public Window
 #endif
   }
 
-  void checkEvents() override { Window::checkEvents(); }
-
  protected:
   FlexGridLayout grid;
   FormLine* line = nullptr;
@@ -479,8 +477,8 @@ class AnaMinMaxViewWindow : public AnaViewWindow
 class AnaCalibratedViewPage : public PageGroupItem
 {
  public:
-  AnaCalibratedViewPage(QMPage qmPage) :
-    PageGroupItem(STR_ANADIAGS_CALIB, qmPage)
+  AnaCalibratedViewPage() :
+    PageGroupItem(STR_ANADIAGS_CALIB)
   {
     icon = ICON_STATS;
   }
@@ -495,8 +493,8 @@ class AnaCalibratedViewPage : public PageGroupItem
 class AnaFilteredDevViewPage : public PageGroupItem
 {
  public:
-  AnaFilteredDevViewPage(QMPage qmPage) :
-      PageGroupItem(STR_ANADIAGS_FILTRAWDEV, qmPage)
+  AnaFilteredDevViewPage() :
+      PageGroupItem(STR_ANADIAGS_FILTRAWDEV)
   {
     icon = ICON_STATS;
   }
@@ -511,8 +509,8 @@ class AnaFilteredDevViewPage : public PageGroupItem
 class AnaUnfilteredRawViewPage : public PageGroupItem
 {
  public:
-  AnaUnfilteredRawViewPage(QMPage qmPage) :
-      PageGroupItem(STR_ANADIAGS_UNFILTRAW, qmPage)
+  AnaUnfilteredRawViewPage() :
+      PageGroupItem(STR_ANADIAGS_UNFILTRAW)
   {
     icon = ICON_STATS;
   }
@@ -527,8 +525,8 @@ class AnaUnfilteredRawViewPage : public PageGroupItem
 class AnaMinMaxViewPage : public PageGroupItem
 {
  public:
-  AnaMinMaxViewPage(QMPage qmPage) :
-      PageGroupItem(STR_ANADIAGS_MINMAX, qmPage)
+  AnaMinMaxViewPage() :
+      PageGroupItem(STR_ANADIAGS_MINMAX)
   {
     icon = ICON_STATS;
   }
@@ -540,11 +538,11 @@ class AnaMinMaxViewPage : public PageGroupItem
   }
 };
 
-RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QMPage qmPage) :
+RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup() :
     TabsGroup(ICON_STATS, STR_ANALOGS_BTN)
 {
-  addTab(new AnaCalibratedViewPage(qmPage));
-  addTab(new AnaFilteredDevViewPage(qmPage));
-  addTab(new AnaUnfilteredRawViewPage(qmPage));
-  addTab(new AnaMinMaxViewPage(qmPage));
+  addTab(new AnaCalibratedViewPage());
+  addTab(new AnaFilteredDevViewPage());
+  addTab(new AnaUnfilteredRawViewPage());
+  addTab(new AnaMinMaxViewPage());
 }

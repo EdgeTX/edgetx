@@ -25,7 +25,9 @@
 
 class StaticText;
 
-class FullScreenDialog : public Window
+//-----------------------------------------------------------------------------
+
+class FullScreenDialog : public NavWindow
 {
  public:
   FullScreenDialog(uint8_t type, std::string title, std::string message = "",
@@ -41,22 +43,19 @@ class FullScreenDialog : public Window
 
   void setMessage(const char* text);
 
-  void onEvent(event_t event) override;
-  void onCancel() override;
   bool onLongPress() override;
-
-  void deleteLater() override;
-
-  void checkEvents() override;
-
-  void setCloseCondition(std::function<bool(void)> handler)
-  {
-    closeCondition = std::move(handler);
-  }
-
-  void runForever(bool checkPwr = true);
+  void onCancel() override { deleteLater(); }
 
   void closeDialog();
+
+#if defined(HARDWARE_KEYS)
+  void alertCancel();
+  void onPressSYS() override;
+  void onPressMDL() override;
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+  void onPressTELE() override;
+#endif
 
   static LAYOUT_SIZE_SCALED(ALERT_FRAME_TOP, 50, 70)
   static LAYOUT_SIZE(ALERT_FRAME_HO, LAYOUT_SCALE(120), 2 * ALERT_FRAME_TOP)
@@ -80,10 +79,10 @@ class FullScreenDialog : public Window
   std::string title;
   std::string message;
   std::string action;
-  bool running = false;
-  std::function<bool(void)> closeCondition;
   std::function<void(void)> confirmHandler;
   StaticText* messageLabel = nullptr;
 
   void build();
 };
+
+//-----------------------------------------------------------------------------

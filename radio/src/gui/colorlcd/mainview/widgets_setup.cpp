@@ -115,7 +115,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
 }
 
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
-    Window(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
+    NavWindow(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
 {
   pushLayer();
 
@@ -171,21 +171,4 @@ void SetupWidgetsPage::deleteLater()
   }
 
   storageDirty(EE_MODEL);
-}
-
-void SetupWidgetsPage::onEvent(event_t event)
-{
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_FIRST(KEY_PAGEUP) ||
-      event == EVT_KEY_FIRST(KEY_PAGEDN) || event == EVT_KEY_FIRST(KEY_SYS) ||
-      event == EVT_KEY_FIRST(KEY_MODEL)) {
-    killEvents(event);
-  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
-    onCancel();
-  } else {
-    Window::onEvent(event);
-  }
-#else
-  Window::onEvent(event);
-#endif
 }

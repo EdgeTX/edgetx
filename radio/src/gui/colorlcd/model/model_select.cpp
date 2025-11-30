@@ -71,7 +71,7 @@ class ModelButton : public Button
     delayLoad();
   }
 
-  void addDetails()
+  void delayedInit() override
   {
     coord_t w = width() - PAD_SMALL * 2;
 
@@ -98,14 +98,16 @@ class ModelButton : public Button
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
 
-    checkEvents();
+    bool chk = (modelCell == modelslist.getCurrentModel());
+    if (chk != checked()) {
+      check(chk);
+      if (chk)
+        lv_obj_add_state(modelName->getLvObj(), LV_STATE_USER_1);
+      else
+        lv_obj_clear_state(modelName->getLvObj(), LV_STATE_USER_1);
+    }
 
     lv_obj_update_layout(lvobj);
-  }
-
-  void delayedInit() override
-  {
-    addDetails();
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
@@ -167,18 +169,6 @@ class ModelButton : public Button
     LcdFlags font = (modelLayouts[layout].font == FONT(STD)) ? FONT(XS) : FONT(XXS);
     new StaticText(this, {PAD_TINY, h / 2, w, getFontHeight(font)}, errorMsg,
                   COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
-  }
-
-  void checkEvents() override
-  {
-    bool chk = (modelCell == modelslist.getCurrentModel());
-    if (chk != checked()) {
-      check(chk);
-      if (chk)
-        lv_obj_add_state(modelName->getLvObj(), LV_STATE_USER_1);
-      else
-        lv_obj_clear_state(modelName->getLvObj(), LV_STATE_USER_1);
-    }
   }
 
   void onClicked() override

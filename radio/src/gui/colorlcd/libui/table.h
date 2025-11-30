@@ -43,7 +43,6 @@ class TableField : public Window
   virtual void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) {}
 
   void adjustScroll();
-  void selectNext(int16_t dir);
 
   void setAutoEdit();
   bool isAutoEdit() const { return autoedit; }
@@ -63,7 +62,6 @@ class TableField : public Window
   lv_group_t* group = nullptr;
   lv_group_t* oldGroup = nullptr;
 
-  void onEvent(event_t event) override;
   bool onLongPress() override;
 
   void deleteLater() override;

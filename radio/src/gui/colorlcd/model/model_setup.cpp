@@ -24,6 +24,7 @@
 #include <algorithm>
 
 #include "button_matrix.h"
+#include "dialog.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "filechoice.h"
@@ -33,12 +34,12 @@
 #include "model_heli.h"
 #include "module_setup.h"
 #include "preflight_checks.h"
+#include "sourcechoice.h"
 #include "storage/modelslist.h"
 #include "textedit.h"
-#include "throttle_params.h"
 #include "timer_setup.h"
+#include "toggleswitch.h"
 #include "trainer_setup.h"
-#include "trims_setup.h"
 
 #if defined(FUNCTION_SWITCHES)
 #include "function_switches.h"
@@ -69,7 +70,7 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
   lbl->show(getValue() == 0);
 }
 
-static SetupLineDef viewOptionsPageSetupLines[] = {
+const static SetupLineDef viewOptionsPageSetupLines[] = {
   {
     STR_DEF(STR_RADIO_MENU_TABS), nullptr,
   },
@@ -172,6 +173,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
                 g_eeGeneral.modelTelemetryDisabled);
     }
   },
+  {nullptr, nullptr},
 };
 
 struct CenterBeepsMatrix : public ButtonMatrix {
@@ -254,7 +256,7 @@ struct CenterBeepsMatrix : public ButtonMatrix {
   uint8_t ana_idx[MAX_ANALOG_INPUTS];
 };
 
-static SetupLineDef otherPageSetupLines[] = {
+const static SetupLineDef otherPageSetupLines[] = {
   {
     STR_DEF(STR_JITTER_FILTER),
     [](Window* parent, coord_t x, coord_t y) {
@@ -272,9 +274,116 @@ static SetupLineDef otherPageSetupLines[] = {
       parent->setHeight(bm->height() + PAD_SMALL);
     }
   },
+  {nullptr, nullptr},
 };
 
-static SetupLineDef setupLines[] = {
+const static SetupLineDef throttleParamsSetupLines[] = {
+  {
+    // Throttle reversed
+    STR_DEF(STR_THROTTLEREVERSE),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.throttleReversed));
+    }
+  },
+  {
+    // Throttle source
+    STR_DEF(STR_TTRACE),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto sc = new SourceChoice(parent, {x, y, 0, 0}, 0, MIXSRC_LAST_CH,
+                                []() {return throttleSource2Source(g_model.thrTraceSrc); },
+                                [](int16_t src) {
+                                  int16_t val = source2ThrottleSource(src);
+                                  if (val >= 0) {
+                                    g_model.thrTraceSrc = val;
+                                    SET_DIRTY();
+                                  }
+                                });
+      sc->setAvailableHandler(isThrottleSourceAvailable);
+    }
+  },
+  {
+    // Throttle trim
+    STR_DEF(STR_TTRIM),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.thrTrim));
+    }
+  },
+  {
+    // Throttle trim source
+    STR_DEF(STR_TTRIM_SW),
+    [](Window* parent, coord_t x, coord_t y) {
+      new SourceChoice(
+          parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
+          []() { return g_model.getThrottleStickTrimSource(); },
+          [](int16_t src) {
+            g_model.setThrottleStickTrimSource(src);
+            SET_DIRTY();
+          });
+    }
+  },
+  {nullptr, nullptr},
+};
+
+#if defined(USE_HATS_AS_KEYS)
+static LAYOUT_VAL_SCALED(HATSMODE_W, 120)
+#endif
+
+const static SetupLineDef trimsSetupLines[] = {
+  {
+    // Reset trims
+    nullptr,
+    [](Window* parent, coord_t x, coord_t y) {
+      new TextButton(parent, {PAD_TINY, y, LCD_W - PAD_MEDIUM * 2, 0}, STR_RESET_BTN, []() -> uint8_t {
+        for (auto &fm : g_model.flightModeData) memclear(&fm.trim, sizeof(fm.trim));
+        SET_DIRTY();
+        AUDIO_WARNING1();
+        return 0;
+      });
+    }
+  },
+#if defined(USE_HATS_AS_KEYS)
+  {
+    // Hats mode for NV14/EL18
+    STR_DEF(STR_HATSMODE),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, HATSMODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL,
+                GET_SET_DEFAULT(g_model.hatsMode));
+      new TextButton(parent, {x + HATSMODE_W + PAD_SMALL, y, 0, 0}, "?", [=]() {
+        new MessageDialog(STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
+                          LEFT);
+        return 0;
+      });
+    }
+  },
+#endif
+  {
+    // Trim step
+    STR_DEF(STR_TRIMINC),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_VTRIMINC, -2, 2,
+                GET_SET_DEFAULT(g_model.trimInc));
+    }
+  },
+  {
+    // Extended trims
+    STR_DEF(STR_ETRIMS),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.extendedTrims));
+    }
+  },
+  {
+    // Display trims
+    // TODO: move to "Screen setup" ?
+    STR_DEF(STR_DISPLAY_TRIMS),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_VDISPLAYTRIMS, 0, 2,
+                GET_SET_DEFAULT(g_model.displayTrims));
+    }
+  },
+  {nullptr, nullptr},
+};
+
+const static SetupLineDef setupLines[] = {
   {
     // Model name
     STR_DEF(STR_MODELNAME),
@@ -342,35 +451,39 @@ static SetupLineDef setupLines[] = {
                      }, false, STR_BITMAP);
     }
   },
+  {nullptr, nullptr},
+};
+
+const static PageButtonDef modelSetupButtons[] = {
+  // Modules
+  {STR_DEF(STR_INTERNALRF), []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
+  {STR_DEF(STR_EXTERNALRF), []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
+  {STR_DEF(STR_TRAINER), []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
+  // Timer buttons
+  {STR_DEF(STR_TIMER_1), []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
+  {STR_DEF(STR_TIMER_2), []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
+  {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
+
+  {STR_DEF(STR_PREFLIGHT), []() { new PreflightChecks(); }},
+  {STR_DEF(STR_TRIMS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_TRIMS, trimsSetupLines); }},
+  {STR_DEF(STR_THROTTLE_LABEL), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_THROTTLE_LABEL, throttleParamsSetupLines); }},
+  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
+#if defined(USBJ_EX)
+  {STR_DEF(STR_USBJOYSTICK_LABEL), []() { new ModelUSBJoystickPage(); }},
+#endif
+#if defined(FUNCTION_SWITCHES)
+  {STR_DEF(STR_FUNCTION_SWITCHES), []() { new ModelFunctionSwitches(); }},
+#endif
+  {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines); }},
+#if defined(HELI)
+  {STR_DEF(STR_MENUHELISETUP), []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
+#endif
+  {nullptr},
 };
 
 void ModelSetupPage::build(Window * window)
 {
-  coord_t y = SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
+  coord_t y = SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 
-  new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
-    // Modules
-    {STR_DEF(STR_INTERNALRF), []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
-    {STR_DEF(STR_EXTERNALRF), []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
-    {STR_DEF(STR_TRAINER), []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
-    // Timer buttons
-    {STR_DEF(STR_TIMER_1), []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
-    {STR_DEF(STR_TIMER_2), []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
-    {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
-
-    {STR_DEF(STR_PREFLIGHT), []() { new PreflightChecks(); }},
-    {STR_DEF(STR_TRIMS), []() { new TrimsSetup(); }},
-    {STR_DEF(STR_THROTTLE_LABEL), []() { new ThrottleParams(); }},
-    {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
-#if defined(USBJ_EX)
-    {STR_DEF(STR_USBJOYSTICK_LABEL), []() { new ModelUSBJoystickPage(); }},
-#endif
-#if defined(FUNCTION_SWITCHES)
-    {STR_DEF(STR_FUNCTION_SWITCHES), []() { new ModelFunctionSwitches(); }},
-#endif
-    {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
-#if defined(HELI)
-    {STR_DEF(STR_MENUHELISETUP), []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
-#endif
-  }, BTN_H);
+  new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, modelSetupButtons, BTN_H);
 }

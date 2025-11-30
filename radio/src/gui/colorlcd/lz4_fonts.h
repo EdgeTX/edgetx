@@ -25,7 +25,7 @@
 
 /*
     Structures for handling LZ4 compressed versions of LVGL fonts
-    Compressed data is uncompressed at runtime and these strucutres
+    Compressed data is uncompressed at runtime and these structures
     then used to rebuild the LVGL font structures.
 
     Note: this is dependant on the LVGL font structure formats. If

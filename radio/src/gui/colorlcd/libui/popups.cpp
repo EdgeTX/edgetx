@@ -33,36 +33,11 @@
 static void _run_popup_dialog(const char* title, const char* msg,
                               const char* info = nullptr)
 {
-  bool running = true;
-
-  resetBacklightTimeout();
-
-  // reset input devices to avoid
-  // RELEASED/CLICKED to be called in a loop
-  lv_indev_reset(nullptr, nullptr);
-
   auto md = new MessageDialog(title, msg, info);
-  md->setCloseHandler([&]() { running = false; });
-  while (running) {
-    // Allow power off while showing popup
-    auto check = pwrCheck();
-    if (check == e_power_off) {
-      boardOff();
-#if defined(SIMU)
-      // Required so simulator exits cleanly when window closed
-      return;
-#endif
-    } else if (check == e_power_press) {
-      WDG_RESET();
-      sleep_ms(1);
-      continue;
-    }
 
-    checkBacklight();
-    WDG_RESET();
-    MainWindow::instance()->run();
-    sleep_ms(20);
-  }
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    return md->deleted();
+  });
 }
 
 void POPUP_INFORMATION(const char* message)

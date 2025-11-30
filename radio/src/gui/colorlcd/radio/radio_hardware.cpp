@@ -93,7 +93,7 @@ class BatCalEdit : public NumberEdit
   }
 };
 
-static SetupLineDef setupLines[] = {
+const static SetupLineDef setupLines[] = {
   {
     // Batt meter range - Range 3.0v to 16v
     STR_DEF(STR_BATTERY_RANGE),
@@ -159,13 +159,34 @@ static SetupLineDef setupLines[] = {
     }
   },
 #endif
+  {nullptr, nullptr},
+};
+
+const static PageButtonDef calibrationButtons[] = {
+  {STR_DEF(STR_MENUCALIBRATION), []() { new RadioCalibrationPage(); }},
+  {STR_DEF(STR_STICKS), []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
+  {STR_DEF(STR_POTS), []() { new HWInputDialog<HWPots>(STR_POTS, HWPots::POTS_WINDOW_WIDTH); }},
+  {STR_DEF(STR_SWITCHES), []() { new HWInputDialog<HWSwitches>(STR_SWITCHES, HWSwitches::SW_WINDOW_WIDTH); }},
+#if defined(FUNCTION_SWITCHES)
+  {STR_DEF(STR_FUNCTION_SWITCHES), []() { new RadioFunctionSwitches(); }},
+#endif
+  {nullptr},
+};
+
+const static PageButtonDef debugButtons[] = {
+  {STR_DEF(STR_ANALOGS_BTN), []() { new RadioAnalogsDiagsViewPageGroup(); }},
+  {STR_DEF(STR_KEYS_BTN), []() { new RadioKeyDiagsPage(); }},
+#if defined(FUNCTION_SWITCHES)
+  {STR_DEF(STR_FS_BTN), []() { new RadioCustSwitchesDiagsPage(); }},
+#endif
+  {nullptr},
 };
 
 void RadioHardwarePage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
+  SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
@@ -188,22 +209,8 @@ void RadioHardwarePage::build(Window* window)
   new SerialConfigWindow(window, grid);
 
   // Calibration
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, BTN_COLS, PAD_ZERO, {
-    {STR_DEF(STR_MENUCALIBRATION), []() { new RadioCalibrationPage(); }},
-    {STR_DEF(STR_STICKS), []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
-    {STR_DEF(STR_POTS), []() { new HWInputDialog<HWPots>(STR_POTS, HWPots::POTS_WINDOW_WIDTH); }},
-    {STR_DEF(STR_SWITCHES), []() { new HWInputDialog<HWSwitches>(STR_SWITCHES, HWSwitches::SW_WINDOW_WIDTH); }},
-#if defined(FUNCTION_SWITCHES)
-    {STR_DEF(STR_FUNCTION_SWITCHES), []() { new RadioFunctionSwitches(); }},
-#endif
-  });
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, BTN_COLS, PAD_ZERO, calibrationButtons);
 
   // Debugs
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, FS_BTN_COLS, PAD_ZERO, {
-    {STR_DEF(STR_ANALOGS_BTN), [=]() { new RadioAnalogsDiagsViewPageGroup(qmPageId); }},
-    {STR_DEF(STR_KEYS_BTN), []() { new RadioKeyDiagsPage(); }},
-#if defined(FUNCTION_SWITCHES)
-    {STR_DEF(STR_FS_BTN), []() { new RadioCustSwitchesDiagsPage(); }},
-#endif
-  });
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, FS_BTN_COLS, PAD_ZERO, debugButtons);
 }

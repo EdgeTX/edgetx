@@ -25,10 +25,10 @@
 
 class MainViewTrim;
 
-class ViewMainDecoration
+class ViewMainDecoration : public Window
 {
  public:
-  ViewMainDecoration(Window* parent, bool showTrims = true, bool showSliders = true, bool showFM = true);
+  ViewMainDecoration(Window* parent, bool calibration = false);
 
   // Set decoration visibility
   void setTrimsVisible(bool visible);
@@ -65,9 +65,9 @@ class ViewMainDecoration
   Window* w_bl;
   Window* w_bc;
   Window* w_br;
-  bool showTrims;
-  bool showSliders;
-  bool showFM;
+  bool showTrims = true;
+  bool showSliders = true;
+  bool showFM = true;
 
   Window* sliders[SLIDERS_MAX] = { 0 };
   MainViewTrim* trims[TRIMS_MAX] = { 0 };

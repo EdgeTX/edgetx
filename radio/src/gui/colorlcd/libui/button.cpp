@@ -150,17 +150,21 @@ MomentaryButton::MomentaryButton(Window* parent, const rect_t& rect, std::string
   lv_obj_center(label);
 }
 
-void MomentaryButton::onPressed()
+bool MomentaryButton::customEventHandler(lv_event_code_t code)
 {
-  if (pressHandler)
-    pressHandler();
-  lv_obj_add_state(lvobj, LV_STATE_CHECKED);
-  lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
-}
-
-void MomentaryButton::onReleased()
-{
-  if (releaseHandler)
-    releaseHandler();
-  lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+  switch (code) {
+    case LV_EVENT_PRESSED:
+      if (pressHandler)
+        pressHandler();
+      lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+      lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+      return true;
+    case LV_EVENT_RELEASED:
+      if (releaseHandler)
+        releaseHandler();
+      lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+      return true;
+    default:
+      return false;
+  };
 }

@@ -43,10 +43,13 @@ class ViewTextWindow : public Page
 
   void delayedInit() override;
 
+#if defined(HARDWARE_KEYS)
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+#endif
+
  protected:
   TextViewer* textViewer = nullptr;
-
-  void onEvent(event_t event) override;
 };
 
 class ModelNotesPage : public PageGroupItem

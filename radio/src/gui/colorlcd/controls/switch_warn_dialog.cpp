@@ -28,32 +28,19 @@ SwitchWarnDialog::SwitchWarnDialog() :
     FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN, "",
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
-  last_bad_switches = 0xff;
-  last_bad_pots = 0x0;
-  setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
 
-bool SwitchWarnDialog::warningInactive()
-{
-  uint16_t bad_pots;
-
-  if (!isSwitchWarningRequired(bad_pots)) return true;
-
-  if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
-    last_bad_pots = bad_pots;
-    last_bad_switches = switches_states;
-  }
-
-  return false;
-}
-
 void SwitchWarnDialog::checkEvents()
 {
-  if (!running) return;
-
   FullScreenDialog::checkEvents();
+
+  uint16_t bad_pots;
+  if (!isSwitchWarningRequired(bad_pots)) {
+    deleteLater();
+    return;
+  };
 
   std::string warn_txt;
   for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
@@ -95,13 +82,15 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
     FullScreenDialog(WARNING_TYPE_ALERT, STR_THROTTLE_UPPERCASE, msg,
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
-  setCloseCondition(std::bind(&ThrottleWarnDialog::warningInactive, this));
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
 }
 
-bool ThrottleWarnDialog::warningInactive()
+void ThrottleWarnDialog::checkEvents()
 {
+  FullScreenDialog::checkEvents();
+
   extern bool isThrottleWarningAlertNeeded();
-  return !isThrottleWarningAlertNeeded();
+  if (!isThrottleWarningAlertNeeded())
+    deleteLater();
 }

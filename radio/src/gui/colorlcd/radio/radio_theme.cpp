@@ -284,7 +284,6 @@ class ColorEditPage : public Page
           }
           setHexStr(rgb);
         });
-    _colorEditor->setColorEditorType(HSV_COLOR_EDITOR);
     _activeTab = 1;
 
     r.w = COLOR_BOX_WIDTH;

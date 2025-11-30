@@ -1500,7 +1500,7 @@ void LvglWidgetBox::build(lua_State *L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
-  window->disableForcedScroll();
+  window->setWindowFlag(NO_FORCED_SCROLL);
   window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
   if (luaScriptManager->isWidget() && !luaScriptManager->isFullscreen()) {
@@ -2472,7 +2472,7 @@ void LvglWidgetPage::build(lua_State *L)
       showBackButton, prevActionFunction != LUA_REFNIL, nextActionFunction != LUA_REFNIL);
 
   window = page->getBody();
-  window->disableForcedScroll();
+  window->setWindowFlag(NO_FORCED_SCROLL);
   window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
   if (setFlex()) {
     lv_flex_align_t align1 = (align.flags & RIGHT) ? LV_FLEX_ALIGN_END : (align.flags & CENTERED) ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START;

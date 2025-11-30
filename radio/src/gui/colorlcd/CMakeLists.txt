@@ -74,10 +74,8 @@ set(GUI_SRC
   model/output_edit.cpp
   model/preflight_checks.cpp
   model/special_functions.cpp
-  model/throttle_params.cpp
   model/timer_setup.cpp
   model/trainer_setup.cpp
-  model/trims_setup.cpp
 
   module/bind_menu_d16.cpp
   module/custom_failsafe.cpp

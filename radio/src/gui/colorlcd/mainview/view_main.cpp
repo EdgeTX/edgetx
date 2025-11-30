@@ -108,14 +108,6 @@ ViewMain::ViewMain() :
 
 ViewMain::~ViewMain() { _instance = nullptr; }
 
-void ViewMain::deleteLater()
-{
-  if (_deleted) return;
-
-  NavWindow::deleteLater();
-  QuickMenu::shutdownQuickMenu();
-}
-
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
 {
   TRACE("addMainView(0x%p, %d)", view, viewId);
@@ -139,18 +131,6 @@ void ViewMain::setEdgeTxButtonVisible(float visible) { topbar->setEdgeTxButtonVi
 unsigned ViewMain::getMainViewsCount() const
 {
   return lv_obj_get_child_cnt(tile_view);
-}
-
-rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
-{
-  if (isVisible) {
-    auto visibleHeight = topbar->getVisibleHeight(hasTopbar ? 1.0 : 0.0);
-    zone.y += visibleHeight;
-    zone.h -= visibleHeight;
-    return zone;
-  } else {
-    return {0, 0, LCD_W, LCD_H};
-  }
 }
 
 unsigned ViewMain::getCurrentMainView() const
@@ -248,9 +228,8 @@ void ViewMain::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!QuickMenu::isOpen()) openMenu();
+    QuickMenu::openQuickMenu();
   } else {
-    QuickMenu::closeQuickMenu();
     QuickMenu::openPage(pg);
   }
 }
@@ -263,20 +242,18 @@ void ViewMain::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {
-    QuickMenu::closeQuickMenu();
     previousMainView();
   }
 }
 void ViewMain::onPressPGDN()
 {
   if (!widget_select) {
-    QuickMenu::closeQuickMenu();
     nextMainView();
   }
 }
 #endif
 
-void ViewMain::onClicked() { openMenu(); }
+void ViewMain::onClicked() { QuickMenu::openQuickMenu(); }
 
 void ViewMain::onCancel()
 {
@@ -331,11 +308,6 @@ bool ViewMain::enableWidgetSelect(bool enable)
   }
 
   return true;
-}
-
-void ViewMain::openMenu()
-{
-  QuickMenu::openQuickMenu();
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

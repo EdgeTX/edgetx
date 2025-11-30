@@ -74,10 +74,14 @@ void Layer::pop(Window* w)
     lv_group_t* prevGroup = stack.back().prevGroup;
     stack.pop_back();
     w = back();
-    if (prevGroup) {
-      w->assignLvGroup(prevGroup, true);
-    } else if (!stack.empty()) {
-      w->assignLvGroup(stack.back().group, true);
+    if (w) {
+      if (prevGroup) {
+        w->assignLvGroup(prevGroup, true);
+      } else if (!stack.empty()) {
+        w->assignLvGroup(stack.back().group, true);
+      } else {
+        lv_group_set_default(NULL);
+      }
     } else {
       lv_group_set_default(NULL);
     }
@@ -165,6 +169,8 @@ void Window::eventHandler(lv_event_t *e)
 
   if (code == LV_EVENT_DELETE || deleted()) return;
 
+  if (customEventHandler(code)) return;
+
   switch (code) {
     case LV_EVENT_SCROLL: {
       lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
@@ -172,7 +178,7 @@ void Window::eventHandler(lv_event_t *e)
       if (scrollHandler) scrollHandler(scroll_x, scroll_y);
 
       // exclude pointer based scrolling (only focus scrolling)
-      if (!lv_obj_is_scrolling(target) && !noForcedScroll) {
+      if (!lv_obj_is_scrolling(target) && ((windowFlags & NO_FORCED_SCROLL) == 0)) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
@@ -208,12 +214,6 @@ void Window::eventHandler(lv_event_t *e)
     case LV_EVENT_LONG_PRESSED:
       TRACE("LONG PRESS[%p]", this);
       _longPressed = onLongPress();
-      break;
-    case LV_EVENT_PRESSED:
-      onPressed();
-      break;
-    case LV_EVENT_RELEASED:
-      onReleased();
       break;
     default:
       break;
@@ -311,7 +311,7 @@ void Window::pushLayer(bool hideParent)
   if (!layerCreated) {
     parentHidden = hideParent;
     layerCreated = true;
-    if (parentHidden) Window::topWindow()->hide();
+    if (parentHidden && Window::topWindow()) Window::topWindow()->hide();
     Layer::push(this);
   }
 }
@@ -320,7 +320,7 @@ void Window::popLayer()
 {
   if (layerCreated) {
     Layer::pop(this);
-    if (parentHidden) Window::topWindow()->show();
+    if (parentHidden && Window::topWindow()) Window::topWindow()->show();
     layerCreated = false;
     parentHidden = false;
   }
@@ -642,7 +642,7 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
 class SetupTextButton : public TextButton
 {
  public:
-  SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef& entry) :
+  SetupTextButton(Window* parent, const rect_t& rect, const PageButtonDef& entry) :
       TextButton(parent, rect, STR_VAL(entry.title))
   {
     setPressHandler([=] {
@@ -660,14 +660,17 @@ class SetupTextButton : public TextButton
 };
 
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
-                                   PaddingSize padding, PageDefs pages, coord_t btnHeight) :
+                                   PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight) :
     Window(parent, rect)
 {
   padAll(padding);
 
   coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
 
-  int rows = (pages.size() + cols - 1) / cols;
+  int size = 0;
+  for (; pages[size].title; size += 1);
+
+  int rows = (size + cols - 1) / cols;
   int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
   if (title) {
     height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
@@ -678,12 +681,12 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     new Subtitle(this, title);
 
   int n = 0;
-  int remaining = pages.size();
+  int remaining = size;
   coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
   coord_t xw = buttonWidth + PAD_SMALL;
   coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
   coord_t x, y;
-  for (auto& entry : pages) {
+  for (int p = 0; p < size; p += 1) {
     if (remaining < cols && (n % cols == 0)) {
       coord_t space = ((cols - remaining) * xw) / (remaining + 1);
       xw += space;
@@ -692,14 +695,14 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
+    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, pages[p]);
     n += 1;
     remaining -= 1;
   }
 }
 
 SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
-                    std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset) :
+                    std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset) :
     Window(parent, {0, y, LCD_W - padding * 2, 0})
 {
   padAll(PAD_ZERO);
@@ -726,11 +729,11 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
   }
 }
 
-coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount)
+coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const SetupLineDef* setupLines)
 {
   Window* w;
 
-  for (int i = 0; i < lineCount; i += 1) {
+  for (int i = 0; setupLines[i].title || setupLines[i].createEdit; i += 1) {
 #if !defined(ALL_LANGS)
     w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
 #else

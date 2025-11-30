@@ -211,9 +211,3 @@ class HeaderBackIcon : public StaticIcon
     if (action) action();
   }
 };
-
-class UsbSDConnected : public Window
-{
- public:
-  UsbSDConnected();
-};

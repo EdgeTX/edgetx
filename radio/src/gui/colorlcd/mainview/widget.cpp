@@ -160,8 +160,6 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 {
   setWindowFlag(NO_FOCUS | NO_SCROLL);
 
-  if (parent->isTopBar()) fsAllowed = false;
-
   setPressHandler([&]() -> uint8_t {
     // When ViewMain is in "widget select mode",
     // the widget is added to a focus group
@@ -172,16 +170,16 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 
 void Widget::openMenu()
 {
-  if (fsAllowed && ViewMain::instance()->isAppMode())
+  if (!parent->isTopBar() && ViewMain::instance()->isAppMode())
   {
     setFullscreen(true);
     return;
   }
 
-  if (hasOptions() || fsAllowed) {
+  if (hasOptions() || !parent->isTopBar()) {
     Menu* menu = new Menu();
     menu->setTitle(getFactory()->getDisplayName());
-    if (fsAllowed) {
+    if (!parent->isTopBar()) {
       menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
     }
     if (hasOptions()) {
@@ -209,11 +207,12 @@ void Widget::update() {}
 
 void Widget::setFullscreen(bool enable)
 {
-  if (!fsAllowed || (enable == fullscreen)) return;
+  if (!!parent->isTopBar() || (enable == fullscreen)) return;
 
   fullscreen = enable;
 
   // Show or hide ViewMain widgets and decorations
+  Messaging::send(Messaging::DECORATION_UPDATE);
   ViewMain::instance()->show(!enable);
 
   // Leave Fullscreen Mode

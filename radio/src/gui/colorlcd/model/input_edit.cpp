@@ -47,7 +47,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 class InputEditAdvanced : public Page
 {
  public:
-  InputEditAdvanced(InputEditWindow* parent, uint8_t input_n, uint8_t index) : Page(ICON_MODEL_INPUTS)
+  InputEditAdvanced(uint8_t input_n, uint8_t index) : Page(ICON_MODEL_INPUTS)
   {
     std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
     header->setTitle(STR_MENUINPUTS);
@@ -66,7 +66,7 @@ class InputEditAdvanced : public Page
         [=]() -> int16_t { return 4 - input->mode; },
         [=](int16_t newValue) {
           input->mode = 4 - newValue;
-          parent->previewUpdate();
+          Messaging::send(Messaging::CURVE_UPDATE);
           SET_DIRTY();
         });
 
@@ -218,10 +218,7 @@ void InputEditWindow::buildBody(Window* form)
           input->curve.value = newValue;
           updatePreview = true;
           SET_DIRTY();
-        }, MIXSRC_FIRST, input->srcRaw,
-        [=]() {
-          updatePreview = true;
-        });
+        }, MIXSRC_FIRST, input->srcRaw);
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
 
@@ -229,7 +226,7 @@ void InputEditWindow::buildBody(Window* form)
   line->padAll(PAD_LARGE);
   auto btn =
       new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
-        new InputEditAdvanced(this, this->input, index);
+        new InputEditAdvanced(this->input, index);
         return 0;
       });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
@@ -237,6 +234,8 @@ void InputEditWindow::buildBody(Window* form)
 
 void InputEditWindow::checkEvents()
 {
+  if (_deleted) return;
+
   ExpoData* input = expoAddress(index);
 
   getvalue_t val;
@@ -292,7 +291,7 @@ void InputEditWindow::checkEvents()
 
   if (updatePreview) {
     updatePreview = false;
-    if (preview) preview->update();
+    Messaging::send(Messaging::CURVE_UPDATE);
   }
 
   Page::checkEvents();

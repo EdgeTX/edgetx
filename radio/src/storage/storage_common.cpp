@@ -118,6 +118,13 @@ void postRadioSettingsLoad()
       serialSetMode(port_nr, UART_MODE_NONE);
   }
 #endif
+
+#if defined(COLORLCD)
+  // Ensure ON brightness >= OFF brightness
+  if ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) < g_eeGeneral.blOffBright)
+    g_eeGeneral.backlightBright =
+        BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+#endif
 }
 
 static bool sortMixerLines()

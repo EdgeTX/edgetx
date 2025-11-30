@@ -71,14 +71,12 @@ class ValueWidget : public Widget
     lv_label_set_text(value, "");
 
     update();
-    checkEvents();
+    foreground();
   }
 
-  void checkEvents() override
+  void foreground() override
   {
     if (!loaded) return;
-
-    Widget::checkEvents();
 
     bool changed = false;
 

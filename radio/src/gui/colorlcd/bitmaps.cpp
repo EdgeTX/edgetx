@@ -294,13 +294,6 @@ static const uint8_t mask_info_usb_plugged[] __FLASH = {
 
 
 // gfx for ui elements
-
-const uint8_t mask_round_title_left[]{
-#include "mask_ui_bg_tile_top_left.lbm"
-};
-const uint8_t mask_round_title_right[]{
-#include "mask_ui_bg_tile_top_right.lbm"
-};
 const uint8_t mask_topleft_bg[] __FLASH = {
 #include "mask_ui_bg_topbar_left.lbm"
 };
@@ -502,8 +495,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MPLEX_MULTIPLY, mask_inline_multiply),
     BI(ICON_MPLEX_REPLACE, mask_inline_replace),
 
-    BI(ICON_ROUND_TITLE_LEFT, mask_round_title_left),
-    BI(ICON_ROUND_TITLE_RIGHT, mask_round_title_right),
     BI(ICON_MODEL_GRID_LARGE, mask_btn_grid_large),
     BI(ICON_MODEL_GRID_SMALL, mask_btn_grid_small),
     BI(ICON_MODEL_LIST_TWO, mask_btn_list_two),

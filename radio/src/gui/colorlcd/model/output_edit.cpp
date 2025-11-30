@@ -185,7 +185,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveChoice(line, GET_SET_DEFAULT(output->curve), nullptr, channel + MIXSRC_FIRST_CH);
+  new CurveChoice(line, GET_SET_DEFAULT(output->curve), channel + MIXSRC_FIRST_CH);
 
   // PPM center
   line = form->newLine(grid);

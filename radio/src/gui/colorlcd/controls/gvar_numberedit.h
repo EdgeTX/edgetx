@@ -58,7 +58,6 @@ class GVarNumberEdit : public Window
   std::function<void(int32_t)> setValue;
   int32_t voffset;
 
-  void onEvent(event_t event) override;
   void update();
 
   static void value_changed(lv_event_t* e);

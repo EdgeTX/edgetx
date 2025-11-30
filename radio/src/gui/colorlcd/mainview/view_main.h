@@ -45,10 +45,6 @@ class ViewMain : public NavWindow
   void updateTopbarVisibility();
   bool enableWidgetSelect(bool enable);
 
-  // Get the available space in the middle of the screen
-  // (without topbar)
-  rect_t getMainZone(rect_t zone, bool hasTopbar) const;
-
   unsigned getMainViewsCount() const;
   unsigned getCurrentMainView() const;
   void setCurrentMainView(unsigned view);
@@ -60,7 +56,6 @@ class ViewMain : public NavWindow
 
   void onClicked() override;
   void onCancel() override;
-  void openMenu();
   bool onLongPress() override;
 
   void show(bool visible = true) override;
@@ -84,8 +79,6 @@ class ViewMain : public NavWindow
   TopBar* topbar = nullptr;
   bool widget_select = false;
   lv_timer_t* widget_select_timer = nullptr;
-
-  void deleteLater() override;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);

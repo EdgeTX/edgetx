@@ -49,10 +49,10 @@ class Layout6x1 : public Layout
   rect_t mainZone = {0, 0, 0, 0};
   lv_obj_t* panel = nullptr;
 
-  void checkEvents() override
+  void updateDecorations() override
   {
+    Layout::updateDecorations();
     setPanel();
-    Layout::checkEvents();
   }
 
   void setPanel()

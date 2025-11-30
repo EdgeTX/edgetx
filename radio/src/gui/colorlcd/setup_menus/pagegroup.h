@@ -22,6 +22,7 @@
 #pragma once
 
 #include "bitmaps.h"
+#include "messaging.h"
 #include "quick_menu.h"
 
 class HeaderIcon;
@@ -31,6 +32,7 @@ class PageGroupBase;
 class SelectedTabIcon;
 class PageGroupIconButton;
 #endif
+
 //-----------------------------------------------------------------------------
 
 enum PageDefAction {
@@ -52,24 +54,6 @@ struct PageDef {
 #if VERSION_MAJOR > 2
 extern PageDef favoritesMenuItems[];
 #endif
-
-enum QMTopDefAction {
-  QM_SUBMENU,
-  QM_ACTION
-};
-
-struct QMTopDef {
-  EdgeTxIcon icon;
-  STR_TYP qmTitle;
-  STR_TYP title;
-  QMTopDefAction pageAction;
-  QMPage qmPage;
-  const PageDef* subMenuItems;
-  std::function<void()> action;
-  std::function<bool()> enabled;
-};
-
-extern const QMTopDef qmTopItems[];
 
 //-----------------------------------------------------------------------------
 
@@ -101,7 +85,6 @@ class PageGroupItem
 
   PaddingSize getPadding() const { return padding; }
 
-  virtual void update(uint8_t index) {}
   virtual void cleanup() {}
 
   QMPage pageId() const { return qmPageId; }
@@ -191,8 +174,7 @@ class PageGroupBase : public NavWindow
   Window* body = nullptr;
   PageGroupItem* currentTab = nullptr;
   EdgeTxIcon icon;
-
-  virtual void openMenu() = 0;
+  Messaging quickMenuMsg;
 
   void checkEvents() override;
 
@@ -241,8 +223,6 @@ class PageGroup : public PageGroupBase
   static constexpr coord_t PAGE_GROUP_BODY_Y = PAGE_GROUP_TOP_BAR_H + PAGE_GROUP_ALT_TITLE_H;
 
  protected:
-
-  void openMenu() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -270,6 +250,4 @@ class TabsGroup : public PageGroupBase
   static constexpr coord_t TABS_GROUP_BODY_Y = TABS_GROUP_TOP_BAR_H + TABS_GROUP_ALT_TITLE_H;
 
  protected:
-
-  void openMenu() override;
 };

@@ -25,6 +25,7 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "quick_menu.h"
+#include "static.h"
 #include "switches.h"
 
 #if PORTRAIT
@@ -208,34 +209,6 @@ class LogicalSwitchDisplayFooter : public Window
   lv_obj_t* lsDelay = nullptr;
 };
 
-class LogicalSwitchDisplayButton : public TextButton
-{
- public:
-  LogicalSwitchDisplayButton(Window* parent, const rect_t& rect,
-                             std::string text, unsigned index) :
-      TextButton(parent, rect, std::move(text), nullptr), index(index)
-  {
-  }
-
-  void checkEvents() override
-  {
-    bool newvalue = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
-    if (value != newvalue) {
-      if (newvalue) {
-        lv_obj_add_state(lvobj, LV_STATE_CHECKED);
-      } else {
-        lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
-      }
-      value = newvalue;
-    }
-    ButtonBase::checkEvents();
-  }
-
- protected:
-  unsigned index = 0;
-  bool value = false;
-};
-
 LogicalSwitchesViewPage::LogicalSwitchesViewPage() :
     PageGroupItem(STR_MONITOR_SWITCHES, QM_TOOLS_LS_MON)
 {
@@ -273,24 +246,13 @@ void LogicalSwitchesViewPage::build(Window* window)
     strAppendSigned(&lsString[1], i + 1, 2);
 
     if (isActive) {
-      auto button = new LogicalSwitchDisplayButton(
-          window, {x, y, BTN_WIDTH, btnHeight}, lsString, i);
-
-      button->setFocusHandler([=](bool focus) {
-        if (focus) {
-          footer->setIndex(i);
-        }
-        return 0;
-      });
+      auto button = new TextButton(window, {x, y, BTN_WIDTH, btnHeight}, lsString);
+      button->setCheckHandler([=]() { button->check(getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i)); });
+      button->setFocusHandler([=](bool focus) { if (focus) { footer->setIndex(i); } });
     } else {
       if (btnHeight > EdgeTxStyles::STD_FONT_HEIGHT)
         y += (btnHeight - EdgeTxStyles::STD_FONT_HEIGHT) / 2;
-      auto lbl = etx_label_create(window->getLvObj());
-      lv_obj_set_size(lbl, BTN_WIDTH, btnHeight);
-      lv_obj_set_pos(lbl, x, y);
-      etx_obj_add_style(lbl, styles->text_align_center, LV_PART_MAIN);
-      etx_txt_color(lbl, COLOR_THEME_DISABLED_INDEX);
-      lv_label_set_text(lbl, lsString.c_str());
+      new StaticText(window, {x, y, BTN_WIDTH, btnHeight}, lsString, COLOR_THEME_DISABLED_INDEX, CENTERED);
     }
   }
 }

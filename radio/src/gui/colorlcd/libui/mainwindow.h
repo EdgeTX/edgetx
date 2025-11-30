@@ -45,13 +45,15 @@ class MainWindow: public Window
   }
 #endif
 
-  void run();
+  void run(bool trash = true);
 
   bool setBackgroundImage(std::string& fileName);
 
   void shutdown();
 
   void enableWidgetRefresh(bool state) { widgetRefreshEnable = state; }
+
+  void blockUntilClose(bool checkPwr, std::function<bool(void)> closeCondition, bool isError = false);
 
  protected:
   lv_obj_t* background = nullptr;

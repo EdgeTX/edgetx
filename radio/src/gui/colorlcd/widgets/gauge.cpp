@@ -105,11 +105,9 @@ class GaugeWidget : public Widget
   DynamicNumber<int16_t>* valueText = nullptr;
   lv_obj_t* bar = nullptr;
 
-  void checkEvents() override
+  void foreground() override
   {
     if (!loaded) return;
-
-    Widget::checkEvents();
 
     auto newValue = getGuageValue();
     if (lastValue != newValue) {

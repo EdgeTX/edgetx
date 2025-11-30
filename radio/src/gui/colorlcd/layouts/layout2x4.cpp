@@ -56,10 +56,10 @@ class Layout2x4 : public Layout
   lv_obj_t* panel1 = nullptr;
   lv_obj_t* panel2 = nullptr;
 
-  void checkEvents() override
+  void updateDecorations() override
   {
+    Layout::updateDecorations();
     setPanels();
-    Layout::checkEvents();
   }
 
   void setPanels()

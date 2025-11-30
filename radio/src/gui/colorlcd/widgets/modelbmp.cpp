@@ -50,14 +50,12 @@ class ModelBitmapWidget : public Widget
     image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
-    checkEvents();
+    foreground();
   }
 
-  void checkEvents() override
+  void foreground() override
   {
     if (!loaded) return;
-
-    Widget::checkEvents();
 
     if (getHash() != deps_hash) {
       update();

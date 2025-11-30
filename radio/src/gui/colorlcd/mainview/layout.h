@@ -25,6 +25,7 @@
 #include "dataconstants.h"
 #include "widget.h"
 #include "view_main_decoration.h"
+#include "messaging.h"
 
 #include <memory>
 
@@ -83,8 +84,6 @@ extern const LayoutOption defaultLayoutOptions[];
 
 class Layout: public WidgetsContainer
 {
- friend class LayoutFactory;
-
  public:
   Layout(Window* parent, const LayoutFactory * factory,
           int screenNum, uint8_t zoneCount, uint8_t* zoneMap);
@@ -114,12 +113,8 @@ class Layout: public WidgetsContainer
   virtual bool hasTrims() const;
   virtual bool isMirrored() const;
 
-  // Set decoration visibility
-  void setTrimsVisible(bool visible);
-  void setSlidersVisible(bool visible);
-  void setFlightModeVisible(bool visible);
-
   // Updates settings for trims, sliders, pots, etc...
+  virtual void updateDecorations();
   void show(bool visible = true) override;
 
   bool isLayout() override { return true; }
@@ -127,11 +122,13 @@ class Layout: public WidgetsContainer
   void removeWidget(unsigned int index) override;
 
  protected:
-  const LayoutFactory * factory  = nullptr;
-  std::unique_ptr<ViewMainDecoration> decoration;
+  const LayoutFactory* factory = nullptr;
+  ViewMainDecoration* decoration = nullptr;
   uint8_t* zoneMap = nullptr;
   int screenNum;
   rect_t lastMainZone = {0,0,0,0};
+  Messaging decorationUpdateMsg;
+  bool zoneUpdateRequired = false;
 
   // Last time we refreshed the window
   uint32_t lastRefresh = 0;

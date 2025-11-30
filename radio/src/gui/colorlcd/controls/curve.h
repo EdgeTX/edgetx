@@ -22,6 +22,7 @@
 #pragma once
 
 #include "window.h"
+#include "messaging.h"
 
 class StaticText;
 
@@ -59,9 +60,6 @@ class Curve : public Window
   std::string getName() const override { return "Curve"; }
 #endif
 
-  void addPoint(const point_t& point);
-  void clearPoints();
-
   void update();
 
  protected:
@@ -71,13 +69,12 @@ class Curve : public Window
   int lastPos = 0;
   std::function<int(int)> valueFunc;
   std::function<int()> positionFunc;
-  std::list<point_t> points;
   StaticText* positionValue = nullptr;
   lv_point_t posLinePoints[4];
   lv_obj_t* posVLine = nullptr;
   lv_obj_t* posHLine = nullptr;
   lv_obj_t* posPoint = nullptr;
-  lv_obj_t* pointDots[17] = { nullptr };
+  Messaging curveUpdateMsg;
 
   void updatePosition();
 

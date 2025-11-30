@@ -80,6 +80,13 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
 
   addButton(STR_SELECT_MENU_ALL, choice->getMin(), choice->getMax(), nullptr,
             nullptr, true);
+
+  changeFilterMsg.subscribe(Messaging::MENU_CHANGE_FILTER, [=](uint32_t param) {
+    if (param == 1)
+      nextFilter();
+    else
+      prevFilter();
+  });
 }
 
 MenuToolbar::~MenuToolbar() { lv_group_del(group); }
@@ -93,15 +100,16 @@ void MenuToolbar::resetFilter()
   }
 }
 
-void MenuToolbar::onEvent(event_t event)
+void MenuToolbar::nextFilter()
 {
-  if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
-    lv_group_focus_next(group);
-  }
-  else if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
-    lv_group_focus_prev(group);
-  }
+  lv_group_focus_next(group);
+  auto obj = lv_group_get_focused(group);
+  lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
+}
 
+void MenuToolbar::prevFilter()
+{
+  lv_group_focus_prev(group);
   auto obj = lv_group_get_focused(group);
   lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
 }

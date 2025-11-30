@@ -19,9 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "widget.h"
-#include <cstdint>
+
+#include "edgetx.h"
+#include "messaging.h"
 
 constexpr int16_t OUTPUT_INVALID_VALUE = INT16_MIN;
 
@@ -38,6 +39,8 @@ class ChannelValue : public Window
   {
     setWindowFlag(NO_FOCUS | NO_CLICK);
 
+    refreshMsg.subscribe(Messaging::REFRESH_OUTPUTS_WIDGET, [=](uint32_t param) { refresh(); });
+  
     delayLoad();
   }
 
@@ -79,7 +82,7 @@ class ChannelValue : public Window
     lv_line_set_points(divLine, divPoints, 2);
     etx_obj_add_style(divLine, styles->div_line, LV_PART_MAIN);
 
-    checkEvents();
+    refresh();
   }
 
   void setChannel()
@@ -94,7 +97,7 @@ class ChannelValue : public Window
     lv_label_set_text(chanLabel, s);
   }
 
-  void checkEvents() override
+  void refresh()
   {
     if (!loaded) return;
 
@@ -136,8 +139,6 @@ class ChannelValue : public Window
       chanHasName = hasName;
       setChannel();
     }
-
-    Window::checkEvents();
   }
 
   static LAYOUT_VAL_SCALED(ROW_HEIGHT, 16)
@@ -155,6 +156,7 @@ class ChannelValue : public Window
   lv_obj_t* chanLabel = nullptr;
   lv_point_t divPoints[2];
   lv_obj_t* bar = nullptr;
+  Messaging refreshMsg;
 };
 
 class OutputsWidget : public Widget
@@ -223,6 +225,11 @@ class OutputsWidget : public Widget
         }
       }
     }
+  }
+
+  void foreground() override
+  {
+    Messaging::send(Messaging::REFRESH_OUTPUTS_WIDGET);
   }
 
   static const WidgetOption options[];

@@ -126,7 +126,6 @@ class Widget : public ButtonBase
   int screenNum;
   int zoneNum;
   bool fullscreen = false;
-  bool fsAllowed = true;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
   lv_style_t borderStyle;
