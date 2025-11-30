@@ -47,6 +47,7 @@ jobs:
           - nb4p
           - st16
           - t15pro
+          - pa01
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
