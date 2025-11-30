@@ -75,7 +75,7 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL_SCALED(WGT_H, 21)
   static constexpr coord_t SRC_X = WGT_X + WGT_W + PAD_TINY;
   static constexpr coord_t SRC_Y = WGT_Y;
-  static constexpr coord_t SRC_W = 72;
+  static LAYOUT_VAL_SCALED(SRC_W, 72)
   static constexpr coord_t SRC_H = WGT_H;
   static constexpr coord_t OPT_X = SRC_X + SRC_W + PAD_TINY;
   static constexpr coord_t OPT_Y = WGT_Y;
