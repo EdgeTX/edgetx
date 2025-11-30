@@ -28,10 +28,10 @@ class TableField : public Window
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Table"; }
 #endif
-  
+
   void setRowCount(uint16_t rows);
   uint16_t getRowCount() const;
-  
+
   void setColumnWidth(uint16_t col, coord_t w);
 
   void select(uint16_t row, uint16_t col, bool force = false);
@@ -66,7 +66,7 @@ class TableField : public Window
   void onEvent(event_t event) override;
   bool onLongPress() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
   static void force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
 };

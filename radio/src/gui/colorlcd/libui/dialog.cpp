@@ -19,10 +19,12 @@
 #include "dialog.h"
 
 #include "edgetx.h"
-#include "mainwindow.h"
-#include "progress.h"
 #include "etx_lv_theme.h"
 #include "keyboard_base.h"
+#include "mainwindow.h"
+#include "progress.h"
+#include "static.h"
+#include "textedit.h"
 
 //-----------------------------------------------------------------------------
 

@@ -39,8 +39,7 @@ public:
   static StandaloneLuaWindow* instance();
   static void setup(bool useLvgl, int initFn, int runFn);
 
-  void attach();
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StandaloneLuaWindow"; }
@@ -70,7 +69,6 @@ public:
   static LAYOUT_VAL_SCALED(ERR_MSG_HO, 92)
 
 protected:
-  lv_obj_t* prevScreen = nullptr;
   lv_obj_t* errorModal = nullptr;
   lv_obj_t* errorTitle = nullptr;
   lv_obj_t* errorMsg = nullptr;

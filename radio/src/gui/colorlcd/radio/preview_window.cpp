@@ -22,11 +22,13 @@
 #include "preview_window.h"
 
 #include "edgetx.h"
-#include "sliders.h"
 #include "etx_lv_theme.h"
-#include "trims.h"
-#include "topbar.h"
 #include "quick_menu_group.h"
+#include "sliders.h"
+#include "textedit.h"
+#include "toggleswitch.h"
+#include "topbar.h"
+#include "trims.h"
 
 // class to hold a color list and apply / restore it while drawing standard
 // controls
@@ -77,8 +79,7 @@ class ThemedCheckBox : public ToggleSwitch
           [=](uint8_t value) { update(); }),
       checked(checked)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS | NO_CLICK);
     setFocusHandler([](bool focus) {});
   }
 
@@ -99,8 +100,7 @@ class ThemedButton : public TextButton
                bool isChecked) :
       TextButton(window, rect, text, nullptr)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS | NO_CLICK);
     setPressHandler([=]() { return isChecked; });
   }
 
@@ -156,9 +156,9 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, 0}, STR_THEME_REGULAR, false);
   new MainViewTrim(this, {CBT_X, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
   new MainViewSlider(this, {CBT_X, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
-  new StaticText(this, {CBT_X, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING, 
+  new StaticText(this, {CBT_X, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING,
                  COLOR_THEME_WARNING_INDEX);
-  new StaticText(this, {CBT_X, TXT2_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_DISABLED, 
+  new StaticText(this, {CBT_X, TXT2_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_DISABLED,
                  COLOR_THEME_DISABLED_INDEX);
 
   new ThemedTextEdit(this, {CBT_X, EDT_Y, EDY_W, 0}, STR_THEME_EDIT, true);

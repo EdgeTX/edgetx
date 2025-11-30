@@ -58,11 +58,11 @@ void SliderBase::update()
   }
 }
 
-void SliderBase::deleteLater(bool detach, bool trash)
+void SliderBase::deleteLater()
 {
   if (!deleted()) {
     if (tickPts) delete tickPts;
-    Window::deleteLater(detach, trash);
+    Window::deleteLater();
   }
 }
 

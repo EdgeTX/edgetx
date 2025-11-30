@@ -21,11 +21,15 @@
 
 #include "model_outputs.h"
 
+#include "dialog.h"
 #include "channel_bar.h"
-#include "list_line_button.h"
 #include "edgetx.h"
-#include "output_edit.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "output_edit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -91,7 +95,7 @@ class OutputLineButton : public ListLineButton
     checkEvents();
 
     lv_obj_update_layout(lvobj);
-  
+
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 
@@ -213,7 +217,7 @@ class OutputLineButton : public ListLineButton
   }
 };
 
-ModelOutputsPage::ModelOutputsPage(PageDef& pageDef) :
+ModelOutputsPage::ModelOutputsPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

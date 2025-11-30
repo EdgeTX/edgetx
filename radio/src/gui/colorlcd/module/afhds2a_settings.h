@@ -40,13 +40,13 @@ class AFHDS2ASettings : public Window, public ModuleOptions
   bool hasRFPower = false;
   Window* afhds2RFPowerText = nullptr;
   Choice* afhds2RFPowerChoice = nullptr;
-#endif  
+#endif
   void hideAFHDS2Options();
   void showAFHDS2Options();
 
   void checkEvents() override;
   void update() override;
-    
+
 public:
   AFHDS2ASettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };

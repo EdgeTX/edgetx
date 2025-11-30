@@ -34,6 +34,8 @@
 #include "startup_shutdown.h"
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
+#include "menu.h"
+#include "mainwindow.h"
 #endif
 
 #if defined(CLI)

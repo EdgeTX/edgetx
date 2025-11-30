@@ -26,7 +26,7 @@
 class RadioVersionPage: public PageGroupItem
 {
  public:
-  RadioVersionPage(PageDef& pageDef);
+  RadioVersionPage(const PageDef& pageDef);
 
   void build(Window * window) override;
 

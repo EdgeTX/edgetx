@@ -29,6 +29,10 @@
 #include "mixes.h"
 #include "os/sleep.h"
 
+#if defined(COLORLCD)
+#include "LvglWrapper.h"
+#endif
+
 #undef CPN
 #include "MultiSubtypeDefs.h"
 
@@ -712,6 +716,9 @@ bool isSourceAvailableInResetSpecialFunction(int index)
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
 
 #if defined(COLORLCD)
+
+#include "menu.h"
+#include "mainwindow.h"
 
 class AntennaSelectionMenu : public Menu
 {

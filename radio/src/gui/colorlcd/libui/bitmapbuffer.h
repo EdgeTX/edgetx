@@ -18,7 +18,11 @@
 
 #pragma once
 
-#include "libopenui_defines.h"
+#include "colors.h"
+
+#if defined(DEBUG)
+#include "debug.h"
+#endif
 
 struct MaskBitmap;
 class TelemetryItem;

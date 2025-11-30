@@ -27,7 +27,7 @@
 class ModelMixesPage : public InputMixPageBase
 {
  public:
-  ModelMixesPage(PageDef& pageDef);
+  ModelMixesPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

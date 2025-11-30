@@ -19,6 +19,7 @@
 #include "keyboard_number.h"
 
 #include "numberedit.h"
+#include "keys.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 90;
 NumberKeyboard* NumberKeyboard::_instance = nullptr;

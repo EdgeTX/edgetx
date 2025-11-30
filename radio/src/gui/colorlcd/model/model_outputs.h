@@ -30,7 +30,7 @@ class OutputLineButton;
 class ModelOutputsPage : public PageGroupItem
 {
  public:
-  ModelOutputsPage(PageDef& pageDef);
+  ModelOutputsPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

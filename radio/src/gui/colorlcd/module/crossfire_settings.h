@@ -37,7 +37,7 @@ class CrossfireSettings : public Window, public ModuleOptions
 
   void checkEvents() override;
   void update() override;
-  
+
 public:
   CrossfireSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };

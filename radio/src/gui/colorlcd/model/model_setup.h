@@ -27,7 +27,7 @@ class TextButton;
 
 class ModelSetupPage: public PageGroupItem {
  public:
-  ModelSetupPage(PageDef& pageDef);
+  ModelSetupPage(const PageDef& pageDef);
 
   void build(Window * window) override;
 

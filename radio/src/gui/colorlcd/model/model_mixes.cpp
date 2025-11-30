@@ -20,12 +20,16 @@
  */
 
 #include "model_mixes.h"
-#include "edgetx.h"
-#include "mixer_edit.h"
-#include "mixes.h"
-#include "channel_bar.h"
 
 #include <algorithm>
+
+#include "channel_bar.h"
+#include "dialog.h"
+#include "edgetx.h"
+#include "menu.h"
+#include "mixer_edit.h"
+#include "mixes.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -81,10 +85,10 @@ class MixLineButton : public InputMixButtonBase
     delayLoad();
   }
 
-  void deleteLater(bool detach = true, bool trash = true) override
+  void deleteLater() override
   {
-    if (mplex) mplex->deleteLater(detach, trash);
-    InputMixButtonBase::deleteLater(detach, trash);
+    if (mplex) mplex->deleteLater();
+    InputMixButtonBase::deleteLater();
   }
 
   void delayedInit() override
@@ -229,7 +233,7 @@ class MixGroup : public InputMixGroupBase
   bool monitorVisible = false;
 };
 
-ModelMixesPage::ModelMixesPage(PageDef& pageDef) : InputMixPageBase(pageDef)
+ModelMixesPage::ModelMixesPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 

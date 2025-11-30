@@ -19,15 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
-#include "hal/rotary_encoder.h"
-#include "os/time.h"
-
 #include "LvglWrapper.h"
-#include "etx_lv_theme.h"
 
-#include "view_main.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "hal/rotary_encoder.h"
 #include "keyboard_base.h"
+#include "mainwindow.h"
+#include "os/time.h"
+#include "view_main.h"
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
@@ -144,7 +144,7 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     // no focused item ?
     auto obj = get_focus_obj(keyboardDevice);
     if (!obj) {
-      auto w = Layer::back();
+      auto w = Window::topWindow();
       dispatch_kb_event(w, evt);
       backup_kb_data(data);
       return;

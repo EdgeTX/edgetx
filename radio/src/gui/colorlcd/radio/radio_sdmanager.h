@@ -33,9 +33,9 @@ class RadioSdManagerPage : public PageGroupItem
 {
   FileBrowser* browser = nullptr;
   FilePreview* preview = nullptr;
-  
+
  public:
-  RadioSdManagerPage(PageDef& pageDef);
+  RadioSdManagerPage(const PageDef& pageDef);
   void build(Window* window) override;
 
  protected:
@@ -60,5 +60,5 @@ class RadioSdManagerPage : public PageGroupItem
                            MultiModuleType type);
 #endif
 
-  void checkEvents() override; 
+  void checkEvents() override;
 };

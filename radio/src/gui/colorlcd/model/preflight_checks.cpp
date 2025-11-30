@@ -22,11 +22,15 @@
 #include "preflight_checks.h"
 
 #include "button_matrix.h"
+#include "choice.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "edgetx.h"
+#include "numberedit.h"
 #include "strhelpers.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

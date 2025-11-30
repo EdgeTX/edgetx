@@ -19,6 +19,7 @@
 #include "mainwindow.h"
 
 #include "board.h"
+#include "debug.h"
 #include "keyboard_base.h"
 #include "layout.h"
 #include "etx_lv_theme.h"
@@ -60,7 +61,7 @@ void MainWindow::run(bool trash)
 
   ViewMain::refreshWidgets();
 
-  auto opaque = Layer::getFirstOpaque();
+  auto opaque = Window::firstOpaque();
   if (opaque) {
     opaque->checkEvents();
   }
@@ -88,9 +89,8 @@ void MainWindow::shutdown()
   LayoutFactory::deleteCustomScreens();
 
   // clear layer stack first
-  for (Window* w = Layer::back(); w; w = Layer::back()) {
+  for (Window* w = Window::topWindow(); w; w = Window::topWindow()) {
     w->deleteLater();
-    Layer::pop(w);
   }
 
   children.clear();
@@ -102,27 +102,21 @@ void MainWindow::shutdown()
   lv_obj_center(background);
 }
 
-void MainWindow::setBackgroundImage(const char* fileName)
+bool MainWindow::setBackgroundImage(std::string& fileName)
 {
+  if (fileName.empty()) return false;
+
   // ensure you delete old bitmap
   if (backgroundBitmap != nullptr) delete backgroundBitmap;
 
-  if (fileName == nullptr) fileName = "";
-
-  backgroundImageFileName = fileName;
-
-  // Try to load bitmap. If this fails backgroundBitmap will be NULL and default
-  // will be loaded in update() method
-  backgroundBitmap =
-      BitmapBuffer::loadBitmap(backgroundImageFileName.c_str(), BMP_RGB565);
-
-  if (!backgroundBitmap) {
-    backgroundBitmap = BitmapBuffer::loadBitmap(
-        THEMES_PATH "/EdgeTX/background.png", BMP_RGB565);
-  }
+  // Try to load bitmap.
+  backgroundBitmap = BitmapBuffer::loadBitmap(fileName.c_str(), BMP_RGB565);
 
   if (backgroundBitmap) {
     lv_canvas_set_buffer(background, backgroundBitmap->getData(), backgroundBitmap->width(),
                          backgroundBitmap->height(), LV_IMG_CF_TRUE_COLOR);
+    return true;
   }
+
+  return false;
 }

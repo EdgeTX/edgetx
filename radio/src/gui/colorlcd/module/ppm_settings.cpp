@@ -21,7 +21,9 @@
 
 #include "ppm_settings.h"
 
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

@@ -21,9 +21,10 @@
 
 #include "standalone_lua.h"
 
-#include "view_main.h"
 #include "dma2d.h"
+#include "keys.h"
 #include "lua/lua_event.h"
+#include "view_main.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #define strcasecmp _stricmp
@@ -133,6 +134,8 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   luaScriptManager = this;
 
+  pushLayer(true);
+
   if (useLvglLayout()) {
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
@@ -151,19 +154,19 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     lcdBuffer->clear();
     lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, STR_LOADING,
                       FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS | NO_SCROLL);
 
     auto canvas = lv_canvas_create(lvobj);
     lv_obj_center(canvas);
     lv_canvas_set_buffer(canvas, lcdBuffer->getData(),
                          lcdBuffer->width(), lcdBuffer->height(), LV_IMG_CF_TRUE_COLOR);
+
+    lv_group_add_obj(lv_group_get_default(), lvobj);
+    lv_group_set_editing(lv_group_get_default(), true);
   }
 
   // setup LUA event handler
   setupHandler(this);
-
-  attach();
 
   lua_gc(lsStandalone, LUA_GCCOLLECT, 0);
 
@@ -187,22 +190,7 @@ StandaloneLuaWindow* StandaloneLuaWindow::instance()
   return _instance;
 }
 
-void StandaloneLuaWindow::attach()
-{
-  if (!prevScreen) {
-    // backup previous screen
-    prevScreen = lv_scr_act();
-
-    pushLayer(true);
-
-    if (!useLvglLayout()) {
-      lv_group_add_obj(lv_group_get_default(), lvobj);
-      lv_group_set_editing(lv_group_get_default(), true);
-    }
-  }
-}
-
-void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
+void StandaloneLuaWindow::deleteLater()
 {
   if (_deleted) return;
 
@@ -217,13 +205,9 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaScriptManager = nullptr;
 
-  if (prevScreen) {
-    prevScreen = nullptr;
-  }
+  Window::deleteLater();
 
-  if (trash) {
-    _instance = nullptr;
-  }
+  _instance = nullptr;
 
 #if defined(USE_HATS_AS_KEYS)
   setTransposeHatsForLUA(false);
@@ -233,7 +217,7 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaEmptyEventBuffer();
 
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 }
 
 void StandaloneLuaWindow::checkEvents()

@@ -47,7 +47,7 @@ class WidgetsContainer: public Window
   virtual bool isAppMode() const { return false; }
   bool isWidgetsContainer() override { return true; }
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
  protected:
   uint8_t zoneCount = 0;
