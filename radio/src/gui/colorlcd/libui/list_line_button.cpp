@@ -251,6 +251,7 @@ InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
   padAll(PAD_ZERO);
 
   label = etx_label_create(lvobj);
+  etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
 void InputMixGroupBase::adjustHeight()
@@ -299,7 +300,12 @@ bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
 
 void InputMixGroupBase::refresh()
 {
-  lv_label_set_text(label, getSourceString(idx));
+  char* s = getSourceString(idx);
+  if (getTextWidth(s, 0, FONT(STD)) > InputMixButtonBase::LN_X - PAD_TINY)
+    lv_obj_add_state(label, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(label, LV_STATE_USER_1);
+  lv_label_set_text(label, s);
 }
 
 InputMixGroupBase* InputMixPageBase::getGroupBySrc(mixsrc_t src)
