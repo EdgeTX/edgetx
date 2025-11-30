@@ -21,12 +21,15 @@
 
 #include "popups.h"
 
+#include "dialog.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "hal/watchdog_driver.h"
 #include "lvgl/src/hal/lv_hal_tick.h"
+#include "LvglWrapper.h"
+#include "mainwindow.h"
 #include "os/sleep.h"
 #include "pwr.h"
-#include "hal/watchdog_driver.h"
-#include "etx_lv_theme.h"
 
 static void _run_popup_dialog(const char* title, const char* msg,
                               const char* info = nullptr)

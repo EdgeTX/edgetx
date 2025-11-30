@@ -22,17 +22,19 @@
 #include "mixer_edit.h"
 
 #include "channel_bar.h"
-#include "gvar_numberedit.h"
-#include "source_numberedit.h"
 #include "curve_param.h"
-#include "mixer_edit_adv.h"
-#include "mixes.h"
+#include "curveedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "gvar_numberedit.h"
+#include "mixer_edit_adv.h"
+#include "mixes.h"
+#include "pagegroup.h"
+#include "source_numberedit.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
-#include "curveedit.h"
-#include "pagegroup.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

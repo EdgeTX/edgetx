@@ -21,12 +21,17 @@
 
 #include "model_telemetry.h"
 
-#include "fullscreen_dialog.h"
-#include "list_line_button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "fullscreen_dialog.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
-#include "etx_lv_theme.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -280,7 +285,7 @@ class SensorButton : public ListLineButton
     lv_obj_set_pos(valLabel, TSStyle::NUM_W + TSStyle::NAME_W + PAD_LARGE * 3, PAD_MEDIUM/2);
 
     lv_obj_update_layout(lvobj);
-  
+
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
@@ -748,7 +753,7 @@ class SensorEditWindow : public SubPage
   static LAYOUT_SIZE(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(80))
 };
 
-ModelTelemetryPage::ModelTelemetryPage(PageDef& pageDef) :
+ModelTelemetryPage::ModelTelemetryPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
   tsStyle.init();

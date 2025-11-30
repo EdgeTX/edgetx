@@ -18,6 +18,7 @@
 
 #include "menutoolbar.h"
 
+#include "keys.h"
 #include "menu.h"
 #include "etx_lv_theme.h"
 #include "translations/translations.h"
@@ -51,7 +52,6 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
                                      const char* picto) :
     ButtonBase(parent, rect, nullptr, menu_button_create)
 {
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 
   lv_obj_add_event_cb(lvobj, toolbar_btn_defocus, LV_EVENT_DEFOCUSED, nullptr);

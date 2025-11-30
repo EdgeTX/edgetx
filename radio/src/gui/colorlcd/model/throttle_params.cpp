@@ -20,9 +20,12 @@
  */
 
 #include "throttle_params.h"
+
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 

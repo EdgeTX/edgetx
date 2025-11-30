@@ -19,9 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#include "startup_shutdown.h"
+
+#include "edgetx.h"
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
-#include "edgetx.h"
+#include "LvglWrapper.h"
+#include "mainwindow.h"
 #include "os/sleep.h"
 #include "stamp.h"
 #include "theme_manager.h"

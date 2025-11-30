@@ -21,9 +21,13 @@
 
 #include "timer_setup.h"
 
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "switchchoice.h"
+#include "textedit.h"
 #include "timeedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

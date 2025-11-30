@@ -37,9 +37,10 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     sourceMin(sourceMin),
     getValue(getValue),
     setValue(setValue),
-    textFlags(textFlags),
     voffset(voffset)
 {
+  setTextFlag(textFlags);
+
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
   lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);

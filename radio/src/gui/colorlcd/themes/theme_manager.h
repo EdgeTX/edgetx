@@ -18,15 +18,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#pragma once
-#include <stdlib.h>
 
+#pragma once
+
+#include <stdlib.h>
 #include <algorithm>
 
 #include "colors.h"
 #include "debug.h"
 #include "edgetx.h"
 #include "sdcard.h"
+#include "static.h"
 
 struct ColorEntry
 {
@@ -63,7 +65,7 @@ class ThemeFile
 
         return nullptr;
     }
-    
+
     void setName(const std::string& name) { this->name = name; }
     void setAuthor(const std::string& author) { this->author = author; }
     void setInfo(const std::string& info) { this->info = info; }
@@ -88,6 +90,7 @@ class ThemeFile
 
     void applyColors();
     void applyBackground();
+    bool tryBackground(std::string& file);
 
     void deSerialize();
 };
@@ -131,17 +134,17 @@ class ThemePersistance
     inline void setThemeIndex(int index) { currentTheme = index;}
     inline bool isDefaultTheme() { if (currentTheme == 0) return true; else return false; }
 
-    inline ThemeFile* getCurrentTheme() 
-    { 
-      if (currentTheme < (int)themes.size()) 
+    inline ThemeFile* getCurrentTheme()
+    {
+      if (currentTheme < (int)themes.size())
         return themes[currentTheme];
       return nullptr;
     }
 
-    inline ThemeFile* getThemeByIndex(int index) 
-    { 
+    inline ThemeFile* getThemeByIndex(int index)
+    {
       if (index < (int) themes.size())
-        return themes[index]; 
+        return themes[index];
       return nullptr;
     }
 

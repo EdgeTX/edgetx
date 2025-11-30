@@ -22,11 +22,14 @@
 #include "special_functions.h"
 
 #include "filechoice.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
+#include "menu.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "timeedit.h"
+#include "toggleswitch.h"
 #include "view_main.h"
 
 #define SET_DIRTY() setDirty()
@@ -691,7 +694,7 @@ void FunctionEditPage::buildBody(Window *form)
 
 //-----------------------------------------------------------------------------
 
-FunctionsPage::FunctionsPage(CustomFunctionData *functions, PageDef& pageDef,
+FunctionsPage::FunctionsPage(CustomFunctionData *functions, const PageDef& pageDef,
                              const char *prefix) :
     PageGroupItem(pageDef), functions(functions), prefix(prefix)
 {
@@ -961,7 +964,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-SpecialFunctionsPage::SpecialFunctionsPage(PageDef& pageDef) :
+SpecialFunctionsPage::SpecialFunctionsPage(const PageDef& pageDef) :
     FunctionsPage(g_model.customFn, pageDef, "SF")
 {
 }
@@ -1041,7 +1044,7 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-GlobalFunctionsPage::GlobalFunctionsPage(PageDef& pageDef) :
+GlobalFunctionsPage::GlobalFunctionsPage(const PageDef& pageDef) :
     FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
 {
 }

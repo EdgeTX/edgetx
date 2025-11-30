@@ -20,12 +20,13 @@
 
 #include "view_text.h"
 
-#include "menu.h"
+#include "button.h"
 #include "edgetx.h"
-#include "sdcard.h"
 #include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"
 #include "lib_file.h"
+#include "menu.h"
+#include "sdcard.h"
 
 // Used on startup to block until checklist is closed.
 static bool checkListOpen = false;
@@ -109,12 +110,10 @@ class TextViewer
   {
     if (openFile()) {
       auto obj = window->getLvObj();
-      lv_obj_add_flag(
-          obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
-                  LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW | LV_OBJ_FLAG_SCROLL_MOMENTUM);
       etx_scrollbar(obj);
       // prevents resetting the group's edit mode
-      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      window->setWindowFlag(NO_FOCUS);
 
       auto g = lv_group_get_default();
       lb = lv_label_create(obj);
@@ -375,12 +374,10 @@ class ViewChecklistWindow : public Page, public TextViewer
   {
     if (openFile()) {
       auto obj = window->getLvObj();
-      lv_obj_add_flag(
-          obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
-                   LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW | LV_OBJ_FLAG_SCROLL_MOMENTUM);
       etx_scrollbar(obj);
       // prevents resetting the group's edit mode
-      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      window->setWindowFlag(NO_FOCUS);
 
       lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
       lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
@@ -551,7 +548,7 @@ void readChecklist()
   }
 }
 
-ModelNotesPage::ModelNotesPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)
+ModelNotesPage::ModelNotesPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)
 {
 }
 

@@ -119,7 +119,7 @@ class IconButton : public ButtonBase
  public:
   IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
              std::function<uint8_t(void)> pressHandler = nullptr);
-  
+
   void setIcon(EdgeTxIcon icon);
 
  protected:

@@ -21,9 +21,10 @@
 
 #include "radio_diaganas.h"
 
-#include "hal/adc_driver.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "hal/adc_driver.h"
+#include "static.h"
 
 // #if defined(IMU_LSM6DS33)
 // #include "imu_lsm6ds33.h"
@@ -247,13 +248,13 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     }
   }
 
-  void deleteLater(bool detach, bool trash) override
+  void deleteLater() override
   {
     if (!deleted()) {
       // Attached to parent->parent window
       lv_obj_del(touchLines[0]);
       lv_obj_del(touchLines[1]);
-      AnaViewWindow::deleteLater(detach, trash);
+      AnaViewWindow::deleteLater();
     }
   }
 #endif

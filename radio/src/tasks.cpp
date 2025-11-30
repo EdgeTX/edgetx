@@ -32,8 +32,8 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
-
 #if defined(COLORLCD)
+#include "LvglWrapper.h"
 #include "startup_shutdown.h"
 #endif
 

@@ -22,6 +22,7 @@
 #include "color_picker.h"
 
 #include "color_list.h"
+#include "dialog.h"
 #include "etx_lv_theme.h"
 
 #if LANDSCAPE

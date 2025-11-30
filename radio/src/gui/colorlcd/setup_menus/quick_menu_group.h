@@ -47,6 +47,7 @@ class QuickMenuGroup : public Window
   void clearFocus();
   void setDisabled(bool all);
   void setEnabled();
+  void activate();
   void setCurrent(ButtonBase* b);
   void setCurrent(int b) { setCurrent(btns[b]); }
   void doLayout(int cols);
@@ -69,5 +70,5 @@ class QuickMenuGroup : public Window
   ButtonBase* curBtn = nullptr;
   lv_group_t* group = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 };

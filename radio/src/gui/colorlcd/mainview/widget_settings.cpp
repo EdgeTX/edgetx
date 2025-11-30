@@ -23,11 +23,15 @@
 
 #include "color_picker.h"
 #include "edgetx.h"
-#include "sourcechoice.h"
-#include "switchchoice.h"
-#include "view_main.h"
 #include "filechoice.h"
+#include "numberedit.h"
 #include "slider.h"
+#include "sourcechoice.h"
+#include "static.h"
+#include "switchchoice.h"
+#include "textedit.h"
+#include "toggleswitch.h"
+#include "view_main.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

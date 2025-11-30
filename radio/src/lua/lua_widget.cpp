@@ -29,6 +29,7 @@
 #include "touch.h"
 #include "view_main.h"
 #include "os/time.h"
+#include "keys.h"
 
 #define MAX_INSTRUCTIONS (20000 / 100)
 

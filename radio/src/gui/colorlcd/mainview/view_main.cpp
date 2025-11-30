@@ -21,12 +21,13 @@
 
 #include "view_main.h"
 
-#include "model_select.h"
 #include "edgetx.h"
-#include "topbar.h"
+#include "mainwindow.h"
+#include "model_select.h"
 #include "quick_menu.h"
-#include "view_channels.h"
 #include "screen_setup.h"
+#include "topbar.h"
+#include "view_channels.h"
 #include "widget.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
@@ -78,7 +79,8 @@ ViewMain* ViewMain::_instance = nullptr;
 
 ViewMain* ViewMain::instance()
 {
-  if (!_instance) _instance = new ViewMain();
+  if (!_instance)
+    _instance = new ViewMain();
   return _instance;
 }
 
@@ -106,9 +108,11 @@ ViewMain::ViewMain() :
 
 ViewMain::~ViewMain() { _instance = nullptr; }
 
-void ViewMain::deleteLater(bool detach, bool trash)
+void ViewMain::deleteLater()
 {
-  NavWindow::deleteLater(detach, trash);
+  if (_deleted) return;
+
+  NavWindow::deleteLater();
   QuickMenu::shutdownQuickMenu();
 }
 
@@ -126,7 +130,7 @@ void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED,
                       user_data);
 
-  view->show();  
+  view->show();
 }
 
 void ViewMain::setTopbarVisible(float visible) { topbar->setVisible(visible); }
@@ -244,10 +248,9 @@ void ViewMain::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!viewMainMenu) openMenu();
+    if (!QuickMenu::isOpen()) openMenu();
   } else {
-    if (viewMainMenu)
-      viewMainMenu->closeMenu();
+    QuickMenu::closeQuickMenu();
     QuickMenu::openPage(pg);
   }
 }
@@ -260,14 +263,14 @@ void ViewMain::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {
-    if (viewMainMenu) viewMainMenu->closeMenu();
+    QuickMenu::closeQuickMenu();
     previousMainView();
   }
 }
 void ViewMain::onPressPGDN()
 {
   if (!widget_select) {
-    if (viewMainMenu) viewMainMenu->closeMenu();
+    QuickMenu::closeQuickMenu();
     nextMainView();
   }
 }
@@ -332,7 +335,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = QuickMenu::openQuickMenu([=]() { viewMainMenu = nullptr; });
+  QuickMenu::openQuickMenu();
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

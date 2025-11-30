@@ -21,13 +21,17 @@
 
 #include "model_logical_switches.h"
 
-#include "list_line_button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "switches.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -522,7 +526,7 @@ class LogicalSwitchButton : public ListLineButton
   lv_obj_t* lsDelay = nullptr;
 };
 
-ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(PageDef& pageDef) :
+ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

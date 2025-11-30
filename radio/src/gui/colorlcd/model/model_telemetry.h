@@ -24,10 +24,12 @@
 #include "edgetx.h"
 #include "pagegroup.h"
 
+class TextButton;
+
 class ModelTelemetryPage : public PageGroupItem
 {
  public:
-  ModelTelemetryPage(PageDef& pageDef);
+  ModelTelemetryPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

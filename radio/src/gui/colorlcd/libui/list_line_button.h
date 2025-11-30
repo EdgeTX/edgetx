@@ -127,7 +127,7 @@ class InputMixGroupBase : public Window
 class InputMixPageBase : public PageGroupItem
 {
  public:
-  InputMixPageBase(PageDef& pageDef) : PageGroupItem(pageDef) {}
+  InputMixPageBase(const PageDef& pageDef) : PageGroupItem(pageDef) {}
 
  protected:
   std::list<InputMixButtonBase*> lines;

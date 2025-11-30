@@ -35,7 +35,7 @@
 
 extern uint8_t g_moduleIdx;
 
-RadioToolsPage::RadioToolsPage(PageDef& pageDef) : PageGroupItem(pageDef) {}
+RadioToolsPage::RadioToolsPage(const PageDef& pageDef) : PageGroupItem(pageDef) {}
 
 void RadioToolsPage::build(Window* window)
 {

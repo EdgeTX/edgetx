@@ -193,10 +193,8 @@ WidgetsContainer* LayoutFactory::createCustomScreen(
 
   auto& screen = customScreens[customScreenIndex];
 
-  if (screen != nullptr) {
-    screen->deleteLater(true, false);
-    delete screen;
-  }
+  if (screen != nullptr)
+    screen->deleteLater();
 
   auto viewMain = ViewMain::instance();
   screen = create(viewMain, customScreenIndex);
@@ -261,7 +259,7 @@ inline LayoutOptionValueEnum layoutValueEnumFromType(LayoutOption::Type type)
 
   case LayoutOption::Color:
     return LOV_Color;
-    
+
   default:
     return LOV_None;
   }
@@ -409,8 +407,6 @@ Widget* Layout::createWidget(unsigned int index,
     widget = factory->create(this, getZone(index), screenNum, index);
   }
   widgets[index] = widget;
-
-  if (widget) widget->attach(this);
 
   return widget;
 }

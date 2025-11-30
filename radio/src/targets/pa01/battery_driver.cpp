@@ -19,12 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "battery_driver.h"
+
 #include "boards/generic_stm32/rgb_leds.h"
 #undef UNUSED
 #include "bsp_io.h"
+#include "edgetx.h"
+#include "mainwindow.h"
+#include "static.h"
 #include "stm32_ws2812.h"
+#include "LvglWrapper.h"
 
 #define  __BATTERY_DRIVER_C__
 

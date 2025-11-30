@@ -21,8 +21,10 @@
 
 #include <memory>
 
-#include "edgetx.h"
 #include "widget.h"
+
+#include "edgetx.h"
+#include "static.h"
 
 #define ETX_STATE_BG_FILL LV_STATE_USER_1
 

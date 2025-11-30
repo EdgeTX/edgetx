@@ -21,12 +21,14 @@
 
 #include "radio_hardware.h"
 
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hw_extmodule.h"
 #include "hw_inputs.h"
 #include "hw_intmodule.h"
 #include "hw_serial.h"
-#include "edgetx.h"
+#include "numberedit.h"
 #include "radio_calibration.h"
 #include "radio_diaganas.h"
 #include "radio_diagkeys.h"
@@ -53,7 +55,7 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-RadioHardwarePage::RadioHardwarePage(PageDef& pageDef) :
+RadioHardwarePage::RadioHardwarePage(const PageDef& pageDef) :
     PageGroupItem(pageDef, PAD_TINY)
 {
   enableVBatBridge();
@@ -201,7 +203,7 @@ void RadioHardwarePage::build(Window* window)
     {STR_DEF(STR_ANALOGS_BTN), [=]() { new RadioAnalogsDiagsViewPageGroup(qmPageId); }},
     {STR_DEF(STR_KEYS_BTN), []() { new RadioKeyDiagsPage(); }},
 #if defined(FUNCTION_SWITCHES)
-    {STR_DEF(STR_FS_BTN), []() { new RadioCustSwitchesDiagsPage(); }},  
-#endif    
+    {STR_DEF(STR_FS_BTN), []() { new RadioCustSwitchesDiagsPage(); }},
+#endif
   });
 }

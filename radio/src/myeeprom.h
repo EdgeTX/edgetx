@@ -92,11 +92,6 @@
 
 #define ALTERNATE_VIEW                0x10
 
-#if defined(COLORLCD) && !defined(BOOT)
-  #include "layout.h"
-  #include "topbar.h"
-#endif
-
 #define SWITCHES_DELAY()            uint8_t(15+g_eeGeneral.switchesDelay)
 #define SWITCHES_DELAY_NONE         (-15)
 #define HAPTIC_STRENGTH()           (3+g_eeGeneral.hapticStrength)

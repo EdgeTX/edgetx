@@ -46,15 +46,12 @@
 #include "globals.h"
 #include "sdcard.h"
 #include "debug.h"
+#include "keys.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
 #include "battery_driver.h"
-
-#include "bitmapbuffer.h"
-#include "colors.h"
-
 
 #include <string.h>
 

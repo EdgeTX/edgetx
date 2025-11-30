@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <lvgl/lvgl.h>
 #include "edgetx_types.h"
 

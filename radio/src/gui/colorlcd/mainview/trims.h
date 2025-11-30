@@ -30,7 +30,7 @@ class MainViewTrim : public Window
  public:
   MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
                bool isVertical);
-    
+
   void setVisible(bool visible);
 
  protected:
@@ -47,7 +47,7 @@ class MainViewTrim : public Window
 
   void setRange();
   void setPos();
-    
+
   bool setDisplayState();
 
   void checkEvents() override;
