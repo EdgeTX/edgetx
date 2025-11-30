@@ -23,6 +23,7 @@
 
 #include "listbox.h"
 #include "storage/modelslist.h"
+#include "pagegroup.h"
 #include "page.h"
 #include "etx_lv_theme.h"
 

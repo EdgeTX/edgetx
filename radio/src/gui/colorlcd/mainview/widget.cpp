@@ -79,7 +79,8 @@ void WidgetPersistentData::setDefault(int idx, const WidgetOption* opt, bool for
   if (forced || options[idx].type != optType) {
     // reset to default value
     options[idx].type = optType;
-    memcpy((void*)&options[idx].value, (void*)&opt->deflt, sizeof(WidgetOptionValue));
+    options[idx].value.unsignedValue = opt->deflt.unsignedValue;
+    options[idx].value.stringValue = opt->deflt.stringValue;
   }
 }
 

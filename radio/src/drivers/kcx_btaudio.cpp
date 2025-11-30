@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+* Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,38 +19,26 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
+#include "os/sleep.h"
 
-#include "datastructs.h"
-#include "screen_user_interface.h"
-#include "radio_theme.h"
-
-#if VERSION_MAJOR == 2
-class ScreenAddPage : public PageGroupItem
+void btAudioInit()
 {
- public:
-  ScreenAddPage(PageDef& pageDef);
+  gpio_init(BTAUDIO_LINKED_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(BTAUDIO_CONNECT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(BTAUDIO_CONNECT_GPIO);
+}
 
-  void build(Window* window) override;
-
- protected:
-  static LAYOUT_VAL_SCALED(ADD_TXT_W, 200)
-};
-#endif
-
-class ScreenSetupPage : public PageGroupItem
+bool btAudioLinked()
 {
- public:
-  ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);
+  return gpio_read(BTAUDIO_LINKED_GPIO);
+}
 
-  void build(Window* form) override;
-
-  void update(uint8_t index) override;
-
- protected:
-  unsigned customScreenIndex;
-  Window* layoutOptions = nullptr;
-
-  void clearLayoutOptions();
-  void buildLayoutOptions();
-};
+void btAudioConnect()
+{
+  gpio_clear(BTAUDIO_CONNECT_GPIO);
+  sleep_ms(100);
+  gpio_set(BTAUDIO_CONNECT_GPIO);
+}

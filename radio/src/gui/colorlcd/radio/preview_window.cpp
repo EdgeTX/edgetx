@@ -179,18 +179,18 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   etx_obj_add_style(qmb->getLvObj(), styles->rounded, LV_PART_MAIN);
   etx_txt_color(qmb->getLvObj(), COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
   etx_solid_bg(qmb->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
-  auto iconPtr = new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
+  new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
                   ICON_MODEL_SELECT, COLOR_THEME_QM_FG_INDEX);
-  auto textPtr = new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+  new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
                   STR_QM_MANAGE_MODELS, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XS));
 
   qmb = new Window(qm, {QuickMenuGroup::QM_BUTTON_WIDTH + PAD_SMALL * 2, mask->height + PAD_SMALL, QuickMenuGroup::QM_BUTTON_WIDTH, QuickMenuGroup::QM_BUTTON_HEIGHT});
   etx_obj_add_style(qmb->getLvObj(), styles->rounded, LV_PART_MAIN);
   etx_txt_color(qmb->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
   etx_solid_bg(qmb->getLvObj(), COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
-  iconPtr = new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
+  new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
                   ICON_MODEL, COLOR_THEME_QM_BG_INDEX);
-  textPtr = new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+  new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
                   STR_QM_MODEL_SETUP, COLOR_THEME_QM_BG_INDEX, CENTERED | FONT(XS));
 
   lv_group_set_default(def_group);

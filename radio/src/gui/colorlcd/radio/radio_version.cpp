@@ -332,7 +332,11 @@ class VersionDialog : public BaseDialog
 #endif
 };
 
+#if VERSION_MAJOR == 2 && LCD_H == 272
+const std::string copyright_str = "(C) " BUILD_YEAR " EdgeTX";
+#else
 const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
+#endif
 const std::string edgetx_url = "https://edgetx.org";
 
 RadioVersionPage::RadioVersionPage(PageDef& pageDef) :
@@ -415,7 +419,7 @@ void RadioVersionPage::build(Window* window)
   new StaticText(infoBox, {0, 0, LV_PCT(100), LV_SIZE_CONTENT}, version);
 
   // Module and receivers versions
-  new TextButton(infoBox, {0, ih - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_LARGE-PAD_SMALL, LV_PCT(100), 0},
+  new TextButton(infoBox, {0, ih - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_LARGE - PAD_SMALL, LV_PCT(100), 0},
                   STR_MODULES_RX_VERSION, [=]() {
                     new VersionDialog();
                     return 0;

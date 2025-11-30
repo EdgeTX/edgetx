@@ -831,7 +831,7 @@ PACK(struct ModelData {
   NOBACKUP(uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES]);
   NOBACKUP(uint8_t view);
 
-  void initScreenData();
+  void resetScreenData();
   const char* getScreenLayoutId(int screenNum);
   void setScreenLayoutId(int screenNum, const char* s);
   TopBarPersistentData* getTopbarData();
@@ -1162,8 +1162,13 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
+#if VERSION_MAJOR == 2
+  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS] SKIP);
+  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES] SKIP);
+#else
   NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
   NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+#endif
 #endif
 
   NOBACKUP(uint8_t getBrightness() const

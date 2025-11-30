@@ -135,6 +135,10 @@ void boardInit()
   // enable interrupts
   __enable_irq();
 
+#if defined(KCX_BTAUDIO)
+  btAudioInit();
+#endif
+
   ledInit();
   boardInitModulePorts();
 
