@@ -27,7 +27,8 @@
 
 void usbChargerInit()
 {
-  gpio_init(USB_CHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+  gpio_init(USB_CHARGER_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(USB_CHARGER_GPIO);
 }
 
 bool usbChargerLed()

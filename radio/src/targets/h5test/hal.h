@@ -104,6 +104,8 @@
 #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_14  // PD.14
 #define SWITCHES_GPIO_REG_F           GPIOD
 #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_13  // PD.13
+#define SWITCHES_E_INVERTED
+#define SWITCHES_F_INVERTED
 
 // ADC
 #define ADC_MAIN                      ADC2	// RTC bat reading is only available on ADC2
@@ -120,8 +122,8 @@
 #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0  // PA.00
 #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PC.02
 #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_3  // PC.03
-#define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0  // PC,00
-#define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_1  // PC.01
+#define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_1  // PC.01
+#define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_0  // PC.00
 #define ADC_GPIO_PIN_SLIDER1          LL_GPIO_PIN_0  // PB.00
 #define ADC_GPIO_PIN_SLIDER2          LL_GPIO_PIN_1  // PB.01
 #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_2  // PA.02
@@ -129,8 +131,8 @@
 #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0  // ADC12_INP0
 #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_12 // ADC12_INP12
 #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_13 // ADC12_INP13
-#define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_10 // ADC12_INP10
-#define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_11 // ADC12_INP11
+#define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_11 // ADC12_INP11
+#define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_10 // ADC12_INP10
 #define ADC_CHANNEL_SLIDER1           LL_ADC_CHANNEL_9  // ADC12_INP9
 #define ADC_CHANNEL_SLIDER2           LL_ADC_CHANNEL_5  // ADC12_INP5
 #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_14 // ADC12_INP14
@@ -139,13 +141,18 @@
 #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
 #define ADC_VREF_PREC2                330
 
-#define ADC_DIRECTION {-1,1,-1,1,  1,1, 1,1}
+#define ADC_DIRECTION {-1,1,-1,1,  -1,-1, 1,-1}
 
 // PWR and LED driver
 #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
 #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 6)  // PD.06
 
-// No status leds
+#define STATUS_LEDS
+#define GPIO_LED_GPIO_ON              gpio_set
+#define GPIO_LED_GPIO_OFF             gpio_clear
+#define LED_RED_GPIO                  GPIO_PIN(GPIOE, 6)
+#define LED_BLUE_GPIO                 GPIO_PIN(GPIOB, 13)
+#define LED_GREEN_GPIO                GPIO_PIN(GPIOB, 14)
 
 // LED Strip
 #if defined(RGBLEDS)
@@ -300,12 +307,6 @@
 // EEPROM
   // no EEPROM
 
-// I2C Volume control
-#if !defined(SOFTWARE_VOLUME)
-  #define VOLUME_I2C_ADDRESS            0x2E
-  #define VOLUME_I2C_BUS                I2C_Bus_1
-#endif
-
 // SD - SPI2
 // Using chip, so no detect
 #define STORAGE_USE_SDIO
@@ -333,7 +334,6 @@
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOB, 2)
 #define AUDIO_MUTE_DELAY              500  // ms
 #define AUDIO_UNMUTE_DELAY            150  // ms
-#define AUDIO_UNMUTE_DELAY          150  // ms
 
 // Haptic
 #define HAPTIC_PWM
