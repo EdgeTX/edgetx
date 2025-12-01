@@ -1474,8 +1474,6 @@ void LvglWidgetBox::build(lua_State *L)
   }
   if (setFlex())
     lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-  setColor(color.flags);
-  setOpacity(opacity.value);
 }
 
 //-----------------------------------------------------------------------------
@@ -2244,8 +2242,6 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   PageHeader *header = nullptr;
   Window *body = nullptr;
 
-  bool bubbleEvents() override { return true; }
-
   void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClickedEvent(); }
 
   void onCancel() override { backAction(); }
@@ -2330,7 +2326,7 @@ void LvglWidgetPage::build(lua_State *L)
   window->disableForcedScroll();
   window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
   if (setFlex())
-    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_AROUND);
+    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 }
 
 //-----------------------------------------------------------------------------
