@@ -622,12 +622,13 @@ SWITCH_CONFIG = {
     },
     "h5test": {
         # left side
-        "SA": { "default": "2POS", "display": [ 0, 0 ] },
+        "SA": { "default": "3POS", "display": [ 0, 0 ] },
         "SB": { "default": "3POS",   "display": [ 0, 1 ] },
-        "SE": { "default": "TOGGLE",   "display": [ 0, 2 ] },
+        "SE": { "default": "2POS",   "display": [ 0, 2 ] },
         # right side
-        "SD": { "default": "2POS",   "display": [ 1, 0 ] },
-        "SC": { "default": "3POS", "display": [ 1, 1 ] },
+        "SC": { "default": "3POS",   "display": [ 1, 0 ] },
+        "SD": { "default": "3POS",   "display": [ 1, 1 ] },
+        "SF": { "default": "2POS",   "display": [ 1, 2 ] },
     },
 }
 
