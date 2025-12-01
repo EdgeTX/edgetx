@@ -2318,6 +2318,8 @@ void LvglWidgetPage::clearRefs(lua_State *L)
 
 void LvglWidgetPage::build(lua_State *L)
 {
+  w = LCD_W;
+  h = LCD_H;
   page = new WidgetPage(
       lvglManager->getCurrentParent(),
       [=]() { pcallSimpleFunc(L, backActionFunction); }, title.txt, subtitle.txt, iconFile, scrollDir, showScrollBar);
