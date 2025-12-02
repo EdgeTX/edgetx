@@ -104,6 +104,7 @@ uint8_t latencyToggleSwitch = 0;
 #endif
 
 volatile uint8_t rtc_count = 0;
+bool suspendI2CTasks = false;
 
 #if defined(DEBUG_LATENCY)
 void toggleLatencySwitch()
@@ -168,8 +169,6 @@ void checkValidMCU(void)
 #if defined(SIMU)
 static bool evalFSok = false;
 #endif
-
-bool suspendI2CTasks = false;
 
 void per10ms()
 {
