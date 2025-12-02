@@ -411,6 +411,49 @@ void rgbPowerOn(uint8_t color) {
   power_on_step++;
 }
 
+void rgbBatteryDis(uint8_t color, uint8_t power_level ) {
+
+  switch (power_level)
+  {
+  case POWER_LEVEL_CRITICAL:
+      setLedGroupColor(0, color, 0);
+      setLedGroupColor(1, color, 0);
+      setLedGroupColor(2, color, 0);
+      setLedGroupColor(3, color, 0);
+      break;
+  case POWER_LEVEL_LOW:
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, 0);
+      setLedGroupColor(2, color, 0);
+      setLedGroupColor(3, color, 0);
+    break;
+  case POWER_LEVEL_MEDIUM:
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, 0);
+      setLedGroupColor(3, color, 0);
+    break;
+  case POWER_LEVEL_HIGH:
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+      setLedGroupColor(3, color, 0);
+    break;
+  case POWER_LEVEL_NEAR_FULL:
+  case POWER_LEVEL_FULL:
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+      setLedGroupColor(3, color, BRIGHTNESS_MAX);
+    break;
+  default:
+    break;
+  }
+    setLedGroupColor(4, color, BRIGHTNESS_MAX);
+    setLedGroupColor(5, color, BRIGHTNESS_MAX);
+    setLedGroupColor(6, color, BRIGHTNESS_MAX);
+}
+
 void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
   uint8_t color = 0;
   uint8_t breath_index = 0;
@@ -495,7 +538,9 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
   case RGB_STATE_POWER_ON:
     rgbPowerOn(color);
     break;
-  
+  case RGB_STATE_BAT_DIS:
+    rgbBatteryDis(color, power_level);
+    break;
   default:
     break;
   }
@@ -609,69 +654,34 @@ void rgbChargeInit(void) {
   rgbLedClearAll();
 }
 
-constexpr uint16_t vbatLedTable[] = {660, 720, 760, 800, 823};
-constexpr uint16_t HYSTERESIS = 5;
+constexpr uint16_t vbatLedTable[] = {650, 720, 760, 800, 823 };
 void updateBatteryState(uint8_t rgb_state) {
-  uint16_t bat_v = getBatteryVoltage();
+uint16_t bat_v = getBatteryVoltage()*BAT_VOL_FACTOR;
   uint8_t power_level = POWER_LEVEL_NONE;
   static uint8_t last_power_level = POWER_LEVEL_NONE;
 
-  uint16_t current_level_min = 0;
-  uint16_t current_level_max = 0;
-  bool need_update = true;
-  if (last_power_level != POWER_LEVEL_NONE) {
-    switch (last_power_level) {
-      case POWER_LEVEL_CRITICAL:
-        current_level_min = 0;
-        current_level_max = vbatLedTable[0] + HYSTERESIS;
-        break;
-      case POWER_LEVEL_LOW:
-        current_level_min = vbatLedTable[0] - HYSTERESIS;
-        current_level_max = vbatLedTable[1] + HYSTERESIS;
-        break;
-      case POWER_LEVEL_MEDIUM:
-        current_level_min = vbatLedTable[1] - HYSTERESIS;
-        current_level_max = vbatLedTable[2] + HYSTERESIS;
-        break;
-      case POWER_LEVEL_HIGH:
-        current_level_min = vbatLedTable[2] - HYSTERESIS;
-        current_level_max = vbatLedTable[3] + HYSTERESIS;
-        break;
-      case POWER_LEVEL_NEAR_FULL:
-        current_level_min = vbatLedTable[3] - HYSTERESIS;
-        current_level_max = vbatLedTable[4] + HYSTERESIS;
-        break;
-      case POWER_LEVEL_FULL:
-        current_level_min = vbatLedTable[4] - HYSTERESIS;
-        current_level_max = UINT16_MAX;
-        break;
-      default:
-        need_update = true;
-    }
-
-    if (bat_v >= current_level_min && bat_v <= current_level_max) {
-      need_update = false;
-      power_level = last_power_level;
-    }
+  if (bat_v < vbatLedTable[0]) {
+    power_level = POWER_LEVEL_CRITICAL;
+  } else if (bat_v < vbatLedTable[1]) {
+    power_level = POWER_LEVEL_LOW;
+  } else if (bat_v < vbatLedTable[2]) {
+    power_level = POWER_LEVEL_MEDIUM;
+  } else if (bat_v < vbatLedTable[3]) {
+    power_level = POWER_LEVEL_HIGH;
+  }else if (bat_v < vbatLedTable[4]) {
+    power_level = POWER_LEVEL_NEAR_FULL;
+  } else {
+    power_level = POWER_LEVEL_FULL;
   }
 
-  if (need_update) {
-    if (bat_v < vbatLedTable[0]) {
-      power_level = POWER_LEVEL_CRITICAL;
-    } else if (bat_v < vbatLedTable[1]) {
-      power_level = POWER_LEVEL_LOW;
-    } else if (bat_v < vbatLedTable[2]) {
-      power_level = POWER_LEVEL_MEDIUM;
-    } else if (bat_v < vbatLedTable[3]) {
-      power_level = POWER_LEVEL_HIGH;
-    } else if (bat_v < vbatLedTable[4]){
-      power_level = POWER_LEVEL_NEAR_FULL;
-    } else {
-      power_level = POWER_LEVEL_FULL;
+  if( last_power_level != POWER_LEVEL_NONE )
+  {
+    if(power_level<last_power_level)
+    {
+      power_level=last_power_level;
     }
   }
   rgbBatteryLevelInfo(power_level, rgb_state);
   ledLoop();
   last_power_level = power_level;
 }
-

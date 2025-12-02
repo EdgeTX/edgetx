@@ -209,7 +209,7 @@
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOE, 6) // PE.06
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOE, 3) // PE.03
-#define SHORT_LONG_PRESS
+// #define SHORT_LONG_PRESS
 
 // USB Chargers
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 0)  // PB.00
