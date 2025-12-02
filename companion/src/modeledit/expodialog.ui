@@ -32,13 +32,6 @@
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="0">
-      <widget class="QLabel" name="sourceLabel">
-       <property name="text">
-        <string>Source</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
@@ -46,46 +39,8 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="trimLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Include Trim</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="lblScale">
-       <property name="text">
-        <string>Scale</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="lineNameLabel">
-       <property name="text">
-        <string>Line name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="inputNameLabel">
-       <property name="text">
-        <string>Input name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_phases">
-       <property name="text">
-        <string>Modes</string>
-       </property>
-      </widget>
+     <item row="9" column="1">
+      <widget class="QComboBox" name="switchesCB"/>
      </item>
      <item row="10" column="0">
       <widget class="QLabel" name="sideLabel">
@@ -94,17 +49,23 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_curves">
-       <property name="text">
-        <string>Curve</string>
+     <item row="5" column="2">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="offsetLabel">
+     <item row="0" column="0">
+      <widget class="QLabel" name="inputNameLabel">
        <property name="text">
-        <string>Offset</string>
+        <string>Input name</string>
        </property>
       </widget>
      </item>
@@ -115,77 +76,24 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1" colspan="2">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QDoubleSpinBox" name="dsbScale">
-         <property name="whatsThis">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-         </property>
-         <property name="decimals">
-          <number>1</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblScaleUnit">
-         <property name="text">
-          <string>unit</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineName">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
-     <item row="5" column="1" colspan="3">
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QCheckBox" name="chkWeightUseSource">
-         <property name="text">
-          <string>Source</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="sbWeightValue"/>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cboWeightSource">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="whatsThis">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_phases">
+       <property name="text">
+        <string>Modes</string>
+       </property>
+      </widget>
      </item>
-     <item row="8" column="1" colspan="4">
+     <item row="8" column="1" colspan="3">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="1">
         <widget class="QLabel" name="lb_FP1">
@@ -355,51 +263,46 @@
        </item>
       </layout>
      </item>
-     <item row="7" column="1" colspan="4">
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item row="1" column="0">
+      <widget class="QLabel" name="lineNameLabel">
+       <property name="text">
+        <string>Line name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="lblScale">
+       <property name="text">
+        <string>Scale</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="sourceLabel">
+       <property name="text">
+        <string>Source</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QComboBox" name="cboCurveType">
-         <property name="toolTip">
+        <widget class="QDoubleSpinBox" name="dsbScale">
+         <property name="whatsThis">
           <string/>
          </property>
-         <property name="whatsThis">
-          <string>Curve applied to the source.</string>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="decimals">
+          <number>1</number>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="chkCurveUseSource">
+        <widget class="QLabel" name="lblScaleUnit">
          <property name="text">
-          <string>Source</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="sbCurveValue"/>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cboCurveSource">
-         <property name="whatsThis">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="CurveImageWidget" name="imgCurve">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>image</string>
+          <string>unit</string>
          </property>
         </widget>
        </item>
@@ -418,51 +321,15 @@
        </item>
       </layout>
      </item>
-     <item row="6" column="1" colspan="3">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QCheckBox" name="chkOffsetUseSource">
-         <property name="text">
-          <string>Source</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="sbOffsetValue"/>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cboOffsetSource">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="whatsThis">
-          <string>The source for the mixer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="trimCB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="inputName">
@@ -474,28 +341,25 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineName">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="sourceCB"/>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_curves">
+       <property name="text">
+        <string>Curve</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="trimCB">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="6" column="0">
+      <widget class="QLabel" name="offsetLabel">
+       <property name="text">
+        <string>Offset</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
-      <widget class="QComboBox" name="switchesCB"/>
+     <item row="5" column="1">
+      <widget class="RawSourceWidget" name="wgtWeight" native="true"/>
      </item>
      <item row="10" column="1">
       <widget class="QComboBox" name="sideCB">
@@ -516,8 +380,50 @@
        </item>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="sourceCB"/>
+     <item row="4" column="0">
+      <widget class="QLabel" name="trimLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Include Trim</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="RawSourceWidget" name="wgtOffset" native="true"/>
+     </item>
+     <item row="6" column="2">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="7" column="1">
+      <widget class="CurveReferenceWidget" name="widget" native="true"/>
+     </item>
+     <item row="7" column="2">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -544,9 +450,16 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CurveImageWidget</class>
-   <extends>QLabel</extends>
-   <header>curveimagewidget.h</header>
+   <class>RawSourceWidget</class>
+   <extends>QWidget</extends>
+   <header>rawsourcewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CurveReferenceWidget</class>
+   <extends>QWidget</extends>
+   <header>curvereferencewidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

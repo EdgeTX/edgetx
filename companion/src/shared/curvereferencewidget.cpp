@@ -40,10 +40,10 @@ CurveReferenceWidget::CurveReferenceWidget(QWidget * parent,
                                            double step,
                                            QString prefix,
                                            QString suffix) :
-  RawSourceWidget(parent, modelData, sharedItemModels, &curveRef->source,
-                     imFilter, uiFlags, dflt.source),
   curveRef(curveRef),
-  cboType(nullptr)
+  cboType(nullptr),
+  rawSourceWidget(nullptr),
+  lock(false)
 {
   init(modelData, sharedItemModels, curveRef, imFilter, uiFlags, dflt,
        useLabel, min, max, precision, decimals, step, prefix, suffix);
@@ -51,6 +51,8 @@ CurveReferenceWidget::CurveReferenceWidget(QWidget * parent,
 
 CurveReferenceWidget::~CurveReferenceWidget()
 {
+  if (rawSourceWidget)
+    delete rawSourceWidget;
 }
 
 void CurveReferenceWidget::init(ModelData * modelData,
@@ -68,9 +70,6 @@ void CurveReferenceWidget::init(ModelData * modelData,
                                 QString prefix,
                                 QString suffix)
 {
-  RawSourceWidget::init(modelData, sharedItemModels, &curveRef->source,
-                        imFilter, uiFlags, dflt.source);
-
   if (uiFlags & UI_FLAG_CURVE_TYPE) {
     cboType = new QComboBox(this);
     cboType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -78,8 +77,18 @@ void CurveReferenceWidget::init(ModelData * modelData,
     cboType->setCurrentIndex(cboType->findData((int)curveRef->type));
     if (cboType->currentIndex() < 0)
       cboType->setCurrentIndex(Helpers::getFirstPosValueIndex(cboType));
-    connect(cboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CurveReferenceWidget::cboTypeChanged);
+    connect(cboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &CurveReferenceWidget::cboTypeChanged);
   }
+
+  rawSourceWidget = new RawSourceWidget(this, modelData, sharedItemModels,
+                                        &curveRef->source, imFilter, uiFlags,
+                                        dflt.source);
+
+  rawSourceWidget->init(modelData, sharedItemModels, &curveRef->source,
+                        imFilter, uiFlags, dflt.source);
+
+  connect(rawSourceWidget, &RawSourceWidget::dataChanged, [&]() { emit dataChanged(); });
 
   update();
 }
@@ -92,10 +101,10 @@ void CurveReferenceWidget::update()
     cboType->setCurrentIndex(cboType->findData(curveRef->type));
 
   if (curveRef->type == CurveReference::CURVE_REF_DIFF || curveRef->type == CurveReference::CURVE_REF_EXPO) {
-    RawSourceWidget::setVisible(true);
-    RawSourceWidget::update();
+    rawSourceWidget->setVisible(true);
+    rawSourceWidget->update();
   } else {
-    RawSourceWidget::setVisible(false);
+    rawSourceWidget->setVisible(false);
   }
 
   emit resize();

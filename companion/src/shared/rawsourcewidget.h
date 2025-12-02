@@ -57,6 +57,9 @@ constexpr int UI_FLAG_LIST        { 1 << 2 };
 constexpr int UI_FLAG_VALUE       { 1 << 3 };
 constexpr int UI_FLAG_CURVE_IMAGE { 1 << 4 };
 constexpr int UI_FLAG_DEFAULT     { UI_FLAG_LIST };
+constexpr int UI_FLAG_LIST_VALUE  { UI_FLAG_LIST | UI_FLAG_VALUE };
+constexpr int UI_FLAG_ALL         { UI_FLAG_CURVE_TYPE | UI_FLAG_LIST |
+                                    UI_FLAG_VALUE | UI_FLAG_CURVE_IMAGE };
 
 class RawSourceWidget : public QWidget {
 
@@ -108,6 +111,12 @@ class RawSourceWidget : public QWidget {
               double step = 1,
               QString prefix = "",
               QString suffix = "");
+
+    void init(ModelData * modelData,
+              CompoundItemModelFactory * sharedItemModels,
+              RawSource * src,
+              int imFilter) {
+      init(modelData, sharedItemModels, src, imFilter, UI_FLAG_LIST); }
 
     void setDefault(RawSource value);
     void setFilterFlags(int flags);

@@ -83,7 +83,7 @@ void RawSourceWidget::init(ModelData * modelData,
   QHBoxLayout *layout = new QHBoxLayout();
 
   if (uiFlags & UI_FLAG_LIST && uiFlags & UI_FLAG_VALUE) {
-    chkType = new QCheckBox(typeLabel);
+    chkType = new QCheckBox(typeLabel.isEmpty() ? tr("Source") : typeLabel);
     chkType->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     connect(chkType, &QCheckBox::checkStateChanged, this,
             &RawSourceWidget::typeChanged);

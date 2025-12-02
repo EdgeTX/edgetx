@@ -24,7 +24,13 @@
 #include "curvereference.h"
 #include "rawsourcewidget.h"
 
-class CurveReferenceWidget : public RawSourceWidget {
+#include <QString>
+#include <QComboBox>
+
+class CompoundItemModelFactory;
+class RawSourceWidget;
+
+class CurveReferenceWidget : public QWidget {
 
   Q_OBJECT
 
@@ -77,4 +83,6 @@ class CurveReferenceWidget : public RawSourceWidget {
   private:
     CurveReference *curveRef;
     QComboBox *cboType;
+    RawSourceWidget *rawSourceWidget;
+    bool lock;
 };

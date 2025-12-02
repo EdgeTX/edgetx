@@ -28,7 +28,8 @@ class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class CurveRefFilteredFactory;
 class CurveReferenceUIManager;
-class SourceNumRefEditor;
+class RawSourceWidget;
+class CurveReferenceWidget;
 
 namespace Ui {
   class MixerDialog;
@@ -58,12 +59,8 @@ class MixerDialog : public QDialog {
     Firmware * firmware;
     MixData *md;
     bool lock;
-    SourceNumRefEditor * weightEditor;
-    SourceNumRefEditor * offsetEditor;
-    CurveReferenceUIManager * curveGroup;
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
-    FilteredItemModelFactory *dialogFilteredItemModels;
-    CurveRefFilteredFactory *curveRefFilteredItemModels;
+    FilteredItemModelFactory *dlgFIM;
 
     void shrink();
 };
