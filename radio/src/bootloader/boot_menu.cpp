@@ -41,6 +41,8 @@
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
+bool suspendI2CTasks = false;
+
 void pollInputs()
 {
   keysPollingCycle();
@@ -109,6 +111,7 @@ void bootloaderMenu()
         if (usbPlugged()) {
           state = ST_USB;
 #if !defined(SIMU)
+          suspendI2CTasks = true;
           usbStart();
 #endif
         }
@@ -119,6 +122,7 @@ void bootloaderMenu()
           vpos = 0;
 #if !defined(SIMU)
           usbStop();
+          suspendI2CTasks = false;
 #endif
           state = ST_START;
         }
