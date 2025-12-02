@@ -24,6 +24,7 @@
 #include "bitmaps.h"
 #include "button.h"
 #include "static.h"
+#include "quick_menu_def.h"
 
 static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
                                          lv_obj_t* obj)
