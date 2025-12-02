@@ -29,6 +29,52 @@ class LvglDialog;
 
 //-----------------------------------------------------------------------------
 
+enum LuaLvglType
+{
+  ETX_UNDEF,
+
+  // Drawing primitives
+  ETX_LABEL,
+  ETX_RECTANGLE,
+  ETX_CIRCLE,
+  ETX_ARC,
+  ETX_HLINE,
+  ETX_VLINE,
+  ETX_LINE,
+  ETX_TRIANGLE,
+  ETX_IMAGE,
+  ETX_QRCODE,
+
+  // Contianers
+  ETX_BOX,
+
+  // Controls - tools / fullscreen widgets only
+  ETX_FIRST_CONTROL,
+  ETX_BUTTON = ETX_FIRST_CONTROL,
+  ETX_MOMENTARY_BUTTON,
+  ETX_TOGGLE,
+  ETX_TEXTEDIT,
+  ETX_NUMBEREDIT,
+  ETX_CHOICE,
+  ETX_SLIDER,
+  ETX_VERTICAL_SLIDER,
+  // Containers
+  ETX_PAGE,
+  // Value selectors
+  ETX_FONT,
+  ETX_ALIGN,
+  ETX_COLOR,
+  ETX_TIMER,
+  ETX_SWITCH,
+  ETX_SOURCE,
+  ETX_FILE,
+  ETX_SETTING,
+
+  ETX_LAST
+};
+
+//-----------------------------------------------------------------------------
+
 struct LvglParamFuncOrValue
 {
  public:

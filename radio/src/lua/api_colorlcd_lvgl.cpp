@@ -162,7 +162,15 @@ class LvglWidgetParams
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "type")) {
-        type = luaL_checkstring(L, -1);
+        if (lua_isinteger(L, -1)) {
+          int n = lua_tointeger(L, -1);
+          if (n > ETX_UNDEF && n < ETX_LAST)
+            type = (LuaLvglType)n;
+          else
+            type = ETX_UNDEF;
+        } else {
+          type = getType(luaL_checkstring(L, -1));
+        }
       } else if (!strcmp(key, "name")) {
         name = luaL_checkstring(L, -1);
       } else if (!strcmp(key, "children")) {
@@ -171,7 +179,40 @@ class LvglWidgetParams
     }
   }
 
-  const char *type = nullptr;
+  LuaLvglType getType(const char* s)
+  {
+    if (strcasecmp(s, "label") == 0) return ETX_LABEL;
+    if (strcasecmp(s, "rectangle") == 0) return ETX_RECTANGLE;
+    if (strcasecmp(s, "circle") == 0) return ETX_CIRCLE;
+    if (strcasecmp(s, "arc") == 0) return ETX_ARC;
+    if (strcasecmp(s, "hline") == 0) return ETX_HLINE;
+    if (strcasecmp(s, "vline") == 0) return ETX_VLINE;
+    if (strcasecmp(s, "line") == 0) return ETX_LINE;
+    if (strcasecmp(s, "triangle") == 0) return ETX_TRIANGLE;
+    if (strcasecmp(s, "image") == 0) return ETX_IMAGE;
+    if (strcasecmp(s, "qrcode") == 0) return ETX_QRCODE;
+    if (strcasecmp(s, "box") == 0) return ETX_BOX;
+    if (strcasecmp(s, "button") == 0) return ETX_BUTTON;
+    if (strcasecmp(s, "momentaryButton") == 0) return ETX_MOMENTARY_BUTTON;
+    if (strcasecmp(s, "toggle") == 0) return ETX_TOGGLE;
+    if (strcasecmp(s, "textEdit") == 0) return ETX_TEXTEDIT;
+    if (strcasecmp(s, "numberEdit") == 0) return ETX_NUMBEREDIT;
+    if (strcasecmp(s, "choice") == 0) return ETX_CHOICE;
+    if (strcasecmp(s, "slider") == 0) return ETX_SLIDER;
+    if (strcasecmp(s, "verticalSlider") == 0) return ETX_VERTICAL_SLIDER;
+    if (strcasecmp(s, "page") == 0) return ETX_PAGE;
+    if (strcasecmp(s, "font") == 0) return ETX_FONT;
+    if (strcasecmp(s, "align") == 0) return ETX_ALIGN;
+    if (strcasecmp(s, "color") == 0) return ETX_COLOR;
+    if (strcasecmp(s, "timer") == 0) return ETX_TIMER;
+    if (strcasecmp(s, "switch") == 0) return ETX_SWITCH;
+    if (strcasecmp(s, "source") == 0) return ETX_SOURCE;
+    if (strcasecmp(s, "file") == 0) return ETX_FILE;
+    if (strcasecmp(s, "setting") == 0) return ETX_SETTING;
+    return ETX_UNDEF;
+  }
+
+  LuaLvglType type = ETX_UNDEF;
   const char *name = nullptr;
   bool hasChildren = false;
 };
@@ -182,64 +223,96 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
+    if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreen())
+      continue;
     LvglWidgetObjectBase *obj = nullptr;
-    if (strcasecmp(p.type, "label") == 0)
-      obj = new LvglWidgetLabel();
-    else if (strcasecmp(p.type, "rectangle") == 0)
-      obj = new LvglWidgetRectangle();
-    else if (strcasecmp(p.type, "circle") == 0)
-      obj = new LvglWidgetCircle();
-    else if (strcasecmp(p.type, "arc") == 0)
-      obj = new LvglWidgetArc();
-    else if (strcasecmp(p.type, "hline") == 0)
-      obj = new LvglWidgetHLine();
-    else if (strcasecmp(p.type, "vline") == 0)
-      obj = new LvglWidgetVLine();
-    else if (strcasecmp(p.type, "line") == 0)
-      obj = new LvglWidgetLine();
-    else if (strcasecmp(p.type, "triangle") == 0)
-      obj = new LvglWidgetTriangle();
-    else if (strcasecmp(p.type, "image") == 0)
-      obj = new LvglWidgetImage();
-    else if (strcasecmp(p.type, "qrcode") == 0)
-      obj = new LvglWidgetQRCode();
-    else if (strcasecmp(p.type, "box") == 0)
-      obj = new LvglWidgetBox();
-    else if (luaScriptManager->isFullscreen()) {
-      if (strcasecmp(p.type, "button") == 0)
+    switch (p.type) {
+      case ETX_LABEL:
+        obj = new LvglWidgetLabel();
+        break;
+      case ETX_RECTANGLE:
+        obj = new LvglWidgetRectangle();
+        break;
+      case ETX_CIRCLE:
+        obj = new LvglWidgetCircle();
+        break;
+      case ETX_ARC:
+        obj = new LvglWidgetArc();
+        break;
+      case ETX_HLINE:
+        obj = new LvglWidgetHLine();
+        break;
+      case ETX_VLINE:
+        obj = new LvglWidgetVLine();
+        break;
+      case ETX_LINE:
+        obj = new LvglWidgetLine();
+        break;
+      case ETX_TRIANGLE:
+        obj = new LvglWidgetTriangle();
+        break;
+      case ETX_IMAGE:
+        obj = new LvglWidgetImage();
+        break;
+      case ETX_QRCODE:
+        obj = new LvglWidgetQRCode();
+        break;
+      case ETX_BOX:
+        obj = new LvglWidgetBox();
+        break;
+      case ETX_BUTTON:
         obj = new LvglWidgetTextButton();
-      if (strcasecmp(p.type, "momentaryButton") == 0)
+        break;
+      case ETX_MOMENTARY_BUTTON:
         obj = new LvglWidgetMomentaryButton();
-      else if (strcasecmp(p.type, "toggle") == 0)
+        break;
+      case ETX_TOGGLE:
         obj = new LvglWidgetToggleSwitch();
-      else if (strcasecmp(p.type, "textEdit") == 0)
+        break;
+      case ETX_TEXTEDIT:
         obj = new LvglWidgetTextEdit();
-      else if (strcasecmp(p.type, "numberEdit") == 0)
+        break;
+      case ETX_NUMBEREDIT:
         obj = new LvglWidgetNumberEdit();
-      else if (strcasecmp(p.type, "choice") == 0)
+        break;
+      case ETX_CHOICE:
         obj = new LvglWidgetChoice();
-      else if (strcasecmp(p.type, "slider") == 0)
+        break;
+      case ETX_SLIDER:
         obj = new LvglWidgetSlider();
-      else if (strcasecmp(p.type, "verticalSlider") == 0)
+        break;
+      case ETX_VERTICAL_SLIDER:
         obj = new LvglWidgetVerticalSlider();
-      else if (strcasecmp(p.type, "page") == 0)
+        break;
+      case ETX_PAGE:
         obj = new LvglWidgetPage();
-      else if (strcasecmp(p.type, "font") == 0)
+        break;
+      case ETX_FONT:
         obj = new LvglWidgetFontPicker();
-      else if (strcasecmp(p.type, "align") == 0)
+        break;
+      case ETX_ALIGN:
         obj = new LvglWidgetAlignPicker();
-      else if (strcasecmp(p.type, "color") == 0)
+        break;
+      case ETX_COLOR:
         obj = new LvglWidgetColorPicker();
-      else if (strcasecmp(p.type, "timer") == 0)
+        break;
+      case ETX_TIMER:
         obj = new LvglWidgetTimerPicker();
-      else if (strcasecmp(p.type, "switch") == 0)
+        break;
+      case ETX_SWITCH:
         obj = new LvglWidgetSwitchPicker();
-      else if (strcasecmp(p.type, "source") == 0)
+        break;
+      case ETX_SOURCE:
         obj = new LvglWidgetSourcePicker();
-      else if (strcasecmp(p.type, "file") == 0)
+        break;
+      case ETX_FILE:
         obj = new LvglWidgetFilePicker();
-      else if (strcasecmp(p.type, "setting") == 0)
+        break;
+      case ETX_SETTING:
         obj = new LvglWidgetSetting();
+        break;
+      default:
+        continue;
     }
     if (obj) {
       obj->create(L, -1);
@@ -428,6 +501,34 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(PAGE_BODY_HEIGHT, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT)
   LROT_NUMENTRY(UI_ELEMENT_HEIGHT, EdgeTxStyles::UI_ELEMENT_HEIGHT)
   LROT_FLOATENTRY(LCD_SCALE, LUA_LCD_SCALE)
+  LROT_NUMENTRY(LABEL, ETX_LABEL)
+  LROT_NUMENTRY(RECTANGLE, ETX_RECTANGLE)
+  LROT_NUMENTRY(CIRCLE, ETX_CIRCLE)
+  LROT_NUMENTRY(ARC, ETX_ARC)
+  LROT_NUMENTRY(HLINE, ETX_HLINE)
+  LROT_NUMENTRY(VLINE, ETX_VLINE)
+  LROT_NUMENTRY(LINE, ETX_LINE)
+  LROT_NUMENTRY(TRIANGLE, ETX_TRIANGLE)
+  LROT_NUMENTRY(IMAGE, ETX_IMAGE)
+  LROT_NUMENTRY(QRCODE, ETX_QRCODE)
+  LROT_NUMENTRY(BOX, ETX_BOX)
+  LROT_NUMENTRY(BUTTON, ETX_BUTTON)
+  LROT_NUMENTRY(MOMENTARY_BUTTON, ETX_MOMENTARY_BUTTON)
+  LROT_NUMENTRY(TOGGLE, ETX_TOGGLE)
+  LROT_NUMENTRY(TEXT_EDIT, ETX_TEXTEDIT)
+  LROT_NUMENTRY(NUMBER_EDIT, ETX_NUMBEREDIT)
+  LROT_NUMENTRY(CHOIDE, ETX_CHOICE)
+  LROT_NUMENTRY(SLIDER, ETX_SLIDER)
+  LROT_NUMENTRY(VERTICAL_SLIDER, ETX_VERTICAL_SLIDER)
+  LROT_NUMENTRY(PAGE, ETX_PAGE)
+  LROT_NUMENTRY(FONT, ETX_FONT)
+  LROT_NUMENTRY(ALIGN, ETX_ALIGN)
+  LROT_NUMENTRY(COLOR, ETX_COLOR)
+  LROT_NUMENTRY(TIMER, ETX_TIMER)
+  LROT_NUMENTRY(SWITCH, ETX_SWITCH)
+  LROT_NUMENTRY(SOURCE, ETX_SOURCE)
+  LROT_NUMENTRY(FILE, ETX_FILE)
+  LROT_NUMENTRY(SETTING, ETX_SETTING)
 LROT_END(lvgllib, NULL, 0)
 
 // Metatable for simple objects (line, arc, label)
