@@ -226,15 +226,16 @@
 #define EXTMODULE_TIMER_DMA_IRQHandler     GPDMA2_Channel0_IRQHandler
 
 // Trainer Port
-#define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOE, 15) // PE.15
+/*#define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOE, 15) // PE.15
+#define TRAINER_DETECT_INVERTED*/
 #define TRAINER_IN_GPIO               GPIO_PIN(GPIOC, 7)  // PC.07 TIM3_CH2, TIM8_CH2
 #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH2
 #define TRAINER_OUT_GPIO              GPIO_PIN(GPIOC, 6)  // PC.06 TIM3_CH1, TIM8_CH1,
 #define TRAINER_OUT_TIMER_Channel     LL_TIM_CHANNEL_CH1
 #define TRAINER_GPIO_AF               LL_GPIO_AF_1
 #define TRAINER_TIMER                 TIM3
-#define TRAINER_TIMER_IRQn            TIM15_IRQn
-//#define TRAINER_TIMER_IRQHandler      TIM1_IRQHandler
+#define TRAINER_TIMER_IRQn            TIM3_IRQn
+#define TRAINER_TIMER_IRQHandler      TIM3_IRQHandler
 #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Serial Port
