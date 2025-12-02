@@ -164,6 +164,11 @@ bool LvglTitleParam::parseTitleParam(lua_State *L, const char *key)
   return false;
 }
 
+void LvglTitleParam::clearTitleRefs(lua_State *L)
+{
+  title.clearRef(L);
+}
+
 bool LvglMessageParam::parseMessageParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "message")) {
@@ -180,6 +185,20 @@ bool LvglRoundedParam::parseRoundedParam(lua_State *L, const char *key)
     return true;
   }
   return false;
+}
+
+bool LvglAlignParam::parseAlignParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "align")) {
+    align.parse(L);
+    return true;
+  }
+  return false;
+}
+
+void LvglAlignParam::clearAlignRefs(lua_State *L)
+{
+  align.clearRef(L);
 }
 
 bool LvglThicknessParam::parseThicknessParam(lua_State *L, const char *key)
@@ -740,11 +759,9 @@ bool LvglSimpleWidgetObject::isVisible()
 
 void LvglWidgetLabel::parseParam(lua_State *L, const char *key)
 {
-  if (!strcmp(key, "align")) {
-    align.parse(L);
-  } else if (!parseTextParam(L, key)) {
-    LvglSimpleWidgetObject::parseParam(L, key);
-  }
+  if (parseAlignParam(L, key)) return;
+  if (parseTextParam(L, key)) return;
+  LvglSimpleWidgetObject::parseParam(L, key);
 }
 
 bool LvglWidgetLabel::callRefs(lua_State *L)
@@ -765,7 +782,7 @@ bool LvglWidgetLabel::callRefs(lua_State *L)
 
 void LvglWidgetLabel::clearRefs(lua_State *L)
 {
-  align.clearRef(L);
+  clearAlignRefs(L);
   clearTextRefs(L);
   LvglSimpleWidgetObject::clearRefs(L);
 }
@@ -1424,6 +1441,7 @@ void LvglWidgetObject::clearRefs(lua_State *L)
 
 void LvglWidgetBox::parseParam(lua_State *L, const char *key)
 {
+  if (parseAlignParam(L, key)) return;
   if (parseScrollableParam(L, key)) return;
   LvglWidgetObject::parseParam(L, key);
 }
@@ -1454,6 +1472,7 @@ bool LvglWidgetBox::callRefs(lua_State *L)
 
 void LvglWidgetBox::clearRefs(lua_State *L)
 {
+  clearAlignRefs(L);
   clearRef(L, scrollToFunction);
   LvglWidgetObject::clearRefs(L);
 }
@@ -1472,8 +1491,16 @@ void LvglWidgetBox::build(lua_State *L)
     if (showScrollBar)
       etx_scrollbar(window->getLvObj());
   }
-  if (setFlex())
-    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+  if (setFlex()) {
+    lv_flex_align_t align1 = (align.flags & RIGHT) ? LV_FLEX_ALIGN_END : (align.flags & CENTERED) ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START;
+    lv_flex_align_t align2 = (align.flags & VCENTERED) ? LV_FLEX_ALIGN_CENTER : (align.flags & VBOTTOM) ? LV_FLEX_ALIGN_END : LV_FLEX_ALIGN_START;
+    if (flexFlow & LV_FLEX_FLOW_COLUMN)
+      lv_obj_set_flex_align(window->getLvObj(), align2, align2, align1);
+    else
+      lv_obj_set_flex_align(window->getLvObj(), align1, align1, align2);
+  }
+  setColor(color.flags);
+  setOpacity(opacity.value);
 }
 
 //-----------------------------------------------------------------------------
@@ -1482,6 +1509,12 @@ void LvglWidgetSetting::parseParam(lua_State *L, const char *key)
 {
   if (parseTitleParam(L, key)) return;
   LvglWidgetObject::parseParam(L, key);
+}
+
+void LvglWidgetSetting::clearRefs(lua_State *L)
+{
+  clearTitleRefs(L);
+  LvglWidgetObjectBase::clearRefs(L);
 }
 
 void LvglWidgetSetting::build(lua_State *L)
@@ -2255,6 +2288,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 
 void LvglWidgetPage::parseParam(lua_State *L, const char *key)
 {
+  if (parseAlignParam(L, key)) return;
   if (parseTitleParam(L, key)) return;
   if (parseScrollableParam(L, key)) return;
   if (!strcmp(key, "back")) {
@@ -2310,7 +2344,8 @@ bool LvglWidgetPage::callRefs(lua_State *L)
 
 void LvglWidgetPage::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearAlignRefs(L);
+  clearTitleRefs(L);
   subtitle.clearRef(L);
   clearRef(L, backActionFunction);
   LvglWidgetObject::clearRefs(L);
@@ -2327,8 +2362,17 @@ void LvglWidgetPage::build(lua_State *L)
   window = page->getBody();
   window->disableForcedScroll();
   window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
-  if (setFlex())
-    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+  if (setFlex()) {
+    lv_flex_align_t align1 = (align.flags & RIGHT) ? LV_FLEX_ALIGN_END : (align.flags & CENTERED) ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START;
+    lv_flex_align_t align2 = (align.flags & VCENTERED) ? LV_FLEX_ALIGN_CENTER : (align.flags & VBOTTOM) ? LV_FLEX_ALIGN_END : LV_FLEX_ALIGN_START;
+    if (flexFlow & LV_FLEX_FLOW_COLUMN)
+      lv_obj_set_flex_align(window->getLvObj(), align2, align2, align1);
+    else
+      lv_obj_set_flex_align(window->getLvObj(), align1, align1, align2);
+    // lv_flex_align_t flexAlign = (align.flags & RIGHT) ? LV_FLEX_ALIGN_END : (align.flags & CENTERED) ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START;
+    // lv_flex_align_t trackAlign = (flexAlign == LV_FLEX_ALIGN_CENTER) ? LV_FLEX_ALIGN_SPACE_EVENLY : LV_FLEX_ALIGN_START;
+    // lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_START, flexAlign, trackAlign);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2367,7 +2411,7 @@ void LvglWidgetDialog::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetDialog::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearTitleRefs(L);
   clearRef(L, closeFunction);
   LvglWidgetObject::clearRefs(L);
 }
@@ -2407,7 +2451,7 @@ void LvglWidgetConfirmDialog::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetConfirmDialog::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearTitleRefs(L);
   clearRef(L, confirmFunction);
   clearRef(L, cancelFunction);
   LvglWidgetObject::clearRefs(L);
@@ -2435,7 +2479,7 @@ void LvglWidgetMessageDialog::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetMessageDialog::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearTitleRefs(L);
   LvglWidgetObject::clearRefs(L);
 }
 
@@ -2476,7 +2520,7 @@ void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetChoice::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearTitleRefs(L);
   clearRef(L, filterFunction);
   LvglWidgetPicker::clearRefs(L);
 }
@@ -2529,7 +2573,7 @@ void LvglWidgetMenu::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetMenu::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearTitleRefs(L);
   LvglWidgetPicker::clearRefs(L);
 }
 
@@ -2679,7 +2723,7 @@ void LvglWidgetFilePicker::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetFilePicker::clearRefs(lua_State *L)
 {
-  title.clearRef(L);
+  clearTitleRefs(L);
   LvglWidgetPicker::clearRefs(L);
 }
 

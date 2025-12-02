@@ -114,6 +114,7 @@ class LvglTitleParam
   LvglParamFuncOrString title = { .function = LUA_REFNIL, .txt = ""};
 
   bool parseTitleParam(lua_State *L, const char *key);
+  void clearTitleRefs(lua_State *L);
 };
 
 class LvglMessageParam
@@ -136,6 +137,18 @@ class LvglRoundedParam
   bool rounded = false;
 
   bool parseRoundedParam(lua_State *L, const char *key);
+};
+
+class LvglAlignParam
+{
+ public:
+  LvglAlignParam() {}
+
+ protected:
+  LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
+
+  bool parseAlignParam(lua_State *L, const char *key);
+  void clearAlignRefs(lua_State *L);
 };
 
 class LvglThicknessParam
@@ -271,7 +284,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams
+class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams, public LvglAlignParam
 {
  public:
   LvglWidgetLabel() : LvglSimpleWidgetObject() {}
@@ -285,8 +298,6 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams
   void clearRefs(lua_State *L) override;
 
  protected:
-  LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
-
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
@@ -441,10 +452,13 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams
+class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams, public LvglAlignParam
 {
  public:
-  LvglWidgetBox() : LvglWidgetObject() {}
+  LvglWidgetBox() : LvglWidgetObject(), LvglScrollableParams(), LvglAlignParam()
+  {
+    align.flags = CENTERED;
+  }
 
   coord_t getScrollX() override;
   coord_t getScrollY() override;
@@ -463,6 +477,8 @@ class LvglWidgetSetting : public LvglWidgetObject, public LvglTitleParam
 {
  public:
   LvglWidgetSetting() : LvglWidgetObject() {}
+
+  void clearRefs(lua_State *L) override;
 
  protected:
 
@@ -787,10 +803,13 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 class WidgetPage;
 
-class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams
+class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams, public LvglAlignParam
 {
  public:
-  LvglWidgetPage() : LvglWidgetObject() {}
+  LvglWidgetPage() : LvglWidgetObject()
+  {
+    align.flags = CENTERED;
+  }
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
