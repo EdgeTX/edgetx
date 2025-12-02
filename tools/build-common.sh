@@ -18,7 +18,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
             ;;
         h5test)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=H5TEST"
+            BUILD_OPTIONS+="-DPCB=H5TEST"
             ;;
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
