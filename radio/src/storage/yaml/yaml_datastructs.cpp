@@ -66,6 +66,8 @@
  #else
   #include "yaml_datastructs_128x64.cpp"
  #endif
+#elif defined(PCBH5TEST)
+  #include "yaml_datastructs_h5test.cpp"
 #elif defined(PCBX9LITE)
  #include "yaml_datastructs_128x64.cpp"
 #elif defined(PCBXLITE) && !defined(PCBXLITES)

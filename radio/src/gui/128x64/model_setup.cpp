@@ -425,7 +425,7 @@ void onModelAntennaSwitchConfirm(const char * result)
   #define TRAINER_BLUETOOTH_ROW          (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW))
   #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
   #define TRAINER_ROWS                   LABEL(Trainer), 0, IF_BT_TRAINER_ON(TRAINER_BLUETOOTH_ROW), TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
-#elif defined(PCBX7) || defined(PCBX9LITE)
+#elif defined(PCBX7) || defined(PCBX9LITE) || defined(PCBH5TEST)
   #if defined(BLUETOOTH)
     #define TRAINER_BLUETOOTH_ROW        (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW)),
   #else
@@ -1869,7 +1869,7 @@ void menuModelSetup(event_t event)
       }
 #endif
 
-#if defined(PCBX7) || defined(PCBX9LITE) || defined(PCBXLITE)
+#if defined(PCBX7) || defined(PCBX9LITE) || defined(PCBXLITE) || defined(PCBH5TEST)
       case ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS:
         lcdDrawTextIndented(y, STR_PPMFRAME);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN+3*FW, y, STR_MS);
