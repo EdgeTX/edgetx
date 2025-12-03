@@ -167,7 +167,36 @@
        </property>
       </widget>
      </item>
-     <item>
+      <item>
+        <widget class="QWidget" name="spacer">
+          <property name="minimumSize">
+            <size>
+              <width>10</width>
+              <height>0</height>
+            </size>
+          </property>
+          <property name="maximumSize">
+            <size>
+              <width>10</width>
+              <height>20</height>
+            </size>
+          </property>
+          <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+            </sizepolicy>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QCheckBox" name="CommonAxes_ChkB">
+          <property name="text">
+            <string>Use common Y axis</string>
+          </property>
+        </widget>
+      </item>
+      <item>
       <widget class="QPushButton" name="Reset_PB">
        <property name="text">
         <string>Reset</string>
@@ -187,17 +216,6 @@
        </property>
       </spacer>
      </item>
-    </layout>
-   </item>
-   <item row="3" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-        <widget class="QCheckBox" name="CommonAxes_ChkB">
-          <property name="text">
-            <string>Use common axis</string>
-          </property>
-        </widget>
-      </item>
     </layout>
    </item>
    <item row="13" column="0">

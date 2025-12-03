@@ -124,7 +124,12 @@ LogsDialog::LogsDialog(QWidget *parent) :
   connect(ui->customPlot, &QCustomPlot::legendDoubleClick, this, &LogsDialog::legendDoubleClick);
   connect(ui->FieldsTW, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
   connect(ui->logTable, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
-  connect(ui->Reset_PB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
+  connect(ui->Reset_PB, &QPushButton::clicked, this, [this]() {
+    ui->ZoomX_ChkB->setChecked(false);
+    ui->ZoomY_ChkB->setChecked(false);
+    ui->CommonAxes_ChkB->setChecked(false);
+    plotLogs();
+  });
   connect(ui->CommonAxes_ChkB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
   connect(ui->SaveSession_PB, &QPushButton::clicked, this, &LogsDialog::saveSession);
   connect(ui->fileOpen_PB, &QPushButton::clicked, this, &LogsDialog::fileOpen);
