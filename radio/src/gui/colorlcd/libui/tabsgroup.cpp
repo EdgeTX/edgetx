@@ -264,8 +264,7 @@ TabsGroup::TabsGroup(EdgeTxIcon icon) :
   lv_obj_set_style_max_height(body->getLvObj(), MENU_BODY_HEIGHT, LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
-  Layer::back()->hide();
-  Layer::push(this);
+  newLayer(true);
 
 #if defined(DEBUG)
   lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
@@ -321,16 +320,6 @@ void TabsGroup::setCurrentTab(unsigned index)
     end_ms = RTOS_GET_MS();
 #endif
   }
-}
-
-void TabsGroup::deleteLater(bool detach, bool trash)
-{
-  if (_deleted) return;
-
-  Window::deleteLater(detach, trash);
-
-  Layer::pop(this);
-  Layer::back()->show();
 }
 
 void TabsGroup::addTab(PageTab* page)

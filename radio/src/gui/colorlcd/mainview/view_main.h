@@ -97,8 +97,6 @@ class ViewMain : public NavWindow
   lv_timer_t* widget_select_timer = nullptr;
   ViewMainMenu* viewMainMenu = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
-
   // Widget setup requires special permissions ;-)
   friend class SetupWidgetsPage;
   friend class SetupTopBarWidgetsPage;

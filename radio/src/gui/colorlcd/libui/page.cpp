@@ -84,22 +84,13 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
                               LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
-  Layer::back()->hide();
-  Layer::push(this);
+  newLayer(true);
 
   body->padAll(padding);
 
 #if defined(HARDWARE_TOUCH)
   addBackButton();
 #endif
-}
-
-void Page::deleteLater(bool detach, bool trash)
-{
-  NavWindow::deleteLater(detach, trash);
-
-  Layer::pop(this);
-  Layer::back()->show();
 }
 
 void Page::onCancel() { deleteLater(); }

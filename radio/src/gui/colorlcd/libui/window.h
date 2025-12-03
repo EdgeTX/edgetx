@@ -188,6 +188,8 @@ class Window
 
   void disableForcedScroll() { noForcedScroll = true; }
 
+  void newLayer(bool hideParent = false);
+
  protected:
   static std::list<Window *> trash;
 
@@ -206,6 +208,8 @@ class Window
   static bool _longPressed;
 
   bool loaded = false;
+  bool layerCreated = false;
+  bool parentHidden = false;
 
   CloseHandler closeHandler;
   FocusHandler focusHandler;

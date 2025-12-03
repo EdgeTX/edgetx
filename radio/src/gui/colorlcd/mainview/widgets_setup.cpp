@@ -118,7 +118,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
     Window(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
 {
-  Layer::push(this);
+  newLayer();
 
   // attach this custom screen here so we can display it
   auto screen = customScreens[customScreenIdx];
@@ -156,9 +156,6 @@ void SetupWidgetsPage::onCancel() { deleteLater(); }
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 {
   Window::deleteLater(detach, trash);
-
-  // restore screen setting tab on top
-  Layer::pop(this);
 
   // and continue async deletion...
   auto screen = customScreens[customScreenIdx];
