@@ -6968,8 +6968,8 @@ Sind Sie sicher?</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Gemeinsame Achse verwenden</translation>
+        <source>Use common Y axis</source>
+        <translation>Gemeinsame Y-Achse verwenden</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>
@@ -7005,11 +7005,6 @@ Sind Sie sicher?</translation>
         <location filename="../logsdialog.ui" line="173"/>
         <source>Reset</source>
         <translation>Reset</translation>
-    </message>
-    <message>
-        <location filename="../logsdialog.ui" line="197"/>
-        <source>Gemeinsame Achse verwenden</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="25"/>

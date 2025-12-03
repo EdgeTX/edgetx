@@ -6922,7 +6922,7 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
+        <source>Use common Y axis</source>
         <translation></translation>
     </message>
     <message>

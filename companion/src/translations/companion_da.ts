@@ -7036,8 +7036,8 @@ Er du sikker?</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Brug fælles akse</translation>
+        <source>Use common Y axis</source>
+        <translation>Brug fælles Y-akse</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

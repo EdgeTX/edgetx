@@ -7016,8 +7016,8 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Usa asse comune</translation>
+        <source>Use common Y axis</source>
+        <translation>Usa l’asse Y comune</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

@@ -7033,8 +7033,8 @@ Esta función no puede ser deshabilitada en la radio.
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Usar eje común</translation>
+        <source>Use common Y axis</source>
+        <translation>Usar eje Y común</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

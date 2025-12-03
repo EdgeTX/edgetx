@@ -6892,8 +6892,8 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>השתמש בציר משותף</translation>
+        <source>Use common Y axis</source>
+        <translation>השתמש בציר Y משותף</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

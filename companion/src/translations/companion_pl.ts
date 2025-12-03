@@ -6999,8 +6999,8 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Użyj wspólnej osi</translation>
+        <source>Use common Y axis</source>
+        <translation>Użyj wspólnej osi Y</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

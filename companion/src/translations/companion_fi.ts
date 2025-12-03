@@ -7021,8 +7021,8 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Käytä yhteistä akselia</translation>
+        <source>Use common Y axis</source>
+        <translation>Käytä yhteistä Y-akselia</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

@@ -7056,8 +7056,8 @@ Are you sure ?</source>
     </message>
 	<message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>공통 축 사용</translation>
+        <source>Use common Y axis</source>
+        <translation>공통 Y축 사용</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

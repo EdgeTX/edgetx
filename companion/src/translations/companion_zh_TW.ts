@@ -7111,8 +7111,8 @@ Are you sure ?</source>
     </message>
 	<message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>使用共同軸</translation>
+        <source>Use common Y axis</source>
+        <translation>使用共同的 Y 軸</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

@@ -6968,8 +6968,8 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Použít společnou osu</translation>
+        <source>Use common Y axis</source>
+        <translation>Použít společnou osu Y</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

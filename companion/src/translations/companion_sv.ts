@@ -7093,8 +7093,8 @@ att fungera. Detta går inte att ändra från radion.
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Använd gemensam axel</translation>
+        <source>Use common Y axis</source>
+        <translation>Använd gemensam Y-axel</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>

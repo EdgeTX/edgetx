@@ -6892,8 +6892,8 @@ Are you sure ?</source>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="197"/>
-        <source>Use common axis</source>
-        <translation>Gebruik gemeenschappelijke as</translation>
+        <source>Use common Y axis</source>
+        <translation>Gemeenschappelijke Y-as gebruiken</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="243"/>
