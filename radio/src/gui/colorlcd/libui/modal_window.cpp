@@ -51,7 +51,7 @@ ModalWindow::ModalWindow(bool closeWhenClickOutside) :
     closeWhenClickOutside(closeWhenClickOutside)
 {
   setWindowFlag(OPAQUE);
-  newLayer();
+  pushLayer();
 }
 
 void ModalWindow::deleteLater(bool detach, bool trash)

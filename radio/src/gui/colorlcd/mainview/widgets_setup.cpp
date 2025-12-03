@@ -118,7 +118,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
     Window(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
 {
-  newLayer();
+  pushLayer();
 
   // attach this custom screen here so we can display it
   auto screen = customScreens[customScreenIdx];

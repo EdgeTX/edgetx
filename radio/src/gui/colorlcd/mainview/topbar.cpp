@@ -36,7 +36,7 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage() :
     Window(ViewMain::instance(), rect_t{})
 {
   // remember focus
-  newLayer();
+  pushLayer();
 
   auto viewMain = ViewMain::instance();
 

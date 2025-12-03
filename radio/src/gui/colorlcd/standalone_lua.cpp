@@ -190,7 +190,7 @@ void StandaloneLuaWindow::attach()
     // backup previous screen
     prevScreen = lv_scr_act();
 
-    newLayer(true);
+    pushLayer(true);
 
     if (!useLvglLayout()) {
       lv_group_add_obj(lv_group_get_default(), lvobj);

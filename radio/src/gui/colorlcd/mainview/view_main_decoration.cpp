@@ -31,7 +31,7 @@
 #include "hal/adc_driver.h"
 
 ViewMainDecoration::ViewMainDecoration(Window* parent, bool showTrims, bool showSliders, bool showFM) :
-  parent(parent), showTrims(showTrims), showSliders(showSliders), showFM(showFM)
+  showTrims(showTrims), showSliders(showSliders), showFM(showFM), parent(parent)
 {
   w_ml = layoutBox(parent, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
   w_mr = layoutBox(parent, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);

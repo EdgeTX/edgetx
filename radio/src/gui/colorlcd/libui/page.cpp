@@ -84,7 +84,7 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
                               LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
-  newLayer(true);
+  pushLayer(true);
 
   body->padAll(padding);
 

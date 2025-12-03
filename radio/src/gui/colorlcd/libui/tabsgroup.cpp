@@ -264,7 +264,7 @@ TabsGroup::TabsGroup(EdgeTxIcon icon) :
   lv_obj_set_style_max_height(body->getLvObj(), MENU_BODY_HEIGHT, LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
-  newLayer(true);
+  pushLayer(true);
 
 #if defined(DEBUG)
   lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
