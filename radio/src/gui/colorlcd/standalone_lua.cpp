@@ -193,8 +193,7 @@ void StandaloneLuaWindow::attach()
     // backup previous screen
     prevScreen = lv_scr_act();
 
-    Layer::back()->hide();
-    Layer::push(this);
+    newLayer(true);
 
     if (!useLvglLayout()) {
       lv_group_add_obj(lv_group_get_default(), lvobj);
@@ -218,11 +217,6 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaScriptManager = nullptr;
 
-  Window::deleteLater(detach, trash);
-
-  Layer::pop(this);
-  Layer::back()->show();
-
   if (prevScreen) {
     prevScreen = nullptr;
   }
@@ -238,6 +232,8 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
   luaState = prevLuaState;
 
   luaEmptyEventBuffer();
+
+  Window::deleteLater(detach, trash);
 }
 
 void StandaloneLuaWindow::checkEvents()

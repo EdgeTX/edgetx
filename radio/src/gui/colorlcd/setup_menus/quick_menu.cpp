@@ -291,7 +291,7 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler,
             PageGroupBase* newPageGroup, QMPage newCurPage)
 {
-  Layer::push(this);
+  newLayer();
 
 #if VERSION_MAJOR == 2
   curPage = QM_NONE;

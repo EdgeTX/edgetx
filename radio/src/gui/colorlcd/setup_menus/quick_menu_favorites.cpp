@@ -60,13 +60,12 @@ QMFavoritesPage::QMFavoritesPage():
 
 void QMFavoritesPage::onCancel()
 {
+  SubPage::onCancel();
+
   if (changed) {
     // Delete quick menu, and close parent page group (in case it is Favorites group)
     QuickMenu::shutdownQuickMenu();
     QuickMenu::setCurrentPage(QM_NONE);
-    Layer::pop(this);
     Layer::back()->onCancel();
   }
-
-  SubPage::onCancel();
 }

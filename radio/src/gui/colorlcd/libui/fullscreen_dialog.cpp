@@ -45,7 +45,7 @@ FullScreenDialog::FullScreenDialog(
   // In case alert raised while splash screen is showing.
   cancelSplash();
 
-  Layer::push(this);
+  newLayer();
 
   bringToTop();
 
@@ -156,7 +156,6 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
     running = false;
   } else {
     Window::deleteLater(detach, trash);
-    Layer::pop(this);
   }
 }
 

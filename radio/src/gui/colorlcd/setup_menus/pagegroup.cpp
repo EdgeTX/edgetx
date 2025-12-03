@@ -307,8 +307,7 @@ PageGroupBase::PageGroupBase(coord_t bodyY, EdgeTxIcon icon) :
 {
   etx_solid_bg(lvobj);
 
-  Layer::back()->hide();
-  Layer::push(this);
+  newLayer(true);
 
   body = new Window(this, {0, bodyY, LCD_W, LCD_H - bodyY});
   body->setWindowFlag(NO_FOCUS);
@@ -330,16 +329,6 @@ void PageGroupBase::checkEvents()
     currentTab->checkEvents();
   }
   ViewMain::instance()->runBackground();
-}
-
-void PageGroupBase::deleteLater(bool detach, bool trash)
-{
-  if (_deleted) return;
-
-  NavWindow::deleteLater(detach, trash);
-
-  Layer::pop(this);
-  Layer::back()->show();
 }
 
 void PageGroupBase::onClicked() { Keyboard::hide(false); }
