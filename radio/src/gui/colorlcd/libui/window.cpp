@@ -197,13 +197,23 @@ std::string Window::getWindowDebugString(const char *name) const
 }
 #endif
 
-void Window::newLayer(bool hideParent)
+void Window::pushLayer(bool hideParent)
 {
   if (!layerCreated) {
     parentHidden = hideParent;
     layerCreated = true;
     if (parentHidden) Layer::back()->hide();
     Layer::push(this);
+  }
+}
+
+void Window::popLayer()
+{
+  if (layerCreated) {
+    Layer::pop(this);
+    if (parentHidden) Layer::back()->show();
+    layerCreated = false;
+    parentHidden = false;
   }
 }
 
@@ -259,11 +269,7 @@ void Window::deleteLater(bool detach, bool trash)
 
   deleteChildren();
 
-  if (layerCreated) {
-    Layer::pop(this);
-    if (parentHidden) Layer::back()->show();
-    layerCreated = false;
-  }
+  popLayer();
 
   if (closeHandler)
     closeHandler();

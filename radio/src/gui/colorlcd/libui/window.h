@@ -192,7 +192,8 @@ class Window
 
   void disableForcedScroll() { noForcedScroll = true; }
 
-  void newLayer(bool hideParent = false);
+  void pushLayer(bool hideParent = false);
+  void popLayer();
 
  protected:
   static std::list<Window *> trash;

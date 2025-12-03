@@ -307,7 +307,7 @@ PageGroupBase::PageGroupBase(coord_t bodyY, EdgeTxIcon icon) :
 {
   etx_solid_bg(lvobj);
 
-  newLayer(true);
+  pushLayer(true);
 
   body = new Window(this, {0, bodyY, LCD_W, LCD_H - bodyY});
   body->setWindowFlag(NO_FOCUS);

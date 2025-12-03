@@ -45,7 +45,7 @@ FullScreenDialog::FullScreenDialog(
   // In case alert raised while splash screen is showing.
   cancelSplash();
 
-  newLayer();
+  pushLayer();
 
   bringToTop();
 

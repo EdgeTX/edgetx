@@ -20,7 +20,7 @@
 
 std::list<Layer> Layer::stack;
 
-Layer::Layer(Window* w, lv_group_t* g) : window(w), group(g) {}
+Layer::Layer(Window* w, lv_group_t* g, lv_group_t* pg) : window(w), group(g), prevGroup(pg) {}
 Layer::~Layer() { lv_group_del(group); }
 
 void _assign_lv_group(lv_group_t* g)
@@ -37,12 +37,15 @@ void _assign_lv_group(lv_group_t* g)
 
 void Layer::push(Window* w)
 {
+  // save prev group
+  auto pg = lv_group_get_default();
+
   // create a new group
   auto g = lv_group_create();
   _assign_lv_group(g);
   
   // and store
-  stack.emplace_back(w, g);
+  stack.emplace_back(w, g, pg);
 }
 
 void Layer::pop(Window* w)
@@ -50,6 +53,14 @@ void Layer::pop(Window* w)
   if (stack.empty()) return;
 
   if (back() == w) {
+    lv_group_t* prevGroup = stack.back().prevGroup;
+    if (prevGroup) {
+      _assign_lv_group(prevGroup);
+    } else if (!stack.empty()) {
+      _assign_lv_group(stack.back().group);
+    } else {
+      lv_group_set_default(NULL);
+    }
     stack.pop_back();
   } else {
     for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
@@ -59,13 +70,6 @@ void Layer::pop(Window* w)
       }
     }
     return;
-  }
-
-  if (!stack.empty()) {
-    lv_group_t* g = stack.back().group;
-    _assign_lv_group(g);
-  } else {
-    lv_group_set_default(NULL);
   }
 }
 
