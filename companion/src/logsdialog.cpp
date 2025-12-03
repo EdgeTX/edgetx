@@ -968,25 +968,25 @@ void LogsDialog::plotLogs()
         plots.coords.at(i).max_y < yAxesRanges[plots.coords.at(i).yaxis].min)
       ) {
 
-    if (!useCommonAxes) {
-        switch (plots.coords[i].yaxis) {
-        case firstLeft:
-          plots.coords[i].yaxis = firstRight;
-          break;
-        case firstRight:
-          plots.coords[i].yaxis = secondLeft;
-          break;
-        case secondLeft:
-          plots.coords[i].yaxis = secondRight;
-          break;
-        case secondRight:
-          plots.tooManyRanges = true;
-          break;
-        default:
-          break;
+      if (!useCommonAxes) {
+          switch (plots.coords[i].yaxis) {
+          case firstLeft:
+            plots.coords[i].yaxis = firstRight;
+            break;
+          case firstRight:
+            plots.coords[i].yaxis = secondLeft;
+            break;
+          case secondLeft:
+            plots.coords[i].yaxis = secondRight;
+            break;
+          case secondRight:
+            plots.tooManyRanges = true;
+            break;
+          default:
+            break;
+        }
+        if (plots.tooManyRanges) break;
       }
-      if (plots.tooManyRanges) break;
-    }
 
       actualRange = yAxesRanges[plots.coords.at(i).yaxis].max
         - yAxesRanges[plots.coords.at(i).yaxis].min;
@@ -1037,9 +1037,9 @@ void LogsDialog::plotLogs()
   if (useCommonAxes) {
     auto [min, max] = this->GetMinMaxY();
     axisRect->axis(QCPAxis::atLeft)->setRange(min, max);
-  } else {
-      axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
-  }
+    } else {
+        axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
+    }
 
   if (plots.tooManyRanges) {
     axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
