@@ -1092,9 +1092,9 @@ void GeneralSettings::setDefaultFavorites()
 void GeneralSettings::setDefaultKeyShortcuts()
 {
   keyShortcuts[0] = QM_MODEL_SETUP;       // MDL short
-  keyShortcuts[1] = QM_OPEN_QUICK_MENU;   // SYS short
+  keyShortcuts[1] = (VERSION_MAJOR == 2) ? QM_TOOLS_APPS : QM_OPEN_QUICK_MENU;   // SYS short
   keyShortcuts[2] = QM_UI_SCREEN1;        // TELE short
   keyShortcuts[3] = QM_MANAGE_MODELS;     // MDL long
-  keyShortcuts[4] = QM_TOOLS_APPS;        // SYS long
+  keyShortcuts[4] = (VERSION_MAJOR == 2) ? QM_RADIO_SETUP : QM_TOOLS_APPS;       // SYS long
   keyShortcuts[5] = QM_TOOLS_CHAN_MON;    // TELE long
 }

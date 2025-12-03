@@ -28,6 +28,7 @@ class LogicalSwitchDisplayFooter;
 class LogicalSwitchesViewPage : public PageGroupItem
 {
  public:
+  LogicalSwitchesViewPage();
   LogicalSwitchesViewPage(PageDef& pageDef);
 
   static LAYOUT_ORIENTATION_SCALED(FOOTER_HEIGHT, 20, 40)
@@ -36,5 +37,6 @@ class LogicalSwitchesViewPage : public PageGroupItem
 
  protected:
   void build(Window* window) override;
+
   LogicalSwitchDisplayFooter* footer = nullptr;
 };

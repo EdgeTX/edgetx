@@ -85,7 +85,6 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
 
 GeneralKeysPanel::~GeneralKeysPanel()
 {
-
 }
 
 void GeneralKeysPanel::addLabel(QString text)

@@ -52,9 +52,10 @@ void backlightLowInit()
 
 void backlightInit()
 {
-  stm32_pulse_init(&_bl_timer, 10000);
+  stm32_pulse_init(&_bl_timer, 100*20000);
   stm32_pulse_config_output(&_bl_timer, true, LL_TIM_OCMODE_PWM1, 0);
   LL_TIM_SetAutoReload(_bl_timer.TIMx, 100);
+  stm32_pulse_set_cmp_val(&_bl_timer, 0);
   LL_TIM_EnableCounter(_bl_timer.TIMx);
 }
 

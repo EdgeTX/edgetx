@@ -36,3 +36,8 @@ bool audioHeadphoneDetect();
 void audioSetVolume(uint8_t volume);
 void audioConsumeCurrentBuffer();
 
+#if defined(KCX_BTAUDIO)
+void btAudioInit();
+bool btAudioLinked();
+void btAudioConnect();
+#endif

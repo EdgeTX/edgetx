@@ -32,6 +32,7 @@
 
 //-----------------------------------------------------------------------------
 
+#if VERSION_MAJOR > 2
 class QuickSubMenu
 {
  public:
@@ -196,6 +197,7 @@ class QuickSubMenu
   QuickMenuGroup* subMenu = nullptr;
   ButtonBase* menuButton = nullptr;
 };
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -221,7 +223,7 @@ void QuickMenu::shutdownQuickMenu()
 }
 
 QuickMenu::QuickMenu() :
-    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+    NavWindow(MainWindow::instance(), {QM_X, QM_Y, QM_W, QM_H})
 {
   setWindowFlag(OPAQUE);
 
@@ -230,13 +232,13 @@ QuickMenu::QuickMenu() :
 
   auto sep = lv_obj_create(lvobj);
   etx_solid_bg(sep, COLOR_THEME_QM_FG_INDEX);
-  lv_obj_set_size(sep, LCD_W, PAD_THREE);
+  lv_obj_set_size(sep, QM_W, PAD_THREE);
 
   auto mask = getBuiltinIcon(ICON_TOP_LOGO);
-  new StaticIcon(this, (LCD_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
+  new StaticIcon(this, (QM_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
 
   new ButtonBase(
-    this, {0, 0, LCD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+    this, {0, 0, QM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
     [=]() -> uint8_t {
       inSubMenu = false;
       onCancel();
@@ -248,6 +250,7 @@ QuickMenu::QuickMenu() :
 
   mainMenu = new QuickMenuGroup(box);
 
+#if VERSION_MAJOR > 2
   box = new Window(this, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
 
   int f = 0;
@@ -258,15 +261,18 @@ QuickMenu::QuickMenu() :
     }
   }
   favoritesMenuItems[f].icon = EDGETX_ICONS_COUNT;
+#endif
 
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if ((qmTopItems[i].enabled == nullptr) || qmTopItems[i].enabled()) {
       if (qmTopItems[i].pageAction == QM_ACTION) {
         mainMenu->addButton(qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle), qmTopItems[i].action);
+#if VERSION_MAJOR > 2
       } else {
         auto sub = new QuickSubMenu(box, this, qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle), STR_VAL(qmTopItems[i].title), qmTopItems[i].subMenuItems);
         sub->addButton();
         subMenus.emplace_back(sub);
+#endif
       }
     }
   }
@@ -287,9 +293,15 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
 {
   Layer::push(this);
 
+#if VERSION_MAJOR == 2
+  curPage = QM_NONE;
+#endif
+
   mainMenu->doLayout(QM_MAIN_COLS);
+#if VERSION_MAJOR > 2
   for (size_t i = 0; i < subMenus.size(); i += 1)
     subMenus[i]->doLayout();
+#endif
 
   this->cancelHandler = std::move(cancelHandler);
   this->selectHandler = std::move(selectHandler);
@@ -309,8 +321,10 @@ void QuickMenu::openQM(std::function<void()> cancelHandler,
       mainMenu->clearFocus();
       setFocus(curPage);
     } else {
+#if VERSION_MAJOR > 2
       if (curPage == QM_MANAGE_MODELS)
         mainMenu->setCurrent(favoritesMenuItems[0].icon == EDGETX_ICONS_COUNT ? 0 : 1);
+#endif
       focusMainMenu();
     }
   }
@@ -324,9 +338,10 @@ void QuickMenu::selected()
 
 void QuickMenu::openPage(QMPage page)
 {
-  for (int i = 1; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+  for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
+        QuickMenu::selected();
         qmTopItems[i].action();
         return;
         }
@@ -335,8 +350,10 @@ void QuickMenu::openPage(QMPage page)
       for (int j = 0, k = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
         if (sub[j].qmPage == page) {
           if (sub[j].pageAction == PAGE_ACTION) {
+            QuickMenu::selected();
             sub[j].action();
           } else {
+            QuickMenu::selected();
             auto pg = new PageGroup(qmTopItems[i].icon, STR_VAL(qmTopItems[i].title), sub);
             pg->setCurrentTab(k);
             return;
@@ -351,7 +368,7 @@ void QuickMenu::openPage(QMPage page)
 
 EdgeTxIcon QuickMenu::pageIcon(QMPage page)
 {
-  for (int i = 1; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+  for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
         return qmTopItems[i].icon;
@@ -370,7 +387,7 @@ EdgeTxIcon QuickMenu::pageIcon(QMPage page)
 
 int QuickMenu::pageIndex(QMPage page)
 {
-  for (int i = 1; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+  for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
         return 0;
@@ -392,7 +409,7 @@ int QuickMenu::pageIndex(QMPage page)
   return 0;
 }
 
-static std::string replaceAll(std::string str, const std::string& from, const std::string& to)
+std::string replaceAll(std::string str, const std::string& from, const std::string& to)
 {
     auto&& pos = str.find(from, size_t{});
     while (pos != std::string::npos)
@@ -411,7 +428,7 @@ std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
   qmPages.emplace_back(STR_NONE);
   qmPages.emplace_back(STR_OPEN_QUICK_MENU);
 
-  for (int i = 1; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+  for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       qmPages.emplace_back(STR_VAL(qmTopItems[i].title));
     } else {
@@ -432,11 +449,12 @@ std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
   return qmPages;
 }
 
+#if VERSION_MAJOR > 2
 void QuickMenu::setupFavorite(QMPage page, int f)
 {
   PageDef& fav = favoritesMenuItems[f];
 
-  for (int i = 1; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+  for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
           fav.icon = qmTopItems[i].icon;
@@ -467,6 +485,7 @@ void QuickMenu::setupFavorite(QMPage page, int f)
     }
   }
 }
+#endif
 
 void QuickMenu::setCurrentPage(QMPage newPage, EdgeTxIcon newIcon)
 {
@@ -480,14 +499,17 @@ void QuickMenu::focusMainMenu()
   mainMenu->setFocus();
   mainMenu->setEnabled();
   mainMenu->setGroup();
+#if VERSION_MAJOR > 2
   for(auto sub : subMenus)
     sub->setDisabled(true);
+#endif
 }
 
 void QuickMenu::onSelect(bool close)
 {
   closeMenu();
   if (selectHandler) selectHandler(close);
+  selectHandler = nullptr;
 }
 
 void QuickMenu::closeMenu()
@@ -495,6 +517,7 @@ void QuickMenu::closeMenu()
   Layer::pop(this);
   hide();
   if (cancelHandler) cancelHandler();
+  cancelHandler = nullptr;
 }
 
 void QuickMenu::onCancel()
@@ -509,12 +532,14 @@ void QuickMenu::onCancel()
 
 void QuickMenu::setFocus(QMPage selection)
 {
+#if VERSION_MAJOR > 2
   for(auto sub : subMenus) {
     if (sub->isSubMenu(selection, curIcon)) {
       sub->setCurrent(selection);
       return;
     }
   }
+#endif
 }
 
 void QuickMenu::enableSubMenu()
@@ -545,12 +570,14 @@ void QuickMenu::afterPG()
 {
   auto b = mainMenu->getFocusedButton();
   if (b) {
+#if VERSION_MAJOR > 3
     for(auto sub : subMenus) {
       if (sub->isSubMenu(b)) {
         sub->activate();
         return;
       }
     }
+#endif
     focusMainMenu();
     curPage = QM_NONE;
   }

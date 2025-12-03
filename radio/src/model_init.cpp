@@ -144,7 +144,7 @@ void applyDefaultTemplate()
 #endif
 
 #if defined(COLORLCD)
-  g_model.initScreenData();
+  g_model.resetScreenData();
   LayoutFactory::loadDefaultLayout();
 #endif
 

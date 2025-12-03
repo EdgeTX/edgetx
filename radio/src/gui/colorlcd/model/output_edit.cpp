@@ -96,7 +96,7 @@ void OutputEditWindow::buildHeader(Window *window)
 {
   statusBar = new OutputEditStatusBar(
       window,
-      {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH - PageGroup::PAGE_TOP_BAR_H,
+      {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH - PageGroup::PAGE_GROUP_BACK_BTN_W,
        0, OUTPUT_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }
