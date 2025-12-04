@@ -2245,7 +2245,9 @@ class WidgetPage : public NavWindow, public LuaEventHandler
              std::function<void()> nextAction,
              std::string title, std::string subtitle, std::string iconFile,
              lv_dir_t scrollDir, bool showScrollBar, bool showBackBtn, bool showNavBtns) :
-      NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
+      NavWindow(parent, {0, 0, LCD_W, LCD_H}),
+      backAction(std::move(backAction)), prevAction(std::move(prevAction)), nextAction(std::move(nextAction)),
+      showNav(showNavBtns)
   {
     if (iconFile.empty())
       header = new PageHeader(this, ICON_EDGETX);
@@ -2259,16 +2261,6 @@ class WidgetPage : public NavWindow, public LuaEventHandler
       addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, backAction);
     } else {
       addCustomButton(0, 0, backAction);
-    }
-    if (showNavBtns) {
-      new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
-        prevAction();
-        return 0;
-      });
-      new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
-        nextAction();
-        return 0;
-      });
     }
 #endif
 
@@ -2285,6 +2277,24 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     lv_obj_set_scroll_dir(body->getLvObj(), scrollDir);
     if (showScrollBar)
       etx_scrollbar(body->getLvObj());
+
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
+#if defined(HARDWARE_TOUCH)
+    if (showNav) {
+      new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
+        prevAction();
+        return 0;
+      });
+      new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
+        nextAction();
+        return 0;
+      });
+    }
+#endif
   }
 
   Window *getBody() { return body; }
@@ -2294,6 +2304,9 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 
  protected:
   std::function<void()> backAction;
+  std::function<void()> prevAction;
+  std::function<void()> nextAction;
+  bool showNav = false;
   PageHeader *header = nullptr;
   Window *body = nullptr;
 
@@ -2386,6 +2399,9 @@ void LvglWidgetPage::clearRefs(lua_State *L)
   clearTitleRefs(L);
   subtitle.clearRef(L);
   clearRef(L, backActionFunction);
+  clearRef(L, menuActionFunction);
+  clearRef(L, prevActionFunction);
+  clearRef(L, nextActionFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
