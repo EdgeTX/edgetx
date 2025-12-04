@@ -42,6 +42,13 @@ static void clearRef(lua_State *L, int& ref)
   ref = LUA_REFNIL;
 }
 
+static bool getLuaBool(lua_State *L)
+{
+  if (lua_isboolean(L, -1))
+    return lua_toboolean(L, -1);
+  return luaL_checkunsigned(L, -1);
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglParamFuncOrValue::parse(lua_State *L)
@@ -183,7 +190,7 @@ bool LvglMessageParam::parseMessageParam(lua_State *L, const char *key)
 bool LvglRoundedParam::parseRoundedParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "rounded")) {
-    rounded = lua_toboolean(L, -1);
+    rounded = getLuaBool(L);
     return true;
   }
   return false;
@@ -227,7 +234,7 @@ bool LvglValuesParam::parseValuesParam(lua_State *L, const char *key)
 bool LvglScrollableParams::parseScrollableParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "scrollBar")) {
-    showScrollBar = lua_toboolean(L, -1);
+    showScrollBar = getLuaBool(L);
     return true;
   }
   if (!strcmp(key, "scrollDir")) {
@@ -1841,7 +1848,7 @@ void LvglWidgetImage::parseParam(lua_State *L, const char *key)
   if (!strcmp(key, "file")) {
     filename.parse(L);
   } else if (!strcmp(key, "fill")) {
-    fillFrame = lua_toboolean(L, -1);
+    fillFrame = getLuaBool(L);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -1971,7 +1978,7 @@ void LvglWidgetTextButtonBase::setRounded()
 void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "checked")) {
-    checked = lua_toboolean(L, -1);
+    checked = getLuaBool(L);
   } else if (!strcmp(key, "longpress")) {
     longPressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
@@ -2350,24 +2357,34 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
     backActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "menu")) {
     menuActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "prev")) {
-    prevActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "next")) {
-    nextActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "prevActive")) {
-    prevActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "nextActive")) {
-    nextActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "prevButton")) {
+    showNavButtons = true;
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      const char *key = lua_tostring(L, -2);
+      if (!strcmp(key, "press")) {
+        prevActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+        lua_pushnil(L);
+      } else if (!strcmp(key, "active")) {
+        prevActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+        lua_pushnil(L);
+      }
+    }
+  } else if (!strcmp(key, "nextButton")) {
+    showNavButtons = true;
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      const char *key = lua_tostring(L, -2);
+      if (!strcmp(key, "press")) {
+        nextActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+        lua_pushnil(L);
+      } else if (!strcmp(key, "active")) {
+        nextActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+        lua_pushnil(L);
+      }
+    }
   } else if (!strcmp(key, "backButton")) {
-    if (lua_isboolean(L, -1))
-      showBackButton = lua_toboolean(L, -1);
-    else
-      showBackButton = luaL_checkinteger(L, -1) != 0;
-  } else if (!strcmp(key, "navButtons")) {
-    if (lua_isboolean(L, -1))
-      showNavButtons = lua_toboolean(L, -1);
-    else
-      showNavButtons = luaL_checkinteger(L, -1) != 0;
+    showBackButton = getLuaBool(L);
   } else if (!strcmp(key, "subtitle")) {
     subtitle.parse(L);
   } else if (!strcmp(key, "icon")) {
@@ -2626,10 +2643,7 @@ void LvglWidgetChoice::build(lua_State *L)
       PROTECT_LUA()
       {
         if (pcallFuncWithInt(L, filterFunction, 1, n + 1)) {
-          if (lua_isboolean(L, -1))
-            rv = lua_toboolean(L, -1);
-          else
-            rv = luaL_checkinteger(L, -1) != 0;
+          rv = getLuaBool(L);
         } else {
           lvglManager->luaShowError();
         }
@@ -2799,7 +2813,7 @@ void LvglWidgetFilePicker::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "maxLen")) {
     maxLen = luaL_checkunsigned(L, -1);
   } else if (!strcmp(key, "hideExtension")) {
-    hideExtension = lua_toboolean(L, -1);
+    hideExtension = getLuaBool(L);
   } else {
     LvglWidgetPicker::parseParam(L, key);
   }
