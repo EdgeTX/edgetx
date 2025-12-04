@@ -30,6 +30,8 @@
 #include "toggleswitch.h"
 #include "filechoice.h"
 #include "keyboard_base.h"
+#include "theme_manager.h"
+#include "pagegroup.h"
 
 //-----------------------------------------------------------------------------
 
@@ -2236,9 +2238,13 @@ void LvglWidgetVerticalSlider::build(lua_State *L)
 class WidgetPage : public NavWindow, public LuaEventHandler
 {
  public:
-  WidgetPage(Window *parent, std::function<void()> backAction,
+  WidgetPage(Window *parent, 
+             std::function<void()> backAction,
+             std::function<void()> menuAction,
+             std::function<void()> prevAction,
+             std::function<void()> nextAction,
              std::string title, std::string subtitle, std::string iconFile,
-             lv_dir_t scrollDir, bool showScrollBar) :
+             lv_dir_t scrollDir, bool showScrollBar, bool showBackBtn, bool showNavBtns) :
       NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
   {
     if (iconFile.empty())
@@ -2247,9 +2253,25 @@ class WidgetPage : public NavWindow, public LuaEventHandler
       header = new PageHeader(this, iconFile.c_str());
 
 #if defined(HARDWARE_TOUCH)
-    addCustomButton(0, 0, [=]() { onCancel(); });
+    if (showBackBtn) {
+      new HeaderBackIcon(header);
+      addCustomButton(0, 0, menuAction);
+      addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, backAction);
+    } else {
+      addCustomButton(0, 0, backAction);
+    }
+    if (showNavBtns) {
+      new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
+        prevAction();
+        return 0;
+      });
+      new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
+        nextAction();
+        return 0;
+      });
+    }
 #endif
-    
+
     body = new Window(
         this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
     body->setWindowFlag(NO_FOCUS);
@@ -2293,6 +2315,22 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
   if (parseScrollableParam(L, key)) return;
   if (!strcmp(key, "back")) {
     backActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "menu")) {
+    menuActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "prev")) {
+    prevActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "next")) {
+    nextActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "backButton")) {
+    if (lua_isboolean(L, -1))
+      showBackButton = lua_toboolean(L, -1);
+    else
+      showBackButton = luaL_checkinteger(L, -1) != 0;
+  } else if (!strcmp(key, "navButtons")) {
+    if (lua_isboolean(L, -1))
+      showNavButtons = lua_toboolean(L, -1);
+    else
+      showNavButtons = luaL_checkinteger(L, -1) != 0;
   } else if (!strcmp(key, "subtitle")) {
     subtitle.parse(L);
   } else if (!strcmp(key, "icon")) {
@@ -2357,7 +2395,12 @@ void LvglWidgetPage::build(lua_State *L)
   h = LCD_H;
   page = new WidgetPage(
       lvglManager->getCurrentParent(),
-      [=]() { pcallSimpleFunc(L, backActionFunction); }, title.txt, subtitle.txt, iconFile, scrollDir, showScrollBar);
+      [=]() { pcallSimpleFunc(L, backActionFunction); },
+      [=]() { pcallSimpleFunc(L, menuActionFunction); },
+      [=]() { pcallSimpleFunc(L, prevActionFunction); },
+      [=]() { pcallSimpleFunc(L, nextActionFunction); },
+      title.txt, subtitle.txt, iconFile, scrollDir, showScrollBar,
+      showBackButton, showNavButtons);
 
   window = page->getBody();
   window->disableForcedScroll();
@@ -2369,9 +2412,6 @@ void LvglWidgetPage::build(lua_State *L)
       lv_obj_set_flex_align(window->getLvObj(), align2, align2, align1);
     else
       lv_obj_set_flex_align(window->getLvObj(), align1, align1, align2);
-    // lv_flex_align_t flexAlign = (align.flags & RIGHT) ? LV_FLEX_ALIGN_END : (align.flags & CENTERED) ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START;
-    // lv_flex_align_t trackAlign = (flexAlign == LV_FLEX_ALIGN_CENTER) ? LV_FLEX_ALIGN_SPACE_EVENLY : LV_FLEX_ALIGN_START;
-    // lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_START, flexAlign, trackAlign);
   }
 }
 

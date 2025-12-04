@@ -870,8 +870,13 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public Lv
   LvglParamFuncOrString subtitle = { .function = LUA_REFNIL, .txt = ""};
   std::string iconFile;
   WidgetPage* page = nullptr;
+  bool showBackButton = false;
+  bool showNavButtons = false;
 
   int backActionFunction = LUA_REFNIL;
+  int menuActionFunction = LUA_REFNIL;
+  int prevActionFunction = LUA_REFNIL;
+  int nextActionFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
