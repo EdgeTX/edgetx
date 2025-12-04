@@ -508,7 +508,7 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 
 int LvglWidgetObjectBase::pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal)
 {
-  int val = 0;
+  int val = defVal;
   if (getFuncRef != LUA_REFNIL) {
     auto save = luaScriptManager;
     luaScriptManager = lvglManager;
@@ -2243,10 +2243,14 @@ class WidgetPage : public NavWindow, public LuaEventHandler
              std::function<void()> menuAction,
              std::function<void()> prevAction,
              std::function<void()> nextAction,
+             std::function<bool()> prevActive,
+             std::function<bool()> nextActive,
              std::string title, std::string subtitle, std::string iconFile,
              lv_dir_t scrollDir, bool showScrollBar, bool showBackBtn, bool showNavBtns) :
       NavWindow(parent, {0, 0, LCD_W, LCD_H}),
-      backAction(std::move(backAction)), prevAction(std::move(prevAction)), nextAction(std::move(nextAction)),
+      backAction(std::move(backAction)), menuAction(menuAction),
+      prevAction(std::move(prevAction)), nextAction(std::move(nextAction)),
+      prevActive(std::move(prevActive)), nextActive(std::move(nextActive)),
       showNav(showNavBtns)
   {
     if (iconFile.empty())
@@ -2257,10 +2261,10 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 #if defined(HARDWARE_TOUCH)
     if (showBackBtn) {
       new HeaderBackIcon(header);
-      addCustomButton(0, 0, menuAction);
-      addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, backAction);
+      addCustomButton(0, 0, this->menuAction);
+      addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, this->backAction);
     } else {
-      addCustomButton(0, 0, backAction);
+      addCustomButton(0, 0, this->backAction);
     }
 #endif
 
@@ -2285,11 +2289,11 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   {
 #if defined(HARDWARE_TOUCH)
     if (showNav) {
-      new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
+      prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
         prevAction();
         return 0;
       });
-      new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
+      nextBtn = new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
         nextAction();
         return 0;
       });
@@ -2304,11 +2308,16 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 
  protected:
   std::function<void()> backAction;
+  std::function<void()> menuAction;
   std::function<void()> prevAction;
   std::function<void()> nextAction;
+  std::function<bool()> prevActive;
+  std::function<bool()> nextActive;
   bool showNav = false;
   PageHeader *header = nullptr;
   Window *body = nullptr;
+  IconButton* prevBtn = nullptr;
+  IconButton* nextBtn = nullptr;
 
   void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClickedEvent(); }
 
@@ -2318,6 +2327,12 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   {
     LuaEventHandler::onLuaEvent(evt);
     parent->onEvent(evt);
+  }
+
+  void checkEvents() override
+  {
+    if (prevBtn) prevBtn->enable(prevActive());
+    if (nextBtn) nextBtn->enable(nextActive());
   }
 };
 
@@ -2334,6 +2349,10 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
     prevActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "next")) {
     nextActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "prevActive")) {
+    prevActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "nextActive")) {
+    nextActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "backButton")) {
     if (lua_isboolean(L, -1))
       showBackButton = lua_toboolean(L, -1);
@@ -2402,6 +2421,8 @@ void LvglWidgetPage::clearRefs(lua_State *L)
   clearRef(L, menuActionFunction);
   clearRef(L, prevActionFunction);
   clearRef(L, nextActionFunction);
+  clearRef(L, prevActiveFunction);
+  clearRef(L, nextActiveFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
@@ -2415,6 +2436,8 @@ void LvglWidgetPage::build(lua_State *L)
       [=]() { pcallSimpleFunc(L, menuActionFunction); },
       [=]() { pcallSimpleFunc(L, prevActionFunction); },
       [=]() { pcallSimpleFunc(L, nextActionFunction); },
+      [=]() { return pcallGetOptIntVal(L, prevActiveFunction, true); },
+      [=]() { return pcallGetOptIntVal(L, nextActiveFunction, true); },
       title.txt, subtitle.txt, iconFile, scrollDir, showScrollBar,
       showBackButton, showNavButtons);
 

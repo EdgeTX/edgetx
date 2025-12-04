@@ -877,6 +877,8 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public Lv
   int menuActionFunction = LUA_REFNIL;
   int prevActionFunction = LUA_REFNIL;
   int nextActionFunction = LUA_REFNIL;
+  int prevActiveFunction = LUA_REFNIL;
+  int nextActiveFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
