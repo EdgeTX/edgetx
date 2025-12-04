@@ -1086,6 +1086,11 @@ void LvglWidgetLine::refresh()
   build(nullptr);
 }
 
+bool LvglWidgetLine::isVisible()
+{
+  return !lvobj || !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+}
+
 //-----------------------------------------------------------------------------
 
 LvglWidgetTriangle::LvglWidgetTriangle() : LvglSimpleWidgetObject()

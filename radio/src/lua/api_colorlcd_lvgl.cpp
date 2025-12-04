@@ -27,44 +27,69 @@
 
 #include "api_colorlcd.h"
 
-static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
+class LvglWidgetParams
 {
-  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
-    auto obj = create();
-    obj->create(L, 1);
-    obj->push(L);
-  } else {
-    lua_pushnil(L);
-  }
-
-  return 1;
-}
-
-static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
-{
-  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
-    LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
-    if (lua_gettop(L) == 2) {
-      p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
+ public:
+  LvglWidgetParams(lua_State *L, int index = 1)
+  {
+    luaL_checktype(L, index, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      const char *key = lua_tostring(L, -2);
+      if (!strcmp(key, "type")) {
+        if (lua_isinteger(L, -1)) {
+          int n = lua_tointeger(L, -1);
+          if (n > ETX_UNDEF && n < ETX_LAST)
+            type = (LuaLvglType)n;
+          else
+            type = ETX_UNDEF;
+        } else {
+          type = getType(luaL_checkstring(L, -1));
+        }
+      } else if (!strcmp(key, "name")) {
+        name = luaL_checkstring(L, -1);
+      } else if (!strcmp(key, "children")) {
+        hasChildren = true;
       }
     }
-
-    auto obj = create();
-    obj->create(L, -1);
-    obj->push(L);
-
-    if (p)
-      luaScriptManager->setTempParent((prevParent));
-  } else {
-    lua_pushnil(L);
   }
 
-  return 1;
-}
+  LuaLvglType getType(const char* s)
+  {
+    if (strcasecmp(s, "label") == 0) return ETX_LABEL;
+    if (strcasecmp(s, "rectangle") == 0) return ETX_RECTANGLE;
+    if (strcasecmp(s, "circle") == 0) return ETX_CIRCLE;
+    if (strcasecmp(s, "arc") == 0) return ETX_ARC;
+    if (strcasecmp(s, "hline") == 0) return ETX_HLINE;
+    if (strcasecmp(s, "vline") == 0) return ETX_VLINE;
+    if (strcasecmp(s, "line") == 0) return ETX_LINE;
+    if (strcasecmp(s, "triangle") == 0) return ETX_TRIANGLE;
+    if (strcasecmp(s, "image") == 0) return ETX_IMAGE;
+    if (strcasecmp(s, "qrcode") == 0) return ETX_QRCODE;
+    if (strcasecmp(s, "box") == 0) return ETX_BOX;
+    if (strcasecmp(s, "button") == 0) return ETX_BUTTON;
+    if (strcasecmp(s, "momentaryButton") == 0) return ETX_MOMENTARY_BUTTON;
+    if (strcasecmp(s, "toggle") == 0) return ETX_TOGGLE;
+    if (strcasecmp(s, "textEdit") == 0) return ETX_TEXTEDIT;
+    if (strcasecmp(s, "numberEdit") == 0) return ETX_NUMBEREDIT;
+    if (strcasecmp(s, "choice") == 0) return ETX_CHOICE;
+    if (strcasecmp(s, "slider") == 0) return ETX_SLIDER;
+    if (strcasecmp(s, "verticalSlider") == 0) return ETX_VERTICAL_SLIDER;
+    if (strcasecmp(s, "page") == 0) return ETX_PAGE;
+    if (strcasecmp(s, "font") == 0) return ETX_FONT;
+    if (strcasecmp(s, "align") == 0) return ETX_ALIGN;
+    if (strcasecmp(s, "color") == 0) return ETX_COLOR;
+    if (strcasecmp(s, "timer") == 0) return ETX_TIMER;
+    if (strcasecmp(s, "switch") == 0) return ETX_SWITCH;
+    if (strcasecmp(s, "source") == 0) return ETX_SOURCE;
+    if (strcasecmp(s, "file") == 0) return ETX_FILE;
+    if (strcasecmp(s, "setting") == 0) return ETX_SETTING;
+    return ETX_UNDEF;
+  }
+
+  LuaLvglType type = ETX_UNDEF;
+  const char *name = nullptr;
+  bool hasChildren = false;
+};
 
 static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
 {
@@ -152,70 +177,6 @@ static int luaLvglClose(lua_State *L)
   }
   return 0;
 }
-
-class LvglWidgetParams
-{
- public:
-  LvglWidgetParams(lua_State *L, int index = 1)
-  {
-    luaL_checktype(L, index, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      const char *key = lua_tostring(L, -2);
-      if (!strcmp(key, "type")) {
-        if (lua_isinteger(L, -1)) {
-          int n = lua_tointeger(L, -1);
-          if (n > ETX_UNDEF && n < ETX_LAST)
-            type = (LuaLvglType)n;
-          else
-            type = ETX_UNDEF;
-        } else {
-          type = getType(luaL_checkstring(L, -1));
-        }
-      } else if (!strcmp(key, "name")) {
-        name = luaL_checkstring(L, -1);
-      } else if (!strcmp(key, "children")) {
-        hasChildren = true;
-      }
-    }
-  }
-
-  LuaLvglType getType(const char* s)
-  {
-    if (strcasecmp(s, "label") == 0) return ETX_LABEL;
-    if (strcasecmp(s, "rectangle") == 0) return ETX_RECTANGLE;
-    if (strcasecmp(s, "circle") == 0) return ETX_CIRCLE;
-    if (strcasecmp(s, "arc") == 0) return ETX_ARC;
-    if (strcasecmp(s, "hline") == 0) return ETX_HLINE;
-    if (strcasecmp(s, "vline") == 0) return ETX_VLINE;
-    if (strcasecmp(s, "line") == 0) return ETX_LINE;
-    if (strcasecmp(s, "triangle") == 0) return ETX_TRIANGLE;
-    if (strcasecmp(s, "image") == 0) return ETX_IMAGE;
-    if (strcasecmp(s, "qrcode") == 0) return ETX_QRCODE;
-    if (strcasecmp(s, "box") == 0) return ETX_BOX;
-    if (strcasecmp(s, "button") == 0) return ETX_BUTTON;
-    if (strcasecmp(s, "momentaryButton") == 0) return ETX_MOMENTARY_BUTTON;
-    if (strcasecmp(s, "toggle") == 0) return ETX_TOGGLE;
-    if (strcasecmp(s, "textEdit") == 0) return ETX_TEXTEDIT;
-    if (strcasecmp(s, "numberEdit") == 0) return ETX_NUMBEREDIT;
-    if (strcasecmp(s, "choice") == 0) return ETX_CHOICE;
-    if (strcasecmp(s, "slider") == 0) return ETX_SLIDER;
-    if (strcasecmp(s, "verticalSlider") == 0) return ETX_VERTICAL_SLIDER;
-    if (strcasecmp(s, "page") == 0) return ETX_PAGE;
-    if (strcasecmp(s, "font") == 0) return ETX_FONT;
-    if (strcasecmp(s, "align") == 0) return ETX_ALIGN;
-    if (strcasecmp(s, "color") == 0) return ETX_COLOR;
-    if (strcasecmp(s, "timer") == 0) return ETX_TIMER;
-    if (strcasecmp(s, "switch") == 0) return ETX_SWITCH;
-    if (strcasecmp(s, "source") == 0) return ETX_SOURCE;
-    if (strcasecmp(s, "file") == 0) return ETX_FILE;
-    if (strcasecmp(s, "setting") == 0) return ETX_SETTING;
-    return ETX_UNDEF;
-  }
-
-  LuaLvglType type = ETX_UNDEF;
-  const char *name = nullptr;
-  bool hasChildren = false;
-};
 
 static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
@@ -317,7 +278,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     if (obj) {
       obj->create(L, -1);
       auto ref = obj->getRef(L);
-      if (p.name) {
+      if (p.name && refIndex != LUA_REFNIL) {
         lua_pushstring(L, p.name);
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
         lua_settable(L, refIndex - 4);
@@ -326,13 +287,74 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lua_getfield(L, -1, "children");
         auto prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(obj);
-        buildLvgl(L, -1, refIndex - 3);
+        buildLvgl(L, -1, (refIndex != LUA_REFNIL) ? refIndex - 3 : LUA_REFNIL);
         lua_pop(L, 1);
         luaScriptManager->setTempParent(prevParent);
       }
     }
     lua_settop(L, t); // In case of errors in build functions
   }
+}
+
+static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
+{
+  if (obj->getWindow()) {
+    lua_getfield(L, -1, "children");
+    auto prevParent = luaScriptManager->getTempParent();
+    luaScriptManager->setTempParent(obj);
+    buildLvgl(L, -1, LUA_REFNIL);
+    lua_pop(L, 1);
+    luaScriptManager->setTempParent(prevParent);
+  }
+}
+
+static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
+{
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+    LvglWidgetParams params(L, 1);
+
+    auto obj = create();
+    obj->create(L, 1);
+
+    if (params.hasChildren) addChildren(L, obj);
+
+    obj->push(L);
+  } else {
+    lua_pushnil(L);
+  }
+
+  return 1;
+}
+
+static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
+{
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+    LvglWidgetObjectBase* p = nullptr;
+    LvglWidgetObjectBase* prevParent = nullptr;
+    if (lua_gettop(L) == 2) {
+      p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
+      if (p) {
+        prevParent = luaScriptManager->getTempParent();
+        luaScriptManager->setTempParent(p);
+      }
+    }
+
+    LvglWidgetParams params(L, -1);
+
+    auto obj = create();
+    obj->create(L, -1);
+
+    if (params.hasChildren) addChildren(L, obj);
+
+    obj->push(L);
+
+    if (p)
+      luaScriptManager->setTempParent((prevParent));
+  } else {
+    lua_pushnil(L);
+  }
+
+  return 1;
 }
 
 static int luaLvglBuild(lua_State *L)

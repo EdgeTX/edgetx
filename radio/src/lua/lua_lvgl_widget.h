@@ -417,6 +417,8 @@ class LvglWidgetLine : public LvglSimpleWidgetObject, public LvglRoundedParam, p
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
+  bool isVisible() override;
+
  protected:
   size_t ptCnt = 0;
   size_t ptAlloc = 0;
