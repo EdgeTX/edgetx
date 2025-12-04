@@ -2258,12 +2258,13 @@ class WidgetPage : public NavWindow, public LuaEventHandler
              std::function<bool()> prevActive,
              std::function<bool()> nextActive,
              std::string title, std::string subtitle, std::string iconFile,
-             lv_dir_t scrollDir, bool showScrollBar, bool showBackBtn, bool showNavBtns) :
+             lv_dir_t scrollDir, bool showScrollBar,
+             bool showBackBtn, bool showPrevBtn, bool showNextBtn) :
       NavWindow(parent, {0, 0, LCD_W, LCD_H}),
       backAction(std::move(backAction)), menuAction(menuAction),
       prevAction(std::move(prevAction)), nextAction(std::move(nextAction)),
       prevActive(std::move(prevActive)), nextActive(std::move(nextActive)),
-      showNav(showNavBtns)
+      showPrev(showPrevBtn), showNext(showNextBtn)
   {
     if (iconFile.empty())
       header = new PageHeader(this, ICON_EDGETX);
@@ -2300,11 +2301,13 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   void delayedInit() override
   {
 #if defined(HARDWARE_TOUCH)
-    if (showNav) {
+    if (showPrev) {
       prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
         prevAction();
         return 0;
       });
+    }
+    if (showNext) {
       nextBtn = new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
         nextAction();
         return 0;
@@ -2325,7 +2328,8 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   std::function<void()> nextAction;
   std::function<bool()> prevActive;
   std::function<bool()> nextActive;
-  bool showNav = false;
+  bool showPrev = false;
+  bool showNext = false;
   PageHeader *header = nullptr;
   Window *body = nullptr;
   IconButton* prevBtn = nullptr;
@@ -2358,7 +2362,6 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "menu")) {
     menuActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "prevButton")) {
-    showNavButtons = true;
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       const char *key = lua_tostring(L, -2);
@@ -2371,7 +2374,6 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
       }
     }
   } else if (!strcmp(key, "nextButton")) {
-    showNavButtons = true;
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       const char *key = lua_tostring(L, -2);
@@ -2461,7 +2463,7 @@ void LvglWidgetPage::build(lua_State *L)
       [=]() { return pcallGetOptIntVal(L, prevActiveFunction, true); },
       [=]() { return pcallGetOptIntVal(L, nextActiveFunction, true); },
       title.txt, subtitle.txt, iconFile, scrollDir, showScrollBar,
-      showBackButton, showNavButtons);
+      showBackButton, prevActionFunction != LUA_REFNIL, nextActionFunction != LUA_REFNIL);
 
   window = page->getBody();
   window->disableForcedScroll();
