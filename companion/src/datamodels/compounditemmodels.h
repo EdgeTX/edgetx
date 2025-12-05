@@ -47,6 +47,7 @@ class AbstractItemModel: public QStandardItemModel
       IMID_CurveRefType,
       IMID_CurveRefFunc,
       IMID_FlexSwitches,
+      IMID_ControlSource,
       IMID_ReservedCount,
       IMID_Custom
     };
@@ -81,6 +82,7 @@ class AbstractItemModel: public QStandardItemModel
        IMUE_Timers             = 1 << 9,
        IMUE_Modules            = 1 << 10,
        IMUE_FunctionSwitches   = 1 << 11,
+       IMUE_Hardware           = 1 << 12,
        IMUE_All                = IMUE_SystemRefresh | IMUE_Channels | IMUE_Curves | IMUE_FlightModes | IMUE_GVars | IMUE_Inputs |
                                  IMUE_LogicalSwitches | IMUE_Scripts | IMUE_TeleSensors | IMUE_Timers | IMUE_Modules | IMUE_FunctionSwitches
     };
@@ -347,6 +349,22 @@ class FlexSwitchesItemModel: public AbstractDynamicItemModel
 
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const int value) const;
+};
+
+class ControlSourceItemModel: public AbstractDynamicItemModel
+{
+    Q_OBJECT
+  public:
+    explicit ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                Firmware * firmware, const Boards * const board, const Board::Type boardType);
+    virtual ~ControlSourceItemModel() {};
+
+  public slots:
+    virtual void update(const int event = IMUE_SystemRefresh) override;
+
+  protected:
+    virtual void setDynamicItemData(QStandardItem * item, const RawSource & src) const;
+    void addItems(const RawSourceType & type, int count, const int start = 0);
 };
 
 

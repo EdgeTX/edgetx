@@ -25,22 +25,22 @@
 #include "filtereditemmodels.h"
 #include "autocombobox.h"
 #include "namevalidator.h"
+#include "helpers.h"
 
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
 constexpr char FIM_TEMPLATESETUP[]  {"Template Setup"};
 constexpr char FIM_BACKLIGHTMODE[]  {"Backlight Mode"};
+constexpr char FIM_CONTROLSRC[]     {"Control Source"};
 
-GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
+GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings,
+  Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
 GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
 {
   ui->setupUi(this);
-
   Board::Type board = firmware->getBoard();
-
   panelFilteredModels = new FilteredItemModelFactory();
-
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()), FIM_HATSMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::stickModeItemModel()), FIM_STICKMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel(),
@@ -48,6 +48,8 @@ ui(new Ui::GeneralSetup)
                                                                                       GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
+  panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ControlSource)),
+                                         FIM_CONTROLSRC);
 
   QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
   QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
@@ -92,6 +94,18 @@ ui(new Ui::GeneralSetup)
   }
 
   lock = true;
+
+  ui->volumeCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->volumeCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
+  ui->volumeCtrl_CB->setCurrentIndex(ui->volumeCtrl_CB->findData(generalSettings.volumeSrc.toValue()));
+  if (ui->volumeCtrl_CB->currentIndex() < 0 && generalSettings.volumeSrc.toValue() == 0)
+    ui->volumeCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->volumeCtrl_CB));
+
+  ui->brightCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->brightCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
+  ui->brightCtrl_CB->setCurrentIndex(ui->brightCtrl_CB->findData(generalSettings.backlightSrc.toValue()));
+  if (ui->brightCtrl_CB->currentIndex() < 0 && generalSettings.backlightSrc.toValue() == 0)
+    ui->brightCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->brightCtrl_CB));
 
   ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
@@ -726,6 +740,22 @@ void GeneralSetupPanel::on_OFFBright_SB_editingFinished()
       generalSettings.backlightOffBright = ui->OFFBright_SB->value();
       emit modified();
     }
+  }
+}
+
+void GeneralSetupPanel::on_volumeCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.volumeSrc = RawSource(ui->volumeCtrl_CB->itemData(ui->volumeCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_brightCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.backlightSrc = RawSource(ui->brightCtrl_CB->itemData(ui->brightCtrl_CB->currentIndex()).toInt());
+    emit modified();
   }
 }
 
