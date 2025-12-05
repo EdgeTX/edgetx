@@ -1042,9 +1042,9 @@ void LogsDialog::plotLogs()
   if (useCommonAxes) {
     auto [min, max] = this->GetMinMaxY();
     axisRect->axis(QCPAxis::atLeft)->setRange(min, max);
-    } else {
-      axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
-    }
+  } else {
+    axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
+  }
 
   if (plots.tooManyRanges) {
     axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
