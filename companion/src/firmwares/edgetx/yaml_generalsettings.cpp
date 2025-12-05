@@ -422,20 +422,28 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   qDebug() << "Settings version:" << radioSettingsVersion.toString();
 
   if (radioSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.");
-    prmpt = prmpt.arg(radioSettingsVersion.toString());
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
-    msgBox.setText(prmpt);
-    msgBox.setIcon(QMessageBox::Warning);
-    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
-    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
-    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
-    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
-    msgBox.setDefaultButton(pbDecline);
-    msgBox.exec();
-    if (msgBox.clickedButton() == pbDecline)
-      return false;
+    //  TODO remove this temporary 2.12 fix check for 3.0 release
+    if (radioSettingsVersion == SemanticVersion("3.0.0") &&
+        SemanticVersion(VERSION) >= SemanticVersion("2.12.0") &&
+        SemanticVersion(VERSION) < SemanticVersion("3.0.0")) {
+      qDebug() << "Version exception override: radio settings" << radioSettingsVersion.toString()
+               << "Companion" << SemanticVersion(VERSION).toString();
+    } else {
+      QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by Companion %2!\n\nModel and radio settings may be corrupted if you continue.");
+      prmpt = prmpt.arg(radioSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
+      QMessageBox msgBox;
+      msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
+      msgBox.setText(prmpt);
+      msgBox.setIcon(QMessageBox::Warning);
+      QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+      QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+      msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+      msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+      msgBox.setDefaultButton(pbDecline);
+      msgBox.exec();
+      if (msgBox.clickedButton() == pbDecline)
+        return false;
+    }
   }
 
   rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
