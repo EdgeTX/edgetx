@@ -226,12 +226,12 @@ LAYOUT_ORIENTATION_SCALED(VERCHK_Y, 138, 240)
 LAYOUT_ORIENTATION_SCALED(VERCHK_ICN_X, 78, 22)
 
 const uint8_t __bmp_plug_usb[] {
-  #include "bmp_plug_usb.lbm"
+  #include "bmp_bootloader_plug_usb.lbm"
 };
 LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444);
 
 const uint8_t __bmp_usb_plugged[] {
-  #include "bmp_usb_plugged.lbm"
+  #include "bmp_bootloader_usb_plugged.lbm"
 };
 LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444);
 
