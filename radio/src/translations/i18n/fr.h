@@ -1241,9 +1241,6 @@
 #define TR_AUTH_FAILURE                "Échec authentification"
 #define TR_RACING_MODE                 "Mode Racing"
 
-#undef  STR_SENSOR_BATT
-#define STR_SENSOR_BATT                 "BtRx"
-
 // The following content is Untranslated)
 
 #define TR_USE_THEME_COLOR              "Utiliser couleur du thème"
