@@ -58,13 +58,16 @@ class Window;
 #if LANDSCAPE
   #if LCD_W == 320
     #define LAYOUT_SCALE(x) (((x) * 8 + 5) / 10)
+    #define LUA_LCD_SCALE 0.8
   #elif LCD_W == 800
     #define LAYOUT_SCALE(x) (((x) * 11 + 4) / 8)
+    #define LUA_LCD_SCALE 1.375
   #endif
 #endif
 
 #if !defined(LAYOUT_SCALE)
   #define LAYOUT_SCALE(x) (x)
+    #define LUA_LCD_SCALE 1.0
 #endif
 
 // Macros for setting up layout values
