@@ -58,9 +58,14 @@ enum PhysicalTrims {
   TR4R
 };
 
+extern bool suspendI2CTasks;
+
 uint32_t readTrims()
 {
   uint32_t result = 0;
+
+  if (suspendI2CTasks) return result;
+
   uint16_t keys = bsp_input_get();
   
 #define _TRIM(t) \

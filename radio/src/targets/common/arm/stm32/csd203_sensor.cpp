@@ -171,6 +171,8 @@ typedef struct {
 } CSD_ALERT;
 /*CSD ALERT Configuration struct*/
 
+extern bool suspendI2CTasks;
+
 void CSD203_Init(CSD_CONFIG *CSD203_CFG);            // Initialise CSD203 config
 uint16_t CSD203_ReadVbus(CSD_CONFIG *CSD203_CFG);    // Read Vbus Voltage
 uint16_t CSD203_ReadRshunt(CSD_CONFIG *CSD203_CFG);  // Read Rshunt
@@ -404,6 +406,8 @@ uint16_t getCSD203BatteryVoltage(void)
 void readCSD203(void)
 {  // 5ms
   static uint16_t GetSenSorStep = 0;
+
+  if (suspendI2CTasks) return;
 
   if (IICReadStatusFlag == true) return;
 
