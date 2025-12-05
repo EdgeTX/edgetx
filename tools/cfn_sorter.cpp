@@ -16,61 +16,61 @@
 #define TR_BW_COL(a, b) b
 
 #if defined(LNG_CN)
-#include "../radio/src/translations/cn.h"
+#include "../radio/src/translations/i18n/cn.h"
 #define LOC "zh_CN.UTF-8"
 #elif defined(LNG_CZ)
-#include "../radio/src/translations/cz.h"
+#include "../radio/src/translations/i18n/cz.h"
 #define LOC "cs_CZ.UTF-8"
 #elif defined(LNG_DA)
-#include "../radio/src/translations/da.h"
+#include "../radio/src/translations/i18n/da.h"
 #define LOC "da_DK.UTF-8"
 #elif defined(LNG_DE)
-#include "../radio/src/translations/de.h"
+#include "../radio/src/translations/i18n/de.h"
 #define LOC "de_DE.UTF-8"
 #elif defined(LNG_EN)
-#include "../radio/src/translations/en.h"
+#include "../radio/src/translations/i18n/en.h"
 #define LOC "en_US.UTF-8"
 #elif defined(LNG_ES)
-#include "../radio/src/translations/es.h"
+#include "../radio/src/translations/i18n/es.h"
 #define LOC "es_ES.UTF-8"
 #elif defined(LNG_FI)
-#include "../radio/src/translations/fi.h"
+#include "../radio/src/translations/i18n/fi.h"
 #define LOC "fi_FI.UTF-8"
 #elif defined(LNG_FR)
-#include "../radio/src/translations/fr.h"
+#include "../radio/src/translations/i18n/fr.h"
 #define LOC "fr_FR.UTF-8"
 #elif defined(LNG_HE)
-#include "../radio/src/translations/he.h"
+#include "../radio/src/translations/i18n/he.h"
 #define LOC "he_IL.UTF-8"
 #elif defined(LNG_IT)
-#include "../radio/src/translations/it.h"
+#include "../radio/src/translations/i18n/it.h"
 #define LOC "it_IT.UTF-8"
 #elif defined(LNG_JP)
-#include "../radio/src/translations/jp.h"
+#include "../radio/src/translations/i18n/jp.h"
 #define LOC "ja_JP.UTF-8"
 #elif defined(LNG_KO)
-#include "../radio/src/translations/ko.h"
+#include "../radio/src/translations/i18n/ko.h"
 #define LOC "ko_KR.UTF-8"
 #elif defined(LNG_NL)
-#include "../radio/src/translations/nl.h"
+#include "../radio/src/translations/i18n/nl.h"
 #define LOC "nl_NL.UTF-8"
 #elif defined(LNG_PL)
-#include "../radio/src/translations/pl.h"
+#include "../radio/src/translations/i18n/pl.h"
 #define LOC "pl_PL.UTF-8"
 #elif defined(LNG_PT)
-#include "../radio/src/translations/pt.h"
+#include "../radio/src/translations/i18n/pt.h"
 #define LOC "pt_PT.UTF-8"
 #elif defined(LNG_RU)
-#include "../radio/src/translations/ru.h"
+#include "../radio/src/translations/i18n/ru.h"
 #define LOC "ru_RU.UTF-8"
 #elif defined(LNG_SE)
-#include "../radio/src/translations/se.h"
+#include "../radio/src/translations/i18n/se.h"
 #define LOC "sv_SE.UTF-8"
 #elif defined(LNG_TW)
-#include "../radio/src/translations/tw.h"
+#include "../radio/src/translations/i18n/tw.h"
 #define LOC "zh_TW.UTF-8"
 #elif defined(LNG_UA)
-#include "../radio/src/translations/ua.h"
+#include "../radio/src/translations/i18n/ua.h"
 #define LOC "uk_UA.UTF-8"
 #else
 #error "Unknown language"
