@@ -184,6 +184,20 @@ class HeaderIcon : public StaticIcon
   HeaderIcon(Window *parent, const char* iconFile);
 };
 
+class HeaderBackIcon : public StaticIcon
+{
+ public:
+  HeaderBackIcon(Window *parent, std::function<void()> action = nullptr);
+
+ protected:
+  std::function<void()> action;
+
+  void onClicked() override
+  {
+    if (action) action();
+  }
+};
+
 class UsbSDConnected : public Window
 {
  public:

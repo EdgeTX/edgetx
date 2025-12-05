@@ -25,12 +25,12 @@
 #include "curve.h"
 #include "choice.h"
 
-struct ExpoData;
-
 class InputEditWindow : public Page
 {
  public:
   InputEditWindow(int8_t input, uint8_t index);
+
+  void previewUpdate() { updatePreview = true; }
 
   static LAYOUT_ORIENTATION_SCALED(INPUT_EDIT_CURVE_WIDTH, 138, 176)
   static LAYOUT_ORIENTATION(INPUT_EDIT_CURVE_HEIGHT, INPUT_EDIT_CURVE_WIDTH, LAYOUT_SCALE(132))
@@ -45,14 +45,9 @@ class InputEditWindow : public Page
   getvalue_t lastCurveVal = 0;
   uint8_t lastActiveIndex = 255;
   StaticText * headerSwitchName = nullptr;
-  Window* advWindow = nullptr;
-  bool advEdit = false;
 
   void setTitle();
   void buildBody(Window *window);
 
-  void showAdvanced();
-
-  void onCancel() override;
   void checkEvents() override;
 };

@@ -551,6 +551,19 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
   (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
 }
 
+HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
+  StaticIcon(parent, LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
+{
+  (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
+}
+
 UsbSDConnected::UsbSDConnected() :
     Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {

@@ -250,6 +250,9 @@ static const uint8_t mask_shutdown[] = {
 const uint8_t mask_topleft_bg[] = {
 #include "mask_topleft.lbm"
 };
+const uint8_t mask_topright_bg[] = {
+#include "mask_topright.lbm"
+};
 
 const uint8_t mask_currentmenu_bg[] = {
 #include "mask_currentmenu_bg.lbm"
@@ -367,6 +370,16 @@ static const uint8_t mask_trim_shadow[] = {
 #include "mask_trim_shadow.lbm"
 };
 
+static const uint8_t mask_btn_close[] = {
+#include "mask_btn_close.lbm"
+};
+static const uint8_t mask_btn_next[] = {
+#include "mask_btn_next.lbm"
+};
+static const uint8_t mask_btn_prev[] = {
+#include "mask_btn_prev.lbm"
+};
+
 struct _BuiltinIcon {
   const uint8_t* lz4_compressed_bitmap;
 };
@@ -440,6 +453,7 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_SHUTDOWN, mask_shutdown),
 
     BI(ICON_TOPLEFT_BG, mask_topleft_bg),
+    BI(ICON_TOPRIGHT_BG, mask_topright_bg),
     BI(ICON_CURRENTMENU_BG, mask_currentmenu_bg),
     BI(ICON_CURRENTMENU_SHADOW, mask_currentmenu_shadow),
     BI(ICON_CURRENTMENU_DOT, mask_currentmenu_dot),
@@ -488,6 +502,10 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 
     BI(ICON_TRIM, mask_trim),
     BI(ICON_TRIM_SHADOW, mask_trim_shadow),
+
+    BI(ICON_BTN_CLOSE, mask_btn_close),
+    BI(ICON_BTN_NEXT, mask_btn_next),
+    BI(ICON_BTN_PREV, mask_btn_prev),
 };
 
 static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};
