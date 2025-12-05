@@ -2,6 +2,11 @@
 name: Run tests and package firmware
 on:
   push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    tags:
+      - v*
     paths: &trigger-paths
       - '.github/workflows/actions.yml'
       - 'cmake/**'
@@ -10,8 +15,10 @@ on:
       - '.gitmodules'
       - 'CMakeLists.txt'
   pull_request:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
     paths: *trigger-paths
-  workflow_dispatch:
 
 jobs:
   test:

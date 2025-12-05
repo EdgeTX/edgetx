@@ -2,12 +2,20 @@ name: Windows Companion 64-bit
 
 on:
   push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    tags:
+      - v*  
     paths: &trigger-paths
       - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
 
   pull_request:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
     paths: *trigger-paths
 
   workflow_dispatch:
