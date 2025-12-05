@@ -7047,13 +7047,18 @@ Are you sure ?</source>
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
+	    <message>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common Y axis</source>
+        <translation>共通の Y 軸を使用する</translation>
+    </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>ファイル名</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>ログファイルを開く</translation>
     </message>

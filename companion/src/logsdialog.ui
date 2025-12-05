@@ -167,7 +167,36 @@
        </property>
       </widget>
      </item>
-     <item>
+      <item>
+        <widget class="QWidget" name="spacer">
+          <property name="minimumSize">
+            <size>
+              <width>10</width>
+              <height>0</height>
+            </size>
+          </property>
+          <property name="maximumSize">
+            <size>
+              <width>10</width>
+              <height>20</height>
+            </size>
+          </property>
+          <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+            </sizepolicy>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QCheckBox" name="CommonAxes_ChkB">
+          <property name="text">
+            <string>Use common Y axis</string>
+          </property>
+        </widget>
+      </item>
+      <item>
       <widget class="QPushButton" name="Reset_PB">
        <property name="text">
         <string>Reset</string>
@@ -341,6 +370,7 @@
   <tabstop>mapsButton</tabstop>
   <tabstop>ZoomX_ChkB</tabstop>
   <tabstop>ZoomY_ChkB</tabstop>
+  <tabstop>CommonAxes_ChkB</tabstop>
   <tabstop>Reset_PB</tabstop>
   <tabstop>sessions_CB</tabstop>
  </tabstops>
