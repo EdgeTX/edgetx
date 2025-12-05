@@ -76,11 +76,12 @@ function compress_font() {
   local no_kern=$2
 
   # Compile the compression tool
-  gcc -I "${RADIO_SRC_DIR}/thirdparty" "${no_kern}" \
-      "${SCRIPT_DIR}/lz4_font.cpp" \
-      "${RADIO_SRC_DIR}/thirdparty/lz4/lz4hc.c" \
-      "${RADIO_SRC_DIR}/thirdparty/lz4/lz4.c" \
-      -o "${SCRIPT_DIR}/lz4_font"
+  local gcc_cmd="gcc -I \"${RADIO_SRC_DIR}/thirdparty\""
+  if [[ -n "${no_kern}" ]]; then
+    gcc_cmd="${gcc_cmd} ${no_kern}"
+  fi
+  gcc_cmd="${gcc_cmd} \"${SCRIPT_DIR}/lz4_font.cpp\" \"${RADIO_SRC_DIR}/thirdparty/lz4/lz4hc.c\" \"${RADIO_SRC_DIR}/thirdparty/lz4/lz4.c\" -o \"${SCRIPT_DIR}/lz4_font\""
+  eval "${gcc_cmd}"
   
   "${SCRIPT_DIR}/lz4_font" "${name}"
 }
