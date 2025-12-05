@@ -68,8 +68,6 @@ class TabsGroup : public NavWindow
  public:
   explicit TabsGroup(EdgeTxIcon icon);
 
-  void deleteLater(bool detach = true, bool trash = true) override;
-
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "TabsGroup"; }
 #endif

@@ -63,7 +63,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     closeHandler(std::move(closeHandler))
 {
   // Save focus
-  Layer::push(this);
+  pushLayer();
 
   coord_t w = SelectFabCarousel::FAB_BUTTON_WIDTH * QM_COLS + PAD_SMALL * 2;
   coord_t h = SelectFabCarousel::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_SMALL * 2;
@@ -155,7 +155,6 @@ void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
   if (closeHandler) closeHandler();
   Window::deleteLater(detach, trash);
-  Layer::pop(this);
 }
 
 void ViewMainMenu::onClicked() { deleteLater(); }

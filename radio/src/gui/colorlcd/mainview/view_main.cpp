@@ -80,7 +80,7 @@ ViewMain* ViewMain::_instance = nullptr;
 ViewMain::ViewMain() :
     NavWindow(MainWindow::instance(), MainWindow::instance()->getRect())
 {
-  Layer::push(this);
+  pushLayer();
 
   tile_view = lv_tileview_create(lvobj);
   lv_obj_set_pos(tile_view, rect.x, rect.y);
@@ -100,12 +100,6 @@ ViewMain::ViewMain() :
 }
 
 ViewMain::~ViewMain() { _instance = nullptr; }
-
-void ViewMain::deleteLater(bool detach, bool trash)
-{
-  NavWindow::deleteLater(detach, trash);
-  Layer::pop(this);
-}
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
 {

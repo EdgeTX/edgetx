@@ -36,7 +36,7 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage() :
     Window(ViewMain::instance(), rect_t{})
 {
   // remember focus
-  Layer::push(this);
+  pushLayer();
 
   auto viewMain = ViewMain::instance();
 
@@ -68,8 +68,6 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 {
   // and continue async deletion...
   Window::deleteLater(detach, trash);
-
-  Layer::pop(this);
 
   // restore screen setting tab on top
   new ScreenMenu(0);

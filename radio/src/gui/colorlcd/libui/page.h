@@ -56,8 +56,6 @@ class Page : public NavWindow
   void onCancel() override;
   void onClicked() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
-
   void enableRefresh();
 
  protected:
