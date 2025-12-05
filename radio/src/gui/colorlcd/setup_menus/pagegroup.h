@@ -198,8 +198,6 @@ class PageGroupBase : public NavWindow
 
   void checkEvents() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
-
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event);
   void onPressSYS() override;

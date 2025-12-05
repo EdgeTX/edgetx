@@ -29,6 +29,52 @@ class LvglDialog;
 
 //-----------------------------------------------------------------------------
 
+enum LuaLvglType
+{
+  ETX_UNDEF,
+
+  // Drawing primitives
+  ETX_LABEL,
+  ETX_RECTANGLE,
+  ETX_CIRCLE,
+  ETX_ARC,
+  ETX_HLINE,
+  ETX_VLINE,
+  ETX_LINE,
+  ETX_TRIANGLE,
+  ETX_IMAGE,
+  ETX_QRCODE,
+
+  // Contianers
+  ETX_BOX,
+
+  // Controls - tools / fullscreen widgets only
+  ETX_FIRST_CONTROL,
+  ETX_BUTTON = ETX_FIRST_CONTROL,
+  ETX_MOMENTARY_BUTTON,
+  ETX_TOGGLE,
+  ETX_TEXTEDIT,
+  ETX_NUMBEREDIT,
+  ETX_CHOICE,
+  ETX_SLIDER,
+  ETX_VERTICAL_SLIDER,
+  // Containers
+  ETX_PAGE,
+  // Value selectors
+  ETX_FONT,
+  ETX_ALIGN,
+  ETX_COLOR,
+  ETX_TIMER,
+  ETX_SWITCH,
+  ETX_SOURCE,
+  ETX_FILE,
+  ETX_SETTING,
+
+  ETX_LAST
+};
+
+//-----------------------------------------------------------------------------
+
 struct LvglParamFuncOrValue
 {
  public:
@@ -114,6 +160,7 @@ class LvglTitleParam
   LvglParamFuncOrString title = { .function = LUA_REFNIL, .txt = ""};
 
   bool parseTitleParam(lua_State *L, const char *key);
+  void clearTitleRefs(lua_State *L);
 };
 
 class LvglMessageParam
@@ -136,6 +183,18 @@ class LvglRoundedParam
   bool rounded = false;
 
   bool parseRoundedParam(lua_State *L, const char *key);
+};
+
+class LvglAlignParam
+{
+ public:
+  LvglAlignParam() {}
+
+ protected:
+  LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
+
+  bool parseAlignParam(lua_State *L, const char *key);
+  void clearAlignRefs(lua_State *L);
 };
 
 class LvglThicknessParam
@@ -271,7 +330,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams
+class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams, public LvglAlignParam
 {
  public:
   LvglWidgetLabel() : LvglSimpleWidgetObject() {}
@@ -285,8 +344,6 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams
   void clearRefs(lua_State *L) override;
 
  protected:
-  LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
-
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
@@ -359,6 +416,8 @@ class LvglWidgetLine : public LvglSimpleWidgetObject, public LvglRoundedParam, p
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
+
+  bool isVisible() override;
 
  protected:
   size_t ptCnt = 0;
@@ -441,10 +500,13 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams
+class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams, public LvglAlignParam
 {
  public:
-  LvglWidgetBox() : LvglWidgetObject() {}
+  LvglWidgetBox() : LvglWidgetObject(), LvglScrollableParams(), LvglAlignParam()
+  {
+    align.flags = CENTERED;
+  }
 
   coord_t getScrollX() override;
   coord_t getScrollY() override;
@@ -463,6 +525,8 @@ class LvglWidgetSetting : public LvglWidgetObject, public LvglTitleParam
 {
  public:
   LvglWidgetSetting() : LvglWidgetObject() {}
+
+  void clearRefs(lua_State *L) override;
 
  protected:
 
@@ -787,10 +851,13 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 class WidgetPage;
 
-class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams
+class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams, public LvglAlignParam
 {
  public:
-  LvglWidgetPage() : LvglWidgetObject() {}
+  LvglWidgetPage() : LvglWidgetObject()
+  {
+    align.flags = CENTERED;
+  }
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
@@ -805,8 +872,15 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public Lv
   LvglParamFuncOrString subtitle = { .function = LUA_REFNIL, .txt = ""};
   std::string iconFile;
   WidgetPage* page = nullptr;
+  bool showBackButton = false;
+  bool showNavButtons = false;
 
   int backActionFunction = LUA_REFNIL;
+  int menuActionFunction = LUA_REFNIL;
+  int prevActionFunction = LUA_REFNIL;
+  int nextActionFunction = LUA_REFNIL;
+  int prevActiveFunction = LUA_REFNIL;
+  int nextActiveFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
