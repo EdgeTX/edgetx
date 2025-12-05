@@ -974,7 +974,7 @@ void LogsDialog::plotLogs()
       ) {
 
       if (!useCommonAxes) {
-          switch (plots.coords[i].yaxis) {
+        switch (plots.coords[i].yaxis) {
           case firstLeft:
             plots.coords[i].yaxis = firstRight;
             break;
@@ -1043,7 +1043,7 @@ void LogsDialog::plotLogs()
     auto [min, max] = this->GetMinMaxY();
     axisRect->axis(QCPAxis::atLeft)->setRange(min, max);
     } else {
-        axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
+      axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
     }
 
   if (plots.tooManyRanges) {
