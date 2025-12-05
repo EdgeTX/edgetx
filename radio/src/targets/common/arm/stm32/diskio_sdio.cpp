@@ -123,8 +123,11 @@
 #endif
 
 #define BLOCK_SIZE FF_MAX_SS
-#define SD_TIMEOUT 300 /* 300ms */
-
+#if defined(RADIO_PA01)
+  #define SD_TIMEOUT 1000 /* 1000ms */
+#else
+  #define SD_TIMEOUT 300 /* 300ms */
+#endif
 #if defined(STM32F4)
 extern uint32_t _sram;
 extern uint32_t _heap_start;
