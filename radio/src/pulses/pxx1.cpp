@@ -275,7 +275,11 @@ static void pxx1SportSensorPolling(void* param)
       b != outputTelemetryBuffer.sport.physicalId)
     return;
 
-  drv->sendBuffer(ctx, outputTelemetryBuffer.data + 1,
+  // fix alignement for DMA
+  memmove(outputTelemetryBuffer.data, outputTelemetryBuffer.data + 1,
+          outputTelemetryBuffer.size - 1);
+
+  drv->sendBuffer(ctx, outputTelemetryBuffer.data,
                   outputTelemetryBuffer.size - 1);
 
   outputTelemetryBuffer.reset();
