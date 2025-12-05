@@ -22,6 +22,7 @@
 #include "form.h"
 #include "static.h"
 #include "etx_lv_theme.h"
+#include "layer.h"
 
 std::list<Window *> Window::trash;
 bool Window::_longPressed = false;
@@ -196,6 +197,26 @@ std::string Window::getWindowDebugString(const char *name) const
 }
 #endif
 
+void Window::pushLayer(bool hideParent)
+{
+  if (!layerCreated) {
+    parentHidden = hideParent;
+    layerCreated = true;
+    if (parentHidden) Layer::back()->hide();
+    Layer::push(this);
+  }
+}
+
+void Window::popLayer()
+{
+  if (layerCreated) {
+    Layer::pop(this);
+    if (parentHidden) Layer::back()->show();
+    layerCreated = false;
+    parentHidden = false;
+  }
+}
+
 Window *Window::getFullScreenWindow()
 {
   if (width() == LCD_W && height() == LCD_H) return this;
@@ -237,25 +258,24 @@ void Window::detach()
 void Window::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
-
-  TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
-
   _deleted = true;
 
-  if (closeHandler) {
-    closeHandler();
-  }
+  TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
 
   if (detach)
     this->detach();
   else
     parent = nullptr;
 
-  if (trash) {
-    Window::trash.push_back(this);
-  }
-
   deleteChildren();
+
+  popLayer();
+
+  if (closeHandler)
+    closeHandler();
+
+  if (trash)
+    Window::trash.push_back(this);
 
   if (lvobj != nullptr) {
     auto obj = lvobj;
