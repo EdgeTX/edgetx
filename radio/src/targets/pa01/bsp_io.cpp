@@ -56,10 +56,14 @@ bool bsp_get_shouldReadKeys()
   return tmp;
 }
 
+static volatile bool errorOccurs = false;
 static void bsp_input_read()
 {
   uint16_t value;
-  if (aw9523b_read(&i2c_exp, BSP_IN_MASK, &value) < 0) return;
+  if (aw9523b_read(&i2c_exp, BSP_IN_MASK, &value) < 0) {
+    errorOccurs = true;
+    return;
+  }
   inputState = value;
 }
 

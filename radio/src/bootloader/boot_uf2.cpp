@@ -34,6 +34,8 @@
 
 #define FRAME_INTERVAL_MS 20
 
+bool suspendI2CTasks = false;
+
 void bootloaderUF2()
 {
   BootloaderState state = ST_START;
@@ -71,6 +73,7 @@ void bootloaderUF2()
         if (usbPlugged()) {
           state = ST_USB;
 #if !defined(SIMU)
+          suspendI2CTasks = true;
           usbStart();
 #endif
         } else if (pwrOffPressed()) {
@@ -83,6 +86,8 @@ void bootloaderUF2()
         if (usbPlugged() == 0) {
 #if !defined(SIMU)
           usbStop();
+          suspendI2CTasks = false;
+
 #endif
           state = (state == ST_FLASH_DONE) ? ST_REBOOT : ST_START;
         } else {
