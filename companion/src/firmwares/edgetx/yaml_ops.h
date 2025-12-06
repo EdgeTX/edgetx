@@ -24,6 +24,7 @@
 #include <yaml-cpp/yaml.h>
 #include "helpers.h"
 #include "boards.h"
+#include "semanticversion.h"
 
 #include <algorithm>
 #include <QString>
