@@ -6,6 +6,7 @@
 bool boardBLStartCondition()
 {
   // Trims combo activated
+  pollKeys();
   bool result = (readTrims() == BOOTLOADER_KEYS);
 #if defined(SECONDARY_BOOTLOADER_KEYS)
   result |= (readTrims() == SECONDARY_BOOTLOADER_KEYS);

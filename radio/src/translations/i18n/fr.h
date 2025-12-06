@@ -1012,6 +1012,8 @@
 #define TR_RECEIVER_RESET              "Réinit. récept.?"
 #define TR_SHARE                       "Partager"
 #define TR_BIND                        "Bind"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Enr", "Enregistr."))
 #define TR_MODULE_RANGE                BUTTON(TR("Prt", "Port."))
 #define TR_RANGE_TEST                  "Test de portée"
@@ -1240,9 +1242,6 @@
 #define TR_RTC_CHECK                   TR("Vérif. RTC", "Vérif. pile RTC")
 #define TR_AUTH_FAILURE                "Échec authentification"
 #define TR_RACING_MODE                 "Mode Racing"
-
-#undef  STR_SENSOR_BATT
-#define STR_SENSOR_BATT                 "BtRx"
 
 // The following content is Untranslated)
 

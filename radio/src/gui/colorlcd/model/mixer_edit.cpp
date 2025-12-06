@@ -71,7 +71,7 @@ void MixEditWindow::buildHeader(Window *window)
 
   new MixerEditStatusBar(
       window,
-      {window->getRect().w - MIX_STATUS_BAR_WIDTH - PageGroup::PAGE_TOP_BAR_H, 0,
+      {window->getRect().w - MIX_STATUS_BAR_WIDTH - PageGroup::PAGE_GROUP_BACK_BTN_W, 0,
        MIX_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }

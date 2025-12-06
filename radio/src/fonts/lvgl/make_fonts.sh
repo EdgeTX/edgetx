@@ -76,11 +76,12 @@ function compress_font() {
   local no_kern=$2
 
   # Compile the compression tool
-  gcc -I "${RADIO_SRC_DIR}/thirdparty" "${no_kern}" \
-      "${SCRIPT_DIR}/lz4_font.cpp" \
-      "${RADIO_SRC_DIR}/thirdparty/lz4/lz4hc.c" \
-      "${RADIO_SRC_DIR}/thirdparty/lz4/lz4.c" \
-      -o "${SCRIPT_DIR}/lz4_font"
+  local gcc_cmd="gcc -I \"${RADIO_SRC_DIR}/thirdparty\""
+  if [[ -n "${no_kern}" ]]; then
+    gcc_cmd="${gcc_cmd} ${no_kern}"
+  fi
+  gcc_cmd="${gcc_cmd} \"${SCRIPT_DIR}/lz4_font.cpp\" \"${RADIO_SRC_DIR}/thirdparty/lz4/lz4hc.c\" \"${RADIO_SRC_DIR}/thirdparty/lz4/lz4.c\" -o \"${SCRIPT_DIR}/lz4_font\""
+  eval "${gcc_cmd}"
   
   "${SCRIPT_DIR}/lz4_font" "${name}"
 }
@@ -276,12 +277,12 @@ function make_en_font_set() {
   make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 25 "XL" "sml"
 
   # Large LCD fonts (800x480)
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 13 "XXS" "lrg"
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 19 "XS" "lrg"
-  make_en_font "${name}" "${LATIN_FONT}" 24 "STD" "lrg"
-  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 24 "STD" "lrg"
-  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 36 "L" "lrg"
-  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 48 "XL" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 12 "XXS" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 18 "XS" "lrg"
+  make_en_font "${name}" "${LATIN_FONT}" 22 "STD" "lrg"
+  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 22 "STD" "lrg"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 33 "L" "lrg"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 44 "XL" "lrg"
 }
 
 function make_font_set() {

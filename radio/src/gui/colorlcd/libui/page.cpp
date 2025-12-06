@@ -78,11 +78,17 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 
   header = new PageHeader(this, icon);
 
+#if VERSION_MAJOR > 2
   new HeaderBackIcon(header);
+#endif
 
 #if defined(HARDWARE_TOUCH)
+#if VERSION_MAJOR == 2
+  addCustomButton(0, 0, [=]() { onCancel(); });
+#else
   addCustomButton(0, 0, [=]() { openMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+#endif
 #endif
 
   body = new Window(this,
@@ -94,18 +100,9 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
                               LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
-  Layer::back()->hide();
-  Layer::push(this);
+  pushLayer(true);
 
   body->padAll(padding);
-}
-
-void Page::deleteLater(bool detach, bool trash)
-{
-  NavWindow::deleteLater(detach, trash);
-
-  Layer::pop(this);
-  Layer::back()->show();
 }
 
 void Page::openMenu()

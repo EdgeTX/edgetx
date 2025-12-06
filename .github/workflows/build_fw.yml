@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - 'main'
+      - '[0-9]+.[0-9]+'
     tags:
       - v*
-    paths:
+    paths: &trigger-paths
       - '.github/workflows/build_fw.yml'
       - 'cmake/**'
       - 'radio/**'
@@ -16,14 +17,8 @@ on:
   pull_request:
     branches:
       - 'main'
-    paths:
-      - '.github/workflows/build_fw.yml'
-      - 'cmake/**'
-      - 'radio/**'
-      - 'tools/build-gh.sh'
-      - '.gitmodules'
-      - 'CMakeLists.txt'
-  workflow_dispatch:
+      - '[0-9]+.[0-9]+'
+    paths: *trigger-paths
 
 jobs:
   test:
@@ -59,6 +54,7 @@ jobs:
           - nb4p
           - st16
           - t15pro
+          - pa01
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

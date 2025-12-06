@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - 'main'
+      - '[0-9]+.[0-9]+'
     tags:
-      - v*
-    paths:
+      - v*  
+    paths: &trigger-paths
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
@@ -14,10 +15,8 @@ on:
   pull_request:
     branches:
       - 'main'
-    paths:
-      - '.github/workflows/macosx_cpn.yml'
-      - 'companion/**'
-      - 'tools/build-companion.sh'
+      - '[0-9]+.[0-9]+'
+    paths: *trigger-paths
 
   workflow_dispatch:
 

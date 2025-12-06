@@ -46,6 +46,8 @@
 
 #define MAX_NO_OF_MODELS            20
 
+extern uint16_t  sns_RFCurrentPower;
+
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
 void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t type);
@@ -223,6 +225,8 @@ union AfhdsFrameData {
   CommandResult_s CommandResult;
 };
 
+static constexpr uint16_t rfpowerTable[7] = {14*4, 17*4, 20*4, 25*4, 27*4, 30*4, 33*4 };
+
 #define FRM302_STATUS 0x56
 
 uint8_t receiver_type( unsigned long productnumber );
@@ -263,6 +267,7 @@ class ProtoState
    void applyConfigFromModel();
 
    bool fifoFull() { return trsp.fifoFull(); }
+   uint16_t RFCurrentPower;
 
   protected:
 
@@ -530,6 +535,26 @@ void ProtoState::setupFrame()
     return;
   }
 
+  // Sync settings when dirty flag is set
+  auto *cfg = this->getConfig();
+  if (checkDirtyFlag(DC_RX_CMD_TX_PWR))
+  {
+//     TRACE("AFHDS3 [RX_CMD_TX_PWR] %d", AFHDS3_POWER[moduleData->afhds3.rfPower] / 4);
+    uint8_t data[] = { (uint8_t)(RX_CMD_TX_PWR&0xFF), (uint8_t)((RX_CMD_TX_PWR>>8)&0xFF), 2,
+                       (uint8_t)(AFHDS3_POWER[moduleData->afhds3.rfPower]&0xFF),  (uint8_t)((AFHDS3_POWER[moduleData->afhds3.rfPower]>>8)&0xFF)};
+    trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+    clearDirtyFlag(DC_RX_CMD_TX_PWR);
+    RFCurrentPower = (AFHDS3_POWER[moduleData->afhds3.rfPower]&0xFF);
+    return;
+  }
+  else if( EXTERNAL == module_index )
+  {
+    if( !RFCurrentPower )
+    {
+      RFCurrentPower = sns_RFCurrentPower;
+    }
+  }
+
   if (isConnected()) {
     // Sync config, with commands
     if (syncSettings()) { return; }
@@ -542,6 +567,22 @@ void ProtoState::setupFrame()
   }
 }
 
+uint8_t get_current_rfpower_level( uint8_t module )
+{
+  int16_t diff_min = protoState[module].RFCurrentPower-rfpowerTable[0];
+  uint8_t power_level = 0;
+  for( uint8_t i=1; i<7; i++ )
+  {
+    int16_t diff = protoState[module].RFCurrentPower-rfpowerTable[i];
+
+    if( abs(diff) < abs(diff_min))
+    {
+      diff_min = diff;
+      power_level = i;
+    }
+  }
+  return power_level;
+}
 
 void ProtoState::init(uint8_t moduleIndex, void* buffer,
                       etx_module_state_t* mod_st, uint8_t fAddr)
@@ -598,13 +639,6 @@ void ProtoState::setState(ModuleState state)
     cfg.others.isConnected = isConnected();
     cfg.others.lastUpdated = get_tmr10ms();
     cfg.others.dirtyFlag = 0U;
-
-    if (state == ModuleState::STATE_SYNC_DONE)
-    {
-      // Update power config
-//       TRACE("Added PWM CMD");
-      DIRTY_CMD((&cfg), afhds3::DirtyConfig::DC_RX_CMD_TX_PWR);
-    }
   }
 }
 
@@ -656,6 +690,11 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //               version.productNumber, version.hardwareVersion,
 //               version.bootloaderVersion, version.firmwareVersion);
         break;
+      case COMMAND::MODULE_RFPOWER:
+        {  uint8_t* value = &responseFrame->value;
+          RFCurrentPower = (value[1]<<8) + value[0];
+        }
+        break;
       case COMMAND::MODULE_STATE:
 //        TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
         setState((ModuleState)responseFrame->value);
@@ -682,6 +721,10 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //         TRACE("AFHDS3 [MODULE_MODE] %02X", responseFrame->value);
         if (responseFrame->value != CMD_RESULT::SUCCESS) {
           setState(ModuleState::STATE_NOT_READY);
+        }
+        else if( !RFCurrentPower && INTERNAL==module_index )
+        {
+          trsp.enqueue( COMMAND::MODULE_RFPOWER, FRAME_TYPE::REQUEST_GET_DATA );
         }
         break;
       case COMMAND::MODULE_SET_CONFIG:

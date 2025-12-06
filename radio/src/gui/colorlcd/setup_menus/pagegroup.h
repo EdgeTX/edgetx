@@ -27,7 +27,10 @@
 class HeaderIcon;
 class PageGroupItem;
 class PageGroupBase;
-
+#if VERSION_MAJOR == 2
+class SelectedTabIcon;
+class PageGroupIconButton;
+#endif
 //-----------------------------------------------------------------------------
 
 enum PageDefAction {
@@ -46,7 +49,9 @@ struct PageDef {
   std::function<void()> action;
 };
 
+#if VERSION_MAJOR > 2
 extern PageDef favoritesMenuItems[];
+#endif
 
 enum QMTopDefAction {
   QM_SUBMENU,
@@ -77,12 +82,12 @@ class PageGroupItem
 
   PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
       title(STR_VAL(pageDef.title)), icon(pageDef.icon), qmPageId(pageDef.qmPage),
-      padding(padding), enabled(std::move(pageDef.enabled))
+      padding(padding), pageDef(&pageDef)
   {}
 
   virtual ~PageGroupItem() = default;
 
-  bool isVisible() const { return enabled == nullptr || enabled(); }
+  bool isVisible() const { return (pageDef && pageDef->enabled) ? pageDef->enabled() : true; }
 
   virtual void build(Window* window) = 0;
 
@@ -106,7 +111,7 @@ class PageGroupItem
   EdgeTxIcon icon;
   QMPage qmPageId = QM_NONE;
   PaddingSize padding;
-  std::function<bool()> enabled = nullptr;
+  PageDef* pageDef = nullptr;
 };
 
 //-----------------------------------------------------------------------------
@@ -127,12 +132,7 @@ class PageGroupHeaderBase : public Window
   virtual void removeTab(unsigned index) {}
   void addTab(PageGroupItem* page);
 
-  void setCurrentIndex(uint8_t index)
-  {
-    if (index < pages.size()) {
-      currentIndex = index;
-    }
-  }
+  void setCurrentIndex(uint8_t index);
 
   bool hasSubMenu(QMPage n);
 
@@ -142,6 +142,11 @@ class PageGroupHeaderBase : public Window
 
   void deleteLater(bool detach = true, bool trash = true) override;
 
+#if VERSION_MAJOR == 2
+  static LAYOUT_VAL_SCALED(ICON_EXTRA_H, 10)
+  static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTON_WIDTH, 33)
+#endif
+
  protected:
   uint8_t currentIndex = 0;
   lv_obj_t* titleLabel = nullptr;
@@ -149,6 +154,14 @@ class PageGroupHeaderBase : public Window
   HeaderIcon* hdrIcon = nullptr;
   std::vector<PageGroupItem*> pages;
   PageGroupBase* menu;
+#if VERSION_MAJOR ==2
+  SelectedTabIcon* selectedIcon = nullptr;
+  Window* carousel = nullptr;
+  std::vector<PageGroupIconButton*> buttons;
+
+  coord_t getX(uint8_t idx);
+  void checkEvents() override;
+#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -185,8 +198,6 @@ class PageGroupBase : public NavWindow
 
   void checkEvents() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
-
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event);
   void onPressSYS() override;
@@ -220,7 +231,16 @@ class PageGroup : public PageGroupBase
 
   bool isPageGroup() override { return true; }
 
-  static LAYOUT_VAL_SCALED(PAGE_TOP_BAR_H, 45)
+#if VERSION_MAJOR == 2
+  static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 48)
+  static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
+  static constexpr coord_t PAGE_GROUP_BACK_BTN_W = 0;
+#else
+  static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 45)
+  static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = 0;
+  static constexpr coord_t PAGE_GROUP_BACK_BTN_W = PAGE_GROUP_TOP_BAR_H;
+#endif
+  static constexpr coord_t PAGE_GROUP_BODY_Y = PAGE_GROUP_TOP_BAR_H + PAGE_GROUP_ALT_TITLE_H;
 
  protected:
 
@@ -240,9 +260,14 @@ class TabsGroup : public PageGroupBase
 
   void hidePageButtons();
 
-  static LAYOUT_ORIENTATION_SCALED(PAGE_TOP_BAR_H, 45, 48)
-  static LAYOUT_ORIENTATION(PAGE_ALT_TITLE_H, 0, EdgeTxStyles::STD_FONT_HEIGHT)
-  static constexpr coord_t TABS_GROUP_BODY_Y = PAGE_TOP_BAR_H + PAGE_ALT_TITLE_H;
+#if VERSION_MAJOR == 2
+  static LAYOUT_VAL_SCALED(TABS_GROUP_TOP_BAR_H, 48)
+  static constexpr coord_t TABS_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
+#else
+  static LAYOUT_ORIENTATION_SCALED(TABS_GROUP_TOP_BAR_H, 45, 48)
+  static LAYOUT_ORIENTATION(TABS_GROUP_ALT_TITLE_H, 0, EdgeTxStyles::STD_FONT_HEIGHT)
+#endif
+  static constexpr coord_t TABS_GROUP_BODY_Y = TABS_GROUP_TOP_BAR_H + TABS_GROUP_ALT_TITLE_H;
 
  protected:
 

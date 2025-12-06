@@ -202,6 +202,8 @@ const FlySkySensor flySkySensors[] = {
 };
 // clang-format on
 
+uint16_t  sns_RFCurrentPower;
+
 int32_t getALT(uint32_t value);
 inline int setFlyskyTelemetryValue( int16_t type, uint8_t instance, int32_t value, uint32_t unit, uint32_t prec)
 {
@@ -240,6 +242,7 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
       uint8_t data2[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_VOL>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_VOL, id, packet[4], packet[5] };
       uint8_t data3[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_POWER>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_POWER, id, packet[8], packet[9] };
 //      uint8_t data4[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_RAW>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_RAW, id, packet[6] & 0x07};
+      sns_RFCurrentPower = (packet[9]<<8)+packet[8];
 
       processFlySkyAFHDS3Sensor(data1, 1 );
       processFlySkyAFHDS3Sensor(data2, 2 );

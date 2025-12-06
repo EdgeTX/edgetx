@@ -25,6 +25,7 @@
 #include "tasks/mixer_task.h"
 
 #if defined(COLORLCD)
+#include "quick_menu_def.h"
 #include "view_main.h"
 #endif
 
@@ -94,6 +95,30 @@ void RadioData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
 QMPage RadioData::getKeyShortcut(event_t event)
 {
   QMPage page = QM_NONE;
+#if VERSION_MAJOR == 2
+  switch(event) {
+    case EVT_KEY_BREAK(KEY_MODEL):
+      page = QM_MODEL_SETUP;
+      break;
+    case EVT_KEY_BREAK(KEY_SYS):
+      page = QM_TOOLS_APPS;
+      break;
+    case EVT_KEY_BREAK(KEY_TELE):
+      page = QM_UI_SCREEN1;
+      break;
+    case EVT_KEY_LONG(KEY_MODEL):
+      page = QM_MANAGE_MODELS;
+      break;
+    case EVT_KEY_LONG(KEY_SYS):
+      page = QM_RADIO_SETUP;
+      break;
+    case EVT_KEY_LONG(KEY_TELE):
+      page = QM_TOOLS_CHAN_MON;
+      break;
+    default:
+      break;
+  }
+#else
   switch(event) {
     case EVT_KEY_BREAK(KEY_MODEL):
       page = (QMPage)keyShortcuts[0].shortcut;
@@ -116,6 +141,7 @@ QMPage RadioData::getKeyShortcut(event_t event)
     default:
       break;
   }
+#endif
   if (page >= QM_UI_SCREEN1 && page <= QM_UI_SCREEN10)
     page = (QMPage)(QM_UI_SCREEN1 + ViewMain::instance()->getCurrentMainView());
   return page;

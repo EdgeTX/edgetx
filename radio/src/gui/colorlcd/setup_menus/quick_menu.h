@@ -27,11 +27,15 @@
 #include "quick_menu_group.h"
 #include "quick_menu_def.h"
 
+std::string replaceAll(std::string str, const std::string& from, const std::string& to);
+
 class PageGroup;
 class PageGroupBase;
 class ButtonBase;
-class QuickSubMenu;
 struct PageDef;
+#if VERSION_MAJOR > 2
+class QuickSubMenu;
+#endif
 
 #define GRP_W(n) ((QuickMenuGroup::QM_BUTTON_WIDTH + PAD_MEDIUM) * n - PAD_MEDIUM + PAD_OUTLINE * 2)
 #if LANDSCAPE
@@ -69,7 +73,6 @@ class QuickMenu : public NavWindow
   static EdgeTxIcon pageIcon(QMPage page);
   static int pageIndex(QMPage page);
   static std::vector<std::string> menuPageNames(bool forFavorites);
-  static void setupFavorite(QMPage page, int f);
 
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event);
@@ -85,8 +88,17 @@ class QuickMenu : public NavWindow
   void afterPG();
 #endif
 
-  static constexpr int QM_MAIN_BTNS = 6;
-  static constexpr int QM_SUB_BTNS = 12;
+#if VERSION_MAJOR == 2
+  static LAYOUT_ORIENTATION(QM_MAIN_COLS, 5, 3)
+  static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 2, 4)
+  static constexpr int QM_MAIN_W = GRP_W(QM_MAIN_COLS);
+  static constexpr int QM_MAIN_H = GRP_H(QM_MAIN_ROWS);
+  static constexpr coord_t QM_W = QM_MAIN_W + PAD_LARGE * 2;
+  static constexpr coord_t QM_H = QM_MAIN_H + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM * 2;
+  static constexpr coord_t QM_MAIN_X = (QM_W - QM_MAIN_W) / 2;
+  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
+  static constexpr int FIRST_SEARCH_IDX = 0;
+#else
   static LAYOUT_ORIENTATION(QM_MAIN_COLS, 6, 1)
   static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 1, 6)
   static LAYOUT_ORIENTATION(QM_SUB_COLS, 6, 3)
@@ -95,10 +107,16 @@ class QuickMenu : public NavWindow
   static constexpr int QM_MAIN_H = GRP_H(QM_MAIN_ROWS);
   static constexpr int QM_SUB_W = GRP_W(QM_SUB_COLS);
   static constexpr int QM_SUB_H = GRP_H(QM_SUB_ROWS);
-  static LAYOUT_ORIENTATION(QM_MAIN_X, (LCD_W - QM_MAIN_W) / 2, (LCD_W - QM_MAIN_W - QM_SUB_W - PAD_SMALL) / 2)
-  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY;
+  static constexpr coord_t QM_W = LCD_W;
+  static constexpr coord_t QM_H = LCD_H;
+  static LAYOUT_ORIENTATION(QM_MAIN_X, (QM_W - QM_MAIN_W) / 2, (QM_W - QM_MAIN_W - QM_SUB_W - PAD_SMALL) / 2)
+  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_ORIENTATION(QM_SUB_X, QM_MAIN_X, QM_MAIN_X + QM_MAIN_W + PAD_SMALL)
   static LAYOUT_ORIENTATION(QM_SUB_Y, QM_MAIN_Y + QM_MAIN_H + PAD_LARGE, QM_MAIN_Y)
+  static constexpr int FIRST_SEARCH_IDX = 1;  // Skip favorites
+#endif
+  static constexpr coord_t QM_X = (LCD_W - QM_W) / 2;
+  static constexpr coord_t QM_Y = (LCD_H - QM_H) / 2;
 
  protected:
   static QuickMenu* instance;
@@ -106,7 +124,9 @@ class QuickMenu : public NavWindow
   std::function<void(bool close)> selectHandler = nullptr;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
+#if VERSION_MAJOR > 2
   std::vector<QuickSubMenu*> subMenus;
+#endif
   PageGroupBase* pageGroup = nullptr;
   static QMPage curPage;
   static EdgeTxIcon curIcon;
@@ -118,4 +138,8 @@ class QuickMenu : public NavWindow
   void focusMainMenu();
 
   void deleteLater(bool detach = true, bool trash = true) override;
+
+#if VERSION_MAJOR > 2
+  static void setupFavorite(QMPage page, int f);
+#endif
 };
