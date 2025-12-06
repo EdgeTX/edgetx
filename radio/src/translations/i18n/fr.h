@@ -848,6 +848,7 @@
 #define TR_EDIT_COLOR                  "Editer Couleur"
 #define TR_NO_THEME_IMAGE              "Pas d'image de thème"
 #define TR_BACKLIGHT_TIMER             "Durée du rétroéclairage"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "Sélect. rapide modèle"
 #define TR_LABELS_SELECT             "Label select"
