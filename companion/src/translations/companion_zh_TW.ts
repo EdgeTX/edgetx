@@ -7109,13 +7109,18 @@ Are you sure ?</source>
         <source>Reset</source>
         <translation>重設</translation>
     </message>
+	<message>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common Y axis</source>
+        <translation>使用共同的 Y 軸</translation>
+    </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>文件名</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>打開 Log 文件</translation>
     </message>
