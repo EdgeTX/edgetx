@@ -104,6 +104,7 @@ uint8_t latencyToggleSwitch = 0;
 #endif
 
 volatile uint8_t rtc_count = 0;
+bool suspendI2CTasks = false;
 
 #if defined(DEBUG_LATENCY)
 void toggleLatencySwitch()
@@ -1089,6 +1090,7 @@ void edgeTxClose(uint8_t shutdown)
   TRACE("edgeTxClose");
 
   watchdogSuspend(2000/*20s*/);
+  suspendI2CTasks = true;
 
   if (shutdown) {
     pulsesStop();
@@ -1140,6 +1142,7 @@ void edgeTxResume()
 {
   TRACE("edgeTxResume");
 
+  suspendI2CTasks = false;
   if (!sdMounted()) sdInit();
 
   luaInitMainState();

@@ -7110,12 +7110,12 @@ Are you sure ?</source>
         <translation>重设</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>文件名</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>打开 Log 文件</translation>
     </message>

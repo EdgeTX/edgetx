@@ -36,6 +36,7 @@
 #define IO_RESET_GPIO GPIO_PIN(GPIOE, 15)
 
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
+extern bool suspendI2CTasks;
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -83,6 +84,9 @@ static void _poll_switches(void *param1, uint32_t trigger_source)
     _poll_switches_in_queue = false;
     timer_reset(&_poll_timer);
   }
+
+  // Suspend hardware reads when required
+  if (suspendI2CTasks) return;
 
   _read_io_expander(&_io_switches);
   _read_io_expander(&_io_fs_switches);

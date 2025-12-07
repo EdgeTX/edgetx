@@ -6998,12 +6998,17 @@ Are you sure ?</source>
         <translation>Companion przegląd logów</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common Y axis</source>
+        <translation>Użyj wspólnej osi Y</translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>Nazwa pliku</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>Otwórz plik logów</translation>
     </message>

@@ -7035,12 +7035,17 @@ Er du sikker?</translation>
         <translation>Companion log viser</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common Y axis</source>
+        <translation>Brug fælles Y-akse</translation>
+    </message>
+    <message>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>Filnavn</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>Åbn logfil</translation>
     </message>

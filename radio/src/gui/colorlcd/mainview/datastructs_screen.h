@@ -192,8 +192,8 @@ struct CustomScreenData {
 
 static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTONS_LEFT, 47)
 
-#if LCD_W == 800  // TODO: handle this better
-static constexpr int TOPBAR_ZONE_WIDTH = 102;
+#if WIDE_LAYOUT
+static LAYOUT_VAL_SCALED(TOPBAR_ZONE_WIDTH, 74)
 #else
 static LAYOUT_VAL_SCALED(TOPBAR_ZONE_WIDTH, 70)
 #endif

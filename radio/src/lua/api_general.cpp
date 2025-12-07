@@ -2575,6 +2575,43 @@ static int luaGetLogicalSwitchValue(lua_State * L)
   return 1;
 }
 
+
+/*luadoc
+@function getSwitchInfo(sourceIndex)
+
+@param sourceIndex: integer identifying a value source as returned by `getSourceIndex(sourceName)` or the `id` field in the table returned by `getFieldInfo`.
+
+@retval table information about requested field, table elements:
+* `type`   (number) field identifier
+0 = SWITCH_NONE
+1 = SWITCH_TOGGLE
+2 = SWITCH_2POS
+3 = SWITCH_3POS
+
+* `isCustomisableSwitch`   (boolean) field identifier
+return true if switch is a customisable switch
+
+* `name` (string) switch name
+
+@status current Introduced in 2.12
+*/
+
+static int luaGetSwitchInfo(lua_State * L)
+{
+  swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
+  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+    lua_newtable(L);
+    char* name = getSwitchPositionName(idx);
+    lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
+    lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(idx));
+    lua_pushtablestring(L, "name", name);
+  }
+  else
+    lua_pushnil(L);
+
+  return 1;
+}
+
 /*luadoc
 @function getSwitchIndex(positionName)
 
@@ -3132,6 +3169,7 @@ LROT_BEGIN(etxlib, NULL, 0)
 #endif
   LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
   LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
+  LROT_FUNCENTRY( getSwitchInfo, luaGetSwitchInfo )
   LROT_FUNCENTRY( getSwitchIndex, luaGetSwitchIndex )
   LROT_FUNCENTRY( getSwitchName, luaGetSwitchName )
   LROT_FUNCENTRY( getSwitchValue, luaGetSwitchValue )
@@ -3165,6 +3203,8 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( BLINK, BLINK )
   LROT_NUMENTRY( INVERS, INVERS )
   LROT_NUMENTRY( VCENTER, VCENTERED )
+  LROT_NUMENTRY( VTOP, VTOP )
+  LROT_NUMENTRY( VBOTTOM, VBOTTOM )
 #else
   LROT_NUMENTRY( XXLSIZE, XXLSIZE )
   LROT_NUMENTRY( DBLSIZE, DBLSIZE )
