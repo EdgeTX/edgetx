@@ -7054,13 +7054,18 @@ Are you sure ?</source>
         <source>Reset</source>
         <translation>초기화</translation>
     </message>
+	<message>
+        <location filename="../logsdialog.ui" line="197"/>
+        <source>Use common Y axis</source>
+        <translation>공통 Y축 사용</translation>
+    </message>
     <message>
-        <location filename="../logsdialog.ui" line="232"/>
+        <location filename="../logsdialog.ui" line="243"/>
         <source>Filename</source>
         <translation>파일 이름</translation>
     </message>
     <message>
-        <location filename="../logsdialog.ui" line="246"/>
+        <location filename="../logsdialog.ui" line="257"/>
         <source>Open LogFile</source>
         <translation>로그 파일 열기</translation>
     </message>
