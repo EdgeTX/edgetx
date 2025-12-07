@@ -329,19 +329,19 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
           MultiFirmwareUpdate(fullpath, INTERNAL_MODULE,
                               MULTI_TYPE_MULTIMODULE);
         });
-#endif
+#endif // INTERNAL_MODULE_MULTI
         menu->addLine(STR_FLASH_EXTERNAL_MULTI, [=]() {
           MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE,
                               MULTI_TYPE_MULTIMODULE);
         });
       }
     }
-#endif
+#endif // (MULTIMODULE) && !(DISABLE_MULTI_UPDATE)
     else if (!strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
       menu->addLine(STR_FLASH_EXTERNAL_ELRS, [=]() {
         MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
       });
-#endif
+#endif //(HARDWARE_INTERNAL_MODULE) || (HARDWARE_EXTERNAL_MODULE)
     } else if (!strcasecmp(BITMAPS_PATH, path) &&
                isExtensionMatching(ext, BITMAPS_EXT) &&
                strlen(name) <= LEN_BITMAP_NAME) {
@@ -376,7 +376,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         menu->addLine(STR_FLASH_BOOTLOADER,
                       [=]() { BootloaderUpdate(fullpath); });
       }
-#endif
+#endif // FIRMWARE_FORMAT_UF2
 #if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
     } else if (!strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
 
@@ -397,7 +397,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
           FrSkyFirmwareUpdate(fullpath, INTERNAL_MODULE);
         });
-#endif
+#endif // (INTERNAL_MODULE_PXX1) || (INTERNAL_MODULE_PXX2)
         if (information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE) {
           menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
             FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
@@ -463,16 +463,14 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
 #endif
 #endif  // _NYI_
       }
-    }
-#endif
+#endif //(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
 #if defined(LUA)
-    else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
+    }    else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
       menu->addLine(STR_EXECUTE_FILE, [=]() {
         luaExecStandalone(fullpath);
       });
     }
 #endif
-  }
   menu->addLine(STR_COPY_FILE, [=]() {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
     f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
