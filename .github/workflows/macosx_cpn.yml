@@ -35,7 +35,7 @@ jobs:
       - name: Select XCode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '14.1.0'
+          xcode-version: '15.0.1'
 
       - name: Check out the repo
         uses: actions/checkout@v4
