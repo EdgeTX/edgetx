@@ -27,7 +27,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
     if: |
       github.event_name != 'pull_request' ||
       !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-macos')
