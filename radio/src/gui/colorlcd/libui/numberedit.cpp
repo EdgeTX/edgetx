@@ -214,11 +214,15 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax)
 {
-  if (rect.w == 0) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
+  if (rect.w == 0 || rect.w == LV_SIZE_CONTENT) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   setTextFlag(textFlags);
 
-  lv_obj_set_width(label, width() - PAD_MEDIUM * 2 - 2);
+  padLeft(PAD_MEDIUM);
+  padRight(PAD_SMALL);
+
+  lv_obj_set_width(label, LV_PCT(100));
+
   if (textFlags & CENTERED)
     etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
   else
