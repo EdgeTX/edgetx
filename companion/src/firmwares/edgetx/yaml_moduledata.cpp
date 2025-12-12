@@ -83,6 +83,7 @@ static const YamlLookupTable protocolLut = {
   {  PULSES_FLYSKY_AFHDS2A, "TYPE_FLYSKY_AFHDS2A"  },
   {  PULSES_FLYSKY_AFHDS3, "TYPE_FLYSKY_AFHDS3"  },
   {  PULSES_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
+  {  PULSES_MILELRS, "TYPE_MILELRS"  },
 };
 
 static const YamlLookupTable oldprotocolLut = {
@@ -247,6 +248,14 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         YamlTelemetryBaudrate br(&rhs.ghost.telemetryBaudrate);
         ghost["telemetryBaudrate"] = br.value;
         mod["ghost"] = ghost;
+    } break;
+    case PULSES_MILELRS: {
+        Node crsf;
+        YamlTelemetryBaudrate br(&rhs.crsf.telemetryBaudrate);
+        crsf["telemetryBaudrate"] = br.value;
+        crsf["crsfArmingMode"] = rhs.crsf.crsfArmingMode;
+        crsf["crsfArmingTrigger"] = rhs.crsf.crsfArmingTrigger;
+        mod["mlrs"] = crsf;
     } break;
     case PULSES_CROSSFIRE: {
         Node crsf;

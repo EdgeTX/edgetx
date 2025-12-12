@@ -112,7 +112,7 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   *buf++ = CHANNELS_ID;
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
-  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT + 8; i++) {
     uint32_t val = limit(0, CROSSFIRE_CENTER + (CROSSFIRE_CENTER_CH_OFFSET(i) * 4) / 5 + (pulses[i] * 4) / 5, 2 * CROSSFIRE_CENTER);
     bits |= val << bitsavailable;
     bitsavailable += CROSSFIRE_CH_BITS;
@@ -446,6 +446,17 @@ static void crossfireDeInit(void* ctx)
 
 const etx_proto_driver_t CrossfireDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
+  .init = crossfireInit,
+  .deinit = crossfireDeInit,
+  .sendPulses = crossfireSendPulses,
+  .processData = nullptr,
+  .processFrame = crossfireProcessFrame,
+  .onConfigChange = nullptr,
+};
+
+
+const etx_proto_driver_t MILElrsDriver = {
+  .protocol = PROTOCOL_CHANNELS_MILELRS,
   .init = crossfireInit,
   .deinit = crossfireDeInit,
   .sendPulses = crossfireSendPulses,

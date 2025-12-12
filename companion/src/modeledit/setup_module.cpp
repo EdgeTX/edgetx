@@ -348,6 +348,17 @@ void ModulePanel::update()
         module.channelsCount = 6;
         max_rx_num = 20;
         break;
+      case PULSES_MILELRS:
+        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
+        module.channelsCount = 22;
+        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
+        ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
+        ui->crsfArmingMode->setCurrentIndex(module.crsf.crsfArmingMode);
+        if (module.crsf.crsfArmingMode == ModuleData::CRSF_ARMING_MODE_SWITCH) {
+          mask |= MASK_CSRF_ARMING_TRIGGER;
+          ui->crsfArmingTrigger->setCurrentIndex(ui->crsfArmingTrigger->findData(RawSwitch(module.crsf.crsfArmingTrigger).toValue()));
+        }
+        break;
       case PULSES_CROSSFIRE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
         module.channelsCount = 16;
@@ -705,6 +716,7 @@ void ModulePanel::onProtocolChanged(int index)
     update();
 
     if (module.protocol == PULSES_GHOST ||
+        module.protocol == PULSES_MILELRS||
         module.protocol == PULSES_CROSSFIRE) {
       if (Boards::getCapability(getCurrentFirmware()->getBoard(),
                                 Board::SportMaxBaudRate) < 400000) {

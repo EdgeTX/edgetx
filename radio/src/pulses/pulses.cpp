@@ -330,6 +330,10 @@ uint8_t getRequiredProtocol(uint8_t module)
     case MODULE_TYPE_CROSSFIRE:
       protocol = PROTOCOL_CHANNELS_CROSSFIRE;
       break;
+
+    case MODULE_TYPE_MILELRS:
+      protocol = PROTOCOL_CHANNELS_MILELRS;
+      break;
 #endif
 
 #if defined(AFHDS2)
@@ -464,6 +468,14 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
       break;
 #endif
 
+
+#if defined(CROSSFIRE)
+    case PROTOCOL_CHANNELS_MILELRS:
+      _init_module(module, &MILElrsDriver);
+      break;
+#endif
+
+
 #if defined(GHOST)
     case PROTOCOL_CHANNELS_GHOST:
       _init_module(module, &GhostDriver);
@@ -566,6 +578,7 @@ void pulsesSendNextFrame(uint8_t module)
       state.settings_updated = 0;
     }
 
+    //check this
     uint8_t channelStart = g_model.moduleData[module].channelsStart;
     int16_t* channels = &channelOutputs[channelStart];
     uint8_t nChannels = 16;  // TODO: MAX_CHANNELS - channelsStart

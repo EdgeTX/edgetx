@@ -220,6 +220,7 @@ bool ModuleData::supportRxNum() const
     case PULSES_PXX_R9M_LITE_PRO:
     case PULSES_MULTIMODULE:
     case PULSES_CROSSFIRE:
+    case PULSES_MILELRS:
     case PULSES_ACCESS_ISRM:
     case PULSES_ACCST_ISRM_D16:
     case PULSES_ACCESS_R9M:
@@ -395,6 +396,8 @@ int ModuleData::getMaxChannelCount()
     case PULSES_SBUS:
     case PULSES_PPM:
       return 16;
+    case PULSES_MILELRS:
+      return 22;  
     case PULSES_XJT_LITE_LR12:
     case PULSES_PXX_XJT_LR12:
       return 12;
@@ -471,6 +474,7 @@ int ModuleData::getTypeFromProtocol(unsigned int protocol)
                           { PULSES_FLYSKY_AFHDS3,       MODULE_TYPE_FLYSKY_AFHDS3 },
 
                           { PULSES_LEMON_DSMP,          MODULE_TYPE_LEMON_DSMP },
+                          { PULSES_MILELRS,             MODULE_TYPE_MILELRS },
                       };
 
   QPair<int, int>elmt;
@@ -495,6 +499,7 @@ int ModuleData::getSubTypeFromProtocol(unsigned int protocol)
 }
 
 //  static
+//check this
 QString ModuleData::typeToString(int type)
 {
   static const char * strings[] = {
@@ -516,6 +521,7 @@ QString ModuleData::typeToString(int type)
     "Flysky AFHDS2A",
     "Flysky AFHDS3",
     "Lemon-Rx DSMP",
+    "MILElrs"
   };
 
   return CHECK_IN_ARRAY(strings, type);
@@ -606,6 +612,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_R9M_LITE_PRO_PXX2:
               case MODULE_TYPE_XJT_LITE_PXX2:
               case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MILELRS:
               case MODULE_TYPE_MULTIMODULE:
               case MODULE_TYPE_GHOST:
               case MODULE_TYPE_PPM:

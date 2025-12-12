@@ -152,6 +152,7 @@ void ModuleChannelRange::setChannelsStart(uint8_t val)
   md->channelsStart = val;
 }
 
+//check this usage
 int8_t ModuleChannelRange::getChannelsCount()
 {
   ModuleData* md = &g_model.moduleData[moduleIdx];

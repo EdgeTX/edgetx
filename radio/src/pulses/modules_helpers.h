@@ -225,7 +225,7 @@ inline bool isModuleISRMAccess(uint8_t idx)
 #if defined(CROSSFIRE)
 inline bool isModuleCrossfire(uint8_t idx)
 {
-  return g_model.moduleData[idx].type == MODULE_TYPE_CROSSFIRE;
+  return g_model.moduleData[idx].type == MODULE_TYPE_CROSSFIRE || g_model.moduleData[idx].type == MODULE_TYPE_MILELRS;
 }
 
 inline bool isModuleELRS(uint8_t idx)
@@ -450,6 +450,7 @@ static const int8_t maxChannelsModules_M8[] = {
   6, // MODULE_TYPE_FLYSKY_AFHDS2A: 14 channels
   10,// MODULE_TYPE_FLYSKY_AFHDS3: 18 channels
   4, // MODULE_TYPE_LEMON_DSMP: 12 channels for DSMX
+  22, //MODULE_TYPE_MILELRS
 };
 
 static_assert(MODULE_TYPE_COUNT == sizeof(maxChannelsModules_M8),

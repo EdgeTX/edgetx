@@ -122,6 +122,7 @@ rxStatStruct *getRxStatLabels() {
       break;
 
     case MODULE_TYPE_CROSSFIRE:
+    case MODULE_TYPE_MILELRS:
     case MODULE_TYPE_GHOST:
       rxStat.label = STR_RXSTAT_LABEL_RQLY;
       rxStat.unit = STR_RXSTAT_UNIT_PERCENT;

@@ -186,6 +186,7 @@ extern const char* const STR_VFAILSAFE[];
 
 extern const char* const STR_FONT_SIZES[];
 extern const char* const STR_VTRAINERMODES[];
+//check this
 extern const char* const STR_MODULE_PROTOCOLS[];
 extern const char* const STR_R9M_REGION[];
 extern const char* const STR_R9M_FCC_POWER_VALUES[];

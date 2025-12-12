@@ -28,6 +28,7 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+//check this
 CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
                                      uint8_t moduleIdx) :
     Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx]), moduleIdx(moduleIdx)

@@ -1086,10 +1086,13 @@ bool isExternalModuleAvailable(int moduleType)
 }
 #endif
 
-bool isRfProtocolAvailable(int protocol)
+bool isRfProtocolAvailable(int protocol) //check this usage
 {
 #if defined(CROSSFIRE) && defined(HARDWARE_EXTERNAL_MODULE)
   if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE) {
+    return false;
+  }
+  if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_MILELRS) {
     return false;
   }
 #endif
