@@ -43,7 +43,7 @@ struct convert<WidgetsContainerPersistentData<N,O> > {
   {
     Node node;
     for (int i=0; i<N; i++) {
-      if (strlen(rhs.zones[i].widgetName) > 0) {
+      if (!rhs.zones[i].widgetName.empty()) {
         node["zones"][std::to_string(i)] = rhs.zones[i];
       }
     }
