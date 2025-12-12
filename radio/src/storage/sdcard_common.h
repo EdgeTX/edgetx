@@ -63,7 +63,4 @@ bool storageReadRadioSettings(bool checks);
 const char * loadRadioSettings();
 const char * writeGeneralSettings();
 
-const char * loadRadioSettings(const char * path);
-const char * loadRadioSettings();
-
 void checkModelIdUnique(uint8_t index, uint8_t module);

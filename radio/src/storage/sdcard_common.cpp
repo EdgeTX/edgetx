@@ -222,6 +222,8 @@ void storageReadAll()
 {
   TRACE("storageReadAll");
 
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
+
 #if defined(STORAGE_MODELSLIST)
   // Wipe models list in case
   // it's being reloaded after USB connection
