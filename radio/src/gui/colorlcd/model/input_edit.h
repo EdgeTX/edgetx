@@ -25,14 +25,18 @@
 #include "curve.h"
 #include "choice.h"
 
+struct ExpoData;
+
 class InputEditWindow : public Page
 {
  public:
   InputEditWindow(int8_t input, uint8_t index);
 
-  void previewUpdate() { updatePreview = true; }
-
-  static LAYOUT_ORIENTATION_SCALED(INPUT_EDIT_CURVE_WIDTH, 138, 176)
+#if LANDSCAPE && NARROW_LAYOUT
+  static constexpr coord_t INPUT_EDIT_CURVE_WIDTH = LAYOUT_SCALE(130);
+#else
+  static LAYOUT_ORIENTATION_SCALED(INPUT_EDIT_CURVE_WIDTH, 144, 176)
+#endif
   static LAYOUT_ORIENTATION(INPUT_EDIT_CURVE_HEIGHT, INPUT_EDIT_CURVE_WIDTH, LAYOUT_SCALE(132))
 
  protected:
@@ -47,7 +51,10 @@ class InputEditWindow : public Page
   StaticText * headerSwitchName = nullptr;
 
   void setTitle();
-  void buildBody(Window *window);
+  void buildBody(Window *box, ExpoData* inputData);
+  void buildPreview(Window *box, ExpoData* inputData);
+
+  int16_t getExpo(ExpoData* ed, int16_t val);
 
   void checkEvents() override;
 };
