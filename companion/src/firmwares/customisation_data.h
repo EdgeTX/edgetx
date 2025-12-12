@@ -38,7 +38,7 @@ constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
 constexpr int WIDGET_NAME_LEN         {255};  // TODO: use std::string instead of fixed length char array
 constexpr int MAX_WIDGET_OPTIONS      {50};
-constexpr int MAX_TOPBAR_ZONES        {6};  //  max 4 used for portrait
+constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
 constexpr int MAX_TOPBAR_OPTIONS      {1};
 constexpr int LAYOUT_ID_LEN           {255};  // TODO: use std::string instead of fixed length char array
 
