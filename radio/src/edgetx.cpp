@@ -582,6 +582,34 @@ ls_telemetry_value_t maxTelemValue(source_t channel)
   return 30000;
 }
 
+void calcBacklightValue(int16_t source)
+{
+  getvalue_t raw = getValue(source);
+#if defined(COLORLCD)
+  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+      ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
+#elif defined(OLED_SCREEN)
+  requiredBacklightBright = (raw + 1024) * 254 / 2048;
+#else
+  requiredBacklightBright = (1024 - raw) * 100 / 2048;
+#endif
+}
+
+#define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
+getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
+
+void calcVolumeValue(int16_t source)
+{
+  getvalue_t raw = getValue(source);
+  // only set volume if input changed more than hysteresis
+  if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {
+    requiredSpeakerVolumeRawLast = raw;
+  }
+  requiredSpeakerVolume =
+      ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) /
+      2048;
+}
+
 void checkBacklight()
 {
   static uint8_t tmr10ms ;
