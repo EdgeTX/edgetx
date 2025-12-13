@@ -359,7 +359,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_HELLORADIOSKY_V16(board));
 
     case HasSDCard:
-      return IS_STM32(board);
+      return true;
 
     case HasTrainerModuleCPPM:
       return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
