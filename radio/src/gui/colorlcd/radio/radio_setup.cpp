@@ -438,7 +438,7 @@ class BacklightPage : public SubPage
         });
 
     // Backlight ON bright
-    backlightOnBright = setupLine(STR_BLONBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_BLONBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
           backlightOnSlider = new Slider(
               parent, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
               [=]() -> int32_t {
@@ -459,7 +459,7 @@ class BacklightPage : public SubPage
         });
 
     // Backlight OFF bright
-    backlightOffBright = setupLine(STR_BLOFFBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_BLOFFBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
           backlightOffSlider = new Slider(
               parent, lv_pct(50), BACKLIGHT_LEVEL_MIN,
               BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
@@ -497,38 +497,18 @@ class BacklightPage : public SubPage
 
  protected:
   Window* backlightTimeout = nullptr;
-  Window* backlightOnBright = nullptr;
-  Window* backlightOffBright = nullptr;
   Slider* backlightOffSlider = nullptr;
   Slider* backlightOnSlider = nullptr;
 
   void updateBacklightControls()
   {
-    switch (g_eeGeneral.backlightMode) {
-      case e_backlight_mode_off:
-        backlightTimeout->hide();
-        backlightOnBright->hide();
-        backlightOffBright->show();
-        break;
-      case e_backlight_mode_keys:
-      case e_backlight_mode_sticks:
-      case e_backlight_mode_all:
-      default: {
-        backlightTimeout->show();
-        backlightOnBright->show();
-        backlightOffBright->show();
-        int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-        if (onBright < g_eeGeneral.blOffBright)
-          g_eeGeneral.backlightBright =
-              BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
-        break;
-      }
-      case e_backlight_mode_on:
-        backlightTimeout->hide();
-        backlightOnBright->show();
-        backlightOffBright->hide();
-        break;
-    }
+    int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+    if (onBright < g_eeGeneral.blOffBright)
+      g_eeGeneral.backlightBright =
+          BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+
+    backlightTimeout->show(g_eeGeneral.backlightMode != e_backlight_mode_on);
+
     resetBacklightTimeout();
   }
 };
