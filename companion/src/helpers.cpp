@@ -299,34 +299,49 @@ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsign
   field = (field & ~fieldmask) | (value << (numbits * index + offset));
 }
 
-// return index of 'none' ie zero or first positive data entry in potentially an asymetrical list
+// return index of 'NONE' ie zero or first positive data entry
+// assumes list sequence of [negative] [NONE] positive values
 int Helpers::getFirstPosValueIndex(QComboBox * cbo)
 {
   const int cnt = cbo->count();
+
   if (cnt == 0)
     return -1;
 
-  const int idx = cnt / 2;
+  // no negative values so use 1st entry
+  if (cbo->itemData(0).toInt() >= 0)
+    return 0;
+
+  // no positve values exception NONE so use last entry (safety net)
+  if (cbo->itemData(cnt - 1).toInt() <= 0)
+    return cnt - 1;
+
+  // start search from mid point with positive bias
+  const int idx = (cnt / 2) + 1;
   const int val = cbo->itemData(idx).toInt();
 
   if (val == 0)
     return idx;
 
+  // cannot assume the list has an equal number of +/- values
+  // therefore walk in either direction based on mid point value
   const int step = val > 0 ? -1 : 1;
 
-  for (int i = idx + step; i >= 0 && i < cbo->count(); i += step) {
-    if (cbo->findData(i) == 0)
+  for (int i = idx + step; i >= 0 && i < cnt; i += step) {
+    if (cbo->findData(i) == 0) {
       return i;
-    else if (step < 0 && cbo->itemData(i).toInt() < 0) {
-      if (i++ < cbo->count())
-        return i++;
-      else
-        return -1;
+    } else if (step < 0 && cbo->itemData(i).toInt() < 0) {
+      if (i + 1 < cnt) {
+        return i + 1;
+      } else {
+        return i;
+      }
+    } else if (step > 0 && cbo->itemData(i).toInt() >= 0) {
+      return i;
     }
-    else if (step > 0 && cbo->itemData(i).toInt() > 0)
-      return i;
   }
 
+  // just in case
   return -1;
 }
 
