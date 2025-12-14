@@ -145,48 +145,130 @@ void ModelData::clearMixes()
 
 void ModelData::clear()
 {
-  memset(reinterpret_cast<void *>(this), 0, sizeof(ModelData));
+  // IMPORTANT: DO NOT USE
+  // memset(reinterpret_cast<void *>(this), 0, sizeof(ModelData));
+  // as struct contains complex data types eg std::string
+
+  memset(&semver, 0, sizeof(semver));
+  used = false;
+  memset(&name, 0, sizeof(name));
+  memset(&filename, 0, sizeof(filename));
+  memset(&labels, 0, sizeof(labels));
   modelIndex = -1;  // an invalid index, this is managed by the TreeView data model
-  moduleData[0].protocol = PULSES_OFF;
-  moduleData[1].protocol = PULSES_OFF;
-  moduleData[0].channelsCount = 8;
-  moduleData[1].channelsStart = 0;
-  moduleData[1].channelsCount = 8;
-  moduleData[0].ppm.delay = 300;
-  moduleData[1].ppm.delay = 300;
-  moduleData[2].ppm.delay = 300;  //Trainer PPM
-  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+  modelUpdated = false;
+  modelErrors = false;
+  noGlobalFunctions = false;
+  thrTrim = false;
+  trimInc = 0;
+  trimsDisplay = 0;
+  disableThrottleWarning = false;
+  enableCustomThrottleWarning = false;
+  customThrottleWarningPosition = 0;
+  jitterFilter = 0;
+  beepANACenter = 0;
+  extendedLimits = false;
+  extendedTrims = false;
+  throttleReversed = false;
+  checklistInteractive = false;
+  memset(&inputNames, 0, sizeof(inputNames));
+  thrTraceSrc = 0;
+  switchWarningStates = 0;
+  thrTrimSwitch = 0;
+  potsWarningMode = 0;
+  mavlink.clear();
+  telemetryProtocol = 0;
+  frsky.clear();
+  rssiSource = 0;
+  rssiAlarms.clear();
+  showInstanceIds = false;
+  memset(&bitmap, 0, sizeof(bitmap));
+  trainerMode = TRAINER_MODE_OFF;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    potsWarnEnabled[i] = false;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    potsWarnPosition[i] = 0;
+
+  displayChecklist = false;
+
+  for (int i = 0; i < CPN_MAX_MODULES + 1; i++) // + 1 Trainer
+    moduleData[i].clear();
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++)
     flightModeData[i].clear(i);
-  }
-  for (int i = 0; i < CPN_MAX_GVARS; i++) {
+
+  for (int i = 0; i < CPN_MAX_GVARS; i++)
     gvarData[i].clear();
-  }
+
   clearInputs();
   clearMixes();
+
   for (int i = 0; i < CPN_MAX_CHNOUT; i++)
     limitData[i].clear();
+
   for (int i = 0; i < CPN_MAX_STICKS; i++)
     expoData[i].clear();
+
   for (int i = 0; i < CPN_MAX_LOGICAL_SWITCHES; i++)
     logicalSw[i].clear();
+
   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++)
     customFn[i].clear();
+
   for (int i = 0; i < CPN_MAX_CURVES; i++)
     curves[i].clear();
+
   for (int i = 0; i < CPN_MAX_TIMERS; i++)
     timers[i].clear();
+
   swashRingData.clear();
   frsky.clear();
   rssiAlarms.clear();
+
   for (unsigned i = 0; i < CPN_MAX_SENSORS; i++)
     sensorData[i].clear();
 
-  trainerMode = TRAINER_MODE_OFF;
+  toplcdTimer = 0;
 
   const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
   RadioLayout::init(layoutId, customScreens);
 
+  TopBarPersistentData topBarData;  // TODO Init
+
+  for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
+    topbarWidgetWidth[i] = 0;
+
+  view = 0;
+  memset(&registrationId, 0, sizeof(registrationId));
   hatsMode = GeneralSettings::HATSMODE_GLOBAL;
+
+  radioThemesDisabled = 0;
+  radioGFDisabled = 0;
+  radioTrainerDisabled = 0;
+  modelHeliDisabled = 0;
+  modelFMDisabled = 0;
+  modelCurvesDisabled = 0;
+  modelGVDisabled = 0;
+  modelLSDisabled = 0;
+  modelSFDisabled = 0;
+  modelCustomScriptsDisabled = 0;
+  modelTelemetryDisabled = 0;
+
+  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++)
+    customSwitches[i].clear();
+
+  for (int i = 0; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i++)
+    cfsGroupOn[i] = 0;
+
+  usbJoystickExtMode = 0;
+  usbJoystickIfMode = 0;
+  usbJoystickCircularCut = 0;
+
+  for (int i = 0; i < CPN_USBJ_MAX_JOYSTICK_CHANNELS; i++)
+    usbJoystickCh[i].clear();
+
+  checklistData.clear();
 }
 
 bool ModelData::isEmpty() const

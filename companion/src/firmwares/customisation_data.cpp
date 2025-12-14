@@ -127,7 +127,24 @@ bool RadioLayout::CustomScreenData::isEmpty() const
 void RadioLayout::CustomScreens::clear()
 {
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-    customScreenData[i] = CustomScreenData();
+    CustomScreenData &csd = customScreenData[i];
+    customScreenData[i].layoutId = "";
+
+    for (int j = 0; j < MAX_LAYOUT_ZONES; j++) {
+      ZonePersistentData &zpd = csd.layoutPersistentData.zones[j];
+      zpd.widgetName.clear();
+
+      for (int k = 0; k < MAX_WIDGET_OPTIONS; k++) {
+        zpd.widgetData.options[k].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+        setZoneOptionValue(zpd.widgetData.options[k].value, (bool) false);
+      }
+    }
+
+    for (int j = 0; j < MAX_LAYOUT_OPTIONS; j++) {
+      ZoneOptionValueTyped &zovt = csd.layoutPersistentData.options[j];
+      zovt.type = zoneValueEnumFromType(ZoneOption::Type::Bool);
+      setZoneOptionValue(zovt.value, (bool) false);
+    }
   }
 }
 

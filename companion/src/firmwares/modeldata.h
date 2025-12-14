@@ -105,9 +105,11 @@ class USBJoystickChData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(USBJoystickChData)); }
 };
 
-class customSwitch {
+#define CPN_MAX_CUSTOMSWITCH_GROUPS 4
+
+class CustomSwitchData {
   public:
-    customSwitch() { clear(); }
+    CustomSwitchData() { clear(); }
     Board::SwitchType type;
     unsigned int group;
     unsigned int start;
@@ -117,7 +119,7 @@ class customSwitch {
     unsigned int offColorLuaOverride;
     RGBLedColor onColor;
     RGBLedColor offColor;
-    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(customSwitch)); }
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(CustomSwitchData)); }
 };
 
 class ModelData {
@@ -222,8 +224,8 @@ class ModelData {
     };
 
     // Function switches
-    customSwitch customSwitches[CPN_MAX_SWITCHES_FUNCTION];
-    unsigned int cfsGroupOn[4];
+    CustomSwitchData customSwitches[CPN_MAX_SWITCHES_FUNCTION];
+    unsigned int cfsGroupOn[CPN_MAX_CUSTOMSWITCH_GROUPS];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;

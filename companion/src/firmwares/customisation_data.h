@@ -151,7 +151,6 @@ class RadioLayout
       std::string layoutId;
       LayoutPersistentData layoutPersistentData;
 
-      CustomScreenData() {}
       bool isEmpty() const;
     };
 

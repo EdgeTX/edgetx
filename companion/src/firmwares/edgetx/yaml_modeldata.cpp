@@ -984,12 +984,12 @@ struct convert<FrSkyScreenData> {
 };
 
 template <>
-struct convert<customSwitch> {
-  static Node encode(const customSwitch& rhs);
-  static bool decode(const Node& node, customSwitch& rhs);
+struct convert<CustomSwitchData> {
+  static Node encode(const CustomSwitchData& rhs);
+  static bool decode(const Node& node, CustomSwitchData& rhs);
 };
 
-Node convert<customSwitch>::encode(const customSwitch& rhs)
+Node convert<CustomSwitchData>::encode(const CustomSwitchData& rhs)
 {
   Node node;
   node["type"] = cfsSwitchConfig << rhs.type;
@@ -1006,7 +1006,7 @@ Node convert<customSwitch>::encode(const customSwitch& rhs)
   return node;
 }
 
-bool convert<customSwitch>::decode(const Node& node, customSwitch& rhs)
+bool convert<CustomSwitchData>::decode(const Node& node, CustomSwitchData& rhs)
 {
   if (!node.IsMap()) return false;
 
@@ -1271,7 +1271,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["customSwitches"][tag] = rhs.customSwitches[i];
     }
 
-    for (int i = 1; i < 4; i += 1) {
+    for (int i = 1; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
       node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
     }
   }
@@ -1559,7 +1559,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
       rhs.customSwitches[i].group = v & 3;
       v >>= 2;
     }
-    for (int i = 0; i < 4; i += 1) {
+    for (int i = 0; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
       rhs.cfsGroupOn[i] = v & 1;
       v >>= 1;
     }
@@ -1610,7 +1610,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     }
   }
   if (node["cfsGroupOn"]) {
-    for (int i = 1; i < 4; i += 1) {
+    for (int i = 1; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
       if (node["cfsGroupOn"][std::to_string(i)]) {
         node["cfsGroupOn"][std::to_string(i)]["v"] >> rhs.cfsGroupOn[i];
       }
