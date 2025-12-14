@@ -33,14 +33,11 @@
 
 constexpr int MAX_CUSTOM_SCREENS      {10};
 constexpr int MAX_THEME_OPTIONS       {5};
-constexpr int LEN_ZONE_OPTION_STRING  {255};  // TODO: use std::string instead of fixed length char array
 constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
-constexpr int WIDGET_NAME_LEN         {255};  // TODO: use std::string instead of fixed length char array
 constexpr int MAX_WIDGET_OPTIONS      {50};
-constexpr int MAX_TOPBAR_ZONES        {6};  //  max 4 used for portrait
+constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
 constexpr int MAX_TOPBAR_OPTIONS      {1};
-constexpr int LAYOUT_ID_LEN           {255};  // TODO: use std::string instead of fixed length char array
 
 // Common 'ZoneOptionValue's among all layouts
 enum {
@@ -58,11 +55,12 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   unsigned int unsignedValue;
   int signedValue;
   unsigned int boolValue;
-  char stringValue[LEN_ZONE_OPTION_STRING + 1];
+  std::string stringValue;
   RawSource sourceValue;
   unsigned int colorValue;
 
   ZoneOptionValue();
+  bool isEmpty() const;
 };
 
 enum ZoneOptionValueEnum {
@@ -119,14 +117,14 @@ struct ZoneOptionValueTyped
 struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS];
 
-  WidgetPersistentData();
+  WidgetPersistentData() {}
 };
 
 struct ZonePersistentData {
-  char widgetName[WIDGET_NAME_LEN + 1];
+  std::string widgetName;
   WidgetPersistentData widgetData;
 
-  ZonePersistentData();
+  ZonePersistentData() {}
   bool isEmpty() const;
 };
 
@@ -135,9 +133,7 @@ struct WidgetsContainerPersistentData {
   ZonePersistentData   zones[N];
   ZoneOptionValueTyped options[O];
 
-  WidgetsContainerPersistentData() {
-    memset((void*)this, 0, sizeof(WidgetsContainerPersistentData));
-  }
+  WidgetsContainerPersistentData() {}
 };
 
 typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
@@ -152,10 +148,10 @@ class RadioLayout
 
   public:
     struct CustomScreenData {
-      char layoutId[LAYOUT_ID_LEN + 1];
+      std::string layoutId;
       LayoutPersistentData layoutPersistentData;
 
-      CustomScreenData();
+      CustomScreenData() {}
       bool isEmpty() const;
     };
 

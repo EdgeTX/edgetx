@@ -29,22 +29,23 @@
 
 ZoneOptionValue::ZoneOptionValue()
 {
-  memset((void*)this, 0, sizeof(ZoneOptionValue));
+  unsignedValue = 0;
+  signedValue = 0;
+  boolValue = 0;
+  stringValue.clear();
+  sourceValue.clear();
+  colorValue = 0;
+}
+
+bool ZoneOptionValue::isEmpty() const
+{
+  return unsignedValue == 0 && signedValue == 0 && boolValue == 0 && colorValue == 0 &&
+         stringValue.empty() && sourceValue.toValue() == 0;
 }
 
 ZoneOptionValueTyped::ZoneOptionValueTyped()
 {
-  memset((void*)this, 0, sizeof(ZoneOptionValueTyped));
-}
-
-WidgetPersistentData::WidgetPersistentData()
-{
-  memset((void*)this, 0, sizeof(WidgetPersistentData));
-}
-
-ZonePersistentData::ZonePersistentData()
-{
-  memset((void*)this, 0, sizeof(ZonePersistentData));
+  type = ZOV_Unsigned;
 }
 
 inline void setZoneOptionValue(ZoneOptionValue& zov, bool value)
@@ -57,9 +58,9 @@ inline void setZoneOptionValue(ZoneOptionValue& zov, int value)
   zov.signedValue = value;
 }
 
-inline void setZoneOptionValue(ZoneOptionValue& zov, char value)
+inline void setZoneOptionValue(ZoneOptionValue& zov, const char* value)
 {
-  memset(&zov.stringValue, value, LEN_ZONE_OPTION_STRING);
+  zov.stringValue = value;
 }
 
 inline void setZoneOptionValue(ZoneOptionValue& zov, unsigned int value)
@@ -110,22 +111,17 @@ static const ZoneOptionValueTyped zero_widget_option = {};
 
 bool ZoneOptionValueTyped::isEmpty() const
 {
-  return !memcmp((void*)this, &zero_widget_option, sizeof(zero_widget_option));
+  return type == ZOV_Unsigned && value.isEmpty();
 }
 
 bool ZonePersistentData::isEmpty() const
 {
-  return strlen(widgetName) == 0;
-}
-
-RadioLayout::CustomScreenData::CustomScreenData()
-{
-  memset((void*)this, 0, sizeof(RadioLayout::CustomScreenData));
+  return widgetName.empty();
 }
 
 bool RadioLayout::CustomScreenData::isEmpty() const
 {
-  return strlen(layoutId) == 0;
+  return layoutId.empty();
 }
 
 void RadioLayout::CustomScreens::clear()
@@ -141,7 +137,7 @@ void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)
 
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
     if (i == 0)
-      strncpy(customScreens.customScreenData[i].layoutId, layoutId, LAYOUT_ID_LEN);
+      customScreens.customScreenData[i].layoutId = layoutId;
 
     LayoutPersistentData& persistentData =
         customScreens.customScreenData[i].layoutPersistentData;

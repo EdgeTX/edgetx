@@ -719,7 +719,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   }
   if (node["qmFavorites"]) {
     for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
-      node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
+      if (node["qmFavorites"][std::to_string(i)])
+        node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
   }
 
   //  override critical settings after import
