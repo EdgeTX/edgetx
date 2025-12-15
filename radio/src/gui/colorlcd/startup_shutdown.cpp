@@ -45,6 +45,10 @@ const uint8_t __bmp_splash_logo[]{
 #include "splash_logo.lbm"
 };
 
+const uint8_t __bmp_splash_logo_egg[]{
+#include "splash_logo_egg.lbm"
+};
+
 static Window* splashScreen = nullptr;
 
 void drawSplash()
@@ -56,12 +60,22 @@ void drawSplash()
 
   etx_solid_bg(splashScreen->getLvObj(), COLOR_BLACK_INDEX);
 
+  // try splash from SD card first
   auto bg = new StaticImage(splashScreen, {0, 0, LCD_W, LCD_H},
                             BITMAPS_PATH "/" SPLASH_FILE);
   bg->show(bg->hasImage());
 
+  // otherwise load from FLASH
   if (!bg->hasImage()) {
-    LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo;
+    struct gtm t;
+    gettime(&t);
+    // zero count
+    if (t.tm_mon == 11 && t.tm_mday >= 24 && t.tm_mday <= 26) {
+      LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo_egg;
+    } else {
+      LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo;
+    }
+
     coord_t x = (LANDSCAPE ? LCD_W / 3 : LCD_W / 2) - logo->width / 2;
     coord_t y = (LANDSCAPE ? LCD_H / 2 : LCD_H * 2 / 5) - logo->height / 2;
     new StaticLZ4Image(splashScreen, x, y, logo);

@@ -3,6 +3,7 @@ set(BITMAP_LZ4_ARGS ${BITMAP_SIZE_ARGS} --lz4)
 set(MASK_LZ4_ARGS ${BITMAP_SIZE_ARGS} --lz4)
 
 add_bitmaps_target(bm800_splash_logo "${RADIO_SRC_DIR}/bitmaps/800x480/splash_logo.png" "4/4/4/4" "${BITMAP_LZ4_ARGS}")
+add_bitmaps_target(bm800_splash_logo_egg "${RADIO_SRC_DIR}/bitmaps/800x480/splash_logo_egg.png" "4/4/4/4" "${BITMAP_LZ4_ARGS}")
 add_bitmaps_target(bm800_masks "${RADIO_SRC_DIR}/bitmaps/800x480/mask_*.png" 8bits "${MASK_LZ4_ARGS}")
 add_bitmaps_target(bm800_slider_masks "${RADIO_SRC_DIR}/bitmaps/800x480/slider/*.png" 8bits "${MASK_LZ4_ARGS}")
 add_bitmaps_target(bm800_volume_masks ${RADIO_SRC_DIR}/bitmaps/800x480/volume/*.png 8bits "${MASK_LZ4_ARGS}")
