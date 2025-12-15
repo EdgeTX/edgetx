@@ -2349,6 +2349,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   {
     if (prevBtn) prevBtn->enable(prevActive());
     if (nextBtn) nextBtn->enable(nextActive());
+    NavWindow::checkEvents();
   }
 };
 
