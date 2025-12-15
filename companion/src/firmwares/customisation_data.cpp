@@ -29,12 +29,7 @@
 
 ZoneOptionValue::ZoneOptionValue()
 {
-  unsignedValue = 0;
-  signedValue = 0;
-  boolValue = 0;
-  stringValue.clear();
-  sourceValue.clear();
-  colorValue = 0;
+  clear();
 }
 
 bool ZoneOptionValue::isEmpty() const
@@ -43,9 +38,14 @@ bool ZoneOptionValue::isEmpty() const
          stringValue.empty() && sourceValue.toValue() == 0;
 }
 
-ZoneOptionValueTyped::ZoneOptionValueTyped()
+void ZoneOptionValue::clear()
 {
-  type = ZOV_Unsigned;
+  unsignedValue = 0;
+  signedValue = 0;
+  boolValue = 0;
+  stringValue.clear();
+  sourceValue.clear();
+  colorValue = 0;
 }
 
 inline void setZoneOptionValue(ZoneOptionValue& zov, bool value)
@@ -107,45 +107,54 @@ inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
   }
 }
 
-static const ZoneOptionValueTyped zero_widget_option = {};
+ZoneOptionValueTyped::ZoneOptionValueTyped()
+{
+  clear();
+}
 
 bool ZoneOptionValueTyped::isEmpty() const
 {
   return type == ZOV_Unsigned && value.isEmpty();
+}
+ 
+void ZoneOptionValueTyped::clear()
+{
+  type = ZOV_Unsigned;
+  value.clear();
+}
+
+void WidgetPersistentData::clear()
+{
+  for (int i = 0; i < MAX_WIDGET_OPTIONS; i += 1)
+    options[i].clear();
 }
 
 bool ZonePersistentData::isEmpty() const
 {
   return widgetName.empty();
 }
+ 
+void ZonePersistentData::clear()
+{
+  widgetName.clear();
+  widgetData.clear();
+}
 
 bool RadioLayout::CustomScreenData::isEmpty() const
 {
   return layoutId.empty();
 }
+ 
+void RadioLayout::CustomScreenData::clear()
+{
+  layoutId.clear();
+  layoutPersistentData.clear();
+}
 
 void RadioLayout::CustomScreens::clear()
 {
-  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-    CustomScreenData &csd = customScreenData[i];
-    customScreenData[i].layoutId = "";
-
-    for (int j = 0; j < MAX_LAYOUT_ZONES; j++) {
-      ZonePersistentData &zpd = csd.layoutPersistentData.zones[j];
-      zpd.widgetName.clear();
-
-      for (int k = 0; k < MAX_WIDGET_OPTIONS; k++) {
-        zpd.widgetData.options[k].type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-        setZoneOptionValue(zpd.widgetData.options[k].value, (bool) false);
-      }
-    }
-
-    for (int j = 0; j < MAX_LAYOUT_OPTIONS; j++) {
-      ZoneOptionValueTyped &zovt = csd.layoutPersistentData.options[j];
-      zovt.type = zoneValueEnumFromType(ZoneOption::Type::Bool);
-      setZoneOptionValue(zovt.value, (bool) false);
-    }
-  }
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++)
+    customScreenData[i].clear();
 }
 
 void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)

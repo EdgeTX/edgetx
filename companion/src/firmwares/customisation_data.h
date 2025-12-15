@@ -60,6 +60,7 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   unsigned int colorValue;
 
   ZoneOptionValue();
+  void clear();
   bool isEmpty() const;
 };
 
@@ -111,6 +112,7 @@ struct ZoneOptionValueTyped
   ZoneOptionValue     value;
 
   ZoneOptionValueTyped();
+  void clear();
   bool isEmpty() const;
 };
 
@@ -118,6 +120,7 @@ struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS];
 
   WidgetPersistentData() {}
+  void clear();
 };
 
 struct ZonePersistentData {
@@ -125,6 +128,7 @@ struct ZonePersistentData {
   WidgetPersistentData widgetData;
 
   ZonePersistentData() {}
+  void clear();
   bool isEmpty() const;
 };
 
@@ -134,6 +138,12 @@ struct WidgetsContainerPersistentData {
   ZoneOptionValueTyped options[O];
 
   WidgetsContainerPersistentData() {}
+  void clear() {
+    for (int i = 0; i < N; i += 1)
+      zones[i].clear();
+    for (int i = 0; i < O; i += 1)
+      options[i].clear();
+  }
 };
 
 typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
@@ -152,6 +162,7 @@ class RadioLayout
       LayoutPersistentData layoutPersistentData;
 
       bool isEmpty() const;
+      void clear();
     };
 
     struct CustomScreens {

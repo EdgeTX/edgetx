@@ -207,9 +207,6 @@ void ModelData::clear()
   for (int i = 0; i < CPN_MAX_CHNOUT; i++)
     limitData[i].clear();
 
-  for (int i = 0; i < CPN_MAX_STICKS; i++)
-    expoData[i].clear();
-
   for (int i = 0; i < CPN_MAX_LOGICAL_SWITCHES; i++)
     logicalSw[i].clear();
 
@@ -234,7 +231,7 @@ void ModelData::clear()
   const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
   RadioLayout::init(layoutId, customScreens);
 
-  TopBarPersistentData topBarData;  // TODO Init
+  topBarData.clear();
 
   for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
     topbarWidgetWidth[i] = 0;
@@ -269,6 +266,10 @@ void ModelData::clear()
     usbJoystickCh[i].clear();
 
   checklistData.clear();
+
+  if (updRefList) delete updRefList;
+  updRefList = nullptr;
+  memset(&updRefInfo, 0, sizeof(updRefInfo));
 }
 
 bool ModelData::isEmpty() const
