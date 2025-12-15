@@ -183,7 +183,7 @@ class ModelData {
 
     char bitmap[CPN_MAX_BITMAP_LEN + 1];
 
-    unsigned int trainerMode;  // TrainerMode
+    unsigned int trainerMode;
 
     ModuleData moduleData[CPN_MAX_MODULES + 1/*trainer*/];
 

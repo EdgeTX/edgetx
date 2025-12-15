@@ -171,5 +171,5 @@ class RadioLayout
       void clear();
     };
 
-    static void init(const char * layoutId, CustomScreens & customScreens);
+    static void init(const std::string layoutId, CustomScreens & customScreens);
 };

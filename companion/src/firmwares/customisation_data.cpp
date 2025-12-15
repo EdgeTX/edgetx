@@ -116,7 +116,7 @@ bool ZoneOptionValueTyped::isEmpty() const
 {
   return type == ZOV_Unsigned && value.isEmpty();
 }
- 
+
 void ZoneOptionValueTyped::clear()
 {
   type = ZOV_Unsigned;
@@ -133,7 +133,7 @@ bool ZonePersistentData::isEmpty() const
 {
   return widgetName.empty();
 }
- 
+
 void ZonePersistentData::clear()
 {
   widgetName.clear();
@@ -144,7 +144,7 @@ bool RadioLayout::CustomScreenData::isEmpty() const
 {
   return layoutId.empty();
 }
- 
+
 void RadioLayout::CustomScreenData::clear()
 {
   layoutId.clear();
@@ -157,7 +157,7 @@ void RadioLayout::CustomScreens::clear()
     customScreenData[i].clear();
 }
 
-void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)
+void RadioLayout::init(const std::string layoutId, CustomScreens& customScreens)
 {
   customScreens.clear();
 

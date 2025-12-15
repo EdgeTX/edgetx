@@ -1254,7 +1254,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     if (topbarData && topbarData.IsMap()) {
       node["topbarData"] = topbarData;
     }
-    for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
       if (rhs.topbarWidgetWidth[i] > 0)
         node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
     node["view"] = rhs.view;
@@ -1265,14 +1265,17 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
   if (funcSwCnt) {
-    for (int i = 0; i < funcSwCnt; i += 1) {
+    for (int i = 0; i < funcSwCnt; i++) {
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
       node["customSwitches"][tag] = rhs.customSwitches[i];
     }
 
-    for (int i = 1; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
-      node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
+    int funcSwGrps = Boards::getCapability(board, Board::FunctionSwitchGroups);
+    if (funcSwGrps) {
+      for (int i = 1; i <= funcSwGrps; i++) {
+        node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
+      }
     }
   }
 
@@ -1601,8 +1604,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
       }
     }
   }
-  int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
   if (node["customSwitches"]) {
+    int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
     for (int i = 0; i < funcSwCnt; i += 1) {
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();

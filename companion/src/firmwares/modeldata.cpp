@@ -192,7 +192,7 @@ void ModelData::clear()
 
   displayChecklist = false;
 
-  for (int i = 0; i < CPN_MAX_MODULES + 1; i++) // + 1 Trainer
+  for (int i = 0; i < CPN_MAX_MODULES + 1/*Trainer*/; i++) // + 1
     moduleData[i].clear();
 
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++)
@@ -227,10 +227,7 @@ void ModelData::clear()
     sensorData[i].clear();
 
   toplcdTimer = 0;
-
-  const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
-  RadioLayout::init(layoutId, customScreens);
-
+  RadioLayout::init("Layout2P1", customScreens);
   topBarData.clear();
 
   for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
@@ -267,7 +264,9 @@ void ModelData::clear()
 
   checklistData.clear();
 
-  if (updRefList) delete updRefList;
+  if (updRefList)
+    delete updRefList;
+
   updRefList = nullptr;
   memset(&updRefInfo, 0, sizeof(updRefInfo));
 }
@@ -325,6 +324,7 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     customSwitches[i].onColor.setColor(255, 255, 255);
     customSwitches[i].offColor.setColor(0, 0, 0);
   }
+
   cfsGroupOn[1] = 1;
 }
 
@@ -332,7 +332,7 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
 {
   clear();
   used = true;
-  sprintf(name, "MODEL%02d", id+1);
+  sprintf(name, "MODEL%02d", id + 1);
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
   }
