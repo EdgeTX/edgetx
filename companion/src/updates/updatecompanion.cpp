@@ -171,7 +171,7 @@ const QString UpdateCompanion::releaseCurrent()
 #if defined(VERSION_TAG)
   params()->releaseCurrent = QString("EdgeTX \"%1\" %2").arg(CODENAME).arg(VERSION_TAG);
 #else
-  params()->releaseCurrent = QString("EdgeTX v%1.%2.%3-%4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_REVISION).arg(VERSION_SUFFIX);
+  params()->releaseCurrent = QString("EdgeTX v%1.%2.%3%4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_REVISION).arg(VERSION_SUFFIX);
 #endif
 
   return params()->releaseCurrent;
