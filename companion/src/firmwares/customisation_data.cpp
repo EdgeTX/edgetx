@@ -32,6 +32,27 @@ ZoneOptionValue::ZoneOptionValue()
   clear();
 }
 
+ZoneOptionValue::ZoneOptionValue(const ZoneOptionValue & src)
+{
+  copy(src);
+}
+
+ZoneOptionValue & ZoneOptionValue::operator=(const ZoneOptionValue & src)
+{
+  copy(src);
+  return *this;
+}
+
+void ZoneOptionValue::copy(const ZoneOptionValue & src)
+{
+  unsignedValue = src.unsignedValue;
+  signedValue = src.signedValue;
+  boolValue = src.boolValue;
+  stringValue = src.stringValue;
+  sourceValue = src.sourceValue;
+  colorValue = src.colorValue;
+}
+
 bool ZoneOptionValue::isEmpty() const
 {
   return unsignedValue == 0 && signedValue == 0 && boolValue == 0 && colorValue == 0 &&
@@ -129,6 +150,23 @@ void WidgetPersistentData::clear()
     options[i].clear();
 }
 
+ZonePersistentData::ZonePersistentData(const ZonePersistentData & src)
+{
+  copy(src);
+}
+
+ZonePersistentData & ZonePersistentData::operator=(const ZonePersistentData & src)
+{
+  copy(src);
+  return *this;
+}
+
+void ZonePersistentData::copy(const ZonePersistentData & src)
+{
+  widgetName = src.widgetName;
+  widgetData = src.widgetData;
+}
+
 bool ZonePersistentData::isEmpty() const
 {
   return widgetName.empty();
@@ -140,6 +178,23 @@ void ZonePersistentData::clear()
   widgetData.clear();
 }
 
+RadioLayout::CustomScreenData::CustomScreenData(const RadioLayout::CustomScreenData & src)
+{
+  copy(src);
+}
+
+RadioLayout::CustomScreenData & RadioLayout::CustomScreenData::operator=(const RadioLayout::CustomScreenData & src)
+{
+  copy(src);
+  return *this;
+}
+
+void RadioLayout::CustomScreenData::copy(const RadioLayout::CustomScreenData & src)
+{
+  layoutId = src.layoutId;
+  layoutPersistentData = src.layoutPersistentData;
+}
+
 bool RadioLayout::CustomScreenData::isEmpty() const
 {
   return layoutId.empty();
@@ -149,6 +204,23 @@ void RadioLayout::CustomScreenData::clear()
 {
   layoutId.clear();
   layoutPersistentData.clear();
+}
+
+RadioLayout::CustomScreens::CustomScreens(const RadioLayout::CustomScreens & src)
+{
+  copy(src);
+}
+
+RadioLayout::CustomScreens & RadioLayout::CustomScreens::operator=(const RadioLayout::CustomScreens & src)
+{
+  copy(src);
+  return *this;
+}
+
+void RadioLayout::CustomScreens::copy(const RadioLayout::CustomScreens & src)
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++)
+    customScreenData[i] = src.customScreenData[i];
 }
 
 void RadioLayout::CustomScreens::clear()

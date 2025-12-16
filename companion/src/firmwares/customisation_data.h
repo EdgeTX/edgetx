@@ -60,7 +60,11 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   unsigned int colorValue;
 
   ZoneOptionValue();
+  ZoneOptionValue(const ZoneOptionValue & src);
+  ZoneOptionValue & operator=(const ZoneOptionValue & src);
+
   void clear();
+  void copy(const ZoneOptionValue & src);
   bool isEmpty() const;
 };
 
@@ -128,7 +132,10 @@ struct ZonePersistentData {
   WidgetPersistentData widgetData;
 
   ZonePersistentData() {}
+  ZonePersistentData(const ZonePersistentData & src);
+  ZonePersistentData & operator=(const ZonePersistentData & src);
   void clear();
+  void copy(const ZonePersistentData & src);
   bool isEmpty() const;
 };
 
@@ -163,14 +170,24 @@ class RadioLayout
       std::string layoutId;
       LayoutPersistentData layoutPersistentData;
 
-      bool isEmpty() const;
+      CustomScreenData() {}
+      CustomScreenData(const CustomScreenData & src);
+      CustomScreenData & operator=(const CustomScreenData & src);
+
       void clear();
+      void copy(const CustomScreenData & src);
+      bool isEmpty() const;
     };
 
     struct CustomScreens {
       CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
 
+      CustomScreens() {}
+      CustomScreens(const CustomScreens & src);
+      CustomScreens & operator=(const CustomScreens & src);
+
       void clear();
+      void copy(const CustomScreens & src);
     };
 
     static void init(const std::string layoutId, CustomScreens & customScreens);
