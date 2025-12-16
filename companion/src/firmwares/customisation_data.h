@@ -139,10 +139,12 @@ struct WidgetsContainerPersistentData {
 
   WidgetsContainerPersistentData() {}
   void clear() {
-    for (int i = 0; i < N; i += 1)
+    for (int i = 0; i < N; i++) {
       zones[i].clear();
-    for (int i = 0; i < O; i += 1)
+    }
+    for (int i = 0; i < O; i++) {
       options[i].clear();
+    }
   }
 };
 

@@ -39,13 +39,140 @@ ModelData::ModelData()
 
 ModelData::ModelData(const ModelData & src)
 {
-  *this = src;
+  copy(src);
 }
 
-ModelData & ModelData::operator = (const ModelData & src)
+ModelData & ModelData::operator=(const ModelData & src)
 {
-  memcpy(reinterpret_cast<void *>(this), &src, sizeof(ModelData));
+  copy(src);
   return *this;
+}
+
+void ModelData::copy(const ModelData & src)
+{
+  memcpy(&semver, &src.semver, sizeof(semver));
+  used = src.used;
+  memcpy(&name, &src.name, sizeof(name));
+  memcpy(&filename, &src.filename, sizeof(filename));
+  memcpy(&labels, &src.labels, sizeof(labels));
+  modelIndex = src.modelIndex;
+  modelUpdated = src.modelUpdated;
+  modelErrors = src.modelErrors;
+  noGlobalFunctions = src.noGlobalFunctions;
+  thrTrim = src.thrTrim;
+  trimInc = src.trimInc;
+  trimsDisplay = src.trimsDisplay;
+  disableThrottleWarning = src.disableThrottleWarning;
+  enableCustomThrottleWarning = src.enableCustomThrottleWarning;
+  customThrottleWarningPosition = src.customThrottleWarningPosition;
+  jitterFilter = src.jitterFilter;
+  beepANACenter = src.beepANACenter;
+  extendedLimits = src.extendedLimits;
+  extendedTrims = src.extendedTrims;
+  throttleReversed = src.throttleReversed;
+  checklistInteractive = src.checklistInteractive;
+  memcpy(&inputNames, &src.inputNames, sizeof(inputNames));
+  thrTraceSrc = src.thrTraceSrc;
+  switchWarningStates = src.switchWarningStates;
+  thrTrimSwitch = src.thrTrimSwitch;
+  potsWarningMode = src.potsWarningMode;
+  mavlink = src.mavlink;
+  telemetryProtocol = src.telemetryProtocol;
+  frsky = src.frsky;
+  rssiSource = src.rssiSource;
+  rssiAlarms = src.rssiAlarms;
+  showInstanceIds = src.showInstanceIds;
+  memcpy(&bitmap, &src.bitmap, sizeof(bitmap));
+  trainerMode = src.trainerMode;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    potsWarnEnabled[i] = src.potsWarnEnabled[i];
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    potsWarnPosition[i] = src.potsWarnPosition[i];
+
+  displayChecklist = src.displayChecklist;
+
+  for (int i = 0; i < CPN_MAX_MODULES + 1/*Trainer*/; i++) // + 1
+    moduleData[i] = src.moduleData[i];
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++)
+    flightModeData[i] = src.flightModeData[i];
+
+  for (int i = 0; i < CPN_MAX_GVARS; i++)
+    gvarData[i] = src.gvarData[i];
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    expoData[i] = src.expoData[i];
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++)
+    mixData[i] = src.mixData[i];
+
+  for (int i = 0; i < CPN_MAX_CHNOUT; i++)
+    limitData[i] = src.limitData[i];
+
+  for (int i = 0; i < CPN_MAX_LOGICAL_SWITCHES; i++)
+    logicalSw[i] = src.logicalSw[i];
+
+  for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++)
+    customFn[i] = src.customFn[i];
+
+  for (int i = 0; i < CPN_MAX_CURVES; i++)
+    curves[i] = src.curves[i];
+
+  for (int i = 0; i < CPN_MAX_TIMERS; i++)
+    timers[i] = src.timers[i];
+
+  swashRingData = src.swashRingData;
+  frsky = src.frsky;
+  rssiAlarms = src.rssiAlarms;
+
+  for (unsigned i = 0; i < CPN_MAX_SENSORS; i++)
+    sensorData[i] = src.sensorData[i];
+
+  toplcdTimer = src.toplcdTimer;
+  customScreens = src.customScreens;
+  topBarData = src.topBarData;
+
+  for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
+    topbarWidgetWidth[i] = src.topbarWidgetWidth[i];
+
+  view = src.view;
+  memcpy(&registrationId, &src.registrationId, sizeof(registrationId));
+  hatsMode = src.hatsMode;
+
+  radioThemesDisabled = src.radioThemesDisabled;
+  radioGFDisabled = src.radioGFDisabled;
+  radioTrainerDisabled = src.radioTrainerDisabled;
+  modelHeliDisabled = src.modelHeliDisabled;
+  modelFMDisabled = src.modelFMDisabled;
+  modelCurvesDisabled = src.modelCurvesDisabled;
+  modelGVDisabled = src.modelGVDisabled;
+  modelLSDisabled = src.modelLSDisabled;
+  modelSFDisabled = src.modelSFDisabled;
+  modelCustomScriptsDisabled = src.modelCustomScriptsDisabled;
+  modelTelemetryDisabled = src.modelTelemetryDisabled;
+
+  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++)
+    customSwitches[i] = src.customSwitches[i];
+
+  for (int i = 0; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i++)
+    cfsGroupOn[i] = src.cfsGroupOn[i];
+
+  usbJoystickExtMode = src.usbJoystickExtMode;
+  usbJoystickIfMode = src.usbJoystickIfMode;
+  usbJoystickCircularCut = src.usbJoystickCircularCut;
+
+  for (int i = 0; i < CPN_USBJ_MAX_JOYSTICK_CHANNELS; i++)
+    usbJoystickCh[i] = src.usbJoystickCh[i];
+
+  checklistData = src.checklistData;
+
+  if (updRefList)
+    delete updRefList;
+
+  updRefList = nullptr;
+  memset(&updRefInfo, 0, sizeof(updRefInfo));
 }
 
 ExpoData * ModelData::insertInput(const int idx)

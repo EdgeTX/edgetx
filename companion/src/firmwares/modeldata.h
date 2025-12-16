@@ -235,7 +235,7 @@ class ModelData {
 
     QByteArray checklistData;
 
-    ModelData & operator = (const ModelData & src);
+    ModelData & operator=(const ModelData & src);
 
     void convert(RadioDataConversionState & cstate);
 
@@ -250,6 +250,7 @@ class ModelData {
     QVector<const MixData *> mixes(int channel) const;
 
     void clear();
+    void copy(const ModelData & src);
     bool isEmpty() const;
     void setDefaultInputs(const GeneralSettings & settings);
     void setDefaultMixes(const GeneralSettings & settings);
