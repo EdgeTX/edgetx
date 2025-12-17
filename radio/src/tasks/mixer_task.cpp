@@ -40,6 +40,8 @@
   #include "flysky_gimbal_driver.h"
 #endif
 
+#include <math.h>
+
 task_handle_t mixerTaskId;
 TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
@@ -52,6 +54,32 @@ static mutex_handle_t mixerMutex;
 // mixerTaskStart() has been called.
 static bool _mixer_started = false;
 static bool _mixer_running = false;
+
+// Reserve time for non mixer activities
+#if defined(STM32H7RS)
+constexpr uint16_t CPU_RESERVE = 150; //uS
+#elif defined(STM32H7)
+constexpr uint16_t CPU_RESERVE = 180; //uS
+#else
+constexpr uint16_t CPU_RESERVE = 300; //uS
+#endif
+
+uint16_t mixerGetMaxFramePeriod()
+{
+#if defined(STM32) && !defined(SIMU)
+  if (usbPlugged()) {
+    if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+      return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
+    } else {
+      return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+    }
+  }
+#endif
+  uint16_t maxPeriod =  ceil((float)(maxMixerDuration + CPU_RESERVE) / 1000) * 1000;
+  //TRACE("rate: %d %d", maxMixerDuration, maxPeriod);
+  // This lmits rate based on actual mixer duration
+  return maxPeriod;
+}
 
 void mixerTaskLock()
 {
