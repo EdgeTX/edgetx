@@ -31,7 +31,6 @@
 
 #include "crossfire.h"
 #include "telemetry/crossfire.h"
-#include "tasks/mixer_task.h"
 
 #define CROSSFIRE_CH_BITS           11
 #define CROSSFIRE_CENTER            0x3E0
@@ -194,9 +193,9 @@ static void crossfireSetupMixerScheduler(uint8_t module)
 {
   ModuleSyncStatus& status = getModuleSyncStatus(module);
   if (status.isValid()) {
-    mixerSchedulerSetPeriod(module, max(status.getAdjustedRefreshRate(), mixerGetMaxFramePeriod()));
+    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
   } else {
-	mixerSchedulerSetPeriod(module, max((uint16_t)CROSSFIRE_PERIOD(module), mixerGetMaxFramePeriod()));
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
   }
 }
 

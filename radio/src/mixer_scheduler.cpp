@@ -26,6 +26,7 @@
 
 #include "dataconstants.h"
 #include <string.h>
+#include "edgetx_helpers.h"
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
@@ -100,7 +101,7 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
     periodUs = MAX_REFRESH_RATE;
   }
 
-  mixerSchedules[moduleIdx].period = periodUs;
+  mixerSchedules[moduleIdx].period = max(periodUs, mixerGetMaxFramePeriod());
 }
 
 uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)
