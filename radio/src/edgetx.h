@@ -318,7 +318,7 @@ bool setTrimValue(uint8_t phase, uint8_t idx, int trim);
 
 void flightReset(uint8_t check=true);
 
-#define DURATION_MS_PREC2(x) ((x)/20)
+#define DURATION_MS_PREC2(x) ((x)/10)
 
 #if defined(THRTRACE)
   #if defined(COLORLCD)
