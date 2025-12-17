@@ -1417,6 +1417,9 @@ void edgeTxInit()
   lcdSetContrast();
 #endif
 
+  currentBacklightBright = g_eeGeneral.getBrightness();
+  BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
+
 #if defined(STARTUP_ANIMATION)
   if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     pwrOn();
