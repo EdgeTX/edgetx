@@ -21,6 +21,9 @@
 
 #include "os/task.h"
 
+// return the max period given current mixer run times
+uint16_t mixerGetMaxFramePeriod();
+
 // needed by the mixer scheduler
 extern task_handle_t mixerTaskId;
 
