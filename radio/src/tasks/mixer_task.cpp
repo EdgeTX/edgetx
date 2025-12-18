@@ -60,8 +60,10 @@ static bool _mixer_running = false;
 constexpr uint16_t CPU_RESERVE = 150; //uS
 #elif defined(STM32H7)
 constexpr uint16_t CPU_RESERVE = 180; //uS
-#else
+#elif defined(COLORLCD)
 constexpr uint16_t CPU_RESERVE = 300; //uS
+#else
+constexpr uint16_t CPU_RESERVE = 50; //uS
 #endif
 
 uint16_t mixerGetMaxFramePeriod()
