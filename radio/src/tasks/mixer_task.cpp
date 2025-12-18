@@ -40,8 +40,6 @@
   #include "flysky_gimbal_driver.h"
 #endif
 
-#include <math.h>
-
 task_handle_t mixerTaskId;
 TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
@@ -77,7 +75,7 @@ uint16_t mixerGetMaxFramePeriod()
     }
   }
 #endif
-  uint16_t maxPeriod =  ceil((float)(maxMixerDuration + CPU_RESERVE) / 1000) * 1000;
+  uint16_t maxPeriod = ((maxMixerDuration + CPU_RESERVE) / 1000 + 1) * 1000;
   //TRACE("rate: %d %d", maxMixerDuration, maxPeriod);
   // This lmits rate based on actual mixer duration
   return maxPeriod;
@@ -168,6 +166,8 @@ void execMixerFrequentActions()
 
 void mixerTask()
 {
+ static tmr10ms_t lastTMMReset = 0;
+
 #if defined(IMU)
   gyroInit();
 #endif
@@ -234,6 +234,12 @@ void mixerTask()
       // we are the main actor to reset the watchdog timer
       // so let's do it here.
       WDG_RESET();
+
+	  // Reset Tmix max every second
+	  if (get_tmr10ms() - lastTMMReset > 100) {
+		maxMixerDuration = 0;
+		lastTMMReset = get_tmr10ms();
+	  }
 
       t0 = timersGetUsTick() - t0;
       if (t0 > maxMixerDuration)

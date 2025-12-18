@@ -1283,9 +1283,6 @@ void doMixerPeriodicUpdates()
 
   DEBUG_TIMER_START(debugTimerMixes10ms);
   if (tick10ms) {
-    // Reset periodcialy to get somewhat current value
-    maxMixerDuration = 0;
-
     /* Throttle trace */
     int16_t val;
 
