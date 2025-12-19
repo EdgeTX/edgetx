@@ -213,9 +213,14 @@ void ScreenSetupPage::build(Window* window)
           // ... and reload
           LayoutFactory::loadCustomScreens();
 
-          // Reset to first screen so user knows something has happened
+          // adjust index if last screen deleted
+          if (customScreens[customScreenIndex] == nullptr) customScreenIndex -= 1;
+
           PageGroup* menu = (PageGroup*)window->getParent();
-          menu->setCurrentTab(QuickMenu::pageIndex(QM_UI_SCREEN1));
+          // Reset to setup page to ensure screen properly updates.
+          menu->setCurrentTab(QuickMenu::pageIndex(QM_UI_SETUP));
+          // Reset to original (or adjusted screen)
+          menu->setCurrentTab(QuickMenu::pageIndex((QMPage)(QM_UI_SCREEN1 + customScreenIndex)));
 
           storageDirty(EE_MODEL);
           return 0;
