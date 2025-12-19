@@ -1738,6 +1738,9 @@ int cliCrypt(const char ** argv)
 
 int cliTriggerEM(const char** argv)
 {
+  // Wait USB unplug since that could interfere
+  cliSerialPrint("Please unplug USB");
+  while (usbPlugged()) {}
   // Prevent task switching
   vTaskSuspendAll();
   // Trigger watchdog
