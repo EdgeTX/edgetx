@@ -570,8 +570,15 @@ elseif(APPLE)
   " COMPONENT Runtime)
 
 else()
-  set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
-  set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
+  # Detect architecture for linuxdeploy AppImage
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+    set(LINUXDEPLOY_ARCH "aarch64")
+  else()
+    set(LINUXDEPLOY_ARCH "x86_64")
+  endif()
+  
+  set(LINUXDEPLOY_APPIMAGE "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
+  set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-${LINUXDEPLOY_ARCH}.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
   set(LINUXDEPLOY_PLUGIN_QT_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous")
   set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
