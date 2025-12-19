@@ -1417,7 +1417,7 @@ void edgeTxInit()
   lcdSetContrast();
 #endif
 
-  currentBacklightBright = g_eeGeneral.getBrightness();
+  currentBacklightBright = requiredBacklightBright = g_eeGeneral.getBrightness();
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
 
 #if defined(STARTUP_ANIMATION)
@@ -1500,11 +1500,8 @@ void edgeTxInit()
 #endif
 #endif
 
-  currentBacklightBright = requiredBacklightBright = g_eeGeneral.getBrightness();
-
   referenceSystemAudioFiles();
   audioQueue.start();
-  BACKLIGHT_ENABLE();
 
 #if defined(COLORLCD)
   ThemePersistance::instance()->loadDefaultTheme();
