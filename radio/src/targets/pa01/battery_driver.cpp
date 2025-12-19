@@ -462,7 +462,7 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
   switch (power_level)
   {
   case POWER_LEVEL_CRITICAL:
-    color = RGB_COLOR_NONE;
+    color = RGB_COLOR_RED;
     if (rgb_state == RGB_STATE_CHARGE) {
       color = RGB_COLOR_RED;
       breath_index |= RGB_GROUP_MASK_FUNC_1;
@@ -473,7 +473,7 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
     break;
 
   case POWER_LEVEL_LOW:
-    color = RGB_COLOR_RED;
+    color = RGB_COLOR_PURPLE;
     if (rgb_state == RGB_STATE_CHARGE) {
       breath_index |= RGB_GROUP_MASK_FUNC_1;
       setLedGroupColor(1, color, 0);
@@ -483,7 +483,7 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
     break; 
 
   case POWER_LEVEL_MEDIUM:
-    color = RGB_COLOR_PURPLE;
+    color = RGB_COLOR_YELLOW;
     if (rgb_state == RGB_STATE_CHARGE) {
       breath_index |= RGB_GROUP_MASK_FUNC_2;
       setLedGroupColor(0, color, CHARGING_BRIGHT);
@@ -493,7 +493,7 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
     break;  
 
   case POWER_LEVEL_HIGH:
-    color = RGB_COLOR_YELLOW;
+    color = RGB_COLOR_GREEN;
     if (rgb_state == RGB_STATE_CHARGE) {
       breath_index |= RGB_GROUP_MASK_FUNC_3;
       setLedGroupColor(0, color, CHARGING_BRIGHT);
@@ -656,7 +656,7 @@ void rgbChargeInit(void) {
 
 constexpr uint16_t vbatLedTable[] = {650, 720, 760, 800, 823 };
 void updateBatteryState(uint8_t rgb_state) {
-  uint16_t bat_v = getBatteryVoltage()*BAT_VOL_FACTOR;;
+  uint16_t  bat_v = getBatteryVoltage()*BAT_VOL_FACTOR;
   uint8_t power_level = POWER_LEVEL_NONE;
   static uint8_t last_power_level = POWER_LEVEL_NONE;
 
@@ -680,7 +680,7 @@ void updateBatteryState(uint8_t rgb_state) {
     {
       power_level=last_power_level;
     }
-   }
+  }
 
   rgbBatteryLevelInfo(power_level, rgb_state);
   ledLoop();
