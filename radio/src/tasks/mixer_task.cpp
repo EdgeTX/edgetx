@@ -67,7 +67,7 @@ constexpr uint16_t CPU_RESERVE = 50; //uS
 uint16_t mixerGetMaxFramePeriod()
 {
 #if defined(STM32) && !defined(SIMU)
-  if (usbPlugged()) {
+  if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
     if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
       return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
     } else {
