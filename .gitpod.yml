@@ -1,5 +1,0 @@
-image: ghcr.io/edgetx/gitpod-workspace:latest
-
-tasks:
-  - name: Prep build folder
-    init: mkdir build && cd build
