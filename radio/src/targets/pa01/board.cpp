@@ -276,44 +276,101 @@ void boardInit()
   }
 
 #else
-  uint32_t press_start = 0;
-  uint32_t press_end = 0;
-  rotenc_t lastEncoderValue = 0;
-
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
-  } else if (isChargerActive()) {
-    while (true) {
-      pwrOn();
-      uint32_t now = timersGetMsTick();
-      if (pwrPressed()) {
-        press_end = now;
-        if (press_start == 0) press_start = now;
-        if ((now - press_start) > POWER_ON_DELAY) {
+  } else {
+    pwrOn();
+    hapticInit();
+    // Init debounce
+    pwrPressedDebounced();
+    pwrPressedDebounced();
+
+    uint32_t adc_sample_time = 0; // Hardware ADC sample tick
+    uint32_t led_start_time = 0;
+    uint32_t led_start_time1 = 0;
+    uint32_t start_time = timersGetMsTick();
+    uint32_t pwrPressed_start_time = 0;
+    uint32_t now = 0;
+    uint8_t is_charging = 0;
+    uint8_t is_pwrPressed = 0;
+
+    while(1)
+    {
+      now = timersGetMsTick();
+      if (now - adc_sample_time > 10)
+      {
+        adc_sample_time = now;
+        getADC();
+        is_charging &= 0xFE;
+        is_charging |= isChargerActive();
+        is_pwrPressed &= 0xFE;
+        is_pwrPressed |= pwrPressedDebounced();
+
+        if( 0x03 == (is_pwrPressed & 0x03) )
+        {
+          led_start_time = now;
+          led_start_time1 = now;
+        }
+
+        switch( is_charging & 0x03 )
+        {
+          case 0x02:
+            rgbLedClearAll();
+            led_start_time1 = now;
+          case 0x00:
+          {
+            start_time = now;
+            led_start_time = 0;
+            if(now-led_start_time1<6000)
+            {
+              updateBatteryState(RGB_STATE_BAT_DIS);
+            }
+            else
+            {
+              if( 0==(is_pwrPressed & 0x03))
+              {
+                rgbLedClearAll();
+                boardOff();
+              }
+            }
+          }
           break;
+          case 0x01: led_start_time = now;
+          case 0x03:
+          {
+            if( (led_start_time && now-led_start_time<6000) || (!led_start_time && now-start_time<6000) )
+            {
+              updateBatteryState(RGB_STATE_CHARGE);
+            }
+            else
+            {
+              rgbLedClearAll();
+            }
+          }
+          break;
+          default: break;
         }
-      } else if (!isChargerActive()) {
-        boardOff();
-      } else {
-        uint32_t press_end_touch = press_end;
-        extern void rotaryEncoderCheck();
-        rotaryEncoderCheck();
-        rotenc_t value = rotaryEncoderGetValue();
-        if (value != lastEncoderValue) {
-          lastEncoderValue = value;     
-          press_end_touch = timersGetMsTick();
+
+        if( !pwrPressed_start_time && 0x03 == (is_pwrPressed & 0x03) )
+        {
+          pwrPressed_start_time = now;
         }
-        press_start = 0;
-        handle_battery_charge(press_end_touch);
-        delay_ms(10);
-        press_end = 0;
+        else if( 0x00 == (is_pwrPressed & 0x03) )
+        {
+          pwrPressed_start_time = 0;
+        }
+        if(pwrPressed_start_time && now-pwrPressed_start_time>1500 )
+        {
+          rgbLedClearAll();
+          break;      //power on
+        }
+        is_pwrPressed <<= 1;
+        is_charging <<= 1;
       }
     }
-    battery_charge_end();
   }
 #endif  
 #endif
-
   rgbLedInit();
   rgbLedClearAll();
   keysInit();
