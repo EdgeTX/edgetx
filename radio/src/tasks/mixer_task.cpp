@@ -40,6 +40,11 @@
   #include "flysky_gimbal_driver.h"
 #endif
 
+uint32_t maxMixerDuration; // microseconds
+constexpr int AVG_MIX_SAMPLE = 1000;
+uint32_t avgMixerDuration = 0;
+uint32_t avgMixerSampleCount = 0;
+
 task_handle_t mixerTaskId;
 TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
@@ -55,30 +60,29 @@ static bool _mixer_running = false;
 
 // Reserve time for non mixer activities
 #if defined(STM32H7RS)
-constexpr uint16_t CPU_RESERVE = 150; //uS
+constexpr uint16_t CPU_RESERVE = 15; //%
 #elif defined(STM32H7)
-constexpr uint16_t CPU_RESERVE = 180; //uS
+constexpr uint16_t CPU_RESERVE = 20; //%
 #elif defined(COLORLCD)
-constexpr uint16_t CPU_RESERVE = 300; //uS
+constexpr uint16_t CPU_RESERVE = 30; //%
 #else
-constexpr uint16_t CPU_RESERVE = 50; //uS
+constexpr uint16_t CPU_RESERVE = 10; //%
 #endif
 
-uint16_t mixerGetMaxFramePeriod()
+uint16_t mixerGetMaxFramePeriod(uint16_t periodUs)
 {
 #if defined(STM32) && !defined(SIMU)
   if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
-    if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+    if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
       return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
     } else {
       return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
     }
   }
 #endif
-  uint16_t maxPeriod = ((maxMixerDuration + CPU_RESERVE) / 1000 + 1) * 1000;
-  //TRACE("rate: %d %d", maxMixerDuration, maxPeriod);
-  // This lmits rate based on actual mixer duration
-  return maxPeriod;
+  if ((avgMixerDuration < periodUs) && ((periodUs - avgMixerDuration) * 100 / periodUs > CPU_RESERVE))
+    return periodUs;
+  return ((avgMixerDuration * (100 + CPU_RESERVE) / 100) / 1000 + 1) * 1000;
 }
 
 void mixerTaskLock()
@@ -235,15 +239,25 @@ void mixerTask()
       // so let's do it here.
       WDG_RESET();
 
-	  // Reset Tmix max every second
-	  if (get_tmr10ms() - lastTMMReset > 100) {
-		maxMixerDuration = 0;
-		lastTMMReset = get_tmr10ms();
-	  }
+      // Reset Tmix max every second
+      if (get_tmr10ms() - lastTMMReset > 100) {
+        maxMixerDuration = 0;
+        lastTMMReset = get_tmr10ms();
+      }
+
+      // Force mixer duration for testing
+      // while (timersGetUsTick() - t0 < 1390);
 
       t0 = timersGetUsTick() - t0;
       if (t0 > maxMixerDuration)
         maxMixerDuration = t0;
+
+      if (avgMixerSampleCount < AVG_MIX_SAMPLE) {
+        avgMixerDuration = (t0 + avgMixerSampleCount * avgMixerDuration) / (avgMixerSampleCount + 1);
+        avgMixerSampleCount += 1;
+      } else {
+        avgMixerDuration = (t0 + avgMixerSampleCount * avgMixerDuration - avgMixerDuration) / avgMixerSampleCount;
+      }
     }
   }
 }
