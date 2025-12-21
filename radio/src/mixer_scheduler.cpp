@@ -101,7 +101,7 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
     periodUs = MAX_REFRESH_RATE;
   }
 
-  mixerSchedules[moduleIdx].period = max(periodUs, mixerGetMaxFramePeriod());
+  mixerSchedules[moduleIdx].period = mixerGetMaxFramePeriod(periodUs);
 }
 
 uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)
