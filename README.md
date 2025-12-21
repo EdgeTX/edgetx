@@ -19,41 +19,31 @@
 EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and cutting-edge features are developed and field-tested by the enthusiasts of our hobby. EdgeTX is a community project – ideas from the community, developed by the community, and enjoyed by the community! The community will always have a say in what EdgeTX is and what EdgeTX will be in the future. Without community feedback and involvement EdgeTX cannot exist.
 
 ### Community
-[Discord](https://discord.gg/wF9wUKnZ6H)   
+- [Discord](https://discord.gg/wF9wUKnZ6H)   
 
-[Facebook](https://www.facebook.com/groups/edgetx)
+- [Facebook](https://www.facebook.com/groups/edgetx)
 
-[Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
+- [Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
   
 ### Navigation Links
 
-> [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
+- [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
 
-> [Installation Guide](https://edgetx.gitbook.io/edgetx-user-manual/edgetx-how-to/update-from-opentx-to-edgetx)
+- [Installation Guide](https://manual.edgetx.org/installing-and-updating-edgetx/update-from-opentx-to-edgetx)
 
-> [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
+- [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
 
-> [FAQ](https://github.com/EdgeTX/edgetx.github.io/wiki/Frequently-Asked-Questions)
+- [Reporting Issues / Requesting features](https://github.com/EdgeTX/edgetx/issues/new/choose)
 
-> [Reporting Issues / Requesting features](https://github.com/EdgeTX/edgetx/issues/new/choose)
-
-> [Development WIKI](https://github.com/EdgeTX/edgetx/wiki)
-
-> [Lua Documentation Site](https://luadoc.edgetx.org/)
+- [Lua Documentation Site](https://luadoc.edgetx.org/)
   
-> [Flasher Info Page](https://github.com/EdgeTX/flasher) 
+- Buddy: [Info](https://github.com/EdgeTX/buddy) - [Downloads](https://github.com/EdgeTX/buddy/releases) 
 
-> [Flasher Downloads](https://github.com/EdgeTX/flasher/releases)
+- SD Card: [Info](https://github.com/EdgeTX/edgetx-sdcard) - [Downloads](https://github.com/EdgeTX/edgetx-sdcard/releases)
 
-> [SD Card Info Page](https://github.com/EdgeTX/edgetx-sdcard)
+- Sound Packs:  [Info](https://github.com/EdgeTX/edgetx-sdcard-sounds) - [Downloads](https://github.com/EdgeTX/edgetx-sdcard-sounds/releases)
 
-> [SD Card Downloads](https://github.com/EdgeTX/edgetx-sdcard/releases)
-
-> [Sound Packs Info Page](https://github.com/EdgeTX/edgetx-sdcard-sounds)
-
-> [Sound Packs Downloads](https://github.com/EdgeTX/edgetx-sdcard-sounds/releases)
-
-> [EdgeTX Build Environment Docker Images](https://github.com/EdgeTX/build-edgetx)
+- [Development Wiki](https://github.com/EdgeTX/edgetx/wiki) - [Docker Build Environment](https://github.com/EdgeTX/build-edgetx)
 
 
 ## Acknowledgements
