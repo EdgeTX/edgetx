@@ -37,6 +37,8 @@
 #define TR_QM_RADIO_SETUP               "Rádio\nNastavenia"
 #define TR_QM_UI_SETUP                  "UI\nNastavenia"
 #define TR_QM_TOOLS                     "Nástroje"
+#define TR_QM_MODEL_SETTINGS            "Model\nSettings"
+#define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
 #define TR_QM_GEN_SETTINGS              "Hlavné\nNastavenia"
 #define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Drive\nModes", "Letové\nRežimy")
 #define TR_QM_INPUTS                    "Vstupy"
@@ -72,7 +74,8 @@
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Štatistiky"
 #define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MENU_SETTINGS           "Hlavné nastavenia"
+#define TR_MAIN_MODEL_SETTINGS           "Hlavné nastavenia"
+#define TR_MAIN_RADIO_SETTINGS          "Radio Settings"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Správa modelov"
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky modelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanálov"
@@ -90,6 +93,7 @@
 #define TR_MENUFLIGHTMODE              TR_SFC_AIR("REŽIM JAZDA", "LETOVÝ REŽIM")
 #define TR_MENUINPUTS                  "Vstupy"
 #define TR_MENULIMITS                  "Servá"
+#define TR_MENUCURVES                  TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                       "Mixy"
 #define TR_MENU_GLOBAL_VARS            "Globálne Premenné"
 #define TR_MENULOGICALSWITCHES         "Logické Spínače"
@@ -154,6 +158,7 @@
 #define TR_POTTYPES_1                  "Žiadny"
 #define TR_POTTYPES_2                  TR("Pot","Potenciometer")
 #define TR_POTTYPES_3                  TR("Pot s aret.","Pot s aretáciou")
+#define TR_POTTYPES_4                  "Slider"
 #define TR_POTTYPES_5                  TR("Viacpol pr.","Viacpolohový prepínač")
 #define TR_POTTYPES_6                  "Os X"
 #define TR_POTTYPES_7                  "Os Y"
@@ -1008,6 +1013,8 @@
 #define TR_RECEIVER_RESET              "Resetovať prijímač?"
 #define TR_SHARE                       "Zdieľať"
 #define TR_BIND                        "Párovať"
+#define TR_PAIRING                     "Pairing"
+#define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrovať"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
 #define TR_RANGE_TEST                  "Test dosahu"
@@ -1260,6 +1267,8 @@
 #define TR_THEME_COLOR_ACTIVE           "AKTÍVNE"
 #define TR_THEME_COLOR_WARNING          "VAROVANIE"
 #define TR_THEME_COLOR_DISABLED         "VYPNUTÉ"
+#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
+#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
 #define TR_THEME_COLOR_CUSTOM           "VLASTNÉ"
 #define TR_THEME_CHECKBOX               "Pole výberu"
 #define TR_THEME_ACTIVE                 "Aktívne"
@@ -1401,3 +1410,10 @@
 #define TR_WIDGET_SIZE            "Veľkosť widgetu"
 
 #define TR_DEL_DIR_NOT_EMPTY      "Adresár pre zmazaním musí byť prázdny"
+
+#define TR_KEY_SHORTCUTS          "Key Shortcuts"
+#define TR_CURRENT_SCREEN         "Current Screen"
+#define TR_SHORT_PRESS            "Short Press"
+#define TR_LONG_PRESS             "Long Press"
+#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
+#define TR_QUICK_MENU_FAVORITES   "Quick Menu Favorites"
