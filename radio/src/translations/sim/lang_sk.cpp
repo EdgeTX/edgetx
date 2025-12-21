@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-// Test language translation file against English base
 
 #include "edgetx.h"
 #include "translations/translation_def.h"

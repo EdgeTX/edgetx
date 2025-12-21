@@ -153,7 +153,7 @@
 #define TR_SWTYPES_5                   "Globálny"
 #define TR_POTTYPES_1                  "Žiadny"
 #define TR_POTTYPES_2                  TR("Pot","Potenciometer")
-#define TR_POTTYPES_3                  TR("Pot s aret.","Pot s aretáciou
+#define TR_POTTYPES_3                  TR("Pot s aret.","Pot s aretáciou")
 #define TR_POTTYPES_5                  TR("Viacpol pr.","Viacpolohový prepínač")
 #define TR_POTTYPES_6                  "Os X"
 #define TR_POTTYPES_7                  "Os Y"
