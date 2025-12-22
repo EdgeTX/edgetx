@@ -215,7 +215,7 @@ class ModuleData {
       unsigned int flags;
     } dsmp;
 
-    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ModuleData)); }
+    void clear();
     void convert(RadioDataConversionState & cstate);
     bool isPxx2Module() const;
     bool supportRxNum() const;
