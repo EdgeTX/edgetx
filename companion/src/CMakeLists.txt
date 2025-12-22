@@ -426,28 +426,56 @@ elseif(APPLE)
       BUILD_WITH_INSTALL_RPATH TRUE
   )
 
+  set_target_properties(${SIMULATOR_NAME} PROPERTIES
+      MACOSX_RPATH TRUE
+      MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
+
+      INSTALL_RPATH "@executable_path/../Frameworks"
+      BUILD_WITH_INSTALL_RPATH TRUE
+  )
+
   # This the name that the user will see in the generated DMG and what the application
   # will be called under /Applications. We include the version string to make installing
   # different versions side-by-side
   set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_FAMILY}")
+  set(SIMULATOR_OSX_APP_BUNDLE_NAME "EdgeTX Simulator ${VERSION_FAMILY}")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
   set(companion_app_dir "companion.app")
   set(companion_res_dir "${companion_app_dir}/Contents/Resources")
 
-  # Only Companion is distributed for macOS
+  set(simulator_app_dir "simulator.app")
+  set(simulator_res_dir "${simulator_app_dir}/Contents/Resources")
+
+  # Install both Companion and Simulator for macOS
   install(TARGETS ${COMPANION_NAME}
           BUNDLE DESTINATION . COMPONENT Runtime)
 
-  # libsims
+  install(TARGETS ${SIMULATOR_NAME}
+          BUNDLE DESTINATION . COMPONENT Runtime)
+
+  # libsims for Companion
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
           DESTINATION "${companion_res_dir}"
           COMPONENT Runtime
   )
 
-  # menu file
+  # libsims for Simulator
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
+          DESTINATION "${simulator_res_dir}"
+          COMPONENT Runtime
+  )
+
+  # menu file for Companion
   install(DIRECTORY ${COMPANION_TARGETS_DIR}/qt_menu.nib
           DESTINATION "${companion_res_dir}"
+          COMPONENT Runtime
+  )
+
+  # menu file for Simulator
+  install(DIRECTORY ${COMPANION_TARGETS_DIR}/qt_menu.nib
+          DESTINATION "${simulator_res_dir}"
           COMPONENT Runtime
   )
 
@@ -460,6 +488,10 @@ elseif(APPLE)
 
   install(FILES ${MAC_ICON_FILE}
           DESTINATION ${companion_res_dir}
+          COMPONENT Runtime)
+
+  install(FILES ${MAC_ICON_FILE}
+          DESTINATION ${simulator_res_dir}
           COMPONENT Runtime)
 endif()
 
@@ -548,6 +580,7 @@ elseif(APPLE)
     CONTENT "
       qt_deploy_runtime_dependencies(
         EXECUTABLE ${companion_app_dir}
+        ADDITIONAL_EXECUTABLES ${simulator_app_dir}
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
@@ -558,15 +591,24 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Fix Code Signing and rename bundle
+  # Fix Code Signing and rename bundles
   install(CODE "
-      set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
-      execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
+      set(companion_app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
+      set(simulator_app_dir \"\${CMAKE_INSTALL_PREFIX}/${simulator_app_dir}\")
+      
+      execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${companion_app_dir}\")
       execute_process(
-        COMMAND codesign --remove-signature \${app_dir}
-        COMMAND codesign --force --deep -s - \${app_dir}
+        COMMAND codesign --remove-signature \${companion_app_dir}
+        COMMAND codesign --force --deep -s - \${companion_app_dir}
       )
-      file(RENAME \"\${app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
+      file(RENAME \"\${companion_app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
+      
+      execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${simulator_app_dir}\")
+      execute_process(
+        COMMAND codesign --remove-signature \${simulator_app_dir}
+        COMMAND codesign --force --deep -s - \${simulator_app_dir}
+      )
+      file(RENAME \"\${simulator_app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${SIMULATOR_OSX_APP_BUNDLE_NAME}.app\")
   " COMPONENT Runtime)
 
 else()
