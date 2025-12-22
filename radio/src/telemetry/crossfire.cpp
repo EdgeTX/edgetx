@@ -272,7 +272,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     case LINK_ID:
       for (unsigned int i=0; i<=TX_SNR_INDEX; i++) {
         if (getCrossfireTelemetryValue<1>(3+i, value, rxBuffer)) {
-          if (i == TX_POWER_INDEX) {
+          if (i == TX_POWER_INDEX || i == RX_POWER_INDEX) {
             static const int32_t power_values[] = {0,    10,   25,  100, 500,
                                                    1000, 2000, 250, 50};
             value =
