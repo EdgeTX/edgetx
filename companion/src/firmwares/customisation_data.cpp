@@ -29,12 +29,28 @@
 
 ZoneOptionValue::ZoneOptionValue()
 {
-  unsignedValue = 0;
-  signedValue = 0;
-  boolValue = 0;
-  stringValue.clear();
-  sourceValue.clear();
-  colorValue = 0;
+  clear();
+}
+
+ZoneOptionValue::ZoneOptionValue(const ZoneOptionValue & src)
+{
+  copy(src);
+}
+
+ZoneOptionValue & ZoneOptionValue::operator=(const ZoneOptionValue & src)
+{
+  copy(src);
+  return *this;
+}
+
+void ZoneOptionValue::copy(const ZoneOptionValue & src)
+{
+  unsignedValue = src.unsignedValue;
+  signedValue = src.signedValue;
+  boolValue = src.boolValue;
+  stringValue = src.stringValue;
+  sourceValue = src.sourceValue;
+  colorValue = src.colorValue;
 }
 
 bool ZoneOptionValue::isEmpty() const
@@ -43,9 +59,14 @@ bool ZoneOptionValue::isEmpty() const
          stringValue.empty() && sourceValue.toValue() == 0;
 }
 
-ZoneOptionValueTyped::ZoneOptionValueTyped()
+void ZoneOptionValue::clear()
 {
-  type = ZOV_Unsigned;
+  unsignedValue = 0;
+  signedValue = 0;
+  boolValue = 0;
+  stringValue.clear();
+  sourceValue.clear();
+  colorValue = 0;
 }
 
 inline void setZoneOptionValue(ZoneOptionValue& zov, bool value)
@@ -107,11 +128,43 @@ inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
   }
 }
 
-static const ZoneOptionValueTyped zero_widget_option = {};
+ZoneOptionValueTyped::ZoneOptionValueTyped()
+{
+  clear();
+}
 
 bool ZoneOptionValueTyped::isEmpty() const
 {
   return type == ZOV_Unsigned && value.isEmpty();
+}
+
+void ZoneOptionValueTyped::clear()
+{
+  type = ZOV_Unsigned;
+  value.clear();
+}
+
+void WidgetPersistentData::clear()
+{
+  for (int i = 0; i < MAX_WIDGET_OPTIONS; i += 1)
+    options[i].clear();
+}
+
+ZonePersistentData::ZonePersistentData(const ZonePersistentData & src)
+{
+  copy(src);
+}
+
+ZonePersistentData & ZonePersistentData::operator=(const ZonePersistentData & src)
+{
+  copy(src);
+  return *this;
+}
+
+void ZonePersistentData::copy(const ZonePersistentData & src)
+{
+  widgetName = src.widgetName;
+  widgetData = src.widgetData;
 }
 
 bool ZonePersistentData::isEmpty() const
@@ -119,19 +172,64 @@ bool ZonePersistentData::isEmpty() const
   return widgetName.empty();
 }
 
+void ZonePersistentData::clear()
+{
+  widgetName.clear();
+  widgetData.clear();
+}
+
+RadioLayout::CustomScreenData::CustomScreenData(const RadioLayout::CustomScreenData & src)
+{
+  copy(src);
+}
+
+RadioLayout::CustomScreenData & RadioLayout::CustomScreenData::operator=(const RadioLayout::CustomScreenData & src)
+{
+  copy(src);
+  return *this;
+}
+
+void RadioLayout::CustomScreenData::copy(const RadioLayout::CustomScreenData & src)
+{
+  layoutId = src.layoutId;
+  layoutPersistentData = src.layoutPersistentData;
+}
+
 bool RadioLayout::CustomScreenData::isEmpty() const
 {
   return layoutId.empty();
 }
 
-void RadioLayout::CustomScreens::clear()
+void RadioLayout::CustomScreenData::clear()
 {
-  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-    customScreenData[i] = CustomScreenData();
-  }
+  layoutId.clear();
+  layoutPersistentData.clear();
 }
 
-void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)
+RadioLayout::CustomScreens::CustomScreens(const RadioLayout::CustomScreens & src)
+{
+  copy(src);
+}
+
+RadioLayout::CustomScreens & RadioLayout::CustomScreens::operator=(const RadioLayout::CustomScreens & src)
+{
+  copy(src);
+  return *this;
+}
+
+void RadioLayout::CustomScreens::copy(const RadioLayout::CustomScreens & src)
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++)
+    customScreenData[i] = src.customScreenData[i];
+}
+
+void RadioLayout::CustomScreens::clear()
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++)
+    customScreenData[i].clear();
+}
+
+void RadioLayout::init(const std::string layoutId, CustomScreens& customScreens)
 {
   customScreens.clear();
 

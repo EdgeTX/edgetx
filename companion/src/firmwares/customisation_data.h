@@ -60,6 +60,11 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   unsigned int colorValue;
 
   ZoneOptionValue();
+  ZoneOptionValue(const ZoneOptionValue & src);
+  ZoneOptionValue & operator=(const ZoneOptionValue & src);
+
+  void clear();
+  void copy(const ZoneOptionValue & src);
   bool isEmpty() const;
 };
 
@@ -111,6 +116,7 @@ struct ZoneOptionValueTyped
   ZoneOptionValue     value;
 
   ZoneOptionValueTyped();
+  void clear();
   bool isEmpty() const;
 };
 
@@ -118,6 +124,7 @@ struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS];
 
   WidgetPersistentData() {}
+  void clear();
 };
 
 struct ZonePersistentData {
@@ -125,6 +132,10 @@ struct ZonePersistentData {
   WidgetPersistentData widgetData;
 
   ZonePersistentData() {}
+  ZonePersistentData(const ZonePersistentData & src);
+  ZonePersistentData & operator=(const ZonePersistentData & src);
+  void clear();
+  void copy(const ZonePersistentData & src);
   bool isEmpty() const;
 };
 
@@ -134,6 +145,14 @@ struct WidgetsContainerPersistentData {
   ZoneOptionValueTyped options[O];
 
   WidgetsContainerPersistentData() {}
+  void clear() {
+    for (int i = 0; i < N; i++) {
+      zones[i].clear();
+    }
+    for (int i = 0; i < O; i++) {
+      options[i].clear();
+    }
+  }
 };
 
 typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
@@ -152,14 +171,24 @@ class RadioLayout
       LayoutPersistentData layoutPersistentData;
 
       CustomScreenData() {}
+      CustomScreenData(const CustomScreenData & src);
+      CustomScreenData & operator=(const CustomScreenData & src);
+
+      void clear();
+      void copy(const CustomScreenData & src);
       bool isEmpty() const;
     };
 
     struct CustomScreens {
       CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
 
+      CustomScreens() {}
+      CustomScreens(const CustomScreens & src);
+      CustomScreens & operator=(const CustomScreens & src);
+
       void clear();
+      void copy(const CustomScreens & src);
     };
 
-    static void init(const char * layoutId, CustomScreens & customScreens);
+    static void init(const std::string layoutId, CustomScreens & customScreens);
 };

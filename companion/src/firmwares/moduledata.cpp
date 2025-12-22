@@ -65,6 +65,14 @@ void ModuleData::convert(RadioDataConversionState & cstate)
   }
 }
 
+void ModuleData::clear()
+{
+  memset(reinterpret_cast<void *>(this), 0, sizeof(ModuleData));
+  protocol = PULSES_OFF;
+  channelsCount = 8;
+  ppm.delay = 300;
+}
+
 //  moved from OpenTxFirmware EdgeTX v2.9
 //  only called by ModuleData::convert
 //  TODO: merge with ModuleData::isProtocolAvailable as share much of the same logic
