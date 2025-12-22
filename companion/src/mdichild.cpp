@@ -789,7 +789,9 @@ bool MdiChild::insertModelRows(int atModelIdx, int count)
       }
     }
     // add a placeholder model
-    radioData.models.insert(radioData.models.begin() + atModelIdx + i, ModelData());
+    ModelData *md = new ModelData();
+    radioData.models.insert(radioData.models.begin() + atModelIdx + i, *md);
+    delete md;
     // adjust current model index if needed
     if ((int)radioData.generalSettings.currModelIndex >= atModelIdx + i)
       findNewDefaultModel(radioData.generalSettings.currModelIndex + 1);
@@ -920,8 +922,10 @@ unsigned MdiChild::countUsedModels()
 
 void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row, bool insert, bool move)
 {
-  QVector<ModelData> modelsList;
-  if (!ModelsListModel::decodeMimeData(mimeData, &modelsList))
+  QVector<ModelData> *modelsList = new QVector<ModelData>;
+  modelsList->clear();
+
+  if (!ModelsListModel::decodeMimeData(mimeData, modelsList))
     return;
 
   bool modified = false;
@@ -936,14 +940,14 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   //qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx;
 
   // Model data
-  for (int i=0; i < modelsList.size(); ++i) {
-    int origMdlIdx = hasOwnData ? modelsList.at(i).modelIndex : -1;               // where is the model in *our* current array?
+  for (int i=0; i < modelsList->size(); ++i) {
+    int origMdlIdx = hasOwnData ? modelsList->at(i).modelIndex : -1;               // where is the model in *our* current array?
     bool doMove = (origMdlIdx > -1 && origMdlIdx < (int)radioData.models.size() && (move || cutModels.contains(origMdlIdx)));  // DnD-moved or clipboard cut
     bool ok = true;
 
     if (modelIdx == -1 || (!insert && modelIdx >= (int)radioData.models.size())) {
       // This handles pasting past the end or when pasting multiple models.
-      modelIdx = modelAppend(modelsList[i]);
+      modelIdx = modelAppend(modelsList->at(i));
       if (modelIdx < 0) {
         ok = false;
         showWarning(tr("Cannot paste model, out of available model slots."));
@@ -952,14 +956,14 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
     else if (insert) {
       ok = insertModelRows(modelIdx, 1);
       if (ok) {
-        radioData.models[modelIdx] = modelsList[i];
+        radioData.models[modelIdx] = modelsList->at(i);
         // ++inserts;
       }
     }
     else if (!deletesList.contains(modelIdx)) {
       // pasting on top of a slot
       if (radioData.models[modelIdx].isEmpty()) {
-        radioData.models[modelIdx] = modelsList[i];
+        radioData.models[modelIdx] = modelsList->at(i);
         ok = true;
       }
       else {
@@ -974,13 +978,13 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
         msgBox.exec();
 
         if (msgBox.clickedButton() == overwriteButton) {
-          radioData.models[modelIdx] = modelsList[i];
+          radioData.models[modelIdx] = modelsList->at(i);
           ok = true;
         }
         else if (msgBox.clickedButton() == insertButton) {
           ok = insertModelRows(modelIdx, 1);
           if (ok) {
-            radioData.models[modelIdx] = modelsList[i];
+            radioData.models[modelIdx] = modelsList->at(i);
             // ++inserts;
           }
         }
@@ -1012,9 +1016,12 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   if (deletesList.size()) {
     deleteModels(deletesList);
   }
+
   if (modified) {
     setModified();
   }
+
+  delete modelsList;
 }
 
 /*
