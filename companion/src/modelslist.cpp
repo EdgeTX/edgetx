@@ -539,28 +539,36 @@ bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelDa
     *hasGenSet = false;
 
   if (models && mimeData->hasFormat("application/x-companion-modeldata")) {
-    QByteArray data = mimeData->data("application/x-companion-modeldata");
-    QDataStream in(&data, QIODevice::ReadOnly);
+    QByteArray clipboard = mimeData->data("application/x-companion-modeldata");
+    QDataStream in(&clipboard, QIODevice::ReadOnly);
 
     Board::Type board;
     int mdlCnt;
     in >> board >> mdlCnt;
 
     for (int i = 1; i <= mdlCnt; i++) {
-      QByteArray buffer;
-      in >> buffer;
+      QByteArray *buffer = new QByteArray();
+      in >> *buffer;
 
-      if (buffer.size() > 0) {
-        ModelData model;
+      if (buffer->size() > 0) {
+        ModelData *model = new ModelData();
 
-        if (loadModelFromYaml(model, buffer)) {
-          model.used = true;
-          QByteArray chklst;
-          in >> chklst;
-          model.checklistData = chklst;
-          models->append(model);
+        if (loadModelFromYaml(*model, *buffer)) {
+          model->used = true;
+          QByteArray *chklst = new QByteArray();
+          in >> *chklst;
+
+          if (chklst->size() > 0) {
+            model->checklistData = *chklst;
+            models->append(*model);
+          }
+
+          delete chklst;
           ret = true;
         }
+
+        delete model;
+        delete buffer;
       }
     }
   }
