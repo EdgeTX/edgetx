@@ -3,7 +3,6 @@
 # ARGV0 is what the AppImage was called as (includes symlink name)
 # APPDIR is set by AppImage runtime to the mount point
 CALLED_AS="$(basename "${ARGV0}")"
-
 CALLED_AS_LOWER="${CALLED_AS,,}"  # converts to lowercase
 
 # Check if called via symlink with "simulator" in name
