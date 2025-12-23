@@ -84,7 +84,7 @@ void setSelectedUsbMode(int mode)
 #if defined(USB_GPIO_VBUS)
 int usbPlugged()
 {
-#if defined(DEBUG_DISABLE_USB)
+#if defined(DEBUG_DISABLE_USB) && !defined(BOOT)
   return false;
 #endif
 
