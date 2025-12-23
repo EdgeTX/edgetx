@@ -1,10 +1,13 @@
 #!/bin/bash
 
-APPDIR="$(dirname "$(readlink -f "$0")")"
-CALLED_AS="$(basename "$0")"
+# ARGV0 is what the AppImage was called as (includes symlink name)
+# APPDIR is set by AppImage runtime to the mount point
+CALLED_AS="$(basename "${ARGV0}")"
+
+CALLED_AS_LOWER="${CALLED_AS,,}"  # converts to lowercase
 
 # Check if called via symlink with "simulator" in name
-if [[ "$CALLED_AS" == *"simulator"* ]]; then
+if [[ "$CALLED_AS_LOWER" == *"simulator"* ]]; then
     exec "${APPDIR}/usr/bin/@SIMULATOR_NAME@" "$@"
 fi
 
