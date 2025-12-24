@@ -561,7 +561,7 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
         result += " ~ ";
       else
         result += tr(" missing");
-      result += QString::number(range.step * (ls.val2 /*TODO+ source.getRawOffset(model)*/) + range.offset);
+      result += QString::number((double)(range.step * ls.val2 /*TODO+ source.getRawOffset(model)*/) + range.offset, 'f', range.decimals);
       result += range.unit;
       break;
     }
