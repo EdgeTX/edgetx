@@ -48,6 +48,7 @@ class ExpoDialog : public QDialog {
     void fmClearAll();
     void fmSetAll();
     void fmInvertAll();
+    void sourceChanged();
 
   private:
     Ui::ExpoDialog * ui;

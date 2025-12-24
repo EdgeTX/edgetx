@@ -120,8 +120,8 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
   }
 
   int imId = dlgFIM->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                                           RawSwitch::MixesContext),
-                                                     "RawSwitch");
+                                                             RawSwitch::MixesContext),
+                                                             "RawSwitch");
   ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->switchesCB->setModel(dlgFIM->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(md->swtch.toValue()));

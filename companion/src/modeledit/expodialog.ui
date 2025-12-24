@@ -341,9 +341,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="sourceCB"/>
-     </item>
      <item row="7" column="0">
       <widget class="QLabel" name="label_curves">
        <property name="text">
@@ -410,7 +407,7 @@
       </spacer>
      </item>
      <item row="7" column="1">
-      <widget class="CurveReferenceWidget" name="widget" native="true"/>
+      <widget class="CurveReferenceWidget" name="wgtCurve" native="true"/>
      </item>
      <item row="7" column="2">
       <spacer name="horizontalSpacer_4">
@@ -424,6 +421,9 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="2" column="1">
+      <widget class="RawSourceWidget" name="wgtSource" native="true"/>
      </item>
     </layout>
    </item>
