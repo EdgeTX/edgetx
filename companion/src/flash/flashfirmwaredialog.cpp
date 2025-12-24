@@ -86,9 +86,13 @@ FlashFirmwareDialog::~FlashFirmwareDialog()
 
 void FlashFirmwareDialog::updateUI()
 {
+  if (connectionMode)
+    ui->loadButton->setEnabled(true);
+  else
+    ui->loadButton->setEnabled(false);
+
   if (connectionMode && isFileConnectionCompatible() && QFile(fwName).exists()) {
     ui->firmwareFilename->setText(fwName);
-    ui->loadButton->setEnabled(true);
     ui->writeButton->setEnabled(true);
 
     FirmwareInterface firmware(fwName);
@@ -137,7 +141,6 @@ void FlashFirmwareDialog::updateUI()
     }
   } else {
     ui->firmwareFilename->setText("");
-    ui->loadButton->setEnabled(false);
     ui->writeButton->setEnabled(false);
     ui->firmwareInfoFrame->hide();
     ui->splashFrame->hide();
