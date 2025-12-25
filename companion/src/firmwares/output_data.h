@@ -22,6 +22,7 @@
 #pragma once
 
 #include "rawsource.h"
+#include "curvereference.h"
 
 #include <QtCore>
 
@@ -43,7 +44,7 @@ class LimitData {
     bool symetrical;
     int failsafe;
     char name[LIMITDATA_NAME_LEN + 1];
-    RawSource curve;
+    CurveReference curve;
 
     void clear();
     bool isEmpty() const;

@@ -827,7 +827,7 @@ int ModelData::updateReference()
       updateSourceRef(ld->min);
       updateSourceRef(ld->max);
       updateSourceRef(ld->offset);
-      updateSourceRef(ld->curve);
+      updateSourceRef(ld->curve.source);
     }
   }
   //s1.report("Outputs");

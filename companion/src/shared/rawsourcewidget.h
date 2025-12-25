@@ -106,11 +106,11 @@ class RawSourceWidget : public QWidget {
               int uiFlags,
               RawSource dflt = RawSource(),
               QString typeLabel = "",
-              int min = -100,
-              int max = 100,
-              int precision = 1,
-              int decimals = 0,
-              double step = 1,
+              int min = -1000,
+              int max = 1000,
+              int precision = 10,
+              int decimals = 1,
+              double step = 0.1,
               QString prefix = "",
               QString suffix = "");
 
@@ -122,7 +122,6 @@ class RawSourceWidget : public QWidget {
 
     void setDefault(RawSource value);
     void setFilterFlags(int flags);
-    void setVisible(bool state);
     void update();
     void updateMinMax(int max);
 

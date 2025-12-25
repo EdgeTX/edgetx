@@ -43,11 +43,11 @@ class CurveReferenceWidget : public QWidget {
                                   int uiFlags = UI_FLAG_LIST,
                                   CurveReference dflt = CurveReference(),
                                   QString useLabel = "",
-                                  int min = -100,
-                                  int max = 100,
-                                  int precision = 1,
-                                  int decimals = 0,
-                                  double step = 1,
+                                  int min = -1000,
+                                  int max = 1000,
+                                  int precision = 10,
+                                  int decimals = 1,
+                                  double step = 0.1,
                                   QString prefix = "",
                                   QString suffix = "");
 

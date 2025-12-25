@@ -42,7 +42,13 @@ RawSourceWidget::RawSourceWidget(QWidget * parent,
                                   double step,
                                   QString prefix,
                                   QString suffix) :
-  QWidget(parent)
+  QWidget(parent),
+  fimSource(nullptr),
+  chkType(nullptr),
+  cboSource(nullptr),
+  sbValue(nullptr),
+  dsbValue(nullptr),
+  curveImage(nullptr)
 {
   init(modelData, sharedItemModels, src, imFilter, uiFlags, dflt,
        typeLabel, min, max, precision, decimals, step, prefix, suffix);
@@ -110,7 +116,7 @@ void RawSourceWidget::init(ModelData * modelData,
   }
 
   if (uiFlags & UI_FLAG_VALUE) {
-    if(precision) {
+    if (precision) {
       dsbValue = new QDoubleSpinBox();
       dsbValue->setAccelerated(true);
       dsbValue->setDecimals(decimals);
@@ -184,22 +190,6 @@ void RawSourceWidget::setFilterFlags(int flags)
   fimSource->setFilterFlags(flags);
 }
 
-//  TODO this makes no sense as it is designed to be called from curvereferencewidget
-//  and thus selective visibility
-void RawSourceWidget::setVisible(bool state)
-{
-  if (chkType)
-    chkType->setVisible(state);
-  if (cboSource)
-    cboSource->setVisible(state);
-  if (sbValue)
-    sbValue->setVisible(state);
-  if (dsbValue)
-    dsbValue->setVisible(state);
-  if (curveImage)
-    curveImage->setVisible(state);
-}
-
 void RawSourceWidget::shrink()
 {
   adjustSize();
@@ -247,7 +237,6 @@ void RawSourceWidget::update()
   }
   else {
     RawSourceWidget::setVisible(true);
-    RawSourceWidget::update();
 
     if (sbValue)
       sbValue->setVisible(false);

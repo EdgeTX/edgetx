@@ -24,6 +24,7 @@
 #include "filtereditemmodels.h"
 #include "namevalidator.h"
 #include "rawsourcewidget.h"
+#include "curvereferencewidget.h"
 
 // LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row,
 //                 int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
@@ -130,11 +131,6 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     connect(leName[i], &QLineEdit::editingFinished, this, &ChannelsPanel::nameEdited);
     tableLayout->addWidget(i, col++, leName[i]);
 
-    // Channel offset
-    // chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-    //   model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
-    //   dialogFilteredItemModels->getItemModel(gvid), this);
-
     double displayStep;
     QString suffix;
 
@@ -143,50 +139,57 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
       suffix = tr("us");
     } else {
       displayStep = 0.1;
-      suffix = tr("us");
+      suffix = tr("%");
     }
 
-    offset[i] = new RawSourceWidget(this, &model, sharedItemModels,
+    // Channel offset
+    // chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++,
+    //   model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
+    //   dialogFilteredItemModels->getItemModel(gvid), this);
+    rswSubTrim[i] = new RawSourceWidget(this, &model, sharedItemModels,
       &model.limitData[i].offset,
       RawSource::GVarsGroup,
       UI_FLAG_LIST | UI_FLAG_VALUE,
       RawSource(SOURCE_TYPE_NUMBER),
       tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
-    connect(offset[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
-    connect(offset[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
-    tableLayout->addWidget(i, col++, offset[i]);
+    connect(rswSubTrim[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
+    connect(rswSubTrim[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
+    tableLayout->addWidget(i, col++, rswSubTrim[i]);
+
     // Channel min
     // chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++,
     //   model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
-    min[i] = new RawSourceWidget(this, &model, sharedItemModels,
+    rswMin[i] = new RawSourceWidget(this, &model, sharedItemModels,
       &model.limitData[i].min,
       RawSource::GVarsGroup,
       UI_FLAG_LIST | UI_FLAG_VALUE,
-      RawSource(SOURCE_TYPE_NUMBER),
+      RawSource(SOURCE_TYPE_NUMBER, -1000),
       tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
-    connect(min[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
-    connect(min[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
-    tableLayout->addWidget(i, col++, min[i]);
+    connect(rswMin[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
+    connect(rswMin[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
+    tableLayout->addWidget(i, col++, rswMin[i]);
+
     // Channel max
     // chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++,
     //   model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
-    max[i] = new RawSourceWidget(this, &model, sharedItemModels,
+    rswMax[i] = new RawSourceWidget(this, &model, sharedItemModels,
       &model.limitData[i].max,
       RawSource::GVarsGroup,
       UI_FLAG_LIST | UI_FLAG_VALUE,
-      RawSource(SOURCE_TYPE_NUMBER),
+      RawSource(SOURCE_TYPE_NUMBER, 1000),
       tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
-    connect(max[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
-    connect(max[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
-    tableLayout->addWidget(i, col++, max[i]);
+    connect(rswMax[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
+    connect(rswMax[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
+    tableLayout->addWidget(i, col++, rswMax[i]);
+
     // Channel inversion
-    cboInvert[i] = new QComboBox(this);
-    cboInvert[i]->insertItems(0, QStringList() << tr("---") << tr("INV"));
-    cboInvert[i]->setProperty("index", i);
-    connect(cboInvert[i], &QComboBox::currentIndexChanged, this, &ChannelsPanel::invEdited);
-    tableLayout->addWidget(i, col++, cboInvert[i]);
+    cboDirection[i] = new QComboBox(this);
+    cboDirection[i]->insertItems(0, QStringList() << tr("---") << tr("INV"));
+    cboDirection[i]->setProperty("index", i);
+    connect(cboDirection[i], &QComboBox::currentIndexChanged, this, &ChannelsPanel::directionEdited);
+    tableLayout->addWidget(i, col++, cboDirection[i]);
 
     // curveCB[i] = new QComboBox(this);
     // curveCB[i]->setProperty("index", i);
@@ -199,31 +202,32 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
 
     // curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
     //                       model.limitData[i].curve, model, sharedItemModels, this);
-    curve[i] = new RawSourceWidget(this, &model, sharedItemModels,
+    crwCurve[i] = new CurveReferenceWidget(this, &model, sharedItemModels,
       &model.limitData[i].curve,
       RawSource::CurvesGroup | RawSource::NoneGroup,
       UI_FLAG_LIST | UI_FLAG_CURVE_IMAGE);
-    connect(curve[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
-    connect(curve[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
-    tableLayout->addWidget(i, col++, curve[i]);
+    connect(crwCurve[i], &CurveReferenceWidget::dataChanged, this, &ModelPanel::modified);
+    connect(crwCurve[i], &CurveReferenceWidget::resized, [=] () { adjustSize(); });
+    tableLayout->addWidget(i, col++, crwCurve[i]);
+
     // PPM center
     int ppmCenterMax = firmware->getCapability(PPMCenter);
-    sbxCenter[i] = new QSpinBox(this);
-    sbxCenter[i]->setProperty("index", i);
-    sbxCenter[i]->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-    sbxCenter[i]->setSuffix("us");
-    sbxCenter[i]->setMinimum(1500 - ppmCenterMax);
-    sbxCenter[i]->setMaximum(1500 + ppmCenterMax);
-    sbxCenter[i]->setValue(1500);
-    connect(sbxCenter[i], &QSpinBox::editingFinished, this, &ChannelsPanel::ppmcenterEdited);
-    tableLayout->addWidget(i, col++, sbxCenter[i]);
+    sbxPPMCenter[i] = new QSpinBox(this);
+    sbxPPMCenter[i]->setProperty("index", i);
+    sbxPPMCenter[i]->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    sbxPPMCenter[i]->setSuffix("us");
+    sbxPPMCenter[i]->setMinimum(1500 - ppmCenterMax);
+    sbxPPMCenter[i]->setMaximum(1500 + ppmCenterMax);
+    sbxPPMCenter[i]->setValue(1500);
+    connect(sbxPPMCenter[i], &QSpinBox::editingFinished, this, &ChannelsPanel::ppmCenterEdited);
+    tableLayout->addWidget(i, col++, sbxPPMCenter[i]);
 
     // Symetrical limits
-    chkSymlimits[i] = new QCheckBox(this);
-    chkSymlimits[i]->setProperty("index", i);
-    chkSymlimits[i]->setChecked(model.limitData[i].symetrical);
-    connect(chkSymlimits[i], &QCheckBox::toggled, this, &ChannelsPanel::symlimitsEdited);
-    tableLayout->addWidget(i, col++, chkSymlimits[i]);
+    chkLinearSubTrim[i] = new QCheckBox(this);
+    chkLinearSubTrim[i]->setProperty("index", i);
+    chkLinearSubTrim[i]->setChecked(model.limitData[i].symetrical);
+    connect(chkLinearSubTrim[i], &QCheckBox::toggled, this, &ChannelsPanel::linearSubTrimEdited);
+    tableLayout->addWidget(i, col++, chkLinearSubTrim[i]);
   }
 
   update();
@@ -240,17 +244,17 @@ ChannelsPanel::~ChannelsPanel()
   // compiler warning if delete[]
   for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     delete leName[i];
-    delete cboInvert[i];
-    delete sbxCenter[i];
-    delete chkSymlimits[i];
-    delete offset[i];
-    delete min[i];
-    delete max[i];
-    delete curve[i];
+    delete rswSubTrim[i];
+    delete rswMin[i];
+    delete rswMax[i];
+    delete cboDirection[i];
+    delete crwCurve[i];
+    delete sbxPPMCenter[i];
+    delete chkLinearSubTrim[i];
   }
 }
 
-void ChannelsPanel::symlimitsEdited()
+void ChannelsPanel::linearSubTrimEdited()
 {
   if (!lock) {
     QCheckBox *ckb = qobject_cast<QCheckBox*>(sender());
@@ -278,13 +282,14 @@ void ChannelsPanel::refreshExtendedLimits()
   int channelMax = model->getChannelsMax() * 10;
 
   for (int i = 0 ; i < CPN_MAX_CHNOUT; i++) {
-    min[i]->updateMinMax(channelMax);
-    max[i]->updateMinMax(channelMax);
+    rswMin[i]->updateMinMax(channelMax);
+    rswMax[i]->updateMinMax(channelMax);
   }
+
   emit modified();
 }
 
-void ChannelsPanel::invEdited()
+void ChannelsPanel::directionEdited()
 {
   if (!lock) {
     QComboBox *cb = qobject_cast<QComboBox*>(sender());
@@ -294,7 +299,7 @@ void ChannelsPanel::invEdited()
   }
 }
 
-void ChannelsPanel::ppmcenterEdited()
+void ChannelsPanel::ppmCenterEdited()
 {
   if (!lock) {
     QSpinBox *sb = qobject_cast<QSpinBox*>(sender());
@@ -316,13 +321,13 @@ void ChannelsPanel::updateLine(int i)
   lock = true;
   LimitData &chn = model->limitData[i];
   leName[i]->setText(chn.name);
-  offset[i]->update();
-  min[i]->update();
-  max[i]->update();
-  cboInvert[i]->setCurrentIndex((chn.revert) ? 1 : 0);
-  curve[i]->update();
-  sbxCenter[i]->setValue(chn.ppmCenter + 1500);
-  chkSymlimits[i]->setChecked(chn.symetrical);
+  rswSubTrim[i]->update();
+  rswMin[i]->update();
+  rswMax[i]->update();
+  cboDirection[i]->setCurrentIndex((chn.revert) ? 1 : 0);
+  crwCurve[i]->update();
+  sbxPPMCenter[i]->setValue(chn.ppmCenter + 1500);
+  chkLinearSubTrim[i]->setChecked(chn.symetrical);
   lock = false;
 }
 

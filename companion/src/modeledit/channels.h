@@ -29,6 +29,7 @@
 class CompoundItemModelFactory;
 class FilteredItemModel;
 class RawSourceWidget;
+class CurveReferenceWidget;
 
 constexpr char MIMETYPE_CHANNEL[] = "application/x-companion-channel";
 
@@ -45,10 +46,10 @@ class ChannelsPanel : public ModelPanel
     void refreshExtendedLimits();
 
   private slots:
-    void symlimitsEdited();
     void nameEdited();
-    void invEdited();
-    void ppmcenterEdited();
+    void directionEdited();
+    void ppmCenterEdited();
+    void linearSubTrimEdited();
     void update();
     void updateLine(int index);
     void cmDelete();
@@ -65,17 +66,17 @@ class ChannelsPanel : public ModelPanel
     void onItemModelUpdateComplete();
 
   private:
-    QLineEdit *leName[CPN_MAX_CHNOUT];
-    QComboBox *cboInvert[CPN_MAX_CHNOUT];
-    QSpinBox *sbxCenter[CPN_MAX_CHNOUT];
-    QCheckBox *chkSymlimits[CPN_MAX_CHNOUT];
     int selectedIndex;
     int chnCapability;
     CompoundItemModelFactory *sharedItemModels;
-    RawSourceWidget *offset[CPN_MAX_CHNOUT];
-    RawSourceWidget *min[CPN_MAX_CHNOUT];
-    RawSourceWidget *max[CPN_MAX_CHNOUT];
-    RawSourceWidget *curve[CPN_MAX_CHNOUT];
+    QLineEdit *leName[CPN_MAX_CHNOUT];
+    RawSourceWidget *rswSubTrim[CPN_MAX_CHNOUT];
+    RawSourceWidget *rswMin[CPN_MAX_CHNOUT];
+    RawSourceWidget *rswMax[CPN_MAX_CHNOUT];
+    QComboBox *cboDirection[CPN_MAX_CHNOUT];
+    CurveReferenceWidget *crwCurve[CPN_MAX_CHNOUT];
+    QSpinBox *sbxPPMCenter[CPN_MAX_CHNOUT];
+    QCheckBox *chkLinearSubTrim[CPN_MAX_CHNOUT];
 
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;

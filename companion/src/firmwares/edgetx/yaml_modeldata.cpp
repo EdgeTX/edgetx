@@ -584,32 +584,37 @@ struct convert<LimitData> {
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
-    node["curve"] = rhs.curve.index;
+    node["curve"] = rhs.curve.source.index;
     return node;
   }
 
   static bool decode(const Node& node, LimitData& rhs)
   {
-    if (node["min"]) {
+    if (node["min"])
       rhs.min = YamlReadLimitValue(node["min"]);
-    }
-    if (node["max"]) {
+
+    if (node["max"])
       rhs.max = YamlReadLimitValue(node["max"]);
-    }
-    if (node["offset"]) {
+
+    if (node["offset"])
       rhs.offset = YamlReadLimitValue(node["offset"]);
-    }
+
     node["revert"] >> rhs.revert;
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
-    RawSource src;
-    if (node["curve"]) {
-      node["curve"] >> src.index;
+
+    int index = 0;
+
+    if (node["curve"])
+      node["curve"] >> index;
+
+    if (index > 0) {
+      rhs.curve.type = CurveReference::CURVE_REF_CUSTOM;
+      rhs.curve.source.type = SOURCE_TYPE_CURVE;
+      rhs.curve.source.index = index;
     }
-    if (src.index > 0)
-      src.type = SOURCE_TYPE_CURVE;
-    rhs.curve = src;
+
     return true;
   }
 };
