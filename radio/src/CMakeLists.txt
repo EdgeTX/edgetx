@@ -489,6 +489,7 @@ if(ALL_LANGUAGES)
     translations/sim/lang_pt.cpp
     translations/sim/lang_ru.cpp
     translations/sim/lang_se.cpp
+    translations/sim/lang_sk.cpp
     translations/sim/lang_tw.cpp
     translations/sim/lang_ua.cpp
   )
