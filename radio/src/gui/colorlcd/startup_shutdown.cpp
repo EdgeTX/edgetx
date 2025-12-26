@@ -42,7 +42,7 @@ const std::string git_str = "(" GIT_STR ")";
 #endif
 
 const uint8_t __bmp_splash_logo[]{
-#include "splash_logo.lbm"
+#include "bmp_logo_edgetx_splash.lbm"
 };
 
 static Window* splashScreen = nullptr;
