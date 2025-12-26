@@ -147,11 +147,9 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     //   model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
     rswSubTrim[i] = new RawSourceWidget(this, &model, sharedItemModels,
-      &model.limitData[i].offset,
-      RawSource::GVarsGroup,
-      UI_FLAG_LIST | UI_FLAG_VALUE,
-      RawSource(SOURCE_TYPE_NUMBER),
-      tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
+                    &model.limitData[i].offset, RawSource::GVarsGroup,
+                    UI_FLAG_LIST | UI_FLAG_VALUE, RawSource(SOURCE_TYPE_NUMBER),
+                    tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
     connect(rswSubTrim[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
     connect(rswSubTrim[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswSubTrim[i]);
@@ -161,11 +159,10 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     //   model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
     rswMin[i] = new RawSourceWidget(this, &model, sharedItemModels,
-      &model.limitData[i].min,
-      RawSource::GVarsGroup,
-      UI_FLAG_LIST | UI_FLAG_VALUE,
-      RawSource(SOURCE_TYPE_NUMBER, -1000),
-      tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
+                &model.limitData[i].min, RawSource::GVarsGroup,
+                UI_FLAG_LIST | UI_FLAG_VALUE, RawSource(SOURCE_TYPE_NUMBER, -1000),
+                tr("GV"), -model.getChannelsMax() * 10, 0, 10, 1, displayStep, "",
+                suffix);
     connect(rswMin[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
     connect(rswMin[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswMin[i]);
@@ -175,11 +172,10 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     //   model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
     //   dialogFilteredItemModels->getItemModel(gvid), this);
     rswMax[i] = new RawSourceWidget(this, &model, sharedItemModels,
-      &model.limitData[i].max,
-      RawSource::GVarsGroup,
-      UI_FLAG_LIST | UI_FLAG_VALUE,
-      RawSource(SOURCE_TYPE_NUMBER, 1000),
-      tr("GV"), -1000, 1000, 10, 1, displayStep, "", suffix);
+                &model.limitData[i].max, RawSource::GVarsGroup,
+                UI_FLAG_LIST | UI_FLAG_VALUE, RawSource(SOURCE_TYPE_NUMBER, 1000),
+                tr("GV"), 0, model.getChannelsMax() * 10, 10, 1, displayStep, "",
+                suffix);
     connect(rswMax[i], &RawSourceWidget::dataChanged, this, &ModelPanel::modified);
     connect(rswMax[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswMax[i]);
@@ -203,9 +199,9 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     // curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
     //                       model.limitData[i].curve, model, sharedItemModels, this);
     crwCurve[i] = new CurveReferenceWidget(this, &model, sharedItemModels,
-      &model.limitData[i].curve,
-      RawSource::CurvesGroup | RawSource::NoneGroup,
-      UI_FLAG_LIST | UI_FLAG_CURVE_IMAGE);
+                  &model.limitData[i].curve,
+                  RawSource::CurvesGroup | RawSource::NoneGroup,
+                  UI_FLAG_LIST | UI_FLAG_CURVE_IMAGE);
     connect(crwCurve[i], &CurveReferenceWidget::dataChanged, this, &ModelPanel::modified);
     connect(crwCurve[i], &CurveReferenceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, crwCurve[i]);
