@@ -77,7 +77,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
       break;
 
     case SOURCE_TYPE_GVAR: {
-      GVarData gv = model->gvarData[index];
+      GVarData gv = model->gvarData[index - 1];
       result.step = gv.multiplierGet();
       result.decimals = gv.prec;
       result.max = gv.getMaxPrec();
