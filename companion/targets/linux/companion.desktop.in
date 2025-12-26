@@ -6,5 +6,6 @@ Comment=The Ultimate Transmitter Companion
 Icon=@COMPANION_NAME@
 Exec=@COMPANION_NAME@
 Terminal=false
+StartupWMClass=EdgeTX Companion
 StartupNotify=false
 Categories=Utility;
