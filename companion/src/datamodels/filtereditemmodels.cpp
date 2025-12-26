@@ -21,13 +21,13 @@
 
 #include "filtereditemmodels.h"
 
-FilteredItemModel::FilteredItemModel(AbstractItemModel * sourceModel, int flags) :
+FilteredItemModel::FilteredItemModel(AbstractItemModel * sourceModel, int flags, bool isAvailable) :
   QSortFilterProxyModel(nullptr),
   filterFlags(0),
   m_id(0),
   m_name("")
 {
-  setFilterRole(AbstractItemModel::IMDR_Available);
+  setFilterRole(isAvailable ? AbstractItemModel::IMDR_Available : Qt::DisplayRole);
   setFilterKeyColumn(0);
   setFilterFlags(flags);
   setDynamicSortFilter(true);

@@ -29,7 +29,6 @@
 class CompoundItemModelFactory;
 class FilteredItemModel;
 class RawSourceWidget;
-class CurveReferenceWidget;
 
 constexpr char MIMETYPE_CHANNEL[] = "application/x-companion-channel";
 
@@ -47,9 +46,9 @@ class ChannelsPanel : public ModelPanel
 
   private slots:
     void nameEdited();
-    void directionEdited();
+    void invertedEdited();
     void ppmCenterEdited();
-    void linearSubTrimEdited();
+    void subTrimModeEdited();
     void update();
     void updateLine(int index);
     void cmDelete();
@@ -73,10 +72,10 @@ class ChannelsPanel : public ModelPanel
     RawSourceWidget *rswSubTrim[CPN_MAX_CHNOUT];
     RawSourceWidget *rswMin[CPN_MAX_CHNOUT];
     RawSourceWidget *rswMax[CPN_MAX_CHNOUT];
-    QComboBox *cboDirection[CPN_MAX_CHNOUT];
-    CurveReferenceWidget *crwCurve[CPN_MAX_CHNOUT];
+    QCheckBox *chkInverted[CPN_MAX_CHNOUT];
+    RawSourceWidget *crwCurve[CPN_MAX_CHNOUT];
     QSpinBox *sbxPPMCenter[CPN_MAX_CHNOUT];
-    QCheckBox *chkLinearSubTrim[CPN_MAX_CHNOUT];
+    QComboBox *cboSubTrimMode[CPN_MAX_CHNOUT];
 
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;

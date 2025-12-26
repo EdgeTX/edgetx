@@ -38,10 +38,10 @@ RawSourceWidget::RawSourceWidget(QWidget * parent,
                                   int min,
                                   int max,
                                   int precision,
-                                  int decimals,
                                   double step,
                                   QString prefix,
-                                  QString suffix) :
+                                  QString suffix,
+                                  bool isAvailable) :
   QWidget(parent),
   fimSource(nullptr),
   chkType(nullptr),
@@ -51,7 +51,7 @@ RawSourceWidget::RawSourceWidget(QWidget * parent,
   curveImage(nullptr)
 {
   init(modelData, sharedItemModels, src, imFilter, uiFlags, dflt,
-       typeLabel, min, max, precision, decimals, step, prefix, suffix);
+       typeLabel, min, max, precision, step, prefix, suffix, isAvailable);
 }
 
 void RawSourceWidget::init(ModelData * modelData,
@@ -64,10 +64,10 @@ void RawSourceWidget::init(ModelData * modelData,
                               int min,
                               int max,
                               int precision,
-                              int decimals,
                               double step,
                               QString prefix,
-                              QString suffix)
+                              QString suffix,
+                              bool isAvailable)
 {
   this->modelData = modelData;
   this->src = src;
@@ -77,13 +77,13 @@ void RawSourceWidget::init(ModelData * modelData,
   this->typeLabel = typeLabel;
   this->min = min;
   this->max = max;
-  this->step = step;
   this->precision = precision;
-  this->decimals = decimals;
+  this->step = step;
   this->prefix = prefix;
   this->suffix = suffix;
+  this->isAvailable = isAvailable;
 
-  fimSource = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource), imFilter);
+  fimSource = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource), imFilter, isAvailable);
   connectItemModelEvents(fimSource);
 
   // layout to group the requested ui objects
@@ -103,29 +103,22 @@ void RawSourceWidget::init(ModelData * modelData,
     cboSource->setModel(fimSource);
     cboSource->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     cboSource->setMaxVisibleItems(10);
-    connect(cboSource, QOverload<int>::of(&QComboBox::currentIndexChanged), [&] (int index)
-    {
-      if (!lock) {
-        *src = RawSource(cboSource->itemData(index).toInt());
-        emit dataChanged();
-        update();
-      }
-    });
-
+    connect(cboSource, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &RawSourceWidget::sourceChanged);
     layout->addWidget(cboSource);
   }
 
   if (uiFlags & UI_FLAG_VALUE) {
-    if (precision) {
+    if (precision > 1) {
       dsbValue = new QDoubleSpinBox();
       dsbValue->setAccelerated(true);
-      dsbValue->setDecimals(decimals);
+      dsbValue->setDecimals(precision == 10 ? 1 : precision == 100 ? 2 : 3);
       dsbValue->setMinimum(min);
       dsbValue->setMaximum(max);
       dsbValue->setSingleStep(step);
       dsbValue->setSuffix(suffix);
-      dsbValue->setValue(dflt.index); // conversion / step ????
-      dsbValue->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+      dsbValue->setValue(dflt.index / precision);
+      dsbValue->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
       dsbValue->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
       connect(dsbValue, &QDoubleSpinBox::editingFinished, this,
               &RawSourceWidget::valueChanged);
@@ -135,10 +128,10 @@ void RawSourceWidget::init(ModelData * modelData,
       sbValue->setAccelerated(true);
       sbValue->setMinimum(min);
       sbValue->setMaximum(max);
-      sbValue->setSingleStep((int)step);
+      sbValue->setSingleStep(step);
       sbValue->setSuffix(suffix);
       sbValue->setValue(dflt.index);
-      sbValue->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+      sbValue->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
       sbValue->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
       connect(sbValue, &QSpinBox::editingFinished, this,
               &RawSourceWidget::valueChanged);
@@ -192,26 +185,21 @@ void RawSourceWidget::setFilterFlags(int flags)
 
 void RawSourceWidget::shrink()
 {
-  adjustSize();
-  resize(0, 0);
-  emit resized();
+  //adjustSize();
+  //resize(0, 0);
+  //emit resized();
 }
 
 void RawSourceWidget::typeChanged(int state)
 {
   if (!lock) {
-    if (state == Qt::Checked) {
+    if (state == Qt::Checked)
+      *src = RawSource();
+    else
       *src = dflt;
-    } else {
-      *src = RawSource(SOURCE_TYPE_NUMBER);
-      if (sbValue)
-        sbValue->setValue(src->index);
-      if (dsbValue)
-        dsbValue->setValue(src->index / precision);
-    }
 
-    emit dataChanged();
     update();
+    emit dataChanged();
   }
 }
 
@@ -219,42 +207,55 @@ void RawSourceWidget::update()
 {
   lock = true;
 
-  if (cboSource && src->type != SOURCE_TYPE_NUMBER) {
-    cboSource->setCurrentIndex(cboSource->findData(src->toValue()));
+  if (chkType) {
+    if (chkType->checkState() == Qt::Unchecked) {
+      if (sbValue) {
+        sbValue->setValue(src->index);
+        sbValue->setVisible(true);
+      }
 
-    if (cboSource->currentIndex() < 0)
-      cboSource->setCurrentIndex(Helpers::getFirstPosValueIndex(cboSource));
+      if (dsbValue) {
+        dsbValue->setValue(src->index / precision);
+        dsbValue->setVisible(true);
+      }
+    } else {
+      if (sbValue) {
+        sbValue->setVisible(false);
+      }
+
+      if (dsbValue) {
+        dsbValue->setVisible(false);
+      }
+    }
   }
 
-  if (src->type == SOURCE_TYPE_NUMBER) {
-    RawSourceWidget::setVisible(false);
+  if (cboSource) {
+    if (src->type != SOURCE_TYPE_NUMBER) {
+      cboSource->setCurrentIndex(cboSource->findData(src->toValue()));
 
-    if (sbValue)
-      sbValue->setValue(src->index);
+      if (cboSource->currentIndex() < 0)
+        cboSource->setCurrentIndex(Helpers::getFirstPosValueIndex(cboSource));
 
-    if (dsbValue)
-      dsbValue->setValue(src->index / precision);
-  }
-  else {
-    RawSourceWidget::setVisible(true);
-
-    if (sbValue)
-      sbValue->setVisible(false);
-
-    if (dsbValue)
-      dsbValue->setVisible(false);
+      cboSource->setVisible(true);
+    } else {
+      cboSource->setVisible(false);
+    }
   }
 
-  if (curveImage && src->type == SOURCE_TYPE_CURVE) {
-    curveImage->setIndex(src->index);
+  if (curveImage) {
+    if (src->type == SOURCE_TYPE_CURVE) {
+      curveImage->setIndex(src->index);
 
-    if (abs(src->index) > 0 && abs(src->index) <= CPN_MAX_CURVES)
-      curveImage->setPen(colors[abs(src->index) - 1], 3);
-    else
-      curveImage->setPen(Qt::black, 3);
+      if (abs(src->index) > 0 && abs(src->index) <= CPN_MAX_CURVES)
+        curveImage->setPen(colors[abs(src->index) - 1], 3);
+      else
+        curveImage->setPen(Qt::black, 3);
 
-    curveImage->draw();
-    curveImage->setVisible(true);
+      curveImage->draw();
+      curveImage->setVisible(true);
+    } else {
+      curveImage->setVisible(false);
+    }
   }
 
   shrink();
@@ -264,36 +265,45 @@ void RawSourceWidget::update()
 //  this is normally invoked when extended trims setting changes
 void RawSourceWidget::updateMinMax(int max)
 {
+  bool valueChanged = false;
+
   if (sbValue) {
     if (sbValue->maximum() == 0) {
       sbValue->setMinimum(-max * precision);
-      if (!chkType->isChecked() && src->index < -max) {
+      if (chkType && !chkType->isChecked() && src->index < -max) {
         src->index = -max;
+        valueChanged = true;
       }
     }
 
     if (sbValue->minimum() == 0) {
       sbValue->setMaximum(max * precision);
-      if (!chkType->isChecked() && src->index > max) {
+      if (chkType && !chkType->isChecked() && src->index > max) {
         src->index = max;
+        valueChanged = true;
       }
     }
-  }
-
-  if (dsbValue) {
+  } else if (dsbValue) {
     if (dsbValue->maximum() == 0) {
       dsbValue->setMinimum(-max * precision);
-      if (!chkType->isChecked() && src->index < -max) {
+      if (chkType && !chkType->isChecked() && src->index < -max) {
         src->index = -max;
+        valueChanged = true;
       }
     }
 
     if (dsbValue->minimum() == 0) {
       dsbValue->setMaximum(max * precision);
-      if (!chkType->isChecked() && src->index > max) {
+      if (chkType && !chkType->isChecked() && src->index > max) {
         src->index = max;
+        valueChanged = true;
       }
     }
+  }
+
+  if (valueChanged) {
+    update();
+    emit dataChanged();
   }
 }
 
@@ -306,7 +316,16 @@ void RawSourceWidget::valueChanged()
     else if(dsbValue)
       src->index = round(dsbValue->value() * precision);
 
-    emit dataChanged();
     update();
+    emit dataChanged();
+  }
+}
+
+void RawSourceWidget::sourceChanged(int index)
+{
+  if (!lock) {
+    *src = RawSource(cboSource->itemData(index).toInt());
+    update();
+    emit dataChanged();
   }
 }

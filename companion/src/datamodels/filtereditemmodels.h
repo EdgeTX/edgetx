@@ -41,7 +41,7 @@ class FilteredItemModel: public QSortFilterProxyModel
     };
     Q_ENUM(DataFilters)
 
-    explicit FilteredItemModel(AbstractItemModel * sourceModel, int flags);
+    explicit FilteredItemModel(AbstractItemModel * sourceModel, int flags, bool isAvailable = true);
     explicit FilteredItemModel(AbstractItemModel * sourceModel) :
       FilteredItemModel(sourceModel, 0) {}
     virtual ~FilteredItemModel() {};

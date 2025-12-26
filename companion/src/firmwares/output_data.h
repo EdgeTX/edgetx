@@ -29,6 +29,7 @@
 #define LIMITDATA_NAME_LEN  6
 
 class RadioDataConversionState;
+class AbstractStaticItemModel;
 
 class LimitData {
   Q_DECLARE_TR_FUNCTIONS(LimitData)
@@ -44,11 +45,14 @@ class LimitData {
     bool symetrical;
     int failsafe;
     char name[LIMITDATA_NAME_LEN + 1];
-    CurveReference curve;
+    RawSource curve;
 
     void clear();
     bool isEmpty() const;
     QString revertToString() const;
     QString nameToString(int index) const;
+    QString symetricalToString() const;
+    static QString symetricalToString(bool value);
     void convert(RadioDataConversionState & cstate);
+    static AbstractStaticItemModel *symetricalModel();
 };

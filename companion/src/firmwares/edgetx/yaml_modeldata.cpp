@@ -584,7 +584,7 @@ struct convert<LimitData> {
     node["ppmCenter"] = rhs.ppmCenter;
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
-    node["curve"] = rhs.curve.source.index;
+    node["curve"] = rhs.curve;
     return node;
   }
 
@@ -610,9 +610,8 @@ struct convert<LimitData> {
       node["curve"] >> index;
 
     if (index > 0) {
-      rhs.curve.type = CurveReference::CURVE_REF_CUSTOM;
-      rhs.curve.source.type = SOURCE_TYPE_CURVE;
-      rhs.curve.source.index = index;
+      rhs.curve.type = SOURCE_TYPE_CURVE;
+      rhs.curve.index = index;
     }
 
     return true;

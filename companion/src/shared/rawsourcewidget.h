@@ -74,13 +74,13 @@ class RawSourceWidget : public QWidget {
                               int uiFlags,
                               RawSource dflt = RawSource(),
                               QString typeLabel = "",
-                              int min = -100,
-                              int max = 100,
+                              int min = -1000,
+                              int max = 1000,
                               int precision = 1,
-                              int decimals = 0,
-                              double step = 1,
+                              double step = 1.0,
                               QString prefix = "",
-                              QString suffix = "");
+                              QString suffix = "",
+                              bool isAvailable = true);
 
     explicit RawSourceWidget(QWidget * parent,
                              ModelData * modelData,
@@ -108,11 +108,11 @@ class RawSourceWidget : public QWidget {
               QString typeLabel = "",
               int min = -1000,
               int max = 1000,
-              int precision = 10,
-              int decimals = 1,
-              double step = 0.1,
+              int precision = 1,
+              double step = 1.0,
               QString prefix = "",
-              QString suffix = "");
+              QString suffix = "",
+              bool isAvailable = true);
 
     void init(ModelData * modelData,
               CompoundItemModelFactory * sharedItemModels,
@@ -130,6 +130,7 @@ class RawSourceWidget : public QWidget {
     void resized();
 
   protected slots:
+    void sourceChanged(int index);
     void typeChanged(int state);
     void valueChanged();
 
@@ -141,12 +142,12 @@ class RawSourceWidget : public QWidget {
     RawSource *src;
     RawSource dflt;
     int uiFlags;
+    bool isAvailable;
     int imFilter;
     QString typeLabel;
     int min;
     int max;
     int precision;
-    int decimals;
     double step;
     QString prefix;
     QString suffix;
