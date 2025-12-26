@@ -325,6 +325,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   install(TARGETS ${SIMULATOR_NAME}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 
+  # configure custom AppRun script from template
+  configure_file(${COMPANION_TARGETS_DIR}/AppRun.in ${CMAKE_BINARY_DIR}/AppDir/AppRun @ONLY
+  )
+
+  # Make it executable
+  file(CHMOD ${CMAKE_BINARY_DIR}/AppDir/AppRun
+      PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                  GROUP_READ GROUP_EXECUTE
+                  WORLD_READ WORLD_EXECUTE
+  )
+
   # configure and set variables used by package script
   set(COMPANION_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${COMPANION_NAME}.desktop)
   configure_file(${COMPANION_TARGETS_DIR}/companion.desktop.in ${COMPANION_DESKTOP_FILE} @ONLY)
