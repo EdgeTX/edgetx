@@ -373,7 +373,7 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
       str += " " + input.carryTrimToString().toHtmlEscaped();
   }
 
-  if (input.offset.isSet())
+  if (input.offset.isSet() && input.offset.index != 0)
     str += " " + tr("Offset(%1)").arg(input.offset.toString(&model, &generalSettings)).toHtmlEscaped();
   if (firmware->getCapability(HasExpoNames) && input.name[0])
     str += QString(" [%1]").arg(input.name).toHtmlEscaped();
@@ -418,7 +418,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
 
   if (firmware->getCapability(HasNoExpo) && mix.noExpo)
     str += " " + tr("No DR/Expo").toHtmlEscaped();
-  if (mix.offset.isSet())
+  if (mix.offset.isSet() && mix.offset.index != 0)
     str += " " + tr("Offset(%1)").arg(mix.offset.toString(&model, &generalSettings)).toHtmlEscaped();
   if (mix.curve.isSet())
     str += " " + mix.curve.toString(&model, true, &generalSettings).toHtmlEscaped();

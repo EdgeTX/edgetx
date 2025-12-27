@@ -277,7 +277,7 @@ class RawSource {
     QString toString(const ModelData * model = nullptr,
       const GeneralSettings * const generalSettings = nullptr,
       Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true,
-      int numDecimals = 0, QString numPrefix = QString(),
+      int numPrec = 1, QString numPrefix = QString(),
       QString numSuffix = QString()) const;
     RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings,
       unsigned int flags=0) const;

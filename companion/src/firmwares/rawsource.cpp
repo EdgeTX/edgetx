@@ -282,7 +282,7 @@ QString RawSource::toString(const ModelData * model,
 
     case SOURCE_TYPE_NUMBER:
       result = numPrefix;
-      result.append(QString::number(qreal(index) / numPrec));
+      result.append(QString::number(double(index) / numPrec, 'f', Helpers::precisionToDecimals(numPrec)));
       result.append(numSuffix);
       return result;
 

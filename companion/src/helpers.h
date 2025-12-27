@@ -120,7 +120,7 @@ namespace Helpers
   QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
   QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
   int calcQLineEditWidth(const int numchars);
-
+  int precisionToDecimals(const int prec);
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
