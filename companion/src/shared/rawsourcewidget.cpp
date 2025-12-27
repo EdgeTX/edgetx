@@ -87,7 +87,9 @@ void RawSourceWidget::init(ModelData * modelData,
   connectItemModelEvents(fimSource);
 
   // layout to group the requested ui objects
+  setContentsMargins(0, 0, 0, 0);
   QHBoxLayout *layout = new QHBoxLayout();
+  layout->setContentsMargins(0, 0, 0, 0);
 
   if (uiFlags & UI_FLAG_LIST && uiFlags & UI_FLAG_VALUE) {
     chkType = new QCheckBox(typeLabel.isEmpty() ? tr("Source") : typeLabel);
