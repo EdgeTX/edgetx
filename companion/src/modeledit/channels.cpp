@@ -43,7 +43,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
 
   TableLayout *tableLayout = new TableLayout(this, chnCapability, headerLabels);
   int col = 0;
-  const int leNameWidth = calcLineEditWidth(firmware->getCapability(ChannelsName) + 4/*abitary*/);
+  const int leNameWidth = Helpers::calcQLineEditWidth(firmware->getCapability(ChannelsName) + 4/*abitary*/);
 
   for (int i = 0; i < chnCapability; i++) {
     col = 0;
@@ -422,26 +422,4 @@ void ChannelsPanel::updateItemModels()
 {
   sharedItemModels->update(AbstractItemModel::IMUE_Channels);
   emit modified();
-}
-
-int ChannelsPanel::calcLineEditWidth(const int numchars) const
-{
-    // Get font metrics
-    QLineEdit edit;
-    QFontMetrics fm = edit.fontMetrics();
-    // Calculate the width some dummy text
-    int textWidth = fm.horizontalAdvance(QString(numchars, 'X'));
-
-    // Get the widget's margins (text and contents)
-    QMargins tm = edit.textMargins();
-    QMargins cm = edit.contentsMargins();
-    int marginsWidth = tm.left() + tm.right() + cm.left() + cm.right();
-
-    // Use QStyle to correctly calculate frame padding (this is robust across different styles)
-    QStyleOptionFrame op;
-    op.initFrom(&edit);
-    QSize contentsSize(textWidth + marginsWidth, edit.height());
-    QSize perfectSize = edit.style()->sizeFromContents(QStyle::CT_LineEdit, &op, contentsSize, &edit);
-
-    return perfectSize.width();
 }
