@@ -27,7 +27,9 @@ FilteredItemModel::FilteredItemModel(AbstractItemModel * sourceModel, int flags,
   m_id(0),
   m_name("")
 {
-  setFilterRole(isAvailable ? AbstractItemModel::IMDR_Available : Qt::DisplayRole);
+  if (isAvailable)
+    setFilterRole(AbstractItemModel::IMDR_Available);
+
   setFilterKeyColumn(0);
   setFilterFlags(flags);
   setDynamicSortFilter(true);

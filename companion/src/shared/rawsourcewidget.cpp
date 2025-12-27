@@ -113,8 +113,8 @@ void RawSourceWidget::init(ModelData * modelData,
       dsbValue = new QDoubleSpinBox();
       dsbValue->setAccelerated(true);
       dsbValue->setDecimals(precision == 10 ? 1 : precision == 100 ? 2 : 3);
-      dsbValue->setMinimum(min);
-      dsbValue->setMaximum(max);
+      dsbValue->setMinimum(min / precision);
+      dsbValue->setMaximum(max / precision);
       dsbValue->setSingleStep(step);
       dsbValue->setSuffix(suffix);
       dsbValue->setValue(dflt.index / precision);
