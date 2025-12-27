@@ -464,6 +464,7 @@
 #define STR_CONNECTED currentLangStrings->STR_CONNECTED
 #define STR_CONSTANT currentLangStrings->STR_CONSTANT
 #define STR_CONTRAST currentLangStrings->STR_CONTRAST
+#define STR_CONTROL currentLangStrings->STR_CONTROL
 #define STR_COPROC_TEMP currentLangStrings->STR_COPROC_TEMP
 #define STR_COPROC currentLangStrings->STR_COPROC
 #define STR_COPY_FILE currentLangStrings->STR_COPY_FILE
@@ -907,6 +908,7 @@
 #define STR_SF_LCD_TO_VIDEO currentLangStrings->STR_SF_LCD_TO_VIDEO
 #define STR_SF_LOGS currentLangStrings->STR_SF_LOGS
 #define STR_SF_MOD_BIND currentLangStrings->STR_SF_MOD_BIND
+#define STR_SF_OVERRIDDEN currentLangStrings->STR_SF_OVERRIDDEN
 #define STR_SF_PLAY_SCRIPT currentLangStrings->STR_SF_PLAY_SCRIPT
 #define STR_SF_RACING_MODE currentLangStrings->STR_SF_RACING_MODE
 #define STR_SF_RANGE_CHECK currentLangStrings->STR_SF_RANGE_CHECK
