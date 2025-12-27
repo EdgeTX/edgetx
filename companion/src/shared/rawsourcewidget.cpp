@@ -94,9 +94,13 @@ void RawSourceWidget::init(ModelData * modelData,
   if (uiFlags & UI_FLAG_LIST && uiFlags & UI_FLAG_VALUE) {
     chkType = new QCheckBox(typeLabel.isEmpty() ? tr("Source") : typeLabel);
     chkType->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+    if (src->type != SOURCE_TYPE_NUMBER) {
+      chkType->setChecked(true);
+    }
+
     connect(chkType, &QCheckBox::checkStateChanged, this,
             &RawSourceWidget::typeChanged);
-
     layout->addWidget(chkType);
   }
 
@@ -121,7 +125,7 @@ void RawSourceWidget::init(ModelData * modelData,
       dsbValue->setSuffix(suffix);
       dsbValue->setValue(dflt.index / precision);
       dsbValue->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
-      dsbValue->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+      dsbValue->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
       connect(dsbValue, &QDoubleSpinBox::editingFinished, this,
               &RawSourceWidget::valueChanged);
       layout->addWidget(dsbValue);
@@ -187,6 +191,7 @@ void RawSourceWidget::setFilterFlags(int flags)
 
 void RawSourceWidget::shrink()
 {
+  // seems to be resizing without these
   //adjustSize();
   //resize(0, 0);
   //emit resized();

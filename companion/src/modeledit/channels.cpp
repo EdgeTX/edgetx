@@ -25,71 +25,6 @@
 #include "namevalidator.h"
 #include "rawsourcewidget.h"
 
-// LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row,
-//                 int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
-//                 int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
-//   firmware(firmware),
-//   spinbox(new QDoubleSpinBox()),
-//   value(value)
-// {
-//   spinbox->setProperty("index", row);
-//   spinbox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-//   spinbox->setAccelerated(true);
-//   spinbox->setDecimals(1);
-
-//   if (generalSettings.ppmunit == GeneralSettings::PPM_US) {
-//     displayStep = 0.512;
-//     spinbox->setSuffix("us");
-//   }
-//   else {
-//     displayStep = 0.1;
-//     spinbox->setSuffix("%");
-//   }
-
-//   spinbox->setSingleStep(displayStep);
-//   spinbox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-
-//   QHBoxLayout *horizontalLayout = new QHBoxLayout();
-//   gv = new QCheckBox(tr("GV"));
-//   gv->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-//   horizontalLayout->addWidget(gv);
-//   QComboBox *cb = new QComboBox();
-//   cb->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-//   horizontalLayout->addWidget(cb);
-//   horizontalLayout->addWidget(spinbox);
-//   tableLayout->addLayout(row, col, horizontalLayout);
-//   gvarGroup = new GVarGroup(gv, spinbox, cb, value, model, deflt, min, max, displayStep, gvarModel);
-//   QObject::connect(gvarGroup, &GVarGroup::valueChanged, panel, &ModelPanel::modified);
-// }
-
-// LimitsGroup::~LimitsGroup()
-// {
-//   delete gvarGroup;
-// }
-
-// void LimitsGroup::setValue(int val)
-// {
-//   gvarGroup->setWeight(val);
-// }
-
-// void LimitsGroup::updateMinMax(int max)
-// {
-//   if (spinbox->maximum() == 0) {
-//     spinbox->setMinimum(-max * displayStep);
-//     gvarGroup->setMinimum(-max);
-//     if (!gv->isChecked() && value < -max) {
-//       value = -max;
-//     }
-//   }
-//   if (spinbox->minimum() == 0) {
-//     spinbox->setMaximum(max * displayStep);
-//     gvarGroup->setMaximum(max);
-//     if (!gv->isChecked() && value > max) {
-//       value = max;
-//     }
-//   }
-// }
-
 ChannelsPanel::ChannelsPanel(QWidget * parent,
                              ModelData & model,
                              GeneralSettings & generalSettings,
@@ -103,16 +38,16 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
 
   QStringList headerLabels;
   headerLabels << "#" << tr("Name") << tr("Subtrim") << tr("Min") << tr("Max")
-               << tr("Inverted") << tr("Curve") << tr("PPM Center")
+               << tr("Invert") << tr("Curve") << tr("PPM Center")
                << tr("Subtrim Mode");
 
   TableLayout *tableLayout = new TableLayout(this, chnCapability, headerLabels);
   int col = 0;
+  const int leNameWidth = calcLineEditWidth(firmware->getCapability(ChannelsName) + 4/*abitary*/);
 
   for (int i = 0; i < chnCapability; i++) {
-    // TableLayout column index
     col = 0;
-    // Channel label
+    // Label
     QLabel *label = new QLabel(this);
     label->setText(tr("CH%1").arg(i+1));
     label->setProperty("index", i);
@@ -124,11 +59,13 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
             &ChannelsPanel::onCustomContextMenuRequested);
     tableLayout->addWidget(i, col++, label);
 
-    // Channel name
+    // Name
     leName[i] = new QLineEdit(this);
     leName[i]->setProperty("index", i);
     leName[i]->setMaxLength(firmware->getCapability(ChannelsName));
+    leName[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     leName[i]->setValidator(new NameValidator(board, this));
+    leName[i]->setFixedWidth(leNameWidth);
     connect(leName[i], &QLineEdit::editingFinished, this, &ChannelsPanel::nameEdited);
     tableLayout->addWidget(i, col++, leName[i]);
 
@@ -143,10 +80,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
       suffix = tr("%");
     }
 
-    // Channel offset
-    // chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-    //   model.limitData[i].offset, model, generalSettings, -1000, 1000, 0,
-    //   dialogFilteredItemModels->getItemModel(gvid), this);
+    // Subtrim
     rswSubTrim[i] = new RawSourceWidget(this, &model, sharedItemModels,
                     &model.limitData[i].offset, RawSource::GVarsGroup,
                     UI_FLAG_LIST | UI_FLAG_VALUE, RawSource(SOURCE_TYPE_NUMBER),
@@ -155,10 +89,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     connect(rswSubTrim[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswSubTrim[i]);
 
-    // Channel min
-    // chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-    //   model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000,
-    //   dialogFilteredItemModels->getItemModel(gvid), this);
+    // Minimum
     rswMin[i] = new RawSourceWidget(this, &model, sharedItemModels,
                 &model.limitData[i].min, RawSource::GVarsGroup,
                 UI_FLAG_LIST | UI_FLAG_VALUE, RawSource(SOURCE_TYPE_NUMBER, -model.getChannelsMax() * 10),
@@ -168,10 +99,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     connect(rswMin[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswMin[i]);
 
-    // Channel max
-    // chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++,
-    //   model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000,
-    //   dialogFilteredItemModels->getItemModel(gvid), this);
+    // Maximum
     rswMax[i] = new RawSourceWidget(this, &model, sharedItemModels,
                 &model.limitData[i].max, RawSource::GVarsGroup,
                 UI_FLAG_LIST | UI_FLAG_VALUE, RawSource(SOURCE_TYPE_NUMBER, model.getChannelsMax() * 10),
@@ -181,23 +109,13 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     connect(rswMax[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswMax[i]);
 
-    // Channel inversion
+    // Inversion
     chkInverted[i] = new QCheckBox(this);
     chkInverted[i]->setProperty("index", i);
     connect(chkInverted[i], &QCheckBox::stateChanged, this, &ChannelsPanel::invertedEdited);
     tableLayout->addWidget(i, col++, chkInverted[i], Qt::AlignCenter);
 
-    // curveCB[i] = new QComboBox(this);
-    // curveCB[i]->setProperty("index", i);
-    // tableLayout->addWidget(i, col++, curveCB[i]);
-
-    // curveImage[i] = new CurveImageWidget(this);
-    // curveImage[i]->setProperty("index", i);
-    // curveImage[i]->setFixedSize(QSize(100, 100));
-    // tableLayout->addWidget(i, col++, curveImage[i]);
-
-    // curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i],
-    //                       model.limitData[i].curve, model, sharedItemModels, this);
+    // Curve
     crwCurve[i] = new RawSourceWidget(this, &model, sharedItemModels,
                   &model.limitData[i].curve,
                   RawSource::CurvesGroup | RawSource::NoneGroup,
@@ -220,7 +138,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
             this, &ChannelsPanel::ppmCenterEdited);
     tableLayout->addWidget(i, col++, sbxPPMCenter[i]);
 
-    // Symetrical limits
+    // Subtrim mode
     cboSubTrimMode[i] = new QComboBox(this);
     cboSubTrimMode[i]->setProperty("index", i);
     cboSubTrimMode[i]->setModel(LimitData::symetricalModel());
@@ -504,4 +422,26 @@ void ChannelsPanel::updateItemModels()
 {
   sharedItemModels->update(AbstractItemModel::IMUE_Channels);
   emit modified();
+}
+
+int ChannelsPanel::calcLineEditWidth(const int numchars) const
+{
+    // Get font metrics
+    QLineEdit edit;
+    QFontMetrics fm = edit.fontMetrics();
+    // Calculate the width some dummy text
+    int textWidth = fm.horizontalAdvance(QString(numchars, 'X'));
+
+    // Get the widget's margins (text and contents)
+    QMargins tm = edit.textMargins();
+    QMargins cm = edit.contentsMargins();
+    int marginsWidth = tm.left() + tm.right() + cm.left() + cm.right();
+
+    // Use QStyle to correctly calculate frame padding (this is robust across different styles)
+    QStyleOptionFrame op;
+    op.initFrom(&edit);
+    QSize contentsSize(textWidth + marginsWidth, edit.height());
+    QSize perfectSize = edit.style()->sizeFromContents(QStyle::CT_LineEdit, &op, contentsSize, &edit);
+
+    return perfectSize.width();
 }

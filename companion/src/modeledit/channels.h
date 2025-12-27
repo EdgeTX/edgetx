@@ -84,4 +84,6 @@ class ChannelsPanel : public ModelPanel
 
     void updateItemModels();
     void connectItemModelEvents(const FilteredItemModel * itemModel);
+
+    int calcLineEditWidth(const int numchars) const;
 };
