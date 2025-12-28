@@ -109,8 +109,8 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     connect(rswMax[i], &RawSourceWidget::resized, [=] () { adjustSize(); });
     tableLayout->addWidget(i, col++, rswMax[i]);
 
-    // Inversion
-    chkInverted[i] = new QCheckBox(this);
+    // Direction invert
+    chkInverted[i] = new QCheckBox(" ", this);  // Qt 6.9 Windows fix for checkbox display
     chkInverted[i]->setProperty("index", i);
     connect(chkInverted[i], &QCheckBox::stateChanged, this, &ChannelsPanel::invertedEdited);
     tableLayout->addWidget(i, col++, chkInverted[i], Qt::AlignCenter);
