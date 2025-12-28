@@ -112,6 +112,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
 
   ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
   ui->inputName->setValidator(new NameValidator(board, this));
+  ui->inputName->setFixedWidth(Helpers::calcQLineEditWidth(firmware->getCapability(InputsLength) + 2/*abitary*/));
   ui->inputName->setText(inputName);
 
   int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
@@ -133,6 +134,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
 
   ui->lineName->setMaxLength(firmware->getCapability(HasExpoNames));
   ui->lineName->setValidator(new NameValidator(board, this));
+  ui->lineName->setFixedWidth(Helpers::calcQLineEditWidth(firmware->getCapability(HasExpoNames) + 2/*abitary*/));
   ui->lineName->setText(ed->name);
 
   updateScale();

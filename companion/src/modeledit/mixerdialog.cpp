@@ -88,6 +88,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
 
   ui->mixerName->setMaxLength(MIXDATA_NAME_LEN);
   ui->mixerName->setValidator(new NameValidator(board, this));
+  ui->mixerName->setFixedWidth(Helpers::calcQLineEditWidth(MIXDATA_NAME_LEN + 2/*abitary*/));
   ui->mixerName->setText(md->name);
 
   if (!firmware->getCapability(FlightModes)) {
