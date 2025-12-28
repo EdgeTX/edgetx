@@ -723,7 +723,7 @@ QString ModelPrinter::printOutputRevert(int idx)
 
 QString ModelPrinter::printOutputPpmCenter(int idx)
 {
-  return QString::number(model.limitData[idx].ppmCenter + 1500);
+  return QString::number(model.limitData[idx].ppmCenter);
 }
 
 QString ModelPrinter::printOutputCurve(int idx)
