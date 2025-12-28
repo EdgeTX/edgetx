@@ -20,6 +20,7 @@
  */
 
 #include "modelslist.h"
+#include "edgetxinterface.h"
 
 ModelListItem::ModelListItem(const QVector<QVariant> & itemData):
   itemData(itemData),
@@ -460,10 +461,28 @@ bool ModelsListModel::hasOwnMimeData(const QMimeData * mimeData) const
 
 void ModelsListModel::encodeModelsData(const QModelIndexList & indexes, QByteArray * data) const
 {
+  int mdlCnt = 0;
+
+  foreach (const QModelIndex &index, indexes) {
+    if (index.isValid() && index.column() == 0)
+      mdlCnt++;
+  }
+
+  if (mdlCnt < 1)
+    return;
+
+  QDataStream out(data, QIODevice::WriteOnly);
+  Board::Type board = getCurrentBoard();
+  out << board;
+  out << mdlCnt;
+
   foreach (const QModelIndex &index, indexes) {
     if (index.isValid() && index.column() == 0) {
-      data->append('M');
-      data->append((char *)&radioData->models[getModelIndex(index)], sizeof(ModelData));
+      ModelData &modelData = radioData->models[getModelIndex(index)];
+      QByteArray yaml;
+
+      if (writeModelToYaml(modelData, yaml))
+        out << yaml << modelData.checklistData.data();
     }
   }
 }
@@ -520,18 +539,37 @@ bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelDa
     *hasGenSet = false;
 
   if (models && mimeData->hasFormat("application/x-companion-modeldata")) {
-    QByteArray mdlData = mimeData->data("application/x-companion-modeldata");
-    gData = mdlData.data();
-    int size = 0;
-    while (size < mdlData.size()) {
-      char c = *gData++;
-      if (c != 'M')
-        break;
-      ModelData model(*((ModelData *)gData));
-      models->append(model);
-      gData += sizeof(ModelData);
-      size += sizeof(ModelData) + 1;
-      ret = true;
+    QByteArray clipboard = mimeData->data("application/x-companion-modeldata");
+    QDataStream in(&clipboard, QIODevice::ReadOnly);
+
+    Board::Type board;
+    int mdlCnt;
+    in >> board >> mdlCnt;
+
+    for (int i = 1; i <= mdlCnt; i++) {
+      QByteArray *buffer = new QByteArray();
+      in >> *buffer;
+
+      if (buffer->size() > 0) {
+        ModelData *model = new ModelData();
+
+        if (loadModelFromYaml(*model, *buffer)) {
+          model->used = true;
+          QByteArray *chklst = new QByteArray();
+          in >> *chklst;
+
+          if (chklst->size() > 0) {
+            model->checklistData = *chklst;
+            models->append(*model);
+          }
+
+          delete chklst;
+          ret = true;
+        }
+
+        delete model;
+        delete buffer;
+      }
     }
   }
 
@@ -555,10 +593,14 @@ bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelDa
 int ModelsListModel::countModelsInMimeData(const QMimeData * mimeData)
 {
   int ret = 0;
+
   if (mimeData->hasFormat("application/x-companion-modeldata")) {
-    QByteArray mdlData = mimeData->data("application/x-companion-modeldata");
-    ret = mdlData.size() / (sizeof(ModelData) + 1);
+    QByteArray data = mimeData->data("application/x-companion-modeldata");
+    QDataStream in(&data, QIODevice::ReadOnly);
+    Board::Type board;
+    in >> board >> ret;
   }
+
   return ret;
 }
 

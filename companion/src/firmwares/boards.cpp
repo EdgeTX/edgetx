@@ -22,10 +22,10 @@
 #include "boards.h"
 #include "macros.h"
 #include "compounditemmodels.h"
-#include "moduledata.h"
 #include "helpers.h"
 #include "boardfactories.h"
 #include "generalsettings.h"
+#include "modeldata.h"
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
@@ -334,7 +334,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
     case FunctionSwitchGroups:
       if (getCapability(board, FunctionSwitches)) {
-        return IS_RADIOMASTER_GX12(board) ? 4 : 3;
+        return IS_RADIOMASTER_GX12(board) ? CPN_MAX_CUSTOMSWITCH_GROUPS : 3;
       }
       return 0;
 
