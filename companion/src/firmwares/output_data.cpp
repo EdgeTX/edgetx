@@ -31,6 +31,7 @@ void LimitData::clear()
   min = RawSource(SOURCE_TYPE_NUMBER, -1000);
   max = RawSource(SOURCE_TYPE_NUMBER, 1000);
   curve = RawSource();
+  ppmCenter = 1500;
 }
 
 bool LimitData::isEmpty() const

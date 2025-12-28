@@ -131,9 +131,8 @@ ChannelsPanel::ChannelsPanel(QWidget * parent,
     sbxPPMCenter[i]->setProperty("index", i);
     sbxPPMCenter[i]->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
     sbxPPMCenter[i]->setSuffix("us");
-    sbxPPMCenter[i]->setMinimum(1500 - ppmCenterMax);
+    sbxPPMCenter[i]->setMinimum(1500 -ppmCenterMax);
     sbxPPMCenter[i]->setMaximum(1500 + ppmCenterMax);
-    sbxPPMCenter[i]->setValue(1500);
     connect(sbxPPMCenter[i], &QSpinBox::editingFinished,
             this, &ChannelsPanel::ppmCenterEdited);
     tableLayout->addWidget(i, col++, sbxPPMCenter[i]);
@@ -222,7 +221,7 @@ void ChannelsPanel::ppmCenterEdited()
   if (!lock) {
     QSpinBox *sb = qobject_cast<QSpinBox*>(sender());
     int index = sb->property("index").toInt();
-    model->limitData[index].ppmCenter = sb->value() - 1500;
+    model->limitData[index].ppmCenter = sb->value();
     emit modified();
   }
 }
@@ -244,7 +243,7 @@ void ChannelsPanel::updateLine(int i)
   rswMax[i]->update();
   chkInverted[i]->setChecked(chn.revert);
   crwCurve[i]->update();
-  sbxPPMCenter[i]->setValue(chn.ppmCenter + 1500);
+  sbxPPMCenter[i]->setValue(chn.ppmCenter);
   cboSubTrimMode[i]->setCurrentIndex((int)chn.symetrical);
   lock = false;
 }

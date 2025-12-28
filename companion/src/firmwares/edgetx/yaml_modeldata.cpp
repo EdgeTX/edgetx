@@ -510,14 +510,14 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   return true;
 }
 
-static RawSource YamlReadLimitValue(const YAML::Node& node)
+static RawSource YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
 {
   // TODO read standard RawSource format
   Firmware *firmware = getCurrentFirmware();
   std::string val_str = node.as<std::string>();
 
   try {
-    int32_t val = std::stoi(val_str);
+    int32_t val = std::stoi(val_str) + shift;
     return RawSource(SOURCE_TYPE_NUMBER, val);
   } catch(...) {
     try {
@@ -557,7 +557,7 @@ static RawSource YamlReadLimitValue(const YAML::Node& node)
   }
 }
 
-static std::string YamlWriteLimitValue(RawSource src)
+static std::string YamlWriteLimitValue(RawSource src, int32_t shift = 0)
 {
   // TODO return stamdard source format
   if (src.type == SOURCE_TYPE_GVAR) {
@@ -565,11 +565,11 @@ static std::string YamlWriteLimitValue(RawSource src)
     if (src.index < 0)
       str.append("-");
     str.append("GV");
-    str.append(std::to_string(src.index));
+    str.append(std::to_string(abs(src.index)));
     return str;
   }
 
-  return std::to_string(src.index);
+  return std::to_string(src.index - shift);
 }
 
 template <>
@@ -577,30 +577,31 @@ struct convert<LimitData> {
   static Node encode(const LimitData& rhs)
   {
     Node node;
-    node["min"] = YamlWriteLimitValue(rhs.min);
-    node["max"] = YamlWriteLimitValue(rhs.max);
+    node["min"] = YamlWriteLimitValue(rhs.min, -1000);
+    node["max"] = YamlWriteLimitValue(rhs.max, 1000);
     node["revert"] = (int)rhs.revert;
     node["offset"] = YamlWriteLimitValue(rhs.offset);
-    node["ppmCenter"] = rhs.ppmCenter;
+    node["ppmCenter"] = (rhs.ppmCenter - 1500);
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
-    node["curve"] = rhs.curve;
+    node["curve"] = std::to_string(rhs.curve.index);
     return node;
   }
 
   static bool decode(const Node& node, LimitData& rhs)
   {
     if (node["min"])
-      rhs.min = YamlReadLimitValue(node["min"]);
+      rhs.min = YamlReadLimitValue(node["min"], 1000);
 
     if (node["max"])
-      rhs.max = YamlReadLimitValue(node["max"]);
+      rhs.max = YamlReadLimitValue(node["max"], -1000);
 
     if (node["offset"])
       rhs.offset = YamlReadLimitValue(node["offset"]);
 
     node["revert"] >> rhs.revert;
     node["ppmCenter"] >> rhs.ppmCenter;
+    rhs.ppmCenter += 1500;
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
 
