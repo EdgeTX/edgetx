@@ -29,24 +29,28 @@ CurveReferenceWidget::CurveReferenceWidget(QWidget * parent,
                                            ModelData * modelData,
                                            CompoundItemModelFactory * sharedItemModels,
                                            CurveReference * curveRef,
-                                           int imFilter,
-                                           int uiFlags,
+                                           int listFilter,
+                                           int flags,
                                            CurveReference dflt,
-                                           QString useLabel,
+                                           QString typeLabel,
                                            int min,
                                            int max,
                                            int precision,
-                                           int decimals,
                                            double step,
                                            QString prefix,
-                                           QString suffix) :
-  curveRef(curveRef),
-  cboType(nullptr),
-  rawSourceWidget(nullptr),
-  lock(false)
+                                           QString suffix,
+                                           bool isAvailable) :
+  QWidget(parent)
 {
-  init(modelData, sharedItemModels, curveRef, imFilter, uiFlags, dflt,
-       useLabel, min, max, precision, decimals, step, prefix, suffix);
+  init();
+  init(modelData, sharedItemModels, curveRef, listFilter, flags, dflt,
+       typeLabel, min, max, precision, step, prefix, suffix, isAvailable);
+}
+
+CurveReferenceWidget::CurveReferenceWidget(QWidget * parent) :
+  QWidget(parent)
+{
+  init();
 }
 
 CurveReferenceWidget::~CurveReferenceWidget()
@@ -55,42 +59,59 @@ CurveReferenceWidget::~CurveReferenceWidget()
     delete rawSourceWidget;
 }
 
+void CurveReferenceWidget::init()
+{
+  cboType = nullptr;
+  rawSourceWidget = nullptr;
+  lock = false;
+}
+
 void CurveReferenceWidget::init(ModelData * modelData,
                                 CompoundItemModelFactory * sharedItemModels,
                                 CurveReference * curveRef,
-                                int imFilter,
-                                int uiFlags,
+                                int listFilter,
+                                int flags,
                                 CurveReference dflt,
-                                QString useLabel,
+                                QString typeLabel,
                                 int min,
                                 int max,
                                 int precision,
-                                int decimals,
                                 double step,
                                 QString prefix,
-                                QString suffix)
+                                QString suffix,
+                                bool isAvailable)
 {
-  if (uiFlags & UI_FLAG_CURVE_TYPE) {
-    cboType = new QComboBox(this);
-    cboType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    cboType->setModel(CurveReference::typeItemModel());
-    cboType->setCurrentIndex(cboType->findData((int)curveRef->type));
-    if (cboType->currentIndex() < 0)
-      cboType->setCurrentIndex(Helpers::getFirstPosValueIndex(cboType));
-    connect(cboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            &CurveReferenceWidget::cboTypeChanged);
-  }
+  this->curveRef = curveRef;
+
+  // minimise padding around widget
+  setContentsMargins(0, 0, 0, 0);
+  // layout to group the requested ui objects
+  QHBoxLayout *layout = new QHBoxLayout();
+  // minimise padding around sub-widgets
+  layout->setContentsMargins(0, 0, 0, 0);
+
+  cboType = new QComboBox(this);
+  cboType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  cboType->setModel(CurveReference::typeItemModel());
+  cboType->setCurrentIndex(cboType->findData((int)curveRef->type));
+
+  if (cboType->currentIndex() < 0)
+    cboType->setCurrentIndex(Helpers::getFirstPosValueIndex(cboType));
+
+  connect(cboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+          &CurveReferenceWidget::cboTypeChanged);
+  layout->addWidget(cboType);
 
   rawSourceWidget = new RawSourceWidget(this, modelData, sharedItemModels,
-                                        &curveRef->source, imFilter, uiFlags,
-                                        dflt.source);
-
-  rawSourceWidget->init(modelData, sharedItemModels, &curveRef->source,
-                        imFilter, uiFlags, dflt.source);
+                                        &curveRef->source, listFilter, flags,
+                                        dflt.source, typeLabel, min, max, precision, step,
+                                        prefix, suffix, isAvailable);
 
   connect(rawSourceWidget, &RawSourceWidget::dataChanged, [&]() { emit dataChanged(); });
   connect(rawSourceWidget, &RawSourceWidget::resized, [&]() { shrink(); });
+  layout->addWidget(rawSourceWidget);
 
+  setLayout(layout);
   update();
 }
 
@@ -125,7 +146,7 @@ void CurveReferenceWidget::cboTypeChanged(int index)
 
 void CurveReferenceWidget::shrink()
 {
-  adjustSize();
-  resize(0, 0);
-  emit resized();
+  //adjustSize();
+  //resize(0, 0);
+  //emit resized();
 }

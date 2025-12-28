@@ -36,22 +36,28 @@ class CurveReferenceWidget : public QWidget {
 
   public:
     explicit CurveReferenceWidget(QWidget * parent,
-                                  ModelData * modelData = nullptr,
-                                  CompoundItemModelFactory * sharedItemModels = nullptr,
-                                  CurveReference * curveRef = nullptr,
-                                  int imFilter = SOURCE_TYPE_CURVE,
-                                  int uiFlags = UI_FLAG_LIST,
+                                  ModelData * modelData,
+                                  CompoundItemModelFactory * sharedItemModels,
+                                  CurveReference * curveRef,
+                                  int listFilter,
+                                  int flags,
                                   CurveReference dflt = CurveReference(),
-                                  QString useLabel = "",
+                                  QString typeLabel = "",
                                   int min = -1000,
                                   int max = 1000,
-                                  int precision = 10,
-                                  int decimals = 1,
-                                  double step = 0.1,
+                                  int precision = 1,
+                                  double step = -1.0,
                                   QString prefix = "",
-                                  QString suffix = "");
+                                  QString suffix = "",
+                                  bool isAvailable = true);
 
     virtual ~CurveReferenceWidget();
+
+    // if the widget is included in a .ui definition file
+    // only the parent widget is passed to the constructor
+    explicit CurveReferenceWidget(QWidget * parent);
+
+    void init();
 
     // if the widget is included in a .ui definition file
     // this function must be called after setupUi(this)
@@ -59,17 +65,17 @@ class CurveReferenceWidget : public QWidget {
     void init(ModelData * modelData,
               CompoundItemModelFactory * sharedItemModels,
               CurveReference * curveRef,
-              int imFilter,
-              int uiFlags,
+              int listFilter,
+              int flags,
               CurveReference dflt = CurveReference(),
-              QString useLabel = "",
-              int min = -100,
-              int max = 100,
+              QString typeLabel = "",
+              int min = -1000,
+              int max = 1000,
               int precision = 1,
-              int decimals = 0,
-              double step = 1,
+              double step = -1.0,
               QString prefix = "",
-              QString suffix = "");
+              QString suffix = "",
+              bool isAvailable = true);
 
     void update();
 

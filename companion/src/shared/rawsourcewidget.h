@@ -91,10 +91,11 @@ class RawSourceWidget : public QWidget {
 
     // if the widget is included in a .ui definition file
     // only the parent widget is passed to the constructor
-    explicit RawSourceWidget(QWidget * parent) :
-      RawSourceWidget(parent, nullptr, nullptr, nullptr, SOURCE_TYPE_NONE, UI_FLAG_LIST) {}
+    explicit RawSourceWidget(QWidget * parent);
 
     virtual ~RawSourceWidget();
+
+    void init();
 
     // if the widget is included in a .ui definition file
     // this function must be called after setupUi(this)

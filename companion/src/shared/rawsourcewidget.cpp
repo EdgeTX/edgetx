@@ -42,32 +42,44 @@ RawSourceWidget::RawSourceWidget(QWidget * parent,
                                   QString prefix,
                                   QString suffix,
                                   bool isAvailable) :
-  QWidget(parent),
-  fimSource(nullptr),
-  chkType(nullptr),
-  cboSource(nullptr),
-  sbValue(nullptr),
-  dsbValue(nullptr),
-  curveImage(nullptr)
+  QWidget(parent)
 {
+  init();
   init(modelData, sharedItemModels, src, listFilter, flags, dflt,
        typeLabel, min, max, precision, step, prefix, suffix, isAvailable);
 }
 
+RawSourceWidget::RawSourceWidget(QWidget * parent) :
+  QWidget(parent)
+{
+  init();
+}
+
+void RawSourceWidget::init()
+{
+  fimSource = nullptr;
+  chkType = nullptr;
+  cboSource = nullptr;
+  sbValue = nullptr;
+  dsbValue = nullptr;
+  curveImage = nullptr;
+  lock = false;
+}
+
 void RawSourceWidget::init(ModelData * modelData,
-                              CompoundItemModelFactory * sharedItemModels,
-                              RawSource * src,
-                              int listFilter,
-                              int flags,
-                              RawSource dflt,
-                              QString typeLabel,
-                              int min,
-                              int max,
-                              int precision,
-                              double step,
-                              QString prefix,
-                              QString suffix,
-                              bool isAvailable)
+                           CompoundItemModelFactory * sharedItemModels,
+                           RawSource * src,
+                           int listFilter,
+                           int flags,
+                           RawSource dflt,
+                           QString typeLabel,
+                           int min,
+                           int max,
+                           int precision,
+                           double step,
+                           QString prefix,
+                           QString suffix,
+                           bool isAvailable)
 {
   this->modelData = modelData;
   this->src = src;
