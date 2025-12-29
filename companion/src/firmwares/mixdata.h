@@ -28,11 +28,13 @@
 #include <QtCore>
 
 class RadioDataConversionState;
+class AbstractStaticItemModel;
 
 enum MltpxValue {
   MLTPX_ADD,
   MLTPX_MUL,
-  MLTPX_REP
+  MLTPX_REP,
+  MLTPX_COUNT
 };
 
 #define MIXDATA_NAME_LEN  10
@@ -65,4 +67,12 @@ class MixData {
     void convert(RadioDataConversionState & cstate);
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(MixData)); }
     bool isEmpty() const;
+    QString mltpxToString() const;
+    static QString mltpxToString(int val);
+    static AbstractStaticItemModel * mltpxItemModel();
+    static AbstractStaticItemModel * carryTrimItemModel();
+    QString mixWarnToString() const;
+    static QString mixWarnToString(int val);
+    static AbstractStaticItemModel * mixWarnItemModel();
+    static AbstractStaticItemModel * precisionItemModel();
 };

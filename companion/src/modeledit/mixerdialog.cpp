@@ -84,7 +84,8 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
     ui->mltpxLbl->hide();
   }
 
-  ui->trimCB->setCurrentIndex(1 - md->carryTrim);
+  ui->trimCB->setModel(MixData::carryTrimItemModel());
+  ui->trimCB->setCurrentIndex(md->carryTrim);
 
   ui->mixerName->setMaxLength(MIXDATA_NAME_LEN);
   ui->mixerName->setValidator(new NameValidator(board, this));
@@ -126,33 +127,42 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
   ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->switchesCB->setModel(dlgFIM->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(md->swtch.toValue()));
-  ui->warningCB->setCurrentIndex(md->mixWarn);
-  ui->mltpxCB->setCurrentIndex(md->mltpx);
-  ui->delayPrecCB->setCurrentIndex(md->delayPrec);
-  ui->speedPrecCB->setCurrentIndex(md->speedPrec);
+  ui->warningCB->setModel(MixData::mixWarnItemModel());
+  ui->warningCB->setCurrentIndex(ui->warningCB->findData(md->mixWarn));
+  ui->mltpxCB->setModel(MixData::mltpxItemModel());
+  ui->mltpxCB->setCurrentIndex(ui->mltpxCB->findData(md->mltpx));
+  ui->delayPrecCB->setModel(MixData::precisionItemModel());
+  ui->delayPrecCB->setCurrentIndex(ui->delayPrecCB->findData(md->delayPrec));
+  ui->speedPrecCB->setModel(MixData::precisionItemModel());
+  ui->speedPrecCB->setCurrentIndex(ui->speedPrecCB->findData(md->speedPrec));
 
   float range = firmware->getCapability(SlowRange);
-
   int scale = firmware->getCapability(SlowScale);
-  if (md->delayPrec) scale = scale * 10;
+
+  if (md->delayPrec)
+    scale = scale * 10;
+
   ui->delayDownSB->setMaximum(range / scale);
   ui->delayDownSB->setSingleStep(1.0 / scale);
-  ui->delayDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+  ui->delayDownSB->setDecimals(md->delayPrec + 1);
   ui->delayDownSB->setValue((float)md->delayDown / scale);
   ui->delayUpSB->setMaximum(range / scale);
   ui->delayUpSB->setSingleStep(1.0 / scale);
-  ui->delayUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+  ui->delayUpSB->setDecimals(md->delayPrec + 1);
   ui->delayUpSB->setValue((float)md->delayUp / scale);
 
   scale = firmware->getCapability(SlowScale);
-  if (md->speedPrec) scale = scale * 10;
+
+  if (md->speedPrec)
+    scale = scale * 10;
+
   ui->slowDownSB->setMaximum(range / scale);
   ui->slowDownSB->setSingleStep(1.0 / scale);
-  ui->slowDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
-  ui->slowDownSB->setValue((float)md->speedDown/scale);
+  ui->slowDownSB->setDecimals(md->speedPrec + 1);
+  ui->slowDownSB->setValue((float)md->speedDown / scale);
   ui->slowUpSB->setMaximum(range / scale);
   ui->slowUpSB->setSingleStep(1.0 / scale);
-  ui->slowUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+  ui->slowUpSB->setDecimals(md->speedPrec + 1);
   ui->slowUpSB->setValue((float)md->speedUp/scale);
 
   valuesChanged();
@@ -198,10 +208,10 @@ void MixerDialog::valuesChanged()
 {
   if (!lock) {
     lock = true;
-    md->carryTrim = -(ui->trimCB->currentIndex() - 1);
+    md->carryTrim = ui->trimCB->itemData(ui->trimCB->currentIndex()).toInt();
     md->swtch     = RawSwitch(ui->switchesCB->itemData(ui->switchesCB->currentIndex()).toInt());
-    md->mixWarn   = ui->warningCB->currentIndex();
-    md->mltpx     = (MltpxValue)ui->mltpxCB->currentIndex();
+    md->mixWarn   = ui->warningCB->itemData(ui->warningCB->currentIndex()).toInt();
+    md->mltpx     = (MltpxValue)ui->mltpxCB->itemData(ui->mltpxCB->currentIndex()).toInt();
 
     float range = firmware->getCapability(SlowRange);
 
@@ -212,7 +222,7 @@ void MixerDialog::valuesChanged()
     md->delayUp   = round(ui->delayUpSB->value() * scale);
 
     // Get new precision and update controls
-    md->delayPrec = ui->delayPrecCB->currentIndex();
+    md->delayPrec = ui->delayPrecCB->itemData(ui->delayPrecCB->currentIndex()).toInt();
     scale = firmware->getCapability(SlowScale);
     if (md->delayPrec) scale = scale * 10;
     ui->delayDownSB->setMaximum(range / scale);
@@ -231,7 +241,7 @@ void MixerDialog::valuesChanged()
     md->speedUp   = round(ui->slowUpSB->value() * scale);
 
     // Get new precion and update controls
-    md->speedPrec = ui->speedPrecCB->currentIndex();
+    md->speedPrec = ui->speedPrecCB->itemData(ui->speedPrecCB->currentIndex()).toInt();
     scale = firmware->getCapability(SlowScale);
     if (md->speedPrec) scale = scale * 10;
     ui->slowDownSB->setMaximum(range / scale);

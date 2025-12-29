@@ -200,32 +200,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QComboBox" name="speedPrecCB">
-       <item>
-        <property name="text">
-         <string>0.0</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>0.00</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="speedPrecCB"/>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="delayPrecCB">
-       <item>
-        <property name="text">
-         <string>0.0</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>0.00</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="delayPrecCB"/>
      </item>
     </layout>
    </item>
@@ -404,18 +382,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <item row="5" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
-        <widget class="QComboBox" name="trimCB">
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="QComboBox" name="trimCB"/>
        </item>
        <item>
         <spacer name="horizontalSpacer_8">
@@ -455,28 +422,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <item row="8" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_8">
        <item>
-        <widget class="QComboBox" name="warningCB">
-         <item>
-          <property name="text">
-           <string>OFF</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>1 Beep</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>2 Beeps</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>3 Beeps</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="QComboBox" name="warningCB"/>
        </item>
        <item>
         <spacer name="horizontalSpacer_10">
@@ -496,23 +442,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <item row="9" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_9">
        <item>
-        <widget class="QComboBox" name="mltpxCB">
-         <item>
-          <property name="text">
-           <string>ADD</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>MULTIPLY</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>REPLACE</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="QComboBox" name="mltpxCB"/>
        </item>
        <item>
         <spacer name="horizontalSpacer_11">
