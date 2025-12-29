@@ -72,6 +72,9 @@ class ExpoData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ExpoData)); }
     bool isEmpty() const;
     QString carryTrimToString() const;
+    QString modeToString() const;
 
+    static QString modeToString(int val);
     static AbstractStaticItemModel * carryTrimItemModel();
+    static AbstractStaticItemModel * modeItemModel();
 };

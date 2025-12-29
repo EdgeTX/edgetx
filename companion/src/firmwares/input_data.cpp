@@ -80,3 +80,39 @@ AbstractStaticItemModel * ExpoData::carryTrimItemModel()
   mdl->loadItemList();
   return mdl;
 }
+
+QString ExpoData::modeToString() const
+{
+  return modeToString(mode);
+}
+
+//  static
+QString ExpoData::modeToString(int val)
+{
+  switch (val) {
+    case INPUT_MODE_NEG:
+      return "x<0";
+    case INPUT_MODE_POS:
+      return "x>0";
+    case INPUT_MODE_BOTH:
+      return "---";
+    case INPUT_MODE_NONE:
+    // let fall thru as not valid
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  };
+}
+
+//  static
+AbstractStaticItemModel * ExpoData::modeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("expodata.mode");
+
+  // list in more logical sequence
+  for (int i = 3; i > 0; i--)
+    mdl->appendToItemList(modeToString(i), i);
+
+  mdl->loadItemList();
+  return mdl;
+}

@@ -366,16 +366,14 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + tr("Switch(%1)").arg(input.swtch.toString(getCurrentBoard(), &generalSettings, &model)).toHtmlEscaped();
 
 
-  if (firmware->getCapability(VirtualInputs)) {
-    if ((input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_STICK_OFF) || (!input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_DEFAULT))
-      str += " " + tr("No Trim");
-    else if (input.carryTrim != CARRYTRIM_DEFAULT)
-      str += " " + input.carryTrimToString().toHtmlEscaped();
-  }
+  if ((input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_STICK_OFF) || (!input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_DEFAULT))
+    str += " " + tr("No Trim");
+  else if (input.carryTrim != CARRYTRIM_DEFAULT)
+    str += " " + input.carryTrimToString().toHtmlEscaped();
 
   if (input.offset.isSet() && input.offset.index != 0)
     str += " " + tr("Offset(%1)").arg(input.offset.toString(&model, &generalSettings)).toHtmlEscaped();
-  if (firmware->getCapability(HasExpoNames) && input.name[0])
+  if (input.name[0])
     str += QString(" [%1]").arg(input.name).toHtmlEscaped();
 
   return str;

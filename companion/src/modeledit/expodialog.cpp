@@ -76,13 +76,15 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
                       UI_FLAG_ALL);
   connect(ui->wgtCurve, &CurveReferenceWidget::resized, this, [=] () { shrink(); });
 
-  int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                                         RawSwitch::MixesContext), "RawSwitch");
+  int imId = dialogFilteredItemModels->registerItemModel(
+    new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
+                                                         RawSwitch::MixesContext), "RawSwitch");
   ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(ed->swtch.toValue()));
 
-  ui->sideCB->setCurrentIndex(ed->mode - 1);
+  ui->sideCB->setModel(ExpoData::modeItemModel());
+  ui->sideCB->setCurrentIndex(ui->sideCB->findData(ed->mode));
 
   if (!firmware->getCapability(FlightModes)) {
     ui->label_phases->hide();
@@ -110,9 +112,10 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
     }
   }
 
-  ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
+  int len = firmware->getCapability(InputsLength);
+  ui->inputName->setMaxLength(len);
   ui->inputName->setValidator(new NameValidator(board, this));
-  ui->inputName->setFixedWidth(Helpers::calcQLineEditWidth(firmware->getCapability(InputsLength) + 2/*abitary*/));
+  ui->inputName->setFixedWidth(Helpers::calcQLineEditWidth(len + 2/*abitary*/));
   ui->inputName->setText(inputName);
 
   int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
@@ -132,9 +135,10 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
   dialogFilteredItemModels->getItemModel(AIM_EXPO_CARRYTRIM)->setFilterFlags(carryTrimFilterFlags);
   ui->trimCB->setCurrentIndex(ui->trimCB->findData(ed->carryTrim));
 
-  ui->lineName->setMaxLength(firmware->getCapability(HasExpoNames));
+  len = firmware->getCapability(HasExpoNames);
+  ui->lineName->setMaxLength(len);
   ui->lineName->setValidator(new NameValidator(board, this));
-  ui->lineName->setFixedWidth(Helpers::calcQLineEditWidth(firmware->getCapability(HasExpoNames) + 2/*abitary*/));
+  ui->lineName->setFixedWidth(Helpers::calcQLineEditWidth(len + 2/*abitary*/));
   ui->lineName->setText(ed->name);
 
   updateScale();
@@ -150,10 +154,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
     connect(cb_fp[i], &QCheckBox::toggled, this, &ExpoDialog::valuesChanged);
   }
 
-  if (firmware->getCapability(VirtualInputs)) {
-    connect(ui->inputName, &QLineEdit::editingFinished, this, &ExpoDialog::valuesChanged);
-  }
-
+  connect(ui->inputName, &QLineEdit::editingFinished, this, &ExpoDialog::valuesChanged);
   shrink();
 }
 
@@ -165,7 +166,7 @@ ExpoDialog::~ExpoDialog()
 
 void ExpoDialog::updateScale()
 {
-  if (firmware->getCapability(VirtualInputs) && ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
+  if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
     RawSourceRange range = ed->srcRaw.getRange(&model, generalSettings);
     ui->dsbScale->setEnabled(true);
     ui->lblScaleUnit->setEnabled(true);
@@ -211,7 +212,7 @@ void ExpoDialog::valuesChanged()
     ed->scale = round(float(ui->dsbScale->value()) / range.step);
     ed->carryTrim = ui->trimCB->itemData(ui->trimCB->currentIndex()).toInt();
     ed->swtch = RawSwitch(ui->switchesCB->itemData(ui->switchesCB->currentIndex()).toInt());
-    ed->mode = ui->sideCB->currentIndex() + 1;
+    ed->mode = ui->sideCB->itemData(ui->sideCB->currentIndex()).toInt();
 
     strcpy(ed->name, ui->lineName->text().toLatin1().data());
 
@@ -277,6 +278,6 @@ void ExpoDialog::fmInvertAll()
 
 void ExpoDialog::shrink()
 {
-  this->adjustSize();
   this->resize(0, 0);
+  this->adjustSize();
 }
