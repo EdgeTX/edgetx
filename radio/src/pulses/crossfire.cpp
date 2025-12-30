@@ -267,14 +267,14 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
       continue;
     }
 
-    #if defined(BLUETOOTH)
+#if defined(BLUETOOTH)
     // TODO: generic telemetry mirror to BT
     if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
       bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
       bluetooth.write(p_buf, pkt_len);
-      }
-      #endif
-      auto mod_st = (etx_module_state_t*)ctx;
+    }
+#endif
+    auto mod_st = (etx_module_state_t*)ctx;
     auto module = modulePortGetModule(mod_st);
     lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
     processCrossfireTelemetryFrame(module, p_buf, pkt_len);
