@@ -855,7 +855,7 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x02,0x00,0x1f,0x00,0x74,0x01,0x26,0x50,0x00,0x00,0x00,0x00,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 32, .range_length = 95, .glyph_id_start = 1, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 128, .range_length = 4, .glyph_id_start = 96, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 136, .range_length = 15, .glyph_id_start = 100, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
@@ -864,7 +864,7 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 8226, .range_length = 55425, .glyph_id_start = 308, .list_length = 62, .type = 3, .unicode_list = 2960, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_en_bold_STD = {
+const etxLz4Font lv_font_en_bold_STD __FLASH = {
 .uncomp_size = 21874,
 .comp_size = 13613,
 .line_height = 17,

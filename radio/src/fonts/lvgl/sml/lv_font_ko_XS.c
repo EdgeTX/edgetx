@@ -987,11 +987,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x90,0x05,0x20,0x09,0x00,0x00,0x00,0x90,0x00,0x00,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 44032, .range_length = 11145, .glyph_id_start = 1, .list_length = 446, .type = 3, .unicode_list = 3576, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_ko_XS = {
+const etxLz4Font lv_font_ko_XS __FLASH = {
 .uncomp_size = 21571,
 .comp_size = 15723,
 .line_height = 11,
