@@ -835,6 +835,7 @@ PACK(struct ModelData {
   const char* getScreenLayoutId(int screenNum);
   void setScreenLayoutId(int screenNum, const char* s);
   TopBarPersistentData* getTopbarData();
+  bool hasScreenData(int screenNum);
   CustomScreenData* getScreenData(int screenNum);
   LayoutPersistentData* getScreenLayoutData(int screenNum);
   WidgetPersistentData* getWidgetData(int screenNum, int zoneNum);
