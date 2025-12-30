@@ -40,7 +40,10 @@
   #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
 #endif
 
-#define MIN_FRAME_LEN 3
+#define MIN_FRAME_LEN         3                       // Min size of the buffer needed to begin processing (HDR + LEN + 1)
+#define MAX_FRAME_LEN         64                      // A whole CRSF packet including header and length can not exceed 64 bytes
+#define MIN_PAYLOAD_LEN       3                       // Min value for the LEN field (TYPE + 1 payload + CRC)
+#define MAX_PAYLOAD_LEN       (MAX_FRAME_LEN-2)       // Max value for the LEN field (MAX - HDR - LEN)
 
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
@@ -227,9 +230,7 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
 
 static bool _lenIsSane(uint32_t len)
 {
-  // packet len must be at least 3 bytes (type + payload + crc)
-  // and 2 bytes < MAX (hdr + len)
-  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE - 1);
+  return (len >= MIN_PAYLOAD_LEN && len <= MAX_PAYLOAD_LEN);
 }
 
 static bool _validHdr(uint8_t* buf)
