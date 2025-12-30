@@ -241,45 +241,43 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 {
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
-
-    if (!_validHdr(p_buf)) {
-      TRACE("[XF] skipping invalid start bytes");
-      do { p_buf++; len--; } while(len > 0 && !_validHdr(p_buf));
-      if (len < MIN_FRAME_LEN) break;
-    }
-
+    // Bad telemetry packets frequently are just missing a byte, with the start
+    // of a new packet contained in the data. To avoid dropping multiple packets
+    // for one missed byte, CRC errors or invalid length errors MUST just advance
+    // the buffer by one instead of pkt_len or throwing it all out
     uint32_t pkt_len = p_buf[1] + 2;
-    if (!_lenIsSane(pkt_len)) {
-      TRACE("[XF] pkt len error (%d)", pkt_len);
-      len = 0;
-      break;
+    if (!_validHdr(p_buf) || !_lenIsSane(pkt_len)) {
+      p_buf++; len--;
+      continue;
     }
 
     if (pkt_len > (uint32_t)len) {
-      // incomplete packet
+      // Need to wait for more data
       break;
     }
 
     if (!_checkFrameCRC(p_buf)) {
-      TRACE("[XF] CRC error ");
-    } else {
-#if defined(BLUETOOTH)
-      // TODO: generic telemetry mirror to BT
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
-          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(p_buf, pkt_len);
-      }
-#endif
-      auto mod_st = (etx_module_state_t*)ctx;
-      auto module = modulePortGetModule(mod_st);
-      lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
-      processCrossfireTelemetryFrame(module, p_buf, pkt_len);
+      TRACE("[XF] CRC error");
+      p_buf++; len--;
+      continue;
     }
+
+    #if defined(BLUETOOTH)
+    // TODO: generic telemetry mirror to BT
+    if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+      bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+      bluetooth.write(p_buf, pkt_len);
+      }
+      #endif
+      auto mod_st = (etx_module_state_t*)ctx;
+    auto module = modulePortGetModule(mod_st);
+    lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
+    processCrossfireTelemetryFrame(module, p_buf, pkt_len);
 
     p_buf += pkt_len;
     len -= pkt_len;
   }
-  
+
   return p_buf;
 }
 
