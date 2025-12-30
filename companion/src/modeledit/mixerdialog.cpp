@@ -84,8 +84,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
     ui->mltpxLbl->hide();
   }
 
-  ui->trimCB->setModel(MixData::carryTrimItemModel());
-  ui->trimCB->setCurrentIndex(md->carryTrim);
+  ui->chkIncTrim->setChecked(!md->carryTrim);
 
   ui->mixerName->setMaxLength(MIXDATA_NAME_LEN);
   ui->mixerName->setValidator(new NameValidator(board, this));
@@ -168,7 +167,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
   valuesChanged();
 
   connect(ui->mixerName, &QLineEdit::editingFinished, this, &MixerDialog::valuesChanged);
-  connect(ui->trimCB, &QComboBox::currentIndexChanged, this, &MixerDialog::valuesChanged);
+  connect(ui->chkIncTrim, &QCheckBox::stateChanged, this, &MixerDialog::valuesChanged);
   connect(ui->switchesCB, &QComboBox::currentIndexChanged, this, &MixerDialog::valuesChanged);
   connect(ui->warningCB, &QComboBox::currentIndexChanged, this, &MixerDialog::valuesChanged);
   connect(ui->mltpxCB, &QComboBox::currentIndexChanged, this, &MixerDialog::valuesChanged);
@@ -208,7 +207,7 @@ void MixerDialog::valuesChanged()
 {
   if (!lock) {
     lock = true;
-    md->carryTrim = ui->trimCB->itemData(ui->trimCB->currentIndex()).toInt();
+    md->carryTrim = !ui->chkIncTrim->isChecked();
     md->swtch     = RawSwitch(ui->switchesCB->itemData(ui->switchesCB->currentIndex()).toInt());
     md->mixWarn   = ui->warningCB->itemData(ui->warningCB->currentIndex()).toInt();
     md->mltpx     = (MltpxValue)ui->mltpxCB->itemData(ui->mltpxCB->currentIndex()).toInt();

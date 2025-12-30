@@ -70,7 +70,6 @@ class MixData {
     QString mltpxToString() const;
     static QString mltpxToString(int val);
     static AbstractStaticItemModel * mltpxItemModel();
-    static AbstractStaticItemModel * carryTrimItemModel();
     QString mixWarnToString() const;
     static QString mixWarnToString(int val);
     static AbstractStaticItemModel * mixWarnItemModel();

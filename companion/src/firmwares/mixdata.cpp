@@ -72,19 +72,6 @@ AbstractStaticItemModel * MixData::mltpxItemModel()
   return mdl;
 }
 
-// static
-AbstractStaticItemModel * MixData::carryTrimItemModel()
-{
-  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName("expodata.carrytrim");
-
-  mdl->appendToItemList(tr("Yes"), 0);
-  mdl->appendToItemList(tr("No"), 1);
-
-  mdl->loadItemList();
-  return mdl;
-}
-
 QString MixData::mixWarnToString() const
 {
   return mixWarnToString(mixWarn);
