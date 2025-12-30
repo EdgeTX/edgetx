@@ -228,13 +228,16 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
-static bool _lenIsSane(uint32_t len)
+static bool _lenIsSane(uint8_t len)
 {
+  // Validate that the declared len in the packet is valid for a CRSF frame
   return (len >= MIN_PAYLOAD_LEN && len <= MAX_PAYLOAD_LEN);
 }
 
 static bool _validHdr(uint8_t* buf)
 {
+  // All CRSF packets should start with UART_SYNC, but RADIO_ADDRESS is also accepted
+  // for older modules which used the incorrect "destination address" start byte
   return buf[0] == RADIO_ADDRESS || buf[0] == UART_SYNC;
 }
 
@@ -246,12 +249,13 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
     // of a new packet contained in the data. To avoid dropping multiple packets
     // for one missed byte, CRC errors or invalid length errors MUST just advance
     // the buffer by one instead of pkt_len or throwing it all out
-    uint32_t pkt_len = p_buf[1] + 2;
-    if (!_validHdr(p_buf) || !_lenIsSane(pkt_len)) {
+    uint8_t declared_len = p_buf[1];
+    if (!_validHdr(p_buf) || !_lenIsSane(declared_len)) {
       p_buf++; len--;
       continue;
     }
 
+    uint32_t pkt_len = declared_len + 2;
     if (pkt_len > (uint32_t)len) {
       // Need to wait for more data
       break;
