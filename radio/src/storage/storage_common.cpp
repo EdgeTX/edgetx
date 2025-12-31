@@ -211,6 +211,13 @@ if(g_model.rssiSource) {
 
   storageDirty(EE_MODEL);  
 }
+#if defined(STM32F4) && defined(CROSSFIRE)
+  // Todo: remove in the future, this limits ext CRSF speed to 3.75Mbps for F4 radios
+  if(isModuleCrossfire(EXTERNAL_MODULE)) {
+    g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate = min<uint8_t>(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate, CROSSFIRE_MAX_EXTERNAL_BAUDRATE);
+    storageDirty(EE_MODEL);
+  }
+#endif
 
 #if defined(PXX2)
   bool changed = false;
