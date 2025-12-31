@@ -213,8 +213,9 @@ if(g_model.rssiSource) {
 }
 #if defined(STM32F4) && defined(CROSSFIRE)
   // Todo: remove in the future, this limits ext CRSF speed to 3.75Mbps for F4 radios
-  if(isModuleCrossfire(EXTERNAL_MODULE)) {
-    g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate = min<uint8_t>(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate, CROSSFIRE_MAX_EXTERNAL_BAUDRATE);
+  if(isModuleCrossfire(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate == 4) {
+	TRACE("Downgrading external ELRS module baudrate");
+    g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate = 3;
     storageDirty(EE_MODEL);
   }
 #endif
