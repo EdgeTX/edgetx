@@ -329,12 +329,16 @@ STR(STRENGTH)
 STR(MENUCUSTOMSCRIPTS)
 #endif
 
-#if defined(DSM2) || defined(PXX)
+#if defined(DSM2) || defined(PXX) || defined(DSMP)
 STR(BIND_OK)
 STR(REBIND)
 STR(RECEIVER_NUM)
 STR(RECEIVER)
 STR(REG_OK)
+#endif
+
+#if defined(DSMP)
+STR(DSMP_ENABLE_AETR)
 #endif
 
 #if defined(AFHDS3)
