@@ -159,13 +159,13 @@
   #define LED_STRIP_LENGTH                  1
   #define BLING_LED_STRIP_START             0
   #define BLING_LED_STRIP_LENGTH            0
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10) // PA.10 / TIM1_CH3
+  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 3) // PA.3 / TIM2_CH4
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1
-  #define LED_STRIP_TIMER                   TIM1
+  #define LED_STRIP_TIMER                   TIM2
   #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
+  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH4
   #define LED_STRIP_TIMER_DMA               DMA2
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
+  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_GPDMA2_REQUEST_TIM2_CH4
   #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
   #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
   #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
