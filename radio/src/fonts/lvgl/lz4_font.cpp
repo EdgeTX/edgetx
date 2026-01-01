@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
 
   // Cmaps
   if (dsc->cmap_num > 0) {
-    fprintf(fp, "static const etxFontCmap cmaps[] = {\n");
+    fprintf(fp, "static const etxFontCmap cmaps[] __FLASH = {\n");
     for (int i = 0; i < dsc->cmap_num; i += 1) {
       fprintf(fp,
               "{ .range_start = %d, .range_length = %d, .glyph_id_start = %d, "
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
   if (dsc->kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
 
   // Custom font structure
-  fprintf(fp, "const etxLz4Font %s = {\n", argv[1]+4);
+  fprintf(fp, "const etxLz4Font %s __FLASH = {\n", argv[1]+4);
   fprintf(fp, ".uncomp_size = %d,\n", uncomp_size);
   fprintf(fp, ".comp_size = %d,\n", comp_size);
   fprintf(fp, ".line_height = %d,\n", etx_font.line_height);
