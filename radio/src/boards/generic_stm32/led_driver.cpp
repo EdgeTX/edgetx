@@ -32,6 +32,11 @@
 #define GET_GREEN(color) (((color) & 0x00FF00) >> 8)
 #define GET_BLUE(color) ((color) & 0x0000FF)
 
+#if !defined(GPIO_LED_GPIO_ON)
+#define GPIO_LED_GPIO_ON              gpio_set
+#define GPIO_LED_GPIO_OFF             gpio_clear
+#endif
+
 #if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
 				  FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
