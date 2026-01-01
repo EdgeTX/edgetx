@@ -31,10 +31,10 @@
 
 uint8_t menuCalibrationState;
 
-static const uint8_t stick_pointer[] = {
+static const uint8_t stick_pointer[] __FLASH = {
 #include "alpha_stick_pointer.lbm"
 };
-static const uint8_t stick_background[] = {
+static const uint8_t stick_background[] __FLASH = {
 #include "alpha_stick_background.lbm"
 };
 

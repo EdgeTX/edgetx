@@ -41,7 +41,7 @@ const std::string nam_str = strip_leading_hyphen("" VERSION_SUFFIX);
 const std::string git_str = "(" GIT_STR ")";
 #endif
 
-const uint8_t __bmp_splash_logo[]{
+const uint8_t __bmp_splash_logo[] __FLASH = {
 #include "splash_logo.lbm"
 };
 

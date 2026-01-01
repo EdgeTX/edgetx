@@ -187,13 +187,13 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x14,0x1b,0x27,0x28,0x28,0x29,0x19,0x2a,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 1040, .range_length = 26, .glyph_id_start = 1, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 1067, .range_length = 37, .glyph_id_start = 27, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 1105, .range_length = 1, .glyph_id_start = 64, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_ru_XXS = {
+const etxLz4Font lv_font_ru_XXS __FLASH = {
 .uncomp_size = 4747,
 .comp_size = 2921,
 .line_height = 15,

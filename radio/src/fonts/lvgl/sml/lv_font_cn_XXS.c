@@ -1445,11 +1445,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x70,0x19,0xa3,0x1c,0x22,0x80,0x04,0x50,0x09,0x00,0x0a,0x00,0x09,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 12289, .range_length = 28496, .glyph_id_start = 1, .list_length = 621, .type = 3, .unicode_list = 4976, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_cn_XXS = {
+const etxLz4Font lv_font_cn_XXS __FLASH = {
 .uncomp_size = 26632,
 .comp_size = 23054,
 .line_height = 10,
