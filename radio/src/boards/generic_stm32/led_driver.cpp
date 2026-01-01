@@ -22,17 +22,15 @@
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
-
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
 #if defined(LED_STRIP_GPIO)
-#include "boards/generic_stm32/rgb_leds.h"
+#include "stm32_ws2812.h"
 #endif
 
-#define GET_RED(color) (((color) & 0xF80000) >>16)
-#define GET_GREEN(color) (((color) & 0x000F800) >> 8)
-#define GET_BLUE(color) (((color) & 0xF8))
+#define GET_RED(color) (((color) & 0xFF0000) >>16)
+#define GET_GREEN(color) (((color) & 0x00FF00) >> 8)
+#define GET_BLUE(color) ((color) & 0x0000FF)
 
 #if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
@@ -62,21 +60,12 @@ void ledInit()
 }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-// used to map switch number to led number in the rgbled chain
-uint8_t ledMapping[] = {4, 6, 0, 2};
-
 void fsLedRGB(uint8_t index, uint32_t color)
 {
-  ws2812_set_color(ledMapping[index], GET_RED(color),
-     GET_GREEN(color),GET_BLUE(color));
-  ws2812_set_color(ledMapping[index]+1, GET_RED(color),
-     GET_GREEN(color),GET_BLUE(color));
+   ws2812_set_color(index, GET_RED(color), \
+   GET_GREEN(color),GET_BLUE(color));
 }
 
-uint32_t fsGetLedRGB(uint8_t index)
-{
-  return rgbGetLedColor(ledMapping[index]);
-}
 uint8_t getRGBColorIndex(uint32_t color)
 {
   for (uint8_t i = 0; i < (sizeof(colorTable) / sizeof(colorTable[0])); i++) {
@@ -104,24 +93,44 @@ bool fsLedState(uint8_t index)
 
 void ledOff()
 {
-  ws2812_set_color(8, 0, 0, 0);
-  ws2812_set_color(9, 0, 0, 0);
+#if defined(LED_RED_GPIO)
+  GPIO_LED_GPIO_OFF(LED_RED_GPIO);
+#endif
+#if defined(LED_BLUE_GPIO)
+  GPIO_LED_GPIO_OFF(LED_BLUE_GPIO);
+#endif
+#if defined(LED_GREEN_GPIO)
+  GPIO_LED_GPIO_OFF(LED_GREEN_GPIO);
+#endif
 }
 
 void ledRed()
 {
-  ws2812_set_color(8, 20, 0, 0);
-  ws2812_set_color(9, 20, 0, 0);
+  ledOff();
+#if defined(LED_RED_GPIO)
+  GPIO_LED_GPIO_ON(LED_RED_GPIO);
+#endif
 }
 
 void ledGreen()
 {
-  ws2812_set_color(8, 0, 20, 0);
-  ws2812_set_color(9, 0, 20, 0);
+  ledOff();
+#if defined(LED_GREEN_GPIO)
+  GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
+#endif
 }
 
 void ledBlue()
 {
-  ws2812_set_color(8, 0, 0, 20);
-  ws2812_set_color(9, 0, 0, 20);
+  ledOff();
+#if defined(LED_BLUE_GPIO)
+  GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
+#endif
 }
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor(index + CFS_LED_STRIP_START);
+}
+#endif

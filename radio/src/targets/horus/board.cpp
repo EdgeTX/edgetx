@@ -258,7 +258,9 @@ void boardOff()
   rgbLedClearAll();
 #endif
 
+#if defined(STATUS_LEDS) && !defined(BOOT)
   ledOff();
+#endif
   backlightEnable(0);
 
   while (pwrPressed()) {
