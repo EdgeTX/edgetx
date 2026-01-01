@@ -63,12 +63,12 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x17,0xe0,0x8a,0x0b,0x80,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 1488, .range_length = 27, .glyph_id_start = 1, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 1524, .range_length = 1, .glyph_id_start = 28, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_he_bold_STD = {
+const etxLz4Font lv_font_he_bold_STD __FLASH = {
 .uncomp_size = 1057,
 .comp_size = 933,
 .line_height = 14,

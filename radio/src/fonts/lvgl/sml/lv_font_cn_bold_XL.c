@@ -6797,11 +6797,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x4f,0xfc,0x00,0x00,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 12289, .range_length = 28496, .glyph_id_start = 1, .list_length = 621, .type = 3, .unicode_list = 4976, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_cn_bold_XL = {
+const etxLz4Font lv_font_cn_bold_XL __FLASH = {
 .uncomp_size = 187676,
 .comp_size = 108677,
 .line_height = 25,
