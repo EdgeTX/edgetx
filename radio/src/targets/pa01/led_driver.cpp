@@ -26,7 +26,6 @@
 
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
-#include "boards/generic_stm32/rgb_leds.h"
 
 #define GET_RED(color) (((color) & 0xF80000) >>16)
 #define GET_GREEN(color) (((color) & 0x000F800) >> 8)
