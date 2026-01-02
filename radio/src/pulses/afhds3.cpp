@@ -547,7 +547,7 @@ void ProtoState::setupFrame()
     RFCurrentPower = (AFHDS3_POWER[moduleData->afhds3.rfPower]&0xFF);
     return;
   }
-  else if( EXTERNAL == module_index )
+  else if( EXTERNAL_MODULE == module_index )
   {
     if( !RFCurrentPower )
     {
@@ -722,7 +722,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         if (responseFrame->value != CMD_RESULT::SUCCESS) {
           setState(ModuleState::STATE_NOT_READY);
         }
-        else if( !RFCurrentPower && INTERNAL==module_index )
+        else if( !RFCurrentPower && INTERNAL_MODULE==module_index )
         {
           trsp.enqueue( COMMAND::MODULE_RFPOWER, FRAME_TYPE::REQUEST_GET_DATA );
         }
