@@ -2486,7 +2486,7 @@
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 3) // PB.03
 #elif defined(RADIO_X7)
   #define SPORT_MAX_BAUDRATE            250000 // < 400000
-  #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 3) // PB.02
+  #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 2) // PB.02
 #elif defined(PCBX9LITE)
   #define SPORT_MAX_BAUDRATE            250000 // not tested
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOE, 15) // PE.15
