@@ -286,10 +286,10 @@ static uint32_t current_flash_size(void)
       // round up to 256 bytes
       result = (fw_desc->length + BOOTLOADER_SIZE + 255U) & (~255U);
       // Sometime corrupted firmware return very large size, leave not enough space to flash a fix
-      if (result >= UF2_MAX_FW_SIZE)
-        result = UF2_MAX_FW_SIZE;
+      if (result >= UF2_MAX_FW_SIZE/2
+        result = UF2_MAX_FW_SIZE/2;
     } else {
-      result = UF2_MAX_FW_SIZE;
+      result = UF2_MAX_FW_SIZE/2;
     }
     _flash_sz = result; // presumes atomic 32-bit read/write and static result
   }
