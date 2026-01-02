@@ -30,6 +30,16 @@
 #include "dma2d.h"
 #endif
 
+#if LV_MEM_CUSTOM == 0
+char LVGL_MEM_BUFFER[LV_MEM_SIZE] __SDRAM __ALIGNED(16);
+
+char* get_lvgl_mem(int nbytes)
+{
+  UNUSED(nbytes);
+  return LVGL_MEM_BUFFER;
+}
+#endif
+
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 

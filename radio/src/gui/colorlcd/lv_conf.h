@@ -69,14 +69,8 @@
     #if LV_MEM_ADR == 0
         //#define LV_MEM_POOL_INCLUDE your_alloc_library  /* Uncomment if using an external allocator*/
         //#define LV_MEM_POOL_ALLOC   your_alloc          /* Uncomment if using an external allocator*/
-        #if defined(SIMU)
-            // 'sbrk' does not exist on Windows :(
-            #define LV_MEM_POOL_INCLUDE <stdlib.h>
-            #define LV_MEM_POOL_ALLOC malloc
-        #else
-            #define LV_MEM_POOL_INCLUDE <unistd.h>
-            #define LV_MEM_POOL_ALLOC sbrk
-        #endif
+        extern char* get_lvgl_mem(int);
+        #define LV_MEM_POOL_ALLOC get_lvgl_mem
     #endif
 
 #else       /*LV_MEM_CUSTOM*/
