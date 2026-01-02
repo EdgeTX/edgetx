@@ -47,7 +47,7 @@ static void* afhds2Init(uint8_t module)
                                      &afhds2SerialInitParams, false);
 
   // mixer setup
-  mixerSchedulerSetPeriod(module, AFHDS2_PERIOD);
+  mixerSchedulerSetPeriod(module, AFHDS2_PERIOD, AFHDS2_PERIOD);
 
   return (void*)mod_st;
 }
@@ -68,9 +68,9 @@ static void afhds2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint
   auto module = modulePortGetModule(mod_st);
 
   ModuleSyncStatus& status = getModuleSyncStatus(module);
-  mixerSchedulerSetPeriod(module, status.isValid()
-                                      ? status.getAdjustedRefreshRate()
-                                      : AFHDS2_PERIOD);
+  mixerSchedulerSetPeriod(module,
+                          status.isValid() ? status.getAdjustedRefreshRate() : AFHDS2_PERIOD,
+                          status.isValid() ? status.refreshRate : AFHDS2_PERIOD);
   status.invalidate();
 
   auto p_data = buffer;

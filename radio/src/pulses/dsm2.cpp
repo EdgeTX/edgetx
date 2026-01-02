@@ -211,7 +211,7 @@ static etx_module_state_t* dsmInit(uint8_t module, uint32_t baudrate,
     modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, true);
   }
 
-  mixerSchedulerSetPeriod(module, period);
+  mixerSchedulerSetPeriod(module, period, period);
   return mod_st;
 }
 

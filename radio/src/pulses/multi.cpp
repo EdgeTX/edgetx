@@ -70,13 +70,13 @@ static void updateMultiSync(uint8_t module)
 {
   const auto& status = getMultiModuleStatus(module);
   if (status.isValid() && status.isRXProto) {
-    mixerSchedulerSetPeriod(module, 0);
+    mixerSchedulerSetPeriod(module, 0, 0);
   } else {
     auto& sync = getModuleSyncStatus(module);
     if (sync.isValid())
-      mixerSchedulerSetPeriod(module, sync.getAdjustedRefreshRate());
+      mixerSchedulerSetPeriod(module, sync.getAdjustedRefreshRate(), sync.refreshRate);
     else
-      mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+      mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD, MULTIMODULE_PERIOD);
   }
 }
 
@@ -231,7 +231,7 @@ static void* multiInit(uint8_t module)
   if (!mod_st) return nullptr;
   
   // mixer setup
-  mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+  mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD, MULTIMODULE_PERIOD);
 
   // reset status
   getMultiModuleStatus(module).failsafeChecked = false;

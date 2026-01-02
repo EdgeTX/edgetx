@@ -1416,3 +1416,6 @@
 #define TR_LONG_PRESS             "长按"
 #define TR_OPEN_QUICK_MENU        "打开快捷选项"
 #define TR_QUICK_MENU_FAVORITES   "编辑快捷选项"
+
+#define TR_MIXER_PERF             TR_BW_COL("Mixer CPU", "Mixer performance")
+#define TR_MIXER_WARN             TR_BW_COL("Mixer running too slow", "The module frame rate has been reduced because of mixer run time")

@@ -172,7 +172,7 @@ static void* ppmInit(uint8_t module)
   auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_TIMER, &cfg);
   if (!mod_st) return nullptr;
 
-  mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+  mixerSchedulerSetPeriod(module, PPM_PERIOD(module), PPM_PERIOD(module));
 
   uint8_t telemetry_type = g_model.moduleData[module].subType;
   mod_st->user_data = (void*)(uintptr_t)telemetry_type;
@@ -212,7 +212,7 @@ static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t
   drv->send(drv_ctx, &cfg, buffer, length);
 
   // PPM_PERIOD is not a constant! It can be set from UI
-  mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+  mixerSchedulerSetPeriod(module, PPM_PERIOD(module), PPM_PERIOD(module));
 }
 
 static void ppmProcessTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len) {

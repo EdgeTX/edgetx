@@ -41,7 +41,7 @@ void mixerSchedulerStart();
 void mixerSchedulerStop();
 
 // Set the scheduling period for a given module
-void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs);
+void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs, uint16_t targetUs);
 
 // Get the scheduling period for a given module
 uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx);

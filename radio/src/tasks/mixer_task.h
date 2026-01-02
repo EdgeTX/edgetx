@@ -21,8 +21,15 @@
 
 #include "os/task.h"
 
+extern uint16_t maxMixerDuration;
+extern uint16_t mixerAvgOverrun;
+extern uint16_t mixerOverrunPercent;
+extern uint16_t mixerMaxUs;
+
+extern bool isMixerRunningSlow();
+
 // return the max period given current mixer run times
-uint16_t mixerGetMaxFramePeriod(uint16_t periodUs);
+uint16_t mixerGetMaxFramePeriod(uint16_t periodUs, uint16_t targetUs);
 
 // needed by the mixer scheduler
 extern task_handle_t mixerTaskId;

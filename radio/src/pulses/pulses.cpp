@@ -389,7 +389,7 @@ static void _deinit_module(uint8_t module)
   if (!mod->drv) return;
 
   // scheduling OFF
-  mixerSchedulerSetPeriod(module, 0);
+  mixerSchedulerSetPeriod(module, 0, 0);
 
   // board specific hook
   auto drv = mod->drv;

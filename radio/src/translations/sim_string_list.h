@@ -677,6 +677,8 @@
 #define STR_MIRROR currentLangStrings->STR_MIRROR
 #define STR_MIX_DELAY_PREC currentLangStrings->STR_MIX_DELAY_PREC
 #define STR_MIX_SLOW_PREC currentLangStrings->STR_MIX_SLOW_PREC
+#define STR_MIXER_PERF currentLangStrings->MIXER_PERF
+#define STR_MIXER_WARN currentLangStrings->MIXER_WARN
 #define STR_MIXERS_MONITOR currentLangStrings->STR_MIXERS_MONITOR
 #define STR_MIXES currentLangStrings->STR_MIXES
 #define STR_MIXNAME currentLangStrings->STR_MIXNAME

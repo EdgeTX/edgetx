@@ -167,7 +167,7 @@ static void* ghostInit(uint8_t module)
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ghostSerialParams, false);
   if (!mod_st) return nullptr;
 
-  mixerSchedulerSetPeriod(module, GHOST_PERIOD);
+  mixerSchedulerSetPeriod(module, GHOST_PERIOD, GHOST_PERIOD);
   return mod_st;
 }
 
@@ -184,9 +184,9 @@ static void ghostSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8
   
   ModuleSyncStatus& status = getModuleSyncStatus(module);
   if (status.isValid()) {
-    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
+    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate(), status.refreshRate);
   } else {
-    mixerSchedulerSetPeriod(module, GHOST_PERIOD);
+    mixerSchedulerSetPeriod(module, GHOST_PERIOD, GHOST_PERIOD);
   }
 
   const auto& mod_cfg = g_model.moduleData[module].ghost;

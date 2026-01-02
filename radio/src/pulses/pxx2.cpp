@@ -727,7 +727,7 @@ static void* pxx2Init(uint8_t module)
     if (!mod_st) return nullptr;
   }
 
-  mixerSchedulerSetPeriod(module, PXX2_DEFAULT_PERIOD);
+  mixerSchedulerSetPeriod(module, PXX2_DEFAULT_PERIOD, PXX2_DEFAULT_PERIOD);
   return mod_st;
 }
 
@@ -760,11 +760,11 @@ static void pxx2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
       if (!mod_st->user_data) {
         mod_st->user_data = (void*)(uintptr_t)mixerSchedulerGetPeriod(module);
       }
-      mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
+      mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD, PXX2_TOOLS_PERIOD);
     } else if (mod_st->user_data) {
       // restore old scheduling period
       uintptr_t period = (uintptr_t)mod_st->user_data;
-      mixerSchedulerSetPeriod(module, period);
+      mixerSchedulerSetPeriod(module, period, period);
       mod_st->user_data = nullptr;
     }
 

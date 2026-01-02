@@ -40,10 +40,19 @@
   #include "flysky_gimbal_driver.h"
 #endif
 
-uint32_t maxMixerDuration; // microseconds
-constexpr int AVG_MIX_SAMPLE = 1000;
-uint32_t avgMixerDuration = 0;
-uint32_t avgMixerSampleCount = 0;
+constexpr int AVG_MIX_SAMPLE = 100;
+constexpr int MIX_STABLE_DELAY = 300;  // 3 seconds
+
+// Performance stats
+uint16_t maxMixerDuration = 0; // microseconds
+uint16_t mixerOverrunPercent = 0;
+uint16_t lastMixerDuration = 0;
+uint16_t mixerMaxUs = 0;
+bool mixerStable = false;
+
+static tmr10ms_t mixerStartTime;
+static uint16_t currentRunCount = 0;
+static uint16_t currentOverrunCount = 0;
 
 task_handle_t mixerTaskId;
 TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
@@ -69,20 +78,43 @@ constexpr uint16_t CPU_RESERVE = 30; //%
 constexpr uint16_t CPU_RESERVE = 10; //%
 #endif
 
-uint16_t mixerGetMaxFramePeriod(uint16_t periodUs)
+
+bool isMixerRunningSlow()
+{
+  constexpr uint16_t OVERRUN_PERCENT_WARN_LIMIT = 5;
+
+  return mixerStable && mixerOverrunPercent >= OVERRUN_PERCENT_WARN_LIMIT;
+}
+
+uint16_t mixerGetMaxFramePeriod(uint16_t periodUs, uint16_t targetUs)
 {
 #if defined(STM32) && !defined(SIMU)
   if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
-    if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+    if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
       return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
     } else {
       return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
     }
   }
 #endif
-  if ((avgMixerDuration < periodUs) && ((periodUs - avgMixerDuration) * 100 / periodUs > CPU_RESERVE))
+
+  mixerMaxUs = targetUs * (100 - CPU_RESERVE) / 100;
+
+  // Perf stats
+  currentRunCount += 1;
+  if (lastMixerDuration > mixerMaxUs)
+    currentOverrunCount += 1;
+  if (currentRunCount >= 100) {
+    mixerOverrunPercent = currentOverrunCount;
+    currentRunCount = 0;
+    currentOverrunCount = 0;
+  }
+
+  if (lastMixerDuration <= mixerMaxUs)
     return periodUs;
-  return ((avgMixerDuration * (100 + CPU_RESERVE) / 100) / 1000 + 1) * 1000;
+
+  // Round up to next ms value
+  return lastMixerDuration + lastMixerDuration * CPU_RESERVE / 100;
 }
 
 void mixerTaskLock()
@@ -117,6 +149,13 @@ bool mixerTaskStarted()
 
 void mixerTaskStart()
 {
+  mixerStartTime = get_tmr10ms();
+  mixerStable = false;
+  maxMixerDuration = 0;
+  lastMixerDuration = 0;
+  mixerOverrunPercent = 0;
+  currentOverrunCount = 0;
+  currentRunCount = 0;
   _mixer_started = true;
   _mixer_running = true;
 }
@@ -170,13 +209,15 @@ void execMixerFrequentActions()
 
 void mixerTask()
 {
- static tmr10ms_t lastTMMReset = 0;
+  static tmr10ms_t lastTMMReset = 0;
 
 #if defined(IMU)
   gyroInit();
 #endif
 
   while (task_running()) {
+
+    mixerStable = (get_tmr10ms() - mixerStartTime) >= MIX_STABLE_DELAY;
 
     int timeout = 0;
     for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
@@ -240,24 +281,14 @@ void mixerTask()
       WDG_RESET();
 
       // Reset Tmix max every second
-      if (get_tmr10ms() - lastTMMReset > 100) {
+      if (get_tmr10ms() - lastTMMReset >= 100) {
         maxMixerDuration = 0;
         lastTMMReset = get_tmr10ms();
       }
 
-      // Force mixer duration for testing
-      // while (timersGetUsTick() - t0 < 1390);
-
-      t0 = timersGetUsTick() - t0;
-      if (t0 > maxMixerDuration)
-        maxMixerDuration = t0;
-
-      if (avgMixerSampleCount < AVG_MIX_SAMPLE) {
-        avgMixerDuration = (t0 + avgMixerSampleCount * avgMixerDuration) / (avgMixerSampleCount + 1);
-        avgMixerSampleCount += 1;
-      } else {
-        avgMixerDuration = (t0 + avgMixerSampleCount * avgMixerDuration - avgMixerDuration) / avgMixerSampleCount;
-      }
+      lastMixerDuration = timersGetUsTick() - t0;
+      if (lastMixerDuration > maxMixerDuration)
+        maxMixerDuration = lastMixerDuration;
     }
   }
 }

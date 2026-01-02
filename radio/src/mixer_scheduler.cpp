@@ -92,7 +92,7 @@ void mixerSchedulerInit()
   memset(mixerSchedules, 0, sizeof(mixerSchedules));
 }
 
-void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
+void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs, uint16_t targetUs)
 {
   if (periodUs > 0 && periodUs < MIN_REFRESH_RATE) {
     periodUs = MIN_REFRESH_RATE;
@@ -101,7 +101,7 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
     periodUs = MAX_REFRESH_RATE;
   }
 
-  mixerSchedules[moduleIdx].period = mixerGetMaxFramePeriod(periodUs);
+  mixerSchedules[moduleIdx].period = mixerGetMaxFramePeriod(periodUs, targetUs);
 }
 
 uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)

@@ -145,7 +145,7 @@ static void* sbusInit(uint8_t module)
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &sbusUartParams, true);
   if (!mod_st) return nullptr;
 
-  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
+  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module), SBUS_PERIOD(module));
 
   uint8_t telemetry_type = g_model.moduleData[module].subType;
   mod_st->user_data = (void*)(uintptr_t)telemetry_type;
@@ -185,7 +185,7 @@ static void sbusSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 
   // SBUS_PERIOD is not a constant! It can be set from UI
-  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
+  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module), SBUS_PERIOD(module));
 }
 
 static void sbusProcessTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len) {

@@ -86,6 +86,16 @@ static void menusTask()
 #endif
     DEBUG_TIMER_STOP(debugTimerPerMain);
 
+    static bool shownMixerWarning = false;
+    if (isMixerRunningSlow() && !shownMixerWarning) {
+      shownMixerWarning = true;
+#if defined(COLORLCD)
+      RAISE_ALERT(STR_MIXER_PERF, STR_MIXER_WARN, STR_PRESSANYKEY, AU_ERROR);
+#else
+      ALERT(STR_MIXER_PERF, STR_MIXER_WARN, AU_ERROR);
+#endif
+    }
+
     sleep_until(&next_tick, MENU_TASK_PERIOD);
     resetForcePowerOffRequest();
   }

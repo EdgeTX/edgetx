@@ -64,10 +64,10 @@ void _intmodule_heartbeat_init(uint8_t module, const etx_proto_driver_t* drv)
     if (isPxx1Driver(drv)) {
       // XJT / iXJT
       auto period = mixerSchedulerGetPeriod(module);
-      mixerSchedulerSetPeriod(module, period + 1000/*us*/);
+      mixerSchedulerSetPeriod(module, period + 1000/*us*/, period + 1000);
     } else if (isPxx2Driver(drv)) {
       // ISRM
-      mixerSchedulerSetPeriod(module, PXX2_MAX_HEARTBEAT_PERIOD);
+      mixerSchedulerSetPeriod(module, PXX2_MAX_HEARTBEAT_PERIOD, PXX2_MAX_HEARTBEAT_PERIOD);
     }
   }
 }

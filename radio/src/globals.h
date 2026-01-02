@@ -47,8 +47,6 @@ extern safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
 extern uint8_t trimsCheckTimer;
 extern uint8_t trimsDisplayTimer;
 extern uint8_t trimsDisplayMask;
-extern uint32_t maxMixerDuration;
-extern uint32_t avgMixerDuration;
 
 #if defined(AUDIO)
 extern uint8_t requiredSpeakerVolume;

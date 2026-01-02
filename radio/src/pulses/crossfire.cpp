@@ -193,9 +193,9 @@ static void crossfireSetupMixerScheduler(uint8_t module)
 {
   ModuleSyncStatus& status = getModuleSyncStatus(module);
   if (status.isValid()) {
-    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
+    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate(), status.refreshRate);
   } else {
-    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module), CROSSFIRE_PERIOD(module));
   }
 }
 
@@ -414,7 +414,7 @@ static void* crossfireInit(uint8_t module)
 #endif
 
   if (mod_st) {
-    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module), CROSSFIRE_PERIOD(module));
   }
 
   return (void*)mod_st;

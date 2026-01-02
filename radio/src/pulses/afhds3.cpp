@@ -1180,7 +1180,7 @@ static void* initModule(uint8_t module)
   p_state->init(module, pulsesGetModuleBuffer(module), mod_st, fAddr);
   mod_st->user_data = (void*)p_state;
 
-  mixerSchedulerSetPeriod(module, period);
+  mixerSchedulerSetPeriod(module, period, period);
 
   return mod_st;
 }

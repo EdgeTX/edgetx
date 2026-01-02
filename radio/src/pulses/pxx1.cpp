@@ -350,7 +350,7 @@ static void* pxx1Init(uint8_t module)
       txCfg.baudrate == PXX1_DEFAULT_SERIAL_BAUDRATE) {
 
     // Legacy / slow PXX1
-    mixerSchedulerSetPeriod(module, PXX1_DEFAULT_PERIOD);
+    mixerSchedulerSetPeriod(module, PXX1_DEFAULT_PERIOD, PXX1_DEFAULT_PERIOD);
     if (txCfg.encoding == ETX_Encoding_PXX1_PWM) {
       mod_st->user_data = (void*)Pxx1Type::PWM;
     } else {
@@ -358,7 +358,7 @@ static void* pxx1Init(uint8_t module)
     }
   } else {
     // Fast PXX1
-    mixerSchedulerSetPeriod(module, PXX1_FAST_PERIOD);
+    mixerSchedulerSetPeriod(module, PXX1_FAST_PERIOD, PXX1_FAST_PERIOD);
     mod_st->user_data = (void*)Pxx1Type::FAST_SERIAL;
   }
 
