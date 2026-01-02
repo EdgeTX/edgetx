@@ -277,7 +277,8 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
     } else if (--pass0_counter == 0) {
         pass = 0;
         updateModuleStatus(flags);
-        if ((version == 1) && (-- fastSetup_count > 0)) {
+        if ((version == 1) && (fastSetup_count > 0)) {
+            fastSetup_count--;
             pass0_counter = 2;  // Keep sendint setup every 2 ch messages
         } else {
           pass0_counter = pass0_period;  // restar counter
@@ -335,7 +336,7 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
         g_model.header.modelId[module] = 0;  
     }
 
-    TRACE("[SPK] DSMP bind packet: flags:0x%X / Ch: %i / TxMode =0x%X", flags & 0x3F, channels, txMode);
+    TRACE("[DSMP] DSMP bind packet: flags:0x%X / Ch: %i / TxMode =0x%X", flags & 0x3F, channels, txMode);
 
     storageDirty(EE_MODEL);
 
@@ -440,8 +441,6 @@ static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer,
     auto module = modulePortGetModule(mod_st);
 
     uint8_t& rxBufferCount = *len;
-
-    TRACE("[DSMP] Received byte 0x%02X, Pos=%d", data, rxBufferCount);
 
     if (rxBufferCount == 0 && (data != 0xAA && data != 0xAB)) {
         TRACE("[DSMP] invalid start byte 0x%02X", data);
