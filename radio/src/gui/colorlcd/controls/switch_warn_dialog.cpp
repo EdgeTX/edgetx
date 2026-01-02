@@ -30,11 +30,6 @@ SwitchWarnDialog::SwitchWarnDialog() :
   last_bad_switches = 0xff;
   last_bad_pots = 0x0;
   setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
-}
-
-void SwitchWarnDialog::delayedInit()
-{
-  FullScreenDialog::delayedInit();
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
@@ -100,11 +95,6 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
   setCloseCondition(std::bind(&ThrottleWarnDialog::warningInactive, this));
-}
-
-void ThrottleWarnDialog::delayedInit()
-{
-  FullScreenDialog::delayedInit();
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
 }
