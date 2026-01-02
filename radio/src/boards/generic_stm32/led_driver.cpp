@@ -28,6 +28,8 @@
 #include "stm32_ws2812.h"
 #endif
 
+#define __weak __attribute__((weak))
+
 #define GET_RED(color) (((color) & 0xFF0000) >>16)
 #define GET_GREEN(color) (((color) & 0x00FF00) >> 8)
 #define GET_BLUE(color) ((color) & 0x0000FF)
