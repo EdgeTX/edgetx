@@ -36,8 +36,8 @@ void displayRssiLine()
     uint8_t max = 99; // TODO should be 100 for RQly
     rssi = min(max, TELEMETRY_RSSI());
     lcdDrawNumber(LCD_W/2 -2, STATUS_BAR_Y, rssi, LEADING0 | RIGHT | SMLSIZE, 2);
-    lcdDrawText(lcdLastLeftPos,STATUS_BAR_Y, " : ", RIGHT | SMLSIZE);
-    lcdDrawText(lcdLastLeftPos,STATUS_BAR_Y, getRxStatLabels()->label, RIGHT | SMLSIZE);
+    lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, ": ", RIGHT | SMLSIZE);
+    lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, getRxStatLabels()->label, RIGHT | SMLSIZE);
     lcdDrawRect(65, 57, 38, 7);
     uint8_t v = 4*rssi/11;
     lcdDrawFilledRect(66+36-v, 58, v, 5, (rssi < g_model.rfAlarms.warning) ? DOTTED : SOLID);
