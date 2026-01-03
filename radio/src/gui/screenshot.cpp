@@ -219,11 +219,17 @@ static const char* _writeScreenshot()
 
 #else // stdlcd
 
+#if LCD_W == 128
   pixel_t inv = g_eeGeneral.invertLCD ? 0xFF : 0;
+#endif
 
   for (int y=LCD_H-1; y>=0; y-=1) {
     for (int x=0; x<8*((LCD_W+7)/8); x+=2) {
+#if LCD_W == 128
       pixel_t byte = (getPixel(x+1, y) | (getPixel(x, y) << 4)) ^ inv;
+#else
+      pixel_t byte = getPixel(x+1, y) | (getPixel(x, y) << 4);
+#endif
       result = f_write(&bmpFile, &byte, 1, &written);
       if (result != FR_OK || written != 1) {
         f_close(&bmpFile);
