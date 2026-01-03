@@ -110,7 +110,14 @@ void LuaWidgetFactory::translateOptions(WidgetOption * options)
   // No translations provided
   if (!translateFunction) return;
 
-  auto lang = TRANSLATIONS;
+#if defined(ALL_LANGS)
+  char lang[3];
+  lang[0] = toupper(g_eeGeneral.ttsLanguage[0]);
+  lang[1] = toupper(g_eeGeneral.ttsLanguage[1]);
+  lang[2] = 0;
+#else
+  char* lang = TRANSLATIONS;
+#endif
 
   auto option = options;
   while (option && option->name != nullptr) {
