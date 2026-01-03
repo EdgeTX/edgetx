@@ -227,6 +227,6 @@ void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
 const char * getMultiOptionTitleStatic(uint8_t moduleIdx);
 const char *getMultiOptionTitle(uint8_t moduleIdx);
 
-const char * writeScreenshot();
+void writeScreenshot();
 
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event);
