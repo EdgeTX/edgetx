@@ -20,8 +20,8 @@
  *
  */
 
-// Original SE translations author: Kjell Kernen <kjell.kernen@gmail.com>
-// Adapted to new string handling in EdgeTX, added and revised translations: Ulf Hedlund <ulfh05@hotmail.com>
+// Original (OpenTX) SE translations author: Kjell Kernen <kjell.kernen@gmail.com>
+// Adapted to EdgeTX by: Ulf Hedlund <ulfh05@hotmail.com>
 
 /*
  * Formatting octal codes available in TR_ strings:
@@ -33,49 +33,49 @@
  */
 
 // Main menu
-#define TR_QM_MANAGE_MODELS             "Manage\nModels"
-#define TR_QM_MODEL_SETUP               "Model\nSetup"
-#define TR_QM_RADIO_SETUP               "Radio\nSetup"
-#define TR_QM_UI_SETUP                  "UI\nSetup"
-#define TR_QM_TOOLS                     "Tools"
-#define TR_QM_MODEL_SETTINGS            "Model\nSettings"
-#define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
-#define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Drive\nModes", "Flight\nModes")
-#define TR_QM_INPUTS                    "Inputs"
-#define TR_QM_MIXES                     "Mixes"
-#define TR_QM_OUTPUTS                   "Outputs"
-#define TR_QM_CURVES                    "Curves"
-#define TR_QM_GLOBAL_VARS               "Global\nVariables"
-#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
-#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
-#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
-#define TR_QM_TELEM                     "Telemetry"
-#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
-#define TR_QM_TRAINER                   "Trainer"
-#define TR_QM_HARDWARE                  "Hardware"
-#define TR_QM_ABOUT                     "About\nEdgeTX"
-#define TR_QM_THEMES                    "Themes"
-#define TR_QM_TOP_BAR                   "Top Bar"
-#define TR_QM_SCREEN_1                  "Screen 1"
-#define TR_QM_SCREEN_2                  "Screen 2"
-#define TR_QM_SCREEN_3                  "Screen 3"
-#define TR_QM_SCREEN_4                  "Screen 4"
-#define TR_QM_SCREEN_5                  "Screen 5"
-#define TR_QM_SCREEN_6                  "Screen 6"
-#define TR_QM_SCREEN_7                  "Screen 7"
-#define TR_QM_SCREEN_8                  "Screen 8"
-#define TR_QM_SCREEN_9                  "Screen 9"
-#define TR_QM_SCREEN_10                 "Screen 10"
-#define TR_QM_ADD_SCREEN                "Add\nScreen"
-#define TR_QM_APPS                      "Apps"
-#define TR_QM_STORAGE                   "Storage"
-#define TR_QM_RESET                     TR_SFC_AIR("Drive\nReset", "Flight\nReset")
-#define TR_QM_CHAN_MON                  "Channel\nMonitor"
-#define TR_QM_LS_MON                    "LS\nMonitor"
-#define TR_QM_STATS                     "Statistics"
-#define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MODEL_SETTINGS          "Model Settings"
-#define TR_MAIN_RADIO_SETTINGS          "Radio Settings"
+#define TR_QM_MANAGE_MODELS             "Hantera\nmodell"
+#define TR_QM_MODEL_SETUP               "Modell-\ninställn."
+#define TR_QM_RADIO_SETUP               "Radio-\ninställn."
+#define TR_QM_UI_SETUP                  "Skärm-\ninställn."
+#define TR_QM_TOOLS                     "Verktyg"
+#define TR_QM_MODEL_SETTINGS            "Modell-\ninställn."
+#define TR_QM_RADIO_SETTINGS            "Radio-\ninställn."
+#define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Kör-\nlägen", "Flyg-\nlägen")
+#define TR_QM_INPUTS                    "Input"
+#define TR_QM_MIXES                     "Mixar"
+#define TR_QM_OUTPUTS                   "Output"
+#define TR_QM_CURVES                    "Kurvor"
+#define TR_QM_GLOBAL_VARS               "Globala\nvariabler"
+#define TR_QM_LOGICAL_SW                "Logiska\nbrytare"
+#define TR_QM_SPEC_FUNC                 "Special-\nfunctioner"
+#define TR_QM_CUSTOM_LUA                "Anpassade\nskript"
+#define TR_QM_TELEM                     "Telemetri"
+#define TR_QM_GLOB_FUNC                 "Globala\nfunktioner"
+#define TR_QM_TRAINER                   "Lärare"
+#define TR_QM_HARDWARE                  "Hårdvara"
+#define TR_QM_ABOUT                     "Om\nEdgeTX"
+#define TR_QM_THEMES                    "Teman"
+#define TR_QM_TOP_BAR                   "Toppmeny"
+#define TR_QM_SCREEN_1                  "Skärm 1"
+#define TR_QM_SCREEN_2                  "Skärm 2"
+#define TR_QM_SCREEN_3                  "Skärm 3"
+#define TR_QM_SCREEN_4                  "Skärm 4"
+#define TR_QM_SCREEN_5                  "Skärm 5"
+#define TR_QM_SCREEN_6                  "Skärm 6"
+#define TR_QM_SCREEN_7                  "Skärm 7"
+#define TR_QM_SCREEN_8                  "Skärm 8"
+#define TR_QM_SCREEN_9                  "Skärm 9"
+#define TR_QM_SCREEN_10                 "Skärm 10"
+#define TR_QM_ADD_SCREEN                "Lägg till\nskärm"
+#define TR_QM_APPS                      "Appar"
+#define TR_QM_STORAGE                   "Lagring"
+#define TR_QM_RESET                     TR_SFC_AIR("Återställ\nkörning", "Återställ\nflygning")
+#define TR_QM_CHAN_MON                  "Kanal-\növersikt"
+#define TR_QM_LS_MON                    "LS-\nmonitor"
+#define TR_QM_STATS                     "Statistik"
+#define TR_QM_DEBUG                     "Debugga"
+#define TR_MAIN_MODEL_SETTINGS          "Modellinställningar"
+#define TR_MAIN_RADIO_SETTINGS          "Radioinställningar"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Hantera modell"
 #define TR_MAIN_MENU_MODEL_NOTES        "Modell- anteckn."
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal- monitor"
@@ -85,9 +85,9 @@
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_STATISTICS         "Statistik"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Om EdgeTX"
-#define TR_MAIN_VIEW_X                  "Screen "
-#define TR_MAIN_MENU_THEMES                 "TEMAN"
-#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MAIN_VIEW_X                  "Skärm "
+#define TR_MAIN_MENU_THEMES             "TEMAN"
+#define TR_MAIN_MENU_APPS               "Appar"
 #define TR_MENUHELISETUP                "HELIKOPTER"
 #define TR_MENUFLIGHTMODES              TR_SFC_AIR("KÖRLÄGEN", "FLYGLÄGEN")
 #define TR_MENUFLIGHTMODE               TR_SFC_AIR("KÖRLÄGE", "FLYGLÄGE")
@@ -95,7 +95,7 @@
 #define TR_MENULIMITS                   "OUTPUT"
 #define TR_MENUCURVES                   "KURVOR"
 #define TR_MIXES                        "MIXAR"
-#define TR_MENU_GLOBAL_VARS             "Globala Variabler"
+#define TR_MENU_GLOBAL_VARS             "GLOBALA VARIABLER"
 #define TR_MENULOGICALSWITCHES          "LOGISKA BRYTARE"
 #define TR_MENUCUSTOMFUNC               "SPECIALFUNKTIONER"
 #define TR_MENUCUSTOMSCRIPTS            "SKRIPT"
@@ -103,7 +103,7 @@
 #define TR_MENUSPECIALFUNCS             "GLOBALA FUNKTIONER"
 #define TR_MENUTRAINER                  "LÄRARE"
 #define TR_HARDWARE                     "HÅRDVARA"
-#define TR_USER_INTERFACE               "Top Bar"
+#define TR_USER_INTERFACE               "Toppmeny"
 #define TR_SD_CARD                      "SD-KORT"
 #define TR_DEBUG                        "Debug"
 #define TR_MENU_RADIO_SWITCHES          TR("BRYTARE","TEST AV BRYTARE")
@@ -151,22 +151,22 @@
 #define TR_AUX_SERIAL_MODES_9           "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_10          "Extern modul"
 
-#define TR_SWTYPES_1                  "Ingen"
-#define TR_SWTYPES_2                  "2 pos flipp"
-#define TR_SWTYPES_3                  "2 pos"
-#define TR_SWTYPES_4                  "3 pos"
-#define TR_SWTYPES_5                  "Global"
+#define TR_SWTYPES_1                    "Ingen"
+#define TR_SWTYPES_2                    "2 pos flipp"
+#define TR_SWTYPES_3                    "2 pos"
+#define TR_SWTYPES_4                    "3 pos"
+#define TR_SWTYPES_5                    "Global"
 
 #define TR_POTTYPES_1                   "Ingen"
 #define TR_POTTYPES_2                   "Vred"
 #define TR_POTTYPES_3                   TR("Vred m. mitt","Vred med mittläge")
 #define TR_POTTYPES_4                   "Reglage"
 #define TR_POTTYPES_5                   TR("Multipos","Flerlägesväljare")
-#define TR_POTTYPES_6                   "Axel X"
-#define TR_POTTYPES_7                   "Axel Y"
+#define TR_POTTYPES_6                   "X-axel"
+#define TR_POTTYPES_7                   "Y-axel"
 #define TR_POTTYPES_8                   "Brytare"
 #define TR_VPERSISTENT_1                "Av"
-#define TR_VPERSISTENT_2                "Flygning"
+#define TR_VPERSISTENT_2                "Session"
 #define TR_VPERSISTENT_3                "Nolla själv"
 #define TR_COUNTRY_CODES_1              TR("US","Amerika")
 #define TR_COUNTRY_CODES_2              TR("JP","Japan")
@@ -213,8 +213,8 @@
 #define TR_VMLTPX_3                     "Ersätt"
 
 #define TR_CSWTIMER                     TR("Tim", "Timer")
-#define TR_CSWSTICKY                    "Seg"
-#define TR_CSWSTAY                      "Kant"
+#define TR_CSWSTICKY                    "Sticky"
+#define TR_CSWSTAY                      "Edge"
 
 #define TR_SF_TRAINER                   "Lärare"
 #define TR_SF_INST_TRIM                 "Spara trimmar"
@@ -228,7 +228,7 @@
 
 #define TR_SOUND                        "Spela ljud"
 #define TR_PLAY_TRACK                   TR("Sp. upp", "Spela upp")
-#define TR_PLAY_VALUE                   "Säg värdet"
+#define TR_PLAY_VALUE                   "Säg värde"
 #define TR_SF_HAPTIC                    "Haptisk"
 #define TR_SF_PLAY_SCRIPT               TR("Lua", "Lua-skript")
 #define TR_SF_BG_MUSIC                  "Musik"
@@ -336,39 +336,39 @@
 #define TR_SURFACE_NAMES0               "Rod"
 #define TR_SURFACE_NAMES1               "Gas"
 
-#define TR_ROTARY_ENC_OPT_1           "Normal"
-#define TR_ROTARY_ENC_OPT_2           "Inverterad"
-#define TR_ROTARY_ENC_OPT_3           "V-I H-N"
-#define TR_ROTARY_ENC_OPT_4           "V-I H-A"
-#define TR_ROTARY_ENC_OPT_5           "V-N E-I"
+#define TR_ROTARY_ENC_OPT_1             "Normal"
+#define TR_ROTARY_ENC_OPT_2             "Inverterad"
+#define TR_ROTARY_ENC_OPT_3             "V-I H-N"
+#define TR_ROTARY_ENC_OPT_4             "V-I H-A"
+#define TR_ROTARY_ENC_OPT_5             "V-N E-I"
 
 #define TR_ON_ONE_SWITCHES_1            "PÅ"
 #define TR_ON_ONE_SWITCHES_2            "Ett"
 
-#define TR_HATSMODE                   "Hattläge"
-#define TR_HATSOPT_1                  "Endast trimm"
-#define TR_HATSOPT_2                  "Endast knapp"
-#define TR_HATSOPT_3                  "Ändringsbar"
-#define TR_HATSOPT_4                  "Global"
-#define TR_HATSMODE_TRIMS             "Hattläge: Trimmar"
-#define TR_HATSMODE_KEYS              "Hattläge: Knappar"
-#define TR_HATSMODE_KEYS_HELP         "Vänster sida:\n"\
-                                      "   Höger = MDL\n"\
-                                      "   Upp = SYS\n"\
-                                      "   Ner = TELE\n"\
-                                      "\n"\
-                                      "Höger sida:\n"\
-                                      "   Vänster = PAGE<\n"\
-                                      "   Höger = PAGE>\n"\
-                                      "   Upp = PREV/INC\n"\
-                                      "   Ner = NEXT/DEC"
+#define TR_HATSMODE                     "Hattläge"
+#define TR_HATSOPT_1                    "Endast trimm"
+#define TR_HATSOPT_2                    "Endast knapp"
+#define TR_HATSOPT_3                    "Ändringsbar"
+#define TR_HATSOPT_4                    "Global"
+#define TR_HATSMODE_TRIMS               "Hattläge: Trimmar"
+#define TR_HATSMODE_KEYS                "Hattläge: Knappar"
+#define TR_HATSMODE_KEYS_HELP           "Vänster sida:\n"\
+                                        "   Höger = MDL\n"\
+                                        "   Upp = SYS\n"\
+                                        "   Ner = TELE\n"\
+                                        "\n"\
+                                        "Höger sida:\n"\
+                                        "   Vänster = PAGE<\n"\
+                                        "   Höger = PAGE>\n"\
+                                        "   Upp = PREV/INC\n"\
+                                        "   Ner = NEXT/DEC"
 
-#define TR_IMU_VSRCRAW_1             "TltX"
-#define TR_IMU_VSRCRAW_2             "TltY"
+#define TR_IMU_VSRCRAW_1                "TltX"
+#define TR_IMU_VSRCRAW_2                "TltY"
 
-#define TR_CYC_VSRCRAW_1              "CYK1"
-#define TR_CYC_VSRCRAW_2              "CYK2"
-#define TR_CYC_VSRCRAW_3              "CYK3"
+#define TR_CYC_VSRCRAW_1                "CYK1"
+#define TR_CYC_VSRCRAW_2                "CYK2"
+#define TR_CYC_VSRCRAW_3                "CYK3"
 
 #define TR_SRC_BATT                     "Batt"
 #define TR_SRC_TIME                     "Tid"
@@ -427,13 +427,13 @@
 #define TR_TIMER_DIR_1                  TR("Återst.", "Visa återstående")
 #define TR_TIMER_DIR_2                  TR("Förbrukad", "Visa förbrukad")
 
-#define TR_FONT_SIZES_1             "STD"
-#define TR_FONT_SIZES_2             "FET"
-#define TR_FONT_SIZES_3             "XXS"
-#define TR_FONT_SIZES_4             "XS"
-#define TR_FONT_SIZES_5             "L"
-#define TR_FONT_SIZES_6             "XL"
-#define TR_FONT_SIZES_7             "XXL"
+#define TR_FONT_SIZES_1                 "STD"
+#define TR_FONT_SIZES_2                 "FET"
+#define TR_FONT_SIZES_3                 "XXS"
+#define TR_FONT_SIZES_4                 "XS"
+#define TR_FONT_SIZES_5                 "L"
+#define TR_FONT_SIZES_6                 "XL"
+#define TR_FONT_SIZES_7                 "XXL"
 
 #define TR_ENTER                        "[MENY]"
 #define TR_OK                           TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
@@ -470,7 +470,7 @@
 #define TR_PROTOCOL                     TR("Proto.", "Protokoll")
 #define TR_PPMFRAME                     "PPM-paket"
 #define TR_REFRESHRATE                  TR("Refresh", "Refresh rate")
-#define TR_WARN_BATTVOLTAGE            TR("Utspänning = VBAT: ", "VARNING: Utspänning är VBAT: ")
+#define TR_WARN_BATTVOLTAGE             TR("Utspänning = VBAT: ", "VARNING: Utspänning är VBAT: ")
 #define TR_WARN_5VOLTS                  "VARNING: Spänning ut är 5 volt"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
@@ -654,8 +654,8 @@
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
 #define TR_MENU_FSWITCH                 "ANPASSNINGSBARA BRYTARE"
 #define   TR_TRIMS2OFFSETS               TR_BW_COL("\006[Spara trimvärden]", "[Spara trimvärden]")
-#define TR_CHANNELS2FAILSAFE            "Kanaler=>Failsafe"
-#define TR_CHANNEL2FAILSAFE             "Kanal=>Failsafe"
+#define TR_CHANNELS2FAILSAFE            "Kanaler->Failsafe"
+#define TR_CHANNEL2FAILSAFE             "Kanal->Failsafe"
 #define TR_MENUMODELSEL                 TR("MODELL","VÄLJ MODELL")
 #define TR_MENU_MODEL_SETUP             TR("MODELLINSTÄLLNING","MODELLINSTÄLLNINGAR")
 #define TR_MENUCURVE                    "KURVA"
@@ -850,16 +850,16 @@
 #define TR_BACKLIGHT_TIMER              "Timeout vid inaktivitet"
 #define TR_NO_THEME_IMAGE               "Ingen temabild"
 
-#define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
-#define TR_LABELS_SELECT              "Etikettval"
-#define TR_LABELS_MATCH               "Etikettmatchning"
-#define TR_FAV_MATCH                  "Matcha favoriter"
-#define TR_LABELS_SELECT_MODE_1       "Flerval"
-#define TR_LABELS_SELECT_MODE_2       "Enskilt val"
-#define TR_LABELS_MATCH_MODE_1        "Matcha alla"
-#define TR_LABELS_MATCH_MODE_2        "Matcha någon"
-#define TR_FAV_MATCH_MODE_1           "Måste matcha"
-#define TR_FAV_MATCH_MODE_2           "Alternativt matcha"
+#define TR_MODEL_QUICK_SELECT           "Snabbval av modell"
+#define TR_LABELS_SELECT                "Etikettval"
+#define TR_LABELS_MATCH                 "Etikettmatchning"
+#define TR_FAV_MATCH                    "Matcha favoriter"
+#define TR_LABELS_SELECT_MODE_1         "Flerval"
+#define TR_LABELS_SELECT_MODE_2         "Enskilt val"
+#define TR_LABELS_MATCH_MODE_1          "Matcha alla"
+#define TR_LABELS_MATCH_MODE_2          "Matcha någon"
+#define TR_FAV_MATCH_MODE_1             "Måste matcha"
+#define TR_FAV_MATCH_MODE_2             "Alternativt matcha"
 
 #define TR_SELECT_TEMPLATE_FOLDER       "VÄLJ MALLKATALOG"
 #define TR_SELECT_TEMPLATE              "VÄLJ MODELLMALL"
@@ -879,10 +879,10 @@
 #define TR_BLUETOOTH_NODEVICES          "Inga enheter funna"
 #define TR_BLUETOOTH_SCANNING           "Skannar..."
 #define TR_BLUETOOTH_BAUDRATE           "BT baudrate"
-#define TR_BLUETOOTH_MODES_1          "---"
-#define TR_BLUETOOTH_MODES_2          "Telemetri"
-#define TR_BLUETOOTH_MODES_3          "Lärare"
-#define TR_BLUETOOTH_MODES_4          "Aktiverad"
+#define TR_BLUETOOTH_MODES_1            "---"
+#define TR_BLUETOOTH_MODES_2            "Telemetri"
+#define TR_BLUETOOTH_MODES_3            "Lärare"
+#define TR_BLUETOOTH_MODES_4            "Aktiverad"
 #define TR_SD_INFO_TITLE                "SD INFO"
 #define TR_SD_SPEED                     "Hastighet:"
 #define TR_SD_SECTORS                   "Sektorer:"
@@ -1015,6 +1015,8 @@
 #define TR_RECEIVER_RESET               "Återställ mottagare?"
 #define TR_SHARE                        "Dela"
 #define TR_BIND                         "Parkopplar"
+#define TR_PAIRING                      "Parar"
+#define TR_BTAUDIO                      "BT Audio"
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registrera"))
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
 #define TR_RANGE_TEST                   "Test av radiolänkkvalitet (begränsad signalstyrka)"
@@ -1052,11 +1054,11 @@
 #define TR_AFHDS3_POWER_SOURCE          "Strömkälla"
 #define TR_ANTENNACONFIRM1              "EXT. ANTENN"
 
-#define TR_ANTENNA_MODES_1            "Intern"
-#define TR_ANTENNA_MODES_2            "Fråga"
-#define TR_ANTENNA_MODES_3            "Per modell"
-#define TR_ANTENNA_MODES_4            "Intern + Extern"
-#define TR_ANTENNA_MODES_5            "Extern"
+#define TR_ANTENNA_MODES_1              "Intern"
+#define TR_ANTENNA_MODES_2              "Fråga"
+#define TR_ANTENNA_MODES_3              "Per modell"
+#define TR_ANTENNA_MODES_4              "Intern + Extern"
+#define TR_ANTENNA_MODES_5              "Extern"
 
 #define TR_USE_INTERNAL_ANTENNA         TR("Anv int. antenn", "Använd intern antenn")
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
@@ -1128,7 +1130,7 @@
 #define TR_PHASES_HEADERS_FAD_OUT       "Tona ut"
 
 #define TR_LIMITS_HEADERS_NAME          "Namn"
-#define TR_LIMITS_HEADERS_SUBTRIM       "Subtrim"
+#define TR_LIMITS_HEADERS_SUBTRIM       "Subtrimm"
 #define TR_LIMITS_HEADERS_MIN           "Min"
 #define TR_LIMITS_HEADERS_MAX           "Max"
 #define TR_LIMITS_HEADERS_DIRECTION     "Riktning"
@@ -1138,34 +1140,34 @@
 #define TR_INVERTED                     "Inverterad"
 
 // Horus layouts and widgets
-#define TR_FIRST_CHANNEL              "Första kanal"
-#define TR_FILL_BACKGROUND            "Fyll bakgrund?"
-#define TR_BG_COLOR                   "Bakgrundsfärg"
-#define TR_SLIDERS_TRIMS              "Reglage+Trimmar"
-#define TR_SLIDERS                    "Reglage"
-#define TR_FLIGHT_MODE                "Flygläge"
-#define TR_INVALID_FILE               "Ogiltig fil"
-#define TR_TIMER_SOURCE               "Timerkälla"
-#define TR_SIZE                       "Storlek"
-#define TR_SHADOW                     "Skugga"
-#define TR_ALIGNMENT                  "Justering"
-#define TR_ALIGN_LABEL                "Justera etikett"
-#define TR_ALIGN_VALUE                "Justera värde"
-#define TR_ALIGN_OPTS_1               "Vänster"
-#define TR_ALIGN_OPTS_2               "Mitten"
-#define TR_ALIGN_OPTS_3               "Höger"
-#define TR_TEXT                       "Text"
-#define TR_COLOR                      "Färg"
-#define TR_PANEL1_BACKGROUND          "Panel 1 bakgrund"
-#define TR_PANEL2_BACKGROUND          "Panel 2 bakgrund"
-#define TR_PANEL_BACKGROUND           "Background"
-#define TR_PANEL_COLOR                "  Color"
-#define TR_WIDGET_GAUGE               "Mätare"
-#define TR_WIDGET_MODELBMP            "Modellinfo"
-#define TR_WIDGET_OUTPUTS             "Output"
-#define TR_WIDGET_TEXT                "Text"
-#define TR_WIDGET_TIMER               "Timer"
-#define TR_WIDGET_VALUE               "Värde"
+#define TR_FIRST_CHANNEL                "Första kanal"
+#define TR_FILL_BACKGROUND              "Fyll bakgrund?"
+#define TR_BG_COLOR                     "Bakgrundsfärg"
+#define TR_SLIDERS_TRIMS                "Reglage+Trimmar"
+#define TR_SLIDERS                      "Reglage"
+#define TR_FLIGHT_MODE                  "Flygläge"
+#define TR_INVALID_FILE                 "Ogiltig fil"
+#define TR_TIMER_SOURCE                 "Timerkälla"
+#define TR_SIZE                         "Storlek"
+#define TR_SHADOW                       "Skugga"
+#define TR_ALIGNMENT                    "Justering"
+#define TR_ALIGN_LABEL                  "Justera etikett"
+#define TR_ALIGN_VALUE                  "Justera värde"
+#define TR_ALIGN_OPTS_1                 "Vänster"
+#define TR_ALIGN_OPTS_2                 "Mitten"
+#define TR_ALIGN_OPTS_3                 "Höger"
+#define TR_TEXT                         "Text"
+#define TR_COLOR                        "Färg"
+#define TR_PANEL1_BACKGROUND            "Panel 1 bakgrund"
+#define TR_PANEL2_BACKGROUND            "Panel 2 bakgrund"
+#define TR_PANEL_BACKGROUND             "Bakgrund"
+#define TR_PANEL_COLOR                  "  Färg"
+#define TR_WIDGET_GAUGE                 "Mätare"
+#define TR_WIDGET_MODELBMP              "Modellinfo"
+#define TR_WIDGET_OUTPUTS               "Output"
+#define TR_WIDGET_TEXT                  "Text"
+#define TR_WIDGET_TIMER                 "Timer"
+#define TR_WIDGET_VALUE                 "Värde"
 
 // About screen
 #define TR_ABOUTUS                      "Om oss"
@@ -1277,8 +1279,8 @@
 #define TR_THEME_COLOR_ACTIVE           "AKTIV"
 #define TR_THEME_COLOR_WARNING          "VARNING"
 #define TR_THEME_COLOR_DISABLED         "INAKTIV"
-#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
-#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
+#define TR_THEME_COLOR_QM_BG            "Snabbmeny BG"
+#define TR_THEME_COLOR_QM_FG            "Snabbmeny FG"
 #define TR_THEME_COLOR_CUSTOM           "ANPASSAD"
 #define TR_THEME_CHECKBOX               "Kryssruta"
 #define TR_THEME_ACTIVE                 "Aktiv"
@@ -1302,7 +1304,7 @@
 #define TR_VOICE_DEUTSCH                "Tyska"
 #define TR_VOICE_DUTCH                  "Holländska"
 #define TR_VOICE_ESPANOL                "Spanska"
-#define TR_VOICE_FINNISH                "Finnish"
+#define TR_VOICE_FINNISH                "Finska"
 #define TR_VOICE_FRANCAIS               "Franska"
 #define TR_VOICE_HUNGARIAN              "Ungerska"
 #define TR_VOICE_ITALIANO               "Italienska"
@@ -1315,7 +1317,7 @@
 #define TR_VOICE_JAPANESE               "Japanska"
 #define TR_VOICE_HEBREW                 "Hebreiska"
 #define TR_VOICE_UKRAINIAN              "Ukrainska"
-#define TR_VOICE_KOREAN                 "koreanska"
+#define TR_VOICE_KOREAN                 "Koreanska"
 
 #define TR_USBJOYSTICK_LABEL            "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE          "Läge"
@@ -1421,9 +1423,9 @@
 
 #define TR_DEL_DIR_NOT_EMPTY            "Katalog måste var tom innan radering"
 
-#define TR_KEY_SHORTCUTS          "Key Shortcuts"
-#define TR_CURRENT_SCREEN         "Current Screen"
-#define TR_SHORT_PRESS            "Short Press"
-#define TR_LONG_PRESS             "Long Press"
-#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
-#define TR_QUICK_MENU_FAVORITES   "Quick Menu Favorites"
+#define TR_KEY_SHORTCUTS                "Snabbkommandon"
+#define TR_CURRENT_SCREEN               "Nuvarande skärm"
+#define TR_SHORT_PRESS                  "Kort tryck"
+#define TR_LONG_PRESS                   "Långt tryck"
+#define TR_OPEN_QUICK_MENU              "Öppna snabbmeny"
+#define TR_QUICK_MENU_FAVORITES         "Snabbmenyfavoriter"
