@@ -40,8 +40,6 @@ class SwitchWarnDialog : public FullScreenDialog
 
   bool warningInactive();
 
-  void delayedInit() override;
-
   void checkEvents() override;
 };
 
@@ -56,6 +54,4 @@ class ThrottleWarnDialog : public FullScreenDialog
 
  protected:
   bool warningInactive();
-
-  void delayedInit() override;
 };
