@@ -27,18 +27,23 @@
 #include "simpgmspace.h"
 #include "bitmaps.h"
 
+#if !(defined(STM32H7) || defined(STM32H7RS))
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
 #include "stb/stb_image_write.h"
 
 void convert_RGB565_to_RGB888(uint8_t* dst, const BitmapBuffer* src, coord_t w,
                               coord_t h)
 {
+  extern uint8_t rbScale[32];
+  extern uint8_t gScale[64];
+
   for (int y = 0; y < src->height(); y++) {
     for (int x = 0; x < src->width(); x++) {
       RGB_SPLIT(*src->getPixelPtrAbs(x, y), r, g, b);
-      *(dst++) = (uint8_t)(r << 3);
-      *(dst++) = (uint8_t)(g << 2);
-      *(dst++) = (uint8_t)(b << 3);
+      *(dst++) = rbScale[r];
+      *(dst++) = gScale[g];
+      *(dst++) = rbScale[b];
     }
   }
 }
