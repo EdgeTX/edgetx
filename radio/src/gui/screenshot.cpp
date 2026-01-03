@@ -35,7 +35,6 @@ uint8_t gScale[64] = {
 #if defined(COLORLCD) && (defined(STM32H7) || defined(STM32H7RS))
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STBI_WRITE_NO_STDIO
 #include "stb/stb_image_write.h"
 
 static void convert_RGB565_to_RGB888(uint8_t* dst, lv_img_dsc_t* src, coord_t w, coord_t h)
