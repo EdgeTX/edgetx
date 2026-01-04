@@ -257,7 +257,8 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
     } else if (--pass0_counter == 0) {
         pass = 0;
         updateModuleStatus(flags);
-        if ((version == 1) && (-- fastSetup_count > 0)) {
+        if ((version == 1) && (fastSetup_count > 0)) {
+            fastSetup_count--;
             pass0_counter = 2;  // Keep sendint setup every 2 ch messages
         } else {
           pass0_counter = pass0_period;  // restar counter
