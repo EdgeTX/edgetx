@@ -677,6 +677,7 @@
 #define TR_MULTI_OPTION                TR("Option", "Option perso")
 #define TR_MULTI_AUTOBIND              TR("Bind voie", "Bind sur voie")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Désact. réorg. voies")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("Pas de Télém.", "Désact. Télémétrie")
 #define TR_MULTI_LOWPOWER              TR("Basse puis.", "Mode basse puiss.")
 #define TR_MULTI_LNA_DISABLE           "LNA désactivé"

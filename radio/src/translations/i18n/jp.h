@@ -671,6 +671,7 @@
 #define TR_MULTI_OPTION                TR("Option", "オプション値")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.", "チャンネルバインド")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "CHマップ無効")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "テレメトリー無効")
 #define TR_MULTI_LOWPOWER              TR("Low power", "低出力モード")
 #define TR_MULTI_LNA_DISABLE           "LNA無効"

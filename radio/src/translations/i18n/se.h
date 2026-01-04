@@ -677,6 +677,7 @@
 #define TR_MULTI_OPTION                 TR("Alternativ", "Alternativets värde")
 #define TR_MULTI_AUTOBIND               TR("Bind ka.","Parkoppla via kanal")
 #define TR_DISABLE_CH_MAP               TR("Mappa ej KA", "Inaktivera kanalmappning")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("Ej telem.", "Inaktivera telemetri")
 #define TR_MULTI_LOWPOWER               TR("Låg effekt", "Lågeffektläge")
 #define TR_MULTI_LNA_DISABLE            "LNA disable"

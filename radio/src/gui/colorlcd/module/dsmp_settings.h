@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,13 +21,22 @@
 
 #pragma once
 
-#include "hal/module_port.h"
-#include "hal/module_driver.h"
-#include "timers_driver.h"
+#include "window.h"
+#include "module_setup.h"
 
-// DSM2/DSMX
+class ToggleSwitch;
 
-extern etx_module_state_t* dsmInit(uint8_t module, uint32_t baudrate,
-                                   uint16_t period, bool telemetry);
-extern void dsmDeInit(void* ctx);
-extern const etx_proto_driver_t DSM2Driver;
+struct ModuleData;
+struct DSMPEnableAETR;
+
+class DSMPSettings : public Window, public ModuleOptions
+{
+  ModuleData* md;
+  uint8_t moduleIdx;
+  DSMPEnableAETR *enableAETR_line;
+
+ public:
+  DSMPSettings(Window* parent, const FlexGridLayout& g,
+                      uint8_t moduleIdx);
+  void update() override;
+};

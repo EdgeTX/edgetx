@@ -64,6 +64,10 @@
 #include "multi_rfprotos.h"
 #endif
 
+#if defined(DSMP)
+#include "dsmp_settings.h"
+#endif
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_UNIQUE_ID_WARN LV_STATE_USER_1
@@ -160,6 +164,11 @@ class ModuleWindow : public Window
     else if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
             g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
       modOpts = new PXX1AntennaSettings(this, grid, moduleIdx);
+    }
+  #endif
+  #if defined(DSMP)
+    else if (isModuleDSMP(moduleIdx)) {
+      modOpts = new DSMPSettings(this, grid, moduleIdx);
     }
   #endif
 
