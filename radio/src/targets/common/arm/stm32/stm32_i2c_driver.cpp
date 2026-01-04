@@ -35,7 +35,7 @@
 struct stm32_i2c_device {
   I2C_HandleTypeDef handle;
   const stm32_i2c_hw_def_t* hw_def;
-#if !defined(BOOT) && !defined(RADIO_PA01)
+#if !defined(BOOT)
   mutex_handle_t mutex;
 #endif
 };
@@ -525,7 +525,7 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   }
 #endif
 
-#if !defined(BOOT) && !defined(RADIO_PA01)
+#if !defined(BOOT)
   mutex_create(&dev->mutex);
 #endif
   return 1;
