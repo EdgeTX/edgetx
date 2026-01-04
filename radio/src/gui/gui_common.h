@@ -60,6 +60,7 @@ bool isInputAvailable(int input);
 bool isThrottleSourceAvailable(int source);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
+bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailable(int source);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);

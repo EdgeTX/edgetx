@@ -1127,6 +1127,26 @@ PACK(struct RadioData {
   NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
 #endif
 
+  NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int16_t radioGFDisabled:1);
+  NOBACKUP(int16_t radioTrainerDisabled:1);
+  NOBACKUP(int16_t modelHeliDisabled:1);
+  NOBACKUP(int16_t modelFMDisabled:1);
+  NOBACKUP(int16_t modelCurvesDisabled:1);
+  NOBACKUP(int16_t modelGVDisabled:1);
+
+  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int16_t modelLSDisabled:1);
+  NOBACKUP(int16_t modelSFDisabled:1);
+  NOBACKUP(int16_t modelCustomScriptsDisabled:1);
+  NOBACKUP(int16_t modelTelemetryDisabled:1);
+  NOBACKUP(int16_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(int16_t disablePwrOnOffHaptic:1);
+
+  NOBACKUP(uint8_t modelQuickSelect:1);
+
 #if defined(COLORLCD)
   NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
   NOBACKUP(uint8_t labelMultiMode:1);     // 0 = match all labels (AND), 1 = match any labels (OR)
@@ -1134,30 +1154,12 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
-#endif
-  NOBACKUP(uint8_t radioGFDisabled:1);
-  NOBACKUP(uint8_t radioTrainerDisabled:1);
-  // Model level tabs control (global setting)
-  NOBACKUP(uint8_t modelHeliDisabled:1);
-  NOBACKUP(uint8_t modelFMDisabled:1);
-  NOBACKUP(uint8_t modelCurvesDisabled:1);
-  NOBACKUP(uint8_t modelGVDisabled:1);
-  NOBACKUP(uint8_t modelLSDisabled:1);
-  NOBACKUP(uint8_t modelSFDisabled:1);
-  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
-  NOBACKUP(uint8_t modelTelemetryDisabled:1);
-  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
-  NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
-
-  NOBACKUP(uint8_t modelQuickSelect:1);
-
-#if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:5 SKIP);
+  NOBACKUP(uint8_t spare:1 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:2 SKIP);
+  NOBACKUP(uint8_t spare:6 SKIP);
 #else
-  NOBACKUP(uint8_t spare:3 SKIP);
+  NOBACKUP(uint8_t spare:7 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

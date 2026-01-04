@@ -454,6 +454,7 @@ class Boards
     static bool isInputAvailable(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputCalibrated(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputGyroAxis(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputIgnored(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputPot(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputStick(int index, Board::Type board = Board::BOARD_UNKNOWN);

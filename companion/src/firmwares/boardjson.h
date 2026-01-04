@@ -130,6 +130,8 @@ class BoardJson
     const bool isInputCalibrated(int index) const;
     const bool isInputConfigurable(int index) const;
     const bool isInputIgnored(int index) const;
+    const bool isInputFlexGyroAxis(int index) const;
+    const bool isInputFlexJoystickAxis(int index) const;
     const bool isInputFlexPot(int index) const;
     const bool isInputFlexSwitch(int index) const;
     const bool isInputStick(int index) const;
