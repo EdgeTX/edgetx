@@ -54,7 +54,7 @@ static I2C_HandleTypeDef* i2c_get_handle(uint8_t bus)
   return &_i2c_devs[bus].handle;
 }
 
-#if !defined(BOOT) && !defined(RADIO_PA01)
+#if !defined(BOOT)
 #define I2CMutex(bus) MutexLock mutexLock = MutexLock::MakeInstance(&i2c_get_device(bus)->mutex)
 #else
 #define I2CMutex(bus)
