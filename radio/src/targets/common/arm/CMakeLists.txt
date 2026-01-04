@@ -221,6 +221,7 @@ endif()
 
 if(MULTIMODULE OR AFHDS3)
   set(SRC ${SRC} telemetry/flysky_ibus.cpp)
+  set(SRC ${SRC} telemetry/flysky_ibus2.cpp)
 endif()
 
 if(AFHDS2 AND INTERNAL_MODULE_AFHDS2A)
@@ -252,6 +253,7 @@ endif()
 
 if(MULTIMODULE OR AFHDS3)
  set(SRC ${SRC} telemetry/flysky_ibus.cpp )
+ set(SRC ${SRC} telemetry/flysky_ibus2.cpp)
 endif()
 
 if(GHOST)
