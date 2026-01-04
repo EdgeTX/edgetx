@@ -2789,14 +2789,14 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x00,0x00,0x52,0x53,0x8a,0x01,0xff,0x02,0x50,0x00,0x00,0x00,0x00,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 12289, .range_length = 147, .glyph_id_start = 1, .list_length = 45, .type = 3, .unicode_list = 3200, .glyph_id_ofs_list = 0 },
 { .range_start = 12449, .range_length = 49, .glyph_id_start = 46, .list_length = 49, .type = 0, .unicode_list = 0, .glyph_id_ofs_list = 3290 },
 { .range_start = 12499, .range_length = 27, .glyph_id_start = 89, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 12527, .range_length = 27114, .glyph_id_start = 116, .list_length = 284, .type = 3, .unicode_list = 3339, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_jp_L = {
+const etxLz4Font lv_font_jp_L __FLASH = {
 .uncomp_size = 71690,
 .comp_size = 44558,
 .line_height = 19,

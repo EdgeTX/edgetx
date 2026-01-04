@@ -93,6 +93,31 @@ void addPopupItem(int i_min, int i_max, int rangeMin, int rangeMax, IsValueAvail
   }
 }
 
+struct popupCheckDef {
+  MixSources first;
+  MixSources last;
+  const char* title;
+};
+
+static const popupCheckDef popupChecks[] = {
+  { MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, STR_MENU_INPUTS },
+#if defined(LUA_MODEL_SCRIPTS)
+  { MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, STR_MENU_LUA },
+#endif
+  { MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, STR_MENU_STICKS },
+  { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, STR_MENU_POTS },
+  { MIXSRC_MIN, MIXSRC_MIN, STR_MENU_MIN },
+  { MIXSRC_MAX, MIXSRC_MAX, STR_MENU_MAX },
+#if defined(HELI)
+  { MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, STR_MENU_HELI },
+#endif
+  { MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, STR_MENU_TRIMS },
+  { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, STR_MENU_SWITCHES },
+  { MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, STR_MENU_TRAINER },
+  { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, STR_MENU_CHANNELS },
+  { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, STR_MENU_GVARS },
+};
+
 inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
                           unsigned int i_flags, IsValueAvailable isValueAvailable,
                           bool& isSource)
@@ -105,23 +130,9 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
         POPUP_MENU_ADD_ITEM(STR_CONSTANT);
       }
 
-      addPopupItem(i_min, i_max, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isValueAvailable, STR_MENU_INPUTS);
-#if defined(LUA_MODEL_SCRIPTS)
-      addPopupItem(i_min, i_max, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isValueAvailable, STR_MENU_LUA);
-#endif
-      if (i_min <= MIXSRC_FIRST_STICK && i_max >= MIXSRC_FIRST_STICK)      POPUP_MENU_ADD_ITEM(STR_MENU_STICKS);
-      if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
-      if (i_min <= MIXSRC_MIN && i_max >= MIXSRC_MIN)                      POPUP_MENU_ADD_ITEM(STR_MENU_MIN);
-      if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
-#if defined(HELI)
-      if (modelHeliEnabled())
-        addPopupItem(i_min, i_max, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, isValueAvailable, STR_MENU_HELI);
-#endif
-      if (i_min <= MIXSRC_FIRST_TRIM && i_max >= MIXSRC_FIRST_TRIM)        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
-      if (i_min <= MIXSRC_FIRST_SWITCH && i_max >= MIXSRC_FIRST_SWITCH)    POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
-      addPopupItem(i_min, i_max, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, isValueAvailable, STR_MENU_TRAINER);
-      if (i_min <= MIXSRC_FIRST_CH && i_max >= MIXSRC_FIRST_CH)            POPUP_MENU_ADD_ITEM(STR_MENU_CHANNELS);
-      addPopupItem(i_min, i_max, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, isValueAvailable, STR_MENU_GVARS);
+      for (size_t i = 0; i < DIM(popupChecks); i += 1) {
+        addPopupItem(i_min, i_max, popupChecks[i].first, popupChecks[i].last, isValueAvailable, popupChecks[i].title);
+      }
 
       if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
         for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {

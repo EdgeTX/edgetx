@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+* Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,39 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "usb_driver.h"
 
-#include "fullscreen_dialog.h"
-#include "mainwindow.h"
-#include "edgetx.h"
-
-class SwitchWarnDialog : public FullScreenDialog
+bool usbPluggedInStorageMode()
 {
- public:
-  SwitchWarnDialog();
+  return usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE;
+}
 
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SwitchWarnDialog"; }
-#endif
-
- protected:
-  swarnstate_t last_bad_switches;
-  uint16_t     last_bad_pots;
-
-  bool warningInactive();
-
-  void checkEvents() override;
-};
-
-class ThrottleWarnDialog : public FullScreenDialog
+bool usbPluggedInJoystickMode()
 {
- public:
-  ThrottleWarnDialog(const char* msg);
+  return usbPlugged() && getSelectedUsbMode() == USB_JOYSTICK_MODE;
+}
 
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "ThrottleWarnDialog"; }
-#endif
-
- protected:
-  bool warningInactive();
-};
+bool usbPluggedInVCPMode()
+{
+  return usbPlugged() && getSelectedUsbMode() == USB_SERIAL_MODE;
+}

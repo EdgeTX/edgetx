@@ -11,6 +11,7 @@ set(SRC ${SRC}
   hal/module_port.cpp
   hal/adc_driver.cpp
   hal/switch_driver.cpp
+  hal/usb_driver.cpp
 )
 
 if(FUNCTION_SWITCHES)

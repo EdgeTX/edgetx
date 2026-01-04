@@ -1516,11 +1516,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x09,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 12289, .range_length = 28496, .glyph_id_start = 1, .list_length = 645, .type = 3, .unicode_list = 5168, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_tw_XXS = {
+const etxLz4Font lv_font_tw_XXS __FLASH = {
 .uncomp_size = 27793,
 .comp_size = 24178,
 .line_height = 10,

@@ -69,314 +69,314 @@ MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed)
   return raw;
 }
 
-static const uint8_t mask_menu_favs[] = {
+static const uint8_t mask_menu_favs[] __FLASH = {
 #include "mask_menu_favs.lbm"
 };
 
-static const uint8_t mask_menu_model[] = {
+static const uint8_t mask_menu_model[] __FLASH = {
 #include "mask_menu_model.lbm"
 };
-static const uint8_t mask_menu_notes[] = {
+static const uint8_t mask_menu_notes[] __FLASH = {
 #include "mask_menu_notes.lbm"
 };
-static const uint8_t mask_menu_radio[] = {
+static const uint8_t mask_menu_radio[] __FLASH = {
 #include "mask_menu_radio.lbm"
 };
-static const uint8_t mask_menu_stats[] = {
+static const uint8_t mask_menu_stats[] __FLASH = {
 #include "mask_menu_stats.lbm"
 };
-static const uint8_t mask_menu_theme[] = {
+static const uint8_t mask_menu_theme[] __FLASH = {
 #include "mask_menu_theme.lbm"
 };
-static const uint8_t mask_model_curves[] = {
+static const uint8_t mask_model_curves[] __FLASH = {
 #include "mask_model_curves.lbm"
 };
-static const uint8_t mask_model_flight_modes[] = {
+static const uint8_t mask_model_flight_modes[] __FLASH = {
 #include "mask_model_flight_modes.lbm"
 };
-static const uint8_t mask_model_gvars[] = {
+static const uint8_t mask_model_gvars[] __FLASH = {
 #include "mask_model_gvars.lbm"
 };
-static const uint8_t mask_model_heli[] = {
+static const uint8_t mask_model_heli[] __FLASH = {
 #include "mask_model_heli.lbm"
 };
-static const uint8_t mask_model_inputs[] = {
+static const uint8_t mask_model_inputs[] __FLASH = {
 #include "mask_model_inputs.lbm"
 };
-static const uint8_t mask_model_logical_switches[] = {
+static const uint8_t mask_model_logical_switches[] __FLASH = {
 #include "mask_model_logical_switches.lbm"
 };
-static const uint8_t mask_model_lua_scripts[] = {
+static const uint8_t mask_model_lua_scripts[] __FLASH = {
 #include "mask_model_lua_scripts.lbm"
 };
-static const uint8_t mask_model_mixer[] = {
+static const uint8_t mask_model_mixer[] __FLASH = {
 #include "mask_model_mixer.lbm"
 };
-static const uint8_t mask_model_outputs[] = {
+static const uint8_t mask_model_outputs[] __FLASH = {
 #include "mask_model_outputs.lbm"
 };
-static const uint8_t mask_model_setup[] = {
+static const uint8_t mask_model_setup[] __FLASH = {
 #include "mask_model_setup.lbm"
 };
-static const uint8_t mask_model_special_functions[] = {
+static const uint8_t mask_model_special_functions[] __FLASH = {
 #include "mask_model_special_functions.lbm"
 };
-static const uint8_t mask_model_telemetry[] = {
+static const uint8_t mask_model_telemetry[] __FLASH = {
 #include "mask_model_telemetry.lbm"
 };
-static const uint8_t mask_model_usb[] = {
+static const uint8_t mask_model_usb[] __FLASH = {
 #include "mask_model_usb.lbm"
 };
-static const uint8_t mask_menu_model_select[] = {
+static const uint8_t mask_menu_model_select[] __FLASH = {
 #include "mask_menu_model_select.lbm"  //TODO: someone may want to make proper icon
 };
-static const uint8_t mask_monitor[] = {
+static const uint8_t mask_monitor[] __FLASH = {
 #include "mask_monitor.lbm"
 };
-static const uint8_t mask_monitor_logsw[] = {
+static const uint8_t mask_monitor_logsw[] __FLASH = {
 #include "mask_monitor_logsw.lbm"
 };
-static const uint8_t mask_edgetx[] = {
+static const uint8_t mask_edgetx[] __FLASH = {
 #include "mask_edgetx.lbm"
 };
-static const uint8_t mask_radio_calibration[] = {
+static const uint8_t mask_radio_calibration[] __FLASH = {
 #include "mask_radio_calibration.lbm"
 };
-static const uint8_t mask_radio_global_functions[] = {
+static const uint8_t mask_radio_global_functions[] __FLASH = {
 #include "mask_radio_global_functions.lbm"
 };
-static const uint8_t mask_radio_hardware[] = {
+static const uint8_t mask_radio_hardware[] __FLASH = {
 #include "mask_radio_hardware.lbm"
 };
-static const uint8_t mask_radio_sd_browser[] = {
+static const uint8_t mask_radio_sd_browser[] __FLASH = {
 #include "mask_radio_sd_browser.lbm"
 };
-static const uint8_t mask_radio_setup[] = {
+static const uint8_t mask_radio_setup[] __FLASH = {
 #include "mask_radio_setup.lbm"
 };
-static const uint8_t mask_radio_tools[] = {
+static const uint8_t mask_radio_tools[] __FLASH = {
 #include "mask_radio_tools.lbm"
 };
-static const uint8_t mask_radio_edit_theme[] = {
+static const uint8_t mask_radio_edit_theme[] __FLASH = {
 #include "mask_radio_edit_theme.lbm"
 };
-static const uint8_t mask_radio_trainer[] = {
+static const uint8_t mask_radio_trainer[] __FLASH = {
 #include "mask_radio_trainer.lbm"
 };
-static const uint8_t mask_radio_version[] = {
+static const uint8_t mask_radio_version[] __FLASH = {
 #include "mask_radio_version.lbm"
 };
-static const uint8_t mask_stats_analogs[] = {
+static const uint8_t mask_stats_analogs[] __FLASH = {
 #include "mask_stats_analogs.lbm"
 };
-static const uint8_t mask_stats_debug[] = {
+static const uint8_t mask_stats_debug[] __FLASH = {
 #include "mask_stats_debug.lbm"
 };
-static const uint8_t mask_stats_timers[] = {
+static const uint8_t mask_stats_timers[] __FLASH = {
 #include "mask_stats_timers.lbm"
 };
-static const uint8_t mask_theme_add_view[] = {
+static const uint8_t mask_theme_add_view[] __FLASH = {
 #include "mask_theme_add_view.lbm"
 };
-static const uint8_t mask_theme_setup[] = {
+static const uint8_t mask_theme_setup[] __FLASH = {
 #include "mask_theme_setup.lbm"
 };
-static const uint8_t mask_theme_view1[] = {
+static const uint8_t mask_theme_view1[] __FLASH = {
 #include "mask_theme_view1.lbm"
 };
-static const uint8_t mask_theme_view2[] = {
+static const uint8_t mask_theme_view2[] __FLASH = {
 #include "mask_theme_view2.lbm"
 };
-static const uint8_t mask_theme_view3[] = {
+static const uint8_t mask_theme_view3[] __FLASH = {
 #include "mask_theme_view3.lbm"
 };
-static const uint8_t mask_theme_view4[] = {
+static const uint8_t mask_theme_view4[] __FLASH = {
 #include "mask_theme_view4.lbm"
 };
-static const uint8_t mask_theme_view5[] = {
+static const uint8_t mask_theme_view5[] __FLASH = {
 #include "mask_theme_view5.lbm"
 };
-static const uint8_t mask_theme_view6[] = {
+static const uint8_t mask_theme_view6[] __FLASH = {
 #include "mask_theme_view6.lbm"
 };
-static const uint8_t mask_theme_view7[] = {
+static const uint8_t mask_theme_view7[] __FLASH = {
 #include "mask_theme_view7.lbm"
 };
-static const uint8_t mask_theme_view8[] = {
+static const uint8_t mask_theme_view8[] __FLASH = {
 #include "mask_theme_view8.lbm"
 };
-static const uint8_t mask_theme_view9[] = {
+static const uint8_t mask_theme_view9[] __FLASH = {
 #include "mask_theme_view9.lbm"
 };
-static const uint8_t mask_theme_view10[] = {
+static const uint8_t mask_theme_view10[] __FLASH = {
 #include "mask_theme_view10.lbm"
 };
 
-static const uint8_t mask_chan_locked[] = {
+static const uint8_t mask_chan_locked[] __FLASH = {
 #include "mask_monitor_lockch.lbm"
 };
-static const uint8_t mask_chan_inverted[] = {
+static const uint8_t mask_chan_inverted[] __FLASH = {
 #include "mask_monitor_inver.lbm"
 };
 
-static const uint8_t mask_shutdown_circle0[] = {
+static const uint8_t mask_shutdown_circle0[] __FLASH = {
 #include "mask_shutdown_circle0.lbm"
 };
-static const uint8_t mask_shutdown_circle1[] = {
+static const uint8_t mask_shutdown_circle1[] __FLASH = {
 #include "mask_shutdown_circle1.lbm"
 };
-static const uint8_t mask_shutdown_circle2[] = {
+static const uint8_t mask_shutdown_circle2[] __FLASH = {
 #include "mask_shutdown_circle2.lbm"
 };
-static const uint8_t mask_shutdown_circle3[] = {
+static const uint8_t mask_shutdown_circle3[] __FLASH = {
 #include "mask_shutdown_circle3.lbm"
 };
 
-static const uint8_t mask_shutdown[] = {
+static const uint8_t mask_shutdown[] __FLASH = {
 #include "mask_shutdown.lbm"
 };
 
-const uint8_t mask_topleft_bg[] = {
+const uint8_t mask_topleft_bg[] __FLASH = {
 #include "mask_topleft.lbm"
 };
-const uint8_t mask_topright_bg[] = {
+const uint8_t mask_topright_bg[] __FLASH = {
 #include "mask_topright.lbm"
 };
 
-const uint8_t mask_currentmenu_bg[] = {
+const uint8_t mask_currentmenu_bg[] __FLASH = {
 #include "mask_currentmenu_bg.lbm"
 };
-const uint8_t mask_currentmenu_shadow[] = {
+const uint8_t mask_currentmenu_shadow[] __FLASH = {
 #include "mask_currentmenu_shadow.lbm"
 };
-const uint8_t mask_currentmenu_dot[] = {
+const uint8_t mask_currentmenu_dot[] __FLASH = {
 #include "mask_currentmenu_dot.lbm"
 };
 
-static const uint8_t mask_dot[] = {
+static const uint8_t mask_dot[] __FLASH = {
 #include "mask_dot.lbm"
 };
 
-static const uint8_t mask_topmenu_usb[] = {
+static const uint8_t mask_topmenu_usb[] __FLASH = {
 #include "mask_topmenu_usb.lbm"
 };
-static const uint8_t mask_topmenu_vol0[] = {
+static const uint8_t mask_topmenu_vol0[] __FLASH = {
 #include "mask_volume_0.lbm"
 };
-static const uint8_t mask_topmenu_vol1[] = {
+static const uint8_t mask_topmenu_vol1[] __FLASH = {
 #include "mask_volume_1.lbm"
 };
-static const uint8_t mask_topmenu_vol2[] = {
+static const uint8_t mask_topmenu_vol2[] __FLASH = {
 #include "mask_volume_2.lbm"
 };
-static const uint8_t mask_topmenu_vol3[] = {
+static const uint8_t mask_topmenu_vol3[] __FLASH = {
 #include "mask_volume_3.lbm"
 };
-static const uint8_t mask_topmenu_vol4[] = {
+static const uint8_t mask_topmenu_vol4[] __FLASH = {
 #include "mask_volume_4.lbm"
 };
-static const uint8_t mask_topmenu_vol_scale[] = {
+static const uint8_t mask_topmenu_vol_scale[] __FLASH = {
 #include "mask_volume_scale.lbm"
 };
-static const uint8_t mask_topmenu_txbatt[] = {
+static const uint8_t mask_topmenu_txbatt[] __FLASH = {
 #include "mask_txbat.lbm"
 };
 #if defined(USB_CHARGER)
-static const uint8_t mask_topmenu_txbatt_charging[] = {
+static const uint8_t mask_topmenu_txbatt_charging[] __FLASH = {
 #include "mask_txbat_charging.lbm"
 };
 #endif
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-static const uint8_t mask_topmenu_antenna[] = {
+static const uint8_t mask_topmenu_antenna[] __FLASH = {
 #include "mask_antenna.lbm"
 };
 #endif
 #if defined(INTERNAL_GPS)
-static const uint8_t mask_topmenu_gps[] = {
+static const uint8_t mask_topmenu_gps[] __FLASH = {
 #include "mask_topmenu_gps_18.lbm"
 };
 #endif
 
-static const uint8_t mask_error[] = {
+static const uint8_t mask_error[] __FLASH = {
 #include "mask_error.lbm"
 };
-static const uint8_t mask_busy[] = {
+static const uint8_t mask_busy[] __FLASH = {
 #include "mask_busy.lbm"
 };
 
-static const uint8_t mask_usb_plugged[] = {
+static const uint8_t mask_usb_plugged[] __FLASH = {
 #include "mask_usb_symbol.lbm"
 };
 
-static const uint8_t mask_timer[] = {
+static const uint8_t mask_timer[] __FLASH = {
 #include "mask_timer.lbm"
 };
-static const uint8_t mask_timer_bg[] = {
+static const uint8_t mask_timer_bg[] __FLASH = {
 #include "mask_timer_bg.lbm"
 };
 
-static const uint8_t mask_textline_curve[] = {
+static const uint8_t mask_textline_curve[] __FLASH = {
 #include "mask_textline_curve.lbm"
 };
-static const uint8_t mask_textline_fm[] = {
+static const uint8_t mask_textline_fm[] __FLASH = {
 #include "mask_textline_fm.lbm"
 };
 
-static const uint8_t mask_mplex_add[] = {
+static const uint8_t mask_mplex_add[] __FLASH = {
 #include "mask_mplex_add.lbm"
 };
-static const uint8_t mask_mplex_multi[] = {
+static const uint8_t mask_mplex_multi[] __FLASH = {
 #include "mask_mplex_multi.lbm"
 };
-static const uint8_t mask_mplex_replace[] = {
+static const uint8_t mask_mplex_replace[] __FLASH = {
 #include "mask_mplex_replace.lbm"
 };
 
-const uint8_t mask_round_title_left[]{
+const uint8_t mask_round_title_left[] __FLASH = {
 #include "mask_round_title_left.lbm"
 };
-const uint8_t mask_round_title_right[]{
+const uint8_t mask_round_title_right[] __FLASH = {
 #include "mask_round_title_right.lbm"
 };
 
-static const uint8_t mask_model_grid_large[] = {
+static const uint8_t mask_model_grid_large[] __FLASH = {
 #include "mask_model_grid_large.lbm"
 };
-static const uint8_t mask_model_grid_small[] = {
+static const uint8_t mask_model_grid_small[] __FLASH = {
 #include "mask_model_grid_small.lbm"
 };
-static const uint8_t mask_model_list_one[] = {
+static const uint8_t mask_model_list_one[] __FLASH = {
 #include "mask_model_list_one.lbm"
 };
-static const uint8_t mask_model_list_two[] = {
+static const uint8_t mask_model_list_two[] __FLASH = {
 #include "mask_model_list_two.lbm"
 };
 
-static const uint8_t mask_trim[] = {
+static const uint8_t mask_trim[] __FLASH = {
 #include "mask_trim.lbm"
 };
-static const uint8_t mask_trim_shadow[] = {
+static const uint8_t mask_trim_shadow[] __FLASH = {
 #include "mask_trim_shadow.lbm"
 };
 
-static const uint8_t mask_tools_apps[] = {
+static const uint8_t mask_tools_apps[] __FLASH = {
 #include "mask_tools_apps.lbm"
 };
-static const uint8_t mask_tools_reset[] = {
+static const uint8_t mask_tools_reset[] __FLASH = {
 #include "mask_tools_reset.lbm"
 };
 
-static const uint8_t mask_btn_close[] = {
+static const uint8_t mask_btn_close[] __FLASH = {
 #include "mask_btn_close.lbm"
 };
-static const uint8_t mask_btn_next[] = {
+static const uint8_t mask_btn_next[] __FLASH = {
 #include "mask_btn_next.lbm"
 };
-static const uint8_t mask_btn_prev[] = {
+static const uint8_t mask_btn_prev[] __FLASH = {
 #include "mask_btn_prev.lbm"
 };
 
-static const uint8_t mask_top_logo[] = {
+static const uint8_t mask_top_logo[] __FLASH = {
 #include "mask_top_logo.lbm"
 };
 
@@ -390,7 +390,7 @@ struct _BuiltinIcon {
   }
 
 // Note: Order must match EdgeTxIcon enum
-static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
+static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] __FLASH = {
     BI(ICON_EDGETX, mask_edgetx),
     BI(ICON_QM_FAVORITES, mask_menu_favs),
     BI(ICON_RADIO, mask_menu_radio),

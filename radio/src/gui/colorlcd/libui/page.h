@@ -87,7 +87,7 @@ class SubPage : public Page
 
   Window* setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
 
-  static constexpr coord_t EDT_X = LCD_W * 9 / 20;
+  static LAYOUT_SIZE(EDT_X, LCD_W * 9 / 20, LCD_W * 8 / 20)
 
  protected:
   coord_t y = 0;
