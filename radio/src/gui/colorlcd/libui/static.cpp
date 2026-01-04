@@ -22,6 +22,7 @@
 #include "lz4/lz4.h"
 #include "sdcard.h"
 #include "etx_lv_theme.h"
+#include "stb/stb_image.h"
 
 //-----------------------------------------------------------------------------
 
@@ -238,7 +239,7 @@ void StaticImage::setSource(std::string filename)
     lv_img_set_src(image, fullpath.c_str());
     if (!hasImage()) {
       // Failed to load
-      TRACE_ERROR("could not load image '%s'", filename.c_str());
+      TRACE_ERROR("could not load image '%s' - %s\n", filename.c_str(), stbi_failure_reason());
       clearSource();
     }
     setZoom();
