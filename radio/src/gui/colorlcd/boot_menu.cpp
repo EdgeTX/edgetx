@@ -174,7 +174,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     const char* msg = (st == ST_START) ? TR_BL_PLUG_USB : TR_BL_COPY_UF2;
 
     lcd->drawText(LCD_W / 2, LCD_H / 2 - TITLE_Y1, msg, CENTERED | BL_FOREGROUND);
-    lcd->drawText(LCD_W / 2, LCD_H / 2 + TITLE_Y1, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, CENTERED | BL_FOREGROUND);
+    if (st != ST_USB)
+      lcd->drawText(LCD_W / 2, LCD_H / 2 + TITLE_Y1, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, CENTERED | BL_FOREGROUND);
 
     bootloaderDrawVerFooter();
 
