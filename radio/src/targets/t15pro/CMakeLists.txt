@@ -146,7 +146,6 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${BOARD_SRC_DIR}/led_driver.cpp
   ${BOARD_SRC_DIR}/touch_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp

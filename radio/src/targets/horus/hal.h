@@ -676,12 +676,12 @@
 
 // Customisable switches leds
 #if defined(RADIO_T15)
-#define FSLED_GPIO_1                  GPIO_PIN(GPIOA, 15)  //PA.15
-#define FSLED_GPIO_2                  GPIO_PIN(GPIOC, 5)   //PC.05
-#define FSLED_GPIO_3                  GPIO_PIN(GPIOH, 13)  //PH.13
-#define FSLED_GPIO_4                  GPIO_PIN(GPIOG, 11)  //PG.11
-#define FSLED_GPIO_5                  GPIO_PIN(GPIOC, 3)   //PC.03
-#define FSLED_GPIO_6                  GPIO_PIN(GPIOC, 1)   //PC.01
+#define FSLED_GPIO_PIN_1                  GPIO_PIN(GPIOA, 15)  //PA.15
+#define FSLED_GPIO_PIN_2                  GPIO_PIN(GPIOC, 5)   //PC.05
+#define FSLED_GPIO_PIN_3                  GPIO_PIN(GPIOH, 13)  //PH.13
+#define FSLED_GPIO_PIN_4                  GPIO_PIN(GPIOG, 11)  //PG.11
+#define FSLED_GPIO_PIN_5                  GPIO_PIN(GPIOC, 3)   //PC.03
+#define FSLED_GPIO_PIN_6                  GPIO_PIN(GPIOC, 1)   //PC.01
 #endif
 
 // Serial Port (DEBUG)
