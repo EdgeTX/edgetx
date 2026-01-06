@@ -129,7 +129,6 @@ class PageGroupHeaderBase : public Window
   void nextTab() { chgTab(1); }
   void prevTab() { chgTab(-1); }
 
-  virtual void removeTab(unsigned index) {}
   void addTab(PageGroupItem* page);
 
   void setCurrentIndex(uint8_t index);
@@ -224,8 +223,6 @@ class PageGroup : public PageGroupBase
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroup"; }
 #endif
-
-  void removeTab(unsigned index);
 
   PageGroupItem* getCurrentTab() const { return currentTab; }
 

@@ -110,7 +110,7 @@ extern "C" void SDRAM_InitSequence(void)
 {
   FMC_SDRAM_CommandTypeDef FMC_SDRAMCommandStructure;
   uint32_t tmpr = 0;
-  uint32_t timeout = SDRAM_TIMEOUT;
+  // uint32_t timeout = SDRAM_TIMEOUT;
 
   /* Step 3 --------------------------------------------------------------------*/
   /* Configure a clock configuration enable command */

@@ -25,6 +25,7 @@
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
 #if defined(LED_STRIP_GPIO)
+#undef UNUSED
 #include "stm32_ws2812.h"
 #endif
 

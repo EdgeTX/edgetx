@@ -109,10 +109,10 @@ static tmr10ms_t downTime = 0;
 static tmr10ms_t tapTime = 0;
 static short tapCount = 0;
 
-static void _touch_exti_isr(void)
-{
-  touchEventOccured = true;
-}
+// static void _touch_exti_isr(void)
+// {
+//   touchEventOccured = true;
+// }
 
 static void _touch_exti_stop(void) {}
 static void _touch_exti_config(void) {}
