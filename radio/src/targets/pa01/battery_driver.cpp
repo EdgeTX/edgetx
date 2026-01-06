@@ -22,6 +22,7 @@
 #include "edgetx.h"
 #include "battery_driver.h"
 #include "boards/generic_stm32/rgb_leds.h"
+#undef UNUSED
 #include "bsp_io.h"
 #include "stm32_ws2812.h"
 
