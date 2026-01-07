@@ -32,6 +32,7 @@
 #include "ppm_settings.h"
 #include "storage/modelslist.h"
 #include "etx_lv_theme.h"
+#include "os/sleep.h"
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
 #include "pxx1_settings.h"
@@ -611,9 +612,10 @@ class ModuleSubTypeChoice : public Choice
       MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
       status.invalidate();
 
-      uint32_t startUpdate = lv_tick_get();
-      while (!status.isValid() && (lv_tick_elaps(startUpdate) < 250))
-        ;
+      uint32_t startUpdate = time_get_ms();
+      while (!status.isValid() && (time_get_ms() - startUpdate < 250))
+        sleep_ms(1);
+
       SET_DIRTY();
 #endif
     }

@@ -3001,7 +3001,7 @@ static int luaSetCFSLedColor(lua_State * L)
 }
 #endif
 
-#if defined(LED_STRIP_LENGTH)
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function applyRGBLedColors()
 
@@ -3012,9 +3012,7 @@ static int luaSetCFSLedColor(lua_State * L)
 
 static int luaApplyRGBLedColors(lua_State * L)
 {
-
   rgbLedColorApply();
-
   return 1;
 }
 #endif

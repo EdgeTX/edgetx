@@ -130,6 +130,11 @@ unsigned task_get_stack_size(task_handle_t* h)
   return h->_stack_size * 4;
 }
 
+bool scheduler_is_running()
+{
+  return true;
+}
+
 void mutex_create(mutex_handle_t* h)
 {
   (void)h;

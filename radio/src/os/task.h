@@ -38,6 +38,8 @@ void task_create(task_handle_t* h, task_func_t func, const char* name,
 unsigned task_get_stack_usage(task_handle_t* h);
 unsigned task_get_stack_size(task_handle_t* h);
 
+bool scheduler_is_running();
+
 void mutex_create(mutex_handle_t* h);
 bool mutex_lock(mutex_handle_t* h);
 void mutex_unlock(mutex_handle_t* h);
@@ -49,6 +51,7 @@ bool mutex_trylock(mutex_handle_t* h);
  *
  * void doWork()
  * {
+ *
  *   MutexLock lock = MutexLock::MakeInstance(mutex);
  *   while(!queue.isEmpty)
  *   {
@@ -97,9 +100,9 @@ class MutexLock
 {
 public:
   static MutexLock MakeInstance(mutex_handle_t* mtx) {return MutexLock(mtx);}
-  ~MutexLock() {if(locked) mutex_unlock(mutex);}
-  void lock() {if(!locked) mutex_lock(mutex); locked=true;}
-  void unlock() {if(locked) mutex_unlock(mutex); locked=false;}
+  ~MutexLock() {if(!scheduler_is_running()) return; if(locked) mutex_unlock(mutex);}
+  void lock() {if(!scheduler_is_running()) return; if(!locked) mutex_lock(mutex); locked=true;}
+  void unlock() {if(!scheduler_is_running()) return; if(locked) mutex_unlock(mutex); locked=false;}
 
   MutexLock(const MutexLock&)               = delete;
   MutexLock(MutexLock&&)                    = delete;
@@ -110,7 +113,7 @@ public:
   static void  operator delete  (void*)     = delete;
   static void  operator delete[](void*)     = delete;
 private:
-  MutexLock(mutex_handle_t* mtx):mutex(mtx),locked(false) {mutex_lock(mutex); locked = true;}
+  MutexLock(mutex_handle_t* mtx):mutex(mtx),locked(false) {if(!scheduler_is_running()) return; mutex_lock(mutex); locked = true;}
   mutex_handle_t* mutex;
   bool locked;
 };

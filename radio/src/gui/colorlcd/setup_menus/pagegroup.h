@@ -129,7 +129,6 @@ class PageGroupHeaderBase : public Window
   void nextTab() { chgTab(1); }
   void prevTab() { chgTab(-1); }
 
-  virtual void removeTab(unsigned index) {}
   void addTab(PageGroupItem* page);
 
   void setCurrentIndex(uint8_t index);
@@ -225,8 +224,6 @@ class PageGroup : public PageGroupBase
   std::string getName() const override { return "PageGroup"; }
 #endif
 
-  void removeTab(unsigned index);
-
   PageGroupItem* getCurrentTab() const { return currentTab; }
 
   bool isPageGroup() override { return true; }
@@ -235,10 +232,12 @@ class PageGroup : public PageGroupBase
   static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 48)
   static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
   static constexpr coord_t PAGE_GROUP_BACK_BTN_W = 0;
+  static LAYOUT_VAL_SCALED(PAGE_GROUP_BACK_BTN_XO, 45)
 #else
   static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 45)
   static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = 0;
   static constexpr coord_t PAGE_GROUP_BACK_BTN_W = PAGE_GROUP_TOP_BAR_H;
+  static constexpr coord_t PAGE_GROUP_BACK_BTN_XO = PAGE_GROUP_TOP_BAR_H;
 #endif
   static constexpr coord_t PAGE_GROUP_BODY_Y = PAGE_GROUP_TOP_BAR_H + PAGE_GROUP_ALT_TITLE_H;
 

@@ -277,14 +277,6 @@ class PageGroupHeader : public PageGroupHeaderBase
     menu->setCurrentTab(idx);
   }
 
-  void removeTab(unsigned index) override
-  {
-    auto pg = pages[index];
-    pages.erase(pages.begin() + index);
-    delete pg;
-    updateLayout();
-  }
-
   void updateLayout()
   {
     for (uint8_t i = 0; i < pages.size(); i += 1) {
@@ -471,13 +463,6 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages) :
     storageCheck(true);
     ViewMain::instance()->updateTopbarVisibility();
   });
-}
-
-void PageGroup::removeTab(unsigned index)
-{
-  if (header->isCurrent(index))
-    setCurrentTab(max<unsigned>(0, index - 1));
-  header->removeTab(index);
 }
 
 void PageGroup::openMenu()

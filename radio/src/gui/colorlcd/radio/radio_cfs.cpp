@@ -133,11 +133,11 @@ class RadioFunctionSwitch : public Window
     overrideLabel = new StaticText(this, {OVRLBL_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, OVRLBL_W, 0},
                                    STR_LUA_OVERRIDE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
     offOverride = new ToggleSwitch(this, {OVROFF_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
-                                  [=]() { return g_model.cfsOffColorLuaOverride(switchIndex); },
-                                  [=](bool v) { g_model.cfsSetOffColorLuaOverride(switchIndex, v); });
+                                  [=]() { return g_eeGeneral.cfsOffColorLuaOverride(switchIndex); },
+                                  [=](bool v) { g_eeGeneral.cfsSetOffColorLuaOverride(switchIndex, v); });
     onOverride = new ToggleSwitch(this, {C2_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
-                                  [=]() { return g_model.cfsOnColorLuaOverride(switchIndex); },
-                                  [=](bool v) { g_model.cfsSetOnColorLuaOverride(switchIndex, v); });
+                                  [=]() { return g_eeGeneral.cfsOnColorLuaOverride(switchIndex); },
+                                  [=](bool v) { g_eeGeneral.cfsSetOnColorLuaOverride(switchIndex, v); });
 #endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
