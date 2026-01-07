@@ -278,7 +278,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     if (obj) {
       obj->create(L, -1);
       auto ref = obj->getRef(L);
-      if (p.name && refIndex != LUA_REFNIL) {
+      if (p.name && refIndex != 0) {
         lua_pushstring(L, p.name);
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
         lua_settable(L, refIndex - 4);
@@ -287,7 +287,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lua_getfield(L, -1, "children");
         auto prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(obj);
-        buildLvgl(L, -1, (refIndex != LUA_REFNIL) ? refIndex - 3 : LUA_REFNIL);
+        buildLvgl(L, -1, (refIndex != 0) ? refIndex - 3 : LUA_REFNIL);
         lua_pop(L, 1);
         luaScriptManager->setTempParent(prevParent);
       }
@@ -302,7 +302,7 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
     lua_getfield(L, -1, "children");
     auto prevParent = luaScriptManager->getTempParent();
     luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, LUA_REFNIL);
+    buildLvgl(L, -1, 0);
     lua_pop(L, 1);
     luaScriptManager->setTempParent(prevParent);
   }
