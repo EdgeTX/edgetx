@@ -45,6 +45,7 @@ struct LanguagePack {
 
 extern const LanguagePack * currentLanguagePack;
 extern uint8_t currentLanguagePackIdx;
+extern uint8_t getLanguageId(const char* lang);
 
 enum RadioLanguage {
   LANG_CN,

@@ -407,6 +407,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "jackMode", 2 ),
   YAML_PADDING( 1 ),
   YAML_STRING("ttsLanguage", 2),
+  YAML_STRING("uiLanguage", 2),
   YAML_SIGNED_CUST( "beepVolume", 4, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "wavVolume", 4, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "varioVolume", 4, r_5pos, w_5pos ),

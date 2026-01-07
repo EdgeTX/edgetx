@@ -972,6 +972,7 @@
 #define TR_USBMODE                     "Режим USB"
 #define TR_JACK_MODE                   "Режим разъема"
 #define TR_VOICE_LANGUAGE              "Язык озвучки"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Единицы"
 #define TR_UNITS_PPM                   "PPM Един"
 #define TR_EDIT                        "Редактировать"

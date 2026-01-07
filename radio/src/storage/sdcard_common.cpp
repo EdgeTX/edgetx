@@ -243,18 +243,16 @@ void storageReadAll()
   }
 #endif
 
-  for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
-    if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
-      currentLanguagePackIdx = i;
-      currentLanguagePack = languagePacks[i];
+  if (g_eeGeneral.uiLanguage[0] == 0)
+    generalDefaultUILanguage();
+  currentLanguagePackIdx = getLanguageId(g_eeGeneral.ttsLanguage);
+  currentLanguagePack = languagePacks[currentLanguagePackIdx];
 #if defined(ALL_LANGS)
-      currentLangStrings = langStrings[currentLanguagePackIdx];
-      extern void setLanguageFont(int n);
-      setLanguageFont(currentLanguagePackIdx);
+  uint8_t uiLangIdx = getLanguageId(g_eeGeneral.uiLanguage);
+  currentLangStrings = langStrings[uiLangIdx];
+  extern void setLanguageFont(int n);
+  setLanguageFont(uiLangIdx);
 #endif
-      break;
-    }
-  }
 
 #if defined(STORAGE_MODELSLIST)
   // and reload the list

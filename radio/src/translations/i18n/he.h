@@ -973,6 +973,7 @@
 #define TR_USBMODE                     "USB מצב"
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "שפת שמע"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "יחידות"
 #define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "ערוך"
