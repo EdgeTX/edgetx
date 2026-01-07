@@ -67,7 +67,7 @@
 #include "../radio/src/translations/i18n/se.h"
 #define LOC "sv_SE.UTF-8"
 #elif defined(LNG_SK)
-#include "../radio/src/translations/i18n/se.h"
+#include "../radio/src/translations/i18n/sk.h"
 #define LOC "sk_SK.UTF-8"
 #elif defined(LNG_TW)
 #include "../radio/src/translations/i18n/tw.h"
