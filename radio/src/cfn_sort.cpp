@@ -713,48 +713,48 @@ Functions cfn_sorted[] = {
   /* Volym */ FUNC_VOLUME,
   /* Återställ */ FUNC_RESET,
 #elif defined(TRANSLATIONS_SK)
-  /* Återställ */ FUNC_RESET,
-  /* Audioförstärkare av */ FUNC_DISABLE_AUDIO_AMP,
+  /* Obnoviť */ FUNC_RESET,
+  /* Vypnúť zosilovač zvuku */ FUNC_DISABLE_AUDIO_AMP,
 #if !defined(OLED_SCREEN)
-  /* Belysning */ FUNC_BACKLIGHT,
+  /* Podsvietenie */ FUNC_BACKLIGHT,
 #endif
 #if defined(COLORLCD)
-  /* Ej pekskärm */ FUNC_DISABLE_TOUCH,
+  /* Deaktivácia dotyku */ FUNC_DISABLE_TOUCH,
 #endif
-  /* Haptisk */ FUNC_HAPTIC,
-  /* Justera */ FUNC_ADJUST_GVAR,
-  /* Lärare */ FUNC_TRAINER,
-  /* Lås */ FUNC_OVERRIDE_CHANNEL,
+  /* Vibrovanie */ FUNC_HAPTIC,
+  /* Nastaviť GVAR */ FUNC_ADJUST_GVAR,
+  /* Tréner */ FUNC_TRAINER,
+  /* Zámok */ FUNC_OVERRIDE_CHANNEL,
 #if defined(VIDEO_SWITCH)
-  /* LCD till Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD na Video */ FUNC_LCD_TO_VIDEO,
 #endif
 #if defined(OLED_SCREEN)
-  /* Ljusstyrka */ FUNC_BACKLIGHT,
+  /* Jas */ FUNC_BACKLIGHT,
 #endif
-  /* Logga data */ FUNC_LOGS,
+  /* Logovanie dát */ FUNC_LOGS,
   /* Lua-skript */ FUNC_PLAY_SCRIPT,
-  /* Musik */ FUNC_BACKGND_MUSIC,
-  /* Parkoppla modul */ FUNC_BIND,
-  /* Pausa musik */ FUNC_BACKGND_MUSIC_PAUSE,
-  /* Range check */ FUNC_RANGECHECK,
-  /* RGB ledljus */ FUNC_RGB_LED,
-  /* Säg värdet */ FUNC_PLAY_VALUE,
-  /* Sätt */ FUNC_SET_TIMER,
-  /* Sätt failsafe */ FUNC_SET_FAILSAFE,
-  /* Sätt huvudskärm */ FUNC_SET_SCREEN,
-  /* Skärmbild */ FUNC_SCREENSHOT,
-  /* Spara trimmar */ FUNC_INSTANT_TRIM,
-  /* Spela ljud */ FUNC_PLAY_SOUND,
-  /* Spela upp */ FUNC_PLAY_TRACK,
-  /* Tävlingsläge */ FUNC_RACING_MODE,
+  /* Hudba */ FUNC_BACKGND_MUSIC,
+  /* Párovanie */ FUNC_BIND,
+  /* Pauza hudba */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Kontrola dosahu */ FUNC_RANGECHECK,
+  /* RGB led */ FUNC_RGB_LED,
+  /* Hlásiť stav */ FUNC_PLAY_VALUE,
+  /* Nastavenie časovača */ FUNC_SET_TIMER,
+  /* Nastavenie failsafe */ FUNC_SET_FAILSAFE,
+  /* Nastavenie hlavnej obrazovky */ FUNC_SET_SCREEN,
+  /* Snímka obrazovky */ FUNC_SCREENSHOT,
+  /* Okamžitý trim */ FUNC_INSTANT_TRIM,
+  /* Prehrať zvuk */ FUNC_PLAY_SOUND,
+  /* Prehrať skladbu */ FUNC_PLAY_TRACK,
+  /* Pretekársky režim*/ FUNC_RACING_MODE,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
 #if defined(FUNCTION_SWITCHES)
-  /* Tryck CS */ FUNC_PUSH_CUST_SWITCH,
+  /* Stlač nakonfigurovaný spínač */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Vario */ FUNC_VARIO,
-  /* Volym */ FUNC_VOLUME,
+  /* Hlasitosť */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_TW)
   /* Lua腳本 */ FUNC_PLAY_SCRIPT,
 #if defined(FUNCTION_SWITCHES)
