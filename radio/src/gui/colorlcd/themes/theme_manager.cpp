@@ -573,7 +573,7 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
 }
 
 HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
-  StaticIcon(parent, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
+  StaticIcon(parent, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
   action(std::move(action))
 {
   (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
