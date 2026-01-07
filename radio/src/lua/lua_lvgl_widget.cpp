@@ -2302,13 +2302,13 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   {
 #if defined(HARDWARE_TOUCH)
     if (showPrev) {
-      prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
+      prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO * 3, PAD_MEDIUM, [=]() {
         prevAction();
         return 0;
       });
     }
     if (showNext) {
-      nextBtn = new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
+      nextBtn = new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO * 2, PAD_MEDIUM, [=]() {
         nextAction();
         return 0;
       });
