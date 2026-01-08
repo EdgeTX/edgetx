@@ -39,8 +39,6 @@ class ViewMain : public NavWindow
 
   static ViewMain* instance();
 
-  static ViewMain* getInstance() { return _instance; }
-
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewMain"; }
 #endif
@@ -71,7 +69,6 @@ class ViewMain : public NavWindow
   bool onLongPress() override;
 
   void show(bool visible = true) override;
-  bool viewIsVisible() const { return isVisible; }
   void showTopBarEdgeTxButton();
   void hideTopBarEdgeTxButton();
 
