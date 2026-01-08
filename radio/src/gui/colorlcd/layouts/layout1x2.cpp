@@ -21,10 +21,12 @@
 
 #include "layout.h"
 
+// clang-format off
 static const uint8_t zmap[] = {
     LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_HALF,
     LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_FULL, LAYOUT_MAP_HALF,
 };
+// clang-format on
 
 BaseLayoutFactory<Layout> Layout1x2("Layout1x2", "1 x 2",
                                     defaultLayoutOptions,

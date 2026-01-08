@@ -43,9 +43,11 @@ class LayoutAppMode : public Layout
  protected:
 };
 
+// clang-format off
 static const uint8_t zmap[] = {
     LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
 };
+// clang-format on
 
 BaseLayoutFactory<LayoutAppMode> layoutAppMode("Layout1x1AM", "App mode", OPTIONS_LAYOUT_APPMODE,
                                        1, (uint8_t*)zmap);

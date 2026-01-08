@@ -22,9 +22,11 @@
 #include "layout.h"
 #include "translations/translations.h"
 
+// clang-format off
 static const uint8_t zmap[] = {
     LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
 };
+// clang-format on
 
 BaseLayoutFactory<Layout> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
                                     defaultLayoutOptions,

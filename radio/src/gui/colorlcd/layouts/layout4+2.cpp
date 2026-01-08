@@ -21,6 +21,7 @@
 
 #include "layout.h"
 
+// clang-format off
 static const uint8_t zmap[] = {
     LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
     LAYOUT_MAP_0, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
@@ -29,6 +30,7 @@ static const uint8_t zmap[] = {
     LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
     LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
 };
+// clang-format on
 
 BaseLayoutFactory<Layout> layout4P2("Layout4P2", "4 + 2",
                                     defaultLayoutOptions,
