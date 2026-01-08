@@ -25,8 +25,6 @@
 #include "window.h"
 
 class QuickMenu;
-class SetupWidgetsPage;
-class SetupTopBarWidgetsPage;
 class TopBar;
 
 class ViewMain : public NavWindow
@@ -45,8 +43,6 @@ class ViewMain : public NavWindow
 
   void addMainView(WidgetsContainer* view, uint32_t viewId);
 
-  void enableTopbar();
-  void disableTopbar();
   void updateTopbarVisibility();
   bool enableWidgetSelect(bool enable);
 
@@ -92,10 +88,6 @@ class ViewMain : public NavWindow
   QuickMenu* viewMainMenu = nullptr;
 
   void deleteLater(bool detach = true, bool trash = true) override;
-
-  // Widget setup requires special permissions ;-)
-  friend class SetupWidgetsPage;
-  friend class SetupTopBarWidgetsPage;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);

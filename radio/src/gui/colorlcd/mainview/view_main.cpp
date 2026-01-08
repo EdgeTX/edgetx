@@ -184,16 +184,6 @@ void ViewMain::previousMainView()
 
 TopBar* ViewMain::getTopbar() { return topbar; }
 
-void ViewMain::enableTopbar()
-{
-  if (topbar) topbar->show();
-}
-
-void ViewMain::disableTopbar()
-{
-  if (topbar) topbar->hide();
-}
-
 void ViewMain::updateTopbarVisibility()
 {
   if (!tile_view) return;
