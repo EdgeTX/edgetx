@@ -30,5 +30,4 @@ static const uint8_t zmap[] = {
 // clang-format on
 
 BaseLayoutFactory<Layout> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
-                                    defaultLayoutOptions,
-                                    1, (uint8_t*)zmap);
+                                    defaultLayoutOptions, 1, (uint8_t*)zmap);

@@ -35,6 +35,5 @@ static const uint8_t zmap[] = {
 };
 // clang-format on
 
-BaseLayoutFactory<Layout> layout2x3("Layout2x3", "2 x 3",
-                                    defaultLayoutOptions,
+BaseLayoutFactory<Layout> layout2x3("Layout2x3", "2 x 3", defaultLayoutOptions,
                                     6, (uint8_t*)zmap);

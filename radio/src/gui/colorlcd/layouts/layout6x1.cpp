@@ -34,14 +34,10 @@ const LayoutOption OPTIONS_LAYOUT_6x1[] = {
 class Layout6x1 : public Layout
 {
  public:
-  enum {
-    OPTION_BACKGROUND = LAYOUT_OPTION_LAST_DEFAULT + 1,
-    OPTION_COLOR
-  };
+  enum { OPTION_BACKGROUND = LAYOUT_OPTION_LAST_DEFAULT + 1, OPTION_COLOR };
 
-  Layout6x1(Window* parent, const LayoutFactory* factory,
-                   int screenNum, uint8_t zoneCount,
-                   uint8_t* zoneMap) :
+  Layout6x1(Window* parent, const LayoutFactory* factory, int screenNum,
+            uint8_t zoneCount, uint8_t* zoneMap) :
       Layout(parent, factory, screenNum, zoneCount, zoneMap)
   {
     panel = lv_obj_create(lvobj);
@@ -83,7 +79,7 @@ class Layout6x1 : public Layout
 
 // Zone map: 6x1 (6 rows, 1 column)
 // Each zone is 1/6 height, full width
-#define LAYOUT_MAP_1_6TH    10  // 1/6 of full dimension (60/6 = 10)
+#define LAYOUT_MAP_1_6TH 10  // 1/6 of full dimension (60/6 = 10)
 
 // clang-format off
 static const uint8_t zmap[] = {
@@ -97,6 +93,5 @@ static const uint8_t zmap[] = {
 };
 // clang-format on
 
-BaseLayoutFactory<Layout6x1> layout6x1("Layout6x1", "6 x 1",
-                                        OPTIONS_LAYOUT_6x1,
-                                        6, (uint8_t*)zmap);
+BaseLayoutFactory<Layout6x1> layout6x1("Layout6x1", "6 x 1", OPTIONS_LAYOUT_6x1,
+                                       6, (uint8_t*)zmap);
