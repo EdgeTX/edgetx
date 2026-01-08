@@ -56,8 +56,6 @@ class Layout2x4 : public Layout
   rect_t mainZone = {0, 0, 0, 0};
   lv_obj_t* panel1 = nullptr;
   lv_obj_t* panel2 = nullptr;
-  LcdFlags panel1Color = -1;
-  LcdFlags panel2Color = -1;
 
   void checkEvents() override
   {
