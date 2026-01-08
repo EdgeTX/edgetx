@@ -802,19 +802,6 @@ static SetupLineDef setupLines[] = {
                       currentLanguagePack = languagePacks[currentLanguagePackIdx];
                       strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
                       SET_DIRTY();
-#if defined(ALL_LANGS)
-                      currentLangStrings = langStrings[currentLanguagePackIdx];
-                      extern void setLanguageFont(int idx);
-                      setLanguageFont(currentLanguagePackIdx);
-                      PageGroup* pg = (PageGroup*)Layer::getPageGroup();
-                      coord_t y = pg->getScrollY();
-                      pg->onCancel();
-                      QuickMenu::openPage(QM_RADIO_SETUP);
-                      pg = (PageGroup*)Layer::getPageGroup();
-                      pg->setScrollY(y);
-                      // Force QM rebuild for language change
-                      QuickMenu::shutdownQuickMenu();
-#endif
                     });
 #if !defined(ALL_LANGS)
       choice->setTextHandler(
@@ -834,6 +821,44 @@ static SetupLineDef setupLines[] = {
 #endif
     }
   },
+#if defined(ALL_LANGS)
+  {
+    // UI language
+    STR_DEF(STR_TEXT_LANGUAGE),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto choice =
+          new Choice(parent, {x, y, 0, 0}, 0, DIM(languagePacks) - 2,
+                    GET_VALUE(getLanguageId(g_eeGeneral.uiLanguage)),
+                    [](uint8_t newValue) {
+                      strncpy(g_eeGeneral.uiLanguage, languagePacks[newValue]->id, 2);
+                      currentLangStrings = langStrings[newValue];
+                      extern void setLanguageFont(int idx);
+                      setLanguageFont(newValue);
+                      PageGroup* pg = (PageGroup*)Layer::getPageGroup();
+                      coord_t y = pg->getScrollY();
+                      pg->onCancel();
+                      QuickMenu::openPage(QM_RADIO_SETUP);
+                      pg = (PageGroup*)Layer::getPageGroup();
+                      pg->setScrollY(y);
+                      // Force QM rebuild for language change
+                      QuickMenu::shutdownQuickMenu();
+                      SET_DIRTY();
+                    });
+      choice->setAvailableHandler([=](int n) { return isTextLangAvail(n); });
+      choice->setTextHandler(
+          [](uint8_t value) {
+            // TODO: language name should always be in the language of the name, not
+            //       the current UI language. Needs translation characters to be
+            //       always available for all language names in the base font.
+            //       temp solution - prepend language id to name.
+            std::string s(languagePacks[value]->id);
+            s += " - ";
+            s += languagePacks[value]->name();
+            return s;
+          });
+    }
+  },
+#endif
   {
     // Imperial units
     STR_DEF(STR_UNITS_SYSTEM),

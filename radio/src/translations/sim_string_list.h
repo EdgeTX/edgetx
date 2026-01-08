@@ -974,6 +974,7 @@
 #define STR_TEST_NOTSAFE currentLangStrings->STR_TEST_NOTSAFE
 #define STR_TEST_WARNING currentLangStrings->STR_TEST_WARNING
 #define STR_TEXT_COLOR currentLangStrings->STR_TEXT_COLOR
+#define STR_TEXT_LANGUAGE currentLangStrings->STR_TEXT_LANGUAGE
 #define STR_THEME currentLangStrings->STR_THEME
 #define STR_THROTTLE_LABEL currentLangStrings->STR_THROTTLE_LABEL
 #define STR_THROTTLE_NOT_IDLE currentLangStrings->STR_THROTTLE_NOT_IDLE

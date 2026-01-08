@@ -233,12 +233,14 @@ void GeneralSettings::init()
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
   QString lang = getCurrentFirmware()->getLanguage();
-  if (lang.size() > 1)
+  if (lang.size() > 1) {
     memcpy(ttsLanguage, lang.toLatin1().data(), 2);
-  else {
+  } else {
     ttsLanguage[0] = 'e';
     ttsLanguage[1] = 'n';
   }
+  ttsLanguage[2] = 0;
+  memcpy(uiLanguage, ttsLanguage, 3);
 
   stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
   setDefaultFavorites();

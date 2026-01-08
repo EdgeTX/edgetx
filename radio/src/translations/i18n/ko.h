@@ -1012,6 +1012,7 @@
 #define TR_USBMODE                        "USB 모드"
 #define TR_JACK_MODE                      "잭 모드"
 #define TR_VOICE_LANGUAGE                 "음성 언어"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                   "단위 체계"
 #define TR_UNITS_PPM                      "PPM 단위"
 #define TR_EDIT                           "편집"

@@ -367,6 +367,7 @@ class GeneralSettings {
     unsigned int imperial;
     unsigned int ppmunit;
     char ttsLanguage[TTS_LANGUAGE_LEN + 1];
+    char uiLanguage[TTS_LANGUAGE_LEN + 1];
     int beepVolume;
     int wavVolume;
     int varioVolume;

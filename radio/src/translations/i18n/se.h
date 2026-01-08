@@ -969,6 +969,7 @@
 #define TR_USBMODE                      "USB-läge"
 #define TR_JACK_MODE                    "Uttagsläge"
 #define TR_VOICE_LANGUAGE               "Röstspråk"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                 "Enheter"
 #define TR_UNITS_PPM                    "PPM-enheter"
 #define TR_EDIT                         "Redigera"

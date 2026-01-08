@@ -66,6 +66,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_backlightColor_SL_valueChanged();
     void on_mavbaud_CB_currentIndexChanged(int index);
     void on_voiceLang_CB_currentIndexChanged(int index);
+    void on_textLang_CB_currentIndexChanged(int index);
     void stickReverseEdited();
     void on_switchesDelay_valueChanged(int);
     void on_blAlarm_ChkB_stateChanged();
@@ -111,6 +112,7 @@ class GeneralSetupPanel : public GeneralPanel
     void showLabelSelectOptions();
 
     void setValues();
-    void populateVoiceLangCB();
+    void populateVoiceLangCB(QComboBox* b, const char* currLang);
+    void populateTextLangCB(QComboBox* b, const char* currLang, bool isColor);
     void updateVarioPitchRange();
 };

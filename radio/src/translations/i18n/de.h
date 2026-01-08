@@ -962,6 +962,7 @@
 #define TR_USBMODE                     "USB Modus"
 #define TR_JACK_MODE                   "Jack Mode"
 #define TR_VOICE_LANGUAGE              "Sprachansagen"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Einheiten"
 #define TR_UNITS_PPM                   "PPM Einheiten"
 #define TR_EDIT                        "Zeile Editieren"

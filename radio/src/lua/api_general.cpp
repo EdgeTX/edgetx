@@ -1760,8 +1760,8 @@ static int luaGetGeneralSettings(lua_State * L)
   lua_pushtableinteger(L, "imperial", g_eeGeneral.imperial);
 #if defined(ALL_LANGS)
   char l[3];
-  l[0] = toupper(g_eeGeneral.ttsLanguage[0]);
-  l[1] = toupper(g_eeGeneral.ttsLanguage[1]);
+  l[0] = toupper(g_eeGeneral.uiLanguage[0]);
+  l[1] = toupper(g_eeGeneral.uiLanguage[1]);
   l[2] = 0;
   lua_pushtablestring(L, "language", l);
 #else

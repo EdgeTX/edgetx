@@ -291,6 +291,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["imperial"] = rhs.imperial;
   node["ppmunit"] = rhs.ppmunit;
   node["ttsLanguage"] = rhs.ttsLanguage;
+  node["uiLanguage"] = rhs.uiLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
   node["wavVolume"] = rhs.wavVolume + 2;
   node["varioVolume"] = rhs.varioVolume + 2;
@@ -569,6 +570,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["imperial"] >> rhs.imperial;
   node["ppmunit"] >> rhs.ppmunit;
   node["ttsLanguage"] >> rhs.ttsLanguage;
+  node["uiLanguage"] >> rhs.uiLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
   node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);
   node["varioVolume"] >> ioffset_int(rhs.varioVolume, 2);

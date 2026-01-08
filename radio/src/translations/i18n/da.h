@@ -973,6 +973,7 @@
 #define TR_USBMODE                     "USB tilstand"
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Enheder"
 #define TR_UNITS_PPM                   "PPM enheder"
 #define TR_EDIT                        "Rediger"

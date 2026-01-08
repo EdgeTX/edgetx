@@ -961,6 +961,7 @@
 #define TR_USBMODE             "Tryb USB"
 #define TR_JACK_MODE           "Tryb Jack"
 #define TR_VOICE_LANGUAGE      "Język głosu"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM        "Jednostki"
 #define TR_UNITS_PPM           "Jednostki PPM"
 #define TR_EDIT                "Edytuj"

@@ -1079,6 +1079,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
 
   NOBACKUP(char     ttsLanguage[2]);
+  NOBACKUP(char     uiLanguage[2]);
   NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   wavVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   varioVolume:4 CUST(r_5pos,w_5pos));
