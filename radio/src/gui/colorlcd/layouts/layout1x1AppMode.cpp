@@ -43,9 +43,10 @@ class LayoutAppMode : public Layout
  protected:
 };
 
+// Zone map: 1x1 App Mode (single full-screen zone for app mode - disables all other UI elements)
 // clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,  // Full screen
 };
 // clang-format on
 
