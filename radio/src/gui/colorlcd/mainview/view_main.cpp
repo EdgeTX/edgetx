@@ -76,6 +76,12 @@ static void tile_view_scroll_end(lv_event_t* e)
 
 ViewMain* ViewMain::_instance = nullptr;
 
+ViewMain* ViewMain::instance()
+{
+  if (!_instance) _instance = new ViewMain();
+  return _instance;
+}
+
 ViewMain::ViewMain() :
     NavWindow(MainWindow::instance(), MainWindow::instance()->getRect())
 {
@@ -409,11 +415,18 @@ void ViewMain::hideTopBarEdgeTxButton()
   topbar->setEdgeTxButtonVisible(0.0);
 }
 
-void ViewMain::runBackground()
+void ViewMain::_refreshWidgets()
 {
-  topbar->runBackground();
-  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
-    if (customScreens[i])
-      customScreens[i]->runBackground();
+  if (!_deleted) {
+    topbar->refreshWidgets(isVisible && hasTopbar());
+    for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+      if (customScreens[i])
+        customScreens[i]->refreshWidgets(isVisible);
+    }
   }
+}
+
+void ViewMain::refreshWidgets()
+{
+  if (_instance) _instance->_refreshWidgets();
 }

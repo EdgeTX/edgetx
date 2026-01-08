@@ -63,7 +63,6 @@ class Page : public NavWindow
   Window* body = nullptr;
   QuickMenu* quickMenu = nullptr;
 
-  void checkEvents() override;
   bool bubbleEvents() override { return false; }
 
   NavWindow* navWindow();

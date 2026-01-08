@@ -430,6 +430,15 @@ bool Window::isVisible()
   return !_deleted && lvobj && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
 }
 
+bool Window::isOnScreen()
+{
+  // Check window is at least partially visible
+  if (!isVisible()) return false;
+  lv_area_t a;
+  lv_obj_get_coords(lvobj, &a);
+  return a.x2 >= 0 && a.x1 < LCD_W && a.y2 >= 0 && a.y1 < LCD_H;
+}
+
 void Window::enable(bool enabled)
 {
   if (!_deleted && lvobj) {

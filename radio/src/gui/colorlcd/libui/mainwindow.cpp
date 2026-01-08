@@ -23,6 +23,7 @@
 #include "layout.h"
 #include "etx_lv_theme.h"
 #include "sdcard.h"
+#include "view_main.h"
 
 // timers_driver.h
 uint32_t timersGetMsTick();
@@ -56,6 +57,8 @@ void MainWindow::emptyTrash()
 void MainWindow::run(bool trash)
 {
   auto start = timersGetMsTick();
+
+  ViewMain::refreshWidgets();
 
   auto opaque = Layer::getFirstOpaque();
   if (opaque) {

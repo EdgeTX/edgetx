@@ -37,12 +37,7 @@ class ViewMain : public NavWindow
  public:
   ~ViewMain() override;
 
-  static ViewMain* instance()
-  {
-    if (!_instance) _instance = new ViewMain();
-
-    return _instance;
-  }
+  static ViewMain* instance();
 
   static ViewMain* getInstance() { return _instance; }
 
@@ -85,8 +80,9 @@ class ViewMain : public NavWindow
   bool isAppMode();
   bool isAppMode(unsigned view);
 
-  void runBackground();
   void refreshWidgetSelectTimer();
+
+  static void refreshWidgets();
 
  protected:
   static ViewMain* _instance;
@@ -107,6 +103,8 @@ class ViewMain : public NavWindow
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);
   void setEdgeTxButtonVisible(float visible);
+
+  void _refreshWidgets();
 
   static void ws_timer(lv_timer_t* t);
 
