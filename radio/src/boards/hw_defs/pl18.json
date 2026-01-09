@@ -384,8 +384,8 @@
   "trainer": {
     "trainer_in_gpio": "GPIO_PIN(GPIOD, 12)",
     "trainer_in_timer_channel": "LL_TIM_CHANNEL_CH1",
-    "trainer_out_gpio": "GPIO_PIN(GPIOD, 13)",
-    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH2",
+    "trainer_out_gpio": "GPIO_PIN(GPIOD, 12)",
+    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH1",
     "trainer_timer": "TIM4",
     "trainer_timer_irqn": "TIM4_IRQn",
     "trainer_timer_irqhandler": "TIM4_IRQHandler",
