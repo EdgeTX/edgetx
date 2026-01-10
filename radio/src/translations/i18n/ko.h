@@ -890,6 +890,7 @@
 #define TR_EDIT_COLOR                     "색상 편집"
 #define TR_NO_THEME_IMAGE                 "테마 이미지 없음"
 #define TR_BACKLIGHT_TIMER                "무작동 타이머"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT             "빠른 모델 선택"
 #define TR_LABELS_SELECT                  "라벨 선택"

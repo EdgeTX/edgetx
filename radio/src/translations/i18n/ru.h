@@ -853,6 +853,7 @@
 #define TR_EDIT_COLOR                  "Выбор цвета"
 #define TR_NO_THEME_IMAGE              "Отсутс изображ темы"
 #define TR_BACKLIGHT_TIMER             "Время бездействия"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "Быстрый выбор модели"
 #define TR_LABELS_SELECT             "Выбор"

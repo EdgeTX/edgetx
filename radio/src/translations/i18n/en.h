@@ -852,6 +852,7 @@
 #define TR_EDIT_COLOR                  "Edit Color"
 #define TR_NO_THEME_IMAGE              "No theme image"
 #define TR_BACKLIGHT_TIMER             "Inactivity timeout"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "Model quick select"
 #define TR_LABELS_SELECT             "Label select"

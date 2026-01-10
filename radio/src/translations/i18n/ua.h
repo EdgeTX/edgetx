@@ -852,6 +852,7 @@
 #define TR_EDIT_COLOR                  "Редагувати колір"
 #define TR_NO_THEME_IMAGE              "Немає зображення теми"
 #define TR_BACKLIGHT_TIMER             "Час бездіяльності"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "Швидкий вибір моделі"
 #define TR_LABELS_SELECT             "Вибір мітки"

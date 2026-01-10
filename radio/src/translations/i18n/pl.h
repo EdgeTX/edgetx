@@ -845,6 +845,7 @@
 #define TR_EDIT_COLOR                  "Edytuj kolor"
 #define TR_NO_THEME_IMAGE              "Brak obrazu motywu"
 #define TR_BACKLIGHT_TIMER             "Czas bezczynności"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "Szybki wybór modelu"
 #define TR_LABELS_SELECT             "Wybierz etykietę"
