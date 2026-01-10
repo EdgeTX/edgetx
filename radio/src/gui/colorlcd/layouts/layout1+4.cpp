@@ -21,13 +21,18 @@
 
 #include "layout.h"
 
+// Zone map: 1+4 (1 large zone + 4 small zones)
+// Left: 1 full-height zone (1/2 width), Right: 4 zones stacked (1/2 width, 1/4
+// height each)
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0,    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_FULL,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
+    LAYOUT_MAP_0,    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_FULL,   // Left zone (full height)
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,   // Right top
+    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,   // Right 2nd
+    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,   // Right 3rd
+    LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,   // Right bottom
 };
+// clang-format on
 
-BaseLayoutFactory<Layout> Layout1P4("Layout1P4", "1 + 4", defaultLayoutOptions, 5,
-                                    (uint8_t*)zmap);
+BaseLayoutFactory<Layout> Layout1P4("Layout1P4", "1 + 4", defaultLayoutOptions,
+                                    5, (uint8_t*)zmap);
