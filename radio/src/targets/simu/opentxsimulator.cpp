@@ -156,12 +156,14 @@ static void simulator_host_drv_set_baudrate(void* ctx, uint32_t baudrate)
   port->simulator->drv_auxSerialSetBaudrate(port->index, baudrate);
 }
 
+static bool simulator_host_drv_tx_completed(void* ctx) { return true; }
+
 static const etx_serial_driver_t simulator_host_drv = {
   .init = simulator_host_drv_init,
   .deinit = simulator_host_drv_deinit,
   .sendByte = simulator_host_drv_send_byte,
   .sendBuffer = simulator_host_drv_send_buffer,
-  .txCompleted = nullptr,
+  .txCompleted = simulator_host_drv_tx_completed,
   .waitForTxCompleted = nullptr,
   .enableRx = nullptr,
   .getByte = simulator_host_drv_get_byte,
