@@ -71,7 +71,7 @@ class SensorValue : public StaticText
   }
 
  protected:
-  getvalue_t lastSensorVal;
+  getvalue_t lastSensorVal = INT32_MAX;
   ExpoData *input;
 };
 
@@ -99,18 +99,22 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   sensor_form->setFlexLayout();
 
   FlexGridLayout grid(col_dsc, row_dsc);
-  auto line = sensor_form->newLine(grid);
-  line->padAll(PAD_ZERO);
 
   // Value
+  auto line = sensor_form->newLine(grid);
+  line->padAll(PAD_ZERO);
+  line->setWidth(SENSOR_W);
+
   new StaticText(line, rect_t{}, STR_VALUE);
   auto sensor = new SensorValue(line, rect_t{}, input);
 
   // Scale
   line = sensor_form->newLine(grid);
-  line->padAll(PAD_TINY);
+  line->padAll(PAD_OUTLINE);
+  line->setWidth(SENSOR_W);
+
   new StaticText(line, rect_t{}, STR_SCALE);
-  new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
+  new NumberEdit(line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
                  maxTelemValue(input->srcRaw - MIXSRC_FIRST_TELEM + 1),
                  GET_SET_DEFAULT(input->scale), sensor->getSensorPrec());
 
