@@ -187,6 +187,7 @@ class Window
   virtual void show(bool visible = true);
   void hide() { show(false); }
   bool isVisible();
+  bool isOnScreen();
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 

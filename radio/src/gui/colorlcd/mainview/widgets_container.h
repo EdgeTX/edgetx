@@ -41,7 +41,7 @@ class WidgetsContainer: public Window
   void updateZones();
   void showWidgets(bool visible = true);
   void hideWidgets() { showWidgets(false); }
-  void runBackground();
+  void refreshWidgets(bool inForeground);
 
   virtual bool isLayout() { return false; }
   virtual bool isAppMode() const { return false; }

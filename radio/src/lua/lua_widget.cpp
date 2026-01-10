@@ -195,7 +195,6 @@ void LuaEventHandler::removeHandler(Window* w)
 void LuaWidget::redraw_cb(lv_event_t* e)
 {
   lv_obj_t* target = lv_event_get_target(e);
-  if (lv_obj_has_flag(target, LV_OBJ_FLAG_HIDDEN)) return;
 
   LuaWidget* widget = (LuaWidget*)lv_obj_get_user_data(target);
 
@@ -292,47 +291,35 @@ void LuaWidget::onCancel()
   LuaScriptManager::onCancelEvent();
 }
 
-void LuaWidget::checkEvents()
+void LuaWidget::foreground()
 {
-  Widget::checkEvents();
-
   if (closeFS) {
     closeFS = false;
     setFullscreen(false);
   }
 
-  // refresh() has not been called
-  if (!refreshed)
-    background();
-
-  refreshed = false;
-
-  if (useLvglLayout()) {
-    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
-      lv_area_t a;
-      lv_obj_get_coords(lvobj, &a);
-      // Check widget is at least partially visible
-      if (a.x2 >= 0 && a.x1 < LCD_W) {
-        auto save = luaScriptManager;
-        PROTECT_LUA() {
-          luaScriptManager = this;
-          refresh(nullptr);
-          if (!errorMessage) {
-            if (!callRefs(lsWidgets)) {
-              setErrorMessage("function");
-            }
+  // Check widget is at least partially visible
+  if (isOnScreen()) {
+    if (useLvglLayout()) {
+      auto save = luaScriptManager;
+      PROTECT_LUA() {
+        luaScriptManager = this;
+        refresh(nullptr);
+        if (!errorMessage) {
+          if (!callRefs(lsWidgets)) {
+            setErrorMessage("function");
           }
-          refreshInstructionsPercent = instructionsPercent;
-        } else {
-          setErrorMessage("function");
         }
-        luaScriptManager = save;
-        UNPROTECT_LUA();
+        refreshInstructionsPercent = instructionsPercent;
+      } else {
+        setErrorMessage("function");
       }
+      luaScriptManager = save;
+      UNPROTECT_LUA();
+    } else {
+      // Force call to redraw_cb()
+      invalidate();
     }
-  } else {
-    // Force call to redraw_cb()
-    invalidate();
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -537,9 +524,6 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // Remove LCD
   luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
-
-  // mark as refreshed
-  refreshed = true;
 }
 
 void LuaWidget::background()

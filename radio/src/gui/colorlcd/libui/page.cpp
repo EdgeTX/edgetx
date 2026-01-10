@@ -133,12 +133,6 @@ void Page::onCancel()
 
 void Page::onClicked() { Keyboard::hide(false); }
 
-void Page::checkEvents()
-{
-  ViewMain::instance()->runBackground();
-  NavWindow::checkEvents();
-}
-
 void Page::enableRefresh()
 {
   lv_obj_enable_style_refresh(true);
