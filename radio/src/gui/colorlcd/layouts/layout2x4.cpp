@@ -40,9 +40,8 @@ class Layout2x4 : public Layout
     OPTION_PANEL2_COLOR
   };
 
-  Layout2x4(Window* parent, const LayoutFactory* factory,
-            int screenNum, uint8_t zoneCount,
-            uint8_t* zoneMap) :
+  Layout2x4(Window* parent, const LayoutFactory* factory, int screenNum,
+            uint8_t zoneCount, uint8_t* zoneMap) :
       Layout(parent, factory, screenNum, zoneCount, zoneMap)
   {
     panel1 = lv_obj_create(lvobj);
@@ -56,8 +55,6 @@ class Layout2x4 : public Layout
   rect_t mainZone = {0, 0, 0, 0};
   lv_obj_t* panel1 = nullptr;
   lv_obj_t* panel2 = nullptr;
-  LcdFlags panel1Color = -1;
-  LcdFlags panel2Color = -1;
 
   void checkEvents() override
   {
@@ -92,21 +89,28 @@ class Layout2x4 : public Layout
         lv_obj_add_flag(panel2, LV_OBJ_FLAG_HIDDEN);
     }
 
-    etx_bg_color_from_flags(panel1, getOptionValue(OPTION_PANEL1_COLOR)->unsignedValue);
-    etx_bg_color_from_flags(panel2, getOptionValue(OPTION_PANEL2_COLOR)->unsignedValue);
+    etx_bg_color_from_flags(panel1,
+                            getOptionValue(OPTION_PANEL1_COLOR)->unsignedValue);
+    etx_bg_color_from_flags(panel2,
+                            getOptionValue(OPTION_PANEL2_COLOR)->unsignedValue);
   }
 };
 
+// Zone map: 2x4 (2 columns, 4 rows)
+// Each zone is 1/2 width, 1/4 height
+// Zones ordered column-by-column (left column first, then right column)
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0,    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_0,    LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_0,    LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
+    // Zone positions: x, y, w, h (using LAYOUT_MAP constants)
+    LAYOUT_MAP_0,    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left column, top
+    LAYOUT_MAP_0,    LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left column, 2nd row
+    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left column, 3rd row
+    LAYOUT_MAP_0,    LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left column, bottom
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Right column, top
+    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Right column, 2nd row
+    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Right column, 3rd row
+    LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Right column, bottom
 };
-
+// clang-format on
 BaseLayoutFactory<Layout2x4> layout2x4("Layout2x4", "2 x 4", OPTIONS_LAYOUT_2x4,
                                        8, (uint8_t*)zmap);

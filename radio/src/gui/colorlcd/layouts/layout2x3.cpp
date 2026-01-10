@@ -21,15 +21,19 @@
 
 #include "layout.h"
 
+// Zone map: 2x3 (2 columns, 3 rows)
+// Each zone is 1/2 width, 1/3 height
+// Zones ordered to match previous implementation
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_0, LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_0, LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,     // ordered to match previous implementation
+    LAYOUT_MAP_0,    LAYOUT_MAP_0,      LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Left top
+    LAYOUT_MAP_0,    LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Left middle
+    LAYOUT_MAP_0,    LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Left bottom
+    LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Right middle - ordered to match previous implementation
+    LAYOUT_MAP_HALF, LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Right bottom
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0,      LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Right top
 };
+// clang-format on
 
-BaseLayoutFactory<Layout> layout2x3("Layout2x3", "2 x 3",
-                                    defaultLayoutOptions,
+BaseLayoutFactory<Layout> layout2x3("Layout2x3", "2 x 3", defaultLayoutOptions,
                                     6, (uint8_t*)zmap);
