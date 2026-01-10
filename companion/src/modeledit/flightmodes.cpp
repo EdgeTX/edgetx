@@ -503,7 +503,12 @@ void FlightModePanel::phaseGVUse_currentIndexChanged(int index)
     QComboBox *comboBox = qobject_cast<QComboBox*>(sender());
     int gvar = comboBox->property("index").toInt();
     if (index == 0) {
-      phase.gvars[gvar] = 0;
+      if (model->gvarData[gvar].getMin() > 0)
+        phase.gvars[gvar] = model->gvarData[gvar].getMin();
+      else if (model->gvarData[gvar].getMax() < 0)
+        phase.gvars[gvar] = model->gvarData[gvar].getMax();
+      else
+        phase.gvars[gvar] = 0;
     }
     else {
       phase.gvars[gvar] = GVAR_MAX_VALUE + index;
