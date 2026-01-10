@@ -122,6 +122,7 @@ class LuaWidget : public Widget, public LuaScriptManager
   const char* getErrorMessage() const override;
   void update() override;
   void background() override;
+  void foreground() override;
 
   void clear() override;
 
@@ -148,12 +149,10 @@ class LuaWidget : public Widget, public LuaScriptManager
   int zoneRectDataRef;
   int optionsDataRef;
   char* errorMessage;
-  bool refreshed = false;
 
   // Window interface
   void onClicked() override;
   void onCancel() override;
-  void checkEvents() override;
   void onEvent(event_t event) override;
 
   // Widget interface
