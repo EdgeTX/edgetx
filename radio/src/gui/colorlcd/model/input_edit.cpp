@@ -33,8 +33,13 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+#if LANDSCAPE
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(8),
+                                     LV_GRID_TEMPLATE_LAST};
+#else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
+#endif
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 class InputEditAdvanced : public Page
