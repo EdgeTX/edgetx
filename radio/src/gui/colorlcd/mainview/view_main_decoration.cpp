@@ -110,11 +110,14 @@ static bool canTrimShow(int idx)
 rect_t ViewMainDecoration::getMainZone() const
 {
   coord_t x = 0, w = LCD_W, h = LCD_H;
+  coord_t bh = 0;
 
   if (showSliders) {
-    x += MainViewSlider::SLIDER_BAR_SIZE;
-    w -= 2 * MainViewSlider::SLIDER_BAR_SIZE;
-    h -= MainViewSlider::SLIDER_BAR_SIZE;
+    if (hasVerticalSliders) {
+      x += MainViewSlider::SLIDER_BAR_SIZE;
+      w -= 2 * MainViewSlider::SLIDER_BAR_SIZE;
+    }
+    bh = MainViewSlider::SLIDER_BAR_SIZE;
   }
 
   if (showTrims) {
@@ -125,16 +128,17 @@ rect_t ViewMainDecoration::getMainZone() const
     if (canTrimShow(TRIMS_RV)) {
       w -= MainViewSlider::SLIDER_BAR_SIZE;
     }
-    if (showFM) {
-      h -= EdgeTxStyles::STD_FONT_HEIGHT;
-    } else {
-      if (canTrimShow(TRIMS_LH) || canTrimShow(TRIMS_RH)) {
-        h -= MainViewSlider::SLIDER_BAR_SIZE;
-      }
-    }
+    if (showFM && (has6POS || !showSliders))
+      bh += EdgeTxStyles::STD_FONT_HEIGHT;
+    else if (canTrimShow(TRIMS_LH) || canTrimShow(TRIMS_RH))
+      bh += MainViewSlider::SLIDER_BAR_SIZE;
   } else if (showFM) {
-    h -= EdgeTxStyles::STD_FONT_HEIGHT;
+    bh += EdgeTxStyles::STD_FONT_HEIGHT;
+    if (!has6POS && showSliders)
+      bh -= MainViewSlider::SLIDER_BAR_SIZE;
   }
+
+  h -= bh;
 
   return rect_t{x, 0, w, h};
 }
@@ -156,10 +160,12 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   // Bottom center 6POS
   if (IS_POT_AVAILABLE(pot)) {
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U)
+    has6POS = true;
     sliders[pot] = new MainViewHorizontalSlider(bc, pot);
     pot += 1;
 #else
     if (IS_POT_MULTIPOS(pot)) {
+      has6POS = true;
       // Has 6POS - place bottom center
       sliders[pot] = new MainView6POS(bc, pot);
       pot += 1;
@@ -185,6 +191,8 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   if (max_pots > pot) {
+    hasVerticalSliders = true;
+
     // create containers for the sliders, so that they are at the borders of the display
     // on top of each other, when there are two sliders to display per side
     auto leftPots = layoutBox(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
