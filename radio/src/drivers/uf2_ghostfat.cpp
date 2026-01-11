@@ -35,7 +35,18 @@
 
 #include <string.h>
 
+#if BOOTLOADER_ADDRESS == FIRMWARE_ADDRESS
+#define REBOOT_BLOCK 0
+#else
+#define REBOOT_BLOCK 1
+#endif
+
+
 #define UF2_MAX_FW_SIZE (512 * (UF2_MAX_FAT16_BLOCKS / 2 - REBOOT_BLOCK) / 2) // Limited by our current fat implementation
+
+#if defined(FLASHSIZE)
+static_assert(FLASHSIZE > UF2_MAX_FW_SIZE, "FLASHSIZE is smaller than UF2_MAX_FW_SIZE");
+#endif
 
 #define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
 
@@ -183,12 +194,6 @@ static_assert(ARRAY_SIZE(indexFile) < 512);
 
 #ifndef BOOTLOADER_ADDRESS
 #define BOOTLOADER_ADDRESS FIRMWARE_ADDRESS
-#endif
-
-#if BOOTLOADER_ADDRESS == FIRMWARE_ADDRESS
-#define REBOOT_BLOCK 0
-#else
-#define REBOOT_BLOCK 1
 #endif
 
 #define UF2_SIZE           (current_flash_size() * 2 + 512 * REBOOT_BLOCK)
