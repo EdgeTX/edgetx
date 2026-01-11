@@ -72,6 +72,8 @@ class ViewMainDecoration
   Window* sliders[SLIDERS_MAX] = { 0 };
   MainViewTrim* trims[TRIMS_MAX] = { 0 };
   Window* flightMode = nullptr;
+  bool hasVerticalSliders = false;
+  bool has6POS = false;
 
   Window* layoutBox(Window* parent, lv_align_t align, lv_flex_flow_t flow);
 
