@@ -35,11 +35,7 @@
 
 #include <string.h>
 
-#if defined(FLASHSIZE)
-  #define UF2_MAX_FW_SIZE FLASHSIZE
-#else
-  #define UF2_MAX_FW_SIZE (2 * 1024 * 1024)
-#endif
+#define UF2_MAX_FW_SIZE (512 * (UF2_MAX_FAT16_BLOCKS / 2 - REBOOT_BLOCK) / 2) // Limited by our current fat implementation
 
 #define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
 
