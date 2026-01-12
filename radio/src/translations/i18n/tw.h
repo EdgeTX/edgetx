@@ -967,6 +967,7 @@
 #define TR_USBMODE                     "USB模式"
 #define TR_JACK_MODE                   "教練插口模式"
 #define TR_VOICE_LANGUAGE              "播報語言"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "單位"
 #define TR_UNITS_PPM                   "PPM 單位"
 #define TR_EDIT                        "編輯"

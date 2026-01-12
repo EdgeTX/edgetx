@@ -4,5 +4,5 @@ execute_process(COMMAND @CMAKE_MAKE_PROGRAM@ DESTDIR=@APPIMAGE_DIR@ install
 # This is done by cmake install target
 # setup Companion application
 # add -v0 to linuxdeploy for debug info
-execute_process(COMMAND env LDAI_NO_APPSTREAM=1 @LINUXDEPLOY_APP@ --appdir @APPIMAGE_DIR@ -e @COMPANION_NAME@ -d @COMPANION_DESKTOP_FILE@ --plugin qt --output appimage
+execute_process(COMMAND env LDAI_NO_APPSTREAM=1 @LINUXDEPLOY_APP@ --appdir @APPIMAGE_DIR@ -e @COMPANION_NAME@ -e @SIMULATOR_NAME@ -d @COMPANION_DESKTOP_FILE@ --custom-apprun @CMAKE_BINARY_DIR@/AppDir/AppRun --plugin qt --output appimage
                 WORKING_DIRECTORY @CMAKE_BINARY_DIR@)

@@ -595,7 +595,15 @@ void GlobalVariablesPanel::useModeToggled(bool checked)
     int midx = 0;
 
     if (getIndexes(chk, gidx, midx)) {
-      int val = checked ? model->flightModeData->linkedGVarFlightModeZero(midx) : 0;
+      int val = 0;
+
+      if (checked)
+        val = model->flightModeData->linkedGVarFlightModeZero(midx);
+      else if (val < model->gvarData[gidx].getMin())
+        val = model->gvarData[gidx].getMin();
+      else if (val > model->gvarData[gidx].getMax())
+        val = model->gvarData[gidx].getMax();
+
       model->flightModeData[midx].gvars[gidx] = val;
       updateLine(gidx);
       emit modified();

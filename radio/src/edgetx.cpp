@@ -310,6 +310,13 @@ void generalDefaultSwitches()
   }
 }
 
+void generalDefaultUILanguage()
+{
+  memcpy(g_eeGeneral.uiLanguage, TRANSLATIONS, 2);
+  g_eeGeneral.uiLanguage[0] = tolower(g_eeGeneral.uiLanguage[0]);
+  g_eeGeneral.uiLanguage[1] = tolower(g_eeGeneral.uiLanguage[1]);
+}
+
 void generalDefault()
 {
   memclear(&g_eeGeneral, sizeof(g_eeGeneral));
@@ -365,6 +372,7 @@ void generalDefault()
   g_eeGeneral.lightAutoOff = 2;
   g_eeGeneral.inactivityTimer = 10;
 
+  generalDefaultUILanguage();
   g_eeGeneral.ttsLanguage[0] = 'e';
   g_eeGeneral.ttsLanguage[1] = 'n';
   g_eeGeneral.wavVolume = 2;

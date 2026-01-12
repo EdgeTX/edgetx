@@ -348,6 +348,7 @@ uint16_t isqrt32(uint32_t n);
 void setDefaultOwnerId();
 void generalDefault();
 void generalDefaultSwitches();
+void generalDefaultUILanguage();
 
 uint32_t hash(const void * ptr, uint32_t size);
 

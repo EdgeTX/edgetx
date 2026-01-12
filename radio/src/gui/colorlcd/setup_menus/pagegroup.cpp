@@ -320,7 +320,6 @@ void PageGroupBase::checkEvents()
   if (currentTab) {
     currentTab->checkEvents();
   }
-  ViewMain::instance()->runBackground();
 }
 
 void PageGroupBase::onClicked() { Keyboard::hide(false); }

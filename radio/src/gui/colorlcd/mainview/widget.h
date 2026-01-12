@@ -108,8 +108,10 @@ class Widget : public ButtonBase
   // Called when the widget options have changed
   virtual void update();
 
-  // Called at regular time interval, even if the widget cannot be seen
+  // Called at regular time interval if the widget is hidden or off screen
   virtual void background() {}
+  // Called at regular time interval if the widget is visible and on screen
+  virtual void foreground() {}
 
   // Update widget 'zone' data (for Lua widgets)
   virtual void updateZoneRect(rect_t rect, bool updateUI = true)

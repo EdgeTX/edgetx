@@ -99,7 +99,10 @@ enum {
   CASE_GPS(ITEM_RADIO_SETUP_ADJUST_RTC)
   CASE_GPS(ITEM_RADIO_SETUP_GPSFORMAT)
   CASE_PXX1(ITEM_RADIO_SETUP_COUNTRYCODE)
-  ITEM_RADIO_SETUP_LANGUAGE,
+  ITEM_RADIO_SETUP_VOICE_LANGUAGE,
+#if defined(ALL_LANGS)
+  ITEM_RADIO_SETUP_TEXT_LANGUAGE,
+#endif
   ITEM_RADIO_SETUP_IMPERIAL,
   ITEM_RADIO_SETUP_PPM,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI)
@@ -238,6 +241,9 @@ void menuRadioSetup(event_t event)
      CASE_GPS(0)
     CASE_PXX1(0)
     0, 0, 0,
+#if defined(ALL_LANGS)
+    0, // text language
+#endif
     IF_FAI_CHOICE(0)
     0,
     0, // USB mode
@@ -708,7 +714,7 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-      case ITEM_RADIO_SETUP_LANGUAGE:
+      case ITEM_RADIO_SETUP_VOICE_LANGUAGE:
         lcdDrawTextAlignedLeft(y, STR_VOICE_LANGUAGE);
 #if !defined(ALL_LANGS)
         lcdDrawText(LCD_W-2, y, currentLanguagePack->name, attr|RIGHT);
@@ -720,14 +726,26 @@ void menuRadioSetup(event_t event)
           if (checkIncDec_Ret) {
             currentLanguagePack = languagePacks[currentLanguagePackIdx];
             strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
-#if defined(ALL_LANGS)
-            currentLangStrings = langStrings[currentLanguagePackIdx];
-            extern void setLanguageFont(int n);
-            setLanguageFont(currentLanguagePackIdx);
-#endif
           }
         }
         break;
+
+#if defined(ALL_LANGS)
+      case ITEM_RADIO_SETUP_TEXT_LANGUAGE:
+        lcdDrawTextAlignedLeft(y, STR_TEXT_LANGUAGE);
+        lcdDrawText(LCD_W-2, y, languagePacks[getLanguageId(g_eeGeneral.uiLanguage)]->name(), attr|RIGHT);
+        if (attr) {
+          int textLangId = checkIncDec(event, getLanguageId(g_eeGeneral.uiLanguage), 0, DIM(languagePacks)-2, EE_GENERAL, isTextLangAvail);
+          if (checkIncDec_Ret) {
+            currentLanguagePack = languagePacks[currentLanguagePackIdx];
+            strncpy(g_eeGeneral.uiLanguage, languagePacks[textLangId]->id, 2);
+            currentLangStrings = langStrings[textLangId];
+            extern void setLanguageFont(int n);
+            setLanguageFont(textLangId);
+          }
+        }
+        break;
+#endif
 
       case ITEM_RADIO_SETUP_IMPERIAL:
         g_eeGeneral.imperial = editChoice(LCD_W-2, y, STR_UNITS_SYSTEM, STR_VUNITSSYSTEM, g_eeGeneral.imperial, 0, 1, attr|RIGHT, event);

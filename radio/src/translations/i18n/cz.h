@@ -968,6 +968,7 @@
 #define TR_USBMODE                     "Režim USB"
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Jednotky"
 #define TR_UNITS_PPM                   "PPM jednotky"
 #define TR_EDIT                        "Upravit"

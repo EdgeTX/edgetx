@@ -10,6 +10,7 @@ option(DISK_CACHE "Enable SD card disk cache" ON)
 option(BLUETOOTH "FrSky BT module support" OFF)
 option(FLYSKY_GIMBAL "Serial gimbal support" OFF)
 option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
+option(INTERNAL_GPS "Support for internal GPS" ON)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -29,6 +30,7 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
+set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
 # BT and serial gimbal share same UART
 if(BLUETOOTH)
@@ -89,7 +91,6 @@ add_definitions(
 set(SDRAM ON)
 
 add_definitions(-DRTCLOCK)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
 if(STICK_DEAD_ZONE)
@@ -103,6 +104,13 @@ endif()
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
   add_definitions(-DDISK_CACHE)
+endif()
+
+if(INTERNAL_GPS)
+  message("-- Internal GPS enabled")
+  add_definitions(-DINTERNAL_GPS)
+  set(SRC ${SRC} gps.cpp gps_nmea.cpp gps_ubx.cpp)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 endif()
 
 if(FUNCTION_SWITCHES_WITH_RGB)

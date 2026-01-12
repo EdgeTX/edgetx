@@ -1022,6 +1022,9 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   }
 
   delete modelsList;
+
+  radioData.validateModels();
+  refresh();
 }
 
 /*
