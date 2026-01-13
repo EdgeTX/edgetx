@@ -26,7 +26,7 @@
 #include "edgetx.h"
 #include "telemetry/spektrum.h"
 
-#define DSMP_SEND_X_PLUS 1
+#define DSMP_SEND_X_PLUS    0
 
 #define DSMP_BITRATE        115200
 
