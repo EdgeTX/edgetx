@@ -1,0 +1,568 @@
+#!/usr/bin/env python3
+"""
+Convert SVG files to PNG icons for different screen resolutions.
+Manages conversion, validation, and incremental builds with CSV tracking.
+"""
+
+import sys
+import csv
+import shutil
+import subprocess
+from pathlib import Path
+from datetime import datetime
+from typing import Tuple, Optional, List, Dict, Set
+from PIL import Image
+
+
+# Color codes for output
+RED = "\033[0;31m"
+GREEN = "\033[0;32m"
+NC = "\033[0m"
+
+# Configuration
+SCRIPT_DIR = Path(__file__).parent.resolve()
+BASE_DIR = SCRIPT_DIR.parent / "radio" / "src" / "bitmaps"
+SRC_DIR = BASE_DIR / "img-src"
+SRC_LIST = SCRIPT_DIR / "convert-gfx-list.csv"
+
+RESOLUTIONS = {
+    "320x240": 0.8,
+    "480x272": 1.0,
+    "800x480": 1.375,
+}
+
+BG_COLOR = "white"
+
+
+def get_png_dimensions(png_path: Path) -> Optional[Tuple[int, int]]:
+    """Extract PNG dimensions using PIL."""
+    try:
+        if not png_path.exists():
+            return None
+        img = Image.open(png_path)
+        return img.size
+    except Exception:
+        return None
+
+
+def get_svg_mtime(svg_path: Path) -> str:
+    """Get SVG modification time as formatted string."""
+    if not svg_path.exists():
+        return ""
+    mtime = svg_path.stat().st_mtime
+    dt = datetime.fromtimestamp(mtime)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def check_command(cmd: str, instructions: Dict[str, str]) -> bool:
+    """Check if a command is available in PATH."""
+    if shutil.which(cmd) is None:
+        print(f"Error: {cmd} is not installed or not in PATH")
+        print(f"Please install {cmd} to use this script")
+        print()
+        for key, val in instructions.items():
+            print(f"{key}: {val}")
+        return False
+    return True
+
+
+def scale_dimension(value: int, scale: float) -> int:
+    """Scale a dimension and round to nearest integer."""
+    return round(value * scale)
+
+
+def run_conversion(
+    engine: str,
+    width: int,
+    height: int,
+    input_file: Path,
+    output_file: Path,
+) -> bool:
+    """Run SVG to PNG conversion using rsvg-convert or resvg."""
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        if engine == "resvg":
+            subprocess.run(
+                ["resvg", "--width", str(width), "--height", str(height),
+                 str(input_file), str(output_file)],
+                check=True,
+                capture_output=True,
+            )
+        else:  # rsvg-convert
+            subprocess.run(
+                ["rsvg-convert", "--width", str(width), "--height", str(height),
+                 "--output", str(output_file), str(input_file)],
+                check=True,
+                capture_output=True,
+            )
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"  {RED}Error converting {input_file.name}: {e}{NC}")
+        return False
+
+
+def generate_src_list_csv() -> None:
+    """NOT IMPLEMENTED: placeholder for future --update-list."""
+    print("Error: --update-list not yet available in Python version")
+    sys.exit(1)
+
+
+def validate_svg() -> int:
+    """Validate that SVG files match CSV entries."""
+    if not SRC_LIST.exists():
+        print(f"Error: CSV files list not found: {SRC_LIST}")
+        return 1
+    if not SRC_DIR.exists():
+        print(f"Error: SVG source directory not found: {SRC_DIR}")
+        return 1
+
+    print("Validating SVG source files")
+    print("---------------------------")
+    print()
+
+    has_errors = False
+
+    # Part 0: Check CSV for missing dimensions
+    print("Checking CSV for missing dimensions...")
+    missing_dimensions = 0
+    csv_entries = {}
+
+    try:
+        with open(SRC_LIST, "r") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            for row in reader:
+                file_name = row.get("file", "").strip()
+                width = row.get("width", "").strip()
+                height = row.get("height", "").strip()
+
+                if not file_name:
+                    continue
+
+                csv_entries[file_name] = (width, height)
+
+                if not width or not height:
+                    print(
+                        f"  {RED}CSV entry missing dimensions: {file_name} "
+                        f"(width: '{width}', height: '{height}'){NC}"
+                    )
+                    has_errors = True
+                    missing_dimensions += 1
+    except Exception as e:
+        print(f"  {RED}Error reading CSV: {e}{NC}")
+        return 1
+
+    if missing_dimensions > 0:
+        print(f"  Total entries with missing dimensions: {missing_dimensions}")
+    else:
+        print(f"  {GREEN}All CSV entries have dimensions{NC}")
+
+    # Part 1: Check CSV entries against SVG directory
+    print()
+    print("Comparing CSV files list with SVG directory...")
+    missing_in_dir = 0
+    found_in_dir = 0
+
+    for file_name in sorted(csv_entries.keys()):
+        svg_path = SRC_DIR / f"{file_name}.svg"
+        if not svg_path.exists():
+            print(f"  {RED}CSV entry missing SVG file: {file_name}.svg{NC}")
+            has_errors = True
+            missing_in_dir += 1
+        else:
+            found_in_dir += 1
+
+    print(f"  CSV entries - Found: {found_in_dir}, Missing in SVG dir: {missing_in_dir}")
+
+    # Part 2: Check SVG directory against CSV
+    print()
+    print("Comparing SVG directory with CSV files list...")
+
+    svg_files = {p.stem for p in SRC_DIR.glob("**/*.svg")}
+    csv_files = set(csv_entries.keys())
+    missing_in_csv = svg_files - csv_files
+
+    for file_name in sorted(missing_in_csv):
+        print(f"  {RED}SVG file missing in CSV list: {file_name}.svg{NC}")
+        has_errors = True
+
+    total_svg = len(svg_files)
+    print(f"  SVG files - Total: {total_svg}, Missing in CSV: {len(missing_in_csv)}")
+
+    print()
+    if not has_errors and len(missing_in_csv) == 0:
+        print(f"{GREEN}SVG source files validation passed: All files match{NC}")
+        return 0
+    else:
+        print(f"{RED}SVG source files validation failed{NC}")
+        return 1
+
+
+def validate_png() -> int:
+    """Validate that PNG files exist for all CSV entries."""
+    if not SRC_LIST.exists():
+        print(f"Error: CSV files list not found: {SRC_LIST}")
+        return 1
+    if not SRC_DIR.exists():
+        print(f"Error: SVG source directory not found: {SRC_DIR}")
+        return 1
+
+    print("Validating PNG files")
+    print("--------------------")
+
+    has_errors = False
+
+    # Read CSV
+    csv_entries = {}
+    try:
+        with open(SRC_LIST, "r") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            for row in reader:
+                file_name = row.get("file", "").strip()
+                width = row.get("width", "").strip()
+                height = row.get("height", "").strip()
+                if file_name and width and height:
+                    csv_entries[file_name] = None
+    except Exception as e:
+        print(f"Error reading CSV: {e}")
+        return 1
+
+    for resolution in RESOLUTIONS:
+        print()
+        print(f"Checking resolution: {resolution}")
+        out_dir = BASE_DIR / resolution
+
+        if not out_dir.exists():
+            print(f"  Warning: Output directory not found: {out_dir}")
+            has_errors = True
+            continue
+
+        missing_count = 0
+        found_count = 0
+
+        for file_name in csv_entries:
+            png_path = out_dir / f"{file_name}.png"
+            if not png_path.exists():
+                print(f"  {RED}Missing PNG: {file_name}.png{NC}")
+                has_errors = True
+                missing_count += 1
+            else:
+                found_count += 1
+
+        print(f"  Found: {found_count}, Missing: {missing_count}")
+
+    print()
+    if not has_errors:
+        print(f"{GREEN}PNG validation passed: All PNG files exist{NC}")
+        return 0
+    else:
+        print(f"{RED}PNG validation failed: Some PNG files are missing{NC}")
+        return 1
+
+
+def validate_all() -> int:
+    """Run both SVG and PNG validations."""
+    print()
+    svg_result = validate_svg()
+    print()
+    png_result = validate_png()
+    print()
+    return svg_result or png_result
+
+
+def process_resolution(
+    resolution: str,
+    engine: str,
+    update_mode: bool,
+) -> int:
+    """Generate PNGs for a specific resolution."""
+    if not SRC_LIST.exists():
+        print(f"Error: CSV files list not found: {SRC_LIST}")
+        return 1
+    if not SRC_DIR.exists():
+        print(f"Error: SVG source directory not found: {SRC_DIR}")
+        return 1
+
+    scale = RESOLUTIONS.get(resolution)
+    if scale is None:
+        print(f"Error: Unsupported resolution '{resolution}'")
+        print(f"Supported resolutions: {', '.join(RESOLUTIONS.keys())}")
+        return 1
+
+    print(f"Generating icons for resolution: {resolution} (scale: {scale}x)")
+
+    out_dir = BASE_DIR / resolution
+    if not out_dir.exists():
+        print(f"Error: Output directory not found: {out_dir}")
+        return 1
+
+    mode_msg = (
+        "Converting SVG files to PNG using {} (update mode - only changed files)..."
+        if update_mode
+        else "Converting SVG files to PNG using {}..."
+    )
+    print(mode_msg.format(engine))
+
+    has_errors = False
+    processed_count = 0
+    skipped_count = 0
+
+    try:
+        with open(SRC_LIST, "r") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            for row in reader:
+                file_name = row.get("file", "").strip()
+                width_str = row.get("width", "").strip()
+                height_str = row.get("height", "").strip()
+                csv_date = row.get("modified", "").strip()
+
+                if not file_name:
+                    continue
+
+                if not width_str or not height_str:
+                    print(
+                        f"  {RED}Error: Skipping {file_name}.svg - "
+                        f"missing dimension(s) (width: '{width_str}', height: '{height_str}'){NC}"
+                    )
+                    has_errors = True
+                    continue
+
+                try:
+                    width = int(width_str)
+                    height = int(height_str)
+                except ValueError:
+                    print(
+                        f"  {RED}Error: Invalid dimensions for {file_name}: "
+                        f"'{width_str}x{height_str}'{NC}"
+                    )
+                    has_errors = True
+                    continue
+
+                svg_path = SRC_DIR / f"{file_name}.svg"
+                png_path = out_dir / f"{file_name}.png"
+                scaled_width = scale_dimension(width, scale)
+                scaled_height = scale_dimension(height, scale)
+
+                should_process = True
+
+                if update_mode:
+                    if not svg_path.exists():
+                        print(
+                            f"  {RED}Error: SVG file not found: {file_name}.svg{NC}"
+                        )
+                        has_errors = True
+                        continue
+
+                    svg_mtime = get_svg_mtime(svg_path)
+
+                    if not png_path.exists():
+                        print(f"  Adding new: {file_name}.svg (PNG missing for {resolution})")
+                        should_process = True
+                    elif not csv_date:
+                        print(
+                            f"  Adding new: {file_name}.svg (no previous date in CSV)"
+                        )
+                        should_process = True
+                    elif svg_mtime > csv_date:
+                        print(
+                            f"  Updating: {file_name}.svg "
+                            f"(SVG: {svg_mtime}, CSV: {csv_date})"
+                        )
+                        should_process = True
+                    else:
+                        png_mtime = datetime.fromtimestamp(
+                            png_path.stat().st_mtime
+                        ).strftime("%Y-%m-%d %H:%M:%S")
+                        if png_mtime < svg_mtime:
+                            print(
+                                f"  Updating: {file_name}.svg "
+                                f"(PNG older than SVG for {resolution})"
+                            )
+                            should_process = True
+                        else:
+                            skipped_count += 1
+                            should_process = False
+
+                if should_process:
+                    if run_conversion(engine, scaled_width, scaled_height, svg_path, png_path):
+                        processed_count += 1
+                    else:
+                        has_errors = True
+
+    except Exception as e:
+        print(f"Error reading CSV: {e}")
+        return 1
+
+    if update_mode:
+        print(f"  Processed: {processed_count}, Skipped (up-to-date): {skipped_count}")
+
+    if has_errors:
+        print()
+        print(
+            f"{RED}Warning: Some files were skipped due to missing dimensions{NC}"
+        )
+        print("Please run --validate png to see all entries with missing dimensions")
+
+    print(f"Done! Icons generated for {resolution}")
+    return 0
+
+
+def update_csv_dates(resolutions: List[str]) -> None:
+    """Update CSV modification dates for processed files."""
+    if not SRC_LIST.exists():
+        return
+
+    print()
+    print("Updating CSV modification dates...")
+
+    rows = []
+    try:
+        with open(SRC_LIST, "r") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            for row in reader:
+                file_name = row.get("file", "").strip()
+                if file_name:
+                    svg_path = SRC_DIR / f"{file_name}.svg"
+                    mtime = get_svg_mtime(svg_path)
+                    row["modified"] = mtime
+                rows.append(row)
+    except Exception as e:
+        print(f"Error reading CSV: {e}")
+        return
+
+    try:
+        with open(SRC_LIST, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"],
+                                     delimiter=";")
+            writer.writeheader()
+            writer.writerows(rows)
+        print("CSV modification dates updated.")
+    except Exception as e:
+        print(f"Error writing CSV: {e}")
+
+
+def show_help() -> None:
+    """Display usage help."""
+    help_text = """Converts source SVG files to PNG icons for different screen resolutions
+
+Usage: convert-gfx.py --validate [svg|png|all]
+       convert-gfx.py --make [320x240|480x272|800x480|all] [additional resolutions...] [--update] [--resvg]
+       convert-gfx.py --help
+
+Options:
+  --update          Only regenerate PNGs for SVGs newer than CSV date (only with --make)
+  --resvg           Use resvg engine instead of rsvg-convert (default, only with --make)
+
+Examples:
+  convert-gfx.py                                  Displays this help message
+  convert-gfx.py --validate svg                   Validates SVG source files
+  convert-gfx.py --validate png                   Validates PNG files
+  convert-gfx.py --validate all                   Validates both SVG and PNG files
+  convert-gfx.py --make 320x240                   Generates 320x240 PNGs
+  convert-gfx.py --make 320x240 480x272           Generates 320x240 and 480x272 PNGs
+  convert-gfx.py --make all                       Generates all resolutions PNGs
+  convert-gfx.py --make 320x240 --update          Updates only changed SVGs for 320x240
+  convert-gfx.py --make 320x240 480x272 --update  Updates only changed SVGs for 320x240 and 480x272
+  convert-gfx.py --make all --update              Updates only changed SVGs for all resolutions
+  convert-gfx.py --make 320x240 --resvg           Generates 320x240 PNGs (using resvg)
+  convert-gfx.py --make 320x240 --update --resvg  Updates only changed SVGs for 320x240 (using resvg)
+
+Requires: rsvg-convert (default) or resvg command line tool
+"""
+    print(help_text)
+
+
+def main() -> int:
+    """Main entry point."""
+    if len(sys.argv) == 1:
+        show_help()
+        return 0
+
+    # Parse arguments
+    args = sys.argv[1:]
+    cmd = args[0]
+
+    if cmd == "--help":
+        show_help()
+        return 0
+
+    if cmd == "--validate":
+        if len(args) < 2:
+            print("Error: --validate requires an argument (svg, png, or all)")
+            return 1
+        mode = args[1]
+        if mode == "svg":
+            return validate_svg()
+        elif mode == "png":
+            return validate_png()
+        elif mode == "all":
+            return validate_all()
+        else:
+            print("Error: --validate argument must be 'svg', 'png', or 'all'")
+            return 1
+
+    if cmd == "--make":
+        if len(args) < 2:
+            print("Error: --make requires at least one resolution argument")
+            return 1
+
+        resolutions = []
+        engine = "rsvg-convert"
+        update_mode = False
+        idx = 1
+
+        # Parse resolutions
+        while idx < len(args) and args[idx] not in ("--update", "--resvg"):
+            if args[idx] == "all":
+                resolutions = list(RESOLUTIONS.keys())
+            else:
+                resolutions.append(args[idx])
+            idx += 1
+
+        # Parse flags
+        while idx < len(args):
+            if args[idx] == "--update":
+                update_mode = True
+            elif args[idx] == "--resvg":
+                engine = "resvg"
+            else:
+                print(f"Error: Invalid parameter '{args[idx]}'")
+                return 1
+            idx += 1
+
+        if not resolutions:
+            print("Error: No resolutions specified")
+            return 1
+
+        # Check for conversion engine
+        engine_cmds = {
+            "resvg": {"Ubuntu/Debian": "sudo apt-get install resvg",
+                      "macOS": "brew install resvg",
+                      "Windows": "Download from https://github.com/RazrFalcon/resvg/releases"},
+            "rsvg-convert": {"Ubuntu/Debian": "sudo apt-get install librsvg2-bin",
+                            "macOS": "brew install librsvg",
+                            "Windows (MSYS2)": "pacman -S mingw-w64-x86_64-librsvg"},
+        }
+
+        if not check_command(engine, engine_cmds[engine]):
+            return 1
+
+        # Process each resolution
+        for resolution in resolutions:
+            if process_resolution(resolution, engine, update_mode) != 0:
+                return 1
+
+        # Update CSV dates if in update mode
+        if update_mode:
+            update_csv_dates(resolutions)
+
+        print("All done!")
+        return 0
+
+    print(f"Error: Unknown command '{cmd}'")
+    print("Use convert-gfx.py --help for usage information")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
