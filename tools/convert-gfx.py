@@ -36,8 +36,6 @@ RESOLUTIONS = {
     "800x480": 1.375,
 }
 
-BG_COLOR = "white"
-
 
 def get_png_dimensions(png_path: Path) -> Optional[Tuple[int, int]]:
     """Extract PNG dimensions using PIL."""
@@ -99,6 +97,31 @@ def format_duration(seconds: float) -> str:
         return f"{minutes}m {secs}s"
 
 
+def read_csv_entries() -> Dict[str, Tuple[str, str]]:
+    """Read CSV file and return dict of filename -> (width, height).
+    
+    Returns:
+        Dictionary mapping filename to (width, height) tuple
+    """
+    entries = {}
+    if not SRC_LIST.exists():
+        return entries
+    
+    try:
+        with open(SRC_LIST, "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                file_name = row.get("file", "").strip()
+                width = row.get("width", "").strip()
+                height = row.get("height", "").strip()
+                if file_name:
+                    entries[file_name] = (width, height)
+    except Exception as e:
+        console.print(f"[red]Error reading CSV: {e}[/red]")
+    
+    return entries
+
+
 def run_conversion(
     engine: str,
     width: int,
@@ -120,6 +143,7 @@ def run_conversion(
                  str(input_file), str(output_file)],
                 check=True,
                 capture_output=True,
+                text=True,
             )
         else:  # rsvg-convert
             subprocess.run(
@@ -127,10 +151,15 @@ def run_conversion(
                  "--output", str(output_file), str(input_file)],
                 check=True,
                 capture_output=True,
+                text=True,
             )
         return True
     except subprocess.CalledProcessError as e:
-        console.print(f"  [red]Error converting {input_file.name}: {e}[/red]")
+        error_msg = e.stderr.strip() if e.stderr else str(e)
+        console.print(f"  [red]Error converting {input_file.name}: {error_msg}[/red]")
+        return False
+    except Exception as e:
+        console.print(f"  [red]Unexpected error converting {input_file.name}: {e}[/red]")
         return False
 
 
@@ -156,7 +185,7 @@ def update_src_list_csv(verbose: bool = False) -> int:
     if SRC_LIST.exists():
         try:
             with open(SRC_LIST, "r") as f:
-                reader = csv.DictReader(f, delimiter=";")
+                reader = csv.DictReader(f)
                 for row in reader:
                     file_name = row.get("file", "").strip()
                     modified = row.get("modified", "").strip()
@@ -229,8 +258,7 @@ def update_src_list_csv(verbose: bool = False) -> int:
     # Write sorted CSV
     try:
         with open(SRC_LIST, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"],
-                                     delimiter=";")
+            writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"])
             writer.writeheader()
             writer.writerows(rows)
     except Exception as e:
@@ -263,31 +291,20 @@ def validate_svg(verbose: bool = False) -> int:
     # Part 0: Check CSV for missing dimensions
     print("Checking CSV for missing dimensions...")
     missing_dimensions = 0
-    csv_entries = {}
-
-    try:
-        with open(SRC_LIST, "r") as f:
-            reader = csv.DictReader(f, delimiter=";")
-            for row in reader:
-                file_name = row.get("file", "").strip()
-                width = row.get("width", "").strip()
-                height = row.get("height", "").strip()
-
-                if not file_name:
-                    continue
-
-                csv_entries[file_name] = (width, height)
-
-                if not width or not height:
-                    console.print(
-                        f"  [red]CSV entry missing dimensions: {file_name} "
-                        f"(width: '{width}', height: '{height}')[/red]"
-                    )
-                    has_errors = True
-                    missing_dimensions += 1
-    except Exception as e:
-        console.print(f"  [red]Error reading CSV: {e}[/red]")
+    csv_entries = read_csv_entries()
+    
+    if not csv_entries:
+        console.print("[red]Error: Could not read CSV or CSV is empty[/red]")
         return 1
+    
+    for file_name, (width, height) in csv_entries.items():
+        if not width or not height:
+            console.print(
+                f"  [red]CSV entry missing dimensions: {file_name} "
+                f"(width: '{width}', height: '{height}')[/red]"
+            )
+            has_errors = True
+            missing_dimensions += 1
 
     if missing_dimensions > 0:
         print(f"  Total entries with missing dimensions: {missing_dimensions}")
@@ -349,19 +366,12 @@ def validate_png(verbose: bool = False) -> int:
 
     has_errors = False
 
-    # Read CSV
-    csv_entries = {}
-    try:
-        with open(SRC_LIST, "r") as f:
-            reader = csv.DictReader(f, delimiter=";")
-            for row in reader:
-                file_name = row.get("file", "").strip()
-                width = row.get("width", "").strip()
-                height = row.get("height", "").strip()
-                if file_name and width and height:
-                    csv_entries[file_name] = None
-    except Exception as e:
-        print(f"Error reading CSV: {e}")
+    # Read CSV - only include entries with valid dimensions
+    csv_entries = {name: dims for name, dims in read_csv_entries().items() 
+                   if dims[0] and dims[1]}
+    
+    if not csv_entries:
+        console.print("[red]Error: No valid entries found in CSV[/red]")
         return 1
 
     for resolution in RESOLUTIONS:
@@ -417,32 +427,21 @@ def validate_all(verbose: bool = False) -> int:
     # Part 0: Check CSV for missing dimensions
     print("Checking CSV for missing dimensions...")
     missing_dimensions = 0
-    csv_entries = {}
-
-    try:
-        with open(SRC_LIST, "r") as f:
-            reader = csv.DictReader(f, delimiter=";")
-            for row in reader:
-                file_name = row.get("file", "").strip()
-                width = row.get("width", "").strip()
-                height = row.get("height", "").strip()
-
-                if not file_name:
-                    continue
-
-                csv_entries[file_name] = (width, height)
-
-                if not width or not height:
-                    console.print(
-                        f"  [red]CSV entry missing dimensions: {file_name} "
-                        f"(width: '{width}', height: '{height}')[/red]"
-                    )
-                    has_errors = True
-                    missing_dimensions += 1
-    except Exception as e:
-        console.print(f"  [red]Error reading CSV: {e}[/red]")
+    csv_entries = read_csv_entries()
+    
+    if not csv_entries:
+        console.print("[red]Error: Could not read CSV or CSV is empty[/red]")
         return 1
-
+    
+    for file_name, (width, height) in csv_entries.items():
+        if not width or not height:
+            console.print(
+                f"  [red]CSV entry missing dimensions: {file_name} "
+                f"(width: '{width}', height: '{height}')[/red]"
+            )
+            has_errors = True
+            missing_dimensions += 1
+    
     if missing_dimensions > 0:
         print(f"  Total entries with missing dimensions: {missing_dimensions}")
     else:
@@ -653,7 +652,7 @@ def process_resolution(
     csv_rows = []
     try:
         with open(SRC_LIST, "r") as f:
-            reader = csv.DictReader(f, delimiter=";")
+            reader = csv.DictReader(f)
             for row in reader:
                 file_name = row.get("file", "").strip()
                 width_str = row.get("width", "").strip()
@@ -803,7 +802,7 @@ def update_csv_dates(resolutions: List[str], verbose: bool = False) -> None:
     rows = []
     try:
         with open(SRC_LIST, "r") as f:
-            reader = csv.DictReader(f, delimiter=";")
+            reader = csv.DictReader(f)
             for row in reader:
                 file_name = row.get("file", "").strip()
                 if file_name:
@@ -829,8 +828,7 @@ def update_csv_dates(resolutions: List[str], verbose: bool = False) -> None:
 
         try:
             with open(SRC_LIST, "w", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"],
-                                         delimiter=";")
+                writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"])
                 writer.writeheader()
                 for row in rows:
                     writer.writerow(row)
