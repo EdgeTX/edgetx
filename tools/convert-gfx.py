@@ -619,27 +619,54 @@ def find_orphaned_pngs() -> Dict[str, List[str]]:
     return orphaned
 
 
-def cleanup_orphaned_pngs(dry_run: bool = False, verbose: bool = False) -> int:
-    """Remove PNG files that don't have corresponding SVG sources.
+def find_unreferenced_svgs() -> List[str]:
+    """Find SVG files that aren't referenced in the CSV.
+    
+    Returns:
+        List of unreferenced SVG filenames (without .svg extension)
+    """
+    # Get all SVG files from source directory
+    svg_files = {f.stem for f in SRC_DIR.glob("**/*.svg")}
+    
+    # Get all files referenced in CSV
+    csv_entries = read_csv_entries()
+    csv_files = set(csv_entries.keys())
+    
+    # Return SVGs not in CSV
+    unreferenced = svg_files - csv_files
+    return sorted(unreferenced)
+
+
+def cleanup_orphaned_pngs(dry_run: bool = False, verbose: bool = False, include_svg: bool = False) -> int:
+    """Remove orphaned PNG files and optionally unreferenced SVG files.
     
     Args:
         dry_run: If True, only show what would be deleted without actually deleting
         verbose: Show detailed output
+        include_svg: If True, also remove SVG files not referenced in CSV
     """
     start_time = time.time()
-    orphaned = find_orphaned_pngs()
+    orphaned_pngs = find_orphaned_pngs()
+    unreferenced_svgs = find_unreferenced_svgs() if include_svg else []
     
-    total_orphaned = sum(len(files) for files in orphaned.values())
+    total_orphaned_pngs = sum(len(files) for files in orphaned_pngs.values())
+    total_unreferenced_svgs = len(unreferenced_svgs)
+    total_files = total_orphaned_pngs + total_unreferenced_svgs
     
-    if total_orphaned == 0:
-        console.print("[green]No orphaned PNG files found[/green]")
+    if total_files == 0:
+        console.print("[green]No orphaned files found[/green]")
         return 0
     
     mode_str = "[DRY RUN] " if dry_run else ""
-    console.print(f"\n{mode_str}Found {total_orphaned} orphaned PNG file(s):")
+    
+    # Show PNG orphans
+    if total_orphaned_pngs > 0:
+        console.print(f"\n{mode_str}Found {total_orphaned_pngs} orphaned PNG file(s):")
     
     deleted_count = 0
-    for resolution, files in orphaned.items():
+    
+    # Delete orphaned PNGs
+    for resolution, files in orphaned_pngs.items():
         if not files:
             continue
             
@@ -658,6 +685,25 @@ def cleanup_orphaned_pngs(dry_run: bool = False, verbose: bool = False) -> int:
                     deleted_count += 1
                 except Exception as e:
                     console.print(f"  [red]Error deleting {filename}.png: {e}[/red]")
+            else:
+                deleted_count += 1
+    
+    # Delete unreferenced SVGs
+    if include_svg and total_unreferenced_svgs > 0:
+        console.print(f"\n{mode_str}Found {total_unreferenced_svgs} unreferenced SVG file(s):")
+        
+        for filename in unreferenced_svgs:
+            svg_path = SRC_DIR / f"{filename}.svg"
+            if verbose or dry_run:
+                action = "Would delete" if dry_run else "Deleting"
+                console.print(f"  {action}: {filename}.svg")
+            
+            if not dry_run:
+                try:
+                    svg_path.unlink()
+                    deleted_count += 1
+                except Exception as e:
+                    console.print(f"  [red]Error deleting {filename}.svg: {e}[/red]")
             else:
                 deleted_count += 1
     
@@ -985,12 +1031,17 @@ def create_parser() -> argparse.ArgumentParser:
     cleanup_parser = subparsers.add_parser(
         'cleanup',
         help='Remove orphaned PNG files',
-        description='Remove PNG files that don\'t have corresponding SVG sources'
+        description='Remove PNG files that don\'t have corresponding SVG sources. Optionally remove unreferenced SVG files.'
     )
     cleanup_parser.add_argument(
         '--dry-run',
         action='store_true',
         help='Show what would be deleted without actually deleting files'
+    )
+    cleanup_parser.add_argument(
+        '--include-svg',
+        action='store_true',
+        help='Also remove SVG files not referenced in CSV (CSV is source of truth)'
     )
     cleanup_parser.add_argument(
         '-v', '--verbose',
@@ -1037,7 +1088,7 @@ def main() -> int:
         return update_src_list_csv(args.verbose)
     
     elif args.command == 'cleanup':
-        return cleanup_orphaned_pngs(args.dry_run, args.verbose)
+        return cleanup_orphaned_pngs(args.dry_run, args.verbose, args.include_svg)
     
     elif args.command == 'make':
         # Expand "all" to list of resolutions
