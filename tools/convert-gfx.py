@@ -11,13 +11,43 @@ import shutil
 import subprocess
 import time
 import argparse
+import importlib.util
 from pathlib import Path
 from datetime import datetime
-from typing import Tuple, Optional, List, Dict, Set
-from PIL import Image
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TaskProgressColumn
-from rich.logging import RichHandler
-from rich.console import Console
+from typing import Tuple, Optional, List, Dict
+
+
+def check_dependencies():
+    """Check if required Python packages are installed."""
+    missing = []
+    
+    if importlib.util.find_spec('PIL') is None:
+        missing.append('pillow')
+    
+    if importlib.util.find_spec('rich') is None:
+        missing.append('rich')
+    
+    if missing:
+        print("Error: Missing required packages:", file=sys.stderr)
+        for pkg in missing:
+            print(f"  - {pkg}", file=sys.stderr)
+        print(file=sys.stderr)
+        
+        if shutil.which('uv'):
+            print(f"Install with: uv pip install {' '.join(missing)}", file=sys.stderr)
+        else:
+            print(f"Install with: pip install {' '.join(missing)}", file=sys.stderr)
+        
+        sys.exit(1)
+
+
+# Check dependencies before importing external packages
+check_dependencies()
+
+from PIL import Image  # noqa: E402
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TaskProgressColumn  # noqa: E402
+from rich.logging import RichHandler  # noqa: E402
+from rich.console import Console  # noqa: E402
 
 
 # Set up logging and console
