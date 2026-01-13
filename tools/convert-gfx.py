@@ -10,6 +10,7 @@ import logging
 import shutil
 import subprocess
 import time
+import argparse
 from pathlib import Path
 from datetime import datetime
 from typing import Tuple, Optional, List, Dict, Set
@@ -839,164 +840,187 @@ def update_csv_dates(resolutions: List[str], verbose: bool = False) -> None:
             print(f"Error writing CSV: {e}")
 
 
-def show_help() -> None:
-    """Display usage help."""
-    help_text = """Converts source SVG files to PNG icons for different screen resolutions
-
-Usage: convert-gfx.py --validate [svg|png|all]
-       convert-gfx.py --make [320x240|480x272|800x480|all] [additional resolutions...] [--update] [--resvg] [--dry-run]
-       convert-gfx.py --update-list
-       convert-gfx.py --cleanup [--dry-run]
-       convert-gfx.py --help
-
-Options:
-  --update          Only regenerate PNGs for SVGs newer than CSV date (only with --make)
-  --resvg           Use resvg engine instead of rsvg-convert (default, only with --make)
-  --dry-run         Show what would be done without making changes (with --make or --cleanup)
-  --update-list     Regenerate convert-gfx-list.csv (file;width;height;modified) from existing PNGs/SVG dates
-  --cleanup         Remove PNG files that don't have corresponding SVG sources
-  --verbose, -v     Show detailed per-file logs while processing
-
-Examples:
-  convert-gfx.py                                  Displays this help message
-  convert-gfx.py --validate svg                   Validates SVG source files
-  convert-gfx.py --validate svg --verbose         Validates SVG source files with detailed output
-  convert-gfx.py --validate png                   Validates PNG files
-  convert-gfx.py --validate all                   Validates both SVG and PNG files
-  convert-gfx.py --make 320x240                   Generates 320x240 PNGs
-  convert-gfx.py --make 320x240 480x272           Generates 320x240 and 480x272 PNGs
-  convert-gfx.py --make all                       Generates all resolutions PNGs
-  convert-gfx.py --make 320x240 --update          Updates only changed SVGs for 320x240
-  convert-gfx.py --make 320x240 --update -v       Updates only changed SVGs with detailed output
-  convert-gfx.py --make 320x240 --dry-run         Shows what would be generated without creating files
-  convert-gfx.py --make 320x240 480x272 --update  Updates only changed SVGs for 320x240 and 480x272
-  convert-gfx.py --make all --update              Updates only changed SVGs for all resolutions
-  convert-gfx.py --make 320x240 --resvg           Generates 320x240 PNGs (using resvg)
-  convert-gfx.py --make 320x240 --update --resvg  Updates only changed SVGs for 320x240 (using resvg)
-  convert-gfx.py --update-list                    Regenerates convert-gfx-list.csv with base dimensions and dates
-  convert-gfx.py --update-list --verbose          Regenerates CSV with detailed output
-  convert-gfx.py --cleanup                        Removes orphaned PNG files
-  convert-gfx.py --cleanup --dry-run              Shows what would be deleted without deleting
-  convert-gfx.py --cleanup --verbose              Removes orphaned PNGs with detailed output
-
-Requires: rsvg-convert (default) or resvg command line tool
-"""
-    print(help_text)
+def create_parser() -> argparse.ArgumentParser:
+    """Create and configure the argument parser."""
+    parser = argparse.ArgumentParser(
+        description="Convert SVG files to PNG icons for different screen resolutions",
+        epilog="Requires: rsvg-convert (default) or resvg command line tool",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    
+    # Global options
+    parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show detailed per-file logs while processing'
+    )
+    
+    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    
+    # --validate command
+    validate_parser = subparsers.add_parser(
+        'validate',
+        help='Validate SVG and PNG files',
+        description='Validate SVG source files and generated PNG files'
+    )
+    validate_parser.add_argument(
+        'mode',
+        choices=['svg', 'png', 'all'],
+        help='What to validate: svg (source files), png (generated files), or all (both)'
+    )
+    validate_parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show detailed per-file logs while processing'
+    )
+    
+    # --make command
+    make_parser = subparsers.add_parser(
+        'make',
+        help='Generate PNG files from SVG sources',
+        description='Convert SVG files to PNG icons for specified resolutions'
+    )
+    make_parser.add_argument(
+        'resolutions',
+        nargs='+',
+        metavar='RESOLUTION',
+        help='Resolutions to generate (320x240, 480x272, 800x480, or "all")'
+    )
+    make_parser.add_argument(
+        '--update',
+        action='store_true',
+        help='Only regenerate PNGs for SVGs newer than CSV date (incremental build)'
+    )
+    make_parser.add_argument(
+        '--resvg',
+        action='store_true',
+        help='Use resvg engine instead of rsvg-convert (default)'
+    )
+    make_parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Show what would be done without actually creating/modifying files'
+    )
+    make_parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show detailed per-file logs while processing'
+    )
+    
+    # --update-list command
+    update_list_parser = subparsers.add_parser(
+        'update-list',
+        help='Regenerate convert-gfx-list.csv from existing files',
+        description='Regenerate convert-gfx-list.csv with dimensions and modification dates from existing PNGs and SVGs'
+    )
+    update_list_parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show detailed per-file logs while processing'
+    )
+    
+    # --cleanup command
+    cleanup_parser = subparsers.add_parser(
+        'cleanup',
+        help='Remove orphaned PNG files',
+        description='Remove PNG files that don\'t have corresponding SVG sources'
+    )
+    cleanup_parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Show what would be deleted without actually deleting files'
+    )
+    cleanup_parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show detailed per-file logs while processing'
+    )
+    
+    return parser
 
 
 def main() -> int:
     """Main entry point."""
+    parser = create_parser()
+    
+    # Handle no arguments - show help
     if len(sys.argv) == 1:
-        show_help()
+        parser.print_help()
         return 0
-
-    # Parse arguments
-    args = sys.argv[1:]
-    cmd = args[0]
-
-    # Check for verbose flag globally
-    verbose = "--verbose" in args or "-v" in args
-    dry_run = "--dry-run" in args
-
+    
+    args = parser.parse_args()
+    
     # Set up logging based on verbose flag
-    if verbose:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(message)s",
-            handlers=[RichHandler(rich_tracebacks=True)]
-        )
+    if args.verbose:
+        # Configure rich handler for our logger only
+        handler = RichHandler(rich_tracebacks=True)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+        # Suppress debug output from other libraries (PIL, etc.)
+        logging.getLogger('PIL').setLevel(logging.WARNING)
     else:
         # Suppress logging when not verbose
         logger.setLevel(logging.CRITICAL)
-
-    if cmd == "--help":
-        show_help()
-        return 0
-
-    if cmd == "--validate":
-        if len(args) < 2:
-            print("Error: --validate requires an argument (svg, png, or all)")
-            return 1
-        mode = args[1]
-        if mode == "svg":
-            return validate_svg(verbose)
-        elif mode == "png":
-            return validate_png(verbose)
-        elif mode == "all":
-            return validate_all(verbose)
-        else:
-            print("Error: --validate argument must be 'svg', 'png', or 'all'")
-            return 1
-
-    if cmd == "--update-list":
-        return update_src_list_csv(verbose)
-
-    if cmd == "--cleanup":
-        return cleanup_orphaned_pngs(dry_run, verbose)
-
-    if cmd == "--make":
-        if len(args) < 2:
-            print("Error: --make requires at least one resolution argument")
-            return 1
-
+    
+    # Handle commands
+    if args.command == 'validate':
+        if args.mode == 'svg':
+            return validate_svg(args.verbose)
+        elif args.mode == 'png':
+            return validate_png(args.verbose)
+        elif args.mode == 'all':
+            return validate_all(args.verbose)
+    
+    elif args.command == 'update-list':
+        return update_src_list_csv(args.verbose)
+    
+    elif args.command == 'cleanup':
+        return cleanup_orphaned_pngs(args.dry_run, args.verbose)
+    
+    elif args.command == 'make':
+        # Expand "all" to list of resolutions
         resolutions = []
-        engine = "rsvg-convert"
-        update_mode = False
-        idx = 1
-
-        # Parse resolutions
-        while idx < len(args) and args[idx] not in ("--update", "--resvg", "--verbose", "-v", "--dry-run"):
-            if args[idx] == "all":
-                resolutions = list(RESOLUTIONS.keys())
+        for res in args.resolutions:
+            if res == 'all':
+                resolutions.extend(RESOLUTIONS.keys())
             else:
-                resolutions.append(args[idx])
-            idx += 1
-
-        # Parse flags
-        while idx < len(args):
-            if args[idx] == "--update":
-                update_mode = True
-            elif args[idx] == "--resvg":
-                engine = "resvg"
-            elif args[idx] in ("--verbose", "-v", "--dry-run"):
-                pass  # Already handled above
-            else:
-                print(f"Error: Invalid parameter '{args[idx]}'")
-                return 1
-            idx += 1
-
-        if not resolutions:
-            print("Error: No resolutions specified")
-            return 1
-
+                resolutions.append(res)
+        
+        # Determine engine
+        engine = "resvg" if args.resvg else "rsvg-convert"
+        
         # Check for conversion engine
         engine_cmds = {
-            "resvg": {"Ubuntu/Debian": "sudo apt-get install resvg",
-                      "macOS": "brew install resvg",
-                      "Windows": "Download from https://github.com/RazrFalcon/resvg/releases"},
-            "rsvg-convert": {"Ubuntu/Debian": "sudo apt-get install librsvg2-bin",
-                            "macOS": "brew install librsvg",
-                            "Windows (MSYS2)": "pacman -S mingw-w64-x86_64-librsvg"},
+            "resvg": {
+                "Ubuntu/Debian": "sudo apt-get install resvg",
+                "macOS": "brew install resvg",
+                "Windows": "Download from https://github.com/RazrFalcon/resvg/releases"
+            },
+            "rsvg-convert": {
+                "Ubuntu/Debian": "sudo apt-get install librsvg2-bin",
+                "macOS": "brew install librsvg",
+                "Windows (MSYS2)": "pacman -S mingw-w64-x86_64-librsvg"
+            },
         }
-
+        
         if not check_command(engine, engine_cmds[engine]):
             return 1
-
+        
         # Process each resolution
         for resolution in resolutions:
-            if process_resolution(resolution, engine, update_mode, verbose, dry_run) != 0:
+            if process_resolution(resolution, engine, args.update, args.verbose, args.dry_run) != 0:
                 return 1
-
+        
         # Update CSV dates if in update mode
-        if update_mode:
-            update_csv_dates(resolutions, verbose)
-
+        if args.update:
+            update_csv_dates(resolutions, args.verbose)
+        
         print("All done!")
         return 0
-
-    print(f"Error: Unknown command '{cmd}'")
-    print("Use convert-gfx.py --help for usage information")
-    return 1
+    
+    else:
+        parser.print_help()
+        return 1
 
 
 if __name__ == "__main__":
