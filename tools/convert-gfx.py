@@ -52,7 +52,7 @@ from rich.console import Console  # noqa: E402
 
 # Set up logging and console
 logger = logging.getLogger("convert-gfx")
-console = Console()
+console = Console(highlight=False)
 
 # Configuration
 SCRIPT_DIR = Path(__file__).parent.resolve()
@@ -428,12 +428,28 @@ def validate_png(verbose: bool = False) -> int:
 
         print(f"  Found: {found_count}, Missing: {missing_count}")
 
+    # Check for orphaned PNGs across all resolutions
+    print()
+    print("Checking for orphaned PNG files...")
+    orphaned = find_orphaned_pngs()
+    total_orphaned = sum(len(files) for files in orphaned.values())
+    
+    if total_orphaned > 0:
+        for resolution, files in orphaned.items():
+            if files:
+                console.print(f"[red]{resolution}: {len(files)} orphaned PNG file(s)[/red]")
+                for filename in sorted(files):
+                    console.print(f"  [red]Orphaned PNG: {filename}.png[/red]")
+                has_errors = True
+    else:
+        console.print("  [green]No orphaned PNG files found[/green]")
+
     print()
     if not has_errors:
-        console.print("[green]PNG validation passed: All PNG files exist[/green]")
+        console.print("[green]PNG validation passed: All PNG files valid[/green]")
         return 0
     else:
-        console.print("[red]PNG validation failed: Some PNG files are missing[/red]")
+        console.print("[red]PNG validation failed: See errors above[/red]")
         return 1
 
 
@@ -538,6 +554,22 @@ def validate_all(verbose: bool = False) -> int:
 
             progress.update(task, advance=1)
 
+    # Part 2: Check for orphaned PNGs (on disk but not in SVG/CSV)
+    print()
+    print("Checking for orphaned PNG files...")
+    orphaned = find_orphaned_pngs()
+    total_orphaned = sum(len(files) for files in orphaned.values())
+    
+    if total_orphaned > 0:
+        for resolution, files in orphaned.items():
+            if files:
+                console.print(f"[red]{resolution}: {len(files)} orphaned PNG file(s)[/red]")
+                for filename in sorted(files):
+                    console.print(f"  [red]Orphaned PNG: {filename}.png[/red]")
+                has_errors = True
+    else:
+        console.print("  [green]No orphaned PNG files found[/green]")
+
     elapsed = time.time() - start_time
     print()
     print(f"SVG validation - Found: {svg_found}, Missing: {svg_missing}, Unreferenced: {svg_unreferenced}")
@@ -547,13 +579,15 @@ def validate_all(verbose: bool = False) -> int:
         total = found + missing
         if total > 0:
             print(f"PNG validation - {resolution}: Found: {found}/{total}, Missing: {missing}")
+    if total_orphaned > 0:
+        print(f"Orphaned PNG files - Total: {total_orphaned}")
 
     print()
     if not has_errors and svg_unreferenced == 0:
         console.print(f"[green]All validations passed[/green] [cyan]({format_duration(elapsed)})[/cyan]")
         return 0
-    elif svg_unreferenced > 0 and not has_errors:
-        console.print(f"[red]Validation complete: {svg_unreferenced} unreferenced SVG file(s) found[/red] [cyan]({format_duration(elapsed)})[/cyan]")
+    elif (svg_unreferenced > 0 or total_orphaned > 0) and not has_errors:
+        console.print(f"[red]Validation complete: {svg_unreferenced} unreferenced SVG file(s) and {total_orphaned} orphaned PNG file(s) found[/red] [cyan]({format_duration(elapsed)})[/cyan]")
         return 1
     else:
         console.print(f"[red]Validation failed: See errors above[/red] [cyan]({format_duration(elapsed)})[/cyan]")
@@ -912,7 +946,7 @@ def create_parser() -> argparse.ArgumentParser:
         'resolutions',
         nargs='+',
         metavar='RESOLUTION',
-        help='Resolutions to generate (320x240, 480x272, 800x480, or "all")'
+        help=f'Resolutions to generate ({", ".join(RESOLUTIONS.keys())}, or "all")'
     )
     make_parser.add_argument(
         '--update',
