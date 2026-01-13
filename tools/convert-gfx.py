@@ -54,6 +54,13 @@ def get_svg_mtime(svg_path: Path) -> str:
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
+def round_divide(value: int, scale: float) -> int:
+    """Round division: value / scale rounded to nearest integer."""
+    if scale == 0:
+        return 0
+    return round(value / scale)
+
+
 def check_command(cmd: str, instructions: Dict[str, str]) -> bool:
     """Check if a command is available in PATH."""
     if shutil.which(cmd) is None:
@@ -102,10 +109,95 @@ def run_conversion(
         return False
 
 
-def generate_src_list_csv() -> None:
-    """NOT IMPLEMENTED: placeholder for future --update-list."""
-    print("Error: --update-list not yet available in Python version")
-    sys.exit(1)
+def update_src_list_csv() -> int:
+    """Regenerate convert-gfx-list.csv from existing PNGs and SVGs.
+    
+    Preserves existing modified timestamps for unchanged entries.
+    Derives dimensions from existing PNGs (prefers 480x272 base resolution).
+    Maintains alphabetical sort order.
+    """
+    if not SRC_DIR.exists():
+        print(f"Error: SVG source directory not found: {SRC_DIR}")
+        return 1
+
+    print(f"Scanning SVG files in {SRC_DIR}...")
+    print(f"CSV output: {SRC_LIST}")
+    print("-" * 45)
+
+    # Load existing CSV to preserve modified dates
+    existing_dates: Dict[str, str] = {}
+    if SRC_LIST.exists():
+        try:
+            with open(SRC_LIST, "r") as f:
+                reader = csv.DictReader(f, delimiter=";")
+                for row in reader:
+                    file_name = row.get("file", "").strip()
+                    modified = row.get("modified", "").strip()
+                    if file_name and modified:
+                        existing_dates[file_name] = modified
+        except Exception as e:
+            print(f"Warning: Could not read existing CSV: {e}")
+
+    # Scan all SVGs
+    rows = []
+    for svg_path in sorted(SRC_DIR.glob("**/*.svg")):
+        rel_path = svg_path.relative_to(SRC_DIR)
+        file_name = str(rel_path.with_suffix(""))
+        png_name = f"{file_name}.png"
+
+        # Try to get dimensions from existing PNGs (prefer 480x272 base resolution)
+        width = ""
+        height = ""
+
+        png_480 = BASE_DIR / "480x272" / png_name
+        png_320 = BASE_DIR / "320x240" / png_name
+        png_800 = BASE_DIR / "800x480" / png_name
+
+        dim_480 = get_png_dimensions(png_480)
+        if dim_480:
+            width, height = dim_480
+        else:
+            dim_320 = get_png_dimensions(png_320)
+            if dim_320:
+                w, h = dim_320
+                width = round_divide(w, 0.8)
+                height = round_divide(h, 0.8)
+            else:
+                dim_800 = get_png_dimensions(png_800)
+                if dim_800:
+                    w, h = dim_800
+                    width = round_divide(w, 1.375)
+                    height = round_divide(h, 1.375)
+
+        # Preserve existing modified date, or use SVG mtime for new entries
+        if file_name in existing_dates:
+            modified = existing_dates[file_name]
+        else:
+            modified = get_svg_mtime(svg_path)
+
+        rows.append({
+            "file": file_name,
+            "width": str(width) if width else "",
+            "height": str(height) if height else "",
+            "modified": modified,
+        })
+
+    # Write sorted CSV
+    try:
+        with open(SRC_LIST, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"],
+                                     delimiter=";")
+            writer.writeheader()
+            writer.writerows(rows)
+    except Exception as e:
+        print(f"Error writing CSV: {e}")
+        return 1
+
+    total_svg = len(rows)
+    print("-" * 45)
+    print(f"Total SVG files processed: {total_svg}")
+    print(f"Results saved to: {SRC_LIST}")
+    return 0
 
 
 def validate_svg() -> int:
@@ -447,11 +539,13 @@ def show_help() -> None:
 
 Usage: convert-gfx.py --validate [svg|png|all]
        convert-gfx.py --make [320x240|480x272|800x480|all] [additional resolutions...] [--update] [--resvg]
+       convert-gfx.py --update-list
        convert-gfx.py --help
 
 Options:
   --update          Only regenerate PNGs for SVGs newer than CSV date (only with --make)
   --resvg           Use resvg engine instead of rsvg-convert (default, only with --make)
+  --update-list     Regenerate convert-gfx-list.csv (file;width;height;modified) from existing PNGs/SVG dates
 
 Examples:
   convert-gfx.py                                  Displays this help message
@@ -466,6 +560,7 @@ Examples:
   convert-gfx.py --make all --update              Updates only changed SVGs for all resolutions
   convert-gfx.py --make 320x240 --resvg           Generates 320x240 PNGs (using resvg)
   convert-gfx.py --make 320x240 --update --resvg  Updates only changed SVGs for 320x240 (using resvg)
+  convert-gfx.py --update-list                    Regenerates convert-gfx-list.csv with base dimensions and dates
 
 Requires: rsvg-convert (default) or resvg command line tool
 """
@@ -500,6 +595,9 @@ def main() -> int:
         else:
             print("Error: --validate argument must be 'svg', 'png', or 'all'")
             return 1
+
+    if cmd == "--update-list":
+        return update_src_list_csv()
 
     if cmd == "--make":
         if len(args) < 2:
