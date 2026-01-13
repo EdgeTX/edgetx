@@ -6,13 +6,19 @@ Manages conversion, validation, and incremental builds with CSV tracking.
 
 import sys
 import csv
+import logging
 import shutil
 import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Tuple, Optional, List, Dict, Set
 from PIL import Image
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TaskProgressColumn
+from rich.logging import RichHandler
 
+
+# Set up logging
+logger = logging.getLogger("convert-gfx")
 
 # Color codes for output
 RED = "\033[0;31m"
@@ -109,7 +115,7 @@ def run_conversion(
         return False
 
 
-def update_src_list_csv() -> int:
+def update_src_list_csv(verbose: bool = False) -> int:
     """Regenerate convert-gfx-list.csv from existing PNGs and SVGs.
     
     Preserves existing modified timestamps for unchanged entries.
@@ -122,7 +128,7 @@ def update_src_list_csv() -> int:
 
     print(f"Scanning SVG files in {SRC_DIR}...")
     print(f"CSV output: {SRC_LIST}")
-    print("-" * 45)
+    print()
 
     # Load existing CSV to preserve modified dates
     existing_dates: Dict[str, str] = {}
@@ -138,49 +144,66 @@ def update_src_list_csv() -> int:
         except Exception as e:
             print(f"Warning: Could not read existing CSV: {e}")
 
-    # Scan all SVGs
+    # Collect SVG files first
+    svg_paths = sorted(SRC_DIR.glob("**/*.svg"))
+
+    # Scan all SVGs with progress bar
     rows = []
-    for svg_path in sorted(SRC_DIR.glob("**/*.svg")):
-        rel_path = svg_path.relative_to(SRC_DIR)
-        file_name = str(rel_path.with_suffix(""))
-        png_name = f"{file_name}.png"
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        transient=False,
+    ) as progress:
+        task = progress.add_task(
+            "Scanning SVGs...",
+            total=len(svg_paths),
+        )
 
-        # Try to get dimensions from existing PNGs (prefer 480x272 base resolution)
-        width = ""
-        height = ""
+        for svg_path in svg_paths:
+            rel_path = svg_path.relative_to(SRC_DIR)
+            file_name = str(rel_path.with_suffix(""))
+            png_name = f"{file_name}.png"
 
-        png_480 = BASE_DIR / "480x272" / png_name
-        png_320 = BASE_DIR / "320x240" / png_name
-        png_800 = BASE_DIR / "800x480" / png_name
+            # Try to get dimensions from existing PNGs (prefer 480x272 base resolution)
+            width = ""
+            height = ""
 
-        dim_480 = get_png_dimensions(png_480)
-        if dim_480:
-            width, height = dim_480
-        else:
-            dim_320 = get_png_dimensions(png_320)
-            if dim_320:
-                w, h = dim_320
-                width = round_divide(w, 0.8)
-                height = round_divide(h, 0.8)
+            png_480 = BASE_DIR / "480x272" / png_name
+            png_320 = BASE_DIR / "320x240" / png_name
+            png_800 = BASE_DIR / "800x480" / png_name
+
+            dim_480 = get_png_dimensions(png_480)
+            if dim_480:
+                width, height = dim_480
             else:
-                dim_800 = get_png_dimensions(png_800)
-                if dim_800:
-                    w, h = dim_800
-                    width = round_divide(w, 1.375)
-                    height = round_divide(h, 1.375)
+                dim_320 = get_png_dimensions(png_320)
+                if dim_320:
+                    w, h = dim_320
+                    width = round_divide(w, 0.8)
+                    height = round_divide(h, 0.8)
+                else:
+                    dim_800 = get_png_dimensions(png_800)
+                    if dim_800:
+                        w, h = dim_800
+                        width = round_divide(w, 1.375)
+                        height = round_divide(h, 1.375)
 
-        # Preserve existing modified date, or use SVG mtime for new entries
-        if file_name in existing_dates:
-            modified = existing_dates[file_name]
-        else:
-            modified = get_svg_mtime(svg_path)
+            # Preserve existing modified date, or use SVG mtime for new entries
+            if file_name in existing_dates:
+                modified = existing_dates[file_name]
+            else:
+                modified = get_svg_mtime(svg_path)
 
-        rows.append({
-            "file": file_name,
-            "width": str(width) if width else "",
-            "height": str(height) if height else "",
-            "modified": modified,
-        })
+            rows.append({
+                "file": file_name,
+                "width": str(width) if width else "",
+                "height": str(height) if height else "",
+                "modified": modified,
+            })
+
+            progress.update(task, advance=1)
 
     # Write sorted CSV
     try:
@@ -194,12 +217,13 @@ def update_src_list_csv() -> int:
         return 1
 
     total_svg = len(rows)
+    print()
     print(f"Total SVG files processed: {total_svg}")
     print(f"Results saved to: {SRC_LIST}")
     return 0
 
 
-def validate_svg() -> int:
+def validate_svg(verbose: bool = False) -> int:
     """Validate that SVG files match CSV entries."""
     if not SRC_LIST.exists():
         print(f"Error: CSV files list not found: {SRC_LIST}")
@@ -289,7 +313,7 @@ def validate_svg() -> int:
         return 1
 
 
-def validate_png() -> int:
+def validate_png(verbose: bool = False) -> int:
     """Validate that PNG files exist for all CSV entries."""
     if not SRC_LIST.exists():
         print(f"Error: CSV files list not found: {SRC_LIST}")
@@ -351,7 +375,7 @@ def validate_png() -> int:
         return 1
 
 
-def validate_all() -> int:
+def validate_all(verbose: bool = False) -> int:
     """Validate SVG and PNG files with interleaved per-file results."""
     if not SRC_LIST.exists():
         print(f"Error: CSV files list not found: {SRC_LIST}")
@@ -413,39 +437,53 @@ def validate_all() -> int:
     png_missing_by_res = {res: 0 for res in RESOLUTIONS}
     png_found_by_res = {res: 0 for res in RESOLUTIONS}
 
-    for file_name in all_files:
-        # Check SVG
-        svg_path = SRC_DIR / f"{file_name}.svg"
-        in_csv = file_name in csv_entries
-        svg_exists = svg_path.exists()
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        transient=False,
+    ) as progress:
+        task = progress.add_task(
+            "Validating files...",
+            total=len(all_files),
+        )
 
-        if not svg_exists and in_csv:
-            print(f"  {RED}SVG missing: {file_name}.svg (in CSV but not on disk){NC}")
-            has_errors = True
-            svg_missing += 1
-        elif svg_exists and not in_csv:
-            print(f"  {RED}SVG unreferenced: {file_name}.svg (on disk but not in CSV){NC}")
-            svg_unreferenced += 1
-        elif svg_exists and in_csv:
-            svg_found += 1
+        for file_name in all_files:
+            # Check SVG
+            svg_path = SRC_DIR / f"{file_name}.svg"
+            in_csv = file_name in csv_entries
+            svg_exists = svg_path.exists()
 
-        # Check PNG for each resolution (only if in CSV with dimensions)
-        if in_csv:
-            width, height = csv_entries[file_name]
-            if width and height:
-                all_missing = True
-                for resolution in RESOLUTIONS:
-                    out_dir = BASE_DIR / resolution
-                    png_path = out_dir / f"{file_name}.png"
-                    if png_path.exists():
-                        all_missing = False
-                        png_found_by_res[resolution] += 1
-                    else:
-                        png_missing_by_res[resolution] += 1
+            if not svg_exists and in_csv:
+                progress.print(f"  {RED}SVG missing: {file_name}.svg (in CSV but not on disk){NC}")
+                has_errors = True
+                svg_missing += 1
+            elif svg_exists and not in_csv:
+                progress.print(f"  {RED}SVG unreferenced: {file_name}.svg (on disk but not in CSV){NC}")
+                svg_unreferenced += 1
+            elif svg_exists and in_csv:
+                svg_found += 1
 
-                if all_missing:
-                    print(f"  {RED}PNG missing in all resolutions: {file_name}.png{NC}")
-                    has_errors = True
+            # Check PNG for each resolution (only if in CSV with dimensions)
+            if in_csv:
+                width, height = csv_entries[file_name]
+                if width and height:
+                    all_missing = True
+                    for resolution in RESOLUTIONS:
+                        out_dir = BASE_DIR / resolution
+                        png_path = out_dir / f"{file_name}.png"
+                        if png_path.exists():
+                            all_missing = False
+                            png_found_by_res[resolution] += 1
+                        else:
+                            png_missing_by_res[resolution] += 1
+
+                    if all_missing:
+                        progress.print(f"  {RED}PNG missing in all resolutions: {file_name}.png{NC}")
+                        has_errors = True
+
+            progress.update(task, advance=1)
 
     print()
     print(f"SVG validation - Found: {svg_found}, Missing: {svg_missing}, Unreferenced: {svg_unreferenced}")
@@ -472,6 +510,7 @@ def process_resolution(
     resolution: str,
     engine: str,
     update_mode: bool,
+    verbose: bool = False,
 ) -> int:
     """Generate PNGs for a specific resolution."""
     if not SRC_LIST.exists():
@@ -495,9 +534,9 @@ def process_resolution(
         return 1
 
     mode_msg = (
-        "Converting SVG files to PNG using {} (update mode - only changed files)..."
+        "Converting SVG files to PNG using {} (update mode - only changed files)"
         if update_mode
-        else "Converting SVG files to PNG using {}..."
+        else "Converting SVG files to PNG using {}"
     )
     print(mode_msg.format(engine))
 
@@ -505,6 +544,8 @@ def process_resolution(
     processed_count = 0
     skipped_count = 0
 
+    # First pass: read CSV entries and validate
+    csv_rows = []
     try:
         with open(SRC_LIST, "r") as f:
             reader = csv.DictReader(f, delimiter=";")
@@ -536,61 +577,99 @@ def process_resolution(
                     has_errors = True
                     continue
 
-                svg_path = SRC_DIR / f"{file_name}.svg"
-                png_path = out_dir / f"{file_name}.png"
-                scaled_width = scale_dimension(width, scale)
-                scaled_height = scale_dimension(height, scale)
-
-                should_process = True
-
-                if update_mode:
-                    if not svg_path.exists():
-                        print(
-                            f"  {RED}Error: SVG file not found: {file_name}.svg{NC}"
-                        )
-                        has_errors = True
-                        continue
-
-                    svg_mtime = get_svg_mtime(svg_path)
-
-                    if not png_path.exists():
-                        print(f"  Adding new: {file_name}.svg (PNG missing for {resolution})")
-                        should_process = True
-                    elif not csv_date:
-                        print(
-                            f"  Adding new: {file_name}.svg (no previous date in CSV)"
-                        )
-                        should_process = True
-                    elif svg_mtime > csv_date:
-                        print(
-                            f"  Updating: {file_name}.svg "
-                            f"(SVG: {svg_mtime}, CSV: {csv_date})"
-                        )
-                        should_process = True
-                    else:
-                        png_mtime = datetime.fromtimestamp(
-                            png_path.stat().st_mtime
-                        ).strftime("%Y-%m-%d %H:%M:%S")
-                        if png_mtime < svg_mtime:
-                            print(
-                                f"  Updating: {file_name}.svg "
-                                f"(PNG older than SVG for {resolution})"
-                            )
-                            should_process = True
-                        else:
-                            skipped_count += 1
-                            should_process = False
-
-                if should_process:
-                    if run_conversion(engine, scaled_width, scaled_height, svg_path, png_path):
-                        processed_count += 1
-                    else:
-                        has_errors = True
-
+                csv_rows.append({
+                    "file_name": file_name,
+                    "width": width,
+                    "height": height,
+                    "csv_date": csv_date,
+                })
     except Exception as e:
         print(f"Error reading CSV: {e}")
         return 1
 
+    # Second pass: process files with progress bar
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TextColumn("[cyan]{task.fields[status]}"),
+        transient=False,
+    ) as progress:
+        task = progress.add_task(
+            "Converting...",
+            total=len(csv_rows),
+            status="",
+        )
+
+        for row in csv_rows:
+            file_name = row["file_name"]
+            width = row["width"]
+            height = row["height"]
+            csv_date = row["csv_date"]
+
+            svg_path = SRC_DIR / f"{file_name}.svg"
+            png_path = out_dir / f"{file_name}.png"
+            scaled_width = scale_dimension(width, scale)
+            scaled_height = scale_dimension(height, scale)
+
+            should_process = True
+            status_msg = ""
+
+            if update_mode:
+                if not svg_path.exists():
+                    progress.print(
+                        f"  {RED}Error: SVG file not found: {file_name}.svg{NC}"
+                    )
+                    has_errors = True
+                    progress.update(task, advance=1)
+                    continue
+
+                svg_mtime = get_svg_mtime(svg_path)
+
+                if not png_path.exists():
+                    status_msg = f"Adding {file_name}"
+                    if verbose:
+                        logger.debug(f"Adding new: {file_name}.svg (PNG missing for {resolution})")
+                    should_process = True
+                elif not csv_date:
+                    status_msg = f"Adding {file_name} (no date)"
+                    if verbose:
+                        logger.debug(f"Adding new: {file_name}.svg (no previous date in CSV)")
+                    should_process = True
+                elif svg_mtime > csv_date:
+                    status_msg = f"Updating {file_name}"
+                    if verbose:
+                        logger.debug(f"Updating: {file_name}.svg (SVG: {svg_mtime}, CSV: {csv_date})")
+                    should_process = True
+                else:
+                    png_mtime = datetime.fromtimestamp(
+                        png_path.stat().st_mtime
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                    if png_mtime < svg_mtime:
+                        status_msg = f"Updating {file_name}"
+                        if verbose:
+                            logger.debug(f"Updating: {file_name}.svg (PNG older than SVG for {resolution})")
+                        should_process = True
+                    else:
+                        skipped_count += 1
+                        should_process = False
+
+            if should_process:
+                if run_conversion(engine, scaled_width, scaled_height, svg_path, png_path):
+                    processed_count += 1
+                    status_msg = f"✓ {file_name}"
+                    if verbose:
+                        logger.debug(f"Converted: {file_name}.svg")
+                else:
+                    has_errors = True
+                    status_msg = f"✗ {file_name}"
+                    if verbose:
+                        logger.error(f"Failed to convert: {file_name}.svg")
+
+            progress.update(task, advance=1, status=status_msg)
+
+    print()
     if update_mode:
         print(f"  Processed: {processed_count}, Skipped (up-to-date): {skipped_count}")
 
@@ -605,7 +684,7 @@ def process_resolution(
     return 0
 
 
-def update_csv_dates(resolutions: List[str]) -> None:
+def update_csv_dates(resolutions: List[str], verbose: bool = False) -> None:
     """Update CSV modification dates for processed files."""
     if not SRC_LIST.exists():
         return
@@ -628,15 +707,29 @@ def update_csv_dates(resolutions: List[str]) -> None:
         print(f"Error reading CSV: {e}")
         return
 
-    try:
-        with open(SRC_LIST, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"],
-                                     delimiter=";")
-            writer.writeheader()
-            writer.writerows(rows)
-        print("CSV modification dates updated.")
-    except Exception as e:
-        print(f"Error writing CSV: {e}")
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        transient=False,
+    ) as progress:
+        task = progress.add_task(
+            "Updating CSV...",
+            total=len(rows),
+        )
+
+        try:
+            with open(SRC_LIST, "w", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=["file", "width", "height", "modified"],
+                                         delimiter=";")
+                writer.writeheader()
+                for row in rows:
+                    writer.writerow(row)
+                    progress.update(task, advance=1)
+            print("CSV modification dates updated.")
+        except Exception as e:
+            print(f"Error writing CSV: {e}")
 
 
 def show_help() -> None:
@@ -652,21 +745,25 @@ Options:
   --update          Only regenerate PNGs for SVGs newer than CSV date (only with --make)
   --resvg           Use resvg engine instead of rsvg-convert (default, only with --make)
   --update-list     Regenerate convert-gfx-list.csv (file;width;height;modified) from existing PNGs/SVG dates
+  --verbose, -v     Show detailed per-file logs while processing
 
 Examples:
   convert-gfx.py                                  Displays this help message
   convert-gfx.py --validate svg                   Validates SVG source files
+  convert-gfx.py --validate svg --verbose         Validates SVG source files with detailed output
   convert-gfx.py --validate png                   Validates PNG files
   convert-gfx.py --validate all                   Validates both SVG and PNG files
   convert-gfx.py --make 320x240                   Generates 320x240 PNGs
   convert-gfx.py --make 320x240 480x272           Generates 320x240 and 480x272 PNGs
   convert-gfx.py --make all                       Generates all resolutions PNGs
   convert-gfx.py --make 320x240 --update          Updates only changed SVGs for 320x240
+  convert-gfx.py --make 320x240 --update -v       Updates only changed SVGs with detailed output
   convert-gfx.py --make 320x240 480x272 --update  Updates only changed SVGs for 320x240 and 480x272
   convert-gfx.py --make all --update              Updates only changed SVGs for all resolutions
   convert-gfx.py --make 320x240 --resvg           Generates 320x240 PNGs (using resvg)
   convert-gfx.py --make 320x240 --update --resvg  Updates only changed SVGs for 320x240 (using resvg)
   convert-gfx.py --update-list                    Regenerates convert-gfx-list.csv with base dimensions and dates
+  convert-gfx.py --update-list --verbose          Regenerates CSV with detailed output
 
 Requires: rsvg-convert (default) or resvg command line tool
 """
@@ -683,6 +780,20 @@ def main() -> int:
     args = sys.argv[1:]
     cmd = args[0]
 
+    # Check for verbose flag globally
+    verbose = "--verbose" in args or "-v" in args
+
+    # Set up logging based on verbose flag
+    if verbose:
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(message)s",
+            handlers=[RichHandler(rich_tracebacks=True)]
+        )
+    else:
+        # Suppress logging when not verbose
+        logger.setLevel(logging.CRITICAL)
+
     if cmd == "--help":
         show_help()
         return 0
@@ -693,17 +804,17 @@ def main() -> int:
             return 1
         mode = args[1]
         if mode == "svg":
-            return validate_svg()
+            return validate_svg(verbose)
         elif mode == "png":
-            return validate_png()
+            return validate_png(verbose)
         elif mode == "all":
-            return validate_all()
+            return validate_all(verbose)
         else:
             print("Error: --validate argument must be 'svg', 'png', or 'all'")
             return 1
 
     if cmd == "--update-list":
-        return update_src_list_csv()
+        return update_src_list_csv(verbose)
 
     if cmd == "--make":
         if len(args) < 2:
@@ -716,7 +827,7 @@ def main() -> int:
         idx = 1
 
         # Parse resolutions
-        while idx < len(args) and args[idx] not in ("--update", "--resvg"):
+        while idx < len(args) and args[idx] not in ("--update", "--resvg", "--verbose", "-v"):
             if args[idx] == "all":
                 resolutions = list(RESOLUTIONS.keys())
             else:
@@ -729,6 +840,8 @@ def main() -> int:
                 update_mode = True
             elif args[idx] == "--resvg":
                 engine = "resvg"
+            elif args[idx] in ("--verbose", "-v"):
+                pass  # Already handled above
             else:
                 print(f"Error: Invalid parameter '{args[idx]}'")
                 return 1
@@ -753,12 +866,12 @@ def main() -> int:
 
         # Process each resolution
         for resolution in resolutions:
-            if process_resolution(resolution, engine, update_mode) != 0:
+            if process_resolution(resolution, engine, update_mode, verbose) != 0:
                 return 1
 
         # Update CSV dates if in update mode
         if update_mode:
-            update_csv_dates(resolutions)
+            update_csv_dates(resolutions, verbose)
 
         print("All done!")
         return 0
