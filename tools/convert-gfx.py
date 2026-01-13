@@ -194,7 +194,6 @@ def update_src_list_csv() -> int:
         return 1
 
     total_svg = len(rows)
-    print("-" * 45)
     print(f"Total SVG files processed: {total_svg}")
     print(f"Results saved to: {SRC_LIST}")
     return 0
@@ -353,13 +352,120 @@ def validate_png() -> int:
 
 
 def validate_all() -> int:
-    """Run both SVG and PNG validations."""
+    """Validate SVG and PNG files with interleaved per-file results."""
+    if not SRC_LIST.exists():
+        print(f"Error: CSV files list not found: {SRC_LIST}")
+        return 1
+    if not SRC_DIR.exists():
+        print(f"Error: SVG source directory not found: {SRC_DIR}")
+        return 1
+
+    print("Validating SVG and PNG files")
+    print("----------------------------")
     print()
-    svg_result = validate_svg()
+
+    has_errors = False
+
+    # Part 0: Check CSV for missing dimensions
+    print("Checking CSV for missing dimensions...")
+    missing_dimensions = 0
+    csv_entries = {}
+
+    try:
+        with open(SRC_LIST, "r") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            for row in reader:
+                file_name = row.get("file", "").strip()
+                width = row.get("width", "").strip()
+                height = row.get("height", "").strip()
+
+                if not file_name:
+                    continue
+
+                csv_entries[file_name] = (width, height)
+
+                if not width or not height:
+                    print(
+                        f"  {RED}CSV entry missing dimensions: {file_name} "
+                        f"(width: '{width}', height: '{height}'){NC}"
+                    )
+                    has_errors = True
+                    missing_dimensions += 1
+    except Exception as e:
+        print(f"  {RED}Error reading CSV: {e}{NC}")
+        return 1
+
+    if missing_dimensions > 0:
+        print(f"  Total entries with missing dimensions: {missing_dimensions}")
+    else:
+        print(f"  {GREEN}All CSV entries have dimensions{NC}")
+
+    # Part 1: Check SVG/PNG for each file
     print()
-    png_result = validate_png()
+    print("Validating each file across SVG and PNG...")
+    svg_files = {p.stem for p in SRC_DIR.glob("**/*.svg")}
+    csv_files = set(csv_entries.keys())
+    all_files = sorted(svg_files | csv_files)
+
+    svg_found = 0
+    svg_missing = 0
+    svg_unreferenced = 0
+    png_missing_by_res = {res: 0 for res in RESOLUTIONS}
+    png_found_by_res = {res: 0 for res in RESOLUTIONS}
+
+    for file_name in all_files:
+        # Check SVG
+        svg_path = SRC_DIR / f"{file_name}.svg"
+        in_csv = file_name in csv_entries
+        svg_exists = svg_path.exists()
+
+        if not svg_exists and in_csv:
+            print(f"  {RED}SVG missing: {file_name}.svg (in CSV but not on disk){NC}")
+            has_errors = True
+            svg_missing += 1
+        elif svg_exists and not in_csv:
+            print(f"  {RED}SVG unreferenced: {file_name}.svg (on disk but not in CSV){NC}")
+            svg_unreferenced += 1
+        elif svg_exists and in_csv:
+            svg_found += 1
+
+        # Check PNG for each resolution (only if in CSV with dimensions)
+        if in_csv:
+            width, height = csv_entries[file_name]
+            if width and height:
+                all_missing = True
+                for resolution in RESOLUTIONS:
+                    out_dir = BASE_DIR / resolution
+                    png_path = out_dir / f"{file_name}.png"
+                    if png_path.exists():
+                        all_missing = False
+                        png_found_by_res[resolution] += 1
+                    else:
+                        png_missing_by_res[resolution] += 1
+
+                if all_missing:
+                    print(f"  {RED}PNG missing in all resolutions: {file_name}.png{NC}")
+                    has_errors = True
+
     print()
-    return svg_result or png_result
+    print(f"SVG validation - Found: {svg_found}, Missing: {svg_missing}, Unreferenced: {svg_unreferenced}")
+    for resolution in RESOLUTIONS:
+        found = png_found_by_res[resolution]
+        missing = png_missing_by_res[resolution]
+        total = found + missing
+        if total > 0:
+            print(f"PNG validation - {resolution}: Found: {found}/{total}, Missing: {missing}")
+
+    print()
+    if not has_errors and svg_unreferenced == 0:
+        print(f"{GREEN}All validations passed{NC}")
+        return 0
+    elif svg_unreferenced > 0 and not has_errors:
+        print(f"{RED}Validation complete: {svg_unreferenced} unreferenced SVG file(s) found{NC}")
+        return 1
+    else:
+        print(f"{RED}Validation failed: See errors above{NC}")
+        return 1
 
 
 def process_resolution(
