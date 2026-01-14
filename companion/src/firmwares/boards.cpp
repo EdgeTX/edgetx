@@ -44,7 +44,7 @@
 #define FSIZE_2MB                      MB(2)
 #define FSIZE_8MB                      MB(8)
 #define FSIZE_32MB                     MB(32)
-#define FSIZE_MAX                      FSIZE_2MB
+#define FSIZE_MAX                      FSIZE_32MB
 
 // pre v2.10
 static const StringTagMappingTable legacyTrimSourcesLut = {
