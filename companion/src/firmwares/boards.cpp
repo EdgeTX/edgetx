@@ -31,14 +31,19 @@
 // Update: These are now all only used within this class.
 //  External access is only via getEEpromSize() and getFlashSize()
 
-#define EESIZE_TARANIS                 (32*1024)
+#define KB(x)                          ((x)*1024)
+#define MB(x)                          ((x)*1024*1024)
+
+#define EESIZE_TARANIS                 KB(32)
 #define EESIZE_MAX                     EESIZE_TARANIS
 
 // getFlashSize() (and these macros) is only used by radiointerface::getDfuArgs (perhaps can find a better way?)
 
-#define FSIZE_512KB                    (512*1024)
-#define FSIZE_1MB                      (1024*1024)
-#define FSIZE_2MB                      (2048*1024)
+#define FSIZE_512KB                    KB(512)
+#define FSIZE_1MB                      MB(1)
+#define FSIZE_2MB                      MB(2)
+#define FSIZE_8MB                      MB(8)
+#define FSIZE_32MB                     MB(32)
 #define FSIZE_MAX                      FSIZE_2MB
 
 // pre v2.10
@@ -272,22 +277,24 @@ int Boards::getFlashSize(Type board)
     case BOARD_X10:
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
-    case BOARD_JUMPER_T15PRO:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
-    case BOARD_RADIOMASTER_TX15:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
-    case BOARD_FLYSKY_PA01: // 8MB SDRAM
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
-    case BOARD_FLYSKY_PL18U:
     case BOARD_FLYSKY_NB4P:
-    case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return FSIZE_2MB;
+    case BOARD_FLYSKY_PA01:
+    case BOARD_FLYSKY_ST16:
+    case BOARD_JUMPER_T15PRO:
+    case BOARD_RADIOMASTER_TX15:
+      return FSIZE_8MB
+    case BOARD_FLYSKY_PL18U:
+      return FSIZE_32MB;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
     default:
