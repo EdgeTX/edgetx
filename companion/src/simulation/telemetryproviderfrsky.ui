@@ -40,11 +40,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="17" column="0">
@@ -54,11 +49,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -77,11 +67,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="decimals">
         <number>2</number>
@@ -105,11 +90,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="decimals">
         <number>2</number>
        </property>
@@ -131,11 +111,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Fuel Qty</string>
      </property>
@@ -149,11 +124,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -164,11 +134,6 @@
    </item>
    <item row="28" column="2">
     <widget class="QPushButton" name="saveTelemetryvalues">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Save Telemetry Values</string>
      </property>
@@ -181,11 +146,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -203,11 +163,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>ml</string>
      </property>
@@ -220,11 +175,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -251,11 +201,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>A4</string>
      </property>
@@ -268,11 +213,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -302,11 +242,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="13" column="1">
@@ -328,11 +263,6 @@
        <width>45</width>
        <height>16777215</height>
       </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
     </widget>
    </item>
@@ -356,11 +286,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="8" column="2">
@@ -370,11 +295,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <number>-16777215</number>
@@ -394,11 +314,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>1</number>
@@ -425,11 +340,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>°C</string>
      </property>
@@ -442,11 +352,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -473,11 +378,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Volts</string>
      </property>
@@ -503,11 +403,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="10" column="2">
@@ -517,11 +412,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="maximum">
       <number>65535</number>
@@ -538,11 +428,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <double>-21474836.000000000000000</double>
@@ -564,11 +449,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="decimals">
         <number>2</number>
@@ -592,11 +472,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="decimals">
         <number>2</number>
        </property>
@@ -617,11 +492,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -660,11 +530,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="7" column="1">
@@ -687,11 +552,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="26" column="3">
@@ -702,11 +562,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>G</string>
      </property>
@@ -714,11 +569,6 @@
    </item>
    <item row="14" column="3">
     <widget class="QLabel" name="label_54">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Run/Stop</string>
      </property>
@@ -731,11 +581,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -774,11 +619,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="4" column="2">
@@ -790,11 +630,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="decimals">
         <number>2</number>
@@ -818,11 +653,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="decimals">
         <number>2</number>
        </property>
@@ -844,11 +674,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="maximum">
       <number>2147483647</number>
      </property>
@@ -867,11 +692,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="singleStep">
         <double>0.100000000000000</double>
        </property>
@@ -887,11 +707,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="maximum">
         <double>8.190000000000000</double>
@@ -912,11 +727,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="maximum">
         <double>8.190000000000000</double>
        </property>
@@ -935,11 +745,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="maximum">
         <double>8.190000000000000</double>
@@ -960,11 +765,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="maximum">
         <double>8.190000000000000</double>
        </property>
@@ -983,11 +783,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="maximum">
         <double>8.190000000000000</double>
@@ -1008,11 +803,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
        <property name="maximum">
         <double>8.190000000000000</double>
        </property>
@@ -1031,11 +821,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
        </property>
        <property name="maximum">
         <double>8.190000000000000</double>
@@ -1058,11 +843,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -1079,11 +859,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RxBt</string>
      </property>
@@ -1096,11 +871,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1117,11 +887,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -1148,11 +913,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="value">
       <number>75</number>
      </property>
@@ -1177,11 +937,6 @@
        <width>45</width>
        <height>16777215</height>
       </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="inputMethodHints">
       <set>Qt::ImhDigitsOnly</set>
@@ -1208,11 +963,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="12" column="3">
@@ -1222,11 +972,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>m/s</string>
@@ -1253,11 +998,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="inputMethodHints">
       <set>Qt::ImhDigitsOnly</set>
      </property>
@@ -1271,11 +1011,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>%</string>
      </property>
@@ -1288,11 +1023,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -1319,11 +1049,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Degrees</string>
      </property>
@@ -1331,11 +1056,6 @@
    </item>
    <item row="14" column="1">
     <widget class="QLabel" name="label_53">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>GPS sim</string>
      </property>
@@ -1348,11 +1068,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>km/h</string>
@@ -1367,11 +1082,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>V / ratio</string>
      </property>
@@ -1385,11 +1095,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>G</string>
      </property>
@@ -1402,11 +1107,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="maximum">
       <number>100000</number>
@@ -1424,11 +1124,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>*</string>
      </property>
@@ -1442,11 +1137,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>AccZ</string>
      </property>
@@ -1459,11 +1149,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>dd-MM-yyyy
@@ -1482,11 +1167,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Meters</string>
      </property>
@@ -1499,11 +1179,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -1530,11 +1205,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RAS</string>
      </property>
@@ -1548,11 +1218,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>AccX</string>
      </property>
@@ -1565,11 +1230,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1599,11 +1259,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="8" column="1">
@@ -1626,11 +1281,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="20" column="3">
@@ -1640,11 +1290,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>km/h</string>
@@ -1671,11 +1316,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="2" column="3">
@@ -1685,11 +1325,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>dB</string>
@@ -1703,11 +1338,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>RPM</string>
@@ -1734,11 +1364,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="3" column="0">
@@ -1748,11 +1373,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>A1</string>
@@ -1767,11 +1387,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>AccY</string>
      </property>
@@ -1785,11 +1400,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -1800,11 +1410,6 @@ hh:mm:ss</string>
    </item>
    <item row="29" column="2">
     <widget class="QPushButton" name="loadTelemetryvalues">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Load Telemetry Values</string>
      </property>
@@ -1830,11 +1435,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="15" column="2">
@@ -1844,11 +1444,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -1875,11 +1470,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>G</string>
      </property>
@@ -1893,11 +1483,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>A2</string>
      </property>
@@ -1910,11 +1495,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>Lat,Lon
@@ -1932,11 +1512,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>Meters</string>
@@ -1963,11 +1538,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="8" column="3">
@@ -1977,11 +1547,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>°C</string>
@@ -2008,11 +1573,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="inputMethodHints">
       <set>Qt::ImhDigitsOnly</set>
      </property>
@@ -2038,11 +1598,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="7" column="2">
@@ -2052,11 +1607,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <number>-16777215</number>
@@ -2092,11 +1642,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="26" column="1">
@@ -2119,11 +1664,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="5" column="0">
@@ -2133,11 +1673,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>A3</string>
@@ -2152,11 +1687,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Fuel</string>
      </property>
@@ -2170,11 +1700,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RSSI</string>
      </property>
@@ -2187,11 +1712,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2208,11 +1728,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2242,11 +1757,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="2" column="2">
@@ -2256,11 +1766,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="value">
       <number>30</number>
@@ -2275,11 +1780,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Amps</string>
      </property>
@@ -2293,11 +1793,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>25.9973,-97.1572</string>
      </property>
@@ -2310,11 +1805,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -2341,11 +1831,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>V / ratio</string>
      </property>
@@ -2359,11 +1844,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RPM</string>
      </property>
@@ -2371,11 +1851,6 @@ hh:mm:ss</string>
    </item>
    <item row="14" column="2">
     <widget class="QPushButton" name="GPSpushButton">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Run</string>
      </property>
@@ -2388,11 +1863,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <double>-21474836.000000000000000</double>
@@ -2425,11 +1895,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="27" column="2">
@@ -2447,11 +1912,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -2467,11 +1927,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>Volts</string>
@@ -2498,11 +1953,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="20" column="1">
@@ -2525,11 +1975,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="4" column="3">
@@ -2539,11 +1984,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>V / ratio</string>
@@ -2570,11 +2010,6 @@ hh:mm:ss</string>
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="22" column="0">
@@ -2584,11 +2019,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2606,11 +2036,6 @@ hh:mm:ss</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
@@ -2626,11 +2051,6 @@ hh:mm:ss</string>
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>1</number>
