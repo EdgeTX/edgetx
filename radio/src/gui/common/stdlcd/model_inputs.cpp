@@ -192,7 +192,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
     if (ed->trimSource > 0) {
       lcdDrawChar(EXPO_LINE_TRIM_POS, y, '-', attr);
     } else {
-      const char* short_label = getAnalogShortLabel(-ed->trimSource);
+      const char* short_label = getAnalogShortLabel(-ed->trimSource - 1);
       lcdDrawChar(EXPO_LINE_TRIM_POS, y, short_label ? short_label[0] : ' ', attr);
     }
   }
