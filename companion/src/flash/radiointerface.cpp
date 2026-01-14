@@ -284,9 +284,11 @@ void FirmwareWriterWorker::runDfu()
                          firmwareData.size());
 
     if (!is_uf2_payload(buffer_slice)) {
+      emit newMessage(tr("Not UF2 payload, writing to default address"));
       auto addr = device.default_start_address();
       writeRegion(device, addr, buffer_slice);
     } else {
+      emit newMessage(tr("UF2 payload detected, writing using UF2 protocol"));
       writeUf2(device, buffer_slice);
     }
 
