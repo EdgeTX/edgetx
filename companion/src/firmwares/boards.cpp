@@ -292,7 +292,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_JUMPER_T15PRO:
     case BOARD_RADIOMASTER_TX15:
-      return FSIZE_8MB
+      return FSIZE_8MB;
     case BOARD_FLYSKY_PL18U:
       return FSIZE_32MB;
     case BOARD_UNKNOWN:
