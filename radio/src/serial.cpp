@@ -456,12 +456,7 @@ void serialInit(uint8_t port_nr, int mode)
   };
 
   serialSetupPort(mode, params);
-
-  if (mode == UART_MODE_NONE ) {
-    // Even if port has no mode, port power needs to be set
-    serialSetPowerState(port_nr);
-    return;
-  }
+  serialSetPowerState(port_nr);
 
   if (!port || params.baudrate == 0 ||
       !port->uart || !port->uart->init)
