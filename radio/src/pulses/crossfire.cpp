@@ -97,9 +97,9 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
 {
   //
   // sends channel data and also communicates status information in status byte:
-  // - arming mode Switch or CH5
-  // - arming status in Switch mode
-  // - crsf errors
+  // - arming status in Switch mode (bit 0)
+  // - arming mode Switch or CH5 (bit 1)
+  // - bits 2-7 spare
   //
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
