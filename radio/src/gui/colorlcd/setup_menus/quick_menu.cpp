@@ -374,7 +374,7 @@ void QuickMenu::openPage(QMPage page)
   }
 }
 
-EdgeTxIcon QuickMenu::pageIcon(QMPage page)
+EdgeTxIcon QuickMenu::subMenuIcon(QMPage page)
 {
   for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {

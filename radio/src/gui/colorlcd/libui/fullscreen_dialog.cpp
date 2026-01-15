@@ -24,7 +24,6 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "hal/watchdog_driver.h"
-#include "LvglWrapper.h"
 #include "mainwindow.h"
 #include "os/sleep.h"
 #include "static.h"
@@ -165,16 +164,6 @@ void FullScreenDialog::setMessage(const char* text)
   if (messageLabel) messageLabel->setText(text);
 }
 
-static void run_ui_manually()
-{
-  checkBacklight();
-  WDG_RESET();
-
-  sleep_ms(10);
-  LvglWrapper::instance()->run();
-  MainWindow::instance()->run(false);
-}
-
 void FullScreenDialog::runForever(bool checkPwr)
 {
   running = true;
@@ -200,7 +189,11 @@ void FullScreenDialog::runForever(bool checkPwr)
       }
     }
 
-    run_ui_manually();
+    checkBacklight();
+    WDG_RESET();
+
+    MainWindow::instance()->run();
+    sleep_ms(10);
   }
 
   deleteLater();

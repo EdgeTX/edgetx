@@ -23,7 +23,7 @@
 
 #include "button.h"
 #include "etx_lv_theme.h"
-#include "LvglWrapper.h"
+#include "hal/rotary_encoder.h"
 
 static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
 static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};

@@ -323,11 +323,13 @@ static void init_lvgl_drivers()
   keyboardDevice = lv_indev_drv_register(&keyboard_drv);
 }
 
-void initLvglTheme()
+LvglWrapper::LvglWrapper()
 {
+  init_lvgl_drivers();
+
   static lv_theme_t theme;
 
-  /* Initialize the ETX theme */
+  /* Initialize default theme */
   theme.disp = NULL;
   theme.color_primary = lv_palette_main(LV_PALETTE_BLUE);
   theme.color_secondary = lv_palette_main(LV_PALETTE_RED);
@@ -338,18 +340,17 @@ void initLvglTheme()
 
   /* Assign the theme to the current display*/
   lv_disp_set_theme(NULL, &theme);
-}
 
-LvglWrapper::LvglWrapper()
-{
-  init_lvgl_drivers();
-
+  // Integrate STB image handling into lvgl
   extern void lv_stb_init();
   lv_stb_init();
 
   // Create main window and load that screen
   auto window = MainWindow::instance();
-  window->setActiveScreen();
+  lv_scr_load(window->getLvObj());
+
+  // create ViewMain window
+  ViewMain::instance();
 }
 
 LvglWrapper* LvglWrapper::instance()

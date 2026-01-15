@@ -29,10 +29,6 @@
 #include "mixes.h"
 #include "os/sleep.h"
 
-#if defined(COLORLCD)
-#include "LvglWrapper.h"
-#endif
-
 #undef CPN
 #include "MultiSubtypeDefs.h"
 
@@ -745,7 +741,6 @@ static void runAntennaSelectionMenu()
 
   while (!finished) {
     WDG_RESET();
-    LvglWrapper::instance()->run();
     MainWindow::instance()->run();
     sleep_ms(20);
   }
