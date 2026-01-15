@@ -32,21 +32,17 @@ typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
 
 class LvglWrapper
 {
-  static LvglWrapper *_instance;
-  static void pollInputs();
-
-  LvglWrapper();
-  ~LvglWrapper() {}
-
  public:
   static LvglWrapper* instance();
 
   // Called from UI task: executes the LVGL timer handler 
   void run();
 
-  // Call it when running the loop manually from within
-  // the LVGL timer handler (blocking UI code)
-  static void runNested();
+ protected:
+  static LvglWrapper *_instance;
+
+  LvglWrapper();
+  ~LvglWrapper() {}
 };
 
 // multiplication factor between 0 and 25

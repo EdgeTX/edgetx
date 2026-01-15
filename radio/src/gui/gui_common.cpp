@@ -745,8 +745,8 @@ static void runAntennaSelectionMenu()
 
   while (!finished) {
     WDG_RESET();
+    LvglWrapper::instance()->run();
     MainWindow::instance()->run();
-    LvglWrapper::runNested();
     sleep_ms(20);
   }
 }

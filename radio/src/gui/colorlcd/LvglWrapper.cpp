@@ -360,26 +360,22 @@ LvglWrapper* LvglWrapper::instance()
 
 void LvglWrapper::run()
 {
-#if defined(SIMU)
-  static uint32_t last_tick = 0;
-  uint32_t tick = time_get_ms();
-  lv_tick_inc(tick - last_tick);
-  last_tick = tick;
-#endif
-  lv_timer_handler();
-}
+  // Detect nested calls
+  static bool updating = false;
 
-void LvglWrapper::runNested()
-{
-  // Manual refresh
-  lv_refr_now(nullptr);
-  pollInputs();
-}
+  if (!updating) {
+    // Normal UI loop - call lgvl timer handler
+    updating = true;
+    lv_timer_handler();
+    updating = false;
+  } else {
+    // Used when running the loop manually from within
+    // the LVGL timer handler (blocking UI code)
+    lv_refr_now(nullptr);
 
-void LvglWrapper::pollInputs()
-{
-  lv_indev_t* indev = nullptr;
-  while((indev = lv_indev_get_next(indev)) != nullptr) {
-    lv_indev_read_timer_cb(indev->driver->read_timer);
+    lv_indev_t* indev = nullptr;
+    while((indev = lv_indev_get_next(indev)) != nullptr) {
+      lv_indev_read_timer_cb(indev->driver->read_timer);
+    }
   }
 }

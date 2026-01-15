@@ -61,8 +61,8 @@ static void _run_popup_dialog(const char* title, const char* msg,
 
     checkBacklight();
     WDG_RESET();
+    LvglWrapper::instance()->run();
     MainWindow::instance()->run();
-    LvglWrapper::runNested();
     sleep_ms(20);
   }
 }

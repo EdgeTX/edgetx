@@ -171,7 +171,7 @@ static void run_ui_manually()
   WDG_RESET();
 
   sleep_ms(10);
-  LvglWrapper::runNested();
+  LvglWrapper::instance()->run();
   MainWindow::instance()->run(false);
 }
 
