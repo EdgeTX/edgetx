@@ -44,7 +44,7 @@ struct PageDef {
   STR_TYP title;
   PageDefAction pageAction;
   QMPage qmPage;
-  std::function<PageGroupItem*(PageDef& pageDef)> create;
+  std::function<PageGroupItem*(const PageDef& pageDef)> create;
   std::function<bool()> enabled;
   std::function<void()> action;
 };
@@ -64,12 +64,12 @@ struct QMTopDef {
   STR_TYP title;
   QMTopDefAction pageAction;
   QMPage qmPage;
-  PageDef* subMenuItems;
+  const PageDef* subMenuItems;
   std::function<void()> action;
   std::function<bool()> enabled;
 };
 
-extern QMTopDef qmTopItems[];
+extern const QMTopDef qmTopItems[];
 
 //-----------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ class PageGroupItem
       title(std::move(title)), icon(ICON_EDGETX), qmPageId(qmPage), padding(PAD_SMALL)
   {}
 
-  PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
+  PageGroupItem(const PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
       title(STR_VAL(pageDef.title)), icon(pageDef.icon), qmPageId(pageDef.qmPage),
       padding(padding), pageDef(&pageDef)
   {}
@@ -111,7 +111,7 @@ class PageGroupItem
   EdgeTxIcon icon;
   QMPage qmPageId = QM_NONE;
   PaddingSize padding;
-  PageDef* pageDef = nullptr;
+  const PageDef* pageDef = nullptr;
 };
 
 //-----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ class PageGroupHeaderBase : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return pages.size(); }
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(ICON_EXTRA_H, 10)
@@ -190,7 +190,6 @@ class PageGroupBase : public NavWindow
   PageGroupHeaderBase* header = nullptr;
   Window* body = nullptr;
   PageGroupItem* currentTab = nullptr;
-  QuickMenu* quickMenu = nullptr;
   EdgeTxIcon icon;
 
   virtual void openMenu() = 0;
@@ -218,7 +217,7 @@ class PageGroupBase : public NavWindow
 class PageGroup : public PageGroupBase
 {
  public:
-  explicit PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages);
+  explicit PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroup"; }
@@ -258,6 +257,8 @@ class TabsGroup : public PageGroupBase
 #endif
 
   void hidePageButtons();
+
+  bool isPageGroup() override { return false; }
 
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(TABS_GROUP_TOP_BAR_H, 48)

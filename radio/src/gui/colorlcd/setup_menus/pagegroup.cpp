@@ -21,15 +21,16 @@
 
 #include "pagegroup.h"
 
-#include "theme_manager.h"
 #include "etx_lv_theme.h"
-#include "view_main.h"
-#include "topbar.h"
+#include "keyboard_base.h"
+#include "mainwindow.h"
 #include "model_select.h"
 #include "os/time.h"
-#include "view_channels.h"
 #include "screen_setup.h"
-#include "keyboard_base.h"
+#include "theme_manager.h"
+#include "topbar.h"
+#include "view_channels.h"
+#include "view_main.h"
 
 #if defined(DEBUG)
 static uint32_t dsms, dems, end_ms, start_ms;
@@ -144,7 +145,7 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
     setTitle("");
 
 #if VERSION_MAJOR == 2
-    carousel = new Window(this, 
+    carousel = new Window(this,
                           {MENU_HEADER_BUTTONS_LEFT, 0,
                            LCD_W - MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + ICON_EXTRA_H});
     carousel->padAll(PAD_ZERO);
@@ -230,7 +231,7 @@ bool PageGroupHeaderBase::hasSubMenu(QMPage qmPage)
   return false;
 }
 
-void PageGroupHeaderBase::deleteLater(bool detach, bool trash)
+void PageGroupHeaderBase::deleteLater()
 {
   if (deleted()) return;
 
@@ -238,7 +239,7 @@ void PageGroupHeaderBase::deleteLater(bool detach, bool trash)
     delete pages[i];
   pages.clear();
 
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 }
 
 #if VERSION_MAJOR == 2
@@ -326,8 +327,7 @@ void PageGroupBase::onClicked() { Keyboard::hide(false); }
 
 void PageGroupBase::onCancel()
 {
-  if (quickMenu) quickMenu->closeMenu();
-  quickMenu = nullptr;
+  QuickMenu::closeQuickMenu();
   deleteLater();
 }
 
@@ -358,7 +358,8 @@ void PageGroupBase::setCurrentTab(unsigned index)
     header->setIcon(tab->getIcon());
 #endif
 
-    QuickMenu::setCurrentPage(tab->pageId(), icon);
+    if (isPageGroup())
+      QuickMenu::setCurrentPage(tab->pageId(), icon);
 
     lv_obj_enable_style_refresh(false);
 
@@ -398,9 +399,9 @@ void PageGroupBase::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!quickMenu) openMenu();
+    if (!QuickMenu::isOpen()) openMenu();
   } else {
-    if (QuickMenu::pageIcon(pg) == icon) {
+    if (QuickMenu::subMenuIcon(pg) == icon) {
       setCurrentTab(QuickMenu::pageIndex(pg));
     } else {
       onCancel();
@@ -439,7 +440,7 @@ void PageGroupBase::setScrollY(coord_t y)
 
 //-----------------------------------------------------------------------------
 
-PageGroup::PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages) :
+PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
     PageGroupBase(PAGE_GROUP_BODY_Y, icon)
 {
   header = new PageGroupHeader(this, icon, title);
@@ -466,7 +467,7 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages) :
 
 void PageGroup::openMenu()
 {
-  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
+  QuickMenu::openQuickMenu(
     [=](bool close) {
       if (close)
         onCancel();
@@ -552,19 +553,19 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
 
 void TabsGroup::openMenu()
 {
-  PageGroup* p = (PageGroup*)Layer::getPageGroup();
+  PageGroup* p = Window::pageGroup();
   QMPage qmPage = QM_NONE;
   if (p)
     qmPage = p->getCurrentTab()->pageId();
-  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
+  QuickMenu::openQuickMenu(
     [=](bool close) {
       onCancel();
       if (p) {
-        while (!Layer::back()->isPageGroup()) {
-          Layer::back()->deleteLater();
+        while (!Window::topWindow()->isPageGroup()) {
+          Window::topWindow()->deleteLater();
         }
         if (close)
-          Layer::back()->onCancel();
+          Window::topWindow()->onCancel();
       }
     }, p, qmPage);
 }

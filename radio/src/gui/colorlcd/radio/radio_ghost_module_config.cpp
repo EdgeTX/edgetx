@@ -127,11 +127,11 @@ static void ghostmoduleconfig_cb(lv_event_t* e)
 RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
     Page(ICON_RADIO_TOOLS), moduleIdx(moduleIdx)
 {
+  setWindowFlag(NO_FOCUS | NO_SCROLL);
+
   init();
   buildHeader(header);
   buildBody(body);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_group_add_obj(lv_group_get_default(), lvobj);
   lv_group_set_editing(lv_group_get_default(), true);
   lv_obj_add_event_cb(lvobj, ghostmoduleconfig_cb, LV_EVENT_KEY, this);

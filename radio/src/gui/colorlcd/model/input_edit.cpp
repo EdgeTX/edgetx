@@ -23,13 +23,15 @@
 
 #include "curve_param.h"
 #include "curveedit.h"
-#include "gvar_numberedit.h"
-#include "source_numberedit.h"
-#include "input_source.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
-#include "switchchoice.h"
 #include "fm_matrix.h"
+#include "getset_helpers.h"
+#include "gvar_numberedit.h"
+#include "input_source.h"
+#include "source_numberedit.h"
+#include "switchchoice.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

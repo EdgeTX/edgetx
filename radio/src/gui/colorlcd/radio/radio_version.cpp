@@ -21,11 +21,14 @@
 
 #include "radio_version.h"
 
+#include "button.h"
+#include "dialog.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
 #include "fw_version.h"
 #include "hal/module_port.h"
-#include "edgetx.h"
 #include "options.h"
-#include "etx_lv_theme.h"
+#include "static.h"
 
 #if defined(CROSSFIRE)
 #include "mixer_scheduler.h"
@@ -101,7 +104,6 @@ class VersionDialog : public BaseDialog
     auto g = lv_group_get_default();
     lv_group_set_editing(g, true);
 
-    lv_obj_add_flag(form->getLvObj(), LV_OBJ_FLAG_SCROLLABLE);
     lv_group_add_obj(g, form->getLvObj());
 
     // headline "Internal module"
@@ -339,7 +341,7 @@ const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
 #endif
 const std::string edgetx_url = "https://edgetx.org";
 
-RadioVersionPage::RadioVersionPage(PageDef& pageDef) :
+RadioVersionPage::RadioVersionPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

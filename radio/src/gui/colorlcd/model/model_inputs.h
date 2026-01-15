@@ -27,13 +27,13 @@
 class ModelInputsPage : public InputMixPageBase
 {
  public:
-  ModelInputsPage(PageDef& pageDef);
+  ModelInputsPage(const PageDef& pageDef);
 
   void build(Window *window) override;
 
  protected:
   InputMixGroupBase* getGroupByIndex(uint8_t index) override;
-  
+
   void addLineButton(uint8_t index) override;
   InputMixGroupBase* createGroup(Window* form, mixsrc_t src) override;
   InputMixButtonBase* createLineButton(InputMixGroupBase *group, uint8_t index) override;

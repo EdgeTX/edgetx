@@ -29,14 +29,14 @@ WidgetsContainer::WidgetsContainer(Window* parent, const rect_t& rect, uint8_t z
   for (int i = 0; i < zoneCount; i += 1) widgets[i] = nullptr;
 }
 
-void WidgetsContainer::deleteLater(bool detach, bool trash)
+void WidgetsContainer::deleteLater()
 {
   if (deleted()) return;
   for (int i = 0; i < zoneCount; i += 1)
     if (widgets[i]) widgets[i]->deleteLater();
   if (widgets) delete[] widgets;
   widgets = nullptr;
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 }
 
 Widget* WidgetsContainer::getWidget(unsigned int index)

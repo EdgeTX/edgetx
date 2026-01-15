@@ -21,14 +21,15 @@
 
 #include "curve_param.h"
 
-#include "gvar_numberedit.h"
-#include "source_numberedit.h"
-#include "model_curves.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "gvar_numberedit.h"
+#include "model_curves.h"
+#include "source_numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue, 
+CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue,
         std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView, mixsrc_t source) :
   Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
   source(source), refreshView(std::move(refreshView))
@@ -86,7 +87,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                            });
 
   // CURVE_REF_CUSTOM
-  cust_choice = new CurveChoice(this, 
+  cust_choice = new CurveChoice(this,
                                 [=]() {
                                   SourceNumVal v;
                                   v.rawValue = ref->value;

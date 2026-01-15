@@ -52,7 +52,6 @@ class QuickMenu : public NavWindow
 
   void onCancel() override;
   void onSelect(bool close);
-  void closeMenu();
 
   void setFocus(QMPage selection);
 
@@ -63,14 +62,14 @@ class QuickMenu : public NavWindow
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
 
-  static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
-            std::function<void(bool close)> selectHandler = nullptr,
+  static QuickMenu* openQuickMenu(std::function<void(bool close)> selectHandler = nullptr,
             PageGroupBase* pageGroup = nullptr, QMPage curPage = QM_NONE);
+  static void closeQuickMenu();
+  static bool isOpen();
 
   static void shutdownQuickMenu();
-  static void selected();
   static void openPage(QMPage page);
-  static EdgeTxIcon pageIcon(QMPage page);
+  static EdgeTxIcon subMenuIcon(QMPage page);
   static int pageIndex(QMPage page);
   static std::vector<std::string> menuPageNames(bool forFavorites);
 
@@ -120,7 +119,6 @@ class QuickMenu : public NavWindow
 
  protected:
   static QuickMenu* instance;
-  std::function<void()> cancelHandler = nullptr;
   std::function<void(bool close)> selectHandler = nullptr;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
@@ -131,13 +129,15 @@ class QuickMenu : public NavWindow
   static QMPage curPage;
   static EdgeTxIcon curIcon;
 
-  void openQM(std::function<void()> cancelHandler,
-              std::function<void(bool close)> selectHandler,
+  void openQM(std::function<void(bool close)> selectHandler,
               PageGroupBase* pageGroup, QMPage curPage);
+  void closeQM();
 
   void focusMainMenu();
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
+
+  static void selected();
 
 #if VERSION_MAJOR > 2
   static void setupFavorite(QMPage page, int f);

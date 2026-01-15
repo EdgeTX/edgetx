@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include "layer.h"
 #include "window.h"
+
+class BitmapBuffer;
 
 class MainWindow: public Window
 {
@@ -44,21 +45,17 @@ class MainWindow: public Window
   }
 #endif
 
-  void setActiveScreen() {
-    lv_scr_load(lvobj);
-  }
+  void run();
 
-  void run(bool trash=true);
-
-  void setBackgroundImage(const char* fileName);
+  bool setBackgroundImage(std::string& fileName);
 
   void shutdown();
 
  protected:
   lv_obj_t* background = nullptr;
-  std::string backgroundImageFileName;
   const BitmapBuffer *backgroundBitmap = nullptr;
 
   static MainWindow * _instance;
-  static void emptyTrash();
+
+  void emptyTrash();
 };

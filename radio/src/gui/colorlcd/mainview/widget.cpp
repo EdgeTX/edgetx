@@ -23,6 +23,7 @@
 
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "menu.h"
 #include "view_main.h"
 #include "widget_settings.h"
 
@@ -50,7 +51,7 @@ inline WidgetOptionValueEnum widgetValueEnumFromType(WidgetOption::Type type)
 
   case WidgetOption::Color:
     return WOV_Color;
-    
+
   default:
     return WOV_Unsigned;
   }
@@ -157,8 +158,7 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
     factory(factory),
     screenNum(screenNum), zoneNum(zoneNum)
 {
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  setWindowFlag(NO_FOCUS | NO_SCROLL);
 
   if (parent->isTopBar()) fsAllowed = false;
 
@@ -239,8 +239,6 @@ void Widget::setFullscreen(bool enable)
     updateZoneRect(parent->getRect(), false);
     setRect(parent->getRect());
 
-    bringToTop();
-
     if (!lv_obj_get_group(lvobj))
       lv_group_add_obj(lv_group_get_default(), lvobj);
 
@@ -297,7 +295,6 @@ void Widget::enableFocus(bool enable)
 
       setFocusHandler([=](bool hasFocus) {
         if (hasFocus) {
-          bringToTop();
           lv_obj_clear_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
         } else {
           lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);

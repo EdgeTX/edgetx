@@ -20,18 +20,23 @@
  */
 
 #include "lua_widget.h"
+
 #include "color_picker.h"
+#include "dialog.h"
 #include "edgetx.h"
+#include "filechoice.h"
+#include "keyboard_base.h"
 #include "lua_event.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "page.h"
+#include "pagegroup.h"
 #include "slider.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
-#include "toggleswitch.h"
-#include "filechoice.h"
-#include "keyboard_base.h"
+#include "textedit.h"
 #include "theme_manager.h"
-#include "pagegroup.h"
+#include "toggleswitch.h"
 
 //-----------------------------------------------------------------------------
 
@@ -1499,7 +1504,7 @@ void LvglWidgetBox::build(lua_State *L)
   window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
   if (luaScriptManager->isWidget() && !luaScriptManager->isFullscreen()) {
-    lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+    window->setWindowFlag(NO_CLICK);
   } else {
     lv_obj_set_scroll_dir(window->getLvObj(), scrollDir);
     if (showScrollBar)
@@ -1823,8 +1828,8 @@ void LvglWidgetArc::build(lua_State *L)
   setRadius(radius.coord);
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_arc_create);
+  window->setWindowFlag(NO_CLICK);
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
   lv_arc_set_range(window->getLvObj(), 0, 360);
   lv_obj_remove_style(window->getLvObj(), NULL, LV_PART_KNOB);
   lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_MAIN);

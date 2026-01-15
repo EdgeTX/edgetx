@@ -19,9 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "widget.h"
+
 #include "bitmaps.h"
 #include "edgetx.h"
-#include "widget.h"
+#include "static.h"
 
 #define ETX_STATE_BG_WARNING LV_STATE_USER_1
 #define EXT_NAME_ALIGN_RIGHT LV_STATE_USER_1

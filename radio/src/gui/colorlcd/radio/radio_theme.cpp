@@ -21,13 +21,16 @@
 
 #include "radio_theme.h"
 
-#include "file_carosell.h"
 #include "color_editor.h"
 #include "color_list.h"
+#include "dialog.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "file_carosell.h"
+#include "menu.h"
 #include "page.h"
 #include "preview_window.h"
-#include "etx_lv_theme.h"
+#include "textedit.h"
 
 class ThemeColorPreview : public Window
 {
@@ -218,10 +221,10 @@ class ColorEditPage : public Page
   ColorSwatch *_colorSquare = nullptr;
   StaticText *_hexBox = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override
+  void deleteLater() override
   {
     if (_updateHandler != nullptr) _updateHandler();
-    Page::deleteLater(detach, trash);
+    Page::deleteLater();
   }
 
   void setHexStr(uint32_t rgb)
@@ -432,7 +435,7 @@ class ThemeEditPage : public Page
   StaticText *_themeName = nullptr;
 };
 
-ThemeSetupPage::ThemeSetupPage(PageDef& pageDef) :
+ThemeSetupPage::ThemeSetupPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }
@@ -455,20 +458,11 @@ void ThemeSetupPage::setName(ThemeFile *theme)
   }
 }
 
-bool isTopWindow(Window *window)
-{
-  Window *parent = window->getParent();
-  if (parent != nullptr) {
-    return parent == Layer::back();
-  }
-  return false;
-}
-
 void ThemeSetupPage::checkEvents()
 {
   PageGroupItem::checkEvents();
 
-  if (fileCarosell) fileCarosell->pause(!isTopWindow(pageWindow));
+  if (fileCarosell) fileCarosell->pause(!isVisible());
 }
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
@@ -572,7 +566,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 void ThemeSetupPage::setSelected(ThemePersistance *tp)
 {
   auto value = listBox->getSelected();
-  if (themeColorPreview && authorText && nameText && fileCarosell) {
+  if (currentTheme != value && themeColorPreview && authorText && nameText && fileCarosell) {
     ThemeFile *theme = tp->getThemeByIndex(value);
     if (theme) {
       themeColorPreview->setColorList(theme->getColorList());

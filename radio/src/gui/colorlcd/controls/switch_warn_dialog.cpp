@@ -21,6 +21,7 @@
 
 #include "switch_warn_dialog.h"
 
+#include "static.h"
 #include "switches.h"
 
 SwitchWarnDialog::SwitchWarnDialog() :

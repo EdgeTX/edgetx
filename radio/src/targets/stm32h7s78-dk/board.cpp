@@ -47,9 +47,6 @@
 #include "extram_driver.h"
 #include "extflash_driver.h"
 
-#include "bitmapbuffer.h"
-#include "colors.h"
-
 #include <string.h>
 
 // common ADC driver

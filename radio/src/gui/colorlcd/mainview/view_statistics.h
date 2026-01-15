@@ -26,7 +26,7 @@
 class StatisticsViewPage : public PageGroupItem
 {
  public:
-  StatisticsViewPage(PageDef& pageDef);
+  StatisticsViewPage(const PageDef& pageDef);
 
  protected:
   void build(Window* window) override;
@@ -35,7 +35,7 @@ class StatisticsViewPage : public PageGroupItem
 class DebugViewPage : public PageGroupItem
 {
  public:
-  DebugViewPage(PageDef& pageDef);
+  DebugViewPage(const PageDef& pageDef);
 
  protected:
   void build(Window* window) override;

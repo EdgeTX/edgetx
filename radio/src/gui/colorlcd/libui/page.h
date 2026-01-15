@@ -23,8 +23,6 @@
 
 #include "static.h"
 
-class QuickMenu;
-
 class PageHeader : public Window
 {
  public:
@@ -61,7 +59,6 @@ class Page : public NavWindow
  protected:
   PageHeader* header = nullptr;
   Window* body = nullptr;
-  QuickMenu* quickMenu = nullptr;
 
   bool bubbleEvents() override { return false; }
 

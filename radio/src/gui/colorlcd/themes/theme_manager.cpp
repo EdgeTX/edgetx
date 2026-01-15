@@ -20,16 +20,17 @@
  */
 #include "theme_manager.h"
 
-#include "hal/abnormal_reboot.h"
 #include "../../storage/sdcard_common.h"
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
 #include "etx_lv_theme.h"
+#include "hal/abnormal_reboot.h"
+#include "lib_file.h"
+#include "mainwindow.h"
+#include "pagegroup.h"
+#include "storage/sdcard_yaml.h"
 #include "topbar.h"
 #include "view_main.h"
-#include "storage/sdcard_yaml.h"
-#include "lib_file.h"
-#include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -243,9 +244,15 @@ void ThemeFile::applyColors()
   }
 }
 
+bool ThemeFile::tryBackground(std::string& file)
+{
+  if (isFileAvailable(file.c_str()))
+    return MainWindow::instance()->setBackgroundImage(file);
+  return false;
+}
+
 void ThemeFile::applyBackground()
 {
-  auto instance = MainWindow::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
@@ -253,23 +260,19 @@ void ThemeFile::applyBackground()
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" +
               std::to_string(LCD_H) + ".png";
 
-    if (isFileAvailable(rootDir.c_str())) {
-      instance->setBackgroundImage((char*)rootDir.c_str());
+    if (tryBackground(rootDir))
       return;
-    }
 
     rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background.png";
 
-    if (isFileAvailable(rootDir.c_str())) {
-      instance->setBackgroundImage((char*)rootDir.c_str());
+    if (tryBackground(rootDir))
       return;
-    }
   }
 
   // Use EdgeTxTheme default background
-  // TODO: This needs to be made user configurable
-  instance->setBackgroundImage("");
+  std::string defaultBackground(THEMES_PATH "/EdgeTX/background.png");
+  tryBackground(defaultBackground);
 }
 
 void ThemeFile::applyTheme()
@@ -509,8 +512,7 @@ HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
   lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);
 
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_CLICK);
 
   checkEvents();
 }
@@ -552,7 +554,7 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   this->icon->center(width() - PAD_SMALL, height());
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    setWindowFlag(NO_CLICK);
     addCustomButton(0, 0, [=]() { this->action(); });
   }
 #endif
@@ -566,7 +568,7 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   this->icon->center(width(), height());
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    setWindowFlag(NO_CLICK);
     addCustomButton(0, 0, [=]() { this->action(); });
   }
 #endif
@@ -579,7 +581,7 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    setWindowFlag(NO_CLICK);
     addCustomButton(0, 0, [=]() { this->action(); });
   }
 #endif

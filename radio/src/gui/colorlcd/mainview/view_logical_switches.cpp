@@ -21,10 +21,11 @@
 
 #include "view_logical_switches.h"
 
+#include "button.h"
 #include "edgetx.h"
-#include "switches.h"
 #include "etx_lv_theme.h"
 #include "quick_menu.h"
+#include "switches.h"
 
 #if PORTRAIT
 
@@ -241,7 +242,7 @@ LogicalSwitchesViewPage::LogicalSwitchesViewPage() :
   setIcon(ICON_MONITOR_LOGICAL_SWITCHES);
 }
 
-LogicalSwitchesViewPage::LogicalSwitchesViewPage(PageDef& pageDef) :
+LogicalSwitchesViewPage::LogicalSwitchesViewPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

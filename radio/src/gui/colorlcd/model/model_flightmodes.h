@@ -24,10 +24,12 @@
 #include "edgetx.h"
 #include "pagegroup.h"
 
+class TextButton;
+
 class ModelFlightModesPage : public PageGroupItem
 {
  public:
-  ModelFlightModesPage(PageDef& pageDef);
+  ModelFlightModesPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

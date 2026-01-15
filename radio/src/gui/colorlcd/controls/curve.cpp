@@ -23,6 +23,7 @@
 
 #include "bitmaps.h"
 #include "edgetx.h"
+#include "static.h"
 #include "strhelpers.h"
 
 //-----------------------------------------------------------------------------
@@ -130,9 +131,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     valueFunc(std::move(function)),
     positionFunc(std::move(position))
 {
-  setWindowFlag(NO_FOCUS);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
 

@@ -271,7 +271,7 @@ class EdgeTxStyles
   static const lv_style_t border_transparent;
   static const lv_style_t border_thin;
   static const lv_style_t outline;
-  
+
   EdgeTxStyles();
 
   void init();

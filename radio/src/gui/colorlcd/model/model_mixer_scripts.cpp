@@ -21,15 +21,18 @@
 
 #include "model_mixer_scripts.h"
 
-#include "dataconstants.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
 #include "filechoice.h"
+#include "getset_helpers.h"
 #include "list_line_button.h"
 #include "lua/lua_api.h"
+#include "menu.h"
 #include "menus.h"
-#include "edgetx.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
-#include "etx_lv_theme.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -251,7 +254,7 @@ class ScriptLineButton : public ListLineButton
   const ScriptInternalData* runtimeData;
 };
 
-ModelMixerScriptsPage::ModelMixerScriptsPage(PageDef& pageDef) :
+ModelMixerScriptsPage::ModelMixerScriptsPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

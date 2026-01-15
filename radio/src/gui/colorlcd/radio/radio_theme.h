@@ -24,17 +24,18 @@
 #include "edgetx.h"
 #include "pagegroup.h"
 
+class FileCarosell;
 class ListBox;
 class PageGroup;
+class StaticText;
 class ThemeColorPreview;
-class ThemePersistance;
 class ThemeFile;
-class FileCarosell;
+class ThemePersistance;
 
 class ThemeSetupPage : public PageGroupItem
 {
  public:
-  ThemeSetupPage(PageDef& pageDef);
+  ThemeSetupPage(const PageDef& pageDef);
 
   void build(Window *window) override;
   void checkEvents() override;

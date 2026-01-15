@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 void drawFatalErrorScreen(const char* message);
 void runFatalErrorScreen(const char* message);
 

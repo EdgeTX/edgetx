@@ -23,19 +23,24 @@
 
 #include "radio_setup.h"
 
-#include "hal/adc_driver.h"
-#include "hal/usb_driver.h"
-#include "hal/audio_driver.h"
-
-#include "input_mapping.h"
+#include "choice.h"
+#include "dialog.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "hal/adc_driver.h"
+#include "hal/audio_driver.h"
+#include "hal/usb_driver.h"
+#include "input_mapping.h"
+#include "key_shortcuts.h"
+#include "numberedit.h"
 #include "page.h"
+#include "quick_menu_favorites.h"
+#include "slider.h"
 #include "storage/modelslist.h"
 #include "sourcechoice.h"
 #include "tasks/mixer_task.h"
-#include "slider.h"
-#include "key_shortcuts.h"
-#include "quick_menu_favorites.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -884,11 +889,11 @@ static SetupLineDef setupLines[] = {
                       currentLangStrings = langStrings[newValue];
                       extern void setLanguageFont(int idx);
                       setLanguageFont(newValue);
-                      PageGroup* pg = (PageGroup*)Layer::getPageGroup();
+                      PageGroup* pg = Window::pageGroup();
                       coord_t y = pg->getScrollY();
                       pg->onCancel();
                       QuickMenu::openPage(QM_RADIO_SETUP);
-                      pg = (PageGroup*)Layer::getPageGroup();
+                      pg = Window::pageGroup();
                       pg->setScrollY(y);
                       // Force QM rebuild for language change
                       QuickMenu::shutdownQuickMenu();
@@ -1010,7 +1015,7 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-RadioSetupPage::RadioSetupPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
+RadioSetupPage::RadioSetupPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
 
 #if VERSION_MAJOR > 2
 static bool hasShortcutKeys()

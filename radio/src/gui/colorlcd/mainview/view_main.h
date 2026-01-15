@@ -24,7 +24,6 @@
 #include "topbar.h"
 #include "window.h"
 
-class QuickMenu;
 class TopBar;
 
 class ViewMain : public NavWindow
@@ -85,9 +84,8 @@ class ViewMain : public NavWindow
   TopBar* topbar = nullptr;
   bool widget_select = false;
   lv_timer_t* widget_select_timer = nullptr;
-  QuickMenu* viewMainMenu = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);

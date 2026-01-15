@@ -22,6 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
+#include "window.h"
+
+class StaticIcon;
 
 class ChannelBar : public Window
 {

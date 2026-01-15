@@ -22,12 +22,15 @@
 #include "output_edit.h"
 
 #include "channel_bar.h"
-#include "curveedit.h"
 #include "curve_param.h"
-#include "gvar_numberedit.h"
+#include "curveedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "gvar_numberedit.h"
 #include "pagegroup.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

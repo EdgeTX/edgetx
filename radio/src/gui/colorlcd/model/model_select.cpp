@@ -21,13 +21,16 @@
 
 #include "model_select.h"
 
+#include "choice.h"
+#include "dialog.h"
 #include "edgetx.h"
-#include "model_templates.h"
-#include "standalone_lua.h"
 #include "etx_lv_theme.h"
-#include "view_main.h"
-#include "view_channels.h"
+#include "menu.h"
+#include "model_templates.h"
 #include "screen_setup.h"
+#include "standalone_lua.h"
+#include "view_channels.h"
+#include "view_main.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -63,8 +66,7 @@ class ModelButton : public Button
       m_setSelected(std::move(setSelected))
   {
     padAll(PAD_ZERO);
-
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS);
 
     delayLoad();
   }
@@ -363,9 +365,7 @@ class ModelsPageBody : public Window
       }
     }
 
-    // Exit to main view
-    auto w = Layer::back();
-    if (w) w->onCancel();
+    closeHandler();
 
     // Skip reloading model if re-selecting the active model
     if (model != modelslist.getCurrentModel()) {
@@ -521,8 +521,6 @@ class ModelLayoutButton : public IconButton
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 {
-  QuickMenu::setCurrentPage(QM_MANAGE_MODELS);
-
   buildHead(header);
   buildBody(body);
 
@@ -623,8 +621,7 @@ void ModelLabelsWindow::newModel()
     createModel();
 
     // Close Window
-    auto w = Layer::back();
-    if (w) w->onCancel();
+    onCancel();
 
     // Check for not 'Blank Model'
     if (name.size() > 0) {
@@ -703,6 +700,7 @@ void ModelLabelsWindow::buildBody(Window *window)
 {
   // Models List
   mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
+  mdlselector->setCloseHandler([=]() { onCancel(); });
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);
