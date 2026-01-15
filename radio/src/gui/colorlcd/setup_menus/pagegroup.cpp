@@ -400,7 +400,7 @@ void PageGroupBase::doKeyShortcut(event_t event)
   if (pg == QM_OPEN_QUICK_MENU) {
     if (!quickMenu) openMenu();
   } else {
-    if (QuickMenu::pageIcon(pg) == icon) {
+    if (QuickMenu::subMenuIcon(pg) == icon) {
       setCurrentTab(QuickMenu::pageIndex(pg));
     } else {
       onCancel();
