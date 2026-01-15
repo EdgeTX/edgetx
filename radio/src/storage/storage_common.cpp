@@ -211,6 +211,14 @@ if(g_model.rssiSource) {
 
   storageDirty(EE_MODEL);  
 }
+#if defined(STM32F4) && defined(CROSSFIRE)
+  // Limit ext. CRSF speed to 3.75Mbps due to CRC errors at higher speeds
+  if(isModuleCrossfire(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate == 4) {
+	TRACE("Downgrading external ELRS module baudrate");
+    g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate = 3;
+    storageDirty(EE_MODEL);
+  }
+#endif
 
 #if defined(PXX2)
   bool changed = false;
