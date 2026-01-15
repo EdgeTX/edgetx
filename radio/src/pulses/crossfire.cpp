@@ -136,11 +136,13 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
     *buf = 0x02;                                    // flag arming mode CH5
   }
 
-  extern bool crsfErrorFlag;
-  if(crsfErrorFlag) {
-    *buf |= 0x04;                                   // flag crsf error
-    crsfErrorFlag = false;
-  }
+  // Example: flag crsf errors to ELRS in bit 2 for resending linkstats
+  //
+  //extern bool crsfErrorFlag;
+  //if(crsfErrorFlag) {
+  //  *buf |= 0x04;                                   // flag crsf error
+  //  crsfErrorFlag = false;
+  //}
 
   buf++;
   
