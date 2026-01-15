@@ -26,7 +26,6 @@
 #include "etx_lv_theme.h"
 #include "hal/watchdog_driver.h"
 #include "lvgl/src/hal/lv_hal_tick.h"
-#include "LvglWrapper.h"
 #include "mainwindow.h"
 #include "os/sleep.h"
 #include "pwr.h"
@@ -61,7 +60,6 @@ static void _run_popup_dialog(const char* title, const char* msg,
 
     checkBacklight();
     WDG_RESET();
-    LvglWrapper::instance()->run();
     MainWindow::instance()->run();
     sleep_ms(20);
   }

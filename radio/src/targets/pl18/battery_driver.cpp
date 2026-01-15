@@ -407,6 +407,8 @@ void drawChargingInfo(uint16_t chargeState) {
   }
 
   if (chargeWindow == nullptr) {
+    // Ensure lvgl is initialised before creating windows
+    LvglWrapper::instance();
     chargeWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     etx_solid_bg(chargeWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 

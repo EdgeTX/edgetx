@@ -21,14 +21,7 @@
 
 #pragma once
 
-#include <functional>
-
-#include <lvgl/lvgl.h>
-#include "edgetx_types.h"
-
-void initLvglTheme();
-
-typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
+#include "lvgl/lvgl.h"
 
 class LvglWrapper
 {
@@ -44,6 +37,3 @@ class LvglWrapper
   LvglWrapper();
   ~LvglWrapper() {}
 };
-
-// multiplication factor between 0 and 25
-int8_t rotaryEncoderGetAccel();

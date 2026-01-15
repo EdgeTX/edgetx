@@ -29,7 +29,6 @@
 #include "lua/lua_states.h"
 
 #if defined(COLORLCD)
-#include "LvglWrapper.h"
 #include "view_main.h"
 #include "startup_shutdown.h"
 #include "theme_manager.h"
@@ -351,7 +350,6 @@ void guiMain(event_t evt)
   }
 #endif
 
-  LvglWrapper::instance()->run();
   MainWindow::instance()->run();
 
   bool mainViewRequested = (mainRequestFlags & (1u << REQUEST_MAIN_VIEW));
@@ -542,7 +540,7 @@ void perMain()
 
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(COLORLCD)
-    LvglWrapper::instance()->run();
+    MainWindow::instance()->run();
     usbConnectedWindow->checkEvents();
 #else
     // disable access to menus

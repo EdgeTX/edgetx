@@ -20,9 +20,9 @@
 
 #include "audio.h"
 #include "debug.h"
+#include "hal/rotary_encoder.h"
 #include "keyboard_number.h"
 #include "keys.h"
-#include "LvglWrapper.h"
 #include "strhelpers.h"
 #include "etx_lv_theme.h"
 

@@ -55,13 +55,10 @@
 
 #if defined(COLORLCD)
   #include "radio_calibration.h"
-  #include "view_main.h"
   #include "view_text.h"
   #include "theme_manager.h"
   #include "switch_warn_dialog.h"
   #include "startup_shutdown.h"
-
-  #include "LvglWrapper.h"
 #endif
 
 #if defined(CROSSFIRE)
@@ -1421,11 +1418,7 @@ void edgeTxInit()
   if (!(startOptions & OPENTX_START_NO_SPLASH))
     startSplash();
 
-#if defined(COLORLCD)
-  initLvglTheme();
-  // create ViewMain
-  ViewMain::instance();
-#elif defined(GUI)
+#if !defined(COLORLCD)
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
   menuHandlers[1] = menuModelSelect;

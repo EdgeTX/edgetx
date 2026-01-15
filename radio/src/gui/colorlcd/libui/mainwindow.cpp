@@ -22,6 +22,7 @@
 #include "debug.h"
 #include "keyboard_base.h"
 #include "layout.h"
+#include "LvglWrapper.h"
 #include "etx_lv_theme.h"
 #include "sdcard.h"
 #include "view_main.h"
@@ -55,9 +56,13 @@ void MainWindow::emptyTrash()
   trash.clear();
 }
 
-void MainWindow::run(bool trash)
+void MainWindow::run()
 {
+  LvglWrapper::instance()->run();
+
+#if defined(DEBUG_WINDOWS)
   auto start = timersGetMsTick();
+#endif
 
   ViewMain::refreshWidgets();
 
@@ -73,12 +78,14 @@ void MainWindow::run(bool trash)
     }
   }
 
-  if (trash) emptyTrash();
+  emptyTrash();
 
+#if defined(DEBUG_WINDOWS)
   auto delta = timersGetMsTick() - start;
   if (delta > 10) {
     TRACE_WINDOWS("MainWindow::run took %dms", delta);
   }
+#endif
 }
 
 void MainWindow::shutdown()

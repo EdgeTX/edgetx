@@ -45,11 +45,7 @@ class MainWindow: public Window
   }
 #endif
 
-  void setActiveScreen() {
-    lv_scr_load(lvobj);
-  }
-
-  void run(bool trash=true);
+  void run();
 
   bool setBackgroundImage(std::string& fileName);
 
@@ -60,5 +56,6 @@ class MainWindow: public Window
   const BitmapBuffer *backgroundBitmap = nullptr;
 
   static MainWindow * _instance;
-  static void emptyTrash();
+
+  void emptyTrash();
 };

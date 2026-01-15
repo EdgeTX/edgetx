@@ -31,7 +31,6 @@
 #include "io/multi_firmware_update.h"
 #include "io/uf2_flash.h"
 #include "lib_file.h"
-#include "LvglWrapper.h"
 #include "menu.h"
 #include "progress.h"
 #include "sdcard.h"
