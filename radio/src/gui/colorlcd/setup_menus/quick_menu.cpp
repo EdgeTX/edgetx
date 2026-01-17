@@ -264,16 +264,14 @@ QuickMenu::QuickMenu() :
 #endif
 
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
-    if ((qmTopItems[i].enabled == nullptr) || qmTopItems[i].enabled()) {
-      if (qmTopItems[i].pageAction == QM_ACTION) {
-        mainMenu->addButton(qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle), qmTopItems[i].action);
+    if (qmTopItems[i].pageAction == QM_ACTION) {
+      mainMenu->addButton(qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle), qmTopItems[i].action, qmTopItems[i].enabled);
 #if VERSION_MAJOR > 2
-      } else {
-        auto sub = new QuickSubMenu(box, this, qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle), STR_VAL(qmTopItems[i].title), qmTopItems[i].subMenuItems);
-        sub->addButton();
-        subMenus.emplace_back(sub);
+    } else {
+      auto sub = new QuickSubMenu(box, this, qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle), STR_VAL(qmTopItems[i].title), qmTopItems[i].subMenuItems);
+      sub->addButton();
+      subMenus.emplace_back(sub);
 #endif
-      }
     }
   }
 }
