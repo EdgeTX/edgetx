@@ -93,7 +93,7 @@ class MdiChild : public QWidget
     bool invalidModels();
 
   public slots:
-    void newFile(bool createDefaults = true);
+    void newFile(bool useProfileSettings = false);
     bool loadFile(const QString & fileName, bool resetCurrentFile=true);
     bool save();
     bool saveAs(bool isNew=false);

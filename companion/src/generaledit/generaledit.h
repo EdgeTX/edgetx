@@ -69,9 +69,10 @@ class GeneralEdit : public QDialog
   private slots:
     void onTabModified();
     void on_tabWidget_currentChanged(int index);
-    void on_btnClearSettings_clicked();
-    void on_btnLoadSettings_clicked();
-    void on_btnSaveSettings_clicked();
+    void on_btnSettingsBackupClicked();
+    void on_btnSettingsBackupDeleteClicked();
+    void on_btnSettingsRestoreClicked();
+    void on_btnSettingsDefaultsClicked();
 
   private:
     Firmware * firmware;
@@ -79,4 +80,6 @@ class GeneralEdit : public QDialog
     void addTab(GenericPanel *panel, QString text);
     CompoundItemModelFactory *editorItemModels;
     bool intModChanged = false;
+
+    void postSettingsChangeMsg(const unsigned int oldIntMod);
 };

@@ -508,6 +508,7 @@ class Profile: public CompStoreObj
     // General settings
     PROPERTYQBA(generalSettings)
     PROPERTYSTR2(timeStamp, "TimeStamp")
+    PROPERTY(bool, useSavedSettings, true)
 
     PROPERTYSTRD(jsName, "")
 
@@ -781,6 +782,7 @@ class AppData: public CompStoreObj
     PROPERTY(bool, tabbedMdi,                  false)
     PROPERTY(bool, appDebugLog,                false)
     PROPERTY(bool, fwTraceLog,                 false)
+    PROPERTY(bool, useSavedSettings,           true)
 
     // Simulator global (non-profile) settings
     PROPERTY(QStringList, simuDbgFilters, QStringList())

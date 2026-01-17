@@ -335,7 +335,7 @@ void MainWindow::setTabbedWindows(bool on)
 void MainWindow::newFile()
 {
   MdiChild * child = createMdiChild();
-  child->newFile();
+  child->newFile(true);
   child->show();
 }
 
@@ -544,7 +544,7 @@ void MainWindow::readSettings()
 
   if (readSettingsFromRadio(tempFile)) {
     MdiChild * child = createMdiChild();
-    child->newFile(false);
+    child->newFile();
     child->loadFile(tempFile, false);
     child->show();
     qunlink(tempFile);
@@ -1325,6 +1325,7 @@ int MainWindow::newProfile(bool loadProfile)
   g.profile[i].fwType(newfw->getId());
   g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
   g.profile[i].externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
+  g.profile[i].useSavedSettings(g.useSavedSettings());
 
   if (loadProfile) {
     if (loadProfileId(i))
@@ -1491,7 +1492,7 @@ void MainWindow::readSettingsSDPath()
 
   if (readSettingsFromSDPath(tempFile)) {
     MdiChild * child = createMdiChild();
-    child->newFile(false);
+    child->newFile();
     child->loadFile(tempFile, false);
     child->show();
     qunlink(tempFile);
