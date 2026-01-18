@@ -50,7 +50,7 @@ class CustomFunctionsPanel : public GenericPanel
     void customFunctionEdited();
     void functionEdited();
     void onCustomContextMenuRequested(QPoint pos);
-    void refreshCustomFunction(int index, bool modified=false);
+    void refreshCustomFunction(int index, bool changed = false);
     bool playSound(int index);
     void stopSound(int index);
     void toggleSound(bool play);
