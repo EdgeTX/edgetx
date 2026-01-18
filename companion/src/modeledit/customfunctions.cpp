@@ -442,12 +442,20 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
           rng *= model->gvarData[gvidx].multiplierGet();
           fswtchParam[i]->setMinimum(-rng);
           fswtchParam[i]->setMaximum(rng);
+          fswtchParam[i]->setValue(cfn.param * model->gvarData[gvidx].multiplierGet());
         }
         else {
           fswtchParam[i]->setMinimum(model->gvarData[gvidx].getMinPrec());
           fswtchParam[i]->setMaximum(model->gvarData[gvidx].getMaxPrec());
+
+          if (cfn.param < model->gvarData[gvidx].getMin())
+            cfn.param = model->gvarData[gvidx].getMin();
+          else if (cfn.param > model->gvarData[gvidx].getMax())
+            cfn.param = model->gvarData[gvidx].getMax();
+
+          fswtchParam[i]->setValue(cfn.param * model->gvarData[gvidx].multiplierGet());
         }
-        fswtchParam[i]->setValue(cfn.param * model->gvarData[gvidx].multiplierGet());
+
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
       else {

@@ -386,7 +386,7 @@ QString CustomFunctionData::gvarAdjustModeToString(const int value)
 {
   switch (value) {
     case FUNC_ADJUST_GVAR_CONSTANT:
-      return tr("Value");
+      return tr("Constant");
     case FUNC_ADJUST_GVAR_SOURCE:
       return tr("Source (%)");
     case FUNC_ADJUST_GVAR_SOURCERAW:
