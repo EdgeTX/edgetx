@@ -403,6 +403,22 @@ void LogicalSwitchesPanel::updateLine(int i)
           dsbOffset[i]->setMinimum(range.min);
           dsbOffset[i]->setMaximum(range.max);
           dsbOffset[i]->setSingleStep(range.step);
+
+          bool mod = false;
+
+          if (value < range.min) {
+            value = round((range.min - range.offset) / range.step);
+            mod = true;
+          } else if (value > range.max) {
+            value = round((range.max - range.offset) / range.step);
+            mod = true;
+          }
+
+          if (mod) {
+            model->logicalSw[i].val2 = value;
+            emit modified();
+          }
+
           dsbOffset[i]->setValue(value);
         }
 
