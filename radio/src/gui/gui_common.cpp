@@ -313,7 +313,7 @@ bool isSourceAvailable(int source)
 
 bool isSourceAvailableForBacklightOrVolume(int source)
 {
-  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_NONE);
+  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
 }
 
 bool isLogicalSwitchAvailable(int index)
