@@ -25,7 +25,7 @@
 
 class UpdateExpressLRS : public UpdateInterface
 {
-  Q_DECLARE_TR_FUNCTIONS(UpdateMultiProtocol)
+  Q_DECLARE_TR_FUNCTIONS(UpdateExpressLRS)
 
   public:
 
