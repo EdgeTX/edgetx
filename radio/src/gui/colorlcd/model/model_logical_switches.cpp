@@ -90,14 +90,6 @@ class LogicalSwitchEditPage : public Page
     etx_font(headerSwitchName->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_LS_ACTIVE);
   }
 
-  void getV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max)
-  {
-    getMixSrcRange(cs->v1, v2_min, v2_max);
-    if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) ||
-        (cs->func == LS_FUNC_ADIFFEGREATER))
-      v2_min = 0;
-  }
-
   void updateLogicalSwitchOneWindow()
   {
     SwitchChoice* choice;
@@ -141,7 +133,7 @@ class LogicalSwitchEditPage : public Page
                            cs->v1 = newValue;
                            if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
-                             getV2Range(cs, v2_min, v2_max);
+                             validateLSV2Range(cs, v2_min, v2_max, nullptr);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
                              v2Edit->setValue(cs->v2);
@@ -206,7 +198,7 @@ class LogicalSwitchEditPage : public Page
         break;
       default:
         int16_t v2_min = 0, v2_max = 0;
-        getV2Range(cs, v2_min, v2_max);
+        if (validateLSV2Range(cs, v2_min, v2_max, nullptr)) SET_DIRTY();
         v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
                                 GET_SET_DEFAULT(cs->v2));
 
