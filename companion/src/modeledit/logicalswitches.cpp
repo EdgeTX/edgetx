@@ -397,12 +397,30 @@ void LogicalSwitchesPanel::updateLine(int i)
         }
         else {
           mask |= VALUE2_VISIBLE;
+
           if (!range.unit.isEmpty())
             dsbOffset[i]->setSuffix(" " + range.unit);
           dsbOffset[i]->setDecimals(range.decimals);
-          dsbOffset[i]->setMinimum(range.min);
-          dsbOffset[i]->setMaximum(range.max);
           dsbOffset[i]->setSingleStep(range.step);
+
+          if (model->logicalSw[i].func == LS_FN_ANEG ||
+              model->logicalSw[i].func == LS_FN_APOS) {
+            dsbOffset[i]->setMinimum(abs(range.min) < abs(range.max) ?
+                                     abs(range.min) : abs(range.max));
+            dsbOffset[i]->setMaximum(abs(range.max) > abs(range.min) ?
+                                     abs(range.max) : abs(range.min));
+          } else if (model->logicalSw[i].func == LS_FN_DPOS) {
+            dsbOffset[i]->setMinimum(range.min - range.max);
+            dsbOffset[i]->setMaximum(range.max - range.min);
+          } else if (model->logicalSw[i].func == LS_FN_DAPOS) {
+            dsbOffset[i]->setMinimum(0);
+            dsbOffset[i]->setMaximum(abs(range.max) > abs(range.min) ?
+                                     abs(range.max) - abs(range.min) :
+                                     abs(range.min) - abs(range.max));
+          } else {
+            dsbOffset[i]->setMinimum(range.min);
+            dsbOffset[i]->setMaximum(range.max);
+          }
 
           bool mod = false;
 
