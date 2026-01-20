@@ -195,6 +195,10 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS,
 #endif
+#if defined(DSMP)
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_ENABLE_AETR,
+#endif
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_CHANNELS,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_NOT_ACCESS_RXNUM_BIND_RANGE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_MODEL_NUM,
@@ -542,6 +546,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)  \
     AFHDS3_PROTOCOL_ROW(EXTERNAL_MODULE)  \
     AFHDS3_MODE_ROWS(EXTERNAL_MODULE) \
+    DSMP_STATUS_ROWS(EXTERNAL_MODULE) \
     MODULE_CHANNELS_ROWS(EXTERNAL_MODULE),  \
     IF_NOT_ACCESS_MODULE_RF(EXTERNAL_MODULE, MODULE_BIND_ROWS(EXTERNAL_MODULE)),  /* line reused for PPM: PPM settings */  \
     IF_ACCESS_MODULE_RF(EXTERNAL_MODULE, 0),       /* RxNum */ \
@@ -2125,12 +2130,13 @@ void menuModelSetup(event_t event)
               }
             }
 #endif
-            if (isModuleDSMP(moduleIdx) &&
-                (oldFlag != newFlag) &&
+#if defined(DSMP)
+            if (isModuleDSMP(moduleIdx) && (oldFlag != newFlag) &&
                 (oldFlag == MODULE_MODE_BIND)) {
               // Restart DSMP module when exiting bind mode
               restartModule(moduleIdx);
             }
+#endif
           }
         }
         break;
@@ -2435,12 +2441,31 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_STATUS:
 #endif
+#endif
+#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: 
+#endif
+#if (defined(MULTIMODULE) | defined(DSMP) | defined(AFHDS3)) && defined(HARDWARE_EXTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS: 
       {
+        // MultiModule & LemonDSMP & AFHDS3 Status
         lcdDrawTextIndented(y, STR_MODULE_STATUS);
         getModuleStatusString(moduleIdx, reusableBuffer.moduleSetup.msg);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, reusableBuffer.moduleSetup.msg);
         break;
       }
+#endif
+#if defined(DSMP) && defined(HARDWARE_EXTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_ENABLE_AETR:
+        g_model.moduleData[EXTERNAL_MODULE].dsmp.enableAETR =
+            editCheckBox(g_model.moduleData[EXTERNAL_MODULE].dsmp.enableAETR,
+                         MODEL_SETUP_2ND_COLUMN, y, STR_DSMP_ENABLE_AETR, attr,
+                         event, INDENT_WIDTH);
+        break;
+#endif 
+
+
+#if defined(MULTIMODULE)
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_SYNCSTATUS:
 #endif
@@ -2456,14 +2481,6 @@ void menuModelSetup(event_t event)
 #endif
 
 #if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: {
-        lcdDrawTextIndented(y, STR_MODULE_STATUS);
-
-        char statusText[64];
-        getModuleStatusString(moduleIdx, statusText);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, statusText);
-        break;
-      }
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS: {
         lcdDrawTextIndented(y, STR_AFHDS3_POWER_SOURCE);
         char statusText[64];

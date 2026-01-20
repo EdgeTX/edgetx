@@ -673,6 +673,7 @@
 #define TR_MULTI_OPTION                TR("Опція", "Значення опції")
 #define TR_MULTI_AUTOBIND              TR("Прив'язка до кан.", "Прив'язка до каналу")
 #define TR_DISABLE_CH_MAP              TR("Викл. карту каналів", "Виключити карту каналів")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("Викл. телеметрії", "Виключити телеметрію")
 #define TR_MULTI_LOWPOWER              TR("Низька потужн.", "Режим низької потужності")
 #define TR_MULTI_LNA_DISABLE           "Вимкн. LNA"

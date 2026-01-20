@@ -669,6 +669,7 @@
 #define TR_MULTI_OPTION                TR("選項值", "選項值")
 #define TR_MULTI_AUTOBIND              TR("對頻通道", "通道控制對頻")
 #define TR_DISABLE_CH_MAP              TR("禁用通道映射", "禁用通道重映射")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("禁用回傳", "禁用回傳")
 #define TR_MULTI_LOWPOWER              TR("低功率", "低功率模式")
 #define TR_MULTI_LNA_DISABLE           "禁用接收放大器"

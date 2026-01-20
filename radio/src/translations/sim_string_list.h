@@ -330,12 +330,16 @@
 #define STR_MENUCUSTOMSCRIPTS currentLangStrings->STR_MENUCUSTOMSCRIPTS
 #endif
 
-#if defined(DSM2) || defined(PXX)
+#if defined(DSM2) || defined(PXX) || defined(DSMP)
 #define STR_BIND_OK currentLangStrings->STR_BIND_OK
 #define STR_REBIND currentLangStrings->STR_REBIND
 #define STR_RECEIVER_NUM currentLangStrings->STR_RECEIVER_NUM
 #define STR_RECEIVER currentLangStrings->STR_RECEIVER
 #define STR_REG_OK currentLangStrings->STR_REG_OK
+#endif
+
+#if defined(DSMP)
+#define STR_DSMP_ENABLE_AETR currentLangStrings->STR_DSMP_ENABLE_AETR
 #endif
 
 #if defined(AFHDS3)

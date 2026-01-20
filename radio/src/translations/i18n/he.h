@@ -675,6 +675,7 @@
 #define TR_MULTI_OPTION                TR("Option", "Option value")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.", "צימוד על ערוץ")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "השבתת מיפוי ערוצים")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "השבתת טלמטריה")
 #define TR_MULTI_LOWPOWER              TR("Low power", "מצב מתח נמוך")
 #define TR_MULTI_LNA_DISABLE           "LNA disable"

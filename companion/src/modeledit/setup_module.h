@@ -70,6 +70,7 @@ class ModulePanel : public ModelPanel
     void on_autoBind_stateChanged(int state);
     void on_disableChMap_stateChanged(int state);
     void on_raw12bits_stateChanged(int state);
+    void on_enableAETR_stateChanged(int state);
     void on_racingMode_stateChanged(int state);
     void on_disableTelem_stateChanged(int state);
     void on_lowPower_stateChanged(int state);

@@ -67,9 +67,8 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
     }
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
     return 4;  // 12 channels
-  } else if (isModuleDSMP(moduleIdx) &&
-             (g_model.moduleData[moduleIdx].dsmp.flags != 0)) {
-    return g_model.moduleData[moduleIdx].channelsCount;
+  } else if (isModuleDSMP(moduleIdx)) {
+    return 4; //  12 channels
   } else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
@@ -129,6 +128,9 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
   }
   else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS3) {
     resetAfhds3Options(moduleIdx);
+  } 
+  else if (moduleData.type == MODULE_TYPE_LEMON_DSMP) {
+    restartModule(moduleIdx);  // Restart DSMP when switching to it (example PPM->DSMP)
   }
   else
     resetAccessAuthenticationCount();

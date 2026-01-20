@@ -696,6 +696,7 @@
 #define TR_MULTI_OPTION                 TR("옵션", "옵션 값")
 #define TR_MULTI_AUTOBIND               TR("바인드 채널", "채널에서 자동 바인딩")
 #define TR_DISABLE_CH_MAP               TR("채널 매핑 없음", "채널 매핑 비활성화")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("텔레메트리 없음", "텔레메트리 비활성화")
 #define TR_MULTI_LOWPOWER               TR("저전력", "저전력 모드")
 #define TR_MULTI_LNA_DISABLE            "LNA 비활성화"
