@@ -295,7 +295,7 @@ bool LogicalSwitchesPanel::offsetChangedAt(int index)
       RawSource source = RawSource(lsw.val1);
       RawSourceRange range = source.getRange(model, generalSettings, lsw.getRangeFlags());
       double currVal = source.type == SOURCE_TYPE_TIMER ? teOffset[index]->timeInSeconds() : dsbOffset[index]->value();
-      value = round((currVal - range.offset) / range.step);
+      value = range.toRaw(currVal);
       mod = (mod || value != lsw.val2);
       lsw.val2 = value;
       break;
@@ -382,7 +382,7 @@ void LogicalSwitchesPanel::updateLine(int i)
         mask |= SOURCE1_VISIBLE;
         RawSource source = RawSource(lsw.val1);
         RawSourceRange range = source.getRange(model, generalSettings, lsw.getRangeFlags());
-        double value = range.toDisplay(lsw.val2);  /* TODO+source.getRawOffset(model)*/
+        double value = range.toDisplay(lsw.val2);
         cbSource1[i]->setModel(rawSourceFilteredModel);
         cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(source.toValue()));
 
@@ -395,10 +395,10 @@ void LogicalSwitchesPanel::updateLine(int i)
           teOffset[i]->setTime((int)value);
         } else {
           mask |= VALUE2_VISIBLE;
-          dsbOffset[i]->setDecimals(range.decimals);
-          dsbOffset[i]->setSingleStep(range.step);
           dsbOffset[i]->setMinimum(range.min);
           dsbOffset[i]->setMaximum(range.max);
+          dsbOffset[i]->setDecimals(range.decimals);
+          dsbOffset[i]->setSingleStep(range.step);
           dsbOffset[i]->setAccelerated(true);
           value = range.validateDisplay(value);
 
