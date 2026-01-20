@@ -228,6 +228,8 @@ void ModelOutputsPage::build(Window* window)
         STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
         [=] {
           moveTrimsToOffsets();
+          for (int i = 0; i < outputButtons.size(); i += 1)
+            outputButtons[i]->refresh();
         });
     return 0;
   });
@@ -240,6 +242,8 @@ void ModelOutputsPage::build(Window* window)
     auto btn = new OutputLineButton(window, ch);
     lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (OutputLineButton::CH_LINE_H + PAD_TINY)));
     btn->setWidth(TRIMB_W);
+
+    outputButtons.emplace_back(btn);
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
