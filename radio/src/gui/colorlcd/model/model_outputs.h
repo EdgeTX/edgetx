@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "tabsgroup.h"
 
 class OutputLineButton;
@@ -48,5 +50,7 @@ class ModelOutputsPage : public PageTab
   static constexpr coord_t TRIMB_W = LCD_W - PAD_SMALL * 2;
 
  protected:
+  std::vector<OutputLineButton*> outputButtons;
+
   void editOutput(uint8_t channel, OutputLineButton* btn);
 };
