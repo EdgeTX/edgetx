@@ -230,7 +230,9 @@ StaticImage::StaticImage(Window* parent, const rect_t& rect,
 void StaticImage::setSource(std::string filename)
 {
   if (!filename.empty()) {
-    std::string fullpath = std::string("A" PATH_SEPARATOR) + filename;
+    std::string fullpath = std::string("A");
+    if (filename[0] != PATH_SEPARATOR[0]) fullpath += PATH_SEPARATOR;
+    fullpath += filename;
 
     if (!image) image = lv_img_create(lvobj);
     lv_obj_set_pos(image, 0, 0);
