@@ -674,6 +674,7 @@
 #define TR_MULTI_OPTION                TR("Опция", "Знач опции")
 #define TR_MULTI_AUTOBIND              TR("Прив к кан", "Прив к кан")
 #define TR_DISABLE_CH_MAP              TR("Откл карту кан", "Откл карту кан")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("Без телеметрии", "Откл телем")
 #define TR_MULTI_LOWPOWER              TR("Низк потребл", "Низк потребл")
 #define TR_MULTI_LNA_DISABLE           "Откл LNA"

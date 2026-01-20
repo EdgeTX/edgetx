@@ -672,6 +672,7 @@
 #define TR_MULTI_OPTION                 TR("Opzione", "Opzione valore")
 #define TR_MULTI_AUTOBIND               TR("Ass. Ch.","Associa al canale")
 #define TR_DISABLE_CH_MAP               TR("No Ch. map", "Disab. mappa Ch.")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("No Telem", "Telem. disabil.")
 #define TR_MULTI_LOWPOWER               TR("Bassa pot.", "Modo bassa potenza")
 #define TR_MULTI_LNA_DISABLE            "Disabilita LNA"

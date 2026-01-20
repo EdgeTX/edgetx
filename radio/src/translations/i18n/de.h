@@ -673,6 +673,7 @@
 #define TR_MULTI_OPTION                TR("Option", "Optionswert")
 #define TR_MULTI_AUTOBIND              TR("Bind Ka.","Bindung an Kanal")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Deaktiviere Ch. map")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "Deaktiviere Telem.")
 #define TR_MULTI_LOWPOWER              TR("Low power", "reduzierte Leistung")
 #define TR_MULTI_LNA_DISABLE           "LNA disable"

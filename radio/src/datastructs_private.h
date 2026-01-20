@@ -575,6 +575,7 @@ PACK(struct ModuleData {
     }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
+      uint8_t enableAETR : 1;
     } dsmp);
   } NAME(mod) FUNC(select_mod_type);
 
