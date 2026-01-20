@@ -112,11 +112,11 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
       result.max= 0;
 
       if (flags & RANGE_DELTA_FUNCTION) {
-        result.min = gv.getMin() - gv.getMax();
-        result.max = gv.getMax() - gv.getMin();
+        result.min = gv.getMinPrec() - gv.getMaxPrec();
+        result.max = gv.getMaxPrec() - gv.getMinPrec();
       } else {
-        result.min = gv.getMin();
-        result.max = gv.getMax();
+        result.min = gv.getMinPrec();
+        result.max = gv.getMaxPrec();
       }
 
       if (flags & RANGE_ABS_FUNCTION) {
