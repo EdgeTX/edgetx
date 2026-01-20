@@ -70,7 +70,7 @@ class QuickMenu : public NavWindow
   static void shutdownQuickMenu();
   static void selected();
   static void openPage(QMPage page);
-  static EdgeTxIcon pageIcon(QMPage page);
+  static EdgeTxIcon subMenuIcon(QMPage page);
   static int pageIndex(QMPage page);
   static std::vector<std::string> menuPageNames(bool forFavorites);
 
