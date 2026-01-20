@@ -54,6 +54,7 @@
 #define MASK_AFHDS                 (1<<22)
 #define MASK_CSRF_ARMING_MODE      (1<<23)
 #define MASK_CSRF_ARMING_TRIGGER   (1<<24)
+#define MASK_ENABLE_AETR           (1<<25)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -409,7 +410,7 @@ void ModulePanel::update()
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES | MASK_AFHDS;
         break;
       case PULSES_LEMON_DSMP:
-        mask |= MASK_CHANNELS_RANGE;
+        mask |= MASK_CHANNELS_RANGE | MASK_ENABLE_AETR;
         break;
       default:
         break;
@@ -448,6 +449,8 @@ void ModulePanel::update()
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
   ui->channelsCount->setSingleStep(firmware->getCapability(HasPPMStart) ? 1 : 2);
+  
+  // CRSF
   ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
   ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
   ui->crsfArmingTrigger->setVisible(mask & MASK_CSRF_ARMING_TRIGGER);
@@ -611,6 +614,12 @@ void ModulePanel::update()
     ui->raw12bits->setChecked(module.ghost.raw12bits);
   }
 
+  // DSMP settings fields
+  ui->enableAETR->setVisible(mask & MASK_ENABLE_AETR);
+  if (mask & MASK_ENABLE_AETR) {
+    ui->enableAETR->setChecked(module.dsmp.enableAETR);
+  }
+
   if (mask & MASK_ACCESS) {
     ui->rx1->setText(module.access.receiverName[0]);
     ui->rx2->setText(module.access.receiverName[1]);
@@ -632,7 +641,7 @@ void ModulePanel::update()
   ui->clearRx3->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
   ui->rx3->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
 
-  // AFHFS
+  // AFHDS2A / AFHDS3
   if (mask & MASK_AFHDS) {
     if (protocol == PULSES_FLYSKY_AFHDS2A) {
       ui->label_afhds->setText(tr("Options"));
@@ -913,6 +922,11 @@ void ModulePanel::on_disableChMap_stateChanged(int state)
 void ModulePanel::on_raw12bits_stateChanged(int state)
 {
   module.ghost.raw12bits = (state == Qt::Checked);
+}
+
+void ModulePanel::on_enableAETR_stateChanged(int state)
+{
+  module.dsmp.enableAETR = (state == Qt::Checked);
 }
 
 void ModulePanel::on_racingMode_stateChanged(int state)
