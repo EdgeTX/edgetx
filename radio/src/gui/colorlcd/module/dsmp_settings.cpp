@@ -23,6 +23,8 @@
 
 #include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

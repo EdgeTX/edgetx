@@ -513,9 +513,9 @@ void QuickMenu::focusMainMenu()
 
 void QuickMenu::onSelect(bool close)
 {
-  closeQM();
   if (selectHandler) selectHandler(close);
   selectHandler = nullptr;
+  closeQM();
 }
 
 void QuickMenu::closeQM()
