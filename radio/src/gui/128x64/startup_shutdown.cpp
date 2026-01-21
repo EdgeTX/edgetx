@@ -20,6 +20,8 @@
  */
 
 #include "edgetx.h"
+#include "hal/rgbleds.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 
 #define SLEEP_BITMAP_WIDTH             42
@@ -52,9 +54,14 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
 
   for (uint8_t j = 0; j < steps; j++) {
     if (index2 > j) {
-      fsLedOn(j);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      fsLedRGB(j, 0xFFFFFF);
+      rgbLedColorApply();
+#else
+      setFSLedON(j);
+#endif
 #if defined(RADIO_FAMILY_T20)
-      fsLedOn(j + steps);
+      setFSLedON(j + steps);
 #endif
     }
   }
@@ -88,14 +95,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       steps);
 
   for (uint8_t j = 0; j < steps; j++) {
-    fsLedOff(j);
+    setFSLedOFF(j);
 #if defined(RADIO_FAMILY_T20)
-    fsLedOff(j + steps);
+    setFSLedOFF(j + steps);
 #endif
     if (steps - index2 > j) {
-      fsLedOn(j);
+      setFSLedON(j);
 #if defined(RADIO_FAMILY_T20)
-      fsLedOn(j + steps);
+      setFSLedON(j + steps);
 #endif
     }
   }

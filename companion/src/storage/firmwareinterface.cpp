@@ -20,10 +20,8 @@
  */
 
 #include "hexinterface.h"
-#include "splash.h"
 #include "firmwareinterface.h"
 #include "helpers.h"
-#include "storage.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -35,6 +33,18 @@
 #define TIME_MARK   "TIME"
 #define EEPR_MARK   "EEPR"
 #define FSIZE_MAX   Boards::getFlashSize(Board::BOARD_UNKNOWN)
+
+#define UF2_HEADER_SIZE                 32
+#define UF2_BLOCK_SIZE                  512
+#define UF2_MAGICSTART0                 0x0A324655
+#define UF2_MAGICSTART1                 0x9E5D5157
+#define UF2_MAGICEND                    0x0AB16F30
+#define UF2_FLAG_NOT_MAIN_FLASH         0x00000001
+#define UF2_FLAG_FILE_CONTAINER         0x00001000
+#define UF2_FLAG_FAMILYID_PRESENT       0x00002000
+#define UF2_FLAG_MD5_CHECKSUM_PRESENT   0x00004000
+#define UF2_FLAG_EXT_FLAGS_PRESENT      0x00008000
+
 
 class RleBitmap
 {
@@ -85,14 +95,18 @@ public:
   {
     while(pos<size)
       *buf++ = getNext();
+
     return pos == size;
   }
+
   uint8_t getWidth() const { return width; }
   uint8_t getRows() const { return rows; }
   uint8_t getRawRows() const { return rawRows; }
+
   void goToNextRow()
   {
     size_t offset = pos%width;
+
     if(offset)
       skip(width - pos%width);
   }
@@ -158,40 +172,46 @@ private:
   size_t pos;
 };
 
-FirmwareInterface::FirmwareInterface(const QString & filename, QDialog* parentDialog):
-  parentDialog(parentDialog),
-  flash(FSIZE_MAX, 0),
-  flashSize(0),
-  eepromVersion(0),
-  eepromVariant(0),
-  splashOffset(0),
-  splashSize(0),
-  splashWidth(0),
-  splashHeight(0),
-  isValidFlag(false)
+FirmwareInterface::FirmwareInterface(const QString &filename, QDialog *parent) :
+  parentDialog(parent)
 {
-  if (!filename.isEmpty()) {
-    QFile file(filename);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) { // reading HEX TEXT file
-      QTextStream inputStream(&file);
-      flashSize = HexInterface(inputStream).load((uint8_t *)flash.data(), FSIZE_MAX);
-      file.close();
-      if (flashSize == 0) {
-        file.open(QIODevice::ReadOnly);
-        flashSize = file.read((char *)flash.data(), FSIZE_MAX);
-      }
-    }
-  }
+  if (filename.isEmpty()) return;
+
+  QFile file(filename);
+  file.open(QIODevice::ReadOnly);
+  initFlash(file.readAll());
+  file.close();
+}
+
+FirmwareInterface::FirmwareInterface(const QByteArray &flashData, QDialog *parent) :
+  parentDialog(parent)
+{
+  initFlash(flashData);
+}
+
+void FirmwareInterface::initFlash(const QByteArray& flashData)
+{
+  flash = flashData;
+  flashSize = flashData.size();
 
   if (flashSize > 0) {
-    flavour = seekLabel(FW_MARK);
+    type = (flash.startsWith("UF2\n") ? FIRMWARE_TYPE_UF2 : FIRMWARE_TYPE_BIN);
+    if (type == FIRMWARE_TYPE_UF2 && !concatUF2Payloads(flash)) {
+      qDebug() << "Unable to concatenate UF2 payloads";
+      isValidFlag = false;
+      return;
+    }
+
+    flavour = seekLabel(FW_MARK).remove("edgetx-");
     version = seekLabel(VERS_MARK);
+
     if (version.startsWith("opentx-")) {
       // old version format
       int index = version.lastIndexOf('-');
       flavour = version.mid(0, index);
       version = version.mid(index + 1);
     }
+
     date = seekLabel(DATE_MARK);
     time = seekLabel(TIME_MARK);
     eepromId = seekLabel(EEPR_MARK);
@@ -200,8 +220,7 @@ FirmwareInterface::FirmwareInterface(const QString & filename, QDialog* parentDi
       QStringList list = eepromId.split('-');
       eepromVersion = list[0].toInt();
       eepromVariant = list[1].toInt();
-    }
-    else {
+    } else {
       eepromVersion = eepromId.toInt();
     }
 
@@ -215,16 +234,20 @@ QString FirmwareInterface::seekString(const QString & string)
   QString result = "";
 
   int start = flash.indexOf(string.toUtf8());
+
   if (start > 0) {
     start += string.length();
     int end = -1;
-    for (int i=start; i<start+50; i++) {
+
+    for (int i = start; i < start + 50; i++) {
       char c = flash.at(i);
+
       if (c == '\0' || c == '\036') {
         end = i;
         break;
       }
     }
+
     if (end > 0) {
       result = flash.mid(start, (end - start)).trimmed();
     }
@@ -236,51 +259,43 @@ QString FirmwareInterface::seekString(const QString & string)
 QString FirmwareInterface::seekLabel(const QString & label)
 {
   QString result = seekString(label + "\037\033:");
+
   if (result.isEmpty()) {
     result = seekString(label + "\037\075:"); // This is for Horus
   }
+
   if (!result.isEmpty()) {
     return result;
   }
-  return seekString(label + ":");
-}
 
-QString FirmwareInterface::getFlavour() const
-{
-  if (flavour == "opentx-taranis-x9e")
-    return "opentx-x9e";
-  else if (flavour == "opentx-x9dp" || flavour == "opentx-taranis-plus")
-    return "opentx-x9d+";
-  else if (flavour == "opentx-taranis")
-    return "opentx-x9d";
-  else if (flavour == "opentx-horus")
-    return "opentx-x12s";
-  else
-    return flavour;
+  return seekString(label + ":");
 }
 
 bool FirmwareInterface::isHardwareCompatible(const FirmwareInterface &previousFirmware) const
 {
   QString newFlavour = getFlavour();
-  if (newFlavour.isEmpty()) {
+
+  if (newFlavour.isEmpty())
     return true;
-  }
+
   QString previousFlavour = previousFirmware.getFlavour();
-  if (previousFlavour.isEmpty()) {
+
+  if (previousFlavour.isEmpty())
     return true;
-  }
+
+  qDebug() << "Firmware previous:" << previousFlavour << "new:" << newFlavour;
   return (newFlavour == previousFlavour);
 }
 
 bool FirmwareInterface::seekSplash(QByteArray splash)
 {
   int start = flash.indexOf(splash);
-  if (start>0) {
+
+  if (start > 0) {
     splashOffset = start;
     splashSize = splash.size();
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
@@ -288,20 +303,23 @@ bool FirmwareInterface::seekSplash(QByteArray splash)
 bool FirmwareInterface::seekSplash(QByteArray sps, QByteArray spe, int size)
 {
   int start = 0;
-  while (start>=0) {
+
+  while (start >= 0) {
     start = flash.indexOf(sps, start+1);
+
     if (start>0) {
       int end = start + sps.size() + size;
+
       if (end == flash.indexOf(spe, end)) {
         splashOffset = start + sps.size();
         splashSize = end - start - sps.size();
         return true;
-      }
-      else {
+      } else {
         qDebug() << flash.indexOf(spe, start) << end << sps.size() << spe;
       }
     }
   }
+
   return false;
 }
 
@@ -317,30 +335,7 @@ void FirmwareInterface::seekSplash()
   splashOffset = 0;
   splashWidth = SPLASH_WIDTH;
   splashHeight = SPLASH_HEIGHT;
-  splash_format = QImage::Format_Mono;
-
-  if (seekSplash(QByteArray((const char *)gr9x_splash, sizeof(gr9x_splash))) || seekSplash(QByteArray((const char *)gr9xv4_splash, sizeof(gr9xv4_splash)))) {
-    return;
-  }
-
-  if (seekSplash(QByteArray((const char *)er9x_splash, sizeof(er9x_splash)))) {
-    return;
-  }
-
-  if (seekSplash(QByteArray((const char *)opentx_splash, sizeof(opentx_splash)))) {
-    return;
-  }
-
-  if (seekSplash(QByteArray((const char *)opentxtaranis_splash, sizeof(opentxtaranis_splash)))) {
-    splashWidth = SPLASHX9D_WIDTH;
-    splashHeight = SPLASHX9D_HEIGHT;
-    splash_format = QImage::Format_Indexed8;
-    return;
-  }
-
-  if (seekSplash(QByteArray((const char *)ersky9x_splash, sizeof(ersky9x_splash)))) {
-    return;
-  }
+  splashFormat = QImage::Format_Mono;
 
   if (seekSplash(QByteArray(ETX_SPS_9X, ETX_SPS_SIZE), QByteArray(ETX_SPE, ETX_SPE_SIZE), 1024)) {
     return;
@@ -349,17 +344,8 @@ void FirmwareInterface::seekSplash()
   if (seekSplash(QByteArray(ETX_SPS_TARANIS, ETX_SPS_SIZE), QByteArray(ETX_SPE, ETX_SPE_SIZE), RLE_SPLASH_MAX_SIZE)) {
     splashWidth = SPLASHX9D_WIDTH;
     splashHeight = SPLASHX9D_HEIGHT;
-    splash_format = QImage::Format_Indexed8;
+    splashFormat = QImage::Format_Indexed8;
     return;
-  }
-
-  if (seekSplash(QByteArray(ERSKY9X_SPS, sizeof(ERSKY9X_SPS)), QByteArray(ERSKY9X_SPE, sizeof(ERSKY9X_SPE)), 1030)) {
-    return;
-  }
-
-  if (seekSplash(QByteArray(ERSPLASH_MARKER, sizeof(ERSPLASH_MARKER)))) {
-    splashOffset += sizeof(ERSPLASH_MARKER);
-    splashSize = sizeof(er9x_splash);
   }
 }
 
@@ -372,36 +358,38 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
   uint8_t b[SPLASH_SIZE_MAX] = {0};
   QColor color;
   QByteArray splash;
-  if (splash_format == QImage::Format_Indexed8) {
-    for (unsigned int y=0; y<splashHeight; y++) {
-      unsigned int idx = (y/2)*splashWidth;
-      for (unsigned int x=0; x<splashWidth; x++, idx++) {
+
+  if (splashFormat == QImage::Format_Indexed8) {
+    for (unsigned int y = 0; y < splashHeight; y++) {
+      unsigned int idx = (y / 2) * splashWidth;
+      for (unsigned int x = 0; x < splashWidth; x++, idx++) {
         QRgb gray = qGray(newsplash.pixel(x, y));
-        uint8_t z = ((255-gray)*15)/255;
+        uint8_t z = ((255 - gray) * 15) / 255;
         if (y & 1) z <<= 4;
         b[idx] |= z;
       }
     }
-    if(splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
+
+    if (splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
     {
 	    splashSize = RleBitmap::encode(b, SPLASH_SIZE_MAX);
-	    if(splashSize > RLE_SPLASH_MAX_SIZE){
-	      if(parentDialog)
+	    if (splashSize > RLE_SPLASH_MAX_SIZE){
+	      if (parentDialog)
             QMessageBox::critical(parentDialog, CPN_STR_TTL_ERROR, QObject::tr("Compressed image size exceeds reserved space."));
           return false;
 	    }
     }
-  }
-  else {
+  } else {
     QColor black = QColor(0,0,0);
     QImage blackNwhite = newsplash.convertToFormat(QImage::Format_MonoLSB);
-    for (uint y=0; y<splashHeight; y++) {
-      for (uint x=0; x<splashWidth; x++) {
-        color = QColor(blackNwhite.pixel(x,y));
-        b[splashWidth*(y/8) + x] |= ((color==black ? 1: 0)<<(y % 8));
+    for (uint y = 0; y < splashHeight; y++) {
+      for (uint x = 0; x < splashWidth; x++) {
+        color = QColor(blackNwhite.pixel(x, y));
+        b[splashWidth * (y / 8) + x] |= ((color == black ? 1 : 0) << (y % 8));
       }
     }
   }
+
   splash.clear();
   splash.append((char *)b, splashSize);
   flash.replace(splashOffset, splashSize, splash);
@@ -420,9 +408,8 @@ uint FirmwareInterface::getSplashHeight()
 
 QImage::Format FirmwareInterface::getSplashFormat()
 {
-  return splash_format;
+  return splashFormat;
 }
-
 
 QImage FirmwareInterface::getSplash()
 {
@@ -430,17 +417,20 @@ QImage FirmwareInterface::getSplash()
     return QImage(); // empty image
   }
 
-  if (splash_format == QImage::Format_Indexed8) {
+  if (splashFormat == QImage::Format_Indexed8) {
     QImage image(splashWidth, splashHeight, QImage::Format_RGB888);
+
     if(splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
     {
       std::vector<uint8_t> data;
       data.resize(splashWidth * splashHeight);
       RleBitmap img((uint8_t*)flash.data() + splashOffset - 2, 0);
       img.to(&data[0], data.size());
+
       if (splashOffset > 0) {
         for (unsigned int y=0; y<splashHeight; y++) {
           unsigned int idx = (y/2)*splashWidth;
+
           for (unsigned int x=0; x<splashWidth; x++, idx++) {
             uint8_t byte = data[idx];
             unsigned int z = (y & 1) ? (byte >> 4) : (byte & 0x0F);
@@ -454,6 +444,7 @@ QImage FirmwareInterface::getSplash()
       if (splashOffset > 0) {
         for (unsigned int y=0; y<splashHeight; y++) {
           unsigned int idx = (y/2)*splashWidth;
+
           for (unsigned int x=0; x<splashWidth; x++, idx++) {
             uint8_t byte = flash.at(splashOffset+idx);
             unsigned int z = (y & 1) ? (byte >> 4) : (byte & 0x0F);
@@ -498,27 +489,57 @@ unsigned int FirmwareInterface::save(const QString & filename)
   memcpy(binflash, flash.constData(), flashSize);
   QFile file(filename);
 
-  int fileType = getStorageType(filename);
+  if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+    free(binflash);
+    return -1;
+  }
 
-  if (fileType == STORAGE_TYPE_HEX) {
-    if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) { //reading HEX TEXT file
-      free(binflash);
-      return -1;
-    }
-    QTextStream outputStream(&file);
-    HexInterface hex=HexInterface(outputStream);
-    hex.save(binflash, flashSize);
-  }
-  else {
-    if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) { //reading HEX TEXT file
-      free(binflash);
-      return -1;
-    }
-    file.write((char*)binflash, flashSize);
-  }
+  file.write((char*)binflash, flashSize);
 
   file.close();
 
   free(binflash);
   return flashSize;
+}
+
+bool FirmwareInterface::concatUF2Payloads(QByteArray & flashData)
+{
+  qsizetype flashSize = flashData.size();
+  int lastBlock = -1;
+  UF2_Block uf2Block;
+  QByteArray out;
+  QByteArray ba;
+  qsizetype totalBytesRead = 0;
+
+  do {
+    ba = flashData.mid(totalBytesRead, UF2_BLOCK_SIZE);
+    qsizetype bytesRead = ba.size();
+
+    if (bytesRead < UF2_BLOCK_SIZE) {
+      qDebug() << "bytes read" << bytesRead << "less than expected" << UF2_BLOCK_SIZE;
+      break;
+    }
+
+    totalBytesRead += bytesRead;
+
+    memcpy(&uf2Block, ba.constData(), sizeof(UF2_Block));
+
+    if (uf2Block.magicStart0 != UF2_MAGICSTART0 ||
+        uf2Block.magicStart1 != UF2_MAGICSTART1 ||
+        uf2Block.magicEnd != UF2_MAGICEND) {
+      qDebug() << "unexpected magic numbers";
+      return false;
+    }
+
+    if ((int)uf2Block.blockNo != ++lastBlock) {
+      qDebug() << "Block out of sequence";
+      return false;
+    }
+
+    out.append(ba.mid(UF2_HEADER_SIZE, uf2Block.payloadSize));
+
+  } while (totalBytesRead < flashSize);
+
+  flashData = out;
+  return true;
 }

@@ -21,9 +21,10 @@
 
 #include "model_curves.h"
 
+#include "button.h"
 #include "curveedit.h"
-#include "libopenui.h"
 #include "edgetx.h"
+#include "menu.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -42,7 +43,7 @@ class CurveButton : public Button
       s = strAppend(s, ":");
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
-    title = new StaticText(this, {4, -1, width() - 12, TITLE_H + 1}, buf, 
+    title = new StaticText(this, {PAD_SMALL, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf,
                            COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
@@ -52,31 +53,31 @@ class CurveButton : public Button
 
     hdrLeft = new StaticIcon(this, 0, 0, ICON_ROUND_TITLE_LEFT,
                              COLOR_THEME_SECONDARY2_INDEX);
-    hdrRight = new StaticIcon(this, width() - 8, 0,
+    auto mask = getBuiltinIcon(ICON_ROUND_TITLE_RIGHT);
+    hdrRight = new StaticIcon(this, width() - mask->width - PAD_BORDER * 2, 0,
                               ICON_ROUND_TITLE_RIGHT,
                               COLOR_THEME_SECONDARY2_INDEX);
 
     // Preview
     preview = new CurveRenderer(
         this,
-        {PAD_MEDIUM, PAD_MEDIUM + TITLE_H, width() - PAD_MEDIUM * 2 - 4,
-         width() - PAD_MEDIUM * 2 - 4},
+        {PAD_MEDIUM, PAD_MEDIUM + EdgeTxStyles::STD_FONT_HEIGHT, width() - PAD_MEDIUM * 2 - PAD_SMALL,
+         width() - PAD_MEDIUM * 2 - PAD_SMALL},
         [=](int x) -> int { return applyCustomCurve(x, index); });
 
     // Curve characteristics
     CurveHeader &curve = g_model.curves[index];
     snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points,
              STR_PTS);
-    new StaticText(this, {0, height() - INFO_H + 1, LV_PCT(100), 16}, buf, 
+    new StaticText(this, {0, height() - EdgeTxStyles::STD_FONT_HEIGHT - PAD_MEDIUM, LV_PCT(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf,
                    COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
   }
 
   void update() { preview->update(); }
 
-  static LAYOUT_VAL(TITLE_H, 20, 20)
-  static LAYOUT_VAL(INFO_H, 27, 27)
-  static LAYOUT_VAL(CURVE_BTN_W, 142, 142)
-  static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + TITLE_H + INFO_H - PAD_MEDIUM;
+  static LAYOUT_VAL_SCALED(INFO_H, 27)
+  static constexpr coord_t CURVE_BTN_W = (LCD_W - PAD_LARGE * (ModelCurvesPage::PER_ROW + 1)) / ModelCurvesPage::PER_ROW;
+  static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + EdgeTxStyles::STD_FONT_HEIGHT * 2;
 
  protected:
   uint8_t index;
@@ -110,7 +111,7 @@ void initPoints(const CurveHeader &curve, int8_t *points)
   }
 }
 
-ModelCurvesPage::ModelCurvesPage() : PageTab(STR_MENUCURVES, ICON_MODEL_CURVES)
+ModelCurvesPage::ModelCurvesPage(const PageDef& pageDef) : PageGroupItem(pageDef)
 {
 }
 
@@ -203,7 +204,7 @@ void ModelCurvesPage::plusPopup(Window *window)
 
 void ModelCurvesPage::build(Window *window)
 {
-#if !PORTRAIT_LCD
+#if LANDSCAPE
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #else

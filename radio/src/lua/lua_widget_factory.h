@@ -25,30 +25,34 @@
 
 class LuaWidgetFactory : public WidgetFactory
 {
-  friend void luaLoadWidgetCallback();
   friend class LuaWidget;
 
  public:
-  LuaWidgetFactory(const char* name, ZoneOption* widgetOptions,
-                   int createFunction);
+  LuaWidgetFactory(const char* name, WidgetOption* widgetOptions, int optionDefinitionsReference,
+                   int createFunction, int updateFunction, int refreshFunction,
+                   int backgroundFunction, int translateFunction, bool lvgllayout,
+                   const char* filename);
   ~LuaWidgetFactory();
 
-  Widget* create(Window* parent, const rect_t& rect,
-                 Widget::PersistentData* persistentData,
-                 bool init = true) const override;
+  Widget* createNew(Window* parent, const rect_t& rect,
+                 int screenNum, int zoneNum) const override;
 
   bool isLuaWidgetFactory() const override { return true; }
 
   bool useLvglLayout() const { return lvglLayout; }
 
- protected:
-  void translateOptions(ZoneOption * options);
+  static WidgetOption* parseOptionDefinitions(int reference);
+  const void parseOptionDefaults() const override;
 
+ protected:
+  void translateOptions(WidgetOption * options);
+
+  int optionDefinitionsReference;
   int createFunction;
   int updateFunction;
   int refreshFunction;
   int backgroundFunction;
   int translateFunction;
-  int settingsFunction;
   bool lvglLayout;
+  std::string path;
 };

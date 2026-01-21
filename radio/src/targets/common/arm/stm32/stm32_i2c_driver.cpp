@@ -25,6 +25,9 @@
 #include "stm32_hal.h"
 
 #include "timers_driver.h"
+#if !defined(BOOT)
+#include "os/task.h"
+#endif
 #include "debug.h"
 
 #define MAX_I2C_DEVICES 2
@@ -32,6 +35,10 @@
 struct stm32_i2c_device {
   I2C_HandleTypeDef handle;
   const stm32_i2c_hw_def_t* hw_def;
+#if !defined(BOOT)
+  mutex_handle_t mutex;
+  bool mutex_initialized;
+#endif
 };
 
 static stm32_i2c_device _i2c_devs[MAX_I2C_DEVICES] = {};
@@ -47,6 +54,20 @@ static I2C_HandleTypeDef* i2c_get_handle(uint8_t bus)
   if (bus >= MAX_I2C_DEVICES) return nullptr;
   return &_i2c_devs[bus].handle;
 }
+
+#if !defined(BOOT)
+static void i2c_ensure_mutex(stm32_i2c_device* dev)
+{
+  if (!dev->mutex_initialized && scheduler_is_running()) {
+    mutex_create(&dev->mutex);
+    dev->mutex_initialized = true;
+  }
+}
+
+#define I2CMutex(bus) i2c_ensure_mutex(i2c_get_device(bus)); MutexLock mutexLock = MutexLock::MakeInstance(&i2c_get_device(bus)->mutex)
+#else
+#define I2CMutex(bus)
+#endif
 
 #if defined(STM32H7) || defined(STM32H7RS)
 
@@ -360,7 +381,14 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
 #endif
 
 #if defined(LL_RCC_I2C123_CLKSOURCE)
-  LL_RCC_SetClockSource(LL_RCC_I2C123_CLKSOURCE_PCLK1);
+# if defined(LL_RCC_I2C4_CLKSOURCE)
+  if (instance == I2C4) {
+    LL_RCC_SetClockSource(LL_RCC_I2C4_CLKSOURCE_PCLK4);
+  } else
+# endif
+  {
+    LL_RCC_SetClockSource(LL_RCC_I2C123_CLKSOURCE_PCLK1);
+  }
 #endif
 
   return 0;
@@ -371,15 +399,17 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
 static int i2c_enable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock enable */
-  if (instance == I2C1) {
+  if (instance == I2C1)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-  } else if (instance == I2C2) {
+  else if (instance == I2C2)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C2);
-  } else if (instance == I2C3) {
+  else if (instance == I2C3)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
-  } else {
-    return -1;
-  }
+#if defined(I2C4)
+  else if (instance == I2C4)
+    LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_I2C4);
+#endif
+  else return -1;
 
   return 0;
 }
@@ -393,6 +423,10 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C2);
   else if (instance == I2C3)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C3);
+#if defined(I2C4)
+  else if (instance == I2C4)
+    LL_APB4_GRP1_DisableClock(LL_APB4_GRP1_PERIPH_I2C4);
+#endif
   else
     return -1;
 
@@ -472,17 +506,17 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
 
   if (i2c_gpio_init(hw_def) < 0) {
     TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
-    return -1;
+    return -2;
   }
 
   if (i2c_enable_clock(hw_def->I2Cx) < 0) {
     TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
-    return -1;
+    return -3;
   }
 
   if (HAL_I2C_Init(h) != HAL_OK) {
     TRACE("I2C ERROR: HAL_I2C_Init() failed");
-    return -1;
+    return -4;
   }
 
 #if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \
@@ -500,6 +534,9 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   }
 #endif
 
+#if !defined(BOOT)
+  dev->mutex_initialized = false;
+#endif
   return 1;
 }
 
@@ -529,6 +566,7 @@ int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
   
+  I2CMutex(bus);
   if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -542,6 +580,7 @@ int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
   
+  I2CMutex(bus);
   if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -555,6 +594,7 @@ int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
 
+  I2CMutex(bus);
   if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -567,7 +607,8 @@ int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
 {
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;  
-  
+
+  I2CMutex(bus);
   if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
     return -1;
   }
@@ -580,6 +621,7 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_
   I2C_HandleTypeDef* h = i2c_get_handle(bus);
   if (!h) return -1;
 
+  I2CMutex(bus);
   HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, retries, timeout);
   if (err != HAL_OK) return -1;
 
@@ -588,5 +630,6 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_
 
 int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
 {
+  I2CMutex(bus);
   return stm32_i2c_is_dev_ready(bus, addr, 1, timeout);
 }

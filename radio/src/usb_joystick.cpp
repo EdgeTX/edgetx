@@ -26,6 +26,8 @@
 #include "hal/usb_driver.h"
 #include "edgetx.h"
 
+#include <cmath>
+
 #define MAX_HID_REPORTDESC 160
 #define MAX_HID_REPORT 80
 

@@ -67,7 +67,7 @@ class Curve : public Window
  protected:
   CurveRenderer base;
   // Drawing rectangle position & size
-  uint8_t dx, dy, dw, dh;
+  int16_t dx, dy, dw, dh;
   int lastPos = 0;
   std::function<int(int)> valueFunc;
   std::function<int()> positionFunc;
@@ -85,4 +85,9 @@ class Curve : public Window
   coord_t getPointY(int y) const;
 
   void checkEvents() override;
+
+  static LAYOUT_VAL_SCALED(POS_LBL_X, 10)
+  static LAYOUT_VAL_SCALED(POS_LBL_Y, 10)
+  static LAYOUT_VAL_SCALED(POS_LBL_H, 17)
+  static LAYOUT_VAL_SCALED_ODD(POS_PT_SZ, 9)
 };

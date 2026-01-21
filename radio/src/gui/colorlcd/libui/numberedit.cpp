@@ -19,7 +19,10 @@
 #include "numberedit.h"
 
 #include "audio.h"
+#include "debug.h"
+#include "hal/rotary_encoder.h"
 #include "keyboard_number.h"
+#include "keys.h"
 #include "strhelpers.h"
 #include "etx_lv_theme.h"
 
@@ -30,7 +33,7 @@ class NumberArea : public FormField
       FormField(parent, rect, etx_textarea_create),
       numEdit(parent)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS);
 
     if (parent->getTextFlags() & CENTERED)
       etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
@@ -56,7 +59,10 @@ class NumberArea : public FormField
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override
   {
-    return "NumberArea(" + std::to_string(getValue()) + ")";
+    if(numEdit)
+       return "NumberArea(" + numEdit->getName() + ")";
+    else
+       return "NumberArea(unknown)";
   }
 #endif
 
@@ -211,11 +217,15 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax)
 {
-  if (rect.w == 0) setWidth(DEF_W);
+  if (rect.w == 0 || rect.w == LV_SIZE_CONTENT) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   setTextFlag(textFlags);
 
-  lv_obj_set_width(label, width() - PAD_MEDIUM * 2 - 2);
+  padLeft(PAD_MEDIUM);
+  padRight(PAD_SMALL);
+
+  lv_obj_set_width(label, LV_PCT(100));
+
   if (textFlags & CENTERED)
     etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
   else
@@ -229,7 +239,7 @@ void NumberEdit::openEdit()
   if (edit == nullptr) {
     edit = new NumberArea(
         this,
-        {-(PAD_MEDIUM + 2), -(PAD_TINY + 2),
+        {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
         lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
     edit->setChangeHandler([=]() {
       update();

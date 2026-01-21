@@ -20,7 +20,12 @@
  */
 
 #include "afhds3_options.h"
+
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
+#include "toggleswitch.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
@@ -43,8 +48,6 @@ static uint8_t channel_num[]={18, 10, 18, 8, 12};
 struct PWMfrequencyChoice : public Window {
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx);
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx);
-
-  static LAYOUT_VAL(NUM_W, 60, 60)
 
  private:
   NumberEdit* num_edit = nullptr;
@@ -77,7 +80,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
                       if (num_edit)
                         num_edit->show(pwmvalue_type == 4);
                     });
-  num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
+  num_edit = new NumberEdit(this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==4?vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx]:50); },
                   [=](int16_t newVal) {
                     vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] = newVal;
@@ -111,13 +114,13 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
                       if (num_edit)
                         num_edit->show(pwmvalue_type == 2);
                 });
-  num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
+  num_edit = new NumberEdit(this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==2?vCfg->PWMFrequency.Frequency&0x7fff:50); },
                   [=](int16_t newVal) {
                       vCfg->PWMFrequency.Frequency = newVal;
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0);
                   });
-  num_edit->show(pwmvalue_type == 2);  
+  num_edit->show(pwmvalue_type == 2);
 }
 
 AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
@@ -199,7 +202,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   if(!newValue)
                   {
                     vCfg->NewPortTypes[i] = newValue;
-                    DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);                    
+                    DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);
                   }
                   else {
                     uint8_t j = 0;

@@ -30,8 +30,7 @@
 #define CPN_MAX_EXPOS                  64
 #define CPN_MAX_CURVES                 32
 #define CPN_MAX_POINTS                 17
-#define CPN_MAX_GVARS                  9
-#define CPN_MAX_ENCODERS               2  // rotary encoders
+#define CPN_MAX_GVARS                  15 // 0, 9, 15
 #define CPN_MAX_CHNOUT                 32 // number of real output channels
 #define CPN_MAX_LOGICAL_SWITCHES       64 // number of custom switches
 #define CPN_MAX_SPECIAL_FUNCTIONS      64 // number of functions assigned to switches
@@ -40,15 +39,14 @@
 #define CPN_MAX_TRIMS                  Board::TRIM_AXIS_COUNT
 #define CPN_MAX_CYC                    3
 #define CPN_MAX_SWITCHES_FLEX          4 // v2.10 cmake parameter FLEXSW
-#define CPN_MAX_SWITCHES_FUNCTION      6
+#define CPN_MAX_SWITCHES_FUNCTION      8
 #define CPN_MAX_SWITCHES_STD           20
 #define CPN_MAX_SWITCHES               (CPN_MAX_SWITCHES_STD + CPN_MAX_SWITCHES_FLEX + CPN_MAX_SWITCHES_FUNCTION)
-#define CPN_MAX_SENSORS                60
+#define CPN_MAX_SENSORS                99
 #define CPN_MAX_SCRIPTS                9
 #define CPN_MAX_SCRIPT_INPUTS          10
 #define CPN_MAX_SPACEMOUSE             6
 #define CPN_MAX_INPUTS                 32 // v2.10 replaces CPN_MAX_ANALOGS - the value is abitary as radio ADC refactor is still a WIP
-#define CPN_MAX_FUNCTIONSWITCH_GROUP   3
 
 // pre v2.10
 #define CPN_MAX_POTS                   8
@@ -68,19 +66,15 @@
 
 #define CPN_STR_FILES                  QCoreApplication::translate("Companion", "files")
 #define CPN_STR_RAD_MOD_SETTINGS       QCoreApplication::translate("Companion", "Radio and Models settings")
-#define HEX_FILES_FILTER               "HEX " % CPN_STR_FILES % " (*.hex);;"
 #define BIN_FILES_FILTER               "BIN " % CPN_STR_FILES % " (*.bin);;"
-#define DFU_FILES_FILTER               "DFU " % CPN_STR_FILES % " (*.dfu);;"
-#define EEPE_FILES_FILTER              "EEPE " % CPN_STR_FILES % " (*.eepe);;"
-#define OTX_FILES_FILTER               "OpenTX " % CPN_STR_FILES % " (*.otx);;"
+#define UF2_FILES_FILTER               "UF2 " % CPN_STR_FILES % " (*.uf2);;"
 #define ETX_FILES_FILTER               "EdgeTX " % CPN_STR_FILES % " (*.etx);;"
 #define YML_FILES_FILTER               "EdgeTX YAML " % CPN_STR_FILES % " (*.yml);;"
-#define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.etx *.yml *.otx *.eepe *.bin *.hex);;" % ETX_FILES_FILTER % YML_FILES_FILTER % OTX_FILES_FILTER % EEPE_FILES_FILTER % BIN_FILES_FILTER % HEX_FILES_FILTER
-#define FLASH_FILES_FILTER             "FLASH " % CPN_STR_FILES % " (*.bin *.hex *.dfu);;" % BIN_FILES_FILTER % HEX_FILES_FILTER % DFU_FILES_FILTER
-#define EXTERNAL_EEPROM_FILES_FILTER   "EEPROM " % CPN_STR_FILES % " (*.bin *.hex);;" % BIN_FILES_FILTER % HEX_FILES_FILTER
-#define ER9X_EEPROM_FILE_TYPE          "ER9X_EEPROM_FILE"
+#define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.etx *.yml);;" % ETX_FILES_FILTER % YML_FILES_FILTER
+#define FIRMWARE_FILES_FILTER          "Firmware " % CPN_STR_FILES % " (*.bin *.uf2);;" % BIN_FILES_FILTER % UF2_FILES_FILTER
+#define EXTERNAL_EEPROM_FILES_FILTER   "EEPROM " % CPN_STR_FILES % " (*.bin);;" % BIN_FILES_FILTER
 #define EEPE_EEPROM_FILE_HEADER        "EEPE EEPROM FILE"
-#define EEPE_MODEL_FILE_HEADER         "EEPE MODEL FILE"
+#define SIMU_FILES_FILTER              ETX_FILES_FILTER
 
 #define CPN_STR_APP_SETTINGS           QCoreApplication::translate("Companion", "Application Settings")
 #define CPN_STR_APP_SETTINGS_FILES     CPN_STR_APP_SETTINGS % " " % CPN_STR_FILES
@@ -96,6 +90,9 @@
 
 #define CPN_STR_SRC_INDICATOR_NEG      QCoreApplication::translate("RawSource", "-")             // Source negative value indicator.
 
-#define EDGETX_HOME_PAGE_URL           "https://edgetx.org"
+#define EDGETX_HOME_PAGE_URL           QStringLiteral("https://edgetx.org")
+#define EDGETX_DONATE_URL              QStringLiteral("https://opencollective.com/edgetx/donate")
+#define EDGETX_COMMIT_URL              QStringLiteral("https://github.com/EdgeTX/edgetx/commit/")
+#define EDGETX_ISSUES_URL              QStringLiteral("https://github.com/EdgeTX/edgetx/issues/new/choose")
 
 #define CPN_ADC_REFACTOR_VERSION       "2.10.0"

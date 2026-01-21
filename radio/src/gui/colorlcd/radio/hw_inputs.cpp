@@ -22,10 +22,15 @@
 #include "hw_inputs.h"
 
 #include "analogs.h"
+#include "choice.h"
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "edgetx.h"
+#include "layout.h"
+#include "static.h"
 #include "switches.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -37,7 +42,7 @@ struct HWInputEdit : public RadioTextEdit {
   {
   }
 
-  static LAYOUT_VAL(HW_INP_W, 64, 64)
+  static LAYOUT_VAL_SCALED(HW_INP_W, 64)
 };
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -45,7 +50,7 @@ static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t col_three_dsc[] = {
     LV_GRID_FR(8), LV_GRID_FR(12), LV_GRID_FR(20), LV_GRID_TEMPLATE_LAST};
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2),
                                           LV_GRID_FR(5), LV_GRID_FR(2),
                                           LV_GRID_TEMPLATE_LAST};
@@ -56,25 +61,34 @@ static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(7),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
+HWSticks::HWSticks(Window* parent) : Window(parent, {0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
-  FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
-  setFlexLayout();
+  new StaticText(this, {S_NM_X, -PAD_TINY, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {S_INV_X, -PAD_TINY, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+
+  coord_t yo = EdgeTxStyles::STD_FONT_HEIGHT - PAD_TINY;
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
-    auto line = newLine(grid);
-    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_MAIN, i));
-    new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, i),
-                    LEN_ANA_NAME);
+    new StaticText(this, {0, S_Y(i) + yo + PAD_MEDIUM, S_LBL_W, 0},
+                   analogGetCanonicalName(ADC_INPUT_MAIN, i));
+    new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, i),
+                    LEN_ANA_NAME, S_NM_X, S_Y(i) + yo);
+
+    new ToggleSwitch(
+          this, {S_INV_X, S_Y(i) + yo, S_INV_W, 0},
+          [=]() -> uint8_t { return (uint8_t)getStickInversion(i); },
+          [=](int8_t newValue) {
+            setStickInversion(i, newValue);
+            SET_DIRTY();
+          });
   }
 
 #if defined(STICK_DEAD_ZONE)
-  auto line = newLine(grid);
-  new StaticText(line, rect_t{}, STR_DEAD_ZONE);
-  auto dz = new Choice(line, rect_t{}, 0, 7,
+  new StaticText(this, {0, S_Y(max_sticks) + yo + PAD_MEDIUM}, STR_DEAD_ZONE);
+  auto dz = new Choice(this, {S_INV_X, S_Y(max_sticks) + yo}, 0, 7,
                        GET_SET_DEFAULT(g_eeGeneral.stickDeadZone));
   dz->setTextHandler([](uint8_t value) {
     return std::to_string(value ? 2 << (value - 1) : 0);
@@ -83,7 +97,7 @@ HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
 }
 
 HWPots::HWPots(Window* parent) :
-    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+    Window(parent, {0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
@@ -96,11 +110,11 @@ HWPots::HWPots(Window* parent) :
     }
   });
 
-  new StaticText(this, {P_NM_X, -2, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(this, {P_TYP_X, -2, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(this, {P_INV_X, -2, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_NM_X, -PAD_TINY, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_TYP_X, -PAD_TINY, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_INV_X, -PAD_TINY, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 
-  coord_t yo = EdgeTxStyles::PAGE_LINE_HEIGHT - 2;
+  coord_t yo = EdgeTxStyles::STD_FONT_HEIGHT - PAD_TINY;
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = 0; i < max_pots; i++) {
@@ -111,15 +125,14 @@ HWPots::HWPots(Window* parent) :
     // #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
-    new StaticText(this,
-                   rect_t{P_LBL_X, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
+    new StaticText(this, {0, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
                    adcGetInputLabel(ADC_INPUT_FLEX, i));
 
     new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
                     LEN_ANA_NAME, P_NM_X, P_Y(i) + yo);
 
     auto pot = new Choice(
-        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, 0},
+        this, {P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, 0},
         STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
         [=]() -> int { return getPotType(i); },
         [=](int newValue) {
@@ -136,7 +149,7 @@ HWPots::HWPots(Window* parent) :
     pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
 
     auto tgl = new ToggleSwitch(
-          this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y + yo, P_INV_W, 0},
+          this, {P_INV_X, P_Y(i) + yo, P_INV_W, 0},
           [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
           [=](int8_t newValue) {
             setPotInversion(i, newValue);
@@ -155,7 +168,7 @@ class SwitchDynamicLabel : public StaticText
 {
  public:
   SwitchDynamicLabel(Window* parent, uint8_t index, coord_t x, coord_t y, coord_t w) :
-      StaticText(parent, rect_t{x, y, w, 0}, ""),
+      StaticText(parent, {x, y, w, 0}, ""),
       index(index)
   {
     checkEvents();
@@ -163,7 +176,7 @@ class SwitchDynamicLabel : public StaticText
 
   std::string label()
   {
-    std::string str(switchGetCanonicalName(index));
+    std::string str(switchGetDefaultName(index));
     return str + getSwitchPositionSymbol(lastpos);
   }
 
@@ -197,15 +210,15 @@ class HWSwitch
  public:
   HWSwitch(Window* parent, int swnum, coord_t y)
   {
-    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_MEDIUM, SW_CTRL_W);
-    new HWInputEdit(parent, (char*)switchGetCustomName(swnum), LEN_SWITCH_NAME,
-                    SW_CTRL_W + 8, y);
+    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_SMALL, HWSwitches::SW_CTRL_W);
+    new HWInputEdit(parent, g_eeGeneral.getSwitchCustomName(swnum), LEN_SWITCH_NAME,
+                    HWSwitches::SW_CTRL_W + PAD_SMALL, y);
 
-    coord_t x = SW_CTRL_W * PAD_TINY + 14;
+    coord_t x = HWSwitches::SW_CTRL_W * 2 + PAD_SMALL * 2;
 
     if (switchIsFlex(swnum)) {
       channel = new Choice(
-          parent, {x, y, SW_CTRL_W, 0}, -1,
+          parent, {x, y, HWSwitches::SW_CTRL_W, 0}, -1,
           adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
           [=]() -> int { return switchGetFlexConfig(swnum); },
           [=](int newValue) {
@@ -219,18 +232,15 @@ class HWSwitch
         if (val < 0) return STR_NONE;
         return adcGetInputLabel(ADC_INPUT_FLEX, val);
       });
-      x += SW_CTRL_W + 6;
+      x += HWSwitches::SW_CTRL_W + PAD_SMALL;
     }
 
     sw_cfg = new Choice(
-        parent, {x, y, SW_CTRL_W, 0},
+        parent, {x, y, HWSwitches::SW_CTRL_W, 0},
         STR_SWTYPES, SWITCH_NONE, switchGetMaxType(swnum),
-        [=]() -> int { return SWITCH_CONFIG(swnum); },
+        [=]() -> int { return g_eeGeneral.switchType(swnum); },
         [=](int newValue) {
-          swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(swnum);
-          g_eeGeneral.switchConfig =
-              (g_eeGeneral.switchConfig & ~mask) |
-              ((swconfig_t(newValue) & SW_CFG_MASK) << (SW_CFG_BITS * swnum));
+          g_eeGeneral.switchSetType(swnum, (SwitchConfig)newValue);
           SET_DIRTY();
         });
 
@@ -246,8 +256,7 @@ class HWSwitch
     }
   }
 
-  static LAYOUT_VAL(SW_CTRL_W, 86, 75)
-  static LAYOUT_VAL(SW_CTRL_H, 36, 36)
+  static constexpr coord_t SW_CTRL_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
 
  protected:
   Choice* channel = nullptr;
@@ -255,19 +264,22 @@ class HWSwitch
 };
 
 HWSwitches::HWSwitches(Window* parent) :
-    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+    Window(parent, rect_t{0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
-  auto max_switches = switchGetMaxSwitches();
-  for (int i = 0; i < max_switches; i++) {
-    new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_TINY);
+  auto max_switches = switchGetMaxAllSwitches();
+  for (int i = 0, j = 0; i < max_switches; i++) {
+    if (!switchIsCustomSwitch(i)) {
+      new HWSwitch(this, i, j * HWSwitch::SW_CTRL_H + PAD_OUTLINE);
+      j++;
+    }
   }
 }
 
 template <class T>
-HWInputDialog<T>::HWInputDialog(const char* title) :
-    BaseDialog(title, true)
+HWInputDialog<T>::HWInputDialog(const char* title, coord_t w) :
+    BaseDialog(title, true, w)
 {
   new T(form);
 }

@@ -69,7 +69,7 @@ typedef PulsesData ExtmoduleData;
 #if defined(INTERNAL_MODULE_AFHDS3)
 typedef SerialData IntmoduleData;
 #endif
-
+uint8_t get_current_rfpower_level( uint8_t module );
 extern etx_proto_driver_t ProtoDriver;
 
 void getStatusString(uint8_t module, char* buffer);

@@ -26,12 +26,7 @@
 #include "hal/storage.h"
 
 #include "edgetx.h"
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
-#endif
+#include "lib_file.h"
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "Variable sector size is not supported"
@@ -196,7 +191,7 @@ const char * getBasename(const char * path)
   return path;
 }
 
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
 bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags)
 {
   static uint16_t lastpopupMenuOffset = 0;
@@ -346,7 +341,7 @@ bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen
   return popupMenuItemsCount;
 }
 
-#endif // !LIBOPENUI
+#endif // !COLORLCD
 
 const char * sdCopyFile(const char * srcPath, const char * destPath)
 {
@@ -565,7 +560,7 @@ void sdDone()
 
 uint32_t sdMounted()
 {
-#if defined(SIMU)
+#if defined(SIMU) && !defined(SIMU_DISKIO)
   return true;
 #else
   return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);

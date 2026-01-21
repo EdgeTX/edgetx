@@ -21,14 +21,14 @@
 
 #include "view_main.h"
 
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
-#include "model_select.h"
 #include "edgetx.h"
-#include "topbar_impl.h"
+#include "mainwindow.h"
+#include "model_select.h"
+#include "quick_menu.h"
+#include "screen_setup.h"
+#include "topbar.h"
 #include "view_channels.h"
-#include "view_main_menu.h"
+#include "widget.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -52,26 +52,42 @@ static void saveViewId(unsigned view)
   }
 }
 
+static void tile_view_scroll_begin(lv_event_t * e)
+{
+	lv_anim_t* a = (lv_anim_t*)lv_event_get_param(e);
+	if (a) a->time = 0;
+}
+
 static void tile_view_scroll(lv_event_t* e)
 {
-  // (void)e;
   auto viewMain = ViewMain::instance();
   if (viewMain) {
-    if (lv_event_get_code(e) == LV_EVENT_SCROLL_END) {
-      auto view = viewMain->getCurrentMainView();
-      saveViewId(view);
-    } else {
-      viewMain->updateTopbarVisibility();
-    }
+    viewMain->updateTopbarVisibility();
+  }
+}
+
+static void tile_view_scroll_end(lv_event_t* e)
+{
+  auto viewMain = ViewMain::instance();
+  if (viewMain) {
+    auto view = viewMain->getCurrentMainView();
+    saveViewId(view);
   }
 }
 
 ViewMain* ViewMain::_instance = nullptr;
 
+ViewMain* ViewMain::instance()
+{
+  if (!_instance)
+    _instance = new ViewMain();
+  return _instance;
+}
+
 ViewMain::ViewMain() :
     NavWindow(MainWindow::instance(), MainWindow::instance()->getRect())
 {
-  Layer::push(this);
+  pushLayer();
 
   tile_view = lv_tileview_create(lvobj);
   lv_obj_set_pos(tile_view, rect.x, rect.y);
@@ -81,20 +97,23 @@ ViewMain::ViewMain() :
 
   lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
+  lv_obj_add_event_cb(tile_view, tile_view_scroll_begin, LV_EVENT_SCROLL_BEGIN, NULL);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
-  lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL_END,
+  lv_obj_add_event_cb(tile_view, tile_view_scroll_end, LV_EVENT_SCROLL_END,
                       nullptr);
 
   // create last to be on top
-  topbar = TopbarFactory::create(this);
+  topbar = new TopBar(this);
 }
 
 ViewMain::~ViewMain() { _instance = nullptr; }
 
-void ViewMain::deleteLater(bool detach, bool trash)
+void ViewMain::deleteLater()
 {
-  Layer::pop(this);
-  Window::deleteLater(detach, trash);
+  if (_deleted) return;
+
+  NavWindow::deleteLater();
+  QuickMenu::shutdownQuickMenu();
 }
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
@@ -111,11 +130,11 @@ void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED,
                       user_data);
 
-  view->adjustLayout();
-  view->show();  
+  view->show();
 }
 
 void ViewMain::setTopbarVisible(float visible) { topbar->setVisible(visible); }
+void ViewMain::setEdgeTxButtonVisible(float visible) { topbar->setEdgeTxButtonVisible(visible); }
 
 unsigned ViewMain::getMainViewsCount() const
 {
@@ -169,26 +188,6 @@ void ViewMain::previousMainView()
 
 TopBar* ViewMain::getTopbar() { return topbar; }
 
-static bool hasTopbar(unsigned view)
-{
-  if (view < sizeof(g_model.screenData)) {
-    const auto& layoutData = g_model.screenData[view].layoutData;
-    return layoutData.options[LAYOUT_OPTION_TOPBAR].value.boolValue;
-  }
-
-  return false;
-}
-
-void ViewMain::enableTopbar()
-{
-  if (topbar) topbar->show();
-}
-
-void ViewMain::disableTopbar()
-{
-  if (topbar) topbar->hide();
-}
-
 void ViewMain::updateTopbarVisibility()
 {
   if (!tile_view) return;
@@ -200,74 +199,78 @@ void ViewMain::updateTopbarVisibility()
   int leftScroll = scrollPos % width();
   if (leftScroll == 0) {
     int view = scrollPos / pageWidth;
-    setTopbarVisible(::hasTopbar(view));
-    if (customScreens[view]) customScreens[view]->adjustLayout();
+    setTopbarVisible(hasTopbar(view));
+    setEdgeTxButtonVisible(hasTopbar(view) || isAppMode(view));
   } else {
     int leftIdx = scrollPos / pageWidth;
-    bool leftTopbar = ::hasTopbar(leftIdx);
-    bool rightTopbar = ::hasTopbar(leftIdx + 1);
+    bool leftTopbar = hasTopbar(leftIdx);
+    bool rightTopbar = hasTopbar(leftIdx + 1);
 
-    if (leftTopbar != rightTopbar) {
-      float ratio = (float)leftScroll / (float)pageWidth;
+    float ratio;
 
-      if (leftTopbar) {
-        // scrolling from a screen with Topbar
-        ratio = 1.0 - ratio;
-      } else {
-        // scrolling to a screen with Topbar
-        // -> ratio is ok
-      }
-
-      setTopbarVisible(ratio);
-      customScreens[leftIdx]->adjustLayout();
-      customScreens[leftIdx + 1]->adjustLayout();
+    if (leftTopbar && rightTopbar) {
+      ratio = 1.0;
+    } else if (leftTopbar) {
+      // scrolling from a screen with Topbar
+      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+    } else if (rightTopbar) {
+      // scrolling to a screen with Topbar
+      ratio = (float)leftScroll / (float)pageWidth;
+    } else {
+      ratio = 0.0;
     }
+
+    setTopbarVisible(ratio);
+
+    leftTopbar = hasTopbar(leftIdx) || isAppMode(leftIdx);
+    rightTopbar = hasTopbar(leftIdx + 1) || isAppMode(leftIdx + 1);
+
+    ratio = (float)leftScroll / (float)pageWidth;
+
+    if (leftTopbar && rightTopbar) {
+      ratio = 1.0;
+    } else if (leftTopbar) {
+      // scrolling from a screen with Topbar
+      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+    } else if (rightTopbar) {
+      // scrolling to a screen with Topbar
+      ratio = (float)leftScroll / (float)pageWidth;
+    } else {
+      ratio = 0.0;
+    }
+
+    setEdgeTxButtonVisible(ratio);
   }
 }
 
 #if defined(HARDWARE_KEYS)
-void ViewMain::onPressSYS()
+void ViewMain::doKeyShortcut(event_t event)
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new RadioMenu();
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg == QM_OPEN_QUICK_MENU) {
+    if (!QuickMenu::isOpen()) openMenu();
+  } else {
+    QuickMenu::closeQuickMenu();
+    QuickMenu::openPage(pg);
+  }
 }
-void ViewMain::onLongPressSYS()
-{
-  if (viewMainMenu) viewMainMenu->onCancel();
-  // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
-}
-void ViewMain::onPressMDL()
-{
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new ModelMenu();
-}
-void ViewMain::onLongPressMDL()
-{
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new ModelLabelsWindow();
-}
-void ViewMain::onPressTELE()
-{
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new ScreenMenu();
-}
-void ViewMain::onLongPressTELE()
-{
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new ChannelsViewMenu();
-}
+void ViewMain::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void ViewMain::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void ViewMain::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void ViewMain::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void ViewMain::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void ViewMain::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {
-    if (viewMainMenu) viewMainMenu->onCancel();
+    QuickMenu::closeQuickMenu();
     previousMainView();
   }
 }
 void ViewMain::onPressPGDN()
 {
   if (!widget_select) {
-    if (viewMainMenu) viewMainMenu->onCancel();
+    QuickMenu::closeQuickMenu();
     nextMainView();
   }
 }
@@ -332,7 +335,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new ViewMainMenu(this, [=]() { viewMainMenu = nullptr; });
+  QuickMenu::openQuickMenu();
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)
@@ -347,9 +350,11 @@ bool ViewMain::onLongPress()
   if (isAppMode()) {
     int view = getCurrentMainView();
     customScreens[view]->getWidget(0)->setFullscreen(true);
+    killEvents(KEY_ENTER);
   } else {
     enableWidgetSelect(true);
   }
+  killEvents(KEY_ENTER);
   lv_indev_wait_release(lv_indev_get_act());
   return false;
 }
@@ -359,45 +364,62 @@ void ViewMain::show(bool visible)
   if (deleted()) return;
   isVisible = visible;
   int view = getCurrentMainView();
-  setTopbarVisible(visible && ::hasTopbar(view));
-  if (visible && (::hasTopbar(view) || isAppMode()))
-    topbar->showEdgeTxButton();
-  else
-    topbar->hideEdgeTxButton();
-  if (customScreens[view]) {
-    customScreens[view]->show(visible);
-    customScreens[view]->showWidgets(visible);
+  setTopbarVisible(visible && hasTopbar(view));
+  setEdgeTxButtonVisible(visible && (hasTopbar(view) || isAppMode()));
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+    if (customScreens[i]) {
+      customScreens[i]->show(visible);
+      customScreens[i]->showWidgets(visible);
+    }
   }
 }
 
 bool ViewMain::isAppMode()
 {
-  int view = getCurrentMainView();
-  if (!customScreens[view]) return false;
-  return ((Layout*)customScreens[view])->isAppMode();
+  return isAppMode(getCurrentMainView());
+}
+
+bool ViewMain::isAppMode(unsigned view)
+{
+  if (view < MAX_CUSTOM_SCREENS && customScreens[view])
+    return ((Layout*)customScreens[view])->isAppMode();
+  return false;
 }
 
 bool ViewMain::hasTopbar()
 {
-  int view = getCurrentMainView();
-  return ::hasTopbar(view);
+  return hasTopbar(getCurrentMainView());
+}
+
+bool ViewMain::hasTopbar(unsigned view)
+{
+  if (view < MAX_CUSTOM_SCREENS)
+    return g_model.getScreenLayoutData(view)->options[LAYOUT_OPTION_TOPBAR].value.boolValue;
+  return false;
 }
 
 void ViewMain::showTopBarEdgeTxButton()
 {
-  topbar->showEdgeTxButton();
+  topbar->setEdgeTxButtonVisible(hasTopbar() || isAppMode());
 }
 
 void ViewMain::hideTopBarEdgeTxButton()
 {
-  topbar->hideEdgeTxButton();
+  topbar->setEdgeTxButtonVisible(0.0);
 }
 
-void ViewMain::runBackground()
+void ViewMain::_refreshWidgets()
 {
-  topbar->runBackground();
-  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
-    if (customScreens[i])
-      customScreens[i]->runBackground();
+  if (!_deleted) {
+    topbar->refreshWidgets(isVisible && hasTopbar());
+    for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+      if (customScreens[i])
+        customScreens[i]->refreshWidgets(isVisible);
+    }
   }
+}
+
+void ViewMain::refreshWidgets()
+{
+  if (_instance) _instance->_refreshWidgets();
 }

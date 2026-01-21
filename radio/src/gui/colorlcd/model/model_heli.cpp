@@ -20,18 +20,20 @@
  */
 
 #include "model_heli.h"
+
 #include "edgetx.h"
-#include "libopenui.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 #include "sourcechoice.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-#if !PORTRAIT_LCD // landscape
+#if LANDSCAPE
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-#else // portrait
+#else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
@@ -39,28 +41,24 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
 #endif
 
 ModelHeliPage::ModelHeliPage():
-  PageTab(STR_MENUHELISETUP, ICON_MODEL_HELI)
-{
-}
-
-void ModelHeliPage::build(Window* form)
+  SubPage(ICON_MODEL_HELI, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENUHELISETUP)
 {
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
-  form->setFlexLayout();
+  body->setFlexLayout();
 
   // Swash type
-  auto line = form->newLine(grid);
+  auto line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWASHTYPE);
   new Choice(line, rect_t{}, STR_VSWASHTYPE, 0, SWASH_TYPE_MAX,
              GET_SET_DEFAULT(g_model.swashR.type));
 
   // Swash ring
-  line = form->newLine(grid);
+  line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWASHRING);
   new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.swashR.value));
 
   // Elevator source
-  line = form->newLine(grid);
+  line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_ELEVATOR);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
                    GET_SET_DEFAULT(g_model.swashR.elevatorSource));
@@ -72,7 +70,7 @@ void ModelHeliPage::build(Window* form)
                  GET_SET_DEFAULT(g_model.swashR.elevatorWeight));
 
   // Aileron source
-  line = form->newLine(grid);
+  line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_AILERON);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
                    GET_SET_DEFAULT(g_model.swashR.aileronSource));
@@ -84,7 +82,7 @@ void ModelHeliPage::build(Window* form)
                  GET_SET_DEFAULT(g_model.swashR.aileronWeight));
 
   // Collective source
-  line = form->newLine(grid);
+  line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_COLLECTIVE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
                    GET_SET_DEFAULT(g_model.swashR.collectiveSource));

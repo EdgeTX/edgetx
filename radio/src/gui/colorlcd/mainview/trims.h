@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "static.h"
 
 class TrimIcon;
 
@@ -30,7 +30,7 @@ class MainViewTrim : public Window
  public:
   MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
                bool isVertical);
-    
+
   void setVisible(bool visible);
 
  protected:
@@ -47,13 +47,15 @@ class MainViewTrim : public Window
 
   void setRange();
   void setPos();
-    
+
   bool setDisplayState();
 
   void checkEvents() override;
 
   coord_t sx();
   coord_t sy();
+
+  static LAYOUT_VAL_SCALED(TRIM_LINE_WIDTH, 8)
 };
 
 class MainViewHorizontalTrim : public MainViewTrim

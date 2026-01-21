@@ -22,43 +22,46 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-#define SWAP_DEFINED
-#include "location.h"
-#include "edgetx.h"
-
 #if defined(COLORLCD)
 
+#include "simpgmspace.h"
 #include "bitmaps.h"
+#include "debug.h"
 
+#if !(defined(STM32H7) || defined(STM32H7RS))
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
 #include "stb/stb_image_write.h"
 
 void convert_RGB565_to_RGB888(uint8_t* dst, const BitmapBuffer* src, coord_t w,
                               coord_t h)
 {
+  extern uint8_t rbScale[32];
+  extern uint8_t gScale[64];
+
   for (int y = 0; y < src->height(); y++) {
     for (int x = 0; x < src->width(); x++) {
       RGB_SPLIT(*src->getPixelPtrAbs(x, y), r, g, b);
-      *(dst++) = (uint8_t)(r << 3);
-      *(dst++) = (uint8_t)(g << 2);
-      *(dst++) = (uint8_t)(b << 3);
+      *(dst++) = rbScale[r];
+      *(dst++) = gScale[g];
+      *(dst++) = rbScale[b];
     }
   }
 }
 
 void dumpImage(const std::string& filename, const BitmapBuffer* dc)
 {
-  std::string fullpath = TESTS_PATH "/images/color/failed_" + filename;
-
+  std::string fullpath = simuFatfsGetRealPath("images/color/failed_" + filename);
   TRACE("dumping image '%s'", fullpath.c_str());
 
   // allocate enough for 3 channels
-  auto pixels = dc->width() * dc->height();
+  std::vector<uint8_t> img;
   auto stride = dc->width() * 3;
-  uint8_t* img = (uint8_t*)malloc(pixels * 3);
-  convert_RGB565_to_RGB888(img, dc, dc->width(), dc->height());
-  stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img, stride);
-  free(img);
+  auto pixel_bytes = stride * dc->height();
+  img.resize(pixel_bytes);
+
+  convert_RGB565_to_RGB888(img.data(), dc, dc->width(), dc->height());
+  stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img.data(), stride);
 }
 
 bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
@@ -72,7 +75,7 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   filename += 'x' + std::to_string(LCD_H);
   filename += ".png";
 
-  std::string fullpath = TESTS_PATH "/images/color/" + filename;
+  std::string fullpath = "images/color/" + filename;
 
   std::unique_ptr<BitmapBuffer> testPict(
       BitmapBuffer::loadBitmap(fullpath.c_str()));
@@ -265,8 +268,7 @@ TEST(Lcd_colorlcd, bitmap)
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
-  std::unique_ptr<BitmapBuffer> bmp(
-      BitmapBuffer::loadBitmap(TESTS_PATH "/images/color/edgetx.png"));
+  std::unique_ptr<BitmapBuffer> bmp(BitmapBuffer::loadBitmap("images/color/edgetx.png"));
   dc.drawBitmap(0, 0, bmp.get());
   dc.drawBitmap(320, 0, bmp.get());
   dc.drawBitmap(0, 150, bmp.get());

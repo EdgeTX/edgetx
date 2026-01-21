@@ -26,12 +26,15 @@
 #include "channel_range.h"
 #include "choice.h"
 #include "custom_failsafe.h"
-#include "form.h"
-#include "mixer_scheduler.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "form.h"
+#include "getset_helpers.h"
+#include "mixer_scheduler.h"
+#include "os/sleep.h"
 #include "ppm_settings.h"
 #include "storage/modelslist.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
 #include "pxx1_settings.h"
@@ -62,6 +65,10 @@
 #include "io/multi_protolist.h"
 #include "mpm_settings.h"
 #include "multi_rfprotos.h"
+#endif
+
+#if defined(DSMP)
+#include "dsmp_settings.h"
 #endif
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -162,6 +169,11 @@ class ModuleWindow : public Window
       modOpts = new PXX1AntennaSettings(this, grid, moduleIdx);
     }
   #endif
+  #if defined(DSMP)
+    else if (isModuleDSMP(moduleIdx)) {
+      modOpts = new DSMPSettings(this, grid, moduleIdx);
+    }
+  #endif
 
     // Channel Range
     auto line = newLine(grid);
@@ -208,7 +220,7 @@ class ModuleWindow : public Window
 
       // Model index
       auto modelId = &g_model.header.modelId[moduleIdx];
-      rxID = new NumberEdit(box, {0, 0, NUM_W, 0}, 0, getMaxRxNum(moduleIdx),
+      rxID = new NumberEdit(box, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, getMaxRxNum(moduleIdx),
                             GET_DEFAULT(*modelId), [=](int32_t newValue) {
                               if (newValue != *modelId) {
                                 *modelId = newValue;
@@ -388,8 +400,9 @@ class ModuleWindow : public Window
     if (isModuleRFAccess(moduleIdx)) {
       for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE;
           receiverIdx++) {
-        char label[] = TR_RECEIVER " X";
-        label[sizeof(label) - 2] = '1' + receiverIdx;
+        char label[40];
+        char* s = strAppend(label, STR_RECEIVER);
+        strAppendUnsigned(s, receiverIdx + 1);
 
         auto line = newLine(grid);
         new StaticText(line, rect_t{}, label);
@@ -487,8 +500,6 @@ class ModuleWindow : public Window
 
   uint8_t getModuleIdx() const { return moduleIdx; }
 
-  static LAYOUT_VAL(NUM_W, 60, 60)
-
  protected:
   uint8_t moduleIdx;
 
@@ -571,14 +582,15 @@ class ModuleSubTypeChoice : public Choice
 
   int getSubTypeValue()
   {
-    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) || isModuleR9MNonAccess(moduleIdx)
+    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) ||
+        isModuleR9MNonAccess(moduleIdx) || isModuleSBUS(moduleIdx)
 #if defined(PPM)
         || isModulePPM(moduleIdx)
 #endif
 #if defined(PXX2)
         || isModuleISRM(moduleIdx)
 #endif
-       ) {
+    ) {
       return g_model.moduleData[moduleIdx].subType;
     } else {
       return g_model.moduleData[moduleIdx].multi.rfProtocol;
@@ -587,14 +599,15 @@ class ModuleSubTypeChoice : public Choice
 
   void setSubTypeValue(int32_t newValue)
   {
-    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) || isModuleR9MNonAccess(moduleIdx)
+    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) ||
+        isModuleR9MNonAccess(moduleIdx) || isModuleSBUS(moduleIdx)
 #if defined(PPM)
         || isModulePPM(moduleIdx)
 #endif
 #if defined(PXX2)
         || isModuleISRM(moduleIdx)
 #endif
-       ) {
+    ) {
       if (isModuleXJT(moduleIdx)) {
         g_model.moduleData[moduleIdx].channelsStart = 0;
         g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
@@ -602,6 +615,7 @@ class ModuleSubTypeChoice : public Choice
       g_model.moduleData[moduleIdx].subType = newValue;
       SET_DIRTY();
     } else {
+#if defined(MULTIMODULE)
       g_model.moduleData[moduleIdx].multi.rfProtocol = newValue;
       g_model.moduleData[moduleIdx].subType = 0;
       resetMultiProtocolsOptions(moduleIdx);
@@ -609,10 +623,12 @@ class ModuleSubTypeChoice : public Choice
       MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
       status.invalidate();
 
-      uint32_t startUpdate = RTOS_GET_MS();
-      while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250))
-        ;
+      uint32_t startUpdate = time_get_ms();
+      while (!status.isValid() && (time_get_ms() - startUpdate < 250))
+        sleep_ms(1);
+
       SET_DIRTY();
+#endif
     }
 
     if (moduleWindow)
@@ -632,10 +648,16 @@ class ModuleSubTypeChoice : public Choice
       setValues(STR_DSM_PROTOCOLS);
       setTextHandler(nullptr);
     }
+    else if (isModuleSBUS(moduleIdx)) {
+      setMin(SBUS_PROTO_TLM_NONE);
+      setMax(SBUS_PROTO_TLM_SPORT);
+      setValues(STR_SBUS_PROTOCOLS);
+      setTextHandler(nullptr);
+    }
 #if defined(PPM)
     else if (isModulePPM(moduleIdx)) {
       setMin(PPM_PROTO_TLM_NONE);
-      setMax(PPM_PROTO_TLM_MLINK);
+      setMax(PPM_PROTO_TLM_SPORT);
       setValues(STR_PPM_PROTOCOLS);
       setTextHandler(nullptr);
     }
@@ -721,7 +743,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   const char* title2 =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
-  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
   header->setTitle2(title2);
 
   body->setFlexLayout();
@@ -742,6 +764,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                  MODULE_TYPE_COUNT - 1, GET_DEFAULT(md->type));
 
   moduleChoice->setAvailableHandler([=](int8_t moduleType) {
+    if (moduleType == MODULE_TYPE_NONE) return true;
     return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType)
                                         : isExternalModuleAvailable(moduleType);
   });

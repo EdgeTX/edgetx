@@ -21,18 +21,17 @@
 
 #pragma once
 
+#include "hal/serial_driver.h"
+
 #define SBUS_BAUDRATE         100000
-#define SBUS_FRAME_SIZE       25
 
-// Setup SBUS AUX serial input
-void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*));
+// SBUS serial driver + context
+void sbusSetReceiveCtx(void* ctx, const etx_serial_driver_t* drv);
 
-// SBUS AUX serial getter:
-//  if set, it will fetch data from the handler set
-//  with sbusSetAuxGetByte()
-int sbusAuxGetByte(uint8_t* byte);
+// SBUS AUX idle callback
+void sbusAuxFrameReceived(void* param);
 
-// Setup general SBUS input source
-void sbusSetGetByte(int (*fct)(uint8_t*));
+// Enable / disable SBUS AUX
+void sbusAuxSetEnabled(bool enabled);
 
-void processSbusInput();
+void sbusFrameReceived(void* param);

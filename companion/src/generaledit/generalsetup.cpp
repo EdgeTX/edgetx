@@ -25,27 +25,31 @@
 #include "filtereditemmodels.h"
 #include "autocombobox.h"
 #include "namevalidator.h"
+#include "helpers.h"
 
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
 constexpr char FIM_TEMPLATESETUP[]  {"Template Setup"};
+constexpr char FIM_BACKLIGHTMODE[]  {"Backlight Mode"};
+constexpr char FIM_CONTROLSRC[]     {"Control Source"};
 
-GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
+GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings,
+  Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
 GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
 {
   ui->setupUi(this);
-
   Board::Type board = firmware->getBoard();
-
   panelFilteredModels = new FilteredItemModelFactory();
-
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()), FIM_HATSMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::stickModeItemModel()), FIM_STICKMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel(),
                                                                Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
                                                                                       GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
+  panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ControlSource)),
+                                         FIM_CONTROLSRC);
 
   QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
   QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
@@ -91,15 +95,29 @@ ui(new Ui::GeneralSetup)
 
   lock = true;
 
-  populateBacklightCB();
+  ui->volumeCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->volumeCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
+  ui->volumeCtrl_CB->setCurrentIndex(ui->volumeCtrl_CB->findData(generalSettings.volumeSrc.toValue()));
+  if (ui->volumeCtrl_CB->currentIndex() < 0 && generalSettings.volumeSrc.toValue() == 0)
+    ui->volumeCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->volumeCtrl_CB));
+
+  ui->brightCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->brightCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
+  ui->brightCtrl_CB->setCurrentIndex(ui->brightCtrl_CB->findData(generalSettings.backlightSrc.toValue()));
+  if (ui->brightCtrl_CB->currentIndex() < 0 && generalSettings.backlightSrc.toValue() == 0)
+    ui->brightCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->brightCtrl_CB));
+
+  ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
+  ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
   if (!firmware->getCapability(MultiLangVoice)) {
     ui->VoiceLang_label->hide();
     ui->voiceLang_CB->hide();
   }
   else {
-    populateVoiceLangCB();
+    populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
   }
+  populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, Boards::getCapability(board, Board::HasColorLcd));
 
   if (!firmware->getCapability(MavlinkTelemetry)) {
     ui->mavbaud_CB->hide();
@@ -107,7 +125,6 @@ ui(new Ui::GeneralSetup)
   }
   else {
     ui->mavbaud_CB->setCurrentIndex(generalSettings.mavbaud);
-    // TODO why ??? populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
   }
 
   if (!firmware->getCapability(HasSoundMixer)) {
@@ -143,14 +160,6 @@ ui(new Ui::GeneralSetup)
   }
   else {
     ui->faimode_CB->setChecked(generalSettings.fai);
-  }
-
-  if (!firmware->getCapability(RotaryEncoderNavigation)) {
-    ui->rotEncMode_CB->hide();
-    ui->rotEncMode_label->hide();
-  }
-  else {
-    populateRotEncModeCB();
   }
 
   if (!firmware->getCapability(HasPxxCountry)) {
@@ -190,7 +199,7 @@ ui(new Ui::GeneralSetup)
     ui->usbModeCB->hide();
   }
 
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) {
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
     ui->hatsModeCB->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
     ui->hatsModeCB->setField(generalSettings.hatsMode, this);
   }
@@ -258,15 +267,6 @@ ui(new Ui::GeneralSetup)
   if (!firmware->getCapability(Haptic)) {
     ui->hapticStrength->setDisabled(true);
     ui->hapticmodeCB->setDisabled(true);
-  }
-
-  int reCount = firmware->getCapability(RotaryEncoders);
-  if (reCount == 0) {
-    ui->re_label->hide();
-    ui->re_CB->hide();
-  }
-  else {
-    populateRotEncCB(reCount);
   }
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
@@ -339,7 +339,7 @@ ui(new Ui::GeneralSetup)
     ui->stickReverse4->hide();
   }
 
-  if (IS_TARANIS_PLUS(board)) {
+  if (Boards::getCapability(board, Board::HasBacklightColor)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
   }
   else {
@@ -396,51 +396,130 @@ void GeneralSetupPanel::on_timezoneLE_textEdited(const QString &text)
   }
 }
 
-void GeneralSetupPanel::populateBacklightCB()
+// Copied from tts.h
+enum RadioLanguage {
+  LANG_CN,
+  LANG_CZ,
+  LANG_DA,
+  LANG_DE,
+  LANG_EN,
+  LANG_ES,
+  LANG_FI,
+  LANG_FR,
+  LANG_HE,
+  LANG_HU,
+  LANG_IT,
+  LANG_JP,
+  LANG_KO,
+  LANG_NL,
+  LANG_PL,
+  LANG_PT,
+  LANG_RU,
+  LANG_SE,
+  LANG_SK,
+  LANG_TW,
+  LANG_UA,
+  LANG_COUNT
+};
+
+// Order must match RadioLanguage
+// Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
+static const char* langStrings[][2] = {
+  { "Chinese", "cn" },
+  { "Czech", "cz" },
+  { "Danish", "da" },
+  { "German", "de" },
+  { "English", "en" },
+  { "Spanish", "es" },
+  { "Finnish", "fi" },
+  { "French", "fr" },
+  { "Hebrew", "he" },
+  { "Hungarian", "hu" },
+  { "Italian", "it" },
+  { "Japanese", "jp" },
+  { "Korean", "ko" },
+  { "Dutch", "nl" },
+  { "Polish", "pl" },
+  { "Portuguese", "pt" },
+  { "Russian", "ru" },
+  { "Swedish", "se" },
+  { "Slovak", "sk" },
+  { "Taiwanese", "tw" },
+  { "Ukrainian", "ua" },
+};
+
+void GeneralSetupPanel::populateVoiceLangCB(QComboBox* b, const char* currLang)
 {
-  QComboBox * b = ui->backlightswCB;
-  const QStringList strings = { tr("OFF"), tr("Keys"), tr("Controls"), tr("Keys + Controls"), tr("ON") };
-
   b->clear();
-  int startValue = (Boards::getCapability(firmware->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
-
-  for (int i = startValue; i < strings.size(); i++) {
-    b->addItem(strings[i], 0);
-    if (generalSettings.backlightMode == i) {
+  for (int i = 0; i < LANG_COUNT; i++) {
+    b->addItem(tr(langStrings[i][0]), langStrings[i][1]);
+    if (strncmp(currLang, langStrings[i][1], 2) == 0) {
       b->setCurrentIndex(b->count() - 1);
     }
   }
 }
 
-void GeneralSetupPanel::populateVoiceLangCB()
+void GeneralSetupPanel::populateTextLangCB(QComboBox* b, const char* currLang, bool isColor)
 {
-  QComboBox * b = ui->voiceLang_CB;
-  //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
-  static QString strings[][2] = {
-    { tr("Chinese"), "cn" },
-    { tr("Czech"), "cz" },
-    { tr("Danish"), "da" },
-    { tr("Dutch"), "nl" },
-    { tr("English"), "en" },
-    { tr("French"), "fr" },
-    { tr("German"), "de" },
-    { tr("Hebrew"), "he" },
-    { tr("Hungarian"), "hu" },
-    { tr("Italian"), "it" },
-    { tr("Japanese"), "jp" },
-    { tr("Polish"), "pl" },
-    { tr("Portuguese"), "pt" },
-    { tr("Russian"), "ru" },
-    { tr("Slovak"), "sk" },
-    { tr("Spanish"), "es" },
-    { tr("Swedish"), "se" },
-    { tr("Ukrainian"), "ua" },
-    { NULL, NULL }};
+  // Available text languages
+  // B&W
+  static RadioLanguage bwLangs[] = {
+    // LANG_CN,   // no fonts
+    LANG_CZ,
+    LANG_DA,
+    LANG_DE,
+    LANG_EN,
+    LANG_ES,
+    LANG_FI,
+    LANG_FR,
+    // LANG_HE,   // no fonts
+    // LANG_HU,   // no translation file
+    LANG_IT,
+    // LANG_JP,   // no fonts
+    // LANG_KO,   // no fonts
+    LANG_NL,
+    LANG_PL,
+    LANG_PT,
+    LANG_RU,
+    LANG_SE,
+    // LANG_SK,   // no translation file
+    // LANG_TW,   // no fonts
+    LANG_UA,
+    LANG_COUNT
+  };
+  // Color
+  static RadioLanguage colorLangs[] = {
+    LANG_CN,
+    LANG_CZ,
+    LANG_DA,
+    LANG_DE,
+    LANG_EN,
+    LANG_ES,
+    LANG_FI,
+    LANG_FR,
+    LANG_HE,
+    // LANG_HU,   // no translation file
+    LANG_IT,
+    LANG_JP,
+    LANG_KO,
+    LANG_NL,
+    LANG_PL,
+    LANG_PT,
+    LANG_RU,
+    LANG_SE,
+    // LANG_SK,   // no translation file
+    LANG_TW,
+    LANG_UA,
+    LANG_COUNT
+  };
+
+  RadioLanguage* langs = isColor ? colorLangs : bwLangs;
 
   b->clear();
-  for (int i = 0; strings[i][0] != NULL; i++) {
-    b->addItem(strings[i][0],strings[i][1]);
-    if (generalSettings.ttsLanguage == strings[i][1]) {
+  for (int i = 0; langs[i] < LANG_COUNT; i++) {
+    int n = langs[i];
+    b->addItem(tr(langStrings[n][0]),langStrings[n][1]);
+    if (strncmp(currLang, langStrings[n][1], 2) == 0) {
       b->setCurrentIndex(b->count() - 1);
     }
   }
@@ -498,22 +577,22 @@ void GeneralSetupPanel::on_voiceLang_CB_currentIndexChanged(int index)
   }
 }
 
+void GeneralSetupPanel::on_textLang_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    QString code = ui->textLang_CB->itemData(index).toString();
+    for (int i = 0; i < 2; i++) {
+      generalSettings.uiLanguage[i] = code.at(i).toLatin1();
+    }
+    generalSettings.uiLanguage[2] = '\0';
+    emit modified();
+  }
+}
+
 void GeneralSetupPanel::updateVarioPitchRange()
 {
   ui->varioPMax_SB->setMaximum(700 + (generalSettings.varioPitch * 10) + 1000 + 800);
   ui->varioPMax_SB->setMinimum(700 + (generalSettings.varioPitch * 10) + 1000 - 800);
-}
-
-void GeneralSetupPanel::populateRotEncCB(int reCount)
-{
-  QString strings[] = { tr("No"), tr("RotEnc A"), tr("Rot Enc B"), tr("Rot Enc C"), tr("Rot Enc D"), tr("Rot Enc E")};
-  QComboBox * b = ui->re_CB;
-
-  b->clear();
-  for (int i = 0; i <= reCount; i++) {
-    b->addItem(strings[i]);
-  }
-  b->setCurrentIndex(generalSettings.reNavigation);
 }
 
 int pwrDelayFromYaml(int delay)
@@ -568,16 +647,15 @@ void GeneralSetupPanel::setValues()
 
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
 
+  ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+
   if (Boards::getCapability(board, Board::HasColorLcd)) {
-    ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
     ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
     ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);
     ui->favMultiMode_CB->setCurrentIndex(generalSettings.favMultiMode);
     showLabelSelectOptions();
   } else {
-    ui->label_modelQuickSelect->hide();
-    ui->modelQuickSelect_CB->hide();
     ui->label_modelSelectLayout->hide();
     ui->modelSelectLayout_CB->hide();
     ui->label_labelSingleSelect->hide();
@@ -626,31 +704,6 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
     else {
       generalSettings.fai = false;
     }
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::populateRotEncModeCB()
-{
-  QComboBox * b = ui->rotEncMode_CB;
-  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate"),  tr("Normal, Edit Inverted") };
-  int itemCount = 5;
-
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
-    itemCount = 2;
-  }
-
-  b->clear();
-  for (int i = 0; i < itemCount; i++) {
-    b->addItem(strings[i], 0);
-  }
-  b->setCurrentIndex(generalSettings.rotEncMode);
-}
-
-void GeneralSetupPanel::on_rotEncMode_CB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.rotEncMode = index;
     emit modified();
   }
 }
@@ -794,6 +847,22 @@ void GeneralSetupPanel::on_OFFBright_SB_editingFinished()
   }
 }
 
+void GeneralSetupPanel::on_volumeCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.volumeSrc = RawSource(ui->volumeCtrl_CB->itemData(ui->volumeCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_brightCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.backlightSrc = RawSource(ui->brightCtrl_CB->itemData(ui->brightCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
 void GeneralSetupPanel::on_volume_SL_valueChanged()
 {
   if (!lock) {
@@ -830,14 +899,6 @@ void GeneralSetupPanel::on_vBatMaxDSB_editingFinished()
 {
   if (!lock) {
     generalSettings.vBatMax = ui->vBatMaxDSB->value() * 10 - 120;
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::on_re_CB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.reNavigation = ui->re_CB->currentIndex();
     emit modified();
   }
 }

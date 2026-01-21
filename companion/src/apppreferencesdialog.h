@@ -64,8 +64,8 @@ class AppPreferencesDialog : public QDialog
     void on_libraryPathButton_clicked();
     void on_snapshotPathButton_clicked();
     void on_snapshotClipboardCKB_clicked();
-    void on_backupPathButton_clicked();
-    void on_ProfilebackupPathButton_clicked();
+    void onBackupPathButtonClicked();
+    void onProfileBackupPathButtonClicked();
     void on_ge_pathButton_clicked();
 
     void on_sdPathButton_clicked();
@@ -74,10 +74,14 @@ class AppPreferencesDialog : public QDialog
     void on_btn_appLogsDir_clicked();
     void on_btnClearPos_clicked();
 
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
     void on_joystickChkB_clicked();
     void on_joystickcalButton_clicked();
 #endif
+
+    void on_btnRadioColor_clicked();
+    void onBackupPathEditingFinished();
+    void onProfileBackupPathEditingFinished();
 
   private:
     void initSettings();

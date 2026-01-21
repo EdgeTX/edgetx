@@ -23,9 +23,12 @@
 
 #include <stddef.h>
 #include <string.h>
+
 #include "ff.h"
 #include "edgetx_types.h"
 #include "dataconstants.h"
+
+#include "hal/audio_driver.h"
 
 /*
   Implements a bit field, number of bits is set by the template,
@@ -74,16 +77,23 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
 
 #define AUDIO_QUEUE_LENGTH             (16) // must be a power of 2!
 
-#define AUDIO_SAMPLE_RATE              (32000)
 #define AUDIO_BUFFER_DURATION          (10)
 #define AUDIO_BUFFER_SIZE              (AUDIO_SAMPLE_RATE*AUDIO_BUFFER_DURATION/1000)
 
-#if defined(SIMU) && defined(SIMU_AUDIO)
+#if !defined(AUDIO_SAMPLE_FMT)
+  #if defined(SIMU) || defined(AUDIO_SPI)
+    #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_S16
+  #else
+    #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_U16
+  #endif
+#endif
+
+#if defined(SIMU)
   #define AUDIO_BUFFER_COUNT           (10) // simulator needs more buffers for smooth audio
-#elif defined(PCBX12S)
+#elif defined(AUDIO_SPI)
   #define AUDIO_BUFFER_COUNT           (2)  // smaller than Taranis since there is also a buffer on the ADC chip
-#elif defined(PCBPL18)
-  #define AUDIO_BUFFER_COUNT           (10) // PL18 need more buffer for smooth audio
+#elif defined(STORAGE_USE_SPI_FLASH)
+  #define AUDIO_BUFFER_COUNT           (10) // SPI Flash need more buffer for smooth audio
 #else
   #define AUDIO_BUFFER_COUNT           (3)
 #endif
@@ -94,41 +104,19 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
 
 #define USE_SETTINGS_VOLUME            (127)
 
-#if defined(AUDIO_DUAL_BUFFER)
-enum AudioBufferState
-{
-  AUDIO_BUFFER_FREE,
-  AUDIO_BUFFER_FILLED,
-  AUDIO_BUFFER_PLAYING
-};
-#endif
-
-#if defined(SIMU)
-  typedef uint16_t audio_data_t;
-  #define AUDIO_DATA_SILENCE           0x8000
-  #define AUDIO_DATA_MIN               0
-  #define AUDIO_DATA_MAX               0xffff
-  #define AUDIO_BITS_PER_SAMPLE        16
-#elif defined(PCBX12S) || defined(PCBNV14)
+#if AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_S16
   typedef int16_t audio_data_t;
-  #define AUDIO_DATA_SILENCE           0
-  #define AUDIO_DATA_MIN               INT16_MIN
-  #define AUDIO_DATA_MAX               INT16_MAX
-  #define AUDIO_BITS_PER_SAMPLE        16
-#else
+  #define AUDIO_DATA_SILENCE 0
+#elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
   typedef uint16_t audio_data_t;
-  #define AUDIO_DATA_SILENCE           (0x8000 >> 4)
-  #define AUDIO_DATA_MIN               0
-  #define AUDIO_DATA_MAX               0x0fff
-  #define AUDIO_BITS_PER_SAMPLE        12
+  #define AUDIO_DATA_SILENCE 0x8000 
+#else
+  #error "Unknown audio sample format"
 #endif
 
 struct AudioBuffer {
   audio_data_t data[AUDIO_BUFFER_SIZE];
   uint16_t size;
-#if defined(AUDIO_DUAL_BUFFER)
-  uint8_t state;
-#endif
 };
 
 extern AudioBuffer audioBuffers[AUDIO_BUFFER_COUNT];
@@ -314,115 +302,42 @@ class AudioBufferFifo {
   private:
     volatile uint8_t readIdx;
     volatile uint8_t writeIdx;
-    volatile bool bufferFull;
-
-    // readIdx == writeIdx       -> buffer empty
-    // readIdx == writeIdx + 1   -> buffer full
 
     inline uint8_t nextBufferIdx(uint8_t idx) const
     {
-      return (idx >= AUDIO_BUFFER_COUNT-1 ? 0 : idx+1);
+      return (idx >= AUDIO_BUFFER_COUNT - 1 ? 0 : idx + 1);
     }
 
-    bool full() const
-    {
-      return bufferFull;
-    }
+    bool full() const { return readIdx == nextBufferIdx(writeIdx); }
+    bool empty() const { return readIdx == writeIdx; }
+    uint8_t used() const { return (writeIdx - readIdx) % AUDIO_BUFFER_COUNT; }
 
-    bool empty() const
-    {
-      return (readIdx == writeIdx) && !bufferFull;
-    }
-
-    uint8_t used() const
-    {
-      return bufferFull ? AUDIO_BUFFER_COUNT : writeIdx - readIdx;
-    }
-
-  public:
-    AudioBufferFifo() : readIdx(0), writeIdx(0), bufferFull(false)
+   public:
+    AudioBufferFifo() : readIdx(0), writeIdx(0)
     {
       memset(audioBuffers, 0, sizeof(audioBuffers));
     }
 
-    // returns an empty buffer to be filled wit data and put back into FIFO with audioPushBuffer()
-    AudioBuffer * getEmptyBuffer() const
+    // returns an empty buffer to be filled with data and put back into FIFO
+    // with audioPushBuffer()
+    AudioBuffer *getEmptyBuffer() const
     {
-#if defined(AUDIO_DUAL_BUFFER)
-      AudioBuffer * buffer = &audioBuffers[writeIdx];
-      return buffer->state == AUDIO_BUFFER_FREE ? buffer : NULL;
-#else
-      return full() ? NULL : &audioBuffers[writeIdx];
-#endif
+      return full() ? nullptr : &audioBuffers[writeIdx];
     }
 
     // puts filled buffer into FIFO
-    void audioPushBuffer()
-    {
-      audioDisableIrq();
-#if defined(AUDIO_DUAL_BUFFER)
-      AudioBuffer * buffer = &audioBuffers[writeIdx];
-      buffer->state = AUDIO_BUFFER_FILLED;
-#endif
-      writeIdx = nextBufferIdx(writeIdx);
-      bufferFull = (writeIdx == readIdx);
-      audioEnableIrq();
-    }
-
-    // returns a pointer to the audio buffer to be played
-    const AudioBuffer * getNextFilledBuffer()
-    {
-#if defined(AUDIO_DUAL_BUFFER)
-      uint8_t idx = readIdx;
-      do {
-        AudioBuffer * buffer = &audioBuffers[idx];
-        if (buffer->state == AUDIO_BUFFER_FILLED) {
-          buffer->state = AUDIO_BUFFER_PLAYING;
-          readIdx = idx;
-          return buffer;
-        }
-        idx = nextBufferIdx(idx);
-      } while (idx != writeIdx);   // this fixes a bug if all buffers are filled
-      return NULL;
-#else
-      return empty() ? NULL : &audioBuffers[readIdx];
-#endif
-    }
+    void audioPushBuffer() { writeIdx = nextBufferIdx(writeIdx); }
 
     // frees the last played buffer
-    void freeNextFilledBuffer()
+    void freeNextFilledBuffer() { readIdx = nextBufferIdx(readIdx); }
+
+    // returns a pointer to the audio buffer to be played
+    const AudioBuffer *getNextFilledBuffer()
     {
-      audioDisableIrq();
-#if defined(AUDIO_DUAL_BUFFER)
-      if (audioBuffers[readIdx].state == AUDIO_BUFFER_PLAYING) {
-        audioBuffers[readIdx].state = AUDIO_BUFFER_FREE;
-        readIdx = nextBufferIdx(readIdx);
-        bufferFull = false;
-      }
-#else
-      readIdx = nextBufferIdx(readIdx);
-      bufferFull = false;
-#endif
-      audioEnableIrq();
+      return empty() ? nullptr : &audioBuffers[readIdx];
     }
 
-    bool filledAtleast(int noBuffers) const
-    {
-#if defined(AUDIO_DUAL_BUFFER)
-      int count = 0;
-      for(int n= 0; n<AUDIO_BUFFER_COUNT; ++n) {
-        if (audioBuffers[n].state == AUDIO_BUFFER_FILLED) {
-          if (++count >= noBuffers) {
-            return true;
-          }
-        }
-      }
-      return false;
-#else
-      return used() >= noBuffers;
-#endif
-    }
-
+    bool filledAtleast(int noBuffers) const { return used() >= noBuffers; }
 };
 
 class AudioFragmentFifo
@@ -506,9 +421,6 @@ class AudioFragmentFifo
 
 class AudioQueue {
 
-#if defined(SIMU_AUDIO)
-  friend void fillAudioBuffer(void *, uint8_t *, int);
-#endif
 #if defined(CLI)
   friend void printAudioVars();
 #endif
@@ -554,16 +466,6 @@ enum {
 void codecsInit();
 void audioEvent(unsigned int index);
 void audioPlay(unsigned int index, uint8_t id=0);
-void audioStart();
-void audioTask(void * pdata);
-
-#if defined(AUDIO) && defined(BUZZER)
-  #define AUDIO_BUZZER(a, b)  do { a; b; } while(0)
-#elif defined(AUDIO)
-  #define AUDIO_BUZZER(a, b)  a
-#else
-  #define AUDIO_BUZZER(a, b)  b
-#endif
 
 void onKeyError();
 
@@ -582,18 +484,18 @@ void audioTimerCountdown(uint8_t timer, int value);
 
 #define AUDIO_HELLO()            audioPlay(AUDIO_HELLO)
 #define AUDIO_BYE()              audioPlay(AU_BYE, ID_PLAY_PROMPT_BASE + AU_BYE)
-#define AUDIO_WARNING1()         AUDIO_BUZZER(audioEvent(AU_WARNING1), beep(3))
-#define AUDIO_WARNING2()         AUDIO_BUZZER(audioEvent(AU_WARNING2), beep(2))
-#define AUDIO_TX_BATTERY_LOW()   AUDIO_BUZZER(audioEvent(AU_TX_BATTERY_LOW), beep(4))
-#define AUDIO_ERROR()            AUDIO_BUZZER(audioEvent(AU_ERROR), beep(4))
+#define AUDIO_WARNING1()         audioEvent(AU_WARNING1)
+#define AUDIO_WARNING2()         audioEvent(AU_WARNING2)
+#define AUDIO_TX_BATTERY_LOW()   audioEvent(AU_TX_BATTERY_LOW)
+#define AUDIO_ERROR()            audioEvent(AU_ERROR)
 #define AUDIO_TIMER_COUNTDOWN(idx, val) audioTimerCountdown(idx, val)
-#define AUDIO_TIMER_ELAPSED(idx) AUDIO_BUZZER(audioEvent(AU_TIMER1_ELAPSED+idx), beep(3))
-#define AUDIO_INACTIVITY()       AUDIO_BUZZER(audioEvent(AU_INACTIVITY), beep(3))
-#define AUDIO_MIX_WARNING(x)     AUDIO_BUZZER(audioEvent(AU_MIX_WARNING_1+x-1), beep(1))
-#define AUDIO_POT_MIDDLE(x)      AUDIO_BUZZER(audioEvent(AU_STICK1_MIDDLE+x), beep(2))
-#define AUDIO_TRIM_MIDDLE()      AUDIO_BUZZER(audioEvent(AU_TRIM_MIDDLE), beep(2))
-#define AUDIO_TRIM_MIN()         AUDIO_BUZZER(audioEvent(AU_TRIM_MIN), beep(2))
-#define AUDIO_TRIM_MAX()         AUDIO_BUZZER(audioEvent(AU_TRIM_MAX), beep(2))
+#define AUDIO_TIMER_ELAPSED(idx) audioEvent(AU_TIMER1_ELAPSED+idx)
+#define AUDIO_INACTIVITY()       audioEvent(AU_INACTIVITY)
+#define AUDIO_MIX_WARNING(x)     audioEvent(AU_MIX_WARNING_1+x-1)
+#define AUDIO_POT_MIDDLE(x)      audioEvent(AU_STICK1_MIDDLE+x)
+#define AUDIO_TRIM_MIDDLE()      audioEvent(AU_TRIM_MIDDLE)
+#define AUDIO_TRIM_MIN()         audioEvent(AU_TRIM_MIN)
+#define AUDIO_TRIM_MAX()         audioEvent(AU_TRIM_MAX)
 #define AUDIO_TRIM_PRESS(val)    audioTrimPress(val)
 #define AUDIO_PLAY(p)            audioEvent(p)
 #define AUDIO_VARIO(fq, t, p, f) audioQueue.playTone(fq, t, p, f)
@@ -608,8 +510,6 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
 
 #else // AUDIO
-
-#include "buzzer.h"
 
 #define AUDIO_TIMER_COUNTDOWN(idx, val) 
 #define AUDIO_TIMER_ELAPSED(idx) 
@@ -647,7 +547,6 @@ void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t fragmentVolume = USE_SETT
 void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void playModelName();
 
-#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
 #define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id, fragmentVolume)
 #define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id, fragmentVolume)
 #define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id, fragmentVolume)

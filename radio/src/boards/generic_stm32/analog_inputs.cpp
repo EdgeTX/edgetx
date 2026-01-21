@@ -23,6 +23,7 @@
 #include "stm32_adc.h"
 #include "stm32_spi_adc.h"
 #include "sticks_pwm_driver.h"
+#include "flysky_gimbal_driver.h"
 
 #include "hal.h"
 
@@ -33,7 +34,7 @@
 #include "definitions.h"
 
 #include "myeeprom.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 #include <string.h>
 
@@ -99,27 +100,44 @@ static const stick_pwm_timer_t _sticks_timer = {
   .GPIO_Alternate = PWM_GPIO_AF,
   .TIMx = PWM_TIMER,
   .TIM_IRQn = PWM_IRQn,
+  .TIM_Freq = PWM_TIMER_FREQ,
 };
 
 #if !defined(PWM_IRQHandler)
   #error "Missing PWM_IRQHandler"
 #endif
 
+static_assert(DIM(_PWM_inputs) <= MAX_STICKS, "too many PWM inputs");
+
 extern "C" void PWM_IRQHandler(void)
 {
   sticks_pwm_isr(&_sticks_timer, _PWM_inputs, DIM(_PWM_inputs));
 }
 
-bool sticksPwmDetect()
+static bool pwm_gimbal_init()
 {
   return sticks_pwm_detect(&_sticks_timer, _PWM_inputs, DIM(_PWM_inputs));
 }
 
-#else
-
-bool sticksPwmDetect()
-{
-  return false;
-}
-
 #endif
+
+typedef bool (*gimbal_driver_t)();
+
+const gimbal_driver_t gimbal_drivers[] = {
+#if defined(PWM_STICKS)
+    pwm_gimbal_init,
+#endif
+#if defined(FLYSKY_GIMBAL)
+    flysky_gimbal_init,
+#endif
+};
+
+void gimbalsDetect()
+{
+  unsigned idx = 0;
+  bool detected = false;
+
+  while (idx < DIM(gimbal_drivers) && !detected) {
+    detected = gimbal_drivers[idx++]();
+  }
+}

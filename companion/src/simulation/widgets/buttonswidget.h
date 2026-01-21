@@ -62,11 +62,15 @@ class ButtonsWidget : public QWidget
     {
       RadioKeyWidget * rkw = new RadioKeyWidget(pushbtn, action, this);
       m_buttons.append(rkw);
+      // button still receives click event but does not take focus away from simulatoruiwidget
+      // which would stop arrow keys receiving key press events
+      // do not invoke pushbtn::setFocus as this would override focus policy
+      pushbtn->setFocusPolicy(Qt::NoFocus);
       connect(pushbtn, &QPushButton::pressed, rkw, &RadioKeyWidget::press);
       connect(pushbtn, &QPushButton::released, rkw, &RadioKeyWidget::release);
 
       if (action) {
-        //  blink push button on click or matching key(s) press
+        // blink push button on click or matching key(s) press
         connect(action, static_cast<void (RadioUiAction::*)(void)>(&RadioUiAction::pushed), [this, pushbtn] (void) {
                 //  TODO: use a palette colors
                 //        set to default -> blink -> default
@@ -74,7 +78,6 @@ class ButtonsWidget : public QWidget
                 QString blnkcol = "background-color: rgb(239, 41, 41)";
                 // pressing the same key in rapid seccession can affect the order of the events see TODO
                 if (csssave != blnkcol) {
-                  pushbtn->setFocus();
                   pushbtn->setStyleSheet(blnkcol);
                   QTimer * tim = new QTimer(this);
                   tim->setSingleShot(true);
@@ -83,7 +86,7 @@ class ButtonsWidget : public QWidget
                 }
         });
       }
-      pushbtn->setFocusPolicy(Qt::ClickFocus);
+
       return rkw;
     }
 
@@ -131,7 +134,7 @@ class ButtonsWidget : public QWidget
     void paintEvent(QPaintEvent *)
     {
       QStyleOption opt;
-      opt.init(this);
+      opt.initFrom(this);
       QPainter p(this);
       style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
     }

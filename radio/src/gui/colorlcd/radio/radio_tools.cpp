@@ -24,17 +24,18 @@
 #include <algorithm>
 
 #include "hal/module_port.h"
-#include "libopenui.h"
 #include "lua/lua_api.h"
 #include "edgetx.h"
 #include "radio_ghost_module_config.h"
 #include "radio_spectrum_analyser.h"
+#include "radio_gps_tool.h"
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
+#include "lib_file.h"
 
 extern uint8_t g_moduleIdx;
 
-RadioToolsPage::RadioToolsPage() : PageTab(STR_MENUTOOLS, ICON_RADIO_TOOLS) {}
+RadioToolsPage::RadioToolsPage(const PageDef& pageDef) : PageGroupItem(pageDef) {}
 
 void RadioToolsPage::build(Window* window)
 {
@@ -77,7 +78,7 @@ void RadioToolsPage::checkEvents()
   }
 #endif
 
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 }
 
 typedef void (*ToolExec)(Window* parent, const std::string& path);
@@ -113,24 +114,40 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
   FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
   if (res == FR_OK) {
     for (;;) {
-      TCHAR path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
       res = f_readdir(&dir, &fno); /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0)
         break; /* Break on error or end of dir */
-      if (fno.fattrib & (AM_DIR | AM_HID | AM_SYS))
-        continue;  // skip subfolders, hidden files and system files
+      if (fno.fattrib & (AM_HID | AM_SYS))
+        continue;  // skip hidden files and system files
       if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
 
+      bool inFolder = (fno.fattrib & AM_DIR);
+
+      char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
       strcat(path, fno.fname);
-      if (isRadioScriptTool(fno.fname)) {
+      if (inFolder) {
+        // check if .lua with same name exists - skip folder to avoid duplicate entries
+        auto plen = strlen(path);
+        strcat(path, ".lua");
+        if (f_stat(path, nullptr) == FR_OK)
+          continue;
+        path[plen] = 0;
+        strcat(path, "/main.lua");
+        if (f_stat(path, nullptr) != FR_OK)
+          continue;
+      }
+
+      if (isRadioScriptTool(path)) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char* label;
-        char* ext = (char*)getFileExtension(path);
         if (readToolName(toolName, path)) {
           label = toolName;
         } else {
-          *ext = '\0';
-          label = getBasename(path);
+          if (!inFolder) {
+            char* ext = (char*)getFileExtension(fno.fname);
+            if (ext) *ext = '\0';
+          }
+          label = fno.fname;
         }
 
         scripts.emplace_back(ToolEntry{label, path, run_lua_tool});
@@ -139,6 +156,19 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
   }
 }
 #endif
+
+static bool isModelGPSSensorPresent()
+{
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    if (isGPSSensor(i+1)) return true;
+  }
+  return false;
+}
+
+static void run_gpstool(Window* parent, const std::string&)
+{
+  new RadioGpsTool();
+}
 
 #if defined(PXX2) || defined(MULTIMODULE)
 
@@ -188,8 +218,8 @@ struct ToolButton : public TextButton {
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
   }
 
-  static LAYOUT_VAL(TOOLS_BTN_W, (LCD_W - 24) / 3, (LCD_W - 18) / 2)
-  static LAYOUT_VAL(TOOLS_BTN_H, 48, 48)
+  static LAYOUT_ORIENTATION(TOOLS_BTN_W, (LCD_W - PAD_LARGE * 3) / 3, (LCD_W - PAD_LARGE * 2) / 2)
+  static LAYOUT_VAL_SCALED(TOOLS_BTN_H, 48)
 };
 
 void RadioToolsPage::rebuild(Window* window)
@@ -242,19 +272,22 @@ void RadioToolsPage::rebuild(Window* window)
   }
 #endif
 
+  if (isModelGPSSensorPresent())
+    tools.emplace_back(ToolEntry{STR_GPS_MODEL_LOCATOR, "", run_gpstool});
+
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (intSpecAnalyser)
-    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, "", run_spektrum_int});
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (extSpecAnalyser)
-    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, "", run_spektrum_ext});
 #endif
 
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE)) {
-    tools.emplace_back(ToolEntry{"Ghost module config", {}, run_ghost_config});
+    tools.emplace_back(ToolEntry{STR_GHOST_MODULE_CONFIG, "", run_ghost_config});
   }
 #endif
 

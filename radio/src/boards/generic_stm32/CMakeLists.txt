@@ -32,12 +32,18 @@ set(BOARD_LIB_SRC
   boards/generic_stm32/switches.cpp
   boards/generic_stm32/bor_level.cpp
   boards/generic_stm32/rgb_leds.cpp
+  boards/generic_stm32/battery_voltage.cpp
+  boards/generic_stm32/led_driver.cpp
 )
 
 add_library(minimal_board_lib OBJECT EXCLUDE_FROM_ALL ${MINIMAL_BOARD_LIB_SRC})
 
 add_library(board_lib OBJECT EXCLUDE_FROM_ALL ${BOARD_LIB_SRC})
 add_dependencies(board_lib minimal_board_lib)
+
+if(DEBUG)
+  target_compile_definitions(board_lib PRIVATE DEBUG)
+endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC}
   $<TARGET_OBJECTS:minimal_board_lib>

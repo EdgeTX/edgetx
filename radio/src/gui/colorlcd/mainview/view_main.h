@@ -24,9 +24,7 @@
 #include "topbar.h"
 #include "window.h"
 
-class SetupWidgetsPage;
-class SetupTopBarWidgetsPage;
-class ViewMainMenu;
+class TopBar;
 
 class ViewMain : public NavWindow
 {
@@ -36,14 +34,7 @@ class ViewMain : public NavWindow
  public:
   ~ViewMain() override;
 
-  static ViewMain* instance()
-  {
-    if (!_instance) _instance = new ViewMain();
-
-    return _instance;
-  }
-
-  static ViewMain* getInstance() { return _instance; }
+  static ViewMain* instance();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewMain"; }
@@ -51,8 +42,6 @@ class ViewMain : public NavWindow
 
   void addMainView(WidgetsContainer* view, uint32_t viewId);
 
-  void enableTopbar();
-  void disableTopbar();
   void updateTopbarVisibility();
   bool enableWidgetSelect(bool enable);
 
@@ -75,15 +64,17 @@ class ViewMain : public NavWindow
   bool onLongPress() override;
 
   void show(bool visible = true) override;
-  bool viewIsVisible() const { return isVisible; }
   void showTopBarEdgeTxButton();
   void hideTopBarEdgeTxButton();
 
   bool hasTopbar();
+  bool hasTopbar(unsigned view);
   bool isAppMode();
+  bool isAppMode(unsigned view);
 
-  void runBackground();
   void refreshWidgetSelectTimer();
+
+  static void refreshWidgets();
 
  protected:
   static ViewMain* _instance;
@@ -93,20 +84,19 @@ class ViewMain : public NavWindow
   TopBar* topbar = nullptr;
   bool widget_select = false;
   lv_timer_t* widget_select_timer = nullptr;
-  ViewMainMenu* viewMainMenu = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
-
-  // Widget setup requires special permissions ;-)
-  friend class SetupWidgetsPage;
-  friend class SetupTopBarWidgetsPage;
+  void deleteLater() override;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);
+  void setEdgeTxButtonVisible(float visible);
+
+  void _refreshWidgets();
 
   static void ws_timer(lv_timer_t* t);
 
 #if defined(HARDWARE_KEYS)
+  void doKeyShortcut(event_t event);
   void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;

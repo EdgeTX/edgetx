@@ -27,6 +27,7 @@
 #include "filtereditemmodels.h"
 
 #include <QMediaPlayer>
+#include <QAudioOutput>
 
 class TimerEdit;
 
@@ -53,8 +54,9 @@ class CustomFunctionsPanel : public GenericPanel
     bool playSound(int index);
     void stopSound(int index);
     void toggleSound(bool play);
-    void onMediaPlayerStateChanged(QMediaPlayer::State state);
-    void onMediaPlayerError(QMediaPlayer::Error error);
+    void onMediaPlayerPlaybackStateChanged(QMediaPlayer::PlaybackState state);
+    void onMediaPlayerErrorOccurred(QMediaPlayer::Error error, const QString &errorString);
+
     void cmDelete();
     void cmCopy();
     void cmPaste();
@@ -89,6 +91,7 @@ class CustomFunctionsPanel : public GenericPanel
     int harpicId;
     int repeatId;
     int repeatLuaId;
+    int repeatSetScreenId;
     int gvarAdjustModeId;
 
     QSet<QString> tracksSet;
@@ -106,6 +109,7 @@ class CustomFunctionsPanel : public GenericPanel
     QComboBox * fswtchRepeat[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchGVmode[CPN_MAX_SPECIAL_FUNCTIONS];
     QMediaPlayer * mediaPlayer;
+    QAudioOutput * audioOutput;
 
     int selectedIndex;
     int fswCapability;

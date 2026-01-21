@@ -18,15 +18,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#pragma once
-#include <stdlib.h>
 
+#pragma once
+
+#include <stdlib.h>
 #include <algorithm>
 
 #include "colors.h"
 #include "debug.h"
 #include "edgetx.h"
 #include "sdcard.h"
+#include "static.h"
 
 struct ColorEntry
 {
@@ -63,11 +65,11 @@ class ThemeFile
 
         return nullptr;
     }
-    
-    void setName(std::string name) { this->name = name; }
-    void setAuthor(std::string author) { this->author = author; }
-    void setInfo(std::string info) { this->info = info; }
-    void setPath(std::string path) { this->path = path; }
+
+    void setName(const std::string& name) { this->name = name; }
+    void setAuthor(const std::string& author) { this->author = author; }
+    void setInfo(const std::string& info) { this->info = info; }
+    void setPath(const std::string& path) { this->path = path; }
 
     std::vector<ColorEntry>& getColorList() { return colorList; }
     void setColor(LcdColorIndex colorIndex, uint32_t color);
@@ -88,6 +90,7 @@ class ThemeFile
 
     void applyColors();
     void applyBackground();
+    bool tryBackground(std::string& file);
 
     void deSerialize();
 };
@@ -107,7 +110,7 @@ class ThemePersistance
     void setDefaultTheme(int index);
     static char **getColorNames();
     bool deleteThemeByIndex(int index);
-    bool createNewTheme(std::string name, ThemeFile &theme);
+    bool createNewTheme(const std::string& name, ThemeFile &theme);
 
     std::vector<std::string> getNames()
     {
@@ -131,17 +134,17 @@ class ThemePersistance
     inline void setThemeIndex(int index) { currentTheme = index;}
     inline bool isDefaultTheme() { if (currentTheme == 0) return true; else return false; }
 
-    inline ThemeFile* getCurrentTheme() 
-    { 
-      if (currentTheme < (int)themes.size()) 
+    inline ThemeFile* getCurrentTheme()
+    {
+      if (currentTheme < (int)themes.size())
         return themes[currentTheme];
       return nullptr;
     }
 
-    inline ThemeFile* getThemeByIndex(int index) 
-    { 
+    inline ThemeFile* getThemeByIndex(int index)
+    {
       if (index < (int) themes.size())
-        return themes[index]; 
+        return themes[index];
       return nullptr;
     }
 
@@ -165,9 +168,9 @@ class HeaderDateTime : public Window
 
   void setColor(LcdFlags color);
 
-  static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
-  static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12)
-  static LAYOUT_VAL(HDR_DATE_LINE2, 15, 15)
+  static LAYOUT_VAL_SCALED(HDR_DATE_WIDTH, 45)
+  static LAYOUT_VAL_SCALED(HDR_DATE_HEIGHT, 12)
+  static LAYOUT_VAL_SCALED(HDR_DATE_LINE2, 15)
 
  protected:
   lv_obj_t *date = nullptr;
@@ -180,8 +183,33 @@ class HeaderDateTime : public Window
 class HeaderIcon : public StaticIcon
 {
  public:
-  HeaderIcon(Window *parent, EdgeTxIcon icon);
-  HeaderIcon(Window *parent, const char* iconFile);
+  HeaderIcon(Window *parent, EdgeTxIcon icon, std::function<void()> action = nullptr);
+  HeaderIcon(Window *parent, const char* iconFile, std::function<void()> action = nullptr);
+
+  void setIcon(EdgeTxIcon newIcon) { if (icon) icon->setIcon(newIcon); }
+
+ protected:
+  std::function<void()> action;
+  StaticIcon* icon = nullptr;
+
+  void onClicked() override
+  {
+    if (action) action();
+  }
+};
+
+class HeaderBackIcon : public StaticIcon
+{
+ public:
+  HeaderBackIcon(Window *parent, std::function<void()> action = nullptr);
+
+ protected:
+  std::function<void()> action;
+
+  void onClicked() override
+  {
+    if (action) action();
+  }
 };
 
 class UsbSDConnected : public Window

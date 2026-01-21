@@ -21,14 +21,18 @@
 
 #include "timer_setup.h"
 
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "switchchoice.h"
+#include "textedit.h"
 #include "timeedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 TimerWindow::TimerWindow(uint8_t timer) :
-  SubPage(ICON_STATS_TIMERS, STR_MENU_MODEL_SETUP, (std::string(STR_TIMER) + std::to_string(timer + 1)).c_str())
+  SubPage(ICON_STATS_TIMERS, STR_MAIN_MENU_MODEL_SETTINGS, (std::string(STR_TIMER) + std::to_string(timer + 1)).c_str())
 {
   body->setFlexLayout();
 

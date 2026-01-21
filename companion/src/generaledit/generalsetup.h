@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GENERALSETUP_H_
-#define _GENERALSETUP_H_
+#pragma once
 
 #include "generaledit.h"
 #include "eeprominterface.h"
@@ -36,7 +35,7 @@ class GeneralSetupPanel : public GeneralPanel
     Q_OBJECT
 
   public:
-    GeneralSetupPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
+    GeneralSetupPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels);
     virtual ~GeneralSetupPanel();
 
   private slots:
@@ -48,12 +47,12 @@ class GeneralSetupPanel : public GeneralPanel
     void on_displayTypeCB_currentIndexChanged(int index);
     void on_BLBright_SB_editingFinished();
     void on_OFFBright_SB_editingFinished();
-    void on_re_CB_currentIndexChanged(int index);
+    void on_brightCtrl_CB_currentIndexChanged(int index);
+    void on_volumeCtrl_CB_currentIndexChanged(int index);
     void on_countrycode_CB_currentIndexChanged(int index);
     void on_units_CB_currentIndexChanged(int index);
     void on_ppm_units_CB_currentIndexChanged(int index);
     void on_faimode_CB_stateChanged(int );
-    void on_rotEncMode_CB_currentIndexChanged(int index);
     void on_speakerPitchSB_editingFinished();
     void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
@@ -69,6 +68,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_backlightColor_SL_valueChanged();
     void on_mavbaud_CB_currentIndexChanged(int index);
     void on_voiceLang_CB_currentIndexChanged(int index);
+    void on_textLang_CB_currentIndexChanged(int index);
     void stickReverseEdited();
     void on_switchesDelay_valueChanged(int);
     void on_blAlarm_ChkB_stateChanged();
@@ -114,11 +114,7 @@ class GeneralSetupPanel : public GeneralPanel
     void showLabelSelectOptions();
 
     void setValues();
-    void populateBacklightCB();
-    void populateVoiceLangCB();
-    void populateRotEncCB(int reCount);
-    void populateRotEncModeCB();
+    void populateVoiceLangCB(QComboBox* b, const char* currLang);
+    void populateTextLangCB(QComboBox* b, const char* currLang, bool isColor);
     void updateVarioPitchRange();
 };
-
-#endif // _GENERALSETUP_H_

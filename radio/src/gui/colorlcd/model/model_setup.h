@@ -21,19 +21,18 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ModelSetupPage: public PageTab {
+class TextButton;
+
+class ModelSetupPage: public PageGroupItem {
  public:
-  ModelSetupPage();
+  ModelSetupPage(const PageDef& pageDef);
 
   void build(Window * window) override;
 
-  static LAYOUT_VAL(BTN_COLS, 3, 3)
-  static LAYOUT_VAL(BTN_H, 62, 62)
-  static LAYOUT_VAL(OPTS_W, 100, 100)
-  static LAYOUT_VAL(NAM_W, 200, 140)
-
- private:
-  TextButton *labelTextButton = nullptr;
+  static LAYOUT_SIZE(BTN_COLS, 3, 3)
+  static LAYOUT_VAL_SCALED(BTN_H, 62)
+  static LAYOUT_VAL_SCALED(OPTS_W, 100)
+  static LAYOUT_SIZE_SCALED(NAM_W, 200, 140)
 };

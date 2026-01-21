@@ -21,7 +21,8 @@
 
 #include "file_carosell.h"
 
-#include "translations.h"
+#include "translations/translations.h"
+#include "timers_driver.h"
 
 extern inline tmr10ms_t getTicks()
 {
@@ -35,7 +36,7 @@ FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
 {
   setWindowFlag(NO_FOCUS);
 
-  message = new StaticText(this, {0, rect.h/2, rect.w, EdgeTxStyles::PAGE_LINE_HEIGHT * 2}, "", COLOR_THEME_PRIMARY1_INDEX, CENTERED | FONT(L));
+  message = new StaticText(this, {0, rect.h/2, rect.w, EdgeTxStyles::STD_FONT_HEIGHT * 2}, "", COLOR_THEME_PRIMARY1_INDEX, CENTERED | FONT(L));
 
   setFileNames(fileNames);
 }
@@ -58,7 +59,7 @@ void FileCarosell::setSelected(int n)
     } else
       fp->setFile("");
   }
-  
+
   message->show(selected == -1);
   if (selected == -1)
     message->setText(_fileNames.size() > 0 ? STR_LOADING : STR_NO_THEME_IMAGE);

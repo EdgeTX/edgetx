@@ -31,38 +31,46 @@ class TrimIcon : public SliderIcon
  public:
   TrimIcon(Window* parent, bool isVertical) : SliderIcon(parent)
   {
+    lv_coord_t x1 = MainViewSlider::SLIDER_ICON_SIZE / 5;
+    lv_coord_t x2 = MainViewSlider::SLIDER_ICON_SIZE - x1;
+    lv_coord_t y1 = (MainViewSlider::SLIDER_ICON_SIZE + 1) / 4;
+    lv_coord_t y2 = MainViewSlider::SLIDER_ICON_SIZE - 1 - y1;
+    lv_coord_t lw = MainViewSlider::SLIDER_ICON_SIZE > 15 ? 2 : 1;
+    if (lw > 1) y2 += 1;
     if (isVertical) {
-      barPoints[0] = {3, 4};
-      barPoints[1] = {12, 4};
-      barPoints[2] = {3, 10};
-      barPoints[3] = {12, 10};
+      barPoints[0] = {x1, y1};
+      barPoints[1] = {x2, y1};
+      barPoints[2] = {x1, y2};
+      barPoints[3] = {x2, y2};
     } else {
-      barPoints[0] = {10, 3};
-      barPoints[1] = {10, 12};
-      barPoints[2] = {4, 3};
-      barPoints[3] = {4, 12};
+      barPoints[0] = {y2, x1};
+      barPoints[1] = {y2, x2};
+      barPoints[2] = {y1, x1};
+      barPoints[3] = {y1, x2};
     }
 
     bar1 = lv_line_create(lvobj);
     etx_obj_add_style(bar1, styles->div_line_white, LV_PART_MAIN);
     etx_obj_add_style(bar1, styles->div_line_black, LV_STATE_USER_1);
+    lv_obj_set_style_line_width(bar1, lw, LV_PART_MAIN);
     lv_line_set_points(bar1, &barPoints[0], 2);
     bar2 = lv_line_create(lvobj);
     etx_obj_add_style(bar2, styles->div_line_white, LV_PART_MAIN);
     etx_obj_add_style(bar2, styles->div_line_black, LV_STATE_USER_1);
+    lv_obj_set_style_line_width(bar2, lw, LV_PART_MAIN);
     lv_line_set_points(bar2, &barPoints[2], 2);
 
-    etx_bg_color(fill, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
+    etx_img_color(mask, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
   }
 
   void setState(int value)
   {
     if (value < TRIM_MIN || value > TRIM_MAX) {
-      lv_obj_add_state(fill, LV_STATE_USER_1);
+      lv_obj_add_state(mask, LV_STATE_USER_1);
       lv_obj_add_state(bar1, LV_STATE_USER_1);
       lv_obj_add_state(bar2, LV_STATE_USER_1);
     } else {
-      lv_obj_clear_state(fill, LV_STATE_USER_1);
+      lv_obj_clear_state(mask, LV_STATE_USER_1);
       lv_obj_clear_state(bar1, LV_STATE_USER_1);
       lv_obj_clear_state(bar2, LV_STATE_USER_1);
     }
@@ -92,21 +100,21 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
   etx_solid_bg(trimBar, COLOR_THEME_SECONDARY1_INDEX);
   etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
   if (isVertical) {
-    lv_obj_set_pos(trimBar, (LayoutFactory::TRIM_SQUARE_SIZE - LayoutFactory::TRIM_LINE_WIDTH) / 2,
-                   LayoutFactory::TRIM_SQUARE_SIZE / 2);
-    lv_obj_set_size(trimBar, LayoutFactory::TRIM_LINE_WIDTH,
-                    MainViewSlider::VERTICAL_SLIDERS_HEIGHT - LayoutFactory::TRIM_SQUARE_SIZE + 1);
+    lv_obj_set_pos(trimBar, (MainViewSlider::SLIDER_BAR_SIZE - TRIM_LINE_WIDTH) / 2,
+                   MainViewSlider::SLIDER_BAR_SIZE / 2);
+    lv_obj_set_size(trimBar, TRIM_LINE_WIDTH,
+                    MainViewSlider::VERTICAL_SLIDERS_HEIGHT - MainViewSlider::SLIDER_BAR_SIZE + 1);
   } else {
-    lv_obj_set_pos(trimBar, LayoutFactory::TRIM_SQUARE_SIZE / 2,
-                   (LayoutFactory::TRIM_SQUARE_SIZE - LayoutFactory::TRIM_LINE_WIDTH - 1) / 2);
-    lv_obj_set_size(trimBar, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - LayoutFactory::TRIM_SQUARE_SIZE + 1,
-                    LayoutFactory::TRIM_LINE_WIDTH);
+    lv_obj_set_pos(trimBar, MainViewSlider::SLIDER_BAR_SIZE / 2,
+                   (MainViewSlider::SLIDER_BAR_SIZE - TRIM_LINE_WIDTH - 1) / 2);
+    lv_obj_set_size(trimBar, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - MainViewSlider::SLIDER_BAR_SIZE + 1,
+                    TRIM_LINE_WIDTH);
   }
 
   trimIcon = new TrimIcon(this, isVertical);
 
   trimValue = new DynamicNumber<int16_t>(
-      this, {0, 0, LayoutFactory::TRIM_SQUARE_SIZE, 12},
+      this, {0, 0, MainViewSlider::SLIDER_BAR_SIZE, 12},
       [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
       COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);
   etx_solid_bg(trimValue->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
@@ -147,8 +155,8 @@ void MainViewTrim::setPos()
       } else {
         x = ((value < 0) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH * 4 / 5
                          : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 5) -
-            LayoutFactory::TRIM_SQUARE_SIZE / 2;
-        y = (LayoutFactory::TRIM_SQUARE_SIZE - 12) / 2;
+                         MainViewSlider::SLIDER_BAR_SIZE / 2;
+        y = (MainViewSlider::SLIDER_BAR_SIZE - 12) / 2;
       }
       lv_obj_set_pos(trimValue->getLvObj(), x, y);
       trimValue->show();
@@ -195,7 +203,7 @@ void MainViewTrim::checkEvents()
   int newValue = getTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
 
   bool update = false;
-  
+
   if (extendedTrims != g_model.extendedTrims) {
     update = true;
     setRange();
@@ -214,7 +222,7 @@ coord_t MainViewTrim::sx()
   if (isVertical) return 0;
 
   return divRoundClosest(
-      (MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - LayoutFactory::TRIM_SQUARE_SIZE) * (value - trimMin),
+      (MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - MainViewSlider::SLIDER_BAR_SIZE) * (value - trimMin),
       trimMax - trimMin);
 }
 
@@ -223,20 +231,20 @@ coord_t MainViewTrim::sy()
   if (!isVertical) return 0;
 
   return divRoundClosest(
-             (MainViewSlider::VERTICAL_SLIDERS_HEIGHT - LayoutFactory::TRIM_SQUARE_SIZE) * (trimMax - value),
+             (MainViewSlider::VERTICAL_SLIDERS_HEIGHT - MainViewSlider::SLIDER_BAR_SIZE) * (trimMax - value),
              trimMax - trimMin);
 }
 
 MainViewHorizontalTrim::MainViewHorizontalTrim(Window* parent, uint8_t idx) :
     MainViewTrim(parent,
-                 rect_t{0, 0, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, LayoutFactory::TRIM_SQUARE_SIZE}, idx,
+                 rect_t{0, 0, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, MainViewSlider::SLIDER_BAR_SIZE}, idx,
                  false)
 {
 }
 
 MainViewVerticalTrim::MainViewVerticalTrim(Window* parent, uint8_t idx) :
     MainViewTrim(parent,
-                 rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, MainViewSlider::VERTICAL_SLIDERS_HEIGHT}, idx,
+                 rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, MainViewSlider::VERTICAL_SLIDERS_HEIGHT}, idx,
                  true)
 {
 }

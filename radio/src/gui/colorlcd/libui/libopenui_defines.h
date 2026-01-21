@@ -18,16 +18,12 @@
 
 #pragma once
 
-#include "debug.h"
-#include "hal.h"
-#include "edgetx_types.h"
-#include "colors.h"
-#include "keys.h"
-
 // Used by Lua API
 #define INVERS                         0x01u
 #define BLINK                          0x1000u
 #define TIMEHOUR                       0x2000u
+#define VTOP                           0x00u
+#define VBOTTOM                        0x200u
 
 /* drawText flags */
 #define LEFT                           0x00u /* align left */

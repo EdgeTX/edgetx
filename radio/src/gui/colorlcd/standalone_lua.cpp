@@ -21,10 +21,15 @@
 
 #include "standalone_lua.h"
 
-#include "translations.h"
-#include "view_main.h"
 #include "dma2d.h"
+#include "keys.h"
 #include "lua/lua_event.h"
+#include "view_main.h"
+
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
 
 lua_State *lsStandalone = nullptr;
 
@@ -49,16 +54,14 @@ static void luaStandaloneHook(lua_State * L, lua_Debug *ar)
 
 static void luaStandaloneInit()
 {
-  luaClose(&lsStandalone);
-
-#if defined(USE_BIN_ALLOCATOR)
-  lsStandalone = lua_newstate(bin_l_alloc, nullptr);   //we use our own allocator!
+#if defined(USE_CUSTOM_ALLOCATOR)
+  lsStandalone = lua_newstate(custom_l_alloc, nullptr);   //we use our own allocator!
 #elif defined(LUA_ALLOCATOR_TRACER)
   memclear(&lsStandaloneTrace, sizeof(lsStandaloneTrace));
   lsStandaloneTrace.script = "lua_newstate(scripts)";
   lsStandalone = lua_newstate(tracer_alloc, &lsStandaloneTrace);   //we use tracer allocator
 #else
-  lsStandalone = lua_newstate(l_alloc, nullptr);   //we use Lua default allocator
+  lsStandalone = luaL_newstate();   //we use Lua default allocator
 #endif
   if (lsStandalone) {
     // install our panic handler
@@ -66,18 +69,14 @@ static void luaStandaloneInit()
     lua_atpanic(lsStandalone, &custom_lua_atpanic);
 
 #if defined(LUA_ALLOCATOR_TRACER)
-    lua_sethook(L, luaStandaloneHook, LUA_MASKLINE);
+    lua_sethook(lsStandalone, luaStandaloneHook, LUA_MASKLINE);
 #endif
 
     // protect libs and constants registration
     PROTECT_LUA() {
       luaRegisterLibraries(lsStandalone);
-    }
-    else {
-      // if we got panic during registration
-      // we disable Lua for this session
+    } else {
       luaClose(&lsStandalone);
-      lsStandalone = 0;
     }
     UNPROTECT_LUA();
   }
@@ -85,7 +84,7 @@ static void luaStandaloneInit()
 
 void luaExecStandalone(const char * filename)
 {
-  if (lsStandalone == NULL)
+  if (lsStandalone == nullptr)
     luaStandaloneInit();
 
   PROTECT_LUA() {
@@ -133,40 +132,41 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   etx_solid_bg(lvobj);
 
+  luaScriptManager = this;
+
+  pushLayer(true);
+
   if (useLvglLayout()) {
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
 
-    lv_obj_t* lbl = lv_label_create(lvobj);
+    lv_obj_t* lbl = etx_label_create(lvobj, FONT_XL_INDEX);
     lv_obj_set_pos(lbl, 0, 0);
     lv_obj_set_size(lbl, LCD_W, LCD_H);
     etx_solid_bg(lbl, COLOR_THEME_PRIMARY1_INDEX);
     etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
-    etx_font(lbl, FONT_XL_INDEX);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
+    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::STD_FONT_HEIGHT) / 2, LV_PART_MAIN);
     lv_label_set_text(lbl, STR_LOADING);
-
-    luaLvglManager = this;
   } else {
     lcdBuffer = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
 
     lcdBuffer->clear();
-    lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING,
+    lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, STR_LOADING,
                       FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS | NO_SCROLL);
 
     auto canvas = lv_canvas_create(lvobj);
     lv_obj_center(canvas);
     lv_canvas_set_buffer(canvas, lcdBuffer->getData(),
                          lcdBuffer->width(), lcdBuffer->height(), LV_IMG_CF_TRUE_COLOR);
+
+    lv_group_add_obj(lv_group_get_default(), lvobj);
+    lv_group_set_editing(lv_group_get_default(), true);
   }
 
   // setup LUA event handler
   setupHandler(this);
-
-  attach();
 
   lua_gc(lsStandalone, LUA_GCCOLLECT, 0);
 
@@ -190,46 +190,24 @@ StandaloneLuaWindow* StandaloneLuaWindow::instance()
   return _instance;
 }
 
-void StandaloneLuaWindow::attach()
-{
-  if (!prevScreen) {
-    // backup previous screen
-    prevScreen = lv_scr_act();
-
-    Layer::back()->hide();
-    Layer::push(this);
-
-    if (!useLvglLayout()) {
-      lv_group_add_obj(lv_group_get_default(), lvobj);
-      lv_group_set_editing(lv_group_get_default(), true);
-    }
-  }
-}
-
-void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
+void StandaloneLuaWindow::deleteLater()
 {
   if (_deleted) return;
 
   if (initFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
   if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
-  lua_settop(lsStandalone, 0);
   luaLcdBuffer = nullptr;
+
+  luaClose(&lsStandalone);
 
   if (lcdBuffer) delete lcdBuffer;
   lcdBuffer = nullptr;
 
-  luaLvglManager = nullptr;
+  luaScriptManager = nullptr;
 
-  Layer::pop(this);
-  Layer::back()->show();
+  Window::deleteLater();
 
-  if (prevScreen) {
-    prevScreen = nullptr;
-  }
-
-  if (trash) {
-    _instance = nullptr;
-  }
+  _instance = nullptr;
 
 #if defined(USE_HATS_AS_KEYS)
   setTransposeHatsForLUA(false);
@@ -237,7 +215,9 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaState = prevLuaState;
 
-  Window::deleteLater(detach, trash);
+  luaEmptyEventBuffer();
+
+  Window::deleteLater();
 }
 
 void StandaloneLuaWindow::checkEvents()
@@ -318,13 +298,13 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdAllowed = false;
 }
 
-void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaEventHandler::onClicked(); }
+void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaScriptManager::onClickedEvent(); }
 
-void StandaloneLuaWindow::onCancel() { LuaEventHandler::onCancel(); }
+void StandaloneLuaWindow::onCancel() { LuaScriptManager::onCancelEvent(); }
 
 void StandaloneLuaWindow::onEvent(event_t evt)
 {
-  LuaEventHandler::onEvent(evt);
+  LuaScriptManager::onLuaEvent(evt);
 }
 
 void StandaloneLuaWindow::popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coord_t w, coord_t h,
@@ -341,7 +321,7 @@ void StandaloneLuaWindow::popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coo
   dc->drawSolidFilledRect(x, y + POPUP_HEADER_HEIGHT, w,
                           h - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
 
-  dc->drawText(x + PAD_SMALL, y + POPUP_HEADER_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT, info,
+  dc->drawText(x + PAD_SMALL, y + POPUP_HEADER_HEIGHT + EdgeTxStyles::STD_FONT_HEIGHT, info,
                COLOR_THEME_SECONDARY1);
 }
 
@@ -395,20 +375,18 @@ void StandaloneLuaWindow::showError(bool firstCall, const char* title, const cha
     lv_obj_set_size(errorModal, LCD_W, LCD_H);
     etx_bg_color(errorModal, COLOR_BLACK_INDEX);
     etx_obj_add_style(errorModal, styles->bg_opacity_75, LV_PART_MAIN);
-    errorTitle = lv_label_create(errorModal);
-    lv_obj_set_pos(errorTitle, 50, 30);
-    lv_obj_set_size(errorTitle, LCD_W - 100, 32);
+    errorTitle = etx_label_create(errorModal, FONT_L_INDEX);
+    lv_obj_set_pos(errorTitle, ERR_TTL_X, ERR_TTL_Y);
+    lv_obj_set_size(errorTitle, LCD_W - ERR_TTL_X * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT);
     etx_txt_color(errorTitle, COLOR_THEME_PRIMARY2_INDEX);
     etx_solid_bg(errorTitle, COLOR_THEME_SECONDARY1_INDEX);
-    etx_font(errorTitle, FONT_L_INDEX);
     etx_obj_add_style(errorTitle, styles->text_align_center, LV_PART_MAIN);
-    errorMsg = lv_label_create(errorModal);
-    lv_obj_set_pos(errorMsg, 50, 62);
-    lv_obj_set_size(errorMsg, LCD_W - 100, LCD_H - 92);
-    lv_obj_set_style_pad_all(errorMsg, 4, LV_PART_MAIN);
+    errorMsg = etx_label_create(errorModal);
+    lv_obj_set_pos(errorMsg, ERR_TTL_X, ERR_MSG_Y);
+    lv_obj_set_size(errorMsg, LCD_W - ERR_TTL_X * 2, LCD_H - ERR_MSG_HO);
+    lv_obj_set_style_pad_all(errorMsg, PAD_SMALL, LV_PART_MAIN);
     etx_txt_color(errorMsg, COLOR_THEME_PRIMARY1_INDEX);
     etx_solid_bg(errorMsg, COLOR_THEME_SECONDARY3_INDEX);
-    etx_font(errorMsg, FONT_STD_INDEX);
     etx_obj_add_style(errorMsg, styles->text_align_center, LV_PART_MAIN);
   }
 

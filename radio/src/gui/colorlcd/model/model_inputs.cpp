@@ -23,9 +23,11 @@
 
 #include <algorithm>
 
+#include "dialog.h"
+#include "edgetx.h"
 #include "hal/adc_driver.h"
 #include "input_edit.h"
-#include "edgetx.h"
+#include "menu.h"
 #include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -189,13 +191,13 @@ class InputGroup : public InputMixGroupBase
   {
     adjustHeight();
 
-    lv_obj_set_pos(label, 2, 4);
+    lv_obj_set_pos(label, PAD_TINY, PAD_SMALL);
 
     refresh();
   }
 };
 
-ModelInputsPage::ModelInputsPage() : InputMixPageBase(STR_MENUINPUTS, ICON_MODEL_INPUTS)
+ModelInputsPage::ModelInputsPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 

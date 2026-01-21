@@ -93,11 +93,21 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 }
 
 // Range for pulses (channels output) is [-1024:+1024]
-uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
 {
+  //
+  // sends channel data and also communicates commanded armed status in arming mode Switch.
+  // frame len 24 -> arming mode CH5: module will use channel 5
+  // frame len 25 -> arming mode Switch: send commanded armed status in extra byte after channel data
+  // 
+  ModuleData *md = &g_model.moduleData[moduleIdx];
+
+  uint8_t armingMode = md->crsf.crsfArmingMode; // 0 = Channel mode, 1 = Switch mode
+  uint8_t lenAdjust = (armingMode == ARMING_MODE_SWITCH) ? 1 : 0;
+
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 24; // 1(ID) + 22 + 1(CRC)
+  *buf++ = 24 + lenAdjust;      // 1(ID) + 22(channel data) + (+1 extra byte if Switch mode) + 1(CRC)
   uint8_t * crc_start = buf;
   *buf++ = CHANNELS_ID;
   uint32_t bits = 0;
@@ -112,7 +122,14 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
       bitsavailable -= 8;
     }
   }
-  *buf++ = crc8(crc_start, 23);
+  
+  if (armingMode == ARMING_MODE_SWITCH) {
+    swsrc_t sw =  md->crsf.crsfArmingTrigger;
+
+    *buf++ = (sw != SWSRC_NONE) && getSwitch(sw, 0);  // commanded armed status in Switch mode
+  }
+  
+  *buf++ = crc8(crc_start, 23 + lenAdjust);
   return buf - frame;
 }
 
@@ -152,12 +169,12 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
         if(moduleAlive[module] == false) {                              // if the module was dead and came back to live, e.g. reset
           moduleAlive[module] = true;                                   // declare the module as alive
           moduleState[module].counter = CRSF_FRAME_MODELID;             // and send it the modelID again 
-          TRACE("[XF] sending ModelID after module reset");
         }
       }
     }
 
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
+      TRACE("[XF] ModelID %d", g_model.header.modelId[module]);
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
     } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
@@ -167,7 +184,7 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
-      p_buf += createCrossfireChannelsFrame(p_buf, channels);
+      p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
     }
   }
 }
@@ -329,10 +346,10 @@ static void _crsf_extmodule_frame_received()
 // FreeRTOS methods from ISR with prio 0
 static void _soft_irq_trigger(void*)
 {
-#ifndef STM32H7
-  EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
+#if defined(TELEMETRY_USE_CUSTOM_EXTI)
+  stm32_exti_custom_trigger_swi(TELEMETRY_RX_FRAME_EXTI_LINE);
 #else
-  EXTI->SWIER1 = TELEMETRY_RX_FRAME_EXTI_LINE;
+  stm32_exti_trigger_swi(TELEMETRY_RX_FRAME_EXTI_LINE);
 #endif
 }
 #endif
@@ -380,8 +397,14 @@ static void* crossfireInit(uint8_t module)
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
         drv->setIdleCb(ctx, _soft_irq_trigger, nullptr);
+#if defined(TELEMETRY_USE_CUSTOM_EXTI)
+        stm32_exti_custom_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 3,
+                          _crsf_extmodule_frame_received);
+#else
         stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
                           _crsf_extmodule_frame_received);
+#endif
+
       }
 #endif
     }
@@ -409,7 +432,11 @@ static void crossfireDeInit(void* ctx)
     auto drv = modulePortGetSerialDrv(mod_st->rx);
     auto ctx = modulePortGetCtx(mod_st->rx);
     if (drv && ctx && drv->setIdleCb) {
-      stm32_exti_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
+#if defined(TELEMETRY_USE_CUSTOM_EXTI)
+      stm32_exti_custom_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
+#else
+     stm32_exti_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
+#endif
     }
   }
 #endif
@@ -425,4 +452,5 @@ const etx_proto_driver_t CrossfireDriver = {
   .processData = nullptr,
   .processFrame = crossfireProcessFrame,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

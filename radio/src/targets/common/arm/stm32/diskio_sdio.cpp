@@ -90,18 +90,15 @@
 #endif
 
 
-#if defined(SDMMC1) && defined(SD_SDIO)
-#  if !defined(SD_SDIO_IRQHandler)
-#    define SD_SDIO_IRQHandler SDMMC1_IRQHandler
-#    define SD_SDIO_IRQn       SDMMC1_IRQn
-#  endif
+#if defined(SDMMC1)
 #  define SD_SDIO_TypeDef SDMMC_TypeDef
 #  define SD_SDIO_CLOCK_EDGE_RISING SDMMC_CLOCK_EDGE_RISING
 #  define SD_SDIO_CLOCK_POWER_SAVE_DISABLE SDMMC_CLOCK_POWER_SAVE_DISABLE
 #  define SD_SDIO_BUS_WIDE_1B SDMMC_BUS_WIDE_1B
 #  define SD_SDIO_BUS_WIDE_4B SDMMC_BUS_WIDE_4B
 #  define SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE SDMMC_HARDWARE_FLOW_CONTROL_DISABLE
-#elif !defined(SDMMC1)
+#  define SD_SDIO_IRQn SDMMC1_IRQn
+#else
 #  if !defined(SD_SDIO)
 #    define SD_SDIO SDIO
 #  endif
@@ -118,24 +115,56 @@
 #  define SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE SDIO_HARDWARE_FLOW_CONTROL_DISABLE
 #endif
 
+struct {
+  SD_SDIO_TypeDef* periph = SD_SDIO;
+  gpio_t  D0 = SD_SDIO_PIN_D0;
+  gpio_t  D1 = SD_SDIO_PIN_D1;
+  gpio_t  D2 = SD_SDIO_PIN_D2;
+  gpio_t  D3 = SD_SDIO_PIN_D3;
+  gpio_t  CMD = SD_SDIO_PIN_CMD;
+  gpio_t  CLK = SD_SDIO_PIN_CLK;
+  gpio_af_t  AF_D0 = SD_SDIO_AF_D0;
+  gpio_af_t  AF_D1 = SD_SDIO_AF_D1;
+  gpio_af_t  AF_D2 = SD_SDIO_AF_D2;
+  gpio_af_t  AF_D3 = SD_SDIO_AF_D3;
+  gpio_af_t  AF_CMD = SD_SDIO_AF_CMD;
+  gpio_af_t  AF_CLK = SD_SDIO_AF_CLK;
+  IRQn_Type  IRQn = SD_SDIO_IRQn;
+  uint32_t SD_CLK_DIV = SD_SDIO_TRANSFER_CLK_DIV;
+} currentSD;
+
 #if FF_MAX_SS != FF_MIN_SS
 #error "Variable sector size is not supported"
 #endif
 
 #define BLOCK_SIZE FF_MAX_SS
-#define SD_TIMEOUT 300 /* 300ms */
-
-#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32F4)
+#if defined(RADIO_PA01)
+  #define SD_TIMEOUT 1000 /* 1000ms */
+#else
+  #define SD_TIMEOUT 300 /* 300ms */
+#endif
+#if defined(STM32F4)
 extern uint32_t _sram;
 extern uint32_t _heap_start;
 #if defined(SDRAM)
-#define _IS_DMA_BUFFER(addr)                                           \
+#define _IS_DMA_BUFFER(addr)                                                   \
   (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
-   ((((intptr_t)(addr)) & 0xFC000000) == (((intptr_t)&_heap_start) & 0xFC000000)))
+   ((((intptr_t)(addr)) & 0xFC000000) ==                                       \
+    (((intptr_t)&_heap_start) & 0xFC000000)))
 #else
 #define _IS_DMA_BUFFER(addr) \
   ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
 #endif
+#elif defined(STM32H7) || defined(STM32H7RS)
+extern uint32_t _sram;
+extern uint32_t _s_dram;
+extern uint32_t _heap_start;
+#define _IS_DMA_BUFFER(addr)                                                   \
+  (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
+   ((((intptr_t)(addr)) & 0xFFF60000) ==                                       \
+    (((intptr_t)&_s_dram) & 0xFFF60000)) ||                                    \
+   ((((intptr_t)(addr)) & 0xFC000000) ==                                       \
+    (((intptr_t)&_heap_start) & 0xFC000000)))
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
@@ -145,7 +174,11 @@ extern uint32_t _heap_start;
 // HAL state
 static SD_HandleTypeDef sdio;
 #if defined(SD_SDIO_DMA)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+static_assert(false,"H7/H5 use dedicated DMA controler");
+#else
 static DMA_HandleTypeDef sdioTxDma;
+#endif
 #endif
 
 // Disk status
@@ -168,26 +201,26 @@ static void _sd_sdio_clk_enable(SD_SDIO_TypeDef* periph)
 
 static void sdio_low_level_init(void)
 {
-  _sd_sdio_clk_enable(SD_SDIO);
+  _sd_sdio_clk_enable(currentSD.periph);
 
   // data pins
-  gpio_init(SD_SDIO_PIN_D0, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D0, SD_SDIO_AF_D0);
+  gpio_init(currentSD.D0, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D0, currentSD.AF_D0);
 
-  gpio_init(SD_SDIO_PIN_D1, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D1, SD_SDIO_AF_D1);
-  
-  gpio_init(SD_SDIO_PIN_D2, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D2, SD_SDIO_AF_D2);
+  gpio_init(currentSD.D1, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D1, currentSD.AF_D1);
 
-  gpio_init(SD_SDIO_PIN_D3, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D3, SD_SDIO_AF_D3);
+  gpio_init(currentSD.D2, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D2, currentSD.AF_D2);
 
-  gpio_init(SD_SDIO_PIN_CMD, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_CMD, SD_SDIO_AF_CMD);
-  
-  gpio_init(SD_SDIO_PIN_CLK, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_CLK, SD_SDIO_AF_CLK);
+  gpio_init(currentSD.D3, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D3, currentSD.AF_D3);
+
+  gpio_init(currentSD.CMD, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.CMD, currentSD.AF_CMD);
+
+  gpio_init(currentSD.CLK, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.CLK, currentSD.AF_CLK);
 
 #if defined(SD_SDIO_HAS_TRANSCEIVER)
   gpio_init_af(SD_SDIO_PIN_CKIN, SD_SDIO_AF_CKIN, GPIO_PIN_SPEED_HIGH);
@@ -197,8 +230,8 @@ static void sdio_low_level_init(void)
 #endif
 
   // SDIO Interrupt ENABLE
-  NVIC_SetPriority(SD_SDIO_IRQn, 0);
-  NVIC_EnableIRQ(SD_SDIO_IRQn);
+  NVIC_SetPriority(currentSD.IRQn, 0);
+  NVIC_EnableIRQ(currentSD.IRQn);
 
 #if defined(SD_SDIO_DMA)
   // Init SDIO DMA instance
@@ -220,7 +253,7 @@ static void sdio_low_level_init(void)
 
   __HAL_LINKDMA(&sdio, hdmatx, sdioTxDma);
   __HAL_LINKDMA(&sdio, hdmarx, sdioTxDma);
-  
+
   // DMA2 STREAMx Interrupt ENABLE
   NVIC_SetPriority(SD_SDIO_DMA_IRQn, 0);
   NVIC_EnableIRQ(SD_SDIO_DMA_IRQn);
@@ -230,6 +263,27 @@ static void sdio_low_level_init(void)
 HAL_SD_CardInfoTypeDef cardInfo;
 static DSTATUS sdio_initialize(BYTE lun)
 {
+#if defined(SD2_PRESENT_GPIO)
+  /* Define active SD */
+  if (gpio_read(SD2_PRESENT_GPIO) == 0) {
+    currentSD.periph = SDMMC2;
+    currentSD.D0 = SD2_SDIO_PIN_D0;
+    currentSD.AF_D0 = SD2_SDIO_AF_D0;
+    currentSD.D1 = SD2_SDIO_PIN_D1;
+    currentSD.AF_D1 = SD2_SDIO_AF_D1;
+    currentSD.D2 = SD2_SDIO_PIN_D2;
+    currentSD.AF_D2 = SD2_SDIO_AF_D2;
+    currentSD.D3 = SD2_SDIO_PIN_D3;
+    currentSD.AF_D3 = SD2_SDIO_AF_D3;
+    currentSD.CMD = SD2_SDIO_PIN_CMD;
+    currentSD.AF_CMD = SD2_SDIO_AF_CMD;
+    currentSD.CLK = SD2_SDIO_PIN_CLK;
+    currentSD.AF_CLK = SD2_SDIO_AF_CLK;
+    currentSD.IRQn = SDMMC2_IRQn;
+    currentSD.SD_CLK_DIV = SD2_SDIO_TRANSFER_CLK_DIV;
+  }
+#endif
+
   /* SDIO Peripheral Low Level Init */
   sdio_low_level_init();
 
@@ -237,7 +291,7 @@ static DSTATUS sdio_initialize(BYTE lun)
   /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
   /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
 
-  sdio.Instance = SD_SDIO;
+  sdio.Instance = currentSD.periph;
   sdio.Init.ClockEdge = SD_SDIO_CLOCK_EDGE_RISING;
   sdio.Init.ClockPowerSave = SD_SDIO_CLOCK_POWER_SAVE_DISABLE;
   sdio.Init.BusWide = SD_SDIO_BUS_WIDE_1B;
@@ -248,7 +302,7 @@ static DSTATUS sdio_initialize(BYTE lun)
 #if defined(SD_SDIO_CLOCK_BYPASS_DISABLE)
   sdio.Init.ClockBypass = SD_SDIO_CLOCK_BYPASS_DISABLE;
 #endif
-  sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
+  sdio.Init.ClockDiv = currentSD.SD_CLK_DIV;
 
   HAL_StatusTypeDef halStatus = HAL_SD_Init(&sdio);
   if (halStatus != HAL_OK) {
@@ -300,7 +354,7 @@ static SDTransferState sdio_check_card_state()
   else if (cardstate == HAL_SD_CARD_ERROR) {
     return SD_TRANSFER_ERROR;
   }
-  
+
   return SD_TRANSFER_BUSY;
 }
 
@@ -322,7 +376,11 @@ static DSTATUS sdio_status(BYTE lun)
 {
   DSTATUS stat = RES_OK;
 
-#if defined(SD_PRESENT_GPIO)
+#if defined(SD2_PRESENT_GPIO)
+  if (currentSD.periph == SDMMC2 && gpio_read(SD2_PRESENT_GPIO)) {
+    stat |= STA_NODISK;
+  }
+#elif defined(SD_PRESENT_GPIO)
   if (gpio_read(SD_PRESENT_GPIO)) {
     stat |= STA_NODISK;
   }
@@ -334,18 +392,15 @@ static DSTATUS sdio_status(BYTE lun)
 static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 {
   ReadStatus = 0;
+
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanInvalidateDCache_by_Addr(buff, count * 512);
 #endif
 
   if (HAL_SD_ReadBlocks_DMA(&sdio, buff, sector, count) != HAL_OK) {
     TRACE("SD ReadBlocks failed (s:%u/c:%u)", sector, (uint32_t)count);
     return RES_ERROR;
   }
-
-#if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
-#endif
 
   // Wait for the reading process to complete or a timeout to occur
   uint32_t timeout = HAL_GetTick();
@@ -363,8 +418,6 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
-
-  // TRACE("disk_read %d %p %10d %d", drv, buff, sector, count);
 
   if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
     return RES_ERROR;
@@ -394,7 +447,7 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 {
 #if __CORTEX_M >= 0x07
-  SCB_CleanDCache();
+  SCB_CleanDCache_by_Addr((void *)buff, count * 512);
 #endif
 
   WriteStatus = 0;
@@ -419,8 +472,6 @@ static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 static DRESULT sdio_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
-
-  // TRACE("disk_write %d %p %10d %d", drv, buff, sector, count);
 
   if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
     return RES_ERROR;
@@ -547,12 +598,28 @@ extern "C" void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
   ReadStatus = 1;
 }
 
+#if defined(SDMMC1)
+#if defined(SDMMC1)
+extern "C" void SDMMC1_IRQHandler(void)
+{
+  DEBUG_INTERRUPT(INT_SDIO);
+  HAL_SD_IRQHandler(&sdio);
+}
+#endif
+#if defined(SDMMC2) && defined(SD2_PRESENT_GPIO)
+extern "C" void SDMMC2_IRQHandler(void)
+{
+  DEBUG_INTERRUPT(INT_SDIO);
+  HAL_SD_IRQHandler(&sdio);
+}
+#endif
+#else
 extern "C" void SD_SDIO_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SDIO);
   HAL_SD_IRQHandler(&sdio);
 }
-
+#endif
 #if defined(SD_SDIO_DMA)
 extern "C" void SD_SDIO_DMA_IRQHANDLER(void)
 {

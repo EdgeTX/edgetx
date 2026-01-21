@@ -292,11 +292,7 @@ QWidget * RadioOutputsWidget::createLogicalSwitch(QWidget * parent, int switchNo
   QFont font = swtch->font();
   font.setBold(true);
   swtch->setFont(font);
-#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-  swtch->setMinimumWidth(swtch->fontMetrics().width("99") + 10);
-#else
   swtch->setMinimumWidth(swtch->fontMetrics().horizontalAdvance("99") + 10);
-#endif
   font.setBold(false);
   swtch->setFont(font);
   swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')));

@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - 'main'
+      - '[0-9]+.[0-9]+'
     tags:
-      - v*
-    paths:
+      - v*  
+    paths: &trigger-paths
       - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
@@ -14,89 +15,102 @@ on:
   pull_request:
     branches:
       - 'main'
-    paths:
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - 'tools/build-companion.sh'
+      - '[0-9]+.[0-9]+'
+    paths: *trigger-paths
 
   workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-  CMAKE_GENERATOR: "MSYS Makefiles"
-  QT_VERSION: "5.15.2"
-  MINGW_VERSION: "win64_mingw81"
-  MINGW_PATH: "mingw81_64"
+  CMAKE_BUILD_TYPE: "Release"
+  CMAKE_GENERATOR: "Ninja"
+  QT_VERSION: "6.9.0"
+  QT_ARCH: "win64_msvc2022_64"
+  SDL_VERSION: "2.32.8"
+  CXX: "clang++"
+  CC: "clang"
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: windows-latest
+    runs-on: windows-2022
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-win')
     defaults:
       run:
-        shell: msys2 {0}
+        shell: bash
 
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: git make mingw-w64-x86_64-toolchain
-
-      - name: Install Dependencies
-        run: |
-          pacman -S --noconfirm mingw-w64-x86_64-cmake \
-                                mingw-w64-x86_64-python-pip \
-                                mingw-w64-x86_64-python-pillow \
-                                mingw-w64-x86_64-python-lz4 \
-                                mingw-w64-x86_64-libjpeg-turbo \
-                                mingw-w64-x86_64-zlib \
-                                mingw-w64-x86_64-libtiff \
-                                mingw-w64-x86_64-freetype \
-                                mingw-w64-x86_64-lcms2 \
-                                mingw-w64-x86_64-libwebp \
-                                mingw-w64-x86_64-openjpeg2 \
-                                mingw-w64-x86_64-libimagequant \
-                                mingw-w64-x86_64-libraqm \
-                                mingw-w64-x86_64-SDL2 \
-                                mingw-w64-x86_64-clang \
-                                mingw-w64-x86_64-nsis \
-                                mingw-w64-x86_64-dfu-util \
-                                mingw-w64-x86_64-openssl
-          python -m pip install clang jinja2
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          cache: true
-          cache-key-prefix: 'install-qt-action-win64'
-          version: ${{ env.QT_VERSION }}
-          arch: ${{ env.MINGW_VERSION }}
-
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Build
-        working-directory: ${{github.workspace}}
-        # Execute the build.  You can specify a specific target with "--target <NAME>"
+      - name: Install Qt
+        uses: jdpurcell/install-qt-action@v5
+        env:
+          AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
+        with:
+          cache: true
+          cache-key-prefix: 'install-qt-action-${{ env.QT_ARCH }}'
+          version: ${{ env.QT_VERSION }}
+          arch: ${{ env.QT_ARCH }}
+          modules: 'qtmultimedia qtserialport'
+
+      - name: Setup SDL2
+        id: setup-sdl2
+        uses: libsdl-org/setup-sdl@v1
+        with:
+          version: ${{ env.SDL_VERSION }}
+          build-type: "Release"
+
+      - name: Install Python Dependencies
         run: |
-          mkdir output && \
-          CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
+          echo $PATH
+          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: |
+          mkdir output && mkdir logs && \
+          CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$SDL2_ROOT" \
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/" 2>&1 | tee logs/build-main.log
+
+      - name: Collect build logs
+        if: always()
+        shell: bash
+        run: |
+          # Create logs directory if it doesn't exist
+          mkdir -p logs
+          
+          # Copy all build logs from the build directory
+          if [ -d "build" ]; then
+            find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+            find build -name "CMakeOutput.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+            find build -name "CMakeError.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+          fi
 
       - name: Compose release filename
+        if: always()
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
         run: echo "artifact_name=edgetx-cpn-win64-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output
           retention-days: 15
+
+      - name: Archive build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ env.artifact_name }}-logs"
+          path: ${{github.workspace}}/logs
+          retention-days: 30

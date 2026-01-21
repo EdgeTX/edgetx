@@ -155,12 +155,12 @@ const char * loadRadioSettingsYaml(bool checks)
             f_unlink(RADIO_SETTINGS_YAML_PATH);
             result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
             if (result != FR_OK) {
-              ALERT(STR_STORAGE_WARNING, TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
+              ALERT(STR_STORAGE_WARNING, STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
               return SDCARD_ERROR(result);
             }
         }
         TRACE("Unable to recover radio data");
-        ALERT(STR_STORAGE_WARNING, p == NULL ? TR_RADIO_DATA_RECOVERED : TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
+        ALERT(STR_STORAGE_WARNING, p == NULL ? STR_RADIO_DATA_RECOVERED : STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
       }
     }
     return p;
@@ -181,6 +181,10 @@ const char * loadRadioSettings()
 #endif
 
     adcCalibDefaults();
+    generalDefaultSwitches();
+#if defined(COLORLCD)
+    g_eeGeneral.defaultKeyShortcuts();
+#endif
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {
@@ -190,8 +194,6 @@ const char * loadRadioSettings()
 
     return error;
 }
-
-
 
 struct yaml_checksummer_ctx {
     FRESULT result;
@@ -341,6 +343,13 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     memset(buffer,0,size);
 
     if (init_model) {
+#if defined(FUNCTION_SWITCHES)
+      extern void initCustomSwitches();
+      initCustomSwitches();
+#endif
+#if defined(COLORLCD)
+      g_model.resetScreenData();
+#endif
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values
@@ -535,7 +544,7 @@ const char * backupModel(uint8_t idx)
   char * buf = reusableBuffer.modelsel.mainname;
 
   // check and create folder here
-  const char * error = sdCheckAndCreateDirectory(STR_BACKUP_PATH);
+  const char * error = sdCheckAndCreateDirectory(BACKUP_PATH);
   if (error) {
     return error;
   }
@@ -557,10 +566,9 @@ const char * backupModel(uint8_t idx)
 
   if (len == 0) {
     uint8_t num = idx + 1;
-    strcpy(buf, STR_MODEL);
-    buf[PSIZE(TR_MODEL)] = (char)((num / 10) + '0');
-    buf[PSIZE(TR_MODEL) + 1] = (char)((num % 10) + '0');
-    len = PSIZE(TR_MODEL) + 2;
+    char* s = strAppend(buf, STR_MODEL);
+    strAppendUnsigned(s, num, 2);
+    len = strlen(buf);
   }
 
 #if defined(RTCLOCK)
@@ -568,7 +576,7 @@ const char * backupModel(uint8_t idx)
   len = tmp - buf;
 #endif
 
-  strcpy(&buf[len], STR_YAML_EXT);
+  strcpy(&buf[len], YAML_EXT);
 
 #ifdef SIMU
   TRACE("SD-card backup filename=%s", buf);
@@ -576,22 +584,22 @@ const char * backupModel(uint8_t idx)
 
   char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(idx, model_idx);
-  strcat(model_idx, STR_YAML_EXT);
+  strcat(model_idx, YAML_EXT);
 
-  return sdCopyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
+  return sdCopyFile(model_idx, MODELS_PATH, buf, BACKUP_PATH);
 }
 
 const char * restoreModel(uint8_t idx, char *model_name)
 {
   char * buf = reusableBuffer.modelsel.mainname;
   strcpy(buf, model_name);
-  strcpy(&buf[strlen(buf)], STR_YAML_EXT);
+  strcpy(&buf[strlen(buf)], YAML_EXT);
 
   char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(idx, model_idx);
-  strcat(model_idx, STR_YAML_EXT);
+  strcat(model_idx, YAML_EXT);
 
-  const char* error = sdCopyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
+  const char* error = sdCopyFile(buf, BACKUP_PATH, model_idx, MODELS_PATH);
   if (!error) {
     loadModelHeader(idx, &modelHeaders[idx]);
   }
@@ -604,9 +612,5 @@ const char * restoreModel(uint8_t idx, char *model_name)
 bool storageReadRadioSettings(bool checks)
 {
   if (!sdMounted()) sdInit();
-  bool rv = loadRadioSettingsYaml(checks) == nullptr;
-#if LCD_W == 128
-  lcdSetInvert(g_eeGeneral.invertLCD);
-#endif
-  return rv;
+  return loadRadioSettingsYaml(checks) == nullptr;
 }

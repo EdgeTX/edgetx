@@ -48,7 +48,7 @@ void runPopupCurvePreset(event_t event)
   }
 
   lcdDrawNumber(WARNING_LINE_X+FW*7, WARNING_LINE_Y, 45 * reusableBuffer.curveEdit.preset / 4, LEFT|INVERS);
-  lcdDrawChar(lcdLastRightPos, WARNING_LINE_Y, STR_CHAR_BW_DEGREE, INVERS);
+  lcdDrawChar(lcdLastRightPos, WARNING_LINE_Y, CHAR_BW_DEGREE, INVERS);
 
   if (warningResult) {
     warningResult = 0;
@@ -87,7 +87,7 @@ void menuModelCurveOne(event_t event)
   CurveHeader & crv = g_model.curves[s_currIdxSubMenu];
   int8_t * points = curveAddress(s_currIdxSubMenu);
 
-  drawStringWithIndex(PSIZE(TR_MENUCURVES)*FW+FW, 0, STR_CV, s_currIdxSubMenu+1);
+  drawStringWithIndex(strlen(STR_MENUCURVES)*FW+FW, 0, STR_CV, s_currIdxSubMenu+1);
 
   uint8_t old_editMode = s_editMode;
   
@@ -147,26 +147,12 @@ void menuModelCurveOne(event_t event)
   drawCheckBox(7 * FW, 7 * FH + 1, crv.smooth, menuVerticalPosition == 3 ? INVERS : 0);
   if (menuVerticalPosition==3) crv.smooth = checkIncDecModel(event, crv.smooth, 0, 1);
 
-  switch (event) {
-    case EVT_ENTRY:
-      break;
-
-    case EVT_KEY_LONG(KEY_ENTER):
-      if (menuVerticalPosition > 1) {
-        POPUP_MENU_START(onCurveOneMenu, 3, STR_CURVE_PRESET, STR_MIRROR, STR_CLEAR);
-      }
-      break;
-
-#if defined(NAVIGATION_XLITE)
-    case EVT_KEY_FIRST(KEY_ENTER):
-      if (!keysGetState(KEY_SHIFT))
-        break;
-#else
-    case EVT_KEY_BREAK(KEY_MODEL):
-    case EVT_KEY_BREAK(KEY_MENU):
-#endif
-      pushMenu(menuChannelsView);
-      break;
+  if (event == EVT_KEY_LONG(KEY_ENTER)) {
+    if (menuVerticalPosition > 1) {
+      POPUP_MENU_START(onCurveOneMenu, 3, STR_CURVE_PRESET, STR_MIRROR, STR_CLEAR);
+    }
+  } else if (EVT_KEY_OPEN_CHAN_VIEW(event)) {
+    pushMenu(menuChannelsView);
   }
 
   drawCurve();

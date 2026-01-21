@@ -20,14 +20,17 @@
  */
 #include "theme_manager.h"
 
-#include "hal/abnormal_reboot.h"
 #include "../../storage/sdcard_common.h"
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
 #include "etx_lv_theme.h"
-#include "topbar_impl.h"
-#include "view_main.h"
+#include "hal/abnormal_reboot.h"
+#include "lib_file.h"
+#include "mainwindow.h"
+#include "pagegroup.h"
 #include "storage/sdcard_yaml.h"
+#include "topbar.h"
+#include "view_main.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -75,7 +78,7 @@ PACK(struct YAMLThemeSummary {
 });
 
 PACK(struct YAMLThemeColors {
-  uint32_t colors[LCD_COLOR_COUNT - 1];  // We don't use CUSTOM
+  uint32_t colors[THEME_COLOR_COUNT - 1];  // We don't use CUSTOM
 });
 
 PACK(struct YAMLTheme {
@@ -102,6 +105,8 @@ static const struct YamlNode struct_YAMLThemeColors[] = {
     YAML_UNSIGNED_CUST("ACTIVE", 32, r_color, w_color),
     YAML_UNSIGNED_CUST("WARNING", 32, r_color, w_color),
     YAML_UNSIGNED_CUST("DISABLED", 32, r_color, w_color),
+    YAML_UNSIGNED_CUST("QM_BG", 32, r_color, w_color),
+    YAML_UNSIGNED_CUST("QM_FG", 32, r_color, w_color),
     YAML_END};
 
 // This hack is required to ensure the YAML file written is backward compatible
@@ -112,24 +117,25 @@ static const struct YamlNode w_struct_YAMLTheme[] = {
     YAML_STRUCT("---\r\nsummary",
                 (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
                 struct_YAMLThemeSummary, NULL),
-    YAML_STRUCT("colors", (LCD_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
+    YAML_STRUCT("colors", (THEME_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
                 NULL),
     YAML_END};
 static const struct YamlNode r_struct_YAMLTheme[] = {
     YAML_STRUCT("summary",
                 (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
                 struct_YAMLThemeSummary, NULL),
-    YAML_STRUCT("colors", (LCD_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
+    YAML_STRUCT("colors", (THEME_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
                 NULL),
     YAML_END};
 
-static const char* const colorNames[LCD_COLOR_COUNT] = {
+static const char* const colorNames[THEME_COLOR_COUNT] = {
     STR_THEME_COLOR_PRIMARY1,   STR_THEME_COLOR_PRIMARY2,
     STR_THEME_COLOR_PRIMARY3,   STR_THEME_COLOR_SECONDARY1,
     STR_THEME_COLOR_SECONDARY2, STR_THEME_COLOR_SECONDARY3,
     STR_THEME_COLOR_FOCUS,      STR_THEME_COLOR_EDIT,
     STR_THEME_COLOR_ACTIVE,     STR_THEME_COLOR_WARNING,
-    STR_THEME_COLOR_DISABLED,   STR_THEME_COLOR_CUSTOM,
+    STR_THEME_COLOR_DISABLED,   STR_THEME_COLOR_QM_BG,
+    STR_THEME_COLOR_QM_FG,      STR_THEME_COLOR_CUSTOM,
 };
 
 ThemeFile::ThemeFile(std::string themePath, bool loadYAML) : path(themePath)
@@ -199,6 +205,10 @@ void ThemeFile::deSerialize()
   struct YAMLTheme yt;
   struct YamlNode themeRootNode = YAML_ROOT(r_struct_YAMLTheme);
 
+  // initialize the color table to defaults (in case of missing entries)
+  for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i < THEME_COLOR_COUNT - 1; i += 1)
+    yt.colors.colors[i] = defaultColors[i];
+
   YamlTreeWalker tree;
   tree.reset(&themeRootNode, (uint8_t*)&yt);
   auto err = readYamlFile(path.c_str(), YamlTreeWalker::get_parser_calls(),
@@ -208,7 +218,7 @@ void ThemeFile::deSerialize()
     name = yt.summary.name;
     author = yt.summary.author;
     info = yt.summary.info;
-    for (int i = 0; i < LCD_COLOR_COUNT - 1; i += 1) {
+    for (int i = 0; i < THEME_COLOR_COUNT - 1; i += 1) {
       colorList.emplace_back(
           ColorEntry{(LcdColorIndex)(i), yt.colors.colors[i]});
     }
@@ -234,9 +244,15 @@ void ThemeFile::applyColors()
   }
 }
 
+bool ThemeFile::tryBackground(std::string& file)
+{
+  if (isFileAvailable(file.c_str()))
+    return MainWindow::instance()->setBackgroundImage(file);
+  return false;
+}
+
 void ThemeFile::applyBackground()
 {
-  auto instance = MainWindow::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
@@ -244,23 +260,19 @@ void ThemeFile::applyBackground()
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" +
               std::to_string(LCD_H) + ".png";
 
-    if (isFileAvailable(rootDir.c_str())) {
-      instance->setBackgroundImage((char*)rootDir.c_str());
+    if (tryBackground(rootDir))
       return;
-    }
 
     rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background.png";
 
-    if (isFileAvailable(rootDir.c_str())) {
-      instance->setBackgroundImage((char*)rootDir.c_str());
+    if (tryBackground(rootDir))
       return;
-    }
   }
 
   // Use EdgeTxTheme default background
-  // TODO: This needs to be made user configurable
-  instance->setBackgroundImage("");
+  std::string defaultBackground(THEMES_PATH "/EdgeTX/background.png");
+  tryBackground(defaultBackground);
 }
 
 void ThemeFile::applyTheme()
@@ -427,7 +439,7 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   return false;
 }
 
-bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
+bool ThemePersistance::createNewTheme(const std::string& name, ThemeFile& theme)
 {
   char fullPath[FF_MAX_LFN + 1];
   char* s = strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);
@@ -473,9 +485,8 @@ class DefaultEdgeTxTheme : public ThemeFile
     setAuthor("EdgeTX Team");
     setInfo("Default EdgeTX Color Scheme");
 
-    // initializze the default color table
-    for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX;
-         i <= COLOR_THEME_DISABLED_INDEX; i += 1)
+    // initialize the default color table
+    for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i < THEME_COLOR_COUNT - 1; i += 1)
       colorList.emplace_back(ColorEntry{(LcdColorIndex)i, defaultColors[i]});
   }
 };
@@ -489,22 +500,19 @@ void ThemePersistance::insertDefaultTheme()
 HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
   Window(parent, {x, y, HDR_DATE_WIDTH, HDR_DATE_LINE2 + HDR_DATE_HEIGHT + 2})
 {
-  date = lv_label_create(lvobj);
+  date = etx_label_create(lvobj, FONT_XS_INDEX);
   lv_obj_set_pos(date, 0, 0);
   lv_obj_set_size(date, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(date, COLOR_THEME_PRIMARY2_INDEX);
-  etx_font(date, FONT_XS_INDEX);
 
-  time = lv_label_create(lvobj);
+  time = etx_label_create(lvobj, FONT_XS_INDEX);
   lv_obj_set_pos(time, 0, HDR_DATE_LINE2);
   lv_obj_set_size(time, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);
-  etx_font(time, FONT_XS_INDEX);
 
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_CLICK);
 
   checkEvents();
 }
@@ -538,16 +546,45 @@ void HeaderDateTime::setColor(LcdFlags color)
   etx_txt_color_from_flags(time, color);
 }
 
-HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
+HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> action) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
 {
-  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
+  this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
+  this->icon->center(width() - PAD_SMALL, height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    setWindowFlag(NO_CLICK);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
 }
 
-HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
+HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void()> action) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
 {
-  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
+  this->icon = new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX);
+  this->icon->center(width(), height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    setWindowFlag(NO_CLICK);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
+}
+
+HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
+  StaticIcon(parent, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
+  action(std::move(action))
+{
+  (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
+#if defined(HARDWARE_TOUCH)
+  if (this->action) {
+    setWindowFlag(NO_CLICK);
+    addCustomButton(0, 0, [=]() { this->action(); });
+  }
+#endif
 }
 
 UsbSDConnected::UsbSDConnected() :

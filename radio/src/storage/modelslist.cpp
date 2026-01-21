@@ -31,6 +31,7 @@ using std::list;
 #include "yaml/yaml_labelslist.h"
 #include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
+#include "os/sleep.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -48,6 +49,8 @@ using std::list;
 #else
 #define TRACE_LABELS(...)
 #endif
+
+LAYOUT_SIZE(LABEL_TRUNCATE_LENGTH, 21, 16)
 
 ModelsList modelslist;
 ModelMap modelslabels;
@@ -727,7 +730,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
                              (uint8_t *)modeldata, 0) != NULL);
     }
 #if defined(SIMU)
-    if (SIMU_SLEEP_OR_EXIT_MS(100)) break;
+    sleep_ms(100);
 #endif
   }
 
@@ -1106,7 +1109,12 @@ bool ModelsList::loadYaml()
     }
     if(moveRequired) {
       fileHashInfo = newFileHash; // Update the new file list
-      POPUP_WARNING(TR_MODELS_MOVED "\n" UNUSED_MODELS_PATH, "\n" TR_PRESS_ANY_KEY_TO_SKIP);
+      std::string s(STR_MODELS_MOVED);
+      s += "\n";
+      s += UNUSED_MODELS_PATH;
+      s += "\n";
+      s += STR_PRESS_ANY_KEY_TO_SKIP;
+      POPUP_WARNING(s.c_str());
     }
   }
 

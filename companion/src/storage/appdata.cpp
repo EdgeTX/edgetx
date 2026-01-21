@@ -56,7 +56,7 @@ void CompStoreObj::load(CompStoreObj * obj, const QString & name, const QString 
   const QMetaProperty & prop = obj->metaObject()->property(idx);
   const QVariant currValue = prop.read(obj);
   QVariant savedValue = m_settings.value(pathForKey(key, group), def);
-  if (savedValue.isValid() && savedValue.convert(currValue.userType()) && savedValue != currValue)
+  if (savedValue.isValid() && savedValue.convert(currValue.metaType()) && savedValue != currValue)
     prop.write(obj, savedValue);
 }
 
@@ -329,13 +329,6 @@ bool Profile::existsOnDisk()
   return m_settings.contains(settingsPath() % "Name");
 }
 
-void Profile::resetFwVariables()
-{
-  for (const QString & name : fwVarsList())
-    CompStoreObj::resetProperty(this, name);
-}
-
-
 // ** ComponentAssetData class********************
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)
@@ -366,7 +359,6 @@ bool ComponentAssetData::existsOnDisk()
 
 ComponentData::ComponentData() : CompStoreObj(), index(-1)
 {
-  qRegisterMetaTypeStreamOperators<ComponentData::ReleaseChannel>("ComponentData::ReleaseChannel");
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
@@ -425,11 +417,6 @@ AppData::AppData() :
   CompStoreObj(),
   m_sessionId(0)
 {
-  QMetaType::registerComparators<SimulatorOptions>();
-  qRegisterMetaTypeStreamOperators<SimulatorOptions>("SimulatorOptions");
-  qRegisterMetaTypeStreamOperators<AppData::NewModelAction>("AppData::NewModelAction");
-  qRegisterMetaTypeStreamOperators<AppData::UpdateCheckFreq>("AppData::UpdateCheckFreq");
-
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 
   firstUse = !hasCurrentSettings();
@@ -495,7 +482,7 @@ void AppData::saveNamedJS()
       return;
     }
   }
-  
+
   unsigned int oldestTime = namedJS[0].jsLastUsed();
   int oldestN = 0;
   for (int i = 1; i < MAX_NAMED_JOYSTICKS; i += 1) {
@@ -731,6 +718,14 @@ void AppData::convertSettings(QSettings & settings)
         settings.setValue(path.arg(i).arg("releaseId"), id);
       }
     }
+  }
+
+  if (savedMajMin < 0x300) {
+    //  3.0  CloudBuild copy filter changed to cater for uf2
+    qInfo().noquote() << "Deleting CloudBuild settings to force refresh";
+    static const QString path = QStringLiteral("Components/component6");
+    if (settings.contains(path))
+      settings.remove(path);
   }
 
   if (removeUnused)

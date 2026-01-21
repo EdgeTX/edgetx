@@ -21,7 +21,16 @@ static const etx_hal_adc_input_t _flex_inputs[] = {
   {% endfor %}
 };
 
-{% set vbat_offset = flex_offset + n_flex %}
+{% set raw_offset = flex_offset + n_flex %}
+{% set raw_inputs = adc_inputs.inputs | selectattr('type', '==', 'RAW') | list %}
+{% set n_raw = raw_inputs | count %}
+static const etx_hal_adc_input_t _raw_inputs[] = {
+  {% for input in raw_inputs %}
+    { "{{ input.name }}", "{{ input.label }}", "{{ input.short_label }}" },
+  {% endfor %}
+};
+
+{% set vbat_offset = raw_offset + n_raw %}
 {% set vbat_inputs = adc_inputs.inputs | selectattr('type', '==', 'VBAT') | list %}
 {% set n_vbat = vbat_inputs | count %}
 static const etx_hal_adc_input_t _vbat_inputs[] = {

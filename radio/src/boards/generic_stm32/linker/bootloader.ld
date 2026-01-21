@@ -7,13 +7,26 @@ INCLUDE definitions.ld
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASH */
+  /* ISR vector to be loaded */
+  .isr_vector :
+  {
+    _sisr_vector = .;
+    KEEP(*(.isr_vector))
+
+    . = ALIGN(4);
+    _eisr_vector = .;
+  } > REGION_ISR_VECT AT> REGION_TEXT_STORAGE
+
+  _isr_load = LOADADDR(.isr_vector);
+  g_pfnVectors = _isr_load;
 
   /* The program code and other data goes into FLASH */
   .text :
   {
-    . = ALIGN(4);
-    KEEP(*(.isr_vector)) /* Startup code */
+    FILL(0xFFFF)
+    CREATE_OBJECT_SYMBOLS
+
+    _stext = .;
     KEEP(*(.version))
     KEEP(*(.bootversiondata))
 
@@ -21,7 +34,9 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } > REGION_TEXT AT> REGION_TEXT_STORAGE
+
+  _text_load = LOADADDR(.text);
 
   INCLUDE common_sections.ld
 }

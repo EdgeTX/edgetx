@@ -35,6 +35,11 @@
 #define CF_VARIO_ID                    0x07
 #define BATTERY_ID                     0x08
 #define BARO_ALT_ID                    0x09
+#define AIRSPEED_ID                    0x0A
+#define CF_RPM_ID                      0x0C
+#define TEMP_ID                        0x0D
+#define CELLS_ID                       0x0E
+#define VOLT_ARRAY_ID                  0xFE  // Pseudo sensor out of 0x0E frame
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
 #define LINK_RX_ID                     0x1C
@@ -53,14 +58,6 @@
 #define SUBCOMMAND_CRSF_BIND           0x01
 
 constexpr uint8_t CRSF_NAME_MAXSIZE = 16;
-
-struct CrossfireSensor {
-  const uint8_t id;
-  const uint8_t subId;
-  const TelemetryUnit unit;
-  const uint8_t precision;
-  const char * name;
-};
 
 enum CrossfireSensorIndexes {
   RX_RSSI1_INDEX,
@@ -94,6 +91,11 @@ enum CrossfireSensorIndexes {
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
+  AIRSPEED_INDEX,
+  CF_RPM_INDEX,
+  TEMP_INDEX,
+  CELLS_INDEX,
+  VOLT_ARRAY_INDEX,
   UNKNOWN_INDEX,
 };
 
@@ -117,9 +119,7 @@ extern CrossfireModuleStatus crossfireModuleStatus[2];
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
-void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
-
-uint8_t createCrossfireModelIDFrame(uint8_t* frame);
+void crossfireSetDefault(int index, uint16_t id, uint8_t subId);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
   115200,
@@ -156,6 +156,16 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
   #define CROSSFIRE_INDEX_TO_STORE(i)                          \
     (i + (DIM(CROSSFIRE_BAUDRATES) - CROSSFIRE_DEFAULT_INDEX)) \
         % DIM(CROSSFIRE_BAUDRATES)
+#endif
+
+#if defined(CROSSFIRE)
+#define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) \
+        (crossfireModuleStatus[moduleIdx].isELRS \
+         && (crossfireModuleStatus[moduleIdx].major > maj \
+          || (crossfireModuleStatus[moduleIdx].major == maj \
+           && crossfireModuleStatus[moduleIdx].minor >= min)))
+#else
+#define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) false
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)

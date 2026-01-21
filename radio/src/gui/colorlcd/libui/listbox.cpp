@@ -21,52 +21,16 @@
 
 #include "listbox.h"
 
-#include "libopenui.h"
-
-void ListBox::event_cb(lv_event_t* e)
-{
-  static bool _nested = false;
-  if (_nested) return;
-
-  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t* obj = lv_event_get_target(e);
-  if (!obj) return;
-
-  ListBox* lb = (ListBox*)lv_event_get_user_data(e);
-  if (!lb) return;
-
-  if (code == LV_EVENT_FOCUSED && lb->autoEdit) {
-    lv_group_set_editing((lv_group_t*)lv_obj_get_group(obj), true);
-  } else if (code == LV_EVENT_DEFOCUSED) {
-    // Hack to get rid of 'FOCUSED' event sent
-    // when calling 'lv_group_set_editing()'
-    _nested = true;
-    lv_group_set_editing((lv_group_t*)lv_obj_get_group(obj), false);
-    _nested = false;
-  }
-}
+#include "debug.h"
 
 ListBox::ListBox(Window* parent, const rect_t& rect,
                  const std::vector<std::string>& names, uint8_t lineHeight) :
     TableField(parent, rect)
 {
-  lv_obj_add_event_cb(lvobj, ListBox::event_cb, LV_EVENT_ALL, this);
-
   setColumnWidth(0, rect.w);
 
   setLineHeight(lineHeight);
   setNames(names);
-}
-
-void ListBox::setAutoEdit(bool enable)
-{
-  if (autoEdit == enable) return;
-
-  autoEdit = enable;
-  if (autoEdit && hasFocus()) {
-    lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-    if (g) lv_group_set_editing(g, true);
-  }
 }
 
 void ListBox::setName(uint16_t idx, const std::string& name)
@@ -105,16 +69,6 @@ void ListBox::setSelected(std::set<uint32_t> selected)
     else
       lv_table_clear_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
   }
-}
-
-int ListBox::getSelected() const
-{
-  uint16_t row, col;
-  lv_table_get_selected_cell(lvobj, &row, &col);
-  if (row != LV_TABLE_CELL_NONE) {
-    return row;
-  }
-  return -1;
 }
 
 bool ListBox::isRowSelected(uint16_t row)
@@ -168,33 +122,15 @@ void ListBox::onPress(uint16_t row, uint16_t col)
   }
 }
 
-bool ListBox::onLongPress()
-{
-  TRACE("LONG_PRESS");
-  if (longPressHandler) {
-    longPressHandler();
-    lv_indev_wait_release(lv_indev_get_act());
-    return false;
-  }
-  return true;
-}
-
-// TODO: !auto-edit
 void ListBox::onClicked()
 {
-  if (!autoEdit) {
-    lv_group_set_editing((lv_group_t*)lv_obj_get_group(lvobj), true);
-
-  } else {
-    TableField::onClicked();
-  }
+  lv_group_set_editing((lv_group_t*)lv_obj_get_group(lvobj), true);
 }
 
 void ListBox::onCancel()
 {
-  lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-  if (!autoEdit && lv_group_get_editing(g)) {
-    lv_group_set_editing(g, false);
+  if (!isAutoEdit() && lv_group_get_editing((lv_group_t*)lv_obj_get_group(lvobj))) {
+    lv_group_set_editing((lv_group_t*)lv_obj_get_group(lvobj), false);
   } else {
     TableField::onCancel();
   }
@@ -235,7 +171,7 @@ void ListBox::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
     yo = (lv_area_get_height(dsc->draw_area) - h) / 2;
   }
 
-  coords.x2 = dsc->draw_area->x2 - xo;
+  coords.x2 = dsc->draw_area->x2 - xo - PAD_MEDIUM;
   coords.x1 = coords.x2 - w + 1;
   coords.y1 = dsc->draw_area->y1 + yo;
   coords.y2 = coords.y1 + h - 1;

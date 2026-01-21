@@ -28,6 +28,7 @@
 #include "hal/abnormal_reboot.h"
 
 #if defined(COLORLCD)
+  #include "layout.h"
   #include "theme_manager.h"
 #endif
 
@@ -80,35 +81,70 @@ void storageCheck(bool immediately)
   // Don't write anything to SD card if in EM
   if (UNEXPECTED_SHUTDOWN()) return;
 
+  static constexpr uint8_t retryLimit = 10;
+
+  static uint8_t retryRadioCount = 0;
   if (storageDirtyMsk & EE_GENERAL) {
-    TRACE("eeprom write general");
-    storageDirtyMsk &= ~EE_GENERAL;
-    const char * error = writeGeneralSettings();
-    if (error) {
-      TRACE("writeGeneralSettings error=%s", error);
+    if (retryRadioCount < retryLimit) {
+      TRACE("SD card write radio settings");
+      const char * error = writeGeneralSettings();
+      if (error) {
+        TRACE("writeGeneralSettings error=%s", error);
+        retryRadioCount += 1;
+      } else {
+        storageDirtyMsk &= ~EE_GENERAL;
+        retryRadioCount = 0;
+      }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryRadioCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 
 #if defined(STORAGE_MODELSLIST)
+  static uint8_t retryLabelsCount = 0;
   if (storageDirtyMsk & EE_LABELS) {
-    TRACE("SD card write labels");
-    storageDirtyMsk &= ~EE_LABELS;
-    const char * error = modelslist.save();
-    if (error) {
-      TRACE("writeLabels error=%s", error);
+    if (retryLabelsCount < retryLimit) {
+      TRACE("SD card write labels");
+      const char * error = modelslist.save();
+      if (error) {
+        TRACE("writeLabels error=%s", error);
+        retryLabelsCount += 1;
+      } else {
+        storageDirtyMsk &= ~EE_LABELS;
+        retryLabelsCount = 0;
+      }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryLabelsCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 #endif
 
+  static uint8_t retryModelCount = 0;
   if (storageDirtyMsk & EE_MODEL) {
-    TRACE("eeprom write model");
-    storageDirtyMsk &= ~EE_MODEL;
-    const char * error = writeModel();
+    if (retryModelCount < retryLimit) {
+      TRACE("SD card write model settings");
+      const char * error = writeModel();
 #if defined(STORAGE_MODELSLIST)
-    modelslist.updateCurrentModelCell();
+      modelslist.updateCurrentModelCell();
 #endif
-    if (error) {
-      TRACE("writeModel error=%s", error);
+      if (error) {
+        TRACE("writeModel error=%s", error);
+        retryModelCount += 1;
+      } else {
+        storageDirtyMsk &= ~EE_MODEL;
+        retryModelCount = 0;
+      }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryModelCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 }
@@ -132,7 +168,7 @@ const char * createModel()
     storageCheck(true);
 #if defined(COLORLCD)
     // Default layout loaded when setting model defaults - neeed to remove it.
-    LayoutFactory::deleteCustomScreens();
+    LayoutFactory::deleteCustomScreens(true);
 #endif
   }
   postModelLoad(false);
@@ -187,6 +223,8 @@ void storageReadAll()
 {
   TRACE("storageReadAll");
 
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
+
 #if defined(STORAGE_MODELSLIST)
   // Wipe models list in case
   // it's being reloaded after USB connection
@@ -206,13 +244,16 @@ void storageReadAll()
   }
 #endif
 
-  for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
-    if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
-      currentLanguagePackIdx = i;
-      currentLanguagePack = languagePacks[i];
-      break;
-    }
-  }
+  if (g_eeGeneral.uiLanguage[0] == 0)
+    generalDefaultUILanguage();
+  currentLanguagePackIdx = getLanguageId(g_eeGeneral.ttsLanguage);
+  currentLanguagePack = languagePacks[currentLanguagePackIdx];
+#if defined(ALL_LANGS)
+  uint8_t uiLangIdx = getLanguageId(g_eeGeneral.uiLanguage);
+  currentLangStrings = langStrings[uiLangIdx];
+  extern void setLanguageFont(int n);
+  setLanguageFont(uiLangIdx);
+#endif
 
 #if defined(STORAGE_MODELSLIST)
   // and reload the list

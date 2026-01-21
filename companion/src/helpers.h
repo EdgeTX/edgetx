@@ -56,8 +56,6 @@ extern const QColor colors[CPN_MAX_CURVES];
 #define TRIM_MODE_NONE  0x1F  // 0b11111
 #define TRIM_MODE_3POS  (2 * CPN_MAX_FLIGHT_MODES)
 
-bool displayT16ImportWarning();
-
 class CompanionIcon: public QIcon {
   public:
     CompanionIcon(const QString &baseimage);
@@ -112,14 +110,14 @@ namespace Helpers
 
   void exportAppSettings(QWidget * dlgParent = nullptr);
 
-  QString getChecklistsPath();
-  QString getChecklistFilename(const ModelData * model);
-  QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
   void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
   int getFirstPosValueIndex(QComboBox * cbo);
-
+  QString concatPath(QString & str1, QString & str2, bool onlyonesep = true);
+  QString concatPath(const QString & str1, const QString & str2, bool onlyonesep = true);
+  QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
+  QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
@@ -206,6 +204,8 @@ public:
   void pushRowsUp(int row);
   void pushColumnsLeft(int col);
   void setColumnStretch(int col, int stretch);
+  void addColumnHead(QString text, int col, int colSpan = 1);
+  void updateColumnHeading(int col, QString &text);
 
 private:
 #if defined(TABLE_LAYOUT)
@@ -249,76 +249,6 @@ private:
 };
 
 extern Stopwatch gStopwatch;
-
-class SemanticVersion
-{
-  public:
-    explicit SemanticVersion(const QString vers);
-    explicit SemanticVersion() {}
-    ~SemanticVersion() {}
-
-    bool isValid(const QString vers);
-    bool isValid();
-    bool fromString(const QString vers);
-    QString toString() const;
-    unsigned int toInt() const;
-    bool fromInt(const unsigned int val);
-    bool isEmpty(const QString vers);
-    bool isEmpty();
-    bool isPreRelease(const QString vers);
-    bool isPreRelease();
-
-    SemanticVersion& operator=(const SemanticVersion& rhs);
-
-    bool operator==(const SemanticVersion& rhs) {
-      return compare(rhs) == 0;
-    }
-
-    bool operator!=(const SemanticVersion& rhs) {
-      return compare(rhs) != 0;
-    }
-
-    bool operator>(const SemanticVersion& rhs) {
-      return compare(rhs) > 0;
-    }
-
-    bool operator>=(const SemanticVersion& rhs) {
-      return compare(rhs) >= 0;
-    }
-
-    bool operator<(const SemanticVersion& rhs) {
-      return compare(rhs) < 0;
-    }
-
-    bool operator<=(const SemanticVersion& rhs) {
-      return compare(rhs) <= 0;
-    }
-
-  private:
-    enum PreReleaseTypes {
-      PR_ALPHA = 0,
-      PR_BETA,
-      PR_RC,
-      PR_NONE
-    };
-
-    const QStringList PreReleaseTypesStringList = { "alpha", "beta", "rc"};
-
-    struct Version {
-      int major            = 0;
-      int minor            = 0;
-      int patch            = 0;
-      int preReleaseType   = PR_NONE;
-      int preReleaseNumber = 0;
-    };
-
-    Version version;
-
-    int compare(const SemanticVersion& other);
-    inline QString preReleaseTypeToString() const { return PreReleaseTypesStringList.value(version.preReleaseType, ""); }
-    inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
-
-};
 
 class StatusDialog: public QDialog
 {

@@ -48,6 +48,7 @@ enum COMMAND : uint8_t {
   TELEMETRY_DATA = 0x09,
   SEND_COMMAND = 0x0C,
   COMMAND_RESULT = 0x0D,
+  MODULE_RFPOWER = 0x13, //PA01 Internal RF module only
   MODULE_VERSION = 0x20,
   MODEL_ID = 0x2F,
   VIRTUAL_FAILSAFE = 0x99,  // virtual command used to trigger failsafe
@@ -129,6 +130,7 @@ struct CommandFifo {
   }
 
   inline bool isEmpty() const { return (getIndex == setIndex); }
+  inline bool isFull() const { return nextIndex(setIndex) == getIndex; }
 
   inline void skip() { getIndex = nextIndex(getIndex); }
 
@@ -203,6 +205,8 @@ class Transport
                uint8_t byteContent = 0);
 
   void sendBuffer();
+
+  bool fifoFull() { return fifo.isFull(); }
 
   /**
    * Process retransmissions

@@ -20,12 +20,16 @@
  */
 
 #include "model_mixes.h"
-#include "edgetx.h"
-#include "mixer_edit.h"
-#include "mixes.h"
-#include "channel_bar.h"
 
 #include <algorithm>
+
+#include "channel_bar.h"
+#include "dialog.h"
+#include "edgetx.h"
+#include "menu.h"
+#include "mixer_edit.h"
+#include "mixes.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -36,30 +40,25 @@ class MPlexIcon : public Window
     Window(parent, {0, 0, MPLEX_ICON_W, MPLEX_ICON_H}),
     index(index)
     {
-      MixData* mix = mixAddress(index);
-      EdgeTxIcon n = ICON_MPLEX_ADD;
-      if (mix->mltpx == MLTPX_MUL) {
-        n = ICON_MPLEX_MULTIPLY;
-      } else if (mix->mltpx == MLTPX_REPL) {
-        n = ICON_MPLEX_REPLACE;
-      }
-      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1_INDEX);
-      icon->center(width(), height());
     }
 
   void refresh()
   {
-    if (icon) {
-      icon->show(lv_obj_get_index(lvobj) != 0);
-      MixData* mix = mixAddress(index);
-      EdgeTxIcon n = ICON_MPLEX_ADD;
-      if (mix->mltpx == MLTPX_MUL) {
-        n = ICON_MPLEX_MULTIPLY;
-      } else if (mix->mltpx == MLTPX_REPL) {
-        n = ICON_MPLEX_REPLACE;
-      }
-      icon->setIcon(n);
+    MixData* mix = mixAddress(index);
+    EdgeTxIcon n = ICON_MPLEX_ADD;
+    if (mix->mltpx == MLTPX_MUL) {
+      n = ICON_MPLEX_MULTIPLY;
+    } else if (mix->mltpx == MLTPX_REPL) {
+      n = ICON_MPLEX_REPLACE;
     }
+
+    if (!icon) {
+      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1_INDEX);
+      icon->center(width(), height());
+    }
+
+    icon->show(lv_obj_get_index(lvobj) != 0);
+    icon->setIcon(n);
   }
 
   void setIndex(uint8_t i)
@@ -67,8 +66,8 @@ class MPlexIcon : public Window
     index = i;
   }
 
-  static LAYOUT_VAL(MPLEX_ICON_W, 25, 25)
-  static LAYOUT_VAL(MPLEX_ICON_H, 29, 29)
+  static LAYOUT_VAL_SCALED(MPLEX_ICON_W, 25)
+  static LAYOUT_VAL_SCALED(MPLEX_ICON_H, 29)
 
  protected:
   uint8_t index;
@@ -78,21 +77,30 @@ class MPlexIcon : public Window
 class MixLineButton : public InputMixButtonBase
 {
  public:
-  MixLineButton(Window* parent, uint8_t index, MPlexIcon* mplex) :
-    InputMixButtonBase(parent, index),
-    mplex(mplex)
+  MixLineButton(Window* parent, uint8_t index) :
+    InputMixButtonBase(parent, index)
   {
-    check(isActive());
+    mplex = new MPlexIcon(parent, index);
+
+    delayLoad();
   }
 
-  void deleteLater(bool detach = true, bool trash = true) override
+  void deleteLater() override
   {
-    if (mplex) mplex->deleteLater(detach, trash);
-    ListLineButton::deleteLater(detach, trash);
+    if (mplex) mplex->deleteLater();
+    InputMixButtonBase::deleteLater();
+  }
+
+  void delayedInit() override
+  {
+    refresh();
+    ((InputMixGroupBase*)parent)->adjustHeight();
   }
 
   void refresh() override
   {
+    check(isActive());
+
     const MixData& line = g_model.mixData[index];
     setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
     setSource(line.srcRaw);
@@ -156,7 +164,7 @@ class MixLineButton : public InputMixButtonBase
     }
   }
 
-  static LAYOUT_VAL(MPLEX_XO, 28, 28)
+  static LAYOUT_VAL_SCALED(MPLEX_XO, 28)
 
  protected:
   MPlexIcon* mplex = nullptr;
@@ -177,11 +185,12 @@ class MixGroup : public InputMixGroupBase
     lv_obj_t* chText = nullptr;
     if (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH &&
         g_model.limitData[idx - MIXSRC_FIRST_CH].name[0] != '\0') {
-      chText = lv_label_create(lvobj);
-      etx_font(chText, FONT_XS_INDEX);
-      lv_label_set_text_fmt(chText, TR_CH "%" PRIu32,
-                            UINT32_C(idx - MIXSRC_FIRST_CH + 1));
-      lv_obj_set_pos(chText, PAD_TINY, CHNUM_Y);
+      chText = etx_label_create(lvobj, FONT_XS_INDEX);
+      char chanStr[10];
+      char* s = strAppend(chanStr, STR_CH);
+      strAppendUnsigned(s, idx - MIXSRC_FIRST_CH + 1);
+      lv_label_set_text(chText, chanStr);
+      lv_obj_set_pos(chText, PAD_TINY, CHNUM_Y-1);
     }
 
     refresh();
@@ -190,7 +199,7 @@ class MixGroup : public InputMixGroupBase
   void enableMixerMonitor()
   {
     if (!monitor)
-      monitor = new MixerChannelBar(this, {LCD_W - CHBAR_XO, 1, CHBAR_W, CHBAR_H}, idx - MIXSRC_FIRST_CH);
+      monitor = new MixerChannelBar(this, {ListLineButton::GRP_W - CHBAR_W - PAD_LARGE, 1, CHBAR_W, CHBAR_H}, idx - MIXSRC_FIRST_CH);
     monitorVisible = true;
     monitor->show();
     adjustHeight();
@@ -205,26 +214,26 @@ class MixGroup : public InputMixGroupBase
 
   void adjustHeight() override
   {
-    coord_t y = monitorVisible ? CHNUM_Y : PAD_TINY;
+    coord_t y = monitorVisible ? CHNUM_Y : PAD_OUTLINE;
     for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
       auto line = *it;
+      line->updateHeight();
       line->updatePos(InputMixButtonBase::LN_X, y);
-      y += line->height() + 2;
+      y += line->height() + PAD_OUTLINE;
     }
-    setHeight(y + 4);
+    setHeight(y + PAD_BORDER * 2);
   }
 
-  static LAYOUT_VAL(CHNUM_Y, 17, 17)
-  static LAYOUT_VAL(CHBAR_XO, 118, 118)
-  static LAYOUT_VAL(CHBAR_W, 100, 100)
-  static LAYOUT_VAL(CHBAR_H, 14, 14)
+  static LAYOUT_VAL_SCALED(CHNUM_Y, 17)
+  static LAYOUT_VAL_SCALED(CHBAR_W, 100)
+  static LAYOUT_VAL_SCALED(CHBAR_H, 14)
 
  protected:
   MixerChannelBar* monitor = nullptr;
   bool monitorVisible = false;
 };
 
-ModelMixesPage::ModelMixesPage() : InputMixPageBase(STR_MIXES, ICON_MODEL_MIXER)
+ModelMixesPage::ModelMixesPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 
@@ -255,9 +264,7 @@ InputMixGroupBase* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
 
 InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, uint8_t index)
 {
-  auto mplex = new MPlexIcon(group, index);
-  auto button = new MixLineButton(group, index, mplex);
-  button->refresh();
+  auto button = new MixLineButton(group, index);
 
   lines.emplace_back(button);
   group->addLine(button);
@@ -431,7 +438,7 @@ void ModelMixesPage::build(Window * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  form = new Window(window, rect_t{});
+  form = new Window(window, rect_t{0, 0, ListLineButton::GRP_W, LV_SIZE_CONTENT});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   auto box = new Window(window, rect_t{});

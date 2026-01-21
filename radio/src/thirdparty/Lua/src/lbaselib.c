@@ -1,11 +1,13 @@
 /*
-** $Id: lbaselib.c,v 1.276 2013/02/21 13:44:53 roberto Exp $
+** $Id: lbaselib.c,v 1.314.1.1 2017/04/19 17:39:34 roberto Exp $
 ** Basic library
 ** See Copyright Notice in lua.h
 */
 
 #define lbaselib_c
 #define LUA_LIB
+
+#include "lprefix.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -16,9 +18,6 @@
 
 #include "lauxlib.h"
 #include "lualib.h"
-
-// ROTable
-#include "lobject.h"
 
 
 static int luaB_print (lua_State *L) {
@@ -33,65 +32,77 @@ static int luaB_print (lua_State *L) {
     lua_call(L, 1, 1);
     s = lua_tolstring(L, -1, &l);  /* get result */
     if (s == NULL)
-      return luaL_error(L,
-         LUA_QL("tostring") " must return a string to " LUA_QL("print"));
-    if (i>1) luai_writestring("\t", 1);
-    luai_writestring(s, l);
+      return luaL_error(L, "'tostring' must return a string to 'print'");
+    if (i>1) lua_writestring("\t", 1);
+    lua_writestring(s, l);
     lua_pop(L, 1);  /* pop result */
   }
-  luai_writeline();
+  lua_writeline();
   return 0;
 }
 
 
 #define SPACECHARS	" \f\n\r\t\v"
 
+static const char *b_str2int (const char *s, int base, lua_Integer *pn) {
+  lua_Unsigned n = 0;
+  int neg = 0;
+  s += strspn(s, SPACECHARS);  /* skip initial spaces */
+  if (*s == '-') { s++; neg = 1; }  /* handle signal */
+  else if (*s == '+') s++;
+  if (!isalnum((unsigned char)*s))  /* no digit? */
+    return NULL;
+  do {
+    int digit = (isdigit((unsigned char)*s)) ? *s - '0'
+                   : (toupper((unsigned char)*s) - 'A') + 10;
+    if (digit >= base) return NULL;  /* invalid numeral */
+    n = n * base + digit;
+    s++;
+  } while (isalnum((unsigned char)*s));
+  s += strspn(s, SPACECHARS);  /* skip trailing spaces */
+  *pn = (lua_Integer)((neg) ? (0u - n) : n);
+  return s;
+}
+
+
 static int luaB_tonumber (lua_State *L) {
-  if (lua_isnoneornil(L, 2)) {  /* standard conversion */
-    int isnum;
-    lua_Number n = lua_tonumberx(L, 1, &isnum);
-    if (isnum) {
-      lua_pushnumber(L, n);
-      return 1;
-    }  /* else not a number; must be something */
+  if (lua_isnoneornil(L, 2)) {  /* standard conversion? */
     luaL_checkany(L, 1);
+    if (lua_type(L, 1) == LUA_TNUMBER) {  /* already a number? */
+      lua_settop(L, 1);  /* yes; return it */
+      return 1;
+    }
+    else {
+      size_t l;
+      const char *s = lua_tolstring(L, 1, &l);
+      if (s != NULL && lua_stringtonumber(L, s) == l + 1)
+        return 1;  /* successful conversion to number */
+      /* else not a number */
+    }
   }
   else {
     size_t l;
-    const char *s = luaL_checklstring(L, 1, &l);
-    const char *e = s + l;  /* end point for 's' */
-    int base = luaL_checkint(L, 2);
-    int neg = 0;
+    const char *s;
+    lua_Integer n = 0;  /* to avoid warnings */
+    lua_Integer base = luaL_checkinteger(L, 2);
+    luaL_checktype(L, 1, LUA_TSTRING);  /* no numbers as strings */
+    s = lua_tolstring(L, 1, &l);
     luaL_argcheck(L, 2 <= base && base <= 36, 2, "base out of range");
-    s += strspn(s, SPACECHARS);  /* skip initial spaces */
-    if (*s == '-') { s++; neg = 1; }  /* handle signal */
-    else if (*s == '+') s++;
-    if (isalnum((unsigned char)*s)) {
-      lua_Number n = 0;
-      do {
-        int digit = (isdigit((unsigned char)*s)) ? *s - '0'
-                       : toupper((unsigned char)*s) - 'A' + 10;
-        if (digit >= base) break;  /* invalid numeral; force a fail */
-        n = n * (lua_Number)base + (lua_Number)digit;
-        s++;
-      } while (isalnum((unsigned char)*s));
-      s += strspn(s, SPACECHARS);  /* skip trailing spaces */
-      if (s == e) {  /* no invalid trailing characters? */
-        lua_pushnumber(L, (neg) ? -n : n);
-        return 1;
-      }  /* else not a number */
+    if (b_str2int(s, (int)base, &n) == s + l) {
+      lua_pushinteger(L, n);
+      return 1;
     }  /* else not a number */
-  }
+  }  /* else not a number */
   lua_pushnil(L);  /* not a number */
   return 1;
 }
 
 
 static int luaB_error (lua_State *L) {
-  int level = luaL_optint(L, 2, 1);
+  int level = (int)luaL_optinteger(L, 2, 1);
   lua_settop(L, 1);
-  if (lua_isstring(L, 1) && level > 0) {  /* add extra information? */
-    luaL_where(L, level);
+  if (lua_type(L, 1) == LUA_TSTRING && level > 0) {
+    luaL_where(L, level);   /* add extra information */
     lua_pushvalue(L, 1);
     lua_concat(L, 2);
   }
@@ -115,7 +126,7 @@ static int luaB_setmetatable (lua_State *L) {
   luaL_checktype(L, 1, LUA_TTABLE);
   luaL_argcheck(L, t == LUA_TNIL || t == LUA_TTABLE, 2,
                     "nil or table expected");
-  if (luaL_getmetafield(L, 1, "__metatable"))
+  if (luaL_getmetafield(L, 1, "__metatable") != LUA_TNIL)
     return luaL_error(L, "cannot change a protected metatable");
   lua_settop(L, 2);
   lua_setmetatable(L, 1);
@@ -160,20 +171,19 @@ static int luaB_rawset (lua_State *L) {
 
 static int luaB_collectgarbage (lua_State *L) {
   static const char *const opts[] = {"stop", "restart", "collect",
-    "count", "step", "setpause", "setstepmul",
-    "setmajorinc", "isrunning", "generational", "incremental", NULL};
+    "count", "step", "setpause", "setstepmul", "setmemlimit",
+    "isrunning", NULL};
   static const int optsnum[] = {LUA_GCSTOP, LUA_GCRESTART, LUA_GCCOLLECT,
     LUA_GCCOUNT, LUA_GCSTEP, LUA_GCSETPAUSE, LUA_GCSETSTEPMUL,
-    LUA_GCSETMAJORINC, LUA_GCISRUNNING, LUA_GCGEN, LUA_GCINC};
+    LUA_GCISRUNNING};
   int o = optsnum[luaL_checkoption(L, 1, "collect", opts)];
-  int ex = luaL_optint(L, 2, 0);
+  int ex = (int)luaL_optinteger(L, 2, 0);
   int res = lua_gc(L, o, ex);
   switch (o) {
     case LUA_GCCOUNT: {
       int b = lua_gc(L, LUA_GCCOUNTB, 0);
-      lua_pushnumber(L, res + ((lua_Number)b/1024));
-      lua_pushinteger(L, b);
-      return 2;
+      lua_pushnumber(L, (lua_Number)res + ((lua_Number)b/1024));
+      return 1;
     }
     case LUA_GCSTEP: case LUA_GCISRUNNING: {
       lua_pushboolean(L, res);
@@ -188,16 +198,17 @@ static int luaB_collectgarbage (lua_State *L) {
 
 
 static int luaB_type (lua_State *L) {
-  luaL_checkany(L, 1);
-  lua_pushstring(L, luaL_typename(L, 1));
+  int t = lua_type(L, 1);
+  luaL_argcheck(L, t != LUA_TNONE, 1, "value expected");
+  lua_pushstring(L, lua_typename(L, t));
   return 1;
 }
 
 
 static int pairsmeta (lua_State *L, const char *method, int iszero,
                       lua_CFunction iter) {
-  if (!luaL_getmetafield(L, 1, method)) {  /* no metamethod? */
-    luaL_checktype(L, 1, LUA_TTABLE);  /* argument must be a table */
+  luaL_checkany(L, 1);
+  if (luaL_getmetafield(L, 1, method) == LUA_TNIL) {  /* no metamethod? */
     lua_pushcfunction(L, iter);  /* will return generator, */
     lua_pushvalue(L, 1);  /* state, */
     if (iszero) lua_pushinteger(L, 0);  /* and initial value */
@@ -228,18 +239,30 @@ static int luaB_pairs (lua_State *L) {
 }
 
 
+/*
+** Traversal function for 'ipairs'
+*/
 static int ipairsaux (lua_State *L) {
-  int i = luaL_checkint(L, 2);
-  luaL_checktype(L, 1, LUA_TTABLE);
-  i++;  /* next value */
+  lua_Integer i = luaL_checkinteger(L, 2) + 1;
   lua_pushinteger(L, i);
-  lua_rawgeti(L, 1, i);
-  return (lua_isnil(L, -1)) ? 1 : 2;
+  return (lua_geti(L, 1, i) == LUA_TNIL) ? 1 : 2;
 }
 
 
+/*
+** 'ipairs' function. Returns 'ipairsaux', given "table", 0.
+** (The given "table" may not be a table.)
+*/
 static int luaB_ipairs (lua_State *L) {
+#if defined(LUA_COMPAT_IPAIRS)
   return pairsmeta(L, "__ipairs", 1, ipairsaux);
+#else
+  luaL_checkany(L, 1);
+  lua_pushcfunction(L, ipairsaux);  /* iteration function */
+  lua_pushvalue(L, 1);  /* state */
+  lua_pushinteger(L, 0);  /* initial value */
+  return 3;
+#endif
 }
 
 
@@ -285,7 +308,7 @@ static int luaB_loadfile (lua_State *L) {
 
 
 /*
-** Reader for generic `load' function: `lua_load' uses the
+** Reader for generic 'load' function: 'lua_load' uses the
 ** stack for internal stuff, so the reader cannot change the
 ** stack top. Instead, it keeps its resulting string in a
 ** reserved slot inside the stack.
@@ -329,7 +352,8 @@ static int luaB_load (lua_State *L) {
 /* }====================================================== */
 
 
-static int dofilecont (lua_State *L) {
+static int dofilecont (lua_State *L, int d1, lua_KContext d2) {
+  (void)d1;  (void)d2;  /* only to match 'lua_Kfunction' prototype */
   return lua_gettop(L) - 1;
 }
 
@@ -340,14 +364,20 @@ static int luaB_dofile (lua_State *L) {
   if (luaL_loadfile(L, fname) != LUA_OK)
     return lua_error(L);
   lua_callk(L, 0, LUA_MULTRET, 0, dofilecont);
-  return dofilecont(L);
+  return dofilecont(L, 0, 0);
 }
 
 
 static int luaB_assert (lua_State *L) {
-  if (!lua_toboolean(L, 1))
-    return luaL_error(L, "%s", luaL_optstring(L, 2, "assertion failed!"));
-  return lua_gettop(L);
+  if (lua_toboolean(L, 1))  /* condition is true? */
+    return lua_gettop(L);  /* return all arguments */
+  else {  /* error */
+    luaL_checkany(L, 1);  /* there must be a condition */
+    lua_remove(L, 1);  /* remove it */
+    lua_pushliteral(L, "assertion failed!");  /* default message */
+    lua_settop(L, 1);  /* leave only message (default if no other one) */
+    return luaB_error(L);  /* call 'error' */
+  }
 }
 
 
@@ -358,53 +388,57 @@ static int luaB_select (lua_State *L) {
     return 1;
   }
   else {
-    int i = luaL_checkint(L, 1);
+    lua_Integer i = luaL_checkinteger(L, 1);
     if (i < 0) i = n + i;
     else if (i > n) i = n;
     luaL_argcheck(L, 1 <= i, 1, "index out of range");
-    return n - i;
+    return n - (int)i;
   }
 }
 
 
-static int finishpcall (lua_State *L, int status) {
-  if (!lua_checkstack(L, 1)) {  /* no space for extra boolean? */
-    lua_settop(L, 0);  /* create space for return values */
-    lua_pushboolean(L, 0);
-    lua_pushstring(L, "stack overflow");
+/*
+** Continuation function for 'pcall' and 'xpcall'. Both functions
+** already pushed a 'true' before doing the call, so in case of success
+** 'finishpcall' only has to return everything in the stack minus
+** 'extra' values (where 'extra' is exactly the number of items to be
+** ignored).
+*/
+static int finishpcall (lua_State *L, int status, lua_KContext extra) {
+  if (status != LUA_OK && status != LUA_YIELD) {  /* error? */
+    lua_pushboolean(L, 0);  /* first result (false) */
+    lua_pushvalue(L, -2);  /* error message */
     return 2;  /* return false, msg */
   }
-  lua_pushboolean(L, status);  /* first result (status) */
-  lua_replace(L, 1);  /* put first result in first slot */
-  return lua_gettop(L);
-}
-
-
-static int pcallcont (lua_State *L) {
-  int status = lua_getctx(L, NULL);
-  return finishpcall(L, (status == LUA_YIELD));
+  else
+    return lua_gettop(L) - (int)extra;  /* return all results */
 }
 
 
 static int luaB_pcall (lua_State *L) {
   int status;
   luaL_checkany(L, 1);
-  lua_pushnil(L);
-  lua_insert(L, 1);  /* create space for status result */
-  status = lua_pcallk(L, lua_gettop(L) - 2, LUA_MULTRET, 0, 0, pcallcont);
-  return finishpcall(L, (status == LUA_OK));
+  lua_pushboolean(L, 1);  /* first result if no errors */
+  lua_insert(L, 1);  /* put it in place */
+  status = lua_pcallk(L, lua_gettop(L) - 2, LUA_MULTRET, 0, 0, finishpcall);
+  return finishpcall(L, status, 0);
 }
 
 
+/*
+** Do a protected call with error handling. After 'lua_rotate', the
+** stack will have <f, err, true, f, [args...]>; so, the function passes
+** 2 to 'finishpcall' to skip the 2 first values when returning results.
+*/
 static int luaB_xpcall (lua_State *L) {
   int status;
   int n = lua_gettop(L);
-  luaL_argcheck(L, n >= 2, 2, "value expected");
-  lua_pushvalue(L, 1);  /* exchange function... */
-  lua_copy(L, 2, 1);  /* ...and error handler */
-  lua_replace(L, 2);
-  status = lua_pcallk(L, n - 2, LUA_MULTRET, 1, 0, pcallcont);
-  return finishpcall(L, (status == LUA_OK));
+  luaL_checktype(L, 2, LUA_TFUNCTION);  /* check error function */
+  lua_pushboolean(L, 1);  /* first result */
+  lua_pushvalue(L, 1);  /* function */
+  lua_rotate(L, 3, 2);  /* move them below function's arguments */
+  status = lua_pcallk(L, n - 2, LUA_MULTRET, 2, 2, finishpcall);
+  return finishpcall(L, status, 2);
 }
 
 
@@ -414,8 +448,31 @@ static int luaB_tostring (lua_State *L) {
   return 1;
 }
 
-extern LROT_TABLE(etxlib);
+#if defined(LUA_COMPAT_UNPACK)
+static int luaB_unpack (lua_State *L) {
+  int n = lua_gettop(L);  /* number of elements to pack */
+  lua_getglobal(L, "table");
+  lua_getfield(L, -1, "unpack");
+  lua_insert(L, 1);
+  lua_pop(L, 1);
+  lua_call(L, n, LUA_MULTRET);
+  return lua_gettop(L);
+}
+#endif
 
+
+/*
+** ESP builds use specific linker directives to marshal all the ROTable entries
+** for the library modules including the base library into an entry vector in
+** the PSECT ".lua_rotable" including the base library entries; this is bound
+** into a ROTable in linit.c  which then hooked into the __index metaentry for
+** _G so that base library and ROM tables are directly resolved through _G.
+**
+** The host-based luac.cross builds which must use a standard GNU link or
+** MSVC so this linker-specfic assembly approach can't be used. In this case
+** luaopen_base returns a base_func ROTable so a two cascade resolution. See
+** description in init.c for further details.
+ */
 LROT_BEGIN(base_func, NULL, 0)
   LROT_FUNCENTRY(assert,         luaB_assert)
   LROT_FUNCENTRY(collectgarbage, luaB_collectgarbage)
@@ -441,6 +498,9 @@ LROT_BEGIN(base_func, NULL, 0)
   LROT_FUNCENTRY(tonumber,       luaB_tonumber)
   LROT_FUNCENTRY(tostring,       luaB_tostring)
   LROT_FUNCENTRY(type,           luaB_type)
+#if defined(LUA_COMPAT_UNPACK)
+  LROT_FUNCENTRY(unpack,         luaB_unpack)
+#endif
   LROT_FUNCENTRY(xpcall,         luaB_xpcall)
 LROT_END(base_func, NULL, 0)
 

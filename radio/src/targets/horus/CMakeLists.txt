@@ -16,20 +16,18 @@ set(STORAGE_MODELSLIST YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
-set(NAVIGATION_TYPE horus)
 set(TARGET_DIR horus)
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(ROTARY_ENCODER YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
+set(NANO OFF)
 
 # for size report script
 set(CPU_TYPE_FULL STM32F429xI)
 set(TARGET_LINKER_DIR stm32f429_sdram)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
-
-add_definitions(-DPCBFRSKY)
 
 # defines existing internal modules
 set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
@@ -49,7 +47,6 @@ if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
   add_definitions(-DSOFTWARE_VOLUME)
 
-  set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
 
   if (PCBREV STREQUAL EXPRESS)
@@ -67,7 +64,6 @@ if (PCB STREQUAL X10)
     set(FUNCTION_SWITCHES ON)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal NMEA GPS" OFF)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
     else()
@@ -84,12 +80,10 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal GPS" ON)
     add_definitions(-DMANUFACTURER_JUMPER)
     if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
     endif()
-    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
     set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
@@ -101,14 +95,12 @@ if (PCB STREQUAL X10)
 
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal GPS" ON)
     set(SWSERIALPOWER YES)
     set(USB_CHARGER YES)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
     if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
     endif()
-    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
     set(FLYSKY_GIMBAL ON)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
   elseif (PCBREV STREQUAL F16)
@@ -117,9 +109,7 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal NMEA GPS" OFF)
     add_definitions(-DMANUFACTURER_FATFISH)
-    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(VIDEO_SWITCH ON)
   elseif (PCBREV STREQUAL V16)
@@ -128,12 +118,11 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal NMEA GPS" OFF)
+    set(SWSERIALPOWER YES)
     add_definitions(-DMANUFACTURER_HELLORADIOSKY)
-    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(AUX2_SERIAL OFF)
-    set(HAS_CSD203_SENSOR ON)
+    set(CSD203_SENSOR ON)
     set(FLYSKY_GIMBAL ON)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
@@ -144,17 +133,16 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal GPS" ON)    
     add_definitions(-DMANUFACTURER_JUMPER)
     if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
     endif()
-    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
     set(FLYSKY_GIMBAL ON)
   else()
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
     set(BLUETOOTH ON)
+    add_definitions(-DRADIO_X10)
     add_definitions(-DMANUFACTURER_FRSKY)
   endif()
 elseif (PCB STREQUAL X12S)
@@ -162,21 +150,25 @@ elseif (PCB STREQUAL X12S)
   set(FLAVOUR x12s)
   set(BLUETOOTH ON)
   set(PCBREV "13" CACHE STRING "PCB Revision")
-  if(${PCBREV} GREATER 10)
-    option(INTERNAL_GPS "Internal GPS installed" YES)
-  else()
-    option(INTERNAL_GPS "Internal GPS installed" NO)
-    if(NOT INTERNAL_GPS)
-      message("Horus: Internal GPS is optional, use INTERNAL_GPS=YES option to enable it")
-    endif()
-  endif()
-  set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
   set(AUX2_SERIAL ON) # wire to GPS
   set(USE_VS1053B ON)
   set(USE_ADS79xx ON)
-  set(BITMAPS_TARGET x12s_bitmaps)
   set(FONTS_TARGET x12s_fonts)
   add_definitions(-DMANUFACTURER_FRSKY)
+endif()
+
+# enable GPS support if there is AUX port available unless otherwise disabled 
+if(AUX_SERIAL)
+  option(INTERNAL_GPS "Support for internal GPS" ON)
+  set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+endif()
+
+if (BITMAPS_DIR STREQUAL 320x240)
+  set(BITMAPS_TARGET bm320_bitmaps)
+elseif (BITMAPS_DIR STREQUAL 800x480)
+  set(BITMAPS_TARGET bm800_bitmaps)
+else()
+  set(BITMAPS_TARGET bm480_bitmaps)
 endif()
 
 add_definitions(-DPCB${PCB})
@@ -188,9 +180,8 @@ set(RADIO_DEPENDENCIES
   ${BITMAPS_TARGET}
   )
 
-add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DCCMRAM -DCOLORLCD -DHARDWARE_KEYS)
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DHARDWARE_KEYS)
+add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
@@ -199,8 +190,12 @@ add_definitions(-DTHREADSAFE_MALLOC)
 
 set(SDRAM ON)
 
+if(INTERNAL_GPS)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+endif()
+
 if(FUNCTION_SWITCHES)
-add_definitions(-DFUNCTION_SWITCHES)
+  add_definitions(-DFUNCTION_SWITCHES)
 endif()
 
 if(NOT UNEXPECTED_SHUTDOWN)
@@ -252,7 +247,6 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
@@ -263,7 +257,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/sdram_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
   drivers/frftl.cpp
@@ -295,7 +288,8 @@ endif()
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
+  targets/common/arm/stm32/sdram_driver.cpp
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
@@ -351,13 +345,9 @@ if(USB_CHARGER)
   target_sources(board PRIVATE ${TARGET_SRC_DIR}/usb_charger_driver.cpp)
 endif()
 
-if(HAS_CSD203_SENSOR)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} csd203_sensor.cpp)
-  add_definitions(-DCSD203_SENSOR)
-endif()
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  targets/common/arm/loadboot.cpp
+  bootloader/loadboot.cpp
 )
 
 if (MULTIMODULE)

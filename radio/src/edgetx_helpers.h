@@ -63,11 +63,6 @@ inline unsigned align32(unsigned n)
   return rest ? n + 4u - rest : n;
 }
 
-inline std::string TEXT_AT_INDEX(const char *const *val, uint8_t idx)
-{
-  return std::string(val[idx]);
-}
-
 template<class T>
 inline void SWAP(T & a, T & b)
 {

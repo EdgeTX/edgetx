@@ -21,28 +21,20 @@
 
 #pragma once
 
-#include <unistd.h>
-#define sleep(x) usleep(1000*x)
-
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <errno.h>
 
-// #undef min
-// #undef max
-
-extern uint8_t * eeprom;
+#include <string>
 
 #define __disable_irq()
 #define __enable_irq()
 
 extern char * main_thread_error;
 
-
 uint64_t simuTimerMicros(void);
-uint8_t simuSleep(uint32_t ms);  // returns true if thread shutdown requested
 
 void simuSetKey(uint8_t key, bool state);
 void simuSetTrim(uint8_t trim, bool state);
@@ -55,32 +47,14 @@ void simuStop();
 bool simuIsRunning();
 void startEepromThread(const char * filename = "eeprom.bin");
 void stopEepromThread();
-
-#if defined(SIMU_AUDIO)
-  void startAudioThread(int volumeGain = 10);
-  void stopAudioThread(void);
-#else
-  #define startAudioThread(dummy)
-  #define stopAudioThread()
-#endif
 #endif
 
 void simuMain();
 
+void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
 
-// inline void delay_01us(uint32_t dummy) { }
-
-#define configure_pins(...)
-
-#if !defined(SKIP_FATFS_DECLARATION) && !defined(SIMU_DISKIO)
-  #define SIMU_USE_SDCARD
-#endif
-
-#if defined(SIMU_USE_SDCARD)
-  void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
-#else
-  #define simuFatfsSetPaths(...)
-#endif
+std::string simuFatfsGetCurrentPath();
+std::string simuFatfsGetRealPath(const std::string &p);
 
 #if defined(TRACE_SIMPGMSPACE)
   #undef TRACE_SIMPGMSPACE

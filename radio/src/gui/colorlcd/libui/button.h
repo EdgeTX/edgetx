@@ -65,6 +65,15 @@ class ButtonBase : public FormField
   std::function<void(void)> checkHandler;
 };
 
+class OverlayButton : public ButtonBase
+{
+ public:
+  OverlayButton(Window* parent, std::function<uint8_t(void)> pressHandler = nullptr) :
+      ButtonBase(parent, {0, 0, LV_PCT(100), LV_PCT(100)}, pressHandler, window_create)
+  {
+  }
+};
+
 class Button : public ButtonBase
 {
  public:
@@ -86,12 +95,11 @@ class TextButton : public ButtonBase
   std::string getName() const override { return "TextButton \"" + text + "\""; }
 #endif
 
-  void setText(std::string value)
+  void setText(std::string value);
+
+  void setFont(FontIndex font)
   {
-    if (value != text) {
-      text = std::move(value);
-      lv_label_set_text(label, text.c_str());
-    }
+    etx_font(label, font);
   }
 
   void setWrap()
@@ -102,9 +110,8 @@ class TextButton : public ButtonBase
   }
 
  protected:
-  lv_obj_t* label = nullptr;
-
   std::string text;
+  lv_obj_t* label = nullptr;
 };
 
 class IconButton : public ButtonBase
@@ -112,9 +119,46 @@ class IconButton : public ButtonBase
  public:
   IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
              std::function<uint8_t(void)> pressHandler = nullptr);
-  
+
   void setIcon(EdgeTxIcon icon);
 
  protected:
   StaticIcon* iconImage = nullptr;
+};
+
+// Button class that is in checked state while pressed and
+// returns to normal state when released.
+// Used by Lua scripts.
+class MomentaryButton : public FormField
+{
+ public:
+  MomentaryButton(Window* parent, const rect_t& rect, std::string text,
+             std::function<void(void)> pressHandler = nullptr,
+             std::function<void(void)> releaseHandler = nullptr);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "MomentaryButton"; }
+#endif
+
+  void onPressed() override;
+  void onReleased() override;
+
+  void setText(std::string value)
+  {
+    if (value != text) {
+      text = std::move(value);
+      lv_label_set_text(label, text.c_str());
+    }
+  }
+
+  void setFont(FontIndex font)
+  {
+    etx_font(label, font);
+  }
+
+ protected:
+  std::function<void(void)> pressHandler;
+  std::function<void(void)> releaseHandler;
+  std::string text;
+  lv_obj_t* label = nullptr;
 };

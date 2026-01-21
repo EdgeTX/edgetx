@@ -19,9 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "widget.h"
+
 #include "bitmaps.h"
 #include "edgetx.h"
-#include "widget.h"
+#include "static.h"
 
 #define ETX_STATE_BG_WARNING LV_STATE_USER_1
 #define EXT_NAME_ALIGN_RIGHT LV_STATE_USER_1
@@ -33,8 +35,13 @@ class TimerWidget : public Widget
 {
  public:
   TimerWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-              Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+              int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
+  {
+    delayLoad();
+  }
+
+  void delayedInit() override
   {
     etx_solid_bg(lvobj, COLOR_THEME_WARNING_INDEX,
                  LV_PART_MAIN | ETX_STATE_BG_WARNING);
@@ -44,13 +51,12 @@ class TimerWidget : public Widget
     lv_style_set_height(&style, LV_SIZE_CONTENT);
 
     timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2_INDEX);
-    timerIcon = new StaticIcon(this, 3, 4, ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
+    timerIcon = new StaticIcon(this, PAD_THREE, PAD_SMALL, ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
 
     // Timer name
-    nameLabel = lv_label_create(lvobj);
+    nameLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     lv_label_set_text(nameLabel, "");
     lv_obj_add_style(nameLabel, &style, LV_PART_MAIN);
-    etx_font(nameLabel, FONT_XS_INDEX);
     etx_obj_add_style(nameLabel, styles->text_align_left, LV_PART_MAIN);
     etx_obj_add_style(nameLabel, styles->text_align_right,
                       LV_PART_MAIN | EXT_NAME_ALIGN_RIGHT);
@@ -61,12 +67,12 @@ class TimerWidget : public Widget
                   LV_PART_MAIN | ETX_NAME_COLOR_WHITE);
 
     // Timer value - on small size widgets
-    valLabel = lv_label_create(lvobj);
+    valLabel = etx_label_create(lvobj);
     lv_label_set_text(valLabel, "");
     lv_obj_add_style(valLabel, &style, LV_PART_MAIN);
     etx_txt_color(valLabel, COLOR_THEME_PRIMARY2_INDEX);
     etx_font(valLabel, FONT_XS_INDEX, LV_PART_MAIN | ETX_VALUE_SMALL_FONT);
-    lv_obj_set_pos(valLabel, 3, 20);
+    lv_obj_set_pos(valLabel, PAD_THREE, VAL_LBL_Y);
 
     // Timer value - on large widgets
     unit0 = createUnitLabel();
@@ -86,13 +92,13 @@ class TimerWidget : public Widget
     lv_arc_set_start_angle(timerArc, 0);
     lv_obj_remove_style(timerArc, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_set_pos(timerArc, 2, 3);
+    lv_obj_set_pos(timerArc, PAD_TINY, PAD_THREE);
     lv_obj_set_size(timerArc, TMR_ARC_SZ, TMR_ARC_SZ);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_MAIN);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_COVER, LV_PART_INDICATOR);
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_INDICATOR);
-    etx_obj_add_style(timerArc, styles->arc_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_INDICATOR);
+    etx_arc_color(timerArc, COLOR_THEME_SECONDARY1_INDEX, LV_PART_INDICATOR);
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
     update();
@@ -101,9 +107,13 @@ class TimerWidget : public Widget
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     Widget::checkEvents();
 
-    uint32_t index = persistentData->options[0].value.unsignedValue;
+    auto widgetData = getPersistentData();
+
+    uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
     TimerState& timerState = timersStates[index];
 
@@ -137,7 +147,7 @@ class TimerWidget : public Widget
         lv_label_set_text(unit0, sUnit0);
         lv_label_set_text(unit1, sUnit1);
 
-        if (lastValue > 0) {
+        if (lastValue > 0 && lastStartValue > 0) {
           lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
           timerIcon->hide();
         } else {
@@ -152,7 +162,7 @@ class TimerWidget : public Widget
         getTimerString(str, abs(val), timerOptions);
         lv_label_set_text(valLabel, str);
 
-        if (width() <= 100 && height() <= 40 && abs(val) >= 3600)
+        if (width() <= SMALL_TXT_MAX_W && height() <= SMALL_TXT_MAX_H && abs(val) >= 3600)
           lv_obj_add_state(valLabel, ETX_VALUE_SMALL_FONT);
         else
           lv_obj_clear_state(valLabel, ETX_VALUE_SMALL_FONT);
@@ -190,26 +200,30 @@ class TimerWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
-  static LAYOUT_VAL(TMR_LRG_W, 180, 180)
-  static LAYOUT_VAL(TMR_ARC_SZ, 64, 64)
-  static LAYOUT_VAL(TMR_ARC_W, 10, 10)
-  static LAYOUT_VAL(NM_LRG_X, 78, 78)
-  static LAYOUT_VAL(NM_LRG_Y, 19, 19)
-  static LAYOUT_VAL(NM_LRG_W, 93, 93)
-  static LAYOUT_VAL(U0_X, 111, 111)
-  static LAYOUT_VAL(U0_Y, 33, 33)
-  static LAYOUT_VAL(U1_X, 161, 161)
-  static LAYOUT_VAL(U1_Y, 33, 33)
-  static LAYOUT_VAL(D0_X, 76, 76)
-  static LAYOUT_VAL(D0_Y, 31, 31)
-  static LAYOUT_VAL(D1_X, 126, 126)
-  static LAYOUT_VAL(D1_Y, 31, 31)
+  static LAYOUT_VAL_SCALED(SMALL_TXT_MAX_W, 100)
+  static LAYOUT_VAL_SCALED(SMALL_TXT_MAX_H, 40)
+  static LAYOUT_VAL_SCALED(VAL_LBL_Y, 20)
+  static LAYOUT_VAL_SCALED(TMR_LRG_W, 180)
+  static LAYOUT_VAL_SCALED(TMR_LRG_H, 70)
+  static LAYOUT_VAL_SCALED(TMR_ARC_SZ, 64)
+  static LAYOUT_VAL_SCALED(TMR_ARC_W, 10)
+  static LAYOUT_VAL_SCALED(NM_LRG_X, 78)
+  static LAYOUT_VAL_SCALED(NM_LRG_Y, 19)
+  static LAYOUT_VAL_SCALED(NM_LRG_W, 93)
+  static LAYOUT_VAL_SCALED(U0_X, 111)
+  static LAYOUT_VAL_SCALED(U0_Y, 33)
+  static LAYOUT_VAL_SCALED(U1_X, 162)
+  static LAYOUT_VAL_SCALED(U1_Y, 33)
+  static LAYOUT_VAL_SCALED(D0_X, 74)
+  static LAYOUT_VAL_SCALED(D0_Y, 31)
+  static LAYOUT_VAL_SCALED(D1_X, 125)
+  static LAYOUT_VAL_SCALED(D1_Y, 31)
 
  protected:
   tmrval_t lastValue = 0;
-  uint32_t lastStartValue = 0;
+  uint32_t lastStartValue = -1;
   bool isLarge = false;
   lv_style_t style;
   lv_obj_t* nameLabel = nullptr;
@@ -224,15 +238,19 @@ class TimerWidget : public Widget
 
   void update() override
   {
+    if (!loaded) return;
+
+    auto widgetData = getPersistentData();
+
     // Set up widget from options.
     char s[16];
 
-    uint32_t index = persistentData->options[0].value.unsignedValue;
+    uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
 
     bool hasName = ZLEN(timerData.name) > 0;
 
-    if (width() >= TMR_LRG_W && height() >= 70) {
+    if (width() >= TMR_LRG_W && height() >= TMR_LRG_H) {
       isLarge = true;
       if (hasName)
         lv_obj_clear_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
@@ -250,7 +268,7 @@ class TimerWidget : public Widget
       timerBg->show();
     } else {
       isLarge = false;
-      lv_obj_set_pos(nameLabel, 2, 0);
+      lv_obj_set_pos(nameLabel, PAD_TINY, 0);
       lv_obj_set_width(nameLabel, lv_pct(100));
       lv_obj_add_state(nameLabel, ETX_NAME_COLOR_WHITE);
 
@@ -273,7 +291,7 @@ class TimerWidget : public Widget
 
   lv_obj_t* createUnitLabel()
   {
-    auto lbl = lv_label_create(lvobj);
+    auto lbl = etx_label_create(lvobj);
     lv_label_set_text(lbl, "");
     lv_obj_add_style(lbl, &style, LV_PART_MAIN);
     etx_txt_color(lbl, COLOR_THEME_SECONDARY1_INDEX);
@@ -292,9 +310,9 @@ class TimerWidget : public Widget
   }
 };
 
-const ZoneOption TimerWidget::options[] = {
-    {STR_TIMER_SOURCE, ZoneOption::Timer, OPTION_VALUE_UNSIGNED(0)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption TimerWidget::options[] = {
+    {STR_TIMER_SOURCE, WidgetOption::Timer, 0},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<TimerWidget> timerWidget("Timer", TimerWidget::options,
                                            STR_WIDGET_TIMER);

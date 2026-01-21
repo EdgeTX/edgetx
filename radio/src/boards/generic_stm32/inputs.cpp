@@ -34,6 +34,10 @@ __weak void keysInit()
   _init_trims();
 }
 
+__weak void pollKeys()
+{
+}
+
 __weak uint32_t readKeys()
 {
   return _read_keys();

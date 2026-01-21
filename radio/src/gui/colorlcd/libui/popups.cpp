@@ -21,11 +21,14 @@
 
 #include "popups.h"
 
-#include "libopenui.h"
+#include "dialog.h"
 #include "edgetx.h"
-#include "pwr.h"
-#include "hal/watchdog_driver.h"
 #include "etx_lv_theme.h"
+#include "hal/watchdog_driver.h"
+#include "lvgl/src/hal/lv_hal_tick.h"
+#include "mainwindow.h"
+#include "os/sleep.h"
+#include "pwr.h"
 
 static void _run_popup_dialog(const char* title, const char* msg,
                               const char* info = nullptr)
@@ -51,15 +54,14 @@ static void _run_popup_dialog(const char* title, const char* msg,
 #endif
     } else if (check == e_power_press) {
       WDG_RESET();
-      RTOS_WAIT_MS(1);
+      sleep_ms(1);
       continue;
     }
 
     checkBacklight();
     WDG_RESET();
     MainWindow::instance()->run();
-    LvglWrapper::runNested();
-    RTOS_WAIT_MS(20);
+    sleep_ms(20);
   }
 }
 
@@ -87,27 +89,17 @@ void show_ui_popup()
   }
 }
 
-void POPUP_WARNING_ON_UI_TASK(const char* message, const char* info,
-                              bool waitForClose)
+bool POPUP_WARNING_ON_UI_TASK(const char* message, const char* info)
 {
-  // if already in a popup, and we don't want to wait, ignore call
-  if (!waitForClose && ui_popup_active) return;
+  // if already in a popup, ignore call
+  if (ui_popup_active) return false;
 
-  // Wait in case already in popup.
-  while (ui_popup_active) {
-    RTOS_WAIT_MS(20);
-  }
   ui_popup_title = "Warning";
   ui_popup_msg = message;
   ui_popup_info = info;
   ui_popup_active = true;
 
-  // Wait until closed
-  if (waitForClose) {
-    while (ui_popup_active) {
-      RTOS_WAIT_MS(20);
-    }
-  }
+  return true;
 }
 
 // Bubble popup style
@@ -151,33 +143,33 @@ class BubbleDialog : public Window
  public:
   BubbleDialog(const char* message, int timeout, coord_t width) :
       Window(MainWindow::instance(), rect_t{(LCD_W - width) / 2, LCD_H - 100, width, 50},
-             bubble_popup_create)
+             bubble_popup_create),
+      startTime(lv_tick_get()), timeout(timeout)
   {
     setWindowFlag(OPAQUE);
 
     lv_obj_set_parent(lvobj, lv_layer_top());
 
-    auto label = lv_label_create(lvobj);
+    auto label = etx_label_create(lvobj);
     lv_label_set_text(label, message);
     lv_obj_center(label);
     lv_obj_set_width(label, lv_pct(100));
     etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-
-    endTime = RTOS_GET_MS() + timeout;
   }
 
   bool isBubblePopup() override { return true; }
 
   void checkEvents() override
   {
-    if (RTOS_GET_MS() >= endTime) {
+    if (lv_tick_elaps(startTime) >= timeout) {
       deleteLater();
     }
   }
 
  protected:
-  uint32_t endTime;
+  uint32_t startTime;
+  uint32_t timeout;
 };
 
 void POPUP_BUBBLE(const char* message, uint32_t timeout, coord_t width)

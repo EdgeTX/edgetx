@@ -21,76 +21,325 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#if !defined(SIMU)
+#include <unistd.h>
+#endif
 
 #include "fonts.h"
 #include "lz4/lz4.h"
-#include "libopenui_defines.h"
 #include "lz4_fonts.h"
+#include "translations/tts/tts.h"
 
 #if !defined(BOOT)
 
-#define FONT_TABLE(name)                                 \
-  extern const etxLz4Font lv_font_##name##_bold_16;      \
-  extern const etxLz4Font lv_font_##name##_9;            \
-  extern const etxLz4Font lv_font_##name##_13;           \
-  extern const etxLz4Font lv_font_##name##_24;           \
-  extern const etxLz4Font lv_font_##name##_bold_32;      \
-  extern const etxLz4Font lv_font_##name##_bold_64;      \
-  static const etxLz4Font* lz4FontTable[FONTS_COUNT] = { \
-      nullptr,                   /* FONT_STD_INDEX */    \
-      &lv_font_##name##_bold_16, /* FONT_BOLD_INDEX */   \
-      &lv_font_##name##_9,       /* FONT_XXS_INDEX */    \
-      &lv_font_##name##_13,      /* FONT_XS_INDEX */     \
-      &lv_font_##name##_24,      /* FONT_L_INDEX */      \
-      &lv_font_##name##_bold_32, /* FONT_XL_INDEX */     \
-      &lv_font_##name##_bold_64, /* FONT_XXL_INDEX */    \
-  };                                                     \
-  static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
-      LV_FONT_DEFAULT, /* FONT_STD_INDEX */              \
-      nullptr,         /* FONT_BOLD_INDEX */             \
-      nullptr,         /* FONT_XXS_INDEX */              \
-      nullptr,         /* FONT_XS_INDEX */               \
-      nullptr,         /* FONT_L_INDEX */                \
-      nullptr,         /* FONT_XL_INDEX */               \
-      nullptr,         /* FONT_XXL_INDEX */              \
-  }
+extern "C" {
+
+// All languages uss the same font for XXL size
+extern const etxLz4Font lv_font_en_bold_XXL;
+
+} // extern "C"
+
+struct etxLvglFont {
+  const etxLz4Font* lz4Font;
+  lv_font_t*        lvglFont;
+  bool              loaded;
+};
+
+static bool fontAllocFailed = false;
+
+#define BUFSIZE(x) (((x) + 15) & 0xFFFFFFF0)
+
+#if !defined(ALL_LANGS)
+
+extern "C" {
+
+#define FONT_TABLE(x)                                   \
+  extern const lv_font_t lv_font_##x##_STD;             \
+  extern const etxLz4Font lv_font_##x##_bold_STD;       \
+  extern const etxLz4Font lv_font_##x##_XXS;            \
+  extern const etxLz4Font lv_font_##x##_XS;             \
+  extern const etxLz4Font lv_font_##x##_L;              \
+  extern const etxLz4Font lv_font_##x##_bold_XL;        \
+  static etxLvglFont fontTable[FONTS_COUNT] = { \
+      { nullptr,       (lv_font_t*)&lv_font_##x##_STD,  true },   /* FONT_STD_INDEX */ \
+      { &lv_font_##x##_bold_STD,    nullptr,            false },  /* FONT_BOLD_INDEX */ \
+      { &lv_font_##x##_XXS,         nullptr,            false },  /* FONT_XXS_INDEX */ \
+      { &lv_font_##x##_XS,          nullptr,            false },  /* FONT_XS_INDEX */ \
+      { &lv_font_##x##_L,           nullptr,            false },  /* FONT_L_INDEX */ \
+      { &lv_font_##x##_bold_XL,     nullptr,            false },  /* FONT_XL_INDEX */ \
+      { &lv_font_en_bold_XXL,       nullptr,            false },  /* FONT_XXL_INDEX */ \
+  };
 
 #if defined(TRANSLATIONS_CN)
-FONT_TABLE(noto_cn);
+FONT_TABLE(cn)
+#define ENABLE_FALLBACK
 #elif defined(TRANSLATIONS_TW)
-FONT_TABLE(noto_tw);
+FONT_TABLE(tw)
+#define ENABLE_FALLBACK
 #elif defined(TRANSLATIONS_JP)
-FONT_TABLE(noto_jp);
+FONT_TABLE(jp)
+#define ENABLE_FALLBACK
+#elif defined(TRANSLATIONS_KO)
+FONT_TABLE(ko)
+#define ENABLE_FALLBACK
 #elif defined(TRANSLATIONS_HE)
-FONT_TABLE(arimo_he);
+FONT_TABLE(he)
+#define ENABLE_FALLBACK
 #elif defined(TRANSLATIONS_RU)
-FONT_TABLE(arimo_ru);
+FONT_TABLE(ru)
+#define ENABLE_FALLBACK
 #elif defined(TRANSLATIONS_UA)
-FONT_TABLE(arimo_ua);
+FONT_TABLE(ua)
+#define ENABLE_FALLBACK
 #else
-FONT_TABLE(roboto);
+FONT_TABLE(en)
+#endif
+
+#if defined(ENABLE_FALLBACK)
+// Fallback fonts - language fonts only contain language specific characters
+extern const lv_font_t lv_font_en_STD;
+extern const etxLz4Font lv_font_en_bold_STD;
+extern const etxLz4Font lv_font_en_XXS;
+extern const etxLz4Font lv_font_en_XS;
+extern const etxLz4Font lv_font_en_L;
+extern const etxLz4Font lv_font_en_bold_XL;
+static etxLvglFont en_fontTable[FONTS_COUNT] = {
+  { nullptr,     (lv_font_t*)&lv_font_en_STD, true },   /* FONT_STD_INDEX */
+  { &lv_font_en_bold_STD,    nullptr,         false },  /* FONT_BOLD_INDEX */
+  { &lv_font_en_XXS,         nullptr,         false },  /* FONT_XXS_INDEX */
+  { &lv_font_en_XS,          nullptr,         false },  /* FONT_XS_INDEX */
+  { &lv_font_en_L,           nullptr,         false },  /* FONT_L_INDEX */
+  { &lv_font_en_bold_XL,     nullptr,         false },  /* FONT_XL_INDEX */
+  { nullptr,                 nullptr,         true },   /* FONT_XXL_INDEX */
+};
+#endif
+
+} // extern "C"
+
+int getSize(etxLvglFont* fonts)
+{
+  int sz = 0;
+  for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+    if (fonts[i].lz4Font) {
+      sz += BUFSIZE(fonts[i].lz4Font->lvglFontBufSize);
+    }
+  }
+  return sz;
+}
+
+uint8_t* allocBuf(etxLvglFont* fonts, uint8_t* b)
+{
+  for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+    if (fonts[i].lz4Font) {
+      fonts[i].lvglFont = (lv_font_t*)b;
+      b += BUFSIZE(fonts[i].lz4Font->lvglFontBufSize);
+    }
+  }
+  return b;
+}
+
+void forceStd(etxLvglFont* fonts)
+{
+  for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+    if (fonts[i].lz4Font) {
+      fonts[i].lvglFont = fonts[FONT_STD_INDEX].lvglFont;
+      fonts[i].loaded = true;
+    }
+  }
+}
+
+void initFontBuffers()
+{
+  if (fontTable[FONT_BOLD_INDEX].lvglFont || fontAllocFailed) return;
+
+  // Calc max size needed for all compressed fonts
+  int sz = 0;
+#if defined(ENABLE_FALLBACK)
+  sz += getSize(en_fontTable);
+#endif
+  sz += getSize(fontTable);
+
+  // Allocate buffer and assign to fonts
+#if defined(SIMU)
+  uint8_t* b = (uint8_t*)malloc(sz);
+#else
+  uint8_t* b = (uint8_t*)sbrk(sz);
+#endif
+  if (b) {
+#if defined(ENABLE_FALLBACK)
+    b = allocBuf(en_fontTable, b);
+#endif
+    b = allocBuf(fontTable, b);
+  } else {
+    // Force all fonts to use STD size
+    fontAllocFailed = true;
+#if defined(ENABLE_FALLBACK)
+    forceStd(en_fontTable);
+#endif
+    forceStd(fontTable);
+  }
+}
+
+#else
+
+extern "C" {
+
+#define ENABLE_FALLBACK
+
+#define FONT_TABLE(x)                                 \
+  extern const lv_font_t lv_font_##x##_STD;           \
+  extern const etxLz4Font lv_font_##x##_bold_STD;     \
+  extern const etxLz4Font lv_font_##x##_XXS;          \
+  extern const etxLz4Font lv_font_##x##_XS;           \
+  extern const etxLz4Font lv_font_##x##_L;            \
+  extern const etxLz4Font lv_font_##x##_bold_XL;      \
+  static etxLvglFont x##_fontTable[FONTS_COUNT] = { \
+      { nullptr,       (lv_font_t*)&lv_font_##x##_STD,  true },   /* FONT_STD_INDEX */ \
+      { &lv_font_##x##_bold_STD,    nullptr,            false },  /* FONT_BOLD_INDEX */ \
+      { &lv_font_##x##_XXS,         nullptr,            false },  /* FONT_XXS_INDEX */ \
+      { &lv_font_##x##_XS,          nullptr,            false },  /* FONT_XS_INDEX */ \
+      { &lv_font_##x##_L,           nullptr,            false },  /* FONT_L_INDEX */ \
+      { &lv_font_##x##_bold_XL,     nullptr,            false },  /* FONT_XL_INDEX */ \
+      { &lv_font_en_bold_XXL,       nullptr,            false },  /* FONT_XXL_INDEX */ \
+  };
+
+FONT_TABLE(en);
+FONT_TABLE(cn);
+FONT_TABLE(tw);
+FONT_TABLE(jp);
+FONT_TABLE(ko);
+FONT_TABLE(he);
+FONT_TABLE(ru);
+FONT_TABLE(ua);
+
+} // extern "C"
+
+// Must match RadioLanguage order
+etxLvglFont* etxFonts[] = {
+  cn_fontTable,   // CN
+  en_fontTable,
+  en_fontTable,
+  en_fontTable,
+  en_fontTable,
+  en_fontTable,
+  en_fontTable,
+  en_fontTable,
+  he_fontTable,   // HE
+  en_fontTable,
+  en_fontTable,
+  jp_fontTable,   // JP
+  ko_fontTable,   // KO
+  en_fontTable,
+  en_fontTable,
+  en_fontTable,
+  ru_fontTable,   // RU
+  en_fontTable,
+  en_fontTable,
+  tw_fontTable,   // TW
+  ua_fontTable,   // UA
+};
+
+etxLvglFont* fontTable = en_fontTable;
+
+extern void setAllFonts();
+
+void setLanguageFont(int idx)
+{
+  if (fontAllocFailed) return;
+
+  if (fontTable != etxFonts[idx]) {
+    fontTable = etxFonts[idx];
+    if (fontTable != en_fontTable) {
+      // Force fonts to be decompressed.
+      for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+        if ((fontTable[i].lz4Font != nullptr) && (i != FONT_XXL_INDEX)) {
+          fontTable[i].loaded = false;
+        }
+      }
+    }
+    setAllFonts();
+  }
+}
+
+uint32_t getMaxFontSize(int fontIdx)
+{
+  uint32_t max = 0;
+  for (int l = 0; l < LANG_COUNT; l += 1) {
+    if (etxFonts[l] != en_fontTable) {
+      if (etxFonts[l][fontIdx].lz4Font->lvglFontBufSize > max)
+        max = etxFonts[l][fontIdx].lz4Font->lvglFontBufSize;
+    }
+  }
+  return BUFSIZE(max);
+}
+
+void initFontBuffers()
+{
+  if (en_fontTable[FONT_BOLD_INDEX].lvglFont || fontAllocFailed) return;
+
+  // Calc max size needed for all compressed fonts
+  int sz = 0;
+  for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+    if (en_fontTable[i].lz4Font) {
+      // EN data
+      sz += BUFSIZE(en_fontTable[i].lz4Font->lvglFontBufSize);
+      // Shared buf for other languages
+      sz += getMaxFontSize(i);
+    }
+  }
+
+  // Allocate buffer and assign to fonts
+#if defined(SIMU)
+  uint8_t* b = (uint8_t*)malloc(sz);
+#else
+  uint8_t* b = (uint8_t*)sbrk(sz);
+#endif
+  if (b) {
+    for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+      if (en_fontTable[i].lz4Font) {
+        // EN data
+        en_fontTable[i].lvglFont = (lv_font_t*)b;
+        b += BUFSIZE(en_fontTable[i].lz4Font->lvglFontBufSize);
+        // All languages except EN use the same buffer for the uncompressed data (only one active)
+        cn_fontTable[i].lvglFont = (lv_font_t*)b;
+        tw_fontTable[i].lvglFont = (lv_font_t*)b;
+        jp_fontTable[i].lvglFont = (lv_font_t*)b;
+        ko_fontTable[i].lvglFont = (lv_font_t*)b;
+        he_fontTable[i].lvglFont = (lv_font_t*)b;
+        ru_fontTable[i].lvglFont = (lv_font_t*)b;
+        ua_fontTable[i].lvglFont = (lv_font_t*)b;
+        b += getMaxFontSize(i);
+      }
+    }
+  } else {
+    // Force all fonts to use STD size
+    fontAllocFailed = true;
+    for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+      for (int l = 0; l < LANG_COUNT; l += 1) {
+        if (etxFonts[l][i].lvglFont == nullptr) {
+          etxFonts[l][i].lvglFont = etxFonts[l][FONT_STD_INDEX].lvglFont;
+          etxFonts[l][i].loaded = true;
+        }
+      }
+    }
+  }
+}
+
 #endif
 
 /*
   Decompress an LZ4 font and build LVGL font structures.
 */
-void decompressFont(int idx)
+void decompressFont(int idx, etxLvglFont* fonts)
 {
   // Check if already decompressed
-  if (lvglFontTable[idx]) return;
+  if (fonts[idx].loaded) return;
 
-  const etxLz4Font* etxFont = lz4FontTable[idx];
-
-  // Calculate size of memory block to allocate for uncompressed data plus LVGL
-  // font structures.
-  int size = etxFont->uncomp_size + sizeof(lv_font_t) +
-             sizeof(lv_font_fmt_txt_dsc_t) +
-             sizeof(lv_font_fmt_txt_glyph_cache_t) +
-             etxFont->cmap_num * sizeof(lv_font_fmt_txt_cmap_t);
-  if (etxFont->kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
+  const etxLz4Font* etxFont = fonts[idx].lz4Font;
 
   // Init SDRAM buffer
-  uint8_t* data = etxFont->lvglFontBuf;
+  initFontBuffers();
+  uint8_t* data = (uint8_t*)fonts[idx].lvglFont;
   memset(data, 0, etxFont->lvglFontBufSize);
 
   // Pointer to next free area in data block
@@ -180,8 +429,15 @@ void decompressFont(int idx)
     lvglCmaps[i].type = etxFont->cmaps[i].type;
   }
 
-  // Save LVGL font to lookup array
-  lvglFontTable[idx] = lvglFont;
+#if defined(ENABLE_FALLBACK)
+  if (fonts[idx].lz4Font != en_fontTable[idx].lz4Font) {
+    decompressFont(idx, en_fontTable);
+    lvglFont->fallback = en_fontTable[idx].lvglFont;
+  }
+#endif
+
+  // Set LVGL font loaded flag
+  fonts[idx].loaded = true;
 }
 
 #endif  // BOOT
@@ -204,9 +460,9 @@ const lv_font_t* getFont(LcdFlags flags)
   return LV_FONT_DEFAULT;
 #else
   auto fontIndex = FONT_INDEX(flags);
-  if (fontIndex >= FONTS_COUNT) return LV_FONT_DEFAULT;
-  decompressFont(fontIndex);
-  return lvglFontTable[fontIndex];
+  if (fontIndex >= FONTS_COUNT) return fontTable[FONT_STD_INDEX].lvglFont;
+  decompressFont(fontIndex, fontTable);
+  return fontTable[fontIndex].lvglFont;
 #endif
 }
 

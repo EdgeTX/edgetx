@@ -13,7 +13,7 @@ import legacy_names
 # Return a file handle or STDIN
 #
 def open_file(filename):
-    
+
     if filename and not filename == '-':
         return open(filename)
     else:
@@ -83,7 +83,7 @@ def parse_defines(filename, target):
     switches = parse_switches(target, hw_defs, adc_parser)
     out_defs["switches"] = switches
 
-    keys = parse_keys(hw_defs)
+    keys = parse_keys(target, hw_defs)
     out_defs["keys"] = keys
 
     trims = parse_trims(hw_defs)

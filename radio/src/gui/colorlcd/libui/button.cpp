@@ -21,6 +21,8 @@
 #include "static.h"
 #include "etx_lv_theme.h"
 
+//-----------------------------------------------------------------------------
+
 static void button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_btn_style(obj, LV_PART_MAIN);
@@ -50,6 +52,8 @@ Button::Button(Window* parent, const rect_t& rect,
     ButtonBase(parent, rect, pressHandler, button_create)
 {
 }
+
+//-----------------------------------------------------------------------------
 
 ButtonBase::ButtonBase(Window* parent, const rect_t& rect,
                        std::function<uint8_t(void)> pressHandler,
@@ -82,7 +86,8 @@ bool ButtonBase::onLongPress()
 {
   if (longPressHandler) {
     check(longPressHandler());
-    lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+    if (!deleted())
+      lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
     lv_indev_wait_release(lv_indev_get_act());
     return false;
   }
@@ -97,15 +102,27 @@ void ButtonBase::checkEvents()
   if (checkHandler) checkHandler();
 }
 
+//-----------------------------------------------------------------------------
+
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
                        std::function<uint8_t(void)> pressHandler) :
     ButtonBase(parent, rect, pressHandler, button_create),
     text(std::move(text))
 {
-  label = lv_label_create(lvobj);
+  label = etx_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
 }
+
+void TextButton::setText(std::string value)
+{
+  if (value != text) {
+    text = std::move(value);
+    lv_label_set_text(label, text.c_str());
+  }
+}
+
+//-----------------------------------------------------------------------------
 
 IconButton::IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
                        std::function<uint8_t(void)> pressHandler) :
@@ -117,3 +134,33 @@ IconButton::IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
 }
 
 void IconButton::setIcon(EdgeTxIcon icon) { iconImage->setIcon(icon); }
+
+//-----------------------------------------------------------------------------
+
+MomentaryButton::MomentaryButton(Window* parent, const rect_t& rect, std::string text,
+                       std::function<void(void)> pressHandler,
+                       std::function<void(void)> releaseHandler) :
+    FormField(parent, rect, button_create),
+    pressHandler(std::move(pressHandler)),
+    releaseHandler(std::move(releaseHandler)),
+    text(std::move(text))
+{
+  label = etx_label_create(lvobj);
+  lv_label_set_text(label, this->text.c_str());
+  lv_obj_center(label);
+}
+
+void MomentaryButton::onPressed()
+{
+  if (pressHandler)
+    pressHandler();
+  lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+  lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+}
+
+void MomentaryButton::onReleased()
+{
+  if (releaseHandler)
+    releaseHandler();
+  lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+}

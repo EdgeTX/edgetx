@@ -22,11 +22,15 @@
 #include "preflight_checks.h"
 
 #include "button_matrix.h"
+#include "choice.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "edgetx.h"
+#include "numberedit.h"
 #include "strhelpers.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -38,7 +42,7 @@ class SwitchWarnMatrix : public ButtonMatrix
   {
     // Setup button layout & texts
     uint8_t btn_cnt = 0;
-    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_WARNING_ALLOWED(i)) {
         sw_idx[btn_cnt] = i;
         btn_cnt++;
@@ -47,13 +51,7 @@ class SwitchWarnMatrix : public ButtonMatrix
 
     initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
-    uint8_t btn_id = 0;
-    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
-      if (SWITCH_WARNING_ALLOWED(i)) {
-        setTextAndState(btn_id);
-        btn_id++;
-      }
-    }
+    setAllState();
 
     update();
 
@@ -65,46 +63,70 @@ class SwitchWarnMatrix : public ButtonMatrix
     padAll(PAD_SMALL);
   }
 
-  void onPress(uint8_t btn_id)
+  void onPress(uint8_t btn_id) override
   {
-    if (btn_id >= MAX_SWITCHES) return;
+    if (longPress) {
+      longPress = false;
+      return;
+    }
+
+    if (btn_id >= switchGetMaxAllSwitches()) return;
     auto sw = sw_idx[btn_id];
 
-    swarnstate_t newstate = bfGet(g_model.switchWarning, 3 * sw, 3);
-    if (newstate == 1 && SWITCH_CONFIG(sw) != SWITCH_3POS)
+    uint8_t newstate = g_model.getSwitchWarning(sw);
+    if (newstate == 1 && g_model.getSwitchType(sw) != SWITCH_3POS)
       newstate = 3;
     else
-      newstate = (newstate + 1) % 4;
+      newstate = (newstate + 1) & 3;
 
-    g_model.switchWarning =
-        bfSet(g_model.switchWarning, newstate, 3 * sw, 3);
+    g_model.setSwitchWarning(sw, newstate);
     SET_DIRTY();
 
     setTextAndState(btn_id);
   }
 
-  bool isActive(uint8_t btn_id)
+  bool isActive(uint8_t btn_id) override
   {
-    if (btn_id >= MAX_SWITCHES) return false;
-    return bfGet(g_model.switchWarning, 3 * sw_idx[btn_id], 3) != 0;
+    if (btn_id >= switchGetMaxAllSwitches()) return false;
+    return g_model.getSwitchWarning(sw_idx[btn_id]) != 0;
   }
 
   void setTextAndState(uint8_t btn_id)
   {
     swsrc_t index = sw_idx[btn_id];
-    auto warn_pos = g_model.switchWarning >> (3 * index) & 0x07;
-    std::string s = std::string(switchGetName(index)) +
+    auto warn_pos = g_model.getSwitchWarning(index);
+    std::string s = std::string(switchGetDefaultName(index)) +
                     std::string(getSwitchWarnSymbol(warn_pos));
     setText(btn_id, s.c_str());
     setChecked(btn_id);
   }
 
-  static LAYOUT_VAL(SW_BTNS, 8, 4)
-  static LAYOUT_VAL(SW_BTN_W, 56, 72)
-  static LAYOUT_VAL(SW_BTN_H, 36, 36)
+  static LAYOUT_SIZE(SW_BTNS, 8, 4)
+  static LAYOUT_SIZE_SCALED(SW_BTN_W, 56, 72)
+  static LAYOUT_VAL_SCALED(SW_BTN_H, 36)
 
  private:
   uint8_t sw_idx[MAX_SWITCHES];
+  bool longPress = false;
+
+  void setAllState()
+  {
+    uint8_t btn_id = 0;
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
+      if (SWITCH_WARNING_ALLOWED(i)) {
+        setTextAndState(btn_id);
+        btn_id++;
+      }
+    }
+  }
+
+  bool onLongPress() override
+  {
+    longPress = true;
+    setAllPreflightSwitchStates();
+    setAllState();
+    return true;
+  }
 };
 
 class PotWarnMatrix : public ButtonMatrix
@@ -172,7 +194,7 @@ class PotWarnMatrix : public ButtonMatrix
   uint8_t pot_idx[MAX_POTS];
 };
 
-PreflightChecks::PreflightChecks() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_PREFLIGHT)
+PreflightChecks::PreflightChecks() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_PREFLIGHT)
 {
   body->setFlexLayout();
 
@@ -218,7 +240,7 @@ PreflightChecks::PreflightChecks() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SE
                       });
 
       // Custom Throttle warning value
-      customThrottleValue = new NumberEdit(parent, {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, 0, 0}, -100, 100,
+      customThrottleValue = new NumberEdit(parent, {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y, 0, 0}, -100, 100,
                                           GET_SET_DEFAULT(g_model.customThrottleWarningPosition));
       customThrottleValue->show(g_model.enableCustomThrottleWarning);
     });

@@ -147,7 +147,7 @@ void menuModelTelemetry(event_t event)
       int index = k - ITEM_TELEMETRY_SENSOR_FIRST;
       lcdDrawNumber(INDENT_WIDTH, y, index+1, LEFT|attr);
       lcdDrawChar(lcdLastRightPos, y, ':', attr);
-      lcdDrawSizedText(3*FW, y, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN, ZCHAR);
+      lcdDrawSizedText(3*FW, y, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
       if (telemetryItems[index].isFresh()) {
         lcdDrawChar(10*FW, y, '*');
       }
@@ -218,7 +218,7 @@ void menuModelTelemetry(event_t event)
             pushMenu(menuModelSensor);
           }
           else {
-            allowNewSensors = 0;
+            allowNewSensors = false;
             POPUP_WARNING(STR_TELEMETRYFULL);
           }
         }

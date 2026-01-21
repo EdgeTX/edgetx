@@ -24,6 +24,7 @@
  *********************/
 #include "etx_lv_theme.h"
 
+#include "window.h"
 #include "../colors.h"
 #include "fonts.h"
 
@@ -41,6 +42,7 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_20, LV_STYLE_BG_OPA,
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_50, LV_STYLE_BG_OPA,
                            LV_OPA_50);
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_75, LV_STYLE_BG_OPA, 187);
+LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_90, LV_STYLE_BG_OPA, 230);
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_cover, LV_STYLE_BG_OPA,
                            LV_OPA_COVER);
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::fg_opacity_transparent, LV_STYLE_OPA,
@@ -69,10 +71,10 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::pad_left_2, LV_STYLE_PAD_LEFT, 2);
 // Scrollbar
 const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_BG_OPA(LV_OPA_50),
-    LV_STYLE_CONST_PAD_TOP(3),
-    LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(3),
-    LV_STYLE_CONST_PAD_RIGHT(3),
+    LV_STYLE_CONST_PAD_TOP(PAD_SCROLL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SCROLL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SCROLL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SCROLL),
     LV_STYLE_CONST_WIDTH(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
@@ -88,9 +90,9 @@ const lv_style_const_prop_t pad_zero_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_zero, pad_zero_props);
 
 const lv_style_const_prop_t pad_tiny_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),  LV_STYLE_CONST_PAD_BOTTOM(2),
-    LV_STYLE_CONST_PAD_LEFT(2), LV_STYLE_CONST_PAD_RIGHT(2),
-    LV_STYLE_CONST_PAD_ROW(2),  LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY),  LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TINY), LV_STYLE_CONST_PAD_RIGHT(PAD_TINY),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY),  LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_tiny, pad_tiny_props);
@@ -129,12 +131,12 @@ const lv_style_const_prop_t pad_large_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_large, pad_large_props);
 
 const lv_style_const_prop_t pad_button_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),
-    LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY),
     LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
     LV_STYLE_CONST_PAD_RIGHT(PAD_MEDIUM),
-    LV_STYLE_CONST_PAD_ROW(2),
-    LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_button, pad_button_props);
@@ -142,7 +144,7 @@ LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_button, pad_button_props);
 const lv_style_const_prop_t pad_textarea_props[] = {
     LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
     LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL - 1),
-    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
     LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
@@ -151,7 +153,7 @@ LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_textarea, pad_textarea_props);
 // Border
 const lv_style_const_prop_t border_props[] = {
     LV_STYLE_CONST_BORDER_OPA(LV_OPA_COVER),
-    LV_STYLE_CONST_BORDER_WIDTH(2),
+    LV_STYLE_CONST_BORDER_WIDTH(PAD_BORDER),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::border, border_props);
@@ -159,7 +161,7 @@ LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::border, border_props);
 // Border
 const lv_style_const_prop_t border_transparent_props[] = {
     LV_STYLE_CONST_BORDER_OPA(LV_OPA_TRANSP),
-    LV_STYLE_CONST_BORDER_WIDTH(2),
+    LV_STYLE_CONST_BORDER_WIDTH(PAD_BORDER),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::border_transparent,
@@ -173,20 +175,12 @@ const lv_style_const_prop_t border_thin_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::border_thin, border_thin_props);
 
 static const lv_style_const_prop_t outline_props[] = {
-    LV_STYLE_CONST_OUTLINE_WIDTH(2),
+    LV_STYLE_CONST_OUTLINE_WIDTH(PAD_OUTLINE),
     LV_STYLE_CONST_OUTLINE_OPA(LV_OPA_COVER),
     LV_STYLE_CONST_OUTLINE_PAD(1),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::outline, outline_props);
-
-static const lv_style_const_prop_t outline_thick_props[] = {
-    LV_STYLE_CONST_OUTLINE_WIDTH(3),
-    LV_STYLE_CONST_OUTLINE_OPA(LV_OPA_COVER),
-    LV_STYLE_CONST_OUTLINE_PAD(1),
-    LV_STYLE_PROP_INV,
-};
-LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::outline_thick, outline_thick_props);
 
 // States (pressed, disabled, etc)
 static lv_color_t dark_color_filter_cb(const lv_color_filter_dsc_t* f,
@@ -223,6 +217,23 @@ const lv_style_const_prop_t disabled_props[] = {
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::disabled, disabled_props);
 
+static lv_color_t qm_disabled_filter_cb(const lv_color_filter_dsc_t* f,
+                                 lv_color_t color, lv_opa_t opa)
+{
+  LV_UNUSED(f);
+  return lv_color_mix(makeLvColor(COLOR_THEME_QM_FG_INDEX), color, opa);
+}
+
+const lv_color_filter_dsc_t qm_disabled_filter = {.filter_cb = qm_disabled_filter_cb,
+                                           .user_data = 0};
+
+const lv_style_const_prop_t qm_disabled_props[] = {
+    LV_STYLE_CONST_COLOR_FILTER_DSC(&qm_disabled_filter),
+    LV_STYLE_CONST_COLOR_FILTER_OPA(LV_OPA_60),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::qmdisabled, qm_disabled_props);
+
 /**********************
  *   Variable Styles
  **********************/
@@ -248,6 +259,7 @@ EdgeTxStyles::EdgeTxStyles()
   lv_style_init(&graph_position_line);
   lv_style_init(&div_line);
   lv_style_init(&div_line_edit);
+  lv_style_init(&div_line_warn);
   lv_style_init(&div_line_black);
   lv_style_init(&div_line_white);
 
@@ -271,6 +283,9 @@ EdgeTxStyles::EdgeTxStyles()
 
   lv_style_set_line_width(&div_line_edit, 1);
   lv_style_set_line_opa(&div_line_edit, LV_OPA_COVER);
+
+  lv_style_set_line_width(&div_line_warn, 1);
+  lv_style_set_line_opa(&div_line_warn, LV_OPA_COVER);
 
   lv_style_set_line_width(&div_line_black, 1);
   lv_style_set_line_opa(&div_line_black, LV_OPA_COVER);
@@ -300,6 +315,14 @@ void EdgeTxStyles::init()
   applyColors();
 }
 
+void EdgeTxStyles::setFonts()
+{
+  // Fonts
+  for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+    lv_style_set_text_font(&font[i], getFont(i << 8));
+  }
+}
+
 void EdgeTxStyles::applyColors()
 {
   // Always update colors in case theme changes
@@ -321,6 +344,7 @@ void EdgeTxStyles::applyColors()
                           makeLvColor(COLOR_THEME_ACTIVE));
   lv_style_set_line_color(&div_line, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_line_color(&div_line_edit, makeLvColor(COLOR_THEME_EDIT));
+  lv_style_set_line_color(&div_line_warn, makeLvColor(COLOR_THEME_WARNING));
   lv_style_set_line_color(&div_line_black, makeLvColor(COLOR_THEME_PRIMARY1));
   lv_style_set_line_color(&div_line_white, makeLvColor(COLOR_THEME_PRIMARY2));
 
@@ -337,6 +361,14 @@ void EdgeTxStyles::applyColors()
 static EdgeTxStyles* mainStyles = nullptr;
 static EdgeTxStyles* previewStyles = nullptr;
 EdgeTxStyles* styles = nullptr;
+
+#if defined(ALL_LANGS)
+void setAllFonts()
+{
+  if (mainStyles) mainStyles->setFonts();
+  if (previewStyles) previewStyles->setFonts();
+}
+#endif
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -366,6 +398,18 @@ void useMainStyle()
  **********************/
 
 // Object constructor helpers
+
+lv_obj_t* etx_label_create(lv_obj_t* parent, FontIndex fontIdx)
+{
+  lv_obj_t* lvobj = lv_label_create(parent);
+  etx_obj_add_style(lvobj, styles->font[fontIdx], LV_PART_MAIN);
+  return lvobj;
+}
+
+lv_obj_t* etx_label_create(Window* parent, FontIndex fontIdx)
+{
+  return etx_label_create(parent->getLvObj(), fontIdx);
+}
 
 void etx_solid_bg(lv_obj_t* obj, LcdColorIndex bg_color,
                   lv_style_selector_t selector)
@@ -403,7 +447,7 @@ void etx_bg_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
   if (colorFlags & RGB_FLAG) {
     etx_remove_bg_color(obj, selector);
     lv_obj_set_style_bg_color(obj,
-                              makeLvColor(colorToRGB(colorFlags)), selector);
+                              makeLvColor(colorFlags), selector);
   } else {
     lv_obj_remove_local_style_prop(obj, LV_STYLE_BG_COLOR, selector);
     etx_bg_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
@@ -431,7 +475,7 @@ void etx_txt_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
   if (colorFlags & RGB_FLAG) {
     etx_remove_txt_color(obj, selector);
     lv_obj_set_style_text_color(obj,
-                                makeLvColor(colorToRGB(colorFlags)), selector);
+                                makeLvColor(colorFlags), selector);
   } else {
     lv_obj_remove_local_style_prop(obj, LV_STYLE_TEXT_COLOR, selector);
     etx_txt_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
@@ -468,6 +512,19 @@ void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   etx_obj_add_style(obj, styles->arc_color[colorIdx], selector);
 }
 
+void etx_arc_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector)
+{
+  if (colorFlags & RGB_FLAG) {
+    etx_remove_arc_color(obj, selector);
+    lv_obj_set_style_arc_color(obj,
+                              makeLvColor(colorFlags), selector);
+  } else {
+    lv_obj_remove_local_style_prop(obj, LV_STYLE_ARC_COLOR, selector);
+    etx_arc_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
+  }
+}
+
 void etx_remove_line_color(lv_obj_t* obj, lv_style_selector_t selector)
 {
   // Remove styles
@@ -481,6 +538,19 @@ void etx_line_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   // Remove old style first
   etx_remove_line_color(obj, selector);
   etx_obj_add_style(obj, styles->line_color[colorIdx], selector);
+}
+
+void etx_line_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector)
+{
+  if (colorFlags & RGB_FLAG) {
+    etx_remove_line_color(obj, selector);
+    lv_obj_set_style_line_color(obj,
+                              makeLvColor(colorFlags), selector);
+  } else {
+    lv_obj_remove_local_style_prop(obj, LV_STYLE_LINE_COLOR, selector);
+    etx_line_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
+  }
 }
 
 void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector)
@@ -606,7 +676,7 @@ static void textarea_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_textarea_set_one_line(obj, true);
 
   lv_textarea_t* ta = (lv_textarea_t*)obj;
-  lv_obj_set_height(ta->label, 21);
+  lv_obj_set_height(ta->label, EdgeTxStyles::UI_ELEMENT_HEIGHT * 21 / 32);
 }
 
 static const lv_obj_class_t textarea_class = {

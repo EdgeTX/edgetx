@@ -18,7 +18,11 @@
 
 #pragma once
 
-#include "libopenui_defines.h"
+#include "colors.h"
+
+#if defined(DEBUG)
+#include "debug.h"
+#endif
 
 struct MaskBitmap;
 class TelemetryItem;
@@ -262,9 +266,3 @@ class BitmapBuffer
   lv_obj_t* canvas = nullptr;
   lv_draw_ctx_t* draw_ctx = nullptr;
 };
-
-// Back buffer to draw
-extern BitmapBuffer* lcd;
-
-// Buffer currently on display
-extern BitmapBuffer* lcdFront;

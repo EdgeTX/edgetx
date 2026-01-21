@@ -20,15 +20,33 @@
  */
 
 #include "sticks_pwm_driver.h"
+
+#include "stm32_adc.h"
 #include "stm32_gpio_driver.h"
 #include "stm32_timer.h"
+#include "timers_driver.h"
+
 #include "hal/adc_driver.h"
-#include "stm32_hal_ll.h"
-#include "delays_driver.h"
 
 #include "dataconstants.h"
 
-static volatile uint32_t _pwm_interrupt_count;
+#include <string.h>
+
+#define PWM_DETECT_MS 20
+#define PWM_MIN_SAMPLES 3
+
+// we assume the sensors output ~250Hz
+#define PWM_MIN_PERIOD 3000
+#define PWM_MAX_PERIOD 5000
+
+// sensor uses a duty cycle [5%; 95%]
+#define PWM_MIN_PULSE   40
+#define PWM_MAX_PULSE 4000
+
+#define PWM_PRESCALER_FREQ 1038000
+
+// detected PWM samples per input
+static uint8_t _pwm_samples[MAX_STICKS];
 
 static void sticks_pwm_init(const stick_pwm_timer_t* tim)
 {
@@ -47,7 +65,7 @@ static void sticks_pwm_init(const stick_pwm_timer_t* tim)
 
   stm32_timer_enable_clock(TIMx);
   TIMx->CR1 &= ~TIM_CR1_CEN; // Stop timer
-  TIMx->PSC = 80;
+  TIMx->PSC = __LL_TIM_CALC_PSC(tim->TIM_Freq, PWM_PRESCALER_FREQ);
   TIMx->ARR = 0xffff;
   TIMx->CCMR1 = TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;
   TIMx->CCMR2 = TIM_CCMR2_CC3S_0 | TIM_CCMR2_CC4S_0;
@@ -77,28 +95,41 @@ static void sticks_pwm_deinit(const stick_pwm_timer_t* tim)
 }
 
 bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
-		       const stick_pwm_input_t* inputs,
-		       uint8_t n_inputs)
+                       const stick_pwm_input_t* inputs, uint8_t n_inputs)
 {
   if (!timer || !inputs || n_inputs == 0)
     return false;
   
-  _pwm_interrupt_count = 0;
+  memset(&_pwm_samples, 0, sizeof(_pwm_samples));
   sticks_pwm_init(timer);
-  delay_ms(20);
 
-  if (_pwm_interrupt_count < 32) {
-    sticks_pwm_deinit(timer);
-    return false;
+  uint32_t timeout = timersGetMsTick() + PWM_DETECT_MS;
+  while (timersGetMsTick() - timeout > 0) {}
+
+  bool valid_input = true;
+  for (unsigned i = 0; i < n_inputs; i++) {
+    valid_input = valid_input && (_pwm_samples[i] >= PWM_MIN_SAMPLES);
   }
 
-  return true;
+  if (!valid_input) {
+    sticks_pwm_deinit(timer);
+  } else {
+    // mask gimbal inputs
+    stm32_hal_set_inputs_mask(0xF);
+  }
+
+  return valid_input;
 }
 
 static inline uint32_t tim_get_capture(TIM_TypeDef *TIMx, uint8_t channel)
 {
   auto* base_CCRx = &(TIMx->CCR1);
   return READ_REG(*(base_CCRx + channel));
+}
+
+static inline bool tim_polarity_is_falling(TIM_TypeDef *TIMx, uint8_t channel)
+{
+  return READ_BIT(TIMx->CCER, TIM_CCER_CC1P << (channel * 4));
 }
 
 static inline void tim_set_polarity_rising(TIM_TypeDef *TIMx, uint8_t channel)
@@ -121,54 +152,39 @@ static inline void tim_clear_flag_CCx(TIM_TypeDef *TIMx, uint8_t channel)
   CLEAR_BIT(TIMx->SR, TIM_SR_CC1IF << channel);
 }
 
-static inline uint32_t diff_with_16bits_overflow(uint32_t a, uint32_t b)
-{
-  if (b > a) {
-    return b - a;
-  }
-
-  return b + 0xffff - a;
-}
-
 void sticks_pwm_isr(const stick_pwm_timer_t* tim,
-		    const stick_pwm_input_t* inputs,
-		    uint8_t n_inputs)
+                    const stick_pwm_input_t* inputs, uint8_t n_inputs)
 {
-  static uint8_t  timer_capture_states[MAX_STICKS];
   static uint32_t timer_capture_rising_time[MAX_STICKS];
 
   auto TIMx = tim->TIMx;
   auto adcValues = getAnalogValues();
 
   for (uint8_t i = 0; i < n_inputs; i++) {
-
     const auto& input = inputs[i];
     auto channel = input.channel;
-    
-    if (tim_is_active_flag_CCx(TIMx, channel)) {
 
-      uint32_t capture = tim_get_capture(TIMx, channel);
+    if (tim_is_active_flag_CCx(TIMx, channel)) {
+      uint16_t capture = (uint16_t)tim_get_capture(TIMx, channel);
       tim_clear_flag_CCx(TIMx, channel);
 
-      // overflow may happen but we only use this to detect PWM / ADC on radio startup
-      _pwm_interrupt_count++;
-
-      if (timer_capture_states[i] != 0) {
-        uint32_t value = diff_with_16bits_overflow(timer_capture_rising_time[i], capture);
-
-        if (value <= ADC_MAX_VALUE) {
-	  uint16_t v16 = (uint16_t)value;
-          adcValues[i] = input.inverted ? ADC_INVERT_VALUE(v16) : v16;
+      if (tim_polarity_is_falling(TIMx, channel)) {
+        uint16_t value = capture - timer_capture_rising_time[i];
+        if (value > PWM_MIN_PULSE && value < PWM_MAX_PULSE) {
+          adcValues[i] = input.inverted ? ADC_INVERT_VALUE(value) : value;
+          _pwm_samples[i]++;
         }
-
         tim_set_polarity_rising(TIMx, channel);
-        timer_capture_states[i] = 0;
-      }
-      else {
+      } else {
+        uint16_t period = capture - timer_capture_rising_time[i];
+        if (period < PWM_MIN_PERIOD || period > PWM_MAX_PERIOD) {
+          // try next cycle and reset detected samples
+          _pwm_samples[i] = 0;
+        } else {
+          // proceed to measure pulse
+          tim_set_polarity_falling(TIMx, channel);
+        }
         timer_capture_rising_time[i] = capture;
-
-        tim_set_polarity_falling(TIMx, channel);
-        timer_capture_states[i] = 0x80;
       }
     }
   }

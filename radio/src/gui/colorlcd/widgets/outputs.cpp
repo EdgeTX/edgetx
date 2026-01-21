@@ -21,13 +21,11 @@
 
 #include "edgetx.h"
 #include "widget.h"
+#include <cstdint>
+
+constexpr int16_t OUTPUT_INVALID_VALUE = INT16_MIN;
 
 #define ETX_STATE_BG_FILL LV_STATE_USER_1
-
-#define ROW_HEIGHT 16
-
-#define VIEW_CHANNELS_LIMIT_PCT \
-  (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
 
 class ChannelValue : public Window
 {
@@ -36,12 +34,15 @@ class ChannelValue : public Window
                uint8_t channel, LcdFlags txtColor, LcdFlags barColor) :
       Window(parent,
              {col * colWidth, row * ROW_HEIGHT, colWidth - 1 + (colWidth & 1), (ROW_HEIGHT + 1)}),
-      channel(channel)
+      channel(channel), txtColor(txtColor), barColor(barColor)
   {
-    setWindowFlag(NO_FOCUS);
+    setWindowFlag(NO_FOCUS | NO_CLICK);
 
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    delayLoad();
+  }
 
+  void delayedInit() override
+  {
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
@@ -51,27 +52,19 @@ class ChannelValue : public Window
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, lv_pct(100));
 
-    // lv_color_t color;
-    // color.full = txtColor >> 16u;
-    // lv_style_set_text_color(&style, color);
-    // color.full = barColor >> 16u;
-    // lv_style_set_bg_color(&style, color);
-
     bar = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_size(bar, 0, ROW_HEIGHT - 1);
     etx_bg_color_from_flags(bar, barColor);
 
-    valueLabel = lv_label_create(lvobj);
-    etx_font(valueLabel, FONT_XS_INDEX);
+    valueLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(valueLabel, styles->text_align_right, LV_PART_MAIN);
     etx_txt_color_from_flags(valueLabel, txtColor);
     lv_obj_add_style(valueLabel, &style, LV_PART_MAIN);
     lv_label_set_text(valueLabel, "");
 
-    chanLabel = lv_label_create(lvobj);
-    etx_font(chanLabel, FONT_XS_INDEX);
+    chanLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(chanLabel, styles->text_align_left, LV_PART_MAIN);
     etx_txt_color_from_flags(chanLabel, txtColor);
     lv_label_set_text(chanLabel, "");
@@ -103,7 +96,10 @@ class ChannelValue : public Window
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     int16_t value = channelOutputs[channel];
+
     if (value != lastValue) {
       lastValue = value;
 
@@ -115,17 +111,24 @@ class ChannelValue : public Window
       else
         s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
-      lv_label_set_text(valueLabel, s.c_str());
+      if (s != lastText) {
+        lastText = s;
+        lv_label_set_text(valueLabel, s.c_str());
+      }
 
       const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
-      uint16_t w = width() - 2;
-      uint16_t fillW = divRoundClosest(
-          w * limit<int16_t>(0, abs(lastValue), lim),
-          lim * 2);
-      uint16_t x = lastValue > 0 ? w / 2 : w / 2 - fillW + 1;
+      uint16_t w = width() - PAD_TINY;
+      int16_t scaledValue = divRoundClosest(w * limit<int16_t>(-lim, value, lim), lim * 2);
 
-      lv_obj_set_pos(bar, x, 0);
-      lv_obj_set_size(bar, fillW, ROW_HEIGHT - 1);
+      if (scaledValue != lastScaledValue) {
+        lastScaledValue = scaledValue;
+
+        uint16_t fillW = abs(scaledValue);
+        uint16_t x = value > 0 ? w / 2 : w / 2 - fillW + 1;
+
+        lv_obj_set_pos(bar, x, 0);
+        lv_obj_set_size(bar, fillW, ROW_HEIGHT - 1);
+      }
     }
 
     bool hasName = g_model.limitData[channel].name[0] != 0;
@@ -137,9 +140,15 @@ class ChannelValue : public Window
     Window::checkEvents();
   }
 
+  static LAYOUT_VAL_SCALED(ROW_HEIGHT, 16)
+
  protected:
   uint8_t channel;
-  int16_t lastValue = -32768;
+  LcdFlags txtColor;
+  LcdFlags barColor;
+  int16_t lastValue = OUTPUT_INVALID_VALUE;
+  int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
+  std::string lastText;
   bool chanHasName = false;
   lv_style_t style;
   lv_obj_t* valueLabel = nullptr;
@@ -151,9 +160,9 @@ class ChannelValue : public Window
 class OutputsWidget : public Widget
 {
  public:
-  OutputsWidget(const WidgetFactory* factory, Window* parent,
-                const rect_t& rect, Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+  OutputsWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+                int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     padAll(PAD_ZERO);
 
@@ -169,31 +178,43 @@ class OutputsWidget : public Widget
 
   void update() override
   {
+    auto widgetData = getPersistentData();
+
     // get background color from options[2]
-    etx_bg_color_from_flags(lvobj, persistentData->options[2].value.unsignedValue);
+    etx_bg_color_from_flags(lvobj, widgetData->options[2].value.unsignedValue);
 
     // Set background opacity from options[1]
-    if (persistentData->options[1].value.boolValue)
+    if (widgetData->options[1].value.boolValue)
       lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
 
+    if (height() <= SHOW_MIN_H || width() <= SHOW_MIN_W)
+      return;
+
+    bool changed = false;
+
     // Colors
-    txtColor = persistentData->options[3].value.unsignedValue;
-    barColor = persistentData->options[4].value.unsignedValue;
+    LcdFlags f = widgetData->options[3].value.unsignedValue;
+    if (f != txtColor) { txtColor = f; changed = true; }
+    f = widgetData->options[4].value.unsignedValue;
+    if (f != barColor) { barColor = f; changed = true; }
 
     // Setup channels
-    firstChan = persistentData->options[0].value.unsignedValue;
+    uint8_t chan = widgetData->options[0].value.unsignedValue;
+    if (chan != firstChan) { firstChan= chan; changed = true; }
 
-    clear();
+    // Get size
+    if (width() != lastWidth) { lastWidth = width(); changed = true; }
+    if (height() != lastHeight) { lastHeight = height(); changed = true; }
+    uint8_t n = lastHeight / ChannelValue::ROW_HEIGHT;
+    if (n != rows) { rows = n; changed = true; }
+    n = (lastWidth > COLS_MIN_W) ? 2 : 1;
+    if (n != cols) { cols = n; changed = true; }
 
-    cols = 0;
-    rows = 0;
-
-    if (height() > 20 && width() > 100) {
-      rows = height() / ROW_HEIGHT;
-      cols = (width() > 300) ? 2 : 1;
-      coord_t colWidth = width() / cols;
+    if (changed) {
+      clear();
+      coord_t colWidth = lastWidth / cols;
       uint8_t chan = firstChan;
       for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
         for (uint8_t r = 0; r < rows && chan <= MAX_OUTPUT_CHANNELS;
@@ -204,27 +225,30 @@ class OutputsWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
-  // Last time we refreshed the window
-  uint32_t lastRefresh = 0;
-  uint8_t firstChan = 0;
+  coord_t lastWidth = -1;
+  coord_t lastHeight = -1;
+  uint8_t firstChan = 255;
   uint8_t cols = 0;
   uint8_t rows = 0;
   LcdFlags txtColor = 0;
   LcdFlags barColor = 0;
   lv_style_t style;
+
+  static LAYOUT_VAL_SCALED(SHOW_MIN_W, 100)
+  static LAYOUT_VAL_SCALED(SHOW_MIN_H, 20)
+  static LAYOUT_VAL_SCALED(COLS_MIN_W, 300)
 };
 
-const ZoneOption OutputsWidget::options[] = {
-    {STR_FIRST_CHANNEL, ZoneOption::Integer, OPTION_VALUE_UNSIGNED(1),
-     OPTION_VALUE_UNSIGNED(1), OPTION_VALUE_UNSIGNED(32)},
-    {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
-    {STR_TEXT_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption OutputsWidget::options[] = {
+    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {32}},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
+    {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
+    {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<OutputsWidget> outputsWidget("Outputs",
                                                OutputsWidget::options,

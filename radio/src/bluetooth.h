@@ -21,7 +21,9 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "popups.h"
+
 
 enum BluetoothStates {
 #if defined(PCBX9E)

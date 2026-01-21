@@ -27,7 +27,7 @@
 void ExpoData::convert(RadioDataConversionState & cstate)
 {
   cstate.setComponent(tr("INP"), 3);
-  cstate.setSubComp(RawSource(SOURCE_TYPE_VIRTUAL_INPUT, chn).toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType) % tr(" (@%1)").arg(cstate.subCompIdx));
+  cstate.setSubComp(RawSource(SOURCE_TYPE_VIRTUAL_INPUT, chn + 1).toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType) % tr(" (@%1)").arg(cstate.subCompIdx));
   srcRaw.convert(cstate);
   swtch.convert(cstate);
 }
@@ -48,7 +48,7 @@ QString ExpoData::carryTrimToString() const
         return tr("OFF");
   }
   else if (carryTrim < 0 && abs(carryTrim) <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims))
-    return RawSource(SOURCE_TYPE_TRIM, abs(carryTrim) - 1).toString();
+    return RawSource(SOURCE_TYPE_TRIM, abs(carryTrim)).toString();
   else
     return CPN_STR_UNKNOWN_ITEM;
 }

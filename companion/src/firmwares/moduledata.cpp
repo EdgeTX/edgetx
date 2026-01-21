@@ -65,6 +65,14 @@ void ModuleData::convert(RadioDataConversionState & cstate)
   }
 }
 
+void ModuleData::clear()
+{
+  memset(reinterpret_cast<void *>(this), 0, sizeof(ModuleData));
+  protocol = PULSES_OFF;
+  channelsCount = 8;
+  ppm.delay = 300;
+}
+
 //  moved from OpenTxFirmware EdgeTX v2.9
 //  only called by ModuleData::convert
 //  TODO: merge with ModuleData::isProtocolAvailable as share much of the same logic
@@ -85,9 +93,9 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_LR12:
-            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
           case PULSES_PXX_XJT_D8:
-            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+            return !(IS_ACCESS_RADIO(board, id) || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
           case PULSES_ACCESS_ISRM:
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
@@ -98,7 +106,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_FLYSKY_AFHDS2A:
             return IS_FLYSKY_NV14(board);
           case PULSES_FLYSKY_AFHDS3:
-            return IS_FLYSKY_EL18(board);
+            return (IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
           default:
             return false;
         }
@@ -124,7 +132,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_GHOST:
             return true;
           case PULSES_ACCESS_R9M:
-            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+            return IS_ACCESS_RADIO(board, id) || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
           case PULSES_PXX_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE_PRO:
@@ -144,37 +152,6 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
             return false;
         }
 
-      default:
-        return false;
-    }
-  }
-  else if (IS_SKY9X(board)) {
-    switch (port) {
-      case 0:
-        switch (proto) {
-          case PULSES_PPM:
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-            return true;
-          default:
-            return false;
-        }
-        break;
-      case 1:
-        switch (proto) {
-          case PULSES_PPM:
-            return true;
-          default:
-            return false;
-        }
-        break;
       default:
         return false;
     }
@@ -258,7 +235,13 @@ QString ModuleData::subTypeToString(int type) const
 
   static const QString ppmSubTypeStrings[PPM_NUM_SUBTYPES] = {
     tr("No Telemetry"),
-    tr("MLink")
+    tr("MLink"),
+    tr("SPort")
+  };
+
+  static const QString sbusSubTypeStrings[SBUS_NUM_SUBTYPES] = {
+    tr("No Telemetry"),
+    tr("SPort")
   };
 
   if (type < 0)
@@ -269,6 +252,8 @@ QString ModuleData::subTypeToString(int type) const
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
     case PULSES_PPM:
       return CHECK_IN_ARRAY(ppmSubTypeStrings, type);
+    case PULSES_SBUS:
+      return CHECK_IN_ARRAY(sbusSubTypeStrings, type);
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
     default:
@@ -600,6 +585,8 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_CROSSFIRE:
               case MODULE_TYPE_MULTIMODULE:
               case MODULE_TYPE_GHOST:
+              case MODULE_TYPE_PPM:
+              case MODULE_TYPE_SBUS:
                 return true;
               default:
                 return false;
@@ -616,37 +603,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
             return false;
         }
 
-      default:
-        return false;
-    }
-  }
-  else if (IS_SKY9X(board)) {
-    switch (moduleidx) {
-      case 0:
-        switch (protocol) {
-          case PULSES_PPM:
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-            return true;
-          default:
-            return false;
-        }
-        break;
-      case 1:
-        switch (protocol) {
-          case PULSES_PPM:
-            return true;
-          default:
-            return false;
-        }
-        break;
       default:
         return false;
     }
@@ -765,6 +721,38 @@ AbstractStaticItemModel * ModuleData::afhds3EmiItemModel()
 
   for (int i = 0; i < afhds3EmiList.size(); i++) {
     mdl->appendToItemList(afhds3EmiList.at(i), i + 1); // Note: 1 based
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString ModuleData::crsfArmingModeToString() const
+{
+  return crsfArmingModeToString(crsf.crsfArmingMode);
+}
+
+// static
+QString ModuleData::crsfArmingModeToString(int mode)
+{
+  switch (mode) {
+    case CRSF_ARMING_MODE_CH5:
+      return tr("CH5");
+    case CRSF_ARMING_MODE_SWITCH:
+      return tr("Switch");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+// static
+AbstractStaticItemModel * ModuleData::crsfArmingModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODULE_CRSFARMINGMODE);
+
+  for (int i = 0; i < CRSF_ARMING_MODE_COUNT; i++) {
+    mdl->appendToItemList(crsfArmingModeToString(i), i);
   }
 
   mdl->loadItemList();

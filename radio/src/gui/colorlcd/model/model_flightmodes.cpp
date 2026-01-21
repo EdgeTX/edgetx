@@ -21,12 +21,15 @@
 
 #include "model_flightmodes.h"
 
-#include "libopenui.h"
-#include "list_line_button.h"
+#include "button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "numberedit.h"
 #include "page.h"
 #include "switchchoice.h"
-#include "etx_lv_theme.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -49,7 +52,7 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                            LV_GRID_TEMPLATE_LAST};
 #else
@@ -84,7 +87,7 @@ class TrimEdit : public Window
 
     if (tr->mode != TRIM_MODE_NONE) tr_btn->check();
 
-    tr_mode = new Choice(this, rect_t{0, 0, TR_MODE_W, 0}, 0, 2 * MAX_FLIGHT_MODES,
+    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * MAX_FLIGHT_MODES,
                          GET_DEFAULT(tr->mode), [=](int val) {
                            tr->mode = val;
                            showControls();
@@ -100,14 +103,13 @@ class TrimEdit : public Window
     });
 
     tr_value = new NumberEdit(
-        this, rect_t{0, 0, TR_MODE_W, 0}, g_model.extendedTrims ? -512 : -128,
+        this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_model.extendedTrims ? -512 : -128,
         g_model.extendedTrims ? 512 : 128, GET_SET_DEFAULT(tr->value));
 
     showControls();
   }
 
-  static LAYOUT_VAL(TR_BTN_W, 65, 65)
-  static LAYOUT_VAL(TR_MODE_W, 70, 70)
+  static LAYOUT_VAL_SCALED(TR_BTN_W, 65)
 
  protected:
   int trimId;
@@ -194,7 +196,7 @@ class FlightModeEdit : public Page
     }
   }
 
-  static LAYOUT_VAL(TRIMS_PER_LINE, 2, 1)
+  static LAYOUT_SIZE(TRIMS_PER_LINE, 2, 1)
 
  protected:
   uint8_t index;
@@ -206,28 +208,13 @@ class FlightModeBtn : public ListLineButton
   FlightModeBtn(Window* parent, int index) : ListLineButton(parent, index)
   {
     padAll(PAD_ZERO);
-    padColumn(PAD_ZERO);
     setHeight(BTN_H);
 
-    lv_obj_add_event_cb(lvobj, FlightModeBtn::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                        nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (FlightModeBtn*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-      line->refresh();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     lv_obj_enable_style_refresh(false);
 
     check(isActive());
@@ -253,11 +240,13 @@ class FlightModeBtn : public ListLineButton
     fmFadeIn = etx_create(&fm_fade_class, lvobj);
     lv_obj_set_pos(fmFadeIn, FADE_X, FADE_Y);
     fmFadeOut = etx_create(&fm_fade_class, lvobj);
-    lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + 1, FADE_Y);
+    lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + PAD_TINY, FADE_Y);
     lv_obj_update_layout(lvobj);
-  
+
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+
+    refresh();
   }
 
   bool isActive() const override { return (getFlightMode() == index); }
@@ -280,9 +269,9 @@ class FlightModeBtn : public ListLineButton
   void checkEvents() override
   {
     ListLineButton::checkEvents();
-    if (!refreshing && init) {
+    if (!refreshing && loaded) {
       refreshing = true;
-      for (int t = 0; t < keysGetMaxTrims(); t += 1) {
+      for (int t = 0; t < keysGetMaxTrims() && t < MAX_FMTRIMS; t += 1) {
         if (lastTrim[t] != g_model.flightModeData[index].trim[t].value) {
           setTrimValue(t);
         }
@@ -293,7 +282,7 @@ class FlightModeBtn : public ListLineButton
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     const auto& fm = g_model.flightModeData[index];
 
@@ -311,7 +300,7 @@ class FlightModeBtn : public ListLineButton
       lv_label_set_text(fmSwitch, "");
     }
 
-    for (int i = 0; i < keysGetMaxTrims(); i += 1) {
+    for (int i = 0; i < keysGetMaxTrims() && i < MAX_FMTRIMS; i += 1) {
       setTrimValue(i);
       lv_label_set_text(fmTrimMode[i], getFMTrimStr(fm.trim[i].mode, false).c_str());
     }
@@ -324,28 +313,27 @@ class FlightModeBtn : public ListLineButton
         formatNumberAsString(fm.fadeOut, PREC1, 0, nullptr, "s").c_str());
   }
 
-  static LAYOUT_VAL(BTN_H, 36, 56)
-  static LAYOUT_VAL(MAX_FMTRIMS, 6, 4)
+  static LAYOUT_SIZE_SCALED(BTN_H, 36, 56)
+  static LAYOUT_SIZE(MAX_FMTRIMS, 6, 4)
   static constexpr coord_t FMID_X = PAD_TINY;
-  static LAYOUT_VAL(FMID_Y, 6, 16)
-  static LAYOUT_VAL(FMID_W, 36, 46)
+  static LAYOUT_SIZE_SCALED(FMID_Y, 6, 16)
+  static LAYOUT_SIZE_SCALED(FMID_W, 36, 46)
   static constexpr coord_t NAME_X = FMID_X + FMID_W + PAD_TINY;
-  static LAYOUT_VAL(NAME_Y, 8, 0)
-  static LAYOUT_VAL(NAME_W, 95, 160)
+  static LAYOUT_SIZE_SCALED(NAME_Y, 6, 0)
+  static LAYOUT_SIZE_SCALED(NAME_W, 95, 160)
   static constexpr coord_t SWTCH_X = NAME_X + NAME_W + PAD_TINY;
-  static LAYOUT_VAL(SWTCH_Y, 6, 0)
-  static LAYOUT_VAL(SWTCH_W, 50, 50)
-  static LAYOUT_VAL(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
-  static LAYOUT_VAL(TRIM_Y, 0, 20)
-  static LAYOUT_VAL(TRIM_W, 30, 40)
-  static LAYOUT_VAL(TRIM_H, 16, 16)
+  static LAYOUT_SIZE_SCALED(SWTCH_Y, 6, 0)
+  static LAYOUT_VAL_SCALED(SWTCH_W, 50)
+  static LAYOUT_SIZE(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
+  static LAYOUT_SIZE_SCALED(TRIM_Y, 0, 20)
+  static LAYOUT_SIZE_SCALED(TRIM_W, 30, 40)
+  static LAYOUT_VAL_SCALED(TRIM_H, 16)
   static constexpr coord_t TRIMC_W = MAX_FMTRIMS * TRIM_W;
-  static constexpr coord_t FADE_X = TRIM_X + TRIMC_W + PAD_TINY;
-  static LAYOUT_VAL(FADE_Y, 6, 24)
-  static LAYOUT_VAL(FADE_W, 45, 45)
+  static LAYOUT_VAL_SCALED(FADE_W, 45)
+  static LAYOUT_SIZE_SCALED(FADE_Y, 6, 24)
+  static constexpr coord_t FADE_X = ListLineButton::GRP_W - PAD_BORDER * 2 - FADE_W * 2 - PAD_TINY * 2;
 
  protected:
-  bool init = false;
   bool refreshing = false;
 
   lv_obj_t* fmID = nullptr;
@@ -377,7 +365,7 @@ const lv_obj_class_t FlightModeBtn::fm_id_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::FMID_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -396,7 +384,7 @@ const lv_obj_class_t FlightModeBtn::fm_name_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::NAME_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -414,7 +402,7 @@ const lv_obj_class_t FlightModeBtn::fm_switch_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::SWTCH_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -432,7 +420,7 @@ const lv_obj_class_t FlightModeBtn::fm_fade_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::FADE_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -477,8 +465,8 @@ const lv_obj_class_t FlightModeBtn::fm_trim_value_class = {
     .instance_size = sizeof(lv_label_t),
 };
 
-ModelFlightModesPage::ModelFlightModesPage() :
-    PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES)
+ModelFlightModesPage::ModelFlightModesPage(const PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -494,17 +482,17 @@ void ModelFlightModesPage::build(Window* form)
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     auto btn = new FlightModeBtn(form, i);
-    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + 3) + 4);
+    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_SMALL);
     btn->setWidth(ListLineButton::GRP_W);
 
     btn->setPressHandler([=]() {
-      new FlightModeEdit(i);
+      (new FlightModeEdit(i))->setCloseHandler([=]() { btn->refresh(); });
       return 0;
     });
   }
 
   trimCheck = new TextButton(
-      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + 3) + PAD_LARGE, ListLineButton::GRP_W, TRIM_CHK_H}, STR_CHECKTRIMS, [&]() -> uint8_t {
+      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_CHECKTRIMS, [&]() -> uint8_t {
         if (trimsCheckTimer)
           trimsCheckTimer = 0;
         else

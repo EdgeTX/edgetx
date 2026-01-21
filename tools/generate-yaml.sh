@@ -4,14 +4,14 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/build-common.sh" 
+. "$SCRIPT_DIR/build-common.sh"
 
 # Add GCC_ARM to PATH
 if [[ -n ${GCC_ARM} ]] ; then
   export PATH=${GCC_ARM}:$PATH
 fi
 
-: ${FLAVOR:="t15;tx16s;nv14;pl18;x9d;x9dp2019;x9e;xlite;xlites;x7;tpro;t20;f16"}
+: ${FLAVOR:="t15;tx16s;pl18;nv14;pl18u;nb4p;x9d;x9dp2019;x9e;xlite;xlites;x7;tpro;t20;f16;gx12;st16;pa01;tx15;t15pro"}
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DDISABLE_COMPANION=YES -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}

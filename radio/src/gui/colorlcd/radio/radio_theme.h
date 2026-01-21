@@ -21,35 +21,29 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ListBox;
-class TabsGroup;
-class ThemeColorPreview;
-class ThemePersistance;
-class ThemeFile;
 class FileCarosell;
+class ListBox;
+class PageGroup;
+class StaticText;
+class ThemeColorPreview;
+class ThemeFile;
+class ThemePersistance;
 
-class ThemeSetupPage : public PageTab
+class ThemeSetupPage : public PageGroupItem
 {
  public:
-  ThemeSetupPage(TabsGroup *tabsGroup);
+  ThemeSetupPage(const PageDef& pageDef);
 
   void build(Window *window) override;
   void checkEvents() override;
 
-  bool isVisible() const override { return radioThemesEnabled(); }
-
-  static LAYOUT_VAL(COLOR_PREVIEW_SIZE, 18, 18)
-#if PORTRAIT_LCD
-  static constexpr int LIST_HEIGHT = (LCD_H / 2 - 38);
-#else
-  static constexpr int LIST_WIDTH = ((LCD_W - PAD_MEDIUM * 2) / 2 - COLOR_PREVIEW_SIZE);
-#endif
+  static LAYOUT_VAL_SCALED(COLOR_PREVIEW_SIZE, 18)
+  static LAYOUT_ORIENTATION(LIST_SIZE, (LCD_W - PAD_MEDIUM * 2) / 2 - COLOR_PREVIEW_SIZE, LCD_H / 2 - LAYOUT_SCALE(38));
 
  protected:
-  TabsGroup *tabsGroup = nullptr;
   Window *pageWindow = nullptr;
   Window *previewWindow = nullptr;
   FileCarosell *fileCarosell = nullptr;

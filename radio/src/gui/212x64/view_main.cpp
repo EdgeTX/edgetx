@@ -40,7 +40,6 @@
 #define BITMAP_Y      (LCD_H/2)
 #define PHASE_X       BITMAP_X
 #define PHASE_Y       (3*FH)
-#define PHASE_FLAGS   (0)
 #define TIMERS_X      145
 #define TIMERS_Y      20
 #define TIMERS_H      25
@@ -54,7 +53,6 @@
 #define TRIM_RH_X     (LCD_W-32-9)
 
 #define TRIM_LEN 27
-#define MARKER_WIDTH  5
 
 const unsigned char logo_taranis[]  = {
 #include "logo.lbm"
@@ -358,7 +356,7 @@ void displayTimers()
       TimerData & timerData = g_model.timers[i];
       uint8_t y = TIMERS_Y + i*TIMERS_H;
       if (ZLEN(timerData.name) > 0) {
-        lcdDrawSizedText(TIMERS_X, y-7, timerData.name, LEN_TIMER_NAME, ZCHAR|SMLSIZE);
+        lcdDrawSizedText(TIMERS_X, y-7, timerData.name, LEN_TIMER_NAME, SMLSIZE);
       }
       else {
         lcdDrawTextAtIndex(TIMERS_X, y-7, STR_VTMRMODES, timerData.mode, SMLSIZE);
@@ -471,22 +469,22 @@ void menuMainView(event_t event)
       LOAD_MODEL_BITMAP();
       break;
 
-    case EVT_KEY_LONG(KEY_ENTER):
+    case EVT_KEY_CONTEXT_MENU:
       if (modelHasNotes()) {
         POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
       }
       POPUP_MENU_START(onMainViewMenu, 3, STR_RESET_SUBMENU, STR_STATISTICS, STR_ABOUT_US);
       break;
 
-    case EVT_KEY_BREAK(KEY_MENU):
+    case EVT_KEY_MODEL_MENU:
       pushMenu(menuModelSelect);
       break;
 
-    case EVT_KEY_LONG(KEY_MENU):
+    case EVT_KEY_GENERAL_MENU:
       pushMenu(menuTabGeneral[0].menuFunc);
       break;
 
-    case EVT_KEY_BREAK(KEY_PAGEDN):
+    case EVT_KEY_NEXT_VIEW:
       storageDirty(EE_MODEL);
       g_model.view += 1;
       if (g_model.view >= VIEW_COUNT) {
@@ -495,7 +493,7 @@ void menuMainView(event_t event)
       }
       break;
 
-    case EVT_KEY_BREAK(KEY_PAGEUP):
+    case EVT_KEY_TELEMETRY:
       chainMenu(menuViewTelemetry);
       break;
 
@@ -519,7 +517,7 @@ void menuMainView(event_t event)
 
   // Flight Mode Name
   int mode = mixerCurrentFlightMode;
-  lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name), ZCHAR|PHASE_FLAGS);
+  lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
 
   // Model Name
   drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -621,7 +619,7 @@ void menuMainView(event_t event)
     lcdDrawFilledRect(BITMAP_X, BITMAP_Y, 64, 32, SOLID, ERASE);
     lcdDrawRect(BITMAP_X, BITMAP_Y, 64, 32);
     drawStringWithIndex(BITMAP_X+FW, BITMAP_Y+FH-1, STR_GV, gvarLastChanged+1);
-    lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME, ZCHAR);
+    lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
     lcdDrawText(BITMAP_X+FW, BITMAP_Y+2*FH+3, "[", BOLD);
     drawGVarValue(BITMAP_X+2*FW, BITMAP_Y+2*FH+3, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)), LEFT|BOLD);
     lcdDrawText(lcdLastRightPos, BITMAP_Y+2*FH+3, "]", BOLD);

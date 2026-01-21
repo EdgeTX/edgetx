@@ -32,28 +32,11 @@ enum NavigationDirection {
 #define decrTelemetryScreen() direction = NAVIGATION_DIRECTION_UP
 #define incrTelemetryScreen() direction = NAVIGATION_DIRECTION_DOWN
 
-#if defined(NAVIGATION_XLITE)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
-#elif defined(KEYS_GPIO_REG_PAGEDN)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_FIRST(KEY_PAGEUP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_FIRST(KEY_PAGEDN))
-#elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_BREAK(KEY_PAGEUP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_BREAK(KEY_PAGEDN))
-#elif defined(NAVIGATION_9X)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_UP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_DOWN))
-#else
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_FIRST(KEY_UP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_FIRST(KEY_DOWN))
-#endif
-
 void menuViewTelemetry(event_t event)
 {
   enum NavigationDirection direction = NAVIGATION_DIRECTION_NONE;
 
-  if (event == EVT_KEY_BREAK(KEY_EXIT) && TELEMETRY_SCREEN_TYPE(s_frsky_view) != TELEMETRY_SCREEN_TYPE_SCRIPT) {
+  if (event == EVT_KEY_BREAK(KEY_EXIT) && TELEMETRY_SCREEN_TYPE(selectedTelemView) != TELEMETRY_SCREEN_TYPE_SCRIPT) {
     chainMenu(menuMainView);
   }
 #if defined(LUA)
@@ -61,12 +44,10 @@ void menuViewTelemetry(event_t event)
     chainMenu(menuMainView);
   }
 #endif
-  else if (EVT_KEY_PREVIOUS_VIEW(event)) {
-    killEvents(event);
+  else if (EVT_KEY_PREVIOUS_TELEM_VIEW(event)) {
     decrTelemetryScreen();
   }
-  else if (EVT_KEY_NEXT_VIEW(event)) {
-    killEvents(event);
+  else if (EVT_KEY_NEXT_TELEM_VIEW(event)) {
     incrTelemetryScreen();
   }
   else if (event == EVT_KEY_LONG(KEY_ENTER)) {
@@ -75,12 +56,12 @@ void menuViewTelemetry(event_t event)
 
   for (int i=0; i<=TELEMETRY_SCREEN_TYPE_MAX; i++) {
     if (direction == NAVIGATION_DIRECTION_UP) {
-      if (s_frsky_view-- == 0)
-        s_frsky_view = TELEMETRY_VIEW_MAX;
+      if (selectedTelemView-- == 0)
+        selectedTelemView = TELEMETRY_VIEW_MAX;
     }
     else if (direction == NAVIGATION_DIRECTION_DOWN) {
-      if (s_frsky_view++ == TELEMETRY_VIEW_MAX)
-        s_frsky_view = 0;
+      if (selectedTelemView++ == TELEMETRY_VIEW_MAX)
+        selectedTelemView = 0;
     }
     else {
       direction = NAVIGATION_DIRECTION_DOWN;
@@ -95,5 +76,17 @@ void menuViewTelemetry(event_t event)
   displayRssiLine();
 }
 
-#undef EVT_KEY_PREVIOUS_VIEW
-#undef EVT_KEY_NEXT_VIEW
+void showTelemScreen(uint8_t index)
+{
+  if (menuHandlers[menuLevel] == menuViewTelemetry || menuHandlers[menuLevel] == menuMainView) {
+    if (index == 0) {
+      chainMenu(menuMainView);
+    } else {
+      index -= 1;
+      if ((index <= TELEMETRY_SCREEN_TYPE_MAX) && (TELEMETRY_SCREEN_TYPE(index) != TELEMETRY_SCREEN_TYPE_NONE)) {
+        selectedTelemView = index;
+        chainMenu(menuViewTelemetry);
+      }
+    }
+  }
+}

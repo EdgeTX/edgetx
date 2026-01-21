@@ -21,11 +21,99 @@
 
 #include "edgetx.h"
 
-constexpr uint16_t BMP_HEADERSIZE = 0x76;
+#if defined(COLORLCD)
+// Scaling for RBG565 to RGB888
+uint8_t rbScale[32] = {
+  0,8,16,24,32,41,49,57,65,74,82,90,98,106,115,123,131,139,148,156,164,172,180,189,197,205,213,222,230,238,246,255
+};
+uint8_t gScale[64] = {
+  0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,85,89,93,97,101,105,109,113,117,121,125,
+  129,133,137,141,145,149,153,157,161,165,170,174,178,182,186,190,194,198,202,206,210,214,218,222,226,230,234,238,242,246,250,255
+};
+#endif
+
+#if defined(COLORLCD) && (defined(STM32H7) || defined(STM32H7RS))
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
+
+static void convert_RGB565_to_RGB888(uint8_t* dst, lv_img_dsc_t* src, coord_t w, coord_t h)
+{
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      lv_color_t pixel = lv_img_buf_get_px_color(src, x, y, {});
+      *(dst++) = rbScale[pixel.ch.red];
+      *(dst++) = gScale[pixel.ch.green];
+      *(dst++) = rbScale[pixel.ch.blue];
+    }
+  }
+}
+
+static const char* writeResult = nullptr;
+
+static void writeScreenToFile(void* context, void* data, int size)
+{
+  const char* file = (const char*)context;
+  FIL fp;
+  UINT written = 0;
+
+  FRESULT result = f_open(&fp, file, FA_CREATE_ALWAYS | FA_WRITE);
+  if (result == FR_OK) {
+    result = f_write(&fp, data, size, &written);
+  }
+  f_close(&fp);
+
+  if (result != FR_OK || (int)written != size) {
+    writeResult = SDCARD_ERROR(result);
+  }
+}
+
+static const char* _writeScreenshot()
+{
+  char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
+
+  if (sdIsFull()) {
+    return STR_SDCARD_FULL_EXT;
+  }
+
+  // check and create folder here
+  char* s = strAppend(filename, SCREENSHOTS_PATH);
+  const char * error = sdCheckAndCreateDirectory(filename);
+  if (error) {
+    return error;
+  }
+
+  lv_img_dsc_t* snapshot = lv_snapshot_take(lv_scr_act(), LV_IMG_CF_TRUE_COLOR);
+  if (!snapshot) {
+    return "LVGL error creating snapshot";
+  }
+
+  s = strAppend(s, "/screen");
+  s = strAppendDate(s, true);
+  strAppend(s, ".png");
+
+  writeResult = nullptr;
+
+  // allocate enough for 3 channels
+  auto pixels = LCD_W * LCD_H;
+  auto stride = LCD_W * 3;
+  uint8_t* img = (uint8_t*)malloc(pixels * 3);
+  convert_RGB565_to_RGB888(img, snapshot, LCD_W, LCD_H);
+  stbi_write_png_to_func(writeScreenToFile, filename, LCD_W, LCD_H, 3, img, stride);
+  free(img);
+
+  lv_snapshot_free(snapshot);
+
+  return writeResult;
+}
+
+#else
 
 #if defined(COLORLCD)
+constexpr uint16_t BMP_HEADERSIZE = 0x36;
 constexpr uint8_t BMP_BITS_PER_PIXEL = 32;
 #else
+constexpr uint16_t BMP_HEADERSIZE = 0x76;
 constexpr uint8_t BMP_BITS_PER_PIXEL = 4;
 #endif
 
@@ -41,23 +129,35 @@ const uint8_t BMP_HEADER[] = {
   /* height */ LCD_H & 0xFF, LCD_H >> 8, 0x00, 0x00,
   /* planes */ 0x01, 0x00,
   /* depth */ BMP_BITS_PER_PIXEL, 0x00,
-  0x00, 0x00,
-  0x00, 0x00, 0x02, 0x04, 0x00, 0x00, 0xbc, 0x38, 0x00, 0x00, 0xbc, 0x38, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0xee, 0xee, 0xee, 0x00, 0xdd, 0xdd,
-  0xdd, 0x00, 0xcc, 0xcc, 0xcc, 0x00, 0xbb, 0xbb, 0xbb, 0x00, 0xaa, 0xaa, 0xaa, 0x00, 0x99, 0x99,
-  0x99, 0x00, 0x88, 0x88, 0x88, 0x00, 0x77, 0x77, 0x77, 0x00, 0x66, 0x66, 0x66, 0x00, 0x55, 0x55,
-  0x55, 0x00, 0x44, 0x44, 0x44, 0x00, 0x33, 0x33, 0x33, 0x00, 0x22, 0x22, 0x22, 0x00, 0x11, 0x11,
-  0x11, 0x00, 0x00, 0x00, 0x00, 0x00
+  /* compression */ 0x00, 0x00, 0x00, 0x00,
+  /* image size */ 0x00, 0x00, 0x00, 0x00,
+  /* hor res 72dpi */ 0x13, 0x0B, 0x00, 0x00,
+  /* ver res 72 dpi */ 0x13, 0x0B, 0x00, 0x00,
+  /* num colors */ 0x00, 0x00, 0x00, 0x00,
+  /* important colors */ 0x00, 0x00, 0x00, 0x00,
+#if !defined(COLORLCD)
+  /* grayscale palette */
+#if defined(OLED_SCREEN)
+  0x00, 0x00, 0x00, 0x00, 0x11, 0x11, 0x11, 0x00, 0x22, 0x22, 0x22, 0x00, 0x33, 0x33, 0x33, 0x00,
+  0x44, 0x44, 0x44, 0x00, 0x55, 0x55, 0x55, 0x00, 0x66, 0x66, 0x66, 0x00, 0x77, 0x77, 0x77, 0x00,
+  0x88, 0x88, 0x88, 0x00, 0x99, 0x99, 0x99, 0x00, 0xaa, 0xaa, 0xaa, 0x00, 0xbb, 0xbb, 0xbb, 0x00,
+  0xcc, 0xcc, 0xcc, 0x00, 0xdd, 0xdd, 0xdd, 0x00, 0xee, 0xee, 0xee, 0x00, 0xff, 0xff, 0xff, 0x00,
+#else
+  0xff, 0xff, 0xff, 0x00, 0xee, 0xee, 0xee, 0x00, 0xdd, 0xdd, 0xdd, 0x00, 0xcc, 0xcc, 0xcc, 0x00,
+  0xbb, 0xbb, 0xbb, 0x00, 0xaa, 0xaa, 0xaa, 0x00, 0x99, 0x99, 0x99, 0x00, 0x88, 0x88, 0x88, 0x00,
+  0x77, 0x77, 0x77, 0x00, 0x66, 0x66, 0x66, 0x00, 0x55, 0x55, 0x55, 0x00, 0x44, 0x44, 0x44, 0x00,
+  0x33, 0x33, 0x33, 0x00, 0x22, 0x22, 0x22, 0x00, 0x11, 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00,
+#endif
+#endif
 };
 
-const char * writeScreenshot()
+static const char* _writeScreenshot()
 {
   FIL bmpFile;
   UINT written;
   char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
 
   if (sdIsFull()) {
-    POPUP_WARNING(STR_SDCARD_FULL_EXT);
     return STR_SDCARD_FULL_EXT;
   }
 
@@ -87,7 +187,10 @@ const char * writeScreenshot()
 
 #if defined(COLORLCD)
   lv_img_dsc_t* snapshot = lv_snapshot_take(lv_scr_act(), LV_IMG_CF_TRUE_COLOR);
-  if (!snapshot) { f_close(&bmpFile); return nullptr; }
+  if (!snapshot) {
+    f_close(&bmpFile);
+    return "LVGL error creating snapshot";
+  }
 
   auto w = snapshot->header.w;
   auto h = snapshot->header.h;
@@ -98,11 +201,12 @@ const char * writeScreenshot()
       lv_color_t pixel = lv_img_buf_get_px_color(snapshot, x, y, {});
 
       uint32_t dst = (0xFF << 24)
-          | (pixel.ch.red << 19)
-          | (pixel.ch.green << 10)
-          | (pixel.ch.blue << 3);
+          | (rbScale[pixel.ch.red] << 16)
+          | (gScale[pixel.ch.green] << 8)
+          | rbScale[pixel.ch.blue];
 
-      if (f_write(&bmpFile, &dst, sizeof(dst), &written) != FR_OK || written != sizeof(dst)) {
+      result = f_write(&bmpFile, &dst, sizeof(dst), &written);
+      if (result != FR_OK || written != sizeof(dst)) {
         lv_snapshot_free(snapshot);
         f_close(&bmpFile);
         return SDCARD_ERROR(result);
@@ -114,13 +218,19 @@ const char * writeScreenshot()
 
 #else // stdlcd
 
+#if LCD_W == 128
+  pixel_t inv = g_eeGeneral.invertLCD ? 0xFF : 0;
+#endif
+
   for (int y=LCD_H-1; y>=0; y-=1) {
     for (int x=0; x<8*((LCD_W+7)/8); x+=2) {
-      pixel_t byte = getPixel(x+1, y) + (getPixel(x, y) << 4);
-#if defined(OLED_SCREEN)
-      byte ^= 0xFF;
+#if LCD_W == 128
+      pixel_t byte = (getPixel(x+1, y) | (getPixel(x, y) << 4)) ^ inv;
+#else
+      pixel_t byte = getPixel(x+1, y) | (getPixel(x, y) << 4);
 #endif
-      if (f_write(&bmpFile, &byte, 1, &written) != FR_OK || written != 1) {
+      result = f_write(&bmpFile, &byte, 1, &written);
+      if (result != FR_OK || written != 1) {
         f_close(&bmpFile);
         return SDCARD_ERROR(result);
       }
@@ -131,4 +241,13 @@ const char * writeScreenshot()
   f_close(&bmpFile);
 
   return nullptr;
+}
+
+#endif
+
+void writeScreenshot()
+{
+  const char* res = _writeScreenshot();
+  if (res)
+    POPUP_WARNING(res);
 }

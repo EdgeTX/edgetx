@@ -25,7 +25,7 @@
 
 #include "board.h"
 #include "storage/yaml/yaml_defs.h"
-
+#include "gvars.h"
 
 #if defined(EXPORT)
   #define LUA_EXPORT(...)              LEXP(__VA_ARGS__)
@@ -40,7 +40,7 @@
 #define LABELS_LENGTH 100 // Maximum length of the label string
 #define LABEL_LENGTH 16
 
-#if defined(COLORLCD) || defined(STM32H747xx)
+#if defined(COLORLCD)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_FLIGHT_MODES             9
@@ -53,7 +53,11 @@
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
+#if defined(STM32H7)
+  #define MAX_TELEMETRY_SENSORS        99
+#else
   #define MAX_TELEMETRY_SENSORS        60
+#endif
   #define MAX_CUSTOM_SCREENS           10
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
@@ -96,7 +100,7 @@ enum CurveType {
   CURVE_TYPE_LAST = CURVE_TYPE_CUSTOM
 };
 
-#define MIN_POINTS_PER_CURVE           3
+#define MIN_POINTS_PER_CURVE           2
 #define MAX_POINTS_PER_CURVE           17
 
 #if defined(COLORLCD)
@@ -189,6 +193,13 @@ enum ModuleIndex {
   SPORT_MODULE = MAX_MODULES
 };
 
+enum ArmingMode {
+  ARMING_MODE_FIRST = 0,
+  ARMING_MODE_CH5 = ARMING_MODE_FIRST,
+  ARMING_MODE_SWITCH = 1,
+  ARMING_MODE_LAST = ARMING_MODE_SWITCH,
+};
+
 enum TrainerMode {
   TRAINER_MODE_OFF,
   TRAINER_MODE_MASTER_TRAINER_JACK,
@@ -199,10 +210,11 @@ enum TrainerMode {
   TRAINER_MODE_MASTER_BLUETOOTH,
   TRAINER_MODE_SLAVE_BLUETOOTH,
   TRAINER_MODE_MULTI,
+  TRAINER_MODE_CRSF,
 };
 
 #define TRAINER_MODE_MIN() TRAINER_MODE_OFF
-#define TRAINER_MODE_MAX() TRAINER_MODE_MULTI
+#define TRAINER_MODE_MAX() TRAINER_MODE_CRSF
 
 enum SerialPort {
     SP_AUX1=0,
@@ -380,15 +392,6 @@ enum PotsWarnMode {
   POTS_WARN_AUTO
 };
 
-#define LEN_GVAR_NAME                3
-#define GVAR_MAX                     1024
-#define GVAR_MIN                     -GVAR_MAX
-
-// we reserve the space inside the range of values, like offset, weight, etc.
-#define RESERVE_RANGE_FOR_GVARS      10
-
-#define MAX_GVARS                    9
-
 // Maximum number analog inputs by type
 #define MAX_STICKS        4
 
@@ -466,6 +469,16 @@ enum SwitchSources {
   SWSRC_FIRST_IN_MIXES SKIP = -SWSRC_LAST_IN_MIXES,
 
   SWSRC_INVERT SKIP = SWSRC_COUNT+1,
+};
+
+enum SwitchTypes {
+  SW_SWITCH = 1 << 0,
+  SW_TRIM = 1 << 1,
+  SW_LOGICAL_SWITCH = 1 << 2,
+  SW_FLIGHT_MODE = 1 << 3,
+  SW_TELEM = 1 << 4,
+  SW_OTHER = 1 << 5,
+  SW_NONE = 1 << 20,
 };
 
 enum MixSources {
@@ -551,9 +564,33 @@ enum MixSources {
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
 
 #if defined(FUNCTION_SWITCHES)
-#define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxSwitches() - 1)
+#define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1)
 #define MIXSRC_FIRST_FS_SWITCH      (MIXSRC_LAST_REGULAR_SWITCH + 1)
 #endif
+
+enum SrcTypes {
+  SRC_INPUT = 1 << 0,
+  SRC_LUA = 1 << 1,
+  SRC_STICK = 1 << 2,
+  SRC_POT = 1 << 3,
+  SRC_TILT = 1 << 4,
+  SRC_SPACEMOUSE = 1 << 5,
+  SRC_MINMAX = 1 << 6,
+  SRC_HELI = 1 << 7,
+  SRC_TRIM = 1 << 8,
+  SRC_SWITCH = 1 << 9,
+  SRC_FUNC_SWITCH = 1 << 10,
+  SRC_LOGICAL_SWITCH = 1 << 11,
+  SRC_TRAINER = 1 << 12,
+  SRC_CHANNEL = 1 << 13,
+  SRC_CHANNEL_ALL = 1 << 14,
+  SRC_GVAR = 1 << 15,
+  SRC_TX = 1 << 16,
+  SRC_TIMER = 1 << 17,
+  SRC_TELEM = 1 << 18,
+  SRC_NONE = 1 << 19,
+  SRC_INVERT = 1 << 20,
+};
 
 enum BacklightMode {
   e_backlight_mode_off  = 0,
@@ -626,12 +663,14 @@ enum HatsMode {
   HATSMODE_GLOBAL
 };
 
+#if defined(STM32F2) || defined(STM32F4)
 enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,
 
   UART_SAMPLE_MODE_MAX SKIP = UART_SAMPLE_MODE_ONEBIT
 };
+#endif
 
 // PXX2 constants
 #define PXX2_LEN_REGISTRATION_ID            8
@@ -681,8 +720,8 @@ enum Functions {
   FUNC_RACING_MODE,
 #if defined(COLORLCD) || defined(CFN_ONLY)
   FUNC_DISABLE_TOUCH,
-  FUNC_SET_SCREEN,
 #endif
+  FUNC_SET_SCREEN,
   FUNC_DISABLE_AUDIO_AMP,
   FUNC_RGB_LED,
 #if defined(VIDEO_SWITCH) || defined(CFN_ONLY)

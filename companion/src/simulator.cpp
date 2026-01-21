@@ -25,7 +25,9 @@
 #include <QMessageBox>
 #include <QString>
 #include <QTextStream>
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+#include <QRegularExpression>
+
+#if defined(USE_SDL)
   #include <SDL.h>
   #undef main
 #endif
@@ -129,6 +131,10 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
                                     QApplication::translate("SimulatorMain", "Data source type to use. One of:") + " (file|folder|sd)",
                                     QApplication::translate("SimulatorMain", "type"));
 
+  const QCommandLineOption optFlags(QStringList() << "flags" << "f",
+                                    QApplication::translate("SimulatorMain", "Flags passed from Companion"),
+                                    QApplication::translate("SimulatorMain", "flags"));
+
   cliOptions.addPositionalArgument(QApplication::translate("SimulatorMain", "data-source"),
                                    QApplication::translate("SimulatorMain", "Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).\n"
                                          "NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!"),
@@ -138,13 +144,14 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
   cliOptions.addOption(optRadio);
   cliOptions.addOption(optSdDir);
   cliOptions.addOption(optStart);
+  cliOptions.addOption(optFlags);
 
   QStringList args = QCoreApplication::arguments();
 #ifdef Q_OS_WIN
   // For backwards compat. with QxtCommandOptions, convert Windows-style CLI switches (/opt) since QCommandLineParser doesn't support them
   for (int i=0; i < args.size(); ++i) {
-    args[i].replace(QRegExp("^/([^\\s]{2,10})$"), "--\\1");  // long opts
-    args[i].replace(QRegExp("^/([^\\s]){1}$"), "-\\1");      // short opts
+    args[i].replace(QRegularExpression("^/([^\\s]{2,10})$"), "--\\1");  // long opts
+    args[i].replace(QRegularExpression("^/([^\\s]){1}$"), "-\\1");      // short opts
   }
 #endif
 
@@ -175,6 +182,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     }
 
     *simOptions = g.profile[pId].simulatorOptions();
+    // refresh just in case the path has been changed. Note: can be overridden via CLI or startup ui
+    simOptions->sdPath = g.profile[pId].sdPath();
     cliOptsFound = true;
   }
 
@@ -195,7 +204,7 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
   if (cliOptions.positionalArguments().size()) {
     QString datasrc = cliOptions.positionalArguments().at(0);
-    if (datasrc.contains(QRegExp(".*\\.[\\w]{2,6}$"))) {
+    if (datasrc.contains(QRegularExpression(".*\\.[\\w]{2,6}$"))) {
       simOptions->dataFile = datasrc;
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
@@ -211,10 +220,10 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     if (stTyp == "file") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
-    else  if (stTyp == "folder") {
+    else if (stTyp == "folder") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FOLDER;
     }
-    else  if (stTyp == "sd") {
+    else if (stTyp == "sd") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_SDPATH;
     }
     else {
@@ -225,6 +234,17 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     cliOptsFound = true;
   }
 
+  int flags = 0;
+
+  if (cliOptions.isSet(optFlags)) {
+    bool chk;
+    flags = cliOptions.value(optFlags).toInt(&chk);
+    if (!chk)
+      flags = 0;
+  }
+
+  simOptions->flags = flags;
+
   *profileId = pId;
   if (cliOptsFound)
     return CommandLineFound;
@@ -234,9 +254,6 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
 int main(int argc, char *argv[])
 {
-  /* From doc: This attribute must be set before Q(Gui)Application is constructed. */
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
   QApplication app(argc, argv);
   app.setApplicationName(APP_SIMULATOR);
   app.setApplicationVersion(VERSION);
@@ -262,18 +279,11 @@ int main(int argc, char *argv[])
 
   Translations::installTranslators();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
-  uint32_t sdlFlags = 0;
-  #ifdef JOYSTICKS
-    sdlFlags |= SDL_INIT_JOYSTICK;
-  #endif
-  #ifdef SIMU_AUDIO
-    sdlFlags |= SDL_INIT_AUDIO;
-  #endif
+#if defined(USE_SDL)
   #if defined(_WIN32) || defined(_WIN64)
   putenv("SDL_AUDIODRIVER=directsound");
   #endif
-  if (SDL_Init(sdlFlags) < 0) {
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0) {
     showMessage(QApplication::translate("SimulatorMain", "WARNING: couldn't initialize SDL:\n%1").arg(SDL_GetError()), QMessageBox::Warning);
   }
 #endif
@@ -292,19 +302,6 @@ int main(int argc, char *argv[])
   int profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
   SimulatorOptions simOptions = g.profile[profileId].simulatorOptions();
 
-  // TODO : defaults should be set in Profile::init()
-  if (simOptions.firmwareId.isEmpty()) {
-    simOptions.firmwareId = g.profile[profileId].fwType();
-  }
-
-  // DO NOT use saved simulatorId as could be changed in later releases
-  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
-
-  if (simOptions.dataFolder.isEmpty())
-    simOptions.dataFolder = g.eepromDir();
-  if (simOptions.sdPath.isEmpty())
-    simOptions.sdPath = g.profile[profileId].sdPath();
-
   // Handle startup options
 
   // check for command-line options
@@ -315,7 +312,21 @@ int main(int argc, char *argv[])
   if (cliResult == CommandLineExitErr)
     return finish(1);
 
-  // Present GUI startup options dialog if necessary
+  // TODO : defaults should be set in Profile::init()
+  if (simOptions.firmwareId.isEmpty()) {
+    simOptions.firmwareId = g.profile[profileId].fwType();
+  }
+
+  if (simOptions.dataFolder.isEmpty())
+    simOptions.dataFolder = g.eepromDir();
+  if (simOptions.sdPath.isEmpty())
+    simOptions.sdPath = g.profile[profileId].sdPath();
+
+  // DO NOT use saved simulatorId as could be changed in later releases
+  // must be set after cli parse as --profile will load old data or blank
+  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
+
+    // Present GUI startup options dialog if necessary
   if (cliResult == CommandLineNone || profileId == -1 || simOptions.simulatorId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
     SimulatorStartupDialog * dlg = new SimulatorStartupDialog(&simOptions, &profileId);
     int ret = dlg->exec();
@@ -357,7 +368,7 @@ int main(int argc, char *argv[])
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 
   int result = 0;
-  SimulatorMainWindow * mainWindow = new SimulatorMainWindow(NULL, simOptions.simulatorId, SIMULATOR_FLAGS_STANDALONE);
+  SimulatorMainWindow * mainWindow = new SimulatorMainWindow(nullptr, simOptions.simulatorId, (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
   if ((result = mainWindow->getExitStatus(&resultMsg))) {
     if (resultMsg.isEmpty())
       resultMsg = QApplication::translate("SimulatorMain", "Unknown error during Simulator startup.");
@@ -386,7 +397,7 @@ int finish(int exitCode)
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+#if defined(USE_SDL)
   SDL_Quit();
 #endif
 

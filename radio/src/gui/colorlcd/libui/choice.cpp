@@ -66,17 +66,23 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
   lv_obj_set_pos(img, 0, PAD_TINY);
 
   // Add label
-  label = lv_label_create(lvobj);
+  label = etx_label_create(lvobj);
   lv_obj_set_pos(label, type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W, PAD_TINY);
   etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
+}
+
+void ChoiceBase::checkEvents()
+{
+  update();
+  Window::checkEvents();
 }
 
 std::string Choice::getLabelText()
 {
   std::string text;
 
-  if (_getValue) {
-    int val = _getValue();
+  if (currentValue != INT_MAX) {
+    int val = currentValue;
     if (textHandler) {
       text = textHandler(val);
     } else {
@@ -94,15 +100,20 @@ std::string Choice::getLabelText()
 
 void ChoiceBase::update()
 {
-  if (!deleted()) {
-    if (width() > 0) {
-      int w = width() - (type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W) - PAD_TINY * 3;
-      if (getTextWidth(getLabelText().c_str(), 0, FONT(STD)) > w)
-        lv_obj_add_state(label, LV_STATE_USER_1);
-      else
-        lv_obj_clear_state(label, LV_STATE_USER_1);
+  if (!deleted() && _getValue) {
+    int v = _getValue();
+    if (v != currentValue) {
+      currentValue = v;
+      std::string s = getLabelText();
+      if (width() > 0) {
+        int w = width() - (type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W) - PAD_TINY * 3;
+        if (getTextWidth(s.c_str(), 0, FONT(STD)) > w)
+          lv_obj_add_state(label, LV_STATE_USER_1);
+        else
+          lv_obj_clear_state(label, LV_STATE_USER_1);
+      }
+      lv_label_set_text(label, s.c_str());
     }
-    lv_label_set_text(label, getLabelText().c_str());
   }
 }
 
@@ -120,17 +131,15 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
     ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN)
 {
   setValues(values);
-  update();
 }
 
 Choice::Choice(Window* parent, const rect_t& rect,
                std::vector<std::string> values, int vmin, int vmax,
                std::function<int()> getValue,
                std::function<void(int)> setValue, const char* title) :
-    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN),
-    values(std::move(values))
+    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN)
 {
-  update();
+  setValues(values);
 }
 
 void Choice::addValue(const char* value)
@@ -142,6 +151,8 @@ void Choice::addValue(const char* value)
 void Choice::setValues(std::vector<std::string> values)
 {
   this->values = std::move(values);
+  currentValue = INT_MAX; // Force update
+  update();
 }
 
 void Choice::setValues(const char* const values[])
@@ -153,6 +164,8 @@ void Choice::setValues(const char* const values[])
       this->values.emplace_back(*value++);
     }
   }
+  currentValue = INT_MAX; // Force update
+  update();
 }
 
 void Choice::setValue(int val)
@@ -215,7 +228,7 @@ void Choice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
 
-  auto menu = new Menu();
+  auto menu = new Menu(false, popupWidth);
   if (menuTitle) menu->setTitle(menuTitle);
 
   fillMenu(menu);

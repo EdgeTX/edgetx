@@ -22,7 +22,10 @@
 #pragma once
 
 #include "storage.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include "miniz.h"
+#pragma GCC diagnostic pop
 
 #include <QtCore>
 #include <list>
@@ -39,18 +42,17 @@ class LabelsStorageFormat : public StorageFormat
     }
 
     virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData);
+    virtual bool write(RadioData & radioData);
 
   protected:
-    virtual bool loadFile(QByteArray & fileData, const QString & fileName) = 0;
+    virtual bool loadFile(QByteArray & fileData, const QString & fileName, bool optional = false) = 0;
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName) = 0;
     virtual bool getFileList(std::list<std::string>& filelist) = 0;
     virtual bool deleteFile(const QString & fileName) = 0;
 
-    virtual bool loadBin(RadioData & radioData);
-    virtual bool writeBin(const RadioData & radioData);
-    virtual bool loadYaml(RadioData & radioData);
-    virtual bool writeYaml(const RadioData & radioData);
-
     StorageType probeFormat();
+
+    bool loadChecklist(ModelData &model);
+    bool writeChecklist(const ModelData & model);
+    bool loadRadioSettings(GeneralSettings & generalSettings);
 };

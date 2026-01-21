@@ -25,7 +25,7 @@
 void MixData::convert(RadioDataConversionState & cstate)
 {
   cstate.setComponent(tr("MIX"), 4);
-  cstate.setSubComp(RawSource(SOURCE_TYPE_CH, destCh-1).toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType) % tr(" (@%1)").arg(cstate.subCompIdx));
+  cstate.setSubComp(RawSource(SOURCE_TYPE_CH, destCh).toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType) % tr(" (@%1)").arg(cstate.subCompIdx));
   srcRaw.convert(cstate);
   swtch.convert(cstate);
 }

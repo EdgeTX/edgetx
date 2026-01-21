@@ -28,6 +28,12 @@
 
 #include <string.h>
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  #define IS_HALF_DUPLEX(usart) ((usart)->set_input || (usart)->rxGPIO == GPIO_UNDEF)
+#else
+  #define IS_HALF_DUPLEX(usart) ((usart)->set_input)
+#endif
+
 // WARNING:
 //
 // NVIC_GetEnableIRQ is stolen from "${THIRDPARTY_DIR}/CMSIS/Include/core_cm4.h".
@@ -66,16 +72,18 @@ static void _enable_tx_dma_irq(const stm32_usart_t* usart)
 
 static inline void _half_duplex_input(const stm32_usart_t* usart)
 {
-  if (usart->set_input) {
-    usart->set_input(true);
+  if (usart->set_input) usart->set_input(true);
+
+  if (IS_HALF_DUPLEX(usart)) {
     LL_USART_EnableDirectionRx(usart->USARTx);
   }
 }
 
 static inline void _half_duplex_output(const stm32_usart_t* usart)
 {
-  if (usart->set_input) {
-    usart->set_input(false);
+  if (usart->set_input) usart->set_input(false);
+
+  if (IS_HALF_DUPLEX(usart)) {
     LL_USART_DisableDirectionRx(usart->USARTx);
   }
 }
@@ -118,6 +126,11 @@ static void enable_usart_clock(USART_TypeDef* USARTx)
   } else if (USARTx == UART4) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART4);
   }
+#if defined(UART5)
+  else if (USARTx == UART5) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART5);
+  }
+#endif
 #if defined(USART6)
   else if (USARTx == USART6) {
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART6);
@@ -128,6 +141,12 @@ static void enable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART7);
   }
 #endif
+#if defined(UART8)
+  else if (USARTx == UART8) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART8);
+  }
+#endif
+
 }
 
 static void disable_usart_clock(USART_TypeDef* USARTx)
@@ -141,6 +160,11 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
   } else if (USARTx == UART4) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART4);
   }
+#if defined(UART5)
+  else if (USARTx == UART5) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART5);
+  }
+#endif
 #if defined(USART6)
   else if (USARTx == USART6) {
     LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_USART6);
@@ -149,6 +173,11 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
 #if defined(UART7) // does not exist on F2
   else if (USARTx == UART7) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART7);
+  }
+#endif
+#if defined(UART8)
+  else if (USARTx == UART8) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART8);
   }
 #endif
 
@@ -169,10 +198,7 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
   return GPIO_PIN_SPEED_LOW;
 }
 
-#if defined(STM32H7)
-# define _AF7_USART(x) \
-  (x == USART1 || x == USART2 || x == USART3 || x == USART6 || x == UART7)
-#elif defined(STM32H7RS)
+#if defined(STM32H7RS)
 # define _AF7_USART(x) \
   (x == USART1 || x == USART2 || x == USART3 || x == UART7)
 #else // F2, F4
@@ -180,9 +206,42 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
   (x == USART1 || x == USART2 || x == USART3)
 #endif
 
-static gpio_af_t _get_usart_af(USART_TypeDef* USARTx)
+static gpio_af_t _get_usart_af(gpio_t pin, USART_TypeDef* USARTx)
 {
+#if defined(STM32H7)
+  GPIO_TypeDef* port = gpio_get_port(pin);
+  uint32_t pinNr = gpio_get_pin(pin);
+  if(USARTx == USART1)
+  {
+    if(port == GPIOA)
+    {
+      return GPIO_AF7;
+    } else { // GPIOB
+      if(pinNr < 14)
+        return GPIO_AF7;
+      return GPIO_AF4;
+    }
+  } else if (USARTx == USART2 || USARTx == USART3 || USARTx == USART6) {
+    return GPIO_AF7;
+  } else if (USARTx == UART4) {
+    if(port == GPIOA && (pin == 11 || pin == 12))
+        return GPIO_AF6;
+    return GPIO_AF8;
+  } else if (USARTx == UART5) {
+    if(port == GPIOB)
+      return GPIO_AF14;
+    return GPIO_AF8;
+  } else if (USARTx == UART7) {
+    if (port == GPIOA || port == GPIOB)
+      return GPIO_AF11;
+    return GPIO_AF7;
+  } else if (USARTx == UART8) {
+    return GPIO_AF8;
+  }
+  return 0;
+#else
   return _AF7_USART(USARTx) ? GPIO_AF7 : GPIO_AF8;
+#endif
 }
 
 // from stm32f4xx_ll_usart.c
@@ -254,8 +313,10 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   // Disable IRQ based RX
   LL_USART_DisableIT_RXNE(usart->USARTx);
 
-  // In case TX DMA is used and IDLE IRQ is not, disable the ISR completely
-  if (usart->txDMA && !LL_USART_IsEnabledIT_IDLE(usart->USARTx)) {
+  // In case TX DMA is used, IDLE IRQ is not, and not half-duplex,
+  // disable the ISR completely
+  if (usart->txDMA && !LL_USART_IsEnabledIT_IDLE(usart->USARTx) &&
+      !IS_HALF_DUPLEX(usart)) {
     NVIC_DisableIRQ(usart->IRQn);
   }
 
@@ -313,6 +374,32 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
   }
 }
 
+#if defined(STM32H7) || defined(STM32H7RS)
+void stm32_usart_rx_inversion(const stm32_usart_t* usart, bool on)
+{
+  bool enableUart = false;
+  if (LL_USART_IsEnabled(usart->USARTx)) {
+    LL_USART_Disable(usart->USARTx);
+    enableUart = true;
+  }
+  LL_USART_SetRXPinLevel(usart->USARTx, on ? LL_USART_RXPIN_LEVEL_INVERTED
+                                           : LL_USART_RXPIN_LEVEL_STANDARD);
+  if (enableUart) LL_USART_Enable(usart->USARTx);
+}
+
+void stm32_usart_tx_inversion(const stm32_usart_t* usart, bool on)
+{
+  bool enableUart = false;
+  if (LL_USART_IsEnabled(usart->USARTx)) {
+    LL_USART_Disable(usart->USARTx);
+    enableUart = true;
+  }
+  LL_USART_SetTXPinLevel(usart->USARTx, on ? LL_USART_TXPIN_LEVEL_INVERTED
+                                           : LL_USART_TXPIN_LEVEL_STANDARD);
+  if (enableUart) LL_USART_Enable(usart->USARTx);
+}
+#endif
+
 // TODO: probably needs to be a separate API on the serial driver
 //
 // - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
@@ -334,14 +421,33 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   enable_usart_clock(usart->USARTx);
   LL_USART_DeInit(usart->USARTx);
 
-  gpio_af_t af = _get_usart_af(usart->USARTx);
   if (usart->rxGPIO != GPIO_UNDEF) {
+    gpio_af_t af = _get_usart_af(usart->rxGPIO, usart->USARTx);
     gpio_init_af(usart->rxGPIO, af, _get_pin_speed(params->baudrate));
   }
   if (usart->txGPIO != GPIO_UNDEF) {
+    gpio_af_t af = _get_usart_af(usart->txGPIO, usart->USARTx);
     gpio_init_af(usart->txGPIO, af, _get_pin_speed(params->baudrate));
   }
   
+  bool half_duplex = usart->set_input;
+
+#if defined(STM32H7) || defined(STM32H7RS)
+  bool one_wire_half_duplex =
+      usart->rxGPIO == GPIO_UNDEF && (params->direction & ETX_Dir_RX);
+
+  if (one_wire_half_duplex) {
+    if (params->direction & ETX_Dir_TX) {
+      LL_GPIO_SetPinPull(
+          gpio_get_port(usart->txGPIO), 1 << gpio_get_pin(usart->txGPIO),
+          params->polarity ? LL_GPIO_PULL_UP : LL_GPIO_PULL_DOWN);
+    }
+    LL_USART_ConfigHalfDuplexMode(usart->USARTx);
+  }
+
+  half_duplex = half_duplex || one_wire_half_duplex;
+#endif
+
   LL_USART_InitTypeDef usartInit;
   LL_USART_StructInit(&usartInit);
 
@@ -376,6 +482,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   if (params->direction & ETX_Dir_TX)
     usartInit.TransferDirection |= LL_USART_DIRECTION_TX;
 
+
   LL_USART_Init(usart->USARTx, &usartInit);
   LL_USART_Enable(usart->USARTx);
 
@@ -385,7 +492,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
       LL_USART_EnableDMAReq_TX(usart->USARTx);
 
       // 2-wire half-duplex: setup TX DMA IRQ
-      if (usart->set_input && (int32_t)(usart->txDMA_IRQn) >= 0) {
+      if (half_duplex && (int32_t)(usart->txDMA_IRQn) >= 0) {
         _enable_tx_dma_irq(usart);
       }
     }
@@ -398,8 +505,9 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     }
 
     // half-duplex: start in input mode
-    if (usart->set_input)
+    if (half_duplex) {
       _half_duplex_input(usart);
+    }
   }
 
   if (((params->direction & ETX_Dir_TX) && !usart->txDMA) ||
@@ -439,7 +547,7 @@ void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
   // TODO: split into 2 steps to avoid blocking on send
   while (!LL_USART_IsActiveFlag_TXE(usart->USARTx));
 
-  if (usart->set_input) {
+  if (IS_HALF_DUPLEX(usart)) {
     _half_duplex_output(usart);
 
     // switch back to input after TC
@@ -452,6 +560,12 @@ void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
 
 void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, uint32_t size)
 {
+
+  if (!stm32_usart_tx_completed(usart)) {
+    // Transmission is already in progress, abort
+    return;
+  }
+
   _half_duplex_output(usart);
 
   if (usart->txDMA) {
@@ -471,7 +585,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 
 #if defined(LL_USART_DMA_REG_DATA_RECEIVE)
     dmaInit.PeriphOrM2MSrcAddress =
-        LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
+        LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_TRANSMIT);
 #else
     dmaInit.PeriphOrM2MSrcAddress = LL_USART_DMA_GetRegAddr(usart->USARTx);
 #endif
@@ -484,8 +598,9 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 
     LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 
-    if (usart->set_input && (int32_t)(usart->txDMA_IRQn) >= 0) {
+    if (IS_HALF_DUPLEX(usart) && (int32_t)(usart->txDMA_IRQn) >= 0) {
       LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
+      LL_USART_ClearFlag_TC(usart->USARTx);
     }
     LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
 #endif // !STM32H7RS
@@ -523,13 +638,25 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
   if (LL_DMA_IsEnabledStream(usart->txDMA, usart->txDMA_Stream)) {
 
     switch(usart->txDMA_Stream) {
+    case LL_DMA_STREAM_0:
+      while (!LL_DMA_IsActiveFlag_TC0(usart->txDMA));
+      LL_DMA_ClearFlag_TC0(usart->txDMA);
+      break;
     case LL_DMA_STREAM_1:
       while (!LL_DMA_IsActiveFlag_TC1(usart->txDMA));
       LL_DMA_ClearFlag_TC1(usart->txDMA);
       break;
+    case LL_DMA_STREAM_2:
+      while (!LL_DMA_IsActiveFlag_TC2(usart->txDMA));
+      LL_DMA_ClearFlag_TC2(usart->txDMA);
+      break;
     case LL_DMA_STREAM_3:
       while (!LL_DMA_IsActiveFlag_TC3(usart->txDMA));
       LL_DMA_ClearFlag_TC3(usart->txDMA);
+      break;
+    case LL_DMA_STREAM_4:
+      while (!LL_DMA_IsActiveFlag_TC4(usart->txDMA));
+      LL_DMA_ClearFlag_TC4(usart->txDMA);
       break;
     case LL_DMA_STREAM_5:
       while (!LL_DMA_IsActiveFlag_TC5(usart->txDMA));
@@ -588,7 +715,7 @@ void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)
 #if defined(STM32H7) || defined(STM32H7RS)
 # define USART_STATUS_REG ISR
 # define USART_IDLE USART_ISR_IDLE
-# define USART_TXE USART_ISR_TXFE
+# define USART_TXE USART_ISR_TXE_TXFNF
 # define USART_TC USART_ISR_TC
 # define USART_RXNE USART_ISR_RXNE_RXFNE
 # define USART_FLAG_ERRORS \
@@ -678,13 +805,5 @@ void stm32_usart_tx_dma_isr(const stm32_usart_t* usart)
     return;
 
   auto USARTx = usart->USARTx;
-
-  // clear TC flag before enabling USART TC interrupt:
-  //  -> TC flag will be re-triggered once the last byte which has
-  //     just been transfered from DMA to USART will be transmitted,
-  //     thus triggering TELEMETRY_USART_IRQHandler(), which will
-  //     switch from output to input mode.
-  //
-  LL_USART_ClearFlag_TC(USARTx);
   LL_USART_EnableIT_TC(USARTx);
 }

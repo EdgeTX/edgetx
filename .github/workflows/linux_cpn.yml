@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - 'main'
+      - '[0-9]+.[0-9]+'
     tags:
-      - v*
-    paths:
+      - v*  
+    paths: &trigger-paths
       - '.github/workflows/linux_cpn.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
@@ -14,10 +15,8 @@ on:
   pull_request:
     branches:
       - 'main'
-    paths:
-      - '.github/workflows/linux_cpn.yml'
-      - 'companion/**'
-      - 'tools/build-companion.sh'
+      - '[0-9]+.[0-9]+'
+    paths: *trigger-paths
 
   workflow_dispatch:
 
@@ -28,6 +27,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-linux')
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -42,17 +44,43 @@ jobs:
       - name: Build
         working-directory: ${{github.workspace}}
         shell: bash
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: |
-          mkdir output && \
-          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
+          mkdir output && mkdir logs && \
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/" 2>&1 | tee logs/build-main.log
+
+      - name: Collect build logs
+        if: always()
+        shell: bash
+        run: |
+          # Create logs directory if it doesn't exist
+          mkdir -p logs
+          
+          # Copy all build logs from the build directory
+          if [ -d "build" ]; then
+            find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+            find build -name "CMakeOutput.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+            find build -name "CMakeError.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+          fi
 
       - name: Compose release filename
+        if: always()
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
         run: echo "artifact_name=edgetx-cpn-linux-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output
           retention-days: 15
+
+      - name: Archive build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ env.artifact_name }}-logs"
+          path: ${{github.workspace}}/logs
+          retention-days: 30

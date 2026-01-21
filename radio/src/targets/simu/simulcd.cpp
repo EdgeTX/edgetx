@@ -57,51 +57,7 @@ static pixel_t _LCD_BUF2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
 pixel_t* simuLcdBuf = _LCD_BUF1;
 pixel_t* simuLcdBackBuf = _LCD_BUF2;
-#if 0
-// Copy 2 pixels at once to speed up a little
-static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
-{
-  coord_t x1 = LCD_W - copy_area.w - copy_area.x;
-  coord_t y1 = LCD_H - copy_area.h - copy_area.y;
 
-  auto total = copy_area.w * copy_area.h;
-  uint16_t* px_src = src + total - 2;
-
-  auto px_dst = dst + y1 * LCD_W + x1;
-  for (auto line = 0; line < copy_area.h; line++) {
-
-    auto line_end = px_dst + (copy_area.w & ~1);
-    while (px_dst != line_end) {
-      uint32_t* px2_src = (uint32_t*)px_src;
-      uint32_t* px2_dst = (uint32_t*)px_dst;
-
-      uint32_t px = ((*px2_src & 0xFFFF0000) >> 16) | ((*px2_src & 0xFFFF) << 16);
-      *px2_dst = px;
-
-      px_src -= 2;
-      px_dst += 2;
-    }
-
-    if (copy_area.w & 1) {
-      *(px_dst++) = *(px_src+1);
-      px_src--;
-    }
-
-    px_dst += LCD_W - copy_area.w;
-  }
-}
-
-static void _rotate_area_180(lv_area_t& area)
-{
-  lv_coord_t tmp_coord;
-  tmp_coord = area.y2;
-  area.y2 = LCD_H - area.y1 - 1;
-  area.y1 = LCD_H - tmp_coord - 1;
-  tmp_coord = area.x2;
-  area.x2 = LCD_W - area.x1 - 1;
-  area.x1 = LCD_W - tmp_coord - 1;
-}
-#endif
 static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& copy_area)
 {
   lv_coord_t x1 = copy_area.x1;
@@ -150,8 +106,6 @@ static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rec
   simuLcdRefresh = true;
 
 #else
-  // // copy / rotate current area
-  // _copy_rotate_180(simuLcdBackBuf, buffer, copy_area);
   _copy_area(simuLcdBackBuf, buffer, copy_area);
   
   if (lv_disp_flush_is_last(disp_drv)) {

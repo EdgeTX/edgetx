@@ -21,6 +21,7 @@
 #include "bitmapbuffer.h"
 #include "lib_file.h"
 #include "edgetx_helpers.h"
+#include "debug.h"
 
 FIL imgFile __DMA;
 
@@ -61,6 +62,7 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 #define STBI_NO_STDIO
 #define STBI_NO_LINEAR
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_THREAD_LOCALS
 #include "stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read
@@ -110,7 +112,7 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
   f_close(&imgFile);
 
   if (!img) {
-    TRACE("loadBitmap(%s) failed: %s", filename, stbi_failure_reason());
+    TRACE_ERROR("loadBitmap(%s) failed: %s\n", filename, stbi_failure_reason());
     return nullptr;
   }
 
@@ -122,7 +124,7 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 
   BitmapBuffer *bmp = new BitmapBuffer(dst_fmt, w, h);
   if (bmp == nullptr) {
-    TRACE("loadBitmap: malloc failed");
+    TRACE_ERROR("loadBitmap: malloc failed\n");
     return nullptr;
   }
 
@@ -167,8 +169,13 @@ static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
     FRESULT result = f_open(&imgFile, fn, FA_OPEN_EXISTING | FA_READ);
     if (result == FR_OK) {
       int x, y, nn;
-      stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
+      int res = stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
       f_close(&imgFile);
+
+      if (res == LV_RES_INV) {
+        TRACE_ERROR("decoder_info(%s) failed: %s\n", fn, stbi_failure_reason());
+        return LV_RES_INV;
+      }
 
       header->always_zero = 0;
       header->cf =
@@ -177,6 +184,8 @@ static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
       header->h = y;
 
       return LV_RES_OK;
+    } else {
+      TRACE_ERROR("decoder_info(%s) failed to open image file\n", fn);
     }
   }
   /*If it's a file in a C array...*/
@@ -191,7 +200,7 @@ static uint8_t *convert_bitmap(uint8_t *img, int w, int h, int n)
 {
   uint8_t *bmp = (uint8_t *)lv_mem_alloc(((n == 4) ? 3 : 2) * w * h);
   if (bmp == nullptr) {
-    TRACE("convert_bitmap: lv_mem_alloc failed");
+    TRACE_ERROR("convert_bitmap: lv_mem_alloc failed\n");
     return nullptr;
   }
 
@@ -239,7 +248,7 @@ static lv_res_t decoder_open(lv_img_decoder_t *decoder,
       f_close(&imgFile);
 
       if (!img) {
-        TRACE("decoder_open(%s) failed: %s", fn, stbi_failure_reason());
+        TRACE_ERROR("decoder_open(%s) failed: %s\n", fn, stbi_failure_reason());
         return LV_RES_INV;
       }
 
@@ -247,6 +256,8 @@ static lv_res_t decoder_open(lv_img_decoder_t *decoder,
       stbi_image_free(img);
 
       return dsc->img_data ? LV_RES_OK : LV_RES_INV;
+    } else {
+      TRACE_ERROR("decoder_open(%s) failed to open image file\n", fn);
     }
   }
   /*If it's a file in a C array...*/

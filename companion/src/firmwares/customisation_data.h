@@ -33,14 +33,11 @@
 
 constexpr int MAX_CUSTOM_SCREENS      {10};
 constexpr int MAX_THEME_OPTIONS       {5};
-constexpr int LEN_ZONE_OPTION_STRING  {8};
 constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
-constexpr int WIDGET_NAME_LEN         {12};
-constexpr int MAX_WIDGET_OPTIONS      {5};
-constexpr int MAX_TOPBAR_ZONES        {6};  //  max 4 used for portrait
+constexpr int MAX_WIDGET_OPTIONS      {50};
+constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
 constexpr int MAX_TOPBAR_OPTIONS      {1};
-constexpr int LAYOUT_ID_LEN           {12};
 
 // Common 'ZoneOptionValue's among all layouts
 enum {
@@ -58,11 +55,17 @@ struct ZoneOptionValue  // union in radio/src/datastructs.h
   unsigned int unsignedValue;
   int signedValue;
   unsigned int boolValue;
-  char stringValue[LEN_ZONE_OPTION_STRING + 1];
+  std::string stringValue;
   RawSource sourceValue;
   unsigned int colorValue;
 
   ZoneOptionValue();
+  ZoneOptionValue(const ZoneOptionValue & src);
+  ZoneOptionValue & operator=(const ZoneOptionValue & src);
+
+  void clear();
+  void copy(const ZoneOptionValue & src);
+  bool isEmpty() const;
 };
 
 enum ZoneOptionValueEnum {
@@ -97,6 +100,7 @@ struct ZoneOption
     Align,
     Slider,
     Choice,
+    File,
   };
 
   const char * name;
@@ -112,20 +116,26 @@ struct ZoneOptionValueTyped
   ZoneOptionValue     value;
 
   ZoneOptionValueTyped();
+  void clear();
   bool isEmpty() const;
 };
 
 struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS];
 
-  WidgetPersistentData();
+  WidgetPersistentData() {}
+  void clear();
 };
 
 struct ZonePersistentData {
-  char widgetName[WIDGET_NAME_LEN + 1];
+  std::string widgetName;
   WidgetPersistentData widgetData;
 
-  ZonePersistentData();
+  ZonePersistentData() {}
+  ZonePersistentData(const ZonePersistentData & src);
+  ZonePersistentData & operator=(const ZonePersistentData & src);
+  void clear();
+  void copy(const ZonePersistentData & src);
   bool isEmpty() const;
 };
 
@@ -134,8 +144,14 @@ struct WidgetsContainerPersistentData {
   ZonePersistentData   zones[N];
   ZoneOptionValueTyped options[O];
 
-  WidgetsContainerPersistentData() {
-    memset((void*)this, 0, sizeof(WidgetsContainerPersistentData));
+  WidgetsContainerPersistentData() {}
+  void clear() {
+    for (int i = 0; i < N; i++) {
+      zones[i].clear();
+    }
+    for (int i = 0; i < O; i++) {
+      options[i].clear();
+    }
   }
 };
 
@@ -151,18 +167,28 @@ class RadioLayout
 
   public:
     struct CustomScreenData {
-      char layoutId[LAYOUT_ID_LEN + 1];
+      std::string layoutId;
       LayoutPersistentData layoutPersistentData;
 
-      CustomScreenData();
+      CustomScreenData() {}
+      CustomScreenData(const CustomScreenData & src);
+      CustomScreenData & operator=(const CustomScreenData & src);
+
+      void clear();
+      void copy(const CustomScreenData & src);
       bool isEmpty() const;
     };
 
     struct CustomScreens {
       CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
 
+      CustomScreens() {}
+      CustomScreens(const CustomScreens & src);
+      CustomScreens & operator=(const CustomScreens & src);
+
       void clear();
+      void copy(const CustomScreens & src);
     };
 
-    static void init(const char * layoutId, CustomScreens & customScreens);
+    static void init(const std::string layoutId, CustomScreens & customScreens);
 };

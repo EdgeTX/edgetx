@@ -23,54 +23,90 @@
 
 #include "radio_diagcustswitches.h"
 
+#include "hal/rgbleds.h"
 #include "board.h"
-#include "libopenui.h"
 #include "edgetx.h"
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#include "color_list.h"
+#include "hal/rgbleds.h"
+
+uint16_t getLedColor(int i)
+{
+  // Convert RBG888 to RGB565
+  uint32_t rgb32 = getFSLedRGBColor(i);
+  uint8_t r = GET_RED32(rgb32);
+  uint8_t g = GET_GREEN32(rgb32);
+  uint8_t b = GET_BLUE32(rgb32);
+  return RGB(r, g, b);
+}
+#endif
 
 class RadioCustSwitchesDiagsWindow : public Window
 {
-  static constexpr coord_t FS_1ST_COLUMN = 95;
-  static constexpr coord_t FS_2ND_COLUMN = 160;
-  static constexpr coord_t FS_3RD_COLUMN = 260;
+  static LAYOUT_VAL_SCALED(FS_1ST_COLUMN, 95)
+  static LAYOUT_VAL_SCALED(FS_2ND_COLUMN, 160)
+  static LAYOUT_VAL_SCALED(FS_3RD_COLUMN, 260)
+  static LAYOUT_VAL_SCALED(FS_LBL_WIDTH, 60)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  static LAYOUT_VAL_SCALED(FS_COLOR_WIDTH, 30)
+  static LAYOUT_VAL_SCALED(FS_COLOR_HEIGHT, 15)
+  ColorSwatch* colorBox[NUM_FUNCTIONS_SWITCHES];
+#endif
 
  public:
   RadioCustSwitchesDiagsWindow(Window *parent, const rect_t &rect) :
       Window(parent, rect)
   {
-    new StaticText(this, {FS_1ST_COLUMN, PAD_SMALL, 60, LV_SIZE_CONTENT},
+    new StaticText(this, {FS_1ST_COLUMN, PAD_SMALL, FS_LBL_WIDTH, LV_SIZE_CONTENT},
                    "Phys");
-    new StaticText(this, {FS_2ND_COLUMN, PAD_SMALL, 60, LV_SIZE_CONTENT},
+    new StaticText(this, {FS_2ND_COLUMN, PAD_SMALL, FS_LBL_WIDTH, LV_SIZE_CONTENT},
                    "Log");
-    new StaticText(this, {FS_3RD_COLUMN, PAD_SMALL, 60, LV_SIZE_CONTENT},
+    new StaticText(this, {FS_3RD_COLUMN, PAD_SMALL, FS_LBL_WIDTH, LV_SIZE_CONTENT},
                    "Led");
-    for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
-      coord_t y = 2 * EdgeTxStyles::PAGE_LINE_HEIGHT +
-                  i * EdgeTxStyles::PAGE_LINE_HEIGHT;
-      new StaticText(this, {10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-                     STR_CHAR_SWITCH);
-      new StaticText(this, {25, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-                     switchGetName(i + switchGetMaxSwitches()));
-      new DynamicText(
-          this, {FS_1ST_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-          [=]() {
-            return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
-          });
-      new DynamicText(
-          this, {FS_2ND_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-          [=]() { return getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
-      new DynamicText(this,
-                      {FS_3RD_COLUMN + 5, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-                      [=]() { return STR_OFFON[getFSLedState(i)]; });
+    for (uint8_t i = 0, r = 0; i < switchGetMaxSwitches(); i += 1) {
+      if (switchIsCustomSwitch(i)) {
+        coord_t y = (r + 2) * EdgeTxStyles::STD_FONT_HEIGHT;
+          std::string s(CHAR_SWITCH);
+          s += switchGetDefaultName(i);
+          new StaticText(this, {PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT}, s);
+        new DynamicText(
+            this, {FS_1ST_COLUMN + PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
+            [=]() {
+              return getFSPhysicalState(i) ? CHAR_DOWN : CHAR_UP;
+            });
+        new DynamicText(
+            this, {FS_2ND_COLUMN + 10, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
+            [=]() { return g_model.cfsState(i) ? CHAR_DOWN : CHAR_UP; });
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+        colorBox[r] = new ColorSwatch(this, {FS_3RD_COLUMN, y, FS_COLOR_WIDTH,
+                                             FS_COLOR_HEIGHT}, getLedColor(r));
+#else
+        new DynamicText(this,
+                        {FS_3RD_COLUMN, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
+                        [=]() { return STR_OFFON[getFSLedState(i)]; });
+#endif
+        r += 1;
+      }
     }
   }
 
- protected:
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  void checkEvents() override {
+    Window::checkEvents();
+    for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
+      if (colorBox[i])
+        colorBox[i]->setColor(getLedColor(i));
+    }
+  }
+#endif
 };
 
 void RadioCustSwitchesDiagsPage::buildHeader(Window *window)
 {
-  header->setTitle(STR_RADIO_SETUP);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle(STR_HARDWARE);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 }
 
 void RadioCustSwitchesDiagsPage::buildBody(Window *window)

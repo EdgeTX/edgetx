@@ -23,6 +23,7 @@
 
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "menu.h"
 #include "view_main.h"
 #include "widget_settings.h"
 
@@ -30,14 +31,134 @@
 #include "touch.h"
 #endif
 
+//-----------------------------------------------------------------------------
+
+inline WidgetOptionValueEnum widgetValueEnumFromType(WidgetOption::Type type)
+{
+  switch(type) {
+  case WidgetOption::String:
+  case WidgetOption::File:
+    return WOV_String;
+
+  case WidgetOption::Integer:
+    return WOV_Signed;
+
+  case WidgetOption::Bool:
+    return WOV_Bool;
+
+  case WidgetOption::Source:
+    return WOV_Source;
+
+  case WidgetOption::Color:
+    return WOV_Color;
+
+  default:
+    return WOV_Unsigned;
+  }
+}
+
+void WidgetPersistentData::addEntry(int idx)
+{
+  if (idx >= (int)options.size()) {
+    WidgetOptionValueTyped wov;
+    wov.type = WOV_Unsigned;
+    wov.value.unsignedValue = 0;
+    while ((int)options.size() <= idx)
+      options.push_back(wov);
+  }
+}
+
+bool WidgetPersistentData::hasOption(int idx)
+{
+  return idx < (int)options.size();
+}
+
+void WidgetPersistentData::setDefault(int idx, const WidgetOption* opt, bool forced)
+{
+  addEntry(idx);
+  auto optType = widgetValueEnumFromType(opt->type);
+  if (forced || options[idx].type != optType) {
+    // reset to default value
+    options[idx].type = optType;
+    options[idx].value.unsignedValue = opt->deflt.unsignedValue;
+    options[idx].value.stringValue = opt->deflt.stringValue;
+  }
+}
+
+void WidgetPersistentData::clear()
+{
+  options.clear();
+}
+
+WidgetOptionValueEnum WidgetPersistentData::getType(int idx)
+{
+  addEntry(idx);
+  return options[idx].type;
+}
+
+void WidgetPersistentData::setType(int idx, WidgetOptionValueEnum typ)
+{
+  addEntry(idx);
+  options[idx].type = typ;
+}
+
+int32_t WidgetPersistentData::getSignedValue(int idx)
+{
+  addEntry(idx);
+  return options[idx].value.signedValue;
+}
+
+void WidgetPersistentData::setSignedValue(int idx, int32_t newValue)
+{
+  addEntry(idx);
+  options[idx].value.signedValue = newValue;
+}
+
+uint32_t WidgetPersistentData::getUnsignedValue(int idx)
+{
+  addEntry(idx);
+  return options[idx].value.unsignedValue;
+}
+
+void WidgetPersistentData::setUnsignedValue(int idx, uint32_t newValue)
+{
+  addEntry(idx);
+  options[idx].value.unsignedValue = newValue;
+}
+
+bool WidgetPersistentData::getBoolValue(int idx)
+{
+  addEntry(idx);
+  return options[idx].value.boolValue;
+}
+
+void WidgetPersistentData::setBoolValue(int idx, bool newValue)
+{
+  addEntry(idx);
+  options[idx].value.boolValue = newValue;
+}
+
+std::string WidgetPersistentData::getString(int idx)
+{
+  addEntry(idx);
+  return options[idx].value.stringValue;
+}
+
+void WidgetPersistentData::setString(int idx, const char* s)
+{
+  addEntry(idx);
+  options[idx].value.stringValue = s;
+}
+
+//-----------------------------------------------------------------------------
+
 Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-               WidgetPersistentData* persistentData) :
+               int screenNum, int zoneNum) :
     ButtonBase(parent, rect, nullptr, window_create),
     factory(factory),
-    persistentData(persistentData)
+    screenNum(screenNum), zoneNum(zoneNum)
 {
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  setWindowFlag(NO_FOCUS | NO_SCROLL);
 
   if (parent->isTopBar()) fsAllowed = false;
 
@@ -57,13 +178,13 @@ void Widget::openMenu()
     return;
   }
 
-  if (getOptions() || fsAllowed) {
+  if (hasOptions() || fsAllowed) {
     Menu* menu = new Menu();
     menu->setTitle(getFactory()->getDisplayName());
     if (fsAllowed) {
       menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
     }
-    if (getOptions() && getOptions()->name) {
+    if (hasOptions()) {
       menu->addLine(STR_WIDGET_SETTINGS,
                     [=]() { new WidgetSettings(this); });
     }
@@ -118,11 +239,8 @@ void Widget::setFullscreen(bool enable)
     updateZoneRect(parent->getRect(), false);
     setRect(parent->getRect());
 
-    bringToTop();
-
-    if (!lv_obj_get_group(lvobj)) {
+    if (!lv_obj_get_group(lvobj))
       lv_group_add_obj(lv_group_get_default(), lvobj);
-    }
 
     // disable scroll chaining (sliding main view)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
@@ -130,7 +248,8 @@ void Widget::setFullscreen(bool enable)
   }
 
   // set group in editing mode (keys LEFT / RIGHT)
-  lv_group_set_editing(lv_group_get_default(), enable);
+  if (enableFullScreenRE())
+    lv_group_set_editing(lv_group_get_default(), enable);
 
   onFullscreen(enable);
 
@@ -146,9 +265,9 @@ bool Widget::onLongPress()
   return true;
 }
 
-const ZoneOption* Widget::getOptions() const
+const WidgetOption* Widget::getOptionDefinitions() const
 {
-  return getFactory()->getOptions();
+  return getFactory()->getDefaultOptions();
 }
 
 void Widget::enableFocus(bool enable)
@@ -156,7 +275,7 @@ void Widget::enableFocus(bool enable)
   if (enable) {
     if (!focusBorder) {
       lv_style_init(&borderStyle);
-      lv_style_set_line_width(&borderStyle, 2);
+      lv_style_set_line_width(&borderStyle, PAD_BORDER);
       lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
       lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_FOCUS));
 
@@ -176,7 +295,6 @@ void Widget::enableFocus(bool enable)
 
       setFocusHandler([=](bool hasFocus) {
         if (hasFocus) {
-          bringToTop();
           lv_obj_clear_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
         } else {
           lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
@@ -196,6 +314,10 @@ void Widget::enableFocus(bool enable)
   }
 }
 
+WidgetPersistentData* Widget::getPersistentData() { return g_model.getWidgetData(screenNum, zoneNum); }
+
+//-----------------------------------------------------------------------------
+
 std::list<const WidgetFactory*>& WidgetFactory::getRegisteredWidgets()
 {
   static std::list<const WidgetFactory*> widgets;
@@ -204,7 +326,6 @@ std::list<const WidgetFactory*>& WidgetFactory::getRegisteredWidgets()
 
 void WidgetFactory::unregisterWidget(const WidgetFactory* factory)
 {
-  TRACE("unregister widget %s", factory->getName());
   getRegisteredWidgets().remove(factory);
 }
 
@@ -226,7 +347,6 @@ void WidgetFactory::registerWidget(const WidgetFactory* factory)
   if (oldWidget) {
     unregisterWidget(oldWidget);
   }
-  TRACE("register widget %s %s", name, factory->getDisplayName());
   for (auto it = getRegisteredWidgets().cbegin();
        it != getRegisteredWidgets().cend(); ++it) {
     if (strcasecmp((*it)->getDisplayName(), factory->getDisplayName()) > 0) {
@@ -238,34 +358,32 @@ void WidgetFactory::registerWidget(const WidgetFactory* factory)
 }
 
 Widget* WidgetFactory::newWidget(const char* name, Window* parent,
-                                 const rect_t& rect,
-                                 WidgetPersistentData* persistentData)
+                                 const rect_t& rect, int screenNum, int zoneNum)
 {
   const WidgetFactory* factory = getWidgetFactory(name);
   if (factory) {
-    return factory->create(parent, rect, persistentData, false);
+    return factory->create(parent, rect, screenNum, zoneNum, false);
   }
   return nullptr;
 }
 
-void WidgetFactory::initPersistentData(Widget::PersistentData* persistentData,
-                                       bool setDefault) const
+Widget* WidgetFactory::create(Window* parent, const rect_t& rect,
+                int screenNum, int zoneNum,
+                bool init) const
 {
-  if (setDefault) {
-    memset(persistentData, 0, sizeof(Widget::PersistentData));
+  auto widgetData = g_model.getWidgetData(screenNum, zoneNum);
+
+  if (init) {
+    widgetData->clear();
+    parseOptionDefaults();
   }
   if (options) {
     int i = 0;
-    for (const ZoneOption* option = options; option->name; option++, i++) {
-      TRACE("WidgetFactory::initPersistentData() setting option '%s'",
-            option->name);
-      auto optVal = &persistentData->options[i];
-      auto optType = zoneValueEnumFromType(option->type);
-      if (setDefault || optVal->type != optType) {
-        // reset to default value
-        memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
-        optVal->type = optType;
-      }
+    for (const WidgetOption* option = options; option->name; option++, i++) {
+      TRACE("WidgetFactory::create() setting option '%s'", option->name);
+      widgetData->setDefault(i, option, init);
     }
   }
+
+  return createNew(parent, rect, screenNum, zoneNum);
 }

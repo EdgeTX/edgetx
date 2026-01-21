@@ -29,22 +29,44 @@
 
 ZoneOptionValue::ZoneOptionValue()
 {
-  memset((void*)this, 0, sizeof(ZoneOptionValue));
+  clear();
 }
 
-ZoneOptionValueTyped::ZoneOptionValueTyped()
+ZoneOptionValue::ZoneOptionValue(const ZoneOptionValue & src)
 {
-  memset((void*)this, 0, sizeof(ZoneOptionValueTyped));
+  copy(src);
 }
 
-WidgetPersistentData::WidgetPersistentData()
+ZoneOptionValue & ZoneOptionValue::operator=(const ZoneOptionValue & src)
 {
-  memset((void*)this, 0, sizeof(WidgetPersistentData));
+  copy(src);
+  return *this;
 }
 
-ZonePersistentData::ZonePersistentData()
+void ZoneOptionValue::copy(const ZoneOptionValue & src)
 {
-  memset((void*)this, 0, sizeof(ZonePersistentData));
+  unsignedValue = src.unsignedValue;
+  signedValue = src.signedValue;
+  boolValue = src.boolValue;
+  stringValue = src.stringValue;
+  sourceValue = src.sourceValue;
+  colorValue = src.colorValue;
+}
+
+bool ZoneOptionValue::isEmpty() const
+{
+  return unsignedValue == 0 && signedValue == 0 && boolValue == 0 && colorValue == 0 &&
+         stringValue.empty() && sourceValue.toValue() == 0;
+}
+
+void ZoneOptionValue::clear()
+{
+  unsignedValue = 0;
+  signedValue = 0;
+  boolValue = 0;
+  stringValue.clear();
+  sourceValue.clear();
+  colorValue = 0;
 }
 
 inline void setZoneOptionValue(ZoneOptionValue& zov, bool value)
@@ -57,9 +79,9 @@ inline void setZoneOptionValue(ZoneOptionValue& zov, int value)
   zov.signedValue = value;
 }
 
-inline void setZoneOptionValue(ZoneOptionValue& zov, char value)
+inline void setZoneOptionValue(ZoneOptionValue& zov, const char* value)
 {
-  memset(&zov.stringValue, value, LEN_ZONE_OPTION_STRING);
+  zov.stringValue = value;
 }
 
 inline void setZoneOptionValue(ZoneOptionValue& zov, unsigned int value)
@@ -71,6 +93,7 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
 {
   switch(type) {
   case ZoneOption::String:
+  case ZoneOption::File:
     return ZOV_String;
 
   case ZoneOption::Integer:
@@ -105,43 +128,114 @@ inline const char * zoneOptionValueEnumToString(ZoneOptionValueEnum zovenum) {
   }
 }
 
-static const ZoneOptionValueTyped zero_widget_option = {};
+ZoneOptionValueTyped::ZoneOptionValueTyped()
+{
+  clear();
+}
 
 bool ZoneOptionValueTyped::isEmpty() const
 {
-  return !memcmp((void*)this, &zero_widget_option, sizeof(zero_widget_option));
+  return type == ZOV_Unsigned && value.isEmpty();
+}
+
+void ZoneOptionValueTyped::clear()
+{
+  type = ZOV_Unsigned;
+  value.clear();
+}
+
+void WidgetPersistentData::clear()
+{
+  for (int i = 0; i < MAX_WIDGET_OPTIONS; i += 1)
+    options[i].clear();
+}
+
+ZonePersistentData::ZonePersistentData(const ZonePersistentData & src)
+{
+  copy(src);
+}
+
+ZonePersistentData & ZonePersistentData::operator=(const ZonePersistentData & src)
+{
+  copy(src);
+  return *this;
+}
+
+void ZonePersistentData::copy(const ZonePersistentData & src)
+{
+  widgetName = src.widgetName;
+  widgetData = src.widgetData;
 }
 
 bool ZonePersistentData::isEmpty() const
 {
-  return strlen(widgetName) == 0;
+  return widgetName.empty();
 }
 
-RadioLayout::CustomScreenData::CustomScreenData()
+void ZonePersistentData::clear()
 {
-  memset((void*)this, 0, sizeof(RadioLayout::CustomScreenData));
+  widgetName.clear();
+  widgetData.clear();
+}
+
+RadioLayout::CustomScreenData::CustomScreenData(const RadioLayout::CustomScreenData & src)
+{
+  copy(src);
+}
+
+RadioLayout::CustomScreenData & RadioLayout::CustomScreenData::operator=(const RadioLayout::CustomScreenData & src)
+{
+  copy(src);
+  return *this;
+}
+
+void RadioLayout::CustomScreenData::copy(const RadioLayout::CustomScreenData & src)
+{
+  layoutId = src.layoutId;
+  layoutPersistentData = src.layoutPersistentData;
 }
 
 bool RadioLayout::CustomScreenData::isEmpty() const
 {
-  return strlen(layoutId) == 0;
+  return layoutId.empty();
+}
+
+void RadioLayout::CustomScreenData::clear()
+{
+  layoutId.clear();
+  layoutPersistentData.clear();
+}
+
+RadioLayout::CustomScreens::CustomScreens(const RadioLayout::CustomScreens & src)
+{
+  copy(src);
+}
+
+RadioLayout::CustomScreens & RadioLayout::CustomScreens::operator=(const RadioLayout::CustomScreens & src)
+{
+  copy(src);
+  return *this;
+}
+
+void RadioLayout::CustomScreens::copy(const RadioLayout::CustomScreens & src)
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++)
+    customScreenData[i] = src.customScreenData[i];
 }
 
 void RadioLayout::CustomScreens::clear()
 {
-  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-    customScreenData[i] = CustomScreenData();
-  }
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++)
+    customScreenData[i].clear();
 }
 
-void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)
+void RadioLayout::init(const std::string layoutId, CustomScreens& customScreens)
 {
   customScreens.clear();
 
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
     if (i == 0)
-      memcpy(&customScreens.customScreenData[i].layoutId, layoutId,
-             LAYOUT_ID_LEN);
+      customScreens.customScreenData[i].layoutId = layoutId;
 
     LayoutPersistentData& persistentData =
         customScreens.customScreenData[i].layoutPersistentData;

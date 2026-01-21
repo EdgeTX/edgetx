@@ -24,7 +24,7 @@
 #include "mainwindow.h"
 #include "helpers.h"
 #include "storage.h"
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
@@ -32,6 +32,8 @@
 #include "filtereditemmodels.h"
 #include "updates/updatefactories.h"
 #include "updates/updateoptionsdialog.h"
+#include <QPalette>
+#include <QColorDialog>
 
 constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
@@ -54,8 +56,12 @@ AppPreferencesDialog::AppPreferencesDialog(QWidget * parent, UpdateFactories * f
   connect(ui->boardCB, SIGNAL(currentIndexChanged(int)), this, SLOT(onBaseFirmwareChanged()));
   connect(ui->opt_appDebugLog, &QCheckBox::toggled, this, &AppPreferencesDialog::toggleAppLogSettings);
   connect(ui->opt_fwTraceLog, &QCheckBox::toggled, this, &AppPreferencesDialog::toggleAppLogSettings);
+  connect(ui->backupPath, &QLineEdit::editingFinished, this, &AppPreferencesDialog::onBackupPathEditingFinished);
+  connect(ui->backupPathButton, &QPushButton::clicked, this, &AppPreferencesDialog::onBackupPathButtonClicked);
+  connect(ui->profileBackupPath, &QLineEdit::editingFinished, this, &AppPreferencesDialog::onProfileBackupPathEditingFinished);
+  connect(ui->profileBackupPathButton, &QPushButton::clicked, this, &AppPreferencesDialog::onProfileBackupPathButtonClicked);
 
-#if !defined(JOYSTICKS)
+#if !defined(USE_SDL)
   ui->joystickCB->hide();
   ui->joystickCB->setDisabled(true);
   ui->joystickcalButton->hide();
@@ -84,12 +90,9 @@ void AppPreferencesDialog::accept()
   g.showSplash(ui->showSplash->isChecked());
   g.sortProfiles(ui->sortProfiles->isChecked());
   g.promptProfile(ui->chkPromptProfile->isChecked());
-  g.simuSW(ui->simuSW->isChecked());
-  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
   g.removeModelSlots(ui->opt_removeBlankSlots->isChecked());
   g.newModelAction((AppData::NewModelAction)ui->cboNewModelAction->currentIndex());
   g.historySize(ui->historySize->value());
-  g.backLight(ui->backLightColor->currentIndex());
   profile.volumeGain(round(ui->volumeGain->value() * 10.0));
   g.libDir(ui->libraryPath->text());
   g.gePath(ui->ge_lineedit->text());
@@ -100,6 +103,14 @@ void AppPreferencesDialog::accept()
   g.fwTraceLog(ui->opt_fwTraceLog->isChecked());
   g.appLogsDir(ui->appLogsDir->text());
   g.runAppInstaller(ui->chkPromptInstall->isChecked());
+
+//  Simulator tab
+  g.simuSW(ui->simuSW->isChecked());
+  g.backLight(ui->backLightColor->currentIndex());
+  g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboSimuGenericKeysPos->currentIndex());
+  g.simuScrollButtons(ui->chkSimuScrollButtons->isChecked());
+
+  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
 
   if (ui->joystickChkB ->isChecked()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
@@ -165,10 +176,11 @@ void AppPreferencesDialog::accept()
   profile.defaultMode(ui->stickmodeCB->currentData().toInt());
   profile.burnFirmware(ui->burnFirmware->isChecked());
   profile.sdPath(ui->sdPath->text());
-  profile.pBackupDir(ui->profilebackupPath->text());
-  profile.penableBackup(ui->pbackupEnable->isChecked());
+  profile.pBackupDir(ui->profileBackupPath->text());
+  profile.penableBackup(ui->profileBackupEnable->isChecked());
   profile.splashFile(ui->SplashFileName->text());
   profile.runSDSync(ui->chkPromptSDSync->isChecked());
+  profile.radioSimCaseColor(ui->lblRadioColorSample->palette().button().color());
 
   // The profile name may NEVER be empty
   if (ui->profileNameLE->text().isEmpty())
@@ -203,7 +215,6 @@ void AppPreferencesDialog::accept()
     }
     Firmware::setCurrentVariant(newFw);
     profile.fwName("");
-    profile.resetFwVariables();
     profile.fwType(newFw->getId());
     fwchange = true;
   }
@@ -224,51 +235,40 @@ void AppPreferencesDialog::on_snapshotPathButton_clicked()
   }
 }
 
+void AppPreferencesDialog::on_btnRadioColor_clicked()
+{
+  Profile & profile = g.currentProfile();
+  QColorDialog *dlg = new QColorDialog(this);
+  QColor color = dlg->getColor(profile.radioSimCaseColor(), this);
+  ui->lblRadioColorSample->setPalette(QPalette(color));
+  ui->lblRadioColorSample->repaint();
+}
+
 void AppPreferencesDialog::initSettings()
 {
-  const Profile & profile = g.currentProfile();
+  Profile & profile = g.currentProfile();
 
-  ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
   ui->burnFirmware->setChecked(profile.burnFirmware());
-  ui->snapshotPath->setText(g.snapshotDir());
-  ui->snapshotPath->setReadOnly(true);
-  if (ui->snapshotClipboardCKB->isChecked()) {
-    ui->snapshotPath->setDisabled(true);
-    ui->snapshotPathButton->setDisabled(true);
-  }
 
   ui->showSplash->setChecked(g.showSplash());
   ui->sortProfiles->setChecked(g.sortProfiles());
   ui->chkPromptProfile->setChecked(g.promptProfile());
   ui->historySize->setValue(g.historySize());
-  ui->backLightColor->setCurrentIndex(g.backLight());
-  ui->volumeGain->setValue(profile.volumeGain() / 10.0);
-
-  if (IS_HORUS_OR_TARANIS(getCurrentBoard())) {
-    ui->backLightColor->setEnabled(false);
-  }
-
-  ui->simuSW->setChecked(g.simuSW());
-  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
   ui->opt_removeBlankSlots->setChecked(g.removeModelSlots());
   ui->cboNewModelAction->addItems(AppData::newModelActionsList());
   ui->cboNewModelAction->setCurrentIndex(g.newModelAction());
   ui->libraryPath->setText(g.libDir());
   ui->ge_lineedit->setText(g.gePath());
 
-  if (!g.backupDir().isEmpty()) {
-    if (QDir(g.backupDir()).exists()) {
-      ui->backupPath->setText(g.backupDir());
-      ui->backupEnable->setEnabled(true);
-      ui->backupEnable->setChecked(g.enableBackup());
-    }
-    else {
-      ui->backupEnable->setDisabled(true);
-    }
+  ui->backupPath->setText(g.backupDir());
+  if (!ui->backupPath->text().isEmpty() && QDir(ui->backupPath->text()).exists()) {
+    ui->backupEnable->setEnabled(true);
+    ui->backupEnable->setChecked(g.enableBackup());
+  } else {
+    ui->backupEnable->setChecked(false);
+    ui->backupEnable->setEnabled(false);
   }
-  else {
-    ui->backupEnable->setDisabled(true);
-  }
+
   ui->splashincludeCB->setCurrentIndex(g.embedSplashes());
 
   ui->opt_appDebugLog->setChecked(g.appDebugLog());
@@ -277,7 +277,25 @@ void AppPreferencesDialog::initSettings()
   toggleAppLogSettings();
   ui->chkPromptInstall->setChecked(g.runAppInstaller());
 
-#if defined(JOYSTICKS)
+  //  Simulator tab
+  ui->snapshotPath->setText(g.snapshotDir());
+  ui->snapshotPath->setReadOnly(true);
+  ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
+  if (ui->snapshotClipboardCKB->isChecked()) {
+    ui->snapshotPath->setDisabled(true);
+    ui->snapshotPathButton->setDisabled(true);
+  }
+  ui->simuSW->setChecked(g.simuSW());
+  ui->backLightColor->setCurrentIndex(g.backLight());
+  if (!Boards::getCapability(getCurrentBoard(), Board::HasBacklightColor))
+    ui->backLightColor->setEnabled(false);
+  ui->volumeGain->setValue(profile.volumeGain() / 10.0);
+  ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
+  ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
+  ui->chkSimuScrollButtons->setChecked(g.simuScrollButtons());
+  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
+
+#if defined(USE_SDL)
   ui->joystickChkB->setChecked(g.jsSupport());
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
@@ -317,17 +335,22 @@ void AppPreferencesDialog::initSettings()
   ui->stickmodeCB->setModel(GeneralSettings::stickModeItemModel());
   ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(profile.defaultMode()));
   ui->sdPath->setText(profile.sdPath());
-  if (!profile.pBackupDir().isEmpty()) {
-    if (QDir(profile.pBackupDir()).exists()) {
-      ui->profilebackupPath->setText(profile.pBackupDir());
-      ui->pbackupEnable->setEnabled(true);
-      ui->pbackupEnable->setChecked(profile.penableBackup());
+
+  ui->profileBackupPath->setText(profile.pBackupDir());
+  if (!ui->profileBackupPath->text().isEmpty()) {
+    if (QDir(ui->profileBackupPath->text()).exists()) {
+      ui->profileBackupEnable->setEnabled(true);
+      ui->profileBackupEnable->setChecked(profile.penableBackup());
     } else {
-      ui->pbackupEnable->setDisabled(true);
+      ui->profileBackupEnable->setChecked(false);
+      ui->profileBackupEnable->setEnabled(false);
     }
-  }
-  else {
-      ui->pbackupEnable->setDisabled(true);
+  } else if (!ui->backupPath->text().isEmpty() && QDir(ui->backupPath->text()).exists()) {
+    ui->profileBackupEnable->setEnabled(true);
+    ui->profileBackupEnable->setChecked(profile.penableBackup());
+  } else {
+    ui->profileBackupEnable->setChecked(false);
+    ui->profileBackupEnable->setEnabled(false);
   }
 
   if (Boards::isSurface()) {
@@ -338,7 +361,8 @@ void AppPreferencesDialog::initSettings()
   ui->profileNameLE->setText(profile.name());
 
   QString hwSettings;
-  if (profile.stickPotCalib() == "" ) {
+
+  if (profile.generalSettings().isEmpty()) {
     hwSettings = tr("EMPTY: No radio settings stored in profile");
   }
   else  {
@@ -348,8 +372,10 @@ void AppPreferencesDialog::initSettings()
     else
       hwSettings = tr("AVAILABLE: Radio settings stored %1").arg(str);
   }
+
   ui->lblGeneralSettings->setText(hwSettings);
   ui->chkPromptSDSync->setChecked(profile.runSDSync());
+  ui->lblRadioColorSample->setPalette(QPalette(profile.radioSimCaseColor()));
 
   QString currType = QStringList(profile.fwType().split('-').mid(0, 2)).join('-');
   foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
@@ -430,8 +456,8 @@ void AppPreferencesDialog::initSettings()
     }
   });
 
-  connect(ui->chkDelDecompress, &QCheckBox::stateChanged, [=](const int checked) {
-    if (!checked) {
+  connect(ui->chkDelDecompress, &QCheckBox::checkStateChanged, [=](const int checked) {
+      if (!checked) {
       if (ui->chkDecompressDirUseDwnld->isChecked()) {
         ui->chkDelDownloads->setEnabled(false);
         ui->chkDelDownloads->setChecked(false);
@@ -473,6 +499,7 @@ void AppPreferencesDialog::initSettings()
     grid->addWidget(lblName[i], row, col++);
 
     chkCheckForUpdate[i] = new QCheckBox();
+    chkCheckForUpdate[i]->setStyleSheet("spacing: 10px"); // workaround Qt 6.9.0 Qt::AlignHCenter causes text to overlap checkbox rhs
     grid->addWidget(chkCheckForUpdate[i], row, col++);
     grid->setAlignment(chkCheckForUpdate[i], Qt::AlignHCenter);
 
@@ -563,25 +590,32 @@ void AppPreferencesDialog::on_snapshotClipboardCKB_clicked()
   }
 }
 
-void AppPreferencesDialog::on_backupPathButton_clicked()
+void AppPreferencesDialog::onBackupPathButtonClicked()
 {
-  QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your Models and Settings backup folder"), g.backupDir());
+  QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your global backup folder"), g.backupDir());
   if (!fileName.isEmpty()) {
     g.backupDir(fileName);
     ui->backupPath->setText(fileName);
     ui->backupEnable->setEnabled(true);
+    ui->profileBackupEnable->setEnabled(true);
+  } else {
+    ui->backupEnable->setEnabled(false);
+    if (!g.currentProfile().pBackupDir().isEmpty() && QFileInfo(g.currentProfile().pBackupDir()).exists()) {
+      ui->profileBackupEnable->setEnabled(true);
+    } else {
+      ui->profileBackupEnable->setEnabled(false);
+    }
   }
 }
 
-void AppPreferencesDialog::on_ProfilebackupPathButton_clicked()
+void AppPreferencesDialog::onProfileBackupPathButtonClicked()
 {
-  QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your Models and Settings backup folder"), g.backupDir());
+  QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your profile backup folder"), g.backupDir());
   if (!fileName.isEmpty()) {
-    ui->profilebackupPath->setText(fileName);
-    ui->pbackupEnable->setEnabled(true);
+    ui->profileBackupPath->setText(fileName);
+    ui->profileBackupEnable->setEnabled(true);
   }
 }
-
 
 void AppPreferencesDialog::on_btn_appLogsDir_clicked()
 {
@@ -606,7 +640,7 @@ void AppPreferencesDialog::on_btnClearPos_clicked()
   g.profile[g.sessionId()].simulatorOptions(opts);
 }
 
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
 void AppPreferencesDialog::on_joystickChkB_clicked() {
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
@@ -773,8 +807,12 @@ void AppPreferencesDialog::populateFirmwareOptions(const Firmware * firmware)
 {
   const Firmware * baseFw = firmware->getFirmwareBase();
   QStringList currVariant = Firmware::getCurrentVariant()->getId().split('-');
-  const QString currLang = ui->langCombo->count() ? ui->langCombo->currentText() : currVariant.last();
+  QString fwLang = Firmware::getCurrentVariant()->getLanguage();
 
+  if (fwLang.isEmpty()) // try to detect os language
+    fwLang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+  const QString currLang = ui->langCombo->count() ? ui->langCombo->currentText() : fwLang;
   updateLock = true;
 
   ui->langCombo->clear();
@@ -835,4 +873,33 @@ void AppPreferencesDialog::populateFirmwareOptions(const Firmware * firmware)
 void AppPreferencesDialog::shrink()
 {
   adjustSize();
+}
+
+void AppPreferencesDialog::onBackupPathEditingFinished()
+{
+  if(!ui->backupPath->text().isEmpty() && QFileInfo(ui->backupPath->text()).exists()) {
+    ui->backupEnable->setEnabled(true);
+  } else {
+    ui->backupEnable->setChecked(false);
+    ui->backupEnable->setEnabled(false);
+  }
+
+  onProfileBackupPathEditingFinished();
+}
+
+void AppPreferencesDialog::onProfileBackupPathEditingFinished()
+{
+  if (!ui->profileBackupPath->text().isEmpty()) {
+    if (QDir(ui->profileBackupPath->text()).exists()) {
+      ui->profileBackupEnable->setEnabled(true);
+    } else {
+      ui->profileBackupEnable->setChecked(false);
+      ui->profileBackupEnable->setEnabled(false);
+    }
+  } else if (!ui->backupPath->text().isEmpty() && QDir(ui->backupPath->text()).exists()) {
+    ui->profileBackupEnable->setEnabled(true);
+  } else {
+    ui->profileBackupEnable->setChecked(false);
+    ui->profileBackupEnable->setEnabled(false);
+  }
 }

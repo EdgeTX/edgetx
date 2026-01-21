@@ -39,8 +39,6 @@ class SwitchWarnDialog : public FullScreenDialog
   uint16_t     last_bad_pots;
 
   bool warningInactive();
-  
-  void delayedInit() override;
 
   void checkEvents() override;
 };
@@ -56,6 +54,4 @@ class ThrottleWarnDialog : public FullScreenDialog
 
  protected:
   bool warningInactive();
-  
-  void delayedInit() override;
 };

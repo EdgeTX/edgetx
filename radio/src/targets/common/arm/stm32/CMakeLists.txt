@@ -25,6 +25,7 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Core/Src/usbd_ctlreq.c
     ${STM32USB_DIR}/Core/Src/usbd_ioreq.c
     ${STM32USB_DIR}/Class/CDC/Src/usbd_cdc.c
+    ${STM32USB_DIR}/Class/DFU/Src/usbd_dfu.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_data.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_scsi.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_bot.c
@@ -34,8 +35,13 @@ if(NOT NATIVE_BUILD)
   target_include_directories(stm32usb PRIVATE
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
+
+  target_include_directories(board_bl PRIVATE
+    ${STM32USB_DIR}/Core/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc)
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb>)
@@ -44,14 +50,15 @@ if(NOT NATIVE_BUILD)
   add_library(stm32usb_device_bl OBJECT EXCLUDE_FROM_ALL    
     ${STM32_DRIVER_DIR}/usbd_conf.c
     ${STM32_DRIVER_DIR}/usbd_desc.c
-    ${STM32_DRIVER_DIR}/usb_driver.cpp
     ${STM32_DRIVER_DIR}/usbd_storage_msd.cpp
+    ${STM32_DRIVER_DIR}/usb_driver.cpp
   )
 
   target_compile_options(stm32usb_device_bl PRIVATE -DBOOT)
   target_include_directories(stm32usb_device_bl PRIVATE
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
 
@@ -74,6 +81,7 @@ if(NOT NATIVE_BUILD)
   target_include_directories(stm32usb_device_fw PRIVATE
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
 
@@ -88,22 +96,36 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_serial_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_usart_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio_driver.cpp
-    ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_timer.cpp
     ${STM32_DRIVER_DIR}/stm32_dma.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio.cpp
-    ${STM32_DRIVER_DIR}/stm32_spi.cpp
     ${STM32_DRIVER_DIR}/stm32_adc.cpp
   )
+
+  if(CPU_TYPE STREQUAL STM32F2)
+    target_sources(stm32_drivers PUBLIC
+      ${STM32_DRIVER_DIR}/stm32_spi.cpp
+    )
+  elseif(CPU_TYPE STREQUAL STM32F4)
+    target_sources(stm32_drivers PUBLIC
+      ${STM32_DRIVER_DIR}/stm32_spi.cpp
+    )
+  elseif(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
+    target_sources(stm32_drivers PUBLIC
+      ${STM32_DRIVER_DIR}/stm32_spi_h7.cpp
+    )
+  endif()
 
   # HAL/LL drivers using TRACE
   add_library(stm32_drivers_w_dbg_fw OBJECT EXCLUDE_FROM_ALL
       ${STM32_DRIVER_DIR}/sdcard_spi.cpp
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
+      ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
   )
   add_library(stm32_drivers_w_dbg_bl OBJECT EXCLUDE_FROM_ALL
       ${STM32_DRIVER_DIR}/sdcard_spi.cpp
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
+      ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
   )
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
@@ -137,6 +159,15 @@ if(FLYSKY_GIMBAL)
   add_definitions(-DFLYSKY_GIMBAL)
 endif()
 
+if(CSD203_SENSOR)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  targets/common/arm/stm32/csd203_sensor.cpp
+  )
+  add_definitions(-DCSD203_SENSOR)
+  message("-- Adding support for Current sensor")
+endif()
+
+
 if(DEBUG OR CLI OR USB_SERIAL)
   add_definitions(-DUSB_SERIAL)
   message("-- Adding support for USB serial")
@@ -146,3 +177,11 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
 set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
 set(SRC ${SRC} io/bootloader_flash.cpp)
+
+if(FIRMWARE_FORMAT_UF2)
+  add_definitions(-DFIRMWARE_FORMAT_UF2)
+  set(SRC ${SRC}
+    io/uf2.cpp
+    io/uf2_flash.cpp
+  )
+endif()

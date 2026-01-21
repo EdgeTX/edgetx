@@ -36,15 +36,31 @@
  #else
   #include "yaml_datastructs_x10.cpp"
  #endif
-#elif defined(PCBNV14)
- #include "yaml_datastructs_nv14.cpp"
+#elif defined(PCBTX15)
+ #include "yaml_datastructs_tx15.cpp"
+#elif defined(PCBT15)
+ #include "yaml_datastructs_t15pro.cpp"
 #elif defined(PCBPL18)
- #include "yaml_datastructs_pl18.cpp"
+ #if defined(RADIO_NB4P)
+  #include "yaml_datastructs_nb4p.cpp"
+ #elif defined(RADIO_NV14_FAMILY)  
+  #include "yaml_datastructs_nv14.cpp"
+ #elif defined(RADIO_PL18U)  
+  #include "yaml_datastructs_pl18u.cpp"
+ #else
+  #include "yaml_datastructs_pl18.cpp"
+ #endif
+#elif defined(PCBST16)
+ #include "yaml_datastructs_st16.cpp"
+#elif defined(PCBPA01)
+ #include "yaml_datastructs_pa01.cpp"
 #elif defined(PCBX7)
- #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
+ #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   #include "yaml_datastructs_tpro.cpp"
  #elif defined(RADIO_FAMILY_T20)
   #include "yaml_datastructs_t20.cpp"
+ #elif defined(RADIO_GX12)
+   #include "yaml_datastructs_gx12.cpp"
  #elif defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_T8) || defined(RADIO_T12) || defined(RADIO_TLITE)
   #include "yaml_datastructs_xlite.cpp"
  #else
@@ -67,6 +83,3 @@
 #else
 #error "Board not supported by YAML storage"
 #endif
-
-static_assert(MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN,
-              "MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN");

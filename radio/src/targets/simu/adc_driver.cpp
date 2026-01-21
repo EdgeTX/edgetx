@@ -23,14 +23,25 @@
 #include "definitions.h"
 
 #include "myeeprom.h"
-#include "translations.h"
 
-#include "hal_adc_inputs.inc"
 #include "board.h"
+#include "edgetx.h"
+#include "hal_adc_inputs.inc"
 
 void enableVBatBridge(){}
 void disableVBatBridge(){}
 bool isVBatBridgeEnabled(){ return false; }
+
+uint16_t getBatteryVoltage()
+{
+  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
+  return anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
+}
+
+uint16_t getRTCBatteryVoltage()
+{
+  return 300;
+}
 
 extern uint16_t simu_get_analog(uint8_t idx);
 
@@ -41,20 +52,11 @@ static bool simu_start_conversion()
     setAnalogValue(i, simu_get_analog(i));
   }
 
-  // set VBAT / RTC_BAT
-  if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
-    uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
-#if defined(BATT_SCALE)
-    vbat = ((vbat - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
-#else
-    vbat = (vbat * BATTERY_DIVIDER) / 1000;
-#endif
-    setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat * 2);
-  }
-
-  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) > 0) {
-    uint32_t rtc_bat = (300 * (2048 >> ANALOG_SCALE)) / ADC_VREF_PREC2;
-    setAnalogValue(adcGetInputOffset(ADC_INPUT_RTC_BAT), rtc_bat * 2);
+  // set batteries default voltages
+  int i = adcGetInputOffset(ADC_INPUT_VBAT);
+  if (i > 0) {
+    uint16_t volts = (uint16_t)((g_eeGeneral.vBatWarn > 0 ? g_eeGeneral.vBatWarn : BATTERY_WARN) + 5) * 10; // +0.5V and prec2
+    setAnalogValue(i, volts * 2);
   }
 
   return true;

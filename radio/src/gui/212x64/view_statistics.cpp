@@ -21,7 +21,9 @@
 
 #include "hal/adc_driver.h"
 #include "edgetx.h"
+
 #include "tasks.h"
+#include "tasks/mixer_task.h"
 
 #define STATS_1ST_COLUMN               FW/2
 #define STATS_2ND_COLUMN               12*FW+FW/2
@@ -188,15 +190,13 @@ void menuStatisticsDebug(event_t event)
 
   lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
   lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, "[M]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, menusStack.available(), LEFT);
+  lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&menusTaskId), LEFT);
   lcdDrawText(lcdLastRightPos+2, y+1, "[X]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
+  lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&mixerTaskId), LEFT);
 #if defined(AUDIO)
   lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
+  lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&audioTaskId), LEFT);
 #endif
-  lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, mainStackAvailable(), LEFT);
   y += FH;
 
 #if defined(DEBUG_LATENCY)

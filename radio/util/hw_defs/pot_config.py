@@ -6,6 +6,12 @@ POT_CONFIG = {
         "P2": {"default": "POT_CENTER"},
         "P3": {"default": "MULTIPOS"}
     },
+    "gx12": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
+    },
     "el18": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
@@ -31,6 +37,17 @@ POT_CONFIG = {
         "EXT2": {"default": "POT_CENTER"},
         "EXT3": {"default": "MULTIPOS"},
         "EXT4": {"default": "MULTIPOS"}
+    },
+    "pl18u": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
+    },
+    "nb4p": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
     },
     "v12": {
         "P1": {"default": "POT_CENTER"},
@@ -64,6 +81,10 @@ POT_CONFIG = {
         "P2": {"default": "POT_CENTER"}
     },
     "tpros": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
+    },
+    "bumblebee": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
     },
@@ -120,6 +141,14 @@ POT_CONFIG = {
         "P3": {"default": "POT_CENTER"},
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
+    },
+    "tx15": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+    },
+    "t15pro": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
     },
     "tx16s": {
         "P1": {"default": "POT_CENTER"},
@@ -216,6 +245,16 @@ POT_CONFIG = {
     },
     "pocket": {
         "P1": {"default": "POT"}
+    },
+    "st16": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+    },
+    "pa01": {
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
     },
 }
 

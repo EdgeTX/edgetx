@@ -22,24 +22,21 @@
 #pragma once
 
 #include "dataconstants.h"
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
 enum MultiModuleType : short;
 
 class FileBrowser;
 class FilePreview;
 
-class RadioSdManagerPage : public PageTab
+class RadioSdManagerPage : public PageGroupItem
 {
   FileBrowser* browser = nullptr;
   FilePreview* preview = nullptr;
-  
- public:
-  RadioSdManagerPage();
-  void build(Window* window) override;
 
-  static LAYOUT_VAL(PREVIEW_W, LCD_W * 2 / 5 - PAD_SMALL * 2, LCD_W - PAD_MEDIUM * 2)
-  static LAYOUT_VAL(PREVIEW_H, LCD_H - 68, (LCD_H - 68) / 3)
+ public:
+  RadioSdManagerPage(const PageDef& pageDef);
+  void build(Window* window) override;
 
  protected:
   int loadPreview = 0;
@@ -48,14 +45,20 @@ class RadioSdManagerPage : public PageTab
 
   void fileAction(const char* path, const char* name, const char* fullpath);
   void dirAction(const char* path, const char* name, const char* fullpath);
-  
+
+#if defined(FIRMWARE_FORMAT_UF2)
+  void FirmwareUpdate(const char* fn);
+#else
   void BootloaderUpdate(const char* fn);
+#endif
 #if defined(BLUETOOTH)
   void BluetoothFirmwareUpdate(const char* fn);
 #endif
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
   void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
   void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
                            MultiModuleType type);
+#endif
 
-  void checkEvents() override; 
+  void checkEvents() override;
 };

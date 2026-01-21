@@ -149,9 +149,9 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
 
   for (int i = 0; i < firmware->getCapability(TopBarZones); i++) {
     ZonePersistentData & zpd = model.topBarData.zones[i];
-    QPushButton * btn = new QPushButton(zpd.widgetName, this);
+    QPushButton * btn = new QPushButton(zpd.widgetName.c_str(), this);
     btn->setProperty("index", i);
-    btn->setFixedSize(QSize(90, 30));
+    btn->setFixedSize(QSize(180, 50));
     widgetbtns.append(btn);
 
     if (zpd.widgetName[0] != '\0' && SHOW_RAW_INFO) {
@@ -165,7 +165,7 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
       optswidgets.append(wgt);
 
       QGridLayout * layout = new QGridLayout(wgt);  // must be owned by QWidget so visibility can be set
-      layout->addLayout(addOptionsLayout<WidgetPersistentData>(zpd.widgetData, MAX_WIDGET_OPTIONS, zpd.widgetName), 0, 0);
+      layout->addLayout(addOptionsLayout<WidgetPersistentData>(zpd.widgetData, MAX_WIDGET_OPTIONS, zpd.widgetName.c_str()), 0, 0);
       optsgrids.append(layout);
 
       connect(btn, &QPushButton::clicked, this, [&]() {
@@ -239,7 +239,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
   addGridLabel(grid, tr("Layout:"), row, col++);
 
   //  currently no point continuing if no layout but will change if editing becomes possible
-  if (model.customScreens.customScreenData[index].layoutId[0] == '\0') {
+  if (model.customScreens.customScreenData[index].layoutId.empty()) {
     addGridLabel(grid, tr("None"), row, col);
     addHSpring(grid, grid->columnCount(), 0);
     addVSpring(grid, 0, grid->rowCount());
@@ -248,7 +248,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
 
   QLabel * img = new QLabel(this);
 
-  QString path(QString(":/layouts/mask_%1.png").arg(QString(scrns.customScreenData[index].layoutId).toLower()));
+  QString path(QString(":/layouts/mask_%1.png").arg(QString(scrns.customScreenData[index].layoutId.c_str()).toLower()));
   QFile f(path);
 
   if (f.exists()) {
@@ -278,9 +278,9 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
 
   for (int i = 0; i < MAX_LAYOUT_ZONES; i++) {
     ZonePersistentData & zpd = lpd.zones[i];
-    QPushButton * btn = new QPushButton(zpd.widgetName, this);
+    QPushButton * btn = new QPushButton(zpd.widgetName.c_str(), this);
     btn->setProperty("index", i);
-    btn->setFixedSize(QSize(90, 30));
+    btn->setFixedSize(QSize(180, 50));
     widgetbtns.append(btn);
 
     if (zpd.widgetName[0] != '\0' && SHOW_RAW_INFO) {
@@ -293,8 +293,8 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
       wgt->setVisible(false);
       optswidgets.append(wgt);
 
-      QGridLayout * layout = new QGridLayout(wgt);  // must be owned by QWidget so isibility can be set
-      layout->addLayout(addOptionsLayout<WidgetPersistentData>(zpd.widgetData, MAX_WIDGET_OPTIONS, zpd.widgetName), 0, 0, Qt::AlignTop);
+      QGridLayout * layout = new QGridLayout(wgt);  // must be owned by QWidget so visibility can be set
+      layout->addLayout(addOptionsLayout<WidgetPersistentData>(zpd.widgetData, MAX_WIDGET_OPTIONS, zpd.widgetName.c_str()), 0, 0, Qt::AlignTop);
       optsgrids.append(layout);
 
       connect(btn, &QPushButton::clicked, this, [&]() {
@@ -333,7 +333,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
         str = tr("Top bar");
         break;
       case LAYOUT_OPTION_FM:
-        str = tr("%1 mode").arg(Boards::getRadioTypeString(firmware->getBoard()));
+        str = tr("%1 mode").arg(Boards::getRadioModeString(firmware->getBoard()));
         break;
       case LAYOUT_OPTION_SLIDERS:
         str = tr("Sliders");
@@ -369,7 +369,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
         break;
       case ZOV_String:
         lbl = new QLabel(this);
-        lbl->setText(lpd.options[i].value.stringValue);
+        lbl->setText(lpd.options[i].value.stringValue.c_str());
         break;
       default:
         lbl = new QLabel(this);

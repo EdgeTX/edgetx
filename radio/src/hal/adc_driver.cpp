@@ -21,20 +21,22 @@
 
 #include "adc_driver.h"
 #include "board.h"
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
 
 #include "edgetx.h"
 
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 
-static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
-
-#if defined(CSD203_SENSOR)
-  extern uint16_t getCSD203BatteryVoltage(void);
-#endif
+static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA_NO_CACHE;
 
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
+  // Init buffer, provides non random values before mixer task starts
+  memset(adcValues, 0, sizeof(adcValues));
+
   // If there is an init function, it MUST succeed
   if (driver && (!driver->init || driver->init())) {
     _hal_adc_driver = driver;
@@ -58,13 +60,19 @@ static bool adcSingleRead()
   if (_hal_adc_driver->wait_completion)
     _hal_adc_driver->wait_completion();
 
+  // Need to put all in a group to ensure DMA transfer will not affect ADC sampling
+#if defined(FLYSKY_GIMBAL) && !defined(SIMU)
+  flysky_gimbal_start_read();
+  flysky_gimbal_wait_completion();
+#endif  
+  
   return true;
 }
 
 bool adcRead()
 {
   adcSingleRead();
-  
+
   // TODO: this hack needs to go away...
   if (isVBatBridgeEnabled()) {
     disableVBatBridge();
@@ -194,7 +202,7 @@ void adcCalibSetMinMax()
             }
 
             xpot.stepsCount = ++count;
-	    writeXPotCalib(i, xpot.steps, count);
+            writeXPotCalib(i, xpot.steps, count);
           }
         }
       }
@@ -229,19 +237,6 @@ void adcCalibStore()
   disableUncalibratedXPots();
   g_eeGeneral.chkSum = evalChkSum();
   storageDirty(EE_GENERAL);
-}
-
-uint16_t getRTCBatteryVoltage()
-{
-  // anaIn() outputs value divided by (1 << ANALOG_SCALE)
-  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return 0;
-#if defined(STM32F413xx)
-  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
-         (1024 >> ANALOG_SCALE);
-#else
-  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
-         (2048 >> ANALOG_SCALE);
-#endif
 }
 
 uint16_t getAnalogValue(uint8_t index)
@@ -303,38 +298,6 @@ JitterMeter<uint16_t> rawJitter[MAX_ANALOG_INPUTS];
 JitterMeter<uint16_t> avgJitter[MAX_ANALOG_INPUTS];
 tmr10ms_t jitterResetTime = 0;
 #endif
-
-uint16_t getBatteryVoltage()
-{
-#if defined(CSD203_SENSOR) && !defined(SIMU)
-  return getCSD203BatteryVoltage() / 10;
-#else
-  // using filtered ADC value on purpose
-  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
-  int32_t instant_vbat = anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
-
-  // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
-#if defined(BATT_SCALE)
-  instant_vbat =
-      (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration)) /
-      BATTERY_DIVIDER;
-  // add voltage drop because of the diode TODO check if this is needed, but
-  // removal will break existing calibrations!
-  instant_vbat += VOLTAGE_DROP;
-  return (uint16_t)instant_vbat;
-#elif defined(VOLTAGE_DROP)
-  instant_vbat = ((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
-                    BATTERY_DIVIDER);
-  // add voltage drop because of the diode
-  // removal will break existing calibrations!
-  instant_vbat += VOLTAGE_DROP;
-  return (uint16_t)instant_vbat;
-#else
-  return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
-                    BATTERY_DIVIDER);
-#endif
-#endif
-}
 
 static uint32_t apply_low_pass_filter(uint32_t v, uint32_t v_prev,
                                       bool is_main_input)
@@ -464,7 +427,7 @@ void getADC()
 #endif
 
   DEBUG_TIMER_START(debugTimerAdcRead);
-  if (!adcRead()) TRACE("adcRead failed");
+  if (!adcRead()) { TRACE("adcRead failed"); }
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
   for (uint8_t x = 0; x < max_analogs; x++) {
@@ -480,6 +443,10 @@ void getADC()
     }
 
     // 2nd: apply inversion
+    if (x < pot_offset && getStickInversion(inputMappingConvertMode(x))) {
+      v = 4 * RESX - v;
+    }
+
     if (is_flex_input && getPotInversion(x - pot_offset)) {
       v = 4 * RESX - v;
     }

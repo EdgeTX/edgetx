@@ -22,7 +22,9 @@
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h"
 #include "stm32_ws2812.h"
+#include "vs1053b.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -30,6 +32,7 @@
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -46,25 +49,8 @@
 
 #include <string.h>
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
-
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
-#endif
-
-#if defined(LED_STRIP_GPIO)
-// Common LED driver
-extern const stm32_pulse_timer_t _led_timer;
-
-void ledStripOff()
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
 #endif
 
 HardwareOptions hardwareOptions;
@@ -73,14 +59,57 @@ bool boardBacklightOn = false;
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
 
-void boardBLInit()
+void boardBLEarlyInit()
 {
   videoSwitchInit();
 }
 #endif
 
+extern "C" void SDRAM_Init();
+
+void boardBLPreJump()
+{
+  SDRAM_Init();
+}
+
+void boardBLInit()
+{
+  SDRAM_Init();
+}
+
 #if !defined(BOOT)
 #include "edgetx.h"
+
+#if defined(PCBX12S)
+static void audio_set_rst_pin(bool set)
+{
+  gpio_write(AUDIO_RST_GPIO, set);
+}
+
+void audioInit()
+{
+  static stm32_spi_t spi_dev = {
+      .SPIx = AUDIO_SPI,
+      .SCK = AUDIO_SPI_SCK_GPIO,
+      .MISO = AUDIO_SPI_MISO_GPIO,
+      .MOSI = AUDIO_SPI_MOSI_GPIO,
+      .CS = AUDIO_CS_GPIO,
+  };
+
+  static vs1053b_t vs1053 = {
+      .spi = &spi_dev,
+      .XDCS = AUDIO_XDCS_GPIO,
+      .DREQ = AUDIO_DREQ_GPIO,
+      .set_rst_pin = audio_set_rst_pin,
+  };
+
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, 0);
+  gpio_init(AUDIO_SHUTDOWN_GPIO, GPIO_OUT, 0);
+  gpio_set(AUDIO_SHUTDOWN_GPIO);
+
+  vs1053b_init(&vs1053);
+}
+#endif
 
 #if defined(SIXPOS_SWITCH_INDEX)
 uint8_t lastADCState = 0;
@@ -109,12 +138,13 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
   }
   if (dirty) {
     for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState)
+      if (i == sixPosState) {
         ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      else
+      } else {
         ws2812_set_color(i, 0, 0, 0);
+      }
     }
-    ws2812_update(&_led_timer);
+    rgbLedColorApply();
   }
   return (4096/5)*(sixPosState);
 }
@@ -122,78 +152,55 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 
 void boardInit()
 {
+  delaysInit();
+  timersInit();
+  __enable_irq();
+
 #if defined(RADIO_FAMILY_T16)
   void board_set_bor_level();
   board_set_bor_level();
 #endif
 
-#if defined(FUNCTION_SWITCHES) && !defined(DEBUG)
-  // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
-  // prime debounce state...
-   usbPlugged();
-   if (usbPlugged()) {
-     delaysInit();
- #if defined(AUDIO_MUTE_GPIO)
-     // Charging can make a buzzing noise
-     gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-     gpio_set(AUDIO_MUTE_GPIO);
- #endif
-     while (usbPlugged()) {
-       delay_ms(1000);
-     }
-     while(1) // Wait power to drain
-       pwrOff();
-   }
+
+#if defined(MANUFACTURER_JUMPER) && defined(FUNCTION_SWITCHES) && \
+    !defined(DEBUG)
+  // This is needed to prevent radio from starting when usb is plugged to charge
+  if (usbPlugged()) {
+#if defined(AUDIO_MUTE_GPIO)
+    // Charging can make a buzzing noise
+    gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+    gpio_set(AUDIO_MUTE_GPIO);
+#endif
+    while (usbPlugged()) {
+      delay_ms(1000);
+    }
+    pwrOff();
+    // Wait power to drain
+    while (true) {
+    }
+  }
 #endif
 
   pwrInit();
-
-  boardInitModulePorts();
-
-#if defined(INTMODULE_HEARTBEAT) &&                                     \
-  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
-  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
-  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
-  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
-#endif
-
-  board_trainer_init();
   pwrOn();
-  delaysInit();
-
-  __enable_irq();
-
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
-  serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
-#endif
 
   TRACE("\nHorus board started :)");
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
-  audioInit();
+  boardInitModulePorts();
+  board_trainer_init();
 
+  audioInit();
   keysInit();
   switchInit();
   rotaryEncoderInit();
+  gimbalsDetect();
 
-#if defined(HARDWARE_TOUCH)
-  touchPanelInit();
-#endif
-
-#if defined(PWM_STICKS)
-  sticksPwmDetect();
-#endif
-  
-#if defined(FLYSKY_GIMBAL)
-  flysky_gimbal_init();
-#endif
-
-  if (!adcInit(&_adc_driver))
+  if (!adcInit(&_adc_driver)) {
     TRACE("adcInit failed");
+  }
 
-  timersInit();
 
 #if defined(HARDWARE_TOUCH) && !defined(SIMU)
   touchPanelInit();
@@ -203,12 +210,10 @@ void boardInit()
   initCSD203();
 #endif
 
-  usbInit();
   hapticInit();
 
 #if defined(LED_STRIP_GPIO)
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
-  ledStripOff();
+  rgbLedInit();
 #endif
 
 #if defined(BLUETOOTH)
@@ -234,13 +239,12 @@ void boardInit()
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 
+#if !defined(POWER_LED_BLUE)
   ledBlue();
-#if !defined(LCD_VERTICAL_INVERT)
-  lcdSetInitalFrameBuffer(lcdFront->getData());
-#elif defined(RADIO_F16)
-  if(hardwareOptions.pcbrev > 0) {
-    lcdSetInitalFrameBuffer(lcdFront->getData());
-  }
+#else
+  #if defined(LED_GREEN_GPIO)
+  ledGreen();
+  #endif
 #endif
 }
 #endif
@@ -249,7 +253,14 @@ extern void rtcDisableBackupReg();
 
 void boardOff()
 {
+#if defined(LED_STRIP_GPIO) && !defined(BOOT)
+  rgbLedStop();
+  rgbLedClearAll();
+#endif
+
+#if defined(STATUS_LEDS) && !defined(BOOT)
   ledOff();
+#endif
   backlightEnable(0);
 
   while (pwrPressed()) {

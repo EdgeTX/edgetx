@@ -21,7 +21,9 @@
 
 #include "ppm_settings.h"
 
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -34,7 +36,7 @@ PpmFrameSettings<T>::PpmFrameSettings(Window* parent, T* ppm) :
 
   // PPM frame length
   auto edit = new NumberEdit(
-      this, rect_t{0, 0, 80, 0}, 125, 35 * PPM_STEP_SIZE + PPM_DEF_PERIOD,
+      this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 125, 35 * PPM_STEP_SIZE + PPM_DEF_PERIOD,
       GET_DEFAULT(ppm->frameLength * PPM_STEP_SIZE + PPM_DEF_PERIOD),
       SET_VALUE(ppm->frameLength, (newValue - PPM_DEF_PERIOD) / PPM_STEP_SIZE),
       PREC1);
@@ -45,7 +47,7 @@ PpmFrameSettings<T>::PpmFrameSettings(Window* parent, T* ppm) :
   this->ppmFrameLenEditObject = edit;
 
   // PPM frame delay
-  edit = new NumberEdit(this, rect_t{0, 0, 80, 0}, 100, 800,
+  edit = new NumberEdit(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 100, 800,
                         GET_DEFAULT(ppm->delay * 50 + 300),
                         SET_VALUE(ppm->delay, (newValue - 300) / 50));
   edit->setStep(50);

@@ -63,12 +63,20 @@ enum _STM32_USART {
   _STM32_UART4,
 #endif
 
+#if defined(UART5) && (defined(STM32H7) || defined(STM32H7RS))
+  _STM32_UART5,
+#endif
+
 #if defined(USART6)
   _STM32_USART6,
 #endif
 
 #if defined(UART7)
   _STM32_UART7,
+#endif
+
+#if defined(UART8)
+  _STM32_UART8,
 #endif
 
   _STM32_MAX_UARTS
@@ -154,6 +162,10 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(UART4);
 #endif
 
+#if defined (UART5) && (defined(STM32H7) || defined(STM32H7RS))
+  DEFINE_USART_IRQ(UART5);
+#endif
+
 #if defined (USART6)
   DEFINE_USART_IRQ(USART6);
 #endif
@@ -161,6 +173,11 @@ static inline void _usart_isr_handler(_STM32_USART n)
 #if defined (UART7)
   DEFINE_USART_IRQ(UART7);
 #endif
+
+#if defined (UART8)
+  DEFINE_USART_IRQ(UART8);
+#endif
+
 
 static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 {
@@ -176,11 +193,17 @@ static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 #if defined (UART4)
   if (usart->USARTx == UART4) return &_serial_states[_STM32_UART4];
 #endif
+#if defined (UART5) && (defined(STM32H7) || defined(STM32H7RS))
+  if (usart->USARTx == UART5) return &_serial_states[_STM32_UART5];
+#endif
 #if defined (USART6)
   if (usart->USARTx == USART6) return &_serial_states[_STM32_USART6];
 #endif
 #if defined (UART7)
   if (usart->USARTx == UART7) return &_serial_states[_STM32_UART7];
+#endif
+#if defined (UART8)
+  if (usart->USARTx == UART8) return &_serial_states[_STM32_UART8];
 #endif
 
   return nullptr;
@@ -314,7 +337,22 @@ static void stm32_serial_send_byte(void* ctx, uint8_t c)
   }
 }
 
-#define IS_CCM_RAM(addr) (((uint32_t)(addr) & (uint32_t)0xFFF00000) == 0x10000000)
+#if defined(STM32F4)
+extern uint32_t _sram;
+extern uint32_t _eram;
+#define _IS_DMA_BUFFER(addr) \
+  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+#elif defined(STM32H7) || defined(STM32H7RS)
+extern uint32_t _s_dram;
+extern uint32_t _e_dram;
+#define _IS_DMA_BUFFER(addr)                 \
+  ((intptr_t)(addr) >= (intptr_t)&_s_dram && \
+   (intptr_t)(addr) <= (intptr_t)&_e_dram)
+#else
+#define _IS_DMA_BUFFER(addr) (true)
+#endif
+
+#define _IS_ALIGNED(addr) (((intptr_t)(addr) & 3U) == 0U)
 
 static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
@@ -324,7 +362,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
   // try TX DMA first
   auto sp = st->sp;
   auto usart = sp->usart;
-  if (usart->txDMA && !IS_CCM_RAM(data)) {
+  if (usart->txDMA && _IS_DMA_BUFFER(data) && _IS_ALIGNED(data)) {
     stm32_usart_send_buffer(usart, data, size);
     return;
   }
@@ -345,7 +383,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
   }
 }
 
-static uint8_t stm32_serial_tx_completed(void* ctx)
+static bool stm32_serial_tx_completed(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
   if (!st) return 1;

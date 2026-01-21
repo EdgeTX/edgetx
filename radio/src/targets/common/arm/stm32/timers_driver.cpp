@@ -26,8 +26,6 @@
 #include "hal.h"
 #include "hal/watchdog_driver.h"
 
-#include "FreeRTOSConfig.h"
-
 static volatile uint32_t _ms_ticks;
 
 static void _init_1ms_timer()
@@ -45,7 +43,7 @@ static void _init_1ms_timer()
   MS_TIMER->DIER = TIM_DIER_UIE;
 
   NVIC_EnableIRQ(MS_TIMER_IRQn);
-  NVIC_SetPriority(MS_TIMER_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+  NVIC_SetPriority(MS_TIMER_IRQn, 0);
 }
 
 void timersInit()
@@ -87,6 +85,9 @@ static inline void _interrupt_1ms()
   ++pre_scale;
   ++_ms_ticks;
 
+  __DSB();
+  __ISB();
+
   // 5ms loop
   if(pre_scale == 5 || pre_scale == 10) {
     per5ms();
@@ -100,8 +101,6 @@ static inline void _interrupt_1ms()
       watchdogTimeout -= 1;
       WDG_RESET();  // Retrigger hardware watchdog
     }
-
-    per10ms();
   }
 }
 

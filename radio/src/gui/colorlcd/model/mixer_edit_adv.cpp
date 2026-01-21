@@ -21,26 +21,28 @@
 
 #include "mixer_edit_adv.h"
 
-#include "fm_matrix.h"
-#include "mixes.h"
-#include "numberedit.h"
+#include "choice.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "fm_matrix.h"
+#include "getset_helpers.h"
+#include "mixes.h"
+#include "numberedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 MixEditAdvanced::MixEditAdvanced(int8_t channel, uint8_t index) :
     Page(ICON_MODEL_MIXER, PAD_MEDIUM), channel(channel), index(index)
 {
-  std::string title(STR_MIXES);
-  title += "\n";
-  title += getSourceString(MIXSRC_FIRST_CH + channel);
-  header->setTitle(title);
+  std::string title2(getSourceString(MIXSRC_FIRST_CH + channel));
+  header->setTitle(STR_MIXES);
+  header->setTitle2(title2);
 
   buildBody(body);
 }
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
@@ -83,12 +85,12 @@ void MixEditAdvanced::buildBody(Window* form)
 
   // Warning
   new StaticText(line, rect_t{}, STR_MIXWARNING);
-  auto edit = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 3,
+  auto edit = new NumberEdit(line, rect_t{}, 0, 3,
                              GET_SET_DEFAULT(mix->mixWarn));
   edit->setZeroText(STR_OFF);
 
   // Delay up/down precision
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(2);
 #endif
   line = form->newLine(grid);
@@ -105,27 +107,27 @@ void MixEditAdvanced::buildBody(Window* form)
               delayDn->update();
               SET_DIRTY();
              });
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(1);
 #endif
 
   // Delay up
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_DELAYUP);
-  delayUp = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
+  delayUp = new NumberEdit(line, rect_t{}, 0, DELAY_MAX,
                            GET_DEFAULT(mix->delayUp),
                            SET_VALUE(mix->delayUp, newValue), mix->delayPrec ? PREC2 : PREC1);
   delayUp->setSuffix("s");
 
   // Delay down
   new StaticText(line, rect_t{}, STR_DELAYDOWN);
-  delayDn = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
+  delayDn = new NumberEdit(line, rect_t{}, 0, DELAY_MAX,
                            GET_DEFAULT(mix->delayDown),
                            SET_VALUE(mix->delayDown, newValue), mix->delayPrec ? PREC2 : PREC1);
   delayDn->setSuffix("s");
 
   // Slow up/down precision
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(2);
 #endif
   line = form->newLine(grid);
@@ -142,20 +144,20 @@ void MixEditAdvanced::buildBody(Window* form)
               slowDn->update();
               SET_DIRTY();
              });
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(1);
 #endif
 
   // Slow up
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SLOWUP);
-  slowUp = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
+  slowUp = new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
                           SET_VALUE(mix->speedUp, newValue), mix->speedPrec ? PREC2 : PREC1);
   slowUp->setSuffix("s");
 
   // Slow down
   new StaticText(line, rect_t{}, STR_SLOWDOWN);
-  slowDn = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
+  slowDn = new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
                           SET_VALUE(mix->speedDown, newValue), mix->speedPrec ? PREC2 : PREC1);
   slowDn->setSuffix("s");
 }

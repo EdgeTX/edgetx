@@ -41,7 +41,7 @@ uint8_t g_moduleIdx;
 uint8_t getSwitchWarningsCount()
 {
   uint8_t count = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       ++count;
     }
@@ -125,6 +125,10 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS,
 #endif
+#if defined(CROSSFIRE)
+  ITEM_MODEL_SETUP_ARMING_MODE,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER,
+#endif
 #if defined (MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSM_CLONED,
@@ -135,6 +139,10 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS,
+#endif
+#if defined(DSMP)
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_ENABLE_AETR,
 #endif
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_CHANNELS,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_NOT_ACCESS_RXNUM_BIND_RANGE,
@@ -378,7 +386,9 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 
 inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 {
-  if (isModuleXJT(EXTERNAL_MODULE) || isModuleR9MNonAccess(EXTERNAL_MODULE) || isModuleDSM2(EXTERNAL_MODULE) || isModuleAFHDS3(EXTERNAL_MODULE) || isModulePPM(EXTERNAL_MODULE))
+  if (isModuleXJT(EXTERNAL_MODULE) || isModuleR9MNonAccess(EXTERNAL_MODULE) ||
+      isModuleDSM2(EXTERNAL_MODULE) || isModuleAFHDS3(EXTERNAL_MODULE) ||
+      isModuleSBUS(EXTERNAL_MODULE) || isModulePPM(EXTERNAL_MODULE))
     return 1;
   else
     return 0;
@@ -420,9 +430,13 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #else
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #endif
+#define IF_MODULE_ARMED(module, xxx) (CRSF_ELRS_MIN_VER(module, 4, 0) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#define IF_MODULE_ARMED_TRIGGER(module, xxx) ((CRSF_ELRS_MIN_VER(module, 4, 0) && g_model.moduleData[module].crsf.crsfArmingMode) ? (uint8_t)(xxx) : HIDDEN_ROW)  
 #else
 #define IF_MODULE_SYNCED(module, xxx)
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
+#define IF_MODULE_ARMED(module, xxx)
+#define IF_MODULE_ARMED_TRIGGER(module, xxx)
 #endif
 
 #if defined(PXX2)
@@ -449,13 +463,13 @@ void onBluetoothConnectMenu(const char * result)
 }
 #endif
 
-#include "common/stdlcd/model_setup_pxx1.cpp"
+#include "model_setup_pxx1.cpp"
 
 #if defined(PXX2)
-#include "common/stdlcd/model_setup_pxx2.cpp"
+#include "model_setup_pxx2.cpp"
 #endif
 #if defined(AFHDS3)
-#include "common/stdlcd/model_setup_afhds3.cpp"
+#include "model_setup_afhds3.cpp"
 #endif
 
 #if defined(USBJ_EX)
@@ -546,9 +560,12 @@ void menuModelSetup(event_t event)
       EXTERNAL_MODULE_TYPE_ROW(),                       // ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE
       IF_MODULE_BAUDRATE_ADJUST(EXTERNAL_MODULE, 0),    // ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE
       IF_MODULE_SYNCED(EXTERNAL_MODULE, 0),             // ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS
+      IF_MODULE_ARMED(EXTERNAL_MODULE, 0),              // ITEM_MODEL_SETUP_ARMING_MODE
+      IF_MODULE_ARMED_TRIGGER(EXTERNAL_MODULE, 0),      // ITEM_MODEL_SETUP_ARMING_TRIGGER
       MULTIMODULE_TYPE_ROW(EXTERNAL_MODULE)             // ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL
       MULTIMODULE_DSM_CLONED_RAW(EXTERNAL_MODULE),      // ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSM_CLONED
       MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)          // ITEM_MODEL_SETUP_EXTERNAL_MODULE_STATUS + ITEM_MODEL_SETUP_EXTERNAL_MODULE_SYNCSTATUS
+      DSMP_STATUS_ROWS(EXTERNAL_MODULE)                 // ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS
       AFHDS3_MODE_ROWS(EXTERNAL_MODULE)                 // ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE + ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS + ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS
       MODULE_CHANNELS_ROWS(EXTERNAL_MODULE),            // ITEM_MODEL_SETUP_EXTERNAL_MODULE_CHANNELS
       IF_NOT_ACCESS_MODULE_RF(EXTERNAL_MODULE, MODULE_BIND_ROWS(EXTERNAL_MODULE)),    // ITEM_MODEL_SETUP_EXTERNAL_MODULE_NOT_ACCESS_RXNUM_BIND_RANGE
@@ -858,7 +875,6 @@ void menuModelSetup(event_t event)
         }
 #endif
         lcdDrawTextIndented(y, STR_SWITCHWARNING);
-        swarnstate_t states = g_model.switchWarning;
 
         if (attr) {
           s_editMode = 0;
@@ -867,17 +883,7 @@ void menuModelSetup(event_t event)
               killEvents(event);
               if (menuHorizontalPosition < 0) {
                 START_NO_HIGHLIGHT();
-                getMovedSwitch();
-                // Mask switches enabled for warnings
-                swarnstate_t sw_mask = 0;
-                for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
-                  if (SWITCH_WARNING_ALLOWED(i))
-                    if (g_model.switchWarning & (0x07 << (3 * i)))
-                      sw_mask |= (0x07 << (3 * i));
-                }
-                g_model.switchWarning = switches_states & sw_mask;
-                AUDIO_WARNING1();
-                storageDirty(EE_MODEL);
+                setAllPreflightSwitchStates();
               }
               break;
           }
@@ -886,17 +892,15 @@ void menuModelSetup(event_t event)
         LcdFlags line = attr;
 
         int current = 0;
-        for (int i = 0; i < switchGetMaxSwitches(); i++) {
+        for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
           if (SWITCH_WARNING_ALLOWED(i)) {
             div_t qr = div(current, 8);
             if (event == EVT_KEY_BREAK(KEY_ENTER) && line &&
                 l_posHorz == current) {
-              uint8_t curr_state = (states & 0x07);
-              // remove old setting
-              g_model.switchWarning &= ~(0x07 << (3 * i));
+              uint8_t curr_state = g_model.getSwitchWarning(i);
               // add the new one (if switch UP and 2POS, jump directly to DOWN)
               curr_state += (curr_state != 1 || IS_CONFIG_3POS(i) ? 1 : 2);
-              g_model.switchWarning |= (curr_state & 0x03) << (3 * i);
+              g_model.setSwitchWarning(i, curr_state);
               storageDirty(EE_MODEL);
             }
             lcdDrawChar(
@@ -904,10 +908,9 @@ void menuModelSetup(event_t event)
                 y + FH * qr.quot, 'A' + i,
                 line && (menuHorizontalPosition == current) ? INVERS : 0);
             lcdDrawText(lcdNextPos, y + FH * qr.quot,
-                        getSwitchWarnSymbol(states & 0x03));
+                        getSwitchWarnSymbol(g_model.getSwitchWarning(i)));
             ++current;
           }
-          states >>= 3;
         }
         if (attr && menuHorizontalPosition < 0) {
 #if defined(PCBX9E)
@@ -1093,6 +1096,8 @@ void menuModelSetup(event_t event)
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MODULE_PROTOCOLS, reusableBuffer.moduleSetup.newType, menuHorizontalPosition==0 ? attr : 0);
         if (isModuleXJT(EXTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
+        else if (isModuleSBUS(EXTERNAL_MODULE))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_SBUS_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
 #if defined(PPM)
         else if (isModulePPM(EXTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_PPM_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
@@ -1135,11 +1140,16 @@ void menuModelSetup(event_t event)
                       event, g_model.moduleData[EXTERNAL_MODULE].subType,
                       DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
                 }
+                else if (isModuleSBUS(EXTERNAL_MODULE)) {
+                  CHECK_INCDEC_MODELVAR(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      SBUS_PROTO_TLM_NONE, SBUS_PROTO_TLM_SPORT);
+                }
 #if defined(PPM)
                 else if (isModulePPM(EXTERNAL_MODULE)) {
                   CHECK_INCDEC_MODELVAR(
                       event, g_model.moduleData[EXTERNAL_MODULE].subType,
-                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_SPORT);
                 }
 #endif
 #if defined(MULTIMODULE)
@@ -1194,18 +1204,18 @@ void menuModelSetup(event_t event)
                   MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FLEX_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               }
 #if POPUP_LEVEL >= 3
               else if (g_model.moduleData[EXTERNAL_MODULE].subType ==
                        MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_EU_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                                 strlen(TR_MODULE_PROTOCOL_WARN_LINE2), 0);
               } else {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FCC_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                                 strlen(TR_MODULE_PROTOCOL_WARN_LINE2), 0);
               }
 #endif
             }
@@ -1263,6 +1273,21 @@ void menuModelSetup(event_t event)
         lcdDrawTextIndented(y, STR_STATUS);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
         lcdDrawText(lcdNextPos, y, "Hz ", attr);
+        break;
+#endif
+
+#if defined(CROSSFIRE)
+      case ITEM_MODEL_SETUP_ARMING_MODE:
+        g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = 
+          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES,
+          g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode, ARMING_MODE_FIRST, ARMING_MODE_LAST, attr, event, INDENT_WIDTH);
+        break;
+
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
+        lcdDrawTextIndented(y, STR_SWITCH);
+        drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
+        if(attr)
+          CHECK_INCDEC_SWITCH(event, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
         break;
 #endif
 
@@ -1338,7 +1363,7 @@ void menuModelSetup(event_t event)
           }
           if (bluetooth.distantAddr[0]) {
             lcdDrawText(INDENT_WIDTH, y+1, bluetooth.distantAddr, TINSIZE);
-            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_CLEAR), attr);
+            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_CLEAR_BTN, attr);
             if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
               bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
               memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
@@ -1349,7 +1374,7 @@ void menuModelSetup(event_t event)
             if (bluetooth.state < BLUETOOTH_STATE_IDLE)
               lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_BUTTON_INIT, attr);
             else
-              lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_DISCOVER), attr);
+              lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_DISCOVER, attr);
             if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
               if (bluetooth.state < BLUETOOTH_STATE_IDLE) {
                 bluetooth.state = BLUETOOTH_STATE_OFF;
@@ -1599,12 +1624,13 @@ void menuModelSetup(event_t event)
               }
             }
 #endif
-            if (isModuleDSMP(moduleIdx) &&
-                (oldFlag != newFlag) &&
+#if defined(DSMP)
+            if (isModuleDSMP(moduleIdx) && (oldFlag != newFlag) &&
                 (oldFlag == MODULE_MODE_BIND)) {
               // Restart DSMP module when exiting bind mode
               restartModule(moduleIdx);
             }
+#endif
           }
         }
         break;
@@ -1814,11 +1840,33 @@ void menuModelSetup(event_t event)
 
 #if defined (MULTIMODULE)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_STATUS:
+#endif
+#if defined(AFHDS3)
+    case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS:
+#endif
+#if defined(DSMP)
+    case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS: 
+#endif
+#if (defined(DSMP) || defined(MULTIMODULE) || defined(AFHDS3))
+    {
+      // MultiModule & LemonDSMP & AFHDS Status
       lcdDrawTextIndented(y, STR_MODULE_STATUS);
       getModuleStatusString(EXTERNAL_MODULE, reusableBuffer.moduleSetup.msg);
       lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, reusableBuffer.moduleSetup.msg);
       break;
+    }
+#endif
 
+#if defined(DSMP)
+    case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_ENABLE_AETR:
+      g_model.moduleData[EXTERNAL_MODULE].dsmp.enableAETR =
+          editCheckBox(g_model.moduleData[EXTERNAL_MODULE].dsmp.enableAETR,
+                       MODEL_SETUP_2ND_COLUMN, y, STR_DSMP_ENABLE_AETR, attr,
+                       event, INDENT_WIDTH);
+      break;
+#endif
+
+#if defined(MULTIMODULE) && defined(HARDWARE_EXTERNAL_MODULE)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_SYNCSTATUS:
       lcdDrawTextIndented(y, STR_MODULE_SYNC);
       getModuleSyncStatusString(EXTERNAL_MODULE, reusableBuffer.moduleSetup.msg);
@@ -1832,14 +1880,6 @@ void menuModelSetup(event_t event)
       lcdDrawText(MODEL_SETUP_2ND_COLUMN, y,
           g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
       break;
-    case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS:
-    {
-      lcdDrawTextIndented(y, TR_MODULE_STATUS);
-      char statusText[64];
-      getModuleStatusString(EXTERNAL_MODULE, statusText);
-      lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, statusText);
-      break;
-    }
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS:
     {
       lcdDrawTextIndented(y, STR_AFHDS3_POWER_SOURCE);
@@ -1880,7 +1920,7 @@ void menuModelSetup(event_t event)
       {
         uint8_t moduleIdx = CURRENT_MODULE_EDITED(k);
         lcdDrawTextIndented(y, STR_MODULE);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_REGISTER), (menuHorizontalPosition == 0 ? attr : 0));
+        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_REGISTER, (menuHorizontalPosition == 0 ? attr : 0));
         lcdDrawText(lcdLastRightPos + 3, y, STR_MODULE_RANGE, (menuHorizontalPosition == 1 ? attr : 0));
         if (attr) {
           if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL && s_editMode > 0) {
@@ -1926,7 +1966,7 @@ void menuModelSetup(event_t event)
         expandState.viewOpt = expandableSection(y, STR_ENABLED_FEATURES, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
-        lcdDrawTextIndented(y, TR_RADIO_MENU_TABS);
+        lcdDrawTextIndented(y, STR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
         g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event, g_eeGeneral.radioGFDisabled);
@@ -1935,7 +1975,7 @@ void menuModelSetup(event_t event)
         g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event, g_eeGeneral.radioTrainerDisabled);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
-        lcdDrawTextIndented(y, TR_MODEL_MENU_TABS);
+        lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
@@ -1988,14 +2028,14 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:
-        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_SETTINGS), attr);
+        lcdDrawText(INDENT_WIDTH, y, STR_USBJOYSTICK_SETTINGS, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuModelUSBJoystick);
         }
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
-        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
+        lcdDrawText(INDENT_WIDTH, y, STR_USBJOYSTICK_APPLY_CHANGES, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           onUSBJoystickModelChanged();
         }

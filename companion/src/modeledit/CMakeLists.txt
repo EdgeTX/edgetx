@@ -9,6 +9,7 @@ set(${PROJECT_NAME}_NAMES
   customfunctions
   expodialog
   flightmodes
+  gvars
   inputs
   heli
   logicalswitches
@@ -17,6 +18,9 @@ set(${PROJECT_NAME}_NAMES
   mixerslistwidget
   modeledit
   modeloptions
+  setup_timer
+  setup_module
+  setup_function_switches
   setup
   telemetry
   telemetry_customscreens
@@ -25,7 +29,7 @@ set(${PROJECT_NAME}_NAMES
 AddHeadersSources()
 
 # AUTOMOC does not detect so manually process
-qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+qt_wrap_cpp(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_HDRS}
 )
 
@@ -36,7 +40,7 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
-    Qt5::Multimedia
+    Qt::Multimedia
 )
 
 target_include_directories(${PROJECT_NAME}

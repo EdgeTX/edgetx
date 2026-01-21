@@ -67,18 +67,32 @@ void rtcInit()
   __HAL_RCC_PWR_CLK_ENABLE();
 #endif
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  __HAL_RCC_BKPRAM_CLK_ENABLE();
+#endif
+
   HAL_PWR_EnableBkUpAccess();
+#if defined(LSE_DRIVE_STRENGTH)
+  __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
+  __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_STRENGTH);
+#endif
 
   // Enable LSE Oscillator
-  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct = {};
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+#if !defined(STM32H7RS) && !defined(STM32H5)
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+#endif
   RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
 
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
     __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
   }
+
+#if defined(STM32H7)
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
+#endif
 
   __HAL_RCC_RTC_ENABLE();
   HAL_RTC_WaitForSynchro(&rtc);
@@ -93,21 +107,30 @@ void rtcInit()
   rtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
   HAL_RTC_Init(&rtc);
 
+  HAL_PWR_EnableBkUpAccess();
+  HAL_RTC_WaitForSynchro(&rtc);
+
   struct gtm utm;
   rtcGetTime(&utm);
   g_rtcTime = gmktime(&utm);
 #endif
 
 #if defined(RTC_BACKUP_RAM) && !defined(BOOT)
+#if defined(STM32F4)
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
+#endif
   HAL_PWREx_EnableBkUpReg();
+  HAL_PWR_EnableBkUpAccess();
 #endif
 }
 
 void rtcDisableBackupReg()
 {
 #if defined(RTC_BACKUP_RAM)
+#if defined(STM32F4)
   __HAL_RCC_BKPSRAM_CLK_DISABLE();
+#endif
   HAL_PWREx_DisableBkUpReg();
+  HAL_PWR_DisableBkUpAccess();
 #endif
 }

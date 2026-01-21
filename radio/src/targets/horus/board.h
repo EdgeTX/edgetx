@@ -39,6 +39,7 @@
 #include "tp_gt911.h"
 #endif
 
+#define HAS_HARDWARE_OPTIONS
 
 PACK(typedef struct {
   uint8_t pcbrev:2;
@@ -131,19 +132,6 @@ enum {
 #define EXTERNAL_MODULE_ON()    gpio_set(EXTMODULE_PWR_GPIO)
 #define EXTERNAL_MODULE_OFF()   gpio_clear(EXTMODULE_PWR_GPIO)
 
-#if !defined(PXX2)
-  #define IS_PXX2_INTERNAL_ENABLED()            (false)
-  #define IS_PXX1_INTERNAL_ENABLED()            (true)
-#elif !defined(PXX1)
-  #define IS_PXX2_INTERNAL_ENABLED()            (true)
-  #define IS_PXX1_INTERNAL_ENABLED()            (false)
-#else
-  // TODO #define PXX2_PROBE
-  // TODO #define IS_PXX2_INTERNAL_ENABLED()            (hardwareOptions.pxx2Enabled)
-  #define IS_PXX2_INTERNAL_ENABLED()            (true)
-  #define IS_PXX1_INTERNAL_ENABLED()            (true)
-#endif
-
 // POTS and SLIDERS default configuration
 #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
 #define XPOS_CALIB_DEFAULT  {0x3, 0xc, 0x15, 0x1e, 0x26}
@@ -206,7 +194,7 @@ void ledInit();
 void ledOff();
 void ledRed();
 void ledBlue();
-#if defined(PCBX10)
+#if defined(LED_GREEN_GPIO)
   void ledGreen();
 #endif
 
@@ -260,20 +248,6 @@ bool isBacklightEnabled();
 
 // Audio driver
 void audioInit();
-void audioConsumeCurrentBuffer();
-#define audioDisableIrq()             // interrupts must stay enabled on Horus
-#define audioEnableIrq()              // interrupts must stay enabled on Horus
-#if defined(PCBX12S)
-#define setSampleRate(freq)
-#else
-void setSampleRate(uint32_t frequency);
-#define audioWaitReady()
-#endif
-void setScaledVolume(uint8_t volume);
-void setVolume(uint8_t volume);
-int32_t getVolume();
-#define VOLUME_LEVEL_MAX               23
-#define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512
@@ -292,8 +266,8 @@ void telemetryPortInvertedInit(uint32_t baudrate);
 
 
 // Aux serial port driver
-#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
-  #define DEBUG_BAUDRATE                  400000
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
+  #define DEBUG_BAUDRATE                  460800
   #define LUA_DEFAULT_BAUDRATE            115200
 #else
   #define DEBUG_BAUDRATE                  115200
@@ -328,19 +302,6 @@ void bluetoothDisable();
 #if defined(FUNCTION_SWITCHES)
 #define NUM_FUNCTIONS_SWITCHES 6
 #define NUM_FUNCTIONS_GROUPS   3
-#define DEFAULT_FS_CONFIG                                         \
-  (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_2POS << 6) + \
-      (SWITCH_2POS << 4) + (SWITCH_2POS << 2) + (SWITCH_2POS << 0)
-
-#define DEFAULT_FS_GROUPS                                 \
-  (1 << 10) + (1 << 8) + (1 << 6) + (1 << 4) + (1 << 2) + \
-      (1 << 0)  // Set all FS to group 1 to act like a 6pos
-
-#define DEFAULT_FS_STARTUP_CONFIG                         \
-  ((FS_START_PREVIOUS << 10) + (FS_START_PREVIOUS << 8) + \
-   (FS_START_PREVIOUS << 6) + (FS_START_PREVIOUS << 4) +  \
-   (FS_START_PREVIOUS << 2) +                             \
-   (FS_START_PREVIOUS << 0))  // keep last state by default
 
 #else
 #define NUM_FUNCTIONS_SWITCHES 0

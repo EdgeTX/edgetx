@@ -25,8 +25,10 @@
 
 #include "window.h"
 #include "widget.h"
+#include "lua_states.h"
 #include "lua_api.h"
 #include "lua_lvgl_widget.h"
+#include "telemetry/telemetry.h"
 
 #include "edgetx_types.h"
 
@@ -34,37 +36,14 @@
 
 class LuaWidgetFactory;
 
-class LuaLvglManager
-{
- public:
-  LuaLvglManager() = default;
-
-  std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
-  void saveLvglObjectRef(int ref);
-  void clearRefs(lua_State *L);
-  bool callRefs(lua_State *L);
-
-  void setTempParent(LvglWidgetObjectBase *p) { tempParent = p; }
-  LvglWidgetObjectBase* getTempParent() const { return tempParent; }
-
-  virtual Window* getCurrentParent() const = 0;
-  virtual void clear() = 0;
-  virtual bool useLvglLayout() const = 0;
-  virtual bool isAppMode() const = 0;
-
-  virtual void luaShowError() = 0;
-
-  virtual bool isWidget() = 0;
-
-  uint8_t refreshInstructionsPercent;
-
- protected:
-  std::vector<int> lvglObjectRefs;
-  LvglWidgetObjectBase* tempParent = nullptr;
-};
-
 class LuaEventHandler
 {
+public:
+  LuaEventHandler() = default;
+  void setupHandler(Window* w);
+  void removeHandler(Window* w);
+
+protected:
 #if defined(HARDWARE_TOUCH)
   // "tap" handling
   static uint32_t downTime;
@@ -78,25 +57,59 @@ class LuaEventHandler
 #endif
   static void event_cb(lv_event_t* e);
 
-protected:
-  void onClicked();
-  void onCancel();
-  void onEvent(event_t event);
-
-public:
-  LuaEventHandler() = default;
-  void setupHandler(Window* w);
-  void removeHandler(Window* w);
+  void onClickedEvent();
+  void onCancelEvent();
+  void onLuaEvent(event_t event);
 };
 
-class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
+class LuaScriptManager : public LuaEventHandler
+{
+ public:
+  LuaScriptManager() = default;
+  ~LuaScriptManager();
+
+  std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
+  void saveLvglObjectRef(int ref);
+  void clearRefs(lua_State *L);
+  bool callRefs(lua_State *L);
+
+  void setTempParent(LvglWidgetObjectBase *p) { tempParent = p; }
+  LvglWidgetObjectBase* getTempParent() const { return tempParent; }
+
+  int getContext() const { return luaScriptContextRef; }
+
+  virtual Window* getCurrentParent() const = 0;
+  virtual void clear() = 0;
+  virtual bool useLvglLayout() const = 0;
+  virtual bool isAppMode() const = 0;
+  virtual bool isWidget() = 0;
+  virtual bool isFullscreen() = 0;
+  virtual void exitFullscreen() {}
+
+  virtual void luaShowError() = 0;
+
+  uint8_t refreshInstructionsPercent;
+
+  void createTelemetryQueue();
+  TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
+
+ protected:
+  int luaScriptContextRef = 0;
+  std::vector<int> lvglObjectRefs;
+  LvglWidgetObjectBase* tempParent = nullptr;
+#if defined(LUA)
+  TelemetryQueue* luaInputTelemetryFifo = nullptr;
+#endif
+};
+
+class LuaWidget : public Widget, public LuaScriptManager
 {
   friend class LuaWidgetFactory;
 
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-            WidgetPersistentData* persistentData, int luaWidgetDataRef, int zoneRectDataRef,
-            int optionsDataRef);
+            int screenNum, int zoneNum, int zoneRectDataRef,
+            int optionsDataRef, int createFunctionRef, const std::string& path);
   ~LuaWidget() override;
 
 #if defined(DEBUG_WINDOWS)
@@ -109,6 +122,7 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   const char* getErrorMessage() const override;
   void update() override;
   void background() override;
+  void foreground() override;
 
   void clear() override;
 
@@ -118,26 +132,27 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   bool useLvglLayout() const override;
   bool isAppMode() const override;
+  bool isWidget() override { return !inSettings; }
+  bool isFullscreen() override { return Widget::isFullscreen(); }
+  void exitFullscreen() override { closeFullscreen(); }
 
-  void luaShowError() override {}
+  // Should rotary encoder events be enabled when full screen
+  bool enableFullScreenRE() const override { return !useLvglLayout(); }
+
+  void luaShowError() override;
 
   void pushOptionsTable();
-
-  bool isWidget() override { return !inSettings; }
 
  protected:
   bool inSettings = false;
   lv_obj_t* errorLabel = nullptr;
   int zoneRectDataRef;
   int optionsDataRef;
-  int luaWidgetDataRef = 0;
   char* errorMessage;
-  bool refreshed = false;
 
   // Window interface
   void onClicked() override;
   void onCancel() override;
-  void checkEvents() override;
   void onEvent(event_t event) override;
 
   // Widget interface
@@ -152,3 +167,5 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   static void redraw_cb(lv_event_t *e);
 };
+
+extern LuaScriptManager* luaScriptManager;

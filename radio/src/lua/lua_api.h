@@ -27,11 +27,8 @@
 #include "rtos.h"
 
 extern "C" {
-  #include <lua.h>
-  #include <lauxlib.h>
-  #include <lualib.h>
-  #include <lgc.h>
-}
+  #include "lua.h"
+};
 
 #include "dataconstants.h"
 #include "edgetx_types.h"
@@ -55,7 +52,6 @@ void luaReceiveData(uint8_t* buf, uint32_t len);
 void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
 void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*));
 
-extern lua_State * lsScripts;
 
 extern bool luaLcdAllowed;
 
@@ -65,18 +61,14 @@ extern bool luaLcdAllowed;
 class BitmapBuffer;
 extern BitmapBuffer* luaLcdBuffer;
 
-class LuaWidget;
-extern LuaWidget* runningFS;
-
-class LuaLvglManager;
-extern LuaLvglManager* luaLvglManager;
-
-extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
 
+void luaInitMainState();
 void luaInit();
+void luaClose();
+
 void luaEmptyEventBuffer();
 
 #define lua_registernumber(L, n, i)    (lua_pushnumber(L, (i)), lua_setglobal(L, (n)))
@@ -130,11 +122,14 @@ enum ScriptState {
 };
 
 enum ScriptReference {
+  SCRIPT_REF_FIRST,
 #if defined(LUA_MODEL_SCRIPTS)
-  SCRIPT_MIX_FIRST,
+  SCRIPT_MIX_FIRST = SCRIPT_REF_FIRST,
   SCRIPT_MIX_LAST=SCRIPT_MIX_FIRST+MAX_SCRIPTS-1,
-#endif
   SCRIPT_FUNC_FIRST,
+#else
+  SCRIPT_FUNC_FIRST = SCRIPT_REF_FIRST,
+#endif
   SCRIPT_FUNC_LAST=SCRIPT_FUNC_FIRST+MAX_SPECIAL_FUNCTIONS-1,    // model functions
   SCRIPT_GFUNC_FIRST,
   SCRIPT_GFUNC_LAST=SCRIPT_GFUNC_FIRST+MAX_SPECIAL_FUNCTIONS-1,  // global functions
@@ -142,7 +137,10 @@ enum ScriptReference {
   SCRIPT_TELEMETRY_FIRST,
   SCRIPT_TELEMETRY_LAST=SCRIPT_TELEMETRY_FIRST+MAX_SCRIPTS,      // telem0 and telem1 .. telem7
 #endif
-  SCRIPT_STANDALONE                                              // Standalone script
+  SCRIPT_REF_LAST,
+#if !defined(COLORLCD)
+  SCRIPT_STANDALONE = SCRIPT_REF_LAST                            // Standalone script
+#endif
 };
 
 struct ScriptInternalData {
@@ -182,13 +180,9 @@ extern bool    luaLcdAllowed;
 extern ScriptInternalData scriptInternalData[MAX_SCRIPTS];
 extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 
-void luaClose(lua_State ** L);
 bool luaTask(bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
-void luaDoGc(lua_State * L, bool full);
-uint32_t luaGetMemUsed(lua_State * L);
-void luaGetValueAndPush(lua_State * L, int src);
 bool isTelemetryScriptAvailable();
 
 #define luaGetCpuUsed(idx) scriptInternalData[idx].instructions
@@ -215,6 +209,7 @@ extern struct our_longjmp * global_lj;
 extern uint16_t maxLuaInterval;
 extern uint16_t maxLuaDuration;
 extern uint8_t instructionsPercent;
+#define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
 struct LuaField {
   uint16_t id;
@@ -225,12 +220,6 @@ struct LuaField {
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags=0);
 bool luaFindFieldById(int id, LuaField & field, unsigned int flags=0);
 void luaLoadThemes();
-void luaRegisterLibraries(lua_State * L);
-void registerBitmapClass(lua_State * L);
-void luaSetInstructionsLimit(lua_State* L, int count);
-int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * mode);
-void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
-                            uint32_t hour, uint32_t min, uint32_t sec);
 
 // Unregister LUA widget factories
 void luaUnregisterWidgets();

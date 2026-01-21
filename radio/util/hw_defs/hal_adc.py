@@ -3,6 +3,7 @@ from pot_config import pot_cfg_by_target
 MAX_POTS = 4
 MAX_SLIDERS = 4
 MAX_EXTS = 4
+MAX_RAWS = 4
 
 
 def eprint(*args, **kwargs):
@@ -14,6 +15,7 @@ class ADCInput:
     TYPE_STICK  = 'STICK'
     TYPE_FLEX   = 'FLEX'
     TYPE_SWITCH = 'SWITCH'
+    TYPE_RAW = 'RAW'
     # TYPE_BATT   = 'BATT'
 
     def __init__(self, name, adc_input_type, adc, gpio, pin, channel):
@@ -77,6 +79,12 @@ class ADCInputParser:
             'name': 'EXT{}',
         },
         {
+            'range': range(1, MAX_RAWS + 1),
+            'type': ADCInput.TYPE_RAW,
+            'suffix': 'RAW{}',
+            'name': 'RAW{}',
+        },
+        {
             'range': range(1, 2 + 1),
             'type': ADCInput.TYPE_FLEX,
             'suffix': 'MOUSE{}',
@@ -126,7 +134,7 @@ class ADCInputParser:
         dirs = self.hw_defs.get('ADC_DIRECTION') or ''
         if dirs:
             dirs = dirs.strip('{} ').split(',')
-        eprint(dirs)
+        # eprint(dirs)
         for i in dirs:
             ret.append(int(i))
 
@@ -173,7 +181,6 @@ class ADCInputParser:
         if adc_spi:
             #eprint('## Found SPI ADC')
             adc = ADC('SPI', adc_spi)
-            adc.gpio = self.hw_defs['ADC_SPI_GPIO']
             adc.gpio_pin_miso = self.hw_defs['ADC_SPI_GPIO_PIN_MISO']
             adc.gpio_pin_mosi = self.hw_defs['ADC_SPI_GPIO_PIN_MOSI']
             adc.gpio_pin_sck = self.hw_defs['ADC_SPI_GPIO_PIN_SCK']

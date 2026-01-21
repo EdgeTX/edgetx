@@ -72,14 +72,13 @@ void RadioData::fixModelFilenames()
 
 QString RadioData::getNextModelFilename()
 {
-  const bool hasSDCard = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasSDCard);
   char filename[sizeof(ModelData::filename)];
-  int index = 0;
+  int8_t index = 0;
   bool found = true;
   while (found) {
-    sprintf(filename, "model%d.%s", ++index, hasSDCard ? "yml" : "bin");
+    sprintf(filename, "model%d.yml", ++index);
     found = false;
-    for (unsigned int i=0; i<models.size(); i++) {
+    for (unsigned int i = 0; i < models.size(); i++) {
       if (strcmp(filename, models[i].filename) == 0) {
         found = true;
         break;
@@ -342,4 +341,20 @@ AbstractStaticItemModel * RadioData::modelSortOrderItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+void RadioData::validateModels()
+{
+  for(auto &model: models)
+    model.validate();
+}
+
+int RadioData::invalidModels()
+{
+  int cnt = 0;
+
+  for(auto &model: models)
+    cnt += model.isValid() ? 0 : 1;
+
+  return cnt;
 }

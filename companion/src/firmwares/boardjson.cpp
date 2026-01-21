@@ -50,7 +50,7 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_TOGGLE),        "TOGGLE"},
     {std::to_string(Board::SWITCH_2POS),          "2POS"},
     {std::to_string(Board::SWITCH_3POS),          "3POS"},
-    {std::to_string(Board::SWITCH_FUNC),          "FSWITCH"},
+    {std::to_string(Board::SWITCH_ADC),           "ADC"},
 };
 
 static const StringTagMappingTable stickNamesLookupTable = {
@@ -89,7 +89,7 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board)) {
+  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board)) {
     if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
@@ -359,7 +359,7 @@ int BoardJson::getInputTypeOffset(const InputsTable * inputs, Board::AnalogInput
       return i;
   }
 
-  return 0;
+  return -1;
 }
 
 const Board::InputInfo BoardJson::getInputInfo(int index) const
@@ -433,6 +433,80 @@ int BoardJson::getNumericSuffix(const std::string str)
 
   if (!suffix.empty())
     return std::stoi(suffix);
+
+  return -1;
+}
+
+const int BoardJson::getCFSIndexForSwitch(int offset) const
+{
+  return getCFSIndexForSwitch(m_switches, offset);
+}
+
+// static
+int BoardJson::getCFSIndexForSwitch(const SwitchesTable * switches, int sw)
+{
+  if (sw < (int)switches->size() && switches->at(sw).isCustomSwitch)
+    return switches->at(sw).customSwitchIdx;
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndexForCFS(int offset) const
+{
+  return getSwitchIndexForCFS(m_switches, offset);
+}
+
+// static
+int BoardJson::getSwitchIndexForCFS(const SwitchesTable * switches, int cfsIdx)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch && switches->at(i).customSwitchIdx == cfsIdx)
+      return i;
+  }
+
+  return -1;
+}
+
+const int BoardJson::getCFSOffsetForCFSIndex(int index) const
+{
+  return getCFSOffsetForCFSIndex(m_switches, index);
+}
+
+// static
+int BoardJson::getCFSOffsetForCFSIndex(const SwitchesTable * switches, const int index)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (switches->at(i).customSwitchIdx == index)
+        return cnt;
+      else
+        cnt++;
+    }
+  }
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndexForCFSOffset(int offset) const
+{
+  return getSwitchIndexForCFSOffset(m_switches, offset);
+}
+
+// static
+int BoardJson::getSwitchIndexForCFSOffset(const SwitchesTable * switches, const int offset)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (cnt == offset)
+        return i;
+      else
+        cnt++;
+    }
+  }
 
   return -1;
 }
@@ -531,7 +605,7 @@ int BoardJson::getSwitchTypeOffset(const SwitchesTable * switches, Board::Switch
       return i;
   }
 
-  return 0;
+  return -1;
 }
 
 const int BoardJson::getSwitchYamlIndex(const QString val, YamlLookupType ylt) const
@@ -629,7 +703,7 @@ const QString BoardJson::getTrimYamlName(int index, YamlLookupType ylt) const
 
 const bool BoardJson::isInputAvailable(int index) const
 {
-  return isInputAvailable(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputAvailable(m_inputs->at(index)) : false;
 }
 
 // static
@@ -641,7 +715,7 @@ bool BoardJson::isInputAvailable(const InputDefn & defn)
 
 const bool BoardJson::isInputCalibrated(int index) const
 {
-  return isInputCalibrated(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputCalibrated(m_inputs->at(index)) : false;
 }
 
 // static
@@ -652,7 +726,7 @@ bool BoardJson::isInputCalibrated(const InputDefn & defn)
 
 const bool BoardJson::isInputConfigurable(int index) const
 {
-  return isInputConfigurable(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputConfigurable(m_inputs->at(index)) : false;
 }
 
 // static
@@ -663,7 +737,7 @@ bool BoardJson::isInputConfigurable(const InputDefn & defn)
 
 const bool BoardJson::isInputIgnored(int index) const
 {
-  return isInputIgnored(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputIgnored(m_inputs->at(index)) : true;
 }
 
 // static
@@ -678,6 +752,11 @@ bool BoardJson::isInputFlex(const InputDefn & defn)
   return defn.type == Board::AIT_FLEX;
 }
 
+const bool BoardJson::isInputFlexGyroAxis(int index) const
+{
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexGyroAxis(m_inputs->at(index)) : false;
+}
+
 // static
 bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 {
@@ -685,6 +764,11 @@ bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 
   return (defn.type == Board::AIT_FLEX && defn.tag.size() > 5 &&
           val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
+}
+
+const bool BoardJson::isInputFlexJoystickAxis(int index) const
+{
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexJoystickAxis(m_inputs->at(index)) : false;
 }
 
 // static
@@ -698,7 +782,7 @@ bool BoardJson::isInputFlexJoystickAxis(const InputDefn & defn)
 
 const bool BoardJson::isInputFlexPot(int index) const
 {
-  return isInputFlexPot(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexPot(m_inputs->at(index)) : false;
 }
 
 // static
@@ -741,7 +825,7 @@ bool BoardJson::isInputRTCBat(const InputDefn & defn)
 
 const bool BoardJson::isInputStick(int index) const
 {
-  return isInputStick(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputStick(m_inputs->at(index)) : false;
 }
 
 // static
@@ -752,7 +836,7 @@ bool BoardJson::isInputStick(const InputDefn & defn)
 
 const bool BoardJson::isInputSwitch(int index) const
 {
-  return isInputSwitch(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputSwitch(m_inputs->at(index)) : false;
 }
 
 // static
@@ -771,7 +855,7 @@ const bool BoardJson::isSwitchConfigurable(int index) const
 {
   if (index >= 0 && index < getCapability(Board::Switches)) {
     SwitchDefn &defn = m_switches->at(index);
-    if (isSwitchStd(defn))
+    if (isSwitchStd(defn) || isSwitchFunc(defn))
       return true;
 
     if (isSwitchFlex(defn)) {
@@ -792,7 +876,7 @@ bool BoardJson::isSwitchStd(const SwitchDefn & defn)
 
 const bool BoardJson::isSwitchFlex(int index) const
 {
-  return isSwitchFlex(m_switches->at(index));
+  return (index >=0 && index < (int)m_switches->size()) ? isSwitchFlex(m_switches->at(index)) : false;
 }
 
 // static
@@ -806,13 +890,13 @@ bool BoardJson::isSwitchFlex(const SwitchDefn & defn)
 
 const bool BoardJson::isSwitchFunc(int index) const
 {
-  return isSwitchFunc(m_switches->at(index));
+  return (index >=0 && index < (int)m_switches->size()) ? isSwitchFunc(m_switches->at(index)) : false;
 }
 
 // static
 bool BoardJson::isSwitchFunc(const SwitchDefn & defn)
 {
-  return defn.type == Board::SWITCH_FUNC;
+  return defn.customSwitchIdx >= 0;
 }
 
 bool BoardJson::loadDefinition()
@@ -993,6 +1077,23 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           const QJsonArray &d = obj.value("display").toArray();
           sw.display.x = (unsigned int)d.at(0).toInt(0);
           sw.display.y = (unsigned int)d.at(1).toInt(0);
+        }
+
+        if (!o.value("is_cfs").isUndefined())
+          sw.isCustomSwitch = o.value("is_cfs").toBool();
+
+        if (!o.value("cfs_idx").isUndefined())
+          sw.customSwitchIdx = o.value("cfs_idx").toInt();
+
+        // special handing for ADC
+        if (sw.type == Board::SWITCH_ADC) {
+          if (sw.dflt == Board::SWITCH_TOGGLE) {
+            // this could be 2 or 3 position toggle so play safe
+            // it therefore has an impact on configuring hardware, available switches, simulator widget, yaml encode and decode
+            sw.dflt = Board::SWITCH_3POS;
+          }
+          // make the same
+          sw.type = sw.dflt;
         }
 
         switches->insert(switches->end(), sw);

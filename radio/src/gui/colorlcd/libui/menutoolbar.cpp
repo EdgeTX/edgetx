@@ -18,9 +18,10 @@
 
 #include "menutoolbar.h"
 
+#include "keys.h"
 #include "menu.h"
 #include "etx_lv_theme.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 static const lv_obj_class_t menu_button_class = {
     .base_class = &button_class,
@@ -51,18 +52,17 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
                                      const char* picto) :
     ButtonBase(parent, rect, nullptr, menu_button_create)
 {
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 
   lv_obj_add_event_cb(lvobj, toolbar_btn_defocus, LV_EVENT_DEFOCUSED, nullptr);
 
-  auto label = lv_label_create(lvobj);
+  auto label = etx_label_create(lvobj);
   lv_label_set_text(label, picto);
   lv_obj_center(label);
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
-    Window(menu, {0, 0, 0, MENUS_MAX_HEIGHT}),
+    Window(menu, {0, 0, 0, 0}),
     choice(choice),
     menu(menu),
     filterColumns(columns),

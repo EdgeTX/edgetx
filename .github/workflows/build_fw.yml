@@ -1,0 +1,154 @@
+---
+name: Run tests and package firmware
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    tags:
+      - v*
+    paths: &trigger-paths
+      - '.github/workflows/build_fw.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
+  pull_request:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths: *trigger-paths
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+    strategy:
+      matrix:
+        target:
+          - x9dp2019
+          - tx15
+          - tx16s
+          - nv14
+          - el18
+          - pl18
+          - pl18ev
+          - t12max
+          - t15
+          - t16
+          - t18
+          - tlite #STM32F2
+          - t20
+          - t14
+          - t20v2
+          - tx12 #STM32F2
+          - x10
+          - x12s
+          - x9e
+          - mt12
+          - gx12
+          - nb4p
+          - st16
+          - t15pro
+          - pa01
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
+
+      - name: Test ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: |
+          echo "Running commit tests"
+          ./tools/commit-tests.sh
+
+  build:
+    name: Run builds
+    needs: test
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+    strategy:
+      matrix:
+        target:
+          - nv14;el18
+          - pl18;pl18ev;pl18u
+          - pa01
+          - t12max
+          - t15;t16;t18
+          - zorro;pocket;mt12;commando8
+          - tprov2;tpros;bumblebee
+          - t20;t20v2;t14
+          - tx12mk2;boxer;gx12
+          - tx15
+          - tx16s
+          - f16
+          - v12;v14;v16
+          - x10;x10express
+          - x12s
+          - x7access
+          - x9dp2019
+          - x9e;x9e-hall
+          - mt12;gx12
+          - nb4p
+          - st16
+          - t15pro
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: |
+          echo "Running firmware build"
+          ./tools/build-gh.sh
+
+      - name: Upload ${{ matrix.target }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.target }}
+          path: |
+            fw.json
+            LICENSE
+            *.bin
+            *.uf2
+          retention-days: 15
+          if-no-files-found: error
+
+  package:
+    name: Package firmwares
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose release filename
+        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Merge firmware artifact packages
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: "${{ env.artifact_name }}"
+          pattern: firmware-*
+          delete-merged: true
+          retention-days: 15

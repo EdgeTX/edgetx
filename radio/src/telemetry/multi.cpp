@@ -62,14 +62,7 @@ enum MultiBufferState : uint8_t
   NoProtocolDetected,
   MultiFirstByteReceived,
   ReceivingMultiProtocol,
-  ReceivingMultiStatus,
-  SpektrumTelemetryFallback,
-  FrskyTelemetryFallback,
-  FrskyTelemetryFallbackFirstByte,
-  FrskyTelemetryFallbackNextBytes,
-  FlyskyTelemetryFallback,
-  HitecTelemetryFallback,
-  MultiStatusOrFrskyData
+  ReceivingMultiStatus
 };
 
 
@@ -160,16 +153,6 @@ bool isMultiModeScanning(uint8_t module)
   return getModuleMode(module) == MODULE_MODE_GET_HARDWARE_INFO;
 }
 
-static MultiBufferState guessProtocol(uint8_t module)
-{
-  if (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-    return SpektrumTelemetryFallback;
-  else if (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
-    return FlyskyTelemetryFallback;
-  else
-    return FrskyTelemetryFallback;
-}
-
 static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleIdx)
 {
   uint8_t cur_channel = data[0];
@@ -181,24 +164,40 @@ static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleI
       coord_t x = cur_channel*2;
       if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
-        reusableBuffer.spectrumAnalyser.bars[x+1] = power;
+        if (x + 1 < LCD_W) {
+          reusableBuffer.spectrumAnalyser.bars[x + 1] = power;
+        }
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
-          reusableBuffer.spectrumAnalyser.max[x+1] = power;
+          if (x + 1 < LCD_W) {
+            reusableBuffer.spectrumAnalyser.max[x + 1] = power;
+          }
+        }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
+          if (x + 1 < LCD_W) {
+            reusableBuffer.spectrumAnalyser.peak[x + 1] = power;
+          }
         }
 #elif LCD_W == 212
-        coord_t x = cur_channel;
-      if (x <= LCD_W) {
+      coord_t x = cur_channel;
+      if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
         }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
+        }
 #else
-      coord_t x = cur_channel/2 + 1;
-      if (x <= LCD_W) {
+      coord_t x = cur_channel / 2 + 1;
+      if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
+        }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
         }
 #endif
       }
@@ -358,6 +357,58 @@ static void processMultiProtoDef(uint8_t module, const uint8_t * packet, uint8_t
 #endif
 
  
+static void processMultiDSMBindPacket(uint8_t module, const uint8_t *packet)
+{
+  if (//g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
+      //g_model.moduleData[module].multi.rfProtocol ==
+      //    MODULE_SUBTYPE_MULTI_DSM2 &&
+      g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
+    // Only sets channel etc when in DSM/AUTO mode
+    int channels = packet[5];
+    if (channels > 12) {
+      channels = 12;
+    } else if (channels < 3) {
+      channels = 3;
+    }
+
+    switch (packet[6]) {
+      case 0xa2:
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSMX_22;
+        break;
+      case 0x12:
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSM2_11;
+        if (channels == 7) {
+          channels = 12;  // change the number of channels if 7
+        }
+        break;
+      case 0x01:
+      case 0x02:
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSM2_22;
+        break;
+      default:  // 0xb2 or unknown
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSMX_11;
+        if (channels == 7) {
+          channels = 12;  // change the number of channels if 7
+        }
+        break;
+    }
+
+    g_model.moduleData[module].channelsCount = channels - 8;
+    // clear the 11ms servo refresh rate flag
+    g_model.moduleData[module].multi.optionValue &= 0xFD;
+
+    storageDirty(EE_MODEL);
+  }
+
+  /* Finally stop binding as the rx just told us that it is bound */
+  if (getModuleMode(module) == MODULE_MODE_BIND) {
+      setMultiBindStatus(module, MULTI_BIND_FINISHED);
+  }
+
+  // Continue with the common Spektrum Processing
+  processDSMBindPacket(packet);
+}
+
 static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 {
   uint8_t type = packet[0];
@@ -373,7 +424,7 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
     case DSMBindPacket:
       if (len >= 10)
-        processDSMBindPacket(module, data);
+        processMultiDSMBindPacket(module, data);
       break;
 
     case SpektrumTelemetry:
@@ -449,9 +500,9 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
             sportProcessTelemetryPacket(TX_LQI_ID, 0, instance, data[7], UNIT_RAW);
           }
         }
-      }
-      else
+      } else {
         TRACE("[MP] Received sport telemetry len %d < 4", len);
+      }
       break;
 
     case InputSync:
@@ -547,7 +598,8 @@ void MultiModuleStatus::getStatusString(char * statusText) const
     tmp = strAppendUnsigned(tmp, patch);
 
     if (isBinding()) {
-      strcpy(tmp, " " TR_MODULE_BINDING);
+      tmp[0] = ' ';
+      strcpy(tmp + 1, STR_MODULE_BINDING);
     }
     else if (ch_order != 0xFF) {
       uint8_t temp = ch_order;
@@ -575,8 +627,7 @@ static void processMultiTelemetryByte(const uint8_t data, uint8_t module)
 
   if (rxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
     rxBuffer[rxBufferCount++] = data;
-  }
-  else {
+  } else {
     TRACE("[MP] array size %d error", rxBufferCount);
     setMultiTelemetryBufferState(module, NoProtocolDetected);
   }
@@ -601,9 +652,9 @@ static void processMultiTelemetryByte(const uint8_t data, uint8_t module)
 
 void processMultiTelemetryData(uint8_t data, uint8_t module)
 {
-  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
+  uint8_t *rxBuffer = getTelemetryRxBuffer(module);
   uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
-  
+
   // debugPrintf("State: %d, byte received %02X, buflen: %d\r\n",
   //             getMultiTelemetryBufferState(module), data, rxBufferCount);
   
@@ -611,54 +662,8 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
     case NoProtocolDetected:
       if (data == 'M') {
         setMultiTelemetryBufferState(module, MultiFirstByteReceived);
-      }
-      else if (data == 0xAA || data == 0x7e) {
-        setMultiTelemetryBufferState(module, guessProtocol(module));
-
-        // Process the first byte by the protocol
-        processMultiTelemetryData(data, module);
-      }
-      else {
+      } else {
         TRACE("[MP] invalid start byte 0x%02X", data);
-      }
-      break;
-
-    case FrskyTelemetryFallback:
-      setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);
-      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
-      break;
-
-    case FrskyTelemetryFallbackFirstByte:
-      if (data == 'M') {
-        setMultiTelemetryBufferState(module, MultiStatusOrFrskyData);
-      }
-      else {
-        processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
-        if (data != 0x7e)
-          setMultiTelemetryBufferState(module, FrskyTelemetryFallbackNextBytes);
-      }
-
-      break;
-
-    case FrskyTelemetryFallbackNextBytes:
-      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
-      if (data == 0x7e) {
-        // end of packet or start of new packet
-        setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);
-      }
-      break;
-
-    case FlyskyTelemetryFallback:
-      processFlySkyTelemetryData(data, rxBuffer, rxBufferCount);
-      if (rxBufferCount == 0) {
-        setMultiTelemetryBufferState(module, NoProtocolDetected);
-      }
-      break;
-
-    case SpektrumTelemetryFallback:
-      processSpektrumTelemetryData(module, data, rxBuffer, rxBufferCount);
-      if (rxBufferCount == 0) {
-        setMultiTelemetryBufferState(module, NoProtocolDetected);
       }
       break;
 
@@ -666,14 +671,12 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
       rxBufferCount = 0;
       if (data == 'P') {
         setMultiTelemetryBufferState(module, ReceivingMultiProtocol);
-      }
-      else if (data >= 5 && data <= 10) {
-        // Protocol indented for er9x/ersky9, accept only 5-10 as packet length to have
-        // a bit of validation
+      } else if (data >= 5 && data <= 10) {
+        // Protocol indented for er9x/ersky9, accept only 5-10 as packet length
+        // to have a bit of validation
         setMultiTelemetryBufferState(module, ReceivingMultiStatus);
         processMultiTelemetryData(data, module);
-      }
-      else {
+      } else {
         TRACE("[MP] invalid second byte 0x%02X", data);
         setMultiTelemetryBufferState(module, NoProtocolDetected);
       }
@@ -681,19 +684,6 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
 
     case ReceivingMultiProtocol:
       processMultiTelemetryByte(data, module);
-      break;
-
-    case MultiStatusOrFrskyData:
-      // Check len byte if it makes sense for multi
-      if (data >= 5 && data <= 10) {
-        setMultiTelemetryBufferState(module, ReceivingMultiStatus);
-        rxBufferCount = 0;
-      }
-      else {
-        setMultiTelemetryBufferState(module, FrskyTelemetryFallbackNextBytes);
-        processMultiTelemetryData('M', module);
-      }
-      processMultiTelemetryData(data, module);
       break;
 
     case ReceivingMultiStatus:
@@ -706,17 +696,16 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         }
         if (rxBufferCount > 24) {
           // too long ignore
-          TRACE("Overlong multi status packet detected ignoring, wanted %d", rxBuffer[0]);
+          TRACE("Multi status packet > 24 (frame len = %d)", rxBuffer[0]);
           rxBufferCount = 0;
           setMultiTelemetryBufferState(module, NoProtocolDetected);
         }
-      }
-      else {
+      } else {
         TRACE("[MP] array size %d error", rxBufferCount);
         setMultiTelemetryBufferState(module, NoProtocolDetected);
       }
       break;
-      
+
     default:
       break;
   }

@@ -19,12 +19,118 @@
 #include "window.h"
 
 #include "button.h"
-#include "form.h"
-#include "static.h"
+#include "debug.h"
 #include "etx_lv_theme.h"
+#include "form.h"
+#include "keys.h"
+#include "pagegroup.h"
+#include "static.h"
+
+//-----------------------------------------------------------------------------
+
+class Layer
+{
+  static std::list<Layer> stack;
+
+  Window*     window;
+  lv_group_t* group;
+  lv_group_t* prevGroup;
+
+ public:
+  explicit Layer(Window* w, lv_group_t* g, lv_group_t* pg) :
+      window(w), group(g), prevGroup(pg)
+  {
+  }
+
+  ~Layer() { lv_group_del(group); }
+
+  static void push(Window* window);
+  static void pop(Window* window);
+
+  static Window* back();
+  static Window* walk(std::function<bool(Window* w)> check);
+};
+
+std::list<Layer> Layer::stack;
+
+void Layer::push(Window* w)
+{
+  // save prev group
+  auto pg = lv_group_get_default();
+
+  // create a new group
+  auto g = lv_group_create();
+  w->assignLvGroup(g, true);
+
+  // and store
+  stack.emplace_back(w, g, pg);
+}
+
+void Layer::pop(Window* w)
+{
+  if (stack.empty()) return;
+
+  if (back() == w) {
+    lv_group_t* prevGroup = stack.back().prevGroup;
+    stack.pop_back();
+    w = back();
+    if (prevGroup) {
+      w->assignLvGroup(prevGroup, true);
+    } else if (!stack.empty()) {
+      w->assignLvGroup(stack.back().group, true);
+    } else {
+      lv_group_set_default(NULL);
+    }
+  } else {
+    for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+      if (layer->window == w) {
+        stack.erase(layer.base());
+        return;
+      }
+    }
+    return;
+  }
+}
+
+Window* Layer::back()
+{
+  if (stack.empty()) return nullptr;
+  return stack.back().window;
+}
+
+Window* Layer::walk(std::function<bool(Window* w)> check)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window && check(layer->window))
+      return layer->window;
+  }
+
+  return nullptr;
+}
+
+//-----------------------------------------------------------------------------
 
 std::list<Window *> Window::trash;
-bool Window::_longPressed = false;
+
+Window* Window::topWindow() { return Layer::back(); }
+
+Window* Window::firstOpaque()
+{
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->hasWindowFlag(OPAQUE);
+  });
+  return w;
+}
+
+PageGroup* Window::pageGroup()
+{
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->isPageGroup();
+  });
+  return (PageGroup*)w;
+}
+
+//-----------------------------------------------------------------------------
 
 const lv_obj_class_t window_base_class = {
     .base_class = &lv_obj_class,
@@ -46,12 +152,14 @@ lv_obj_t *window_create(lv_obj_t *parent)
 void Window::window_event_cb(lv_event_t *e)
 {
   Window *window = (Window *)lv_obj_get_user_data(lv_event_get_target(e));
-  if (window) 
+  if (window)
     window->eventHandler(e);
 }
 
 void Window::eventHandler(lv_event_t *e)
 {
+  static bool _longPressed = false;
+
   lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
@@ -59,15 +167,20 @@ void Window::eventHandler(lv_event_t *e)
 
   switch (code) {
     case LV_EVENT_SCROLL: {
+      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+      if (scrollHandler) scrollHandler(scroll_x, scroll_y);
+
       // exclude pointer based scrolling (only focus scrolling)
-      if (!lv_obj_is_scrolling(target)) {
+      if (!lv_obj_is_scrolling(target) && !noForcedScroll) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
-        lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
         TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
               scroll_bottom);
 
+        // Force scroll to top or bottom when near either edge.
+        // Only applies when using rotary encoder or keys.
         if (scroll_y <= 45 && p->y > 0) {
           lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
         } else if (scroll_bottom <= 16 && p->y < 0) {
@@ -96,10 +209,18 @@ void Window::eventHandler(lv_event_t *e)
       TRACE("LONG PRESS[%p]", this);
       _longPressed = onLongPress();
       break;
+    case LV_EVENT_PRESSED:
+      onPressed();
+      break;
+    case LV_EVENT_RELEASED:
+      onReleased();
+      break;
     default:
       break;
   }
 }
+
+//-----------------------------------------------------------------------------
 
 // Constructor to allow lvobj to be created separately - used by NumberEdit and
 // TextEdit
@@ -143,6 +264,20 @@ Window::~Window()
   }
 }
 
+void Window::delayLoader(lv_event_t* e)
+{
+  auto w = (Window*)lv_obj_get_user_data(lv_event_get_target(e));
+  if (w && !w->loaded) {
+    w->loaded = true;
+    w->delayedInit();
+  }
+}
+
+void Window::delayLoad()
+{
+  lv_obj_add_event_cb(lvobj, Window::delayLoader, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+}
+
 #if defined(DEBUG_WINDOWS)
 std::string Window::getName() const { return "Window"; }
 
@@ -171,6 +306,39 @@ std::string Window::getWindowDebugString(const char *name) const
 }
 #endif
 
+void Window::pushLayer(bool hideParent)
+{
+  if (!layerCreated) {
+    parentHidden = hideParent;
+    layerCreated = true;
+    if (parentHidden) Window::topWindow()->hide();
+    Layer::push(this);
+  }
+}
+
+void Window::popLayer()
+{
+  if (layerCreated) {
+    Layer::pop(this);
+    if (parentHidden) Window::topWindow()->show();
+    layerCreated = false;
+    parentHidden = false;
+  }
+}
+
+void Window::assignLvGroup(lv_group_t* g, bool setDefault)
+{
+  if (setDefault)
+    lv_group_set_default(g);
+
+  // associate it with all input devices
+  lv_indev_t* indev = lv_indev_get_next(NULL);
+  while (indev) {
+    lv_indev_set_group(indev, g);
+    indev = lv_indev_get_next(indev);
+  }
+}
+
 Window *Window::getFullScreenWindow()
 {
   if (width() == LCD_W && height() == LCD_H) return this;
@@ -183,8 +351,14 @@ void Window::setWindowFlag(WindowFlags flag)
   windowFlags |= flag;
 
   // honor the no focus flag of libopenui
-  if (this->windowFlags & NO_FOCUS)
+  if (windowFlags & NO_FOCUS)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
+  if (windowFlags & NO_SCROLL)
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
+
+  if (windowFlags & NO_CLICK)
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
 }
 
 void Window::clearWindowFlag(WindowFlags flag) { windowFlags &= ~flag; }
@@ -204,33 +378,27 @@ void Window::attach(Window *newParent)
 void Window::detach()
 {
   if (parent) {
-    parent->removeChild(this);
+    parent->children.remove(this);
     parent = nullptr;
   }
 }
 
-void Window::deleteLater(bool detach, bool trash)
+void Window::deleteLater()
 {
   if (_deleted) return;
+  _deleted = true;
 
   TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
 
-  _deleted = true;
-
-  if (closeHandler) {
-    closeHandler();
-  }
-
-  if (detach)
-    this->detach();
-  else
-    parent = nullptr;
-
-  if (trash) {
-    Window::trash.push_back(this);
-  }
-
+  detach();
   deleteChildren();
+
+  popLayer();
+
+  if (closeHandler)
+    closeHandler();
+
+  Window::trash.push_back(this);
 
   if (lvobj != nullptr) {
     auto obj = lvobj;
@@ -250,13 +418,8 @@ void Window::clear()
 
 void Window::deleteChildren()
 {
-  // prevent LVGL refocus while mass-deleting
-  // inhibit_focus = true;
-  for (auto window : children) {
-    window->deleteLater(false);
-  }
-  // inhibit_focus = false;
-  children.clear();
+  while (!children.empty())
+    children.back()->deleteLater();
 }
 
 bool Window::hasFocus() const
@@ -279,19 +442,6 @@ void Window::padBottom(coord_t pad)
 }
 
 void Window::padAll(PaddingSize pad) { etx_padding(lvobj, pad, LV_PART_MAIN); }
-
-void Window::padRow(coord_t pad) { lv_obj_set_style_pad_row(lvobj, pad, 0); }
-
-void Window::padColumn(coord_t pad)
-{
-  lv_obj_set_style_pad_column(lvobj, pad, 0);
-}
-
-void Window::bringToTop()
-{
-  attach(parent);  // does a detach + attach
-  if (lvobj && lv_obj_get_parent(lvobj)) lv_obj_move_foreground(lvobj);
-}
 
 void Window::checkEvents()
 {
@@ -338,12 +488,6 @@ void Window::addChild(Window *window)
   children.push_back(window);
 }
 
-void Window::removeChild(Window *window)
-{
-  children.remove(window);
-  invalidate();
-}
-
 void Window::invalidate()
 {
   if (lvobj) lv_obj_invalidate(lvobj);
@@ -353,9 +497,10 @@ void Window::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding,
                            coord_t width, coord_t height)
 {
   lv_obj_set_flex_flow(lvobj, flow);
-  if (_LV_FLEX_COLUMN & flow) {
+  if ((_LV_FLEX_COLUMN & flow) || (_LV_FLEX_WRAP & flow)) {
     lv_obj_set_style_pad_row(lvobj, padding, LV_PART_MAIN);
-  } else {
+  }
+  if (!(_LV_FLEX_COLUMN & flow) || (_LV_FLEX_WRAP & flow)) {
     lv_obj_set_style_pad_column(lvobj, padding, LV_PART_MAIN);
   }
   lv_obj_set_width(lvobj, width);
@@ -377,6 +522,20 @@ void Window::show(bool visible)
         lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     }
   }
+}
+
+bool Window::isVisible()
+{
+  return !_deleted && lvobj && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+}
+
+bool Window::isOnScreen()
+{
+  // Check window is at least partially visible
+  if (!isVisible()) return false;
+  lv_area_t a;
+  lv_obj_get_coords(lvobj, &a);
+  return a.x2 >= 0 && a.x1 < LCD_W && a.y2 >= 0 && a.y1 < LCD_H;
 }
 
 void Window::enable(bool enabled)
@@ -402,7 +561,20 @@ void Window::addBackButton()
       },
       window_create);
 }
+
+void Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
+{
+  new ButtonBase(
+    this, {x, y, EdgeTxStyles::MENU_HEADER_HEIGHT, EdgeTxStyles::MENU_HEADER_HEIGHT},
+    [=]() -> uint8_t {
+      action();
+      return 0;
+    },
+    window_create);
+}
 #endif
+
+//-----------------------------------------------------------------------------
 
 void NavWindow::onEvent(event_t event)
 {
@@ -439,6 +611,18 @@ void NavWindow::onEvent(event_t event)
     case EVT_KEY_BREAK(KEY_PAGEUP):
       onPressPGUP();
       break;
+
+    case EVT_KEY_LONG(KEY_PAGEDN):
+      onLongPressPGDN();
+      break;
+
+    case EVT_KEY_LONG(KEY_PAGEUP):
+      onLongPressPGUP();
+      break;
+
+    case EVT_KEY_LONG(KEY_EXIT):
+      onLongPressRTN();
+      break;
 #endif
 
     default:
@@ -453,6 +637,28 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
   setWindowFlag(OPAQUE);
 }
 
+//-----------------------------------------------------------------------------
+
+class SetupTextButton : public TextButton
+{
+ public:
+  SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef& entry) :
+      TextButton(parent, rect, STR_VAL(entry.title))
+  {
+    setPressHandler([=] {
+      entry.createPage();
+      return 0;
+    });
+    setCheckHandler([=]() {
+      if (entry.isActive) check(entry.isActive());
+      if (entry.enabled) show(entry.enabled());
+    });
+    setWrap();
+  }
+
+ protected:
+};
+
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
                                    PaddingSize padding, PageDefs pages, coord_t btnHeight) :
     Window(parent, rect)
@@ -464,7 +670,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
   int rows = (pages.size() + cols - 1) / cols;
   int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
   if (title) {
-    height += EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY;
+    height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
   }
   setHeight(height);
 
@@ -473,7 +679,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
 
   int n = 0;
   int remaining = pages.size();
-  coord_t yo = title ? EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY : 0;
+  coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
   coord_t xw = buttonWidth + PAD_SMALL;
   coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
   coord_t x, y;
@@ -486,19 +692,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    // TODO: sort out all caps title strings VS quick menu strings
-    std::string title(entry.title);
-    for (std::string::iterator it = title.begin(); it != title.end(); ++it) {
-      if (*it == '\n')
-        *it = ' ';
-    }
-
-    auto btn = new TextButton(this, rect_t{x, y, buttonWidth, btnHeight}, title, [&, entry]() {
-      entry.createPage();
-      return 0;
-    });
-    btn->setWrap();
-    if (entry.isActive) btn->setCheckHandler([=]() { btn->check(entry.isActive()); });
+    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
     n += 1;
     remaining -= 1;
   }
@@ -510,7 +704,7 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
 {
   padAll(PAD_ZERO);
   coord_t titleY = PAD_LARGE + lblYOffset;
-  coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
+  coord_t titleH = EdgeTxStyles::STD_FONT_HEIGHT;
   coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + lblYOffset * 2;
   if (createEdit) {
     coord_t editY = PAD_TINY;
@@ -537,9 +731,15 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
   Window* w;
 
   for (int i = 0; i < lineCount; i += 1) {
+#if !defined(ALL_LANGS)
     w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
+#else
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title ? setupLines[i].title() : nullptr, setupLines[i].createEdit);
+#endif
     y += w->height() + padding;
   }
 
   return y;
 }
+
+//-----------------------------------------------------------------------------

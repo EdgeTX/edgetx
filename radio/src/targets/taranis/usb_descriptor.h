@@ -37,6 +37,10 @@
   #define USB_NAME                     "Radiomaster MT12"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'M', 'T', '1', '2', ' '  /* 8 Bytes */
+#elif defined(RADIO_GX12)
+  #define USB_NAME                     "Radiomaster GX12"
+  #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'R', 'M', ' ', 'G', 'X', '1', '2', ' '  /* 8 Bytes */
 #elif defined(RADIO_POCKET)
   #define USB_NAME                     "Radiomaster Pocket"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
@@ -69,6 +73,10 @@
   #define USB_NAME                     "Jumper T-Pro S"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '-', 'P', 'r', 'o', ' ', 'S', ' '  /* 8 Bytes */
+#elif defined(RADIO_BUMBLEBEE)
+  #define USB_NAME                     "Jumper Bumblebee"
+  #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'B', 'u', 'm', 'b', 'l', 'e', 'b', 'e'  /* 8 Bytes */
 #elif defined(RADIO_T14)
   #define USB_NAME                     "Jumper T14"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */

@@ -2,13 +2,22 @@
 # LVGL fonts
 #
 
+if (BITMAPS_DIR STREQUAL 320x240)
+set(FONT_DIR sml)
+elseif (BITMAPS_DIR STREQUAL 800x480)
+set(FONT_DIR lrg)
+else()
+set(FONT_DIR std)
+endif()
+
 file(GLOB LVGL_FONTS
   RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/..
-  lvgl/lv_font_*.c)
+  lvgl/${FONT_DIR}/lv_font_*.c)
 
 set(LVGL_FONT_SOURCES ${LVGL_FONTS} PARENT_SCOPE)
 
 set(LVGL_FONT_SOURCES_MINIMAL
-  fonts/lvgl/lv_font_roboto_bl_16.c
+  fonts/lvgl/${FONT_DIR}/lv_font_bl.c
   PARENT_SCOPE
 )
+

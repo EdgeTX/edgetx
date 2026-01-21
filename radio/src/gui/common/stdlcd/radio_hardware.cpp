@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
+#include "hal/rgbleds.h"
 
 #include "analogs.h"
 #include "switches.h"
@@ -39,9 +40,17 @@
 #if LCD_W >= 212
   #define HW_SETTINGS_COLUMN1            12*FW
   #define HW_SETTINGS_COLUMN2            (20*FW - 3)
+  #define HW_SETTINGS_COLUMN3            HW_SETTINGS_COLUMN2
 #else
   #define HW_SETTINGS_COLUMN1            30
   #define HW_SETTINGS_COLUMN2            (HW_SETTINGS_COLUMN1 + 5*FW)
+  #define HW_SETTINGS_COLUMN3            HW_SETTINGS_COLUMN2 + FW
+#endif
+
+#if defined(BATTGRAPH)
+  #define CASE_BATTGRAPH(x) x,
+#else
+  #define CASE_BATTGRAPH(x)
 #endif
 
 enum {
@@ -54,6 +63,12 @@ enum {
   ITEM_RADIO_HARDWARE_LABEL_SWITCHES,
   ITEM_RADIO_HARDWARE_SWITCH,
   ITEM_RADIO_HARDWARE_SWITCH_END = ITEM_RADIO_HARDWARE_SWITCH + MAX_SWITCHES - 1,
+#if defined(FUNCTION_SWITCHES)
+  ITEM_RADIO_HARDWARE_LABEL_CFS,
+  ITEM_RADIO_HARDWARE_CFS,
+  ITEM_RADIO_HARDWARE_CFS_END = ITEM_RADIO_HARDWARE_CFS + MAX_SWITCHES - 1,
+#endif
+  CASE_BATTGRAPH(ITEM_RADIO_HARDWARE_BATT_RANGE)
   ITEM_RADIO_HARDWARE_BATTERY_CALIB,
   ITEM_RADIO_HARDWARE_RTC_BATTERY,
   ITEM_RADIO_HARDWARE_RTC_CHECK,
@@ -105,6 +120,141 @@ static void onHardwareAntennaSwitchConfirm(const char * result)
 }
 #endif
 
+#if defined(FUNCTION_SWITCHES)
+#define RADIO_SETUP_2ND_COLUMN           (LCD_W-11*FW)
+extern const char* _fct_sw_start[];
+extern int swIndex;
+
+extern bool checkCFSTypeAvailable(int val);
+
+enum CFSFields {
+  CFS_FIELD_TYPE,
+  CFS_FIELD_NAME,
+  CFS_FIELD_START,
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  CFS_FIELD_COLOR_LABEL,
+  CFS_FIELD_ON_COLOR,
+  CFS_FIELD_ON_LUA_OVERRIDE,
+  CFS_FIELD_OFF_COLOR,
+  CFS_FIELD_OFF_LUA_OVERRIDE,
+#endif
+  CFS_FIELD_COUNT
+};
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+extern bool menuCFSpreview;
+extern void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event);
+#endif
+
+static void menuRadioCFSOne(event_t event)
+{
+  std::string s(CHAR_SWITCH);
+  s += switchGetDefaultName(swIndex);
+
+  int config = g_eeGeneral.switchType(swIndex);
+  uint8_t group = g_eeGeneral.switchGroup(swIndex);
+  int startPos = g_eeGeneral.switchStart(swIndex);
+
+  SUBMENU(s.c_str(), CFS_FIELD_COUNT,
+    {
+      0,
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_TOGGLE && config != SWITCH_GLOBAL && group == 0) ? 0 : HIDDEN_ROW),
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? LABEL() : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+#endif
+    });
+  
+  int8_t sub = menuVerticalPosition;
+  int8_t editMode = s_editMode;
+
+  coord_t y = MENU_HEADER_HEIGHT + 1;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  menuCFSpreview = false;
+#endif
+
+  for (int k = 0; k < NUM_BODY_LINES; k += 1) {
+    int i = k + menuVerticalOffset;
+    for (int j = 0; j <= i; j += 1) {
+      if (j < (int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        i += 1;
+      }
+    }
+    LcdFlags attr = (sub == i ? (editMode > 0 ? BLINK | INVERS : INVERS) : 0);
+
+    switch(i) {
+      case CFS_FIELD_TYPE:
+        config = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_SWITCH_TYPE, STR_SWTYPES, config, SWITCH_NONE, SWITCH_3POS, attr, event, 0, checkCFSTypeAvailable);
+        if (attr && checkIncDec_Ret) {
+          g_eeGeneral.switchSetType(swIndex, (SwitchConfig)config);
+          if (config == SWITCH_NONE) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+            if (g_model.getSwitchType(swIndex) == SWITCH_NONE)
+              fsLedRGB(switchGetCustomSwitchIdx(swIndex), 0);
+#endif
+          } else if (config == SWITCH_TOGGLE) {
+            setFSLogicalState(swIndex, 0);
+            g_eeGeneral.switchSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
+          }
+        }
+        break;
+
+      case CFS_FIELD_NAME:
+        editSingleName(RADIO_SETUP_2ND_COLUMN, y, STR_NAME, g_eeGeneral.switchName(swIndex),
+                       LEN_SWITCH_NAME, event, (attr != 0),
+                       editMode);
+        break;
+
+      case CFS_FIELD_START:
+        lcdDrawText(0, y, STR_SWITCH_STARTUP);
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, _fct_sw_start[startPos], attr ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+        if (attr) {
+          startPos = checkIncDec(event, startPos, FS_START_OFF, FS_START_PREVIOUS, EE_MODEL);
+          g_eeGeneral.switchSetStart(swIndex, (fsStartPositionType)startPos);
+        }
+        break;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      case CFS_FIELD_COLOR_LABEL:
+        lcdDrawText(0, y, STR_BLCOLOR);
+        lcdDrawText(LCD_W - 6 * FW, y, "R", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W - 3 * FW, y, "G", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W, y, "B", RIGHT | SMLSIZE);
+        break;
+
+      case CFS_FIELD_ON_COLOR:
+        menuCFSColor(y, g_eeGeneral.switchOnColor(swIndex), STR_OFFON[1], attr, event);
+        break;
+
+      case CFS_FIELD_ON_LUA_OVERRIDE:
+        g_eeGeneral.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOnColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        break;
+
+      case CFS_FIELD_OFF_COLOR:
+        menuCFSColor(y, g_eeGeneral.switchOffColor(swIndex), STR_OFFON[0], attr, event);
+        break;
+
+      case CFS_FIELD_OFF_LUA_OVERRIDE:
+        g_eeGeneral.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOffColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        break;
+#endif
+    }
+
+    y += FH;
+  }
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  if (!menuCFSpreview)
+    setFSEditOverride(-1, 0);
+#endif
+}
+#endif
+
 static uint8_t _dispSerialPort(uint8_t port_nr)
 {
   auto port = serialGetPort(port_nr);
@@ -129,7 +279,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = ITEM_RADIO_HARDWARE_STICK; i <= ITEM_RADIO_HARDWARE_STICK_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_STICK;
-    tab[i] = idx < max_sticks ? 0 : HIDDEN_ROW;
+    tab[i] = idx < max_sticks ? 1 : HIDDEN_ROW;
   }
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
@@ -138,12 +288,29 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[i] = idx < max_pots ? (IS_POT_MULTIPOS(idx) ? 1 : 2) : HIDDEN_ROW;
   }
 
-  auto max_switches = switchGetMaxSwitches();
+  int max_switches = switchGetMaxAllSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
-    tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
+    if (idx < max_switches && !switchIsCustomSwitch(idx)) {
+      tab[i] = switchIsFlex(idx) ? 2 : 1;
+    } else {
+      tab[i] = HIDDEN_ROW;
+    }
   }
+#if defined (FUNCTION_SWITCHES)
+  for (int i = ITEM_RADIO_HARDWARE_CFS; i <= ITEM_RADIO_HARDWARE_CFS_END; i++) {
+    uint8_t idx = i - ITEM_RADIO_HARDWARE_CFS;
+    if (idx < max_switches && switchIsCustomSwitch(idx)) {
+      tab[i] = 0;
+    } else {
+      tab[i] = HIDDEN_ROW;
+    }
+  }
+#endif
 
+#if defined(BATTGRAPH)
+  tab[ITEM_RADIO_HARDWARE_BATT_RANGE] = 1;
+#endif
   tab[ITEM_RADIO_HARDWARE_BATTERY_CALIB] = 0;
   tab[ITEM_RADIO_HARDWARE_RTC_BATTERY] = READONLY_ROW;
   tab[ITEM_RADIO_HARDWARE_RTC_CHECK] = 0;
@@ -158,7 +325,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   memset((void*)&tab[ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE], HIDDEN_ROW, 3);
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(STM32F2) || defined(STM32F4))
   tab[ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE] = 0;
 #else
   tab[ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE] = HIDDEN_ROW;
@@ -211,6 +378,13 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
 #endif
 }
 
+static bool editInversion(bool state, event_t event, coord_t y, LcdFlags flags)
+{
+  lcdDrawChar(LCD_W - 8, y, state ? 127 : 126, flags);
+  if (flags & (~RIGHT)) state = checkIncDec(event, state, 0, 1, EE_GENERAL);
+  return state;
+}
+
 void menuRadioHardware(event_t event)
 {
   uint8_t old_editMode = s_editMode;
@@ -254,7 +428,7 @@ void menuRadioHardware(event_t event)
     switch(k) {
       case ITEM_RADIO_HARDWARE_LABEL_STICKS:
         lcdDrawTextAlignedLeft(y, STR_STICKS);
-        lcdDrawText(HW_SETTINGS_COLUMN2, y, BUTTON(TR_CALIBRATION), attr);
+        lcdDrawText(HW_SETTINGS_COLUMN2, y, STR_CALIBRATION, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuRadioCalibration);
         }
@@ -268,9 +442,30 @@ void menuRadioHardware(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SWITCHES);
         break;
 
+#if defined(FUNCTION_SWITCHES)
+      case ITEM_RADIO_HARDWARE_LABEL_CFS:
+        lcdDrawTextAlignedLeft(y, STR_FUNCTION_SWITCHES);
+        break;
+#endif
+
+#if defined(BATTGRAPH)
+      case ITEM_RADIO_HARDWARE_BATT_RANGE:
+        lcdDrawTextAlignedLeft(y, STR_BATTERY_RANGE);
+        putsVolts(HW_SETTINGS_COLUMN3, y, 90+g_eeGeneral.vBatMin, (menuHorizontalPosition==0 ? attr : 0)|NO_UNIT);
+        lcdDrawChar(lcdNextPos, y, '-');
+        putsVolts(lcdNextPos, y, 120+g_eeGeneral.vBatMax, (menuHorizontalPosition>0 ? attr : 0)|NO_UNIT);
+        if (attr && s_editMode>0) {
+          if (menuHorizontalPosition==0)
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMin, -60, g_eeGeneral.vBatMax+29); // min=3.0V
+          else
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +40); // max=16.0V
+        }
+        break;
+#endif
+
       case ITEM_RADIO_HARDWARE_BATTERY_CALIB:
         lcdDrawTextAlignedLeft(y, STR_BATT_CALIB);
-        putsVolts(HW_SETTINGS_COLUMN2, y, getBatteryVoltage(), attr|PREC2|LEFT);
+        putsVolts(HW_SETTINGS_COLUMN3, y, getBatteryVoltage(), attr|PREC2|LEFT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.txVoltageCalibration, -127, 127);
         }
@@ -278,7 +473,7 @@ void menuRadioHardware(event_t event)
 
       case ITEM_RADIO_HARDWARE_RTC_BATTERY:
         lcdDrawTextAlignedLeft(y, STR_RTC_BATT);
-        putsVolts(HW_SETTINGS_COLUMN2, y, getRTCBatteryVoltage(), PREC2|LEFT);
+        putsVolts(HW_SETTINGS_COLUMN3, y, getRTCBatteryVoltage(), PREC2|LEFT);
         break;
 
       case ITEM_RADIO_HARDWARE_RTC_CHECK:
@@ -325,12 +520,14 @@ void menuRadioHardware(event_t event)
         }
         break;
 
+#if defined(STM32F2) || defined(STM32F4)
       case ITEM_RADIO_HARDWARE_SERIAL_SAMPLE_MODE:
         g_eeGeneral.uartSampleMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_SAMPLE_MODE, STR_SAMPLE_MODES, g_eeGeneral.uartSampleMode, 0, UART_SAMPLE_MODE_MAX, attr, event);
         if (attr && checkIncDec_Ret) {
           restartModule(EXTERNAL_MODULE);
         }
         break;
+#endif
 
 #if defined(BLUETOOTH)
       case ITEM_RADIO_HARDWARE_BLUETOOTH_MODE:
@@ -369,7 +566,7 @@ void menuRadioHardware(event_t event)
         if (!s_editMode && reusableBuffer.radioHardware.antennaMode != g_eeGeneral.antennaMode) {
           if (!isExternalAntennaEnabled() && (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_EXTERNAL || (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_PER_MODEL && g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode == ANTENNA_MODE_EXTERNAL))) {
             POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onHardwareAntennaSwitchConfirm);
-            SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+            SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
           }
           else {
             g_eeGeneral.antennaMode = reusableBuffer.radioHardware.antennaMode;
@@ -453,9 +650,12 @@ void menuRadioHardware(event_t event)
       default:
         if (k <= ITEM_RADIO_HARDWARE_STICK_END) {
           // Sticks
-          editStickHardwareSettings(HW_SETTINGS_COLUMN1, y,
-                                    k - ITEM_RADIO_HARDWARE_STICK, event,
-                                    attr, old_editMode);
+          int idx = k - ITEM_RADIO_HARDWARE_STICK;
+
+          editStickHardwareSettings(HW_SETTINGS_COLUMN1, y, idx, event,
+                                    menuHorizontalPosition == 0 ? attr : 0, old_editMode);
+          // ADC inversion
+          setStickInversion(idx, editInversion(getStickInversion(idx), event, y, menuHorizontalPosition == 1 ? attr : 0));
 
         } else if (k <= ITEM_RADIO_HARDWARE_POT_END) {
           // Pots & sliders
@@ -463,7 +663,7 @@ void menuRadioHardware(event_t event)
 
           // draw hw name
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
-          lcdDrawText(INDENT_WIDTH, y, STR_CHAR_POT, flags);
+          lcdDrawText(INDENT_WIDTH, y, CHAR_POT, flags);
           lcdDrawText(lcdNextPos, y, adcGetInputLabel(ADC_INPUT_FLEX, idx), flags);
 
           // draw custom name
@@ -486,39 +686,34 @@ void menuRadioHardware(event_t event)
 
           if (!IS_POT_MULTIPOS(idx)) {
             // ADC inversion
-            flags = menuHorizontalPosition == 2 ? attr : 0;
-            bool potinversion = getPotInversion(idx);
-            lcdDrawChar(LCD_W - 8, y, potinversion ? 127 : 126, flags);
-            if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
-            setPotInversion(idx, potinversion);
+            setPotInversion(idx, editInversion(getPotInversion(idx), event, y, menuHorizontalPosition == 2 ? attr : 0));
           } else if (getPotInversion(idx)) {
             setPotInversion(idx, 0);
             storageDirty(EE_GENERAL);
           }
-        }
-        else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
+        } else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
           // Switches
           int index = k - ITEM_RADIO_HARDWARE_SWITCH;
-          int config = SWITCH_CONFIG(index);
+          int config = g_eeGeneral.switchType(index);
 
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
-          lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, flags);
-          lcdDrawText(lcdNextPos, y, switchGetName(index), flags);
+          lcdDrawText(INDENT_WIDTH, y, CHAR_SWITCH, flags);
+          lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), flags);
 
           if (switchIsFlex(index)) {
             // flexSwitch source
             flags = menuHorizontalPosition == 0 ? attr : 0;
             auto source = switchGetFlexConfig(index);
             lcdDrawText(HW_SETTINGS_COLUMN1, y, (source < 0) ? STR_NONE : adcGetInputLabel(ADC_INPUT_FLEX, source), flags);
-            if (flags & (~RIGHT)) source = checkIncDec(event, source, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL, isFlexSwitchSourceValid);
+            if (flags & (~RIGHT)) source = checkIncDec(event, source, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1, EE_GENERAL, isFlexSwitchSourceValid);
             switchConfigFlex(index, source);
 
             //Name
             flags = menuHorizontalPosition == 1 ? attr : 0;
-            if (switchHasCustomName(index) ||
+            if (g_eeGeneral.switchHasCustomName(index) ||
                 (attr && s_editMode > 0 && menuHorizontalPosition == 1)) {
               editName(HW_SETTINGS_COLUMN2, y,
-                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       g_eeGeneral.getSwitchCustomName(index), LEN_SWITCH_NAME,
                        event, flags, 0, old_editMode);
             } else {
               lcdDrawMMM(HW_SETTINGS_COLUMN2, y, flags);
@@ -530,18 +725,14 @@ void menuRadioHardware(event_t event)
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
 
             if (attr && checkIncDec_Ret) {
-              swconfig_t mask = SWITCH_CONFIG_MASK(index);
-              g_eeGeneral.switchConfig =
-                  (g_eeGeneral.switchConfig & ~mask) |
-                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+              g_eeGeneral.switchSetType(index, (SwitchConfig)config);
             }
-          }
-          else {
+          } else {
             flags = menuHorizontalPosition == 0 ? attr : 0;
-            if (switchHasCustomName(index) ||
+            if (g_eeGeneral.switchHasCustomName(index) ||
                 (attr && s_editMode > 0 && menuHorizontalPosition == 0)) {
               editName(HW_SETTINGS_COLUMN1, y,
-                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       g_eeGeneral.getSwitchCustomName(index), LEN_SWITCH_NAME,
                        event, flags, 0, old_editMode);
             } else {
               lcdDrawMMM(HW_SETTINGS_COLUMN1, y, flags);
@@ -553,12 +744,43 @@ void menuRadioHardware(event_t event)
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
 
             if (attr && checkIncDec_Ret) {
-              swconfig_t mask = SWITCH_CONFIG_MASK(index);
-              g_eeGeneral.switchConfig =
-                  (g_eeGeneral.switchConfig & ~mask) |
-                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+              g_eeGeneral.switchSetType(index, (SwitchConfig)config);
             }
           }
+#if defined(FUNCTION_SWITCHES)
+        } else if (k <= ITEM_RADIO_HARDWARE_CFS_END) {
+          // Customisable Switches
+          int index = k - ITEM_RADIO_HARDWARE_CFS;
+          int config = g_eeGeneral.switchType(index);
+
+          lcdDrawText(INDENT_WIDTH, y, CHAR_SWITCH, attr);
+          lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), attr);
+
+          lcdDrawText(HW_SETTINGS_COLUMN2, y, STR_SWTYPES[config]);
+
+          if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
+            swIndex = index;
+            pushMenu(menuRadioCFSOne);
+          }
+  
+          if (config != SWITCH_NONE) {
+            if (g_eeGeneral.switchName(index)[0]) {
+              char s[LEN_SWITCH_NAME + 1];
+              strAppend(s, g_eeGeneral.switchName(index), LEN_SWITCH_NAME);
+              lcdDrawText(HW_SETTINGS_COLUMN1, y, s);
+            } else {
+              lcdDrawMMM(HW_SETTINGS_COLUMN1, y, 0);
+            }
+
+            uint8_t group = g_eeGeneral.switchGroup(index);
+            // lcdDrawText(30 + 13 * FW, y, STR_FSGROUPS[group]);
+
+            if (config != SWITCH_TOGGLE && group == 0) {
+              int startPos = g_eeGeneral.switchStart(index);
+              lcdDrawText(30 + 15 * FW, y, _fct_sw_start[startPos]);
+            }
+          }
+#endif
         } else if (k <= ITEM_RADIO_HARDWARE_SERIAL_PORT_END) {
           auto port_nr = k - ITEM_RADIO_HARDWARE_SERIAL_PORT;
           auto port = serialGetPort(port_nr);

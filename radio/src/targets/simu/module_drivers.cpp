@@ -86,6 +86,7 @@ static void deinit(void* ctx)
 
 static void sendByte(void*, uint8_t) {}
 static void sendBuffer(void*, const uint8_t*, uint32_t) {}
+static bool txCompleted(void*) { return true; }
 static void waitForTxCompleted(void*) {}
 static int getByte(void*,uint8_t*) { return -1; }
 
@@ -94,7 +95,7 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .deinit = deinit,
     .sendByte = sendByte,
     .sendBuffer = sendBuffer,
-    .txCompleted = nullptr,
+    .txCompleted = txCompleted,
     .waitForTxCompleted = waitForTxCompleted,
     .enableRx = nullptr,
     .getByte = getByte,
@@ -111,6 +112,7 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .setBaudrateCb = nullptr,
 };
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 static void* module_timer_init(void* hw_def, const etx_timer_config_t* cfg)
 { return (void*)1; }
 
@@ -120,11 +122,15 @@ static void module_timer_send(void* ctx, const etx_timer_config_t* cfg,
                               const void* pulses, uint16_t length)
 {}
 
+static bool module_timer_tx_completed(void* ctx) { return true; }
+
 const etx_timer_driver_t _fakeTimerDriver = {
   .init = module_timer_init,
   .deinit = module_timer_deinit,
   .send = module_timer_send,
+  .txCompleted = module_timer_tx_completed,
 };
+#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 const etx_module_port_t _internal_ports[] = {

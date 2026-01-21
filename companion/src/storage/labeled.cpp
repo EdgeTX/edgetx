@@ -25,159 +25,20 @@
 
 #include <regex>
 
-bool LabelsStorageFormat::load(RadioData & radioData)
-{
-  StorageType st = getStorageType(filename);
-  if (st == STORAGE_TYPE_UNKNOWN) {
-    st = probeFormat();
-  }
-  if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML
-      || st == STORAGE_TYPE_UNKNOWN) {
-    return loadYaml(radioData);
-  } else {
-    return loadBin(radioData);
-  }
-}
-
-bool LabelsStorageFormat::write(const RadioData & radioData)
-{
-  StorageType st = getStorageType(filename);
-  if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML ||
-      st == STORAGE_TYPE_UNKNOWN) {
-    return writeYaml(radioData);
-  }
-
-  return false;
-}
-
 StorageType LabelsStorageFormat::probeFormat()
 {
   if (QFile(filename + "/RADIO/radio.yml").exists()) // converted
     return getStorageType("radio.yml");
-  else if (QFile(filename + "/RADIO/radio.bin").exists()) // unconverted
-    return getStorageType("radio.bin");
   else
     return getStorageType(filename);
 }
 
-bool LabelsStorageFormat::loadBin(RadioData & radioData)
+bool LabelsStorageFormat::load(RadioData & radioData)
 {
-  QByteArray radioSettingsBuffer;
-  if (!loadFile(radioSettingsBuffer, "RADIO/radio.bin")) {
-    setError(tr("Cannot extract RADIO/radio.bin"));
-    return false;
-  }
+  StorageType st = getStorageType(filename);
+  if (st == STORAGE_TYPE_UNKNOWN)
+    st = probeFormat();
 
-  OpenTxEepromInterface * loadInterface = loadRadioSettingsFromByteArray(radioData.generalSettings, radioSettingsBuffer);
-  if (!loadInterface) {
-    return false;
-  }
-
-
-  board = loadInterface->getBoard();
-
-  radioData.generalSettings.convertLegacyConfiguration(board);
-
-  QByteArray modelsListBuffer;
-  if (!loadFile(modelsListBuffer, "RADIO/models.txt")) {
-    setError(tr("Cannot extract RADIO/models.txt"));
-    return false;
-  }
-
-  QList<QByteArray> lines = modelsListBuffer.split('\n');
-   int modelIndex = 0;
-   foreach (const QByteArray & lineArray, lines) {
-     QString line = QString(lineArray).trimmed();
-     if (line.isEmpty()) continue;
-     // qDebug() << "parsing line" << line;
-
-     if (line.startsWith('[') && line.endsWith(']')) {
-       continue;
-     }
-
-    // determine if we have a model number
-    QStringList parts = line.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
-    if (parts.size() == 2) {
-      // parse model number
-      int modelNumber = parts[0].toInt();
-      if (modelNumber > 0 && modelNumber > modelIndex && modelNumber < getCurrentFirmware()->getCapability(Models)) {
-        modelIndex = modelNumber;
-        qDebug() << "advanced model number to" << modelIndex;
-      }
-      else {
-        if (modelNumber != modelIndex) qDebug() << "Invalid model number" << parts[0];
-      }
-      parts.removeFirst();
-    }
-    if (parts.size() == 1) {
-      // parse model file name and load
-      QString fileName = parts[0];
-      qDebug() << "Loading model from file" << fileName << "into slot" << modelIndex;
-      QByteArray modelBuffer;
-      if (!loadFile(modelBuffer, QString("MODELS/%1").arg(fileName))) {
-        setError(tr("Cannot extract %1").arg(fileName));
-        return false;
-      }
-      if ((int)radioData.models.size() <= modelIndex) {
-        radioData.models.resize(modelIndex + 1);
-      }
-      if (!loadModelFromByteArray(radioData.models[modelIndex], modelBuffer)) {
-        setError(tr("Error loading models"));
-        return false;
-      }
-      strncpy(radioData.models[modelIndex].filename, qPrintable(fileName), sizeof(radioData.models[modelIndex].filename));
-      if (IS_FAMILY_HORUS_OR_T16(board) && !strcmp(radioData.generalSettings.currModelFilename, qPrintable(fileName))) {
-        radioData.generalSettings.currModelIndex = modelIndex;
-        qDebug() << "currModelIndex =" << modelIndex;
-      }
-      radioData.models[modelIndex].used = true;
-      modelIndex++;
-      continue;
-    }
-
-    // invalid line
-    // TODO add to parsing report
-    qDebug() << "Invalid line" <<line;
-    continue;
-  }
-
-  // Add a Favorites label
-  if(getCurrentFirmware()->getCapability(HasModelLabels)) {
-   RadioData::LabelData ld = { tr("Favorites"), false };
-   radioData.labels.append(ld);
-  }
-  return true;
-}
-
-bool LabelsStorageFormat::writeBin(const RadioData & radioData)
-{
-  QByteArray radioSettingsData; // radio.bin
-  size_t numModels = radioData.models.size();
-  size_t numCategories = radioData.labels.size();
-  std::vector<std::vector<QString>> sortedModels(numCategories);
-
-  writeRadioSettingsToByteArray(radioData.generalSettings, radioSettingsData);
-  if (!writeFile(radioSettingsData, "RADIO/radio.bin")) {
-    return false;
-  }
-
-  for (size_t m=0; m<numModels; m++) {
-    const ModelData & model = radioData.models[m];
-    if (model.isEmpty()) continue;
-
-    QString modelFilename = QString("MODELS/%1").arg(model.filename);
-    QByteArray modelData;
-    writeModelToByteArray(model, modelData);
-    if (!writeFile(modelData, modelFilename)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool LabelsStorageFormat::loadYaml(RadioData & radioData)
-{
   if (getStorageType(filename) == STORAGE_TYPE_UNKNOWN && probeFormat() == STORAGE_TYPE_ETX) {
     if (!QFile(filename + "/" + "RADIO/radio.yml").exists())
       qDebug() << tr("Cannot find %1/RADIO/radio.yml").arg(filename);
@@ -196,21 +57,8 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
       qDebug() << tr("Found %1").arg(filename);
   }
 
-  QByteArray radioSettingsBuffer;
-  if (!loadFile(radioSettingsBuffer, "RADIO/radio.yml")) {
-    setError(tr("Cannot extract RADIO/radio.yml"));
+  if (!loadRadioSettings(radioData.generalSettings))
     return false;
-  }
-
-  try {
-    if (!loadRadioSettingsFromYaml(radioData.generalSettings, radioSettingsBuffer)) {
-      setError(tr("Cannot load RADIO/radio.yml"));
-      return false;
-    }
-  } catch(const std::runtime_error& e) {
-    setError(tr("Cannot load RADIO/radio.yml") + ":\n" + QString(e.what()));
-    return false;
-  }
 
   board = (Board::Type)radioData.generalSettings.variant;
 
@@ -238,11 +86,11 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
 
   // Scan for all models
   std::list<std::string> filelist;
-  if (!getFileList(filelist)) {
+  if (!getFileList(filelist))
     return false;
-  }
 
-  const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
+  const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)", std::regex_constants::icase);
+
   for(const auto& f : filelist) {
     std::smatch match;
     if (std::regex_match(f, match, yml_regex)) {
@@ -299,13 +147,14 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
       return false;
     }
 
+    if (!loadChecklist(model))
+      return false;
+
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
-    if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename,
-                                  model.filename, sizeof(model.filename))) {
+    if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename, model.filename, sizeof(model.filename)))
       radioData.generalSettings.currModelIndex = modelIdx;
-    }
 
     model.used = true;
     modelIdx++;
@@ -325,16 +174,40 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   return true;
 }
 
-bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
+bool LabelsStorageFormat::write(RadioData & radioData)
 {
-  QByteArray radioSettingsBuffer;
-  if (!writeRadioSettingsToYaml(radioData.generalSettings, radioSettingsBuffer)) {
-    return false;
+  // TODO
+  // move all unique radio settings to a separate file eg RADIO/hardware.yml.
+  // These settings/values should never be transferred to another radio.
+  // Also some are at a point in time eg calibration and
+  // therefore not restored to the radio from say an etx file
+
+  // may not exist on a new sd card or path
+  if (QFile(filename + "/RADIO/radio.yml").exists()) {
+    GeneralSettings gsCur;
+
+    if (loadRadioSettings(gsCur)) {
+      GeneralSettings & gsNew = radioData.generalSettings;
+      gsNew.txCurrentCalibration = gsCur.txCurrentCalibration;
+      gsNew.txVoltageCalibration = gsCur.txVoltageCalibration;
+
+      for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+        gsNew.inputConfig[i].calib = gsCur.inputConfig[i].calib;
+      }
+
+      qDebug() << "Hardware specific settings preserved";
+    } else {
+      setError("Error reading current settings from radio");
+      return false;
+    }
   }
 
-  if (!writeFile(radioSettingsBuffer, "RADIO/radio.yml")) {
+  QByteArray radioSettingsBuffer;
+  if (!writeRadioSettingsToYaml(radioData.generalSettings, radioSettingsBuffer))
     return false;
-  }
+
+  if (!writeFile(radioSettingsBuffer, "RADIO/radio.yml"))
+    return false;
 
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
@@ -346,8 +219,8 @@ bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
   }
 
   // Delete all old modelxx.yml from radio MODELS folder before writing new modelxx.yml files
-  const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
-  for(const auto& f : filelist) {
+  const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)", std::regex_constants::icase);
+  for (const auto& f : filelist) {
     std::smatch match;
     if (std::regex_match(f, match, yml_regex)) {
       if (match.size() == 3) {
@@ -368,28 +241,79 @@ bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
     QString modelFilename;
     if (hasLabels) {
       std::string ymlFilename = patchFilenameToYaml(model.filename);
-      modelFilename =
-          QString("MODELS/%1").arg(QString::fromStdString(ymlFilename));
-      modelFiles.push_back(
-          {ymlFilename, std::string(model.name)});
+      modelFilename = QString("MODELS/%1").arg(QString::fromStdString(ymlFilename));
+      modelFiles.push_back({ymlFilename, std::string(model.name)});
     } else {
-      modelFilename = QString("MODELS/model%1.yml")
-                          .arg(model.modelIndex, 2, 10, QLatin1Char('0'));
+      modelFilename = QString("MODELS/model%1.yml").arg(model.modelIndex, 2, 10, QLatin1Char('0'));
     }
 
     QByteArray modelData;
     writeModelToYaml(model, modelData);
-    if (!writeFile(modelData, modelFilename)) {
+    if (!writeFile(modelData, modelFilename))
       return false;
-    }
+
+    if (!writeChecklist(model))
+      return false;
   }
 
   if (hasLabels) {
     QByteArray labelsListBuffer;
-    if (!writeLabelsListToYaml(radioData, labelsListBuffer)
-        || !writeFile(labelsListBuffer, "MODELS/labels.yml")) {
+    if (!writeLabelsListToYaml(radioData, labelsListBuffer) || !writeFile(labelsListBuffer, "MODELS/labels.yml"))
+      return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::loadChecklist(ModelData & model)
+{
+  const QString fname("MODELS/" + model.getChecklistFilename());
+  //qDebug() << "Searching for checklist file:" << fname;
+
+  if (!loadFile(model.checklistData, fname, true)) {
+    setError(tr("Cannot load ") + fname);
+    return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::writeChecklist(const ModelData & model)
+{
+  const QString fname("MODELS/" + model.getChecklistFilename());
+
+  // not every model has a checklist
+  if (!model.checklistData.isEmpty()) {
+    //qDebug() << "Writing checklist file:" << fname;
+    if (!writeFile(model.checklistData, fname)) {
+      setError(tr("Cannot write ") + fname);
       return false;
     }
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::loadRadioSettings(GeneralSettings & generalSettings)
+{
+  QByteArray radioSettingsBuffer;
+
+  const QString file("RADIO/radio.yml");
+  const QString filePath(QDir::toNativeSeparators(filename + "/" + file));
+
+  if (!loadFile(radioSettingsBuffer, file)) {
+    setError(tr("Cannot extract %1").arg(filePath));
+    return false;
+  }
+
+  try {
+    if (!loadRadioSettingsFromYaml(generalSettings, radioSettingsBuffer)) {
+      setError(tr("Cannot load %1").arg(filePath));
+      return false;
+    }
+  } catch(const std::runtime_error& e) {
+    setError(tr("Cannot load %1").arg(filePath) + ":\n" + QString(e.what()));
+    return false;
   }
 
   return true;

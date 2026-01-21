@@ -31,6 +31,13 @@
 #include "serial.h"
 #include "usb_joystick.h"
 #include "input_mapping.h"
+#include "debug.h"
+#include "bitfield.h"
+
+#if defined(COLORLCD)
+#include "datastructs_screen.h"
+#include "quick_menu_def.h"
+#endif
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -78,13 +85,37 @@ inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
   return v.rawValue;
 }
 
+// Conversion for Lua API
+inline int sourceNumValToLuaInt(uint16_t val)
+{
+  SourceNumVal v;
+  v.rawValue = val;
+  return v.value + ((v.isSource) ? ((v.value < 0) ? -1024 : 1024) : 0);
+}
+
+inline uint16_t luaIntToSourceNumval(int val)
+{
+  SourceNumVal v;
+  if (val >= 1024) {
+    v.isSource = true;
+    v.value = val - 1024;
+  } else if (val <= -1024) {
+    v.isSource = true;
+    v.value = val + 1024;
+  } else {
+    v.isSource = false;
+    v.value = val;
+  }
+  return v.rawValue;
+}
+
 /*
  * Mixer structure
  */
 
 PACK(struct CurveRef {
   uint16_t type:5;
-  int16_t  value:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint16_t value:11 CUST(r_sourceNumVal,w_sourceNumVal);
 });
 
 PACK(struct MixData {
@@ -535,11 +566,16 @@ PACK(struct ModuleData {
       uint8_t telemetryBaudrate:3;
       uint8_t spare1:4 SKIP;
     } ghost);
-    NOBACKUP(struct {
+    NOBACKUP(PACK(struct {
       uint8_t telemetryBaudrate:3;
-    } crsf);
+      uint8_t crsfArmingMode:1;
+      uint8_t spare2:4 SKIP;
+      int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
+      int16_t spare3:6;
+    }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
+      uint8_t enableAETR : 1;
     } dsmp);
   } NAME(mod) FUNC(select_mod_type);
 
@@ -584,28 +620,6 @@ static_assert(sizeof(potconfig_t) * 8 >= ((MAX_POTS - 1) / 4) + 1,
 static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
               "MAX_POTS must fit potwarnen_t");
 
-#if defined(COLORLCD) && defined(BACKUP)
-#define CUSTOM_SCREENS_DATA
-#elif defined(COLORLCD)
-#include "layout.h"
-#include "topbar.h"
-#define LAYOUT_ID_LEN 12
-PACK(struct CustomScreenData {
-  char LayoutId[LAYOUT_ID_LEN];
-  LayoutPersistentData layoutData;
-});
-#define CUSTOM_SCREENS_DATA \
-  NOBACKUP(CustomScreenData screenData[MAX_CUSTOM_SCREENS]); \
-  NOBACKUP(TopBarPersistentData topbarData); \
-  NOBACKUP(uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES]); \
-  NOBACKUP(uint8_t view);
-#else
-#define CUSTOM_SCREENS_DATA \
-  uint8_t screensType SKIP; /* 2bits per screen (None/Gauges/Numbers/Script) */ \
-  TelemetryScreenData screens[MAX_TELEMETRY_SCREENS]; \
-  uint8_t view;
-#endif
-
 #if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   // telemetry sensor idx + 1
   #define TOPBAR_DATA \
@@ -615,20 +629,82 @@ PACK(struct CustomScreenData {
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else
   #define SCRIPT_DATA
 #endif
 
+struct RGBLedColor {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+
+  uint32_t getColor() {
+    return ((r << 16) + (g << 8) + b);
+  }
+
+  void setColor(uint32_t color) {
+    r = color >> 16;
+    g = color >> 8;
+    b = color;
+  }
+};
+
 #if defined(FUNCTION_SWITCHES)
+enum booleanEnum {
+  BOOL_OFF,
+  BOOL_ON
+};
+
+PACK(struct customSwitch {
+  CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
+  NOBACKUP(char name[LEN_SWITCH_NAME]);
+  uint8_t type:3 ENUM(SwitchConfig);
+#if NUM_FUNCTIONS_GROUPS > 3
+  uint8_t group:3;
+#else
+  uint8_t group:2;
+#endif
+  uint8_t start:2 ENUM(fsStartPositionType);
+  uint8_t state:1;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  NOBACKUP(uint8_t onColorLuaOverride:1 ENUM(booleanEnum));
+  NOBACKUP(uint8_t offColorLuaOverride:1 ENUM(booleanEnum));
+#if NUM_FUNCTIONS_GROUPS > 3
+  NOBACKUP(uint8_t spare:5) SKIP;
+#else
+  NOBACKUP(uint8_t spare:6) SKIP;
+#endif
+  NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
+  NOBACKUP(RGBLedColor offColor) FUNC(isAlwaysActive);
+#else
+#if NUM_FUNCTIONS_GROUPS > 3
+  NOBACKUP(uint8_t spare:7) SKIP;
+#endif
+#endif
+});
+#endif
+
+#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
+    CUST_ARRAY(functionSwitchLedONColor, struct_cfsOnColorConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
+    CUST_ARRAY(functionSwitchLedOFFColor, struct_cfsOffColorConfig, NUM_FUNCTIONS_SWITCHES, nullptr);
+#else
+  #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS
+#endif
   #define FUNCTION_SWITCHS_FIELDS \
-    uint16_t functionSwitchConfig;  \
-    uint16_t functionSwitchGroup; \
-    uint16_t functionSwitchStartConfig; \
-    uint8_t functionSwitchLogicalState;  \
-    char switchNames[NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME];
+    CUST_ATTR(functionSwitchConfig, r_functionSwitchConfig, nullptr); \
+    CUST_ATTR(functionSwitchGroup, r_functionSwitchGroup, nullptr); \
+    CUST_ATTR(functionSwitchStartConfig, r_functionSwitchStartConfig, nullptr); \
+    CUST_ATTR(functionSwitchLogicalState, r_functionSwitchLogicalState, nullptr); \
+    CUST_ARRAY(switchNames, struct_cfsNameConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
+    FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
+    customSwitch customSwitches[NUM_FUNCTIONS_SWITCHES] FUNC(isAlwaysActive) NO_IDX; \
+    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive); \
+    NOBACKUP(uint8_t sfPushState) SKIP;
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif
@@ -715,7 +791,7 @@ PACK(struct ModelData {
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
-  NOBACKUP(swarnstate_t switchWarning ARRAY(3, struct_swtchWarn, nullptr));
+  NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
   GVarData gvars[MAX_GVARS];
 
@@ -748,7 +824,28 @@ PACK(struct ModelData {
 
   TARANIS_PCBX9E_FIELD(uint8_t toplcdTimer)
 
-  CUSTOM_SCREENS_DATA
+#if defined(COLORLCD)
+#if defined(YAML_GENERATOR)
+  NOBACKUP(CustomScreenData screenData[MAX_CUSTOM_SCREENS]) FUNC(screen_is_active);
+  NOBACKUP(TopBarPersistentData topbarData) FUNC(isAlwaysActive);
+#endif
+  NOBACKUP(uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES]);
+  NOBACKUP(uint8_t view);
+
+  void resetScreenData();
+  const char* getScreenLayoutId(int screenNum);
+  void setScreenLayoutId(int screenNum, const char* s);
+  TopBarPersistentData* getTopbarData();
+  bool hasScreenData(int screenNum);
+  CustomScreenData* getScreenData(int screenNum);
+  LayoutPersistentData* getScreenLayoutData(int screenNum);
+  WidgetPersistentData* getWidgetData(int screenNum, int zoneNum);
+  void removeScreenLayout(int idx);
+#else
+  uint8_t screensType SKIP; /* 2bits per screen (None/Gauges/Numbers/Script) */
+  TelemetryScreenData screens[MAX_TELEMETRY_SCREENS];
+  uint8_t view;
+#endif
 
   char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
@@ -799,6 +896,47 @@ PACK(struct ModelData {
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
+
+  SwitchConfig getSwitchType(uint8_t n);
+  void setSwitchType(uint8_t n, SwitchConfig v);
+  char* getSwitchCustomName(uint8_t n);
+  bool switchHasCustomName(uint8_t n);
+
+  uint8_t getSwitchStateForWarning(uint8_t n);
+  NOBACKUP(uint8_t getSwitchWarning(uint8_t n) { return bfGet<swarnstate_t>(switchWarning, n * 2, 2); })
+  NOBACKUP(void setSwitchWarning(uint8_t n, uint8_t v) { switchWarning = bfSet<swarnstate_t>(switchWarning, v, n * 2, 2); })
+
+#if defined(FUNCTION_SWITCHES)
+  uint8_t getSwitchGroup(uint8_t n);
+  fsStartPositionType getSwitchStart(uint8_t n);
+  void setSwitchStart(uint8_t n, fsStartPositionType v);
+  SwitchConfig cfsType(uint8_t n);
+  void cfsSetType(uint8_t n, SwitchConfig v);
+  char* cfsName(uint8_t n);
+  uint8_t cfsGroup(uint8_t n);
+  void cfsSetGroup(uint8_t n, uint8_t v);
+  fsStartPositionType cfsStart(uint8_t n);
+  void cfsSetStart(uint8_t n, fsStartPositionType v);
+  bool cfsState(uint8_t n);
+  void cfsSetState(uint8_t n, bool v);
+  bool cfsSFState(uint8_t n);
+  void cfsSetSFState(uint8_t n, bool v);
+  void cfsResetSFState();
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  RGBLedColor& getSwitchOnColor(uint8_t n);
+  RGBLedColor& getSwitchOffColor(uint8_t n);
+  bool getSwitchOnColorLuaOverride(uint8_t n);
+  bool getSwitchOffColorLuaOverride(uint8_t n);
+  RGBLedColor& cfsOnColor(uint8_t n);
+  RGBLedColor& cfsOffColor(uint8_t n);
+  bool cfsOnColorLuaOverride(uint8_t n);
+  bool cfsOffColorLuaOverride(uint8_t n);
+  void cfsSetOnColorLuaOverride(uint8_t n, bool v);
+  void cfsSetOffColorLuaOverride(uint8_t n, bool v);
+#endif
+  bool cfsGroupAlwaysOn(uint8_t n) { return bfGet<uint8_t>(cfsGroupOn, n, 1); }
+  void cfsSetGroupAlwaysOn(uint8_t n, bool v) { cfsGroupOn = bfSet<uint8_t>(cfsGroupOn, v, n, 1); }
+#endif
 });
 
 /*
@@ -833,8 +971,7 @@ PACK(struct TrainerData {
 #if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
-    NOBACKUP(uint8_t modelQuickSelect:1); \
-    NOBACKUP(uint8_t blOffBright:7); \
+    NOBACKUP(uint8_t blOffBright); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
 #else
   #define EXTRA_GENERAL_FIELDS \
@@ -842,10 +979,32 @@ PACK(struct TrainerData {
     char bluetoothName[LEN_BLUETOOTH_NAME];
 #endif
 
-#if defined(BUZZER)
-  #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
+PACK(struct switchDef {
+  CUST_IDX(sw, sw_idx_read, sw_idx_write);
+  NOBACKUP(char name[LEN_SWITCH_NAME]);
+  uint8_t type:3 ENUM(SwitchConfig);
+#if defined(FUNCTION_SWITCHES)
+  uint8_t start:2 ENUM(fsStartPositionType) FUNC(switch_is_cfs);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  NOBACKUP(uint8_t onColorLuaOverride:1 ENUM(booleanEnum)) FUNC(switch_is_cfs);
+  NOBACKUP(uint8_t offColorLuaOverride:1 ENUM(booleanEnum)) FUNC(switch_is_cfs);
+  NOBACKUP(uint8_t spare:1) SKIP;
+  NOBACKUP(RGBLedColor onColor) FUNC(switch_is_cfs);
+  NOBACKUP(RGBLedColor offColor) FUNC(switch_is_cfs);
 #else
-  #define BUZZER_FIELD int8_t spare2:2 SKIP
+  NOBACKUP(uint8_t spare:3) SKIP;
+#endif
+#else
+  NOBACKUP(uint8_t spare:5) SKIP;
+#endif
+});
+
+#if defined(COLORLCD)
+#define MAX_KEY_SHORTCUTS 6
+#define MAX_QM_FAVORITES 12
+PACK(struct QuickMenuPage {
+  uint8_t shortcut ENUM(QMPage);
+});
 #endif
 
 PACK(struct RadioData {
@@ -875,7 +1034,7 @@ PACK(struct RadioData {
   uint8_t internalModule ENUM(ModuleType);
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
-  NOBACKUP(BUZZER_FIELD); /* 2bits */
+  NOBACKUP(int8_t buzzerModeSkip:2 SKIP); // 2 bits for alignment
   NOBACKUP(uint8_t fai:1);
   NOBACKUP(int8_t beepMode:2 ENUM(BeeperMode) CUST(r_beeperMode,w_beeperMode));
   NOBACKUP(uint8_t alarmsFlash:1);
@@ -921,6 +1080,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
 
   NOBACKUP(char     ttsLanguage[2]);
+  NOBACKUP(char     uiLanguage[2]);
   NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   wavVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   varioVolume:4 CUST(r_5pos,w_5pos));
@@ -936,22 +1096,23 @@ PACK(struct RadioData {
 
   CUST_ARRAY(sticksConfig, struct_stickConfig, MAX_STICKS, stick_name_valid);
   CUST_ARRAY(slidersConfig, struct_sliderConfig, MAX_POTS, nullptr);
+  uint8_t stickInvert SKIP;
   potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
-  swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
+  switchDef switchConfig[MAX_SWITCHES] FUNC(switchIsActive) NO_IDX;
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
 
   EXTRA_GENERAL_FIELDS
 
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);
-#else
-  NOBACKUP(uint8_t  rotEncModeSpare:3 SKIP);
-#endif
 
-  NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+#if defined(STM32F2) || defined(STM32F4)
+  NOBACKUP(int8_t uartSampleMode:2); // See UartSampleModes
+#else
+  NOBACKUP(uint8_t uartSampleModeSpare:2 SKIP);
+#endif
 
 #if defined(STICK_DEAD_ZONE)
   NOBACKUP(uint8_t  stickDeadZone:3);
@@ -968,6 +1129,26 @@ PACK(struct RadioData {
   NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
 #endif
 
+  NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int16_t radioGFDisabled:1);
+  NOBACKUP(int16_t radioTrainerDisabled:1);
+  NOBACKUP(int16_t modelHeliDisabled:1);
+  NOBACKUP(int16_t modelFMDisabled:1);
+  NOBACKUP(int16_t modelCurvesDisabled:1);
+  NOBACKUP(int16_t modelGVDisabled:1);
+
+  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int16_t modelLSDisabled:1);
+  NOBACKUP(int16_t modelSFDisabled:1);
+  NOBACKUP(int16_t modelCustomScriptsDisabled:1);
+  NOBACKUP(int16_t modelTelemetryDisabled:1);
+  NOBACKUP(int16_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(int16_t disablePwrOnOffHaptic:1);
+
+  NOBACKUP(uint8_t modelQuickSelect:1);
+
 #if defined(COLORLCD)
   NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
   NOBACKUP(uint8_t labelMultiMode:1);     // 0 = match all labels (AND), 1 = match any labels (OR)
@@ -975,31 +1156,20 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
-#endif
-  NOBACKUP(uint8_t radioGFDisabled:1);
-  NOBACKUP(uint8_t radioTrainerDisabled:1);
-  // Model level tabs control (global setting)
-  NOBACKUP(uint8_t modelHeliDisabled:1);
-  NOBACKUP(uint8_t modelFMDisabled:1);
-  NOBACKUP(uint8_t modelCurvesDisabled:1);
-  NOBACKUP(uint8_t modelGVDisabled:1);
-  NOBACKUP(uint8_t modelLSDisabled:1);
-  NOBACKUP(uint8_t modelSFDisabled:1);
-  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
-  NOBACKUP(uint8_t modelTelemetryDisabled:1);
-  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
-  NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
-
-#if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:6 SKIP);
+  NOBACKUP(uint8_t spare:1 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:3 SKIP);
+  NOBACKUP(uint8_t spare:6 SKIP);
 #else
-  NOBACKUP(uint8_t spare:4 SKIP);
+  NOBACKUP(uint8_t spare:7 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);
+
+#if defined(COLORLCD)
+  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
+  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+#endif
 
   NOBACKUP(uint8_t getBrightness() const
   {
@@ -1009,6 +1179,32 @@ PACK(struct RadioData {
     return backlightBright;
 #endif
   });
+
+  char* getSwitchCustomName(uint8_t n);
+  bool switchHasCustomName(uint8_t n);
+  SwitchConfig switchType(uint8_t n);
+  void switchSetType(uint8_t n, SwitchConfig v);
+  char* switchName(uint8_t n);
+#if defined(FUNCTION_SWITCHES)
+  uint8_t switchGroup(uint8_t n) { return 0; }
+  fsStartPositionType switchStart(uint8_t n);
+  void switchSetStart(uint8_t n, fsStartPositionType v);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  RGBLedColor& switchOnColor(uint8_t n);
+  RGBLedColor& switchOffColor(uint8_t n);
+  bool cfsOnColorLuaOverride(uint8_t n);
+  bool cfsOffColorLuaOverride(uint8_t n);
+  void cfsSetOnColorLuaOverride(uint8_t n, bool v);
+  void cfsSetOffColorLuaOverride(uint8_t n, bool v);
+#endif
+#endif
+
+#if defined(COLORLCD)
+  QMPage getKeyShortcut(event_t event);
+  bool hasKeyShortcut(QMPage shortcut);
+  void setKeyShortcut(event_t event, QMPage shortcut);
+  void defaultKeyShortcuts();
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA

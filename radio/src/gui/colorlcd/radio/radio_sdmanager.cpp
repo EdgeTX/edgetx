@@ -20,68 +20,64 @@
  */
 
 #include "radio_sdmanager.h"
+
 #include "edgetx.h"
-#include "libopenui.h"
-#include "LvglWrapper.h"
+#include "etx_lv_theme.h"
+#include "file_browser.h"
+#include "file_preview.h"
+#include "fullscreen_dialog.h"
+#include "io/bootloader_flash.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
-#include "io/bootloader_flash.h"
-#include "standalone_lua.h"
-#include "sdcard.h"
-#include "view_text.h"
-#include "file_preview.h"
-#include "file_browser.h"
+#include "io/uf2_flash.h"
+#include "lib_file.h"
+#include "menu.h"
 #include "progress.h"
-#include "etx_lv_theme.h"
-#include "fullscreen_dialog.h"
+#include "sdcard.h"
+#include "standalone_lua.h"
+#include "view_text.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;
 
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-RadioSdManagerPage::RadioSdManagerPage() :
-  PageTab(STR_SD_CARD, ICON_RADIO_SD_MANAGER)
+RadioSdManagerPage::RadioSdManagerPage(const PageDef& pageDef) :
+  PageGroupItem(pageDef)
 {
 }
 
 template <class T>
 class FlashDialog: public FullScreenDialog
 {
-  public:
-    explicit FlashDialog(const T & device):
-      FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
-      device(device),
-      progress(this, {LCD_W / 2 - 100, LCD_H / 2 + 27, 200, 32})
-    {
-    }
+ public:
+  explicit FlashDialog(const T & device):
+    FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
+    device(device)
+  {
+    progress = new Progress(this, {LCD_W / 2 - PROGRESS_W / 2, LCD_H / 2 + PROGRESS_YO, PROGRESS_W, EdgeTxStyles::UI_ELEMENT_HEIGHT});
+  }
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+  void flash(const char * filename)
+  {
+    TRACE("flashing '%s'", filename);
+    device.flashFirmware(
+        filename,
+        [=](const char *title, const char *message, int count,
+            int total) -> void {
+          setMessage(message);
+          progress->setValue(total > 0 ? count * 100 / total : 0);
+          lv_refr_now(nullptr);
+        });
+    deleteLater();
+  }
 
-      progress.deleteLater(true, false);
-      FullScreenDialog::deleteLater(detach, trash);
-    }
+ protected:
+  T device;
+  Progress* progress = nullptr;
 
-    void flash(const char * filename)
-    {
-      TRACE("flashing '%s'", filename);
-      device.flashFirmware(
-          filename,
-          [=](const char *title, const char *message, int count,
-              int total) -> void {
-            setMessage(message);
-            progress.setValue(total > 0 ? count * 100 / total : 0);
-            lv_refr_now(nullptr);
-          });
-      deleteLater();
-    }
-
-  protected:
-    T device;
-    Progress progress;
+  static LAYOUT_VAL_SCALED(PROGRESS_YO, 27)
+  static LAYOUT_VAL_SCALED(PROGRESS_W, 200)
 };
 
 #if defined(PXX2)
@@ -130,7 +126,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
       uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
       if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
-        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
+        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
         tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
         *tmp++ = '.';
         tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
@@ -209,45 +205,28 @@ ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog) {
 
 #endif  // PXX2
 
-#if !PORTRAIT_LCD // landscape
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#else // portrait
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#endif
-
 void RadioSdManagerPage::build(Window * window)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_ZERO);
   window->padAll(PAD_ZERO);
-  
-  Window* form = new Window(window, rect_t{});
-  form->setWidth(window->width());
-  form->setHeight(window->height());
-  grid.apply(form);
-  
-  browser = new FileBrowser(form, rect_t{}, ROOT_PATH);
-  grid.add(browser);
-  grid.nextCell();
 
-  auto obj = browser->getLvObj();
-  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
-  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+  coord_t browserWidth = LANDSCAPE ? window->width() * 3 / 5 : window->width();
+  coord_t browserHeight = LANDSCAPE ? window->height() : window->height() * 2 / 3;
 
-  // Adjust file browser width
+  browser = new FileBrowser(window, {0, 0, browserWidth, browserHeight}, ROOT_PATH);
   browser->adjustWidth();
 
-  auto box = new Window(form, {0, 0, PREVIEW_W, PREVIEW_H});
-  grid.add(box);
-  grid.nextCell();
+  coord_t previewX = (LANDSCAPE ? browserWidth : 0) + PAD_TINY;
+  coord_t previewY = (LANDSCAPE ? 0 : browserHeight) + PAD_TINY;
+  coord_t previewWidth = (LANDSCAPE ? window->width() - browserWidth : window->width()) - PAD_TINY * 2;
+  coord_t previewHeight = (LANDSCAPE ? window->height() : window->height() - browserHeight) - PAD_TINY * 2;
+
+  auto box = new Window(window, {previewX, previewY, previewWidth, previewHeight});
 
   loading = new StaticText(box, {0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, STR_LOADING);
   loading->hide();
   lv_obj_center(loading->getLvObj());
 
-  preview = new FilePreview(box, {0, 0, PREVIEW_W, PREVIEW_H});
-  preview->padAll(PAD_SMALL);
+  preview = new FilePreview(box, {0, 0, previewWidth, previewHeight});
 
   browser->setFileAction([=](const char* path, const char* name, const char* fullpath, bool isDir) {
       if (isDir)
@@ -274,7 +253,7 @@ void RadioSdManagerPage::build(Window * window)
 
 void RadioSdManagerPage::checkEvents()
 {
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 
   if (loadPreview) {
     loadPreview -= 1;
@@ -354,6 +333,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       menu->addLine(STR_FLASH_EXTERNAL_ELRS, [=]() {
         MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
       });
+#endif
     } else if (!strcasecmp(BITMAPS_PATH, path) &&
                isExtensionMatching(ext, BITMAPS_EXT) &&
                strlen(name) <= LEN_BITMAP_NAME) {
@@ -382,10 +362,14 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
     if (!strcasecmp(ext, FIRMWARE_EXT)) {
+//TODO: Find out why UF2FirmwareUpdate is bricking
+#if !defined(FIRMWARE_FORMAT_UF2)
       if (isBootloader(fullpath)) {
         menu->addLine(STR_FLASH_BOOTLOADER,
                       [=]() { BootloaderUpdate(fullpath); });
       }
+#endif
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
     } else if (!strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
 
       auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
@@ -476,7 +460,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
 #if defined(LUA)
     else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
       menu->addLine(STR_EXECUTE_FILE, [=]() {
-        luaExec(fullpath);
+        luaExecStandalone(fullpath);
       });
     }
 #endif
@@ -529,9 +513,21 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   menu->addLine(STR_DELETE_FILE, [=]() {
     f_unlink(fullpath);
     browser->refresh();
+    loadPreview = 0;
+    preview->setFile(nullptr);
+    loading->hide();
   });
 }
 
+#if defined(FIRMWARE_FORMAT_UF2)
+void RadioSdManagerPage::FirmwareUpdate(const char* fn)
+{
+  UF2FirmwareUpdate firmwareUpdate;
+  auto dialog =
+      new FlashDialog<UF2FirmwareUpdate>(firmwareUpdate);
+  dialog->flash(fn);
+}
+#else
 void RadioSdManagerPage::BootloaderUpdate(const char* fn)
 {
   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
@@ -539,6 +535,7 @@ void RadioSdManagerPage::BootloaderUpdate(const char* fn)
       new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
   dialog->flash(fn);
 }
+#endif
 
 #if defined(BLUETOOTH)
 void RadioSdManagerPage::BluetoothFirmwareUpdate(const char* fn)
@@ -548,6 +545,7 @@ void RadioSdManagerPage::BluetoothFirmwareUpdate(const char* fn)
 }
 #endif
 
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
 void RadioSdManagerPage::FrSkyFirmwareUpdate(const char* fn,
                                              ModuleIndex module)
 {
@@ -566,3 +564,4 @@ void RadioSdManagerPage::MultiFirmwareUpdate(const char* fn,
       new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
   dialog->flash(fn);
 }
+#endif

@@ -41,8 +41,17 @@ void abnormalRebootDisableDetection();
 // (see AbnormalRebootCause)
 uint32_t abnormalRebootGetCause();
 
+// Retrieve last reboot command
+uint32_t abnormalRebootGetCmd();
+
+// Reset reboot command
+void abnormalRebootResetCmd();
+
 #define UNEXPECTED_SHUTDOWN() \
   (abnormalRebootGetCause() == ARC_Watchdog)
 
 #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() \
   (abnormalRebootGetCause() != ARC_None)
+
+#define WAS_RESET_BY_SOFTWARE() \
+  (abnormalRebootGetCause() == ARC_Software)

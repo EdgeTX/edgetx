@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
 #include "mixes.h"
@@ -73,11 +74,12 @@ void preModelLoad()
 
   stopTrainer();
 #if defined(COLORLCD)
-  LayoutFactory::deleteCustomScreens();
+  LayoutFactory::deleteCustomScreens(true);
 #endif
 
-  if (needDelay)
-    RTOS_WAIT_MS(200);
+  if (needDelay) {
+    sleep_ms(200);
+  }
 }
 
 void postRadioSettingsLoad()
@@ -93,7 +95,7 @@ void postRadioSettingsLoad()
     setDefaultOwnerId();
   }
 #endif
-#if defined(PCBX12S)
+#if defined(PCBX12S) && defined(INTERNAL_GPS)
   // AUX2 is hardwired to AUX2 on X12S
   serialSetMode(SP_AUX2, UART_MODE_GPS);
 #endif
@@ -159,25 +161,28 @@ static void sanitizeMixerLines()
 void postModelLoad(bool alarms)
 {
 #if defined(COLORLCD)
+  if (!g_model.hasScreenData(0))
+    LayoutFactory::loadDefaultLayout();
+
   if (g_model.topbarWidgetWidth[0] == 0) {
     // Set default width for top bar widgets
     for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
       g_model.topbarWidgetWidth[i] = 1;
 
     // Load 'date time' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-1)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-1, "Date Time");
       storageDirty(EE_MODEL);
     }
     // Load 'radio info' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-2)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-2, "Radio Info");
       storageDirty(EE_MODEL);
     }
 #if defined(INTERNAL_GPS)
     // Load 'internal gps' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-3)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-3, "Internal GPS");
       storageDirty(EE_MODEL);
     }
 #endif

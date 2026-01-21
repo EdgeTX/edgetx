@@ -4,17 +4,14 @@ project(storage)
 set(${PROJECT_NAME}_NAMES
   hexinterface
   mountlist
-  rlefile
   appdata
   firmwareinterface
   storage
-  bineeprom
   eepe
   hexeeprom
   labeled
   sdcard
   etx
-  otx
   yaml
   crc
   minizinterface
@@ -27,7 +24,7 @@ set(${PROJECT_NAME}_MOC
   appdata.h
 )
 
-qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+qt_wrap_cpp(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_MOC}
 )
 

@@ -23,48 +23,58 @@
 #include "mixer_task.h"
 #include "mixer_scheduler.h"
 
+#include "os/task.h"
+
 #include "edgetx.h"
 #include "switches.h"
 #include "hal/usb_driver.h"
 
 #include "hal/watchdog_driver.h"
 
-RTOS_TASK_HANDLE mixerTaskId;
-RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
+#if defined(HALL_SYNC) && !defined(SIMU)
+#include "stm32_gpio.h"
+#include "hal/gpio.h"
+#endif
+
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
+
+task_handle_t mixerTaskId;
+TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
 // mixer hold this mutex while computing
 // channels and sending them out
-static RTOS_MUTEX_HANDLE mixerMutex;
+static mutex_handle_t mixerMutex;
 
 // The mixer will start in 'paused' mode
 // and start working properly once
 // mixerTaskStart() has been called.
 static bool _mixer_started = false;
 static bool _mixer_running = false;
-static bool _mixer_exit = false;
 
 void mixerTaskLock()
 {
-  RTOS_LOCK_MUTEX(mixerMutex);
+  mutex_lock(&mixerMutex);
 }
 
 // returns true if the lock could be acquired
 bool mixerTaskTryLock()
 {
-  return RTOS_TRYLOCK_MUTEX(mixerMutex);
+  return mutex_trylock(&mixerMutex);
 }
 
 void mixerTaskUnlock()
 {
-  RTOS_UNLOCK_MUTEX(mixerMutex);
+  mutex_unlock(&mixerMutex);
 }
 
 void mixerTaskInit()
 {
   mixerSchedulerInit();
-  RTOS_CREATE_MUTEX(mixerMutex);
-  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
-                   MIXER_STACK_SIZE, MIXER_TASK_PRIO);
+  mutex_create(&mixerMutex);
+  task_create(&mixerTaskId, mixerTask, "mixer", mixerStack, MIXER_STACK_SIZE,
+              MIXER_TASK_PRIO);
   mixerSchedulerStart();
 }
 
@@ -86,14 +96,9 @@ void mixerTaskStop()
   mixerTaskUnlock();
 }
 
-void mixerTaskExit()
-{
-  _mixer_exit = true;
-}
-
 bool mixerTaskRunning()
 {
-  return _mixer_running && !_mixer_exit;
+  return _mixer_running;
 }
 
 volatile uint16_t timeForcePowerOffPressed = 0;
@@ -122,9 +127,6 @@ constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
 void execMixerFrequentActions()
 {
-  // SBUS trainer
-  processSbusInput();
-
 #if defined(IMU)
   gyro.wakeup();
 #endif
@@ -132,23 +134,15 @@ void execMixerFrequentActions()
 #if defined(BLUETOOTH)
   bluetooth.wakeup();
 #endif
-
-#if defined(SIMU)
-  if (_mixer_running) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
-#endif
 }
 
-TASK_FUNCTION(mixerTask)
+void mixerTask()
 {
 #if defined(IMU)
   gyroInit();
 #endif
 
-  while (!_mixer_exit) {
+  while (task_running()) {
 
     int timeout = 0;
     for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
@@ -172,9 +166,8 @@ TASK_FUNCTION(mixerTask)
     mixerSchedulerEnableTrigger();
 
 #if defined(SIMU)
-    // TODO: should be using mixerTaskExit() instead...
     if (pwrCheck() == e_power_off) {
-      TASK_RETURN();
+      return;
     }
 #else
     // Emergency power OFF: in case the UI is not functional anymore
@@ -217,8 +210,6 @@ TASK_FUNCTION(mixerTask)
         maxMixerDuration = t0;
     }
   }
-
-  TASK_RETURN();
 }
 
 void doMixerCalculations()
@@ -226,6 +217,10 @@ void doMixerCalculations()
   static tmr10ms_t lastTMR = 0;
 
   tmr10ms_t tmr10ms = get_tmr10ms();
+
+#if defined(HALL_SYNC) && !defined(SIMU)
+  gpio_set(HALL_SYNC);
+#endif
 
 #if defined(DEBUG_LATENCY_MIXER_RF) || defined(DEBUG_LATENCY_RF_ONLY)
   static tmr10ms_t lastLatencyToggle = 0;
@@ -252,4 +247,8 @@ void doMixerCalculations()
   DEBUG_TIMER_START(debugTimerEvalMixes);
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
+
+#if defined(HALL_SYNC) && !defined(SIMU)
+  gpio_clear(HALL_SYNC);
+#endif
 }

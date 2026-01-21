@@ -21,7 +21,7 @@
 
 #include "edgetx.h"
 #include "hal/adc_driver.h"
-#include "gui/common/stdlcd/calibration.h"
+#include "calibration.h"
 
 #define XPOT_DELTA    10
 #define XPOT_DELAY    10 /* cycles */
@@ -49,6 +49,11 @@ void drawPotsBars()
 
 void menuRadioCalibration(event_t event)
 {
+  if (reusableBuffer.calib.state == CALIB_FINISHED) {
+    menuCalibrationState = CALIB_START;
+    popMenu();
+  }
+
   check_submenu_simple(event, 0);
   title(STR_MENUCALIBRATION);
   menuCommonCalib(event);

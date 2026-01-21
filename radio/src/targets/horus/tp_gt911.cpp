@@ -29,10 +29,11 @@
 #include "stm32_exti_driver.h"
 
 #include "hal.h"
+#include "timers_driver.h"
 #include "tp_gt911.h"
 #include "delays_driver.h"
 
-#include "rtos.h"
+#include "os/sleep.h"
 #include "edgetx_types.h"
 #include "debug.h"
 
@@ -643,21 +644,41 @@ static const char *event2str(uint8_t ev)
 }
 #endif
 
+#if defined(CSD203_SENSOR)
+  extern bool IICReadStatusFlag;
+#endif
+
 struct TouchState touchPanelRead()
 {
   uint8_t state = 0;
 
   if (!touchEventOccured) return internalTouchState;
+#if defined(CSD203_SENSOR)
+  for(int a=0;a<6;a++)
+  {//IIC bus preemption
+    if(IICReadStatusFlag==false){
+      IICReadStatusFlag=true;
+      break;
+    } 
+    else if(a>6){
+      return internalTouchState;
+    }
+    delay_us(10);
+  }
+#endif  
 
   touchEventOccured = false;
 
-  uint32_t startReadStatus = RTOS_GET_MS();
+  uint32_t startReadStatus = timersGetMsTick();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
       // ledRed();
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+    #if defined(CSD203_SENSOR)
+      IICReadStatusFlag=false;
+    #endif  
       return internalTouchState;
     }
 
@@ -665,15 +686,15 @@ struct TouchState touchPanelRead()
       // ready
       break;
     }
-    RTOS_WAIT_MS(1);
-  } while (RTOS_GET_MS() - startReadStatus < GT911_TIMEOUT);
+    sleep_ms(1);
+  } while (timersGetMsTick() - startReadStatus < GT911_TIMEOUT);
 
   internalTouchState.deltaX = 0;
   internalTouchState.deltaY = 0;
   TRACE("touch state = 0x%x", state);
   if (state & 0x80u) {
     uint8_t pointsCount = (state & 0x0Fu);
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = timersGetMsTick();
     internalTouchState.tapCount = 0;
 
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {
@@ -683,6 +704,9 @@ struct TouchState touchPanelRead()
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+      #if defined(CSD203_SENSOR)
+        IICReadStatusFlag=false;
+      #endif  
         return internalTouchState;
       }
         
@@ -733,6 +757,9 @@ struct TouchState touchPanelRead()
   }
 
   TRACE("touch event = %s", event2str(internalTouchState.event));
+#if defined(CSD203_SENSOR)
+  IICReadStatusFlag=false;
+#endif
   return internalTouchState;
 }
 

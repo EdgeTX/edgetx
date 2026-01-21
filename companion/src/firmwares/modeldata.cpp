@@ -28,6 +28,9 @@
 #include "helpers.h"
 #include "adjustmentreference.h"
 #include "compounditemmodels.h"
+#include "sourcenumref.h"
+
+#include <QMessageBox>
 
 ModelData::ModelData()
 {
@@ -36,13 +39,94 @@ ModelData::ModelData()
 
 ModelData::ModelData(const ModelData & src)
 {
-  *this = src;
+  copy(src);
 }
 
-ModelData & ModelData::operator = (const ModelData & src)
+ModelData & ModelData::operator=(const ModelData & src)
 {
-  memcpy(reinterpret_cast<void *>(this), &src, sizeof(ModelData));
+  copy(src);
   return *this;
+}
+
+void ModelData::copy(const ModelData & src)
+{
+  memcpy(&semver, &src.semver, sizeof(semver));
+  used = src.used;
+  memcpy(&name, &src.name, sizeof(name));
+  memcpy(&filename, &src.filename, sizeof(filename));
+  memcpy(&labels, &src.labels, sizeof(labels));
+  modelIndex = src.modelIndex;
+  modelUpdated = src.modelUpdated;
+  modelErrors = src.modelErrors;
+  memcpy(&timers[0], &src.timers[0], sizeof(timers[0]) * CPN_MAX_TIMERS);
+  noGlobalFunctions = src.noGlobalFunctions;
+  thrTrim = src.thrTrim;
+  trimInc = src.trimInc;
+  trimsDisplay = src.trimsDisplay;
+  disableThrottleWarning = src.disableThrottleWarning;
+  enableCustomThrottleWarning = src.enableCustomThrottleWarning;
+  customThrottleWarningPosition = src.customThrottleWarningPosition;
+  jitterFilter = src.jitterFilter;
+  beepANACenter = src.beepANACenter;
+  extendedLimits = src.extendedLimits;
+  extendedTrims = src.extendedTrims;
+  throttleReversed = src.throttleReversed;
+  checklistInteractive = src.checklistInteractive;
+  memcpy(&flightModeData[0], &src.flightModeData[0], sizeof(flightModeData[0]) * CPN_MAX_FLIGHT_MODES);
+  memcpy(&mixData[0], &src.mixData[0], sizeof(mixData[0]) * CPN_MAX_MIXERS);
+  memcpy(&limitData[0], &src.limitData[0], sizeof(limitData[0]) * CPN_MAX_CHNOUT);
+  memcpy(&inputNames, &src.inputNames, sizeof(inputNames));
+  memcpy(&expoData[0], &src.expoData[0], sizeof(expoData[0]) * CPN_MAX_EXPOS);
+  memcpy(&curves[0], &src.curves[0], sizeof(curves[0]) * CPN_MAX_CURVES);
+  memcpy(&logicalSw[0], &src.logicalSw[0], sizeof(logicalSw[0]) * CPN_MAX_LOGICAL_SWITCHES);
+  memcpy(&customFn[0], &src.customFn[0], sizeof(customFn[0]) * CPN_MAX_SPECIAL_FUNCTIONS);
+  swashRingData = src.swashRingData;
+  thrTraceSrc = src.thrTraceSrc;
+  switchWarningStates = src.switchWarningStates;
+  thrTrimSwitch = src.thrTrimSwitch;
+  potsWarningMode = src.potsWarningMode;
+  memcpy(&potsWarnEnabled[0], &src.potsWarnEnabled[0], sizeof(potsWarnEnabled[0]) * CPN_MAX_INPUTS);
+  memcpy(&potsWarnPosition[0], &src.potsWarnPosition[0], sizeof(potsWarnPosition[0]) * CPN_MAX_INPUTS);
+  displayChecklist = src.displayChecklist;
+  memcpy(&gvarData[0], &src.gvarData[0], sizeof(gvarData[0]) * CPN_MAX_GVARS);
+  mavlink = src.mavlink;
+  telemetryProtocol = src.telemetryProtocol;
+  frsky = src.frsky;
+  rssiSource = src.rssiSource;
+  rssiAlarms = src.rssiAlarms;
+  showInstanceIds = src.showInstanceIds;
+  memcpy(&bitmap, &src.bitmap, sizeof(bitmap));
+  trainerMode = src.trainerMode;
+  memcpy(&moduleData[0], &src.moduleData[0], sizeof(moduleData[0]) * (CPN_MAX_MODULES + 1));
+  memcpy(&scriptData[0], &src.scriptData[0], sizeof(scriptData[0]) * CPN_MAX_SCRIPTS);
+  memcpy(&sensorData[0], &src.sensorData[0], sizeof(sensorData[0]) * CPN_MAX_SENSORS);
+  toplcdTimer = src.toplcdTimer;
+  customScreens = src.customScreens;
+  topBarData = src.topBarData;
+  memcpy(&topbarWidgetWidth[0], &src.topbarWidgetWidth[0], sizeof(topbarWidgetWidth[0]) * MAX_TOPBAR_ZONES);
+  view = src.view;
+  memcpy(&registrationId, &src.registrationId, sizeof(registrationId));
+  hatsMode = src.hatsMode;
+  radioThemesDisabled = src.radioThemesDisabled;
+  radioGFDisabled = src.radioGFDisabled;
+  radioTrainerDisabled = src.radioTrainerDisabled;
+  modelHeliDisabled = src.modelHeliDisabled;
+  modelFMDisabled = src.modelFMDisabled;
+  modelCurvesDisabled = src.modelCurvesDisabled;
+  modelGVDisabled = src.modelGVDisabled;
+  modelLSDisabled = src.modelLSDisabled;
+  modelSFDisabled = src.modelSFDisabled;
+  modelCustomScriptsDisabled = src.modelCustomScriptsDisabled;
+  modelTelemetryDisabled = src.modelTelemetryDisabled;
+  memcpy(&customSwitches[0], &src.customSwitches[0], sizeof(customSwitches[0]) * CPN_MAX_SWITCHES_FUNCTION);
+  memcpy(&cfsGroupOn[0], &src.cfsGroupOn[0], sizeof(cfsGroupOn[0]) * CPN_MAX_CUSTOMSWITCH_GROUPS);
+  usbJoystickExtMode = src.usbJoystickExtMode;
+  usbJoystickIfMode = src.usbJoystickIfMode;
+  usbJoystickCircularCut = src.usbJoystickCircularCut;
+  memcpy(&usbJoystickCh[0], &src.usbJoystickCh[0], sizeof(usbJoystickCh[0]) * CPN_USBJ_MAX_JOYSTICK_CHANNELS);
+  checklistData = src.checklistData;
+  updRefList = nullptr;
+  memset(&updRefInfo, 0, sizeof(updRefInfo));
 }
 
 ExpoData * ModelData::insertInput(const int idx)
@@ -142,48 +226,130 @@ void ModelData::clearMixes()
 
 void ModelData::clear()
 {
-  memset(reinterpret_cast<void *>(this), 0, sizeof(ModelData));
+  // IMPORTANT: DO NOT USE
+  // memset(reinterpret_cast<void *>(this), 0, sizeof(ModelData));
+  // as struct contains complex data types eg std::string
+
+  memset(&semver, 0, sizeof(semver));
+  used = false;
+  memset(&name, 0, sizeof(name));
+  memset(&filename, 0, sizeof(filename));
+  memset(&labels, 0, sizeof(labels));
   modelIndex = -1;  // an invalid index, this is managed by the TreeView data model
-  moduleData[0].protocol = PULSES_OFF;
-  moduleData[1].protocol = PULSES_OFF;
-  moduleData[0].channelsCount = 8;
-  moduleData[1].channelsStart = 0;
-  moduleData[1].channelsCount = 8;
-  moduleData[0].ppm.delay = 300;
-  moduleData[1].ppm.delay = 300;
-  moduleData[2].ppm.delay = 300;  //Trainer PPM
-  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+  modelUpdated = false;
+  modelErrors = false;
+  noGlobalFunctions = false;
+  thrTrim = false;
+  trimInc = 0;
+  trimsDisplay = 0;
+  disableThrottleWarning = false;
+  enableCustomThrottleWarning = false;
+  customThrottleWarningPosition = 0;
+  jitterFilter = 0;
+  beepANACenter = 0;
+  extendedLimits = false;
+  extendedTrims = false;
+  throttleReversed = false;
+  checklistInteractive = false;
+  memset(&inputNames, 0, sizeof(inputNames));
+  thrTraceSrc = 0;
+  switchWarningStates = 0;
+  thrTrimSwitch = 0;
+  potsWarningMode = 0;
+  mavlink.clear();
+  telemetryProtocol = 0;
+  frsky.clear();
+  rssiSource = 0;
+  rssiAlarms.clear();
+  showInstanceIds = false;
+  memset(&bitmap, 0, sizeof(bitmap));
+  trainerMode = TRAINER_MODE_OFF;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    potsWarnEnabled[i] = false;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++)
+    potsWarnPosition[i] = 0;
+
+  displayChecklist = false;
+
+  for (int i = 0; i < CPN_MAX_MODULES + 1/*Trainer*/; i++) // + 1
+    moduleData[i].clear();
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++)
     flightModeData[i].clear(i);
-  }
-  for (int i = 0; i < CPN_MAX_GVARS; i++) {
+
+  for (int i = 0; i < CPN_MAX_GVARS; i++)
     gvarData[i].clear();
-  }
+
   clearInputs();
   clearMixes();
+
   for (int i = 0; i < CPN_MAX_CHNOUT; i++)
     limitData[i].clear();
-  for (int i = 0; i < CPN_MAX_STICKS; i++)
-    expoData[i].clear();
+
   for (int i = 0; i < CPN_MAX_LOGICAL_SWITCHES; i++)
     logicalSw[i].clear();
+
   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++)
     customFn[i].clear();
+
   for (int i = 0; i < CPN_MAX_CURVES; i++)
     curves[i].clear();
+
   for (int i = 0; i < CPN_MAX_TIMERS; i++)
     timers[i].clear();
+
   swashRingData.clear();
   frsky.clear();
   rssiAlarms.clear();
+
   for (unsigned i = 0; i < CPN_MAX_SENSORS; i++)
     sensorData[i].clear();
 
-  trainerMode = TRAINER_MODE_OFF;
+  toplcdTimer = 0;
+  RadioLayout::init("Layout2P1", customScreens);
+  topBarData.clear();
 
-  const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
-  RadioLayout::init(layoutId, customScreens);
+  for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
+    topbarWidgetWidth[i] = 0;
 
+  view = 0;
+  memset(&registrationId, 0, sizeof(registrationId));
   hatsMode = GeneralSettings::HATSMODE_GLOBAL;
+
+  radioThemesDisabled = 0;
+  radioGFDisabled = 0;
+  radioTrainerDisabled = 0;
+  modelHeliDisabled = 0;
+  modelFMDisabled = 0;
+  modelCurvesDisabled = 0;
+  modelGVDisabled = 0;
+  modelLSDisabled = 0;
+  modelSFDisabled = 0;
+  modelCustomScriptsDisabled = 0;
+  modelTelemetryDisabled = 0;
+
+  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++)
+    customSwitches[i].clear();
+
+  for (int i = 0; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i++)
+    cfsGroupOn[i] = 0;
+
+  usbJoystickExtMode = 0;
+  usbJoystickIfMode = 0;
+  usbJoystickCircularCut = 0;
+
+  for (int i = 0; i < CPN_USBJ_MAX_JOYSTICK_CHANNELS; i++)
+    usbJoystickCh[i].clear();
+
+  checklistData.clear();
+
+  if (updRefList)
+    delete updRefList;
+
+  updRefList = nullptr;
+  memset(&updRefInfo, 0, sizeof(updRefInfo));
 }
 
 bool ModelData::isEmpty() const
@@ -221,16 +387,33 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    setFuncSwitchConfig(i, Board::SWITCH_2POS);
-    setFuncSwitchGroup(i, 1);
+    auto nm = Boards::getSwitchName(Boards::getSwitchIndexForCFS(i,getCurrentFirmware()->getBoard()));
+    if (nm.startsWith("SW")) {
+      customSwitches[i].type = Board::SWITCH_2POS;
+      customSwitches[i].group = 1;
+      if (nm.startsWith("SW1"))
+        customSwitches[i].start = ModelData::FUNC_SWITCH_START_ON;
+      else
+        customSwitches[i].start = ModelData::FUNC_SWITCH_START_OFF;
+    } else {
+      customSwitches[i].type = Board::SWITCH_GLOBAL;
+      customSwitches[i].group = 0;
+      customSwitches[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+    }
+    customSwitches[i].state = 0;
+    customSwitches[i].name[0] = 0;
+    customSwitches[i].onColor.setColor(255, 255, 255);
+    customSwitches[i].offColor.setColor(0, 0, 0);
   }
+
+  cfsGroupOn[1] = 1;
 }
 
 void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settings)
 {
   clear();
   used = true;
-  sprintf(name, "MODEL%02d", id+1);
+  sprintf(name, "MODEL%02d", id + 1);
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
   }
@@ -291,39 +474,6 @@ int ModelData::getGVarValue(int phaseIdx, int gvarIdx)
     phaseIdx = nextPhase;
   }
   return flightModeData[0].gvars[gvarIdx];  // circular linked so return FM0 value
-}
-
-bool ModelData::isREncLinked(int phaseIdx, int reIdx)
-{
-  return flightModeData[phaseIdx].rotaryEncoders[reIdx] > RENC_MAX_VALUE;
-}
-
-bool ModelData::isREncLinkedCircular(int phaseIdx, int reIdx)
-{
-  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
-    int val = flightModeData[phaseIdx].rotaryEncoders[reIdx];
-    if (phaseIdx == 0 || val <= RENC_MAX_VALUE)
-      return false;
-    int nextPhase = val - (RENC_MAX_VALUE + 1);
-    if (nextPhase >= phaseIdx)
-      nextPhase += 1;
-    phaseIdx = nextPhase;
-  }
-  return true;
-}
-
-int ModelData::getREncValue(int phaseIdx, int reIdx)
-{
-  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
-    int val = flightModeData[phaseIdx].rotaryEncoders[reIdx];
-    if (phaseIdx == 0 || val <= RENC_MAX_VALUE)
-      return val;
-    int nextPhase = val - (RENC_MAX_VALUE + 1);
-    if (nextPhase >= phaseIdx)
-      nextPhase += 1;
-    phaseIdx = nextPhase;
-  }
-  return flightModeData[0].rotaryEncoders[reIdx];  // circular linked so return FM0 value
 }
 
 void ModelData::setTrimValue(int phaseIdx, int trimIdx, int value)
@@ -387,20 +537,18 @@ int ModelData::getChannelsMax(bool forceExtendedLimits) const
     return 100;
 }
 
-bool ModelData::isFunctionSwitchPositionAvailable(int index) const
+bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const
 {
-  if (index == 0)
-    return true;
-
-  div_t qr = div(abs(index) - 1, 3);
-  int fs = getFuncSwitchConfig(qr.quot);
-
-  if (qr.rem == 1) {
+  if (swPos == 1)
     return false;
-  }
-  else {
-    return fs != Board::SWITCH_NOT_AVAILABLE;
-  }
+
+  int fsindex = Boards::getCFSIndexForSwitch(swIndex);
+  int fs = getFuncSwitchConfig(fsindex);
+
+  if (fs == Board::SWITCH_GLOBAL)
+    return gs->switchConfig[swIndex].type != Board::SWITCH_NOT_AVAILABLE;
+
+  return true;
 }
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const
@@ -653,8 +801,8 @@ int ModelData::updateReference()
       if (ed->srcRaw.isSet()) {
         updateSwitchRef(ed->swtch);
         updateCurveRef(ed->curve);
-        updateAdjustRef(ed->weight);
-        updateAdjustRef(ed->offset);
+        updateSourceNumRef(ed->weight);
+        updateSourceNumRef(ed->offset);
         updateFlightModeFlags(ed->flightModes);
       }
       else {
@@ -677,8 +825,8 @@ int ModelData::updateReference()
         if (md->srcRaw.isSet()) {
           updateSwitchRef(md->swtch);
           updateCurveRef(md->curve);
-          updateAdjustRef(md->weight);
-          updateAdjustRef(md->sOffset);
+          updateSourceNumRef(md->weight);
+          updateSourceNumRef(md->sOffset);
           updateFlightModeFlags(md->flightModes);
         }
         else {
@@ -963,7 +1111,7 @@ void ModelData::updateTypeValueRef(R & curRef, const T type, const int idxAdj, c
 
       newRef.value += updRefInfo.shift;
 
-      if (newRef.value < (updRefInfo.index1 + idxAdj) || newRef.value > (updRefInfo.maxindex + idxAdj)) {
+      if ((newRef.value < (updRefInfo.index1 + idxAdj)) || (newRef.value > (updRefInfo.maxindex + idxAdj))) {
         if (defClear)
           newRef.clear();
         else {
@@ -993,8 +1141,8 @@ void ModelData::updateTypeValueRef(R & curRef, const T type, const int idxAdj, c
 
 void ModelData::updateCurveRef(CurveReference & crv)
 {
-  if (updRefInfo.type == REF_UPD_TYPE_GLOBAL_VARIABLE && (crv.type == CurveReference::CURVE_REF_DIFF || crv.type == CurveReference::CURVE_REF_EXPO))
-    updateAdjustRef(crv.value);
+  if (crv.type == CurveReference::CURVE_REF_DIFF || crv.type == CurveReference::CURVE_REF_EXPO)
+    updateSourceNumRef(crv.value);
   else if (updRefInfo.type == REF_UPD_TYPE_CURVE && crv.type == CurveReference::CURVE_REF_CUSTOM)
     updateTypeValueRef<CurveReference, CurveReference::CurveRefType>(crv, CurveReference::CURVE_REF_CUSTOM, 1);
 }
@@ -1337,18 +1485,6 @@ void ModelData::setGVarFlightModeIndexToValue(const int phaseIdx, const int gvar
   flightModeData[phaseIdx].gvars[gvarIdx] = linkedFlightModeIndexToValue(phaseIdx, useFmIdx, GVAR_MAX_VALUE);
 }
 
-int ModelData::getREncFlightModeIndex(const int phaseIdx, const int reIdx)
-{
-  if (!isREncLinked(phaseIdx, reIdx))
-    return -1;
-  return (linkedFlightModeValueToIndex(phaseIdx, flightModeData[phaseIdx].rotaryEncoders[reIdx], RENC_MAX_VALUE));
-}
-
-void ModelData::setREncFlightModeIndexToValue(const int phaseIdx, const int reIdx, const int useFmIdx)
-{
-  flightModeData[phaseIdx].rotaryEncoders[reIdx] = linkedFlightModeIndexToValue(phaseIdx, useFmIdx, RENC_MAX_VALUE);
-}
-
 bool ModelData::isExpoParent(const int index)
 {
   const ExpoData &ed = expoData[index];
@@ -1425,6 +1561,48 @@ void ModelData::sortMixes()
   memcpy(&mixData[0], &sortedMixData[0], CPN_MAX_MIXERS * sizeof(MixData));
 }
 
+void ModelData::sortInputs()
+{
+  unsigned int lastchn = 0;
+  bool sortreq = false;
+
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    ExpoData *ed = &expoData[i];
+    if (!ed->isEmpty()) {
+      if (ed->chn < lastchn) {
+        sortreq = true;
+        break;
+      }
+      else
+        lastchn = ed->chn;
+    }
+  }
+
+  if (!sortreq)
+    return;
+
+  //  QMap automatically sorts based on key
+  QMap<int, int> map;
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    ExpoData *ed = &expoData[i];
+    if (!ed->isEmpty()) {
+      //  chn may not be unique so build a compound sort key
+      map.insert(ed->chn * (CPN_MAX_EXPOS + 1) + i, i);
+    }
+  }
+
+  ExpoData sortedExpoData[CPN_MAX_EXPOS];
+  int destidx = 0;
+
+  QMap<int, int>::const_iterator i;
+  for (i = map.constBegin(); i != map.constEnd(); ++i) {
+    memcpy(&sortedExpoData[destidx], &expoData[i.value()], sizeof(ExpoData));
+    destidx++;
+  }
+
+  memcpy(&expoData[0], &sortedExpoData[0], CPN_MAX_EXPOS * sizeof(ExpoData));
+}
+
 void ModelData::updateResetParam(CustomFunctionData * cfd)
 {
   if (cfd->func != FuncReset)
@@ -1443,7 +1621,7 @@ void ModelData::updateResetParam(CustomFunctionData * cfd)
       idxAdj = -2;   //  reverse earlier offset required for rawsource
       break;
     case REF_UPD_TYPE_SENSOR:
-      idxAdj = 5/*3 Timers + Flight + Telemetery*/ + firmware->getCapability(RotaryEncoders);
+      idxAdj = 5/*3 Timers + Flight + Telemetery*/;
       if (cfd->param < idxAdj || cfd->param > (idxAdj + firmware->getCapability(Sensors)))
         return;
       break;
@@ -1634,6 +1812,8 @@ QString ModelData::trainerModeToString(int value)
       return tr("Slave/Bluetooth");
     case TRAINER_MODE_MULTI:
       return tr("Master/Multi");
+    case TRAINER_MODE_CRSF:
+      return tr("Master/CRSF");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -1649,6 +1829,16 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
       IS_TARANIS_X9E(board) &&
       generalSettings.bluetoothMode)
+    return false;
+
+  if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
+      !Boards::getCapability(board, Board::HasTrainerModuleSBUS))
+    return false;
+
+  if ((value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) &&
+      (Boards::getCapability(board, Board::HasTrainerModuleCPPM) ||
+       Boards::getCapability(board, Board::HasTrainerModuleSBUS)) &&
+      moduleData[1].protocol != PULSES_OFF)
     return false;
 
   if (value == TRAINER_MODE_MASTER_SERIAL &&
@@ -1667,16 +1857,6 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
 
   if (value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE &&
       !Boards::getCapability(board, Board::HasTrainerModuleCPPM))
-    return false;
-
-  if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
-      !Boards::getCapability(board, Board::HasTrainerModuleSBUS))
-    return false;
-
-  if ((value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) &&
-      (Boards::getCapability(board, Board::HasTrainerModuleCPPM) ||
-       Boards::getCapability(board, Board::HasTrainerModuleSBUS)) &&
-      moduleData[1].protocol != PULSES_OFF)
     return false;
 
   if (value == TRAINER_MODE_MULTI &&
@@ -1701,30 +1881,32 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   return mdl;
 }
 
-unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
+Board::SwitchType ModelData::getFuncSwitchConfig(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
+    return customSwitches[index].type;
   else
-    return FUNC_SWITCH_CONFIG_NONE;
+    return Board::SWITCH_NOT_AVAILABLE;
 }
 
-void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
+void ModelData::setFuncSwitchConfig(unsigned int index, Board::SwitchType value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
+    customSwitches[index].type = value;
 }
 
 //  static
 QString ModelData::funcSwitchConfigToString(unsigned int value)
 {
   switch (value) {
-    case FUNC_SWITCH_CONFIG_NONE:
+    case Board::SWITCH_NOT_AVAILABLE:
       return tr("NONE");
-    case FUNC_SWITCH_CONFIG_TOGGLE:
+    case Board::SWITCH_TOGGLE:
       return tr("TOGGLE");
-    case FUNC_SWITCH_CONFIG_2POS:
+    case Board::SWITCH_2POS:
       return tr("2POS");
+    case Board::SWITCH_GLOBAL:
+      return tr("Global");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -1735,7 +1917,7 @@ AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
-    for (unsigned int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
+    for (unsigned int i = Board::SWITCH_NOT_AVAILABLE; i <= Board::SWITCH_GLOBAL; i++) {
       mdl->appendToItemList(funcSwitchConfigToString(i), i);
   }
   mdl->loadItemList();
@@ -1748,7 +1930,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupStartSwitchModel(int switchc
   mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPSTARTSWITCH);
 
   mdl->appendToItemList(tr("Restore"), 0);
-  for (unsigned int i = 1; i <= switchcnt; i += 1) {
+  for (int i = 1; i <= switchcnt; i += 1) {
     mdl->appendToItemList(tr("SW") + QString::number(i), i);
   }
   mdl->appendToItemList(tr("Off"), switchcnt + 1);
@@ -1763,7 +1945,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
   mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPS);
 
   mdl->appendToItemList(tr("---"), 0);
-  for (unsigned int i = 1; i <= 3; i += 1) {
+  for (int i = 1; i <= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups); i++) {
     mdl->appendToItemList(tr("Group ") + QString::number(i), i);
   }
 
@@ -1774,7 +1956,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
 unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
+    return customSwitches[index].group;
   else
     return 0;
 }
@@ -1782,14 +1964,13 @@ unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
 void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
+    customSwitches[index].group = value;
 }
 
 unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int group) const
 {
-  if (group > 0 && group < 4) {
-    unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
-    return Helpers::getBitmappedValue(functionSwitchGroup, group, 1, 2 * switchcnt);
+  if (group > 0 && group <= (unsigned int)Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
+    return cfsGroupOn[group];
   }
   else
     return 0;
@@ -1805,16 +1986,15 @@ unsigned int ModelData::getFuncSwitchAlwaysOnGroupForSwitch(unsigned int index) 
 
 void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int group, unsigned int value)
 {
-  if (group > 0 && group < 4) {
-    unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
-    Helpers::setBitmappedValue(functionSwitchGroup, value, group, 1, 2 * switchcnt);
+  if (group > 0 && group <= (unsigned int)Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
+    cfsGroupOn[group] = value;
   }
 }
 
 unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
+    return customSwitches[index].start;
   else
     return FUNC_SWITCH_START_OFF;
 }
@@ -1822,7 +2002,7 @@ unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
 void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
+    customSwitches[index].start = value;
 }
 
 int ModelData::getFuncGroupSwitchCount(unsigned int group, int switchcnt) const
@@ -1857,7 +2037,7 @@ void ModelData::setFuncGroupSwitchStart(unsigned int group, unsigned int value, 
     if (getFuncSwitchGroup(i) == group)
       setFuncSwitchStart(i, value ? ModelData::FUNC_SWITCH_START_OFF : ModelData::FUNC_SWITCH_START_PREVIOUS);
   }
-  if (value > 0 && value <= switchcnt) {
+  if (value > 0 && value <= (unsigned int)switchcnt) {
     setFuncSwitchStart(value - 1, ModelData::FUNC_SWITCH_START_ON);
   }
 }
@@ -1870,10 +2050,10 @@ void ModelData::setGroupSwitchState(uint8_t group, int switchcnt)
   if (getFuncSwitchAlwaysOnGroup(group)) {
     for (int j = 0; j < switchcnt; j += 1) {
       if (getFuncSwitchGroup(j) == group) {
-        setFuncSwitchConfig(j, FUNC_SWITCH_CONFIG_2POS); // Toggle not valid
+        setFuncSwitchConfig(j, Board::SWITCH_2POS); // Toggle not valid
       }
     }
-    if (getFuncGroupSwitchStart(group, switchcnt) == switchcnt + 1) {
+    if (getFuncGroupSwitchStart(group, switchcnt) == (unsigned int)switchcnt + 1) {
       // Start state for all switches is off - set all to 'last'
       for (int j = 0; j < switchcnt; j += 1)
         if (getFuncSwitchGroup(j) == group)
@@ -1921,4 +2101,211 @@ int ModelData::getCustomScreensCount() const
   }
 
   return cnt;
+}
+
+void ModelData::validate()
+{
+  modelErrors = false;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE) {
+      modelErrors = true;
+      return;
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE) {
+      modelErrors = true;
+      return;
+    }
+  }
+}
+
+QStringList ModelData::errorsList()
+{
+  QStringList list;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
+      list.append(tr("Error - Input %1 Line %2 %3").arg(expoData[i].chn + 1).arg(getInputLine(i)).arg(tr("has no source")));
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
+      list.append(tr("Error - Mix %1 Line %2 %3").arg(mixData[i].destCh).arg(getMixLine(i)).arg(tr("has no source")));
+  }
+
+  return list;
+}
+
+int ModelData::getMixLine(int index) const
+{
+  int cnt = 1;
+
+  for (int i = index - 1; i >= 0 && mixData[i].destCh == mixData[index].destCh; i--)
+    cnt++;
+
+  return cnt;
+}
+
+int ModelData::getInputLine(int index) const
+{
+  int cnt = 1;
+
+  for (int i = 0; i < index; i++) {
+    if (expoData[i].chn == expoData[index].chn)
+      cnt++;
+  }
+
+  return cnt;
+}
+
+const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings & gs) const
+{
+  if (sw < 0 || sw >= Boards::getCapability(getCurrentBoard(), Board::Switches))
+    return Board::SWITCH_NOT_AVAILABLE;
+
+  if (Boards::isSwitchFunc(sw)) {
+    int fsIndex = Boards::getCFSIndexForSwitch(sw);
+    if (customSwitches[fsIndex].type != Board::SWITCH_GLOBAL)
+      return customSwitches[fsIndex].type;
+  }
+  return gs.switchConfig[sw].type;
+}
+
+QString ModelData::getChecklistFilename() const
+{
+  return QString(name).replace(" ", "_").append(".txt").toLower();
+}
+
+void ModelData::gvarClear(const int index, bool updateRefs)
+{
+  gvarData[index].clear();
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    FlightModeData &fm = flightModeData[i];
+    fm.gvars[index] = fm.linkedGVarFlightModeZero(i);
+  }
+
+  if (updateRefs) {
+    updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                        ModelData::REF_UPD_ACT_CLEAR, index);
+  }
+}
+
+void ModelData::gvarSetMax(const int index, const float value)
+{
+  gvarData[index].setMax(value);
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    if (!isGVarLinked(i, index)) {
+      if (flightModeData[i].gvars[index] > gvarData[index].getMax()) {
+        flightModeData[i].gvars[index] = gvarData[index].getMax();
+      }
+    }
+  }
+}
+
+void ModelData::gvarSetMin(const int index, const float value)
+{
+  gvarData[index].setMin(value);
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    if (!isGVarLinked(i, index)) {
+      if (flightModeData[i].gvars[index] < gvarData[index].getMin()) {
+        flightModeData[i].gvars[index] = gvarData[index].getMin();
+      }
+    }
+  }
+}
+
+void ModelData::gvarSwap(const int index1, const int index2)
+{
+  if (index1 != index2) {
+    GVarData gvtmp = gvarData[index2];
+    GVarData *gv1 = &gvarData[index1];
+    GVarData *gv2 = &gvarData[index2];
+    memcpy(gv2, gv1, sizeof(GVarData));
+    memcpy(gv1, &gvtmp, sizeof(GVarData));
+
+    for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+      FlightModeData &fm = flightModeData[i];
+      int gvar = fm.gvars[index2];
+      fm.gvars[index2] = fm.gvars[index1];
+      fm.gvars[index1] = gvar;
+    }
+
+    updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                        ModelData::REF_UPD_ACT_SWAP, index1, index2);
+  }
+}
+
+void ModelData::gvarDelete(const int index)
+{
+  memmove(&gvarData[index], &gvarData[index + 1],
+          (CPN_MAX_GVARS - (index + 1)) * sizeof(GVarData));
+  gvarData[CPN_MAX_GVARS - 1].clear();
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    for (int i = index; i < (CPN_MAX_GVARS - 1); i++) {
+      flightModeData[j].gvars[i] = flightModeData[j].gvars[i + 1];
+    }
+  }
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    flightModeData[j].gvars[CPN_MAX_GVARS - 1] = flightModeData[j].linkedGVarFlightModeZero(j);
+  }
+
+  updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                      ModelData::REF_UPD_ACT_SHIFT, index, 0, -1);
+}
+
+void ModelData::gvarInsert(const int index)
+{
+  memmove(&gvarData[index + 1], &gvarData[index],
+          (CPN_MAX_GVARS - (index + 1)) * sizeof(GVarData));
+  gvarData[index].clear();
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    for (int i = (CPN_MAX_GVARS - 1); i > index; i--) {
+      flightModeData[j].gvars[i] = flightModeData[j].gvars[i - 1];
+    }
+  }
+
+  for (int j = 0; j < CPN_MAX_FLIGHT_MODES; j++) {
+    flightModeData[j].gvars[index] = flightModeData[j].linkedGVarFlightModeZero(j);
+  }
+
+  updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE,
+                      ModelData::REF_UPD_ACT_SHIFT, index, 0, 1);
+}
+
+bool ModelData::gvarInsertAllowed(const int index)
+{
+  bool ret = true;
+  int gvars = getCurrentFirmware()->getCapability(Gvars);
+
+  if (index == (gvars - 1) || !gvarData[gvars - 1].isEmpty())
+    ret = false;
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    if (flightModeData[i].gvars[gvars - 1] !=
+          flightModeData[i].linkedGVarFlightModeZero(i))
+      ret = false;
+  }
+
+  return ret;
+
+}
+
+void ModelData::updateSourceNumRef(int & value)
+{
+  if (updRefInfo.type == REF_UPD_TYPE_CHANNEL ||
+      updRefInfo.type == REF_UPD_TYPE_GLOBAL_VARIABLE ||
+      updRefInfo.type == REF_UPD_TYPE_INPUT) {
+    SourceNumRef srcnum = SourceNumRef(value);
+    if (srcnum.isSource())
+      updateSourceIntRef(value);
+  }
 }

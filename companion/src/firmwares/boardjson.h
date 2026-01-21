@@ -61,13 +61,15 @@ class BoardJson
     };
 
     struct SwitchDefn {
-      Board::SwitchType type           = Board::SWITCH_NOT_AVAILABLE;
       std::string tag                  = "";
+      Board::SwitchType type           = Board::SWITCH_NOT_AVAILABLE;
       std::string name                 = "";
       int flags                        = 0;
       bool inverted                    = false;
       Board::SwitchType dflt           = Board::SWITCH_NOT_AVAILABLE;
       Display display;
+      bool isCustomSwitch              = false;
+      int customSwitchIdx              = -1;
       Board::LookupValueType cfgYaml   = Board::LVT_TAG;
       Board::LookupValueType refYaml   = Board::LVT_NAME;
 
@@ -128,6 +130,8 @@ class BoardJson
     const bool isInputCalibrated(int index) const;
     const bool isInputConfigurable(int index) const;
     const bool isInputIgnored(int index) const;
+    const bool isInputFlexGyroAxis(int index) const;
+    const bool isInputFlexJoystickAxis(int index) const;
     const bool isInputFlexPot(int index) const;
     const bool isInputFlexSwitch(int index) const;
     const bool isInputStick(int index) const;
@@ -137,6 +141,10 @@ class BoardJson
     const int getKeyIndex(const QString key) const;
 
     const int getSwitchIndex(const QString val, Board::LookupValueType lvt) const;
+    const int getCFSIndexForSwitch(int sw) const;
+    const int getSwitchIndexForCFS(int customSwitchIdx) const;
+    const int getSwitchIndexForCFSOffset(int offset) const;
+    const int getCFSOffsetForCFSIndex(int index) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
@@ -203,6 +211,10 @@ private:
     static Board::KeyInfo getKeyInfo(const KeysTable * keys, int index);
 
     static int getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt);
+    static int getCFSIndexForSwitch(const SwitchesTable * switches, int sw);
+    static int getSwitchIndexForCFS(const SwitchesTable * switches, int customSwitchIdx);
+    static int getSwitchIndexForCFSOffset(const SwitchesTable * switches, int offset);
+    static int getCFSOffsetForCFSIndex(const SwitchesTable * switches, int index);
     static Board::SwitchInfo getSwitchInfo(const SwitchesTable * switches, int index);
     static QString getSwitchName(const SwitchesTable * switches, int index);
     static QString getSwitchTag(const SwitchesTable * switches, int index);

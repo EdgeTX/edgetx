@@ -106,6 +106,14 @@ void lcdHardwareInit()
 
   NVIC_SetPriority(LCD_DMA_Stream_IRQn, 7);
   NVIC_EnableIRQ(LCD_DMA_Stream_IRQn);
+
+#if defined(OLED_VCC_CS)
+  gpio_init(OLED_VCC_CS, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+
+  // Coming from bootloader or EM, screen is already on
+  if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE())
+    gpio_set(OLED_VCC_CS);
+#endif
 }
 
 #if defined(SSD1309_LCD)
@@ -145,6 +153,10 @@ void lcdStart()
    lcdWriteCommand(0xA4);  // Disable Entire Display On
    lcdWriteCommand(0xA6);  // Set Normal Display (not inverted)
    lcdWriteCommand(0x2E);  // Deactivate scroll
+#if defined(OLED_VCC_CS)
+   delay_ms(100);
+   gpio_set(OLED_VCC_CS);
+#endif
 #else
 #if defined(LCD_VERTICAL_INVERT)
   // T12 and TX12 have the screen inverted.
@@ -353,7 +365,12 @@ void lcdOff()
   to re-init LCD without any delay
   */
   lcdWriteCommand(0xAE); // LCD sleep
+#if defined(OLED_VCC_CS)
+  gpio_clear(OLED_VCC_CS);
+  delay_ms(100);
+#else
   delay_ms(3); // Wait for caps to drain
+#endif
 }
 
 void lcdReset()

@@ -38,7 +38,6 @@
 #define MODELNAME_Y   (0)
 #define PHASE_X       (6*FW-2)
 #define PHASE_Y       (2*FH)
-#define PHASE_FLAGS   0
 #define VBATT_X       (6*FW-1)
 #define VBATT_Y       (2*FH)
 #define VBATTUNIT_Y   (3*FH)
@@ -111,13 +110,14 @@ void drawPotsBars()
   uint8_t cols =  configured_pots > 4 ? 3 : configured_pots % 2 ? 3 : 2;
   coord_t xstart =  LCD_W / 2 - (cols % 2 ? 5 : 3);
 
-  for (uint8_t i = 0; i < max_pots; i++) {
+  for (uint8_t i = 0, j = 0; i < max_pots; i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
-      coord_t x = xstart + (i % cols) * 5;
-      coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2 - 1);
+      coord_t x = xstart + (j % cols) * 5;
+      coord_t y = lines == 1 ? (LCD_H - 8) : j >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2 - 1);
       auto v = calibratedAnalogs[offset + i] + RESX;
       uint8_t len = (v * (BAR_HEIGHT - (lines - 1)) / (RESX * 2 * lines)) + 1l;
       V_BAR(x, y, len);
+      j++;
     }
   }
 }
@@ -301,60 +301,6 @@ void displayBattVoltage()
 
 #define displayVoltageOrAlarm() displayBattVoltage()
 
-#if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_PLUS)
-#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_MINUS)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
-#elif defined(NAVIGATION_X7_TX12)
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
-#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_TELE)
-#elif defined(NAVIGATION_X7)  || defined(NAVIGATION_TBS)
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
-#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MENU)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_MENU)
-#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_PAGEUP)
-#elif defined(NAVIGATION_XLITE)
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_DOWN)
-#define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_RIGHT)
-#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_RIGHT)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_LEFT)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
-#define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
-#else
-#if defined(NAVIGATION_9X)
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_BREAK(KEY_ENTER)
-#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_ENTER)
-#else
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_BREAK(KEY_MENU)
-#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_MENU)
-#endif
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_DOWN)
-#define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_RIGHT)
-#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_RIGHT)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_LEFT)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
-#define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
-#endif
-
 void onMainViewMenu(const char * result)
 {
   if (result == STR_RESET_TIMER1) {
@@ -404,7 +350,7 @@ void drawSmallSwitch(coord_t x, coord_t y, int width, unsigned int index)
       }
     }
 
-    lcdDrawChar(width == 5 ? x + 1 : x, y, 'A' + index, SMLSIZE);
+    lcdDrawChar(width == 5 ? x + 1 : x, y, switchGetDefaultName(index)[1], SMLSIZE);
     y += 7;
 
     if (val <= 0) {
@@ -571,19 +517,26 @@ void menuMainView(event_t event)
         
         // Switches
         // -> 2 columns: one for each side
-        // -> 4 slots on each side (3 normal / 1 small)
-        uint8_t switches = switchGetMaxSwitches();
-        uint8_t configured_switches = 0;
+        // -> 4 slots on each side
+        uint8_t maxSwitch = 0;
+        uint8_t leftMaxRow = 0;
+        uint8_t rightMaxRow = 0;
+        for (uint8_t n = 0; n < switchGetMaxSwitches(); n += 1)
+            if (SWITCH_EXISTS(n) && !switchIsFlex(n) && !switchIsCustomSwitch(n)) {
+              auto switch_display = switchGetDisplayPosition(n);
+              if (switch_display.col) {
+                if (switch_display.row > rightMaxRow)
+                  rightMaxRow = switch_display.row;
+              } else {
+                if (switch_display.row > leftMaxRow)
+                  leftMaxRow = switch_display.row;
+              }
+              maxSwitch = n + 1;
+            }
 
-        for (uint8_t i = 0; i < switches; i++) {
-          if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
-            configured_switches ++;
-          }
-        }
-
-        if (configured_switches < 7) {
-          for (int i = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+        if (leftMaxRow < 3 && rightMaxRow < 3) {
+          for (int i = 0; i < maxSwitch; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
               auto switch_display = switchGetDisplayPosition(i);
               coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
               coord_t y = 33 + switch_display.row * FH;
@@ -597,11 +550,11 @@ void menuMainView(event_t event)
           }
         }
         else {
-          for (int i = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+          for (int i = 0; i < maxSwitch; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
               auto switch_display = switchGetDisplayPosition(i);
               coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
-              if (configured_switches < 9) x += 3;
+              if (maxSwitch < 9) x += 3;
               drawSmallSwitch(x, 5 * FH + 1, 4, i);
             }
           }
@@ -628,7 +581,7 @@ void menuMainView(event_t event)
   if (view_base != VIEW_CHAN_MONITOR) {
     // Flight Mode Name
     uint8_t mode = mixerCurrentFlightMode;
-    lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name), PHASE_FLAGS);
+    lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
 
     // Model Name
     drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -673,27 +626,10 @@ void menuMainView(event_t event)
     // Issue 98
     lcdDrawText(15 * FW, 0, "BIND", 0);
   }
-#if defined(RTCLOCK)
-  else if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
-    drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
-  }
 #endif
-#else
 #if defined(RTCLOCK)
   if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
     drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
   }
 #endif
-#endif
 }
-
-#undef EVT_KEY_CONTEXT_MENU
-#undef EVT_KEY_PREVIOUS_VIEW
-#undef EVT_KEY_NEXT_VIEW
-#undef EVT_KEY_NEXT_PAGE
-#undef EVT_KEY_PREVIOUS_PAGE
-#undef EVT_KEY_MODEL_MENU
-#undef EVT_KEY_GENERAL_MENU
-#undef EVT_KEY_LAST_MENU
-#undef EVT_KEY_TELEMETRY
-#undef EVT_KEY_STATISTICS

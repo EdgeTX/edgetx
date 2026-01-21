@@ -37,11 +37,7 @@
   #define CASE_ROTARY_ENCODER(x)
 #endif
 
-#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-extern uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax);
-#endif
-
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 typedef std::function<bool(int)> IsValueAvailable;
 #else
 typedef bool (*IsValueAvailable)(int);
@@ -57,21 +53,24 @@ enum SwitchContext
 
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
+bool isChannelUsed(int channel);
+bool checkSourceAvailable(int source, uint32_t sourceTypes);
+bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
 bool isInputAvailable(int input);
-bool isSourceAvailableInInputs(int source);
 bool isThrottleSourceAvailable(int source);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
+bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailable(int source);
+int timersSetupCount();
 bool isTimerSourceAvailable(int source);
-bool isSourceAvailableInGlobalFunctions(int source);
-bool isSourceAvailableInCustomSwitches(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);
 bool isSourceAvailableInGlobalResetSpecialFunction(int index);
 bool isSwitchAvailable(int swtch, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
 bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInCustomFunctions(int swtch);
+bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
 bool isPxx2IsrmChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
@@ -85,6 +84,8 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions);
 bool isPotTypeAvailable(uint8_t type);
 bool isFlexSwitchSourceValid(int source);
 bool getPotInversion(int index);
+bool getStickInversion(int index);
+void setStickInversion(int index, bool value);
 void setPotInversion(int index, bool value);
 uint8_t getPotType(int index);
 void setPotType(int index, int value);
@@ -111,7 +112,7 @@ bool confirmModelChange();
 bool isSwitch2POSWarningStateAvailable(int state);
 #endif
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 #define IS_INSTANT_TRIM_ALLOWED()     true
 #elif defined(GUI)
 #define IS_INSTANT_TRIM_ALLOWED()      (IS_MAIN_VIEW_DISPLAYED() || IS_TELEMETRY_VIEW_DISPLAYED() || IS_OTHER_VIEW_DISPLAYED())
@@ -217,6 +218,12 @@ extern uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx);
 #define AFHDS3_MODULE_ROWS(moduleIdx)
 #endif
 
+#if defined(DSMP)
+#define DSMP_STATUS_ROWS(moduleIdx)             isModuleDSMP(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleDSMP(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW,
+#else
+#define DSMP_STATUS_ROWS(moduleIdx)
+#endif
+
 #define FAILSAFE_ROW(moduleIdx)               isModuleFailsafeAvailable(moduleIdx) ? (g_model.moduleData[moduleIdx].failsafeMode==FAILSAFE_CUSTOM ? (uint8_t)1 : (uint8_t)0) : HIDDEN_ROW
 
 extern uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx);
@@ -227,6 +234,6 @@ void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
 const char * getMultiOptionTitleStatic(uint8_t moduleIdx);
 const char *getMultiOptionTitle(uint8_t moduleIdx);
 
-const char * writeScreenshot();
+void writeScreenshot();
 
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event);

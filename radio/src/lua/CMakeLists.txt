@@ -81,6 +81,8 @@ set(LUA_SRC
   lstrlib.c
 )
 
+add_compile_definitions(LUA_COMPAT_5_2)
+
 foreach(FILE ${LUA_SRC})
   set(SRC ${SRC} ${LUA_DIR}/${FILE})
 endforeach()

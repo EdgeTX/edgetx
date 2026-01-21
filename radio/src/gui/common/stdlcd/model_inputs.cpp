@@ -24,8 +24,8 @@
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 
-#define _STR_MAX(x)                     "/" #x
-#define STR_MAX(x)                     _STR_MAX(x)
+#define _STRING_MAX(x)                     "/" #x
+#define STRING_MAX(x)                     _STRING_MAX(x)
 
 uint8_t getExposCount()
 {
@@ -64,7 +64,7 @@ void insertExpo(uint8_t idx)
     } else {
       expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(i - 1);
     }
-    if (isSourceAvailableInInputs(expo->srcRaw)) {
+    if (isSourceAvailable(expo->srcRaw)) {
       break;
     }
   }
@@ -192,7 +192,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
     if (ed->trimSource > 0) {
       lcdDrawChar(EXPO_LINE_TRIM_POS, y, '-', attr);
     } else {
-      const char* short_label = getAnalogShortLabel(-ed->trimSource);
+      const char* short_label = getAnalogShortLabel(-ed->trimSource - 1);
       lcdDrawChar(EXPO_LINE_TRIM_POS, y, short_label ? short_label[0] : ' ', attr);
     }
   }
@@ -364,8 +364,8 @@ void menuModelExposAll(event_t event)
     s_copyTgtOfs = next_ofs;
   }
   
-  lcdDrawNumber(FW*sizeof(TR_MENUINPUTS)+FW+FW/2, 0, getExposCount(), RIGHT);
-  lcdDrawText(FW*sizeof(TR_MENUINPUTS)+FW+FW/2, 0, STR_MAX(MAX_EXPOS));
+  lcdDrawNumber(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, getExposCount(), RIGHT);
+  lcdDrawText(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, STRING_MAX(MAX_EXPOS));
 
 #if LCD_DEPTH > 1
   // Value

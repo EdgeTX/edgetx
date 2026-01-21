@@ -1,8 +1,8 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/releases/latest)
 [![GitHub all releases](https://img.shields.io/github/downloads/EdgeTX/edgetx/total)](https://github.com/EdgeTX/edgetx/releases)
 [![GitHub license](https://img.shields.io/github/license/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/blob/main/LICENSE)
-[![Commit Tests](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml/badge.svg)](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml)
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/edgetx/edgetx/tree/main)
+[![Commit Tests](https://github.com/EdgeTX/edgetx/actions/workflows/build_fw.yml/badge.svg)](https://github.com/EdgeTX/edgetx/actions/workflows/build_fw.yml)
+[![GitHub CodesSpaces ready-to-code](https://img.shields.io/badge/GitHub%20CodesSpaces-ready--to--code-blue?logo=github)](https://codespaces.new/EdgeTX/edgetx)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 [![Discord](https://img.shields.io/discord/839849772864503828.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/wF9wUKnZ6H)
 [![Support us on OpenCollective](https://img.shields.io/opencollective/all/edgetx)](https://opencollective.com/edgetx)
@@ -19,41 +19,31 @@
 EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and cutting-edge features are developed and field-tested by the enthusiasts of our hobby. EdgeTX is a community project – ideas from the community, developed by the community, and enjoyed by the community! The community will always have a say in what EdgeTX is and what EdgeTX will be in the future. Without community feedback and involvement EdgeTX cannot exist.
 
 ### Community
-[Discord](https://discord.gg/wF9wUKnZ6H)   
+- [Discord](https://discord.gg/wF9wUKnZ6H)   
 
-[Facebook](https://www.facebook.com/groups/edgetx)
+- [Facebook](https://www.facebook.com/groups/edgetx)
 
-[Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
+- [Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
   
 ### Navigation Links
 
-> [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
+- [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
 
-> [Installation Guide](https://edgetx.gitbook.io/edgetx-user-manual/edgetx-how-to/update-from-opentx-to-edgetx)
+- [Installation Guide](https://manual.edgetx.org/installing-and-updating-edgetx/update-from-opentx-to-edgetx)
 
-> [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
+- [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
 
-> [FAQ](https://github.com/EdgeTX/edgetx.github.io/wiki/Frequently-Asked-Questions)
+- [Reporting Issues / Requesting features](https://github.com/EdgeTX/edgetx/issues/new/choose)
 
-> [Reporting Issues / Requesting features](https://github.com/EdgeTX/edgetx/issues/new/choose)
-
-> [Development WIKI](https://github.com/EdgeTX/edgetx/wiki)
-
-> [Lua Documentation Site](https://luadoc.edgetx.org/)
+- [Lua Documentation Site](https://luadoc.edgetx.org/)
   
-> [Flasher Info Page](https://github.com/EdgeTX/flasher) 
+- Buddy: [Info](https://github.com/EdgeTX/buddy) - [Downloads](https://github.com/EdgeTX/buddy/releases) 
 
-> [Flasher Downloads](https://github.com/EdgeTX/flasher/releases)
+- SD Card: [Info](https://github.com/EdgeTX/edgetx-sdcard) - [Downloads](https://github.com/EdgeTX/edgetx-sdcard/releases)
 
-> [SD Card Info Page](https://github.com/EdgeTX/edgetx-sdcard)
+- Sound Packs:  [Info](https://github.com/EdgeTX/edgetx-sdcard-sounds) - [Downloads](https://github.com/EdgeTX/edgetx-sdcard-sounds/releases)
 
-> [SD Card Downloads](https://github.com/EdgeTX/edgetx-sdcard/releases)
-
-> [Sound Packs Info Page](https://github.com/EdgeTX/edgetx-sdcard-sounds)
-
-> [Sound Packs Downloads](https://github.com/EdgeTX/edgetx-sdcard-sounds/releases)
-
-> [EdgeTX Build Environment Docker Images](https://github.com/EdgeTX/build-edgetx)
+- [Development Wiki](https://github.com/EdgeTX/edgetx/wiki) - [Docker Build Environment](https://github.com/EdgeTX/build-edgetx)
 
 
 ## Acknowledgements

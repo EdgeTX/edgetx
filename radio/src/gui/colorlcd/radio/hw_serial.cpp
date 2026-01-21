@@ -20,7 +20,11 @@
  */
 
 #include "hw_serial.h"
+
+#include "choice.h"
 #include "edgetx.h"
+#include "static.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -38,7 +42,7 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, FlexGridLayout& grid)
     box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
     lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
     lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
-    
+
     auto aux = new Choice(
         box, rect_t{}, STR_AUX_SERIAL_MODES, 0, UART_MODE_MAX,
         [=]() { return serialGetMode(port_nr); },
@@ -59,11 +63,11 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, FlexGridLayout& grid)
             SET_DIRTY();
           });
     }
-      
+
     if (port_nr != SP_VCP) {
         grid.setColSpan(2);
         auto line = parent->newLine(grid);
-        line->padLeft(WARN_PADL);
+        line->padLeft(PAD_LARGE * 2);
         line->padBottom(PAD_MEDIUM);
         new StaticText(line, rect_t{}, STR_TTL_WARNING, COLOR_THEME_WARNING_INDEX);
         grid.setColSpan(1);

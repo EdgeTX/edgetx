@@ -28,6 +28,11 @@
 
 #include <cstring>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 #ifdef DEBUG_LABELS
 #define TRACE_LABELS_YAML(...) TRACE(__VA_ARGS__)
 #else
@@ -102,7 +107,7 @@ static bool to_next_elmt(void* ctx)
     return true;
 }
 
-static bool find_node(void* ctx, char* buf, uint8_t len)
+static bool find_node(void* ctx, const char* buf, uint8_t len)
 {
     labelslist_iter* mi = (labelslist_iter*)ctx;
 
@@ -165,7 +170,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     return true;
 }
 
-static void set_attr(void* ctx, char* buf, uint16_t len)
+static void set_attr(void* ctx, const char* buf, uint16_t len)
 {
   char value[LABELS_LENGTH + 1];
   if(len > LABELS_LENGTH) {

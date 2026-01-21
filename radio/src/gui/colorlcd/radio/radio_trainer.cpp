@@ -21,20 +21,23 @@
 
 #include "radio_trainer.h"
 
+#include "choice.h"
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
-#include "libopenui.h"
-#include "edgetx.h"
+#include "numberedit.h"
+#include "static.h"
 #include "strhelpers.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-RadioTrainerPage::RadioTrainerPage() :
-    PageTab(STR_MENUTRAINER, ICON_RADIO_TRAINER)
+RadioTrainerPage::RadioTrainerPage(const PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7),  LV_GRID_FR(13),
                                      LV_GRID_FR(10), LV_GRID_FR(10),
                                      LV_GRID_FR(10), LV_GRID_TEMPLATE_LAST};
@@ -51,7 +54,6 @@ void RadioTrainerPage::build(Window* form)
   form->padAll(PAD_SMALL);
 
   if (SLAVE_MODE()) {
-    form->setHeight(TabsGroup::MENU_BODY_HEIGHT);
     auto txt = new StaticText(form, rect_t{}, STR_SLAVE, COLOR_THEME_PRIMARY1_INDEX, FONT(L));
     lv_obj_align(txt->getLvObj(), LV_ALIGN_CENTER, 0, 0);
   } else {
@@ -68,13 +70,13 @@ void RadioTrainerPage::build(Window* form)
 
       new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
       new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
-      auto weight = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -125, 125,
+      auto weight = new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -125, 125,
                                    GET_SET_DEFAULT(td->studWeight));
       weight->setSuffix("%");
 
-#if PORTRAIT_LCD
+#if PORTRAIT
       line = form->newLine(grid);
-      line->padLeft(30);
+      line->padLeft(PAD_LARGE * 3 + PAD_MEDIUM);
       line->padBottom(PAD_LARGE);
 #endif
 
@@ -90,40 +92,42 @@ void RadioTrainerPage::build(Window* form)
     }
 
     auto line = form->newLine(grid);
-#if PORTRAIT_LCD
-    line->padTop(10);
+#if PORTRAIT
+    line->padTop(PAD_LARGE);
 #else
     line->padTop(PAD_MEDIUM);
 #endif
 
     // Trainer multiplier
-    auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
-    lbl->padRight(PAD_SMALL);
-    lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+    if (g_model.trainerData.mode == TRAINER_MODE_MASTER_TRAINER_JACK) {
+      auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
+      lbl->padRight(PAD_SMALL);
+      lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2,
+                           LV_GRID_ALIGN_CENTER, 0, 1);
 
-    auto multiplier =
-        new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -10, 40,
-                       GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
-    multiplier->setDisplayHandler(
-        [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
-    lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+      auto multiplier =
+              new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -10, 40,
+                             GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
+      multiplier->setDisplayHandler(
+              [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
+      lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1,
+                           LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if PORTRAIT_LCD
-    line = form->newLine(grid);
-    line->padTop(10);
+#if PORTRAIT
+      line = form->newLine(grid);
+      line->padTop(PAD_LARGE);
 #endif
+    }
 
     // Trainer calibration
-    auto btn = new TextButton(line, rect_t{}, std::string(STR_CALIBRATION),
+    auto btn = new TextButton(line, rect_t{}, STR_MENUCALIBRATION,
                               [=]() -> uint8_t {
                                 memcpy(g_eeGeneral.trainer.calib, trainerInput,
                                        sizeof(g_eeGeneral.trainer.calib));
                                 SET_DIRTY();
                                 return 0;
                               });
-#if PORTRAIT_LCD
+#if PORTRAIT
     lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 #else

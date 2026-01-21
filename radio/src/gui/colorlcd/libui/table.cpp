@@ -18,14 +18,16 @@
 
 #include "table.h"
 
+#include "debug.h"
 #include "etx_lv_theme.h"
+#include "keys.h"
 
 // Table
 const lv_style_const_prop_t table_cell_props[] = {
     LV_STYLE_CONST_BORDER_WIDTH(1),
     LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
-    LV_STYLE_CONST_PAD_TOP(7),  LV_STYLE_CONST_PAD_BOTTOM(7),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_TABLE_V),  LV_STYLE_CONST_PAD_BOTTOM(PAD_TABLE_V),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TABLE_H), LV_STYLE_CONST_PAD_RIGHT(PAD_TABLE_H),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
@@ -33,6 +35,7 @@ LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
 static void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
+  etx_font(obj, FONT_STD_INDEX);
 
   etx_scrollbar(obj);
 
@@ -40,6 +43,7 @@ static void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
   etx_obj_add_style(obj, table_cell, LV_PART_ITEMS);
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY2_INDEX], LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
 
   etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
   etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
@@ -85,13 +89,7 @@ void TableField::table_event(const lv_obj_class_t* class_p, lv_event_t* e)
               // Otherwise it's a click
               if (lv_group_get_editing((lv_group_t*)lv_obj_get_group(obj)) ||
                   indev_type == LV_INDEV_TYPE_POINTER) {
-                if (tf->isLongPress) {
-                  tf->isLongPress = false;
-                  if (!tf->onPressLong(row, col))
-                    tf->onPress(row, col);
-                } else {
-                  tf->onPress(row, col);
-                }
+                tf->onPress(row, col);
               } else {
                 tf->onClicked();
               }
@@ -152,9 +150,6 @@ void TableField::table_event(const lv_obj_class_t* class_p, lv_event_t* e)
             lv_draw_rect(draw_ctx, &rect_dsc, &coords);
           }
         } break;
-        case LV_EVENT_LONG_PRESSED:
-          tf->isLongPress = true;
-          break;
         case LV_EVENT_RELEASED:
         {
           lv_table_t* table = (lv_table_t*)obj;
@@ -184,7 +179,6 @@ TableField::TableField(Window* parent, const rect_t& rect) :
 {
   setWindowFlag(OPAQUE);
 
-  etx_scrollbar(lvobj);
   lv_table_set_col_cnt(lvobj, 1);
 }
 
@@ -289,5 +283,62 @@ void TableField::onEvent(event_t event)
     selectNext(-1);
   } else {
     Window::onEvent(event);
+  }
+}
+
+int TableField::getSelected() const
+{
+  uint16_t row, col;
+  lv_table_get_selected_cell(lvobj, &row, &col);
+  if (row != LV_TABLE_CELL_NONE) {
+    return row;
+  }
+  return -1;
+}
+
+bool TableField::onLongPress()
+{
+  TRACE("LONG_PRESS");
+  if (longPressHandler) {
+    longPressHandler();
+    lv_indev_wait_release(lv_indev_get_act());
+    return false;
+  }
+  return true;
+}
+
+void TableField::setAutoEdit()
+{
+  if (autoedit) return;
+
+  autoedit = true;
+
+  oldGroup = lv_group_get_default();
+  group = lv_group_create();
+  lv_group_add_obj(group, lvobj);
+  assignLvGroup(group, true);
+
+  lv_group_set_editing(group, true);
+
+  setFocusHandler([=](bool focus) {
+    if (focus) {
+      lv_group_set_focus_cb(group, TableField::force_editing);
+    } else {
+      lv_group_set_focus_cb(group, nullptr);
+    }
+  });
+}
+
+void TableField::deleteLater()
+{
+  if (!deleted()) {
+    if (autoedit) {
+      lv_group_del(group);
+      if (oldGroup)
+        assignLvGroup(oldGroup, true);
+      else
+        lv_group_set_default(nullptr);
+    }
+    Window::deleteLater();
   }
 }

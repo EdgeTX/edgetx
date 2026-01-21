@@ -5,7 +5,7 @@ on:
     - cron: '0 2 * * *' # run at 2 AM UTC
   workflow_dispatch:
 
-concurrency: 
+concurrency:
   group: 'nightly'
   cancel-in-progress: true
 
@@ -17,24 +17,27 @@ jobs:
       matrix:
         target:
           - nv14;el18
-          - pl18;pl18ev
-          - t12;t12max
+          - pl18;pl18ev;pl18u
+          - pa01
+          - t12max
           - t15;t16;t18
-          - t8;zorro;pocket;mt12;commando8
-          - tlite;tpro;tprov2;tpros;lr3pro
+          - zorro;pocket;mt12;commando8
+          - tprov2;tpros;bumblebee
           - t20;t20v2;t14
-          - tx12;tx12mk2;boxer
+          - tx12mk2;boxer;gx12
           - tx16s
           - f16
           - v16
           - x10;x10express
           - x12s
-          - x7;x7access
-          - x9d;x9dp;x9dp2019
+          - x7access
+          - x9dp2019
           - x9e;x9e-hall
-          - x9lite;x9lites
-          - xlite;xlites
           - mt12
+          - nb4p
+          - st16
+          - tx15
+          - t15pro
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -49,6 +52,7 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
           EDGETX_VERSION_SUFFIX: nightly
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
@@ -59,6 +63,7 @@ jobs:
             fw.json
             LICENSE
             *.bin
+            *.uf2
           retention-days: 15
           if-no-files-found: error
 

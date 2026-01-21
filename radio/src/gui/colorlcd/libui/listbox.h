@@ -29,19 +29,15 @@
 // Class for lists of elements with names
 class ListBox : public TableField
 {
-  std::function<void()> longPressHandler = nullptr;
   std::function<void()> pressHandler = nullptr;
   std::function<void(std::set<uint32_t>, std::set<uint32_t>)>
       _multiSelectHandler = nullptr;
   std::function<const char*(uint16_t row)> getSelectedSymbol = nullptr;
-  bool autoEdit = false;
 
  public:
   ListBox(Window* parent, const rect_t& rect,
           const std::vector<std::string>& names,
           uint8_t lineHeight = MENUS_LINE_HEIGHT);
-
-  void setAutoEdit(bool enable);
 
   void setName(uint16_t idx, const std::string& name);
   void setNames(const std::vector<std::string>& names);
@@ -50,7 +46,6 @@ class ListBox : public TableField
   virtual void setSelected(int selected, bool force = false);
   virtual void setSelected(std::set<uint32_t> selected);
 
-  int getSelected() const;
   bool isRowSelected(uint16_t row);
   std::set<uint32_t> getSelection();
 
@@ -70,11 +65,6 @@ class ListBox : public TableField
     getSelectedSymbol = std::move(handler);
   }
 
-  void setLongPressHandler(std::function<void()> handler)
-  {
-    longPressHandler = std::move(handler);
-  }
-
   void setPressHandler(std::function<void()> handler)
   {
     pressHandler = std::move(handler);
@@ -86,7 +76,7 @@ class ListBox : public TableField
   std::string getName() const override { return "ListBox"; }
 #endif
 
-  static LAYOUT_VAL(MENUS_LINE_HEIGHT, 35, 35)
+  static LAYOUT_VAL_SCALED(MENUS_LINE_HEIGHT, 35)
 
  protected:
   static void event_cb(lv_event_t* e);
@@ -95,7 +85,6 @@ class ListBox : public TableField
   bool smallSelectMarker = false;
 
   void onPress(uint16_t row, uint16_t col) override;
-  bool onLongPress() override;
 
   void onClicked() override;
   void onCancel() override;

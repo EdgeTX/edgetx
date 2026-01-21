@@ -107,6 +107,13 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     NVIC_EnableIRQ(OTG_FS_IRQn);
   }
 #endif
+  /**
+   * Disable DP pull-up for 50ms
+   * to force re-enumeration
+   */
+  HAL_PCD_DevDisconnect(pcdHandle);
+  HAL_Delay(50);
+  HAL_PCD_DevConnect(pcdHandle);
 }
 
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
@@ -373,6 +380,11 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     hpcd_USB_OTG.Init.speed = PCD_SPEED_FULL;
     hpcd_USB_OTG.Init.dma_enable = DISABLE;
     hpcd_USB_OTG.Init.phy_itface = PCD_PHY_EMBEDDED;
+#if defined(STM32H7)
+    hpcd_USB_OTG.Init.battery_charging_enable = DISABLE;
+    hpcd_USB_OTG.Init.use_external_vbus = ENABLE;
+#endif
+
     hpcd_USB_OTG.Init.Sof_enable = ENABLE;
     hpcd_USB_OTG.Init.low_power_enable = DISABLE;
     hpcd_USB_OTG.Init.lpm_enable = DISABLE;

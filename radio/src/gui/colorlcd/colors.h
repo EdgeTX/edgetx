@@ -24,6 +24,7 @@
 #include <lvgl/lvgl.h>
 
 #include "libopenui_defines.h"
+#include "edgetx_types.h"
 
 // TODO common code, not in target
 enum LcdColorIndex {
@@ -39,15 +40,34 @@ enum LcdColorIndex {
   COLOR_THEME_ACTIVE_INDEX,
   COLOR_THEME_WARNING_INDEX,
   COLOR_THEME_DISABLED_INDEX,
+  COLOR_THEME_QM_BG_INDEX,
+  COLOR_THEME_QM_FG_INDEX,
   CUSTOM_COLOR_INDEX,
 
   // Variable count
-  LCD_COLOR_COUNT,
+  THEME_COLOR_COUNT,
 
   // Fixed Colors
-  COLOR_BLACK_INDEX = LCD_COLOR_COUNT,
+  COLOR_BLACK_INDEX = THEME_COLOR_COUNT,
   COLOR_WHITE_INDEX,
+  COLOR_LIGHTWHITE_INDEX,
+  COLOR_LIGHTGREY_INDEX,
   COLOR_GREY_INDEX,
+  COLOR_DARKGREY_INDEX,
+  COLOR_RED_INDEX,
+  COLOR_DARKRED_INDEX,
+  COLOR_LIGHTRED_INDEX,
+  COLOR_GREEN_INDEX,
+  COLOR_DARKGREEN_INDEX,
+  COLOR_BRIGHTGREEN_INDEX,
+  COLOR_BLUE_INDEX,
+  COLOR_DARKBLUE_INDEX,
+  COLOR_CYAN_INDEX,
+  COLOR_YELLOW_INDEX,
+  COLOR_LIGHTBROWN_INDEX,
+  COLOR_DARKBROWN_INDEX,
+  COLOR_ORANGE_INDEX,
+  COLOR_MAGENTA_INDEX,
 
   TOTAL_COLOR_COUNT,
 };
@@ -96,13 +116,6 @@ enum LcdColorIndex {
 extern uint16_t lcdColorTable[];
 extern const uint16_t defaultColors[];
 
-inline void lcdSetColor(uint16_t color)
-{
-  lcdColorTable[CUSTOM_COLOR_INDEX] = color;
-}
-
-LcdColorIndex indexFromColor(uint32_t lcdFlags);
-
 #define COLOR(index)                                              \
   ((uint32_t)                                                     \
        lcdColorTable[unsigned(index & 0xFF) >= TOTAL_COLOR_COUNT  \
@@ -125,6 +138,8 @@ LcdColorIndex indexFromColor(uint32_t lcdFlags);
 #define COLOR_THEME_ACTIVE COLOR(COLOR_THEME_ACTIVE_INDEX)
 #define COLOR_THEME_WARNING COLOR(COLOR_THEME_WARNING_INDEX)
 #define COLOR_THEME_DISABLED COLOR(COLOR_THEME_DISABLED_INDEX)
+#define COLOR_THEME_QM_BG COLOR(COLOR_THEME_QM_BG_INDEX)
+#define COLOR_THEME_QM_FG COLOR(COLOR_THEME_QM_FG_INDEX)
 #define CUSTOM_COLOR COLOR(CUSTOM_COLOR_INDEX)
 
 constexpr int MAX_SATURATION = 100;
@@ -132,9 +147,25 @@ constexpr int MAX_HUE = 360;
 constexpr int MAX_BRIGHTNESS = 100;
 
 extern uint32_t HSVtoRGB(float H, float S, float V);
+extern uint32_t HSVtoRGB32(float H, float S, float V);
 extern void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float& fH, float& fS,
                      float& fV);
 
 LcdFlags colorToRGB(LcdFlags colorFlags);
+uint32_t color32ToRGB(uint32_t color);
 
 lv_color_t makeLvColor(uint32_t colorFlags);
+
+constexpr uint32_t RGB888_FLAG = 0x1000000;
+
+enum COLOR_EDITOR_FMT {
+  ETX_RGB565 = 0,
+  ETX_RGB888
+};
+
+#define RGB32(r, g, b) \
+  (uint32_t)((((r) & 0xFF) << 16) + (((g) & 0xFF) << 8) + ((b) & 0xFF))
+
+#define GET_RED32(color) (((color) & 0xFF0000) >> 16)
+#define GET_GREEN32(color) (((color) & 0x00FF00) >> 8)
+#define GET_BLUE32(color) ((color) & 0x0000FF)

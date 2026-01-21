@@ -25,6 +25,7 @@
 #include "yaml_calibdata.h"
 #include "yaml_switchconfig.h"
 #include "yaml_moduledata.h"
+#include "yaml_rawsource.h"
 
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
@@ -134,6 +135,49 @@ static const YamlLookupTable hatsModeLut = {
   {  GeneralSettings::HATSMODE_TRIMS_ONLY, "TRIMS_ONLY"  },
   {  GeneralSettings::HATSMODE_KEYS_ONLY, "KEYS_ONLY"  },
   {  GeneralSettings::HATSMODE_SWITCHABLE, "SWITCHABLE"  },
+};
+
+static const YamlLookupTable QMPageLut = {
+  {  GeneralSettings::QM_NONE, "NONE" },
+  {  GeneralSettings::QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU" },
+  {  GeneralSettings::QM_MANAGE_MODELS, "MANAGE_MODELS" },
+  {  GeneralSettings::QM_MODEL_SETUP, "MODEL_SETUP" },
+  {  GeneralSettings::QM_MODEL_FLIGHTMODES, "MODEL_FLIGHTMODES" },
+  {  GeneralSettings::QM_MODEL_INPUTS, "MODEL_INPUTS" },
+  {  GeneralSettings::QM_MODEL_MIXES, "MODEL_MIXES" },
+  {  GeneralSettings::QM_MODEL_OUTPUTS, "MODEL_OUTPUTS" },
+  {  GeneralSettings::QM_MODEL_CURVES, "MODEL_CURVES" },
+  {  GeneralSettings::QM_MODEL_GVARS, "MODEL_GVARS" },
+  {  GeneralSettings::QM_MODEL_LS, "MODEL_LS" },
+  {  GeneralSettings::QM_MODEL_SF, "MODEL_SF" },
+  {  GeneralSettings::QM_MODEL_SCRIPTS, "MODEL_SCRIPTS" },
+  {  GeneralSettings::QM_MODEL_TELEMETRY, "MODEL_TELEMETRY" },
+  {  GeneralSettings::QM_MODEL_NOTES, "MODEL_NOTES" },
+  {  GeneralSettings::QM_RADIO_SETUP, "RADIO_SETUP" },
+  {  GeneralSettings::QM_RADIO_GF, "RADIO_GF" },
+  {  GeneralSettings::QM_RADIO_TRAINER, "RADIO_TRAINER" },
+  {  GeneralSettings::QM_RADIO_HARDWARE, "RADIO_HARDWARE" },
+  {  GeneralSettings::QM_RADIO_VERSION, "RADIO_VERSION" },
+  {  GeneralSettings::QM_UI_THEMES, "UI_THEMES" },
+  {  GeneralSettings::QM_UI_SETUP, "UI_SETUP" },
+  {  GeneralSettings::QM_UI_SCREEN1, "UI_SCREEN1" },
+  {  GeneralSettings::QM_UI_SCREEN2, "UI_SCREEN2" },
+  {  GeneralSettings::QM_UI_SCREEN3, "UI_SCREEN3" },
+  {  GeneralSettings::QM_UI_SCREEN4, "UI_SCREEN4" },
+  {  GeneralSettings::QM_UI_SCREEN5, "UI_SCREEN5" },
+  {  GeneralSettings::QM_UI_SCREEN6, "UI_SCREEN6" },
+  {  GeneralSettings::QM_UI_SCREEN7, "UI_SCREEN7" },
+  {  GeneralSettings::QM_UI_SCREEN8, "UI_SCREEN8" },
+  {  GeneralSettings::QM_UI_SCREEN9, "UI_SCREEN9" },
+  {  GeneralSettings::QM_UI_SCREEN10, "UI_SCREEN10" },
+  {  GeneralSettings::QM_UI_ADD_PG, "UI_ADD_PG" },
+  {  GeneralSettings::QM_TOOLS_APPS, "TOOLS_APPS" },
+  {  GeneralSettings::QM_TOOLS_STORAGE, "TOOLS_STORAGE" },
+  {  GeneralSettings::QM_TOOLS_RESET, "TOOLS_RESET" },
+  {  GeneralSettings::QM_TOOLS_CHAN_MON, "TOOLS_CHAN_MON" },
+  {  GeneralSettings::QM_TOOLS_LS_MON, "TOOLS_LS_MON" },
+  {  GeneralSettings::QM_TOOLS_STATS, "TOOLS_STATS" },
+  {  GeneralSettings::QM_TOOLS_DEBUG, "TOOLS_DEBUG" },
 };
 
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
@@ -248,6 +292,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["imperial"] = rhs.imperial;
   node["ppmunit"] = rhs.ppmunit;
   node["ttsLanguage"] = rhs.ttsLanguage;
+  node["uiLanguage"] = rhs.uiLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
   node["wavVolume"] = rhs.wavVolume + 2;
   node["varioVolume"] = rhs.varioVolume + 2;
@@ -256,8 +301,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
   node["dontPlayHello"] = (int)rhs.dontPlayHello;
+  node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
   if (hasColorLcd) {
-    node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
     node["modelSelectLayout"] = rhs.modelSelectLayout;
     node["labelSingleSelect"] = rhs.labelSingleSelect;
     node["labelMultiMode"] = rhs.labelMultiMode;
@@ -327,6 +372,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   if (hasColorLcd)
     node["selectedTheme"] = rhs.selectedTheme;
 
+  node["backlightSrc"] = rhs.backlightSrc;
+  node["volumeSrc"] = rhs.volumeSrc;
+
   // Radio level tabs control (global settings)
   if (hasColorLcd)
     node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
@@ -342,6 +390,15 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["modelSFDisabled"] = (int)rhs.modelSFDisabled;
   node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
+
+  if (hasColorLcd) {
+    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
+      if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE)
+        node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
+    for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
+      if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE)
+        node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
+  }
 
   return node;
 }
@@ -370,20 +427,28 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   qDebug() << "Settings version:" << radioSettingsVersion.toString();
 
   if (radioSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.");
-    prmpt = prmpt.arg(radioSettingsVersion.toString());
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
-    msgBox.setText(prmpt);
-    msgBox.setIcon(QMessageBox::Warning);
-    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
-    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
-    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
-    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
-    msgBox.setDefaultButton(pbDecline);
-    msgBox.exec();
-    if (msgBox.clickedButton() == pbDecline)
-      return false;
+    //  TODO remove this temporary 2.12 fix check for 3.0 release
+    if (radioSettingsVersion == SemanticVersion("3.0.0") &&
+        SemanticVersion(VERSION) >= SemanticVersion("2.12.0") &&
+        SemanticVersion(VERSION) < SemanticVersion("3.0.0")) {
+      qDebug() << "Version exception override: radio settings" << radioSettingsVersion.toString()
+               << "Companion" << SemanticVersion(VERSION).toString();
+    } else {
+      QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by Companion %2!\n\nModel and radio settings may be corrupted if you continue.");
+      prmpt = prmpt.arg(radioSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
+      QMessageBox msgBox;
+      msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
+      msgBox.setText(prmpt);
+      msgBox.setIcon(QMessageBox::Warning);
+      QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+      QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+      msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+      msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+      msgBox.setDefaultButton(pbDecline);
+      msgBox.exec();
+      if (msgBox.clickedButton() == pbDecline)
+        return false;
+    }
   }
 
   rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
@@ -509,6 +574,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["imperial"] >> rhs.imperial;
   node["ppmunit"] >> rhs.ppmunit;
   node["ttsLanguage"] >> rhs.ttsLanguage;
+  node["uiLanguage"] >> rhs.uiLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
   node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);
   node["varioVolume"] >> ioffset_int(rhs.varioVolume, 2);
@@ -602,7 +668,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // however when parsing saved settings set all switches to None and override with parsed values
   // thus any switches not parsed will be None rather than the default
   for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-    rhs.switchConfig[i].type = Board::SWITCH_NOT_AVAILABLE;
+    if (Boards::getCFSIndexForSwitch(i) < 0)
+      rhs.switchConfig[i].type = Board::SWITCH_NOT_AVAILABLE;
   }
 
   if (node["switchConfig"]) {
@@ -633,6 +700,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["selectedTheme"] >> rhs.selectedTheme;
 
+  node["backlightSrc"] >> rhs.backlightSrc;
+  node["volumeSrc"] >> rhs.volumeSrc;
+
   // Radio level tabs control (global settings)
   node["radioThemesDisabled"] >> rhs.radioThemesDisabled;
   node["radioGFDisabled"] >> rhs.radioGFDisabled;
@@ -651,6 +721,16 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["labelSingleSelect"] >> rhs.labelSingleSelect;
   node["labelMultiMode"] >> rhs.labelMultiMode;
   node["favMultiMode"] >> rhs.favMultiMode;
+
+  if (node["keyShortcuts"]) {
+    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
+      node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
+  }
+  if (node["qmFavorites"]) {
+    for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
+      if (node["qmFavorites"][std::to_string(i)])
+        node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
+  }
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions

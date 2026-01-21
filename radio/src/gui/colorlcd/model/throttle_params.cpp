@@ -20,23 +20,26 @@
  */
 
 #include "throttle_params.h"
+
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 static SetupLineDef setupLines[] = {
   {
     // Throttle reversed
-    STR_THROTTLEREVERSE,
+    STR_DEF(STR_THROTTLEREVERSE),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.throttleReversed));
     }
   },
   {
     // Throttle source
-    STR_TTRACE,
+    STR_DEF(STR_TTRACE),
     [](Window* parent, coord_t x, coord_t y) {
       auto sc = new SourceChoice(parent, {x, y, 0, 0}, 0, MIXSRC_LAST_CH,
                                 []() {return throttleSource2Source(g_model.thrTraceSrc); },
@@ -52,14 +55,14 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Throttle trim
-    STR_TTRIM,
+    STR_DEF(STR_TTRIM),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.thrTrim));
     }
   },
   {
     // Throttle trim source
-    STR_TTRIM_SW,
+    STR_DEF(STR_TTRIM_SW),
     [](Window* parent, coord_t x, coord_t y) {
       new SourceChoice(
           parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
@@ -72,6 +75,6 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-ThrottleParams::ThrottleParams() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_THROTTLE_LABEL, setupLines, DIM(setupLines))
+ThrottleParams::ThrottleParams() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_THROTTLE_LABEL, setupLines, DIM(setupLines))
 {
 }

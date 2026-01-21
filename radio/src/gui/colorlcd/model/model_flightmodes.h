@@ -21,19 +21,17 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ModelFlightModesPage : public PageTab
+class TextButton;
+
+class ModelFlightModesPage : public PageGroupItem
 {
  public:
-  ModelFlightModesPage();
-
-  bool isVisible() const override { return modelFMEnabled(); }
+  ModelFlightModesPage(const PageDef& pageDef);
 
   void build(Window* window) override;
-
-  static LAYOUT_VAL(TRIM_CHK_H, 40, 40)
 
  protected:
   TextButton* trimCheck = nullptr;

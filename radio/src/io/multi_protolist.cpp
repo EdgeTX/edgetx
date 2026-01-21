@@ -23,36 +23,25 @@
 #include "multi_rfprotos.h"
 #include "strhelpers.h"
 #include "audio.h"
-#include "translations.h"
 #include "pulses/modules_helpers.h"
 #include "pulses/pulses.h"
 #include "gui_common.h"
 
 #include "edgetx.h" // reusableBuffer
+#include "os/time.h"
 
 #include <algorithm>
 
-#if !defined(SIMU)
+static timer_handle_t _protoScanTimers[NUM_MODULES] = {TIMER_INITIALIZER};
 
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
-
-struct ProtoScanTimer {
-  TimerHandle_t timer = nullptr;
-  StaticTimer_t timerBuffer;
-};
-
-static ProtoScanTimer _protoScanTimers[NUM_MODULES];
-
-void MultiRfProtocols::timerCb(TimerHandle_t xTimer)
+void MultiRfProtocols::timerCb(timer_handle_t* h)
 {
-  uint8_t moduleIdx = (uint8_t)(uintptr_t)pvTimerGetTimerID(xTimer);
+  uint8_t moduleIdx = (uint8_t)(h - _protoScanTimers);
   auto instance = MultiRfProtocols::instance(moduleIdx);
   if (instance->scanState == ScanBegin || instance->scanState == Scanning) {
     instance->fillBuiltinProtos();
   }
 }
-#endif
 
 MultiRfProtocols* MultiRfProtocols::_instance[MAX_MODULES] = {};
 
@@ -201,7 +190,7 @@ float MultiRfProtocols::getProgress() const
   
   if (scanState == ScanStop)  return 0.0;
   if (scanState == ScanBegin) {
-    float t = (float)(RTOS_GET_MS() - scanStart) / (float)MULTI_PROTOLIST_START_TIMEOUT;
+    float t = (float)(time_get_ms() - scanStart) / (float)MULTI_PROTOLIST_START_TIMEOUT;
     return t * WAIT_TIME_RATIO;
   }
 
@@ -225,29 +214,17 @@ bool MultiRfProtocols::triggerScan()
     scanState = ScanBegin;
     currentProto = MULTI_INVALID_PROTO;
     moduleState[moduleIdx].mode = MODULE_MODE_GET_HARDWARE_INFO;
-    scanStart = lastScan = RTOS_GET_MS();
+    scanStart = lastScan = time_get_ms();
 
-#if !defined(SIMU)
     auto scanTimer = &_protoScanTimers[moduleIdx];
-    if (!scanTimer->timer) {
-      scanTimer->timer = xTimerCreateStatic(
-          "MPM", MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK, pdTRUE,
-          (void*)moduleIdx, MultiRfProtocols::timerCb, &scanTimer->timerBuffer);
+    if (!timer_is_created(scanTimer)) {
+      timer_create(scanTimer, MultiRfProtocols::timerCb, "mpm",
+                   MULTI_PROTOLIST_START_TIMEOUT, false);
+      timer_start(scanTimer);
     } else {
-      if (xTimerChangePeriod(scanTimer->timer,
-          MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK,
-          0) != pdPASS) {
-          /* The timer period could not be reset. */
-      }
+      timer_set_period(scanTimer, MULTI_PROTOLIST_START_TIMEOUT);
     }
 
-    if (scanTimer->timer) {
-      if( xTimerStart( scanTimer->timer, 0 ) != pdPASS ) {
-        /* The timer could not be set into the Active state. */
-      }
-    }
-#endif
-    
     return true;
   }
 
@@ -291,32 +268,18 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
           }
 
           currentProto++;
-          lastScan = RTOS_GET_MS();
+          lastScan = time_get_ms();
 
-#if !defined(SIMU)
           auto scanTimer = &_protoScanTimers[moduleIdx];
-          if (scanTimer->timer) {
-            if (xTimerChangePeriod(scanTimer->timer,
-                                   MULTI_PROTOLIST_TIMEOUT / RTOS_MS_PER_TICK,
-                                   0) != pdPASS) {
-              /* The timer period could not be reset. */
-            }
-          }
-#endif
+          timer_set_period(scanTimer, MULTI_PROTOLIST_TIMEOUT);
+
           return true;
 
         } else {
           scanState = ScanEnd;
           setModuleMode(moduleIdx, MODULE_MODE_NORMAL);
-
-#if !defined(SIMU)
           auto scanTimer = &_protoScanTimers[moduleIdx];
-          if (scanTimer->timer) {
-            if (xTimerStop(scanTimer->timer, 0) != pdPASS) {
-              /* The timer period could not be stopped. */
-            }
-          }
-#endif
+          timer_stop(scanTimer);
           break;
         }
       } else {
@@ -328,7 +291,7 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
           timeout = MULTI_PROTOLIST_START_TIMEOUT;
         }
 
-        if (RTOS_GET_MS() - lastScan >= timeout) {
+        if (time_get_ms() - lastScan >= timeout) {
           TRACE("proto scan timeout!");
           scanState = ScanInvalid;
         }

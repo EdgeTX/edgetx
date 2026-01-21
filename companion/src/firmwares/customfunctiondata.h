@@ -141,6 +141,7 @@ class CustomFunctionData {
     static QString gvarAdjustModeToString(const int value);
     static AbstractStaticItemModel * repeatItemModel();
     static AbstractStaticItemModel * repeatLuaItemModel();
+    static AbstractStaticItemModel * repeatSetScreenItemModel();
     static AbstractStaticItemModel * playSoundItemModel();
     static AbstractStaticItemModel * harpicItemModel();
     static AbstractStaticItemModel * gvarAdjustModeItemModel();

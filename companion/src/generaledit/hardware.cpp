@@ -30,6 +30,7 @@
 #include "autobitmappedcombobox.h"
 #include "autobitmappedcheckbox.h"
 #include "namevalidator.h"
+#include "exclusivecombogroup.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -46,60 +47,8 @@ constexpr char FIM_FLEXSWITCHES[]      {"Flex Switches"};
 constexpr char FIM_FLEXTYPE_SWITCH[]   {"Flex Type Switch"};
 constexpr char FIM_FLEXTYPE_NOSWITCH[] {"Flex Type No Switch"};
 
-class ExclusiveComboGroup: public QObject
-{
-  public:
-    ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
-      QObject(parent), filter(std::move(filter))
-    {
-    }
-
-    typedef QList<QComboBox*> ComboBoxes;
-
-    ComboBoxes* getComboBoxes()
-    {
-     return &combos;
-    }
-
-    void addCombo(QComboBox *comboBox)
-    {
-      connect(comboBox, QOverload<int>::of(&QComboBox::activated),
-              [=](int index) { this->handleActivated(comboBox, index); });
-      combos.append(comboBox);
-    }
-
-    void handleActivated(QComboBox* target, int index) {
-      auto data = target->itemData(index);
-      auto targetidx = combos.indexOf(target);
-      for (auto combo : combos) {
-        if (target == combo) continue;
-        auto view = dynamic_cast<QListView*>(combo->view());
-        Q_ASSERT(view);
-
-        auto previous = combo->findData(targetidx, _role);
-        if (previous >= 0) {
-          view->setRowHidden(previous, false);
-          combo->setItemData(previous, QVariant(), _role);
-        }
-        if (!filter(data)) {
-          auto idx = combo->findData(data);
-          if (idx >= 0) {
-            view->setRowHidden(idx, true);
-            combo->setItemData(idx, targetidx, _role);
-          }
-        }
-      }
-    }
-
-  private:
-    static constexpr auto _role = Qt::UserRole + 500;
-
-    ComboBoxes combos;
-    std::function<bool(const QVariant&)> filter;
-
-};
-
-HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
+HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings,
+                             Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
   GeneralPanel(parent, generalSettings, firmware),
   board(firmware->getBoard()),
   editorItemModels(sharedItemModels),
@@ -140,12 +89,16 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   count = Boards::getCapability(board, Board::Sticks);
   if (count > 0) {
+    addLabel("");
+    addLabel(tr("Name"));
+    addLabel(tr("Invert"));
+    addParams();
     for (int i = 0; i < count; i++) {
       addStick(i);
     }
   }
 
-  if (IS_FLYSKY_NV14(board)) {
+  if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) {
     addLabel(tr("Dead zone"));
     AutoComboBox *spnStickDeadZone = new AutoComboBox(this);
     spnStickDeadZone->setModel(GeneralSettings::stickDeadZoneItemModel());
@@ -158,22 +111,46 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   if (count > 0) {
     addSection(tr("Pots"));
+    addLabel("");
+    addLabel(tr("Name"));
+    addLabel(tr("Type"));
+    addLabel(tr("Invert"));
+    addParams();
     for (int i = Boards::getCapability(board, Board::Sticks); i < count; i++) {
       if (Boards::isInputConfigurable(i, board))
         addFlex(i);
     }
   }
 
-  count = Boards::getCapability(board, Board::Switches);
+  if (Boards::getCapability(board, Board::Switches)) {
+    addSection(tr("Switches"));
 
-  if (count) {
+    addLabel("");
+    addLabel(tr("Name"));
+    addLabel(tr("Type"));
+    addParams();
+
+    for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
+      if (Boards::isSwitchConfigurable(i, board) && !generalSettings.isSwitchFunc(i) && !generalSettings.isSwitchFlex(i))
+        addSwitch(i);
+    }
+  }
+
+  if (Boards::getCapability(board, Board::FlexSwitches)) {
     // All values except -1 (None) are mutually exclusive
     exclFlexSwitchesGroup = new ExclusiveComboGroup(
         this, [=](const QVariant &value) { return value == -1; });
 
-    addSection(tr("Switches"));
-    for (int i = 0; i < count && i < CPN_MAX_SWITCHES; i++) {
-      if (Boards::isSwitchConfigurable(i, board))
+    addSection(tr("Flex Switches"));
+
+    addLabel("");
+    addLabel(tr("Name"));
+    addLabel(tr("Source"));
+    addLabel(tr("Type"));
+    addParams();
+
+    for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
+      if (Boards::isSwitchConfigurable(i, board) && generalSettings.isSwitchFlex(i))
         addSwitch(i);
     }
 
@@ -181,6 +158,27 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     if (exclFlexSwitchesGroup->getComboBoxes()->count() > 1) {
       QComboBox *cb = exclFlexSwitchesGroup->getComboBoxes()->at(0);
       exclFlexSwitchesGroup->handleActivated(cb, cb->currentIndex());
+    }
+  }
+
+  if (Boards::getCapability(board, Board::FunctionSwitches)) {
+    addSection(tr("Customisable Switches"));
+
+    addLabel("");
+    addLabel(tr("Name"));
+    addLabel(tr("Type"));
+    addLabel(tr("Start"));
+    if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+      addLabel(tr("Off color"));
+      addLabel(tr("Lua override"));
+      addLabel(tr("On color"));
+      addLabel(tr("Lua override"));
+    }
+    addParams();
+
+    for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
+      if (Boards::isSwitchConfigurable(i, board) && generalSettings.isSwitchFunc(i))
+        addSwitch(i);
     }
   }
 
@@ -367,6 +365,10 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
+  connect(this, &HardwarePanel::inputFlexTypeChanged, [=](AutoComboBox *cb, int index)
+    { setFlexTypeModel(cb, index); }
+  );
+  connect(this, &HardwarePanel::refreshItemModels, [=]() { updateItemModels(); });
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
@@ -430,6 +432,11 @@ void HardwarePanel::addStick(int index)
   name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
+
+  AutoCheckBox *inverted = new AutoCheckBox(this);
+  inverted->setField(config.inverted, this);
+  params->append(inverted);
+
   addParams();
 }
 
@@ -443,11 +450,11 @@ void HardwarePanel::addFlex(int index)
   name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
+  connect(name, &AutoLineEdit::editingFinished, [=] () { emit refreshItemModels(); });
 
   AutoComboBox *type = new AutoComboBox(this);
   setFlexTypeModel(type, index);
-  int & flexType = (int &)config.flexType;
-  type->setField(flexType, this);
+  type->setField(config.flexType, this);
 
   connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
           AbstractItemModel *mdl = editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches);
@@ -463,10 +470,9 @@ void HardwarePanel::addFlex(int index)
           } else {
             invertToggles[index - Boards::getCapability(board, Board::Sticks)]->show();
           }
-          emit InputFlexTypeChanged();
+          emit inputFlexTypeChanged(type, index);
+          emit refreshItemModels();
   });
-
-  connect(this, &HardwarePanel::InputFlexTypeChanged, [=]() { setFlexTypeModel(type, index); });
 
   params->append(type);
 
@@ -498,12 +504,15 @@ void HardwarePanel::addSwitch(int index)
   GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
   Board::SwitchInfo info = Boards::getSwitchInfo(index);
 
-  addLabel(Boards::getSwitchName(index));
+  QLabel *label = new QLabel(this);
+  label->setText(Boards::getSwitchName(index));
+  params->append(label);
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
+  connect(name, &AutoLineEdit::editingFinished, [=] () { emit refreshItemModels(); });
 
   AutoComboBox *input = nullptr;
 
@@ -531,9 +540,14 @@ void HardwarePanel::addSwitch(int index)
   else
     type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
 
-  int & swtype = (int &)config.type;
-  type->setField(swtype, this);
+  type->setField(config.type, this);
   params->append(type);
+
+  if (!generalSettings.isSwitchFunc(index)) {
+    connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+            emit refreshItemModels();
+    });
+  }
 
   if (generalSettings.isSwitchFlex(index)) {
     connect(input, &AutoComboBox::currentDataChanged, [=] (int val) {
@@ -544,7 +558,80 @@ void HardwarePanel::addSwitch(int index)
             }
             else
               type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+
+            emit refreshItemModels();
     });
+  }
+
+  if (generalSettings.isSwitchFunc(index)) {
+    AutoComboBox *start = new AutoComboBox(this);
+    start->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    AbstractStaticItemModel *fsStart = ModelData::funcSwitchStartItemModel();
+    start->setModel(fsStart);
+    int & swstart = (int &)config.start;
+    start->setField(swstart, this);
+    start->setEnabled(config.type == Board::SWITCH_2POS);
+    params->append(start);
+
+    connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+            start->setEnabled(val == Board::SWITCH_2POS);
+            emit refreshItemModels();
+    });
+
+    if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+      const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");
+      QPushButton * btnOffColor = new QPushButton();
+      QColor off = generalSettings.switchConfig[index].offColor.getQColor();
+      btnOffColor->setStyleSheet(QString(qss).arg(off.name()));
+      connect(btnOffColor, &QPushButton::clicked, [=]() {
+        QColorDialog *dlg = new QColorDialog();
+        QColor color = dlg->getColor(generalSettings.switchConfig[index].offColor.getQColor());
+        if (color.isValid()) {
+          generalSettings.switchConfig[index].offColor.setColor(color.red(), color.green(), color.blue());
+          btnOffColor->setStyleSheet(QString(qss).arg(color.name()));
+          emit modified();
+        }
+      });
+      params->append(btnOffColor);
+      connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+              btnOffColor->setEnabled(val != Board::SWITCH_NOT_AVAILABLE); });
+
+      QCheckBox * cbOffLuaOverride = new QCheckBox(this);
+      cbOffLuaOverride->setChecked(generalSettings.switchConfig[index].offColorLuaOverride);
+      connect(cbOffLuaOverride, &QCheckBox::toggled, [=](int value) {
+        generalSettings.switchConfig[index].offColorLuaOverride = value;
+        emit modified();
+      });
+      params->append(cbOffLuaOverride);
+      connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+              cbOffLuaOverride->setEnabled(val != Board::SWITCH_NOT_AVAILABLE); });
+
+      QPushButton * btnOnColor = new QPushButton(tr(""));
+      QColor on = generalSettings.switchConfig[index].onColor.getQColor();
+      btnOnColor->setStyleSheet(QString(qss).arg(on.name()));
+      connect(btnOnColor, &QPushButton::clicked, [=]() {
+        QColorDialog *dlg = new QColorDialog();
+        QColor color = dlg->getColor(generalSettings.switchConfig[index].onColor.getQColor());
+        if (color.isValid()) {
+          generalSettings.switchConfig[index].onColor.setColor(color.red(), color.green(), color.blue());
+          btnOnColor->setStyleSheet(QString(qss).arg(color.name()));
+          emit modified();
+        }
+      });
+      params->append(btnOnColor);
+      connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+              btnOnColor->setEnabled(val != Board::SWITCH_NOT_AVAILABLE); });
+
+      QCheckBox * cbOnLuaOverride = new QCheckBox(this);
+      cbOnLuaOverride->setChecked(generalSettings.switchConfig[index].onColorLuaOverride);
+      connect(cbOnLuaOverride, &QCheckBox::toggled, [=](int value) {
+        generalSettings.switchConfig[index].onColorLuaOverride = value;
+        emit modified();
+      });
+      params->append(cbOnLuaOverride);
+      connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+              cbOnLuaOverride->setEnabled(val != Board::SWITCH_NOT_AVAILABLE); });
+    }
   }
 
   addParams();
@@ -554,7 +641,7 @@ void HardwarePanel::addLabel(QString text)
 {
   QLabel *label = new QLabel(this);
   label->setText(text);
-  grid->addWidget(label, row, 0);
+  params->append(label);
 }
 
 void HardwarePanel::addLine()
@@ -569,22 +656,18 @@ void HardwarePanel::addLine()
 
 void HardwarePanel::addParams()
 {
-  int col = 0;
-  QGridLayout *subgrid = new QGridLayout();
-
   for (int i = 0; i < params->size(); i++) {
-    subgrid->addWidget(params->at(i), 0, col++);
+    grid->addWidget(params->at(i), row, i);
   }
 
-  addHSpring(subgrid, col, 0);
-  grid->addLayout(subgrid, row++, 1);
+  row += 1;
   params->clear();
 }
 
 void HardwarePanel::addSection(QString text)
 {
   addLabel(QString("<b>%1</b>").arg(text));
-  row++;
+  addParams();
 }
 
 void HardwarePanel::updateSerialPortUSBVCP()
@@ -607,4 +690,9 @@ void HardwarePanel::updateSerialPortUSBVCP()
     else
       view->setRowHidden(i, false);
   }
+}
+
+void HardwarePanel::updateItemModels()
+{
+  editorItemModels->update(AbstractItemModel::IMUE_Hardware);
 }

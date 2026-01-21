@@ -38,7 +38,7 @@ static const lv_obj_class_t input_mix_line_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = LV_PCT(100),
+    .width_def = ListLineButton::GRP_W,
     .height_def = ListLineButton::BTN_H,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
@@ -67,20 +67,6 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   setWidth(BTN_W);
   setHeight(ListLineButton::BTN_H);
   padAll(PAD_ZERO);
-
-  weight = lv_label_create(lvobj);
-  lv_obj_set_pos(weight, WGT_X, WGT_Y);
-  lv_obj_set_size(weight, WGT_W, WGT_H);
-  etx_font(weight, FONT_XS_INDEX, LV_STATE_USER_1);
-
-  source = lv_label_create(lvobj);
-  lv_obj_set_pos(source, SRC_X, SRC_Y);
-  lv_obj_set_size(source, SRC_W, SRC_H);
-
-  opts = lv_label_create(lvobj);
-  lv_obj_set_pos(opts, OPT_X, OPT_Y);
-  lv_obj_set_size(opts, OPT_W, OPT_H);
-  etx_font(opts, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
 InputMixButtonBase::~InputMixButtonBase()
@@ -90,8 +76,15 @@ InputMixButtonBase::~InputMixButtonBase()
 
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 {
+  if (!weight) {
+    weight = etx_label_create(lvobj);
+    lv_obj_set_pos(weight, WGT_X, WGT_Y);
+    lv_obj_set_size(weight, WGT_W, WGT_H);
+    etx_font(weight, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
   char s[32];
-  getValueOrSrcVarString(s, sizeof(s), value, min, max, 0, "%");
+  getValueOrSrcVarString(s, sizeof(s), value, 0, "%");
   if (getTextWidth(s, 0, FONT(STD)) > WGT_W)
     lv_obj_add_state(weight, LV_STATE_USER_1);
   else
@@ -102,12 +95,31 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 
 void InputMixButtonBase::setSource(mixsrc_t idx)
 {
+  if (!source) {
+    source = etx_label_create(lvobj);
+    lv_obj_set_pos(source, SRC_X, SRC_Y);
+    lv_obj_set_size(source, SRC_W, SRC_H);
+    etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
   char* s = getSourceString(idx);
+  if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
+    lv_obj_add_state(source, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(source, LV_STATE_USER_1);
+
   lv_label_set_text(source, s);
 }
 
 void InputMixButtonBase::setOpts(const char* s)
 {
+  if (!opts) {
+    opts = etx_label_create(lvobj);
+    lv_obj_set_pos(opts, OPT_X, OPT_Y);
+    lv_obj_set_size(opts, OPT_W, OPT_H);
+    etx_font(opts, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
   if (getTextWidth(s, 0, FONT(STD)) > OPT_W)
     lv_obj_add_state(opts, LV_STATE_USER_1);
   else
@@ -128,9 +140,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     free(fm_buffer);
     fm_canvas = nullptr;
     fm_buffer = nullptr;
-#if PORTRAIT_LCD
-    setHeight(ListLineButton::BTN_H);
-#endif
+    updateHeight();
     return;
   }
 
@@ -140,13 +150,11 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
                          FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
     lv_obj_set_pos(fm_canvas, FM_X, FM_Y);
-#if PORTRAIT_LCD
-    setHeight(ListLineButton::BTN_H + FM_CANVAS_HEIGHT + 2);
-#endif
 
-    lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1),
-                                 0);
-    lv_obj_set_style_img_recolor_opa(fm_canvas, LV_OPA_COVER, 0);
+    lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
+    lv_obj_set_style_img_recolor_opa(fm_canvas, LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_PRIMARY1), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_img_recolor_opa(fm_canvas, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_CHECKED);
   }
 
   lv_canvas_fill_bg(fm_canvas, lv_color_black(), LV_OPA_TRANSP);
@@ -175,12 +183,40 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     if (fm_modes & (1 << i)) {
       label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
     } else {
-      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, 3, &rect_dsc);
+      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, PAD_THREE, &rect_dsc);
       label_dsc.color = lv_color_white();
     }
     lv_canvas_draw_text(fm_canvas, x, 0, FM_W, &label_dsc, s);
     x += FM_W;
   }
+
+  updateHeight();
+}
+
+void InputMixButtonBase::checkEvents()
+{
+  ListLineButton::checkEvents();
+  if (!_deleted) {
+    if (fm_canvas) {
+      bool chkd = lv_obj_get_state(fm_canvas) & LV_STATE_CHECKED;
+      if (chkd != this->checked()) {
+        if (chkd)
+          lv_obj_clear_state(fm_canvas, LV_STATE_CHECKED);
+        else
+          lv_obj_add_state(fm_canvas, LV_STATE_CHECKED);
+      }
+    }
+  }
+}
+
+void InputMixButtonBase::updateHeight()
+{
+#if NARROW_LAYOUT
+  coord_t h = ListLineButton::BTN_H;
+  if (fm_canvas)
+    h += FM_CANVAS_HEIGHT + PAD_TINY;
+  setHeight(h);
+#endif
 }
 
 static void group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -209,26 +245,24 @@ static lv_obj_t* group_create(lv_obj_t* parent)
 InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
     Window(parent, rect_t{}, group_create), idx(idx)
 {
-  setWindowFlag(NO_FOCUS);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-  padAll(PAD_ZERO);
-
-  label = lv_label_create(lvobj);
-  etx_font(label, FONT_STD_INDEX);
+  label = etx_label_create(lvobj);
+  etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
 void InputMixGroupBase::adjustHeight()
 {
-  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + 8);
+  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + PAD_SMALL * 2);
 
-  coord_t y = 2;
+  coord_t y = PAD_OUTLINE;
   for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
     auto line = *it;
+    line->updateHeight();
     line->updatePos(InputMixButtonBase::LN_X, y);
-    y += line->height() + 2;
+    y += line->height() + PAD_OUTLINE;
   }
-  setHeight(y + 4);
+  setHeight(y + PAD_BORDER * 2);
 }
 
 void InputMixGroupBase::addLine(InputMixButtonBase* line)
@@ -263,7 +297,12 @@ bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
 
 void InputMixGroupBase::refresh()
 {
-  lv_label_set_text(label, getSourceString(idx));
+  char* s = getSourceString(idx);
+  if (getTextWidth(s, 0, FONT(STD)) > InputMixButtonBase::LN_X - PAD_TINY)
+    lv_obj_add_state(label, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(label, LV_STATE_USER_1);
+  lv_label_set_text(label, s);
 }
 
 InputMixGroupBase* InputMixPageBase::getGroupBySrc(mixsrc_t src)

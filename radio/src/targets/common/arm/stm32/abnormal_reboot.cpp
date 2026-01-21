@@ -83,3 +83,13 @@ uint32_t abnormalRebootGetCause()
   _init_reboot_cause();
   return _reboot_cause;
 }
+
+uint32_t abnormalRebootGetCmd()
+{
+  return _reboot_cmd;
+}
+
+void abnormalRebootResetCmd()
+{
+  _reboot_cmd = 0;
+}

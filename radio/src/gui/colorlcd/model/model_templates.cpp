@@ -23,6 +23,7 @@
 
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
+#include "lib_file.h"
 
 #define ETX_STATE_NO_INFO_COLOR LV_STATE_USER_1
 
@@ -48,7 +49,8 @@ TemplatePage::TemplatePage() : Page(ICON_MODEL_SELECT, PAD_ZERO)
   lv_obj_set_grid_cell(listWindow->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_START, 0, 1);
 
-  infoLabel = lv_label_create(line->getLvObj());
+  infoLabel = etx_label_create(line->getLvObj());
+  lv_label_set_text(infoLabel, "");
   lv_obj_set_height(infoLabel, body->height() - PAD_SMALL * 2);
   etx_obj_add_style(infoLabel, styles->text_align_left, LV_PART_MAIN);
   etx_txt_color(infoLabel, COLOR_THEME_PRIMARY1_INDEX);
@@ -78,17 +80,6 @@ void TemplatePage::updateInfo()
     lv_obj_clear_state(infoLabel, ETX_STATE_NO_INFO_COLOR);
   }
 }
-
-#if defined(HARDWARE_KEYS)
-void TemplatePage::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  } else {
-    Page::onEvent(event);
-  }
-}
-#endif
 
 class SelectTemplate : public TemplatePage
 {
@@ -135,7 +126,7 @@ class SelectTemplate : public TemplatePage
 
       for (auto name : files) {
         auto tb = new TextButton(
-            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::PAGE_LINE_HEIGHT * 2}, name,
+            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT * 2}, name,
             [=]() -> uint8_t {
               deleteLater();
               templateFolderPage->doUpdate(folder, name);
@@ -176,7 +167,7 @@ SelectTemplateFolder::SelectTemplateFolder(
   header->setTitle2(STR_NEW_MODEL);
 
   auto tfb = new TextButton(listWindow,
-                            rect_t{0, 0, lv_pct(100), EdgeTxStyles::PAGE_LINE_HEIGHT * 2},
+                            rect_t{0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT * 2},
                             STR_BLANK_MODEL, [=]() -> uint8_t {
                               doUpdate("", "");
                               return 0;
@@ -215,7 +206,7 @@ SelectTemplateFolder::SelectTemplateFolder(
       if (!strcasecmp(name.c_str(), "WIZARD") == 0) {
 #endif
         auto tfb = new TextButton(
-            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::PAGE_LINE_HEIGHT * 2}, name,
+            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT * 2}, name,
             [=]() -> uint8_t {
               new SelectTemplate(this, name);
               return 0;

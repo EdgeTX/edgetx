@@ -48,61 +48,9 @@ const char* sanitizeForFilename(const char* name, int len)
   return _static_str_buffer;
 }
 
-char hex2zchar(uint8_t hex) { return (hex >= 10 ? hex - 9 : 27 + hex); }
-
 char hex2char(uint8_t hex) { return (hex >= 10 ? hex - 10 + 'A' : hex + '0'); }
 
-char zchar2char(int8_t idx)
-{
-  if (idx == 0) return ' ';
-  if (idx < 0) {
-    if (idx > -27) return 'a' - idx - 1;
-    idx = -idx;
-  }
-  if (idx < 27) return 'A' + idx - 1;
-  if (idx < 37) return '0' + idx - 27;
-  if (idx <= 40) return *(s_charTab + idx - 37);
-#if LEN_SPECIAL_CHARS > 0
-  if (idx <= (LEN_STD_CHARS + LEN_SPECIAL_CHARS)) return 'z' + 5 + idx - 40;
-#endif
-  return ' ';
-}
-
 char char2lower(char c) { return (c >= 'A' && c <= 'Z') ? c + 32 : c; }
-
-int8_t char2zchar(char c)
-{
-  if (c == '_') return 37;
-#if LEN_SPECIAL_CHARS > 0
-  if ((int8_t)c < 0 && c + 128 <= LEN_SPECIAL_CHARS) return 41 + (c + 128);
-#endif
-  if (c >= 'a') return 'a' - c - 1;
-  if (c >= 'A') return c - 'A' + 1;
-  if (c >= '0') return c - '0' + 27;
-  if (c == '-') return 38;
-  if (c == '.') return 39;
-  if (c == ',') return 40;
-  return 0;
-}
-
-void str2zchar(char *dest, const char *src, int size)
-{
-  memset(dest, 0, size);
-  for (int c = 0; c < size && src[c]; c++) {
-    dest[c] = char2zchar(src[c]);
-  }
-}
-
-int zchar2str(char *dest, const char *src, int size)
-{
-  for (int c = 0; c < size; c++) {
-    dest[c] = zchar2char(src[c]);
-  }
-  do {
-    dest[size--] = '\0';
-  } while (size >= 0 && dest[size] == ' ');
-  return size + 1;
-}
 
 int strnlen(const char *src, int max_size)
 {
@@ -413,13 +361,13 @@ char *getGVarString(char *dest, int idx)
   return dest;
 }
 
-#if defined(LIBOPENUI)
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
-                           gvar_t vmax, LcdFlags flags, const char *suffix,
+#if defined(COLORLCD)
+char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
+                           LcdFlags flags, const char *suffix,
                            gvar_t offset, bool usePPMUnit)
 {
-  if (GV_IS_GV_VALUE(value, vmin, vmax)) {
-    int index = GV_INDEX_CALC_DELTA(value, GV_GET_GV1_VALUE(vmin, vmax));
+  if (GV_IS_GV_VALUE(value)) {
+    int index = GV_INDEX_FROM_VALUE(value);
     return getGVarString(dest, index);
   }
 
@@ -430,8 +378,8 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
   return dest;
 }
 
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
-                           gvar_t vmax, LcdFlags flags, const char *suffix,
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
+                           LcdFlags flags, const char *suffix,
                            gvar_t offset, bool usePPMUnit)
 {
   SourceNumVal v;
@@ -472,19 +420,19 @@ char *getFlightModeString(char *dest, int8_t idx)
   return dest;
 }
 
-char *getCustomSwitchesGroupName(char *dest, uint8_t idx)
+char* getCustomSwitchesGroupName(char *dest, uint8_t idx)
 {
   dest = strAppendStringWithIndex(dest, "GR", idx + 1);
 
   return dest;
 }
 
-char *getSwitchName(char *dest, uint8_t idx)
+char* getSwitchName(char *dest, uint8_t idx, bool defaultOnly)
 {
-  if (switchHasCustomName(idx)) {
-    dest = strAppend(dest, switchGetCustomName(idx), LEN_SWITCH_NAME);
+  if (!defaultOnly && g_model.switchHasCustomName(idx)) {
+    dest = strAppend(dest, g_model.getSwitchCustomName(idx), LEN_SWITCH_NAME);
   } else {
-    dest = strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
+    dest = strAppend(dest, switchGetDefaultName(idx), LEN_SWITCH_NAME);
   }
 
   return dest;
@@ -492,9 +440,9 @@ char *getSwitchName(char *dest, uint8_t idx)
 
 static const char *_switch_state_str[]{
     " ",
-    STR_CHAR_UP,
+    CHAR_UP,
     "-",
-    STR_CHAR_DOWN,
+    CHAR_DOWN,
 };
 
 const char *getSwitchWarnSymbol(uint8_t pos)
@@ -516,7 +464,7 @@ const char *getSwitchPositionSymbol(uint8_t pos)
   return _switch_state_str[pos + 1];
 }
 
-char *getSwitchPositionName(char *dest, swsrc_t idx)
+char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
 {
   if (idx == SWSRC_NONE) {
     return strcpy(dest, STR_EMPTY);
@@ -532,7 +480,7 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
 
   if (idx <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(idx);
-    s = getSwitchName(s, swinfo.quot);
+    s = getSwitchName(s, swinfo.quot, defaultOnly);
     s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
     *s = '\0';
   } else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
@@ -541,7 +489,7 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
     s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
   } else if (idx <= SWSRC_LAST_TRIM) {
     idx -= SWSRC_FIRST_TRIM;
-    // TODO: 't' or STR_CHAR_TRIM
+    // TODO: 't' or CHAR_TRIM
     s = strAppend(s, getTrimLabel(idx / 2));
     *s++ = idx & 1 ? '+' : '-';
     *s = '\0';
@@ -574,9 +522,42 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
-const char *getAnalogLabel(uint8_t type, uint8_t idx)
+bool switchCanHaveCustomName(swsrc_t idx)
 {
-  if (analogHasCustomLabel(type, idx)) return analogGetCustomLabel(type, idx);
+  return (idx >= SWSRC_FIRST_SWITCH && idx <= SWSRC_LAST_SWITCH);
+}
+
+int getSwitchIndex(const char* name, bool all)
+{
+  bool negate = false;
+
+  if (name[0] == '!') {
+    name++;
+    negate = true;
+  }
+
+  for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
+    if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+      char* s;
+      if (switchCanHaveCustomName(idx)) {
+        // Check default name
+        s = getSwitchPositionName(idx, true);
+        if (!strcasecmp(s, name))
+          return negate ? -idx : idx;
+      }
+      s = getSwitchPositionName(idx);
+      if (!strcasecmp(s, name))
+        return negate ? -idx : idx;
+    }
+  }
+
+  return SWSRC_INVERT;  // Not found
+}
+
+const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly)
+{
+  if (!defaultOnly && analogHasCustomLabel(type, idx))
+    return analogGetCustomLabel(type, idx);
 
   if (type == ADC_INPUT_MAIN) {
     // main controls: translated label is stored in "short label"
@@ -618,15 +599,15 @@ const char *getAnalogShortLabel(uint8_t idx)
   return "";
 }
 
-const char *getMainControlLabel(uint8_t idx)
+const char *getMainControlLabel(uint8_t idx, bool defaultOnly)
 {
-  return getAnalogLabel(ADC_INPUT_MAIN, idx);
+  return getAnalogLabel(ADC_INPUT_MAIN, idx, defaultOnly);
 }
 
-const char *getTrimLabel(uint8_t idx)
+const char *getTrimLabel(uint8_t idx, bool defaultOnly)
 {
   if (idx < adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    return getMainControlLabel(idx);
+    return getMainControlLabel(idx, defaultOnly);
   }
 
   // TODO: replace with string from HW def
@@ -647,15 +628,15 @@ const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src)
   }
 }
 
-const char *getPotLabel(uint8_t idx)
+const char *getPotLabel(uint8_t idx, bool defaultOnly)
 {
-  return getAnalogLabel(ADC_INPUT_FLEX, idx);
+  return getAnalogLabel(ADC_INPUT_FLEX, idx, defaultOnly);
 }
 
 // this should be declared in header, but it used so much foreign symbols that
 // we declare it in cpp-file and pre-instantiate it for the uses
 template <size_t L>
-char *getSourceString(char (&destRef)[L], mixsrc_t idx)
+char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 {
   size_t dest_len = L;
   char* dest = destRef;
@@ -671,10 +652,10 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     strncpy(dest, STR_EMPTY, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_INPUT) {
     idx -= MIXSRC_FIRST_INPUT;
-    static_assert(L > sizeof(STR_CHAR_INPUT) - 1, "dest string too small");
-    dest_len -= sizeof(STR_CHAR_INPUT) - 1;
-    char *pos = strAppend(dest, STR_CHAR_INPUT, sizeof(STR_CHAR_INPUT) - 1);
-    if (g_model.inputNames[idx][0] != '\0' &&
+    static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
+    dest_len -= sizeof(CHAR_INPUT) - 1;
+    char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
+    if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
         (dest_len > sizeof(g_model.inputNames[idx]))) {
       memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
       size_t input_len =
@@ -691,25 +672,22 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS &&
         qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      static_assert(L > sizeof(STR_CHAR_LUA) - 1, "dest string too small");
-      dest_len -= sizeof(STR_CHAR_LUA) - 1;
-      char *pos = strAppend(dest, STR_CHAR_LUA, sizeof(STR_CHAR_LUA) - 1);
+      static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
+      dest_len -= sizeof(CHAR_LUA) - 1;
+      char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
 
       if (g_model.scriptsData[qr.quot].name[0] != '\0') {
         // instance Name is not empty : dest = InstanceName/OutputName
-        snprintf(pos, dest_len, "%.*s/%.*s",
-                 (int)sizeof(g_model.scriptsData[qr.quot].name),
-                 g_model.scriptsData[qr.quot].name,
-                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name),
-                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
       } else {
         // instance Name is empty : dest = n-ScriptFileName/OutputName
-        snprintf(pos, dest_len, "%d-%.*s/%.*s", qr.quot + 1,
-                 (int)sizeof(g_model.scriptsData[qr.quot].file),
-                 g_model.scriptsData[qr.quot].file,
-                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name),
-                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        pos = strAppendUnsigned(pos, qr.quot + 1);
+        pos = strAppend(pos, "-");
+        pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
       }
+      pos = strAppend(pos, "/");
+      dest_len = L - (pos - dest);
+      strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
     }
 #else
     strncpy(dest, "N/A", dest_len-1);
@@ -722,20 +700,20 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
 
     const char *name;
     if (idx < MAX_STICKS) {
-      pos = strAppend(pos, STR_CHAR_STICK, sizeof(STR_CHAR_STICK) - 1);
-      dest_len -= sizeof(STR_CHAR_STICK) - 1;
-      name = getMainControlLabel(idx);
+      pos = strAppend(pos, CHAR_STICK, sizeof(CHAR_STICK) - 1);
+      dest_len -= sizeof(CHAR_STICK) - 1;
+      name = getMainControlLabel(idx, defaultOnly);
     } else {
       idx -= MAX_STICKS;
       if (IS_SLIDER(idx)) {
-        pos = strAppend(pos, STR_CHAR_SLIDER, sizeof(STR_CHAR_SLIDER) - 1);
-        dest_len -= sizeof(STR_CHAR_SLIDER) - 1;
+        pos = strAppend(pos, CHAR_SLIDER, sizeof(CHAR_SLIDER) - 1);
+        dest_len -= sizeof(CHAR_SLIDER) - 1;
       } else {
-        pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
-        dest_len -= sizeof(STR_CHAR_POT) - 1;
+        pos = strAppend(pos, CHAR_POT, sizeof(CHAR_POT) - 1);
+        dest_len -= sizeof(CHAR_POT) - 1;
       }
       // TODO: AXIS / SWITCH ???
-      name = getPotLabel(idx);
+      name = getPotLabel(idx, defaultOnly);
     }
     strncpy(pos, name, dest_len - 1);
     pos[dest_len - 1] = '\0';
@@ -761,37 +739,36 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
   } else if (idx <= MIXSRC_LAST_TRIM) {
     idx -= MIXSRC_FIRST_TRIM;
-    char *pos = strAppend(dest, STR_CHAR_TRIM, sizeof(STR_CHAR_TRIM) - 1);
-    strAppend(pos, getTrimLabel(idx));
+    char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
+    strAppend(pos, getTrimLabel(idx, defaultOnly));
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
-    char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
-    getSwitchName(pos, idx);
+    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
+    getSwitchName(pos, idx, defaultOnly);
 #if defined(FUNCTION_SWITCHES)
   } else if (idx <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
     idx -= MIXSRC_FIRST_CUSTOMSWITCH_GROUP;
-    char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
+    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
     getCustomSwitchesGroupName(pos, idx);
 #endif
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    // TODO: unnecessary, use the direct way instead
     idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH);
+    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
   } else if (idx <= MIXSRC_LAST_TRAINER) {
     idx -= MIXSRC_FIRST_TRAINER;
     strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
   } else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
-    if (g_model.limitData[ch].name[0] != '\0') {
+    if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
       strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
   } else if (idx <= MIXSRC_LAST_GVAR) {
     idx -= MIXSRC_FIRST_GVAR;
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
     char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
-    if (g_model.gvars[idx].name[0]) {
+    if (!defaultOnly && g_model.gvars[idx].name[0]) {
       s = strAppend(s, ":");
       getGVarString(s, idx);
     }
@@ -818,7 +795,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     strncpy(dest, src_str, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_TIMER) {
     idx -= MIXSRC_FIRST_TIMER;
-    if (g_model.timers[idx].name[0] != '\0') {
+    if (!defaultOnly && g_model.timers[idx].name[0] != '\0') {
       strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
     } else {
       strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
@@ -826,7 +803,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
   } else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div((uint16_t)idx, 3);
-    char* pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
+    char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
     pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
                     sizeof(g_model.telemetrySensors[qr.quot].label));
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
@@ -836,13 +813,53 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
   return destRef; 
 }
 
+bool sourceCanHaveCustomName(mixsrc_t idx)
+{
+  return (idx >= MIXSRC_FIRST_INPUT && idx <= MIXSRC_LAST_INPUT) ||
+         (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
+         (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT) ||
+         (idx >= MIXSRC_FIRST_TRIM && idx <= MIXSRC_LAST_TRIM) ||
+         (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||
+         (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH) ||
+         (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) ||
+         (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);
+}
+
+bool matchSource(const char* name, mixsrc_t idx, bool defaultOnly)
+{
+  char *s = getSourceString(idx, defaultOnly);
+  if (strcasecmp(s, name) == 0)
+    return true;
+  // Check for names starting with CHAR_xxx symbol strings
+  if (s[0] == '\302' && (strcasecmp(s + 2, name) == 0))
+    return true;
+  return false;
+}
+
+int getSourceIndex(const char* name, bool all)
+{
+  for (mixsrc_t idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
+    if (all || isSourceAvailable(idx)) {
+      if (sourceCanHaveCustomName(idx)) {
+        // Check default name
+        if (matchSource(name, idx, true))
+          return idx;
+      }
+      if (matchSource(name, idx, false))
+        return idx;
+    }
+  }
+
+  return -1;
+}
+
 // pre-instantiate for use from external
 // all other instantiations are done from this file
-template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx);
+template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx, bool defaultOnly);
 
-char *getSourceString(mixsrc_t idx)
+char *getSourceString(mixsrc_t idx, bool defaultOnly)
 {
-  return getSourceString(_static_str_buffer, idx);
+  return getSourceString(_static_str_buffer, idx, defaultOnly);
 }
 
 char *getCurveString(int idx)
@@ -860,14 +877,14 @@ char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
   return getFormattedTimerString(dest, tme, timerOptions);
 }
 
-char *getSwitchPositionName(swsrc_t idx)
+char *getSwitchPositionName(swsrc_t idx, bool defaultOnly)
 {
-  return getSwitchPositionName(_static_str_buffer, idx);
+  return getSwitchPositionName(_static_str_buffer, idx, defaultOnly);
 }
 
 char *getGVarString(int idx) { return getGVarString(_static_str_buffer, idx); }
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
                        LcdFlags flags)
 {
@@ -1122,7 +1139,7 @@ std::string getTelemTime(TelemetryItem &telemetryItem)
          formatNumberAsString(telemetryItem.datetime.sec, LEADING0 | LEFT, 2);
 }
 
-#endif  // defined(LIBOPENUI)
+#endif  // defined(COLORLCD)
 #endif  // !defined(BOOT)
 
 char *strAppendUnsigned(char *dest, uint32_t value, uint8_t digits,
@@ -1157,6 +1174,8 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits, uint8_t radix)
 
 char *strAppend(char *dest, const char *source, int len)
 {
+  if (source == nullptr) { *dest = '\0'; return dest; }
+
   while ((*dest++ = *source++)) {
     if (--len == 0) {
       *dest = '\0';

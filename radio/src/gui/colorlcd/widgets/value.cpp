@@ -30,8 +30,13 @@ class ValueWidget : public Widget
 {
  public:
   ValueWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-              Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+              int screenNum, int zoneNum) :
+      Widget(factory, parent, rect, screenNum, zoneNum)
+  {
+    delayLoad();
+  }
+
+  void delayedInit() override
   {
     lv_style_init(&labelStyle);
     lv_style_set_width(&labelStyle, lv_pct(100));
@@ -41,29 +46,27 @@ class ValueWidget : public Widget
     lv_style_set_width(&valueStyle, lv_pct(100));
     lv_style_set_height(&valueStyle, lv_pct(100));
 
-    labelShadow = lv_label_create(lvobj);
+    labelShadow = etx_label_create(lvobj);
     lv_obj_add_style(labelShadow, &labelStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(labelShadow, lv_color_black(), LV_PART_MAIN);
     lv_label_set_text(labelShadow, "");
 
-    label = lv_label_create(lvobj);
+    label = etx_label_create(lvobj);
     lv_obj_add_style(label, &labelStyle, LV_PART_MAIN);
     etx_txt_color(label, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(label, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
     lv_label_set_text(label, "");
 
-    valueShadow = lv_label_create(lvobj);
+    valueShadow = etx_label_create(lvobj, FONT_L_INDEX);
     lv_obj_add_style(valueShadow, &valueStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(valueShadow, lv_color_black(), LV_PART_MAIN);
-    etx_font(valueShadow, FONT_L_INDEX);
     etx_font(valueShadow, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
     lv_label_set_text(valueShadow, "");
 
-    value = lv_label_create(lvobj);
+    value = etx_label_create(lvobj, FONT_L_INDEX);
     lv_obj_add_style(value, &valueStyle, LV_PART_MAIN);
     etx_txt_color(value, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(value, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
-    etx_font(value, FONT_L_INDEX);
     etx_font(value, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
     lv_label_set_text(value, "");
 
@@ -73,12 +76,16 @@ class ValueWidget : public Widget
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     Widget::checkEvents();
 
     bool changed = false;
 
+    auto widgetData = getPersistentData();
+
     // get source from options[0]
-    mixsrc_t field = persistentData->options[0].value.unsignedValue;
+    mixsrc_t field = widgetData->options[0].value.unsignedValue;
 
     // if value changed
     auto newValue = getValue(field);
@@ -126,19 +133,25 @@ class ValueWidget : public Widget
       std::string valueTxt;
 
       // Set value text
-      if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
-        TimerOptions timerOptions;
-        timerOptions.options = SHOW_TIMER;
-        valueTxt = getTimerString(abs(timerState.val), timerOptions);
+      if (field == MIXSRC_TX_VOLTAGE) {
+        valueTxt =
+            getSourceCustomValueString(field, getValue(field), valueFlags);
+        valueTxt += STR_V;
       } else if (field == MIXSRC_TX_TIME) {
         int32_t tme = getValue(MIXSRC_TX_TIME);
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(tme, timerOptions);
+      } else if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
+        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
+        TimerOptions timerOptions;
+        timerOptions.options = SHOW_TIMER;
+        valueTxt = getTimerString(abs(timerState.val), timerOptions);
       } else if (field >= MIXSRC_FIRST_TELEM) {
-        std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
-        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3, getValue(field), valueFlags);
+        std::string getSensorCustomValue(uint8_t sensor, int32_t value,
+                                         LcdFlags flags);
+        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
+                                        getValue(field), valueFlags);
 #if defined(LUA_INPUTS)
       }
       else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
@@ -155,7 +168,7 @@ class ValueWidget : public Widget
     }
   }
 
-  static const ZoneOption options[];
+  static const WidgetOption options[];
 
  protected:
   int32_t lastValue = -10000;
@@ -168,23 +181,29 @@ class ValueWidget : public Widget
   lv_obj_t* valueShadow;
   LcdFlags valueFlags = 0;
 
-  static LAYOUT_VAL(VAL_Y1, 14, 14)
-  static LAYOUT_VAL(VAL_Y2, 18, 18)
+  static LAYOUT_VAL_SCALED(VAL_Y1, 14)
+  static LAYOUT_VAL_SCALED(VAL_Y2, 18)
+  static LAYOUT_VAL_SCALED(H_CHK, 50)
+  static LAYOUT_VAL_SCALED(W_CHK, 120)
 
   void update() override
   {
+    if (!loaded) return;
+
+    auto widgetData = getPersistentData();
+
     // get source from options[0]
-    mixsrc_t field = persistentData->options[0].value.unsignedValue;
+    mixsrc_t field = widgetData->options[0].value.unsignedValue;
 
     // get color from options[1]
-    etx_txt_color_from_flags(label, persistentData->options[1].value.unsignedValue);
-    etx_txt_color_from_flags(value, persistentData->options[1].value.unsignedValue);
+    etx_txt_color_from_flags(label, widgetData->options[1].value.unsignedValue);
+    etx_txt_color_from_flags(value, widgetData->options[1].value.unsignedValue);
 
     // get label alignment from options[3]
-    LcdFlags lblAlign = persistentData->options[3].value.unsignedValue;
+    LcdFlags lblAlign = widgetData->options[3].value.unsignedValue;
 
     // get value alignment from options[4]
-    LcdFlags valAlign = persistentData->options[4].value.unsignedValue;
+    LcdFlags valAlign = widgetData->options[4].value.unsignedValue;
 
     lv_coord_t labelX = 0;
     lv_coord_t labelY = 0;
@@ -196,24 +215,23 @@ class ValueWidget : public Widget
     lv_obj_clear_state(valueShadow, ETX_STATE_LARGE_FONT);
 
     // Get positions, alignment and value font size.
-    if (height() < 50) {
-      valueFlags = NO_UNIT;
-      if (width() >= 120) {
+    if (height() < H_CHK) {
+      if (width() >= W_CHK) {
         lblAlign = ALIGN_LEFT;
         valAlign = ALIGN_RIGHT;
-        labelX = 4;
-        labelY = 2;
-        valueX = -4;
-        valueY = -2;
+        labelX = PAD_SMALL;
+        labelY = PAD_TINY;
+        valueX = -PAD_SMALL;
+        valueY = -PAD_TINY;
       }
     } else {
-      labelX = (lblAlign == ALIGN_LEFT)     ? 4
-               : (lblAlign == ALIGN_CENTER) ? -3
-                                            : -4;
+      labelX = (lblAlign == ALIGN_LEFT)     ? PAD_SMALL
+               : (lblAlign == ALIGN_CENTER) ? -PAD_THREE
+                                            : -PAD_SMALL;
       labelY = 2;
-      valueX = (valAlign == ALIGN_LEFT)     ? 4
+      valueX = (valAlign == ALIGN_LEFT)     ? PAD_SMALL
                : (valAlign == ALIGN_CENTER) ? 1
-                                            : -4;
+                                            : -PAD_SMALL;
       valueY = VAL_Y2;
       if (field >= MIXSRC_FIRST_TELEM) {
         int8_t sensor = 1 + (field - MIXSRC_FIRST_TELEM) / 3;
@@ -256,7 +274,7 @@ class ValueWidget : public Widget
     lv_obj_set_pos(value, valueX, valueY);
 
     // Show / hide shadow
-    if (persistentData->options[2].value.boolValue) {
+    if (widgetData->options[2].value.boolValue) {
       lv_obj_clear_flag(labelShadow, LV_OBJ_FLAG_HIDDEN);
       lv_obj_clear_flag(valueShadow, LV_OBJ_FLAG_HIDDEN);
     } else {
@@ -266,13 +284,13 @@ class ValueWidget : public Widget
   }
 };
 
-const ZoneOption ValueWidget::options[] = {
-    {STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(MIXSRC_FIRST_STICK)},
-    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
-    {STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_ALIGN_LABEL, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
-    {STR_ALIGN_VALUE, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
-    {nullptr, ZoneOption::Bool}};
+const WidgetOption ValueWidget::options[] = {
+    {STR_SOURCE, WidgetOption::Source, MIXSRC_FIRST_STICK},
+    {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_SHADOW, WidgetOption::Bool, false},
+    {STR_ALIGN_LABEL, WidgetOption::Align, ALIGN_LEFT},
+    {STR_ALIGN_VALUE, WidgetOption::Align, ALIGN_LEFT},
+    {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<ValueWidget> ValueWidget("Value", ValueWidget::options,
                                            STR_WIDGET_VALUE);

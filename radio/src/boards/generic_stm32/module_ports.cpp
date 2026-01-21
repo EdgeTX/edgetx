@@ -29,8 +29,15 @@
 #include "trainer_driver.h"
 
 #include "module_ports.h"
+#include "intmodule_heartbeat.h"
+
 #include "board.h"
 #include "dataconstants.h"
+
+#include "pulses/pulses.h"
+#include "pulses/pxx1.h"
+
+#include "trainer.h"
 
 #if defined (HARDWARE_INTERNAL_MODULE)
 #if defined(INTMODULE_USART)
@@ -124,30 +131,6 @@ DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 
 #define EXTMODULE_USART_IRQ_PRIORITY 6
 
-#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
-
-#define HAS_EXTMODULE_INVERTERS
-
-static void _extmod_set_inverted(uint8_t enable)
-{
-  // In EdgeTX the external module is normally always
-  // inverted, so invert the logic here
-  gpio_write(EXTMODULE_TX_INVERT_GPIO, !enable);
-  gpio_write(EXTMODULE_RX_INVERT_GPIO, !enable);
-}
-
-static void _extmod_init_inverter()
-{
-  gpio_init(EXTMODULE_TX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_init(EXTMODULE_RX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-
-  // this sets the output to idle-low as is
-  // the default in EdgeTX on external module
-  // (historically, most radios work this way)
-  _extmod_set_inverted(false);
-}
-#endif
-
 static const stm32_usart_t extmoduleUSART = {
   .USARTx = EXTMODULE_USART,
   .txGPIO = EXTMODULE_TX_GPIO,
@@ -166,6 +149,44 @@ static const stm32_usart_t extmoduleUSART = {
 };
 
 DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0);
+
+
+#if (defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)) \
+  || defined(STM32H7) || defined(STM32H7RS)
+
+#define HAS_EXTMODULE_INVERTERS
+
+static void _extmod_set_inverted(uint8_t enable)
+{
+#if defined(STM32H7) || defined(STM32H7RS)
+#ifdef EXTMODULE_USART
+  stm32_usart_rx_inversion(&extmoduleUSART, !enable);
+  stm32_usart_tx_inversion(&extmoduleUSART, !enable);
+#else
+#error no UART to invert
+#endif
+#else
+  // In EdgeTX the external module is normally always
+  // inverted, so invert the logic here
+  gpio_write(EXTMODULE_TX_INVERT_GPIO, !enable);
+  gpio_write(EXTMODULE_RX_INVERT_GPIO, !enable);
+#endif
+
+}
+
+static void _extmod_init_inverter()
+{
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+  gpio_init(EXTMODULE_TX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(EXTMODULE_RX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
+  // this sets the output to idle-low as is
+  // the default in EdgeTX on external module
+  // (historically, most radios work this way)
+  _extmod_set_inverted(false);
+}
+#endif
 
 #elif defined(TRAINER_MODULE_SBUS_USART)
 
@@ -256,6 +277,7 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
 #define TELEMETRY_USART_IRQ_PRIORITY 0
 #define TELEMETRY_DMA_IRQ_PRIORITY   0
 
+#if !defined(STM32H7) && !defined(STM32H7RS)
 static void _set_sport_input(uint8_t enable)
 {
 #if defined(TELEMETRY_DIR_GPIO)
@@ -267,23 +289,6 @@ static void _set_sport_input(uint8_t enable)
 #else
   (void)enable;
 #endif
-}
-
-#if defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)
-
-#define HAS_SPORT_INVERTER
-
-static void _sport_set_inverted(uint8_t enable)
-{
-  gpio_write(TELEMETRY_TX_REV_GPIO, !enable);
-  gpio_write(TELEMETRY_RX_REV_GPIO, !enable);
-}
-
-static void _sport_init_inverter()
-{
-  gpio_init(TELEMETRY_TX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_init(TELEMETRY_RX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  _sport_set_inverted(false);
 }
 #endif
 
@@ -297,10 +302,20 @@ static const stm32_usart_t sportUSART = {
   .txDMA = TELEMETRY_DMA,
   .txDMA_Stream = TELEMETRY_DMA_Stream_TX,
   .txDMA_Channel = TELEMETRY_DMA_Channel_TX,
+#if defined(TELEMETRY_DMA_Stream_RX)
+  .rxDMA = TELEMETRY_DMA,
+  .rxDMA_Stream = TELEMETRY_DMA_Stream_RX,
+  .rxDMA_Channel = TELEMETRY_DMA_Channel_RX,
+#else
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
+#endif
+#if defined(STM32H7) || defined(STM32H7RS)
+  .set_input = nullptr,
+#else
   .set_input = _set_sport_input,
+#endif
   .txDMA_IRQn = TELEMETRY_DMA_TX_Stream_IRQ,
   .txDMA_IRQ_Prio = TELEMETRY_DMA_IRQ_PRIORITY,
 };
@@ -318,6 +333,34 @@ static void _sport_direction_init()
   gpio_init(TELEMETRY_DIR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 }
 #endif
+#endif
+
+
+#if (defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)) || defined(STM32H7) || defined(STM32H7RS)
+
+#define HAS_SPORT_INVERTER
+
+static void _sport_set_inverted(uint8_t enable)
+{
+#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(TELEMETRY_USART)
+  stm32_usart_rx_inversion(&sportUSART, !enable);
+  stm32_usart_tx_inversion(&sportUSART, !enable);
+#endif
+#else
+  gpio_write(TELEMETRY_TX_REV_GPIO, !enable);
+  gpio_write(TELEMETRY_RX_REV_GPIO, !enable);
+#endif
+}
+
+static void _sport_init_inverter()
+{
+#if defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)
+  gpio_init(TELEMETRY_TX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(TELEMETRY_RX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+  _sport_set_inverted(false);
+}
 #endif
 
 #if defined(TELEMETRY_TIMER)
@@ -352,15 +395,19 @@ static void _internal_module_set_pwr(uint8_t enable)
   }
 }
 
-#if defined(INTMODULE_BOOTCMD_GPIO)
+#if defined(INTMODULE_BOOTCMD_GPIO) || defined(INTMODULE_BOOTCMD_BSP)
 static void _internal_module_set_bootcmd(uint8_t enable)
 {
+#if defined(INTMODULE_BOOTCMD_BSP)
+  INTERNAL_MODULE_BOOTCMD(enable);
+#else
   // If default state is SET, invert the logic
   if (INTMODULE_BOOTCMD_DEFAULT) {
     enable = !enable;
   }
 
   gpio_write(INTMODULE_BOOTCMD_GPIO, enable);
+#endif
 }
 #endif
 
@@ -396,7 +443,7 @@ static const etx_module_port_t _internal_ports[] = {
 static const etx_module_t _internal_module = {
   .ports = _internal_ports,
   .set_pwr = _internal_module_set_pwr,
-#if defined(INTMODULE_BOOTCMD_GPIO)
+#if defined(INTMODULE_BOOTCMD_GPIO) || defined(INTMODULE_BOOTCMD_BSP)
   .set_bootcmd = _internal_module_set_bootcmd,
 #else
   .set_bootcmd = nullptr,
@@ -411,14 +458,14 @@ static void _external_module_set_pwr(uint8_t enable)
 {
   if (enable) {
     EXTERNAL_MODULE_ON();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
     if (hardwareOptions.pcbrev == PCBREV_NV14) {
       gpio_clear(EXTMODULE_PWR_FIX_GPIO);
     }
 #endif
   } else {
     EXTERNAL_MODULE_OFF();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
     if (hardwareOptions.pcbrev == PCBREV_NV14) {
       gpio_set(EXTMODULE_PWR_FIX_GPIO);
     }
@@ -574,13 +621,24 @@ void boardInitModulePorts()
   _extmod_init_inverter();
 #endif  
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   if (hardwareOptions.pcbrev == PCBREV_NV14) {
     // pin must be pulled to V+ (voltage of board - VCC is not enough to fully close transistor)
     // for additional transistor to ensuring module is completely disabled
     gpio_init(EXTMODULE_PWR_FIX_GPIO, GPIO_OD, GPIO_PIN_SPEED_LOW);
     gpio_set(EXTMODULE_PWR_FIX_GPIO);
   }
+#endif
+
+#if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
+  pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);
+#endif
+
+#if defined(INTMODULE_HEARTBEAT) &&                                     \
+  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
+  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
+  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
 #endif
 }
 

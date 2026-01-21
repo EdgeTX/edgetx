@@ -56,15 +56,35 @@ typedef union {
   TimerDisplayOptions displayOptions;
 } TimerOptions;
 
+uint8_t zlen(const char *str, uint8_t size);
+bool zexist(const char *str, uint8_t size);
+char * strcat_zchar(char *dest, const char *name, uint8_t size, const char spaceSym = 0, const char *defaultName=nullptr, uint8_t defaultNameSize=0, uint8_t defaultIdx=0);
+
+#define strcatFlightmodeName(dest, idx) strcat_zchar(dest, g_model.flightModeData[idx].name, LEN_FLIGHT_MODE_NAME, 0, STR_FM, strlen(STR_FM), idx+1)
+
+#if !defined(STORAGE_MODELSLIST)
+
+#define strcat_modelname(dest, idx, spaceSym)                                     \
+  strcat_zchar(dest, modelHeaders[idx].name, LEN_MODEL_NAME, spaceSym, STR_MODEL, \
+               strlen(STR_MODEL), idx + 1)
+
+#define strcat_currentmodelname(dest, spaceSym)      \
+  strcat_modelname(dest, g_eeGeneral.currModel, spaceSym)
+
+#else
+
+#define strcat_currentmodelname(dest, spaceSym)                         \
+  strcat_zchar(dest, g_model.header.name, LEN_MODEL_NAME, spaceSym)
+
+#endif
+
+#define ZLEN(s) zlen(s, sizeof(s))
+#define ZEXIST(s) zexist(s, sizeof(s))
+
 const char* sanitizeForFilename(const char* name, int len);
 
-char hex2zchar(uint8_t hex);
 char hex2char(uint8_t hex);
-char zchar2char(int8_t idx);
 char char2lower(char c);
-int8_t char2zchar(char c);
-void str2zchar(char *dest, const char *src, int size);
-int zchar2str(char *dest, const char *src, int size);
 int strnlen(const char *src, int max_size);
 unsigned int effectiveLen(const char *str, unsigned int size);
 
@@ -90,46 +110,46 @@ char *strAppendStringWithIndex(char *dest, const char *s, int idx);
 #define LEN_TIMER_STRING 10  // "-00:00:00"
 char *getTimerString(char *dest, int32_t tme,
                      TimerOptions timerOptions = {.options = 0});
+char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
 char *getFormattedTimerString(char *dest, int32_t tme,
                               TimerOptions timerOptions);
 char *getCurveString(char *dest, int idx);
+char *getCurveString(int idx);
 char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
-                           gvar_t vmax, LcdFlags flags = 0,
+char *getValueOrGVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
                            const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
-                             gvar_t vmax, LcdFlags flags = 0,
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
                              const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
-char *getSwitchPositionName(char *dest, swsrc_t idx);
-char *getSwitchName(char *dest, uint8_t idx);
+char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly = false);
+char *getSwitchPositionName(swsrc_t idx, bool defaultOnly = false);
+char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly = false);
+int getSwitchIndex(const char* name, bool all);
+int getSourceIndex(const char* name, bool all);
 
-const char *getAnalogLabel(uint8_t type, uint8_t idx);
+const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly = false);
 const char *getAnalogShortLabel(uint8_t idx);
-const char *getMainControlLabel(uint8_t idx);
-const char *getTrimLabel(uint8_t idx);
+const char *getMainControlLabel(uint8_t idx, bool defaultOnly = false);
+const char *getTrimLabel(uint8_t idx, bool defaultOnly = false);
 const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
-const char *getPotLabel(uint8_t idx);
+const char *getPotLabel(uint8_t idx, bool defaultOnly = false);
 char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 
 template <size_t L>
-char *getSourceString(char (&dest)[L], mixsrc_t idx);
+char *getSourceString(char (&dest)[L], mixsrc_t idx, bool defaultOnly = false);
+char *getSourceString(mixsrc_t idx, bool defaultOnly = false);
 
 template <size_t L>
 char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags);
-
-#endif
+char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
 
 char *getFlightModeString(char *dest, int8_t idx);
 
-char *getSourceString(mixsrc_t idx);
-char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
-char *getSwitchPositionName(swsrc_t idx);
-char *getCurveString(int idx);
-char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
+#endif
+
 void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
                 bool bLowercase = true);
 
@@ -153,6 +173,11 @@ void clearStruct(S &s)
 {
   memset((void *)&s, 0, sizeof(S));
 }
+
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
 
 template <size_t N>
 using offset_t = std::integral_constant<size_t, N>;

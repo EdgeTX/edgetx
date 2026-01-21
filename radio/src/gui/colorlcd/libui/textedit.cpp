@@ -33,10 +33,19 @@ class TextArea : public FormField
   TextArea(Window* parent, const rect_t& rect, char* value, uint8_t length) :
       FormField(parent, rect, etx_textarea_create), value(value), length(length)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS);
 
     lv_textarea_set_max_length(lvobj, length);
     lv_textarea_set_placeholder_text(lvobj, "---");
+
+    setFocusHandler([=](bool focus) {
+      if (!focus && editMode) {
+        setEditMode(false);
+        hide();
+        lv_group_focus_obj(parent->getLvObj());
+        lv_obj_clear_state(parent->getLvObj(), LV_STATE_FOCUSED);
+      }
+    });
 
     update();
   }
@@ -123,7 +132,7 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
     }),
     updateHandler(updateHandler), text(text), length(length)
 {
-  if (rect.w == 0) setWidth(DEF_W);
+  if (rect.w == 0) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   update();
   lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);
@@ -143,12 +152,11 @@ void TextEdit::openEdit()
 {
   if (edit == nullptr) {
     edit = new TextArea(this,
-                        {-(PAD_MEDIUM + 2), -(PAD_TINY + 2),
+                        {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
                           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
                         text, length);
     edit->setChangeHandler([=]() {
-      std::string s(text, length);
-      setText(s);
+      update();
       if (updateHandler) updateHandler();
       lv_group_focus_obj(lvobj);
       edit->hide();
@@ -166,13 +174,13 @@ void TextEdit::openEdit()
 
 void TextEdit::preview(bool edited, char* text, uint8_t length)
 {
+  setWindowFlag(NO_FOCUS | NO_CLICK);
+
   edit = new TextArea(this,
-                      {-(PAD_MEDIUM + 2), -(PAD_TINY + 2), width(), height()},
+                      {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2), width(), height()},
                       text, length);
+  edit->setWindowFlag(NO_CLICK);
   lv_group_focus_obj(edit->getLvObj());
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-  lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_obj_add_state(edit->getLvObj(), LV_STATE_FOCUSED);
   if (edited) lv_obj_add_state(edit->getLvObj(), LV_STATE_EDITED);
 }
@@ -185,6 +193,18 @@ ModelTextEdit::ModelTextEdit(Window* parent, const rect_t& rect, char* value,
                storageDirty(EE_MODEL);
              })
 {
+}
+
+ModelStringEdit::ModelStringEdit(Window* parent, const rect_t& rect, std::string value,
+                                 std::function<void(const char* s)> updateHandler) :
+    TextEdit(parent, rect, txt, MAX_STR_EDIT_LEN,
+             [=]() {
+               if (updateHandler) updateHandler(txt);
+               storageDirty(EE_MODEL);
+             })
+{
+  strncpy(txt, value.c_str(), length);
+  update();
 }
 
 RadioTextEdit::RadioTextEdit(Window* parent, const rect_t& rect, char* value,

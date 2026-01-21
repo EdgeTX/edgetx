@@ -23,9 +23,9 @@
 
 #include <cctype>
 #include <cstdio>
+#include <cmath>
 
 #include "edgetx.h"
-#include "libopenui.h"
 #include "widget.h"
 
 #include "lua_api.h"
@@ -34,37 +34,7 @@
 
 #define BITMAP_METATABLE "BITMAP*"
 
-constexpr coord_t INVERT_BOX_MARGIN = 2;
-constexpr int8_t text_horizontal_offset[7] = {-2,-1,-2,-2,-2,-2,-2};
-constexpr int8_t text_vertical_offset[7] = {0,0,0,0,0,-1,7};
-
 BitmapBuffer* luaLcdBuffer  = nullptr;
-LuaWidget *runningFS = nullptr;
-
-static int8_t getTextHorizontalOffset(LcdFlags flags)
-{
-  // no need to adjust if not right aligned
-  if (!(flags & RIGHT)) {
-      return 0;
-  }
-  const uint8_t font_index = FONT_INDEX(flags);
-  if (font_index >= sizeof(text_horizontal_offset)) {
-    return 0;
-  }
-  return 0;//text_horizontal_offset[font_index];
-}
-
-static int8_t getTextVerticalOffset(LcdFlags flags)
-{
-  const uint8_t font_index = FONT_INDEX(flags);
-  if (font_index >= sizeof(text_vertical_offset)) {
-    return 0;
-  }
-  int vcenter = 0;
-  if (flags & VCENTERED)
-    vcenter = 0.5 * getFontHeight(flags & 0xFFFF);
-  return text_vertical_offset[font_index] - vcenter;
-}
 
 /*luadoc
 @function lcd.refresh()
@@ -96,7 +66,7 @@ Clear the LCD screen
 static int luaLcdClear(lua_State * L)
 {
   if (luaLcdAllowed && luaLcdBuffer) {
-    LcdFlags flags = luaL_optunsigned(L, 1, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX));
+    LcdFlags flags = luaL_optinteger(L, 1, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX));
     flags = colorToRGB(flags);
     luaLcdBuffer->clear(flags);
   }
@@ -143,7 +113,7 @@ static int luaLcdDrawPoint(lua_State *L)
 
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
-  LcdFlags flags = luaL_optunsigned(L, 3, 0);
+  LcdFlags flags = luaL_optinteger(L, 3, 0);
   flags = colorToRGB(flags);
 
   // drawPixel uses color value directly; hence COLOR_VAL again
@@ -175,12 +145,12 @@ static int luaLcdDrawLine(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x1 = luaL_checkunsigned(L, 1);
-  coord_t y1 = luaL_checkunsigned(L, 2);
-  coord_t x2 = luaL_checkunsigned(L, 3);
-  coord_t y2 = luaL_checkunsigned(L, 4);
-  uint8_t pat = luaL_checkunsigned(L, 5);
-  LcdFlags flags = luaL_optunsigned(L, 6, 0);
+  coord_t x1 = luaL_checkinteger(L, 1);
+  coord_t y1 = luaL_checkinteger(L, 2);
+  coord_t x2 = luaL_checkinteger(L, 3);
+  coord_t y2 = luaL_checkinteger(L, 4);
+  uint8_t pat = luaL_checkinteger(L, 5);
+  LcdFlags flags = luaL_optinteger(L, 6, 0);
   flags = colorToRGB(flags);
 
   if (x1 > LCD_W || y1 > LCD_H || x2 > LCD_W || y2 > LCD_H)
@@ -210,9 +180,9 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
 
-  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
-  x += getTextHorizontalOffset(flags);
-  y += getTextVerticalOffset(flags);
+  // If VCENTER flag is on then Y position is assumed to be center line for text.
+  if (flags & VCENTERED)
+    y -= getFontHeight(flags) / 2;
 
   bool invers = flags & INVERS;
   if (flags & BLINK)
@@ -221,7 +191,7 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
   if (invers) {
     // Find inverse color or read from optional Lua argument
     LcdFlags color = colorToRGB(flags);
-    LcdFlags invColor = luaL_optunsigned(L, 5, ~0u); // ~0 is impossible for color flag!
+    LcdFlags invColor = luaL_optinteger(L, 5, ~0u); // ~0 is impossible for color flag!
     if (invColor == ~0u) {
       RGB_SPLIT(COLOR_VAL(color), r, g, b);
       invColor = COLOR2FLAGS(RGB_JOIN(31 - r, 63 - g, 31 - b));
@@ -230,6 +200,7 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
     flags = (flags & 0xFFFF) | invColor;
     
     // Draw color box
+    constexpr coord_t INVERT_BOX_MARGIN = 2;
     int height = getFontHeight(flags & 0xFFFF) + 2 * INVERT_BOX_MARGIN;
     int width = getTextWidth(s, 0, flags);
     int ix = x - INVERT_BOX_MARGIN;
@@ -268,7 +239,7 @@ Draw a text beginning at (x,y)
 static int luaLcdDrawText(lua_State *L)
 {
   const char * s = luaL_checkstring(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   drawString(L, s, flags);
   return 0;
 }
@@ -284,14 +255,16 @@ Get the width and height of a text string drawn with flags
 
 @retval w,h (integers) width and height of the text
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.5.0
 */
 static int luaLcdSizeText(lua_State *L)
 {
   const char * s = luaL_checkstring(L, 1);
-  LcdFlags flags = luaL_optunsigned(L, 2, 0);
+  LcdFlags flags = luaL_optinteger(L, 2, 0);
   lua_pushinteger(L, getTextWidth(s, 0, flags));
-  lua_pushinteger(L, getFontHeight(flags & 0xFFFF) + getTextVerticalOffset(flags & ~VCENTERED));
+  lua_pushinteger(L, getFontHeight(flags & 0xFFFF));
   return 2;
 }
 
@@ -310,6 +283,8 @@ Draw text inside rectangle (x,y,w,h) with line breaks
 
 @retval x,y (integers) point where text drawing ended
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.5.0, return x,y added in 2.11.0
 */
 static int luaLcdDrawTextLines(lua_State *L)
@@ -323,7 +298,7 @@ static int luaLcdDrawTextLines(lua_State *L)
   int h = luaL_checkinteger(L, 4);
   point_t maxP = {0,0};
   const char * s = luaL_checkstring(L, 5);
-  LcdFlags flags = luaL_optunsigned(L, 6, 0);
+  LcdFlags flags = luaL_optinteger(L, 6, 0);
   
   bool invers = flags & INVERS;
   if (flags & BLINK)
@@ -332,7 +307,7 @@ static int luaLcdDrawTextLines(lua_State *L)
   if (invers) {
     // Find inverse color or read from optional Lua argument
     LcdFlags color = colorToRGB(flags);
-    LcdFlags invColor = luaL_optunsigned(L, 7, ~0u); // ~0 is impossible for color flag!
+    LcdFlags invColor = luaL_optinteger(L, 7, ~0u); // ~0 is impossible for color flag!
     if (invColor == ~0u) {
       RGB_SPLIT(COLOR_VAL(color), r, g, b);
       invColor = COLOR2FLAGS(RGB_JOIN(31 - r, 63 - g, 31 - b));
@@ -379,7 +354,7 @@ static int luaLcdDrawTimer(lua_State *L)
 {
   char s[LEN_TIMER_STRING];
   int tme = luaL_checkinteger(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   TimerOptions timerOptions;
   timerOptions.options = (flags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
   getTimerString(s, tme, timerOptions);
@@ -406,7 +381,7 @@ static int luaLcdDrawNumber(lua_State *L)
 {
   char s[49];
   int val = luaL_checkinteger(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   formatNumberAsString(s, 49, val, flags & 0xFFFF);
   drawString(L, s, flags);
   return 0;
@@ -445,7 +420,7 @@ static int luaLcdDrawChannel(lua_State *L)
       channel = field.id;
     }
   }
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
   getvalue_t value = getValue(channel);
   luaLcdBuffer->drawSensorCustomValue(x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, flags);
@@ -475,7 +450,7 @@ static int luaLcdDrawSwitch(lua_State *L)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int s = luaL_checkinteger(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
   luaLcdBuffer->drawSwitch(x, y, s, flags);
 
@@ -503,7 +478,7 @@ static int luaLcdDrawSource(lua_State *L)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
   int s = luaL_checkinteger(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
   luaLcdBuffer->drawSource(x, y, s, flags);
 
@@ -526,7 +501,7 @@ Bitmap loading can fail if:
 
 @retval bitmap (object) a bitmap object that can be used with other bitmap functions
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.2.0
 */
@@ -579,7 +554,7 @@ Return width, height of a bitmap object
  * (number) width in pixels
  * (number) height in pixels
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.2.0
 */
@@ -608,22 +583,22 @@ Return a resized bitmap object
 
 @param height (number) the new bitmap height
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
 static int luaBitmapResize(lua_State * L)
 {
   const BitmapBuffer * b = checkBitmap(L, 1);
-  unsigned int w = luaL_checkunsigned(L, 2);
-  unsigned int h = luaL_checkunsigned(L, 3);
+  coord_t w = luaL_checkinteger(L, 2);
+  coord_t h = luaL_checkinteger(L, 3);
 
   if (!b) {
     lua_pushnil(L);
     return 1;
   }
 
-  BitmapBuffer **n = (BitmapBuffer**)lua_newuserdata(L, sizeof(BitmapBuffer*));
+  BitmapBuffer **n = (BitmapBuffer**)lua_newuserdata(L, sizeof(void*));
 
   if (luaExtraMemoryUsage > LUA_MEM_EXTRA_MAX) {
     // already allocated more than max allowed, fail
@@ -657,7 +632,7 @@ Return a 8bit bitmap mask that can be used with lcd.drawBitmapPattern()
 
 @retval a bitmap mask
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -705,7 +680,7 @@ Displays a bitmap at (x,y)
 @param scale (positive numbers) scale in %, 50 divides size by two, 100 is unchanged, 200 doubles size.
 Omitting scale draws image in 1:1 scale and is faster than specifying 100 for scale.
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.2.0
 */
@@ -717,9 +692,9 @@ static int luaLcdDrawBitmap(lua_State *L)
   const BitmapBuffer * b = checkBitmap(L, 1);
 
   if (b) {
-    unsigned int x = luaL_checkunsigned(L, 2);
-    unsigned int y = luaL_checkunsigned(L, 3);
-    unsigned int scale = luaL_optunsigned(L, 4, 0);
+    coord_t x = luaL_checkinteger(L, 2);
+    coord_t y = luaL_checkinteger(L, 3);
+    coord_t scale = luaL_optinteger(L, 4, 0);
     if (scale) {
       luaLcdBuffer->drawBitmap(x, y, b, 0, 0, 0, 0, scale/100.0f);
     }
@@ -743,7 +718,7 @@ Displays a bitmap pattern at (x,y)
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -755,9 +730,9 @@ static int luaLcdDrawBitmapPattern(lua_State *L)
   const char* m = luaL_checkstring(L, 1);
 
   if (m) {
-    auto x = luaL_checkunsigned(L, 2);
-    auto y = luaL_checkunsigned(L, 3);
-    auto flags = luaL_optunsigned(L, 4, 0);
+    auto x = luaL_checkinteger(L, 2);
+    auto y = luaL_checkinteger(L, 3);
+    auto flags = (LcdFlags)luaL_optinteger(L, 4, 0);
     flags = colorToRGB(flags);
     luaLcdBuffer->drawBitmapPattern(x, y, reinterpret_cast<const MaskBitmap*>(m), flags);
   }
@@ -780,7 +755,7 @@ Displays a bitmap pattern pie at (x,y)
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -792,11 +767,11 @@ static int luaLcdDrawBitmapPatternPie(lua_State *L)
   const char* m = luaL_checkstring(L, 1);
 
   if (m) {
-    auto x = luaL_checkunsigned(L, 2);
-    auto y = luaL_checkunsigned(L, 3);
-    auto startAngle = luaL_checkinteger(L, 4);
-    auto endAngle = luaL_checkinteger(L, 5);
-    auto flags = luaL_optunsigned(L, 6, 0);
+    coord_t x = luaL_checkinteger(L, 2);
+    coord_t y = luaL_checkinteger(L, 3);
+    int startAngle = luaL_checkinteger(L, 4);
+    int endAngle = luaL_checkinteger(L, 5);
+    LcdFlags flags = luaL_optinteger(L, 6, 0);
     flags = colorToRGB(flags);
     luaLcdBuffer->drawBitmapPatternPie(x, y, reinterpret_cast<const MaskBitmap*>(m), flags, startAngle, endAngle);
   }
@@ -817,9 +792,9 @@ Draw a rectangle from top left corner (x,y) of specified width and height
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@param t (number) thickness in pixels, defaults to 1 (only on Horus)
+@param t (number) thickness in pixels, defaults to 1 (only on radios with color display)
 
-@param opacity (number) opacity defaults to 0 (only on Horus)
+@param opacity (number) opacity defaults to 0 (only on radios with color display)
 
 @status current Introduced in 2.0.0, changed in 2.2.0
 */
@@ -832,12 +807,12 @@ static int luaLcdDrawRectangle(lua_State *L)
   int w = luaL_checkinteger(L, 3);
   int h = luaL_checkinteger(L, 4);
 
-  LcdFlags flags = luaL_optunsigned(L, 5, 0);
+  LcdFlags flags = luaL_optinteger(L, 5, 0);
   flags = colorToRGB(flags);
-  unsigned int t = luaL_optunsigned(L, 6, 1);
-  uint8_t opacity = luaL_optunsigned(L, 7, 0) & 0x0F;
+  uint8_t thickness = luaL_optinteger(L, 6, 1);
+  uint8_t opacity = luaL_optinteger(L, 7, 0) & 0x0F;
 
-  luaLcdBuffer->drawRect(x, y, w, h, t, SOLID, flags, opacity);
+  luaLcdBuffer->drawRect(x, y, w, h, thickness, SOLID, flags, opacity);
 
   return 0;
 }
@@ -855,7 +830,7 @@ Draw a solid rectangle from top left corner (x,y) of specified width and height
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@param opacity (number) opacity defaults to 0 (only on Horus)
+@param opacity (number) opacity defaults to 0 (only on radios with color display)
 
 @status current Introduced in 2.0.0
 */
@@ -869,9 +844,9 @@ static int luaLcdDrawFilledRectangle(lua_State *L)
   int w = luaL_checkinteger(L, 3);
   int h = luaL_checkinteger(L, 4);
 
-  LcdFlags flags = luaL_optunsigned(L, 5, 0);
+  LcdFlags flags = luaL_optinteger(L, 5, 0);
   flags = colorToRGB(flags);
-  uint8_t opacity = luaL_optunsigned(L, 6, 0) & 0x0F;
+  uint8_t opacity = luaL_optinteger(L, 6, 0) & 0x0F;
   
   luaLcdBuffer->drawFilledRect(x, y, w, h, SOLID, flags, opacity);
 
@@ -892,6 +867,8 @@ Invert a rectangle zone from top left corner (x,y) of specified width and height
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.8.0
 */
 static int luaLcdInvertRect(lua_State *L)
@@ -904,7 +881,7 @@ static int luaLcdInvertRect(lua_State *L)
   int w = luaL_checkinteger(L, 3);
   int h = luaL_checkinteger(L, 4);
 
-  LcdFlags flags = luaL_optunsigned(L, 5, 0);
+  LcdFlags flags = luaL_optinteger(L, 5, 0);
   flags = colorToRGB(flags);
 
   luaLcdBuffer->invertRect(x, y, w, h, flags);
@@ -942,7 +919,7 @@ static int luaLcdDrawGauge(lua_State *L)
   int h = luaL_checkinteger(L, 4);
   int num = luaL_checkinteger(L, 5);
   int den = luaL_checkinteger(L, 6);
-  LcdFlags flags = luaL_optunsigned(L, 7, 0);
+  LcdFlags flags = luaL_optinteger(L, 7, 0);
   flags = colorToRGB(flags);
   
   luaLcdBuffer->drawRect(x, y, w, h, 1, 0xff, flags);
@@ -965,10 +942,10 @@ Please notice that changing theme colors affects not only other Lua widgets, but
 */
 static int luaLcdSetColor(lua_State *L)
 {
-  unsigned int index = COLOR_VAL(luaL_checkunsigned(L, 1));
-  uint16_t color = COLOR_VAL(colorToRGB(luaL_checkunsigned(L, 2)));
+  unsigned int index = COLOR_VAL((uint32_t)luaL_checkinteger(L, 1));
+  uint16_t color = COLOR_VAL(colorToRGB(luaL_checkinteger(L, 2)));
 
-  if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
+  if (index < THEME_COLOR_COUNT && lcdColorTable[index] != color) {
     lcdColorTable[index] = color;
     styles->applyColors();
   }
@@ -991,11 +968,13 @@ Get the color value from flags
 
 static int luaLcdGetColor(lua_State *L)
 {
-  LcdFlags flags = luaL_checkunsigned(L, 1);
-  if ((flags & RGB_FLAG) || (COLOR_VAL(flags) & 0xFF) < LCD_COLOR_COUNT)
-    lua_pushunsigned(L, colorToRGB(flags) & (COLOR_MASK(~0u) | RGB_FLAG));
-  else
+  LcdFlags flags = luaL_checkinteger(L, 1);
+  if ((flags & RGB_FLAG) || (COLOR_VAL(flags) & 0xFF) < THEME_COLOR_COUNT) {
+    LcdFlags col = colorToRGB(flags) & (COLOR_MASK(~0u) | RGB_FLAG);
+    lua_pushinteger(L, col);
+  } else {
     lua_pushnil(L);
+  }
   return 1;
 }
 
@@ -1022,7 +1001,7 @@ static int luaRGB(lua_State *L)
 {
   int r, g, b;
   if (lua_gettop(L) == 1) {
-    int color = luaL_checkinteger(L, 1);
+    uint32_t color = luaL_checkinteger(L, 1);
     r = (color >> 16) & 0xFF;
     g = (color >> 8) & 0xFF;
     b = color & 0xFF;
@@ -1031,7 +1010,8 @@ static int luaRGB(lua_State *L)
     g = luaL_checkinteger(L, 2);
     b = luaL_checkinteger(L, 3);
   }
-  lua_pushinteger(L, COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG);
+  LcdFlags res = COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG;
+  lua_pushinteger(L, res);
   return 1;
 }
 
@@ -1046,6 +1026,8 @@ Draw a circle at (x, y) of specified radius
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawCircle(lua_State *L)
@@ -1053,10 +1035,10 @@ static int luaLcdDrawCircle(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x = luaL_checkunsigned(L, 1);
-  coord_t y = luaL_checkunsigned(L, 2);
-  coord_t r = luaL_checkunsigned(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  coord_t x = luaL_checkinteger(L, 1);
+  coord_t y = luaL_checkinteger(L, 2);
+  coord_t r = luaL_checkinteger(L, 3);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
 
   luaLcdBuffer->drawCircle(x, y, r, flags);
@@ -1075,6 +1057,8 @@ Draw a filled circle at (x, y) of specified radius
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawFilledCircle(lua_State *L)
@@ -1082,10 +1066,10 @@ static int luaLcdDrawFilledCircle(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x = luaL_checkunsigned(L, 1);
-  coord_t y = luaL_checkunsigned(L, 2);
-  coord_t r = luaL_checkunsigned(L, 3);
-  LcdFlags flags = luaL_optunsigned(L, 4, 0);
+  coord_t x = luaL_checkinteger(L, 1);
+  coord_t y = luaL_checkinteger(L, 2);
+  coord_t r = luaL_checkinteger(L, 3);
+  LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
 
   luaLcdBuffer->drawFilledCircle(x, y, r, flags);
@@ -1102,6 +1086,8 @@ Draw a triangle
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawTriangle(lua_State *L)
@@ -1109,13 +1095,13 @@ static int luaLcdDrawTriangle(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x1 = luaL_checkunsigned(L, 1);
-  coord_t y1 = luaL_checkunsigned(L, 2);
-  coord_t x2 = luaL_checkunsigned(L, 3);
-  coord_t y2 = luaL_checkunsigned(L, 4);
-  coord_t x3 = luaL_checkunsigned(L, 5);
-  coord_t y3 = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_optunsigned(L, 7, 0);
+  coord_t x1 = luaL_checkinteger(L, 1);
+  coord_t y1 = luaL_checkinteger(L, 2);
+  coord_t x2 = luaL_checkinteger(L, 3);
+  coord_t y2 = luaL_checkinteger(L, 4);
+  coord_t x3 = luaL_checkinteger(L, 5);
+  coord_t y3 = luaL_checkinteger(L, 6);
+  LcdFlags flags = luaL_optinteger(L, 7, 0);
   flags = colorToRGB(flags);
 
   luaLcdBuffer->drawLine(x1, y1, x2, y2, SOLID, flags);
@@ -1134,6 +1120,8 @@ Draw a filled triangle
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawFilledTriangle(lua_State *L)
@@ -1141,13 +1129,13 @@ static int luaLcdDrawFilledTriangle(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x1 = luaL_checkunsigned(L, 1);
-  coord_t y1 = luaL_checkunsigned(L, 2);
-  coord_t x2 = luaL_checkunsigned(L, 3);
-  coord_t y2 = luaL_checkunsigned(L, 4);
-  coord_t x3 = luaL_checkunsigned(L, 5);
-  coord_t y3 = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_optunsigned(L, 7, 0);
+  coord_t x1 = luaL_checkinteger(L, 1);
+  coord_t y1 = luaL_checkinteger(L, 2);
+  coord_t x2 = luaL_checkinteger(L, 3);
+  coord_t y2 = luaL_checkinteger(L, 4);
+  coord_t x3 = luaL_checkinteger(L, 5);
+  coord_t y3 = luaL_checkinteger(L, 6);
+  LcdFlags flags = luaL_optinteger(L, 7, 0);
   flags = colorToRGB(flags);
 
   luaLcdBuffer->drawFilledTriangle(x1, y1, x2, y2, x3, y3, flags);
@@ -1168,6 +1156,8 @@ Draw an arc
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawArc(lua_State *L)
@@ -1175,12 +1165,12 @@ static int luaLcdDrawArc(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x = luaL_checkunsigned(L, 1);
-  coord_t y = luaL_checkunsigned(L, 2);
-  coord_t r = luaL_checkunsigned(L, 3);
-  int start = luaL_checkunsigned(L, 4);
-  int end = luaL_checkunsigned(L, 5);
-  LcdFlags flags = luaL_optunsigned(L, 6, 0);
+  coord_t x = luaL_checkinteger(L, 1);
+  coord_t y = luaL_checkinteger(L, 2);
+  coord_t r = luaL_checkinteger(L, 3);
+  int start = luaL_checkinteger(L, 4);
+  int end = luaL_checkinteger(L, 5);
+  LcdFlags flags = luaL_optinteger(L, 6, 0);
   flags = colorToRGB(flags);
 
   if (r > 0)
@@ -1202,6 +1192,8 @@ Draw a pie slice
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawPie(lua_State *L)
@@ -1209,12 +1201,12 @@ static int luaLcdDrawPie(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x = luaL_checkunsigned(L, 1);
-  coord_t y = luaL_checkunsigned(L, 2);
-  coord_t r = luaL_checkunsigned(L, 3);
-  int start = luaL_checkunsigned(L, 4);
-  int end = luaL_checkunsigned(L, 5);
-  LcdFlags flags = luaL_optunsigned(L, 6, 0);
+  coord_t x = luaL_checkinteger(L, 1);
+  coord_t y = luaL_checkinteger(L, 2);
+  coord_t r = luaL_checkinteger(L, 3);
+  int start = luaL_checkinteger(L, 4);
+  int end = luaL_checkinteger(L, 5);
+  LcdFlags flags = luaL_optinteger(L, 6, 0);
   flags = colorToRGB(flags);
 
   if (r > 0)
@@ -1236,6 +1228,8 @@ Draw an arc
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawAnnulus(lua_State *L)
@@ -1243,13 +1237,13 @@ static int luaLcdDrawAnnulus(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x = luaL_checkunsigned(L, 1);
-  coord_t y = luaL_checkunsigned(L, 2);
-  coord_t r1 = luaL_checkunsigned(L, 3);
-  coord_t r2 = luaL_checkunsigned(L, 4);
-  int start = luaL_checkunsigned(L, 5);
-  int end = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_optunsigned(L, 7, 0);
+  coord_t x = luaL_checkinteger(L, 1);
+  coord_t y = luaL_checkinteger(L, 2);
+  coord_t r1 = luaL_checkinteger(L, 3);
+  coord_t r2 = luaL_checkinteger(L, 4);
+  int start = luaL_checkinteger(L, 5);
+  int end = luaL_checkinteger(L, 6);
+  LcdFlags flags = luaL_optinteger(L, 7, 0);
   flags = colorToRGB(flags);
 
   luaLcdBuffer->drawAnnulusSector(x, y, r1, r2, start, end, flags);
@@ -1270,6 +1264,8 @@ Draw a line only inside a rectangle
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawLineWithClipping(lua_State *L)
@@ -1277,16 +1273,16 @@ static int luaLcdDrawLineWithClipping(lua_State *L)
   if (!luaLcdAllowed || !luaLcdBuffer)
     return 0;
 
-  coord_t x1 = luaL_checkunsigned(L, 1);
-  coord_t y1 = luaL_checkunsigned(L, 2);
-  coord_t x2 = luaL_checkunsigned(L, 3);
-  coord_t y2 = luaL_checkunsigned(L, 4);
-  coord_t xmin = luaL_checkunsigned(L, 5);
-  coord_t xmax = luaL_checkunsigned(L, 6);
-  coord_t ymin = luaL_checkunsigned(L, 7);
-  coord_t ymax = luaL_checkunsigned(L, 8);
-  uint8_t pat = luaL_checkunsigned(L, 9);
-  LcdFlags flags = luaL_optunsigned(L, 10, 0);
+  coord_t x1 = luaL_checkinteger(L, 1);
+  coord_t y1 = luaL_checkinteger(L, 2);
+  coord_t x2 = luaL_checkinteger(L, 3);
+  coord_t y2 = luaL_checkinteger(L, 4);
+  coord_t xmin = luaL_checkinteger(L, 5);
+  coord_t xmax = luaL_checkinteger(L, 6);
+  coord_t ymin = luaL_checkinteger(L, 7);
+  coord_t ymax = luaL_checkinteger(L, 8);
+  uint8_t pat = luaL_checkinteger(L, 9);
+  LcdFlags flags = luaL_optinteger(L, 10, 0);
   flags = colorToRGB(flags);
 
   // backup clipping rect
@@ -1378,6 +1374,8 @@ Draw a rectangle in perspective
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawHudRectangle(lua_State *L)
@@ -1387,11 +1385,11 @@ static int luaLcdDrawHudRectangle(lua_State *L)
 
   float pitch = luaL_checknumber(L, 1);
   float roll = luaL_checknumber(L, 2);
-  coord_t xmin = luaL_checkunsigned(L, 3);
-  coord_t xmax = luaL_checkunsigned(L, 4);
-  coord_t ymin = luaL_checkunsigned(L, 5);
-  coord_t ymax = luaL_checkunsigned(L, 6);
-  LcdFlags flags = luaL_optunsigned(L, 7, 0);
+  coord_t xmin = luaL_checkinteger(L, 3);
+  coord_t xmax = luaL_checkinteger(L, 4);
+  coord_t ymin = luaL_checkinteger(L, 5);
+  coord_t ymax = luaL_checkinteger(L, 6);
+  LcdFlags flags = luaL_optinteger(L, 7, 0);
   flags = colorToRGB(flags);
 
   drawHudRectangle(luaLcdBuffer, pitch, roll, xmin, xmax, ymin, ymax, flags);
@@ -1410,10 +1408,49 @@ Exit full screen widget mode.
 */
 static int luaLcdExitFullScreen(lua_State *L)
 {
-  if (runningFS)
-    runningFS->closeFullscreen();
+  if (luaScriptManager)
+    luaScriptManager->exitFullscreen();
   return 0;
 }
+
+extern "C" {
+LROT_BEGIN(colorlib, NULL, 0)
+  // Colors gui/colorlcd/colors.h
+  LROT_NUMENTRY( COLOR_THEME_PRIMARY1, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_PRIMARY2, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_PRIMARY3, COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_SECONDARY1, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_SECONDARY2, COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_SECONDARY3, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_FOCUS, COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_EDIT, COLOR2FLAGS(COLOR_THEME_EDIT_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_ACTIVE, COLOR2FLAGS(COLOR_THEME_ACTIVE_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_WARNING, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_DISABLED, COLOR2FLAGS(COLOR_THEME_DISABLED_INDEX) )
+  LROT_NUMENTRY( CUSTOM_COLOR, COLOR2FLAGS(CUSTOM_COLOR_INDEX) )
+
+  // Literal colors
+  LROT_NUMENTRY( BLACK, COLOR2FLAGS(COLOR_BLACK_INDEX) )
+  LROT_NUMENTRY( WHITE, COLOR2FLAGS(COLOR_WHITE_INDEX) )
+  LROT_NUMENTRY( LIGHTWHITE, COLOR2FLAGS(COLOR_LIGHTWHITE_INDEX) )
+  LROT_NUMENTRY( LIGHTGREY, COLOR2FLAGS(COLOR_LIGHTGREY_INDEX) )
+  LROT_NUMENTRY( GREY, COLOR2FLAGS(COLOR_GREY_INDEX) )
+  LROT_NUMENTRY( DARKGREY, COLOR2FLAGS(COLOR_DARKGREY_INDEX) )
+  LROT_NUMENTRY( RED, COLOR2FLAGS(COLOR_RED_INDEX) )
+  LROT_NUMENTRY( DARKRED, COLOR2FLAGS(COLOR_DARKRED_INDEX) )
+  LROT_NUMENTRY( LIGHTRED, COLOR2FLAGS(COLOR_LIGHTRED_INDEX) )
+  LROT_NUMENTRY( GREEN, COLOR2FLAGS(COLOR_GREEN_INDEX) )
+  LROT_NUMENTRY( DARKGREEN, COLOR2FLAGS(COLOR_DARKGREEN_INDEX) )
+  LROT_NUMENTRY( BRIGHTGREEN, COLOR2FLAGS(COLOR_BRIGHTGREEN_INDEX) )
+  LROT_NUMENTRY( BLUE, COLOR2FLAGS(COLOR_BLUE_INDEX) )
+  LROT_NUMENTRY( DARKBLUE, COLOR2FLAGS(COLOR_DARKBLUE_INDEX) )
+  LROT_NUMENTRY( CYAN, COLOR2FLAGS(COLOR_CYAN_INDEX) )
+  LROT_NUMENTRY( YELLOW, COLOR2FLAGS(COLOR_YELLOW_INDEX) )
+  LROT_NUMENTRY( LIGHTBROWN, COLOR2FLAGS(COLOR_LIGHTBROWN_INDEX) )
+  LROT_NUMENTRY( DARKBROWN, COLOR2FLAGS(COLOR_DARKBROWN_INDEX) )
+  LROT_NUMENTRY( ORANGE, COLOR2FLAGS(COLOR_ORANGE_INDEX) )
+  LROT_NUMENTRY( MAGENTA, COLOR2FLAGS(COLOR_MAGENTA_INDEX) )
+LROT_END(colorlib, NULL, 0)
 
 LROT_BEGIN(lcdlib, NULL, 0)
   LROT_FUNCENTRY( refresh, luaLcdRefresh )
@@ -1465,9 +1502,8 @@ LROT_BEGIN(bitmaplib, NULL, 0)
   LROT_FUNCENTRY( toMask, luaBitmapTo8bitMask )
 LROT_END(bitmaplib, NULL, 0)
 
-extern "C" {
-  LUALIB_API int luaopen_bitmap(lua_State * L) {
-    luaL_rometatable( L, BITMAP_METATABLE,  LROT_TABLEREF(bitmap_mt));
-    return 0;
-  }
+LUALIB_API int luaopen_bitmap(lua_State * L) {
+  luaL_rometatable( L, BITMAP_METATABLE,  LROT_TABLEREF(bitmap_mt));
+  return 0;
+}
 }

@@ -22,7 +22,9 @@
 #include "afhds3_settings.h"
 
 #include "afhds3_options.h"
+#include "button.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 
 static const char* const _afhds3_region[] = {"CE", "FCC"};
 
@@ -87,12 +89,28 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
     return 0;
   });
 
-  if (moduleIdx == EXTERNAL_MODULE) {
+  bool hasPowerOption = false;
+  int maxPower;
+  if (moduleIdx == INTERNAL_MODULE) {
+  #if defined(RADIO_PL18U) || defined(PCBPA01)
+    hasPowerOption = true;
+    maxPower = AFHDS3_POWER_500;
+  #if  defined(PCBPA01)
+    md->afhds3.rfPower = afhds3::get_current_rfpower_level(moduleIdx);
+  #endif
+  #endif
+  } else if (moduleIdx == EXTERNAL_MODULE) {
+    hasPowerOption = true;
+    maxPower = AFHDS3_FRM303_POWER_MAX;
+    md->afhds3.rfPower = afhds3::get_current_rfpower_level(moduleIdx);
+  }
+
+  if (hasPowerOption) {
     line = newLine(grid);
     auto cfg = afhds3::getConfig(moduleIdx);
     new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
     afhds3RfPower = new Choice(
-        line, rect_t{}, STR_AFHDS3_POWERS, 0, AFHDS3_FRM303_POWER_MAX,
+        line, rect_t{}, STR_AFHDS3_POWERS, 0, maxPower,
         GET_DEFAULT(md->afhds3.rfPower), [=](int32_t newValue) {
           md->afhds3.rfPower = newValue;
           cfg->others.dirtyFlag |= (uint32_t)1

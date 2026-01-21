@@ -275,7 +275,11 @@ static void pxx1SportSensorPolling(void* param)
       b != outputTelemetryBuffer.sport.physicalId)
     return;
 
-  drv->sendBuffer(ctx, outputTelemetryBuffer.data + 1,
+  // fix alignement for DMA
+  memmove(outputTelemetryBuffer.data, outputTelemetryBuffer.data + 1,
+          outputTelemetryBuffer.size - 1);
+
+  drv->sendBuffer(ctx, outputTelemetryBuffer.data,
                   outputTelemetryBuffer.size - 1);
 
   outputTelemetryBuffer.reset();
@@ -405,7 +409,7 @@ static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* l
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
 
-  processFrskySportTelemetryData(module, data, buffer, *len);
+  processFrskySportTelemetryData(module, data, buffer, len);
 }
 
 const etx_proto_driver_t Pxx1Driver = {
@@ -416,4 +420,5 @@ const etx_proto_driver_t Pxx1Driver = {
   .processData = pxx1ProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

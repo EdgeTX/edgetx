@@ -21,19 +21,21 @@
 
 #include "radio_hardware.h"
 
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hw_extmodule.h"
 #include "hw_inputs.h"
 #include "hw_intmodule.h"
 #include "hw_serial.h"
-#include "libopenui.h"
-#include "edgetx.h"
+#include "numberedit.h"
 #include "radio_calibration.h"
 #include "radio_diaganas.h"
 #include "radio_diagkeys.h"
 #include "radio_setup.h"
 
 #if defined(FUNCTION_SWITCHES)
+#include "radio_cfs.h"
 #include "radio_diagcustswitches.h"
 #endif
 
@@ -43,20 +45,18 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-#if PORTRAIT_LCD
+#if PORTRAIT
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(19),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
 #endif
 
-RadioHardwarePage::RadioHardwarePage() :
-    PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE, PAD_TINY)
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+RadioHardwarePage::RadioHardwarePage(const PageDef& pageDef) :
+    PageGroupItem(pageDef, PAD_TINY)
 {
   enableVBatBridge();
 }
@@ -88,7 +88,7 @@ class BatCalEdit : public NumberEdit
   {
     if (getBatteryVoltage() != lastBatVolts) {
       lastBatVolts = getBatteryVoltage();
-      invalidate();
+      setValue(g_eeGeneral.txVoltageCalibration);
     }
   }
 };
@@ -96,15 +96,15 @@ class BatCalEdit : public NumberEdit
 static SetupLineDef setupLines[] = {
   {
     // Batt meter range - Range 3.0v to 16v
-    STR_BATTERY_RANGE,
+    STR_DEF(STR_BATTERY_RANGE),
     [](Window* parent, coord_t x, coord_t y) {
       auto batMin = new NumberEdit(
-          parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+          parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
       batMin->setSuffix("V");
-      new StaticText(parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::PAGE_LINE_HEIGHT}, "-");
+      new StaticText(parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::STD_FONT_HEIGHT}, "-");
       auto batMax = new NumberEdit(
-          parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_LARGE + PAD_SMALL, y, RadioHardwarePage::NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+          parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_LARGE + PAD_SMALL, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
       batMax->setSuffix("V");
 
@@ -123,14 +123,14 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Bat calibration
-    STR_BATT_CALIB,
+    STR_DEF(STR_BATT_CALIB),
     [](Window* parent, coord_t x, coord_t y) {
-      new BatCalEdit(parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0});
+      new BatCalEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0});
     }
   },
   {
     // RTC Batt check enable
-    STR_RTC_CHECK,
+    STR_DEF(STR_RTC_CHECK),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0},
                        GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
@@ -145,7 +145,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // ADC filter
-    STR_JITTER_FILTER,
+    STR_DEF(STR_JITTER_FILTER),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
     }
@@ -153,7 +153,7 @@ static SetupLineDef setupLines[] = {
 #if defined(AUDIO_MUTE_GPIO)
   {
     // Mute audio
-    STR_AUDIO_MUTE,
+    STR_DEF(STR_AUDIO_MUTE),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
     }
@@ -169,26 +169,18 @@ void RadioHardwarePage::build(Window* window)
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  FormLine* line;
-
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, STR_INTERNALRF);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
-  new InternalModuleWindow(line, grid);
+  new InternalModuleWindow(window, grid);
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(STM32F4)
   new Subtitle(window, STR_EXTERNALRF);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
-  new ExternalModuleWindow(line, grid);
+  new ExternalModuleWindow(window, grid);
 #endif
 
 #if defined(BLUETOOTH)
   new Subtitle(window, STR_BLUETOOTH);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
   new BluetoothConfigWindow(window, grid);
 #endif
 
@@ -197,18 +189,21 @@ void RadioHardwarePage::build(Window* window)
 
   // Calibration
   new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, BTN_COLS, PAD_ZERO, {
-    {STR_CALIBRATION, []() { new RadioCalibrationPage(); }},
-    {STR_STICKS, []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
-    {STR_POTS, []() { new HWInputDialog<HWPots>(STR_POTS); }},
-    {STR_SWITCHES, []() { new HWInputDialog<HWSwitches>(STR_SWITCHES); }},
+    {STR_DEF(STR_MENUCALIBRATION), []() { new RadioCalibrationPage(); }},
+    {STR_DEF(STR_STICKS), []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
+    {STR_DEF(STR_POTS), []() { new HWInputDialog<HWPots>(STR_POTS, HWPots::POTS_WINDOW_WIDTH); }},
+    {STR_DEF(STR_SWITCHES), []() { new HWInputDialog<HWSwitches>(STR_SWITCHES, HWSwitches::SW_WINDOW_WIDTH); }},
+#if defined(FUNCTION_SWITCHES)
+    {STR_DEF(STR_FUNCTION_SWITCHES), []() { new RadioFunctionSwitches(); }},
+#endif
   });
 
   // Debugs
   new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, FS_BTN_COLS, PAD_ZERO, {
-    {STR_ANALOGS_BTN, []() { new RadioAnalogsDiagsViewPageGroup(); }},
-    {STR_KEYS_BTN, []() { new RadioKeyDiagsPage(); }},
+    {STR_DEF(STR_ANALOGS_BTN), [=]() { new RadioAnalogsDiagsViewPageGroup(qmPageId); }},
+    {STR_DEF(STR_KEYS_BTN), []() { new RadioKeyDiagsPage(); }},
 #if defined(FUNCTION_SWITCHES)
-    {STR_FS_BTN, []() { new RadioCustSwitchesDiagsPage(); }},  
-#endif    
+    {STR_DEF(STR_FS_BTN), []() { new RadioCustSwitchesDiagsPage(); }},
+#endif
   });
 }

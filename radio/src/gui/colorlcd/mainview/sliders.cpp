@@ -26,44 +26,23 @@
 #include "edgetx.h"
 #include "switches.h"
 
-static const lv_style_const_prop_t shadow1_props[] = {
-    // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
-    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
-    LV_STYLE_CONST_SHADOW_OPA(LV_OPA_20),
-    LV_STYLE_CONST_SHADOW_OFS_X(1),
-    LV_STYLE_CONST_SHADOW_OFS_Y(1),
-    LV_STYLE_CONST_SHADOW_WIDTH(1),
-    LV_STYLE_PROP_INV,
-};
-static LV_STYLE_CONST_MULTI_INIT(shadow1_style, shadow1_props);
-
-static const lv_style_const_prop_t shadow2_props[] = {
-    // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
-    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
-    LV_STYLE_CONST_SHADOW_OPA(LV_OPA_40),
-    LV_STYLE_CONST_SHADOW_OFS_X(1),
-    LV_STYLE_CONST_SHADOW_OFS_Y(1),
-    LV_STYLE_CONST_SHADOW_WIDTH(1),
-    LV_STYLE_PROP_INV,
-};
-static LV_STYLE_CONST_MULTI_INIT(shadow2_style, shadow2_props);
-
 SliderIcon::SliderIcon(Window* parent) :
-    Window(parent, rect_t{0, 0, MainViewSlider::SL_SZ + 2, MainViewSlider::SL_SZ + 2})
+    Window(parent, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, MainViewSlider::SLIDER_BAR_SIZE})
 {
   setWindowFlag(NO_FOCUS);
 
-  auto shad = lv_obj_create(lvobj);
-  etx_obj_add_style(shad, shadow1_style, LV_PART_MAIN);
-  lv_obj_set_pos(shad, 1, 1);
-  lv_obj_set_size(shad, MainViewSlider::SL_SZ, MainViewSlider::SL_SZ);
+  auto icon = getBuiltinIcon(ICON_TRIM_SHADOW);
+  shadow = lv_canvas_create(lvobj);
+  lv_canvas_set_buffer(shadow, (void*)icon->data, icon->width, icon->height, LV_IMG_CF_ALPHA_8BIT);
+  etx_img_color(shadow, COLOR_THEME_PRIMARY1_INDEX);
 
-  fill = lv_obj_create(lvobj);
-  etx_obj_add_style(fill, shadow2_style, LV_PART_MAIN);
-  lv_obj_set_pos(fill, 0, 0);
-  lv_obj_set_size(fill, MainViewSlider::SL_SZ, MainViewSlider::SL_SZ);
-  etx_solid_bg(fill, COLOR_THEME_FOCUS_INDEX);
+  icon = getBuiltinIcon(ICON_TRIM);
+  mask = lv_canvas_create(lvobj);
+  lv_canvas_set_buffer(mask, (void*)icon->data, icon->width, icon->height, LV_IMG_CF_ALPHA_8BIT);
+  etx_img_color(mask, COLOR_THEME_FOCUS_INDEX);
 }
+
+std::vector<MaskBitmap*> MainViewSlider::tickMasks;
 
 MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                                bool isVertical) :
@@ -71,41 +50,17 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
 {
   potIdx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
 
-  if (isVertical) {
-    int sliderTicksCount = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
-    tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
+  auto mask = getTicksMask();
 
-    lv_coord_t y = LayoutFactory::TRIM_SQUARE_SIZE / 2;
-    for (uint8_t i = 0; i <= sliderTicksCount; i++) {
-      if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
-        tickPoints[i * 2] = {PAD_TINY, y};
-        tickPoints[i * 2 + 1] = {SL_SZ, y};
-      } else {
-        tickPoints[i * 2] = {PAD_TINY + 2, y};
-        tickPoints[i * 2 + 1] = {SL_SZ - 2, y};
-      }
-      auto line = lv_line_create(lvobj);
-      etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
-      lv_line_set_points(line, &tickPoints[i * 2], 2);
-      y += SLIDER_TICK_SPACING;
-    }
-  } else {
-    int sliderTicksCount = (width() - LayoutFactory::TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
-    tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
+  if (mask) {
+    maskCanvas = lv_canvas_create(lvobj);
+    etx_img_color(maskCanvas, COLOR_THEME_SECONDARY1_INDEX);
+    lv_canvas_set_buffer(maskCanvas, mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
 
-    lv_coord_t x = LayoutFactory::TRIM_SQUARE_SIZE / 2;
-    for (uint8_t i = 0; i <= sliderTicksCount; i++) {
-      if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
-        tickPoints[i * 2] = {x, PAD_TINY};
-        tickPoints[i * 2 + 1] = {x, SL_SZ};
-      } else {
-        tickPoints[i * 2] = {x, PAD_TINY + 2};
-        tickPoints[i * 2 + 1] = {x, SL_SZ - 2};
-      }
-      auto line = lv_line_create(lvobj);
-      etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
-      lv_line_set_points(line, &tickPoints[i * 2], 2);
-      x += SLIDER_TICK_SPACING;
+    if (isVertical) {
+      lv_obj_set_pos(maskCanvas, PAD_TINY, SLIDER_BAR_SIZE / 2);
+    } else {
+      lv_obj_set_pos(maskCanvas, SLIDER_BAR_SIZE / 2, PAD_TINY);
     }
   }
 
@@ -114,22 +69,83 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
   setPos();
 }
 
-void MainViewSlider::deleteLater(bool detach, bool trash)
+MaskBitmap* MainViewSlider::getTicksMask()
 {
-  if (!deleted()) {
-    if (tickPoints) delete tickPoints;
-    Window::deleteLater(detach, trash);
+  coord_t l, x, y, w, h;
+
+  // Mask size
+  if (isVertical) {
+    h = height() - SLIDER_BAR_SIZE + 1;
+    if ((h & 1) == 0) h += 1;
+    w = MASK_SHORT_DIM;
+  } else {
+    w = width() - SLIDER_BAR_SIZE + 1;
+    if ((w & 1) == 0) w += 1;
+    h = MASK_SHORT_DIM;
   }
+
+  for (auto mask : tickMasks) {
+    // TRACE("Found Mask %d %d",w,h);
+    if (mask->width == w && mask->height == h) return mask;
+  }
+
+  MaskBitmap* mask =(MaskBitmap*)malloc(w * h + sizeof(uint16_t) * 2);
+  if (!mask) {
+    TRACE("Could not create Slider mask");
+    return nullptr;
+  }
+
+  mask->width = w;
+  mask->height = h;
+  memset(mask->data, 0, w * h);
+
+  if (isVertical) {
+    // Create vertical mask for tick lines
+    int sliderTicksCount = h / SLIDER_TICK_SPACING;
+    y = 0;
+    for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+      if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
+        x = 0;
+        l = w;
+      } else {
+        x = PAD_TINY;
+        l = w - PAD_TINY * 2;
+      }
+      memset(&mask->data[y * w + x], 0xFF, l);
+      y += SLIDER_TICK_SPACING;
+    }
+  } else {
+    // Create horizontal mask for tick lines
+    int sliderTicksCount = w / SLIDER_TICK_SPACING;
+    x = 0;
+    for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+      if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
+        y = 0;
+        l = h;
+      } else {
+        y = PAD_TINY;
+        l = h - PAD_TINY * 2;
+      }
+      for (uint8_t n = y; n < y + l; n += 1)
+        mask->data[n * w + x] = 0xFF;
+      x += SLIDER_TICK_SPACING;
+    }
+  }
+
+  // TRACE("Created Mask %d %d",w,h);
+  tickMasks.emplace_back(mask);
+
+  return mask;
 }
 
 void MainViewSlider::setPos()
 {
   coord_t x = 0, y = 0;
   if (isVertical) {
-    y = divRoundClosest((height() - LayoutFactory::TRIM_SQUARE_SIZE) * (-value + RESX),
+    y = divRoundClosest((height() - SLIDER_BAR_SIZE) * (-value + RESX),
                         2 * RESX);
   } else {
-    x = divRoundClosest((width() - LayoutFactory::TRIM_SQUARE_SIZE) * (value + RESX),
+    x = divRoundClosest((width() - SLIDER_BAR_SIZE) * (value + RESX),
                         2 * RESX);
   }
   lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
@@ -149,7 +165,7 @@ void MainViewSlider::checkEvents()
 MainViewHorizontalSlider::MainViewHorizontalSlider(Window* parent,
                                                    uint8_t idx) :
     MainViewSlider(parent,
-                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, LayoutFactory::TRIM_SQUARE_SIZE},
+                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, SLIDER_BAR_SIZE},
                    idx, false)
 {
 }
@@ -162,27 +178,25 @@ MainViewVerticalSlider::MainViewVerticalSlider(Window* parent,
 }
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
-    Window(parent, rect_t{0, 0, MULTIPOS_W, LayoutFactory::TRIM_SQUARE_SIZE}), idx(idx)
+    Window(parent, rect_t{0, 0, MULTIPOS_W, MainViewSlider::SLIDER_BAR_SIZE}), idx(idx)
 {
   char num[] = " ";
-  coord_t x = MULTIPOS_W_SPACING / 4 + LayoutFactory::TRIM_SQUARE_SIZE / 4;
+  coord_t x = MULTIPOS_W_SPACING / 4 + MainViewSlider::SLIDER_BAR_SIZE / 4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
     num[0] = value + '1';
-    auto p = lv_label_create(lvobj);
+    auto p = etx_label_create(lvobj, FONT_XS_INDEX);
     lv_label_set_text(p, num);
     lv_obj_set_size(p, MULTIPOS_SZ, MULTIPOS_SZ);
     lv_obj_set_pos(p, x, 0);
     etx_txt_color(p, COLOR_THEME_SECONDARY1_INDEX, LV_PART_MAIN);
-    etx_font(p, FONT_XS_INDEX, LV_PART_MAIN);
     x += MULTIPOS_W_SPACING;
   }
 
   posIcon = new SliderIcon(this);
-  posVal = lv_label_create(posIcon->getLvObj());
-  lv_obj_set_pos(posVal, MULTIPOS_XO, -2);
+  posVal = etx_label_create(posIcon->getLvObj(), FONT_BOLD_INDEX);
+  lv_obj_set_pos(posVal, PAD_THREE, -PAD_TINY);
   lv_obj_set_size(posVal, MULTIPOS_SZ, MULTIPOS_SZ);
   etx_txt_color(posVal, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
-  etx_font(posVal, FONT_BOLD_INDEX, LV_PART_MAIN);
 
   checkEvents();
 }

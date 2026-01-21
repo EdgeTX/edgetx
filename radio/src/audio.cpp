@@ -21,17 +21,17 @@
 
 #include <math.h>
 
+#include "os/sleep.h"
+#include "os/task.h"
+
 #include "edgetx.h"
 #include "strhelpers.h"
 #include "switches.h"
 
-#if defined(LIBOPENUI)
-#include "libopenui.h"
-#endif
-
 #include "model_audio.h"
+#include "hal/audio_driver.h"
 
-extern RTOS_MUTEX_HANDLE audioMutex;
+extern mutex_handle_t audioMutex;
 
 // Only first quadrant values - other quadrants calulated taking advantage of symmetry in sine wave.
 const int16_t sineValues[] =
@@ -142,7 +142,6 @@ const char * const audioFilenames[] = {
   "midstck2",
   "midstck3",
   "midstck4",
-#if defined(PCBFRSKY)
   "midpot1",
   "midpot2",
 #if defined(PCBX9E)
@@ -160,11 +159,6 @@ const char * const audioFilenames[] = {
 #if defined(PCBX9E)
   "midslid3",
   "midslid4",
-#endif
-#else
-  "midpot1",
-  "midpot2",
-  "midpot3",
 #endif
   "mixwarn1",
   "mixwarn2",
@@ -212,6 +206,17 @@ void referenceSystemAudioFiles()
 
   sdAvailableSystemAudioFiles.reset();
 
+#if defined(SIMU)
+  // f_readdir does an f_stat call on every file when running in the simulator
+  // so it is faster to just call f_stat on the files we are interested in
+  for (int i=0; i<AU_SPECIAL_SOUND_FIRST; i++) {
+    getSystemAudioFile(path, i);
+    if (f_stat(path, nullptr) == FR_OK)
+      sdAvailableSystemAudioFiles.setBit(i);
+  }
+#else
+  // On the radio f_readdir on the whole SYSTEM folder is faster than
+  // calling f_stat for each audio file name
   char * filename = strAppendSystemAudioPath(path);
   *(filename-1) = '\0';
 
@@ -226,8 +231,9 @@ void referenceSystemAudioFiles()
       if (len < 5 || strcasecmp(fno.fname+len-4, SOUNDS_EXT) || (fno.fattrib & AM_DIR)) continue;
 
       for (int i=0; i<AU_SPECIAL_SOUND_FIRST; i++) {
-        getSystemAudioFile(path, i);
-        if (!strcasecmp(filename, fno.fname)) {
+        strcpy(path, audioFilenames[i]);
+        strcat(path, SOUNDS_EXT);
+        if (!strcasecmp(path, fno.fname)) {
           sdAvailableSystemAudioFiles.setBit(i);
           break;
         }
@@ -235,6 +241,7 @@ void referenceSystemAudioFiles()
     }
     f_closedir(&dir);
   }
+#endif
 }
 
 void referenceModelAudioFiles()
@@ -359,37 +366,41 @@ AudioQueue::AudioQueue()
 
 #define CODEC_ID_PCM_S16LE  1
 
-#if !defined(SIMU)
-void audioTask(void * pdata)
+
+static void _audio_lock()
 {
-  while (!audioQueue.started()) {
-    RTOS_WAIT_TICKS(1);
-  }
-
-  setSampleRate(AUDIO_SAMPLE_RATE);
-
-#if defined(PCBX12S) || defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
-  // The audio amp needs ~2s to start
-  RTOS_WAIT_MS(1000); // 1s
-#endif
-
-  while (true) {
-    DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
-    DEBUG_TIMER_START(debugTimerAudioDuration);
-    audioQueue.wakeup();
-    DEBUG_TIMER_STOP(debugTimerAudioDuration);
-    RTOS_WAIT_MS(4);
-  }
+  mutex_lock(&audioMutex);
 }
+
+static void _audio_unlock()
+{
+  mutex_unlock(&audioMutex);
+}
+
+#if !defined(__SSAT)
+  #define _sat_s16(x) ((int16_t)limit<int32_t>(INT16_MIN, (x), INT16_MAX))
+#else
+  #define _sat_s16(x) __SSAT((x), 16)
 #endif
 
-inline void mixSample(audio_data_t * result, int sample, unsigned int fade)
+#if !defined(__USAT)
+  #define _sat_u16(x) ((uint16_t)limit<uint32_t>(UINT16_MIN, (x), UINT16_MAX))
+#else
+  #define _sat_u16(x) __USAT((x), 16)
+#endif
+
+inline void mixSample(audio_data_t * result, int16_t sample, unsigned int fade)
 {
-  *result = limit(AUDIO_DATA_MIN, *result + ((sample >> fade) >> (16-AUDIO_BITS_PER_SAMPLE)), AUDIO_DATA_MAX);
+  int32_t tmp = (int32_t)*result + ((int32_t)sample >> fade);
+#if AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_S16
+  *result = (audio_data_t)_sat_s16(tmp);
+#elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
+  *result = (audio_data_t)_sat_u16((uint32_t)tmp);
+#endif
 }
 
 #define RIFF_CHUNK_SIZE 12
-uint8_t wavBuffer[AUDIO_BUFFER_SIZE*2] __DMA;
+uint8_t wavBuffer[AUDIO_BUFFER_SIZE * 2] __DMA;
 
 int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
 {
@@ -609,9 +620,9 @@ void AudioQueue::wakeup()
 
     // mix the normal context (tones and wavs)
     if (normalContext.isEmpty() && !fragmentsFifo.empty()) {
-      RTOS_LOCK_MUTEX(audioMutex);
+      _audio_lock();
       normalContext.setFragment(fragmentsFifo.get());
-      RTOS_UNLOCK_MUTEX(audioMutex);
+      _audio_unlock();
     }
     result = normalContext.mixBuffer(buffer, g_eeGeneral.beepVolume, g_eeGeneral.wavVolume, fade);
     if (result > 0) {
@@ -642,19 +653,20 @@ void AudioQueue::wakeup()
 #if defined(SOFTWARE_VOLUME)
       if (currentSpeakerVolume > 0) {
         for (uint32_t i=0; i<buffer->size; ++i) {
-          int32_t tmpSample = (int32_t) ((uint32_t) (buffer->data[i]) - AUDIO_DATA_SILENCE);  // conversion from uint16_t
-          buffer->data[i] = (int16_t) (((tmpSample * currentSpeakerVolume) / VOLUME_LEVEL_MAX) + AUDIO_DATA_SILENCE);
+          int32_t tmpSample =
+              (int32_t)((uint32_t)(buffer->data[i]) - AUDIO_DATA_SILENCE);
+          buffer->data[i] = (int16_t)(((tmpSample * currentSpeakerVolume) /
+                                       VOLUME_LEVEL_MAX) +
+                                      AUDIO_DATA_SILENCE);
         }
         buffersFifo.audioPushBuffer();
-      }
-      else {
+      } else {
         break;
       }
 #else
       buffersFifo.audioPushBuffer();
 #endif
-    }
-    else {
+    } else {
       // break the endless loop
       break;
     }
@@ -690,11 +702,7 @@ bool AudioQueue::isPlaying(uint8_t id)
 
 void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags, int8_t freqIncr, int8_t fragmentVolume)
 {
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-  return;
-#endif
-
-  RTOS_LOCK_MUTEX(audioMutex);
+  _audio_lock();
 
   freq = limit<uint16_t>(BEEP_MIN_FREQ, freq, BEEP_MAX_FREQ);
 
@@ -717,7 +725,7 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
     }
   }
 
-  RTOS_UNLOCK_MUTEX(audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t fragmentVolume)
@@ -726,11 +734,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
   TRACE("playFile(\"%s\", flags=%x, id=%d fragmentVolume=%d ee_general=%d)", filename, flags, id, fragmentVolume, g_eeGeneral.wavVolume);
   if (strlen(filename) > AUDIO_FILENAME_MAXLEN) {
     TRACE("file name too long! maximum length is %d characters", AUDIO_FILENAME_MAXLEN);
-    return;
   }
-  #if !defined(SIMU_AUDIO)
-  return;
-  #endif
 #endif
 
   if (!sdMounted())
@@ -744,7 +748,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
     return;
   }
 
-  RTOS_LOCK_MUTEX(audioMutex);
+  _audio_lock();
 
   if (flags & PLAY_BACKGROUND) {
     backgroundContext.clear();
@@ -754,25 +758,17 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
     fragmentsFifo.push(AudioFragment(filename, flags & 0x0f, fragmentVolume, id));
   }
 
-  RTOS_UNLOCK_MUTEX(audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::stopPlay(uint8_t id)
 {
-#if defined(SIMU)
-  TRACE("stopPlay(id=%d)", id);
-#endif
-
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-  return;
-#endif
-
-  RTOS_LOCK_MUTEX(audioMutex);
+  _audio_lock();
 
   fragmentsFifo.removePromptById(id);
   backgroundContext.stop(id);
 
-  RTOS_UNLOCK_MUTEX(audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::stopSD()
@@ -785,19 +781,19 @@ void AudioQueue::stopSD()
 void AudioQueue::stopAll()
 {
   flush();
-  RTOS_LOCK_MUTEX(audioMutex);
+  _audio_lock();
   priorityContext.clear();
   normalContext.clear();
-  RTOS_UNLOCK_MUTEX(audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::flush()
 {
-  RTOS_LOCK_MUTEX(audioMutex);
+  _audio_lock();
   fragmentsFifo.clear();
   varioContext.clear();
   backgroundContext.clear();
-  RTOS_UNLOCK_MUTEX(audioMutex);
+  _audio_unlock();
 }
 
 void audioPlay(unsigned int index, uint8_t id)
@@ -965,15 +961,11 @@ void audioEvent(unsigned int index)
       case AU_POT6_MIDDLE:
       case AU_POT7_MIDDLE:
 #endif
-#if defined(PCBFRSKY)
       case AU_SLIDER1_MIDDLE:
       case AU_SLIDER2_MIDDLE:
 #if defined(PCBX9E)
       case AU_SLIDER3_MIDDLE:
       case AU_SLIDER4_MIDDLE:
-#endif
-#else
-      case AU_POT3_MIDDLE:
 #endif
         audioQueue.playTone(BEEP_DEFAULT_FREQ + 1500, 80, 20, PLAY_NOW);
         break;

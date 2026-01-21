@@ -21,11 +21,14 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioVersionPage: public PageTab {
-  public:
-    RadioVersionPage();
+class RadioVersionPage: public PageGroupItem
+{
+ public:
+  RadioVersionPage(const PageDef& pageDef);
 
-    void build(Window * window) override;
+  void build(Window * window) override;
+
+  static LAYOUT_VAL_SCALED(QR_SZ, 150)
 };

@@ -21,9 +21,12 @@
 
 #include "curveedit.h"
 
-#include "libopenui.h"
-#include "edgetx.h"  // TODO for applyCustomCurve
+#include "choice.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -32,15 +35,14 @@ static const lv_coord_t default_col_dsc[] = {LV_GRID_CONTENT,
 static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT,
                                              LV_GRID_TEMPLATE_LAST};
 
-class CurveEdit : public Window
+class CurveEdit : public Curve
 {
  public:
   CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
-      Window(parent, rect),
-      preview(
-          this, {0, 0, width(), height()},
+      Curve(parent, rect,
           [=](int x) -> int { return applyCustomCurve(x, index); },
-          [=]() -> int { return getValue(currentSource); }),
+          [=]() -> int { return getValue(currentSource); }
+      ),
       index(index),
       current(0)
   {
@@ -59,27 +61,18 @@ class CurveEdit : public Window
 
   void updatePreview()
   {
-    preview.clearPoints();
+    clearPoints();
     CurveHeader& curve = g_model.curves[index];
     for (uint8_t i = 0; i < 5 + curve.points; i++) {
-      preview.addPoint(getPoint(index, i));
+      addPoint(getPoint(index, i));
     }
   }
 
  protected:
-  Curve preview;
   uint8_t index;
   uint8_t current;
   mixsrc_t currentSource = 0;
   bool lockSource = false;
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (!_deleted) {
-      preview.deleteLater(true, false);
-      Window::deleteLater(detach, trash);
-    }
-  }
 
   void checkEvents(void) override
   {
@@ -130,11 +123,13 @@ class CurveDataEdit : public Window
     }
   }
 
-  static LAYOUT_VAL(ROW_HEIGHT, 82, 82)
-  static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48)
-  static LAYOUT_VAL(NUM_HDR_HEIGHT, 15, 15)
-  static LAYOUT_VAL(PTNUM_X, 15, 15)
-  static LAYOUT_VAL(PTNUM_H, 13, 13)
+  static LAYOUT_VAL_SCALED(ROW_HEIGHT, 82)
+  static LAYOUT_VAL_SCALED(NUM_BTN_WIDTH, 47)
+  static LAYOUT_VAL_SCALED(NUM_HDR_HEIGHT, 15)
+  static LAYOUT_VAL_SCALED(PTNUM_X, 15)
+  static LAYOUT_VAL_SCALED(PTNUM_H, 13)
+  static constexpr coord_t PT_EDIT_WIDTH = PTNUM_X + (NUM_BTN_WIDTH + PAD_TINY) * 5;
+  static LAYOUT_ORIENTATION(CURVE_WIDTH, LCD_W - PAD_SMALL - PT_EDIT_WIDTH, LAYOUT_SCALE(200))
 
  protected:
   uint8_t index;
@@ -270,13 +265,13 @@ void CurveEditWindow::buildBody(Window* window)
   lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                         LV_GRID_ALIGN_SPACE_BETWEEN);
 
-#if PORTRAIT_LCD
+#if PORTRAIT
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
   coord_t boxWidth = window->width();
-  coord_t boxHeight = window->height() - CURVE_WIDTH;
+  coord_t boxHeight = window->height() - CurveDataEdit::CURVE_WIDTH;
 #else
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_ROW);
-  coord_t boxWidth = window->width() - CURVE_WIDTH;
+  coord_t boxWidth = window->width() - CurveDataEdit::CURVE_WIDTH;
   coord_t boxHeight = window->height();
 #endif
 
@@ -305,7 +300,7 @@ void CurveEditWindow::buildBody(Window* window)
 
   // Smooth
   auto smooth =
-      new TextButton(iLine, rect_t{0, 0, NUMEDT_W, 0}, STR_SMOOTH, [=]() {
+      new TextButton(iLine, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, STR_SMOOTH, [=]() {
         g_model.curves[index].smooth = !g_model.curves[index].smooth;
         curveEdit->updatePreview();
         return g_model.curves[index].smooth;
@@ -320,7 +315,7 @@ void CurveEditWindow::buildBody(Window* window)
   // Type
   new StaticText(iLine, rect_t{}, STR_TYPE);
   new Choice(
-      iLine, {0, 0, TextEdit::DEF_W, 0}, STR_CURVE_TYPES, 0, 1,
+      iLine, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH, 0}, STR_CURVE_TYPES, 0, 1,
       GET_DEFAULT(g_model.curves[index].type), [=](int32_t newValue) {
         CurveHeader& curve = g_model.curves[index];
         if (newValue != curve.type) {
@@ -346,7 +341,7 @@ void CurveEditWindow::buildBody(Window* window)
 
   // Points count
   auto edit = new Choice(
-      iLine, {0, 0, NUMEDT_W, 0}, 2, 17,
+      iLine, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 2, 17,
       GET_DEFAULT(g_model.curves[index].points + 5), [=](int32_t newValue) {
         newValue -= 5;
         CurveHeader& curve = g_model.curves[index];
@@ -390,7 +385,7 @@ void CurveEditWindow::buildBody(Window* window)
   // Curve editor
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-  curveEdit = new CurveEdit(line, {0, 0, CURVE_WIDTH, CURVE_WIDTH}, index);
+  curveEdit = new CurveEdit(line, {0, 0, CurveDataEdit::CURVE_WIDTH, CurveDataEdit::CURVE_WIDTH}, index);
 
   curveDataEdit->setCurveEdit(curveEdit);
 }

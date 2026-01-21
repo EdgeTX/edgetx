@@ -47,11 +47,7 @@
   #define IS_HAPTIC_FUNC(func)         (0)
 #endif
 
-#if defined(COLORLCD)
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_SET_SCREEN)
-#else
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT)
-#endif
+#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED || func == FUNC_SET_SCREEN)
 
 #define CFN_EMPTY(p)                   (!(p)->swtch)
 #define CFN_SWITCH(p)                  ((p)->swtch)
@@ -73,6 +69,9 @@
 #define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
 #define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
 
+// stick config
+#define STICK_CFG_INV_BITS             1
+
 // pots config
 #define POT_CFG_TYPE_BITS              3
 #define POT_CFG_INV_BITS               1
@@ -86,35 +85,12 @@
 #define SW_CFG_MASK                    ((1 << SW_CFG_BITS) - 1)
 #define SWITCH_CONFIG_MASK(x)          ((swconfig_t)SW_CFG_MASK << (SW_CFG_BITS * (x)))
 
-#define SWITCH_CONFIG(x)              (bfGet<swconfig_t>(g_eeGeneral.switchConfig, SW_CFG_BITS * (x), SW_CFG_BITS))
-#if defined(FUNCTION_SWITCHES)
-  #define FSW_CFG_BITS                2
-  #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, FSW_CFG_BITS * (x), FSW_CFG_BITS))
-  #define FSWITCH_SET_CONFIG(x,v)     g_model.functionSwitchConfig = bfSet<swconfig_t>(g_model.functionSwitchConfig, v, FSW_CFG_BITS * (x), FSW_CFG_BITS)
-  #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup, FSW_CFG_BITS * (x), FSW_CFG_BITS))
-  #define FSWITCH_SET_GROUP(x,v)      g_model.functionSwitchGroup = bfSet<swconfig_t>(g_model.functionSwitchGroup, v, FSW_CFG_BITS * (x), FSW_CFG_BITS)
-  #define FSWITCH_STARTUP(x)          (bfGet<swconfig_t>(g_model.functionSwitchStartConfig, FSW_CFG_BITS * (x), FSW_CFG_BITS))
-  #define FSWITCH_SET_STARTUP(x,v)    g_model.functionSwitchStartConfig = bfSet<swconfig_t>(g_model.functionSwitchStartConfig, v, FSW_CFG_BITS * (x), FSW_CFG_BITS)
-  #define IS_FSWITCH_GROUP_ON(x)      (bfGet<swconfig_t>(g_model.functionSwitchGroup, FSW_CFG_BITS * NUM_FUNCTIONS_SWITCHES + x, 1))
-  #define SET_FSWITCH_GROUP_ON(x,v)   g_model.functionSwitchGroup = bfSet<swconfig_t>(g_model.functionSwitchGroup, v, FSW_CFG_BITS * NUM_FUNCTIONS_SWITCHES + x, 1)
-  #define IS_SWITCH_FS(x)             (x >= switchGetMaxSwitches() && x < (switchGetMaxSwitches() + switchGetMaxFctSwitches()))
-  #define SWITCH_EXISTS(x)            (IS_SWITCH_FS(x)  ? true : (SWITCH_CONFIG(x) != SWITCH_NONE))
-  #define IS_CONFIG_3POS(x)           (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - switchGetMaxSwitches()) == SWITCH_3POS) : (SWITCH_CONFIG(x) == SWITCH_3POS))
-  #define IS_CONFIG_TOGGLE(x)         (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - switchGetMaxSwitches()) == SWITCH_TOGGLE) : (SWITCH_CONFIG(x) == SWITCH_TOGGLE))
-#else
-  #define SWITCH_EXISTS(x)            (SWITCH_CONFIG(x) != SWITCH_NONE)
-  #define IS_CONFIG_3POS(x)           (SWITCH_CONFIG(x) == SWITCH_3POS)
-  #define IS_CONFIG_TOGGLE(x)         (SWITCH_CONFIG(x) == SWITCH_TOGGLE)
-  #define IS_SWITCH_FS(x)             (false)
-#endif
-#define SWITCH_WARNING_ALLOWED(x)     (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
+#define SWITCH_EXISTS(x)              (g_model.getSwitchType(x) != SWITCH_NONE)
+#define IS_CONFIG_3POS(x)             (g_model.getSwitchType(x) == SWITCH_3POS)
+#define IS_CONFIG_TOGGLE(x)           (g_model.getSwitchType(x) == SWITCH_TOGGLE)
+#define SWITCH_WARNING_ALLOWED(x)     (SWITCH_EXISTS(x) && !IS_CONFIG_TOGGLE(x))
 
 #define ALTERNATE_VIEW                0x10
-
-#if defined(COLORLCD) && !defined(BOOT)
-  #include "layout.h"
-  #include "topbar.h"
-#endif
 
 #define SWITCHES_DELAY()            uint8_t(15+g_eeGeneral.switchesDelay)
 #define SWITCHES_DELAY_NONE         (-15)
@@ -137,17 +113,17 @@ enum CurveRefType {
 #define LIMIT_STD_MAX       (LIMIT_STD_PERCENT*10)
 #define PPM_CENTER_MAX      500
 #define LIMIT_MAX(lim)                                            \
-  (GV_IS_GV_VALUE(lim->max, -GV_RANGELARGE, GV_RANGELARGE)        \
+  (GV_IS_GV_VALUE(lim->max)                                       \
        ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
        : lim->max + LIMIT_STD_MAX)
 #define LIMIT_MIN(lim)                                            \
-  (GV_IS_GV_VALUE(lim->min, -GV_RANGELARGE, GV_RANGELARGE)        \
+  (GV_IS_GV_VALUE(lim->min)                                       \
        ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
        : lim->min - LIMIT_STD_MAX)
 #define LIMIT_OFS(lim)                                               \
-  (GV_IS_GV_VALUE(lim->offset, -LIMIT_STD_MAX, LIMIT_STD_MAX)        \
+  (GV_IS_GV_VALUE(lim->offset)                                       \
        ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
                         mixerCurrentFlightMode)                      \
        : lim->offset)
@@ -172,9 +148,6 @@ enum TrainerMultiplex {
   TRAINER_REPL = 2,
 };
 
-#define GV1_SMALL       128
-#define GV1_LARGE       1024
-#define GV_RANGE_OFFSET 500
 #define DELAY_MAX       250 /* 25 seconds */
 #define SLOW_MAX        250 /* 25 seconds */
 

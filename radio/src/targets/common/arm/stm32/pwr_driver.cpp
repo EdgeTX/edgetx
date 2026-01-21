@@ -27,8 +27,13 @@
 
 void pwrInit()
 {
+
 #if defined(SD_PRESENT_GPIO)
   gpio_init(SD_PRESENT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+#endif
+
+#if defined(SD2_PRESENT_GPIO)
+  gpio_init(SD2_PRESENT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #endif
 
 #if defined(INTMODULE_BOOTCMD_GPIO)
@@ -37,13 +42,13 @@ void pwrInit()
 #endif
 
   // Internal module power
-#if defined(HARDWARE_INTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE) && defined(INTMODULE_PWR_GPIO)
   gpio_init(INTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   INTERNAL_MODULE_OFF();
 #endif
 
   // External module power
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(EXTMODULE_PWR_GPIO)
   gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   EXTERNAL_MODULE_PWR_OFF();
 #endif
@@ -69,14 +74,10 @@ void pwrInit()
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #elif defined(PCBREV_GPIO_1) && defined(PCBREV_GPIO_2)
   gpio_init(PCBREV_GPIO_1, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+  gpio_init(PCBREV_GPIO_2, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
   #if defined(PCBREV_TOUCH_GPIO)
-    #if defined(PCBREV_TOUCH_GPIO_PULL_UP)
-      gpio_init(PCBREV_GPIO_2, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-    #else
-      gpio_init(PCBREV_TOUCH_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
-    #endif
+    gpio_init(PCBREV_TOUCH_GPIO, PCBREV_TOUCH_PULL_TYPE, GPIO_PIN_SPEED_LOW);
   #endif
-
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 
@@ -114,7 +115,7 @@ bool pwrForcePressed()
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return !gpio_read(PWR_SWITCH_GPIO) && !gpio_read(PWR_EXTRA_SWITCH_GPIO);
+  return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
 #elif defined(PWR_SWITCH_GPIO)
   return !gpio_read(PWR_SWITCH_GPIO);
 #else
@@ -139,3 +140,9 @@ void pwrResetHandler()
     pwrOn();
   }
 }
+
+#if defined(BOOT)
+void* _pwr_init_hook[] __INIT_HOOK = {
+  (void*)pwrResetHandler,    
+};
+#endif

@@ -21,13 +21,18 @@
 
 #include "hw_extmodule.h"
 
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "static.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
+#if defined(STM32F4)
 ExternalModuleWindow::ExternalModuleWindow(Window *parent, FlexGridLayout& grid)
 {
   auto line = parent->newLine(grid);
+  line->padLeft(PAD_SMALL);
 
   new StaticText(line, rect_t{}, STR_SAMPLE_MODE);
 
@@ -38,3 +43,4 @@ ExternalModuleWindow::ExternalModuleWindow(Window *parent, FlexGridLayout& grid)
                restartModule(EXTERNAL_MODULE);
              });
 }
+#endif

@@ -21,30 +21,28 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ModelTelemetryPage : public PageTab
+class TextButton;
+
+class ModelTelemetryPage : public PageGroupItem
 {
  public:
-  ModelTelemetryPage();
-
-  bool isVisible() const override { return modelTelemetryEnabled(); }
+  ModelTelemetryPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(NUM_EDIT_W, 100, 65)
+  static LAYOUT_SIZE_SCALED(NUM_EDIT_W, 100, 65)
 
  protected:
   int lastKnownIndex = 0;
-  Window* window = nullptr;
   Window* sensorWindow = nullptr;
   TextButton* discover = nullptr;
   TextButton* deleteAll = nullptr;
 
   void checkEvents() override;
 
-  void editSensor(Window* window, uint8_t index);
-  void rebuild(Window* window, int8_t focusSensorIndex = -1);
+  void editSensor(uint8_t index);
   void buildSensorList(int8_t focusSensorIndex = -1);
 };

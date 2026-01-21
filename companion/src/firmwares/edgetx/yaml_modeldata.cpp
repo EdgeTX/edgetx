@@ -31,7 +31,9 @@
 #include "yaml_sensordata.h"
 #include "yaml_screendata.h"
 #include "yaml_usbjoystickdata.h"
+#include "yaml_switchconfig.h"
 
+#include "boardjson.h"
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
@@ -73,7 +75,7 @@ void YamlValidateLabelsNames(ModelData& model, Board::Type board)
   }
 
   for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
-    YamlValidateName(model.functionSwitchNames[i], board);
+    YamlValidateName(model.customSwitches[i].name, board);
   }
 
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
@@ -108,10 +110,12 @@ static const YamlLookupTable trainerModeLut = {
   {  TRAINER_MODE_SLAVE_JACK, "SLAVE"  },
   {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
   {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
-  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_BATT_COMP"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_SERIAL"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_BATT_COMP"  }, // depreciated, kept for conversion from older settings
   {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
   {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
   {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  TRAINER_MODE_CRSF, "MASTER_CRSF"  },
 };
 
 static const YamlLookupTable swashTypeLut = {
@@ -145,6 +149,25 @@ static const YamlLookupTable hatsModeLut = {
   {  GeneralSettings::HATSMODE_KEYS_ONLY, "KEYS_ONLY"  },
   {  GeneralSettings::HATSMODE_SWITCHABLE, "SWITCHABLE"  },
   {  GeneralSettings::HATSMODE_GLOBAL, "GLOBAL"  },
+};
+
+static const YamlLookupTable cfsSwitchConfig = {
+  {  0, "NONE"  },
+  {  1, "TOGGLE"  },
+  {  2, "2POS"  },
+  {  3, "3POS"  },
+  {  4, "GLOBAL"  },
+};
+
+static const YamlLookupTable cfsSwitchStart = {
+  {  0, "START_OFF"  },
+  {  1, "START_ON"  },
+  {  2, "START_PREVIOUS"  },
+};
+
+static const YamlLookupTable cfsSwitchLuaOverride = {
+  {  0, "OFF"  },
+  {  1, "ON"  },
 };
 
 struct YamlTrim {
@@ -281,27 +304,24 @@ struct YamlSwitchWarning {
   static constexpr size_t MASK_LEN = 2;
   static constexpr size_t MASK = (1 << MASK_LEN) - 1;
 
-  unsigned int enabled;
-
   YamlSwitchWarning() = default;
 
-  YamlSwitchWarning(YAML::Node& node, uint64_t cpn_value, unsigned int switchWarningEnable)
-    : enabled(~switchWarningEnable)
+  YamlSwitchWarning(YAML::Node& node, uint64_t cpn_value)
   {
     uint64_t states = cpn_value;
 
     for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
-      if (!Boards::isSwitchFunc(i) && (enabled & (1 << i))) {
+      if (states & MASK) {
         std::string posn;
 
         switch(states & MASK) {
-        case 0:
+        case 1:
           posn = "up";
           break;
-        case 1:
+        case 2:
           posn = "mid";
           break;
-        case 2:
+        case 3:
           posn = "down";
           break;
         }
@@ -316,7 +336,6 @@ struct YamlSwitchWarning {
   uint64_t toCpn(const YAML::Node &warn)
   {
     uint64_t states = 0;
-    enabled = 0;
 
     if (warn.IsMap()) {
       for (const auto& sw : warn) {
@@ -334,14 +353,13 @@ struct YamlSwitchWarning {
         int value = 0;
 
         if (posn == "up")
-          value = 0;
-        else if (posn == "mid")
           value = 1;
-        else if (posn == "down")
+        else if (posn == "mid")
           value = 2;
+        else if (posn == "down")
+          value = 3;
 
         states |= ((uint64_t)value << (index * MASK_LEN));
-        enabled |= (1 << index);
       }
     }
 
@@ -358,32 +376,30 @@ struct YamlSwitchWarningState {
   static constexpr size_t MASK = (1 << MASK_LEN) - 1;
 
   std::string src_str;
-  unsigned int enabled;
 
   YamlSwitchWarningState() = default;
 
-  YamlSwitchWarningState(uint64_t cpn_value, unsigned int switchWarningEnable)
-    : enabled(~switchWarningEnable)
+  YamlSwitchWarningState(uint64_t cpn_value)
   {
     uint64_t states = cpn_value;
 
     std::stringstream ss;
     for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
       //TODO: exclude 2-pos toggle from switch warnings
-      if (enabled & (1 << i)) {
+      if (states & MASK) {
         std::string tag = Boards::getSwitchTag(i).toStdString();
         const char *sw = tag.data();
 
         if (tag.size() >= 2 && sw[0] == 'S') {
           ss << sw[1];
           switch(states & MASK) {
-          case 0:
+          case 1:
             ss << 'u';
             break;
-          case 1:
+          case 2:
             ss << '-';
             break;
-          case 2:
+          case 3:
             ss << 'd';
             break;
           }
@@ -398,7 +414,6 @@ struct YamlSwitchWarningState {
   uint64_t toCpn()
   {
     uint64_t states = 0;
-    enabled = 0;
 
     std::stringstream ss(src_str);
     while (!ss.eof()) {
@@ -420,20 +435,19 @@ struct YamlSwitchWarningState {
       int value = 0;
       switch(s) {
       case 'u':
-        value = 0;
-        break;
-      case '-':
         value = 1;
         break;
-      case 'd':
+      case '-':
         value = 2;
+        break;
+      case 'd':
+        value = 3;
         break;
       default:
         continue;
       }
 
       states |= ((uint64_t)value << (index * MASK_LEN));
-      enabled |= (1 << index);
     }
 
     return states;
@@ -498,30 +512,46 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
 
 static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
 {
-  std::string val = node.as<std::string>();
-  if ((val.size() >= 4)
-      && (val[0] == '-')
-      && (val[1] == 'G')
-      && (val[2] == 'V')
-      && (val[3] >= '1')
-      && (val[3] <= '9')) {
-
-      return -10000 - std::stoi(val.substr(3));
-  }
-
-  if ((val.size() >= 3)
-      && (val[0] == 'G')
-      && (val[1] == 'V')
-      && (val[2] >= '1')
-      && (val[2] <= '9')) {
-
-    return 10000 + std::stoi(val.substr(2));
-  }
+  Firmware *firmware = getCurrentFirmware();
+  std::string val_str = node.as<std::string>();
 
   try {
-    return std::stoi(val) + shift;
+    return std::stoi(val_str) + shift;
   } catch(...) {
-    throw YAML::TypedBadConversion<int>(node.Mark());
+    try {
+      const char* val = val_str.data();
+      int multiplier = 1;
+
+      if (val_str.size() >= 4
+          && val[0] == '-') {
+
+        multiplier = -1;
+        val_str = val_str.substr(1);
+      }
+
+      if (val_str.size() >= 3
+          && val[0] == 'G'
+          && val[1] == 'V') {
+
+        int32_t num = 0;
+
+        try {
+          num = std::stoi(val_str.substr(2));
+        } catch (...) {
+          throw;
+        }
+
+        if (num <= firmware->getCapability(Gvars))
+          return ((10000 * multiplier) + (num * multiplier));
+        else
+          return 0;
+
+      } else {
+        throw "Invalid value";
+      }
+    } catch(...) {
+      throw YAML::TypedBadConversion<int>(node.Mark());
+    }
   }
 }
 
@@ -614,13 +644,12 @@ Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
     Node node;
 
     size_t n_trims = Boards::getCapability(getCurrentBoard(), Board::NumTrims);
-    YamlTrim yt[n_trims];
 
     Node trims;
     for (size_t i=0; i<n_trims; i++) {
-      yt[i] = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
-      if (!yt[i].isEmpty()) {
-        trims[std::to_string(i)] = yt[i];
+      YamlTrim yt = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
+      if (!yt.isEmpty()) {
+        trims[std::to_string(i)] = yt;
       }
     }
     if (trims && trims.IsMap()) {
@@ -954,6 +983,47 @@ struct convert<FrSkyScreenData> {
   }
 };
 
+template <>
+struct convert<CustomSwitchData> {
+  static Node encode(const CustomSwitchData& rhs);
+  static bool decode(const Node& node, CustomSwitchData& rhs);
+};
+
+Node convert<CustomSwitchData>::encode(const CustomSwitchData& rhs)
+{
+  Node node;
+  node["type"] = cfsSwitchConfig << rhs.type;
+  node["group"] = rhs.group;
+  node["start"] = cfsSwitchStart << rhs.start;
+  node["state"] = rhs.state;
+  node["name"] = rhs.name;
+  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchColors)) {
+    node["onColorLuaOverride"] = cfsSwitchLuaOverride << rhs.onColorLuaOverride;
+    node["offColorLuaOverride"] = cfsSwitchLuaOverride << rhs.offColorLuaOverride;
+    node["onColor"] = rhs.onColor;
+    node["offColor"] = rhs.offColor;
+  }
+  return node;
+}
+
+bool convert<CustomSwitchData>::decode(const Node& node, CustomSwitchData& rhs)
+{
+  if (!node.IsMap()) return false;
+
+  unsigned type;
+  node["type"] >> cfsSwitchConfig >> type;
+  rhs.type = (Board::SwitchType)type;
+  node["group"] >> rhs.group;
+  node["start"] >> cfsSwitchStart >> rhs.start;
+  node["state"] >> rhs.state;
+  node["name"] >> rhs.name;
+  node["onColorLuaOverride"] >> cfsSwitchLuaOverride >> rhs.onColorLuaOverride;
+  node["offColorLuaOverride"] >> cfsSwitchLuaOverride >> rhs.offColorLuaOverride;
+  node["onColor"] >> rhs.onColor;
+  node["offColor"] >> rhs.offColor;
+  return true;
+}
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   modelSettingsVersion = SemanticVersion(VERSION);
@@ -1075,7 +1145,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["thrTraceSrc"] = thrTrace.src;
 
   Node sw_warn;
-  YamlSwitchWarning switchWarning(sw_warn, rhs.switchWarningStates, rhs.switchWarningEnable);
+  YamlSwitchWarning switchWarning(sw_warn, rhs.switchWarningStates);
   if (sw_warn && sw_warn.IsMap()) {
     node["switchWarning"] = sw_warn;
   }
@@ -1184,7 +1254,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     if (topbarData && topbarData.IsMap()) {
       node["topbarData"] = topbarData;
     }
-    for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
       if (rhs.topbarWidgetWidth[i] > 0)
         node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
     node["view"] = rhs.view;
@@ -1193,15 +1263,18 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["modelRegistrationID"] = rhs.registrationId;
   node["hatsMode"] = hatsModeLut << rhs.hatsMode;
 
-  if (Boards::getCapability(board, Board::FunctionSwitches)) {
-    node["functionSwitchConfig"] = rhs.functionSwitchConfig;
-    node["functionSwitchGroup"] = rhs.functionSwitchGroup;
-    node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
-    node["functionSwitchLogicalState"] = rhs.functionSwitchLogicalState;
+  int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
+  if (funcSwCnt) {
+    for (int i = 0; i < funcSwCnt; i++) {
+      int sw = Boards::getSwitchIndexForCFS(i);
+      std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      node["customSwitches"][tag] = rhs.customSwitches[i];
+    }
 
-    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
-      if (strlen(rhs.functionSwitchNames[i]) > 0) {
-        node["switchNames"][std::to_string(i)]["val"] = rhs.functionSwitchNames[i];
+    int funcSwGrps = Boards::getCapability(board, Board::FunctionSwitchGroups);
+    if (funcSwGrps) {
+      for (int i = 1; i <= funcSwGrps; i++) {
+        node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
       }
     }
   }
@@ -1270,20 +1343,28 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   //  TODO display model filename in preference to model name as easier for user
   if (modelSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: '%1' has settings version %2 that is not supported by this version of Companion!\n\nModel settings may be corrupted if you continue.");
-    prmpt = prmpt.arg(rhs.name).arg(modelSettingsVersion.toString());
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(QCoreApplication::translate("YamlModelSettings", "Read Model Settings"));
-    msgBox.setText(prmpt);
-    msgBox.setIcon(QMessageBox::Warning);
-    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
-    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
-    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
-    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
-    msgBox.setDefaultButton(pbDecline);
-    msgBox.exec();
-    if (msgBox.clickedButton() == pbDecline)
-      return false;
+    //  TODO remove this check as part of 3.0 release
+    if (modelSettingsVersion == SemanticVersion("3.0.0") &&
+        SemanticVersion(VERSION) >= SemanticVersion("2.12.0") &&
+        SemanticVersion(VERSION) < SemanticVersion("3.0.0")) {
+      qDebug() << "Version exception override: radio settings" << modelSettingsVersion.toString()
+               << "Companion" << SemanticVersion(VERSION).toString();
+    } else {
+      QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: '%1' has settings version %2 that is not supported by Companion %3!\n\nModel settings may be corrupted if you continue.");
+      prmpt = prmpt.arg(rhs.name).arg(modelSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
+      QMessageBox msgBox;
+      msgBox.setWindowTitle(QCoreApplication::translate("YamlModelSettings", "Read Model Settings"));
+      msgBox.setText(prmpt);
+      msgBox.setIcon(QMessageBox::Warning);
+      QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+      QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+      msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+      msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+      msgBox.setDefaultButton(pbDecline);
+      msgBox.exec();
+      if (msgBox.clickedButton() == pbDecline)
+        return false;
+    }
   }
 
   if (node["timers"]) {
@@ -1337,16 +1418,13 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   if (node["switchWarning"]) {
     YamlSwitchWarning switchWarning;
     rhs.switchWarningStates = switchWarning.toCpn(node["switchWarning"]);
-    rhs.switchWarningEnable = ~switchWarning.enabled;
   }
   else if (node["switchWarningState"]) {         // depreciated
     YamlSwitchWarningState switchWarningState;
     node["switchWarningState"] >> switchWarningState.src_str;
     rhs.switchWarningStates = switchWarningState.toCpn();
-    rhs.switchWarningEnable = ~switchWarningState.enabled;
   } else {
     rhs.switchWarningStates = 0;
-    rhs.switchWarningEnable = ~0;
   }
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
@@ -1467,11 +1545,80 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["modelRegistrationID"] >> rhs.registrationId;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
 
-  node["functionSwitchConfig"] >> rhs.functionSwitchConfig;
-  node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
-  node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
-  node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
-  node["switchNames"] >> rhs.functionSwitchNames;
+  rhs.setDefaultFunctionSwitches(Boards::getCapability(board, Board::FunctionSwitches));
+
+  if (node["functionSwitchConfig"]) {
+    uint16_t v;
+    node["functionSwitchConfig"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].type = (Board::SwitchType)(v & 3);
+      v >>= 2;
+    }
+  }
+  if (node["functionSwitchGroup"]) {
+    uint16_t v;
+    node["functionSwitchGroup"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].group = v & 3;
+      v >>= 2;
+    }
+    for (int i = 0; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
+      rhs.cfsGroupOn[i] = v & 1;
+      v >>= 1;
+    }
+  }
+  if (node["functionSwitchStartConfig"]) {
+    uint16_t v;
+    node["functionSwitchStartConfig"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].start = v & 3;
+      v >>= 2;
+    }
+  }
+  if (node["functionSwitchLogicalState"]) {
+    uint16_t v;
+    node["functionSwitchLogicalState"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].state = v & 1;
+      v >>= 1;
+    }
+  }
+  if (node["switchNames"]) {
+    for (int i = 0; i < 6; i += 1) {
+      if (node["switchNames"][std::to_string(i)]) {
+        node["switchNames"][std::to_string(i)]["val"] >> rhs.customSwitches[i].name;
+      }
+    }
+  }
+  if (node["functionSwitchLedONColor"]) {
+    for (int i = 0; i < 6; i += 1) {
+      if (node["functionSwitchLedONColor"][std::to_string(i)]) {
+        node["functionSwitchLedONColor"][std::to_string(i)] >> rhs.customSwitches[i].onColor;
+      }
+    }
+  }
+  if (node["functionSwitchLedOFFColor"]) {
+    for (int i = 0; i < 6; i += 1) {
+      if (node["functionSwitchLedOFFColor"][std::to_string(i)]) {
+        node["functionSwitchLedOFFColor"][std::to_string(i)] >> rhs.customSwitches[i].offColor;
+      }
+    }
+  }
+  if (node["customSwitches"]) {
+    int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
+    for (int i = 0; i < funcSwCnt; i += 1) {
+      int sw = Boards::getSwitchIndexForCFS(i);
+      std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      node["customSwitches"][tag] >> rhs.customSwitches[i];
+    }
+  }
+  if (node["cfsGroupOn"]) {
+    for (int i = 1; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
+      if (node["cfsGroupOn"][std::to_string(i)]) {
+        node["cfsGroupOn"][std::to_string(i)]["v"] >> rhs.cfsGroupOn[i];
+      }
+    }
+  }
 
   // Custom USB joytsick mapping
   node["usbJoystickExtMode"] >> rhs.usbJoystickExtMode;

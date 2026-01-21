@@ -19,6 +19,7 @@
 #pragma once
 
 #include <vector>
+#include <climits>
 
 #include "form.h"
 
@@ -41,6 +42,7 @@ class ChoiceBase : public FormField
   void setTextHandler(std::function<std::string(int)> handler)
   {
     textHandler = std::move(handler);
+    currentValue = INT_MAX; // Force update
     update();
   }
 
@@ -52,19 +54,25 @@ class ChoiceBase : public FormField
 
   const char* getTitle() const { return menuTitle; }
 
-  static LAYOUT_VAL(ICON_W, 18, 18)
+  void setPopupWidth(coord_t w) { popupWidth = w; }
+
+  static LAYOUT_VAL_SCALED(ICON_W, 18)
 
  protected:
   lv_obj_t *label;
+  coord_t popupWidth = 0;
   int vmin = 0;
   int vmax = 0;
   const char *menuTitle = nullptr;
   ChoiceType type;
+  int currentValue = INT_MAX;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
   std::function<std::string(int)> textHandler;
 
   virtual std::string getLabelText() = 0;
+
+  void checkEvents() override;
 };
 
 class Choice : public ChoiceBase

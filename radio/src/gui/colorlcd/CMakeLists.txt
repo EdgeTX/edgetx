@@ -14,6 +14,7 @@ include_directories(
   ${RADIO_SRC_DIR}/gui/colorlcd/radio
   ${RADIO_SRC_DIR}/gui/colorlcd/module
   ${RADIO_SRC_DIR}/gui/colorlcd/mainview
+  ${RADIO_SRC_DIR}/gui/colorlcd/setup_menus
   ${RADIO_SRC_DIR}/gui/colorlcd/themes
   ${RADIO_SRC_DIR}/gui/colorlcd/controls
 )
@@ -33,6 +34,9 @@ file(GLOB LIBUI_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
 file(GLOB MAINVIEW_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/mainview/*.cpp)
 
+file(GLOB MENUS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
+  ${RADIO_SRC_DIR}/gui/colorlcd/setup_menus/*.cpp)
+
 file(GLOB CONTROLS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/controls/*.cpp)
 
@@ -43,6 +47,7 @@ set(GUI_SRC
   ${LAYOUTS_SRC}
   ${WIDGETS_SRC}
   ${MAINVIEW_SRC}
+  ${MENUS_SRC}
   ${CONTROLS_SRC}
   bitmaps.cpp
   colors.cpp
@@ -52,9 +57,7 @@ set(GUI_SRC
   startup_shutdown.cpp
 
   model/curveedit.cpp
-  model/input_edit_adv.cpp
   model/input_edit.cpp
-  model/menu_model.cpp
   model/mixer_edit_adv.cpp
   model/mixer_edit.cpp
   model/model_curves.cpp
@@ -85,7 +88,6 @@ set(GUI_SRC
   radio/hw_inputs.cpp
   radio/hw_intmodule.cpp
   radio/hw_serial.cpp
-  radio/menu_radio.cpp
   radio/preview_window.cpp
   radio/radio_calibration.cpp
   radio/radio_diaganas.cpp
@@ -97,6 +99,7 @@ set(GUI_SRC
   radio/radio_tools.cpp
   radio/radio_trainer.cpp
   radio/radio_version.cpp
+  radio/radio_gps_tool.cpp
   )
 
 macro(add_gui_src src)
@@ -105,6 +108,10 @@ macro(add_gui_src src)
     ${src}
     )
 endmacro(add_gui_src)
+
+if(DSMP)
+   add_gui_src(module/dsmp_settings.cpp)
+endif()
 
 if(LUA)
   add_gui_src(standalone_lua.cpp)
@@ -122,6 +129,7 @@ endif()
 
 if(FUNCTION_SWITCHES)
   add_gui_src(model/function_switches.cpp)
+  add_gui_src(radio/radio_cfs.cpp)
   add_gui_src(radio/radio_diagcustswitches.cpp)
 endif()
 
@@ -192,7 +200,7 @@ list(TRANSFORM LVGL_FONT_SOURCES_MINIMAL PREPEND ${RADIO_SRC_DIR}/)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${LVGL_SOURCES_MINIMAL}
   ${LVGL_FONT_SOURCES_MINIMAL}
-  ${RADIO_SRC_DIR}/gui/colorlcd/lcd.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/boot_lcd.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/fonts.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/colors.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/bitmaps.cpp
@@ -206,4 +214,4 @@ set(SRC ${SRC}
   ${RADIO_SRC_DIR}/thirdparty/lz4/lz4.c
 )
 
-add_definitions(-DLIBOPENUI)
+add_definitions(-DCOLORLCD)
