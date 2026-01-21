@@ -135,7 +135,7 @@ static uint8_t isFPDataReady()
 
 static void sendFPLemonDSMP(uint8_t*& p_buf)
 {
-    auto forwardProgLen = Multi_Buffer[3] & 0x0F;
+    [[maybe_unused]] auto forwardProgLen = Multi_Buffer[3] & 0x0F;
     TRACE("LemonDSMP: DSMP FwdProg Send data len = [%d]", forwardProgLen);
     // Send Forward Prog Data (Includes Len + 6 bytes).. 9 bytes totat
     sendByte(p_buf, 0xAA);
@@ -471,7 +471,7 @@ void DSMPModuleStatus::getStatusString(char* statusText) const
     }
 
     const auto& md = g_model.moduleData[EXTERNAL_MODULE];
-    auto channels = md.getChannelsCount();
+    [[maybe_unused]] auto channels = md.getChannelsCount();
 
     char* tmp = statusText;
 
