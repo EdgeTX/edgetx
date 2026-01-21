@@ -49,6 +49,7 @@ class UpdateInterface : public QWidget
       CID_MultiProtocol   = 4,
       CID_Companion       = 5,
       CID_CloudBuild      = 6,
+      CID_ExpressLRS      = 7,
     };
     Q_ENUM(ComponentIdentity)
 
