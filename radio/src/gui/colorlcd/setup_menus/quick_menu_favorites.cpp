@@ -20,7 +20,10 @@
  */
 
 #include "quick_menu_favorites.h"
+
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
@@ -66,6 +69,6 @@ void QMFavoritesPage::onCancel()
     // Delete quick menu, and close parent page group (in case it is Favorites group)
     QuickMenu::shutdownQuickMenu();
     QuickMenu::setCurrentPage(QM_NONE);
-    Layer::back()->onCancel();
+    Window::topWindow()->onCancel();
   }
 }

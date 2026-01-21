@@ -21,6 +21,7 @@
 
 #include "screen_user_interface.h"
 
+#include "choice.h"
 #include "file_preview.h"
 #include "theme_manager.h"
 #include "view_main.h"
@@ -43,7 +44,7 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 
 #endif
 
-ScreenUserInterfacePage::ScreenUserInterfacePage(PageDef& pageDef) :
+ScreenUserInterfacePage::ScreenUserInterfacePage(const PageDef& pageDef) :
     PageGroupItem(pageDef, PAD_TINY)
 {
 }

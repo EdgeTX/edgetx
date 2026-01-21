@@ -23,9 +23,11 @@
 
 #include <algorithm>
 
+#include "dialog.h"
+#include "edgetx.h"
 #include "hal/adc_driver.h"
 #include "input_edit.h"
-#include "edgetx.h"
+#include "menu.h"
 #include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -195,7 +197,7 @@ class InputGroup : public InputMixGroupBase
   }
 };
 
-ModelInputsPage::ModelInputsPage(PageDef& pageDef) : InputMixPageBase(pageDef)
+ModelInputsPage::ModelInputsPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 

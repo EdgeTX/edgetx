@@ -21,13 +21,13 @@
 
 #include "fullscreen_dialog.h"
 
-#include "LvglWrapper.h"
-#include "mainwindow.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
-#include "os/sleep.h"
-#include "view_main.h"
 #include "hal/watchdog_driver.h"
+#include "mainwindow.h"
+#include "os/sleep.h"
+#include "static.h"
+#include "view_main.h"
 
 FullScreenDialog::FullScreenDialog(
     uint8_t type, std::string title, std::string message, std::string action,
@@ -46,8 +46,6 @@ FullScreenDialog::FullScreenDialog(
   cancelSplash();
 
   pushLayer();
-
-  bringToTop();
 
   build();
 }
@@ -150,28 +148,20 @@ void FullScreenDialog::checkEvents()
   }
 }
 
-void FullScreenDialog::deleteLater(bool detach, bool trash)
+void FullScreenDialog::deleteLater()
 {
+  if (_deleted) return;
+
   if (running) {
     running = false;
   } else {
-    Window::deleteLater(detach, trash);
+    Window::deleteLater();
   }
 }
 
 void FullScreenDialog::setMessage(const char* text)
 {
   if (messageLabel) messageLabel->setText(text);
-}
-
-static void run_ui_manually()
-{
-  checkBacklight();
-  WDG_RESET();
-
-  sleep_ms(10);
-  LvglWrapper::runNested();
-  MainWindow::instance()->run(false);
 }
 
 void FullScreenDialog::runForever(bool checkPwr)
@@ -199,7 +189,11 @@ void FullScreenDialog::runForever(bool checkPwr)
       }
     }
 
-    run_ui_manually();
+    checkBacklight();
+    WDG_RESET();
+
+    MainWindow::instance()->run();
+    sleep_ms(10);
   }
 
   deleteLater();

@@ -713,6 +713,9 @@ bool isSourceAvailableInResetSpecialFunction(int index)
 
 #if defined(COLORLCD)
 
+#include "menu.h"
+#include "mainwindow.h"
+
 class AntennaSelectionMenu : public Menu
 {
   bool& done;
@@ -739,7 +742,6 @@ static void runAntennaSelectionMenu()
   while (!finished) {
     WDG_RESET();
     MainWindow::instance()->run();
-    LvglWrapper::runNested();
     sleep_ms(20);
   }
 }

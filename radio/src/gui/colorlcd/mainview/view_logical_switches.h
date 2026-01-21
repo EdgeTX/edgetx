@@ -29,7 +29,7 @@ class LogicalSwitchesViewPage : public PageGroupItem
 {
  public:
   LogicalSwitchesViewPage();
-  LogicalSwitchesViewPage(PageDef& pageDef);
+  LogicalSwitchesViewPage(const PageDef& pageDef);
 
   static LAYOUT_ORIENTATION_SCALED(FOOTER_HEIGHT, 20, 40)
   static LAYOUT_ORIENTATION(BTN_MATRIX_COL, 8, 6)

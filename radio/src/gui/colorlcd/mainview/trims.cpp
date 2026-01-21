@@ -203,7 +203,7 @@ void MainViewTrim::checkEvents()
   int newValue = getTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
 
   bool update = false;
-  
+
   if (extendedTrims != g_model.extendedTrims) {
     update = true;
     setRange();

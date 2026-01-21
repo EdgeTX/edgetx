@@ -19,15 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
-#include "hal/rotary_encoder.h"
-#include "os/time.h"
-
 #include "LvglWrapper.h"
-#include "etx_lv_theme.h"
 
-#include "view_main.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "hal/rotary_encoder.h"
 #include "keyboard_base.h"
+#include "mainwindow.h"
+#include "os/time.h"
+#include "view_main.h"
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
@@ -144,7 +144,7 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     // no focused item ?
     auto obj = get_focus_obj(keyboardDevice);
     if (!obj) {
-      auto w = Layer::back();
+      auto w = Window::topWindow();
       dispatch_kb_event(w, evt);
       backup_kb_data(data);
       return;
@@ -323,11 +323,13 @@ static void init_lvgl_drivers()
   keyboardDevice = lv_indev_drv_register(&keyboard_drv);
 }
 
-void initLvglTheme()
+LvglWrapper::LvglWrapper()
 {
+  init_lvgl_drivers();
+
   static lv_theme_t theme;
 
-  /* Initialize the ETX theme */
+  /* Initialize default theme */
   theme.disp = NULL;
   theme.color_primary = lv_palette_main(LV_PALETTE_BLUE);
   theme.color_secondary = lv_palette_main(LV_PALETTE_RED);
@@ -338,18 +340,17 @@ void initLvglTheme()
 
   /* Assign the theme to the current display*/
   lv_disp_set_theme(NULL, &theme);
-}
 
-LvglWrapper::LvglWrapper()
-{
-  init_lvgl_drivers();
-
+  // Integrate STB image handling into lvgl
   extern void lv_stb_init();
   lv_stb_init();
 
   // Create main window and load that screen
   auto window = MainWindow::instance();
-  window->setActiveScreen();
+  lv_scr_load(window->getLvObj());
+
+  // create ViewMain window
+  ViewMain::instance();
 }
 
 LvglWrapper* LvglWrapper::instance()
@@ -360,26 +361,22 @@ LvglWrapper* LvglWrapper::instance()
 
 void LvglWrapper::run()
 {
-#if defined(SIMU)
-  static uint32_t last_tick = 0;
-  uint32_t tick = time_get_ms();
-  lv_tick_inc(tick - last_tick);
-  last_tick = tick;
-#endif
-  lv_timer_handler();
-}
+  // Detect nested calls
+  static bool updating = false;
 
-void LvglWrapper::runNested()
-{
-  // Manual refresh
-  lv_refr_now(nullptr);
-  pollInputs();
-}
+  if (!updating) {
+    // Normal UI loop - call lgvl timer handler
+    updating = true;
+    lv_timer_handler();
+    updating = false;
+  } else {
+    // Used when running the loop manually from within
+    // the LVGL timer handler (blocking UI code)
+    lv_refr_now(nullptr);
 
-void LvglWrapper::pollInputs()
-{
-  lv_indev_t* indev = nullptr;
-  while((indev = lv_indev_get_next(indev)) != nullptr) {
-    lv_indev_read_timer_cb(indev->driver->read_timer);
+    lv_indev_t* indev = nullptr;
+    while((indev = lv_indev_get_next(indev)) != nullptr) {
+      lv_indev_read_timer_cb(indev->driver->read_timer);
+    }
   }
 }

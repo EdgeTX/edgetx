@@ -23,11 +23,15 @@
 
 #include "function_switches.h"
 
+#include "choice.h"
+#include "color_picker.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/rgbleds.h"
 #include "strhelpers.h"
 #include "switches.h"
-#include "color_picker.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

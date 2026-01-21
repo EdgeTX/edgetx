@@ -21,12 +21,13 @@
 
 #include "page.h"
 
-#include "theme_manager.h"
 #include "etx_lv_theme.h"
-#include "view_main.h"
 #include "keyboard_base.h"
-#include "quick_menu.h"
+#include "mainwindow.h"
 #include "pagegroup.h"
+#include "quick_menu.h"
+#include "theme_manager.h"
+#include "view_main.h"
 
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
@@ -107,27 +108,26 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 
 void Page::openMenu()
 {
-  PageGroup* p = (PageGroup*)Layer::getPageGroup();
+  PageGroup* p = Window::pageGroup();
   QMPage qmPage = QM_NONE;
   if (p)
     qmPage = p->getCurrentTab()->pageId();
-  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
+  QuickMenu::openQuickMenu(
     [=](bool close) {
       onCancel();
       if (p) {
-        while (!Layer::back()->isPageGroup()) {
-          Layer::back()->deleteLater();
+        while (!Window::topWindow()->isPageGroup()) {
+          Window::topWindow()->deleteLater();
         }
         if (close)
-          Layer::back()->onCancel();
+          Window::topWindow()->onCancel();
       }
     }, p, qmPage);
 }
 
 void Page::onCancel()
 {
-  if (quickMenu) quickMenu->closeMenu();
-  quickMenu = nullptr;
+  QuickMenu::closeQuickMenu();
   deleteLater();
 }
 
@@ -141,7 +141,7 @@ void Page::enableRefresh()
 
 NavWindow* Page::navWindow()
 {
-  auto p = Layer::back();
+  auto p = Window::topWindow();
   if (p->isNavWindow()) return (NavWindow*)p;
   return nullptr;
 }
@@ -151,7 +151,7 @@ void Page::onPressSYS()
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!quickMenu) openMenu();
+    if (!QuickMenu::isOpen()) openMenu();
   } else {
     auto p = navWindow();
     if (p) {

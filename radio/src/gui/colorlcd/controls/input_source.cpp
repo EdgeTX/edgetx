@@ -22,7 +22,10 @@
 #include "input_source.h"
 
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 #include "sourcechoice.h"
+#include "static.h"
 #include "switchchoice.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)

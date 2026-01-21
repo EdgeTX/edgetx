@@ -22,6 +22,8 @@
 #include "radio_spectrum_analyser.h"
 
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

@@ -22,6 +22,8 @@
 #include "channel_range.h"
 
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

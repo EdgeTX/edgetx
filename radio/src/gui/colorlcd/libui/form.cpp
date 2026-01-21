@@ -73,10 +73,12 @@ void FormField::onCancel()
   }
 }
 
-void FormField::deleteLater(bool detach, bool trash)
+void FormField::deleteLater()
 {
+  if (_deleted) return;
+
   if (isEditMode()) setEditMode(false);
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 }
 
 FormLine::FormLine(Window* parent, FlexGridLayout& layout) :

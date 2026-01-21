@@ -28,6 +28,7 @@
 #include "hal/abnormal_reboot.h"
 
 #if defined(COLORLCD)
+  #include "layout.h"
   #include "theme_manager.h"
 #endif
 

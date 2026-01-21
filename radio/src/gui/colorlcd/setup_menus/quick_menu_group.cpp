@@ -175,10 +175,12 @@ void QuickMenuGroup::setGroup()
   }
 }
 
-void QuickMenuGroup::deleteLater(bool detach, bool trash)
+void QuickMenuGroup::deleteLater()
 {
+  if (_deleted) return;
+
   if (group) lv_group_del(group);
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 }
 
 void QuickMenuGroup::setFocus()
@@ -218,6 +220,14 @@ void QuickMenuGroup::setCurrent(ButtonBase* b)
 {
   curBtn = b;
   ((QuickMenuButton*)b)->setEnabled();
+}
+
+void QuickMenuGroup::activate()
+{
+  setFocus();
+  setGroup();
+  setEnabled();
+  show();
 }
 
 void QuickMenuGroup::doLayout(int cols)

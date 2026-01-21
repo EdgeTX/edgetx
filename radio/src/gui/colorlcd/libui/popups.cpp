@@ -21,12 +21,14 @@
 
 #include "popups.h"
 
+#include "dialog.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "hal/watchdog_driver.h"
 #include "lvgl/src/hal/lv_hal_tick.h"
+#include "mainwindow.h"
 #include "os/sleep.h"
 #include "pwr.h"
-#include "hal/watchdog_driver.h"
-#include "etx_lv_theme.h"
 
 static void _run_popup_dialog(const char* title, const char* msg,
                               const char* info = nullptr)
@@ -59,7 +61,6 @@ static void _run_popup_dialog(const char* title, const char* msg,
     checkBacklight();
     WDG_RESET();
     MainWindow::instance()->run();
-    LvglWrapper::runNested();
     sleep_ms(20);
   }
 }

@@ -78,7 +78,7 @@ class RadioCustSwitchesDiagsWindow : public Window
         new DynamicText(
             this, {FS_2ND_COLUMN + 10, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
             [=]() { return g_model.cfsState(i) ? CHAR_DOWN : CHAR_UP; });
-          
+
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
         colorBox[r] = new ColorSwatch(this, {FS_3RD_COLUMN, y, FS_COLOR_WIDTH,
                                              FS_COLOR_HEIGHT}, getLedColor(r));
@@ -91,7 +91,7 @@ class RadioCustSwitchesDiagsWindow : public Window
       }
     }
   }
-      
+
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   void checkEvents() override {
     Window::checkEvents();

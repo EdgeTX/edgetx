@@ -22,6 +22,7 @@
 #include "file_carosell.h"
 
 #include "translations/translations.h"
+#include "timers_driver.h"
 
 extern inline tmr10ms_t getTicks()
 {
@@ -58,7 +59,7 @@ void FileCarosell::setSelected(int n)
     } else
       fp->setFile("");
   }
-  
+
   message->show(selected == -1);
   if (selected == -1)
     message->setText(_fileNames.size() > 0 ? STR_LOADING : STR_NO_THEME_IMAGE);

@@ -21,6 +21,7 @@
 #include "bitmapbuffer.h"
 #include "lib_file.h"
 #include "edgetx_helpers.h"
+#include "debug.h"
 
 FIL imgFile __DMA;
 

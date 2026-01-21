@@ -18,10 +18,6 @@
 
 #pragma once
 
-#include "debug.h"
-#include "colors.h"
-#include "keys.h"
-
 // Used by Lua API
 #define INVERS                         0x01u
 #define BLINK                          0x1000u

@@ -22,10 +22,15 @@
 #include "hw_inputs.h"
 
 #include "analogs.h"
+#include "choice.h"
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "edgetx.h"
+#include "layout.h"
+#include "static.h"
 #include "switches.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

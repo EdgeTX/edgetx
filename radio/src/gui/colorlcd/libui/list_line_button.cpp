@@ -245,10 +245,7 @@ static lv_obj_t* group_create(lv_obj_t* parent)
 InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
     Window(parent, rect_t{}, group_create), idx(idx)
 {
-  setWindowFlag(NO_FOCUS);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-  padAll(PAD_ZERO);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   label = etx_label_create(lvobj);
   etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);

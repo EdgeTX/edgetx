@@ -31,7 +31,7 @@ struct PpmFrameSettings : public Window {
 
   public:
     PpmFrameSettings(Window* parent, T* ppm);
-    
+
     NumberEdit* getPpmFrameLenEditObject() {
       return ppmFrameLenEditObject;
     };

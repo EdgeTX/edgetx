@@ -52,7 +52,7 @@ class ViewTextWindow : public Page
 class ModelNotesPage : public PageGroupItem
 {
  public:
-  ModelNotesPage(PageDef& pageDef);
+  ModelNotesPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

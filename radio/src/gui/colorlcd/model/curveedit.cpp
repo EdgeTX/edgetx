@@ -21,8 +21,12 @@
 
 #include "curveedit.h"
 
-#include "edgetx.h"  // TODO for applyCustomCurve
+#include "choice.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -31,15 +35,14 @@ static const lv_coord_t default_col_dsc[] = {LV_GRID_CONTENT,
 static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT,
                                              LV_GRID_TEMPLATE_LAST};
 
-class CurveEdit : public Window
+class CurveEdit : public Curve
 {
  public:
   CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
-      Window(parent, rect),
-      preview(
-          this, {0, 0, width(), height()},
+      Curve(parent, rect,
           [=](int x) -> int { return applyCustomCurve(x, index); },
-          [=]() -> int { return getValue(currentSource); }),
+          [=]() -> int { return getValue(currentSource); }
+      ),
       index(index),
       current(0)
   {
@@ -58,27 +61,18 @@ class CurveEdit : public Window
 
   void updatePreview()
   {
-    preview.clearPoints();
+    clearPoints();
     CurveHeader& curve = g_model.curves[index];
     for (uint8_t i = 0; i < 5 + curve.points; i++) {
-      preview.addPoint(getPoint(index, i));
+      addPoint(getPoint(index, i));
     }
   }
 
  protected:
-  Curve preview;
   uint8_t index;
   uint8_t current;
   mixsrc_t currentSource = 0;
   bool lockSource = false;
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (!_deleted) {
-      preview.deleteLater(true, false);
-      Window::deleteLater(detach, trash);
-    }
-  }
 
   void checkEvents(void) override
   {

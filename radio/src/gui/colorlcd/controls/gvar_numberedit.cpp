@@ -31,11 +31,11 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
     vmax(vmax),
     getValue(getValue),
     setValue(setValue),
-    textFlags(textFlags),
     voffset(voffset)
 {
+  setTextFlag(textFlags);
   padAll(PAD_TINY);
-  
+
   // GVAR field
   gvar_field = new Choice(
       this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -MAX_GVARS, MAX_GVARS - 1,
@@ -103,7 +103,7 @@ void GVarNumberEdit::update()
 
   gvar_field->hide();
   num_field->hide();
-  
+
   int32_t value = getValue();
   if (GV_IS_GV_VALUE(value)) {
     // GVAR mode

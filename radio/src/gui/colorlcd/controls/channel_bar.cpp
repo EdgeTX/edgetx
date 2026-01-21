@@ -23,6 +23,7 @@
 
 #include "bitmaps.h"
 #include "etx_lv_theme.h"
+#include "static.h"
 
 #define VIEW_CHANNELS_LIMIT_PCT \
   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)
@@ -35,7 +36,7 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
     Window(parent, rect), channel(channel),
     getValue(std::move(getValueFunc))
 {
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_CLICK);
 
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
 
@@ -241,14 +242,14 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   char chanString[10];
   char* s = strAppend(chanString, STR_CH);
   strAppendSigned(s, channel + 1);
-  new StaticText(this, {PAD_TINY + invMask->width, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
+  new StaticText(this, {PAD_TINY + invMask->width, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString,
                  txtColIdx, FONT(XS) | LEFT);
 
   // Channel name
   if (g_model.limitData[channel].name[0]) {
     char nm[LEN_CHANNEL_NAME + 1];
     strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm, 
+    new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm,
                    txtColIdx, FONT(XS) | LEFT);
   }
 

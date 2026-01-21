@@ -36,9 +36,7 @@ class ChannelValue : public Window
              {col * colWidth, row * ROW_HEIGHT, colWidth - 1 + (colWidth & 1), (ROW_HEIGHT + 1)}),
       channel(channel), txtColor(txtColor), barColor(barColor)
   {
-    setWindowFlag(NO_FOCUS);
-
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    setWindowFlag(NO_FOCUS | NO_CLICK);
 
     delayLoad();
   }
