@@ -128,7 +128,7 @@ const QMTopDef qmTopItems[] = {
   { ICON_TOOLS_RESET, STR_DEF(STR_QM_RESET), STR_DEF(STR_QM_RESET), QM_ACTION, QM_TOOLS_RESET, nullptr,
     []() {
       Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+      resetMenu->addLine(STR_RESET_SESSION, []() { flightReset(); });
       resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
       resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
       resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
@@ -169,7 +169,7 @@ const PageDef toolsMenuItems[] = {
   { ICON_TOOLS_RESET, STR_DEF(STR_QM_RESET), STR_DEF(STR_QM_RESET), PAGE_ACTION, QM_TOOLS_RESET, nullptr, nullptr,
     []() {
       Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+      resetMenu->addLine(STR_RESET_SESSION, []() { flightReset(); });
       resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
       resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
       resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });

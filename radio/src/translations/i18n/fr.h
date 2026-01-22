@@ -982,7 +982,7 @@
 #define TR_PASTE_BEFORE                "Coller Avant"
 #define TR_DELETE                      "Supprimer"
 #define TR_INSERT                      "Insérer"
-#define TR_RESET_FLIGHT                TR("Réinit. vol", "Réinit. vol")
+#define TR_RESET_SESSION               TR("Réinit. vol", "Réinit. vol")
 #define TR_RESET_TIMER1                TR("Réinit. Timer1", "Réinit. Chrono1")
 #define TR_RESET_TIMER2                TR("Réinit. Timer2", "Réinit. Chrono2")
 #define TR_RESET_TIMER3                TR("Réinit. Timer3", "Réinit. Chrono3")

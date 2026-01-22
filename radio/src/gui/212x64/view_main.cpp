@@ -408,12 +408,12 @@ void onMainViewMenu(const char * result)
     pushModelNotes();
   }
   else if (result == STR_RESET_SUBMENU) {
-    POPUP_MENU_START(onMainViewMenu, 5, STR_RESET_FLIGHT, STR_RESET_TIMER1, STR_RESET_TIMER2, STR_RESET_TIMER3, STR_RESET_TELEMETRY);
+    POPUP_MENU_START(onMainViewMenu, 5, STR_RESET_SESSION, STR_RESET_TIMER1, STR_RESET_TIMER2, STR_RESET_TIMER3, STR_RESET_TELEMETRY);
   }
   else if (result == STR_RESET_TELEMETRY) {
     telemetryReset();
   }
-  else if (result == STR_RESET_FLIGHT) {
+  else if (result == STR_RESET_SESSION) {
     flightReset();
   }
   else if (result == STR_STATISTICS) {

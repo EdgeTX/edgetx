@@ -987,7 +987,7 @@
 #define TR_PASTE_BEFORE                "הדבק לפני"
 #define TR_DELETE                      "מחק"
 #define TR_INSERT                      "Insert"
-#define TR_RESET_FLIGHT                "איפוס טיסה"
+#define TR_RESET_SESSION               "איפוס טיסה"
 #define TR_RESET_TIMER1                "איפוס שעון 1 "
 #define TR_RESET_TIMER2                "איפוס שעון 2"
 #define TR_RESET_TIMER3                "איפוס שעון 3"

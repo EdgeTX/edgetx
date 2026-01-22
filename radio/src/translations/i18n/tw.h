@@ -981,7 +981,7 @@
 #define TR_PASTE_BEFORE                "貼上到本條之前"
 #define TR_DELETE                      "刪除"
 #define TR_INSERT                      "插入"
-#define TR_RESET_FLIGHT                "復位飛行數據"
+#define TR_RESET_SESSION               "復位飛行數據"
 #define TR_RESET_TIMER1                "重啟計時器1"
 #define TR_RESET_TIMER2                "重啟計時器2"
 #define TR_RESET_TIMER3                "重啟計時器3"

@@ -985,7 +985,7 @@
 #define TR_PASTE_BEFORE                "Colar depois"
 #define TR_DELETE                      "Apagar"
 #define TR_INSERT                      "Inserir"
-#define TR_RESET_FLIGHT                "Reinic. sessão"
+#define TR_RESET_SESSION               "Reinic. sessão"
 #define TR_RESET_TIMER1                "Reset timer1"
 #define TR_RESET_TIMER2                "Reset timer2"
 #define TR_RESET_TIMER3                "Reset timer3"

@@ -300,7 +300,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   }
 
   if (value < ++step)
-    return tr("Flight");
+    return tr("Session");
 
   if (value < ++step)
     return tr("Telemetry");

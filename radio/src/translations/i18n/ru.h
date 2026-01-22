@@ -986,7 +986,7 @@
 #define TR_PASTE_BEFORE                "Вставить перед"
 #define TR_DELETE                      "Удалить"
 #define TR_INSERT                      "Вставить"
-#define TR_RESET_FLIGHT                "Сброс сесии"
+#define TR_RESET_SESSION               "Сброс сесии"
 #define TR_RESET_TIMER1                "Сбросить таймер1"
 #define TR_RESET_TIMER2                "Сбросить таймер2"
 #define TR_RESET_TIMER3                "Сбросить таймер3"

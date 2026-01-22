@@ -51,7 +51,7 @@ void menuViewTelemetry(event_t event)
     incrTelemetryScreen();
   }
   else if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    POPUP_MENU_START(onMainViewMenu, 2, STR_RESET_TELEMETRY, STR_RESET_FLIGHT);
+    POPUP_MENU_START(onMainViewMenu, 2, STR_RESET_TELEMETRY, STR_RESET_SESSION);
   }
 
   for (int i=0; i<=TELEMETRY_SCREEN_TYPE_MAX; i++) {

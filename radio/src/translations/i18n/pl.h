@@ -977,7 +977,7 @@
 #define TR_PASTE_BEFORE        "Wklej przed"
 #define TR_DELETE              "Kasuj"
 #define TR_INSERT              "Wstaw"
-#define TR_RESET_FLIGHT        "Resetuj sesję"
+#define TR_RESET_SESSION       "Resetuj sesję"
 #define TR_RESET_TIMER1        "Zeruj Timer1"
 #define TR_RESET_TIMER2        "Zeruj Timer2"
 #define TR_RESET_TIMER3        "Zeruj Timer3"
