@@ -400,12 +400,24 @@ void Menu::addLine(const MaskBitmap* icon_mask, const std::string& text,
   updatePosition();
 }
 
+void Menu::addLine(const std::string &text, std::function<void()> onPress,
+                  std::function<bool()> isChecked)
+{
+  addLine(nullptr, text, onPress, isChecked);
+}
+
 void Menu::addLineBuffered(const MaskBitmap* icon_mask, const std::string& text,
                            std::function<void()> onPress,
                            std::function<bool()> isChecked)
 {
   content->addLine(icon_mask, text, std::move(onPress), std::move(isChecked),
                    false);
+}
+
+void Menu::addLineBuffered(const std::string &text, std::function<void()> onPress,
+                           std::function<bool()> isChecked)
+{
+  addLineBuffered(nullptr, text, onPress, isChecked);
 }
 
 void Menu::updateLines()
