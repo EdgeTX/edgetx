@@ -24,11 +24,19 @@
 #include "page.h"
 
 class RadioKeyDiagsPage: public Page {
-  public:
-    explicit RadioKeyDiagsPage();
+ public:
+  explicit RadioKeyDiagsPage();
 
-  protected:
-    void buildHeader(Window * window);
-    void buildBody(Window * window);
+ protected:
+  void buildHeader(Window * window);
+  void buildBody(Window * window);
+
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override {}
+  void onLongPressSYS() override {}
+  void onPressMDL() override {}
+  void onLongPressMDL() override {}
+  void onPressTELE() override {}
+  void onLongPressTELE() override {}
+#endif
 };
-
