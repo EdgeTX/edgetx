@@ -61,6 +61,8 @@ class hapticQueue
 
     uint8_t hapticTick;
 
+    uint8_t intensity;
+  
     // queue arrays
     uint8_t queueHapticLength[HAPTIC_QUEUE_LENGTH];
     uint8_t queueHapticPause[HAPTIC_QUEUE_LENGTH];
