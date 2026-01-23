@@ -845,7 +845,7 @@ swsrc_t getMovedSwitch()
     }
   }
 
-  // Trims: only disabled in FM trims
+  // Trims: only detect trims disabled in FM
   for (int i = 0; i < keysGetMaxTrims(); i++) {
     if (keysGetTrimState(i)) result = SWSRC_FIRST_TRIM + i;
   }

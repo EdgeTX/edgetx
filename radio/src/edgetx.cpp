@@ -518,7 +518,6 @@ int8_t getMovedSource(uint8_t min)
 
   s_move_last_time = get_tmr10ms();
 
-TRACE("RESULT: %d", result);
   return result;
 }
 #endif
