@@ -64,7 +64,8 @@ void MainWindow::run()
   auto start = timersGetMsTick();
 #endif
 
-  ViewMain::refreshWidgets();
+  if (widgetRefreshEnable)
+    ViewMain::refreshWidgets();
 
   auto opaque = Window::firstOpaque();
   if (opaque) {

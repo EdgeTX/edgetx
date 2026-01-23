@@ -51,9 +51,12 @@ class MainWindow: public Window
 
   void shutdown();
 
+  void enableWidgetRefresh(bool state) { widgetRefreshEnable = state; }
+
  protected:
   lv_obj_t* background = nullptr;
   const BitmapBuffer *backgroundBitmap = nullptr;
+  bool widgetRefreshEnable = true;
 
   static MainWindow * _instance;
 
