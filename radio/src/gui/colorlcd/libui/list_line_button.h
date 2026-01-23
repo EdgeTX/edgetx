@@ -72,7 +72,7 @@ class InputMixButtonBase : public ListLineButton
 #else
   static LAYOUT_VAL_SCALED(LN_X, 73)
 #endif
-  static constexpr coord_t BTN_W = ListLineButton::GRP_W - LN_X - PAD_BORDER * 2 - PAD_OUTLINE;
+  static constexpr coord_t BTN_W = ListLineButton::GRP_W - LN_X - PAD_BORDER * 2 - PAD_OUTLINE * 2;
   static constexpr coord_t WGT_X = PAD_TINY;
   static constexpr coord_t WGT_Y = PAD_TINY;
   static LAYOUT_VAL_SCALED(WGT_W, 50)
@@ -122,6 +122,8 @@ class InputMixGroupBase : public Window
   mixsrc_t idx;
   lv_obj_t* label;
   std::list<InputMixButtonBase*> lines;
+
+  void _adjustHeight(coord_t y);
 };
 
 class InputMixPageBase : public PageGroupItem
