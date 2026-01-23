@@ -49,20 +49,14 @@ class Menu : public ModalWindow
                std::function<bool()> isChecked = nullptr);
 
   void addLine(const std::string &text, std::function<void()> onPress,
-               std::function<bool()> isChecked = nullptr)
-  {
-    addLine(nullptr, text, onPress, isChecked);
-  }
+               std::function<bool()> isChecked = nullptr);
 
   void addLineBuffered(const MaskBitmap *icon_mask, const std::string &text,
                        std::function<void()> onPress,
                        std::function<bool()> isChecked = nullptr);
 
   void addLineBuffered(const std::string &text, std::function<void()> onPress,
-                       std::function<bool()> isChecked = nullptr)
-  {
-    addLineBuffered(nullptr, text, onPress, isChecked);
-  }
+                       std::function<bool()> isChecked = nullptr);
 
   void updateLines();
 
