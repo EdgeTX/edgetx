@@ -255,17 +255,17 @@
 #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 9) // PB.09
 #define TELEMETRY_RX_GPIO               GPIO_UNDEF
 
-#define TELEMETRY_USART                 USART2
+#define TELEMETRY_USART                 UART4
 #define TELEMETRY_DMA                   GPDMA1
 #define TELEMETRY_DMA_Stream_TX         LL_DMA_CHANNEL_3
-#define TELEMETRY_DMA_Channel_TX        LL_GPDMA2_REQUEST_USART2_TX
+#define TELEMETRY_DMA_Channel_TX        LL_GPDMA1_REQUEST_UART4_TX
 #define TELEMETRY_DMA_TX_IRQHandler     GPDMA1_Channel3_IRQHandler
 #define TELEMETRY_DMA_TX_Stream_IRQ     GPDMA1_Channel3_IRQn
-#define TELEMETRY_USART_IRQHandler      USART2_IRQHandler
-#define TELEMETRY_USART_IRQn            USART2_IRQn
-#define TELEMETRY_EXTI_PORT             LL_SYSCFG_EXTI_PORTD
-#define TELEMETRY_EXTI_SYS_LINE         LL_SYSCFG_EXTI_LINE6
-#define TELEMETRY_EXTI_LINE             LL_EXTI_LINE_6
+#define TELEMETRY_USART_IRQHandler      UART4_IRQHandler
+#define TELEMETRY_USART_IRQn            UART4_IRQn
+#define TELEMETRY_EXTI_PORT             LL_SYSCFG_EXTI_PORTB
+#define TELEMETRY_EXTI_SYS_LINE         LL_SYSCFG_EXTI_LINE9
+#define TELEMETRY_EXTI_LINE             LL_EXTI_LINE_9
 #define TELEMETRY_EXTI_TRIGGER          LL_EXTI_TRIGGER_RISING
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
