@@ -115,6 +115,10 @@ if(USB_CHARGE_LED)
   add_definitions(-DUSB_CHARGE_LED)
 endif()
 
+if(USB_CHARGER)
+  add_definitions(-DUSB_CHARGER)
+endif()
+
 if(USE_RTC_CLOCK)
   add_definitions(-DRTCLOCK)
 endif()
