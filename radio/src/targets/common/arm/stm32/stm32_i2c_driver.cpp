@@ -30,7 +30,7 @@
 #endif
 #include "debug.h"
 
-#define MAX_I2C_DEVICES 2
+#define MAX_I2C_DEVICES 4
 
 struct stm32_i2c_device {
   I2C_HandleTypeDef handle;

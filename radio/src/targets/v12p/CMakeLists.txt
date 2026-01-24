@@ -24,6 +24,7 @@ set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
+set(INTERNAL_EXTERNAL_ANT YES)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
@@ -31,6 +32,7 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 # IMU support
 set(IMU ON)
+add_definitions(-DIMU_ICM4207C)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -48,6 +50,7 @@ add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR v12p)
 add_definitions(-DRADIO_V12P)
+add_definitions(-DHELLORADIORADIOSKY)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
@@ -67,7 +70,9 @@ add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DCOLORLCD -DLIBOPENUI
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  #-DHARDWARE_TOUCH 
+  -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  -DINTERNAL_EXTERNAL_ANT
 )
 
 set(SDRAM ON)
@@ -77,6 +82,8 @@ add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
+
+#add_definitions(-DINTERNAL_MODULE_PXX1)
 
 if(STICKS_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -147,10 +154,12 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
+  ${BOARD_SRC_DIR}/led_driver.cpp
   ${BOARD_SRC_DIR}/touch_driver.cpp
+  drivers/icm42627.cpp
+  drivers/imu_filter.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp

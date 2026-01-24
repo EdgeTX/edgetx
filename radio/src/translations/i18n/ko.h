@@ -1101,7 +1101,7 @@
 #define TR_ANTENNA_MODES_3              "모델별 설정"
 #define TR_ANTENNA_MODES_4              "내장 + 외장"
 #define TR_ANTENNA_MODES_5              "외장"
-
+#define TR_ANTENNA_SELECT             "내장", "외장"
 #define TR_USE_INTERNAL_ANTENNA           TR("내장 안테나 사용", "내부 안테나 사용")
 #define TR_USE_EXTERNAL_ANTENNA           TR("외장 안테나 사용", "외부 안테나 사용")
 #define TR_ANTENNACONFIRM2                TR("안테나 확인", "안테나가 연결되었는지 확인하세요!")
