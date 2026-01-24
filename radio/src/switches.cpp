@@ -847,7 +847,11 @@ swsrc_t getMovedSwitch()
 
   // Trims: only detect trims disabled in FM
   for (int i = 0; i < keysGetMaxTrims(); i++) {
-    if (keysGetTrimState(i)) result = SWSRC_FIRST_TRIM + i;
+    if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
+      uint8_t tidx = inputMappingConvertMode(i) * 2;
+      if (trimDown(tidx)) result = SWSRC_FIRST_TRIM + i;
+      else if (trimDown(tidx+1)) result = SWSRC_FIRST_TRIM + i + 1;
+    }
   }
 
   if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 100)
