@@ -24,6 +24,9 @@ set(${PROJECT_NAME}_NAMES
   exclusivecombogroup
   rawsourcewidget
   curvereferencewidget
+  autosource
+  autosourcenum
+  autosourceplot
 )
 
 AddHeadersSources()
