@@ -41,9 +41,8 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   firmware(firmware)
 {
   ui->setupUi(this);
-  this->setWindowIcon(CompanionIcon("open.png"));
-  ui->btnLoadSettings->setDisabled(g.currentProfile().generalSettings().isEmpty());
-  ui->btnClearSettings->setDisabled(g.currentProfile().generalSettings().isEmpty());
+  setWindowIcon(CompanionIcon("open.png"));
+  setAttribute(Qt::WA_DeleteOnClose);
 
   editorItemModels = new CompoundItemModelFactory(&generalSettings, nullptr);
   // tabs created below expect these item models to be pre-registered
@@ -64,9 +63,16 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   if (firmware->getCapability(KeyShortcuts))
     addTab(new GeneralKeysPanel(this, generalSettings, firmware), tr("Key Shortcuts"));
 
-  connect(hwpnl, &HardwarePanel::internalModuleChanged, this, [&] { intModChanged = true; });
+  ui->btnSettingsRestore->setDisabled(g.currentProfile().generalSettings().isEmpty());
+  ui->btnSettingsBackupDelete->setDisabled(g.currentProfile().generalSettings().isEmpty());
 
-  ui->tabWidget->setCurrentIndex( g.generalEditTab() );
+  connect(hwpnl, &HardwarePanel::internalModuleChanged, this, [&] { intModChanged = true; });
+  connect(ui->btnSettingsBackup, &QPushButton::clicked, this, &GeneralEdit::on_btnSettingsBackupClicked);
+  connect(ui->btnSettingsRestore, &QPushButton::clicked, this, &GeneralEdit::on_btnSettingsRestoreClicked);
+  connect(ui->btnSettingsBackupDelete, &QPushButton::clicked, this, &GeneralEdit::on_btnSettingsBackupDeleteClicked);
+  connect(ui->btnSettingsDefaults, &QPushButton::clicked, this, &GeneralEdit::on_btnSettingsDefaultsClicked);
+
+  ui->tabWidget->setCurrentIndex(g.generalEditTab());
 }
 
 GeneralEdit::~GeneralEdit()
@@ -103,62 +109,101 @@ void GeneralEdit::on_tabWidget_currentChanged(int index)
   panels[index]->update();
 }
 
-void GeneralEdit::on_btnLoadSettings_clicked()
+void GeneralEdit::on_btnSettingsRestoreClicked()
 {
-  if (QMessageBox::question(this, tr("Profile Radio Settings"),
-        tr("WARNING: Loading settings from profile is irreversable.\n\nAre you sure?"),
+  if (QMessageBox::question(this, tr("Radio Settings"),
+        tr("WARNING: Restore settings from profile.\n\nAre you sure?"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
     return;
 
+  const unsigned int oldIntMod = generalSettings.internalModule;
   QByteArray data = g.currentProfile().generalSettings();
 
   try {
     if (!loadRadioSettingsFromYaml(generalSettings, data)) {
-      QMessageBox::critical(this, tr("Profile Radio Settings"), tr("Unable to load settings from profile!"));
+      QMessageBox::critical(this, tr("Radio Settings"), tr("Unable to restore settings from profile!"));
       return;
     }
   } catch(const std::runtime_error& e) {
-    QMessageBox::critical(this, tr("Profile Radio Settings"),
-      tr("Unable to load settings from profile!") + ":\n" + QString(e.what()));
+    QMessageBox::critical(this, tr("Radio Settings"),
+      tr("Unable to restore settings from profile!") + ":\n" + QString(e.what()));
     return;
   }
 
-  on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
-  QMessageBox::information(this, tr("Profile Radio Settings"),
-    tr("Settings successfully loaded.") + "\n\n" +
-    tr("The Radio Settings window will now be closed for the settings to take effect"));
-
+  postSettingsChangeMsg(oldIntMod);
   emit modified();
-  accept();
+  closeEvent(new QCloseEvent());
+  done(-1);
 }
 
-void GeneralEdit::on_btnSaveSettings_clicked()
+void GeneralEdit::on_btnSettingsBackupClicked()
 {
-  if (QMessageBox::question(this, tr("Profile Radio Settings"),
-        tr("WARNING: Saving settings to the profile is irreversable.\n\nAre you sure?"),
+  if (QMessageBox::question(this, tr("Radio Settings"),
+        tr("WARNING: Backup settings to profile.\n\nAre you sure?"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
     return;
 
   QByteArray data;
-  writeRadioSettingsToYaml(generalSettings, data);
+
+  try {
+    if (!writeRadioSettingsToYaml(generalSettings, data)) {
+      QMessageBox::critical(this, tr("Radio Settings"), tr("Unable to backup settings to profile!"));
+      return;
+    }
+  } catch(const std::runtime_error& e) {
+    QMessageBox::critical(this, tr("Radio Settings"),
+      tr("Unable to backup settings to profile!") + ":\n" + QString(e.what()));
+    return;
+  }
+
   g.currentProfile().generalSettings(data);
   QDateTime dateTime = QDateTime::currentDateTime();
   g.currentProfile().timeStamp(dateTime.toString("yyyy-MM-dd hh:mm"));
-  ui->btnLoadSettings->setEnabled(true);
-  ui->btnClearSettings->setEnabled(true);
-  QMessageBox::information(this, tr("Save Radio Settings to Profile"), tr("Settings saved to profile."));
+  ui->btnSettingsRestore->setEnabled(true);
+  ui->btnSettingsBackupDelete->setEnabled(true);
+  QMessageBox::information(this, tr("Radio Settings"), tr("Settings saved to profile."));
 }
 
-void GeneralEdit::on_btnClearSettings_clicked()
+void GeneralEdit::on_btnSettingsBackupDeleteClicked()
 {
-  if (QMessageBox::question(this, tr("Profile Radio Settings"),
-        tr("WARNING: Clearing settings from the profile is irreversable.\n\nAre you sure?"),
+  if (QMessageBox::question(this, tr("Radio Settings"),
+        tr("WARNING: Delete settings backup from profile.\n\nAre you sure?"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
     return;
 
   g.currentProfile().generalSettings(QByteArray());
   g.currentProfile().timeStamp(QString());
-  ui->btnLoadSettings->setEnabled(false);
-  ui->btnClearSettings->setEnabled(false);
-  QMessageBox::information(this, tr("Profile Radio Settings"), tr("Settings cleared from profile."));
+  ui->btnSettingsRestore->setEnabled(false);
+  ui->btnSettingsBackupDelete->setEnabled(false);
+  QMessageBox::information(this, tr("Radio Settings"), tr("Settings backup deleted from profile."));
+}
+
+void GeneralEdit::on_btnSettingsDefaultsClicked()
+{
+  if (QMessageBox::question(this, tr("Radio Settings"),
+        tr("WARNING: Reset settings to defaults.\n\nAre you sure?"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    return;
+
+  const unsigned int oldIntMod = generalSettings.internalModule;
+  generalSettings.clear();
+  postSettingsChangeMsg(oldIntMod);
+  emit modified();
+  closeEvent(new QCloseEvent());
+  done(-1);
+}
+
+void GeneralEdit::postSettingsChangeMsg(const unsigned int oldIntMod)
+{
+  QString intmodmsg;
+
+  if (oldIntMod != generalSettings.internalModule) {
+    intModChanged = true;
+    intmodmsg = tr("The internal module type has been changed and may trigger model updates.") + "\n";
+  }
+
+  QMessageBox::information(this, tr("Radio Settings"),
+    tr("Default settings successfully applied.") + "\n" +
+    intmodmsg +
+    tr("The Radio Settings window will be closed and re-opened for the changes to take effect."));
 }
