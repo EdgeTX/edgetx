@@ -47,32 +47,17 @@ void pwrInit()
   INTERNAL_MODULE_OFF();
 #endif
 
+  // Internal module select
+#if defined(HARDWARE_INTERNAL_MODULE) && defined(INTMODULE_ANTSEL_GPIO)
+  gpio_init(INTMODULE_ANTSEL_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  //gpio_set(INTMODULE_ANTSEL_GPIO);  //ANT SELECT 0=Int 1=Ext
+  gpio_clear(INTMODULE_ANTSEL_GPIO);
+#endif
+
   // External module power
 #if defined(HARDWARE_EXTERNAL_MODULE) && defined(EXTMODULE_PWR_GPIO)
   gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   EXTERNAL_MODULE_PWR_OFF();
-#endif
-
-#if defined(LED1_TEST)
-  gpio_init(LED1_TEST, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_set(LED1_TEST);
-  //gpio_clear(LED1_TEST);
-#endif
-#if defined(LED2_TEST)
-  gpio_init(LED2_TEST, GPIO_OUT, GPIO_PIN_SPEED_LOW);
- // gpio_set(LED2_TEST);
-  //gpio_clear(LED2_TEST);
-#endif
-#if defined(LED3_TEST)
-  gpio_init(LED3_TEST, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  //gpio_set(LED3_TEST);
-  gpio_clear(LED3_TEST);
-#endif
-
-#if defined(BACKLIGHT_TEST)
-  gpio_init(BACKLIGHT_TEST, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_set(BACKLIGHT_TEST);
-  //gpio_clear(BACKLIGHT_TEST);
 #endif
 
   // PWR switch
@@ -137,7 +122,13 @@ bool pwrForcePressed()
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
+
+  #if defined(RADIO_V12P)
+    return pwrForcePressed();
+  #else
+    return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
+  #endif
+
 #elif defined(PWR_SWITCH_GPIO)
   return !gpio_read(PWR_SWITCH_GPIO);
 #else
