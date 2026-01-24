@@ -58,6 +58,16 @@ static const stm32_i2c_hw_def_t _i2c2 = {
 };
 #endif
 
+#if defined(I2C_B4)
+static const stm32_i2c_hw_def_t _i2c4 = {
+  .I2Cx = I2C_B4,
+  .SCL_GPIO = (gpio_t)I2C_B4_SCL_GPIO,
+  .SDA_GPIO = (gpio_t)I2C_B4_SDA_GPIO,
+  .GPIO_AF = I2C_B4_GPIO_AF,
+  .set_pwr = nullptr,
+};
+#endif
+
 int i2c_init(etx_i2c_bus_t bus)
 {
 #if defined(I2C_B1)
@@ -69,6 +79,12 @@ int i2c_init(etx_i2c_bus_t bus)
 #if defined(I2C_B2)
   if (bus == I2C_Bus_2) {
     return stm32_i2c_init(I2C_Bus_2, I2C_B2_CLK_RATE, &_i2c2);
+  }
+#endif
+
+#if defined(I2C_B4)
+  if (bus == I2C_Bus_4) {
+    return stm32_i2c_init(I2C_Bus_4, I2C_B4_CLK_RATE, &_i2c4);
   }
 #endif
 
@@ -86,6 +102,12 @@ int i2c_deinit(etx_i2c_bus_t bus)
 #if defined(I2C_B2)
   if (bus == I2C_Bus_2) {
     return stm32_i2c_deinit(I2C_Bus_2);
+  }
+#endif
+
+#if defined(I2C_B4)
+  if (bus == I2C_Bus_4) {
+    return stm32_i2c_deinit(I2C_Bus_4);
   }
 #endif
 

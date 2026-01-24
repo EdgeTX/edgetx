@@ -447,7 +447,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_PADDING( 2 ),
-  YAML_PADDING( 3 ),
+  YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
   YAML_STRING("selectedTheme", 26),
@@ -901,7 +901,7 @@ static const struct YamlNode struct_CustomScreenData[] = {
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 0, 5, struct_ZonePersistentData, widget_is_active),
+  YAML_ARRAY("zones", 0, 6, struct_ZonePersistentData, widget_is_active),
   YAML_END
 };
 static const struct YamlNode struct_customSwitch[] = {
@@ -980,7 +980,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("telemetrySensors", 112, 99, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 0, 10, struct_CustomScreenData, screen_is_active),
   YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
-  YAML_ARRAY("topbarWidgetWidth", 8, 5, struct_unsigned_8, NULL),
+  YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_CUSTOM("functionSwitchConfig",r_functionSwitchConfig,nullptr),

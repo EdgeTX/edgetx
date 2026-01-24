@@ -64,6 +64,54 @@ extern const etx_hal_adc_driver_t _adc_driver;
 // RGB LED timer
 extern const stm32_pulse_timer_t _led_timer;
 
+#if defined(SIXPOS_SWITCH_INDEX)
+uint8_t lastADCState = 0;
+uint8_t sixPosState = 5;
+
+uint8_t uploadPosState = 0;
+
+bool dirty = true;
+uint16_t getSixPosAnalogValue(uint16_t adcValue)
+{
+  uint8_t currentADCState = 0;
+  if(uploadPosState){
+    uploadPosState--;
+    goto __retposadc__;
+  }
+  else if (adcValue > 3800)
+    currentADCState = 6;
+  else if (adcValue > 3100)
+    currentADCState = 5;
+  else if (adcValue > 2300)
+    currentADCState = 4;
+  else if (adcValue > 1500)
+    currentADCState = 3;
+  else if (adcValue > 1000)
+    currentADCState = 2;
+  else if (adcValue > 400)
+    currentADCState = 1;
+  if (lastADCState != currentADCState) {
+    lastADCState = currentADCState;
+    uploadPosState=10;
+  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
+    sixPosState = lastADCState - 1;
+    dirty = true;
+  }
+  if (dirty) {
+    for (uint8_t i = 0; i < 6; i++) {
+      if (i == sixPosState) {
+        ws2812_set_color(5-i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      } else {
+        ws2812_set_color(5-i, 0, 160, 0);
+      }
+    }
+    rgbLedColorApply();
+  }
+__retposadc__:  
+
+  return (4096/5)*(sixPosState);
+}
+#endif
 
 static void led_strip_off()
 {
@@ -91,6 +139,16 @@ void EXTERNAL_MODULE_ON()
 void EXTERNAL_MODULE_OFF()
 {
   gpio_clear(EXTMODULE_PWR_GPIO);
+}
+
+void INTMODULE_ANTSEL_EXT()
+{
+  gpio_set(INTMODULE_ANTSEL_GPIO);
+}
+
+void INTMODULE_ANTSEL_INT()
+{
+  gpio_clear(INTMODULE_ANTSEL_GPIO);
 }
 
 void boardBLEarlyInit()
@@ -140,17 +198,6 @@ void boardInit()
   // register internal & external FLASH for UF2
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
-
-#if defined(FLYSKY_GIMBAL)
-  // TODO remove the next 2 lines they are ony for test with current proto board
-  gpio_init(GPIO_PIN(GPIOB, 10), GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_set(GPIO_PIN(GPIOB, 10));
-  auto inittime = flysky_gimbal_init();
-  if (inittime)
-    TRACE("Serial gimbal detected in %d ms", inittime);
-  else
-    TRACE("No serial gimbal detected");
-#endif
 
   usbInit();
 

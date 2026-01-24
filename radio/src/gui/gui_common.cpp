@@ -803,6 +803,23 @@ void checkExternalAntenna()
   }
 }
 #endif
+#if defined(RADIO_V12P) && defined(EXTERNAL_ANTENNA)
+void  checkExternalAntenna()
+{
+  if(g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL){
+    INTMODULE_ANTSEL_EXT();
+    //if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+        //globalData.externalAntennaEnabled = true;
+    //}
+    LED_ERROR_BEGIN();
+    RAISE_ALERT(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2, STR_PRESS_ANY_KEY_TO_SKIP, AU_WARNING1);
+      globalData.externalAntennaEnabled = true;
+  }
+  else {
+     INTMODULE_ANTSEL_INT();
+  }
+}
+#endif
 
 #if defined(PXX2)
 bool isPxx2IsrmChannelsCountAllowed(int channels)

@@ -71,6 +71,9 @@ extern "C" void SDRAM_Init();
 // Pulses driver
 #if !defined(SIMU)
 
+void INTMODULE_ANTSEL_EXT();
+void INTMODULE_ANTSEL_INT();
+
 void INTERNAL_MODULE_ON();
 void INTERNAL_MODULE_OFF();
 void EXTERNAL_MODULE_ON();
@@ -166,6 +169,8 @@ void ledOff();
 void ledRed();
 void ledBlue();
 void ledGreen();
+
+uint16_t getSixPosAnalogValue(uint16_t adcValue);
 
 // LCD driver
 void lcdSetInitalFrameBuffer(void* fbAddress);
