@@ -332,12 +332,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else
         return getCapability(board, Board::Switches);
 
-    case FunctionSwitchGroups:
-      if (getCapability(board, FunctionSwitches)) {
-        return IS_RADIOMASTER_GX12(board) ? CPN_MAX_CUSTOMSWITCH_GROUPS : 3;
-      }
-      return 0;
-
     case HasAudioMuteGPIO:
       // All color lcd (including NV14 and EL18) except Horus X12S
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
@@ -356,9 +350,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_RADIOMASTER_MT12(board) || IS_FAMILY_PL18(board) ||
               IS_HELLORADIOSKY_V16(board));
 
-    case HasSDCard:
-      return true;
-
     case HasTrainerModuleCPPM:
       return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
 
@@ -369,10 +360,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) || IS_JUMPER_T20(board) ||
               IS_JUMPER_BUMBLEBEE(board)) || IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
-
-    case MaxAnalogs:
-      return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
-             getCapability(board, Board::JoystickAxes) + getCapability(board, Board::GyroAxes);
 
     case SportMaxBaudRate:
       if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||

@@ -158,11 +158,24 @@ const int BoardJson::getCapability(const Board::Capability capability) const
               m_inputCnt.flexSliders +
               m_inputCnt.flexSwitches);
 
+    case Board::HasSDCard:
+      return true;
+
+    case Board::MaxAnalogs:
+      return m_inputCnt.sticks + m_inputCnt.flexPots + m_inputCnt.flexSliders +
+             m_inputCnt.flexJoystickAxes + m_inputCnt.flexGyroAxes;
+
     case Board::FlexSwitches:
       return m_switchCnt.flex;
 
     case Board::FunctionSwitches:
       return m_switchCnt.func;
+
+    case Board::FunctionSwitchGroups:
+      return m_switchCnt.func / 2;
+
+    case Board::JoystickAxes:
+      return m_inputCnt.flexJoystickAxes;
 
     case Board::GyroAxes:
       return m_inputCnt.flexGyroAxes;
