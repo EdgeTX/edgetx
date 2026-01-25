@@ -21,7 +21,6 @@
 
 #include "topbar.h"
 
-#include "layer.h"
 #include "edgetx.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
@@ -104,10 +103,12 @@ void SetupTopBarWidgetsPage::onClicked()
 
 void SetupTopBarWidgetsPage::onCancel() { deleteLater(); }
 
-void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
+void SetupTopBarWidgetsPage::deleteLater()
 {
+  if (_deleted) return;
+
   // and continue async deletion...
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 
   // restore screen setting tab on top
   QuickMenu::openPage(QM_UI_SETUP);
@@ -269,8 +270,6 @@ Widget* TopBar::createWidget(unsigned int index,
     widget = factory->create(this, getZone(index), -1, index);
   }
   widgets[index] = widget;
-
-  if (widget) widget->attach(this);
 
   return widget;
 }

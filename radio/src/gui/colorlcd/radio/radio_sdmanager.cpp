@@ -20,28 +20,29 @@
  */
 
 #include "radio_sdmanager.h"
+
 #include "edgetx.h"
-#include "LvglWrapper.h"
+#include "etx_lv_theme.h"
+#include "file_browser.h"
+#include "file_preview.h"
+#include "fullscreen_dialog.h"
+#include "io/bootloader_flash.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
-#include "io/bootloader_flash.h"
 #include "io/uf2_flash.h"
-#include "standalone_lua.h"
-#include "sdcard.h"
-#include "view_text.h"
-#include "file_preview.h"
-#include "file_browser.h"
-#include "progress.h"
-#include "etx_lv_theme.h"
-#include "fullscreen_dialog.h"
 #include "lib_file.h"
+#include "menu.h"
+#include "progress.h"
+#include "sdcard.h"
+#include "standalone_lua.h"
+#include "view_text.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;
 
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-RadioSdManagerPage::RadioSdManagerPage(PageDef& pageDef) :
+RadioSdManagerPage::RadioSdManagerPage(const PageDef& pageDef) :
   PageGroupItem(pageDef)
 {
 }
@@ -52,18 +53,9 @@ class FlashDialog: public FullScreenDialog
  public:
   explicit FlashDialog(const T & device):
     FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
-    device(device),
-    progress(this, {LCD_W / 2 - PROGRESS_W / 2, LCD_H / 2 + PROGRESS_YO, PROGRESS_W, EdgeTxStyles::UI_ELEMENT_HEIGHT})
+    device(device)
   {
-  }
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (_deleted)
-      return;
-
-    progress.deleteLater(true, false);
-    FullScreenDialog::deleteLater(detach, trash);
+    progress = new Progress(this, {LCD_W / 2 - PROGRESS_W / 2, LCD_H / 2 + PROGRESS_YO, PROGRESS_W, EdgeTxStyles::UI_ELEMENT_HEIGHT});
   }
 
   void flash(const char * filename)
@@ -74,7 +66,7 @@ class FlashDialog: public FullScreenDialog
         [=](const char *title, const char *message, int count,
             int total) -> void {
           setMessage(message);
-          progress.setValue(total > 0 ? count * 100 / total : 0);
+          progress->setValue(total > 0 ? count * 100 / total : 0);
           lv_refr_now(nullptr);
         });
     deleteLater();
@@ -82,7 +74,7 @@ class FlashDialog: public FullScreenDialog
 
  protected:
   T device;
-  Progress progress;
+  Progress* progress = nullptr;
 
   static LAYOUT_VAL_SCALED(PROGRESS_YO, 27)
   static LAYOUT_VAL_SCALED(PROGRESS_W, 200)

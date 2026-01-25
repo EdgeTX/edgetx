@@ -192,7 +192,7 @@ class RadioInfoWidget : public TopBarWidget
   }
 
   static const WidgetOption options[];
-    
+
   static constexpr coord_t W_AUDIO_X = 0;
   static LAYOUT_VAL_SCALED(W_AUDIO_SCALE_X, 15)
   static LAYOUT_VAL_SCALED(W_USB_X, 32)

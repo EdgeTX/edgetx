@@ -22,6 +22,8 @@
 #include "channel_range.h"
 
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -117,6 +119,13 @@ ModuleChannelRange::ModuleChannelRange(Window* parent, uint8_t moduleIdx) :
 void ModuleChannelRange::update()
 {
   ChannelRange::update();
+
+#if defined(DSMP)
+  if (isModuleDSMP(moduleIdx)) {
+    // Disable Ch start, module asume starting in Ch1
+    chStart->enable(false);
+  } 
+#endif   
 
   auto min_mod_ch = minModuleChannels(moduleIdx);
   auto max_mod_ch = maxModuleChannels(moduleIdx);

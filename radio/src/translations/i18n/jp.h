@@ -370,6 +370,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -671,6 +672,7 @@
 #define TR_MULTI_OPTION                TR("Option", "オプション値")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.", "チャンネルバインド")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "CHマップ無効")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "テレメトリー無効")
 #define TR_MULTI_LOWPOWER              TR("Low power", "低出力モード")
 #define TR_MULTI_LNA_DISABLE           "LNA無効"
@@ -982,7 +984,7 @@
 #define TR_PASTE_BEFORE                "前に貼り付け"
 #define TR_DELETE                      "削除"
 #define TR_INSERT                      "挿入"
-#define TR_RESET_FLIGHT                "飛行記録リセット"
+#define TR_RESET_SESSION               "飛行記録リセット"
 #define TR_RESET_TIMER1                "タイマー1 リセット"
 #define TR_RESET_TIMER2                "タイマー2 リセット"
 #define TR_RESET_TIMER3                "タイマー3 リセット"

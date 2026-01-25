@@ -371,6 +371,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -672,6 +673,7 @@
 #define TR_MULTI_OPTION                TR("选项值", "选项值")
 #define TR_MULTI_AUTOBIND              TR("对频通道", "通道控制对频")
 #define TR_DISABLE_CH_MAP              TR("禁用通道映射", "禁用通道重映射")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("禁用回传", "禁用回传")
 #define TR_MULTI_LOWPOWER              TR("低功率", "低功率模式")
 #define TR_MULTI_LNA_DISABLE           "禁用接收放大器"
@@ -983,7 +985,7 @@
 #define TR_PASTE_BEFORE                "粘贴到本条之前"
 #define TR_DELETE                      "删除"
 #define TR_INSERT                      "插入"
-#define TR_RESET_FLIGHT                "复位飞行数据"
+#define TR_RESET_SESSION               "复位飞行数据"
 #define TR_RESET_TIMER1                "复位计时器1"
 #define TR_RESET_TIMER2                "复位计时器2"
 #define TR_RESET_TIMER3                "复位计时器3"

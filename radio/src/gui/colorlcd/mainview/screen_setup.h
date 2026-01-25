@@ -29,7 +29,7 @@
 class ScreenAddPage : public PageGroupItem
 {
  public:
-  ScreenAddPage(PageDef& pageDef);
+  ScreenAddPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 
@@ -41,11 +41,13 @@ class ScreenAddPage : public PageGroupItem
 class ScreenSetupPage : public PageGroupItem
 {
  public:
-  ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);
+  ScreenSetupPage(unsigned customScreenIndex, const PageDef& pageDef);
 
   void build(Window* form) override;
 
   void update(uint8_t index) override;
+
+  static void addScreen();
 
  protected:
   unsigned customScreenIndex;

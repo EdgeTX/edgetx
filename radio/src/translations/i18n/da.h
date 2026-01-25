@@ -373,6 +373,7 @@
 #define TR_SRC_BATT                    "Bat."
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tid"
 
 #define TR_VTMRMODES_1                 "FRA"
@@ -677,6 +678,7 @@
 #define TR_MULTI_OPTION                TR("Tilvalg", "Tilvalg værdi")
 #define TR_MULTI_AUTOBIND              TR("Tilslut ka.", "Tilslut kanal")
 #define TR_DISABLE_CH_MAP              TR("% ka. kort", "Deaktiver kanal kort")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("% Telem.", "Deaktiver telemetri")
 #define TR_MULTI_LOWPOWER              TR("Lav strøm", "Lav strøm tilstand")
 #define TR_MULTI_LNA_DISABLE           "LNA deaktiver"
@@ -988,7 +990,7 @@
 #define TR_PASTE_BEFORE                "Sæt ind før"
 #define TR_DELETE                      "Slet"
 #define TR_INSERT                      "Indsæt"
-#define TR_RESET_FLIGHT                "Nulstil flyvning"
+#define TR_RESET_SESSION               "Nulstil flyvning"
 #define TR_RESET_TIMER1                "Nulstil tidtag 1"
 #define TR_RESET_TIMER2                "Nulstil tidtag 2"
 #define TR_RESET_TIMER3                "Nulstil tidtag 3"

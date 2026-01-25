@@ -90,6 +90,73 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"tx16smk3"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
+            },
+            "LV": {
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
+            },
+            "RV": {
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "RH": {
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
+            },
+            "P1": {
+                "yaml": "S1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer S1"
+            },
+            "P2": {
+                "yaml": "S2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer S2"
+            },
+            "SL1": {
+                "yaml": "LS",
+                "lua": "ls",
+                "label": "LS",
+                "short_label": "L",
+                "description": "Left slider"
+            },
+            "SL2": {
+                "yaml": "RS",
+                "lua": "rs",
+                "label": "RS",
+                "short_label": "R",
+                "description": "Right slider"
+            },
+            "EXT1": {
+                "yaml": "EXT1",
+                "lua": "ext1",
+                "label": "EXT1",
+                "short_label": "E1",
+                "description": "Ext 1"
+            },
+            "EXT2": {
+                "yaml": "EXT2",
+                "lua": "ext2",
+                "label": "EXT2",
+                "short_label": "E2",
+                "description": "Ext 2"
+            }
+        }
+    },
+    {
         "targets": {"t15", "t15pro", "tx15"},
         "inputs": {
             "LH": {

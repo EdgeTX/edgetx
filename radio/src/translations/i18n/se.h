@@ -373,6 +373,7 @@
 #define TR_SRC_BATT                     "Batt"
 #define TR_SRC_TIME                     "Tid"
 #define TR_SRC_GPS                      "GPS"
+#define	TR_SRC_LIGHT                    "Ambient light"
 #define TR_SRC_TIMER                    "Tmr"
 
 #define TR_VTMRMODES_1                  "Av"
@@ -677,6 +678,7 @@
 #define TR_MULTI_OPTION                 TR("Alternativ", "Alternativets värde")
 #define TR_MULTI_AUTOBIND               TR("Bind ka.","Parkoppla via kanal")
 #define TR_DISABLE_CH_MAP               TR("Mappa ej KA", "Inaktivera kanalmappning")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("Ej telem.", "Inaktivera telemetri")
 #define TR_MULTI_LOWPOWER               TR("Låg effekt", "Lågeffektläge")
 #define TR_MULTI_LNA_DISABLE            "LNA disable"
@@ -984,7 +986,7 @@
 #define TR_PASTE_BEFORE                 "Klistra in före"
 #define TR_DELETE                       "Radera"
 #define TR_INSERT                       "Addera"
-#define TR_RESET_FLIGHT                 "Återställ session"
+#define TR_RESET_SESSION                "Återställ session"
 #define TR_RESET_TIMER1                 "Återställ timer1"
 #define TR_RESET_TIMER2                 "Återställ timer2"
 #define TR_RESET_TIMER3                 "Återställ timer3"

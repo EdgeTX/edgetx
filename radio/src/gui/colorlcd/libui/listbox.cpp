@@ -21,6 +21,8 @@
 
 #include "listbox.h"
 
+#include "debug.h"
+
 ListBox::ListBox(Window* parent, const rect_t& rect,
                  const std::vector<std::string>& names, uint8_t lineHeight) :
     TableField(parent, rect)

@@ -371,6 +371,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "DESL"
@@ -672,6 +673,7 @@
 #define TR_MULTI_OPTION                TR("Opção", "Valor opção")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.", "Bind on channel")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disable Ch. map")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "Disable Telemetry")
 #define TR_MULTI_LOWPOWER              TR("Low power", "Low power mode")
 #define TR_MULTI_LNA_DISABLE           "LNA disable"
@@ -984,7 +986,7 @@
 #define TR_PASTE_BEFORE                "Colar depois"
 #define TR_DELETE                      "Apagar"
 #define TR_INSERT                      "Inserir"
-#define TR_RESET_FLIGHT                "Reinic. sessão"
+#define TR_RESET_SESSION               "Reinic. sessão"
 #define TR_RESET_TIMER1                "Reset timer1"
 #define TR_RESET_TIMER2                "Reset timer2"
 #define TR_RESET_TIMER3                "Reset timer3"

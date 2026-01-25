@@ -126,7 +126,7 @@ class StaticIcon : public Window
   StaticIcon(Window *parent, coord_t x, coord_t y, const char* filename,
              LcdColorIndex color);
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StaticIcon"; }
@@ -201,7 +201,7 @@ class StaticLZ4Image : public Window
  protected:
   uint8_t *imgData = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 };
 
 //-----------------------------------------------------------------------------

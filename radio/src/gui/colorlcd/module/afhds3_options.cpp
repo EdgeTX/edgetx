@@ -20,7 +20,12 @@
  */
 
 #include "afhds3_options.h"
+
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
+#include "toggleswitch.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
@@ -115,7 +120,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
                       vCfg->PWMFrequency.Frequency = newVal;
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0);
                   });
-  num_edit->show(pwmvalue_type == 2);  
+  num_edit->show(pwmvalue_type == 2);
 }
 
 AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
@@ -197,7 +202,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   if(!newValue)
                   {
                     vCfg->NewPortTypes[i] = newValue;
-                    DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);                    
+                    DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);
                   }
                   else {
                     uint8_t j = 0;

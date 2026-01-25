@@ -20,14 +20,16 @@
  */
 
 #include "view_statistics.h"
-#include "os/task.h"
 
+#include "button.h"
 #include "edgetx.h"
+#include "lua/lua_states.h"
+#include "mixer_scheduler.h"
+#include "os/task.h"
+#include "quick_menu.h"
+#include "static.h"
 #include "tasks.h"
 #include "tasks/mixer_task.h"
-#include "mixer_scheduler.h"
-#include "lua/lua_states.h"
-#include "quick_menu.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
@@ -129,7 +131,7 @@ class ThrottleCurveWindow : public Window
   int16_t graphSize = 0;
 };
 
-StatisticsViewPage::StatisticsViewPage(PageDef& pageDef) :
+StatisticsViewPage::StatisticsViewPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }
@@ -207,7 +209,7 @@ void StatisticsViewPage::build(Window* window)
                        LV_GRID_ALIGN_START, 0, 1);
 }
 
-DebugViewPage::DebugViewPage(PageDef& pageDef) :
+DebugViewPage::DebugViewPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

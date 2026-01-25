@@ -218,6 +218,12 @@ extern uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx);
 #define AFHDS3_MODULE_ROWS(moduleIdx)
 #endif
 
+#if defined(DSMP)
+#define DSMP_STATUS_ROWS(moduleIdx)             isModuleDSMP(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleDSMP(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW,
+#else
+#define DSMP_STATUS_ROWS(moduleIdx)
+#endif
+
 #define FAILSAFE_ROW(moduleIdx)               isModuleFailsafeAvailable(moduleIdx) ? (g_model.moduleData[moduleIdx].failsafeMode==FAILSAFE_CUSTOM ? (uint8_t)1 : (uint8_t)0) : HIDDEN_ROW
 
 extern uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx);

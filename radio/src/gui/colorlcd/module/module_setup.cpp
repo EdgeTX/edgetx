@@ -26,13 +26,15 @@
 #include "channel_range.h"
 #include "choice.h"
 #include "custom_failsafe.h"
-#include "form.h"
-#include "mixer_scheduler.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "form.h"
+#include "getset_helpers.h"
+#include "mixer_scheduler.h"
+#include "os/sleep.h"
 #include "ppm_settings.h"
 #include "storage/modelslist.h"
-#include "etx_lv_theme.h"
-#include "os/sleep.h"
+#include "toggleswitch.h"
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
 #include "pxx1_settings.h"
@@ -63,6 +65,10 @@
 #include "io/multi_protolist.h"
 #include "mpm_settings.h"
 #include "multi_rfprotos.h"
+#endif
+
+#if defined(DSMP)
+#include "dsmp_settings.h"
 #endif
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -161,6 +167,11 @@ class ModuleWindow : public Window
     else if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
             g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
       modOpts = new PXX1AntennaSettings(this, grid, moduleIdx);
+    }
+  #endif
+  #if defined(DSMP)
+    else if (isModuleDSMP(moduleIdx)) {
+      modOpts = new DSMPSettings(this, grid, moduleIdx);
     }
   #endif
 

@@ -22,7 +22,6 @@
 #include "view_channels.h"
 
 #include "channel_bar.h"
-#include "libopenui.h"
 #include "model_select.h"
 #include "edgetx.h"
 #if VERSION_MAJOR == 2
@@ -126,8 +125,6 @@ class ChannelsViewPage : public PageGroupItem
 ChannelsViewMenu::ChannelsViewMenu() :
     TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
-  QuickMenu::setCurrentPage(QM_TOOLS_CHAN_MON);
-
 #if PORTRAIT
     int cols = 1;
     int rows = 8;

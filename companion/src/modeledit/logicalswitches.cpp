@@ -41,14 +41,10 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
   connectItemModelEvents(rawSourceFilteredModel);
 
   lsCapability = firmware->getCapability(LogicalSwitches);
-  lsCapabilityExt = firmware->getCapability(LogicalSwitchesExt);
 
   QStringList headerLabels;
-  headerLabels << "#" << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
-  if (lsCapabilityExt) {
-    headerLabels << tr("Duration") << tr("Delay");
-  }
-  headerLabels << tr("Persistent");
+  headerLabels << "#" << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch")
+               << tr("Duration") << tr("Delay") << tr("Persistent");
   TableLayout * tableLayout = new TableLayout(this, lsCapability, headerLabels);
 
   const int channelsMax = model.getChannelsMax(true);
@@ -131,29 +127,27 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     connect(cbAndSwitch[i], SIGNAL(currentIndexChanged(int)), this, SLOT(onAndSwitchChanged(int)));
     tableLayout->addWidget(i, 4, cbAndSwitch[i]);
 
-    if (lsCapabilityExt) {
-      // Duration
-      dsbDuration[i] = new QDoubleSpinBox(this);
-      dsbDuration[i]->setProperty("index", i);
-      dsbDuration[i]->setSingleStep(0.1);
-      dsbDuration[i]->setMaximum(25);
-      dsbDuration[i]->setMinimum(0);
-      dsbDuration[i]->setAccelerated(true);
-      dsbDuration[i]->setDecimals(1);
-      connect(dsbDuration[i], SIGNAL(valueChanged(double)), this, SLOT(onDurationChanged(double)));
-      tableLayout->addWidget(i, 5, dsbDuration[i]);
+    // Duration
+    dsbDuration[i] = new QDoubleSpinBox(this);
+    dsbDuration[i]->setProperty("index", i);
+    dsbDuration[i]->setSingleStep(0.1);
+    dsbDuration[i]->setMaximum(25);
+    dsbDuration[i]->setMinimum(0);
+    dsbDuration[i]->setAccelerated(true);
+    dsbDuration[i]->setDecimals(1);
+    connect(dsbDuration[i], SIGNAL(valueChanged(double)), this, SLOT(onDurationChanged(double)));
+    tableLayout->addWidget(i, 5, dsbDuration[i]);
 
-      // Delay
-      dsbDelay[i] = new QDoubleSpinBox(this);
-      dsbDelay[i]->setProperty("index", i);
-      dsbDelay[i]->setSingleStep(0.1);
-      dsbDelay[i]->setMaximum(25);
-      dsbDelay[i]->setMinimum(0);
-      dsbDelay[i]->setAccelerated(true);
-      dsbDelay[i]->setDecimals(1);
-      connect(dsbDelay[i], SIGNAL(valueChanged(double)), this, SLOT(onDelayChanged(double)));
-      tableLayout->addWidget(i, 6, dsbDelay[i]);
-    }
+    // Delay
+    dsbDelay[i] = new QDoubleSpinBox(this);
+    dsbDelay[i]->setProperty("index", i);
+    dsbDelay[i]->setSingleStep(0.1);
+    dsbDelay[i]->setMaximum(25);
+    dsbDelay[i]->setMinimum(0);
+    dsbDelay[i]->setAccelerated(true);
+    dsbDelay[i]->setDecimals(1);
+    connect(dsbDelay[i], SIGNAL(valueChanged(double)), this, SLOT(onDelayChanged(double)));
+    tableLayout->addWidget(i, 6, dsbDelay[i]);
 
     cbPersist[i] = new QCheckBox(this);
     cbPersist[i]->setProperty("index", i);
@@ -179,24 +173,25 @@ void LogicalSwitchesPanel::onFunctionChanged()
   if (!lock) {
     int i = sender()->property("index").toInt();
     unsigned newFunc = cbFunction[i]->currentData().toUInt();
+    LogicalSwitchData &lsw = model->logicalSw[i];
 
-    if (model->logicalSw[i].func == newFunc)
+    if (lsw.func == newFunc)
       return;
 
-    unsigned oldFunc = model->logicalSw[i].func;
-    CSFunctionFamily oldFuncFamily = model->logicalSw[i].getFunctionFamily();
-    model->logicalSw[i].func = newFunc;
-    CSFunctionFamily newFuncFamily = model->logicalSw[i].getFunctionFamily();
+    unsigned oldFunc = lsw.func;
+    CSFunctionFamily oldFuncFamily = lsw.getFunctionFamily();
+    lsw.func = newFunc;
+    CSFunctionFamily newFuncFamily = lsw.getFunctionFamily();
 
     if (oldFuncFamily != newFuncFamily || newFunc == LS_FN_OFF) {
-      model->logicalSw[i].clear();
-      model->logicalSw[i].func = newFunc;
+      lsw.clear();
+      lsw.func = newFunc;
       if (newFuncFamily == LS_FAMILY_TIMER) {
-        model->logicalSw[i].val1 = -119;
-        model->logicalSw[i].val2 = -119;
+        lsw.val1 = -119;
+        lsw.val2 = -119;
       }
       else if (newFuncFamily == LS_FAMILY_EDGE) {
-        model->logicalSw[i].val2 = -129;
+        lsw.val2 = -129;
       }
     }
 
@@ -213,9 +208,11 @@ void LogicalSwitchesPanel::onV1Changed(int value)
 {
   if (!lock) {
     int i = sender()->property("index").toInt();
-    if (model->logicalSw[i].val1 != cbSource1[i]->itemData(value).toInt()) {
-      model->logicalSw[i].val1 = cbSource1[i]->itemData(value).toInt();
-      if (model->logicalSw[i].getFunctionFamily() == LS_FAMILY_VOFS) {
+    LogicalSwitchData &lsw = model->logicalSw[i];
+
+    if (lsw.val1 != cbSource1[i]->itemData(value).toInt()) {
+      lsw.val1 = cbSource1[i]->itemData(value).toInt();
+      if (lsw.getFunctionFamily() == LS_FAMILY_VOFS) {
         if (!offsetChangedAt(i))
           updateLine(i);
       }
@@ -289,39 +286,40 @@ bool LogicalSwitchesPanel::offsetChangedAt(int index)
   lock = true;
   bool mod = false;
   int value;
+  LogicalSwitchData &lsw = model->logicalSw[index];
 
-  switch (model->logicalSw[index].getFunctionFamily())
+  switch (lsw.getFunctionFamily())
   {
     case LS_FAMILY_VOFS:
     {
-      RawSource source = RawSource(model->logicalSw[index].val1);
-      RawSourceRange range = source.getRange(model, generalSettings, model->logicalSw[index].getRangeFlags());
+      RawSource source = RawSource(lsw.val1);
+      RawSourceRange range = source.getRange(model, generalSettings, lsw.getRangeFlags());
       double currVal = source.type == SOURCE_TYPE_TIMER ? teOffset[index]->timeInSeconds() : dsbOffset[index]->value();
-      value = round((currVal - range.offset) / range.step);
-      mod = (mod || value != model->logicalSw[index].val2);
-      model->logicalSw[index].val2 = value;
+      value = range.toRaw(currVal);
+      mod = (mod || value != lsw.val2);
+      lsw.val2 = value;
       break;
     }
 
     case LS_FAMILY_TIMER:
       value = TimToVal(dsbValue[index]->value());
-      mod = (mod || value != model->logicalSw[index].val1);
-      model->logicalSw[index].val1 = value;
+      mod = (mod || value != lsw.val1);
+      lsw.val1 = value;
       value = TimToVal(dsbOffset[index]->value());
-      mod = (mod || value != model->logicalSw[index].val2);
-      model->logicalSw[index].val2 = value;
+      mod = (mod || value != lsw.val2);
+      lsw.val2 = value;
       break;
 
     case LS_FAMILY_EDGE:
       if (sender() == dsbOffset[index]) {
         value = TimToVal(dsbOffset[index]->value());
-        mod = (mod || value != model->logicalSw[index].val2);
-        model->logicalSw[index].val2 = value;
+        mod = (mod || value != lsw.val2);
+        lsw.val2 = value;
       }
       else {
-        value = TimToVal(dsbOffset2[index]->value()) - model->logicalSw[index].val2;
-        mod = (mod || value != model->logicalSw[index].val3);
-        model->logicalSw[index].val3 = value;
+        value = TimToVal(dsbOffset2[index]->value()) - lsw.val2;
+        mod = (mod || value != lsw.val3);
+        lsw.val3 = value;
       }
       break;
 
@@ -369,24 +367,25 @@ void LogicalSwitchesPanel::updateLine(int i)
   const bool savelock = lock;
   lock = true;
   unsigned int mask = 0;
-
-  cbFunction[i]->setCurrentIndex(cbFunction[i]->findData(model->logicalSw[i].func));
-  cbAndSwitch[i]->setCurrentIndex(cbAndSwitch[i]->findData(RawSwitch(model->logicalSw[i].andsw).toValue()));
+  LogicalSwitchData &lsw = model->logicalSw[i];
+  cbFunction[i]->setCurrentIndex(cbFunction[i]->findData(lsw.func));
+  cbAndSwitch[i]->setCurrentIndex(cbAndSwitch[i]->findData(RawSwitch(lsw.andsw).toValue()));
   dsbOffset[i]->setSuffix("");
 
-  if (!model->logicalSw[i].isEmpty()) {
+  if (!lsw.isEmpty()) {
     mask = LINE_ENABLED | DELAY_ENABLED | DURATION_ENABLED;
 
-    switch (model->logicalSw[i].getFunctionFamily())
+    switch (lsw.getFunctionFamily())
     {
       case LS_FAMILY_VOFS:
       {
         mask |= SOURCE1_VISIBLE;
-        RawSource source = RawSource(model->logicalSw[i].val1);
-        RawSourceRange range = source.getRange(model, generalSettings, model->logicalSw[i].getRangeFlags());
-        double value = range.step * model->logicalSw[i].val2 + range.offset;  /* TODO+source.getRawOffset(model)*/
+        RawSource source = RawSource(lsw.val1);
+        RawSourceRange range = source.getRange(model, generalSettings, lsw.getRangeFlags());
+        double value = range.toDisplay(lsw.val2);
         cbSource1[i]->setModel(rawSourceFilteredModel);
         cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(source.toValue()));
+
         if (source.type == SOURCE_TYPE_TIMER) {
           mask |= VALUE_TO_VISIBLE;
           teOffset[i]->setTimeRange(range.min, range.max);
@@ -394,16 +393,24 @@ void LogicalSwitchesPanel::updateLine(int i)
           teOffset[i]->setPageStep(range.step * 60);
           teOffset[i]->setShowSeconds(range.step != 60);
           teOffset[i]->setTime((int)value);
-        }
-        else {
+        } else {
           mask |= VALUE2_VISIBLE;
-          if (!range.unit.isEmpty())
-            dsbOffset[i]->setSuffix(" " + range.unit);
-          dsbOffset[i]->setDecimals(range.decimals);
           dsbOffset[i]->setMinimum(range.min);
           dsbOffset[i]->setMaximum(range.max);
+          dsbOffset[i]->setDecimals(range.decimals);
           dsbOffset[i]->setSingleStep(range.step);
+          dsbOffset[i]->setAccelerated(true);
+          value = range.validateDisplay(value);
+
+          if (range.toRaw(value) != lsw.val2) {
+            lsw.val2 = range.toRaw(value);
+            emit modified();
+          }
+
           dsbOffset[i]->setValue(value);
+
+          if (!range.unit.isEmpty())
+            dsbOffset[i]->setSuffix(" " + range.unit);
         }
 
         break;
@@ -411,37 +418,38 @@ void LogicalSwitchesPanel::updateLine(int i)
 
       case LS_FAMILY_STICKY:  // no break
         mask |= PERSIST_ENABLED;
-        cbPersist[i]->setChecked(model->logicalSw[i].lsPersist);
+        cbPersist[i]->setChecked(lsw.lsPersist);
+
       case LS_FAMILY_VBOOL:
         mask |= SOURCE1_VISIBLE | SOURCE2_VISIBLE;
         cbSource1[i]->setModel(rawSwitchFilteredModel);
-        cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(model->logicalSw[i].val1));
+        cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(lsw.val1));
         cbSource2[i]->setModel(rawSwitchFilteredModel);
-        cbSource2[i]->setCurrentIndex(cbSource2[i]->findData(model->logicalSw[i].val2));
+        cbSource2[i]->setCurrentIndex(cbSource2[i]->findData(lsw.val2));
         break;
 
       case LS_FAMILY_EDGE:
         mask |= SOURCE1_VISIBLE | VALUE2_VISIBLE | VALUE3_VISIBLE;
         mask &= ~DELAY_ENABLED;
         cbSource1[i]->setModel(rawSwitchFilteredModel);
-        cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(model->logicalSw[i].val1));
-        updateTimerParam(dsbOffset[i], model->logicalSw[i].val2, 0.0);
-        updateTimerParam(dsbOffset2[i], model->logicalSw[i].val2 + model->logicalSw[i].val3, ValToTim(TimToVal(dsbOffset[i]->value()) - 1), 275.0);
-        dsbOffset2[i]->setSuffix((model->logicalSw[i].val3) ? "" : tr(" (infinite)"));
+        cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(lsw.val1));
+        updateTimerParam(dsbOffset[i], lsw.val2, 0.0);
+        updateTimerParam(dsbOffset2[i], lsw.val2 + lsw.val3, ValToTim(TimToVal(dsbOffset[i]->value()) - 1), 275.0);
+        dsbOffset2[i]->setSuffix((lsw.val3) ? "" : tr(" (infinite)"));
         break;
 
       case LS_FAMILY_VCOMP:
         mask |= SOURCE1_VISIBLE | SOURCE2_VISIBLE;
         cbSource1[i]->setModel(rawSourceFilteredModel);
-        cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(model->logicalSw[i].val1));
+        cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(lsw.val1));
         cbSource2[i]->setModel(rawSourceFilteredModel);
-        cbSource2[i]->setCurrentIndex(cbSource2[i]->findData(model->logicalSw[i].val2));
+        cbSource2[i]->setCurrentIndex(cbSource2[i]->findData(lsw.val2));
         break;
 
       case LS_FAMILY_TIMER:
         mask |= VALUE1_VISIBLE | VALUE2_VISIBLE;
-        updateTimerParam(dsbValue[i], model->logicalSw[i].val1, 0.1);
-        updateTimerParam(dsbOffset[i], model->logicalSw[i].val2, 0.1);
+        updateTimerParam(dsbValue[i], lsw.val1, 0.1);
+        updateTimerParam(dsbOffset[i], lsw.val2, 0.1);
         break;
     }
   }
@@ -454,14 +462,14 @@ void LogicalSwitchesPanel::updateLine(int i)
   teOffset[i]->setVisible(mask & VALUE_TO_VISIBLE);
   cbAndSwitch[i]->setVisible(mask & LINE_ENABLED);
   cbPersist[i]->setVisible(mask & PERSIST_ENABLED);
-  if (lsCapabilityExt) {
-    dsbDuration[i]->setVisible(mask & DURATION_ENABLED);
-    dsbDelay[i]->setVisible(mask & DELAY_ENABLED);
-    if (mask & DURATION_ENABLED)
-      dsbDuration[i]->setValue(model->logicalSw[i].duration / 10.0);
-    if (mask & DELAY_ENABLED)
-      dsbDelay[i]->setValue(model->logicalSw[i].delay / 10.0);
-  }
+  dsbDuration[i]->setVisible(mask & DURATION_ENABLED);
+  dsbDelay[i]->setVisible(mask & DELAY_ENABLED);
+
+  if (mask & DURATION_ENABLED)
+    dsbDuration[i]->setValue(lsw.duration / 10.0);
+
+  if (mask & DELAY_ENABLED)
+    dsbDelay[i]->setValue(lsw.delay / 10.0);
 
   lock = savelock;
 }

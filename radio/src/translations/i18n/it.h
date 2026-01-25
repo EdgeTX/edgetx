@@ -371,6 +371,7 @@
 #define TR_SRC_BATT                     "Batt"
 #define TR_SRC_TIME                     "Time"
 #define TR_SRC_GPS                      "GPS"
+#define	TR_SRC_LIGHT                    "Ambient light"
 #define TR_SRC_TIMER                    "Tmr"
 
 #define TR_VTMRMODES_1                    "OFF"
@@ -672,6 +673,7 @@
 #define TR_MULTI_OPTION                 TR("Opzione", "Opzione valore")
 #define TR_MULTI_AUTOBIND               TR("Ass. Ch.","Associa al canale")
 #define TR_DISABLE_CH_MAP               TR("No Ch. map", "Disab. mappa Ch.")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("No Telem", "Telem. disabil.")
 #define TR_MULTI_LOWPOWER               TR("Bassa pot.", "Modo bassa potenza")
 #define TR_MULTI_LNA_DISABLE            "Disabilita LNA"
@@ -983,7 +985,7 @@
 #define TR_PASTE_BEFORE                 "Incolla Prima"
 #define TR_DELETE                       "Elimina"
 #define TR_INSERT                       TR("Inser.","Inserisci")
-#define TR_RESET_FLIGHT                 "Azzera volo"
+#define TR_RESET_SESSION                "Azzera volo"
 #define TR_RESET_TIMER1                 "Azzera Timer1"
 #define TR_RESET_TIMER2                 "Azzera Timer2"
 #define TR_RESET_TIMER3                 "Azzera Timer3"

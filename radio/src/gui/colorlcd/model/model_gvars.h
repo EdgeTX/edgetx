@@ -27,7 +27,7 @@
 class ModelGVarsPage : public PageGroupItem
 {
  public:
-  ModelGVarsPage(PageDef& pageDef);
+  ModelGVarsPage(const PageDef& pageDef);
 
   void cleanup() override;
 

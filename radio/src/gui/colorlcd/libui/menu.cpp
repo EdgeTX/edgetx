@@ -18,13 +18,12 @@
 
 #include "menu.h"
 
-#include <lvgl/lvgl.h>
-
-#include "menutoolbar.h"
 #include "edgetx.h"
-#include "table.h"
 #include "etx_lv_theme.h"
 #include "keyboard_base.h"
+#include "menutoolbar.h"
+#include "static.h"
+#include "table.h"
 
 //-----------------------------------------------------------------------------
 
@@ -314,7 +313,7 @@ class MenuWindowContent : public Window
     lv_obj_center(lvobj);
     setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, w, LV_SIZE_CONTENT);
 
-    header = new StaticText(this, {0, 0, LV_PCT(100), 0}, "", 
+    header = new StaticText(this, {0, 0, LV_PCT(100), 0}, "",
                             COLOR_THEME_PRIMARY2_INDEX);
     etx_solid_bg(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
     header->padAll(PAD_SMALL);
@@ -401,12 +400,24 @@ void Menu::addLine(const MaskBitmap* icon_mask, const std::string& text,
   updatePosition();
 }
 
+void Menu::addLine(const std::string &text, std::function<void()> onPress,
+                  std::function<bool()> isChecked)
+{
+  addLine(nullptr, text, onPress, isChecked);
+}
+
 void Menu::addLineBuffered(const MaskBitmap* icon_mask, const std::string& text,
                            std::function<void()> onPress,
                            std::function<bool()> isChecked)
 {
   content->addLine(icon_mask, text, std::move(onPress), std::move(isChecked),
                    false);
+}
+
+void Menu::addLineBuffered(const std::string &text, std::function<void()> onPress,
+                           std::function<bool()> isChecked)
+{
+  addLineBuffered(nullptr, text, onPress, isChecked);
 }
 
 void Menu::updateLines()

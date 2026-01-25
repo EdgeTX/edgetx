@@ -21,7 +21,12 @@
 
 #include "trims_setup.h"
 
+#include "button.h"
+#include "choice.h"
+#include "dialog.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

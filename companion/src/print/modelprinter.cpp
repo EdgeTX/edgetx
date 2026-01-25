@@ -234,6 +234,9 @@ QString ModelPrinter::printModule(int idx)
         if (module.protocol == PULSES_GHOST) {
           str << printLabelValue(tr("Raw 12 bits"), printBoolean(module.ghost.raw12bits, BOOLEAN_YN));
         }
+        if (module.protocol == PULSES_LEMON_DSMP) {
+          str << printLabelValue(tr("Enable AETR"), printBoolean(module.dsmp.enableAETR, BOOLEAN_YN));
+        }
         if (module.protocol == PULSES_CROSSFIRE) {
           str << printLabelValue(tr("Arming mode"), module.crsfArmingModeToString());
           if (module.crsf.crsfArmingMode == ModuleData::CRSF_ARMING_MODE_SWITCH) {

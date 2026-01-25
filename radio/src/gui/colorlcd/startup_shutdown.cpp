@@ -19,9 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include "startup_shutdown.h"
+
+#include "edgetx.h"
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
-#include "edgetx.h"
+#include "mainwindow.h"
 #include "os/sleep.h"
 #include "stamp.h"
 #include "theme_manager.h"
@@ -42,7 +45,7 @@ const std::string git_str = "(" GIT_STR ")";
 #endif
 
 const uint8_t __bmp_splash_logo[] __FLASH = {
-#include "splash_logo.lbm"
+#include "bmp_logo_edgetx_splash.lbm"
 };
 
 static Window* splashScreen = nullptr;
@@ -78,7 +81,7 @@ void drawSplash()
 #endif
   }
 
-  MainWindow::instance()->setActiveScreen();
+  // Force screen refresh
   lv_refr_now(nullptr);
 }
 
@@ -97,7 +100,6 @@ void cancelSplash()
   if (splashScreen) {
     splashScreen->deleteLater();
     splashScreen = nullptr;
-    MainWindow::instance()->setActiveScreen();
     splashStartTime = 0;
   }
 }
@@ -109,7 +111,6 @@ void waitSplash()
     inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
     while (splashStartTime >= get_tmr10ms()) {
-      LvglWrapper::instance()->run();
       MainWindow::instance()->run();
       WDG_RESET();
       checkSpeakerVolume();
@@ -162,7 +163,8 @@ void drawSleepBitmap()
   (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
       ->center(LCD_W, LCD_H);
 
-  LvglWrapper::instance()->run();
+  // Force screen refresh
+  lv_refr_now(nullptr);
 }
 
 void cancelShutdownAnimation()
@@ -212,7 +214,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (quarter < 0) quarter = 0;
   for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
 
-  LvglWrapper::instance()->run();
+  MainWindow::instance()->run();
 }
 
 void drawFatalErrorScreen(const char* message)
@@ -230,7 +232,7 @@ void drawFatalErrorScreen(const char* message)
   }
 
   backlightEnable(100);
-  LvglWrapper::instance()->run();
+  MainWindow::instance()->run();
 }
 
 void runFatalErrorScreen(const char* message)

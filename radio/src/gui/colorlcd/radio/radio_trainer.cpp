@@ -21,14 +21,18 @@
 
 #include "radio_trainer.h"
 
+#include "choice.h"
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
-#include "edgetx.h"
+#include "numberedit.h"
+#include "static.h"
 #include "strhelpers.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-RadioTrainerPage::RadioTrainerPage(PageDef& pageDef) :
+RadioTrainerPage::RadioTrainerPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

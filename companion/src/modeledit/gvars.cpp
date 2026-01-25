@@ -154,9 +154,13 @@ GlobalVariablesPanel::GlobalVariablesPanel(QWidget * parent, ModelData & model,
     col += colspan;
   }
 
+  QLabel *lblWarn = new QLabel(this);
+  lblWarn->setText(tr("WARNING: changing ranges or precision can affect configured Logical Switches and Special Functions"));
+  tableLayout->addWidget(gvars, 1, 1, -1, lblWarn);
+
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->pushRowsUp(gvars + 1);
+  tableLayout->pushRowsUp(gvars + 2);
   tableLayout->pushColumnsLeft(col);
 }
 

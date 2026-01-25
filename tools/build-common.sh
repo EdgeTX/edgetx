@@ -125,6 +125,9 @@ get_target_build_options() {
         tx16s)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
             ;;
+        tx16smk3)
+            BUILD_OPTIONS+="-DPCB=TX16SMK3"
+            ;;
         f16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=F16"
             ;;

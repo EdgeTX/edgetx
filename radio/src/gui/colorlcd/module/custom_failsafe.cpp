@@ -24,6 +24,7 @@
 #include "channel_bar.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

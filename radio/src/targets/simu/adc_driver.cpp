@@ -32,6 +32,8 @@ void enableVBatBridge(){}
 void disableVBatBridge(){}
 bool isVBatBridgeEnabled(){ return false; }
 
+uint16_t getLuxSensorValue() { return 1024; }
+
 uint16_t getBatteryVoltage()
 {
   if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;

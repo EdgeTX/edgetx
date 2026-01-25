@@ -21,39 +21,36 @@
 
 #include "model_setup.h"
 
-#include "button_matrix.h"
-#include "filechoice.h"
+#include <algorithm>
 
+#include "button_matrix.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "filechoice.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
-#include "storage/modelslist.h"
-#include "trainer_setup.h"
+#include "menu.h"
+#include "model_heli.h"
 #include "module_setup.h"
-#include "timer_setup.h"
-#include "trims_setup.h"
-#include "throttle_params.h"
 #include "preflight_checks.h"
+#include "storage/modelslist.h"
+#include "textedit.h"
+#include "throttle_params.h"
+#include "timer_setup.h"
+#include "trainer_setup.h"
+#include "trims_setup.h"
+
 #if defined(FUNCTION_SWITCHES)
 #include "function_switches.h"
 #endif
-#include "throttle_params.h"
-#include "timer_setup.h"
-#include "trainer_setup.h"
-#include "trims_setup.h"
-#include "module_setup.h"
-#include "edgetx.h"
-#include "storage/modelslist.h"
-#include "etx_lv_theme.h"
-#include "model_heli.h"
 
 #if defined(USBJ_EX)
 #include "model_usbjoystick.h"
 #endif
 
-#include <algorithm>
-
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-ModelSetupPage::ModelSetupPage(PageDef& pageDef) :
+ModelSetupPage::ModelSetupPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

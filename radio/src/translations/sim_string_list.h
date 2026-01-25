@@ -330,12 +330,16 @@
 #define STR_MENUCUSTOMSCRIPTS currentLangStrings->STR_MENUCUSTOMSCRIPTS
 #endif
 
-#if defined(DSM2) || defined(PXX)
+#if defined(DSM2) || defined(PXX) || defined(DSMP)
 #define STR_BIND_OK currentLangStrings->STR_BIND_OK
 #define STR_REBIND currentLangStrings->STR_REBIND
 #define STR_RECEIVER_NUM currentLangStrings->STR_RECEIVER_NUM
 #define STR_RECEIVER currentLangStrings->STR_RECEIVER
 #define STR_REG_OK currentLangStrings->STR_REG_OK
+#endif
+
+#if defined(DSMP)
+#define STR_DSMP_ENABLE_AETR currentLangStrings->STR_DSMP_ENABLE_AETR
 #endif
 
 #if defined(AFHDS3)
@@ -850,7 +854,7 @@
 #define STR_REPEAT_AT_ZERO currentLangStrings->STR_REPEAT_AT_ZERO
 #define STR_REPEAT currentLangStrings->STR_REPEAT
 #define STR_RESET_BTN currentLangStrings->STR_RESET_BTN
-#define STR_RESET_FLIGHT currentLangStrings->STR_RESET_FLIGHT
+#define STR_RESET_SESSION currentLangStrings->STR_RESET_SESSION
 #define STR_RESET_SUBMENU currentLangStrings->STR_RESET_SUBMENU
 #define STR_RESET_TELEMETRY currentLangStrings->STR_RESET_TELEMETRY
 #define STR_RESET_TIMER1 currentLangStrings->STR_RESET_TIMER1
@@ -942,6 +946,7 @@
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS
+#define STR_SRC_LIGHT currentLangStrings->STR_SRC_LIGHT
 #define STR_SRC_TIME currentLangStrings->STR_SRC_TIME
 #define STR_SRC_TIMER currentLangStrings->STR_SRC_TIMER
 #define STR_STACK_AUDIO currentLangStrings->STR_STACK_AUDIO

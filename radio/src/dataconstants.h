@@ -520,6 +520,10 @@ enum MixSources {
   MIXSRC_MIN,
   MIXSRC_MAX,
 
+#if defined(LUMINOSITY_SENSOR)
+  MIXSRC_LIGHT,
+#endif
+
   MIXSRC_FIRST_HELI SKIP,
   MIXSRC_LAST_HELI SKIP = MIXSRC_FIRST_HELI + 2,
 
@@ -588,8 +592,9 @@ enum SrcTypes {
   SRC_TX = 1 << 16,
   SRC_TIMER = 1 << 17,
   SRC_TELEM = 1 << 18,
-  SRC_NONE = 1 << 19,
-  SRC_INVERT = 1 << 20,
+  SRC_LIGHT = 1 << 19,
+  SRC_NONE = 1 << 30,
+  SRC_INVERT = 1 << 31,
 };
 
 enum BacklightMode {

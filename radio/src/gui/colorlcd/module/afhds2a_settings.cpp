@@ -20,8 +20,10 @@
  */
 
 #include "afhds2a_settings.h"
-#include "edgetx.h"
 
+#include "choice.h"
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "pulses/flysky.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -30,7 +32,7 @@ class FSProtoOpts : public Window
 {
   std::function<uint8_t()> _getMode;
   std::function<void(uint8_t)> _setMode;
-  
+
 public:
   FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
               std::function<void(uint8_t)> setMode);

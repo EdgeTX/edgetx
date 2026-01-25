@@ -23,6 +23,7 @@
 
 #include "button.h"
 #include "etx_lv_theme.h"
+#include "hal/rotary_encoder.h"
 
 static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
 static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};
@@ -477,7 +478,7 @@ ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
   lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED,
                       nullptr);
 
-  if (_preview) _preview(_color);  
+  if (_preview) _preview(_color);
 }
 
 void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)

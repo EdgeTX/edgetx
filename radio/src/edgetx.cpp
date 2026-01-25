@@ -55,13 +55,10 @@
 
 #if defined(COLORLCD)
   #include "radio_calibration.h"
-  #include "view_main.h"
   #include "view_text.h"
   #include "theme_manager.h"
   #include "switch_warn_dialog.h"
   #include "startup_shutdown.h"
-
-  #include "LvglWrapper.h"
 #endif
 
 #if defined(CROSSFIRE)
@@ -79,6 +76,10 @@
 #if defined(LUA)
 #include "lua/lua_states.h"
 #include "lua/custom_allocator.h"
+#endif
+
+#if defined(LUMINOSITY_SENSOR)
+#include "luminosity_sensor.h"
 #endif
 
 RadioData  g_eeGeneral;
@@ -239,6 +240,10 @@ void per10ms()
   if (mixWarning & 1) if(((g_tmr10ms&0xFF)==  0)) AUDIO_MIX_WARNING(1);
   if (mixWarning & 2) if(((g_tmr10ms&0xFF)== 64) || ((g_tmr10ms&0xFF)== 72)) AUDIO_MIX_WARNING(2);
   if (mixWarning & 4) if(((g_tmr10ms&0xFF)==128) || ((g_tmr10ms&0xFF)==136) || ((g_tmr10ms&0xFF)==144)) AUDIO_MIX_WARNING(3);
+#endif
+
+#if defined(LUMINOSITY_SENSOR)
+  getPeriodicLuxSensorValue();
 #endif
 
   outputTelemetryBuffer.per10ms();
@@ -1421,11 +1426,7 @@ void edgeTxInit()
   if (!(startOptions & OPENTX_START_NO_SPLASH))
     startSplash();
 
-#if defined(COLORLCD)
-  initLvglTheme();
-  // create ViewMain
-  ViewMain::instance();
-#elif defined(GUI)
+#if !defined(COLORLCD)
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
   menuHandlers[1] = menuModelSelect;
@@ -2023,6 +2024,12 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     if (flags)
       *flags |= PREC1;
   }
+#if defined(LUMINOSITY_SENSOR)
+  else if (asrc == MIXSRC_LIGHT) {
+    valMax = 100;
+    valMin = -valMax;
+  }
+#endif
   else if (asrc == MIXSRC_TX_TIME) {
     valMax =  23 * 60 + 59;
     valMin = 0;
@@ -2038,4 +2045,54 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     valMin = -valMax;
   }
 }
-// trigger CI
+
+bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf)
+{
+  getMixSrcRange(cs->v1, v2_min, v2_max, lf);
+  if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG)) {
+    if (v2_min >= 0) {
+      // min >= 0 && max >= 0
+    } else if (v2_max < 0) {
+      // min < 0 && max < 0
+      int16_t v = v2_min;
+      v2_min = -v2_max;
+      v2_max = -v;
+    } else {
+      // min < 0 && max >= 0
+      v2_min = 0;
+    }
+  } else if (cs->func == LS_FUNC_DIFFEGREATER) {
+    // delta range (min - max) .. (max - min)
+    int16_t v = v2_min - v2_max;
+    v2_max = v2_max - v2_min;
+    v2_min = v;
+  } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
+    // abs delta range 0 .. (max - min)
+    v2_max = v2_max - v2_min;
+    v2_min = 0;
+  }
+
+  bool rv = false;
+
+  if (cs->v2 < v2_min) { cs->v2 = v2_min; rv = true; }
+  else if (cs->v2 > v2_max) { cs->v2 = v2_max; rv = true; }
+
+  return rv;
+}
+
+bool validateSFGV(CustomFunctionData* cfn)
+{
+  bool rv = false;
+
+  if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
+    int16_t v = CFN_PARAM(cfn);
+    int16_t vmin, vmax;
+    getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, vmin, vmax);
+    if (v < vmin) v = vmin;
+    else if (v > vmax) v = vmax;
+    if (CFN_PARAM(cfn) != v) rv = true;
+    CFN_PARAM(cfn) = v;
+  }
+
+  return rv;
+}

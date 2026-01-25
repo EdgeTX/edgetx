@@ -21,11 +21,16 @@
 
 #include "model_gvars.h"
 
-#include "list_line_button.h"
-#include "numberedit.h"
+#include "choice.h"
 #include "edgetx.h"
-#include "page.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "numberedit.h"
+#include "page.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -135,7 +140,7 @@ class GVarButton : public ListLineButton
     }
 
     lv_obj_update_layout(lvobj);
-  
+
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
@@ -507,7 +512,7 @@ class GVarEditWindow : public Page
   }
 };
 
-ModelGVarsPage::ModelGVarsPage(PageDef& pageDef) :
+ModelGVarsPage::ModelGVarsPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

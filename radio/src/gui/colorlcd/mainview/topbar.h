@@ -39,7 +39,7 @@ class SetupTopBarWidgetsPage : public Window
   void onClicked() override;
   void onCancel() override;
   void onEvent(event_t event)  override;
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 };
 
 //-----------------------------------------------------------------------------

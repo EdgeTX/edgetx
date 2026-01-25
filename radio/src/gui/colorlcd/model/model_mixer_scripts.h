@@ -27,7 +27,7 @@
 class ModelMixerScriptsPage : public PageGroupItem
 {
  public:
-  ModelMixerScriptsPage(PageDef& pageDef);
+  ModelMixerScriptsPage(const PageDef& pageDef);
 
   virtual void build(Window* window) override { build(window, 0); }
 

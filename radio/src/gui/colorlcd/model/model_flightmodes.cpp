@@ -21,11 +21,15 @@
 
 #include "model_flightmodes.h"
 
-#include "list_line_button.h"
+#include "button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "numberedit.h"
 #include "page.h"
 #include "switchchoice.h"
-#include "etx_lv_theme.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -204,7 +208,6 @@ class FlightModeBtn : public ListLineButton
   FlightModeBtn(Window* parent, int index) : ListLineButton(parent, index)
   {
     padAll(PAD_ZERO);
-    padColumn(PAD_ZERO);
     setHeight(BTN_H);
 
     delayLoad();
@@ -239,7 +242,7 @@ class FlightModeBtn : public ListLineButton
     fmFadeOut = etx_create(&fm_fade_class, lvobj);
     lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + PAD_TINY, FADE_Y);
     lv_obj_update_layout(lvobj);
-  
+
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 
@@ -462,7 +465,7 @@ const lv_obj_class_t FlightModeBtn::fm_trim_value_class = {
     .instance_size = sizeof(lv_label_t),
 };
 
-ModelFlightModesPage::ModelFlightModesPage(PageDef& pageDef) :
+ModelFlightModesPage::ModelFlightModesPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

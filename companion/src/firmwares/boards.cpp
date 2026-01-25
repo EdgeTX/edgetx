@@ -137,6 +137,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3878746F;
     case BOARD_RADIOMASTER_TX15:
       return 0x4978746F;
+    case BOARD_RADIOMASTER_TX16SMK3:
+      return 0x4978746F;
     case BOARD_RADIOMASTER_TX12:
       return 0x4178746F;
     case BOARD_RADIOMASTER_TX12_MK2:
@@ -216,6 +218,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
+    case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
@@ -279,6 +282,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
+    case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
@@ -391,7 +395,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 1;
 
     case LcdHeight:
-      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
+      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_RADIOMASTER_TX16SMK3(board))
         return 480;
       else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board))
         return 320;
@@ -403,15 +407,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 64;
 
     case LcdWidth:
-      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board))
+      if (IS_RADIOMASTER_TX16SMK3(board))
+        return 800;
+      else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board))
         return 320;
-      else if (IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board))
-        return 480;
-      else if (IS_TARANIS_SMALL(board))
-        return 128;
-      else if (IS_TARANIS(board))
+      else if (IS_TARANIS(board) && !IS_TARANIS_SMALL(board))
         return 212;
       else
         return 128;
@@ -431,7 +433,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_RADIOMASTER_MT12(board);
 
     case FunctionSwitchColors:
-      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_PA01(board) || IS_RADIOMASTER_TX15(board);
+      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_PA01(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -663,6 +665,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX12 Mark II";
     case BOARD_RADIOMASTER_TX16S:
       return "Radiomaster TX16S";
+    case BOARD_RADIOMASTER_TX16SMK3:
+      return "Radiomaster TX16SMK3";
     case BOARD_RADIOMASTER_TX15:
       return "Radiomaster TX15";
     case BOARD_RADIOMASTER_ZORRO:
@@ -806,6 +810,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_HELLORADIOSKY_V14:
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
+  case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_JUMPER_BUMBLEBEE:
   case BOARD_JUMPER_T12MAX:
@@ -873,6 +878,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_X10:
     case BOARD_X10_EXPRESS:
     case BOARD_RADIOMASTER_TX16S:
+    case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:

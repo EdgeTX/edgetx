@@ -30,7 +30,7 @@ class Choice;
 class ScreenUserInterfacePage : public PageGroupItem
 {
  public:
-  ScreenUserInterfacePage(PageDef& pageDef);
+  ScreenUserInterfacePage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

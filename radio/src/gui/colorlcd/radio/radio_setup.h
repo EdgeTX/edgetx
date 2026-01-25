@@ -26,7 +26,7 @@
 class RadioSetupPage: public PageGroupItem
 {
  public:
-  RadioSetupPage(PageDef& pageDef);
+  RadioSetupPage(const PageDef& pageDef);
 
   void build(Window * window) override;
 

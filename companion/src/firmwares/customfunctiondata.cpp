@@ -300,7 +300,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   }
 
   if (value < ++step)
-    return tr("Flight");
+    return tr("Session");
 
   if (value < ++step)
     return tr("Telemetry");
@@ -386,7 +386,7 @@ QString CustomFunctionData::gvarAdjustModeToString(const int value)
 {
   switch (value) {
     case FUNC_ADJUST_GVAR_CONSTANT:
-      return tr("Value");
+      return tr("Constant");
     case FUNC_ADJUST_GVAR_SOURCE:
       return tr("Source (%)");
     case FUNC_ADJUST_GVAR_SOURCERAW:

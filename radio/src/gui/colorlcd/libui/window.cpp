@@ -19,13 +19,118 @@
 #include "window.h"
 
 #include "button.h"
-#include "form.h"
-#include "static.h"
+#include "debug.h"
 #include "etx_lv_theme.h"
-#include "layer.h"
+#include "form.h"
+#include "keys.h"
+#include "pagegroup.h"
+#include "static.h"
+
+//-----------------------------------------------------------------------------
+
+class Layer
+{
+  static std::list<Layer> stack;
+
+  Window*     window;
+  lv_group_t* group;
+  lv_group_t* prevGroup;
+
+ public:
+  explicit Layer(Window* w, lv_group_t* g, lv_group_t* pg) :
+      window(w), group(g), prevGroup(pg)
+  {
+  }
+
+  ~Layer() { lv_group_del(group); }
+
+  static void push(Window* window);
+  static void pop(Window* window);
+
+  static Window* back();
+  static Window* walk(std::function<bool(Window* w)> check);
+};
+
+std::list<Layer> Layer::stack;
+
+void Layer::push(Window* w)
+{
+  // save prev group
+  auto pg = lv_group_get_default();
+
+  // create a new group
+  auto g = lv_group_create();
+  w->assignLvGroup(g, true);
+
+  // and store
+  stack.emplace_back(w, g, pg);
+}
+
+void Layer::pop(Window* w)
+{
+  if (stack.empty()) return;
+
+  if (back() == w) {
+    lv_group_t* prevGroup = stack.back().prevGroup;
+    stack.pop_back();
+    w = back();
+    if (prevGroup) {
+      w->assignLvGroup(prevGroup, true);
+    } else if (!stack.empty()) {
+      w->assignLvGroup(stack.back().group, true);
+    } else {
+      lv_group_set_default(NULL);
+    }
+  } else {
+    for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+      if (layer->window == w) {
+        stack.erase(layer.base());
+        return;
+      }
+    }
+    return;
+  }
+}
+
+Window* Layer::back()
+{
+  if (stack.empty()) return nullptr;
+  return stack.back().window;
+}
+
+Window* Layer::walk(std::function<bool(Window* w)> check)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window && check(layer->window))
+      return layer->window;
+  }
+
+  return nullptr;
+}
+
+//-----------------------------------------------------------------------------
 
 std::list<Window *> Window::trash;
-bool Window::_longPressed = false;
+
+Window* Window::topWindow() { return Layer::back(); }
+
+Window* Window::firstOpaque()
+{
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->hasWindowFlag(OPAQUE);
+  });
+  return w;
+}
+
+PageGroup* Window::pageGroup()
+{
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->isPageGroup();
+  });
+  return (PageGroup*)w;
+}
+
+//-----------------------------------------------------------------------------
 
 const lv_obj_class_t window_base_class = {
     .base_class = &lv_obj_class,
@@ -47,12 +152,14 @@ lv_obj_t *window_create(lv_obj_t *parent)
 void Window::window_event_cb(lv_event_t *e)
 {
   Window *window = (Window *)lv_obj_get_user_data(lv_event_get_target(e));
-  if (window) 
+  if (window)
     window->eventHandler(e);
 }
 
 void Window::eventHandler(lv_event_t *e)
 {
+  static bool _longPressed = false;
+
   lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
@@ -112,6 +219,8 @@ void Window::eventHandler(lv_event_t *e)
       break;
   }
 }
+
+//-----------------------------------------------------------------------------
 
 // Constructor to allow lvobj to be created separately - used by NumberEdit and
 // TextEdit
@@ -202,7 +311,7 @@ void Window::pushLayer(bool hideParent)
   if (!layerCreated) {
     parentHidden = hideParent;
     layerCreated = true;
-    if (parentHidden) Layer::back()->hide();
+    if (parentHidden) Window::topWindow()->hide();
     Layer::push(this);
   }
 }
@@ -211,9 +320,22 @@ void Window::popLayer()
 {
   if (layerCreated) {
     Layer::pop(this);
-    if (parentHidden) Layer::back()->show();
+    if (parentHidden) Window::topWindow()->show();
     layerCreated = false;
     parentHidden = false;
+  }
+}
+
+void Window::assignLvGroup(lv_group_t* g, bool setDefault)
+{
+  if (setDefault)
+    lv_group_set_default(g);
+
+  // associate it with all input devices
+  lv_indev_t* indev = lv_indev_get_next(NULL);
+  while (indev) {
+    lv_indev_set_group(indev, g);
+    indev = lv_indev_get_next(indev);
   }
 }
 
@@ -229,8 +351,14 @@ void Window::setWindowFlag(WindowFlags flag)
   windowFlags |= flag;
 
   // honor the no focus flag of libopenui
-  if (this->windowFlags & NO_FOCUS)
+  if (windowFlags & NO_FOCUS)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
+  if (windowFlags & NO_SCROLL)
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
+
+  if (windowFlags & NO_CLICK)
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
 }
 
 void Window::clearWindowFlag(WindowFlags flag) { windowFlags &= ~flag; }
@@ -250,23 +378,19 @@ void Window::attach(Window *newParent)
 void Window::detach()
 {
   if (parent) {
-    parent->removeChild(this);
+    parent->children.remove(this);
     parent = nullptr;
   }
 }
 
-void Window::deleteLater(bool detach, bool trash)
+void Window::deleteLater()
 {
   if (_deleted) return;
   _deleted = true;
 
   TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
 
-  if (detach)
-    this->detach();
-  else
-    parent = nullptr;
-
+  detach();
   deleteChildren();
 
   popLayer();
@@ -274,8 +398,7 @@ void Window::deleteLater(bool detach, bool trash)
   if (closeHandler)
     closeHandler();
 
-  if (trash)
-    Window::trash.push_back(this);
+  Window::trash.push_back(this);
 
   if (lvobj != nullptr) {
     auto obj = lvobj;
@@ -295,13 +418,8 @@ void Window::clear()
 
 void Window::deleteChildren()
 {
-  // prevent LVGL refocus while mass-deleting
-  // inhibit_focus = true;
-  for (auto window : children) {
-    window->deleteLater(false);
-  }
-  // inhibit_focus = false;
-  children.clear();
+  while (!children.empty())
+    children.back()->deleteLater();
 }
 
 bool Window::hasFocus() const
@@ -324,19 +442,6 @@ void Window::padBottom(coord_t pad)
 }
 
 void Window::padAll(PaddingSize pad) { etx_padding(lvobj, pad, LV_PART_MAIN); }
-
-void Window::padRow(coord_t pad) { lv_obj_set_style_pad_row(lvobj, pad, 0); }
-
-void Window::padColumn(coord_t pad)
-{
-  lv_obj_set_style_pad_column(lvobj, pad, 0);
-}
-
-void Window::bringToTop()
-{
-  attach(parent);  // does a detach + attach
-  if (lvobj && lv_obj_get_parent(lvobj)) lv_obj_move_foreground(lvobj);
-}
 
 void Window::checkEvents()
 {
@@ -381,12 +486,6 @@ void Window::addChild(Window *window)
   }
 
   children.push_back(window);
-}
-
-void Window::removeChild(Window *window)
-{
-  children.remove(window);
-  invalidate();
 }
 
 void Window::invalidate()
@@ -475,6 +574,8 @@ void Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
 }
 #endif
 
+//-----------------------------------------------------------------------------
+
 void NavWindow::onEvent(event_t event)
 {
   switch (event) {
@@ -535,6 +636,8 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
 {
   setWindowFlag(OPAQUE);
 }
+
+//-----------------------------------------------------------------------------
 
 class SetupTextButton : public TextButton
 {
@@ -638,3 +741,5 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
 
   return y;
 }
+
+//-----------------------------------------------------------------------------

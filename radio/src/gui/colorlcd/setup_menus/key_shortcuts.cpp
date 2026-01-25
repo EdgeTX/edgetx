@@ -20,7 +20,11 @@
  */
 
 #include "key_shortcuts.h"
+
+#include "button.h"
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
 #include "pagegroup.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)

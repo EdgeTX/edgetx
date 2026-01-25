@@ -23,11 +23,14 @@
 
 #include "radio_cfs.h"
 
+#include "choice.h"
+#include "color_picker.h"
 #include "edgetx.h"
 #include "hal/rgbleds.h"
 #include "strhelpers.h"
 #include "switches.h"
-#include "color_picker.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

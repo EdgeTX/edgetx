@@ -19,6 +19,7 @@
 #include "static.h"
 
 #include "bitmaps.h"
+#include "debug.h"
 #include "lz4/lz4.h"
 #include "sdcard.h"
 #include "etx_lv_theme.h"
@@ -31,8 +32,7 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
     Window(parent, rect, lv_label_create), text(std::move(txt))
 {
   setTextFlag(textFlags);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  setWindowFlag(NO_FOCUS);
 
   etx_font(lvobj, FONT_INDEX(textFlags));
   etx_txt_color(lvobj, color);
@@ -149,9 +149,7 @@ StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, EdgeTxIcon icon,
     Window(parent, rect_t{x, y, 0, 0}, lv_canvas_create),
     currentColor(color)
 {
-  setWindowFlag(NO_FOCUS);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   setIcon(icon);
 
@@ -163,9 +161,7 @@ StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, const char* filenam
     Window(parent, rect_t{x, y, 0, 0}, lv_canvas_create),
     currentColor(color)
 {
-  setWindowFlag(NO_FOCUS);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   auto bm = BitmapBuffer::loadBitmap(filename, BMP_RGB565);
   if (bm) {
@@ -182,12 +178,12 @@ StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, const char* filenam
   etx_img_color(lvobj, currentColor, LV_PART_MAIN);
 }
 
-void StaticIcon::deleteLater(bool detach, bool trash)
+void StaticIcon::deleteLater()
 {
   if (_deleted) return;
   if (mask) free(mask);
   mask = nullptr;
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 }
 
 void StaticIcon::setColor(LcdColorIndex color)
@@ -219,9 +215,7 @@ StaticImage::StaticImage(Window* parent, const rect_t& rect,
                          const char* filename, bool fillFrame, bool dontEnlarge) :
     Window(parent, rect), fillFrame(fillFrame), dontEnlarge(dontEnlarge)
 {
-  setWindowFlag(NO_FOCUS);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   if (!filename) filename = "";
   setSource(filename);
@@ -230,7 +224,9 @@ StaticImage::StaticImage(Window* parent, const rect_t& rect,
 void StaticImage::setSource(std::string filename)
 {
   if (!filename.empty()) {
-    std::string fullpath = std::string("A" PATH_SEPARATOR) + filename;
+    std::string fullpath = std::string("A");
+    if (filename[0] != PATH_SEPARATOR[0]) fullpath += PATH_SEPARATOR;
+    fullpath += filename;
 
     if (!image) image = lv_img_create(lvobj);
     lv_obj_set_pos(image, 0, 0);
@@ -280,8 +276,7 @@ StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
                            const char* filename) :
     Window(parent, rect)
 {
-  setWindowFlag(NO_FOCUS);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   setSource(filename);
 }
@@ -327,9 +322,7 @@ StaticLZ4Image::StaticLZ4Image(Window* parent, coord_t x, coord_t y,
     Window(parent, {x, y, lz4Bitmap->width, lz4Bitmap->height},
            lv_canvas_create)
 {
-  setWindowFlag(NO_FOCUS);
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  setWindowFlag(NO_FOCUS | NO_CLICK);
 
   // Convert ARGB4444 to LV_IMG_CF_TRUE_COLOR_ALPHA
   uint16_t w = lz4Bitmap->width;
@@ -357,12 +350,12 @@ StaticLZ4Image::StaticLZ4Image(Window* parent, coord_t x, coord_t y,
   lv_canvas_set_buffer(lvobj, imgData, w, h, LV_IMG_CF_TRUE_COLOR_ALPHA);
 }
 
-void StaticLZ4Image::deleteLater(bool detach, bool trash)
+void StaticLZ4Image::deleteLater()
 {
   if (!deleted()) {
     if (imgData) lv_mem_free(imgData);
     imgData = nullptr;
-    Window::deleteLater(detach, trash);
+    Window::deleteLater();
   }
 }
 
@@ -372,8 +365,9 @@ QRCode::QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string dat
                LcdFlags color, LcdFlags bgColor) :
     Window(parent, {x, y, sz, sz})
 {
+  setWindowFlag(NO_CLICK);
+
   qr = lv_qrcode_create(lvobj, sz, makeLvColor(color), makeLvColor(bgColor));
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
   setData(data);
 }
 

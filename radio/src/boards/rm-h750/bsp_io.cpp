@@ -202,7 +202,7 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
   }
   else if (!def->Pin_low) {
     // 2POS switch
-    if ((state & def->Pin_high) == 0) {
+    if ((state & def->Pin_high) != 0) {
       pos = SWITCH_HW_DOWN;
     }
   } else {

@@ -24,8 +24,12 @@
 #include <algorithm>
 
 #include "color_picker.h"
-#include "layout.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "layout.h"
+#include "menu.h"
+#include "static.h"
+#include "toggleswitch.h"
 #include "topbar.h"
 #include "view_main.h"
 #include "widget_settings.h"
@@ -112,7 +116,7 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-ScreenSetupPage::ScreenSetupPage(unsigned index, PageDef& pageDef) :
+ScreenSetupPage::ScreenSetupPage(unsigned index, const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
   update(index + QuickMenu::pageIndex(QM_UI_SCREEN1));
@@ -281,8 +285,41 @@ void ScreenSetupPage::buildLayoutOptions()
   }
 }
 
+void ScreenSetupPage::addScreen()
+{
+  int newIdx = 1;
+  for (; newIdx < MAX_CUSTOM_SCREENS; newIdx += 1)
+    if (customScreens[newIdx] == nullptr)
+      break;
+
+  TRACE("Add screen: add screen: newIdx = %d", newIdx);
+
+  auto& screen = customScreens[newIdx];
+
+  const LayoutFactory* factory = defaultLayout;
+  if (factory) {
+    TRACE("Add screen: add screen: factory = %p", factory);
+
+    auto viewMain = ViewMain::instance();
+    screen = factory->create(viewMain, newIdx);
+    viewMain->addMainView(screen, newIdx);
+
+    g_model.setScreenLayoutId(newIdx, factory->getId());
+    TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
+
 #if VERSION_MAJOR == 2
-ScreenAddPage::ScreenAddPage(PageDef& pageDef) : PageGroupItem(pageDef)
+    Window::pageGroup()->deleteLater();
+#endif
+    QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + newIdx));
+
+    storageDirty(EE_MODEL);
+  } else {
+    TRACE("Add screen: factory is NULL");
+  }
+}
+
+#if VERSION_MAJOR == 2
+ScreenAddPage::ScreenAddPage(const PageDef& pageDef) : PageGroupItem(pageDef)
 {
 }
 
@@ -293,33 +330,7 @@ void ScreenAddPage::build(Window* window)
   new TextButton(window,
                  rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
                  s, [this]() -> uint8_t {
-                    int newIdx = 1;
-                    for (; newIdx < MAX_CUSTOM_SCREENS; newIdx += 1)
-                      if (customScreens[newIdx] == nullptr)
-                        break;
-
-                    TRACE("Add screen: add screen: newIdx = %d", newIdx);
-
-                    auto& screen = customScreens[newIdx];
-
-                    const LayoutFactory* factory = defaultLayout;
-                    if (factory) {
-                      TRACE("Add screen: add screen: factory = %p", factory);
-
-                      auto viewMain = ViewMain::instance();
-                      screen = factory->create(viewMain, newIdx);
-                      viewMain->addMainView(screen, newIdx);
-
-                      g_model.setScreenLayoutId(newIdx, factory->getId());
-                      TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
-
-                      Layer::getPageGroup()->deleteLater();
-                      QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + newIdx));
-
-                      storageDirty(EE_MODEL);
-                    } else {
-                      TRACE("Add screen: factory is NULL");
-                    }
+                    ScreenSetupPage::addScreen();
                     return 0;
                  });
 }

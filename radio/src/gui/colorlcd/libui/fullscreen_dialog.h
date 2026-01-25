@@ -45,7 +45,7 @@ class FullScreenDialog : public Window
   void onCancel() override;
   bool onLongPress() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
   void checkEvents() override;
 

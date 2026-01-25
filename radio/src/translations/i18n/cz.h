@@ -372,6 +372,7 @@
 #define TR_SRC_BATT                    "Bat."
 #define TR_SRC_TIME                    "Čas"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Čas"
 
 #define TR_VTMRMODES_1                 "VYP"
@@ -677,6 +678,7 @@
 #define TR_MULTI_OPTION                TR("Možnosti", "Hodnota")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.","Bind při zapnutí")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Vypnout mapování kanálů")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "Vypnout telemetrii")
 #define TR_MULTI_LOWPOWER              TR("Nízký výkon", "Režim nízkého výkonu")
 #define TR_MULTI_LNA_DISABLE           "LNA vypnuto"
@@ -981,7 +983,7 @@
 #define TR_PASTE_BEFORE                "Vložit před"
 #define TR_DELETE                      "Odstranit"
 #define TR_INSERT                      "Přidat"
-#define TR_RESET_FLIGHT                "Reset relace"
+#define TR_RESET_SESSION               "Reset relace"
 #define TR_RESET_TIMER1                "Čas1"
 #define TR_RESET_TIMER2                "Čas2"
 #define TR_RESET_TIMER3                "Čas3"

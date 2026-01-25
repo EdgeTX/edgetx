@@ -373,6 +373,7 @@
 #define TR_SRC_BATT                    "АКБ"
 #define TR_SRC_TIME                    "Время"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "ТМР"
 
 #define TR_VTMRMODES_1                 "Вык"
@@ -674,6 +675,7 @@
 #define TR_MULTI_OPTION                TR("Опция", "Знач опции")
 #define TR_MULTI_AUTOBIND              TR("Прив к кан", "Прив к кан")
 #define TR_DISABLE_CH_MAP              TR("Откл карту кан", "Откл карту кан")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("Без телеметрии", "Откл телем")
 #define TR_MULTI_LOWPOWER              TR("Низк потребл", "Низк потребл")
 #define TR_MULTI_LNA_DISABLE           "Откл LNA"
@@ -985,7 +987,7 @@
 #define TR_PASTE_BEFORE                "Вставить перед"
 #define TR_DELETE                      "Удалить"
 #define TR_INSERT                      "Вставить"
-#define TR_RESET_FLIGHT                "Сброс сесии"
+#define TR_RESET_SESSION               "Сброс сесии"
 #define TR_RESET_TIMER1                "Сбросить таймер1"
 #define TR_RESET_TIMER2                "Сбросить таймер2"
 #define TR_RESET_TIMER3                "Сбросить таймер3"

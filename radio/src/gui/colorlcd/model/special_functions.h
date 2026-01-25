@@ -29,6 +29,7 @@
 struct CustomFunctionData;
 class FunctionEditPage;
 class FunctionLineButton;
+class NumberEdit;
 
 //-----------------------------------------------------------------------------
 
@@ -118,7 +119,7 @@ class FunctionEditPage : public Page
 class FunctionsPage : public PageGroupItem
 {
  public:
-  FunctionsPage(CustomFunctionData* functions, PageDef& pageDef, const char* prefix);
+  FunctionsPage(CustomFunctionData* functions, const PageDef& pageDef, const char* prefix);
 
   void build(Window* window) override;
 
@@ -152,7 +153,7 @@ class FunctionsPage : public PageGroupItem
 class SpecialFunctionsPage : public FunctionsPage
 {
  public:
-  SpecialFunctionsPage(PageDef& pageDef);
+  SpecialFunctionsPage(const PageDef& pageDef);
 
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;
@@ -167,7 +168,7 @@ class SpecialFunctionsPage : public FunctionsPage
 class GlobalFunctionsPage : public FunctionsPage
 {
  public:
-  GlobalFunctionsPage(PageDef& pageDef);
+  GlobalFunctionsPage(const PageDef& pageDef);
 
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;

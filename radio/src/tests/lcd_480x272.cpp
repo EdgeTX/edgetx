@@ -26,6 +26,7 @@
 
 #include "simpgmspace.h"
 #include "bitmaps.h"
+#include "debug.h"
 
 #if !(defined(STM32H7) || defined(STM32H7RS))
 #define STB_IMAGE_WRITE_IMPLEMENTATION

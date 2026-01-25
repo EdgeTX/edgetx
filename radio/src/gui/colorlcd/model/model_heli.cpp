@@ -20,7 +20,10 @@
  */
 
 #include "model_heli.h"
+
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 #include "sourcechoice.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)

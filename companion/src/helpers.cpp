@@ -657,6 +657,15 @@ void TableLayout::addWidget(int row, int column, QWidget * widget, Qt::Alignment
 #endif
 }
 
+void TableLayout::addWidget(int fromRow, int fromColumn, int rowSpan, int colSpan,
+                            QWidget * widget, Qt::Alignment alignment)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  gridWidget->addWidget(widget, fromRow + 1, fromColumn, rowSpan, colSpan, alignment);
+#endif
+}
+
 void TableLayout::addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment)
 {
 #if defined(TABLE_LAYOUT)

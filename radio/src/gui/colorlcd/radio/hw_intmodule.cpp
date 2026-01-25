@@ -21,7 +21,10 @@
 
 #include "hw_intmodule.h"
 
+#include "choice.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "static.h"
 
 #if defined(CROSSFIRE)
 #include "telemetry/crossfire.h"

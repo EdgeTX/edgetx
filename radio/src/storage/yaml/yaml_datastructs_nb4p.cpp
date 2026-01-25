@@ -692,6 +692,7 @@ static const struct YamlNode struct_anonymous_12[] = {
 };
 static const struct YamlNode struct_anonymous_13[] = {
   YAML_UNSIGNED( "flags", 8 ),
+  YAML_UNSIGNED( "enableAETR", 1 ),
   YAML_END
 };
 static const struct YamlNode union_anonymous_4_elmts[] = {
@@ -705,7 +706,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 24, struct_anonymous_12, NULL),
-  YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
+  YAML_STRUCT("dsmp", 16, struct_anonymous_13, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ModuleData[] = {

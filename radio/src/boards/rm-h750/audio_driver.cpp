@@ -184,7 +184,7 @@ extern "C" void DMA1_Stream4_IRQHandler(void)
   if (stm32_dma_check_ht_flag(I2S_DMA, I2S_DMA_Stream)) {
     audio_update_dma_buffer(0);
   }
-  
+
   if (stm32_dma_check_tc_flag(I2S_DMA, I2S_DMA_Stream)) {
     audio_update_dma_buffer(1);
   }

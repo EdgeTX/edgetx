@@ -369,6 +369,7 @@
 #define TR_SRC_BATT                   "배터리"
 #define TR_SRC_TIME                   "시간"
 #define TR_SRC_GPS                    "GPS"
+#define	TR_SRC_LIGHT                  "Ambient light"
 #define TR_SRC_TIMER                  "타이머"
 
 
@@ -696,6 +697,7 @@
 #define TR_MULTI_OPTION                 TR("옵션", "옵션 값")
 #define TR_MULTI_AUTOBIND               TR("바인드 채널", "채널에서 자동 바인딩")
 #define TR_DISABLE_CH_MAP               TR("채널 매핑 없음", "채널 매핑 비활성화")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("텔레메트리 없음", "텔레메트리 비활성화")
 #define TR_MULTI_LOWPOWER               TR("저전력", "저전력 모드")
 #define TR_MULTI_LNA_DISABLE            "LNA 비활성화"
@@ -1027,7 +1029,7 @@
 #define TR_PASTE_BEFORE                   "앞에 붙여넣기"
 #define TR_DELETE                         "삭제"
 #define TR_INSERT                         "삽입"
-#define TR_RESET_FLIGHT                   "세션 초기화"
+#define TR_RESET_SESSION                  "세션 초기화"
 #define TR_RESET_TIMER1                   "타이머1 초기화"
 #define TR_RESET_TIMER2                   "타이머2 초기화"
 #define TR_RESET_TIMER3                   "타이머3 초기화"

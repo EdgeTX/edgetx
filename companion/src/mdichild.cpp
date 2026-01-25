@@ -33,6 +33,7 @@
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
 #include "labels.h"
+#include "firmwares/edgetx/edgetxinterface.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -1055,7 +1056,8 @@ void MdiChild::generalEdit()
   GeneralEdit * t = new GeneralEdit(this, radioData, firmware);
   connect(t, &GeneralEdit::modified, this, &MdiChild::setModified);
   connect(t, &GeneralEdit::internalModuleChanged, this, &MdiChild::onInternalModuleChanged);  // passed up from HardwarePanel >> GeneralEdit
-  t->exec();
+  if (t->exec() == -1)  // -1 is user defined return value
+    generalEdit();
 }
 
 void MdiChild::copyGeneralSettings()
@@ -1267,7 +1269,7 @@ void MdiChild::modelSimulate()
   startSimulation(this, radioData, getCurrentModel());
 }
 
-void MdiChild::newFile(bool createDefaults)
+void MdiChild::newFile(bool useProfileSettings)
 {
   static int sequenceNumber = 1;
   isUntitled = true;
@@ -1276,12 +1278,22 @@ void MdiChild::newFile(bool createDefaults)
   modelsListModel->setFilename(curFile);
   radioData.addLabel(tr("Favorites"));
   labelsListModel->buildLabelsList();
+
+  if (useProfileSettings && g.currentProfile().useSavedSettings() &&
+      !g.currentProfile().generalSettings().isEmpty()) {
+    QByteArray data = g.currentProfile().generalSettings();
+
+    if (!loadRadioSettingsFromYaml(radioData.generalSettings, data)) {
+      QMessageBox::critical(this, tr("New File"), tr("Unable to load settings from profile!"));
+      return;
+    }
+  }
 }
 
 bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 {
   if (getStorageType(filename) == STORAGE_TYPE_YML) {
-    newFile(false);
+    newFile();
     resetCurrentFile = false;
   }
 
