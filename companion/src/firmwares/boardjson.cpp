@@ -158,13 +158,6 @@ const int BoardJson::getCapability(const Board::Capability capability) const
               m_inputCnt.flexSliders +
               m_inputCnt.flexSwitches);
 
-    case Board::HasSDCard:
-      return true;
-
-    case Board::MaxAnalogs:
-      return m_inputCnt.sticks + m_inputCnt.flexPots + m_inputCnt.flexSliders +
-             m_inputCnt.flexJoystickAxes + m_inputCnt.flexGyroAxes;
-
     case Board::FlexSwitches:
       return m_switchCnt.flex;
 
@@ -174,17 +167,23 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::FunctionSwitchGroups:
       return m_switchCnt.func / 2;
 
-    case Board::JoystickAxes:
-      return m_inputCnt.flexJoystickAxes;
-
     case Board::GyroAxes:
       return m_inputCnt.flexGyroAxes;
 
     case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
+    case Board::HasBacklightColor:
+      return m_display.backlight_color;
+
+    case Board::HasColorLcd:
+      return m_display.color;
+
     case Board::HasRTC:
       return m_inputCnt.rtcbat;
+
+    case Board::HasSDCard:
+      return true;
 
     case Board::HasVBat:
       return m_inputCnt.vbat;
@@ -195,8 +194,23 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::InputSwitches:
       return m_inputCnt.switches;
 
+    case Board::JoystickAxes:
+      return m_inputCnt.flexJoystickAxes;
+
     case Board::Keys:
       return m_keys->size();
+
+    case Board::LcdDepth:
+      return m_display.depth;
+
+    case Board::LcdHeight:
+      return m_display.h;
+
+    case Board::LcdOLED:
+      return m_display.oled;
+
+    case Board::LcdWidth:
+      return m_display.w;
 
     case Board::MultiposPots:
       // assumes every input has potential to be one
@@ -234,24 +248,6 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::SwitchesPositions:
       return getCapability(Board::Switches) * 3;
-
-    case Board::LcdWidth:
-      return m_display.w;
-
-    case Board::LcdHeight:
-      return m_display.h;
-
-    case Board::LcdDepth:
-      return m_display.depth;
-
-    case Board::LcdOLED:
-      return m_display.oled;
-
-    case Board::HasColorLcd:
-      return m_display.color;
-
-    case Board::HasBacklightColor:
-      return m_display.backlight_color;
 
     default:
       return 0;
