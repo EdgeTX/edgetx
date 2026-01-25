@@ -2082,5 +2082,3 @@ bool validateSFGV(CustomFunctionData* cfn)
 
   return rv;
 }
-
-// trigger CI
