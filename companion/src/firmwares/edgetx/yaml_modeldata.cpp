@@ -1504,6 +1504,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     rhs.moduleData[i].modelId = modelIds[i];
   }
 
+  // v2.12 CRSF limit external module to 3.75M for older boards
+  if (IS_STM32F2F4(board) &&
+      rhs.moduleData[1].protocol == PULSES_CROSSFIRE &&
+      rhs.moduleData[1].crsf.telemetryBaudrate > 4)
+    rhs.moduleData[1].crsf.telemetryBaudrate = 4;
+
   if (node["failsafeChannels"]) {
     int failsafeChans[CPN_MAX_CHNOUT];
     memset(failsafeChans, 0, sizeof(failsafeChans));
