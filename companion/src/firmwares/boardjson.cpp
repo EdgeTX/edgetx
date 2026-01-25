@@ -69,10 +69,10 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
   m_keys(new KeysTable),
+  m_display({0, 0, 0, 0, 0, 0, 0, 0}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
-
 }
 
 BoardJson::~BoardJson()
@@ -221,6 +221,24 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::SwitchesPositions:
       return getCapability(Board::Switches) * 3;
+
+    case Board::LcdWidth:
+      return m_display.w;
+
+    case Board::LcdHeight:
+      return m_display.h;
+
+    case Board::LcdDepth:
+      return m_display.depth;
+
+    case Board::LcdOLED:
+      return m_display.oled;
+
+    case Board::HasColorLcd:
+      return m_display.color;
+
+    case Board::HasBacklightColor:
+      return m_display.backlight_color;
 
     default:
       return 0;
@@ -920,7 +938,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -956,7 +974,7 @@ bool BoardJson::loadDefinition()
 
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims)
+                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1161,6 +1179,19 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 
 //        qDebug() << "name:" << t.name.c_str();
       }
+    }
+
+    if (obj.value("display").isObject()) {
+      const QJsonObject &o = obj.value("display").toObject();
+
+      display.w = o.value("w").toInt();
+      display.h = o.value("h").toInt();
+      display.phys_w = o.value("phys_w").toInt();
+      display.phys_h = o.value("phys_h").toInt();
+      display.depth = o.value("depth").toInt();
+      display.color = o.value("color").toInt();
+      display.oled = o.value("oled").toInt();
+      display.backlight_color = o.value("backlight_color").toInt();
     }
   }
 

@@ -100,6 +100,17 @@ class BoardJson
       TrimDefn() = default;
     };
 
+    struct DisplayDefn {
+      int w                            = 0;
+      int h                            = 0;
+      int phys_w                       = 0;
+      int phys_h                       = 0;
+      int depth                        = 0;
+      int color                        = 0;
+      int oled                         = 0;
+      int backlight_color              = 0;
+    };
+
     typedef std::vector<TrimDefn> TrimsTable;
 
     explicit BoardJson(Board::Type board, QString hwdefn);
@@ -170,6 +181,7 @@ private:
     SwitchesTable *m_switches;
     TrimsTable *m_trims;
     KeysTable *m_keys;
+    DisplayDefn m_display;
 
     struct InputCounts {
       unsigned int flexGyroAxes;
@@ -194,7 +206,7 @@ private:
     SwitchCounts m_switchCnt;
 
     static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims);
+                         KeysTable * keys, TrimsTable * trims, DisplayDefn & lcd);
     static void afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches,
                                 KeysTable * keys, TrimsTable * trims);
 

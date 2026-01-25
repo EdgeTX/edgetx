@@ -254,16 +254,10 @@ void ledBlue();
 
 // LCD driver
 #if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
-#define LCD_W                           212
-#define LCD_H                           64
-#define LCD_DEPTH                       4
 #define LCD_CONTRAST_MIN                0
 #define LCD_CONTRAST_MAX                45
 #define LCD_CONTRAST_DEFAULT            25
 #else
-#define LCD_W                           128
-#define LCD_H                           64
-#define LCD_DEPTH                       1
 #define IS_LCD_RESET_NEEDED()           true
 #if defined(OLED_SCREEN)
 #define LCD_CONTRAST_MIN                2
