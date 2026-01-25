@@ -70,6 +70,7 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_trims(new TrimsTable),
   m_keys(new KeysTable),
   m_display({0, 0, 0, 0, 0, 0, 0, 0}),
+  m_cfs({0, 0}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
@@ -161,11 +162,14 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::FlexSwitches:
       return m_switchCnt.flex;
 
+    case Board::FunctionSwitchColors:
+      return m_cfs.rgb_led;
+
     case Board::FunctionSwitches:
       return m_switchCnt.func;
 
     case Board::FunctionSwitchGroups:
-      return m_switchCnt.func / 2;
+      return m_cfs.groups;
 
     case Board::GyroAxes:
       return m_inputCnt.flexGyroAxes;
@@ -947,7 +951,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -983,7 +987,7 @@ bool BoardJson::loadDefinition()
 
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display)
+                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1189,19 +1193,26 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 //        qDebug() << "name:" << t.name.c_str();
       }
     }
+  }
 
-    if (obj.value("display").isObject()) {
-      const QJsonObject &o = obj.value("display").toObject();
+  if (obj.value("display").isObject()) {
+    const QJsonObject &o = obj.value("display").toObject();
 
-      display.w = o.value("w").toInt();
-      display.h = o.value("h").toInt();
-      display.phys_w = o.value("phys_w").toInt();
-      display.phys_h = o.value("phys_h").toInt();
-      display.depth = o.value("depth").toInt();
-      display.color = o.value("color").toInt();
-      display.oled = o.value("oled").toInt();
-      display.backlight_color = o.value("backlight_color").toInt();
-    }
+    display.w = o.value("w").toInt();
+    display.h = o.value("h").toInt();
+    display.phys_w = o.value("phys_w").toInt();
+    display.phys_h = o.value("phys_h").toInt();
+    display.depth = o.value("depth").toInt();
+    display.color = o.value("color").toInt();
+    display.oled = o.value("oled").toInt();
+    display.backlight_color = o.value("backlight_color").toInt();
+  }
+
+  if (obj.value("custom_switches").isObject()) {
+    const QJsonObject &o = obj.value("custom_switches").toObject();
+
+    cfs.rgb_led = o.value("rgb_led").toInt();
+    cfs.groups = o.value("groups").toInt();
   }
 
   delete json;
