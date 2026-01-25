@@ -216,6 +216,10 @@ class RawSourceRange
     }
 
     float getValue(int value);
+    double toDisplay(int value);
+    int toRaw(double value);
+    double validateDisplay(double value);
+    int validateRaw(int value);
 
     int decimals;
     double min;

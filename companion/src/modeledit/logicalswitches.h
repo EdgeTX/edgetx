@@ -84,7 +84,6 @@ class LogicalSwitchesPanel : public ModelPanel
     void populateFunctionCB(QComboBox *b);
     void updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum=0, double maximum=175.0);
     int lsCapability;
-    int lsCapabilityExt;
     void swapData(int idx1, int idx2);
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;
