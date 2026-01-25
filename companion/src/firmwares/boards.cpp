@@ -308,30 +308,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case Air:
       return !getCapability(board, Surface);
 
-    case FactoryInstalledPots:
-      if (IS_TARANIS_X9(board))
-        return 2;
-      else
-        return getCapability(board, Pots);
-
-    case FactoryInstalledSwitches:
-      if (IS_TARANIS_X9E(board))
-        return 8;
-      else if (IS_JUMPER_TPROV2(board))
-        return 6;
-      else if (IS_JUMPER_TLITE(board) || IS_JUMPER_TPROV1(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board) || IS_JUMPER_BUMBLEBEE(board))
-        return 4;
-      else if(IS_RADIOMASTER_ZORRO(board))
-        return 8;
-      else if (IS_RADIOMASTER_POCKET(board))
-        return 5;
-      else if (IS_FAMILY_T12(board))
-        return 6;
-      else if (IS_HORUS_X12S(board))
-        return 8;
-      else
-        return getCapability(board, Board::Switches);
-
     case HasAudioMuteGPIO:
       // All color lcd (including NV14 and EL18) except Horus X12S
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8

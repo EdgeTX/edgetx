@@ -212,8 +212,6 @@ namespace Board {
 
   enum Capability {
     Air,
-    FactoryInstalledPots,
-    FactoryInstalledSwitches,
     FlexInputs,
     FlexSwitches,
     FunctionSwitchColors,
