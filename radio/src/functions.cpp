@@ -109,6 +109,10 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
     PLAY_DURATION(val * 60, PLAY_TIME);
   } else if (idx == MIXSRC_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
+#if defined(LUMINOSITY_SENSOR)
+  } else if (idx == MIXSRC_LIGHT) {
+    PLAY_NUMBER(val, UNIT_RAW, 0);
+#endif
   } else {
     if (idx <= MIXSRC_LAST_CH) {
       val = calcRESXto100(val);

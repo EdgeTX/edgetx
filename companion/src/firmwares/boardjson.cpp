@@ -117,6 +117,21 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
     }
   }
 
+  if (IS_RADIOMASTER_TX16SMK3(board)) {
+    if (getInputIndex(inputs, "LIGHT", Board::LVT_TAG) < 0) {
+      InputDefn defn;
+      defn.type = AIT_FLEX;
+      defn.tag = "LIGHT";
+      defn.name = "Ambient light";
+      defn.shortName = "Light";
+      defn.flexType = FLEX_POT;
+      defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
+      inputs->insert(inputs->end(), defn);
+    }
+  }
+
   //  Flex switches are not listed in json file for these radios
   int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
 

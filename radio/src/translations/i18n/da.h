@@ -373,6 +373,7 @@
 #define TR_SRC_BATT                    "Bat."
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tid"
 
 #define TR_VTMRMODES_1                 "FRA"

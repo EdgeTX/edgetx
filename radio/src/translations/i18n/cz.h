@@ -372,6 +372,7 @@
 #define TR_SRC_BATT                    "Bat."
 #define TR_SRC_TIME                    "Čas"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Čas"
 
 #define TR_VTMRMODES_1                 "VYP"

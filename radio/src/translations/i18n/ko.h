@@ -369,6 +369,7 @@
 #define TR_SRC_BATT                   "배터리"
 #define TR_SRC_TIME                   "시간"
 #define TR_SRC_GPS                    "GPS"
+#define	TR_SRC_LIGHT                  "Ambient light"
 #define TR_SRC_TIMER                  "타이머"
 
 

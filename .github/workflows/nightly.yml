@@ -26,6 +26,7 @@ jobs:
           - t20;t20v2;t14
           - tx12mk2;boxer;gx12
           - tx16s
+          - tx16smk3
           - f16
           - v16
           - x10;x10express

@@ -262,6 +262,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
 #if defined(IMU)
   { MIXSRC_TILT_X, MIXSRC_TILT_Y, SRC_TILT, sourceIsAvailable },
 #endif
+#if defined(LUMINOSITY_SENSOR)
+  { MIXSRC_LIGHT, MIXSRC_LIGHT, SRC_LIGHT, sourceIsAvailable },
+#endif
 #if defined(PCBHORUS)
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
 #endif
@@ -298,7 +301,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 }
 
 #define SRC_COMMON \
-            SRC_STICK | SRC_POT | SRC_TILT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
             SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
 
 bool isSourceAvailable(int source)

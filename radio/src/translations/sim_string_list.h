@@ -942,6 +942,7 @@
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS
+#define STR_SRC_LIGHT currentLangStrings->STR_SRC_LIGHT
 #define STR_SRC_TIME currentLangStrings->STR_SRC_TIME
 #define STR_SRC_TIMER currentLangStrings->STR_SRC_TIMER
 #define STR_STACK_AUDIO currentLangStrings->STR_STACK_AUDIO

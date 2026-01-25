@@ -31,6 +31,10 @@
 #include "hal/switch_driver.h"
 #include "hal/audio_driver.h"
 
+#if defined(LUMINOSITY_SENSOR)
+#include "luminosity_sensor.h"
+#endif
+
 #define DELAY_POS_MARGIN   3
 
 uint8_t s_mixer_first_run_done = false;
@@ -402,6 +406,12 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i == MIXSRC_MAX) {
     return RESX;
   }
+
+#if defined(LUMINOSITY_SENSOR)
+  else if (i == MIXSRC_LIGHT) {
+    return getLuxSensorValue() - RESX;
+  }
+#endif
 
   else if (i <= MIXSRC_LAST_HELI) {
 #if defined(HELI)
