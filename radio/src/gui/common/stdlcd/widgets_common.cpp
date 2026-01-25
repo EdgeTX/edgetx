@@ -136,9 +136,16 @@ void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t fl
     vmax = GVAR_MAX + MAX_FLIGHT_MODES - 1;
   }
   else {
-    drawGVarValue(x, y, gvar, *v, flags);
     vmin = GVAR_MIN + g_model.gvars[gvar].min;
     vmax = GVAR_MAX - g_model.gvars[gvar].max;
+    if (*v < vmin) {
+      *v = vmin;
+      storageDirty(EE_MODEL);
+    } else if (*v > vmax) {
+      *v = vmax;
+      storageDirty(EE_MODEL);
+    }
+    drawGVarValue(x, y, gvar, *v, flags);
   }
 
   if (flags & INVERS) {

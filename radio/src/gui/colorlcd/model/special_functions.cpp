@@ -528,9 +528,15 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       break;
 
     case FUNC_ADJUST_GVAR: {
+      if (validateSFGV(cfn)) SET_DIRTY();
       new StaticText(line, rect_t{}, STR_GLOBALVAR);
       auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
-                                   GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
+                                   GET_DEFAULT(CFN_GVAR_INDEX(cfn)),
+                                   [=](int32_t newValue){
+                                     CFN_GVAR_INDEX(cfn) = newValue;
+                                     SET_DIRTY();
+                                     updateSpecialFunctionOneWindow();
+                                   });
       gvarchoice->setTextHandler([](int32_t value) {
         return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
       });
