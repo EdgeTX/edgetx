@@ -1980,4 +1980,54 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     valMin = -valMax;
   }
 }
-// trigger CI
+
+bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf)
+{
+  getMixSrcRange(cs->v1, v2_min, v2_max, lf);
+  if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG)) {
+    if (v2_min >= 0) {
+      // min >= 0 && max >= 0
+    } else if (v2_max < 0) {
+      // min < 0 && max < 0
+      int16_t v = v2_min;
+      v2_min = -v2_max;
+      v2_max = -v;
+    } else {
+      // min < 0 && max >= 0
+      v2_min = 0;
+    }
+  } else if (cs->func == LS_FUNC_DIFFEGREATER) {
+    // delta range (min - max) .. (max - min)
+    int16_t v = v2_min - v2_max;
+    v2_max = v2_max - v2_min;
+    v2_min = v;
+  } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
+    // abs delta range 0 .. (max - min)
+    v2_max = v2_max - v2_min;
+    v2_min = 0;
+  }
+
+  bool rv = false;
+
+  if (cs->v2 < v2_min) { cs->v2 = v2_min; rv = true; }
+  else if (cs->v2 > v2_max) { cs->v2 = v2_max; rv = true; }
+
+  return rv;
+}
+
+bool validateSFGV(CustomFunctionData* cfn)
+{
+  bool rv = false;
+
+  if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
+    int16_t v = CFN_PARAM(cfn);
+    int16_t vmin, vmax;
+    getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, vmin, vmax);
+    if (v < vmin) v = vmin;
+    else if (v > vmax) v = vmax;
+    if (CFN_PARAM(cfn) != v) rv = true;
+    CFN_PARAM(cfn) = v;
+  }
+
+  return rv;
+}

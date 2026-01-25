@@ -36,9 +36,16 @@ void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t fl
     vmax = GVAR_MAX + MAX_FLIGHT_MODES - 1;
   }
   else {
-    drawGVarValue(x, y, gvar, *v, flags);
     vmin = GVAR_MIN + g_model.gvars[gvar].min;
     vmax = GVAR_MAX - g_model.gvars[gvar].max;
+    if (*v < vmin) {
+      *v = vmin;
+      storageDirty(EE_MODEL);
+    } else if (*v > vmax) {
+      *v = vmax;
+      storageDirty(EE_MODEL);
+    }
+    drawGVarValue(x, y, gvar, *v, flags);
   }
 
   if (flags & INVERS) {
@@ -77,7 +84,7 @@ void menuModelGVarOne(event_t event)
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   uint8_t old_editMode = s_editMode;
-  
+
   SIMPLE_SUBMENU(STR_GVARS, modelFMEnabled() ? GVAR_FIELD_LAST : GVAR_FIELD_FM0+1);
 
   for (int i=0; i<NUM_BODY_LINES; i++) {
