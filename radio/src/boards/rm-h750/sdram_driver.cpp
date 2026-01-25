@@ -96,6 +96,9 @@ extern "C" void SDRAM_GPIOConfig(void)
   /* GPIOG configuration */
   gpio_init_af(GPIO_PIN(GPIOG, 0), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 1), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
+#if defined(SDRAM_32M)
+  gpio_init_af(GPIO_PIN(GPIOG, 2), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
+#endif
   gpio_init_af(GPIO_PIN(GPIOG, 4), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 5), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 8), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
@@ -194,8 +197,13 @@ extern "C" void SDRAM_Init(void)
 
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = FMC_SDRAM_BANK2;
+#if defined(SDRAM_32M)
+  FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_9;
+  FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_13;
+#else
   FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_8;
   FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_12;
+#endif
   FMC_SDRAMInitStructure.MemoryDataWidth = FMC_SDRAM_MEM_BUS_WIDTH_16;
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
   FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_3;

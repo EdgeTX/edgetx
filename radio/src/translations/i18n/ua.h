@@ -372,6 +372,7 @@
 #define TR_SRC_BATT                    "Batt"	/* use english */
 #define TR_SRC_TIME                    "Час"
 #define TR_SRC_GPS                     "GPS"	/* use english */
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Тмр"
 
 #define TR_VTMRMODES_1                 "OFF"

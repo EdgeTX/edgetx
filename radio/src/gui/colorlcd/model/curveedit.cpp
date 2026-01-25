@@ -124,7 +124,11 @@ class CurveDataEdit : public Window
   }
 
   static LAYOUT_VAL_SCALED(ROW_HEIGHT, 82)
+#if WIDE_LAYOUT
+  static LAYOUT_VAL_SCALED(NUM_BTN_WIDTH, 50)
+#else
   static LAYOUT_VAL_SCALED(NUM_BTN_WIDTH, 47)
+#endif
   static LAYOUT_VAL_SCALED(NUM_HDR_HEIGHT, 15)
   static LAYOUT_VAL_SCALED(PTNUM_X, 15)
   static LAYOUT_VAL_SCALED(PTNUM_H, 13)

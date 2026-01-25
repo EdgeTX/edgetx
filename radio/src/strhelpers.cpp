@@ -734,7 +734,13 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_MENU_MIN, dest_len - 1);
   } else if (idx == MIXSRC_MAX) {
     strncpy(dest, STR_MENU_MAX, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_HELI) {
+  }
+#if defined(LUMINOSITY_SENSOR)
+  else if (idx == MIXSRC_LIGHT) {
+    strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
+  }
+#endif
+  else if (idx <= MIXSRC_LAST_HELI) {
     idx -= MIXSRC_FIRST_HELI;
     getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
   } else if (idx <= MIXSRC_LAST_TRIM) {

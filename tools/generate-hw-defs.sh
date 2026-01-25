@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 : "${SRCDIR:=$(dirname "$(pwd)/$0")/..}"
 
-: ${FLAVOR:="nv14;el18;pl18;pl18ev;nb4p;st16;t12;t12max;t15;t15pro;t16;t18;t8;zorro;pocket;commando8;tlite;tpro;tprov2;tpros;bumblebee;t20;t20v2;t14;lr3pro;mt12;gx12;tx12;tx12mk2;boxer;tx16s;x10;x10express;x12s;x7;x7access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites;f16;v14;v12;tx15"}
+: ${FLAVOR:="nv14;el18;pl18;pl18ev;nb4p;st16;t12;t12max;t15;t15pro;t16;t18;t8;zorro;pocket;commando8;tlite;tpro;tprov2;tpros;bumblebee;t20;t20v2;t14;lr3pro;mt12;gx12;tx12;tx12mk2;boxer;tx16s;tx16smk3;x10;x10express;x12s;x7;x7access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites;f16;v14;v12;tx15"}
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean

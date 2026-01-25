@@ -373,6 +373,7 @@
 #define TR_SRC_BATT                    "АКБ"
 #define TR_SRC_TIME                    "Время"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "ТМР"
 
 #define TR_VTMRMODES_1                 "Вык"

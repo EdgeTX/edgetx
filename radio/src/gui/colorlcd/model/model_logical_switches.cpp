@@ -36,7 +36,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_LS_ACTIVE LV_STATE_USER_1
-#define ETX_STATE_V1_SMALL_FONT LV_STATE_USER_1
+#define ETX_STATE_V1_SMALL_FONT LV_STATE_USER_2
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};

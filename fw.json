@@ -38,6 +38,7 @@
         ["RadioMaster TX12MK2", "tx12mk2-"],
         ["RadioMaster TX15", "tx15-"],
         ["RadioMaster TX16S", "tx16s-"],
+        ["RadioMaster TX16SMK3", "tx16smk3-"],
         ["RadioMaster Zorro","zorro-"]
     ],
     "changelog": "- Major initial bug fixes"
