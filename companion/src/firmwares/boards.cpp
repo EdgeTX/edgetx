@@ -367,7 +367,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
     case HasTrainerModuleCPPM:
       return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
-
+`
     case HasTrainerModuleSBUS:
       return ((IS_TARANIS_X9LITE(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) ||
               IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board) || IS_RADIOMASTER_ZORRO(board) ||
@@ -393,12 +393,12 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_RADIOMASTER_TX16SMK3(board))
         return 480;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
-        return 272;
       else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board))
         return 320;
       else if (IS_FLYSKY_PA01(board))
         return 240;
+      else if (IS_FAMILY_HORUS_OR_T16(board))
+        return 272;
       else
         return 64;
 
