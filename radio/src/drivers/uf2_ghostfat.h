@@ -23,9 +23,7 @@
 
 #include <stdint.h>
 
-// https://elm-chan.org/docs/fat_e.html
-#define UF2_MAX_FAT16_BLOCKS 65525
-#define UF2_NUM_BLOCKS UF2_MAX_FAT16_BLOCKS
+#define UF2_NUM_BLOCKS 65535
 #define UF2_INVALID_NUM_BLOCKS 0xFFFFFFFF
 
 typedef struct {
