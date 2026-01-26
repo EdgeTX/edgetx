@@ -226,7 +226,7 @@ namespace Board {
     HasIMU,
     HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
-    HasLedStripGPIO,
+    HasBlingLEDS,
     HasRTC,
     HasSDCard,
     HasTrainerModuleCPPM,

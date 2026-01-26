@@ -305,26 +305,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
   // TODO investigate usage of any that should be covered in BoardJson::getCapability or are no longer required
   //      some could be used when importing pre v2.10 configurations
   switch (capability) {
-    case Air:
-      return !getCapability(board, Surface);
-
-    case HasAudioMuteGPIO:
-      // All color lcd (including NV14 and EL18) except Horus X12S
-      // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
-
-    case HasExternalModuleSupport:
-      return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
-
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
-
-    case HasInternalModuleSupport:
-      return (IS_STM32(board) && !IS_TARANIS_X9(board));
-
-    case HasLedStripGPIO:
-      return (IS_RADIOMASTER_MT12(board) || IS_FAMILY_PL18(board) ||
-              IS_HELLORADIOSKY_V16(board));
 
     case HasTrainerModuleCPPM:
       return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
@@ -336,16 +318,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) || IS_JUMPER_T20(board) ||
               IS_JUMPER_BUMBLEBEE(board)) || IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
-
-    case SportMaxBaudRate:
-      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
-         (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
-        return 400000;  //  400K and higher
-      else
-        return 250000;  //  less than 400K
-
-    case Surface:
-      return IS_RADIOMASTER_MT12(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);

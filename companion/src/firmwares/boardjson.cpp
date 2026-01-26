@@ -71,6 +71,7 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_keys(new KeysTable),
   m_display({0, 0, 0, 0, 0, 0, 0, 0}),
   m_cfs({0, 0}),
+  m_hardware({0, 0, 0}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
@@ -152,6 +153,9 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 const int BoardJson::getCapability(const Board::Capability capability) const
 {
   switch (capability) {
+    case Board::Air:
+      return !m_hardware.surface;
+
     case Board::FlexInputs:
       return (m_inputCnt.flexGyroAxes +
               m_inputCnt.flexJoystickAxes +
@@ -177,11 +181,23 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
+    case Board::HasAudioMuteGPIO:
+      return m_hardware.has_audio_mute;
+
     case Board::HasBacklightColor:
       return m_display.backlight_color;
 
+    case Board::HasBlingLEDS:
+      return m_hardware.has_bling_leds;
+
     case Board::HasColorLcd:
       return m_display.color;
+
+    case Board::HasExternalModuleSupport:
+      return m_hardware.has_ext_module_support;
+
+    case Board::HasInternalModuleSupport:
+      return m_hardware.has_int_module_support;
 
     case Board::HasRTC:
       return m_inputCnt.rtcbat;
@@ -239,11 +255,17 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Sliders:
       return m_inputCnt.flexSliders;
 
+    case Board::SportMaxBaudRate:
+        return m_hardware.sport_max_baudrate;
+
     case Board::StandardSwitches:
       return m_switchCnt.std;
 
     case Board::Sticks:
       return m_inputCnt.sticks;
+
+    case Board::Surface:
+      return m_hardware.surface;
 
     case Board::Switches:
       return (m_switchCnt.std +
@@ -951,7 +973,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -987,7 +1009,8 @@ bool BoardJson::loadDefinition()
 
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs)
+                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
+                         HardwareDefn & hardware)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1213,6 +1236,17 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 
     cfs.rgb_led = o.value("rgb_led").toInt();
     cfs.groups = o.value("groups").toInt();
+  }
+
+  if (obj.value("hardware").isObject()) {
+    const QJsonObject &o = obj.value("hardware").toObject();
+
+    hardware.has_audio_mute = o.value("has_audio_mute").toInt();
+    hardware.has_bling_leds = o.value("has_bling_leds").toInt();
+    hardware.has_ext_module_support = o.value("has_ext_module_support").toInt();
+    hardware.has_int_module_support = o.value("has_int_module_support").toInt();
+    hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
+    hardware.surface = o.value("surface").toInt();
   }
 
   delete json;

@@ -8,6 +8,7 @@ from hal_adc import ADCInput, SPI_ADCInput, ADC, ADCInputParser
 from hal_keys import Key, Trim, parse_trims, parse_keys
 from hal_lcd import Display, parse_lcd
 from hal_cfs import CFS, parse_cfs
+from hal_misc import Misc, parse_misc
 
 import legacy_names
 
@@ -68,6 +69,8 @@ class DictEncoder(json.JSONEncoder):
             return prune_dict(obj.__dict__)
         if isinstance(obj, CFS):
             return prune_dict(obj.__dict__)
+        if isinstance(obj, Misc):
+            return prune_dict(obj.__dict__)
 
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
@@ -100,6 +103,9 @@ def parse_defines(filename, target):
 
     cfs = parse_cfs(hw_defs)
     out_defs["custom_switches"] = cfs
+
+    misc = parse_misc(hw_defs)
+    out_defs["hardware"] = misc
 
     print(json.dumps(out_defs, cls=DictEncoder, indent=2))
 
