@@ -138,7 +138,7 @@ void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeC
 
   if (isError) {
     // refresh screen and turn backlight on
-    backlightEnable(100);
+    backlightEnable(BACKLIGHT_LEVEL_MAX);
     // On startup error wait for power button to be released
     while (pwrPressed()) {
       WDG_RESET();
@@ -164,7 +164,7 @@ void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeC
 
     resetBacklightTimeout();
     if (isError)
-      backlightEnable(100);
+      backlightEnable(BACKLIGHT_LEVEL_MAX);
     else
       checkBacklight();
 

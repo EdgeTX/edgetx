@@ -556,7 +556,7 @@ void perMain()
 #if defined(RTC_BACKUP_RAM)
   if (UNEXPECTED_SHUTDOWN()) {
 #if defined(COLORLCD)
-    backlightEnable(100);
+    backlightEnable(BACKLIGHT_LEVEL_MAX);
 #else
     lcdClear();
     menuMainView(0);

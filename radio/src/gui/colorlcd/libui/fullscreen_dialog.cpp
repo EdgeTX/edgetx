@@ -188,5 +188,3 @@ bool confirmationDialog(const char* title, const char* msg, bool checkPwr,
 
   return confirmed;
 }
-
-//-----------------------------------------------------------------------------
