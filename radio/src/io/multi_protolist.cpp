@@ -322,7 +322,7 @@ void MultiRfProtocols::fillBuiltinProtos()
 
     if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break;  // skip custom proto
 
-    char tmp[8];
+    char tmp[MAX_MPM_NAME_LEN + 2];
     rfProto.label = getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, pdef->protocol);
     rfProto.flags =
         (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
