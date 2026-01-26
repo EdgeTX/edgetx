@@ -163,7 +163,6 @@ enum ModuleSubtypeMulti {
 //
 // Common list of Multi protocol names. Needs to match enum ModuleSubtypeMulti
 //
-#define MAX_MPM_NAME_LEN 8  // Update if a protocol with a longer name is added !!!
 #define KNOWN_PROTO_NAMES \
   "FlySky","Hubsan","FrSky D","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX",\
   "SLT","CX10","CG023","Bayang","FrSky X","ESky","MT99XX","MJXq","Shenqi","FY326",\
