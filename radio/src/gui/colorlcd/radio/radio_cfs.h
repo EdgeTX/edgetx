@@ -35,4 +35,3 @@ class RadioFunctionSwitches : public FunctionSwitchesBase
 };
 
 #endif
- 
