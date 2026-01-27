@@ -16,11 +16,21 @@ IS_ROOT=false
 
 # Detect system architecture
 ARCH=$(uname -m)
-if [[ "$ARCH" != "x86_64" ]]; then
-	echo "ERROR: This script requires x86_64 architecture, but detected: $ARCH"
-	echo "The ARM toolchain and other components may not be available for your architecture."
-	exit 1
-fi
+case "$ARCH" in
+	x86_64)
+		ARM_TOOLCHAIN_ARCH="x86_64"
+		echo "Detected x86_64 architecture"
+		;;
+	aarch64|arm64)
+		ARM_TOOLCHAIN_ARCH="aarch64"
+		echo "Detected ARM64 architecture"
+		;;
+	*)
+		echo "ERROR: Unsupported architecture: $ARCH"
+		echo "This script supports x86_64 and aarch64/arm64 only."
+		exit 1
+		;;
+esac
 
 # Parse argument(s)
 for arg in "$@"
@@ -154,28 +164,28 @@ fi
 
 echo "=== Step $((STEP++)): Fetching GNU Arm Embedded Toolchains ==="
 # EdgeTX uses GNU Arm Embedded Toolchain version ${ARM_TOOLCHAIN_VERSION}
-wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-x86_64-arm-none-eabi.tar.xz
+wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-${ARM_TOOLCHAIN_ARCH}-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
 	read
 fi
 
 echo "=== Step $((STEP++)): Unpacking GNU Arm Embedded Toolchains ==="
-pv arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-x86_64-arm-none-eabi.tar.xz | tar xJf -
+pv arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-${ARM_TOOLCHAIN_ARCH}-arm-none-eabi.tar.xz | tar xJf -
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
 	read
 fi
 
 echo "=== Step $((STEP++)): Removing the downloaded archives ==="
-rm arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-x86_64-arm-none-eabi.tar.xz
+rm arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-${ARM_TOOLCHAIN_ARCH}-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
 	read
 fi
 
 echo "=== Step $((STEP++)): Moving GNU Arm Embedded Toolchains to /opt ==="
-$SUDO_CMD mv arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-x86_64-arm-none-eabi /opt/gcc-arm-none-eabi
+$SUDO_CMD mv arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-${ARM_TOOLCHAIN_ARCH}-arm-none-eabi /opt/gcc-arm-none-eabi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
 	read
