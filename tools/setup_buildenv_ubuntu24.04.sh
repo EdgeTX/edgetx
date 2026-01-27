@@ -21,19 +21,6 @@ if [[ $(lsb_release -rs) != "24.04" ]]; then
   exit 1
 fi
 
-echo "=== Step $((STEP++)): Checking if i386 requirement is satisfied ==="
-OUTPUT=x$(dpkg --print-foreign-architectures 2> /dev/null | grep i386) || :
-if [ "$OUTPUT" != "xi386" ]; then
-    echo "Need to install i386 architecture first."
-    sudo dpkg --add-architecture i386
-else
-    echo "i386 requirement satisfied!"
-fi
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
-  read
-fi
-
 echo "=== Step $((STEP++)): Updating Ubuntu package lists. Please provide sudo credentials, when asked ==="
 sudo apt-get -y update
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
@@ -67,8 +54,6 @@ sudo apt-get -y install \
     openocd \
     npm \
     pv \
-    libncurses5:i386 \
-    libpython2.7:i386 \
     libclang-dev \
     python-is-python3 \
     openssl
@@ -98,7 +83,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing Qt ==="
-./aqt install-qt --outputdir qt linux desktop 6.9.0 linux_gcc_64 -m qtmultimedia qtserialport
+/usr/local/bin/aqt install-qt --outputdir qt linux desktop 6.9.0 linux_gcc_64 -m qtmultimedia qtserialport
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
