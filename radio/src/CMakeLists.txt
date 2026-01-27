@@ -451,13 +451,24 @@ set(SRC
   trainer.cpp
   model_init.cpp
   serial.cpp
-  audio.cpp
   model_audio.cpp
   sbus.cpp
   input_mapping.cpp
   inactivity_timer.cpp
   tasks/mixer_task.cpp
   )
+
+if(SIZE_TARGET_MEM_DEFINE MATCHES 32768)
+  set(SRC
+   ${SRC}
+   audio_with_cache.cpp
+  )
+else()
+  set(SRC
+   ${SRC}
+   audio.cpp
+  )
+endif()
 
 if(GUI)
   add_definitions(-DGUI)

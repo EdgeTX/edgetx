@@ -216,6 +216,9 @@ class ToneContext {
 
 };
 
+// Forward declaration for cache entry
+struct AudioCacheEntry;
+
 class WavContext {
   public:
 
@@ -246,6 +249,10 @@ class WavContext {
       uint32_t size;
       uint8_t  resampleRatio;
       uint16_t readSize;
+      bool usingCache;           // Flag indicating if reading from cache
+      uint8_t* cachedData;       // Pointer to cached data (not owned)
+      uint32_t cacheOffset;      // Current read position in cache
+      AudioCacheEntry* cachedEntry;
     } state;
 };
 
