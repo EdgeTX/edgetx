@@ -35,7 +35,7 @@ extern mutex_handle_t audioMutex;
 
 // Audio cache constants
 #define AUDIO_CACHE_MAX_SIZE (4 * 1024 * 1024)  // 4MB total cache size
-#define AUDIO_CACHE_MAX_ENTRIES 32               // Maximum number of cached files
+#define AUDIO_CACHE_MAX_ENTRIES 128             // Maximum number of cached files
 
 // Cache entry structure
 struct AudioCacheEntry {
@@ -86,6 +86,8 @@ private:
     }
 
     if (oldestIdx >= 0) {
+      TRACE("AudioCache: Evicting %s (%u bytes) to make space",
+            entries[oldestIdx].filename, entries[oldestIdx].size);
       totalCacheSize -= entries[oldestIdx].size;
       entries[oldestIdx].clear();
     }
@@ -163,15 +165,26 @@ public:
     entries[slot].lastAccessTime = ++accessCounter;
     totalCacheSize += size;
 
-    TRACE("AudioCache: Added %s (%u bytes)", filename, size);
+    // Count active entries
+    uint32_t numEntries = 0;
+    for (int i = 0; i < AUDIO_CACHE_MAX_ENTRIES; i++) {
+      if (entries[i].data) numEntries++;
+    }
+
+    TRACE("AudioCache: Added %s (%u bytes) - Cache: %u/%u entries, %u/%u KB",
+          filename, size, numEntries, AUDIO_CACHE_MAX_ENTRIES,
+          totalCacheSize / 1024, AUDIO_CACHE_MAX_SIZE / 1024);
     return true;
   }
 
   // Clear the entire cache
   void clear() {
+    uint32_t numEntries = 0;
     for (int i = 0; i < AUDIO_CACHE_MAX_ENTRIES; i++) {
+      if (entries[i].data) numEntries++;
       entries[i].clear();
     }
+    TRACE("AudioCache: Cleared %u entries (%u KB freed)", numEntries, totalCacheSize / 1024);
     totalCacheSize = 0;
     accessCounter = 0;
   }
@@ -604,8 +617,6 @@ int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
             state.usingCache = true;
             state.cachedData = cacheData;
             state.cachedEntry = cached;  // Store the cache entry pointer
-
-            TRACE("WavContext: Data chunk at offset %u, size %u", state.cacheOffset, state.size);
 
             if (state.freq != 0 && state.freq * (AUDIO_SAMPLE_RATE / state.freq) == AUDIO_SAMPLE_RATE) {
               state.resampleRatio = (AUDIO_SAMPLE_RATE / state.freq);
