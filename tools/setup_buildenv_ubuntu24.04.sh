@@ -50,15 +50,6 @@ else
 	echo "Running as normal user (will use sudo when needed)"
 fi
 
-# Check for network connectivity
-echo "=== Checking network connectivity ==="
-if ! ping -c 1 -W 2 8.8.8.8 &> /dev/null; then
-	echo "ERROR: No network connectivity detected!"
-	echo "Please check your internet connection and try again."
-	exit 1
-fi
-echo "Network connectivity OK"
-
 # Check Ubuntu version
 echo "=== Checking Ubuntu version ==="
 if command -v lsb_release &> /dev/null; then
@@ -207,7 +198,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	read
 fi
 
-echo "=== Step $((STEP++)): Removing modemmanager (conflicts with DFU) ==="
+echo "=== Step $((STEP++)): Removing modemmanager (conflicts with DFU devices) ==="
 $SUDO_CMD apt-get -y remove modemmanager
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
