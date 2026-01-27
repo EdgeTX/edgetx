@@ -146,6 +146,8 @@ if [[ $IS_ROOT == false ]]; then
 	# Allow current user to write to Qt directory to avoid permission issues
 	$SUDO_CMD chown $(whoami):$(whoami) ${QT_INSTALL_DIR}
 fi
+# Set aqt log location to /tmp to avoid cluttering current directory
+export AQT_LOG_FILE="/tmp/aqtinstall.log"
 aqt install-qt --outputdir ${QT_INSTALL_DIR} linux desktop ${QT_VERSION} linux_gcc_64 -m qtmultimedia qtserialport
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
@@ -204,7 +206,11 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	read
 fi
 
+echo ""
+echo "=========================================="
 echo "Finished setting up EdgeTX development environment."
+echo "=========================================="
+echo ""
 echo "Qt has been installed to: ${QT_INSTALL_DIR}"
 if [[ $IS_ROOT == false ]]; then
 	echo "Please execute: source ~/.bashrc"
