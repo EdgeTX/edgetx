@@ -93,8 +93,7 @@ $SUDO_CMD apt-get -y install \
 	cmake \
 	gcc \
 	git \
-	lib32ncurses-dev \
-	lib32z1 \
+	libncurses-dev \
 	libfox-1.6-dev \
 	libsdl2-dev \
 	software-properties-common \
