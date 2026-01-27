@@ -35,17 +35,6 @@
 
 #include <string.h>
 
-#if defined(FLASHSIZE)
-  #define UF2_MAX_FW_SIZE FLASHSIZE
-#else
-  #define UF2_MAX_FW_SIZE (2 * 1024 * 1024)
-#endif
-
-#define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
-
-#define UF2_ERASE_BLOCK_SIZE (4 * 1024)
-#define UF2_ERASE_BLOCKS (UF2_MAX_FW_SIZE / UF2_ERASE_BLOCK_SIZE)
-
 typedef struct {
     uint8_t JumpInstruction[3];
     uint8_t OEMInfo[8];
@@ -183,11 +172,26 @@ static_assert(ARRAY_SIZE(indexFile) < 512);
 
 
 #define NUM_FILES (ARRAY_SIZE(info))
-#define NUM_DIRENTRIES (NUM_FILES + 1) // Code adds volume label as first root directory entry
+#define NUM_DIRENTRIES (NUM_FILES + 1) /* Code adds volume label as first root directory entry */
 
 #ifndef BOOTLOADER_ADDRESS
 #define BOOTLOADER_ADDRESS FIRMWARE_ADDRESS
 #endif
+
+#define UF2_SIZE           (current_flash_size() * 2 + 512 * REBOOT_BLOCK)
+#define UF2_SECTORS        (UF2_SIZE / 512)
+#define UF2_FIRST_SECTOR   (NUM_FILES + 1) /* WARNING -- code presumes each non-UF2 file content fits in single sector */
+#define UF2_LAST_SECTOR    (UF2_FIRST_SECTOR + UF2_SECTORS - 1)
+
+#define RESERVED_SECTORS   1
+#define ROOT_DIR_SECTORS   4
+#define SECTORS_PER_FAT    ((NUM_FAT_BLOCKS * 2 + 511) / 512) /* 256 sectors per FAT */
+
+#define START_FAT0         RESERVED_SECTORS
+#define START_FAT1         (START_FAT0 + SECTORS_PER_FAT)        /* 1 + 256 */
+#define START_ROOTDIR      (START_FAT1 + SECTORS_PER_FAT)        /* 1 + 256 + 256 */
+#define START_CLUSTERS     (START_ROOTDIR + ROOT_DIR_SECTORS)    /* 1 + 256 + 256 + 4 */
+#define DATA_SECTORS       (NUM_FAT_BLOCKS - 2 - START_CLUSTERS) /* 65535 - 2 - (1 + 256 + 256 + 4) = 65016 */
 
 #if BOOTLOADER_ADDRESS == FIRMWARE_ADDRESS
 #define REBOOT_BLOCK 0
@@ -195,19 +199,16 @@ static_assert(ARRAY_SIZE(indexFile) < 512);
 #define REBOOT_BLOCK 1
 #endif
 
-#define UF2_SIZE           (current_flash_size() * 2 + 512 * REBOOT_BLOCK)
-#define UF2_SECTORS        (UF2_SIZE / 512)
-#define UF2_FIRST_SECTOR   (NUM_FILES + 1) // WARNING -- code presumes each non-UF2 file content fits in single sector
-#define UF2_LAST_SECTOR    (UF2_FIRST_SECTOR + UF2_SECTORS - 1)
+#define UF2_MAX_FW_SIZE (512 * (DATA_SECTORS / 2 - REBOOT_BLOCK) / 2) /* 8126 kB */
 
-#define RESERVED_SECTORS   1
-#define ROOT_DIR_SECTORS   4
-#define SECTORS_PER_FAT    ((NUM_FAT_BLOCKS * 2 + 511) / 512)
+#if defined(FLASHSIZE)
+static_assert(FLASHSIZE > UF2_MAX_FW_SIZE, "FLASHSIZE is smaller than UF2_MAX_FW_SIZE");
+#endif
 
-#define START_FAT0         RESERVED_SECTORS
-#define START_FAT1         (START_FAT0 + SECTORS_PER_FAT)
-#define START_ROOTDIR      (START_FAT1 + SECTORS_PER_FAT)
-#define START_CLUSTERS     (START_ROOTDIR + ROOT_DIR_SECTORS)
+#define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
+
+#define UF2_ERASE_BLOCK_SIZE (4 * 1024)
+#define UF2_ERASE_BLOCKS (UF2_MAX_FW_SIZE / UF2_ERASE_BLOCK_SIZE)
 
 // all directory entries must fit in a single sector
 // because otherwise current code overflows buffer
