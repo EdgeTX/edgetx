@@ -6,7 +6,7 @@ set -e
 ## Can run as normal user (with sudo) or as root user
 
 # Configuration constants
-QT_VERSION="6.9.0"
+QT_VERSION="6.9.3"
 ARM_TOOLCHAIN_VERSION="14.2.rel1"
 QT_INSTALL_DIR="/opt/qt"
 
@@ -155,7 +155,6 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Fetching GNU Arm Embedded Toolchains ==="
-# EdgeTX uses GNU Arm Embedded Toolchain version ${ARM_TOOLCHAIN_VERSION}
 wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_TOOLCHAIN_VERSION}-${ARM_TOOLCHAIN_ARCH}-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	echo "Step finished. Please press Enter to continue or Ctrl+C to stop."

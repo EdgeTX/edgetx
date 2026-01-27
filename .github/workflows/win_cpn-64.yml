@@ -6,7 +6,7 @@ on:
       - 'main'
       - '[0-9]+.[0-9]+'
     tags:
-      - v*  
+      - v*
     paths: &trigger-paths
       - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
@@ -24,7 +24,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   CMAKE_BUILD_TYPE: "Release"
   CMAKE_GENERATOR: "Ninja"
-  QT_VERSION: "6.9.0"
+  QT_VERSION: "6.9.3"
   QT_ARCH: "win64_msvc2022_64"
   SDL_VERSION: "2.32.8"
   CXX: "clang++"
@@ -86,7 +86,7 @@ jobs:
         run: |
           # Create logs directory if it doesn't exist
           mkdir -p logs
-          
+
           # Copy all build logs from the build directory
           if [ -d "build" ]; then
             find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true

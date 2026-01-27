@@ -6,7 +6,7 @@ set -e
 ## Can run as normal user (with sudo) or as root user
 
 # Configuration constants
-QT_VERSION="6.9.0"
+QT_VERSION="6.9.3"
 ARM_TOOLCHAIN_VERSION="14.2.rel1"
 QT_INSTALL_DIR="/opt/qt"
 
