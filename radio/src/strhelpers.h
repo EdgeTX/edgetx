@@ -106,6 +106,7 @@ void formatNumberAsString(char *buffer, const uint8_t buffer_size, int32_t val,
 
 #if !defined(BOOT)
 char *getStringAtIndex(char *dest, const char *const *s, int idx);
+std::string getStringAtIndex(const char *const *s, int idx);
 char *strAppendStringWithIndex(char *dest, const char *s, int idx);
 #define LEN_TIMER_STRING 10  // "-00:00:00"
 char *getTimerString(char *dest, int32_t tme,
