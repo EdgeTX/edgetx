@@ -204,38 +204,6 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 	read
 fi
 
-echo "=== Step $((STEP++)): Fetching USB DFU host utility ==="
-wget -q --show-progress --progress=bar:force:noscroll http://dfu-util.sourceforge.net/releases/dfu-util-0.11.tar.gz
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-	echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
-	read
-fi
-
-echo "=== Step $((STEP++)): Unpacking USB DFU host utility ==="
-pv dfu-util-0.11.tar.gz | tar xzf -
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-	echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
-	read
-fi
-
-echo "=== Step $((STEP++)): Building and Installing USB DFU host utility ==="
-cd dfu-util-0.11/
-./configure
-make
-$SUDO_CMD make install
-cd ..
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-	echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
-	read
-fi
-
-echo "=== Step $((STEP++)): Removing the downloaded archive and build folder of USB DFU host utility ==="
-rm dfu-util-0.11.tar.gz
-rm -rf dfu-util-0.11
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-	echo "Step finished."
-fi
-
 echo "Finished setting up EdgeTX development environment."
 echo "Qt has been installed to: ${QT_INSTALL_DIR}"
 if [[ $IS_ROOT == false ]]; then
