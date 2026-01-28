@@ -235,7 +235,7 @@ class ModuleData {
     static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
     static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & generalSettings);
     static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
-    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int protocol);
+    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int protocol, int moduleIdx = -1, int board = 0);
     static bool isAvailable(PulsesProtocol proto, int port = 0);  //  moved from OpenTxFirmware EdgeTX v2.9 - TODO remove and use isProtocolAvailable
 
     QString afhds2aMode1ToString() const;

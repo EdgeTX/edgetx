@@ -859,3 +859,8 @@ inline bool IS_STM32H7(Board::Type board)
          IS_JUMPER_T15PRO(board) ||
          IS_RADIOMASTER_TX15(board);
 }
+
+inline bool IS_STM32F2F4(Board::Type board)
+{
+  return (!IS_STM32H5(board) && !IS_STM32H7(board));
+}

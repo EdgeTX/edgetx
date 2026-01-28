@@ -352,7 +352,7 @@ void ModulePanel::update()
       case PULSES_CROSSFIRE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
         module.channelsCount = 16;
-        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
+        ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol, moduleIdx, board));
         ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
         ui->crsfArmingMode->setCurrentIndex(module.crsf.crsfArmingMode);
         if (module.crsf.crsfArmingMode == ModuleData::CRSF_ARMING_MODE_SWITCH) {
@@ -428,10 +428,13 @@ void ModulePanel::update()
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
   }
 
-  if (isExternalModule(moduleIdx))
+  if (isExternalModule(moduleIdx)) {
+    ui->label_baudrate->setVisible(mask & MASK_BAUDRATE);
     ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
-  else
+  } else {
+    ui->label_baudrate->setVisible(false);
     ui->telemetryBaudrate->setVisible(false);
+  }
 
   ui->label_protocol->setVisible(mask & MASK_PROTOCOL);
   ui->protocol->setVisible(mask & MASK_PROTOCOL);
