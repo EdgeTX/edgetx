@@ -1232,6 +1232,10 @@
 #define TR_MENU_TRIMS            CHAR_TRIM "Trims"
 #define TR_MENU_SWITCHES        CHAR_SWITCH "Interruptores"
 #define TR_MENU_LOGICAL_SWITCHES TR( CHAR_SWITCH "Interr. lógicos",  CHAR_SWITCH "Interruptores lógicos")
+#define TR_MENU_VIRTUAL_SWITCHES       CHAR_SWITCH "Virt. switches"
+#define TR_MENU_VCONTROL               "Virtuals"
+#define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #define TR_MENU_TRAINER         CHAR_TRAINER "Entrenador"
 #define TR_MENU_CHANNELS        CHAR_CHANNEL "Canales"
 #define TR_MENU_GVARS           CHAR_SLIDER "GVars"
