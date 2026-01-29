@@ -121,6 +121,8 @@ class Layout: public WidgetsContainer
 
   void removeWidget(unsigned int index) override;
 
+  bool hasFullScreenWidget() const;
+
  protected:
   const LayoutFactory* factory = nullptr;
   ViewMainDecoration* decoration = nullptr;
@@ -134,7 +136,7 @@ class Layout: public WidgetsContainer
   uint32_t lastRefresh = 0;
 
   // Get the available space for widgets
-  rect_t getMainZone() const;
+  rect_t getWidgetsZone() const;
 
   unsigned int getZonesCount() const override { return zoneCount; }
   rect_t getZone(unsigned int index) const override;

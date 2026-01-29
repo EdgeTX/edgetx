@@ -108,17 +108,22 @@ static bool canTrimShow(int idx)
   return false;
 }
 
-rect_t ViewMainDecoration::getMainZone() const
+rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
 {
-  coord_t x = 0, w = width(), h = height();
+  coord_t x = 0, y = 0, w = width(), h = height();
   coord_t bh = 0;
+
+  if (showTopBar) {
+    y = EdgeTxStyles::MENU_HEADER_HEIGHT;
+    bh = EdgeTxStyles::MENU_HEADER_HEIGHT;
+  }
 
   if (showSliders) {
     if (hasVerticalSliders) {
       x += MainViewSlider::SLIDER_BAR_SIZE;
       w -= 2 * MainViewSlider::SLIDER_BAR_SIZE;
     }
-    bh = MainViewSlider::SLIDER_BAR_SIZE;
+    bh += MainViewSlider::SLIDER_BAR_SIZE;
   }
 
   if (showTrims) {
@@ -139,9 +144,16 @@ rect_t ViewMainDecoration::getMainZone() const
       bh -= MainViewSlider::SLIDER_BAR_SIZE;
   }
 
+  if (showSliders || showTrims || showFM) {
+    x += PAD_LARGE;
+    y += PAD_LARGE;
+    w -= PAD_LARGE * 2;
+    bh += PAD_LARGE * 2;
+  }
+
   h -= bh;
 
-  return rect_t{x, 0, w, h};
+  return rect_t{x, y, w, h};
 }
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)

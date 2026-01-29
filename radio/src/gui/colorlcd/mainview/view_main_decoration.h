@@ -37,7 +37,7 @@ class ViewMainDecoration : public Window
 
   // Get the available space in the middle of the screen
   // (without decoration)
-  rect_t getMainZone() const;
+  rect_t getWidgetsZone(bool  showTopBar) const;
 
  protected:
   enum {

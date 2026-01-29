@@ -57,7 +57,7 @@ class Layout6x1 : public Layout
 
   void setPanel()
   {
-    rect_t zone = Layout::getMainZone();
+    rect_t zone = Layout::getWidgetsZone();
     if (mainZone.x != zone.x || mainZone.y != zone.y || mainZone.w != zone.w ||
         mainZone.h != zone.h) {
       mainZone = zone;

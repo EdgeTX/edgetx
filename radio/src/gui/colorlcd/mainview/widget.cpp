@@ -212,8 +212,8 @@ void Widget::setFullscreen(bool enable)
   fullscreen = enable;
 
   // Show or hide ViewMain widgets and decorations
-  Messaging::send(Messaging::DECORATION_UPDATE);
   ViewMain::instance()->show(!enable);
+  Messaging::send(Messaging::DECORATION_UPDATE);
 
   // Leave Fullscreen Mode
   if (!enable) {
