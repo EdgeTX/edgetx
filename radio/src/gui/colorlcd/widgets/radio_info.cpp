@@ -104,6 +104,8 @@ class RadioInfoWidget : public Widget
 
   void update() override
   {
+    if (_deleted) return;
+
     auto widgetData = getPersistentData();
 
     // get colors from options
@@ -114,6 +116,8 @@ class RadioInfoWidget : public Widget
 
   void foreground() override
   {
+    if (_deleted) return;
+
     usbIcon->show(usbPlugged());
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE)
       usbIcon->setColor(COLOR_THEME_PRIMARY3_INDEX);
@@ -243,11 +247,15 @@ class DateTimeWidget : public Widget
 
   void foreground() override
   {
+    if (_deleted) return;
+
     Widget::checkEvents();
   }
 
   void update() override
   {
+    if (_deleted) return;
+
     auto widgetData = getPersistentData();
 
     // get color from options
@@ -295,6 +303,8 @@ class InternalGPSWidget : public Widget
 
   void foreground() override
   {
+    if (_deleted) return;
+
     bool hasGPS = serialGetModePort(UART_MODE_GPS) >= 0;
 
     numSats->show(hasGPS && (gpsData.numSat > 0));
