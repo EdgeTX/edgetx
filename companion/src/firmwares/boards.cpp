@@ -305,65 +305,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
   // TODO investigate usage of any that should be covered in BoardJson::getCapability or are no longer required
   //      some could be used when importing pre v2.10 configurations
   switch (capability) {
-    case Air:
-      return !getCapability(board, Surface);
-
-    case FactoryInstalledPots:
-      if (IS_TARANIS_X9(board))
-        return 2;
-      else
-        return getCapability(board, Pots);
-
-    case FactoryInstalledSwitches:
-      if (IS_TARANIS_X9E(board))
-        return 8;
-      else if (IS_JUMPER_TPROV2(board))
-        return 6;
-      else if (IS_JUMPER_TLITE(board) || IS_JUMPER_TPROV1(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board) || IS_JUMPER_BUMBLEBEE(board))
-        return 4;
-      else if(IS_RADIOMASTER_ZORRO(board))
-        return 8;
-      else if (IS_RADIOMASTER_POCKET(board))
-        return 5;
-      else if (IS_FAMILY_T12(board))
-        return 6;
-      else if (IS_HORUS_X12S(board))
-        return 8;
-      else
-        return getCapability(board, Board::Switches);
-
-    case FunctionSwitchGroups:
-      if (getCapability(board, FunctionSwitches)) {
-        return IS_RADIOMASTER_GX12(board) ? CPN_MAX_CUSTOMSWITCH_GROUPS : 3;
-      }
-      return 0;
-
-    case HasAudioMuteGPIO:
-      // All color lcd (including NV14 and EL18) except Horus X12S
-      // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
-
-    case HasBacklightColor:
-      return IS_TARANIS_PLUS(board) || IS_TARANIS_X9DP_2019(board);
-
-    case HasColorLcd:
-      return IS_FAMILY_HORUS_OR_T16(board);
-
-    case HasExternalModuleSupport:
-      return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
-
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
-
-    case HasInternalModuleSupport:
-      return (IS_STM32(board) && !IS_TARANIS_X9(board));
-
-    case HasLedStripGPIO:
-      return (IS_RADIOMASTER_MT12(board) || IS_FAMILY_PL18(board) ||
-              IS_HELLORADIOSKY_V16(board));
-
-    case HasSDCard:
-      return true;
 
     case HasTrainerModuleCPPM:
       return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
@@ -375,61 +318,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) || IS_JUMPER_T20(board) ||
               IS_JUMPER_BUMBLEBEE(board)) || IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
-
-    case LcdOLED:
-      return IS_BETAFPV_LR3PRO(board) || IS_JUMPER_TPROV2(board) || IS_JUMPER_TPROS(board) || IS_JUMPER_T20(board) ||
-             IS_JUMPER_T14(board) || IS_JUMPER_BUMBLEBEE(board) || IS_RADIOMASTER_GX12(board);
-
-    case LcdDepth:
-      if (IS_FAMILY_HORUS_OR_T16(board))
-        return 16;
-      else if (IS_TARANIS_SMALL(board))
-        return 1;
-      else if (IS_TARANIS(board))
-        return 4;
-      else
-        return 1;
-
-    case LcdHeight:
-      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_RADIOMASTER_TX16SMK3(board))
-        return 480;
-      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board))
-        return 320;
-      else if (IS_FLYSKY_PA01(board))
-        return 240;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
-        return 272;
-      else
-        return 64;
-
-    case LcdWidth:
-      if (IS_RADIOMASTER_TX16SMK3(board))
-        return 800;
-      else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board))
-        return 320;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
-        return 480;
-      else if (IS_TARANIS(board) && !IS_TARANIS_SMALL(board))
-        return 212;
-      else
-        return 128;
-
-    case MaxAnalogs:
-      return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
-             getCapability(board, Board::JoystickAxes) + getCapability(board, Board::GyroAxes);
-
-    case SportMaxBaudRate:
-      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
-         (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
-        return 400000;  //  400K and higher
-      else
-        return 250000;  //  less than 400K
-
-    case Surface:
-      return IS_RADIOMASTER_MT12(board);
-
-    case FunctionSwitchColors:
-      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_PA01(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);
