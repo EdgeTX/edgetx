@@ -99,7 +99,7 @@ class ChannelValue : public Window
 
   void refresh()
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     int16_t value = channelOutputs[channel];
 

@@ -337,6 +337,10 @@ void Layout::show(bool visible)
 
 rect_t Layout::getMainZone() const
 {
+  for (int i = 0; i < zoneCount; i += 1)
+    if (widgets[i] && widgets[i]->isFullscreen())
+      return {0, 0, LCD_W, LCD_H};
+
   rect_t zone = decoration->getMainZone();
   if (hasSliders() || hasTrims() || hasFlightMode()) {
     // some decoration activated
@@ -349,6 +353,7 @@ rect_t Layout::getMainZone() const
     zone.y += EdgeTxStyles::MENU_HEADER_HEIGHT;
     zone.h -= EdgeTxStyles::MENU_HEADER_HEIGHT;
   }
+
   return zone;
 }
 

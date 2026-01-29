@@ -55,7 +55,7 @@ class ModelBitmapWidget : public Widget
 
   void foreground() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     if (getHash() != deps_hash) {
       update();
@@ -68,7 +68,7 @@ class ModelBitmapWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
