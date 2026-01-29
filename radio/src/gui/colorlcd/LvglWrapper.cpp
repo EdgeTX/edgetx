@@ -380,3 +380,8 @@ void LvglWrapper::run()
     }
   }
 }
+
+void initLvgl()
+{
+  LvglWrapper::instance();
+}

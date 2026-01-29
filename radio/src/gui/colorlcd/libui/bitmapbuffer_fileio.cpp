@@ -97,6 +97,8 @@ const stbi_io_callbacks stbCallbacks = {stbc_read, stbc_skip, stbc_eof};
 
 BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 {
+  if ((filename == nullptr) || (filename[0] == 0)) return nullptr;
+
   FRESULT result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
     return nullptr;

@@ -27,15 +27,43 @@
 #include "quick_menu_group.h"
 #include "quick_menu_def.h"
 
-std::string replaceAll(std::string str, const std::string& from, const std::string& to);
+//-----------------------------------------------------------------------------
 
-class PageGroup;
 class PageGroupBase;
-class ButtonBase;
 struct PageDef;
 #if VERSION_MAJOR > 2
 class QuickSubMenu;
 #endif
+
+//-----------------------------------------------------------------------------
+
+enum QMMainDefAction {
+  QM_SUBMENU,
+  QM_ACTION
+};
+
+struct QMMainDef {
+  EdgeTxIcon icon;
+  STR_TYP qmTitle;
+  STR_TYP title;
+  QMMainDefAction pageAction;
+  QMPage qmPage;
+  const PageDef* subMenuItems;
+  std::function<void()> action;
+  std::function<bool()> enabled;
+
+  bool isSubMenu(QMPage page) const;
+  bool isSubMenu(QMPage page, EdgeTxIcon curIcon) const;
+  int getIndex(QMPage page) const;
+};
+
+extern const QMMainDef qmTopItems[];
+
+//-----------------------------------------------------------------------------
+
+std::string replaceAll(std::string str, const std::string& from, const std::string& to);
+
+//-----------------------------------------------------------------------------
 
 #define GRP_W(n) ((QuickMenuGroup::QM_BUTTON_WIDTH + PAD_MEDIUM) * n - PAD_MEDIUM + PAD_OUTLINE * 2)
 #if LANDSCAPE
@@ -62,16 +90,17 @@ class QuickMenu : public NavWindow
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
 
-  static QuickMenu* openQuickMenu(std::function<void(bool close)> selectHandler = nullptr,
-            PageGroupBase* pageGroup = nullptr, QMPage curPage = QM_NONE);
-  static void closeQuickMenu();
-  static bool isOpen();
+  static void openQuickMenu();
 
   static void shutdownQuickMenu();
   static void openPage(QMPage page);
   static EdgeTxIcon subMenuIcon(QMPage page);
   static int pageIndex(QMPage page);
   static std::vector<std::string> menuPageNames(bool forFavorites);
+
+#if VERSION_MAJOR > 2
+  static void resetFavorites();
+#endif
 
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event);
@@ -119,18 +148,16 @@ class QuickMenu : public NavWindow
 
  protected:
   static QuickMenu* instance;
-  std::function<void(bool close)> selectHandler = nullptr;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
 #if VERSION_MAJOR > 2
   std::vector<QuickSubMenu*> subMenus;
 #endif
   PageGroupBase* pageGroup = nullptr;
-  static QMPage curPage;
-  static EdgeTxIcon curIcon;
+  QMPage curPage = QM_NONE;
+  EdgeTxIcon curIcon = EDGETX_ICONS_COUNT;
 
-  void openQM(std::function<void(bool close)> selectHandler,
-              PageGroupBase* pageGroup, QMPage curPage);
+  void openQM(PageGroupBase* pageGroup, QMPage curPage);
   void closeQM();
 
   void focusMainMenu();
@@ -140,6 +167,9 @@ class QuickMenu : public NavWindow
   static void selected();
 
 #if VERSION_MAJOR > 2
-  static void setupFavorite(QMPage page, int f);
+  void updateFavorites();
+  void setupFavorite(QMPage page, int f);
 #endif
 };
+
+//-----------------------------------------------------------------------------

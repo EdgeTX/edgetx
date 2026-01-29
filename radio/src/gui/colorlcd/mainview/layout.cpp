@@ -307,36 +307,29 @@ Layout::Layout(Window* parent, const LayoutFactory* factory,
                uint8_t* zoneMap) :
     WidgetsContainer(parent, {0, 0, LCD_W, LCD_H}, zoneCount),
     factory(factory),
-    decoration(new ViewMainDecoration(this)),
     zoneMap(zoneMap), screenNum(screenNum)
 {
+  decoration = new ViewMainDecoration(this);
   setWindowFlag(NO_FOCUS);
-  show(true);
+  decorationUpdateMsg.subscribe(Messaging::DECORATION_UPDATE, [=](uint32_t param) { updateDecorations(); });
+  updateDecorations();
+  zoneUpdateRequired = false;
 }
 
-void Layout::setTrimsVisible(bool visible)
+void Layout::updateDecorations()
 {
-  decoration->setTrimsVisible(visible);
-}
-
-void Layout::setSlidersVisible(bool visible)
-{
-  decoration->setSlidersVisible(visible);
-}
-
-void Layout::setFlightModeVisible(bool visible)
-{
-  decoration->setFlightModeVisible(visible);
+  // Set visible decoration
+  decoration->setSlidersVisible(hasSliders());
+  decoration->setTrimsVisible(hasTrims());
+  decoration->setFlightModeVisible(hasFlightMode());
+  zoneUpdateRequired = true;
 }
 
 void Layout::show(bool visible)
 {
-  // Set visible decoration
-  setSlidersVisible(visible && hasSliders());
-  setTrimsVisible(visible && hasTrims());
-  setFlightModeVisible(visible && hasFlightMode());
-
-  if (visible) {
+  decoration->show(visible);
+  if (visible && zoneUpdateRequired) {
+    zoneUpdateRequired = false;
     // and update relevant windows
     updateZones();
   }
@@ -352,7 +345,11 @@ rect_t Layout::getMainZone() const
     zone.w -= 2 * PAD_LARGE;
     zone.h -= 2 * PAD_LARGE;
   }
-  return ViewMain::instance()->getMainZone(zone, hasTopbar());
+  if (hasTopbar()) {
+    zone.y += EdgeTxStyles::MENU_HEADER_HEIGHT;
+    zone.h -= EdgeTxStyles::MENU_HEADER_HEIGHT;
+  }
+  return zone;
 }
 
 rect_t Layout::getZone(unsigned int index) const

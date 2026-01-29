@@ -83,10 +83,6 @@ class ThemedCheckBox : public ToggleSwitch
     setFocusHandler([](bool focus) {});
   }
 
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override { return parent->onEvent(event); }
-#endif
-
  protected:
   bool checked;
 };
@@ -103,10 +99,6 @@ class ThemedButton : public TextButton
     setWindowFlag(NO_FOCUS | NO_CLICK);
     setPressHandler([=]() { return isChecked; });
   }
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override { parent->onEvent(event); }
-#endif
 };
 
 class ThemedTextEdit : public TextEdit
@@ -119,10 +111,6 @@ class ThemedTextEdit : public TextEdit
     strcpy(editText, text);
     preview(edited, editText, strlen(editText));
   }
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override { parent->onEvent(event); }
-#endif
 
  protected:
   char editText[50];

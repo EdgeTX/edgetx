@@ -48,6 +48,36 @@ static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(21),
                                          LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
+class DateNumberEdit : public NumberEdit
+{
+ public:
+  DateNumberEdit(Window* parent, coord_t x, coord_t y, int vmin, int vmax, bool leading0,
+                  std::function<int()> getValue,
+                  std::function<void(int)> setValue) :
+      NumberEdit(parent, {x, y, DT_EDT_W, 0}, vmin, vmax,
+                  getValue,
+                  [=](int32_t newValue) {
+                    setValue(newValue);
+                    SET_DIRTY();
+                  })
+  {
+    lastValue = this->getValue();
+    if (leading0)
+      setDisplayHandler([](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
+}
+
+  static LAYOUT_ORIENTATION(DT_EDT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(52))
+
+ protected:
+  int32_t lastValue;
+
+  void checkEvents() override
+  {
+    if (lastValue != getValue())
+      update();
+  }
+};
+
 class DateTimeWindow : public Window
 {
  public:
@@ -62,42 +92,19 @@ class DateTimeWindow : public Window
   {
     Window::checkEvents();
 
-    if (seconds && (get_tmr10ms() - lastRefresh >= 10)) {
+    if (get_tmr10ms() - lastRefresh >= 10) {
       lastRefresh = get_tmr10ms();
-
       gettime(&m_tm);
-      if (m_tm.tm_year != m_last_tm.tm_year)
-        year->update();
-      if (m_tm.tm_mon != m_last_tm.tm_mon)
-        month->update();
-      if (m_tm.tm_mday != m_last_tm.tm_mday)
-        day->update();
-      if (m_tm.tm_hour != m_last_tm.tm_hour)
-        hour->update();
-      if (m_tm.tm_min != m_last_tm.tm_min)
-        minutes->update();
-      if (m_tm.tm_sec != m_last_tm.tm_sec)
-        seconds->update();
-      m_last_tm = m_tm;
     }
   }
 
-  // Absolute layout for date/time setion due to slow performance
-  // of lv_textarea in a flex layout.
-  static LAYOUT_ORIENTATION(DT_EDT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(52))
   static constexpr coord_t DT_Y2 = PAD_TINY + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM;
 
  protected:
   bool init = false;
   struct gtm m_tm;
-  struct gtm m_last_tm;
   tmr10ms_t lastRefresh = 0;
-  NumberEdit* year = nullptr;
-  NumberEdit* month = nullptr;
   NumberEdit* day = nullptr;
-  NumberEdit* hour = nullptr;
-  NumberEdit* minutes = nullptr;
-  NumberEdit* seconds = nullptr;
 
   int8_t daysInMonth()
   {
@@ -127,71 +134,54 @@ class DateTimeWindow : public Window
   void build()
   {
     gettime(&m_tm);
-    m_last_tm = m_tm;
 
     // Date
     new StaticText(this, rect_t{PAD_TINY, PAD_TINY + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_DATE);
-    year = new NumberEdit(
-        this, rect_t{SubPage::EDT_X, PAD_TINY, DT_EDT_W, 0}, 2023, 2037,
+    new DateNumberEdit(this, SubPage::EDT_X, PAD_TINY, 2023, 2037, false,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
         [=](int32_t newValue) {
-          m_last_tm.tm_year = m_tm.tm_year = newValue - TM_YEAR_BASE;
+          m_tm.tm_year = newValue - TM_YEAR_BASE;
           setDaysInMonth();
           SET_LOAD_DATETIME(&m_tm);
         });
 
-    month = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, PAD_TINY, DT_EDT_W, 0}, 1, 12,
+    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W + PAD_TINY, PAD_TINY, 1, 12, false,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
-          m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
+          m_tm.tm_mon = newValue - 1;
           setDaysInMonth();
           SET_LOAD_DATETIME(&m_tm);
         });
-    month->setDisplayHandler(
-        [](int32_t value) { return formatNumberAsString(value, LEADING0); });
 
-    day = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, PAD_TINY, DT_EDT_W, 0}, 1,
-        daysInMonth(), [=]() -> int32_t { return m_tm.tm_mday; },
+    day = new DateNumberEdit(this, SubPage::EDT_X + 2 * DateNumberEdit::DT_EDT_W + PAD_SMALL, PAD_TINY, 1, daysInMonth(), true,
+        [=]() -> int32_t { return m_tm.tm_mday; },
         [=](int32_t newValue) {
-          m_last_tm.tm_mday = m_tm.tm_mday = newValue;
+          m_tm.tm_mday = newValue;
           SET_LOAD_DATETIME(&m_tm);
         });
-    day->setDisplayHandler(
-        [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     // Time
     new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_TIME);
-    hour = new NumberEdit(
-        this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, 0}, 0, 23,
+    new DateNumberEdit(this, SubPage::EDT_X, DT_Y2, 0, 23, true,
         [=]() -> int32_t { return m_tm.tm_hour; },
         [=](int32_t newValue) {
-          m_last_tm.tm_hour = m_tm.tm_hour = newValue;
+          m_tm.tm_hour = newValue;
           SET_LOAD_DATETIME(&m_tm);
         });
-    hour->setDisplayHandler(
-        [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
-    minutes = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, 0}, 0, 59,
+    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W + PAD_TINY, DT_Y2, 0, 59, true,
         [=]() -> int32_t { return m_tm.tm_min; },
         [=](int32_t newValue) {
-          m_last_tm.tm_min = m_tm.tm_min = newValue;
+          m_tm.tm_min = newValue;
           SET_LOAD_DATETIME(&m_tm);
         });
-    minutes->setDisplayHandler(
-        [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
-    seconds = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W * 2 + PAD_SMALL, DT_Y2, DT_EDT_W, 0}, 0, 59,
+    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W * 2 + PAD_SMALL, DT_Y2, 0, 59, true,
         [=]() -> int32_t { return m_tm.tm_sec; },
         [=](int32_t newValue) {
-          m_last_tm.tm_sec = m_tm.tm_sec = newValue;
+          m_tm.tm_sec = newValue;
           SET_LOAD_DATETIME(&m_tm);
         });
-    seconds->setDisplayHandler(
-        [](int value) { return formatNumberAsString(value, LEADING0, 2); });
   }
 };
 
@@ -201,6 +191,7 @@ class ControlTextOverride : public StaticText
   ControlTextOverride(Window* parent, coord_t x, coord_t y, FunctionsActive func) :
         StaticText(parent, {x + XO, y + PAD_MEDIUM, 0, 0}, STR_SF_OVERRIDDEN, COLOR_THEME_WARNING_INDEX, FONT_SZ), func(func)
   {
+    hide();
   }
 
   void checkEvents() override
@@ -216,7 +207,7 @@ class ControlTextOverride : public StaticText
 };
 
 #if defined(AUDIO)
-static SetupLineDef soundPageSetupLines[] = {
+const static SetupLineDef soundPageSetupLines[] = {
   {
     // Beeps mode
     STR_DEF(STR_MODE),
@@ -302,11 +293,12 @@ static SetupLineDef soundPageSetupLines[] = {
     }
   },
 #endif
+  {nullptr, nullptr},
 };
 #endif
 
 #if defined(VARIO)
-static SetupLineDef varioPageSetupLines[] = {
+const static SetupLineDef varioPageSetupLines[] = {
   {
     // Vario volume
     STR_DEF(STR_VOLUME),
@@ -354,11 +346,12 @@ static SetupLineDef varioPageSetupLines[] = {
       edit->setSuffix("ms");
     }
   },
+  {nullptr, nullptr},
 };
 #endif
 
 #if defined(HAPTIC)
-static SetupLineDef hapticPageSetupLines[] = {
+const static SetupLineDef hapticPageSetupLines[] = {
   {
     // Haptic mode
     STR_DEF(STR_MODE),
@@ -383,10 +376,11 @@ static SetupLineDef hapticPageSetupLines[] = {
                   GET_SET_DEFAULT(g_eeGeneral.hapticStrength)))->setPos(x, y);
     }
   },
+  {nullptr, nullptr},
 };
 #endif
 
-static SetupLineDef alarmsPageSetupLines[] = {
+const static SetupLineDef alarmsPageSetupLines[] = {
   {
     // Battery warning
     STR_DEF(STR_BATTERYWARNING),
@@ -451,124 +445,133 @@ static SetupLineDef alarmsPageSetupLines[] = {
                        GET_SET_INVERTED(g_eeGeneral.disableTrainerPoweroffAlarm));
     }
   },
+  {nullptr, nullptr},
 };
 
-class BacklightPage : public SubPage
+class BacklightSlider : public Slider
 {
  public:
-  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, true)
+  BacklightSlider(Window* parent, coord_t x, coord_t y,
+                  std::function<int()> getValue,
+                  std::function<void(int)> setValue) :
+          Slider(parent, LV_PCT(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+                 getValue, setValue)
   {
-    body->setFlexLayout();
-
-    // Backlight mode
-    setupLine(STR_MODE, [=](Window* parent, coord_t x, coord_t y) {
-          auto blMode = new Choice(
-              parent, {x, y, 0, 0}, STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on,
-              GET_DEFAULT(g_eeGeneral.backlightMode), [=](int32_t newValue) {
-                g_eeGeneral.backlightMode = newValue;
-                updateBacklightControls();
-                SET_DIRTY();
-              });
-
-          blMode->setAvailableHandler(
-              [=](int newValue) { return newValue != e_backlight_mode_off; });
-        });
-
-    // Delay
-    backlightTimeout = setupLine(STR_BACKLIGHT_TIMER, [=](Window* parent, coord_t x, coord_t y) {
-          auto edit =
-              new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 5, 600,
-                            GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
-                            SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
-          edit->setStep(5);
-          edit->setSuffix("s");
-        });
-
-    // Backlight ON bright
-    setupLine(STR_BLONBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
-          backlightOnSlider = new Slider(
-              parent, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
-              [=]() -> int32_t {
-                return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-              },
-              [=](int32_t newValue) {
-                if (newValue >= g_eeGeneral.blOffBright ||
-                    g_eeGeneral.backlightMode == e_backlight_mode_on) {
-                  g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
-                } else {
-                  g_eeGeneral.backlightBright =
-                      BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
-                  backlightOnSlider->update();
-                }
-                SET_DIRTY();
-              });
-          backlightOnSlider->setPos(x, y);
-        });
-
-    // Backlight OFF bright
-    setupLine(STR_BLOFFBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
-          backlightOffSlider = new Slider(
-              parent, lv_pct(50), BACKLIGHT_LEVEL_MIN,
-              BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
-              [=](int32_t newValue) {
-                int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-                if (newValue <= onBright ||
-                    g_eeGeneral.backlightMode == e_backlight_mode_off) {
-                  g_eeGeneral.blOffBright = newValue;
-                } else {
-                  g_eeGeneral.blOffBright = onBright;
-                  backlightOffSlider->update();
-                }
-                SET_DIRTY();
-              });
-          backlightOffSlider->setPos(x, y);
-        });
-
-#if defined(KEYS_BACKLIGHT_GPIO)
-    // Keys backlight
-    setupLine(STR_KEYS_BACKLIGHT, [=](Window* parent, coord_t x, coord_t y) {
-          new ToggleSwitch(parent, {x, y, 0, 0},
-                          GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
-        });
-#endif
-
-    // Backlight/Brightness source
-    setupLine(STR_CONTROL, [=](Window* parent, coord_t x, coord_t y) {
-          auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-                  GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
-          choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
-          new ControlTextOverride(parent, x, y, FUNCTION_BACKLIGHT);
-        });
-
-    // Flash beep
-    setupLine(STR_ALARM, [=](Window* parent, coord_t x, coord_t y) {
-          new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
-        });
-
-    updateBacklightControls();
-
-    enableRefresh();
+    setPos(x, y);
+    updateMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) { update(); });
   }
 
  protected:
-  Window* backlightTimeout = nullptr;
-  Slider* backlightOffSlider = nullptr;
-  Slider* backlightOnSlider = nullptr;
-
-  void updateBacklightControls()
-  {
-    int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-    if (onBright < g_eeGeneral.blOffBright)
-      g_eeGeneral.backlightBright =
-          BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
-
-    backlightTimeout->show(g_eeGeneral.backlightMode != e_backlight_mode_on);
-
-    resetBacklightTimeout();
-  }
+  Messaging updateMsg;
 };
 
-static SetupLineDef gpsPageSetupLines[] = {
+const static SetupLineDef backlightSetupLines[] = {
+  {
+    // Backlight mode
+    STR_DEF(STR_MODE),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto blMode = new Choice(
+          parent, {x, y, 0, 0}, STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on,
+          GET_DEFAULT(g_eeGeneral.backlightMode), [=](int32_t newValue) {
+            g_eeGeneral.backlightMode = newValue;
+            Messaging::send(Messaging::REFRESH);
+            SET_DIRTY();
+          });
+
+      blMode->setAvailableHandler(
+          [=](int newValue) { return newValue != e_backlight_mode_off; });
+    }
+  },
+  {
+    // Delay
+    STR_DEF(STR_BACKLIGHT_TIMER),
+    [](SetupLine* parent, coord_t x, coord_t y) {
+      parent->setupMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) {
+        parent->show(g_eeGeneral.backlightMode != e_backlight_mode_on);
+        resetBacklightTimeout();
+      });
+      auto edit =
+          new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 5, 600,
+                        GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
+                        SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
+      edit->setStep(5);
+      edit->setSuffix("s");
+      parent->show(g_eeGeneral.backlightMode != e_backlight_mode_on);
+    }
+  },
+  {
+    // Backlight ON bright
+    STR_DEF(STR_BLONBRIGHTNESS),
+    [](Window* parent, coord_t x, coord_t y) {
+      new BacklightSlider(
+          parent, x, y,
+          [=]() -> int32_t {
+            return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+          },
+          [=](int32_t newValue) {
+            if (newValue >= g_eeGeneral.blOffBright ||
+                g_eeGeneral.backlightMode == e_backlight_mode_on) {
+              g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
+            } else {
+              g_eeGeneral.backlightBright =
+                  BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+              Messaging::send(Messaging::REFRESH);
+            }
+            SET_DIRTY();
+          });
+}
+  },
+  {
+    // Backlight OFF bright
+    STR_DEF(STR_BLOFFBRIGHTNESS),
+    [](Window* parent, coord_t x, coord_t y) {
+      new BacklightSlider(
+          parent, x, y,
+          GET_DEFAULT(g_eeGeneral.blOffBright),
+          [=](int32_t newValue) {
+            int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+            if (newValue <= onBright ||
+                g_eeGeneral.backlightMode == e_backlight_mode_off) {
+              g_eeGeneral.blOffBright = newValue;
+            } else {
+              g_eeGeneral.blOffBright = onBright;
+              Messaging::send(Messaging::REFRESH);
+            }
+            SET_DIRTY();
+          });
+}
+  },
+#if defined(KEYS_BACKLIGHT_GPIO)
+  {
+    // Keys backlight
+    STR_DEF(STR_KEYS_BACKLIGHT),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
+    }
+  },
+#endif
+  {
+    // Backlight/Brightness source
+    STR_DEF(STR_CONTROL),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
+              GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
+      choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
+      new ControlTextOverride(parent, x, y, FUNCTION_BACKLIGHT);
+    }
+  },
+  {
+    // Flash beep
+    STR_DEF(STR_ALARM),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
+    }
+  },
+  {nullptr, nullptr},
+};
+
+const static SetupLineDef gpsPageSetupLines[] = {
   {
     // Timezone
     STR_DEF(STR_TIMEZONE),
@@ -601,6 +604,7 @@ static SetupLineDef gpsPageSetupLines[] = {
                  GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
     }
   },
+  {nullptr, nullptr},
 };
 
 static void viewOption(Window* parent, coord_t x, coord_t y,
@@ -616,7 +620,7 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
   }
 }
 
-static SetupLineDef viewOptionsPageSetupLines[] = {
+const static SetupLineDef viewOptionsPageSetupLines[] = {
   {
     STR_DEF(STR_RADIO_MENU_TABS), nullptr,
   },
@@ -719,61 +723,65 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
                 g_model.modelTelemetryDisabled);
     }
   },
+  {nullptr, nullptr},
 };
 
-class ManageModelsSetupPage : public SubPage
-{
- public:
-  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MAIN_MENU_RADIO_SETTINGS, STR_MANAGE_MODELS, true)
+const static SetupLineDef manageModelsSetupLines[] = {
   {
-    body->setFlexLayout();
-
     // Model quick select
-    setupLine(STR_MODEL_QUICK_SELECT, [=](Window* parent, coord_t x, coord_t y) {
-          new ToggleSwitch(parent, {x, y, 0, 0},
-                          GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
-        });
-
-    // Label single/multi select
-    setupLine(STR_LABELS_SELECT, [=](Window* parent, coord_t x, coord_t y) {
-          new Choice(parent, {x, y, 0, 0}, STR_LABELS_SELECT_MODE, 0, 1,
-                    GET_DEFAULT(g_eeGeneral.labelSingleSelect),
-                    [=](int newValue) {
-                      g_eeGeneral.labelSingleSelect = newValue;
-                      modelslabels.clearFilter();
-                      SET_DIRTY();
-                    });
-        });
-
-    // Label multi select matching mode
-    multiSelectMatch = setupLine(STR_LABELS_MATCH, [=](Window* parent, coord_t x, coord_t y) {
-          new Choice(parent, {x, y, 0, 0}, STR_LABELS_MATCH_MODE, 0, 1,
-                    GET_SET_DEFAULT(g_eeGeneral.labelMultiMode));
-        });
-
-    // Favorites multi select matching mode
-    favSelectMatch = setupLine(STR_FAV_MATCH, [=](Window* parent, coord_t x, coord_t y) {
-          new Choice(parent, {x, y, 0, 0}, STR_FAV_MATCH_MODE, 0, 1,
-                    GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
-        });
-
-    checkEvents();
-
-    enableRefresh();
-  }
-
-  void checkEvents() override
+    STR_DEF(STR_MODEL_QUICK_SELECT),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                      GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
+    }
+  },
   {
-    multiSelectMatch->show(!g_eeGeneral.labelSingleSelect);
-    favSelectMatch->show(!g_eeGeneral.labelSingleSelect && (g_eeGeneral.labelMultiMode != 0));
-  }
-
- protected:
-  Window* multiSelectMatch = nullptr;
-  Window* favSelectMatch = nullptr;
+    // Label single/multi select
+    STR_DEF(STR_LABELS_SELECT),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_LABELS_SELECT_MODE, 0, 1,
+                GET_DEFAULT(g_eeGeneral.labelSingleSelect),
+                [=](int newValue) {
+                  g_eeGeneral.labelSingleSelect = newValue;
+                  modelslabels.clearFilter();
+                  Messaging::send(Messaging::REFRESH);
+                  SET_DIRTY();
+                });
+    }
+  },
+  {
+    // Label multi select matching mode
+    STR_DEF(STR_LABELS_MATCH),
+    [](SetupLine* parent, coord_t x, coord_t y) {
+      parent->setupMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) {
+        parent->show(!g_eeGeneral.labelSingleSelect);
+      });
+      new Choice(parent, {x, y, 0, 0}, STR_LABELS_MATCH_MODE, 0, 1,
+                GET_DEFAULT(g_eeGeneral.labelMultiMode),
+                [=](int newValue) {
+                  g_eeGeneral.labelMultiMode = newValue;
+                  Messaging::send(Messaging::REFRESH);
+                  SET_DIRTY();
+                });
+      parent->show(!g_eeGeneral.labelSingleSelect);
+    }
+  },
+  {
+    // Favorites multi select matching mode
+    STR_DEF(STR_FAV_MATCH),
+    [](SetupLine* parent, coord_t x, coord_t y) {
+      parent->setupMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) {
+        parent->show(!g_eeGeneral.labelSingleSelect && (g_eeGeneral.labelMultiMode != 0));
+      });
+      new Choice(parent, {x, y, 0, 0}, STR_FAV_MATCH_MODE, 0, 1,
+                GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
+      parent->show(!g_eeGeneral.labelSingleSelect && (g_eeGeneral.labelMultiMode != 0));
+    }
+  },
+  {nullptr, nullptr},
 };
 
-static SetupLineDef setupLines[] = {
+const static SetupLineDef setupLines[] = {
   {
     // Splash screen
     STR_DEF(STR_SPLASHSCREEN),
@@ -1013,6 +1021,7 @@ static SetupLineDef setupLines[] = {
       });
     }
   },
+  {nullptr, nullptr},
 };
 
 RadioSetupPage::RadioSetupPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
@@ -1028,6 +1037,28 @@ static bool hasShortcutKeys()
 }
 #endif
 
+const static PageButtonDef radioSetupButtons[] = {
+#if defined(AUDIO)
+  {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines); }},
+#endif
+#if defined(VARIO)
+  {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines); }},
+#endif
+#if defined(HAPTIC)
+  {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines); }},
+#endif
+  {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines); }},
+  {STR_DEF(STR_BACKLIGHT_LABEL), []() { (new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, backlightSetupLines))->useFlexLayout(); }},
+  {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
+  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
+  {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_MANAGE_MODELS, manageModelsSetupLines); }},
+#if VERSION_MAJOR > 2
+  {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, []() { return hasShortcutKeys(); }},
+  {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
+#endif
+  {nullptr},
+};
+
 void RadioSetupPage::build(Window* window)
 {
   coord_t y = 0;
@@ -1038,27 +1069,8 @@ void RadioSetupPage::build(Window* window)
   y += w->height() + padding;
 
   // Sub-pages
-  w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
-#if defined(AUDIO)
-    {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
-#endif
-#if defined(VARIO)
-    {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
-#endif
-#if defined(HAPTIC)
-    {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
-#endif
-    {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
-    {STR_DEF(STR_BACKLIGHT_LABEL), []() { new BacklightPage(); }},
-    {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
-    {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
-    {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new ManageModelsSetupPage(); }},
-#if VERSION_MAJOR > 2
-    {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, [=]() { return hasShortcutKeys(); }},
-    {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
-#endif
-  }, BTN_H);
+  w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, radioSetupButtons, BTN_H);
   y += w->height() + padding;
 
-  SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
+  SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines);
 }

@@ -27,7 +27,7 @@ class HeaderIcon;
 
 //-----------------------------------------------------------------------------
 
-class SetupTopBarWidgetsPage : public Window
+class SetupTopBarWidgetsPage : public NavWindow
 {
  public:
   explicit SetupTopBarWidgetsPage();
@@ -38,8 +38,19 @@ class SetupTopBarWidgetsPage : public Window
 
   void onClicked() override;
   void onCancel() override;
-  void onEvent(event_t event)  override;
   void deleteLater() override;
+
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override {}
+  void onLongPressSYS() override {}
+  void onPressMDL() override {}
+  void onLongPressMDL() override {}
+  void onPressPGUP() override {}
+  void onPressPGDN() override {}
+  void onLongPressPGUP() override {}
+  void onLongPressPGDN() override {}
+  void onPressTELE() override { onCancel(); }
+#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -63,8 +74,6 @@ class TopBar: public WidgetsContainer
   void setVisible(float visible);
   void setEdgeTxButtonVisible(float visible);
   coord_t getVisibleHeight(float visible) const; // 0.0 -> 1.0
-
-  void checkEvents() override;
 
   bool isTopBar() override { return true; }
 

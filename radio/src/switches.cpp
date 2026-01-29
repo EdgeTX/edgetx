@@ -95,6 +95,10 @@ uint8_t isSwitch3Pos(uint8_t idx)
   return IS_CONFIG_3POS(idx);
 }
 
+#if defined(SIMU)
+bool evalFSok = false;
+#endif
+
 void setFSStartupPosition()
 {
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
@@ -118,6 +122,10 @@ void setFSStartupPosition()
       }
     }
   }
+
+#if defined(SIMU)
+  evalFSok = true;
+#endif
 }
 
 void setFSLogicalState(uint8_t index, uint8_t value)
@@ -159,6 +167,10 @@ bool isFSGroupUsed(uint8_t index)
 
 void evalFunctionSwitches()
 {
+#if defined(SIMU)
+  if (!evalFSok) return;
+#endif
+
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (switchIsCustomSwitch(i)) {
       if (g_model.getSwitchType(i) == SWITCH_NONE) {
@@ -884,7 +896,9 @@ void checkSwitches()
 
   LED_ERROR_BEGIN();
   auto dialog = new SwitchWarnDialog();
-  dialog->runForever();
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    return dialog->deleted();
+  });
   LED_ERROR_END();
 }
 #elif defined(GUI)

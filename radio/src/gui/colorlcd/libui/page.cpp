@@ -87,7 +87,7 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 #if VERSION_MAJOR == 2
   addCustomButton(0, 0, [=]() { onCancel(); });
 #else
-  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 #endif
@@ -104,31 +104,17 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   pushLayer(true);
 
   body->padAll(padding);
-}
 
-void Page::openMenu()
-{
-  PageGroup* p = Window::pageGroup();
-  QMPage qmPage = QM_NONE;
-  if (p)
-    qmPage = p->getCurrentTab()->pageId();
-  QuickMenu::openQuickMenu(
-    [=](bool close) {
-      onCancel();
-      if (p) {
-        while (!Window::topWindow()->isPageGroup()) {
-          Window::topWindow()->deleteLater();
-        }
-        if (close)
-          Window::topWindow()->onCancel();
-      }
-    }, p, qmPage);
+  quickMenuMsg.subscribe(Messaging::QUICK_MENU_ITEM_SELECT,
+      [=](uint32_t param) {
+        onCancel();
+      });
 }
 
 void Page::onCancel()
 {
-  QuickMenu::closeQuickMenu();
-  deleteLater();
+  if (!_deleted)
+    deleteLater();
 }
 
 void Page::onClicked() { Keyboard::hide(false); }
@@ -151,7 +137,7 @@ void Page::onPressSYS()
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!QuickMenu::isOpen()) openMenu();
+    QuickMenu::openQuickMenu();
   } else {
     auto p = navWindow();
     if (p) {
@@ -218,7 +204,7 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool 
   header->setTitle2(subtitle);
 }
 
-SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) :
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, const SetupLineDef* setupLines) :
   Page(icon, PAD_SMALL, true)
 {
   body->padBottom(PAD_LARGE * 2);
@@ -226,14 +212,19 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, Setup
   header->setTitle(title);
   header->setTitle2(subtitle);
 
-  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines, lineCount);
+  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines);
 
   enableRefresh();
 }
 
-Window* SubPage::setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
+Window* SubPage::setupLine(const char* title, std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
 {
   auto w = new SetupLine(body, y, EDT_X, PAD_SMALL, title, createEdit, lblYOffset);
   y += w->height();
   return w;
+}
+
+void SubPage::useFlexLayout()
+{
+  body->setFlexLayout();
 }

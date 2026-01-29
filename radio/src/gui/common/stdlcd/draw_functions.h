@@ -43,7 +43,6 @@ void drawFlightMode(coord_t x, coord_t y, int8_t idx, LcdFlags att = 0);
 void drawStartupAnimation(uint32_t duration, uint32_t totalDuration);
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char * message);
 void drawSleepBitmap();
-void drawFatalErrorScreen(const char * message);
 void runFatalErrorScreen(const char * message);
 
 void lcdDrawMMM(coord_t x, coord_t y, LcdFlags flags=0);

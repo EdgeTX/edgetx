@@ -76,7 +76,6 @@ class ColorEditorPopup : public BaseDialog
  public:
   ColorEditorPopup(uint32_t color,
                    std::function<void(uint32_t)> _setValue,
-                   std::function<void(uint32_t)> _preview,
                    COLOR_EDITOR_FMT fmt) :
       BaseDialog(STR_COLOR_PICKER, false, COLOR_EDIT_WIDTH, COLOR_EDIT_HEIGHT),
       origColor(color), setValue(std::move(_setValue)), format(fmt)
@@ -85,7 +84,7 @@ class ColorEditorPopup : public BaseDialog
     auto line = form->newLine(grid);
 
     rect_t r{0, 0, CE_SZ, CE_SZ};
-    auto cedit = new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); }, _preview, format, THM_COLOR_EDITOR);
+    auto cedit = new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); }, format, THM_COLOR_EDITOR);
     lv_obj_set_style_grid_cell_x_align(cedit->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
     auto vbox = new Window(line, rect_t{});
@@ -183,25 +182,19 @@ class ColorEditorPopup : public BaseDialog
 };
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
-                         std::function<uint32_t()> getValue,
-                         std::function<void(uint32_t)> setValue,
-                         std::function<void(uint32_t)> preview,
+                         std::function<uint32_t()> _getValue,
+                         std::function<void(uint32_t)> _setValue,
                          COLOR_EDITOR_FMT fmt) :
     Button(parent, {rect.x, rect.y, rect.w == 0 ? ColorEditorPopup::COLOR_PAD_WIDTH : rect.w, EdgeTxStyles::UI_ELEMENT_HEIGHT}),
-    setValue(std::move(setValue)), preview(std::move(preview)), format(fmt)
+    getValue(std::move(_getValue)), setValue(std::move(_setValue)), format(fmt)
 {
   updateColor(getValue());
 }
 
 void ColorPicker::onClicked()
 {
-  new ColorEditorPopup(getColor(), [=](uint32_t c) { setColor(c); }, preview, format);
-}
-
-void ColorPicker::setColor(uint32_t c)
-{
-  setValue(c);
-  updateColor(c);
+  updateColor(getValue());
+  new ColorEditorPopup(color, [=](uint32_t c) { setValue(c); updateColor(c); }, format);
 }
 
 void ColorPicker::updateColor(uint32_t c)

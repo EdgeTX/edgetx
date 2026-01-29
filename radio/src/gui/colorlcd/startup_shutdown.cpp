@@ -81,8 +81,8 @@ void drawSplash()
 #endif
   }
 
-  // Force screen refresh
-  lv_refr_now(nullptr);
+  // Refresh to show splash screen
+  MainWindow::instance()->run();
 }
 
 static tmr10ms_t splashStartTime = 0;
@@ -110,25 +110,17 @@ void waitSplash()
   if (splashStartTime) {
     inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
-    while (splashStartTime >= get_tmr10ms()) {
-      MainWindow::instance()->run();
-      WDG_RESET();
-      checkSpeakerVolume();
-      checkBacklight();
-      sleep_ms(10);
+
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      if (splashStartTime < get_tmr10ms())
+        return true;
       auto evt = getEvent();
       if (evt || inactivityCheckInputs()) {
         if (evt) killEvents(evt);
-        break;
+        return true;
       }
-#if defined(SIMU)
-      // Allow simulator to exit if closed while splash showing
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        break;
-      }
-#endif  // defined(SIMU)
-    }
+      return false;
+    });
 
     // Reset timer so special/global functions set to !1x don't get triggered
     START_SILENCE_PERIOD();
@@ -217,49 +209,23 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   MainWindow::instance()->run();
 }
 
-void drawFatalErrorScreen(const char* message)
+Window* drawFatalErrorScreen(const char* message)
 {
-  static Window* fatalErrorWindow = nullptr;
+  auto w = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+  w->setWindowFlag(OPAQUE);
+  etx_solid_bg(w->getLvObj(), COLOR_BLACK_INDEX);
 
-  if (!fatalErrorWindow) {
-    fatalErrorWindow =
-        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
-    fatalErrorWindow->setWindowFlag(OPAQUE);
-    etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
+  new StaticText(w, rect_t{0, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, LCD_W, EdgeTxStyles::STD_FONT_HEIGHT * 2},
+                 message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
 
-    new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, LCD_W, EdgeTxStyles::STD_FONT_HEIGHT * 2},
-                   message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
-  }
-
-  backlightEnable(100);
-  MainWindow::instance()->run();
+  return w;
 }
 
 void runFatalErrorScreen(const char* message)
 {
-  lcdInitDisplayDriver();
-
   drawFatalErrorScreen(message);
 
-  // On startup wait for power button to be released
-  while (pwrPressed()) {
-    WDG_RESET();
-  }
-
-  while (true) {
-    drawFatalErrorScreen(message);
-    WDG_RESET();
-
-    // loop as long as PWR button is pressed
-    while (true) {
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        boardOff();
-        return;  // only happens in SIMU, required for proper shutdown
-      } else if (pwr_check == e_power_on) {
-        break;
-      }
-      WDG_RESET();
-    }
-  }
+  MainWindow::instance()->blockUntilClose(true, []() {
+    return false;
+  }, true);
 }

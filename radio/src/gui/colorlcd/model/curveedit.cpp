@@ -38,25 +38,32 @@ static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT,
 class CurveEdit : public Curve
 {
  public:
-  CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
+  CurveEdit(Window* parent, const rect_t& rect, uint8_t index, mixsrc_t source) :
       Curve(parent, rect,
           [=](int x) -> int { return applyCustomCurve(x, index); },
-          [=]() -> int { return getValue(currentSource); }
-      ),
+          [=]() -> int { return getValue(currentSource); }),
       index(index),
-      current(0)
+      current(0),
+      currentSource(source)
   {
     setWindowFlag(NO_FOCUS);
-    updatePreview();
-  }
 
-  void setCurrentSource(mixsrc_t source)
-  {
-    currentSource = source;
-    if (source)
-      lockSource = true;
-    else
-      lockSource = false;
+    lockSource = currentSource;
+
+    for (int i = 0; i < 17; i += 1) {
+      auto p = lv_obj_create(lvobj);
+      etx_solid_bg(p, COLOR_THEME_PRIMARY2_INDEX);
+      etx_obj_add_style(p, styles->circle, LV_PART_MAIN);
+      etx_obj_add_style(p, styles->border, LV_PART_MAIN);
+      etx_obj_add_style(p, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
+      lv_obj_set_size(p, POS_PT_SZ, POS_PT_SZ);
+      lv_obj_add_flag(p, LV_OBJ_FLAG_HIDDEN);
+      pointDots[i] = p;
+    }
+
+    previewUpdateMsg.subscribe(Messaging::CURVE_EDIT, [=](uint32_t param) { updatePreview(); });
+
+    updatePreview();
   }
 
   void updatePreview()
@@ -66,6 +73,25 @@ class CurveEdit : public Curve
     for (uint8_t i = 0; i < 5 + curve.points; i++) {
       addPoint(getPoint(index, i));
     }
+    update();
+  }
+
+  void clearPoints()
+  {
+    points.clear();
+    for (int i = 0; i < 17; i += 1)
+      lv_obj_add_flag(pointDots[i], LV_OBJ_FLAG_HIDDEN);
+  }
+
+  void addPoint(const point_t& point)
+  {
+    int i = points.size();
+    coord_t x = getPointX(point.x);
+    coord_t y = getPointY(point.y);
+    lv_obj_set_pos(pointDots[i], x - POS_PT_SZ / 2, y - POS_PT_SZ / 2);
+    lv_obj_clear_flag(pointDots[i], LV_OBJ_FLAG_HIDDEN);
+
+    points.push_back(point);
   }
 
  protected:
@@ -73,15 +99,18 @@ class CurveEdit : public Curve
   uint8_t current;
   mixsrc_t currentSource = 0;
   bool lockSource = false;
+  std::list<point_t> points;
+  lv_obj_t* pointDots[17] = { nullptr };
+  Messaging previewUpdateMsg;
 
-  void checkEvents(void) override
+  void checkEvents() override
   {
     if (!lockSource) {
       int16_t val = getMovedSource(MIXSRC_FIRST_STICK);
       if (val > 0)
         currentSource = val;
     }
-    Window::checkEvents();
+    Curve::checkEvents();
   }
 };
 
@@ -96,12 +125,6 @@ class CurveDataEdit : public Window
 
     padAll(PAD_ZERO);
     padBottom(PAD_SMALL);
-  }
-
-  void setCurveEdit(CurveEdit* _curveEdit)
-  {
-    curveEdit = _curveEdit;
-    update();
   }
 
   void update()
@@ -137,7 +160,6 @@ class CurveDataEdit : public Window
 
  protected:
   uint8_t index;
-  CurveEdit* curveEdit;
   NumberEdit* numEditX[16];
 
   void curvePointsRow(Window* parent, coord_t y, int start, int count,
@@ -195,7 +217,7 @@ class CurveDataEdit : public Window
                 numEditX[px + 1]->setMin(newValue);
               }
               SET_DIRTY();
-              curveEdit->updatePreview();
+              Messaging::send(Messaging::CURVE_EDIT);
             },
             CENTERED);
       }
@@ -232,16 +254,15 @@ class CurveDataEdit : public Window
           [=](int32_t newValue) {
             points[i + start] = newValue;
             SET_DIRTY();
-            curveEdit->updatePreview();
+            Messaging::send(Messaging::CURVE_EDIT);
           },
           CENTERED);
     }
   }
 };
 
-CurveEditWindow::CurveEditWindow(uint8_t index,
-                                 std::function<void(void)> refreshView) :
-    Page(ICON_MODEL_CURVES, PAD_ZERO), index(index), refreshView(refreshView)
+CurveEditWindow::CurveEditWindow(uint8_t index, mixsrc_t source) :
+    Page(ICON_MODEL_CURVES, PAD_ZERO), index(index), source(source)
 {
   buildBody(body);
   buildHeader(header);
@@ -306,7 +327,7 @@ void CurveEditWindow::buildBody(Window* window)
   auto smooth =
       new TextButton(iLine, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, STR_SMOOTH, [=]() {
         g_model.curves[index].smooth = !g_model.curves[index].smooth;
-        curveEdit->updatePreview();
+        Messaging::send(Messaging::CURVE_EDIT);
         return g_model.curves[index].smooth;
       });
   smooth->check(g_model.curves[index].smooth);
@@ -336,7 +357,7 @@ void CurveEditWindow::buildBody(Window* window)
             curve.type = newValue;
           }
           SET_DIRTY();
-          curveEdit->updatePreview();
+          Messaging::send(Messaging::CURVE_EDIT);
           if (curveDataEdit) {
             curveDataEdit->update();
           }
@@ -364,7 +385,7 @@ void CurveEditWindow::buildBody(Window* window)
           }
           curve.points = newValue;
           SET_DIRTY();
-          curveEdit->updatePreview();
+          Messaging::send(Messaging::CURVE_EDIT);
           if (curveDataEdit) {
             curveDataEdit->update();
           }
@@ -385,22 +406,16 @@ void CurveEditWindow::buildBody(Window* window)
           0, 0, box->width(),
           box->height() - (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2) * 2},
       index);
+  curveDataEdit->update();
 
   // Curve editor
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-  curveEdit = new CurveEdit(line, {0, 0, CurveDataEdit::CURVE_WIDTH, CurveDataEdit::CURVE_WIDTH}, index);
-
-  curveDataEdit->setCurveEdit(curveEdit);
+  new CurveEdit(line, {0, 0, CurveDataEdit::CURVE_WIDTH, CurveDataEdit::CURVE_WIDTH}, index, source);
 }
 
 void CurveEditWindow::onCancel()
 {
-  if (refreshView) refreshView();
+  Messaging::send(Messaging::CURVE_UPDATE);
   Page::onCancel();
-}
-
-void CurveEditWindow::setCurrentSource(mixsrc_t source)
-{
-  curveEdit->setCurrentSource(source);
 }

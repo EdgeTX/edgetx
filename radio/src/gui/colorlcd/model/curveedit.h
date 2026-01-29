@@ -25,23 +25,18 @@
 #include "page.h"
 #include "window.h"
 
-class NumberEdit;
-class CurveEdit;
 class CurveDataEdit;
 
 class CurveEditWindow : public Page
 {
  public:
   CurveEditWindow(uint8_t index,
-                  std::function<void(void)> refreshView = nullptr);
-
-  void setCurrentSource(mixsrc_t source);
+                  mixsrc_t source = 0);
 
  protected:
   uint8_t index;
-  CurveEdit* curveEdit = nullptr;
   CurveDataEdit* curveDataEdit = nullptr;
-  std::function<void(void)> refreshView = nullptr;
+  mixsrc_t source = 0;
 
   void buildHeader(Window* window);
   void buildBody(Window* window);

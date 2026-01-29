@@ -104,8 +104,6 @@ class LuaScriptManager : public LuaEventHandler
 
 class LuaWidget : public Widget, public LuaScriptManager
 {
-  friend class LuaWidgetFactory;
-
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
             int screenNum, int zoneNum, int zoneRectDataRef,

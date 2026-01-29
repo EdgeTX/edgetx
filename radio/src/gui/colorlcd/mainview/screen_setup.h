@@ -45,8 +45,6 @@ class ScreenSetupPage : public PageGroupItem
 
   void build(Window* form) override;
 
-  void update(uint8_t index) override;
-
   static void addScreen();
 
  protected:

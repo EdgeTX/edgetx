@@ -27,8 +27,6 @@ class MenuToolbar;
 
 class Menu : public ModalWindow
 {
-  friend class MenuBody;
-
  public:
   explicit Menu(bool multiple = false, coord_t popupWidth = 0);
 
@@ -51,10 +49,6 @@ class Menu : public ModalWindow
   void addLine(const std::string &text, std::function<void()> onPress,
                std::function<bool()> isChecked = nullptr);
 
-  void addLineBuffered(const MaskBitmap *icon_mask, const std::string &text,
-                       std::function<void()> onPress,
-                       std::function<bool()> isChecked = nullptr);
-
   void addLineBuffered(const std::string &text, std::function<void()> onPress,
                        std::function<bool()> isChecked = nullptr);
 
@@ -68,18 +62,12 @@ class Menu : public ModalWindow
 
   void select(int index);
 
-  void onEvent(event_t event) override;
   void onCancel() override;
-
-  void checkEvents() override
-  {
-    ModalWindow::checkEvents();
-    if (waitHandler) {
-      waitHandler();
-    }
-  }
+  void checkEvents() override;
 
   void handleLongPress();
+
+  bool isMultiple() const { return multiple; }
 
  protected:
   bool multiple;

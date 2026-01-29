@@ -45,7 +45,6 @@ class WidgetsContainer: public Window
 
   virtual bool isLayout() { return false; }
   virtual bool isAppMode() const { return false; }
-  bool isWidgetsContainer() override { return true; }
 
   void deleteLater() override;
 

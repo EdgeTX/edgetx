@@ -67,7 +67,7 @@ void QMFavoritesPage::onCancel()
 
   if (changed) {
     // Delete quick menu, and close parent page group (in case it is Favorites group)
-    QuickMenu::shutdownQuickMenu();
+    QuickMenu::resetFavorites();
     QuickMenu::setCurrentPage(QM_NONE);
     Window::topWindow()->onCancel();
   }

@@ -35,11 +35,6 @@ class SwitchWarnDialog : public FullScreenDialog
 #endif
 
  protected:
-  swarnstate_t last_bad_switches;
-  uint16_t     last_bad_pots;
-
-  bool warningInactive();
-
   void checkEvents() override;
 };
 
@@ -53,5 +48,5 @@ class ThrottleWarnDialog : public FullScreenDialog
 #endif
 
  protected:
-  bool warningInactive();
+  void checkEvents() override;
 };
