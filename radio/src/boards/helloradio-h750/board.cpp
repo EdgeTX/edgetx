@@ -179,11 +179,16 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
-void USBCharger(void)
+void USBCharger(uint32_t usbchgstatus)
 {
   // USB Charger init code can be added here if needed
   static uint32_t usbchgmode=0;
 
+  if(usbchgstatus>10){
+    rgbLedClearAll();
+    rgbLedColorApply();
+    return;
+  }
   switch (++usbchgmode) {
     case 1:
       ws2812_set_color(0, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
@@ -240,19 +245,22 @@ void boardInit()
   led_strip_off();
 
 #if !defined(DEBUG_SEGGER_RTT)
+
+  static uint32_t usbchgstatus=0;
+
   // This is needed to prevent radio from starting when usb is plugged to charge
   if (usbPlugged()) {
     while (usbPlugged() && !pwrPressed()) {//charging loop
       delay_ms(500);
-      USBCharger();
+      USBCharger(usbchgstatus);
       if (IS_UCHARGER_ACTIVE())  {
         /* code */
-        gpio_clear(LED_GREEN_GPIO);
-        gpio_set(LED_RED_GPIO);
+        ledRed();
+        usbchgstatus=0;
       }
       else{
-        gpio_clear(LED_RED_GPIO);
-        gpio_set(LED_GREEN_GPIO);
+        ledGreen();
+        usbchgstatus++;
       }
     }
     if (!pwrPressed()) {
