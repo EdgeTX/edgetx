@@ -130,7 +130,7 @@ void EXTERNAL_MODULE_OFF();
 //
 #define VBAT_DIV_R1       100  // kOhms
 #define VBAT_DIV_R2       56  // kOhms
-#define VBAT_MOSFET_DROP    0  // * 10mV
+#define VBAT_MOSFET_DROP  10  // * 10mV
 
 // #define BATTERY_DIVIDER 1211 // = 2047 * 165k / (165k + 680k) * 10 / 3.3V
 
@@ -212,6 +212,12 @@ bool isBacklightEnabled();
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
+
+
+#define IS_UCHARGER_ACTIVE()              !gpio_read(UCHARGER_GPIO) ? 1 : 0
+#define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
+#define ENABLE_UCHARGER()                 bsp_output_set(BSP_CHARGE_EN);
+#define DISABLE_UCHARGER()                bsp_output_clear(BSP_CHARGE_EN)
 
 // Audio driver
 class stm32_spi_t;
