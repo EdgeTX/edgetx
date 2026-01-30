@@ -172,20 +172,44 @@ jobs:
             {
               "categories": [
                 {
+                  "title": "## 🖥️ Black & White Radio Changes",
+                  "labels": ["scope:bw"]
+                },
+                {
+                  "title": "## 🎨 Color Radio Changes",
+                  "labels": ["scope:color"]
+                },
+                {
+                  "title": "## 🎮 Firmware (All Radios Generally)",
+                  "labels": ["scope:firmware", "scope:fw"]
+                },
+                {
+                  "title": "## 💻 Companion Software Changes",
+                  "labels": ["scope:cpn", "companion"]
+                },
+                {
                   "title": "## 🚀 Features",
-                  "labels": ["feat", "feature"]
+                  "labels": ["feat", "enhancement ✨"]
                 },
                 {
                   "title": "## 🐛 Fixes",
-                  "labels": ["fix", "bugfix"]
+                  "labels": ["fix", "bugfix", "bug 🪲", "bug/regression ↩️"]
+                },
+                {
+                  "title": "## 🧹 Chores",
+                  "labels": ["chore", "house keeping 🧹"]
+                },
+                {
+                  "title": "## 🔧 CI/CD",
+                  "labels": ["ci", "ci/cd 🔧"]
                 },
                 {
                   "title": "## 🧪 Tests",
-                  "labels": ["test"]
+                  "labels": ["scope:test", "test", "unit tests 🧪"]
                 },
                 {
                   "title": "## 📝 Documentation",
-                  "labels": ["docs"]
+                  "labels": ["scope:docs", "docs", "documentation 📝"]
                 },
                 {
                   "title": "## 🔨 Refactoring",
@@ -205,8 +229,12 @@ jobs:
               "empty_template": "- No changes",
               "label_extractor": [
                 {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\(.+\\))?(!)?:",
+                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([^)]+\\))?(!)?:",
                   "target": "$1"
+                },
+                {
+                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)\\(([^)]+)\\)",
+                  "target": "scope:$2"
                 }
               ],
               "max_pull_requests": 1000,
