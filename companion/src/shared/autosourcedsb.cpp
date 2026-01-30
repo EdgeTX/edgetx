@@ -104,7 +104,7 @@ void AutoSourceDSB::updateValue()
 {
   if (getSource().type == SOURCE_TYPE_NUMBER) {
     setLock(true);
-    setValue(getSource().index / m_precision);
+    setValue(getSource().index / m_scalingFactor);
     setLock(false);
   }
 }

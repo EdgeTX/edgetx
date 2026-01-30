@@ -72,7 +72,6 @@ void AutoSourceListNum::setField(RawSource * field, AbstractItemModel * itemMode
                              int precision, QString prefix, QString suffix,
                              GenericPanel * panel)
 {
-  AutoSource::setField(field, panel);
   m_sourceCB->setField(field, itemModel, filter, isAvailable, dflt, panel);
   m_sourceDSB->setField(field, dflt, typeLabel, min, max, precision, prefix, suffix, panel);
 }
