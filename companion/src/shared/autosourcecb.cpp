@@ -145,15 +145,13 @@ void AutoSourceCB::setValueDefault()
 
 void AutoSourceCB::updateValue()
 {
-  if (getSource().type == SOURCE_TYPE_NUMBER)
-    return;
+  if (getSource().type != SOURCE_TYPE_NUMBER) {
+    setLock(true);
+    setCurrentIndex(findData(getSource().toValue()));;
 
-  setLock(true);
+    if (currentIndex() < 0)
+      setCurrentIndex(Helpers::getFirstPosValueIndex(this));
 
-  setCurrentIndex(findData(getSource().toValue()));;
-
-  if (currentIndex() < 0)
-    setCurrentIndex(Helpers::getFirstPosValueIndex(this));
-
-  setLock(false);
+    setLock(false);
+  }
 }

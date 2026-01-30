@@ -64,6 +64,5 @@ class AutoSourceDSB : public QDoubleSpinBox, virtual public AutoSource {
     int m_precision;
     QString m_prefix;
     QString m_suffix;
-    QDoubleSpinBox *m_dsbValue;
     double m_scalingFactor;
 };

@@ -24,7 +24,6 @@ set(${PROJECT_NAME}_NAMES
   exclusivecombogroup
   rawsourcewidget
   curvereferencewidget
-  autosource
   autosourcecb
   autosourcedsb
   autosourcelistnum
@@ -50,6 +49,8 @@ set(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_SRCS}
   autowidget.h
   autowidget.cpp
+  autosource.h
+  autosource.cpp
   curveimage.h
   curveimage.cpp
   semanticversion.h
