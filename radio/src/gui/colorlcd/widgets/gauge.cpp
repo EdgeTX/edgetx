@@ -82,7 +82,7 @@ class GaugeWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
@@ -107,7 +107,7 @@ class GaugeWidget : public Widget
 
   void foreground() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto newValue = getGuageValue();
     if (lastValue != newValue) {

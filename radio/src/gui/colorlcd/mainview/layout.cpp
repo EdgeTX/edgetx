@@ -335,26 +335,25 @@ void Layout::show(bool visible)
   }
 }
 
-rect_t Layout::getMainZone() const
+bool Layout::hasFullScreenWidget() const
 {
-  rect_t zone = decoration->getMainZone();
-  if (hasSliders() || hasTrims() || hasFlightMode()) {
-    // some decoration activated
-    zone.x += PAD_LARGE;
-    zone.y += PAD_LARGE;
-    zone.w -= 2 * PAD_LARGE;
-    zone.h -= 2 * PAD_LARGE;
-  }
-  if (hasTopbar()) {
-    zone.y += EdgeTxStyles::MENU_HEADER_HEIGHT;
-    zone.h -= EdgeTxStyles::MENU_HEADER_HEIGHT;
-  }
-  return zone;
+  for (int i = 0; i < zoneCount; i += 1)
+    if (widgets[i] && widgets[i]->isFullscreen())
+      return true;
+  return false;
+}
+
+rect_t Layout::getWidgetsZone() const
+{
+  if (hasFullScreenWidget())
+    return {0, 0, LCD_W, LCD_H};
+
+  return decoration->getWidgetsZone(hasTopbar());
 }
 
 rect_t Layout::getZone(unsigned int index) const
 {
-  rect_t z = getMainZone();
+  rect_t z = getWidgetsZone();
 
   unsigned int i = index * 4;
 
@@ -371,13 +370,11 @@ rect_t Layout::getZone(unsigned int index) const
 void Layout::checkEvents()
 {
   Window::checkEvents();
-  rect_t z = getMainZone();
+  rect_t z = getWidgetsZone();
   if (z.x != lastMainZone.x || z.y != lastMainZone.y || z.w != lastMainZone.w || z.h != lastMainZone.h) {
     lastMainZone = z;
-    for (int i = 0; i < zoneCount; i++)
-      if (widgets[i] && widgets[i]->isFullscreen())
-        return;
-    updateZones();
+    if (!hasFullScreenWidget())
+      updateZones();
   }
 }
 
