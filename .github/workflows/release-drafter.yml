@@ -200,7 +200,7 @@ jobs:
                   "labels": []
                 }
               ],
-              "template": "#{{CHANGELOG}}",
+              "template": "#{{CHANGELOG}}\n\n## Thank you to the following contributors who made this release possible!\n#{{CONTRIBUTORS}}",
               "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
               "empty_template": "- No changes",
               "label_extractor": [
@@ -219,9 +219,7 @@ jobs:
       - name: Download all release artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: |
-            edgetx-firmware-${{ needs.check-tag.outputs.tag_name }}
-            edgetx-cpn-*-${{ needs.check-tag.outputs.tag_name }}
+          pattern: edgetx-{firmware,cpn-*}-${{ needs.check-tag.outputs.tag_name }}
           path: release-assets
           merge-multiple: false  # Ensure each artifact stays in its own folder
 
@@ -289,9 +287,6 @@ jobs:
             ## Changes
 
             ${{ steps.build_changelog.outputs.changelog }}
-
-            ## Thank you to the following contributors who made this release possible!
-            #{{CONTRIBUTORS}}
           files: |
             release-assets/*.zip
           fail_on_unmatched_files: true
