@@ -48,5 +48,5 @@ void usbChargerInit()
 
 bool usbChargerLed()
 {
-  return (gpio_read(UCHARGER_GPIO) && usbPlugged());
+  return (!gpio_read(UCHARGER_GPIO) && usbPlugged());
 }
