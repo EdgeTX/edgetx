@@ -72,7 +72,14 @@ jobs:
     name: Deploy release
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: write
     steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for changelog
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -81,18 +88,92 @@ jobs:
           merge-multiple: true
 
       - name: Compose release filename
-        run: echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
+        run: |
+          echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
+          echo "build_date=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_ENV
 
       - name: Zip release file
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -j -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
-      - name: Deploy nightly release
-        uses: crowbarmaster/GH-Automatic-Releases@latest
+      - name: Build Changelog
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: 'nightly'
+          configuration: |
+            {
+              "categories": [
+                {
+                  "title": "## 🚀 Features",
+                  "labels": ["feat", "feature"]
+                },
+                {
+                  "title": "## 🐛 Fixes",
+                  "labels": ["fix", "bugfix"]
+                },
+                {
+                  "title": "## 🧪 Tests",
+                  "labels": ["test"]
+                },
+                {
+                  "title": "## 📝 Documentation",
+                  "labels": ["docs"]
+                },
+                {
+                  "title": "## 🔨 Refactoring",
+                  "labels": ["refactor"]
+                },
+                {
+                  "title": "## 🎨 Style",
+                  "labels": ["style"]
+                },
+                {
+                  "title": "## 📦 Other",
+                  "labels": []
+                }
+              ],
+              "template": "#{{CHANGELOG}}",
+              "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
+              "empty_template": "- No changes",
+              "label_extractor": [
+                {
+                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\(.+\\))?(!)?:",
+                  "target": "$1"
+                }
+              ]
+            }
+          toTag: HEAD
+          fromTag: nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update nightly tag
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -f nightly
+          git push -f origin nightly
+
+      - name: Deploy nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
           prerelease: true
+          name: "Nightly Build"
+          body: |
+            ## Automated Nightly Build
+
+            **Commit:** ${{ github.sha }}
+            **Built:** ${{ env.build_date }}
+
+            This is an automated nightly build of EdgeTX firmware. These builds are for testing purposes and may contain bugs. Please be sure to report any issues you encounter!
+
+            ### Installation
+            Download `${{ env.release_filename }}` and extract the firmware file for your radio model, or use [EdgeTX Buddy](https://buddy.edgetx.org/#/flash?version=nightly&source=releases&filters=includePrereleases) with the "Include pre-releases" Filter option enabled so you can select the "Nightly" version.
+
+            ## Changes since last nightly build
+
+            ${{ steps.build_changelog.outputs.changelog }}
           files: |
-            *.zip
+            ${{ env.release_filename }}
