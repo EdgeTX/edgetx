@@ -3779,7 +3779,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
-        <source>Jumper T15Pro</source>
+        <source>Jumper T15 Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4267,13 +4267,13 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="181"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Connected radio: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="193"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4807,7 +4807,7 @@ Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <location filename="../generaledit/generaledit.ui" line="122"/>
         <source>General settings used throught the transmitter.
 These will be relevant for all models in the same EEPROM.</source>
-        <translation>遥控器一般设定, 用在整个遥控器上 
+        <translation>遥控器一般设定, 用在整个遥控器上
 对相同的EEPROM, 对所有模型这些设置都是相同的.</translation>
     </message>
     <message>
@@ -5879,7 +5879,7 @@ MODE4 模式4:
 This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
-        <translation type="unfinished">遥控器电池警告电压 
+        <translation type="unfinished">遥控器电池警告电压
 当电压低于此数值时电量告警响起
 
 允许值是3V - 12V</translation>
@@ -12877,7 +12877,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
     <message>
         <location filename="../modeledit/setup.ui" line="524"/>
         <source>Throttle Warning</source>
-        <translation>油门杆位置告警 
+        <translation>油门杆位置告警
 [Throttle State]</translation>
     </message>
     <message>

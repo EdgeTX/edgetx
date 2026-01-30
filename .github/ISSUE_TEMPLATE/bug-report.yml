@@ -90,7 +90,7 @@ body:
         - iFlight Commando8
         - Fatfish F16
         - Flysky EL18
-        - Flysky NB4+        
+        - Flysky NB4+
         - Flysky NV14
         - Flysky PA01
         - Flysky PL18/PL18EV
@@ -106,13 +106,13 @@ body:
         - FrSky X10 Express / X10S Express (ACCESS)
         - FrSky X12
         - FrSky X-Lite / S / Pro
-        - HelloRadioSky V12        
+        - HelloRadioSky V12
         - HelloRadioSky V14
         - HelloRadioSky V16
         - Jumper T12
         - Jumper T14
         - Jumper T15
-        - Jumper T15Pro
+        - Jumper T15 Pro
         - Jumper T16
         - Jumper T18
         - Jumper T20/T20S
@@ -128,7 +128,7 @@ body:
         - RadioMaster TX12 / TX12MK2
         - RadioMaster TX15
         - RadioMaster TX16S / TX16SMK2
-        - RadioMaster TX16SMK3
+        - RadioMaster TX16 SMK3
         - RadioMaster Zorro
         - Other (Please specify below)
     validations:
