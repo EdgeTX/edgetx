@@ -41,18 +41,40 @@ jobs:
       - name: Check if this is a tag push
         id: check
         run: |
+          echo "=== Release Draft Trigger Check ==="
+          echo "Event: ${{ github.event_name }}"
+
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "✓ Manually triggered with tag: ${{ inputs.tag }}"
             echo "is_tag=true" >> $GITHUB_OUTPUT
             echo "tag_name=${{ inputs.tag }}" >> $GITHUB_OUTPUT
           else
             # Get the ref that triggered the workflow_run
             REF="${{ github.event.workflow_run.head_branch }}"
+            echo "Triggered by workflow_run for ref: $REF"
+
             if git show-ref --verify --quiet "refs/tags/$REF"; then
+              echo "✓ This is a tag push: $REF"
               echo "is_tag=true" >> $GITHUB_OUTPUT
               echo "tag_name=$REF" >> $GITHUB_OUTPUT
             else
+              echo "ℹ This is NOT a tag push (branch: $REF)"
               echo "is_tag=false" >> $GITHUB_OUTPUT
             fi
+          fi
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check.outputs.is_tag }}" = "true" ]; then
+            echo "### ✅ Release Draft Will Be Created" >> $GITHUB_STEP_SUMMARY
+            echo "Tag: \`${{ steps.check.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ Release Draft Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "This workflow run was triggered by a branch push, not a version tag." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Release drafts are only created when:**" >> $GITHUB_STEP_SUMMARY
+            echo "- A version tag is pushed (e.g., \`v2.10.0\`, \`v3.0.0-rc1\`)" >> $GITHUB_STEP_SUMMARY
+            echo "- The workflow is manually triggered with a tag" >> $GITHUB_STEP_SUMMARY
           fi
 
   verify-builds:
