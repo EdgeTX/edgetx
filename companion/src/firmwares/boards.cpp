@@ -550,7 +550,7 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_RADIOMASTER_TX16S:
       return "Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX16SMK3:
-      return "Radiomaster TX16SMK3";
+      return "Radiomaster TX16 SMK3";
     case BOARD_RADIOMASTER_TX15:
       return "Radiomaster TX15";
     case BOARD_RADIOMASTER_ZORRO:
