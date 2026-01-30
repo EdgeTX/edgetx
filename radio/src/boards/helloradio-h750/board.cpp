@@ -191,6 +191,7 @@ void boardInit()
   delaysInit();
   timersInit();
 
+  usbChargerInit();
   gpio_set(LED_BLUE_GPIO);
 
   ExtFLASH_InitRuntime();
@@ -232,8 +233,12 @@ void boardInit()
 
 extern void rtcDisableBackupReg();
 
+
 void boardOff()
 {
+  uint32_t usbchgstep=0;
+  uint32_t usbchgmode=0;
+
   lcdOff();
 
   while (pwrPressed()) {
@@ -247,6 +252,57 @@ void boardOff()
 
   rtcDisableBackupReg();
 
+#if !defined(BOOT)
+  rgbLedClearAll();
+
+  while (usbPlugged()) {  //wait for usb unplug or full charge
+    /* code */
+    WDG_RESET();
+    #define USB_CHARGER_MS_DELAY 10000
+    if(++usbchgstep>USB_CHARGER_MS_DELAY*500){
+      usbchgstep=0;
+      usbchgmode++;
+      switch (usbchgmode) {
+      case 1:
+        ws2812_set_color(0, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbLedColorApply();
+        break;
+      case 2:
+        ws2812_set_color(1, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbLedColorApply();
+        break;
+      case 3:
+        ws2812_set_color(2, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbLedColorApply();
+        break;
+      case 4:
+        ws2812_set_color(3, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbLedColorApply();
+        break;
+      case 5:
+        ws2812_set_color(4, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbLedColorApply();
+        break;
+      case 6:
+        ws2812_set_color(5, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbLedColorApply();
+        break;
+      case 7:
+        rgbLedClearAll();
+        usbchgmode=0;
+        break;
+      default:
+        break;
+      }
+    }
+  }
+  rgbLedClearAll();
+  if (IS_UCHARGER_ACTIVE())
+  {
+//    RTC->BKP0R = SOFTRESET_REQUEST;
+    NVIC_SystemReset();
+  }
+#endif
 //    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
 
