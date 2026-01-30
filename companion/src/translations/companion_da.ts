@@ -3694,7 +3694,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
-        <source>Jumper T15Pro</source>
+        <source>Jumper T15 Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4246,13 +4246,13 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="181"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Connected radio: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="193"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6336,7 +6336,7 @@ Værdier mellem 5 og 12 volt accepteres</translation>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working.
 This function cannot be disabled by the radio.
 Are you sure ?</source>
-        <translation>Aktiverer du FAI, vil kun RSSI og RxBt sensorerne virke. 
+        <translation>Aktiverer du FAI, vil kun RSSI og RxBt sensorerne virke.
 Det kan ikke deaktiveres af senderen.
 Er du sikker?</translation>
     </message>
@@ -7431,7 +7431,7 @@ Er du sikker?</translation>
         <source>The column containing GPS coordinates must be named &quot;GPS&quot;.
 
 The columns for altitude &quot;GAlt&quot; and for speed &quot;GSpd&quot; are optional</source>
-        <translation>Kollone til GPS-koordinater skal kaldes &quot;GPS&quot;. 
+        <translation>Kollone til GPS-koordinater skal kaldes &quot;GPS&quot;.
 Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
     </message>
     <message>
@@ -17886,7 +17886,7 @@ Do you wish to continue?</source>
         <translation>Advarsel: Radio indstillings fil mangler i Board sektion!
 
 Aktuelt firmware profil Board anvendes.
-        
+
 Vil du fortsætte?</translation>
     </message>
     <message>

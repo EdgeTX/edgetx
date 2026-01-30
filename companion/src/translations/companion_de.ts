@@ -3752,7 +3752,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
-        <source>Jumper T15Pro</source>
+        <source>Jumper T15 Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4239,13 +4239,13 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="181"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Connected radio: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="193"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
