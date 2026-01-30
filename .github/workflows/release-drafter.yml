@@ -1,0 +1,298 @@
+---
+name: Create Release Draft
+
+on:
+  workflow_run:
+    workflows:
+      - "Run tests and package firmware"
+      - "MacOSX Companion"
+      - "Windows Companion 64-bit"
+      - "Linux Companion"
+    types:
+      - completed
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    tags:
+      - 'v*'
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create release for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  check-tag:
+    name: Check if triggered by tag
+    runs-on: ubuntu-latest
+    outputs:
+      is_tag: ${{ steps.check.outputs.is_tag }}
+      tag_name: ${{ steps.check.outputs.tag_name }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if this is a tag push
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+            echo "tag_name=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            # Get the ref that triggered the workflow_run
+            REF="${{ github.event.workflow_run.head_branch }}"
+            if git show-ref --verify --quiet "refs/tags/$REF"; then
+              echo "is_tag=true" >> $GITHUB_OUTPUT
+              echo "tag_name=$REF" >> $GITHUB_OUTPUT
+            else
+              echo "is_tag=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  verify-builds:
+    name: Verify all builds succeeded
+    needs: check-tag
+    runs-on: ubuntu-latest
+    if: needs.check-tag.outputs.is_tag == 'true'
+    # Set job timeout to 6 hours (GitHub max) to be safe
+    timeout-minutes: 360
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Wait for companion and firmware builds
+        run: |
+          SHA=${{ github.event.workflow_run.head_sha || github.sha }}
+          mapfile -t WORKFLOWS < <(echo '${{ toJson(github.event.workflow_run.workflow_name || '["Run tests and package firmware", "MacOSX Companion", "Windows Companion 64-bit", "Linux Companion"]') }}' | jq -r '.[]')
+
+          echo "Waiting for all workflows to complete for SHA: $SHA"
+
+          # 300 retries * 60 seconds = 5 hours
+          MAX_RETRIES=300
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            ALL_SUCCESS=true
+            for wf in "${WORKFLOWS[@]}"; do
+              if [ "$wf" == "${{ github.workflow }}" ]; then continue; fi
+
+              RESULT=$(gh run list --commit $SHA --workflow "$wf" --json conclusion,status --jq '.[0] | "\(.status):\(.conclusion)"' || echo "unknown:pending")
+              STATUS=$(echo $RESULT | cut -d: -f1)
+              CONCLUSION=$(echo $RESULT | cut -d: -f2)
+
+              # Exit immediately if any sibling failed
+              if [[ "$CONCLUSION" == "failure" || "$CONCLUSION" == "cancelled" ]]; then
+                echo "::error::Workflow $wf resulted in $CONCLUSION. Aborting."
+                exit 1
+              fi
+
+              if [ "$CONCLUSION" != "success" ]; then
+                # Only print status every 5 minutes to keep logs clean
+                if (( RETRY_COUNT % 5 == 0 )); then
+                  echo "Still waiting for $wf (Current status: $STATUS)..."
+                fi
+                ALL_SUCCESS=false
+                break
+              fi
+            done
+
+            if [ "$ALL_SUCCESS" = true ]; then
+              echo "All required workflows finished successfully!"
+              exit 0
+            fi
+
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            sleep 60
+          done
+
+          echo "::error::Timed out after 5 hours waiting for builds."
+          exit 1
+
+  release:
+    name: Create draft release
+    needs: [check-tag, verify-builds]
+    runs-on: ubuntu-latest
+    if: needs.check-tag.outputs.is_tag == 'true'
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check-tag.outputs.tag_name }}
+          fetch-depth: 0
+
+      - name: Clean up any previous drafts for this version
+        run: |
+          # Find and delete any existing draft releases for this tag in case of re-runs
+          DRAFTS=$(gh release list --exclude-pre-releases=false | grep "Draft" | grep "${{ needs.check-tag.outputs.tag_name }}" | cut -f1 || true)
+          for draft in $DRAFTS; do
+            echo "Deleting old draft: $draft"
+            gh release delete "$draft" --yes
+          done
+
+      - name: Extract version info
+        id: version
+        continue-on-error: false
+        run: |
+          VERSION="${{ needs.check-tag.outputs.tag_name }}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release_name=EdgeTX $VERSION" >> $GITHUB_OUTPUT
+
+          # Extract codename from CMakeLists.txt
+          if [ -f "CMakeLists.txt" ]; then
+            CODENAME=$(grep -oP 'set\(CODENAME\s+"\K[^"]+' CMakeLists.txt || echo "")
+            if [ -n "$CODENAME" ]; then
+              if [ "$CODENAME" = "dev" ]; then
+                echo "::error::CODENAME is set to 'dev' for a tagged release! Please update the CODENAME in CMakeLists.txt before creating a release."
+                exit 1
+              fi
+              echo "codename=$CODENAME" >> $GITHUB_OUTPUT
+              echo "has_codename=true" >> $GITHUB_OUTPUT
+              echo "Found codename: $CODENAME"
+            else
+              echo "has_codename=false" >> $GITHUB_OUTPUT
+              echo "No codename found"
+            fi
+          else
+            echo "has_codename=false" >> $GITHUB_OUTPUT
+            echo "CMakeLists.txt not found"
+          fi
+
+      - name: Build Changelog
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: |
+            {
+              "categories": [
+                {
+                  "title": "## 🚀 Features",
+                  "labels": ["feat", "feature"]
+                },
+                {
+                  "title": "## 🐛 Fixes",
+                  "labels": ["fix", "bugfix"]
+                },
+                {
+                  "title": "## 🧪 Tests",
+                  "labels": ["test"]
+                },
+                {
+                  "title": "## 📝 Documentation",
+                  "labels": ["docs"]
+                },
+                {
+                  "title": "## 🔨 Refactoring",
+                  "labels": ["refactor"]
+                },
+                {
+                  "title": "## 🎨 Style",
+                  "labels": ["style"]
+                },
+                {
+                  "title": "## 📦 Other",
+                  "labels": []
+                }
+              ],
+              "template": "#{{CHANGELOG}}",
+              "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
+              "empty_template": "- No changes",
+              "label_extractor": [
+                {
+                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\(.+\\))?(!)?:",
+                  "target": "$1"
+                }
+              ],
+              "max_pull_requests": 1000,
+              "max_back_track_time_days": 365
+            }
+          includeOpen: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: |
+            edgetx-firmware-${{ needs.check-tag.outputs.tag_name }}
+            edgetx-cpn-*-${{ needs.check-tag.outputs.tag_name }}
+          path: release-assets
+          merge-multiple: false  # Ensure each artifact stays in its own folder
+
+      - name: Package release assets
+        run: |
+          cd release-assets
+          for dir in */; do
+            dir_name="${dir%/}"
+            echo "Packaging $dir_name..."
+            (cd "$dir_name" && zip -r "../${dir_name}.zip" .)
+          done
+
+      - name: List release assets
+        run: |
+          echo "Release assets to upload:"
+          ls -lh release-assets/*.zip
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.check-tag.outputs.tag_name }}
+          draft: true
+          prerelease: ${{ contains(needs.check-tag.outputs.tag_name, '-rc') || contains(needs.check-tag.outputs.tag_name, '-beta') || contains(needs.check-tag.outputs.tag_name, '-alpha') }}
+          name: EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}
+          body: |
+            We are pleased to offer EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}.
+
+            ${{ (contains(needs.check-tag.outputs.tag_name, '-rc') || contains(needs.check-tag.outputs.tag_name, '-beta') || contains(needs.check-tag.outputs.tag_name, '-alpha')) && '> [!WARNING]
+            > As this is a pre-release, it is virtually guaranteed there will still be some minor issues that need resolving before final release - some may be documented already under "known issues" section of these release notes or the associated tracking issue. During pre-releases, the matching SD card pack and voice pack versions to use are those marked/tagged ''Latest''.
+            >
+            > We **need** _your_ help in testing this release to ensure there are no major bugs or faults that will cause problems during flight.  Please ensure you back up your model and radio settings before updating, fully bench-test your models after updating, and report any issues you encounter. It is only with your feedback and testing by you, our community (and the assistance provided by partner manufacturers) which will allow us to identify and squash both new and old bugs, and progress onto a stable release version!! We simply cannot do this without you! :hugs: :beers:' || '' }}
+
+            > [!WARNING]
+            > If you are using a STM32 F2 based radio, *stop right now*, this release is not for you! EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
+
+            > [!WARNING]
+            > Radios based on STM32H7 MCUs update differently to older radios. Do **not** use the "Flash via USB" option in EdgeTX Buddy with them (yet). To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RM TX15 and RM TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
+
+            > [!NOTE]
+            > For MacOS users, Companion is now only compiled for MacOS 12 and above. Stay with v2.10.5 or earlier if you need support for an older version of MacOS.
+
+            > [!NOTE]
+            > **Migration Information**
+            > - If you have an old OpenTX Companion (`.otx`) file you need to convert or open, you will need to use EdgeTX Companion v2.10 or earlier.
+            > - If you wish to upgrade from OpenTX 2.3 or EdgeTX 2.4/2.5, you must use either EdgeTX v2.8.x firmware or EdgeTX Companion v2.10.x.
+            >
+            > See the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx) for more information.
+
+            ## Supported radios
+            The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
+
+            ## Installation Guide
+            https://manual.edgetx.org/edgetx-user-manual/installing-and-updating-edgetx
+
+            ## Flash firmware via Chrome based browser
+            https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
+
+            ## Language and Custom builds
+            [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) will allow you build your own (supported) language firmware, with just a few clicks. Additionally, EdgeTX Companion also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can also build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces), request a specific build at TODO or ask on Discord for someone to build one for you.
+
+            ## Known Limitations and Issues
+
+            ## UI/UX behavioral changes and/or new capabilities:
+
+            ## Changes
+
+            ${{ steps.build_changelog.outputs.changelog }}
+
+            ## Thank you to the following contributors who made this release possible!
+            #{{CONTRIBUTORS}}
+          files: |
+            release-assets/*.zip
+          fail_on_unmatched_files: true
