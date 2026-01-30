@@ -179,6 +179,40 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
+void USBCharger(void)
+{
+  // USB Charger init code can be added here if needed
+  static uint32_t usbchgmode=0;
+
+  switch (++usbchgmode) {
+    case 1:
+      ws2812_set_color(0, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      break;
+    case 2:
+      ws2812_set_color(1, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      break;
+    case 3:
+      ws2812_set_color(2, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      break;
+    case 4:
+      ws2812_set_color(3, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      break;
+    case 5:
+      ws2812_set_color(4, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      break;
+    case 6:
+      ws2812_set_color(5, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      break;
+    case 7:
+      usbchgmode=0;
+      rgbLedClearAll();
+      break;
+    default:
+      break;
+  }
+  rgbLedColorApply();
+}
+
 void boardInit()
 {
   // enable interrupts
@@ -202,11 +236,24 @@ void boardInit()
 
   usbInit();
 
+  rgbLedInit();
+  led_strip_off();
+
 #if !defined(DEBUG_SEGGER_RTT)
   // This is needed to prevent radio from starting when usb is plugged to charge
   if (usbPlugged()) {
-    while (usbPlugged() && !pwrPressed()) {
-      delay_ms(1000);
+    while (usbPlugged() && !pwrPressed()) {//charging loop
+      delay_ms(500);
+      USBCharger();
+      if (IS_UCHARGER_ACTIVE())  {
+        /* code */
+        gpio_clear(LED_GREEN_GPIO);
+        gpio_set(LED_RED_GPIO);
+      }
+      else{
+        gpio_clear(LED_RED_GPIO);
+        gpio_set(LED_GREEN_GPIO);
+      }
     }
     if (!pwrPressed()) {
       pwrOff();
@@ -254,50 +301,7 @@ void boardOff()
 
 #if !defined(BOOT)
   rgbLedClearAll();
-
-  while (usbPlugged()) {  //wait for usb unplug or full charge
-    /* code */
-    WDG_RESET();
-    #define USB_CHARGER_MS_DELAY 10000
-    if(++usbchgstep>USB_CHARGER_MS_DELAY*500){
-      usbchgstep=0;
-      usbchgmode++;
-      switch (usbchgmode) {
-      case 1:
-        ws2812_set_color(0, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-        rgbLedColorApply();
-        break;
-      case 2:
-        ws2812_set_color(1, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-        rgbLedColorApply();
-        break;
-      case 3:
-        ws2812_set_color(2, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-        rgbLedColorApply();
-        break;
-      case 4:
-        ws2812_set_color(3, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-        rgbLedColorApply();
-        break;
-      case 5:
-        ws2812_set_color(4, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-        rgbLedColorApply();
-        break;
-      case 6:
-        ws2812_set_color(5, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-        rgbLedColorApply();
-        break;
-      case 7:
-        rgbLedClearAll();
-        usbchgmode=0;
-        break;
-      default:
-        break;
-      }
-    }
-  }
-  rgbLedClearAll();
-  if (IS_UCHARGER_ACTIVE())
+  if (IS_UCHARGER_ACTIVE()||usbPlugged())
   {
 //    RTC->BKP0R = SOFTRESET_REQUEST;
     NVIC_SystemReset();
