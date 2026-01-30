@@ -3600,7 +3600,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
-        <source>Jumper T15Pro</source>
+        <source>Jumper T15 Pro</source>
         <translation></translation>
     </message>
     <message>
@@ -4253,16 +4253,16 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="178"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Connected radio: &apos;%3&apos;</source>
-        <translation>%1 
+        <translation>%1
 Inkompatibilitet - File &apos;%2&apos; Ansluten radio: &apos;%3&apos;</translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="190"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
-        <translation>%1 
+        <translation>%1
 Inkompatibilitet - File &apos;%2&apos; Profil: &apos;%3&apos;</translation>
     </message>
     <message>
@@ -6414,7 +6414,7 @@ Acceptabla värden är 3 - 12 volt</translation>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working.
 This function cannot be disabled by the radio.
 Are you sure ?</source>
-        <translation>Om du aktiverar FAI kommer endast RSSI och RxBt-sensorerna 
+        <translation>Om du aktiverar FAI kommer endast RSSI och RxBt-sensorerna
 att fungera. Detta går inte att ändra från radion.
 Är du säker?</translation>
     </message>
@@ -7524,7 +7524,7 @@ att fungera. Detta går inte att ändra från radion.
         <source>The column containing GPS coordinates must be named &quot;GPS&quot;.
 
 The columns for altitude &quot;GAlt&quot; and for speed &quot;GSpd&quot; are optional</source>
-        <translation>Kolumnen med GPS-koordinater måste heta &quot;GPS&quot;. 
+        <translation>Kolumnen med GPS-koordinater måste heta &quot;GPS&quot;.
 Kolumnerna för höjd (GAlt) och hastighet (GSpd) är valfria</translation>
     </message>
     <message>
@@ -15941,9 +15941,9 @@ hh:mm:ss</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="350"/>
-        <source>Row # 
+        <source>Row #
 Timestamp</source>
-        <translation>Rad # 
+        <translation>Rad #
 Tidsstämpel</translation>
     </message>
     <message>

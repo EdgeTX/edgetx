@@ -3731,7 +3731,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
-        <source>Jumper T15Pro</source>
+        <source>Jumper T15 Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4218,13 +4218,13 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="178"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Connected radio: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="190"/>
-        <source>%1 
+        <source>%1
 Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13466,7 +13466,7 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
         <source>ERROR: Couldn&apos;t start simulator, missing radio/profile/data file/folder.
   Profile ID: [%1]; Radio ID: [%2];
 Data File: [%3]</source>
-        <translation type="unfinished">BŁĄD: Nie mogę wystartować symulatora, brakuje radia/profilu/pliku danych/folderu 
+        <translation type="unfinished">BŁĄD: Nie mogę wystartować symulatora, brakuje radia/profilu/pliku danych/folderu
 ID Profilu: [%1]; ID Radia: [%2];
 Plik Danych: [%3]</translation>
     </message>
@@ -15865,9 +15865,9 @@ hh:mm:ss</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="350"/>
-        <source>Row # 
+        <source>Row #
 Timestamp</source>
-        <translation>Czysty # 
+        <translation>Czysty #
 Timestamp</translation>
     </message>
     <message>
