@@ -26,12 +26,10 @@
 
 AutoSourceDSB::AutoSourceDSB(QWidget * parent) :
   AutoSource(),
-  QDoubleSpinBox(parent),
-  m_dsbValue(nullptr)
+  QDoubleSpinBox(parent)
 {
-  m_dsbValue = new QDoubleSpinBox(this);
-  m_dsbValue->setAccelerated(true);
-  connect(m_dsbValue, &QDoubleSpinBox::editingFinished, this,
+  setAccelerated(true);
+  connect(this, &QDoubleSpinBox::editingFinished, this,
           &AutoSourceDSB::on_editingFinished);
 }
 
@@ -47,12 +45,12 @@ void AutoSourceDSB::setField(RawSource * field,
   setField(dflt, typeLabel, min, max, precision, prefix, suffix);
 
   setLock(true);
-  m_dsbValue->setDecimals(m_precision);
-  m_dsbValue->setMinimum(min / m_scalingFactor);
-  m_dsbValue->setMaximum(max / m_scalingFactor);
-  m_dsbValue->setSingleStep(1 / m_scalingFactor);
-  m_dsbValue->setSuffix(suffix);
-  m_dsbValue->setValue(dflt.index / m_scalingFactor);
+  setDecimals(m_precision);
+  setMinimum(min / m_scalingFactor);
+  setMaximum(max / m_scalingFactor);
+  setSingleStep(1 / m_scalingFactor);
+  setSuffix(suffix);
+  setValue(dflt.index / m_scalingFactor);
   setLock(false);
 
   updateValue();
@@ -74,9 +72,9 @@ void AutoSourceDSB::setField(RawSource dflt, QString typeLabel, int min, int max
 
 void AutoSourceDSB::on_editingFinished()
 {
-  if (!lock() && m_dsbValue) {
+  if (!lock()) {
     setSource(RawSource(SOURCE_TYPE_NUMBER,
-                        (int)round(m_dsbValue->value() * m_scalingFactor)));
+                        (int)round(value() * m_scalingFactor)));
     emit dataChanged();
     AutoWidget::dataChanged();
   }
@@ -89,7 +87,7 @@ void AutoSourceDSB::setValueDefault()
 
 void AutoSourceDSB::setMinMax(const int min, const int max)
 {
-  if (m_dsbValue) {
+  if (min < max && (m_min != min || m_max != max)) {
     m_min = min;
     m_max = max;
 
