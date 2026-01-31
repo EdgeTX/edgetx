@@ -101,7 +101,7 @@ jobs:
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v4
         with:
-          configuration: |
+          configurationJson: |
             {
               "categories": [
                 {
@@ -182,6 +182,13 @@ jobs:
           git config user.email github-actions@github.com
           git tag -f nightly
           git push -f origin nightly
+
+      - name: Delete previous nightly release
+        run: |
+          # Delete the existing nightly release to avoid accumulating assets
+          gh release delete nightly --yes || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy nightly release
         uses: softprops/action-gh-release@v2
