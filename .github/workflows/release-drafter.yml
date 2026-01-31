@@ -190,6 +190,7 @@ jobs:
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v4
         with:
+          mode: "HYBRID"
           configurationJson: |
             {
               "categories": [
@@ -248,6 +249,7 @@ jobs:
               ],
               "template": "#{{CHANGELOG}}\n\n## Thank you to the following contributors who made this release possible!\n#{{CONTRIBUTORS}}",
               "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
+              "commit_template": "- #{{TITLE}} (#{{MERGE_SHA}})",
               "empty_template": "- No changes",
               "label_extractor": [
                 {
