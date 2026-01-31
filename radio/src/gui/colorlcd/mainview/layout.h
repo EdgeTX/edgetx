@@ -73,11 +73,17 @@ extern const LayoutOption defaultLayoutOptions[];
 
 #define LAYOUT_MAP_DIV      60
 #define LAYOUT_MAP_0        0
-#define LAYOUT_MAP_1QTR     15
-#define LAYOUT_MAP_1THIRD   20
-#define LAYOUT_MAP_HALF     30
-#define LAYOUT_MAP_2THIRD   40
-#define LAYOUT_MAP_3QTR     45
+#define LAYOUT_MAP_1SIXTH   10  // 1/6
+#define LAYOUT_MAP_1FIFTH   12  // 1/5
+#define LAYOUT_MAP_1QTR     15  // 1/4
+#define LAYOUT_MAP_2FIFTH   24  // 2/5
+#define LAYOUT_MAP_1THIRD   20  // 1/3
+#define LAYOUT_MAP_HALF     30  // 1/2
+#define LAYOUT_MAP_3FIFTH   36  // 3/5
+#define LAYOUT_MAP_2THIRD   40  // 2/3
+#define LAYOUT_MAP_3QTR     45  // 3/4
+#define LAYOUT_MAP_4FIFTH   48  // 4/5
+#define LAYOUT_MAP_5SIXTH   50  // 5/6
 #define LAYOUT_MAP_FULL     60
 
 //-----------------------------------------------------------------------------
