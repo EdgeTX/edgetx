@@ -1063,6 +1063,7 @@
     <file alias="mask_layout1x2.png">images/layouts/mask_layout1x2.png</file>
     <file alias="mask_layout1x3.png">images/layouts/mask_layout1x3.png</file>
     <file alias="mask_layout1x4.png">images/layouts/mask_layout1x4.png</file>
+    <file alias="mask_layout1x6.png">images/layouts/mask_layout1x6.png</file>
     <file alias="mask_layout2p1.png">images/layouts/mask_layout2+1.png</file>
     <file alias="mask_layout2p3.png">images/layouts/mask_layout2+3.png</file>
     <file alias="mask_layout2x1.png">images/layouts/mask_layout2x1.png</file>

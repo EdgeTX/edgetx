@@ -77,21 +77,19 @@ class Layout6x1 : public Layout
   }
 };
 
-// Zone map: 6x1 (6 rows, 1 column)
+// Zone map: 6x1 (1 column, 6 rows)
 // Each zone is 1/6 height, full width
-#define LAYOUT_MAP_1_6TH 10  // 1/6 of full dimension (60/6 = 10)
-
 // clang-format off
 static const uint8_t zmap[] = {
     // Zone positions: x, y, w, h
-    LAYOUT_MAP_0,     LAYOUT_MAP_0,      LAYOUT_MAP_FULL, LAYOUT_MAP_1_6TH,   // Zone 1
-    LAYOUT_MAP_0,     LAYOUT_MAP_1_6TH,  LAYOUT_MAP_FULL, LAYOUT_MAP_1_6TH,   // Zone 2
-    LAYOUT_MAP_0,     LAYOUT_MAP_1_6TH*2,LAYOUT_MAP_FULL, LAYOUT_MAP_1_6TH,   // Zone 3
-    LAYOUT_MAP_0,     LAYOUT_MAP_1_6TH*3,LAYOUT_MAP_FULL, LAYOUT_MAP_1_6TH,   // Zone 4
-    LAYOUT_MAP_0,     LAYOUT_MAP_1_6TH*4,LAYOUT_MAP_FULL, LAYOUT_MAP_1_6TH,   // Zone 5
-    LAYOUT_MAP_0,     LAYOUT_MAP_1_6TH*5,LAYOUT_MAP_FULL, LAYOUT_MAP_1_6TH,   // Zone 6
+    LAYOUT_MAP_0,     LAYOUT_MAP_0,       LAYOUT_MAP_FULL, LAYOUT_MAP_1SIXTH,   // Zone 1
+    LAYOUT_MAP_0,     LAYOUT_MAP_1SIXTH,  LAYOUT_MAP_FULL, LAYOUT_MAP_1SIXTH,   // Zone 2
+    LAYOUT_MAP_0,     LAYOUT_MAP_1THIRD,  LAYOUT_MAP_FULL, LAYOUT_MAP_1SIXTH,   // Zone 3
+    LAYOUT_MAP_0,     LAYOUT_MAP_HALF,    LAYOUT_MAP_FULL, LAYOUT_MAP_1SIXTH,   // Zone 4
+    LAYOUT_MAP_0,     LAYOUT_MAP_2THIRD,  LAYOUT_MAP_FULL, LAYOUT_MAP_1SIXTH,   // Zone 5
+    LAYOUT_MAP_0,     LAYOUT_MAP_5SIXTH,  LAYOUT_MAP_FULL, LAYOUT_MAP_1SIXTH,   // Zone 6
 };
 // clang-format on
 
-BaseLayoutFactory<Layout6x1> layout6x1("Layout6x1", "6 x 1", OPTIONS_LAYOUT_6x1,
+BaseLayoutFactory<Layout6x1> layout1x6("Layout1x6", "1 x 6", OPTIONS_LAYOUT_6x1,
                                        6, (uint8_t*)zmap);
