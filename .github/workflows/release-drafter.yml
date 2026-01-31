@@ -252,10 +252,12 @@ jobs:
               "label_extractor": [
                 {
                   "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([^)]+\\))?(!)?:",
+                  "on_property": "title",
                   "target": "$1"
                 },
                 {
                   "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)\\(([^)]+)\\)",
+                  "on_property": "title",
                   "target": "scope:$2"
                 }
               ],
