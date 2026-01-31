@@ -541,7 +541,7 @@ USART6: INTMODULE_USART
 #define AUX_SERIAL_DMA_RX_CHANNEL           LL_DMAMUX1_REQ_UART5_RX
 #define AUX_SERIAL_PWR_GPIO                 GPIO_PIN(GPIOB, 7) // PB.07
 
-#if defined(AUX2)
+#if defined(AUX2_SERIAL)
 #define AUX2_SERIAL_TX_GPIO                 GPIO_PIN(GPIOB, 10) // PB.10
 #define AUX2_SERIAL_RX_GPIO                 GPIO_PIN(GPIOB, 11) // PB.11
 #define AUX2_SERIAL_USART                   USART3
