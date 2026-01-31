@@ -101,6 +101,9 @@ void Layout::checkEvents()
   rect_t z = getMainZone();
   if (z.x != lastMainZone.x || z.y != lastMainZone.y || z.w != lastMainZone.w || z.h != lastMainZone.h) {
     lastMainZone = z;
+    for (int i = 0; i < MAX_LAYOUT_ZONES; i++)
+      if (widgets[i] && widgets[i]->isFullscreen())
+        return;
     updateZones();
   }
 }
