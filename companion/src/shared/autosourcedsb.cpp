@@ -25,8 +25,8 @@
 #include <cmath>
 
 AutoSourceDSB::AutoSourceDSB(QWidget * parent) :
-  AutoSource(),
-  QDoubleSpinBox(parent)
+  QDoubleSpinBox(parent),
+  AutoSource()
 {
   setAccelerated(true);
   connect(this, &QDoubleSpinBox::editingFinished, this,
@@ -38,11 +38,11 @@ AutoSourceDSB::~AutoSourceDSB()
 }
 
 void AutoSourceDSB::setField(RawSource * field,
-                             RawSource dflt, QString typeLabel, int min, int max,
+                             RawSource dflt, int min, int max,
                              int precision, QString prefix, QString suffix, GenericPanel * panel)
 {
   AutoSource::setField(field, panel);
-  setField(dflt, typeLabel, min, max, precision, prefix, suffix);
+  setField(dflt, min, max, precision, prefix, suffix);
 
   setLock(true);
   setDecimals(m_precision);
@@ -56,11 +56,10 @@ void AutoSourceDSB::setField(RawSource * field,
   updateValue();
 }
 
-void AutoSourceDSB::setField(RawSource dflt, QString typeLabel, int min, int max,
+void AutoSourceDSB::setField(RawSource dflt, int min, int max,
                              int precision, QString prefix, QString suffix)
 {
   m_dflt = dflt;
-  m_typeLabel = typeLabel;
   m_min = min;
   m_max = max;
   m_precision = precision;

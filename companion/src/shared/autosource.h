@@ -27,7 +27,7 @@
 class AutoSource : public AutoWidget
 {
   public:
-    explicit AutoSource() {}
+    explicit AutoSource();
     virtual ~AutoSource() {}
 
     void setField(RawSource * field, GenericPanel * panel = nullptr);

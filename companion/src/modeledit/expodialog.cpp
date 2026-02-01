@@ -26,6 +26,7 @@
 #include "namevalidator.h"
 #include "curvereferencewidget.h"
 #include "rawsourcewidget.h"
+#include "autosourcecb.h"
 
 ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
                        GeneralSettings & generalSettings,
@@ -58,11 +59,11 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
   setWindowTitle(tr("Edit %1").arg(RawSource(SOURCE_TYPE_VIRTUAL_INPUT,
                  ed->chn + 1).toString(&model, &generalSettings)));
 
-  ui->wgtWeight->init(&model, sharedItemModels, &ed->weight,
+  ui->wgtWeight->setField(&ed->weight, sharedItemModels,
                       (RawSource::AllSourceGroups & ~RawSource::NoneGroup &
-                       ~RawSource::ScriptsGroup),
-                      UI_FLAG_LIST_VALUE, RawSource(SOURCE_TYPE_NUMBER));
-  connect(ui->wgtWeight, &RawSourceWidget::resized, this, [=] () { shrink(); });
+                       ~RawSource::ScriptsGroup), true,
+                      RawSource(SOURCE_TYPE_NUMBER));
+  connect(ui->wgtWeight, &AutoSourceListNum::resized, this, [=] () { shrink(); });
 
   ui->wgtOffset->init(&model, sharedItemModels, &ed->offset,
                       (RawSource::AllSourceGroups & ~RawSource::NoneGroup &
@@ -120,9 +121,8 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
 
   int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
   flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
-  ui->wgtSource->init(&model, sharedItemModels, &ed->srcRaw, flags);
-  connect(ui->wgtSource, &RawSourceWidget::resized, this, [&] () { shrink(); });
-  connect(ui->wgtSource, &RawSourceWidget::dataChanged, this, &ExpoDialog::sourceChanged);
+  ui->cboSource->setField(&ed->srcRaw, sharedItemModels, flags);
+  connect(ui->cboSource, &AutoSourceCB::dataChanged, this, &ExpoDialog::sourceChanged);
 
   dialogFilteredItemModels->registerItemModel(new FilteredItemModel(ExpoData::carryTrimItemModel()), AIM_EXPO_CARRYTRIM);
   ui->trimCB->setModel(dialogFilteredItemModels->getItemModel(AIM_EXPO_CARRYTRIM));

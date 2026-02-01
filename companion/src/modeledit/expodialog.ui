@@ -35,7 +35,7 @@
      <item row="5" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
-        <widget class="RawSourceWidget" name="wgtWeight" native="true"/>
+        <widget class="AutoSourceListNum" name="wgtWeight" native="true"/>
        </item>
        <item>
         <spacer name="horizontalSpacer_2">
@@ -193,7 +193,7 @@
      <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="RawSourceWidget" name="wgtSource" native="true"/>
+        <widget class="AutoSourceCB" name="cboSource"/>
        </item>
        <item>
         <spacer name="horizontalSpacer_8">
@@ -557,6 +557,17 @@
    <class>CurveReferenceWidget</class>
    <extends>QWidget</extends>
    <header>curvereferencewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AutoSourceCB</class>
+   <extends>QComboBox</extends>
+   <header>autosourcecb.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AutoSourceListNum</class>
+   <extends>QWidget</extends>
+   <header>autosourcelistnum.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

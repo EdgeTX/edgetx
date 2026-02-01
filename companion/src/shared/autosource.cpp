@@ -21,6 +21,9 @@
 
 #include "autosource.h"
 
+AutoSource::AutoSource() :
+  m_rawSource(nullptr) {}
+
 void AutoSource::setField(RawSource * field, GenericPanel * panel)
 {
   m_rawSource = field;

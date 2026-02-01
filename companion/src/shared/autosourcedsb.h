@@ -25,7 +25,7 @@
 
 #include <QDoubleSpinBox>
 
-class AutoSourceDSB : public QDoubleSpinBox, virtual public AutoSource {
+class AutoSourceDSB : public QDoubleSpinBox, public AutoSource {
 
   Q_OBJECT
 
@@ -36,13 +36,11 @@ class AutoSourceDSB : public QDoubleSpinBox, virtual public AutoSource {
     virtual void updateValue() override;
 
     void setField(RawSource * field, RawSource dflt = RawSource(),
-                  QString typeLabel = "",
                   int min = -1024, int max = 1024,
                   int precision = 0,
                   QString prefix = "", QString suffix = "", GenericPanel * panel = nullptr);
 
     void setField(RawSource dflt = RawSource(),
-                  QString typeLabel = "",
                   int min = -1024, int max = 1024,
                   int precision = 0,
                   QString prefix = "", QString suffix = "");
@@ -58,7 +56,6 @@ class AutoSourceDSB : public QDoubleSpinBox, virtual public AutoSource {
 
   private:
     RawSource m_dflt;
-    QString m_typeLabel;
     int m_min;
     int m_max;
     int m_precision;
