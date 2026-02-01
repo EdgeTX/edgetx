@@ -54,10 +54,13 @@ class MainWindow: public Window
 
   void shutdown();
 
+  void enableWidgetRefresh(bool state) { widgetRefreshEnable = state; }
+
  protected:
   lv_obj_t* background = nullptr;
   std::string backgroundImageFileName;
   const BitmapBuffer *backgroundBitmap = nullptr;
+  bool widgetRefreshEnable = true;
 
   static MainWindow * _instance;
   static void emptyTrash();
