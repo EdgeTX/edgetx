@@ -133,7 +133,7 @@ jobs:
           TAG="${{ needs.check-tag.outputs.tag_name }}"
           if gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q true; then
             echo "Deleting existing draft release for tag: $TAG"
-            gh release delete "$TAG" --yes --cleanup-tag
+            gh release delete "$TAG" --yes
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
