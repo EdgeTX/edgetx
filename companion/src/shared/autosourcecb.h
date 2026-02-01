@@ -29,16 +29,13 @@ class AbstractItemModel;
 class CompoundItemModelFactory;
 class FilteredItemModel;
 
-class AutoSourceCB : public QComboBox, virtual public AutoSource
+class AutoSourceCB : public QComboBox, public AutoSource
 {
   Q_OBJECT
 
   public:
     explicit AutoSourceCB(QWidget * parent = nullptr);
     virtual ~AutoSourceCB();
-
-    // QComboBox
-    virtual void setModel(QAbstractItemModel * model) override;
 
     // AutoWidget
     virtual void updateValue() override;

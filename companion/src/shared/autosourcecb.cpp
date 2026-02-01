@@ -25,8 +25,8 @@
 #include "filtereditemmodels.h"
 
 AutoSourceCB::AutoSourceCB(QWidget * parent) :
-  AutoSource(),
   QComboBox(parent),
+  AutoSource(),
   m_itemModel(nullptr),
   m_filteredSource(nullptr)
 {

@@ -25,14 +25,17 @@
 #include "autosourcedsb.h"
 
 #include <QCheckBox>
+#include <QStackedLayout>
 
-class AutoSourceListNum : public QWidget, virtual public AutoSource{
+class AutoSourceListNum : public QWidget, public AutoSource{
 
   Q_OBJECT
 
   public:
     explicit AutoSourceListNum(QWidget * parent = nullptr);
     virtual ~AutoSourceListNum();
+
+    //virtual QSize sizeHint() const;
 
     virtual void updateValue() override;
 
@@ -55,7 +58,7 @@ class AutoSourceListNum : public QWidget, virtual public AutoSource{
                   GenericPanel * panel = nullptr);
 
   signals:
-    void resize();
+    void resized();
 
   protected slots:
     void typeChanged(int state);
@@ -65,4 +68,6 @@ class AutoSourceListNum : public QWidget, virtual public AutoSource{
     QCheckBox *m_chkType;
     AutoSourceCB *m_sourceCB;
     AutoSourceDSB *m_sourceDSB;
+    QStackedLayout *m_stack;
+    void shrink();
 };
