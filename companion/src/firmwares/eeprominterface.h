@@ -106,6 +106,7 @@ enum Capability {
   HasSwitchableJack,
   HasTelemetryBaudrate,
   HasTopLcd,
+  HastxCurrentCalibration,  // ETX always false
   HasVario,
   HasVarioSink,
   HasVCPSerialMode,
@@ -138,6 +139,7 @@ enum Capability {
   NumFirstUsableModule,
   NumModules,
   OffsetWeight,
+  OptrexDisplay,  // ETX always false
   Outputs,
   PerModelTimers,
   PermTimers,
@@ -152,6 +154,7 @@ enum Capability {
   Simulation,
   SlowRange,
   SlowScale,
+  SoundMod,  // ETX always false
   SoundPitch,
   SportTelemetry,
   SYMLimits,
