@@ -249,11 +249,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all release artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: edgetx-{firmware,cpn-*}-${{ needs.check-tag.outputs.tag_name }}
-          path: release-assets
-          merge-multiple: false  # Ensure each artifact stays in its own folder
+        run: |
+          TAG="${{ needs.check-tag.outputs.tag_name }}"
+
+          COMMIT_SHA=$(git rev-parse $TAG)
+          echo "Looking for artifacts from commit: $COMMIT_SHA"
+
+          # Find all successful workflow runs for this commit
+          WORKFLOW_RUNS=$(gh run list --commit $COMMIT_SHA --json databaseId,status,conclusion --jq '.[] | select(.conclusion=="success") | .databaseId')
+
+          if [ -z "$WORKFLOW_RUNS" ]; then
+            echo "No successful workflow runs found for commit $COMMIT_SHA"
+            exit 1
+          fi
+
+          # Download artifacts from each successful run
+          mkdir -p release-assets
+          for run_id in $WORKFLOW_RUNS; do
+            echo "Downloading artifacts from run $run_id..."
+            gh run download $run_id --dir release-assets --pattern "edgetx-*-${TAG}" || echo "No matching artifacts in run $run_id"
+          done
+
+          # Check if we got any artifacts
+          if [ ! "$(ls -A release-assets 2>/dev/null)" ]; then
+            echo "::error::No artifacts found matching pattern edgetx-*-${TAG}"
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Package release assets
         run: |
