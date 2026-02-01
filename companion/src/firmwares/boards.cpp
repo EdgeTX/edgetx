@@ -395,8 +395,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 480;
       else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board))
         return 320;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
-        return 272;
       else if (IS_FLYSKY_PA01(board))
         return 240;
       else if (IS_FAMILY_HORUS_OR_T16(board))
