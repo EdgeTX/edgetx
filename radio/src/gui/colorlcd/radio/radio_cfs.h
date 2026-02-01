@@ -19,24 +19,19 @@
  * GNU General Public License for more details.
  */
 
- #pragma once
+#pragma once
 
- #if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES)
 
- #include "page.h"
+#include "function_switches.h"
 
- class RadioFunctionSwitches : public Page
- {
-  public:
-   RadioFunctionSwitches();
+class RadioFunctionSwitches : public FunctionSwitchesBase
+{
+ public:
+  RadioFunctionSwitches();
 
-  protected:
-   BitmapBuffer* qrcode = nullptr;
-   StaticText* startupHeader = nullptr;
+ protected:
+  void setState() override;
+};
 
-   void setState();
-   void checkEvents() override;
- };
-
- #endif
- 
+#endif

@@ -120,6 +120,11 @@ char *strcat_zchar(char *dest, const char *name, uint8_t size,
 #endif
 
 #if !defined(BOOT)
+std::string getStringAtIndex(const char *const *s, int idx)
+{
+  return std::string(s[idx]);
+}
+
 char *getStringAtIndex(char *dest, const char *const *s, int idx)
 {
   strcpy(dest, s[idx]);

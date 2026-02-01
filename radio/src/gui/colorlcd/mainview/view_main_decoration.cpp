@@ -30,23 +30,24 @@
 
 #include "hal/adc_driver.h"
 
-ViewMainDecoration::ViewMainDecoration(Window* parent, bool showTrims, bool showSliders, bool showFM) :
-  parent(parent), showTrims(showTrims), showSliders(showSliders), showFM(showFM)
+ViewMainDecoration::ViewMainDecoration(Window* parent, bool calibration) :
+    Window(parent, {0, 0, parent->width(), parent->height()})
 {
-  w_ml = layoutBox(parent, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
-  w_mr = layoutBox(parent, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);
-  w_bl = layoutBox(parent, LV_ALIGN_BOTTOM_LEFT, LV_FLEX_FLOW_COLUMN);
-  w_br = layoutBox(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
+  w_ml = layoutBox(this, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
+  w_mr = layoutBox(this, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);
+  w_bl = layoutBox(this, LV_ALIGN_BOTTOM_LEFT, LV_FLEX_FLOW_COLUMN);
+  w_br = layoutBox(this, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
 
-  w_bc = layoutBox(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
+  w_bc = layoutBox(this, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
-  if (this->showTrims)
+  if (!calibration) {
     createTrims(w_ml, w_mr, w_bl, w_br);
-  if (this->showFM)
     createFlightMode(w_bc);
-  if (this->showSliders)
-    createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
+  } else {
+    showTrims = showFM = false;
+  }
+  createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
 }
 
 Window* ViewMainDecoration::layoutBox(Window* parent, lv_align_t align,
@@ -107,17 +108,22 @@ static bool canTrimShow(int idx)
   return false;
 }
 
-rect_t ViewMainDecoration::getMainZone() const
+rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
 {
-  coord_t x = 0, w = LCD_W, h = LCD_H;
+  coord_t x = 0, y = 0, w = width(), h = height();
   coord_t bh = 0;
+
+  if (showTopBar) {
+    y = EdgeTxStyles::MENU_HEADER_HEIGHT;
+    bh = EdgeTxStyles::MENU_HEADER_HEIGHT;
+  }
 
   if (showSliders) {
     if (hasVerticalSliders) {
       x += MainViewSlider::SLIDER_BAR_SIZE;
       w -= 2 * MainViewSlider::SLIDER_BAR_SIZE;
     }
-    bh = MainViewSlider::SLIDER_BAR_SIZE;
+    bh += MainViewSlider::SLIDER_BAR_SIZE;
   }
 
   if (showTrims) {
@@ -138,9 +144,16 @@ rect_t ViewMainDecoration::getMainZone() const
       bh -= MainViewSlider::SLIDER_BAR_SIZE;
   }
 
+  if (showSliders || showTrims || showFM) {
+    x += PAD_LARGE;
+    y += PAD_LARGE;
+    w -= PAD_LARGE * 2;
+    bh += PAD_LARGE * 2;
+  }
+
   h -= bh;
 
-  return rect_t{x, 0, w, h};
+  return rect_t{x, y, w, h};
 }
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)

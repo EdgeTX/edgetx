@@ -141,6 +141,23 @@ void closeUsbMenu()
 #endif
 
 #if defined(COLORLCD)
+class UsbSDConnected : public Window
+{
+ public:
+  UsbSDConnected() : Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+  {
+    setWindowFlag(OPAQUE);
+
+    pushLayer(false);
+
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+    new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, PAD_MEDIUM);
+
+    auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_center(icon->getLvObj());
+  }
+};
+
 static UsbSDConnected* usbConnectedWindow = nullptr;
 #endif
 
@@ -193,11 +210,21 @@ void handleUsbConnection()
     usbStop();
     TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-      edgeTxResume();
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();
       usbConnectedWindow = nullptr;
+      // In case the SD card is removed during the session
+      if (!SD_CARD_PRESENT()) {
+        // Blocks until shutdown or SD card inserted
+        auto w = drawFatalErrorScreen(STR_NO_SDCARD);
+        MainWindow::instance()->blockUntilClose(true, []() {
+          return SD_CARD_PRESENT();
+        }, true);
+        w->deleteLater();
+      }
+      edgeTxResume();
 #else
+      edgeTxResume();
       pushEvent(EVT_ENTRY);
 #endif
     } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
@@ -350,8 +377,6 @@ void guiMain(event_t evt)
   }
 #endif
 
-  MainWindow::instance()->run();
-
   bool mainViewRequested = (mainRequestFlags & (1u << REQUEST_MAIN_VIEW));
   if (mainViewRequested) {
     auto viewMain = ViewMain::instance();
@@ -368,6 +393,20 @@ void guiMain(event_t evt)
   if (screenshotRequested) {
     writeScreenshot();
     mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
+  }
+
+  // For color screens show a popup deferred from another task
+  show_ui_popup();
+  // Show GVAR popup
+  if (gvarDisplayTimer > 0) {
+    char s[30], *p;
+    p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
+    p = strAppend(p, " ", 1);
+    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
+    p = strAppend(p, " = ", 3);
+    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
+    POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
+    gvarDisplayTimer = 0;
   }
 }
 #elif defined(GUI)
@@ -510,10 +549,14 @@ void perMain()
   checkHatsAsKeys();
 #endif
 
+#if defined(COLORLCD)
+  MainWindow::instance()->run();
+#endif
+
 #if defined(RTC_BACKUP_RAM)
   if (UNEXPECTED_SHUTDOWN()) {
 #if defined(COLORLCD)
-    drawFatalErrorScreen(STR_EMERGENCY_MODE);
+    backlightEnable(BACKLIGHT_LEVEL_MAX);
 #else
     lcdClear();
     menuMainView(0);
@@ -523,26 +566,18 @@ void perMain()
   }
 #endif
 
-  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) &&
-      SD_CARD_PRESENT() && !sdMounted()) {
-    sdMount();
-  }
+  if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
+    if (SD_CARD_PRESENT() && !sdMounted())
+      sdMount();
 
-  // In case the SD card is removed during the session
-  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) &&
-      !SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
-    // TODO: implement for b/w
-#if defined(COLORLCD)
-    drawFatalErrorScreen(STR_NO_SDCARD);
-    return;
-#endif
+    // In case the SD card is removed during the session
+    if (!SD_CARD_PRESENT()) {
+      // TODO: implement for b/w
+    }
   }
 
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-#if defined(COLORLCD)
-    MainWindow::instance()->run();
-    usbConnectedWindow->checkEvents();
-#else
+#if !defined(COLORLCD)
     // disable access to menus
     lcdClear();
     menuMainView(0);
@@ -567,19 +602,6 @@ void perMain()
   DEBUG_TIMER_START(debugTimerGuiMain);
 #if defined(COLORLCD)
   guiMain(0);
-  // For color screens show a popup deferred from another task
-  show_ui_popup();
-  // Show GVAR popup
-  if (gvarDisplayTimer > 0) {
-    char s[30], *p;
-    p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
-    p = strAppend(p, " ", 1);
-    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
-    p = strAppend(p, " = ", 3);
-    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
-    POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
-    gvarDisplayTimer = 0;
-  }
 #else
   guiMain(evt);
 #endif

@@ -25,6 +25,7 @@
 #include "dataconstants.h"
 #include "widget.h"
 #include "view_main_decoration.h"
+#include "messaging.h"
 
 #include <memory>
 
@@ -72,19 +73,23 @@ extern const LayoutOption defaultLayoutOptions[];
 
 #define LAYOUT_MAP_DIV      60
 #define LAYOUT_MAP_0        0
-#define LAYOUT_MAP_1QTR     15
-#define LAYOUT_MAP_1THIRD   20
-#define LAYOUT_MAP_HALF     30
-#define LAYOUT_MAP_2THIRD   40
-#define LAYOUT_MAP_3QTR     45
+#define LAYOUT_MAP_1SIXTH   10  // 1/6
+#define LAYOUT_MAP_1FIFTH   12  // 1/5
+#define LAYOUT_MAP_1QTR     15  // 1/4
+#define LAYOUT_MAP_2FIFTH   24  // 2/5
+#define LAYOUT_MAP_1THIRD   20  // 1/3
+#define LAYOUT_MAP_HALF     30  // 1/2
+#define LAYOUT_MAP_3FIFTH   36  // 3/5
+#define LAYOUT_MAP_2THIRD   40  // 2/3
+#define LAYOUT_MAP_3QTR     45  // 3/4
+#define LAYOUT_MAP_4FIFTH   48  // 4/5
+#define LAYOUT_MAP_5SIXTH   50  // 5/6
 #define LAYOUT_MAP_FULL     60
 
 //-----------------------------------------------------------------------------
 
 class Layout: public WidgetsContainer
 {
- friend class LayoutFactory;
-
  public:
   Layout(Window* parent, const LayoutFactory * factory,
           int screenNum, uint8_t zoneCount, uint8_t* zoneMap);
@@ -114,30 +119,30 @@ class Layout: public WidgetsContainer
   virtual bool hasTrims() const;
   virtual bool isMirrored() const;
 
-  // Set decoration visibility
-  void setTrimsVisible(bool visible);
-  void setSlidersVisible(bool visible);
-  void setFlightModeVisible(bool visible);
-
   // Updates settings for trims, sliders, pots, etc...
+  virtual void updateDecorations();
   void show(bool visible = true) override;
 
   bool isLayout() override { return true; }
 
   void removeWidget(unsigned int index) override;
 
+  bool hasFullScreenWidget() const;
+
  protected:
-  const LayoutFactory * factory  = nullptr;
-  std::unique_ptr<ViewMainDecoration> decoration;
+  const LayoutFactory* factory = nullptr;
+  ViewMainDecoration* decoration = nullptr;
   uint8_t* zoneMap = nullptr;
   int screenNum;
   rect_t lastMainZone = {0,0,0,0};
+  Messaging decorationUpdateMsg;
+  bool zoneUpdateRequired = false;
 
   // Last time we refreshed the window
   uint32_t lastRefresh = 0;
 
   // Get the available space for widgets
-  rect_t getMainZone() const;
+  rect_t getWidgetsZone() const;
 
   unsigned int getZonesCount() const override { return zoneCount; }
   rect_t getZone(unsigned int index) const override;

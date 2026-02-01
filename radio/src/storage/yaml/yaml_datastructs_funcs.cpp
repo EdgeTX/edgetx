@@ -565,7 +565,11 @@ void r_screen_id(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto screenData = g_model.getScreenData(tw->getElmts(1));
 
-  screenData->LayoutId = val;
+  // Convert renamed layout (TODO: remove in the future)
+  if (strncmp(val, "Layout6x1", 9) == 0)
+    screenData->LayoutId ="Layout1x6";
+  else
+    screenData->LayoutId = val;
 }
 
 bool w_screen_id(void* user, uint8_t* data, uint32_t bitoffs,

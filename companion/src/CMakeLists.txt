@@ -428,9 +428,11 @@ elseif(WIN32)
 elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
   # and trial and error. Do not hesitate to fix it for the better
+  set(COMPANION_DISPLAY_NAME "EdgeTX Companion")
   set_target_properties(${COMPANION_NAME} PROPERTIES
       MACOSX_RPATH TRUE
       MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_BUNDLE_NAME "${COMPANION_DISPLAY_NAME}"
       MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
 
       INSTALL_RPATH "@executable_path/../Frameworks"
@@ -440,7 +442,7 @@ elseif(APPLE)
   # This the name that the user will see in the generated DMG and what the application
   # will be called under /Applications. We include the version string to make installing
   # different versions side-by-side
-  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_FAMILY}")
+  set(COMPANION_OSX_APP_BUNDLE_NAME "${COMPANION_DISPLAY_NAME} ${VERSION_FAMILY}")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
   set(companion_app_dir "companion.app")
@@ -587,7 +589,7 @@ else()
   else()
     set(LINUXDEPLOY_ARCH "x86_64")
   endif()
-  
+
   set(LINUXDEPLOY_APPIMAGE "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-${LINUXDEPLOY_ARCH}.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")

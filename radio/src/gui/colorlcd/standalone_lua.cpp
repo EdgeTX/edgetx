@@ -136,6 +136,8 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   pushLayer(true);
 
+  MainWindow::instance()->enableWidgetRefresh(false);
+
   if (useLvglLayout()) {
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
@@ -205,8 +207,6 @@ void StandaloneLuaWindow::deleteLater()
 
   luaScriptManager = nullptr;
 
-  Window::deleteLater();
-
   _instance = nullptr;
 
 #if defined(USE_HATS_AS_KEYS)
@@ -216,6 +216,8 @@ void StandaloneLuaWindow::deleteLater()
   luaState = prevLuaState;
 
   luaEmptyEventBuffer();
+
+  MainWindow::instance()->enableWidgetRefresh(true);
 
   Window::deleteLater();
 }

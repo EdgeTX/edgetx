@@ -30,6 +30,7 @@
 #include "etx_lv_theme.h"
 #include "form.h"
 #include "getset_helpers.h"
+#include "messaging.h"
 #include "mixer_scheduler.h"
 #include "os/sleep.h"
 #include "ppm_settings.h"
@@ -120,6 +121,7 @@ class ModuleWindow : public Window
     setFlexLayout();
     updateModule();
     lv_obj_add_event_cb(lvobj, ModuleWindow::mw_refresh_cb, LV_EVENT_REFRESH, this);
+    moduleUpdateMsg.subscribe(Messaging::MODULE_UPDATE, [=](uint32_t param) { updateLayout(); });
   }
 
   void updateModule()
@@ -513,6 +515,7 @@ class ModuleWindow : public Window
   FailsafeChoice* fsChoice = nullptr;
   Choice* rfPower = nullptr;
   StaticText* idUnique = nullptr;
+  Messaging moduleUpdateMsg;
 
   void startRSSIDialog(std::function<void()> closeHandler = nullptr)
   {
@@ -631,8 +634,7 @@ class ModuleSubTypeChoice : public Choice
 #endif
     }
 
-    if (moduleWindow)
-      moduleWindow->updateLayout();
+    Messaging::send(Messaging::MODULE_UPDATE);
   }
 
   void updateLayout()
@@ -732,11 +734,8 @@ class ModuleSubTypeChoice : public Choice
     }
   }
 
-  void setModuleWindow(ModuleWindow* w) { moduleWindow = w; }
-
  protected:
   uint8_t moduleIdx;
-  ModuleWindow* moduleWindow = nullptr;
 };
 
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
@@ -771,8 +770,6 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
   auto moduleWindow = new ModuleWindow(body, moduleIdx);
-
-  subTypeChoice->setModuleWindow(moduleWindow);
 
   // This needs to be after moduleWindow has been created
   moduleChoice->setSetValueHandler([=](int32_t newValue) {

@@ -56,15 +56,15 @@ class Layout2x4 : public Layout
   lv_obj_t* panel1 = nullptr;
   lv_obj_t* panel2 = nullptr;
 
-  void checkEvents() override
+  void updateDecorations() override
   {
+    Layout::updateDecorations();
     setPanels();
-    Layout::checkEvents();
   }
 
   void setPanels()
   {
-    rect_t zone = Layout::getMainZone();
+    rect_t zone = Layout::getWidgetsZone();
     if (mainZone.x != zone.x || mainZone.y != zone.y || mainZone.w != zone.w ||
         mainZone.h != zone.h) {
       mainZone = zone;

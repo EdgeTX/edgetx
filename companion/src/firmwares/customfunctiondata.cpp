@@ -265,7 +265,7 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && ((index - FuncAdjustGV1) >= fw->getCapability(Gvars))) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
-        ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
+        ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasBlingLEDS) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
         ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) && !Boards::getCapability(fw->getBoard(), Board::FunctionSwitches))
         );

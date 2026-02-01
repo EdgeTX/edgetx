@@ -33,7 +33,6 @@
 #include "tasks/mixer_task.h"
 
 #if defined(COLORLCD)
-#include "LvglWrapper.h"
 #include "startup_shutdown.h"
 #endif
 
@@ -55,13 +54,14 @@ bool perMainEnabled = true;
 
 static void menusTask()
 {
-#if defined(COLORLCD)
-  LvglWrapper::instance();
-#endif
-
   edgeTxInit();
 
   mixerTaskInit();
+
+#if defined(COLORLCD) && defined(RTC_BACKUP_RAM)
+  if (UNEXPECTED_SHUTDOWN())
+    drawFatalErrorScreen(STR_EMERGENCY_MODE);
+#endif
 
 #if defined(PWR_BUTTON_PRESS)
   while (task_running()) {

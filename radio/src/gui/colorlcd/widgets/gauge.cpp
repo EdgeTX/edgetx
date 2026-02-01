@@ -82,7 +82,7 @@ class GaugeWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
@@ -105,11 +105,9 @@ class GaugeWidget : public Widget
   DynamicNumber<int16_t>* valueText = nullptr;
   lv_obj_t* bar = nullptr;
 
-  void checkEvents() override
+  void foreground() override
   {
-    if (!loaded) return;
-
-    Widget::checkEvents();
+    if (!loaded || _deleted) return;
 
     auto newValue = getGuageValue();
     if (lastValue != newValue) {

@@ -39,7 +39,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     auto line = newLine(grid);
     new StaticText(line, rect_t{}, STR_BAUDRATE);
     new Choice(
-        line, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+        line, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_EXTERNAL_BAUDRATE,
         [=]() -> int {
           return CROSSFIRE_STORE_TO_INDEX(md->crsf.telemetryBaudrate);
         },

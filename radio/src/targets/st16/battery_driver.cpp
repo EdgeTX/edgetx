@@ -337,7 +337,8 @@ void handle_battery_charge(uint32_t last_press_time)
   if (!lcdInited) {
     lcdInited = true;
     backlightInit();
-    lcdInitDisplayDriver();
+    // Ensure lvgl is initialised before creating windows
+    LvglWrapper::instance();
   }
 
   if (updateTime == 0 || ((timersGetMsTick() - updateTime) >= 500))

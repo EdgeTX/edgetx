@@ -147,17 +147,6 @@ Curve::Curve(Window* parent, const rect_t& rect,
   dw = rect.w - dx * 2;
   dh = rect.h - dy * 2;
 
-  for (int i = 0; i < 17; i += 1) {
-    auto p = lv_obj_create(lvobj);
-    etx_solid_bg(p, COLOR_THEME_PRIMARY2_INDEX);
-    etx_obj_add_style(p, styles->circle, LV_PART_MAIN);
-    etx_obj_add_style(p, styles->border, LV_PART_MAIN);
-    etx_obj_add_style(p, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
-    lv_obj_set_size(p, POS_PT_SZ, POS_PT_SZ);
-    lv_obj_add_flag(p, LV_OBJ_FLAG_HIDDEN);
-    pointDots[i] = p;
-  }
-
   if (positionFunc) {
     posVLine = lv_line_create(lvobj);
     etx_obj_add_style(posVLine, styles->graph_position_line, LV_PART_MAIN);
@@ -178,6 +167,8 @@ Curve::Curve(Window* parent, const rect_t& rect,
 
     updatePosition();
   }
+
+  curveUpdateMsg.subscribe(Messaging::CURVE_UPDATE, [=](uint32_t param) { update(); });
 }
 
 coord_t Curve::getPointX(int x) const
@@ -218,28 +209,6 @@ void Curve::updatePosition()
     lv_line_set_points(posVLine, &posLinePoints[0], 2);
     lv_line_set_points(posHLine, &posLinePoints[2], 2);
   }
-}
-
-void Curve::addPoint(const point_t& point)
-{
-  int i = points.size();
-  coord_t x = getPointX(point.x);
-  coord_t y = getPointY(point.y);
-  lv_obj_set_pos(pointDots[i], x - POS_PT_SZ / 2, y - POS_PT_SZ / 2);
-  lv_obj_clear_flag(pointDots[i], LV_OBJ_FLAG_HIDDEN);
-
-  points.push_back(point);
-
-  update();
-}
-
-void Curve::clearPoints()
-{
-  points.clear();
-  for (int i = 0; i < 17; i += 1)
-    lv_obj_add_flag(pointDots[i], LV_OBJ_FLAG_HIDDEN);
-
-  update();
 }
 
 void Curve::update()

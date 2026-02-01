@@ -586,15 +586,3 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   }
 #endif
 }
-
-UsbSDConnected::UsbSDConnected() :
-    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
-{
-  setWindowFlag(OPAQUE);
-
-  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
-  new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, PAD_MEDIUM);
-
-  auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2_INDEX);
-  lv_obj_center(icon->getLvObj());
-}

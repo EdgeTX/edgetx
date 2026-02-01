@@ -721,32 +721,28 @@ bool isSourceAvailableInResetSpecialFunction(int index)
 
 class AntennaSelectionMenu : public Menu
 {
-  bool& done;
-
-public:
-  AntennaSelectionMenu(bool& done) : Menu(), done(done) {
+ public:
+  AntennaSelectionMenu() : Menu()
+  {
     setTitle(STR_ANTENNA);
     addLine(STR_USE_INTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = false; });
     addLine(STR_USE_EXTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = true; });
-    setCloseHandler([=]() { this->done = true; });
     setCloseWhenClickOutside(false);
   }
-protected:
+
+ protected:
   void onCancel() override {}
 };
 
 static void runAntennaSelectionMenu()
 {
-  bool finished = false;
-  new AntennaSelectionMenu(finished);
+  auto menu = new AntennaSelectionMenu();
 
-  while (!finished) {
-    WDG_RESET();
-    MainWindow::instance()->run();
-    sleep_ms(20);
-  }
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    return menu->deleted();
+  });
 }
 #else
 void onAntennaSelection(const char* result)

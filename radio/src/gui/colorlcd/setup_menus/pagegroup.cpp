@@ -278,19 +278,7 @@ class PageGroupHeader : public PageGroupHeaderBase
     menu->setCurrentTab(idx);
   }
 
-  void updateLayout()
-  {
-    for (uint8_t i = 0; i < pages.size(); i += 1) {
-      pages[i]->update(i);
-    }
-  }
-
  protected:
-  void checkEvents() override
-  {
-    updateLayout();
-    PageGroupHeaderBase::checkEvents();
-  }
 };
 
 //-----------------------------------------------------------------------------
@@ -311,6 +299,12 @@ PageGroupBase::PageGroupBase(coord_t bodyY, EdgeTxIcon icon) :
   lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
   lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END, nullptr);
 #endif
+
+  quickMenuMsg.subscribe(Messaging::QUICK_MENU_ITEM_SELECT,
+      [=](uint32_t param) {
+        if (param)
+          onCancel();
+      });
 }
 
 void PageGroupBase::checkEvents()
@@ -327,8 +321,9 @@ void PageGroupBase::onClicked() { Keyboard::hide(false); }
 
 void PageGroupBase::onCancel()
 {
-  QuickMenu::closeQuickMenu();
-  deleteLater();
+  if (!_deleted) {
+    deleteLater();
+  }
 }
 
 uint8_t PageGroupBase::tabCount() const
@@ -399,7 +394,7 @@ void PageGroupBase::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!QuickMenu::isOpen()) openMenu();
+    QuickMenu::openQuickMenu();
   } else {
     if (QuickMenu::subMenuIcon(pg) == icon) {
       setCurrentTab(QuickMenu::pageIndex(pg));
@@ -454,7 +449,7 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
 #if VERSION_MAJOR == 2
   addCustomButton(0, 0, [=]() { onCancel(); });
 #else
-  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 #endif
@@ -463,15 +458,6 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
     storageCheck(true);
     ViewMain::instance()->updateTopbarVisibility();
   });
-}
-
-void PageGroup::openMenu()
-{
-  QuickMenu::openQuickMenu(
-    [=](bool close) {
-      if (close)
-        onCancel();
-    }, this, currentTab->pageId());
 }
 
 //-----------------------------------------------------------------------------
@@ -545,29 +531,10 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
 #if VERSION_MAJOR == 2
   addCustomButton(0, 0, [=]() { onCancel(); });
 #else
-  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 #endif
-}
-
-void TabsGroup::openMenu()
-{
-  PageGroup* p = Window::pageGroup();
-  QMPage qmPage = QM_NONE;
-  if (p)
-    qmPage = p->getCurrentTab()->pageId();
-  QuickMenu::openQuickMenu(
-    [=](bool close) {
-      onCancel();
-      if (p) {
-        while (!Window::topWindow()->isPageGroup()) {
-          Window::topWindow()->deleteLater();
-        }
-        if (close)
-          Window::topWindow()->onCancel();
-      }
-    }, p, qmPage);
 }
 
 void TabsGroup::hidePageButtons()

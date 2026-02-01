@@ -20,10 +20,12 @@
 
 #include "board.h"
 #include "debug.h"
+#include "edgetx.h"
 #include "keyboard_base.h"
 #include "layout.h"
 #include "LvglWrapper.h"
 #include "etx_lv_theme.h"
+#include "os/sleep.h"
 #include "sdcard.h"
 #include "view_main.h"
 
@@ -56,7 +58,7 @@ void MainWindow::emptyTrash()
   trash.clear();
 }
 
-void MainWindow::run()
+void MainWindow::run(bool trash)
 {
   LvglWrapper::instance()->run();
 
@@ -64,7 +66,8 @@ void MainWindow::run()
   auto start = timersGetMsTick();
 #endif
 
-  ViewMain::refreshWidgets();
+  if (widgetRefreshEnable)
+    ViewMain::refreshWidgets();
 
   auto opaque = Window::firstOpaque();
   if (opaque) {
@@ -78,7 +81,8 @@ void MainWindow::run()
     }
   }
 
-  emptyTrash();
+  if (trash)
+    emptyTrash();
 
 #if defined(DEBUG_WINDOWS)
   auto delta = timersGetMsTick() - start;
@@ -96,11 +100,9 @@ void MainWindow::shutdown()
   LayoutFactory::deleteCustomScreens();
 
   // clear layer stack first
-  for (Window* w = Window::topWindow(); w; w = Window::topWindow()) {
+  for (Window* w = Window::topWindow(); w; w = Window::topWindow())
     w->deleteLater();
-  }
 
-  children.clear();
   clear();
   emptyTrash();
 
@@ -126,4 +128,49 @@ bool MainWindow::setBackgroundImage(std::string& fileName)
   }
 
   return false;
+}
+
+void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeCondition, bool isError)
+{
+  // reset input devices to avoid
+  // RELEASED/CLICKED to be called in a loop
+  lv_indev_reset(nullptr, nullptr);
+
+  if (isError) {
+    // refresh screen and turn backlight on
+    backlightEnable(BACKLIGHT_LEVEL_MAX);
+    // On startup error wait for power button to be released
+    while (pwrPressed()) {
+      WDG_RESET();
+      run(false);
+      sleep_ms(10);
+    }
+  }
+
+  while (!closeCondition()) {
+    if (checkPwr) {
+      auto check = pwrCheck();
+      if (check == e_power_off) {
+        boardOff();
+#if defined(SIMU)
+        return;
+#endif
+      } else if (check == e_power_press) {
+        WDG_RESET();
+        sleep_ms(1);
+        continue;
+      }
+    }
+
+    resetBacklightTimeout();
+    if (isError)
+      backlightEnable(BACKLIGHT_LEVEL_MAX);
+    else
+      checkBacklight();
+
+    WDG_RESET();
+
+    run(false);
+    sleep_ms(10);
+  }
 }

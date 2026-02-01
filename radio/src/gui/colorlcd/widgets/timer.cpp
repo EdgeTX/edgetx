@@ -102,14 +102,12 @@ class TimerWidget : public Widget
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
     update();
-    checkEvents();
+    foreground();
   }
 
-  void checkEvents() override
+  void foreground() override
   {
-    if (!loaded) return;
-
-    Widget::checkEvents();
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
@@ -238,7 +236,7 @@ class TimerWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 

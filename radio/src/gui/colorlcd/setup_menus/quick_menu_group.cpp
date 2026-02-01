@@ -127,6 +127,11 @@ class QuickMenuButton : public ButtonBase
     return true;
   }
 
+  void show(bool vis) override
+  {
+    ButtonBase::show(vis && isVisible());
+  }
+
  protected:
   StaticIcon* iconPtr = nullptr;
   StaticText* textPtr = nullptr;
@@ -143,22 +148,18 @@ QuickMenuGroup::QuickMenuGroup(Window* parent) :
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
                                   std::function<void(void)> pressHandler,
                                   std::function<bool(void)> visibleHandler,
-                                  std::function<void(void)> focusHandler)
+                                  std::function<void(bool)> focusHandler)
 {
   ButtonBase* b = new QuickMenuButton(this, icon, title, [=]() { pressHandler(); return 0; }, visibleHandler);
   b->setLongPressHandler([=]() { pressHandler(); return 0; });
   btns.push_back(b);
   if (group) lv_group_add_obj(group, b->getLvObj());
   b->setFocusHandler([=](bool focus) {
-    if (focus) {
+    if (focus)
       curBtn = b;
-      if (focusHandler) focusHandler();
-    }
+    if (focusHandler)
+      focusHandler(focus);
   });
-  if (btns.size() == 1) {
-    curBtn = b;
-    if (focusHandler) focusHandler();
-  }
   return b;
 }
 
@@ -238,11 +239,9 @@ void QuickMenuGroup::doLayout(int cols)
       coord_t x = (n % cols) * (QM_BUTTON_WIDTH + PAD_MEDIUM);
       coord_t y = (n / cols) * (QM_BUTTON_HEIGHT + PAD_MEDIUM);
       lv_obj_set_pos(btns[i]->getLvObj(), x, y);
-      btns[i]->show();
       n += 1;
-    } else {
-      btns[i]->hide();
     }
+    btns[i]->show();
   }
 }
 

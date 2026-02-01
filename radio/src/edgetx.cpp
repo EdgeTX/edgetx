@@ -167,10 +167,6 @@ void checkValidMCU(void)
 #endif
 }
 
-#if defined(SIMU)
-static bool evalFSok = false;
-#endif
-
 void per10ms()
 {
   DEBUG_TIMER_START(debugTimerPer10ms);
@@ -215,12 +211,7 @@ void per10ms()
   }
 
 #if defined(FUNCTION_SWITCHES)
-#if defined(SIMU)
-  if (evalFSok)
-    evalFunctionSwitches();
-#else
   evalFunctionSwitches();
-#endif
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
@@ -766,14 +757,14 @@ void checkAll(bool isBootCheck)
     }
 
     dlg->setMessage(strKeys.c_str());
-    dlg->setCloseCondition([tgtime]() {
-      if (tgtime >= get_tmr10ms() && keyDown()) {
-        return false;
-      } else {
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      if (dlg->deleted()) return true;
+      if ((tgtime < get_tmr10ms()) || !keyDown()) {
+        dlg->deleteLater();
         return true;
       }
+      return false;
     });
-    dlg->runForever();
     LED_ERROR_END();
   }
 #else
@@ -846,9 +837,11 @@ void checkThrottleStick()
     }
     LED_ERROR_BEGIN();
     auto dialog = new ThrottleWarnDialog(throttleNotIdle);
-    dialog->runForever();
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      return dialog->deleted();
+    });
+    LED_ERROR_END();
   }
-  LED_ERROR_END();
 }
 #else
 void checkThrottleStick()
@@ -917,6 +910,7 @@ void checkAlarm() // added by Gohst
   }
 }
 
+#if !defined(COLORLCD)
 void alert(const char * title, const char * msg , uint8_t sound)
 {
   LED_ERROR_BEGIN();
@@ -958,6 +952,7 @@ void alert(const char * title, const char * msg , uint8_t sound)
 
   LED_ERROR_END();
 }
+#endif
 
 #if defined(GVARS)
 #if MAX_TRIMS == 8
@@ -1585,9 +1580,6 @@ void edgeTxInit()
 
 #if defined(FUNCTION_SWITCHES)
     setFSStartupPosition();
-#if defined(SIMU)
-    evalFSok = true;
-#endif
 #endif
 
 #if defined(GUI)
@@ -1618,6 +1610,8 @@ void edgeTxInit()
 #endif
 
   resetBacklightTimeout();
+
+  LED_ERROR_END();
 
   pulsesStart();
   WDG_ENABLE(WDG_DURATION);
@@ -1659,6 +1653,12 @@ int main()
 
   modulePortInit();
   pulsesInit();
+
+#if defined(COLORLCD)
+  // Do all lvgl init in case of fatal error on startup
+  extern void initLvgl();
+  initLvgl();
+#endif
 
 #if !defined(DISABLE_MCUCHECK)
   checkValidMCU();

@@ -19,28 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/usb_driver.h"
-#include "edgetx.h"
-#include "theme_manager.h"
 #include "widget.h"
+
+#include "edgetx.h"
+#include "hal/usb_driver.h"
 #include "layout.h"
+#include "theme_manager.h"
 
-class TopBarWidget : public Widget
-{
- public:
-  TopBarWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-               int screenNum, int zoneNum) :
-      Widget(factory, parent, rect, screenNum, zoneNum)
-  {
-  }
-};
-
-class RadioInfoWidget : public TopBarWidget
+class RadioInfoWidget : public Widget
 {
  public:
   RadioInfoWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
                   int screenNum, int zoneNum) :
-      TopBarWidget(factory, parent, rect, screenNum, zoneNum)
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     // Logs
     logsIcon = new StaticIcon(this, W_LOG_X, PAD_THREE, ICON_DOT,
@@ -108,11 +99,13 @@ class RadioInfoWidget : public TopBarWidget
       etx_bg_color(rssiBars[i], COLOR_THEME_PRIMARY2_INDEX, LV_STATE_USER_1);
     }
 
-    checkEvents();
+    foreground();
   }
 
   void update() override
   {
+    if (_deleted) return;
+
     auto widgetData = getPersistentData();
 
     // get colors from options
@@ -121,9 +114,9 @@ class RadioInfoWidget : public TopBarWidget
     etx_bg_color_from_flags(batteryFill, widgetData->options[0].value.unsignedValue, LV_STATE_USER_2);
   }
 
-  void checkEvents() override
+  void foreground() override
   {
-    TopBarWidget::checkEvents();
+    if (_deleted) return;
 
     usbIcon->show(usbPlugged());
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE)
@@ -240,20 +233,29 @@ const WidgetOption RadioInfoWidget::options[] = {
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
                                                    STR_RADIO_INFO_WIDGET);
 
-class DateTimeWidget : public TopBarWidget
+class DateTimeWidget : public Widget
 {
  public:
   DateTimeWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
                  int screenNum, int zoneNum) :
-      TopBarWidget(factory, parent, rect, screenNum, zoneNum)
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     coord_t x = rect.w - HeaderDateTime::HDR_DATE_WIDTH - DT_XO;
     dateTime = new HeaderDateTime(this, x, PAD_THREE);
     update();
   }
 
+  void foreground() override
+  {
+    if (_deleted) return;
+
+    Widget::checkEvents();
+  }
+
   void update() override
   {
+    if (_deleted) return;
+
     auto widgetData = getPersistentData();
 
     // get color from options
@@ -283,12 +285,12 @@ BaseWidgetFactory<DateTimeWidget> DateTimeWidget("Date Time",
 
 #if defined(INTERNAL_GPS)
 
-class InternalGPSWidget : public TopBarWidget
+class InternalGPSWidget : public Widget
 {
  public:
   InternalGPSWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
                     int screenNum, int zoneNum) :
-      TopBarWidget(factory, parent, rect, screenNum, zoneNum)
+      Widget(factory, parent, rect, screenNum, zoneNum)
   {
     icon =
         new StaticIcon(this, width() / 2 - PAD_LARGE - PAD_TINY, ICON_H,
@@ -299,9 +301,9 @@ class InternalGPSWidget : public TopBarWidget
         COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
 
-  void checkEvents() override
+  void foreground() override
   {
-    TopBarWidget::checkEvents();
+    if (_deleted) return;
 
     bool hasGPS = serialGetModePort(UART_MODE_GPS) >= 0;
 

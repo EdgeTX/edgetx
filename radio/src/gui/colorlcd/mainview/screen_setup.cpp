@@ -51,7 +51,7 @@ class LayoutChoice : public Button
                LayoutFactorySetter setValue) :
       Button(parent, {0, 0, LayoutFactory::BM_W + PAD_LARGE + PAD_SMALL, LayoutFactory::BM_H + PAD_LARGE + PAD_SMALL}),
       getValue(std::move(getValue)),
-      _setValue(std::move(setValue))
+      setValue(std::move(setValue))
   {
     padAll(PAD_ZERO);
     canvas = lv_canvas_create(lvobj);
@@ -64,7 +64,7 @@ class LayoutChoice : public Button
     auto menu = new Menu();
     for (auto layout : LayoutFactory::getRegisteredLayouts()) {
       menu->addLine(layout->getBitmap(), layout->getName(),
-                    [=]() { setValue(layout); });
+                    [=]() { if (setValue) setValue(layout); update(); });
     }
 
     auto it =
@@ -82,7 +82,7 @@ class LayoutChoice : public Button
  protected:
   lv_obj_t* canvas = nullptr;
   std::function<const LayoutFactory*()> getValue;
-  std::function<void(const LayoutFactory*)> _setValue;
+  std::function<void(const LayoutFactory*)> setValue;
 
   void update()
   {
@@ -98,12 +98,6 @@ class LayoutChoice : public Button
     lv_coord_t h = bitmap->height;
     lv_canvas_set_buffer(canvas, (void*)&bitmap->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
   }
-
-  void setValue(const LayoutFactory* layout)
-  {
-    if (_setValue) _setValue(layout);
-    update();
-  }
 };
 
 #if LANDSCAPE
@@ -117,14 +111,8 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
 ScreenSetupPage::ScreenSetupPage(unsigned index, const PageDef& pageDef) :
-    PageGroupItem(pageDef)
+    PageGroupItem(pageDef), customScreenIndex(index)
 {
-  update(index + QuickMenu::pageIndex(QM_UI_SCREEN1));
-}
-
-void ScreenSetupPage::update(uint8_t index)
-{
-  customScreenIndex = index - QuickMenu::pageIndex(QM_UI_SCREEN1);
 }
 
 void ScreenSetupPage::build(Window* window)
@@ -271,12 +259,19 @@ void ScreenSetupPage::buildLayoutOptions()
                          GET_DEFAULT(value->boolValue),
                          [=](int newValue) {
                            value->boolValue = newValue;
+                           Messaging::send(Messaging::DECORATION_UPDATE);
                            SET_DIRTY();
                          });
         break;
 
       case LayoutOption::Color:
-        new ColorPicker(line, rect_t{}, GET_SET_DEFAULT(value->unsignedValue));
+        new ColorPicker(line, rect_t{},
+                        GET_DEFAULT(value->unsignedValue),
+                        [=](int newValue) {
+                          value->unsignedValue = newValue;
+                           Messaging::send(Messaging::DECORATION_UPDATE);
+                           SET_DIRTY();
+                        });
         break;
 
       default:

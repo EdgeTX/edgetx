@@ -69,10 +69,12 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
   m_keys(new KeysTable),
+  m_display({0, 0, 0, 0, 0, 0, 0, 0}),
+  m_cfs({0, 0}),
+  m_hardware({0, 0, 0}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
-
 }
 
 BoardJson::~BoardJson()
@@ -151,6 +153,9 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 const int BoardJson::getCapability(const Board::Capability capability) const
 {
   switch (capability) {
+    case Board::Air:
+      return !m_hardware.surface;
+
     case Board::FlexInputs:
       return (m_inputCnt.flexGyroAxes +
               m_inputCnt.flexJoystickAxes +
@@ -161,8 +166,14 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::FlexSwitches:
       return m_switchCnt.flex;
 
+    case Board::FunctionSwitchColors:
+      return m_cfs.rgb_led;
+
     case Board::FunctionSwitches:
       return m_switchCnt.func;
+
+    case Board::FunctionSwitchGroups:
+      return m_cfs.groups;
 
     case Board::GyroAxes:
       return m_inputCnt.flexGyroAxes;
@@ -170,8 +181,29 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
+    case Board::HasAudioMuteGPIO:
+      return m_hardware.has_audio_mute;
+
+    case Board::HasBacklightColor:
+      return m_display.backlight_color;
+
+    case Board::HasBlingLEDS:
+      return m_hardware.has_bling_leds;
+
+    case Board::HasColorLcd:
+      return m_display.color;
+
+    case Board::HasExternalModuleSupport:
+      return m_hardware.has_ext_module_support;
+
+    case Board::HasInternalModuleSupport:
+      return m_hardware.has_int_module_support;
+
     case Board::HasRTC:
       return m_inputCnt.rtcbat;
+
+    case Board::HasSDCard:
+      return true;
 
     case Board::HasVBat:
       return m_inputCnt.vbat;
@@ -182,8 +214,23 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::InputSwitches:
       return m_inputCnt.switches;
 
+    case Board::JoystickAxes:
+      return m_inputCnt.flexJoystickAxes;
+
     case Board::Keys:
       return m_keys->size();
+
+    case Board::LcdDepth:
+      return m_display.depth;
+
+    case Board::LcdHeight:
+      return m_display.h;
+
+    case Board::LcdOLED:
+      return m_display.oled;
+
+    case Board::LcdWidth:
+      return m_display.w;
 
     case Board::MultiposPots:
       // assumes every input has potential to be one
@@ -208,11 +255,17 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Sliders:
       return m_inputCnt.flexSliders;
 
+    case Board::SportMaxBaudRate:
+        return m_hardware.sport_max_baudrate;
+
     case Board::StandardSwitches:
       return m_switchCnt.std;
 
     case Board::Sticks:
       return m_inputCnt.sticks;
+
+    case Board::Surface:
+      return m_hardware.surface;
 
     case Board::Switches:
       return (m_switchCnt.std +
@@ -920,7 +973,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -956,7 +1009,8 @@ bool BoardJson::loadDefinition()
 
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims)
+                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
+                         HardwareDefn & hardware)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1162,6 +1216,37 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 //        qDebug() << "name:" << t.name.c_str();
       }
     }
+  }
+
+  if (obj.value("display").isObject()) {
+    const QJsonObject &o = obj.value("display").toObject();
+
+    display.w = o.value("w").toInt();
+    display.h = o.value("h").toInt();
+    display.phys_w = o.value("phys_w").toInt();
+    display.phys_h = o.value("phys_h").toInt();
+    display.depth = o.value("depth").toInt();
+    display.color = o.value("color").toInt();
+    display.oled = o.value("oled").toInt();
+    display.backlight_color = o.value("backlight_color").toInt();
+  }
+
+  if (obj.value("custom_switches").isObject()) {
+    const QJsonObject &o = obj.value("custom_switches").toObject();
+
+    cfs.rgb_led = o.value("rgb_led").toInt();
+    cfs.groups = o.value("groups").toInt();
+  }
+
+  if (obj.value("hardware").isObject()) {
+    const QJsonObject &o = obj.value("hardware").toObject();
+
+    hardware.has_audio_mute = o.value("has_audio_mute").toInt();
+    hardware.has_bling_leds = o.value("has_bling_leds").toInt();
+    hardware.has_ext_module_support = o.value("has_ext_module_support").toInt();
+    hardware.has_int_module_support = o.value("has_int_module_support").toInt();
+    hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
+    hardware.surface = o.value("surface").toInt();
   }
 
   delete json;

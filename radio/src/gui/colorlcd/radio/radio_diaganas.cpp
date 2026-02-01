@@ -26,9 +26,9 @@
 #include "hal/adc_driver.h"
 #include "static.h"
 
-// #if defined(IMU_LSM6DS33)
-// #include "imu_lsm6ds33.h"
-// #endif
+#if defined(LUMINOSITY_SENSOR)
+#include "luminosity_sensor.h"
+#endif
 
 #define STATSDEPTH 8  // ideally a value of power of 2
 
@@ -62,8 +62,6 @@ class AnaViewWindow : public Window
     padLeft(PAD_SMALL);
     padRight(PAD_SMALL);
     setFlexLayout();
-
-    line = newLine(grid);
   }
 
   virtual void build()
@@ -79,12 +77,15 @@ class AnaViewWindow : public Window
         continue;
 
 #if LANDSCAPE
-      if ((i & 1) == 0) line = newLine(grid);
+      if ((i & 1) == 0) {
+        line = newLine(grid);
+        lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+      }
 #else
       line = newLine(grid);
+      lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
 #endif
 
-      lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
       if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN))
         sprintf(s, "D%d :", i + 1);
       else
@@ -92,23 +93,18 @@ class AnaViewWindow : public Window
 
       new StaticText(line, rect_t{}, s);
 
-      auto lbl = new DynamicText(line, rect_t{},
-          [=]() {
-            return std::to_string((int16_t)calibratedAnalogs[i] * 25 / 256);
-          }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+      auto lbl = new DynamicNumber<int16_t>(line, rect_t{},
+          [=]() { return calibratedAnalogs[i] * 25 / 256; },
+          COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
-      lbl = new DynamicText(line, rect_t{},
-          [=]() {
-            return std::to_string((int16_t)column3(i));
-          }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+      lbl = new DynamicNumber<int16_t>(line, rect_t{},
+          [=]() { return column3(i); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
       if (column4size() > 0) {
-        lbl = new DynamicText(
-            line, rect_t{},
-            [=]() {
-              return std::string(column4prefix()) +
-                     std::to_string((int16_t)column4(i));
-            }, COLOR_THEME_PRIMARY1_INDEX, (column4size() == 2) ? 0 : RIGHT);
+        lbl = new DynamicNumber<int16_t>(line, rect_t{},
+            [=]() { return column4(i); },
+            COLOR_THEME_PRIMARY1_INDEX, (column4size() == 2) ? 0 : RIGHT,
+            column4prefix());
 #if LANDSCAPE
         lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH,
                              3 + (i & 1) * 5, column4size(),
@@ -122,9 +118,7 @@ class AnaViewWindow : public Window
       }
 
       if (column5size() > 0) {
-        lbl = new DynamicText(
-            line, rect_t{},
-            [=]() { return std::to_string((int16_t)column5(i)); });
+        lbl = new DynamicNumber<int16_t>(line, rect_t{}, [=]() { return column5(i); });
       } else {
         grid.nextCell();
       }
@@ -134,25 +128,36 @@ class AnaViewWindow : public Window
     line = newLine(grid);
     lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
 
+    grid.setColSpan(2);
     new StaticText(line, rect_t{}, "Tilt X");
-    new DynamicText(
-           line, rect_t{},
-           [=]() {
-             return std::to_string((int16_t) gyro.scaledX());
-           }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+    grid.setColSpan(1);
+    new DynamicNumber<int16_t>(line, rect_t{},
+           [=]() { return gyro.scaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
     for (int i = 0; i < 3; i++) {grid.nextCell();}
 
+    line = newLine(grid);
+    lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+
+    grid.setColSpan(2);
     new StaticText(line, rect_t{}, "Tilt Y");
-    new DynamicText(
+    grid.setColSpan(1);
+    new DynamicNumber<int16_t>(line, rect_t{},
+           [=]() { return gyro.scaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+#endif
+
+#if defined(LUMINOSITY_SENSOR)
+    line = newLine(grid);
+    lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+
+    grid.setColSpan(2);
+    new StaticText(line, rect_t{}, STR_SRC_LIGHT);
+    grid.setColSpan(1);
+    new DynamicNumber<uint16_t>(
            line, rect_t{},
-           [=]() {
-             return std::to_string((int16_t) gyro.scaledY());
-           }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+           [=]() { return getLuxSensorValue(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 #endif
   }
-
-  void checkEvents() override { Window::checkEvents(); }
 
  protected:
   FlexGridLayout grid;
@@ -441,6 +446,7 @@ class AnaMinMaxViewWindow : public AnaViewWindow
         adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_FLEX);
 
     for (uint8_t i = 0; i < max_inputs; i++) minmax[i].clear();
+    checkEvents();
   }
 
   void build() override
@@ -471,8 +477,8 @@ class AnaMinMaxViewWindow : public AnaViewWindow
 class AnaCalibratedViewPage : public PageGroupItem
 {
  public:
-  AnaCalibratedViewPage(QMPage qmPage) :
-    PageGroupItem(STR_ANADIAGS_CALIB, qmPage)
+  AnaCalibratedViewPage() :
+    PageGroupItem(STR_ANADIAGS_CALIB)
   {
     icon = ICON_STATS;
   }
@@ -487,8 +493,8 @@ class AnaCalibratedViewPage : public PageGroupItem
 class AnaFilteredDevViewPage : public PageGroupItem
 {
  public:
-  AnaFilteredDevViewPage(QMPage qmPage) :
-      PageGroupItem(STR_ANADIAGS_FILTRAWDEV, qmPage)
+  AnaFilteredDevViewPage() :
+      PageGroupItem(STR_ANADIAGS_FILTRAWDEV)
   {
     icon = ICON_STATS;
   }
@@ -503,8 +509,8 @@ class AnaFilteredDevViewPage : public PageGroupItem
 class AnaUnfilteredRawViewPage : public PageGroupItem
 {
  public:
-  AnaUnfilteredRawViewPage(QMPage qmPage) :
-      PageGroupItem(STR_ANADIAGS_UNFILTRAW, qmPage)
+  AnaUnfilteredRawViewPage() :
+      PageGroupItem(STR_ANADIAGS_UNFILTRAW)
   {
     icon = ICON_STATS;
   }
@@ -519,8 +525,8 @@ class AnaUnfilteredRawViewPage : public PageGroupItem
 class AnaMinMaxViewPage : public PageGroupItem
 {
  public:
-  AnaMinMaxViewPage(QMPage qmPage) :
-      PageGroupItem(STR_ANADIAGS_MINMAX, qmPage)
+  AnaMinMaxViewPage() :
+      PageGroupItem(STR_ANADIAGS_MINMAX)
   {
     icon = ICON_STATS;
   }
@@ -532,11 +538,11 @@ class AnaMinMaxViewPage : public PageGroupItem
   }
 };
 
-RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QMPage qmPage) :
+RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup() :
     TabsGroup(ICON_STATS, STR_ANALOGS_BTN)
 {
-  addTab(new AnaCalibratedViewPage(qmPage));
-  addTab(new AnaFilteredDevViewPage(qmPage));
-  addTab(new AnaUnfilteredRawViewPage(qmPage));
-  addTab(new AnaMinMaxViewPage(qmPage));
+  addTab(new AnaCalibratedViewPage());
+  addTab(new AnaFilteredDevViewPage());
+  addTab(new AnaUnfilteredRawViewPage());
+  addTab(new AnaMinMaxViewPage());
 }

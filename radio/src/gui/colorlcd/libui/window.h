@@ -25,6 +25,7 @@
 #include "definitions.h"
 #include "edgetx_helpers.h"
 #include "etx_lv_theme.h"
+#include "messaging.h"
 
 class FlexGridLayout;
 class FormLine;
@@ -40,8 +41,11 @@ typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
 
 constexpr WindowFlags OPAQUE = 1u << 0u;
 constexpr WindowFlags NO_FOCUS = 1u << 1u;
-constexpr WindowFlags NO_SCROLL  = 1u << 2u;
-constexpr WindowFlags NO_CLICK  = 1u << 3u;
+constexpr WindowFlags NO_SCROLL = 1u << 2u;
+constexpr WindowFlags NO_CLICK = 1u << 3u;
+constexpr WindowFlags NO_FORCED_SCROLL = 1u << 4u;
+
+//-----------------------------------------------------------------------------
 
 class Window
 {
@@ -143,12 +147,9 @@ class Window
   virtual void onClicked();
   virtual void onCancel();
   virtual bool onLongPress();
-  virtual void onPressed() {}
-  virtual void onReleased() {}
+  virtual void checkEvents();
 
   void invalidate();
-
-  virtual void checkEvents();
 
   void attach(Window *window);
 
@@ -164,10 +165,8 @@ class Window
   inline lv_obj_t *getLvObj() { return lvobj; }
 
   virtual bool isTopBar() { return false; }
-  virtual bool isWidgetsContainer() { return false; }
   virtual bool isNavWindow() { return false; }
   virtual bool isPageGroup() { return false; }
-
   virtual bool isBubblePopup() { return false; }
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN,
@@ -181,8 +180,6 @@ class Window
   bool isOnScreen();
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
-
-  void disableForcedScroll() { noForcedScroll = true; }
 
   void pushLayer(bool hideParent = false);
   void popLayer();
@@ -204,7 +201,6 @@ class Window
 
   WindowFlags windowFlags = 0;
   LcdFlags textFlags = 0;
-  bool noForcedScroll = false;
 
   bool _deleted = false;
 
@@ -222,11 +218,14 @@ class Window
 
   void eventHandler(lv_event_t *e);
   static void window_event_cb(lv_event_t *e);
+  virtual bool customEventHandler(lv_event_code_t code) { return false; }
 
   static void delayLoader(lv_event_t* e);
   void delayLoad();
   virtual void delayedInit() {}
 };
+
+//-----------------------------------------------------------------------------
 
 class NavWindow : public Window
 {
@@ -260,39 +259,39 @@ struct PageButtonDef {
   std::function<void()> createPage;
   std::function<bool()> isActive;
   std::function<bool()> enabled;
-
-  PageButtonDef(
-                STR_TYP title,
-                std::function<void()> createPage,
-                std::function<bool()> isActive = nullptr,
-                std::function<bool()> enabled = nullptr) :
-    title(title), createPage(std::move(createPage)), isActive(std::move(isActive)), enabled(std::move(enabled))
-  {}
 };
+
+//-----------------------------------------------------------------------------
 
 class SetupButtonGroup : public Window
 {
  public:
-  typedef std::list<PageButtonDef> PageDefs;
-
   SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
-                   PaddingSize padding, PageDefs pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
+                   PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
 
  protected:
 };
 
+//-----------------------------------------------------------------------------
+
+class SetupLine;
+
 struct SetupLineDef {
   STR_TYP title;
-  std::function<void(Window*, coord_t, coord_t)> createEdit;
+  std::function<void(SetupLine*, coord_t, coord_t)> createEdit;
 };
 
 class SetupLine : public Window
 {
  public:
   SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
-    std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
+    std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
 
-  static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount);
+  static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const SetupLineDef* setupLines);
+
+  Messaging setupMsg;
 
  protected:
 };
+
+//-----------------------------------------------------------------------------

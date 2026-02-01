@@ -27,7 +27,7 @@
         ["Jumper T12 MAX", "t12max-"],
         ["Jumper T14", "t14-"],
         ["Jumper T15", "t15-"],
-        ["Jumper T15Pro", "t15pro-"],
+        ["Jumper T15 Pro", "t15pro-"],
         ["Jumper T16", "t16-"],
         ["Jumper T18", "t18-"],
         ["Jumper T20", "t20-"],
@@ -39,7 +39,7 @@
         ["RadioMaster TX12MK2", "tx12mk2-"],
         ["RadioMaster TX15", "tx15-"],
         ["RadioMaster TX16S", "tx16s-"],
-        ["RadioMaster TX16SMK3", "tx16smk3-"],
+        ["RadioMaster TX16S MK3", "tx16smk3-"],
         ["RadioMaster Zorro","zorro-"]
     ],
     "changelog": "- Major initial bug fixes"

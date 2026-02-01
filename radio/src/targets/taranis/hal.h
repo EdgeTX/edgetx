@@ -2961,3 +2961,18 @@
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
+
+// LCD driver
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
+#define LCD_W                           212
+#define LCD_H                           64
+#define LCD_DEPTH                       4
+#else
+#define LCD_W                           128
+#define LCD_H                           64
+#define LCD_DEPTH                       1
+#endif
+
+#if defined(PCBX9DP) || defined(PCBX9E)
+#define HAS_BACKLIGHT_COLOR
+#endif

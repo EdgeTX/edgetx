@@ -736,8 +736,8 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T15Pro board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t15pro"), Firmware::tr("Jumper T15Pro"), BOARD_JUMPER_T15PRO);
+  /* Jumper T15 Pro board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t15pro"), Firmware::tr("Jumper T15 Pro"), BOARD_JUMPER_T15PRO);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
@@ -854,7 +854,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster TX16SMK3 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("tx16smk3"), Firmware::tr("Radiomaster TX16SMK3"), BOARD_RADIOMASTER_TX16SMK3);
+  firmware = new OpenTxFirmware(FIRMWAREID("tx16smk3"), Firmware::tr("Radiomaster TX16S MK3"), BOARD_RADIOMASTER_TX16SMK3);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});

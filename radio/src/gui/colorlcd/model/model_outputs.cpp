@@ -28,6 +28,7 @@
 #include "getset_helpers.h"
 #include "list_line_button.h"
 #include "menu.h"
+#include "messaging.h"
 #include "output_edit.h"
 #include "toggleswitch.h"
 
@@ -109,6 +110,8 @@ class OutputLineButton : public ListLineButton
     setHeight(CH_LINE_H);
     padAll(PAD_ZERO);
 
+    refreshMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) { refresh(); });
+
     delayLoad();
   }
 
@@ -187,6 +190,7 @@ class OutputLineButton : public ListLineButton
 
  protected:
   int value = -10000;
+  Messaging refreshMsg;
 
   bool isActive() const override { return false; }
 
@@ -232,8 +236,7 @@ void ModelOutputsPage::build(Window* window)
         STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
         [=] {
           moveTrimsToOffsets();
-          for (int i = 0; i < outputButtons.size(); i += 1)
-            outputButtons[i]->refresh();
+          Messaging::send(Messaging::REFRESH);
         });
     return 0;
   });
@@ -246,8 +249,6 @@ void ModelOutputsPage::build(Window* window)
     auto btn = new OutputLineButton(window, ch);
     lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (OutputLineButton::CH_LINE_H + PAD_TINY)));
     btn->setWidth(TRIMB_W);
-
-    outputButtons.emplace_back(btn);
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {

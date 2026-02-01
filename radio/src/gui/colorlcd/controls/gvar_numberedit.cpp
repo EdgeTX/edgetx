@@ -88,15 +88,6 @@ void GVarNumberEdit::switchGVarMode()
 #endif
 }
 
-void GVarNumberEdit::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    switchGVarMode();
-  } else {
-    Window::onEvent(event);
-  }
-}
-
 void GVarNumberEdit::update()
 {
   bool has_focus = act_field && act_field->hasFocus();

@@ -50,14 +50,12 @@ class ModelBitmapWidget : public Widget
     image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
-    checkEvents();
+    foreground();
   }
 
-  void checkEvents() override
+  void foreground() override
   {
-    if (!loaded) return;
-
-    Widget::checkEvents();
+    if (!loaded || _deleted) return;
 
     if (getHash() != deps_hash) {
       update();
@@ -70,7 +68,7 @@ class ModelBitmapWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
