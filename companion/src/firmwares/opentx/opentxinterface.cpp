@@ -58,42 +58,40 @@ Firmware * OpenTxFirmware::getFirmwareVariant(const QString &id)
 int OpenTxFirmware::getCapability(::Capability capability)
 {
   switch (capability) {
-    case Models:
-      if (IS_FAMILY_HORUS_OR_T16(board))
-        return 0;
-      else
-        return 60;
-    case Imperial:
-      return 0;
-    case HasModelImage:
-      return (board == BOARD_TARANIS_X9D || IS_TARANIS_PLUS(board) || board == BOARD_TARANIS_X9DP_2019 || IS_FAMILY_HORUS_OR_T16(board));
-    case ModelImageNameLen:
-      return (IS_FAMILY_HORUS_OR_T16(board) ? 14 : 10); //  including extension if saved and <= CPN_MAX_BITMAP_LEN
-    case ModelImageKeepExtn:
-      return (IS_FAMILY_HORUS_OR_T16(board) ? true : false);
-    case HasBeeper:
-      return false;
-    case HasPxxCountry:
+    case BacklightLevelMin:
+      if (IS_HORUS_X12S(board)) {
+        return 5;
+      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)) {
+        return 1;
+      } else {
+        return 46;
+      }
+    case ChannelsName:
+      return (HAS_LARGE_LCD(board) ? 6 : 4);
+    case CSFunc:
+      return 18;
+    case CustomAndSwitches:
+      return getCapability(LogicalSwitches);
+    case CustomFunctions:
+      return 64;
+    case DangerousFunctions:
+      return id.contains("danger") ? 1 : 0;
+    case EnhancedCurves:
       return 1;
-    case HasGeneralUnits:
-      return true;
-    case HasNegAndSwitches:
-      return true;
-    case PPMExtCtrl:
+    case ExtendedTrimsRange:
+      return 512;
+    case ExtraInputs:
       return 1;
-    case PPMFrameLength:
-      return 40;
     case FlightModes:
       return 9;
     case FlightModesHaveFades:
       return 1;
-    case Heli:
-      if (Boards::getCapability(board, Board::Surface))
-        return false;
-      else if (IS_HORUS_OR_TARANIS(board))
-        return id.contains("noheli") ? 0 : 1;
-      else
-        return id.contains("heli") ? 1 : 0;
+    case FlightModesName:
+      return (IS_HORUS_OR_TARANIS(board) ? 10 : 6);
+    case GetThrSwitch:
+      return (IS_HORUS_OR_TARANIS(board) ? SWITCH_SF1 : SWITCH_THR);
+    case GlobalFunctions:
+      return 64;
     case Gvars:
       if (IS_STM32H7(board) || IS_STM32H5(board))
         return id.contains("nogvars") ? 0 : 15;
@@ -103,93 +101,232 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 9;
       else
         return 0;
-    case ModelName:
-      return (IS_FAMILY_HORUS_OR_T16(board) ? 15 : (HAS_LARGE_LCD(board) ? 12 : 10));
-    case FlightModesName:
-      return (IS_HORUS_OR_TARANIS(board) ? 10 : 6);
-    case GvarsName:
-      return 3;
-    case GvarsInCS:
-    case HasFAIMode:
-      return 1;
     case GvarsAreNamed:
+      return 1;
     case GvarsFlightModes:
       return 1;
-    case Mixes:
-      return 64;
-    case OffsetWeight:
-      return 500;
-    case Timers:
+    case GvarsInCS:
+      return 1;
+    case GvarsName:
       return 3;
-    case TimersName:
-      if (HAS_LARGE_LCD(board))
-        return 8;
-      else
-        return 3;
-    case PermTimers:
-      return true;
-    case CustomFunctions:
-      return 64;
-    case SafetyChannelCustomFunction:
-      return id.contains("nooverridech") ? 0 : 1;
-    case LogicalSwitches:
-      return 64;
-    case CustomAndSwitches:
-      return getCapability(LogicalSwitches);
-    case LogicalSwitchesExt:
-      return true;
-    case Outputs:
-      return 32;
-    case NumCurvePoints:
-      return 512;
-    case VoicesAsNumbers:
-      return 0;
-    case VoicesMaxLength:
-      return 8;
-    case MultiLangVoice:
-      return 1;
-    case SoundPitch:
-      return 1;
     case Haptic:
       return board != Board::BOARD_TARANIS_X9D || id.contains("haptic");
-    case ModelTrainerEnable:
-      if (IS_HORUS_OR_TARANIS(board) && board!=Board::BOARD_TARANIS_XLITE)
-        return 1;
+    case HasADCJitterFilter:
+      return IS_HORUS_OR_TARANIS(board);
+    case HasAux2SerialMode:
+      return IS_FAMILY_T16(board);
+    case HasAuxSerialMode:
+      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
+             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
+             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_MT12(board);
+    case HasBatMeterRange:
+      return (IS_HORUS_OR_TARANIS(board) ? true : id.contains("battgraph"));
+    case HasBeeper:
+      return false;
+    case HasBluetooth:
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
+              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) ? true : false;
+    case HasBrightness:
+      return true;
+    case HasCvNames:
+      return 1;
+    case HasDisplayText:
+      return 1;
+    case HasExpoNames:
+      return (IS_TARANIS_X9(board) ? 8 : 6);
+    case HasFailsafe:
+      return 32;
+    case HasFAIMode:
+      return 1;
+    case HasFasOffset:
+      return true;
+    case HasFlySkyGimbals:
+      return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
+    case HasGeneralUnits:
+      return true;
+    case HasInputDiff:
+      return (IS_HORUS_OR_TARANIS(board) ? true : false);
+    case HasIntModuleCRSF:
+      return id.contains("internalcrsf");
+    case HasIntModuleELRS:
+      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
+             IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
+             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board);
+    case HasIntModuleFlySky:
+      return  id.contains("afhds2a") || id.contains("afhds3") ||
+              IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board);
+    case HasIntModuleMulti:
+      return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
+              IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
+              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) ||
+              (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs")) ||
+              (IS_RADIOMASTER_POCKET(board) && !id.contains("internalelrs")) ||
+              (IS_RADIOMASTER_MT12(board) && !id.contains("internalelrs"));
+    case HasMahPersistent:
+      return true;
+    case HasMixerExpo:
+      return (IS_HORUS_OR_TARANIS(board) ? true : false);
+    case HasMixerNames:
+      return (IS_TARANIS_X9(board) ? 8 : 6);
+    case HasModelImage:
+      return (board == BOARD_TARANIS_X9D || IS_TARANIS_PLUS(board) || board == BOARD_TARANIS_X9DP_2019 || IS_FAMILY_HORUS_OR_T16(board));
+    case HasModelLabels:
+      return IS_FAMILY_HORUS_OR_T16(board);
+    case HasModelsList:
+      return IS_FAMILY_HORUS_OR_T16(board);
+    case HasModuleR9MFlex:
+      return id.contains("flexr9m");
+    case HasModuleR9MMini:
+      return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
+    case HasNegAndSwitches:
+      return true;
+    case HasNoExpo:
+      return (IS_HORUS_OR_TARANIS(board) ? false : true);
+    case HasPPMStart:
+      return true;
+    case HasPxxCountry:
+      return 1;
+    case HasSDLogs:
+      return true;
+    case HasSoftwareSerialPower:
+      return IS_RADIOMASTER_TX16S(board);
+    case HasSoundMixer:
+      return 1;
+    case HasSportConnector:
+      return IS_ACCESS_RADIO(board, id) || IS_TARANIS_X7(board) || IS_HORUS_X10(board) || IS_TARANIS_XLITE(board);
+    case HasSwitchableJack:
+      return IS_TARANIS_XLITES(board);
+    case HasTelemetryBaudrate:
+      return IS_HORUS_OR_TARANIS(board);
+    case HasTopLcd:
+      return IS_TARANIS_X9E(board) ? 1 : 0;
+    case HasVario:
+      return Boards::isAir(board);
+    case HasVarioSink:
+      return Boards::isAir(board);
+    case HasVCPSerialMode:
+      return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
+             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
+             IS_RADIOMASTER_MT12(board);
+    case HasVolume:
+      return true;
+    case Heli:
+      if (Boards::getCapability(board, Board::Surface))
+        return false;
+      else if (IS_HORUS_OR_TARANIS(board))
+        return id.contains("noheli") ? 0 : 1;
       else
-        return 0;
-    case MaxVolume:
-      return 23;
+        return id.contains("heli") ? 1 : 0;
+    case Imperial:
+      return 0;
+    case InputsLength:
+      return HAS_LARGE_LCD(board) ? 4 : 3;
+    case KeyShortcuts:
+      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
+    case LimitsPer1000:
+      return 1;
+    case LogicalSwitches:
+      return 64;
+    case LogicalSwitchesExt:
+      return true;
+    case LuaInputsPerScript:
+      return IS_HORUS_OR_TARANIS(board) ? 10 : 0;
+    case LuaOutputsPerScript:
+      return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
+    case LuaScripts:
+      return IS_HORUS_OR_TARANIS(board) && id.contains("lua") ? 7 : 0;
+    case MavlinkTelemetry:
+      return id.contains("mavlink") ? 1 : 0;
     case MaxContrast:
       if (IS_TARANIS_SMALL(board))
         return 30;
       else
         return 45;
+    case MaxVolume:
+      return 23;
     case MinContrast:
       if (IS_TARANIS_X9(board))
         return 0;
       else
         return 10;
-    case HasSoundMixer:
+    case Mixes:
+      return 64;
+    case ModelImageKeepExtn:
+      return (IS_FAMILY_HORUS_OR_T16(board) ? true : false);
+    case ModelImageNameLen:
+      return (IS_FAMILY_HORUS_OR_T16(board) ? 14 : 10); //  including extension if saved and <= CPN_MAX_BITMAP_LEN
+    case ModelName:
+      return (IS_FAMILY_HORUS_OR_T16(board) ? 15 : (HAS_LARGE_LCD(board) ? 12 : 10));
+    case Models:
+      if (IS_FAMILY_HORUS_OR_T16(board))
+        return 0;
+      else
+        return 60;
+    case ModelTrainerEnable:
+      if (IS_HORUS_OR_TARANIS(board) && board!=Board::BOARD_TARANIS_XLITE)
+        return 1;
+      else
+        return 0;
+    case MultiLangVoice:
       return 1;
-    case ExtraInputs:
-      return 1;
-    case TrimsRange:
-      return 128;
-    case ExtendedTrimsRange:
+    case NoTelemetryProtocol:
+      return IS_HORUS_OR_TARANIS(board) ? 1 : 0;
+    case NumCurvePoints:
       return 512;
-    case Simulation:
-      return 1;
     case NumCurves:
       return 32;
-    case HasMixerNames:
-      return (IS_TARANIS_X9(board) ? 8 : 6);
-    case HasExpoNames:
-      return (IS_TARANIS_X9(board) ? 8 : 6);
-    case HasNoExpo:
-      return (IS_HORUS_OR_TARANIS(board) ? false : true);
-    case ChannelsName:
-      return (HAS_LARGE_LCD(board) ? 6 : 4);
-    case HasCvNames:
+    case NumFirstUsableModule:
+      return (IS_JUMPER_T12(board) && !id.contains("internalmulti") ? 1 : 0);
+    case NumModules:
+      return 2;
+    case OffsetWeight:
+      return 500;
+    case Outputs:
+      return 32;
+    case PerModelTimers:
+      return 1;
+    case PermTimers:
+      return true;
+    case PPMCenter:
+      return (IS_HORUS_OR_TARANIS(board) ? 500 : (id.contains("ppmca") ? 125 : 0));
+    case PPMExtCtrl:
+      return 1;
+    case PPMFrameLength:
+      return 40;
+    case PwrButtonPress:
+      return IS_HORUS_OR_TARANIS(board) && (board!=Board::BOARD_TARANIS_X9D) && (board!=Board::BOARD_TARANIS_X9DP);
+    case QMFavourites:
+      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
+    case RotaryEncoderNavigation:
+      return (IS_TARANIS_X7(board) || IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X9E(board) || IS_TARANIS_X9LITE(board) ||
+              IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
+              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
+              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) ||
+              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
+              IS_RADIOMASTER_TX16SMK3(board));
+    case SafetyChannelCustomFunction:
+      return id.contains("nooverridech") ? 0 : 1;
+    case Sensors:
+      if (IS_STM32H7(board))
+        return 99;
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
+        return 60;
+      else
+        return 40;
+    case Simulation:
+      return 1;
+    case SlowRange:
+      return 250;
+    case SlowScale:
+      return 10;
+    case SoundPitch:
+      return 1;
+    case SportTelemetry:
+      return 1;
+    case SYMLimits:
       return 1;
     case Telemetry:
       return 1;
@@ -202,166 +339,34 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 4;
     case TelemetryCustomScreensBars:
       return (getCapability(TelemetryCustomScreens) ? 4 : 0);
-    case TelemetryCustomScreensLines:
-      return (getCapability(TelemetryCustomScreens) ? 4 : 0);
     case TelemetryCustomScreensFieldsPerLine:
       return HAS_LARGE_LCD(board) ? 3 : 2;
-    case NoTelemetryProtocol:
-      return IS_HORUS_OR_TARANIS(board) ? 1 : 0;
-    case TelemetryUnits:
-      return 0;
+    case TelemetryCustomScreensLines:
+      return (getCapability(TelemetryCustomScreens) ? 4 : 0);
     case TelemetryMaxMultiplier:
       return 32;
-    case PPMCenter:
-      return (IS_HORUS_OR_TARANIS(board) ? 500 : (id.contains("ppmca") ? 125 : 0));
-    case SYMLimits:
-      return 1;
-    case HasVario:
-      return Boards::isAir(board);
-    case HasVarioSink:
-      return Boards::isAir(board);
-    case HasFailsafe:
-      return 32;
-    case NumModules:
-      return 2;
-    case NumFirstUsableModule:
-      return (IS_JUMPER_T12(board) && !id.contains("internalmulti") ? 1 : 0);
-    case HasModuleR9MFlex:
-      return id.contains("flexr9m");
-    case HasModuleR9MMini:
-      return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
-    case HasPPMStart:
-      return true;
-    case HasVolume:
-      return true;
-    case HasBrightness:
-      return true;
-    case PerModelTimers:
-      return 1;
-    case SlowScale:
-      return 10;
-    case SlowRange:
-      return 250;
-    case CSFunc:
-      return 18;
-    case HasSDLogs:
-      return true;
-    case GetThrSwitch:
-      return (IS_HORUS_OR_TARANIS(board) ? SWITCH_SF1 : SWITCH_THR);
-    case HasDisplayText:
-      return 1;
-    case HasTopLcd:
-      return IS_TARANIS_X9E(board) ? 1 : 0;
-    case GlobalFunctions:
-      return 64;
-    case VirtualInputs:
-      return 32;
-    case InputsLength:
-      return HAS_LARGE_LCD(board) ? 4 : 3;
-    case TrainerInputs:
-      return 16;
-    case LuaScripts:
-      return IS_HORUS_OR_TARANIS(board) && id.contains("lua") ? 7 : 0;
-    case LuaInputsPerScript:
-      return IS_HORUS_OR_TARANIS(board) ? 10 : 0;
-    case LuaOutputsPerScript:
-      return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
-    case LimitsPer1000:
-    case EnhancedCurves:
-      return 1;
-    case HasFasOffset:
-      return true;
-    case HasMahPersistent:
-      return true;
-    case MavlinkTelemetry:
-      return id.contains("mavlink") ? 1 : 0;
-    case SportTelemetry:
-      return 1;
-    case HasInputDiff:
-    case HasMixerExpo:
-      return (IS_HORUS_OR_TARANIS(board) ? true : false);
-    case HasBatMeterRange:
-      return (IS_HORUS_OR_TARANIS(board) ? true : id.contains("battgraph"));
-    case DangerousFunctions:
-      return id.contains("danger") ? 1 : 0;
-    case HasModelLabels:
-      return IS_FAMILY_HORUS_OR_T16(board);
-    case HasSwitchableJack:
-      return IS_TARANIS_XLITES(board);
-    case HasSportConnector:
-      return IS_ACCESS_RADIO(board, id) || IS_TARANIS_X7(board) || IS_HORUS_X10(board) || IS_TARANIS_XLITE(board);
-    case PwrButtonPress:
-      return IS_HORUS_OR_TARANIS(board) && (board!=Board::BOARD_TARANIS_X9D) && (board!=Board::BOARD_TARANIS_X9DP);
-    case Sensors:
-      if (IS_STM32H7(board))
-        return 99;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
-        return 60;
+    case TelemetryUnits:
+      return 0;
+    case Timers:
+      return 3;
+    case TimersName:
+      if (HAS_LARGE_LCD(board))
+        return 8;
       else
-        return 40;
-    case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
-             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
-             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_MT12(board);
-    case HasAux2SerialMode:
-      return IS_FAMILY_T16(board);
-    case HasVCPSerialMode:
-      return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
-             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-             IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
-             IS_RADIOMASTER_MT12(board);
-    case HasBluetooth:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
-              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) ? true : false;
-    case HasADCJitterFilter:
-      return IS_HORUS_OR_TARANIS(board);
-    case HasTelemetryBaudrate:
-      return IS_HORUS_OR_TARANIS(board);
+        return 3;
     case TopBarZones:
       return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight) ? 4 : 2;
-    case HasModelsList:
-      return IS_FAMILY_HORUS_OR_T16(board);
-    case HasFlySkyGimbals:
-      return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
-    case RotaryEncoderNavigation:
-      return (IS_TARANIS_X7(board) || IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X9E(board) || IS_TARANIS_X9LITE(board) ||
-              IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
-              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
-              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) ||
-              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
-              IS_RADIOMASTER_TX16SMK3(board));
-    case HasSoftwareSerialPower:
-      return IS_RADIOMASTER_TX16S(board);
-    case HasIntModuleMulti:
-      return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
-              IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
-              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) ||
-              (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs")) ||
-              (IS_RADIOMASTER_POCKET(board) && !id.contains("internalelrs")) ||
-              (IS_RADIOMASTER_MT12(board) && !id.contains("internalelrs"));
-    case HasIntModuleCRSF:
-      return id.contains("internalcrsf");
-    case HasIntModuleELRS:
-      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
-             IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
-             IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
-             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board);
-    case HasIntModuleFlySky:
-      return  id.contains("afhds2a") || id.contains("afhds3") ||
-              IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board);
-    case BacklightLevelMin:
-      if (IS_HORUS_X12S(board)) {
-        return 5;
-      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)) {
-        return 1;
-      } else {
-        return 46;
-      }
-    case QMFavourites:
-      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
-    case KeyShortcuts:
-      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
+    case TrainerInputs:
+      return 16;
+    case TrimsRange:
+      return 128;
+    case VirtualInputs:
+      return 32;
+    case VoicesAsNumbers:
+      return 0;
+    case VoicesMaxLength:
+      return 8;
+
     default:
       return 0;
   }
