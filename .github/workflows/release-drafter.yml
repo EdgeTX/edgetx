@@ -130,11 +130,13 @@ jobs:
       - name: Clean up any previous drafts for this version
         run: |
           # Find and delete any existing draft releases for this tag in case of re-runs
-          DRAFTS=$(gh release list --exclude-pre-releases=false | grep "Draft" | grep "${{ needs.check-tag.outputs.tag_name }}" | cut -f1 || true)
-          for draft in $DRAFTS; do
-            echo "Deleting old draft: $draft"
-            gh release delete "$draft" --yes
-          done
+          TAG="${{ needs.check-tag.outputs.tag_name }}"
+          if gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q true; then
+            echo "Deleting existing draft release for tag: $TAG"
+            gh release delete "$TAG" --yes --cleanup-tag
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract version info
         id: version
