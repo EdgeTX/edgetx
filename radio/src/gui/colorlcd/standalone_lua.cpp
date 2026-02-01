@@ -133,6 +133,8 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   luaScriptManager = this;
 
+  MainWindow::instance()->enableWidgetRefresh(false);
+
   if (useLvglLayout()) {
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
@@ -232,6 +234,8 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
   luaState = prevLuaState;
 
   luaEmptyEventBuffer();
+
+  MainWindow::instance()->enableWidgetRefresh(true);
 
   Window::deleteLater(detach, trash);
 }
