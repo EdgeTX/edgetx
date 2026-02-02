@@ -254,51 +254,37 @@ jobs:
         run: |
           TAG="${{ needs.check-tag.outputs.tag_name }}"
           COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
-          echo "Tag $TAG points to commit: $COMMIT_SHA"
 
-          # Get the latest successful run ID for each unique workflow name
+          # Get the latest successful run ID for each workflow
           WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'group_by(.workflowName) | map(sort_by(.createdAt) | last) | .[].databaseId')
-
-          if [ -z "$WORKFLOW_RUNS" ]; then
-            echo "No successful workflow runs found for commit $COMMIT_SHA"
-            exit 1
-          fi
 
           mkdir -p release-assets
 
           for run_id in $WORKFLOW_RUNS; do
             echo "Processing Run ID: $run_id"
 
-            # Download EVERYTHING from this run into a subfolder
-            # This avoids the "pattern" matching issue entirely
-            mkdir -p "temp_$run_id"
-            if gh run download "$run_id" --dir "temp_$run_id"; then
-              # Now, move only the files we actually want into release-assets
-              # We use find to look for anything starting with 'edgetx'
-              find "temp_$run_id" -type f \( -name "edgetx*" -o -name "companion*" \) -exec cp -n {} release-assets/ \;
-              echo "Finished processing run $run_id"
-            fi
-            rm -rf "temp_$run_id"
+            # Download each artifact from the run - one folder per artifact
+            gh run download "$run_id" --dir release-assets 2>/dev/null || true
           done
 
-          # List what we found for debugging
-          echo "Files collected in release-assets:"
-          ls -R release-assets
-
-          if [ ! "$(ls -A release-assets 2>/dev/null)" ]; then
-            echo "::error::No artifacts found in any of the successful runs for this commit."
-            exit 1
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Package release assets
-        run: |
+          # 2. Now we have folders. We need to turn these folders back into zips
+          # OR if the build already provided a zip inside the folder, pull it out.
           cd release-assets
           for dir in */; do
+            [ -d "$dir" ] || continue
             dir_name="${dir%/}"
-            echo "Packaging $dir_name..."
-            (cd "$dir_name" && zip -r "../${dir_name}.zip" .)
+
+            # Check if there is already a zip inside the downloaded artifact folder
+            INNER_ZIP=$(find "$dir" -maxdepth 1 -name "*.zip" | head -n 1)
+
+            if [ -n "$INNER_ZIP" ]; then
+              echo "Found existing zip in $dir_name, moving it..."
+              mv "$INNER_ZIP" "${dir_name}.zip"
+            else
+              echo "No zip found in $dir_name, zipping contents..."
+              (cd "$dir" && zip -r "../${dir_name}.zip" .)
+            fi
+            rm -rf "$dir"
           done
 
       - name: List release assets
