@@ -341,7 +341,6 @@ class GeneralSettings {
     unsigned int stickReverse;
     unsigned int speakerPitch;
     int hapticStrength;
-    unsigned int speakerMode;
     char ownerName[OWNER_NAME_LEN + 1];
     int beeperLength;
     unsigned int gpsFormat;

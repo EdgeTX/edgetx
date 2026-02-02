@@ -56,7 +56,6 @@ class GeneralSetupPanel : public GeneralPanel
     void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
     void on_hapticStrength_valueChanged();
-    void on_soundModeCB_currentIndexChanged(int index);
     void on_beeperlenCB_currentIndexChanged(int index);
     void on_volume_SL_valueChanged();
     void on_hapticmodeCB_currentIndexChanged(int index);

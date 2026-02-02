@@ -243,12 +243,6 @@ ui(new Ui::GeneralSetup)
     ui->label_KeysBl->hide();
   }
 
-  if (!firmware->getCapability(SoundMod)) {
-    ui->soundModeCB->setDisabled(true);
-    ui->label_soundMode->hide();
-    ui->soundModeCB->hide();
-  }
-
   if (!firmware->getCapability(SoundPitch)) {
     ui->speakerPitchSB->setDisabled(true);
     ui->label_speakerPitch->hide();
@@ -618,7 +612,6 @@ void GeneralSetupPanel::setValues()
   ui->OFFBright_SB->setValue(generalSettings.backlightOffBright);
   ui->BLBright_SB->setMinimum(ui->OFFBright_SB->value());
   ui->OFFBright_SB->setMaximum(ui->BLBright_SB->value());
-  ui->soundModeCB->setCurrentIndex(generalSettings.speakerMode);
   ui->volume_SL->setValue(generalSettings.speakerVolume + 12);
   ui->beeperlenCB->setCurrentIndex(generalSettings.beeperLength + 2);
   ui->speakerPitchSB->setValue(generalSettings.speakerPitch);
@@ -711,14 +704,6 @@ void GeneralSetupPanel::on_hapticStrength_valueChanged()
 {
   if (!lock) {
     generalSettings.hapticStrength = ui->hapticStrength->value();
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::on_soundModeCB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.speakerMode = index;
     emit modified();
   }
 }

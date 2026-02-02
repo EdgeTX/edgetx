@@ -153,7 +153,6 @@ enum Capability {
   Simulation,
   SlowRange,
   SlowScale,
-  SoundMod,  // ETX always false
   SoundPitch,
   SportTelemetry,
   SYMLimits,
