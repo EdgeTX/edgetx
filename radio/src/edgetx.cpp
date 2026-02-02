@@ -766,7 +766,7 @@ void checkAll(bool isBootCheck)
   checkExternalAntenna();
 #endif
 
-#if defined(RADIO_V12P) && defined(EXTERNAL_ANTENNA)
+#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
   checkExternalAntenna();
 #endif
 

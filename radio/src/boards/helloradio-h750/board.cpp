@@ -291,9 +291,6 @@ extern void rtcDisableBackupReg();
 
 void boardOff()
 {
-  uint32_t usbchgstep=0;
-  uint32_t usbchgmode=0;
-
   lcdOff();
 
   while (pwrPressed()) {
@@ -311,6 +308,9 @@ void boardOff()
   rgbLedClearAll();
   if (IS_UCHARGER_ACTIVE()||usbPlugged())
   {
+    while (pwrPressed()) {
+      WDG_RESET();
+    }
 //    RTC->BKP0R = SOFTRESET_REQUEST;
     NVIC_SystemReset();
   }

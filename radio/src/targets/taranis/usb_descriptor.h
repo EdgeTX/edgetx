@@ -93,10 +93,6 @@
   #define USB_NAME                     "iFlight Commando 8"
   #define USB_MANUFACTURER             'i', 'F', 'l', 'i', 'g', 'h', 't', '-'  /* 8 bytes */
   #define USB_PRODUCT                  'C', 'o', 'm', 'm', 'a', 'n', 'd', 'o'  /* 8 Bytes */
-#elif defined(RADIO_V12)
-  #define USB_NAME                     "HelloRadioSky V12"
-  #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'V', '1', '2', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_V14)
   #define USB_NAME                     "HelloRadioSky V14"
   #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
