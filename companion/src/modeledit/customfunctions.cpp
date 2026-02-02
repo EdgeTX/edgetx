@@ -488,7 +488,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
       populateFuncParamCB(fswtchParamT[i], func, cfn.param);
       widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
     }
-    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncPlayBoth || func == FuncBackgroundMusic || func == FuncSetScreen) {
+    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncBackgroundMusic || func == FuncSetScreen) {
       if (func != FuncBackgroundMusic) {
         if (changed)
           cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
@@ -502,7 +502,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
         populateFuncParamCB(fswtchParamT[i], func, cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM | CUSTOM_FUNCTION_REPEAT;
       }
-      else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
+      else if (func == FuncPlayPrompt) {
         if (firmware->getCapability(VoicesAsNumbers)) {
           fswtchParam[i]->setDecimals(0);
           fswtchParam[i]->setSingleStep(1);
@@ -514,7 +514,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
             widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM | CUSTOM_FUNCTION_REPEAT;
             fswtchParamGV[i]->setChecked(false);
           }
-          fswtchParam[i]->setMaximum(func == FuncPlayBoth ? 254 : 255);
+          fswtchParam[i]->setMaximum(255);
           if (changed) {
             if (fswtchParamGV[i]->isChecked()) {
               fswtchParam[i]->setMinimum(1);
@@ -524,7 +524,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
               cfn.param = fswtchParam[i]->value();
             }
           }
-          if (cfn.param > 250 && (func != FuncPlayBoth)) {
+          if (cfn.param > 250) {
             fswtchParamGV[i]->setChecked(true);
             fswtchParam[i]->setValue(cfn.param - 250);
             fswtchParam[i]->setMaximum(5);

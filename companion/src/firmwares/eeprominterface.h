@@ -64,7 +64,6 @@ enum Capability {
   HasAux2SerialMode,
   HasAuxSerialMode,
   HasBatMeterRange,
-  HasBeeper,
   HasBluetooth,
   HasBrightness,
   HasDisplayText,

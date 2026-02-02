@@ -90,8 +90,6 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Vario");
   else if (func == FuncPlayPrompt)
     return tr("Play Track");
-  else if (func == FuncPlayBoth)
-    return tr("Play Both");
   else if (func == FuncPlayValue)
     return tr("Play Value");
   else if (func == FuncPlayScript)
@@ -181,7 +179,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func == FuncVolume || func == FuncPlayValue || func == FuncBacklight) {
     return RawSource(param).toString(model);
   }
-  else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
+  else if (func == FuncPlayPrompt) {
     if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
       return QString("%1").arg(param);
     }
@@ -255,7 +253,6 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index == FuncVolume || index == FuncBackgroundMusic || index == FuncBackgroundMusicPause) && !fw->getCapability(HasVolume)) ||
         ((index == FuncPlayScript && !IS_HORUS_OR_TARANIS(fw->getBoard()))) ||
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
-        ((index == FuncPlayBoth) && !fw->getCapability(HasBeeper)) ||
         ((index == FuncLogs) && !fw->getCapability(HasSDLogs)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
          (index > FuncSetTimer1 + fw->getCapability(Timers) ||
@@ -522,7 +519,6 @@ bool CustomFunctionData::isRepeatParamAvailable(const AssignFunc func)
     FuncPlayHaptic,
     FuncPlayValue,
     FuncPlayPrompt,
-    FuncPlayBoth,
     FuncSetScreen
   };
 
