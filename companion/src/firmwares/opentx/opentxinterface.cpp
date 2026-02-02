@@ -317,8 +317,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (getCapability(TelemetryCustomScreens) ? 4 : 0);
     case TelemetryMaxMultiplier:
       return 32;
-    case TelemetryUnits:
-      return 0;
     case Timers:
       return 3;
     case TimersName:
