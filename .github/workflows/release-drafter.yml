@@ -255,12 +255,11 @@ jobs:
           TAG="${{ needs.check-tag.outputs.tag_name }}"
 
           # Get the commit SHA for this tag from GitHub API
-          COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/ref/tags/${TAG#v} --jq '.object.sha' 2>/dev/null || \
-                       gh api repos/${{ github.repository }}/git/ref/tags/$TAG --jq '.object.sha')
+          COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/refs/tags/$TAG --jq '.object.sha')
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
           # Find all successful workflow runs for this commit
-          WORKFLOW_RUNS=$(gh run list --commit $COMMIT_SHA --json databaseId,status,conclusion --jq '.[] | select(.conclusion=="success") | .databaseId')
+          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --json databaseId,status,conclusion --jq '.[] | select(.conclusion=="success") | .databaseId')
 
           if [ -z "$WORKFLOW_RUNS" ]; then
             echo "No successful workflow runs found for commit $COMMIT_SHA"
