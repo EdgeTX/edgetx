@@ -58,7 +58,6 @@ enum Capability {
   GetThrSwitch,
   GlobalFunctions,
   Gvars,
-  GvarsFlightModes,
   GvarsInCS,
   GvarsName,
   Haptic,
