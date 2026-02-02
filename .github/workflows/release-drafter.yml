@@ -250,48 +250,51 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download all release artifacts
+- name: Download all release artifacts
         run: |
           TAG="${{ needs.check-tag.outputs.tag_name }}"
           COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
-          # Get the latest successful run ID for each workflow
+          # Get the latest successful run ID for each unique workflow
           WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'group_by(.workflowName) | map(sort_by(.createdAt) | last) | .[].databaseId')
 
           mkdir -p release-assets
 
           for run_id in $WORKFLOW_RUNS; do
             echo "Processing Run ID: $run_id"
-            # Download artifacts, but EXCLUDE anything ending in '-logs'
-            gh run download "$run_id" --dir release-assets --exclude "*-logs" 2>/dev/null || true
+            gh run download "$run_id" --dir release-assets 2>/dev/null || true
           done
 
-          # Package folders into zips
           cd release-assets
+
+          # Clean up: Delete any folders ending in "-logs" BEFORE we start zipping
+          echo "Cleaning up log artifacts..."
+          rm -rf *-logs/
+
+          # Package remaining folders into zips
           for dir in */; do
+            # Ensure we are actually looking at a directory
             [ -d "$dir" ] || continue
             dir_name="${dir%/}"
 
-            # Safety check: skip if the directory name ends in -logs (if the exclude above missed it)
-            if [[ "$dir_name" == *"-logs" ]]; then
-              echo "Skipping log directory: $dir_name"
-              rm -rf "$dir"
-              continue
-            fi
+            echo "Processing folder: $dir_name"
 
-            # Check for existing zip inside
+            # Check for existing zip inside (e.g. if firmware was already zipped)
             INNER_ZIP=$(find "$dir" -maxdepth 1 -name "*.zip" | head -n 1)
 
             if [ -n "$INNER_ZIP" ]; then
-              echo "Found existing zip in $dir_name, moving it..."
+              echo "  Found existing zip, pulling it out..."
               mv "$INNER_ZIP" "${dir_name}.zip"
             else
-              echo "No zip found in $dir_name, zipping contents..."
+              echo "  No zip found, creating ${dir_name}.zip..."
               (cd "$dir" && zip -r "../${dir_name}.zip" .)
             fi
+
+            # Remove the folder after zipping/moving
             rm -rf "$dir"
           done
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
