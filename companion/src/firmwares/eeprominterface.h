@@ -132,7 +132,6 @@ enum Capability {
   Outputs,
   PermTimers,
   PPMCenter,
-  PPMExtCtrl,
   PPMFrameLength,
   PwrButtonPress,
   QMFavourites,

@@ -271,8 +271,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return true;
     case PPMCenter:
       return (IS_HORUS_OR_TARANIS(board) ? 500 : (id.contains("ppmca") ? 125 : 0));
-    case PPMExtCtrl:
-      return 1;
     case PPMFrameLength:
       return 40;
     case PwrButtonPress:
