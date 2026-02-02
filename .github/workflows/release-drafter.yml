@@ -254,8 +254,8 @@ jobs:
         run: |
           TAG="${{ needs.check-tag.outputs.tag_name }}"
 
-          # Get the commit SHA for this tag from GitHub API
-          COMMIT_SHA=$(gh api repos/${{ github.repository }}/git/refs/tags/$TAG --jq '.object.sha')
+          # Use git to get the actual commit SHA (handles annotated vs lightweight tags)
+          COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
           # Find all successful workflow runs for this commit
