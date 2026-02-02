@@ -132,16 +132,13 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=F16"
             ;;
         v12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=V12"
+            BUILD_OPTIONS+="-DPCB=V12"
             ;;
         v14)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=V14"
             ;;
         v16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=V16"
-            ;;
-        v12p)
-            BUILD_OPTIONS+="-DPCB=V12P"
             ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=NV14"

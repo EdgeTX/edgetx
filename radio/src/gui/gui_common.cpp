@@ -803,7 +803,7 @@ void checkExternalAntenna()
   }
 }
 #endif
-#if defined(RADIO_V12P) && defined(EXTERNAL_ANTENNA)
+#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
 void  checkExternalAntenna()
 {
   if(g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL){
