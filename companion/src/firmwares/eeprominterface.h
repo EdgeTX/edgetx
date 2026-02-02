@@ -106,7 +106,6 @@ enum Capability {
   Imperial,
   InputsLength,
   KeyShortcuts,
-  LimitsPer1000,
   LogicalSwitches,
   LogicalSwitchesExt,
   LuaInputsPerScript,

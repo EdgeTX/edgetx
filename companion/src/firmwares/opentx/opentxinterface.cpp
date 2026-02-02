@@ -209,8 +209,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return HAS_LARGE_LCD(board) ? 4 : 3;
     case KeyShortcuts:
       return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
-    case LimitsPer1000:
-      return 1;
     case LogicalSwitches:
       return 64;
     case LogicalSwitchesExt:
