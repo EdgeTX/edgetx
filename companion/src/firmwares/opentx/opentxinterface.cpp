@@ -300,8 +300,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 10;
     case SoundPitch:
       return 1;
-    case SportTelemetry:
-      return 1;
     case SYMLimits:
       return 1;
     case Telemetry:

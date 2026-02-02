@@ -141,7 +141,6 @@ enum Capability {
   SlowRange,
   SlowScale,
   SoundPitch,
-  SportTelemetry,
   SYMLimits,
   Telemetry,
   TelemetryBars,
