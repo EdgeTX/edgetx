@@ -302,7 +302,6 @@ class GeneralSettings {
     unsigned int contrast;
     unsigned int vBatWarn;
     int txVoltageCalibration;
-    int txCurrentCalibration;
     int vBatMin;
     int vBatMax;
     int backlightMode;

@@ -345,16 +345,6 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (firmware->getCapability(HastxCurrentCalibration)) {
-    addLabel(tr("Current Offset"));
-    AutoSpinBox *txCurrentCalibration = new AutoSpinBox(this);
-    FieldRange txCCRng = GeneralSettings::getTxCurrentCalibration();
-    txCurrentCalibration->setSuffix(txCCRng.unit);
-    txCurrentCalibration->setField(generalSettings.txCurrentCalibration);
-    params->append(txCurrentCalibration);
-    addParams();
-  }
-
   if (Boards::getCapability(board, Board::LcdWidth) == 128) {
     addSection(tr("Screen"));
 

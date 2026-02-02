@@ -106,7 +106,6 @@ enum Capability {
   HasSwitchableJack,
   HasTelemetryBaudrate,
   HasTopLcd,
-  HastxCurrentCalibration,  // ETX always false
   HasVario,
   HasVarioSink,
   HasVCPSerialMode,
