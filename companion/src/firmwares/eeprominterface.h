@@ -130,7 +130,6 @@ enum Capability {
   NumModules,
   OffsetWeight,
   Outputs,
-  PerModelTimers,
   PermTimers,
   PPMCenter,
   PPMExtCtrl,

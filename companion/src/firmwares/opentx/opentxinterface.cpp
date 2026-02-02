@@ -267,8 +267,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 500;
     case Outputs:
       return 32;
-    case PerModelTimers:
-      return 1;
     case PermTimers:
       return true;
     case PPMCenter:
