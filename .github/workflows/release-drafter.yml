@@ -254,23 +254,22 @@ jobs:
         run: |
           TAG="${{ needs.check-tag.outputs.tag_name }}"
 
-          # Use git to get the actual commit SHA (handles annotated vs lightweight tags)
+          # Get the actual commit SHA to ensure we are looking at the right point in history
           COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
-          # Find all successful workflow runs for this commit
-          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --json databaseId,status,conclusion --jq '.[] | select(.conclusion=="success") | .databaseId')
+          # Filter for the latest successful run of each unique workflow for this commit
+          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'sort_by(.createdAt) | reverse | unique_by(.workflowName) | .[].databaseId')
 
           if [ -z "$WORKFLOW_RUNS" ]; then
             echo "No successful workflow runs found for commit $COMMIT_SHA"
             exit 1
           fi
 
-          # Download artifacts from each successful run
           mkdir -p release-assets
           for run_id in $WORKFLOW_RUNS; do
             echo "Downloading artifacts from run $run_id..."
-            gh run download $run_id --dir release-assets --pattern "edgetx-*-${TAG}" || echo "No matching artifacts in run $run_id"
+            gh run download $run_id --dir release-assets --pattern "edgetx-*-${TAG}" --clobber 2>/dev/null || echo "No matching artifacts in run $run_id"
           done
 
           # Check if we got any artifacts
