@@ -70,7 +70,6 @@ enum Capability {
   HasBeeper,
   HasBluetooth,
   HasBrightness,
-  HasCvNames,
   HasDisplayText,
   HasExpoNames,
   HasFailsafe,

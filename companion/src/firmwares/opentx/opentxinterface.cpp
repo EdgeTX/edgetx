@@ -120,8 +120,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) ? true : false;
     case HasBrightness:
       return true;
-    case HasCvNames:
-      return 1;
     case HasDisplayText:
       return 1;
     case HasExpoNames:
