@@ -74,8 +74,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 64;
     case DangerousFunctions:
       return id.contains("danger") ? 1 : 0;
-    case EnhancedCurves:
-      return 1;
     case ExtendedTrimsRange:
       return 512;
     case ExtraInputs:

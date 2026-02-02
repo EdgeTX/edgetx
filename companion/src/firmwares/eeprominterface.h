@@ -52,7 +52,6 @@ enum Capability {
   CustomAndSwitches,
   CustomFunctions,
   DangerousFunctions,
-  EnhancedCurves,
   ExtendedTrimsRange,
   ExtraInputs,
   FlightModes,
