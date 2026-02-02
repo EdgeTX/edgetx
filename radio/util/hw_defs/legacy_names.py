@@ -157,7 +157,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t15", "t15pro", "tx15","v12p"},
+        "targets": {"t15", "t15pro", "tx15"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -776,7 +776,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"v12", "v12p", "v14"},
+        "targets": {"v12", "v14"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",

@@ -286,7 +286,7 @@ static const uint8_t mask_topmenu_txbatt_charging[] __FLASH = {
 #include "mask_txbat_charging.lbm"
 };
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)||defined(RADIO_V12P) && defined(EXTERNAL_ANTENNA)
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)||defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
 static const uint8_t mask_topmenu_antenna[] __FLASH = {
 #include "mask_antenna.lbm"
 };
@@ -467,7 +467,7 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] __FLASH = {
 #if defined(USB_CHARGER)
     BI(ICON_TOPMENU_TXBATT_CHARGE, mask_topmenu_txbatt_charging),
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)||defined(RADIO_V12P) && defined(EXTERNAL_ANTENNA)
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)||defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
     BI(ICON_TOPMENU_ANTENNA, mask_topmenu_antenna),
 #endif
 #if defined(INTERNAL_GPS)

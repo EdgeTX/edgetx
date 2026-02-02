@@ -135,14 +135,10 @@ SWITCH_CONFIG = {
         "SH": {"default": "TOGGLE"}
     },
     "v12": {
-        # left side
-        "SA": {"default": "3POS",   "display": [0, 0]},
-        "SB": {"default": "3POS",   "display": [0, 1]},
-        "SE": {"default": "2POS",   "display": [0, 2]},
-        # right side
-        "SC": {"default": "3POS",   "display": [1, 0]},
-        "SD": {"default": "3POS",   "display": [1, 1]},
-        "SF": {"default": "TOGGLE", "display": [1, 2]},
+        "SA": {"default": "2POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "2POS"},
     },
     "v14": {
         # left side
@@ -394,12 +390,6 @@ SWITCH_CONFIG = {
         "SJ": {"default": "2POS"},
         "SK": {"default": "2POS"},
         "SL": {"default": "2POS"},
-    },
-    "v12p": {
-        "SA": {"default": "2POS"},
-        "SB": {"default": "3POS"},
-        "SC": {"default": "3POS"},
-        "SD": {"default": "2POS"},
     },
     "tx15": {
         "SA": {"default": "3POS"},

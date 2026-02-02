@@ -23,4 +23,4 @@
 
 #define USB_NAME                     "HelloRadioSky V12"
 #define USB_MANUFACTURER             'H', 'E', 'L', 'L', 'O', ' ', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'V', '1', '2', 'P', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#define USB_PRODUCT                  'V', '1', '2', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
