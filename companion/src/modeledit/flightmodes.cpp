@@ -62,23 +62,16 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
     ui->swtch->hide();
   }
 
-  // FadeIn / FadeOut
-  if (firmware->getCapability(FlightModesHaveFades)) {
-    int scale = firmware->getCapability(SlowScale);
-    int range = firmware->getCapability(SlowRange);
-    ui->fadeIn->setMaximum(float(range) / scale);
-    ui->fadeIn->setSingleStep(1.0 / scale);
-    ui->fadeIn->setDecimals((scale == 1 ? 0 :1) );
-    connect(ui->fadeIn, SIGNAL(editingFinished()), this, SLOT(phaseFadeIn_editingFinished()));
-    ui->fadeOut->setMaximum(float(range) / scale);
-    ui->fadeOut->setSingleStep(1.0 / scale);
-    ui->fadeOut->setDecimals((scale == 1 ? 0 :1));
-    connect(ui->fadeOut, SIGNAL(editingFinished()), this, SLOT(phaseFadeOut_editingFinished()));
-  }
-  else {
-    ui->fadeIn->setDisabled(true);
-    ui->fadeOut->setDisabled(true);
-  }
+  int scale = firmware->getCapability(SlowScale);
+  int range = firmware->getCapability(SlowRange);
+  ui->fadeIn->setMaximum(float(range) / scale);
+  ui->fadeIn->setSingleStep(1.0 / scale);
+  ui->fadeIn->setDecimals((scale == 1 ? 0 :1) );
+  connect(ui->fadeIn, SIGNAL(editingFinished()), this, SLOT(phaseFadeIn_editingFinished()));
+  ui->fadeOut->setMaximum(float(range) / scale);
+  ui->fadeOut->setSingleStep(1.0 / scale);
+  ui->fadeOut->setDecimals((scale == 1 ? 0 :1));
+  connect(ui->fadeOut, SIGNAL(editingFinished()), this, SLOT(phaseFadeOut_editingFinished()));
 
   // The trims
   QString labels[CPN_MAX_TRIMS];

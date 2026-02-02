@@ -54,7 +54,6 @@ enum Capability {
   DangerousFunctions,
   ExtendedTrimsRange,
   FlightModes,
-  FlightModesHaveFades,
   FlightModesName,
   GetThrSwitch,
   GlobalFunctions,

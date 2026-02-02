@@ -78,8 +78,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 512;
     case FlightModes:
       return 9;
-    case FlightModesHaveFades:
-      return 1;
     case FlightModesName:
       return (IS_HORUS_OR_TARANIS(board) ? 10 : 6);
     case GetThrSwitch:
