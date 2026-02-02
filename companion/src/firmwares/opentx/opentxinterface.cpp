@@ -68,8 +68,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       }
     case ChannelsName:
       return (HAS_LARGE_LCD(board) ? 6 : 4);
-    case CSFunc:
-      return 18;
     case CustomAndSwitches:
       return getCapability(LogicalSwitches);
     case CustomFunctions:

@@ -49,7 +49,6 @@ const uint8_t modn12x3[8][4]= {
 enum Capability {
   BacklightLevelMin,
   ChannelsName,
-  CSFunc,
   CustomAndSwitches,
   CustomFunctions,
   DangerousFunctions,
