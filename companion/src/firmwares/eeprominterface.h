@@ -88,7 +88,6 @@ enum Capability {
   HasModelsList,
   HasModuleR9MFlex,
   HasModuleR9MMini,
-  HasNegAndSwitches,
   HasNoExpo,
   HasPPMStart,
   HasPxxCountry,

@@ -165,8 +165,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("flexr9m");
     case HasModuleR9MMini:
       return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
-    case HasNegAndSwitches:
-      return true;
     case HasNoExpo:
       return (IS_HORUS_OR_TARANIS(board) ? false : true);
     case HasPPMStart:
