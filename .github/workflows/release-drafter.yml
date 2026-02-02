@@ -253,13 +253,11 @@ jobs:
       - name: Download all release artifacts
         run: |
           TAG="${{ needs.check-tag.outputs.tag_name }}"
-
-          # Get the actual commit SHA to ensure we are looking at the right point in history
           COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
-          # Filter for the latest successful run of each unique workflow for this commit
-          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'sort_by(.createdAt) | reverse | unique_by(.workflowName) | .[].databaseId')
+          # Get the latest successful run ID for each unique workflow name
+          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'group_by(.workflowName) | map(sort_by(.createdAt) | last) | .[].databaseId')
 
           if [ -z "$WORKFLOW_RUNS" ]; then
             echo "No successful workflow runs found for commit $COMMIT_SHA"
@@ -267,14 +265,28 @@ jobs:
           fi
 
           mkdir -p release-assets
+
           for run_id in $WORKFLOW_RUNS; do
-            echo "Downloading artifacts from run $run_id..."
-            gh run download $run_id --dir release-assets --pattern "edgetx-*-${TAG}" --clobber 2>/dev/null || echo "No matching artifacts in run $run_id"
+            echo "Processing Run ID: $run_id"
+
+            # Download EVERYTHING from this run into a subfolder
+            # This avoids the "pattern" matching issue entirely
+            mkdir -p "temp_$run_id"
+            if gh run download "$run_id" --dir "temp_$run_id"; then
+              # Now, move only the files we actually want into release-assets
+              # We use find to look for anything starting with 'edgetx'
+              find "temp_$run_id" -type f \( -name "edgetx*" -o -name "companion*" \) -exec cp -n {} release-assets/ \;
+              echo "Finished processing run $run_id"
+            fi
+            rm -rf "temp_$run_id"
           done
 
-          # Check if we got any artifacts
+          # List what we found for debugging
+          echo "Files collected in release-assets:"
+          ls -R release-assets
+
           if [ ! "$(ls -A release-assets 2>/dev/null)" ]; then
-            echo "::error::No artifacts found matching pattern edgetx-*-${TAG}"
+            echo "::error::No artifacts found in any of the successful runs for this commit."
             exit 1
           fi
         env:
