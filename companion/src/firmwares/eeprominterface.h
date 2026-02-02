@@ -147,7 +147,6 @@ enum Capability {
   TelemetryCustomScreensBars,
   TelemetryCustomScreensFieldsPerLine,
   TelemetryCustomScreensLines,
-  TelemetryMaxMultiplier,
   Timers,
   TimersName,
   TopBarZones,

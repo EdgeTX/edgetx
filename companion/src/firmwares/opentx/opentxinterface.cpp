@@ -315,8 +315,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return HAS_LARGE_LCD(board) ? 3 : 2;
     case TelemetryCustomScreensLines:
       return (getCapability(TelemetryCustomScreens) ? 4 : 0);
-    case TelemetryMaxMultiplier:
-      return 32;
     case Timers:
       return 3;
     case TimersName:
