@@ -1,20 +1,6 @@
 name: Create Release Draft
 
 on:
-  workflow_run:
-    workflows:
-      - "Run tests and package firmware"
-      - "MacOSX Companion"
-      - "Windows Companion 64-bit"
-      - "Linux Companion"
-    types:
-      - completed
-    branches:
-      - 'main'
-      - '[0-9]+.[0-9]+'
-    tags:
-      - 'v*'
-
   workflow_dispatch:
     inputs:
       tag:
@@ -26,111 +12,21 @@ permissions:
   contents: write
 
 jobs:
-  check-tag:
-    name: Check if triggered by tag
-    runs-on: ubuntu-latest
-    outputs:
-      is_tag: ${{ steps.check.outputs.is_tag }}
-      tag_name: ${{ steps.check.outputs.tag_name }}
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check if this is a tag push
-        id: check
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "is_tag=true" >> $GITHUB_OUTPUT
-            echo "tag_name=${{ inputs.tag }}" >> $GITHUB_OUTPUT
-          else
-            # Get the ref that triggered the workflow_run
-            REF="${{ github.event.workflow_run.head_branch }}"
-            if git show-ref --verify --quiet "refs/tags/$REF"; then
-              echo "is_tag=true" >> $GITHUB_OUTPUT
-              echo "tag_name=$REF" >> $GITHUB_OUTPUT
-            else
-              echo "is_tag=false" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-  verify-builds:
-    name: Verify all builds succeeded
-    needs: check-tag
-    runs-on: ubuntu-latest
-    if: needs.check-tag.outputs.is_tag == 'true'
-    # Set job timeout to 6 hours (GitHub max) to be safe
-    timeout-minutes: 360
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Wait for companion and firmware builds
-        run: |
-          SHA=${{ github.event.workflow_run.head_sha || github.sha }}
-          mapfile -t WORKFLOWS < <(echo '${{ toJson(github.event.workflow_run.workflow_name || '["Run tests and package firmware", "MacOSX Companion", "Windows Companion 64-bit", "Linux Companion"]') }}' | jq -r '.[]')
-
-          echo "Waiting for all workflows to complete for SHA: $SHA"
-
-          # 300 retries * 60 seconds = 5 hours
-          MAX_RETRIES=300
-          RETRY_COUNT=0
-
-          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            ALL_SUCCESS=true
-            for wf in "${WORKFLOWS[@]}"; do
-              if [ "$wf" == "${{ github.workflow }}" ]; then continue; fi
-
-              RESULT=$(gh run list --commit $SHA --workflow "$wf" --json conclusion,status --jq '.[0] | "\(.status):\(.conclusion)"' || echo "unknown:pending")
-              STATUS=$(echo $RESULT | cut -d: -f1)
-              CONCLUSION=$(echo $RESULT | cut -d: -f2)
-
-              # Exit immediately if any sibling failed
-              if [[ "$CONCLUSION" == "failure" || "$CONCLUSION" == "cancelled" ]]; then
-                echo "::error::Workflow $wf resulted in $CONCLUSION. Aborting."
-                exit 1
-              fi
-
-              if [ "$CONCLUSION" != "success" ]; then
-                # Only print status every 5 minutes to keep logs clean
-                if (( RETRY_COUNT % 5 == 0 )); then
-                  echo "Still waiting for $wf (Current status: $STATUS)..."
-                fi
-                ALL_SUCCESS=false
-                break
-              fi
-            done
-
-            if [ "$ALL_SUCCESS" = true ]; then
-              echo "All required workflows finished successfully!"
-              exit 0
-            fi
-
-            RETRY_COUNT=$((RETRY_COUNT+1))
-            sleep 60
-          done
-
-          echo "::error::Timed out after 5 hours waiting for builds."
-          exit 1
-
   release:
     name: Create draft release
-    needs: [check-tag, verify-builds]
     runs-on: ubuntu-latest
-    if: needs.check-tag.outputs.is_tag == 'true'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.check-tag.outputs.tag_name }}
+          ref: ${{ inputs.tag }}
           fetch-depth: 0
 
       - name: Clean up any previous drafts for this version
         run: |
-          # Find and delete any existing draft releases for this tag in case of re-runs
-          TAG="${{ needs.check-tag.outputs.tag_name }}"
+          TAG="${{ inputs.tag }}"
           if gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q true; then
             echo "Deleting existing draft release for tag: $TAG"
             gh release delete "$TAG" --yes
@@ -142,9 +38,8 @@ jobs:
         id: version
         continue-on-error: false
         run: |
-          VERSION="${{ needs.check-tag.outputs.tag_name }}"
+          VERSION="${{ inputs.tag }}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "release_name=EdgeTX $VERSION" >> $GITHUB_OUTPUT
 
           # Extract codename from CMakeLists.txt
           if [ -f "CMakeLists.txt" ]; then
@@ -252,7 +147,7 @@ jobs:
 
       - name: Download all release artifacts
         run: |
-          TAG="${{ needs.check-tag.outputs.tag_name }}"
+          TAG="${{ inputs.tag }}"
           COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
@@ -306,9 +201,9 @@ jobs:
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.check-tag.outputs.tag_name }}
+          tag_name: ${{ inputs.tag }}
           draft: true
-          prerelease: ${{ contains(needs.check-tag.outputs.tag_name, '-rc') || contains(needs.check-tag.outputs.tag_name, '-beta') || contains(needs.check-tag.outputs.tag_name, '-alpha') }}
+          prerelease: ${{ contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha') }}
           name: EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}
           body: |
             We are pleased to offer EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}.
@@ -353,6 +248,5 @@ jobs:
             ## Changes
 
             ${{ steps.build_changelog.outputs.changelog }}
-          files: |
-            release-assets/*.zip
+          files: release-assets/*.zip
           fail_on_unmatched_files: true
