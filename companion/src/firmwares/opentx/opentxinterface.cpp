@@ -294,8 +294,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 60;
       else
         return 40;
-    case Simulation:
-      return 1;
     case SlowRange:
       return 250;
     case SlowScale:

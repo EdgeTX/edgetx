@@ -138,7 +138,6 @@ enum Capability {
   RotaryEncoderNavigation,
   SafetyChannelCustomFunction,
   Sensors,
-  Simulation,
   SlowRange,
   SlowScale,
   SoundPitch,
