@@ -74,7 +74,6 @@ enum Capability {
   HasExpoNames,
   HasFailsafe,
   HasFAIMode,
-  HasFasOffset,
   HasFlySkyGimbals,
   HasGeneralUnits,
   HasInputDiff,

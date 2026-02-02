@@ -128,8 +128,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 32;
     case HasFAIMode:
       return 1;
-    case HasFasOffset:
-      return true;
     case HasFlySkyGimbals:
       return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
     case HasGeneralUnits:
