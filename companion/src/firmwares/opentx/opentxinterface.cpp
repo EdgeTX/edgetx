@@ -76,8 +76,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("danger") ? 1 : 0;
     case ExtendedTrimsRange:
       return 512;
-    case ExtraInputs:
-      return 1;
     case FlightModes:
       return 9;
     case FlightModesHaveFades:

@@ -53,7 +53,6 @@ enum Capability {
   CustomFunctions,
   DangerousFunctions,
   ExtendedTrimsRange,
-  ExtraInputs,
   FlightModes,
   FlightModesHaveFades,
   FlightModesName,
