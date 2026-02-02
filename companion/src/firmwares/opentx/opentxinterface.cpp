@@ -110,8 +110,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
               IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) ? true : false;
-    case HasBrightness:
-      return true;
     case HasDisplayText:
       return 1;
     case HasExpoNames:

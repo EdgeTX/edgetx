@@ -225,12 +225,6 @@ ui(new Ui::GeneralSetup)
     ui->volume_SL->setMaximum(firmware->getCapability(MaxVolume));
   }
 
-  if (!firmware->getCapability(HasBrightness)) {
-    ui->BLBright_SB->hide();
-    ui->BLBright_SB->setDisabled(true);
-    ui->label_BLBright->hide();
-  }
-
   if (!IS_FAMILY_HORUS_OR_T16(board)) {
     ui->OFFBright_SB->hide();
     ui->OFFBright_SB->setDisabled(true);
