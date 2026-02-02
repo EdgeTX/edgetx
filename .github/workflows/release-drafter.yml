@@ -250,7 +250,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-- name: Download all release artifacts
+      - name: Download all release artifacts
         run: |
           TAG="${{ needs.check-tag.outputs.tag_name }}"
 
