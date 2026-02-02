@@ -326,7 +326,6 @@ class GeneralSettings {
     int timezone;
     int timezoneMinutes;
     bool adjustRTC;
-    bool optrexDisplay;
     unsigned int inactivityTimer;
     unsigned int internalModuleBaudrate;
     bool minuteBeep;

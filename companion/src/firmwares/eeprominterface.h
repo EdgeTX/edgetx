@@ -139,7 +139,6 @@ enum Capability {
   NumFirstUsableModule,
   NumModules,
   OffsetWeight,
-  OptrexDisplay,  // ETX always false
   Outputs,
   PerModelTimers,
   PermTimers,

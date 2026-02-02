@@ -216,15 +216,6 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
-  if (!firmware->getCapability(OptrexDisplay)) {
-    ui->label_displayType->hide();
-    ui->displayTypeCB->setDisabled(true);
-    ui->displayTypeCB->hide();
-  }
-  else {
-    ui->displayTypeCB->setCurrentIndex(generalSettings.optrexDisplay);
-  }
-
   if (!firmware->getCapability(HasVolume)) {
     ui->volume_SL->hide();
     ui->volume_SL->setDisabled(true);
@@ -1036,14 +1027,6 @@ void GeneralSetupPanel::on_beeperCB_currentIndexChanged(int index)
   }
 }
 
-void GeneralSetupPanel::on_displayTypeCB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.optrexDisplay = index;
-    emit modified();
-  }
-}
-
 void GeneralSetupPanel::on_hapticmodeCB_currentIndexChanged(int index)
 {
   if (!lock) {
@@ -1051,7 +1034,6 @@ void GeneralSetupPanel::on_hapticmodeCB_currentIndexChanged(int index)
     emit modified();
   }
 }
-
 
 void GeneralSetupPanel::on_channelorderCB_currentIndexChanged(int index)
 {

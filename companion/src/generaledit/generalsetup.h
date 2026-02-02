@@ -44,7 +44,6 @@ class GeneralSetupPanel : public GeneralPanel
     void on_rssiPowerOffWarnChkB_stateChanged(int);
     void on_trainerPowerOffWarnChkB_stateChanged(int);
     void on_gpsFormatCB_currentIndexChanged(int index);
-    void on_displayTypeCB_currentIndexChanged(int index);
     void on_BLBright_SB_editingFinished();
     void on_OFFBright_SB_editingFinished();
     void on_brightCtrl_CB_currentIndexChanged(int index);
