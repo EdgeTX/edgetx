@@ -304,8 +304,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 1;
     case Telemetry:
       return 1;
-    case TelemetryBars:
-      return 1;
     case TelemetryCustomScreens:
       if (IS_FAMILY_HORUS_OR_T16(board))
         return 0;

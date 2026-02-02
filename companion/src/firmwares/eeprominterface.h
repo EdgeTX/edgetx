@@ -143,7 +143,6 @@ enum Capability {
   SoundPitch,
   SYMLimits,
   Telemetry,
-  TelemetryBars,
   TelemetryCustomScreens,
   TelemetryCustomScreensBars,
   TelemetryCustomScreensFieldsPerLine,
