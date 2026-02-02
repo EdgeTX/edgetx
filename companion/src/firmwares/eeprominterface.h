@@ -59,7 +59,6 @@ enum Capability {
   GetThrSwitch,
   GlobalFunctions,
   Gvars,
-  GvarsAreNamed,
   GvarsFlightModes,
   GvarsInCS,
   GvarsName,

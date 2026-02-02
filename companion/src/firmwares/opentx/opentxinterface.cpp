@@ -95,8 +95,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 9;
       else
         return 0;
-    case GvarsAreNamed:
-      return 1;
     case GvarsFlightModes:
       return 1;
     case GvarsInCS:
