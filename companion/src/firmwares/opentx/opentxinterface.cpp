@@ -151,8 +151,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
               (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs")) ||
               (IS_RADIOMASTER_POCKET(board) && !id.contains("internalelrs")) ||
               (IS_RADIOMASTER_MT12(board) && !id.contains("internalelrs"));
-    case HasMahPersistent:
-      return true;
     case HasMixerExpo:
       return (IS_HORUS_OR_TARANIS(board) ? true : false);
     case HasMixerNames:

@@ -81,7 +81,6 @@ enum Capability {
   HasIntModuleELRS,
   HasIntModuleFlySky,
   HasIntModuleMulti,
-  HasMahPersistent,
   HasMixerExpo,
   HasMixerNames,
   HasModelImage,
