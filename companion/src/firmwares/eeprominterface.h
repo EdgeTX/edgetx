@@ -58,7 +58,6 @@ enum Capability {
   GetThrSwitch,
   GlobalFunctions,
   Gvars,
-  GvarsInCS,
   GvarsName,
   Haptic,
   HasADCJitterFilter,

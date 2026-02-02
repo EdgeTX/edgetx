@@ -93,8 +93,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 9;
       else
         return 0;
-    case GvarsInCS:
-      return 1;
     case GvarsName:
       return 3;
     case Haptic:
