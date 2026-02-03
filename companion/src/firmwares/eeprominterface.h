@@ -107,7 +107,6 @@ enum Capability {
   ModelName,
   Models,
   ModelTrainerEnable,
-  MultiLangVoice,
   NoTelemetryProtocol,
   NumCurvePoints,
   NumCurves,

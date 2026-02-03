@@ -221,8 +221,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 1;
       else
         return 0;
-    case MultiLangVoice:
-      return 1;
     case NoTelemetryProtocol:
       return IS_HORUS_OR_TARANIS(board) ? 1 : 0;
     case NumCurvePoints:

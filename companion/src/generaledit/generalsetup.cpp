@@ -110,13 +110,7 @@ ui(new Ui::GeneralSetup)
   ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
-  if (!firmware->getCapability(MultiLangVoice)) {
-    ui->VoiceLang_label->hide();
-    ui->voiceLang_CB->hide();
-  }
-  else {
-    populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
-  }
+  populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
   populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, Boards::getCapability(board, Board::HasColorLcd));
 
   if (!firmware->getCapability(MavlinkTelemetry)) {
