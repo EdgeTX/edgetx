@@ -133,7 +133,6 @@ enum Capability {
   TrainerInputs,
   TrimsRange,
   VirtualInputs,
-  VoicesAsNumbers,
   VoicesMaxLength,
 };
 

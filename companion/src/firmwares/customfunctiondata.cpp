@@ -180,12 +180,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
     return RawSource(param).toString(model);
   }
   else if (func == FuncPlayPrompt) {
-    if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
-      return QString("%1").arg(param);
-    }
-    else {
-      return paramarm;
-    }
+    return paramarm;
   }
   else if (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast) {
     switch (adjustMode) {

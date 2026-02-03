@@ -290,8 +290,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 128;
     case VirtualInputs:
       return 32;
-    case VoicesAsNumbers:
-      return 0;
     case VoicesMaxLength:
       return 8;
 
