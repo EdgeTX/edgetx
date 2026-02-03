@@ -451,8 +451,8 @@ void ModulePanel::update()
   ui->channelsCount->setEnabled(mask & MASK_CHANNELS_COUNT);
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
-  ui->channelsCount->setSingleStep(firmware->getCapability(HasPPMStart) ? 1 : 2);
-  
+  ui->channelsCount->setSingleStep(1);
+
   // CRSF
   ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
   ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
