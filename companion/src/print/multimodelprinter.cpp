@@ -295,12 +295,10 @@ QString MultiModelPrinter::print(QTextDocument * document)
   if (firmware->getCapability(GlobalFunctions))
     str.append(printGlobalFunctions());
   str.append(printSpecialFunctions());
-  if (firmware->getCapability(Telemetry)) {
-    str.append(printTelemetry());
-    str.append(printSensors());
-    if (firmware->getCapability(TelemetryCustomScreens)) {
-      str.append(printTelemetryScreens());
-    }
+  str.append(printTelemetry());
+  str.append(printSensors());
+  if (firmware->getCapability(TelemetryCustomScreens)) {
+    str.append(printTelemetryScreens());
   }
   str.append("</table>");
   return str;

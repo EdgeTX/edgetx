@@ -543,14 +543,7 @@ void TelemetryPanel::setup()
 
   ui->altimetryGB->setVisible(firmware->getCapability(HasVario)),
   ui->frskyProtoCB->setDisabled(firmware->getCapability(NoTelemetryProtocol));
-
-  if (firmware->getCapability(Telemetry)) {
-    ui->frskyProtoCB->addItem(tr("Winged Shadow How High"));
-  }
-  else {
-    ui->frskyProtoCB->addItem(tr("Winged Shadow How High (not supported)"));
-  }
-
+  ui->frskyProtoCB->addItem(tr("Winged Shadow How High"));
   ui->variousGB->hide();
 
   lock = false;
