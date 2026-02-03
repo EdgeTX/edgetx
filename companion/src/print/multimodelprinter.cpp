@@ -531,16 +531,14 @@ QString MultiModelPrinter::printOutputs()
     hd << tr("Curve");
   if (firmware->getCapability(PPMCenter))
     hd << tr("PPM");
-  if (firmware->getCapability(SYMLimits))
-    hd << tr("Linear");
+  hd << tr("Linear");
   columns.appendRowHeader(hd);
   int cols = 4;
   if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
     cols++;
   if (firmware->getCapability(PPMCenter))
     cols++;
-  if (firmware->getCapability(SYMLimits))
-    cols++;
+  cols++;
   int wd = 80/cols;
   for (int i=0; i<firmware->getCapability(Outputs); i++) {
     int count = 0;
@@ -562,9 +560,7 @@ QString MultiModelPrinter::printOutputs()
     if (firmware->getCapability(PPMCenter)) {
       COMPARECELLWIDTH(modelPrinter->printOutputPpmCenter(i), wd);
     }
-    if (firmware->getCapability(SYMLimits)) {
-      COMPARECELLWIDTH(modelPrinter->printOutputSymetrical(i), wd);
-    }
+    COMPARECELLWIDTH(modelPrinter->printOutputSymetrical(i), wd);
     columns.appendRowEnd();
   }
   columns.appendTableEnd();

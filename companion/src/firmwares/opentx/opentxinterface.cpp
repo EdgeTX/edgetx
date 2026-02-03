@@ -264,8 +264,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 250;
     case SlowScale:
       return 10;
-    case SYMLimits:
-      return 1;
     case Telemetry:
       return 1;
     case TelemetryCustomScreens:

@@ -118,8 +118,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     headerLabels << tr("Curve") << tr("Plot");
   if (firmware->getCapability(PPMCenter))
     headerLabels << tr("PPM Center");
-  if (firmware->getCapability(SYMLimits))
-    headerLabels << tr("Linear Subtrim");
+  headerLabels << tr("Linear Subtrim");
   TableLayout *tableLayout = new TableLayout(this, chnCapability, headerLabels);
 
   for (int i = 0; i < chnCapability; i++) {
@@ -192,13 +191,11 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     }
 
     // Symetrical limits
-    if (firmware->getCapability(SYMLimits)) {
-      symlimitsChk[i] = new QCheckBox(this);
-      symlimitsChk[i]->setProperty("index", i);
-      symlimitsChk[i]->setChecked(model.limitData[i].symetrical);
-      connect(symlimitsChk[i], SIGNAL(toggled(bool)), this, SLOT(symlimitsEdited()));
-      tableLayout->addWidget(i, col++, symlimitsChk[i]);
-    }
+    symlimitsChk[i] = new QCheckBox(this);
+    symlimitsChk[i]->setProperty("index", i);
+    symlimitsChk[i]->setChecked(model.limitData[i].symetrical);
+    connect(symlimitsChk[i], SIGNAL(toggled(bool)), this, SLOT(symlimitsEdited()));
+    tableLayout->addWidget(i, col++, symlimitsChk[i]);
   }
 
   update();
@@ -301,12 +298,12 @@ void ChannelsPanel::updateLine(int i)
   chnMin[i]->setValue(chn.min);
   chnMax[i]->setValue(chn.max);
   invCB[i]->setCurrentIndex((chn.revert) ? 1 : 0);
+
   if (firmware->getCapability(PPMCenter)) {
     centerSB[i]->setValue(chn.ppmCenter + 1500);
   }
-  if (firmware->getCapability(SYMLimits)) {
-    symlimitsChk[i]->setChecked(chn.symetrical);
-  }
+
+  symlimitsChk[i]->setChecked(chn.symetrical);
   lock = false;
 }
 
