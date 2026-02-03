@@ -114,7 +114,6 @@ enum Capability {
   NumModules,
   OffsetWeight,
   Outputs,
-  PermTimers,
   PPMCenter,
   PPMFrameLength,
   PwrButtonPress,
