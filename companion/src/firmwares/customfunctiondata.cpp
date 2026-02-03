@@ -253,7 +253,6 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index == FuncVolume || index == FuncBackgroundMusic || index == FuncBackgroundMusicPause) && !fw->getCapability(HasVolume)) ||
         ((index == FuncPlayScript && !IS_HORUS_OR_TARANIS(fw->getBoard()))) ||
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
-        ((index == FuncLogs) && !fw->getCapability(HasSDLogs)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
          (index > FuncSetTimer1 + fw->getCapability(Timers) ||
          (model ? model->timers[index - FuncSetTimer1].isModeOff() : false))) ||
