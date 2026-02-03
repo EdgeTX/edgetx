@@ -183,8 +183,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
     case LogicalSwitches:
       return 64;
-    case LogicalSwitchesExt:
-      return true;
     case LuaInputsPerScript:
       return IS_HORUS_OR_TARANIS(board) ? 10 : 0;
     case LuaOutputsPerScript:

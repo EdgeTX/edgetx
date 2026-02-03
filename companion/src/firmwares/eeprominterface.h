@@ -93,7 +93,6 @@ enum Capability {
   InputsLength,
   KeyShortcuts,
   LogicalSwitches,
-  LogicalSwitchesExt,
   LuaInputsPerScript,
   LuaOutputsPerScript,
   LuaScripts,

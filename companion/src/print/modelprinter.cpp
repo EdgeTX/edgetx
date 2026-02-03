@@ -634,12 +634,11 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
     result += RawSwitch(ls.andsw).toString(getCurrentBoard(), &generalSettings);
   }
 
-  if (firmware->getCapability(LogicalSwitchesExt)) {
-    if (ls.duration)
-      result += " " + tr("Duration") + QString("(%1s)").arg(ls.duration/10.0);
-    if (ls.delay)
-      result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
-  }
+  if (ls.duration)
+    result += " " + tr("Duration") + QString("(%1s)").arg(ls.duration/10.0);
+
+  if (ls.delay)
+    result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
 
   return result;
 }
