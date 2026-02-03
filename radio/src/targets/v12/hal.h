@@ -141,6 +141,35 @@ USART6: EXTMODULE_USART
 
 // function switches
 //SW1
+#define SWITCHES_GPIO_REG_E
+#define SWITCHES_GPIO_PIN_E           PCA95XX_P0
+#define SWITCHES_E_CFS_IDX            0
+#define FUNCTION_SWITCH_1             SE
+//SW2
+#define SWITCHES_GPIO_REG_F
+#define SWITCHES_GPIO_PIN_F           PCA95XX_P1
+#define SWITCHES_F_CFS_IDX            1
+#define FUNCTION_SWITCH_2             SF
+//SW3
+#define SWITCHES_GPIO_REG_G
+#define SWITCHES_GPIO_PIN_G           PCA95XX_P2
+#define SWITCHES_G_CFS_IDX            2
+#define FUNCTION_SWITCH_3             SG
+//SW4
+#define SWITCHES_GPIO_REG_H
+#define SWITCHES_GPIO_PIN_H           PCA95XX_P3
+#define SWITCHES_H_CFS_IDX            3
+#define FUNCTION_SWITCH_4             SH
+//SW5
+#define SWITCHES_GPIO_REG_I
+#define SWITCHES_GPIO_PIN_I           PCA95XX_P4
+#define SWITCHES_I_CFS_IDX            4
+#define FUNCTION_SWITCH_5             SI
+//SW6
+#define SWITCHES_GPIO_REG_J
+#define SWITCHES_GPIO_PIN_J           PCA95XX_P5
+#define SWITCHES_J_CFS_IDX            5
+#define FUNCTION_SWITCH_6             SJ
 
 // 6POS SW
 #define SIXPOS_SWITCH_INDEX           6
@@ -270,7 +299,7 @@ USART6: EXTMODULE_USART
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // QSPI Flash
-#define QSPI_MAX_FREQ                   80000000U // 80 MHz
+//#define QSPI_MAX_FREQ                   80000000U // 80 MHz
 #define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)  //OK
 #define QSPI_CLK_GPIO_AF                GPIO_AF9
 #define QSPI_CS_GPIO                    GPIO_PIN(GPIOB, 10)   //OK

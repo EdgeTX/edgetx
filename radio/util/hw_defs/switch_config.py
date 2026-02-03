@@ -139,6 +139,13 @@ SWITCH_CONFIG = {
         "SB": {"default": "3POS"},
         "SC": {"default": "3POS"},
         "SD": {"default": "2POS"},
+         # custom switches
+        "SE": {"default": "2POS"},
+        "SF": {"default": "2POS"},
+        "SG": {"default": "2POS"},
+        "SH": {"default": "2POS"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
     },
     "v14": {
         # left side
