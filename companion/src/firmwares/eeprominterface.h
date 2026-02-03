@@ -67,7 +67,6 @@ enum Capability {
   HasBluetooth,
   HasExpoNames,
   HasFailsafe,
-  HasFAIMode,
   HasFlySkyGimbals,
   HasGeneralUnits,
   HasInputDiff,

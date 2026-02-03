@@ -114,8 +114,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_TARANIS_X9(board) ? 8 : 6);
     case HasFailsafe:
       return 32;
-    case HasFAIMode:
-      return 1;
     case HasFlySkyGimbals:
       return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
     case HasGeneralUnits:

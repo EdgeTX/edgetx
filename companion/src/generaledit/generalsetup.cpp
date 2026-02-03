@@ -154,13 +154,7 @@ ui(new Ui::GeneralSetup)
     ui->varioR0_SB->setValue(500 + (generalSettings.varioRepeat * 10));
   }
 
-  if (!firmware->getCapability(HasFAIMode)) {
-    ui->faimode_CB->hide();
-    ui->label_faimode->hide();
-  }
-  else {
-    ui->faimode_CB->setChecked(generalSettings.fai);
-  }
+  ui->faimode_CB->setChecked(generalSettings.fai);
 
   if (!firmware->getCapability(HasPxxCountry)) {
     ui->countrycode_label->hide();
