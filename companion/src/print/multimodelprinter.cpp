@@ -274,8 +274,7 @@ QString MultiModelPrinter::print(QTextDocument * document)
     document->setDefaultStyleSheet(css.text());
   QString str = "<table cellspacing='0' cellpadding='3' width='100%'>";   // attributes not settable via QT stylesheet
   str.append(printSetup());
-  if (firmware->getCapability(HasDisplayText))
-    str.append(printChecklist());
+  str.append(printChecklist());
   if (firmware->getCapability(Timers)) {
     str.append(printTimers());
   }

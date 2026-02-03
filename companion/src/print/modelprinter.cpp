@@ -746,8 +746,7 @@ QString ModelPrinter::printSettingsOther()
 {
   QStringList str;
   str << printLabelValue(tr("Extended Limits"), printBoolean(model.extendedLimits, BOOLEAN_YESNO));
-  if (firmware->getCapability(HasDisplayText))
-    str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
+  str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
   if (firmware->getCapability(GlobalFunctions))
     str << printLabelValue(tr("Global Functions"), printBoolean(!model.noGlobalFunctions, BOOLEAN_YESNO));
   return str.join(" ");
