@@ -250,7 +250,6 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
   Firmware * fw = getCurrentFirmware();
 
   bool ret = (((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) && !fw->getCapability(SafetyChannelCustomFunction)) ||
-        ((index == FuncVolume || index == FuncBackgroundMusic || index == FuncBackgroundMusicPause) && !fw->getCapability(HasVolume)) ||
         ((index == FuncPlayScript && !IS_HORUS_OR_TARANIS(fw->getBoard()))) ||
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&

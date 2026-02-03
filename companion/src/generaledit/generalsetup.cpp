@@ -127,33 +127,14 @@ ui(new Ui::GeneralSetup)
     ui->mavbaud_CB->setCurrentIndex(generalSettings.mavbaud);
   }
 
-  if (!firmware->getCapability(HasSoundMixer)) {
-    ui->beepVolume_SL->hide();
-    ui->beepVolume_label->hide();
-    ui->varioVolume_SL->hide();
-    ui->varioVolume_label->hide();
-    ui->bgVolume_SL->hide();
-    ui->bgVolume_label->hide();
-    ui->wavVolume_SL->hide();
-    ui->wavVolume_label->hide();
-    ui->varioP0_label->hide();
-    ui->varioP0_SB->hide();
-    ui->varioPMax_label->hide();
-    ui->varioPMax_SB->hide();
-    ui->varioR0_label->hide();
-    ui->varioR0_SB->hide();
-  }
-  else {
-    ui->beepVolume_SL->setValue(generalSettings.beepVolume);
-    ui->varioVolume_SL->setValue(generalSettings.varioVolume);
-    ui->bgVolume_SL->setValue(generalSettings.backgroundVolume);
-    ui->wavVolume_SL->setValue(generalSettings.wavVolume);
-    ui->varioP0_SB->setValue(700 + (generalSettings.varioPitch * 10));
-    updateVarioPitchRange();
-    ui->varioPMax_SB->setValue(700 + (generalSettings.varioPitch * 10) + 1000 + (generalSettings.varioRange * 10));
-    ui->varioR0_SB->setValue(500 + (generalSettings.varioRepeat * 10));
-  }
-
+  ui->beepVolume_SL->setValue(generalSettings.beepVolume);
+  ui->varioVolume_SL->setValue(generalSettings.varioVolume);
+  ui->bgVolume_SL->setValue(generalSettings.backgroundVolume);
+  ui->wavVolume_SL->setValue(generalSettings.wavVolume);
+  ui->varioP0_SB->setValue(700 + (generalSettings.varioPitch * 10));
+  updateVarioPitchRange();
+  ui->varioPMax_SB->setValue(700 + (generalSettings.varioPitch * 10) + 1000 + (generalSettings.varioRange * 10));
+  ui->varioR0_SB->setValue(500 + (generalSettings.varioRepeat * 10));
   ui->faimode_CB->setChecked(generalSettings.fai);
   ui->countrycode_CB->setCurrentIndex(generalSettings.countryCode);
   ui->units_CB->setCurrentIndex(generalSettings.imperial);
@@ -193,14 +174,7 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
-  if (!firmware->getCapability(HasVolume)) {
-    ui->volume_SL->hide();
-    ui->volume_SL->setDisabled(true);
-    ui->label_volume->hide();
-  }
-  else {
-    ui->volume_SL->setMaximum(firmware->getCapability(MaxVolume));
-  }
+  ui->volume_SL->setMaximum(firmware->getCapability(MaxVolume));
 
   if (!IS_FAMILY_HORUS_OR_T16(board)) {
     ui->OFFBright_SB->hide();

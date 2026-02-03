@@ -153,8 +153,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_HORUS_OR_TARANIS(board) ? false : true);
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
-    case HasSoundMixer:
-      return 1;
     case HasSportConnector:
       return IS_ACCESS_RADIO(board, id) || IS_TARANIS_X7(board) || IS_HORUS_X10(board) || IS_TARANIS_XLITE(board);
     case HasSwitchableJack:
@@ -172,8 +170,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
              IS_RADIOMASTER_MT12(board);
-    case HasVolume:
-      return true;
     case Heli:
       if (Boards::getCapability(board, Board::Surface))
         return false;
