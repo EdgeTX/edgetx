@@ -164,18 +164,9 @@ ui(new Ui::GeneralSetup)
     ui->countrycode_CB->setCurrentIndex(generalSettings.countryCode);
   }
 
-  if (!firmware->getCapability(HasGeneralUnits)) {
-    ui->units_label->hide();
-    ui->units_CB->hide();
-  }
-  else {
-    ui->units_CB->setCurrentIndex(generalSettings.imperial);
-  }
-
+  ui->units_CB->setCurrentIndex(generalSettings.imperial);
   ui->ppm_units_CB->setCurrentIndex(generalSettings.ppmunit);
-
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
-
   ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
 
   if (IS_HORUS_OR_TARANIS(board)) {

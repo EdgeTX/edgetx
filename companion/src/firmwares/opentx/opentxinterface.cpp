@@ -116,8 +116,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 32;
     case HasFlySkyGimbals:
       return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
-    case HasGeneralUnits:
-      return true;
     case HasInputDiff:
       return (IS_HORUS_OR_TARANIS(board) ? true : false);
     case HasIntModuleCRSF:
