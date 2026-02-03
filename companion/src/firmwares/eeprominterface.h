@@ -90,7 +90,6 @@ enum Capability {
   HasVarioSink,
   HasVCPSerialMode,
   Heli,
-  Imperial,
   InputsLength,
   KeyShortcuts,
   LogicalSwitches,

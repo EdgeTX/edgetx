@@ -177,8 +177,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return id.contains("noheli") ? 0 : 1;
       else
         return id.contains("heli") ? 1 : 0;
-    case Imperial:
-      return 0;
     case InputsLength:
       return HAS_LARGE_LCD(board) ? 4 : 3;
     case KeyShortcuts:
