@@ -182,12 +182,6 @@ ui(new Ui::GeneralSetup)
     ui->label_KeysBl->hide();
   }
 
-  if (!firmware->getCapability(SoundPitch)) {
-    ui->speakerPitchSB->setDisabled(true);
-    ui->label_speakerPitch->hide();
-    ui->speakerPitchSB->hide();
-  }
-
   if (!firmware->getCapability(Haptic)) {
     ui->hapticStrength->setDisabled(true);
     ui->hapticmodeCB->setDisabled(true);

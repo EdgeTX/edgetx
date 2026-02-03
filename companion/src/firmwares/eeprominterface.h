@@ -123,7 +123,6 @@ enum Capability {
   Sensors,
   SlowRange,
   SlowScale,
-  SoundPitch,
   SYMLimits,
   Telemetry,
   TelemetryCustomScreens,
