@@ -155,15 +155,7 @@ ui(new Ui::GeneralSetup)
   }
 
   ui->faimode_CB->setChecked(generalSettings.fai);
-
-  if (!firmware->getCapability(HasPxxCountry)) {
-    ui->countrycode_label->hide();
-    ui->countrycode_CB->hide();
-  }
-  else {
-    ui->countrycode_CB->setCurrentIndex(generalSettings.countryCode);
-  }
-
+  ui->countrycode_CB->setCurrentIndex(generalSettings.countryCode);
   ui->units_CB->setCurrentIndex(generalSettings.imperial);
   ui->ppm_units_CB->setCurrentIndex(generalSettings.ppmunit);
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);

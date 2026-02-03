@@ -81,7 +81,6 @@ enum Capability {
   HasModuleR9MFlex,
   HasModuleR9MMini,
   HasNoExpo,
-  HasPxxCountry,
   HasSDLogs,
   HasSoftwareSerialPower,
   HasSoundMixer,
