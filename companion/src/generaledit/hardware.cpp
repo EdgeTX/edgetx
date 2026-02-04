@@ -192,13 +192,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (firmware->getCapability(HasADCJitterFilter)) {
-    addLabel(tr("ADC Filter"));
-    AutoCheckBox *filterEnable = new AutoCheckBox(this);
-    filterEnable->setField(generalSettings.noJitterFilter, this, true);
-    params->append(filterEnable);
-    addParams();
-  }
+  addLabel(tr("ADC Filter"));
+  AutoCheckBox *filterEnable = new AutoCheckBox(this);
+  filterEnable->setField(generalSettings.noJitterFilter, this, true);
+  params->append(filterEnable);
+  addParams();
 
   if (Boards::getCapability(board, Board::HasAudioMuteGPIO)) {
     addLabel(tr("Mute if no sound"));

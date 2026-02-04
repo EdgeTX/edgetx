@@ -59,7 +59,6 @@ enum Capability {
   Gvars,
   GvarsName,
   Haptic,                     // TODO remove with X9D
-  HasADCJitterFilter,
   HasAux2SerialMode,
   HasAuxSerialMode,
   HasBatMeterRange,

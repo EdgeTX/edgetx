@@ -71,26 +71,17 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case FlightModes:
       return 9;
     case FlightModesName:
-      return (IS_HORUS_OR_TARANIS(board) ? 10 : 6);
+      return 10;
     case GetThrSwitch:
-      return (IS_HORUS_OR_TARANIS(board) ? SWITCH_SF1 : SWITCH_THR);
+      return SWITCH_SF1;    // TODO check looks odd
     case GlobalFunctions:
       return 64;
     case Gvars:
-      if (IS_STM32H7(board) || IS_STM32H5(board))
-        return id.contains("nogvars") ? 0 : 15;
-      else if (IS_HORUS_OR_TARANIS(board))
-        return id.contains("nogvars") ? 0 : 9;
-      else if (id.contains("gvars"))
-        return 9;
-      else
-        return 0;
+      return id.contains("nogvars") ? 0 : (IS_STM32H7(board) || IS_STM32H5(board) ? 15 : 9);
     case GvarsName:
       return 3;
     case Haptic:  // TODO remove with X9D
       return board != Board::BOARD_TARANIS_X9D || id.contains("haptic");
-    case HasADCJitterFilter:
-      return IS_HORUS_OR_TARANIS(board);
     case HasAux2SerialMode:
       return IS_FAMILY_T16(board);
     case HasAuxSerialMode:
