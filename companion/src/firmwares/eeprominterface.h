@@ -58,7 +58,7 @@ enum Capability {
   GlobalFunctions,
   Gvars,
   GvarsName,
-  Haptic,
+  Haptic,                     // TODO remove with X9D
   HasADCJitterFilter,
   HasAux2SerialMode,
   HasAuxSerialMode,

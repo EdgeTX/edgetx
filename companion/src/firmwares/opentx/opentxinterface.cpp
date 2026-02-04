@@ -87,7 +87,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return 0;
     case GvarsName:
       return 3;
-    case Haptic:
+    case Haptic:  // TODO remove with X9D
       return board != Board::BOARD_TARANIS_X9D || id.contains("haptic");
     case HasADCJitterFilter:
       return IS_HORUS_OR_TARANIS(board);

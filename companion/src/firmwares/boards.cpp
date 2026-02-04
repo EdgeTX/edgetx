@@ -313,6 +313,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       } else {
         return 46;
       }
+
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
 
@@ -1109,4 +1110,14 @@ bool Boards::isAir(Board::Type board)
 bool Boards::isSurface(Board::Type board)
 {
   return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Board::Surface);
+}
+
+void Boards::tests()
+{
+  for (int i = 0; i < BOARD_TYPE_COUNT; i++) {
+    if (!IS_HORUS_OR_TARANIS((Type)i))
+      qDebug() << "****";
+      qDebug() << "Not" << "IS_HORUS_OR_TARANIS" << getBoardName((Type)i);
+      qDebug() << "****";
+  }
 }
