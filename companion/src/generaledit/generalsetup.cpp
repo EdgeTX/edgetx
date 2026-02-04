@@ -538,7 +538,7 @@ void GeneralSetupPanel::setValues()
     ui->label_HL->hide();
     ui->hapticLengthCB->hide();
   }
-  ui->OFFBright_SB->setMinimum(firmware->getCapability(BacklightLevelMin));
+  ui->OFFBright_SB->setMinimum(Boards::getCapability(board, Board::BacklightLevelMin));
   if (generalSettings.backlightOffBright > 100 - generalSettings.backlightBright)
     generalSettings.backlightOffBright = 100 - generalSettings.backlightBright;
   ui->BLBright_SB->setValue(100 - generalSettings.backlightBright);

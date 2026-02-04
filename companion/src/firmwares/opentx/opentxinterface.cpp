@@ -58,14 +58,6 @@ Firmware * OpenTxFirmware::getFirmwareVariant(const QString &id)
 int OpenTxFirmware::getCapability(::Capability capability)
 {
   switch (capability) {
-    case BacklightLevelMin:
-      if (IS_HORUS_X12S(board)) {
-        return 5;
-      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)) {
-        return 1;
-      } else {
-        return 46;
-      }
     case ChannelsName:
       return (HAS_LARGE_LCD(board) ? 6 : 4);
     case CustomAndSwitches:

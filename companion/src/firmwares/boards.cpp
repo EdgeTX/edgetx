@@ -305,6 +305,14 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
   // TODO investigate usage of any that should be covered in BoardJson::getCapability or are no longer required
   //      some could be used when importing pre v2.10 configurations
   switch (capability) {
+    case BacklightLevelMin:
+      if (IS_HORUS_X12S(board)) {
+        return 5;
+      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)) {
+        return 1;
+      } else {
+        return 46;
+      }
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
 

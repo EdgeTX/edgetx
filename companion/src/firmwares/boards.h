@@ -212,6 +212,7 @@ namespace Board {
 
   enum Capability {
     Air,
+    BacklightLevelMin,
     FlexInputs,
     FlexSwitches,
     FunctionSwitchColors,
