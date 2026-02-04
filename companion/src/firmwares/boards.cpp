@@ -1114,10 +1114,10 @@ bool Boards::isSurface(Board::Type board)
 
 void Boards::tests()
 {
+  qDebug() << "**** Board checks ****";
   for (int i = 0; i < BOARD_TYPE_COUNT; i++) {
     if (!IS_HORUS_OR_TARANIS((Type)i))
-      qDebug() << "****";
-      qDebug() << "Not" << "IS_HORUS_OR_TARANIS" << getBoardName((Type)i);
-      qDebug() << "****";
+      qDebug() << "Not member of" << "IS_HORUS_OR_TARANIS" << getBoardName((Type)i);
   }
+  qDebug() << "**** Board checks ****";
 }
