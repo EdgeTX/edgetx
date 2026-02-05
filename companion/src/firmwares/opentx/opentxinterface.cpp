@@ -72,8 +72,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 9;
     case FlightModesName:
       return 10;
-    case GetThrSwitch:
-      return SWITCH_SF1;    // TODO check looks odd
     case GlobalFunctions:
       return 64;
     case Gvars:

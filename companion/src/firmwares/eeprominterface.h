@@ -54,7 +54,6 @@ enum Capability {
   ExtendedTrimsRange,
   FlightModes,
   FlightModesName,
-  GetThrSwitch,
   GlobalFunctions,
   Gvars,
   GvarsName,
