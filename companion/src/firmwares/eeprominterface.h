@@ -78,7 +78,6 @@ enum Capability {
   HasSoftwareSerialPower,
   HasSportConnector,
   HasSwitchableJack,
-  HasTelemetryBaudrate,
   HasTopLcd,
   HasVario,
   HasVarioSink,

@@ -132,8 +132,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_ACCESS_RADIO(board, id) || IS_TARANIS_X7(board) || IS_HORUS_X10(board) || IS_TARANIS_XLITE(board);
     case HasSwitchableJack:
       return IS_TARANIS_XLITES(board);
-    case HasTelemetryBaudrate:
-      return IS_HORUS_OR_TARANIS(board);
     case HasTopLcd:
       return IS_TARANIS_X9E(board) ? 1 : 0;
     case HasVario:
