@@ -157,11 +157,11 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LogicalSwitches:
       return 64;
     case LuaInputsPerScript:
-      return IS_HORUS_OR_TARANIS(board) ? 10 : 0;
+      return 10;
     case LuaOutputsPerScript:
-      return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
+      return 6;
     case LuaScripts:
-      return IS_HORUS_OR_TARANIS(board) && id.contains("lua") ? 7 : 0;
+      return id.contains("lua") ? 7 : 0;
     case MavlinkTelemetry:
       return id.contains("mavlink") ? 1 : 0;
     case MaxContrast:
