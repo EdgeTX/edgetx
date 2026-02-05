@@ -61,7 +61,6 @@ enum Capability {
   Haptic,                     // TODO remove with X9D
   HasAux2SerialMode,
   HasAuxSerialMode,
-  HasBatMeterRange,
   HasBluetooth,
   HasExpoNames,
   HasFailsafe,

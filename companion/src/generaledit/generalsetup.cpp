@@ -270,14 +270,6 @@ ui(new Ui::GeneralSetup)
   ui->switchesDelay->setValue(10 * (generalSettings.switchesDelay + 15));
   ui->blAlarm_ChkB->setChecked(generalSettings.alarmsFlash);
 
-  if (!firmware->getCapability(HasBatMeterRange)) {
-    ui->batMeterRangeLabel->hide();
-    ui->HasBatMeterMinRangeLabel->hide();
-    ui->HasBatMeterMaxRangeLabel->hide();
-    ui->vBatMinDSB->hide();
-    ui->vBatMaxDSB->hide();
-  }
-
   if (Boards::getCapability(board, Board::Surface)) {
     ui->stickModeLabel->hide();
     ui->stickmodeCB->hide();
@@ -550,20 +542,13 @@ void GeneralSetupPanel::setValues()
   ui->speakerPitchSB->setValue(generalSettings.speakerPitch);
   ui->hapticStrength->setValue(generalSettings.hapticStrength);
   ui->hapticmodeCB->setCurrentIndex(generalSettings.hapticMode + 2);
-
-  if (firmware->getCapability(HasBatMeterRange)) {
-    ui->vBatMinDSB->setValue((double)(generalSettings.vBatMin + 90) / 10);
-    ui->vBatMaxDSB->setValue((double)(generalSettings.vBatMax + 120) / 10);
-  }
-
+  ui->vBatMinDSB->setValue((double)(generalSettings.vBatMin + 90) / 10);
+  ui->vBatMaxDSB->setValue((double)(generalSettings.vBatMax + 120) / 10);
   ui->pwrOnDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOnSpeed));
   ui->pwrOffDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOffSpeed));
   ui->pwrOffIfInactiveSB->setValue(generalSettings.pwrOffIfInactive);
-
   ui->registrationId->setText(generalSettings.registrationId);
-
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
-
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
 
   if (Boards::getCapability(board, Board::HasColorLcd)) {
