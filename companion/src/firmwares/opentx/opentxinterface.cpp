@@ -60,8 +60,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
   switch (capability) {
     case ChannelsName:
       return (HAS_LARGE_LCD(board) ? 6 : 4);
-    case CustomAndSwitches:
-      return getCapability(LogicalSwitches);
     case CustomFunctions:
       return CPN_MAX_SPECIAL_FUNCTIONS;
     case DangerousFunctions:

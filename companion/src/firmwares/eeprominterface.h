@@ -48,7 +48,6 @@ const uint8_t modn12x3[8][4]= {
 
 enum Capability {
   ChannelsName,
-  CustomAndSwitches,
   CustomFunctions,
   DangerousFunctions,
   ExtendedTrimsRange,
