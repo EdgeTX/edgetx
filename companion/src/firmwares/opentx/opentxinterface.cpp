@@ -210,7 +210,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case PPMFrameLength:
       return 40;
     case PwrButtonPress:
-      return IS_HORUS_OR_TARANIS(board) && (board!=Board::BOARD_TARANIS_X9D) && (board!=Board::BOARD_TARANIS_X9DP);
+      return (board != Board::BOARD_TARANIS_X9D && board != Board::BOARD_TARANIS_X9DP);
     case QMFavourites:
       return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
     case RotaryEncoderNavigation:
