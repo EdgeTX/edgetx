@@ -55,6 +55,8 @@ Firmware * OpenTxFirmware::getFirmwareVariant(const QString &id)
   }
 }
 
+//  TODO centralise those related to data sizes so common to struct and capability
+//       current method is too risky
 int OpenTxFirmware::getCapability(::Capability capability)
 {
   switch (capability) {

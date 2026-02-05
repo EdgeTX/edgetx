@@ -434,9 +434,7 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
   if (sensorCapability > CPN_MAX_SENSORS) //  TODO should be role of getCapability
     sensorCapability = CPN_MAX_SENSORS;
 
-  if (firmware->getCapability(NoTelemetryProtocol)) {
-    model.frsky.usrProto = 1;
-  }
+  model.frsky.usrProto = 1;
 
   ui->varioSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEVARIOSRC));
   ui->varioSource->setField(model.frsky.varioSource, this);
