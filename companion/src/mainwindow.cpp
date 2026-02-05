@@ -55,7 +55,7 @@ MainWindow::MainWindow():
   updateFactories(nullptr),
   windowsListActions(new QActionGroup(this))
 {
-  Boards::tests();
+  //Boards::tests();
 
   // setUnifiedTitleAndToolBarOnMac(true);
   this->setWindowIcon(QIcon(":/icon.png"));
