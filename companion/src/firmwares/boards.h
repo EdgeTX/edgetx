@@ -816,11 +816,6 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
     IS_FLYSKY_PA01(board)/*generally*/ || IS_FLYSKY_NB4P(board)/*generally*/;
 }
 
-inline bool IS_HORUS_OR_TARANIS(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board);
-}
-
 inline bool IS_STM32(Board::Type board)
 {
   return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) ||

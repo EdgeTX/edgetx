@@ -416,7 +416,7 @@ bool RawSource::isAvailable(const ModelData * const model,
         return false;
     }
 
-    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index) - 1, board) && IS_HORUS_OR_TARANIS(board) &&
+    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index) - 1, board) &&
         !gs->switchSourceAllowed(abs(index) - 1))
       return false;
   }

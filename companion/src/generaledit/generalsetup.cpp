@@ -135,13 +135,7 @@ ui(new Ui::GeneralSetup)
   ui->ppm_units_CB->setCurrentIndex(generalSettings.ppmunit);
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
   ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
-
-  if (IS_HORUS_OR_TARANIS(board)) {
-    ui->adjustRTC->setChecked(generalSettings.adjustRTC);
-  }
-  else {
-    ui->adjustRTC->hide();
-  }
+  ui->adjustRTC->setChecked(generalSettings.adjustRTC);
 
   if (IS_STM32(board)) {
     ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
@@ -237,24 +231,6 @@ ui(new Ui::GeneralSetup)
 
   for (int i = 0; tpmsld[i]; i++) {
     connect(tpmsld[i], SIGNAL(valueChanged(int)),this,SLOT(unlockSwitchEdited()));
-  }
-
-  if (!IS_HORUS_OR_TARANIS(board)) {
-    ui->stickReverse1->setChecked(generalSettings.stickReverse & (1 << 0));
-    ui->stickReverse2->setChecked(generalSettings.stickReverse & (1 << 1));
-    ui->stickReverse3->setChecked(generalSettings.stickReverse & (1 << 2));
-    ui->stickReverse4->setChecked(generalSettings.stickReverse & (1 << 3));
-    connect(ui->stickReverse1, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-    connect(ui->stickReverse2, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-    connect(ui->stickReverse3, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-    connect(ui->stickReverse4, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-  }
-  else {
-    ui->stickReverseLB->hide();
-    ui->stickReverse1->hide();
-    ui->stickReverse2->hide();
-    ui->stickReverse3->hide();
-    ui->stickReverse4->hide();
   }
 
   if (Boards::getCapability(board, Board::HasBacklightColor)) {
@@ -983,17 +959,6 @@ void GeneralSetupPanel::on_registrationId_editingFinished()
 {
   if (!lock) {
     strncpy(generalSettings.registrationId, ui->registrationId->text().toLatin1(), REGISTRATION_ID_LEN);
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::stickReverseEdited()
-{
-  if (!lock) {
-    generalSettings.stickReverse = ((int)ui->stickReverse1->isChecked()) |
-                                   ((int)ui->stickReverse2->isChecked() << 1) |
-                                   ((int)ui->stickReverse3->isChecked() << 2) |
-                                   ((int)ui->stickReverse4->isChecked() << 3);
     emit modified();
   }
 }

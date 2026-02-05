@@ -318,9 +318,7 @@ QString MultiModelPrinter::printSetup()
   ROWLABELCOMPARECELL(tr("Trims"), 0, modelPrinter->printSettingsTrim(), 0);
   ROWLABELCOMPARECELL(tr("Center Beep"), 0, modelPrinter->printCenterBeep(), 0);
   ROWLABELCOMPARECELL(tr("Switch Warnings"), 0, modelPrinter->printSwitchWarnings(), 0);
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    ROWLABELCOMPARECELL(tr("Pot Warnings"), 0, modelPrinter->printPotWarnings(), 0);
-  }
+  ROWLABELCOMPARECELL(tr("Pot Warnings"), 0, modelPrinter->printPotWarnings(), 0);
   ROWLABELCOMPARECELL(tr("Other"), 0, modelPrinter->printSettingsOther(), 0);
   columns.appendTableEnd();
   str.append(columns.print());
@@ -525,15 +523,13 @@ QString MultiModelPrinter::printOutputs()
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
   QStringList hd = QStringList() << tr("Channel") << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direct");
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
-    hd << tr("Curve");
+  hd << tr("Curve");
   if (firmware->getCapability(PPMCenter))
     hd << tr("PPM");
   hd << tr("Linear");
   columns.appendRowHeader(hd);
   int cols = 4;
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
-    cols++;
+  cols++;
   if (firmware->getCapability(PPMCenter))
     cols++;
   cols++;
@@ -552,9 +548,7 @@ QString MultiModelPrinter::printOutputs()
     COMPARECELLWIDTH(modelPrinter->printOutputMin(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputMax(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputRevert(i), wd);
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      COMPARECELLWIDTH(modelPrinter->printOutputCurve(i), wd);
-    }
+    COMPARECELLWIDTH(modelPrinter->printOutputCurve(i), wd);
     if (firmware->getCapability(PPMCenter)) {
       COMPARECELLWIDTH(modelPrinter->printOutputPpmCenter(i), wd);
     }
@@ -757,12 +751,7 @@ QString MultiModelPrinter::printTelemetry()
   // Altimetry
   if (firmware->getCapability(HasVario)) {
     columns.appendRowStart(tr("Altimetry"), 20);
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      LABELCOMPARECELL(tr("Vario source"), SensorData::sourceToString(model, model->frsky.varioSource), 80);
-    }
-    else {
-      LABELCOMPARECELL(tr("Vario source"), modelPrinter->printVarioSource(model->frsky.varioSource), 80);
-    }
+    LABELCOMPARECELL(tr("Vario source"), SensorData::sourceToString(model, model->frsky.varioSource), 80);
     columns.appendRowEnd();
     columns.appendRowStart("", 20);
     columns.appendCellStart(80);
@@ -779,15 +768,12 @@ QString MultiModelPrinter::printTelemetry()
   }
 
   // Top Bar
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    columns.appendRowStart(tr("Top Bar"), 20);
-    columns.appendCellStart(80);
-    COMPARESTRING(tr("Volts source"), SensorData::sourceToString(model, model->frsky.voltsSource), true);
-    COMPARESTRING(tr("Altitude source"), SensorData::sourceToString(model, model->frsky.altitudeSource), false);
-    columns.appendCellEnd();
-    columns.appendRowEnd();
-  }
-
+  columns.appendRowStart(tr("Top Bar"), 20);
+  columns.appendCellStart(80);
+  COMPARESTRING(tr("Volts source"), SensorData::sourceToString(model, model->frsky.voltsSource), true);
+  COMPARESTRING(tr("Altitude source"), SensorData::sourceToString(model, model->frsky.altitudeSource), false);
+  columns.appendCellEnd();
+  columns.appendRowEnd();
   ROWLABELCOMPARECELL(tr("Multi sensors"), 0, modelPrinter->printIgnoreSensorIds(!model->frsky.ignoreSensorIds), 0);
   ROWLABELCOMPARECELL(tr("Show Instance IDs"), 0, modelPrinter->printIgnoreSensorIds(!model->showInstanceIds), 0);
 

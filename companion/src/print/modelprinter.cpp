@@ -189,13 +189,11 @@ QString ModelPrinter::printModule(int idx)
   ModuleData module = model.moduleData[(idx<0 ? CPN_MAX_MODULES : idx)];
   if (idx < 0) {
     str << printLabelValue(tr("Mode"), model.trainerModeToString());
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      if (model.trainerMode == TRAINER_MODE_SLAVE_JACK) {
-        str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
-        str << printLabelValue(tr("Frame length"), QString("%1ms").arg(printPPMFrameLength(module.ppm.frameLength)));
-        str << printLabelValue(tr("PPM delay"), QString("%1us").arg(module.ppm.delay));
-        str << printLabelValue(tr("Polarity"), module.polarityToString());
-      }
+    if (model.trainerMode == TRAINER_MODE_SLAVE_JACK) {
+      str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
+      str << printLabelValue(tr("Frame length"), QString("%1ms").arg(printPPMFrameLength(module.ppm.frameLength)));
+      str << printLabelValue(tr("PPM delay"), QString("%1us").arg(module.ppm.delay));
+      str << printLabelValue(tr("Polarity"), module.polarityToString());
     }
     result = str.join(" ");
   }

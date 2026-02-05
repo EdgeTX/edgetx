@@ -337,7 +337,6 @@ class GeneralSettings {
     int PPM_Multiplier;
     int hapticLength;
     unsigned int reNavigation;
-    unsigned int stickReverse;
     unsigned int speakerPitch;
     int hapticStrength;
     char ownerName[OWNER_NAME_LEN + 1];
