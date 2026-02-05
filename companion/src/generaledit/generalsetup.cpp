@@ -51,48 +51,6 @@ ui(new Ui::GeneralSetup)
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ControlSource)),
                                          FIM_CONTROLSRC);
 
-  QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
-  QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
-
-  if (IS_TARANIS(board)) {
-    if (firmware->getId().contains("readonly")) {
-      uint16_t switchstate = generalSettings.switchUnlockStates;
-      ui->chkSA->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSB->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSC->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSD->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSE->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSF->setValue((switchstate & 0x3) / 2);
-      switchstate >>= 2;
-      ui->chkSG->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSH->setValue(switchstate & 0x3);
-    }
-    else {
-      for (int i = 0; pmsl[i]; i++) {
-        pmsl[i]->hide();
-      }
-      for (int i = 0; tpmsld[i]; i++) {
-        tpmsld[i]->hide();
-      }
-      this->layout()->removeItem(ui->TaranisReadOnlyUnlock);
-    }
-  }
-  else {
-    for (int i = 0; pmsl[i]; i++) {
-      pmsl[i]->hide();
-    }
-    for (int i = 0; tpmsld[i]; i++) {
-      tpmsld[i]->hide();
-    }
-    this->layout()->removeItem(ui->TaranisReadOnlyUnlock);
-  }
-
   lock = true;
 
   ui->volumeCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -228,10 +186,6 @@ ui(new Ui::GeneralSetup)
   setValues();
 
   lock = false;
-
-  for (int i = 0; tpmsld[i]; i++) {
-    connect(tpmsld[i], SIGNAL(valueChanged(int)),this,SLOT(unlockSwitchEdited()));
-  }
 
   if (Boards::getCapability(board, Board::HasBacklightColor)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
@@ -926,23 +880,6 @@ void GeneralSetupPanel::on_stickmodeCB_currentIndexChanged(int index)
 {
   if (!lock) {
     generalSettings.stickMode = ui->stickmodeCB->currentData().toInt();
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::unlockSwitchEdited()
-{
-  if (!lock) {
-    int i = 0;
-    i |= (((uint16_t)ui->chkSA->value()));
-    i |= (((uint16_t)ui->chkSB->value()) << 2);
-    i |= (((uint16_t)ui->chkSC->value()) << 4);
-    i |= (((uint16_t)ui->chkSD->value()) << 6);
-    i |= (((uint16_t)ui->chkSE->value()) << 8);
-    i |= (((uint16_t)ui->chkSF->value()) << 10);
-    i |= (((uint16_t)ui->chkSG->value()) << 12);
-    i |= (((uint16_t)ui->chkSH->value()) << 14);
-    generalSettings.switchUnlockStates=i;
     emit modified();
   }
 }

@@ -372,7 +372,6 @@ class GeneralSettings {
     int varioRepeat;
     int backgroundVolume;
     unsigned int mavbaud;
-    unsigned int switchUnlockStates;
     unsigned int serialPort[SP_COUNT];
     bool serialPower[SP_COUNT];
     int antennaMode;
