@@ -63,17 +63,17 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case CustomAndSwitches:
       return getCapability(LogicalSwitches);
     case CustomFunctions:
-      return 64;
+      return CPN_MAX_SPECIAL_FUNCTIONS;
     case DangerousFunctions:
       return id.contains("danger") ? 1 : 0;
     case ExtendedTrimsRange:
       return 512;
     case FlightModes:
-      return 9;
+      return CPN_MAX_FLIGHT_MODES;
     case FlightModesName:
       return 10;
     case GlobalFunctions:
-      return 64;
+      return CPN_MAX_SPECIAL_FUNCTIONS;
     case Gvars:
       return id.contains("nogvars") ? 0 : (IS_STM32H7(board) || IS_STM32H5(board) ? 15 : 9);
     case GvarsName:
@@ -153,9 +153,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case KeyShortcuts:
       return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
     case LogicalSwitches:
-      return 64;
+      return CPN_MAX_LOGICAL_SWITCHES;
     case LuaInputsPerScript:
-      return 10;
+      return CPN_MAX_SCRIPT_INPUTS;
     case LuaOutputsPerScript:
       return 6;
     case LuaScripts:
@@ -192,17 +192,17 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case NoTelemetryProtocol:
       return 1;
     case NumCurvePoints:
-      return 512;
+      return 512; // Note: less than CPN_MAX_CURVES x CPN_MAX_POINTS
     case NumCurves:
-      return 32;
+      return CPN_MAX_CURVES;
     case NumFirstUsableModule:
       return (IS_JUMPER_T12(board) && !id.contains("internalmulti") ? 1 : 0);
     case NumModules:
-      return 2;
+      return CPN_MAX_MODULES;
     case OffsetWeight:
       return 500;
     case Outputs:
-      return 32;
+      return CPN_MAX_CHNOUT;
     case PPMCenter:
       return 500;
     case PPMFrameLength:
@@ -223,7 +223,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("nooverridech") ? 0 : 1;
     case Sensors:
       if (IS_STM32H7(board))
-        return 99;
+        return CPN_MAX_SENSORS;
       else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
         return 60;
       else
@@ -244,7 +244,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case TelemetryCustomScreensLines:
       return (getCapability(TelemetryCustomScreens) ? 4 : 0);
     case Timers:
-      return 3;
+      return CPN_MAX_TIMERS;
     case TimersName:
       if (HAS_LARGE_LCD(board))
         return 8;
@@ -257,7 +257,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case TrimsRange:
       return 128;
     case VirtualInputs:
-      return 32;
+      return CPN_MAX_INPUTS;
     case VoicesMaxLength:
       return 8;
 
