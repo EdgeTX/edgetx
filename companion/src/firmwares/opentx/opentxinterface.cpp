@@ -75,7 +75,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case GlobalFunctions:
       return CPN_MAX_SPECIAL_FUNCTIONS;
     case Gvars:
-      return id.contains("nogvars") ? 0 : (IS_STM32H7(board) || IS_STM32H5(board) ? 15 : 9);
+      return id.contains("nogvars") ? 0 : (IS_STM32H7(board) || IS_STM32H5(board) ? CPN_MAX_GVARS : 9);
     case GvarsName:
       return 3;
     case Haptic:  // TODO remove with X9D
@@ -144,10 +144,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case Heli:
       if (Boards::getCapability(board, Board::Surface))
         return false;
-      else if (IS_HORUS_OR_TARANIS(board))
-        return id.contains("noheli") ? 0 : 1;
       else
-        return id.contains("heli") ? 1 : 0;
+        return !id.contains("noheli");
     case InputsLength:
       return HAS_LARGE_LCD(board) ? 4 : 3;
     case KeyShortcuts:
@@ -159,7 +157,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LuaOutputsPerScript:
       return 6;
     case LuaScripts:
-      return id.contains("lua") ? 7 : 0;
+      return id.contains("lua") ? CPN_MAX_SCRIPTS : 0;
     case MavlinkTelemetry:
       return id.contains("mavlink") ? 1 : 0;
     case MaxContrast:
