@@ -182,11 +182,6 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->gfEnabled->hide();
   }
 
-  if (!firmware->getCapability(HasADCJitterFilter))
-  {
-    ui->jitterFilter->hide();
-  }
-
   // Beep Center checkboxes
   prevFocus = ui->trimsDisplay;
 
