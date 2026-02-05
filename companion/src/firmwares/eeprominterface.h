@@ -75,7 +75,6 @@ enum Capability {
   HasModelsList,
   HasModuleR9MFlex,
   HasModuleR9MMini,
-  HasNoExpo,
   HasSoftwareSerialPower,
   HasSportConnector,
   HasSwitchableJack,

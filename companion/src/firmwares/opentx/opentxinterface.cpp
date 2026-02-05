@@ -126,8 +126,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("flexr9m");
     case HasModuleR9MMini:
       return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
-    case HasNoExpo:
-      return (IS_HORUS_OR_TARANIS(board) ? false : true);
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasSportConnector:

@@ -420,8 +420,6 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   else if (mix.carryTrim < 0)
     str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1) + 1).toString(&model, &generalSettings);
 
-  if (firmware->getCapability(HasNoExpo) && mix.noExpo)
-    str += " " + tr("No DR/Expo").toHtmlEscaped();
   if (mix.sOffset)
     str += " " + tr("Offset(%1)").arg(SourceNumRef(mix.sOffset).toString(&model, &generalSettings)).toHtmlEscaped();
   if (mix.curve.value)
