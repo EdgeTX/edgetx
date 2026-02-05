@@ -500,8 +500,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   if (protocol == PULSES_OFF)
     return true;
 
-  Firmware *fw = getCurrentFirmware();
-
   if (moduleidx == 0)
     return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
 
