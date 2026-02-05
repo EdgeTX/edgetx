@@ -104,9 +104,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   connectItemModelEvents(dialogFilteredItemModels->getItemModel(crvid));
 
   int gvid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
-
-  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
-                                                           firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
+  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels, 0);
 
   QStringList headerLabels;
   headerLabels << "#";

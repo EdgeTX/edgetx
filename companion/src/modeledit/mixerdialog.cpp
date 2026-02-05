@@ -79,8 +79,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
-  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
-                                                           firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
+  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels, 0);
 
   curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
                                            ui->imgCurve, md->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
