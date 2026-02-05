@@ -190,10 +190,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 60;
     case ModelTrainerEnable:
-      if (IS_HORUS_OR_TARANIS(board) && board!=Board::BOARD_TARANIS_XLITE)
-        return 1;
-      else
-        return 0;
+      return board != Board::BOARD_TARANIS_XLITE;
     case NoTelemetryProtocol:
       return IS_HORUS_OR_TARANIS(board) ? 1 : 0;
     case NumCurvePoints:
