@@ -80,15 +80,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 3;
     case Haptic:  // TODO remove with X9D
       return board != Board::BOARD_TARANIS_X9D || id.contains("haptic");
-    case HasAux2SerialMode:
-      return IS_FAMILY_T16(board);
-    case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
-             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
-             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_MT12(board);
-    case HasBluetooth:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
-              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) ? true : false;
     case HasExpoNames:
       return (IS_TARANIS_X9(board) ? 8 : 6);
     case HasFailsafe:
@@ -124,23 +115,14 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("flexr9m");
     case HasModuleR9MMini:
       return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
-    case HasSoftwareSerialPower:
-      return IS_RADIOMASTER_TX16S(board);
     case HasSportConnector:
       return IS_ACCESS_RADIO(board, id) || IS_TARANIS_X7(board) || IS_HORUS_X10(board) || IS_TARANIS_XLITE(board);
-    case HasSwitchableJack:
-      return IS_TARANIS_XLITES(board);
     case HasTopLcd:
       return IS_TARANIS_X9E(board) ? 1 : 0;
     case HasVario:
       return Boards::isAir(board);
     case HasVarioSink:
       return Boards::isAir(board);
-    case HasVCPSerialMode:
-      return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
-             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-             IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
-             IS_RADIOMASTER_MT12(board);
     case Heli:
       if (Boards::getCapability(board, Board::Surface))
         return false;
@@ -160,18 +142,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("lua") ? CPN_MAX_SCRIPTS : 0;
     case MavlinkTelemetry:
       return id.contains("mavlink") ? 1 : 0;
-    case MaxContrast:
-      if (IS_TARANIS_SMALL(board))
-        return 30;
-      else
-        return 45;
-    case MaxVolume:
-      return 23;
-    case MinContrast:
-      if (IS_TARANIS_X9(board))
-        return 0;
-      else
-        return 10;
     case Mixes:
       return CPN_MAX_MIXERS;
     case ModelImageKeepExtn:
@@ -203,18 +173,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 500;
     case PPMFrameLength:
       return 40;
-    case PwrButtonPress:
-      return (board != Board::BOARD_TARANIS_X9D && board != Board::BOARD_TARANIS_X9DP);
     case QMFavourites:
       return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
-    case RotaryEncoderNavigation:
-      return (IS_TARANIS_X7(board) || IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X9E(board) || IS_TARANIS_X9LITE(board) ||
-              IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
-              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
-              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) ||
-              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
-              IS_RADIOMASTER_TX16SMK3(board));
     case SafetyChannelCustomFunction:
       return id.contains("nooverridech") ? 0 : 1;
     case Sensors:

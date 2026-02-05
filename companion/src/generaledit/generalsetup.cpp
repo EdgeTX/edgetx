@@ -160,7 +160,7 @@ ui(new Ui::GeneralSetup)
     ui->hatsModeCB->hide();
   }
 
-  if (firmware->getCapability(HasSwitchableJack)) {
+  if (Boards::getCapability(board, Board::HasSwitchableJack)) {
     ui->jackModeCB->setCurrentIndex(generalSettings.jackMode);
   }
   else {
@@ -168,7 +168,7 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
-  ui->volume_SL->setMaximum(firmware->getCapability(MaxVolume));
+  ui->volume_SL->setMaximum(Boards::getCapability(board, Board::MaxVolume));
 
   if (!IS_FAMILY_HORUS_OR_T16(board)) {
     ui->OFFBright_SB->hide();
@@ -191,8 +191,8 @@ ui(new Ui::GeneralSetup)
     ui->backlightautoSB->setMinimum(5);
   }
 
-  ui->contrastSB->setMinimum(firmware->getCapability(MinContrast));
-  ui->contrastSB->setMaximum(firmware->getCapability(MaxContrast));
+  ui->contrastSB->setMinimum(Boards::getCapability(board, Board::MinContrast));
+  ui->contrastSB->setMaximum(Boards::getCapability(board, Board::MaxContrast));
   ui->contrastSB->setValue(generalSettings.contrast);
 
   ui->battwarningDSB->setValue((double)generalSettings.vBatWarn / 10);
@@ -210,7 +210,7 @@ ui(new Ui::GeneralSetup)
     ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
   }
 
-  if (!firmware->getCapability(PwrButtonPress)) {
+  if (!Boards::getCapability(board, Board::PwrButtonPress)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
     ui->pwrOffDelayLabel->hide();
