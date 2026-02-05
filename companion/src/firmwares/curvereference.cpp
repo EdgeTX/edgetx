@@ -116,8 +116,7 @@ bool CurveReference::isTypeAvailable(const CurveRefType type)
 
   switch(type) {
     case CURVE_REF_DIFF:
-      if (fw->getCapability(HasInputDiff))
-        ret = true;
+      ret = true;
       break;
     case CURVE_REF_EXPO:
       if (fw->getCapability(HasMixerExpo))
