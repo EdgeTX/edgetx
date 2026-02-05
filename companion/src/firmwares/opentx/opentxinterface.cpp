@@ -185,8 +185,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return CPN_MAX_MODELS;
     case ModelTrainerEnable:
       return board != Board::BOARD_TARANIS_XLITE;
-    case NoTelemetryProtocol:
-      return 1;
     case NumCurvePoints:
       return 512; // Note: less than CPN_MAX_CURVES x CPN_MAX_POINTS
     case NumCurves:

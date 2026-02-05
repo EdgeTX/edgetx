@@ -542,9 +542,9 @@ void TelemetryPanel::setup()
   }
 
   ui->altimetryGB->setVisible(firmware->getCapability(HasVario)),
-  ui->frskyProtoCB->setDisabled(firmware->getCapability(NoTelemetryProtocol));
+  ui->frskyProtoCB->setDisabled(true);
   ui->frskyProtoCB->addItem(tr("Winged Shadow How High"));
-  ui->variousGB->hide();
+  ui->variousGB->hide();  // TODO remove from ui design and code
 
   lock = false;
 }

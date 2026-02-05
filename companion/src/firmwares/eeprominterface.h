@@ -98,7 +98,6 @@ enum Capability {
   ModelName,
   Models,
   ModelTrainerEnable,
-  NoTelemetryProtocol,
   NumCurvePoints,
   NumCurves,
   NumFirstUsableModule,
