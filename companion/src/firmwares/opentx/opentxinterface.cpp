@@ -155,7 +155,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LuaInputsPerScript:
       return CPN_MAX_SCRIPT_INPUTS;
     case LuaOutputsPerScript:
-      return 6;
+      return CPN_MAX_SCRIPT_OUTPUTS;
     case LuaScripts:
       return id.contains("lua") ? CPN_MAX_SCRIPTS : 0;
     case MavlinkTelemetry:
@@ -173,9 +173,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 10;
     case Mixes:
-      return 64;
+      return CPN_MAX_MIXERS;
     case ModelImageKeepExtn:
-      return (IS_FAMILY_HORUS_OR_T16(board) ? true : false);
+      return IS_FAMILY_HORUS_OR_T16(board);
     case ModelImageNameLen:
       return (IS_FAMILY_HORUS_OR_T16(board) ? 14 : 10); //  including extension if saved and <= CPN_MAX_BITMAP_LEN
     case ModelName:
@@ -184,7 +184,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       if (IS_FAMILY_HORUS_OR_T16(board))
         return 0;
       else
-        return 60;
+        return CPN_MAX_MODELS;
     case ModelTrainerEnable:
       return board != Board::BOARD_TARANIS_XLITE;
     case NoTelemetryProtocol:
