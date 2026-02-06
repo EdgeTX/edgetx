@@ -426,7 +426,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   }
 
   if (IS_TARANIS(cstate.toType)) {
-    contrast = qBound<int>(getCurrentFirmware()->getCapability(MinContrast), contrast, getCurrentFirmware()->getCapability(MaxContrast));
+    contrast = qBound<int>(Boards::getCapability(cstate.toType, Board::MinContrast),
+               contrast, Boards::getCapability(cstate.toType, Board::MaxContrast));
   }
 
   // TODO: Would be nice at this point to have GUI pause and ask the user to set up any custom hardware they have on the destination radio.

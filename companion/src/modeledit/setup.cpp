@@ -178,18 +178,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   ui->throttleSource->setModel(panelFilteredModels->getItemModel(FIM_THRSOURCE));
   ui->throttleSource->setField(model.thrTraceSrc, this);
 
-  if (!firmware->getCapability(HasDisplayText)) {
-    ui->displayText->hide();
-    ui->editChecklist->hide();
-  }
-
   if (!firmware->getCapability(GlobalFunctions)) {
     ui->gfEnabled->hide();
-  }
-
-  if (!firmware->getCapability(HasADCJitterFilter))
-  {
-    ui->jitterFilter->hide();
   }
 
   // Beep Center checkboxes

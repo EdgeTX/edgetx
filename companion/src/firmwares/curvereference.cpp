@@ -111,25 +111,7 @@ QString CurveReference::functionToString(const int value)
 //  static
 bool CurveReference::isTypeAvailable(const CurveRefType type)
 {
-  bool ret = false;
-  Firmware * fw = getCurrentFirmware();
-
-  switch(type) {
-    case CURVE_REF_DIFF:
-      if (fw->getCapability(HasInputDiff))
-        ret = true;
-      break;
-    case CURVE_REF_EXPO:
-      if (fw->getCapability(HasMixerExpo))
-        ret = true;
-      break;
-    case CURVE_REF_FUNC:
-    case CURVE_REF_CUSTOM:
-      ret = true;
-      break;
-  }
-
-  return ret;
+  return true;
 }
 
 //  static

@@ -302,7 +302,6 @@ class GeneralSettings {
     unsigned int contrast;
     unsigned int vBatWarn;
     int txVoltageCalibration;
-    int txCurrentCalibration;
     int vBatMin;
     int vBatMax;
     int backlightMode;
@@ -326,7 +325,6 @@ class GeneralSettings {
     int timezone;
     int timezoneMinutes;
     bool adjustRTC;
-    bool optrexDisplay;
     unsigned int inactivityTimer;
     unsigned int internalModuleBaudrate;
     bool minuteBeep;
@@ -342,7 +340,6 @@ class GeneralSettings {
     unsigned int stickReverse;
     unsigned int speakerPitch;
     int hapticStrength;
-    unsigned int speakerMode;
     char ownerName[OWNER_NAME_LEN + 1];
     int beeperLength;
     unsigned int gpsFormat;

@@ -304,7 +304,7 @@ static const QList<RadioKeyDefinition> radioKeyDefinitions = {
 
 void SimulatedUIWidget::addScrollActions()
 {
-  if (g.simuScrollButtons() || !getCurrentFirmware()->getCapability(RotaryEncoderNavigation))
+  if (g.simuScrollButtons() || !Boards::getCapability(m_board, Board::RotaryEncoderNavigation))
     return;
 
   const RadioKeyDefinition *updefn = getRadioKeyDefinition(KEY_SCRLUP);
@@ -395,7 +395,7 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
 
-  if (g.simuScrollButtons() && getCurrentFirmware()->getCapability(RotaryEncoderNavigation)) {
+  if (g.simuScrollButtons() && Boards::getCapability(m_board, Board::RotaryEncoderNavigation)) {
       addPushButton(KEY_SCRLUP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       addPushButton(KEY_SCRLDN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       connectScrollActions();

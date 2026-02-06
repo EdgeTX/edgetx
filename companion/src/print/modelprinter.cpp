@@ -420,8 +420,6 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   else if (mix.carryTrim < 0)
     str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1) + 1).toString(&model, &generalSettings);
 
-  if (firmware->getCapability(HasNoExpo) && mix.noExpo)
-    str += " " + tr("No DR/Expo").toHtmlEscaped();
   if (mix.sOffset)
     str += " " + tr("Offset(%1)").arg(SourceNumRef(mix.sOffset).toString(&model, &generalSettings)).toHtmlEscaped();
   if (mix.curve.value)
@@ -634,12 +632,11 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
     result += RawSwitch(ls.andsw).toString(getCurrentBoard(), &generalSettings);
   }
 
-  if (firmware->getCapability(LogicalSwitchesExt)) {
-    if (ls.duration)
-      result += " " + tr("Duration") + QString("(%1s)").arg(ls.duration/10.0);
-    if (ls.delay)
-      result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
-  }
+  if (ls.duration)
+    result += " " + tr("Duration") + QString("(%1s)").arg(ls.duration/10.0);
+
+  if (ls.delay)
+    result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
 
   return result;
 }
@@ -746,8 +743,7 @@ QString ModelPrinter::printSettingsOther()
 {
   QStringList str;
   str << printLabelValue(tr("Extended Limits"), printBoolean(model.extendedLimits, BOOLEAN_YESNO));
-  if (firmware->getCapability(HasDisplayText))
-    str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
+  str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
   if (firmware->getCapability(GlobalFunctions))
     str << printLabelValue(tr("Global Functions"), printBoolean(!model.noGlobalFunctions, BOOLEAN_YESNO));
   return str.join(" ");

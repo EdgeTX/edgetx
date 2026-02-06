@@ -936,37 +936,36 @@ int ModelData::updateReference()
     //s1.report("Heli");
   }
 
-  if (fw->getCapability(Telemetry)) {
-    updateTelemetryRef(frsky.voltsSource);
-    updateTelemetryRef(frsky.altitudeSource);
-    updateTelemetryRef(frsky.currentSource);
-    updateTelemetryRef(frsky.varioSource);
-    for (int i = 0; i < fw->getCapability(TelemetryCustomScreens); i++) {
-      switch(frsky.screens[i].type) {
-        case TELEMETRY_SCREEN_BARS:
-          for (int j = 0; j < fw->getCapability(TelemetryCustomScreensBars); j++) {
-            FrSkyBarData *fbd = &frsky.screens[i].body.bars[j];
-            updateSourceRef(fbd->source);
-            if (!fbd->source.isSet()) {
-              fbd->barMin = 0;
-              fbd->barMax = 0;
-            }
+  updateTelemetryRef(frsky.voltsSource);
+  updateTelemetryRef(frsky.altitudeSource);
+  updateTelemetryRef(frsky.currentSource);
+  updateTelemetryRef(frsky.varioSource);
+
+  for (int i = 0; i < fw->getCapability(TelemetryCustomScreens); i++) {
+    switch(frsky.screens[i].type) {
+      case TELEMETRY_SCREEN_BARS:
+        for (int j = 0; j < fw->getCapability(TelemetryCustomScreensBars); j++) {
+          FrSkyBarData *fbd = &frsky.screens[i].body.bars[j];
+          updateSourceRef(fbd->source);
+          if (!fbd->source.isSet()) {
+            fbd->barMin = 0;
+            fbd->barMax = 0;
           }
-          break;
-        case TELEMETRY_SCREEN_NUMBERS:
-          for (int j = 0; j < fw->getCapability(TelemetryCustomScreensLines); j++) {
-            FrSkyLineData *fld = &frsky.screens[i].body.lines[j];
-            for (int k = 0; k < fw->getCapability(TelemetryCustomScreensFieldsPerLine); k++) {
-              updateSourceRef(fld->source[k]);
-            }
+        }
+        break;
+      case TELEMETRY_SCREEN_NUMBERS:
+        for (int j = 0; j < fw->getCapability(TelemetryCustomScreensLines); j++) {
+          FrSkyLineData *fld = &frsky.screens[i].body.lines[j];
+          for (int k = 0; k < fw->getCapability(TelemetryCustomScreensFieldsPerLine); k++) {
+            updateSourceRef(fld->source[k]);
           }
-          break;
-        default:
-          break;
-      }
+        }
+        break;
+      default:
+        break;
     }
-    //s1.report("Telemetry");
   }
+  //s1.report("Telemetry");
 
   for (int i = 0; i < CPN_MAX_SENSORS; i++) {
     SensorData *sd = &sensorData[i];

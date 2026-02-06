@@ -112,10 +112,8 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   addTab(new CustomFunctionsPanel(this, &model, generalSettings, firmware, sharedItemModels), tr("Special Functions"));
   s1.report("Special Functions");
 
-  if (firmware->getCapability(Telemetry)) {
-    addTab(new TelemetryPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Telemetry"));
-    s1.report("Telemetry");
-  }
+  addTab(new TelemetryPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Telemetry"));
+  s1.report("Telemetry");
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     addTab(new ColorCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
