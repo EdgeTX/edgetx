@@ -26,6 +26,7 @@
 #include "mainwindow.h"
 #include "model_select.h"
 #include "os/time.h"
+#include "radio_tools.h"
 #include "screen_setup.h"
 #include "theme_manager.h"
 #include "topbar.h"
@@ -393,7 +394,10 @@ void PageGroupBase::setCurrentTab(unsigned index)
 void PageGroupBase::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_OPEN_QUICK_MENU) {
+  if (pg == QM_APP) {
+    onCancel();
+    runLuaTool(g_eeGeneral.getKeyToolName(event));
+  } else if (pg == QM_OPEN_QUICK_MENU) {
     QuickMenu::openQuickMenu();
   } else {
     if (QuickMenu::subMenuIcon(pg) == icon) {

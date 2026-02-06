@@ -23,6 +23,20 @@
 
 #include "pagegroup.h"
 
+typedef void (*ToolExec)(const std::string& path);
+
+struct ToolEntry {
+  std::string label;
+  std::string path;
+  ToolExec exec;
+};
+
+extern void loadLuaTools();
+extern void getLuaToolNames(std::vector<std::string>& nameList);
+extern const std::string getLuaToolName(int n);
+extern int getLuaToolId(const std::string nm);
+extern void runLuaTool(const std::string nm);
+
 class RadioToolsPage : public PageGroupItem
 {
  public:

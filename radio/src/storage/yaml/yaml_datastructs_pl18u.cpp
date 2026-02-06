@@ -141,6 +141,7 @@ const struct YamlIdStr enum_QMPage[] = {
   {  QM_TOOLS_LS_MON, "TOOLS_LS_MON"  },
   {  QM_TOOLS_STATS, "TOOLS_STATS"  },
   {  QM_TOOLS_DEBUG, "TOOLS_DEBUG"  },
+  {  QM_APP, "APP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -324,9 +325,16 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_PADDING( 5 ),
   YAML_END
 };
-static const struct YamlNode struct_QuickMenuPage[] = {
+static const struct YamlNode struct_KeyShortcut[] = {
   YAML_IDX,
-  YAML_ENUM("shortcut", 8, enum_QMPage, NULL),
+  YAML_CUSTOM("shortcut",r_keyShortcut,w_keyShortcut),
+  YAML_PADDING( 8 ),
+  YAML_END
+};
+static const struct YamlNode struct_QMFavorite[] = {
+  YAML_IDX,
+  YAML_CUSTOM("shortcut",r_qmFavorite,w_qmFavorite),
+  YAML_PADDING( 8 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -441,8 +449,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
   YAML_PADDING( 1 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
-  YAML_ARRAY("keyShortcuts", 8, 6, struct_QuickMenuPage, NULL),
-  YAML_ARRAY("qmFavorites", 8, 12, struct_QuickMenuPage, NULL),
+  YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
+  YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
