@@ -27,9 +27,9 @@
 #include "simpgmspace.h"
 #include "bitmaps.h"
 
-#if !(defined(STM32H7) || defined(STM32H7RS))
+// #if !(defined(STM32H7) || defined(STM32H7RS))
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#endif
+// #endif
 #include "stb/stb_image_write.h"
 
 void convert_RGB565_to_RGB888(uint8_t* dst, const BitmapBuffer* src, coord_t w,

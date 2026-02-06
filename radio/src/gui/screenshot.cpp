@@ -32,7 +32,11 @@ uint8_t gScale[64] = {
 };
 #endif
 
-#if defined(COLORLCD) && (defined(STM32H7) || defined(STM32H7RS))
+// Uncomment to enable screenshots to be saved as PNG files
+// Currently does not work on TX16S Mk3 for unknown reason
+// #define ENABLE_PNG_SCREENSHOT
+
+#if defined(ENABLE_PNG_SCREENSHOT) && defined(COLORLCD) && (defined(STM32H7) || defined(STM32H7RS))
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
@@ -91,6 +95,32 @@ static const char* _writeScreenshot()
   s = strAppend(s, "/screen");
   s = strAppendDate(s, true);
   strAppend(s, ".png");
+
+	// Open output file
+  FRESULT result = f_open(&fp, file, FA_CREATE_ALWAYS | FA_WRITE);
+	FILE *fout = fopen(filename, "wb");
+	if (fout == NULL) {
+		perror("Error: fopen");
+		return EXIT_FAILURE;
+	}
+	
+	// Initialize Tiny PNG Output
+	struct TinyPngOut pngout;
+	enum TinyPngOut_Status status = TinyPngOut_init(&pngout, (uint32_t)WIDTH, (uint32_t)HEIGHT, fout);
+	if (status != TINYPNGOUT_OK)
+		return printError(status);
+	
+	// Write image data
+	status = TinyPngOut_write(&pngout, PIXELS, (size_t)(WIDTH * HEIGHT));
+	if (status != TINYPNGOUT_OK)
+		return printError(status);
+	
+	// Close output file
+	if (fclose(fout) != 0) {
+		perror("Error: fclose");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 
   writeResult = nullptr;
 
@@ -179,12 +209,6 @@ static const char* _writeScreenshot()
     return SDCARD_ERROR(result);
   }
 
-  result = f_write(&bmpFile, BMP_HEADER, sizeof(BMP_HEADER), &written);
-  if (result != FR_OK || written != sizeof(BMP_HEADER)) {
-    f_close(&bmpFile);
-    return SDCARD_ERROR(result);
-  }
-
 #if defined(COLORLCD)
   lv_img_dsc_t* snapshot = lv_snapshot_take(lv_scr_act(), LV_IMG_CF_TRUE_COLOR);
   if (!snapshot) {
@@ -195,28 +219,57 @@ static const char* _writeScreenshot()
   auto w = snapshot->header.w;
   auto h = snapshot->header.h;
 
+  constexpr int BMP_BUF_SIZE = FF_MAX_SS * 4;
+  static uint8_t _bmp_buf[BMP_BUF_SIZE];
+  memcpy(_bmp_buf, BMP_HEADER, BMP_HEADERSIZE);
+  UINT bpos = BMP_HEADERSIZE;
+
   for (int y = h - 1; y >= 0; y--) {
     for (uint32_t x = 0; x < w; x++) {
 
       lv_color_t pixel = lv_img_buf_get_px_color(snapshot, x, y, {});
 
-      uint32_t dst = (0xFF << 24)
-          | (rbScale[pixel.ch.red] << 16)
-          | (gScale[pixel.ch.green] << 8)
-          | rbScale[pixel.ch.blue];
+      _bmp_buf[bpos++] = rbScale[pixel.ch.blue];
+      _bmp_buf[bpos++] = gScale[pixel.ch.green];
 
-      result = f_write(&bmpFile, &dst, sizeof(dst), &written);
-      if (result != FR_OK || written != sizeof(dst)) {
-        lv_snapshot_free(snapshot);
-        f_close(&bmpFile);
-        return SDCARD_ERROR(result);
+      // Header size is a multiple of 2, sector size is a multiple of 4
+      // so we will hit end of buffer half way through a pixel
+      if (bpos == BMP_BUF_SIZE) {
+        result = f_write(&bmpFile, _bmp_buf, bpos, &written);
+
+        if (result != FR_OK || written != bpos) {
+          lv_snapshot_free(snapshot);
+          f_close(&bmpFile);
+          return SDCARD_ERROR(result);
+        }
+
+        bpos = 0;
       }
+
+      _bmp_buf[bpos++] = rbScale[pixel.ch.red];
+      _bmp_buf[bpos++] = 0xFF;
+    }
+  }
+
+  if (bpos > 0) {
+    result = f_write(&bmpFile, _bmp_buf, bpos, &written);
+
+    if (result != FR_OK || written != bpos) {
+      lv_snapshot_free(snapshot);
+      f_close(&bmpFile);
+      return SDCARD_ERROR(result);
     }
   }
 
   lv_snapshot_free(snapshot);
 
 #else // stdlcd
+
+  result = f_write(&bmpFile, BMP_HEADER, sizeof(BMP_HEADER), &written);
+  if (result != FR_OK || written != sizeof(BMP_HEADER)) {
+    f_close(&bmpFile);
+    return SDCARD_ERROR(result);
+  }
 
 #if LCD_W == 128
   pixel_t inv = g_eeGeneral.invertLCD ? 0xFF : 0;
