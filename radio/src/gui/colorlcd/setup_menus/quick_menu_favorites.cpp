@@ -25,6 +25,7 @@
 #include "edgetx.h"
 #include "getset_helpers.h"
 #include "pagegroup.h"
+#include "radio_tools.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -38,10 +39,25 @@ QMFavoritesPage::QMFavoritesPage():
     strAppendUnsigned(strAppend(strAppend(nm, "#"), " "), i + 1);
     setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
           auto c = new Choice(
-              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, QM_TOOLS_DEBUG,
-              GET_DEFAULT(g_eeGeneral.qmFavorites[i].shortcut),
+              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, qmPages.size() - 1,
+              [=]() -> int {
+                auto pg = g_eeGeneral.qmFavorites[i].shortcut;
+                if (pg < QM_APP)
+                  return pg;
+                std::string nm = g_eeGeneral.getFavoriteToolName(i);
+                int idx = getLuaToolId(nm);
+                if (idx >= 0)
+                  return pg + idx;
+                return QM_NONE;
+              },
               [=](int32_t pg) {
-                g_eeGeneral.qmFavorites[i].shortcut = (QMPage)pg;
+                if (pg < QM_APP) {
+                  g_eeGeneral.qmFavorites[i].shortcut = (QMPage)pg;
+                  g_eeGeneral.setFavoriteToolName(i, "");
+                } else {
+                  g_eeGeneral.qmFavorites[i].shortcut = QM_APP;
+                  g_eeGeneral.setFavoriteToolName(i, getLuaToolName(pg - QM_APP));
+                }
                 changed = true;
                 SET_DIRTY();
               }, STR_QUICK_MENU_FAVORITES);

@@ -606,21 +606,44 @@ constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
 // Re-useable byte array to save having multiple buffers
 union ReusableBuffer
 {
-  struct {
 #if !defined(COLORLCD)
+  struct {
     char menu_bss[POPUP_MENU_MAX_LINES][MENU_LINE_LENGTH];
     char mainname[45]; // because reused for SD backup / restore, max backup filename 44 chars: "/MODELS/MODEL0134353-2014-06-19-04-51-27.bin"
-#elif !defined(COLORLCD)
-    char mainname[LEN_MODEL_NAME];
-#endif
   } modelsel;
 
   struct {
+    char filename[TEXT_FILENAME_MAXLEN];
+    char lines[NUM_BODY_LINES][LCD_COLS + 1];
+    int linesCount;
+    bool checklistComplete;
+    bool pushMenu;
+  } viewText;
+
+  struct {
+    int8_t preset;
+  } curveEdit;
+
+  struct {
+    int8_t antennaMode;
+  } radioHardware;
+
+  struct {
+    uint8_t stickMode;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+    uint8_t rotaryEncoderMode;
+#endif
+  } generalSettings;
+#endif
+
+  struct {
     char msg[64];
+#if !defined(COLORLCD)
     uint8_t r9mPower;
     int8_t antennaMode;
     uint8_t previousType;
     uint8_t newType;
+#endif
 #if defined(PXX2)
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
@@ -651,29 +674,23 @@ union ReusableBuffer
   } calib;
 
   struct {
-#if defined(NUM_BODY_LINES)
+#if !defined(COLORLCD)
     char lines[NUM_BODY_LINES][SD_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
-#endif
-    uint32_t available;
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
+#endif
 #if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[64];  // Large enough for TR_CURRENT_VERSION string plus version number
 #endif
   } sdManager;
 
-  struct
-  {
-    char id[27];
-  } version;
-
 #if defined(PXX2)
   PXX2HardwareAndSettings hardwareAndSettings; // radio_version
 #endif
 
-#if defined(NUM_BODY_LINES)
+#if !defined(COLORLCD)
   #define TOOL_NAME_MAX_LEN (LCD_W / FW)
   #define TOOL_PATH_MAX_LEN 40
   struct scriptInfo{
@@ -686,29 +703,15 @@ union ReusableBuffer
 #endif
 
   struct {
-#if defined(NUM_BODY_LINES)
+#if !defined(COLORLCD)
     scriptInfo script[NUM_BODY_LINES];
     uint8_t oldOffset;
+    uint8_t linesCount;
 #endif
 #if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
 #endif
-    char msg[64];
-#if !defined(COLORLCD)
-    uint8_t linesCount;
-#endif
   } radioTools;
-
-  struct {
-    int8_t antennaMode;
-  } radioHardware;
-
-  struct {
-    uint8_t stickMode;
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    uint8_t rotaryEncoderMode;
-#endif
-  } generalSettings;
 
   struct {
     uint8_t bars[LCD_W];
@@ -745,28 +748,8 @@ union ReusableBuffer
   } powerMeter;
 
   struct {
-    int8_t preset;
-  } curveEdit;
-
-#if !defined(COLORLCD)
-  struct {
-    char filename[TEXT_FILENAME_MAXLEN];
-    char lines[NUM_BODY_LINES][LCD_COLS + 1];
-    int linesCount;
-    bool checklistComplete;
-    bool pushMenu;
-  } viewText;
-#endif
-
-  struct {
     uint8_t maxNameLen;
   } modelFailsafe;
-
-  struct {
-#if defined(PXX2)
-    ModuleInformation internalModule;
-#endif
-  } viewMain;
 };
 
 extern ReusableBuffer reusableBuffer;
