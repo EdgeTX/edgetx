@@ -337,7 +337,6 @@ class GeneralSettings {
     int PPM_Multiplier;
     int hapticLength;
     unsigned int reNavigation;
-    unsigned int stickReverse;
     unsigned int speakerPitch;
     int hapticStrength;
     char ownerName[OWNER_NAME_LEN + 1];
@@ -373,7 +372,6 @@ class GeneralSettings {
     int varioRepeat;
     int backgroundVolume;
     unsigned int mavbaud;
-    unsigned int switchUnlockStates;
     unsigned int serialPort[SP_COUNT];
     bool serialPower[SP_COUNT];
     int antennaMode;

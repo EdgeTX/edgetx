@@ -245,15 +245,12 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
   Firmware * fw = getCurrentFirmware();
 
   bool ret = (((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) && !fw->getCapability(SafetyChannelCustomFunction)) ||
-        ((index == FuncPlayScript && !IS_HORUS_OR_TARANIS(fw->getBoard()))) ||
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
          (index > FuncSetTimer1 + fw->getCapability(Timers) ||
          (model ? model->timers[index - FuncSetTimer1].isModeOff() : false))) ||
-        ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && ((index - FuncAdjustGV1) >= fw->getCapability(Gvars))) ||
-        ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasBlingLEDS) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||

@@ -482,11 +482,9 @@ void TelemetryPanel::update()
 {
   lock = true;
 
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    ui->voltsSource->updateValue();
-    ui->altitudeSource->updateValue();
-    ui->varioSource->updateValue();
-  }
+  ui->voltsSource->updateValue();
+  ui->altitudeSource->updateValue();
+  ui->varioSource->updateValue();
 
   for (int i = 0; i < sensorCapability; ++i) {
     sensorPanels[i]->update();

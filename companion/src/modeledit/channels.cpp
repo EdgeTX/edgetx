@@ -112,8 +112,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     headerLabels << tr("Name");
   }
   headerLabels << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direction");
-  if (IS_HORUS_OR_TARANIS(board))
-    headerLabels << tr("Curve") << tr("Plot");
+  headerLabels << tr("Curve") << tr("Plot");
   if (firmware->getCapability(PPMCenter))
     headerLabels << tr("PPM Center");
   headerLabels << tr("Linear Subtrim");
@@ -160,19 +159,17 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     tableLayout->addWidget(i, col++, invCB[i]);
 
     // Curve
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      curveCB[i] = new QComboBox(this);
-      curveCB[i]->setProperty("index", i);
-      tableLayout->addWidget(i, col++, curveCB[i]);
+    curveCB[i] = new QComboBox(this);
+    curveCB[i]->setProperty("index", i);
+    tableLayout->addWidget(i, col++, curveCB[i]);
 
-      curveImage[i] = new CurveImageWidget(this);
-      curveImage[i]->setProperty("index", i);
-      curveImage[i]->setFixedSize(QSize(100, 100));
-      tableLayout->addWidget(i, col++, curveImage[i]);
+    curveImage[i] = new CurveImageWidget(this);
+    curveImage[i]->setProperty("index", i);
+    curveImage[i]->setFixedSize(QSize(100, 100));
+    tableLayout->addWidget(i, col++, curveImage[i]);
 
-      curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i], model.limitData[i].curve, model, sharedItemModels,
-                                                  curveRefFilteredItemModels, this);
-    }
+    curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i], model.limitData[i].curve, model, sharedItemModels,
+                                                curveRefFilteredItemModels, this);
 
     // PPM center
     int ppmCenterMax = firmware->getCapability(PPMCenter);

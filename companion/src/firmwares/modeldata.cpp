@@ -531,10 +531,7 @@ ModelData ModelData::removeGlobalVars()
 
 int ModelData::getChannelsMax(bool forceExtendedLimits) const
 {
-  if (forceExtendedLimits || extendedLimits)
-    return IS_HORUS_OR_TARANIS(getCurrentBoard()) ? 150 : 125;
-  else
-    return 100;
+  return (forceExtendedLimits || extendedLimits) ?  150 : 100;
 }
 
 bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const

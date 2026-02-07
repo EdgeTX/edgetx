@@ -67,10 +67,8 @@ class GeneralSetupPanel : public GeneralPanel
     void on_mavbaud_CB_currentIndexChanged(int index);
     void on_voiceLang_CB_currentIndexChanged(int index);
     void on_textLang_CB_currentIndexChanged(int index);
-    void stickReverseEdited();
     void on_switchesDelay_valueChanged(int);
     void on_blAlarm_ChkB_stateChanged();
-    void unlockSwitchEdited();
     void on_beepVolume_SL_valueChanged();
     void on_bgVolume_SL_valueChanged();
     void on_varioVolume_SL_valueChanged();

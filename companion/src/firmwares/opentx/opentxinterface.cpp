@@ -234,10 +234,7 @@ QString OpenTxFirmware::getCapabilityStr(::Capability capability)
 
 QTime OpenTxFirmware::getMaxTimerStart()
 {
-  if (IS_HORUS_OR_TARANIS(board))
-    return QTime(23, 59, 59);
-  else
-    return QTime(8, 59, 59);
+  return QTime(23, 59, 59);
 }
 
 template<typename T, size_t SIZE>
