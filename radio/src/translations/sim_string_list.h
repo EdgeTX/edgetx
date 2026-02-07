@@ -636,6 +636,8 @@
 #define STR_MENU_INPUTS currentLangStrings->STR_MENU_INPUTS
 #define STR_MENU_INVERT currentLangStrings->STR_MENU_INVERT
 #define STR_MENU_LOGICAL_SWITCHES currentLangStrings->STR_MENU_LOGICAL_SWITCHES
+#define STR_MENU_VIRTUAL_SWITCHES currentLangStrings->STR_MENU_VIRTUAL_SWITCHES
+#define STR_MENU_VCONTROL currentLangStrings->STR_MENU_VCONTROL  
 #define STR_MENU_LUA currentLangStrings->STR_MENU_LUA
 #define STR_MENU_MAX currentLangStrings->STR_MENU_MAX
 #define STR_MENU_MIN currentLangStrings->STR_MENU_MIN
@@ -1040,6 +1042,7 @@
 #define STR_V2 currentLangStrings->STR_V2
 #define STR_VALUE currentLangStrings->STR_VALUE
 #define STR_VARIO currentLangStrings->STR_VARIO
+#define STR_VC currentLangStrings->STR_VC
 #define STR_VIEW_CHANNELS currentLangStrings->STR_VIEW_CHANNELS
 #define STR_VIEW_NOTES currentLangStrings->STR_VIEW_NOTES
 #define STR_VIEW_TEXT currentLangStrings->STR_VIEW_TEXT
@@ -1067,6 +1070,7 @@
 #define STR_VOICE_UKRAINIAN currentLangStrings->STR_VOICE_UKRAINIAN
 #define STR_VOLTAGE currentLangStrings->STR_VOLTAGE
 #define STR_VOLUME currentLangStrings->STR_VOLUME
+#define STR_VSW currentLangStrings->STR_VSW
 #define STR_VTRIM currentLangStrings->STR_VTRIM
 #define STR_WAITING_FOR_MODULE currentLangStrings->STR_WAITING_FOR_MODULE
 #define STR_WAITING_FOR_RX currentLangStrings->STR_WAITING_FOR_RX
