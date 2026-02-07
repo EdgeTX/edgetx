@@ -243,6 +243,7 @@ void NumberEdit::openEdit()
         lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
     edit->setChangeHandler([=]() {
       update();
+      if (onEdited) onEdited(currentValue);
       if (edit->hasFocus())
         lv_group_focus_obj(lvobj);
       edit->hide();

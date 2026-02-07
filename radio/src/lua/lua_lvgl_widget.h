@@ -802,6 +802,7 @@ class LvglWidgetNumberEdit : public LvglWidgetObject, public LvglGetSetParams, p
 
  protected:
   int dispFunction = LUA_REFNIL;
+  int editedFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
