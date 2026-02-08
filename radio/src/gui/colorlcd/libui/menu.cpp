@@ -294,7 +294,7 @@ class MenuWindowContent : public NavWindow
   {
     setWindowFlag(OPAQUE);
 
-    coord_t w = (popupWidth > MENUS_WIDTH) ? popupWidth : MENUS_WIDTH;
+    coord_t w = (popupWidth > 0) ? popupWidth : MENUS_WIDTH;
 
     lv_obj_center(lvobj);
     setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, w, LV_SIZE_CONTENT);

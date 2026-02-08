@@ -26,6 +26,8 @@
 #include "edgetx.h"
 #include "getset_helpers.h"
 #include "pagegroup.h"
+#include "qmpagechoice.h"
+#include "radio_tools.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -46,15 +48,29 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
     event = keyMapping(event);
 
     setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
-          auto c = new Choice(
-              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, QM_TOOLS_DEBUG,
-              GET_DEFAULT(g_eeGeneral.getKeyShortcut(event)),
+          auto c = new QMPageChoice(
+              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, qmPages.size() - 1,
+              [=]() -> int {
+                auto pg = g_eeGeneral.getKeyShortcut(event);
+                if (pg < QM_APP)
+                  return pg;
+                std::string nm = g_eeGeneral.getKeyToolName(event);
+                int idx = getLuaToolId(nm);
+                if (idx >= 0)
+                  return pg + idx;
+                return QM_NONE;
+              },
               [=](int32_t newValue) {
-                g_eeGeneral.setKeyShortcut(event, (QMPage)newValue);
+                if (newValue < QM_APP) {
+                  g_eeGeneral.setKeyShortcut(event, (QMPage)newValue);
+                  g_eeGeneral.setKeyToolName(event, "");
+                } else {
+                  g_eeGeneral.setKeyShortcut(event, QM_APP);
+                  g_eeGeneral.setKeyToolName(event, getLuaToolName(newValue - QM_APP));
+                }
                 SET_DIRTY();
               }, STR_KEY_SHORTCUTS);
 
-          c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
               [=](int newValue) {
                 if (newValue == QM_NONE) return true;

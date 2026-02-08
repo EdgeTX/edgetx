@@ -168,7 +168,7 @@ class QuickMenu : public NavWindow
 
 #if VERSION_MAJOR > 2
   void updateFavorites();
-  void setupFavorite(QMPage page, int f);
+  bool setupFavorite(int fav, int favBtn);
 #endif
 };
 

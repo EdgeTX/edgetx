@@ -20,12 +20,9 @@
  */
 #include "switchchoice.h"
 
-#include "dataconstants.h"
 #include "menu.h"
 #include "menutoolbar.h"
 #include "edgetx.h"
-#include "strhelpers.h"
-#include "switches.h"
 
 class SwitchChoiceMenuToolbar : public MenuToolbar
 {
