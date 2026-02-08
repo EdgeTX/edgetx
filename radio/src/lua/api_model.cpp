@@ -1025,7 +1025,7 @@ Get warning state for a switch
 
 @retval nil when switch is a toggle or does not exist
 @retval number
-0 = no waning
+0 = no warning
 1 = switch up
 2 = switch middle
 3 = switch down
@@ -1067,7 +1067,7 @@ Set warning state for a switch
 @param switch (string) switch name
 
 @param state (number) state
-0 = no waning
+0 = no warning
 1 = switch up
 2 = switch middle
 3 = switch down
