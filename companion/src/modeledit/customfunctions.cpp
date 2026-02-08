@@ -100,12 +100,12 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   }
 
   if (IS_STM32(firmware->getBoard())) {
-    scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
+    scriptsSetRGB = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
     for (int i = 0; i < fswCapability; i++) {
       if (functions[i].func == FuncRGBLed) {
         QString temp = functions[i].paramarm;
         if (!temp.isEmpty()) {
-          scriptsSet.insert(temp);
+          scriptsSetRGB.insert(temp);
         }
       }
     }
@@ -599,7 +599,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
         Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, 8);
         cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
       }
-      Helpers::populateFileComboBox(fswtchParamArmT[i], scriptsSet, cfn.paramarm);
+      Helpers::populateFileComboBox(fswtchParamArmT[i], func == FuncPlayScript ? scriptsSet : scriptsSetRGB, cfn.paramarm);
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatLuaId));
       fswtchRepeat[i]->setCurrentIndex(fswtchRepeat[i]->findData(cfn.repeatParam));
     }
