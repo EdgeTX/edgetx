@@ -96,6 +96,7 @@ class CustomFunctionsPanel : public GenericPanel
 
     QSet<QString> tracksSet;
     QSet<QString> scriptsSet;
+    QSet<QString> scriptsSetRGB;
     int mediaPlayerCurrent;
     QComboBox * fswtchSwtch[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchFunc[CPN_MAX_SPECIAL_FUNCTIONS];
