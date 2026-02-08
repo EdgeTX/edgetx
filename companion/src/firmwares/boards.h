@@ -213,6 +213,7 @@ namespace Board {
 
   enum Capability {
     Air,
+    BacklightLevelMin,
     FlexInputs,
     FlexSwitches,
     FunctionSwitchColors,
@@ -221,7 +222,10 @@ namespace Board {
     GyroAxes,
     Gyros,
     HasAudioMuteGPIO,
+    HasAuxSerialMode,
+    HasAux2SerialMode,
     HasBacklightColor,
+    HasBluetooth,
     HasColorLcd,
     HasExternalModuleSupport,
     HasIMU,
@@ -230,9 +234,12 @@ namespace Board {
     HasBlingLEDS,
     HasRTC,
     HasSDCard,
+    HasSoftwareSerialPower,
+    HasSwitchableJack,
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
     HasVBat,
+    HasVCPSerialMode,
     Inputs,
     InputSwitches,
     JoystickAxes,
@@ -242,12 +249,17 @@ namespace Board {
     LcdHeight,
     LcdOLED,
     LcdWidth,
+    MaxContrast,
+    MaxVolume,
+    MinContrast,
     MultiposPots,
     MultiposPotsPositions,
     NumFunctionSwitchesPositions,
     NumTrims,
     NumTrimSwitches,
     Pots,
+    PwrButtonPress,
+    RotaryEncoderNavigation,
     Sliders,
     SportMaxBaudRate,
     StandardSwitches,
@@ -470,6 +482,8 @@ class Boards
     static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
+    static void tests();
+
   private:
 
     Board::Type m_boardType = Board::BOARD_UNKNOWN;
@@ -646,6 +660,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
   return board == Board::BOARD_FATFISH_F16 ||
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
+         board == Board::BOARD_JUMPER_T15PRO ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
          board == Board::BOARD_RADIOMASTER_TX15 ||
@@ -688,6 +703,11 @@ inline bool IS_FLYSKY_NV14(Board::Type board)
 inline bool IS_FLYSKY_EL18(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_EL18);
+}
+
+inline bool IS_FLYSKY_NB4P(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NB4P);
 }
 
 inline bool IS_FLYSKY_PA01(Board::Type board)
@@ -799,12 +819,8 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
-    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/;
-}
-
-inline bool IS_HORUS_OR_TARANIS(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board);
+    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ ||
+    IS_FLYSKY_PA01(board)/*generally*/ || IS_FLYSKY_NB4P(board)/*generally*/;
 }
 
 inline bool IS_STM32(Board::Type board)

@@ -62,23 +62,16 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
     ui->swtch->hide();
   }
 
-  // FadeIn / FadeOut
-  if (firmware->getCapability(FlightModesHaveFades)) {
-    int scale = firmware->getCapability(SlowScale);
-    int range = firmware->getCapability(SlowRange);
-    ui->fadeIn->setMaximum(float(range) / scale);
-    ui->fadeIn->setSingleStep(1.0 / scale);
-    ui->fadeIn->setDecimals((scale == 1 ? 0 :1) );
-    connect(ui->fadeIn, SIGNAL(editingFinished()), this, SLOT(phaseFadeIn_editingFinished()));
-    ui->fadeOut->setMaximum(float(range) / scale);
-    ui->fadeOut->setSingleStep(1.0 / scale);
-    ui->fadeOut->setDecimals((scale == 1 ? 0 :1));
-    connect(ui->fadeOut, SIGNAL(editingFinished()), this, SLOT(phaseFadeOut_editingFinished()));
-  }
-  else {
-    ui->fadeIn->setDisabled(true);
-    ui->fadeOut->setDisabled(true);
-  }
+  int scale = firmware->getCapability(SlowScale);
+  int range = firmware->getCapability(SlowRange);
+  ui->fadeIn->setMaximum(float(range) / scale);
+  ui->fadeIn->setSingleStep(1.0 / scale);
+  ui->fadeIn->setDecimals((scale == 1 ? 0 :1) );
+  connect(ui->fadeIn, SIGNAL(editingFinished()), this, SLOT(phaseFadeIn_editingFinished()));
+  ui->fadeOut->setMaximum(float(range) / scale);
+  ui->fadeOut->setSingleStep(1.0 / scale);
+  ui->fadeOut->setDecimals((scale == 1 ? 0 :1));
+  connect(ui->fadeOut, SIGNAL(editingFinished()), this, SLOT(phaseFadeOut_editingFinished()));
 
   // The trims
   QString labels[CPN_MAX_TRIMS];
@@ -116,9 +109,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
       }
       else if (phaseIdx > 0) {
         cb->addItem(tr("Use Trim from %1 Mode %2").arg(radioMode).arg(m), m * 2);
-        if (IS_HORUS_OR_TARANIS(board)) {
-          cb->addItem(tr("Use Trim from %1 Mode %2 + Own Trim as an offset").arg(radioMode).arg(m), m * 2 + 1);
-        }
+        cb->addItem(tr("Use Trim from %1 Mode %2 + Own Trim as an offset").arg(radioMode).arg(m), m * 2 + 1);
       }
     }
 
@@ -226,7 +217,7 @@ void FlightModePanel::trimUpdate(unsigned int trim)
   else {
     trimsUse[trim]->setCurrentIndex(2 + 2 * phase.trimRef[chn] + phase.trimMode[chn] - (phase.trimRef[chn] > phaseIdx ? 1 : 0));
 
-    if (phaseIdx == 0 || phase.trimRef[chn] == phaseIdx || (IS_HORUS_OR_TARANIS(board) && phase.trimMode[chn] != 0)) {
+    if (phaseIdx == 0 || phase.trimRef[chn] == phaseIdx || phase.trimMode[chn] != 0) {
       trimsValue[trim]->setEnabled(true);
       trimsSlider[trim]->setEnabled(true);
     }

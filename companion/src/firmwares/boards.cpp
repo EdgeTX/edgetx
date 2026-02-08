@@ -309,19 +309,94 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
   // TODO investigate usage of any that should be covered in BoardJson::getCapability or are no longer required
   //      some could be used when importing pre v2.10 configurations
   switch (capability) {
+    case BacklightLevelMin:
+      if (IS_HORUS_X12S(board)) {
+        return 5;
+      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)
+              || IS_FLYSKY_ST16(board) || IS_FAMILY_PL18(board)) {
+        return 1;
+      } else {
+        return 46;
+      }
+
+    case HasAuxSerialMode:
+      return (IS_FAMILY_HORUS_OR_T16(board) &&
+              !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) ||
+                IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
+             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
+             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_RADIOMASTER_MT12(board);
+
+    case HasAux2SerialMode:
+      return IS_FAMILY_T16(board);
+
+    case HasBluetooth:
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) ||
+              IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
+              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) ||
+              IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
+
     case HasIMU:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) ||
+              IS_RADIOMASTER_TX15(board));
+
+    case HasSoftwareSerialPower:
+      return IS_RADIOMASTER_TX16S(board);
+
+    case HasSwitchableJack:
+      return IS_TARANIS_XLITES(board);
 
     case HasTrainerModuleCPPM:
-      return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
+      return (getCapability(board, HasTrainerModuleSBUS) ||
+              IS_FAMILY_HORUS_OR_T16(board));
 
     case HasTrainerModuleSBUS:
-      return ((IS_TARANIS_X9LITE(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) ||
-              IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
-              IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) || IS_JUMPER_T20(board) ||
-              IS_JUMPER_BUMBLEBEE(board)) || IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
-              (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
+      return ((IS_TARANIS_X9LITE(board) ||
+               (IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) ||
+               IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board) ||
+               IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+               IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
+               IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) ||
+               IS_JUMPER_T20(board) || IS_JUMPER_BUMBLEBEE(board)) ||
+               IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
+              (getCapability(board, HasExternalModuleSupport) &&
+               (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
+
+    case HasVCPSerialMode:
+      return IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_TPRO(board) ||
+             IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_MT12(board) ||
+             IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_RADIOMASTER_ZORRO(board);
+
+    case MaxContrast:
+      if (IS_TARANIS_SMALL(board))
+        return 30;
+      else
+        return 45;
+
+    case MaxVolume:
+      return 23;
+
+    case MinContrast:
+      if (IS_TARANIS_X9(board))
+        return 0;
+      else
+        return 10;
+
+    case PwrButtonPress:
+      return (board != Board::BOARD_TARANIS_X9D && board != Board::BOARD_TARANIS_X9DP);
+
+    case RotaryEncoderNavigation:
+      return (IS_TARANIS_X7(board) || IS_TARANIS_X9DP_2019(board) ||
+              IS_TARANIS_X9E(board) || IS_TARANIS_X9LITE(board) ||
+              IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board)||
+              IS_JUMPER_TPRO(board) || IS_RADIOMASTER_BOXER(board) ||
+              IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
+              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) ||
+              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_TX16S(board) ||
+              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) ||
+              IS_JUMPER_T15PRO(board) || IS_FLYSKY_PA01(board) ||
+              IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX16SMK3(board));
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -1109,4 +1184,9 @@ bool Boards::isAir(Board::Type board)
 bool Boards::isSurface(Board::Type board)
 {
   return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Board::Surface);
+}
+
+void Boards::tests()
+{
+  qDebug() << "**** Board checks ****";
 }

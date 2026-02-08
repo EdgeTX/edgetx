@@ -51,48 +51,6 @@ ui(new Ui::GeneralSetup)
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ControlSource)),
                                          FIM_CONTROLSRC);
 
-  QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
-  QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
-
-  if (IS_TARANIS(board)) {
-    if (firmware->getId().contains("readonly")) {
-      uint16_t switchstate = generalSettings.switchUnlockStates;
-      ui->chkSA->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSB->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSC->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSD->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSE->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSF->setValue((switchstate & 0x3) / 2);
-      switchstate >>= 2;
-      ui->chkSG->setValue(switchstate & 0x3);
-      switchstate >>= 2;
-      ui->chkSH->setValue(switchstate & 0x3);
-    }
-    else {
-      for (int i = 0; pmsl[i]; i++) {
-        pmsl[i]->hide();
-      }
-      for (int i = 0; tpmsld[i]; i++) {
-        tpmsld[i]->hide();
-      }
-      this->layout()->removeItem(ui->TaranisReadOnlyUnlock);
-    }
-  }
-  else {
-    for (int i = 0; pmsl[i]; i++) {
-      pmsl[i]->hide();
-    }
-    for (int i = 0; tpmsld[i]; i++) {
-      tpmsld[i]->hide();
-    }
-    this->layout()->removeItem(ui->TaranisReadOnlyUnlock);
-  }
-
   lock = true;
 
   ui->volumeCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -110,13 +68,7 @@ ui(new Ui::GeneralSetup)
   ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
-  if (!firmware->getCapability(MultiLangVoice)) {
-    ui->VoiceLang_label->hide();
-    ui->voiceLang_CB->hide();
-  }
-  else {
-    populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
-  }
+  populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
   populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, Boards::getCapability(board, Board::HasColorLcd));
 
   if (!firmware->getCapability(MavlinkTelemetry)) {
@@ -127,69 +79,21 @@ ui(new Ui::GeneralSetup)
     ui->mavbaud_CB->setCurrentIndex(generalSettings.mavbaud);
   }
 
-  if (!firmware->getCapability(HasSoundMixer)) {
-    ui->beepVolume_SL->hide();
-    ui->beepVolume_label->hide();
-    ui->varioVolume_SL->hide();
-    ui->varioVolume_label->hide();
-    ui->bgVolume_SL->hide();
-    ui->bgVolume_label->hide();
-    ui->wavVolume_SL->hide();
-    ui->wavVolume_label->hide();
-    ui->varioP0_label->hide();
-    ui->varioP0_SB->hide();
-    ui->varioPMax_label->hide();
-    ui->varioPMax_SB->hide();
-    ui->varioR0_label->hide();
-    ui->varioR0_SB->hide();
-  }
-  else {
-    ui->beepVolume_SL->setValue(generalSettings.beepVolume);
-    ui->varioVolume_SL->setValue(generalSettings.varioVolume);
-    ui->bgVolume_SL->setValue(generalSettings.backgroundVolume);
-    ui->wavVolume_SL->setValue(generalSettings.wavVolume);
-    ui->varioP0_SB->setValue(700 + (generalSettings.varioPitch * 10));
-    updateVarioPitchRange();
-    ui->varioPMax_SB->setValue(700 + (generalSettings.varioPitch * 10) + 1000 + (generalSettings.varioRange * 10));
-    ui->varioR0_SB->setValue(500 + (generalSettings.varioRepeat * 10));
-  }
-
-  if (!firmware->getCapability(HasFAIMode)) {
-    ui->faimode_CB->hide();
-    ui->label_faimode->hide();
-  }
-  else {
-    ui->faimode_CB->setChecked(generalSettings.fai);
-  }
-
-  if (!firmware->getCapability(HasPxxCountry)) {
-    ui->countrycode_label->hide();
-    ui->countrycode_CB->hide();
-  }
-  else {
-    ui->countrycode_CB->setCurrentIndex(generalSettings.countryCode);
-  }
-
-  if (!firmware->getCapability(HasGeneralUnits)) {
-    ui->units_label->hide();
-    ui->units_CB->hide();
-  }
-  else {
-    ui->units_CB->setCurrentIndex(generalSettings.imperial);
-  }
-
+  ui->beepVolume_SL->setValue(generalSettings.beepVolume);
+  ui->varioVolume_SL->setValue(generalSettings.varioVolume);
+  ui->bgVolume_SL->setValue(generalSettings.backgroundVolume);
+  ui->wavVolume_SL->setValue(generalSettings.wavVolume);
+  ui->varioP0_SB->setValue(700 + (generalSettings.varioPitch * 10));
+  updateVarioPitchRange();
+  ui->varioPMax_SB->setValue(700 + (generalSettings.varioPitch * 10) + 1000 + (generalSettings.varioRange * 10));
+  ui->varioR0_SB->setValue(500 + (generalSettings.varioRepeat * 10));
+  ui->faimode_CB->setChecked(generalSettings.fai);
+  ui->countrycode_CB->setCurrentIndex(generalSettings.countryCode);
+  ui->units_CB->setCurrentIndex(generalSettings.imperial);
   ui->ppm_units_CB->setCurrentIndex(generalSettings.ppmunit);
-
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
-
   ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
-
-  if (IS_HORUS_OR_TARANIS(board)) {
-    ui->adjustRTC->setChecked(generalSettings.adjustRTC);
-  }
-  else {
-    ui->adjustRTC->hide();
-  }
+  ui->adjustRTC->setChecked(generalSettings.adjustRTC);
 
   if (IS_STM32(board)) {
     ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
@@ -208,7 +112,7 @@ ui(new Ui::GeneralSetup)
     ui->hatsModeCB->hide();
   }
 
-  if (firmware->getCapability(HasSwitchableJack)) {
+  if (Boards::getCapability(board, Board::HasSwitchableJack)) {
     ui->jackModeCB->setCurrentIndex(generalSettings.jackMode);
   }
   else {
@@ -216,29 +120,7 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
-  if (!firmware->getCapability(OptrexDisplay)) {
-    ui->label_displayType->hide();
-    ui->displayTypeCB->setDisabled(true);
-    ui->displayTypeCB->hide();
-  }
-  else {
-    ui->displayTypeCB->setCurrentIndex(generalSettings.optrexDisplay);
-  }
-
-  if (!firmware->getCapability(HasVolume)) {
-    ui->volume_SL->hide();
-    ui->volume_SL->setDisabled(true);
-    ui->label_volume->hide();
-  }
-  else {
-    ui->volume_SL->setMaximum(firmware->getCapability(MaxVolume));
-  }
-
-  if (!firmware->getCapability(HasBrightness)) {
-    ui->BLBright_SB->hide();
-    ui->BLBright_SB->setDisabled(true);
-    ui->label_BLBright->hide();
-  }
+  ui->volume_SL->setMaximum(Boards::getCapability(board, Board::MaxVolume));
 
   if (!IS_FAMILY_HORUS_OR_T16(board)) {
     ui->OFFBright_SB->hide();
@@ -252,18 +134,6 @@ ui(new Ui::GeneralSetup)
     ui->label_KeysBl->hide();
   }
 
-  if (!firmware->getCapability(SoundMod)) {
-    ui->soundModeCB->setDisabled(true);
-    ui->label_soundMode->hide();
-    ui->soundModeCB->hide();
-  }
-
-  if (!firmware->getCapability(SoundPitch)) {
-    ui->speakerPitchSB->setDisabled(true);
-    ui->label_speakerPitch->hide();
-    ui->speakerPitchSB->hide();
-  }
-
   if (!firmware->getCapability(Haptic)) {
     ui->hapticStrength->setDisabled(true);
     ui->hapticmodeCB->setDisabled(true);
@@ -273,8 +143,8 @@ ui(new Ui::GeneralSetup)
     ui->backlightautoSB->setMinimum(5);
   }
 
-  ui->contrastSB->setMinimum(firmware->getCapability(MinContrast));
-  ui->contrastSB->setMaximum(firmware->getCapability(MaxContrast));
+  ui->contrastSB->setMinimum(Boards::getCapability(board, Board::MinContrast));
+  ui->contrastSB->setMaximum(Boards::getCapability(board, Board::MaxContrast));
   ui->contrastSB->setValue(generalSettings.contrast);
 
   ui->battwarningDSB->setValue((double)generalSettings.vBatWarn / 10);
@@ -292,7 +162,7 @@ ui(new Ui::GeneralSetup)
     ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
   }
 
-  if (!firmware->getCapability(PwrButtonPress)) {
+  if (!Boards::getCapability(board, Board::PwrButtonPress)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
     ui->pwrOffDelayLabel->hide();
@@ -317,28 +187,6 @@ ui(new Ui::GeneralSetup)
 
   lock = false;
 
-  for (int i = 0; tpmsld[i]; i++) {
-    connect(tpmsld[i], SIGNAL(valueChanged(int)),this,SLOT(unlockSwitchEdited()));
-  }
-
-  if (!IS_HORUS_OR_TARANIS(board)) {
-    ui->stickReverse1->setChecked(generalSettings.stickReverse & (1 << 0));
-    ui->stickReverse2->setChecked(generalSettings.stickReverse & (1 << 1));
-    ui->stickReverse3->setChecked(generalSettings.stickReverse & (1 << 2));
-    ui->stickReverse4->setChecked(generalSettings.stickReverse & (1 << 3));
-    connect(ui->stickReverse1, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-    connect(ui->stickReverse2, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-    connect(ui->stickReverse3, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-    connect(ui->stickReverse4, SIGNAL(toggled(bool)), this, SLOT(stickReverseEdited()));
-  }
-  else {
-    ui->stickReverseLB->hide();
-    ui->stickReverse1->hide();
-    ui->stickReverse2->hide();
-    ui->stickReverse3->hide();
-    ui->stickReverse4->hide();
-  }
-
   if (Boards::getCapability(board, Board::HasBacklightColor)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
   }
@@ -351,14 +199,6 @@ ui(new Ui::GeneralSetup)
 
   ui->switchesDelay->setValue(10 * (generalSettings.switchesDelay + 15));
   ui->blAlarm_ChkB->setChecked(generalSettings.alarmsFlash);
-
-  if (!firmware->getCapability(HasBatMeterRange)) {
-    ui->batMeterRangeLabel->hide();
-    ui->HasBatMeterMinRangeLabel->hide();
-    ui->HasBatMeterMaxRangeLabel->hide();
-    ui->vBatMinDSB->hide();
-    ui->vBatMaxDSB->hide();
-  }
 
   if (Boards::getCapability(board, Board::Surface)) {
     ui->stickModeLabel->hide();
@@ -620,33 +460,25 @@ void GeneralSetupPanel::setValues()
     ui->label_HL->hide();
     ui->hapticLengthCB->hide();
   }
-  ui->OFFBright_SB->setMinimum(firmware->getCapability(BacklightLevelMin));
+  ui->OFFBright_SB->setMinimum(Boards::getCapability(board, Board::BacklightLevelMin));
   if (generalSettings.backlightOffBright > 100 - generalSettings.backlightBright)
     generalSettings.backlightOffBright = 100 - generalSettings.backlightBright;
   ui->BLBright_SB->setValue(100 - generalSettings.backlightBright);
   ui->OFFBright_SB->setValue(generalSettings.backlightOffBright);
   ui->BLBright_SB->setMinimum(ui->OFFBright_SB->value());
   ui->OFFBright_SB->setMaximum(ui->BLBright_SB->value());
-  ui->soundModeCB->setCurrentIndex(generalSettings.speakerMode);
   ui->volume_SL->setValue(generalSettings.speakerVolume + 12);
   ui->beeperlenCB->setCurrentIndex(generalSettings.beeperLength + 2);
   ui->speakerPitchSB->setValue(generalSettings.speakerPitch);
   ui->hapticStrength->setValue(generalSettings.hapticStrength);
   ui->hapticmodeCB->setCurrentIndex(generalSettings.hapticMode + 2);
-
-  if (firmware->getCapability(HasBatMeterRange)) {
-    ui->vBatMinDSB->setValue((double)(generalSettings.vBatMin + 90) / 10);
-    ui->vBatMaxDSB->setValue((double)(generalSettings.vBatMax + 120) / 10);
-  }
-
+  ui->vBatMinDSB->setValue((double)(generalSettings.vBatMin + 90) / 10);
+  ui->vBatMaxDSB->setValue((double)(generalSettings.vBatMax + 120) / 10);
   ui->pwrOnDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOnSpeed));
   ui->pwrOffDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOffSpeed));
   ui->pwrOffIfInactiveSB->setValue(generalSettings.pwrOffIfInactive);
-
   ui->registrationId->setText(generalSettings.registrationId);
-
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
-
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
 
   if (Boards::getCapability(board, Board::HasColorLcd)) {
@@ -720,14 +552,6 @@ void GeneralSetupPanel::on_hapticStrength_valueChanged()
 {
   if (!lock) {
     generalSettings.hapticStrength = ui->hapticStrength->value();
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::on_soundModeCB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.speakerMode = index;
     emit modified();
   }
 }
@@ -1036,14 +860,6 @@ void GeneralSetupPanel::on_beeperCB_currentIndexChanged(int index)
   }
 }
 
-void GeneralSetupPanel::on_displayTypeCB_currentIndexChanged(int index)
-{
-  if (!lock) {
-    generalSettings.optrexDisplay = index;
-    emit modified();
-  }
-}
-
 void GeneralSetupPanel::on_hapticmodeCB_currentIndexChanged(int index)
 {
   if (!lock) {
@@ -1051,7 +867,6 @@ void GeneralSetupPanel::on_hapticmodeCB_currentIndexChanged(int index)
     emit modified();
   }
 }
-
 
 void GeneralSetupPanel::on_channelorderCB_currentIndexChanged(int index)
 {
@@ -1069,23 +884,6 @@ void GeneralSetupPanel::on_stickmodeCB_currentIndexChanged(int index)
   }
 }
 
-void GeneralSetupPanel::unlockSwitchEdited()
-{
-  if (!lock) {
-    int i = 0;
-    i |= (((uint16_t)ui->chkSA->value()));
-    i |= (((uint16_t)ui->chkSB->value()) << 2);
-    i |= (((uint16_t)ui->chkSC->value()) << 4);
-    i |= (((uint16_t)ui->chkSD->value()) << 6);
-    i |= (((uint16_t)ui->chkSE->value()) << 8);
-    i |= (((uint16_t)ui->chkSF->value()) << 10);
-    i |= (((uint16_t)ui->chkSG->value()) << 12);
-    i |= (((uint16_t)ui->chkSH->value()) << 14);
-    generalSettings.switchUnlockStates=i;
-    emit modified();
-  }
-}
-
 void GeneralSetupPanel::on_blAlarm_ChkB_stateChanged()
 {
   if (!lock) {
@@ -1098,17 +896,6 @@ void GeneralSetupPanel::on_registrationId_editingFinished()
 {
   if (!lock) {
     strncpy(generalSettings.registrationId, ui->registrationId->text().toLatin1(), REGISTRATION_ID_LEN);
-    emit modified();
-  }
-}
-
-void GeneralSetupPanel::stickReverseEdited()
-{
-  if (!lock) {
-    generalSettings.stickReverse = ((int)ui->stickReverse1->isChecked()) |
-                                   ((int)ui->stickReverse2->isChecked() << 1) |
-                                   ((int)ui->stickReverse3->isChecked() << 2) |
-                                   ((int)ui->stickReverse4->isChecked() << 3);
     emit modified();
   }
 }

@@ -67,8 +67,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
 
   connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
-  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
-                                                           firmware->getCapability(HasInputDiff) ? 0 : FilteredItemModel::PositiveFilter);
+  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels, 0);
 
   curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
                                            ui->imgCurve, ed->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);

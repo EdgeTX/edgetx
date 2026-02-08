@@ -73,19 +73,13 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   ui->label_module->setText(ModuleData::indexToString(moduleIdx, firmware));
   if (isTrainerModule(moduleIdx)) {
     ui->formLayout_col1->setSpacing(0);
-    if (!IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      ui->label_trainerMode->hide();
-      ui->trainerMode->hide();
-    }
-    else {
-      updateTrainerModeItemModel();
-      ui->trainerMode->setField(model.trainerMode);
-      connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
-        update();
-        emit updateItemModels();
-        emit modified();
-      });
-    }
+    updateTrainerModeItemModel();
+    ui->trainerMode->setField(model.trainerMode);
+    connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
+      update();
+      emit updateItemModels();
+      emit modified();
+    });
   }
   else {
     ui->label_trainerMode->hide();
@@ -419,10 +413,8 @@ void ModulePanel::update()
     if (protocol != PULSES_MULTIMODULE && module.hasFailsafes(firmware))
       mask |= MASK_FAILSAFES;
   }
-  else if (IS_HORUS_OR_TARANIS(board)) {
-    if (model->trainerMode == TRAINER_MODE_SLAVE_JACK) {
+  else if (model->trainerMode == TRAINER_MODE_SLAVE_JACK) {
       mask |= MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
-    }
   }
   else if (model->trainerMode != TRAINER_MODE_MASTER_JACK) {
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
@@ -451,8 +443,8 @@ void ModulePanel::update()
   ui->channelsCount->setEnabled(mask & MASK_CHANNELS_COUNT);
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
-  ui->channelsCount->setSingleStep(firmware->getCapability(HasPPMStart) ? 1 : 2);
-  
+  ui->channelsCount->setSingleStep(1);
+
   // CRSF
   ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
   ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);

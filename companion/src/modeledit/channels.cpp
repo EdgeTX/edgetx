@@ -104,9 +104,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   connectItemModelEvents(dialogFilteredItemModels->getItemModel(crvid));
 
   int gvid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
-
-  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
-                                                           firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
+  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels, 0);
 
   QStringList headerLabels;
   headerLabels << "#";
@@ -114,12 +112,10 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     headerLabels << tr("Name");
   }
   headerLabels << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direction");
-  if (IS_HORUS_OR_TARANIS(board))
-    headerLabels << tr("Curve") << tr("Plot");
+  headerLabels << tr("Curve") << tr("Plot");
   if (firmware->getCapability(PPMCenter))
     headerLabels << tr("PPM Center");
-  if (firmware->getCapability(SYMLimits))
-    headerLabels << tr("Linear Subtrim");
+  headerLabels << tr("Linear Subtrim");
   TableLayout *tableLayout = new TableLayout(this, chnCapability, headerLabels);
 
   for (int i = 0; i < chnCapability; i++) {
@@ -163,19 +159,17 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     tableLayout->addWidget(i, col++, invCB[i]);
 
     // Curve
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      curveCB[i] = new QComboBox(this);
-      curveCB[i]->setProperty("index", i);
-      tableLayout->addWidget(i, col++, curveCB[i]);
+    curveCB[i] = new QComboBox(this);
+    curveCB[i]->setProperty("index", i);
+    tableLayout->addWidget(i, col++, curveCB[i]);
 
-      curveImage[i] = new CurveImageWidget(this);
-      curveImage[i]->setProperty("index", i);
-      curveImage[i]->setFixedSize(QSize(100, 100));
-      tableLayout->addWidget(i, col++, curveImage[i]);
+    curveImage[i] = new CurveImageWidget(this);
+    curveImage[i]->setProperty("index", i);
+    curveImage[i]->setFixedSize(QSize(100, 100));
+    tableLayout->addWidget(i, col++, curveImage[i]);
 
-      curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i], model.limitData[i].curve, model, sharedItemModels,
-                                                  curveRefFilteredItemModels, this);
-    }
+    curveGroup[i] = new CurveReferenceUIManager(curveCB[i], curveImage[i], model.limitData[i].curve, model, sharedItemModels,
+                                                curveRefFilteredItemModels, this);
 
     // PPM center
     int ppmCenterMax = firmware->getCapability(PPMCenter);
@@ -192,13 +186,11 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     }
 
     // Symetrical limits
-    if (firmware->getCapability(SYMLimits)) {
-      symlimitsChk[i] = new QCheckBox(this);
-      symlimitsChk[i]->setProperty("index", i);
-      symlimitsChk[i]->setChecked(model.limitData[i].symetrical);
-      connect(symlimitsChk[i], SIGNAL(toggled(bool)), this, SLOT(symlimitsEdited()));
-      tableLayout->addWidget(i, col++, symlimitsChk[i]);
-    }
+    symlimitsChk[i] = new QCheckBox(this);
+    symlimitsChk[i]->setProperty("index", i);
+    symlimitsChk[i]->setChecked(model.limitData[i].symetrical);
+    connect(symlimitsChk[i], SIGNAL(toggled(bool)), this, SLOT(symlimitsEdited()));
+    tableLayout->addWidget(i, col++, symlimitsChk[i]);
   }
 
   update();
@@ -301,12 +293,12 @@ void ChannelsPanel::updateLine(int i)
   chnMin[i]->setValue(chn.min);
   chnMax[i]->setValue(chn.max);
   invCB[i]->setCurrentIndex((chn.revert) ? 1 : 0);
+
   if (firmware->getCapability(PPMCenter)) {
     centerSB[i]->setValue(chn.ppmCenter + 1500);
   }
-  if (firmware->getCapability(SYMLimits)) {
-    symlimitsChk[i]->setChecked(chn.symetrical);
-  }
+
+  symlimitsChk[i]->setChecked(chn.symetrical);
   lock = false;
 }
 

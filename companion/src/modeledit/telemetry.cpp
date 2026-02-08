@@ -434,9 +434,7 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
   if (sensorCapability > CPN_MAX_SENSORS) //  TODO should be role of getCapability
     sensorCapability = CPN_MAX_SENSORS;
 
-  if (firmware->getCapability(NoTelemetryProtocol)) {
-    model.frsky.usrProto = 1;
-  }
+  model.frsky.usrProto = 1;
 
   ui->varioSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEVARIOSRC));
   ui->varioSource->setField(model.frsky.varioSource, this);
@@ -484,11 +482,9 @@ void TelemetryPanel::update()
 {
   lock = true;
 
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    ui->voltsSource->updateValue();
-    ui->altitudeSource->updateValue();
-    ui->varioSource->updateValue();
-  }
+  ui->voltsSource->updateValue();
+  ui->altitudeSource->updateValue();
+  ui->varioSource->updateValue();
 
   for (int i = 0; i < sensorCapability; ++i) {
     sensorPanels[i]->update();
@@ -542,16 +538,9 @@ void TelemetryPanel::setup()
   }
 
   ui->altimetryGB->setVisible(firmware->getCapability(HasVario)),
-  ui->frskyProtoCB->setDisabled(firmware->getCapability(NoTelemetryProtocol));
-
-  if (firmware->getCapability(Telemetry)) {
-    ui->frskyProtoCB->addItem(tr("Winged Shadow How High"));
-  }
-  else {
-    ui->frskyProtoCB->addItem(tr("Winged Shadow How High (not supported)"));
-  }
-
-  ui->variousGB->hide();
+  ui->frskyProtoCB->setDisabled(true);
+  ui->frskyProtoCB->addItem(tr("Winged Shadow How High"));
+  ui->variousGB->hide();  // TODO remove from ui design and code
 
   lock = false;
 }

@@ -178,18 +178,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   ui->throttleSource->setModel(panelFilteredModels->getItemModel(FIM_THRSOURCE));
   ui->throttleSource->setField(model.thrTraceSrc, this);
 
-  if (!firmware->getCapability(HasDisplayText)) {
-    ui->displayText->hide();
-    ui->editChecklist->hide();
-  }
-
   if (!firmware->getCapability(GlobalFunctions)) {
     ui->gfEnabled->hide();
-  }
-
-  if (!firmware->getCapability(HasADCJitterFilter))
-  {
-    ui->jitterFilter->hide();
   }
 
   // Beep Center checkboxes
@@ -207,12 +197,10 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->centerBeepLayout->addWidget(checkbox, 0, i + 1);
     connect(checkbox, SIGNAL(toggled(bool)), this, SLOT(onBeepCenterToggled(bool)));
     centerBeepCheckboxes << checkbox;
-    if (IS_HORUS_OR_TARANIS(board)) {
-      if (!(generalSettings.isInputAvailable(i) &&
-            (generalSettings.isInputStick(i) || (generalSettings.isInputPot(i) && !generalSettings.isInputMultiPosPot(i)) ||
-             generalSettings.isInputSlider(i))))
-        checkbox->hide();
-    }
+    if (!(generalSettings.isInputAvailable(i) &&
+          (generalSettings.isInputStick(i) || (generalSettings.isInputPot(i) && !generalSettings.isInputMultiPosPot(i)) ||
+            generalSettings.isInputSlider(i))))
+      checkbox->hide();
     QWidget::setTabOrder(prevFocus, checkbox);
     prevFocus = checkbox;
   }
@@ -258,7 +246,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   // Pot warnings
   prevFocus = ui->potWarningMode;
 
-  if (IS_HORUS_OR_TARANIS(board) && ttlInputs > 0) {
+  if (ttlInputs > 0) {
     for (int i = ttlSticks; i < ttlInputs; i++) {
       RawSource src(SOURCE_TYPE_INPUT, i + 1);
       QCheckBox * cb = new QCheckBox(this);
@@ -481,10 +469,7 @@ void SetupPanel::update()
 
   updateBeepCenter();
   updateStartupSwitches();
-
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    updatePotWarnings();
-  }
+  updatePotWarnings();
 
   for (int i = 0; i < CPN_MAX_MODULES + 1; i++) {
     if (modules[i]) {

@@ -85,90 +85,74 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
 
   QString id = fw->getId();
 
-  if (IS_HORUS_OR_TARANIS(board)) {
-    switch (port) {
-      case 0:
-        switch (proto) {
-          case PULSES_OFF:
-            return true;
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_LR12:
-            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
-          case PULSES_PXX_XJT_D8:
-            return !(IS_ACCESS_RADIO(board, id) || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
-          case PULSES_ACCESS_ISRM:
-          case PULSES_ACCST_ISRM_D16:
-            return IS_ACCESS_RADIO(board, id);
-          case PULSES_MULTIMODULE:
-            return fw->getCapability(HasIntModuleMulti);
-          case PULSES_CROSSFIRE:
-            return fw->getCapability(HasIntModuleCRSF) || fw->getCapability(HasIntModuleELRS);
-          case PULSES_FLYSKY_AFHDS2A:
-            return IS_FLYSKY_NV14(board);
-          case PULSES_FLYSKY_AFHDS3:
-            return (IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
-          default:
-            return false;
-        }
+  switch (port) {
+    case 0:
+      switch (proto) {
+        case PULSES_OFF:
+          return true;
+        case PULSES_PXX_XJT_X16:
+        case PULSES_PXX_XJT_LR12:
+          return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
+        case PULSES_PXX_XJT_D8:
+          return !(IS_ACCESS_RADIO(board, id) || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
+        case PULSES_ACCESS_ISRM:
+        case PULSES_ACCST_ISRM_D16:
+          return IS_ACCESS_RADIO(board, id);
+        case PULSES_MULTIMODULE:
+          return fw->getCapability(HasIntModuleMulti);
+        case PULSES_CROSSFIRE:
+          return fw->getCapability(HasIntModuleCRSF) || fw->getCapability(HasIntModuleELRS);
+        case PULSES_FLYSKY_AFHDS2A:
+          return IS_FLYSKY_NV14(board);
+        case PULSES_FLYSKY_AFHDS3:
+          return (IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
+        default:
+          return false;
+      }
 
-      case 1:
-        switch (proto) {
-          case PULSES_OFF:
-          case PULSES_PPM:
-            return true;
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-            return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-          case PULSES_CROSSFIRE:
-          case PULSES_FLYSKY_AFHDS2A:
-          case PULSES_FLYSKY_AFHDS3:
-          case PULSES_GHOST:
-            return true;
-          case PULSES_ACCESS_R9M:
-            return IS_ACCESS_RADIO(board, id) || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
-          case PULSES_PXX_R9M_LITE:
-          case PULSES_ACCESS_R9M_LITE:
-          case PULSES_ACCESS_R9M_LITE_PRO:
-          case PULSES_XJT_LITE_X16:
-          case PULSES_XJT_LITE_D8:
-          case PULSES_XJT_LITE_LR12:
-            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_ZORRO(board));
-          default:
-            return false;
-        }
+    case 1:
+      switch (proto) {
+        case PULSES_OFF:
+        case PULSES_PPM:
+          return true;
+        case PULSES_PXX_XJT_X16:
+        case PULSES_PXX_XJT_D8:
+        case PULSES_PXX_XJT_LR12:
+          return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
+        case PULSES_PXX_R9M:
+        case PULSES_LP45:
+        case PULSES_DSM2:
+        case PULSES_DSMX:
+        case PULSES_SBUS:
+        case PULSES_MULTIMODULE:
+        case PULSES_CROSSFIRE:
+        case PULSES_FLYSKY_AFHDS2A:
+        case PULSES_FLYSKY_AFHDS3:
+        case PULSES_GHOST:
+          return true;
+        case PULSES_ACCESS_R9M:
+          return IS_ACCESS_RADIO(board, id) || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+        case PULSES_PXX_R9M_LITE:
+        case PULSES_ACCESS_R9M_LITE:
+        case PULSES_ACCESS_R9M_LITE_PRO:
+        case PULSES_XJT_LITE_X16:
+        case PULSES_XJT_LITE_D8:
+        case PULSES_XJT_LITE_LR12:
+          return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_ZORRO(board));
+        default:
+          return false;
+      }
 
-      case -1:
-        switch (proto) {
-          case PULSES_PPM:
-            return true;
-          default:
-            return false;
-        }
+    case -1:
+      switch (proto) {
+        case PULSES_PPM:
+          return true;
+        default:
+          return false;
+      }
 
-      default:
-        return false;
-    }
-  }
-  else {
-    switch (proto) {
-      case PULSES_PPM:
-      case PULSES_DSMX:
-      case PULSES_LP45:
-      case PULSES_DSM2:
-        // case PULSES_PXX_DJT:     // Unavailable for now
-      case PULSES_PPM16:
-      case PULSES_PPMSIM:
-        return true;
-      default:
-        return false;
-    }
+    default:
+      return false;
   }
 
   return false; //  to avoid compiler warning
@@ -273,12 +257,9 @@ QString ModuleData::indexToString(int index, Firmware * fw)
   if (index < 0)
     return tr("Trainer Port");
 
-  if (fw->getCapability(NumModules) > 1) {
-    if (IS_HORUS_OR_TARANIS(fw->getBoard()))
-      return index == 0 ? tr("Internal Radio System") : tr("External Radio Module");
-    if (index > 0)
-      return tr("Extra Radio System");
-  }
+  if (fw->getCapability(NumModules) > 1)
+    return index == 0 ? tr("Internal Radio System") : tr("External Radio Module");
+
   return tr("Radio System");
 }
 
@@ -519,107 +500,88 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   if (protocol == PULSES_OFF)
     return true;
 
-  Firmware *fw = getCurrentFirmware();
-  Board::Type board = fw->getBoard();
-
   if (moduleidx == 0)
     return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
 
-  if (IS_HORUS_OR_TARANIS(board)) {
-    switch (moduleidx) {
-      case 1: {
-        const int moduleSize = g.currentProfile().externalModuleSize();
-        const int moduleType = getTypeFromProtocol(protocol);
+  switch (moduleidx) {
+    case 1: {
+      const int moduleSize = g.currentProfile().externalModuleSize();
+      const int moduleType = getTypeFromProtocol(protocol);
 
-        switch(moduleSize) {
-          case Board::EXTMODSIZE_NONE:
-            return false;
-          case Board::EXTMODSIZE_BOTH:
-            switch (moduleType) {
-              case MODULE_TYPE_XJT_PXX1:
-              case MODULE_TYPE_ISRM_PXX2:
-              case MODULE_TYPE_R9M_PXX1:
-              case MODULE_TYPE_R9M_PXX2:
-              case MODULE_TYPE_DSM2:
-              case MODULE_TYPE_CROSSFIRE:
-              case MODULE_TYPE_MULTIMODULE:
-              case MODULE_TYPE_GHOST:
-              case MODULE_TYPE_FLYSKY_AFHDS2A:
-              case MODULE_TYPE_FLYSKY_AFHDS3:
-              case MODULE_TYPE_LEMON_DSMP:
-              case MODULE_TYPE_R9M_LITE_PXX1:
-              case MODULE_TYPE_R9M_LITE_PXX2:
-              case MODULE_TYPE_R9M_LITE_PRO_PXX2:
-              case MODULE_TYPE_XJT_LITE_PXX2:
-              case MODULE_TYPE_PPM:
-              case MODULE_TYPE_SBUS:
-                return true;
-              default:
-                return false;
-            }
-          case Board::EXTMODSIZE_STD:
-            switch (moduleType) {
-              case MODULE_TYPE_XJT_PXX1:
-              case MODULE_TYPE_ISRM_PXX2:
-              case MODULE_TYPE_R9M_PXX1:
-              case MODULE_TYPE_R9M_PXX2:
-              case MODULE_TYPE_DSM2:
-              case MODULE_TYPE_CROSSFIRE:
-              case MODULE_TYPE_MULTIMODULE:
-              case MODULE_TYPE_GHOST:
-              case MODULE_TYPE_FLYSKY_AFHDS2A:
-              case MODULE_TYPE_FLYSKY_AFHDS3:
-              case MODULE_TYPE_LEMON_DSMP:
-              case MODULE_TYPE_PPM:
-              case MODULE_TYPE_SBUS:
-                return true;
-              default:
-                return false;
-            }
-          case Board::EXTMODSIZE_SMALL:
-            switch (moduleType) {
-              case MODULE_TYPE_R9M_LITE_PXX1:
-              case MODULE_TYPE_R9M_LITE_PXX2:
-              case MODULE_TYPE_R9M_LITE_PRO_PXX2:
-              case MODULE_TYPE_XJT_LITE_PXX2:
-              case MODULE_TYPE_CROSSFIRE:
-              case MODULE_TYPE_MULTIMODULE:
-              case MODULE_TYPE_GHOST:
-              case MODULE_TYPE_PPM:
-              case MODULE_TYPE_SBUS:
-                return true;
-              default:
-                return false;
-            }
-          default:
-            return false;
-        }
+      switch(moduleSize) {
+        case Board::EXTMODSIZE_NONE:
+          return false;
+        case Board::EXTMODSIZE_BOTH:
+          switch (moduleType) {
+            case MODULE_TYPE_XJT_PXX1:
+            case MODULE_TYPE_ISRM_PXX2:
+            case MODULE_TYPE_R9M_PXX1:
+            case MODULE_TYPE_R9M_PXX2:
+            case MODULE_TYPE_DSM2:
+            case MODULE_TYPE_CROSSFIRE:
+            case MODULE_TYPE_MULTIMODULE:
+            case MODULE_TYPE_GHOST:
+            case MODULE_TYPE_FLYSKY_AFHDS2A:
+            case MODULE_TYPE_FLYSKY_AFHDS3:
+            case MODULE_TYPE_LEMON_DSMP:
+            case MODULE_TYPE_R9M_LITE_PXX1:
+            case MODULE_TYPE_R9M_LITE_PXX2:
+            case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+            case MODULE_TYPE_XJT_LITE_PXX2:
+            case MODULE_TYPE_PPM:
+            case MODULE_TYPE_SBUS:
+              return true;
+            default:
+              return false;
+          }
+        case Board::EXTMODSIZE_STD:
+          switch (moduleType) {
+            case MODULE_TYPE_XJT_PXX1:
+            case MODULE_TYPE_ISRM_PXX2:
+            case MODULE_TYPE_R9M_PXX1:
+            case MODULE_TYPE_R9M_PXX2:
+            case MODULE_TYPE_DSM2:
+            case MODULE_TYPE_CROSSFIRE:
+            case MODULE_TYPE_MULTIMODULE:
+            case MODULE_TYPE_GHOST:
+            case MODULE_TYPE_FLYSKY_AFHDS2A:
+            case MODULE_TYPE_FLYSKY_AFHDS3:
+            case MODULE_TYPE_LEMON_DSMP:
+            case MODULE_TYPE_PPM:
+            case MODULE_TYPE_SBUS:
+              return true;
+            default:
+              return false;
+          }
+        case Board::EXTMODSIZE_SMALL:
+          switch (moduleType) {
+            case MODULE_TYPE_R9M_LITE_PXX1:
+            case MODULE_TYPE_R9M_LITE_PXX2:
+            case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+            case MODULE_TYPE_XJT_LITE_PXX2:
+            case MODULE_TYPE_CROSSFIRE:
+            case MODULE_TYPE_MULTIMODULE:
+            case MODULE_TYPE_GHOST:
+            case MODULE_TYPE_PPM:
+            case MODULE_TYPE_SBUS:
+              return true;
+            default:
+              return false;
+          }
+        default:
+          return false;
       }
-      case -1:
-        switch (protocol) {
-          case PULSES_PPM:
-            return true;
-          default:
-            return false;
-        }
+    }
+    case -1:
+      switch (protocol) {
+        case PULSES_PPM:
+          return true;
+        default:
+          return false;
+      }
 
-      default:
-        return false;
-    }
-  }
-  else {
-    switch (protocol) {
-      case PULSES_PPM:
-      case PULSES_DSMX:
-      case PULSES_LP45:
-      case PULSES_DSM2:
-        // case PULSES_PXX_DJT:     // Unavailable for now
-      case PULSES_PPM16:
-      case PULSES_PPMSIM:
-        return true;
-      default:
-        return false;
-    }
+    default:
+      return false;
   }
 
   return false; //  to avoid compiler warning
