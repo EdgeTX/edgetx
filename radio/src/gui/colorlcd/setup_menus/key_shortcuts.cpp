@@ -26,6 +26,7 @@
 #include "edgetx.h"
 #include "getset_helpers.h"
 #include "pagegroup.h"
+#include "qmpagechoice.h"
 #include "radio_tools.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
@@ -47,7 +48,7 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
     event = keyMapping(event);
 
     setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
-          auto c = new Choice(
+          auto c = new QMPageChoice(
               parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, qmPages.size() - 1,
               [=]() -> int {
                 auto pg = g_eeGeneral.getKeyShortcut(event);
@@ -70,7 +71,6 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
                 SET_DIRTY();
               }, STR_KEY_SHORTCUTS);
 
-          c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
               [=](int newValue) {
                 if (newValue == QM_NONE) return true;

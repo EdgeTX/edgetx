@@ -25,6 +25,7 @@
 #include "edgetx.h"
 #include "getset_helpers.h"
 #include "pagegroup.h"
+#include "qmpagechoice.h"
 #include "radio_tools.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
@@ -38,7 +39,7 @@ QMFavoritesPage::QMFavoritesPage():
     char nm[50];
     strAppendUnsigned(strAppend(strAppend(nm, "#"), " "), i + 1);
     setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
-          auto c = new Choice(
+          auto c = new QMPageChoice(
               parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, qmPages.size() - 1,
               [=]() -> int {
                 auto pg = g_eeGeneral.qmFavorites[i].shortcut;
@@ -62,7 +63,6 @@ QMFavoritesPage::QMFavoritesPage():
                 SET_DIRTY();
               }, STR_QUICK_MENU_FAVORITES);
 
-          c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
               [=](int pg) {
                 if (pg == QM_NONE) return true;

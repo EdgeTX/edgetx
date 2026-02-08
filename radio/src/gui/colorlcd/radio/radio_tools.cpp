@@ -162,7 +162,8 @@ void runLuaTool(const std::string name)
 void getLuaToolNames(std::vector<std::string>& nameList)
 {
   loadLuaTools();
-  std::string s("App - ");
+  std::string s(STR_QM_APPS);
+  s += " - ";
   for (auto t : luaTools) {
     nameList.emplace_back(s + t.label);
   }
