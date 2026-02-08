@@ -21,13 +21,9 @@
 
 #include "sourcechoice.h"
 
-#include "dataconstants.h"
-#include "lcd.h"
 #include "menu.h"
 #include "menutoolbar.h"
 #include "edgetx.h"
-#include "strhelpers.h"
-#include "switches.h"
 
 class SourceChoiceMenuToolbar : public MenuToolbar
 {

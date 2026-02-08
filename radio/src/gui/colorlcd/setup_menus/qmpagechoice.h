@@ -24,30 +24,26 @@
 #include "choice.h"
 #include "form.h"
 
-class SourceChoiceMenuToolbar;
+class QMPageChoiceMenuToolbar;
 
-class SourceChoice : public Choice
+class QMPageChoice : public Choice
 {
  public:
-  SourceChoice(Window* parent, const rect_t& rect, int16_t vmin, int16_t vmax,
+  QMPageChoice(Window* parent, const rect_t& rect,
+               std::vector<std::string> values,
+               int16_t vmin, int16_t vmax,
                std::function<int16_t()> getValue,
-               std::function<void(int16_t)> setValue, bool allowInvert = false);
+               std::function<void(int16_t)> setValue,
+               const char *title);
+
+  static LAYOUT_ORIENTATION(TABLE_WIDTH, LCD_W * 5 / 8, LCD_W / 2 + PAD_LARGE * 3)
 
  protected:
-  friend SourceChoiceMenuToolbar;
-
-  bool inMenu = false;
-  bool canInvert = false;
-
-  void setValue(int value) override;
-  int getIntValue() const override;
-  bool onLongPress() override;
-
-  void invertChoice();
+  friend QMPageChoiceMenuToolbar;
 
   void openMenu() override;
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SourceChoice"; }
+  std::string getName() const override { return "QMPageChoice"; }
 #endif
 };
