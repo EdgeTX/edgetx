@@ -405,6 +405,10 @@ if(BETAFPV_RELEASE)
   add_definitions(-DBETAFPV_RELEASE)
 endif()
 
+if(DUMBORC_RELEASE)
+  add_definitions(-DDUMBORC_RELEASE)
+endif()
+
 if(HARDWARE_TRAINER_MULTI)
   add_definitions(-DHARDWARE_TRAINER_MULTI)
 endif()
