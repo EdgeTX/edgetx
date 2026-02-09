@@ -67,7 +67,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     return std::string(msg);
   });
   
-#if defined(RADIO_V12)&&defined(EXTERNAL_ANTENNA)
+#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
   if (moduleIdx == INTERNAL_MODULE){
     auto antline = newLine(grid);
     new StaticText(antline, rect_t{}, STR_ANTENNA);
