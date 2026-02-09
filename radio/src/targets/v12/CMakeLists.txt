@@ -50,7 +50,7 @@ add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR v12)
 add_definitions(-DRADIO_V12)
-add_definitions(-DHELLORADIORADIOSKY)
+add_definitions(-DMANUFACTURER_HELLORADIOSKY)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
