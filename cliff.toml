@@ -5,12 +5,11 @@
 header = ""
 body = """
 {% for group, commits in commits | group_by(attribute="group") %}
-## {{ group }}
-{% for commit in commits %}
-- {{ commit.message | split(pat="\n") | first }} ({{ commit.id | truncate(length=7, end="") }})
+### {{ group }}
+{% for commit in commits -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
 {% endfor %}
-
-{% endfor %}
+{% endfor -%}
 """
 trim = true
 
