@@ -54,6 +54,7 @@ constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
 constexpr int MAX_KEYSHORTCUTS             {6};
 constexpr int MAX_QMFAVOURITES             {12};
+constexpr int MAX_TOOL_NAME_LEN            {100};
 
 static const QStringList moduleBaudratesList({"115K", "400K", "921K", "1.87M",
                                               "3.75M", "5.25M"});
@@ -453,9 +454,9 @@ class GeneralSettings {
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
     unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
-    std::string keyShortcutTools[MAX_KEYSHORTCUTS];
+    char keyShortcutTools[MAX_KEYSHORTCUTS][MAX_TOOL_NAME_LEN];
     unsigned int qmFavorites[MAX_QMFAVOURITES];
-    std::string qmFavoritesTools[MAX_QMFAVOURITES];
+    char qmFavoritesTools[MAX_QMFAVOURITES][MAX_TOOL_NAME_LEN];
 
     void switchConfigClear();
 
