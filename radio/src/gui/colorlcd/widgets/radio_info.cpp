@@ -77,7 +77,7 @@ class RadioInfoWidget : public TopBarWidget
     batteryChargeIcon->hide();
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)||defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
+#if (defined(INTERNAL_MODULE_PXX1) || defined(RADIO_V12)) && defined(EXTERNAL_ANTENNA)
     extAntenna = new StaticIcon(this, W_RSSI_X - PAD_SMALL, 1,
                                 ICON_TOPMENU_ANTENNA,
                                 COLOR_THEME_PRIMARY2_INDEX);
