@@ -91,6 +91,7 @@ jobs:
         run: |
           echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
           echo "build_date=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_ENV
+          echo "old_nightly_sha=$(git rev-parse nightly)" >> $GITHUB_ENV
 
       - name: Zip release file
         uses: montudor/action-zip@v1
@@ -140,5 +141,8 @@ jobs:
             ## Changes since last nightly build
 
             ${{ steps.changelog.outputs.content }}
+
+            ---
+            **Full Diff:** https://github.com/${{ github.repository }}/compare/${{ env.old_nightly_sha }}...${{ github.sha }}
           files: |
             ${{ env.release_filename }}
