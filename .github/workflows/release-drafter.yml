@@ -61,89 +61,41 @@ jobs:
             echo "CMakeLists.txt not found"
           fi
 
-      - name: Build Changelog
-        id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v6
-        with:
-          mode: "HYBRID"
-          configurationJson: |
-            {
-              "categories": [
-                {
-                  "title": "## 🖥️ Black & White Radio Changes",
-                  "labels": ["scope:bw"]
-                },
-                {
-                  "title": "## 🎨 Color Radio Changes",
-                  "labels": ["scope:color"]
-                },
-                {
-                  "title": "## 🎮 Firmware (All Radios Generally)",
-                  "labels": ["scope:firmware", "scope:fw"]
-                },
-                {
-                  "title": "## 💻 Companion Software Changes",
-                  "labels": ["scope:cpn", "companion"]
-                },
-                {
-                  "title": "## 🚀 Features",
-                  "labels": ["feat", "enhancement ✨"]
-                },
-                {
-                  "title": "## 🐛 Fixes",
-                  "labels": ["fix", "bugfix", "bug 🪲", "bug/regression ↩️"]
-                },
-                {
-                  "title": "## 🧹 Chores",
-                  "labels": ["chore", "house keeping 🧹"]
-                },
-                {
-                  "title": "## 🔧 CI/CD",
-                  "labels": ["ci", "ci/cd 🔧"]
-                },
-                {
-                  "title": "## 🧪 Tests",
-                  "labels": ["scope:test", "test", "unit tests 🧪"]
-                },
-                {
-                  "title": "## 📝 Documentation",
-                  "labels": ["scope:docs", "docs", "documentation 📝"]
-                },
-                {
-                  "title": "## 🔨 Refactoring",
-                  "labels": ["refactor"]
-                },
-                {
-                  "title": "## 🎨 Style",
-                  "labels": ["style"]
-                },
-                {
-                  "title": "## 📦 Other",
-                  "labels": []
-                }
-              ],
-              "template": "#{{CHANGELOG}}\n\n## Thank you to the following contributors who made this release possible!\n#{{CONTRIBUTORS}}",
-              "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
-              "commit_template": "- #{{TITLE}} (#{{MERGE_SHA}})",
-              "empty_template": "- No changes",
-              "label_extractor": [
-                {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([^)]+\\))?(!)?:",
-                  "on_property": "title",
-                  "target": "$1"
-                },
-                {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)\\(([^)]+)\\)",
-                  "on_property": "title",
-                  "target": "scope:$2"
-                }
-              ],
-              "max_pull_requests": 1000,
-              "max_back_track_time_days": 365
-            }
-          includeOpen: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Changelog and Contributors List
+        id: changelog
+        run: |
+          # Find the previous tag relative to the input tag
+          PREV_TAG=$(git describe --tags --abbrev=0 "${{ inputs.tag }}^" 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found. Generating full history for ${{ inputs.tag }}"
+            RANGE="${{ inputs.tag }}"
+            CONTRIB_RANGE="${{ inputs.tag }}"
+          else
+            echo "Found previous tag: $PREV_TAG"
+            RANGE="$PREV_TAG..${{ inputs.tag }}"
+            CONTRIB_RANGE="$RANGE"
+          fi
+
+          # Generate the changelog using the explicit range
+          git-cliff $RANGE --tag "${{ inputs.tag }}" --strip all --output CHANGELOG.md
+
+          # Get unique contributors from the same commit range
+          CONTRIBUTORS=$(git log --format='%aN' $CONTRIB_RANGE 2>/dev/null | sort -u | sed 's/^/- /' || echo "")
+
+          # Combine
+          CHANGELOG_CONTENT=$(cat CHANGELOG.md)
+
+          {
+            echo "changelog<<EOF"
+            echo "$CHANGELOG_CONTENT"
+            if [ -n "$CONTRIBUTORS" ]; then
+              echo ""
+              echo "## Thank you to the following contributors who made this release possible!"
+              echo "$CONTRIBUTORS"
+            fi
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Download all release artifacts
         run: |

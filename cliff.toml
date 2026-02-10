@@ -1,0 +1,57 @@
+# Configuration for git-cliff changelog generation
+# https://git-cliff.org/docs/configuration
+
+[changelog]
+header = ""
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor %}
+{% endfor -%}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+
+# Only look for nightly, release and rc tags
+tag_pattern = "^(nightly|v[0-9]+\\.[0-9]+\\.[0-9]+(-rc[0-9]+)?)$"
+
+# Ensures it looks at the branch structure
+topo_order = true
+
+# Repect the nearest tag on current branch
+use_branch_tags = true
+
+# Ensure it sorts from the tag forward
+sort_commits = "oldest"
+
+# Commit parsers - order matters! More specific patterns first
+commit_parsers = [
+  # Scope-based categorization (highest priority)
+  { message = "^feat\\(bw\\)", group = "🖥️ Black & White Radio Changes" },
+  { message = "^fix\\(bw\\)", group = "🖥️ Black & White Radio Changes" },
+  { message = "^feat\\(color\\)", group = "🎨 Color Radio Changes" },
+  { message = "^fix\\(color\\)", group = "🎨 Color Radio Changes" },
+  { message = "^feat\\((firmware|fw)\\)", group = "🎮 Firmware (All Radios Generally)" },
+  { message = "^fix\\((firmware|fw)\\)", group = "🎮 Firmware (All Radios Generally)" },
+  { message = "^feat\\(cpn\\)", group = "💻 Companion Software Changes" },
+  { message = "^fix\\(cpn\\)", group = "💻 Companion Software Changes" },
+
+  # Type-based categorization (fallback)
+  { message = "^feat", group = "🚀 Features" },
+  { message = "^fix", group = "🐛 Fixes" },
+  { message = "^docs?", group = "📝 Documentation" },
+  { message = "^perf", group = "⚡ Performance" },
+  { message = "^refactor", group = "🔨 Refactoring" },
+  { message = "^style", group = "🎨 Style" },
+  { message = "^test", group = "🧪 Tests" },
+  { message = "^chore", group = "🧹 Chores" },
+  { message = "^ci", group = "🔧 CI/CD" },
+
+  # Everything else
+  { body = ".*", group = "📦 Other" },
+]

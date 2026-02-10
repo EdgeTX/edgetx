@@ -91,94 +91,21 @@ jobs:
         run: |
           echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
           echo "build_date=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_ENV
+          echo "old_nightly_sha=$(git rev-parse nightly)" >> $GITHUB_ENV
 
       - name: Zip release file
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -j -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
-      - name: Build Changelog
-        id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v6
+      - name: Generate changelog
+        id: changelog
+        uses: orhun/git-cliff-action@v4
         with:
-          mode: "HYBRID"
-          configurationJson: |
-            {
-              "categories": [
-                {
-                  "title": "## 🖥️ Black & White Radio Changes",
-                  "labels": ["scope:bw"]
-                },
-                {
-                  "title": "## 🎨 Color Radio Changes",
-                  "labels": ["scope:color"]
-                },
-                {
-                  "title": "## 🎮 Firmware (All Radios Generally)",
-                  "labels": ["scope:firmware", "scope:fw"]
-                },
-                {
-                  "title": "## 💻 Companion Software Changes",
-                  "labels": ["scope:cpn", "companion"]
-                },
-                {
-                  "title": "## 🚀 Features",
-                  "labels": ["feat", "enhancement ✨"]
-                },
-                {
-                  "title": "## 🐛 Fixes",
-                  "labels": ["fix", "bugfix", "bug 🪲", "bug/regression ↩️"]
-                },
-                {
-                  "title": "## 🧹 Chores",
-                  "labels": ["chore", "house keeping 🧹"]
-                },
-                {
-                  "title": "## 🔧 CI/CD",
-                  "labels": ["ci", "ci/cd 🔧"]
-                },
-                {
-                  "title": "## 🧪 Tests",
-                  "labels": ["scope:test", "test", "unit tests 🧪"]
-                },
-                {
-                  "title": "## 📝 Documentation",
-                  "labels": ["scope:docs", "docs", "documentation 📝"]
-                },
-                {
-                  "title": "## 🔨 Refactoring",
-                  "labels": ["refactor"]
-                },
-                {
-                  "title": "## 🎨 Style",
-                  "labels": ["style"]
-                },
-                {
-                  "title": "## 📦 Other",
-                  "labels": []
-                }
-              ],
-              "template": "#{{CHANGELOG}}",
-              "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
-              "commit_template": "- #{{TITLE}} (#{{MERGE_SHA}})",
-              "empty_template": "- No changes",
-              "label_extractor": [
-                {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([^)]+\\))?(!)?:",
-                  "on_property": "title",
-                  "target": "$1"
-                },
-                {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)\\(([^)]+)\\)",
-                  "on_property": "title",
-                  "target": "scope:$2"
-                }
-              ]
-            }
-          toTag: HEAD
-          fromTag: nightly
+          config: cliff.toml
+          args: --verbose --strip all nightly..HEAD
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT: CHANGELOG.md
 
       - name: Update nightly tag
         run: |
@@ -213,6 +140,9 @@ jobs:
 
             ## Changes since last nightly build
 
-            ${{ steps.build_changelog.outputs.changelog }}
+            ${{ steps.changelog.outputs.content }}
+
+            ---
+            **Full Diff:** https://github.com/${{ github.repository }}/compare/${{ env.old_nightly_sha }}...${{ github.sha }}
           files: |
             ${{ env.release_filename }}
