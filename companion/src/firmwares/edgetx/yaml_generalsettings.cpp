@@ -743,12 +743,15 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   if (node["keyShortcuts"]) {
     for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1) {
       std::string val = node["keyShortcuts"][std::to_string(i)]["shortcut"].as<std::string>();
+      if (rhs.keyShortcutTools[i]) delete rhs.keyShortcutTools[i];
       if (val.substr(0, 4) == "APP,") {
         rhs.keyShortcuts[i] = GeneralSettings::QM_APP;
-        strncpy(rhs.keyShortcutTools[i], val.substr(4).c_str(), MAX_TOOL_NAME_LEN);
+        rhs.keyShortcutTools[i] = new char[val.size() - 3];
+        strncpy(rhs.keyShortcutTools[i], val.substr(4).c_str(), val.size() - 4);
+        rhs.keyShortcutTools[i][val.size() - 4] = 0;
       } else {
         node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
-        rhs.keyShortcutTools[i][0] = 0;
+        rhs.keyShortcutTools[i] = nullptr;
       }
     }
   }
@@ -756,12 +759,15 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
     for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
       if (node["qmFavorites"][std::to_string(i)]) {
         std::string val = node["qmFavorites"][std::to_string(i)]["shortcut"].as<std::string>();
+      if (rhs.qmFavoritesTools[i]) delete rhs.qmFavoritesTools[i];
       if (val.substr(0, 4) == "APP,") {
         rhs.qmFavorites[i] = GeneralSettings::QM_APP;
-        strncpy(rhs.qmFavoritesTools[i], val.substr(4).c_str(), MAX_TOOL_NAME_LEN);
+        rhs.qmFavoritesTools[i] = new char[val.size() - 3];
+        strncpy(rhs.qmFavoritesTools[i], val.substr(4).c_str(), val.size() - 4);
+        rhs.qmFavoritesTools[i][val.size() - 4] = 0;
       } else {
         node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
-        rhs.qmFavoritesTools[i][0] = 0;
+        rhs.qmFavoritesTools[i] = nullptr;
       }
     }
   }

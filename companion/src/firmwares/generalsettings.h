@@ -454,9 +454,9 @@ class GeneralSettings {
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
     unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
-    char keyShortcutTools[MAX_KEYSHORTCUTS][MAX_TOOL_NAME_LEN];
+    char* keyShortcutTools[MAX_KEYSHORTCUTS];
     unsigned int qmFavorites[MAX_QMFAVOURITES];
-    char qmFavoritesTools[MAX_QMFAVOURITES][MAX_TOOL_NAME_LEN];
+    char* qmFavoritesTools[MAX_QMFAVOURITES];
 
     void switchConfigClear();
 
