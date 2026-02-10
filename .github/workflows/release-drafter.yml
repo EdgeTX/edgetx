@@ -61,40 +61,40 @@ jobs:
             echo "CMakeLists.txt not found"
           fi
 
-      - name: Generate changelog
+      - name: Generate Changelog and Contributors List
         id: changelog
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --verbose --strip all --tag ${{ inputs.tag }} --latest
-        env:
-          OUTPUT: CHANGELOG.md
-
-      - name: Add contributors to changelog
-        id: build_changelog
         run: |
-          # Get unique contributors from the tag range
-          CONTRIBUTORS=$(git log --format='%aN' $(git describe --tags --abbrev=0 HEAD^)..HEAD 2>/dev/null | sort -u | sed 's/^/- /' | tr '\n' '|' || echo "")
+          # Find the previous tag relative to the input tag
+          PREV_TAG=$(git describe --tags --abbrev=0 "${{ inputs.tag }}^" 2>/dev/null || echo "")
 
-          # Read the changelog
-          CHANGELOG=$(cat CHANGELOG.md)
-
-          # Combine changelog with contributors
-          if [ -n "$CONTRIBUTORS" ]; then
-            CONTRIBUTORS_LIST=$(echo "$CONTRIBUTORS" | tr '|' '\n')
-            FULL_CHANGELOG="${CHANGELOG}
-
-            ## Thank you to the following contributors who made this release possible!
-            ${CONTRIBUTORS_LIST}"
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found. Generating full history for ${{ inputs.tag }}"
+            RANGE="${{ inputs.tag }}"
+            CONTRIB_RANGE="${{ inputs.tag }}"
           else
-            FULL_CHANGELOG="$CHANGELOG"
+            echo "Found previous tag: $PREV_TAG"
+            RANGE="$PREV_TAG..${{ inputs.tag }}"
+            CONTRIB_RANGE="$RANGE"
           fi
 
-          # Output for use in release body
+          # Generate the changelog using the explicit range
+          git-cliff $RANGE --tag "${{ inputs.tag }}" --strip all --output CHANGELOG.md
+
+          # Get unique contributors from the same commit range
+          CONTRIBUTORS=$(git log --format='%aN' $CONTRIB_RANGE 2>/dev/null | sort -u | sed 's/^/- /' || echo "")
+
+          # Combine
+          CHANGELOG_CONTENT=$(cat CHANGELOG.md)
+
           {
-            echo 'changelog<<EOF'
-            echo "$FULL_CHANGELOG"
-            echo 'EOF'
+            echo "changelog<<EOF"
+            echo "$CHANGELOG_CONTENT"
+            if [ -n "$CONTRIBUTORS" ]; then
+              echo ""
+              echo "## Thank you to the following contributors who made this release possible!"
+              echo "$CONTRIBUTORS"
+            fi
+            echo "EOF"
           } >> $GITHUB_OUTPUT
 
       - name: Download all release artifacts
