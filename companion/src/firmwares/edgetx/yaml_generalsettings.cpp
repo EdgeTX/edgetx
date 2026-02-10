@@ -638,8 +638,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // the GeneralSettings struct is initialised to hardware definition defaults which is fine for new settings
   // however when parsing saved settings set all inputs to None and override with parsed values
   // thus any inputs not parsed will be None rather than the default
+  // exceptions:
+  //   preserve those hardware defaults never written to yaml
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
-    rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
+    if (Boards::isInputConfigurable(i))
+      rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
   }
 
   if (node["sticksConfig"]) {
