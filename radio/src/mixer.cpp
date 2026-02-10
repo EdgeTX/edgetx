@@ -35,6 +35,9 @@
 #include "luminosity_sensor.h"
 #endif
 
+#if defined(RADIO_GX12)
+#include "targets/taranis/gx12/bsp_io.h"
+#endif
 #define DELAY_POS_MARGIN   3
 
 uint8_t s_mixer_first_run_done = false;
@@ -1143,6 +1146,11 @@ void evalMixes(uint8_t tick10ms)
   static uint16_t fp_act[MAX_FLIGHT_MODES] = {0};
   static uint16_t delta = 0;
   static uint16_t flightModesFade = 0;
+
+#if defined(RADIO_GX12)
+  // see #6159
+  _poll_switches();
+#endif
 
   uint8_t fm = getFlightMode();
 
