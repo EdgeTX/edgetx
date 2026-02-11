@@ -25,7 +25,7 @@
 
 #include "colors.h"
 
-#define DISPLAY_PIXELS_COUNT           (LCD_W * LCD_H)
+#define DISPLAY_PIXELS_COUNT           (LCD_W 800 * LCD_H 480)
 #define DISPLAY_BUFFER_SIZE            (DISPLAY_PIXELS_COUNT)
 
 #if defined(BOOT)
