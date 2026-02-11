@@ -1405,6 +1405,26 @@ void LvglWidgetObject::parseParam(lua_State *L, const char *key)
     flexFlow = luaL_checkinteger(L, -1);
   } else if (!strcmp(key, "flexPad")) {
     flexPad = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "borderPad")) {
+    customPad = true;
+    if (lua_isinteger(L, -1)) {
+      int8_t pad = luaL_checkinteger(L, -1);
+      borderPadLeft = borderPadRight = borderPadTop = borderPadBottom = pad;
+    } else {
+      luaL_checktype(L, -1, LUA_TTABLE);
+      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        const char *key = lua_tostring(L, -2);
+        if (!strcmp(key, "left")) {
+          borderPadLeft = luaL_checkinteger(L, -1);
+        } else if (!strcmp(key, "right")) {
+          borderPadRight = luaL_checkinteger(L, -1);
+        } else if (!strcmp(key, "top")) {
+          borderPadTop = luaL_checkinteger(L, -1);
+        } else if (!strcmp(key, "bottom")) {
+          borderPadBottom = luaL_checkinteger(L, -1);
+        }
+      }
+    }
   } else if (!strcmp(key, "active")) {
     getActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
@@ -1428,14 +1448,21 @@ void LvglWidgetObject::setSize(coord_t w, coord_t h)
 
 bool LvglWidgetObject::setFlex()
 {
+  if (customPad) {
+    lv_obj_set_style_pad_left(window->getLvObj(), borderPadLeft, 0);
+    lv_obj_set_style_pad_right(window->getLvObj(), borderPadRight, 0);
+    lv_obj_set_style_pad_top(window->getLvObj(), borderPadTop, 0);
+    lv_obj_set_style_pad_bottom(window->getLvObj(), borderPadBottom, 0);
+  } else {
+    window->padAll(flexFlow >= 0 ? PAD_OUTLINE : PAD_ZERO);
+  }
+
   if (flexFlow >= 0) {
-    window->padAll(PAD_TINY);
     window->setFlexLayout((lv_flex_flow_t)flexFlow, flexPad, w, h);
     return true;
-  } else {
-    window->padAll(PAD_ZERO);
-    return false;
   }
+
+  return false;
 }
 
 bool LvglWidgetObject::callRefs(lua_State *L)
