@@ -234,7 +234,7 @@
 #define TR_SF_LOGS                     "SD Log"
 #define TR_ADJUST_GVAR                 "Juster"
 #define TR_SF_BACKLIGHT                TR("BgLys", "Baggrund lys")
-#define TR_SF_VARIO                    "Vario"
+#define TR_SF_VARIO                    TR("Højde", "Højdemåler")
 #define TR_SF_TEST                     "Test"
 #define TR_SF_SAFETY                   TR("Overs.", "Overskriv")
 
@@ -712,7 +712,7 @@
 #define TR_AFHDS3_POWER_SOURCE         TR("Strøm", "Strøm kilde")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden reskalering")
 #define TR_GPS_COORDS_FORMAT           TR("GPS kordi.", "Kordinat format")
-#define TR_VARIO                       TR("Vario", "Variometer")
+#define TR_VARIO                       TR("Højde", "Højdemåler")
 #define TR_PITCH_AT_ZERO               "Højde nul"
 #define TR_PITCH_AT_MAX                "Højde max"
 #define TR_REPEAT_AT_ZERO              "Gentag nul"
