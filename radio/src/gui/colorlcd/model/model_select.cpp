@@ -368,6 +368,10 @@ class ModelsPageBody : public Window
       loadModel(g_eeGeneral.currModelFilename, true);
       modelslist.setCurrentModel(model);
 
+      // Main view layout
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::loadCustomScreens();
+
       storageDirty(EE_GENERAL);
       storageCheck(true);
     }
@@ -622,7 +626,8 @@ void ModelLabelsWindow::newModel()
       snprintf(path, LEN_BUFFER, "%s/%s", TEMPLATES_PATH, folder.c_str());
 
       // Read model template
-      loadModelTemplate((name + YAML_EXT).c_str(), path);
+      LayoutFactory::deleteCustomScreens(true);
+      loadModel((name + YAML_EXT).c_str(), false, path);
       storageFlushCurrentModel();
       storageCheck(true);
 
@@ -638,6 +643,9 @@ void ModelLabelsWindow::newModel()
       }
 #endif
     }
+
+    // Main view layout
+    LayoutFactory::loadCustomScreens();
   });
 }
 

@@ -73,9 +73,6 @@ void preModelLoad()
   }
 
   stopTrainer();
-#if defined(COLORLCD)
-  LayoutFactory::deleteCustomScreens(true);
-#endif
 
   if (needDelay) {
     sleep_ms(200);
@@ -305,10 +302,7 @@ if(g_model.rssiSource) {
 
   referenceModelAudioFiles();
 
-#if defined(COLORLCD)
-  LayoutFactory::loadCustomScreens();
-  ViewMain::instance()->show(true);
-#else
+#if !defined(COLORLCD)
   LOAD_MODEL_BITMAP();
 #endif
 
