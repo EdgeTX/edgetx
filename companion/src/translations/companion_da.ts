@@ -2168,7 +2168,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="90"/>
         <source>Vario</source>
-        <translation>Variometer</translation>
+        <translation>Højdemåler</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="92"/>
@@ -5625,7 +5625,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="949"/>
         <source>Vario pitch at zero</source>
-        <translation>Variometer tone ved nulpunkt</translation>
+        <translation>Højdemåler lyd ved nulpunkt</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1692"/>
@@ -5787,7 +5787,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1212"/>
         <source>Vario pitch at max</source>
-        <translation>Variometer tone ved max højde</translation>
+        <translation>Højdemåler lyd ved max højde</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1083"/>
@@ -5813,7 +5813,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="620"/>
         <source>Vario repeat at zero</source>
-        <translation>Gentagende variometer tone ved nul</translation>
+        <translation>Gentagende højdemåler lyd ved nul</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="536"/>
@@ -6045,7 +6045,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="907"/>
         <source>Vario volume</source>
-        <translation>Lydstyrke variometer</translation>
+        <translation>Lydstyrke højdemåler</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="613"/>
@@ -11382,12 +11382,12 @@ p, li { white-space: pre-wrap; }
         <location filename="../print/multimodelprinter.cpp" line="799"/>
         <location filename="../print/multimodelprinter.cpp" line="802"/>
         <source>Vario source</source>
-        <translation>Variometer kilde</translation>
+        <translation>Højde kilde</translation>
     </message>
     <message>
         <location filename="../print/multimodelprinter.cpp" line="807"/>
         <source>Vario limits &gt;</source>
-        <translation>Variometer grænser &gt;</translation>
+        <translation>Højde grænser &gt;</translation>
     </message>
     <message>
         <location filename="../print/multimodelprinter.cpp" line="809"/>
@@ -14496,12 +14496,12 @@ For mange fejl - afbryder.</translation>
     <message>
         <location filename="../modeledit/telemetry.ui" line="545"/>
         <source>Vario source</source>
-        <translation>Variometer kilde</translation>
+        <translation>Højde kilde</translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="532"/>
         <source>Vario limits</source>
-        <translation>Variometer grænser</translation>
+        <translation>Højde grænser</translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="53"/>
