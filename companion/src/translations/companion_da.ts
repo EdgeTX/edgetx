@@ -2584,12 +2584,12 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="773"/>
         <source>Clear Function. Are you sure?</source>
-        <translation>Nulstil specialfunktion. Er du sikker?</translation>
+        <translation>Nulstil special funktion. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="784"/>
         <source>Clear all Functions. Are you sure?</source>
-        <translation>Nulstil alle specialfunktioner. Er du sikker?</translation>
+        <translation>Nulstil alle special funktioner. Er du sikker?</translation>
     </message>
 </context>
 <context>
@@ -5053,7 +5053,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="97"/>
         <source>Special Functions</source>
-        <translation>Specialfunktioner</translation>
+        <translation>Special funktioner</translation>
     </message>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="103"/>
@@ -5347,7 +5347,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1003"/>
         <source>Model Setup - Special Functions</source>
-        <translation>Model - Specialfunktioner</translation>
+        <translation>Model - Special funktioner</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1005"/>
@@ -6459,7 +6459,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../modeledit/gvars.cpp" line="158"/>
         <source>WARNING: changing ranges or precision can affect configured Logical Switches and Special Functions</source>
-        <translation>Adwarsel: ændring af interval eller præsision kan påvirke Logiske funktioner og Specialfunktioner</translation>
+        <translation>Adwarsel: ændring af interval eller præsision kan påvirke Logiske funktioner og Special funktioner</translation>
     </message>
     <message>
         <location filename="../modeledit/gvars.cpp" line="174"/>
@@ -9651,7 +9651,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/modeledit.cpp" line="112"/>
         <source>Special Functions</source>
-        <translation>Specialfunktioner</translation>
+        <translation>Special funktioner</translation>
     </message>
     <message>
         <location filename="../modeledit/modeledit.cpp" line="116"/>
@@ -9770,7 +9770,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/modeloptions.cpp" line="115"/>
         <source>Special Functions</source>
-        <translation>Specialfunktioner</translation>
+        <translation>Special funktioner</translation>
     </message>
     <message>
         <location filename="../modeledit/modeloptions.cpp" line="122"/>
@@ -9927,22 +9927,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../print/modelprinter.cpp" line="143"/>
         <source>Enable</source>
-        <translation>Aktiver</translation>
+        <translation>Aktiv</translation>
     </message>
     <message>
         <location filename="../print/modelprinter.cpp" line="143"/>
         <source>Disable</source>
-        <translation>Deaktiver</translation>
+        <translation>Deaktiv</translation>
     </message>
     <message>
         <location filename="../print/modelprinter.cpp" line="145"/>
         <source>True</source>
-        <translation>Sandt</translation>
+        <translation>Sand</translation>
     </message>
     <message>
         <location filename="../print/modelprinter.cpp" line="145"/>
         <source>False</source>
-        <translation>Falskt</translation>
+        <translation>Falsk</translation>
     </message>
     <message>
         <location filename="../print/modelprinter.cpp" line="147"/>
@@ -11173,7 +11173,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../print/multimodelprinter.cpp" line="763"/>
         <source>Special Functions</source>
-        <translation>Specialfunktioner</translation>
+        <translation>Special funktioner</translation>
     </message>
     <message>
         <location filename="../print/multimodelprinter.cpp" line="483"/>
