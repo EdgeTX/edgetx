@@ -1134,6 +1134,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "第1チャンネル"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "背景を塗り潰しますか？"
 #define TR_BG_COLOR                  "背景カラー"
 #define TR_SLIDERS_TRIMS             "スライダー＋トリム"

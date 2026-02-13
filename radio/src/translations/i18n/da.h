@@ -1140,6 +1140,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "Første kanal"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Udfyld baggrund?"
 #define TR_BG_COLOR                  "BG farve"
 #define TR_SLIDERS_TRIMS             "Skyder+Trim"

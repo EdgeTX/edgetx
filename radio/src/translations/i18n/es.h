@@ -1136,6 +1136,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "Primer canal"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Rellenar fondo"
 #define TR_BG_COLOR                  "Color BG"
 #define TR_SLIDERS_TRIMS             "Sliders+Trims"

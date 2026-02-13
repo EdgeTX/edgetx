@@ -182,11 +182,11 @@ class OutputsWidget : public Widget
   {
     auto widgetData = getPersistentData();
 
-    // get background color from options[2]
-    etx_bg_color_from_flags(lvobj, widgetData->options[2].value.unsignedValue);
+    // get background color from options[3]
+    etx_bg_color_from_flags(lvobj, widgetData->options[3].value.unsignedValue);
 
-    // Set background opacity from options[1]
-    if (widgetData->options[1].value.boolValue)
+    // Set background opacity from options[2]
+    if (widgetData->options[2].value.boolValue)
       lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
@@ -197,14 +197,16 @@ class OutputsWidget : public Widget
     bool changed = false;
 
     // Colors
-    LcdFlags f = widgetData->options[3].value.unsignedValue;
+    LcdFlags f = widgetData->options[4].value.unsignedValue;
     if (f != txtColor) { txtColor = f; changed = true; }
-    f = widgetData->options[4].value.unsignedValue;
+    f = widgetData->options[5].value.unsignedValue;
     if (f != barColor) { barColor = f; changed = true; }
 
     // Setup channels
     uint8_t chan = widgetData->options[0].value.unsignedValue;
-    if (chan != firstChan) { firstChan= chan; changed = true; }
+    if (chan != firstChan) { firstChan = chan; changed = true; }
+    chan = widgetData->options[1].value.unsignedValue;
+    if (chan != lastChan) { lastChan = chan; changed = true; }
 
     // Get size
     if (width() != lastWidth) { lastWidth = width(); changed = true; }
@@ -218,8 +220,8 @@ class OutputsWidget : public Widget
       clear();
       coord_t colWidth = lastWidth / cols;
       uint8_t chan = firstChan;
-      for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
-        for (uint8_t r = 0; r < rows && chan <= MAX_OUTPUT_CHANNELS;
+      for (uint8_t c = 0; c < cols && chan <= lastChan; c += 1) {
+        for (uint8_t r = 0; r < rows && chan <= lastChan;
              r += 1, chan += 1) {
           new ChannelValue(this, c, r, colWidth, chan - 1, txtColor, barColor);
         }
@@ -238,6 +240,7 @@ class OutputsWidget : public Widget
   coord_t lastWidth = -1;
   coord_t lastHeight = -1;
   uint8_t firstChan = 255;
+  uint8_t lastChan = 255;
   uint8_t cols = 0;
   uint8_t rows = 0;
   LcdFlags txtColor = 0;
@@ -250,7 +253,8 @@ class OutputsWidget : public Widget
 };
 
 const WidgetOption OutputsWidget::options[] = {
-    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {32}},
+    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {MAX_OUTPUT_CHANNELS}},
+    {STR_LAST_CHANNEL, WidgetOption::Integer, {MAX_OUTPUT_CHANNELS}, {1}, {MAX_OUTPUT_CHANNELS}},
     {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
     {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
     {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
