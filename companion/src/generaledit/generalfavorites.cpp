@@ -23,6 +23,7 @@
 #include "autocombobox.h"
 #include "compounditemmodels.h"
 #include "exclusivecombogroup.h"
+#include "helpers.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -32,22 +33,75 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
   board(firmware->getBoard()),
   params(new QList<QWidget *>),
   row(0),
-  col(0)
+  col(0),
+  cboFavTools(new QList<AutoComboBox *>),
+  strFavTools(new QList<QString *>)
 {
   grid = new QGridLayout(this);
   // All values except QM_NONE are mutually exclusive
   cboQMGrp = new ExclusiveComboGroup(this,
-                  [=](const QVariant &value) { return value == GeneralSettings::QM_NONE; });
+                  [=](const QVariant &value) { return value == GeneralSettings::QM_NONE ||
+                                                      value == GeneralSettings::QM_APP; });
   const int cnt = firmware->getCapability(QMFavourites);
+
+  // add lua tool scripts from radio profile sdcard
+  QStringList toolsSet = getListLuaTools();
+  QStandardItemModel *mdl = new QStandardItemModel(this);
+
+  for (int i = 0; i < toolsSet.size(); i++) {
+    QStandardItem *item = new QStandardItem(toolsSet[i]);
+    mdl->appendRow(item);
+  }
+
+  // Ensure existing configured tool is included in toolsSet as the radio profile
+  // sdcard contents may not match radio
+  for (int i = 0; i < cnt; i++) {
+    if (generalSettings.qmFavorites[i] == GeneralSettings::QM_APP) {
+      QString temp(generalSettings.qmFavoritesTools[i]);
+      if (!temp.isEmpty() && mdl->findItems(temp).size() < 1) {
+        QStandardItem *item = new QStandardItem(temp);
+        mdl->appendRow(item);
+      }
+    }
+  }
+
+  QSortFilterProxyModel *mdlTools = new QSortFilterProxyModel(this);
+  mdlTools->setSourceModel(mdl);
+  mdlTools->setSortCaseSensitivity(Qt::CaseInsensitive);
+  mdlTools->setFilterKeyColumn(0);
+  mdlTools->sort(0);
 
   for (int i = 0; i < cnt; i++) {
     addLabel(tr("# %1").arg(i + 1));
-    AutoComboBox *cbo = new AutoComboBox(this);
+    AutoComboBox *cboFav = new AutoComboBox(this);
+    cboFav->setProperty("index", i);
     // separate item model per combo box due to mutual exclusivity
-    cbo->setModel(generalSettings.quickMenuItemModel(false));
-    cbo->setField(generalSettings.qmFavorites[i], this);
-    cboQMGrp->addCombo(cbo);
-    params->append(cbo);
+    cboFav->setModel(generalSettings.quickMenuItemModel(false));
+    cboFav->setField(generalSettings.qmFavorites[i], this);
+    connect(cboFav, &AutoComboBox::currentDataChanged, this, &GeneralFavsPanel::on_favChanged);
+    cboQMGrp->addCombo(cboFav);
+    params->append(cboFav);
+
+    AutoComboBox *cboFavTool = new AutoComboBox(this);
+    cboFavTool->setProperty("index", i);
+    cboFavTool->setModel(mdlTools);
+    // AutoComboBox does not support char * so use a proxy
+    QString *str = new QString(generalSettings.qmFavoritesTools[i]);
+    strFavTools->append(str);
+    cboFavTool->setField(*str, this);
+
+    if (generalSettings.qmFavorites[i] == GeneralSettings::QM_APP) {
+      if (cboFavTool->currentIndex() < 0)
+        cboFavTool->setCurrentIndex(0);
+      cboFavTool->setVisible(true);
+    } else {
+      cboFavTool->setCurrentIndex(0);
+      cboFavTool->setVisible(false);
+    }
+
+    connect(cboFavTool, &AutoComboBox::currentDataChanged, this, &GeneralFavsPanel::on_favToolChanged);
+    cboFavTools->append(cboFavTool);
+    params->append(cboFavTool);
     addParams();
   }
 
@@ -120,5 +174,30 @@ void GeneralFavsPanel::initComboQMGroup()
   for (int i = 0; i < cboQMGrp->getComboBoxes()->size(); i++) {
     QComboBox *cbo = cboQMGrp->getComboBoxes()->at(i);
     cboQMGrp->handleActivated(cbo, cbo->currentIndex());
+  }
+}
+
+void GeneralFavsPanel::on_favChanged()
+{
+  const int idx = sender()->property("index").toInt();
+  cboFavTools->at(idx)->setCurrentIndex(0);
+  cboFavTools->at(idx)->setVisible(generalSettings.qmFavorites[idx] == GeneralSettings::QM_APP);
+}
+
+void GeneralFavsPanel::on_favToolChanged()
+{
+  const int idx = sender()->property("index").toInt();
+
+  if (generalSettings.qmFavoritesTools[idx])
+    delete generalSettings.qmFavoritesTools[idx];
+
+  if (generalSettings.qmFavorites[idx] == GeneralSettings::QM_APP) {
+    // obtain current value from proxy
+    std::string str = strFavTools->at(idx)->toStdString();
+    generalSettings.qmFavoritesTools[idx] = new char[str.size() + 1];
+    strncpy(generalSettings.qmFavoritesTools[idx], str.c_str(), str.size());
+    generalSettings.qmFavoritesTools[idx][str.size()] = 0;
+  } else {
+    generalSettings.qmFavoritesTools[idx] = nullptr;
   }
 }

@@ -20,9 +20,9 @@
  */
 
 #include "generalkeyshortcuts.h"
-#include "autocombobox.h"
 #include "compounditemmodels.h"
 #include "exclusivecombogroup.h"
+#include "helpers.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -32,32 +32,86 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
   board(firmware->getBoard()),
   params(new QList<QWidget *>),
   row(0),
-  col(0)
+  col(0),
+  cboShortcutTools(new QList<AutoComboBox *>),
+  strKeyShortcutTools(new QList<QString *>)
 {
   grid = new QGridLayout(this);
-  // All values except QM_NONE are mutually exclusive
+  // All values except QM_NONE and QM_APP are mutually exclusive
   cboQMGrp = new ExclusiveComboGroup(this,
-                  [=](const QVariant &value) { return value == GeneralSettings::QM_NONE; });
+                  [=](const QVariant &value) { return value == GeneralSettings::QM_NONE ||
+                                                      value == GeneralSettings::QM_APP; });
   const int cnt = firmware->getCapability(KeyShortcuts);
+
+  // add lua tool scripts from radio profile sdcard
+  QStringList toolsSet = getListLuaTools();
+  QStandardItemModel *mdl = new QStandardItemModel(this);
+
+  for (int i = 0; i < toolsSet.size(); i++) {
+    QStandardItem *item = new QStandardItem(toolsSet[i]);
+    mdl->appendRow(item);
+  }
+
+  // Ensure existing configured tool is included in toolsSet as the radio profile
+  // sdcard contents may not match radio
+  for (int i = 0; i < cnt; i++) {
+    if (generalSettings.qmFavorites[i] == GeneralSettings::QM_APP) {
+      QString temp(generalSettings.qmFavoritesTools[i]);
+      if (!temp.isEmpty() && mdl->findItems(temp).size() < 1) {
+        QStandardItem *item = new QStandardItem(temp);
+        mdl->appendRow(item);
+      }
+    }
+  }
+
+  QSortFilterProxyModel *mdlTools = new QSortFilterProxyModel(this);
+  mdlTools->setSourceModel(mdl);
+  mdlTools->setSortCaseSensitivity(Qt::CaseInsensitive);
+  mdlTools->setFilterKeyColumn(0);
+  mdlTools->sort(0);
 
   const int split = 2;
 
   for (int i = 0; i < split; i++) {
     if (i == 0) {
-    addSection(tr("Short Press"));
+      addSection(tr("Short Press"));
     } else {
       addLine();
       addSection(tr("Long Press"));
     }
 
     for (int j = 0; j < (cnt / split); j++) {
+      const int idx = (i * (split + 1)) + j;
       addLabel(j == 0 ? tr("MDL") : (j == 1 ? tr("SYS") : tr("TELE")));
-      AutoComboBox *cbo = new AutoComboBox(this);
+      AutoComboBox *cboShortcut = new AutoComboBox(this);
+      cboShortcut->setProperty("index", idx);
       // separate item model per combo box due to mutual exclusivity
-      cbo->setModel(generalSettings.quickMenuItemModel(true));
-      cbo->setField(generalSettings.keyShortcuts[(i * (split + 1)) + j], this);
-      cboQMGrp->addCombo(cbo);
-      params->append(cbo);
+      cboShortcut->setModel(generalSettings.quickMenuItemModel(true));
+      cboShortcut->setField(generalSettings.keyShortcuts[idx], this);
+      connect(cboShortcut, &AutoComboBox::currentDataChanged, this, &GeneralKeysPanel::on_shortcutChanged);
+      cboQMGrp->addCombo(cboShortcut);
+      params->append(cboShortcut);
+
+      AutoComboBox *cboShortcutTool = new AutoComboBox(this);
+      cboShortcutTool->setProperty("index", idx);
+      cboShortcutTool->setModel(mdlTools);
+      // AutoComboBox does not support char * so use a proxy
+      QString *str = new QString(generalSettings.keyShortcutTools[idx]);
+      strKeyShortcutTools->append(str);
+      cboShortcutTool->setField(*str, this);
+
+      if (generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP) {
+        if (cboShortcutTool->currentIndex() < 0)
+          cboShortcutTool->setCurrentIndex(0);
+        cboShortcutTool->setVisible(true);
+      } else {
+        cboShortcutTool->setCurrentIndex(0);
+        cboShortcutTool->setVisible(false);
+      }
+
+      connect(cboShortcutTool, &AutoComboBox::currentDataChanged, this, &GeneralKeysPanel::on_shortcutToolChanged);
+      cboShortcutTools->append(cboShortcutTool);
+      params->append(cboShortcutTool);
       addParams();
     }
   }
@@ -130,5 +184,30 @@ void GeneralKeysPanel::initComboQMGroup()
   for (int i = 0; i < cboQMGrp->getComboBoxes()->size(); i++) {
     QComboBox *cbo = cboQMGrp->getComboBoxes()->at(i);
     cboQMGrp->handleActivated(cbo, cbo->currentIndex());
+  }
+}
+
+void GeneralKeysPanel::on_shortcutChanged()
+{
+  const int idx = sender()->property("index").toInt();
+  cboShortcutTools->at(idx)->setCurrentIndex(0);
+  cboShortcutTools->at(idx)->setVisible(generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP);
+}
+
+void GeneralKeysPanel::on_shortcutToolChanged()
+{
+  const int idx = sender()->property("index").toInt();
+
+  if (generalSettings.keyShortcutTools[idx])
+    delete generalSettings.keyShortcutTools[idx];
+
+  if (generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP) {
+    // obtain current value from proxy
+    std::string str = strKeyShortcutTools->at(idx)->toStdString();
+    generalSettings.keyShortcutTools[idx] = new char[str.size() + 1];
+    strncpy(generalSettings.keyShortcutTools[idx], str.c_str(), str.size());
+    generalSettings.keyShortcutTools[idx][str.size()] = 0;
+  } else {
+    generalSettings.keyShortcutTools[idx] = nullptr;
   }
 }
