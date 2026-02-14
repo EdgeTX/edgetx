@@ -557,18 +557,24 @@ QStringList getListLuaTools()
       QFileInfo fi(path);
       bool inFolder = fi.isDir();
 
+      QString toolname;
+
       if (inFolder) {
         // check if .lua with same name exists - skip folder to avoid duplicate entries
         if (QFileInfo::exists(path % ".lua"))
           continue;
+        // Default name is folder name
+        toolname = QDir(path).dirName();
         // must have main.lua
         path.append("/main.lua");
         if (!QFileInfo::exists(path))
           continue;
+      } else {
+        // Default name is file name
+        toolname = QFileInfo(path).completeBaseName();
       }
 
-      QString toolname = QFileInfo(path).completeBaseName();
-      // look for tool name in lua file to override file name
+      // look for tool name in lua file to override default name
       QFile file(path);
 
       if (file.open(QFile::ReadOnly)) {
