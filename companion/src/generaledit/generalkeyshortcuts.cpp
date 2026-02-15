@@ -33,6 +33,8 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
   params(new QList<QWidget *>),
   row(0),
   col(0),
+  lock(true),
+  cboShortcuts(new QList<AutoComboBox *>),
   cboShortcutTools(new QList<AutoComboBox *>),
   strKeyShortcutTools(new QList<QString *>)
 {
@@ -89,6 +91,7 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
       cboShortcut->setModel(generalSettings.quickMenuItemModel(true));
       cboShortcut->setField(generalSettings.keyShortcuts[idx], this);
       connect(cboShortcut, &AutoComboBox::currentDataChanged, this, &GeneralKeysPanel::on_shortcutChanged);
+      cboShortcuts->append(cboShortcut);
       cboQMGrp->addCombo(cboShortcut);
       params->append(cboShortcut);
 
@@ -99,16 +102,6 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
       QString *str = new QString(generalSettings.keyShortcutTools[idx]);
       strKeyShortcutTools->append(str);
       cboShortcutTool->setField(*str, this);
-
-      if (generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP) {
-        if (cboShortcutTool->currentIndex() < 0)
-          cboShortcutTool->setCurrentIndex(0);
-        cboShortcutTool->setVisible(true);
-      } else {
-        cboShortcutTool->setCurrentIndex(0);
-        cboShortcutTool->setVisible(false);
-      }
-
       connect(cboShortcutTool, &AutoComboBox::currentDataChanged, this, &GeneralKeysPanel::on_shortcutToolChanged);
       cboShortcutTools->append(cboShortcutTool);
       params->append(cboShortcutTool);
@@ -122,23 +115,26 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
   connect(reset, &QPushButton::clicked, [&] ()
   {
     generalSettings.setDefaultKeyShortcuts();
-
-    foreach(AutoComboBox *cb, findChildren<AutoComboBox*>())
-      cb->updateValue();
-
+    update();
     initComboQMGroup();
   });
   params->append(reset);
   addParams();
 
+  update();
   initComboQMGroup();
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
+  lock = false;
 }
 
 GeneralKeysPanel::~GeneralKeysPanel()
 {
+  if (strKeyShortcutTools) delete strKeyShortcutTools;
+  if (cboShortcutTools)    delete cboShortcutTools;
+  if (cboShortcuts)        delete cboShortcuts;
+  if (params)              delete params;
 }
 
 void GeneralKeysPanel::addLabel(QString text)
@@ -189,25 +185,59 @@ void GeneralKeysPanel::initComboQMGroup()
 
 void GeneralKeysPanel::on_shortcutChanged()
 {
-  const int idx = sender()->property("index").toInt();
-  cboShortcutTools->at(idx)->setCurrentIndex(0);
-  cboShortcutTools->at(idx)->setVisible(generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP);
+  if (!lock) {
+    const int idx = sender()->property("index").toInt();
+    if (generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP)
+      cboShortcutTools->at(idx)->setCurrentIndex(0);
+    setToolName(idx);
+    updateRow(idx);
+  }
 }
 
 void GeneralKeysPanel::on_shortcutToolChanged()
 {
-  const int idx = sender()->property("index").toInt();
-
-  if (generalSettings.keyShortcutTools[idx])
-    delete generalSettings.keyShortcutTools[idx];
-
-  if (generalSettings.keyShortcuts[idx] == GeneralSettings::QM_APP) {
-    // obtain current value from proxy
-    std::string str = strKeyShortcutTools->at(idx)->toStdString();
-    generalSettings.keyShortcutTools[idx] = new char[str.size() + 1];
-    strncpy(generalSettings.keyShortcutTools[idx], str.c_str(), str.size());
-    generalSettings.keyShortcutTools[idx][str.size()] = 0;
-  } else {
-    generalSettings.keyShortcutTools[idx] = nullptr;
+  if (!lock) {
+    bool ok;
+    const int index = sender()->property("index").toInt(&ok);
+    if (ok) setToolName(index);
   }
+}
+
+void GeneralKeysPanel::setToolName(int index)
+{
+  if (generalSettings.keyShortcutTools[index])
+    delete generalSettings.keyShortcutTools[index];
+
+  if (generalSettings.keyShortcuts[index] == GeneralSettings::QM_APP) {
+    // obtain current value from proxy
+    std::string str = strKeyShortcutTools->at(index)->toStdString();
+    generalSettings.keyShortcutTools[index] = new char[str.size() + 1];
+    strncpy(generalSettings.keyShortcutTools[index], str.c_str(), str.size());
+    generalSettings.keyShortcutTools[index][str.size()] = 0;
+  } else {
+    generalSettings.keyShortcutTools[index] = nullptr;
+  }
+}
+
+void GeneralKeysPanel::update()
+{
+  const int cnt = cboShortcuts->count();
+  for (int i = 0; i < cnt; i++)
+    updateRow(i);
+
+}
+
+void GeneralKeysPanel::updateRow(const int index)
+{
+  lock = true;
+  cboShortcuts->at(index)->updateValue();
+
+  if (generalSettings.keyShortcuts[index] == GeneralSettings::QM_APP) {
+    cboShortcutTools->at(index)->updateValue();
+    cboShortcutTools->at(index)->setVisible(true);
+  } else {
+    cboShortcutTools->at(index)->setVisible(false);
+  }
+
+  lock = false;
 }

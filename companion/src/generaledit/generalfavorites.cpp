@@ -34,6 +34,7 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
   params(new QList<QWidget *>),
   row(0),
   col(0),
+  lock(true),
   cboFavTools(new QList<AutoComboBox *>),
   strFavTools(new QList<QString *>)
 {
@@ -120,6 +121,7 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
   params->append(reset);
   addParams();
 
+  lock = false;
   initComboQMGroup();
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
@@ -128,7 +130,9 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
 
 GeneralFavsPanel::~GeneralFavsPanel()
 {
-
+  if (strFavTools) delete strFavTools;
+  if (cboFavTools) delete cboFavTools;
+  if (params)      delete params;
 }
 
 void GeneralFavsPanel::addLabel(QString text)
@@ -179,25 +183,39 @@ void GeneralFavsPanel::initComboQMGroup()
 
 void GeneralFavsPanel::on_favChanged()
 {
-  const int idx = sender()->property("index").toInt();
-  cboFavTools->at(idx)->setCurrentIndex(0);
-  cboFavTools->at(idx)->setVisible(generalSettings.qmFavorites[idx] == GeneralSettings::QM_APP);
+  if (!lock) {
+    const int idx = sender()->property("index").toInt();
+    const int i = cboFavTools->at(idx)->currentIndex();
+    cboFavTools->at(idx)->setCurrentIndex(0);
+
+    if (i == cboFavTools->at(idx)->currentIndex())
+      setToolName(idx); // force update
+
+    cboFavTools->at(idx)->setVisible(generalSettings.qmFavorites[idx] == GeneralSettings::QM_APP);
+  }
 }
 
 void GeneralFavsPanel::on_favToolChanged()
 {
-  const int idx = sender()->property("index").toInt();
+  if (!lock) {
+    bool ok;
+    const int index = sender()->property("index").toInt(&ok);
+    if (ok) setToolName(index);
+  }
+}
 
-  if (generalSettings.qmFavoritesTools[idx])
-    delete generalSettings.qmFavoritesTools[idx];
+void GeneralFavsPanel::setToolName(int index)
+{
+  if (generalSettings.qmFavoritesTools[index])
+    delete generalSettings.qmFavoritesTools[index];
 
-  if (generalSettings.qmFavorites[idx] == GeneralSettings::QM_APP) {
+  if (generalSettings.qmFavorites[index] == GeneralSettings::QM_APP) {
     // obtain current value from proxy
-    std::string str = strFavTools->at(idx)->toStdString();
-    generalSettings.qmFavoritesTools[idx] = new char[str.size() + 1];
-    strncpy(generalSettings.qmFavoritesTools[idx], str.c_str(), str.size());
-    generalSettings.qmFavoritesTools[idx][str.size()] = 0;
+    std::string str = strFavTools->at(index)->toStdString();
+    generalSettings.qmFavoritesTools[index] = new char[str.size() + 1];
+    strncpy(generalSettings.qmFavoritesTools[index], str.c_str(), str.size());
+    generalSettings.qmFavoritesTools[index][str.size()] = 0;
   } else {
-    generalSettings.qmFavoritesTools[idx] = nullptr;
+    generalSettings.qmFavoritesTools[index] = nullptr;
   }
 }

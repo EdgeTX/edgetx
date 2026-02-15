@@ -45,7 +45,9 @@ class GeneralKeysPanel : public GeneralPanel
     QList<QWidget *> *params;
     int row;
     int col;
+    bool lock;
     ExclusiveComboGroup *cboQMGrp;
+    QList<AutoComboBox *> *cboShortcuts;
     QList<AutoComboBox *> *cboShortcutTools;
     QList<QString *> *strKeyShortcutTools;
 
@@ -54,4 +56,7 @@ class GeneralKeysPanel : public GeneralPanel
     void addParams();
     void addSection(QString text);
     void initComboQMGroup();
+    void setToolName(int index);
+    void update();
+    void updateRow(const int index);
 };

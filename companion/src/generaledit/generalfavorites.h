@@ -45,6 +45,7 @@ class GeneralFavsPanel : public GeneralPanel
     QList<QWidget *> *params;
     int row;
     int col;
+    bool lock;
     ExclusiveComboGroup *cboQMGrp;
     QList<AutoComboBox *> *cboFavTools;
     QList<QString *> *strFavTools;
@@ -54,4 +55,5 @@ class GeneralFavsPanel : public GeneralPanel
     void addParams();
     void addSection(QString text);
     void initComboQMGroup();
+    void setToolName(int index);
 };

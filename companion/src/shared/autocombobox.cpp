@@ -196,7 +196,7 @@ void AutoComboBox::updateValue()
 
 void AutoComboBox::onCurrentIndexChanged(int index)
 {
-  if (lock() || index < 0)
+  if (lock() || index < 0 || index >= count())
     return;
 
   bool ok;
