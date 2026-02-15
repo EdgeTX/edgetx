@@ -130,9 +130,25 @@ GeneralFavsPanel::GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSe
 
 GeneralFavsPanel::~GeneralFavsPanel()
 {
-  if (strFavTools) delete strFavTools;
-  if (cboFavTools) delete cboFavTools;
-  if (params)      delete params;
+  if (cboFavTools) {
+    delete cboFavTools; // dialog destructor will delete members
+  }
+
+  if (strFavTools) {
+    for (auto it = strFavTools->begin(); it != strFavTools->end(); ++it) {
+      delete *it;
+    }
+
+    delete strFavTools;
+  }
+
+  if (params) {
+    for (auto it = params->begin(); it != params->end(); ++it) {
+      delete *it;
+    }
+
+    delete params;
+  }
 }
 
 void GeneralFavsPanel::addLabel(QString text)

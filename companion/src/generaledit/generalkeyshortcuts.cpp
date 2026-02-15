@@ -131,10 +131,29 @@ GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSe
 
 GeneralKeysPanel::~GeneralKeysPanel()
 {
-  if (strKeyShortcutTools) delete strKeyShortcutTools;
-  if (cboShortcutTools)    delete cboShortcutTools;
-  if (cboShortcuts)        delete cboShortcuts;
-  if (params)              delete params;
+  if (cboShortcutTools) {
+    delete cboShortcutTools;  // dialog destructor will delete members
+  }
+
+  if (cboShortcuts) {
+    delete cboShortcuts;  // dialog destructor will delete members
+  }
+
+  if (strKeyShortcutTools) {
+    for (auto it = strKeyShortcutTools->begin(); it != strKeyShortcutTools->end(); ++it) {
+      delete *it;
+    }
+
+    delete strKeyShortcutTools;
+  }
+
+  if (params) {
+    for (auto it = params->begin(); it != params->end(); ++it) {
+      delete *it;
+    }
+
+    delete params;
+  }
 }
 
 void GeneralKeysPanel::addLabel(QString text)
