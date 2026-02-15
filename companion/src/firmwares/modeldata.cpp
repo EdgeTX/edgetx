@@ -545,7 +545,7 @@ bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const 
   if (fs == Board::SWITCH_GLOBAL)
     return gs->switchConfig[swIndex].type != Board::SWITCH_NOT_AVAILABLE;
 
-  return true;
+  return fs != Board::SWITCH_NOT_AVAILABLE;
 }
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const
