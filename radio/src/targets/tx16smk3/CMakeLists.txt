@@ -8,6 +8,7 @@ option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(INTERNAL_GPS "Support for internal GPS" ON)
+option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -71,8 +72,11 @@ set(SOFTWARE_KEYBOARD ON)
 set(FUNCTION_SWITCHES ON)
 set(USB_CHARGER YES)
 set(AUX_SERIAL YES)
-set(AUX2_SERIAL YES)
-
+if(KCX_BTAUDIO)
+  set(AUX2_SERIAL NO)
+else()
+  set(AUX2_SERIAL YES)
+endif()
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
@@ -206,6 +210,13 @@ if (MULTIMODULE)
   set(SRC ${SRC}
     io/multi_protolist.cpp
     )
+endif()
+
+if(KCX_BTAUDIO)
+  set(SRC ${SRC}
+    drivers/kcx_btaudio.cpp
+  )
+  add_definitions(-DKCX_BTAUDIO)
 endif()
 
 # Make malloc() thread-safe

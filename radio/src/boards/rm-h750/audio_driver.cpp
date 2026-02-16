@@ -163,7 +163,7 @@ static void audio_update_dma_buffer(uint8_t tc)
 bool audioHeadphoneDetect()
 {
 #if defined(KCX_BTAUDIO)
-  return gpio_read(AUDIO_HP_DETECT_PIN) || gpio_read(BTAUDIO_LINKED_GPIO);
+  return gpio_read(AUDIO_HP_DETECT_PIN) || btAudioLinked();
 #else
   return gpio_read(AUDIO_HP_DETECT_PIN);
 #endif

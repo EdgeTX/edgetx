@@ -26,6 +26,10 @@
 
 void btAudioInit()
 {
+#if defined(BTAUDIO_POWER_GPIO)
+  gpio_init(BTAUDIO_POWER_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(BTAUDIO_POWER_GPIO);
+#endif
   gpio_init(BTAUDIO_LINKED_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
   gpio_init(BTAUDIO_CONNECT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_set(BTAUDIO_CONNECT_GPIO);
@@ -33,7 +37,7 @@ void btAudioInit()
 
 bool btAudioLinked()
 {
-  return gpio_read(BTAUDIO_LINKED_GPIO);
+  return gpio_read(BTAUDIO_LINKED_GPIO) != 0;
 }
 
 void btAudioConnect()
