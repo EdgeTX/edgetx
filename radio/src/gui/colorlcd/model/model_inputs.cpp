@@ -28,6 +28,7 @@
 #include "hal/adc_driver.h"
 #include "input_edit.h"
 #include "menu.h"
+#include "messaging.h"
 #include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -106,6 +107,8 @@ class InputLineButton : public InputMixButtonBase
     InputMixButtonBase(parent, index)
   {
     check(isActive());
+
+    refreshMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) { refresh(); });
   }
 
   void refresh() override
@@ -180,6 +183,8 @@ class InputLineButton : public InputMixButtonBase
   }
 
  protected:
+  Messaging refreshMsg;
+
   bool isActive() const override { return isExpoActive(index); }
 };
 
@@ -327,7 +332,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 
   auto edit = new InputEditWindow(input, index);
   edit->setCloseHandler([=]() {
-    line->refresh();
+    Messaging::send(Messaging::REFRESH);
     group->refresh();
     group->adjustHeight();
   });
