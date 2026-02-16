@@ -2745,7 +2745,7 @@ static const struct YamlNode struct_cfsGroupOn[] {
   YAML_END,
 };
 
-#if NUM_FUNCTIION_SWITCHES > 6
+#if NUM_FUNCTIONS_SWITCHES > 6
 #define NUM_CFS_FOR_CONVERSION  6
 #else
 #define NUM_CFS_FOR_CONVERSION  NUM_FUNCTIONS_SWITCHES
