@@ -1186,6 +1186,7 @@
 
   // Horus layouts and widgets
 #define TR_FIRST_CHANNEL                "첫 번째 채널"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND              "배경 채우기?"
 #define TR_BG_COLOR                     "배경 색상"
 #define TR_SLIDERS_TRIMS                "슬라이더 + 트림"

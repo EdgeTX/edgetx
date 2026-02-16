@@ -1133,6 +1133,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "起始通道"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "是否填充背景?"
 #define TR_BG_COLOR                  "背景顏色"
 #define TR_SLIDERS_TRIMS             "滑塊和微調"

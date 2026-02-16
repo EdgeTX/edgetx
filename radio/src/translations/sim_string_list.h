@@ -76,6 +76,7 @@
 #define STR_FILE_SIZE currentLangStrings->STR_FILE_SIZE
 #define STR_FILL_BACKGROUND currentLangStrings->STR_FILL_BACKGROUND
 #define STR_FIRST_CHANNEL currentLangStrings->STR_FIRST_CHANNEL
+#define STR_LAST_CHANNEL currentLangStrings->STR_LAST_CHANNEL
 #define STR_FIXED currentLangStrings->STR_FIXED
 #define STR_FLASH_DEVICE currentLangStrings->STR_FLASH_DEVICE
 #define STR_FLIGHT_MODE currentLangStrings->STR_FLIGHT_MODE

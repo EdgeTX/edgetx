@@ -1138,6 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "ערוץ ראשון"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "מילוי רקע?"
 #define TR_BG_COLOR                  "BG צבעי"
 #define TR_SLIDERS_TRIMS             "Sliders+Trims"

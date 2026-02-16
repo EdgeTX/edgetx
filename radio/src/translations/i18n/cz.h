@@ -1138,6 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "První kanál"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Vyplnit pozadí?"
 #define TR_BG_COLOR                  "Barva pozadí"
 #define TR_SLIDERS_TRIMS             "Slidery+Trimy"
