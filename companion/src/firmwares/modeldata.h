@@ -67,8 +67,8 @@ class RSSIAlarmData {
 class ScriptData {
   public:
     ScriptData() { clear(); }
-    char    filename[10+1];
-    char    name[10+1];
+    char    filename[CPN_LEN_SCRIPT_FILENAME+1];
+    char    name[CPN_LEN_SCRIPT_NAME+1];
     int     inputs[CPN_MAX_SCRIPT_INPUTS];
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ScriptData)); }
 };
