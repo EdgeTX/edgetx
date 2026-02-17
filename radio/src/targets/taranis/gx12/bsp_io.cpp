@@ -24,7 +24,6 @@
 #include "myeeprom.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
-#include "timers_driver.h"
 
 constexpr uint8_t MAX_UNREAD_CYCLE = 100; // Force a read every 100 cycles even if no interrupt was triggered
 #define IO_INT_GPIO GPIO_PIN(GPIOE, 14)
@@ -89,8 +88,6 @@ uint32_t bsp_io_read_fs_switches()
 
 int bsp_io_init()
 {
-  timersInit();
-
   if (i2c_init(I2C_Bus_2) < 0) {
     return -1;
   }
