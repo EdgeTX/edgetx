@@ -33,7 +33,7 @@ struct ToolEntry {
 
 extern void loadLuaTools();
 extern void getLuaToolNames(std::vector<std::string>& nameList);
-extern const std::string getLuaToolName(int n);
+extern const ToolEntry* getLuaTool(int n);
 extern int getLuaToolId(const std::string nm);
 extern void runLuaTool(const std::string nm);
 

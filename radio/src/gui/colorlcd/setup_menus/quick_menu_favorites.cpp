@@ -33,7 +33,7 @@
 QMFavoritesPage::QMFavoritesPage():
         SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_QUICK_MENU_FAVORITES, true)
 {
-  std::vector<std::string> qmPages = QuickMenu::menuPageNames(true);
+  auto qmPages = QuickMenu::menuPageNames(true);
 
   for (int i = 0; i < MAX_QM_FAVORITES; i += 1) {
     char nm[50];
@@ -57,7 +57,7 @@ QMFavoritesPage::QMFavoritesPage():
                   g_eeGeneral.setFavoriteToolName(i, "");
                 } else {
                   g_eeGeneral.qmFavorites[i].shortcut = QM_APP;
-                  g_eeGeneral.setFavoriteToolName(i, getLuaToolName(pg - QM_APP));
+                  g_eeGeneral.setFavoriteToolName(i, getLuaTool(pg - QM_APP)->label);
                 }
                 changed = true;
                 SET_DIRTY();
@@ -65,10 +65,6 @@ QMFavoritesPage::QMFavoritesPage():
 
           c->setAvailableHandler(
               [=](int pg) {
-                if (pg == QM_NONE) return true;
-                for (int i = 0; i < MAX_QM_FAVORITES; i += 1)
-                  if (g_eeGeneral.qmFavorites[i].shortcut == (QMPage)pg)
-                    return false;
                 return pg != QM_OPEN_QUICK_MENU; }
               );
         });

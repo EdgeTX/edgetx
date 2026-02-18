@@ -151,7 +151,7 @@ class QuickSubMenu
       if (pg < QM_APP) {
         title = STR_VAL(mainDef->subMenuItems[i].qmTitle);
       } else {
-        title = getLuaToolName(pg - QM_APP).c_str();
+        title = getLuaTool(pg - QM_APP)->label.c_str();
       }
       subMenu->addButton(mainDef->subMenuItems[i].icon, title,
           std::bind(&QuickSubMenu::onPress, this, i),
@@ -438,10 +438,11 @@ std::string replaceAll(std::string str, const std::string& from, const std::stri
     return str;
 }
 
-std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
+std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
 {
-  std::vector<std::string> qmPages;
+  static std::vector<std::string> qmPages;
 
+  qmPages.clear();
   qmPages.emplace_back(STR_NONE);
   qmPages.emplace_back(STR_OPEN_QUICK_MENU);
 

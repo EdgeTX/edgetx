@@ -41,7 +41,7 @@ inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
 }
 
 #if defined(LUA)
-std::list<ToolEntry> luaTools;
+std::vector<ToolEntry> luaTools;
 static bool luaToolsLoaded = false;
 
 static void run_lua_tool(const std::string& path)
@@ -107,13 +107,12 @@ void loadLuaTools()
             }
             label = fno.fname;
           }
-
           luaTools.emplace_back(ToolEntry{label, path, run_lua_tool});
         }
       }
     }
 
-    luaTools.sort(tool_compare_nocase);
+  std::sort(luaTools.begin(), luaTools.end(), tool_compare_nocase);
   }
 }
 
@@ -127,15 +126,11 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
 }
 #endif
 
-const std::string getLuaToolName(int n)
+const ToolEntry* getLuaTool(int n)
 {
-  int id = 0;
-  for (auto t : luaTools) {
-    if (id == n)
-      return t.label;
-    id += 1;
-  }
-  return "";
+  if (n >= 0 && n < (int)luaTools.size())
+    return &luaTools[n];
+  return nullptr;
 }
 
 int getLuaToolId(const std::string name)
@@ -164,8 +159,8 @@ void getLuaToolNames(std::vector<std::string>& nameList)
   loadLuaTools();
   std::string s(STR_QM_APPS);
   s += " - ";
-  for (auto t : luaTools) {
-    nameList.emplace_back(s + t.label);
+  for (size_t i = 0; i < luaTools.size(); i += 1) {
+    nameList.emplace_back(s + luaTools[i].label);
   }
 }
 //-----------------------------------------------------------------------------

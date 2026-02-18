@@ -66,16 +66,13 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
                   g_eeGeneral.setKeyToolName(event, "");
                 } else {
                   g_eeGeneral.setKeyShortcut(event, QM_APP);
-                  g_eeGeneral.setKeyToolName(event, getLuaToolName(newValue - QM_APP));
+                  g_eeGeneral.setKeyToolName(event, getLuaTool(newValue - QM_APP)->label);
                 }
                 SET_DIRTY();
               }, STR_KEY_SHORTCUTS);
 
           c->setAvailableHandler(
               [=](int newValue) {
-                if (newValue == QM_NONE) return true;
-                if (g_eeGeneral.hasKeyShortcut((QMPage)newValue))
-                  return false;
                 return newValue <= QM_UI_SCREEN1 || newValue > QM_UI_ADD_PG; }
               );
         });
@@ -85,7 +82,7 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
 QMKeyShortcutsPage::QMKeyShortcutsPage():
         SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
 {
-  std::vector<std::string> qmPages = QuickMenu::menuPageNames(false);
+  auto qmPages = QuickMenu::menuPageNames(false);
 
   setupLine(STR_SHORT_PRESS, nullptr);
   addKey(EVT_KEY_BREAK(KEY_SYS), qmPages, "SYS");
