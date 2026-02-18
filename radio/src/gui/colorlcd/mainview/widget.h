@@ -156,6 +156,7 @@ class WidgetFactory
 
   const WidgetOption* getDefaultOptions() const { return options; }
   virtual const void parseOptionDefaults() const {}
+  virtual const void checkOptions(int screenNum, int zoneNum) const {}
 
   const char* getDisplayName() const
   {
