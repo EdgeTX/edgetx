@@ -745,6 +745,8 @@
 #define TR_DELETE_MODEL                "Удалить модель"
 #define TR_RESTORE_MODEL               "Восстан модель"
 #define TR_DELETE_ERROR                "Удалить ошибку"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("Ошибка SD карты", "Ошибка SD карты")
 #define TR_SDCARD                      "SD карта"
 #define TR_NO_FILES_ON_SD              "Нет данных на SD карте!"

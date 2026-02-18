@@ -742,6 +742,8 @@
 #define TR_DELETE_MODEL                "Smazat model"
 #define TR_RESTORE_MODEL               "Obnov model z SD karty"
 #define TR_DELETE_ERROR                "Nelze odstranit"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                "Chyba SD karty"
 #define TR_SDCARD                      "SD karta"
 #define TR_NO_FILES_ON_SD              "Žádné soubory na SD kartě!"

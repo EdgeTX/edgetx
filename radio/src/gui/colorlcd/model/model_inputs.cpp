@@ -347,24 +347,36 @@ void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
 
 void ModelInputsPage::deleteInput(uint8_t index)
 {
-  _copyMode = 0;
-
   auto group = getGroupByIndex(index);
-  if (!group) return;
+    if (!group) return;
 
   auto line = getLineByIndex(index);
   if (!line) return;
 
-  group->removeLine(line);
-  if (group->getLineCount() == 0) {
-    group->deleteLater();
-    removeGroup(group);
+  auto expo = expoAddress(index);
+  std::string s(getSourceString(group->getMixSrc()));
+  s += " - ";
+  if (expo->name[0]) {
+    s += expo->name;
   } else {
-    line->deleteLater();
+    s += "#";
+    s += std::to_string(group->getLineNumber(index));
   }
-  removeLine(line);
 
-  ::deleteExpo(index);
+  if (confirmationDialog(STR_DELETE_INPUT_LINE, s.c_str())) {
+    _copyMode = 0;
+
+    group->removeLine(line);
+    if (group->getLineCount() == 0) {
+      group->deleteLater();
+      removeGroup(group);
+    } else {
+      line->deleteLater();
+    }
+    removeLine(line);
+
+    ::deleteExpo(index);
+  }
 }
 
 void ModelInputsPage::pasteInput(uint8_t dst_idx, uint8_t input)

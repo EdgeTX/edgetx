@@ -772,7 +772,8 @@
 #define TR_DELETE_MODEL                   "모델 삭제"
 #define TR_RESTORE_MODEL                  "모델 복원"
 #define TR_DELETE_ERROR                   "삭제 오류"
-
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                   TR("SD 오류", "SD카드 오류")
 #define TR_SDCARD                         "SD 카드"
 #define TR_NO_FILES_ON_SD                 "SD 카드에 파일 없음!"
