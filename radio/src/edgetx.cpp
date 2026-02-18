@@ -54,14 +54,13 @@
 #endif
 
 #if defined(COLORLCD)
+  #include "layout.h"
   #include "radio_calibration.h"
+  #include "startup_shutdown.h"
+  #include "switch_warn_dialog.h"
+  #include "theme_manager.h"
   #include "view_main.h"
   #include "view_text.h"
-  #include "theme_manager.h"
-  #include "switch_warn_dialog.h"
-  #include "startup_shutdown.h"
-
-  #include "LvglWrapper.h"
 #endif
 
 #if defined(CROSSFIRE)
@@ -695,7 +694,7 @@ static void checkFailsafe()
 void checkAll(bool isBootCheck)
 {
   checkSDfreeStorage();
-  
+
   // we don't check the throttle stick if the radio is not calibrated
   if (g_eeGeneral.chkSum == evalChkSum()) {
     checkThrottleStick();
@@ -1177,6 +1176,8 @@ void edgeTxResume()
   //TODO: needs to go into storageReadAll()
   TRACE("reloading theme");
   ThemePersistance::instance()->loadDefaultTheme();
+  LayoutFactory::loadCustomScreens();
+  ViewMain::instance()->show();
 #endif
 
   referenceSystemAudioFiles();
@@ -1552,6 +1553,10 @@ void edgeTxInit()
     }
 #endif // defined(GUI)
 
+#if defined(COLORLCD)
+  LayoutFactory::loadCustomScreens();
+#endif
+
 #if defined(BLUETOOTH_PROBE)
     extern volatile uint8_t btChipPresent;
     auto oldBtMode = g_eeGeneral.bluetoothMode;
@@ -1728,7 +1733,7 @@ uint32_t pwrCheck()
   static uint8_t pwr_check_state = PWR_CHECK_ON;
 
   bool inactivityShutdown = pwrOffDueToInactivity();
-  
+
   if (pwr_check_state == PWR_CHECK_OFF) {
     return e_power_off;
   }
