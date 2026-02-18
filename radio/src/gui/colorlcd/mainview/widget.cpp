@@ -377,6 +377,7 @@ Widget* WidgetFactory::create(Window* parent, const rect_t& rect,
     parseOptionDefaults();
   }
   if (options) {
+    checkOptions(screenNum, zoneNum);
     int i = 0;
     for (const WidgetOption* option = options; option->name; option++, i++) {
       TRACE("WidgetFactory::create() setting option '%s'", option->name);
