@@ -1208,7 +1208,7 @@ PACK(struct RadioData {
   int getKeyShortcutNum(event_t event);
   event_t getKeyShortcutEvent(int n);
   QMPage getKeyShortcut(event_t event);
-  bool hasKeyShortcut(QMPage shortcut);
+  bool hasKeyShortcut(QMPage shortcut, event_t event);
   void setKeyShortcut(event_t event, QMPage shortcut);
   void defaultKeyShortcuts();
   void setKeyToolName(event_t event, const std::string name);

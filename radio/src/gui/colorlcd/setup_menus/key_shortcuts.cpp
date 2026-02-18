@@ -72,8 +72,11 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
               }, STR_KEY_SHORTCUTS);
 
           c->setAvailableHandler(
-              [=](int newValue) {
-                return newValue <= QM_UI_SCREEN1 || newValue > QM_UI_ADD_PG; }
+              [=](int pg) {
+                if (pg == QM_NONE) return true;
+                if (g_eeGeneral.hasKeyShortcut((QMPage)pg, event))
+                  return false;
+                return pg <= QM_UI_SCREEN1 || pg > QM_UI_ADD_PG; }
               );
         });
   }

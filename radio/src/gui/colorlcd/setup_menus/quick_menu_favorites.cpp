@@ -65,6 +65,19 @@ QMFavoritesPage::QMFavoritesPage():
 
           c->setAvailableHandler(
               [=](int pg) {
+                if (pg == QM_NONE) return true;
+                if (pg < QM_APP) {
+                  for (int n = 0; n < MAX_QM_FAVORITES; n += 1)
+                    if (g_eeGeneral.qmFavorites[n].shortcut == (QMPage)pg)
+                      return n == i;
+                } else {
+                  for (int n = 0; n < MAX_QM_FAVORITES; n += 1)
+                    if (g_eeGeneral.qmFavorites[n].shortcut == QM_APP) {
+                      int idx = getLuaToolId(g_eeGeneral.getFavoriteToolName(n)) + QM_APP;
+                      if (idx == pg)
+                        return n == i;
+                    }
+                }
                 return pg != QM_OPEN_QUICK_MENU; }
               );
         });

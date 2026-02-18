@@ -25,6 +25,7 @@
 #include "tasks/mixer_task.h"
 
 #if defined(COLORLCD)
+#include "radio_tools.h"
 #include "quick_menu_def.h"
 #include "view_main.h"
 #endif
@@ -161,11 +162,22 @@ void RadioData::setKeyShortcut(event_t event, QMPage shortcut)
   if (n >= 0) keyShortcuts[n].shortcut = shortcut;
 }
 
-bool RadioData::hasKeyShortcut(QMPage shortcut)
+bool RadioData::hasKeyShortcut(QMPage shortcut, event_t event)
 {
-  for (int i = 0; i < MAX_KEY_SHORTCUTS; i += 1)
-    if (keyShortcuts[i].shortcut == shortcut)
-      return true;
+  // Returns true if the shortcut is defined on any other key except 'event' key
+  for (int i = 0; i < MAX_KEY_SHORTCUTS; i += 1) {
+    auto ev = getKeyShortcutEvent(i);
+    if (shortcut < QM_APP) {
+      if (keyShortcuts[i].shortcut == shortcut)
+        return ev != event;
+    } else {
+      if (keyShortcuts[i].shortcut == QM_APP) {
+        int idx = getLuaToolId(getKeyToolName(ev)) + QM_APP;
+        if (idx == shortcut)
+          return ev != event;
+      }
+    }
+  }
   return false;
 }
 
