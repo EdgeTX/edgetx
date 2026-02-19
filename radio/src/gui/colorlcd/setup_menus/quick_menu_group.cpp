@@ -160,6 +160,8 @@ ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
     if (focusHandler)
       focusHandler(focus);
   });
+  if (curBtn == nullptr)
+    curBtn = b;
   return b;
 }
 
