@@ -36,6 +36,8 @@ class Keyboard : public NavWindow
  protected:
   static Keyboard *activeKeyboard;
 
+  void deleteLater() override;
+
   lv_group_t* group = nullptr;
   lv_obj_t* keyboard = nullptr;
 
