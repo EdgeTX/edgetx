@@ -599,7 +599,7 @@ void QuickMenu::afterPG()
 {
   auto b = mainMenu->getFocusedButton();
   if (b) {
-#if VERSION_MAJOR > 3
+#if VERSION_MAJOR > 2
     for(auto sub : subMenus) {
       if (sub->isSubMenu(b)) {
         sub->activate();
