@@ -276,6 +276,8 @@ class GeneralSettings {
       QM_TOOLS_LS_MON,
       QM_TOOLS_STATS,
       QM_TOOLS_DEBUG,
+      // Lua stand alone script
+      QM_APP,
       QM_COUNT,
     };
 
@@ -451,7 +453,9 @@ class GeneralSettings {
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
     unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
+    char* keyShortcutTools[MAX_KEYSHORTCUTS];
     unsigned int qmFavorites[MAX_QMFAVOURITES];
+    char* qmFavoritesTools[MAX_QMFAVOURITES];
 
     void switchConfigClear();
 

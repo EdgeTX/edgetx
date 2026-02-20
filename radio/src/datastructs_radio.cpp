@@ -25,6 +25,7 @@
 #include "tasks/mixer_task.h"
 
 #if defined(COLORLCD)
+#include "radio_tools.h"
 #include "quick_menu_def.h"
 #include "view_main.h"
 #endif
@@ -92,6 +93,34 @@ void RadioData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
 #endif
 
 #if defined(COLORLCD)
+int RadioData::getKeyShortcutNum(event_t event)
+{
+  switch(event) {
+    case EVT_KEY_BREAK(KEY_MODEL):  return 0;
+    case EVT_KEY_BREAK(KEY_SYS):    return 1;
+    case EVT_KEY_BREAK(KEY_TELE):   return 2;
+    case EVT_KEY_LONG(KEY_MODEL):   return 3;
+    case EVT_KEY_LONG(KEY_SYS):     return 4;
+    case EVT_KEY_LONG(KEY_TELE):    return 5;
+    default:
+      return -1;
+  }
+}
+
+event_t RadioData::getKeyShortcutEvent(int n)
+{
+  switch(n) {
+    case 0: return EVT_KEY_BREAK(KEY_MODEL);
+    case 1: return EVT_KEY_BREAK(KEY_SYS);
+    case 2: return EVT_KEY_BREAK(KEY_TELE);
+    case 3: return EVT_KEY_LONG(KEY_MODEL);
+    case 4: return EVT_KEY_LONG(KEY_SYS);
+    case 5: return EVT_KEY_LONG(KEY_TELE);
+    default:
+      return 0;
+  }
+}
+
 QMPage RadioData::getKeyShortcut(event_t event)
 {
   QMPage page = QM_NONE;
@@ -119,28 +148,8 @@ QMPage RadioData::getKeyShortcut(event_t event)
       break;
   }
 #else
-  switch(event) {
-    case EVT_KEY_BREAK(KEY_MODEL):
-      page = (QMPage)keyShortcuts[0].shortcut;
-      break;
-    case EVT_KEY_BREAK(KEY_SYS):
-      page = (QMPage)keyShortcuts[1].shortcut;
-      break;
-    case EVT_KEY_BREAK(KEY_TELE):
-      page = (QMPage)keyShortcuts[2].shortcut;
-      break;
-    case EVT_KEY_LONG(KEY_MODEL):
-      page = (QMPage)keyShortcuts[3].shortcut;
-      break;
-    case EVT_KEY_LONG(KEY_SYS):
-      page = (QMPage)keyShortcuts[4].shortcut;
-      break;
-    case EVT_KEY_LONG(KEY_TELE):
-      page = (QMPage)keyShortcuts[5].shortcut;
-      break;
-    default:
-      break;
-  }
+  int n = getKeyShortcutNum(event);
+  if (n >= 0) page = (QMPage)keyShortcuts[n].shortcut;
 #endif
   if (page >= QM_UI_SCREEN1 && page <= QM_UI_SCREEN10)
     page = (QMPage)(QM_UI_SCREEN1 + ViewMain::instance()->getCurrentMainView());
@@ -149,35 +158,26 @@ QMPage RadioData::getKeyShortcut(event_t event)
 
 void RadioData::setKeyShortcut(event_t event, QMPage shortcut)
 {
-  switch(event) {
-    case EVT_KEY_BREAK(KEY_MODEL):
-      keyShortcuts[0].shortcut = shortcut;
-      break;
-    case EVT_KEY_BREAK(KEY_SYS):
-      keyShortcuts[1].shortcut = shortcut;
-      break;
-    case EVT_KEY_BREAK(KEY_TELE):
-      keyShortcuts[2].shortcut = shortcut;
-      break;
-    case EVT_KEY_LONG(KEY_MODEL):
-      keyShortcuts[3].shortcut = shortcut;
-      break;
-    case EVT_KEY_LONG(KEY_SYS):
-      keyShortcuts[4].shortcut = shortcut;
-      break;
-    case EVT_KEY_LONG(KEY_TELE):
-      keyShortcuts[5].shortcut = shortcut;
-      break;
-    default:
-      break;
-  }
+  int n = getKeyShortcutNum(event);
+  if (n >= 0) keyShortcuts[n].shortcut = shortcut;
 }
 
-bool RadioData::hasKeyShortcut(QMPage shortcut)
+bool RadioData::hasKeyShortcut(QMPage shortcut, event_t event)
 {
-  for (int i = 0; i < MAX_KEY_SHORTCUTS; i += 1)
-    if (keyShortcuts[i].shortcut == shortcut)
-      return true;
+  // Returns true if the shortcut is defined on any other key except 'event' key
+  for (int i = 0; i < MAX_KEY_SHORTCUTS; i += 1) {
+    auto ev = getKeyShortcutEvent(i);
+    if (shortcut < QM_APP) {
+      if (keyShortcuts[i].shortcut == shortcut)
+        return ev != event;
+    } else {
+      if (keyShortcuts[i].shortcut == QM_APP) {
+        int idx = getLuaToolId(getKeyToolName(ev)) + QM_APP;
+        if (idx == shortcut)
+          return ev != event;
+      }
+    }
+  }
   return false;
 }
 
@@ -189,5 +189,32 @@ void RadioData::defaultKeyShortcuts()
   setKeyShortcut(EVT_KEY_LONG(KEY_SYS), QM_TOOLS_APPS);
   setKeyShortcut(EVT_KEY_BREAK(KEY_TELE), QM_UI_SCREEN1);
   setKeyShortcut(EVT_KEY_LONG(KEY_TELE), QM_TOOLS_CHAN_MON);
+}
+
+static std::string _keyToolNames[MAX_KEY_SHORTCUTS];
+
+void RadioData::setKeyToolName(event_t event, const std::string name)
+{
+  int n = getKeyShortcutNum(event);
+  if (n >= 0) _keyToolNames[n] = name;
+}
+
+const std::string RadioData::getKeyToolName(event_t event)
+{
+  int n = getKeyShortcutNum(event);
+  if (n >= 0) return _keyToolNames[n];
+  return "";
+}
+
+static std::string _favoriteToolNames[MAX_QM_FAVORITES];
+
+void RadioData::setFavoriteToolName(int fav, const std::string name)
+{
+  _favoriteToolNames[fav] = name;
+}
+
+const std::string RadioData::getFavoriteToolName(int fav)
+{
+  return _favoriteToolNames[fav];
 }
 #endif

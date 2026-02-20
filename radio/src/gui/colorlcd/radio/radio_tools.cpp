@@ -33,7 +33,206 @@
 #include "etx_lv_theme.h"
 #include "lib_file.h"
 
-extern uint8_t g_moduleIdx;
+//-----------------------------------------------------------------------------
+
+inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
+{
+  return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
+}
+
+#if defined(LUA)
+std::vector<ToolEntry> luaTools;
+static bool luaToolsLoaded = false;
+
+static void run_lua_tool(const std::string& path)
+{
+  char toolPath[FF_MAX_LFN + 1];
+  strncpy(toolPath, path.c_str(), sizeof(toolPath) - 1);
+  *((char*)getBasename(toolPath) - 1) = '\0';
+  f_chdir(toolPath);
+
+  luaExecStandalone(path.c_str());
+}
+
+void unloadLuaTools()
+{
+  luaTools.clear();
+  luaToolsLoaded = false;
+}
+
+// LUA scripts in TOOLS
+void loadLuaTools()
+{
+  if (!luaToolsLoaded) {
+    luaToolsLoaded = true;
+
+    FILINFO fno;
+    DIR dir;
+
+    FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
+    if (res == FR_OK) {
+      for (;;) {
+        res = f_readdir(&dir, &fno); /* Read a directory item */
+        if (res != FR_OK || fno.fname[0] == 0)
+          break; /* Break on error or end of dir */
+        if (fno.fattrib & (AM_HID | AM_SYS))
+          continue;  // skip hidden files and system files
+        if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
+
+        bool inFolder = (fno.fattrib & AM_DIR);
+
+        char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
+        strcat(path, fno.fname);
+        if (inFolder) {
+          // check if .lua with same name exists - skip folder to avoid duplicate entries
+          auto plen = strlen(path);
+          strcat(path, ".lua");
+          if (f_stat(path, nullptr) == FR_OK)
+            continue;
+          path[plen] = 0;
+          strcat(path, "/main.lua");
+          if (f_stat(path, nullptr) != FR_OK)
+            continue;
+        }
+
+        if (isRadioScriptTool(path)) {
+          char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
+          const char* label;
+          if (readToolName(toolName, path)) {
+            label = toolName;
+          } else {
+            if (!inFolder) {
+              char* ext = (char*)getFileExtension(fno.fname);
+              if (ext) *ext = '\0';
+            }
+            label = fno.fname;
+          }
+          luaTools.emplace_back(ToolEntry{label, path, run_lua_tool});
+        }
+      }
+    }
+
+  std::sort(luaTools.begin(), luaTools.end(), tool_compare_nocase);
+  }
+}
+
+// LUA scripts in TOOLS
+static void scanLuaTools(std::list<ToolEntry>& scripts)
+{
+  loadLuaTools();
+
+  for (auto t : luaTools)
+    scripts.emplace_back(t);
+}
+#endif
+
+const ToolEntry* getLuaTool(int n)
+{
+  if (n >= 0 && n < (int)luaTools.size())
+    return &luaTools[n];
+  return nullptr;
+}
+
+int getLuaToolId(const std::string name)
+{
+  int id = 0;
+  for (auto t : luaTools) {
+    if (t.label == name)
+      return id;
+    id += 1;
+  }
+  return -1;
+}
+
+void runLuaTool(const std::string name)
+{
+  for (auto t : luaTools) {
+    if (t.label == name) {
+      t.exec(t.path);
+      return;
+    }
+  }
+}
+
+void getLuaToolNames(std::vector<std::string>& nameList)
+{
+  loadLuaTools();
+  std::string s(STR_QM_APPS);
+  s += " - ";
+  for (size_t i = 0; i < luaTools.size(); i += 1) {
+    nameList.emplace_back(s + luaTools[i].label);
+  }
+}
+//-----------------------------------------------------------------------------
+
+static bool isModelGPSSensorPresent()
+{
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    if (isGPSSensor(i+1)) return true;
+  }
+  return false;
+}
+
+static void run_gpstool(const std::string&)
+{
+  new RadioGpsTool();
+}
+
+#if defined(PXX2) || defined(MULTIMODULE)
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+static void run_spektrum_int(const std::string&)
+{
+  new RadioSpectrumAnalyser(INTERNAL_MODULE);
+}
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+static void run_spektrum_ext(const std::string&)
+{
+  new RadioSpectrumAnalyser(EXTERNAL_MODULE);
+}
+#endif
+#endif  // defined(PXX2) || defined(MULTIMODULE)
+
+#if defined(INTERNAL_MODULE_PXX2)
+static void run_pxx2_power(const std::string&)
+{
+#if 0  // disabled Power Meter: not yet implemented
+  new RadioPowerMeter(INTERNAL_MODULE);
+#endif
+}
+#endif
+
+#if defined(GHOST)
+static void run_ghost_config(const std::string&)
+{
+  new RadioGhostModuleConfig(EXTERNAL_MODULE);
+}
+#endif
+
+//-----------------------------------------------------------------------------
+
+struct ToolButton : public TextButton {
+  ToolButton(Window* parent, const ToolEntry& tool) :
+      TextButton(parent, rect_t{}, tool.label, [=]() {
+        tool.exec(tool.path);
+        return 0;
+      })
+  {
+    setWidth(TOOLS_BTN_W);
+    setHeight(TOOLS_BTN_H);
+
+    lv_obj_set_width(label, lv_pct(100));
+    etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+  }
+
+  static LAYOUT_ORIENTATION(TOOLS_BTN_W, (LCD_W - PAD_LARGE * 3) / 3, (LCD_W - PAD_LARGE * 2) / 2)
+  static LAYOUT_VAL_SCALED(TOOLS_BTN_H, 48)
+};
+
+//-----------------------------------------------------------------------------
 
 RadioToolsPage::RadioToolsPage(const PageDef& pageDef) : PageGroupItem(pageDef) {}
 
@@ -80,147 +279,6 @@ void RadioToolsPage::checkEvents()
 
   PageGroupItem::checkEvents();
 }
-
-typedef void (*ToolExec)(Window* parent, const std::string& path);
-
-struct ToolEntry {
-  std::string label;
-  std::string path;
-  ToolExec exec;
-};
-
-inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
-{
-  return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
-}
-
-#if defined(LUA)
-static void run_lua_tool(Window* parent, const std::string& path)
-{
-  char toolPath[FF_MAX_LFN + 1];
-  strncpy(toolPath, path.c_str(), sizeof(toolPath) - 1);
-  *((char*)getBasename(toolPath) - 1) = '\0';
-  f_chdir(toolPath);
-
-  luaExecStandalone(path.c_str());
-}
-
-// LUA scripts in TOOLS
-static void scanLuaTools(std::list<ToolEntry>& scripts)
-{
-  FILINFO fno;
-  DIR dir;
-
-  FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
-  if (res == FR_OK) {
-    for (;;) {
-      res = f_readdir(&dir, &fno); /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0)
-        break; /* Break on error or end of dir */
-      if (fno.fattrib & (AM_HID | AM_SYS))
-        continue;  // skip hidden files and system files
-      if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
-
-      bool inFolder = (fno.fattrib & AM_DIR);
-
-      char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
-      strcat(path, fno.fname);
-      if (inFolder) {
-        // check if .lua with same name exists - skip folder to avoid duplicate entries
-        auto plen = strlen(path);
-        strcat(path, ".lua");
-        if (f_stat(path, nullptr) == FR_OK)
-          continue;
-        path[plen] = 0;
-        strcat(path, "/main.lua");
-        if (f_stat(path, nullptr) != FR_OK)
-          continue;
-      }
-
-      if (isRadioScriptTool(path)) {
-        char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
-        const char* label;
-        if (readToolName(toolName, path)) {
-          label = toolName;
-        } else {
-          if (!inFolder) {
-            char* ext = (char*)getFileExtension(fno.fname);
-            if (ext) *ext = '\0';
-          }
-          label = fno.fname;
-        }
-
-        scripts.emplace_back(ToolEntry{label, path, run_lua_tool});
-      }
-    }
-  }
-}
-#endif
-
-static bool isModelGPSSensorPresent()
-{
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-    if (isGPSSensor(i+1)) return true;
-  }
-  return false;
-}
-
-static void run_gpstool(Window* parent, const std::string&)
-{
-  new RadioGpsTool();
-}
-
-#if defined(PXX2) || defined(MULTIMODULE)
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-static void run_spektrum_int(Window* parent, const std::string&)
-{
-  new RadioSpectrumAnalyser(INTERNAL_MODULE);
-}
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-static void run_spektrum_ext(Window* parent, const std::string&)
-{
-  new RadioSpectrumAnalyser(EXTERNAL_MODULE);
-}
-#endif
-#endif  // defined(PXX2) || defined(MULTIMODULE)
-
-#if defined(INTERNAL_MODULE_PXX2)
-static void run_pxx2_power(Window* parent, const std::string&)
-{
-#if 0  // disabled Power Meter: not yet implemented
-  new RadioPowerMeter(INTERNAL_MODULE);
-#endif
-}
-#endif
-
-#if defined(GHOST)
-static void run_ghost_config(Window* parent, const std::string&)
-{
-  new RadioGhostModuleConfig(EXTERNAL_MODULE);
-}
-#endif
-
-struct ToolButton : public TextButton {
-  ToolButton(Window* parent, const ToolEntry& tool) :
-      TextButton(parent, rect_t{}, tool.label, [=]() {
-        tool.exec(parent, tool.path);
-        return 0;
-      })
-  {
-    setWidth(TOOLS_BTN_W);
-    setHeight(TOOLS_BTN_H);
-
-    lv_obj_set_width(label, lv_pct(100));
-    etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-  }
-
-  static LAYOUT_ORIENTATION(TOOLS_BTN_W, (LCD_W - PAD_LARGE * 3) / 3, (LCD_W - PAD_LARGE * 2) / 2)
-  static LAYOUT_VAL_SCALED(TOOLS_BTN_H, 48)
-};
 
 void RadioToolsPage::rebuild(Window* window)
 {

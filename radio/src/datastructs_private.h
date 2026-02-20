@@ -1002,8 +1002,13 @@ PACK(struct switchDef {
 #if defined(COLORLCD)
 #define MAX_KEY_SHORTCUTS 6
 #define MAX_QM_FAVORITES 12
-PACK(struct QuickMenuPage {
-  uint8_t shortcut ENUM(QMPage);
+PACK(struct KeyShortcut {
+  CUST_ATTR(shortcut, r_keyShortcut, w_keyShortcut);
+  uint8_t shortcut ENUM(QMPage) SKIP;
+});
+PACK(struct QMFavorite {
+  CUST_ATTR(shortcut, r_qmFavorite, w_qmFavorite);
+  uint8_t shortcut ENUM(QMPage) SKIP;
 });
 #endif
 
@@ -1167,8 +1172,8 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
-  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
-  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+  NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);
+  NOBACKUP(QMFavorite qmFavorites[MAX_QM_FAVORITES]);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const
@@ -1199,11 +1204,17 @@ PACK(struct RadioData {
 #endif
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && !defined(BACKUP)
+  int getKeyShortcutNum(event_t event);
+  event_t getKeyShortcutEvent(int n);
   QMPage getKeyShortcut(event_t event);
-  bool hasKeyShortcut(QMPage shortcut);
+  bool hasKeyShortcut(QMPage shortcut, event_t event);
   void setKeyShortcut(event_t event, QMPage shortcut);
   void defaultKeyShortcuts();
+  void setKeyToolName(event_t event, const std::string name);
+  const std::string getKeyToolName(event_t event);
+  void setFavoriteToolName(int fav, const std::string name);
+  const std::string getFavoriteToolName(int fav);
 #endif
 });
 

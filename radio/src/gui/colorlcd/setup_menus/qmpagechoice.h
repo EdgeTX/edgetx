@@ -21,34 +21,29 @@
 
 #pragma once
 
-#include "pagegroup.h"
+#include "choice.h"
+#include "form.h"
 
-typedef void (*ToolExec)(const std::string& path);
+class QMPageChoiceMenuToolbar;
 
-struct ToolEntry {
-  std::string label;
-  std::string path;
-  ToolExec exec;
-};
-
-extern void loadLuaTools();
-extern void getLuaToolNames(std::vector<std::string>& nameList);
-extern const ToolEntry* getLuaTool(int n);
-extern int getLuaToolId(const std::string nm);
-extern void runLuaTool(const std::string nm);
-
-class RadioToolsPage : public PageGroupItem
+class QMPageChoice : public Choice
 {
  public:
-  RadioToolsPage(const PageDef& pageDefageDef);
+  QMPageChoice(Window* parent, const rect_t& rect,
+               std::vector<std::string> values,
+               int16_t vmin, int16_t vmax,
+               std::function<int16_t()> getValue,
+               std::function<void(int16_t)> setValue,
+               const char *title);
 
-  void build(Window* window) override;
-
-  void checkEvents() override;
+  static LAYOUT_ORIENTATION(TABLE_WIDTH, LCD_W * 5 / 8, LCD_W / 2 + PAD_LARGE * 3)
 
  protected:
-  void rebuild(Window* window);
-  Window* window = nullptr;
-  uint8_t waiting = 0;
-  uint8_t linesCount = 0;
+  friend QMPageChoiceMenuToolbar;
+
+  void openMenu() override;
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "QMPageChoice"; }
+#endif
 };

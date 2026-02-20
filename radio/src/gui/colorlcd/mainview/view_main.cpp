@@ -25,6 +25,7 @@
 #include "mainwindow.h"
 #include "model_select.h"
 #include "quick_menu.h"
+#include "radio_tools.h"
 #include "screen_setup.h"
 #include "topbar.h"
 #include "view_channels.h"
@@ -227,7 +228,9 @@ void ViewMain::updateTopbarVisibility()
 void ViewMain::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_OPEN_QUICK_MENU) {
+  if (pg == QM_APP) {
+    runLuaTool(g_eeGeneral.getKeyToolName(event));
+  } else if (pg == QM_OPEN_QUICK_MENU) {
     QuickMenu::openQuickMenu();
   } else {
     QuickMenu::openPage(pg);

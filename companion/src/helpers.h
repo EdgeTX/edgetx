@@ -142,6 +142,7 @@ bool isTempFileName(const QString & fileName);
 
 QString getSoundsPath(const GeneralSettings &generalSettings);
 QSet<QString> getFilesSet(const QString &path, const QStringList &filter, int maxLen);
+QStringList getListLuaTools();
 
 
 class QTimeS : public QTime
