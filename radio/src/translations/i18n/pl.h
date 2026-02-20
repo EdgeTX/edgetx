@@ -737,6 +737,8 @@
 #define TR_DELETE_MODEL        "Skasuj model"
 #define TR_RESTORE_MODEL       "Odtwórz model"
 #define TR_DELETE_ERROR        "Błąd kasowania"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR        "Błąd karty SD"
 #define TR_SDCARD              "Karta SD"
 #define TR_NO_FILES_ON_SD      "Brak plików na SD!"

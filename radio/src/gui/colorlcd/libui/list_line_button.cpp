@@ -309,6 +309,19 @@ void InputMixGroupBase::refresh()
   lv_label_set_text(label, s);
 }
 
+int InputMixGroupBase::getLineNumber(uint8_t index)
+{
+  int n = 0;
+  auto l = std::find_if(lines.begin(), lines.end(), [&](InputMixButtonBase* l) {
+    n += 1;
+    return l->getIndex() == index;
+  });
+
+  if (l != lines.end()) return n;
+
+  return -1;
+}
+
 InputMixGroupBase* InputMixPageBase::getGroupBySrc(mixsrc_t src)
 {
   auto g = std::find_if(

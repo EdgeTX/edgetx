@@ -743,6 +743,8 @@
 #define TR_DELETE_MODEL                "Apagar Modelo"
 #define TR_RESTORE_MODEL               "Restaura Modelo"
 #define TR_DELETE_ERROR                "Erro ao apagar"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("Erro SD", "Cartao SD erro")
 #define TR_SDCARD                      "Cartão SD"
 #define TR_NO_FILES_ON_SD              "Sem aquiv. no SD!"

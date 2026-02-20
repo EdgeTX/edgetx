@@ -738,6 +738,8 @@
 #define TR_DELETE_MODEL                "Borrar modelo"
 #define TR_RESTORE_MODEL               "Restaurar modelo"
 #define TR_DELETE_ERROR                "Error de borrado"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                "Error SDCARD"
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"

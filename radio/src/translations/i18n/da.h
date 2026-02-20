@@ -748,6 +748,8 @@
 #define TR_DELETE_MODEL                "Slet model"
 #define TR_RESTORE_MODEL               "Genskab model"
 #define TR_DELETE_ERROR                "Slet fejl"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("SD fejl", "SD kort fejl")
 #define TR_SDCARD                      "SD kort"
 #define TR_NO_FILES_ON_SD              "Ingen filer på SD!"

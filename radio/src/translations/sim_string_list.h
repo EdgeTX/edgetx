@@ -505,6 +505,8 @@
 #define STR_DELETE_ERROR currentLangStrings->STR_DELETE_ERROR
 #define STR_DELETE_FILE currentLangStrings->STR_DELETE_FILE
 #define STR_DELETE_MODEL currentLangStrings->STR_DELETE_MODEL
+#define STR_DELETE_INPUT_LINE currentLangStrings->STR_DELETE_INPUT_LINE
+#define STR_DELETE_MIX_LINE currentLangStrings->STR_DELETE_MIX_LINE
 #define STR_DELETE currentLangStrings->STR_DELETE
 #define STR_DELETEMODEL currentLangStrings->STR_DELETEMODEL
 #define STR_DEVICE_DATA_REFUSED currentLangStrings->STR_DEVICE_DATA_REFUSED

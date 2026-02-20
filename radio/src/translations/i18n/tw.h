@@ -740,6 +740,8 @@
 #define TR_DELETE_MODEL                "刪除模型"
 #define TR_RESTORE_MODEL               "恢復模型"
 #define TR_DELETE_ERROR                "刪除失敗"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("存儲卡錯誤", "存儲卡錯誤")
 #define TR_SDCARD                      "存儲卡"
 #define TR_NO_FILES_ON_SD              "存儲卡中沒有文件!"
