@@ -71,6 +71,8 @@ extern const stm32_pulse_timer_t _led_timer;
 #if defined(FUNCTION_SWITCHES)
 
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
+extern SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw);
+
 extern uint8_t isSwitch3Pos(uint8_t idx);
 struct _adckey_switches_expander {
     uint8_t state;
@@ -87,6 +89,10 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
   const stm32_switch_t* def = boardGetSwitchDef(idx);
   uint8_t state = _adckey_switches.state;
 
+  if (idx<4) {//get hardware switch position
+    return stm32_switch_get_position(def);
+  }
+  //get adc key switch position
   if (def->isCustomSwitch) {
     if ((state & def->Pin_high) == 0) {
       return SWITCH_HW_DOWN;
@@ -143,10 +149,13 @@ SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 
 uint8_t lastADCState = 0;
 uint8_t sixPosState = 0;
+uint8_t sixPosadc = 0;
 
-uint8_t uploadPosState = 5;
+#define keywaittime 8 //10ms*8
+uint8_t uploadPosState = keywaittime;
 
 bool dirty = true;
+
 uint16_t getSixPosAnalogValue(uint16_t adcValue)
 {
   uint8_t currentADCState = 0;
@@ -168,36 +177,22 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
     currentADCState = 6;
   if (lastADCState != currentADCState) {
     lastADCState = currentADCState;
-    uploadPosState=10;
+    uploadPosState=keywaittime;
   }
-#if defined(FUNCTION_SWITCHES)
   else if (lastADCState != sixPosState) {
     sixPosState = lastADCState ;
     dirty = true;
   }
-#else
-  else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-#endif
   if (dirty) {
-  #if !defined(FUNCTION_SWITCHES)
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState) {
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      } else {
-        ws2812_set_color(i, 0, 160, 0);
-      }
-    }
-    rgbLedColorApply();
-  #else
+  #if defined(FUNCTION_SWITCHES)  
     _adckey_switches.state=_adckeyidx[sixPosState];
   #endif
+    if (sixPosState != 0 && sixPosState - 1 != sixPosadc){
+      sixPosadc = sixPosState - 1;
+    }
   }
 __retposadc__:  
-
-  return (4096/5)*(sixPosState);
+  return (4096/5)*sixPosadc;
 }
 #endif
 
