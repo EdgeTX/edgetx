@@ -196,8 +196,8 @@ void StandaloneLuaWindow::deleteLater()
 {
   if (_deleted) return;
 
-  if (initFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
-  if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
+  luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
+  luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
   luaLcdBuffer = nullptr;
 
   luaClose(&lsStandalone);
