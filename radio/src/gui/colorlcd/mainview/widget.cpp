@@ -205,8 +205,6 @@ void Widget::onCancel()
   if (!fullscreen) ButtonBase::onCancel();
 }
 
-void Widget::update() {}
-
 void Widget::setFullscreen(bool enable)
 {
   if (!fsAllowed || (enable == fullscreen)) return;
@@ -255,7 +253,8 @@ void Widget::setFullscreen(bool enable)
 
   onFullscreen(enable);
 
-  update();
+  if (fullscreen)
+    updateWithoutRefresh();
 }
 
 bool Widget::onLongPress()

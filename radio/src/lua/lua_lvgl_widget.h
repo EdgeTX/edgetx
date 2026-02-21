@@ -231,6 +231,7 @@ class LvglScrollableParams
   int scrolledFunction = LUA_REFNIL;
 
   bool parseScrollableParam(lua_State *L, const char *key);
+  void clearScrollableRefs(lua_State *L);
 };
 
 //-----------------------------------------------------------------------------

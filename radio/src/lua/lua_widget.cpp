@@ -250,7 +250,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
   if (lua_pcall(lsWidgets, 3, 1, 0) == LUA_OK) {
     luaScriptContextRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
   } else {
-    luaScriptContextRef = LUA_NOREF;
+    luaScriptContextRef = LUA_REFNIL;
     setErrorMessage("create()");
   }
 
@@ -266,9 +266,9 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 
 LuaWidget::~LuaWidget()
 {
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
-  free(errorMessage);
+  if (errorMessage)
+    free(errorMessage);
 }
 
 void LuaWidget::onClicked()
@@ -307,12 +307,12 @@ void LuaWidget::foreground()
         refresh(nullptr);
         if (!errorMessage) {
           if (!callRefs(lsWidgets)) {
-            setErrorMessage("function");
+            setErrorMessage("foreground calRefs error");
           }
         }
         refreshInstructionsPercent = instructionsPercent;
       } else {
-        setErrorMessage("function");
+        setErrorMessage("foreground protect Lua error");
       }
       luaScriptManager = save;
       UNPROTECT_LUA();
@@ -327,11 +327,11 @@ void LuaWidget::foreground()
 #endif
 }
 
-void LuaWidget::update()
+void LuaWidget::updateWithoutRefresh()
 {
-  Widget::update();
+  Widget::updateWithoutRefresh();
 
-  if (lsWidgets == 0 || errorMessage) return;
+  if (lsWidgets == 0 || errorMessage || luaFactory()->updateFunction == LUA_REFNIL) return;
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
@@ -365,6 +365,18 @@ void LuaWidget::update()
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
     setErrorMessage("update()");
 
+  luaScriptManager = save;
+}
+
+void LuaWidget::update()
+{
+  updateWithoutRefresh();
+
+  Widget::update();
+
+  auto save = luaScriptManager;
+  luaScriptManager = this;
+
   if (useLvglLayout()) {
     if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
       lv_area_t a;
@@ -373,10 +385,10 @@ void LuaWidget::update()
       if (a.x2 >= 0 && a.x1 < LCD_W) {
         PROTECT_LUA() {
           if (!callRefs(lsWidgets)) {
-            setErrorMessage("function");
+            setErrorMessage("update callRefs error");
           }
         } else {
-          setErrorMessage("function");
+          setErrorMessage("update protect Lua error");
         }
         UNPROTECT_LUA();
       }
@@ -428,7 +440,7 @@ void LuaWidget::updateZoneRect(rect_t rect, bool updateUI)
     lua_pop(lsWidgets, 1);
 
     if (changed && updateUI)
-      update();
+      updateWithoutRefresh();
   }
 }
 
@@ -451,7 +463,8 @@ void LuaWidget::setErrorMessage(const char* funcName)
         lua_err);
   TRACE("Widget disabled");
 
-  errorMessage = (char*)malloc(err_len + 1);
+  if (!errorMessage)
+    errorMessage = (char*)malloc(err_len + 1);
 
   if (errorMessage) {
     snprintf(errorMessage, err_len, "ERROR in %s: %s", funcName, lua_err);
@@ -468,7 +481,7 @@ const char* LuaWidget::getErrorMessage() const { return errorMessage; }
 
 void LuaWidget::refresh(BitmapBuffer* dc)
 {
-  if (lsWidgets == 0) return;
+  if (lsWidgets == 0 || luaFactory()->refreshFunction == LUA_REFNIL) return;
 
   if (errorMessage) {
     if (dc) {
@@ -530,7 +543,7 @@ void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  if (luaFactory()->backgroundFunction) {
+  if (luaFactory()->backgroundFunction != LUA_REFNIL) {
     luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
@@ -604,6 +617,7 @@ void LuaScriptManager::createTelemetryQueue()
 
 LuaScriptManager::~LuaScriptManager()
 {
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
     deregisterTelemetryQueue(luaInputTelemetryFifo);
     delete luaInputTelemetryFifo;
