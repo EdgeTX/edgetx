@@ -218,6 +218,6 @@ WidgetSettings::WidgetSettings(Widget* w) :
 
 void WidgetSettings::onCancel()
 {
-  widget->update();
+  widget->updateWithoutRefresh();
   deleteLater();
 }

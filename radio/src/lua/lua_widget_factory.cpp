@@ -49,6 +49,13 @@ LuaWidgetFactory::LuaWidgetFactory(const char* name, ZoneOption* widgetOptions, 
 LuaWidgetFactory::~LuaWidgetFactory() {
   unregisterWidget(this);
 
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, optionDefinitionsReference);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, createFunction);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, updateFunction);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, refreshFunction);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, backgroundFunction);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, translateFunction);
+
   if (name) delete name;
   if (displayName) delete displayName;
 
@@ -112,7 +119,7 @@ void LuaWidgetFactory::translateOptions(ZoneOption * options)
   if (lsWidgets == 0) return;
 
   // No translations provided
-  if (!translateFunction) return;
+  if (translateFunction == LUA_REFNIL) return;
 
   auto lang = TRANSLATIONS;
 

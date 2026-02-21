@@ -74,7 +74,8 @@ class Widget : public ButtonBase
   virtual bool enableFullScreenRE() const { return true; }
 
   // Called when the widget options have changed
-  virtual void update();
+  virtual void updateWithoutRefresh() {}
+  virtual void update() {}
 
   // Called at regular time interval, even if the widget cannot be seen
   virtual void background() {}
