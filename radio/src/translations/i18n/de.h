@@ -85,7 +85,7 @@
 #define TR_MAIN_MENU_SCREEN_SETTINGS   "UI Setup"
 #define TR_MAIN_MENU_STATISTICS        "Statistiken"
 #define TR_MAIN_MENU_ABOUT_EDGETX      "Über EdgeTX"
-#define TR_MAIN_VIEW_X                 "Screen "
+#define TR_MAIN_VIEW_X                 "Seite "
 #define TR_MAIN_MENU_THEMES            "THEMES"
 #define TR_MAIN_MENU_APPS              "Apps"
 #define TR_MENUHELISETUP               TR("HELI TS-Mischer", "HELI TS-Mischer CYC1-3")
@@ -574,7 +574,7 @@
 #define TR_PWR_ON_DELAY                "PWR EIN Verzög."
 #define TR_PWR_OFF_DELAY               "PWR AUS Verzög."
 #define TR_PWR_AUTO_OFF                TR("Autom. Ausschalten","Autom. Ausschalten")
-#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr AN/AUS Haptik","Power AN/AUS Haptik")
+#define TR_PWR_ON_OFF_HAPTIC           TR("PWR EIN/AUS Haptik","PWR EIN/AUS Haptik")
 #define TR_THROTTLE_WARNING            TR("Gasalarm", "Gas Alarm")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Eigene Pos.", "Eigene Pos.")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
@@ -947,7 +947,7 @@
 #define TR_FAILSAFE                    TR("Failsafe", "Failsafe Mode")
 #define TR_FAILSAFESET                 "Failsafe setzen"
 #define TR_REG_ID                      TR("Reg. ID", "Registration ID")
-#define TR_OWNER_ID                    "Eign.-ID"
+#define TR_OWNER_ID                    "Eigentümer-ID"
 #define TR_HOLD                        "Hold"
 #define TR_HOLD_UPPERCASE              "HOLD"
 #define TR_NONE                        "Kein"
