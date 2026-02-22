@@ -744,6 +744,8 @@
 #define TR_DELETE_MODEL                "Видалити модель"
 #define TR_RESTORE_MODEL               "Відновити модель"
 #define TR_DELETE_ERROR                "Видалити помилку"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("помилка SD", "помилка SD карти")
 #define TR_SDCARD                      "SD Карта"
 #define TR_NO_FILES_ON_SD              "Немає файлів на SD!"
@@ -1136,6 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "Перший канал"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Заповнити фон?"
 #define TR_BG_COLOR                  "Колір фону"
 #define TR_SLIDERS_TRIMS             "Повзунки+трими"

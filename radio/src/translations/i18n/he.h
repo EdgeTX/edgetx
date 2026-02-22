@@ -746,6 +746,8 @@
 #define TR_DELETE_MODEL                "מחיקת מודל"
 #define TR_RESTORE_MODEL               "שיחזור מודל"
 #define TR_DELETE_ERROR                "שיגאת מחיקה"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("SD תקלת", "תיקיות כרטיס SD")
 #define TR_SDCARD                      "SD כרטיס"
 #define TR_NO_FILES_ON_SD              "!SD אין קצבים על"
@@ -1138,6 +1140,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "ערוץ ראשון"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "מילוי רקע?"
 #define TR_BG_COLOR                  "BG צבעי"
 #define TR_SLIDERS_TRIMS             "Sliders+Trims"

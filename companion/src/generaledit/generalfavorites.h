@@ -22,6 +22,7 @@
 #pragma once
 
 #include "generaledit.h"
+#include "autocombobox.h"
 
 class ExclusiveComboGroup;
 class QGridLayout;
@@ -34,17 +35,25 @@ class GeneralFavsPanel : public GeneralPanel
     GeneralFavsPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware);
     virtual ~GeneralFavsPanel();
 
+  private slots:
+    void on_favChanged();
+    void on_favToolChanged();
+
   private:
     Board::Type board;
     QGridLayout *grid;
     QList<QWidget *> *params;
     int row;
     int col;
+    bool lock;
     ExclusiveComboGroup *cboQMGrp;
+    QList<AutoComboBox *> *cboFavTools;
+    QList<QString *> *strFavTools;
 
     void addLabel(QString text);
     void addLine();
     void addParams();
     void addSection(QString text);
     void initComboQMGroup();
+    void setToolName(int index);
 };

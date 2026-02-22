@@ -102,6 +102,13 @@ Keyboard::~Keyboard()
   if (group) lv_group_del(group);
 }
 
+void Keyboard::deleteLater()
+{
+  if (!_deleted)
+    hide(false);
+  NavWindow::deleteLater();
+}
+
 void Keyboard::clearField(bool wasCancelled)
 {
   TRACE("CLEAR FIELD");

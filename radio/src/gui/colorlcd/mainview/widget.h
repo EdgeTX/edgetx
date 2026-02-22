@@ -106,7 +106,8 @@ class Widget : public ButtonBase
   virtual bool enableFullScreenRE() const { return true; }
 
   // Called when the widget options have changed
-  virtual void update();
+  virtual void updateWithoutRefresh() {}
+  virtual void update() {}
 
   // Called at regular time interval if the widget is hidden or off screen
   virtual void background() {}
@@ -156,6 +157,7 @@ class WidgetFactory
 
   const WidgetOption* getDefaultOptions() const { return options; }
   virtual const void parseOptionDefaults() const {}
+  virtual const void checkOptions(int screenNum, int zoneNum) const {}
 
   const char* getDisplayName() const
   {

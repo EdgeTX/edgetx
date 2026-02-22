@@ -173,13 +173,10 @@ void Window::eventHandler(lv_event_t *e)
 
   switch (code) {
     case LV_EVENT_SCROLL: {
-      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
-      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
-      if (scrollHandler) scrollHandler(scroll_x, scroll_y);
-
       // exclude pointer based scrolling (only focus scrolling)
       if (!lv_obj_is_scrolling(target) && ((windowFlags & NO_FORCED_SCROLL) == 0)) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
+        lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
         TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
@@ -187,12 +184,17 @@ void Window::eventHandler(lv_event_t *e)
 
         // Force scroll to top or bottom when near either edge.
         // Only applies when using rotary encoder or keys.
-        if (scroll_y <= 45 && p->y > 0) {
+        if (scroll_y <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y > 0) {
           lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
-        } else if (scroll_bottom <= 16 && p->y < 0) {
+        } else if (scroll_bottom <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y < 0) {
           lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
         }
       }
+
+      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+      if (scrollHandler) scrollHandler(scroll_x, scroll_y);
+
     } break;
     case LV_EVENT_CLICKED:
       if (!_longPressed) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+* Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,34 +21,4 @@
 
 #pragma once
 
-#include "pagegroup.h"
-
-typedef void (*ToolExec)(const std::string& path);
-
-struct ToolEntry {
-  std::string label;
-  std::string path;
-  ToolExec exec;
-};
-
-extern void loadLuaTools();
-extern void getLuaToolNames(std::vector<std::string>& nameList);
-extern const ToolEntry* getLuaTool(int n);
-extern int getLuaToolId(const std::string nm);
-extern void runLuaTool(const std::string nm);
-
-class RadioToolsPage : public PageGroupItem
-{
- public:
-  RadioToolsPage(const PageDef& pageDefageDef);
-
-  void build(Window* window) override;
-
-  void checkEvents() override;
-
- protected:
-  void rebuild(Window* window);
-  Window* window = nullptr;
-  uint8_t waiting = 0;
-  uint8_t linesCount = 0;
-};
+void _poll_switches();

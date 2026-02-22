@@ -96,7 +96,7 @@ class QuickMenu : public NavWindow
   static void openPage(QMPage page);
   static EdgeTxIcon subMenuIcon(QMPage page);
   static int pageIndex(QMPage page);
-  static std::vector<std::string> menuPageNames(bool forFavorites);
+  static std::vector<std::string>& menuPageNames(bool forFavorites);
 
 #if VERSION_MAJOR > 2
   static void resetFavorites();
@@ -168,7 +168,7 @@ class QuickMenu : public NavWindow
 
 #if VERSION_MAJOR > 2
   void updateFavorites();
-  void setupFavorite(QMPage page, int f);
+  bool setupFavorite(int fav, int favBtn);
 #endif
 };
 

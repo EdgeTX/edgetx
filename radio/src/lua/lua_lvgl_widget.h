@@ -231,6 +231,7 @@ class LvglScrollableParams
   int scrolledFunction = LUA_REFNIL;
 
   bool parseScrollableParam(lua_State *L, const char *key);
+  void clearScrollableRefs(lua_State *L);
 };
 
 //-----------------------------------------------------------------------------
@@ -490,7 +491,12 @@ class LvglWidgetObject : public LvglWidgetObjectBase
  protected:
   Window *window = nullptr;
   int8_t flexFlow = -1;
-  int8_t flexPad = PAD_TINY;
+  int8_t flexPad = PAD_OUTLINE;
+  bool customPad = false;
+  int8_t borderPadLeft = PAD_ZERO;
+  int8_t borderPadRight = PAD_ZERO;
+  int8_t borderPadTop = PAD_ZERO;
+  int8_t borderPadBottom = PAD_ZERO;
   int getActiveFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
@@ -802,6 +808,7 @@ class LvglWidgetNumberEdit : public LvglWidgetObject, public LvglGetSetParams, p
 
  protected:
   int dispFunction = LUA_REFNIL;
+  int editedFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;

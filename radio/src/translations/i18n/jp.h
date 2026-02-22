@@ -742,6 +742,8 @@
 #define TR_DELETE_MODEL                "モデル削除"
 #define TR_RESTORE_MODEL               "モデル復元"
 #define TR_DELETE_ERROR                "削除エラー"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("SD error", "SDカードエラー")
 #define TR_SDCARD                      "SDカード"
 #define TR_NO_FILES_ON_SD              "SDにファイルがありません!!"
@@ -1134,6 +1136,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "第1チャンネル"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "背景を塗り潰しますか？"
 #define TR_BG_COLOR                  "背景カラー"
 #define TR_SLIDERS_TRIMS             "スライダー＋トリム"

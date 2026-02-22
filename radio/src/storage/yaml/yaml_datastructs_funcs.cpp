@@ -34,6 +34,10 @@
 #include "hal/adc_driver.h"
 #include "hal/audio_driver.h"
 
+#if defined(COLORLCD)
+#include "radio_tools.h"
+#endif
+
 //
 // WARNING:
 // ========
@@ -925,6 +929,70 @@ bool w_lov_color(void* user, uint8_t* data, uint32_t bitoffs,
   auto layoutData = get_LayoutData(user, option);
 
   return set_color(layoutData->options[option].value.unsignedValue, wf, opaque);
+}
+
+extern const struct YamlIdStr enum_QMPage[];
+
+void r_keyShortcut(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  event_t ev = g_eeGeneral.getKeyShortcutEvent(tw->getElmts(1));
+  bool isApp = (strncmp(val, "APP,", 4) == 0);
+  QMPage pg = isApp ? QM_APP : (QMPage)yaml_parse_enum(enum_QMPage, val, val_len);
+  g_eeGeneral.setKeyShortcut(ev, pg);
+  if (isApp)
+    g_eeGeneral.setKeyToolName(ev, val+4);
+}
+
+bool w_keyShortcut(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  event_t ev = g_eeGeneral.getKeyShortcutEvent(tw->getElmts(1));
+  QMPage pg = g_eeGeneral.getKeyShortcut(ev);
+
+  const char* str = yaml_output_enum(pg, enum_QMPage);
+  if (!wf(opaque, str, strlen(str))) return false;
+
+  if (pg == QM_APP) {
+    auto s = g_eeGeneral.getKeyToolName(ev);
+    if (!wf(opaque, ",", 1)) return false;
+    return wf(opaque, s.c_str(), s.size());
+  }
+
+  return true;
+}
+
+void r_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  int idx = tw->getElmts(1);
+  bool isApp = (strncmp(val, "APP,", 4) == 0);
+  QMPage pg = isApp ? QM_APP : (QMPage)yaml_parse_enum(enum_QMPage, val, val_len);
+  g_eeGeneral.qmFavorites[idx].shortcut = pg;
+  if (isApp)
+    g_eeGeneral.setFavoriteToolName(idx, val+4);
+}
+
+bool w_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  int idx = tw->getElmts(1);
+  QMPage pg = (QMPage)g_eeGeneral.qmFavorites[idx].shortcut;
+
+  const char* str = yaml_output_enum(pg, enum_QMPage);
+  if (!wf(opaque, str, strlen(str))) return false;
+
+  if (pg == QM_APP) {
+    auto s = g_eeGeneral.getFavoriteToolName(idx);
+    if (!wf(opaque, ",", 1)) return false;
+    return wf(opaque, s.c_str(), s.size());
+  }
+
+  return true;
 }
 #endif
 
@@ -2745,7 +2813,7 @@ static const struct YamlNode struct_cfsGroupOn[] {
   YAML_END,
 };
 
-#if NUM_FUNCTIION_SWITCHES > 6
+#if NUM_FUNCTIONS_SWITCHES > 6
 #define NUM_CFS_FOR_CONVERSION  6
 #else
 #define NUM_CFS_FOR_CONVERSION  NUM_FUNCTIONS_SWITCHES

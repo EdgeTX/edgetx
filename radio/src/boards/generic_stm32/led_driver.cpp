@@ -78,9 +78,9 @@ uint8_t getRGBColorIndex(uint32_t color)
 {
   for (uint8_t i = 0; i < (sizeof(colorTable) / sizeof(colorTable[0])); i++) {
     if (color == colorTable[i])
-      return(i);
+      return(i + 1);
   }
-  return 5; // Custom value set with Companion
+  return 0; // Custom value set with Companion
 }
 #elif defined(FUNCTION_SWITCHES)
 __weak void fsLedOff(uint8_t index)

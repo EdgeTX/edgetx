@@ -1016,6 +1016,94 @@ static int luaModelDeleteMixes(lua_State *L)
 }
 
 /*luadoc
+@function model.getSwitchWarning(switch)
+
+Get warning state for a switch
+
+@param switch (unsigned number) switch number (use 0 for SA)
+@param switch (string) switch name
+
+@retval nil when switch is a toggle or does not exist
+@retval number
+0 = no warning
+1 = switch up
+2 = switch middle
+3 = switch down
+
+@status current Introduced in 3.0.0
+*/
+
+static int luaModelGetSwitchWarning(lua_State *L)
+{
+  unsigned int sw = MIXSRC_NONE;
+  if (lua_isnumber(L, 1)) {
+    sw = luaL_checkinteger(L, 1);
+  }
+  else {
+    // convert from field name to its number
+    const char *name = luaL_checkstring(L, 1);
+    LuaField field;
+    bool found = luaFindFieldByName(name, field);
+    if (found) {
+      sw = field.id - MIXSRC_FIRST_SWITCH;
+    }
+  }
+
+  if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw)) {
+    lua_pushinteger(L, g_model.getSwitchWarning(sw));
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.setSwitchWarning(switch, state)
+
+Set warning state for a switch
+
+@param switch (unsigned number) switch number (use 0 for SA)
+@param switch (string) switch name
+
+@param state (number) state
+0 = no warning
+1 = switch up
+2 = switch middle
+3 = switch down
+
+@retval nil when switch is a toggle or does not exist
+
+@status current Introduced in 3.0.0
+*/
+
+static int luaModelSetSwitchWarning(lua_State *L)
+{
+  unsigned int sw = MIXSRC_NONE;
+  if (lua_isnumber(L, 1)) {
+    sw = luaL_checkinteger(L, 1);
+  }
+  else {
+    // convert from field name to its number
+    const char *name = luaL_checkstring(L, 1);
+    LuaField field;
+    bool found = luaFindFieldByName(name, field);
+    if (found) {
+      sw = field.id - MIXSRC_FIRST_SWITCH;
+    }
+  }
+  unsigned int newstate = luaL_checkinteger(L, 2);
+
+  if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw) && newstate < 4) {
+    g_model.setSwitchWarning(sw, newstate);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+/*luadoc
 @function model.getLogicalSwitch(switch)
 
 Get Logical Switch parameters
@@ -1893,6 +1981,8 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( insertMix, luaModelInsertMix )
   LROT_FUNCENTRY( deleteMix, luaModelDeleteMix )
   LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
+  LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
+  LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
   LROT_FUNCENTRY( getLogicalSwitch, luaModelGetLogicalSwitch )
   LROT_FUNCENTRY( setLogicalSwitch, luaModelSetLogicalSwitch )
   LROT_FUNCENTRY( getCustomFunction, luaModelGetCustomFunction )

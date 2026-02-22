@@ -1061,6 +1061,9 @@ QString GeneralSettings::quickMenuToString(int value, bool keys)
       return tr("Tools - Statistics");
     case QM_TOOLS_DEBUG:
       return tr("Tools - Debug");
+    // Lua stand alone script
+    case QM_APP:
+      return tr("App");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

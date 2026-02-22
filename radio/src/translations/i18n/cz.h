@@ -742,6 +742,8 @@
 #define TR_DELETE_MODEL                "Smazat model"
 #define TR_RESTORE_MODEL               "Obnov model z SD karty"
 #define TR_DELETE_ERROR                "Nelze odstranit"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                "Chyba SD karty"
 #define TR_SDCARD                      "SD karta"
 #define TR_NO_FILES_ON_SD              "Žádné soubory na SD kartě!"
@@ -1138,6 +1140,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "První kanál"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Vyplnit pozadí?"
 #define TR_BG_COLOR                  "Barva pozadí"
 #define TR_SLIDERS_TRIMS             "Slidery+Trimy"

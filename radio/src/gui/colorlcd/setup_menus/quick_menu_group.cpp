@@ -160,6 +160,8 @@ ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
     if (focusHandler)
       focusHandler(focus);
   });
+  if (curBtn == nullptr)
+    curBtn = b;
   return b;
 }
 
@@ -186,6 +188,9 @@ void QuickMenuGroup::deleteLater()
 
 void QuickMenuGroup::setFocus()
 {
+  if (!curBtn && btns.size() > 0)
+    curBtn = btns[0];
+
   if (curBtn) {
     lv_event_send(curBtn->getLvObj(), LV_EVENT_FOCUSED, nullptr);
     lv_group_focus_obj(curBtn->getLvObj());

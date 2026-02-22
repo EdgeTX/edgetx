@@ -26,6 +26,7 @@
 #include "mainwindow.h"
 #include "model_select.h"
 #include "quick_menu_group.h"
+#include "radio_tools.h"
 #include "screen_setup.h"
 #include "theme_manager.h"
 #include "view_channels.h"
@@ -145,7 +146,14 @@ class QuickSubMenu
     subMenu = new QuickMenuGroup(parent);
 
     for (int i = 0; mainDef->subMenuItems[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-      subMenu->addButton(mainDef->subMenuItems[i].icon, STR_VAL(mainDef->subMenuItems[i].qmTitle),
+      auto pg = mainDef->subMenuItems[i].qmPage;
+      const char* title;
+      if (pg < QM_APP) {
+        title = STR_VAL(mainDef->subMenuItems[i].qmTitle);
+      } else {
+        title = getLuaTool(pg - QM_APP)->label.c_str();
+      }
+      subMenu->addButton(mainDef->subMenuItems[i].icon, title,
           std::bind(&QuickSubMenu::onPress, this, i),
           mainDef->subMenuItems[i].enabled,
           [=](bool focus) { if (focus) QuickMenu::setCurrentPage(mainDef->subMenuItems[i].qmPage, mainDef->icon); });
@@ -430,10 +438,11 @@ std::string replaceAll(std::string str, const std::string& from, const std::stri
     return str;
 }
 
-std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
+std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
 {
-  std::vector<std::string> qmPages;
+  static std::vector<std::string> qmPages;
 
+  qmPages.clear();
   qmPages.emplace_back(STR_NONE);
   qmPages.emplace_back(STR_OPEN_QUICK_MENU);
 
@@ -455,6 +464,10 @@ std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
     }
   }
 
+#if defined(LUA)
+  getLuaToolNames(qmPages);
+#endif
+
   return qmPages;
 }
 
@@ -467,12 +480,12 @@ void QuickMenu::resetFavorites()
 
 void QuickMenu::updateFavorites()
 {
+  loadLuaTools();
+
   int f = 0;
   for (int i = 0; i < MAX_QM_FAVORITES; i += 1) {
-    if (g_eeGeneral.qmFavorites[i].shortcut != QM_NONE) {
-      setupFavorite((QMPage)g_eeGeneral.qmFavorites[i].shortcut, f);
+    if (setupFavorite(i, f))
       f += 1;
-    }
   }
   favoritesMenuItems[f].icon = EDGETX_ICONS_COUNT;
 
@@ -480,9 +493,30 @@ void QuickMenu::updateFavorites()
     subMenus[0]->clearSubMenu();
 }
 
-void QuickMenu::setupFavorite(QMPage page, int f)
+bool QuickMenu::setupFavorite(int favIdx, int favBtn)
 {
-  PageDef& fav = favoritesMenuItems[f];
+  auto page = g_eeGeneral.qmFavorites[favIdx].shortcut;
+  PageDef& fav = favoritesMenuItems[favBtn];
+
+  if (page == QM_NONE)
+    return false;
+
+  if (page == QM_APP) {
+    std::string nm = g_eeGeneral.getFavoriteToolName(favIdx);
+    int idx = getLuaToolId(nm);
+    if (idx >= 0) {
+      fav.icon = ICON_TOOLS_APPS;
+      fav.qmTitle = nullptr;  // retreived on use (no translation strings)
+      fav.title = nullptr;    // retrieved on use (no translation strings)
+      fav.pageAction = PAGE_ACTION;
+      fav.qmPage = (QMPage)(page + idx);
+      fav.create = nullptr;
+      fav.enabled = nullptr;
+      fav.action = [=]() { runLuaTool(nm); };
+      return true;
+    }
+    return false;
+  }
 
   for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
@@ -495,7 +529,7 @@ void QuickMenu::setupFavorite(QMPage page, int f)
           fav.create = nullptr;
           fav.enabled = nullptr;
           fav.action = qmTopItems[i].action;
-        return;
+        return true;
         }
     } else {
       const PageDef* sub = qmTopItems[i].subMenuItems;
@@ -509,11 +543,13 @@ void QuickMenu::setupFavorite(QMPage page, int f)
           fav.create = sub[j].create;
           fav.enabled = sub[j].enabled;
           fav.action = sub[j].action;
-          return;
+          return true;
         }
       }
     }
   }
+
+  return false;
 }
 #endif
 
@@ -580,7 +616,10 @@ void QuickMenu::enableSubMenu()
 void QuickMenu::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_OPEN_QUICK_MENU) {
+  if (pg == QM_APP) {
+    closeQM();
+    runLuaTool(g_eeGeneral.getKeyToolName(event));
+  } else if (pg == QM_OPEN_QUICK_MENU) {
     closeQM();
   } else {
     onSelect(true);
@@ -599,7 +638,7 @@ void QuickMenu::afterPG()
 {
   auto b = mainMenu->getFocusedButton();
   if (b) {
-#if VERSION_MAJOR > 3
+#if VERSION_MAJOR > 2
     for(auto sub : subMenus) {
       if (sub->isSubMenu(b)) {
         sub->activate();
