@@ -68,7 +68,7 @@ class RadioInfoWidget : public Widget
     batteryChargeIcon->hide();
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if (defined(INTERNAL_MODULE_PXX1) || defined(RADIO_V12)) && defined(EXTERNAL_ANTENNA)
     extAntenna = new StaticIcon(this, W_RSSI_X - PAD_SMALL, 1,
                                 ICON_TOPMENU_ANTENNA,
                                 COLOR_THEME_PRIMARY2_INDEX);
@@ -153,6 +153,9 @@ class RadioInfoWidget : public Widget
     extAntenna->show(isModuleXJT(INTERNAL_MODULE) &&
                      isExternalAntennaEnabled());
 #endif
+#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
+    extAntenna->show(isExternalAntennaEnabled());
+#endif
 
     // Battery level
     uint8_t bars = GET_TXBATT_BARS(W_BATT_FILL_W);
@@ -219,7 +222,7 @@ class RadioInfoWidget : public Widget
 #if defined(USB_CHARGER)
   StaticIcon* batteryChargeIcon;
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)||defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
   StaticIcon* extAntenna;
 #endif
 };

@@ -324,7 +324,7 @@ static const uint8_t mask_btn_list_two[] __FLASH = {
 
 // gfx for widgets
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if (defined(INTERNAL_MODULE_PXX1) || defined (RADIO_V12)) && defined(EXTERNAL_ANTENNA)
 static const uint8_t mask_topmenu_antenna[] __FLASH = {
 #include "mask_widget_antenna.lbm"
 };
