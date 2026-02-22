@@ -19,24 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/switch_driver.h"
 #include "drivers/pca95xx.h"
+#include "hal/switch_driver.h"
+#include "myeeprom.h"
 #include "stm32_i2c_driver.h"
-#include "timers_driver.h"
-#include "delays_driver.h"
-#include "stm32_ws2812.h"
 #include "stm32_switch_driver.h"
 
-#include "os/async.h"
-#include "os/timer.h"
-
-#include "myeeprom.h"
-
+constexpr uint8_t MAX_UNREAD_CYCLE = 100; // Force a read every 100 cycles even if no interrupt was triggered
 #define IO_INT_GPIO GPIO_PIN(GPIOE, 14)
 #define IO_RESET_GPIO GPIO_PIN(GPIOE, 15)
-
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
-extern bool suspendI2CTasks;
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -44,17 +36,19 @@ struct bsp_io_expander {
   uint32_t state;
 };
 
-static volatile bool _poll_switches_in_queue = false;
-
+static volatile uint8_t _poll_switches_cnt = 0;
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
-static timer_handle_t _poll_timer = TIMER_INITIALIZER;
+static void _io_int_handler()
+{
+  _poll_switches_cnt = 0;
+}
 
 static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 {
   io->mask = mask;
-  io->state = 0;  
+  io->state = 0;
 }
 
 static uint32_t _read_io_expander(bsp_io_expander* io)
@@ -68,46 +62,28 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
     delay_us(1);  // Only 6ns are needed according to PCA datasheet, but lets be safe
     gpio_set(IO_RESET_GPIO);
   }
-  return io->state;  
+  return io->state;
 }
 
-typedef enum {
-  TRIGGERED_BY_TIMER = 0,
-  TRIGGERED_BY_IRQ,  
-} trigger_source_t;
-
-static void _poll_switches(void *param1, uint32_t trigger_source)
+void _poll_switches()
 {
-  (void)param1;
-
-  if (trigger_source == TRIGGERED_BY_IRQ) {
-    _poll_switches_in_queue = false;
-    timer_reset(&_poll_timer);
+  if ( _poll_switches_cnt == 0) {
+    _read_io_expander(&_io_switches);
+    _read_io_expander(&_io_fs_switches);
+    _poll_switches_cnt = MAX_UNREAD_CYCLE;
+  } else {
+    _poll_switches_cnt--;
   }
-
-  // Suspend hardware reads when required
-  if (suspendI2CTasks) return;
-
-  _read_io_expander(&_io_switches);
-  _read_io_expander(&_io_fs_switches);
 }
 
-static void _io_int_handler()
+uint32_t bsp_io_read_switches()
 {
-  async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr,
-                 TRIGGERED_BY_IRQ);
+  return _read_io_expander(&_io_switches);
 }
 
-static void _poll_cb(timer_handle_t* timer)
+uint32_t bsp_io_read_fs_switches()
 {
-  (void)timer;
-  _poll_switches(nullptr, TRIGGERED_BY_TIMER);
-}
-
-static void start_poll_timer()
-{
-  timer_create(&_poll_timer, _poll_cb, "portex", 100, true);
-  timer_start(&_poll_timer);
+  return _read_io_expander(&_io_fs_switches);
 }
 
 int bsp_io_init()
@@ -135,10 +111,8 @@ int bsp_io_init()
   gpio_init(IO_RESET_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_set(IO_RESET_GPIO);
 
-  _read_io_expander(&_io_switches);
-  _read_io_expander(&_io_fs_switches);
-
-  start_poll_timer();
+  bsp_io_read_switches();
+  bsp_io_read_fs_switches();
 
   return 0;
 }
@@ -147,6 +121,14 @@ void boardInitSwitches()
 {
   bsp_io_init();
 }
+
+struct bsp_io_sw_def {
+  uint32_t pin_high;
+  uint32_t pin_low;
+};
+
+static constexpr uint32_t RGB_OFFSET = (1 << 16); // first after bspio pins
+static uint16_t soft2POSLogicalState = 0xFFFF;
 
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
@@ -161,8 +143,7 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
     } else {
       return SWITCH_HW_UP;
     }
-  }
-  else if (!def->Pin_low) {
+  } else if (!def->Pin_low) {
     // 2POS switch
     if ((state & def->Pin_high) == 0) {
       pos = SWITCH_HW_DOWN;
@@ -194,7 +175,6 @@ static SwitchHwPos _get_fs_switch_pos(uint8_t idx)
 
 SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
-  if (idx < 8)
-    return _get_switch_pos(idx);
+  if (idx < 8) return _get_switch_pos(idx);
   return _get_fs_switch_pos(idx);
 }

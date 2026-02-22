@@ -42,6 +42,10 @@ struct hw_switch_def {
 
 int8_t switchesStates[MAX_SWITCHES];
 
+#if defined(RADIO_GX12)
+void _poll_switches() {}
+#endif
+
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
   assert(swtch < switchGetMaxAllSwitches());
