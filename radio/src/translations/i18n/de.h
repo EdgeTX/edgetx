@@ -524,6 +524,8 @@
 #define TR_SLOWDOWN                    "Langs.Dn"
 #define TR_SLOWUP                      "Langs.Up"
 #define TR_CV                          "KV"
+#define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       TR("Bereich", "Variobereich m/s")
 #define TR_CENTER                      TR("Mitte", "Variomitte     m/s")
@@ -1236,6 +1238,8 @@
 #define TR_MENU_TRIMS                  CHAR_TRIM "Trimmung"
 #define TR_MENU_SWITCHES               CHAR_SWITCH "Schalter"
 #define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Log. Schalter"
+#define TR_MENU_VIRTUAL_SWITCHES       CHAR_SWITCH "Virt. Schalter"
+#define TR_MENU_VCONTROL               "Virtuals"
 #define TR_MENU_TRAINER                CHAR_TRAINER "Trainer"
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Kanäle"
 #define TR_MENU_GVARS                  CHAR_SLIDER "Glob. Vars"
