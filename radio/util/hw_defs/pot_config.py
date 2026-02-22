@@ -264,6 +264,17 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
     },
+    "dro1": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+        "EXT1": {"default": "SLIDER"},
+        "EXT2": {"default": "SLIDER"},
+        "EXT3": {"default": "NONE"},
+        "EXT4": {"default": "NONE"}
+    },
 }
 
 

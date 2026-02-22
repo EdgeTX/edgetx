@@ -44,6 +44,8 @@
 #define FACTORY_RELEASE "-imrc"
 #elif defined(BETAFPV_RELEASE)
 #define FACTORY_RELEASE "-betafpv"
+#elif defined(DUMBORC_RELEASE)
+#define FACTORY_RELEASE "-DRO"
 #endif
 
 // If factory release, append mfg tag to version
