@@ -135,14 +135,17 @@ SWITCH_CONFIG = {
         "SH": {"default": "TOGGLE"}
     },
     "v12": {
-        # left side
-        "SA": {"default": "3POS",   "display": [0, 0]},
-        "SB": {"default": "3POS",   "display": [0, 1]},
-        "SE": {"default": "2POS",   "display": [0, 2]},
-        # right side
-        "SC": {"default": "3POS",   "display": [1, 0]},
-        "SD": {"default": "3POS",   "display": [1, 1]},
-        "SF": {"default": "TOGGLE", "display": [1, 2]},
+        "SA": {"default": "2POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "2POS"},
+         # custom switches
+        "SE": {"default": "2POS"},
+        "SF": {"default": "2POS"},
+        "SG": {"default": "2POS"},
+        "SH": {"default": "2POS"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
     },
     "v14": {
         # left side

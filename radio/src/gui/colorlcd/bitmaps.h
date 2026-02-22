@@ -100,7 +100,7 @@ enum EdgeTxIcon {
 #if defined(USB_CHARGER)
   ICON_TOPMENU_TXBATT_CHARGE,
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if (defined(INTERNAL_MODULE_PXX1) || defined(RADIO_V12)) && defined(EXTERNAL_ANTENNA)
   ICON_TOPMENU_ANTENNA,
 #endif
 #if defined(INTERNAL_GPS)
