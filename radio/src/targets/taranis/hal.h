@@ -2879,6 +2879,17 @@
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOC, 12) // PC.12
 #endif
 
+#if defined(RADIO_MT12)
+  #define SERVO_PWM
+  #define PWM_GPIO                   GPIO_PIN(GPIOB, 0) // PB.00
+  #define PWM_GPIO_AF                GPIO_AF2
+  #define PWM_GPIO_TIMER             TIM3 // Timer 3 Channel3
+  #define PWM_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
+  #define PWM_COUNTER_REGISTER       PWM_TIMER->CCR3
+  #define PWM_CCMR2                  TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2
+  #define PWM_CCER                   TIM_CCER_CC3E
+#endif
+
 #if defined(RADIO_BOXER) || defined(RADIO_FAMILY_T20) || defined(RADIO_X9DP2019) || defined (RADIO_V14) || defined(RADIO_GX12)
   // Flysky Hall Stick
   #define FLYSKY_HALL_SERIAL_USART                 UART4
