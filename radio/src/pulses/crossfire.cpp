@@ -96,20 +96,20 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
 {
   //
-  // sends channel data and also communicates commanded armed status in arming mode Switch.
-  // frame len 24 -> arming mode CH5: module will use channel 5
-  // frame len 25 -> arming mode Switch: send commanded armed status in extra byte after channel data
-  // 
-  ModuleData *md = &g_model.moduleData[moduleIdx];
-
-  uint8_t armingMode = md->crsf.crsfArmingMode; // 0 = Channel mode, 1 = Switch mode
-  uint8_t lenAdjust = (armingMode == ARMING_MODE_SWITCH) ? 1 : 0;
-
+  // sends channel data and also communicates status information in status byte:
+  // - arming status in Switch mode (bit 0)
+  // - arming mode Switch or CH5 (bit 1)
+  // - bits 2-7 spare
+  //
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 24 + lenAdjust;      // 1(ID) + 22(channel data) + (+1 extra byte if Switch mode) + 1(CRC)
+  *buf++ = 25;                  // 1(ID) + 22(channel data) + 1(extra status byte) + 1(CRC)
   uint8_t * crc_start = buf;
   *buf++ = CHANNELS_ID;
+
+  //
+  // assemble channel data
+  //
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
   for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
@@ -122,14 +122,35 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
       bitsavailable -= 8;
     }
   }
-  
-  if (armingMode == ARMING_MODE_SWITCH) {
+
+  //
+  // assemble status byte
+  //
+  ModuleData *md = &g_model.moduleData[moduleIdx];
+
+  if (md->crsf.crsfArmingMode == ARMING_MODE_SWITCH) {
     swsrc_t sw =  md->crsf.crsfArmingTrigger;
 
-    *buf++ = (sw != SWSRC_NONE) && getSwitch(sw, 0);  // commanded armed status in Switch mode
+    *buf = (sw != SWSRC_NONE) && getSwitch(sw, 0);  // commanded armed status in Switch mode
+  } else {
+    *buf = 0x02;                                    // flag arming mode CH5
   }
+
+  // Example: flag crsf errors to ELRS in bit 2 for resending linkstats
+  //
+  //extern bool crsfErrorFlag;
+  //if(crsfErrorFlag) {
+  //  *buf |= 0x04;                                   // flag crsf error
+  //  crsfErrorFlag = false;
+  //}
+
+  buf++;
   
-  *buf++ = crc8(crc_start, 23 + lenAdjust);
+  //
+  // add crc
+  //
+  *buf++ = crc8(crc_start, 24);
+
   return buf - frame;
 }
 
