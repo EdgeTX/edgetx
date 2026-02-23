@@ -43,7 +43,7 @@
 #define TR_QM_FLIGHT_MODES             TR_SFC_AIR("Fahr-\nModi", "Flug-\nModi")
 #define TR_QM_INPUTS                   "Geber"
 #define TR_QM_MIXES                    "Mischer"
-#define TR_QM_OUTPUTS                  "Ausgang"
+#define TR_QM_OUTPUTS                  "Ausgänge"
 #define TR_QM_CURVES                   "Kurven"
 #define TR_QM_GLOBAL_VARS              "Glob.\nVariab."
 #define TR_QM_LOGICAL_SW               "Logik-\nSchalter"
@@ -69,13 +69,13 @@
 #define TR_QM_ADD_SCREEN               "Neue\nSeite"
 #define TR_QM_APPS                     "Apps"
 #define TR_QM_STORAGE                  "Speicher"
-#define TR_QM_RESET                    TR_SFC_AIR("Fahr-\nReset", "Flug-\nReset")
+#define TR_QM_RESET                    TR_SFC_AIR("Fahrt-\nReset", "Flug-\nReset")
 #define TR_QM_CHAN_MON                 "Kanal-\nMonitor"
 #define TR_QM_LS_MON                   "LS-\nMonitor"
 #define TR_QM_STATS                    "Statistiken"
 #define TR_QM_DEBUG                    "Debug"
-#define TR_MAIN_MODEL_SETTINGS         "Modell Einstellungen"
-#define TR_MAIN_RADIO_SETTINGS         "Sender Einstellungen"
+#define TR_MAIN_MODEL_SETTINGS         "Modell-Einstellungen"
+#define TR_MAIN_RADIO_SETTINGS         "Sender-Einstellungen"
 #define TR_MAIN_MENU_MANAGE_MODELS     "Modell Manager"
 #define TR_MAIN_MENU_MODEL_NOTES       "Modell Notizen"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal Monitor"
@@ -226,7 +226,7 @@
 #define TR_SF_RGBLEDS                  "RGB LED"
 
 #define TR_SOUND                       "Spiel Töne"
-#define TR_PLAY_TRACK                  TR("Spi. Datei", "Datei abspielen")
+#define TR_PLAY_TRACK                  TR("Datei abs.", "Datei abspielen")
 #define TR_PLAY_VALUE                  TR("Sag Wert", "Wert ansagen")
 #define TR_SF_HAPTIC                   "Haptik"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua-Skript")
@@ -407,7 +407,7 @@
 #define TR_VFORMULAS_8                 "Verbrauch"
 #define TR_VFORMULAS_9                 "Distanz"
 #define TR_VPREC_1                     "0.--"
-#define TR_VPREC_2                     "0.0 "
+#define TR_VPREC_2                     "0.0 " //align with en.h also uses a space to keep the same width as 0.00
 #define TR_VPREC_3                     "0.00"
 #define TR_VCELLINDEX_1                "Niedrigst"
 #define TR_VCELLINDEX_2                "1. Zelle"
@@ -488,7 +488,7 @@
 #define TR_LAST                        "Letzte"
 #define TR_MORE_INFO                   "Mehr Info"
 #define TR_SWITCH_TYPE                 "Typ"
-#define TR_SWITCH_STARTUP              "Start"
+#define TR_SWITCH_STARTUP              "Bei Start"
 #define TR_SWITCH_GROUP                "Gruppe"
 #define TR_SF_SWITCH                   "Auslöser"
 #define TR_TRIMS                       "Trimmer"
@@ -868,7 +868,7 @@
 #define TR_FAV_MATCH_MODE_2            "Alternative Übereinstimmung"
 
 #define TR_SELECT_TEMPLATE_FOLDER      "Wähle Vorlagenverzeichnis:"
-#define TR_SELECT_TEMPLATE             "Wähle Modelvorlage:"
+#define TR_SELECT_TEMPLATE             "Wähle Modellvorlage:"
 #define TR_NO_TEMPLATES                "Es wurden keine Modellvorlagen in diesem Verzeichnis gefunden"
 #define TR_SAVE_TEMPLATE               "Als Vorlage speichern"
 #define TR_BLANK_MODEL                 "Leeres Modell"
@@ -1385,8 +1385,8 @@
 #define TR_SYNC                        "Sync"
 
 #define TR_ENABLED_FEATURES            "Menüpunkte"
-#define TR_RADIO_MENU_TABS             "Sender Menüpunkte"
-#define TR_MODEL_MENU_TABS             "Modell Menüpunkte"
+#define TR_RADIO_MENU_TABS             "Sender-Menüpunkte"
+#define TR_MODEL_MENU_TABS             "Modell-Menüpunkte"
 
 #define TR_SELECT_MENU_ALL             "Alle"
 #define TR_SELECT_MENU_CLR             "Löschen"
