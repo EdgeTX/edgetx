@@ -88,14 +88,14 @@
 #define TR_MAIN_VIEW_X                 "Seite "
 #define TR_MAIN_MENU_THEMES            "THEMES"
 #define TR_MAIN_MENU_APPS              "Apps"
-#define TR_MENUHELISETUP               TR("HELI TS-Mischer", "HELI TS-Mischer CYC1-3")
+#define TR_MENUHELISETUP               TR("HELI TS-MISCHER", "HELI TS-MISCHER CYC1-3")
 #define TR_MENUFLIGHTMODES             TR_SFC_AIR("FAHRMODI", "FLUGPHASEN")
 #define TR_MENUFLIGHTMODE              TR_SFC_AIR("FAHRMODUS", "FLUGPHASE")
 #define TR_MENUINPUTS                  "INPUTS"  //"Inputs=Geber"
 #define TR_MENULIMITS                  "SERVOS"  //"AUSGABEN" oder "Servos"
 #define TR_MENUCURVES                  "KURVEN"
 #define TR_MIXES                       "MISCHER"
-#define TR_MENU_GLOBAL_VARS            "Globale Variablen"
+#define TR_MENU_GLOBAL_VARS            "GLOBALE VARIABLEN"
 #define TR_MENULOGICALSWITCHES         "LOGIKSCHALTER"
 #define TR_MENUCUSTOMFUNC              TR("SPEZ.-FUNKTIONEN", "SPEZIAL-FUNKTIONEN")
 #define TR_MENUCUSTOMSCRIPTS           "LUA-SKRIPTE"
@@ -243,7 +243,7 @@
 #define TR_SF_RACING_MODE              "RacingMode"
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
-#define TR_SF_SET_SCREEN               TR_BW_COL("TelSeite anz", "Hauptbildschirm setzen")
+#define TR_SF_SET_SCREEN               TR_BW_COL("Seite anz.", "Hauptseite anzeigen")
 #define TR_SF_PUSH_CUST_SWITCH         "CS auslösen"
 #define TR_SF_LCD_TO_VIDEO             "LCD zu Video"
 
@@ -361,17 +361,17 @@
 #define TR_ROTARY_ENC_OPT_3            "V-I H-N"
 #define TR_ROTARY_ENC_OPT_4            "V-I H-A"
 #define TR_ROTARY_ENC_OPT_5            "V-N E-I"
-#define TR_IMU_VSRCRAW_1               "TltX"
-#define TR_IMU_VSRCRAW_2               "TltY"
+#define TR_IMU_VSRCRAW_1               "NeigX"
+#define TR_IMU_VSRCRAW_2               "NeigY"
 
 #define TR_CYC_VSRCRAW_1               "CYC1"
 #define TR_CYC_VSRCRAW_2               "CYC2"
 #define TR_CYC_VSRCRAW_3               "CYC3"
 
 #define TR_SRC_BATT                    "Batt"
-#define TR_SRC_TIME                    "Time"
+#define TR_SRC_TIME                    "Zeit"
 #define TR_SRC_GPS                     "GPS"
-#define TR_SRC_LIGHT                   "Ambient light"
+#define TR_SRC_LIGHT                   "Umgebungslicht"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "AUS"
@@ -516,7 +516,7 @@
 #define TR_MIXWARNING                  "Warnung"
 #define TR_OFF                         "AUS"
 #define TR_ANTENNA                     "Antenne"
-#define TR_NO_INFORMATION              TR("Keine Info", "Keine Info")
+#define TR_NO_INFORMATION              TR("Keine Info", "Keine Information")
 #define TR_MULTPX                      "Wirkung"
 #define TR_DELAYDOWN                   "Verz. Dn"
 #define TR_DELAYUP                     "Verz. Up"
@@ -563,7 +563,7 @@
 #define TR_BEEPCOUNTDOWN               "Countdown"
 #define TR_PERSISTENT                  TR("Permanent", "Permanent")
 #define TR_BACKLIGHT_LABEL             "Bildschirm"
-#define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_GHOST_MENU_LABEL            "GHOST MENÜ"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "An-Helligkeit"
 #define TR_BLOFFBRIGHTNESS             "Aus-Helligkeit"
@@ -748,7 +748,7 @@
 #define TR_WAITING_FOR_MODULE          TR("Warten Modul", "Warten auf Modul...")
 #define TR_NO_TOOLS                    "Keine Tools vorhanden"
 #define TR_NORMAL                      "Normal"
-#define TR_NOT_INVERTED                "Not inv"
+#define TR_NOT_INVERTED                "Nicht inv"
 #define TR_NOT_CONNECTED               "!Verbunden"
 #define TR_CONNECTED                   "Verbunden"
 #define TR_FLEX_915                    "Flex 915MHz"
@@ -774,10 +774,10 @@
 #define TR_RTC_BATT                    "RTC Batt"
 #define TR_POWER_METER_EXT             "Power Meter (EXT)"
 #define TR_POWER_METER_INT             "Power Meter (INT)"
-#define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
-#define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
-#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
-#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_SPECTRUM_ANALYSER_EXT       "Spektrum (EXT)"
+#define TR_SPECTRUM_ANALYSER_INT       "Spektrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost Konfig."
+#define TR_GPS_MODEL_LOCATOR           "GPS Modell-Finder"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD-Karte voll"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Logs und " LCDW_128_LINEBREAK "Screenshots deaktiviert", TR_SDCARD_FULL "\nLogs und Screenshots deaktiviert")
