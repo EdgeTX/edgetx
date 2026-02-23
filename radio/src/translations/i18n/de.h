@@ -458,8 +458,8 @@
 #define TR_NEXT                        "Weiter"
 #define TR_ELIMITS                     TR("Erw. Limit", "Erw. Wege auf 150%")
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
-#define TR_TRIMINC                     TR("Trimmschritt", "Trimmschritte")
-#define TR_DISPLAY_TRIMS               TR("Trimmanzeige", "Trimmwerte anzeigen")
+#define TR_TRIMINC                     TR("Trimm-Ink.", "Trimmschritte")
+#define TR_DISPLAY_TRIMS               TR("Trimm-Anz.", "Trimmwerte anzeigen")
 #define TR_TTRACE                      TR("Gasquelle", "Gas-Timerquelle")
 #define TR_TTRIM                       TR("Gastrim", "Gas-Leerlauftrim")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trimmschalter")
@@ -579,7 +579,7 @@
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING               TR("Sch. Alarm", "Schalter-Alarm")
 #define TR_POTWARNINGSTATE             "Potis & Schieber"
-#define TR_POTWARNING                  TR("Potiwarnung", "Poti-Warnung")
+#define TR_POTWARNING                  TR("Potiwarn.", "Poti-Warnung")
 #define TR_TIMEZONE                    TR("Zeitzone", "GPS-Zeitzone +/-Std")
 #define TR_ADJUST_RTC                  TR("GPSzeit setzen", "Uhrzeit per GPS setzen")
 #define TR_GPS                         "GPS"
@@ -846,7 +846,7 @@
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_CRSF_ARMING_MODE            "Arm via"
 #define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
-#define TR_SAMPLE_MODE                 "Abtastmodus"
+#define TR_SAMPLE_MODE                 TR_BW_COL("Abtastmod.", "Abtastmodus")
 #define TR_SAMPLE_MODES_1              "Normal"
 #define TR_SAMPLE_MODES_2              "OneBit"
 #define TR_LOADING                     "Wird geladen..."
@@ -1239,7 +1239,7 @@
 #define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetrie"
 #define TR_MENU_DISPLAY                "TELM-SEITEN"
 #define TR_MENU_OTHER                  "Weitere"
-#define TR_MENU_INVERT                 "Invertieren<!>"
+#define TR_MENU_INVERT                 TR_BW_COL("Invert.", "Invertieren")
 #define TR_AUDIO_MUTE                  TR("Ton Stumm","Geräuschunterdrückung")
 #define TR_JITTER_FILTER               "ADC Filter"
 #define TR_DEAD_ZONE                   "Dead zone"
