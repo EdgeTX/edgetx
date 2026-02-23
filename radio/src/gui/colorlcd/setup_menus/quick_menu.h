@@ -137,6 +137,7 @@ class QuickMenu : public NavWindow
 
   void focusMainMenu();
 
+  void onClicked() override { onCancel(); }
   void deleteLater(bool detach = true, bool trash = true) override;
 
 #if VERSION_MAJOR > 2
