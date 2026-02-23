@@ -61,6 +61,14 @@ jobs:
             echo "CMakeLists.txt not found"
           fi
 
+      - name: Install git-cliff
+        run: |
+          VERSION=$(wget -qO- https://api.github.com/repos/orhun/git-cliff/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
+          FILENAME="git-cliff-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          wget -O git-cliff.tar.gz "https://github.com/orhun/git-cliff/releases/download/v${VERSION}/${FILENAME}"
+          tar -xzvf git-cliff.tar.gz
+          mv git-cliff-${VERSION}/git-cliff /usr/local/bin/
+
       - name: Generate Changelog and Contributors List
         id: changelog
         run: |
