@@ -1051,6 +1051,7 @@
 #define TR_ANTENNA_MODES_3           "基於模型"
 #define TR_ANTENNA_MODES_4           "外置天線"
 #define TR_ANTENNA_MODES_5           "外置天線"
+#define TR_ANTENNA_SELECT             "內置天線","外置天線"
 #define TR_USE_INTERNAL_ANTENNA        TR("請使用內置天線", "請使用內置天線")
 #define TR_USE_EXTERNAL_ANTENNA        TR("請使用外置天線", "請使用外置天線")
 #define TR_ANTENNACONFIRM2             TR("檢查天線", "請確認天線安裝完好!")

@@ -66,7 +66,35 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
     return std::string(msg);
   });
- 
+  
+#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
+  if (moduleIdx == INTERNAL_MODULE){
+    auto antline = newLine(grid);
+    new StaticText(antline, rect_t{}, STR_ANTENNA);
+
+    new Choice(antline, rect_t{}, STR_ANTENNA_SELECT, 0, ANTENNA_MODE_EXTERNAL,
+      GET_DEFAULT(g_eeGeneral.antennaMode), [=](int8_t antenna){
+
+      if (!isExternalAntennaEnabled() && (antenna == ANTENNA_MODE_EXTERNAL)) {
+          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+              g_eeGeneral.antennaMode = antenna;
+              SET_DIRTY();
+            }
+          } else {
+            g_eeGeneral.antennaMode = antenna;
+            SET_DIRTY();
+            checkExternalAntenna();
+          }
+          if(g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL){
+            INTMODULE_ANTSEL_EXT();
+          }
+          else {
+            INTMODULE_ANTSEL_INT();
+          }
+      });
+  }
+#endif
+
   moduleIdx = moduleIdx;
 
   auto armingLine = newLine(grid);
