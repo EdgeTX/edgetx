@@ -223,22 +223,24 @@ void QuickMenu::shutdownQuickMenu()
 }
 
 QuickMenu::QuickMenu() :
-    NavWindow(MainWindow::instance(), {QM_X, QM_Y, QM_W, QM_H})
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
   setWindowFlag(OPAQUE);
 
-  etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
-  etx_bg_color(lvobj, COLOR_THEME_QM_BG_INDEX);
+  Window* w = new Window(this, {QM_X, QM_Y, QM_W, QM_H});
 
-  auto sep = lv_obj_create(lvobj);
+  etx_obj_add_style(w->getLvObj(), styles->bg_opacity_90, LV_PART_MAIN);
+  etx_bg_color(w->getLvObj(), COLOR_THEME_QM_BG_INDEX);
+
+  auto sep = lv_obj_create(w->getLvObj());
   etx_solid_bg(sep, COLOR_THEME_QM_FG_INDEX);
   lv_obj_set_size(sep, QM_W, PAD_THREE);
 
   auto mask = getBuiltinIcon(ICON_TOP_LOGO);
-  new StaticIcon(this, (QM_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
+  new StaticIcon(w, (QM_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
 
   new ButtonBase(
-    this, {0, 0, QM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+    w, {0, 0, QM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
     [=]() -> uint8_t {
       inSubMenu = false;
       onCancel();
@@ -246,12 +248,12 @@ QuickMenu::QuickMenu() :
     },
     window_create);
 
-  auto box = new Window(this, {QM_MAIN_X, QM_MAIN_Y, QM_MAIN_W, QM_MAIN_H});
+  auto box = new Window(w, {QM_MAIN_X, QM_MAIN_Y, QM_MAIN_W, QM_MAIN_H});
 
   mainMenu = new QuickMenuGroup(box);
 
 #if VERSION_MAJOR > 2
-  box = new Window(this, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
+  box = new Window(w, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
 
   int f = 0;
   for (int i = 0; i < MAX_QM_FAVORITES; i += 1) {
