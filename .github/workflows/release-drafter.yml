@@ -1,0 +1,214 @@
+name: Create Release Draft
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create release for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create draft release
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+
+      - name: Clean up any previous drafts for this version
+        run: |
+          TAG="${{ inputs.tag }}"
+          if gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q true; then
+            echo "Deleting existing draft release for tag: $TAG"
+            gh release delete "$TAG" --yes
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version info
+        id: version
+        continue-on-error: false
+        run: |
+          VERSION="${{ inputs.tag }}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Extract codename from CMakeLists.txt
+          if [ -f "CMakeLists.txt" ]; then
+            CODENAME=$(grep -oP 'set\(CODENAME\s+"\K[^"]+' CMakeLists.txt || echo "")
+            if [ -n "$CODENAME" ]; then
+              if [ "$CODENAME" = "dev" ]; then
+                echo "::error::CODENAME is set to 'dev' for a tagged release! Please update the CODENAME in CMakeLists.txt before creating a release."
+                exit 1
+              fi
+              echo "codename=$CODENAME" >> $GITHUB_OUTPUT
+              echo "has_codename=true" >> $GITHUB_OUTPUT
+              echo "Found codename: $CODENAME"
+            else
+              echo "has_codename=false" >> $GITHUB_OUTPUT
+              echo "No codename found"
+            fi
+          else
+            echo "has_codename=false" >> $GITHUB_OUTPUT
+            echo "CMakeLists.txt not found"
+          fi
+
+      - name: Install git-cliff
+        run: |
+          VERSION=$(wget -qO- https://api.github.com/repos/orhun/git-cliff/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
+          FILENAME="git-cliff-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          wget -O git-cliff.tar.gz "https://github.com/orhun/git-cliff/releases/download/v${VERSION}/${FILENAME}"
+          tar -xzvf git-cliff.tar.gz
+          mv git-cliff-${VERSION}/git-cliff /usr/local/bin/
+
+      - name: Generate Changelog and Contributors List
+        id: changelog
+        run: |
+          # Find the previous tag relative to the input tag
+          PREV_TAG=$(git describe --tags --abbrev=0 "${{ inputs.tag }}^" 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found. Generating full history for ${{ inputs.tag }}"
+            RANGE="${{ inputs.tag }}"
+            CONTRIB_RANGE="${{ inputs.tag }}"
+          else
+            echo "Found previous tag: $PREV_TAG"
+            RANGE="$PREV_TAG..${{ inputs.tag }}"
+            CONTRIB_RANGE="$RANGE"
+          fi
+
+          # Generate the changelog using the explicit range
+          git-cliff $RANGE --strip all --output CHANGELOG.md
+
+          # Get unique contributors from the same commit range
+          CONTRIBUTORS=$(git log --format='%aN' $CONTRIB_RANGE 2>/dev/null | sort -u | sed 's/^/- /' || echo "")
+
+          # Combine
+          CHANGELOG_CONTENT=$(cat CHANGELOG.md)
+
+          {
+            echo "changelog<<EOF"
+            echo "$CHANGELOG_CONTENT"
+            if [ -n "$CONTRIBUTORS" ]; then
+              echo ""
+              echo "## Thank you to the following contributors who made this release possible!"
+              echo "$CONTRIBUTORS"
+            fi
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Download all release artifacts
+        run: |
+          TAG="${{ inputs.tag }}"
+          COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
+          echo "Tag $TAG points to commit: $COMMIT_SHA"
+
+          # Get the latest successful run ID for each unique workflow
+          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'group_by(.workflowName) | map(sort_by(.createdAt) | last) | .[].databaseId')
+
+          mkdir -p release-assets
+
+          for run_id in $WORKFLOW_RUNS; do
+            echo "Processing Run ID: $run_id"
+            gh run download "$run_id" --dir release-assets 2>/dev/null || true
+          done
+
+          cd release-assets
+
+          # Clean up: Delete any folders ending in "-logs" BEFORE we start zipping
+          echo "Cleaning up log artifacts..."
+          rm -rf *-logs/
+
+          # Package remaining folders into zips
+          for dir in */; do
+            # Ensure we are actually looking at a directory
+            [ -d "$dir" ] || continue
+            dir_name="${dir%/}"
+
+            echo "Processing folder: $dir_name"
+
+            # Check for existing zip inside (e.g. if firmware was already zipped)
+            INNER_ZIP=$(find "$dir" -maxdepth 1 -name "*.zip" | head -n 1)
+
+            if [ -n "$INNER_ZIP" ]; then
+              echo "  Found existing zip, pulling it out..."
+              mv "$INNER_ZIP" "${dir_name}.zip"
+            else
+              echo "  No zip found, creating ${dir_name}.zip..."
+              (cd "$dir" && zip -r "../${dir_name}.zip" .)
+            fi
+
+            # Remove the folder after zipping/moving
+            rm -rf "$dir"
+          done
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List release assets
+        run: |
+          echo "Release assets to upload:"
+          ls -lh release-assets/*.zip
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          draft: true
+          prerelease: ${{ contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha') }}
+          name: EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}
+          body: |
+            We are pleased to offer EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}.
+
+            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
+            > As this is a pre-release, it is virtually guaranteed there will still be some minor issues that need resolving before final release - some may be documented already under "known issues" section of these release notes or the associated tracking issue. During pre-releases, the matching SD card pack and voice pack versions to use are those marked/tagged ''Latest''.
+            >
+            > We **need** _your_ help in testing this release to ensure there are no major bugs or faults that will cause problems during flight.  Please ensure you back up your model and radio settings before updating, fully bench-test your models after updating, and report any issues you encounter. It is only with your feedback and testing by you, our community (and the assistance provided by partner manufacturers) which will allow us to identify and squash both new and old bugs, and progress onto a stable release version!! We simply cannot do this without you! :hugs: :beers:' || '' }}
+
+            > [!WARNING]
+            > If you are using a STM32 F2 based radio, *stop right now*, this release is not for you! EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
+
+            > [!WARNING]
+            > Radios based on STM32H7 MCUs update differently to older radios. Do **not** use the "Flash via USB" option in EdgeTX Buddy with them (yet). To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RM TX15 and RM TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
+
+            > [!NOTE]
+            > For MacOS users, Companion is now only compiled for MacOS 12 and above. Stay with v2.10.5 or earlier if you need support for an older version of MacOS.
+
+            > [!NOTE]
+            > **Migration Information**
+            > - If you have an old OpenTX Companion (`.otx`) file you need to convert or open, you will need to use EdgeTX Companion v2.10 or earlier.
+            > - If you wish to upgrade from OpenTX 2.3 or EdgeTX 2.4/2.5, you must use either EdgeTX v2.8.x firmware or EdgeTX Companion v2.10.x.
+            >
+            > See the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx) for more information.
+
+            ## Changes
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Supported radios
+            The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
+
+            ## Installation Guide
+            https://manual.edgetx.org/edgetx-user-manual/installing-and-updating-edgetx
+
+            ## Flash firmware via Chrome based browser
+            https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
+
+            ## Language and Custom builds
+            [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) will allow you build your own (supported) language firmware, with just a few clicks. Additionally, EdgeTX Companion also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can also build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces), request a specific build at TODO or ask on Discord for someone to build one for you.
+
+            ## Known Limitations and Issues
+            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
+            - Please check TODO during the release candidate phase for any other release candidate-specific issues and status of fixes.' || '' }}
+
+            ## UI/UX behavioral changes and/or new capabilities:
+          files: release-assets/*.zip
+          fail_on_unmatched_files: true
