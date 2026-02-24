@@ -714,7 +714,6 @@
 #define TR_CURRENT_CALIB               "+=\006Proud"
 #define TR_VOLTAGE                     "Napětí"
 #define TR_SELECT_MODEL                "Vyber model"
-#define TR_MANAGE_MODELS               "NASTAVENÍ MODELU"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"

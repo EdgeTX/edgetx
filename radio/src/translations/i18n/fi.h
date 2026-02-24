@@ -710,7 +710,6 @@
 #define TR_CURRENT_CALIB               "Current Calib"
 #define TR_VOLTAGE                     "Jännite"
 #define TR_SELECT_MODEL                "Select Model"
-#define TR_MANAGE_MODELS               "MODEL MANAGER"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Create Model"
