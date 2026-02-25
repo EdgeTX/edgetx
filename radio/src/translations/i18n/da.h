@@ -1240,6 +1240,10 @@
 #define TR_MENU_TRIMS                  CHAR_TRIM "Trim"
 #define TR_MENU_SWITCHES               CHAR_SWITCH "Kontakter"
 #define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Logiske funktioner"
+#define TR_MENU_VIRTUAL_SWITCHES       CHAR_SWITCH "Virt. switches"
+#define TR_MENU_VCONTROL               "Virtuals"
+#define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #define TR_MENU_TRAINER                CHAR_TRAINER "Træner"
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Kanaler"
 #define TR_MENU_GVARS                  CHAR_SLIDER "Globale Var"
@@ -1254,10 +1258,10 @@
 #define TR_AUTH_FAILURE                "Godkendelse fejlet"
 #define TR_RACING_MODE                 "Ræs tilstand"
 
-#undef  STR_SENSOR_THROTTLE
-#define STR_SENSOR_THROTTLE            "Gas"
-#undef  STR_SENSOR_SPEED
-#define STR_SENSOR_SPEED               "Fart"
+// #undef  STR_SENSOR_THROTTLE
+// #define STR_SENSOR_THROTTLE            "Gas"
+// #undef  STR_SENSOR_SPEED
+// #define STR_SENSOR_SPEED               "Fart"
 
 #define TR_USE_THEME_COLOR             "Brug tema farve"
 
