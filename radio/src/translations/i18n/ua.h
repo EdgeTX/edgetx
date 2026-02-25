@@ -138,13 +138,14 @@
 #define TR_AUX_SERIAL_MODES_1          "OFF"
 #define TR_AUX_SERIAL_MODES_2          "Дзерк. телем."
 #define TR_AUX_SERIAL_MODES_3          "Вх. телем."
-#define TR_AUX_SERIAL_MODES_4          "SBUS Трен."
-#define TR_AUX_SERIAL_MODES_5          "LUA"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "Відлаг."
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "Зовн. модуль"	/* for untranslated - use english */
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "SBUS Трен."
+#define TR_AUX_SERIAL_MODES_6          "LUA"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "Відлаг."
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "Зовн. модуль"	/* for untranslated - use english */
 #define TR_SWTYPES_1                   "Немає"
 #define TR_SWTYPES_2                   "Перемик."
 #define TR_SWTYPES_3                   "2поз. пер."
