@@ -224,6 +224,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
       drv->setIdleCb(ctx, sbusAuxFrameReceived, nullptr);
     }
     break;
+
   case UART_MODE_TELEMETRY:
     // telemetrySetGetByte(ctx, getByte);
 
