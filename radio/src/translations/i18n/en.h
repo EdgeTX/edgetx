@@ -137,7 +137,7 @@
 #define TR_AUX_SERIAL_MODES_2          "Telem Mirror"
 #define TR_AUX_SERIAL_MODES_3          "Telemetry In"
 #define TR_AUX_SERIAL_MODES_4          "SBUS Trainer"
-#define TR_AUX_SERIAL_MODES_5          "LUA"
+#define TR_AUX_SERIAL_MODES_5          "Lua"
 #define TR_AUX_SERIAL_MODES_6          "CLI"
 #define TR_AUX_SERIAL_MODES_7          "GPS"
 #define TR_AUX_SERIAL_MODES_8          "Debug"
@@ -716,7 +716,6 @@
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR("Voltage", "Voltage source")
 #define TR_SELECT_MODEL                "Select model"
-#define TR_MANAGE_MODELS               "MANAGE MODELS"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Create model"

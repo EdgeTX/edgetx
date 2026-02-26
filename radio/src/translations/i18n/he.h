@@ -718,7 +718,6 @@
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR("Voltage", "Voltage source")
 #define TR_SELECT_MODEL                "בחירת מודל"
-#define TR_MANAGE_MODELS               "ניהול מודלים"
 #define TR_MODELS                      "מודלים"
 #define TR_SELECT_MODE                 "בחירת מצב"
 #define TR_CREATE_MODEL                "יצירת מודל"

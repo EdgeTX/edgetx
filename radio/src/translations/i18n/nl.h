@@ -712,7 +712,6 @@
 #define TR_CURRENT_CALIB       "Stroom Calib"
 #define TR_VOLTAGE             TR("Spg", "Spanningsbron")  //9XR-Pro
 #define TR_SELECT_MODEL        "Kies Model"
-#define TR_MANAGE_MODELS               "MODEL MANAGER"
 #define TR_MODELS              "Models"
 #define TR_SELECT_MODE         "Select mode"
 #define TR_CREATE_MODEL        "Nieuw Model"

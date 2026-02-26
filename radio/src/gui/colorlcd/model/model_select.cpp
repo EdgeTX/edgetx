@@ -951,6 +951,6 @@ void ModelLabelsWindow::setTitle()
   title2 += ": ";
   title2 += modelName;
 
-  header->setTitle(STR_MANAGE_MODELS);
+  header->setTitle(STR_MAIN_MENU_MANAGE_MODELS);
   header->setTitle2(title2);
 }

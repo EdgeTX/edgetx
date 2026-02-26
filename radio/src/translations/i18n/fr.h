@@ -714,7 +714,6 @@
 #define TR_CURRENT_CALIB               "Calib. cour"
 #define TR_VOLTAGE                     TR("Tension","Source tension")
 #define TR_SELECT_MODEL                "Sélection Modèle"
-#define TR_MANAGE_MODELS               "GESTION MODÈLES"
 #define TR_MODELS                      "Modèles"
 #define TR_SELECT_MODE                 "Sélection mode"
 #define TR_CREATE_MODEL                "Créer modèle"

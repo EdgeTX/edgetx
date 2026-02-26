@@ -717,7 +717,6 @@
 #define TR_CURRENT_CALIB               "Калибр тока"
 #define TR_VOLTAGE                     TR("Напряжение", "Напряжение")
 #define TR_SELECT_MODEL                "Выбор модели"
-#define TR_MANAGE_MODELS               "УПРАВЛЕНИЕ МОДЕЛЯМИ"
 #define TR_MODELS                      "Модели"
 #define TR_SELECT_MODE                 "Выбрать модель"
 #define TR_CREATE_MODEL                "Создать модель"

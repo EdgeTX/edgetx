@@ -710,7 +710,6 @@
 #define TR_CURRENT_CALIB               "Strom abgl."
 #define TR_VOLTAGE                     TR("Spg", "Spannungsquelle")  //9XR-Pro
 #define TR_SELECT_MODEL                "Modell auswählen"
-#define TR_MANAGE_MODELS               "MODELL MANAGER"
 #define TR_MODELS                      "Modelle"
 #define TR_SELECT_MODE                 "Wähle Mode"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
