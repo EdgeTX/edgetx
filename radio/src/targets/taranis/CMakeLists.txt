@@ -691,6 +691,15 @@ if(FLAVOUR STREQUAL xlites)
   )
 endif()
 
+if(FLAVOUR STREQUAL mt12)
+  target_sources(board PRIVATE
+    ${TARGET_SRC_DIR}/pwm_ch_driver.cpp
+  )
+  set(SRC ${SRC}
+    gui/common/stdlcd/radio_servo_pwm.cpp
+  )
+endif()
+
 set(SRC ${SRC}
   io/frsky_firmware_update.cpp
   io/multi_firmware_update.cpp
