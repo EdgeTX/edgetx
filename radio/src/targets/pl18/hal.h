@@ -981,8 +981,8 @@
 #define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 12) // PD.12
 #define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
 
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 13) // PD.13
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
+#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 12) // PD.12
+#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
 
 #define TRAINER_TIMER                   TIM4
 #define TRAINER_TIMER_IRQn              TIM4_IRQn
