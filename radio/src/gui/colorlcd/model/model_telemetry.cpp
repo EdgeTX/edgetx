@@ -346,6 +346,7 @@ class SensorSourceChoice : public SourceChoice
                      *source = newValue == MIXSRC_NONE
                                    ? 0
                                    : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
+                     SET_DIRTY();
                    })
   {
     setAvailableHandler([=](int16_t value) {
@@ -663,6 +664,7 @@ class SensorEditWindow : public SubPage
                 if (sensor->custom.ratio != 0)
                   s = formatNumberAsString((sensor->custom.ratio * 1000) / 255, PREC1, 0, "", "%");
                 pct->setText(s);
+                SET_DIRTY();
               },
               PREC1);
           num->setZeroText("-");
