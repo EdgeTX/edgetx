@@ -199,11 +199,6 @@ def main():
         cmake_options["PCBREV"] = "F16"
         firmware_options = options_fatfish_f16
         maxsize = 2 * 1024 * 1024
-    elif board_name == "v12":
-        cmake_options["PCB"] = "X7"
-        cmake_options["PCBREV"] = "V12"
-        firmware_options = options_helloradiosky_v12
-        maxsize = 65536 * 8 * 2
     elif board_name == "v14":
         cmake_options["PCB"] = "X7"
         cmake_options["PCBREV"] = "V14"

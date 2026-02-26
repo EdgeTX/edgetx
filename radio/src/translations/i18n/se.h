@@ -1066,6 +1066,7 @@
 #define TR_ANTENNA_MODES_4              "Intern + Extern"
 #define TR_ANTENNA_MODES_5              "Extern"
 
+#define TR_ANTENNA_SELECT             "Intern","Extern"
 #define TR_USE_INTERNAL_ANTENNA         TR("Anv int. antenn", "Använd intern antenn")
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
 #define TR_ANTENNACONFIRM2              TR("Kontr. antenn", "Kontrollera att antennen är installerad!")
