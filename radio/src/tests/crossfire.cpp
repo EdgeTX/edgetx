@@ -151,6 +151,9 @@ static uint8_t length_error3[] = {
     0xEA, 0x09, 0xFF, 0x11, 0xFD, 0x05, 0x00, 0x00, 0x13, 0x01, 0x8C,
 };
 
+static uint8_t length_error4[] = {
+  0xEA, 0x3F, 0xFF, 0x11, 0xFD, 0x05, 0x00, 0x00, 0x13, 0x01, 0x8C,
+};
 
 TEST(Crossfire, frameParser_length)
 {
@@ -159,14 +162,15 @@ TEST(Crossfire, frameParser_length)
 
   uint8_t* lua_buffer = luaInputTelemetryFifo->buffer();
 
-  // Check that a frame that is too big is rejected even if incomplete
+  // Check that the first frame is rejected for not starting with a valid header
   ft.process(length_error);
   EXPECT_EQ(ft.len, 0);
 
   // Check that a frame that is too big is rejected if positioned
-  // after a complete frame
+  // after a complete frame, there will be 2 bytes remaining due
+  // to the parser requring at least 3 bytes to check frame validity
   ft.process(length_error2);
-  EXPECT_EQ(ft.len, 0);
+  EXPECT_EQ(ft.len, 2);
 
   // the first complete frame should have been processed
   EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)0x09);
@@ -185,6 +189,10 @@ TEST(Crossfire, frameParser_length)
     EXPECT_EQ(lua_buffer[offset + 0x09 - 1], 0x01);
     offset += 0x09;
   }
+
+  // Frame declared length is just past the maximum value allowed
+  ft.process(length_error4);
+  EXPECT_EQ(ft.len, 2);
 }
 
 static uint8_t invalid_frames[] = {
@@ -276,6 +284,63 @@ TEST(Crossfire, frameParser_multipleJumboFrames)
   EXPECT_EQ(lua_buffer[offset], 0x3D);
   EXPECT_EQ(lua_buffer[offset + 0x3D - 1], 0xF0);
 }
+
+static uint8_t droppedBytes[]={
+  0xC8, 0x0C, 0x14, 0xD0, 0x00, 0x64, 0x09, 0x00, 0x1D, 0xC9, 0x64, 0x08, 0x79, // payload missing
+  0xC8, 0x0D, 0xFF, 0xEA, 0xEE, 0x10, 0x00, 0x00, 0x4E, 0x20, 0x00, 0x00, 0x00, 0x4A, 0xF3,
+};
+
+static uint8_t droppedBytes2[]={
+  0xC8, 0x3A, 0xEA, 0xEE, 0x10, 0x00, 0x00, 0x9C, 0x40, 0x00, 0x00, 0x00, 0x1C, 0xD7, // no LEN
+  0xC8, 0x0D, 0xF0, 0xEA, 0xEE, 0x10, 0x00, 0x00, 0x9C, 0x40, 0x00, 0x00, 0x00, 0x38, 0x5C,
+  0xC8, 0x0C, 0xF1, 0xD7, 0x00, 0x64, 0x0C, 0x00, 0x1B, 0x01, 0xD2, 0x64, 0x0B, 0xFE,
+  0xC8, 0x0D, 0xF2, 0xEA, 0xEE, 0x10, 0x00, 0x00, 0x9C, 0x40, 0x00, 0x00, 0x00, 0x41, 0xDB,
+  0xC8, 0x0C, 0xF3, 0xD6, 0x00, 0x64, 0x0C, 0x00, 0x1B, 0x01, 0xD1, 0x64, 0x0B, 0x64,
+};
+
+static uint8_t droppedBytes3[]={
+  0xC8, 0x0D, 0x3A, 0xEA, 0xEE, 0x10, 0x00, 0x00, 0x9C, 0x40, 0x00, 0x00, 0x00, 0x1C,  // no CRC
+  0xC8, 0x0D, 0xF0, 0xEA, 0xEE, 0x10, 0x00, 0x00, 0x9C, 0x40, 0x00, 0x00, 0x00, 0x38, 0x5C,
+};
+
+TEST(Crossfire, frameParser_droppedBytes)
+{
+  crsf_frame_test ft;
+  if (!ft.ctx) return;
+
+  // The first frame is missing 1 byte of payload, validate the second frame is processed
+  ft.process(droppedBytes);
+  EXPECT_EQ(ft.len, 0);
+
+  uint8_t* lua_buffer = luaInputTelemetryFifo->buffer();
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)13);
+
+  // The first frame is missing its length byte so 0x3A will be interpretted as length
+  // verify the other 4 packets are processed despite appearing to be inside the first frame
+  luaInputTelemetryFifo->clear();
+  ft.process(droppedBytes2);
+  EXPECT_EQ(ft.len, 0);
+
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)(13+12+13+12));
+
+  // Check the correct frame types are in the buffer
+  unsigned offset = 1;
+  EXPECT_EQ(lua_buffer[offset], 0xF0);
+  offset += 13;
+  EXPECT_EQ(lua_buffer[offset], 0xF1);
+  offset += 12;
+  EXPECT_EQ(lua_buffer[offset], 0xF2);
+  offset += 13;
+  EXPECT_EQ(lua_buffer[offset], 0xF3);
+
+  // The first frame is missing the CRC byte, verify the second frame is processed
+  luaInputTelemetryFifo->clear();
+  ft.process(droppedBytes3);
+  EXPECT_EQ(ft.len, 0);
+
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)13);
+}
+
 #endif // HARDWARE_EXTERNAL_MODULE
 #endif
 
