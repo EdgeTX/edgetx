@@ -43,14 +43,24 @@ static uint8_t _b_offset;
 
 // DMA buffer contains data for 2 LEDs and is filled
 // half by half on DMA HT and TC IRQs
-#define WS2821_DMA_BUFFER_HALF_LEN (WS2812_BYTES_PER_LED * 8)
-#define WS2821_DMA_BUFFER_LEN      (WS2821_DMA_BUFFER_HALF_LEN * 2)
+#define WS2821_DMA_BUFFER_HALF_LEN  (WS2812_BYTES_PER_LED * 8)
+#define WS2821_DMA_BUFFER_LEN       (WS2821_DMA_BUFFER_HALF_LEN * 2)
+#define WS2812_DMA_IRQ_PRIO         3
 
-#define WS2812_FREQ            800000UL // 800 kHz
-#define WS2812_TIMER_PERIOD    20UL
-#define WS2812_ONE             (3 * WS2812_TIMER_PERIOD / 4)
-#define WS2812_ZERO            (1 * WS2812_TIMER_PERIOD / 4)
-#define WS2812_DMA_IRQ_PRIO    3
+#if defined(FAST_RGB_LEDS)
+// 181x series WS2812B have a shorter timing, so we can use a faster timer clock
+#define WS2812_FREQ             1200000UL // tick = 1/12MHz = 83.3 ns
+#define WS2812_TIMER_PERIOD     11UL      // 11 × 83.3 = 916,7 ns period
+#define WS2812_ONE              7         //  7 × 83.3 = 583.3 ns HIGH, 3 × 83.3 = 250.0 ns LOW
+#define WS2812_ZERO             3         //  3 × 83.3 = 250.0 ns HIGH, 7 × 83.3 = 583.3 ns LOW
+#else
+// Generic WS2812
+#define WS2812_FREQ             800000UL                       // tick = 1250/20 = 62.5 ns
+#define WS2812_TIMER_PERIOD     20UL                           // 20 × 62.5 = 1250 ns period
+#define WS2812_ONE              (3 * WS2812_TIMER_PERIOD / 4)  // 15 × 62.5 = 937.5 ns HIGH (550–950),  5 × 62.5 = 312.5 ns LOW (220–400)
+#define WS2812_ZERO             (1 * WS2812_TIMER_PERIOD / 4)  //  5 × 62.5 = 312.5 ns HIGH (220–400) , 15 × 62.5 = 937.5 ns LOW (550–950)
+#endif
+
 
 // Debug facility
 #if defined(LED_STRIP_DEBUG_GPIO) && defined(LED_STRIP_DEBUG_GPIO_PIN)
