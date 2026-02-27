@@ -94,14 +94,7 @@ ui(new Ui::GeneralSetup)
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
   ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
   ui->adjustRTC->setChecked(generalSettings.adjustRTC);
-
-  if (IS_STM32(board)) {
-    ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
-  }
-  else {
-    ui->usbModeLabel->hide();
-    ui->usbModeCB->hide();
-  }
+  ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
 
   if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
     ui->hatsModeCB->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
