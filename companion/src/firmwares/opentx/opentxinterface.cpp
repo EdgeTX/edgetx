@@ -75,7 +75,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case GlobalFunctions:
       return CPN_MAX_SPECIAL_FUNCTIONS;
     case Gvars:
-      return id.contains("nogvars") ? 0 : (IS_STM32H7(board) || IS_STM32H5(board) ? CPN_MAX_GVARS : 9);
+      return id.contains("nogvars") ? 0 : (Boards::getCapability((Board::Type)board, Board::IsF4) ? 9 : CPN_MAX_GVARS);
     case GvarsName:
       return 3;
     case Haptic:  // TODO remove with X9D
@@ -178,7 +178,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case SafetyChannelCustomFunction:
       return id.contains("nooverridech") ? 0 : 1;
     case Sensors:
-      if (IS_STM32H7(board))
+      if (Boards::getCapability((Board::Type)board, Board::IsH7))
         return CPN_MAX_SENSORS;
       else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
         return 60;

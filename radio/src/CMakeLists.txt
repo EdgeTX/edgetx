@@ -109,6 +109,10 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+add_definitions(
+  -DCPU_TYPE=${CPU_TYPE} -DCPU_TYPE_FULL=${CPU_TYPE_FULL}
+)
+
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 

@@ -214,6 +214,15 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::InputSwitches:
       return m_inputCnt.switches;
 
+    case Board::IsF4:
+      return m_hardware.cpu_type == "STM32F4";
+
+    case Board::IsH5:
+      return m_hardware.cpu_type == "STM32H5";
+
+    case Board::IsH7:
+      return m_hardware.cpu_type == "STM32H7";
+
     case Board::JoystickAxes:
       return m_inputCnt.flexJoystickAxes;
 
@@ -1247,6 +1256,8 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     hardware.has_int_module_support = o.value("has_int_module_support").toInt();
     hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
     hardware.surface = o.value("surface").toInt();
+    hardware.cpu = o.value("cpu").toString().toStdString();
+    hardware.cpu_type = o.value("cpu_type").toString().toStdString();
   }
 
   delete json;
@@ -1288,5 +1299,17 @@ void BoardJson::setSwitchCounts(const SwitchesTable * switches, SwitchCounts & s
       switchCounts.flex++;
     else if (isSwitchFunc(swtch))
       switchCounts.func++;
+  }
+}
+
+const QString BoardJson::getCapabilityStr(const Board::Capability capability) const
+{
+  switch (capability) {
+    case Board::CPU:
+      return m_hardware.cpu.c_str();
+    case Board::CPUType:
+      return m_hardware.cpu_type.c_str();
+    default:
+      return QString();
   }
 }
