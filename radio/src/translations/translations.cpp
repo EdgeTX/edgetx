@@ -52,6 +52,8 @@
 #include "translations/i18n/jp.h"
 #elif defined(TRANSLATIONS_RU)
 #include "translations/i18n/ru.h"
+#elif defined(TRANSLATIONS_SK)
+#include "translations/i18n/sk.h"
 #elif defined(TRANSLATIONS_HE)
 #include "translations/i18n/he.h"
 #elif defined(TRANSLATIONS_KO)
@@ -124,6 +126,7 @@ const LangStrings* const langStrings[] = {
   &ptLangStrings,
   &ruLangStrings,
   &seLangStrings,
+  &skLangStrings,
   &enLangStrings,
   &twLangStrings,
   &uaLangStrings,
@@ -148,6 +151,7 @@ const LangStrings* const langStrings[] = {
   &ptLangStrings,
   &ruLangStrings,
   &seLangStrings,
+  &skLangStrings,  
   &enLangStrings,
   &enLangStrings,
   &uaLangStrings,
