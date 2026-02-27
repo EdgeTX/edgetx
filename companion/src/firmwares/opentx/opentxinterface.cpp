@@ -330,16 +330,6 @@ void registerOpenTxFirmwares()
   static const Firmware::Option opt_bt("bluetooth", Firmware::tr("Support for bluetooth module"));
   static const Firmware::Option opt_internal_gps("internalgps", Firmware::tr("Support internal GPS"));
 
-  /* BETAFPV LR3PRO board */
-  firmware = new OpenTxFirmware(FIRMWAREID("lr3pro"), QCoreApplication::translate("Firmware", "BETAFPV LiteRadio3 Pro"), BOARD_BETAFPV_LR3PRO);
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
   /* Fatfish F16 board */
   firmware = new OpenTxFirmware(FIRMWAREID("f16"), Firmware::tr("Fatfish F16"), BOARD_FATFISH_F16);
   addOpenTxFrskyOptions(firmware);
@@ -417,57 +407,11 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, EU + FLEX);
 
-  /* FrSky Taranis X7 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("x7"), Firmware::tr("FrSky Taranis X7 / X7S"), BOARD_TARANIS_X7);
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, EU + FLEX);
-
   /* FrSky Taranis X7 Access board */
   firmware = new OpenTxFirmware(FIRMWAREID("x7access"), Firmware::tr("FrSky Taranis X7 / X7S Access"), BOARD_TARANIS_X7_ACCESS, "x7access");
   addOpenTxTaranisOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
-
-  /* FrSky Taranis X-Lite board */
-  firmware = new OpenTxFirmware(FIRMWAREID("xlite"), Firmware::tr("FrSky Taranis X-Lite"), BOARD_TARANIS_XLITE);
-  // firmware->addOption("stdr9m", Firmware::tr("Use JR-sized R9M module"));
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, EU + FLEX);
-
-  /* FrSky Taranis X-Lite S/PRO board */
-  firmware = new OpenTxFirmware(FIRMWAREID("xlites"), Firmware::tr("FrSky Taranis X-Lite S/PRO"), BOARD_TARANIS_XLITES);
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
-  /* FrSky Taranis X9-Lite board */
-  firmware = new OpenTxFirmware(FIRMWAREID("x9lite"), Firmware::tr("FrSky Taranis X9-Lite"), BOARD_TARANIS_X9LITE);
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
-  /* FrSky Taranis X9-LiteS board */
-  firmware = new OpenTxFirmware(FIRMWAREID("x9lites"), Firmware::tr("FrSky Taranis X9-Lite S"), BOARD_TARANIS_X9LITES);
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
-  /* FrSky Taranis X9D board */
-  firmware = new OpenTxFirmware(FIRMWAREID("x9d"), Firmware::tr("FrSky Taranis X9D"), BOARD_TARANIS_X9D);
-  firmware->addOption("noras", Firmware::tr("Disable RAS (SWR)"));
-  firmware->addOption("haptic", Firmware::tr("Haptic module installed"));
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, EU + FLEX + AFHDS2A + AFHDS3);
-
-  /* FrSky Taranis X9D+ board */
-  firmware = new OpenTxFirmware(FIRMWAREID("x9d+"), Firmware::tr("FrSky Taranis X9D+"), BOARD_TARANIS_X9DP, "x9dp");
-  firmware->addOption("noras", Firmware::tr("Disable RAS (SWR)"));
-  addOpenTxTaranisOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, EU + FLEX + AFHDS2A + AFHDS3);
 
   /* FrSky Taranis X9D+ 2019 board */
   firmware = new OpenTxFirmware(FIRMWAREID("x9d+2019"), Firmware::tr("FrSky Taranis X9D+ 2019"), BOARD_TARANIS_X9DP_2019, "x9dp2019");
@@ -507,26 +451,6 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, NONE);
 
-  /* Jumper T-Lite board */
-  firmware = new OpenTxFirmware(FIRMWAREID("tlite"), QCoreApplication::translate("Firmware", "Jumper T-Lite"), BOARD_JUMPER_TLITE);
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
-  /* Jumper T-Pro board */
-  firmware = new OpenTxFirmware(FIRMWAREID("tpro"), QCoreApplication::translate("Firmware", "Jumper T-Pro"), BOARD_JUMPER_TPRO);
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
   /* Jumper T-Pro V2 board */
   firmware = new OpenTxFirmware(FIRMWAREID("tprov2"), QCoreApplication::translate("Firmware", "Jumper T-Pro V2"), BOARD_JUMPER_TPROV2);
   addOpenTxCommonOptions(firmware);
@@ -553,17 +477,6 @@ void registerOpenTxFirmwares()
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
   firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-
-  /* Jumper T12 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t12"), QCoreApplication::translate("Firmware", "Jumper T12 / T12 Pro"), BOARD_JUMPER_T12);
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
@@ -651,27 +564,6 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, NONE);
-
-  /* Radiomaster T8 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t8"), QCoreApplication::translate("Firmware", "Radiomaster T8"), BOARD_RADIOMASTER_T8);
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, NONE);
-  firmware->addOption("bindkey", Firmware::tr("Allow bind using bind key"));
-
-  /* Radiomaster TX12 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("tx12"), QCoreApplication::translate("Firmware", "Radiomaster TX12"), BOARD_RADIOMASTER_TX12);
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
 
   /* Radiomaster TX12 Mark II board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx12mk2"), QCoreApplication::translate("Firmware", "Radiomaster TX12 Mark II"), BOARD_RADIOMASTER_TX12_MK2);
