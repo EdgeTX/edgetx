@@ -24,6 +24,8 @@
 #include "compounditemmodels.h"
 #include "filtereditemmodels.h"
 
+constexpr int AIM_RawSource { AbstractItemModel::IMID_RawSource };
+
 AutoSourceCB::AutoSourceCB(QWidget * parent) :
   QComboBox(parent),
   AutoSource(),
@@ -60,75 +62,65 @@ void AutoSourceCB::connectItemModelEvents(const FilteredItemModel * itemModel)
 
 void AutoSourceCB::onCurrentIndexChanged(int index)
 {
-  if (lock() || index < 0)
+  if (lock() || index < 0 || index >= count())
     return;
 
   bool ok;
   const int val = itemData(index).toInt(&ok);
 
-  if (ok && getSource() != RawSource(val)) {
-      setSource(RawSource(val));
+  if (ok && getValue() != RawSource(val)) {
+      setValue(RawSource(val));
       emit dataChanged(val);
       AutoWidget::dataChanged();
   }
 }
 
-void AutoSourceCB::setDefault(RawSource dflt)
+void AutoSourceCB::setField(RawSource * field, RawSource dflt, GenericPanel * panel,
+                            CompoundItemModelFactory * itemModels,
+                          int filter, bool isAvailable)
 {
-  m_dflt = dflt;
+  setField(field, dflt, panel, itemModels->getItemModel(AIM_RawSource),
+           filter, isAvailable);
 }
 
-void AutoSourceCB::setField(RawSource * field, RawSource dflt, GenericPanel * panel)
+void AutoSourceCB::setField(RawSource * field, RawSource dflt, GenericPanel * panel,
+                            AbstractItemModel * itemModel,
+                            int filter, bool isAvailable)
 {
-  setDefault(dflt);
-  AutoSource::setField(field, panel);
-}
-
-void AutoSourceCB::setField(RawSource * field, CompoundItemModelFactory * itemModels,
-                          int filter, bool isAvailable, RawSource dflt,
-                          GenericPanel * panel)
-{
-  setField(field, dflt, panel);
-  setModelFilter(itemModels, filter, isAvailable);
-}
-
-void AutoSourceCB::setField(RawSource * field, AbstractItemModel * itemModel,
-                          int filter, bool isAvailable, RawSource dflt,
-                          GenericPanel * panel)
-{
-  setField(field, dflt, panel);
+  AutoSource::setField(field, dflt, panel);
   setModelFilter(itemModel, filter, isAvailable);
 }
 
 void AutoSourceCB::setFilter(int filter, bool isAvailable)
 {
   if (m_itemModel) {
+    setLock(true);
+
     if (!m_filteredSource) {
       m_filteredSource = new FilteredItemModel(m_itemModel, filter, isAvailable);
 
       if (m_filteredSource) {
         connectItemModelEvents(m_filteredSource);
-        setLock(true);
         QComboBox::setModel(m_filteredSource);
-        setLock(false);
       }
     } else {
       m_filteredSource->setFilterFlags(filter, isAvailable);
     }
 
+    setLock(false);
     updateValue();
   }
 }
 
 void AutoSourceCB::setModelFilter(CompoundItemModelFactory * itemModels,
-                                int filter, bool isAvailable)
+                                  int filter, bool isAvailable)
 {
-  setModelFilter(itemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+  setModelFilter(itemModels->getItemModel(AIM_RawSource),
                  filter, isAvailable);
 }
 
 void AutoSourceCB::setModelFilter(AbstractItemModel * itemModel,
-                                int filter, bool isAvailable)
+                                  int filter, bool isAvailable)
 {
   m_itemModel = itemModel;
 
@@ -138,16 +130,11 @@ void AutoSourceCB::setModelFilter(AbstractItemModel * itemModel,
   setFilter(filter, isAvailable);
 }
 
-void AutoSourceCB::setValueDefault()
-{
-  setSource(m_dflt);
-}
-
 void AutoSourceCB::updateValue()
 {
-  if (getSource().type != SOURCE_TYPE_NUMBER) {
+  if (getValue().type != SOURCE_TYPE_NUMBER) {
     setLock(true);
-    setCurrentIndex(findData(getSource().toValue()));;
+    setCurrentIndex(findData(getValue().toValue()));;
 
     if (currentIndex() < 0)
       setCurrentIndex(Helpers::getFirstPosValueIndex(this));

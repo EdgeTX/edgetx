@@ -69,7 +69,7 @@ class ExpoData {
     char name[EXPODATA_NAME_LEN + 1];
 
     void convert(RadioDataConversionState & cstate);
-    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ExpoData)); }
+    void clear();
     bool isEmpty() const;
     QString carryTrimToString() const;
     QString modeToString() const;

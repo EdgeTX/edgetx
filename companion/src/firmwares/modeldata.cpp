@@ -361,25 +361,17 @@ void ModelData::setDefaultInputs(const GeneralSettings & settings)
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     ExpoData * expo = &expoData[i];
     expo->chn = i;
-    expo->curve.source = RawSource(SOURCE_TYPE_NUMBER, 0);
     expo->mode = INPUT_MODE_BOTH;
-    expo->offset = RawSource(SOURCE_TYPE_NUMBER, 0);
     expo->srcRaw = settings.getDefaultSource(i);
-    expo->weight = RawSource(SOURCE_TYPE_NUMBER, 100);
     strncpy(inputNames[i], Helpers::removeAccents(expo->srcRaw.toString(this)).toLatin1().constData(), sizeof(inputNames[i]) - 1);
   }
 }
 
-void ModelData::setDefaultMixes(const GeneralSettings & settings)
+void ModelData::setDefaultMixes()
 {
-  setDefaultInputs(settings);
-
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     MixData * mix = &mixData[i];
-    mix->curve.source = RawSource(SOURCE_TYPE_NUMBER, 0);
     mix->destCh = i + 1;
-    mix->offset = RawSource(SOURCE_TYPE_NUMBER, 0);
-    mix->weight = RawSource(SOURCE_TYPE_NUMBER, 100);
     mix->srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, i + 1);
   }
 }
@@ -417,10 +409,13 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
   clear();
   used = true;
   sprintf(name, "MODEL%02d", id + 1);
+
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
   }
-  setDefaultMixes(settings);
+
+  setDefaultInputs(settings);
+  setDefaultMixes();
   setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
 }
 

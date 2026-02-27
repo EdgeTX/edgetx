@@ -40,27 +40,23 @@ class AutoSourceCB : public QComboBox, public AutoSource
     // AutoWidget
     virtual void updateValue() override;
 
-    void setDefault(RawSource dflt);
+    void setField(RawSource * field, RawSource dflt = RawSource(),
+                  GenericPanel * panel = nullptr,
+                  CompoundItemModelFactory * itemModels = nullptr, int filter = 0,
+                  bool isAvailable = true);
 
-    void setField(RawSource * field, RawSource dflt, GenericPanel * panel = nullptr);
-
-    void setField(RawSource * field, CompoundItemModelFactory * itemModels, int filter,
-                  bool isAvailable = true, RawSource dflt = RawSource(),
-                  GenericPanel * panel = nullptr);
-
-    void setField(RawSource * field, AbstractItemModel * itemModel, int filter,
-                  bool isAvailable = true, RawSource dflt = RawSource(),
-                  GenericPanel * panel = nullptr);
+    void setField(RawSource * field, RawSource dflt = RawSource(),
+                  GenericPanel * panel = nullptr,
+                  AbstractItemModel * itemModel = nullptr, int filter = 0,
+                  bool isAvailable = true);
 
     void setFilter(int filter, bool isAvailable = true);
 
-    void setModelFilter(CompoundItemModelFactory * itemModels, int filter,
+    void setModelFilter(CompoundItemModelFactory * itemModels, int filter = 0,
                         bool isAvailable = true);
 
-    void setModelFilter(AbstractItemModel * itemModel, int filter,
+    void setModelFilter(AbstractItemModel * itemModel, int filter = 0,
                         bool isAvailable = true);
-
-    void setValueDefault();
 
   signals:
     void dataChanged(int value);
@@ -69,7 +65,6 @@ class AutoSourceCB : public QComboBox, public AutoSource
     void onCurrentIndexChanged(int index);
 
   private:
-    RawSource m_dflt;
     AbstractItemModel *m_itemModel;
     FilteredItemModel *m_filteredSource;
 

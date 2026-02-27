@@ -25,7 +25,7 @@
 #include "autosourcedsb.h"
 
 #include <QCheckBox>
-#include <QStackedLayout>
+#include <QStackedWidget>
 
 class AutoSourceListNum : public QWidget, public AutoSource{
 
@@ -35,27 +35,24 @@ class AutoSourceListNum : public QWidget, public AutoSource{
     explicit AutoSourceListNum(QWidget * parent = nullptr);
     virtual ~AutoSourceListNum();
 
-    //virtual QSize sizeHint() const;
-
     virtual void updateValue() override;
 
-    void setField(RawSource * field, CompoundItemModelFactory * itemModels, int filter,
+    void setField(RawSource * field, RawSource dflt = RawSource(),
+                  GenericPanel * panel = nullptr,
+                  CompoundItemModelFactory * itemModels = nullptr, int filter = 0,
                   bool isAvailable = true,
-                  RawSource dflt = RawSource(),
                   QString typeLabel = "",
-                  int min = -1024, int max = 1024,
-                  int precision = 0,
-                  QString prefix = "", QString suffix = "",
-                  GenericPanel * panel = nullptr);
+                  int min = -1000, int max = 1000, int precision = 1,
+                  QString prefix = "", QString suffix = "");
 
-    void setField(RawSource * field, AbstractItemModel * itemModel, int filter,
+    void setField(RawSource * field, RawSource dflt = RawSource(),
+                  GenericPanel * panel = nullptr,
+                  AbstractItemModel * itemModel = nullptr, int filter = 0,
                   bool isAvailable = true,
-                  RawSource dflt = RawSource(),
                   QString typeLabel = "",
-                  int min = -1024, int max = 1024,
-                  int precision = 0,
-                  QString prefix = "", QString suffix = "",
-                  GenericPanel * panel = nullptr);
+                  int min = -1000, int max = 1000,
+                  int precision = 1,
+                  QString prefix = "", QString suffix = "");
 
   signals:
     void resized();
@@ -68,6 +65,6 @@ class AutoSourceListNum : public QWidget, public AutoSource{
     QCheckBox *m_chkType;
     AutoSourceCB *m_sourceCB;
     AutoSourceDSB *m_sourceDSB;
-    QStackedLayout *m_stack;
+    QStackedWidget *m_stack;
     void shrink();
 };

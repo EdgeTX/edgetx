@@ -23,14 +23,11 @@
 #include "compounditemmodels.h"
 
 #include <QHBoxLayout>
+#include <QTimer>
 
 AutoSourceListNum::AutoSourceListNum(QWidget * parent) :
   QWidget(parent),
-  AutoSource(),
-  m_chkType(nullptr),
-  m_sourceCB(nullptr),
-  m_sourceDSB(nullptr),
-  m_stack(nullptr)
+  AutoSource()
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
@@ -41,70 +38,69 @@ AutoSourceListNum::AutoSourceListNum(QWidget * parent) :
   // minimise padding around sub-widgets
   layout->setContentsMargins(0, 0, 0, 0);
 
-  m_chkType = new QCheckBox(this);
-  m_chkType->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  m_chkType->setMinimumSize(200, 20);
-  connect(m_chkType, &QCheckBox::checkStateChanged, this,
-          &AutoSourceListNum::typeChanged);
+  m_chkType = new QCheckBox();
+  //m_chkType->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  //m_chkType->setMinimumSize(200, 20);
+  connect(m_chkType, &QCheckBox::checkStateChanged, this, &AutoSourceListNum::typeChanged);
   layout->addWidget(m_chkType);
 
-  m_stack = new QStackedLayout();
-  m_sourceCB = new AutoSourceCB();
-  m_stack->addWidget(m_sourceCB);
+  m_stack = new QStackedWidget();
 
   m_sourceDSB = new AutoSourceDSB();
   m_stack->addWidget(m_sourceDSB);
 
-  layout->addLayout(m_stack);
-  setLayout(layout);
+  m_sourceCB = new AutoSourceCB();
+  m_stack->addWidget(m_sourceCB);
 
-  updateGeometry();
+  m_stack->setCurrentIndex(0);
+  layout->addWidget(m_stack);
+  setLayout(layout);
+  shrink();
 }
 
 AutoSourceListNum::~AutoSourceListNum()
 {
 }
 
-void AutoSourceListNum::setField(RawSource * field, CompoundItemModelFactory * itemModels,
-                             int filter, bool isAvailable,
-                             RawSource dflt, QString typeLabel, int min, int max,
-                             int precision, QString prefix, QString suffix,
-                             GenericPanel * panel)
+void AutoSourceListNum::setField(RawSource * field, RawSource dflt, GenericPanel * panel,
+                                 CompoundItemModelFactory * itemModels,
+                                 int filter, bool isAvailable, QString typeLabel,
+                                 int min, int max, int precision,
+                                 QString prefix, QString suffix)
 {
-  setField(field, itemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-           filter, isAvailable, dflt, typeLabel, min, max, precision, prefix, suffix, panel);
+  setField(field, dflt, panel, itemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+           filter, isAvailable, typeLabel, min, max, precision, prefix, suffix);
 }
 
-void AutoSourceListNum::setField(RawSource * field, AbstractItemModel * itemModel,
-                             int filter, bool isAvailable,
-                             RawSource dflt, QString typeLabel, int min, int max,
-                             int precision, QString prefix, QString suffix,
-                             GenericPanel * panel)
+void AutoSourceListNum::setField(RawSource * field, RawSource dflt, GenericPanel * panel,
+                                 AbstractItemModel * itemModel,
+                                 int filter, bool isAvailable, QString typeLabel,
+                                 int min, int max, int precision,
+                                 QString prefix, QString suffix)
 {
-  AutoSource::setField(field, panel);
-  m_sourceCB->setField(field, itemModel, filter, isAvailable, dflt, panel);
-  m_sourceDSB->setField(field, dflt, min, max, precision, prefix, suffix, panel);
+  setLock(true);
+  AutoSource::setField(field, RawSource(SOURCE_TYPE_NUMBER), panel);
+  m_sourceCB->setField(field, RawSource(SOURCE_TYPE_NONE), panel, itemModel, filter, isAvailable);
+  m_sourceDSB->setField(field, RawSource(SOURCE_TYPE_NUMBER), panel, min, max, precision, prefix, suffix);
   m_chkType->setText(typeLabel);
-  m_chkType->setChecked((getSource().type == SOURCE_TYPE_NUMBER) ? false : true);
+  m_chkType->setChecked(field->type != SOURCE_TYPE_NUMBER);
+  m_stack->setCurrentIndex(field->type != SOURCE_TYPE_NUMBER ? 1 : 0);
+  setLock(false);
   updateValue();
 }
 
 void AutoSourceListNum::setVisible(bool state)
 {
-  if (m_chkType)
-    m_chkType->setVisible(state);
-
-  if (m_sourceCB)
-    m_sourceCB->setVisible(state);
-
-  if (m_sourceDSB)
-    m_sourceDSB->setVisible(state);
+  m_chkType->setVisible(state);
+  m_sourceCB->setVisible(state);
+  m_sourceDSB->setVisible(state);
 }
 
 void AutoSourceListNum::shrink()
 {
   updateGeometry();
-  adjustSize();
+  QTimer::singleShot(0, this, &AutoSourceListNum::adjustSize);
+  //adjustSize();
   //resize(0, 0);
   emit resized();
 }
@@ -113,13 +109,11 @@ void AutoSourceListNum::typeChanged(int state)
 {
   if (!lock()) {
     if (state == Qt::Checked) {
-      if (m_sourceCB) {
-        m_sourceCB->setValueDefault();
-      }
+      m_sourceCB->setValueToDefault();
+      m_stack->setCurrentIndex(1);
     } else {
-      if (m_sourceDSB) {
-        m_sourceDSB->setValueDefault();
-      }
+      m_sourceDSB->setValueToDefault();
+      m_stack->setCurrentIndex(0);
     }
 
     updateValue();
@@ -128,28 +122,10 @@ void AutoSourceListNum::typeChanged(int state)
 
 void AutoSourceListNum::updateValue()
 {
-  if (getSource().type == SOURCE_TYPE_NUMBER) {
-    if (m_sourceCB) {
-      m_sourceCB->setVisible(false);
-    }
-
-    if (m_sourceDSB) {
-      m_sourceDSB->setVisible(true);
-      m_sourceDSB->updateValue();
-      m_stack->setCurrentIndex(1);
-
-    }
-  } else {
-    if (m_sourceCB) {
-      m_sourceCB->setVisible(true);
-      m_sourceCB->updateValue();
-      m_stack->setCurrentIndex(0);
-    }
-
-    if (m_sourceDSB) {
-      m_sourceDSB->setVisible(false);
-    }
-  }
+  if (m_stack->currentIndex() == 0)
+    m_sourceDSB->updateValue();
+  else
+    m_sourceCB->updateValue();
 
   shrink();
 }

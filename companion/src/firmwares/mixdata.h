@@ -64,7 +64,7 @@ class MixData {
     char name[MIXDATA_NAME_LEN + 1];
 
     void convert(RadioDataConversionState & cstate);
-    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(MixData)); }
+    void clear();
     bool isEmpty() const;
     QString mltpxToString() const;
     static QString mltpxToString(int val);

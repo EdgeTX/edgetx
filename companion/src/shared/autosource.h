@@ -30,12 +30,16 @@ class AutoSource : public AutoWidget
     explicit AutoSource();
     virtual ~AutoSource() {}
 
-    void setField(RawSource * field, GenericPanel * panel = nullptr);
+    void setField(RawSource * field, RawSource dflt = RawSource(), GenericPanel * panel = nullptr);
+    void setValueToDefault();
 
   protected:
-    RawSource getSource() const;
-    void setSource(const RawSource value);
+    RawSource getValue() const;
+    void setValue(const RawSource & value);
+    RawSource getDefault() const;
+    void setDefault(const RawSource & value);
 
   private:
     RawSource *m_rawSource;
+    RawSource m_dflt;
 };

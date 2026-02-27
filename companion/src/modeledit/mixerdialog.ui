@@ -322,7 +322,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="RawSourceWidget" name="wgtWeight" native="true"/>
+        <widget class="AutoSourceListNum" name="wgtWeight" native="true"/>
        </item>
        <item>
         <spacer name="horizontalSpacer">
@@ -384,7 +384,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <item>
         <widget class="QCheckBox" name="chkIncTrim">
          <property name="text">
-          <string> </string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -472,7 +472,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
-          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -483,7 +482,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
-          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -493,7 +491,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <string notr="true">7</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
@@ -511,7 +508,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <string notr="true">2</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
@@ -536,7 +532,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <string notr="true">8</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
@@ -569,7 +564,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
-          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -580,7 +574,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
-          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -590,7 +583,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <string notr="true">6</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
@@ -608,7 +600,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <string notr="true">5</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
@@ -654,7 +645,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </property>
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
-      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
@@ -677,6 +667,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <class>RawSourceWidget</class>
    <extends>QWidget</extends>
    <header>rawsourcewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AutoSourceListNum</class>
+   <extends>QWidget</extends>
+   <header>autosourcelistnum.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

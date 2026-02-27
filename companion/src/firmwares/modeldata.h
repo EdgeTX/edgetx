@@ -253,7 +253,7 @@ class ModelData {
     void copy(const ModelData & src);
     bool isEmpty() const;
     void setDefaultInputs(const GeneralSettings & settings);
-    void setDefaultMixes(const GeneralSettings & settings);
+    void setDefaultMixes();
     void setDefaultFunctionSwitches(int functionSwitchCount);
     void setDefaultValues(unsigned int id, const GeneralSettings & settings);
 

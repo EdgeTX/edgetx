@@ -37,12 +37,12 @@ AutoSourceDSB::~AutoSourceDSB()
 {
 }
 
-void AutoSourceDSB::setField(RawSource * field,
-                             RawSource dflt, int min, int max,
-                             int precision, QString prefix, QString suffix, GenericPanel * panel)
+void AutoSourceDSB::setField(RawSource * field, RawSource dflt, GenericPanel * panel,
+                             int min, int max, int precision,
+                             QString prefix, QString suffix)
 {
-  AutoSource::setField(field, panel);
-  setField(dflt, min, max, precision, prefix, suffix);
+  AutoSource::setField(field, dflt, panel);
+  setFieldProperties(min, max, precision, prefix, suffix);
 
   setLock(true);
   setDecimals(m_precision);
@@ -50,16 +50,15 @@ void AutoSourceDSB::setField(RawSource * field,
   setMaximum(max / m_scalingFactor);
   setSingleStep(1 / m_scalingFactor);
   setSuffix(suffix);
-  setValue(dflt.index / m_scalingFactor);
+  QDoubleSpinBox::setValue(dflt.index / m_scalingFactor);
   setLock(false);
 
   updateValue();
 }
 
-void AutoSourceDSB::setField(RawSource dflt, int min, int max,
-                             int precision, QString prefix, QString suffix)
+void AutoSourceDSB::setFieldProperties(int min, int max, int precision,
+                                       QString prefix, QString suffix)
 {
-  m_dflt = dflt;
   m_min = min;
   m_max = max;
   m_precision = precision;
@@ -72,16 +71,11 @@ void AutoSourceDSB::setField(RawSource dflt, int min, int max,
 void AutoSourceDSB::on_editingFinished()
 {
   if (!lock()) {
-    setSource(RawSource(SOURCE_TYPE_NUMBER,
-                        (int)round(value() * m_scalingFactor)));
+    AutoSource::setValue(RawSource(SOURCE_TYPE_NUMBER,
+                       (int)round(value() * m_scalingFactor)));
     emit dataChanged();
     AutoWidget::dataChanged();
   }
-}
-
-void AutoSourceDSB::setValueDefault()
-{
-  setSource(m_dflt);
 }
 
 void AutoSourceDSB::setMinMax(const int min, const int max)
@@ -90,10 +84,10 @@ void AutoSourceDSB::setMinMax(const int min, const int max)
     m_min = min;
     m_max = max;
 
-    if (getSource().type == SOURCE_TYPE_NUMBER &&
-        (getSource().index < m_min || getSource().index > m_max)) {
-      setSource(RawSource(SOURCE_TYPE_NUMBER,
-                          (getSource().index < m_min ? m_min : m_max)));
+    if (getValue().type == SOURCE_TYPE_NUMBER &&
+        (getValue().index < m_min || getValue().index > m_max)) {
+      AutoSource::setValue(RawSource(SOURCE_TYPE_NUMBER,
+                          (getValue().index < m_min ? m_min : m_max)));
       updateValue();
     }
   }
@@ -101,9 +95,9 @@ void AutoSourceDSB::setMinMax(const int min, const int max)
 
 void AutoSourceDSB::updateValue()
 {
-  if (getSource().type == SOURCE_TYPE_NUMBER) {
+  if (getValue().type == SOURCE_TYPE_NUMBER) {
     setLock(true);
-    setValue(getSource().index / m_scalingFactor);
+    QDoubleSpinBox::setValue(getValue().index / m_scalingFactor);
     setLock(false);
   }
 }

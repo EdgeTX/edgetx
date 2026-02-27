@@ -119,3 +119,11 @@ AbstractStaticItemModel * MixData::precisionItemModel()
   mdl->loadItemList();
   return mdl;
 }
+
+void MixData::clear()
+{
+  memset(reinterpret_cast<void *>(this), 0, sizeof(MixData));
+  curve.source = RawSource(SOURCE_TYPE_NUMBER, 0);
+  offset = RawSource(SOURCE_TYPE_NUMBER, 0);
+  weight = RawSource(SOURCE_TYPE_NUMBER, 1000);
+}

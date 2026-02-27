@@ -22,15 +22,20 @@
 #include "autosource.h"
 
 AutoSource::AutoSource() :
-  m_rawSource(nullptr) {}
+  m_rawSource(nullptr),
+  m_dflt(RawSource())
+{
 
-void AutoSource::setField(RawSource * field, GenericPanel * panel)
+}
+
+void AutoSource::setField(RawSource * field, RawSource dflt, GenericPanel * panel)
 {
   m_rawSource = field;
+  m_dflt = dflt;
   setPanel(panel);
 }
 
-RawSource AutoSource::getSource() const
+RawSource AutoSource::getValue() const
 {
   if (m_rawSource)
     return *m_rawSource;
@@ -38,8 +43,23 @@ RawSource AutoSource::getSource() const
     return RawSource(SOURCE_TYPE_NONE);
 }
 
-void AutoSource::setSource(const RawSource value)
+void AutoSource::setValue(const RawSource & value)
 {
   if (m_rawSource)
     *m_rawSource = value;
+}
+
+RawSource AutoSource::getDefault() const
+{
+  return m_dflt;
+}
+
+void AutoSource::setDefault(const RawSource & value)
+{
+  m_dflt = value;
+}
+
+void AutoSource::setValueToDefault()
+{
+  *m_rawSource = m_dflt;
 }

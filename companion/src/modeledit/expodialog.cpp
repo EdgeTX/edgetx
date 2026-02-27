@@ -59,10 +59,10 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
   setWindowTitle(tr("Edit %1").arg(RawSource(SOURCE_TYPE_VIRTUAL_INPUT,
                  ed->chn + 1).toString(&model, &generalSettings)));
 
-  ui->wgtWeight->setField(&ed->weight, sharedItemModels,
-                      (RawSource::AllSourceGroups & ~RawSource::NoneGroup &
-                       ~RawSource::ScriptsGroup), true,
-                      RawSource(SOURCE_TYPE_NUMBER));
+  ui->wgtWeight->setField(&ed->weight, RawSource(SOURCE_TYPE_NUMBER), nullptr,
+                          sharedItemModels,
+                          (RawSource::AllSourceGroups & ~RawSource::NoneGroup &
+                           ~RawSource::ScriptsGroup), true);
   connect(ui->wgtWeight, &AutoSourceListNum::resized, this, [=] () { shrink(); });
 
   ui->wgtOffset->init(&model, sharedItemModels, &ed->offset,
@@ -121,7 +121,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData,
 
   int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
   flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
-  ui->cboSource->setField(&ed->srcRaw, sharedItemModels, flags);
+  ui->cboSource->setField(&ed->srcRaw, RawSource(), nullptr, sharedItemModels, flags);
   connect(ui->cboSource, &AutoSourceCB::dataChanged, this, &ExpoDialog::sourceChanged);
 
   dialogFilteredItemModels->registerItemModel(new FilteredItemModel(ExpoData::carryTrimItemModel()), AIM_EXPO_CARRYTRIM);

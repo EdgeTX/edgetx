@@ -36,14 +36,12 @@ class AutoSourceDSB : public QDoubleSpinBox, public AutoSource {
     virtual void updateValue() override;
 
     void setField(RawSource * field, RawSource dflt = RawSource(),
-                  int min = -1024, int max = 1024,
-                  int precision = 0,
-                  QString prefix = "", QString suffix = "", GenericPanel * panel = nullptr);
-
-    void setField(RawSource dflt = RawSource(),
-                  int min = -1024, int max = 1024,
-                  int precision = 0,
+                  GenericPanel * panel = nullptr,
+                  int min = -1000, int max = 1000, int precision = 1,
                   QString prefix = "", QString suffix = "");
+
+    void setFieldProperties(int min = -1000, int max = 1000, int precision = 1,
+                            QString prefix = "", QString suffix = "");
 
     void setMinMax(const int min, const int max);
     void setValueDefault();
@@ -55,7 +53,6 @@ class AutoSourceDSB : public QDoubleSpinBox, public AutoSource {
     void on_editingFinished();
 
   private:
-    RawSource m_dflt;
     int m_min;
     int m_max;
     int m_precision;

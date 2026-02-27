@@ -27,6 +27,7 @@
 #include "namevalidator.h"
 #include "curvereferencewidget.h"
 #include "rawsourcewidget.h"
+#include "autosourcelistnum.h"
 
 MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
             int index, GeneralSettings & generalSettings, Firmware * firmware,
@@ -61,11 +62,12 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata,
                       (RawSource::AllSourceGroups & ~RawSource::NoneGroup));
   connect(ui->wgtSource, &RawSourceWidget::resized, this, [&] () { shrink(); });
 
-  ui->wgtWeight->init(&model, sharedItemModels, &mixdata->weight,
-                      (RawSource::AllSourceGroups & ~RawSource::NoneGroup &
-                       ~RawSource::ScriptsGroup),
-                      UI_FLAG_LIST_VALUE, RawSource(SOURCE_TYPE_NUMBER));
-  connect(ui->wgtWeight, &RawSourceWidget::resized, this, [=] () { shrink(); });
+  ui->wgtWeight->setField(&mixdata->weight, RawSource(SOURCE_TYPE_NUMBER), nullptr,
+                          sharedItemModels,
+                          (RawSource::AllSourceGroups & ~RawSource::NoneGroup &
+                          ~RawSource::ScriptsGroup), true,
+                          tr("source"), -1000, 1000, 1, "x", "y");
+  connect(ui->wgtWeight, &AutoSourceListNum::resized, this, [=] () { shrink(); });
 
   ui->wgtOffset->init(&model, sharedItemModels, &mixdata->offset,
                       (RawSource::AllSourceGroups & ~RawSource::NoneGroup &

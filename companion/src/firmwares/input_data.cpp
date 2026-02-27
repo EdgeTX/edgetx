@@ -116,3 +116,11 @@ AbstractStaticItemModel * ExpoData::modeItemModel()
   mdl->loadItemList();
   return mdl;
 }
+
+void ExpoData::clear()
+{
+  memset(reinterpret_cast<void *>(this), 0, sizeof(ExpoData));
+  curve.source = RawSource(SOURCE_TYPE_NUMBER, 0);
+  offset = RawSource(SOURCE_TYPE_NUMBER, 0);
+  weight = RawSource(SOURCE_TYPE_NUMBER, 100);
+}
