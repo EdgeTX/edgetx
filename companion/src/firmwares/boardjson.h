@@ -123,6 +123,8 @@ class BoardJson
       int has_int_module_support       = 0;
       int sport_max_baudrate           = 0;
       int surface                      = 0;
+      std::string cpu                  = "";
+      std::string cpu_type             = "";
     };
 
     typedef std::vector<TrimDefn> TrimsTable;
@@ -136,6 +138,7 @@ class BoardJson
     bool loadDefinition();
 
     const int getCapability(const Board::Capability capability) const;
+    const QString getCapabilityStr(const Board::Capability capability) const;
     const int getInputsCalibrated() const;
 
     const int getInputIndex(const QString val, Board::LookupValueType lvt) const;

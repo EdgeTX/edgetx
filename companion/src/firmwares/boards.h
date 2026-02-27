@@ -213,6 +213,8 @@ namespace Board {
   enum Capability {
     Air,
     BacklightLevelMin,
+    CPU,
+    CPUType,
     FlexInputs,
     FlexSwitches,
     FunctionSwitchColors,
@@ -241,6 +243,9 @@ namespace Board {
     HasVCPSerialMode,
     Inputs,
     InputSwitches,
+    IsF4,
+    IsH5,
+    IsH7,
     JoystickAxes,
     Joysticks,
     Keys,
@@ -401,12 +406,14 @@ class Boards
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
+    const QString getCapabilityStr(Board::Capability capability) const { return getCapabilityStr(m_boardType, capability); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
+    static QString getCapabilityStr(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
@@ -816,17 +823,6 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
     IS_FLYSKY_PA01(board)/*generally*/ || IS_FLYSKY_NB4P(board)/*generally*/;
 }
 
-inline bool IS_STM32(Board::Type board)
-{
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-    IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board);
-}
-
-inline bool IS_ARM(Board::Type board)
-{
-  return IS_STM32(board);
-}
-
 inline bool HAS_LARGE_LCD(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board);
@@ -853,27 +849,4 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 {
   return IS_ACCESS_RADIO(board) ||
          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
-}
-
-inline bool HAS_EEPROM_YAML(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board);
-}
-
-inline bool IS_STM32H5(Board::Type board)
-{
-  return false;
-}
-
-inline bool IS_STM32H7(Board::Type board)
-{
-  return IS_FLYSKY_PA01(board) ||
-         IS_FLYSKY_ST16(board) ||
-         IS_JUMPER_T15PRO(board) ||
-         IS_RADIOMASTER_TX15(board);
-}
-
-inline bool IS_STM32F2F4(Board::Type board)
-{
-  return (!IS_STM32H5(board) && !IS_STM32H7(board));
 }
