@@ -17,4 +17,5 @@ compile_commands.json
 /.idea
 /.vs
 CMakeUserPresets.json
+/user-builds/
 .DS_Store
