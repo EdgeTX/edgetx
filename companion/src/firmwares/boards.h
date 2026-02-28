@@ -870,7 +870,8 @@ inline bool IS_STM32H7(Board::Type board)
   return IS_FLYSKY_PA01(board) ||
          IS_FLYSKY_ST16(board) ||
          IS_JUMPER_T15PRO(board) ||
-         IS_RADIOMASTER_TX15(board);
+         IS_RADIOMASTER_TX15(board) ||
+         IS_RADIOMASTER_TX16SMK3(board);
 }
 
 inline bool IS_STM32F2F4(Board::Type board)
