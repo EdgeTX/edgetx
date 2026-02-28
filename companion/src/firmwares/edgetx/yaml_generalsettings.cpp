@@ -94,6 +94,7 @@ const YamlLookupTable uartModeLut = {
   {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "TELEMETRY_MIRROR"  },
   {  GeneralSettings::AUX_SERIAL_TELE_IN, "TELEMETRY_IN"  },
   {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER_INV, "SBUS_TRAINER_INV"  },
   {  GeneralSettings::AUX_SERIAL_LUA, "LUA"  },
   {  GeneralSettings::AUX_SERIAL_CLI, "CLI"  },
   {  GeneralSettings::AUX_SERIAL_GPS, "GPS"  },

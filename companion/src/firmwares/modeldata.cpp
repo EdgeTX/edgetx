@@ -1838,8 +1838,10 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
     return false;
 
   if (value == TRAINER_MODE_MASTER_SERIAL &&
-      (generalSettings.serialPort[GeneralSettings::SP_AUX1] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER &&
-       generalSettings.serialPort[GeneralSettings::SP_AUX2] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER))
+      generalSettings.serialPort[GeneralSettings::SP_AUX1] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER &&
+      generalSettings.serialPort[GeneralSettings::SP_AUX1] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER_INV &&
+      generalSettings.serialPort[GeneralSettings::SP_AUX2] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER &&
+      generalSettings.serialPort[GeneralSettings::SP_AUX2] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER_INV)
     return false;
 
   if ((value == TRAINER_MODE_MASTER_BLUETOOTH || value == TRAINER_MODE_SLAVE_BLUETOOTH) &&
