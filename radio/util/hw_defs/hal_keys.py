@@ -58,7 +58,7 @@ KEYS = [
 
 KEY_LABELS = [
     {
-        "targets": {"boxer", "f16", "mt12", "gx12", "pocket", "tx12", "tx12mk2", "tx16s", "tx16smk3","v16", "zorro"},
+        "targets": {"boxer", "f16", "mt12", "gx12", "pocket", "tx12", "tx12mk2", "tx16s", "tx16smk3","v16", "zorro", "dro1"},
         "keys": {
             "EXIT": { "label": "RTN" }
         }

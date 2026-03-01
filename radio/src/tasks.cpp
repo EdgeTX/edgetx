@@ -105,7 +105,7 @@ static void audioTask()
     sleep_ms(1);
   }
 
-#if defined(PCBX12S) || defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+#if defined(PCBX12S) || defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_DRO1)
   // The audio amp needs ~2s to start
   sleep_ms(1000); // 1s
 #endif

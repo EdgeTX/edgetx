@@ -80,6 +80,8 @@ TEST(ports, isPortUsed)
 }
 #endif
 
+/* FIX : Valid only if HARDWARE_INTERNAL_MODULE is defined */
+#if defined(HARDWARE_INTERNAL_MODULE)
 #if defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
 #include "pulses/pxx1.h"
 
@@ -277,3 +279,4 @@ TEST(ports, isTelemAllowedOnBind)
   EXPECT_TRUE(isTelemAllowedOnBind(EXTERNAL_MODULE));
 }
 #endif
+#endif    /* defined(HARDWARE_INTERNAL_MODULE) */

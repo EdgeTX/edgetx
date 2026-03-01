@@ -410,7 +410,7 @@ void generalDefault()
   g_eeGeneral.pwrOffSpeed = 2;
 #endif
 
-#if defined(MANUFACTURER_RADIOMASTER)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_DUMBORC)
   g_eeGeneral.audioMuteEnable = 1;
 #if defined(RADIO_TX15)
   g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough

@@ -45,7 +45,7 @@
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_6  // PI.06
   #define KEYS_GPIO_REG_TELE            GPIOC
   #define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4  // PC.04
-#elif defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+#elif defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_DRO1)
   #define KEYS_GPIO_REG_ENTER           GPIOI
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8  // PI.08
   #define KEYS_GPIO_REG_PAGEUP          GPIOC
@@ -240,6 +240,22 @@
 
   #if defined(PCBX12S)
     #define SWITCHES_F_INVERTED
+  #elif defined(RADIO_DRO1)
+    #undef SWITCHES_GPIO_REG_F
+    #undef SWITCHES_GPIO_PIN_F
+    #undef SWITCHES_GPIO_REG_H
+    #undef SWITCHES_GPIO_PIN_H
+    #define SWITCHES_GPIO_REG_F_H         GPIOH
+    #define SWITCHES_GPIO_PIN_F_H         LL_GPIO_PIN_7  // PH.07
+    #define SWITCHES_GPIO_REG_F_L         GPIOH
+    #define SWITCHES_GPIO_PIN_F_L         LL_GPIO_PIN_3  // PH.03
+    #define SWITCHES_GPIO_REG_H_H         GPIOH
+    #define SWITCHES_GPIO_PIN_H_H         LL_GPIO_PIN_8  // PH.08
+    #define SWITCHES_GPIO_REG_H_L         GPIOG
+    #define SWITCHES_GPIO_PIN_H_L         LL_GPIO_PIN_7  // PG.07
+    #define SWITCHES_B_INVERTED
+    #define SWITCHES_D_INVERTED
+    #define SWITCHES_G_INVERTED
   #elif defined(PCBX10)
     #define SWITCHES_B_INVERTED
     #define SWITCHES_D_INVERTED
@@ -276,6 +292,11 @@
   #define SIXPOS_SWITCH_INDEX             5
   #define SIXPOS_LED_RED                200
   #define SIXPOS_LED_GREEN              0
+  #define SIXPOS_LED_BLUE               0
+#elif defined(RADIO_DRO1)
+  #define SIXPOS_SWITCH_INDEX           5
+  #define SIXPOS_LED_RED                170
+  #define SIXPOS_LED_GREEN              85
   #define SIXPOS_LED_BLUE               0
 #endif
 
@@ -322,6 +343,31 @@
   #define TRIMS_GPIO_PIN_LSD            LL_GPIO_PIN_14 // PB.14
   #define TRIMS_GPIO_REG_LSU            GPIOB
   #define TRIMS_GPIO_PIN_LSU            LL_GPIO_PIN_13 // PB.13
+#elif defined(RADIO_DRO1)
+  #define TRIMS_GPIO_REG_RHL            GPIOA
+  #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_6  // PA.06
+  #define TRIMS_GPIO_REG_RHR            GPIOC
+  #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_4  // PC.04
+  #define TRIMS_GPIO_REG_RVD            GPIOG
+  #define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_12 // PG.12
+  #define TRIMS_GPIO_REG_RVU            GPIOJ
+  #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_14 // PJ.14
+  #define TRIMS_GPIO_REG_LVD            GPIOJ
+  #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_13 // PJ.13
+  #define TRIMS_GPIO_REG_LHL            GPIOD
+  #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_3  // PD.03
+  #define TRIMS_GPIO_REG_LVU            GPIOJ
+  #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_12 // PJ.12
+  #define TRIMS_GPIO_REG_LHR            GPIOD
+  #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_7  // PD.07
+  #define TRIMS_GPIO_REG_LSU            GPIOD
+  #define TRIMS_GPIO_PIN_LSU            LL_GPIO_PIN_13 // PD.13
+  #define TRIMS_GPIO_REG_LSD            GPIOJ
+  #define TRIMS_GPIO_PIN_LSD            LL_GPIO_PIN_8  // PJ.08
+  #define TRIMS_GPIO_REG_RSU            GPIOB
+  #define TRIMS_GPIO_PIN_RSU            LL_GPIO_PIN_14 // PB.14
+  #define TRIMS_GPIO_REG_RSD            GPIOB
+  #define TRIMS_GPIO_PIN_RSD            LL_GPIO_PIN_13 // PB.13
 #elif defined(PCBX10)
   // Left/Right Horizontal trims (LHL/LHR)
   #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
@@ -573,7 +619,7 @@
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
 
   // VBat divider is /4 on F42x and F43x devices
-  #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_T18)
+  #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_T18) || defined(RADIO_DRO1)
     #define ADC_VREF_PREC2              330
   #elif defined(RADIO_T16)
     #define ADC_VREF_PREC2              300
@@ -592,6 +638,8 @@
   #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
 #elif defined(RADIO_V16)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,   -1,1,1,1,  -1,1 }
+#elif defined(RADIO_DRO1)
+  #define ADC_DIRECTION                 {1,-1,1,-1,   -1,1,-1,   -1,1,   1,1,-1,1}
 #elif defined(PCBX10)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,1,1,   1,-1 }
 #elif defined(PCBX12S)
@@ -640,7 +688,7 @@
 #if defined(RADIO_T15)
   #define PCBREV_GPIO                   GPIO_PIN(GPIOH, 8) // PH.08
   #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 8)
-#elif defined(RADIO_V16)
+#elif defined(RADIO_V16) || defined(RADIO_DRO1)
   #define PCBREV_VALUE()                {0}
 #elif defined(PCBX10)
   #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
@@ -711,7 +759,7 @@
     #define AUX_SERIAL_DMA_RX                   DMA1
     #define AUX_SERIAL_DMA_RX_STREAM            LL_DMA_STREAM_1
     #define AUX_SERIAL_DMA_RX_CHANNEL           LL_DMA_CHANNEL_4
-    #if defined(RADIO_TX16S) || defined(RADIO_F16)
+    #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_DRO1)
       #define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOA, 15) // PA.15
     #endif
   #endif
@@ -823,7 +871,7 @@
 #elif defined(PCBX10)
   #define LCD_GPIO_NRST                 GPIO_PIN(GPIOI, 10) // PI.10
 #endif
-#if defined(PCBX10) && !defined(RADIO_T18) && !defined(RADIO_V16)
+#if defined(PCBX10) && !(defined(RADIO_T18) || defined(RADIO_V16) || defined(RADIO_DRO1))
   #define LCD_VERTICAL_INVERT
 #endif
 #define LTDC_IRQ_PRIO                   4
@@ -943,7 +991,7 @@
 #endif
 
 #if defined(RADIO_FAMILY_T16)
-#if defined(RADIO_TX16S)  || defined(RADIO_F16) || defined(RADIO_V16)
+#if defined(RADIO_TX16S)  || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_DRO1)
   #define AUDIO_UNMUTE_DELAY            150  // ms
 #else
   #define AUDIO_UNMUTE_DELAY            120  // ms
@@ -976,7 +1024,7 @@
 #endif // HARDWARE_TOUCH
 
 // First I2C Bus
-#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15) || defined(RADIO_V16)
+#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15) || defined(RADIO_V16) || defined(RADIO_DRO1)
   #define I2C_B1                      I2C1
   #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOB, 9)  // PB.09
@@ -997,7 +1045,7 @@
   #define I2C_B2_SDA_GPIO             GPIO_PIN(GPIOB, 11)  // PB.11
   #define I2C_B2_GPIO_AF              LL_GPIO_AF_4    // I2C2
   #define I2C_B2_CLK_RATE             400000
-  #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+  #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_DRO1)
     #define I2C_B2_PWR_GPIO           GPIO_PIN(GPIOA, 15)  // PA.15
   #endif
 #endif
@@ -1061,6 +1109,22 @@
   #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
   #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
   #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+  #define LED_STRIP_REFRESH_PERIOD          50 //ms
+#elif defined(RADIO_DRO1)
+  // LED Strip
+  #define LED_STRIP_LENGTH                  36
+  #define BLING_LED_STRIP_START             6
+  #define BLING_LED_STRIP_LENGTH            30
+  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 5)  // PA.05 / TIM2_CH1
+  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
+  #define LED_STRIP_TIMER                   TIM2
+  #define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
+  #define LED_STRIP_TIMER_DMA               DMA1
+  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_3
+  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_7
+  #define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream7_IRQn
+  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream7_IRQHandler
   #define LED_STRIP_REFRESH_PERIOD          50 //ms
 #endif
 
@@ -1229,7 +1293,7 @@
     #define BT_USART_GPIO                 GPIOG
     #define BT_TX_GPIO                    GPIO_PIN(GPIOG, 14) // PG.14
     #define BT_RX_GPIO                    GPIO_PIN(GPIOG, 9)  // PG.09
-    #if defined(RADIO_TX16S)
+    #if defined(RADIO_TX16S) || defined(RADIO_DRO1)
       #define BT_PWR_GPIO                 GPIO_PIN(GPIOB, 0) // PB.00
     #endif
   #endif
