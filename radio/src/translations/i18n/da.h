@@ -720,7 +720,6 @@
 #define TR_CURRENT_CALIB               "Aktuel kalib"
 #define TR_VOLTAGE                     TR("Spænding", "Spænding kilde")
 #define TR_SELECT_MODEL                "Vælg model"
-#define TR_MANAGE_MODELS               "Vælg Model"
 #define TR_MODELS                      "Modeller"
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"

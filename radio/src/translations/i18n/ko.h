@@ -743,7 +743,6 @@
 #define TR_CURRENT_CALIB                "전류 보정"
 #define TR_VOLTAGE                      TR("전압", "전압 소스")
 #define TR_SELECT_MODEL                 "모델 선택"
-#define TR_MANAGE_MODELS                "모델 관리"
 #define TR_MODELS                       "모델"
 #define TR_SELECT_MODE                  "모드 선택"
 #define TR_CREATE_MODEL                 "모델 생성"

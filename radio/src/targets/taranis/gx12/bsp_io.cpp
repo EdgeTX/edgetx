@@ -127,9 +127,6 @@ struct bsp_io_sw_def {
   uint32_t pin_low;
 };
 
-static constexpr uint32_t RGB_OFFSET = (1 << 16); // first after bspio pins
-static uint16_t soft2POSLogicalState = 0xFFFF;
-
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
   SwitchHwPos pos = SWITCH_HW_UP;

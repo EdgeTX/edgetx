@@ -715,7 +715,6 @@
 #define TR_CURRENT_CALIB                "Calibrazione"
 #define TR_VOLTAGE                      TR("Voltagg.","Voltaggio")
 #define TR_SELECT_MODEL                 "Scegli Modello"
-#define TR_MANAGE_MODELS                "GESTIONE MODELLI"
 #define TR_MODELS                       "Modelli"
 #define TR_SELECT_MODE                  "Seleziona modo"
 #define TR_CREATE_MODEL                 "Crea Modello"

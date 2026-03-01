@@ -716,7 +716,6 @@
 #define TR_CURRENT_CALIB               "Калібровка струму"
 #define TR_VOLTAGE                     TR("Напруга", "Джерело напруги")
 #define TR_SELECT_MODEL                "Оберіть модель"
-#define TR_MANAGE_MODELS               "КЕРУВАННЯ МОДЕЛЯМИ"
 #define TR_MODELS                      "Моделі"
 #define TR_SELECT_MODE                 "Оберіть режим"
 #define TR_CREATE_MODEL                "Створіть модель"

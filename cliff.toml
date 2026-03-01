@@ -4,11 +4,196 @@
 [changelog]
 header = ""
 body = """
-{% for group, commits in commits | group_by(attribute="group") %}
+{% for group, commits in commits | group_by(attribute="group") -%}
+{% if group == "🚀 Features" -%}
 ### {{ group }}
-{% for commit in commits -%}
+{% set commits_by_scope = commits | group_by(attribute="scope") -%}
+{% if commits_by_scope.firmware is defined or commits_by_scope.fw is defined -%}
+#### 🎮 Firmware
+{% if commits_by_scope.firmware is defined -%}{% for commit in commits_by_scope.firmware -%}
 - {{ commit.message | split(pat="\\n") | first | trim }}
-{% endfor %}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.fw is defined -%}{% for commit in commits_by_scope.fw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.bw is defined -%}
+#### 🖥️ Black & White Radio
+{% for commit in commits_by_scope.bw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}
+{% endif -%}
+{% if commits_by_scope.color is defined or commits_by_scope.colour is defined -%}
+#### 🎨 Color LCD Radio
+{% if commits_by_scope.color is defined -%}{% for commit in commits_by_scope.color -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.colour is defined -%}{% for commit in commits_by_scope.colour -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.cpn is defined or commits_by_scope.companion is defined -%}
+#### 💻 Companion
+{% if commits_by_scope.cpn is defined -%}{% for commit in commits_by_scope.cpn -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.companion is defined -%}{% for commit in commits_by_scope.companion -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% set_global has_other = false -%}
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}{% set_global has_other = true -%}{% endif -%}{% endfor -%}
+{% if has_other -%}
+#### 📦 Other
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endif -%}{% endfor -%}
+{% endif -%}
+{% endif -%}
+{% endfor -%}
+
+{% for group, commits in commits | group_by(attribute="group") -%}
+{% if group == "🐛 Bug Fixes" -%}
+### {{ group }}
+{% set commits_by_scope = commits | group_by(attribute="scope") -%}
+{% if commits_by_scope.firmware is defined or commits_by_scope.fw is defined -%}
+#### 🎮 Firmware
+{% if commits_by_scope.firmware is defined -%}{% for commit in commits_by_scope.firmware -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.fw is defined -%}{% for commit in commits_by_scope.fw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.bw is defined -%}
+#### 🖥️ Black & White Radio
+{% for commit in commits_by_scope.bw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}
+{% endif -%}
+{% if commits_by_scope.color is defined or commits_by_scope.colour is defined -%}
+#### 🎨 Color LCD Radio
+{% if commits_by_scope.color is defined -%}{% for commit in commits_by_scope.color -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.colour is defined -%}{% for commit in commits_by_scope.colour -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.cpn is defined or commits_by_scope.companion is defined -%}
+#### 💻 Companion
+{% if commits_by_scope.cpn is defined -%}{% for commit in commits_by_scope.cpn -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.companion is defined -%}{% for commit in commits_by_scope.companion -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% set_global has_other = false -%}
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}{% set_global has_other = true -%}{% endif -%}{% endfor -%}
+{% if has_other -%}
+#### 📦 Other
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endif -%}{% endfor -%}
+{% endif -%}
+{% endif -%}
+{% endfor -%}
+
+{% for group, commits in commits | group_by(attribute="group") -%}
+{% if group != "🚀 Features" and group != "🐛 Bug Fixes" and group != "📦 Other" -%}
+### {{ group }}
+{% set commits_by_scope = commits | group_by(attribute="scope") -%}
+{% if commits_by_scope.firmware is defined or commits_by_scope.fw is defined -%}
+#### 🎮 Firmware
+{% if commits_by_scope.firmware is defined -%}{% for commit in commits_by_scope.firmware -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.fw is defined -%}{% for commit in commits_by_scope.fw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.bw is defined -%}
+#### 🖥️ Black & White Radio
+{% for commit in commits_by_scope.bw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}
+{% endif -%}
+{% if commits_by_scope.color is defined or commits_by_scope.colour is defined -%}
+#### 🎨 Color LCD Radio
+{% if commits_by_scope.color is defined -%}{% for commit in commits_by_scope.color -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.colour is defined -%}{% for commit in commits_by_scope.colour -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.cpn is defined or commits_by_scope.companion is defined -%}
+#### 💻 Companion
+{% if commits_by_scope.cpn is defined -%}{% for commit in commits_by_scope.cpn -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.companion is defined -%}{% for commit in commits_by_scope.companion -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% set_global has_other = false -%}
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}{% set_global has_other = true -%}{% endif -%}{% endfor -%}
+{% if has_other -%}
+#### 📦 Other
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endif -%}{% endfor -%}
+{% endif -%}
+{% endif -%}
+{% endfor -%}
+
+{% for group, commits in commits | group_by(attribute="group") -%}
+{% if group == "📦 Other" -%}
+### {{ group }}
+{% set commits_by_scope = commits | group_by(attribute="scope") -%}
+{% if commits_by_scope.firmware is defined or commits_by_scope.fw is defined -%}
+#### 🎮 Firmware
+{% if commits_by_scope.firmware is defined -%}{% for commit in commits_by_scope.firmware -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.fw is defined -%}{% for commit in commits_by_scope.fw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.bw is defined -%}
+#### 🖥️ Black & White Radio
+{% for commit in commits_by_scope.bw -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}
+{% endif -%}
+{% if commits_by_scope.color is defined or commits_by_scope.colour is defined -%}
+#### 🎨 Color LCD Radio
+{% if commits_by_scope.color is defined -%}{% for commit in commits_by_scope.color -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.colour is defined -%}{% for commit in commits_by_scope.colour -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% if commits_by_scope.cpn is defined or commits_by_scope.companion is defined -%}
+#### 💻 Companion
+{% if commits_by_scope.cpn is defined -%}{% for commit in commits_by_scope.cpn -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% if commits_by_scope.companion is defined -%}{% for commit in commits_by_scope.companion -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endfor -%}{% endif -%}
+{% endif -%}
+{% set_global has_other = false -%}
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}{% set_global has_other = true -%}{% endif -%}{% endfor -%}
+{% if has_other -%}
+#### 📦 Other
+{% for commit in commits -%}{% if commit.scope != "firmware" and commit.scope != "fw" and commit.scope != "bw" and commit.scope != "color" and commit.scope != "colour" and commit.scope != "cpn" and commit.scope != "companion" -%}
+- {{ commit.message | split(pat="\\n") | first | trim }}
+{% endif -%}{% endfor -%}
+{% endif -%}
+{% endif -%}
 {% endfor -%}
 """
 trim = true
@@ -31,19 +216,9 @@ sort_commits = "oldest"
 
 # Commit parsers - order matters! More specific patterns first
 commit_parsers = [
-  # Scope-based categorization (highest priority)
-  { message = "^feat\\(bw\\)", group = "🖥️ Black & White Radio Changes" },
-  { message = "^fix\\(bw\\)", group = "🖥️ Black & White Radio Changes" },
-  { message = "^feat\\(color\\)", group = "🎨 Color Radio Changes" },
-  { message = "^fix\\(color\\)", group = "🎨 Color Radio Changes" },
-  { message = "^feat\\((firmware|fw)\\)", group = "🎮 Firmware (All Radios Generally)" },
-  { message = "^fix\\((firmware|fw)\\)", group = "🎮 Firmware (All Radios Generally)" },
-  { message = "^feat\\(cpn\\)", group = "💻 Companion Software Changes" },
-  { message = "^fix\\(cpn\\)", group = "💻 Companion Software Changes" },
-
-  # Type-based categorization (fallback)
+  # Type-based categorization (top-level headings)
   { message = "^feat", group = "🚀 Features" },
-  { message = "^fix", group = "🐛 Fixes" },
+  { message = "^fix", group = "🐛 Bug Fixes" },
   { message = "^docs?", group = "📝 Documentation" },
   { message = "^perf", group = "⚡ Performance" },
   { message = "^refactor", group = "🔨 Refactoring" },

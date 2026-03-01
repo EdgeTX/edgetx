@@ -61,6 +61,14 @@ jobs:
             echo "CMakeLists.txt not found"
           fi
 
+      - name: Install git-cliff
+        run: |
+          VERSION=$(wget -qO- https://api.github.com/repos/orhun/git-cliff/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
+          FILENAME="git-cliff-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          wget -O git-cliff.tar.gz "https://github.com/orhun/git-cliff/releases/download/v${VERSION}/${FILENAME}"
+          tar -xzvf git-cliff.tar.gz
+          mv git-cliff-${VERSION}/git-cliff /usr/local/bin/
+
       - name: Generate Changelog and Contributors List
         id: changelog
         run: |
@@ -78,7 +86,7 @@ jobs:
           fi
 
           # Generate the changelog using the explicit range
-          git-cliff $RANGE --tag "${{ inputs.tag }}" --strip all --output CHANGELOG.md
+          git-cliff $RANGE --strip all --output CHANGELOG.md
 
           # Get unique contributors from the same commit range
           CONTRIBUTORS=$(git log --format='%aN' $CONTRIB_RANGE 2>/dev/null | sort -u | sed 's/^/- /' || echo "")
@@ -160,7 +168,7 @@ jobs:
           body: |
             We are pleased to offer EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}.
 
-            ${{ (contains(needs.check-tag.outputs.tag_name, '-rc') || contains(needs.check-tag.outputs.tag_name, '-beta') || contains(needs.check-tag.outputs.tag_name, '-alpha')) && '> [!WARNING]
+            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
             > As this is a pre-release, it is virtually guaranteed there will still be some minor issues that need resolving before final release - some may be documented already under "known issues" section of these release notes or the associated tracking issue. During pre-releases, the matching SD card pack and voice pack versions to use are those marked/tagged ''Latest''.
             >
             > We **need** _your_ help in testing this release to ensure there are no major bugs or faults that will cause problems during flight.  Please ensure you back up your model and radio settings before updating, fully bench-test your models after updating, and report any issues you encounter. It is only with your feedback and testing by you, our community (and the assistance provided by partner manufacturers) which will allow us to identify and squash both new and old bugs, and progress onto a stable release version!! We simply cannot do this without you! :hugs: :beers:' || '' }}
@@ -181,6 +189,10 @@ jobs:
             >
             > See the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx) for more information.
 
+            ## Changes
+
+            ${{ steps.changelog.outputs.changelog }}
+
             ## Supported radios
             The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
 
@@ -194,11 +206,9 @@ jobs:
             [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) will allow you build your own (supported) language firmware, with just a few clicks. Additionally, EdgeTX Companion also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can also build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces), request a specific build at TODO or ask on Discord for someone to build one for you.
 
             ## Known Limitations and Issues
+            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
+            - Please check TODO during the release candidate phase for any other release candidate-specific issues and status of fixes.' || '' }}
 
             ## UI/UX behavioral changes and/or new capabilities:
-
-            ## Changes
-
-            ${{ steps.build_changelog.outputs.changelog }}
           files: release-assets/*.zip
           fail_on_unmatched_files: true

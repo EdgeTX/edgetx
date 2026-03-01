@@ -715,7 +715,6 @@
 #define TR_CURRENT_CALIB                "Kalib. ström"
 #define TR_VOLTAGE                      "Volt"
 #define TR_SELECT_MODEL                 "Välj modell"
-#define TR_MANAGE_MODELS                "MODELLHANTERING"
 #define TR_MODELS                       "Modeller"
 #define TR_SELECT_MODE                  "Välj läge"
 #define TR_CREATE_MODEL                 "Skapa modell"

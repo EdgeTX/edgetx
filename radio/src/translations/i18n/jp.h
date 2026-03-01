@@ -714,7 +714,6 @@
 #define TR_CURRENT_CALIB               "現在のキャリブレーション"
 #define TR_VOLTAGE                     TR("Voltage", "電圧ソース")
 #define TR_SELECT_MODEL                "モデル選択"
-#define TR_MANAGE_MODELS               "モデル管理"
 #define TR_MODELS                      "モデル"
 #define TR_SELECT_MODE                 "モード選択"
 #define TR_CREATE_MODEL                "モデル作成"
