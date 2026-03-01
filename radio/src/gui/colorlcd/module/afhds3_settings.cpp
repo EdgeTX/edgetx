@@ -89,6 +89,11 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
     return 0;
   });
 
+  new TextButton(afhds3TypeForm, rect_t{}, STR_TELEMETRY_SENSORS, [=]() {
+    new AFHDS3_Sensors(moduleIdx);
+    return 0;
+  });
+
   bool hasPowerOption = false;
   int maxPower;
   if (moduleIdx == INTERNAL_MODULE) {

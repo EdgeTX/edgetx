@@ -51,7 +51,17 @@ extern uint16_t  sns_RFCurrentPower;
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
 void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t type);
+void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t type);
 void processFlySkySensor(const uint8_t * packet, uint8_t type);
+
+void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len);
+void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags);
+void flySkyIbus2CalGpsAlt();
+void flySkyIbus2CalGpsDist();
+void Ibus2ParamCheck(uint8_t* packet, uint8_t len);
+void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len);
+bool getIbus2IbcState();
+uint8_t flyskyIbus2SensorOnLine();
 
 namespace afhds3
 {
@@ -285,6 +295,8 @@ class ProtoState
 
     bool syncSettings();
 
+    bool sensorCalibration();
+
   //  void requestInfoAndRun(bool send = false);
 
     uint8_t setFailSafe(int16_t* target, uint8_t rfchannelcount=AFHDS3_MAX_CHANNELS);
@@ -411,6 +423,18 @@ bool ProtoState::hasTelemetry()
     return cfg.v0.IsTwoWay;
   else
     return cfg.v1.IsTwoWay;
+}
+
+uint8_t ibus_type[SES_NPT_NB_MAX_PORTS] = {SES_NPT_IBUS1_IN};
+void setIbusType(uint8_t* ibus_type_buf) 
+{
+  for(uint8_t i = 0; i< SES_NPT_NB_MAX_PORTS; i++) {
+   if (ibus_type_buf[i] == afhds3::SES_NPT_IBUS2 || ibus_type_buf[i] == afhds3::SES_NPT_IBUS2_HUB_PORT) {
+    ibus_type[i] = afhds3::SES_NPT_IBUS2;
+   } else {
+    ibus_type[i] = afhds3::SES_NPT_IBUS1_IN;
+   }
+  }
 }
 
 void ProtoState::setupFrame()
@@ -559,6 +583,8 @@ void ProtoState::setupFrame()
     // Sync config, with commands
     if (syncSettings()) { return; }
 
+    if (sensorCalibration()) { return; }
+
     // Send channels data
     sendChannelsData();
   } else {
@@ -705,6 +731,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
               this->rx_state = true;
               DIRTY_CMD( cfg, DC_RX_CMD_GET_RX_VERSION );
               trsp.enqueue( COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA );
+              setIbusType(cfg->v1.NewPortTypes);
 //            modelcfgGet = true;
 //            cfg.others.isConnected = true;
 //            cfg.others.lastUpdated = get_tmr10ms();
@@ -756,7 +783,19 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
               break;
             }
             telemetry[0] = 0;
-            ::processFlySkyAFHDS3Sensor( telemetry, len-3 );
+            uint8_t ibus_version = SES_NPT_IBUS1_IN;
+            for(uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
+              // If ibus2 is configured, ignore ibus1.
+              if (ibus_type[i] == SES_NPT_IBUS2 || ibus_type[i] == SES_NPT_IBUS2_HUB_PORT) {
+                ibus_version = SES_NPT_IBUS2;
+                break;
+              }
+            }
+            if (ibus_version == afhds3::SES_NPT_IBUS2) {
+              ::processFlySkyIbus2AFHDS3Sensor(telemetry, len-3);
+            } else {
+              ::processFlySkyAFHDS3Sensor(telemetry, len-3);
+            }
             telemetry += len;
           }
         }
@@ -812,6 +851,20 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
                 clearDirtyFlag(DC_RX_CMD_GET_RX_VERSION);
               }
             }break;
+          case RX_CMD_CODE_IBUS2_SET_PARAM:
+            {
+              uint8_t len = *data++;            
+              ::Ibus2ParamCheck(data, len);
+            }
+            break;
+          case RX_CMD_CODE_IBUS2_GET_PARAM:
+            {
+              uint8_t len = *data++;            
+              ::Ibus2ParamCheck(data, len);
+              // cfg->others.calibData[IBUS2_SENSOR_IBC] = getIbus2IbcState();
+              // DIRTY_CMD(cfg, DC_RX_CMD_CLEAR_IBC);
+            }
+            break;
         default:
           break;
         }
@@ -834,6 +887,50 @@ inline bool isSbus(uint8_t mode)
 inline bool isPWM(uint8_t mode)
 {
   return !(mode & 2);
+}
+
+bool ProtoState::sensorCalibration() {
+  auto *cfg = this->getConfig();
+
+  static uint8_t data[30] = {0};
+  uint8_t len = 0;
+
+  uint8_t sensor_online = flyskyIbus2SensorOnLine();
+  cfg->others.sensorOnLine = sensor_online;
+
+  if (checkDirtyFlag(DC_RX_CMD_CALIB_GYRO)) {
+
+    ::flySkyIbus2CalGpsGyro(data, &len);
+    trsp.putFrame( COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, len);
+    clearDirtyFlag(DC_RX_CMD_CALIB_GYRO);
+    return true;
+  }
+
+  if (checkDirtyFlag(DC_RX_CMD_CALIB_ALT)) {
+    ::flySkyIbus2CalGpsAlt();
+    clearDirtyFlag(DC_RX_CMD_CALIB_ALT);
+    return true;
+  }
+
+  if (checkDirtyFlag(DC_RX_CMD_CALIB_DIST) ){
+    ::flySkyIbus2CalGpsDist();
+    clearDirtyFlag(DC_RX_CMD_CALIB_DIST);
+    return true;
+  }
+
+  static uint32_t ibc_update_tick = 0;
+  static short last_ibc_v = cfg->others.calibData[IBUS2_SENSOR_IBC];
+  if (last_ibc_v != cfg->others.calibData[IBUS2_SENSOR_IBC] ) {
+    if (timersGetMsTick() - ibc_update_tick > 2000) { // 2-second check
+      ibc_update_tick = timersGetMsTick();  
+      last_ibc_v = cfg->others.calibData[IBUS2_SENSOR_IBC]; 
+      ::flySkyIbus2CalibIBC(data, &len, cfg->others.calibData[IBUS2_SENSOR_IBC]);
+      trsp.putFrame( COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, len);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool ProtoState::syncSettings()
@@ -888,7 +985,26 @@ bool ProtoState::syncSettings()
   {
 //     TRACE("AFHDS3 [RX_CMD_PORT_TYPE_V1]");
     uint8_t data[] = { (uint8_t)(RX_CMD_PORT_TYPE_V1&0xFF), (uint8_t)((RX_CMD_PORT_TYPE_V1>>8)&0xFF), 4, 0, 0, 0, 0 };
-    std::memcpy(&data[3], &cfg->v1.NewPortTypes, SES_NPT_NB_MAX_PORTS);
+    setIbusType(cfg->v1.NewPortTypes);
+    // If pure is upgraded from multiple ibus2 to ibus2 hub
+    uint8_t tempPortTypes[SES_NPT_NB_MAX_PORTS] = {0};
+    std::memcpy(tempPortTypes, cfg->v1.NewPortTypes, SES_NPT_NB_MAX_PORTS);
+
+    uint8_t ibus2Count = 0;
+    for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
+        if (tempPortTypes[i] == afhds3::SES_NPT_IBUS2) {
+            ibus2Count++;
+        }
+    }
+    if (ibus2Count >= 2) {
+        for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
+            if (tempPortTypes[i] == afhds3::SES_NPT_IBUS2) {
+                tempPortTypes[i] = afhds3::SES_NPT_IBUS2_HUB_PORT;
+            }
+        }
+    }
+    
+    std::memcpy(&data[3], tempPortTypes, SES_NPT_NB_MAX_PORTS);
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
