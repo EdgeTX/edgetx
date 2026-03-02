@@ -107,6 +107,7 @@ if(FUNCTION_SWITCHES_WITH_RGB)
   set(FUNCTION_SWITCHES YES)
   add_definitions(-DFUNCTION_SWITCHES)
   add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
+  add_definitions(-DFAST_RGB_LEDS)
 endif()
 
 if(FUNCTION_SWITCHES)
