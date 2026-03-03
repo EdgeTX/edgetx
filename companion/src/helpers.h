@@ -268,3 +268,11 @@ class StatusDialog: public QDialog
   private:
     QLabel *msg;
 };
+
+template <typename T>
+T rangeCheck(T value, T min, T max, T defaultValue) {
+  if (value < min || value > max) {
+      return defaultValue;
+  }
+  return value;
+}
