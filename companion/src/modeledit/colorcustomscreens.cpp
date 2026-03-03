@@ -147,7 +147,9 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
 
   QGridLayout * tbgrid = new QGridLayout();
 
-  for (int i = 0; i < firmware->getCapability(TopBarZones); i++) {
+  const int zones = firmware->getCapability(TopBarZones);
+
+  for (int i = 0; i < zones; i++) {
     ZonePersistentData & zpd = model.topBarData.zones[i];
     QPushButton * btn = new QPushButton(zpd.widgetName.c_str(), this);
     btn->setProperty("index", i);
