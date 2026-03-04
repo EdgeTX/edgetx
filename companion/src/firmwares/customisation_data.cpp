@@ -21,6 +21,7 @@
 
 #include "customisation_data.h"
 #include "eeprominterface.h"
+#include "helpers.h"
 
 // cannot use QColor so use formula from libopenui_defines.h
 #define RADIO_RGB(r, g, b) \
@@ -287,6 +288,6 @@ int RadioLayout::topBarZones()
   Board::Type board = firmware->getBoard();
   const int menuHeaderButtonsLeft = layoutValueScaled(47);
   const int topBarZoneWidth = layoutValueScaled((firmware->getCapability(IsWideLayout) ? 74 : 70));
-  return ((Boards::getCapability(board, Board::LcdWidth) - menuHeaderButtonsLeft - 1 +
-          topBarZoneWidth / 2) / topBarZoneWidth);
+  return rangeCheck(((Boards::getCapability(board, Board::LcdWidth) - menuHeaderButtonsLeft - 1 +
+          topBarZoneWidth / 2) / topBarZoneWidth), 0, MAX_TOPBAR_ZONES, 0);
 }

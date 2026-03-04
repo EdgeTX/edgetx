@@ -218,7 +218,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 3;
     case TopBarZones:
-      return RadioLayout::topBarZones();
+      return Boards::getCapability(board, Board::HasColorLcd) ? RadioLayout::topBarZones() : 0;
     case TrainerInputs:
       return 16;
     case TrimsRange:
