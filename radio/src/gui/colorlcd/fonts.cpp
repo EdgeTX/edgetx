@@ -34,7 +34,8 @@
 
 extern "C" {
 
-// All languages uss the same font for XXL size
+// All languages use the same font for LXL & XXL size
+extern const etxLz4Font lv_font_en_bold_LXL;
 extern const etxLz4Font lv_font_en_bold_XXL;
 
 } // extern "C"
@@ -68,6 +69,7 @@ extern "C" {
       { &lv_font_##x##_L,           nullptr,            false },  /* FONT_L_INDEX */ \
       { &lv_font_##x##_bold_XL,     nullptr,            false },  /* FONT_XL_INDEX */ \
       { &lv_font_en_bold_XXL,       nullptr,            false },  /* FONT_XXL_INDEX */ \
+      { &lv_font_en_bold_LXL,       nullptr,            false },  /* FONT_LXL_INDEX */ \
   };
 
 #if defined(TRANSLATIONS_CN)
@@ -201,6 +203,7 @@ extern "C" {
       { &lv_font_##x##_L,           nullptr,            false },  /* FONT_L_INDEX */ \
       { &lv_font_##x##_bold_XL,     nullptr,            false },  /* FONT_XL_INDEX */ \
       { &lv_font_en_bold_XXL,       nullptr,            false },  /* FONT_XXL_INDEX */ \
+      { &lv_font_en_bold_LXL,       nullptr,            false },  /* FONT_LXL_INDEX */ \
   };
 
 FONT_TABLE(en);
@@ -452,6 +455,7 @@ static const int8_t FontHeightCorrection[FONTS_COUNT] = {
     -3,  // L
     -5,  // XL
     -2,  // XXL
+    -2,  // LXL
 };
 
 const lv_font_t* getFont(LcdFlags flags)
