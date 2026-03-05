@@ -532,9 +532,13 @@ class LvglWidgetSetting : public LvglWidgetObject, public LvglTitleParam
  public:
   LvglWidgetSetting() : LvglWidgetObject() {}
 
+  void setTitle(const char* s);
+
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
+  lv_obj_t* label = nullptr;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -973,6 +977,7 @@ class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public 
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------
