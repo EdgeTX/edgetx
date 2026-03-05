@@ -341,8 +341,6 @@ void LuaWidget::checkEvents()
 
 void LuaWidget::updateWithoutRefresh()
 {
-  Widget::updateWithoutRefresh();
-
   if (lsWidgets == 0 || errorMessage || luaFactory()->updateFunction == LUA_REFNIL) return;
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
