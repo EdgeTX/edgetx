@@ -238,7 +238,7 @@ Mode 3:
   Rechter Knüppel:  Gas, Seite
 
 Mode 4:
-  Linker Knüpple:  Gas, Quer
+  Linker Knüppel:  Gas, Quer
   Rechter Knüppel:  Höhe, Seite
 
 </translation>
@@ -302,7 +302,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="709"/>
         <source>Radio Settings</source>
-        <translation type="unfinished">Sender Grunfeinstellungen</translation>
+        <translation type="unfinished">Sender Grundeinstellungen</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="224"/>
@@ -869,7 +869,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.cpp" line="374"/>
         <source>AVAILABLE: Radio settings of unknown age</source>
-        <translation>Verüfgbar: Sender-Einstellungen mit unklarem Alter</translation>
+        <translation>Verfügbar: Sender-Einstellungen mit unklarem Alter</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="376"/>
@@ -1937,7 +1937,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.cpp" line="187"/>
         <source>Single Expo</source>
-        <translation type="unfinished">Enfache Expo</translation>
+        <translation type="unfinished">Einfache Expo</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="188"/>
@@ -3552,7 +3552,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="454"/>
         <source>Use alternative SQT5 font</source>
-        <translation>Alternative SQT5 Schrift verw</translation>
+        <translation>Alternative SQT5 Schrift verwenden</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="614"/>
@@ -4186,7 +4186,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../flash/flashfirmwaredialog.ui" line="207"/>
         <source>Use firmware start screen</source>
-        <translation>Verwende den Firmware Startscrenn</translation>
+        <translation>Verwende den Firmware Startscreen</translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.ui" line="214"/>
@@ -4778,7 +4778,7 @@ Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <location filename="../generaledit/generaledit.cpp" line="182"/>
         <location filename="../generaledit/generaledit.cpp" line="204"/>
         <source>Radio Settings</source>
-        <translation type="unfinished">Sender Grunfeinstellungen</translation>
+        <translation type="unfinished">Sender Grundeinstellungen</translation>
     </message>
     <message>
         <location filename="../generaledit/generaledit.ui" line="49"/>
@@ -5052,7 +5052,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="330"/>
         <source>Radio Settings</source>
-        <translation>Sender Grunfeinstellungen</translation>
+        <translation>Sender Grundeinstellungen</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="332"/>
@@ -7473,7 +7473,7 @@ Sind Sie sicher?</translation>
         <source>The column containing GPS coordinates must be named &quot;GPS&quot;.
 
 The columns for altitude &quot;GAlt&quot; and for speed &quot;GSpd&quot; are optional</source>
-        <translation>Die Spalten mit GPS-Koordianten müssen &quot;GPS&quot;. heisen
+        <translation>Die Spalten mit GPS-Koordinaten müssen &quot;GPS&quot; heißen
 
 Die Spalten für Höhe &quot;GAlt&quot; und für Geschwindigkeit &quot;GSpd&quot; sind optional</translation>
     </message>
@@ -8261,7 +8261,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../mainwindow.cpp" line="826"/>
         <source>Edit the splash image of your Radio</source>
-        <translation>Editiere das Starthbild für den Sender</translation>
+        <translation>Editiere das Startbild für den Sender</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="556"/>
@@ -8393,7 +8393,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../mdichild.cpp" line="1225"/>
         <source>Editing model %1: </source>
-        <translation>Modell %1 bearbeiten :</translation>
+        <translation>Modell %1 bearbeiten:</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="358"/>
@@ -8449,7 +8449,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../mdichild.cpp" line="1043"/>
         <source>Do you want to overwrite radio general settings?</source>
-        <translation>Wollen sie wirklich die Sender Grundeinstellungen überschreiben?</translation>
+        <translation>Wollen Sie wirklich die Sender Grundeinstellungen überschreiben?</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1458"/>
@@ -8494,7 +8494,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../mdichild.cpp" line="1577"/>
         <source>Unable to find file %1!</source>
-        <translation>Kann die Datei %1 nicht finden !</translation>
+        <translation>Kann die Datei %1 nicht finden!</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1358"/>
@@ -9431,7 +9431,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/mixes.cpp" line="559"/>
         <source>Really clear all the mixes?</source>
-        <translation>Wirklich alle Mischer löschen ?</translation>
+        <translation>Wirklich alle Mischer löschen?</translation>
     </message>
 </context>
 <context>
@@ -12454,7 +12454,7 @@ r</translation>
     <message>
         <location filename="../firmwares/sensordata.cpp" line="177"/>
         <source>Multiplier</source>
-        <translation type="unfinished">Muliplikator</translation>
+        <translation type="unfinished">Multiplikator</translation>
     </message>
     <message>
         <location filename="../firmwares/sensordata.cpp" line="182"/>
@@ -13433,7 +13433,7 @@ ebenfalls umgekehrt.
     <message>
         <location filename="../simulator.cpp" line="132"/>
         <source>type</source>
-        <translation>Tayp</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../simulator.cpp" line="138"/>
@@ -17747,7 +17747,7 @@ Process now?</source>
     <message>
         <location filename="../wizard/wizarddialog.cpp" line="98"/>
         <source>Air brakes are used to reduce the speed of advanced sail planes.&lt;br&gt;They are very uncommon on other types of planes.</source>
-        <translation>Störklappen werden eingesetzt um den Widerstand zu erhöhen und damit den Gleitwinkel  bei Seglern zu verschlechtern.&lt;br&gt;Für ander Arten von Flugzeugen sind sie eher ungewöhnlich.</translation>
+        <translation>Störklappen werden eingesetzt um den Widerstand zu erhöhen und damit den Gleitwinkel bei Seglern zu verschlechtern.&lt;br&gt;Für andere Arten von Flugzeugen sind sie eher ungewöhnlich.</translation>
     </message>
     <message>
         <location filename="../wizard/wizarddialog.cpp" line="102"/>
