@@ -51,7 +51,7 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build && mkdir build && cd build
+rm -rf build && mkdir build && cd build || exit
 
 # Function to output error logs (works in both GitHub Actions and terminal)
 output_error_log() {
@@ -151,7 +151,8 @@ clean_build() {
 }
 
 get_platform_config() {
-    local platform=$(uname)
+    local platform
+    platform=$(uname)
     case "$platform" in
         "Darwin")
             PACKAGE_TARGET="package"
@@ -291,9 +292,11 @@ fi
 
 error_status=0
 if run_pipeline "final" "final.log" "companion" "true"; then
-    if cp native/$PACKAGE_FILES "${OUTDIR}" 2>/dev/null; then
+    PACKAGE_FILE=$(find native/ -name "${PACKAGE_FILES}" -type f | head -n1)
+    if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null; then
         echo "    ✅ All builds completed successfully!"
         echo "    📁 Package saved to: ${OUTDIR}"
+        echo "    📄 Copied: $(basename "$PACKAGE_FILE")"
     else
         echo "    ❌ Failed to copy package files to output directory"
         echo "    📁 Directory Contents:"
@@ -301,6 +304,10 @@ if run_pipeline "final" "final.log" "companion" "true"; then
 
         echo "Contents of native/ directory:"
         ls -la native/ || echo "native/ directory not found"
+        if [ "$PACKAGE_TARGET" == "installer" ]; then
+            echo "Contents of companion/ directory:"
+            ls -la companion/ || echo "companion/ directory not found"
+        fi        
         echo "Looking for files matching: $PACKAGE_FILES"
         find native/ -name "$PACKAGE_FILES" 2>/dev/null || echo "No matching files found"
         error_status=1
