@@ -611,7 +611,8 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int pr
   for (int i = 0; i < moduleBaudratesList.size(); i++) {
     // CRSF limit external module to 3.75M for older boards
     if (protocol == PULSES_CROSSFIRE && moduleIdx == 1 &&
-        IS_STM32F2F4((Board::Type)board) && i > 4) break;
+        Boards::getCapability((Board::Type)board, Board::IsF4) &&
+        i > 4) break;
 
     if (protocol == PULSES_GHOST && i >= 2) break;
     mdl->appendToItemList(moduleBaudratesList.at(i), i);
