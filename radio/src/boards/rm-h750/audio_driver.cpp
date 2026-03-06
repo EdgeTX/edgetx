@@ -160,6 +160,17 @@ static void audio_update_dma_buffer(uint8_t tc)
   }
 }
 
+// TX15 HP cannot handle the full power of TAS2505
+// max volume is limited to 15db attenuation
+//  Index 0  = silence
+//        1  = low volume
+//        11 = center
+//        23 = max volume
+static const uint8_t volumeScale[VOLUME_LEVEL_MAX + 1] =
+{
+  0, 114, 90, 75, 63, 55, 49, 45, 42, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 18, 17, 16, 15
+};
+
 bool audioHeadphoneDetect()
 {
 #if defined(KCX_BTAUDIO)
@@ -171,12 +182,17 @@ bool audioHeadphoneDetect()
 
 void audioSetVolume(uint8_t volume)
 {
+  if (volume > VOLUME_LEVEL_MAX) {
+    volume = VOLUME_LEVEL_MAX;
+  }
+  
 #if defined(KCX_BTAUDIO)
   // KCX need a volume boost
   if (btAudioLinked())
     volume = volume + (volume	>> 2);
 #endif
-  tas2505_set_volume(&_tas2505, volume * 9 / 10, audioHeadphoneDetect()); // TX15 HP cannot handle the full power of TAS2505
+  
+  tas2505_set_volume(&_tas2505, volumeScale[volume], audioHeadphoneDetect());
 }
 
 extern "C" void DMA1_Stream4_IRQHandler(void)
