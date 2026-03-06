@@ -34,6 +34,7 @@
 #define SCALE_FACT_GYRO 0.0078 // 250deg/s / 32000
 
 Gyro gyro;
+extern gyroReadFctPtr gyroReadFct;
 
 #if !defined(IMU_ICM4207C)
 static float deg2RESX(float deg)
@@ -54,9 +55,15 @@ void Gyro::wakeup()
   gyroWakeupTime = now + 1; /* 10ms default */
 
   int16_t values[IMU_VALUES_COUNT];
-  if (gyroRead((uint8_t*)values) < 0) {
-    ++errors;
-    return;
+  int result = -1;
+
+  if (gyroReadFct) {
+    result = gyroReadFct((uint8_t*)values);
+
+    if (result < 0) {
+      ++errors;
+      return;
+    }
   }
 
   // reset error count on each
@@ -64,7 +71,7 @@ void Gyro::wakeup()
   // stopping the sensor forever
   errors = 0;
 
-#if defined(IMU_ICM4207C)
+#if defined(IMU_ICM4207C) || defined(IMU_SC7U22)
   raw_ax = values[3];
   raw_ay = values[4];
   int16_t ax = raw_ax - offset_x;

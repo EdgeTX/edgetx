@@ -21,6 +21,7 @@
 
 #include <inttypes.h>
 #include "myeeprom.h"
+#include "drivers/imu_drivers.h"
 
 #define IMU_VALUES_COUNT      6
 #define IMU_BUFFER_LENGTH     (IMU_VALUES_COUNT * sizeof(int16_t))
@@ -59,6 +60,6 @@ class Gyro
 
 extern Gyro gyro;
 
-// Gyro driver
 int gyroInit();
-int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH]);
+
+extern gyroReadFctPtr gyroReadFct;

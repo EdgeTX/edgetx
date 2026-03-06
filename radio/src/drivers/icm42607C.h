@@ -26,7 +26,7 @@
 
 #pragma once
 
-#define ICM426xx_I2C_ADDR           0x68
+#define ICM426xx_I2C_BASE_ADDR           0x68
 
 // Register addresses
 #define WHO_AM_I_REG          0x75
@@ -65,6 +65,3 @@ typedef struct {
 } sIMUoutput;
 
 extern sIMUoutput IMUoutput;
-
-int gyroInit(void);
-int gyroRead(unsigned char*);

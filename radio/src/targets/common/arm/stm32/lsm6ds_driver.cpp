@@ -267,9 +267,12 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
   return I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buffer, IMU_BUFFER_LENGTH);
 }
 
+gyroReadFctPtr gyroReadFct = gyroRead;
+
 #else
 
 int gyroInit() { return -1; }
 int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH]) { return -1; }
+gyroReadFctPtr gyroReadFct = gyroRead;
 
 #endif

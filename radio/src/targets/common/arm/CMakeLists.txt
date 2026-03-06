@@ -23,6 +23,16 @@ option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
 option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
+if(IMU_ICM4207C)
+  add_definitions(-DIMU_ICM4207C)
+  set(SRC ${SRC} drivers/icm42607C.cpp drivers/imu_filter.cpp)
+endif()
+
+if(IMU_SC7U22)
+  add_definitions(-DIMU_SC7U22)
+  set(SRC ${SRC} drivers/sc7u22.cpp drivers/imu_filter.cpp)
+endif()
+
 if(INTERNAL_MODULES)
   # option to select the default internal module
   #set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")

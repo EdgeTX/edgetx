@@ -55,6 +55,11 @@
 
 #include "touch_driver.h"
 
+#include "drivers/imu_drivers.h"
+#include "drivers/icm42607C.h"
+#include "drivers/sc7u22.h"
+
+
 #include <string.h>
 
 // common ADC driver
@@ -62,6 +67,35 @@ extern const etx_hal_adc_driver_t _adc_driver;
 
 // RGB LED timer
 extern const stm32_pulse_timer_t _led_timer;
+
+gyroReadFctPtr gyroReadFct;
+
+int gyroInit()
+{
+  // Gyro are polled on the 2 possible I2C addresses to auto adapt to board
+
+#if defined(IMU_ICM4207C)
+  if (gyro42607Init(IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR) == 0)  {
+    gyroReadFct = gyro42607Read;
+    return 0;
+  }
+  if (gyro42607Init(IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR + 1) == 0)  {
+    gyroReadFct = gyro42607Read;
+    return 0;
+  }
+#endif
+#if defined(IMU_SC7U22)
+  if (gyroSC7U22Init(IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR) == 0)  {
+    gyroReadFct = gyroSC7U22Read;
+    return 0;
+  }
+  if (gyroSC7U22Init(IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR + 1) == 0)  {
+    gyroReadFct = gyroSC7U22Read;
+    return 0;
+  }
+#endif
+  return -1;
+}
 
 static void led_strip_off()
 {
