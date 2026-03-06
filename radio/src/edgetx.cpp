@@ -1232,8 +1232,7 @@ void instantTrim()
         if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
           if (expo->trimSource < 0) {
             // only default trims will be taken into account
-            addTrim = false;
-            break;
+            continue;
           }
           auto newDelta = anas[expo->chn] - anas_0[expo->chn];
           if (addTrim && delta != newDelta) {
