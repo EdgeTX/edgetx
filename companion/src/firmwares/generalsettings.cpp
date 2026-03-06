@@ -517,6 +517,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("Telemetry In");
     case AUX_SERIAL_SBUS_TRAINER:
       return tr("SBUS Trainer");
+    case AUX_SERIAL_SBUS_TRAINER_INV:
+      return tr("SBUS Trainer Inverted");
     case AUX_SERIAL_LUA:
       return tr("LUA");
     case AUX_SERIAL_CLI:
@@ -606,16 +608,17 @@ AbstractStaticItemModel * GeneralSettings::serialModeItemModel()
 
     if (i == AUX_SERIAL_EXT_MODULE) {
       contexts &= ~(AUX2Context | VCPContext);
-    }
-    else if (i == AUX_SERIAL_TELE_IN ||
-             i == AUX_SERIAL_SBUS_TRAINER ||
-             i == AUX_SERIAL_GPS ||
-             i == AUX_SERIAL_SPACEMOUSE ||
-             i == AUX_SERIAL_EXT_MODULE) {
+    } else if (i == AUX_SERIAL_TELE_IN ||
+               i == AUX_SERIAL_SBUS_TRAINER ||
+               i == AUX_SERIAL_SBUS_TRAINER_INV ||
+               i == AUX_SERIAL_GPS ||
+               i == AUX_SERIAL_SPACEMOUSE ||
+               i == AUX_SERIAL_EXT_MODULE) {
       contexts &= ~VCPContext;
     }
 
-    mdl->appendToItemList(serialModeToString(i), i, true, 0, contexts);
+    bool avail = IS_STM32F2F4(getCurrentBoard()) && i == AUX_SERIAL_SBUS_TRAINER_INV ? false : true;
+    mdl->appendToItemList(serialModeToString(i), i, avail, 0, contexts);
   }
 
   mdl->loadItemList();
