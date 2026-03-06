@@ -432,7 +432,7 @@ class ModuleWindow : public Window
       edit->setStep(SBUS_STEPSIZE);
       new Choice(box, rect_t{}, STR_SBUS_INVERSION_VALUES, 0, 1,
                 GET_SET_DEFAULT(md->sbus.noninverted));
-  #if defined(RADIO_TX16S)
+  #if defined(RADIO_TX16S) || defined(RADIO_DRO1)
       new StaticText(this, rect_t{}, STR_WARN_5VOLTS);
   #endif
     }
