@@ -34,6 +34,7 @@
 #include "hal.h"
 
 constexpr uint32_t I2C_TIMEOUT = 5; //ms
+static bool gyro42607Initialized = false;
 
 int16_t getGyroTemperature()
 {
@@ -86,6 +87,11 @@ int gyroInit(void)
   if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, 0x75, 1, &data, 1, I2C_TIMEOUT) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
+  } else {
+    if (data != 0x61) {
+      TRACE("ICM426xx ERROR: chip is not ICM42607C");
+      return -1;
+    }
   }
 
   if (data != 0x61) {
@@ -145,11 +151,17 @@ int gyroInit(void)
   gpio_init_int(IMU_INT_GPIO, GPIO_IN_PU, GPIO_FALLING, imu_exti_isr);
 #endif
 
+  gyro42607Initialized = true;
+
   return 0;
 }
 
 int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 {
+  if (!gyro42607Initialized) {
+    return -1;
+  }
+
   IMU_RawData_t imu_raw;
   IMU_FilteredData_t *filtered;
 
