@@ -24,10 +24,21 @@ FetchContent_Declare(
   GIT_SHALLOW    TRUE
 )
 
-FetchContent_MakeAvailable(wamr)
+# Populate separately so we can patch before building
+FetchContent_GetProperties(wamr)
+if(NOT wamr_POPULATED)
+  FetchContent_Populate(wamr)
 
-# WAMR 2.4.4 win_file.c has trailing backslashes in comments that
-# clang treats as line continuations, causing compile errors.
-if(WIN32)
-  target_compile_options(vmlib PRIVATE -Wno-backslash-newline-escape)
+  # WAMR 2.4.4 win_file.c has trailing backslashes in comments that
+  # clang treats as line continuations, causing compile errors.
+  execute_process(
+    COMMAND git apply "${CMAKE_CURRENT_LIST_DIR}/wamr-fix-win-backslash-comments.patch"
+    WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
+    RESULT_VARIABLE _patch_result
+  )
+  if(_patch_result)
+    message(WARNING "WAMR win_file.c patch failed (may already be applied)")
+  endif()
+
+  add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}")
 endif()
