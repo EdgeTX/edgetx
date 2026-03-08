@@ -101,11 +101,6 @@ bool WasmSimulatorInterface::isRunning()
   return false;
 }
 
-void WasmSimulatorInterface::readRadioData(QByteArray & dest)
-{
-  Q_UNUSED(dest);
-}
-
 uint8_t * WasmSimulatorInterface::getLcd()
 {
   return m_lcdBuffer;
@@ -284,6 +279,22 @@ bool WasmSimulatorInterface::resolveExports()
       wasm_runtime_lookup_function(m_moduleInst, "simuGetNumFlightModes");
   m_fnGetGVar =
       wasm_runtime_lookup_function(m_moduleInst, "simuGetGVar");
+
+  // Phase 4: telemetry, trim, lua, lcd, trainer
+  m_fnSetTrimValue =
+      wasm_runtime_lookup_function(m_moduleInst, "simuSetTrimValue");
+  m_fnSendTelemetry =
+      wasm_runtime_lookup_function(m_moduleInst, "simuSendTelemetry");
+  m_fnLuaReloadPermanentScripts =
+      wasm_runtime_lookup_function(m_moduleInst, "simuLuaReloadPermanentScripts");
+  m_fnLcdFlushed =
+      wasm_runtime_lookup_function(m_moduleInst, "simuLcdFlushed");
+  m_fnGetMaxTrainerChannels =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetMaxTrainerChannels");
+  m_fnCopyTrainerInput =
+      wasm_runtime_lookup_function(m_moduleInst, "simuCopyTrainerInput");
+  m_fnSetTrainerTimeout =
+      wasm_runtime_lookup_function(m_moduleInst, "simuSetTrainerTimeout");
 
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
@@ -466,11 +477,6 @@ void WasmSimulatorInterface::setVolumeGain(const int value)
   m_volumeGain = qBound(0, value * SDL_MIX_MAXVOLUME / 100, SDL_MIX_MAXVOLUME);
 }
 
-void WasmSimulatorInterface::setRadioData(const QByteArray & data)
-{
-  Q_UNUSED(data);
-}
-
 void WasmSimulatorInterface::setAnalogValue(uint8_t index, int16_t value)
 {
   if (index < MAX_ANALOGS)
@@ -504,9 +510,11 @@ void WasmSimulatorInterface::setSwitch(uint8_t swtch, int8_t state)
 
 void WasmSimulatorInterface::setTrim(unsigned int idx, int value)
 {
-  Q_UNUSED(idx);
-  Q_UNUSED(value);
-  // TODO: needs WASM export for setTrim (value-based, not button press)
+  if (!m_fnSetTrimValue || !m_execEnv)
+    return;
+  QMutexLocker lckr(&m_mutex);
+  uint32_t argv[2] = {(uint32_t)idx, (uint32_t)(int32_t)value};
+  wasm_runtime_call_wasm(m_execEnv, m_fnSetTrimValue, 2, argv);
 }
 
 void WasmSimulatorInterface::setTrimSwitch(uint8_t trim, bool state)
@@ -521,8 +529,10 @@ void WasmSimulatorInterface::setTrimSwitch(uint8_t trim, bool state)
 void WasmSimulatorInterface::setTrainerInput(unsigned int inputNumber,
                                              int16_t value)
 {
-  Q_UNUSED(inputNumber);
-  Q_UNUSED(value);
+  if (inputNumber < MAX_TRAINER_CH) {
+    m_trainerValues[inputNumber] = value;
+    m_trainerDirty = true;
+  }
 }
 
 void WasmSimulatorInterface::setInputValue(int type, uint8_t index,
@@ -583,30 +593,79 @@ void WasmSimulatorInterface::touchEvent(int type, int x, int y)
 
 void WasmSimulatorInterface::lcdFlushed()
 {
-  // TODO: needs WASM export
+  if (!m_fnLcdFlushed || !m_execEnv)
+    return;
+  QMutexLocker lckr(&m_mutex);
+  wasm_runtime_call_wasm(m_execEnv, m_fnLcdFlushed, 0, nullptr);
 }
 
 void WasmSimulatorInterface::setTrainerTimeout(uint16_t ms)
 {
-  Q_UNUSED(ms);
+  if (!m_fnSetTrainerTimeout || !m_execEnv)
+    return;
+  QMutexLocker lckr(&m_mutex);
+  uint32_t argv[1] = {(uint32_t)ms};
+  wasm_runtime_call_wasm(m_execEnv, m_fnSetTrainerTimeout, 1, argv);
 }
 
 void WasmSimulatorInterface::sendInternalModuleTelemetry(const quint8 protocol,
                                                          const QByteArray data)
 {
-  Q_UNUSED(protocol);
-  Q_UNUSED(data);
+  if (!m_fnSendTelemetry || !m_execEnv || !m_fnMalloc || !m_fnFree ||
+      data.isEmpty())
+    return;
+
+  QMutexLocker lckr(&m_mutex);
+  uint32_t len = data.size();
+  uint32_t allocArgv[1] = {len};
+  if (!wasm_runtime_call_wasm(m_execEnv, m_fnMalloc, 1, allocArgv) ||
+      !allocArgv[0])
+    return;
+
+  uint32_t wasmBuf = allocArgv[0];
+  void * nativePtr = wasm_runtime_addr_app_to_native(m_moduleInst, wasmBuf);
+  if (nativePtr)
+    memcpy(nativePtr, data.constData(), len);
+
+  uint32_t argv[4] = {0 /* INTERNAL_MODULE */, (uint32_t)protocol, wasmBuf, len};
+  wasm_runtime_call_wasm(m_execEnv, m_fnSendTelemetry, 4, argv);
+
+  uint32_t freeArgv[1] = {wasmBuf};
+  wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
 }
 
 void WasmSimulatorInterface::sendExternalModuleTelemetry(const quint8 protocol,
                                                          const QByteArray data)
 {
-  Q_UNUSED(protocol);
-  Q_UNUSED(data);
+  if (!m_fnSendTelemetry || !m_execEnv || !m_fnMalloc || !m_fnFree ||
+      data.isEmpty())
+    return;
+
+  QMutexLocker lckr(&m_mutex);
+  uint32_t len = data.size();
+  uint32_t allocArgv[1] = {len};
+  if (!wasm_runtime_call_wasm(m_execEnv, m_fnMalloc, 1, allocArgv) ||
+      !allocArgv[0])
+    return;
+
+  uint32_t wasmBuf = allocArgv[0];
+  void * nativePtr = wasm_runtime_addr_app_to_native(m_moduleInst, wasmBuf);
+  if (nativePtr)
+    memcpy(nativePtr, data.constData(), len);
+
+  uint32_t argv[4] = {1 /* EXTERNAL_MODULE */, (uint32_t)protocol, wasmBuf, len};
+  wasm_runtime_call_wasm(m_execEnv, m_fnSendTelemetry, 4, argv);
+
+  uint32_t freeArgv[1] = {wasmBuf};
+  wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
 }
 
 void WasmSimulatorInterface::setLuaStateReloadPermanentScripts()
 {
+  if (!m_fnLuaReloadPermanentScripts || !m_execEnv)
+    return;
+  QMutexLocker lckr(&m_mutex);
+  wasm_runtime_call_wasm(m_execEnv, m_fnLuaReloadPermanentScripts, 0, nullptr);
 }
 
 void WasmSimulatorInterface::addTracebackDevice(QIODevice * device)
@@ -728,6 +787,28 @@ void WasmSimulatorInterface::run()
         }
       }
       emit lcdChange(true);
+    }
+  }
+
+  // Flush trainer input buffer (bulk copy)
+  if (m_trainerDirty && m_fnCopyTrainerInput && m_wasmScratchBuf) {
+    m_trainerDirty = false;
+    QMutexLocker lckr(&m_mutex);
+    uint8_t count = MAX_TRAINER_CH;
+    if (m_fnGetMaxTrainerChannels) {
+      uint32_t r[1] = {0};
+      if (wasm_runtime_call_wasm(m_execEnv, m_fnGetMaxTrainerChannels, 0, r))
+        count = qMin(count, (uint8_t)r[0]);
+    }
+    uint32_t bytes = count * sizeof(int16_t);
+    if (bytes <= m_wasmScratchSize) {
+      void * nativePtr = wasm_runtime_addr_app_to_native(m_moduleInst,
+                                                          m_wasmScratchBuf);
+      if (nativePtr) {
+        memcpy(nativePtr, m_trainerValues, bytes);
+        uint32_t argv[2] = {m_wasmScratchBuf, (uint32_t)count};
+        wasm_runtime_call_wasm(m_execEnv, m_fnCopyTrainerInput, 2, argv);
+      }
     }
   }
 

@@ -83,6 +83,26 @@ int32_t WASM_EXPORT(simuGetCapability)(uint8_t cap);
 
 int WASM_EXPORT(simuAudioGetVolume)();
 
+// Value-based trim setting: idx is mapped through inputMappingConvertMode.
+void WASM_EXPORT(simuSetTrimValue)(uint8_t idx, int32_t value);
+
+// Telemetry injection: protocol matches SIMU_TELEMETRY_PROTOCOL_* enum.
+// module: 0=internal, 1=external.
+void WASM_EXPORT(simuSendTelemetry)(uint8_t module, uint8_t protocol,
+                                     const uint8_t* data, uint32_t len);
+
+// Lua: trigger reload of permanent scripts.
+void WASM_EXPORT(simuLuaReloadPermanentScripts)();
+
+// LCD: notify firmware that host has consumed the LCD buffer.
+void WASM_EXPORT(simuLcdFlushed)();
+
+// Trainer input: bulk copy values (-512..512) into trainerInput[].
+// Returns the max number of channels.
+uint8_t WASM_EXPORT(simuGetMaxTrainerChannels)();
+void WASM_EXPORT(simuCopyTrainerInput)(const int16_t* buf, uint8_t count);
+void WASM_EXPORT(simuSetTrainerTimeout)(uint16_t ms);
+
 // Output values: polled periodically by host (every ~50ms).
 
 // Bulk copy channel outputs into buf (int16_t[]). Returns channel count.

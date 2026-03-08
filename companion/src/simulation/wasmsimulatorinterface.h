@@ -36,7 +36,7 @@ class WasmSimulatorInterface : public SimulatorInterface
 
     QString name() override;
     bool isRunning() override;
-    void readRadioData(QByteArray & dest) override;
+    void readRadioData(QByteArray & dest) override {}
     uint8_t * getLcd() override;
     uint8_t getSensorInstance(uint16_t id, uint8_t defaultValue = 0) override;
     uint16_t getSensorRatio(uint16_t id) override;
@@ -49,7 +49,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     void setSdPath(const QString & sdPath = "",
                    const QString & settingsPath = "") override;
     void setVolumeGain(const int value) override;
-    void setRadioData(const QByteArray & data) override;
+    void setRadioData(const QByteArray & data) override {}
     void setAnalogValue(uint8_t index, int16_t value) override;
     void setKey(uint8_t key, bool state) override;
     void setSwitch(uint8_t swtch, int8_t state) override;
@@ -163,6 +163,20 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnGetNumGVars = nullptr;
     wasm_function_inst_t m_fnGetNumFlightModes = nullptr;
     wasm_function_inst_t m_fnGetGVar = nullptr;
+
+    // Phase 4: telemetry, trim, lua, lcd, trainer
+    wasm_function_inst_t m_fnSetTrimValue = nullptr;
+    wasm_function_inst_t m_fnSendTelemetry = nullptr;
+    wasm_function_inst_t m_fnLuaReloadPermanentScripts = nullptr;
+    wasm_function_inst_t m_fnLcdFlushed = nullptr;
+    wasm_function_inst_t m_fnGetMaxTrainerChannels = nullptr;
+    wasm_function_inst_t m_fnCopyTrainerInput = nullptr;
+    wasm_function_inst_t m_fnSetTrainerTimeout = nullptr;
+
+    // Trainer input buffer (flushed in bulk via run())
+    static constexpr int MAX_TRAINER_CH = 16;
+    int16_t m_trainerValues[MAX_TRAINER_CH] = {};
+    bool m_trainerDirty = false;
 
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;
