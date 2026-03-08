@@ -50,19 +50,19 @@ uint8_t getRGBColorIndex(uint32_t color)
 }
 
 // RGB
-#define WS2812_BYTES_PER_LED 3
+#define RGBLEDS_BYTES_PER_LED 3
 
 // Maximum number of supported LEDs
-#if !defined(WS2812_MAX_LEDS)
-#  define WS2812_MAX_LEDS 48
+#if !defined(RGBLEDS_MAX_LEDS)
+#  define RGBLEDS_MAX_LEDS 48
 #endif
 
 // Pixel values
-static uint8_t _led_colors[WS2812_BYTES_PER_LED * WS2812_MAX_LEDS];
+static uint8_t _led_colors[RGBLEDS_BYTES_PER_LED * RGBLEDS_MAX_LEDS];
 
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  uint8_t* pixel = &_led_colors[led * RGBLEDS_BYTES_PER_LED];
   pixel[0] = g;
   pixel[1] = r;
   pixel[2] = b;
@@ -70,7 +70,7 @@ void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 
 uint32_t rgbGetLedColor(uint8_t led)
 {
-  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  uint8_t* pixel = &_led_colors[led * RGBLEDS_BYTES_PER_LED];
   return (pixel[1] << 16) + (pixel[0] << 8) + pixel[2];
 }
 

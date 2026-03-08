@@ -21,7 +21,7 @@
  
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_spi.h"
 
 #include "hal/adc_driver.h"
@@ -145,9 +145,9 @@ extern const stm32_pulse_timer_t _led_timer;
 void ledStripOff()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
+    rgbleds_set_color(i, 0, 0, 0);
   }
-  ws2812_update(&_led_timer);
+  rgbleds_update(&_led_timer);
 }
 #endif
 

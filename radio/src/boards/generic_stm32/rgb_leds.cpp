@@ -26,13 +26,13 @@
 
 #if defined(LED_STRIP_GPIO)
 
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_dma.h"
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
 #include "os/timer.h"
 
-static uint8_t _led_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
+static uint8_t _led_colors[RGBLEDS_BYTES_PER_LED * LED_STRIP_LENGTH];
 
 extern const stm32_pulse_timer_t _led_timer;
 
@@ -40,36 +40,36 @@ static timer_handle_t _refresh_timer = TIMER_INITIALIZER;
 
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-  ws2812_set_color(led, r, g, b);
+  rgbleds_set_color(led, r, g, b);
 }
 
 uint32_t rgbGetLedColor(uint8_t led)
 {
-  return ws2812_get_color(led);
+  return rgbleds_get_color(led);
 }
 
 bool rgbGetState(uint8_t led)
 {
-  return ws2812_get_state(led);
+  return rgbleds_get_state(led);
 }
 
 void rgbLedColorApply()
 {
-  ws2812_update(&_led_timer);
+  rgbleds_update(&_led_timer);
 }
 
 void rgbLedClearAll()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
+    rgbleds_set_color(i, 0, 0, 0);
   }
-  ws2812_update(&_led_timer);
+  rgbleds_update(&_led_timer);
 }
 
 static void _refresh_cb(timer_handle_t* timer)
 {
   (void)timer;
-  ws2812_update(&_led_timer);
+  rgbleds_update(&_led_timer);
 }
 
 static void rgbLedStart()
@@ -105,7 +105,7 @@ const stm32_pulse_timer_t _led_timer = {
 
 void rgbLedInit()
 {
-  ws2812_init(&_led_timer, _led_colors, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbleds_init(&_led_timer, _led_colors, LED_STRIP_LENGTH, RGBLEDS_GRB);
   rgbLedClearAll();
   rgbLedStart();
 }
@@ -124,7 +124,7 @@ static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(LED_STRIP_TIMER_DMA_STREAM),
 
 extern "C" void LED_STRIP_TIMER_DMA_IRQHandler()
 {
-  ws2812_dma_isr(&_led_timer);
+  rgbleds_dma_isr(&_led_timer);
 }
 
 #endif

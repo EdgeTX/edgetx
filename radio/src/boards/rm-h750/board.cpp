@@ -23,7 +23,7 @@
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_hal.h"
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_spi.h"
 
 #include "flash_driver.h"
@@ -66,9 +66,9 @@ extern const stm32_pulse_timer_t _led_timer;
 static void led_strip_off()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
+    rgbleds_set_color(i, 0, 0, 0);
   }
-  ws2812_update(&_led_timer);
+  rgbleds_update(&_led_timer);
 }
 
 void INTERNAL_MODULE_ON()
