@@ -556,9 +556,19 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Fix Code Signing and rename bundle
+  # Bundle SDL2, fix code signing, and rename bundle
+  if(TARGET SDL2::SDL2)
+    get_target_property(_sdl2_loc SDL2::SDL2 IMPORTED_LOCATION)
+    if(NOT _sdl2_loc)
+      get_target_property(_sdl2_loc SDL2::SDL2 LOCATION)
+    endif()
+  endif()
+
   install(CODE "
       set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
+      if(EXISTS \"${_sdl2_loc}\")
+        file(INSTALL \"${_sdl2_loc}\" DESTINATION \"\${app_dir}/Contents/Frameworks\")
+      endif()
       execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
       execute_process(
         COMMAND codesign --remove-signature \${app_dir}

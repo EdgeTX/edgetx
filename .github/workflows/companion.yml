@@ -95,12 +95,12 @@ jobs:
 
   build-macos:
     name: macOS Companion
-    runs-on: macos-15-intel
+    runs-on: macos-15
     needs: modules
 
     env:
-      CMAKE_OSX_ARCHITECTURES: 'x86_64'
-      CMAKE_OSX_DEPLOYMENT_TARGET: '10.15'
+      CMAKE_OSX_ARCHITECTURES: 'x86_64;arm64'
+      CMAKE_OSX_DEPLOYMENT_TARGET: '11.0'
 
     steps:
       - name: Check out the repo
