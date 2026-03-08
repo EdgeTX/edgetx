@@ -41,4 +41,22 @@ if(NOT wamr_POPULATED)
   endif()
 
   add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}")
+
+  if(WIN32)
+    # WAMR unconditionally adds -lm and -ldl as PUBLIC link libraries,
+    # which don't exist on Windows.
+    get_target_property(_vmlib_libs vmlib INTERFACE_LINK_LIBRARIES)
+    if(_vmlib_libs)
+      list(REMOVE_ITEM _vmlib_libs "-lm" "-ldl")
+      set_target_properties(vmlib PROPERTIES INTERFACE_LINK_LIBRARIES "${_vmlib_libs}")
+    endif()
+
+    # WAMR headers use __declspec(dllimport/dllexport) on MSVC-compatible
+    # compilers, but we link vmlib statically. Override both API macros to
+    # empty for vmlib itself (PUBLIC = PRIVATE + INTERFACE).
+    target_compile_definitions(vmlib PUBLIC
+      WASM_RUNTIME_API_EXTERN=
+      WASM_API_EXTERN=
+    )
+  endif()
 endif()
