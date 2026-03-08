@@ -25,3 +25,9 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(wamr)
+
+# WAMR 2.4.4 win_file.c has trailing backslashes in comments that
+# clang treats as line continuations, causing compile errors.
+if(WIN32)
+  target_compile_options(vmlib PRIVATE -Wno-backslash-newline-escape)
+endif()
