@@ -174,9 +174,16 @@ void SimulatedUIWidget::wheelEvent(QWheelEvent * event)
 {
   if (event->angleDelta().isNull())
     return;
-  // steps can be negative or positive to determine direction (negative is UP/LEFT scroll)
-  QPoint numSteps = event->angleDelta() / 8 / 15 * -1;  // one step per 15deg
-  emit simulatorWheelEvent(numSteps.y());
+
+  // Accumulate sub-step deltas (macOS trackpad sends pixel-level values)
+  static constexpr int STEP_THRESHOLD = 120;
+  m_wheelAccumulator += event->angleDelta().y() * -1;
+
+  int steps = m_wheelAccumulator / STEP_THRESHOLD;
+  if (steps != 0) {
+    m_wheelAccumulator -= steps * STEP_THRESHOLD;
+    emit simulatorWheelEvent(steps);
+  }
   event->accept();
 }
 

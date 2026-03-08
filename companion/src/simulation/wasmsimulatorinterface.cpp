@@ -19,7 +19,9 @@
 #include <QFile>
 #include <QElapsedTimer>
 
-// WAMR native callback: called by WASM module to get analog values
+// WAMR native callback: called by WASM module to get raw analog values.
+// Returns the host-side value as-is; the WASM ADC driver applies
+// pot-type-aware conversion (normal vs 6POS multiposition).
 static uint32_t host_simuGetAnalog(wasm_exec_env_t exec_env, uint32_t idx)
 {
   auto * inst = wasm_runtime_get_module_inst(exec_env);
@@ -27,7 +29,7 @@ static uint32_t host_simuGetAnalog(wasm_exec_env_t exec_env, uint32_t idx)
       wasm_runtime_get_custom_data(inst));
   if (iface) {
     int16_t raw = iface->getAnalogValue((uint8_t)idx);
-    return (uint32_t)(uint16_t)(raw * 2 + 2048);
+    return (uint32_t)(uint16_t)raw;
   }
   return 0;
 }
@@ -42,11 +44,22 @@ static void host_simuQueueAudio(wasm_exec_env_t exec_env, uint32_t buf_offset,
   Q_UNUSED(len);
 }
 
+// WAMR native callback: called by WASM module to send trace/debug output
+static void host_simuTrace(wasm_exec_env_t exec_env, const char * text)
+{
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface && text)
+    iface->writeTrace(text);
+}
+
 static bool s_wamrInitialized = false;
 
 static NativeSymbol s_nativeSymbols[] = {
     {"simuGetAnalog", (void *)host_simuGetAnalog, "(i)i", nullptr},
     {"simuQueueAudio", (void *)host_simuQueueAudio, "(*~)", nullptr},
+    {"simuTrace", (void *)host_simuTrace, "($)", nullptr},
 };
 
 WasmSimulatorInterface::WasmSimulatorInterface(const QString & wasmPath,
@@ -112,7 +125,12 @@ uint16_t WasmSimulatorInterface::getSensorRatio(uint16_t id)
 
 const int WasmSimulatorInterface::getCapability(Capability cap)
 {
-  Q_UNUSED(cap);
+  if (!m_fnGetCapability || !m_execEnv)
+    return 0;
+  QMutexLocker lckr(&m_mutex);
+  uint32_t argv[1] = {(uint32_t)cap};
+  if (wasm_runtime_call_wasm(m_execEnv, m_fnGetCapability, 1, argv))
+    return (int32_t)argv[0];
   return 0;
 }
 
@@ -193,6 +211,11 @@ bool WasmSimulatorInterface::loadModule()
 
 void WasmSimulatorInterface::unloadModule()
 {
+  if (m_wasmScratchBuf && m_execEnv && m_fnFree) {
+    uint32_t freeArgv[1] = {m_wasmScratchBuf};
+    wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
+    m_wasmScratchBuf = 0;
+  }
   if (m_execEnv) {
     wasm_runtime_destroy_exec_env(m_execEnv);
     m_execEnv = nullptr;
@@ -232,6 +255,35 @@ bool WasmSimulatorInterface::resolveExports()
       wasm_runtime_lookup_function(m_moduleInst, "simuTouchUp");
   m_fnFatfsSetPaths =
       wasm_runtime_lookup_function(m_moduleInst, "simuFatfsSetPaths");
+  m_fnRotaryEncoderEvent =
+      wasm_runtime_lookup_function(m_moduleInst, "simuRotaryEncoderEvent");
+  m_fnGetCapability =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetCapability");
+
+  // Output value exports (bulk copy)
+  m_fnGetNumChannels =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetNumChannels");
+  m_fnCopyChannelOutputs =
+      wasm_runtime_lookup_function(m_moduleInst, "simuCopyChannelOutputs");
+  m_fnCopyMixOutputs =
+      wasm_runtime_lookup_function(m_moduleInst, "simuCopyMixOutputs");
+  m_fnGetNumLogicalSwitches =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetNumLogicalSwitches");
+  m_fnCopyLogicalSwitches =
+      wasm_runtime_lookup_function(m_moduleInst, "simuCopyLogicalSwitches");
+  m_fnGetTrimValue =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetTrimValue");
+  m_fnGetTrimRange =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetTrimRange");
+  m_fnGetFlightMode =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetFlightMode");
+  m_fnGetNumGVars =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetNumGVars");
+  m_fnGetNumFlightModes =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetNumFlightModes");
+  m_fnGetGVar =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetGVar");
+
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
 
@@ -296,6 +348,22 @@ void WasmSimulatorInterface::init()
     m_lcdBuffer = new uint8_t[m_lcdBufferSize];
     memset(m_lcdBuffer, 0, m_lcdBufferSize);
   }
+
+  // Allocate persistent scratch buffer in WASM memory for bulk copies.
+  // Sized for max(channels * sizeof(int16_t), logical switches).
+  m_wasmScratchSize = CPN_MAX_CHNOUT * sizeof(int16_t);
+  if (CPN_MAX_LOGICAL_SWITCHES > m_wasmScratchSize)
+    m_wasmScratchSize = CPN_MAX_LOGICAL_SWITCHES;
+  if (m_fnMalloc) {
+    uint32_t allocArgv[1] = {m_wasmScratchSize};
+    if (wasm_runtime_call_wasm(m_execEnv, m_fnMalloc, 1, allocArgv) &&
+        allocArgv[0]) {
+      m_wasmScratchBuf = allocArgv[0];
+    }
+  }
+
+  m_lastOutputs.clear();
+  m_resetOutputsData = true;
 
   qDebug() << "WASM simulator" << m_boardName << "initialized: LCD"
            << m_lcdWidth << "x" << m_lcdHeight << "depth" << m_lcdDepth;
@@ -489,8 +557,11 @@ void WasmSimulatorInterface::setInputValue(int type, uint8_t index,
 
 void WasmSimulatorInterface::rotaryEncoderEvent(int steps)
 {
-  Q_UNUSED(steps);
-  // TODO: needs WASM export
+  if (!m_fnRotaryEncoderEvent || !m_execEnv)
+    return;
+  QMutexLocker lckr(&m_mutex);
+  uint32_t argv[1] = {(uint32_t)(int32_t)steps};
+  wasm_runtime_call_wasm(m_execEnv, m_fnRotaryEncoderEvent, 1, argv);
 }
 
 void WasmSimulatorInterface::touchEvent(int type, int x, int y)
@@ -536,12 +607,24 @@ void WasmSimulatorInterface::setLuaStateReloadPermanentScripts()
 
 void WasmSimulatorInterface::addTracebackDevice(QIODevice * device)
 {
-  Q_UNUSED(device);
+  QMutexLocker lckr(&m_mtxTbDevices);
+  if (device && !m_tracebackDevices.contains(device))
+    m_tracebackDevices.append(device);
 }
 
 void WasmSimulatorInterface::removeTracebackDevice(QIODevice * device)
 {
-  Q_UNUSED(device);
+  QMutexLocker lckr(&m_mtxTbDevices);
+  m_tracebackDevices.removeAll(device);
+}
+
+void WasmSimulatorInterface::writeTrace(const char * text)
+{
+  QMutexLocker lckr(&m_mtxTbDevices);
+  for (QIODevice * dev : m_tracebackDevices) {
+    if (dev)
+      dev->write(text);
+  }
 }
 
 void WasmSimulatorInterface::receiveAuxSerialData(const quint8 port_num,
@@ -601,10 +684,159 @@ void WasmSimulatorInterface::run()
     }
   }
 
+  // Check output values every 50ms (5 loops)
+  if (!(loops % 5)) {
+    QMutexLocker lckr(&m_mutex);
+    checkOutputsChanged();
+  }
+
   // Heartbeat
   if (!(loops % (SIMULATOR_INTERFACE_HEARTBEAT_PERIOD / 10))) {
     emit heartbeat(loops, 0);
   }
+}
+
+// Helper: call a WASM function with 0 args, return int32 result
+static int32_t wasmCall0(wasm_exec_env_t env, wasm_function_inst_t fn)
+{
+  uint32_t argv[1] = {0};
+  if (wasm_runtime_call_wasm(env, fn, 0, argv))
+    return (int32_t)argv[0];
+  return 0;
+}
+
+// Helper: call a WASM function with 1 uint32 arg, return int32 result
+static int32_t wasmCall1(wasm_exec_env_t env, wasm_function_inst_t fn,
+                         uint32_t arg0)
+{
+  uint32_t argv[1] = {arg0};
+  if (wasm_runtime_call_wasm(env, fn, 1, argv))
+    return (int32_t)argv[0];
+  return 0;
+}
+
+// Helper: call a WASM function with 2 uint32 args, return int32 result
+static int32_t wasmCall2(wasm_exec_env_t env, wasm_function_inst_t fn,
+                         uint32_t arg0, uint32_t arg1)
+{
+  uint32_t argv[2] = {arg0, arg1};
+  if (wasm_runtime_call_wasm(env, fn, 2, argv))
+    return (int32_t)argv[0];
+  return 0;
+}
+
+void WasmSimulatorInterface::checkOutputsChanged()
+{
+  if (!m_execEnv || !m_wasmScratchBuf)
+    return;
+
+  const int16_t limit = 512 * 2;
+  int32_t tmpVal;
+  void * nativePtr = wasm_runtime_addr_app_to_native(m_moduleInst,
+                                                      m_wasmScratchBuf);
+  if (!nativePtr)
+    return;
+
+  // Channel outputs (bulk copy)
+  if (m_fnCopyChannelOutputs) {
+    uint32_t argv[2] = {m_wasmScratchBuf, CPN_MAX_CHNOUT};
+    if (wasm_runtime_call_wasm(m_execEnv, m_fnCopyChannelOutputs, 2, argv)) {
+      uint8_t numCh = (uint8_t)argv[0];
+      const int16_t * chans = (const int16_t *)nativePtr;
+      for (uint8_t i = 0; i < numCh; i++) {
+        if (m_lastOutputs.chans[i] != chans[i] || m_resetOutputsData) {
+          emit channelOutValueChange(i, chans[i], limit);
+          emit outputValueChange(OUTPUT_SRC_CHAN_OUT, i, chans[i]);
+          m_lastOutputs.chans[i] = chans[i];
+        }
+      }
+    }
+  }
+
+  // Mix outputs (bulk copy, reuse same buffer)
+  if (m_fnCopyMixOutputs) {
+    uint32_t argv[2] = {m_wasmScratchBuf, CPN_MAX_CHNOUT};
+    if (wasm_runtime_call_wasm(m_execEnv, m_fnCopyMixOutputs, 2, argv)) {
+      uint8_t numCh = (uint8_t)argv[0];
+      const int16_t * mix = (const int16_t *)nativePtr;
+      for (uint8_t i = 0; i < numCh; i++) {
+        if (m_lastOutputs.ex_chans[i] != mix[i] || m_resetOutputsData) {
+          emit channelMixValueChange(i, mix[i], limit * 2);
+          emit outputValueChange(OUTPUT_SRC_CHAN_MIX, i, mix[i]);
+          m_lastOutputs.ex_chans[i] = mix[i];
+        }
+      }
+    }
+  }
+
+  // Logical switches (bulk copy)
+  if (m_fnCopyLogicalSwitches) {
+    uint32_t argv[2] = {m_wasmScratchBuf, CPN_MAX_LOGICAL_SWITCHES};
+    if (wasm_runtime_call_wasm(m_execEnv, m_fnCopyLogicalSwitches, 2, argv)) {
+      uint8_t numLsw = (uint8_t)argv[0];
+      const uint8_t * lsw = (const uint8_t *)nativePtr;
+      for (uint8_t i = 0; i < numLsw; i++) {
+        bool val = lsw[i] != 0;
+        if (m_lastOutputs.vsw[i] != val || m_resetOutputsData) {
+          emit virtualSwValueChange(i, val ? 1 : 0);
+          emit outputValueChange(OUTPUT_SRC_VIRTUAL_SW, i, val ? 1 : 0);
+          m_lastOutputs.vsw[i] = val;
+        }
+      }
+    }
+  }
+
+  // Trims
+  if (m_fnGetTrimValue) {
+    for (uint8_t i = 0; i < Board::TRIM_AXIS_COUNT; i++) {
+      tmpVal = wasmCall1(m_execEnv, m_fnGetTrimValue, i);
+      if (m_lastOutputs.trims[i] != tmpVal || m_resetOutputsData) {
+        emit trimValueChange(i, tmpVal);
+        emit outputValueChange(OUTPUT_SRC_TRIM_VALUE, i, tmpVal);
+        m_lastOutputs.trims[i] = tmpVal;
+      }
+    }
+  }
+
+  // Trim range
+  if (m_fnGetTrimRange) {
+    tmpVal = (int16_t)wasmCall0(m_execEnv, m_fnGetTrimRange);
+    if (m_lastOutputs.trimRange != tmpVal || m_resetOutputsData) {
+      emit trimRangeChange(Board::TRIM_AXIS_COUNT, -tmpVal, tmpVal);
+      emit outputValueChange(OUTPUT_SRC_TRIM_RANGE, Board::TRIM_AXIS_COUNT, tmpVal);
+      m_lastOutputs.trimRange = tmpVal;
+    }
+  }
+
+  // Flight mode
+  if (m_fnGetFlightMode) {
+    int8_t phase = (int8_t)wasmCall0(m_execEnv, m_fnGetFlightMode);
+    if (m_lastOutputs.phase != phase || m_resetOutputsData) {
+      emit phaseChanged(phase, QString::number(phase));
+      emit outputValueChange(OUTPUT_SRC_PHASE, 0, (qint16)phase);
+      m_lastOutputs.phase = phase;
+    }
+  }
+
+  // GVars
+  if (m_fnGetNumGVars && m_fnGetNumFlightModes && m_fnGetGVar) {
+    uint8_t numGv = (uint8_t)wasmCall0(m_execEnv, m_fnGetNumGVars);
+    uint8_t numFm = (uint8_t)wasmCall0(m_execEnv, m_fnGetNumFlightModes);
+    if (numGv > CPN_MAX_GVARS) numGv = CPN_MAX_GVARS;
+    if (numFm > CPN_MAX_FLIGHT_MODES) numFm = CPN_MAX_FLIGHT_MODES;
+    for (uint8_t gv = 0; gv < numGv; gv++) {
+      for (uint8_t fm = 0; fm < numFm; fm++) {
+        tmpVal = wasmCall2(m_execEnv, m_fnGetGVar, gv, fm);
+        if (m_lastOutputs.gvars[fm][gv] != tmpVal || m_resetOutputsData) {
+          m_lastOutputs.gvars[fm][gv] = tmpVal;
+          emit gVarValueChange(gv, tmpVal);
+          emit outputValueChange(OUTPUT_SRC_GVAR, gv, tmpVal);
+        }
+      }
+    }
+  }
+
+  m_resetOutputsData = false;
 }
 
 /*

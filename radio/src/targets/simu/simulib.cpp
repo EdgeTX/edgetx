@@ -30,6 +30,12 @@
 #include "os/task.h"
 
 #include "edgetx.h"
+#include "debug.h"
+#include "switches.h"
+#include "input_mapping.h"
+#if defined(GVARS)
+#include "gvars.h"
+#endif
 
 #include <assert.h>
 
@@ -60,6 +66,9 @@ void simuInit()
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
+
+  // Route firmware TRACE() output to host via WASM import
+  traceCallback = simuTrace;
 
   // Init ADC driver callback
   adcInit(&simu_adc_driver);
@@ -518,4 +527,119 @@ void simuTouchUp()
 #if defined(HARDWARE_TOUCH)
   touchPanelUp();
 #endif
+}
+
+void simuRotaryEncoderEvent(int32_t steps)
+{
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
+#endif
+}
+
+int32_t simuGetCapability(uint8_t cap)
+{
+  switch (cap) {
+    case 0:  // CAP_LUA
+#ifdef LUA
+      return 1;
+#else
+      return 0;
+#endif
+    case 1:  // CAP_ROTARY_ENC
+      return 0;
+    case 2:  // CAP_ROTARY_ENC_NAV
+#ifdef ROTARY_ENCODER_NAVIGATION
+      return 1;
+#else
+      return 0;
+#endif
+    case 3:  // CAP_TELEM_FRSKY_SPORT
+      return 1;
+    case 4:  // CAP_SERIAL_AUX1
+      return (auxSerialGetPort(SP_AUX1) != nullptr) ? 1 : 0;
+    case 5:  // CAP_SERIAL_AUX2
+      return (auxSerialGetPort(SP_AUX2) != nullptr) ? 1 : 0;
+    default:
+      return 0;
+  }
+}
+
+// -- Output values --
+
+uint8_t simuGetNumChannels()
+{
+  return MAX_OUTPUT_CHANNELS;
+}
+
+uint8_t simuCopyChannelOutputs(int16_t* buf, uint8_t maxCount)
+{
+  uint8_t n = MAX_OUTPUT_CHANNELS < maxCount ? MAX_OUTPUT_CHANNELS : maxCount;
+  memcpy(buf, channelOutputs, n * sizeof(int16_t));
+  return n;
+}
+
+uint8_t simuCopyMixOutputs(int16_t* buf, uint8_t maxCount)
+{
+  uint8_t n = MAX_OUTPUT_CHANNELS < maxCount ? MAX_OUTPUT_CHANNELS : maxCount;
+  memcpy(buf, ex_chans, n * sizeof(int16_t));
+  return n;
+}
+
+uint8_t simuGetNumLogicalSwitches()
+{
+  return MAX_LOGICAL_SWITCHES;
+}
+
+uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
+{
+  uint8_t n = MAX_LOGICAL_SWITCHES < maxCount ? MAX_LOGICAL_SWITCHES : maxCount;
+  for (uint8_t i = 0; i < n; i++)
+    buf[i] = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i, 0) ? 1 : 0;
+  return n;
+}
+
+int32_t simuGetTrimValue(uint8_t idx)
+{
+  uint8_t phase = getFlightMode();
+  uint8_t mapped = inputMappingConvertMode(idx);
+  return getTrimValue(getTrimFlightMode(phase, mapped), mapped);
+}
+
+int16_t simuGetTrimRange()
+{
+  return g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
+}
+
+int32_t simuGetFlightMode()
+{
+  return getFlightMode();
+}
+
+uint8_t simuGetNumGVars()
+{
+#if defined(GVARS)
+  return MAX_GVARS;
+#else
+  return 0;
+#endif
+}
+
+uint8_t simuGetNumFlightModes()
+{
+  return MAX_FLIGHT_MODES;
+}
+
+int32_t simuGetGVar(uint8_t gv, uint8_t fm)
+{
+#if defined(GVARS)
+  if (gv < MAX_GVARS && fm < MAX_FLIGHT_MODES) {
+    uint8_t prec = g_model.gvars[gv].prec;
+    uint8_t unit = g_model.gvars[gv].unit;
+    int16_t value = (int16_t)GVAR_VALUE(gv, getGVarFlightMode(fm, gv));
+    // Encode as gVarMode_t: value[15:0] | mode[23:16] | prec[25:24] | unit[27:26]
+    return (((unit & 0x3) << 26) | ((prec & 0x3) << 24) |
+            ((fm & 0xFF) << 16) | (value & 0xFFFF));
+  }
+#endif
+  return 0;
 }
