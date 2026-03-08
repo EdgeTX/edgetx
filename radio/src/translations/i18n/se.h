@@ -392,6 +392,7 @@
 #define TR_VTRAINER_BLUETOOTH_2         TR("Elev/BT","Elev/Bluetooth")
 #define TR_VTRAINER_MULTI               "Lärare/Multi"
 #define TR_VTRAINER_CRSF                "Lärare/CRSF"
+#define TR_VTRAINER_LUA                 "Lärare/Lua"
 
 #define TR_VFAILSAFE_1                  "Ej inställt"
 #define TR_VFAILSAFE_2                  "Lås senaste"

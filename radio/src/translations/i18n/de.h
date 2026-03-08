@@ -390,6 +390,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        TR("Schüler/BT","Schüler/Bluetooth")
 #define TR_VTRAINER_MULTI              "Lehrer/Multi"
 #define TR_VTRAINER_CRSF               "Lehrer/CRSF"
+#define TR_VTRAINER_LUA                "Lehrer/Lua"
 #define TR_VFAILSAFE_1                 "Kein Failsafe"
 #define TR_VFAILSAFE_2                 "Halte Pos."
 #define TR_VFAILSAFE_3                 "Kanäle"

@@ -2891,6 +2891,30 @@ static int luaGetTrainerStatus(lua_State * L)
   return 1;
 }
 
+/*luadoc
+@function setTrainerChannel(channel, value)
+
+Set a trainer input channel value. Only works when trainer mode is set to
+"Master/Lua" in the model settings.
+
+@param channel (number) channel index (0 to MAX_TRAINER_CHANNELS-1)
+
+@param value (number) channel value (-512 to 512)
+
+@status current Introduced in 2.11
+*/
+static int luaSetTrainerChannel(lua_State * L)
+{
+  int ch = luaL_checkinteger(L, 1);
+  int val = luaL_checkinteger(L, 2);
+  if (ch >= 0 && ch < MAX_TRAINER_CHANNELS &&
+      g_model.trainerData.mode == TRAINER_MODE_LUA) {
+    trainerInput[ch] = val;
+    trainerResetTimer();
+  }
+  return 0;
+}
+
 // To simplify code below
 #if !defined(BLING_LED_STRIP_LENGTH)
   #define BLING_LED_STRIP_LENGTH 0
@@ -3121,6 +3145,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getOutputValue, luaGetOutputValue )
   LROT_FUNCENTRY( getSourceValue, luaGetSourceValue )
   LROT_FUNCENTRY( getTrainerStatus, luaGetTrainerStatus )
+  LROT_FUNCENTRY( setTrainerChannel, luaSetTrainerChannel )
   LROT_FUNCENTRY( getRAS, luaGetRAS )
   LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
   LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )

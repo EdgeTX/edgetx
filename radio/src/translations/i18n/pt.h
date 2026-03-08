@@ -390,6 +390,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        "Escrv/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Mestre/Multi"
 #define TR_VTRAINER_CRSF               "Mestre/CRSF"
+#define TR_VTRAINER_LUA                "Mestre/Lua"
 #define TR_VFAILSAFE_1                 "Nao def"
 #define TR_VFAILSAFE_2                 "Manter"
 #define TR_VFAILSAFE_3                 "Custom"

@@ -392,6 +392,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        TR("Élève/BT","Élève/Bluetooth")
 #define TR_VTRAINER_MULTI              "Maître/Multi"
 #define TR_VTRAINER_CRSF               "Maître/CRSF"
+#define TR_VTRAINER_LUA                "Maître/Lua"
 #define TR_VFAILSAFE_1                 "Pas déf."
 #define TR_VFAILSAFE_2                 "Maintien"
 #define TR_VFAILSAFE_3                 TR("Prédéf.","Prédéfini")

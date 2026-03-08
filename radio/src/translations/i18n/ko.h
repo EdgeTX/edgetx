@@ -390,6 +390,7 @@
 #define TR_VTRAINER_BLUETOOTH_2         "슬레이브/" TR("BT","블루투스")
 #define TR_VTRAINER_MULTI               "마스터/멀티"
 #define TR_VTRAINER_CRSF                "마스터/CRSF"
+#define TR_VTRAINER_LUA                 "마스터/Lua"
 
 #define TR_VFAILSAFE_1                  "설정 안됨"
 #define TR_VFAILSAFE_2                  "고정"

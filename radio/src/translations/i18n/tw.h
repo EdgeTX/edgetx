@@ -388,6 +388,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        "教練從機/藍牙"
 #define TR_VTRAINER_MULTI              "教練主機/多協議"
 #define TR_VTRAINER_CRSF               "教練主機/CRSF"
+#define TR_VTRAINER_LUA                "教練主機/Lua"
 #define TR_VFAILSAFE_1                 "未設置"
 #define TR_VFAILSAFE_2                 "失控保持"
 #define TR_VFAILSAFE_3                 "自定義"
