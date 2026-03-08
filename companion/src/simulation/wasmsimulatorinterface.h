@@ -23,6 +23,8 @@
 
 #include "wasm_export.h"
 
+#include <SDL.h>
+
 class WasmSimulatorInterface : public SimulatorInterface
 {
   Q_OBJECT
@@ -75,6 +77,9 @@ class WasmSimulatorInterface : public SimulatorInterface
     // Called by WASM import simuTrace
     void writeTrace(const char * text);
 
+    // Called by WASM import simuQueueAudio
+    void queueAudio(const uint8_t * buf, uint32_t len);
+
   protected slots:
     void run();
 
@@ -83,6 +88,8 @@ class WasmSimulatorInterface : public SimulatorInterface
     void unloadModule();
     bool resolveExports();
     void checkOutputsChanged();
+    void initAudio();
+    void deinitAudio();
 
     QString m_wasmPath;
     QString m_boardName;
@@ -95,6 +102,10 @@ class WasmSimulatorInterface : public SimulatorInterface
     QMutex m_mtxTbDevices;
     QVector<QIODevice *> m_tracebackDevices;
     bool m_stopRequested = false;
+
+    // Audio
+    SDL_AudioDeviceID m_audioDevice = 0;
+    int m_volumeGain = SDL_MIX_MAXVOLUME;
 
     // Host-side analog values (polled by WASM via simuGetAnalog)
     static constexpr int MAX_ANALOGS = 32;
