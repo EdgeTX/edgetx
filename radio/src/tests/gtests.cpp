@@ -124,6 +124,7 @@ int32_t lastAct = 0;
 
 uint16_t simuGetAnalog(uint8_t) { return 0; }
 void simuQueueAudio(const uint8_t *, uint32_t) {}
+void simuTrace(const char* text) {}
 
 static char _stringResult[200];
 
