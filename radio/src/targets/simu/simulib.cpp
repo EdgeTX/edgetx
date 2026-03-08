@@ -36,6 +36,12 @@
 #if defined(GVARS)
 #include "gvars.h"
 #endif
+#include "trainer.h"
+#include "telemetry/frsky.h"
+#include "telemetry/crossfire.h"
+#if defined(LUA)
+#include "lua/lua_api.h"
+#endif
 
 #include <assert.h>
 
@@ -60,6 +66,7 @@ rotenc_t rotaryEncoderGetValue()
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
+void lcdFlushed();
 
 void simuInit()
 {
@@ -562,6 +569,72 @@ int32_t simuGetCapability(uint8_t cap)
     default:
       return 0;
   }
+}
+
+void simuSetTrimValue(uint8_t idx, int32_t value)
+{
+  unsigned i = inputMappingConvertMode(idx);
+  uint8_t phase = getTrimFlightMode(getFlightMode(), i);
+  setTrimValue(phase, i, value);
+}
+
+void simuSendTelemetry(uint8_t module, uint8_t protocol,
+                       const uint8_t* data, uint32_t len)
+{
+  switch (protocol) {
+    case 0:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT
+      sportProcessTelemetryPacket(module, data, len);
+      break;
+    case 1:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB
+      frskyDProcessPacket(module, data, len);
+      break;
+    case 2:  // SIMU_TELEMETRY_PROTOCOL_CROSSFIRE
+      processCrossfireTelemetryFrame(module, (uint8_t*)data, len);
+      break;
+    case 3:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB
+      if (len >= 3) {
+        uint8_t id = data[0];
+        int16_t value = ((uint8_t)(data[2]) << 8) + (uint8_t)(data[1]);
+        processHubPacket(id, value);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+void simuLuaReloadPermanentScripts()
+{
+#if defined(LUA)
+  luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
+#endif
+}
+
+void simuLcdFlushed()
+{
+  ::lcdFlushed();
+}
+
+uint8_t simuGetMaxTrainerChannels()
+{
+  return MAX_TRAINER_CHANNELS;
+}
+
+void simuCopyTrainerInput(const int16_t* buf, uint8_t count)
+{
+  if (count > MAX_TRAINER_CHANNELS)
+    count = MAX_TRAINER_CHANNELS;
+  for (uint8_t i = 0; i < count; i++) {
+    int16_t v = buf[i];
+    if (v < -512) v = -512;
+    if (v > 512) v = 512;
+    trainerInput[i] = v;
+  }
+}
+
+void simuSetTrainerTimeout(uint16_t ms)
+{
+  trainerSetTimer(ms / 10);
 }
 
 // -- Output values --
