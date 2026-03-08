@@ -22,6 +22,7 @@
 #include "simulatorinterface.h"
 #include "wasmsimulatorinterface.h"
 #include "customdebug.h"
+#include "version.h"
 #include "firmwares/eeprominterface.h"
 
 #include <QDebug>
