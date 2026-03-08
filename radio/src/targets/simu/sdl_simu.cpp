@@ -871,3 +871,5 @@ uint16_t simuGetAnalog(uint8_t idx)
   // probably RTC_BAT
   return 0;
 }
+
+void simuTrace(const char* text) {}
