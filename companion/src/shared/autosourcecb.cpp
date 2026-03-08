@@ -68,7 +68,7 @@ void AutoSourceCB::onCurrentIndexChanged(int index)
   bool ok;
   const int val = itemData(index).toInt(&ok);
 
-  if (ok && getValue() != RawSource(val)) {
+  if (ok && (getValue() != RawSource(val))) {
       setValue(RawSource(val));
       emit dataChanged(val);
       AutoWidget::dataChanged();
@@ -135,10 +135,9 @@ void AutoSourceCB::updateValue()
   if (getValue().type != SOURCE_TYPE_NUMBER) {
     setLock(true);
     setCurrentIndex(findData(getValue().toValue()));;
+    setLock(false);
 
     if (currentIndex() < 0)
       setCurrentIndex(Helpers::getFirstPosValueIndex(this));
-
-    setLock(false);
   }
 }

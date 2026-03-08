@@ -26,8 +26,7 @@
 #include <QTimer>
 
 AutoSourceListNum::AutoSourceListNum(QWidget * parent) :
-  QWidget(parent),
-  AutoSource()
+  QWidget(parent)
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
@@ -78,10 +77,10 @@ void AutoSourceListNum::setField(RawSource * field, RawSource dflt, GenericPanel
                                  int min, int max, int precision,
                                  QString prefix, QString suffix)
 {
-  setLock(true);
-  AutoSource::setField(field, RawSource(SOURCE_TYPE_NUMBER), panel);
+  setPanel(panel);
   m_sourceCB->setField(field, RawSource(SOURCE_TYPE_NONE), panel, itemModel, filter, isAvailable);
   m_sourceDSB->setField(field, RawSource(SOURCE_TYPE_NUMBER), panel, min, max, precision, prefix, suffix);
+  setLock(true);
   m_chkType->setText(typeLabel);
   m_chkType->setChecked(field->type != SOURCE_TYPE_NUMBER);
   m_stack->setCurrentIndex(field->type != SOURCE_TYPE_NUMBER ? 1 : 0);

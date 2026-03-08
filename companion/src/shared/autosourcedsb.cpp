@@ -41,10 +41,9 @@ void AutoSourceDSB::setField(RawSource * field, RawSource dflt, GenericPanel * p
                              int min, int max, int precision,
                              QString prefix, QString suffix)
 {
+  setLock(true);
   AutoSource::setField(field, dflt, panel);
   setFieldProperties(min, max, precision, prefix, suffix);
-
-  setLock(true);
   setDecimals(m_precision);
   setMinimum(min / m_scalingFactor);
   setMaximum(max / m_scalingFactor);

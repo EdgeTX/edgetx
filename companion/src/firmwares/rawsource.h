@@ -274,7 +274,7 @@ class RawSource {
 
     RawSource(RawSourceType type, int index = 0):
       type(type),
-      index((type != SOURCE_TYPE_NONE && type != SOURCE_TYPE_NUMBER) && index == 0 ? 1 : index)
+      index(index == 0 ? ((type == SOURCE_TYPE_NONE || type == SOURCE_TYPE_NUMBER) ? 0 : 1) : index)
     {
     }
 

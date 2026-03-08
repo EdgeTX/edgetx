@@ -27,7 +27,7 @@
 #include <QCheckBox>
 #include <QStackedWidget>
 
-class AutoSourceListNum : public QWidget, public AutoSource{
+class AutoSourceListNum : public QWidget, public AutoWidget{
 
   Q_OBJECT
 
