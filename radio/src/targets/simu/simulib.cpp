@@ -180,6 +180,42 @@ bool simuIsRunning()
   return simu_running;
 }
 
+bool simuLcdChanged()
+{
+  bool changed = simuLcdRefresh;
+  simuLcdRefresh = false;
+  return changed;
+}
+
+uint32_t simuLcdCopy(uint8_t* buf, uint32_t maxLen)
+{
+  uint32_t size = DISPLAY_BUFFER_SIZE * sizeof(pixel_t);
+  if (size > maxLen) size = maxLen;
+  memcpy(buf, simuLcdBuf, size);
+  return size;
+}
+
+uint32_t simuLcdGetWidth()
+{
+  return LCD_W;
+}
+
+uint32_t simuLcdGetHeight()
+{
+  return LCD_H;
+}
+
+uint32_t simuLcdGetDepth()
+{
+#if defined(COLORLCD)
+  return 16;
+#elif LCD_W == 212
+  return 4;
+#else
+  return 1;
+#endif
+}
+
 #if !defined(COLORLCD)
 void lcdSetRefVolt(uint8_t val)
 {
@@ -469,3 +505,17 @@ struct TouchState getInternalTouchState()
   return simTouchState;
 }
 #endif
+
+void simuTouchDown(int16_t x, int16_t y)
+{
+#if defined(HARDWARE_TOUCH)
+  touchPanelDown(x, y);
+#endif
+}
+
+void simuTouchUp()
+{
+#if defined(HARDWARE_TOUCH)
+  touchPanelUp();
+#endif
+}
