@@ -121,6 +121,11 @@ run_pipeline() {
         "final")
             BUILD_OPTIONS="${COMMON_OPTIONS} -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
             clean_build && mkdir -p native/plugins
+            # Copy WASM simulator modules if available
+            if [[ -d "${SRCDIR}/wasm-modules" ]]; then
+              cp -v "${SRCDIR}"/wasm-modules/*.wasm native/plugins/ 2>/dev/null && \
+                echo "    Copied WASM modules to plugins/" || true
+            fi
             if ! execute_with_output "🔧 CMake config" "cmake -B native -S ${SRCDIR} --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "CMake Configuration"
                 return 1

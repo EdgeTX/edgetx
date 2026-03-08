@@ -1,4 +1,5 @@
 set(SIMULATOR_INSTALL_PREFIX "" CACHE STRING "Alternative simulator library search path")
+set(SIMULATOR_WASM_DIR "" CACHE PATH "Directory containing .wasm simulator modules to bundle")
 
 set(COMPANION_NAME "companion")
 set(SIMULATOR_NAME "simulator")
@@ -270,6 +271,18 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
 )
 
 PrintTargetReport("${COMPANION_NAME}")
+
+# Copy WASM simulator modules next to companion executable for local dev
+if(SIMULATOR_WASM_DIR)
+  file(GLOB _wasm_files "${SIMULATOR_WASM_DIR}/edgetx-*-simulator.wasm")
+  foreach(_wf ${_wasm_files})
+    get_filename_component(_wf_name "${_wf}" NAME)
+    add_custom_command(TARGET ${COMPANION_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_wf}" "$<TARGET_FILE_DIR:${COMPANION_NAME}>/${_wf_name}"
+      COMMENT "Copying ${_wf_name} to companion output"
+    )
+  endforeach()
+endif()
 
 ############# Standalone simulator ###############
 

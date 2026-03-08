@@ -107,7 +107,10 @@ if(WASI)
   add_executable(wasi-module EXCLUDE_FROM_ALL
     ${SIMU_SRC}
   )
-  set_target_properties(wasi-module PROPERTIES SUFFIX ".wasm")
+  set_target_properties(wasi-module PROPERTIES
+    OUTPUT_NAME "edgetx-${FLAVOUR}-simulator"
+    SUFFIX ".wasm"
+  )
 
   target_compile_options(wasi-module PUBLIC ${WASI_COMPILE_OPTIONS})
 

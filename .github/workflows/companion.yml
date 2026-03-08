@@ -88,6 +88,13 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Download WASM modules
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wasm-modules-*
+          path: wasm-modules
+          merge-multiple: true
+
       - name: Setup and Build
         uses: ./.github/actions/build_companion
         with:
@@ -107,6 +114,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Download WASM modules
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wasm-modules-*
+          path: wasm-modules
+          merge-multiple: true
 
       - name: Setup and Build
         uses: ./.github/actions/build_companion
@@ -133,6 +147,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Download WASM modules
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wasm-modules-*
+          path: wasm-modules
+          merge-multiple: true
 
       - name: Setup and Build
         uses: ./.github/actions/build_companion
