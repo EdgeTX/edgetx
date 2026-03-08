@@ -19,6 +19,7 @@
 
 #include <QMutex>
 #include <QTimer>
+#include <QVector>
 
 #include "wasm_export.h"
 
@@ -71,6 +72,9 @@ class WasmSimulatorInterface : public SimulatorInterface
     // Called by WASM import simuGetAnalog
     int16_t getAnalogValue(uint8_t index);
 
+    // Called by WASM import simuTrace
+    void writeTrace(const char * text);
+
   protected slots:
     void run();
 
@@ -78,6 +82,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     bool loadModule();
     void unloadModule();
     bool resolveExports();
+    void checkOutputsChanged();
 
     QString m_wasmPath;
     QString m_boardName;
@@ -87,11 +92,21 @@ class WasmSimulatorInterface : public SimulatorInterface
 
     QTimer * m_timer10ms = nullptr;
     QMutex m_mutex;
+    QMutex m_mtxTbDevices;
+    QVector<QIODevice *> m_tracebackDevices;
     bool m_stopRequested = false;
 
     // Host-side analog values (polled by WASM via simuGetAnalog)
     static constexpr int MAX_ANALOGS = 32;
     int16_t m_analogValues[MAX_ANALOGS] = {};
+
+    // Cached output values for change detection
+    TxOutputs m_lastOutputs;
+    bool m_resetOutputsData = true;
+
+    // Persistent WASM buffer for bulk copies (allocated once in init)
+    uint32_t m_wasmScratchBuf = 0;
+    uint32_t m_wasmScratchSize = 0;
 
     // Host-side LCD buffer
     uint8_t * m_lcdBuffer = nullptr;
@@ -122,6 +137,22 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnTouchDown = nullptr;
     wasm_function_inst_t m_fnTouchUp = nullptr;
     wasm_function_inst_t m_fnFatfsSetPaths = nullptr;
+    wasm_function_inst_t m_fnRotaryEncoderEvent = nullptr;
+    wasm_function_inst_t m_fnGetCapability = nullptr;
+
+    // Output value exports (bulk copy)
+    wasm_function_inst_t m_fnGetNumChannels = nullptr;
+    wasm_function_inst_t m_fnCopyChannelOutputs = nullptr;
+    wasm_function_inst_t m_fnCopyMixOutputs = nullptr;
+    wasm_function_inst_t m_fnGetNumLogicalSwitches = nullptr;
+    wasm_function_inst_t m_fnCopyLogicalSwitches = nullptr;
+    wasm_function_inst_t m_fnGetTrimValue = nullptr;
+    wasm_function_inst_t m_fnGetTrimRange = nullptr;
+    wasm_function_inst_t m_fnGetFlightMode = nullptr;
+    wasm_function_inst_t m_fnGetNumGVars = nullptr;
+    wasm_function_inst_t m_fnGetNumFlightModes = nullptr;
+    wasm_function_inst_t m_fnGetGVar = nullptr;
+
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;
 };
