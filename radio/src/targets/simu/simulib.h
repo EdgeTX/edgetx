@@ -72,15 +72,52 @@ uint32_t WASM_EXPORT(simuLcdGetWidth)();
 uint32_t WASM_EXPORT(simuLcdGetHeight)();
 uint32_t WASM_EXPORT(simuLcdGetDepth)();
 
+// Rotary encoder: positive steps = clockwise. The firmware handles
+// mode inversion and key translation internally.
+void WASM_EXPORT(simuRotaryEncoderEvent)(int32_t steps);
+
+// Capabilities: cap values match SimulatorInterface::Capability enum
+// (0=LUA, 1=ROTARY_ENC, 2=ROTARY_ENC_NAV, 3=TELEM_FRSKY_SPORT,
+//  4=SERIAL_AUX1, 5=SERIAL_AUX2). Returns 0 or 1.
+int32_t WASM_EXPORT(simuGetCapability)(uint8_t cap);
+
 int WASM_EXPORT(simuAudioGetVolume)();
+
+// Output values: polled periodically by host (every ~50ms).
+
+// Bulk copy channel outputs into buf (int16_t[]). Returns channel count.
+uint8_t  WASM_EXPORT(simuGetNumChannels)();
+uint8_t  WASM_EXPORT(simuCopyChannelOutputs)(int16_t* buf, uint8_t maxCount);
+uint8_t  WASM_EXPORT(simuCopyMixOutputs)(int16_t* buf, uint8_t maxCount);
+
+// Bulk copy logical switch states into buf (uint8_t[], 0 or 1). Returns count.
+uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
+uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
+
+// Trim values. idx 0..TRIM_AXIS_COUNT-1 (typically 8).
+// Returns the trim value for the current flight mode.
+int32_t  WASM_EXPORT(simuGetTrimValue)(uint8_t idx);
+int16_t  WASM_EXPORT(simuGetTrimRange)();
+
+// Flight mode: returns current flight mode index (0-based).
+int32_t  WASM_EXPORT(simuGetFlightMode)();
+
+// GVars: gv 0..N-1, fm 0..M-1. Returns encoded gVarMode_t.
+uint8_t  WASM_EXPORT(simuGetNumGVars)();
+uint8_t  WASM_EXPORT(simuGetNumFlightModes)();
+int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
 
 // -- WASM imports (provided by host) --
 
-// simuGetAnalog: return ADC value for analog input at index idx.
-// Expected range: 0..4096 (12-bit ADC). The host should convert its
-// internal -1024..+1024 range via: (raw * 2) + 2048.
+// simuGetAnalog: return raw host-side analog value for input at index idx.
+// Normal pots: -1024..+1024. 6POS multipos: 0..2048.
+// The WASM ADC driver applies pot-type-aware conversion to ADC range.
 uint16_t WASM_IMPORT(simuGetAnalog)(uint8_t idx);
 void WASM_IMPORT(simuQueueAudio)(const uint8_t* buf, uint32_t len);
+
+// simuTrace: send debug/trace output text to the host for display.
+// Called via traceCallback from debugPrintf().
+void WASM_IMPORT(simuTrace)(const char* text);
 
 // -- Internal (not exported) --
 void simuMain();

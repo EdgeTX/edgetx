@@ -24,6 +24,7 @@
 
 #include "definitions.h"
 #include "myeeprom.h"
+#include "edgetx.h"
 
 #include "translations/translations.h"
 #include "hal_adc_inputs.inc"
@@ -50,8 +51,27 @@ extern uint16_t simuGetAnalog(uint8_t idx);
 static bool simu_start_conversion()
 {
   int max_input = adcGetInputOffset(ADC_INPUT_VBAT);
+  int flex_offset = adcGetInputOffset(ADC_INPUT_FLEX);
   for (int i = 0; i < max_input; i++) {
-    setAnalogValue(i, simuGetAnalog(i));
+    int16_t raw = (int16_t)simuGetAnalog(i);
+    uint16_t adc_val;
+    int flex_idx = i - flex_offset;
+#if XPOTS_MULTIPOS_COUNT > 0
+    if (flex_idx >= 0 && IS_POT_MULTIPOS(flex_idx)) {
+      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[i];
+      int range6POS = 2048;
+      if (calib->count != 0) {
+        int c1 = calib->steps[calib->count - 1] * 32;
+        int c2 = calib->steps[calib->count - 2] * 32;
+        range6POS = c1 + (c1 - c2) / 2;
+      }
+      adc_val = (raw * range6POS / 2048);
+    } else
+#endif
+    {
+      adc_val = (raw * 2) + 2048;
+    }
+    setAnalogValue(i, adc_val);
   }
 
   // set batteries default voltages
