@@ -274,14 +274,13 @@ PrintTargetReport("${COMPANION_NAME}")
 
 # Copy WASM simulator modules next to companion executable for local dev
 if(SIMULATOR_WASM_DIR)
-  file(GLOB _wasm_files "${SIMULATOR_WASM_DIR}/edgetx-*-simulator.wasm")
-  foreach(_wf ${_wasm_files})
-    get_filename_component(_wf_name "${_wf}" NAME)
-    add_custom_command(TARGET ${COMPANION_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_wf}" "$<TARGET_FILE_DIR:${COMPANION_NAME}>/${_wf_name}"
-      COMMENT "Copying ${_wf_name} to companion output"
-    )
-  endforeach()
+  add_custom_command(TARGET ${COMPANION_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+      -DSRC_DIR=${SIMULATOR_WASM_DIR}
+      -DDST_DIR=$<TARGET_FILE_DIR:${COMPANION_NAME}>
+      -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
+    COMMENT "Copying WASM simulator modules to companion output"
+  )
 endif()
 
 ############# Standalone simulator ###############
