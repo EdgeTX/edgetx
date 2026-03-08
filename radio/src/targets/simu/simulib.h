@@ -21,47 +21,43 @@
 
 #pragma once
 
-#include <assert.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
-#include <errno.h>
 
 #include <string>
 
-#define __disable_irq()
-#define __enable_irq()
-
-extern char * main_thread_error;
-
-uint64_t simuTimerMicros(void);
-
-void simuSetKey(uint8_t key, bool state);
-void simuSetTrim(uint8_t trim, bool state);
-void simuSetSwitch(uint8_t swtch, int8_t state);
-
-#if defined(__cplusplus)
-void simuInit();
-void simuStart(bool tests = true, const char * sdPath = nullptr, const char * settingsPath = nullptr);
-void simuStop();
-bool simuIsRunning();
-void startEepromThread(const char * filename = "eeprom.bin");
-void stopEepromThread();
+#if __wasm__
+#define WASM_EXPORT_AS(name) __attribute__((export_name(name)))
+#define WASM_EXPORT(symbol) WASM_EXPORT_AS(#symbol) symbol
+#define WASM_IMPORT_AS(name) __attribute__((import_name(name)))
+#define WASM_IMPORT(symbol) WASM_IMPORT_AS(#symbol) symbol
+#else
+#define WASM_EXPORT_AS(name)
+#define WASM_EXPORT(symbol) symbol
+#define WASM_IMPORT_AS(name)
+#define WASM_IMPORT(symbol) symbol
 #endif
+
+// exports
+void WASM_EXPORT(simuInit)();
+void WASM_EXPORT(simuStart)(bool tests = true);
+void WASM_EXPORT(simuStop)();
+bool WASM_EXPORT(simuIsRunning)();
+void WASM_EXPORT(simuSetKey)(uint8_t key, bool state);
+void WASM_EXPORT(simuSetTrim)(uint8_t trim, bool state);
+void WASM_EXPORT(simuSetSwitch)(uint8_t swtch, int8_t state);
+int  WASM_EXPORT(simuAudioGetVolume)();
+
+// callbacks
+uint16_t WASM_IMPORT(simuGetAnalog)(uint8_t idx);
+void WASM_IMPORT(simuQueueAudio)(const uint8_t* buf, uint32_t len);
 
 void simuMain();
 
 void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
-
 std::string simuFatfsGetCurrentPath();
-std::string simuFatfsGetRealPath(const std::string &p);
-
-#if defined(TRACE_SIMPGMSPACE)
-  #undef TRACE_SIMPGMSPACE
-  #define TRACE_SIMPGMSPACE   TRACE
-#else
-  #define TRACE_SIMPGMSPACE(...)
-#endif
+std::string simuFatfsGetRealPath(const std::string& p);
 
 #if defined(HARDWARE_TOUCH)
   extern struct TouchState simTouchState;

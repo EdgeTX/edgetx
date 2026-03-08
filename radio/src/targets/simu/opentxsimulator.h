@@ -106,7 +106,6 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     uint8_t getStickMode();
     const char * getPhaseName(unsigned int phase);
     const QString getCurrentPhaseName();
-    const char * getError();
 
     QString simuSdDirectory;
     QString simuSettingsDirectory;

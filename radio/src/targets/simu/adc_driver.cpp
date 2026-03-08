@@ -19,13 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#include "simulib.h"
 #include "hal/adc_driver.h"
-#include "definitions.h"
 
+#include "definitions.h"
 #include "myeeprom.h"
 
-#include "board.h"
-#include "edgetx.h"
+#include "translations/translations.h"
 #include "hal_adc_inputs.inc"
 
 void enableVBatBridge(){}
@@ -45,19 +45,23 @@ uint16_t getRTCBatteryVoltage()
   return 300;
 }
 
-extern uint16_t simu_get_analog(uint8_t idx);
+extern uint16_t simuGetAnalog(uint8_t idx);
 
 static bool simu_start_conversion()
 {
   int max_input = adcGetInputOffset(ADC_INPUT_VBAT);
   for (int i = 0; i < max_input; i++) {
-    setAnalogValue(i, simu_get_analog(i));
+    setAnalogValue(i, simuGetAnalog(i));
   }
 
   // set batteries default voltages
   int i = adcGetInputOffset(ADC_INPUT_VBAT);
   if (i > 0) {
-    uint16_t volts = (uint16_t)((g_eeGeneral.vBatWarn > 0 ? g_eeGeneral.vBatWarn : BATTERY_WARN) + 5) * 10; // +0.5V and prec2
+    // +0.5V and prec2
+    uint16_t volts = (uint16_t)((g_eeGeneral.vBatWarn > 0 ? g_eeGeneral.vBatWarn
+                                                          : BATTERY_WARN) +
+                                5) *
+                     10;
     setAnalogValue(i, volts * 2);
   }
 
