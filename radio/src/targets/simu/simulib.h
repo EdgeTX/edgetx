@@ -39,23 +39,51 @@
 #define WASM_IMPORT(symbol) symbol
 #endif
 
-// exports
+// -- WASM exports (called by host) --
+
+// Lifecycle: call simuInit() once, then simuFatfsSetPaths() + simuStart().
+// Poll simuIsRunning() periodically. Call simuStop() to shut down.
 void WASM_EXPORT(simuInit)();
 void WASM_EXPORT(simuStart)(bool tests = true);
 void WASM_EXPORT(simuStop)();
 bool WASM_EXPORT(simuIsRunning)();
+
+// Set SD card and settings paths before simuStart() to avoid STORAGE WARNING.
+void WASM_EXPORT(simuFatfsSetPaths)(const char * sdPath, const char * settingsPath);
+
+// Input: keys use Board::Keys enum, switches use Board switch indices,
+// trims use Board::TrimSwitches enum (momentary press, not value).
 void WASM_EXPORT(simuSetKey)(uint8_t key, bool state);
 void WASM_EXPORT(simuSetTrim)(uint8_t trim, bool state);
 void WASM_EXPORT(simuSetSwitch)(uint8_t swtch, int8_t state);
-int  WASM_EXPORT(simuAudioGetVolume)();
 
-// callbacks
+// Touch: call simuTouchDown(x,y) on press and repeatedly during drag
+// (continuous position updates), then simuTouchUp() on release.
+// The firmware detects slides from successive position changes.
+void WASM_EXPORT(simuTouchDown)(int16_t x, int16_t y);
+void WASM_EXPORT(simuTouchUp)();
+
+// LCD: poll simuLcdChanged(), then allocate a buffer via exported malloc(),
+// call simuLcdCopy() to fill it, copy to host, and free via exported free().
+// Depth is bits per pixel (1, 4, or 16).
+bool     WASM_EXPORT(simuLcdChanged)();
+uint32_t WASM_EXPORT(simuLcdCopy)(uint8_t* buf, uint32_t maxLen);
+uint32_t WASM_EXPORT(simuLcdGetWidth)();
+uint32_t WASM_EXPORT(simuLcdGetHeight)();
+uint32_t WASM_EXPORT(simuLcdGetDepth)();
+
+int WASM_EXPORT(simuAudioGetVolume)();
+
+// -- WASM imports (provided by host) --
+
+// simuGetAnalog: return ADC value for analog input at index idx.
+// Expected range: 0..4096 (12-bit ADC). The host should convert its
+// internal -1024..+1024 range via: (raw * 2) + 2048.
 uint16_t WASM_IMPORT(simuGetAnalog)(uint8_t idx);
 void WASM_IMPORT(simuQueueAudio)(const uint8_t* buf, uint32_t len);
 
+// -- Internal (not exported) --
 void simuMain();
-
-void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
 std::string simuFatfsGetCurrentPath();
 std::string simuFatfsGetRealPath(const std::string& p);
 

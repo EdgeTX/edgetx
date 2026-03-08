@@ -31,7 +31,6 @@
 #include <QString>
 #include <QByteArray>
 #include <QDir>
-#include <QLibrary>
 #include <QMap>
 #include <QSerialPort>
 
@@ -215,8 +214,6 @@ class SimulatorLoader
     static bool unloadSimulator(const QString & name);
 
   protected:
-    typedef SimulatorFactory * (*RegisterSimulator)();
-
     static int registerSimulators(const QDir & dir);
-    static QMap<QString, QPair<QString, QLibrary *>> registeredSimulators;
+    static QMap<QString, SimulatorFactory *> registeredSimulators;
 };
