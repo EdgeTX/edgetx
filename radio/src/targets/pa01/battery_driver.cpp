@@ -27,7 +27,7 @@
 #include "edgetx.h"
 #include "mainwindow.h"
 #include "static.h"
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "LvglWrapper.h"
 
 #define  __BATTERY_DRIVER_C__
@@ -603,8 +603,8 @@ void setLedGroupColor(uint8_t index, uint8_t color, uint8_t brightness) {
     scaled_b = brightness;
   }
 
-  ws2812_set_color(rgbMapping[index], scaled_r, scaled_g, scaled_b);
-  ws2812_set_color(rgbMapping[index] + 1, scaled_r, scaled_g, scaled_b);
+  rgbleds_set_color(rgbMapping[index], scaled_r, scaled_g, scaled_b);
+  rgbleds_set_color(rgbMapping[index] + 1, scaled_r, scaled_g, scaled_b);
 }
 
 uint8_t ledBreathBright(float angle, uint8_t maxBright) {
@@ -656,9 +656,9 @@ void ledLoop(void) {
 }
 
 extern const stm32_pulse_timer_t _led_timer;
-static uint8_t _led_charge_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
+static uint8_t _led_charge_colors[RGBLEDS_BYTES_PER_LED * LED_STRIP_LENGTH];
 void rgbChargeInit(void) {
-  ws2812_init(&_led_timer, _led_charge_colors, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbleds_init(&_led_timer, _led_charge_colors, LED_STRIP_LENGTH, RGBLEDS_GRB);
   rgbLedClearAll();
 }
 

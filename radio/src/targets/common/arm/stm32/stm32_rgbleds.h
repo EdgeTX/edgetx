@@ -24,22 +24,22 @@
 #include "stm32_pulse_driver.h"
 
 // Offset:           R          G          B
-#define WS2812_RGB ((0 << 4) | (1 << 2) | (2))
-#define WS2812_GRB ((1 << 4) | (0 << 2) | (2))
+#define RGBLEDS_RGB ((0 << 4) | (1 << 2) | (2))
+#define RGBLEDS_GRB ((1 << 4) | (0 << 2) | (2))
 
 // RGB
-#define WS2812_BYTES_PER_LED 3
+#define RGBLEDS_BYTES_PER_LED 3
 
 // Number of LED periods used for trailing reset
-#if !defined(WS2812_TRAILING_RESET)
-#  define WS2812_TRAILING_RESET 10
+#if !defined(RGBLEDS_TRAILING_RESET)
+#  define RGBLEDS_TRAILING_RESET 10
 #endif
 
-void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
+void rgbleds_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
                  uint8_t strip_len, uint8_t type);
-void ws2812_update(const stm32_pulse_timer_t* timer);
-bool ws2812_get_state(uint8_t led);
-void ws2812_dma_isr(const stm32_pulse_timer_t* timer);
+void rgbleds_update(const stm32_pulse_timer_t* timer);
+bool rgbleds_get_state(uint8_t led);
+void rgbleds_dma_isr(const stm32_pulse_timer_t* timer);
 
-void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
-uint32_t ws2812_get_color(uint8_t led);
+void rgbleds_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
+uint32_t rgbleds_get_color(uint8_t led);

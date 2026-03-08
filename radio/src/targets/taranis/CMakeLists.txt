@@ -7,7 +7,7 @@ option(INTERNAL_MODULE_PPM "Support for PPM internal module" OFF)
 option(AUTOUPDATE "Auto update internal chips from SD" OFF)
 option(BIND_KEY "Enable bind button" OFF)
 option(BLUETOOTH "FrSky BT module support" OFF)
-option(RGBLEDS "WS2812 addressable LED support" OFF)
+option(RGBLEDS "RGBLEDS addressable LED support" OFF)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
@@ -314,7 +314,7 @@ elseif(PCB STREQUAL X7)
     set(USB_CHARGER YES)
     add_definitions(-DRADIO_GX12)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
-    add_definitions(-DFAST_RGB_LEDS)
+    add_definitions(-DRGB_LEDS_900NS)
     set(PXX2 ON)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
     set(FLYSKY_GIMBAL YES)
@@ -644,7 +644,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+  targets/common/arm/stm32/stm32_rgbleds.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 

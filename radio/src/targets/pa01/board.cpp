@@ -23,7 +23,7 @@
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_hal.h"
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_spi.h"
 
 #include "flash_driver.h"
