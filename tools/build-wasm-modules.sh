@@ -146,8 +146,8 @@ build_plugin() {
         return 1
     fi
 
-    if [[ -f "wasm/wasi-module.wasm" ]]; then
-      cp "wasm/wasi-module.wasm" "${OUTDIR}/${plugin}.wasm" 2>/dev/null
+    if [[ -f "wasm/edgetx-${plugin}-simulator.wasm" ]]; then
+      cp "wasm/edgetx-${plugin}-simulator.wasm" "${OUTDIR}/" 2>/dev/null
     fi
     
     # Check for warnings and show summary if found
