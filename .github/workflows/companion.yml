@@ -22,7 +22,7 @@ on:
 jobs:
   modules:
     name: WASM Modules (${{ matrix.group.id }})
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         group:
@@ -95,7 +95,7 @@ jobs:
 
   build-macos:
     name: macOS Companion
-    runs-on: macos-14
+    runs-on: macos-15-intel
     needs: modules
 
     env:

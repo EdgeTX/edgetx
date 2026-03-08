@@ -5,7 +5,7 @@ inputs:
     required: true
   qt-version:
     description: 'Qt version'
-    default: '6.9.0'
+    default: '6.9.3'
   qt-arch:
     description: 'Qt architecture'
     required: runner.os != 'Linux'
