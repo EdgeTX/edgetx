@@ -61,7 +61,7 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
     Qt::Svg
-    iwasm_static
+    vmlib
 )
 
 if(TARGET SDL2::SDL2)
