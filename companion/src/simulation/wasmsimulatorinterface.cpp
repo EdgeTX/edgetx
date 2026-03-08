@@ -34,14 +34,15 @@ static uint32_t host_simuGetAnalog(wasm_exec_env_t exec_env, uint32_t idx)
   return 0;
 }
 
-// WAMR native callback: called by WASM module to queue audio
-static void host_simuQueueAudio(wasm_exec_env_t exec_env, uint32_t buf_offset,
+// WAMR native callback: called by WASM module to queue audio PCM data
+static void host_simuQueueAudio(wasm_exec_env_t exec_env, uint8_t * buf,
                                 uint32_t len)
 {
-  // Stub for increment 1
-  Q_UNUSED(exec_env);
-  Q_UNUSED(buf_offset);
-  Q_UNUSED(len);
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface && buf && len > 0)
+    iface->queueAudio(buf, len);
 }
 
 // WAMR native callback: called by WASM module to send trace/debug output
@@ -433,6 +434,8 @@ void WasmSimulatorInterface::start(const char * filename, bool tests)
     return;
   }
 
+  initAudio();
+
   emit started();
   QTimer::singleShot(0, this, SLOT(run()));
 }
@@ -443,6 +446,7 @@ void WasmSimulatorInterface::stop()
     return;
 
   m_stopRequested = true;
+  deinitAudio();
 
   QMutexLocker lckr(&m_mutex);
   wasm_runtime_call_wasm(m_execEnv, m_fnStop, 0, nullptr);
@@ -459,7 +463,7 @@ void WasmSimulatorInterface::setSdPath(const QString & sdPath,
 
 void WasmSimulatorInterface::setVolumeGain(const int value)
 {
-  Q_UNUSED(value);
+  m_volumeGain = qBound(0, value * SDL_MIX_MAXVOLUME / 100, SDL_MIX_MAXVOLUME);
 }
 
 void WasmSimulatorInterface::setRadioData(const QByteArray & data)
@@ -625,6 +629,49 @@ void WasmSimulatorInterface::writeTrace(const char * text)
     if (dev)
       dev->write(text);
   }
+}
+
+void WasmSimulatorInterface::initAudio()
+{
+  if (SDL_WasInit(SDL_INIT_AUDIO) == 0) {
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+      qWarning() << "Failed to init SDL audio:" << SDL_GetError();
+      return;
+    }
+  }
+
+  SDL_AudioSpec wanted = {};
+  wanted.freq = 32000;  // AUDIO_SAMPLE_RATE
+  wanted.format = AUDIO_S16SYS;
+  wanted.channels = 1;
+  wanted.samples = 1024;
+
+  m_audioDevice = SDL_OpenAudioDevice(nullptr, 0, &wanted, nullptr, 0);
+  if (m_audioDevice > 0) {
+    SDL_PauseAudioDevice(m_audioDevice, 0);
+  } else {
+    qWarning() << "Failed to open SDL audio:" << SDL_GetError();
+  }
+}
+
+void WasmSimulatorInterface::deinitAudio()
+{
+  if (m_audioDevice > 0) {
+    SDL_CloseAudioDevice(m_audioDevice);
+    m_audioDevice = 0;
+  }
+}
+
+void WasmSimulatorInterface::queueAudio(const uint8_t * buf, uint32_t len)
+{
+  if (m_audioDevice == 0 || len == 0)
+    return;
+
+  // Apply volume gain (mix into silence buffer)
+  QByteArray scaled(len, 0);
+  SDL_MixAudioFormat((uint8_t *)scaled.data(), buf, AUDIO_S16SYS, len,
+                     m_volumeGain);
+  SDL_QueueAudio(m_audioDevice, scaled.constData(), len);
 }
 
 void WasmSimulatorInterface::receiveAuxSerialData(const quint8 port_num,
