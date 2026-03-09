@@ -1536,7 +1536,7 @@ void edgeTxInit()
 
 #if defined(AUDIO)
   currentSpeakerVolume = requiredSpeakerVolume =
-      g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
+      limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
 #if !defined(SOFTWARE_VOLUME)
   audioSetVolume(currentSpeakerVolume);
 #endif
