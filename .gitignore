@@ -18,7 +18,4 @@ compile_commands.json
 /.vs
 CMakeUserPresets.json
 .DS_Store
-web/node_modules
-web/dist
-web/public/*.wasm
 output/
