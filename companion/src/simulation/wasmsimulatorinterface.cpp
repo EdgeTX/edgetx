@@ -225,6 +225,16 @@ void WasmSimulatorInterface::unloadModule()
     m_module = nullptr;
   }
   m_wasmBinary.clear();
+
+  // Fully destroy the WAMR runtime so that its per-thread signal
+  // environment is re-initialised on the next loadModule() call.
+  // Without this, a new Qt thread (simuThread) will not have the
+  // thread-local signal env set up and instantiation will fail with
+  // "thread signal env not inited".
+  if (s_wamrInitialized) {
+    wasm_runtime_destroy();
+    s_wamrInitialized = false;
+  }
 }
 
 bool WasmSimulatorInterface::resolveExports()
@@ -459,8 +469,15 @@ void WasmSimulatorInterface::stop()
   m_stopRequested = true;
   deinitAudio();
 
-  QMutexLocker lckr(&m_mutex);
-  wasm_runtime_call_wasm(m_execEnv, m_fnStop, 0, nullptr);
+  {
+    QMutexLocker lckr(&m_mutex);
+    wasm_runtime_call_wasm(m_execEnv, m_fnStop, 0, nullptr);
+  }
+
+  // Fully destroy the WASM module so the next init()/start() gets a clean
+  // instance.  WASI threads created by the firmware's RTOS layer cannot be
+  // reliably restarted within the same module instance.
+  unloadModule();
 
   emit stopped();
 }
@@ -747,12 +764,17 @@ void WasmSimulatorInterface::run()
   if (m_stopRequested)
     return;
 
+  ++loops;
+
+  // Emit heartbeat early so it is not delayed by WASM calls below
+  if (!(loops % (SIMULATOR_INTERFACE_HEARTBEAT_PERIOD / 10))) {
+    emit heartbeat(loops, 0);
+  }
+
   if (!isRunning()) {
     emit stopped();
     return;
   }
-
-  ++loops;
 
   // Check LCD
   if (m_fnLcdChanged && m_execEnv) {
@@ -816,11 +838,6 @@ void WasmSimulatorInterface::run()
   if (!(loops % 5)) {
     QMutexLocker lckr(&m_mutex);
     checkOutputsChanged();
-  }
-
-  // Heartbeat
-  if (!(loops % (SIMULATOR_INTERFACE_HEARTBEAT_PERIOD / 10))) {
-    emit heartbeat(loops, 0);
   }
 }
 
