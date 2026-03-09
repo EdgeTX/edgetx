@@ -403,8 +403,14 @@ void getSwitchesPosition(bool startup)
     if (IS_POT_MULTIPOS(i)) {
       auto analog_idx = offset + i;
       StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[analog_idx];
+#if defined(SIMU)
+      {
+        uint8_t count = XPOTS_MULTIPOS_COUNT - 1;
+#else
       if (IS_MULTIPOS_CALIBRATED(calib)) {
-        uint8_t pos = anaIn(analog_idx) / (2 * RESX / calib->count);
+        uint8_t count = calib->count;
+#endif
+        uint8_t pos = anaIn(analog_idx) / (2 * RESX / count);
         uint8_t previousPos = potsPos[i] >> 4;
         uint8_t previousStoredPos = potsPos[i] & 0x0F;
         if (startup) {
@@ -839,9 +845,15 @@ swsrc_t getMovedSwitch()
   for (int i = 0; i < MAX_POTS; i++) {
     if (IS_POT_MULTIPOS(i)) {
       StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[MAX_STICKS + i];
+#if defined(SIMU)
+      {
+        uint8_t count = XPOTS_MULTIPOS_COUNT - 1;
+#else
       if (IS_MULTIPOS_CALIBRATED(calib)) {
+        uint8_t count = calib->count;
+#endif
         uint8_t prev = potsPos[i] & 0x0F;
-        uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / calib->count);
+        uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / count);
         if (prev != next) {
           result = SWSRC_FIRST_MULTIPOS_SWITCH + i * XPOTS_MULTIPOS_COUNT + next;
         }
