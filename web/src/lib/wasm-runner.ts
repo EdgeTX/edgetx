@@ -96,7 +96,8 @@ export class WasmRunner {
   private wasiThreads: WASIThreads;
   private _exports: SimulatorExports | null = null;
 
-  private analogValues = new Int16Array(32);
+  private analogBuffer = new SharedArrayBuffer(32 * 2);
+  private analogValues = new Int16Array(this.analogBuffer);
   private onTrace: TraceCallback;
   private onAudio: AudioCallback;
 
@@ -120,6 +121,8 @@ export class WasmRunner {
         const worker = new Worker(new URL('./worker.ts', import.meta.url), {
           type: 'module',
         });
+        // Share analog values buffer so worker threads can read stick/pot positions
+        worker.postMessage({ type: 'analog-buffer', buffer: this.analogBuffer });
         worker.addEventListener('message', (e) => {
           if (e.data?.type === 'trace') {
             this.onTrace(e.data.text);
