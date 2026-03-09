@@ -40,7 +40,7 @@ if(NOT wamr_POPULATED)
     message(WARNING "WAMR win_file.c patch failed (may already be applied)")
   endif()
 
-  add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}")
+  add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
   if(WIN32)
     # WAMR unconditionally adds -lm and -ldl as PUBLIC link libraries,
