@@ -129,9 +129,8 @@ int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
 
 // -- WASM imports (provided by host) --
 
-// simuGetAnalog: return raw host-side analog value for input at index idx.
-// Normal pots: -1024..+1024. 6POS multipos: 0..2048.
-// The WASM ADC driver applies pot-type-aware conversion to ADC range.
+// simuGetAnalog: return ADC-range value for input at index idx.
+// All inputs use 0..4096 range (center=2048), same as SDL simulator.
 uint16_t WASM_IMPORT(simuGetAnalog)(uint8_t idx);
 void WASM_IMPORT(simuQueueAudio)(const uint8_t* buf, uint32_t len);
 
