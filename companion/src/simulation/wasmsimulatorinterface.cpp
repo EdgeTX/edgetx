@@ -725,8 +725,12 @@ void WasmSimulatorInterface::initAudio()
   wanted.channels = 1;
   wanted.samples = 1024;
 
-  m_audioDevice = SDL_OpenAudioDevice(nullptr, 0, &wanted, nullptr, 0);
+  SDL_AudioSpec have = {};
+  m_audioDevice = SDL_OpenAudioDevice(nullptr, 0, &wanted, &have, 0);
   if (m_audioDevice > 0) {
+    qDebug() << "SDL audio opened: freq=" << have.freq
+             << "format=" << have.format << "channels=" << have.channels
+             << "samples=" << have.samples;
     SDL_PauseAudioDevice(m_audioDevice, 0);
   } else {
     qWarning() << "Failed to open SDL audio:" << SDL_GetError();
@@ -746,7 +750,7 @@ void WasmSimulatorInterface::queueAudio(const uint8_t * buf, uint32_t len)
   if (m_audioDevice == 0 || len == 0)
     return;
 
-  // Apply volume gain (mix into silence buffer)
+  // Apply companion volume gain (m_volumeGain is 0..SDL_MIX_MAXVOLUME)
   QByteArray scaled(len, 0);
   SDL_MixAudioFormat((uint8_t *)scaled.data(), buf, AUDIO_S16SYS, len,
                      m_volumeGain);
