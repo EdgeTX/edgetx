@@ -24,3 +24,9 @@ _wasi_sdk_fetch
 
 # MkDocs
 /site/
+
+# Web
+web/node_modules
+web/dist
+web/public/*.wasm
+output/
