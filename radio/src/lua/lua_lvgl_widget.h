@@ -517,6 +517,10 @@ class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams, publ
   coord_t getScrollX() override;
   coord_t getScrollY() override;
 
+  void setPos(coord_t x, coord_t y) override;
+  void setSize(coord_t w, coord_t h) override;
+  void setPosAndSize();
+
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
