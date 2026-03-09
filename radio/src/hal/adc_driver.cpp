@@ -366,8 +366,6 @@ static uint32_t apply_low_pass_filter(uint32_t v, uint32_t v_prev,
 
 static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
 {
-  // Simu uses normed inputs
-#if !defined(SIMU)
   // Apply calibration relative to mid-point
   int32_t s = v - 2 * calib->mid;
   s = s * (int32_t)RESX /
@@ -383,10 +381,7 @@ static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
     s = 4 * RESX;
   }
 
-  v = s;
-#endif
-
-  return v;
+  return s;
 }
 
 static uint32_t apply_multipos(const StepsCalibData* calib, uint32_t v)
@@ -453,14 +448,17 @@ void getADC()
     bool is_flex_input = (x >= pot_offset) && (x < pot_offset + max_pots);
     bool is_multipos = is_flex_input && IS_POT_MULTIPOS(x - pot_offset);
 
-    // 1st: apply calibration
     uint32_t v = getAnalogValue(x);
 
+#if !defined(SIMU)
+    // Apply hardware calibration (not needed in simulation:
+    // the host already provides normalized ADC-range values)
     if (x < max_calib_analogs && !is_multipos) {
       v = apply_calibration(&g_eeGeneral.calib[x], v);
     }
+#endif
 
-    // 2nd: apply inversion
+    // Apply inversion
     if (x < pot_offset && getStickInversion(inputMappingConvertMode(x))) {
       v = 4 * RESX - v;
     }
@@ -469,7 +467,7 @@ void getADC()
       v = 4 * RESX - v;
     }
 
-    // 3rd: apply filtering
+    // Apply filtering
     s_anaFilt[x] = apply_low_pass_filter(v, s_anaFilt[x], x < max_mains);
 
     if (is_multipos) {
