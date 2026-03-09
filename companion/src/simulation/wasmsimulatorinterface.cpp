@@ -19,9 +19,10 @@
 #include <QFile>
 #include <QElapsedTimer>
 
-// WAMR native callback: called by WASM module to get raw analog values.
-// Returns the host-side value as-is; the WASM ADC driver applies
-// pot-type-aware conversion (normal vs 6POS multiposition).
+// WAMR native callback: called by WASM module to get analog values in
+// ADC range (0..4096, center=2048).  The WASM ADC driver does a direct
+// passthrough, so the host must provide values in ADC range.
+// UI widgets emit -1024..+1024 (center=0); we convert here.
 static uint32_t host_simuGetAnalog(wasm_exec_env_t exec_env, uint32_t idx)
 {
   auto * inst = wasm_runtime_get_module_inst(exec_env);
@@ -29,9 +30,10 @@ static uint32_t host_simuGetAnalog(wasm_exec_env_t exec_env, uint32_t idx)
       wasm_runtime_get_custom_data(inst));
   if (iface) {
     int16_t raw = iface->getAnalogValue((uint8_t)idx);
-    return (uint32_t)(uint16_t)raw;
+    uint16_t adc = (uint16_t)((raw + 1024) * 2); // -1024..+1024 → 0..4096
+    return (uint32_t)adc;
   }
-  return 0;
+  return 2048;
 }
 
 // WAMR native callback: called by WASM module to queue audio PCM data
