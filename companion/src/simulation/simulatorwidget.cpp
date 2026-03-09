@@ -861,8 +861,6 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
     GeneralSettings radioSettings = GeneralSettings();
     if (radioSettings.isInputAvailable(stick)) {
       if (radioSettings.isInputPot(stick)) {
-        if (radioSettings.inputConfig[stick].flexType == Board::FlexType::FLEX_MULTIPOS)
-          stickval += 1024;
         emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
       } else if (radioSettings.isInputSlider(stick)) {
         emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);

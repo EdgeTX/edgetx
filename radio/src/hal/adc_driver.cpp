@@ -407,6 +407,24 @@ static uint32_t apply_multipos(const StepsCalibData* calib, uint32_t v)
   return ANAFILT_MAX;
 }
 
+#if defined(SIMU)
+// In simulation, assume equally spaced positions across full ADC range
+static uint32_t apply_multipos_simu(uint32_t v)
+{
+  constexpr uint32_t ALPHA_MULT = JITTER_ALPHA * ANALOG_MULTIPLIER;
+  constexpr uint32_t ANAFILT_MAX = 2 * RESX * ALPHA_MULT;
+  constexpr uint32_t N = XPOTS_MULTIPOS_COUNT;
+  constexpr uint32_t COUNT = N - 1;
+
+  uint32_t pos = v * N / (ANAFILT_MAX + 1);
+  if (pos > COUNT) pos = COUNT;
+
+  return (pos < COUNT)
+    ? (pos * (ANAFILT_MAX + ALPHA_MULT)) / COUNT
+    : ANAFILT_MAX;
+}
+#endif
+
 void getADC()
 {
   auto max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
@@ -455,10 +473,14 @@ void getADC()
     s_anaFilt[x] = apply_low_pass_filter(v, s_anaFilt[x], x < max_mains);
 
     if (is_multipos) {
+#if defined(SIMU)
+      s_anaFilt[x] = apply_multipos_simu(s_anaFilt[x]);
+#else
       const auto* calib = (const StepsCalibData*)&g_eeGeneral.calib[x];
       if (IS_MULTIPOS_CALIBRATED(calib)) {
         s_anaFilt[x] = apply_multipos(calib, s_anaFilt[x]);
       }
+#endif
     }
 
 #if defined(JITTER_MEASURE)
