@@ -227,7 +227,7 @@ void GeneralSettings::init()
   backlightOffBright = IS_FAMILY_HORUS_OR_T16(board) ? 20 : 0;
 
   backgroundVolume = 1;
-  speakerVolume = 12;
+  speakerVolume = 0;
   wavVolume = 2;
 
   hatsMode = HATSMODE_SWITCHABLE;
