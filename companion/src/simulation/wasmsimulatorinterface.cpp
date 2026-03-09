@@ -163,22 +163,25 @@ bool WasmSimulatorInterface::loadModule()
     return false;
   }
 
-  // Set up WASI (filesystem access for SD card and settings)
+  // Set up WASI (filesystem access for SD card and settings).
+  // NOTE: wasm_runtime_set_wasi_args() only stores pointers; the actual WASI
+  // init happens inside wasm_runtime_instantiate(), so all buffers must remain
+  // alive until after instantiation completes.
   QByteArray sdPathUtf8 = m_sdPath.toUtf8();
   QByteArray settingsPathUtf8 = m_settingsPath.toUtf8();
-  {
-    const char * dirList[2] = {};
-    int nDirs = 0;
-    if (!m_sdPath.isEmpty()) {
-      dirList[nDirs++] = sdPathUtf8.constData();
-    }
-    if (!m_settingsPath.isEmpty() && m_settingsPath != m_sdPath) {
-      dirList[nDirs++] = settingsPathUtf8.constData();
-    }
-    if (nDirs > 0) {
-      wasm_runtime_set_wasi_args(m_module, dirList, nDirs, nullptr, 0,
-                                 nullptr, 0, nullptr, 0);
-    }
+  const char * dirList[2] = {};
+  int nDirs = 0;
+  if (!m_sdPath.isEmpty()) {
+    dirList[nDirs++] = sdPathUtf8.constData();
+  }
+  if (!m_settingsPath.isEmpty() && m_settingsPath != m_sdPath) {
+    dirList[nDirs++] = settingsPathUtf8.constData();
+  }
+  if (nDirs > 0) {
+    for (int i = 0; i < nDirs; ++i)
+      qDebug() << "WASI preopen[" << i << "]:" << dirList[i];
+    wasm_runtime_set_wasi_args(m_module, dirList, nDirs, nullptr, 0,
+                               nullptr, 0, nullptr, 0);
   }
 
   // Instantiate
