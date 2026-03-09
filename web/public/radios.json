@@ -1,0 +1,8 @@
+[
+  { "name": "TX16S", "wasm": "edgetx-tx16s-simulator.wasm" },
+  { "name": "X10 Express", "wasm": "edgetx-x10express-simulator.wasm" },
+  { "name": "T15", "wasm": "edgetx-t15-simulator.wasm" },
+  { "name": "X9D+ 2019", "wasm": "edgetx-x9d+2019-simulator.wasm" },
+  { "name": "X-Lite", "wasm": "edgetx-xlite-simulator.wasm" },
+  { "name": "Jumper T12", "wasm": "edgetx-t12-simulator.wasm" }
+]
