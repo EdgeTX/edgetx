@@ -679,8 +679,8 @@
                 <label>{input.label}</label>
                 <input
                   type="range"
-                  min="-1024"
-                  max="1024"
+                  min="0"
+                  max="4096"
                   value={analogValues[index]}
                   oninput={(e) => handlePotChange(index, e)}
                   orient="vertical"
@@ -829,8 +829,8 @@
                 <label>{input.label}</label>
                 <input
                   type="range"
-                  min="-1024"
-                  max="1024"
+                  min="0"
+                  max="4096"
                   value={analogValues[index]}
                   oninput={(e) => handlePotChange(index, e)}
                   orient="vertical"
