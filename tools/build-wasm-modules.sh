@@ -117,7 +117,7 @@ execute_with_output() {
 }
 
 clean_build() {
-    rm -f CMakeCache.txt native/CMakeCache.txt
+    rm -f CMakeCache.txt native/CMakeCache.txt wasm/CMakeCache.txt
 }
 
 # Enhanced plugin builder with better error handling
@@ -146,9 +146,9 @@ build_plugin() {
         return 1
     fi
 
-    if [[ -f "wasm/edgetx-${plugin}-simulator.wasm" ]]; then
-      cp "wasm/edgetx-${plugin}-simulator.wasm" "${OUTDIR}/" 2>/dev/null
-    fi
+    # FLAVOUR may differ from target name (e.g. x9dp2019 -> x9d+2019),
+    # so copy whatever .wasm was produced.
+    cp wasm/edgetx-*-simulator.wasm "${OUTDIR}/" 2>/dev/null
     
     # Check for warnings and show summary if found
     if grep -q -i "warning" "$log_file"; then
@@ -172,17 +172,17 @@ if [[ -n "$FLAVOR" ]]; then
     done
 else
     declare -a plugins=(
-        # monochrom
+        # monochrome
         boxer bumblebee commando8
         gx12 mt12 pocket t12max
         t14 t20 t20v2 tpros tprov2
-        tx12mk2 zorro v14
+        tx12mk2 zorro v12 v14
         x7access x9dp2019 x9e
         # colour
-        el18 nv14 st16 pa01
+        el18 nb4p nv14 st16 pa01
         pl18 pl18ev pl18u
-        t15 t16 t18
-        tx15 tx16s f16 v16
+        t15 t15pro t16 t18
+        tx15 tx16s tx16smk3 f16 v16
         x10 x10express x12s
     )
 fi
