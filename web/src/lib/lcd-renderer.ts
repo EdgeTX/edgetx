@@ -24,7 +24,9 @@ export function renderRgb565(
   ctx.putImageData(img, 0, 0);
 }
 
-/** Render a 4-bit grayscale LCD framebuffer. */
+/** Render a 4-bit grayscale LCD framebuffer.
+ *  Firmware layout: byte at (y>>1)*width+x, even y = low nibble, odd y = high nibble.
+ *  Grayscale: 0 = white, 0xF = black. */
 export function render4bit(
   ctx: CanvasRenderingContext2D,
   data: Uint8Array,
@@ -36,9 +38,9 @@ export function render4bit(
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const byteIdx = (y * width + x) >> 1;
-      const nibble = x & 1 ? (data[byteIdx] >> 4) & 0x0f : data[byteIdx] & 0x0f;
-      const gray = nibble * 17; // 0-15 -> 0-255
+      const byteIdx = (y >> 1) * width + x;
+      const nibble = (y & 1) ? (data[byteIdx] >> 4) & 0x0f : data[byteIdx] & 0x0f;
+      const gray = 255 - nibble * 17; // 0xF=black(0), 0=white(255)
       const j = (y * width + x) * 4;
       pixels[j] = gray;
       pixels[j + 1] = gray;
@@ -50,7 +52,8 @@ export function render4bit(
   ctx.putImageData(img, 0, 0);
 }
 
-/** Render a 1-bit monochrome LCD framebuffer (column-major, 8 rows per byte). */
+/** Render a 1-bit monochrome LCD framebuffer.
+ *  Firmware layout: row-major, byte at (y>>3)*width+x, bit (y&7). Set bit = black. */
 export function render1bit(
   ctx: CanvasRenderingContext2D,
   data: Uint8Array,
@@ -62,9 +65,9 @@ export function render1bit(
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const byteIdx = x * ((height + 7) >> 3) + (y >> 3);
+      const byteIdx = (y >> 3) * width + x;
       const bit = (data[byteIdx] >> (y & 7)) & 1;
-      const color = bit ? 0 : 255; // 1 = black pixel on white background
+      const color = bit ? 0 : 255; // set bit = black pixel on white background
       const j = (y * width + x) * 4;
       pixels[j] = color;
       pixels[j + 1] = color;

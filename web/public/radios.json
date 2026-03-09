@@ -1,8 +1,195 @@
 [
-  { "name": "TX16S", "wasm": "edgetx-tx16s-simulator.wasm" },
-  { "name": "X10 Express", "wasm": "edgetx-x10express-simulator.wasm" },
-  { "name": "T15", "wasm": "edgetx-t15-simulator.wasm" },
-  { "name": "X9D+ 2019", "wasm": "edgetx-x9d+2019-simulator.wasm" },
-  { "name": "X-Lite", "wasm": "edgetx-xlite-simulator.wasm" },
-  { "name": "Jumper T12", "wasm": "edgetx-t12-simulator.wasm" }
+  {
+    "name": "TX16S",
+    "wasm": "edgetx-tx16s-simulator.wasm",
+    "inputs": [
+      { "name": "LH", "type": "STICK", "label": "LH" },
+      { "name": "LV", "type": "STICK", "label": "LV" },
+      { "name": "RV", "type": "STICK", "label": "RV" },
+      { "name": "RH", "type": "STICK", "label": "RH" },
+      { "name": "P1", "type": "FLEX", "label": "S1", "default": "POT_CENTER" },
+      { "name": "P2", "type": "FLEX", "label": "6POS", "default": "MULTIPOS" },
+      { "name": "P3", "type": "FLEX", "label": "S2", "default": "POT_CENTER" },
+      { "name": "SL1", "type": "FLEX", "label": "LS", "default": "SLIDER" },
+      { "name": "SL2", "type": "FLEX", "label": "RS", "default": "SLIDER" },
+      { "name": "EXT1", "type": "FLEX", "label": "EXT1" },
+      { "name": "EXT2", "type": "FLEX", "label": "EXT2" },
+      { "name": "EXT3", "type": "FLEX", "label": "EXT3" },
+      { "name": "EXT4", "type": "FLEX", "label": "EXT4" }
+    ],
+    "switches": [
+      { "name": "SA", "type": "3POS", "default": "3POS" },
+      { "name": "SB", "type": "3POS", "default": "3POS" },
+      { "name": "SC", "type": "3POS", "default": "3POS" },
+      { "name": "SD", "type": "3POS", "default": "3POS" },
+      { "name": "SE", "type": "3POS", "default": "3POS" },
+      { "name": "SF", "type": "2POS", "default": "2POS" },
+      { "name": "SG", "type": "3POS", "default": "3POS" },
+      { "name": "SH", "type": "2POS", "default": "TOGGLE" },
+      { "name": "SI", "type": "2POS", "default": "NONE" },
+      { "name": "SJ", "type": "2POS", "default": "NONE" }
+    ],
+    "trims": [
+      { "name": "T1" },
+      { "name": "T2" },
+      { "name": "T3" },
+      { "name": "T4" },
+      { "name": "T5" },
+      { "name": "T6" }
+    ]
+  },
+  {
+    "name": "X10 Express",
+    "wasm": "edgetx-x10express-simulator.wasm",
+    "inputs": [
+      { "name": "LH", "type": "STICK", "label": "LH" },
+      { "name": "LV", "type": "STICK", "label": "LV" },
+      { "name": "RV", "type": "STICK", "label": "RV" },
+      { "name": "RH", "type": "STICK", "label": "RH" },
+      { "name": "P1", "type": "FLEX", "label": "S1", "default": "POT" },
+      { "name": "P2", "type": "FLEX", "label": "6POS", "default": "MULTIPOS" },
+      { "name": "P3", "type": "FLEX", "label": "S2", "default": "POT_CENTER" },
+      { "name": "SL1", "type": "FLEX", "label": "LS", "default": "SLIDER" },
+      { "name": "SL2", "type": "FLEX", "label": "RS", "default": "SLIDER" },
+      { "name": "EXT1", "type": "FLEX", "label": "EXT1" },
+      { "name": "EXT2", "type": "FLEX", "label": "EXT2" },
+      { "name": "EXT3", "type": "FLEX", "label": "EXT3" },
+      { "name": "EXT4", "type": "FLEX", "label": "EXT4" }
+    ],
+    "switches": [
+      { "name": "SA", "type": "3POS", "default": "3POS" },
+      { "name": "SB", "type": "3POS", "default": "3POS" },
+      { "name": "SC", "type": "3POS", "default": "3POS" },
+      { "name": "SD", "type": "3POS", "default": "3POS" },
+      { "name": "SE", "type": "3POS", "default": "3POS" },
+      { "name": "SF", "type": "2POS", "default": "2POS" },
+      { "name": "SG", "type": "3POS", "default": "3POS" },
+      { "name": "SH", "type": "2POS", "default": "TOGGLE" },
+      { "name": "SI", "type": "2POS", "default": "NONE" },
+      { "name": "SJ", "type": "2POS", "default": "NONE" }
+    ],
+    "trims": [
+      { "name": "T1" },
+      { "name": "T2" },
+      { "name": "T3" },
+      { "name": "T4" },
+      { "name": "T5" },
+      { "name": "T6" }
+    ]
+  },
+  {
+    "name": "T15",
+    "wasm": "edgetx-t15-simulator.wasm",
+    "inputs": [
+      { "name": "LH", "type": "STICK", "label": "LH" },
+      { "name": "LV", "type": "STICK", "label": "LV" },
+      { "name": "RV", "type": "STICK", "label": "RV" },
+      { "name": "RH", "type": "STICK", "label": "RH" },
+      { "name": "P1", "type": "FLEX", "label": "S1", "default": "POT_CENTER" },
+      { "name": "P2", "type": "FLEX", "label": "S2", "default": "POT_CENTER" }
+    ],
+    "switches": [
+      { "name": "SA", "type": "3POS", "default": "3POS" },
+      { "name": "SB", "type": "3POS", "default": "3POS" },
+      { "name": "SC", "type": "3POS", "default": "3POS" },
+      { "name": "SD", "type": "3POS", "default": "3POS" },
+      { "name": "SE", "type": "2POS", "default": "2POS" },
+      { "name": "SF", "type": "2POS", "default": "2POS" },
+      { "name": "SW1", "type": "2POS", "default": "2POS" },
+      { "name": "SW2", "type": "2POS", "default": "2POS" },
+      { "name": "SW3", "type": "2POS", "default": "2POS" },
+      { "name": "SW4", "type": "2POS", "default": "2POS" },
+      { "name": "SW5", "type": "2POS", "default": "2POS" },
+      { "name": "SW6", "type": "2POS", "default": "2POS" }
+    ],
+    "trims": [
+      { "name": "T1" },
+      { "name": "T2" },
+      { "name": "T3" },
+      { "name": "T4" }
+    ]
+  },
+  {
+    "name": "X9D+ 2019",
+    "wasm": "edgetx-x9d+2019-simulator.wasm",
+    "inputs": [
+      { "name": "LH", "type": "STICK", "label": "LH" },
+      { "name": "LV", "type": "STICK", "label": "LV" },
+      { "name": "RV", "type": "STICK", "label": "RV" },
+      { "name": "RH", "type": "STICK", "label": "RH" },
+      { "name": "P1", "type": "FLEX", "label": "S1", "default": "POT_CENTER" },
+      { "name": "P2", "type": "FLEX", "label": "S2", "default": "POT_CENTER" },
+      { "name": "SL1", "type": "FLEX", "label": "LS", "default": "SLIDER" },
+      { "name": "SL2", "type": "FLEX", "label": "RS", "default": "SLIDER" }
+    ],
+    "switches": [
+      { "name": "SA", "type": "3POS", "default": "3POS" },
+      { "name": "SB", "type": "3POS", "default": "3POS" },
+      { "name": "SC", "type": "3POS", "default": "3POS" },
+      { "name": "SD", "type": "3POS", "default": "3POS" },
+      { "name": "SE", "type": "3POS", "default": "3POS" },
+      { "name": "SF", "type": "2POS", "default": "2POS" },
+      { "name": "SG", "type": "3POS", "default": "3POS" },
+      { "name": "SH", "type": "2POS", "default": "TOGGLE" },
+      { "name": "SI", "type": "2POS", "default": "TOGGLE" }
+    ],
+    "trims": [
+      { "name": "T1" },
+      { "name": "T2" },
+      { "name": "T3" },
+      { "name": "T4" }
+    ]
+  },
+  {
+    "name": "X-Lite",
+    "wasm": "edgetx-xlite-simulator.wasm",
+    "inputs": [
+      { "name": "LH", "type": "STICK", "label": "LH" },
+      { "name": "LV", "type": "STICK", "label": "LV" },
+      { "name": "RV", "type": "STICK", "label": "RV" },
+      { "name": "RH", "type": "STICK", "label": "RH" },
+      { "name": "P1", "type": "FLEX", "label": "S1", "default": "POT" },
+      { "name": "P2", "type": "FLEX", "label": "S2", "default": "POT" }
+    ],
+    "switches": [
+      { "name": "SA", "type": "3POS", "default": "3POS" },
+      { "name": "SB", "type": "3POS", "default": "2POS" },
+      { "name": "SC", "type": "3POS", "default": "3POS" },
+      { "name": "SD", "type": "3POS", "default": "2POS" }
+    ],
+    "trims": [
+      { "name": "T1" },
+      { "name": "T2" },
+      { "name": "T3" },
+      { "name": "T4" }
+    ]
+  },
+  {
+    "name": "Jumper T12",
+    "wasm": "edgetx-t12-simulator.wasm",
+    "inputs": [
+      { "name": "LH", "type": "STICK", "label": "LH" },
+      { "name": "LV", "type": "STICK", "label": "LV" },
+      { "name": "RV", "type": "STICK", "label": "RV" },
+      { "name": "RH", "type": "STICK", "label": "RH" },
+      { "name": "P1", "type": "FLEX", "label": "S1", "default": "POT" },
+      { "name": "P2", "type": "FLEX", "label": "S2", "default": "POT" }
+    ],
+    "switches": [
+      { "name": "SA", "type": "3POS", "default": "3POS" },
+      { "name": "SB", "type": "3POS", "default": "3POS" },
+      { "name": "SC", "type": "3POS", "default": "3POS" },
+      { "name": "SD", "type": "3POS", "default": "3POS" },
+      { "name": "SG", "type": "2POS", "default": "2POS" },
+      { "name": "SH", "type": "2POS", "default": "2POS" },
+      { "name": "SI", "type": "2POS", "default": "NONE" },
+      { "name": "SJ", "type": "2POS", "default": "NONE" }
+    ],
+    "trims": [
+      { "name": "T1" },
+      { "name": "T2" },
+      { "name": "T3" },
+      { "name": "T4" }
+    ]
+  }
 ]
