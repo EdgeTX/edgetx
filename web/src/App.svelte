@@ -21,6 +21,22 @@
     name: string;
   }
 
+  interface KeyDef {
+    key: string;   // e.g. "KEY_EXIT"
+    label: string; // display label
+    side: 'L' | 'R';
+  }
+
+  // EnumKeys indices from hal/key_driver.h
+  const KEY_INDEX: Record<string, number> = {
+    KEY_MENU: 0, KEY_EXIT: 1, KEY_ENTER: 2,
+    KEY_PAGEUP: 3, KEY_PAGEDN: 4,
+    KEY_UP: 5, KEY_DOWN: 6, KEY_LEFT: 7, KEY_RIGHT: 8,
+    KEY_PLUS: 9, KEY_MINUS: 10,
+    KEY_MODEL: 11, KEY_TELE: 12, KEY_SYS: 13,
+    KEY_SHIFT: 14, KEY_BIND: 15,
+  };
+
   interface RadioEntry {
     name: string;
     wasm: string;
@@ -28,6 +44,7 @@
     inputs?: InputDef[];
     switches?: SwitchDef[];
     trims?: TrimDef[];
+    keys?: KeyDef[];
   }
 
   let canvas: HTMLCanvasElement;
@@ -684,6 +701,25 @@
     return 50 - fromAdc(analogValues[idx]) * 50;
   }
 
+  // --- Key handling ---
+  function keyDown(keyName: string) {
+    const idx = KEY_INDEX[keyName];
+    if (idx !== undefined) runner?.exports?.simuSetKey(idx, 1);
+  }
+
+  function keyUp(keyName: string) {
+    const idx = KEY_INDEX[keyName];
+    if (idx !== undefined) runner?.exports?.simuSetKey(idx, 0);
+  }
+
+  function getLeftKeys(): KeyDef[] {
+    return (currentRadio?.keys ?? []).filter(k => k.side === 'L');
+  }
+
+  function getRightKeys(): KeyDef[] {
+    return (currentRadio?.keys ?? []).filter(k => k.side === 'R');
+  }
+
   // --- Switch handling ---
   function toggleSwitch(index: number) {
     const sw = currentRadio?.switches?.[index];
@@ -848,18 +884,46 @@
   </div>
 
   <div class="radio-body">
-    <!-- LCD Screen -->
+    <!-- LCD Screen with keys on either side -->
     <div class="lcd-area">
+      {#if currentRadio?.keys?.length}
+        <div class="key-column">
+          {#each getLeftKeys() as keyDef}
+            <button
+              class="hw-key"
+              onmousedown={() => keyDown(keyDef.key)}
+              onmouseup={() => keyUp(keyDef.key)}
+              onmouseleave={() => keyUp(keyDef.key)}
+              ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
+              ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
+            >{keyDef.label}</button>
+          {/each}
+        </div>
+      {/if}
       <canvas
         bind:this={canvas}
         class="lcd"
-        style:width="{Math.max(lcdWidth, 320)}px"
+        style:width="{Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320)}px"
         style:aspect-ratio="{lcdWidth} / {lcdHeight}"
         onmousedown={handleCanvasClick}
         onmouseup={handleCanvasClick}
         onmousemove={handleCanvasClick}
         onwheel={handleWheel}
       ></canvas>
+      {#if currentRadio?.keys?.length}
+        <div class="key-column">
+          {#each getRightKeys() as keyDef}
+            <button
+              class="hw-key"
+              onmousedown={() => keyDown(keyDef.key)}
+              onmouseup={() => keyUp(keyDef.key)}
+              onmouseleave={() => keyUp(keyDef.key)}
+              ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
+              ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
+            >{keyDef.label}</button>
+          {/each}
+        </div>
+      {/if}
     </div>
 
     {#if loaded && currentRadio}
@@ -1231,6 +1295,8 @@
   .lcd-area {
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 0.75rem;
   }
 
@@ -1242,6 +1308,32 @@
     border-radius: 4px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     max-width: 100%;
+  }
+
+  .key-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .hw-key {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: #2a2a2a;
+    color: #ccc;
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 3.5rem;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .hw-key:active {
+    background: #555;
+    border-color: #888;
   }
 
   /* Pots row */
