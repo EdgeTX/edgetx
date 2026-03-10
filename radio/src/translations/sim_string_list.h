@@ -252,7 +252,6 @@
 #define STR_PHASES_HEADERS currentLangStrings->STR_PHASES_HEADERS
 #endif
 
-#define STR_ONE_LOG_PER_DAY currentLangStrings->STR_ONE_LOG_PER_DAY
 #define STR_AXISDIR currentLangStrings->STR_AXISDIR
 #define STR_MENUAXISDIR currentLangStrings->STR_MENUAXISDIR
 #define STR_MENUTOSTART currentLangStrings->STR_MENUTOSTART
@@ -1156,3 +1155,4 @@
 #define STR_VUNITSSYSTEM currentLangStrings->STR_VUNITSSYSTEM
 #define STR_VVARIOCENTER currentLangStrings->STR_VVARIOCENTER
 #define STR_XJT_ACCST_RF_PROTOCOLS currentLangStrings->STR_XJT_ACCST_RF_PROTOCOLS
+#define STR_ONE_LOG_PER_DAY currentLangStrings->STR_ONE_LOG_PER_DAY
