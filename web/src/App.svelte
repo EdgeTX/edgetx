@@ -492,23 +492,34 @@
     ex.simuLcdFlushed();
   }
 
-  function handleCanvasClick(e: MouseEvent) {
-    const ex = runner?.exports;
-    if (!ex || !running || !canvas) return;
-
+  function canvasToLcd(e: MouseEvent): { x: number; y: number } {
     const rect = canvas.getBoundingClientRect();
     const scaleX = lcdWidth / rect.width;
     const scaleY = lcdHeight / rect.height;
-    const x = Math.round((e.clientX - rect.left) * scaleX);
-    const y = Math.round((e.clientY - rect.top) * scaleY);
+    return {
+      x: Math.round((e.clientX - rect.left) * scaleX),
+      y: Math.round((e.clientY - rect.top) * scaleY),
+    };
+  }
 
-    if (e.type === 'mousedown') {
-      ex.simuTouchDown(x, y);
-    } else if (e.type === 'mouseup') {
+  function handleCanvasMouseDown(e: MouseEvent) {
+    const ex = runner?.exports;
+    if (!ex || !running || !canvas) return;
+
+    const { x, y } = canvasToLcd(e);
+    ex.simuTouchDown(x, y);
+
+    const onMove = (ev: MouseEvent) => {
+      const pos = canvasToLcd(ev);
+      ex.simuTouchDown(pos.x, pos.y);
+    };
+    const onUp = () => {
       ex.simuTouchUp();
-    } else if (e.type === 'mousemove' && e.buttons === 1) {
-      ex.simuTouchDown(x, y);
-    }
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
   }
 
   let lastWheelTime = 0;
@@ -933,9 +944,7 @@
         style:aspect-ratio="{lcdWidth} / {lcdHeight}"
         style:border-color="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#111'}"
         style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
-        onmousedown={handleCanvasClick}
-        onmouseup={handleCanvasClick}
-        onmousemove={handleCanvasClick}
+        onmousedown={handleCanvasMouseDown}
         onwheel={handleWheel}
       ></canvas>
       {#if currentRadio?.keys?.length}
