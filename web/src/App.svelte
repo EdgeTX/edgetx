@@ -2,7 +2,7 @@
   import { onDestroy } from 'svelte';
   import { WasmRunner } from './lib/wasm-runner';
   import { PersistentFS } from './lib/persistent-fs';
-  import { renderRgb565, render4bit, render1bit } from './lib/lcd-renderer';
+  import { renderRgb565, render4bit, render1bit, dotMatrixSize } from './lib/lcd-renderer';
 
   interface InputDef {
     name: string;
@@ -345,8 +345,14 @@
     status = 'Running';
 
     if (canvas) {
-      canvas.width = lcdWidth;
-      canvas.height = lcdHeight;
+      if (lcdDepth > 0 && lcdDepth < 16) {
+        const dm = dotMatrixSize(lcdWidth, lcdHeight);
+        canvas.width = dm.w;
+        canvas.height = dm.h;
+      } else {
+        canvas.width = lcdWidth;
+        canvas.height = lcdHeight;
+      }
     }
 
     pollTimer = window.setInterval(pollLcd, 33);
