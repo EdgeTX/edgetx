@@ -46,7 +46,11 @@ const handler = new ThreadMessageHandler({
       env: {
         memory: wasmMemory,
         simuGetAnalog: (idx: number): number => analogValues?.[idx] ?? 0,
-        simuQueueAudio: (_buf: number, _len: number): void => {},
+        simuQueueAudio: (buf: number, len: number): void => {
+          const samples = new Int16Array(wasmMemory.buffer, buf, len / 2);
+          // Copy and relay to main thread for playback
+          postMessage({ type: 'audio', samples: new Int16Array(samples) });
+        },
         simuTrace: (_ptr: number): void => {},
       },
       wasi_snapshot_preview1: wasi.wasiImport,
