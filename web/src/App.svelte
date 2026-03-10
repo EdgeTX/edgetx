@@ -125,7 +125,9 @@
   function initControls() {
     if (!currentRadio) return;
     const inputs = currentRadio.inputs ?? [];
-    analogValues = new Array(inputs.length).fill(2048); // center ADC value
+    analogValues = inputs.map((input) =>
+      input.default === 'MULTIPOS' ? 0 : 2048 // MULTIPOS starts at pos 0; others at center
+    );
 
     const switches = currentRadio.switches ?? [];
     switchStates = switches.map(() => -1); // all up by default
@@ -243,6 +245,11 @@
 
       initControls();
 
+      // Prime the SharedArrayBuffer with initial analog values
+      for (let i = 0; i < analogValues.length; i++) {
+        runner.setAnalog(i, analogValues[i]);
+      }
+
       loaded = true;
       loading = false;
       status = `${radio?.name}: LCD ${lcdWidth}\u00d7${lcdHeight} ${lcdDepth}bpp`;
@@ -349,6 +356,12 @@
       onTrace(`[persist] save error: ${e}\n`);
     }
     saving = false;
+
+    // Tear down the old WASM instance and reload so Start works again.
+    // Chrome caches compiled WASM, so subsequent loads are near-instant.
+    runner = null;
+    loaded = false;
+    await loadSelected();
     status = 'Stopped (SD card saved)';
   }
 
@@ -739,7 +752,7 @@
         <div class="pots-row">
           {#each getPots() as { input, index }}
             <div class="pot-control">
-              <label>{input.label}</label>
+              <span class="control-label">{input.label}</span>
               <input
                 type="range"
                 min="0"
@@ -753,7 +766,7 @@
           {/each}
           {#each getMultipos() as { input, index }}
             <div class="multipos-control">
-              <label>{input.label}</label>
+              <span class="control-label">{input.label}</span>
               <div class="multipos-buttons">
                 {#each [0, 1, 2, 3, 4, 5] as pos}
                   <button
@@ -791,7 +804,7 @@
           <div class="slider-column">
             {#each getSliders().slice(0, 1) as { input, index }}
               <div class="slider-control">
-                <label>{input.label}</label>
+                <span class="control-label">{input.label}</span>
                 <input
                   type="range"
                   min="0"
@@ -941,7 +954,7 @@
           <div class="slider-column">
             {#each getSliders().slice(1, 2) as { input, index }}
               <div class="slider-control">
-                <label>{input.label}</label>
+                <span class="control-label">{input.label}</span>
                 <input
                   type="range"
                   min="0"
@@ -1132,7 +1145,7 @@
     gap: 0.25rem;
   }
 
-  .pot-control label {
+  .pot-control .control-label {
     font-size: 0.75rem;
     color: #aaa;
     text-transform: uppercase;
@@ -1157,7 +1170,7 @@
     gap: 0.25rem;
   }
 
-  .multipos-control label {
+  .multipos-control .control-label {
     font-size: 0.75rem;
     color: #aaa;
     text-transform: uppercase;
@@ -1263,7 +1276,7 @@
     gap: 0.25rem;
   }
 
-  .slider-control label {
+  .slider-control .control-label {
     font-size: 0.7rem;
     color: #aaa;
     text-transform: uppercase;
