@@ -54,6 +54,8 @@
   // Audio playback via Web Audio API
   let audioCtx: AudioContext | null = null;
   const AUDIO_SAMPLE_RATE = 32000;
+  let audioNextTime = 0; // scheduled playback cursor
+  const AUDIO_LATENCY = 0.05; // 50ms latency buffer
 
   // --- Control state ---
   // Analog inputs: indexed by position in the inputs array
@@ -194,10 +196,18 @@
     for (let i = 0; i < samples.length; i++) {
       chan[i] = samples[i] / 32768;
     }
+
+    const now = audioCtx.currentTime;
+    // If we've fallen behind or haven't started, reset the cursor
+    if (audioNextTime < now) {
+      audioNextTime = now + AUDIO_LATENCY;
+    }
+
     const src = audioCtx.createBufferSource();
     src.buffer = buf;
     src.connect(audioCtx.destination);
-    src.start();
+    src.start(audioNextTime);
+    audioNextTime += samples.length / AUDIO_SAMPLE_RATE;
   }
 
   async function loadSelected() {
@@ -268,6 +278,7 @@
     if (audioCtx.state === 'suspended') {
       await audioCtx.resume();
     }
+    audioNextTime = 0; // reset scheduling cursor
 
     const ex = runner.exports;
 
