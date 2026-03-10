@@ -112,9 +112,9 @@ export class WasmRunner {
 
     const wasiFs = fs ?? createFsFromVolume(Volume.fromJSON({ '/': null })) as any;
     this.fsProxyHost = new FsProxyHost(wasiFs);
-    // Enable with: runner.fsTrace = true  (or set window.fsTrace = true in console)
+    // Enable with: fsTrace = true in browser console (logs to console, not trace window)
     this.fsProxyHost.onTrace = (msg) => {
-      if (this.fsTrace || (globalThis as any).fsTrace) this.onTrace(msg);
+      if (this.fsTrace || (globalThis as any).fsTrace) console.log(msg.trimEnd());
     };
 
     const wasi = new WASI({
