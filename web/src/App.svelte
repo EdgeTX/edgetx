@@ -3,6 +3,7 @@
   import { WasmRunner } from './lib/wasm-runner';
   import { PersistentFS } from './lib/persistent-fs';
   import { LcdRenderer } from './lib/lcd-renderer';
+  import edgetxLogo from './assets/edgetx-logo.svg';
 
   interface InputDef {
     name: string;
@@ -66,7 +67,7 @@
   let saving = $state(false);
   let lcdWidth = $state(480);
   let lcdHeight = $state(272);
-  let lcdDepth = 0;
+  let lcdDepth = $state(0);
   let lcdSize = 0;
 
   // Stick mode: 0=Mode1(thr=RV), 1=Mode2(thr=LV), 2=Mode3(thr=RV), 3=Mode4(thr=LV)
@@ -476,7 +477,7 @@
         if (on) {
           const rgb = ex.simuGetCustomSwitchColor(i);
           const r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = rgb & 0xff;
-          customSwitchColors[i] = (r || g || b) ? `rgb(${r},${g},${b})` : '#4caf50';
+          customSwitchColors[i] = (r || g || b) ? `rgb(${r},${g},${b})` : '#38bff9';
         } else {
           customSwitchColors[i] = '';
         }
@@ -887,7 +888,10 @@
 
 <main>
   <div class="header">
-    <h1>EdgeTX Simulator</h1>
+    <div class="logo-title">
+      <img src={edgetxLogo} alt="EdgeTX" class="logo" />
+      <span class="subtitle">Simulator</span>
+    </div>
     <div class="toolbar">
       <select
         bind:value={selectedRadio}
@@ -937,16 +941,17 @@
           {/each}
         </div>
       {/if}
-      <canvas
-        bind:this={canvas}
-        class="lcd"
-        style:width="{Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320)}px"
-        style:aspect-ratio="{lcdWidth} / {lcdHeight}"
-        style:border-color="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#111'}"
-        style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
-        onmousedown={handleCanvasMouseDown}
-        onwheel={handleWheel}
-      ></canvas>
+      <div class="lcd-bezel">
+        <canvas
+          bind:this={canvas}
+          class="lcd"
+          style:width="{Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320)}px"
+          style:aspect-ratio="{lcdWidth} / {lcdHeight}"
+          style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
+          onmousedown={handleCanvasMouseDown}
+          onwheel={handleWheel}
+        ></canvas>
+      </div>
       {#if currentRadio?.keys?.length}
         <div class="key-column">
           {#each getRightKeys() as keyDef}
@@ -1006,6 +1011,7 @@
               <button
                 class="custom-switch-btn"
                 class:active={switchStates[index] === 1}
+                aria-label={sw.name}
                 style:background={customSwitchColors[csIdx] || ''}
                 style:border-color={customSwitchColors[csIdx] || ''}
                 style:box-shadow={customSwitchColors[csIdx] ? `0 0 8px ${customSwitchColors[csIdx]}` : ''}
@@ -1278,10 +1284,22 @@
     margin-bottom: 0.5rem;
   }
 
-  h1 {
+  .logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .logo {
+    height: 1.6rem;
+  }
+
+  .subtitle {
     font-size: 1.2rem;
-    margin: 0 0 0.5rem;
-    color: #4caf50;
+    color: #888;
+    font-weight: 300;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
@@ -1360,13 +1378,24 @@
     margin-bottom: 0.75rem;
   }
 
+  .lcd-bezel {
+    display: inline-block;
+    padding: 6px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 40%, #222 100%);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.8),
+      inset 0 -1px 2px rgba(255, 255, 255, 0.05),
+      0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
   .lcd {
-    border: 3px solid #111;
+    display: block;
     background: #000;
     image-rendering: pixelated;
     cursor: crosshair;
     border-radius: 4px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+    border: none;
     max-width: 100%;
   }
 
@@ -1422,7 +1451,7 @@
 
   .pot-knob {
     width: 80px;
-    accent-color: #4caf50;
+    accent-color: #38bff9;
   }
 
   .pot-value {
@@ -1460,9 +1489,9 @@
   }
 
   .multipos-btn.active {
-    background: #4caf50;
+    background: #38bff9;
     color: #000;
-    border-color: #4caf50;
+    border-color: #38bff9;
   }
 
   /* Custom switches (push buttons with LED) */
@@ -1495,9 +1524,9 @@
 
   .custom-switch-btn:active,
   .custom-switch-btn.active {
-    background: #4caf50;
-    border-color: #4caf50;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    background: #38bff9;
+    border-color: #38bff9;
+    box-shadow: 0 0 8px rgba(56, 191, 249, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.2);
     transform: scale(0.95);
   }
 
@@ -1554,8 +1583,8 @@
   }
 
   .switch-btn.sw-up {
-    background: linear-gradient(180deg, #4caf50 0%, #388e3c 100%);
-    border-color: #4caf50;
+    background: linear-gradient(180deg, #38bff9 0%, #0e96df 100%);
+    border-color: #38bff9;
     color: #fff;
   }
 
@@ -1598,7 +1627,7 @@
     direction: rtl;
     height: 120px;
     width: 20px;
-    accent-color: #4caf50;
+    accent-color: #38bff9;
   }
 
   /* Gimbal */
@@ -1641,7 +1670,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: rgba(76, 175, 80, 0.25);
+    background: rgba(56, 191, 249, 0.25);
     pointer-events: none;
   }
 
@@ -1650,7 +1679,7 @@
     top: 0;
     bottom: 0;
     width: 1px;
-    background: rgba(76, 175, 80, 0.25);
+    background: rgba(56, 191, 249, 0.25);
     pointer-events: none;
   }
 
@@ -1659,7 +1688,7 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: radial-gradient(circle at 40% 40%, #6fbf73 0%, #4caf50 60%, #2e7d32 100%);
+    background: radial-gradient(circle at 40% 40%, #5bcfff 0%, #38bff9 60%, #3b56c8 100%);
     border: 2px solid #81c784;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -1694,7 +1723,7 @@
   }
 
   .trim-btn:active {
-    background: #4caf50;
+    background: #38bff9;
     color: #000;
   }
 
