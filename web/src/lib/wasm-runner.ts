@@ -32,6 +32,10 @@ export interface SimulatorExports {
 
   simuGetCapability: (cap: number) => number;
   simuAudioGetVolume: () => number;
+
+  simuGetNumCustomSwitches: () => number;
+  simuGetCustomSwitchState: (idx: number) => number;
+  simuGetCustomSwitchColor: (idx: number) => number;
 }
 
 export type TraceCallback = (text: string) => void;

@@ -83,6 +83,8 @@
   let analogValues = $state<number[]>([]);
   // Switch states: indexed by position in switches array. -1=up, 0=mid, 1=down
   let switchStates = $state<number[]>([]);
+  // Custom switch LED colors: indexed by custom switch index (0-based), CSS color strings
+  let customSwitchColors = $state<string[]>([]);
 
   // Gimbal drag state
   let leftGimbalEl = $state<HTMLDivElement>(undefined!);
@@ -104,11 +106,22 @@
     return { lh, lv, rv, rh };
   }
 
+  function isCustomSwitch(sw: SwitchDef): boolean {
+    return sw.name.startsWith('SW');
+  }
+
   function getVisibleSwitches(): { sw: SwitchDef; index: number }[] {
     const switches = currentRadio?.switches ?? [];
     return switches
       .map((sw, index) => ({ sw, index }))
-      .filter(({ sw }) => sw.default !== 'NONE');
+      .filter(({ sw }) => sw.default !== 'NONE' && !isCustomSwitch(sw));
+  }
+
+  function getCustomSwitches(): { sw: SwitchDef; index: number }[] {
+    const switches = currentRadio?.switches ?? [];
+    return switches
+      .map((sw, index) => ({ sw, index }))
+      .filter(({ sw }) => sw.default !== 'NONE' && isCustomSwitch(sw));
   }
 
   function getLeftSwitches(): { sw: SwitchDef; index: number }[] {
@@ -454,6 +467,21 @@
   function pollLcd() {
     const ex = runner?.exports;
     if (!ex || !lcdRenderer) return;
+
+    // Poll custom switch LED colors
+    const numCs = ex.simuGetNumCustomSwitches();
+    if (numCs > 0) {
+      for (let i = 0; i < numCs; i++) {
+        const on = ex.simuGetCustomSwitchState(i);
+        if (on) {
+          const rgb = ex.simuGetCustomSwitchColor(i);
+          const r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = rgb & 0xff;
+          customSwitchColors[i] = (r || g || b) ? `rgb(${r},${g},${b})` : '#4caf50';
+        } else {
+          customSwitchColors[i] = '';
+        }
+      }
+    }
 
     if (!ex.simuLcdChanged()) return;
 
@@ -961,6 +989,29 @@
         </div>
       {/if}
 
+      <!-- Custom switches (SW1-SW6 etc.) - momentary push buttons -->
+      {#if getCustomSwitches().length > 0}
+        <div class="custom-switches-row">
+          {#each getCustomSwitches() as { sw, index }, csIdx}
+            <div class="custom-switch">
+              <button
+                class="custom-switch-btn"
+                class:active={switchStates[index] === 1}
+                style:background={customSwitchColors[csIdx] || ''}
+                style:border-color={customSwitchColors[csIdx] || ''}
+                style:box-shadow={customSwitchColors[csIdx] ? `0 0 8px ${customSwitchColors[csIdx]}` : ''}
+                onmousedown={() => updateSwitch(index, 1)}
+                onmouseup={() => updateSwitch(index, -1)}
+                onmouseleave={() => { if (switchStates[index] === 1) updateSwitch(index, -1); }}
+                ontouchstart={(e) => { e.preventDefault(); updateSwitch(index, 1); }}
+                ontouchend={(e) => { e.preventDefault(); updateSwitch(index, -1); }}
+              ></button>
+              <span class="custom-switch-label">{sw.name}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+
       <!-- Main controls area: switches | gimbal | sliders | gimbal | switches -->
       <div class="controls-area">
         <!-- Left switches -->
@@ -1403,6 +1454,49 @@
     background: #4caf50;
     color: #000;
     border-color: #4caf50;
+  }
+
+  /* Custom switches (push buttons with LED) */
+  .custom-switches-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .custom-switch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .custom-switch-btn {
+    width: 36px;
+    height: 28px;
+    border-radius: 6px;
+    border: 3px solid #444;
+    background: #333;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .custom-switch-btn:active,
+  .custom-switch-btn.active {
+    background: #4caf50;
+    border-color: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95);
+  }
+
+  .custom-switch-label {
+    font-size: 0.6rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   /* Controls area */
