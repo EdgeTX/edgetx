@@ -415,6 +415,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
       }
   }
 
+  node["oneLogPerDay"] = (int)rhs.oneLogPerDay;
+
   return node;
 }
 
@@ -771,6 +773,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       }
     }
   }
+
+  node["oneLogPerDay"] >> rhs.oneLogPerDay;
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
