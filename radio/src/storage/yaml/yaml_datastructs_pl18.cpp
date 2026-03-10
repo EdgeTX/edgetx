@@ -454,7 +454,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "favMultiMode", 1 ),
   YAML_UNSIGNED( "modelSelectLayout", 2 ),
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "oneLogPerDay", 1 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
   YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),

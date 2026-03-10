@@ -568,6 +568,7 @@
 #define TR_BLOFFBRIGHTNESS             "Aus-Helligkeit"
 #define TR_KEYS_BACKLIGHT              "Tastenbeleucht."
 #define TR_BLCOLOR                     "Farbe"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                TR("Startbild Ein", "Startbild Anzeigedauer")
 #define TR_PLAY_HELLO                  "Startton abspielen"
 #define TR_PWR_ON_DELAY                TR("PWR EIN Verzög.", "Einschaltverzögerung")
