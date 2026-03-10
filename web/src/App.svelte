@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { WasmRunner } from './lib/wasm-runner';
+  import { PersistentFS } from './lib/persistent-fs';
   import { renderRgb565, render4bit, render1bit } from './lib/lcd-renderer';
 
   interface InputDef {
@@ -41,7 +42,10 @@
   let currentRadio = $state<RadioEntry | null>(null);
 
   let runner: WasmRunner | null = null;
+  let persistentFs: PersistentFS | null = null;
   let pollTimer: number | null = null;
+  let autoSaveTimer: number | null = null;
+  let saving = $state(false);
   let lcdWidth = $state(480);
   let lcdHeight = $state(272);
   let lcdDepth = 0;
@@ -208,7 +212,20 @@
       currentRadio = radio ?? null;
       status = `Loading ${radio?.name ?? selectedRadio}...`;
 
-      runner = new WasmRunner(onTrace, onAudio);
+      const radioKey = PersistentFS.radioKeyFromWasm(selectedRadio);
+      persistentFs = new PersistentFS(radioKey);
+      const hadData = await persistentFs.load();
+      if (hadData) {
+        const files = persistentFs.listFiles('/');
+        onTrace(`[persist] restored ${files.length} file(s) from OPFS for "${radioKey}"\n`);
+      } else {
+        onTrace(`[persist] no previous data for "${radioKey}"\n`);
+      }
+      status = hadData
+        ? `Loading ${radio?.name ?? selectedRadio} (restored SD card)...`
+        : `Loading ${radio?.name ?? selectedRadio}...`;
+
+      runner = new WasmRunner(onTrace, onAudio, persistentFs.fs);
       await runner.load(`./${selectedRadio}`);
 
       const ex = runner.exports!;
@@ -258,6 +275,7 @@
     }
 
     ex.simuInit();
+    runner.setFatfsPaths('/', '/');
     ex.simuStart(0);
     running = true;
     status = 'Running';
@@ -268,6 +286,13 @@
     }
 
     pollTimer = window.setInterval(pollLcd, 33);
+
+    // Auto-save every 30 seconds while running
+    autoSaveTimer = window.setInterval(async () => {
+      try {
+        await persistentFs?.save();
+      } catch { /* best effort */ }
+    }, 30_000);
   }
 
   function teardown() {
@@ -275,25 +300,77 @@
       clearInterval(pollTimer);
       pollTimer = null;
     }
+    if (autoSaveTimer !== null) {
+      clearInterval(autoSaveTimer);
+      autoSaveTimer = null;
+    }
     if (runner?.exports && running) {
-      runner.exports.simuStop();
+      try { runner.exports.simuStop(); } catch { /* expected */ }
     }
     runner = null;
+    persistentFs = null;
     running = false;
     loaded = false;
     currentRadio = null;
   }
 
-  function stopSimulator() {
+  async function stopSimulator() {
     if (pollTimer !== null) {
       clearInterval(pollTimer);
       pollTimer = null;
     }
+    if (autoSaveTimer !== null) {
+      clearInterval(autoSaveTimer);
+      autoSaveTimer = null;
+    }
     if (runner?.exports) {
-      runner.exports.simuStop();
+      try {
+        runner.exports.simuStop();
+      } catch {
+        // simuStop() sets the shutdown flag and signals threads to stop,
+        // but traps when trying to join (Atomics.wait on main thread).
+        // Worker threads continue their shutdown asynchronously.
+      }
     }
     running = false;
-    status = 'Stopped';
+    status = 'Waiting for shutdown...';
+
+    // Wait for worker threads to finish their shutdown tasks (writing
+    // settings, closing files, etc.) before saving memfs to OPFS.
+    await waitForShutdown();
+
+    status = 'Saving SD card...';
+    saving = true;
+    try {
+      const files = persistentFs?.listFiles('/') ?? [];
+      await persistentFs?.save();
+      onTrace(`[persist] saved ${files.length} file(s) to OPFS\n`);
+    } catch (e) {
+      onTrace(`[persist] save error: ${e}\n`);
+    }
+    saving = false;
+    status = 'Stopped (SD card saved)';
+  }
+
+  function waitForShutdown(): Promise<void> {
+    return new Promise((resolve) => {
+      let elapsed = 0;
+      const interval = 200;
+      const maxWait = 5000;
+      const check = () => {
+        elapsed += interval;
+        const files = persistentFs?.listFiles('/') ?? [];
+        // Shutdown is done once files appear and no new ones for a beat,
+        // or we've waited long enough.
+        if (files.length > 0 || elapsed >= maxWait) {
+          // Give a small extra delay for any trailing writes
+          setTimeout(resolve, 500);
+        } else {
+          setTimeout(check, interval);
+        }
+      };
+      setTimeout(check, interval);
+    });
   }
 
   function pollLcd() {
@@ -562,10 +639,44 @@
     ex.simuSetTrim(trimSwitchIndex(trimIndex, direction), 0);
   }
 
+  async function resetSdCard() {
+    if (!persistentFs) return;
+    if (!confirm('Wipe all SD card data for this radio? This cannot be undone.')) return;
+    await persistentFs.wipe();
+    onTrace('[persist] SD card data wiped\n');
+    status = 'SD card wiped. Reload to start fresh.';
+  }
+
+  function handleFileUpload() {
+    if (!persistentFs) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.onchange = async () => {
+      if (!input.files || !persistentFs) return;
+      for (const file of input.files) {
+        const path = prompt(`Upload path for "${file.name}":`, `/${file.name}`);
+        if (!path) continue;
+        const data = await file.arrayBuffer();
+        persistentFs.uploadFile(path, data);
+        onTrace(`[persist] uploaded ${path} (${data.byteLength} bytes)\n`);
+      }
+    };
+    input.click();
+  }
+
   // Discover on mount
   discoverRadios();
 
+  // Best-effort save on page close — async isn't guaranteed to finish,
+  // but the periodic auto-save (every 30s) ensures minimal data loss.
+  function handleBeforeUnload() {
+    persistentFs?.save();  // fire-and-forget
+  }
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
   onDestroy(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
     teardown();
     audioCtx?.close();
   });
@@ -597,7 +708,11 @@
         <button onclick={startSimulator}>Start</button>
       {/if}
       {#if running}
-        <button onclick={stopSimulator}>Stop</button>
+        <button onclick={stopSimulator} disabled={saving}>Stop</button>
+      {/if}
+      {#if loaded && !running && !saving}
+        <button onclick={handleFileUpload} class="secondary">Upload</button>
+        <button onclick={resetSdCard} class="danger">Reset SD</button>
       {/if}
     </div>
     <p class="status">{status}</p>
@@ -958,6 +1073,20 @@
 
   button:active {
     background: #555;
+  }
+
+  button.secondary {
+    background: #2a3a2a;
+    border-color: #4a6a4a;
+  }
+
+  button.danger {
+    background: #3a2a2a;
+    border-color: #6a4a4a;
+  }
+
+  button.danger:hover {
+    background: #4a2a2a;
   }
 
   /* Radio body */
