@@ -105,6 +105,8 @@
   let analogValues = $state<number[]>([]);
   // Switch states: indexed by position in switches array. -1=up, 0=mid, 1=down
   let switchStates = $state<number[]>([]);
+  // 3POS direction tracker: remembers which way to go next from mid position
+  let switchDir: number[] = [];
   // Custom switch LED colors: indexed by custom switch index (0-based), CSS color strings
   let customSwitchColors = $state<string[]>([]);
 
@@ -214,6 +216,7 @@
 
     const switches = currentRadio.switches ?? [];
     switchStates = switches.map(() => -1); // all up by default
+    switchDir = switches.map(() => 1);    // first mid click goes down
   }
 
   // Send analog value to WASM in ADC range (0..4096, center=2048)
@@ -786,25 +789,50 @@
     return (currentRadio?.keys ?? []).filter(k => k.side === 'R');
   }
 
-  // --- Switch handling ---
-  function toggleSwitch(index: number) {
-    const sw = currentRadio?.switches?.[index];
-    if (!sw) return;
-    const cur = switchStates[index];
+  // --- Switch toggle handling ---
+  function handleSwitchTrackClick(index: number, sw: SwitchDef, e: MouseEvent) {
+    const track = e.currentTarget as HTMLElement;
+    const rect = track.getBoundingClientRect();
+    const y = (e.clientY - rect.top) / rect.height; // 0=top, 1=bottom
     if (sw.type === '2POS') {
-      updateSwitch(index, cur === -1 ? 1 : -1);
+      updateSwitch(index, y < 0.5 ? -1 : 1);
     } else {
-      // 3POS: cycle -1 -> 0 -> 1 -> -1
-      if (cur === -1) updateSwitch(index, 0);
-      else if (cur === 0) updateSwitch(index, 1);
-      else updateSwitch(index, -1);
+      if (y < 0.33) updateSwitch(index, -1);
+      else if (y < 0.67) updateSwitch(index, 0);
+      else updateSwitch(index, 1);
     }
   }
 
-  function switchLabel(state: number): string {
-    if (state === -1) return '\u2191'; // up arrow
-    if (state === 0) return '\u2014'; // em dash (middle)
-    return '\u2193'; // down arrow
+  function handleSwitchDrag(index: number, sw: SwitchDef, e: MouseEvent) {
+    e.preventDefault();
+    const track = (e.currentTarget as HTMLElement).parentElement!;
+    const snap = (ev: MouseEvent) => {
+      const rect = track.getBoundingClientRect();
+      const y = Math.max(0, Math.min(1, (ev.clientY - rect.top) / rect.height));
+      if (sw.type === '2POS') {
+        updateSwitch(index, y < 0.5 ? -1 : 1);
+      } else {
+        if (y < 0.33) updateSwitch(index, -1);
+        else if (y < 0.67) updateSwitch(index, 0);
+        else updateSwitch(index, 1);
+      }
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', snap);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', snap);
+    window.addEventListener('mouseup', up);
+  }
+
+  function switchKnobTop(state: number, is3pos: boolean): string {
+    // Knob is 14px tall, use calc() to keep it inside the track
+    if (is3pos) {
+      if (state === -1) return '0px';
+      if (state === 0) return 'calc(50% - 7px)';
+      return 'calc(100% - 14px)';
+    }
+    return state === -1 ? '0px' : 'calc(100% - 14px)';
   }
 
   // --- Pot/Slider handling ---
@@ -1064,13 +1092,24 @@
           {#each getLeftSwitches() as { sw, index }}
             <div class="switch-control">
               <span class="switch-name">{sw.name}</span>
-              <button
-                class="switch-btn"
-                class:sw-up={switchStates[index] === -1}
-                class:sw-mid={switchStates[index] === 0}
-                class:sw-down={switchStates[index] === 1}
-                onclick={() => toggleSwitch(index)}
-              >{switchLabel(switchStates[index])}</button>
+              <div class="switch-track" class:is-3pos={sw.type === '3POS'}
+                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}>
+                {#if sw.type === '3POS'}
+                  <div class="switch-notch" style:top="7px"></div>
+                  <div class="switch-notch" style:top="50%"></div>
+                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
+                {:else}
+                  <div class="switch-notch" style:top="7px"></div>
+                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
+                {/if}
+                <div class="switch-knob"
+                     class:sw-up={switchStates[index] === -1}
+                     class:sw-mid={switchStates[index] === 0}
+                     class:sw-down={switchStates[index] === 1}
+                     style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
+                     onmousedown={(e) => handleSwitchDrag(index, sw, e)}
+                ></div>
+              </div>
             </div>
           {/each}
         </div>
@@ -1250,13 +1289,24 @@
           {#each getRightSwitches() as { sw, index }}
             <div class="switch-control">
               <span class="switch-name">{sw.name}</span>
-              <button
-                class="switch-btn"
-                class:sw-up={switchStates[index] === -1}
-                class:sw-mid={switchStates[index] === 0}
-                class:sw-down={switchStates[index] === 1}
-                onclick={() => toggleSwitch(index)}
-              >{switchLabel(switchStates[index])}</button>
+              <div class="switch-track" class:is-3pos={sw.type === '3POS'}
+                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}>
+                {#if sw.type === '3POS'}
+                  <div class="switch-notch" style:top="7px"></div>
+                  <div class="switch-notch" style:top="50%"></div>
+                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
+                {:else}
+                  <div class="switch-notch" style:top="7px"></div>
+                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
+                {/if}
+                <div class="switch-knob"
+                     class:sw-up={switchStates[index] === -1}
+                     class:sw-mid={switchStates[index] === 0}
+                     class:sw-down={switchStates[index] === 1}
+                     style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
+                     onmousedown={(e) => handleSwitchDrag(index, sw, e)}
+                ></div>
+              </div>
             </div>
           {/each}
         </div>
@@ -1728,35 +1778,58 @@
     letter-spacing: 0.05em;
   }
 
-  .switch-btn {
-    width: 36px;
-    height: 32px;
-    padding: 0;
-    font-size: 1rem;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    transition: all 0.1s;
+  .switch-track {
+    width: 16px;
+    height: 36px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
-  .switch-btn.sw-up {
+  .switch-track.is-3pos {
+    height: 44px;
+  }
+
+  .switch-notch {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: 1px;
+    background: var(--border);
+    pointer-events: none;
+  }
+
+  .switch-knob {
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    height: 14px;
+    border-radius: 4px;
+    transition: top 0.1s, background 0.1s;
+    cursor: grab;
+    border: 1px solid var(--border-light);
+  }
+
+  .switch-knob:active {
+    cursor: grabbing;
+  }
+
+  .switch-knob.sw-up {
     background: linear-gradient(180deg, #38bff9 0%, #0e96df 100%);
     border-color: #38bff9;
-    color: #fff;
   }
 
-  .switch-btn.sw-mid {
+  .switch-knob.sw-mid {
     background: linear-gradient(180deg, #ff9800 0%, #e65100 100%);
     border-color: #ff9800;
-    color: #fff;
   }
 
-  .switch-btn.sw-down {
+  .switch-knob.sw-down {
     background: linear-gradient(180deg, #f44336 0%, #c62828 100%);
     border-color: #f44336;
-    color: #fff;
   }
 
   /* Slider column */
