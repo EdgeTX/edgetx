@@ -716,3 +716,32 @@ int32_t simuGetGVar(uint8_t gv, uint8_t fm)
 #endif
   return 0;
 }
+
+// -- Custom (function) switches --
+
+uint8_t simuGetNumCustomSwitches()
+{
+#if defined(FUNCTION_SWITCHES)
+  return NUM_FUNCTIONS_SWITCHES;
+#else
+  return 0;
+#endif
+}
+
+bool simuGetCustomSwitchState(uint8_t idx)
+{
+#if defined(FUNCTION_SWITCHES)
+  if (idx < NUM_FUNCTIONS_SWITCHES)
+    return fsLedState(idx);
+#endif
+  return false;
+}
+
+uint32_t simuGetCustomSwitchColor(uint8_t idx)
+{
+#if defined(FUNCTION_SWITCHES)
+  if (idx < NUM_FUNCTIONS_SWITCHES)
+    return fsGetLedRGB(idx);
+#endif
+  return 0;
+}

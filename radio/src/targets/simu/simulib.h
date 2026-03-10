@@ -129,6 +129,13 @@ uint8_t  WASM_EXPORT(simuGetNumGVars)();
 uint8_t  WASM_EXPORT(simuGetNumFlightModes)();
 int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
 
+// Custom (function) switches: LED state and RGB color.
+// idx is the custom switch index (0-based), not the global switch index.
+// Use simuGetNumCustomSwitches() to get the count.
+uint8_t  WASM_EXPORT(simuGetNumCustomSwitches)();
+bool     WASM_EXPORT(simuGetCustomSwitchState)(uint8_t idx);
+uint32_t WASM_EXPORT(simuGetCustomSwitchColor)(uint8_t idx);
+
 // -- WASM imports (provided by host) --
 
 // simuGetAnalog: return ADC-range value for input at index idx.
