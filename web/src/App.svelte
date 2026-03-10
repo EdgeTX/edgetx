@@ -294,7 +294,7 @@
 
     ex.simuInit();
     runner.setFatfsPaths('/', '/');
-    ex.simuStart(0);
+    ex.simuStart(1);
     running = true;
     status = 'Running';
 
@@ -673,18 +673,45 @@
 
   function handleFileUpload() {
     if (!persistentFs) return;
+    const targetDir = prompt('Upload to directory:', '/') ?? '/';
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = true;
     input.onchange = async () => {
       if (!input.files || !persistentFs) return;
       for (const file of input.files) {
-        const path = prompt(`Upload path for "${file.name}":`, `/${file.name}`);
-        if (!path) continue;
+        const dir = targetDir.endsWith('/') ? targetDir : targetDir + '/';
+        const path = dir + file.name;
         const data = await file.arrayBuffer();
         persistentFs.uploadFile(path, data);
         onTrace(`[persist] uploaded ${path} (${data.byteLength} bytes)\n`);
       }
+      status = `Uploaded ${input.files.length} file(s) to ${targetDir}`;
+    };
+    input.click();
+  }
+
+  function handleFolderUpload() {
+    if (!persistentFs) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    (input as any).webkitdirectory = true;
+    input.onchange = async () => {
+      if (!input.files || !persistentFs) return;
+      let count = 0;
+      for (const file of input.files) {
+        // webkitRelativePath gives "SOUNDS/en/system/hello.wav"
+        // Keep as-is so selecting "SOUNDS" creates /SOUNDS/...
+        const relPath = (file as any).webkitRelativePath as string;
+        if (!relPath) continue;
+        const path = '/' + relPath;
+        const data = await file.arrayBuffer();
+        persistentFs.uploadFile(path, data);
+        count++;
+      }
+      onTrace(`[persist] uploaded ${count} file(s) from folder\n`);
+      status = `Uploaded ${count} file(s)`;
     };
     input.click();
   }
@@ -735,7 +762,8 @@
         <button onclick={stopSimulator} disabled={saving}>Stop</button>
       {/if}
       {#if loaded && !running && !saving}
-        <button onclick={handleFileUpload} class="secondary">Upload</button>
+        <button onclick={handleFileUpload} class="secondary">Upload Files</button>
+        <button onclick={handleFolderUpload} class="secondary">Upload Folder</button>
         <button onclick={resetSdCard} class="danger">Reset SD</button>
       {/if}
     </div>
