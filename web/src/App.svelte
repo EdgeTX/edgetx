@@ -238,11 +238,13 @@
       }
       const manifest: RadioEntry[] = await resp.json();
 
-      // Probe each WASM file with a HEAD request
+      // Probe each WASM file with a HEAD request, verify content-type
+      // (Vite's dev server returns 200 with text/html for missing files)
       const checks = manifest.map(async (r) => {
         try {
           const head = await fetch(`./${r.wasm}`, { method: 'HEAD' });
-          return { ...r, available: head.ok };
+          const ct = head.headers.get('content-type') || '';
+          return { ...r, available: head.ok && ct.includes('wasm') };
         } catch {
           return { ...r, available: false };
         }
@@ -347,7 +349,12 @@
       status = `${radio?.name}: LCD ${lcdWidth}\u00d7${lcdHeight} ${lcdDepth}bpp`;
     } catch (e) {
       loading = false;
-      status = `Error: ${e instanceof Error ? e.message : e}`;
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('MIME') || msg.includes('Failed to fetch')) {
+        status = `WASM module not found: ${selectedRadio}`;
+      } else {
+        status = `Error: ${msg}`;
+      }
     }
   }
 
@@ -918,9 +925,9 @@
         bind:value={selectedRadio}
         disabled={running || loading}
       >
-        {#each radios as radio}
-          <option value={radio.wasm} disabled={!radio.available}>
-            {radio.name}{radio.available ? '' : ' (not found)'}
+        {#each radios.filter(r => r.available) as radio}
+          <option value={radio.wasm}>
+            {radio.name}
           </option>
         {/each}
       </select>
