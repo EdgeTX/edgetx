@@ -2,7 +2,7 @@
   import { onDestroy } from 'svelte';
   import { WasmRunner } from './lib/wasm-runner';
   import { PersistentFS } from './lib/persistent-fs';
-  import { renderRgb565, render4bit, render1bit, dotMatrixSize } from './lib/lcd-renderer';
+  import { LcdRenderer } from './lib/lcd-renderer';
 
   interface InputDef {
     name: string;
@@ -59,6 +59,7 @@
   let currentRadio = $state<RadioEntry | null>(null);
 
   let runner: WasmRunner | null = null;
+  let lcdRenderer: LcdRenderer | null = null;
   let persistentFs: PersistentFS | null = null;
   let pollTimer: number | null = null;
   let autoSaveTimer: number | null = null;
@@ -345,14 +346,13 @@
     status = 'Running';
 
     if (canvas) {
-      if (lcdDepth > 0 && lcdDepth < 16) {
-        const dm = dotMatrixSize(lcdWidth, lcdHeight);
-        canvas.width = dm.w;
-        canvas.height = dm.h;
-      } else {
-        canvas.width = lcdWidth;
-        canvas.height = lcdHeight;
-      }
+      lcdRenderer = new LcdRenderer(canvas);
+      // Set canvas resolution to match CSS display size (× devicePixelRatio for retina)
+      const cssWidth = Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320);
+      const dpr = window.devicePixelRatio || 1;
+      const canvasW = Math.round(cssWidth * dpr);
+      const canvasH = Math.round(canvasW * lcdHeight / lcdWidth);
+      lcdRenderer.resize(canvasW, canvasH);
     }
 
     pollTimer = window.setInterval(pollLcd, 33);
@@ -378,6 +378,7 @@
       try { runner.exports.simuStop(); } catch { /* expected */ }
     }
     runner = null;
+    lcdRenderer = null;
     persistentFs = null;
     running = false;
     loaded = false;
@@ -423,6 +424,7 @@
     // Tear down the old WASM instance and reload so Start works again.
     // Chrome caches compiled WASM, so subsequent loads are near-instant.
     runner = null;
+    lcdRenderer = null;
     loaded = false;
     await loadSelected();
     status = 'Stopped (SD card saved)';
@@ -451,24 +453,14 @@
 
   function pollLcd() {
     const ex = runner?.exports;
-    if (!ex || !canvas) return;
+    if (!ex || !lcdRenderer) return;
 
     if (!ex.simuLcdChanged()) return;
 
     const data = runner!.copyLcd(lcdSize);
     if (!data) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    if (lcdDepth === 16) {
-      renderRgb565(ctx, data, lcdWidth, lcdHeight);
-    } else if (lcdDepth === 4) {
-      render4bit(ctx, data, lcdWidth, lcdHeight);
-    } else {
-      render1bit(ctx, data, lcdWidth, lcdHeight);
-    }
-
+    lcdRenderer.render(data, lcdWidth, lcdHeight, lcdDepth);
     ex.simuLcdFlushed();
   }
 
