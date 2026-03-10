@@ -1810,6 +1810,8 @@ QString ModelData::trainerModeToString(int value)
       return tr("Master/Multi");
     case TRAINER_MODE_CRSF:
       return tr("Master/CRSF");
+    case TRAINER_MODE_LUA:
+      return tr("Master/Lua");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -1859,6 +1861,10 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
       ((!Boards::getCapability(board, Board::HasInternalModuleSupport) &&
         !Boards::getCapability(board, Board::HasExternalModuleSupport)) ||
        (moduleData[0].protocol != PULSES_MULTIMODULE && moduleData[1].protocol != PULSES_MULTIMODULE)))
+    return false;
+
+  if (value == TRAINER_MODE_LUA &&
+      !firmware->getId().contains("lua"))
     return false;
 
   return true;
