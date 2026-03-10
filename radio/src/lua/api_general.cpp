@@ -2892,26 +2892,29 @@ static int luaGetTrainerStatus(lua_State * L)
 }
 
 /*luadoc
-@function setTrainerChannel(channel, value)
+@function setTrainerChannels(channels)
 
-Set a trainer input channel value. Only works when trainer mode is set to
-"Master/Lua" in the model settings.
+Set all trainer input channel values at once from a table. Only works when
+trainer mode is set to "Master/Lua" in the model settings.
 
-@param channel (number) channel index (0 to MAX_TRAINER_CHANNELS-1)
-
-@param value (number) channel value (-512 to 512)
+@param channels (table) array of channel values indexed 1..MAX_TRAINER_CHANNELS,
+each value in the range -512 to 512. Missing or nil entries leave that channel
+unchanged.
 
 @status current Introduced in 2.11
 */
-static int luaSetTrainerChannel(lua_State * L)
+static int luaSetTrainerChannels(lua_State * L)
 {
-  int ch = luaL_checkinteger(L, 1);
-  int val = luaL_checkinteger(L, 2);
-  if (ch >= 0 && ch < MAX_TRAINER_CHANNELS &&
-      g_model.trainerData.mode == TRAINER_MODE_LUA) {
-    trainerInput[ch] = val;
-    trainerResetTimer();
+  if (g_model.trainerData.mode != TRAINER_MODE_LUA) return 0;
+  luaL_checktype(L, 1, LUA_TTABLE);
+  for (int ch = 0; ch < MAX_TRAINER_CHANNELS; ch++) {
+    lua_rawgeti(L, 1, ch + 1);  // Lua table is 1-indexed
+    if (!lua_isnil(L, -1)) {
+      trainerInput[ch] = luaL_checkinteger(L, -1);
+    }
+    lua_pop(L, 1);
   }
+  trainerResetTimer();
   return 0;
 }
 
@@ -3145,7 +3148,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getOutputValue, luaGetOutputValue )
   LROT_FUNCENTRY( getSourceValue, luaGetSourceValue )
   LROT_FUNCENTRY( getTrainerStatus, luaGetTrainerStatus )
-  LROT_FUNCENTRY( setTrainerChannel, luaSetTrainerChannel )
+  LROT_FUNCENTRY( setTrainerChannels, luaSetTrainerChannels )
   LROT_FUNCENTRY( getRAS, luaGetRAS )
   LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
   LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )
