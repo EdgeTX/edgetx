@@ -572,6 +572,8 @@ enum MixSources {
 #define MIXSRC_FIRST_FS_SWITCH      (MIXSRC_LAST_REGULAR_SWITCH + 1)
 #endif
 
+constexpr int16_t MIXSRC_MAX_VALUE = 30000;
+
 enum SrcTypes {
   SRC_INPUT = 1 << 0,
   SRC_LUA = 1 << 1,
