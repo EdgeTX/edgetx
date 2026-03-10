@@ -2,6 +2,7 @@ import { WASIThreads } from '@emnapi/wasi-threads';
 import type { WASIInstance } from '@emnapi/wasi-threads';
 import { WASI } from '@tybys/wasm-util';
 import { Volume, createFsFromVolume } from 'memfs-browser';
+import { FsProxyHost } from './fs-proxy-host';
 
 export interface SimulatorExports {
   memory: WebAssembly.Memory;
@@ -100,14 +101,25 @@ export class WasmRunner {
   private analogValues = new Int16Array(this.analogBuffer);
   private onTrace: TraceCallback;
   private onAudio: AudioCallback;
+  private fsProxyHost: FsProxyHost;
+  private nextWorkerId = 0;
+  /** Set to true (or type `fsTrace = true` in browser console) to log fs proxy ops. */
+  fsTrace = false;
 
-  constructor(onTrace: TraceCallback, onAudio: AudioCallback) {
+  constructor(onTrace: TraceCallback, onAudio: AudioCallback, fs?: any) {
     this.onTrace = onTrace;
     this.onAudio = onAudio;
 
+    const wasiFs = fs ?? createFsFromVolume(Volume.fromJSON({ '/': null })) as any;
+    this.fsProxyHost = new FsProxyHost(wasiFs);
+    // Enable with: runner.fsTrace = true  (or set window.fsTrace = true in console)
+    this.fsProxyHost.onTrace = (msg) => {
+      if (this.fsTrace || (globalThis as any).fsTrace) this.onTrace(msg);
+    };
+
     const wasi = new WASI({
       version: 'preview1',
-      fs: createFsFromVolume(Volume.fromJSON({ '/': null })) as any,
+      fs: wasiFs,
       preopens: { '/': '/' },
       print: (s: string) => this.onTrace(s + '\n'),
       printErr: (s: string) => this.onTrace(s + '\n'),
@@ -118,11 +130,16 @@ export class WasmRunner {
       reuseWorker: { size: 4, strict: true },
       waitThreadStart: typeof window === 'undefined' ? 1000 : false,
       onCreateWorker: () => {
+        const workerId = this.nextWorkerId++;
         const worker = new Worker(new URL('./worker.ts', import.meta.url), {
           type: 'module',
         });
         // Share analog values buffer so worker threads can read stick/pot positions
         worker.postMessage({ type: 'analog-buffer', buffer: this.analogBuffer });
+        // Share filesystem proxy channel
+        const { ctrlBuffer, dataBuffer } = this.fsProxyHost.createChannel(workerId);
+        worker.postMessage({ type: 'fs-channel', ctrlBuffer, dataBuffer });
+        this.fsProxyHost.listen(workerId);
         worker.addEventListener('message', (e) => {
           if (e.data?.type === 'trace') {
             this.onTrace(e.data.text);
@@ -192,6 +209,31 @@ export class WasmRunner {
     if (index >= 0 && index < this.analogValues.length) {
       this.analogValues[index] = value;
     }
+  }
+
+  /** Allocate a C string in WASM linear memory and return its pointer. */
+  private allocCStr(s: string): number {
+    const ex = this._exports!;
+    const encoded = new TextEncoder().encode(s);
+    const ptr = ex.malloc(encoded.length + 1);
+    if (!ptr) throw new Error('malloc failed');
+    // Re-derive view after malloc (buffer may have grown)
+    const view = new Uint8Array(ex.memory.buffer);
+    view.set(encoded, ptr);
+    view[ptr + encoded.length] = 0;
+    return ptr;
+  }
+
+  /** Tell the firmware where the SD card / settings directories are. */
+  setFatfsPaths(sdPath: string, settingsPath: string): void {
+    const ex = this._exports;
+    if (!ex) return;
+
+    const sdPtr = this.allocCStr(sdPath);
+    const settingsPtr = this.allocCStr(settingsPath);
+    ex.simuFatfsSetPaths(sdPtr, settingsPtr);
+    ex.free(sdPtr);
+    ex.free(settingsPtr);
   }
 
   /** Copy LCD framebuffer from WASM memory into a host-side Uint8Array */

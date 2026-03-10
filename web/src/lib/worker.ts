@@ -1,20 +1,42 @@
 import { ThreadMessageHandler, WASIThreads } from '@emnapi/wasi-threads';
 import { WASI } from '@tybys/wasm-util';
 import { Volume, createFsFromVolume } from 'memfs-browser';
+import { FsProxyClient } from './fs-proxy-client';
+
+// Catch all errors for debugging
+globalThis.addEventListener('error', (e) => {
+  postMessage({ type: 'trace', text: `[worker error] ${e.message} at ${e.filename}:${e.lineno}\n` });
+});
+globalThis.addEventListener('unhandledrejection', (e) => {
+  postMessage({ type: 'trace', text: `[worker rejection] ${e.reason}\n` });
+});
 
 // Shared analog values buffer, received from main thread before thread start
 let analogValues: Int16Array | null = null;
 
+// Filesystem proxy client, received from main thread before thread start
+let fsClient: FsProxyClient | null = null;
+
 const handler = new ThreadMessageHandler({
   async onLoad({ wasmModule, wasmMemory }) {
     const post = (s: string) => postMessage({ type: 'trace', text: s + '\n' });
-    const wasi = new WASI({
-      version: 'preview1',
-      fs: createFsFromVolume(Volume.fromJSON({ '/': null })) as any,
-      preopens: { '/': '/' },
-      print: post,
-      printErr: post,
-    });
+
+    // Use proxy fs if available, otherwise fall back to local empty memfs
+    const fs = fsClient ?? createFsFromVolume(Volume.fromJSON({ '/': null }));
+
+    let wasi: WASI;
+    try {
+      wasi = new WASI({
+        version: 'preview1',
+        fs: fs as any,
+        preopens: { '/': '/' },
+        print: post,
+        printErr: post,
+      });
+    } catch (e: any) {
+      post('[worker] WASI init error: ' + (e?.stack ?? e?.message ?? e));
+      throw e;
+    }
     const wasiThreads = new WASIThreads({
       wasi: wasi as any,
       childThread: true,
@@ -44,6 +66,10 @@ const handler = new ThreadMessageHandler({
 globalThis.onmessage = function (e) {
   if (e.data?.type === 'analog-buffer') {
     analogValues = new Int16Array(e.data.buffer);
+    return;
+  }
+  if (e.data?.type === 'fs-channel') {
+    fsClient = new FsProxyClient(e.data.ctrlBuffer, e.data.dataBuffer);
     return;
   }
   handler.handle(e);
