@@ -1520,6 +1520,37 @@ coord_t LvglWidgetBox::getScrollY()
   return lv_obj_get_scroll_y(window->getLvObj());
 }
 
+void LvglWidgetBox::setPosAndSize()
+{
+  if (window) {
+    coord_t px = x, py = y, pw = w, ph = h;
+    if (pw < 0) {
+      pw = -pw;
+      px = px - pw + 1;
+    }
+    if (ph < 0) {
+      ph = -ph;
+      py = py - ph + 1;
+    }
+    window->setPos(px, py);
+    window->setSize(pw, ph);
+  }
+}
+
+void LvglWidgetBox::setPos(coord_t x, coord_t y)
+{
+  this->x = x;
+  this->y = y;
+  setPosAndSize();
+}
+
+void LvglWidgetBox::setSize(coord_t w, coord_t h)
+{
+  this->w = w;
+  this->h = h;
+  setPosAndSize();
+}
+
 bool LvglWidgetBox::callRefs(lua_State *L)
 {
   if (!LvglWidgetObject::callRefs(L)) return false;
@@ -1563,6 +1594,7 @@ void LvglWidgetBox::build(lua_State *L)
     else
       lv_obj_set_flex_align(window->getLvObj(), align1, align1, align2);
   }
+  setPosAndSize();
   setColor(color.flags);
   setOpacity(opacity.value);
 }
