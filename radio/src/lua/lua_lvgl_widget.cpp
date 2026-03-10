@@ -237,6 +237,7 @@ bool LvglThicknessParam::parseThicknessParam(lua_State *L, const char *key)
 bool LvglValuesParam::parseValuesParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "values")) {
+    values.clear();
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       values.push_back(lua_tostring(L, -1));
@@ -1573,6 +1574,24 @@ void LvglWidgetSetting::parseParam(lua_State *L, const char *key)
   LvglWidgetObject::parseParam(L, key);
 }
 
+void LvglWidgetSetting::setTitle(const char* s)
+{
+  if (label && title.changedText(s))
+    lv_label_set_text(label, title.txt.c_str());
+}
+
+bool LvglWidgetSetting::callRefs(lua_State *L)
+{
+  if (!LvglWidgetObject::callRefs(L)) return false;
+
+  if (isVisible()) {
+    if (!pcallUpdateStringVal(L, title.function, [=](const char* s) { setTitle(s); }))
+      return false;
+  }
+
+  return true;
+}
+
 void LvglWidgetSetting::clearRefs(lua_State *L)
 {
   clearTitleRefs(L);
@@ -1584,10 +1603,10 @@ void LvglWidgetSetting::build(lua_State *L)
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
   window->padAll(PAD_OUTLINE);
-  auto lbl = lv_label_create(window->getLvObj());
-  lv_obj_align(lbl, LV_ALIGN_LEFT_MID, 0, 0);
-  etx_txt_color(lbl, COLOR_THEME_PRIMARY1_INDEX);
-  lv_label_set_text(lbl, title.txt.c_str());
+  label = lv_label_create(window->getLvObj());
+  lv_obj_align(label, LV_ALIGN_LEFT_MID, 0, 0);
+  etx_txt_color(label, COLOR_THEME_PRIMARY1_INDEX);
+  lv_label_set_text(label, title.txt.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -2688,7 +2707,7 @@ void LvglWidgetChoice::clearRefs(lua_State *L)
 
 void LvglWidgetChoice::build(lua_State *L)
 {
-  if (h == LV_SIZE_CONTENT) h = 0;
+  if (h == LV_SIZE_CONTENT) h = EdgeTxStyles::UI_ELEMENT_HEIGHT;
   auto c = new Choice(
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0, values.size() - 1,
       [=]() { return pcallGetIntVal(L, getFunction) - 1; },
@@ -2718,6 +2737,14 @@ void LvglWidgetChoice::build(lua_State *L)
     });
 
   window = c;
+}
+
+void LvglWidgetChoice::refresh()
+{
+  LvglWidgetPicker::refresh();
+  Choice* c = (Choice*)window;
+  c->setValues(values);
+  c->setMax(values.size() - 1);
 }
 
 //-----------------------------------------------------------------------------
