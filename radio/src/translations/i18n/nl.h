@@ -570,6 +570,7 @@
 #define TR_BLOFFBRIGHTNESS     "Uit-Helderheid"
 #define TR_KEYS_BACKLIGHT      "Keys backlight"
 #define TR_BLCOLOR             "Kleur"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN        "Startscherm Aan"
 #define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY        "Pwr On delay"

@@ -252,6 +252,7 @@
 #define STR_PHASES_HEADERS currentLangStrings->STR_PHASES_HEADERS
 #endif
 
+#define STR_ONE_LOG_PER_DAY currentLangStrings->STR_ONE_LOG_PER_DAY
 #define STR_AXISDIR currentLangStrings->STR_AXISDIR
 #define STR_MENUAXISDIR currentLangStrings->STR_MENUAXISDIR
 #define STR_MENUTOSTART currentLangStrings->STR_MENUTOSTART

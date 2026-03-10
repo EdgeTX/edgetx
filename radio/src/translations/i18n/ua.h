@@ -570,6 +570,7 @@
 #define TR_BLOFFBRIGHTNESS             "OFF яскравість"
 #define TR_KEYS_BACKLIGHT              "Яскравість кнопки"
 #define TR_BLCOLOR                     "Колір"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                "Заставка"
 #define TR_PLAY_HELLO                  "Звук запуску"
 #define TR_PWR_ON_DELAY                "Затримка увімкн."
