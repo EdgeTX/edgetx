@@ -42,9 +42,13 @@ cp output/*.wasm web/public/
 
 ### Supported Radios
 
-The radios available in the web UI are defined in `public/radios.json`. Each entry specifies the `.wasm` filename, analog inputs, switches, trims, and hardware keys.
+The radios available in the web UI are defined in `public/radios.json`. This file is **generated** from the authoritative hardware definitions in `radio/src/boards/hw_defs/`. To regenerate it (e.g. after adding a new radio target):
 
-Currently configured: TX16S, X10 Express, T15, X9D+ 2019, X-Lite, Jumper T12.
+```bash
+node web/scripts/gen-radios-json.js
+```
+
+The script extracts inputs, switches, trims, keys, and display info from the hw_defs JSON files. Key left/right side placement matches Companion's layout.
 
 ## Architecture
 
@@ -88,7 +92,8 @@ Currently configured: TX16S, X10 Express, T15, X9D+ 2019, X-Lite, Jumper T12.
 | `src/lib/fs-proxy-client.ts` | Worker-side filesystem proxy (blocking Atomics.wait) |
 | `src/lib/fs-proxy-protocol.ts` | Shared protocol constants and serialization |
 | `src/lib/persistent-fs.ts` | OPFS persistence layer |
-| `public/radios.json` | Radio definitions (inputs, switches, keys, wasm paths) |
+| `public/radios.json` | Radio definitions (generated — do not edit manually) |
+| `scripts/gen-radios-json.js` | Generates `radios.json` from `radio/src/boards/hw_defs/` |
 
 ## Browser Requirements
 
