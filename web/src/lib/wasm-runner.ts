@@ -143,6 +143,8 @@ export class WasmRunner {
         worker.addEventListener('message', (e) => {
           if (e.data?.type === 'trace') {
             this.onTrace(e.data.text);
+          } else if (e.data?.type === 'audio') {
+            this.onAudio(e.data.samples);
           }
         });
         return worker;
