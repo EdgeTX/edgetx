@@ -903,6 +903,8 @@
         class="lcd"
         style:width="{Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320)}px"
         style:aspect-ratio="{lcdWidth} / {lcdHeight}"
+        style:border-color="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#111'}"
+        style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
         onmousedown={handleCanvasClick}
         onmouseup={handleCanvasClick}
         onmousemove={handleCanvasClick}
