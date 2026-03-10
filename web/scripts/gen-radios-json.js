@@ -11,8 +11,8 @@
 // The key left/right side mapping matches Companion's radioKeyDefinitions
 // table in companion/src/simulation/simulateduiwidget.cpp.
 
-import { readFileSync, readdirSync, writeFileSync } from 'fs';
-import { join, dirname, basename } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -50,31 +50,30 @@ const KEY_LABELS = {
   KEY_ENTER: '\u21B5',         // ↵
 };
 
-// Display names for flavours (where they differ from uppercase filename)
-const DISPLAY_NAMES = {
-  'tx16smk3': 'TX16S MK3',
-  'tx12mk2': 'TX12 MK2',
-  'x10express': 'X10 Express',
-  'x9d+2019': 'X9D+ 2019',
-  'x9d+': 'X9D+',
-  'x7access': 'X7 Access',
-  'x9lites': 'X9 Lite S',
-  'x9lite': 'X9 Lite',
-  'xlite': 'X-Lite',
-  'xlites': 'X-Lite S',
-  'tlite': 'T-Lite',
-  'lr3pro': 'LR3 Pro',
-  'tpros': 'T-Pro S',
-  'tprov2': 'T-Pro V2',
-  'pl18ev': 'PL18 EV',
-  't12max': 'T12 MAX',
-  't15pro': 'T15 Pro',
-  't20v2': 'T20 V2',
-  'nb4p': 'NB4+',
-};
+/** Build display name lookup from fw.json (the authoritative radio name list). */
+function loadDisplayNames() {
+  try {
+    const fw = JSON.parse(readFileSync(join(ROOT, 'fw.json'), 'utf-8'));
+    const map = {};
+    for (const [name, prefix] of fw.targets) {
+      // prefix is e.g. "tx16s-", "x9dp2019-" — strip trailing dash
+      const key = prefix.replace(/-$/, '');
+      map[key] = name;
+    }
+    return map;
+  } catch {
+    return {};
+  }
+}
+
+const DISPLAY_NAMES = loadDisplayNames();
 
 function getDisplayName(flavour) {
+  // fw.json uses build target names (x9dp2019), hw_defs uses flavour (x9d+2019)
+  // Try both the flavour and the p-substituted form
   if (DISPLAY_NAMES[flavour]) return DISPLAY_NAMES[flavour];
+  const pForm = flavour.replace('+', 'p');
+  if (DISPLAY_NAMES[pForm]) return DISPLAY_NAMES[pForm];
   return flavour.toUpperCase();
 }
 
@@ -127,13 +126,29 @@ function processFlavour(flavour) {
   };
 }
 
-// Determine which flavours to generate: args or all hw_defs files
+// Determine which flavours to generate: args, or fw.json targets (supported radios only)
 let flavours = process.argv.slice(2);
 if (flavours.length === 0) {
-  flavours = readdirSync(HW_DEFS)
-    .filter(f => f.endsWith('.json'))
-    .map(f => basename(f, '.json'))
-    .sort();
+  // Use fw.json as the source of supported targets
+  // The prefix in fw.json is the build target name (e.g. "x9dp2019-")
+  // which may differ from the hw_defs flavour (e.g. "x9d+2019")
+  const fw = JSON.parse(readFileSync(join(ROOT, 'fw.json'), 'utf-8'));
+  flavours = fw.targets.map(([, prefix]) => {
+    const buildTarget = prefix.replace(/-$/, '');
+    // Check if hw_defs file exists under this name; if not, try + substitution
+    try {
+      readFileSync(join(HW_DEFS, `${buildTarget}.json`));
+      return buildTarget;
+    } catch {
+      const plusForm = buildTarget.replace('dp', 'd+');
+      try {
+        readFileSync(join(HW_DEFS, `${plusForm}.json`));
+        return plusForm;
+      } catch {
+        return buildTarget; // will be skipped later
+      }
+    }
+  });
 }
 
 console.log(`Generating radios.json for ${flavours.length} flavours...`);
