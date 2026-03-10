@@ -36,6 +36,15 @@
       { "name": "T4" },
       { "name": "T5" },
       { "name": "T6" }
+    ],
+    "keys": [
+      { "key": "KEY_SYS", "label": "SYS", "side": "L" },
+      { "key": "KEY_PAGEUP", "label": "PAGE\u25c0", "side": "L" },
+      { "key": "KEY_EXIT", "label": "RTN", "side": "L" },
+      { "key": "KEY_MODEL", "label": "MDL", "side": "R" },
+      { "key": "KEY_PAGEDN", "label": "PAGE\u25b6", "side": "R" },
+      { "key": "KEY_TELE", "label": "TELE", "side": "R" },
+      { "key": "KEY_ENTER", "label": "ENTER", "side": "R" }
     ]
   },
   {
@@ -75,6 +84,14 @@
       { "name": "T4" },
       { "name": "T5" },
       { "name": "T6" }
+    ],
+    "keys": [
+      { "key": "KEY_SYS", "label": "SYS", "side": "L" },
+      { "key": "KEY_EXIT", "label": "RTN", "side": "L" },
+      { "key": "KEY_MODEL", "label": "MDL", "side": "R" },
+      { "key": "KEY_PAGEDN", "label": "PgUp/Dn", "side": "R" },
+      { "key": "KEY_TELE", "label": "TELE", "side": "R" },
+      { "key": "KEY_ENTER", "label": "ENTER", "side": "R" }
     ]
   },
   {
@@ -107,6 +124,14 @@
       { "name": "T2" },
       { "name": "T3" },
       { "name": "T4" }
+    ],
+    "keys": [
+      { "key": "KEY_SYS", "label": "SYS", "side": "L" },
+      { "key": "KEY_EXIT", "label": "EXIT", "side": "L" },
+      { "key": "KEY_MODEL", "label": "MDL", "side": "R" },
+      { "key": "KEY_PAGEDN", "label": "\u25c0/\u25b6", "side": "R" },
+      { "key": "KEY_TELE", "label": "TELE", "side": "R" },
+      { "key": "KEY_ENTER", "label": "ENTER", "side": "R" }
     ]
   },
   {
@@ -138,6 +163,12 @@
       { "name": "T2" },
       { "name": "T3" },
       { "name": "T4" }
+    ],
+    "keys": [
+      { "key": "KEY_MENU", "label": "MENU", "side": "L" },
+      { "key": "KEY_EXIT", "label": "EXIT", "side": "L" },
+      { "key": "KEY_PAGEDN", "label": "PAGE", "side": "R" },
+      { "key": "KEY_ENTER", "label": "ENT", "side": "R" }
     ]
   },
   {
@@ -162,6 +193,15 @@
       { "name": "T2" },
       { "name": "T3" },
       { "name": "T4" }
+    ],
+    "keys": [
+      { "key": "KEY_UP", "label": "\u25b2", "side": "L" },
+      { "key": "KEY_DOWN", "label": "\u25bc", "side": "L" },
+      { "key": "KEY_LEFT", "label": "\u25c0", "side": "L" },
+      { "key": "KEY_SHIFT", "label": "SHIFT", "side": "L" },
+      { "key": "KEY_RIGHT", "label": "\u25b6", "side": "R" },
+      { "key": "KEY_EXIT", "label": "EXIT", "side": "R" },
+      { "key": "KEY_ENTER", "label": "ENTER", "side": "R" }
     ]
   },
   {
@@ -190,6 +230,14 @@
       { "name": "T2" },
       { "name": "T3" },
       { "name": "T4" }
+    ],
+    "keys": [
+      { "key": "KEY_UP", "label": "\u25b2", "side": "L" },
+      { "key": "KEY_LEFT", "label": "\u25c0", "side": "L" },
+      { "key": "KEY_EXIT", "label": "EXIT", "side": "L" },
+      { "key": "KEY_DOWN", "label": "\u25bc", "side": "R" },
+      { "key": "KEY_RIGHT", "label": "\u25b6", "side": "R" },
+      { "key": "KEY_ENTER", "label": "ENTER", "side": "R" }
     ]
   }
 ]
