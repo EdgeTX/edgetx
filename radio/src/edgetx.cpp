@@ -554,7 +554,7 @@ getvalue_t convert16bitsTelemValue(source_t channel, ls_telemetry_value_t value)
 
 ls_telemetry_value_t maxTelemValue(source_t channel)
 {
-  return 30000;
+  return MIXSRC_MAX_VALUE;
 }
 
 void checkBacklight()
@@ -1939,7 +1939,7 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
   }
 #if defined(LUA_INPUTS)
   else if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
-    valMax = 30000;
+    valMax = MIXSRC_MAX_VALUE;
     valMin = -valMax;
   }
 #endif
@@ -1976,7 +1976,7 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
       *flags |= TIMEHOUR;
   }
   else {
-    valMax = 30000;
+    valMax = MIXSRC_MAX_VALUE;
     valMin = -valMax;
   }
 }
@@ -1996,16 +1996,20 @@ bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, 
       // min < 0 && max >= 0
       v2_min = 0;
     }
-  } else if (cs->func == LS_FUNC_DIFFEGREATER) {
-    // delta range (min - max) .. (max - min)
-    int16_t v = v2_min - v2_max;
-    v2_max = v2_max - v2_min;
-    v2_min = v;
-  } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
-    // abs delta range 0 .. (max - min)
-    v2_max = v2_max - v2_min;
-    v2_min = 0;
+  } else {
+    uint16_t v = v2_max - v2_min;
+    if (v > MIXSRC_MAX_VALUE) v = MIXSRC_MAX_VALUE;
+    if (cs->func == LS_FUNC_DIFFEGREATER) {
+      // delta range (min - max) .. (max - min)
+      v2_max = v;
+      v2_min = -v;
+    } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
+      // abs delta range 0 .. (max - min)
+      v2_max = v;
+      v2_min = 0;
+    }
   }
+  TRACE(">>>>> %d %d %d",cs->func,v2_min,v2_max);
 
   bool rv = false;
 
