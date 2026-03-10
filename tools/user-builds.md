@@ -14,7 +14,7 @@ This guide covers:
 ## Files Used by the Workflow
 
 - `tools/user-builds.sh`
-- `tools/radio-targets.tsv` (curated radio list)
+- `tools/radio-targets.tsv` (curated radio list, including artifact prefix column)
 - `tools/radio-firmware-options.tsv` (curated firmware option list)
 - `tools/radio-targets.py` (generator/check tool)
 - `tools/radio-firmware-options.py` (generator/check tool)
@@ -25,6 +25,7 @@ This guide covers:
 
 - `cmake`
 - `python3`
+- `uv`
 - Build toolchain used by your platform (for simulator/companion)
 
 ### Firmware-only extra requirement
@@ -36,29 +37,22 @@ Firmware builds require Arm GNU toolchain 14.2.rel1:
 
 The script enforces this for firmware builds.
 
-### Python packages
+### Python dependencies
 
-Build helpers require these Python packages in the Python interpreter used by the build:
-- `Pillow` (`PIL`)
-- `jinja2`
-- `lz4`
+Build-helper Python dependencies are declared in the repository root `pyproject.toml` under the `user-builds` dependency group.
 
-A virtual environment is recommended but not strictly mandatory.
+## Recommended `uv` setup
 
-## Recommended Virtual Environment
-
-Example (using a shared local venv path):
+From repository root:
 
 ```bash
-python3 -m venv /Users/jimb40/GitHub/.venvs/edgetx
-source /Users/jimb40/GitHub/.venvs/edgetx/bin/activate
-python -m pip install -U pip Pillow jinja2 lz4
+uv sync --group user-builds
 ```
 
 If CMake was configured with a stale Python path, reconfigure with:
 
 ```bash
-cmake -S . -B build -DPython3_EXECUTABLE=/Users/jimb40/GitHub/.venvs/edgetx/bin/python3
+cmake -S . -B build -DPython3_EXECUTABLE=.venv/bin/python3
 ```
 
 ## Running User Builds
@@ -124,21 +118,21 @@ Generator scripts are now safe by default:
 Generate to safe default output:
 
 ```bash
-tools/radio-targets.py --export-tsv
+uv run tools/radio-targets.py --export-tsv
 # writes tools/radio-targets.generated.tsv
 ```
 
 Check curated file consistency:
 
 ```bash
-tools/radio-targets.py --check
+uv run tools/radio-targets.py --check
 # checks tools/radio-targets.tsv
 ```
 
 Intentionally overwrite curated TSV:
 
 ```bash
-tools/radio-targets.py --export-tsv tools/radio-targets.tsv --force
+uv run tools/radio-targets.py --export-tsv tools/radio-targets.tsv --force
 ```
 
 ## `tools/radio-firmware-options.py`
@@ -146,21 +140,21 @@ tools/radio-targets.py --export-tsv tools/radio-targets.tsv --force
 Generate to safe default output:
 
 ```bash
-tools/radio-firmware-options.py
+uv run tools/radio-firmware-options.py
 # writes tools/radio-firmware-options.generated.tsv
 ```
 
 Check curated file consistency:
 
 ```bash
-tools/radio-firmware-options.py --check
+uv run tools/radio-firmware-options.py --check
 # checks tools/radio-firmware-options.tsv
 ```
 
 Intentionally overwrite curated TSV:
 
 ```bash
-tools/radio-firmware-options.py --out tools/radio-firmware-options.tsv --force
+uv run tools/radio-firmware-options.py --out tools/radio-firmware-options.tsv --force
 ```
 
 ## Suggested TSV update workflow
@@ -172,24 +166,22 @@ tools/radio-firmware-options.py --out tools/radio-firmware-options.tsv --force
 
 ## Troubleshooting
 
-### Missing `PIL` / `jinja2` / `lz4`
+### Missing Python dependencies
 
 Symptoms:
 - `ModuleNotFoundError: No module named 'PIL'`
 - `ModuleNotFoundError: No module named 'jinja2'`
 
 Fix:
-1. Activate your intended environment
-2. Install required packages
-3. Reconfigure CMake to that Python executable
+1. Run `uv sync --group user-builds`
+2. Reconfigure CMake to the synced interpreter if needed
 
 ### Wrong Python picked during build
 
 Check active Python:
 
 ```bash
-which python3
-python3 -c 'import sys; print(sys.executable)'
+uv run python -c 'import sys; print(sys.executable)'
 ```
 
 Force CMake to the correct interpreter:

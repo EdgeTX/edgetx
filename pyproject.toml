@@ -1,0 +1,17 @@
+[project]
+name = "edgetx-local-tools"
+version = "0.0.0"
+description = "Local Python dependencies for EdgeTX development tooling"
+requires-python = ">=3.10"
+
+[dependency-groups]
+user-builds = [
+  "clang",
+  "jinja2",
+  "lz4",
+  "Pillow",
+  "pyelftools",
+]
+
+[tool.uv]
+package = false

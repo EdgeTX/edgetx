@@ -37,6 +37,17 @@ declare -a custom_option_labels=()
 declare -a firmware_option_names=()
 declare -a firmware_option_labels=()
 last_marker_ansi=$'\033[33m(last)\033[0m'
+repo_venv_python="${root_dir}/.venv/bin/python3"
+build_python=""
+if [[ -t 1 ]]; then
+  color_red=$'\033[31m'
+  color_green=$'\033[32m'
+  color_reset=$'\033[0m'
+else
+  color_red=""
+  color_green=""
+  color_reset=""
+fi
 
 strip_ansi() {
   # Strip ANSI escape sequences from fzf-selected lines before comparison/parsing.
@@ -56,6 +67,100 @@ hash_text() {
     digest="$(printf '%s' "${input_text}" | cksum | awk '{print $1}')"
   fi
   printf '%s' "${digest}"
+}
+
+resolve_build_python() {
+  if [[ -n "${EDGETX_PYTHON_EXECUTABLE:-}" ]]; then
+    printf '%s' "${EDGETX_PYTHON_EXECUTABLE}"
+    return 0
+  fi
+
+  if [[ -x "${repo_venv_python}" ]]; then
+    printf '%s' "${repo_venv_python}"
+    return 0
+  fi
+
+  if command -v python3 >/dev/null 2>&1; then
+    command -v python3
+    return 0
+  fi
+
+  if command -v python >/dev/null 2>&1; then
+    command -v python
+    return 0
+  fi
+
+  return 1
+}
+
+check_build_python_environment() {
+  local python_bin="$1"
+  local missing_modules=""
+
+  if ! "${python_bin}" -c 'import PIL' >/dev/null 2>&1; then
+    missing_modules="Pillow (PIL)"
+  fi
+  if ! "${python_bin}" -c 'import jinja2' >/dev/null 2>&1; then
+    if [[ -n "${missing_modules}" ]]; then
+      missing_modules="${missing_modules}, "
+    fi
+    missing_modules="${missing_modules}jinja2"
+  fi
+  if ! "${python_bin}" -c 'import lz4.block' >/dev/null 2>&1; then
+    if [[ -n "${missing_modules}" ]]; then
+      missing_modules="${missing_modules}, "
+    fi
+    missing_modules="${missing_modules}lz4"
+  fi
+  if ! "${python_bin}" -c 'import clang.cindex' >/dev/null 2>&1; then
+    if [[ -n "${missing_modules}" ]]; then
+      missing_modules="${missing_modules}, "
+    fi
+    missing_modules="${missing_modules}clang"
+  fi
+  if ! "${python_bin}" -c 'from elftools.elf.elffile import ELFFile' >/dev/null 2>&1; then
+    if [[ -n "${missing_modules}" ]]; then
+      missing_modules="${missing_modules}, "
+    fi
+    missing_modules="${missing_modules}pyelftools"
+  fi
+
+  if [[ -z "${missing_modules}" ]]; then
+    return 0
+  fi
+
+  if command -v uv >/dev/null 2>&1 && [[ -t 0 ]]; then
+    printf "%bPython build environment is missing required modules: %s%b\n" "${color_red}" "${missing_modules}" "${color_reset}"
+    echo "Python interpreter: ${python_bin}"
+    printf "%bRun 'uv sync --group user-builds' now?%b [Y/n]: " "${color_green}" "${color_reset}"
+    read -r sync_answer
+    if [[ -z "${sync_answer}" || "${sync_answer}" =~ ^[Yy]$ ]]; then
+      if uv sync --group user-builds; then
+        if "${python_bin}" -c 'import PIL, jinja2, lz4.block, clang.cindex; from elftools.elf.elffile import ELFFile' >/dev/null 2>&1; then
+          return 0
+        fi
+        if [[ -x "${repo_venv_python}" ]] && [[ "${python_bin}" != "${repo_venv_python}" ]]; then
+          if "${repo_venv_python}" -c 'import PIL, jinja2, lz4.block, clang.cindex; from elftools.elf.elffile import ELFFile' >/dev/null 2>&1; then
+            build_python="${repo_venv_python}"
+            return 0
+          fi
+        fi
+      else
+        echo "uv sync failed."
+      fi
+    fi
+  fi
+
+  printf "%bPython build environment is missing required modules: %s%b\n" "${color_red}" "${missing_modules}" "${color_reset}"
+  echo "Python interpreter: ${python_bin}"
+  if command -v uv >/dev/null 2>&1; then
+    echo "Run from repository root:"
+    printf "  %buv sync --group user-builds%b\n" "${color_green}" "${color_reset}"
+  else
+    printf "%bInstall uv, then rerun this script.%b\n" "${color_green}" "${color_reset}"
+  fi
+  printf "%bAlternatively, set EDGETX_PYTHON_EXECUTABLE to a Python with those modules installed.%b\n" "${color_green}" "${color_reset}"
+  return 1
 }
 
 save_user_builds_config() {
@@ -178,6 +283,16 @@ if [[ -f "${config_file}" ]]; then
   if [[ "${config_kv_found}" -eq 0 ]]; then
     saved_idx="$(tr -d '[:space:]' < "${config_file}")"
   fi
+fi
+
+if ! build_python="$(resolve_build_python)"; then
+  echo "Unable to locate a usable Python interpreter."
+  echo "Install Python 3 and uv, then rerun this script."
+  exit 1
+fi
+
+if ! check_build_python_environment "${build_python}"; then
+  exit 1
 fi
 
 if [[ -d "${root_dir}/build" ]]; then
@@ -318,12 +433,12 @@ elif [[ "${use_fzf}" -eq 1 && -t 1 ]] && command -v fzf >/dev/null 2>&1; then
   radio_lines="$(awk -F '\t' '
     NF >= 3 {
       disp = ""
-      if ($5 != "" || $6 != "") {
-        disp = " (" $5
-        if ($5 != "" && $6 != "") {
+      if ($6 != "" || $7 != "") {
+        disp = " (" $6
+        if ($6 != "" && $7 != "") {
           disp = disp " "
         }
-        disp = disp $6 ")"
+        disp = disp $7 ")"
       }
       printf "%s. %s%s\n", $1, $2, disp
     }
@@ -360,12 +475,12 @@ else
     awk -F '\t' '
     NF >= 3 {
       disp = ""
-      if ($5 != "" || $6 != "") {
-        disp = " (" $5
-        if ($5 != "" && $6 != "") {
+      if ($6 != "" || $7 != "") {
+        disp = " (" $6
+        if ($6 != "" && $7 != "") {
           disp = disp " "
         }
-        disp = disp $6 ")"
+        disp = disp $7 ")"
       }
       printf "%3d. %s%s\n", $1, $2, disp
     }
@@ -405,7 +520,7 @@ fi
 mkdir -p "${user_builds_dir}"
 saved_idx="${idx}"
 
-selected_row="$(awk -F '\t' -v n="${idx}" '$1 == n {print $3 "\t" $4; exit}' "${radios_config}")"
+selected_row="$(awk -F '\t' -v n="${idx}" '$1 == n {print $3 "\t" $4 "\t" $5; exit}' "${radios_config}")"
 if [[ -z "${selected_row}" ]]; then
   echo "Failed to resolve selection from ${radios_config}."
   exit 1
@@ -414,6 +529,7 @@ selected_radio_name="$(awk -F '\t' -v n="${idx}" '$1 == n {print $2; exit}' "${r
 
 pcb="$(printf '%s\n' "${selected_row}" | awk -F '\t' '{print $1}')"
 pcbrev="$(printf '%s\n' "${selected_row}" | awk -F '\t' '{print $2}')"
+selected_radio_artifact_id="$(printf '%s\n' "${selected_row}" | awk -F '\t' '{print $3}')"
 
 export EDGETX_PCB="${pcb}"
 export EDGETX_PCBREV="${pcbrev:-}"
@@ -695,9 +811,9 @@ fi
 echo
 echo "Run:"
 if [[ -n "${EDGETX_PCBREV}" ]]; then
-  cmake_cmd=(cmake -S . -B build -DPCB="${EDGETX_PCB}" -DPCBREV="${EDGETX_PCBREV}")
+  cmake_cmd=(cmake -S . -B build -DPCB="${EDGETX_PCB}" -DPCBREV="${EDGETX_PCBREV}" -DPython3_EXECUTABLE="${build_python}")
 else
-  cmake_cmd=(cmake -S . -B build -DPCB="${EDGETX_PCB}")
+  cmake_cmd=(cmake -S . -B build -DPCB="${EDGETX_PCB}" -DPython3_EXECUTABLE="${build_python}")
 fi
 if [[ ${#custom_cmake_args[@]} -gt 0 ]]; then
   cmake_cmd+=( "${custom_cmake_args[@]}" )
@@ -771,6 +887,7 @@ if [[ "${run_answer}" =~ ^[Yy]$ ]]; then
   fi
   pcb_slug="$(printf '%s' "${EDGETX_PCB}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9._-' '-')"
   pcbrev_slug="$(printf '%s' "${EDGETX_PCBREV}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9._-' '-')"
+  artifact_slug="$(printf '%s' "${selected_radio_artifact_id}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9._-' '-')"
   target_slug="$(printf '%s' "${target_name}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9._-' '-')"
   version_slug="$(printf '%s' "${fw_version}" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9._-' '-')"
   stamp="$(date +%Y%m%d-%H%M%S)"
@@ -788,9 +905,12 @@ if [[ "${run_answer}" =~ ^[Yy]$ ]]; then
   copied=0
 
   if [[ "${build_target}" == "firmware" ]]; then
-    fw_radio_slug="${target_slug}"
-    if [[ -n "${pcbrev_slug}" ]]; then
-      fw_radio_slug="${pcbrev_slug}"
+    if [[ -n "${artifact_slug//-/}" ]]; then
+      fw_radio_slug="${artifact_slug}"
+    elif [[ -n "${pcbrev_slug}" ]]; then
+      fw_radio_slug="${target_slug}"
+    else
+      fw_radio_slug="${pcb_slug}"
     fi
     fw_base_name="${fw_radio_slug}-${version_slug}"
     custom_fingerprint=""

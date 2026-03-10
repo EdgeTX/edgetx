@@ -24,6 +24,11 @@ FILE_PCB_HINTS = {
     "radio/src/targets/tx15/CMakeLists.txt": "TX15",
 }
 
+PCB_REV_HINTS = {
+    ("X9D+", "2014"): "radio/src/targets/taranis/CMakeLists.txt",
+    ("X9D+", "2019"): "radio/src/targets/taranis/CMakeLists.txt",
+}
+
 PCB_RE = re.compile(r"^\s*(if|elseif)\s*\(\s*PCB\s+STREQUAL\s+([A-Za-z0-9_+.-]+)")
 PCBREV_RE = re.compile(r"\bPCBREV\s+STREQUAL\s+([A-Za-z0-9_+.-]+)")
 SET_PCBREV_RE = re.compile(r"^\s*set\s*\(\s*PCBREV\s+\"?([A-Za-z0-9_+.-]+)\"?")
@@ -124,6 +129,11 @@ def parse_targets():
                     "gui": file_default_gui,
                     "bitmaps": file_default_bitmaps,
                 }
+    for (pcb, rev), relpath in PCB_REV_HINTS.items():
+        path = os.path.join(ROOT, relpath)
+        if not os.path.exists(path):
+            continue
+        ordered_add(pcb_map, pcb, rev)
     return pcb_map, display_map
 
 
@@ -154,6 +164,17 @@ def display_parts(display_info):
         display_type = "BW"
     resolution = bitmaps if bitmaps and re.match(r"^\d+x\d+$", bitmaps) else ""
     return display_type, resolution
+
+
+def artifact_prefix(pcb, rev):
+    parts = [pcb]
+    if rev:
+        parts.append(rev)
+    return "-".join(
+        re.sub(r"[^a-z0-9._-]+", "-", part.lower()).strip("-")
+        for part in parts
+        if part
+    )
 
 
 def build_entries(pcb_map, display_map):
@@ -229,22 +250,22 @@ def build_entries(pcb_map, display_map):
                 label = base
                 if base in ("XLITES/MT12", "XLITE/MT12"):
                     continue
-                entries.append((label, pcb, rev, display_type, resolution))
+                entries.append((label, pcb, rev, artifact_prefix(pcb, rev), display_type, resolution))
         else:
             pretty = labels.get((pcb, None))
             disp_info = display_overrides.get((pcb, None)) or display_map.get((pcb, None))
             display_type, resolution = display_parts(disp_info)
             base = pretty if pretty else f"{pcb}"
             label = base
-            entries.append((label, pcb, None, display_type, resolution))
+            entries.append((label, pcb, None, artifact_prefix(pcb, None), display_type, resolution))
 
     return entries
 
 
 def entries_to_tsv(entries):
     lines = []
-    for i, (label, pcb, rev, display_type, resolution) in enumerate(entries, 1):
-        lines.append(f"{i}\t{label}\t{pcb}\t{rev or ''}\t{display_type}\t{resolution}\n")
+    for i, (label, pcb, rev, prefix, display_type, resolution) in enumerate(entries, 1):
+        lines.append(f"{i}\t{label}\t{pcb}\t{rev or ''}\t{prefix}\t{display_type}\t{resolution}\n")
     return "".join(lines)
 
 
@@ -328,7 +349,7 @@ def main():
         if idx < 0 or idx >= len(entries):
             print(f"Invalid selection: {args.select}")
             return 1
-        _, pcb, rev, _, _ = entries[idx]
+        _, pcb, rev, _, _, _ = entries[idx]
         if rev:
             flags = f"-DPCB={pcb} -DPCBREV={rev}"
         else:
@@ -340,7 +361,7 @@ def main():
         return 0
 
     print("Available radios:")
-    for i, (label, _, _, _, _) in enumerate(entries, 1):
+    for i, (label, _, _, _, _, _) in enumerate(entries, 1):
         print(f"{i:3d}. {label}")
     print()
     print("Select one:")
