@@ -51,6 +51,9 @@
   let lcdDepth = 0;
   let lcdSize = 0;
 
+  // Stick mode: 0=Mode1(thr=RV), 1=Mode2(thr=LV), 2=Mode3(thr=RV), 3=Mode4(thr=LV)
+  let stickMode = 0;
+
   // Audio playback via Web Audio API
   let audioCtx: AudioContext | null = null;
   const AUDIO_SAMPLE_RATE = 32000;
@@ -123,13 +126,38 @@
     return getFlexInputs().filter(({ input }) => input.default === 'MULTIPOS');
   }
 
+  /** Read stickMode from /RADIO/radio.yml in memfs. */
+  function readStickMode(): void {
+    if (!persistentFs) return;
+    try {
+      const data = persistentFs.fs.readFileSync('/RADIO/radio.yml', 'utf8') as string;
+      const match = data.match(/^stickMode:\s*(\d+)/m);
+      if (match) {
+        stickMode = parseInt(match[1], 10);
+        onTrace(`[persist] stickMode=${stickMode} (Mode ${stickMode + 1})\n`);
+      }
+    } catch {
+      // No radio.yml yet — use default mode
+    }
+  }
+
+  /** Get the input index of the throttle axis based on stick mode. */
+  function getThrottleIndex(): number {
+    const si = getStickIndices();
+    // Modes 1,3 (stickMode 0,2): throttle = RV; Modes 2,4 (stickMode 1,3): throttle = LV
+    return (stickMode & 1) ? si.lv : si.rv;
+  }
+
   // Initialize control state from current radio
   function initControls() {
     if (!currentRadio) return;
+    const thrIdx = getThrottleIndex();
     const inputs = currentRadio.inputs ?? [];
-    analogValues = inputs.map((input) =>
-      input.default === 'MULTIPOS' ? 0 : 2048 // MULTIPOS starts at pos 0; others at center
-    );
+    analogValues = inputs.map((input, i) => {
+      if (input.default === 'MULTIPOS') return 0;
+      if (i === thrIdx) return 0; // throttle at lowest
+      return 2048; // others centered
+    });
 
     const switches = currentRadio.switches ?? [];
     switchStates = switches.map(() => -1); // all up by default
@@ -230,6 +258,7 @@
       if (hadData) {
         const files = persistentFs.listFiles('/');
         onTrace(`[persist] restored ${files.length} file(s) from OPFS for "${radioKey}"\n`);
+        readStickMode();
       } else {
         onTrace(`[persist] no previous data for "${radioKey}"\n`);
       }
@@ -537,7 +566,7 @@
     };
     const onUp = () => {
       draggingGimbal = null;
-      applyGimbal(side, 0, 0); // spring back
+      releaseGimbal(side);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
@@ -561,7 +590,7 @@
     };
     const onEnd = () => {
       draggingGimbal = null;
-      applyGimbal(side, 0, 0); // spring back
+      releaseGimbal(side);
       window.removeEventListener('touchmove', onMove);
       window.removeEventListener('touchend', onEnd);
       window.removeEventListener('touchcancel', onEnd);
@@ -579,6 +608,54 @@
   // Convert 0..4096 ADC value back to -1..+1 for UI display
   function fromAdc(v: number): number {
     return v / 2048 - 1;
+  }
+
+  /** Animate an axis back to a target with damped spring physics. */
+  let springAnimations = new Map<number, number>(); // index → rafId
+
+  function springTo(index: number, target: number) {
+    // Cancel any existing animation on this axis
+    const existing = springAnimations.get(index);
+    if (existing) cancelAnimationFrame(existing);
+
+    let pos = analogValues[index];
+    let vel = 0;
+    let prev = performance.now();
+    const stiffness = 600;  // spring force
+    const damping = 25;     // friction
+
+    const tick = (now: number) => {
+      const dt = Math.min((now - prev) / 1000, 0.033);
+      prev = now;
+
+      const force = (target - pos) * stiffness;
+      vel = (vel + force * dt) * Math.exp(-damping * dt);
+      pos += vel * dt;
+
+      updateAnalog(index, Math.round(pos));
+
+      if (Math.abs(pos - target) < 1 && Math.abs(vel) < 10) {
+        updateAnalog(index, target);
+        springAnimations.delete(index);
+        return;
+      }
+      springAnimations.set(index, requestAnimationFrame(tick));
+    };
+
+    springAnimations.set(index, requestAnimationFrame(tick));
+  }
+
+  /** On release, spring back to center except throttle axis keeps its position. */
+  function releaseGimbal(side: 'left' | 'right') {
+    const si = getStickIndices();
+    const thrIdx = getThrottleIndex();
+    if (side === 'left') {
+      if (si.lh >= 0) springTo(si.lh, 2048);
+      if (si.lv >= 0 && si.lv !== thrIdx) springTo(si.lv, 2048);
+    } else {
+      if (si.rh >= 0) springTo(si.rh, 2048);
+      if (si.rv >= 0 && si.rv !== thrIdx) springTo(si.rv, 2048);
+    }
   }
 
   function applyGimbal(side: 'left' | 'right', x: number, y: number) {
