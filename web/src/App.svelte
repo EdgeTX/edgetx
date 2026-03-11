@@ -65,6 +65,9 @@
   let lcdLoopActive = false;
   let autoSaveTimer: number | null = null;
   let saving = $state(false);
+  let fps = $state(0);
+  let frameCount = 0;
+  let lastFpsTime = 0;
   const themeCycle: Record<string, string> = { auto: 'dark', dark: 'light', light: 'auto' };
   const themeIcon: Record<string, string> = { auto: '\u25D0', dark: '\u263E', light: '\u2600' };
   let themeMode = $state(localStorage.getItem('theme') ?? 'auto');
@@ -400,7 +403,7 @@
       lcdRenderer.resize(canvasW, canvasH);
     }
 
-    lcdLoop();
+    lcdLoop().catch((e) => console.error('lcdLoop error:', e));
 
     // Auto-save every 30 seconds while running
     autoSaveTimer = window.setInterval(async () => {
@@ -511,22 +514,47 @@
   /** Async LCD loop: waits for firmware frame notifications via Atomics.waitAsync. */
   async function lcdLoop() {
     lcdLoopActive = true;
-    while (lcdLoopActive && runner) {
-      const hasFrame = await runner.waitForLcdFrame(100);
-      if (!lcdLoopActive || !runner) break;
+    frameCount = 0;
+    lastFpsTime = performance.now();
+    fps = 0;
 
-      const ex = runner.exports;
-      if (!ex || !lcdRenderer) continue;
+    // Update FPS display every 250ms, smoothed with exponential moving average
+    let smoothFps = 0;
+    const fpsInterval = setInterval(() => {
+      const now = performance.now();
+      const elapsed = now - lastFpsTime;
+      if (elapsed > 0) {
+        const instantFps = frameCount * 1000 / elapsed;
+        smoothFps += (instantFps - smoothFps) * 0.4;
+        fps = Math.round(smoothFps);
+      }
+      frameCount = 0;
+      lastFpsTime = now;
+    }, 250);
 
-      pollCustomSwitches();
+    try {
+      while (lcdLoopActive && runner) {
+        const hasFrame = await runner.waitForLcdFrame(100);
+        if (!lcdLoopActive || !runner) break;
 
-      if (!hasFrame || !ex.simuLcdChanged()) continue;
+        const ex = runner.exports;
+        if (!ex || !lcdRenderer) continue;
 
-      const data = runner.copyLcd(lcdSize);
-      if (!data) continue;
+        pollCustomSwitches();
 
-      lcdRenderer.render(data, lcdWidth, lcdHeight, lcdDepth);
-      ex.simuLcdFlushed();
+        const lcdChanged = ex.simuLcdChanged();
+        if (!hasFrame && !lcdChanged) continue;
+
+        const data = runner.copyLcd(lcdSize);
+        if (!data) continue;
+
+        lcdRenderer.render(data, lcdWidth, lcdHeight, lcdDepth);
+        ex.simuLcdFlushed();
+        frameCount++;
+      }
+    } finally {
+      clearInterval(fpsInterval);
+      fps = 0;
     }
   }
 
@@ -1346,7 +1374,7 @@
   </div>
 
   <details>
-    <summary>Trace output</summary>
+    <summary class="trace-summary">Trace output{#if running}<span class="fps">{fps} fps</span>{/if}</summary>
     <pre class="trace">{traceLog}</pre>
   </details>
 </main>
@@ -1991,6 +2019,18 @@
     color: var(--text-muted);
     font-size: 0.85rem;
     padding: 0.25rem 0;
+  }
+
+  .trace-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fps {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: normal;
   }
 
   .trace {
