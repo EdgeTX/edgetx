@@ -101,6 +101,10 @@
   $effect(() => {
     if (!selectedRadio || running || loading) return;
     localStorage.setItem('selectedRadio', selectedRadio);
+    const key = radioKeyFromWasm(selectedRadio);
+    const url = new URL(location.href);
+    url.searchParams.set('radio', key);
+    history.replaceState(null, '', url);
     // If there's already a runner for a different radio, tear it down
     if (runner && currentRadio?.wasm !== selectedRadio) {
       teardown().then(() => initFsForRadio(selectedRadio));
@@ -317,8 +321,16 @@
 
       const avail = radios.filter((r) => r.available);
       if (avail.length > 0) {
+        const urlParam = new URLSearchParams(location.search).get('radio');
         const saved = localStorage.getItem('selectedRadio');
-        selectedRadio = (saved && avail.some((r) => r.wasm === saved)) ? saved : avail[0].wasm;
+        const match = urlParam && avail.find((r) => {
+          const key = radioKeyFromWasm(r.wasm);
+          const q = urlParam.toLowerCase();
+          return key.toLowerCase() === q || r.name.toLowerCase() === q;
+        });
+        selectedRadio = match ? match.wasm
+          : (saved && avail.some((r) => r.wasm === saved)) ? saved
+          : avail[0].wasm;
         status = `${avail.length} radio(s) available`;
       } else {
         status = 'No .wasm files found in public/';
