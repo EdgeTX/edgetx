@@ -37,17 +37,25 @@
     KEY_SHIFT: 14, KEY_BIND: 15,
   };
 
+  interface DisplayDef {
+    w: number;
+    h: number;
+    depth: number;
+  }
+
   interface RadioEntry {
     name: string;
     wasm: string;
     available?: boolean;
+    display?: DisplayDef;
     inputs?: InputDef[];
     switches?: SwitchDef[];
     trims?: TrimDef[];
     keys?: KeyDef[];
   }
 
-  let canvas: HTMLCanvasElement;
+  let canvas = $state<HTMLCanvasElement>(undefined!);
+  let canvasKey = $state(0);
   let status = $state('Loading radio list...');
   let traceLog = $state('');
   let running = $state(false);
@@ -115,6 +123,12 @@
       runner = r;
       currentRadio = radio ?? null;
       fsHasContent = hasContent;
+      // Apply LCD dimensions from manifest
+      if (radio?.display) {
+        lcdWidth = radio.display.w;
+        lcdHeight = radio.display.h;
+        lcdDepth = radio.display.depth;
+      }
       if (hasContent) {
         const files = await r.fsListFiles('/');
         onTrace(`[fs] ${files.length} file(s) in OPFS for "${radioKey}"\n`);
@@ -469,6 +483,9 @@
     running = false;
     currentRadio = null;
     fsHasContent = false;
+    lcdDepth = 0;
+    // Force Svelte to recreate the canvas element (avoids stale WebGL context)
+    canvasKey++;
 
     if (r) {
       if (r.exports) {
@@ -1039,6 +1056,7 @@
         </div>
       {/if}
       <div class="lcd-bezel">
+        {#key canvasKey}
         <canvas
           bind:this={canvas}
           class="lcd"
@@ -1048,6 +1066,7 @@
           onmousedown={handleCanvasMouseDown}
           onwheel={handleWheel}
         ></canvas>
+        {/key}
       </div>
       {#if currentRadio?.keys?.length}
         <div class="key-column">
@@ -1810,8 +1829,9 @@
 
   /* Switch column */
   .switch-column {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    max-width: calc(3 * 52px);
     gap: 0.4rem;
     min-width: 52px;
     padding-top: 0.5rem;
