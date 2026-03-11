@@ -51,14 +51,17 @@
   let status = $state('Loading radio list...');
   let traceLog = $state('');
   let running = $state(false);
-  let loaded = $state(false);
   let loading = $state(false);
 
   let radios = $state<RadioEntry[]>([]);
   let selectedRadio = $state('');
   let currentRadio = $state<RadioEntry | null>(null);
 
-  let runner: WasmRunner | null = null;
+  /** True when the FS Worker is alive and the sim is not running — uploads are possible. */
+  let fsReady = $derived(!running && !loading && runner !== null);
+  let fsHasContent = $state(false);
+
+  let runner = $state<WasmRunner | null>(null);
   let lcdRenderer: LcdRenderer | null = null;
   let lcdLoopActive = false;
   let fps = $state(0);
@@ -85,6 +88,47 @@
       document.documentElement.setAttribute('data-theme', themeMode);
     }
   });
+
+  // When the dropdown changes, tear down any old instance and init FS for the new radio
+  $effect(() => {
+    if (!selectedRadio || running || loading) return;
+    // If there's already a runner for a different radio, tear it down
+    if (runner && currentRadio?.wasm !== selectedRadio) {
+      teardown().then(() => initFsForRadio(selectedRadio));
+    } else if (!runner) {
+      initFsForRadio(selectedRadio);
+    }
+  });
+
+  /** Create a WasmRunner and init its FS Worker for the given radio. */
+  async function initFsForRadio(wasmFile: string) {
+    const radioKey = radioKeyFromWasm(wasmFile);
+    const radio = radios.find((r) => r.wasm === wasmFile);
+    const r = new WasmRunner(onTrace, onAudio);
+    try {
+      const { hasContent } = await r.initFs(radioKey);
+      // Guard: if selectedRadio changed while we were awaiting, discard
+      if (selectedRadio !== wasmFile) {
+        r.stopFs().catch(() => {});
+        return;
+      }
+      runner = r;
+      currentRadio = radio ?? null;
+      fsHasContent = hasContent;
+      if (hasContent) {
+        const files = await r.fsListFiles('/');
+        onTrace(`[fs] ${files.length} file(s) in OPFS for "${radioKey}"\n`);
+        await readStickMode();
+      } else {
+        onTrace(`[fs] no previous data for "${radioKey}"\n`);
+      }
+      status = `Ready — ${radio?.name ?? wasmFile}`;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      onTrace(`[fs] initFs error: ${msg}\n`);
+    }
+  }
+
   let lcdWidth = $state(480);
   let lcdHeight = $state(272);
   let lcdDepth = $state(0);
@@ -297,32 +341,34 @@
     audioNextTime += samples.length / AUDIO_SAMPLE_RATE;
   }
 
-  async function loadSelected() {
+  /** Load WASM + start the simulator in one step. */
+  async function run() {
     if (!selectedRadio || loading) return;
-
-    // Tear down previous instance
-    await teardown();
 
     try {
       loading = true;
-      loaded = false;
       traceLog = '';
       const radio = radios.find((r) => r.wasm === selectedRadio);
       currentRadio = radio ?? null;
       status = `Loading ${radio?.name ?? selectedRadio}...`;
 
       const radioKey = radioKeyFromWasm(selectedRadio);
-      runner = new WasmRunner(onTrace, onAudio);
-      const { hasContent } = await runner.load(`./${selectedRadio}`, radioKey);
 
-      if (hasContent) {
-        const files = await runner.fsListFiles('/');
-        onTrace(`[fs] ${files.length} file(s) in OPFS for "${radioKey}"\n`);
-        await readStickMode();
-        status = `Loading ${radio?.name ?? selectedRadio} (restored SD card)...`;
-      } else {
-        onTrace(`[fs] no previous data for "${radioKey}"\n`);
+      // Reuse existing runner/FS Worker from radio selection, or create fresh
+      if (!runner || !runner.hasFsWorker) {
+        await teardown();
+        runner = new WasmRunner(onTrace, onAudio);
+        const { hasContent } = await runner.initFs(radioKey);
+        if (hasContent) {
+          const files = await runner.fsListFiles('/');
+          onTrace(`[fs] ${files.length} file(s) in OPFS for "${radioKey}"\n`);
+          await readStickMode();
+        } else {
+          onTrace(`[fs] no previous data for "${radioKey}"\n`);
+        }
       }
+
+      await runner.load(`./${selectedRadio}`);
 
       const ex = runner.exports!;
       lcdWidth = ex.simuLcdGetWidth();
@@ -339,14 +385,42 @@
 
       initControls();
 
-      // Prime the SharedArrayBuffer with initial analog values
+      // Push all analog/switch values to WASM before starting
       for (let i = 0; i < analogValues.length; i++) {
         runner.setAnalog(i, analogValues[i]);
       }
+      for (let i = 0; i < switchStates.length; i++) {
+        ex.simuSetSwitch(i, switchStates[i]);
+      }
 
-      loaded = true;
+      // --- Init audio ---
+      if (!audioCtx) {
+        audioCtx = new AudioContext({ sampleRate: AUDIO_SAMPLE_RATE });
+      }
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+      audioNextTime = 0;
+
+      // --- Start sim ---
+      ex.simuInit();
+      runner.setFatfsPaths('/', '/');
+      ex.simuStart(1);
+
+      if (canvas) {
+        lcdRenderer = new LcdRenderer(canvas);
+        const cssWidth = Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320);
+        const dpr = window.devicePixelRatio || 1;
+        const canvasW = Math.round(cssWidth * dpr);
+        const canvasH = Math.round(canvasW * lcdHeight / lcdWidth);
+        lcdRenderer.resize(canvasW, canvasH);
+      }
+
       loading = false;
-      status = `${radio?.name}: LCD ${lcdWidth}\u00d7${lcdHeight} ${lcdDepth}bpp`;
+      running = true;
+      status = 'Running';
+
+      lcdLoop().catch((e) => console.error('lcdLoop error:', e));
     } catch (e) {
       loading = false;
       const msg = e instanceof Error ? e.message : String(e);
@@ -358,65 +432,14 @@
     }
   }
 
-  async function startSimulator() {
-    if (!runner?.exports) return;
-
-    if (!audioCtx) {
-      audioCtx = new AudioContext({ sampleRate: AUDIO_SAMPLE_RATE });
-    }
-    if (audioCtx.state === 'suspended') {
-      await audioCtx.resume();
-    }
-    audioNextTime = 0; // reset scheduling cursor
-
-    const ex = runner.exports;
-
-    // Push all analog values to WASM before starting
-    for (let i = 0; i < analogValues.length; i++) {
-      runner.setAnalog(i, analogValues[i]);
-    }
-
-    // Push all switch states to WASM before starting
-    for (let i = 0; i < switchStates.length; i++) {
-      ex.simuSetSwitch(i, switchStates[i]);
-    }
-
-    ex.simuInit();
-    runner.setFatfsPaths('/', '/');
-    ex.simuStart(1);
-    running = true;
-    status = 'Running';
-
-    if (canvas) {
-      lcdRenderer = new LcdRenderer(canvas);
-      // Set canvas resolution to match CSS display size (× devicePixelRatio for retina)
-      const cssWidth = Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320);
-      const dpr = window.devicePixelRatio || 1;
-      const canvasW = Math.round(cssWidth * dpr);
-      const canvasH = Math.round(canvasW * lcdHeight / lcdWidth);
-      lcdRenderer.resize(canvasW, canvasH);
-    }
-
-    lcdLoop().catch((e) => console.error('lcdLoop error:', e));
-  }
-
-  async function teardown() {
+  /** Stop the simulator.  Keeps the FS Worker alive for uploads. */
+  async function stop() {
     lcdLoopActive = false;
-    if (runner?.exports && running) {
-      try { runner.exports.simuStop(); } catch { /* expected */ }
-    }
-    if (runner) {
-      try { await runner.stopFs(); } catch { /* best effort */ }
-    }
-    runner = null;
-    lcdRenderer = null;
     running = false;
-    loaded = false;
-    currentRadio = null;
-  }
+    loading = true; // suppress fsReady until fully stopped
+    lcdRenderer = null;
+    status = 'Stopping...';
 
-  async function stopSimulator() {
-    lcdLoopActive = false;
     if (runner?.exports) {
       try {
         runner.exports.simuStop();
@@ -426,31 +449,34 @@
         // Worker threads continue their shutdown asynchronously.
       }
     }
-    running = false;
-    status = 'Waiting for shutdown...';
 
-    // Wait for worker threads to finish their shutdown tasks (writing
-    // settings, closing files, etc.).  OPFS writes are durable immediately.
-    await waitForShutdown();
+    // Wait for worker threads to finish writing settings/files, then terminate them.
+    await new Promise<void>((resolve) => setTimeout(resolve, 2000));
+    runner?.stopSim();
+    fsHasContent = true; // sim writes settings/models on shutdown
+    loading = false;
 
-    // Stop the FS Worker (closes all handles, flushes)
-    if (runner) {
-      await runner.stopFs();
-    }
-    onTrace('[fs] shutdown complete\n');
-
-    // Tear down the old WASM instance and reload so Start works again.
-    // Chrome caches compiled WASM, so subsequent loads are near-instant.
-    runner = null;
-    lcdRenderer = null;
-    loaded = false;
-    await loadSelected();
-    status = 'Stopped';
+    status = `Stopped — ${currentRadio?.name ?? selectedRadio}`;
   }
 
-  function waitForShutdown(): Promise<void> {
-    // Give worker threads time to finish writing settings/files
-    return new Promise((resolve) => setTimeout(resolve, 2000));
+  /** Full teardown: stop sim + terminate FS Worker. */
+  async function teardown() {
+    lcdLoopActive = false;
+    const r = runner;
+    // Set state synchronously first to avoid re-entrant effects
+    runner = null;
+    lcdRenderer = null;
+    running = false;
+    currentRadio = null;
+    fsHasContent = false;
+
+    if (r) {
+      if (r.exports) {
+        try { r.exports.simuStop(); } catch { /* expected */ }
+      }
+      r.stopSim();
+      try { await r.stopFs(); } catch { /* best effort */ }
+    }
   }
 
   function pollCustomSwitches() {
@@ -784,6 +810,17 @@
   }
 
   // --- Switch toggle handling ---
+  function handleSwitchKey(index: number, sw: SwitchDef, e: KeyboardEvent) {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const min = sw.type === '2POS' ? -1 : -1;
+      updateSwitch(index, Math.max(min, switchStates[index] - 1));
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      updateSwitch(index, Math.min(1, switchStates[index] + 1));
+    }
+  }
+
   function handleSwitchTrackClick(index: number, sw: SwitchDef, e: MouseEvent) {
     const track = e.currentTarget as HTMLElement;
     const rect = track.getBoundingClientRect();
@@ -868,6 +905,7 @@
     if (!runner) return;
     if (!confirm('Wipe all SD card data for this radio? This cannot be undone.')) return;
     await runner.fsWipe();
+    fsHasContent = false;
     onTrace('[fs] SD card data wiped\n');
     status = 'SD card wiped. Reload to start fresh.';
   }
@@ -894,6 +932,7 @@
         }
       }
       onTrace(`[fs] uploaded ${count} file(s) to ${targetDir}\n`);
+      if (count > 0) fsHasContent = true;
       status = `Uploaded ${count} file(s) to ${targetDir}`;
     };
     input.click();
@@ -924,6 +963,7 @@
         }
       }
       onTrace(`[fs] uploaded ${count} file(s) from folder\n`);
+      if (count > 0) fsHasContent = true;
       status = `Uploaded ${count} file(s)`;
     };
     input.click();
@@ -960,21 +1000,20 @@
         {/each}
       </select>
 
-      {#if !loaded && !loading}
-        <button onclick={loadSelected} disabled={!selectedRadio || loading}>
-          Load
+      {#if !running && !loading}
+        <button onclick={run} disabled={!selectedRadio}>
+          Run
         </button>
       {/if}
-      {#if loaded && !running}
-        <button onclick={startSimulator}>Start</button>
-      {/if}
       {#if running}
-        <button onclick={stopSimulator}>Stop</button>
+        <button onclick={stop}>Stop</button>
       {/if}
-      {#if loaded && !running}
+      {#if fsReady}
         <button onclick={handleFileUpload} class="secondary">Upload Files</button>
         <button onclick={handleFolderUpload} class="secondary">Upload Folder</button>
-        <button onclick={resetSdCard} class="danger">Reset SD</button>
+        {#if fsHasContent}
+          <button onclick={resetSdCard} class="danger">Reset SD</button>
+        {/if}
       {/if}
       <button class="theme-toggle" onclick={toggleTheme}
               aria-label="Toggle theme">{themeIcon[themeMode]}</button>
@@ -1026,7 +1065,7 @@
       {/if}
     </div>
 
-    {#if loaded && currentRadio}
+    {#if currentRadio}
       <!-- Pots row -->
       {#if getPots().length > 0 || getMultipos().length > 0}
         <div class="pots-row">
@@ -1093,7 +1132,13 @@
             <div class="switch-control">
               <span class="switch-name">{sw.name}</span>
               <div class="switch-track" class:is-3pos={sw.type === '3POS'}
-                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}>
+                   role="slider" tabindex="0"
+                   aria-label={sw.name}
+                   aria-valuemin={sw.type === '3POS' ? -1 : 0}
+                   aria-valuemax={1}
+                   aria-valuenow={switchStates[index]}
+                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}
+                   onkeydown={(e) => handleSwitchKey(index, sw, e)}>
                 {#if sw.type === '3POS'}
                   <div class="switch-notch" style:top="7px"></div>
                   <div class="switch-notch" style:top="50%"></div>
@@ -1102,7 +1147,8 @@
                   <div class="switch-notch" style:top="7px"></div>
                   <div class="switch-notch" style:top="calc(100% - 7px)"></div>
                 {/if}
-                <div class="switch-knob"
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div class="switch-knob" role="presentation"
                      class:sw-up={switchStates[index] === -1}
                      class:sw-mid={switchStates[index] === 0}
                      class:sw-down={switchStates[index] === 1}
@@ -1290,7 +1336,13 @@
             <div class="switch-control">
               <span class="switch-name">{sw.name}</span>
               <div class="switch-track" class:is-3pos={sw.type === '3POS'}
-                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}>
+                   role="slider" tabindex="0"
+                   aria-label={sw.name}
+                   aria-valuemin={sw.type === '3POS' ? -1 : 0}
+                   aria-valuemax={1}
+                   aria-valuenow={switchStates[index]}
+                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}
+                   onkeydown={(e) => handleSwitchKey(index, sw, e)}>
                 {#if sw.type === '3POS'}
                   <div class="switch-notch" style:top="7px"></div>
                   <div class="switch-notch" style:top="50%"></div>
@@ -1299,7 +1351,8 @@
                   <div class="switch-notch" style:top="7px"></div>
                   <div class="switch-notch" style:top="calc(100% - 7px)"></div>
                 {/if}
-                <div class="switch-knob"
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div class="switch-knob" role="presentation"
                      class:sw-up={switchStates[index] === -1}
                      class:sw-mid={switchStates[index] === 0}
                      class:sw-down={switchStates[index] === 1}
