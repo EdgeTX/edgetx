@@ -14,6 +14,9 @@ globalThis.addEventListener('unhandledrejection', (e) => {
 // Shared analog values buffer, received from main thread before thread start
 let analogValues: Int16Array | null = null;
 
+// LCD sync buffer, received from main thread before thread start
+let lcdSync: Int32Array | null = null;
+
 // Filesystem proxy client, received from main thread before thread start
 let fsClient: FsProxyClient | null = null;
 
@@ -52,6 +55,12 @@ const handler = new ThreadMessageHandler({
           postMessage({ type: 'audio', samples: new Int16Array(samples) });
         },
         simuTrace: (_ptr: number): void => {},
+        simuLcdNotify: (): void => {
+          if (lcdSync) {
+            Atomics.add(lcdSync, 0, 1);
+            Atomics.notify(lcdSync, 0);
+          }
+        },
       },
       wasi_snapshot_preview1: wasi.wasiImport,
       wasi: { ...wasiThreads.getImportObject().wasi },
@@ -70,6 +79,10 @@ const handler = new ThreadMessageHandler({
 globalThis.onmessage = function (e) {
   if (e.data?.type === 'analog-buffer') {
     analogValues = new Int16Array(e.data.buffer);
+    return;
+  }
+  if (e.data?.type === 'lcd-sync') {
+    lcdSync = new Int32Array(e.data.buffer);
     return;
   }
   if (e.data?.type === 'fs-channel') {

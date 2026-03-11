@@ -62,7 +62,7 @@
   let runner: WasmRunner | null = null;
   let lcdRenderer: LcdRenderer | null = null;
   let persistentFs: PersistentFS | null = null;
-  let pollTimer: number | null = null;
+  let lcdLoopActive = false;
   let autoSaveTimer: number | null = null;
   let saving = $state(false);
   const themeCycle: Record<string, string> = { auto: 'dark', dark: 'light', light: 'auto' };
@@ -400,7 +400,7 @@
       lcdRenderer.resize(canvasW, canvasH);
     }
 
-    pollTimer = window.setInterval(pollLcd, 33);
+    lcdLoop();
 
     // Auto-save every 30 seconds while running
     autoSaveTimer = window.setInterval(async () => {
@@ -411,10 +411,7 @@
   }
 
   function teardown() {
-    if (pollTimer !== null) {
-      clearInterval(pollTimer);
-      pollTimer = null;
-    }
+    lcdLoopActive = false;
     if (autoSaveTimer !== null) {
       clearInterval(autoSaveTimer);
       autoSaveTimer = null;
@@ -431,10 +428,7 @@
   }
 
   async function stopSimulator() {
-    if (pollTimer !== null) {
-      clearInterval(pollTimer);
-      pollTimer = null;
-    }
+    lcdLoopActive = false;
     if (autoSaveTimer !== null) {
       clearInterval(autoSaveTimer);
       autoSaveTimer = null;
@@ -496,11 +490,9 @@
     });
   }
 
-  function pollLcd() {
+  function pollCustomSwitches() {
     const ex = runner?.exports;
-    if (!ex || !lcdRenderer) return;
-
-    // Poll custom switch LED colors
+    if (!ex) return;
     const numCs = ex.simuGetNumCustomSwitches();
     if (numCs > 0) {
       for (let i = 0; i < numCs; i++) {
@@ -514,14 +506,28 @@
         }
       }
     }
+  }
 
-    if (!ex.simuLcdChanged()) return;
+  /** Async LCD loop: waits for firmware frame notifications via Atomics.waitAsync. */
+  async function lcdLoop() {
+    lcdLoopActive = true;
+    while (lcdLoopActive && runner) {
+      const hasFrame = await runner.waitForLcdFrame(100);
+      if (!lcdLoopActive || !runner) break;
 
-    const data = runner!.copyLcd(lcdSize);
-    if (!data) return;
+      const ex = runner.exports;
+      if (!ex || !lcdRenderer) continue;
 
-    lcdRenderer.render(data, lcdWidth, lcdHeight, lcdDepth);
-    ex.simuLcdFlushed();
+      pollCustomSwitches();
+
+      if (!hasFrame || !ex.simuLcdChanged()) continue;
+
+      const data = runner.copyLcd(lcdSize);
+      if (!data) continue;
+
+      lcdRenderer.render(data, lcdWidth, lcdHeight, lcdDepth);
+      ex.simuLcdFlushed();
+    }
   }
 
   function canvasToLcd(e: MouseEvent): { x: number; y: number } {
