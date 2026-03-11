@@ -1554,7 +1554,8 @@ void edgeTxInit()
 #endif // defined(GUI)
 
 #if defined(COLORLCD)
-  LayoutFactory::loadCustomScreens();
+    LayoutFactory::deleteCustomScreens(true);
+    LayoutFactory::loadCustomScreens();
 #endif
 
 #if defined(BLUETOOTH_PROBE)
