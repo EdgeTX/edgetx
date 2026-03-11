@@ -103,10 +103,16 @@ export class WasmRunner {
 
   private analogBuffer = new SharedArrayBuffer(32 * 2);
   private analogValues = new Int16Array(this.analogBuffer);
+  /** LCD sync: Int32[0] = frame sequence number, incremented by firmware on each refresh. */
+  private lcdSyncBuffer = new SharedArrayBuffer(4);
+  private lcdSync = new Int32Array(this.lcdSyncBuffer);
   private onTrace: TraceCallback;
   private onAudio: AudioCallback;
   private fsProxyHost: FsProxyHost;
   private nextWorkerId = 0;
+  /** Persistent WASM-side buffer for simuLcdCopy (allocated on first use). */
+  private wasmLcdBuf = 0;
+  private wasmLcdBufSize = 0;
   /** Set to true (or type `fsTrace = true` in browser console) to log fs proxy ops. */
   fsTrace = false;
 
@@ -140,6 +146,8 @@ export class WasmRunner {
         });
         // Share analog values buffer so worker threads can read stick/pot positions
         worker.postMessage({ type: 'analog-buffer', buffer: this.analogBuffer });
+        // Share LCD sync buffer so worker threads can notify host of frame updates
+        worker.postMessage({ type: 'lcd-sync', buffer: this.lcdSyncBuffer });
         // Share filesystem proxy channel
         const { ctrlBuffer, dataBuffer } = this.fsProxyHost.createChannel(workerId);
         worker.postMessage({ type: 'fs-channel', ctrlBuffer, dataBuffer });
@@ -201,6 +209,10 @@ export class WasmRunner {
           simuTrace: (ptr: number): void => {
             this.onTrace(readCStr(ptr));
           },
+          simuLcdNotify: (): void => {
+            Atomics.add(this.lcdSync, 0, 1);
+            Atomics.notify(this.lcdSync, 0);
+          },
         },
       }
     );
@@ -242,24 +254,41 @@ export class WasmRunner {
     ex.free(settingsPtr);
   }
 
+  /**
+   * Wait for the firmware to signal a new LCD frame.
+   * Returns true if a frame is ready, false on timeout.
+   * Uses Atomics.waitAsync so the main thread is not blocked.
+   */
+  async waitForLcdFrame(timeout = 100): Promise<boolean> {
+    const current = Atomics.load(this.lcdSync, 0);
+    const result = Atomics.waitAsync(this.lcdSync, 0, current, timeout);
+    if (result.async) {
+      const status = await result.value;
+      return status === 'ok';
+    }
+    // 'not-equal' means the value already changed — frame is ready
+    return true;
+  }
+
   /** Copy LCD framebuffer from WASM memory into a host-side Uint8Array */
   copyLcd(size: number): Uint8Array | null {
     const ex = this._exports;
     if (!ex) return null;
 
-    const wasmBuf = ex.malloc(size);
-    if (!wasmBuf) return null;
-
-    const copied = ex.simuLcdCopy(wasmBuf, size);
-    if (copied === 0) {
-      ex.free(wasmBuf);
-      return null;
+    // Allocate persistent WASM buffer on first use or if size changed
+    if (!this.wasmLcdBuf || this.wasmLcdBufSize < size) {
+      if (this.wasmLcdBuf) ex.free(this.wasmLcdBuf);
+      this.wasmLcdBuf = ex.malloc(size);
+      this.wasmLcdBufSize = this.wasmLcdBuf ? size : 0;
+      if (!this.wasmLcdBuf) return null;
     }
 
-    const mem = new Uint8Array(ex.memory.buffer, wasmBuf, copied);
+    const copied = ex.simuLcdCopy(this.wasmLcdBuf, size);
+    if (copied === 0) return null;
+
+    const mem = new Uint8Array(ex.memory.buffer, this.wasmLcdBuf, copied);
     const result = new Uint8Array(copied);
     result.set(mem);
-    ex.free(wasmBuf);
     return result;
   }
 }
