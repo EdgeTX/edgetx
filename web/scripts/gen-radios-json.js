@@ -115,10 +115,19 @@ function processFlavour(flavour) {
     side: KEY_SIDE[k.key] || 'R',
   }));
 
+  // Display / LCD info
+  const disp = hw.display ?? {};
+  const display = {
+    w: disp.w ?? 480,
+    h: disp.h ?? 272,
+    depth: disp.depth ?? 16,
+  };
+
   // WASM filename uses the flavour name directly
   return {
     name: getDisplayName(flavour),
     wasm: `edgetx-${flavour}-simulator.wasm`,
+    display,
     inputs,
     switches,
     trims,

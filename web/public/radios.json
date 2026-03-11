@@ -2,6 +2,11 @@
   {
     "name": "Fatfish F16",
     "wasm": "edgetx-f16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -177,6 +182,11 @@
   {
     "name": "Flysky EL18",
     "wasm": "edgetx-el18-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 480,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -283,6 +293,11 @@
   {
     "name": "Flysky NB4+",
     "wasm": "edgetx-nb4p-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 480,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "ST",
@@ -343,6 +358,11 @@
   {
     "name": "Flysky NV14",
     "wasm": "edgetx-nv14-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 480,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -449,6 +469,11 @@
   {
     "name": "Flysky PA01",
     "wasm": "edgetx-pa01-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 240,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -580,6 +605,11 @@
   {
     "name": "Flysky PL18",
     "wasm": "edgetx-pl18-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -705,6 +735,11 @@
   {
     "name": "Flysky PL18EV",
     "wasm": "edgetx-pl18ev-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -854,6 +889,11 @@
   {
     "name": "Flysky PL18U",
     "wasm": "edgetx-pl18u-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -984,6 +1024,11 @@
   {
     "name": "Flysky ST16",
     "wasm": "edgetx-st16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -1147,6 +1192,11 @@
   {
     "name": "FrSky Horus X10",
     "wasm": "edgetx-x10-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -1327,6 +1377,11 @@
   {
     "name": "FrSky Horus X10 Express",
     "wasm": "edgetx-x10express-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -1507,6 +1562,11 @@
   {
     "name": "FrSky Horus X12s",
     "wasm": "edgetx-x12s-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -1696,6 +1756,11 @@
   {
     "name": "FrSky QX7 Access",
     "wasm": "edgetx-x7access-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -1807,6 +1872,11 @@
   {
     "name": "FrSky X9D Plus 2019",
     "wasm": "edgetx-x9d+2019-simulator.wasm",
+    "display": {
+      "w": 212,
+      "h": 64,
+      "depth": 4
+    },
     "inputs": [
       {
         "name": "LH",
@@ -1940,6 +2010,11 @@
   {
     "name": "FrSky X9E",
     "wasm": "edgetx-x9e-simulator.wasm",
+    "display": {
+      "w": 212,
+      "h": 64,
+      "depth": 4
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2142,6 +2217,11 @@
   {
     "name": "HelloRadioSky V14",
     "wasm": "edgetx-v14-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2269,6 +2349,11 @@
   {
     "name": "HelloRadioSky V16",
     "wasm": "edgetx-v16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2454,6 +2539,11 @@
   {
     "name": "iFlight Commando 8",
     "wasm": "edgetx-commando8-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2558,6 +2648,11 @@
   {
     "name": "Jumper Bumblebee",
     "wasm": "edgetx-bumblebee-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2704,6 +2799,11 @@
   {
     "name": "Jumper T-Pro S",
     "wasm": "edgetx-tpros-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2810,6 +2910,11 @@
   {
     "name": "Jumper T-Pro V2",
     "wasm": "edgetx-tprov2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -2956,6 +3061,11 @@
   {
     "name": "Jumper T12 MAX",
     "wasm": "edgetx-t12max-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -3062,6 +3172,11 @@
   {
     "name": "Jumper T14",
     "wasm": "edgetx-t14-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -3168,6 +3283,11 @@
   {
     "name": "Jumper T15",
     "wasm": "edgetx-t15-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -3314,6 +3434,11 @@
   {
     "name": "Jumper T15 Pro",
     "wasm": "edgetx-t15pro-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -3460,6 +3585,11 @@
   {
     "name": "Jumper T16",
     "wasm": "edgetx-t16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -3640,6 +3770,11 @@
   {
     "name": "Jumper T18",
     "wasm": "edgetx-t18-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -3820,6 +3955,11 @@
   {
     "name": "Jumper T20",
     "wasm": "edgetx-t20-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -4012,6 +4152,11 @@
   {
     "name": "Jumper T20 V2",
     "wasm": "edgetx-t20v2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -4204,6 +4349,11 @@
   {
     "name": "RadioMaster Boxer",
     "wasm": "edgetx-boxer-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -4331,6 +4481,11 @@
   {
     "name": "RadioMaster GX12",
     "wasm": "edgetx-gx12-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -4504,6 +4659,11 @@
   {
     "name": "RadioMaster MT12",
     "wasm": "edgetx-mt12-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "ST",
@@ -4620,6 +4780,11 @@
   {
     "name": "RadioMaster Pocket",
     "wasm": "edgetx-pocket-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -4730,6 +4895,11 @@
   {
     "name": "RadioMaster TX12MK2",
     "wasm": "edgetx-tx12mk2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
@@ -4851,6 +5021,11 @@
   {
     "name": "RadioMaster TX15",
     "wasm": "edgetx-tx15-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -5002,6 +5177,11 @@
   {
     "name": "RadioMaster TX16S",
     "wasm": "edgetx-tx16s-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -5187,6 +5367,11 @@
   {
     "name": "RadioMaster TX16S MK3",
     "wasm": "edgetx-tx16smk3-simulator.wasm",
+    "display": {
+      "w": 800,
+      "h": 480,
+      "depth": 16
+    },
     "inputs": [
       {
         "name": "LH",
@@ -5388,6 +5573,11 @@
   {
     "name": "RadioMaster Zorro",
     "wasm": "edgetx-zorro-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
     "inputs": [
       {
         "name": "LH",
