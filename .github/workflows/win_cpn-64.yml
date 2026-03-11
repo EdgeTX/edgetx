@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -70,7 +70,7 @@ jobs:
         run: |
           # Create logs directory if it doesn't exist
           mkdir -p logs
-          
+
           # Copy all build logs from the build directory
           if [ -d "build" ]; then
             find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
