@@ -59,10 +59,20 @@ static void host_simuTrace(wasm_exec_env_t exec_env, const char * text)
 
 static bool s_wamrInitialized = false;
 
+static void host_simuLcdNotify(wasm_exec_env_t exec_env)
+{
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface)
+    iface->notifyLcdReady();
+}
+
 static NativeSymbol s_nativeSymbols[] = {
     {"simuGetAnalog", (void *)host_simuGetAnalog, "(i)i", nullptr},
     {"simuQueueAudio", (void *)host_simuQueueAudio, "(*~)", nullptr},
     {"simuTrace", (void *)host_simuTrace, "($)", nullptr},
+    {"simuLcdNotify", (void *)host_simuLcdNotify, "()", nullptr},
 };
 
 WasmSimulatorInterface::WasmSimulatorInterface(const QString & wasmPath,
@@ -212,10 +222,17 @@ bool WasmSimulatorInterface::loadModule()
 
 void WasmSimulatorInterface::unloadModule()
 {
-  if (m_wasmScratchBuf && m_execEnv && m_fnFree) {
-    uint32_t freeArgv[1] = {m_wasmScratchBuf};
-    wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
-    m_wasmScratchBuf = 0;
+  if (m_execEnv && m_fnFree) {
+    if (m_wasmLcdBuf) {
+      uint32_t freeArgv[1] = {m_wasmLcdBuf};
+      wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
+      m_wasmLcdBuf = 0;
+    }
+    if (m_wasmScratchBuf) {
+      uint32_t freeArgv[1] = {m_wasmScratchBuf};
+      wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
+      m_wasmScratchBuf = 0;
+    }
   }
   if (m_execEnv) {
     wasm_runtime_destroy_exec_env(m_execEnv);
@@ -315,7 +332,7 @@ bool WasmSimulatorInterface::resolveExports()
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
 
   if (!m_fnInit || !m_fnStart || !m_fnStop || !m_fnIsRunning ||
-      !m_fnLcdChanged || !m_fnLcdCopy || !m_fnLcdGetWidth ||
+      !m_fnLcdCopy || !m_fnLcdGetWidth ||
       !m_fnLcdGetHeight || !m_fnLcdGetDepth || !m_fnMalloc || !m_fnFree) {
     qWarning() << "Failed to resolve required WASM exports";
     return false;
@@ -374,6 +391,15 @@ void WasmSimulatorInterface::init()
     delete[] m_lcdBuffer;
     m_lcdBuffer = new uint8_t[m_lcdBufferSize];
     memset(m_lcdBuffer, 0, m_lcdBufferSize);
+
+    // Allocate persistent WASM-side buffer for simuLcdCopy
+    if (m_fnMalloc) {
+      uint32_t allocArgv[1] = {m_lcdBufferSize};
+      if (wasm_runtime_call_wasm(m_execEnv, m_fnMalloc, 1, allocArgv) &&
+          allocArgv[0]) {
+        m_wasmLcdBuf = allocArgv[0];
+      }
+    }
   }
 
   // Allocate persistent scratch buffer in WASM memory for bulk copies.
@@ -621,6 +647,42 @@ void WasmSimulatorInterface::lcdFlushed()
   wasm_runtime_call_wasm(m_execEnv, m_fnLcdFlushed, 0, nullptr);
 }
 
+void WasmSimulatorInterface::notifyLcdReady()
+{
+  // Called from WAMR thread — coalesce multiple notifications into one
+  // Qt event by only posting when the flag transitions from false to true.
+  if (!m_lcdNotified.exchange(true)) {
+    QMetaObject::invokeMethod(this, "onLcdNotify", Qt::QueuedConnection);
+  }
+}
+
+void WasmSimulatorInterface::onLcdNotify()
+{
+  if (!m_lcdNotified.exchange(false))
+    return;
+  refreshLcd();
+}
+
+void WasmSimulatorInterface::refreshLcd()
+{
+  if (!m_fnLcdCopy || !m_execEnv || !m_wasmLcdBuf || !m_lcdBuffer)
+    return;
+
+  QMutexLocker lckr(&m_mutex);
+
+  uint32_t copyArgv[2] = {m_wasmLcdBuf, m_lcdBufferSize};
+  if (wasm_runtime_call_wasm(m_execEnv, m_fnLcdCopy, 2, copyArgv)) {
+    uint32_t bytesWritten = copyArgv[0];
+    void * nativePtr =
+        wasm_runtime_addr_app_to_native(m_moduleInst, m_wasmLcdBuf);
+    if (nativePtr && bytesWritten > 0) {
+      memcpy(m_lcdBuffer, nativePtr, qMin(bytesWritten, m_lcdBufferSize));
+    }
+  }
+
+  emit lcdChange(true);
+}
+
 void WasmSimulatorInterface::setTrainerTimeout(uint16_t ms)
 {
   if (!m_fnSetTrainerTimeout || !m_execEnv)
@@ -785,41 +847,7 @@ void WasmSimulatorInterface::run()
     return;
   }
 
-  // Check LCD
-  if (m_fnLcdChanged && m_execEnv) {
-    QMutexLocker lckr(&m_mutex);
-    uint32_t argv[1] = {0};
-    if (wasm_runtime_call_wasm(m_execEnv, m_fnLcdChanged, 0, argv) &&
-        argv[0]) {
-      // LCD changed - copy buffer from WASM memory
-      if (m_lcdBuffer && m_lcdBufferSize > 0 && m_fnMalloc && m_fnFree) {
-        // Allocate buffer in WASM memory
-        uint32_t allocArgv[1] = {m_lcdBufferSize};
-        if (wasm_runtime_call_wasm(m_execEnv, m_fnMalloc, 1, allocArgv) &&
-            allocArgv[0]) {
-          uint32_t wasmBuf = allocArgv[0];
-
-          // Call simuLcdCopy(buf, maxLen)
-          uint32_t copyArgv[2] = {wasmBuf, m_lcdBufferSize};
-          if (wasm_runtime_call_wasm(m_execEnv, m_fnLcdCopy, 2, copyArgv)) {
-            uint32_t bytesWritten = copyArgv[0];
-            // Copy from WASM linear memory to host buffer
-            void * nativePtr =
-                wasm_runtime_addr_app_to_native(m_moduleInst, wasmBuf);
-            if (nativePtr && bytesWritten > 0) {
-              memcpy(m_lcdBuffer, nativePtr,
-                     qMin(bytesWritten, m_lcdBufferSize));
-            }
-          }
-
-          // Free WASM buffer
-          uint32_t freeArgv[1] = {wasmBuf};
-          wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
-        }
-      }
-      emit lcdChange(true);
-    }
-  }
+  // LCD updates are handled by onLcdNotify() via simuLcdNotify callback
 
   // Flush trainer input buffer (bulk copy)
   if (m_trainerDirty && m_fnCopyTrainerInput && m_wasmScratchBuf) {

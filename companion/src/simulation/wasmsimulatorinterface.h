@@ -20,6 +20,7 @@
 #include <QMutex>
 #include <QTimer>
 #include <QVector>
+#include <atomic>
 
 #include "wasm_export.h"
 
@@ -80,13 +81,18 @@ class WasmSimulatorInterface : public SimulatorInterface
     // Called by WASM import simuQueueAudio
     void queueAudio(const uint8_t * buf, uint32_t len);
 
+    // Called by WASM import simuLcdNotify (from WAMR thread)
+    void notifyLcdReady();
+
   protected slots:
     void run();
+    void onLcdNotify();
 
   protected:
     bool loadModule();
     void unloadModule();
     bool resolveExports();
+    void refreshLcd();
     void checkOutputsChanged();
     void initAudio();
     void deinitAudio();
@@ -98,6 +104,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     QString m_settingsPath;
 
     QTimer * m_timer10ms = nullptr;
+    std::atomic<bool> m_lcdNotified{false};
     QMutex m_mutex;
     QMutex m_mtxTbDevices;
     QVector<QIODevice *> m_tracebackDevices;
@@ -119,9 +126,10 @@ class WasmSimulatorInterface : public SimulatorInterface
     uint32_t m_wasmScratchBuf = 0;
     uint32_t m_wasmScratchSize = 0;
 
-    // Host-side LCD buffer
+    // Host-side LCD buffer + persistent WASM-side copy buffer
     uint8_t * m_lcdBuffer = nullptr;
     uint32_t m_lcdBufferSize = 0;
+    uint32_t m_wasmLcdBuf = 0;
     uint32_t m_lcdWidth = 0;
     uint32_t m_lcdHeight = 0;
     uint32_t m_lcdDepth = 0;
