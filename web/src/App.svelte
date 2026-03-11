@@ -880,14 +880,21 @@
     input.multiple = true;
     input.onchange = async () => {
       if (!input.files || !runner) return;
+      const total = input.files.length;
+      let count = 0;
+      if (total > 1) status = `Uploading 0/${total} files...`;
       for (const file of input.files) {
         const dir = targetDir.endsWith('/') ? targetDir : targetDir + '/';
         const path = dir + file.name;
         const data = await file.arrayBuffer();
         await runner.fsWriteFile(path, data);
-        onTrace(`[fs] uploaded ${path} (${data.byteLength} bytes)\n`);
+        count++;
+        if (total > 1 && (count % 10 === 0 || count === total)) {
+          status = `Uploading ${count}/${total} files to ${targetDir}...`;
+        }
       }
-      status = `Uploaded ${input.files.length} file(s) to ${targetDir}`;
+      onTrace(`[fs] uploaded ${count} file(s) to ${targetDir}\n`);
+      status = `Uploaded ${count} file(s) to ${targetDir}`;
     };
     input.click();
   }
@@ -900,7 +907,9 @@
     (input as any).webkitdirectory = true;
     input.onchange = async () => {
       if (!input.files || !runner) return;
+      const total = input.files.length;
       let count = 0;
+      status = `Uploading 0/${total} files...`;
       for (const file of input.files) {
         // webkitRelativePath gives "SOUNDS/en/system/hello.wav"
         // Keep as-is so selecting "SOUNDS" creates /SOUNDS/...
@@ -910,6 +919,9 @@
         const data = await file.arrayBuffer();
         await runner.fsWriteFile(path, data);
         count++;
+        if (count % 10 === 0 || count === total) {
+          status = `Uploading ${count}/${total} files...`;
+        }
       }
       onTrace(`[fs] uploaded ${count} file(s) from folder\n`);
       status = `Uploaded ${count} file(s)`;
