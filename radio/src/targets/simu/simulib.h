@@ -63,8 +63,10 @@ void WASM_EXPORT(simuSetSwitch)(uint8_t swtch, int8_t state);
 void WASM_EXPORT(simuTouchDown)(int16_t x, int16_t y);
 void WASM_EXPORT(simuTouchUp)();
 
-// LCD: poll simuLcdChanged(), then allocate a buffer via exported malloc(),
-// call simuLcdCopy() to fill it, copy to host, and free via exported free().
+// LCD: the firmware calls simuLcdNotify() (import) when a new frame is ready.
+// The host waits for this notification, then calls simuLcdCopy() to read the
+// framebuffer and simuLcdFlushed() to signal that the buffer can be reused.
+// simuLcdChanged() is kept for backward compatibility (Companion polling).
 // Depth is bits per pixel (1, 4, or 16).
 bool     WASM_EXPORT(simuLcdChanged)();
 uint32_t WASM_EXPORT(simuLcdCopy)(uint8_t* buf, uint32_t maxLen);
@@ -137,6 +139,12 @@ void WASM_IMPORT(simuQueueAudio)(const uint8_t* buf, uint32_t len);
 // simuTrace: send debug/trace output text to the host for display.
 // Called via traceCallback from debugPrintf().
 void WASM_IMPORT(simuTrace)(const char* text);
+
+// simuLcdNotify: signal the host that the LCD framebuffer has been updated
+// and is ready to be copied.  Called from lcdRefresh() (mono) and the LVGL
+// flush callback (color).  On the host side this wakes an Atomics.waitAsync
+// listener so the frame can be rendered without polling.
+void WASM_IMPORT(simuLcdNotify)();
 
 // -- Internal (not exported) --
 void simuMain();

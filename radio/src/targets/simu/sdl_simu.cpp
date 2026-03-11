@@ -873,3 +873,4 @@ uint16_t simuGetAnalog(uint8_t idx)
 }
 
 void simuTrace(const char* text) {}
+void simuLcdNotify() {}
