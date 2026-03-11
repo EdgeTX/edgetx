@@ -41,6 +41,7 @@ export const IDX_DATA_LEN = 9;
 
 export const CTRL_BUFFER_SIZE = 64 * 4; // 64 Int32s
 export const DATA_BUFFER_SIZE = 4 * 1024 * 1024; // 4 MB
+export const WAKE_BUFFER_SIZE = 4; // single Int32 shared across all channels
 
 // Error code mapping (Node.js errno strings → numeric)
 const ERROR_CODE_MAP: Record<string, number> = {
