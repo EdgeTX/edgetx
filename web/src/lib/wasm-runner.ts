@@ -347,6 +347,9 @@ export class WasmRunner {
       this.wasiThreads.terminateAllThreads();
     }
     this._exports = null;
+    // Reset LCD buffer pointer — it belonged to the old WASM memory
+    this.wasmLcdBuf = 0;
+    this.wasmLcdBufSize = 0;
   }
 
   /** Stop the FS Worker and clean up. */
