@@ -6,11 +6,6 @@ export default defineConfig({
   define: {
     'process.env': '{"NODE_DEBUG_NATIVE": null}',
   },
-  resolve: {
-    alias: {
-      buffer: 'buffer/',
-    },
-  },
   server: {
     headers: {
       'Cross-Origin-Embedder-Policy': 'require-corp',

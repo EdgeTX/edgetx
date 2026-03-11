@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { WasmRunner } from './lib/wasm-runner';
-  import { PersistentFS } from './lib/persistent-fs';
+  import { WasmRunner, radioKeyFromWasm } from './lib/wasm-runner';
   import { LcdRenderer } from './lib/lcd-renderer';
   import edgetxLogo from './assets/edgetx-logo.svg';
 
@@ -61,10 +60,7 @@
 
   let runner: WasmRunner | null = null;
   let lcdRenderer: LcdRenderer | null = null;
-  let persistentFs: PersistentFS | null = null;
   let lcdLoopActive = false;
-  let autoSaveTimer: number | null = null;
-  let saving = $state(false);
   let fps = $state(0);
   let frameCount = 0;
   let lastFpsTime = 0;
@@ -184,15 +180,17 @@
     return getFlexInputs().filter(({ input }) => input.default === 'MULTIPOS');
   }
 
-  /** Read stickMode from /RADIO/radio.yml in memfs. */
-  function readStickMode(): void {
-    if (!persistentFs) return;
+  /** Read stickMode from /RADIO/radio.yml via FS Worker. */
+  async function readStickMode(): Promise<void> {
+    if (!runner) return;
     try {
-      const data = persistentFs.fs.readFileSync('/RADIO/radio.yml', 'utf8') as string;
-      const match = data.match(/^stickMode:\s*(\d+)/m);
-      if (match) {
-        stickMode = parseInt(match[1], 10);
-        onTrace(`[persist] stickMode=${stickMode} (Mode ${stickMode + 1})\n`);
+      const data = await runner.fsReadTextFile('/RADIO/radio.yml');
+      if (data) {
+        const match = data.match(/^stickMode:\s*(\d+)/m);
+        if (match) {
+          stickMode = parseInt(match[1], 10);
+          onTrace(`[fs] stickMode=${stickMode} (Mode ${stickMode + 1})\n`);
+        }
       }
     } catch {
       // No radio.yml yet — use default mode
@@ -303,7 +301,7 @@
     if (!selectedRadio || loading) return;
 
     // Tear down previous instance
-    teardown();
+    await teardown();
 
     try {
       loading = true;
@@ -313,22 +311,18 @@
       currentRadio = radio ?? null;
       status = `Loading ${radio?.name ?? selectedRadio}...`;
 
-      const radioKey = PersistentFS.radioKeyFromWasm(selectedRadio);
-      persistentFs = new PersistentFS(radioKey);
-      const hadData = await persistentFs.load();
-      if (hadData) {
-        const files = persistentFs.listFiles('/');
-        onTrace(`[persist] restored ${files.length} file(s) from OPFS for "${radioKey}"\n`);
-        readStickMode();
-      } else {
-        onTrace(`[persist] no previous data for "${radioKey}"\n`);
-      }
-      status = hadData
-        ? `Loading ${radio?.name ?? selectedRadio} (restored SD card)...`
-        : `Loading ${radio?.name ?? selectedRadio}...`;
+      const radioKey = radioKeyFromWasm(selectedRadio);
+      runner = new WasmRunner(onTrace, onAudio);
+      const { hasContent } = await runner.load(`./${selectedRadio}`, radioKey);
 
-      runner = new WasmRunner(onTrace, onAudio, persistentFs.fs);
-      await runner.load(`./${selectedRadio}`);
+      if (hasContent) {
+        const files = await runner.fsListFiles('/');
+        onTrace(`[fs] ${files.length} file(s) in OPFS for "${radioKey}"\n`);
+        await readStickMode();
+        status = `Loading ${radio?.name ?? selectedRadio} (restored SD card)...`;
+      } else {
+        onTrace(`[fs] no previous data for "${radioKey}"\n`);
+      }
 
       const ex = runner.exports!;
       lcdWidth = ex.simuLcdGetWidth();
@@ -404,27 +398,18 @@
     }
 
     lcdLoop().catch((e) => console.error('lcdLoop error:', e));
-
-    // Auto-save every 30 seconds while running
-    autoSaveTimer = window.setInterval(async () => {
-      try {
-        await persistentFs?.save();
-      } catch { /* best effort */ }
-    }, 30_000);
   }
 
-  function teardown() {
+  async function teardown() {
     lcdLoopActive = false;
-    if (autoSaveTimer !== null) {
-      clearInterval(autoSaveTimer);
-      autoSaveTimer = null;
-    }
     if (runner?.exports && running) {
       try { runner.exports.simuStop(); } catch { /* expected */ }
     }
+    if (runner) {
+      try { await runner.stopFs(); } catch { /* best effort */ }
+    }
     runner = null;
     lcdRenderer = null;
-    persistentFs = null;
     running = false;
     loaded = false;
     currentRadio = null;
@@ -432,10 +417,6 @@
 
   async function stopSimulator() {
     lcdLoopActive = false;
-    if (autoSaveTimer !== null) {
-      clearInterval(autoSaveTimer);
-      autoSaveTimer = null;
-    }
     if (runner?.exports) {
       try {
         runner.exports.simuStop();
@@ -449,19 +430,14 @@
     status = 'Waiting for shutdown...';
 
     // Wait for worker threads to finish their shutdown tasks (writing
-    // settings, closing files, etc.) before saving memfs to OPFS.
+    // settings, closing files, etc.).  OPFS writes are durable immediately.
     await waitForShutdown();
 
-    status = 'Saving SD card...';
-    saving = true;
-    try {
-      const files = persistentFs?.listFiles('/') ?? [];
-      await persistentFs?.save();
-      onTrace(`[persist] saved ${files.length} file(s) to OPFS\n`);
-    } catch (e) {
-      onTrace(`[persist] save error: ${e}\n`);
+    // Stop the FS Worker (closes all handles, flushes)
+    if (runner) {
+      await runner.stopFs();
     }
-    saving = false;
+    onTrace('[fs] shutdown complete\n');
 
     // Tear down the old WASM instance and reload so Start works again.
     // Chrome caches compiled WASM, so subsequent loads are near-instant.
@@ -469,28 +445,12 @@
     lcdRenderer = null;
     loaded = false;
     await loadSelected();
-    status = 'Stopped (SD card saved)';
+    status = 'Stopped';
   }
 
   function waitForShutdown(): Promise<void> {
-    return new Promise((resolve) => {
-      let elapsed = 0;
-      const interval = 200;
-      const maxWait = 5000;
-      const check = () => {
-        elapsed += interval;
-        const files = persistentFs?.listFiles('/') ?? [];
-        // Shutdown is done once files appear and no new ones for a beat,
-        // or we've waited long enough.
-        if (files.length > 0 || elapsed >= maxWait) {
-          // Give a small extra delay for any trailing writes
-          setTimeout(resolve, 500);
-        } else {
-          setTimeout(check, interval);
-        }
-      };
-      setTimeout(check, interval);
-    });
+    // Give worker threads time to finish writing settings/files
+    return new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
   function pollCustomSwitches() {
@@ -905,27 +865,27 @@
   }
 
   async function resetSdCard() {
-    if (!persistentFs) return;
+    if (!runner) return;
     if (!confirm('Wipe all SD card data for this radio? This cannot be undone.')) return;
-    await persistentFs.wipe();
-    onTrace('[persist] SD card data wiped\n');
+    await runner.fsWipe();
+    onTrace('[fs] SD card data wiped\n');
     status = 'SD card wiped. Reload to start fresh.';
   }
 
   function handleFileUpload() {
-    if (!persistentFs) return;
+    if (!runner) return;
     const targetDir = prompt('Upload to directory:', '/') ?? '/';
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = true;
     input.onchange = async () => {
-      if (!input.files || !persistentFs) return;
+      if (!input.files || !runner) return;
       for (const file of input.files) {
         const dir = targetDir.endsWith('/') ? targetDir : targetDir + '/';
         const path = dir + file.name;
         const data = await file.arrayBuffer();
-        persistentFs.uploadFile(path, data);
-        onTrace(`[persist] uploaded ${path} (${data.byteLength} bytes)\n`);
+        await runner.fsWriteFile(path, data);
+        onTrace(`[fs] uploaded ${path} (${data.byteLength} bytes)\n`);
       }
       status = `Uploaded ${input.files.length} file(s) to ${targetDir}`;
     };
@@ -933,13 +893,13 @@
   }
 
   function handleFolderUpload() {
-    if (!persistentFs) return;
+    if (!runner) return;
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = true;
     (input as any).webkitdirectory = true;
     input.onchange = async () => {
-      if (!input.files || !persistentFs) return;
+      if (!input.files || !runner) return;
       let count = 0;
       for (const file of input.files) {
         // webkitRelativePath gives "SOUNDS/en/system/hello.wav"
@@ -948,10 +908,10 @@
         if (!relPath) continue;
         const path = '/' + relPath;
         const data = await file.arrayBuffer();
-        persistentFs.uploadFile(path, data);
+        await runner.fsWriteFile(path, data);
         count++;
       }
-      onTrace(`[persist] uploaded ${count} file(s) from folder\n`);
+      onTrace(`[fs] uploaded ${count} file(s) from folder\n`);
       status = `Uploaded ${count} file(s)`;
     };
     input.click();
@@ -960,15 +920,9 @@
   // Discover on mount
   discoverRadios();
 
-  // Best-effort save on page close — async isn't guaranteed to finish,
-  // but the periodic auto-save (every 30s) ensures minimal data loss.
-  function handleBeforeUnload() {
-    persistentFs?.save();  // fire-and-forget
-  }
-  window.addEventListener('beforeunload', handleBeforeUnload);
+  // OPFS writes are durable immediately — no save-on-unload needed.
 
   onDestroy(() => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
     teardown();
     audioCtx?.close();
   });
@@ -1003,9 +957,9 @@
         <button onclick={startSimulator}>Start</button>
       {/if}
       {#if running}
-        <button onclick={stopSimulator} disabled={saving}>Stop</button>
+        <button onclick={stopSimulator}>Stop</button>
       {/if}
-      {#if loaded && !running && !saving}
+      {#if loaded && !running}
         <button onclick={handleFileUpload} class="secondary">Upload Files</button>
         <button onclick={handleFolderUpload} class="secondary">Upload Folder</button>
         <button onclick={resetSdCard} class="danger">Reset SD</button>
