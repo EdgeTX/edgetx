@@ -289,7 +289,7 @@ void LCD_Init_LTDC()
   clkConfig.PLLSAI.PLLSAIN = 192;
   clkConfig.PLLSAI.PLLSAIR = 3;
   clkConfig.PLLSAIDivQ = 6;
-  #if defined(RADIO_TX16S) || defined(RADIO_F16)
+  #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_DRO1)
     clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_8;
   #else
     clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_4;
