@@ -53,54 +53,67 @@ The script extracts inputs, switches, trims, keys, and display info from the hw_
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────┐
-│  Browser Main Thread                             │
-│  ┌────────────┐  ┌───────────┐  ┌─────────────┐  │
-│  │ App.svelte │  │ WasmRunner│  │ FsProxyHost │  │
-│  │ (UI)       │──│ (loader)  │──│ (memfs)     │  │
-│  └────────────┘  └───────────┘  └─────────────┘  │
-│        │              │               ▲          │
-│        │         SharedArrayBuffer    │          │
-│        │         (analog values)  Atomics.wait   │
-│        ▼              │               │          │
-│  ┌────────────┐  ┌────┴───────────────┴────┐     │
-│  │ LCD Canvas │  │  Worker Threads (WASI)  │     │
-│  │ Audio Ctx  │  │  ┌───────┐ ┌─────────┐  │     │
-│  └────────────┘  │  │worker │ │FsProxy  │  │     │
-│                  │  │.ts    │ │Client   │  │     │
-│                  │  └───────┘ └─────────┘  │     │
-│                  └─────────────────────────┘     │
-└──────────────────────────────────────────────────┘
+                    Browser Main Thread
+ ┌─────────────────────────────────────────────────────┐
+ │                                                     │
+ │  App.svelte ──── WasmRunner ──── LcdRenderer        │
+ │  (UI, controls)  (loader)        (WebGL canvas)     │
+ │       │               │                             │
+ │       │          SharedArrayBuffer                  │
+ │       │          (analogs, LCD sync)                │
+ │       │               │                             │
+ │       ▼               ▼                             │
+ │  AudioContext    WASM Worker Threads (WASI)         │
+ │  (scheduled     ┌──────────────────────────┐        │
+ │   playback)     │ worker.ts + FsProxyClient│        │
+ │                 └────────────┬─────────────┘        │
+ │                    SAB+Atomics (sync I/O)           │
+ │                              │                      │
+ │                 ┌────────────▼─────────────┐        │
+ │                 │ FS Worker (fs-worker.ts) │        │
+ │                 │ OpfsBackend (OPFS)       │        │
+ │                 └──────────────────────────┘        │
+ └─────────────────────────────────────────────────────┘
 ```
 
-- **WasmRunner** loads and instantiates the WASM module, creates shared memory, and spawns worker threads via `@emnapi/wasi-threads`.
-- **Worker threads** each get their own WASI instance with an in-memory filesystem proxy.
-- **FsProxyHost/Client** routes filesystem calls from workers to the main thread's `memfs` instance using `SharedArrayBuffer` + `Atomics`.
-- **PersistentFS** syncs the in-memory filesystem to/from the browser's Origin Private File System (OPFS) for persistence across sessions.
-- **Analog inputs** (sticks, pots, sliders) are shared via a `SharedArrayBuffer` with `Int16Array`, readable by all threads without message passing.
-- **Audio** is relayed from worker threads via `postMessage` and played using scheduled `AudioBufferSource` nodes for gapless playback.
+### Lifecycle
+
+1. **Radio selection** — user picks a radio from the dropdown (persisted to localStorage). The FS Worker is spawned and OPFS is scanned for existing data. File uploads are available immediately.
+2. **Run** — WASM module is fetched, compiled, and instantiated. Worker threads are spawned with shared memory. The FS Worker's Atomics loop is started. The simulator begins running.
+3. **Stop** — firmware shutdown is signalled, worker threads are terminated after a grace period. The FS Worker stays alive for uploads.
+4. **Radio switch** — the old instance is torn down (FS Worker included), and a new one is initialized for the selected radio.
+
+### Key Components
+
+- **WasmRunner** — loads WASM, creates shared memory, manages the FS Worker and WASI thread pool. Exposes `initFs()` (spawn FS Worker), `load()` (compile + instantiate WASM), `stopSim()` (terminate threads), and `stopFs()` (terminate FS Worker).
+- **FS Worker** (`fs-worker.ts`) — dedicated worker that owns all OPFS state. Serves synchronous filesystem requests from WASM workers via `SharedArrayBuffer` + `Atomics`, and async UI requests (uploads, reads, wipe) via `postMessage`.
+- **OpfsBackend** (`opfs-backend.ts`) — in-memory directory tree backed by OPFS `SyncAccessHandle`s. Provides a synchronous Node.js-like filesystem API.
+- **FsProxyClient** (`fs-proxy-client.ts`) — worker-side stub that implements `fs.*Sync` methods by writing requests to a shared buffer and blocking on `Atomics.wait` until the FS Worker responds.
+- **LcdRenderer** (`lcd-renderer.ts`) — WebGL-based renderer supporting RGB565 (16-bit color), 4-bit grayscale, and 1-bit monochrome (column-major) LCD formats.
+- **Audio** — worker threads relay PCM samples via `postMessage`. The main thread schedules them as `AudioBufferSource` nodes for gapless 32 kHz playback.
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
 | `src/App.svelte` | Main UI: radio selector, LCD display, controls, file management |
-| `src/lib/wasm-runner.ts` | WASM loader, memory setup, thread management |
-| `src/lib/worker.ts` | Worker thread entry point (WASI + thread init) |
-| `src/lib/lcd-renderer.ts` | LCD framebuffer rendering (RGB565, 4-bit grayscale, 1-bit mono) |
-| `src/lib/fs-proxy-host.ts` | Main thread filesystem proxy (dispatches to memfs) |
-| `src/lib/fs-proxy-client.ts` | Worker-side filesystem proxy (blocking Atomics.wait) |
+| `src/lib/wasm-runner.ts` | WASM loader, FS Worker lifecycle, thread management |
+| `src/lib/worker.ts` | WASM worker thread entry point (WASI + thread init) |
+| `src/lib/fs-worker.ts` | FS Worker: OPFS owner, Atomics dispatch loop, UI file ops |
+| `src/lib/opfs-backend.ts` | OPFS-backed synchronous filesystem implementation |
+| `src/lib/fs-proxy-client.ts` | Worker-side blocking filesystem proxy |
 | `src/lib/fs-proxy-protocol.ts` | Shared protocol constants and serialization |
-| `src/lib/persistent-fs.ts` | OPFS persistence layer |
+| `src/lib/lcd-renderer.ts` | LCD framebuffer rendering (RGB565, 4-bit grayscale, 1-bit mono) |
 | `public/radios.json` | Radio definitions (generated — do not edit manually) |
+| `public/_headers` | COOP/COEP headers for production deployment |
 | `scripts/gen-radios-json.js` | Generates `radios.json` from `radio/src/boards/hw_defs/` |
 
 ## Browser Requirements
 
-- **SharedArrayBuffer** (requires COOP/COEP headers, configured in `vite.config.ts`)
+- **SharedArrayBuffer** (requires COOP/COEP headers, configured in `vite.config.ts` and `public/_headers`)
 - **Atomics.waitAsync** — Chrome 87+, Safari 16.4+, Edge 87+, Firefox 145+
 - **WebAssembly threads** (shared memory)
-- **Origin Private File System** (for persistent storage)
+- **Origin Private File System** (persistent storage across sessions)
 
 ## Development
 
@@ -117,9 +130,16 @@ npm run preview  # Preview production build
 
 ## Production Deployment
 
-The dev server automatically sets the required `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` headers. For production, your web server must also set:
+The dev server sets the required COOP/COEP headers automatically. For production, `public/_headers` provides them for platforms like Cloudflare Pages. For other hosts, configure your web server to set:
 
 ```
 Cross-Origin-Embedder-Policy: require-corp
 Cross-Origin-Opener-Policy: same-origin
+```
+
+### Cloudflare Pages
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name=edgetx-simulator
 ```
