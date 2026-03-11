@@ -100,6 +100,7 @@
   // When the dropdown changes, tear down any old instance and init FS for the new radio
   $effect(() => {
     if (!selectedRadio || running || loading) return;
+    localStorage.setItem('selectedRadio', selectedRadio);
     // If there's already a runner for a different radio, tear it down
     if (runner && currentRadio?.wasm !== selectedRadio) {
       teardown().then(() => initFsForRadio(selectedRadio));
@@ -316,7 +317,8 @@
 
       const avail = radios.filter((r) => r.available);
       if (avail.length > 0) {
-        selectedRadio = avail[0].wasm;
+        const saved = localStorage.getItem('selectedRadio');
+        selectedRadio = (saved && avail.some((r) => r.wasm === saved)) ? saved : avail[0].wasm;
         status = `${avail.length} radio(s) available`;
       } else {
         status = 'No .wasm files found in public/';
