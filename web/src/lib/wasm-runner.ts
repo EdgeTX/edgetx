@@ -168,8 +168,15 @@ export class WasmRunner {
     return this._exports;
   }
 
-  async load(wasmPath: string, radioKey: string): Promise<{ hasContent: boolean }> {
-    // --- 1. Spawn and init FS Worker ---
+  get hasFsWorker(): boolean {
+    return this.fsWorker !== null;
+  }
+
+  /**
+   * Spawn the FS Worker and scan OPFS for existing content.
+   * This enables file uploads/reads before WASM is loaded.
+   */
+  async initFs(radioKey: string): Promise<{ hasContent: boolean }> {
     this.fsWorker = new Worker(new URL('./fs-worker.ts', import.meta.url), { type: 'module' });
     this.fsWorker.addEventListener('message', (e) => {
       if (e.data?.type === 'trace') this.onTrace(e.data.text);
@@ -193,7 +200,16 @@ export class WasmRunner {
       this.fsWorker!.postMessage({ type: 'init', radioKey, wakeBuffer: this.wakeBuffer });
     });
 
-    // --- 2. Create main-thread WASI (stub fs — real I/O happens in workers) ---
+    return { hasContent };
+  }
+
+  /**
+   * Load and instantiate the WASM module.  Requires initFs() first.
+   */
+  async load(wasmPath: string): Promise<void> {
+    if (!this.fsWorker) throw new Error('initFs() must be called before load()');
+
+    // --- 1. Create main-thread WASI (stub fs — real I/O happens in workers) ---
     const wasi = new WASI({
       version: 'preview1',
       fs: stubFs as any,
@@ -283,8 +299,6 @@ export class WasmRunner {
 
     this.wasiThreads.initialize(instance, module, memory);
     await this.wasiThreads.preloadWorkers();
-
-    return { hasContent };
   }
 
   // --- FS Worker message helpers ---
@@ -325,6 +339,14 @@ export class WasmRunner {
   async fsListFiles(basePath = '/'): Promise<string[]> {
     const result = await this.fsMessage('listFiles', { basePath });
     return result.files;
+  }
+
+  /** Terminate WASM worker threads but keep the FS Worker alive. */
+  stopSim(): void {
+    if (this.wasiThreads) {
+      this.wasiThreads.terminateAllThreads();
+    }
+    this._exports = null;
   }
 
   /** Stop the FS Worker and clean up. */
