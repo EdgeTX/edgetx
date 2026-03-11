@@ -575,13 +575,13 @@
     }
   }
 
-  function canvasToLcd(e: MouseEvent): { x: number; y: number } {
+  function canvasToLcd(clientX: number, clientY: number): { x: number; y: number } {
     const rect = canvas.getBoundingClientRect();
     const scaleX = lcdWidth / rect.width;
     const scaleY = lcdHeight / rect.height;
     return {
-      x: Math.round((e.clientX - rect.left) * scaleX),
-      y: Math.round((e.clientY - rect.top) * scaleY),
+      x: Math.round((clientX - rect.left) * scaleX),
+      y: Math.round((clientY - rect.top) * scaleY),
     };
   }
 
@@ -589,11 +589,11 @@
     const ex = runner?.exports;
     if (!ex || !running || !canvas) return;
 
-    const { x, y } = canvasToLcd(e);
+    const { x, y } = canvasToLcd(e.clientX, e.clientY);
     ex.simuTouchDown(x, y);
 
     const onMove = (ev: MouseEvent) => {
-      const pos = canvasToLcd(ev);
+      const pos = canvasToLcd(ev.clientX, ev.clientY);
       ex.simuTouchDown(pos.x, pos.y);
     };
     const onUp = () => {
@@ -603,6 +603,32 @@
     };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
+  }
+
+  function handleCanvasTouchStart(e: TouchEvent) {
+    e.preventDefault();
+    const ex = runner?.exports;
+    if (!ex || !running || !canvas) return;
+
+    const t = e.touches[0];
+    const { x, y } = canvasToLcd(t.clientX, t.clientY);
+    ex.simuTouchDown(x, y);
+
+    const onMove = (ev: TouchEvent) => {
+      ev.preventDefault();
+      const t = ev.touches[0];
+      const pos = canvasToLcd(t.clientX, t.clientY);
+      ex.simuTouchDown(pos.x, pos.y);
+    };
+    const onEnd = () => {
+      ex.simuTouchUp();
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
+    };
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
   }
 
   let lastWheelTime = 0;
@@ -865,26 +891,45 @@
     }
   }
 
+  function snapSwitch(index: number, sw: SwitchDef, track: HTMLElement, clientY: number) {
+    const rect = track.getBoundingClientRect();
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    if (sw.type === '2POS') {
+      updateSwitch(index, y < 0.5 ? -1 : 1);
+    } else {
+      if (y < 0.33) updateSwitch(index, -1);
+      else if (y < 0.67) updateSwitch(index, 0);
+      else updateSwitch(index, 1);
+    }
+  }
+
   function handleSwitchDrag(index: number, sw: SwitchDef, e: MouseEvent) {
     e.preventDefault();
     const track = (e.currentTarget as HTMLElement).parentElement!;
-    const snap = (ev: MouseEvent) => {
-      const rect = track.getBoundingClientRect();
-      const y = Math.max(0, Math.min(1, (ev.clientY - rect.top) / rect.height));
-      if (sw.type === '2POS') {
-        updateSwitch(index, y < 0.5 ? -1 : 1);
-      } else {
-        if (y < 0.33) updateSwitch(index, -1);
-        else if (y < 0.67) updateSwitch(index, 0);
-        else updateSwitch(index, 1);
-      }
+    const onMove = (ev: MouseEvent) => snapSwitch(index, sw, track, ev.clientY);
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
     };
-    const up = () => {
-      window.removeEventListener('mousemove', snap);
-      window.removeEventListener('mouseup', up);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }
+
+  function handleSwitchTouchDrag(index: number, sw: SwitchDef, e: TouchEvent) {
+    e.preventDefault();
+    const track = (e.currentTarget as HTMLElement).parentElement!;
+    const onMove = (ev: TouchEvent) => {
+      ev.preventDefault();
+      snapSwitch(index, sw, track, ev.touches[0].clientY);
     };
-    window.addEventListener('mousemove', snap);
-    window.addEventListener('mouseup', up);
+    const onEnd = () => {
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
+    };
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
   }
 
   function switchKnobTop(state: number, is3pos: boolean): string {
@@ -1078,6 +1123,7 @@
           style:aspect-ratio="{lcdWidth} / {lcdHeight}"
           style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
           onmousedown={handleCanvasMouseDown}
+          ontouchstart={handleCanvasTouchStart}
           onwheel={handleWheel}
         ></canvas>
         {/key}
@@ -1187,6 +1233,7 @@
                      class:sw-down={switchStates[index] === 1}
                      style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
                      onmousedown={(e) => handleSwitchDrag(index, sw, e)}
+                     ontouchstart={(e) => handleSwitchTouchDrag(index, sw, e)}
                 ></div>
               </div>
             </div>
@@ -1391,6 +1438,7 @@
                      class:sw-down={switchStates[index] === 1}
                      style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
                      onmousedown={(e) => handleSwitchDrag(index, sw, e)}
+                     ontouchstart={(e) => handleSwitchTouchDrag(index, sw, e)}
                 ></div>
               </div>
             </div>
