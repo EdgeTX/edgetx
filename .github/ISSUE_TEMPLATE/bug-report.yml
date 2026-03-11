@@ -59,6 +59,7 @@ body:
       description: What version of EdgeTX software are you running?
       options:
         - 2.12.0-RC
+        - 2.11.5
         - 2.11.4
         - 2.11.3
         - 2.11.2
@@ -128,7 +129,7 @@ body:
         - RadioMaster TX12 / TX12MK2
         - RadioMaster TX15
         - RadioMaster TX16S / TX16SMK2
-        - RadioMaster TX16 SMK3
+        - RadioMaster TX16S MK3
         - RadioMaster Zorro
         - Other (Please specify below)
     validations:
