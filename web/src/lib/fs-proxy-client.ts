@@ -68,12 +68,14 @@ class DirentProxy {
 export class FsProxyClient {
   private ctrl: Int32Array;
   private data: Uint8Array;
+  private wake: Int32Array | null;
   private encoder = new TextEncoder();
   private decoder = new TextDecoder();
 
-  constructor(ctrlBuffer: SharedArrayBuffer, dataBuffer: SharedArrayBuffer) {
+  constructor(ctrlBuffer: SharedArrayBuffer, dataBuffer: SharedArrayBuffer, wakeBuffer?: SharedArrayBuffer) {
     this.ctrl = new Int32Array(ctrlBuffer);
     this.data = new Uint8Array(dataBuffer);
+    this.wake = wakeBuffer ? new Int32Array(wakeBuffer) : null;
   }
 
   private call(opcode: FsOp): void {
@@ -81,6 +83,10 @@ export class FsProxyClient {
     Atomics.store(this.ctrl, IDX_RESPONSE_FLAG, 0);
     Atomics.store(this.ctrl, IDX_REQUEST_FLAG, 1);
     Atomics.notify(this.ctrl, IDX_REQUEST_FLAG);
+    if (this.wake) {
+      Atomics.store(this.wake, 0, 1);
+      Atomics.notify(this.wake, 0);
+    }
     Atomics.wait(this.ctrl, IDX_RESPONSE_FLAG, 0);
   }
 

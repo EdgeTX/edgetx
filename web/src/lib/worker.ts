@@ -1,6 +1,5 @@
 import { ThreadMessageHandler, WASIThreads } from '@emnapi/wasi-threads';
 import { WASI } from '@tybys/wasm-util';
-import { Volume, createFsFromVolume } from 'memfs-browser';
 import { FsProxyClient } from './fs-proxy-client';
 
 // Catch all errors for debugging
@@ -19,13 +18,16 @@ let lcdSync: Int32Array | null = null;
 
 // Filesystem proxy client, received from main thread before thread start
 let fsClient: FsProxyClient | null = null;
+let wakeBuffer: SharedArrayBuffer | null = null;
 
 const handler = new ThreadMessageHandler({
   async onLoad({ wasmModule, wasmMemory }) {
     const post = (s: string) => postMessage({ type: 'trace', text: s + '\n' });
 
-    // Use proxy fs if available, otherwise fall back to local empty memfs
-    const fs = fsClient ?? createFsFromVolume(Volume.fromJSON({ '/': null }));
+    if (!fsClient) {
+      throw new Error('No fs-channel received before thread start');
+    }
+    const fs = fsClient;
 
     let wasi: WASI;
     try {
@@ -85,8 +87,12 @@ globalThis.onmessage = function (e) {
     lcdSync = new Int32Array(e.data.buffer);
     return;
   }
+  if (e.data?.type === 'wake-buffer') {
+    wakeBuffer = e.data.buffer;
+    return;
+  }
   if (e.data?.type === 'fs-channel') {
-    fsClient = new FsProxyClient(e.data.ctrlBuffer, e.data.dataBuffer);
+    fsClient = new FsProxyClient(e.data.ctrlBuffer, e.data.dataBuffer, wakeBuffer ?? undefined);
     return;
   }
   handler.handle(e);

@@ -1,8 +1,43 @@
 import { WASIThreads } from '@emnapi/wasi-threads';
 import type { WASIInstance } from '@emnapi/wasi-threads';
 import { WASI } from '@tybys/wasm-util';
-import { Volume, createFsFromVolume } from 'memfs-browser';
-import { FsProxyHost } from './fs-proxy-host';
+import { CTRL_BUFFER_SIZE, DATA_BUFFER_SIZE, WAKE_BUFFER_SIZE } from './fs-proxy-protocol';
+
+/**
+ * Minimal fs stub for the main thread's WASI instance.
+ * The main thread only needs enough to satisfy preopen setup — all real
+ * filesystem I/O happens in worker threads via FsProxyClient → FS Worker.
+ */
+const stubFs = (() => {
+  let nextFd = 3;
+  const dirStat = () => ({
+    dev: 0n, ino: 0n, mode: 0o040755n, nlink: 1n,
+    uid: 0n, gid: 0n, rdev: 0n, size: 0n,
+    blksize: 4096n, blocks: 0n,
+    atimeMs: 0n, mtimeMs: 0n, ctimeMs: 0n, birthtimeMs: 0n,
+    atimeNs: 0n, mtimeNs: 0n, ctimeNs: 0n, birthtimeNs: 0n,
+    atime: new Date(0), mtime: new Date(0), ctime: new Date(0), birthtime: new Date(0),
+    isFile: () => false, isDirectory: () => true, isSymbolicLink: () => false,
+    isCharacterDevice: () => false, isBlockDevice: () => false,
+    isSocket: () => false, isFIFO: () => false,
+  });
+  return {
+    openSync() { return nextFd++; },
+    closeSync() {},
+    fstatSync() { return dirStat(); },
+    statSync() { return dirStat(); },
+    lstatSync() { return dirStat(); },
+    readdirSync() { return []; },
+    readSync() { return 0; },
+    writeSync(_fd: number, _b: any, _o: number, len: number) { return len; },
+    mkdirSync() {}, renameSync() {}, rmdirSync() {}, unlinkSync() {},
+    linkSync() {}, symlinkSync() {},
+    readlinkSync(p: string) { return p; },
+    realpathSync(p: string) { return p; },
+    ftruncateSync() {}, futimesSync() {}, utimesSync() {},
+    fdatasyncSync() {}, fsyncSync() {},
+  };
+})();
 
 export interface SimulatorExports {
   memory: WebAssembly.Memory;
@@ -40,6 +75,13 @@ export interface SimulatorExports {
 
 export type TraceCallback = (text: string) => void;
 export type AudioCallback = (samples: Int16Array) => void;
+
+/** Derive a short radio key from a wasm filename. */
+export function radioKeyFromWasm(wasmFile: string): string {
+  const base = wasmFile.replace(/.*\//, '').replace(/\.wasm$/, '');
+  const m = base.match(/^edgetx-(.+)-simulator$/);
+  return m ? m[1] : base;
+}
 
 /** Parse the WASM binary import section to find the memory import limits. */
 function getMemoryImport(bytes: Uint8Array): { initial: number; maximum: number } {
@@ -98,7 +140,7 @@ function getMemoryImport(bytes: Uint8Array): { initial: number; maximum: number 
 }
 
 export class WasmRunner {
-  private wasiThreads: WASIThreads;
+  private wasiThreads!: WASIThreads;
   private _exports: SimulatorExports | null = null;
 
   private analogBuffer = new SharedArrayBuffer(32 * 2);
@@ -108,28 +150,53 @@ export class WasmRunner {
   private lcdSync = new Int32Array(this.lcdSyncBuffer);
   private onTrace: TraceCallback;
   private onAudio: AudioCallback;
-  private fsProxyHost: FsProxyHost;
-  private nextWorkerId = 0;
+  private fsWorker: Worker | null = null;
+  private wakeBuffer: SharedArrayBuffer | null = null;
+  private nextFsReqId = 0;
   /** Persistent WASM-side buffer for simuLcdCopy (allocated on first use). */
   private wasmLcdBuf = 0;
   private wasmLcdBufSize = 0;
   /** Set to true (or type `fsTrace = true` in browser console) to log fs proxy ops. */
   fsTrace = false;
 
-  constructor(onTrace: TraceCallback, onAudio: AudioCallback, fs?: any) {
+  constructor(onTrace: TraceCallback, onAudio: AudioCallback) {
     this.onTrace = onTrace;
     this.onAudio = onAudio;
+  }
 
-    const wasiFs = fs ?? createFsFromVolume(Volume.fromJSON({ '/': null })) as any;
-    this.fsProxyHost = new FsProxyHost(wasiFs);
-    // Enable with: fsTrace = true in browser console (logs to console, not trace window)
-    this.fsProxyHost.onTrace = (msg) => {
-      if (this.fsTrace || (globalThis as any).fsTrace) console.log(msg.trimEnd());
-    };
+  get exports(): SimulatorExports | null {
+    return this._exports;
+  }
 
+  async load(wasmPath: string, radioKey: string): Promise<{ hasContent: boolean }> {
+    // --- 1. Spawn and init FS Worker ---
+    this.fsWorker = new Worker(new URL('./fs-worker.ts', import.meta.url), { type: 'module' });
+    this.fsWorker.addEventListener('message', (e) => {
+      if (e.data?.type === 'trace') this.onTrace(e.data.text);
+    });
+    this.wakeBuffer = new SharedArrayBuffer(WAKE_BUFFER_SIZE);
+
+    const hasContent = await new Promise<boolean>((resolve, reject) => {
+      const onMsg = (e: MessageEvent) => {
+        if (e.data.type === 'ready') {
+          this.fsWorker!.removeEventListener('message', onMsg);
+          this.fsWorker!.removeEventListener('error', onErr);
+          resolve(e.data.hasContent);
+        }
+      };
+      const onErr = (e: ErrorEvent) => {
+        this.fsWorker!.removeEventListener('message', onMsg);
+        reject(new Error(e.message));
+      };
+      this.fsWorker!.addEventListener('message', onMsg);
+      this.fsWorker!.addEventListener('error', onErr, { once: true });
+      this.fsWorker!.postMessage({ type: 'init', radioKey, wakeBuffer: this.wakeBuffer });
+    });
+
+    // --- 2. Create main-thread WASI (stub fs — real I/O happens in workers) ---
     const wasi = new WASI({
       version: 'preview1',
-      fs: wasiFs,
+      fs: stubFs as any,
       preopens: { '/': '/' },
       print: (s: string) => this.onTrace(s + '\n'),
       printErr: (s: string) => this.onTrace(s + '\n'),
@@ -140,18 +207,17 @@ export class WasmRunner {
       reuseWorker: { size: 4, strict: true },
       waitThreadStart: typeof window === 'undefined' ? 1000 : false,
       onCreateWorker: () => {
-        const workerId = this.nextWorkerId++;
         const worker = new Worker(new URL('./worker.ts', import.meta.url), {
           type: 'module',
         });
-        // Share analog values buffer so worker threads can read stick/pot positions
         worker.postMessage({ type: 'analog-buffer', buffer: this.analogBuffer });
-        // Share LCD sync buffer so worker threads can notify host of frame updates
         worker.postMessage({ type: 'lcd-sync', buffer: this.lcdSyncBuffer });
-        // Share filesystem proxy channel
-        const { ctrlBuffer, dataBuffer } = this.fsProxyHost.createChannel(workerId);
+        // Create FS channel for this worker and register with FS Worker
+        const ctrlBuffer = new SharedArrayBuffer(CTRL_BUFFER_SIZE);
+        const dataBuffer = new SharedArrayBuffer(DATA_BUFFER_SIZE);
+        this.fsWorker!.postMessage({ type: 'channel', ctrlBuffer, dataBuffer });
+        worker.postMessage({ type: 'wake-buffer', buffer: this.wakeBuffer });
         worker.postMessage({ type: 'fs-channel', ctrlBuffer, dataBuffer });
-        this.fsProxyHost.listen(workerId);
         worker.addEventListener('message', (e) => {
           if (e.data?.type === 'trace') {
             this.onTrace(e.data.text);
@@ -162,20 +228,16 @@ export class WasmRunner {
         return worker;
       },
     });
-  }
 
-  get exports(): SimulatorExports | null {
-    return this._exports;
-  }
+    // --- 3. Start FS Worker event loop (before preloadWorkers, which triggers FS calls) ---
+    this.fsWorker.postMessage({ type: 'start' });
 
-  async load(wasmPath: string): Promise<void> {
+    // --- 4. Load and compile WASM ---
     const response = await fetch(wasmPath);
     if (!response.ok) {
       throw new Error(`Failed to fetch WASM: ${response.statusText}`);
     }
 
-    // Read the first stream chunk to parse memory import requirements,
-    // then compile+instantiate the full module via streaming.
     const clone = response.clone();
     const reader = response.body!.getReader();
     const { value: headerBytes } = await reader.read();
@@ -190,12 +252,12 @@ export class WasmRunner {
       return new TextDecoder('utf-8').decode(view.subarray(ptr, end));
     };
 
-    const wasi = this.wasiThreads.wasi;
+    const wasiObj = this.wasiThreads.wasi;
     const { module, instance } = await WebAssembly.instantiateStreaming(
       clone,
       {
         wasi_snapshot_preview1:
-          wasi.wasiImport as WebAssembly.ModuleImports,
+          wasiObj.wasiImport as WebAssembly.ModuleImports,
         wasi: { ...this.wasiThreads.getImportObject().wasi },
         env: {
           memory,
@@ -221,6 +283,65 @@ export class WasmRunner {
 
     this.wasiThreads.initialize(instance, module, memory);
     await this.wasiThreads.preloadWorkers();
+
+    return { hasContent };
+  }
+
+  // --- FS Worker message helpers ---
+
+  private fsMessage(type: string, payload: Record<string, any> = {}, transfer: Transferable[] = []): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (!this.fsWorker) return reject(new Error('FS Worker not running'));
+      const id = ++this.nextFsReqId;
+      const handler = (e: MessageEvent) => {
+        if (e.data.id === id) {
+          this.fsWorker!.removeEventListener('message', handler);
+          if (e.data.error) reject(new Error(e.data.error));
+          else resolve(e.data);
+        }
+      };
+      this.fsWorker.addEventListener('message', handler);
+      this.fsWorker.postMessage({ ...payload, type, id }, { transfer });
+    });
+  }
+
+  async fsReadTextFile(path: string): Promise<string | null> {
+    try {
+      const result = await this.fsMessage('readTextFile', { path });
+      return result.text;
+    } catch {
+      return null;
+    }
+  }
+
+  async fsWriteFile(path: string, data: ArrayBuffer): Promise<void> {
+    await this.fsMessage('writeFile', { path, data }, [data]);
+  }
+
+  async fsWipe(): Promise<void> {
+    await this.fsMessage('wipe');
+  }
+
+  async fsListFiles(basePath = '/'): Promise<string[]> {
+    const result = await this.fsMessage('listFiles', { basePath });
+    return result.files;
+  }
+
+  /** Stop the FS Worker and clean up. */
+  async stopFs(): Promise<void> {
+    if (!this.fsWorker) return;
+    await new Promise<void>((resolve) => {
+      const handler = (e: MessageEvent) => {
+        if (e.data.type === 'stopped') {
+          this.fsWorker!.removeEventListener('message', handler);
+          resolve();
+        }
+      };
+      this.fsWorker!.addEventListener('message', handler);
+      this.fsWorker!.postMessage({ type: 'stop' });
+    });
+    this.fsWorker.terminate();
+    this.fsWorker = null;
   }
 
   setAnalog(index: number, value: number): void {

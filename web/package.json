@@ -17,8 +17,6 @@
   },
   "dependencies": {
     "@emnapi/wasi-threads": "^1.0.0",
-    "@tybys/wasm-util": "^0.10.0",
-    "buffer": "^6.0.3",
-    "memfs-browser": "^3.5.10302"
+    "@tybys/wasm-util": "^0.10.1"
   }
 }
