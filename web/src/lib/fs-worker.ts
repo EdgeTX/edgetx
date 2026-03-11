@@ -58,9 +58,13 @@ self.onmessage = async (e: MessageEvent) => {
       break;
     }
     case 'start': {
-      running = true;
-      trace('mainLoop starting');
-      mainLoop();
+      if (!running) {
+        running = true;
+        trace('mainLoop starting');
+        mainLoop();
+      } else {
+        trace('mainLoop already running, ignoring start');
+      }
       break;
     }
     case 'stop': {
