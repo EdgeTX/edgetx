@@ -153,6 +153,9 @@
   let lcdDepth = $state(0);
   let lcdSize = 0;
 
+  let cssWidth = $derived(Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320));
+  let cssHeight = $derived(cssWidth * lcdHeight / lcdWidth);
+
   // Stick mode: 0=Mode1(thr=RV), 1=Mode2(thr=LV), 2=Mode3(thr=RV), 3=Mode4(thr=LV)
   let stickMode = 0;
 
@@ -437,11 +440,11 @@
 
       if (canvas) {
         lcdRenderer = new LcdRenderer(canvas);
-        const cssWidth = Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320);
         const dpr = window.devicePixelRatio || 1;
         const canvasW = Math.round(cssWidth * dpr);
-        const canvasH = Math.round(canvasW * lcdHeight / lcdWidth);
+        const canvasH = Math.round(cssHeight * dpr);
         lcdRenderer.resize(canvasW, canvasH);
+        onTrace(`[lcd] ${lcdWidth}×${lcdHeight}@${lcdDepth}bpp css=${Math.round(cssWidth)}×${Math.round(cssHeight)} buf=${canvasW}×${canvasH} dpr=${dpr}\n`);
       }
 
       loading = false;
@@ -1119,8 +1122,8 @@
         <canvas
           bind:this={canvas}
           class="lcd"
-          style:width="{Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320)}px"
-          style:aspect-ratio="{lcdWidth} / {lcdHeight}"
+          style:width="{cssWidth}px"
+          style:height="{cssHeight}px"
           style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
           onmousedown={handleCanvasMouseDown}
           ontouchstart={handleCanvasTouchStart}
