@@ -141,6 +141,7 @@
       } else {
         onTrace(`[fs] no previous data for "${radioKey}"\n`);
       }
+      initControls();
       status = `Ready — ${radio?.name ?? wasmFile}`;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -393,11 +394,13 @@
         if (hasContent) {
           const files = await runner.fsListFiles('/');
           onTrace(`[fs] ${files.length} file(s) in OPFS for "${radioKey}"\n`);
-          await readStickMode();
         } else {
           onTrace(`[fs] no previous data for "${radioKey}"\n`);
         }
       }
+
+      // Always re-read stick mode before starting (user may have changed it in a previous run)
+      await readStickMode();
 
       await runner.load(`./${selectedRadio}`);
 
