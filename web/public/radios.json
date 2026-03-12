@@ -149,7 +149,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -285,7 +285,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       }
     ]
@@ -350,7 +350,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       }
     ]
@@ -461,7 +461,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       }
     ]
@@ -582,7 +582,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -1016,7 +1016,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       }
     ]
@@ -1179,7 +1179,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -1349,7 +1349,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -1534,7 +1534,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -1723,7 +1723,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -1859,7 +1859,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -1997,7 +1997,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -2204,7 +2204,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -2316,7 +2316,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -2506,7 +2506,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -2610,7 +2610,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -2786,7 +2786,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -2897,7 +2897,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3048,7 +3048,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3159,7 +3159,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3270,7 +3270,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3406,7 +3406,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3557,7 +3557,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3742,7 +3742,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -3927,7 +3927,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4139,7 +4139,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4336,7 +4336,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4448,7 +4448,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4626,7 +4626,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4747,7 +4747,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4862,7 +4862,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -4988,7 +4988,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -5144,7 +5144,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -5334,7 +5334,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -5540,7 +5540,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
@@ -5676,7 +5676,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "↵",
+        "label": "⏎",
         "side": "R"
       },
       {
