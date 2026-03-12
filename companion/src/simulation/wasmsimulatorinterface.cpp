@@ -668,18 +668,21 @@ void WasmSimulatorInterface::refreshLcd()
   if (!m_fnLcdCopy || !m_execEnv || !m_wasmLcdBuf || !m_lcdBuffer)
     return;
 
-  QMutexLocker lckr(&m_mutex);
+  {
+    QMutexLocker lckr(&m_mutex);
 
-  uint32_t copyArgv[2] = {m_wasmLcdBuf, m_lcdBufferSize};
-  if (wasm_runtime_call_wasm(m_execEnv, m_fnLcdCopy, 2, copyArgv)) {
-    uint32_t bytesWritten = copyArgv[0];
-    void * nativePtr =
-        wasm_runtime_addr_app_to_native(m_moduleInst, m_wasmLcdBuf);
-    if (nativePtr && bytesWritten > 0) {
-      memcpy(m_lcdBuffer, nativePtr, qMin(bytesWritten, m_lcdBufferSize));
+    uint32_t copyArgv[2] = {m_wasmLcdBuf, m_lcdBufferSize};
+    if (wasm_runtime_call_wasm(m_execEnv, m_fnLcdCopy, 2, copyArgv)) {
+      uint32_t bytesWritten = copyArgv[0];
+      void * nativePtr =
+          wasm_runtime_addr_app_to_native(m_moduleInst, m_wasmLcdBuf);
+      if (nativePtr && bytesWritten > 0) {
+        memcpy(m_lcdBuffer, nativePtr, qMin(bytesWritten, m_lcdBufferSize));
+      }
     }
   }
 
+  // Emit outside mutex — onLcdChange() calls lcdFlushed() which re-acquires it
   emit lcdChange(true);
 }
 
