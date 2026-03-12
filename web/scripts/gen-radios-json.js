@@ -47,7 +47,7 @@ const KEY_LABELS = {
   KEY_DOWN: '\u25BC',          // ▼
   KEY_LEFT: '\u25C0',          // ◀
   KEY_RIGHT: '\u25B6',         // ▶
-  KEY_ENTER: '\u21B5',         // ↵
+  KEY_ENTER: '\u23CE',         // ⏎
 };
 
 /** Build display name lookup from fw.json (the authoritative radio name list). */

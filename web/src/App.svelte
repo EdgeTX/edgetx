@@ -444,10 +444,11 @@
       if (canvas) {
         lcdRenderer = new LcdRenderer(canvas);
         const dpr = window.devicePixelRatio || 1;
-        const canvasW = Math.round(cssWidth * dpr);
-        const canvasH = Math.round(cssHeight * dpr);
+        const scale = Math.max(1, Math.round(dpr));
+        const canvasW = lcdWidth * scale;
+        const canvasH = lcdHeight * scale;
         lcdRenderer.resize(canvasW, canvasH);
-        onTrace(`[lcd] ${lcdWidth}×${lcdHeight}@${lcdDepth}bpp css=${Math.round(cssWidth)}×${Math.round(cssHeight)} buf=${canvasW}×${canvasH} dpr=${dpr}\n`);
+        onTrace(`[lcd] ${lcdWidth}×${lcdHeight}@${lcdDepth}bpp css=${Math.round(cssWidth)}×${Math.round(cssHeight)} buf=${canvasW}×${canvasH} scale=${scale}× dpr=${dpr}\n`);
       }
 
       loading = false;
@@ -663,6 +664,7 @@
     if (!ex || !running) return;
 
     if (e.repeat) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return; // don't hijack browser shortcuts
     const down = e.type === 'keydown';
 
     switch (e.key) {
