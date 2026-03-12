@@ -659,6 +659,21 @@
 
   const ROTARY_ENCODER_GRANULARITY = 1;
 
+  // Map keyboard keys to radio key names
+  const KEYBOARD_MAP: Record<string, string> = {
+    'Escape': 'KEY_EXIT',
+    'Enter': 'KEY_ENTER',
+    'ArrowLeft': 'KEY_LEFT',
+    'ArrowRight': 'KEY_RIGHT',
+    'PageUp': 'KEY_PAGEUP',
+    'PageDown': 'KEY_PAGEDN',
+    '+': 'KEY_PLUS',
+    '-': 'KEY_MINUS',
+    'm': 'KEY_MENU',
+    's': 'KEY_SYS',
+    't': 'KEY_TELE',
+  };
+
   function handleKey(e: KeyboardEvent) {
     const ex = runner?.exports;
     if (!ex || !running) return;
@@ -667,49 +682,18 @@
     if (e.metaKey || e.ctrlKey || e.altKey) return; // don't hijack browser shortcuts
     const down = e.type === 'keydown';
 
-    switch (e.key) {
-      case 'Escape':
-        ex.simuSetKey(KEY_EXIT, down ? 1 : 0);
-        break;
-      case 'Enter':
-        ex.simuSetKey(KEY_ENTER, down ? 1 : 0);
-        break;
-      case 'ArrowUp':
-        if (down) ex.simuRotaryEncoderEvent(-ROTARY_ENCODER_GRANULARITY);
-        break;
-      case 'ArrowDown':
-        if (down) ex.simuRotaryEncoderEvent(ROTARY_ENCODER_GRANULARITY);
-        break;
-      case 'ArrowLeft':
-        ex.simuSetKey(KEY_LEFT, down ? 1 : 0);
-        break;
-      case 'ArrowRight':
-        ex.simuSetKey(KEY_RIGHT, down ? 1 : 0);
-        break;
-      case 'PageUp':
-        ex.simuSetKey(KEY_PAGEUP, down ? 1 : 0);
-        break;
-      case 'PageDown':
-        ex.simuSetKey(KEY_PAGEDN, down ? 1 : 0);
-        break;
-      case '+':
-        ex.simuSetKey(KEY_PLUS, down ? 1 : 0);
-        break;
-      case '-':
-        ex.simuSetKey(KEY_MINUS, down ? 1 : 0);
-        break;
-      case 'm':
-        ex.simuSetKey(KEY_MENU, down ? 1 : 0);
-        break;
-      case 's':
-        ex.simuSetKey(KEY_SYS, down ? 1 : 0);
-        break;
-      case 't':
-        ex.simuSetKey(KEY_TELE, down ? 1 : 0);
-        break;
-      default:
-        return; // don't prevent default for unmapped keys
+    // Rotary encoder: arrow up/down
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      if (down) ex.simuRotaryEncoderEvent(e.key === 'ArrowUp' ? -ROTARY_ENCODER_GRANULARITY : ROTARY_ENCODER_GRANULARITY);
+      e.preventDefault();
+      return;
     }
+
+    const keyName = KEYBOARD_MAP[e.key];
+    if (!keyName) return; // don't prevent default for unmapped keys
+
+    if (down) keyDown(keyName);
+    else keyUp(keyName);
     e.preventDefault();
   }
 
