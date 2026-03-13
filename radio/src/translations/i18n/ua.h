@@ -1241,6 +1241,7 @@
 #define TR_MENU_OTHER                  "Інше"
 #define TR_MENU_INVERT                 "Інверт"
 #define TR_AUDIO_MUTE                  TR("Аудіо стоп","Тихо якщо немає звуку")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "Фільтр ADC"
 #define TR_DEAD_ZONE                   "Мертва зона"
 #define TR_RTC_CHECK                   TR("Перевір RTC", "Перевір напругу RTC")
