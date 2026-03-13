@@ -154,6 +154,7 @@
   let lcdDepth = $state(0);
   let lcdSize = 0;
 
+  let isPortrait = $derived(lcdHeight > lcdWidth);
   let cssWidth = $derived(Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320));
   let cssHeight = $derived(cssWidth * lcdHeight / lcdWidth);
 
@@ -233,18 +234,25 @@
       .filter(({ input }) => input.type === 'FLEX' && input.default && input.default !== 'NONE');
   }
 
-  function getPots(): { input: InputDef; index: number }[] {
+  /** Pots + multipos in original JSON order (e.g. S1, 6POS, S2 on TX16S). */
+  function getPotsAndMultipos(): { input: InputDef; index: number }[] {
     return getFlexInputs().filter(({ input }) =>
-      input.default === 'POT' || input.default === 'POT_CENTER'
+      input.default === 'POT' || input.default === 'POT_CENTER' || input.default === 'MULTIPOS'
     );
+  }
+
+  function getLeftPotsAndMultipos(): { input: InputDef; index: number }[] {
+    const all = getPotsAndMultipos();
+    return all.slice(0, Math.ceil(all.length / 2));
+  }
+
+  function getRightPotsAndMultipos(): { input: InputDef; index: number }[] {
+    const all = getPotsAndMultipos();
+    return all.slice(Math.ceil(all.length / 2));
   }
 
   function getSliders(): { input: InputDef; index: number }[] {
     return getFlexInputs().filter(({ input }) => input.default === 'SLIDER');
-  }
-
-  function getMultipos(): { input: InputDef; index: number }[] {
-    return getFlexInputs().filter(({ input }) => input.default === 'MULTIPOS');
   }
 
   /** Read stickMode from /RADIO/radio.yml via FS Worker. */
@@ -1089,378 +1097,485 @@
     <p class="status">{status}</p>
   </div>
 
-  <div class="radio-body">
-    <!-- LCD Screen with keys on either side -->
-    <div class="lcd-area">
-      {#if currentRadio?.keys?.length}
-        <div class="key-column">
-          {#each getLeftKeys() as keyDef}
-            <button
-              class="hw-key"
-              onmousedown={() => keyDown(keyDef.key)}
-              onmouseup={() => keyUp(keyDef.key)}
-              onmouseleave={() => keyUp(keyDef.key)}
-              ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
-              ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
-            >{keyDef.label}</button>
-          {/each}
+  <!-- Reusable snippets for switch controls and gimbals -->
+
+  {#snippet switchCtrl(sw: SwitchDef, index: number)}
+    <div class="switch-control">
+      <span class="switch-name">{sw.name}</span>
+      <div class="switch-track" class:is-3pos={sw.type === '3POS'}
+           role="slider" tabindex="0"
+           aria-label={sw.name}
+           aria-valuemin={sw.type === '3POS' ? -1 : 0}
+           aria-valuemax={1}
+           aria-valuenow={switchStates[index]}
+           onclick={(e) => handleSwitchTrackClick(index, sw, e)}
+           onkeydown={(e) => handleSwitchKey(index, sw, e)}>
+        {#if sw.type === '3POS'}
+          <div class="switch-notch" style:top="7px"></div>
+          <div class="switch-notch" style:top="50%"></div>
+          <div class="switch-notch" style:top="calc(100% - 7px)"></div>
+        {:else}
+          <div class="switch-notch" style:top="7px"></div>
+          <div class="switch-notch" style:top="calc(100% - 7px)"></div>
+        {/if}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="switch-knob" role="presentation"
+             class:sw-up={switchStates[index] === -1}
+             class:sw-mid={switchStates[index] === 0}
+             class:sw-down={switchStates[index] === 1}
+             style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
+             onmousedown={(e) => handleSwitchDrag(index, sw, e)}
+             ontouchstart={(e) => handleSwitchTouchDrag(index, sw, e)}
+        ></div>
+      </div>
+    </div>
+  {/snippet}
+
+  {#snippet lcdScreen()}
+    <div class="lcd-bezel">
+      {#key canvasKey}
+      <canvas
+        bind:this={canvas}
+        class="lcd"
+        style:width="{cssWidth}px"
+        style:height="{cssHeight}px"
+        style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
+        onmousedown={handleCanvasMouseDown}
+        ontouchstart={handleCanvasTouchStart}
+        onwheel={handleWheel}
+      ></canvas>
+      {/key}
+    </div>
+  {/snippet}
+
+  {#snippet leftGimbalBlock()}
+    <div class="gimbal-wrapper gimbal-left">
+      {#if (currentRadio?.trims?.length ?? 0) >= 4}
+        <div class="trim-col">
+          <button class="trim-btn"
+            onmousedown={() => handleTrimDown(2, 'inc')}
+            onmouseup={() => handleTrimUp(2, 'inc')}
+            ontouchstart={() => handleTrimDown(2, 'inc')}
+            ontouchend={() => handleTrimUp(2, 'inc')}
+          >+</button>
+          <span class="trim-label">T3</span>
+          <button class="trim-btn"
+            onmousedown={() => handleTrimDown(2, 'dec')}
+            onmouseup={() => handleTrimUp(2, 'dec')}
+            ontouchstart={() => handleTrimDown(2, 'dec')}
+            ontouchend={() => handleTrimUp(2, 'dec')}
+          >-</button>
         </div>
       {/if}
-      <div class="lcd-bezel">
-        {#key canvasKey}
-        <canvas
-          bind:this={canvas}
-          class="lcd"
-          style:width="{cssWidth}px"
-          style:height="{cssHeight}px"
-          style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
-          onmousedown={handleCanvasMouseDown}
-          ontouchstart={handleCanvasTouchStart}
-          onwheel={handleWheel}
-        ></canvas>
-        {/key}
+      <div class="gimbal-center">
+        <div class="gimbal-label">Left Stick</div>
+        <div
+          class="gimbal"
+          bind:this={leftGimbalEl}
+          onmousedown={(e) => handleGimbalDown('left', e)}
+          ontouchstart={(e) => handleGimbalTouchStart('left', e)}
+          role="slider"
+          aria-label="Left gimbal"
+          tabindex="0"
+          aria-valuemin={-1024}
+          aria-valuemax={1024}
+          aria-valuenow={analogValues[getStickIndices().lh] ?? 0}
+        >
+          <div class="gimbal-crosshair-h" style:top="{gimbalCrossY('left')}%"></div>
+          <div class="gimbal-crosshair-v" style:left="{gimbalCrossX('left')}%"></div>
+          <div
+            class="gimbal-dot"
+            style:left="{gimbalCrossX('left')}%"
+            style:top="{gimbalCrossY('left')}%"
+          ></div>
+        </div>
+        {#if (currentRadio?.trims?.length ?? 0) >= 4}
+          <div class="trim-row">
+            <button class="trim-btn"
+              onmousedown={() => handleTrimDown(3, 'dec')}
+              onmouseup={() => handleTrimUp(3, 'dec')}
+              ontouchstart={() => handleTrimDown(3, 'dec')}
+              ontouchend={() => handleTrimUp(3, 'dec')}
+            >-</button>
+            <span class="trim-label">T4</span>
+            <button class="trim-btn"
+              onmousedown={() => handleTrimDown(3, 'inc')}
+              onmouseup={() => handleTrimUp(3, 'inc')}
+              ontouchstart={() => handleTrimDown(3, 'inc')}
+              ontouchend={() => handleTrimUp(3, 'inc')}
+            >+</button>
+          </div>
+        {/if}
       </div>
-      {#if currentRadio?.keys?.length}
-        <div class="key-column">
-          {#each getRightKeys() as keyDef}
-            <button
-              class="hw-key"
-              onmousedown={() => keyDown(keyDef.key)}
-              onmouseup={() => keyUp(keyDef.key)}
-              onmouseleave={() => keyUp(keyDef.key)}
-              ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
-              ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
-            >{keyDef.label}</button>
-          {/each}
+    </div>
+  {/snippet}
+
+  {#snippet rightGimbalBlock()}
+    <div class="gimbal-wrapper gimbal-right">
+      <div class="gimbal-center">
+        <div class="gimbal-label">Right Stick</div>
+        <div
+          class="gimbal"
+          bind:this={rightGimbalEl}
+          onmousedown={(e) => handleGimbalDown('right', e)}
+          ontouchstart={(e) => handleGimbalTouchStart('right', e)}
+          role="slider"
+          aria-label="Right gimbal"
+          tabindex="0"
+          aria-valuemin={-1024}
+          aria-valuemax={1024}
+          aria-valuenow={analogValues[getStickIndices().rv] ?? 0}
+        >
+          <div class="gimbal-crosshair-h" style:top="{gimbalCrossY('right')}%"></div>
+          <div class="gimbal-crosshair-v" style:left="{gimbalCrossX('right')}%"></div>
+          <div
+            class="gimbal-dot"
+            style:left="{gimbalCrossX('right')}%"
+            style:top="{gimbalCrossY('right')}%"
+          ></div>
+        </div>
+        {#if (currentRadio?.trims?.length ?? 0) >= 2}
+          <div class="trim-row">
+            <button class="trim-btn"
+              onmousedown={() => handleTrimDown(0, 'dec')}
+              onmouseup={() => handleTrimUp(0, 'dec')}
+              ontouchstart={() => handleTrimDown(0, 'dec')}
+              ontouchend={() => handleTrimUp(0, 'dec')}
+            >-</button>
+            <span class="trim-label">T1</span>
+            <button class="trim-btn"
+              onmousedown={() => handleTrimDown(0, 'inc')}
+              onmouseup={() => handleTrimUp(0, 'inc')}
+              ontouchstart={() => handleTrimDown(0, 'inc')}
+              ontouchend={() => handleTrimUp(0, 'inc')}
+            >+</button>
+          </div>
+        {/if}
+      </div>
+      {#if (currentRadio?.trims?.length ?? 0) >= 2}
+        <div class="trim-col">
+          <button class="trim-btn"
+            onmousedown={() => handleTrimDown(1, 'inc')}
+            onmouseup={() => handleTrimUp(1, 'inc')}
+            ontouchstart={() => handleTrimDown(1, 'inc')}
+            ontouchend={() => handleTrimUp(1, 'inc')}
+          >+</button>
+          <span class="trim-label">T2</span>
+          <button class="trim-btn"
+            onmousedown={() => handleTrimDown(1, 'dec')}
+            onmouseup={() => handleTrimUp(1, 'dec')}
+            ontouchstart={() => handleTrimDown(1, 'dec')}
+            ontouchend={() => handleTrimUp(1, 'dec')}
+          >-</button>
         </div>
       {/if}
     </div>
+  {/snippet}
 
-    {#if currentRadio}
-      <!-- Pots row -->
-      {#if getPots().length > 0 || getMultipos().length > 0}
-        <div class="pots-row">
-          {#each getPots() as { input, index }}
-            <div class="pot-control">
-              <span class="control-label">{input.label}</span>
-              <input
-                type="range"
-                min="0"
-                max="4096"
-                value={analogValues[index]}
-                oninput={(e) => handlePotChange(index, e)}
-                class="pot-knob"
-              />
-              <span class="pot-value">{analogValues[index]}</span>
-            </div>
-          {/each}
-          {#each getMultipos() as { input, index }}
-            <div class="multipos-control">
-              <span class="control-label">{input.label}</span>
-              <div class="multipos-buttons">
-                {#each [0, 1, 2, 3, 4, 5] as pos}
-                  <button
-                    class="multipos-btn"
-                    class:active={Math.round(analogValues[index] * 5 / 4096) === pos}
-                    onclick={() => handleMultiposChange(index, pos)}
-                  >{pos + 1}</button>
-                {/each}
-              </div>
-            </div>
+  {#snippet flexCtrl(input: InputDef, index: number)}
+    {#if input.default === 'MULTIPOS'}
+      <div class="multipos-control">
+        <span class="control-label">{input.label}</span>
+        <div class="multipos-buttons">
+          {#each [0, 1, 2, 3, 4, 5] as pos}
+            <button
+              class="multipos-btn"
+              class:active={Math.round(analogValues[index] * 5 / 4096) === pos}
+              onclick={() => handleMultiposChange(index, pos)}
+            >{pos + 1}</button>
           {/each}
         </div>
-      {/if}
+        <span class="pot-value">&nbsp;</span>
+      </div>
+    {:else}
+      {@render potCtrl(input, index)}
+    {/if}
+  {/snippet}
 
-      <!-- Custom switches (SW1-SW6 etc.) - momentary push buttons -->
-      {#if getCustomSwitches().length > 0}
-        <div class="custom-switches-row">
-          {#each getCustomSwitches() as { sw, index }, csIdx}
+  {#snippet potsRow()}
+    {#if getPotsAndMultipos().length > 0}
+      <div class="pots-row">
+        {#if getCustomSwitches().length > 0}
+          <!-- Radios with custom switches: left pots | custom switches | right pots -->
+          {#each getLeftPotsAndMultipos() as { input, index }}
+            {@render flexCtrl(input, index)}
+          {/each}
+          {#each getCustomSwitches() as { sw, index: swIdx }, csIdx}
             <div class="custom-switch">
               <button
                 class="custom-switch-btn"
-                class:active={switchStates[index] === 1}
+                class:active={switchStates[swIdx] === 1}
                 aria-label={sw.name}
                 style:background={customSwitchColors[csIdx] || ''}
                 style:border-color={customSwitchColors[csIdx] || ''}
                 style:box-shadow={customSwitchColors[csIdx] ? `0 0 8px ${customSwitchColors[csIdx]}` : ''}
-                onmousedown={() => updateSwitch(index, 1)}
-                onmouseup={() => updateSwitch(index, -1)}
-                onmouseleave={() => { if (switchStates[index] === 1) updateSwitch(index, -1); }}
-                ontouchstart={(e) => { e.preventDefault(); updateSwitch(index, 1); }}
-                ontouchend={(e) => { e.preventDefault(); updateSwitch(index, -1); }}
+                onmousedown={() => updateSwitch(swIdx, 1)}
+                onmouseup={() => updateSwitch(swIdx, -1)}
+                onmouseleave={() => { if (switchStates[swIdx] === 1) updateSwitch(swIdx, -1); }}
+                ontouchstart={(e) => { e.preventDefault(); updateSwitch(swIdx, 1); }}
+                ontouchend={(e) => { e.preventDefault(); updateSwitch(swIdx, -1); }}
               ></button>
               <span class="custom-switch-label">{sw.name}</span>
             </div>
           {/each}
-        </div>
-      {/if}
-
-      <!-- Main controls area: switches | gimbal | sliders | gimbal | switches -->
-      <div class="controls-area">
-        <!-- Left switches -->
-        <div class="switch-column">
-          {#each getLeftSwitches() as { sw, index }}
-            <div class="switch-control">
-              <span class="switch-name">{sw.name}</span>
-              <div class="switch-track" class:is-3pos={sw.type === '3POS'}
-                   role="slider" tabindex="0"
-                   aria-label={sw.name}
-                   aria-valuemin={sw.type === '3POS' ? -1 : 0}
-                   aria-valuemax={1}
-                   aria-valuenow={switchStates[index]}
-                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}
-                   onkeydown={(e) => handleSwitchKey(index, sw, e)}>
-                {#if sw.type === '3POS'}
-                  <div class="switch-notch" style:top="7px"></div>
-                  <div class="switch-notch" style:top="50%"></div>
-                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
-                {:else}
-                  <div class="switch-notch" style:top="7px"></div>
-                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
-                {/if}
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div class="switch-knob" role="presentation"
-                     class:sw-up={switchStates[index] === -1}
-                     class:sw-mid={switchStates[index] === 0}
-                     class:sw-down={switchStates[index] === 1}
-                     style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
-                     onmousedown={(e) => handleSwitchDrag(index, sw, e)}
-                     ontouchstart={(e) => handleSwitchTouchDrag(index, sw, e)}
-                ></div>
-              </div>
-            </div>
+          {#each getRightPotsAndMultipos() as { input, index }}
+            {@render flexCtrl(input, index)}
           {/each}
-        </div>
+        {:else}
+          <!-- No custom switches: render pots+multipos in JSON order -->
+          {#each getPotsAndMultipos() as { input, index }}
+            {@render flexCtrl(input, index)}
+          {/each}
+        {/if}
+      </div>
+    {/if}
+  {/snippet}
 
-        <!-- Left slider (if any) -->
-        {#if getSliders().length > 0}
-          <div class="slider-column">
-            {#each getSliders().slice(0, 1) as { input, index }}
-              <div class="slider-control">
-                <span class="control-label">{input.label}</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="4096"
-                  value={analogValues[index]}
-                  oninput={(e) => handlePotChange(index, e)}
-                  orient="vertical"
-                  class="vertical-slider"
-                />
-              </div>
+  {#snippet customSwitchesRow()}
+    {#if getCustomSwitches().length > 0}
+      <div class="custom-switches-row">
+        {#each getCustomSwitches() as { sw, index }, csIdx}
+          <div class="custom-switch">
+            <button
+              class="custom-switch-btn"
+              class:active={switchStates[index] === 1}
+              aria-label={sw.name}
+              style:background={customSwitchColors[csIdx] || ''}
+              style:border-color={customSwitchColors[csIdx] || ''}
+              style:box-shadow={customSwitchColors[csIdx] ? `0 0 8px ${customSwitchColors[csIdx]}` : ''}
+              onmousedown={() => updateSwitch(index, 1)}
+              onmouseup={() => updateSwitch(index, -1)}
+              onmouseleave={() => { if (switchStates[index] === 1) updateSwitch(index, -1); }}
+              ontouchstart={(e) => { e.preventDefault(); updateSwitch(index, 1); }}
+              ontouchend={(e) => { e.preventDefault(); updateSwitch(index, -1); }}
+            ></button>
+            <span class="custom-switch-label">{sw.name}</span>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  {/snippet}
+
+  {#snippet potCtrl(input: InputDef, index: number)}
+    <div class="pot-control">
+      <span class="control-label">{input.label}</span>
+      <input type="range" min="0" max="4096"
+        value={analogValues[index]}
+        oninput={(e) => handlePotChange(index, e)}
+        class="pot-knob" />
+      <span class="pot-value">{analogValues[index]}</span>
+    </div>
+  {/snippet}
+
+  {#snippet keyRow()}
+    {#if currentRadio?.keys?.length}
+      <div class="key-row">
+        {#each getLeftKeys() as keyDef}
+          <button class="hw-key"
+            onmousedown={() => keyDown(keyDef.key)}
+            onmouseup={() => keyUp(keyDef.key)}
+            onmouseleave={() => keyUp(keyDef.key)}
+            ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
+            ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
+          >{keyDef.label}</button>
+        {/each}
+        {#each getRightKeys() as keyDef}
+          <button class="hw-key"
+            onmousedown={() => keyDown(keyDef.key)}
+            onmouseup={() => keyUp(keyDef.key)}
+            onmouseleave={() => keyUp(keyDef.key)}
+            ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
+            ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
+          >{keyDef.label}</button>
+        {/each}
+      </div>
+    {/if}
+  {/snippet}
+
+  {#snippet extraTrims()}
+    {#if (currentRadio?.trims?.length ?? 0) > 4}
+      <div class="extra-trims">
+        {#each (currentRadio?.trims ?? []).slice(4) as trim, i}
+          <div class="trim-row">
+            <button class="trim-btn"
+              onmousedown={() => handleTrimDown(4 + i, 'dec')}
+              onmouseup={() => handleTrimUp(4 + i, 'dec')}
+              ontouchstart={() => handleTrimDown(4 + i, 'dec')}
+              ontouchend={() => handleTrimUp(4 + i, 'dec')}
+            >-</button>
+            <span class="trim-label">{trim.name}</span>
+            <button class="trim-btn"
+              onmousedown={() => handleTrimDown(4 + i, 'inc')}
+              onmouseup={() => handleTrimUp(4 + i, 'inc')}
+              ontouchstart={() => handleTrimDown(4 + i, 'inc')}
+              ontouchend={() => handleTrimUp(4 + i, 'inc')}
+            >+</button>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  {/snippet}
+
+  <div class="radio-body" class:portrait={isPortrait}>
+    {#if isPortrait && currentRadio}
+      <!-- Portrait layout: left/right columns flanking LCD, keys below -->
+      <div class="portrait-main">
+        <!-- Left column: switches, pots, slider, gimbal -->
+        <div class="portrait-side">
+          <div class="switch-column">
+            {#each getLeftSwitches() as { sw, index }}
+              {@render switchCtrl(sw, index)}
             {/each}
           </div>
-        {/if}
-
-        <!-- Left gimbal: T3 vertical (left), T4 horizontal (below) -->
-        <div class="gimbal-wrapper gimbal-left">
-          {#if (currentRadio.trims?.length ?? 0) >= 4}
-            <div class="trim-col">
-              <button
-                class="trim-btn"
-                onmousedown={() => handleTrimDown(2, 'inc')}
-                onmouseup={() => handleTrimUp(2, 'inc')}
-                ontouchstart={() => handleTrimDown(2, 'inc')}
-                ontouchend={() => handleTrimUp(2, 'inc')}
-              >+</button>
-              <span class="trim-label">T3</span>
-              <button
-                class="trim-btn"
-                onmousedown={() => handleTrimDown(2, 'dec')}
-                onmouseup={() => handleTrimUp(2, 'dec')}
-                ontouchstart={() => handleTrimDown(2, 'dec')}
-                ontouchend={() => handleTrimUp(2, 'dec')}
-              >-</button>
+          {#if getLeftPotsAndMultipos().length > 0}
+            <div class="portrait-pots">
+              {#each getLeftPotsAndMultipos() as { input, index }}
+                {@render flexCtrl(input, index)}
+              {/each}
             </div>
           {/if}
-          <div class="gimbal-center">
-            <div class="gimbal-label">Left Stick</div>
-            <div
-              class="gimbal"
-              bind:this={leftGimbalEl}
-              onmousedown={(e) => handleGimbalDown('left', e)}
-              ontouchstart={(e) => handleGimbalTouchStart('left', e)}
-              role="slider"
-              aria-label="Left gimbal"
-              tabindex="0"
-              aria-valuemin={-1024}
-              aria-valuemax={1024}
-              aria-valuenow={analogValues[getStickIndices().lh] ?? 0}
-            >
-              <div class="gimbal-crosshair-h" style:top="{gimbalCrossY('left')}%"></div>
-              <div class="gimbal-crosshair-v" style:left="{gimbalCrossX('left')}%"></div>
-              <div
-                class="gimbal-dot"
-                style:left="{gimbalCrossX('left')}%"
-                style:top="{gimbalCrossY('left')}%"
-              ></div>
-            </div>
-            {#if (currentRadio.trims?.length ?? 0) >= 4}
-              <div class="trim-row">
-                <button
-                  class="trim-btn"
-                  onmousedown={() => handleTrimDown(3, 'dec')}
-                  onmouseup={() => handleTrimUp(3, 'dec')}
-                  ontouchstart={() => handleTrimDown(3, 'dec')}
-                  ontouchend={() => handleTrimUp(3, 'dec')}
-                >-</button>
-                <span class="trim-label">T4</span>
-                <button
-                  class="trim-btn"
-                  onmousedown={() => handleTrimDown(3, 'inc')}
-                  onmouseup={() => handleTrimUp(3, 'inc')}
-                  ontouchstart={() => handleTrimDown(3, 'inc')}
-                  ontouchend={() => handleTrimUp(3, 'inc')}
-                >+</button>
-              </div>
-            {/if}
-          </div>
-        </div>
-
-        <!-- Right gimbal: T2 vertical (right), T1 horizontal (below) -->
-        <div class="gimbal-wrapper gimbal-right">
-          <div class="gimbal-center">
-            <div class="gimbal-label">Right Stick</div>
-            <div
-              class="gimbal"
-              bind:this={rightGimbalEl}
-              onmousedown={(e) => handleGimbalDown('right', e)}
-              ontouchstart={(e) => handleGimbalTouchStart('right', e)}
-              role="slider"
-              aria-label="Right gimbal"
-              tabindex="0"
-              aria-valuemin={-1024}
-              aria-valuemax={1024}
-              aria-valuenow={analogValues[getStickIndices().rv] ?? 0}
-            >
-              <div class="gimbal-crosshair-h" style:top="{gimbalCrossY('right')}%"></div>
-              <div class="gimbal-crosshair-v" style:left="{gimbalCrossX('right')}%"></div>
-              <div
-                class="gimbal-dot"
-                style:left="{gimbalCrossX('right')}%"
-                style:top="{gimbalCrossY('right')}%"
-              ></div>
-            </div>
-            {#if (currentRadio.trims?.length ?? 0) >= 2}
-              <div class="trim-row">
-                <button
-                  class="trim-btn"
-                  onmousedown={() => handleTrimDown(0, 'dec')}
-                  onmouseup={() => handleTrimUp(0, 'dec')}
-                  ontouchstart={() => handleTrimDown(0, 'dec')}
-                  ontouchend={() => handleTrimUp(0, 'dec')}
-                >-</button>
-                <span class="trim-label">T1</span>
-                <button
-                  class="trim-btn"
-                  onmousedown={() => handleTrimDown(0, 'inc')}
-                  onmouseup={() => handleTrimUp(0, 'inc')}
-                  ontouchstart={() => handleTrimDown(0, 'inc')}
-                  ontouchend={() => handleTrimUp(0, 'inc')}
-                >+</button>
-              </div>
-            {/if}
-          </div>
-          {#if (currentRadio.trims?.length ?? 0) >= 2}
-            <div class="trim-col">
-              <button
-                class="trim-btn"
-                onmousedown={() => handleTrimDown(1, 'inc')}
-                onmouseup={() => handleTrimUp(1, 'inc')}
-                ontouchstart={() => handleTrimDown(1, 'inc')}
-                ontouchend={() => handleTrimUp(1, 'inc')}
-              >+</button>
-              <span class="trim-label">T2</span>
-              <button
-                class="trim-btn"
-                onmousedown={() => handleTrimDown(1, 'dec')}
-                onmouseup={() => handleTrimUp(1, 'dec')}
-                ontouchstart={() => handleTrimDown(1, 'dec')}
-                ontouchend={() => handleTrimUp(1, 'dec')}
-              >-</button>
+          {#if getSliders().length > 0}
+            <div class="slider-column">
+              {#each getSliders().slice(0, 1) as { input, index }}
+                <div class="slider-control">
+                  <span class="control-label">{input.label}</span>
+                  <input type="range" min="0" max="4096"
+                    value={analogValues[index]}
+                    oninput={(e) => handlePotChange(index, e)}
+                    orient="vertical" class="vertical-slider" />
+                </div>
+              {/each}
             </div>
           {/if}
+          {@render leftGimbalBlock()}
         </div>
 
-        <!-- Right slider (if any) -->
-        {#if getSliders().length > 1}
-          <div class="slider-column">
-            {#each getSliders().slice(1, 2) as { input, index }}
-              <div class="slider-control">
-                <span class="control-label">{input.label}</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="4096"
-                  value={analogValues[index]}
-                  oninput={(e) => handlePotChange(index, e)}
-                  orient="vertical"
-                  class="vertical-slider"
-                />
-              </div>
+        <!-- Centre: LCD screen -->
+        <div class="portrait-center">
+          {@render lcdScreen()}
+          {@render keyRow()}
+        </div>
+
+        <!-- Right column: switches, pots, slider, gimbal -->
+        <div class="portrait-side">
+          <div class="switch-column">
+            {#each getRightSwitches() as { sw, index }}
+              {@render switchCtrl(sw, index)}
             {/each}
           </div>
-        {/if}
-
-        <!-- Right switches -->
-        <div class="switch-column">
-          {#each getRightSwitches() as { sw, index }}
-            <div class="switch-control">
-              <span class="switch-name">{sw.name}</span>
-              <div class="switch-track" class:is-3pos={sw.type === '3POS'}
-                   role="slider" tabindex="0"
-                   aria-label={sw.name}
-                   aria-valuemin={sw.type === '3POS' ? -1 : 0}
-                   aria-valuemax={1}
-                   aria-valuenow={switchStates[index]}
-                   onclick={(e) => handleSwitchTrackClick(index, sw, e)}
-                   onkeydown={(e) => handleSwitchKey(index, sw, e)}>
-                {#if sw.type === '3POS'}
-                  <div class="switch-notch" style:top="7px"></div>
-                  <div class="switch-notch" style:top="50%"></div>
-                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
-                {:else}
-                  <div class="switch-notch" style:top="7px"></div>
-                  <div class="switch-notch" style:top="calc(100% - 7px)"></div>
-                {/if}
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div class="switch-knob" role="presentation"
-                     class:sw-up={switchStates[index] === -1}
-                     class:sw-mid={switchStates[index] === 0}
-                     class:sw-down={switchStates[index] === 1}
-                     style:top={switchKnobTop(switchStates[index], sw.type === '3POS')}
-                     onmousedown={(e) => handleSwitchDrag(index, sw, e)}
-                     ontouchstart={(e) => handleSwitchTouchDrag(index, sw, e)}
-                ></div>
-              </div>
+          {#if getRightPotsAndMultipos().length > 0}
+            <div class="portrait-pots">
+              {#each getRightPotsAndMultipos() as { input, index }}
+                {@render flexCtrl(input, index)}
+              {/each}
             </div>
-          {/each}
+          {/if}
+          {#if getSliders().length > 1}
+            <div class="slider-column">
+              {#each getSliders().slice(1, 2) as { input, index }}
+                <div class="slider-control">
+                  <span class="control-label">{input.label}</span>
+                  <input type="range" min="0" max="4096"
+                    value={analogValues[index]}
+                    oninput={(e) => handlePotChange(index, e)}
+                    orient="vertical" class="vertical-slider" />
+                </div>
+              {/each}
+            </div>
+          {/if}
+          {@render rightGimbalBlock()}
         </div>
       </div>
 
-      <!-- Extra trims (T5, T6, etc.) if present -->
-      {#if (currentRadio.trims?.length ?? 0) > 4}
-        <div class="extra-trims">
-          {#each (currentRadio.trims ?? []).slice(4) as trim, i}
-            <div class="trim-row">
-              <button
-                class="trim-btn"
-                onmousedown={() => handleTrimDown(4 + i, 'dec')}
-                onmouseup={() => handleTrimUp(4 + i, 'dec')}
-                ontouchstart={() => handleTrimDown(4 + i, 'dec')}
-                ontouchend={() => handleTrimUp(4 + i, 'dec')}
-              >-</button>
-              <span class="trim-label">{trim.name}</span>
-              <button
-                class="trim-btn"
-                onmousedown={() => handleTrimDown(4 + i, 'inc')}
-                onmouseup={() => handleTrimUp(4 + i, 'inc')}
-                ontouchstart={() => handleTrimDown(4 + i, 'inc')}
-                ontouchend={() => handleTrimUp(4 + i, 'inc')}
-              >+</button>
+      {#if getPotsAndMultipos().length === 0}
+        {@render customSwitchesRow()}
+      {/if}
+      {@render extraTrims()}
+
+    {:else}
+      <!-- Landscape layout: LCD on top, controls below -->
+      <div class="lcd-area">
+        {#if currentRadio?.keys?.length}
+          <div class="key-column">
+            {#each getLeftKeys() as keyDef}
+              <button class="hw-key"
+                onmousedown={() => keyDown(keyDef.key)}
+                onmouseup={() => keyUp(keyDef.key)}
+                onmouseleave={() => keyUp(keyDef.key)}
+                ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
+                ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
+              >{keyDef.label}</button>
+            {/each}
+          </div>
+        {/if}
+        {@render lcdScreen()}
+        {#if currentRadio?.keys?.length}
+          <div class="key-column">
+            {#each getRightKeys() as keyDef}
+              <button class="hw-key"
+                onmousedown={() => keyDown(keyDef.key)}
+                onmouseup={() => keyUp(keyDef.key)}
+                onmouseleave={() => keyUp(keyDef.key)}
+                ontouchstart={(e) => { e.preventDefault(); keyDown(keyDef.key); }}
+                ontouchend={(e) => { e.preventDefault(); keyUp(keyDef.key); }}
+              >{keyDef.label}</button>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      {#if currentRadio}
+        {@render potsRow()}
+        {#if getPotsAndMultipos().length === 0}
+          {@render customSwitchesRow()}
+        {/if}
+
+        <div class="controls-area">
+          <div class="switch-column">
+            {#each getLeftSwitches() as { sw, index }}
+              {@render switchCtrl(sw, index)}
+            {/each}
+          </div>
+
+          {#if getSliders().length > 0}
+            <div class="slider-column">
+              {#each getSliders().slice(0, 1) as { input, index }}
+                <div class="slider-control">
+                  <span class="control-label">{input.label}</span>
+                  <input type="range" min="0" max="4096"
+                    value={analogValues[index]}
+                    oninput={(e) => handlePotChange(index, e)}
+                    orient="vertical" class="vertical-slider" />
+                </div>
+              {/each}
             </div>
-          {/each}
+          {/if}
+
+          {@render leftGimbalBlock()}
+          {@render rightGimbalBlock()}
+
+          {#if getSliders().length > 1}
+            <div class="slider-column">
+              {#each getSliders().slice(1, 2) as { input, index }}
+                <div class="slider-control">
+                  <span class="control-label">{input.label}</span>
+                  <input type="range" min="0" max="4096"
+                    value={analogValues[index]}
+                    oninput={(e) => handlePotChange(index, e)}
+                    orient="vertical" class="vertical-slider" />
+                </div>
+              {/each}
+            </div>
+          {/if}
+
+          <div class="switch-column">
+            {#each getRightSwitches() as { sw, index }}
+              {@render switchCtrl(sw, index)}
+            {/each}
+          </div>
         </div>
+
+        {@render extraTrims()}
       {/if}
     {/if}
   </div>
@@ -1763,6 +1878,7 @@
   .pots-row {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
     gap: 1.5rem;
     margin-bottom: 0.75rem;
     padding: 0.5rem;
@@ -1845,7 +1961,7 @@
 
   .custom-switch-btn {
     width: 36px;
-    height: 28px;
+    height: 22px;
     border-radius: 6px;
     border: 3px solid var(--border);
     background: var(--bg-element);
@@ -1865,10 +1981,9 @@
   }
 
   .custom-switch-label {
-    font-size: 0.6rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    font-family: monospace;
   }
 
   /* Controls area */
@@ -1878,6 +1993,44 @@
     justify-content: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
+  }
+
+  /* Portrait layout (tall-screen radios like EL18, NB4+, NV14) */
+  .portrait .portrait-main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .portrait .portrait-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 52px;
+  }
+
+  .portrait .portrait-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .portrait .portrait-pots {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .portrait .key-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   /* Switch column */
