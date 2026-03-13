@@ -486,6 +486,19 @@
 #define TOUCH_I2C_BUS                   I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE              100000
 
+#define TOUCH_INT_GPIO                  GPIOI
+#define TOUCH_INT_GPIO_PIN              LL_GPIO_PIN_11   // PI.11
+#define TOUCH_RST_GPIO                  GPIOI
+#define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_3    // PI.03
+
+#define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_11
+#define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTI
+#define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE11
+#if !defined(USE_EXTI15_10_IRQ)
+  #define USE_EXTI15_10_IRQ
+  #define EXTI15_10_IRQ_Priority        5
+#endif
+
 #define IMU_I2C_BUS                     I2C_Bus_1
 #define IMU_I2C_ADDRESS                 0x6A
 
