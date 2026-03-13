@@ -143,14 +143,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -163,19 +163,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -285,7 +285,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -350,7 +350,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -461,7 +461,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -576,13 +576,8 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
-      },
-      {
-        "key": "KEY_ENTER",
-        "label": "⏎",
+        "key": "KEY_MODEL",
+        "label": "MDL",
         "side": "R"
       },
       {
@@ -596,8 +591,13 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -1016,7 +1016,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -1173,18 +1173,18 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_EXIT",
         "label": "EXIT",
         "side": "L"
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -1343,23 +1343,18 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEDN",
         "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MODEL",
-        "label": "MDL",
         "side": "R"
       },
       {
@@ -1368,9 +1363,14 @@
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -1528,23 +1528,18 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEDN",
         "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MODEL",
-        "label": "MDL",
         "side": "R"
       },
       {
@@ -1553,9 +1548,14 @@
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -1717,14 +1717,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -1737,19 +1737,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -1848,6 +1848,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -1859,12 +1864,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -1986,6 +1986,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -1997,12 +2002,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -2193,6 +2193,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -2204,12 +2209,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -2310,14 +2310,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -2330,19 +2330,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "EXIT",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -2500,14 +2500,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -2520,19 +2520,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -2604,14 +2604,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "BCK",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -2634,14 +2634,14 @@
         "side": "L"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
+        "key": "KEY_EXIT",
+        "label": "BCK",
+        "side": "L"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
-        "side": "L"
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -2775,6 +2775,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -2786,12 +2791,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -2886,6 +2886,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -2897,12 +2902,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -3037,6 +3037,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -3048,12 +3053,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -3148,6 +3148,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -3159,12 +3164,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -3259,6 +3259,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -3270,12 +3275,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -3400,23 +3400,18 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEDN",
         "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MODEL",
-        "label": "MDL",
         "side": "R"
       },
       {
@@ -3425,9 +3420,14 @@
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "EXIT",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -3551,23 +3551,18 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEDN",
         "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MODEL",
-        "label": "MDL",
         "side": "R"
       },
       {
@@ -3576,9 +3571,14 @@
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "EXIT",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -3736,23 +3736,18 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEDN",
         "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MODEL",
-        "label": "MDL",
         "side": "R"
       },
       {
@@ -3761,9 +3756,14 @@
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -3921,23 +3921,18 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEDN",
         "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MODEL",
-        "label": "MDL",
         "side": "R"
       },
       {
@@ -3946,9 +3941,14 @@
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -4128,6 +4128,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -4139,12 +4144,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -4325,6 +4325,11 @@
     ],
     "keys": [
       {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
         "key": "KEY_MENU",
         "label": "MENU",
         "side": "L"
@@ -4336,12 +4341,7 @@
       },
       {
         "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
-      },
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
+        "label": "Enter ⏎",
         "side": "R"
       }
     ]
@@ -4442,14 +4442,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -4462,19 +4462,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -4620,14 +4620,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -4640,19 +4640,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -4741,14 +4741,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -4761,19 +4761,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -4856,14 +4856,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -4876,19 +4876,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -4982,14 +4982,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -5002,19 +5002,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -5138,14 +5138,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -5158,19 +5158,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "EXIT",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -5328,14 +5328,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -5348,19 +5348,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -5534,14 +5534,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -5554,19 +5554,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   },
@@ -5670,14 +5670,14 @@
     ],
     "keys": [
       {
-        "key": "KEY_EXIT",
-        "label": "RTN",
-        "side": "L"
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
       },
       {
-        "key": "KEY_ENTER",
-        "label": "⏎",
-        "side": "R"
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
       },
       {
         "key": "KEY_PAGEUP",
@@ -5690,19 +5690,19 @@
         "side": "R"
       },
       {
-        "key": "KEY_MODEL",
-        "label": "MDL",
-        "side": "R"
-      },
-      {
         "key": "KEY_TELE",
         "label": "TELE",
         "side": "R"
       },
       {
-        "key": "KEY_SYS",
-        "label": "SYS",
+        "key": "KEY_EXIT",
+        "label": "RTN",
         "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
       }
     ]
   }

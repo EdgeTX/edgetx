@@ -1262,7 +1262,7 @@
                 onmouseup={() => handleTrimUp(2, 'inc')}
                 ontouchstart={() => handleTrimDown(2, 'inc')}
                 ontouchend={() => handleTrimUp(2, 'inc')}
-              >T3+</button>
+              >+</button>
               <span class="trim-label">T3</span>
               <button
                 class="trim-btn"
@@ -1270,7 +1270,7 @@
                 onmouseup={() => handleTrimUp(2, 'dec')}
                 ontouchstart={() => handleTrimDown(2, 'dec')}
                 ontouchend={() => handleTrimUp(2, 'dec')}
-              >T3-</button>
+              >-</button>
             </div>
           {/if}
           <div class="gimbal-center">
@@ -1303,7 +1303,7 @@
                   onmouseup={() => handleTrimUp(3, 'dec')}
                   ontouchstart={() => handleTrimDown(3, 'dec')}
                   ontouchend={() => handleTrimUp(3, 'dec')}
-                >T4-</button>
+                >-</button>
                 <span class="trim-label">T4</span>
                 <button
                   class="trim-btn"
@@ -1311,7 +1311,7 @@
                   onmouseup={() => handleTrimUp(3, 'inc')}
                   ontouchstart={() => handleTrimDown(3, 'inc')}
                   ontouchend={() => handleTrimUp(3, 'inc')}
-                >T4+</button>
+                >+</button>
               </div>
             {/if}
           </div>
@@ -1349,7 +1349,7 @@
                   onmouseup={() => handleTrimUp(0, 'dec')}
                   ontouchstart={() => handleTrimDown(0, 'dec')}
                   ontouchend={() => handleTrimUp(0, 'dec')}
-                >T1-</button>
+                >-</button>
                 <span class="trim-label">T1</span>
                 <button
                   class="trim-btn"
@@ -1357,7 +1357,7 @@
                   onmouseup={() => handleTrimUp(0, 'inc')}
                   ontouchstart={() => handleTrimDown(0, 'inc')}
                   ontouchend={() => handleTrimUp(0, 'inc')}
-                >T1+</button>
+                >+</button>
               </div>
             {/if}
           </div>
@@ -1369,7 +1369,7 @@
                 onmouseup={() => handleTrimUp(1, 'inc')}
                 ontouchstart={() => handleTrimDown(1, 'inc')}
                 ontouchend={() => handleTrimUp(1, 'inc')}
-              >T2+</button>
+              >+</button>
               <span class="trim-label">T2</span>
               <button
                 class="trim-btn"
@@ -1377,7 +1377,7 @@
                 onmouseup={() => handleTrimUp(1, 'dec')}
                 ontouchstart={() => handleTrimDown(1, 'dec')}
                 ontouchend={() => handleTrimUp(1, 'dec')}
-              >T2-</button>
+              >-</button>
             </div>
           {/if}
         </div>
@@ -1449,7 +1449,7 @@
                 onmouseup={() => handleTrimUp(4 + i, 'dec')}
                 ontouchstart={() => handleTrimDown(4 + i, 'dec')}
                 ontouchend={() => handleTrimUp(4 + i, 'dec')}
-              >{trim.name}-</button>
+              >-</button>
               <span class="trim-label">{trim.name}</span>
               <button
                 class="trim-btn"
@@ -1457,7 +1457,7 @@
                 onmouseup={() => handleTrimUp(4 + i, 'inc')}
                 ontouchstart={() => handleTrimDown(4 + i, 'inc')}
                 ontouchend={() => handleTrimUp(4 + i, 'inc')}
-              >{trim.name}+</button>
+              >+</button>
             </div>
           {/each}
         </div>
@@ -1744,7 +1744,6 @@
     padding: 0.3rem 0.6rem;
     font-size: 0.7rem;
     font-weight: bold;
-    text-transform: uppercase;
     background: var(--bg-surface);
     color: var(--text-bright);
     border: 1px solid var(--border);
@@ -2070,7 +2069,7 @@
   }
 
   .trim-btn {
-    width: 32px;
+    width: 22px;
     height: 22px;
     padding: 0;
     font-size: 0.6rem;

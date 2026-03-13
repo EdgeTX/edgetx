@@ -20,34 +20,35 @@ const ROOT = join(__dirname, '..', '..');
 const HW_DEFS = join(ROOT, 'radio', 'src', 'boards', 'hw_defs');
 const OUTPUT = join(ROOT, 'web', 'public', 'radios.json');
 
-// Key side mapping — matches Companion's radioKeyDefinitions table
-const KEY_SIDE = {
-  KEY_SYS: 'L',
-  KEY_MODEL: 'R',
-  KEY_PAGEUP: 'L',
-  KEY_PAGEDN: 'R',
-  KEY_UP: 'L',
-  KEY_DOWN: 'R',
-  KEY_LEFT: 'L',
-  KEY_RIGHT: 'R',
-  KEY_MINUS: 'L',
-  KEY_PLUS: 'R',
-  KEY_TELE: 'R',
-  KEY_MENU: 'L',
-  KEY_SHIFT: 'R',
-  KEY_EXIT: 'L',
-  KEY_ENTER: 'R',
+// Key side and order — matches Companion's radioKeyDefinitions table
+// (companion/src/simulation/simulateduiwidget.cpp)
+const KEY_LAYOUT = {
+  KEY_SYS:    { side: 'L', row: 0 },
+  KEY_MODEL:  { side: 'R', row: 0 },
+  KEY_PAGEUP: { side: 'L', row: 1 },
+  KEY_PAGEDN: { side: 'R', row: 1 },
+  KEY_UP:     { side: 'L', row: 2 },
+  KEY_DOWN:   { side: 'R', row: 2 },
+  KEY_LEFT:   { side: 'L', row: 3 },
+  KEY_RIGHT:  { side: 'R', row: 3 },
+  KEY_MINUS:  { side: 'L', row: 4 },
+  KEY_PLUS:   { side: 'R', row: 4 },
+  KEY_TELE:   { side: 'R', row: 5 },
+  KEY_MENU:   { side: 'L', row: 6 },
+  KEY_SHIFT:  { side: 'R', row: 6 },
+  KEY_EXIT:   { side: 'L', row: 7 },
+  KEY_ENTER:  { side: 'R', row: 7 },
 };
 
 // Pretty labels for keys (unicode symbols instead of plain text)
 const KEY_LABELS = {
-  KEY_PAGEUP: 'PAGE\u25C0',   // PAGE◀
-  KEY_PAGEDN: 'PAGE\u25B6',   // PAGE▶
+  KEY_PAGEUP: 'PAGE\u25C0',    // PAGE◀
+  KEY_PAGEDN: 'PAGE\u25B6',    // PAGE▶
   KEY_UP: '\u25B2',            // ▲
   KEY_DOWN: '\u25BC',          // ▼
   KEY_LEFT: '\u25C0',          // ◀
   KEY_RIGHT: '\u25B6',         // ▶
-  KEY_ENTER: '\u23CE',         // ⏎
+  KEY_ENTER: 'Enter \u23CE',   // Enter ⏎
 };
 
 /** Build display name lookup from fw.json (the authoritative radio name list). */
@@ -108,12 +109,16 @@ function processFlavour(flavour) {
   // Trims
   const trims = (hw.trims ?? []).map(t => ({ name: t.name }));
 
-  // Keys with side mapping and pretty labels
+  // Keys with side mapping, pretty labels, sorted by Companion grid row
   const keys = (hw.keys ?? []).map(k => ({
     key: k.key,
     label: KEY_LABELS[k.key] || k.label || k.name,
-    side: KEY_SIDE[k.key] || 'R',
-  }));
+    side: (KEY_LAYOUT[k.key] || {}).side || 'R',
+  })).sort((a, b) => {
+    const ra = (KEY_LAYOUT[a.key] || {}).row ?? 99;
+    const rb = (KEY_LAYOUT[b.key] || {}).row ?? 99;
+    return ra - rb;
+  });
 
   // Display / LCD info
   const disp = hw.display ?? {};
