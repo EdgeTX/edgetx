@@ -452,11 +452,19 @@
       if (canvas) {
         lcdRenderer = new LcdRenderer(canvas);
         const dpr = window.devicePixelRatio || 1;
-        const scale = Math.max(1, Math.round(dpr));
-        const canvasW = lcdWidth * scale;
-        const canvasH = lcdHeight * scale;
+        // Color LCDs: integer-scale for crisp pixels.
+        // Dot-matrix LCDs: match CSS size so shader has enough pixels for grid effect.
+        let canvasW: number, canvasH: number;
+        if (lcdDepth >= 16) {
+          const scale = Math.max(1, Math.round(dpr));
+          canvasW = lcdWidth * scale;
+          canvasH = lcdHeight * scale;
+        } else {
+          canvasW = Math.round(cssWidth * dpr);
+          canvasH = Math.round(cssHeight * dpr);
+        }
         lcdRenderer.resize(canvasW, canvasH);
-        onTrace(`[lcd] ${lcdWidth}×${lcdHeight}@${lcdDepth}bpp css=${Math.round(cssWidth)}×${Math.round(cssHeight)} buf=${canvasW}×${canvasH} scale=${scale}× dpr=${dpr}\n`);
+        onTrace(`[lcd] ${lcdWidth}×${lcdHeight}@${lcdDepth}bpp css=${Math.round(cssWidth)}×${Math.round(cssHeight)} buf=${canvasW}×${canvasH} dpr=${dpr}\n`);
       }
 
       loading = false;
