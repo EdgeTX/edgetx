@@ -33,15 +33,6 @@ static const uint8_t volumeScale[VOLUME_LEVEL_MAX + 1] = {
     64, 82, 96, 105, 112, 117, 120, 122, 124, 125, 126, 127,
 };
 
-static int32_t read_i2c_volume()
-{
-  uint8_t value = 0;
-  if (i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1) < 0)
-    return -1;
-
-  return value;
-}
-
 static void write_i2c_volume(uint8_t volume)
 {
   i2c_init(VOLUME_I2C_BUS);
