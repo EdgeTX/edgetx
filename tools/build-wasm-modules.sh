@@ -51,8 +51,6 @@ if [[ -n "$GITHUB_ACTIONS" ]]; then
   MAX_JOBS=${MAX_JOBS:-3}
 fi
 
-rm -rf build && mkdir build && cd build
-
 # Resolve WASI SDK: use WASI_SDK_PATH env, /opt/wasi-sdk, or auto-fetch
 resolve_wasi_sdk() {
     if [[ -n "$WASI_SDK_PATH" ]] && [[ -d "$WASI_SDK_PATH" ]]; then
@@ -139,13 +137,14 @@ run_pipeline() {
     local show_details="${3:-false}"
     local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
     local wasi_toolchain="${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake"
+    local build_dir="build/wasm"
     
-    clean_build
-    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B wasm --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+    clean_build "${build_dir}"
+    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B ${build_dir} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Configuration)"
         return 1
     fi
-    if ! execute_with_output "📦 Building WASM module" "cmake --build wasm --target wasi-module ${cmake_opts}" "$log_file" "$show_details"; then
+    if ! execute_with_output "📦 Building WASM module" "cmake --build ${build_dir} --target wasi-module ${cmake_opts}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Library Build)"
         return 1
     fi
@@ -162,18 +161,20 @@ execute_with_output() {
     if [[ "$show_output" == "true" && "$log_file" != "/dev/null" ]]; then
         echo "    $description..." 
     fi
-    
+
+    rm -f "$log_file"
     eval "$command" >> "$log_file" 2>&1
 }
 
 clean_build() {
-    rm -f CMakeCache.txt native/CMakeCache.txt wasm/CMakeCache.txt
+    local build_dir="$1"
+    rm -f "${build_dir}/CMakeCache.txt"
 }
 
 # Enhanced plugin builder with better error handling
 build_plugin() {
     local plugin="$1"
-    local log_file="build_${plugin}.log"
+    local log_file="${OUTDIR}/build_${plugin}.log"
     local verbose="${2:-false}"
     
     BUILD_OPTIONS="${COMMON_OPTIONS} "
@@ -198,7 +199,7 @@ build_plugin() {
 
     # FLAVOUR may differ from target name (e.g. x9dp2019 -> x9d+2019),
     # so copy whatever .wasm was produced.
-    cp wasm/edgetx-*-simulator.wasm "${OUTDIR}/" 2>/dev/null
+    cp build/wasm/edgetx-*-simulator.wasm "${OUTDIR}/" 2>/dev/null
     
     # Check for warnings and show summary if found
     if grep -q -i "warning" "$log_file"; then
