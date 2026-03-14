@@ -167,6 +167,14 @@ void WASM_IMPORT(simuTrace)(const char* text);
 // listener so the frame can be rendered without polling.
 void WASM_IMPORT(simuLcdNotify)();
 
+// First-run helper: request default radio.yml + model creation if
+// no settings file exists.  Call before simuStart().  The actual file
+// I/O runs inside storageReadAll() on a worker thread.
+void WASM_EXPORT(simuCreateDefaults)();
+
+// Flag checked by storageReadAll() to silently create defaults.
+extern bool simuCreateDefaultSettings;
+
 // Aux serial bridge (firmware -> host).  port_nr is 0 for AUX1, 1 for AUX2.
 // encoding values match SimulatorSerialEncoding (0=8N1, 1=8E2, 2=PXX1_PWM)
 // and ETX_Encoding_* — they share the same numeric values.  Called when the

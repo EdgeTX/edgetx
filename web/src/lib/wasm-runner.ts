@@ -49,6 +49,7 @@ export interface SimulatorExports {
   simuStop: () => void;
   simuIsRunning: () => number;
   simuFatfsSetPaths: (sdPath: number, settingsPath: number) => void;
+  simuCreateDefaults: () => void;
 
   simuSetKey: (key: number, state: number) => void;
   simuSetTrim: (trim: number, state: number) => void;
