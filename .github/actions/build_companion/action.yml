@@ -32,7 +32,11 @@ runs:
     - name: Setup SDL2
       if: runner.os != 'Linux'
       shell: bash
-      run: ${{ github.action_path }}/setup-sdl2.sh ${{ inputs.sdl2-version }}
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        SDL2_VERSION: ${{ inputs.sdl2-version }}
+      run: |
+        "${ACTION_PATH}/setup-sdl2.sh" ${SDL2_VERSION}
 
     - name: Setup MSVC
       if: runner.os == 'Windows'
