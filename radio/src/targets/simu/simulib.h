@@ -162,6 +162,14 @@ void WASM_IMPORT(simuTrace)(const char* text);
 // listener so the frame can be rendered without polling.
 void WASM_IMPORT(simuLcdNotify)();
 
+// First-run helper: request default radio.yml + model creation if
+// no settings file exists.  Call before simuStart().  The actual file
+// I/O runs inside storageReadAll() on a worker thread.
+void WASM_EXPORT(simuCreateDefaults)();
+
+// Flag checked by storageReadAll() to silently create defaults.
+extern bool simuCreateDefaultSettings;
+
 // -- Internal (not exported) --
 void simuMain();
 std::string simuFatfsGetCurrentPath();

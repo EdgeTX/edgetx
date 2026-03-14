@@ -447,6 +447,7 @@
       // --- Start sim ---
       ex.simuInit();
       runner.setFatfsPaths('/', '/');
+      ex.simuCreateDefaults();
       ex.simuStart(1);
 
       if (canvas) {
