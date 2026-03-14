@@ -383,7 +383,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "disableTrainerPoweroffAlarm", 1 ),
   YAML_SIGNED( "disablePwrOnOffHaptic", 1 ),
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_UNSIGNED( "oneLogPerDay", 1 ),
+  YAML_PADDING( 6 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
