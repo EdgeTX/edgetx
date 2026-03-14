@@ -39,7 +39,8 @@ runs:
 
     - name: Setup MSVC
       if: runner.os == 'Windows'
-      uses: ilammy/msvc-dev-cmd@v1
+      shell: pwsh
+      run: ${{ github.action_path }}/setup-msvc.ps1
 
     - name: Build
       shell: bash
