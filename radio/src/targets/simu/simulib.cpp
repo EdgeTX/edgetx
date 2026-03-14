@@ -55,6 +55,7 @@ char * main_thread_error = nullptr;
 
 bool simu_shutdown = false;
 bool simu_running = false;
+bool simuCreateDefaultSettings = false;
 
 
 volatile rotenc_t rotencValue = 0;
@@ -107,6 +108,11 @@ static void* bootloaderThread(void*)
   return nullptr;
 }
 #endif
+
+void simuCreateDefaults()
+{
+  simuCreateDefaultSettings = true;
+}
 
 void simuStart(bool tests)
 {
