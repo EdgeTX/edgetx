@@ -33,6 +33,8 @@
 #include "debug.h"
 #include "switches.h"
 #include "input_mapping.h"
+#include "gui/gui_common.h"
+#include "mixes.h"
 #if defined(GVARS)
 #include "gvars.h"
 #endif
@@ -656,6 +658,21 @@ uint8_t simuCopyMixOutputs(int16_t* buf, uint8_t maxCount)
   uint8_t n = MAX_OUTPUT_CHANNELS < maxCount ? MAX_OUTPUT_CHANNELS : maxCount;
   memcpy(buf, ex_chans, n * sizeof(int16_t));
   return n;
+}
+
+bool simuIsChannelUsed(uint8_t channel)
+{
+  return isChannelUsed(channel);
+}
+
+int simuGetChannelsUsed()
+{
+  return getChannelsUsed();
+}
+
+uint8_t simuGetMixCount()
+{
+  return getMixCount();
 }
 
 uint8_t simuGetNumLogicalSwitches()

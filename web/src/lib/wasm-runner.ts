@@ -68,6 +68,10 @@ export interface SimulatorExports {
   simuGetCapability: (cap: number) => number;
   simuAudioGetVolume: () => number;
 
+  simuIsChannelUsed: (channel: number) => number;
+  simuGetChannelsUsed: () => number;
+  simuGetMixCount: () => number;
+
   simuGetNumCustomSwitches: () => number;
   simuGetCustomSwitchState: (idx: number) => number;
   simuGetCustomSwitchColor: (idx: number) => number;
