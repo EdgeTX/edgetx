@@ -242,7 +242,7 @@ endif()
 
 if(LED_STRIP)
   target_sources(board PRIVATE ${TARGET_SRC_DIR}/led_driver.cpp)
-  target_sources(board PRIVATE targets/common/arm/stm32/stm32_ws2812.cpp)
+  target_sources(board PRIVATE targets/common/arm/stm32/stm32_rgbleds.cpp)
 endif()
 
 
