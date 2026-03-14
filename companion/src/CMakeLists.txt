@@ -426,23 +426,23 @@ elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
   # and trial and error. Do not hesitate to fix it for the better
   set(COMPANION_DISPLAY_NAME "EdgeTX Companion")
-  set_target_properties(${COMPANION_NAME} PROPERTIES
-      MACOSX_RPATH TRUE
-      MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_BUNDLE_NAME "${COMPANION_DISPLAY_NAME}"
-      MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
-
-      INSTALL_RPATH "@executable_path/../Frameworks"
-      BUILD_WITH_INSTALL_RPATH TRUE
-  )
-
   # This the name that the user will see in the generated DMG and what the application
   # will be called under /Applications. We include the version string to make installing
   # different versions side-by-side
   set(COMPANION_OSX_APP_BUNDLE_NAME "${COMPANION_DISPLAY_NAME} ${VERSION_FAMILY}")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
-  set(companion_app_dir "companion.app")
+  set_target_properties(${COMPANION_NAME} PROPERTIES
+      OUTPUT_NAME "${COMPANION_OSX_APP_BUNDLE_NAME}"
+      MACOSX_RPATH TRUE
+      MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_BUNDLE_NAME "${COMPANION_DISPLAY_NAME}"
+      MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
+      INSTALL_RPATH "@executable_path/../Frameworks"
+      BUILD_WITH_INSTALL_RPATH TRUE
+  )
+
+  set(companion_app_dir "${COMPANION_OSX_APP_BUNDLE_NAME}.app")
   set(companion_res_dir "${companion_app_dir}/Contents/Resources")
 
   # Only Companion is distributed for macOS
@@ -469,7 +469,7 @@ elseif(APPLE)
   )
 
   install(FILES ${MAC_ICON_FILE}
-          DESTINATION ${companion_res_dir}
+          DESTINATION "${companion_res_dir}"
           COMPONENT Runtime)
 endif()
 
@@ -557,7 +557,7 @@ elseif(APPLE)
     OUTPUT_SCRIPT qt_deploy_companion
     CONTENT "
       qt_deploy_runtime_dependencies(
-        EXECUTABLE ${companion_app_dir}
+        EXECUTABLE \"${companion_app_dir}\"
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
@@ -568,29 +568,22 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Bundle SDL2, fix code signing, and rename bundle
+  # Bundle SDL2
   if(TARGET SDL2::SDL2)
-    get_target_property(_sdl2_loc SDL2::SDL2 IMPORTED_LOCATION)
-    if(NOT _sdl2_loc)
-      get_target_property(_sdl2_loc SDL2::SDL2 LOCATION)
-    endif()
-    # If the library lives inside a .framework bundle, copy the whole framework
-    if(_sdl2_loc MATCHES "(^.+\\.framework)")
-      set(_sdl2_loc "${CMAKE_MATCH_1}")
-    endif()
+    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+            FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
+            LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
+            COMPONENT Runtime)
   endif()
 
+  # Re-sign bundle after all contents are installed
   install(CODE "
       set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
-      if(EXISTS \"${_sdl2_loc}\")
-        file(INSTALL \"${_sdl2_loc}\" DESTINATION \"\${app_dir}/Contents/Frameworks\")
-      endif()
       execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
       execute_process(
         COMMAND codesign --remove-signature \${app_dir}
         COMMAND codesign --force --deep -s - \${app_dir}
       )
-      file(RENAME \"\${app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
   " COMPONENT Runtime)
 
 else()
