@@ -411,8 +411,8 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   if(TARGET SDL2::SDL2)
-    install(FILES $<TARGET_FILE:SDL2::SDL2>
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
   include(FindMSVCRedist)
@@ -568,23 +568,17 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Bundle SDL2, fix code signing, and rename bundle
+  # Bundle SDL2 (handles both .framework dirs and plain .dylib)
   if(TARGET SDL2::SDL2)
-    get_target_property(_sdl2_loc SDL2::SDL2 IMPORTED_LOCATION)
-    if(NOT _sdl2_loc)
-      get_target_property(_sdl2_loc SDL2::SDL2 LOCATION)
-    endif()
-    # If the library lives inside a .framework bundle, copy the whole framework
-    if(_sdl2_loc MATCHES "(^.+\\.framework)")
-      set(_sdl2_loc "${CMAKE_MATCH_1}")
-    endif()
+    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+            FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
+            LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
+            COMPONENT Runtime)
   endif()
 
+  # Fix code signing and rename bundle
   install(CODE "
       set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
-      if(EXISTS \"${_sdl2_loc}\")
-        file(INSTALL \"${_sdl2_loc}\" DESTINATION \"\${app_dir}/Contents/Frameworks\")
-      endif()
       execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
       execute_process(
         COMMAND codesign --remove-signature \${app_dir}
