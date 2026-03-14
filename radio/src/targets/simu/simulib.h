@@ -123,6 +123,11 @@ uint8_t  WASM_EXPORT(simuGetNumChannels)();
 uint8_t  WASM_EXPORT(simuCopyChannelOutputs)(int16_t* buf, uint8_t maxCount);
 uint8_t  WASM_EXPORT(simuCopyMixOutputs)(int16_t* buf, uint8_t maxCount);
 
+// Channel/mixer queries.
+bool     WASM_EXPORT(simuIsChannelUsed)(uint8_t channel);
+int      WASM_EXPORT(simuGetChannelsUsed)();
+uint8_t  WASM_EXPORT(simuGetMixCount)();
+
 // Bulk copy logical switch states into buf (uint8_t[], 0 or 1). Returns count.
 uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
 uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
