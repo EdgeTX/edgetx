@@ -32,7 +32,7 @@ runs:
     - name: Setup SDL2
       if: runner.os != 'Linux'
       id: setup-sdl2
-      uses: libsdl-org/setup-sdl@v1
+      uses: libsdl-org/setup-sdl@main
       with:
         version: ${{ inputs.sdl2-version }}
         build-type: "Release"
@@ -55,7 +55,7 @@ runs:
       shell: bash
 
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: "${{ env.artifact_name }}"
         path:  ${{github.workspace}}/output
