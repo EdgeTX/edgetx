@@ -574,6 +574,10 @@ elseif(APPLE)
     if(NOT _sdl2_loc)
       get_target_property(_sdl2_loc SDL2::SDL2 LOCATION)
     endif()
+    # If the library lives inside a .framework bundle, copy the whole framework
+    if(_sdl2_loc MATCHES "(^.+\\.framework)")
+      set(_sdl2_loc "${CMAKE_MATCH_1}")
+    endif()
   endif()
 
   install(CODE "
