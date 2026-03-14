@@ -1442,7 +1442,7 @@ int cliDisplay(const char ** argv)
 
   if (!strcmp(argv[1], "keys")) {
     for (int i = 0; i <= MAX_KEYS; i++) {
-      if (keysGetSupported() & (1 << i)) {
+      if (keyIsSupported(i)) {
         cliSerialPrint("[Key %s] = %s",
                        keysGetLabel((EnumKeys)i),
                        keysGetState(i) ? "on" : "off");

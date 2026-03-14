@@ -304,14 +304,12 @@ void menuRadioSdManager(event_t _event)
 
   switch (_event) {
 
-#if defined(KEYS_GPIO_REG_MENU)
     case EVT_KEY_LONG(KEY_MENU):
       if (SD_CARD_PRESENT() && s_editMode == 0) {
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
         POPUP_MENU_START(onSdManagerMenu);
       }
       break;
-#endif
 
     case EVT_KEY_BREAK(KEY_EXIT):
       REFRESH_FILES();
