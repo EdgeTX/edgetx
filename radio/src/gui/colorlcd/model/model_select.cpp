@@ -639,7 +639,8 @@ void ModelLabelsWindow::newModel()
       snprintf(path, LEN_BUFFER, "%s/%s", TEMPLATES_PATH, folder.c_str());
 
       // Read model template
-      LayoutFactory::deleteCustomScreens(true);
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::deleteTopBarWidgets();
       loadModel((name + YAML_EXT).c_str(), false, path);
       storageFlushCurrentModel();
       storageCheck(true);
