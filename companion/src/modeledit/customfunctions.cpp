@@ -85,26 +85,22 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
-    scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/FUNCTIONS", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
-    for (int i = 0; i < fswCapability; i++) {
-      if (functions[i].func == FuncPlayScript) {
-        QString temp = functions[i].paramarm;
-        if (!temp.isEmpty()) {
-          scriptsSet.insert(temp);
-        }
+  scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/FUNCTIONS", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
+  for (int i = 0; i < fswCapability; i++) {
+    if (functions[i].func == FuncPlayScript) {
+      QString temp = functions[i].paramarm;
+      if (!temp.isEmpty()) {
+        scriptsSet.insert(temp);
       }
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
-    scriptsSetRGB = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
-    for (int i = 0; i < fswCapability; i++) {
-      if (functions[i].func == FuncRGBLed) {
-        QString temp = functions[i].paramarm;
-        if (!temp.isEmpty()) {
-          scriptsSetRGB.insert(temp);
-        }
+  scriptsSetRGB = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
+  for (int i = 0; i < fswCapability; i++) {
+    if (functions[i].func == FuncRGBLed) {
+      QString temp = functions[i].paramarm;
+      if (!temp.isEmpty()) {
+        scriptsSetRGB.insert(temp);
       }
     }
   }
