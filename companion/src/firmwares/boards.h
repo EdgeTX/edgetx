@@ -307,6 +307,7 @@ namespace Board {
     AIT_FLEX,
     AIT_VBAT,
     AIT_RTC_BAT,
+    AIT_LUX,
     AIT_SWITCH,
   };
 

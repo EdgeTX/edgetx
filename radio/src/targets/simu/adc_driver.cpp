@@ -32,7 +32,11 @@ void enableVBatBridge(){}
 void disableVBatBridge(){}
 bool isVBatBridgeEnabled(){ return false; }
 
-uint16_t getLuxSensorValue() { return 1024; }
+uint16_t getLuxSensorValue()
+{
+  if (adcGetMaxInputs(ADC_INPUT_LUX) < 1) return 0;
+  return anaIn(adcGetInputOffset(ADC_INPUT_LUX));
+}
 
 uint16_t getBatteryVoltage()
 {
@@ -49,7 +53,7 @@ extern uint16_t simuGetAnalog(uint8_t idx);
 
 static bool simu_start_conversion()
 {
-  int max_input = adcGetInputOffset(ADC_INPUT_VBAT);
+  int max_input = adcGetMaxInputs(ADC_INPUT_ALL);
   for (int i = 0; i < max_input; i++) {
     setAnalogValue(i, simuGetAnalog(i));
   }
