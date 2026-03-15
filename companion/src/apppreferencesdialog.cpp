@@ -182,6 +182,8 @@ void AppPreferencesDialog::accept()
   profile.splashFile(ui->SplashFileName->text());
   profile.runSDSync(ui->chkPromptSDSync->isChecked());
   profile.radioSimCaseColor(ui->lblRadioColorSample->palette().button().color());
+  profile.simBtnClickedUseOSTheme(ui->chkSimBtnClickedUseOSTheme->isChecked());
+  profile.simBtnClickedColor(ui->lblSimBtnClickedColorSample->palette().button().color());
   profile.useSavedSettings(ui->chkUseSavedSettingsProfile->isChecked());
 
   // The profile name may NEVER be empty
@@ -380,6 +382,16 @@ void AppPreferencesDialog::initSettings()
   ui->lblGeneralSettings->setText(hwSettings);
   ui->chkPromptSDSync->setChecked(profile.runSDSync());
   ui->lblRadioColorSample->setPalette(QPalette(profile.radioSimCaseColor()));
+  ui->chkSimBtnClickedUseOSTheme->setChecked(profile.simBtnClickedUseOSTheme());
+  ui->lblSimBtnClickedColorSample->setPalette(QPalette(profile.simBtnClickedColor()));
+
+  if (ui->chkSimBtnClickedUseOSTheme->isChecked()) {
+    ui->lblSimBtnClickedColorSample->setVisible(false);
+    ui->btnSimBtnClickedColor->setEnabled(false);
+  } else {
+    ui->lblSimBtnClickedColorSample->setVisible(true);
+    ui->btnSimBtnClickedColor->setEnabled(true);
+  }
 
   QString currType = QStringList(profile.fwType().split('-').mid(0, 2)).join('-');
   foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
@@ -906,4 +918,22 @@ void AppPreferencesDialog::onProfileBackupPathEditingFinished()
     ui->profileBackupEnable->setChecked(false);
     ui->profileBackupEnable->setEnabled(false);
   }
+}
+void AppPreferencesDialog::on_chkSimBtnClickedUseOSTheme_stateChanged()
+{
+  if (ui->chkSimBtnClickedUseOSTheme->isChecked()) {
+    ui->lblSimBtnClickedColorSample->setVisible(false);
+    ui->btnSimBtnClickedColor->setEnabled(false);
+  } else {
+    ui->lblSimBtnClickedColorSample->setVisible(true);
+    ui->btnSimBtnClickedColor->setEnabled(true);
+  }
+}
+
+void AppPreferencesDialog::on_btnSimBtnClickedColor_clicked()
+{
+  QColorDialog *dlg = new QColorDialog(this);
+  QColor color = dlg->getColor(g.currentProfile().simBtnClickedColor(), this);
+  ui->lblSimBtnClickedColorSample->setPalette(QPalette(color));
+  ui->lblSimBtnClickedColorSample->repaint();
 }

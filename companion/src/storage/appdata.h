@@ -504,6 +504,8 @@ class Profile: public CompStoreObj
     PROPERTY(bool, telemSimPauseOnHide,     true)
     PROPERTY(bool, telemSimResetRssiOnStop, false)
     PROPERTY(QColor, radioSimCaseColor, QColor(Qt::black))
+    PROPERTY(bool,   simBtnClickedUseOSTheme, true)
+    PROPERTY(QColor, simBtnClickedColor, QColor(Qt::red))
 
     // General settings
     PROPERTYQBA(generalSettings)
