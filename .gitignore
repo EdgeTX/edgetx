@@ -18,3 +18,4 @@ compile_commands.json
 /.vs
 CMakeUserPresets.json
 .DS_Store
+output/

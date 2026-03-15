@@ -33,6 +33,8 @@
 #include "debug.h"
 #include "switches.h"
 #include "input_mapping.h"
+#include "gui/gui_common.h"
+#include "mixes.h"
 #if defined(GVARS)
 #include "gvars.h"
 #endif
@@ -53,6 +55,7 @@ char * main_thread_error = nullptr;
 
 bool simu_shutdown = false;
 bool simu_running = false;
+bool simuCreateDefaultSettings = false;
 
 
 volatile rotenc_t rotencValue = 0;
@@ -105,6 +108,11 @@ static void* bootloaderThread(void*)
   return nullptr;
 }
 #endif
+
+void simuCreateDefaults()
+{
+  simuCreateDefaultSettings = true;
+}
 
 void simuStart(bool tests)
 {
@@ -658,6 +666,21 @@ uint8_t simuCopyMixOutputs(int16_t* buf, uint8_t maxCount)
   return n;
 }
 
+bool simuIsChannelUsed(uint8_t channel)
+{
+  return isChannelUsed(channel);
+}
+
+int simuGetChannelsUsed()
+{
+  return getChannelsUsed();
+}
+
+uint8_t simuGetMixCount()
+{
+  return getMixCount();
+}
+
 uint8_t simuGetNumLogicalSwitches()
 {
   return MAX_LOGICAL_SWITCHES;
@@ -713,6 +736,35 @@ int32_t simuGetGVar(uint8_t gv, uint8_t fm)
     return (((unit & 0x3) << 26) | ((prec & 0x3) << 24) |
             ((fm & 0xFF) << 16) | (value & 0xFFFF));
   }
+#endif
+  return 0;
+}
+
+// -- Custom (function) switches --
+
+uint8_t simuGetNumCustomSwitches()
+{
+#if defined(FUNCTION_SWITCHES)
+  return NUM_FUNCTIONS_SWITCHES;
+#else
+  return 0;
+#endif
+}
+
+bool simuGetCustomSwitchState(uint8_t idx)
+{
+#if defined(FUNCTION_SWITCHES)
+  if (idx < NUM_FUNCTIONS_SWITCHES)
+    return fsLedState(idx);
+#endif
+  return false;
+}
+
+uint32_t simuGetCustomSwitchColor(uint8_t idx)
+{
+#if defined(FUNCTION_SWITCHES)
+  if (idx < NUM_FUNCTIONS_SWITCHES)
+    return fsGetLedRGB(idx);
 #endif
   return 0;
 }
