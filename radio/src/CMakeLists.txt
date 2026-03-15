@@ -128,30 +128,30 @@ add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 
 if(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
-  include(targets/common/arm/stm32/h7/CMakeLists.txt)
+  include(cpu/stm32/h7/CMakeLists.txt)
 endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
-  include(targets/common/arm/stm32/f4/CMakeLists.txt)
+  include(cpu/stm32/f4/CMakeLists.txt)
 endif()
 
 if(CPU_TYPE STREQUAL STM32F2)
-  include(targets/common/arm/stm32/f2/CMakeLists.txt)
+  include(cpu/stm32/f2/CMakeLists.txt)
 endif()
 
 if(CPU_FAMILY STREQUAL STM32)
-  include(targets/common/arm/stm32/CMakeLists.txt)
+  include(cpu/stm32/CMakeLists.txt)
   include(boards/generic_stm32/CMakeLists.txt)
 endif()
 
 if(ARCH STREQUAL ARM)
-  include(targets/common/arm/CMakeLists.txt)
+  include(options.cmake)
 endif()
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
 if(NATIVE_BUILD)
-  include_directories(targets/simu)
+  include_directories(simu)
 endif()
 
 foreach(LANGUAGE ${RADIO_LANGUAGES})
@@ -569,7 +569,7 @@ if(NATIVE_BUILD)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  add_subdirectory(targets/simu)
+  add_subdirectory(simu)
   add_subdirectory(tests)
 endif()
 

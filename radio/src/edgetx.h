@@ -29,7 +29,7 @@
 #include "switches.h"
 
 #if defined(SIMU)
-#include "targets/simu/simpgmspace.h"
+#include "simu/simpgmspace.h"
 #endif
 
 #include "board.h"
