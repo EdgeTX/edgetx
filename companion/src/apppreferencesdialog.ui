@@ -26,6 +26,16 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
@@ -401,16 +411,6 @@ Mode 4:
          </property>
         </spacer>
        </item>
-       <item row="19" column="2">
-        <widget class="QLabel" name="lblRadioColorSample">
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
        <item row="12" column="0">
         <widget class="QLabel" name="label_4">
          <property name="sizePolicy">
@@ -746,14 +746,7 @@ Mode 4:
        <item row="19" column="0">
         <widget class="QLabel" name="label_24">
          <property name="text">
-          <string>Simulator Case Colour</string>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="3">
-        <widget class="QPushButton" name="btnRadioColor">
-         <property name="text">
-          <string>Select Colour</string>
+          <string>Simulator Radio Case Colour</string>
          </property>
         </widget>
        </item>
@@ -796,7 +789,7 @@ Mode 4:
          <item>
           <widget class="QCheckBox" name="chkSimBtnClickedUseOSTheme">
            <property name="text">
-            <string>Use operating system theme</string>
+            <string>Operating System theme</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -808,12 +801,60 @@ Mode 4:
            <property name="autoFillBackground">
             <bool>true</bool>
            </property>
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_29">
            <property name="text">
             <string/>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="19" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QLabel" name="lblRadioColorSample">
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="19" column="3">
+        <widget class="QPushButton" name="btnRadioColor">
+         <property name="text">
+          <string>Select Colour</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -1756,16 +1797,6 @@ Mode 4:
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
-     </property>
     </widget>
    </item>
   </layout>
