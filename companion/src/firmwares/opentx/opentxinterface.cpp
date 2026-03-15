@@ -22,6 +22,7 @@
 #include "opentxinterface.h"
 #include "appdata.h"
 #include "constants.h"
+#include "customisation_data.h"
 
 #include <bitset>
 #include <QMessageBox>
@@ -258,6 +259,16 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 32;
     case InputsLength:
       return HAS_LARGE_LCD(board) ? 4 : 3;
+    case IsLandscape:
+      return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight);
+    case IsNarrowLayout:
+      // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+      return (getCapability(IsPortrait) && Boards::getCapability(board, Board::LcdWidth) == 320);
+    case IsPortrait:
+      return !getCapability(IsLandscape);
+    case IsWideLayout:
+      // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+      return (!getCapability(IsNarrowLayout) && Boards::getCapability(board, Board::LcdWidth) >= 800);
     case TrainerInputs:
       return 16;
     case LuaScripts:
@@ -318,7 +329,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasTelemetryBaudrate:
       return IS_HORUS_OR_TARANIS(board);
     case TopBarZones:
-      return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight) ? 4 : 2;
+      return Boards::getCapability(board, Board::HasColorLcd) ? RadioLayout::topBarZones() : 0;
     case HasModelsList:
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasFlySkyGimbals:
