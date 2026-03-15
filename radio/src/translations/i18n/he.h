@@ -1,4 +1,4 @@
-/*  translation by adir kahsharo \ Motti Shonak. 
+/*  translation by adir kahsharo \ Motti Shonak.
  *  make configure system by stav raviv
  *  Ver 1.025
  *
@@ -139,13 +139,14 @@
 #define TR_AUX_SERIAL_MODES_1          "כבוי"
 #define TR_AUX_SERIAL_MODES_2          "שיקוף טלמטריה"
 #define TR_AUX_SERIAL_MODES_3          "בטלמטריה"
-#define TR_AUX_SERIAL_MODES_4          "SBUS Trainer"
-#define TR_AUX_SERIAL_MODES_5          "LUA"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "מיפוי שגיאות"
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "מודול חיצוני"
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "SBUS Trainer"
+#define TR_AUX_SERIAL_MODES_6          "LUA"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "מיפוי שגיאות"
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "מודול חיצוני"
 #define TR_SWTYPES_1                   "כלום"
 #define TR_SWTYPES_2                   "להחליף"
 #define TR_SWTYPES_3                   "2POS"
@@ -732,7 +733,7 @@
 #define TR_ENTER_LABEL                 "הוספת לשונית"
 #define TR_LABEL                       "לשונית"
 #define TR_LABELS                      "לשוניות"
-#define TR_CURRENT_MODEL               "מודל נבחר" 
+#define TR_CURRENT_MODEL               "מודל נבחר"
 #define TR_ACTIVE                      "פעיל"
 #define TR_NEW                         "חדש"
 #define TR_NEW_LABEL                   "לשונית חדשה"

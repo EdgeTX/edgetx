@@ -139,13 +139,14 @@
 #define TR_AUX_SERIAL_MODES_1          "AUS"
 #define TR_AUX_SERIAL_MODES_2          TR("Telem weiterl.", "Telemetrie weiterleiten")
 #define TR_AUX_SERIAL_MODES_3          TR("Telemetrie In", "Telemetrie Eingang")
-#define TR_AUX_SERIAL_MODES_4          "SBUS Eingang"
-#define TR_AUX_SERIAL_MODES_5          "LUA"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "Debug"
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "Externes Modul"
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "SBUS Eingang"
+#define TR_AUX_SERIAL_MODES_6          "LUA"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "Debug"
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "Externes Modul"
 #define TR_SWTYPES_1                   "Kein"
 #define TR_SWTYPES_2                   "Taster"
 #define TR_SWTYPES_3                   "2POS"
