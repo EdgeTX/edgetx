@@ -567,23 +567,23 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/${LCD_DRIVER}
-  targets/common/arm/stm32/abnormal_reboot.cpp
-  targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/flash_driver.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/watchdog_driver.cpp
+  cpu/stm32/abnormal_reboot.cpp
+  cpu/stm32/delays_driver.cpp
+  cpu/stm32/flash_driver.cpp
+  cpu/stm32/pwr_driver.cpp
+  cpu/stm32/rtc_driver.cpp
+  cpu/stm32/watchdog_driver.cpp
 )
 
 if(ROTARY_ENCODER)
   list(APPEND BOARD_COMMON_SRC
-    targets/common/arm/stm32/rotary_encoder_driver.cpp
+    cpu/stm32/rotary_encoder_driver.cpp
   )
 endif()
 
 if(BLUETOOTH)
   list(APPEND BOARD_COMMON_SRC
-    targets/common/arm/stm32/bluetooth_driver.cpp
+    cpu/stm32/bluetooth_driver.cpp
   )
 endif()
 
@@ -599,16 +599,16 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/volume_i2c.cpp
-  targets/common/arm/stm32/audio_dac_driver.cpp
-  targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_softserial_driver.cpp
-  targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+  cpu/stm32/audio_dac_driver.cpp
+  cpu/stm32/delays_driver.cpp
+  cpu/stm32/heartbeat_driver.cpp
+  cpu/stm32/mixer_scheduler_driver.cpp
+  cpu/stm32/module_timer_driver.cpp
+  cpu/stm32/stm32_pulse_driver.cpp
+  cpu/stm32/stm32_softserial_driver.cpp
+  cpu/stm32/stm32_switch_driver.cpp
+  cpu/stm32/trainer_driver.cpp
+  cpu/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
@@ -627,7 +627,7 @@ if(USB_CHARGER)
 endif()
 
 if(IMU)
-  target_sources(board PRIVATE targets/common/arm/stm32/lsm6ds_driver.cpp)
+  target_sources(board PRIVATE cpu/stm32/lsm6ds_driver.cpp)
 endif()
 
 if(AUTOUPDATE)
@@ -676,7 +676,7 @@ set(GUI_SRC ${GUI_SRC}
 if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
-    targets/common/arm/stm32/sticks_pwm_driver.cpp)
+    cpu/stm32/sticks_pwm_driver.cpp)
 endif()
 
 set(FIRMWARE_SRC

@@ -128,24 +128,24 @@ add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 
 if(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
-  include(targets/common/arm/stm32/h7/CMakeLists.txt)
+  include(cpu/stm32/h7/CMakeLists.txt)
 endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
-  include(targets/common/arm/stm32/f4/CMakeLists.txt)
+  include(cpu/stm32/f4/CMakeLists.txt)
 endif()
 
 if(CPU_TYPE STREQUAL STM32F2)
-  include(targets/common/arm/stm32/f2/CMakeLists.txt)
+  include(cpu/stm32/f2/CMakeLists.txt)
 endif()
 
 if(CPU_FAMILY STREQUAL STM32)
-  include(targets/common/arm/stm32/CMakeLists.txt)
+  include(cpu/stm32/CMakeLists.txt)
   include(boards/generic_stm32/CMakeLists.txt)
 endif()
 
 if(ARCH STREQUAL ARM)
-  include(targets/common/arm/CMakeLists.txt)
+  include(options.cmake)
 endif()
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})

@@ -73,14 +73,14 @@ set(BOARD_COMMON_SRC
   # ${TARGET_SRC_DIR}/seesaw.cpp
   # ${TARGET_SRC_DIR}/bsp_io.cpp
   ${TARGET_SRC_DIR}/extflash_driver.cpp
-  targets/common/arm/stm32/abnormal_reboot.cpp
-  targets/common/arm/stm32/dma2d.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/flash_driver.cpp
-  targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/watchdog_driver.cpp
-  targets/common/arm/stm32/stm32_xspi_nor.cpp
+  cpu/stm32/abnormal_reboot.cpp
+  cpu/stm32/dma2d.cpp
+  cpu/stm32/pwr_driver.cpp
+  cpu/stm32/flash_driver.cpp
+  cpu/stm32/delays_driver.cpp
+  cpu/stm32/rtc_driver.cpp
+  cpu/stm32/watchdog_driver.cpp
+  cpu/stm32/stm32_xspi_nor.cpp
 )
 
 # Bootloader board library
@@ -99,10 +99,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/tp_gt911.cpp
   ${TARGET_SRC_DIR}/audio_driver.cpp
   drivers/wm8904.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/stm32_i2s.cpp
+  cpu/stm32/lsm6ds_driver.cpp
+  cpu/stm32/mixer_scheduler_driver.cpp
+  cpu/stm32/stm32_switch_driver.cpp
+  cpu/stm32/stm32_i2s.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
