@@ -264,6 +264,7 @@ class LvglWidgetObjectBase
   virtual void setOpacity(uint8_t newOpa) {}
   virtual void setPos(coord_t x, coord_t y) {}
   virtual void setSize(coord_t w, coord_t h) {}
+  virtual void setFloating(bool isFloating) {}
 
   void create(lua_State *L, int index);
   void update(lua_State *L);
@@ -286,6 +287,7 @@ class LvglWidgetObjectBase
   int getPosFunction = LUA_REFNIL;
   LvglParamFuncOrValue color = { .function = LUA_REFNIL, .flags = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)};
   LvglParamFuncOrValue opacity = { .function = LUA_REFNIL, .value = LV_OPA_COVER};
+  bool floating = false;
 
   virtual void build(lua_State *L);
   virtual void refresh();
@@ -322,6 +324,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
+  void setFloating(bool isFloating) override;
 
   Window *getWindow() const override { return nullptr; }
 
@@ -482,6 +485,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
+  void setFloating(bool isFloating) override;
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
