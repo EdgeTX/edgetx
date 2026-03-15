@@ -450,6 +450,8 @@
     "has_ext_module_support": 1,
     "has_int_module_support": 1,
     "sport_max_baudrate": 400000,
-    "surface": 0
+    "surface": 0,
+    "cpu": "STM32F429xI",
+    "cpu_type": "STM32F4"
   }
 }

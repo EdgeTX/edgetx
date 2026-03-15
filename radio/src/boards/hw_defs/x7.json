@@ -321,6 +321,8 @@
     "has_ext_module_support": 1,
     "has_int_module_support": 1,
     "sport_max_baudrate": 250000,
-    "surface": 0
+    "surface": 0,
+    "cpu": "STM32F205xE",
+    "cpu_type": "STM32F2"
   }
 }
