@@ -151,7 +151,7 @@ endif()
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
 if(NATIVE_BUILD)
-  include_directories(targets/simu)
+  include_directories(simu)
 endif()
 
 foreach(LANGUAGE ${RADIO_LANGUAGES})
@@ -569,7 +569,7 @@ if(NATIVE_BUILD)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  add_subdirectory(targets/simu)
+  add_subdirectory(simu)
   add_subdirectory(tests)
 endif()
 

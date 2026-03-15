@@ -25,7 +25,7 @@
   #include "gui/colorlcd/lcd.h"
 #endif
 
-#include "targets/simu/simulcd.h"
+#include "simu/simulcd.h"
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 
