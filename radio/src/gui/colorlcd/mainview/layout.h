@@ -176,7 +176,9 @@ class LayoutFactory
   void initPersistentData(int screenNum, bool setDefault) const;
 
   // delete all custom screens from memory
-  static void deleteCustomScreens(bool clearTopBar = false);
+  static void deleteCustomScreens();
+  // delete all top bar widgets from memory
+  static void deleteTopBarWidgets();
 
   // intended for existing models
   static void loadCustomScreens();
