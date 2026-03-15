@@ -71,18 +71,16 @@ class RadioKnobWidget : public RadioWidget
       m_dial->setFixedSize(QSize(42, 42));
       m_dial->setNotchesVisible(true);
 
+      m_dial->setMinimum(-1024);
+      m_dial->setMaximum(1024);
+
       if (m_stepSize > 1) {
-        m_dial->setMinimum(0);
-        m_dial->setMaximum(2048);
-        // this is a bit of a hack to get the notch markers to display correctly
-        // the actual notches/value are constrained in setValue()
+        // notch markers for multipos — actual values are constrained in setValueFromDial()
         m_dial->setSingleStep(m_stepSize / 10);
         m_dial->setPageStep(m_stepSize);
         m_dial->setNotchTarget(5.7);
       }
       else {
-        m_dial->setMinimum(-1024);
-        m_dial->setMaximum(1024);
         m_dial->setPageStep(128);
         m_dial->setNotchTarget(64);
       }
@@ -99,14 +97,15 @@ class RadioKnobWidget : public RadioWidget
     {
       int v = value;
       if (m_stepSize > 1) {
-        v = ((v + m_stepSize / 2) / m_stepSize) * m_stepSize;
-        // Fix values to account for lack of precision from using integer step size
-        // This makes the values more symmetrical around the center point
-        // Note: this is specific to the 6 position switch which is currently the only use case here
-        if (v > 1024) v += 3;
+        // Round to nearest step position relative to minimum
+        int offset = v - m_dial->minimum();
+        offset = ((offset + m_stepSize / 2) / m_stepSize) * m_stepSize;
+        v = m_dial->minimum() + offset;
+        // Fix values to account for lack of precision from integer step size
+        // (2048 / 5 = 409 leaves a remainder of 3). Add correction to the
+        // upper half so positions are symmetric around center.
+        if (v > 0) v += 3;
         if (v != value) {
-          // If the desired value is different then update the slider position
-          // Note: this will trigger another value changed event call back into this function, at which time setValue will be called below
           m_dial->setValue(v);
           return;
         }
