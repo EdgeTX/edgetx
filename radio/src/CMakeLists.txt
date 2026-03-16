@@ -121,10 +121,6 @@ add_definitions(
 )
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
-AddHardwareDefTarget(${HW_DESC_JSON})
-
-# enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include(hal/CMakeLists.txt)
 
@@ -151,6 +147,11 @@ endif()
 if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
 endif()
+
+# Generate hardware definitions from hal.h
+# Must be after all add_definitions() so the preprocessor sees all flags
+AddHardwareDefTarget(${HW_DESC_JSON})
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
