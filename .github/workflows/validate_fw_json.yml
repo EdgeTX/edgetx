@@ -6,7 +6,7 @@ on:
       - 'main'
       - '[0-9]+.[0-9]+'
     tags:
-      - v*  
+      - v*
     paths:
       - 'fw.json'
   pull_request:
@@ -22,7 +22,7 @@ jobs:
     name: Validate fw.json file
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Validate fw.json syntax and schema
         run: python3 tools/validate-json.py --syntax-only
