@@ -920,13 +920,13 @@
 #define TR_FLASH_BOOTLOADER            "更新引导程序"
 #define TR_FLASH_DEVICE                TR("更新设备","更新设备")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("从S.Port更新", "从 S.Port 端口更新外设固件")
-#define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
-#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
-#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Flash RX by int. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Flash FC by ext. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
-#define TR_FLASH_BLUETOOTH_MODULE      TR("刷新蓝牙模块", "刷新蓝牙模块")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
+#define TR_FLASH_RECEIVER_OTA          "通过OTA更新接收机"
+#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "通过外置模块OTA更新接收机"
+#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "通过内置模块OTA更新接收机"
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "通过外置模块OTA更新飞控"
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "通过内置模块OTA更新飞控"
+#define TR_FLASH_BLUETOOTH_MODULE      TR("更新蓝牙模块", "更新蓝牙模块")
+#define TR_FLASH_POWER_MANAGEMENT_UNIT "更新电源管理单元"
 #define TR_DEVICE_NO_RESPONSE          TR("无响应", "设备无响应")
 #define TR_DEVICE_FILE_ERROR           TR("文件错误", "设备文件错误")
 #define TR_DEVICE_DATA_REFUSED         TR("数据被拒绝", "设备数据被拒绝")
@@ -943,24 +943,24 @@
 #define TR_FIRMWARE_UPDATE_SUCCESS     "固件更新成功"
 #define TR_WRITING                     "正在写入..."
 #define TR_CONFIRM_FORMAT              "是否格式化?"
-#define TR_INTERNALRF                  "内置发射"
-#define TR_INTERNAL_MODULE             TR("内置发射", "内置发射")
-#define TR_EXTERNAL_MODULE             TR("外置发射", "外置发射")
+#define TR_INTERNALRF                  "内置射频"
+#define TR_INTERNAL_MODULE             TR("内置模块", "内置模块")
+#define TR_EXTERNAL_MODULE             TR("外置模块", "外置模块")
 #define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX需要升级"
 #define TR_TELEMETRY_DISABLED          "禁用回传"
 #define TR_MORE_OPTIONS_AVAILABLE      "更多可用选项"
 #define TR_NO_MODULE_INFORMATION       "无模块信息"
-#define TR_EXTERNALRF                  "外置发射"
+#define TR_EXTERNALRF                  "外置射频"
 #define TR_FAILSAFE                    TR("失控保护", "失控保护模式")
 #define TR_FAILSAFESET                 "失控保护设置"
 #define TR_REG_ID                      "注册ID"
 #define TR_OWNER_ID                    "所有者ID"
 #define TR_HOLD                        "保持"
 #define TR_HOLD_UPPERCASE              "保持"
-#define TR_NONE                        "无效"
-#define TR_NONE_UPPERCASE              "无效"
+#define TR_NONE                        "无"
+#define TR_NONE_UPPERCASE              "无"
 #define TR_MENUSENSOR                  "传感器"
-#define TR_POWERMETER_PEAK             "提取"
+#define TR_POWERMETER_PEAK             "峰值"
 #define TR_POWERMETER_POWER            "功率"
 #define TR_POWERMETER_ATTN             "衰减器"
 #define TR_POWERMETER_FREQ             "频率"
@@ -1011,10 +1011,10 @@
 #define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
 #define TR_MODULE_UNBIND               BUTTON("解绑")
 #define TR_POWERMETER_ATTN_NEEDED     "需要串联衰减器"
-#define TR_PXX2_SELECT_RX              "Select RX"
+#define TR_PXX2_SELECT_RX              "选择接收机"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "选择设备"
-#define TR_DISCOVER                    BUTTON("发现")
+#define TR_DISCOVER                    BUTTON("搜索")
 #define TR_BUTTON_INIT                 BUTTON("初始化")
 #define TR_WAITING                     "等待..."
 #define TR_RECEIVER_DELETE             "是否删除接收机?"
@@ -1057,7 +1057,7 @@
 #define TR_ANTENNA_MODES_1           "内置天线"
 #define TR_ANTENNA_MODES_2           "询问"
 #define TR_ANTENNA_MODES_3           "基于模型"
-#define TR_ANTENNA_MODES_4           "外置天线"
+#define TR_ANTENNA_MODES_4           "内+外天线"
 #define TR_ANTENNA_MODES_5           "外置天线"
 #define TR_USE_INTERNAL_ANTENNA        TR("请使用内置天线", "请使用内置天线")
 #define TR_USE_EXTERNAL_ANTENNA        TR("请使用外置天线", "请使用外置天线")
@@ -1256,7 +1256,7 @@
 #define TR_BLUE                       "蓝"
 #define TR_GREEN                      "绿"
 #define TR_COLOR_PICKER               "拾取颜色"
-#define TR_FIXED                      "Fixed"
+#define TR_FIXED                      "固定"
 #define TR_EDIT_THEME_DETAILS         "主题信息"
 #define TR_THEME_COLOR_DEFAULT        "默认"
 #define TR_THEME_COLOR_PRIMARY1       "主色1"
@@ -1382,7 +1382,7 @@
 
 #define TR_DIGITAL_SERVO          "数字舵机333HZ"
 #define TR_ANALOG_SERVO           "模拟舵机50HZ"
-#define TR_SIGNAL_OUTPUT          "信号强度输出"
+#define TR_SIGNAL_OUTPUT          "信号输出"
 #define TR_SERIAL_BUS             "串行总线"
 #define TR_SYNC                   "同步"
 
