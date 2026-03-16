@@ -328,6 +328,16 @@ bool WasmSimulatorInterface::resolveExports()
   m_fnSetTrainerTimeout =
       wasm_runtime_lookup_function(m_moduleInst, "simuSetTrainerTimeout");
 
+  // Backlight and function switch LEDs
+  m_fnGetBacklightState =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetBacklightState");
+  m_fnGetNumCustomSwitches =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetNumCustomSwitches");
+  m_fnGetCustomSwitchColor =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchColor");
+  m_fnGetCustomSwitchIndex =
+      wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchIndex");
+
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
 
@@ -668,6 +678,7 @@ void WasmSimulatorInterface::refreshLcd()
   if (!m_fnLcdCopy || !m_execEnv || !m_wasmLcdBuf || !m_lcdBuffer)
     return;
 
+  bool backlightOn = true;
   {
     QMutexLocker lckr(&m_mutex);
 
@@ -680,10 +691,16 @@ void WasmSimulatorInterface::refreshLcd()
         memcpy(m_lcdBuffer, nativePtr, qMin(bytesWritten, m_lcdBufferSize));
       }
     }
+
+    if (m_fnGetBacklightState) {
+      uint32_t blArgv[1] = {0};
+      if (wasm_runtime_call_wasm(m_execEnv, m_fnGetBacklightState, 0, blArgv))
+        backlightOn = blArgv[0] != 0;
+    }
   }
 
   // Emit outside mutex — onLcdChange() calls lcdFlushed() which re-acquires it
-  emit lcdChange(true);
+  emit lcdChange(backlightOn);
 }
 
 void WasmSimulatorInterface::setTrainerTimeout(uint16_t ms)
@@ -1017,6 +1034,21 @@ void WasmSimulatorInterface::checkOutputsChanged()
           emit gVarValueChange(gv, tmpVal);
           emit outputValueChange(OUTPUT_SRC_GVAR, gv, tmpVal);
         }
+      }
+    }
+  }
+
+  // Function switch LED colors
+  if (m_fnGetNumCustomSwitches && m_fnGetCustomSwitchColor && m_fnGetCustomSwitchIndex) {
+    uint8_t numFs = (uint8_t)wasmCall0(m_execEnv, m_fnGetNumCustomSwitches);
+    if (numFs > MAX_FS_LEDS) numFs = MAX_FS_LEDS;
+    for (uint8_t i = 0; i < numFs; i++) {
+      uint32_t color = (uint32_t)wasmCall1(m_execEnv, m_fnGetCustomSwitchColor, i);
+      if (m_lastFSLedColors[i] != color || m_resetOutputsData) {
+        m_lastFSLedColors[i] = color;
+        // Map custom switch index to global switch index for the UI widget
+        uint8_t swIdx = (uint8_t)wasmCall1(m_execEnv, m_fnGetCustomSwitchIndex, i);
+        emit fsColorChange(swIdx, (qint32)color);
       }
     }
   }

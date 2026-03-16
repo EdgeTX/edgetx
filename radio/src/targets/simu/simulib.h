@@ -85,6 +85,17 @@ int32_t WASM_EXPORT(simuGetCapability)(uint8_t cap);
 
 int WASM_EXPORT(simuAudioGetVolume)();
 
+// Backlight state: returns true if backlight is currently enabled.
+bool WASM_EXPORT(simuGetBacklightState)();
+
+// Custom (function) switches: LED state and RGB color.
+// idx is the custom switch index (0-based), not the global switch index.
+// Use simuGetNumCustomSwitches() to get the count.
+uint8_t  WASM_EXPORT(simuGetNumCustomSwitches)();
+uint8_t  WASM_EXPORT(simuGetCustomSwitchIndex)(uint8_t cfsIdx);
+bool     WASM_EXPORT(simuGetCustomSwitchState)(uint8_t idx);
+uint32_t WASM_EXPORT(simuGetCustomSwitchColor)(uint8_t idx);
+
 // Value-based trim setting: idx is mapped through inputMappingConvertMode.
 void WASM_EXPORT(simuSetTrimValue)(uint8_t idx, int32_t value);
 

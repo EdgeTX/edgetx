@@ -181,10 +181,20 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnCopyTrainerInput = nullptr;
     wasm_function_inst_t m_fnSetTrainerTimeout = nullptr;
 
+    // Backlight and function switch LEDs
+    wasm_function_inst_t m_fnGetBacklightState = nullptr;
+    wasm_function_inst_t m_fnGetNumCustomSwitches = nullptr;
+    wasm_function_inst_t m_fnGetCustomSwitchColor = nullptr;
+    wasm_function_inst_t m_fnGetCustomSwitchIndex = nullptr;
+
     // Trainer input buffer (flushed in bulk via run())
     static constexpr int MAX_TRAINER_CH = 16;
     int16_t m_trainerValues[MAX_TRAINER_CH] = {};
     bool m_trainerDirty = false;
+
+    // Cached function switch LED colors for change detection
+    static constexpr int MAX_FS_LEDS = 8;
+    uint32_t m_lastFSLedColors[MAX_FS_LEDS] = {};
 
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;

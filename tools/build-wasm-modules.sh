@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/build-common.sh" 
+. "$SCRIPT_DIR/build-common.sh"
 
 SRCDIR=$1
 OUTDIR=$2
@@ -52,13 +52,13 @@ if [[ -n "$GITHUB_ACTIONS" ]]; then
   MAX_JOBS=${MAX_JOBS:-3}
 fi
 
-rm -rf build && mkdir build && cd build
+BUILD_DIR="build/wasm"
 
 # Function to output error logs (works in both GitHub Actions and terminal)
 output_error_log() {
     local log_file="$1"
     local context="$2"
-    
+
     if [[ -f "$log_file" ]]; then
         echo "------------------------------------------"
         echo " Full error output from $log_file:"
@@ -69,12 +69,12 @@ output_error_log() {
     fi
 }
 
-# Function to show last N lines of a log file for warnings  
+# Function to show last N lines of a log file for warnings
 show_log_summary() {
     local log_file="$1"
     local lines="${2:-50}"
     local context="$3"
-    
+
     if [[ -f "$log_file" ]]; then
         echo "------------------------------------------"
         echo "Last $lines lines from $log_file:"
@@ -89,13 +89,13 @@ run_pipeline() {
     local show_details="${3:-false}"
     local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
     local wasi_toolchain="/opt/wasi-sdk/share/cmake/wasi-sdk-pthread.cmake"
-    
+
     clean_build
-    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B wasm --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B ${BUILD_DIR} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Configuration)"
         return 1
     fi
-    if ! execute_with_output "📦 Building WASM module" "cmake --build wasm --target wasi-module ${cmake_opts}" "$log_file" "$show_details"; then
+    if ! execute_with_output "📦 Building WASM module" "cmake --build ${BUILD_DIR} --target wasi-module ${cmake_opts}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Library Build)"
         return 1
     fi
@@ -105,29 +105,29 @@ run_pipeline() {
 
 execute_with_output() {
     local description="$1"
-    local command="$2" 
+    local command="$2"
     local log_file="$3"
     local show_output="${4:-false}"
-    
+
     if [[ "$show_output" == "true" && "$log_file" != "/dev/null" ]]; then
-        echo "    $description..." 
+        echo "    $description..."
     fi
-    
+
     eval "$command" >> "$log_file" 2>&1
 }
 
 clean_build() {
-    rm -f CMakeCache.txt native/CMakeCache.txt wasm/CMakeCache.txt
+    rm -f "${BUILD_DIR}/CMakeCache.txt"
 }
 
 # Enhanced plugin builder with better error handling
 build_plugin() {
     local plugin="$1"
-    local log_file="build_${plugin}.log"
+    local log_file="${OUTDIR}/build_${plugin}.log"
     local verbose="${2:-false}"
-    
+
     BUILD_OPTIONS="${COMMON_OPTIONS} "
-    
+
     if ! get_target_build_options "$plugin" >> "$log_file" 2>&1; then
         if [[ -n "$GITHUB_ACTIONS" ]]; then
             echo "::error::Failed to get build options for $plugin"
@@ -135,21 +135,21 @@ build_plugin() {
         output_error_log "$log_file" "$plugin (Build Options)"
         return 1
     fi
-    
+
     # Only show detailed output in GitHub Actions or if verbose is requested
     local show_details="false"
     if [[ -n "$GITHUB_ACTIONS" || "$verbose" == "true" ]]; then
         show_details="true"
     fi
-    
+
     if ! run_pipeline "$log_file" "$plugin" "$show_details"; then
         return 1
     fi
 
     # FLAVOUR may differ from target name (e.g. x9dp2019 -> x9d+2019),
     # so copy whatever .wasm was produced.
-    cp wasm/edgetx-*-simulator.wasm "${OUTDIR}/" 2>/dev/null
-    
+    cp ${BUILD_DIR}/edgetx-*-simulator.wasm "${OUTDIR}/" 2>/dev/null
+
     # Check for warnings and show summary if found
     if grep -q -i "warning" "$log_file"; then
         echo "    ⚠️ $plugin completed with warnings"
@@ -196,7 +196,7 @@ for i in "${!plugins[@]}"; do
     plugin="${plugins[$i]}"
     current=$((i + 1))
     percent=$((current * 100 / TOTAL))
-    
+
     # For terminal output, put each plugin on its own line for cleaner display
     if [[ -n "$GITHUB_ACTIONS" ]]; then
         printf "::group::📦 %-12s [%2d/%2d] %3d%%\n" "$plugin" "$current" "$TOTAL" "$percent"
@@ -204,7 +204,7 @@ for i in "${!plugins[@]}"; do
         echo "🔨 [$current/$TOTAL] ($percent%) Building $plugin..."
     fi
 
-    error_status=0    
+    error_status=0
     if ! build_plugin "$plugin"; then
         FAILED_PLUGINS+=("$plugin")
         error_status=1
@@ -228,12 +228,12 @@ if [ ${#FAILED_PLUGINS[@]} -gt 0 ]; then
         echo "❌ Build Failures Summary"
         echo "=========================================="
     fi
-    
+
     echo "The following plugins failed to build:"
     for failed_plugin in "${FAILED_PLUGINS[@]}"; do
         echo "    ❌ $failed_plugin"
     done
-    
+
     if [[ -n "$GITHUB_ACTIONS" ]]; then
         echo "::endgroup::"
     else
