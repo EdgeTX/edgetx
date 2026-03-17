@@ -24,21 +24,21 @@
 #include "drivers/pca95xx.h"
 #include "hal/switch_driver.h"
 
-#define IO_EXPANDER_I2C_BUS	I2C_Bus_2
+#define IO_EXPANDER_I2C_BUS     I2C_Bus_2
 #define IO_EXPANDER1_I2C_ADDR	0x74
 #define IO_EXPANDER2_I2C_ADDR	0x75
 
 // Port expander 2
-#define BSP_TR6U PCA95XX_P6
-#define BSP_TR6D PCA95XX_P7
-#define BSP_TR4R PCA95XX_P17
-#define BSP_TR4L PCA95XX_P16
-#define BSP_TR2D PCA95XX_P13
-#define BSP_TR2U PCA95XX_P12
-#define BSP_TR1D PCA95XX_P11
-#define BSP_TR1U PCA95XX_P10
-#define BSP_TR3R PCA95XX_P15
-#define BSP_TR3L PCA95XX_P14
+#define BSP_TR6U PCA95XX_PIN_7
+#define BSP_TR6D PCA95XX_PIN_6
+#define BSP_TR4R PCA95XX_PIN_8
+#define BSP_TR4L PCA95XX_PIN_9
+#define BSP_TR2D PCA95XX_PIN_10
+#define BSP_TR2U PCA95XX_PIN_11
+#define BSP_TR1D PCA95XX_PIN_12
+#define BSP_TR1U PCA95XX_PIN_13
+#define BSP_TR3R PCA95XX_PIN_14
+#define BSP_TR3L PCA95XX_PIN_15
 
 extern uint8_t isSwitch3Pos(uint8_t idx);
 

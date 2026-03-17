@@ -112,7 +112,7 @@ static inline void check_struct()
   #else
     CHKSIZE(ModelData, 6877);
   #endif
-#elif defined(PCBST16) || defined(RADIO_T15PRO) || defined(RADIO_TX15) || defined(RADIO_T22)
+#elif defined(PCBST16) || defined(RADIO_T15PRO) || defined(RADIO_TX15) || defined(RADIO_T22) || defined(RADIO_GX15)
   CHKSIZE(ModelData, 7305);
 #elif defined(PCBC14)
   CHKSIZE(ModelData, 7237);
@@ -122,7 +122,7 @@ static inline void check_struct()
   CHKSIZE(ModelData, 7246);
 #elif defined(RADIO_T15)
   CHKSIZE(ModelData, 6867);
-#elif defined(RADIO_TX16SMK3) || defined(RADIO_GX15)
+#elif defined(RADIO_TX16SMK3)
   CHKSIZE(ModelData, 7306);
 #elif defined(RADIO_H7RS)
   // CHKSIZE()

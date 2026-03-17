@@ -33,7 +33,11 @@
 #include "stm32_keys.inc"
 #include "debug.h"
 
-void keysInit() { _init_keys(); }
+void keysInit() {
+  _init_keys();
+  _init_trims();
+}
+
 
 uint32_t readKeys() { return _read_keys(); }
 

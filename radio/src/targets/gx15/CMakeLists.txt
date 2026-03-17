@@ -71,16 +71,15 @@ set(AUX2_SERIAL YES)
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
-  -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
   -DWS2812_MAX_LEDS=26
 )
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
+add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 
 if(STICKS_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -154,7 +153,6 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${BOARD_SRC_DIR}/led_driver.cpp
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
   drivers/icm42607C.cpp

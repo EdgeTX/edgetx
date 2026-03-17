@@ -111,6 +111,9 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TRIMS_GPIO_REG_RVU
 #define TRIMS_GPIO_PIN_RVU
 
+#define TRIMS_GPIO_REG_RSD
+#define TRIMS_GPIO_PIN_RSD
+
 #define TRIMS_GPIO_REG_RSU
 #define TRIMS_GPIO_PIN_RSU
 
@@ -216,10 +219,10 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_2      // PH.02 VRC/LS
 #define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRD/RS
 
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH)
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_SLIDER2)
 #define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
 #define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
-#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
+#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SLIDER1)
 
 
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
@@ -306,7 +309,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 5)
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 11)
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
 #define USB_GPIO_AF                     GPIO_AF10
@@ -392,6 +395,12 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
 
+#define I2C_B2                          I2C1
+#define I2C_B2_SDA_GPIO                 GPIO_PIN(GPIOB, 9) // PB.09
+#define I2C_B2_SCL_GPIO                 GPIO_PIN(GPIOB, 8) // PB.08
+#define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
+#define I2C_B2_CLK_RATE                 400000
+
 // Haptic: TIM3_CH2
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOC, 7)
@@ -421,8 +430,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_clear
-#define GPIO_LED_GPIO_OFF                 gpio_set
+#define GPIO_LED_GPIO_ON                  gpio_set
+#define GPIO_LED_GPIO_OFF                 gpio_clear
 #define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
 #define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
