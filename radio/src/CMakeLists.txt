@@ -109,11 +109,18 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
-set(HW_DESC_JSON ${FLAVOUR}.json)
-AddHardwareDefTarget(${HW_DESC_JSON})
+# Add RADIO_xxx definition
+string(TOUPPER ${FLAVOUR} RADIO_NAME)
+string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
+string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
+add_definitions(-D${RADIO_NAME})
+set(${RADIO_NAME} YES)
 
-# enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+add_definitions(
+  -DCPU_TYPE=${CPU_TYPE} -DCPU_TYPE_FULL=${CPU_TYPE_FULL}
+)
+
+set(HW_DESC_JSON ${FLAVOUR}.json)
 
 include(hal/CMakeLists.txt)
 
@@ -140,6 +147,11 @@ endif()
 if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
 endif()
+
+# Generate hardware definitions from hal.h
+# Must be after all add_definitions() so the preprocessor sees all flags
+AddHardwareDefTarget(${HW_DESC_JSON})
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
@@ -787,5 +799,3 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
-
-AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)
