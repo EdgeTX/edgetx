@@ -241,16 +241,16 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
-  targets/common/arm/stm32/abnormal_reboot.cpp
-  targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/diskio_spi_flash.cpp
-  targets/common/arm/stm32/dma2d.cpp
-  targets/common/arm/stm32/flash_driver.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/rotary_encoder_driver.cpp
-  targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/spi_flash.cpp
-  targets/common/arm/stm32/watchdog_driver.cpp
+  cpu/stm32/abnormal_reboot.cpp
+  cpu/stm32/delays_driver.cpp
+  cpu/stm32/diskio_spi_flash.cpp
+  cpu/stm32/dma2d.cpp
+  cpu/stm32/flash_driver.cpp
+  cpu/stm32/pwr_driver.cpp
+  cpu/stm32/rotary_encoder_driver.cpp
+  cpu/stm32/rtc_driver.cpp
+  cpu/stm32/spi_flash.cpp
+  cpu/stm32/watchdog_driver.cpp
   drivers/frftl.cpp
 )
 
@@ -266,7 +266,7 @@ endif()
 
 if(BLUETOOTH)
   set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp
+    cpu/stm32/bluetooth_driver.cpp
   )
 endif()
 
@@ -281,7 +281,7 @@ endif()
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
-  targets/common/arm/stm32/sdram_driver.cpp
+  cpu/stm32/sdram_driver.cpp
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
@@ -289,17 +289,17 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
-  targets/common/arm/stm32/sticks_pwm_driver.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_softserial_driver.cpp
-  targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+  cpu/stm32/delays_driver.cpp
+  cpu/stm32/heartbeat_driver.cpp
+  cpu/stm32/lsm6ds_driver.cpp
+  cpu/stm32/mixer_scheduler_driver.cpp
+  cpu/stm32/module_timer_driver.cpp
+  cpu/stm32/sticks_pwm_driver.cpp
+  cpu/stm32/stm32_pulse_driver.cpp
+  cpu/stm32/stm32_softserial_driver.cpp
+  cpu/stm32/stm32_switch_driver.cpp
+  cpu/stm32/trainer_driver.cpp
+  cpu/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
@@ -315,13 +315,13 @@ if(HARDWARE_TOUCH)
 endif()
 
 if(USE_VS1053B)
-  target_sources(board PRIVATE targets/common/arm/stm32/vs1053b.cpp)
+  target_sources(board PRIVATE cpu/stm32/vs1053b.cpp)
 else()
-  target_sources(board PRIVATE targets/common/arm/stm32/audio_dac_driver.cpp)
+  target_sources(board PRIVATE cpu/stm32/audio_dac_driver.cpp)
 endif()
 
 if(USE_ADS79xx)
-  target_sources(board PRIVATE targets/common/arm/stm32/ads79xx.cpp)
+  target_sources(board PRIVATE cpu/stm32/ads79xx.cpp)
 endif()
 
 if(SWSERIALPOWER)

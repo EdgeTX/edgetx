@@ -56,12 +56,12 @@ add_definitions(-DSTM32F2)
 add_library(cmsis INTERFACE)
 
 target_sources(cmsis INTERFACE
-  targets/common/arm/stm32/f2/system_stm32f2xx.c
+  cpu/stm32/f2/system_stm32f2xx.c
   boards/generic_stm32/startup/startup_stm32f205xx.s
 )
 
 if(NOT NATIVE_BUILD)
-  include_directories(targets/common/arm/stm32/f2)
+  include_directories(cpu/stm32/f2)
 
   #
   # FreeRTOS port specific include

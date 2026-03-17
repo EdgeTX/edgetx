@@ -144,20 +144,20 @@ set(BOARD_COMMON_SRC
   ${BOARD_SRC_DIR}/extflash_driver.cpp
   ${BOARD_SRC_DIR}/usb_charger_driver.cpp
   ${TARGET_SRC_DIR}/key_driver.cpp
-  targets/common/arm/stm32/abnormal_reboot.cpp
-  targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/dma2d.cpp
-  targets/common/arm/stm32/flash_driver.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/rotary_encoder_driver.cpp
-  targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/watchdog_driver.cpp
+  cpu/stm32/abnormal_reboot.cpp
+  cpu/stm32/delays_driver.cpp
+  cpu/stm32/dma2d.cpp
+  cpu/stm32/flash_driver.cpp
+  cpu/stm32/pwr_driver.cpp
+  cpu/stm32/rotary_encoder_driver.cpp
+  cpu/stm32/rtc_driver.cpp
+  cpu/stm32/watchdog_driver.cpp
   drivers/pca95xx.cpp
 )
 
 if(BLUETOOTH)
   set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp
+    cpu/stm32/bluetooth_driver.cpp
   )
 endif()
 
@@ -173,8 +173,8 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${BOARD_SRC_DIR}/sdram_driver.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
-  targets/common/arm/stm32/stm32_qspi.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
+  cpu/stm32/stm32_qspi.cpp
+  cpu/stm32/stm32_pulse_driver.cpp
 )
 add_dependencies(board_bl minimal_board_lib)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
@@ -189,16 +189,16 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   drivers/icm42607C.cpp
   drivers/imu_filter.cpp
   drivers/tas2505.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_softserial_driver.cpp
-  targets/common/arm/stm32/stm32_qspi.cpp
-  targets/common/arm/stm32/stm32_i2s.cpp
-  targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
+  cpu/stm32/heartbeat_driver.cpp
+  cpu/stm32/mixer_scheduler_driver.cpp
+  cpu/stm32/module_timer_driver.cpp
+  cpu/stm32/stm32_pulse_driver.cpp
+  cpu/stm32/stm32_softserial_driver.cpp
+  cpu/stm32/stm32_qspi.cpp
+  cpu/stm32/stm32_i2s.cpp
+  cpu/stm32/stm32_switch_driver.cpp
+  cpu/stm32/stm32_ws2812.cpp
+  cpu/stm32/trainer_driver.cpp
 )
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
