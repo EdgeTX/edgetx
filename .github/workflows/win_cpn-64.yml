@@ -6,7 +6,7 @@ on:
       - 'main'
       - '[0-9]+.[0-9]+'
     tags:
-      - v*  
+      - v*
     paths: &trigger-paths
       - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -67,7 +67,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           echo $PATH
-          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow
+          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow pydantic
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -86,7 +86,7 @@ jobs:
         run: |
           # Create logs directory if it doesn't exist
           mkdir -p logs
-          
+
           # Copy all build logs from the build directory
           if [ -d "build" ]; then
             find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
@@ -101,7 +101,7 @@ jobs:
 
       - name: Archive production artifacts
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output
@@ -109,7 +109,7 @@ jobs:
 
       - name: Archive build logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ env.artifact_name }}-logs"
           path: ${{github.workspace}}/logs

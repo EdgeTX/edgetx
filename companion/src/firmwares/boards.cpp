@@ -1190,3 +1190,8 @@ void Boards::tests()
 {
   qDebug() << "**** Board checks ****";
 }
+
+QString Boards::getCapabilityStr(Board::Type board, Board::Capability capability)
+{
+  return getBoardJson(board)->getCapabilityStr(capability);
+}

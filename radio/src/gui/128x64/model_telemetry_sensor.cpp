@@ -212,12 +212,12 @@ void menuModelSensor(event_t event)
         }
         else {
           if (sensor->unit == UNIT_RPMS) {
-            sensor->custom.ratio = editNumberField(STR_BLADES, 0, SENSOR_2ND_COLUMN, y, sensor->custom.ratio, 1, 30000, attr, event);
+            sensor->custom.ratio = editNumberField(STR_BLADES, 0, SENSOR_2ND_COLUMN, y, sensor->custom.ratio, 1, MIXSRC_MAX_VALUE, attr, event);
             break;
           }
           else {
             lcdDrawTextAlignedLeft(y, STR_RATIO);
-            if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 0, 30000);
+            if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 0, MIXSRC_MAX_VALUE);
             if (sensor->custom.ratio == 0) {
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
             } else {  // Ratio + Ratio Percent
@@ -281,13 +281,13 @@ void menuModelSensor(event_t event)
         }
         else if (sensor->unit == UNIT_RPMS) {
           lcdDrawTextAlignedLeft(y, STR_MULTIPLIER);
-          if (attr) sensor->custom.offset = checkIncDec(event, sensor->custom.offset, 1, 30000, EE_MODEL|NO_INCDEC_MARKS|INCDEC_REP10);
+          if (attr) sensor->custom.offset = checkIncDec(event, sensor->custom.offset, 1, MIXSRC_MAX_VALUE, EE_MODEL|NO_INCDEC_MARKS|INCDEC_REP10);
           lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.offset, LEFT|attr);
           break;
         }
         else {
           if (sensor->prec > 0) attr |= (sensor->prec == 2 ? PREC2 : PREC1);
-          sensor->custom.offset = editNumberField(STR_OFFSET, 0, SENSOR_2ND_COLUMN, y, sensor->custom.offset, -30000, 30000, attr, event);
+          sensor->custom.offset = editNumberField(STR_OFFSET, 0, SENSOR_2ND_COLUMN, y, sensor->custom.offset, -MIXSRC_MAX_VALUE, MIXSRC_MAX_VALUE, attr, event);
           break;
         }
         // no break

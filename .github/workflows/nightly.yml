@@ -46,7 +46,7 @@ jobs:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -58,7 +58,7 @@ jobs:
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: edgetx-firmware-nightly-${{ matrix.target }}
           path: |
@@ -77,12 +77,12 @@ jobs:
       contents: write
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Need full history for changelog
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: edgetx-firmware-nightly-*
           path: edgetx-firmware-nightly
@@ -123,7 +123,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy nightly release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2 #softprops/action-gh-release/pull/670 or v3 to clear nodejs log warning
         with:
           tag_name: nightly
           prerelease: true

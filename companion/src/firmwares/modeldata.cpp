@@ -312,7 +312,7 @@ void ModelData::clear()
   topBarData.clear();
 
   for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
-    topbarWidgetWidth[i] = 0;
+    topbarWidgetWidth[i] = 1;
 
   view = 0;
   memset(&registrationId, 0, sizeof(registrationId));
@@ -414,9 +414,11 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
   clear();
   used = true;
   sprintf(name, "MODEL%02d", id + 1);
+
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
   }
+
   setDefaultMixes(settings);
   setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
 }

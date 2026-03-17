@@ -6,7 +6,7 @@ on:
       - 'main'
       - '[0-9]+.[0-9]+'
     tags:
-      - v*  
+      - v*
     paths: &trigger-paths
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'
@@ -38,12 +38,12 @@ jobs:
           xcode-version: '16.0'
 
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Setup Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -64,7 +64,7 @@ jobs:
           cache-key-prefix: 'install-qt-action-macOS'
 
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2
+        run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2 pydantic
 
       - name: Install SDL2
         run:  brew install SDL2
@@ -84,7 +84,7 @@ jobs:
         run: |
           # Create logs directory if it doesn't exist
           mkdir -p logs
-          
+
           # Copy all build logs from the build directory
           if [ -d "build" ]; then
             find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
@@ -99,7 +99,7 @@ jobs:
 
       - name: Archive production artifacts
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output
@@ -107,7 +107,7 @@ jobs:
 
       - name: Archive build logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ env.artifact_name }}-logs"
           path: ${{github.workspace}}/logs

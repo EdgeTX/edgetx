@@ -1029,7 +1029,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   modelSettingsVersion = SemanticVersion(VERSION);
 
   Node node;
-  auto board = getCurrentBoard();
+  auto firmware = getCurrentFirmware();
+  auto board = firmware->getBoard();
 
   bool hasColorLcd = Boards::getCapability(board, Board::HasColorLcd);
 
@@ -1242,8 +1243,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["toplcdTimer"] = rhs.toplcdTimer;
   }
 
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    for (int i=0; i<MAX_CUSTOM_SCREENS; i++) {
+  if (Boards::getCapability(board, Board::HasColorLcd)) {
+    for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
       const auto& csd = rhs.customScreens.customScreenData[i];
       if (!csd.isEmpty()) {
         node["screenData"][std::to_string(i)] = csd;
@@ -1254,9 +1255,11 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     if (topbarData && topbarData.IsMap()) {
       node["topbarData"] = topbarData;
     }
-    for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
-      if (rhs.topbarWidgetWidth[i] > 0)
+    for (int i = 0; i < firmware->getCapability(TopBarZones); i++) {
+      if (rhs.topbarWidgetWidth[i] > 0) {
         node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
+      }
+    }
     node["view"] = rhs.view;
   }
 
@@ -1311,7 +1314,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 {
   if (!node.IsMap()) return false;
 
-  Board::Type board = getCurrentBoard();
+  auto firmware = getCurrentFirmware();
+  auto board = firmware->getBoard();
 
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
@@ -1505,7 +1509,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // v2.12 CRSF limit external module to 3.75M for older boards
-  if (IS_STM32F2F4(board) &&
+  if (Boards::getCapability((Board::Type)board, Board::IsF4) &&
       rhs.moduleData[1].protocol == PULSES_CROSSFIRE &&
       rhs.moduleData[1].crsf.telemetryBaudrate > 4)
     rhs.moduleData[1].crsf.telemetryBaudrate = 4;
@@ -1662,6 +1666,22 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   // perform integrity checks and fix-ups
   YamlValidateLabelsNames(rhs, board);
   rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
+
+  //  TODO move to model conversion so any changes reported
+  if (Boards::getCapability(board, Board::HasColorLcd)) {
+    // total width of topbar widgets cannot exceed firmware topbar zones
+    const int fwzones = firmware->getCapability(TopBarZones);
+    int usedzones = 0;
+
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i++) {
+      usedzones += rhs.topbarWidgetWidth[i];
+
+      if (usedzones > fwzones) {
+        rhs.topbarWidgetWidth[i] = 0;
+        rhs.topBarData.zones[i].clear();
+      }
+    }
+  }
 
   return true;
 }

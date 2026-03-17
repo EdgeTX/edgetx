@@ -20,12 +20,30 @@
  */
 
 #include "customisation_data.h"
+#include "eeprominterface.h"
+#include "helpers.h"
 
 // cannot use QColor so use formula from libopenui_defines.h
 #define RADIO_RGB(r, g, b) \
   (uint16_t)((((r)&0xF8) << 8) + (((g)&0xFC) << 3) + (((b)&0xF8) >> 3))
 #define WHITE RADIO_RGB(0xFF, 0xFF, 0xFF)
 #define RED RADIO_RGB(229, 32, 30)
+
+// based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+int layoutValueScaled(int value)
+{
+  Firmware *firmware = getCurrentFirmware();
+  Board::Type board = firmware->getBoard();
+
+  if (firmware->getCapability(IsLandscape)) {
+    if (Boards::getCapability(board, Board::LcdWidth) == 320)
+      return ((value * 8 + 5) / 10);
+    else if (Boards::getCapability(board, Board::LcdWidth) == 800)
+      return ((value * 11 + 4) / 8);
+  }
+
+  return value;
+}
 
 ZoneOptionValue::ZoneOptionValue()
 {
@@ -261,4 +279,15 @@ void RadioLayout::init(const std::string layoutId, CustomScreens& customScreens)
         zoneValueEnumFromType(ZoneOption::Type::Bool);
     setZoneOptionValue(persistentData.options[j++].value, (bool)false);
   }
+}
+
+// based on radio/src/gui/colorlcd/mainview/datastructs_screen.h
+int RadioLayout::topBarZones()
+{
+  Firmware *firmware = getCurrentFirmware();
+  Board::Type board = firmware->getBoard();
+  const int menuHeaderButtonsLeft = layoutValueScaled(47);
+  const int topBarZoneWidth = layoutValueScaled((firmware->getCapability(IsWideLayout) ? 74 : 70));
+  return rangeCheck(((Boards::getCapability(board, Board::LcdWidth) - menuHeaderButtonsLeft - 1 +
+          topBarZoneWidth / 2) / topBarZoneWidth), 0, MAX_TOPBAR_ZONES, 0);
 }

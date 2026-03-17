@@ -22,6 +22,7 @@
 #include "opentxinterface.h"
 #include "appdata.h"
 #include "constants.h"
+#include "customisation_data.h"
 
 #include <bitset>
 #include <QMessageBox>
@@ -75,7 +76,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case GlobalFunctions:
       return CPN_MAX_SPECIAL_FUNCTIONS;
     case Gvars:
-      return id.contains("nogvars") ? 0 : (IS_STM32H7(board) || IS_STM32H5(board) ? CPN_MAX_GVARS : 9);
+      return id.contains("nogvars") ? 0 : (Boards::getCapability((Board::Type)board, Board::IsF4) ? 9 : CPN_MAX_GVARS);
     case GvarsName:
       return 3;
     case Haptic:  // TODO remove with X9D
@@ -130,6 +131,16 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return !id.contains("noheli");
     case InputsLength:
       return HAS_LARGE_LCD(board) ? 4 : 3;
+    case IsLandscape:
+      return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight);
+    case IsNarrowLayout:
+      // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+      return (getCapability(IsPortrait) && Boards::getCapability(board, Board::LcdWidth) == 320);
+    case IsPortrait:
+      return !getCapability(IsLandscape);
+    case IsWideLayout:
+      // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+      return (!getCapability(IsNarrowLayout) && Boards::getCapability(board, Board::LcdWidth) >= 800);
     case KeyShortcuts:
       return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
     case LogicalSwitches:
@@ -178,7 +189,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case SafetyChannelCustomFunction:
       return id.contains("nooverridech") ? 0 : 1;
     case Sensors:
-      if (IS_STM32H7(board))
+      if (Boards::getCapability((Board::Type)board, Board::IsH7))
         return CPN_MAX_SENSORS;
       else if (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board))
         return 60;
@@ -207,7 +218,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 3;
     case TopBarZones:
-      return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight) ? 4 : 2;
+      return Boards::getCapability(board, Board::HasColorLcd) ? RadioLayout::topBarZones() : 0;
     case TrainerInputs:
       return 16;
     case TrimsRange:

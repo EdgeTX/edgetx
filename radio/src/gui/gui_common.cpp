@@ -555,6 +555,11 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
+#if defined(STM32F4)
+  if (mode == UART_MODE_SBUS_TRAINER_INV)
+    return false;
+#endif
+
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
     return false;
