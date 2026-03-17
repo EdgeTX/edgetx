@@ -148,7 +148,7 @@ jobs:
         run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Merge firmware artifact packages
-        uses: actions/upload-artifact/merge@v4
+        uses: actions/upload-artifact/merge@v7
         with:
           name: "${{ env.artifact_name }}"
           pattern: firmware-*

@@ -81,7 +81,7 @@ jobs:
           fetch-depth: 0  # Need full history for changelog
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: edgetx-firmware-nightly-*
           path: edgetx-firmware-nightly
