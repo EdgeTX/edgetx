@@ -19,19 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
+#include "cpu_id.h"
+
+#include "strhelpers.h"
 
 #if defined(SIMU)
-const uint32_t cpu_uid[3] = { 0x12345678, 0x55AA55AA, 0x87654321};
+const uint32_t cpu_uid[3] = {0x12345678, 0x55AA55AA, 0x87654321};
 #else
-const uint32_t * const cpu_uid = (uint32_t *)0x1FFF7A10;
+#include "stm32_cmsis.h"
+const uint32_t *const cpu_uid = (uint32_t *)UID_BASE;
 #endif
 
-void getCPUUniqueID(char * s)
+void getCPUUniqueID(char* s)
 {
-  char * tmp = strAppendUnsigned(s, cpu_uid[0], 8, 16);
+  char* tmp = strAppendUnsigned(s, cpu_uid[0], 8, 16);
   *tmp = ' ';
-  tmp = strAppendUnsigned(tmp+1, cpu_uid[1], 8, 16);
+  tmp = strAppendUnsigned(tmp + 1, cpu_uid[1], 8, 16);
   *tmp = ' ';
-  strAppendUnsigned(tmp+1, cpu_uid[2], 8, 16);
+  strAppendUnsigned(tmp + 1, cpu_uid[2], 8, 16);
 }
