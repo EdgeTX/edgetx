@@ -62,10 +62,9 @@ static bool simu_start_conversion()
   int i = adcGetInputOffset(ADC_INPUT_VBAT);
   if (i > 0) {
     // +0.5V and prec2
-    uint16_t volts = (uint16_t)((g_eeGeneral.vBatWarn > 0 ? g_eeGeneral.vBatWarn
-                                                          : BATTERY_WARN) +
-                                5) *
-                     10;
+    uint16_t vBatWarn = BATTERY_WARN;
+    if (g_eeGeneral.vBatWarn > 0) vBatWarn = g_eeGeneral.vBatWarn;
+    uint16_t volts = (vBatWarn + 5) * 10;
     setAnalogValue(i, volts * 2);
   }
 
