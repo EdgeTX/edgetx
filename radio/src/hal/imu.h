@@ -21,11 +21,7 @@
 
 #pragma once
 
-#include "hal/i2c_driver.h"
-#include "hal/imu.h"
+#include <stdint.h>
 
-int gyro42607Init(etx_i2c_bus_t bus, uint16_t addr);
-int gyro42607Read(unsigned char*);
+typedef int (*gyroReadFctPtr)(uint8_t[]);
 
-int gyroSC7U22Init(etx_i2c_bus_t bus, uint16_t addr);
-int gyroSC7U22Read(unsigned char*);
