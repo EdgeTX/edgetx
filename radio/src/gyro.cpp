@@ -24,7 +24,9 @@
 #include "debug.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+
 #include "hal/usb_driver.h"
+#include "hal/imu.h"
 
 #define ACC_LSB_VALUE	0.000488  // 0.488 mg/LSB
 
@@ -34,7 +36,7 @@
 #define SCALE_FACT_GYRO 0.0078 // 250deg/s / 32000
 
 Gyro gyro;
-extern gyroReadFctPtr gyroReadFct;
+gyroReadFctPtr gyroReadFct = nullptr;
 
 #if !defined(IMU_ICM4207C)
 static float deg2RESX(float deg)

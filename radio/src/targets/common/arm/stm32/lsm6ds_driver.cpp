@@ -245,6 +245,11 @@ static int I2C_LSM6DS_ReadRegister(uint8_t reg)
   return value;
 }
 
+static int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
+{
+  return I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buffer, IMU_BUFFER_LENGTH);
+}
+
 int gyroInit()
 {
   if (i2c_init(IMU_I2C_BUS) < 0)
@@ -259,20 +264,12 @@ int gyroInit()
     I2C_LSM6DS_WriteRegister(configure[i][0], configure[i][1]);
   }
 
+  gyroReadFct = gyroRead;
   return 0;
 }
-
-int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
-{
-  return I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buffer, IMU_BUFFER_LENGTH);
-}
-
-gyroReadFctPtr gyroReadFct = gyroRead;
 
 #else
 
 int gyroInit() { return -1; }
-int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH]) { return -1; }
-gyroReadFctPtr gyroReadFct = gyroRead;
 
 #endif

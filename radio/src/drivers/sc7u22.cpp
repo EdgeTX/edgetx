@@ -19,13 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "hal/i2c_driver.h"
+
 #include "stm32_i2c_driver.h"
+#include "stm32_gpio.h"
+#include "delays_driver.h"
+
 #include "sc7u22.h"
 #include "imu_filter.h"
-#include "stm32_gpio.h"
+
 #include "inactivity_timer.h"
+#include "debug.h"
+#include "gyro.h"
+
 #include "hal.h"
 
 constexpr uint32_t I2C_TIMEOUT = 5; // ms

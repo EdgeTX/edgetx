@@ -49,6 +49,7 @@
 #include "sdcard.h"
 #include "debug.h"
 #include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
@@ -67,8 +68,6 @@ extern const etx_hal_adc_driver_t _adc_driver;
 
 // RGB LED timer
 extern const stm32_pulse_timer_t _led_timer;
-
-gyroReadFctPtr gyroReadFct;
 
 int gyroInit()
 {

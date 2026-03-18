@@ -44,8 +44,8 @@ endif()
 
 # IMU support
 set(IMU ON)
-set(IMU_ICM4207C ON)
-set(IMU_SC7U22 ON)
+add_definitions(-DIMU_ICM4207C)
+add_definitions(-DIMU_SC7U22)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -145,6 +145,10 @@ set(BOARD_COMMON_SRC
   ${BOARD_SRC_DIR}/extflash_driver.cpp
   ${BOARD_SRC_DIR}/usb_charger_driver.cpp
   ${TARGET_SRC_DIR}/key_driver.cpp
+  drivers/pca95xx.cpp
+  drivers/icm42607C.cpp
+  drivers/sc7u22.cpp
+  drivers/imu_filter.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
@@ -153,7 +157,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
-  drivers/pca95xx.cpp
 )
 
 if(BLUETOOTH)

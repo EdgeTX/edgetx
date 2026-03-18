@@ -19,10 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "imu_filter.h"
+
 #include <math.h>
 #include <string.h>
+#include <stdint.h>
 
 // Filter parameters
 #define COMPLEMENTARY_ALPHA     0.92f   // Complementary filter coefficient

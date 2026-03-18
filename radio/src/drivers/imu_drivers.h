@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include "hal/i2c_driver.h"
 #include "hal/imu.h"
 

@@ -20,7 +20,6 @@
  */
 
 #include <inttypes.h>
-#include "myeeprom.h"
 #include "hal/imu.h"
 
 #define IMU_VALUES_COUNT      6
@@ -59,7 +58,7 @@ class Gyro
 };
 
 extern Gyro gyro;
-
-int gyroInit();
-
 extern gyroReadFctPtr gyroReadFct;
+
+// implemented by the board
+int gyroInit();
