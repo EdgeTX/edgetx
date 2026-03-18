@@ -95,7 +95,7 @@ int gyroSC7U22Init(etx_i2c_bus_t bus, uint16_t addr)
   s_i2c_bus  = bus;
   s_i2c_addr = addr;
 
-  TRACE("SC7U22 I2C Init at address %x", addr);
+  TRACE("SC7U22 I2C Init at address 0x%x", addr);
 
   if (i2c_init(s_i2c_bus) < 0) {
     TRACE("SC7U22 ERROR: i2c_init bus error");
