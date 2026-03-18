@@ -112,8 +112,7 @@
         "pin": "LL_GPIO_PIN_5",
         "channel": "LL_ADC_CHANNEL_19",
         "label": "EXT1",
-        "short_label": "E1",
-        "default": "NONE"
+        "short_label": "E1"
       },
       {
         "name": "EXT2",
@@ -123,8 +122,7 @@
         "pin": "LL_GPIO_PIN_5",
         "channel": "LL_ADC_CHANNEL_16",
         "label": "EXT2",
-        "short_label": "E2",
-        "default": "NONE"
+        "short_label": "E2"
       },
       {
         "name": "VBAT",
@@ -347,7 +345,7 @@
       "active_low": true,
       "key": "KEY_EXIT",
       "name": "EXIT",
-      "label": "EXIT"
+      "label": "RTN"
     },
     {
       "gpio": "GPIOG",

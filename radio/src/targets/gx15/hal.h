@@ -263,18 +263,14 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_VREF_PREC2                  330
 
 #define ADC_DIRECTION {       	 \
-    0,-1,0,-1,  /* gimbals */    \
-    -1,-1,   	/* pots */       \
-    0,-1,     	/* sliders */    \
-    0,	     	/* vbat */       \
-    0,       	/* rtc_bat */    \
-    0,       	/* SWA */        \
-    0,       	/* SWB */        \
-    0,       	/* SWC */        \
-    0,       	/* SWD */        \
-    0,       	/* SWE */        \
-    0        	/* SWF */        \
-  }
+ 0,-1,0,-1,  /* gimbals */    \
+ -1,-1,   	/* pots */       \
+ 0,-1,     	/* sliders */    \
+ 0,0,        /* ext */        \
+ 0,	     	/* vbat */       \
+ 0,       	/* rtc_bat */    \
+ 0	     	/* lux sensor */ \
+}
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
