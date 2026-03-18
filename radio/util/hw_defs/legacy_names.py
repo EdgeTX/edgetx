@@ -245,6 +245,20 @@ LEGACY_NAMES = [
                 "label": "RS",
                 "short_label": "R",
                 "description": "Right slider"
+            },
+            "EXT1": {
+                "yaml": "EXT1",
+                "lua": "ext1",
+                "label": "EXT1",
+                "short_label": "E1",
+                "description": "Ext 1"
+            },
+            "EXT2": {
+                "yaml": "EXT2",
+                "lua": "ext2",
+                "label": "EXT2",
+                "short_label": "E2",
+                "description": "Ext 2"
             }
         }
     },

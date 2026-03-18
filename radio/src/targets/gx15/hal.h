@@ -219,10 +219,13 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_2      // PH.02 VRC/LS
 #define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRD/RS
 
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_SLIDER2)
+#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_5      // PA.05,ADC1_CH19
+#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_5      // PH.05,ADC3_CH16
+
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_SLIDER2|ADC_GPIO_PIN_EXT1)
 #define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
 #define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
-#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SLIDER1)
+#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SLIDER1|ADC_GPIO_PIN_EXT2)
 
 
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
@@ -238,6 +241,9 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_13   // ADC3_INP13
 #define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_7    // ADC12_INP7
 
+#define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_19   // ADC1_IN19
+#define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_16   // ADC3_IN16
+
 #define ADC_MAIN                        ADC1
 #define ADC_DMA                         DMA2
 #define ADC_DMA_CHANNEL                 LL_DMAMUX1_REQ_ADC1
@@ -247,20 +253,19 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
 
 #define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                { ADC_CHANNEL_SLIDER1, ADC_CHANNEL_BATT , ADC_CHANNEL_RTC_BAT }
+#define ADC_EXT_CHANNELS                { ADC_CHANNEL_SLIDER1, ADC_CHANNEL_BATT , ADC_CHANNEL_RTC_BAT,ADC_CHANNEL_EXT2 }
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
 #define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
 #define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
 #define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
 #define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_8CYCLES_5
-
 #define ADC_VREF_PREC2                  330
 
 #define ADC_DIRECTION {       	 \
     0,-1,0,-1,  /* gimbals */    \
     -1,-1,   	/* pots */       \
-    0,0,     	/* sliders */    \
+    0,-1,     	/* sliders */    \
     0,	     	/* vbat */       \
     0,       	/* rtc_bat */    \
     0,       	/* SWA */        \
@@ -315,8 +320,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_SPI_CS_GPIO                 GPIOA
-#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_7
+#define LCD_SPI_CS_GPIO                 GPIOD
+#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_5
 #define LCD_SPI_SCK_GPIO                GPIOB
 #define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_0
 #define LCD_SPI_MOSI_GPIO               GPIOI
@@ -381,7 +386,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUDIO_I2C                       I2C_Bus_1
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
-#define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
+#define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOH, 14)
 #define I2S_DMA                   		DMA1
 #define I2S_DMA_Stream            		LL_DMA_STREAM_4
 #define I2S_DMA_Stream_Request    		LL_DMAMUX1_REQ_SPI2_TX
@@ -430,8 +435,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_set
-#define GPIO_LED_GPIO_OFF                 gpio_clear
+#define GPIO_LED_GPIO_ON                  gpio_clear
+#define GPIO_LED_GPIO_OFF                 gpio_set
 #define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
 #define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
