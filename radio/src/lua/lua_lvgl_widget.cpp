@@ -648,6 +648,8 @@ void LvglWidgetObjectBase::parseParam(lua_State *L, const char *key)
     getSizeFunction = ::getRef(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "pos")) {
     getPosFunction = ::getRef(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "floating")) {
+    floating = getLuaBool(L);
   }
 }
 
@@ -740,6 +742,7 @@ void LvglWidgetObjectBase::refresh()
   setSize(w, h);
   setColor(color.flags);
   setOpacity(opacity.value);
+  setFloating(floating);
 }
 
 void LvglWidgetObjectBase::create(lua_State *L, int index)
@@ -769,6 +772,17 @@ void LvglSimpleWidgetObject::setSize(coord_t w, coord_t h)
   this->w = w;
   this->h = h;
   if (lvobj) lv_obj_set_size(lvobj, w, h);
+}
+
+void LvglSimpleWidgetObject::setFloating(bool isFloating)
+{
+  floating = isFloating;
+  if (lvobj) {
+    if (floating)
+      lv_obj_add_flag(lvobj, LV_OBJ_FLAG_FLOATING);
+    else
+      lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_FLOATING);
+  }
 }
 
 void LvglSimpleWidgetObject::show()
@@ -861,6 +875,7 @@ void LvglWidgetLabel::build(lua_State *L)
   setOpacity(opacity.value);
   setFont(font.flags);
   setAlign(align.flags);
+  setFloating(floating);
 }
 
 //-----------------------------------------------------------------------------
@@ -916,6 +931,7 @@ void LvglWidgetLineBase::refresh()
 {
   setColor(color.flags);
   setOpacity(opacity.value);
+  setFloating(floating);
   setLine();
   lv_obj_set_style_line_rounded(lvobj, rounded, LV_PART_MAIN);
   if (dashGap > 0 && dashWidth > 0) {
@@ -1106,6 +1122,7 @@ void LvglWidgetLine::build(lua_State *L)
     setLine();
     setColor(color.flags);
     setOpacity(opacity.value);
+    setFloating(floating);
   }
 }
 
@@ -1393,8 +1410,9 @@ void LvglWidgetTriangle::build(lua_State *L)
     setPos(x, y);
     LvglSimpleWidgetObject::setSize(w,h);
 
-    // Set color
+    // Set properties
     setColor(color.flags);
+    setFloating(floating);
   }
 }
 
@@ -1460,6 +1478,17 @@ void LvglWidgetObject::setSize(coord_t w, coord_t h)
   this->w = w;
   this->h = h;
   if (window) window->setSize(w, h);
+}
+
+void LvglWidgetObject::setFloating(bool isFloating)
+{
+  floating = isFloating;
+  if (window) {
+    if (floating)
+      lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_FLOATING);
+    else
+      lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_FLOATING);
+  }
 }
 
 bool LvglWidgetObject::setFlex()
@@ -1596,6 +1625,7 @@ void LvglWidgetBox::build(lua_State *L)
   setPosAndSize();
   setColor(color.flags);
   setOpacity(opacity.value);
+  setFloating(floating);
 }
 
 //-----------------------------------------------------------------------------
@@ -1938,6 +1968,7 @@ void LvglWidgetArc::build(lua_State *L)
   setBgColor(bgColor.flags);
   setOpacity(opacity.value);
   setBgOpacity(bgOpacity.value);
+  setFloating(floating);
 }
 
 //-----------------------------------------------------------------------------
@@ -1985,6 +2016,7 @@ void LvglWidgetImage::build(lua_State *L)
 {
   window = new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h},
                            filename.chars(), fillFrame);
+  setFloating(floating);
 }
 
 //-----------------------------------------------------------------------------
@@ -2003,6 +2035,7 @@ void LvglWidgetQRCode::parseParam(lua_State *L, const char *key)
 void LvglWidgetQRCode::build(lua_State *L)
 {
   window = new QRCode(lvglManager->getCurrentParent(), x, y, w, data, colorToRGB(color.flags), colorToRGB(bgColor));
+  setFloating(floating);
 }
 
 //-----------------------------------------------------------------------------
