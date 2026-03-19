@@ -24,6 +24,27 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
+def _normalize_adc_inputs(adc_inputs):
+    """Fill in optional ADC input fields with defaults"""
+    for inp in adc_inputs.get('inputs', []):
+        inp.setdefault('gpio', None)
+        inp.setdefault('pin', None)
+        inp.setdefault('channel', None)
+        inp.setdefault('inverted', False)
+        inp.setdefault('label', None)
+        inp.setdefault('short_label', None)
+        inp.setdefault('default', None)
+
+
+def _normalize_switches(switches):
+    """Fill in optional switch fields with defaults"""
+    for sw in switches:
+        sw.setdefault('gpio', None)
+        sw.setdefault('pin', None)
+        sw.setdefault('is_cfs', False)
+        sw.setdefault('inverted', False)
+
+
 def is_ext_input(input):
     if input.get("type") != "FLEX":
         return False
@@ -40,10 +61,12 @@ def generate_from_template(json_filename, template_filename, target):
         root_obj = json.load(json_file)
 
         adc_inputs = root_obj.get("adc_inputs")
+        _normalize_adc_inputs(adc_inputs)
         adc_index = json_index.build_adc_index(adc_inputs)
         adc_gpios = json_index.build_adc_gpio_port_index(adc_inputs)
 
         switches = root_obj.get("switches")
+        _normalize_switches(switches)
         switch_gpios = json_index.build_switch_gpio_port_index(switches)
 
         keys = root_obj.get("keys")

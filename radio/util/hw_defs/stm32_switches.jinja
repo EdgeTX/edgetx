@@ -11,7 +11,7 @@ static const stm32_switch_t _switch_defs[] = {
   {% if switch.type == '2POS' %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio | default(none) or "nullptr" }}, {{ switch.pin | default(none) or 0 }},
+    {{ switch.gpio or "nullptr" }}, {{ switch.pin or 0 }},
     nullptr, 0,
     SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}, SWITCH_{{ switch.default }},
     {% if switch.is_cfs %}

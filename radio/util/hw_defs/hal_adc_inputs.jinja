@@ -17,7 +17,7 @@ static const etx_hal_adc_input_t _main_inputs[] = {
 {% set n_flex = flex_inputs | count %}
 static const etx_hal_adc_input_t _flex_inputs[] = {
   {% for input in flex_inputs %}
-    { "{{ input.name }}", {{ '"' ~ input.label ~ '"' if input.label | default(none) else 'nullptr' }}, {{ '"' ~ input.short_label ~ '"' if input.short_label | default(none) else 'nullptr' }} },
+    { "{{ input.name }}", {{ '"' ~ input.label ~ '"' if input.label else 'nullptr' }}, {{ '"' ~ input.short_label ~ '"' if input.short_label else 'nullptr' }} },
   {% endfor %}
 };
 
@@ -26,7 +26,7 @@ static const etx_hal_adc_input_t _flex_inputs[] = {
 {% set n_raw = raw_inputs | count %}
 static const etx_hal_adc_input_t _raw_inputs[] = {
   {% for input in raw_inputs %}
-    { "{{ input.name }}", {{ '"' ~ input.label ~ '"' if input.label | default(none) else 'nullptr' }}, {{ '"' ~ input.short_label ~ '"' if input.short_label | default(none) else 'nullptr' }} },
+    { "{{ input.name }}", {{ '"' ~ input.label ~ '"' if input.label else 'nullptr' }}, {{ '"' ~ input.short_label ~ '"' if input.short_label else 'nullptr' }} },
   {% endfor %}
 };
 
@@ -69,7 +69,7 @@ static const etx_hal_adc_inputs_t _hal_inputs[] = {
 
 constexpr potconfig_t _pot_default_config = (0)
 {% for flex in flex_inputs %}
-  {% if flex.default | default(none) %}
+  {% if flex.default %}
     | ((potconfig_t)FLEX_{{ flex.default }} << ({{ loop.index0 }} * POT_CFG_BITS))
   {% endif %}
 {% endfor %}
