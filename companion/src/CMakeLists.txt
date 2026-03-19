@@ -272,15 +272,17 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
 
 PrintTargetReport("${COMPANION_NAME}")
 
-# Copy WASM simulator modules next to companion executable for local dev
+# Copy WASM simulator modules next to executables for local dev
 if(SIMULATOR_WASM_DIR)
-  add_custom_command(TARGET ${COMPANION_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-      -DSRC_DIR=${SIMULATOR_WASM_DIR}
-      -DDST_DIR=$<TARGET_FILE_DIR:${COMPANION_NAME}>
-      -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
-    COMMENT "Copying WASM simulator modules to companion output"
-  )
+  foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})
+    add_custom_command(TARGET ${_target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND}
+        -DSRC_DIR=${SIMULATOR_WASM_DIR}
+        -DDST_DIR=$<TARGET_FILE_DIR:${_target}>
+        -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
+      COMMENT "Copying WASM simulator modules to ${_target} output"
+    )
+  endforeach()
 endif()
 
 ############# Standalone simulator ###############
