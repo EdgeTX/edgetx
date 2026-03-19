@@ -5,9 +5,9 @@
 
 const char* const _key_labels[] = {
 {% for k in key_index %}
-  {% set key = keys | selectattr("key","==",k) | first %}
-  {% if key %}
-    "{{ key.label }}",
+  {% set key_list = keys | selectattr("key","==",k) | list %}
+  {% if key_list %}
+    "{{ key_list[0].label }}",
   {% else %}
     nullptr,
   {% endif %}
