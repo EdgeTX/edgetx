@@ -88,6 +88,7 @@ def generate_from_template(json_filename, template_filename, target):
         )
 
         env.tests["ext_input"] = is_ext_input
+        env.filters["cstr"] = lambda s: f'"{s}"' if s else 'nullptr'
 
         template = env.get_template(template_name)
 
