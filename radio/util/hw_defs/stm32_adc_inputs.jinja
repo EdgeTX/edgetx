@@ -13,7 +13,7 @@ static const stm32_adc_input_t _ADC_inputs[] = {
     {{ input.gpio if input.gpio else 'nullptr' }},
     {{ input.pin if input.gpio else '0' }},
     {{ input.channel if input.channel else '0' }},
-    {{ '1 // inverted' if input.inverted else '0 // normal' }}
+    {{ '1 // inverted' if input.inverted | default(false) else '0 // normal' }}
   },
 {% endfor %}
 };

@@ -9,7 +9,7 @@ static const stick_pwm_input_t _PWM_inputs[] = {
   {
     // ADC_INPUT_{{ input.type }}, {{ input.name }}
     {{ input.pwm_channel }}, // channel
-    {{ '1  // inverted' if input.inverted else '0  // normal' }}
+    {{ '1  // inverted' if input.inverted | default(false) else '0  // normal' }}
   },
 {% endfor %}
 };
