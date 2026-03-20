@@ -1,0 +1,52 @@
+name: Validate hw_defs
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths:
+      - 'radio/util/hw_defs/**'
+      - 'radio/src/boards/hw_defs/**'
+  pull_request:
+    paths:
+      - 'radio/util/hw_defs/**'
+      - 'radio/src/boards/hw_defs/**'
+  workflow_call:
+
+jobs:
+  validate:
+    name: Validate hw_defs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: radio/util/hw_defs
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install Python dependencies
+        working-directory: .
+        run: uv pip install --system -r requirements.txt
+
+      - name: Check Python script syntax
+        run: python3 -m py_compile *.py
+
+      - name: Validate JSON schemas
+        run: python3 json_validator.py ../../src/boards/hw_defs
+
+      - name: Test template generation (all boards x all templates)
+        run: |
+          failed=0
+          for json in ../../src/boards/hw_defs/*.json; do
+            board="$(basename "$json" .json)"
+            for tmpl in *.jinja; do
+              if ! python3 generate_hw_def.py -t "$tmpl" -T "$board" "$json" > /dev/null; then
+                echo "FAIL: board=$board template=$tmpl"
+                failed=1
+              fi
+            done
+          done
+          exit "$failed"
