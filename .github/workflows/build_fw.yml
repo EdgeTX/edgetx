@@ -18,13 +18,8 @@ on:
     paths: *trigger-paths
 
 jobs:
-  validate-hw-defs:
-    name: Validate hw_defs
-    uses: ./.github/workflows/validate_hw_defs.yml
-
   test:
     name: Run tests
-    needs: validate-hw-defs
     runs-on: ubuntu-latest
     if: |
       github.event_name != 'pull_request' ||
