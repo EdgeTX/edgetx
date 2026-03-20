@@ -35,7 +35,7 @@ ExternalProject_Add(wasm
     -DEdgeTX_SUPERBUILD:BOOL=0
     -DNATIVE_BUILD:BOOL=1
     -DDISABLE_COMPANION:BOOL=1
-  BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --target wasi-module --parallel
+  BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --target wasi-module
   INSTALL_COMMAND ""
 )
 
