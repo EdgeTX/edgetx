@@ -140,8 +140,7 @@ run_pipeline() {
     local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
     local wasi_toolchain="${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake"
     
-    clean_build
-    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B ${BUILD_DIR} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+    if ! execute_with_output "🔧 CMake config" "cmake --fresh -S ${SRCDIR} -B ${BUILD_DIR} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Configuration)"
         return 1
     fi
@@ -165,10 +164,6 @@ execute_with_output() {
 
     rm -f "$log_file"
     eval "$command" >> "$log_file" 2>&1
-}
-
-clean_build() {
-    rm -f "${BUILD_DIR}/CMakeCache.txt"
 }
 
 # Enhanced plugin builder with better error handling
