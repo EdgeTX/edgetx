@@ -29,13 +29,13 @@ jobs:
 
       - name: Install Python dependencies
         working-directory: .
-        run: uv pip install --system -r requirements.txt
+        run: uv venv && uv pip install -r requirements.txt
 
       - name: Check Python script syntax
-        run: python3 -m py_compile *.py
+        run: uv run python3 -m py_compile *.py
 
       - name: Validate JSON schemas
-        run: python3 json_validator.py ../../src/boards/hw_defs
+        run: uv run python3 json_validator.py ../../src/boards/hw_defs
 
       - name: Test template generation (all boards x all templates)
         run: |
@@ -43,7 +43,7 @@ jobs:
           for json in ../../src/boards/hw_defs/*.json; do
             board="$(basename "$json" .json)"
             for tmpl in *.jinja; do
-              if ! python3 generate_hw_def.py -t "$tmpl" -T "$board" "$json" > /dev/null; then
+              if ! uv run python3 generate_hw_def.py -t "$tmpl" -T "$board" "$json" > /dev/null; then
                 echo "FAIL: board=$board template=$tmpl"
                 failed=1
               fi
