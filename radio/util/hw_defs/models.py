@@ -26,6 +26,11 @@ class ADC(BaseModel):
     dma_stream: Optional[str] = None
     dma_stream_irq: Optional[str] = None
     dma_stream_irq_handler: Optional[str] = None
+    # SPI ADC fields
+    gpio_pin_sck: Optional[str] = None
+    gpio_pin_miso: Optional[str] = None
+    gpio_pin_mosi: Optional[str] = None
+    gpio_pin_cs: Optional[str] = None
 
 
 StickEnum = StrEnum(
@@ -101,6 +106,7 @@ class StickInput(BaseModel):
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
     inverted: Optional[bool] = False
+    pwm_channel: Optional[int] = None
 
 
 class FlexInput(BaseModel):
@@ -111,7 +117,7 @@ class FlexInput(BaseModel):
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
     inverted: Optional[bool] = False
-    default: Optional[FlexType] = FlexType.NONE
+    default: Optional[FlexType] = None
     label: Optional[str] = None
     short_label: Optional[str] = None
 

@@ -26,21 +26,18 @@ def eprint(*args, **kwargs):
 
 
 def is_ext_input(input):
-    if input.get("type") != "FLEX":
+    if str(getattr(input, "type", "")) != "FLEX":
         return False
 
-    name = input.get("name")
-    if name and name.startswith("EXT"):
-        return True
-
-    return False
+    name = str(getattr(input, "name", ""))
+    return name.startswith("EXT")
 
 
 def generate_from_template(json_filename, template_filename, target):
     with open(json_filename) as json_file:
         raw_data = json_file.read()
 
-        # Validate and normalize using Pydantic model
+        # Validate using Pydantic model
         try:
             hw_def = HardwareDefinition.from_json(raw_data)
         except pydantic.ValidationError as e:
@@ -50,21 +47,13 @@ def generate_from_template(json_filename, template_filename, target):
                 eprint(f"  {loc}: {err['msg']}")
             sys.exit(1)
 
-        # Re-serialize with defaults filled in by Pydantic
+        # Load remaining fields not yet in the Pydantic model
         root_obj = json.loads(raw_data)
-        root_obj["adc_inputs"] = hw_def.adc_inputs.model_dump(mode="json")
-        root_obj["switches"] = [s.model_dump(mode="json") for s in hw_def.switches]
-        root_obj["keys"] = [k.model_dump(mode="json") for k in hw_def.keys]
 
-        adc_inputs = root_obj["adc_inputs"]
-        adc_index = json_index.build_adc_index(adc_inputs)
-        adc_gpios = json_index.build_adc_gpio_port_index(adc_inputs)
-
-        switches = root_obj["switches"]
-        switch_gpios = json_index.build_switch_gpio_port_index(switches)
-
-        keys = root_obj["keys"]
-        key_gpios = json_index.build_key_gpio_port_index(keys)
+        adc_index = json_index.build_adc_index(hw_def.adc_inputs)
+        adc_gpios = json_index.build_adc_gpio_port_index(hw_def.adc_inputs)
+        switch_gpios = json_index.build_switch_gpio_port_index(hw_def.switches)
+        key_gpios = json_index.build_key_gpio_port_index(hw_def.keys)
 
         trims = root_obj.get("trims")
         trim_gpios = json_index.build_trim_gpio_port_index(trims)
@@ -87,7 +76,10 @@ def generate_from_template(json_filename, template_filename, target):
         key_index = list([str(i) for i in KeyEnum])
 
         context = dict(
-            root_obj,
+            adc_inputs=hw_def.adc_inputs,
+            switches=hw_def.switches,
+            keys=hw_def.keys,
+            trims=trims,
             adc_index=adc_index,
             adc_gpios=adc_gpios,
             switch_gpios=switch_gpios,
