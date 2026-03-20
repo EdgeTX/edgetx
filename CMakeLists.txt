@@ -111,11 +111,6 @@ if(EdgeTX_SUPERBUILD)
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
 
-  add_custom_target(libsimulator
-    COMMAND ${CMAKE_COMMAND} --build native --target libsimulator ${PARALLEL_FLAG}
-    DEPENDS native-configure
-  )
-
   add_custom_target(simulator
     COMMAND ${CMAKE_COMMAND} --build native --target simulator ${PARALLEL_FLAG}
     DEPENDS native-configure
