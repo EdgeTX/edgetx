@@ -75,6 +75,7 @@ InputType = StrEnum(
         "VBAT",
         "RTC_BAT",
         "RAW",
+        "LUX",
     ),
 )
 
@@ -150,7 +151,16 @@ class RTCBatInput(BaseModel):
     channel: str
 
 
-Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput]
+class LuxInput(BaseModel):
+    name: Literal["LUX"]
+    type: Literal["LUX"]
+    adc: ADCNameType
+    gpio: Optional[str] = None
+    pin: Optional[str] = None
+    channel: Optional[Union[str, int]] = None
+
+
+Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 
 
 class ADCInputs(BaseModel):
@@ -230,6 +240,8 @@ class Switch(BaseModel):
     default: Optional[SwitchTypeEnum] = SwitchTypeEnum.NONE
     flags: Optional[int] = 0
     inverted: Optional[bool] = False
+    is_cfs: Optional[bool] = False
+    cfs_idx: Optional[int] = None
     adc_input: Optional[str] = None
     gpio: Optional[str] = None
     pin: Optional[str] = None

@@ -26,7 +26,7 @@ def build_adc_gpio_port_index(adc_inputs):
         if adc_input["adc"] == "SPI":
             continue
 
-        gpio = adc_input["gpio"]
+        gpio = adc_input.get("gpio")
         if gpio is None:
             i = i + 1
             continue

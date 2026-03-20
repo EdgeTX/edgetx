@@ -17,7 +17,7 @@ static const etx_hal_adc_input_t _main_inputs[] = {
 {% set n_flex = flex_inputs | count %}
 static const etx_hal_adc_input_t _flex_inputs[] = {
   {% for input in flex_inputs %}
-    { "{{ input.name }}", {{ input.label | cstr }}, {{ input.short_label | cstr }} },
+    { "{{ input.name }}", "{{ input.label }}", "{{ input.short_label }}" },
   {% endfor %}
 };
 
@@ -26,7 +26,7 @@ static const etx_hal_adc_input_t _flex_inputs[] = {
 {% set n_raw = raw_inputs | count %}
 static const etx_hal_adc_input_t _raw_inputs[] = {
   {% for input in raw_inputs %}
-    { "{{ input.name }}", {{ input.label | cstr }}, {{ input.short_label | cstr }} },
+    { "{{ input.name }}", "{{ input.label }}", "{{ input.short_label }}" },
   {% endfor %}
 };
 

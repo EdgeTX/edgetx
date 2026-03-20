@@ -2,11 +2,12 @@ import json
 import os
 import sys
 import jinja2
+import pydantic
 
 import legacy_names
 import json_index
 
-from models import KeyEnum
+from models import HardwareDefinition, KeyEnum
 
 MAIN_CONTROL_LUT = {
     # 2 Gimbal radios
@@ -24,27 +25,6 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def _normalize_adc_inputs(adc_inputs):
-    """Fill in optional ADC input fields with defaults"""
-    for inp in adc_inputs.get('inputs', []):
-        inp.setdefault('gpio', None)
-        inp.setdefault('pin', None)
-        inp.setdefault('channel', None)
-        inp.setdefault('inverted', False)
-        inp.setdefault('label', None)
-        inp.setdefault('short_label', None)
-        inp.setdefault('default', None)
-
-
-def _normalize_switches(switches):
-    """Fill in optional switch fields with defaults"""
-    for sw in switches:
-        sw.setdefault('gpio', None)
-        sw.setdefault('pin', None)
-        sw.setdefault('is_cfs', False)
-        sw.setdefault('inverted', False)
-
-
 def is_ext_input(input):
     if input.get("type") != "FLEX":
         return False
@@ -58,18 +38,32 @@ def is_ext_input(input):
 
 def generate_from_template(json_filename, template_filename, target):
     with open(json_filename) as json_file:
-        root_obj = json.load(json_file)
+        raw_data = json_file.read()
 
-        adc_inputs = root_obj.get("adc_inputs")
-        _normalize_adc_inputs(adc_inputs)
+        # Validate and normalize using Pydantic model
+        try:
+            hw_def = HardwareDefinition.from_json(raw_data)
+        except pydantic.ValidationError as e:
+            eprint(f"ERROR validating '{json_filename}' (target={target}):")
+            for err in e.errors():
+                loc = " -> ".join(str(l) for l in err["loc"])
+                eprint(f"  {loc}: {err['msg']}")
+            sys.exit(1)
+
+        # Re-serialize with defaults filled in by Pydantic
+        root_obj = json.loads(raw_data)
+        root_obj["adc_inputs"] = hw_def.adc_inputs.model_dump(mode="json")
+        root_obj["switches"] = [s.model_dump(mode="json") for s in hw_def.switches]
+        root_obj["keys"] = [k.model_dump(mode="json") for k in hw_def.keys]
+
+        adc_inputs = root_obj["adc_inputs"]
         adc_index = json_index.build_adc_index(adc_inputs)
         adc_gpios = json_index.build_adc_gpio_port_index(adc_inputs)
 
-        switches = root_obj.get("switches")
-        _normalize_switches(switches)
+        switches = root_obj["switches"]
         switch_gpios = json_index.build_switch_gpio_port_index(switches)
 
-        keys = root_obj.get("keys")
+        keys = root_obj["keys"]
         key_gpios = json_index.build_key_gpio_port_index(keys)
 
         trims = root_obj.get("trims")
@@ -84,11 +78,9 @@ def generate_from_template(json_filename, template_filename, target):
             loader=jinja2.FileSystemLoader(template_dir),
             lstrip_blocks=True,
             trim_blocks=True,
-            undefined=jinja2.StrictUndefined,
         )
 
         env.tests["ext_input"] = is_ext_input
-        env.filters["cstr"] = lambda s: f'"{s}"' if s else 'nullptr'
 
         template = env.get_template(template_name)
 
@@ -106,22 +98,13 @@ def generate_from_template(json_filename, template_filename, target):
             key_index=key_index,
         )
 
-        # Validate context: warn about None values that are likely errors
-        for name, value in context.items():
-            if value is None:
-                eprint(
-                    f"WARNING: '{name}' is None"
-                    f" (target={target}, json={json_filename})"
-                )
-
         try:
             print(template.render(context))
         except jinja2.UndefinedError as e:
-            eprint(f"ERROR rendering template '{template_filename}'"
+            eprint(f"ERROR rendering template '{template_name}'"
                    f" with json='{json_filename}', target='{target}':")
             eprint(f"  {e}")
-            eprint(f"  Context keys: {sorted(context.keys())}")
             none_keys = [k for k, v in context.items() if v is None]
             if none_keys:
-                eprint(f"  None-valued keys: {none_keys}")
-            raise
+                eprint(f"  None-valued context keys: {none_keys}")
+            sys.exit(1)

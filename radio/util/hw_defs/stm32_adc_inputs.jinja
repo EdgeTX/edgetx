@@ -10,16 +10,16 @@ static const stm32_adc_input_t _ADC_inputs[] = {
   {
     // {{ input.name }}
     // ADC_INPUT_{{ input.type }},
-    {{ input.gpio or 'nullptr' }},
+    {{ input.gpio if input.gpio else 'nullptr' }},
     {{ input.pin if input.gpio else '0' }},
-    {{ input.channel or '0' }},
+    {{ input.channel if input.channel else '0' }},
     {{ '1 // inverted' if input.inverted else '0 // normal' }}
   },
 {% endfor %}
 };
 
 {% for adc in adc_inputs.adcs %}
-{% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel', 'ne', none) %}
+{% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel','defined') %}
 static const uint8_t _ADC_{{ adc.name }}_channels[] = {
   {% for input in inputs %}
     {{ adc_index[input.name] }}, // {{ input.name }}
@@ -30,7 +30,7 @@ static const uint8_t _ADC_{{ adc.name }}_channels[] = {
 {% set offset = namespace(value=0) %}
 static const stm32_adc_t _ADC_adc[] = {
 {% for adc in adc_inputs.adcs | selectattr('name', '!=', 'SPI') %}
-  {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel', 'ne', none) %}
+  {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel','defined') %}
   {% set input_count = inputs | list | count %}
   {
     {{ adc.adc }},
@@ -49,7 +49,7 @@ static const stm32_adc_t _ADC_adc[] = {
 
 static const stm32_spi_adc_t _ADC_spi[] = {
 {% for adc in adc_inputs.adcs | selectattr('name', '==', 'SPI') %}
-  {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel', 'ne', none) %}
+  {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel','defined') %}
   {% set input_count = inputs | list | count %}
   {
     .spi = {

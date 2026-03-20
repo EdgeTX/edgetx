@@ -3,15 +3,15 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
-{% set key_plus = keys | selectattr("key","==","KEY_PLUS") | first | default(none) %}
-{% set key_up = keys | selectattr("key","==","KEY_UP") | first | default(none) %}
-{% set key_shift = keys | selectattr("key","==","KEY_SHIFT") | first | default(none) %}
-{% set key_pageup = keys | selectattr("key","==","KEY_PAGEUP") | first | default(none) %}
-{% set key_pagedn = keys | selectattr("key","==","KEY_PAGEDN") | first | default(none) %}
-{% set key_model = keys | selectattr("key","==","KEY_MODEL") | first | default(none) %}
-{% set key_menu = keys | selectattr("key","==","KEY_MENU") | first | default(none) %}
-{% set key_tele = keys | selectattr("key","==","KEY_TELE") | first | default(none) %}
-{% set key_sys = keys | selectattr("key","==","KEY_SYS") | first | default(none) %}
+{% set key_plus = keys | selectattr("key","==","KEY_PLUS") | first %}
+{% set key_up = keys | selectattr("key","==","KEY_UP") | first %}
+{% set key_shift = keys | selectattr("key","==","KEY_SHIFT") | first %}
+{% set key_pageup = keys | selectattr("key","==","KEY_PAGEUP") | first %}
+{% set key_pagedn = keys | selectattr("key","==","KEY_PAGEDN") | first %}
+{% set key_model = keys | selectattr("key","==","KEY_MODEL") | first %}
+{% set key_menu = keys | selectattr("key","==","KEY_MENU") | first %}
+{% set key_tele = keys | selectattr("key","==","KEY_TELE") | first %}
+{% set key_sys = keys | selectattr("key","==","KEY_SYS") | first %}
 {% set key_hats_as_keys = not key_pagedn and not key_menu and not key_up %}
 
 {% if key_plus %}
