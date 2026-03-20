@@ -29,7 +29,8 @@ ExternalProject_Add(wasm
     ${_forwarded_args}
     -Wno-dev
     -DCMAKE_BUILD_TYPE=${EDGETX_BUILD_TYPE}
-    -DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake
+    -DWASI_SDK_PREFIX=${WASI_SDK_PATH}
+    -DCMAKE_TOOLCHAIN_FILE=${EDGETX_SOURCE_DIR}/cmake/toolchain/wasi-threads.cmake
   CMAKE_CACHE_ARGS
     -DEdgeTX_SUPERBUILD:BOOL=0
     -DNATIVE_BUILD:BOOL=1

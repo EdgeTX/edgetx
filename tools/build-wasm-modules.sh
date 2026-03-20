@@ -103,6 +103,7 @@ fi
 
 export WASI_SDK_PATH
 COMMON_OPTIONS+=" -DCMAKE_MODULE_PATH=${WASI_SDK_PATH}/share/cmake/"
+COMMON_OPTIONS+=" -DWASI_SDK_PREFIX=${WASI_SDK_PATH}"
 
 # Function to output error logs (works in both GitHub Actions and terminal)
 output_error_log() {
@@ -138,7 +139,7 @@ run_pipeline() {
     local context="$2"
     local show_details="${3:-false}"
     local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
-    local wasi_toolchain="${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake"
+    local wasi_toolchain="${SRCDIR}/cmake/toolchain/wasi-threads.cmake"
     
     if ! execute_with_output "🔧 CMake config" "cmake --fresh -S ${SRCDIR} -B ${BUILD_DIR} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Configuration)"
