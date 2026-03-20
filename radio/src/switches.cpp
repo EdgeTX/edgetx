@@ -88,7 +88,7 @@ uint8_t   potsPos[MAX_POTS];
 
 #if defined(FUNCTION_SWITCHES)
 // Customizable switches
-// 
+//
 // Non pushed : SWSRC_Sx0 = -1024 = Sx(up) = state 0
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1
 
@@ -311,17 +311,17 @@ int switchLookupIdx(const char* name, size_t len)
     if (strncmp(sw_name, name, len) == 0) return i;
   }
 
-  return -1;  
+  return -1;
 }
 
 char switchGetLetter(uint8_t idx)
 {
   if (idx >= switchGetMaxAllSwitches() + MAX_FLEX_SWITCHES)
     return -1;
-  
+
   const char* name = switchGetDefaultName(idx);
   if (!name) return -1;
-  
+
   return name[strlen(name) - 1];
 }
 
@@ -393,7 +393,7 @@ void getSwitchesPosition(bool startup)
     if (!SWITCH_EXISTS(i)) continue;
     newPos |= checkSwitchPosition(i, startup);
   }
-  
+
   switchesPos = newPos;
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
@@ -861,12 +861,12 @@ swsrc_t getMovedSwitch()
     }
   }
 
-  // Trims: only detect trims disabled in FM
+  // Trims: only detect trims configured as 3P
   for (int i = 0; i < keysGetMaxTrims(); i++) {
     if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
       uint8_t tidx = inputMappingConvertMode(i) * 2;
-      if (trimDown(tidx)) result = SWSRC_FIRST_TRIM + i;
-      else if (trimDown(tidx+1)) result = SWSRC_FIRST_TRIM + i + 1;
+      if (trimDown(tidx)) result = SWSRC_FIRST_TRIM + i * 2;
+      else if (trimDown(tidx+1)) result = SWSRC_FIRST_TRIM + i * 2 + 1;
     }
   }
 
