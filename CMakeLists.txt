@@ -36,20 +36,8 @@ option(EdgeTX_SUPERBUILD "Cross-compile EdgeTX for each toolchain" ON)
 include(ExternalProject)
 
 if(EdgeTX_SUPERBUILD)
-  # Fetch all command line args into CMAKE_ARGS
-  get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-  foreach(CACHE_VAR ${CACHE_VARS})
-    get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
-    if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
-      get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
-      if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
-        set(CACHE_VAR_TYPE)
-      else()
-        set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
-      endif()
-      list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
-    endif()
-  endforeach()
+  include(Macros)
+  CollectCommandLineArgs(CMAKE_ARGS)
   message("-- CMAKE_ARGS: ${CMAKE_ARGS}")
   message("-- CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
@@ -88,25 +76,8 @@ if(EdgeTX_SUPERBUILD)
     set(PARALLEL_FLAG --parallel)
   endif()
 
-  # Webasm targets
-  include(FetchWasiSDK)
-  find_package(WasiSDK REQUIRED)
-
-  ExternalProject_Add(wasm
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    BINARY_DIR ${CMAKE_BINARY_DIR}/wasm
-    CMAKE_ARGS
-      ${CMAKE_ARGS}
-      -Wno-dev
-      -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-      -DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake
-    CMAKE_CACHE_ARGS
-      -DEdgeTX_SUPERBUILD:BOOL=0
-      -DNATIVE_BUILD:BOOL=1
-      -DDISABLE_COMPANION:BOOL=1
-    INSTALL_COMMAND  ""
-    EXCLUDE_FROM_ALL TRUE
-  )
+  # Webasm targets — deferred to a separate CMake project so that
+  # the WASI SDK is only fetched when wasi-module is actually built.
 
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
@@ -121,8 +92,13 @@ if(EdgeTX_SUPERBUILD)
   )
 
   add_custom_target(wasi-module
-    COMMAND ${CMAKE_COMMAND} --build wasm --target wasi-module --parallel
-    DEPENDS wasm-configure
+    COMMAND ${CMAKE_COMMAND}
+      -S ${CMAKE_SOURCE_DIR}/cmake/wasm
+      -B ${CMAKE_BINARY_DIR}/wasm
+      -DEDGETX_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+      -DEDGETX_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      ${CMAKE_ARGS}
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/wasm
   )
 
   add_custom_target(companion
