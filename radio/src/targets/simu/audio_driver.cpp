@@ -20,7 +20,7 @@
  */
 
 #include "audio.h"
-#include "simuaudio.h"
+#include "simulib.h"
 
 #if defined(AUDIO_HP_DETECT_PIN)
 bool audioHeadphoneDetect()
@@ -50,8 +50,6 @@ int simuAudioGetVolume()
   return VOLUME_LEVEL_MAX;
 #endif
 }
-
-void simuQueueAudio(const uint8_t* data, uint32_t len);
 
 void audioConsumeCurrentBuffer()
 {

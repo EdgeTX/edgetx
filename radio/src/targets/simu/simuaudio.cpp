@@ -21,6 +21,7 @@
 
 #include "audio.h"
 #include "simuaudio.h"
+#include "simulib.h"
 
 #include <stdint.h>
 #include <SDL.h>

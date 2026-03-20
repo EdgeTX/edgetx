@@ -23,11 +23,12 @@
 
 #include <chrono>
 
-extern uint64_t simuTimerMicros(void);
-
 uint32_t time_get_ms()
 {
-  return simuTimerMicros() / 1000;
+  static auto _start = std::chrono::steady_clock::now();;
+  auto now = std::chrono::steady_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - _start);
+  return duration.count();
 }
 
 time_point_t time_point_now()

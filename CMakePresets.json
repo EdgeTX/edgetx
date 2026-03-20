@@ -9,6 +9,22 @@
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
         "NATIVE_BUILD": false
+      },
+      "warnings": {
+        "dev": false
+      }
+    },
+    {
+      "name": "companion",
+      "displayName": "Companion",
+      "binaryDir": "build/companion",
+      "toolchainFile": "cmake/toolchain/native.cmake",
+      "cacheVariables": {
+        "EdgeTX_SUPERBUILD": false,
+        "NATIVE_BUILD": true
+      },
+      "warnings": {
+        "dev": false
       }
     },
     {
@@ -32,6 +48,14 @@
       "configurePreset": "firmware",
       "targets": [
         "firmware"
+      ]
+    },
+    {
+      "name": "companion",
+      "displayName": "Companion",
+      "configurePreset": "companion",
+      "targets": [
+        "companion"
       ]
     },
     {

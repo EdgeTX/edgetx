@@ -149,6 +149,7 @@ class SimulatedUIWidget : public QWidget
     unsigned int m_backLight;
     int m_beepShow;
     int m_beepVal;
+    int m_wheelAccumulator = 0;
 
     static int strKeyToInt(std::string key);
 

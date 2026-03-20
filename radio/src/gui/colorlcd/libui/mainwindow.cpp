@@ -25,12 +25,11 @@
 #include "layout.h"
 #include "LvglWrapper.h"
 #include "etx_lv_theme.h"
-#include "os/sleep.h"
-#include "sdcard.h"
 #include "view_main.h"
 
-// timers_driver.h
-uint32_t timersGetMsTick();
+#include "os/sleep.h"
+#include "os/time.h"
+#include "sdcard.h"
 
 MainWindow* MainWindow::_instance = nullptr;
 
@@ -63,7 +62,7 @@ void MainWindow::run(bool trash)
   LvglWrapper::instance()->run();
 
 #if defined(DEBUG_WINDOWS)
-  auto start = timersGetMsTick();
+  auto start = time_get_ms();
 #endif
 
   if (widgetRefreshEnable)
@@ -85,7 +84,7 @@ void MainWindow::run(bool trash)
     emptyTrash();
 
 #if defined(DEBUG_WINDOWS)
-  auto delta = timersGetMsTick() - start;
+  auto delta = time_get_ms() - start;
   if (delta > 10) {
     TRACE_WINDOWS("MainWindow::run took %dms", delta);
   }

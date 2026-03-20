@@ -529,6 +529,12 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
 }
 
+coord_t BitmapBuffer::drawText(coord_t x, coord_t y, const char* s, LcdFlags flags)
+{
+  if (!s) return x;
+  return drawSizedText(x, y, s, strlen(s), flags);
+}
+
 // Resize and convert to LVGL image data format with alpha blending to
 // background color
 void BitmapBuffer::resizeToLVGL(coord_t w, coord_t h)

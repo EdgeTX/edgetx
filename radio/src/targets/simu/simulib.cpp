@@ -19,29 +19,31 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
-#define SIMPGMSPC_USE_QT    0
-
-#include "edgetx.h"
+#include "simulib.h"
 #include "simulcd.h"
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
-#include "hal/audio_driver.h"
 
 #include "os/sleep.h"
 #include "os/task.h"
-#include "os/timer_native_impl.h"
 
-#include <errno.h>
-#include <stdarg.h>
-#include <string>
-
-#if !defined (_MSC_VER) || defined (__GNUC__)
-  #include <chrono>
-  #include <sys/time.h>
+#include "edgetx.h"
+#include "debug.h"
+#include "switches.h"
+#include "input_mapping.h"
+#if defined(GVARS)
+#include "gvars.h"
 #endif
+#include "trainer.h"
+#include "telemetry/frsky.h"
+#include "telemetry/crossfire.h"
+#if defined(LUA)
+#include "lua/lua_api.h"
+#endif
+
+#include <assert.h>
 
 int g_snapshot_idx = 0;
 
@@ -61,38 +63,19 @@ rotenc_t rotaryEncoderGetValue()
   return rotencValue / ROTARY_ENCODER_GRANULARITY;
 }
 
-// TODO: remove all STM32 defs
-
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
-
-uint64_t simuTimerMicros(void)
-{
-  auto now = std::chrono::steady_clock::now();
-  return (uint64_t) std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
-}
-
-uint16_t getTmr16KHz()
-{
-  return simuTimerMicros() * 2 / 125;
-}
-
-uint16_t getTmr2MHz()
-{
-  return simuTimerMicros() * 2;
-}
-
-uint32_t timersGetMsTick(void)
-{
-  return simuTimerMicros() / 1000;
-}
+void lcdFlushed();
 
 void simuInit()
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
+
+  // Route firmware TRACE() output to host via WASM import
+  traceCallback = simuTrace;
 
   // Init ADC driver callback
   adcInit(&simu_adc_driver);
@@ -103,7 +86,6 @@ void simuInit()
 bool keysStates[MAX_KEYS] = { false };
 void simuSetKey(uint8_t key, bool state)
 {
-  // TRACE("simuSetKey(%d, %d)", key, state);
   assert(key < DIM(keysStates));
   keysStates[key] = state;
 }
@@ -111,7 +93,6 @@ void simuSetKey(uint8_t key, bool state)
 bool trimsStates[MAX_TRIMS * 2] = { false };
 void simuSetTrim(uint8_t trim, bool state)
 {
-  // TRACE("simuSetTrim(%d, %d)", trim, state);
   assert(trim < DIM(trimsStates));
   trimsStates[trim] = state;
 }
@@ -125,7 +106,7 @@ static void* bootloaderThread(void*)
 }
 #endif
 
-void simuStart(bool tests, const char * sdPath, const char * settingsPath)
+void simuStart(bool tests)
 {
   if (simu_running)
     return;
@@ -136,8 +117,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 
   startOptions = (tests ? 0 : OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
   simu_shutdown = false;
-
-  simuFatfsSetPaths(sdPath, settingsPath);
 
   /*
     g_tmr10ms must be non-zero otherwise some SF functions (that use this timer as a marker when it was last executed)
@@ -217,6 +196,42 @@ bool simuIsRunning()
   return simu_running;
 }
 
+bool simuLcdChanged()
+{
+  bool changed = simuLcdRefresh;
+  simuLcdRefresh = false;
+  return changed;
+}
+
+uint32_t simuLcdCopy(uint8_t* buf, uint32_t maxLen)
+{
+  uint32_t size = DISPLAY_BUFFER_SIZE * sizeof(pixel_t);
+  if (size > maxLen) size = maxLen;
+  memcpy(buf, simuLcdBuf, size);
+  return size;
+}
+
+uint32_t simuLcdGetWidth()
+{
+  return LCD_W;
+}
+
+uint32_t simuLcdGetHeight()
+{
+  return LCD_H;
+}
+
+uint32_t simuLcdGetDepth()
+{
+#if defined(COLORLCD)
+  return 16;
+#elif LCD_W == 212
+  return 4;
+#else
+  return 1;
+#endif
+}
+
 #if !defined(COLORLCD)
 void lcdSetRefVolt(uint8_t val)
 {
@@ -278,7 +293,6 @@ uint32_t readKeys()
 
   for (int i = 0; i < MAX_KEYS; i++) {
     if (keysStates[i]) {
-      // TRACE("key pressed %d", i);
       result |= 1 << i;
     }
   }
@@ -292,7 +306,6 @@ uint32_t readTrims()
 
   for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
     if (trimsStates[i]) {
-      // TRACE("trim pressed %d", i);
       trims |= 1 << i;
     }
   }
@@ -508,3 +521,238 @@ struct TouchState getInternalTouchState()
   return simTouchState;
 }
 #endif
+
+void simuTouchDown(int16_t x, int16_t y)
+{
+#if defined(HARDWARE_TOUCH)
+  touchPanelDown(x, y);
+#endif
+}
+
+void simuTouchUp()
+{
+#if defined(HARDWARE_TOUCH)
+  touchPanelUp();
+#endif
+}
+
+void simuRotaryEncoderEvent(int32_t steps)
+{
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
+#endif
+}
+
+int32_t simuGetCapability(uint8_t cap)
+{
+  switch (cap) {
+    case 0:  // CAP_LUA
+#ifdef LUA
+      return 1;
+#else
+      return 0;
+#endif
+    case 1:  // CAP_ROTARY_ENC
+      return 0;
+    case 2:  // CAP_ROTARY_ENC_NAV
+#ifdef ROTARY_ENCODER_NAVIGATION
+      return 1;
+#else
+      return 0;
+#endif
+    case 3:  // CAP_TELEM_FRSKY_SPORT
+      return 1;
+    case 4:  // CAP_SERIAL_AUX1
+      return (auxSerialGetPort(SP_AUX1) != nullptr) ? 1 : 0;
+    case 5:  // CAP_SERIAL_AUX2
+      return (auxSerialGetPort(SP_AUX2) != nullptr) ? 1 : 0;
+    default:
+      return 0;
+  }
+}
+
+void simuSetTrimValue(uint8_t idx, int32_t value)
+{
+  unsigned i = inputMappingConvertMode(idx);
+  uint8_t phase = getTrimFlightMode(getFlightMode(), i);
+  setTrimValue(phase, i, value);
+}
+
+void simuSendTelemetry(uint8_t module, uint8_t protocol,
+                       const uint8_t* data, uint32_t len)
+{
+  switch (protocol) {
+    case 0:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT
+      sportProcessTelemetryPacket(module, data, len);
+      break;
+    case 1:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB
+      frskyDProcessPacket(module, data, len);
+      break;
+    case 2:  // SIMU_TELEMETRY_PROTOCOL_CROSSFIRE
+      processCrossfireTelemetryFrame(module, (uint8_t*)data, len);
+      break;
+    case 3:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB
+      if (len >= 3) {
+        uint8_t id = data[0];
+        int16_t value = ((uint8_t)(data[2]) << 8) + (uint8_t)(data[1]);
+        processHubPacket(id, value);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+void simuLuaReloadPermanentScripts()
+{
+#if defined(LUA)
+  luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
+#endif
+}
+
+void simuLcdFlushed()
+{
+  ::lcdFlushed();
+}
+
+uint8_t simuGetMaxTrainerChannels()
+{
+  return MAX_TRAINER_CHANNELS;
+}
+
+void simuCopyTrainerInput(const int16_t* buf, uint8_t count)
+{
+  if (count > MAX_TRAINER_CHANNELS)
+    count = MAX_TRAINER_CHANNELS;
+  for (uint8_t i = 0; i < count; i++) {
+    int16_t v = buf[i];
+    if (v < -512) v = -512;
+    if (v > 512) v = 512;
+    trainerInput[i] = v;
+  }
+}
+
+void simuSetTrainerTimeout(uint16_t ms)
+{
+  trainerSetTimer(ms / 10);
+}
+
+// -- Output values --
+
+uint8_t simuGetNumChannels()
+{
+  return MAX_OUTPUT_CHANNELS;
+}
+
+uint8_t simuCopyChannelOutputs(int16_t* buf, uint8_t maxCount)
+{
+  uint8_t n = MAX_OUTPUT_CHANNELS < maxCount ? MAX_OUTPUT_CHANNELS : maxCount;
+  memcpy(buf, channelOutputs, n * sizeof(int16_t));
+  return n;
+}
+
+uint8_t simuCopyMixOutputs(int16_t* buf, uint8_t maxCount)
+{
+  uint8_t n = MAX_OUTPUT_CHANNELS < maxCount ? MAX_OUTPUT_CHANNELS : maxCount;
+  memcpy(buf, ex_chans, n * sizeof(int16_t));
+  return n;
+}
+
+uint8_t simuGetNumLogicalSwitches()
+{
+  return MAX_LOGICAL_SWITCHES;
+}
+
+uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
+{
+  uint8_t n = MAX_LOGICAL_SWITCHES < maxCount ? MAX_LOGICAL_SWITCHES : maxCount;
+  for (uint8_t i = 0; i < n; i++)
+    buf[i] = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i, 0) ? 1 : 0;
+  return n;
+}
+
+int32_t simuGetTrimValue(uint8_t idx)
+{
+  uint8_t phase = getFlightMode();
+  uint8_t mapped = inputMappingConvertMode(idx);
+  return getTrimValue(getTrimFlightMode(phase, mapped), mapped);
+}
+
+int16_t simuGetTrimRange()
+{
+  return g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
+}
+
+int32_t simuGetFlightMode()
+{
+  return getFlightMode();
+}
+
+uint8_t simuGetNumGVars()
+{
+#if defined(GVARS)
+  return MAX_GVARS;
+#else
+  return 0;
+#endif
+}
+
+uint8_t simuGetNumFlightModes()
+{
+  return MAX_FLIGHT_MODES;
+}
+
+int32_t simuGetGVar(uint8_t gv, uint8_t fm)
+{
+#if defined(GVARS)
+  if (gv < MAX_GVARS && fm < MAX_FLIGHT_MODES) {
+    uint8_t prec = g_model.gvars[gv].prec;
+    uint8_t unit = g_model.gvars[gv].unit;
+    int16_t value = (int16_t)GVAR_VALUE(gv, getGVarFlightMode(fm, gv));
+    // Encode as gVarMode_t: value[15:0] | mode[23:16] | prec[25:24] | unit[27:26]
+    return (((unit & 0x3) << 26) | ((prec & 0x3) << 24) |
+            ((fm & 0xFF) << 16) | (value & 0xFFFF));
+  }
+#endif
+  return 0;
+}
+
+bool simuGetBacklightState()
+{
+  return isBacklightEnabled();
+}
+
+// -- Custom (function) switches --
+
+uint8_t simuGetNumCustomSwitches()
+{
+  return NUM_FUNCTIONS_SWITCHES;
+}
+
+uint8_t simuGetCustomSwitchIndex(uint8_t cfsIdx)
+{
+#if defined(FUNCTION_SWITCHES)
+  return switchGetSwitchFromCustomIdx(cfsIdx);
+#else
+  (void)cfsIdx;
+  return 0;
+#endif
+}
+
+bool simuGetCustomSwitchState(uint8_t idx)
+{
+#if defined(FUNCTION_SWITCHES)
+  if (idx < NUM_FUNCTIONS_SWITCHES)
+    return fsLedState(idx);
+#endif
+  return false;
+}
+
+uint32_t simuGetCustomSwitchColor(uint8_t idx)
+{
+#if defined(FUNCTION_SWITCHES)
+  if (idx < NUM_FUNCTIONS_SWITCHES)
+    return fsGetLedRGB(idx);
+#endif
+  return 0;
+}

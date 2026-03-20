@@ -31,7 +31,6 @@
 #include <QString>
 #include <QByteArray>
 #include <QDir>
-#include <QLibrary>
 #include <QMap>
 #include <QSerialPort>
 
@@ -177,7 +176,6 @@ class SimulatorInterface : public QObject
     void started();
     void stopped();
     void heartbeat(qint32 loops, qint64 timestamp);
-    void runtimeError(const QString & error);
     void lcdChange(bool backlightEnable);
     void phaseChanged(qint8 phase, const QString & name);
     void channelOutValueChange(quint8 index, qint32 value, qint32 limit);
@@ -216,8 +214,6 @@ class SimulatorLoader
     static bool unloadSimulator(const QString & name);
 
   protected:
-    typedef SimulatorFactory * (*RegisterSimulator)();
-
     static int registerSimulators(const QDir & dir);
-    static QMap<QString, QPair<QString, QLibrary *>> registeredSimulators;
+    static QMap<QString, SimulatorFactory *> registeredSimulators;
 };

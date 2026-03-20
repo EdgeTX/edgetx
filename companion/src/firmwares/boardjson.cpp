@@ -31,6 +31,7 @@ static const StringTagMappingTable inputTypesLookupTable = {
     {std::to_string(Board::AIT_FLEX),    "FLEX"},
     {std::to_string(Board::AIT_VBAT),    "VBAT"},
     {std::to_string(Board::AIT_RTC_BAT), "RTC_BAT"},
+    {std::to_string(Board::AIT_LUX),     "LUX"},
     {std::to_string(Board::AIT_SWITCH),  "SWITCH"},
 };
 
@@ -119,18 +120,13 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
     }
   }
 
-  if (IS_RADIOMASTER_TX16SMK3(board)) {
-    if (getInputIndex(inputs, "LIGHT", Board::LVT_TAG) < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "LIGHT";
-      defn.name = "Ambient light";
-      defn.shortName = "Light";
-      defn.flexType = FLEX_POT;
-      defn.inverted = false;
-      defn.cfgYaml = Board::LVT_TAG;
-      defn.refYaml = Board::LVT_TAG;  //  non-default
-      inputs->insert(inputs->end(), defn);
+  // Set default labels for LUX inputs if not provided by JSON
+  for (auto &defn : *inputs) {
+    if (defn.type == AIT_LUX) {
+      if (defn.name.empty())
+        defn.name = "Ambient light";
+      if (defn.shortName.empty())
+        defn.shortName = "Light";
     }
   }
 
