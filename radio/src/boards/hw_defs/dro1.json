@@ -118,7 +118,6 @@
         "gpio": "GPIOF",
         "pin": "LL_GPIO_PIN_8",
         "channel": "LL_ADC_CHANNEL_6",
-        "inverted": true,
         "label": "EXT1",
         "short_label": "E1",
         "default": "SLIDER"
