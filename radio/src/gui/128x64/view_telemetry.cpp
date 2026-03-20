@@ -32,12 +32,11 @@ void displayRssiLine()
 {
   if (TELEMETRY_STREAMING()) {
     lcdDrawSolidHorizontalLine(0, 55, 128, 0); // separator
-    uint8_t rssi;
-    uint8_t rssi_max = 99; // TODO should be 100 for RQly
-    rssi = min(rssi_max, TELEMETRY_RSSI());
+    rxStatStruct *rxStat = getRxStatLabels();
+    uint8_t rssi = min(rxStat->max, TELEMETRY_RSSI());
     lcdDrawNumber(LCD_W/2 -2, STATUS_BAR_Y, rssi, LEADING0 | RIGHT | SMLSIZE, 2);
     lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, ": ", RIGHT | SMLSIZE);
-    lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, getRxStatLabels()->label, RIGHT | SMLSIZE);
+    lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, rxStat->label, RIGHT | SMLSIZE);
     lcdDrawRect(65, 57, 38, 7);
     uint8_t v = 4*rssi/11;
     lcdDrawFilledRect(66+36-v, 58, v, 5, (rssi < g_model.rfAlarms.warning) ? DOTTED : SOLID);
