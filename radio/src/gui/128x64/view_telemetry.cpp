@@ -33,8 +33,8 @@ void displayRssiLine()
   if (TELEMETRY_STREAMING()) {
     lcdDrawSolidHorizontalLine(0, 55, 128, 0); // separator
     uint8_t rssi;
-    uint8_t max = 99; // TODO should be 100 for RQly
-    rssi = min(max, TELEMETRY_RSSI());
+    uint8_t rssi_max = 99; // TODO should be 100 for RQly
+    rssi = min(rssi_max, TELEMETRY_RSSI());
     lcdDrawNumber(LCD_W/2 -2, STATUS_BAR_Y, rssi, LEADING0 | RIGHT | SMLSIZE, 2);
     lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, ": ", RIGHT | SMLSIZE);
     lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, getRxStatLabels()->label, RIGHT | SMLSIZE);
