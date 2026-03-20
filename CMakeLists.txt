@@ -89,26 +89,24 @@ if(EdgeTX_SUPERBUILD)
   endif()
 
   # Webasm targets
-  if(ENABLE_WASM)
-    include(FetchWasiSDK)
-    find_package(WasiSDK REQUIRED)
- 
-    ExternalProject_Add(wasm
-      SOURCE_DIR ${CMAKE_SOURCE_DIR}
-      BINARY_DIR ${CMAKE_BINARY_DIR}/wasm
-      CMAKE_ARGS
-        ${CMAKE_ARGS}
-        -Wno-dev
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake
-      CMAKE_CACHE_ARGS
-        -DEdgeTX_SUPERBUILD:BOOL=0
-        -DNATIVE_BUILD:BOOL=1
-        -DDISABLE_COMPANION:BOOL=1
-      INSTALL_COMMAND  ""
-      EXCLUDE_FROM_ALL TRUE
-    )
-  endif()
+  include(FetchWasiSDK)
+  find_package(WasiSDK REQUIRED)
+
+  ExternalProject_Add(wasm
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}
+    BINARY_DIR ${CMAKE_BINARY_DIR}/wasm
+    CMAKE_ARGS
+      ${CMAKE_ARGS}
+      -Wno-dev
+      -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake
+    CMAKE_CACHE_ARGS
+      -DEdgeTX_SUPERBUILD:BOOL=0
+      -DNATIVE_BUILD:BOOL=1
+      -DDISABLE_COMPANION:BOOL=1
+    INSTALL_COMMAND  ""
+    EXCLUDE_FROM_ALL TRUE
+  )
 
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
@@ -127,12 +125,10 @@ if(EdgeTX_SUPERBUILD)
     COMMAND ${CMAKE_COMMAND} --build native --target simu ${PARALLEL_FLAG}
   )
 
-  if(ENABLE_WASM)
-    add_custom_target(wasi-module
-      COMMAND ${CMAKE_COMMAND} --build wasm --target wasi-module --parallel
-      DEPENDS wasm-configure
-    )
-  endif()
+  add_custom_target(wasi-module
+    COMMAND ${CMAKE_COMMAND} --build wasm --target wasi-module --parallel
+    DEPENDS wasm-configure
+  )
 
   add_custom_target(companion
     COMMAND ${CMAKE_COMMAND} --build native --target companion ${PARALLEL_FLAG}
@@ -183,8 +179,5 @@ else()
   # Prevent CMake warnings
   set(IGNORE "${LIBUSB1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
-
-# Prevent CMake warnings
-set(IGNORE "${ENABLE_WASM}")
 
 add_subdirectory(${RADIO_SRC_DIR})
