@@ -80,7 +80,7 @@ function(GenerateDatacopy source output)
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${GEN_DATACOPY_CMD} > ${output}
-    DEPENDS ${GEN_DATACOPY_DEPEND}
+    DEPENDS ${GEN_DATACOPY_DEPEND} ${CMAKE_BINARY_DIR}/CMakeCache.txt
     )
 endfunction()
 
