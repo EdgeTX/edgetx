@@ -176,7 +176,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   drivers/tas2505.cpp
   drivers/icm42607C.cpp
   drivers/sc7u22.cpp
-  drivers/imu_filter.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp

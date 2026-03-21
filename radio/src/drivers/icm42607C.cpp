@@ -25,17 +25,16 @@
 */
 
 #include "hal/i2c_driver.h"
+#include "hal/imu.h"
 
 #include "stm32_i2c_driver.h"
 #include "stm32_gpio.h"
 #include "delays_driver.h"
 
 #include "icm42607C.h"
-#include "imu_filter.h"
 
 #include "inactivity_timer.h"
 #include "debug.h"
-#include "gyro.h"
 
 #include "hal.h"
 
@@ -78,7 +77,7 @@ static int write_mreg1(uint8_t reg, uint8_t val) {
     return 0;
 }
 
-int gyro42607Init(etx_i2c_bus_t bus, uint16_t addr)
+static int gyro42607Init(etx_i2c_bus_t bus, uint16_t addr)
 {
   s_i2c_bus  = bus;
   s_i2c_addr = addr;
@@ -163,39 +162,32 @@ int gyro42607Init(etx_i2c_bus_t bus, uint16_t addr)
   return 0;
 }
 
-int gyro42607Read(uint8_t buffer[IMU_BUFFER_LENGTH])
+static int gyro42607Read(etx_imu_data_t* data)
 {
-  IMU_RawData_t imu_raw;
-  IMU_FilteredData_t *filtered;
-
   uint8_t buf[6];
+
   uint8_t reg = GYRO_DATA_X0_REG;
   if (stm32_i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, 6, I2C_TIMEOUT) < 0) {
-    TRACE("ICM426xx ERROR: i2c read error");
+    TRACE("ICM426xx ERROR: gyro read error");
     return -1;
   }
-  imu_raw.gyro_x = -((int16_t)(buf[0] << 8) | buf[1]); // x
-  imu_raw.gyro_y = -((int16_t)(buf[2] << 8) | buf[3]); // y
-  imu_raw.gyro_z = ((int16_t)(buf[4] << 8) | buf[5]); // z
+  data->gyro_x = -((int16_t)(buf[0] << 8) | buf[1]);
+  data->gyro_y = -((int16_t)(buf[2] << 8) | buf[3]);
+  data->gyro_z =  ((int16_t)(buf[4] << 8) | buf[5]);
 
   reg = ACCEL_DATA_X0_REG;
   if (stm32_i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, 6, I2C_TIMEOUT) < 0) {
-    TRACE("ICM426xx ERROR: i2c read error");
+    TRACE("ICM426xx ERROR: accel read error");
     return -1;
   }
-  imu_raw.accel_x = ((int16_t)(buf[0] << 8) | buf[1]); // x
-  imu_raw.accel_y = ((int16_t)(buf[2] << 8) | buf[3]); // y
-  imu_raw.accel_z = ((int16_t)(buf[4] << 8) | buf[5]); // z
-
-  // Process through the common IMU filter used by the firmware
-  process_imu_data(&imu_raw);
-  filtered = get_filtered_imu_data();
-
-  // Write filtered accel data into the provided buffer (matching previous
-  // in-memory layout expected by higher layers).
-  *(int16_t*)&buffer[6] = -(int16_t)filtered->accel_x; // x
-  *(int16_t*)&buffer[8] = -(int16_t)filtered->accel_y; // y
-  *(int16_t*)&buffer[10] = (int16_t)filtered->accel_z; // z
+  data->accel_x = ((int16_t)(buf[0] << 8) | buf[1]);
+  data->accel_y = ((int16_t)(buf[2] << 8) | buf[3]);
+  data->accel_z = ((int16_t)(buf[4] << 8) | buf[5]);
 
   return 0;
 }
+
+const etx_imu_driver_t imu_icm42607_driver = {
+  gyro42607Init,
+  gyro42607Read,
+};

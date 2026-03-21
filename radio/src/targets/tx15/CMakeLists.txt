@@ -148,7 +148,6 @@ set(BOARD_COMMON_SRC
   drivers/pca95xx.cpp
   drivers/icm42607C.cpp
   drivers/sc7u22.cpp
-  drivers/imu_filter.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp

@@ -20,17 +20,16 @@
  */
 
 #include "hal/i2c_driver.h"
+#include "hal/imu.h"
 
 #include "stm32_i2c_driver.h"
 #include "stm32_gpio.h"
 #include "delays_driver.h"
 
 #include "sc7u22.h"
-#include "imu_filter.h"
 
 #include "inactivity_timer.h"
 #include "debug.h"
-#include "gyro.h"
 
 #include "hal.h"
 
@@ -90,7 +89,7 @@ static int16_t getSC7U22Temperature(void)
 }
 
 
-int gyroSC7U22Init(etx_i2c_bus_t bus, uint16_t addr)
+static int gyroSC7U22Init(etx_i2c_bus_t bus, uint16_t addr)
 {
   s_i2c_bus  = bus;
   s_i2c_addr = addr;
@@ -216,49 +215,32 @@ int gyroSC7U22Init(etx_i2c_bus_t bus, uint16_t addr)
   return 0;
 }
 
-int gyroSC7U22Read(uint8_t buffer[IMU_BUFFER_LENGTH])
+static int gyroSC7U22Read(etx_imu_data_t* data)
 {
-  IMU_RawData_t    imu_raw;
-  IMU_FilteredData_t *filtered;
-
   uint8_t buf[6];
 
-  // -------------------------------------------------------------------------
-  // Read gyroscope: GYR_XH … GYR_ZL (registers 0x12 … 0x17, 6 bytes)
-  // Address auto-increment is enabled via COM_CONF, so a single burst read
-  // starting at 0x12 returns all six bytes in order.
-  // -------------------------------------------------------------------------
+  // Read gyroscope: GYR_XH ... GYR_ZL (0x12 ... 0x17, 6 bytes)
   if (read_regs(SC7U22_GYR_XH_REG, buf, 6) < 0) {
     TRACE("SC7U22 ERROR: gyro read error");
     return -1;
   }
+  data->gyro_x = -((int16_t)(buf[0] << 8) | buf[1]);
+  data->gyro_y = -((int16_t)(buf[2] << 8) | buf[3]);
+  data->gyro_z =  ((int16_t)(buf[4] << 8) | buf[5]);
 
-  imu_raw.gyro_x = -((int16_t)(buf[0] << 8) | buf[1]); // X  (inverted)
-  imu_raw.gyro_y = -((int16_t)(buf[2] << 8) | buf[3]); // Y  (inverted)
-  imu_raw.gyro_z =  ((int16_t)(buf[4] << 8) | buf[5]); // Z
-
-  // -------------------------------------------------------------------------
-  // Read accelerometer: ACC_XH … ACC_ZL (registers 0x0C … 0x11, 6 bytes)
-  // -------------------------------------------------------------------------
+  // Read accelerometer: ACC_XH ... ACC_ZL (0x0C ... 0x11, 6 bytes)
   if (read_regs(SC7U22_ACC_XH_REG, buf, 6) < 0) {
     TRACE("SC7U22 ERROR: accel read error");
     return -1;
   }
-
-  imu_raw.accel_x = ((int16_t)(buf[0] << 8) | buf[1]); // X
-  imu_raw.accel_y = ((int16_t)(buf[2] << 8) | buf[3]); // Y
-  imu_raw.accel_z = ((int16_t)(buf[4] << 8) | buf[5]); // Z
-
-  // -------------------------------------------------------------------------
-  // Run through the shared IMU filter (same as ICM42607C)
-  // -------------------------------------------------------------------------
-  process_imu_data(&imu_raw);
-  filtered = get_filtered_imu_data();
-
-  // Write filtered accelerometer data into the output buffer
-  *(int16_t *)&buffer[6]  = -(int16_t)filtered->accel_x; // X (inverted)
-  *(int16_t *)&buffer[8]  = -(int16_t)filtered->accel_y; // Y (inverted)
-  *(int16_t *)&buffer[10] =  (int16_t)filtered->accel_z; // Z
+  data->accel_x = ((int16_t)(buf[0] << 8) | buf[1]);
+  data->accel_y = ((int16_t)(buf[2] << 8) | buf[3]);
+  data->accel_z = ((int16_t)(buf[4] << 8) | buf[5]);
 
   return 0;
 }
+
+const etx_imu_driver_t imu_sc7u22_driver = {
+  gyroSC7U22Init,
+  gyroSC7U22Read,
+};

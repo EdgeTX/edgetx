@@ -19,46 +19,24 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include <inttypes.h>
 #include "hal/imu.h"
-
-#define IMU_VALUES_COUNT      6
-#define IMU_BUFFER_LENGTH     (IMU_VALUES_COUNT * sizeof(int16_t))
 
 #define IMU_MAX_DEFAULT       30
 #define IMU_MAX_RANGE         60
 #define IMU_OFFSET_MIN       -30
 #define IMU_OFFSET_MAX        10
 
-#define IMU_SAMPLES_EXPONENT  3
-#define IMU_SAMPLES_COUNT     (2 ^ IMU_SAMPLES_EXPONENT)
+void gyroStart(imu_read_fn fn);
+void gyroWakeup();
+void gyroSetIMU_X(int16_t offset, int16_t range);
+void gyroSetIMU_Y(int16_t offset, int16_t range);
+int16_t gyroScaledX();
+int16_t gyroScaledY();
 
-class Gyro
-{
- protected:
-  uint8_t errors = 0;
-  float roll = 0.0;
-  float pitch = 0.0;
-  int16_t offset_x = 0;
-  int16_t offset_y = 0;
-  int16_t range_x = 8192;
-  int16_t range_y = 8192;
-  int16_t raw_ax = 0;
-  int16_t raw_ay = 0;
-
- public:
-  int16_t outputs[2];
-
-  void wakeup();
-  void setIMU_X(int16_t, int16_t);
-  void setIMU_Y(int16_t, int16_t);
-
-  int16_t scaledX();
-  int16_t scaledY();
-};
-
-extern Gyro gyro;
-extern gyroReadFctPtr gyroReadFct;
+extern int16_t gyroOutputs[2];
 
 // implemented by the board
-int gyroInit();
+imu_read_fn gyroInit();

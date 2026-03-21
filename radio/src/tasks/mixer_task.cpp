@@ -128,7 +128,7 @@ constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 void execMixerFrequentActions()
 {
 #if defined(IMU)
-  gyro.wakeup();
+  gyroWakeup();
 #endif
 
 #if defined(BLUETOOTH)
@@ -139,7 +139,7 @@ void execMixerFrequentActions()
 void mixerTask()
 {
 #if defined(IMU)
-  gyroInit();
+  gyroStart(gyroInit());
 #endif
 
   while (task_running()) {

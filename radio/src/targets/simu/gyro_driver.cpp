@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "gyro.h"
+#include "hal/imu.h"
 
-int gyroInit() { return -1; }
-int gyroRead(uint8_t*) { return -1; }
+imu_read_fn gyroInit() { return nullptr; }

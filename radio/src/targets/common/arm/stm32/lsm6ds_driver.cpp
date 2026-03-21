@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "gyro.h"
+#include "hal/imu.h"
 #include "hal.h"
 
 #if defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
@@ -28,8 +28,13 @@
 #include "stm32_i2c_driver.h"
 #include "delays_driver.h"
 
+#include "definitions.h"
+
 #include <string.h>
 #include <stdint.h>
+
+static etx_i2c_bus_t s_i2c_bus;
+static uint16_t s_i2c_addr;
 
 /* COMMON VALUES FOR ACCEL-GYRO SENSORS */
 #define LSM6DS_WHO_AM_I                         0x0f
@@ -216,7 +221,7 @@ static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t* data, uint8_t len)
   buffer[0] = reg;
   memcpy(buffer + 1, data, len);
   
-  return stm32_i2c_master_tx(IMU_I2C_BUS, IMU_I2C_ADDRESS, buffer, len + 1, 100);
+  return stm32_i2c_master_tx(s_i2c_bus, s_i2c_addr, buffer, len + 1, 100);
 }
 
 static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t value)
@@ -226,11 +231,11 @@ static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t value)
 
 static int I2C_LSM6DS_ReadRegister(uint8_t reg, uint8_t* data, uint8_t len)
 {
-  if (stm32_i2c_master_tx(IMU_I2C_BUS, IMU_I2C_ADDRESS, &reg, 1, 10) < 0)
+  if (stm32_i2c_master_tx(s_i2c_bus, s_i2c_addr, &reg, 1, 10) < 0)
     return -1;
 
   uint8_t value = 0;
-  if (stm32_i2c_master_rx(IMU_I2C_BUS, IMU_I2C_ADDRESS, data, len, 100) < 0)
+  if (stm32_i2c_master_rx(s_i2c_bus, s_i2c_addr, data, len, 100) < 0)
     return -1;
 
   return value;
@@ -245,14 +250,29 @@ static int I2C_LSM6DS_ReadRegister(uint8_t reg)
   return value;
 }
 
-static int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
+static int lsm6dsRead(etx_imu_data_t* data)
 {
-  return I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buffer, IMU_BUFFER_LENGTH);
+  // LSM6DS registers are contiguous: gyro X/Y/Z then accel X/Y/Z (little-endian)
+  uint8_t buf[12];
+  if (I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buf, sizeof(buf)) < 0)
+    return -1;
+
+  int16_t* raw = (int16_t*)buf;
+  data->gyro_x  = raw[0];
+  data->gyro_y  = raw[1];
+  data->gyro_z  = raw[2];
+  data->accel_x = raw[3];
+  data->accel_y = raw[4];
+  data->accel_z = raw[5];
+  return 0;
 }
 
-int gyroInit()
+static int lsm6dsInit(etx_i2c_bus_t bus, uint16_t addr)
 {
-  if (i2c_init(IMU_I2C_BUS) < 0)
+  s_i2c_bus = bus;
+  s_i2c_addr = addr;
+
+  if (i2c_init(s_i2c_bus) < 0)
     return -1;
 
   // LSM6DS33TR works with LSM6DSLTR code for our use
@@ -264,12 +284,24 @@ int gyroInit()
     I2C_LSM6DS_WriteRegister(configure[i][0], configure[i][1]);
   }
 
-  gyroReadFct = gyroRead;
   return 0;
+}
+
+const etx_imu_driver_t imu_lsm6ds_driver = {
+  lsm6dsInit,
+  lsm6dsRead,
+};
+
+imu_read_fn gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  return imuDetect(candidates, DIM(candidates));
 }
 
 #else
 
-int gyroInit() { return -1; }
+imu_read_fn gyroInit() { return nullptr; }
 
 #endif

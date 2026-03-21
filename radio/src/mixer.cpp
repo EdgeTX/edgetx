@@ -386,10 +386,10 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
 #if defined(IMU)
   else if (i == MIXSRC_TILT_X) {
-    return gyro.scaledX();
+    return gyroScaledX();
   }
   else if (i == MIXSRC_TILT_Y) {
-    return gyro.scaledY();
+    return gyroScaledY();
   }
 #endif
 

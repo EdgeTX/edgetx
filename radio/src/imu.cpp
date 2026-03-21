@@ -1,5 +1,5 @@
 /*
-* Copyright (C) EdgeTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,20 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal/imu.h"
 
-// IMU data structure
-typedef struct {
-  float accel_x, accel_y, accel_z;    // Accelerometer data (m/s²)
-  float gyro_x, gyro_y, gyro_z;       // Gyroscope data (rad/s)
-  float mag_x, mag_y, mag_z;          // Magnetometer data (optional)
-} IMU_RawData_t;
-
-typedef struct {
-  float roll, pitch, yaw;             // Filtered attitude (radians)
-  float accel_x, accel_y, accel_z;    // Filtered acceleration
-  float gyro_x, gyro_y, gyro_z;       // Filtered gyroscope
-} IMU_FilteredData_t;
-
-void process_imu_data(IMU_RawData_t *raw_data);
-IMU_FilteredData_t* get_filtered_imu_data(void);
+imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count)
+{
+  for (uint8_t i = 0; i < count; i++) {
+    if (candidates[i].driver->init(candidates[i].bus, candidates[i].addr) == 0) {
+      return candidates[i].driver->read;
+    }
+  }
+  return nullptr;
+}

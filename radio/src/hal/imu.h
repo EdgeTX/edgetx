@@ -22,6 +22,27 @@
 #pragma once
 
 #include <stdint.h>
+#include "hal/i2c_driver.h"
 
-typedef int (*gyroReadFctPtr)(uint8_t[]);
+struct etx_imu_data_t {
+  float accel_x, accel_y, accel_z;
+  float gyro_x, gyro_y, gyro_z;
+};
+
+typedef int (*imu_init_fn)(etx_i2c_bus_t bus, uint16_t addr);
+typedef int (*imu_read_fn)(etx_imu_data_t* data);
+
+struct etx_imu_driver_t {
+  imu_init_fn init;
+  imu_read_fn read;
+};
+
+struct etx_imu_t {
+  const etx_imu_driver_t* driver;
+  etx_i2c_bus_t bus;
+  uint16_t addr;
+};
+
+// Generic detection: iterates candidates, returns read fn on success
+imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count);
 

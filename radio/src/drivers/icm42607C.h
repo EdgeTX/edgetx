@@ -26,7 +26,11 @@
 
 #pragma once
 
+#include "hal/imu.h"
+
 #define ICM426xx_I2C_BASE_ADDR           0x68
+
+extern const etx_imu_driver_t imu_icm42607_driver;
 
 // Register addresses
 #define WHO_AM_I_REG          0x75

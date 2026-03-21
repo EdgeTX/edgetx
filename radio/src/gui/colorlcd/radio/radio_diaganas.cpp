@@ -132,7 +132,7 @@ class AnaViewWindow : public Window
     new StaticText(line, rect_t{}, "Tilt X");
     grid.setColSpan(1);
     new DynamicNumber<int16_t>(line, rect_t{},
-           [=]() { return gyro.scaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+           [=]() { return gyroScaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
     for (int i = 0; i < 3; i++) {grid.nextCell();}
 
@@ -143,7 +143,7 @@ class AnaViewWindow : public Window
     new StaticText(line, rect_t{}, "Tilt Y");
     grid.setColSpan(1);
     new DynamicNumber<int16_t>(line, rect_t{},
-           [=]() { return gyro.scaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+           [=]() { return gyroScaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 #endif
 
 #if defined(LUMINOSITY_SENSOR)
