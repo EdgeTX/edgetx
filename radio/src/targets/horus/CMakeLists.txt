@@ -291,7 +291,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
+  drivers/lsm6ds_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/sticks_pwm_driver.cpp

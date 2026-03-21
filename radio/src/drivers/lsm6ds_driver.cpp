@@ -25,12 +25,10 @@
 #if defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
 
 #include "hal/i2c_driver.h"
-#include "stm32_i2c_driver.h"
 #include "delays_driver.h"
 
 #include "definitions.h"
 
-#include <string.h>
 #include <stdint.h>
 
 static etx_i2c_bus_t s_i2c_bus;
@@ -209,52 +207,29 @@ static const char configure[][2] = {
   {LSM6DS_BDU_ADDR, 0x04}
 };
 
-#define I2C_TIMEOUT_MAX      10000
-#define I2C_LSM6DS_MAX_WRITE 32
-
-static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t* data, uint8_t len)
+static int write_reg(uint8_t reg, uint8_t val)
 {
-  uint8_t buffer[I2C_LSM6DS_MAX_WRITE];
-
-  if (len >= I2C_LSM6DS_MAX_WRITE - 1) return -1;
-
-  buffer[0] = reg;
-  memcpy(buffer + 1, data, len);
-  
-  return stm32_i2c_master_tx(s_i2c_bus, s_i2c_addr, buffer, len + 1, 100);
+  return i2c_write(s_i2c_bus, s_i2c_addr, reg, 1, &val, 1);
 }
 
-static int I2C_LSM6DS_WriteRegister(uint8_t reg, uint8_t value)
+static int read_reg(uint8_t reg)
 {
-  return I2C_LSM6DS_WriteRegister(reg, &value, 1);
+  uint8_t val = 0;
+  if (i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, &val, 1) < 0)
+    return -1;
+  return val;
 }
 
-static int I2C_LSM6DS_ReadRegister(uint8_t reg, uint8_t* data, uint8_t len)
+static int read_regs(uint8_t reg, uint8_t* data, uint8_t len)
 {
-  if (stm32_i2c_master_tx(s_i2c_bus, s_i2c_addr, &reg, 1, 10) < 0)
-    return -1;
-
-  uint8_t value = 0;
-  if (stm32_i2c_master_rx(s_i2c_bus, s_i2c_addr, data, len, 100) < 0)
-    return -1;
-
-  return value;
-}
-
-static int I2C_LSM6DS_ReadRegister(uint8_t reg)
-{
-  uint8_t value = 0;
-  if (I2C_LSM6DS_ReadRegister(reg, &value, 1) < 0)
-    return -1;
-
-  return value;
+  return i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, data, len);
 }
 
 static int lsm6dsRead(etx_imu_data_t* data)
 {
   // LSM6DS registers are contiguous: gyro X/Y/Z then accel X/Y/Z (little-endian)
   uint8_t buf[12];
-  if (I2C_LSM6DS_ReadRegister(LSM6DS_GYRO_OUT_X_L_ADDR, buf, sizeof(buf)) < 0)
+  if (read_regs(LSM6DS_GYRO_OUT_X_L_ADDR, buf, sizeof(buf)) < 0)
     return -1;
 
   int16_t* raw = (int16_t*)buf;
@@ -276,12 +251,12 @@ static int lsm6dsInit(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
 
   // LSM6DS33TR works with LSM6DSLTR code for our use
-  uint8_t id = I2C_LSM6DS_ReadRegister(LSM6DS_WHO_AM_I);
+  int id = read_reg(LSM6DS_WHO_AM_I);
   if (id != LSM6DSLTR_ID && id != LSM6DS33TR_ID)
     return -1;
 
   for (uint8_t i = 0; i < DIM(configure); i++) {
-    I2C_LSM6DS_WriteRegister(configure[i][0], configure[i][1]);
+    write_reg(configure[i][0], configure[i][1]);
   }
 
   return 0;

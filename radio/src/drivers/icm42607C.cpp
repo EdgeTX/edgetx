@@ -26,9 +26,8 @@
 
 #include "hal/i2c_driver.h"
 #include "hal/imu.h"
+#include "hal/gpio.h"
 
-#include "stm32_i2c_driver.h"
-#include "stm32_gpio.h"
 #include "delays_driver.h"
 
 #include "icm42607C.h"
@@ -36,19 +35,14 @@
 #include "inactivity_timer.h"
 #include "debug.h"
 
-#include "hal.h"
-
-constexpr uint32_t I2C_TIMEOUT = 5; // ms
-
 static etx_i2c_bus_t s_i2c_bus;
 static uint16_t s_i2c_addr;
 
 static int16_t __attribute__((unused)) get42607Temperature()
 {
-  uint8_t reg = TEMP_DATA_X0_REG;
   uint8_t buf[2] = {0};
 
-  if (stm32_i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, 2, I2C_TIMEOUT) < 0) {
+  if (i2c_read(s_i2c_bus, s_i2c_addr, TEMP_DATA_X0_REG, 1, buf, 2) < 0) {
     TRACE("ICM426xx ERROR: TEMP_DATA_X0_REG i2c read error");
     return -1;
   }
@@ -69,6 +63,7 @@ static void imu_exti_isr(void)
 }
 #endif
 
+#if defined(IMU_INT_GPIO)
 static int write_mreg1(uint8_t reg, uint8_t val) {
     if (write_cmd(BLK_SEL_W_REG, 0x00) < 0) return -1;
     if (write_cmd(MADDR_W_REG, reg) < 0) return -1;
@@ -76,6 +71,7 @@ static int write_mreg1(uint8_t reg, uint8_t val) {
     delay_us(10); // small delay as recommended by datasheet
     return 0;
 }
+#endif
 
 static int gyro42607Init(etx_i2c_bus_t bus, uint16_t addr)
 {
@@ -95,7 +91,7 @@ static int gyro42607Init(etx_i2c_bus_t bus, uint16_t addr)
   }
 
   uint8_t data = 0;
-  if (stm32_i2c_read(s_i2c_bus, s_i2c_addr, WHO_AM_I_REG, 1, &data, 1, I2C_TIMEOUT) < 0) {
+  if (i2c_read(s_i2c_bus, s_i2c_addr, WHO_AM_I_REG, 1, &data, 1) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
@@ -166,8 +162,7 @@ static int gyro42607Read(etx_imu_data_t* data)
 {
   uint8_t buf[6];
 
-  uint8_t reg = GYRO_DATA_X0_REG;
-  if (stm32_i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, 6, I2C_TIMEOUT) < 0) {
+  if (i2c_read(s_i2c_bus, s_i2c_addr, GYRO_DATA_X0_REG, 1, buf, 6) < 0) {
     TRACE("ICM426xx ERROR: gyro read error");
     return -1;
   }
@@ -175,8 +170,7 @@ static int gyro42607Read(etx_imu_data_t* data)
   data->gyro_y = -((int16_t)(buf[2] << 8) | buf[3]);
   data->gyro_z =  ((int16_t)(buf[4] << 8) | buf[5]);
 
-  reg = ACCEL_DATA_X0_REG;
-  if (stm32_i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, 6, I2C_TIMEOUT) < 0) {
+  if (i2c_read(s_i2c_bus, s_i2c_addr, ACCEL_DATA_X0_REG, 1, buf, 6) < 0) {
     TRACE("ICM426xx ERROR: accel read error");
     return -1;
   }

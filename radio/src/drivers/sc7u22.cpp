@@ -21,19 +21,14 @@
 
 #include "hal/i2c_driver.h"
 #include "hal/imu.h"
+#include "hal/gpio.h"
 
-#include "stm32_i2c_driver.h"
-#include "stm32_gpio.h"
 #include "delays_driver.h"
 
 #include "sc7u22.h"
 
 #include "inactivity_timer.h"
 #include "debug.h"
-
-#include "hal.h"
-
-constexpr uint32_t I2C_TIMEOUT = 5; // ms
 
 static etx_i2c_bus_t s_i2c_bus;
 static uint16_t s_i2c_addr;
@@ -45,8 +40,7 @@ static int write_reg(uint8_t reg, uint8_t val)
 
 static int read_regs(uint8_t reg, uint8_t *buf, uint8_t len)
 {
-  return stm32_i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, len,
-                        I2C_TIMEOUT);
+  return i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, buf, len);
 }
 
 static int soft_reset(void)
