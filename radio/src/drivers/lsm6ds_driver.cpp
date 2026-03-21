@@ -20,13 +20,11 @@
  */
 
 #include "hal/imu.h"
-#include "hal.h"
 #include "gyro.h"
 
 #if defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
 
 #include "hal/i2c_driver.h"
-#include "stm32_i2c_driver.h"
 #include "delays_driver.h"
 
 #include "definitions.h"
