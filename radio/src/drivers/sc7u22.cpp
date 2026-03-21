@@ -75,7 +75,7 @@ static void imu_exti_isr(void)
 }
 #endif
 
-static int16_t getSC7U22Temperature(void)
+static int16_t __attribute__((unused)) getSC7U22Temperature(void)
 {
   uint8_t buf[2] = {0};
 

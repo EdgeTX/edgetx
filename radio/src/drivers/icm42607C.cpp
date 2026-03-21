@@ -43,7 +43,7 @@ constexpr uint32_t I2C_TIMEOUT = 5; // ms
 static etx_i2c_bus_t s_i2c_bus;
 static uint16_t s_i2c_addr;
 
-static int16_t get42607Temperature()
+static int16_t __attribute__((unused)) get42607Temperature()
 {
   uint8_t reg = TEMP_DATA_X0_REG;
   uint8_t buf[2] = {0};
