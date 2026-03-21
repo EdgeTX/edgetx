@@ -38,15 +38,4 @@ jobs:
         run: uv run python3 json_validator.py ../../src/boards/hw_defs
 
       - name: Test template generation (all boards x all templates)
-        run: |
-          failed=0
-          for json in ../../src/boards/hw_defs/*.json; do
-            board="$(basename "$json" .json)"
-            for tmpl in *.jinja; do
-              if ! uv run python3 generate_hw_def.py -t "$tmpl" -T "$board" "$json" > /dev/null; then
-                echo "FAIL: board=$board template=$tmpl"
-                failed=1
-              fi
-            done
-          done
-          exit "$failed"
+        run: uv run python3 test_templates.py ../../src/boards/hw_defs
