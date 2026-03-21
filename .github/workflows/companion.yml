@@ -22,16 +22,30 @@ on:
     paths: *trigger-paths
 
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Build target'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - linux
+          - macos
+          - windows
 
 jobs:
-  linux:
+  build-linux:
     name: Linux
+    if: inputs.target == 'all' || inputs.target == 'linux' || inputs.target == ''
     uses: ./.github/workflows/linux_cpn.yml
 
-  macos:
+  build-macos:
     name: macOS
+    if: inputs.target == 'all' || inputs.target == 'macos' || inputs.target == ''
     uses: ./.github/workflows/macosx_cpn.yml
 
-  windows:
+  build-win64:
     name: Windows
+    if: inputs.target == 'all' || inputs.target == 'windows' || inputs.target == ''
     uses: ./.github/workflows/win_cpn-64.yml
