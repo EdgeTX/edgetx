@@ -57,11 +57,3 @@
 #define INT_SOURCE1_REG       0x2C
 #define INT_CONFIG_REG        0x06
 #define INT_STATUS2_REG       0x3B
-
-typedef struct {
-  float fTemperatureDegC; //°C
-  float fAccX, fAccY, fAccZ; // m/s^2
-  float fGyroXradps, fGyroYradps, fGyroZradps; // rad/s
-} sIMUoutput;
-
-extern sIMUoutput IMUoutput;
