@@ -11,7 +11,7 @@ on:
     paths:
       - 'radio/util/hw_defs/**'
       - 'radio/src/boards/hw_defs/**'
-  workflow_call:
+  workflow_dispatch:
 
 jobs:
   validate:
