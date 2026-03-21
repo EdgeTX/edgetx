@@ -1,7 +1,7 @@
 
-option(SIMU_TARGET "Configure libsimulator/simu targets" ON)
+option(SIMU_TARGET "Configure simu target" ON)
 if(NOT SIMU_TARGET)
-  message(STATUS "libsimulator/simu targets disabled")
+  message(STATUS "simu target disabled")
   return()
 endif()
 

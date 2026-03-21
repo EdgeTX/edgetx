@@ -27,7 +27,6 @@ else
 fi
 
 COMMON_OPTIONS+=" -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev"
-COMMON_OPTIONS+=" -DCMAKE_MODULE_PATH=/opt/wasi-sdk/share/cmake/"
 COMMON_OPTIONS+=" -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
@@ -53,6 +52,58 @@ if [[ -n "$GITHUB_ACTIONS" ]]; then
 fi
 
 BUILD_DIR="build/wasm"
+
+# Resolve WASI SDK: use WASI_SDK_PATH env, /opt/wasi-sdk, or auto-fetch
+resolve_wasi_sdk() {
+    if [[ -n "$WASI_SDK_PATH" ]] && [[ -d "$WASI_SDK_PATH" ]]; then
+        echo "Using WASI SDK from WASI_SDK_PATH=$WASI_SDK_PATH"
+        return 0
+    fi
+
+    if [[ -d "/opt/wasi-sdk" ]]; then
+        WASI_SDK_PATH="/opt/wasi-sdk"
+        echo "Using WASI SDK from /opt/wasi-sdk"
+        return 0
+    fi
+
+    echo "WASI SDK not found, fetching via cmake/FetchWasiSDK.cmake..."
+
+    # Run a minimal cmake project that reuses FetchWasiSDK.cmake to download
+    # the SDK. Downloads go into _deps/ which persists across plugin builds.
+    local fetch_dir="_wasi_sdk_fetch"
+    mkdir -p "$fetch_dir"
+    cat > "$fetch_dir/CMakeLists.txt" << CMAKEOF
+cmake_minimum_required(VERSION 3.14)
+project(wasi_sdk_fetch NONE)
+list(APPEND CMAKE_MODULE_PATH "${SRCDIR}/cmake")
+include(FetchWasiSDK)
+file(WRITE "\${CMAKE_CURRENT_BINARY_DIR}/wasi_sdk_path.txt" "\${WASI_SDK_PATH}")
+CMAKEOF
+
+    if ! cmake -S "$fetch_dir" -B "$fetch_dir/build" \
+        -DFETCHCONTENT_BASE_DIR="$PWD/_deps" 2>&1; then
+        echo "❌ Failed to fetch WASI SDK"
+        return 1
+    fi
+
+    WASI_SDK_PATH=$(cat "$fetch_dir/build/wasi_sdk_path.txt")
+    if [[ -z "$WASI_SDK_PATH" ]] || [[ ! -d "$WASI_SDK_PATH" ]]; then
+        echo "❌ WASI SDK path not resolved"
+        return 1
+    fi
+
+    echo "Using auto-fetched WASI SDK at $WASI_SDK_PATH"
+    return 0
+}
+
+if ! resolve_wasi_sdk; then
+    echo "❌ Cannot proceed without WASI SDK"
+    exit 1
+fi
+
+export WASI_SDK_PATH
+COMMON_OPTIONS+=" -DCMAKE_MODULE_PATH=${WASI_SDK_PATH}/share/cmake/"
+COMMON_OPTIONS+=" -DWASI_SDK_PREFIX=${WASI_SDK_PATH}"
 
 # Function to output error logs (works in both GitHub Actions and terminal)
 output_error_log() {
@@ -88,10 +139,9 @@ run_pipeline() {
     local context="$2"
     local show_details="${3:-false}"
     local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
-    local wasi_toolchain="/opt/wasi-sdk/share/cmake/wasi-sdk-pthread.cmake"
-
-    clean_build
-    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B ${BUILD_DIR} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+    local wasi_toolchain="${SRCDIR}/cmake/toolchain/wasi-threads.cmake"
+    
+    if ! execute_with_output "🔧 CMake config" "cmake --fresh -S ${SRCDIR} -B ${BUILD_DIR} --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Configuration)"
         return 1
     fi
@@ -113,11 +163,8 @@ execute_with_output() {
         echo "    $description..."
     fi
 
+    rm -f "$log_file"
     eval "$command" >> "$log_file" 2>&1
-}
-
-clean_build() {
-    rm -f "${BUILD_DIR}/CMakeCache.txt"
 }
 
 # Enhanced plugin builder with better error handling
