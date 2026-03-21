@@ -1200,6 +1200,7 @@
 #define TR_ALTSENSOR                   "Alt 傳感器"
 #define TR_CELLSENSOR                  "Cell 傳感器"
 #define TR_GPSSENSOR                   "GPS 傳感器"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "傳感器"
 #define TR_AUTOOFFSET                  "自動偏移值"
 #define TR_ONLYPOSITIVE                "正向"

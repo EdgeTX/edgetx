@@ -184,4 +184,5 @@ static int gyro42607Read(etx_imu_data_t* data)
 const etx_imu_driver_t imu_icm42607_driver = {
   gyro42607Init,
   gyro42607Read,
+  "ICM42607",
 };

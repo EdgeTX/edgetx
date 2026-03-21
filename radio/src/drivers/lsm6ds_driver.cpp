@@ -265,6 +265,7 @@ static int lsm6dsInit(etx_i2c_bus_t bus, uint16_t addr)
 const etx_imu_driver_t imu_lsm6ds_driver = {
   lsm6dsInit,
   lsm6dsRead,
+  "LSM6DS",
 };
 
 void gyroInit()

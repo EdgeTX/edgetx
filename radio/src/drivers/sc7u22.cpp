@@ -237,4 +237,5 @@ static int gyroSC7U22Read(etx_imu_data_t* data)
 const etx_imu_driver_t imu_sc7u22_driver = {
   gyroSC7U22Init,
   gyroSC7U22Read,
+  "SC7U22",
 };

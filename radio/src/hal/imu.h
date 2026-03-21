@@ -35,6 +35,7 @@ typedef int (*imu_read_fn)(etx_imu_data_t* data);
 struct etx_imu_driver_t {
   imu_init_fn init;
   imu_read_fn read;
+  const char* name;
 };
 
 struct etx_imu_t {
@@ -45,4 +46,7 @@ struct etx_imu_t {
 
 // Generic detection: iterates candidates, returns read fn on success
 imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count);
+
+// Returns the name of the detected IMU, or nullptr if none
+const char* imuGetName();
 
