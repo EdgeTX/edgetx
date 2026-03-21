@@ -1,0 +1,37 @@
+name: Companion
+
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    tags:
+      - v*
+    paths: &trigger-paths
+      - '.github/workflows/companion.yml'
+      - '.github/workflows/linux_cpn.yml'
+      - '.github/workflows/macosx_cpn.yml'
+      - '.github/workflows/win_cpn-64.yml'
+      - 'companion/**'
+      - 'tools/build-companion.sh'
+
+  pull_request:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths: *trigger-paths
+
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux
+    uses: ./.github/workflows/linux_cpn.yml
+
+  macos:
+    name: macOS
+    uses: ./.github/workflows/macosx_cpn.yml
+
+  windows:
+    name: Windows
+    uses: ./.github/workflows/win_cpn-64.yml
