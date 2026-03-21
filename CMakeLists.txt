@@ -80,56 +80,50 @@ if(EdgeTX_SUPERBUILD)
     EXCLUDE_FROM_ALL TRUE
   )
 
-  if(DEFINED CMAKE_BUILD_PARALLEL_LEVEL)
-    set(PARALLEL_FLAG --parallel ${CMAKE_BUILD_PARALLEL_LEVEL})
-  else()
-    set(PARALLEL_FLAG --parallel)
-  endif()
-
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
 
   add_custom_target(libsimulator
-    COMMAND ${CMAKE_COMMAND} --build native --target libsimulator ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target libsimulator
     DEPENDS native-configure
   )
 
   add_custom_target(simulator
-    COMMAND ${CMAKE_COMMAND} --build native --target simulator ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target simulator
     DEPENDS native-configure
   )
 
   add_custom_target(simu
-    COMMAND ${CMAKE_COMMAND} --build native --target simu ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target simu
   )
 
   add_custom_target(companion
-    COMMAND ${CMAKE_COMMAND} --build native --target companion ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target companion
     DEPENDS native-configure
   )
 
   add_custom_target(gtests-radio
-    COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
     DEPENDS native-configure
   )
 
   add_custom_target(tests-radio
-    COMMAND ${CMAKE_COMMAND} --build native --target tests-radio ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
     DEPENDS native-configure
   )
 
   add_custom_target(bootloader
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
     DEPENDS arm-none-eabi-configure
   )
 
   add_custom_target(firmware
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
     DEPENDS arm-none-eabi-configure
   )
 
   add_custom_target(firmware-size
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
     DEPENDS arm-none-eabi-configure
   )
 
