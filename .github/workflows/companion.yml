@@ -10,12 +10,16 @@ on:
       - '.github/workflows/companion.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
+      - 'tools/build-wasm-modules.sh'
+      - 'cmake/wasm/CMakeLists.txt'
 
   pull_request:
     paths:
       - '.github/workflows/companion.yml'
       - 'companion/**'
       - 'tools/build-companion.sh'
+      - 'tools/build-wasm-modules.sh'
+      - 'cmake/wasm/CMakeLists.txt'
 
   workflow_dispatch:
 
