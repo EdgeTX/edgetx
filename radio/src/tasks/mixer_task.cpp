@@ -138,10 +138,6 @@ void execMixerFrequentActions()
 
 void mixerTask()
 {
-#if defined(IMU)
-  gyroStart(gyroInit());
-#endif
-
   while (task_running()) {
 
     int timeout = 0;

@@ -21,10 +21,12 @@
 
 #include "hal/imu.h"
 #include "hal.h"
+#include "gyro.h"
 
 #if defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
 
 #include "hal/i2c_driver.h"
+#include "stm32_i2c_driver.h"
 #include "delays_driver.h"
 
 #include "definitions.h"
@@ -267,16 +269,16 @@ const etx_imu_driver_t imu_lsm6ds_driver = {
   lsm6dsRead,
 };
 
-imu_read_fn gyroInit()
+void gyroInit()
 {
   const etx_imu_t candidates[] = {
     { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
   };
-  return imuDetect(candidates, DIM(candidates));
+  gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 
 #else
 
-imu_read_fn gyroInit() { return nullptr; }
+void gyroInit() {}
 
 #endif

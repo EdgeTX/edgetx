@@ -48,6 +48,7 @@
 #include "sdcard.h"
 #include "debug.h"
 #include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
@@ -262,6 +263,10 @@ void boardInit()
 
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
+#endif
+
+#if defined(IMU)
+  gyroInit();
 #endif
 }
 

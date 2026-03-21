@@ -246,6 +246,10 @@ void boardInit()
   ledGreen();
   #endif
 #endif
+
+#if defined(IMU)
+  gyroInit();
+#endif
 }
 #endif
 

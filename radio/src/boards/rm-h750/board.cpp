@@ -83,9 +83,9 @@ static const etx_imu_t _imu_candidates[] = {
 #endif
 };
 
-imu_read_fn gyroInit()
+void gyroInit()
 {
-  return imuDetect(_imu_candidates, DIM(_imu_candidates));
+  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
 }
 
 static void led_strip_off()
@@ -203,6 +203,10 @@ void boardInit()
 
   // RTC must be initialized before rambackupRestore() is called
   rtcInit();
+
+#if defined(IMU)
+  gyroInit();
+#endif
 }
 
 extern void rtcDisableBackupReg();

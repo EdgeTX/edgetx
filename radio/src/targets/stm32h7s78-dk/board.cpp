@@ -40,6 +40,7 @@
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+#include "gyro.h"
 
 #include "timers_driver.h"
 #include "tp_gt911.h"
@@ -123,6 +124,10 @@ void boardInit()
 
   delay_ms(50); // GT911 is a bit slow on power ON
   touchPanelInit();
+
+#if defined(IMU)
+  gyroInit();
+#endif
 }
 
 extern void rtcDisableBackupReg();

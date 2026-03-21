@@ -21,4 +21,4 @@
 
 #include "hal/imu.h"
 
-imu_read_fn gyroInit() { return nullptr; }
+void gyroInit() {}

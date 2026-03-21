@@ -39,4 +39,4 @@ int16_t gyroScaledY();
 extern int16_t gyroOutputs[2];
 
 // implemented by the board
-imu_read_fn gyroInit();
+void gyroInit();
