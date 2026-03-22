@@ -311,9 +311,19 @@ bool isSourceAvailable(int source)
             );
 }
 
+bool isSourceAvailable(const SourceRef& ref)
+{
+  return isSourceAvailable(sourceRefToMixSrc(ref));
+}
+
 bool isSourceAvailableForBacklightOrVolume(int source)
 {
   return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
+}
+
+bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref)
+{
+  return isSourceAvailableForBacklightOrVolume(sourceRefToMixSrc(ref));
 }
 
 bool isLogicalSwitchAvailable(int index)

@@ -88,7 +88,7 @@ void menuModelCurvesAll(event_t event)
       CURVE_SELECTED()) {
 
     s_currIdxSubMenu = sub;
-    s_currSrcRaw = MIXSRC_NONE;
+    s_currSrcRaw.clear();
     pushMenu(menuModelCurveOne);
   }
 
@@ -218,13 +218,11 @@ void drawFunction(FnFuncP fn, uint8_t offset)
 
 void drawCursor(FnFuncP fn, uint8_t offset)
 {
-  int16_t src = abs(s_currSrcRaw);
-
   int x512 = getValue(s_currSrcRaw);
-  if (src >= MIXSRC_FIRST_TELEM) {
+  if (s_currSrcRaw.type == SOURCE_TYPE_TELEMETRY) {
     if (s_currScale > 0)
-      x512 = (x512 * 1024) / convertTelemValue(src - MIXSRC_FIRST_TELEM + 1, s_currScale);
-    drawSensorCustomValue(LCD_W - FW - offset, 6 * FH, (src - MIXSRC_FIRST_TELEM) / 3, x512, 0);
+      x512 = (x512 * 1024) / convertTelemValue(s_currSrcRaw.index + 1, s_currScale);
+    drawSensorCustomValue(LCD_W - FW - offset, 6 * FH, s_currSrcRaw.index / 3, x512, 0);
   }
   else {
     lcdDrawNumber(LCD_W - FW - offset, 6*FH, calcRESXto1000(x512), RIGHT | PREC1);

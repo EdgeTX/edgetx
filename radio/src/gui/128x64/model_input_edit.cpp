@@ -32,7 +32,7 @@ int expoFn(int x)
 {
   ExpoData * ed = expoAddress(s_currIdx);
   int16_t anas[MAX_INPUTS] = {0};
-  applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(ed->srcRaw), x);
+  applyExpos(anas, e_perout_mode_inactive_flight_mode, ed->srcRaw, x);
   return anas[ed->chn];
 }
 
@@ -182,7 +182,7 @@ void menuModelExpoOne(event_t event)
 
   drawFunction(expoFn);
   // those parameters are global so that they can be reused in the curve edit screen
-  s_currSrcRaw = sourceRefToMixSrc(ed->srcRaw);
+  s_currSrcRaw = ed->srcRaw;
   s_currScale = ed->scale;
   drawCursor(expoFn);
 }

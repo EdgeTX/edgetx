@@ -174,7 +174,7 @@ void menuModelCurveOne(event_t event)
   }
 
   drawCurve(FW);
-  if (s_currSrcRaw != MIXSRC_NONE)
+  if (!s_currSrcRaw.isNone())
     drawCursor(applyCurrentCurve, FW);
 
   uint8_t posY = FH+1;
