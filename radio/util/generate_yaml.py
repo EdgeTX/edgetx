@@ -417,7 +417,7 @@ def parse_field(ast,node):
                 ea_attrs = a['val'].split('|')
                 f.name = ea_attrs[0]  # use the tag name, not _dummy_tag
                 f.type = 'extern_array'
-                f.length = int(ea_attrs[1])
+                f.length = ea_attrs[1]  # may be a number or a C define name
                 f.var_type = ea_attrs[2]
                 f.extern_get_ptr = ea_attrs[3]
                 f.bits = 0  # zero-size in parent struct
