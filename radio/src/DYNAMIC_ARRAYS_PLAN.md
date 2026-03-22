@@ -104,46 +104,41 @@ Platform arena sizes need updating:
 
 ## Remaining Work (Phase 3b cleanup)
 
-~79 bridge function usages remain, categorized as:
+Bridge function usages remain in two boundary categories (YAML, Lua) plus some unconverted GUI/infrastructure code.
 
-### Permanent: YAML format translation (12 usages)
-`yaml_datastructs_funcs.cpp` — `r_logicSw`/`w_logicSw`, `r_mixSrcRawEx`/`w_mixSrcRawEx`, `r_swtchSrc`/`w_swtchSrc` use bridges to translate between YAML integer format and SourceRef/SwitchRef. These are the format boundary and remain until YAML format changes.
+### Permanent boundaries
 
-### Encapsulated infrastructure (19 usages)
-- `gui_common.cpp` (6): `isSourceAvailable`/`isSwitchAvailable` SourceRef overloads delegate to int versions
-- `widgets_common.cpp` (7): `checkIncDecSwitch`/`checkIncDecSource` internals
-- `myeeprom.h` (5): declarations + `CFN_SWITCH` macro
-- `switches.h` (1): forward declaration
+#### YAML format translation (~20 usages)
+`yaml_datastructs_funcs.cpp` — `r_logicSw`/`w_logicSw`, `r_customFn`/`w_customFn`, `r_mixSrcRawEx`/`w_mixSrcRawEx`, `r_swtchSrc`/`w_swtchSrc` use bridges to translate between YAML integer format and SourceRef/SwitchRef. These are the format boundary and remain until YAML format changes.
 
-### Structural: data still stored as integers (48 usages)
+#### Lua API (~30 usages)
+`lua/api_model.cpp`, `lua/api_general.cpp`, `lua/api_stdlcd.cpp`, `lua/api_colorlcd.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`. SourceRef/SwitchRef are exposed as 32-bit integers to Lua. Bridge functions at this boundary are acceptable.
 
-These need data structure or function signature changes:
-
-#### CFN_PARAM (10 usages)
-`CustomFunctionData.all.val` is `int16_t`. For some function types it stores a MixSources value. Needs either expansion to SourceRef or a CFN_PARAM-specific union.
-
-Files: `functions.cpp`, `special_functions.cpp` (all 3 variants), `strhelpers.cpp`.
+### Remaining conversion targets
 
 #### source_t telemetry fields (8 usages)
-`FrSkyBarData.source`, `FrSkyLineData.sources[]` use `source_t` (uint16_t). These are in stdlcd telemetry display screens.
+`FrSkyBarData.source`, `FrSkyLineData.sources[]` still use `source_t` (uint16_t). Display code bridges via `sourceRefToMixSrc()`.
 
 Files: `model_display.cpp` (128x64, 212x64), `view_telemetry.cpp` (128x64, 212x64).
 
-#### strhelpers iteration (4 usages)
-`getSourceString` backward-compat paths and `getValueOrSrcVarString` still iterate enum values internally.
+#### Logical switch display (6 usages)
+`model_logical_switches.cpp` (all 3 UI variants) and `view_logical_switches.cpp` use `sourceRefToMixSrc()` to get integer source values for range-based display logic.
 
-#### drawSourceCustomValue / drawTimerMode (2 usages)
-These functions still take `mixsrc_t` / `swsrc_t` parameters.
+#### strhelpers iteration (3 usages)
+`getValueOrSrcVarString`, `getSwitchIndex`, `getSourceString` backward-compat paths still bridge internally.
 
-Files: `lcd_common.cpp`, `model_logical_switches.cpp`.
+Files: `strhelpers.cpp`.
 
-#### Misc (14 usages)
-`source_numberedit.cpp` (2), `sourcechoice.cpp` (1), `switchchoice.cpp` (1), `list_line_button.cpp` (1), `mixer_edit.cpp` (1), `input_edit.cpp` (1), widgets (2), `radio_setup.cpp` (1), `edgetx.cpp` (1), `view_logical_switches.cpp` (1).
+#### getMixSrcRange (1 usage)
+`edgetx.cpp` calls `getMixSrcRange(sourceRefToMixSrc(source), ...)`. Needs native SourceRef overload.
 
-### Next: YAML serialization update
-The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
+#### checkIncDecMovedSwitch (1 usage)
+`navigation/common.cpp` still has the legacy `checkIncDecMovedSwitch(swsrc_t)` using `switchRefToSwSrc`. Dead code — auto-switch is now handled natively in `checkIncDecSwitch`.
 
-### Completed cleanup items (3b.1-3b.9)
+#### myeeprom.h declarations (5 usages)
+Bridge function declarations + `CFN_SWITCH` macro. Can be cleaned up once Lua API is converted.
+
+### Completed cleanup items
 - ✅ 3b.1: isSourceAvailable/isSwitchAvailable SourceRef overloads
 - ✅ 3b.2: applyExpos parameter → SourceRef
 - ✅ 3b.3: s_currSrcRaw → SourceRef
@@ -153,79 +148,23 @@ The generated YAML struct definitions still reference old field bit widths. Need
 - ✅ 3b.7: source_numberedit ValueOrSource constructor
 - ✅ 3b.8: widget_settings memcpy storage
 - ✅ 3b.9: backward-compat overloads removed (getSourceString, drawSource, drawSwitch, getSwitchPositionName, getSwitch)
+- ✅ 3b.10: checkIncDecSource/checkIncDecSwitch with type bitmasks (native iteration, no bridge)
 - ✅ 3b.11: Lua API plan (32-bit SourceRef↔integer)
+- ✅ 3b.12: editCurveRef converted to native ValueOrSource
+- ✅ 3b.13: LS/SF stdlcd editors converted to checkIncDecSource/Switch
+- ✅ 3b.14: editValueOrSource for weight/offset (pointer-based, replaces editSrcVarFieldValue)
+- ✅ 3b.15: Native auto-source/auto-switch popups in checkIncDecSource/Switch
+- ✅ 3b.16: Removed legacy navigation popup system (onSourceLongEnterPress, onSwitchLongEnterPress, showPopupMenus, checkMovedInput, checkIncDecSelection)
+- ✅ 3b.17: Removed INCDEC_SOURCE/SWITCH flags, CHECK_INCDEC_SWITCH macros, isSourceAvailableInt
+- ✅ 3b.18: Removed dead checkIncDec(int, ..., srcMin, srcMax) overload
+- ✅ 3b.19: Simplified navigation_9x/navigation_x7 checkIncDec to standalone (no source/switch handling)
 
-### 3b.1 (historical — kept for reference)
-Convert `isSourceAvailable`/`isSwitchAvailable` to SourceRef/SwitchRef
+### Next steps
 
-These filter functions are called from SourceChoice/SwitchChoice availability handlers, GUI editors, and `checkIncDecSource`/`checkIncDecSwitch`. Currently take `mixsrc_t`/`swsrc_t`.
-
-Files: `gui/gui_common.cpp`, `gui_common.h`, all callers.
-
-### 3b.2 Convert `applyExpos()` parameter from `mixsrc_t` to `SourceRef`
-
-`applyExpos(anas, mode, mixsrc_t srcRaw, value)` is called from input_edit preview code (colorlcd + stdlcd). Change to `SourceRef`.
-
-Files: `mixer.cpp` (declaration), `edgetx.h`, `gui/colorlcd/model/input_edit.cpp`, `gui/128x64/model_input_edit.cpp`, `gui/212x64/model_input_edit.cpp`.
-
-### 3b.3 Convert `s_currSrcRaw` from `mixsrc_t` to `SourceRef`
-
-Global variable used by stdlcd input/mix editors for "current source being edited". Change type and all assignments/reads.
-
-Files: `gui/128x64/model_input_edit.cpp`, `gui/128x64/model_mix_edit.cpp`, `gui/212x64/model_input_edit.cpp`, `gui/212x64/model_mix_edit.cpp`.
-
-### 3b.4 Convert `LogicalSwitchData.v1`/`v2` to typed fields
-
-These are currently `int16_t` (widened from `:10` but not yet structured). They're polymorphic — hold either a source or switch depending on `func`. Options:
-- Use a union: `union { SourceRef src; SwitchRef sw; int16_t value; }`
-- Or keep as `int16_t` and bridge at access sites
-
-This is the hardest item due to the polymorphic semantics.
-
-Files: `datastructs_private.h`, `switches.cpp`, `yaml_datastructs_funcs.cpp`, `model_logical_switches.cpp` (all 3 UI variants).
-
-### 3b.5 Convert `getSourceTrimValue`/`calcVolumeValue`/`calcBacklightValue`
-
-Internal mixer functions that take `mixsrc_t`. Change to `SourceRef`.
-
-Files: `mixer.cpp`.
-
-### 3b.6 Convert throttle source accessors
-
-`thrTraceSrc`, `getThrottleStickTrimSource()`, `throttleSource2Source()`, `source2ThrottleSource()` work with `mixsrc_t`. Change to `SourceRef`.
-
-Files: `datastructs_private.h`, `model_setup.cpp`, `throttle_params.cpp`.
-
-### 3b.7 Convert `source_numberedit.cpp`
-
-`SourceNumberEdit` bridges ValueOrSource↔SourceNumVal for the weight/offset editors. Needs native ValueOrSource support.
-
-Files: `gui/colorlcd/controls/source_numberedit.cpp`.
-
-### 3b.8 Convert widget data source/switch storage
-
-Widget option data stores source/switch as integers. Bridge at the widget_settings boundary.
-
-Files: `gui/colorlcd/mainview/widget_settings.cpp`.
-
-### 3b.9 Remove backward-compatible overloads
-
-Once all above items are done:
-- Remove `getValue(mixsrc_t)` overload
-- Remove `getSwitch(swsrc_t)` inline overload
-- Remove `getSourceString(mixsrc_t)` overloads
-- Remove `getSwitchPositionName(swsrc_t)` overloads
-- Remove `drawSource(mixsrc_t)` / `drawSwitch(swsrc_t)` overloads
-- Remove `CFN_SWITCH` macro (callers use `cfn->swtch` directly)
-- Remove bridge function declarations from `myeeprom.h`
-- Keep bridge functions in `mixer.cpp` as `static` (only used by Lua API)
-
-### 3b.10 YAML serialization update
-
+#### 3b.20 YAML serialization update
 The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
 
-### 3b.11 Lua API
-
+#### 3b.21 Lua API conversion
 SourceRef and SwitchRef are 4 bytes = a 32-bit integer, which Lua supports natively. The Lua API can pack/unpack these directly:
 
 ```cpp
@@ -235,7 +174,10 @@ SourceRef intToSourceRef(uint32_t v);
 
 No bridge functions needed. Lua scripts use the same type+index addressing as the firmware. The old `MIXSRC_*` / `SWSRC_*` Lua constants become pre-computed 32-bit SourceRef/SwitchRef values.
 
-Files: `lua/api_model.cpp`, `lua/api_general.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`. Also update Lua constant definitions to generate SourceRef-packed values instead of MixSources enum values.
+Files: `lua/api_model.cpp`, `lua/api_general.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`, `lua/api_stdlcd.cpp`, `lua/api_colorlcd.cpp`. Also update Lua constant definitions.
+
+#### 3b.22 Remaining GUI bridge elimination
+Convert telemetry display, logical switch display, and strhelpers to use SourceRef/SwitchRef natively without bridging through MixSources/SwitchSources integers.
 
 ---
 
@@ -258,12 +200,12 @@ Files: `lua/api_model.cpp`, `lua/api_general.cpp`, `lua/interface.cpp`, `lua/lua
 
 ## Known Issues
 
-1. **STM32F4 arena undersize**: default layout (6,208 B) exceeds `MODEL_ARENA_SIZE` (4096 B). Must be resolved.
+1. **STM32F4 arena undersize**: default layout (6,976 B) exceeds `MODEL_ARENA_SIZE` (4096 B). Must be resolved before merging.
 
-2. **Bridge functions**: `sourceRefToMixSrc()`, `switchRefToSwSrc()` etc. are temporary. They reconstruct old enum values from structured refs and are used by `getValue()`/`getSwitch()`/GUI code that hasn't been fully migrated.
+2. **Bridge functions**: `sourceRefToMixSrc()`, `switchRefToSwSrc()` etc. remain for YAML and Lua API boundaries. Non-boundary usage reduced to ~20 sites (telemetry display, logical switch display, strhelpers, getMixSrcRange).
 
 3. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
 
 4. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
 
-5. **Duplicate bridge functions**: RESOLVED — `mixSrcToSourceRef()` and `swSrcToSwitchRef()` are now defined in `mixer.cpp` and declared in `myeeprom.h`. All static duplicates removed.
+5. **Dead code**: RESOLVED — removed `legacyToValueOrSource()`, `checkIncDecMovedSwitch()`, `stopsSwitch`, `CATEGORY_END`, and unused `valueOrSourceToLegacy` extern declarations.

@@ -25,31 +25,6 @@
 #include "hal/switch_driver.h"
 #include "switches.h"
 
-#if defined(AUTOSWITCH)
-swsrc_t checkIncDecMovedSwitch(swsrc_t val)
-{
-  SwitchRef moved = getMovedSwitch();
-  if (!moved.isNone()) {
-    swsrc_t swtch = switchRefToSwSrc(moved);
-    if (moved.type == SWITCH_TYPE_SWITCH) {
-      div_t info = switchInfo(swtch);
-      if (IS_CONFIG_TOGGLE(info.quot)) {
-        if (info.rem != 0) {
-          val = (val == swtch ? swtch-2 : swtch);
-        }
-      }
-      else {
-        val = swtch;
-      }
-    }
-    else {
-      val = swtch;
-    }
-  }
-  return val;
-}
-#endif
-
 void repeatLastCursorMove(event_t event)
 {
   if (IS_PREVIOUS_MOVE_EVENT(event) || IS_NEXT_MOVE_EVENT(event)) {

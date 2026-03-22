@@ -25,7 +25,6 @@
 #include "hal/adc_driver.h"
 #include "analogs.h"
 
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 
 #if defined(MULTIMODULE)
 void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t protocol, LcdFlags flags)

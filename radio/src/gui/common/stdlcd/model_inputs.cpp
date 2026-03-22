@@ -24,7 +24,6 @@
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 
 #define _STRING_MAX(x)                     "/" #x
 #define STRING_MAX(x)                     _STRING_MAX(x)

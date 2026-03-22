@@ -22,9 +22,6 @@
 #include "edgetx.h"
 #include "mixes.h"
 
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
-
-static ValueOrSource legacyToValueOrSource(int32_t rawValue);
 
 enum MixFields {
   MIX_FIELD_NAME,
@@ -211,34 +208,4 @@ void menuModelMixOne(event_t event)
     }
     y += FH;
   }
-}
-
-static ValueOrSource legacyToValueOrSource(int32_t rawValue)
-{
-  ValueOrSource vos = {};
-  SourceNumVal v;
-  v.rawValue = rawValue;
-  if (v.isSource) {
-    vos.isSource = 1;
-    mixsrc_t src = v.value;
-    if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
-      vos.srcType = SOURCE_TYPE_GVAR;
-      vos.value = src - MIXSRC_FIRST_GVAR;
-    } else if (src >= MIXSRC_FIRST_INPUT && src <= MIXSRC_LAST_INPUT) {
-      vos.srcType = SOURCE_TYPE_INPUT;
-      vos.value = src - MIXSRC_FIRST_INPUT;
-    } else if (src >= MIXSRC_FIRST_STICK && src <= MIXSRC_LAST_STICK) {
-      vos.srcType = SOURCE_TYPE_STICK;
-      vos.value = src - MIXSRC_FIRST_STICK;
-    } else if (src >= MIXSRC_FIRST_CH && src <= MIXSRC_LAST_CH) {
-      vos.srcType = SOURCE_TYPE_CHANNEL;
-      vos.value = src - MIXSRC_FIRST_CH;
-    } else {
-      vos.srcType = 0;
-      vos.value = src;
-    }
-  } else {
-    vos.setNumeric(v.value);
-  }
-  return vos;
 }
