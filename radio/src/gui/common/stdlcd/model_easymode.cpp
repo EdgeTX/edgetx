@@ -32,15 +32,21 @@ enum MenuModelEasyModeItems {
   ITEM_EASYMODE_CH_AIL,
   ITEM_EASYMODE_CH_AIL2,
   ITEM_EASYMODE_CH_ELE,
+  ITEM_EASYMODE_CH_ELE2,
   ITEM_EASYMODE_CH_THR,
   ITEM_EASYMODE_CH_RUD,
   ITEM_EASYMODE_CH_STEER,
   ITEM_EASYMODE_CH_FLAP,
+  ITEM_EASYMODE_SRC_FLAP,
   ITEM_EASYMODE_CH_FLAP2,
   ITEM_EASYMODE_CH_FLAP3,
   ITEM_EASYMODE_CH_FLAP4,
+  ITEM_EASYMODE_CROW,
+  ITEM_EASYMODE_SRC_MOTOR,
   ITEM_EASYMODE_CH_AUX1,
+  ITEM_EASYMODE_SRC_AUX1,
   ITEM_EASYMODE_CH_AUX2,
+  ITEM_EASYMODE_SRC_AUX2,
   ITEM_EASYMODE_OPT_HEADER,
   ITEM_EASYMODE_OPT_EXPO_AIL,
   ITEM_EASYMODE_OPT_EXPO_ELE,
@@ -48,7 +54,18 @@ enum MenuModelEasyModeItems {
   ITEM_EASYMODE_OPT_DR_LOW,
   ITEM_EASYMODE_OPT_AIL_DIFF,
   ITEM_EASYMODE_OPT_AIL2RUD,
+  ITEM_EASYMODE_OPT_FLAP2ELE,
   ITEM_EASYMODE_OPT_CH_ORDER,
+  ITEM_EASYMODE_MIX_HEADER,
+  ITEM_EASYMODE_MIX1_SRC,
+  ITEM_EASYMODE_MIX1_CH,
+  ITEM_EASYMODE_MIX1_WT,
+  ITEM_EASYMODE_MIX2_SRC,
+  ITEM_EASYMODE_MIX2_CH,
+  ITEM_EASYMODE_MIX2_WT,
+  ITEM_EASYMODE_MIX3_SRC,
+  ITEM_EASYMODE_MIX3_CH,
+  ITEM_EASYMODE_MIX3_WT,
   ITEM_EASYMODE_CONVERT,
   ITEM_EASYMODE_MAX
 };
@@ -135,38 +152,75 @@ static bool needsFlap2(const EasyModeData& em)
   return em.wingType == EASYWING_2AIL_2FLAP || em.wingType == EASYWING_2AIL_4FLAP;
 }
 
+static bool needsEle2(const EasyModeData& em)
+{
+  return (em.tailType == EASYTAIL_DUAL_ELEVATOR || em.tailType == EASYTAIL_AILEVATOR) &&
+         em.channels.elevator2 >= 0;
+}
+
+static bool needsCrow(const EasyModeData& em)
+{
+  return (em.modelType == EASYMODE_GLIDER || em.modelType == EASYMODE_AIRPLANE) &&
+         needsFlap(em);
+}
+
+static bool needsMotorSwitch(const EasyModeData& em)
+{
+  return em.modelType == EASYMODE_GLIDER && em.motorType != EASYMOTOR_NONE;
+}
+
 // Compute which rows are visible
 static uint8_t getRowVisibility(uint8_t k)
 {
   auto& em = g_easyMode;
+  bool isHeli = (em.modelType == EASYMODE_HELICOPTER);
+  bool isMulti = (em.modelType == EASYMODE_MULTIROTOR);
+  bool active = (em.modelType != EASYMODE_NONE);
 
   switch (k) {
     case ITEM_EASYMODE_MODEL_TYPE:   return 0;
     case ITEM_EASYMODE_WING_TYPE:    return needsWingType(em.modelType) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_TAIL_TYPE:    return needsTailType(em.modelType) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_MOTOR_TYPE:   return isAirType(em.modelType) ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_CH_HEADER:    return em.modelType != EASYMODE_NONE ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_CH_HEADER:    return active ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_AIL:       return isAirType(em.modelType) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_AIL2:      return needsAileron2(em) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_ELE:       return isAirType(em.modelType) ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_CH_THR:       return (em.motorType != EASYMOTOR_NONE || isSurfaceType(em.modelType) || em.modelType == EASYMODE_MULTIROTOR) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_CH_ELE2:      return needsEle2(em) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_CH_THR:       return (em.motorType != EASYMOTOR_NONE || isSurfaceType(em.modelType) || isMulti) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_RUD:       return isAirType(em.modelType) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_STEER:     return isSurfaceType(em.modelType) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_FLAP:      return needsFlap(em) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_SRC_FLAP:     return needsFlap(em) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_FLAP2:     return needsFlap2(em) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_FLAP3:     return (em.wingType == EASYWING_2AIL_4FLAP) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_FLAP4:     return (em.wingType == EASYWING_2AIL_4FLAP) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_CROW:         return needsCrow(em) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_SRC_MOTOR:    return needsMotorSwitch(em) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_AUX1:      return (em.channels.aux1 >= 0) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_SRC_AUX1:     return (em.channels.aux1 >= 0 && (isHeli || isMulti)) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_CH_AUX2:      return (em.channels.aux2 >= 0) ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_OPT_HEADER:   return em.modelType != EASYMODE_NONE ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_SRC_AUX2:     return (em.channels.aux2 >= 0 && isMulti) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_OPT_HEADER:   return active ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_OPT_EXPO_AIL: return isAirType(em.modelType) ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_OPT_EXPO_ELE: return isAirType(em.modelType) && !isSurfaceType(em.modelType) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_OPT_EXPO_ELE: return (isAirType(em.modelType) && !isSurfaceType(em.modelType)) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_OPT_EXPO_RUD: return isAirType(em.modelType) ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_OPT_DR_LOW:   return em.modelType != EASYMODE_NONE ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_OPT_DR_LOW:   return active ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_OPT_AIL_DIFF: return needsAileron2(em) ? 0 : HIDDEN_ROW;
     case ITEM_EASYMODE_OPT_AIL2RUD:  return (isAirType(em.modelType) && em.channels.rudder >= 0) ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_OPT_CH_ORDER: return em.modelType == EASYMODE_MULTIROTOR ? 0 : HIDDEN_ROW;
-    case ITEM_EASYMODE_CONVERT:      return em.modelType != EASYMODE_NONE ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_OPT_FLAP2ELE: return needsFlap(em) ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_OPT_CH_ORDER: return isMulti ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_MIX_HEADER:   return active ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_MIX1_SRC:
+    case ITEM_EASYMODE_MIX1_CH:
+    case ITEM_EASYMODE_MIX1_WT:
+    case ITEM_EASYMODE_MIX2_SRC:
+    case ITEM_EASYMODE_MIX2_CH:
+    case ITEM_EASYMODE_MIX2_WT:
+    case ITEM_EASYMODE_MIX3_SRC:
+    case ITEM_EASYMODE_MIX3_CH:
+    case ITEM_EASYMODE_MIX3_WT:      return active ? 0 : HIDDEN_ROW;
+    case ITEM_EASYMODE_CONVERT:      return active ? 0 : HIDDEN_ROW;
     default: return HIDDEN_ROW;
   }
 }
@@ -182,6 +236,15 @@ static int8_t editChannel(const char* label, coord_t y, int8_t ch, LcdFlags attr
   return val - 1;
 }
 
+static uint16_t editSource(const char* label, coord_t y, uint16_t val,
+                            uint16_t max, LcdFlags attr, event_t event)
+{
+  lcdDrawTextAlignedLeft(y, label);
+  drawSource(EASYMODE_COL2, y, val, attr);
+  if (attr) CHECK_INCDEC_MODELSOURCE(event, val, 0, max);
+  return val;
+}
+
 void menuModelEasyMode(event_t event)
 {
   auto& em = g_easyMode;
@@ -191,8 +254,8 @@ void menuModelEasyMode(event_t event)
     rowVisibility[i] = getRowVisibility(i);
 
   MENU(STR_EASYMODE, menuTabModel, MENU_MODEL_EASYMODE, HEADER_LINE + ITEM_EASYMODE_MAX,
-       { (uint8_t)(NAVIGATION_LINE_BY_LINE | rowVisibility[0]), rowVisibility[1],
-         rowVisibility[2], rowVisibility[3],
+       { (uint8_t)(NAVIGATION_LINE_BY_LINE | rowVisibility[0]),
+         rowVisibility[1], rowVisibility[2], rowVisibility[3],
          rowVisibility[4], rowVisibility[5], rowVisibility[6],
          rowVisibility[7], rowVisibility[8], rowVisibility[9],
          rowVisibility[10], rowVisibility[11], rowVisibility[12],
@@ -200,7 +263,12 @@ void menuModelEasyMode(event_t event)
          rowVisibility[16], rowVisibility[17], rowVisibility[18],
          rowVisibility[19], rowVisibility[20], rowVisibility[21],
          rowVisibility[22], rowVisibility[23], rowVisibility[24],
-         rowVisibility[25] });
+         rowVisibility[25], rowVisibility[26], rowVisibility[27],
+         rowVisibility[28], rowVisibility[29], rowVisibility[30],
+         rowVisibility[31], rowVisibility[32], rowVisibility[33],
+         rowVisibility[34], rowVisibility[35], rowVisibility[36],
+         rowVisibility[37], rowVisibility[38], rowVisibility[39],
+         rowVisibility[40], rowVisibility[41], rowVisibility[42] });
 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
   coord_t y = MENU_HEADER_HEIGHT + 1;
@@ -287,6 +355,11 @@ void menuModelEasyMode(event_t event)
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
 
+      case ITEM_EASYMODE_CH_ELE2:
+        em.channels.elevator2 = editChannel(STR_EASYMODE_CH_ELE2, y, em.channels.elevator2, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
+
       case ITEM_EASYMODE_CH_THR:
         em.channels.throttle = editChannel(STR_EASYMODE_CH_THROTTLE, y, em.channels.throttle, attr, event);
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
@@ -307,6 +380,12 @@ void menuModelEasyMode(event_t event)
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
 
+      case ITEM_EASYMODE_SRC_FLAP:
+        em.sources.flapSource = editSource(STR_EASYMODE_SRC_FLAP, y,
+                                            em.sources.flapSource, MIXSRC_LAST_CH, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
+
       case ITEM_EASYMODE_CH_FLAP2:
         em.channels.flap2 = editChannel(STR_EASYMODE_CH_FLAP2, y, em.channels.flap2, attr, event);
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
@@ -322,14 +401,50 @@ void menuModelEasyMode(event_t event)
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
 
+      case ITEM_EASYMODE_CROW: {
+        lcdDrawTextAlignedLeft(y, STR_EASYMODE_CROW);
+        uint8_t val = em.options.crowEnabled;
+        lcdDrawChar(EASYMODE_COL2, y, val ? '1' : '0', attr);
+        if (attr) {
+          val = checkIncDec(event, val, 0, 1, EE_MODEL);
+          if (val != em.options.crowEnabled) {
+            em.options.crowEnabled = val;
+            easyModeApply(em);
+            storageDirty(EE_MODEL);
+          }
+        }
+        break;
+      }
+
+      case ITEM_EASYMODE_SRC_MOTOR:
+        em.sources.motorSource = editSource(STR_EASYMODE_SRC_MOTOR, y,
+                                             em.sources.motorSource, MIXSRC_LAST_CH, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
+
       case ITEM_EASYMODE_CH_AUX1:
         em.channels.aux1 = editChannel(em.modelType == EASYMODE_HELICOPTER ? STR_EASYMODE_CH_GYRO : STR_EASYMODE_CH_AUX1,
                                         y, em.channels.aux1, attr, event);
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
 
+      case ITEM_EASYMODE_SRC_AUX1: {
+        const char* label = (em.modelType == EASYMODE_HELICOPTER) ?
+                            STR_EASYMODE_SRC_GYRO : STR_EASYMODE_SRC_ARM;
+        em.sources.aux1Source = editSource(label, y,
+                                            em.sources.aux1Source, MIXSRC_LAST_CH, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
+      }
+
       case ITEM_EASYMODE_CH_AUX2:
         em.channels.aux2 = editChannel(STR_EASYMODE_CH_AUX2, y, em.channels.aux2, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
+
+      case ITEM_EASYMODE_SRC_AUX2:
+        em.sources.aux2Source = editSource(STR_EASYMODE_SRC_MODE, y,
+                                            em.sources.aux2Source, MIXSRC_LAST_CH, attr, event);
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
 
@@ -367,12 +482,17 @@ void menuModelEasyMode(event_t event)
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
 
-      case ITEM_EASYMODE_OPT_AIL2RUD: {
+      case ITEM_EASYMODE_OPT_AIL2RUD:
         em.options.aileronToRudderMix = editNumberField("  Ail>Rud", INDENT_WIDTH, EASYMODE_COL2, y,
                                                          em.options.aileronToRudderMix, 0, 100, attr, event);
         if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
-      }
+
+      case ITEM_EASYMODE_OPT_FLAP2ELE:
+        em.options.flapToElevatorComp = editNumberField("  Flp>Ele", INDENT_WIDTH, EASYMODE_COL2, y,
+                                                         em.options.flapToElevatorComp, -100, 100, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
 
       case ITEM_EASYMODE_OPT_CH_ORDER: {
         static const char* const chOrderValues[] = { "AETR", "TAER", "RETA", nullptr };
@@ -384,6 +504,50 @@ void menuModelEasyMode(event_t event)
           easyModeApply(em);
           storageDirty(EE_MODEL);
         }
+        break;
+      }
+
+      case ITEM_EASYMODE_MIX_HEADER:
+        lcdDrawTextAlignedLeft(y, STR_EASYMODE_CUSTOM_MIX);
+        break;
+
+      case ITEM_EASYMODE_MIX1_SRC:
+      case ITEM_EASYMODE_MIX2_SRC:
+      case ITEM_EASYMODE_MIX3_SRC: {
+        uint8_t idx = (k - ITEM_EASYMODE_MIX1_SRC) / 3;
+        char label[10];
+        snprintf(label, sizeof(label), "Mix %d", idx + 1);
+        em.customMix[idx].source = editSource(label, y,
+                                               em.customMix[idx].source, MIXSRC_LAST, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
+        break;
+      }
+
+      case ITEM_EASYMODE_MIX1_CH:
+      case ITEM_EASYMODE_MIX2_CH:
+      case ITEM_EASYMODE_MIX3_CH: {
+        uint8_t idx = (k - ITEM_EASYMODE_MIX1_CH) / 3;
+        int val = em.customMix[idx].destCh + 1;
+        lcdDrawTextAlignedLeft(y, "  CH");
+        lcdDrawNumber(EASYMODE_COL2, y, val, attr | LEFT);
+        if (attr) {
+          val = checkIncDec(event, val, 0, EASYCH_MAX, EE_MODEL);
+          if (val - 1 != em.customMix[idx].destCh) {
+            em.customMix[idx].destCh = val - 1;
+            easyModeApply(em);
+            storageDirty(EE_MODEL);
+          }
+        }
+        break;
+      }
+
+      case ITEM_EASYMODE_MIX1_WT:
+      case ITEM_EASYMODE_MIX2_WT:
+      case ITEM_EASYMODE_MIX3_WT: {
+        uint8_t idx = (k - ITEM_EASYMODE_MIX1_WT) / 3;
+        em.customMix[idx].weight = editNumberField("  Weight", INDENT_WIDTH, EASYMODE_COL2, y,
+                                                    em.customMix[idx].weight, -100, 100, attr, event);
+        if (attr && s_editMode > 0) { easyModeApply(em); storageDirty(EE_MODEL); }
         break;
       }
 
