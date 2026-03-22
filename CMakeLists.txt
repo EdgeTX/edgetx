@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21)
 project(EdgeTX)
 
 set(VERSION_MAJOR "3")
@@ -7,6 +7,8 @@ set(VERSION_MINOR "0")
 set(VERSION_REVISION "0")
 set(CODENAME "dev")
 string(TIMESTAMP BUILD_YEAR "%Y")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if(MINGW OR WIN32)
   set(CMAKE_OBJECT_PATH_MAX 200)
@@ -34,20 +36,8 @@ option(EdgeTX_SUPERBUILD "Cross-compile EdgeTX for each toolchain" ON)
 include(ExternalProject)
 
 if(EdgeTX_SUPERBUILD)
-  # Fetch all command line args into CMAKE_ARGS
-  get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-  foreach(CACHE_VAR ${CACHE_VARS})
-    get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
-    if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
-      get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
-      if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
-        set(CACHE_VAR_TYPE)
-      else()
-        set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
-      endif()
-      list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
-    endif()
-  endforeach()
+  include(Macros)
+  CollectCommandLineArgs(CMAKE_ARGS)
   message("-- CMAKE_ARGS: ${CMAKE_ARGS}")
   message("-- CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
@@ -80,64 +70,64 @@ if(EdgeTX_SUPERBUILD)
     EXCLUDE_FROM_ALL TRUE
   )
 
-  if(DEFINED CMAKE_BUILD_PARALLEL_LEVEL)
-    set(PARALLEL_FLAG --parallel ${CMAKE_BUILD_PARALLEL_LEVEL})
-  else()
-    set(PARALLEL_FLAG --parallel)
-  endif()
+  # Webasm targets — deferred to a separate CMake project so that
+  # the WASI SDK is only fetched when wasi-module is actually built.
 
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
 
-  add_custom_target(libsimulator
-    COMMAND ${CMAKE_COMMAND} --build native --target libsimulator ${PARALLEL_FLAG}
-    DEPENDS native-configure
-  )
-
   add_custom_target(simulator
-    COMMAND ${CMAKE_COMMAND} --build native --target simulator ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target simulator
     DEPENDS native-configure
   )
 
   add_custom_target(simu
-    COMMAND ${CMAKE_COMMAND} --build native --target simu ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target simu
+  )
+
+  add_custom_target(wasi-module
+    COMMAND ${CMAKE_COMMAND}
+      -S ${CMAKE_SOURCE_DIR}/cmake/wasm
+      -B ${CMAKE_BINARY_DIR}/wasm
+      -DEDGETX_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+      -DEDGETX_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      ${CMAKE_ARGS}
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/wasm
   )
 
   add_custom_target(companion
-    COMMAND ${CMAKE_COMMAND} --build native --target companion ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target companion
     DEPENDS native-configure
   )
 
   add_custom_target(gtests-radio
-    COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
     DEPENDS native-configure
   )
 
   add_custom_target(tests-radio
-    COMMAND ${CMAKE_COMMAND} --build native --target tests-radio ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
     DEPENDS native-configure
   )
 
   add_custom_target(bootloader
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
     DEPENDS arm-none-eabi-configure
   )
 
   add_custom_target(firmware
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
     DEPENDS arm-none-eabi-configure
   )
 
   add_custom_target(firmware-size
-    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size ${PARALLEL_FLAG}
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
     DEPENDS arm-none-eabi-configure
   )
 
   # Quit cmake at this point
   return()
 endif()
-
-enable_language(ASM)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(GenericDefinitions)
@@ -148,7 +138,7 @@ else()
   message(STATUS "EdgeTX ${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
-if(NATIVE_BUILD)
+if(NATIVE_BUILD AND NOT WASI)
   include(NativeTargets)
 else()
   # Prevent CMake warnings

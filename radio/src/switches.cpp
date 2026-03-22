@@ -88,7 +88,7 @@ uint8_t   potsPos[MAX_POTS];
 
 #if defined(FUNCTION_SWITCHES)
 // Customizable switches
-// 
+//
 // Non pushed : SWSRC_Sx0 = -1024 = Sx(up) = state 0
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1
 
@@ -311,17 +311,17 @@ int switchLookupIdx(const char* name, size_t len)
     if (strncmp(sw_name, name, len) == 0) return i;
   }
 
-  return -1;  
+  return -1;
 }
 
 char switchGetLetter(uint8_t idx)
 {
   if (idx >= switchGetMaxAllSwitches() + MAX_FLEX_SWITCHES)
     return -1;
-  
+
   const char* name = switchGetDefaultName(idx);
   if (!name) return -1;
-  
+
   return name[strlen(name) - 1];
 }
 
@@ -393,7 +393,7 @@ void getSwitchesPosition(bool startup)
     if (!SWITCH_EXISTS(i)) continue;
     newPos |= checkSwitchPosition(i, startup);
   }
-  
+
   switchesPos = newPos;
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
@@ -403,8 +403,14 @@ void getSwitchesPosition(bool startup)
     if (IS_POT_MULTIPOS(i)) {
       auto analog_idx = offset + i;
       StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[analog_idx];
+#if defined(SIMU)
+      {
+        uint8_t count = XPOTS_MULTIPOS_COUNT - 1;
+#else
       if (IS_MULTIPOS_CALIBRATED(calib)) {
-        uint8_t pos = anaIn(analog_idx) / (2 * RESX / calib->count);
+        uint8_t count = calib->count;
+#endif
+        uint8_t pos = anaIn(analog_idx) / (2 * RESX / count);
         uint8_t previousPos = potsPos[i] >> 4;
         uint8_t previousStoredPos = potsPos[i] & 0x0F;
         if (startup) {
@@ -839,13 +845,28 @@ swsrc_t getMovedSwitch()
   for (int i = 0; i < MAX_POTS; i++) {
     if (IS_POT_MULTIPOS(i)) {
       StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[MAX_STICKS + i];
+#if defined(SIMU)
+      {
+        uint8_t count = XPOTS_MULTIPOS_COUNT - 1;
+#else
       if (IS_MULTIPOS_CALIBRATED(calib)) {
+        uint8_t count = calib->count;
+#endif
         uint8_t prev = potsPos[i] & 0x0F;
-        uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / calib->count);
+        uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / count);
         if (prev != next) {
           result = SWSRC_FIRST_MULTIPOS_SWITCH + i * XPOTS_MULTIPOS_COUNT + next;
         }
       }
+    }
+  }
+
+  // Trims: only detect trims configured as 3P
+  for (int i = 0; i < keysGetMaxTrims(); i++) {
+    if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
+      uint8_t tidx = inputMappingConvertMode(i) * 2;
+      if (trimDown(tidx)) result = SWSRC_FIRST_TRIM + i * 2;
+      else if (trimDown(tidx+1)) result = SWSRC_FIRST_TRIM + i * 2 + 1;
     }
   }
 

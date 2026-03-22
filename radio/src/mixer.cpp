@@ -1200,7 +1200,6 @@ void evalMixes(uint8_t tick10ms)
         weight += fp_act[p];
       }
     }
-    assert(weight);
     mixerCurrentFlightMode = fm;
   }
   else {
@@ -1235,7 +1234,8 @@ void evalMixes(uint8_t tick10ms)
       if (g_eeGeneral.volumeSrc) {
         calcVolumeValue(g_eeGeneral.volumeSrc);
       } else {
-        requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
+        requiredSpeakerVolume =
+            limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
       }
     }
 #endif

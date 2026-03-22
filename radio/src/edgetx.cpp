@@ -482,6 +482,16 @@ int8_t getMovedSource(uint8_t min)
     }
   }
 
+  static int16_t trimStates[MAX_TRIMS];
+  if (result == 0) {
+    for (uint8_t i = 0; i < MAX_TRIMS; i++) {
+      if (abs(getTrimValue(mixerCurrentFlightMode, i) - trimStates[i]) > 0) {
+        result = MIXSRC_FIRST_TRIM + i;
+        break;
+      }
+    }
+  }
+
   static int16_t sourcesStates[MAX_ANALOG_INPUTS];
   if (result == 0) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
@@ -505,9 +515,11 @@ int8_t getMovedSource(uint8_t min)
   if (result || recent) {
     memcpy(inputsStates, anas, sizeof(inputsStates));
     memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
+	for (uint8_t i = 0; i < MAX_TRIMS; i++) trimStates[i] = getTrimValue(mixerCurrentFlightMode, i);
   }
 
   s_move_last_time = get_tmr10ms();
+
   return result;
 }
 #endif
@@ -1232,8 +1244,7 @@ void instantTrim()
         if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
           if (expo->trimSource < 0) {
             // only default trims will be taken into account
-            addTrim = false;
-            break;
+            continue;
           }
           auto newDelta = anas[expo->chn] - anas_0[expo->chn];
           if (addTrim && delta != newDelta) {
@@ -1536,7 +1547,7 @@ void edgeTxInit()
 
 #if defined(AUDIO)
   currentSpeakerVolume = requiredSpeakerVolume =
-      g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
+      limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
 #if !defined(SOFTWARE_VOLUME)
   audioSetVolume(currentSpeakerVolume);
 #endif

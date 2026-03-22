@@ -123,11 +123,16 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   ui->menuView->insertSeparator(ui->actionToggleMenuBar);
   ui->menuView->insertAction(ui->actionToggleMenuBar, ui->toolBar->toggleViewAction());
 
-  // Hide some actions based on simulator capabilities.
-  if(!m_simulator->getCapability(SimulatorInterface::CAP_LUA))
-    ui->actionReloadLua->setDisabled(true);
-  if(!m_simulator->getCapability(SimulatorInterface::CAP_TELEM_FRSKY_SPORT))
-    m_telemetryDockWidget->toggleViewAction()->setDisabled(true);
+  // Disable capability-dependent actions until the simulator starts and
+  // the WASM module is loaded (getCapability returns 0 before that).
+  ui->actionReloadLua->setDisabled(true);
+  m_telemetryDockWidget->toggleViewAction()->setDisabled(true);
+  connect(m_simulator, &SimulatorInterface::started, this, [this]() {
+    if (m_simulator->getCapability(SimulatorInterface::CAP_LUA))
+      ui->actionReloadLua->setEnabled(true);
+    if (m_simulator->getCapability(SimulatorInterface::CAP_TELEM_FRSKY_SPORT))
+      m_telemetryDockWidget->toggleViewAction()->setEnabled(true);
+  });
 #ifndef USE_SDL
   ui->actionJoystickSettings->setDisabled(true);
 #endif

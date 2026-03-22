@@ -1,0 +1,5 @@
+# Copy all WASM simulator modules from SRC_DIR to DST_DIR at build time.
+# Invoked via cmake -P so the pattern is evaluated on every build.
+file(INSTALL "${SRC_DIR}/" DESTINATION "${DST_DIR}"
+  MESSAGE_NEVER
+  FILES_MATCHING PATTERN "edgetx-*-simulator.wasm")

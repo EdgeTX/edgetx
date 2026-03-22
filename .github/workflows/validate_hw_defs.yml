@@ -1,0 +1,41 @@
+name: Validate hw_defs
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths:
+      - 'radio/util/hw_defs/**'
+      - 'radio/src/boards/hw_defs/**'
+  pull_request:
+    paths:
+      - 'radio/util/hw_defs/**'
+      - 'radio/src/boards/hw_defs/**'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate hw_defs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: radio/util/hw_defs
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install Python dependencies
+        working-directory: .
+        run: uv venv && uv pip install -r requirements.txt
+
+      - name: Check Python script syntax
+        run: uv run python3 -m py_compile *.py
+
+      - name: Validate JSON schemas
+        run: uv run python3 json_validator.py ../../src/boards/hw_defs
+
+      - name: Test template generation (all boards x all templates)
+        run: uv run python3 test_templates.py ../../src/boards/hw_defs

@@ -226,10 +226,6 @@ def main():
         binary = "firmware.bin"
         ext = ".bin"
         filename = "opentx"
-    elif target == "libsimulator":
-        binary = "libopentx-" + board_name + "-simulator.so"
-        ext = ".so"
-        filename = "libopentx"
     else:
         return INVALID_BOARD
 

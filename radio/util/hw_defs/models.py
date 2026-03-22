@@ -26,6 +26,11 @@ class ADC(BaseModel):
     dma_stream: Optional[str] = None
     dma_stream_irq: Optional[str] = None
     dma_stream_irq_handler: Optional[str] = None
+    # SPI ADC fields
+    gpio_pin_sck: Optional[str] = None
+    gpio_pin_miso: Optional[str] = None
+    gpio_pin_mosi: Optional[str] = None
+    gpio_pin_cs: Optional[str] = None
 
 
 StickEnum = StrEnum(
@@ -75,6 +80,7 @@ InputType = StrEnum(
         "VBAT",
         "RTC_BAT",
         "RAW",
+        "LUX",
     ),
 )
 
@@ -100,6 +106,7 @@ class StickInput(BaseModel):
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
     inverted: Optional[bool] = False
+    pwm_channel: Optional[int] = None
 
 
 class FlexInput(BaseModel):
@@ -110,7 +117,7 @@ class FlexInput(BaseModel):
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
     inverted: Optional[bool] = False
-    default: Optional[FlexType] = FlexType.NONE
+    default: Optional[FlexType] = None
     label: Optional[str] = None
     short_label: Optional[str] = None
 
@@ -150,7 +157,16 @@ class RTCBatInput(BaseModel):
     channel: str
 
 
-Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput]
+class LuxInput(BaseModel):
+    name: Literal["LUX"]
+    type: Literal["LUX"]
+    adc: ADCNameType
+    gpio: Optional[str] = None
+    pin: Optional[str] = None
+    channel: Optional[Union[str, int]] = None
+
+
+Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 
 
 class ADCInputs(BaseModel):
@@ -230,6 +246,8 @@ class Switch(BaseModel):
     default: Optional[SwitchTypeEnum] = SwitchTypeEnum.NONE
     flags: Optional[int] = 0
     inverted: Optional[bool] = False
+    is_cfs: Optional[bool] = False
+    cfs_idx: Optional[int] = None
     adc_input: Optional[str] = None
     gpio: Optional[str] = None
     pin: Optional[str] = None
