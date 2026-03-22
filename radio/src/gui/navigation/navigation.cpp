@@ -38,12 +38,6 @@ tmr10ms_t menuEntryTime;
 
 INIT_STOPS(stops100, 3, -100, 0, 100)
 INIT_STOPS(stops1000, 3, -1000, 0, 1000)
-INIT_STOPS(stopsSwitch, 15, SWSRC_FIRST,
-           CATEGORY_END(-SWSRC_FIRST_LOGICAL_SWITCH),
-           CATEGORY_END(-SWSRC_FIRST_TRIM),
-           CATEGORY_END(-SWSRC_LAST_SWITCH + 1), 0,
-           CATEGORY_END(SWSRC_LAST_SWITCH), CATEGORY_END(SWSRC_FIRST_TRIM - 1),
-           CATEGORY_END(SWSRC_FIRST_LOGICAL_SWITCH - 1), SWSRC_LAST)
 
 #define INC(val, min, max)  if (val<max) {val++;} else {val=min;}
 #define DEC(val, min, max)  if (val>min) {val--;} else {val=max;}

@@ -138,14 +138,10 @@ struct CheckIncDecStops
 
 extern const CheckIncDecStops &stops100;
 extern const CheckIncDecStops &stops1000;
-extern const CheckIncDecStops &stopsSwitch;
 
 #define INIT_STOPS(var, ...)                                        \
   const int _ ## var[] = { __VA_ARGS__ };                           \
   const CheckIncDecStops &var  = (const CheckIncDecStops&)_ ## var;
-
-#define CATEGORY_END(val)                       \
-  (val), (val+1)
 
 extern int8_t checkIncDec_Ret;  // global helper vars
 
@@ -216,10 +212,6 @@ SwitchRef checkIncDecSwitch(event_t event, SwitchRef value,
 SourceRef checkIncDecSource(event_t event, SourceRef value,
                             SourceTypeMask allowedTypes = SRCMASK_ALL,
                             std::function<bool(SourceRef)> available = nullptr);
-
-#if defined(AUTOSWITCH)
-swsrc_t checkIncDecMovedSwitch(swsrc_t val);
-#endif
 
 void repeatLastCursorMove(event_t event);
 #if defined(NAVIGATION_9X) || defined(NAVIGATION_XLITE)

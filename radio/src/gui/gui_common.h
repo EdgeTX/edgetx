@@ -122,8 +122,6 @@ bool isSwitch2POSWarningStateAvailable(int state);
 #define IS_INSTANT_TRIM_ALLOWED()      true
 #endif
 
-swsrc_t checkIncDecMovedSwitch(swsrc_t val);
-
 // TODO move this to stdlcd/draw_functions.h ?
 void drawValueOrSource(coord_t x, coord_t y, const ValueOrSource& vos, LcdFlags att);
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags flags=0);
