@@ -282,7 +282,7 @@ void perMain();
 getvalue_t getValue(const SourceRef& ref, bool* valid = nullptr);
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
-int8_t getMovedSource(uint8_t min);
+SourceRef getMovedSource();
 
 #if defined(FLIGHT_MODES)
   extern uint8_t getFlightMode();

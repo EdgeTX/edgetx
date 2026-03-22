@@ -622,10 +622,6 @@ void drawSource(coord_t x, coord_t y, const SourceRef& ref, LcdFlags att)
   }
 }
 
-void drawSource(coord_t x, coord_t y, mixsrc_t src, LcdFlags att)
-{
-  drawSource(x, y, mixSrcToSourceRef(src), att);
-}
 
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr)
 {

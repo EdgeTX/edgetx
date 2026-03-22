@@ -290,13 +290,9 @@ void SwitchChoice::openMenu()
 
 #if defined(AUTOSWITCH)
   menu->setWaitHandler([=]() {
-    swsrc_t swtch = getMovedSwitch();
-    if (swtch) {
-      // Convert swsrc_t to SwitchRef and find in entries
-      SwitchRef movedRef = swSrcToSwitchRef(swtch);
-      // Strip inversion for lookup since menu handles inversion separately
-      movedRef.flags &= ~SWITCH_FLAG_INVERTED;
-      int idx = findEntry(movedRef);
+    SwitchRef moved = getMovedSwitch();
+    if (!moved.isNone()) {
+      int idx = findEntry(moved);
       if (idx >= 0) {
         tb->resetFilter();
         menu->select(idx);

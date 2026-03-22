@@ -134,7 +134,7 @@ void drawModelName(coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att);
 void drawSwitch(coord_t x, coord_t y, const SwitchRef& ref, LcdFlags att=0, bool autoBold = true);
 void drawSwitch(coord_t x, coord_t y, swsrc_t src, LcdFlags att=0, bool autoBold = true);
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att=0);
-void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
+void drawTimerMode(coord_t x, coord_t y, uint8_t mode, const SwitchRef& swtch, LcdFlags att=0);
 
 void putsChn(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);

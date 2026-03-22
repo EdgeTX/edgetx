@@ -471,43 +471,41 @@ bool isInputRecursive(int index)
 #if defined(AUTOSOURCE)
 constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
 
-int8_t getMovedSource(uint8_t min)
+SourceRef getMovedSource()
 {
-  int8_t result = 0;
+  SourceRef result = {};
   static tmr10ms_t s_move_last_time = 0;
 
   static int16_t inputsStates[MAX_INPUTS];
-  if (min <= MIXSRC_FIRST_INPUT) {
-    for (uint8_t i = 0; i < MAX_INPUTS; i++) {
-      if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
-        if (!isInputRecursive(i)) {
-          result = MIXSRC_FIRST_INPUT + i;
-          break;
-        }
+  for (uint8_t i = 0; i < MAX_INPUTS; i++) {
+    if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
+      if (!isInputRecursive(i)) {
+        result = {SOURCE_TYPE_INPUT, 0, i};
+        break;
       }
     }
   }
 
   static int16_t trimStates[MAX_TRIMS];
-  if (result == 0) {
+  if (result.isNone()) {
     for (uint8_t i = 0; i < MAX_TRIMS; i++) {
       if (abs(getTrimValue(mixerCurrentFlightMode, i) - trimStates[i]) > 0) {
-        result = MIXSRC_FIRST_TRIM + i;
+        result = {SOURCE_TYPE_TRIM, 0, i};
         break;
       }
     }
   }
 
   static int16_t sourcesStates[MAX_ANALOG_INPUTS];
-  if (result == 0) {
+  if (result.isNone()) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
         auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
         if (i >= offset) {
-          result = MIXSRC_FIRST_POT + i - offset;
+          result = {SOURCE_TYPE_POT, 0, (uint16_t)(i - offset)};
           break;
         }
-        result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
+        result = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingConvertMode(i)};
         break;
       }
     }
@@ -515,10 +513,10 @@ int8_t getMovedSource(uint8_t min)
 
   bool recent = ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 10);
   if (recent) {
-    result = 0;
+    result.clear();
   }
 
-  if (result || recent) {
+  if (!result.isNone() || recent) {
     memcpy(inputsStates, anas, sizeof(inputsStates));
     memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
 	for (uint8_t i = 0; i < MAX_TRIMS; i++) trimStates[i] = getTrimValue(mixerCurrentFlightMode, i);

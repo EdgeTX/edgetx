@@ -44,11 +44,11 @@ class CurveEdit : public Curve
           [=]() -> int { return getValue(currentSource); }),
       index(index),
       current(0),
-      currentSource(source)
+      currentSource(mixSrcToSourceRef(source))
   {
     setWindowFlag(NO_FOCUS);
 
-    lockSource = currentSource;
+    lockSource = !currentSource.isNone();
 
     for (int i = 0; i < 17; i += 1) {
       auto p = lv_obj_create(lvobj);
@@ -97,7 +97,7 @@ class CurveEdit : public Curve
  protected:
   uint8_t index;
   uint8_t current;
-  mixsrc_t currentSource = 0;
+  SourceRef currentSource = {};
   bool lockSource = false;
   std::list<point_t> points;
   lv_obj_t* pointDots[17] = { nullptr };
@@ -106,9 +106,9 @@ class CurveEdit : public Curve
   void checkEvents() override
   {
     if (!lockSource) {
-      int16_t val = getMovedSource(MIXSRC_FIRST_STICK);
-      if (val > 0)
-        currentSource = val;
+      SourceRef moved = getMovedSource();
+      if (!moved.isNone())
+        currentSource = moved;
     }
     Curve::checkEvents();
   }

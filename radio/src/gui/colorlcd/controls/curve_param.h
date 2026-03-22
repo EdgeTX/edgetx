@@ -45,8 +45,7 @@ class CurveParam : public Window
 {
  public:
   CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-             std::function<void(int32_t)> setRefValue,
-             int16_t sourceMin, mixsrc_t source);
+             mixsrc_t source);
 
  protected:
   // Curve

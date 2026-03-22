@@ -439,15 +439,12 @@ void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att)
   lcdDrawText(x, y, s, att);
 }
 
-void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att)
+void drawTimerMode(coord_t x, coord_t y, uint8_t mode, const SwitchRef& swtch, LcdFlags att)
 {
-  if (mode >= 0) {
-    if (mode < TMRMODE_COUNT)
-      return lcdDrawTextAtIndex(x, y, STR_VTMRMODES, mode, att);
-    else
-      mode -= (TMRMODE_COUNT-1);
-  }
-  drawSwitch(x, y, swSrcToSwitchRef(mode), att);
+  if (mode < TMRMODE_COUNT)
+    lcdDrawTextAtIndex(x, y, STR_VTMRMODES, mode, att);
+  else
+    drawSwitch(x, y, swtch, att);
 }
 
 #if defined(RTCLOCK)

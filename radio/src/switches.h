@@ -59,7 +59,7 @@ uint8_t getSwitchCount();
 uint8_t switchGetMaxRow(uint8_t col);
 
 extern swarnstate_t switches_states;
-swsrc_t getMovedSwitch();
+SwitchRef getMovedSwitch();
 
 #define GETSWITCH_MIDPOS_DELAY   1
 bool getSwitch(const SwitchRef& ref, uint8_t flags=0);

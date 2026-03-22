@@ -28,12 +28,18 @@
 #if defined(AUTOSWITCH)
 swsrc_t checkIncDecMovedSwitch(swsrc_t val)
 {
-  swsrc_t swtch = getMovedSwitch();
-  if (swtch) {
-    div_t info = switchInfo(swtch);
-    if (IS_CONFIG_TOGGLE(info.quot)) {
-      if (info.rem != 0) {
-        val = (val == swtch ? swtch-2 : swtch);
+  SwitchRef moved = getMovedSwitch();
+  if (!moved.isNone()) {
+    swsrc_t swtch = switchRefToSwSrc(moved);
+    if (moved.type == SWITCH_TYPE_SWITCH) {
+      div_t info = switchInfo(swtch);
+      if (IS_CONFIG_TOGGLE(info.quot)) {
+        if (info.rem != 0) {
+          val = (val == swtch ? swtch-2 : swtch);
+        }
+      }
+      else {
+        val = swtch;
       }
     }
     else {

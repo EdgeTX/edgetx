@@ -28,9 +28,6 @@
 #include "model_curves.h"
 #include "source_numberedit.h"
 
-// Defined in curves.cpp
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
-
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue,
@@ -53,7 +50,7 @@ bool CurveChoice::onLongPress()
 }
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source) :
+                       mixsrc_t source) :
     Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);
@@ -72,8 +69,8 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
   auto gv = new SourceNumberEdit(this, -100, 100,
-      [=]() -> int32_t { return valueOrSourceToLegacy(ref->value); },
-      setRefValue, sourceMin);
+      &ref->value,
+      [=]() { SET_DIRTY(); });
   gv->setSuffix("%");
   value_edit = gv;
 
@@ -84,7 +81,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                            },
                            [=](int32_t newValue) {
                              ref->value.setNumeric(newValue);
-                             setRefValue(valueOrSourceToLegacy(ref->value));
+                             SET_DIRTY();
                            });
 
   // CURVE_REF_CUSTOM
@@ -94,7 +91,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                                 },
                                 [=](int32_t newValue) {
                                   ref->value.setNumeric(newValue);
-                                  setRefValue(valueOrSourceToLegacy(ref->value));
+                                  SET_DIRTY();
                                 }, source);
 
   update();
