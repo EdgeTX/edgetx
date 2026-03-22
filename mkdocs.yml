@@ -1,0 +1,108 @@
+site_name: EdgeTX Developer Documentation
+site_url: https://docs.edgetx.org/
+repo_url: https://github.com/EdgeTX/edgetx
+repo_name: EdgeTX/edgetx
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  logo: assets/images/EdgeTX_logo.png
+  favicon: assets/images/EdgeTX_logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Contributing:
+    - Getting Started with Git: contributing/getting-started-with-git.md
+    - Workflow for GitHub Noobs: contributing/workflow-for-github-noobs.md
+    - Git Command Reference: contributing/some-git-commands.md
+  - Building EdgeTX:
+    - Overview: building/index.md
+    - In a Web Browser (CodeSpaces): building/codespaces.md
+    - Windows: building/windows.md
+    - Windows (Docker): building/windows-docker.md
+    - Linux (Ubuntu 22.04): building/linux-ubuntu-22.04.md
+    - Linux (Ubuntu 24.04): building/linux-ubuntu-24.04.md
+    - Linux (WSL / Ubuntu 20.04): building/linux-wsl.md
+    - macOS (Sequoia / Tahoe): building/macos-sequoia.md
+    - macOS (Sonoma): building/macos-sonoma.md
+    - macOS (Catalina): building/macos-catalina.md
+    - Compilation Options: building/compilation-options.md
+    - Qt Creator (Obsolete): building/qt-creator.md
+  - Hardware Reference:
+    - Radio Specifications: hardware/radio-specs.md
+    - DMA Mappings:
+      - RadioMaster TX16S: hardware/dma-mapping-tx16s.md
+      - FlySky NV14: hardware/dma-mapping-nv14.md
+    - IRQ Usage:
+      - RadioMaster TX16S: hardware/irq-usage-tx16s.md
+  - Hardware Mods:
+    - Flysky Hall Sticks: mods/flysky-hall-sticks.md
+    - Flysky FRM303 Mod for TX16S: mods/flysky-frm303-tx16s.md
+    - Flysky PL18 & PL18EV: mods/flysky-pl18.md
+    - Flysky NB4+: mods/flysky-nb4plus.md
+    - Flashing EdgeTX to Flysky PL18/Paladin-EV: mods/flashing-flysky-pl18.md
+    - Unbrick Your Radio: mods/unbrick.md
+  - Development:
+    - CLI Commands: development/cli-commands.md
+    - Customisable Switches: development/customisable-switches.md
+    - Control Inputs: development/control-inputs.md
+    - External Module Protocols: development/external-module-protocols.md
+    - YAML Parser/Generator: development/yaml-parser-generator.md
+    - Mixer Synchronisation: development/mixer-synchronisation.md
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+extra:
+  version:
+    provider: mike
+    alias: true
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/EdgeTX/edgetx
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/wF9wUKnZ6H
