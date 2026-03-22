@@ -84,10 +84,7 @@ void SwitchChoice::buildEntries()
     for (uint16_t i = 0; i < count; i++) {
       SwitchRef ref = {t, 0, i};
 
-      // Check availability using swsrc_t-based isSwitchAvailableInMixes
-      // as the default hardware filter (bridge to legacy code)
-      swsrc_t swsrc = switchRefToSwSrc(ref);
-      if (!isSwitchAvailableInMixes(swsrc)) continue;
+      if (!isSwitchAvailableInMixes(ref)) continue;
 
       // Check custom SwitchRef-based filter
       if (isRefAvailable && !isRefAvailable(ref)) continue;
@@ -244,9 +241,7 @@ bool SwitchChoice::onLongPress()
   else
     ref.flags |= SWITCH_FLAG_INVERTED;
 
-  // Check availability of the inverted version via bridge
-  swsrc_t swsrc = switchRefToSwSrc(ref);
-  if (isSwitchAvailableInMixes(swsrc)) {
+  if (isSwitchAvailableInMixes(ref)) {
     _setSwitchRef(ref);
     update();
   }

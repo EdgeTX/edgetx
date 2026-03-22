@@ -79,7 +79,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
                    [=]() { return md->crsf.crsfArmingTrigger; },
                    [=](SwitchRef ref) { md->crsf.crsfArmingTrigger = ref; SET_DIRTY(); });
   choArmSwitch->setAvailableHandler([=](SwitchRef ref) {
-    return isSwitchAvailableForArming(switchRefToSwSrc(ref));
+    return isSwitchAvailableForArming(ref);
   });
 
   update();

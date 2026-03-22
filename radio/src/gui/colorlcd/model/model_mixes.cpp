@@ -106,7 +106,7 @@ class MixLineButton : public InputMixButtonBase
 
     const MixData& line = *mixAddress(index);
     setWeight(valueOrSourceToLegacy(line.weight), MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
-    setSource(sourceRefToMixSrc(line.srcRaw));
+    setSource(line.srcRaw);
 
     char tmp_str[64];
     char *s = tmp_str;

@@ -111,6 +111,24 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
   lv_label_set_text(source, s);
 }
 
+void InputMixButtonBase::setSource(const SourceRef& ref)
+{
+  if (!source) {
+    source = etx_label_create(lvobj);
+    lv_obj_set_pos(source, SRC_X, SRC_Y);
+    lv_obj_set_size(source, SRC_W, SRC_H);
+    etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
+  char* s = getSourceString(ref);
+  if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
+    lv_obj_add_state(source, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(source, LV_STATE_USER_1);
+
+  lv_label_set_text(source, s);
+}
+
 void InputMixButtonBase::setOpts(const char* s)
 {
   if (!opts) {
