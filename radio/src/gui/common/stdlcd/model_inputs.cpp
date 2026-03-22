@@ -24,6 +24,10 @@
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
 #define _STRING_MAX(x)                     "/" #x
 #define STRING_MAX(x)                     _STRING_MAX(x)
 
@@ -110,12 +114,12 @@ void onExposMenu(const char * result)
 void displayExpoInfos(coord_t y, ExpoData * ed)
 {
   drawCurveRef(EXPO_LINE_CURVE_POS, y, ed->curve, 0);
-  drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
+  drawSwitch(EXPO_LINE_SWITCH_POS, y, switchRefToSwSrc(ed->swtch), 0);
 }
 
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
-  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
+  drawSource(EXPO_LINE_SRC_POS, y, sourceRefToMixSrc(ed->srcRaw), attr);
 
   if (ed->trimSource != TRIM_ON) {
     if (ed->trimSource > 0) {
@@ -126,7 +130,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
     }
   }
 
-  if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
+  if (!ed->flightModes || ((ed->curve.value.numericValue() || !ed->swtch.isNone()) && ((get_tmr10ms() / 200) & 1)))
     displayExpoInfos(y, ed);
   else
     displayFlightModes(EXPO_LINE_FM_POS, y, ed->flightModes);
@@ -153,7 +157,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 void displayExpoInfos(coord_t y, ExpoData * ed)
 {
   drawCurveRef(EXPO_LINE_CURVE_POS, y, ed->curve, 0);
-  drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
+  drawSwitch(EXPO_LINE_SWITCH_POS, y, switchRefToSwSrc(ed->swtch), 0);
   if (ed->mode != 3) {
     lcdDrawChar(EXPO_LINE_SIDE_POS, y, ed->mode == 2 ? 126 : 127);
   }
@@ -161,11 +165,11 @@ void displayExpoInfos(coord_t y, ExpoData * ed)
 
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
-  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
-  
+  drawSource(EXPO_LINE_SRC_POS, y, sourceRefToMixSrc(ed->srcRaw), attr);
+
   if (ed->name[0])
     lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, attr);
-  else if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
+  else if (!ed->flightModes || ((ed->curve.value.numericValue() || !ed->swtch.isNone()) && ((get_tmr10ms() / 200) & 1)))
     displayExpoInfos(y, ed);
   else
     displayFlightModes(EXPO_LINE_INFOS_POS+9*FWNUM, y, ed->flightModes);
@@ -342,7 +346,7 @@ void menuModelExposAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          editSrcVarFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, ed->weight,
+          editSrcVarFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, valueOrSourceToLegacy(ed->weight),
                         -100, 100, RIGHT | (isExpoActive(i) ? BOLD : 0),
                         0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
           displayExpoLine(y, ed, 0);

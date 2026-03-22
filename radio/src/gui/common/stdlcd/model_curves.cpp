@@ -21,6 +21,38 @@
 
 #include "edgetx.h"
 
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
+static ValueOrSource legacyToValueOrSource(int32_t rawValue)
+{
+  ValueOrSource vos = {};
+  SourceNumVal v;
+  v.rawValue = rawValue;
+  if (v.isSource) {
+    vos.isSource = 1;
+    mixsrc_t src = v.value;
+    if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
+      vos.srcType = SOURCE_TYPE_GVAR;
+      vos.value = src - MIXSRC_FIRST_GVAR;
+    } else if (src >= MIXSRC_FIRST_INPUT && src <= MIXSRC_LAST_INPUT) {
+      vos.srcType = SOURCE_TYPE_INPUT;
+      vos.value = src - MIXSRC_FIRST_INPUT;
+    } else if (src >= MIXSRC_FIRST_STICK && src <= MIXSRC_LAST_STICK) {
+      vos.srcType = SOURCE_TYPE_STICK;
+      vos.value = src - MIXSRC_FIRST_STICK;
+    } else if (src >= MIXSRC_FIRST_CH && src <= MIXSRC_LAST_CH) {
+      vos.srcType = SOURCE_TYPE_CHANNEL;
+      vos.value = src - MIXSRC_FIRST_CH;
+    } else {
+      vos.srcType = 0;
+      vos.value = src;
+    }
+  } else {
+    vos.setNumeric(v.value);
+  }
+  return vos;
+}
+
 #if defined(GVARS_IN_CURVES_SCREEN)
   #warning "define still not added to CMakeLists.txt"
   #define CURVE_SELECTED() (sub >= 0 && sub < MAX_CURVES)
@@ -122,37 +154,35 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
 
   if (active && menuHorizontalPosition==0) {
     CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, modelCurvesEnabled() ? CURVE_REF_CUSTOM : CURVE_REF_FUNC);
-    if (checkIncDec_Ret) curve.value = 0;
+    if (checkIncDec_Ret) curve.value.clear();
   }
   switch (curve.type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      curve.value = editSrcVarFieldValue(x, y, nullptr, curve.value, -100, 100, flags, event, isValueAvailable, sourceMin, sourceMax);
+      curve.value = legacyToValueOrSource(editSrcVarFieldValue(x, y, nullptr, valueOrSourceToLegacy(curve.value), -100, 100, flags, event, isValueAvailable, sourceMin, sourceMax));
       break;
     case CURVE_REF_FUNC:
     {
-      SourceNumVal v;
-      v.rawValue = curve.value;
-      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, v.value, flags);
+      int16_t funcVal = curve.value.numericValue();
+      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, funcVal, flags);
       if (active && menuHorizontalPosition==1) {
-        CHECK_INCDEC_MODELVAR_ZERO(event, v.value, CURVE_BASE-1);
-        curve.value = v.rawValue;
+        CHECK_INCDEC_MODELVAR_ZERO(event, funcVal, CURVE_BASE-1);
+        curve.value.setNumeric(funcVal);
       }
       break;
     }
     case CURVE_REF_CUSTOM:
     {
-      SourceNumVal v;
-      v.rawValue = curve.value;
-      drawCurveName(x, y, v.value, flags);
+      int16_t curveVal = curve.value.numericValue();
+      drawCurveName(x, y, curveVal, flags);
       if (active && menuHorizontalPosition == 1) {
-        if (event == EVT_KEY_LONG(KEY_ENTER) && v.value != 0) {
-          s_currIdxSubMenu = abs(v.value) - 1;
+        if (event == EVT_KEY_LONG(KEY_ENTER) && curveVal != 0) {
+          s_currIdxSubMenu = abs(curveVal) - 1;
           pushMenu(menuModelCurveOne);
         }
         else {
-          CHECK_INCDEC_MODELVAR(event, v.value, -MAX_CURVES, MAX_CURVES);
-          curve.value = v.rawValue;
+          CHECK_INCDEC_MODELVAR(event, curveVal, -MAX_CURVES, MAX_CURVES);
+          curve.value.setNumeric(curveVal);
         }
       }
       break;

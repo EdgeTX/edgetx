@@ -25,6 +25,8 @@
 #include "hal/adc_driver.h"
 #include "analogs.h"
 
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
 #if defined(MULTIMODULE)
 void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t protocol, LcdFlags flags)
 {
@@ -378,24 +380,24 @@ void drawFlightMode(coord_t x, coord_t y, int8_t idx, LcdFlags att)
 
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
 {
-  if (curve.value != 0) {
+  if (curve.value.numericValue() != 0 || curve.value.isSource) {
     switch (curve.type) {
       case CURVE_REF_DIFF:
         lcdDrawText(x, y, "D", att);
-        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+        editSrcVarFieldValue(lcdNextPos, y, nullptr, valueOrSourceToLegacy(curve.value), -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case CURVE_REF_EXPO:
         lcdDrawText(x, y, "E", att);
-        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+        editSrcVarFieldValue(lcdNextPos, y, nullptr, valueOrSourceToLegacy(curve.value), -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case CURVE_REF_FUNC:
-        lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, att);
+        lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value.numericValue(), att);
         break;
 
       case CURVE_REF_CUSTOM:
-        drawCurveName(x, y, curve.value, att);
+        drawCurveName(x, y, curve.value.numericValue(), att);
         break;
     }
   }
