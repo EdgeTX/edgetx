@@ -87,61 +87,76 @@ All three are 4 bytes, 32-bit word-aligned.
 | expoData | 33 B | 64 | 128 |
 | curves | 4 B | 32 | 64 |
 | points | 1 B | 512 | 1024 |
-| logicalSw | 9 B | 64 | 64 |
-| customFn | 11 B | 64 | 64 |
+| logicalSw | 18 B | 64 | 64 |
+| customFn | 14 B | 64 | 64 |
 
-Default arena usage: 64×35 + 64×33 + 32×4 + 512 + 64×9 + 64×11 = **6,208 B** (up from 4,352 due to larger MixData/ExpoData).
+Default arena usage: 64×35 + 64×33 + 32×4 + 512 + 64×18 + 64×14 = **6,976 B** (up from 4,352 due to larger structs).
 
 Platform arena sizes need updating:
 
 | Platform | MODEL_ARENA_SIZE | Default used | Status |
 |----------|-----------------|-------------|--------|
-| STM32F4 | 4096 B | 6,208 B | **Needs increase** |
-| STM32H7 | 8192 B | 6,208 B | OK |
-| Companion/Sim | 65536 B | 6,208 B | OK |
+| STM32F4 | 4096 B | 6,976 B | **Needs increase** |
+| STM32H7 | 8192 B | 6,976 B | **Needs increase** |
+| Companion/Sim | 65536 B | 6,976 B | OK |
 
 ---
 
-## Remaining Work
+## Remaining Work (Phase 3b cleanup)
 
-### Immediate: Fix STM32F4 arena size
+~79 bridge function usages remain, categorized as:
 
-The default arena layout (6,208 B) now exceeds `MODEL_ARENA_SIZE` on STM32F4 (4096 B). Options:
-1. Increase STM32F4 arena to 8192 B (same as H7)
-2. Enable dynamic arena sizing so simple models fit in 4096 B
-3. Reduce per-radio MAX_MIXERS/MAX_EXPOS on F4 boards
+### Permanent: YAML format translation (12 usages)
+`yaml_datastructs_funcs.cpp` — `r_logicSw`/`w_logicSw`, `r_mixSrcRawEx`/`w_mixSrcRawEx`, `r_swtchSrc`/`w_swtchSrc` use bridges to translate between YAML integer format and SourceRef/SwitchRef. These are the format boundary and remain until YAML format changes.
 
-### Immediate: Migrate remaining structs
+### Encapsulated infrastructure (19 usages)
+- `gui_common.cpp` (6): `isSourceAvailable`/`isSwitchAvailable` SourceRef overloads delegate to int versions
+- `widgets_common.cpp` (7): `checkIncDecSwitch`/`checkIncDecSource` internals
+- `myeeprom.h` (5): declarations + `CFN_SWITCH` macro
+- `switches.h` (1): forward declaration
 
-These structs still use old 10-bit `swtch` fields:
-- `LogicalSwitchData` — `v1:10`, `v3:10`, `andsw:10` (polymorphic: source or switch depending on func)
-- `CustomFunctionData` — `swtch:10`
-- `FlightModeData` — `swtch:10`
-- `TimerData` — `swtch:10`
-- `SwashRingData` — `collectiveSource:8`, `aileronSource:8`, `elevatorSource:8` (uint8_t MixSources)
-- `RadioData` — `backlightSrc:10`, `volumeSrc:10`
-- `ModuleData.crsf` — `crsfArmingTrigger:10`
+### Structural: data still stored as integers (48 usages)
 
-### Immediate: Remove bridge functions
+These need data structure or function signature changes:
 
-Once all structs are migrated, update `getValue()` and `getSwitch()` to accept `SourceRef`/`SwitchRef` directly instead of `mixsrc_t`/`swsrc_t`. Then remove `sourceRefToMixSrc()`, `switchRefToSwSrc()`, and the reverse bridges. The `MixSources`/`SwitchSources` enums become internal helpers, no longer a storage format.
+#### CFN_PARAM (10 usages)
+`CustomFunctionData.all.val` is `int16_t`. For some function types it stores a MixSources value. Needs either expansion to SourceRef or a CFN_PARAM-specific union.
 
-### Immediate: Update YAML serialization
+Files: `functions.cpp`, `special_functions.cpp` (all 3 variants), `strhelpers.cpp`.
 
-The generated YAML struct definitions still reference the old field layout. With SourceRef/SwitchRef/ValueOrSource, the YAML read/write functions need updating:
-- New custom read/write for SourceRef (type+index format)
-- New custom read/write for SwitchRef (type+index format)
-- New custom read/write for ValueOrSource
-- Regenerate all 22 yaml_datastructs_*.cpp files
-- Backward compatibility: YAML reader should accept both old (enum name) and new (type+index) formats
+#### source_t telemetry fields (8 usages)
+`FrSkyBarData.source`, `FrSkyLineData.sources[]` use `source_t` (uint16_t). These are in stdlcd telemetry display screens.
 
----
+Files: `model_display.cpp` (128x64, 212x64), `view_telemetry.cpp` (128x64, 212x64).
 
-## Phase 3b cleanup: Remaining bridge function elimination
+#### strhelpers iteration (4 usages)
+`getSourceString` backward-compat paths and `getValueOrSrcVarString` still iterate enum values internally.
 
-The core runtime, display functions, and GUI widgets now use SourceRef/SwitchRef natively. Bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`) are confined to internal infrastructure. The following items eliminate the remaining ~90 non-Lua bridge usages.
+#### drawSourceCustomValue / drawTimerMode (2 usages)
+These functions still take `mixsrc_t` / `swsrc_t` parameters.
 
-### 3b.1 Convert `isSourceAvailable`/`isSwitchAvailable` to SourceRef/SwitchRef
+Files: `lcd_common.cpp`, `model_logical_switches.cpp`.
+
+#### Misc (14 usages)
+`source_numberedit.cpp` (2), `sourcechoice.cpp` (1), `switchchoice.cpp` (1), `list_line_button.cpp` (1), `mixer_edit.cpp` (1), `input_edit.cpp` (1), widgets (2), `radio_setup.cpp` (1), `edgetx.cpp` (1), `view_logical_switches.cpp` (1).
+
+### Next: YAML serialization update
+The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
+
+### Completed cleanup items (3b.1-3b.9)
+- ✅ 3b.1: isSourceAvailable/isSwitchAvailable SourceRef overloads
+- ✅ 3b.2: applyExpos parameter → SourceRef
+- ✅ 3b.3: s_currSrcRaw → SourceRef
+- ✅ 3b.4: LogicalSwitchData v1/v2 → LSValue union
+- ✅ 3b.5: mixer internals (getSourceTrimValue, calcVolume/Backlight)
+- ✅ 3b.6: throttle source accessors
+- ✅ 3b.7: source_numberedit ValueOrSource constructor
+- ✅ 3b.8: widget_settings memcpy storage
+- ✅ 3b.9: backward-compat overloads removed (getSourceString, drawSource, drawSwitch, getSwitchPositionName, getSwitch)
+- ✅ 3b.11: Lua API plan (32-bit SourceRef↔integer)
+
+### 3b.1 (historical — kept for reference)
+Convert `isSourceAvailable`/`isSwitchAvailable` to SourceRef/SwitchRef
 
 These filter functions are called from SourceChoice/SwitchChoice availability handlers, GUI editors, and `checkIncDecSource`/`checkIncDecSwitch`. Currently take `mixsrc_t`/`swsrc_t`.
 
