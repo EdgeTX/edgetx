@@ -138,7 +138,7 @@ void MixEditWindow::buildBody(Window *form)
                    });
 
   // Curve
-  mixsrc_t srcForCurve = sourceRefToMixSrc(mix->srcRaw);
+  const SourceRef& srcForCurve = mix->srcRaw;
   new StaticText(line, rect_t{}, STR_CURVE);
   new CurveParam(line, rect_t{}, &mix->curve, srcForCurve);
 

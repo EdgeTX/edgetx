@@ -31,7 +31,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue,
-        std::function<void(int32_t)> setRefValue, mixsrc_t source) :
+        std::function<void(int32_t)> setRefValue, const SourceRef& source) :
   Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
   source(source)
   {
@@ -50,7 +50,7 @@ bool CurveChoice::onLongPress()
 }
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       mixsrc_t source) :
+                       const SourceRef& source) :
     Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);

@@ -23,6 +23,7 @@
 
 #include "window.h"
 #include "choice.h"
+#include "sourceref.h"
 
 struct CurveRef;
 class SourceNumberEdit;
@@ -32,12 +33,12 @@ class CurveChoice : public Choice
  public:
   CurveChoice(Window* parent, std::function<int()> getRefValue,
               std::function<void(int32_t)> setRefValue,
-              mixsrc_t source);
+              const SourceRef& source);
 
   bool onLongPress() override;
 
  protected:
-  mixsrc_t source;
+  SourceRef source;
   std::function<void(void)> refreshView;
 };
 
@@ -45,7 +46,7 @@ class CurveParam : public Window
 {
  public:
   CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-             mixsrc_t source);
+             const SourceRef& source);
 
  protected:
   // Curve

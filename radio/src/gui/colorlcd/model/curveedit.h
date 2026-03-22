@@ -24,6 +24,7 @@
 #include "curve.h"
 #include "page.h"
 #include "window.h"
+#include "sourceref.h"
 
 class CurveDataEdit;
 
@@ -31,12 +32,12 @@ class CurveEditWindow : public Page
 {
  public:
   CurveEditWindow(uint8_t index,
-                  mixsrc_t source = 0);
+                  const SourceRef& source = {});
 
  protected:
   uint8_t index;
   CurveDataEdit* curveDataEdit = nullptr;
-  mixsrc_t source = 0;
+  SourceRef source;
 
   void buildHeader(Window* window);
   void buildBody(Window* window);

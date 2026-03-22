@@ -212,7 +212,7 @@ void InputEditWindow::buildBody(Window* form)
   // Curve
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
-  mixsrc_t srcForCurve = sourceRefToMixSrc(input->srcRaw);
+  const SourceRef& srcForCurve = input->srcRaw;
   auto param =
       new CurveParam(line, rect_t{}, &input->curve, srcForCurve);
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,

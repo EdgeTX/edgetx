@@ -38,13 +38,13 @@ static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT,
 class CurveEdit : public Curve
 {
  public:
-  CurveEdit(Window* parent, const rect_t& rect, uint8_t index, mixsrc_t source) :
+  CurveEdit(Window* parent, const rect_t& rect, uint8_t index, const SourceRef& source = {}) :
       Curve(parent, rect,
           [=](int x) -> int { return applyCustomCurve(x, index); },
           [=]() -> int { return getValue(currentSource); }),
       index(index),
       current(0),
-      currentSource(mixSrcToSourceRef(source))
+      currentSource(source)
   {
     setWindowFlag(NO_FOCUS);
 
@@ -261,7 +261,7 @@ class CurveDataEdit : public Window
   }
 };
 
-CurveEditWindow::CurveEditWindow(uint8_t index, mixsrc_t source) :
+CurveEditWindow::CurveEditWindow(uint8_t index, const SourceRef& source) :
     Page(ICON_MODEL_CURVES, PAD_ZERO), index(index), source(source)
 {
   buildBody(body);
