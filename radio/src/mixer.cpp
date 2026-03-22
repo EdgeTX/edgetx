@@ -1217,7 +1217,7 @@ void evalMixes(uint8_t tick10ms)
       globalFunctionsContext.reset();
     }
     if (modelSFEnabled()) {
-      evalFunctions(g_model.customFn, modelFunctionsContext);
+      evalFunctions(customFnAddress(0), modelFunctionsContext);
     } else {
       modelFunctionsContext.reset();
     }

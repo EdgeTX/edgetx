@@ -162,7 +162,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 {
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
-  uint8_t eeFlags = (functions == g_model.customFn) ? EE_MODEL : EE_GENERAL;
+  uint8_t eeFlags = (functions == customFnAddress(0)) ? EE_MODEL : EE_GENERAL;
 
 #if defined(PCBTARANIS)
 #if defined(PCBXLITE)
@@ -214,7 +214,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
             }
           }
-          if (func == FUNC_OVERRIDE_CHANNEL && functions != g_model.customFn) {
+          if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
             func = CFN_FUNC(cfn) = func+1;
           }
           break;
@@ -556,7 +556,7 @@ void menuModelSpecialFunctions(event_t event)
 #endif
   MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
 
-  menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
+  menuSpecialFunctions(event, customFnAddress(0), &modelFunctionsContext);
 
 #if defined(NAVIGATION_X7)
   if (!CFN_SWITCH(cfn) && menuHorizontalPosition == 0 && s_editMode <= 0) {

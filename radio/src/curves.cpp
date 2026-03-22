@@ -79,12 +79,13 @@ void loadCurves()
 
 int8_t * curveAddress(uint8_t idx)
 {
-  return idx==0 ? g_model.points : curveEnd[idx-1];
+  return idx==0 ? curvePointsBase() : curveEnd[idx-1];
 }
 
 int8_t * curvePointsBase()
 {
-  return g_model.points;
+  return reinterpret_cast<int8_t*>(
+      g_modelArena.sectionBase(ARENA_POINTS));
 }
 
 static void curveMove_unsafe(uint8_t index, int8_t shift)

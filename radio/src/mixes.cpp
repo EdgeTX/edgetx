@@ -22,12 +22,16 @@
 #include "mixes.h"
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
+#include "model_arena.h"
 
 #include "edgetx.h"
 
 static uint8_t _nb_mix_lines;
 
-MixData* mixAddress(uint8_t idx) { return &g_model.mixData[idx]; }
+MixData* mixAddress(uint8_t idx) {
+  return reinterpret_cast<MixData*>(
+      g_modelArena.sectionBase(ARENA_MIXES)) + idx;
+}
 
 uint8_t getMixCount() { return _nb_mix_lines; }
 

@@ -1149,7 +1149,8 @@ void logicalSwitchesTimerTick()
 
 LogicalSwitchData * lswAddress(uint8_t idx)
 {
-  return &g_model.logicalSw[idx];
+  return reinterpret_cast<LogicalSwitchData*>(
+      g_modelArena.sectionBase(ARENA_LOGICAL_SW)) + idx;
 }
 
 uint8_t lswFamily(uint8_t func)

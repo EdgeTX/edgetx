@@ -142,6 +142,7 @@ const char * nchar2string(const char * string, int size)
 int main(int argc, char **argv)
 {
   simuInit();
+  modelArenaInit();
   simuFatfsSetPaths(TESTS_PATH, nullptr);
 
 #if !defined(COLORLCD)

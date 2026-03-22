@@ -163,7 +163,7 @@ static bool isAssignableFunctionAvailableSorted(int value)
 void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext)
 {
   int sub = menuVerticalPosition;
-  uint8_t eeFlags = (functions == g_model.customFn) ? EE_MODEL : EE_GENERAL;
+  uint8_t eeFlags = (functions == customFnAddress(0)) ? EE_MODEL : EE_GENERAL;
   if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
     CustomFunctionData *cfn = &functions[sub];
     if (!CFN_EMPTY(cfn))
@@ -187,7 +187,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     int k = i+menuVerticalOffset;
 
-    drawStringWithIndex(0, y, functions == g_model.customFn ? STR_SF : STR_GF, k+1, (sub==k && menuHorizontalPosition<0) ? INVERS : 0);
+    drawStringWithIndex(0, y, functions == customFnAddress(0) ? STR_SF : STR_GF, k+1, (sub==k && menuHorizontalPosition<0) ? INVERS : 0);
 
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
@@ -203,7 +203,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               killEvents(event);
             CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
           }
-          if (func == FUNC_OVERRIDE_CHANNEL && functions != g_model.customFn) {
+          if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
             func = CFN_FUNC(cfn) = func+1;
           }
           break;
@@ -493,5 +493,5 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 void menuModelSpecialFunctions(event_t event)
 {
   MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
-  return menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
+  return menuSpecialFunctions(event, customFnAddress(0), &modelFunctionsContext);
 }

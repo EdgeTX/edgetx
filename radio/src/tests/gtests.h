@@ -82,6 +82,7 @@ inline void SYSTEM_RESET()
 inline void MODEL_RESET()
 {
   memset(&g_model, 0, sizeof(g_model));
+  g_modelArena.clear();
   anaResetFiltered();
   extern uint8_t s_mixer_first_run_done;
   s_mixer_first_run_done = false;
