@@ -845,10 +845,7 @@ void FunctionsPage::build(Window *window)
           for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
             if (!customFunctionData(j)->isEmpty()) {
               menu->addLine(STR_INSERT, [=]() {
-                memmove(cfn + 1, cfn,
-                        (MAX_SPECIAL_FUNCTIONS - i - 1) *
-                            sizeof(CustomFunctionData));
-                memset(cfn, 0, sizeof(CustomFunctionData));
+                insertCustomFn(i);
                 editSpecialFunction(window, i, nullptr);
               });
               break;
@@ -867,12 +864,7 @@ void FunctionsPage::build(Window *window)
           if (!customFunctionData(j)->isEmpty()) {
             menu->addLine(STR_DELETE, [=]() {
               if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) LUA_LOAD_MODEL_SCRIPTS();
-              memmove(
-                  cfn, cfn + 1,
-                  (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));
-              memset(customFunctionData(MAX_SPECIAL_FUNCTIONS - 1), 0,
-                     sizeof(CustomFunctionData));
-              SET_DIRTY();
+              deleteCustomFn(i);
               rebuild(window);
             });
             break;

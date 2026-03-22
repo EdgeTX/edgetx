@@ -99,14 +99,22 @@ void onCustomFunctionsMenu(const char * result)
     storageDirty(eeFlags);
   }
   else if (result == STR_INSERT) {
-    memmove(cfn+1, cfn, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-    memset(cfn, 0, sizeof(CustomFunctionData));
-    storageDirty(eeFlags);
+    if (eeFlags == EE_MODEL) {
+      insertCustomFn(sub);
+    } else {
+      memmove(cfn+1, cfn, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
+      memset(cfn, 0, sizeof(CustomFunctionData));
+      storageDirty(eeFlags);
+    }
   }
   else if (result == STR_DELETE) {
-    memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-    memset(customFnAddress(MAX_SPECIAL_FUNCTIONS-1), 0, sizeof(CustomFunctionData));
-    storageDirty(eeFlags);
+    if (eeFlags == EE_MODEL) {
+      deleteCustomFn(sub);
+    } else {
+      memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
+      memset(&g_eeGeneral.customFn[MAX_SPECIAL_FUNCTIONS-1], 0, sizeof(CustomFunctionData));
+      storageDirty(eeFlags);
+    }
   }
 }
 
