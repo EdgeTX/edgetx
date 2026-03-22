@@ -555,19 +555,38 @@ int getSwitchIndex(const char* name, bool all)
     negate = true;
   }
 
-  for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
-      SwitchRef ref = swSrcToSwitchRef(idx);
-      char* s;
-      if (switchCanHaveCustomName(idx)) {
-        // Check default name
-        s = getSwitchPositionName(_static_str_buffer, ref);
+  // Iterate by SwitchRefType + index, constructing SwitchRef directly
+  struct TypeRange { uint8_t type; uint16_t count; };
+  const TypeRange types[] = {
+    { SWITCH_TYPE_SWITCH,         (uint16_t)(switchGetMaxAllSwitches() * 3) },
+    { SWITCH_TYPE_MULTIPOS,       MAX_XPOTS_POSITIONS },
+    { SWITCH_TYPE_TRIM,           (uint16_t)(2 * MAX_TRIMS) },
+    { SWITCH_TYPE_LOGICAL,        MAX_LOGICAL_SWITCHES },
+    { SWITCH_TYPE_ON,             1 },
+    { SWITCH_TYPE_ONE,            1 },
+    { SWITCH_TYPE_FLIGHT_MODE,    MAX_FLIGHT_MODES },
+    { SWITCH_TYPE_TELEMETRY,      1 },
+    { SWITCH_TYPE_SENSOR,         MAX_TELEMETRY_SENSORS },
+    { SWITCH_TYPE_RADIO_ACTIVITY, 1 },
+    { SWITCH_TYPE_TRAINER,        1 },
+  };
+
+  for (const auto& tr : types) {
+    for (uint16_t i = 0; i < tr.count; i++) {
+      SwitchRef ref = {tr.type, 0, i};
+      swsrc_t idx = switchRefToSwSrc(ref);
+      if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+        bool hasCustom = (tr.type == SWITCH_TYPE_SWITCH);
+        char* s;
+        if (hasCustom) {
+          s = getSwitchPositionName(_static_str_buffer, ref);
+          if (!strcasecmp(s, name))
+            return negate ? -idx : idx;
+        }
+        s = getSwitchPositionName(ref);
         if (!strcasecmp(s, name))
           return negate ? -idx : idx;
       }
-      s = getSwitchPositionName(ref);
-      if (!strcasecmp(s, name))
-        return negate ? -idx : idx;
     }
   }
 
@@ -905,16 +924,55 @@ static bool matchSource(const char* name, const SourceRef& ref, bool defaultOnly
 
 int getSourceIndex(const char* name, bool all)
 {
-  for (mixsrc_t idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
-    if (all || isSourceAvailable(idx)) {
-      SourceRef ref = mixSrcToSourceRef(idx);
-      if (sourceCanHaveCustomName(idx)) {
-        // Check default name
-        if (matchSource(name, ref, true))
+  // Iterate by SourceType + index, constructing SourceRef directly
+  struct TypeRange { uint8_t type; uint16_t count; bool hasCustomName; };
+  const TypeRange types[] = {
+    { SOURCE_TYPE_INPUT,          MAX_INPUTS,             true },
+#if defined(LUA_INPUTS)
+    { SOURCE_TYPE_LUA,            (uint16_t)(MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS), false },
+#endif
+    { SOURCE_TYPE_STICK,          MAX_STICKS,             true },
+    { SOURCE_TYPE_POT,            MAX_POTS,               true },
+#if defined(IMU)
+    { SOURCE_TYPE_IMU,            2,                      false },
+#endif
+#if defined(PCBHORUS)
+    { SOURCE_TYPE_SPACEMOUSE,     6,                      false },
+#endif
+    { SOURCE_TYPE_MIN,            1,                      false },
+    { SOURCE_TYPE_MAX,            1,                      false },
+#if defined(LUMINOSITY_SENSOR)
+    { SOURCE_TYPE_LIGHT,          1,                      false },
+#endif
+    { SOURCE_TYPE_HELI,           3,                      false },
+    { SOURCE_TYPE_TRIM,           MAX_TRIMS,              true },
+    { SOURCE_TYPE_SWITCH,         MAX_SWITCHES,           true },
+#if defined(FUNCTION_SWITCHES)
+    { SOURCE_TYPE_CUSTOM_SWITCH_GROUP, NUM_FUNCTIONS_GROUPS, false },
+#endif
+    { SOURCE_TYPE_LOGICAL_SWITCH, MAX_LOGICAL_SWITCHES,   false },
+    { SOURCE_TYPE_TRAINER,        MAX_TRAINER_CHANNELS,   false },
+    { SOURCE_TYPE_CHANNEL,        MAX_OUTPUT_CHANNELS,    true },
+    { SOURCE_TYPE_GVAR,           MAX_GVARS,              true },
+    { SOURCE_TYPE_TX_VOLTAGE,     1,                      false },
+    { SOURCE_TYPE_TX_TIME,        1,                      false },
+    { SOURCE_TYPE_TX_GPS,         1,                      false },
+    { SOURCE_TYPE_TIMER,          MAX_TIMERS,             true },
+    { SOURCE_TYPE_TELEMETRY,      (uint16_t)(3 * MAX_TELEMETRY_SENSORS), false },
+  };
+
+  for (const auto& tr : types) {
+    for (uint16_t i = 0; i < tr.count; i++) {
+      SourceRef ref = {tr.type, 0, i};
+      mixsrc_t idx = sourceRefToMixSrc(ref);
+      if (all || isSourceAvailable(idx)) {
+        if (tr.hasCustomName) {
+          if (matchSource(name, ref, true))
+            return idx;
+        }
+        if (matchSource(name, ref, false))
           return idx;
       }
-      if (matchSource(name, ref, false))
-        return idx;
     }
   }
 

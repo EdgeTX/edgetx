@@ -385,11 +385,9 @@ void SourceChoice::openMenu()
 
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
-    int8_t val = getMovedSource(MIXSRC_FIRST_STICK);
-    if (val) {
-      // Convert MIXSRC to SourceRef, find its index
-      SourceRef movedRef = mixSrcToSourceRef(val);
-      int idx = findEntry(movedRef);
+    SourceRef moved = getMovedSource();
+    if (!moved.isNone()) {
+      int idx = findEntry(moved);
       if (idx >= 0) {
         tb->resetFilter();
         menu->select(idx);
@@ -397,11 +395,10 @@ void SourceChoice::openMenu()
     }
 #if defined(AUTOSWITCH)
     else {
-      swsrc_t swtch = abs(getMovedSwitch());
-      if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-        // Convert swsrc_t directly to SourceRef (switch index = (swtch-1)/3)
-        div_t qr = div((int)(swtch - 1), 3);
-        SourceRef switchRef = {SOURCE_TYPE_SWITCH, 0, (uint16_t)qr.quot};
+      SwitchRef swtch = getMovedSwitch();
+      if (!swtch.isNone() && swtch.type == SWITCH_TYPE_SWITCH) {
+        // Convert switch to source (switch index = position / 3)
+        SourceRef switchRef = {SOURCE_TYPE_SWITCH, 0, (uint16_t)(swtch.index / 3)};
         int idx = findEntry(switchRef);
         if (idx >= 0) {
           tb->resetFilter();

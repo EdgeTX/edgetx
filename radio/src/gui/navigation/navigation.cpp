@@ -202,8 +202,9 @@ int checkMovedInput(int newval, unsigned int i_flags, bool isSource)
 
 #if defined(AUTOSOURCE)
     if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
-      int source = getMovedSource(MIXSRC_FIRST_STICK);
-      if (source) {
+      SourceRef moved = getMovedSource();
+      if (!moved.isNone()) {
+        int source = sourceRefToMixSrc(moved);
         if (i_flags & INCDEC_SOURCE_VALUE) {
           if (isSource) {
             // Only use moved source if already a source value
@@ -215,9 +216,9 @@ int checkMovedInput(int newval, unsigned int i_flags, bool isSource)
       }
 #if defined(AUTOSWITCH)
     else {
-      uint8_t swtch = abs(getMovedSwitch());
-      if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-        newval = switchToMix(swtch);
+      SwitchRef swtch = getMovedSwitch();
+      if (!swtch.isNone() && swtch.type == SWITCH_TYPE_SWITCH) {
+        newval = MIXSRC_FIRST_SWITCH + swtch.index / 3;
       }
     }
 #endif

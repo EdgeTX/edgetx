@@ -235,7 +235,7 @@ void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
       lcdDrawSizedText(xLabel, y + FH, timer.name, len, RIGHT);
     }
     else {
-      drawTimerMode(xLabel, y + FH, timer.mode, RIGHT);
+      drawTimerMode(xLabel, y + FH, timer.mode, timer.swtch, RIGHT);
     }
   }
 }

@@ -823,10 +823,10 @@ static inline uint8_t _bits_set(uint8_t val, uint8_t bits)
 
 swarnstate_t switches_states = 0;
 
-swsrc_t getMovedSwitch()
+SwitchRef getMovedSwitch()
 {
   static tmr10ms_t s_move_last_time = 0;
-  swsrc_t result = 0;
+  SwitchRef result = {};
 
   // Switches
   auto max_switches = switchGetMaxAllSwitches();
@@ -846,7 +846,7 @@ swsrc_t getMovedSwitch()
       if (prev != next) {
         switches_states =
             (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 2));
-        result = (3 * i) + next;
+        result = {SWITCH_TYPE_SWITCH, 0, (uint16_t)(3 * i + (next - 1))};
       }
     }
   }
@@ -865,7 +865,7 @@ swsrc_t getMovedSwitch()
         uint8_t prev = potsPos[i] & 0x0F;
         uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / count);
         if (prev != next) {
-          result = SWSRC_FIRST_MULTIPOS_SWITCH + i * XPOTS_MULTIPOS_COUNT + next;
+          result = {SWITCH_TYPE_MULTIPOS, 0, (uint16_t)(i * XPOTS_MULTIPOS_COUNT + next)};
         }
       }
     }
@@ -875,13 +875,13 @@ swsrc_t getMovedSwitch()
   for (int i = 0; i < keysGetMaxTrims(); i++) {
     if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
       uint8_t tidx = inputMappingConvertMode(i) * 2;
-      if (trimDown(tidx)) result = SWSRC_FIRST_TRIM + i * 2;
-      else if (trimDown(tidx+1)) result = SWSRC_FIRST_TRIM + i * 2 + 1;
+      if (trimDown(tidx)) result = {SWITCH_TYPE_TRIM, 0, (uint16_t)(i * 2)};
+      else if (trimDown(tidx+1)) result = {SWITCH_TYPE_TRIM, 0, (uint16_t)(i * 2 + 1)};
     }
   }
 
   if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 100)
-    result = 0;
+    result.clear();
 
   s_move_last_time = get_tmr10ms();
   return result;

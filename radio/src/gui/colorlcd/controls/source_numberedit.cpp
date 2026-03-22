@@ -26,66 +26,6 @@
 
 SourceNumberEdit::SourceNumberEdit(Window* parent,
                                    int32_t vmin, int32_t vmax,
-                                   std::function<int32_t()> getValue,
-                                   std::function<void(int32_t)> setValue,
-                                   int16_t sourceMin,
-                                   LcdFlags textFlags, int32_t voffset,
-                                   int32_t vdefault) :
-    Window(parent, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
-    vmin(vmin),
-    vmax(vmax),
-    sourceMin(sourceMin),
-    getValue(getValue),
-    setValue(setValue),
-    voffset(voffset)
-{
-  setTextFlag(textFlags);
-
-  padAll(PAD_TINY);
-  lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
-  lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
-  lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-
-  // Source field
-  source_field = new SourceChoice(
-      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0},
-      [=]() -> SourceRef {
-        SourceNumVal v;
-        v.rawValue = getValue();
-        return mixSrcToSourceRef(v.value);
-      },
-      [=](SourceRef ref) {
-        SourceNumVal v = {(int16_t)sourceRefToMixSrc(ref), true};
-        setValue(v.rawValue);
-      }, true);
-
-  num_field = new NumberEdit(
-      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax,
-      [=]() {
-        SourceNumVal v;
-        v.rawValue = getValue();
-        return v.value;
-      },
-      [=](int newValue) {
-        SourceNumVal v = {(int16_t)newValue, false};
-        setValue(v.rawValue);
-      },
-      textFlags);
-  num_field->setDefault(vdefault);
-
-  // The Source button
-  m_srcBtn = new TextButton(this, {EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_TINY, 0, SRC_BTN_W, 0}, "SRC", [=]() {
-    switchSourceMode();
-    return isSource();
-  });
-  m_srcBtn->check(isSource());
-
-  // update field type based on value
-  update();
-}
-
-SourceNumberEdit::SourceNumberEdit(Window* parent,
-                                   int32_t vmin, int32_t vmax,
                                    ValueOrSource* vos,
                                    std::function<void()> onChanged,
                                    LcdFlags textFlags,
@@ -93,27 +33,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     Window(parent, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
     vmin(vmin),
     vmax(vmax),
-    sourceMin(0),
-    getValue([=]() -> int32_t {
-      // Pack into legacy SourceNumVal for isSource() / switchSourceMode() compat
-      SourceNumVal v;
-      v.value = vos->value;
-      v.isSource = vos->isSource;
-      return v.rawValue;
-    }),
-    setValue([=](int32_t raw) {
-      SourceNumVal v;
-      v.rawValue = raw;
-      if (v.isSource) {
-        vos->isSource = 1;
-        vos->srcType = SOURCE_TYPE_GVAR;  // default; overridden by source_field setter
-        vos->value = v.value;
-      } else {
-        vos->setNumeric(v.value);
-      }
-      if (onChanged) onChanged();
-    }),
-    voffset(0)
+    vos(vos)
 {
   setTextFlag(textFlags);
 
@@ -163,26 +83,6 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
   update();
 }
 
-bool SourceNumberEdit::isSource()
-{
-  SourceNumVal v;
-  v.rawValue = getValue();
-  return v.isSource;
-}
-
-void SourceNumberEdit::switchSourceMode()
-{
-  SourceNumVal v;
-  v.rawValue = getValue();
-  v.isSource = !v.isSource;
-  // TODO: convert value???
-  v.value = v.isSource ? sourceMin : 0;
-  setValue(v.rawValue);
-
-  // update field type based on value
-  update();
-}
-
 void SourceNumberEdit::setSuffix(const std::string& value)
 {
   num_field->setSuffix(value);
@@ -195,7 +95,7 @@ void SourceNumberEdit::update()
   source_field->hide();
   num_field->hide();
 
-  if (isSource()) {
+  if (vos->isSource) {
     // Source mode
     act_field = source_field;
     source_field->show();
@@ -207,7 +107,7 @@ void SourceNumberEdit::update()
     num_field->update();
   }
 
-  m_srcBtn->check(isSource());
+  m_srcBtn->check(vos->isSource);
 
   if (has_focus) {
     lv_group_focus_obj(act_field->getLvObj());
