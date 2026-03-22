@@ -114,9 +114,7 @@ class LogicalSwitchEditPage : public Page
             line, rect_t{},
             [=]() { return cs->v1.swtch; },
             [=](SwitchRef ref) { cs->v1.swtch = ref; SET_DIRTY(); });
-        choice->setAvailableHandler([](SwitchRef ref) {
-          return isSwitchAvailableInLogicalSwitches(ref);
-        });
+        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         break;
       case LS_FAMILY_COMP:
         new SourceChoice(line, rect_t{},
@@ -163,9 +161,7 @@ class LogicalSwitchEditPage : public Page
             line, rect_t{},
             [=]() { return cs->v2.swtch; },
             [=](SwitchRef ref) { cs->v2.swtch = ref; SET_DIRTY(); });
-        choice->setAvailableHandler([](SwitchRef ref) {
-          return isSwitchAvailableInLogicalSwitches(ref);
-        });
+        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         break;
       case LS_FAMILY_EDGE: {
         auto edit1 =
@@ -228,9 +224,7 @@ class LogicalSwitchEditPage : public Page
     choice = new SwitchChoice(line, rect_t{},
                               [=]() { return cs->andsw; },
                               [=](SwitchRef ref) { cs->andsw = ref; SET_DIRTY(); });
-    choice->setAvailableHandler([](SwitchRef ref) {
-      return isSwitchAvailableInLogicalSwitches(ref);
-    });
+    choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
 
     // Duration
     line = logicalSwitchOneWindow->newLine(grid);

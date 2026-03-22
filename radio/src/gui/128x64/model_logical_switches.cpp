@@ -113,46 +113,45 @@ void menuModelLogicalSwitchOne(event_t event)
 
       case LS_FIELD_V1:
       {
-        INCDEC_DECLARE_VARS(EE_MODEL);
         lcdDrawTextAlignedLeft(y, STR_V1);
-        int v1_min=0, v1_max=MIXSRC_LAST_TELEM;
         if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_EDGE) {
           drawSwitch(CSWONE_2ND_COLUMN, y, cs->v1.swtch, attr);
-          v1_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v1_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
-          INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
+          if (attr) {
+            cs->v1.swtch = checkIncDecSwitch(event, cs->v1.swtch, SWMASK_LOGICAL_AND, EE_MODEL,
+                                             isSwitchAvailableInLogicalSwitches);
+          }
         }
         else if (cstate == LS_FAMILY_TIMER) {
           lcdDrawNumber(CSWONE_2ND_COLUMN, y, lswTimerValue(cs->v1.value), LEFT|PREC1|attr);
-          v1_min = -128;
-          v1_max = 122;
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, cs->v1.value, -128, 122);
+          }
         }
         else {
           drawSource(CSWONE_2ND_COLUMN, y, cs->v1.source, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-          INCDEC_ENABLE_CHECK(isSourceAvailable);
-        }
-        if (attr) {
-          cs->v1.value = CHECK_INCDEC_PARAM(event, cs->v1.value, v1_min, v1_max);
+          if (attr) {
+            cs->v1.source = checkIncDecSource(event, cs->v1.source, SRCMASK_ALL,
+                                              isSourceAvailable);
+          }
         }
         break;
       }
 
       case LS_FIELD_V2:
       {
-        INCDEC_DECLARE_VARS(EE_MODEL);
         lcdDrawTextAlignedLeft(y, STR_V2);
-        int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
         if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
           drawSwitch(CSWONE_2ND_COLUMN, y, cs->v2.swtch, attr);
-          v2_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v2_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
-          INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
+          if (attr) {
+            cs->v2.swtch = checkIncDecSwitch(event, cs->v2.swtch, SWMASK_LOGICAL_AND, EE_MODEL,
+                                             isSwitchAvailableInLogicalSwitches);
+          }
         }
         else if (cstate == LS_FAMILY_TIMER) {
           lcdDrawNumber(CSWONE_2ND_COLUMN, y, lswTimerValue(cs->v2.value), LEFT|PREC1|attr);
-          v2_min = -128;
-          v2_max = 122;
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, cs->v2.value, -128, 122);
+          }
         }
         else if (cstate == LS_FAMILY_EDGE) {
           putsEdgeDelayParam(CSWONE_2ND_COLUMN+5, y, cs, menuHorizontalPosition==0 ? attr : 0, menuHorizontalPosition==1 ? attr : 0);
@@ -160,14 +159,19 @@ void menuModelLogicalSwitchOne(event_t event)
             CHECK_INCDEC_MODELVAR(event, cs->v3, -1, 222 - cs->v2.value);
             break;
           }
-          v2_min = -129; v2_max = 122;
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, cs->v2.value, -129, 122);
+          }
         }
         else if (cstate == LS_FAMILY_COMP) {
           drawSource(CSWONE_2ND_COLUMN, y, cs->v2.source, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-          INCDEC_ENABLE_CHECK(isSourceAvailable);
+          if (attr) {
+            cs->v2.source = checkIncDecSource(event, cs->v2.source, SRCMASK_ALL,
+                                              isSourceAvailable);
+          }
         }
         else {
+          int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
           mixsrc_t v1m = sourceRefToMixSrc(cs->v1.source);
           if (abs(v1m) >= MIXSRC_FIRST_TELEM) {
             drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1m, convertLswTelemValue(cs), attr|LEFT);
@@ -176,7 +180,6 @@ void menuModelLogicalSwitchOne(event_t event)
               v2_min = 0;
             else
               v2_min = -v2_max;
-            INCDEC_SET_FLAG(EE_MODEL | INCDEC_REP10 | NO_INCDEC_MARKS);
             if (cs->v2.value < v2_min || cs->v2.value > v2_max) {
               cs->v2.value = 0;
               storageDirty(EE_MODEL);
@@ -188,10 +191,9 @@ void menuModelLogicalSwitchOne(event_t event)
             if (validateLSV2Range(cs, v2_min, v2_max, &lf)) storageDirty(EE_MODEL);
             drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1m, (abs(v1m) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2.value) : cs->v2.value), lf);
           }
-        }
-
-        if (attr) {
-          cs->v2.value = CHECK_INCDEC_PARAM(event, cs->v2.value, v2_min, v2_max);
+          if (attr) {
+            cs->v2.value = checkIncDec(event, cs->v2.value, v2_min, v2_max, EE_MODEL | INCDEC_REP10 | NO_INCDEC_MARKS);
+          }
         }
         break;
       }
@@ -201,7 +203,7 @@ void menuModelLogicalSwitchOne(event_t event)
         {
           drawSwitch(CSWONE_2ND_COLUMN, y, cs->andsw, attr);
           if (attr) {
-            cs->andsw = checkIncDecSwitch(event, cs->andsw, SWMASK_LOGICAL_AND, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableInLogicalSwitches(ref); });
+            cs->andsw = checkIncDecSwitch(event, cs->andsw, SWMASK_LOGICAL_AND, EE_MODEL, isSwitchAvailableInLogicalSwitches);
           }
         }
         break;

@@ -183,7 +183,17 @@ static int _legacy_mix_src(const char* val, uint8_t val_len)
   return -1;
 }
 
-extern const struct YamlIdStr enum_MixSources[];
+// These enums are no longer auto-generated (SourceRef/SwitchRef replaced the enum types in structs)
+// but are still needed by the YAML custom read/write functions for backward compatibility.
+const struct YamlIdStr enum_MixSources[] = {
+  {  MIXSRC_NONE, "NONE"  },
+  {  MIXSRC_MIN, "MIN"  },
+  {  MIXSRC_MAX, "MAX"  },
+  {  MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"  },
+  {  MIXSRC_TX_TIME, "TX_TIME"  },
+  {  MIXSRC_TX_GPS, "TX_GPS"  },
+  {  0, NULL  }
+};
 
 // Find next ',' separator, return length up to; but not inclding separator.
 uint8_t find_sep(const char* val, uint8_t val_len)
@@ -1399,7 +1409,16 @@ static const struct YamlNode struct_potConfig[] = {
     YAML_END
 };
 
-extern const struct YamlIdStr enum_SwitchSources[];
+const struct YamlIdStr enum_SwitchSources[] = {
+  {  SWSRC_NONE, "NONE"  },
+  {  SWSRC_ON, "ON"  },
+  {  SWSRC_ONE, "ONE"  },
+  {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },
+  {  SWSRC_RADIO_ACTIVITY, "RADIO_ACTIVITY"  },
+  {  SWSRC_TRAINER_CONNECTED, "TRAINER_CONNECTED"  },
+  {  SWSRC_OFF, "OFF"  },
+  {  0, NULL  }
+};
 
 // Trim switch names
 static const char* trimSwitchNames[] = {
@@ -2462,18 +2481,18 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
 {
   auto src = r_mixSrcRaw(nullptr, val, val_len);
-  auto thrSrc = source2ThrottleSource(src);
-
-  if (thrSrc < 0)
-    return 0;
-
-  return thrSrc;
+  SourceRef ref = mixSrcToSourceRef(src);
+  uint32_t packed;
+  memcpy(&packed, &ref, sizeof(packed));
+  return packed;
 }
 
 static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
-  auto src = throttleSource2Source(val);
+  SourceRef ref;
+  memcpy(&ref, &val, sizeof(ref));
+  auto src = sourceRefToMixSrc(ref);
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
 

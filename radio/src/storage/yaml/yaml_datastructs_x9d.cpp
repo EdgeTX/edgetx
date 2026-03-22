@@ -114,15 +114,6 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
   {  MLTPX_REPL, "REPL"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_MixSources[] = {
-  {  MIXSRC_NONE, "NONE"  },
-  {  MIXSRC_MIN, "MIN"  },
-  {  MIXSRC_MAX, "MAX"  },
-  {  MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"  },
-  {  MIXSRC_TX_TIME, "TX_TIME"  },
-  {  MIXSRC_TX_GPS, "TX_GPS"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_NONE, "FUNC_NONE"  },
   {  LS_FUNC_VEQUAL, "FUNC_VEQUAL"  },
@@ -150,16 +141,6 @@ const struct YamlIdStr enum_SwashType[] = {
   {  SWASH_TYPE_120X, "TYPE_120X"  },
   {  SWASH_TYPE_140, "TYPE_140"  },
   {  SWASH_TYPE_90, "TYPE_90"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_SwitchSources[] = {
-  {  SWSRC_NONE, "NONE"  },
-  {  SWSRC_ON, "ON"  },
-  {  SWSRC_ONE, "ONE"  },
-  {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },
-  {  SWSRC_RADIO_ACTIVITY, "RADIO_ACTIVITY"  },
-  {  SWSRC_TRAINER_CONNECTED, "TRAINER_CONNECTED"  },
-  {  SWSRC_OFF, "OFF"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_PotsWarnMode[] = {
@@ -241,12 +222,30 @@ static const struct YamlNode struct_TrainerData[] = {
   YAML_ARRAY("mix", 16, 4, struct_TrainerMix, NULL),
   YAML_END
 };
+static const struct YamlNode struct_SwitchRef[] = {
+  YAML_UNSIGNED( "type", 8 ),
+  YAML_UNSIGNED( "flags", 8 ),
+  YAML_UNSIGNED( "index", 16 ),
+  YAML_END
+};
 static const struct YamlNode struct_anonymous_1[] = {
   YAML_STRING("name", 8),
   YAML_END
 };
+static const struct YamlNode struct_SourceRef[] = {
+  YAML_UNSIGNED( "type", 8 ),
+  YAML_UNSIGNED( "flags", 8 ),
+  YAML_UNSIGNED( "index", 16 ),
+  YAML_END
+};
+static const struct YamlNode union_LSValue_elmts[] = {
+  YAML_STRUCT("source", 32, struct_SourceRef, NULL),
+  YAML_STRUCT("swtch", 32, struct_SwitchRef, NULL),
+  YAML_SIGNED( "value", 32 ),
+  YAML_END
+};
 static const struct YamlNode struct_anonymous_2[] = {
-  YAML_SIGNED( "val", 16 ),
+  YAML_UNION("val", 32, union_LSValue_elmts, NULL),
   YAML_UNSIGNED( "mode", 8 ),
   YAML_UNSIGNED( "param", 8 ),
   YAML_SIGNED( "val2", 32 ),
@@ -259,16 +258,16 @@ static const struct YamlNode struct_anonymous_3[] = {
 };
 static const struct YamlNode union_anonymous_0_elmts[] = {
   YAML_STRUCT("play", 64, struct_anonymous_1, NULL),
-  YAML_STRUCT("all", 64, struct_anonymous_2, NULL),
+  YAML_STRUCT("all", 80, struct_anonymous_2, NULL),
   YAML_STRUCT("clear", 64, struct_anonymous_3, NULL),
   YAML_END
 };
 static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_IDX,
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_ENUM("func", 6, enum_Functions, NULL),
+  YAML_STRUCT("swtch", 32, struct_SwitchRef, NULL),
+  YAML_ENUM("func", 8, enum_Functions, NULL),
   YAML_CUSTOM("def",r_customFn,w_customFn),
-  YAML_PADDING( 64 ),
+  YAML_PADDING( 80 ),
   YAML_PADDING( 1 ),
   YAML_PADDING( 7 ),
   YAML_END
@@ -351,7 +350,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioPitch", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
-  YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
+  YAML_ARRAY("customFn", 128, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
   YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
@@ -368,20 +367,22 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_PADDING( 3 ),
-  YAML_SIGNED_CUST( "backlightSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_SIGNED( "radioGFDisabled", 1 ),
-  YAML_SIGNED( "radioTrainerDisabled", 1 ),
-  YAML_SIGNED( "modelHeliDisabled", 1 ),
-  YAML_SIGNED( "modelFMDisabled", 1 ),
-  YAML_SIGNED( "modelCurvesDisabled", 1 ),
-  YAML_SIGNED( "modelGVDisabled", 1 ),
-  YAML_SIGNED_CUST( "volumeSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_SIGNED( "modelLSDisabled", 1 ),
-  YAML_SIGNED( "modelSFDisabled", 1 ),
-  YAML_SIGNED( "modelCustomScriptsDisabled", 1 ),
-  YAML_SIGNED( "modelTelemetryDisabled", 1 ),
-  YAML_SIGNED( "disableTrainerPoweroffAlarm", 1 ),
-  YAML_SIGNED( "disablePwrOnOffHaptic", 1 ),
+  YAML_STRUCT("backlightSrc", 32, struct_SourceRef, NULL),
+  YAML_UNSIGNED( "radioGFDisabled", 1 ),
+  YAML_UNSIGNED( "radioTrainerDisabled", 1 ),
+  YAML_UNSIGNED( "modelHeliDisabled", 1 ),
+  YAML_UNSIGNED( "modelFMDisabled", 1 ),
+  YAML_UNSIGNED( "modelCurvesDisabled", 1 ),
+  YAML_UNSIGNED( "modelGVDisabled", 1 ),
+  YAML_PADDING( 2 ),
+  YAML_STRUCT("volumeSrc", 32, struct_SourceRef, NULL),
+  YAML_UNSIGNED( "modelLSDisabled", 1 ),
+  YAML_UNSIGNED( "modelSFDisabled", 1 ),
+  YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
+  YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
+  YAML_PADDING( 2 ),
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_PADDING( 7 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
@@ -400,14 +401,14 @@ static const struct YamlNode struct_ModelHeader[] = {
 };
 static const struct YamlNode struct_TimerData[] = {
   YAML_IDX,
+  YAML_STRUCT("swtch", 32, struct_SwitchRef, NULL),
   YAML_UNSIGNED( "start", 22 ),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_SIGNED( "value", 22 ),
   YAML_ENUM("mode", 3, enum_TimerModes, NULL),
   YAML_UNSIGNED( "countdownBeep", 2 ),
   YAML_UNSIGNED( "minuteBeep", 1 ),
   YAML_UNSIGNED( "persistent", 2 ),
   YAML_SIGNED( "countdownStart", 2 ),
+  YAML_SIGNED( "value", 22 ),
   YAML_UNSIGNED( "showElapsed", 1 ),
   YAML_UNSIGNED( "extraHaptic", 1 ),
   YAML_PADDING( 6 ),
@@ -423,25 +424,31 @@ static const struct YamlNode struct_ModelDynData[] = {
   YAML_UNSIGNED( "customFnCount", 8 ),
   YAML_END
 };
+static const struct YamlNode struct_ValueOrSource[] = {
+  YAML_SIGNED( "value", 16 ),
+  YAML_UNSIGNED( "isSource", 8 ),
+  YAML_UNSIGNED( "srcType", 8 ),
+  YAML_END
+};
 static const struct YamlNode struct_CurveRef[] = {
-  YAML_UNSIGNED( "type", 5 ),
-  YAML_UNSIGNED_CUST( "value", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_UNSIGNED( "type", 8 ),
+  YAML_UNSIGNED( "spare", 8 ),
+  YAML_STRUCT("value", 32, struct_ValueOrSource, NULL),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
-  YAML_UNSIGNED( "destCh", 5 ),
-  YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
+  YAML_STRUCT("srcRaw", 32, struct_SourceRef, NULL),
+  YAML_STRUCT("swtch", 32, struct_SwitchRef, NULL),
+  YAML_STRUCT("weight", 32, struct_ValueOrSource, NULL),
+  YAML_STRUCT("offset", 32, struct_ValueOrSource, NULL),
+  YAML_STRUCT("curve", 48, struct_CurveRef, NULL),
+  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
+  YAML_ENUM("mltpx", 2, enum_MixerMultiplex, NULL),
   YAML_UNSIGNED( "carryTrim", 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
-  YAML_ENUM("mltpx", 2, enum_MixerMultiplex, NULL),
   YAML_UNSIGNED( "delayPrec", 1 ),
   YAML_UNSIGNED( "speedPrec", 1 ),
-  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
-  YAML_PADDING( 1 ),
-  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
-  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
+  YAML_UNSIGNED( "destCh", 8 ),
   YAML_UNSIGNED( "delayUp", 8 ),
   YAML_UNSIGNED( "delayDown", 8 ),
   YAML_UNSIGNED( "speedUp", 8 ),
@@ -463,18 +470,17 @@ static const struct YamlNode struct_LimitData[] = {
   YAML_END
 };
 static const struct YamlNode struct_ExpoData[] = {
-  YAML_UNSIGNED( "mode", 2 ),
-  YAML_UNSIGNED( "scale", 14 ),
-  YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
-  YAML_SIGNED( "trimSource", 6 ),
-  YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
-  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
-  YAML_UNSIGNED( "chn", 5 ),
+  YAML_STRUCT("srcRaw", 32, struct_SourceRef, NULL),
+  YAML_STRUCT("swtch", 32, struct_SwitchRef, NULL),
+  YAML_STRUCT("weight", 32, struct_ValueOrSource, NULL),
+  YAML_STRUCT("offset", 32, struct_ValueOrSource, NULL),
+  YAML_STRUCT("curve", 48, struct_CurveRef, NULL),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
-  YAML_PADDING( 2 ),
+  YAML_UNSIGNED( "mode", 2 ),
+  YAML_UNSIGNED( "chn", 5 ),
+  YAML_UNSIGNED( "scale", 16 ),
+  YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
+  YAML_SIGNED( "trimSource", 8 ),
   YAML_STRING("name", 6),
   YAML_END
 };
@@ -488,12 +494,13 @@ static const struct YamlNode struct_CurveHeader[] = {
 static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_ENUM("func", 8, enum_LogicalSwitchesFunctions, NULL),
   YAML_CUSTOM("def",r_logicSw,w_logicSw),
-  YAML_PADDING( 10 ),
-  YAML_PADDING( 10 ),
-  YAML_SIGNED_CUST( "andsw", 10, r_swtchSrc, w_swtchSrc ),
+  YAML_PADDING( 32 ),
+  YAML_PADDING( 32 ),
+  YAML_PADDING( 16 ),
+  YAML_STRUCT("andsw", 32, struct_SwitchRef, NULL),
   YAML_UNSIGNED( "lsPersist", 1 ),
   YAML_UNSIGNED( "lsState", 1 ),
-  YAML_PADDING( 16 ),
+  YAML_PADDING( 6 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
   YAML_END
@@ -501,9 +508,9 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
 static const struct YamlNode struct_SwashRingData[] = {
   YAML_ENUM("type", 8, enum_SwashType, NULL),
   YAML_UNSIGNED( "value", 8 ),
-  YAML_UNSIGNED_CUST( "collectiveSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
-  YAML_UNSIGNED_CUST( "aileronSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
-  YAML_UNSIGNED_CUST( "elevatorSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_STRUCT("collectiveSource", 32, struct_SourceRef, NULL),
+  YAML_STRUCT("aileronSource", 32, struct_SourceRef, NULL),
+  YAML_STRUCT("elevatorSource", 32, struct_SourceRef, NULL),
   YAML_SIGNED( "collectiveWeight", 8 ),
   YAML_SIGNED( "aileronWeight", 8 ),
   YAML_SIGNED( "elevatorWeight", 8 ),
@@ -519,8 +526,7 @@ static const struct YamlNode struct_FlightModeData[] = {
   YAML_IDX,
   YAML_ARRAY("trim", 16, 6, struct_trim_t, NULL),
   YAML_STRING("name", 10),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_PADDING( 6 ),
+  YAML_STRUCT("swtch", 32, struct_SwitchRef, NULL),
   YAML_UNSIGNED( "fadeIn", 8 ),
   YAML_UNSIGNED( "fadeOut", 8 ),
   YAML_ARRAY("gvars", 16, 9, struct_signed_16, gvar_is_active),
@@ -629,8 +635,7 @@ static const struct YamlNode struct_anonymous_12[] = {
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
   YAML_UNSIGNED( "crsfArmingMode", 1 ),
   YAML_PADDING( 4 ),
-  YAML_SIGNED_CUST( "crsfArmingTrigger", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_SIGNED( "spare3", 6 ),
+  YAML_STRUCT("crsfArmingTrigger", 32, struct_SwitchRef, NULL),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_13[] = {
@@ -648,7 +653,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
   YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
-  YAML_STRUCT("crsf", 24, struct_anonymous_12, NULL),
+  YAML_STRUCT("crsf", 40, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 16, struct_anonymous_13, NULL),
   YAML_END
 };
@@ -675,19 +680,19 @@ static const struct YamlNode struct_TrainerModuleData[] = {
 };
 static const struct YamlNode union_ScriptDataInput_elmts[] = {
   YAML_SIGNED( "value", 16 ),
-  YAML_UNSIGNED_CUST( "source", 16, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_STRUCT("source", 32, struct_SourceRef, NULL),
   YAML_END
 };
 static const struct YamlNode union_ScriptDataInput[] = {
   YAML_IDX,
-  YAML_UNION("u", 16, union_ScriptDataInput_elmts, select_script_input),
+  YAML_UNION("u", 32, union_ScriptDataInput_elmts, select_script_input),
   YAML_END
 };
 static const struct YamlNode struct_ScriptData[] = {
   YAML_IDX,
   YAML_STRING("file", 6),
   YAML_STRING("name", 6),
-  YAML_ARRAY("inputs", 16, 6, union_ScriptDataInput, NULL),
+  YAML_ARRAY("inputs", 32, 6, union_ScriptDataInput, NULL),
   YAML_END
 };
 static const struct YamlNode struct_string_32[] = {
@@ -772,19 +777,19 @@ static const struct YamlNode struct_TelemetrySensor[] = {
 };
 static const struct YamlNode struct_FrSkyBarData[] = {
   YAML_IDX,
-  YAML_UNSIGNED_CUST( "source", 16, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_STRUCT("source", 32, struct_SourceRef, NULL),
   YAML_SIGNED( "barMin", 16 ),
   YAML_SIGNED( "barMax", 16 ),
   YAML_END
 };
 static const struct YamlNode struct_LineDataSource[] = {
   YAML_IDX,
-  YAML_UNSIGNED_CUST( "val", 16, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_STRUCT("val", 32, struct_SourceRef, NULL),
   YAML_END
 };
 static const struct YamlNode struct_FrSkyLineData[] = {
   YAML_IDX,
-  YAML_ARRAY("sources", 16, 3, struct_LineDataSource, NULL),
+  YAML_ARRAY("sources", 32, 3, struct_LineDataSource, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TelemetryScriptData[] = {
@@ -793,15 +798,15 @@ static const struct YamlNode struct_TelemetryScriptData[] = {
   YAML_END
 };
 static const struct YamlNode union_TelemetryScreenData_u_elmts[] = {
-  YAML_ARRAY("bars", 48, 4, struct_FrSkyBarData, NULL),
-  YAML_ARRAY("lines", 48, 4, struct_FrSkyLineData, NULL),
+  YAML_ARRAY("bars", 64, 4, struct_FrSkyBarData, NULL),
+  YAML_ARRAY("lines", 96, 4, struct_FrSkyLineData, NULL),
   YAML_STRUCT("script", 176, struct_TelemetryScriptData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TelemetryScreenData[] = {
   YAML_IDX,
   YAML_CUSTOM("type",r_tele_screen_type,w_tele_screen_type),
-  YAML_UNION("u", 192, union_TelemetryScreenData_u_elmts, select_tele_screen_data),
+  YAML_UNION("u", 384, union_TelemetryScreenData_u_elmts, select_tele_screen_data),
   YAML_END
 };
 static const struct YamlNode struct_USBJoystickChData[] = {
@@ -816,7 +821,7 @@ static const struct YamlNode struct_USBJoystickChData[] = {
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 192, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
+  YAML_ARRAY("timers", 160, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
   YAML_UNSIGNED( "noGlobalFunctions", 1 ),
@@ -836,16 +841,16 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_STRUCT("dyn", 64, struct_ModelDynData, NULL),
-  YAML_EXTERN_ARRAY("mixData", 160, MAX_MIXERS_HARD, struct_MixData, yaml_get_mix_ptr),
+  YAML_EXTERN_ARRAY("mixData", 280, MAX_MIXERS_HARD, struct_MixData, yaml_get_mix_ptr),
   YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
-  YAML_EXTERN_ARRAY("expoData", 144, MAX_EXPOS_HARD, struct_ExpoData, yaml_get_expo_ptr),
+  YAML_EXTERN_ARRAY("expoData", 264, MAX_EXPOS_HARD, struct_ExpoData, yaml_get_expo_ptr),
   YAML_EXTERN_ARRAY("curves", 32, MAX_CURVES_HARD, struct_CurveHeader, yaml_get_curves_ptr),
   YAML_EXTERN_ARRAY("points", 8, MAX_CURVE_POINTS_HARD, struct_signed_8, yaml_get_points_ptr),
-  YAML_EXTERN_ARRAY("logicalSw", 72, MAX_LOGICAL_SWITCHES_HARD, struct_LogicalSwitchData, yaml_get_logical_sw_ptr),
-  YAML_EXTERN_ARRAY("customFn", 88, MAX_SPECIAL_FUNCTIONS_HARD, struct_CustomFunctionData, yaml_get_custom_fn_ptr),
-  YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
-  YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
-  YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
+  YAML_EXTERN_ARRAY("logicalSw", 144, MAX_LOGICAL_SWITCHES_HARD, struct_LogicalSwitchData, yaml_get_logical_sw_ptr),
+  YAML_EXTERN_ARRAY("customFn", 128, MAX_SPECIAL_FUNCTIONS_HARD, struct_CustomFunctionData, yaml_get_custom_fn_ptr),
+  YAML_STRUCT("swashR", 136, struct_SwashRingData, swash_is_active),
+  YAML_ARRAY("flightModeData", 368, 9, struct_FlightModeData, fmd_is_active),
+  YAML_STRUCT("thrTraceSrc", 32, struct_SourceRef, NULL),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 2, 32, struct_swtchWarn, nullptr),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
@@ -862,13 +867,13 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
-  YAML_ARRAY("scriptsData", 192, 7, struct_ScriptData, NULL),
+  YAML_ARRAY("scriptsData", 288, 7, struct_ScriptData, NULL),
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
   YAML_UNSIGNED( "potsWarnEnabled", 8 ),
   YAML_ARRAY("potsWarnPosition", 8, 8, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_PADDING( 8 ),
-  YAML_ARRAY("screens", 192, 4, struct_TelemetryScreenData, NULL),
+  YAML_ARRAY("screens", 384, 4, struct_TelemetryScreenData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
@@ -889,7 +894,7 @@ static const struct YamlNode struct_ModelData[] = {
 };
 static const struct YamlNode struct_PartialModel[] = {
   YAML_STRUCT("header", 192, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
+  YAML_ARRAY("timers", 160, 3, struct_TimerData, NULL),
   YAML_END
 };
 

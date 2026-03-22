@@ -139,19 +139,19 @@ void menuModelMixOne(event_t event)
           drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
           if (attr) {
             md2->srcRaw = checkIncDecSource(event, md2->srcRaw, SRCMASK_ALL,
-                [](SourceRef ref) { return isSourceAvailable(ref); });
+                isSourceAvailable);
           }
         }
         break;
 
       case MIX_FIELD_WEIGHT:
         md2->weight = legacyToValueOrSource(editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, valueOrSourceToLegacy(md2->weight),
-                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST));
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailableInt, 1, MIXSRC_LAST));
         break;
 
       case MIX_FIELD_OFFSET:
         md2->offset = legacyToValueOrSource(editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, valueOrSourceToLegacy(md2->offset),
-                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST));
+                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailableInt, 1, MIXSRC_LAST));
         drawOffsetBar(LCD_W - 33, y, md2);
         break;
 
@@ -165,7 +165,7 @@ void menuModelMixOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_CURVE);
         s_currSrcRaw = md2->srcRaw;
         s_currScale = 0;
-        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailable, 1, MIXSRC_LAST);
+        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailableInt, 1, MIXSRC_LAST);
         break;
 
 #if defined(FLIGHT_MODES)

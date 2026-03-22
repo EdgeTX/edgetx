@@ -221,9 +221,6 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 #define CHECK_INCDEC_MODELSWITCH(event, var, min, max, available) \
   CHECK_INCDEC_SWITCH(event, var, min, max, EE_MODEL, available)
 
-#define CHECK_INCDEC_MODELSOURCE(event, var, min, max) \
-  var = checkIncDec(event, var, min, max, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable)
-
 #define CHECK_INCDEC_GENVAR(event, var, min, max) \
   var = checkIncDecGen(event, var, min, max)
 

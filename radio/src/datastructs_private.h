@@ -807,7 +807,7 @@ PACK(struct ModelData {
   SwashRingData swashR FUNC(swash_is_active);
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
-  NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
+  NOBACKUP(SourceRef thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
   NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 

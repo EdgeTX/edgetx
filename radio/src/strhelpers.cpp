@@ -575,7 +575,7 @@ int getSwitchIndex(const char* name, bool all)
     for (uint16_t i = 0; i < tr.count; i++) {
       SwitchRef ref = {tr.type, 0, i};
       swsrc_t idx = switchRefToSwSrc(ref);
-      if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+      if (all || isSwitchAvailable(ref, ModelCustomFunctionsContext)) {
         bool hasCustom = (tr.type == SWITCH_TYPE_SWITCH);
         char* s;
         if (hasCustom) {
@@ -965,7 +965,7 @@ int getSourceIndex(const char* name, bool all)
     for (uint16_t i = 0; i < tr.count; i++) {
       SourceRef ref = {tr.type, 0, i};
       mixsrc_t idx = sourceRefToMixSrc(ref);
-      if (all || isSourceAvailable(idx)) {
+      if (all || isSourceAvailable(ref)) {
         if (tr.hasCustomName) {
           if (matchSource(name, ref, true))
             return idx;

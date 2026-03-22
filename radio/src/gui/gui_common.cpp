@@ -304,26 +304,85 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
             SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
             SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
 
-bool isSourceAvailable(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
-            );
-}
-
 bool isSourceAvailable(const SourceRef& ref)
 {
-  return isSourceAvailable(sourceRefToMixSrc(ref));
+  switch (ref.type) {
+    case SOURCE_TYPE_NONE:
+      return true;
+    case SOURCE_TYPE_INPUT:
+      return isInputAvailable(ref.index);
+    case SOURCE_TYPE_LUA:
+      return isSourceLuaAvailable(ref.index);
+    case SOURCE_TYPE_STICK:
+      return isSourceStickAvailable(ref.index);
+    case SOURCE_TYPE_POT:
+      return isSourcePotAvailable(ref.index);
+    case SOURCE_TYPE_IMU:
+      return true;
+    case SOURCE_TYPE_SPACEMOUSE:
+#if defined(PCBHORUS)
+      return isSourceSpacemouseAvailable(ref.index);
+#else
+      return false;
+#endif
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+      return true;
+    case SOURCE_TYPE_HELI:
+      return isSourceHeliAvailable(ref.index);
+    case SOURCE_TYPE_TRIM:
+      return isSourceTrimAvailable(ref.index);
+    case SOURCE_TYPE_SWITCH:
+      return isSourceSwitchAvailable(ref.index);
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP:
+#if defined(FUNCTION_SWITCHES)
+      return isSourceFuncSwitchAvailable(ref.index);
+#else
+      return false;
+#endif
+    case SOURCE_TYPE_LOGICAL_SWITCH:
+      return isSourceLSAvailable(ref.index);
+    case SOURCE_TYPE_TRAINER:
+      return isSourceTrainerAvailable(ref.index);
+    case SOURCE_TYPE_CHANNEL:
+      return isChannelUsed(ref.index);
+    case SOURCE_TYPE_GVAR:
+      return isSourceGvarAvailable(ref.index);
+    case SOURCE_TYPE_TX_VOLTAGE:
+    case SOURCE_TYPE_TX_TIME:
+    case SOURCE_TYPE_TX_GPS:
+      return true;
+    case SOURCE_TYPE_TIMER:
+      return isSourceTimerAvailable(ref.index);
+    case SOURCE_TYPE_TELEMETRY:
+      return isSourceTelemAvailable(ref.index);
+    case SOURCE_TYPE_LIGHT:
+      return true;
+    default:
+      return false;
+  }
 }
 
-bool isSourceAvailableForBacklightOrVolume(int source)
+// Thin int wrapper for legacy checkIncDec(int) / INCDEC_ENABLE_CHECK call sites
+bool isSourceAvailableInt(int source)
 {
-  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
+  return isSourceAvailable(mixSrcToSourceRef(source));
 }
 
 bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref)
 {
-  return isSourceAvailableForBacklightOrVolume(sourceRefToMixSrc(ref));
+  switch (ref.type) {
+    case SOURCE_TYPE_NONE:
+      return true;
+    case SOURCE_TYPE_SWITCH:
+      return isSourceSwitchAvailable(ref.index);
+    case SOURCE_TYPE_POT:
+      return isSourcePotAvailable(ref.index);
+    case SOURCE_TYPE_LIGHT:
+      return true;
+    default:
+      return false;
+  }
 }
 
 bool isLogicalSwitchAvailable(int index)
@@ -332,92 +391,87 @@ bool isLogicalSwitchAvailable(int index)
   return (lsw->func != LS_FUNC_NONE);
 }
 
-bool isSwitchAvailable(int swtch, SwitchContext context)
-{
-  bool negative = false;
-  (void)negative;
-
-  if (swtch < 0) {
-    if (swtch == -SWSRC_ON || swtch == -SWSRC_ONE) {
-      return false;
-    }
-    negative = true;
-    swtch = -swtch;
-  }
-
-  if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
-    div_t swinfo = switchInfo(swtch);
-    if (swinfo.quot >= switchGetMaxAllSwitches()) {
-      return false;
-    }
-
-    if (!SWITCH_EXISTS(swinfo.quot)) {
-      return false;
-    }
-
-    if (switchIsCustomSwitch(swinfo.quot) && context == GeneralCustomFunctionsContext) {
-      return false;   // FS are defined at model level, and cannot be in global functions
-    }
-
-    if (!IS_CONFIG_3POS(swinfo.quot)) {
-      if (swinfo.rem == 1) {
-        // mid position not available for 2POS switches
-        return false;
-      }
-    }
-    return true;
-  }
-
-  if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
-    return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
-  }
-
-  if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
-    int index = (swtch - SWSRC_FIRST_TRIM) / 2;
-    return index < keysGetMaxTrims();
-  }
-  
-  if (swtch >= SWSRC_FIRST_LOGICAL_SWITCH && swtch <= SWSRC_LAST_LOGICAL_SWITCH) {
-    if (context == GeneralCustomFunctionsContext) {
-      return false;
-    }
-    else if (context != LogicalSwitchesContext) {
-      return isLogicalSwitchAvailable(swtch - SWSRC_FIRST_LOGICAL_SWITCH);
-    }
-  }
-
-  if (context != ModelCustomFunctionsContext && context != GeneralCustomFunctionsContext && (swtch == SWSRC_ON || swtch == SWSRC_ONE)) {
-    return false;
-  }
-
-  if (swtch >= SWSRC_FIRST_FLIGHT_MODE && swtch <= SWSRC_LAST_FLIGHT_MODE) {
-    if (context == MixesContext || context == GeneralCustomFunctionsContext) {
-      return false;
-    }
-    else {
-      swtch -= SWSRC_FIRST_FLIGHT_MODE;
-      if (swtch == 0) {
-        return true;
-      }
-      FlightModeData * fm = flightModeAddress(swtch);
-      return !fm->swtch.isNone();
-    }
-  }
-
-  if (swtch >= SWSRC_FIRST_SENSOR && swtch <= SWSRC_LAST_SENSOR) {
-    if (context == GeneralCustomFunctionsContext)
-      return false;
-    else
-      return isTelemetryFieldAvailable(swtch - SWSRC_FIRST_SENSOR);
-  }
-
-  return true;
-}
-
 bool isSwitchAvailable(const SwitchRef& ref, SwitchContext context)
 {
-  return isSwitchAvailable(switchRefToSwSrc(ref), context);
+  switch (ref.type) {
+    case SWITCH_TYPE_NONE:
+      return true;
+
+    case SWITCH_TYPE_SWITCH: {
+      // ref.index encodes switch positions: div(index, 3) -> quot=switch, rem=position
+      div_t swinfo = div(ref.index, 3);
+      if (swinfo.quot >= switchGetMaxAllSwitches()) {
+        return false;
+      }
+      if (!SWITCH_EXISTS(swinfo.quot)) {
+        return false;
+      }
+      if (switchIsCustomSwitch(swinfo.quot) && context == GeneralCustomFunctionsContext) {
+        return false;   // FS are defined at model level, and cannot be in global functions
+      }
+      if (!IS_CONFIG_3POS(swinfo.quot)) {
+        if (swinfo.rem == 1) {
+          // mid position not available for 2POS switches
+          return false;
+        }
+      }
+      return true;
+    }
+
+    case SWITCH_TYPE_MULTIPOS: {
+      int index = ref.index / XPOTS_MULTIPOS_COUNT;
+      return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
+    }
+
+    case SWITCH_TYPE_TRIM: {
+      int index = ref.index / 2;
+      return index < keysGetMaxTrims();
+    }
+
+    case SWITCH_TYPE_LOGICAL:
+      if (context == GeneralCustomFunctionsContext) {
+        return false;
+      }
+      if (context != LogicalSwitchesContext) {
+        return isLogicalSwitchAvailable(ref.index);
+      }
+      return true;
+
+    case SWITCH_TYPE_ON:
+    case SWITCH_TYPE_ONE:
+      if (ref.isInverted()) {
+        return false;
+      }
+      if (context != ModelCustomFunctionsContext && context != GeneralCustomFunctionsContext) {
+        return false;
+      }
+      return true;
+
+    case SWITCH_TYPE_FLIGHT_MODE:
+      if (context == MixesContext || context == GeneralCustomFunctionsContext) {
+        return false;
+      }
+      if (ref.index == 0) {
+        return true;
+      }
+      {
+        FlightModeData * fm = flightModeAddress(ref.index);
+        return !fm->swtch.isNone();
+      }
+
+    case SWITCH_TYPE_SENSOR:
+      if (context == GeneralCustomFunctionsContext)
+        return false;
+      return isTelemetryFieldAvailable(ref.index);
+
+    case SWITCH_TYPE_TELEMETRY:
+    case SWITCH_TYPE_RADIO_ACTIVITY:
+    case SWITCH_TYPE_TRAINER:
+      return true;
+
+    default:
+      return true;
+  }
 }
 
 static bool switchIsAvailable(int swtch, bool invert)
@@ -600,34 +654,19 @@ bool hasSportPower() {
   return false;
 }
 
-bool isSwitchAvailableInLogicalSwitches(int swtch)
-{
-  return isSwitchAvailable(swtch, LogicalSwitchesContext);
-}
-
 bool isSwitchAvailableInLogicalSwitches(const SwitchRef& ref)
 {
-  return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
-}
-
-bool isSwitchAvailableInMixes(int swtch)
-{
-  return isSwitchAvailable(swtch, MixesContext);
+  return isSwitchAvailable(ref, LogicalSwitchesContext);
 }
 
 bool isSwitchAvailableInMixes(const SwitchRef& ref)
 {
-  return isSwitchAvailableInMixes(switchRefToSwSrc(ref));
-}
-
-bool isSwitchAvailableForArming(int swtch)
-{
-  return isSwitchAvailable(swtch, ModelCustomFunctionsContext);
+  return isSwitchAvailable(ref, MixesContext);
 }
 
 bool isSwitchAvailableForArming(const SwitchRef& ref)
 {
-  return isSwitchAvailableForArming(switchRefToSwSrc(ref));
+  return isSwitchAvailable(ref, ModelCustomFunctionsContext);
 }
 
 #if defined(COLORLCD)
@@ -636,30 +675,6 @@ bool isSwitch2POSWarningStateAvailable(int state)
   return (state != 2); // two pos switch - middle state not available
 }
 #endif // #if defined(COLORLCD)
-
-bool isThrottleSourceAvailable(int src)
-{
-#if !defined(COLORLCD)
-  src = throttleSource2Source(src);
-#endif
-  return isSourceAvailable(src) &&
-    ((src == MIXSRC_FIRST_STICK + inputMappingGetThrottle()) ||
-     ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
-     ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
-}
-
-bool isThrottleSourceAvailable(const SourceRef& ref)
-{
-  if (!isSourceAvailable(ref)) return false;
-  if (ref.type == SOURCE_TYPE_STICK &&
-      ref.index == (uint16_t)inputMappingGetThrottle())
-    return true;
-  if (ref.type == SOURCE_TYPE_POT)
-    return true;
-  if (ref.type == SOURCE_TYPE_CHANNEL)
-    return true;
-  return false;
-}
 
 bool isAssignableFunctionAvailable(int function, bool modelFunctions)
 {

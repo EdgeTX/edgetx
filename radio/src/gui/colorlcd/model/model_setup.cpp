@@ -290,17 +290,12 @@ const static SetupLineDef throttleParamsSetupLines[] = {
     STR_DEF(STR_TTRACE),
     [](Window* parent, coord_t x, coord_t y) {
       auto sc = new SourceChoice(parent, {x, y, 0, 0},
-                                []() { return throttleSource2SourceRef(g_model.thrTraceSrc); },
+                                []() { return g_model.thrTraceSrc; },
                                 [](SourceRef ref) {
-                                  int16_t val = sourceRefToThrottleSource(ref);
-                                  if (val >= 0) {
-                                    g_model.thrTraceSrc = val;
+                                    g_model.thrTraceSrc = ref;
                                     SET_DIRTY();
-                                  }
                                 });
-      sc->setAvailableHandler([](SourceRef ref) {
-        return isThrottleSourceAvailable(ref);
-      });
+      sc->setAvailableHandler(isSourceAvailable);
     }
   },
   {

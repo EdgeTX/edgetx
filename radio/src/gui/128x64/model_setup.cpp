@@ -949,7 +949,7 @@ void menuModelSetup(event_t event)
               break;
             case 1:
               {
-                timer->swtch = checkIncDecSwitch(event, timer->swtch, SWMASK_ALL, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableInMixes(ref); });
+                timer->swtch = checkIncDecSwitch(event, timer->swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
               }
               break;
           }
@@ -1197,12 +1197,12 @@ void menuModelSetup(event_t event)
       {
         lcdDrawTextIndented(y, STR_TTRACE);
         if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO_CHECK(
-              event, g_model.thrTraceSrc,
-              adcGetMaxInputs(ADC_INPUT_FLEX) + MAX_OUTPUT_CHANNELS,
-              isThrottleSourceAvailable);
+          g_model.thrTraceSrc = checkIncDecSource(event, g_model.thrTraceSrc,
+              SRC_TYPE_BIT(SOURCE_TYPE_NONE) | SRC_TYPE_BIT(SOURCE_TYPE_STICK) |
+              SRC_TYPE_BIT(SOURCE_TYPE_POT) | SRC_TYPE_BIT(SOURCE_TYPE_CHANNEL),
+              isSourceAvailable);
 
-        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, throttleSource2SourceRef(g_model.thrTraceSrc), attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, g_model.thrTraceSrc, attr);
         break;
       }
 
@@ -1655,7 +1655,7 @@ void menuModelSetup(event_t event)
           drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, attr);
           if(attr) {
             g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
-                g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableForArming(ref); });
+                g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, isSwitchAvailableForArming);
           }
         }
         break;
