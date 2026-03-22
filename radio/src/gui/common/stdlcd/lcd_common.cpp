@@ -423,13 +423,18 @@ void drawModelName(coord_t x, coord_t y, char *name, uint8_t id, LcdFlags att)
   }
 }
 
-void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold)
+void drawSwitch(coord_t x, coord_t y, const SwitchRef& ref, LcdFlags flags, bool autoBold)
 {
   char s[8];
-  getSwitchPositionName(s, idx);
-  if (autoBold && idx != SWSRC_NONE && getSwitch(idx))
+  getSwitchPositionName(s, ref);
+  if (autoBold && !ref.isNone() && getSwitch(ref))
     flags |= BOLD;
   lcdDrawText(x, y, s, flags);
+}
+
+void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold)
+{
+  drawSwitch(x, y, swSrcToSwitchRef(idx), flags, autoBold);
 }
 
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att)

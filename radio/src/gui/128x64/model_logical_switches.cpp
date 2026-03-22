@@ -198,9 +198,9 @@ void menuModelLogicalSwitchOne(event_t event)
       case LS_FIELD_ANDSW:
         lcdDrawTextAlignedLeft(y, STR_AND_SWITCH);
         {
-          swsrc_t andswVal = switchRefToSwSrc(cs->andsw);
-          drawSwitch(CSWONE_2ND_COLUMN, y, andswVal, attr);
+          drawSwitch(CSWONE_2ND_COLUMN, y, cs->andsw, attr);
           if (attr) {
+            swsrc_t andswVal = switchRefToSwSrc(cs->andsw);
             CHECK_INCDEC_MODELSWITCH(event, andswVal, -MAX_LS_ANDSW, MAX_LS_ANDSW, isSwitchAvailableInLogicalSwitches);
             cs->andsw = swSrcToSwitchRef(andswVal);
           }
@@ -331,7 +331,7 @@ void menuModelLogicalSwitches(event_t event)
       }
 
       // CSW and switch
-      drawSwitch(CSW_4TH_COLUMN, y, switchRefToSwSrc(cs->andsw), RIGHT);
+      drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, RIGHT);
     }
   }
 }

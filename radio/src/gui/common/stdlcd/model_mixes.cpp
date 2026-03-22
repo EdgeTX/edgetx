@@ -93,7 +93,7 @@ void displayMixInfos(coord_t y, MixData * md)
   drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
   if (!md->swtch.isNone()) {
-    drawSwitch(MIX_LINE_SWITCH_POS, y, switchRefToSwSrc(md->swtch));
+    drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
   }
 }
 
@@ -135,7 +135,7 @@ void displayMixInfos(coord_t y, MixData * md)
   drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
   if (!md->swtch.isNone()) {
-    drawSwitch(MIX_LINE_SWITCH_POS, y, switchRefToSwSrc(md->swtch));
+    drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
   }
 
   char cs = ' ';
@@ -339,7 +339,7 @@ void menuModelMixAll(event_t event)
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
           if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, ((s_copyMode || sub != cur) ? 0 : INVERS));
 
-          drawSource(MIX_LINE_SRC_POS, y, sourceRefToMixSrc(md->srcRaw), 0);
+          drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
           editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, valueOrSourceToLegacy(md->weight),
                       MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),

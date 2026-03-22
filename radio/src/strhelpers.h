@@ -26,6 +26,7 @@
 
 #include "definitions.h"
 #include "edgetx_types.h"
+#include "sourceref.h"
 
 class TelemetryItem;
 
@@ -124,6 +125,9 @@ char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, LcdFlags flag
                              const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
+char *getSwitchPositionName(char *dest, const SwitchRef& ref);
+char *getSwitchPositionName(const SwitchRef& ref);
+// Backward-compatible overloads (convert swsrc_t to SwitchRef internally)
 char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly = false);
 char *getSwitchPositionName(swsrc_t idx, bool defaultOnly = false);
 char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly = false);
@@ -138,6 +142,12 @@ const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
 const char *getPotLabel(uint8_t idx, bool defaultOnly = false);
 char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 
+// Primary SourceRef overloads
+template <size_t L>
+char *getSourceString(char (&dest)[L], const SourceRef& ref, bool defaultOnly = false);
+char *getSourceString(const SourceRef& ref, bool defaultOnly = false);
+
+// Backward-compatible mixsrc_t overloads (convert via mixSrcToSourceRef)
 template <size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx, bool defaultOnly = false);
 char *getSourceString(mixsrc_t idx, bool defaultOnly = false);

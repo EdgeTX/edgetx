@@ -118,7 +118,7 @@ class MixLineButton : public InputMixButtonBase
 
     if (!line.swtch.isNone()) {
       if (tmp_str[0]) s = strAppend(s, " ");
-      char* sw_pos = getSwitchPositionName(switchRefToSwSrc(line.swtch));
+      char* sw_pos = getSwitchPositionName(line.swtch);
       s = strAppend(s, sw_pos);
     }
 

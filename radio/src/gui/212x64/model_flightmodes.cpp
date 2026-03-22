@@ -109,10 +109,12 @@ void menuModelFlightModesAll(event_t event)
 
         case ITEM_FLIGHT_MODES_SWITCH:
           if (k>0) {
-            swsrc_t fmSw = switchRefToSwSrc(p->swtch);
-            drawSwitch((4+LEN_FLIGHT_MODE_NAME)*FW+FW/2, y, fmSw, attr);
-            if (active) CHECK_INCDEC_MODELSWITCH(event, fmSw, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
-            p->swtch = swSrcToSwitchRef(fmSw);
+            drawSwitch((4+LEN_FLIGHT_MODE_NAME)*FW+FW/2, y, p->swtch, attr);
+            if (active) {
+              swsrc_t fmSw = switchRefToSwSrc(p->swtch);
+              CHECK_INCDEC_MODELSWITCH(event, fmSw, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
+              p->swtch = swSrcToSwitchRef(fmSw);
+            }
           }
           break;
 

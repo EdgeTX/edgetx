@@ -939,7 +939,7 @@ void menuModelSetup(event_t event)
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES,
                            timer->mode, menuHorizontalPosition == 0 ? attr : 0);
 
-        drawSwitch(MODEL_SETUP_2ND_COLUMN + 5 * FW, y, switchRefToSwSrc(timer->swtch),
+        drawSwitch(MODEL_SETUP_2ND_COLUMN + 5 * FW, y, timer->swtch,
                    menuHorizontalPosition == 1 ? attr : 0);
 
         if (attr && s_editMode > 0) {
@@ -1655,11 +1655,12 @@ void menuModelSetup(event_t event)
 #endif
         lcdDrawTextIndented(y, STR_SWITCH);
         {
-          swsrc_t armSw = switchRefToSwSrc(g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger);
-          drawSwitch(MODEL_SETUP_2ND_COLUMN, y, armSw, attr);
-          if(attr)
+          drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, attr);
+          if(attr) {
+            swsrc_t armSw = switchRefToSwSrc(g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger);
             CHECK_INCDEC_SWITCH(event, armSw, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
-          g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = swSrcToSwitchRef(armSw);
+            g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = swSrcToSwitchRef(armSw);
+          }
         }
         break;
 #endif

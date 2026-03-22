@@ -323,38 +323,38 @@ TEST_F(ArenaInsertDeleteTest, InsertExpoPreservesExisting)
 TEST_F(ArenaInsertDeleteTest, InsertDeleteCustomFn)
 {
   CustomFunctionData* cf0 = customFnAddress(0);
-  cf0->swtch = 1;
+  cf0->swtch = {SWITCH_TYPE_SWITCH, 0, 1};
   cf0->func = FUNC_OVERRIDE_CHANNEL;
 
   CustomFunctionData* cf1 = customFnAddress(1);
-  cf1->swtch = 2;
+  cf1->swtch = {SWITCH_TYPE_SWITCH, 0, 2};
   cf1->func = FUNC_TRAINER;
 
   insertCustomFn(0);
 
   // Original functions should have shifted
-  EXPECT_EQ(customFnAddress(0)->swtch, 0);  // new empty
-  EXPECT_EQ(customFnAddress(1)->swtch, 1);  // was cf0
+  EXPECT_TRUE(customFnAddress(0)->swtch.isNone());  // new empty
+  EXPECT_EQ(customFnAddress(1)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 1}));  // was cf0
   EXPECT_EQ(customFnAddress(1)->func, FUNC_OVERRIDE_CHANNEL);
-  EXPECT_EQ(customFnAddress(2)->swtch, 2);  // was cf1
+  EXPECT_EQ(customFnAddress(2)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 2}));  // was cf1
 
   deleteCustomFn(0);
 
   // Back to original
-  EXPECT_EQ(customFnAddress(0)->swtch, 1);
+  EXPECT_EQ(customFnAddress(0)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 1}));
   EXPECT_EQ(customFnAddress(0)->func, FUNC_OVERRIDE_CHANNEL);
-  EXPECT_EQ(customFnAddress(1)->swtch, 2);
+  EXPECT_EQ(customFnAddress(1)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 2}));
   EXPECT_EQ(customFnAddress(1)->func, FUNC_TRAINER);
 }
 
 TEST_F(ArenaInsertDeleteTest, ClearCustomFn)
 {
-  customFnAddress(3)->swtch = 5;
+  customFnAddress(3)->swtch = {SWITCH_TYPE_SWITCH, 0, 5};
   customFnAddress(3)->func = FUNC_PLAY_SOUND;
 
   clearCustomFn(3);
 
-  EXPECT_EQ(customFnAddress(3)->swtch, 0);
+  EXPECT_TRUE(customFnAddress(3)->swtch.isNone());
   EXPECT_EQ(customFnAddress(3)->func, 0);
 }
 

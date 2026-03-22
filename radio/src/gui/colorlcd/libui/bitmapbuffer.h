@@ -25,6 +25,8 @@
 #endif
 
 struct MaskBitmap;
+struct SourceRef;
+struct SwitchRef;
 class TelemetryItem;
 
 constexpr uint8_t SOLID = 0xFF;
@@ -193,7 +195,10 @@ class BitmapBuffer
   point_t drawTextLines(coord_t left, coord_t top, coord_t width, coord_t height,
                      const char* str, LcdFlags flags);
   void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags flags = 0);
+  void drawSource(coord_t x, coord_t y, const SourceRef& ref, LcdFlags flags = 0);
   void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags flags = 0);
+  coord_t drawSwitch(coord_t x, coord_t y, const SwitchRef& ref, LcdFlags flags = 0);
+  // Backward-compatible overload
   coord_t drawSwitch(coord_t x, coord_t y, int32_t idx, LcdFlags flags = 0);
   void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor,
                              int32_t value, LcdFlags flags = 0);
