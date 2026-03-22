@@ -362,7 +362,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     int index = (swtch - SWSRC_FIRST_TRIM) / 2;
     return index < keysGetMaxTrims();
   }
-  
+
   if (swtch >= SWSRC_FIRST_LOGICAL_SWITCH && swtch <= SWSRC_LAST_LOGICAL_SWITCH) {
     if (context == GeneralCustomFunctionsContext) {
       return false;
@@ -817,7 +817,7 @@ void  checkExternalAntenna()
   }
   else {
      INTMODULE_ANTSEL_INT();
-  }
+ }
 }
 #endif
 
@@ -1059,7 +1059,7 @@ bool isExternalModuleAvailable(int moduleType)
   if (moduleType == MODULE_TYPE_FLYSKY_AFHDS2A)
     return false;
 #endif
-  
+
 #if !defined(AFHDS3)
   if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
     return false;
@@ -1148,9 +1148,9 @@ bool isTrainerModeAvailable(int mode)
       auto port =  modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_TIMER,
                                   ETX_MOD_PORT_TIMER, ETX_Pol_Normal,
                                   ETX_MOD_DIR_RX);
-      return port != nullptr;      
+      return port != nullptr;
     }
-    
+
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
       const etx_module_port_t *port = nullptr;
 
@@ -1373,7 +1373,7 @@ void setPotType(int index, int value)
 
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
-  if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4)) 
+  if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4))
     return 1;
 
   if (isModuleCrossfire(moduleIdx))

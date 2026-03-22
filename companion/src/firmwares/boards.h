@@ -96,6 +96,7 @@ namespace Board {
     BOARD_FATFISH_F16,
     BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
+    BOARD_HELLORADIOSKY_V12,
     BOARD_HELLORADIOSKY_V14,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
@@ -627,6 +628,11 @@ inline bool IS_FATFISH_F16(Board::Type board)
   return board == Board::BOARD_FATFISH_F16;
 }
 
+inline bool IS_HELLORADIOSKY_V12(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V12;
+}
+
 inline bool IS_HELLORADIOSKY_V14(Board::Type board)
 {
   return board == Board::BOARD_HELLORADIOSKY_V14;
@@ -640,6 +646,7 @@ inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 inline bool IS_FAMILY_T16(Board::Type board)
 {
   return board == Board::BOARD_FATFISH_F16 ||
+         board == Board::BOARD_HELLORADIOSKY_V12 ||
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
          board == Board::BOARD_JUMPER_T16 ||
