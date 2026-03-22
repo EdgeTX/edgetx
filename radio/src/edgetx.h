@@ -96,6 +96,7 @@ enum RotaryEncoderMode {
 #include "myeeprom.h"
 #include "curves.h"
 #include "expos.h"
+#include "customfn.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
@@ -399,7 +400,6 @@ FlightModeData * flightModeAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
-CustomFunctionData * customFnAddress(uint8_t idx);
 CurveHeader * curveHeaderAddress(uint8_t idx);
 
 void applyDefaultTemplate();

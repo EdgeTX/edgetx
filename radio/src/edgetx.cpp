@@ -266,12 +266,6 @@ USBJoystickChData *usbJChAddress(uint8_t idx)
   return &g_model.usbJoystickCh[idx];
 }
 
-CustomFunctionData *customFnAddress(uint8_t idx)
-{
-  return reinterpret_cast<CustomFunctionData*>(
-      g_modelArena.sectionBase(ARENA_CUSTOM_FN)) + idx;
-}
-
 CurveHeader *curveHeaderAddress(uint8_t idx)
 {
   return reinterpret_cast<CurveHeader*>(
