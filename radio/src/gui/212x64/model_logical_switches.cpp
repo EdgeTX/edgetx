@@ -254,7 +254,7 @@ void menuModelLogicalSwitches(event_t event)
           break;
         case LS_FIELD_ANDSW:
         {
-          cs->andsw = checkIncDecSwitch(event, cs->andsw, -MAX_LS_ANDSW, MAX_LS_ANDSW, EE_MODEL, isSwitchAvailableInLogicalSwitches);
+          cs->andsw = checkIncDecSwitch(event, cs->andsw, SWMASK_LOGICAL_AND, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableInLogicalSwitches(ref); });
         }
           break;
         case LS_FIELD_DURATION:

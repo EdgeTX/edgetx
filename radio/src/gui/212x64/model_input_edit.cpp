@@ -107,8 +107,8 @@ void menuModelExpoOne(event_t event)
           lcdDrawTextAlignedLeft(y, STR_SOURCE);
           drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
           if (attr && menuHorizontalPosition==0) {
-            ed->srcRaw = checkIncDecSource(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST,
-                EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
+            ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL,
+                [](SourceRef ref) { return isSourceAvailable(ref); });
           }
           if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
             uint16_t telemIdx = ed->srcRaw.index;

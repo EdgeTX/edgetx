@@ -138,8 +138,8 @@ void menuModelMixOne(event_t event)
           lcdDrawTextAlignedLeft(y, STR_SOURCE);
           drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
           if (attr) {
-            md2->srcRaw = checkIncDecSource(event, md2->srcRaw, 1, MIXSRC_LAST,
-                EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
+            md2->srcRaw = checkIncDecSource(event, md2->srcRaw, SRCMASK_ALL,
+                [](SourceRef ref) { return isSourceAvailable(ref); });
           }
         }
         break;

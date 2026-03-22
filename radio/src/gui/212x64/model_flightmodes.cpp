@@ -111,7 +111,7 @@ void menuModelFlightModesAll(event_t event)
           if (k>0) {
             drawSwitch((4+LEN_FLIGHT_MODE_NAME)*FW+FW/2, y, p->swtch, attr);
             if (active) {
-              p->swtch = checkIncDecSwitch(event, p->swtch, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, EE_MODEL, isSwitchAvailableInMixes);
+              p->swtch = checkIncDecSwitch(event, p->swtch, SWMASK_ALL, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableInMixes(ref); });
             }
           }
           break;

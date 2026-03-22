@@ -46,7 +46,7 @@ static int numberField(const char* name, coord_t y, int val, int min, LcdFlags a
 
 static SourceRef sourceField(const char* name, coord_t y, SourceRef val, LcdFlags attr, event_t event)
 {
-  return editSource(MODEL_HELI_2ND_COLUMN, y, name, val, MIXSRC_LAST_CH, attr, event);
+  return editSource(MODEL_HELI_2ND_COLUMN, y, name, val, SRCMASK_THROUGH_CH, attr, event);
 }
 
 void menuModelHeli(event_t event)

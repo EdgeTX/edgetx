@@ -214,7 +214,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             CFN_ACTIVE(cfn) = 0; // Default is disabled
             drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | INVERS | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
             if (active) {
-              cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+              cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, [](SwitchRef ref) { return isSwitchAvailableInCustomFunctions(ref); });
             }
           }
           else {
@@ -222,7 +222,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active || AUTOSWITCH_ENTER_LONG()) {
               if (event == EVT_KEY_LONG(KEY_ENTER))
                 killEvents(event);
-              cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+              cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, [](SwitchRef ref) { return isSwitchAvailableInCustomFunctions(ref); });
             }
           }
         }

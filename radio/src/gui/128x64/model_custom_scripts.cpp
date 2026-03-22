@@ -114,7 +114,7 @@ void menuModelCustomScriptOne(event_t event)
           drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcRef, attr);
           if (attr) {
             g_model.scriptsData[s_currIdx].inputs[inputIdx].source =
-                checkIncDecSource(event, srcRef, 0, MIXSRC_LAST_TELEM);
+                checkIncDecSource(event, srcRef, SRCMASK_ALL);
           }
         }
       }
