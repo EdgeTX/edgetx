@@ -187,48 +187,103 @@ Option 2 (recompute) is preferred — it's robust and doesn't add format depende
 
 ---
 
-## Phase 4 (Future): GVars + FlightModes
+## Phase 3b: Structured Source/Switch References (Priority)
 
-GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Making gvars dynamic means `FlightModeData` becomes variable-size. Defer unless users need more than 15 gvars.
+**This is the top priority** — the current `srcRaw:10` encoding is already broken on H7 radios (telemetry sensors >75 overflow), and it blocks raising any arena limits since most item types are referenced through the `MixSources` enum.
 
-## Phase 5 (Future): Structured Source/Switch References
+### The problem
 
-Replace the monolithic `MixSources` and `SwitchSources` enums with structured `type + index` references:
+All sources (inputs, sticks, pots, channels, logical switches, GVars, telemetry, etc.) are packed into a single `MixSources` enum, stored in a 10-bit signed field. The enum currently reaches 580 on H7 (TX15), overflowing the 0-511 positive range. The negative range encodes "inverted source" via `getValue()`:
 
 ```cpp
-// Current: one big enum crammed into 10 signed bits
-int16_t srcRaw:10;  // 0=none, 1-32=inputs, 33-86=lua, 87-90=sticks, ...
-                     // negative = inverted source
+getvalue_t getValue(mixsrc_t i, bool* valid) {
+  bool invert = false;
+  if (i < 0) { invert = true; i = -i; }
+  getvalue_t v = _getValue(i, valid);
+  if (invert) v = -v;
+  return v;
+}
+```
 
-// Future: 32-bit structured reference (aligned to MCU word size)
+### The fix: 32-bit structured references
+
+Replace the monolithic enums with 32-bit word-aligned structs:
+
+```cpp
 PACK(struct SourceRef {
     uint8_t  type;    // SOURCE_NONE, SOURCE_INPUT, SOURCE_STICK, SOURCE_CH, SOURCE_TELEM, ...
-    uint8_t  flags;   // SRCFLAG_INVERTED, etc. (replaces sign-bit hack)
+    uint8_t  flags;   // SRCFLAG_INVERTED, etc. (replaces sign-bit hack in getValue)
     uint16_t index;   // 0-65535 within that type
 });
 
-// Similarly for switch references:
 PACK(struct SwitchRef {
     uint8_t  type;    // SWREF_NONE, SWREF_PHYSICAL, SWREF_TRIM, SWREF_LOGICAL, SWREF_FLIGHT_MODE, ...
-    uint8_t  flags;   // SWFLAG_INVERTED, etc.
+    uint8_t  flags;   // SWFLAG_INVERTED, etc. (replaces negative swtch encoding)
     uint16_t index;   // 0-65535 within that type
 });
 ```
 
-Benefits:
-- **32-bit word-aligned**: natural fit for ARM Cortex-M, no bit-field extraction overhead.
-- **65536 items per type**: removes all index limits. Adding 99 or 999 telemetry sensors doesn't affect input/channel addressing.
-- **Makes limits independent**: `MAX_INPUTS`, `MAX_LOGICAL_SWITCHES`, etc. can grow independently.
-- **Explicit flags**: inversion/negation encoding moves from sign-bit hack to a dedicated flags byte. Room for future flags (e.g., absolute value, filtered).
-- **Simplifies range checks**: replace `if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM)` with `if (src.type == SOURCE_TELEM)`.
-- **Aligns with arena**: the type maps directly to an arena section, the index selects the element.
-- **Same applies to SwitchSources**: split into switch type + index, same 32-bit layout.
+### Benefits
 
-Size impact: `SourceRef` is 4 bytes vs the current 10-bit field (~1.25 bytes). This increases MixData by ~3 bytes per source field (srcRaw + weight source + offset source + curve ref). MixData would grow from 20 to ~30 bytes. With dynamic arena sizing, the total memory impact depends on actual mix count.
+- **Fixes the H7 bug**: no enum range pressure, each type gets 0-65535 index space
+- **32-bit word-aligned**: natural fit for ARM Cortex-M, no bit extraction overhead
+- **Independent limits**: adding telemetry sensors doesn't affect input/channel addressing
+- **Explicit flags**: inversion moves from sign-bit hack to dedicated flags byte
+- **Simpler code**: `if (src.type == SOURCE_TELEM)` replaces `if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM)`
+- **Aligns with arena**: type maps to arena section, index selects element
 
-This is a large standalone refactoring (the `MixSources` enum is referenced across firmware, Lua API, GUI, YAML, and Companion). It should be tackled as a separate project that complements but doesn't block the arena work.
+### Size impact
 
-The `srcRaw:10` overflow on H7 (documented in "Capacity Limits Analysis" below) is a forcing function — this refactoring becomes necessary to properly support >80 telemetry sensors as mix sources.
+`SourceRef` is 4 bytes vs the current 10-bit field (~1.25 bytes). Fields affected per struct:
+
+| Struct | Fields using SourceRef/SwitchRef | Current bits | New bytes | Delta |
+|--------|--------------------------------|-------------|-----------|-------|
+| MixData | srcRaw, swtch, curve (partially) | 10+10+16=36 bits | 4+4+4=12 bytes | +~7 B |
+| ExpoData | srcRaw, swtch, curve (partially) | 10+10+16=36 bits | 4+4+4=12 bytes | +~7 B |
+| LogicalSwitchData | v1, v3, andsw | 10+10+10=30 bits | 4+4+4=12 bytes | +~8 B |
+| CustomFunctionData | swtch | 10 bits | 4 bytes | +~3 B |
+| FlightModeData | swtch | 10 bits | 4 bytes | +~3 B |
+| TimerData | swtch | 10 bits | 4 bytes | +~3 B |
+
+MixData would grow from ~20 to ~27 bytes. With dynamic arena sizing, total memory depends on actual mix count — a model with 10 mixes uses 270 B instead of 200 B (70 B more, trivial).
+
+### Migration strategy
+
+1. **Define `SourceRef` and `SwitchRef` structs** alongside the existing enums
+2. **Add conversion functions**: `SourceRef fromMixSrc(mixsrc_t)` / `mixsrc_t toMixSrc(SourceRef)` for gradual migration
+3. **Replace fields one struct at a time**: start with MixData.srcRaw, then ExpoData, LogicalSwitchData, etc.
+4. **Update `getValue()`** to take `SourceRef` instead of `mixsrc_t`
+5. **Update YAML serialization**: new CUST read/write for SourceRef/SwitchRef (YAML format change — type+index instead of enum name)
+6. **Update Lua API**: `model.getMix()` etc. return structured source refs
+7. **Keep `MixSources` enum** as internal reference for type classification, but no longer as a storage format
+8. **Update Companion**: its own `RawSource` class already has a type+index design, should map naturally
+
+### Files affected (major)
+
+| Area | Key files |
+|------|-----------|
+| Struct definitions | `datastructs_private.h` — replace bit-fields with SourceRef/SwitchRef |
+| Mixer engine | `mixer.cpp` — `getValue()`, `applyExpos()`, `evalFlightModeMixes()` |
+| Source enums | `dataconstants.h` — MixSources/SwitchSources become type enums |
+| YAML serialization | `yaml_datastructs_funcs.cpp` — new read/write for structured refs |
+| GUI source pickers | `sourcechoice.cpp`, `switchchoice.cpp` — adapt to type+index |
+| Lua API | `api_model.cpp` — source/switch getters/setters |
+| String helpers | `strhelpers.cpp` — `getSourceString()`, `getSwitchPositionName()` |
+| All generated YAML | 22 `yaml_datastructs_*.cpp` files — field definitions change |
+
+---
+
+## Phase 4: Dynamic Arena Sizing
+
+(Moved from Phase 3 — useful optimization but not blocking)
+
+### 4.1 - 4.8: Same content as previous Phase 3.1 - 3.8
+
+---
+
+## Phase 5 (Future): GVars + FlightModes
+
+GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Making gvars dynamic means `FlightModeData` becomes variable-size. Defer unless users need more than 15 gvars.
 
 ## Phase 6 (Future): Growable Arena
 
