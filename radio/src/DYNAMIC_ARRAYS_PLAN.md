@@ -191,7 +191,33 @@ Option 2 (recompute) is preferred — it's robust and doesn't add format depende
 
 GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Making gvars dynamic means `FlightModeData` becomes variable-size. Defer unless users need more than 15 gvars.
 
-## Phase 5 (Future): Growable Arena
+## Phase 5 (Future): Structured Source/Switch References
+
+Replace the monolithic `MixSources` and `SwitchSources` enums with structured `type + index` references:
+
+```cpp
+// Current: one big enum crammed into 10 signed bits
+int16_t srcRaw:10;  // 0=none, 1-32=inputs, 33-86=lua, 87-90=sticks, ...
+
+// Future: structured reference
+struct SourceRef {
+    uint8_t type;    // SOURCE_NONE, SOURCE_INPUT, SOURCE_STICK, SOURCE_CH, SOURCE_TELEM, ...
+    uint8_t index;   // 0-255 within that type
+};
+```
+
+Benefits:
+- **Removes enum range pressure**: each type gets a full 0-255 index space. Adding 99 telemetry sensors doesn't eat into input/channel addressing.
+- **Makes limits independent**: `MAX_INPUTS`, `MAX_LOGICAL_SWITCHES`, etc. can grow independently without any bit-field overflow.
+- **Simplifies range checks**: replace `if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM)` with `if (src.type == SOURCE_TELEM)`.
+- **Aligns with arena**: the type maps directly to an arena section, the index selects the element.
+- **Same applies to SwitchSources**: split into switch type (physical, trim, logical, flight mode, sensor) + index.
+
+This is a large standalone refactoring (the `MixSources` enum is referenced across firmware, Lua API, GUI, YAML, and Companion). It should be tackled as a separate project that complements but doesn't block the arena work.
+
+The `srcRaw:10` overflow on H7 (documented in "Capacity Limits Analysis" below) is a forcing function — this refactoring becomes necessary to properly support >80 telemetry sensors as mix sources.
+
+## Phase 6 (Future): Growable Arena
 
 Replace the static arena buffer with a dynamically allocated one:
 - `attach(malloc(size), size)` or `attach(sdramAddr, largerSize)`
