@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/workspaces/edgetx/tools/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

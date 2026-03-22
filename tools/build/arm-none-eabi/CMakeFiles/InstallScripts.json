@@ -1,0 +1,12 @@
+{
+	"InstallScripts" : 
+	[
+		"/workspaces/edgetx/tools/build/arm-none-eabi/cmake_install.cmake",
+		"/workspaces/edgetx/tools/build/arm-none-eabi/radio/src/cmake_install.cmake",
+		"/workspaces/edgetx/tools/build/arm-none-eabi/radio/src/bitmaps/cmake_install.cmake",
+		"/workspaces/edgetx/tools/build/arm-none-eabi/radio/src/bitmaps/212x64/cmake_install.cmake",
+		"/workspaces/edgetx/tools/build/arm-none-eabi/radio/src/fonts/cmake_install.cmake",
+		"/workspaces/edgetx/tools/build/arm-none-eabi/radio/src/bootloader/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

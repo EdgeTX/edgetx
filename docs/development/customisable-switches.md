@@ -26,7 +26,7 @@ A traditional 6POS is basically a group of 6 switches that work together, where 
 
 In a traditional 6POS , all the switches belong to the same group. If you want 2 groups of 3 switches, assign 3 switches to group 1, and 3 to group 2
 
-![Customisable switches figure 1](../../assets/images/fs_fig1.png)
+![Customisable switches figure 1](../assets/images/fs_fig1.png)
 
 ## Startup Position
 

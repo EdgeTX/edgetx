@@ -1,0 +1,19 @@
+radio/src/CMakeFiles/stm32cube_ll.dir/thirdparty/STM32F2xx_HAL_Driver/Src/stm32f2xx_ll_tim.c.obj: \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Src/stm32f2xx_ll_tim.c \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/stm32f205xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/core_cm3.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/machine/_default_types.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/features.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/_newlib_version.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_intsup.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_stdint.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/cmsis_version.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/cmsis_compiler.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/cmsis_gcc.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/mpu_armv7.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/system_stm32f2xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_bus.h

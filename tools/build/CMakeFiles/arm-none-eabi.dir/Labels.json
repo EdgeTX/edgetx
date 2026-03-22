@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/workspaces/edgetx/tools/build/CMakeFiles/arm-none-eabi"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/CMakeFiles/arm-none-eabi.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/CMakeFiles/arm-none-eabi-complete.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-build.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-configure.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-download.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-install.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-mkdir.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-patch.rule"
+		},
+		{
+			"file" : "/workspaces/edgetx/tools/build/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"arm-none-eabi"
+		],
+		"name" : "arm-none-eabi"
+	}
+}

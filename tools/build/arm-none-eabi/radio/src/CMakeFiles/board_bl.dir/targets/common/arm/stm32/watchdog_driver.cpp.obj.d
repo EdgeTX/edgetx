@@ -1,0 +1,36 @@
+radio/src/CMakeFiles/board_bl.dir/targets/common/arm/stm32/watchdog_driver.cpp.obj: \
+ /workspaces/edgetx/radio/src/targets/common/arm/stm32/watchdog_driver.cpp \
+ /workspaces/edgetx/radio/src/hal/watchdog_driver.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/machine/_default_types.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/features.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/_newlib_version.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_intsup.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_stdint.h \
+ /workspaces/edgetx/radio/src/targets/common/arm/stm32/stm32_hal_ll.h \
+ /workspaces/edgetx/radio/src/targets/common/arm/stm32/stm32_cmsis.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/stm32f205xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/core_cm3.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/cmsis_version.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/cmsis_compiler.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/cmsis_gcc.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Include/mpu_armv7.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/system_stm32f2xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_bus.h \
+ /workspaces/edgetx/radio/src/thirdparty/CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_gpio.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_dma.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usart.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_exti.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_system.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_rcc.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_adc.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_spi.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_iwdg.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usb.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_def.h \
+ /workspaces/edgetx/radio/src/thirdparty/STM32F2xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stddef.h

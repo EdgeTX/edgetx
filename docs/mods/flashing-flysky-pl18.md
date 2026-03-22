@@ -10,7 +10,7 @@ This page lists the recommended steps to install EdgeTX onto Flysky PL18 or Pala
 
 ***
 
-[![EdgeTX on PL18EV](../../assets/images/hw/flysky-pl18/edgetx_pl18ev.jpg)](../../assets/images/hw/flysky-pl18/edgetx_pl18ev.jpg)
+[![EdgeTX on PL18EV](../assets/images/hw/flysky-pl18/edgetx_pl18ev.jpg)](../assets/images/hw/flysky-pl18/edgetx_pl18ev.jpg)
 
 Please keep in mind that at present day, EdgeTX support for Flysky PL18 and Paladin EV radios is still in development - the upcoming v2.10 is scheduled to provide the first release. Use EdgeTX on PL18 or Paladin EV for testing purposes only at the moment. A lot of EdgeTX functionality is already successfully implemented for PL18 / Paladin EV, but not all.
 
@@ -25,7 +25,7 @@ Due to PL18 and Paladin EV radio hardware differences, when compared to other Ed
 * Download and install the latest STM32CubeProgrammer, see for instructions: [Unbrick your radio](unbrick.md) (you need to make an account at ST to be able to download it).
 * Peel off the left rubber handle on your PL18 or Paladin EV. That should reveal two hidden buttons. The top button is the Device-Firmware-Upgrade (DFU) button, the bottom button is the ultimate master power-off button and will be required to be pressed to exit the DFU mode.
 
-[![PL18 hidden buttons](../../assets/images/hw/flysky-pl18/pl18_hidden_buttons.jpg)](../../assets/images/hw/flysky-pl18/pl18_hidden_buttons.jpg)
+[![PL18 hidden buttons](../assets/images/hw/flysky-pl18/pl18_hidden_buttons.jpg)](../assets/images/hw/flysky-pl18/pl18_hidden_buttons.jpg)
 
 ## Backing up Flysky Bootloader
 
@@ -35,19 +35,19 @@ Due to PL18 and Paladin EV radio hardware differences, when compared to other Ed
 * You should have heard the typical sound from your computer, when you attach an USB device. Start STM32CubeProgrammer software.
 * The STM32F429BIT6 microcontroller in the PL18/PL18EV should have been detected on the right side of the STM32CubeProgrammer screen under USB configuration as a USB with a number, typically USB1. Open the drop-down menu next to `Port` to check if you see USB1 listed there and then select it. Click the green `Connect` button on top right.
 
-![STM32CubeProgrammer connect](../../assets/images/hw/flysky-pl18/stm32cb_connect.png)
+![STM32CubeProgrammer connect](../assets/images/hw/flysky-pl18/stm32cb_connect.png)
 
 * You might be greeted with some seemingly random content, do not get alarmed - this is all perfectly fine and just showing some of the first bytes of memory that are currently saved on the microcontroller. Most importantly, check that the lower right corner now lists _Cortex-M4_ to the right of the field `CPU`.
 
-![STM32CubeProgrammer chip info](../../assets/images/hw/flysky-pl18/stm32cb_chipinfo.png)
+![STM32CubeProgrammer chip info](../assets/images/hw/flysky-pl18/stm32cb_chipinfo.png)
 
 * Next you will read out the STM32F4 flash memory of your radio. In Device memory tab, make sure Address is `0x08000000` (Explanation: `0x08000000` is the starting address of the flash memory on STM32F4 microcontrollers). Enter size: `0x200000` (instead of default `0x400`). (Explanation: `0x200000` is 2 MByte in hex, the size of STM32F429BIT6 internal flash). Click the blue `Read` button. It takes ca. 5 sec. to read the full flash from radio into your computer.
 
-[![STM32CubeProgrammer read](../../assets/images/hw/flysky-pl18/stm32cb_read.png)](../../assets/images/hw/flysky-pl18/stm32cb_read.png)
+[![STM32CubeProgrammer read](../assets/images/hw/flysky-pl18/stm32cb_read.png)](../assets/images/hw/flysky-pl18/stm32cb_read.png)
 
 * Click the drop-down arrow on Read command and pick `Save-As`.
 
-![STM32CubeProgrammer save as](../../assets/images/hw/flysky-pl18/stm32cb_saveas.png)
+![STM32CubeProgrammer save as](../assets/images/hw/flysky-pl18/stm32cb_saveas.png)
 
 * Give it a name, such as `PL18_factory.bin` and save it somewhere safe. This file is your ticket back to Flysky firmware on your radio, if you ever wish to restore your operating system. Check that the file is 2 MByte in size, if not - something went wrong and do NOT continue until you are able to sort it out.
 * If you plan to continue flashing the EdgeTX bootloader and firmware next, skip all the following steps of this section, otherwise be sure to continue - as your radio will drain the battery otherwise.
@@ -72,11 +72,11 @@ If your radio is already connected successfully in DFU mode to your computer, yo
 
 * Make sure your PL18 / Paladin EV is powered down. Pull both horizontal trims (TR7 and TR8) together and press both power buttons to start into EdgeTX bootloader that you can hopefully see. If nothing happens, wait at least 3 minutes.
 
-[![EdgeTX bootloader on PL18](../../assets/images/hw/flysky-pl18/edgetx_bootloader_pl18.jpg)](../../assets/images/hw/flysky-pl18/edgetx_bootloader_pl18.jpg)
+[![EdgeTX bootloader on PL18](../assets/images/hw/flysky-pl18/edgetx_bootloader_pl18.jpg)](../assets/images/hw/flysky-pl18/edgetx_bootloader_pl18.jpg)
 
 * If EdgeTX bootloader started successfully, select erase internal flash (second option from the top). You navigate up/down with TR6 and select Exit/Enter with TR4.
 
-[![PL18 bootloader keys](../../assets/images/hw/flysky-pl18/pl18_bootloader_keys.jpg)](../../assets/images/hw/flysky-pl18/pl18_bootloader_keys.jpg)
+[![PL18 bootloader keys](../assets/images/hw/flysky-pl18/pl18_bootloader_keys.jpg)](../assets/images/hw/flysky-pl18/pl18_bootloader_keys.jpg)
 
 * The flash erase can take some minutes to complete. Wait and then turn off the radio using the power buttons.
 

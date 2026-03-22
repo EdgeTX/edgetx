@@ -26,17 +26,17 @@ The original author of FlySky digital gimbal support in EdgeTX, Richard Li, deve
 
 The adapter ring set comes with 4 plastic parts and a cable. First, the thicker set of plastic rings are mounted into the radio, using the 4 original gimbal screws:
 
-[![HawkRC TX16S adapter set step 1](../../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step1.jpg)](../../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step1.jpg)
+[![HawkRC TX16S adapter set step 1](../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step1.jpg)](../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step1.jpg)
 
 The adapter ring set is a perfect fit for RadioMaster and Eachine TX16S. For T16/T18 and TX18S, a small plastic protrusion needs to be removed first - for further details, please see the [Hawk-RC product page](http://www.hawk-creation.com/index.php?route=product/product&product_id=6862).
 
 In a second step, the thinner adapter rings are mounted on top, with two M2x6 screws each:
 
-[![HawkRC TX16S adapter set step 2](../../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step2.jpg)](../../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step2.jpg)
+[![HawkRC TX16S adapter set step 2](../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step2.jpg)](../assets/images/hw/flysky-mod/HawkRC_TX16S_adapter_set_step2.jpg)
 
 In a third step, the FlySky gimbals are mounted using two M2x6 screws (outside) and two M2x14 screws (inside) each onto the adapter rings. And finally, the included cable needs to be attached to the left gimbal connector on the TX16S mainboard, circled green on next image:
 
-[![TX16S FlySky gimbal connection](../../assets/images/hw/flysky-mod/TX16S_FlySky_gimbal_connection.jpg)](../../assets/images/hw/flysky-mod/TX16S_FlySky_gimbal_connection.jpg)
+[![TX16S FlySky gimbal connection](../assets/images/hw/flysky-mod/TX16S_FlySky_gimbal_connection.jpg)](../assets/images/hw/flysky-mod/TX16S_FlySky_gimbal_connection.jpg)
 
 ## Electrical wiring
 
@@ -50,34 +50,34 @@ With this option, the FlySky gimbals will be powered from the 3.3V analog rail, 
 
 The plug required for the gimbal is a 4P [JST ZH](https://www.jst-mfg.com/product/detail_e.php?series=287) 1.5mm plug as shown in the following figure:
 
-[![Gimbal Plug](../../assets/images/hw/flysky-mod/GimbalPlug.png)](../../assets/images/hw/flysky-mod/GimbalPlug.png)
+[![Gimbal Plug](../assets/images/hw/flysky-mod/GimbalPlug.png)](../assets/images/hw/flysky-mod/GimbalPlug.png)
 
 The plug required for the PCB of TX16S is a 6P [Molex Picoblade](https://www.molex.com/molex/products/part-detail/crimp_housings/0510210600) 1.25mm plug as shown in the following figure:
 
-[![TX16S PCB Plug](../../assets/images/hw/flysky-mod/TX16S-PCBPlug.png)](../../assets/images/hw/flysky-mod/TX16S-PCBPlug.png)
+[![TX16S PCB Plug](../assets/images/hw/flysky-mod/TX16S-PCBPlug.png)](../assets/images/hw/flysky-mod/TX16S-PCBPlug.png)
 
 After installation the TX16S is shown in the following figure:
 
-[![TX16S Install](../../assets/images/hw/flysky-mod/TX16S-Install.jpg)](../../assets/images/hw/flysky-mod/TX16S-Install.jpg)
+[![TX16S Install](../assets/images/hw/flysky-mod/TX16S-Install.jpg)](../assets/images/hw/flysky-mod/TX16S-Install.jpg)
 
 #### Powering the gimbals from the digital power rail
 
 The preferred way of powering FlySky digital hall gimbals on TX16S is from digital +3.3V power rail. This requires either soldering a JST PH 4-pin socket onto TX16S mainboard (recommended) or soldering the gimbal hookup wires directly to the mainboard. Hookup plan:
 
-[![TX16S better FlySky gimbal hookup](../../assets/images/hw/flysky-mod/TX16S_better_FlySky_gimbal_hookup.jpg)](../../assets/images/hw/flysky-mod/TX16S_better_FlySky_gimbal_hookup.jpg)
+[![TX16S better FlySky gimbal hookup](../assets/images/hw/flysky-mod/TX16S_better_FlySky_gimbal_hookup.jpg)](../assets/images/hw/flysky-mod/TX16S_better_FlySky_gimbal_hookup.jpg)
 
 
 The final outcome with FlySky FS-HZCZ03-ADJ on RadioMaster TX16S Max:
 
-[![TX16S Outlook](../../assets/images/hw/flysky-mod/TX16S-Outlook.jpg)](../../assets/images/hw/flysky-mod/TX16S-Outlook.jpg)
+[![TX16S Outlook](../assets/images/hw/flysky-mod/TX16S-Outlook.jpg)](../assets/images/hw/flysky-mod/TX16S-Outlook.jpg)
 
 Another example, showing the usage of FlySky Paladin EV gimbals with TX16S and EdgeTX:
 
-[![FlySky Paladin EV gimbals on RM TX16S](../../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S.jpg)](../../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S.jpg)
+[![FlySky Paladin EV gimbals on RM TX16S](../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S.jpg)](../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S.jpg)
 
 EdgeTX includes extended channel support for X10 family radios (this includes T16, TX16S, T18, TX18S) in the form of EX3 and EX4 inputs at right analog stick connector together with Flysky digital hall gimbals. EX3 and EX4 can be used, in addition to EX1 and EX2, to connect e.g. the Paladin EV gimbal stick end pots and stick end switches. Here the hookup of stick ends shown in detail:
 
-[![FlySky Paladin EV gimbals on RM TX16S hookup](../../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S_hookup.jpg)](../../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S_hookup.jpg)
+[![FlySky Paladin EV gimbals on RM TX16S hookup](../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S_hookup.jpg)](../assets/images/hw/flysky-mod/FlySky_Paladin_EV_gimbals_on_RM_TX16S_hookup.jpg)
 
 ### Jumper T16 and T18
 

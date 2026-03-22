@@ -21,7 +21,7 @@ The mixer task is triggered cycle-by-cycle with the help of a scheduler controll
 
 Synchronised modules are able to adjust the value of this timer by implementing a regulation loop that allows to optimise the timing for some metrics. Most of the time the module wants to optimise the latency. At the same time, it allows to prevent sampling aliasing caused by the ADC sample frequency being different from the frequency at which channels are sent over the air (historical reason for implementing the mixer scheduler in the first place).
 
-[![Mixer synchronisation diagram](../../assets/images/mixersync.png)](../../assets/images/mixersync.png)
+[![Mixer synchronisation diagram](../assets/images/mixersync.png)](../assets/images/mixersync.png)
 
 If we look at the regulation loop, there are indeed two parameters that you want to be able to set:
 - frequency
