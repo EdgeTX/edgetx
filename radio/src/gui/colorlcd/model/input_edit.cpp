@@ -160,7 +160,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
         applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(line->srcRaw), x);
         return anas[line->chn];
       },
-      [=]() -> int { return getValue(sourceRefToMixSrc(expoAddress(index)->srcRaw)); });
+      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
 #else
   body->padAll(PAD_SMALL);
   buildBody(body);
@@ -173,7 +173,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
         applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(line->srcRaw), x);
         return anas[line->chn];
       },
-      [=]() -> int { return getValue(sourceRefToMixSrc(expoAddress(index)->srcRaw)); });
+      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
 #endif
 }
 
@@ -278,7 +278,7 @@ void InputEditWindow::checkEvents()
   getvalue_t val;
 
   if (input->weight.isSource) {
-    val = getValue(sourceRefToMixSrc(input->weight.toSourceRef()));
+    val = getValue(input->weight.toSourceRef());
     if (val != lastWeightVal) {
       lastWeightVal = val;
       updatePreview = true;
@@ -286,7 +286,7 @@ void InputEditWindow::checkEvents()
   }
 
   if (input->offset.isSource) {
-    val = getValue(sourceRefToMixSrc(input->offset.toSourceRef()));
+    val = getValue(input->offset.toSourceRef());
     if (val != lastOffsetVal) {
       lastOffsetVal = val;
       updatePreview = true;
@@ -294,7 +294,7 @@ void InputEditWindow::checkEvents()
   }
 
   if (input->curve.value.isSource) {
-    val = getValue(sourceRefToMixSrc(input->curve.value.toSourceRef()));
+    val = getValue(input->curve.value.toSourceRef());
     if (val != lastCurveVal) {
       lastCurveVal = val;
       updatePreview = true;

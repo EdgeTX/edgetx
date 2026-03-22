@@ -196,8 +196,7 @@ static int32_t getValueOrSourceFieldValue(const ValueOrSource& vs, int16_t min, 
   int32_t result;
   if (vs.isSource) {
     SourceRef srcRef = vs.toSourceRef();
-    mixsrc_t src = sourceRefToMixSrc(srcRef);
-    result = getValue(src);
+    result = getValue(srcRef);
     if (srcRef.type == SOURCE_TYPE_GVAR) {
       // Mimic behaviour of GET_GVAR_PREC1
       if (g_model.gvars[srcRef.index].prec == 0)
@@ -348,7 +347,6 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
     if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
     ExpoData * ed = expoAddress(i);
     mixsrc_t srcRaw = sourceRefToMixSrc(ed->srcRaw);
-    mixsrc_t src = abs(srcRaw);
     if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
       continue;
@@ -362,9 +360,9 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
         v = ovwrValue;
       }
       else {
-        v = getValue(srcRaw);
+        v = getValue(ed->srcRaw);
         if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY && ed->scale > 0) {
-          v = (v * 1024) / convertTelemValue(src-MIXSRC_FIRST_TELEM+1, ed->scale);
+          v = (v * 1024) / convertTelemValue(ed->srcRaw.index+1, ed->scale);
         }
         v = limit<int32_t>(-1024, v, 1024);
       }
@@ -500,121 +498,119 @@ static const getvalue_t _switch_3pos_lookup[] = {
   +1024, // SWITCH_HW_DOWN 
 };
 
-// TODO same naming convention than the drawSource
-// *valid added to return status to Lua for invalid sources
-getvalue_t _getValue(mixsrc_t i, bool* valid)
+// Dispatches on SourceRef.type to retrieve the raw source value.
+// *valid is set to false for invalid/unavailable sources.
+getvalue_t _getValue(const SourceRef& ref, bool* valid)
 {
-  if (i == MIXSRC_NONE) {
-    if (valid != nullptr) *valid = false;
-    return 0;
-  }
-  else if (i <= MIXSRC_LAST_INPUT) {
-    return anas[i - MIXSRC_FIRST_INPUT];
-  }
-#if defined(LUA_INPUTS)
-  else if (i <= MIXSRC_LAST_LUA) {
-#if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div((uint16_t)(i-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-    return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
-#else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
-  }
-#endif
+  switch (ref.type) {
+    case SOURCE_TYPE_NONE:
+      if (valid != nullptr) *valid = false;
+      return 0;
 
-  else if (i <= MIXSRC_LAST_STICK) {
-    i -= MIXSRC_FIRST_STICK;
-    if (i >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
+    case SOURCE_TYPE_INPUT:
+      return anas[ref.index];
+
+    case SOURCE_TYPE_LUA: {
+#if defined(LUA_MODEL_SCRIPTS)
+      div_t qr = div((uint16_t)ref.index, MAX_SCRIPT_OUTPUTS);
+      return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
+#else
       if (valid != nullptr) *valid = false;
       return 0;
+#endif
     }
-    return calibratedAnalogs[inputMappingConvertMode(i)];
-  }
-  else if (i <= MIXSRC_LAST_POT) {
-    i -= MIXSRC_FIRST_POT;
-    if (i >= adcGetMaxInputs(ADC_INPUT_FLEX)) {
-      if (valid != nullptr) *valid = false;
-      return 0;
+
+    case SOURCE_TYPE_STICK: {
+      auto idx = ref.index;
+      if (idx >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
+        if (valid != nullptr) *valid = false;
+        return 0;
+      }
+      return calibratedAnalogs[inputMappingConvertMode(idx)];
     }
-    return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_FLEX)];
-  }
+
+    case SOURCE_TYPE_POT: {
+      auto idx = ref.index;
+      if (idx >= adcGetMaxInputs(ADC_INPUT_FLEX)) {
+        if (valid != nullptr) *valid = false;
+        return 0;
+      }
+      return calibratedAnalogs[idx + adcGetInputOffset(ADC_INPUT_FLEX)];
+    }
 
 #if defined(IMU)
-  else if (i == MIXSRC_TILT_X) {
-    return gyroScaledX();
-  }
-  else if (i == MIXSRC_TILT_Y) {
-    return gyroScaledY();
-  }
+    case SOURCE_TYPE_IMU:
+      if (ref.index == 0)
+        return gyroScaledX();
+      else
+        return gyroScaledY();
 #endif
 
 #if defined(PCBHORUS)
-  else if (i >= MIXSRC_FIRST_SPACEMOUSE && i <= MIXSRC_LAST_SPACEMOUSE) {
+    case SOURCE_TYPE_SPACEMOUSE:
 #if defined(SPACEMOUSE)
-    return get_spacemouse_value(i - MIXSRC_FIRST_SPACEMOUSE);
+      return get_spacemouse_value(ref.index);
 #else
-    return 0;
+      return 0;
 #endif
-  }
 #endif
 
-  else if (i == MIXSRC_MIN) {
-    return -RESX;
-  }
-  else if (i == MIXSRC_MAX) {
-    return RESX;
-  }
+    case SOURCE_TYPE_MIN:
+      return -RESX;
+
+    case SOURCE_TYPE_MAX:
+      return RESX;
 
 #if defined(LUMINOSITY_SENSOR)
-  else if (i == MIXSRC_LIGHT) {
-    return getLuxSensorValue() - RESX;
-  }
+    case SOURCE_TYPE_LIGHT:
+      return getLuxSensorValue() - RESX;
 #endif
 
-  else if (i <= MIXSRC_LAST_HELI) {
+    case SOURCE_TYPE_HELI: {
 #if defined(HELI)
-    return cyc_anas[i - MIXSRC_FIRST_HELI];
+      return cyc_anas[ref.index];
 #else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
-  }
-
-  else if (i <= MIXSRC_LAST_TRIM) {
-    i -= MIXSRC_FIRST_TRIM;
-    if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
-      // Trim set as 3POS toggle switch in FM
-      uint8_t tidx = inputMappingConvertMode(i) * 2;
-      if (trimDown(tidx)) return -RESX;
-      else if (trimDown(tidx + 1)) return RESX;
-      return 0;
-    }
-    return 8 * getTrimValue(mixerCurrentFlightMode, i);
-  }
-  else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
-    auto sw_idx = (uint8_t)(i - MIXSRC_FIRST_SWITCH);
-#if defined(FUNCTION_SWITCHES)
-    auto max_switches = switchGetMaxSwitches();
-    if (sw_idx < max_switches && switchIsCustomSwitch(sw_idx)) {
-      return _switch_2pos_lookup[g_model.cfsState(sw_idx)];
-    }
-#endif
-    auto sw_cfg = g_model.getSwitchType(sw_idx);
-    switch(sw_cfg) {
-    default:
       if (valid != nullptr) *valid = false;
       return 0;
-    case SWITCH_TOGGLE:
-    case SWITCH_2POS:
-      return _switch_2pos_lookup[switchGetPosition(sw_idx)];
-    case SWITCH_3POS:
-      return _switch_3pos_lookup[switchGetPosition(sw_idx)];
+#endif
     }
-  }
+
+    case SOURCE_TYPE_TRIM: {
+      auto idx = ref.index;
+      if (getRawTrimValue(mixerCurrentFlightMode, idx).mode == TRIM_MODE_3POS) {
+        // Trim set as 3POS toggle switch in FM
+        uint8_t tidx = inputMappingConvertMode(idx) * 2;
+        if (trimDown(tidx)) return -RESX;
+        else if (trimDown(tidx + 1)) return RESX;
+        return 0;
+      }
+      return 8 * getTrimValue(mixerCurrentFlightMode, idx);
+    }
+
+    case SOURCE_TYPE_SWITCH: {
+      auto sw_idx = (uint8_t)ref.index;
 #if defined(FUNCTION_SWITCHES)
-    else if (i <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
-      uint8_t group_idx = (uint8_t)(i - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1);
+      auto max_switches = switchGetMaxSwitches();
+      if (sw_idx < max_switches && switchIsCustomSwitch(sw_idx)) {
+        return _switch_2pos_lookup[g_model.cfsState(sw_idx)];
+      }
+#endif
+      auto sw_cfg = g_model.getSwitchType(sw_idx);
+      switch(sw_cfg) {
+      default:
+        if (valid != nullptr) *valid = false;
+        return 0;
+      case SWITCH_TOGGLE:
+      case SWITCH_2POS:
+        return _switch_2pos_lookup[switchGetPosition(sw_idx)];
+      case SWITCH_3POS:
+        return _switch_3pos_lookup[switchGetPosition(sw_idx)];
+      }
+    }
+
+#if defined(FUNCTION_SWITCHES)
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP: {
+      uint8_t group_idx = (uint8_t)(ref.index + 1);
       uint8_t stepcount = getSwitchCountInFSGroup(group_idx);
       if (stepcount == 0)
         return 0;
@@ -625,10 +621,10 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       int stepsize = (2 * RESX) / stepcount;
       int value = -RESX;
 
-      for (uint8_t i =  0; i < switchGetMaxSwitches(); i++) {
-        if (switchIsCustomSwitch(i)) {
-          if (g_model.getSwitchGroup(i) == group_idx) {
-            if (g_model.cfsState(i) == 1)
+      for (uint8_t j = 0; j < switchGetMaxSwitches(); j++) {
+        if (switchIsCustomSwitch(j)) {
+          if (g_model.getSwitchGroup(j) == group_idx) {
+            if (g_model.cfsState(j) == 1)
               return value + (g_model.cfsGroupAlwaysOn(group_idx) ? 0 : stepsize);
             else
               value += stepsize;
@@ -636,64 +632,71 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
         }
       }
       return -RESX;
-  }
-#endif
-
-  else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
-  } else if (i <= MIXSRC_LAST_TRAINER) {
-    int16_t x = trainerInput[i - MIXSRC_FIRST_TRAINER];
-    if (i < MIXSRC_FIRST_TRAINER + NUM_CAL_PPM) {
-      x -= g_eeGeneral.trainer.calib[i - MIXSRC_FIRST_TRAINER];
     }
-    return x * 2;
-  } else if (i <= MIXSRC_LAST_CH) {
-    return ex_chans[i - MIXSRC_FIRST_CH];
-  }
+#endif
 
-  else if (i <= MIXSRC_LAST_GVAR) {
+    case SOURCE_TYPE_LOGICAL_SWITCH:
+      return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + ref.index) ? 1024 : -1024;
+
+    case SOURCE_TYPE_TRAINER: {
+      auto idx = ref.index;
+      int16_t x = trainerInput[idx];
+      if (idx < NUM_CAL_PPM) {
+        x -= g_eeGeneral.trainer.calib[idx];
+      }
+      return x * 2;
+    }
+
+    case SOURCE_TYPE_CHANNEL:
+      return ex_chans[ref.index];
+
+    case SOURCE_TYPE_GVAR: {
 #if defined(GVARS)
-    return GVAR_VALUE(i - MIXSRC_FIRST_GVAR, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_FIRST_GVAR));
+      return GVAR_VALUE(ref.index, getGVarFlightMode(mixerCurrentFlightMode, ref.index));
 #else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
-  }
-
-  else if (i == MIXSRC_TX_VOLTAGE) {
-    return g_vbat100mV;
-  } else if (i < MIXSRC_FIRST_TIMER) {
-    // TX_TIME + SPARES
-#if defined(RTCLOCK)
-    return (g_rtcTime % SECS_PER_DAY) / 60; // number of minutes from midnight
-#else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
-  } else if (i <= MIXSRC_LAST_TIMER) {
-    return timersStates[i - MIXSRC_FIRST_TIMER].val;
-  }
-
-  else if (i <= MIXSRC_LAST_TELEM) {
-    if (IS_FAI_FORBIDDEN(i)) {
       if (valid != nullptr) *valid = false;
       return 0;
+#endif
     }
-    i -= MIXSRC_FIRST_TELEM;
-    div_t qr = div((uint16_t)i, 3);
-    TelemetryItem & telemetryItem = telemetryItems[qr.quot];
-    switch (qr.rem) {
-      case 1:
-        return telemetryItem.valueMin;
-      case 2:
-        return telemetryItem.valueMax;
-      default:
-        return telemetryItem.value;
+
+    case SOURCE_TYPE_TX_VOLTAGE:
+      return g_vbat100mV;
+
+    case SOURCE_TYPE_TX_TIME: {
+#if defined(RTCLOCK)
+      return (g_rtcTime % SECS_PER_DAY) / 60; // number of minutes from midnight
+#else
+      if (valid != nullptr) *valid = false;
+      return 0;
+#endif
     }
+
+    case SOURCE_TYPE_TIMER:
+      return timersStates[ref.index].val;
+
+    case SOURCE_TYPE_TELEMETRY: {
+      // TODO: IS_FAI_FORBIDDEN check needs SourceRef-aware version
+      mixsrc_t legacy = MIXSRC_FIRST_TELEM + ref.index;
+      if (IS_FAI_FORBIDDEN(legacy)) {
+        if (valid != nullptr) *valid = false;
+        return 0;
+      }
+      div_t qr = div((uint16_t)ref.index, 3);
+      TelemetryItem & telemetryItem = telemetryItems[qr.quot];
+      switch (qr.rem) {
+        case 1:
+          return telemetryItem.valueMin;
+        case 2:
+          return telemetryItem.valueMax;
+        default:
+          return telemetryItem.value;
+      }
+    }
+
+    default:
+      if (valid != nullptr) *valid = false;
+      return 0;
   }
-  
-  if (valid != nullptr) *valid = false;
-  return 0;
 }
 
 void evalTrims()
@@ -811,17 +814,18 @@ void evalInputs(uint8_t mode)
   }
 }
 
+getvalue_t getValue(const SourceRef& ref, bool* valid)
+{
+  getvalue_t v = _getValue(ref, valid);
+  if (ref.isInverted()) v = -v;
+  return v;
+}
+
+// Backward-compatible overload for callers still using mixsrc_t
 getvalue_t getValue(mixsrc_t i, bool* valid)
 {
-  bool invert = false;
-  if (i < 0) {
-    invert = true;
-    i = -i;
-  }
-  getvalue_t v = _getValue(i, valid);
-  if (invert) v = -v;
-  return v;
-}  
+  return getValue(mixSrcToSourceRef(i), valid);
+}
 
 #if defined(SURFACE_RADIO)
   constexpr int IDLE_TRIM_SCALE = 1;
@@ -917,8 +921,8 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
 #if defined(HELI)
   if (modelHeliEnabled()) {
-    int heliEleValue = getValue(sourceRefToMixSrc(g_model.swashR.elevatorSource));
-    int heliAilValue = getValue(sourceRefToMixSrc(g_model.swashR.aileronSource));
+    int heliEleValue = getValue(g_model.swashR.elevatorSource);
+    int heliAilValue = getValue(g_model.swashR.aileronSource);
     if (g_model.swashR.value) {
       uint32_t v = ((int32_t)heliEleValue*heliEleValue + (int32_t)heliAilValue*heliAilValue);
       uint32_t q = calc100toRESX(g_model.swashR.value);
@@ -939,7 +943,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       getvalue_t vr = heliAilValue + getSourceTrimValue(sourceRefToMixSrc(g_model.swashR.aileronSource));
       getvalue_t vc = 0;
       if (!g_model.swashR.collectiveSource.isNone())
-        vc = getValue(sourceRefToMixSrc(g_model.swashR.collectiveSource));
+        vc = getValue(g_model.swashR.collectiveSource);
 
       vp = (vp * g_model.swashR.elevatorWeight) / 100;
       vr = (vr * g_model.swashR.aileronWeight) / 100;
@@ -1003,7 +1007,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       MixData * md = mixAddress(i);
       mixsrc_t srcRaw = sourceRefToMixSrc(md->srcRaw);
-      mixsrc_t srcRawAbs = abs(srcRaw);
 
       if (md->srcRaw.isNone()) {
 #if defined(COLORLCD)
@@ -1053,11 +1056,11 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       if (mode > e_perout_mode_inactive_flight_mode) {
         if (mixEnabled)
-          v = getValue(srcRaw);
+          v = getValue(md->srcRaw);
         else
           continue;
       } else {
-        v = getValue(srcRaw);
+        v = getValue(md->srcRaw);
 
         if (md->srcRaw.type == SOURCE_TYPE_CHANNEL) {
 
