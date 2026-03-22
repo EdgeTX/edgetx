@@ -1049,70 +1049,77 @@ char *getSensorCustomValueString(char (&dest)[L], uint8_t sensor, int32_t val,
 }
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], const SourceRef& source, int32_t val,
                                  LcdFlags flags)
 {
-  source = abs(source);
   size_t len = L - 1;
-  if (source >= MIXSRC_FIRST_TELEM) {
-    source = (source - MIXSRC_FIRST_TELEM) / 3;
-    return getSensorCustomValueString(dest, source, val, flags);
-  } else if (source >= MIXSRC_FIRST_TIMER || source == MIXSRC_TX_TIME) {
-    if (L < LEN_TIMER_STRING) return dest;
-    if (source == MIXSRC_TX_TIME) flags |= TIMEHOUR;
-
-    TimerOptions timerOptions;
-    timerOptions.options = SHOW_TIMER;
-    if ((flags & TIMEHOUR) != 0) timerOptions.options = SHOW_TIME;
-
-    return getTimerString(dest, val, timerOptions);
-  } else if (source == MIXSRC_TX_VOLTAGE) {
-    formatNumberAsString(dest, len, val, flags | PREC1);
-    return dest;
-  }
-#if defined(INTERNAL_GPS)
-  else if (source == MIXSRC_TX_GPS) {
-    if (gpsData.fix) {
-      std::string s = getGPSSensorValue(gpsData.longitude, gpsData.latitude, flags);
-      strAppend(dest, s.c_str(), L);
-    } else {
-      formatNumberAsString(dest, L, gpsData.numSat, flags, len, "sats: ");
+  switch (source.type) {
+    case SOURCE_TYPE_TELEMETRY:
+      return getSensorCustomValueString(dest, source.index / 3, val, flags);
+    case SOURCE_TYPE_TIMER:
+    case SOURCE_TYPE_TX_TIME:
+    {
+      if (L < LEN_TIMER_STRING) return dest;
+      if (source.type == SOURCE_TYPE_TX_TIME) flags |= TIMEHOUR;
+      TimerOptions timerOptions;
+      timerOptions.options = SHOW_TIMER;
+      if ((flags & TIMEHOUR) != 0) timerOptions.options = SHOW_TIME;
+      return getTimerString(dest, val, timerOptions);
     }
-    return dest;
-  }
+    case SOURCE_TYPE_TX_VOLTAGE:
+      formatNumberAsString(dest, len, val, flags | PREC1);
+      return dest;
+#if defined(INTERNAL_GPS)
+    case SOURCE_TYPE_TX_GPS:
+      if (gpsData.fix) {
+        std::string s = getGPSSensorValue(gpsData.longitude, gpsData.latitude, flags);
+        strAppend(dest, s.c_str(), L);
+      } else {
+        formatNumberAsString(dest, L, gpsData.numSat, flags, len, "sats: ");
+      }
+      return dest;
 #endif
 #if defined(GVARS)
-  else if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) {
-    uint8_t gvar_idx = source - MIXSRC_FIRST_GVAR;
-    auto gvar = &g_model.gvars[gvar_idx];
-    uint8_t prec = gvar->prec;
-    if (prec > 0) {
-      flags |= (prec == 1 ? PREC1 : PREC2);
+    case SOURCE_TYPE_GVAR:
+    {
+      auto gvar = &g_model.gvars[source.index];
+      uint8_t prec = gvar->prec;
+      if (prec > 0) {
+        flags |= (prec == 1 ? PREC1 : PREC2);
+      }
+      uint8_t unit = gvar->unit ? UNIT_PERCENT : UNIT_RAW;
+      getValueWithUnit(dest, len, val, unit, flags);
+      break;
     }
-    uint8_t unit = gvar->unit ? UNIT_PERCENT : UNIT_RAW;
-    getValueWithUnit(dest, len, val, unit, flags);
-  }
 #endif
+    case SOURCE_TYPE_CHANNEL:
+      if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        val = calcRESXto1000(val);
+        formatNumberAsString(dest, len, val, flags | PREC1);
+      } else {
+        val = calcRESXto100(val);
+        formatNumberAsString(dest, len, val, flags);
+      }
+      break;
+    case SOURCE_TYPE_INPUT:
+    case SOURCE_TYPE_STICK:
+    case SOURCE_TYPE_POT:
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+    case SOURCE_TYPE_HELI:
+    case SOURCE_TYPE_TRIM:
+    case SOURCE_TYPE_SWITCH:
+    case SOURCE_TYPE_TRAINER:
 #if defined(LUA_INPUTS)
-  else if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    formatNumberAsString(dest, len, val, flags);
-  }
+    case SOURCE_TYPE_LUA:
 #endif
-  else if (source < MIXSRC_FIRST_CH) {
-    val = calcRESXto100(val);
-    formatNumberAsString(dest, len, val, flags);
-  } else if (source <= MIXSRC_LAST_CH) {
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      val = calcRESXto1000(val);
-      formatNumberAsString(dest, len, val, flags | PREC1);
-    } else {
       val = calcRESXto100(val);
       formatNumberAsString(dest, len, val, flags);
-    }
-  } else {
-    formatNumberAsString(dest, len, val, flags);
+      break;
+    default:
+      formatNumberAsString(dest, len, val, flags);
+      break;
   }
-
   return dest;
 }
 
@@ -1167,7 +1174,7 @@ std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
   return std::string(s);
 }
 
-char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags)
+char *getSourceCustomValueString(const SourceRef& source, int32_t val, LcdFlags flags)
 {
   return getSourceCustomValueString(_static_str_buffer, source, val, flags);
 }

@@ -577,7 +577,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       switch (CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT: {
           int16_t val_min, val_max;
-          getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
+          getMixSrcRange({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}, val_min,
                          val_max);
           addNumberEdit(line, STR_CONSTANT, cfn, val_min, val_max);
           break;
@@ -599,7 +599,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
         }
         case FUNC_ADJUST_GVAR_INCDEC: {
           int16_t val_min, val_max;
-          getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
+          getMixSrcRange({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}, val_min,
                          val_max);
           getGVarIncDecRange(val_min, val_max);
           auto numedit = addNumberEdit(line, STR_INCDEC, cfn, val_min, val_max);
