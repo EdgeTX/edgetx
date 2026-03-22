@@ -26,6 +26,7 @@
 #include "board.h"
 #include "dataconstants.h"
 #include "model_arena.h"
+#include "sourceref.h"
 #include "definitions.h"
 #include "edgetx_types.h"
 #include "globals.h"
@@ -115,24 +116,24 @@ inline uint16_t luaIntToSourceNumval(int val)
  */
 
 PACK(struct CurveRef {
-  uint16_t type:5;
-  uint16_t value:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint8_t type;              // CurveRefType: DIFF, EXPO, FUNC, CUSTOM
+  uint8_t spare;
+  ValueOrSource value;       // curve index, function index, or diff/expo value (possibly from source)
 });
 
 PACK(struct MixData {
-  uint16_t destCh:5;
-  int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
-  uint16_t carryTrim:1;
-  uint16_t mixWarn:2;       // mixer warning
+  SourceRef srcRaw;          // source (type=NONE means unused line)
+  SwitchRef swtch;           // activation switch
+  ValueOrSource weight;      // weight value or source
+  ValueOrSource offset;      // offset value or source
+  CurveRef curve;            // curve reference
+  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
   uint16_t mltpx:2 ENUM(MixerMultiplex);
+  uint16_t carryTrim:1;
+  uint16_t mixWarn:2;
   uint16_t delayPrec:1;
   uint16_t speedPrec:1;
-  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:1 SKIP;
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  CurveRef curve;
+  uint8_t  destCh;           // destination channel (was 5 bits, now full byte)
   uint8_t  delayUp;
   uint8_t  delayDown;
   uint8_t  speedUp;
@@ -145,18 +146,17 @@ PACK(struct MixData {
  */
 
 PACK(struct ExpoData {
-  uint16_t mode:2;
-  uint16_t scale:14;
-  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
-  int16_t  trimSource:6;
-  int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  CurveRef curve;
-  uint16_t chn:5;
+  SourceRef srcRaw;          // source
+  SwitchRef swtch;           // activation switch
+  ValueOrSource weight;      // weight value or source
+  ValueOrSource offset;      // offset value or source
+  CurveRef curve;            // curve reference
   uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:2 SKIP;
+  uint16_t mode:2;
+  uint16_t chn:5;            // input channel
+  uint16_t scale;
+  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
+  int8_t   trimSource;       // was 6 bits, now full byte
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
 });
 
