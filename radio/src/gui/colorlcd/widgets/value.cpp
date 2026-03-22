@@ -83,7 +83,9 @@ class ValueWidget : public Widget
     auto widgetData = getPersistentData();
 
     // get source from options[0]
-    mixsrc_t field = widgetData->options[0].value.unsignedValue;
+    uint32_t raw = widgetData->options[0].value.unsignedValue;
+    SourceRef field;
+    memcpy(&field, &raw, sizeof(field));
 
     // if value changed
     auto newValue = getValue(field);
@@ -92,9 +94,9 @@ class ValueWidget : public Widget
       changed = true;
     } else {
       // if telemetry value, and telemetry offline or old data
-      if (field >= MIXSRC_FIRST_TELEM) {
+      if (field.type == SOURCE_TYPE_TELEMETRY) {
         TelemetryItem& telemetryItem =
-            telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
+            telemetryItems[field.index / 3];
         bool telemState = !telemetryItem.isAvailable() || telemetryItem.isOld();
         if (lastTelemState != telemState) {
           lastTelemState = telemState;
@@ -111,16 +113,16 @@ class ValueWidget : public Widget
                          ETX_STATE_TIMER_ELAPSED | ETX_STATE_TELEM_STALE);
 
       // Check for disabled or warning color states
-      if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
+      if (field.type == SOURCE_TYPE_TIMER) {
+        TimerState& timerState = timersStates[field.index];
         if (timerState.val < 0) {
           // Set warning color
           lv_obj_add_state(label, ETX_STATE_TIMER_ELAPSED);
           lv_obj_add_state(value, ETX_STATE_TIMER_ELAPSED);
         }
-      } else if (field >= MIXSRC_FIRST_TELEM) {
+      } else if (field.type == SOURCE_TYPE_TELEMETRY) {
         TelemetryItem& telemetryItem =
-            telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
+            telemetryItems[field.index / 3];
         if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
           // Set disabled color
           lv_obj_add_state(label, ETX_STATE_TELEM_STALE);
@@ -130,35 +132,31 @@ class ValueWidget : public Widget
 
       std::string valueTxt;
 
-      // Set value text
-      if (field == MIXSRC_TX_VOLTAGE) {
-        valueTxt =
-            getSourceCustomValueString(field, getValue(field), valueFlags);
-        valueTxt += STR_V;
-      } else if (field == MIXSRC_TX_TIME) {
-        int32_t tme = getValue(MIXSRC_TX_TIME);
+      // Set value text — use getSourceCustomValueString for most types
+      if (field.type == SOURCE_TYPE_TX_TIME) {
+        int32_t tme = getValue(field);
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(tme, timerOptions);
-      } else if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
+      } else if (field.type == SOURCE_TYPE_TIMER) {
+        TimerState& timerState = timersStates[field.index];
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIMER;
         valueTxt = getTimerString(abs(timerState.val), timerOptions);
-      } else if (field >= MIXSRC_FIRST_TELEM) {
+      } else if (field.type == SOURCE_TYPE_TELEMETRY) {
         std::string getSensorCustomValue(uint8_t sensor, int32_t value,
                                          LcdFlags flags);
-        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
+        valueTxt = getSensorCustomValue(field.index / 3,
                                         getValue(field), valueFlags);
 #if defined(LUA_INPUTS)
-      }
-      else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
-        valueTxt =
-            getSourceCustomValueString(field, calcRESXto1000(getValue(field)), valueFlags | PREC1);
+      } else if (field.type == SOURCE_TYPE_LUA) {
+        valueTxt = formatNumberAsString(calcRESXto1000(getValue(field)), valueFlags | PREC1);
 #endif
       } else {
         valueTxt =
             getSourceCustomValueString(field, getValue(field), valueFlags);
+        if (field.type == SOURCE_TYPE_TX_VOLTAGE)
+          valueTxt += STR_V;
       }
 
       lv_label_set_text(value, valueTxt.c_str());
