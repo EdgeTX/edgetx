@@ -200,6 +200,82 @@ Replace the static arena buffer with a dynamically allocated one:
 
 ---
 
+## Capacity Limits Analysis
+
+Before raising the hard caps, three categories of limits must be addressed:
+
+### Bit-field cross-references in data structures
+
+These struct fields reference arena-backed items by index. Their bit widths set absolute maximums.
+
+| Field | Bits | Signed | Range | References | Effective limit |
+|-------|------|--------|-------|------------|----------------|
+| `MixData.destCh` | 5 | no | 0-31 | Output channels | 32 (not arena-backed, fine) |
+| `ExpoData.chn` | 5 | no | 0-31 | Input channels | 32 (not arena-backed, fine) |
+| `CurveRef.value` | 11 | no | 0-2047 | Curve index (when type=CUSTOM) | **2048 curves** — not a bottleneck |
+| `CurveRef.type` | 5 | no | 0-31 | Curve ref type | 4 types defined, plenty of room |
+| `LimitData.curve` | 8 | yes | -1 to 127 | Curve index (-1=none) | **128 curves** |
+| `MixData.srcRaw` | 10 | yes | -512..511 | MixSources enum | Not a direct index limit |
+| `MixData.swtch` | 10 | yes | -512..511 | SwitchSources enum (includes LS) | Not a direct index limit |
+| `ExpoData.srcRaw` | 10 | yes | -512..511 | MixSources enum | Not a direct index limit |
+| `ExpoData.swtch` | 10 | yes | -512..511 | SwitchSources enum | Not a direct index limit |
+| `LogicalSwitchData.v1` | 10 | yes | -512..511 | Source/switch refs | Not a direct index limit |
+| `LogicalSwitchData.andsw` | 10 | yes | -512..511 | SwitchSources enum | Not a direct index limit |
+| `CustomFunctionData.swtch` | 10 | yes | -512..511 | SwitchSources enum | Not a direct index limit |
+| `CustomFunctionData.func` | 6 | no | 0-63 | Functions enum | **64 function types** — limits SF types, not count |
+| `MixData.flightModes` | 9 | no | bitmask | Flight mode bitmask | 9 flight modes (not arena-backed) |
+| `CurveHeader.points` | 6 | yes | -32..31 | Num points minus 5 | Max 36 points per curve |
+
+**Indirect references via enums**: `srcRaw` (10-bit signed) and `swtch` (10-bit signed) encode source/switch indices through the `MixSources` and `SwitchSources` enums. These enums pack multiple item types into ranges (sticks, pots, inputs, channels, telemetry, logical switches, etc.). Raising `MAX_LOGICAL_SWITCHES` beyond 64 would require verifying the enum ranges still fit in 10 bits. Similarly, raising `MAX_INPUTS` beyond 32 needs enum range checks.
+
+**Bottleneck summary for raising hard caps**:
+
+| Arena array | Current hard cap | Bit-field limit | Can raise to |
+|-------------|-----------------|-----------------|-------------|
+| Mixes | 128 | No direct index field (sequential array) | **Limited by arena size only** |
+| Expos | 128 | No direct index field (sequential array) | **Limited by arena size only** |
+| Curves | 64 | `LimitData.curve` (int8_t) = 128; `CurveRef.value` (11-bit) = 2048 | **128** (LimitData.curve is the bottleneck) |
+| Curve points | 1024 | No cross-reference (sequential pool) | **Limited by arena size only** |
+| Logical switches | 64 | `SwitchSources` enum in 10-bit `swtch` fields | **Depends on enum layout** — needs analysis |
+| Special functions | 64 | `func:6` = 64 types (not count); position-indexed | **Limited by arena size only** |
+
+### Accessor function parameter types
+
+All accessor functions use `uint8_t idx`, limiting to 256 elements max:
+
+```
+MixData* mixAddress(uint8_t idx);          // max 255
+ExpoData* expoAddress(uint8_t idx);        // max 255
+CurveHeader* curveHeaderAddress(uint8_t idx); // max 255
+int8_t* curveAddress(uint8_t idx);          // max 255
+LogicalSwitchData* lswAddress(uint8_t idx); // max 255
+CustomFunctionData* customFnAddress(uint8_t idx); // max 255
+```
+
+For the current hard caps (128 max), `uint8_t` is sufficient. If any array exceeds 255 elements, these must change to `uint16_t`. The `insertMix(uint8_t idx, ...)`, `deleteMix(uint8_t idx)`, and similar functions have the same constraint.
+
+### YAML infrastructure limits
+
+| Component | Type | Limit | Impact |
+|-----------|------|-------|--------|
+| `YamlNode.elmts` | `uint16_t : 12` | 4095 elements | Not a bottleneck |
+| `yaml_str2uint()` val_len | `uint8_t` | 255 chars | Not a bottleneck (128 = 3 digits) |
+| `yaml_get_bits()` / `yaml_put_bits()` | `uint32_t` | 32 bits per field | Matches struct bit-fields |
+| `find_node()` tag_len | `uint8_t` | 255 chars | Not a bottleneck |
+| `set_attr()` len | `uint16_t` | 65535 chars | Not a bottleneck |
+
+### Recommendations
+
+1. **Mixes and expos**: can be raised beyond 128 with no bit-field changes — only limited by arena size and `uint8_t` accessor parameter (max 255).
+
+2. **Curves**: hard-capped at 128 by `LimitData.curve` (int8_t). To go beyond 128, change `curve` to `int16_t` (breaks binary compatibility).
+
+3. **Logical switches**: raising beyond 64 requires auditing the `SwitchSources` enum to ensure all SWSRC values fit in the 10-bit `swtch` fields. Currently 64 LS consume SWSRC range [SWSRC_FIRST_LOGICAL_SWITCH .. SWSRC_LAST_LOGICAL_SWITCH] = 128 values (positive + negative). Adding more LS compresses room for other switch sources.
+
+4. **Curve points per curve**: `CurveHeader.points` is 6-bit signed (range -32..31), encoding `actual_points - 5`. Max points per curve = 36. This is independent of the arena point pool size.
+
+---
+
 ## Known Issues
 
 1. **modelslist `updateModelCell()`**: reads a temp model via `readModelYaml()` which writes to the global arena. Arena is saved/restored around the call, but the round-trip is wasteful. Could be replaced with a header-only read.
