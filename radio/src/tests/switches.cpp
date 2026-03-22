@@ -31,13 +31,38 @@
 
 void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16_t _v3 = 0, uint8_t _delay = 0, uint8_t _duration = 0, swsrc_t _andsw = 0)
 {
-  (*lswAddress(index)).func = _func;
-  (*lswAddress(index)).v1 = _v1;
-  (*lswAddress(index)).v2 = _v2;
-  (*lswAddress(index)).v3 = _v3;
-  (*lswAddress(index)).delay = _delay;
-  (*lswAddress(index)).duration = _duration;
-  (*lswAddress(index)).andsw = swSrcToSwitchRef(_andsw);
+  auto& ls = *lswAddress(index);
+  ls.func = _func;
+  uint8_t family = lswFamily(_func);
+  switch (family) {
+    case LS_FAMILY_OFS:
+    case LS_FAMILY_DIFF:
+      ls.v1.source = mixSrcToSourceRef(_v1);
+      ls.v2.value = _v2;
+      break;
+    case LS_FAMILY_COMP:
+      ls.v1.source = mixSrcToSourceRef(_v1);
+      ls.v2.source = mixSrcToSourceRef(_v2);
+      break;
+    case LS_FAMILY_BOOL:
+    case LS_FAMILY_STICKY:
+      ls.v1.swtch = swSrcToSwitchRef(_v1);
+      ls.v2.swtch = swSrcToSwitchRef(_v2);
+      break;
+    case LS_FAMILY_EDGE:
+      ls.v1.swtch = swSrcToSwitchRef(_v1);
+      ls.v2.value = _v2;
+      break;
+    case LS_FAMILY_TIMER:
+    case LS_FAMILY_RANGE:
+      ls.v1.value = _v1;
+      ls.v2.value = _v2;
+      break;
+  }
+  ls.v3 = _v3;
+  ls.delay = _delay;
+  ls.duration = _duration;
+  ls.andsw = swSrcToSwitchRef(_andsw);
 }
 
 #define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)
@@ -61,33 +86,33 @@ TEST(getSwitch, OldTypeStickyCSW)
 
   simuSetSwitch(sw, 0);
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now trigger SA0, both switches should become true
   simuSetSwitch(sw, -1);
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_TRUE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now release SA0 and SW2 should stay true
   simuSetSwitch(sw, 0);
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_TRUE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now reset logical switches
   logicalSwitchesReset();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 }
 #endif
 
 TEST(getSwitch, nullSW)
 {
   MODEL_RESET();
-  EXPECT_TRUE(getSwitch(0));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(0)));
 }
 
 
@@ -103,12 +128,12 @@ TEST(getSwitch, inputWithTrim)
 
   evalMixes(1);
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
 
   setTrimValue(0, 0, 32);
   evalMixes(1);
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
 }
 #endif
 
@@ -167,29 +192,29 @@ TEST(getSwitch, edgeInstant)
   simuSetSwitch(sw2, 0);   //SD mid
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now trigger SD donw, LS1 should become true
   simuSetSwitch(sw2, 1);    //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now release SD and LS1 should become false
   simuSetSwitch(sw2, 0);   //SD mid
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now reset logical switches
   logicalSwitchesReset();
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // second part with SA down
 
@@ -197,29 +222,29 @@ TEST(getSwitch, edgeInstant)
   simuSetSwitch(sw2, 0);   //SD mid
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now trigger SD down, LS1 & LS2 should become true
   simuSetSwitch(sw2, 1);    //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_TRUE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now release SA and LS1 & LS2 should stay false
   simuSetSwitch(sw2, 0);   //SD mid
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now reset logical switches
   logicalSwitchesReset();
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // now bug #2939
   // SD is kept down and SA is toggled
@@ -227,22 +252,22 @@ TEST(getSwitch, edgeInstant)
   simuSetSwitch(sw2, 1);    //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   simuSetSwitch(sw1, 1);   //SA down
   simuSetSwitch(sw2, 1);    //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   simuSetSwitch(sw1, -1);   //SA up
   simuSetSwitch(sw2, 1);    //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   //test what happens when EDGE condition is true and
   //logical switches are reset - the switch should fire again
@@ -251,19 +276,19 @@ TEST(getSwitch, edgeInstant)
   simuSetSwitch(sw2, 1);    //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));  //switch will not trigger, because SF was already up
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));  //switch will not trigger, because SF was already up
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   logicalSwitchesReset();
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_TRUE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 }
 
 TEST(getSwitch, edgeRelease)
@@ -290,20 +315,20 @@ TEST(getSwitch, edgeRelease)
   simuSetSwitch(sw2, 0);   //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   simuSetSwitch(sw2, 1);    //SD up
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   simuSetSwitch(sw2, 0);   //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
 
   // second part with SAup
@@ -311,27 +336,27 @@ TEST(getSwitch, edgeRelease)
   simuSetSwitch(sw2, 0);   //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   simuSetSwitch(sw2, 1);    //SD up
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   simuSetSwitch(sw2, 0);   //SD down
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-  EXPECT_TRUE(getSwitch(SWSRC_SW2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
   // with switches reset both should remain false
   logicalSwitchesReset();
   logicalSwitchesTimerTick();
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-  EXPECT_FALSE(getSwitch(SWSRC_SW2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_SW2)));
 
 }
 
@@ -417,17 +442,17 @@ TEST(FlexSwitches, getSwitch)
 
   auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   anaSetFiltered(offset, -1024);
-  EXPECT_TRUE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
-  EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
-  EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2)));
 
   anaSetFiltered(offset, 0);
-  EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
-  EXPECT_TRUE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
-  EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2)));
 
   anaSetFiltered(offset, +1024);
-  EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
-  EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
-  EXPECT_TRUE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3)));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1)));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2)));
 }
