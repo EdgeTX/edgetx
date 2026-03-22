@@ -209,9 +209,18 @@ Once all above items are done:
 
 The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
 
-### 3b.11 Lua API (deferred)
+### 3b.11 Lua API
 
-Keep bridge functions for Lua API — Lua speaks integers (API contract). Convert to native types in a separate Lua API refactor.
+SourceRef and SwitchRef are 4 bytes = a 32-bit integer, which Lua supports natively. The Lua API can pack/unpack these directly:
+
+```cpp
+uint32_t sourceRefToInt(SourceRef ref);  // memcpy or union
+SourceRef intToSourceRef(uint32_t v);
+```
+
+No bridge functions needed. Lua scripts use the same type+index addressing as the firmware. The old `MIXSRC_*` / `SWSRC_*` Lua constants become pre-computed 32-bit SourceRef/SwitchRef values.
+
+Files: `lua/api_model.cpp`, `lua/api_general.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`. Also update Lua constant definitions to generate SourceRef-packed values instead of MixSources enum values.
 
 ---
 
