@@ -137,7 +137,7 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_CURVE:
-        editCurveRef(FW + 1, y, ed->curve, event, attr, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST);
+        editCurveRef(FW + 1, y, ed->curve, event, attr);
         break;
 
 #if defined(FLIGHT_MODES)

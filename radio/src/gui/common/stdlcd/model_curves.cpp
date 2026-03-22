@@ -128,8 +128,7 @@ void menuModelCurvesAll(event_t event)
   }
 }
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax)
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags)
 {
   coord_t x1 = x;
   LcdFlags flags1 = flags;
@@ -159,7 +158,19 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
   switch (curve.type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      curve.value = legacyToValueOrSource(editSrcVarFieldValue(x, y, nullptr, valueOrSourceToLegacy(curve.value), -100, 100, flags, event, isValueAvailable, sourceMin, sourceMax));
+      if (curve.value.isSource) {
+        drawSource(x, y, curve.value.toSourceRef(), flags);
+        if (active && menuHorizontalPosition == 1) {
+          curve.value.setSource(checkIncDecSource(event, curve.value.toSourceRef(), SRCMASK_ALL, isSourceAvailable));
+        }
+      } else {
+        lcdDrawNumber(x, y, curve.value.numericValue(), flags);
+        if (active && menuHorizontalPosition == 1) {
+          int16_t val = curve.value.numericValue();
+          CHECK_INCDEC_MODELVAR(event, val, -100, 100);
+          curve.value.setNumeric(val);
+        }
+      }
       break;
     case CURVE_REF_FUNC:
     {
