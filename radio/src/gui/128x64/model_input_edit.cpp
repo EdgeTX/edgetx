@@ -152,7 +152,7 @@ void menuModelExpoOne(event_t event)
 #endif
 
       case EXPO_FIELD_SWITCH:
-        ed->swtch = swSrcToSwitchRef(editSwitch(EXPO_ONE_2ND_COLUMN, y, switchRefToSwSrc(ed->swtch), attr, event));
+        ed->swtch = editSwitch(EXPO_ONE_2ND_COLUMN, y, ed->swtch, attr, event);
         break;
 
       case EXPO_FIELD_SIDE:

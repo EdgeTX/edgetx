@@ -200,9 +200,7 @@ void menuModelLogicalSwitchOne(event_t event)
         {
           drawSwitch(CSWONE_2ND_COLUMN, y, cs->andsw, attr);
           if (attr) {
-            swsrc_t andswVal = switchRefToSwSrc(cs->andsw);
-            CHECK_INCDEC_MODELSWITCH(event, andswVal, -MAX_LS_ANDSW, MAX_LS_ANDSW, isSwitchAvailableInLogicalSwitches);
-            cs->andsw = swSrcToSwitchRef(andswVal);
+            cs->andsw = checkIncDecSwitch(event, cs->andsw, -MAX_LS_ANDSW, MAX_LS_ANDSW, EE_MODEL, isSwitchAvailableInLogicalSwitches);
           }
         }
         break;

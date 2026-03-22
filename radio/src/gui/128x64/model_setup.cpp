@@ -949,9 +949,7 @@ void menuModelSetup(event_t event)
               break;
             case 1:
               {
-                swsrc_t timerSw = switchRefToSwSrc(timer->swtch);
-                CHECK_INCDEC_MODELSWITCH(event, timerSw, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
-                timer->swtch = swSrcToSwitchRef(timerSw);
+                timer->swtch = checkIncDecSwitch(event, timer->swtch, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, EE_MODEL, isSwitchAvailableInMixes);
               }
               break;
           }

@@ -266,10 +266,8 @@ void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
           CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
           break;
         case 1: {
-          swsrc_t timerSw = switchRefToSwSrc(timer.swtch);
-          CHECK_INCDEC_MODELSWITCH(event, timerSw, SWSRC_FIRST_IN_MIXES,
-                                   SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
-          timer.swtch = swSrcToSwitchRef(timerSw);
+          timer.swtch = checkIncDecSwitch(event, timer.swtch, SWSRC_FIRST_IN_MIXES,
+                                          SWSRC_LAST_IN_MIXES, EE_MODEL, isSwitchAvailableInMixes);
           break;
         }
       }

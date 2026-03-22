@@ -227,6 +227,13 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 #define CHECK_INCDEC_GENVAR(event, var, min, max) \
   var = checkIncDecGen(event, var, min, max)
 
+SwitchRef checkIncDecSwitch(event_t event, SwitchRef value, swsrc_t min,
+                            swsrc_t max, unsigned int flags,
+                            IsValueAvailable available);
+
+SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
+                            mixsrc_t max);
+
 #if defined(AUTOSWITCH)
 swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 #endif

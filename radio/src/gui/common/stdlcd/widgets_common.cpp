@@ -52,11 +52,41 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, Lcd
   return editCheckBox(value, x, y, label, attr, event, 0);
 }
 
-swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr, event_t event)
+SwitchRef checkIncDecSwitch(event_t event, SwitchRef value, swsrc_t min,
+                           swsrc_t max, unsigned int flags,
+                           IsValueAvailable available)
+{
+  swsrc_t sw = switchRefToSwSrc(value);
+  CHECK_INCDEC_SWITCH(event, sw, min, max, flags, available);
+  return swSrcToSwitchRef(sw);
+}
+
+SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
+                            mixsrc_t max)
+{
+  mixsrc_t src = sourceRefToMixSrc(value);
+  CHECK_INCDEC_MODELSOURCE(event, src, min, max);
+  return mixSrcToSourceRef(src);
+}
+
+SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, STR_SWITCH);
-  drawSwitch(x,  y, value, attr);
-  if (attr & (~RIGHT)) CHECK_INCDEC_MODELSWITCH(event, value, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
+  drawSwitch(x, y, value, attr);
+  if (attr & (~RIGHT)) {
+    value = checkIncDecSwitch(event, value, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, EE_MODEL, isSwitchAvailableInMixes);
+  }
+  return value;
+}
+
+SourceRef editSource(coord_t x, coord_t y, const char* label, SourceRef value,
+                     mixsrc_t max, LcdFlags attr, event_t event)
+{
+  lcdDrawTextAlignedLeft(y, label);
+  drawSource(x, y, value, attr);
+  if (attr) {
+    value = checkIncDecSource(event, value, 0, max);
+  }
   return value;
 }
 
