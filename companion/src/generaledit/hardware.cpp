@@ -68,7 +68,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext2Pos), FIM_SWITCHTYPE2POS);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext3Pos), FIM_SWITCHTYPE3POS);
 
-  int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel(false, Boards::getCapability(board, Board::HasHardwareAntennaSwitch)));
+  int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel());
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
   id = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), GeneralSettings::AUX1Context), FIM_AUX1SERIALMODES);

@@ -2151,6 +2151,7 @@
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_CHANNEL            LL_DMA_CHANNEL_4
   #if defined(PCBXLITES)
+    #define EXTERNAL_ANTENNA
     #define INTMODULE_BOOTCMD_GPIO         GPIO_PIN(GPIOC, 8) // PC.08
     #define INTMODULE_BOOTCMD_DEFAULT      1 // SET
   #endif

@@ -359,6 +359,10 @@ void ModulePanel::update()
           mask |= MASK_CSRF_ARMING_TRIGGER;
           ui->crsfArmingTrigger->setCurrentIndex(ui->crsfArmingTrigger->findData(RawSwitch(module.crsf.crsfArmingTrigger).toValue()));
         }
+        if (isInternalModule(moduleIdx) &&
+            Boards::getCapability(board, Board::HasHardwareAntennaSwitch) &&
+            generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+          mask |= MASK_ANTENNA;
         break;
       case PULSES_GHOST:
         mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
@@ -475,9 +479,9 @@ void ModulePanel::update()
   ui->ppmFrameLength->setValue(22.5 + ((double)module.ppm.frameLength) * 0.5);
 
   if (mask & MASK_ANTENNA) {
-    if (module.pxx.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
-      module.pxx.antennaMode = GeneralSettings::ANTENNA_MODE_INTERNAL;
-    ui->antennaMode->setField(module.pxx.antennaMode, this);
+    if (module.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+      module.antennaMode = GeneralSettings::ANTENNA_MODE_INTERNAL;
+    ui->antennaMode->setField(module.antennaMode, this);
     ui->antennaLabel->show();
     ui->antennaMode->show();
   }

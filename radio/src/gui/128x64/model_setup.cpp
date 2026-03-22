@@ -413,12 +413,12 @@ void onModelAntennaSwitchConfirm(const char * result)
 {
   if (result == STR_OK) {
     // Switch to external antenna confirmation
-    g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = ANTENNA_MODE_EXTERNAL;
+    g_model.moduleData[INTERNAL_MODULE].antennaMode = ANTENNA_MODE_EXTERNAL;
     globalData.externalAntennaEnabled = true;
     storageDirty(EE_MODEL);
   }
   else {
-    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode;
+    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
   }
 }
 #else
@@ -886,7 +886,7 @@ void menuModelSetup(event_t event)
 #endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode;
+    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
 #endif
   }
 
@@ -2193,13 +2193,13 @@ void menuModelSetup(event_t event)
                                                             reusableBuffer.moduleSetup.antennaMode == ANTENNA_MODE_PER_MODEL ? ANTENNA_MODE_INTERNAL : reusableBuffer.moduleSetup.antennaMode,
                                                             ANTENNA_MODE_INTERNAL, ANTENNA_MODE_EXTERNAL, attr, event, INDENT_WIDTH,
                                                             [](int value) { return value != ANTENNA_MODE_PER_MODEL; });
-        if (event && !s_editMode && reusableBuffer.moduleSetup.antennaMode != g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode) {
+        if (event && !s_editMode && reusableBuffer.moduleSetup.antennaMode != g_model.moduleData[INTERNAL_MODULE].antennaMode) {
           if (reusableBuffer.moduleSetup.antennaMode == ANTENNA_MODE_EXTERNAL && !isExternalAntennaEnabled()) {
             POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onModelAntennaSwitchConfirm);
             SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
           }
           else {
-            g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = reusableBuffer.moduleSetup.antennaMode;
+            g_model.moduleData[INTERNAL_MODULE].antennaMode = reusableBuffer.moduleSetup.antennaMode;
             checkExternalAntenna();
           }
         }

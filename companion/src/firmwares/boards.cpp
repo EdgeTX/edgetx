@@ -354,7 +354,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_FAMILY_HORUS_OR_T16(board);
 
     case HasExternalAntenna:
-      return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board));
+      return IS_FAMILY_HORUS(board) || IS_TARANIS_XLITE(board) ||
+             getCapability(board, HasHardwareAntennaSwitch);
 
     case HasExternalModuleSupport:
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));

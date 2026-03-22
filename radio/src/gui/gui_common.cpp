@@ -709,7 +709,6 @@ bool isSourceAvailableInResetSpecialFunction(int index)
 
 #if defined(EXTERNAL_ANTENNA)
 
-#if defined(INTERNAL_MODULE_PXX1)
 #if defined(COLORLCD)
 
 class AntennaSelectionMenu : public Menu
@@ -742,7 +741,9 @@ static void runAntennaSelectionMenu()
     sleep_ms(20);
   }
 }
-#else
+#else // !COLORLCD
+
+#if defined(INTERNAL_MODULE_PXX1)
 void onAntennaSelection(const char* result)
 {
   if (result == STR_USE_INTERNAL_ANTENNA) {
@@ -761,53 +762,62 @@ void onAntennaSwitchConfirm(const char * result)
     globalData.externalAntennaEnabled = true;
   }
 }
-#endif
 #endif // defined(INTERNAL_MODULE_PXX1)
+
+#endif // defined(COLORLCD)
 
 void checkExternalAntenna()
 {
-#if defined(RADIO_V12)
+  // Get the per-model antenna mode from the appropriate field
+  int8_t modelAntennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
+
+#if !defined(INTMODULE_ANTSEL_GPIO)
+  if (!isModuleXJT(INTERNAL_MODULE)) {
+    globalData.externalAntennaEnabled = false;
+    return;
+  }
+#endif
+
   if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
+    globalData.externalAntennaEnabled = true;
+#if defined(INTMODULE_ANTSEL_GPIO)
     INTMODULE_ANTSEL_EXT();
     LED_ERROR_BEGIN();
     RAISE_ALERT(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2, STR_PRESS_ANY_KEY_TO_SKIP, AU_WARNING1);
-    globalData.externalAntennaEnabled = true;
+#endif
+  } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+             modelAntennaMode == ANTENNA_MODE_EXTERNAL) {
+    if (!globalData.externalAntennaEnabled) {
+#if defined(COLORLCD)
+      if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+        globalData.externalAntennaEnabled = true;
+      }
+#elif defined(INTERNAL_MODULE_PXX1)
+      POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
+      SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
+#endif
+    }
+  } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
+             (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+              modelAntennaMode == ANTENNA_MODE_ASK)) {
+    globalData.externalAntennaEnabled = false;
+#if defined(COLORLCD)
+    runAntennaSelectionMenu();
+#elif defined(INTERNAL_MODULE_PXX1)
+    POPUP_MENU_START(onAntennaSelection, 2, STR_USE_INTERNAL_ANTENNA, STR_USE_EXTERNAL_ANTENNA);
+#endif
   } else {
-    INTMODULE_ANTSEL_INT();
     globalData.externalAntennaEnabled = false;
   }
-#elif defined(INTERNAL_MODULE_PXX1)
-  if (isModuleXJT(INTERNAL_MODULE)) {
-    if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
-      globalData.externalAntennaEnabled = true;
-    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
-               g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
-                   ANTENNA_MODE_EXTERNAL) {
-      if (!globalData.externalAntennaEnabled) {
-#if defined(COLORLCD)
-        if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-          globalData.externalAntennaEnabled = true;
-        }
-#else
-        POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
-        SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
-#endif
-      }
-    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
-               (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
-                g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
-                    ANTENNA_MODE_ASK)) {
-      globalData.externalAntennaEnabled = false;
-#if defined(COLORLCD)
-      runAntennaSelectionMenu();
-#else
-      POPUP_MENU_START(onAntennaSelection, 2, STR_USE_INTERNAL_ANTENNA, STR_USE_EXTERNAL_ANTENNA);
-#endif
+
+#if defined(INTMODULE_ANTSEL_GPIO)
+  // Apply hardware GPIO switch based on result
+  if (g_eeGeneral.antennaMode != ANTENNA_MODE_EXTERNAL) {
+    if (globalData.externalAntennaEnabled) {
+      INTMODULE_ANTSEL_EXT();
     } else {
-      globalData.externalAntennaEnabled = false;
+      INTMODULE_ANTSEL_INT();
     }
-  } else {
-    globalData.externalAntennaEnabled = false;
   }
 #endif
 }

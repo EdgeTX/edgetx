@@ -586,7 +586,7 @@ static const struct YamlNode struct_anonymous_6[] = {
   YAML_PADDING( 2 ),
   YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
   YAML_UNSIGNED( "receiverHigherChannels", 1 ),
-  YAML_SIGNED( "antennaMode", 2 ),
+  YAML_PADDING( 2 ),
   YAML_PADDING( 8 ),
   YAML_END
 };

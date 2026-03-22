@@ -53,7 +53,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
         if (!isExternalAntennaEnabled() &&
             (antenna == ANTENNA_MODE_EXTERNAL ||
              (antenna == ANTENNA_MODE_PER_MODEL &&
-              g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+              g_model.moduleData[INTERNAL_MODULE].antennaMode ==
                   ANTENNA_MODE_EXTERNAL))) {
           if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
             g_eeGeneral.antennaMode = antenna;
@@ -69,7 +69,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
   updateAntennaLine();
 #endif
 
-#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
+#if defined(INTMODULE_ANTSEL_GPIO) && defined(EXTERNAL_ANTENNA)
   auto antline = parent->newLine(grid);
 
   new StaticText(antline, rect_t{}, STR_ANTENNA);
