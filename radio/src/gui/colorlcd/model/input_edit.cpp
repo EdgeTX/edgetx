@@ -237,10 +237,10 @@ void InputEditWindow::buildBody(Window* form)
   // Switch
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   [=]() -> int16_t { return (int16_t)switchRefToSwSrc(input->swtch); },
-                   [=](int16_t newValue) {
-                     input->swtch = swSrcToSwitchRef((swsrc_t)newValue);
+  new SwitchChoice(line, rect_t{},
+                   [=]() { return input->swtch; },
+                   [=](SwitchRef ref) {
+                     input->swtch = ref;
                      updatePreview = true;
                      SET_DIRTY();
                    });

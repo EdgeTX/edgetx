@@ -23,20 +23,39 @@
 
 #include "choice.h"
 #include "form.h"
+#include "sourceref.h"
 
 class SwitchChoiceMenuToolbar;
 
 class SwitchChoice : public Choice
 {
  public:
-  SwitchChoice(Window* parent, const rect_t& rect, int vmin, int vmax,
-               std::function<int16_t()> getValue,
-               std::function<void(int16_t)> setValue);
+  SwitchChoice(Window* parent, const rect_t& rect,
+               std::function<SwitchRef()> getValue,
+               std::function<void(SwitchRef)> setValue);
+
+  void setAvailableHandler(std::function<bool(SwitchRef)> handler);
 
  protected:
   friend SwitchChoiceMenuToolbar;
 
   bool inMenu = false;
+
+  std::function<SwitchRef()> _getSwitchRef;
+  std::function<void(SwitchRef)> _setSwitchRef;
+  std::function<bool(SwitchRef)> isRefAvailable;
+
+  // Flat list of all valid SwitchRefs and toolbar group boundaries
+  std::vector<SwitchRef> entries;
+
+  struct TypeGroup {
+    uint8_t type;
+    int startIdx;
+    int endIdx;  // inclusive
+  };
+  std::vector<TypeGroup> typeGroups;
+
+  void buildEntries();
 
   void setValue(int value) override;
   int getIntValue() const override;
@@ -45,6 +64,12 @@ class SwitchChoice : public Choice
   void invertChoice();
 
   void openMenu() override;
+
+  // Count of candidate indices for a given switch type (before availability filtering)
+  static uint16_t switchTypeCount(uint8_t type);
+
+  // Find the index in entries for a given SwitchRef (ignoring inversion flag)
+  int findEntry(SwitchRef ref) const;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SwitchChoice"; }

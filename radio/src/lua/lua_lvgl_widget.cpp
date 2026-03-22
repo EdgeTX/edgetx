@@ -2924,11 +2924,10 @@ void LvglWidgetSwitchPicker::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = 0;
   auto c = new SwitchChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      SWSRC_FIRST, SWSRC_LAST,
-      [=]() { return pcallGetIntVal(L, getFunction); },
-      [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); });
-  c->setAvailableHandler([=](int value) {
-    return checkSwitchAvailable(value, filter);
+      [=]() -> SwitchRef { return swSrcToSwitchRef(pcallGetIntVal(L, getFunction)); },
+      [=](SwitchRef ref) { pcallSetIntVal(L, setFunction, switchRefToSwSrc(ref)); });
+  c->setAvailableHandler([=](SwitchRef ref) {
+    return checkSwitchAvailable(switchRefToSwSrc(ref), filter);
   });
   window = c;
 }

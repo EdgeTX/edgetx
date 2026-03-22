@@ -663,11 +663,11 @@ void FunctionEditPage::buildBody(Window *form)
   // Switch
   auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SF_SWITCH);
-  auto switchChoice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
-                                       GET_DEFAULT(CFN_SWITCH(cfn)),
-                                       [=](int32_t newValue) { cfn->swtch = swSrcToSwitchRef(newValue); });
+  auto switchChoice = new SwitchChoice(line, rect_t{},
+                                       [=]() { return cfn->swtch; },
+                                       [=](SwitchRef ref) { cfn->swtch = ref; });
   switchChoice->setAvailableHandler(
-      [=](int value) { return isSwitchAvailable(value); });
+      [=](SwitchRef ref) { return isSwitchAvailable(ref); });
 
   // Patch function in case not available
   if (!isAssignableFunctionAvailable(CFN_FUNC(cfn))) {
@@ -947,9 +947,9 @@ class SpecialFunctionEditPage : public FunctionEditPage
     return modelFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
   }
 
-  bool isSwitchAvailable(int value) const override
+  bool isSwitchAvailable(SwitchRef ref) const override
   {
-    return ::isSwitchAvailable(value, ModelCustomFunctionsContext);
+    return ::isSwitchAvailable(switchRefToSwSrc(ref), ModelCustomFunctionsContext);
   }
 
   CustomFunctionData *customFunctionData() const override
@@ -1027,9 +1027,9 @@ class GlobalFunctionEditPage : public FunctionEditPage
     return globalFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
   }
 
-  bool isSwitchAvailable(int value) const override
+  bool isSwitchAvailable(SwitchRef ref) const override
   {
-    return ::isSwitchAvailable(value, GeneralCustomFunctionsContext);
+    return ::isSwitchAvailable(switchRefToSwSrc(ref), GeneralCustomFunctionsContext);
   }
 
   CustomFunctionData *customFunctionData() const override

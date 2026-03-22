@@ -163,10 +163,9 @@ class FlightModeEdit : public Page
       // Switch
       line = body->newLine(grid);
       new StaticText(line, rect_t{}, STR_SWITCH);
-      new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES,
-                       SWSRC_LAST_IN_MIXES,
-                       [=] { return switchRefToSwSrc(p_fm->swtch); },
-                       [=](int32_t newValue) { p_fm->swtch = swSrcToSwitchRef(newValue); SET_DIRTY(); });
+      new SwitchChoice(line, rect_t{},
+                       [=]() { return p_fm->swtch; },
+                       [=](SwitchRef ref) { p_fm->swtch = ref; SET_DIRTY(); });
     }
 
     // Fade in
