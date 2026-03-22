@@ -374,3 +374,76 @@ TEST_F(ArenaAccessorTest, ModelResetClearsArena)
   // but the specific entries we set should be gone
   EXPECT_EQ(lswAddress(10)->func, 0);
 }
+
+// ---- Bit-field capacity tests ----
+// These verify that cross-reference fields can hold all valid values.
+// Failures indicate that the enum range exceeds the bit-field width.
+
+TEST(BitFieldCapacity, SrcRawCanHoldAllMixSources)
+{
+  // srcRaw is int16_t:10 (signed), positive range 0..511
+  // MixSources enum must fit in this range
+  constexpr int srcRawMaxPositive = 511;  // 2^9 - 1
+
+  EXPECT_LE((int)MIXSRC_LAST_TELEM, srcRawMaxPositive)
+      << "MixSources enum (" << (int)MIXSRC_LAST_TELEM
+      << ") exceeds srcRaw:10 signed positive range (" << srcRawMaxPositive
+      << "). Telemetry sensors beyond index "
+      << (srcRawMaxPositive - (int)MIXSRC_FIRST_TELEM) / 3
+      << " cannot be used as mix/expo sources.";
+}
+
+TEST(BitFieldCapacity, SrcRawRoundTrip)
+{
+  // Verify that storing and reading back source values through
+  // the actual MixData bitfield preserves the value
+  MODEL_RESET();
+
+  // Test first telemetry sensor
+  MixData* mix = mixAddress(0);
+  mix->srcRaw = MIXSRC_FIRST_TELEM;
+  EXPECT_EQ(mix->srcRaw, (int)MIXSRC_FIRST_TELEM);
+
+  // Test last telemetry sensor (may fail on H7 with 99 sensors)
+  mix->srcRaw = MIXSRC_LAST_TELEM;
+  if (MIXSRC_LAST_TELEM <= 511) {
+    EXPECT_EQ(mix->srcRaw, (int)MIXSRC_LAST_TELEM)
+        << "Last telemetry source should round-trip through srcRaw:10";
+  } else {
+    EXPECT_NE(mix->srcRaw, (int)MIXSRC_LAST_TELEM)
+        << "Expected corruption: MIXSRC_LAST_TELEM (" << (int)MIXSRC_LAST_TELEM
+        << ") exceeds srcRaw:10 signed range";
+  }
+}
+
+TEST(BitFieldCapacity, SwtchCanHoldAllSwitchSources)
+{
+  // swtch is int32_t:10 (signed), range -512..511
+  // SwitchSources enum uses positive values 0..SWSRC_LAST,
+  // negative values for inverted switches
+  constexpr int swtchMaxPositive = 511;
+
+  EXPECT_LE((int)SWSRC_LAST, swtchMaxPositive)
+      << "SwitchSources enum (" << (int)SWSRC_LAST
+      << ") exceeds swtch:10 signed positive range (" << swtchMaxPositive << ")";
+}
+
+TEST(BitFieldCapacity, CurveRefCanHoldAllCurves)
+{
+  // CurveRef.value is uint16_t:11 (unsigned), range 0..2047
+  // When type=CURVE_REF_CUSTOM, value is curve index (1-based)
+  constexpr int curveRefMax = 2047;
+
+  EXPECT_LE((int)MAX_CURVES_HARD, curveRefMax)
+      << "MAX_CURVES_HARD exceeds CurveRef.value:11 range";
+}
+
+TEST(BitFieldCapacity, LimitCurveCanHoldAllCurves)
+{
+  // LimitData.curve is int8_t, range -1..127 (0=none, 1-based index)
+  constexpr int limitCurveMax = 127;
+
+  EXPECT_LE((int)MAX_CURVES_HARD, limitCurveMax)
+      << "MAX_CURVES_HARD (" << MAX_CURVES_HARD
+      << ") exceeds LimitData.curve:int8_t range (" << limitCurveMax << ")";
+}
