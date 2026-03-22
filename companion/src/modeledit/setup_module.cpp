@@ -337,7 +337,7 @@ void ModulePanel::update()
         if (isInternalModule(moduleIdx) &&
             (protocol==PULSES_PXX_XJT_X16 ||
              protocol==PULSES_PXX_XJT_D8 || protocol==PULSES_PXX_XJT_LR12) &&
-            HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+            Boards::getCapability(board, Board::HasExternalAntenna) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
           mask |= MASK_ANTENNA;
         if (protocol == PULSES_ACCESS_ISRM && module.channelsCount == 8)
           mask |= MASK_RF_RACING_MODE;

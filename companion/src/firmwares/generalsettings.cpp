@@ -561,13 +561,15 @@ FieldRange GeneralSettings::getTxCurrentCalibration()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::antennaModeItemModel(bool model_setup)
+AbstractStaticItemModel * GeneralSettings::antennaModeItemModel(bool model_setup, bool hardwareSwitchOnly)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_GS_ANTENNAMODE);
 
   for (int i = ANTENNA_MODE_FIRST; i <= ANTENNA_MODE_LAST; i++) {
-    mdl->appendToItemList(antennaModeToString(i), i, model_setup ? i != ANTENNA_MODE_PER_MODEL : true);
+    bool enabled = hardwareSwitchOnly ? (i == ANTENNA_MODE_INTERNAL || i == ANTENNA_MODE_EXTERNAL)
+                                      : (model_setup ? i != ANTENNA_MODE_PER_MODEL : true);
+    mdl->appendToItemList(antennaModeToString(i), i, enabled);
   }
 
   mdl->loadItemList();

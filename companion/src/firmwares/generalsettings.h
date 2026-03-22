@@ -496,7 +496,7 @@ class GeneralSettings {
     static QString backlightModeToString(int value);
     static QString quickMenuToString(int value, bool keys);
 
-    static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
+    static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false, bool hardwareSwitchOnly = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
     static AbstractStaticItemModel * serialModeItemModel();
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();

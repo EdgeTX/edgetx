@@ -225,7 +225,9 @@ namespace Board {
     HasAudioMuteGPIO,
     HasBacklightColor,
     HasColorLcd,
+    HasExternalAntenna,
     HasExternalModuleSupport,
+    HasHardwareAntennaSwitch,
     HasIMU,
     HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
@@ -825,10 +827,6 @@ inline bool HAS_LARGE_LCD(Board::Type board)
   return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board);
 }
 
-inline bool HAS_EXTERNAL_ANTENNA(Board::Type board)
-{
-  return (IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board)));
-}
 
 inline bool IS_TARANIS_X9DP_2019(Board::Type board)
 {

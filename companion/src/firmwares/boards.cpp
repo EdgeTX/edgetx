@@ -353,8 +353,14 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasColorLcd:
       return IS_FAMILY_HORUS_OR_T16(board);
 
+    case HasExternalAntenna:
+      return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board));
+
     case HasExternalModuleSupport:
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
+
+    case HasHardwareAntennaSwitch:
+      return IS_HELLORADIOSKY_V12(board);
 
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) || IS_RADIOMASTER_TX15(board));

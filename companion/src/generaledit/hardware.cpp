@@ -68,7 +68,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext2Pos), FIM_SWITCHTYPE2POS);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext3Pos), FIM_SWITCHTYPE3POS);
 
-  int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel());
+  int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel(false, Boards::getCapability(board, Board::HasHardwareAntennaSwitch)));
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
   id = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), GeneralSettings::AUX1Context), FIM_AUX1SERIALMODES);
@@ -262,7 +262,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     antennaMode->setField(generalSettings.antennaMode, this);
     params->append(antennaMode);
 
-    if (!(m_internalModule == MODULE_TYPE_XJT_PXX1 && HAS_EXTERNAL_ANTENNA(board))) {
+    if (!((m_internalModule == MODULE_TYPE_XJT_PXX1 || Boards::getCapability(board, Board::HasHardwareAntennaSwitch)) && Boards::getCapability(board, Board::HasExternalAntenna))) {
       antennaLabel->setVisible(false);
       antennaMode->setVisible(false);
     }
@@ -405,11 +405,10 @@ void HardwarePanel::on_internalModuleChanged()
       internalModuleBaudRate->setVisible(false);
     }
 
-    if (m_internalModule == MODULE_TYPE_XJT_PXX1 && HAS_EXTERNAL_ANTENNA(board)) {
-        antennaLabel->setVisible(true);
-        antennaMode->setVisible(true);
-    }
-    else {
+    if ((m_internalModule == MODULE_TYPE_XJT_PXX1 || Boards::getCapability(board, Board::HasHardwareAntennaSwitch)) && Boards::getCapability(board, Board::HasExternalAntenna)) {
+      antennaLabel->setVisible(true);
+      antennaMode->setVisible(true);
+    } else {
       antennaLabel->setVisible(false);
       antennaMode->setVisible(false);
     }
