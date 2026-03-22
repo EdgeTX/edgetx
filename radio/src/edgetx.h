@@ -389,7 +389,7 @@ extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax,
 extern bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf);
 extern bool validateSFGV(CustomFunctionData* cfn);
 
-void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx=0, int16_t ovwrValue=0);
+void applyExpos(int16_t * anas, uint8_t mode, const SourceRef& ovwrSrc={}, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
 
 void evalInputs(uint8_t mode);
@@ -875,5 +875,5 @@ extern bool modelTelemetryEnabled();
 int pwrDelayFromYaml(int delay);
 int pwrDelayToYaml(int delay);
 
-void calcBacklightValue(int16_t source);
-void calcVolumeValue(int16_t source);
+void calcBacklightValue(const SourceRef& source);
+void calcVolumeValue(const SourceRef& source);

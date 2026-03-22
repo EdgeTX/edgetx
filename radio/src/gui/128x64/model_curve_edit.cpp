@@ -156,7 +156,7 @@ void menuModelCurveOne(event_t event)
   }
 
   drawCurve();
-  if (s_currSrcRaw != MIXSRC_NONE)
+  if (!s_currSrcRaw.isNone())
     drawCursor(applyCurrentCurve);
 
   attr = (s_editMode > 0 ? INVERS|BLINK : INVERS);

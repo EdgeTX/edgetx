@@ -121,9 +121,8 @@ void SourceChoice::buildEntries()
     for (uint16_t i = 0; i < count; i++) {
       SourceRef ref = {t, 0, i};
 
-      // Check availability using MIXSRC-based isSourceAvailable
-      mixsrc_t mixsrc = sourceRefToMixSrc(ref);
-      if (!isSourceAvailable(mixsrc)) continue;
+      // Check availability
+      if (!isSourceAvailable(ref)) continue;
 
       // Check custom SourceRef-based filter
       if (isRefAvailable && !isRefAvailable(ref)) continue;

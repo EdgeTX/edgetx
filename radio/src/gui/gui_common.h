@@ -24,6 +24,7 @@
 #include <functional>
 #include "lcd.h"
 #include "keys.h"
+#include "sourceref.h"
 #include "telemetry/telemetry_sensors.h"
 
 #define READONLY_ROW                   ((uint8_t)-1)
@@ -61,7 +62,9 @@ bool isThrottleSourceAvailable(int source);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailableForBacklightOrVolume(int source);
+bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref);
 bool isSourceAvailable(int source);
+bool isSourceAvailable(const SourceRef& ref);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);

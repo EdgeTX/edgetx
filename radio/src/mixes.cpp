@@ -46,13 +46,13 @@ void insertMix(uint8_t idx, uint8_t channel)
   memclear(mix, sizeof(MixData));
   mix->destCh = channel;
   mix->srcRaw = {SOURCE_TYPE_INPUT, 0, (uint16_t)channel};
-  if (!isSourceAvailable(sourceRefToMixSrc(mix->srcRaw))) {
+  if (!isSourceAvailable(mix->srcRaw)) {
     if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
       mix->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)channel};
     } else {
       mix->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingChannelOrder(channel)};
     }
-    while (!isSourceAvailable(sourceRefToMixSrc(mix->srcRaw))) {
+    while (!isSourceAvailable(mix->srcRaw)) {
       mix->srcRaw.index += 1;
     }
   }

@@ -354,14 +354,13 @@ int expo(int x, int k)
   return neg ? -y : y;
 }
 
-void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue)
+void applyExpos(int16_t * anas, uint8_t mode, const SourceRef& ovwrSrc, int16_t ovwrValue)
 {
   int8_t cur_chn = -1;
 
   for (uint8_t i=0; i<MAX_EXPOS; i++) {
     if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
     ExpoData * ed = expoAddress(i);
-    mixsrc_t srcRaw = sourceRefToMixSrc(ed->srcRaw);
     if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
       continue;
@@ -371,7 +370,7 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
       continue;
     if (getSwitch(ed->swtch)) {
       int32_t v;
-      if (srcRaw == ovwrIdx) {
+      if (!ovwrSrc.isNone() && ed->srcRaw == ovwrSrc) {
         v = ovwrValue;
       }
       else {
@@ -879,19 +878,19 @@ int getStickTrimValue(int stick, int stickValue)
   return trim;
 }
 
-int getSourceTrimOrigin(int source)
+int getSourceTrimOrigin(const SourceRef& ref)
 {
-  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
-    return source - MIXSRC_FIRST_STICK;
-  else if (source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT)
-    return virtualInputsTrims[source - MIXSRC_FIRST_INPUT];
+  if (ref.type == SOURCE_TYPE_STICK)
+    return ref.index;
+  else if (ref.type == SOURCE_TYPE_INPUT)
+    return virtualInputsTrims[ref.index];
   else
     return -1;
 }
 
-int getSourceTrimValue(int source, int stickValue=0)
+int getSourceTrimValue(const SourceRef& ref, int stickValue=0)
 {
-  auto origin = getSourceTrimOrigin(source);
+  auto origin = getSourceTrimOrigin(ref);
   if (origin >= 0) {
     return getStickTrimValue(origin, stickValue);
   }
@@ -954,8 +953,8 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
   #define REZ_SWASH_Y(x)  ((x))   //  1024 => 1024
 
     if (g_model.swashR.type) {
-      getvalue_t vp = heliEleValue + getSourceTrimValue(sourceRefToMixSrc(g_model.swashR.elevatorSource));
-      getvalue_t vr = heliAilValue + getSourceTrimValue(sourceRefToMixSrc(g_model.swashR.aileronSource));
+      getvalue_t vp = heliEleValue + getSourceTrimValue(g_model.swashR.elevatorSource);
+      getvalue_t vr = heliAilValue + getSourceTrimValue(g_model.swashR.aileronSource);
       getvalue_t vc = 0;
       if (!g_model.swashR.collectiveSource.isNone())
         vc = getValue(g_model.swashR.collectiveSource);
@@ -1021,7 +1020,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
-      mixsrc_t srcRaw = sourceRefToMixSrc(md->srcRaw);
 
       if (md->srcRaw.isNone()) {
 #if defined(COLORLCD)
@@ -1151,13 +1149,13 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (applyOffsetAndCurve) {
         bool applyTrims = !(mode & e_perout_mode_notrims);
         if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(srcRaw);
+          auto origin = getSourceTrimOrigin(md->srcRaw);
           if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
             applyTrims = true;
           }
         }
         if (applyTrims && md->carryTrim == 0) {
-          v += getSourceTrimValue(srcRaw, v);
+          v += getSourceTrimValue(md->srcRaw, v);
         }
       }
 
@@ -1405,7 +1403,7 @@ void evalMixes(uint8_t tick10ms)
 #if defined(AUDIO)
     if (!isFunctionActive(FUNCTION_VOLUME)) {
       if (!g_eeGeneral.volumeSrc.isNone()) {
-        calcVolumeValue(sourceRefToMixSrc(g_eeGeneral.volumeSrc));
+        calcVolumeValue(g_eeGeneral.volumeSrc);
       } else {
         requiredSpeakerVolume =
             limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
@@ -1415,7 +1413,7 @@ void evalMixes(uint8_t tick10ms)
 
     if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
       if (!g_eeGeneral.backlightSrc.isNone()) {
-        calcBacklightValue(sourceRefToMixSrc(g_eeGeneral.backlightSrc));
+        calcBacklightValue(g_eeGeneral.backlightSrc);
       } else {
         requiredBacklightBright = g_eeGeneral.getBrightness();
       }

@@ -55,5 +55,5 @@ uint8_t s_copySrcCh;
 
 uint8_t s_currIdx;
 uint8_t s_currIdxSubMenu;
-mixsrc_t s_currSrcRaw;
+SourceRef s_currSrcRaw;
 uint16_t s_currScale;

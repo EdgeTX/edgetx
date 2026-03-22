@@ -157,7 +157,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(line->srcRaw), x);
+        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
@@ -170,7 +170,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(line->srcRaw), x);
+        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });

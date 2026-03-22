@@ -315,7 +315,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(AUDIO)
           case FUNC_VOLUME: {
             newActiveFunctions |= (1u << FUNCTION_VOLUME);
-            calcVolumeValue(CFN_PARAM(cfn));
+            calcVolumeValue(mixSrcToSourceRef(CFN_PARAM(cfn)));
             break;
           }
 #endif
@@ -397,7 +397,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                     // regardless of backlight settings
               requiredBacklightBright = BACKLIGHT_FORCED_ON;
             } else {
-              calcBacklightValue(CFN_PARAM(cfn));
+              calcBacklightValue(mixSrcToSourceRef(CFN_PARAM(cfn)));
             }
             break;
           }
