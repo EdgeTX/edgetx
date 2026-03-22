@@ -178,7 +178,7 @@ void menuModelMixOne(event_t event)
 #endif
 
       case MIX_FIELD_SWITCH:
-        md2->swtch = swSrcToSwitchRef(editSwitch(MIXES_2ND_COLUMN, y, switchRefToSwSrc(md2->swtch), attr, event));
+        md2->swtch = editSwitch(MIXES_2ND_COLUMN, y, md2->swtch, attr, event);
         break;
 
       case MIX_FIELD_WARNING:

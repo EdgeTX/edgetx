@@ -104,11 +104,11 @@ void menuModelCustomScriptOne(event_t event)
       }
       else {
         {
-          mixsrc_t srcVal = sourceRefToMixSrc(g_model.scriptsData[s_currIdx].inputs[inputIdx].source);
-          drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcVal, attr);
+          SourceRef srcRef = g_model.scriptsData[s_currIdx].inputs[inputIdx].source;
+          drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcRef, attr);
           if (attr) {
-            CHECK_INCDEC_MODELSOURCE(event, srcVal, 0, MIXSRC_LAST_TELEM);
-            g_model.scriptsData[s_currIdx].inputs[inputIdx].source = mixSrcToSourceRef(srcVal);
+            g_model.scriptsData[s_currIdx].inputs[inputIdx].source =
+                checkIncDecSource(event, srcRef, 0, MIXSRC_LAST_TELEM);
           }
         }
       }

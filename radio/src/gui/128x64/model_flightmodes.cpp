@@ -129,9 +129,7 @@ void menuModelFlightModeOne(event_t event)
 
       case ITEM_MODEL_FLIGHT_MODE_SWITCH:
         {
-          swsrc_t swVal = switchRefToSwSrc(fm->swtch);
-          swVal = editSwitch(MIXES_2ND_COLUMN, y, swVal, attr, event);
-          fm->swtch = swSrcToSwitchRef(swVal);
+          fm->swtch = editSwitch(MIXES_2ND_COLUMN, y, fm->swtch, attr, event);
         }
         break;
 

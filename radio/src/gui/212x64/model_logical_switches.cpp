@@ -254,11 +254,7 @@ void menuModelLogicalSwitches(event_t event)
           break;
         case LS_FIELD_ANDSW:
         {
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
-          INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
-          swsrc_t andswVal = switchRefToSwSrc(cs->andsw);
-          andswVal = CHECK_INCDEC_PARAM(event, andswVal, -MAX_LS_ANDSW, MAX_LS_ANDSW);
-          cs->andsw = swSrcToSwitchRef(andswVal);
+          cs->andsw = checkIncDecSwitch(event, cs->andsw, -MAX_LS_ANDSW, MAX_LS_ANDSW, EE_MODEL, isSwitchAvailableInLogicalSwitches);
         }
           break;
         case LS_FIELD_DURATION:

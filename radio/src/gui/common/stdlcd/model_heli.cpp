@@ -44,12 +44,9 @@ static int numberField(const char* name, coord_t y, int val, int min, LcdFlags a
   return editNumberField(name, INDENT_WIDTH, MODEL_HELI_2ND_COLUMN, y, val, min, 100, attr, event);
 }
 
-static mixsrc_t sourceField(const char* name, coord_t y, mixsrc_t val, LcdFlags attr, event_t event)
+static SourceRef sourceField(const char* name, coord_t y, SourceRef val, LcdFlags attr, event_t event)
 {
-  lcdDrawTextAlignedLeft(y, name);
-  drawSource(MODEL_HELI_2ND_COLUMN, y, val, attr);
-  if (attr) CHECK_INCDEC_MODELSOURCE(event, val, 0, MIXSRC_LAST_CH);
-  return val;
+  return editSource(MODEL_HELI_2ND_COLUMN, y, name, val, MIXSRC_LAST_CH, attr, event);
 }
 
 void menuModelHeli(event_t event)
@@ -75,7 +72,7 @@ void menuModelHeli(event_t event)
         break;
 
       case ITEM_HELI_ELE:
-        g_model.swashR.elevatorSource = mixSrcToSourceRef(sourceField(STR_ELEVATOR, y, sourceRefToMixSrc(g_model.swashR.elevatorSource), attr, event));
+        g_model.swashR.elevatorSource = sourceField(STR_ELEVATOR, y, g_model.swashR.elevatorSource, attr, event);
         break;
 
       case ITEM_HELI_ELE_WEIGHT:
@@ -83,7 +80,7 @@ void menuModelHeli(event_t event)
         break;
 
       case ITEM_HELI_AIL:
-        g_model.swashR.aileronSource = mixSrcToSourceRef(sourceField(STR_AILERON, y, sourceRefToMixSrc(g_model.swashR.aileronSource), attr, event));
+        g_model.swashR.aileronSource = sourceField(STR_AILERON, y, g_model.swashR.aileronSource, attr, event);
         break;
 
       case ITEM_HELI_AIL_WEIGHT:
@@ -91,7 +88,7 @@ void menuModelHeli(event_t event)
         break;
 
       case ITEM_HELI_COL:
-        g_model.swashR.collectiveSource = mixSrcToSourceRef(sourceField(STR_COLLECTIVE, y, sourceRefToMixSrc(g_model.swashR.collectiveSource), attr, event));
+        g_model.swashR.collectiveSource = sourceField(STR_COLLECTIVE, y, g_model.swashR.collectiveSource, attr, event);
         break;
 
       case ITEM_HELI_COL_WEIGHT:
