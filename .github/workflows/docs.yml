@@ -8,6 +8,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'docs-requirements.txt'
+      - '.github/workflows/docs.yml'
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'   # release tags only, not -rc
   pull_request:
@@ -15,6 +16,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'docs-requirements.txt'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 permissions:
@@ -34,7 +36,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: uv pip install --system -r docs-requirements.txt
+        run: uv pip install -r docs-requirements.txt
 
       - name: Configure git for mike
         if: github.event_name != 'pull_request'
