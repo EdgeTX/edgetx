@@ -445,58 +445,66 @@ void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, 
   }
 }
 
-void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value, LcdFlags flags)
+void drawSourceCustomValue(coord_t x, coord_t y, const SourceRef& source, int32_t value, LcdFlags flags)
 {
-  source = abs(source);
-
-  if (source >= MIXSRC_FIRST_TELEM) {
-    source = (source-MIXSRC_FIRST_TELEM) / 3;
-    drawSensorCustomValue(x, y, source, value, flags);
-  }
-  else if (source >= MIXSRC_FIRST_TIMER || source == MIXSRC_TX_TIME) {
-    if (value < 0) flags |= BLINK|INVERS;
-    drawTimer(x, y, value, flags);
-  }
-  else if (source == MIXSRC_TX_VOLTAGE) {
-    lcdDrawNumber(x, y, value, flags|PREC1);
-  }
+  switch (source.type) {
+    case SOURCE_TYPE_TELEMETRY:
+      drawSensorCustomValue(x, y, source.index / 3, value, flags);
+      break;
+    case SOURCE_TYPE_TIMER:
+    case SOURCE_TYPE_TX_TIME:
+      if (value < 0) flags |= BLINK|INVERS;
+      drawTimer(x, y, value, flags);
+      break;
+    case SOURCE_TYPE_TX_VOLTAGE:
+      lcdDrawNumber(x, y, value, flags|PREC1);
+      break;
 #if defined(LUMINOSITY_SENSOR)
-  else if (source == MIXSRC_LIGHT) {
-    lcdDrawNumber(x, y, value, flags);
-  }
+    case SOURCE_TYPE_LIGHT:
+      lcdDrawNumber(x, y, value, flags);
+      break;
 #endif
 #if defined(INTERNAL_GPS)
-    else if (source == MIXSRC_TX_GPS) {
-    if (gpsData.fix) {
-      drawGPSPosition(x, y, gpsData.longitude, gpsData.latitude, flags);
-    }
-    else {
-      lcdDrawText(x, y, "sats: ", flags);
-      lcdDrawNumber(lcdNextPos, y, gpsData.numSat, flags);
-    }
-  }
+    case SOURCE_TYPE_TX_GPS:
+      if (gpsData.fix) {
+        drawGPSPosition(x, y, gpsData.longitude, gpsData.latitude, flags);
+      }
+      else {
+        lcdDrawText(x, y, "sats: ", flags);
+        lcdDrawNumber(lcdNextPos, y, gpsData.numSat, flags);
+      }
+      break;
 #endif
 #if defined(GVARS)
-  else if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) {
-    drawGVarValue(x, y, source - MIXSRC_FIRST_GVAR, value, flags);
-  }
+    case SOURCE_TYPE_GVAR:
+      drawGVarValue(x, y, source.index, value, flags);
+      break;
 #endif
-  else if (source < MIXSRC_FIRST_CH) {
-    lcdDrawNumber(x, y, calcRESXto100(value), flags);
-  }
-  else if (source <= MIXSRC_LAST_CH) {
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
-    } else {
+    case SOURCE_TYPE_CHANNEL:
+      if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
+      } else {
+        lcdDrawNumber(x, y, calcRESXto100(value), flags);
+      }
+      break;
+    case SOURCE_TYPE_INPUT:
+    case SOURCE_TYPE_STICK:
+    case SOURCE_TYPE_POT:
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+    case SOURCE_TYPE_HELI:
+    case SOURCE_TYPE_TRIM:
+    case SOURCE_TYPE_SWITCH:
+    case SOURCE_TYPE_TRAINER:
       lcdDrawNumber(x, y, calcRESXto100(value), flags);
-    }
-  }
-  else {
-    lcdDrawNumber(x, y, value, flags);
+      break;
+    default:
+      lcdDrawNumber(x, y, value, flags);
+      break;
   }
 }
 
-void drawSourceValue(coord_t x, coord_t y, source_t source, LcdFlags flags)
+void drawSourceValue(coord_t x, coord_t y, const SourceRef& source, LcdFlags flags)
 {
   getvalue_t value = getValue(source);
   drawSourceCustomValue(x, y, source, value, flags);

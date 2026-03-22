@@ -221,23 +221,18 @@ void menuModelDisplay(event_t event)
           LcdFlags lf = LEFT;
           getMixSrcRange(bar.source, barMin, barMax, &lf);
           if (!bar.source.isNone()) {
-            mixsrc_t barSrc = sourceRefToMixSrc(bar.source);
-            if (barSrc <= MIXSRC_LAST_CH) {
-              drawSourceCustomValue(DISPLAY_COL2, y, barSrc, calc100toRESX(bar.barMin), (menuHorizontalPosition==1 ? attr : 0) | lf);
-              drawSourceCustomValue(DISPLAY_COL3, y, barSrc, calc100toRESX(bar.barMax), (menuHorizontalPosition==2 ? attr : 0) | lf);
-            }
-            else {
-              drawSourceCustomValue(DISPLAY_COL2, y, barSrc, bar.barMin, (menuHorizontalPosition==1 ? attr : 0) | lf);
-              drawSourceCustomValue(DISPLAY_COL3, y, barSrc, bar.barMax, (menuHorizontalPosition==2 ? attr : 0) | lf);
-            }
+            bool isRESX = (bar.source.type <= SOURCE_TYPE_CHANNEL);
+            int32_t dispMin = isRESX ? calc100toRESX(bar.barMin) : bar.barMin;
+            int32_t dispMax = isRESX ? calc100toRESX(bar.barMax) : bar.barMax;
+            drawSourceCustomValue(DISPLAY_COL2, y, bar.source, dispMin, (menuHorizontalPosition==1 ? attr : 0) | lf);
+            drawSourceCustomValue(DISPLAY_COL3, y, bar.source, dispMax, (menuHorizontalPosition==2 ? attr : 0) | lf);
           }
           if (attr && s_editMode>0) {
             switch (menuHorizontalPosition) {
               case 0:
                 bar.source = checkIncDecSource(event, bar.source, SRCMASK_ALL, isSourceAvailable);
                 if (checkIncDec_Ret) {
-                  mixsrc_t barSrc = sourceRefToMixSrc(bar.source);
-                  if (barSrc <= MIXSRC_LAST_CH) {
+                  if (bar.source.type <= SOURCE_TYPE_CHANNEL) {
                     bar.barMin = -100;
                     bar.barMax = 100;
                   }

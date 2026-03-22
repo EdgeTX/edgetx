@@ -385,7 +385,6 @@ inline int calcRESXto100(int x)
 
 int expo(int x, int k);
 
-extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 extern void getMixSrcRange(const SourceRef& source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 extern bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf);
 extern bool validateSFGV(CustomFunctionData* cfn);

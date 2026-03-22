@@ -147,9 +147,9 @@ char *getSourceString(const SourceRef& ref, bool defaultOnly = false);
 
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], const SourceRef& source, int32_t val,
                                  LcdFlags flags);
-char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
+char *getSourceCustomValueString(const SourceRef& source, int32_t val, LcdFlags flags);
 
 char *getFlightModeString(char *dest, int8_t idx);
 

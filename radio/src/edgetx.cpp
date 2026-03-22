@@ -2023,67 +2023,69 @@ bool modelTelemetryEnabled() {
   return FEATURE_ENABLED(modelTelemetryDisabled);
 }
 
-void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags)
-{
-  int asrc = abs(source);
-
-  if (asrc >= MIXSRC_FIRST_TRIM && asrc <= MIXSRC_LAST_TRIM) {
-    valMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
-    valMin = -valMax;
-  }
-#if defined(LUA_INPUTS)
-  else if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
-    valMax = MIXSRC_MAX_VALUE;
-    valMin = -valMax;
-  }
-#endif
-  else if (asrc < MIXSRC_FIRST_CH) {
-    valMax = 100;
-    valMin = -valMax;
-  }
-  else if (asrc <= MIXSRC_LAST_CH) {
-    valMax = g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100;
-    valMin = -valMax;
-  }
-#if defined(GVARS)
-  else if (asrc >= MIXSRC_FIRST_GVAR && asrc <= MIXSRC_LAST_GVAR) {
-    valMax = min<int>(CFN_GVAR_CST_MAX, MODEL_GVAR_MAX(asrc-MIXSRC_FIRST_GVAR));
-    valMin = max<int>(CFN_GVAR_CST_MIN, MODEL_GVAR_MIN(asrc-MIXSRC_FIRST_GVAR));
-    if (flags && g_model.gvars[asrc-MIXSRC_FIRST_GVAR].prec)
-      *flags |= PREC1;
-  }
-#endif
-  else if (asrc == MIXSRC_TX_VOLTAGE) {
-    valMax =  255;
-    valMin = 0;
-    if (flags)
-      *flags |= PREC1;
-  }
-#if defined(LUMINOSITY_SENSOR)
-  else if (asrc == MIXSRC_LIGHT) {
-    valMax = 100;
-    valMin = -valMax;
-  }
-#endif
-  else if (asrc == MIXSRC_TX_TIME) {
-    valMax =  23 * 60 + 59;
-    valMin = 0;
-  }
-  else if (asrc >= MIXSRC_FIRST_TIMER && asrc <= MIXSRC_LAST_TIMER) {
-    valMax =  9 * 60 * 60 - 1;
-    valMin = -valMax;
-    if (flags)
-      *flags |= TIMEHOUR;
-  }
-  else {
-    valMax = MIXSRC_MAX_VALUE;
-    valMin = -valMax;
-  }
-}
-
 void getMixSrcRange(const SourceRef& source, int16_t & valMin, int16_t & valMax, LcdFlags * flags)
 {
-  getMixSrcRange(sourceRefToMixSrc(source), valMin, valMax, flags);
+  switch (source.type) {
+    case SOURCE_TYPE_TRIM:
+      valMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
+      valMin = -valMax;
+      break;
+#if defined(LUA_INPUTS)
+    case SOURCE_TYPE_LUA:
+      valMax = MIXSRC_MAX_VALUE;
+      valMin = -valMax;
+      break;
+#endif
+    case SOURCE_TYPE_CHANNEL:
+      valMax = g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100;
+      valMin = -valMax;
+      break;
+#if defined(GVARS)
+    case SOURCE_TYPE_GVAR:
+      valMax = min<int>(CFN_GVAR_CST_MAX, MODEL_GVAR_MAX(source.index));
+      valMin = max<int>(CFN_GVAR_CST_MIN, MODEL_GVAR_MIN(source.index));
+      if (flags && g_model.gvars[source.index].prec)
+        *flags |= PREC1;
+      break;
+#endif
+    case SOURCE_TYPE_TX_VOLTAGE:
+      valMax = 255;
+      valMin = 0;
+      if (flags)
+        *flags |= PREC1;
+      break;
+#if defined(LUMINOSITY_SENSOR)
+    case SOURCE_TYPE_LIGHT:
+      valMax = 100;
+      valMin = -valMax;
+      break;
+#endif
+    case SOURCE_TYPE_TX_TIME:
+      valMax = 23 * 60 + 59;
+      valMin = 0;
+      break;
+    case SOURCE_TYPE_TIMER:
+      valMax = 9 * 60 * 60 - 1;
+      valMin = -valMax;
+      if (flags)
+        *flags |= TIMEHOUR;
+      break;
+    case SOURCE_TYPE_INPUT:
+    case SOURCE_TYPE_STICK:
+    case SOURCE_TYPE_POT:
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+    case SOURCE_TYPE_HELI:
+    case SOURCE_TYPE_SWITCH:
+    case SOURCE_TYPE_TRAINER:
+      valMax = 100;
+      valMin = -valMax;
+      break;
+    default:
+      valMax = MIXSRC_MAX_VALUE;
+      valMin = -valMax;
+      break;
+  }
 }
 
 bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf)
@@ -2131,7 +2133,7 @@ bool validateSFGV(CustomFunctionData* cfn)
   if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
     int32_t v = CFN_PARAM(cfn);
     int16_t vmin, vmax;
-    getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, vmin, vmax);
+    getMixSrcRange({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}, vmin, vmax);
     if (v < vmin) v = vmin;
     else if (v > vmax) v = vmax;
     if (CFN_PARAM(cfn) != v) rv = true;

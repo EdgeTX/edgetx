@@ -172,10 +172,9 @@ void menuModelLogicalSwitchOne(event_t event)
         }
         else {
           int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
-          mixsrc_t v1m = sourceRefToMixSrc(cs->v1.source);
-          if (abs(v1m) >= MIXSRC_FIRST_TELEM) {
-            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1m, convertLswTelemValue(cs), attr|LEFT);
-            v2_max = maxTelemValue(v1m - MIXSRC_FIRST_TELEM + 1);
+          if (cs->v1.source.type == SOURCE_TYPE_TELEMETRY) {
+            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, cs->v1.source, convertLswTelemValue(cs), attr|LEFT);
+            v2_max = maxTelemValue(cs->v1.source.index + 1);
             if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
               v2_min = 0;
             else
@@ -189,7 +188,8 @@ void menuModelLogicalSwitchOne(event_t event)
           {
             LcdFlags lf = attr | LEFT;
             if (validateLSV2Range(cs, v2_min, v2_max, &lf)) storageDirty(EE_MODEL);
-            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1m, (abs(v1m) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2.value) : cs->v2.value), lf);
+            int32_t dispVal = (cs->v1.source.type <= SOURCE_TYPE_CHANNEL) ? calc100toRESX(cs->v2.value) : cs->v2.value;
+            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, cs->v1.source, dispVal, lf);
           }
           if (attr) {
             cs->v2.value = checkIncDec(event, cs->v2.value, v2_min, v2_max, EE_MODEL | INCDEC_REP10 | NO_INCDEC_MARKS);
@@ -318,16 +318,16 @@ void menuModelLogicalSwitches(event_t event)
         lcdDrawNumber(CSW_3RD_COLUMN, y, lswTimerValue(cs->v2.value), LEFT|PREC1);
       }
       else {
-        mixsrc_t v1 = sourceRefToMixSrc(cs->v1.source);
         drawSource(CSW_2ND_COLUMN, y, cs->v1.source, 0);
-        if (v1 >= MIXSRC_FIRST_TELEM) {
-          drawSourceCustomValue(CSW_3RD_COLUMN, y, v1, convertLswTelemValue(cs), LEFT);
+        if (cs->v1.source.type == SOURCE_TYPE_TELEMETRY) {
+          drawSourceCustomValue(CSW_3RD_COLUMN, y, cs->v1.source, convertLswTelemValue(cs), LEFT);
         }
-        else if (v1 <= MIXSRC_LAST_CH) {
-          drawSourceCustomValue(CSW_3RD_COLUMN, y, v1, calc100toRESX(cs->v2.value), LEFT);
+        else if (cs->v1.source.type <= SOURCE_TYPE_CHANNEL) {
+          drawSourceCustomValue(CSW_3RD_COLUMN, y, cs->v1.source, calc100toRESX(cs->v2.value), LEFT);
         }
         else {
-          drawSourceCustomValue(CSW_3RD_COLUMN, y, v1, cs->v2.value, LEFT | (v1 != MIXSRC_TX_TIME ? TIMEHOUR : 0));
+          drawSourceCustomValue(CSW_3RD_COLUMN, y, cs->v1.source, cs->v2.value,
+                               LEFT | (cs->v1.source.type != SOURCE_TYPE_TX_TIME ? TIMEHOUR : 0));
         }
       }
 

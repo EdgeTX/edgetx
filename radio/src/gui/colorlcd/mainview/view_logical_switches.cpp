@@ -158,13 +158,8 @@ class LogicalSwitchDisplayFooter : public Window
         lv_label_set_text(lsV2, getSourceString(ls->v2.source));
         break;
       default: {
-        mixsrc_t v1m = sourceRefToMixSrc(ls->v1.source);
-        lv_label_set_text(
-            lsV2,
-            getSourceCustomValueString(
-                v1m,
-                (v1m <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2.value) : ls->v2.value),
-                0));
+        int32_t dispVal = (ls->v1.source.type <= SOURCE_TYPE_CHANNEL) ? calc100toRESX(ls->v2.value) : ls->v2.value;
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1.source, dispVal, 0));
       }
         break;
     }

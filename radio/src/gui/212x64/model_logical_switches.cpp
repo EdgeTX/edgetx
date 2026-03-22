@@ -110,7 +110,6 @@ void menuModelLogicalSwitches(event_t event)
 
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
-    mixsrc_t v1_val = sourceRefToMixSrc(cs->v1.source);
     int16_t v1_min = 0, v1_max = MIXSRC_LAST_TELEM;
     int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
     int16_t v3_min =-1, v3_max = 100;
@@ -132,7 +131,6 @@ void menuModelLogicalSwitches(event_t event)
       v3_max = 222 - cs->v2.value;
     }
     else if (cstate == LS_FAMILY_COMP) {
-      v1_val = sourceRefToMixSrc(cs->v1.source);
       drawSource(CSW_2ND_COLUMN, y, cs->v1.source, attr1);
       drawSource(CSW_3RD_COLUMN, y, cs->v2.source, attr2);
     }
@@ -143,11 +141,11 @@ void menuModelLogicalSwitches(event_t event)
       v1_max = v2_max = 122;
     }
     else {
-      v1_val = sourceRefToMixSrc(cs->v1.source);
       drawSource(CSW_2ND_COLUMN, y, cs->v1.source, attr1);
       LcdFlags lf = attr2 | LEFT;
       if (validateLSV2Range(cs, v2_min, v2_max, &lf)) storageDirty(EE_MODEL);
-      drawSourceCustomValue(CSW_3RD_COLUMN, y, v1_val, (abs(v1_val) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2.value) : cs->v2.value), lf);
+      int32_t dispVal = (cs->v1.source.type <= SOURCE_TYPE_CHANNEL) ? calc100toRESX(cs->v2.value) : cs->v2.value;
+      drawSourceCustomValue(CSW_3RD_COLUMN, y, cs->v1.source, dispVal, lf);
     }
 
     // CSW AND switch
