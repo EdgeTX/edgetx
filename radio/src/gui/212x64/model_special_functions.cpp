@@ -210,7 +210,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           if (active || AUTOSWITCH_ENTER_LONG()) {
             if (event == EVT_KEY_LONG(KEY_ENTER))
               killEvents(event);
-            cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+            cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, [](SwitchRef ref) { return isSwitchAvailableInCustomFunctions(ref); });
           }
         }
           if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {

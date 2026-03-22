@@ -43,7 +43,7 @@ SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr,
                      event_t event);
 
 SourceRef editSource(coord_t x, coord_t y, const char* label, SourceRef value,
-                     mixsrc_t max, LcdFlags attr, event_t event);
+                     SourceTypeMask allowedTypes, LcdFlags attr, event_t event);
 
 uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
                               int16_t min, int16_t max, LcdFlags attr, event_t event,

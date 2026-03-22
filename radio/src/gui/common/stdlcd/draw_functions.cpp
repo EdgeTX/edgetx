@@ -307,6 +307,11 @@ bool isSwitchAvailableInCustomFunctions(int swtch)
     return isSwitchAvailable(swtch, GeneralCustomFunctionsContext);
 }
 
+bool isSwitchAvailableInCustomFunctions(const SwitchRef& ref)
+{
+  return isSwitchAvailableInCustomFunctions(switchRefToSwSrc(ref));
+}
+
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att)
 {
   float power_W_PREC1 = powf(10.0, (dBm - 30.0) / 10.0) * 10;

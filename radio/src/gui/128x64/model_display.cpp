@@ -231,7 +231,7 @@ void menuModelDisplay(event_t event)
           if (attr && s_editMode>0) {
             switch (menuHorizontalPosition) {
               case 0:
-                bar.source = checkIncDecSource(event, bar.source, 0, MIXSRC_LAST_TELEM, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable);
+                bar.source = checkIncDecSource(event, bar.source, SRCMASK_ALL, [](SourceRef ref) { return isSourceAvailable(ref); });
                 if (checkIncDec_Ret) {
                   mixsrc_t barSrc = sourceRefToMixSrc(bar.source);
                   if (barSrc <= MIXSRC_LAST_CH) {
@@ -260,7 +260,7 @@ void menuModelDisplay(event_t event)
             const coord_t pos[] = {DISPLAY_COL1, DISPLAY_COL2, DISPLAY_COL3};
             drawSource(pos[c], y, *value, cellAttr);
             if (cellAttr && s_editMode>0) {
-              *value = checkIncDecSource(event, *value, 0, MIXSRC_LAST_TELEM, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable);
+              *value = checkIncDecSource(event, *value, SRCMASK_ALL, [](SourceRef ref) { return isSourceAvailable(ref); });
             }
           }
           if (attr && menuHorizontalPosition == NUM_LINE_ITEMS) {

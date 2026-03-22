@@ -76,6 +76,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode);
 bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInLogicalSwitches(const SwitchRef& ref);
 bool isSwitchAvailableInCustomFunctions(int swtch);
+bool isSwitchAvailableInCustomFunctions(const SwitchRef& ref);
 bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableForArming(const SwitchRef& ref);
 bool isSwitchAvailableInMixes(int swtch);

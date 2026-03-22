@@ -52,30 +52,220 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, Lcd
   return editCheckBox(value, x, y, label, attr, event, 0);
 }
 
-SwitchRef checkIncDecSwitch(event_t event, SwitchRef value, swsrc_t min,
-                           swsrc_t max, unsigned int flags,
-                           IsValueAvailable available)
+// Source/switch type iteration tables
+static const struct { uint8_t type; uint16_t count; } sourceTypes[] = {
+  {SOURCE_TYPE_NONE, 1},
+  {SOURCE_TYPE_INPUT, MAX_INPUTS},
+#if defined(LUA_INPUTS)
+  {SOURCE_TYPE_LUA, MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
+#endif
+  {SOURCE_TYPE_STICK, MAX_STICKS},
+  {SOURCE_TYPE_POT, MAX_POTS},
+#if defined(IMU)
+  {SOURCE_TYPE_IMU, 2},
+#endif
+#if defined(PCBHORUS)
+  {SOURCE_TYPE_SPACEMOUSE, 6},
+#endif
+  {SOURCE_TYPE_MIN, 1},
+  {SOURCE_TYPE_MAX, 1},
+#if defined(LUMINOSITY_SENSOR)
+  {SOURCE_TYPE_LIGHT, 1},
+#endif
+#if defined(HELI)
+  {SOURCE_TYPE_HELI, 3},
+#endif
+  {SOURCE_TYPE_TRIM, MAX_TRIMS},
+  {SOURCE_TYPE_SWITCH, MAX_SWITCHES},
+#if defined(FUNCTION_SWITCHES)
+  {SOURCE_TYPE_CUSTOM_SWITCH_GROUP, NUM_FUNCTIONS_GROUPS},
+#endif
+  {SOURCE_TYPE_LOGICAL_SWITCH, MAX_LOGICAL_SWITCHES},
+  {SOURCE_TYPE_TRAINER, MAX_TRAINER_CHANNELS},
+  {SOURCE_TYPE_CHANNEL, MAX_OUTPUT_CHANNELS},
+#if defined(GVARS)
+  {SOURCE_TYPE_GVAR, MAX_GVARS},
+#endif
+  {SOURCE_TYPE_TX_VOLTAGE, 1},
+  {SOURCE_TYPE_TX_TIME, 1},
+  {SOURCE_TYPE_TX_GPS, 1},
+  {SOURCE_TYPE_TIMER, MAX_TIMERS},
+  {SOURCE_TYPE_TELEMETRY, 3 * MAX_TELEMETRY_SENSORS},
+};
+
+static const struct { uint8_t type; uint16_t count; } switchTypes[] = {
+  {SWITCH_TYPE_NONE, 1},
+  {SWITCH_TYPE_SWITCH, switchGetMaxSwitches() * 3},
+#if defined(MULTIPOS_SWITCH)
+  {SWITCH_TYPE_MULTIPOS, XPOTS_MULTIPOS_COUNT * MAX_POTS},
+#endif
+  {SWITCH_TYPE_TRIM, MAX_TRIMS * 2},
+  {SWITCH_TYPE_LOGICAL, MAX_LOGICAL_SWITCHES},
+  {SWITCH_TYPE_ON, 1},
+  {SWITCH_TYPE_ONE, 1},
+  {SWITCH_TYPE_FLIGHT_MODE, MAX_FLIGHT_MODES},
+  {SWITCH_TYPE_TELEMETRY, 1},
+  {SWITCH_TYPE_SENSOR, MAX_TELEMETRY_SENSORS},
+  {SWITCH_TYPE_RADIO_ACTIVITY, 1},
+  {SWITCH_TYPE_TRAINER, 1},
+};
+
+// Find next valid SourceRef in the enumeration
+static SourceRef nextSource(SourceRef cur)
 {
-  swsrc_t sw = switchRefToSwSrc(value);
-  CHECK_INCDEC_SWITCH(event, sw, min, max, flags, available);
-  return swSrcToSwitchRef(sw);
+  // Find current position in sourceTypes table
+  for (unsigned t = 0; t < DIM(sourceTypes); t++) {
+    if (sourceTypes[t].type == cur.type) {
+      // Try next index in same type
+      if (cur.index + 1 < sourceTypes[t].count) {
+        SourceRef next = {cur.type, 0, (uint16_t)(cur.index + 1)};
+        if (isSourceAvailable(next)) return next;
+        // Skip unavailable, try further
+        for (uint16_t i = cur.index + 2; i < sourceTypes[t].count; i++) {
+          next.index = i;
+          if (isSourceAvailable(next)) return next;
+        }
+      }
+      // Move to next type
+      for (unsigned nt = t + 1; nt < DIM(sourceTypes); nt++) {
+        for (uint16_t i = 0; i < sourceTypes[nt].count; i++) {
+          SourceRef next = {sourceTypes[nt].type, 0, i};
+          if (isSourceAvailable(next)) return next;
+        }
+      }
+      return cur; // at end, don't wrap
+    }
+  }
+  return cur;
 }
 
-SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
-                            mixsrc_t max)
+// Find previous valid SourceRef in the enumeration
+static SourceRef prevSource(SourceRef cur)
 {
-  mixsrc_t src = sourceRefToMixSrc(value);
-  CHECK_INCDEC_MODELSOURCE(event, src, min, max);
-  return mixSrcToSourceRef(src);
+  for (unsigned t = 0; t < DIM(sourceTypes); t++) {
+    if (sourceTypes[t].type == cur.type) {
+      // Try previous index in same type
+      if (cur.index > 0) {
+        for (int16_t i = cur.index - 1; i >= 0; i--) {
+          SourceRef prev = {cur.type, 0, (uint16_t)i};
+          if (isSourceAvailable(prev)) return prev;
+        }
+      }
+      // Move to previous type
+      for (int nt = t - 1; nt >= 0; nt--) {
+        for (int16_t i = sourceTypes[nt].count - 1; i >= 0; i--) {
+          SourceRef prev = {sourceTypes[nt].type, 0, (uint16_t)i};
+          if (isSourceAvailable(prev)) return prev;
+        }
+      }
+      return cur; // at beginning, don't wrap
+    }
+  }
+  return cur;
 }
 
-SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
-                            mixsrc_t max, unsigned int flags,
-                            IsValueAvailable available)
+// Find next valid SwitchRef in the enumeration
+static SwitchRef nextSwitch(SwitchRef cur)
 {
-  mixsrc_t src = sourceRefToMixSrc(value);
-  src = checkIncDec(event, src, min, max, flags | INCDEC_SOURCE, available);
-  return mixSrcToSourceRef(src);
+  for (unsigned t = 0; t < DIM(switchTypes); t++) {
+    if (switchTypes[t].type == cur.type) {
+      if (cur.index + 1 < switchTypes[t].count) {
+        return {cur.type, cur.flags, (uint16_t)(cur.index + 1)};
+      }
+      for (unsigned nt = t + 1; nt < DIM(switchTypes); nt++) {
+        if (switchTypes[nt].count > 0)
+          return {switchTypes[nt].type, cur.flags, 0};
+      }
+      return cur;
+    }
+  }
+  return cur;
+}
+
+static SwitchRef prevSwitch(SwitchRef cur)
+{
+  for (unsigned t = 0; t < DIM(switchTypes); t++) {
+    if (switchTypes[t].type == cur.type) {
+      if (cur.index > 0) {
+        return {cur.type, cur.flags, (uint16_t)(cur.index - 1)};
+      }
+      for (int nt = t - 1; nt >= 0; nt--) {
+        if (switchTypes[nt].count > 0)
+          return {switchTypes[nt].type, cur.flags, (uint16_t)(switchTypes[nt].count - 1)};
+      }
+      return cur;
+    }
+  }
+  return cur;
+}
+
+SwitchRef checkIncDecSwitch(event_t event, SwitchRef value,
+                           SwitchTypeMask allowedTypes, unsigned int flags,
+                           std::function<bool(SwitchRef)> available)
+{
+  if (s_editMode > 0) {
+    SwitchRef newValue = value;
+    bool forward = (event == EVT_ROTARY_RIGHT || event == EVT_KEY_FIRST(KEY_PLUS) ||
+                    event == EVT_KEY_REPT(KEY_PLUS));
+    bool backward = (event == EVT_ROTARY_LEFT || event == EVT_KEY_FIRST(KEY_MINUS) ||
+                     event == EVT_KEY_REPT(KEY_MINUS));
+    if (forward || backward) {
+      // Iterate through allowed switch types/indices
+      auto step = [&](SwitchRef cur) {
+        return forward ? nextSwitch(cur) : prevSwitch(cur);
+      };
+      SwitchRef candidate = step(value);
+      int limit = 500;  // safety bound
+      while (candidate != value && --limit > 0) {
+        if ((allowedTypes & SW_TYPE_BIT(candidate.type)) &&
+            (!available || available(candidate))) {
+          newValue = candidate;
+          break;
+        }
+        candidate = step(candidate);
+      }
+    }
+    if (newValue != value) {
+      storageDirty(flags & EE_GENERAL ? EE_GENERAL : EE_MODEL);
+      AUDIO_KEY_PRESS();
+      value = newValue;
+    }
+  }
+  return value;
+}
+
+SourceRef checkIncDecSource(event_t event, SourceRef value,
+                            SourceTypeMask allowedTypes,
+                            std::function<bool(SourceRef)> available)
+{
+  if (s_editMode > 0) {
+    SourceRef newValue = value;
+    bool forward = (event == EVT_ROTARY_RIGHT || event == EVT_KEY_FIRST(KEY_PLUS) ||
+                    event == EVT_KEY_REPT(KEY_PLUS));
+    bool backward = (event == EVT_ROTARY_LEFT || event == EVT_KEY_FIRST(KEY_MINUS) ||
+                     event == EVT_KEY_REPT(KEY_MINUS));
+    if (forward || backward) {
+      auto step = [&](SourceRef cur) {
+        return forward ? nextSource(cur) : prevSource(cur);
+      };
+      SourceRef candidate = step(value);
+      int limit = 1000;  // safety bound
+      while (candidate != value && --limit > 0) {
+        if ((allowedTypes & SRC_TYPE_BIT(candidate.type)) &&
+            (!available || available(candidate))) {
+          newValue = candidate;
+          break;
+        }
+        candidate = step(candidate);
+      }
+    }
+    if (newValue != value) {
+      storageDirty(EE_MODEL);
+      AUDIO_KEY_PRESS();
+      value = newValue;
+    }
+  }
+  return value;
 }
 
 SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr, event_t event)
@@ -83,18 +273,19 @@ SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr, event
   lcdDrawTextAlignedLeft(y, STR_SWITCH);
   drawSwitch(x, y, value, attr);
   if (attr & (~RIGHT)) {
-    value = checkIncDecSwitch(event, value, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, EE_MODEL, isSwitchAvailableInMixes);
+    value = checkIncDecSwitch(event, value, SWMASK_ALL, EE_MODEL,
+                              [](SwitchRef ref) { return isSwitchAvailableInMixes(ref); });
   }
   return value;
 }
 
 SourceRef editSource(coord_t x, coord_t y, const char* label, SourceRef value,
-                     mixsrc_t max, LcdFlags attr, event_t event)
+                     SourceTypeMask allowedTypes, LcdFlags attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, label);
   drawSource(x, y, value, attr);
   if (attr) {
-    value = checkIncDecSource(event, value, 0, max);
+    value = checkIncDecSource(event, value, allowedTypes);
   }
   return value;
 }

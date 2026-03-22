@@ -409,8 +409,8 @@ void menuRadioSetup(event_t event)
           drawSource(LCD_W-2, y, g_eeGeneral.volumeSrc, STREXPANDED|RIGHT|attr);
           if (attr)
             g_eeGeneral.volumeSrc = checkIncDecSource(event, g_eeGeneral.volumeSrc,
-                  MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
-                  isSourceAvailableForBacklightOrVolume);
+                  SRCMASK_THROUGH_SWITCH,
+                  [](SourceRef ref) { return isSourceAvailableForBacklightOrVolume(ref); });
         }
         break;
 
@@ -601,8 +601,8 @@ void menuRadioSetup(event_t event)
           drawSource(LCD_W-2, y, g_eeGeneral.backlightSrc, STREXPANDED|RIGHT|attr);
           if (attr)
             g_eeGeneral.backlightSrc = checkIncDecSource(event, g_eeGeneral.backlightSrc,
-                  MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
-                  isSourceAvailableForBacklightOrVolume);
+                  SRCMASK_THROUGH_SWITCH,
+                  [](SourceRef ref) { return isSourceAvailableForBacklightOrVolume(ref); });
         }
         break;
 

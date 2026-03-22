@@ -63,6 +63,32 @@ enum SourceType : uint8_t {
   SOURCE_TYPE_LAST
 };
 
+// Bitmask for allowed source types
+typedef uint32_t SourceTypeMask;
+#define SRC_TYPE_BIT(t) (1u << (t))
+
+// Common source type masks
+#define SRCMASK_NONE         SRC_TYPE_BIT(SOURCE_TYPE_NONE)
+#define SRCMASK_ALL          0xFFFFFFFFu
+#define SRCMASK_THROUGH_CH   (SRCMASK_ALL & ~(SRC_TYPE_BIT(SOURCE_TYPE_GVAR) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_TX_VOLTAGE) | SRC_TYPE_BIT(SOURCE_TYPE_TX_TIME) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_TX_GPS) | SRC_TYPE_BIT(SOURCE_TYPE_TIMER) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_TELEMETRY) | SRC_TYPE_BIT(SOURCE_TYPE_LIGHT)))
+#define SRCMASK_THROUGH_SWITCH (SRC_TYPE_BIT(SOURCE_TYPE_NONE) | SRC_TYPE_BIT(SOURCE_TYPE_INPUT) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_LUA) | SRC_TYPE_BIT(SOURCE_TYPE_STICK) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_POT) | SRC_TYPE_BIT(SOURCE_TYPE_IMU) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_SPACEMOUSE) | SRC_TYPE_BIT(SOURCE_TYPE_MIN) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_MAX) | SRC_TYPE_BIT(SOURCE_TYPE_HELI) | \
+                              SRC_TYPE_BIT(SOURCE_TYPE_TRIM) | SRC_TYPE_BIT(SOURCE_TYPE_SWITCH))
+
+// Bitmask for allowed switch types
+typedef uint32_t SwitchTypeMask;
+#define SW_TYPE_BIT(t) (1u << (t))
+
+#define SWMASK_ALL           0xFFFFFFFFu
+#define SWMASK_IN_MIXES      SWMASK_ALL  // TODO: restrict if needed
+#define SWMASK_LOGICAL_AND   (SW_TYPE_BIT(SWITCH_TYPE_NONE) | SW_TYPE_BIT(SWITCH_TYPE_LOGICAL))
+
 enum SourceFlags : uint8_t {
   SOURCE_FLAG_NONE     = 0,
   SOURCE_FLAG_INVERTED = (1 << 0),  // Negate the source value (replaces negative srcRaw)

@@ -266,8 +266,7 @@ void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
           CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
           break;
         case 1: {
-          timer.swtch = checkIncDecSwitch(event, timer.swtch, SWSRC_FIRST_IN_MIXES,
-                                          SWSRC_LAST_IN_MIXES, EE_MODEL, isSwitchAvailableInMixes);
+          timer.swtch = checkIncDecSwitch(event, timer.swtch, SWMASK_ALL, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableInMixes(ref); });
           break;
         }
       }
@@ -1287,7 +1286,7 @@ void menuModelSetup(event_t event)
           drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
           if(attr) {
             g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
-                g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
+                g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, [](SwitchRef ref) { return isSwitchAvailableForArming(ref); });
           }
         }
         break;
