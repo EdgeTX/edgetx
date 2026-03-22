@@ -118,4 +118,4 @@ Also, you should create a radio profile first with `./companion<ver>`, before yo
 
 To launch the simulator, change into `native` directory and issue: `./simulator<ver>`. In the dialog that pops up, select _SD Path_ as data source and under _SD Image Path:_ browse to `~/edgetx/simu_sdcard/horus`
 
-[![EdgeTX simulator on Linux](../../assets/images/build/linux/EdgeTX_simulator_Linux.png)](../../assets/images/build/linux/EdgeTX_simulator_Linux.png)
+[![EdgeTX simulator on Linux](../assets/images/build/linux/EdgeTX_simulator_Linux.png)](../assets/images/build/linux/EdgeTX_simulator_Linux.png)

@@ -14,7 +14,7 @@ This page discusses how to setup and use [Qt Creator](https://wiki.qt.io/QtCreat
 - [Building EdgeTX firmware with Qt Creator](#building-edgetx-firmware-with-qt-creator)
 - [Editing source code with Qt Creator](#editing-source-code-with-qt-creator)
 
-[![Qt Creator code completion](../../assets/images/build/qtcreator/QtCodeCompletion.png)](../../assets/images/build/qtcreator/QtCodeCompletion.png)
+[![Qt Creator code completion](../assets/images/build/qtcreator/QtCodeCompletion.png)](../assets/images/build/qtcreator/QtCodeCompletion.png)
 
 With [Qt Creator](https://wiki.qt.io/QtCreatorWhitepaper), you not only have a graphical option to build EdgeTX radio firmware, Companion and Simulator software, but also very comfortable way to edit the code and even more importantly to debug it. If you hook up to your radio's [Serial-Wire-Debug (SWD)](https://stm32-base.org/guides/connecting-your-debugger.html) header of the mainboard a hardware debugger, it is possible to perform in-circuit-debugging of code running on the radios STM32 microcontroller. Some examples of hardware debuggers that can be used are, e.g. [Segger J-Link](https://www.segger.com/products/debug-probes/j-link/) (incl. the [Mini EDU](https://www.segger.com/products/debug-probes/j-link/models/j-link-edu-mini/)) and [ST-Link/V2](https://www.st.com/en/development-tools/st-link-v2.html). With in-circuit-debugging, you are able to step through the code and do live variable inspection, which makes validating low level code much easier. For debugging high-level code, it is easier to use the radio firmware simulation library, running on your PC, not requiring a physical radio hardware hookup. Even if you might not be driven by the desire to change the existing EdgeTX codebase, running code in a debug session will provide you an in-depth insight into variables passed between the functions and can in general give a clearer view of how the EdgeTX runs under the hood.
 
@@ -29,7 +29,7 @@ We need to first configure Qt Creator to support building for ARM architecture a
 
 Launch Qt Creator by clicking on _Start_ -> _Qt_ -> _Qt Creator_. Navigate to menu _Help_ and click _About Plugins..._. Under _Device Support_ enable the _BareMetal (experimental)_ plugin. Click _Close_
 
-[![Qt Creator BareMetal plugin](../../assets/images/build/qtcreator/QtCreatorBareMetal.png)](../../assets/images/build/qtcreator/QtCreatorBareMetal.png)
+[![Qt Creator BareMetal plugin](../assets/images/build/qtcreator/QtCreatorBareMetal.png)](../assets/images/build/qtcreator/QtCreatorBareMetal.png)
 
 After this step, it is mandatory to restart Qt Creator, select _Restart Now_ from the pop-up to restart Qt Creator.
 
@@ -44,7 +44,7 @@ Field _ABI:_ should have automatically detected _arm-baremetal-generic-elf-32bit
 
 Next, we add similarly C++ compiler. Click _Add_ -> _GCC_ -> _C++_. As name, enter for example `GCC ARM` and into field _Compiler path_ enter the same _arm-none-eabi-gcc_ binary as in the last step for plain C. Also here, field _ABI:_ should have detected _arm-baremetal-generic-elf-32bit_. Click once more _Apply_. If everything went smoothly, the red exclamation marks should be gone.
 
-[![Qt Creator Compilers](../../assets/images/build/qtcreator/QtCreatorCompilers.png)](../../assets/images/build/qtcreator/QtCreatorCompilers.png)
+[![Qt Creator Compilers](../assets/images/build/qtcreator/QtCreatorCompilers.png)](../assets/images/build/qtcreator/QtCreatorCompilers.png)
 
 Navigate to _Debuggers_ tab. Click _Add_, provide as name for example _GDB ARM_ and click _Browse..._ behind field _Path:_
 
@@ -55,7 +55,7 @@ Navigate to:
 
 and click _Open_. If Qt Creator is happy, then it should list in _Type_ and _ABIs_ fields that it found _GDB_ for _arm-baremetal-generic-elf-32bit_. Click _Apply_.
 
-[![Qt Creator Debuggers](../../assets/images/build/qtcreator/QtCreatorDebuggers.png)](../../assets/images/build/qtcreator/QtCreatorDebuggers.png)
+[![Qt Creator Debuggers](../assets/images/build/qtcreator/QtCreatorDebuggers.png)](../assets/images/build/qtcreator/QtCreatorDebuggers.png)
 
 ### Creating a bare metal device and adding a debugging option to it
 
@@ -71,11 +71,11 @@ click _Browse..._ behind _Executable file_ and open the command line version of 
 Make sure the _Target interface_ is set to _SWD_ and adjust the speed according to your J-Link hardware (the [following page](https://www.segger.com/products/debug-probes/j-link/models/model-overview/) lists the maximum target interface speed of Segger products). Under _Device:_ use the STM32 chip according to your hardware. For Jumper T16 and RadioMaster TX16S, this is for example _STM32F429BI_.
 The remaining settings can be left at default, click _Apply_
 
-[![Qt Creator JLink setup](../../assets/images/build/qtcreator/QtCreatorJLink.png)](../../assets/images/build/qtcreator/QtCreatorJLink.png)
+[![Qt Creator JLink setup](../assets/images/build/qtcreator/QtCreatorJLink.png)](../assets/images/build/qtcreator/QtCreatorJLink.png)
 
 Navigate to tab _Devices_. Click _Add.._, pick _Bare Metal Device_ and click _Start Wizard_. Give it a name, such as `STM32`. Pick a _GDB server provider:_ according to your debugger hardware either _JLink_ or _OpenOCD_. If you do not possess a debugger hardware, you can choose _None_ here. Click _Finish_, click _Apply_.
 
-[![Qt Creator Devices](../../assets/images/build/qtcreator/QtCreatorDevices.png)](../../assets/images/build/qtcreator/QtCreatorDevices.png)
+[![Qt Creator Devices](../assets/images/build/qtcreator/QtCreatorDevices.png)](../assets/images/build/qtcreator/QtCreatorDevices.png)
 
 ### Creating a Kit for building firmware for STM32 µCs
 
@@ -92,15 +92,15 @@ CMAKE_C_COMPILER_WORKS:STRING=1
 ```
 and click _OK_ for the _Edit CMake Configuration_ dialog. Click _Apply_ in the Qt Creator Options dialog.
 
-[![Qt Creator CMake Configuration](../../assets/images/build/qtcreator/QtCreatorCMakeConfiguration.png)](../../assets/images/build/qtcreator/QtCreatorCMakeConfiguration.png)
+[![Qt Creator CMake Configuration](../assets/images/build/qtcreator/QtCreatorCMakeConfiguration.png)](../assets/images/build/qtcreator/QtCreatorCMakeConfiguration.png)
 
 Verify that in the Kits list, our newly created _STM32_ kit is selected, then click _Make Default_
 
-[![Qt Creator Kits](../../assets/images/build/qtcreator/QtCreatorKits.png)](../../assets/images/build/qtcreator/QtCreatorKits.png)
+[![Qt Creator Kits](../assets/images/build/qtcreator/QtCreatorKits.png)](../assets/images/build/qtcreator/QtCreatorKits.png)
 
 Depending on your hardware debugger maximum target speed, flashing STM32 µC in the radio can take some moments. The default wait time in Qt Creator for GNU debugger (GDB) is 20 seconds, which is typically a bit short for STM32 chips with larger memories and results in an unnecessary pop-up. Next, we will prolong the default waiting time. In the left pane of Qt Creator Options dialog click _Debugger_ and navigate to _GDB_ tab. Set _GDB timeout_, e.g. to 60 seconds:
 
-[![Qt Creator GDB timeout](../../assets/images/build/qtcreator/QtGDBtimeout.png)](../../assets/images/build/qtcreator/QtGDBtimeout.png)
+[![Qt Creator GDB timeout](../assets/images/build/qtcreator/QtGDBtimeout.png)](../assets/images/build/qtcreator/QtGDBtimeout.png)
 
 Click _OK_ to close the options dialog.
 
@@ -129,7 +129,7 @@ Click _Details_ behind _STM32_ to unfold a build type selection dialog. As we ar
 
 If you opted for building also Companion, Simulator and radio firmware simulator libraries under Ubuntu, click _Details_ behind _Desktop_ and also here, leave only _Debug_ selected. Click _Browse..._ and provide `~/edgetx/edgetx-v2.4/build-qt-comp_sim_libsim` as build target location.
 
-[![Qt Creator Project Kit Selection](../../assets/images/build/qtcreator/QtCreatorProjectKitSelection.png)](../../assets/images/build/qtcreator/QtCreatorProjectKitSelection.png)
+[![Qt Creator Project Kit Selection](../assets/images/build/qtcreator/QtCreatorProjectKitSelection.png)](../assets/images/build/qtcreator/QtCreatorProjectKitSelection.png)
 
 Click _Configure Project_.
 
@@ -147,7 +147,7 @@ Qt Creator presents us the build configuration options as a selection list. Thes
 
 Please note that _INTERNAL_GPS_ is not listed, so we need to add it manually. Click _Add_, select as type _Boolean_ and type `INTERNAL_GPS` and select it (make the state to ON).
 
-[![Qt Creator CMake Options](../../assets/images/build/qtcreator/QtCreatorCMakeOptions.png)](../../assets/images/build/qtcreator/QtCreatorCMakeOptions.png)
+[![Qt Creator CMake Options](../assets/images/build/qtcreator/QtCreatorCMakeOptions.png)](../assets/images/build/qtcreator/QtCreatorCMakeOptions.png)
 
 In case you plan performing in-circuit-debugging, you might want to turn off _UNEXPECTED_SHUTDOWN_, in order not to enter EdgeTX _Emergency Mode_ screen on every boot that was not previously nicely shut-down. Be aware though that this has the potential to corrupt the file system on microSD card, thus ideally use a separate card for debugging, or at least make sure the file system is OK, before you go and fly with it.
 
@@ -155,30 +155,30 @@ Click _Apply Configuration Settings_. Please wait for the process to end, it can
 
 Under _Build Steps_, click _Details_ to open a selection menu of what to build. Here, we only want to build and debug _firmware_, thus select _firmware_ and then deselect _all_.
 
-[![Qt Creator Build Steps](../../assets/images/build/qtcreator/QtCreatorBuildSteps.png)](../../assets/images/build/qtcreator/QtCreatorBuildSteps.png)
+[![Qt Creator Build Steps](../assets/images/build/qtcreator/QtCreatorBuildSteps.png)](../assets/images/build/qtcreator/QtCreatorBuildSteps.png)
 
 We need to add two environment variables. Under _Build Environment_ click _Details_ to the right of _Use System Environment_ to unfold the variable list.
 Click _Add_ and give the variable a name `C_INCLUDE_PATH` with value `C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major\arm-none-eabi\include`
 
 Click once more _Add_ to add a second environment variable with a name `CPLUS_INCLUDE_PATH` and a bit longer value `C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major\arm-none-eabi\include\c++\10.2.1;C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major\arm-none-eabi\include\c++\10.2.1\arm-none-eabi`
 
-[![Qt Creator Build Environment](../../assets/images/build/qtcreator/QtCreatorBuildEnvironment.png)](../../assets/images/build/qtcreator/QtCreatorBuildEnvironment.png)
+[![Qt Creator Build Environment](../assets/images/build/qtcreator/QtCreatorBuildEnvironment.png)](../assets/images/build/qtcreator/QtCreatorBuildEnvironment.png)
 
 Now, we should have everything set up. Let's set our deploy target by clicking in the bottom left of Qt Creator window the chip symbol with OpenTX and Debug labels. Choose _STM32_ as Kit and _firmware (on STM32)_ as Run target:
 
-[![Qt Creator Deploy Target](../../assets/images/build/qtcreator/QtCreatorDeployTarget.png)](../../assets/images/build/qtcreator/QtCreatorDeployTarget.png)
+[![Qt Creator Deploy Target](../assets/images/build/qtcreator/QtCreatorDeployTarget.png)](../assets/images/build/qtcreator/QtCreatorDeployTarget.png)
 
 ## Building EdgeTX firmware with Qt Creator
 
 To test if building works, click the hammer icon (Build button) on lower left corner to build firmware. On the bottom of Qt Creator window, you can navigate to _4 Compile Output_ and click it to see compiler progress. After some minutes you should have _firmware.bin_ and _firmware.elf_ files built and saved in `C:\edgetx\build-edgetx-qt-fw`
 
-[![Qt Creator Build Completed](../../assets/images/build/qtcreator/QtCreatorBuildCompleted.png)](../../assets/images/build/qtcreator/QtCreatorBuildCompleted.png)
+[![Qt Creator Build Completed](../assets/images/build/qtcreator/QtCreatorBuildCompleted.png)](../assets/images/build/qtcreator/QtCreatorBuildCompleted.png)
 
 ## Editing source code with Qt Creator
 
 To edit the source of EdgeTX, click in Mode Selector _Edit_. Unfold _OpenTX [2.4]_ and open a source file you would like to edit under `radio -> src -> firmware -> Source Files`. Qt Creator offers many wide established features like syntax highlighting, code completion, refactoring, integrated version control and many more.
 
-[![Qt Creator Code Completion](../../assets/images/build/qtcreator/QtCodeCompletion.png)](../../assets/images/build/qtcreator/QtCodeCompletion.png)
+[![Qt Creator Code Completion](../assets/images/build/qtcreator/QtCodeCompletion.png)](../assets/images/build/qtcreator/QtCodeCompletion.png)
 
 For deeper instructions into Qt Creator, please see [Qt Creator Manual](https://doc.qt.io/qtcreator/).
 

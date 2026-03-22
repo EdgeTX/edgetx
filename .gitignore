@@ -20,3 +20,4 @@ CMakeUserPresets.json
 .DS_Store
 _deps
 _wasi_sdk_fetch
+/site/
