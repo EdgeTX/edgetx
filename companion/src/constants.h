@@ -42,7 +42,7 @@
 #define CPN_MAX_SWITCHES_FUNCTION      8
 #define CPN_MAX_SWITCHES_STD           20
 #define CPN_MAX_SWITCHES               (CPN_MAX_SWITCHES_STD + CPN_MAX_SWITCHES_FLEX + CPN_MAX_SWITCHES_FUNCTION)
-#define CPN_MAX_SENSORS                99
+#define CPN_MAX_SENSORS                75
 #define CPN_MAX_SCRIPTS                9  // Max for Color LCD
 #define CPN_LEN_SCRIPT_FILENAME        6
 #define CPN_LEN_SCRIPT_NAME            6
