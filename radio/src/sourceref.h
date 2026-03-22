@@ -87,6 +87,48 @@ struct SourceRef {
 static_assert(sizeof(SourceRef) == 4, "SourceRef must be 32 bits");
 
 //
+// Value-or-source union (replaces SourceNumVal 11-bit packed field)
+//
+// Used for MixData.weight, MixData.offset, ExpoData.weight, ExpoData.offset,
+// and CurveRef.value — fields that can hold either a numeric value or a
+// source reference.
+//
+// 4 bytes, 32-bit aligned. When isSource=1, `value` is reinterpreted as the
+// source index and `srcType` identifies the source type.
+//
+struct ValueOrSource {
+  int16_t value;     // numeric value, or source index when isSource=1
+  uint8_t isSource;  // 0 = numeric value, 1 = source reference
+  uint8_t srcType;   // SourceType (only valid when isSource=1)
+
+  // Access as numeric value
+  int16_t numericValue() const { return value; }
+  void setNumeric(int16_t v) { value = v; isSource = 0; srcType = 0; }
+
+  // Access as source reference
+  SourceRef toSourceRef() const {
+    SourceRef ref = {};
+    if (isSource) {
+      ref.type = srcType;
+      ref.index = static_cast<uint16_t>(value);
+    }
+    return ref;
+  }
+
+  void setSource(const SourceRef& ref) {
+    isSource = 1;
+    srcType = ref.type;
+    value = static_cast<int16_t>(ref.index);
+    // Note: flags (inversion) not stored here — weight/offset inversion
+    // is handled separately via negative numeric values
+  }
+
+  void clear() { value = 0; isSource = 0; srcType = 0; }
+};
+
+static_assert(sizeof(ValueOrSource) == 4, "ValueOrSource must be 32 bits");
+
+//
 // Structured switch reference (replaces SwitchSources enum in storage)
 //
 
@@ -129,18 +171,3 @@ struct SwitchRef {
 
 static_assert(sizeof(SwitchRef) == 4, "SwitchRef must be 32 bits");
 
-//
-// Conversion functions (for gradual migration)
-//
-// These convert between the old enum-based representation (mixsrc_t / swsrc_t)
-// and the new structured representation. During migration, both representations
-// coexist: old code uses the enums, new code uses SourceRef/SwitchRef.
-//
-
-// Forward declarations - implemented in sourceref.cpp
-// (require dataconstants.h which depends on board.h)
-struct SourceRef sourceRefFromMixSrc(int32_t mixsrc);
-int32_t mixSrcFromSourceRef(const struct SourceRef& ref);
-
-struct SwitchRef switchRefFromSwSrc(int32_t swsrc);
-int32_t swSrcFromSwitchRef(const struct SwitchRef& ref);
