@@ -745,4 +745,4 @@ enum Functions {
 #endif
 };
 
-static_assert(MIXSRC_LAST_TELEM < (1 << 9), "MIXSRC list above 9 bits");
+static_assert(MIXSRC_LAST_TELEM < (1 << 9), "MIXSRC list above 10 bits (signed)");
