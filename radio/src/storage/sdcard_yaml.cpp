@@ -341,6 +341,16 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 
     bool is_active_model = (buffer == (uint8_t*)&g_model);
 
+    // For temp model reads (not the active model), save and restore the arena
+    // to prevent extern array callbacks from overwriting the active model's data.
+    uint8_t* arenaSave = nullptr;
+    if (init_model && !is_active_model) {
+      arenaSave = (uint8_t*)malloc(g_modelArena.usedBytes());
+      if (arenaSave) {
+        memcpy(arenaSave, g_modelArena.base(), g_modelArena.usedBytes());
+      }
+    }
+
     // wipe memory before reading YAML
     memset(buffer,0,size);
     if (init_model && is_active_model) {
@@ -375,7 +385,15 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       md->rfAlarms.critical = 42;
     }
 
-    return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
+    const char* err = readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
+
+    // Restore arena if this was a temp model read
+    if (arenaSave) {
+      memcpy(g_modelArena.base(), arenaSave, g_modelArena.usedBytes());
+      free(arenaSave);
+    }
+
+    return err;
 }
 
 static const char _wrongExtentionError[] = "wrong file extension";
@@ -396,6 +414,97 @@ const char * writeModelYaml(const char* filename)
     char path[256];
     getModelPath(path, filename);
     return writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&g_model,0 );
+}
+
+const char* patchModelYamlLabels(const char* filename, const char* newLabels,
+                                  const char* pathName)
+{
+    char path[256];
+    getModelPath(path, filename, pathName);
+
+    // Read the entire file into a buffer
+    FIL file;
+    FRESULT result = f_open(&file, path, FA_OPEN_EXISTING | FA_READ);
+    if (result != FR_OK)
+        return SDCARD_ERROR(result);
+
+    UINT fileSize = f_size(&file);
+    if (fileSize == 0 || fileSize > 16384) {
+        f_close(&file);
+        return "file too large";
+    }
+
+    // Allocate buffer for read + potential label expansion
+    uint32_t bufSize = fileSize + LABELS_LENGTH + 32;
+    char* buf = (char*)malloc(bufSize);
+    if (!buf) {
+        f_close(&file);
+        return "out of memory";
+    }
+
+    UINT bytesRead;
+    result = f_read(&file, buf, fileSize, &bytesRead);
+    f_close(&file);
+    if (result != FR_OK || bytesRead != fileSize) {
+        free(buf);
+        return "read error";
+    }
+    buf[fileSize] = '\0';
+
+    // Find "labels:" in the buffer
+    // It appears as "   labels: <value>\n" under the header section
+    const char* needle = "labels:";
+    char* pos = strstr(buf, needle);
+    if (!pos) {
+        // No labels field - append one under header section
+        // For now, just skip (model has no labels)
+        free(buf);
+        return nullptr;  // success, nothing to change
+    }
+
+    // Find the start of the value (skip "labels:" and whitespace)
+    char* valStart = pos + strlen(needle);
+    while (*valStart == ' ') valStart++;
+
+    // Find the end of the line
+    char* lineEnd = valStart;
+    while (*lineEnd && *lineEnd != '\r' && *lineEnd != '\n') lineEnd++;
+
+    // Build the new line content: "labels: <newLabels>"
+    // Replace the value between valStart and lineEnd
+    char* afterLine = lineEnd;  // points to \r, \n, or \0
+
+    // Compute sizes
+    size_t prefixLen = valStart - buf;
+    size_t suffixLen = strlen(afterLine);
+    size_t newValLen = strlen(newLabels);
+
+    if (prefixLen + newValLen + suffixLen + 1 > bufSize) {
+        free(buf);
+        return "labels too long";
+    }
+
+    // Shift suffix and insert new value
+    memmove(buf + prefixLen + newValLen, afterLine, suffixLen + 1);
+    memcpy(buf + prefixLen, newLabels, newValLen);
+
+    // Write back
+    UINT newSize = prefixLen + newValLen + suffixLen;
+    result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
+    if (result != FR_OK) {
+        free(buf);
+        return SDCARD_ERROR(result);
+    }
+
+    UINT bytesWritten;
+    result = f_write(&file, buf, newSize, &bytesWritten);
+    f_close(&file);
+    free(buf);
+
+    if (result != FR_OK || bytesWritten != newSize)
+        return "write error";
+
+    return nullptr;  // success
 }
 
 #if !defined(STORAGE_MODELSLIST)
