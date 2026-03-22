@@ -567,9 +567,8 @@ void menuMainView(event_t event)
                       (switch_display.col == 0 ? 0 : shiftright);
           coord_t y = 25 + (switch_display.row % 4) * FH;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-          getvalue_t sw =
-              ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-          drawSwitch(x, y, swSrcToSwitchRef(sw), 0, false);
+          uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
+          drawSwitch(x, y, SwitchRef{SWITCH_TYPE_SWITCH, 0, swIdx}, 0, false);
         }
         else {
           displaySwitch(17 + switch_display.row * 6,

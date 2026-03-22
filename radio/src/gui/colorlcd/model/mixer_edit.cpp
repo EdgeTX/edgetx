@@ -36,9 +36,6 @@
 #include "switchchoice.h"
 #include "textedit.h"
 
-// Defined in curves.cpp
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
-
 // Convert legacy SourceNumVal rawValue to ValueOrSource
 static ValueOrSource legacyToValueOrSource(int32_t rawValue)
 {
@@ -152,21 +149,15 @@ void MixEditWindow::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto svar = new SourceNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                                   [=]() -> int32_t { return valueOrSourceToLegacy(mix->weight); },
-                                   [=](int32_t newValue) {
-                                     mix->weight = legacyToValueOrSource(newValue);
-                                     SET_DIRTY();
-                                   }, MIXSRC_FIRST);
+                                   &mix->weight,
+                                   [=]() { SET_DIRTY(); });
   svar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
   auto gvar = new SourceNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
-                                   [=]() -> int32_t { return valueOrSourceToLegacy(mix->offset); },
-                                   [=](int32_t newValue) {
-                                     mix->offset = legacyToValueOrSource(newValue);
-                                     SET_DIRTY();
-                                   }, MIXSRC_FIRST);
+                                   &mix->offset,
+                                   [=]() { SET_DIRTY(); });
   gvar->setSuffix("%");
 
   // Switch

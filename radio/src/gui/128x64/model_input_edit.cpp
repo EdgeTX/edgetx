@@ -104,11 +104,10 @@ void menuModelExpoOne(event_t event)
       case EXPO_FIELD_SOURCE:
         {
           lcdDrawTextAlignedLeft(y, STR_SOURCE);
-          mixsrc_t srcRawVal = sourceRefToMixSrc(ed->srcRaw);
-          drawSource(EXPO_ONE_2ND_COLUMN, y, mixSrcToSourceRef(srcRawVal), STREXPANDED|attr);
+          drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
           if (attr) {
-            srcRawVal = checkIncDec(event, srcRawVal, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
-            ed->srcRaw = mixSrcToSourceRef(srcRawVal);
+            ed->srcRaw = checkIncDecSource(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST,
+                EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
           }
         }
         break;

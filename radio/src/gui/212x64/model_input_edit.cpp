@@ -105,16 +105,15 @@ void menuModelExpoOne(event_t event)
       case EXPO_FIELD_SOURCE:
         {
           lcdDrawTextAlignedLeft(y, STR_SOURCE);
-          mixsrc_t srcRawVal = sourceRefToMixSrc(ed->srcRaw);
-          drawSource(EXPO_ONE_2ND_COLUMN, y, mixSrcToSourceRef(srcRawVal), STREXPANDED|attr);
+          drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
           if (attr && menuHorizontalPosition==0) {
-            srcRawVal = checkIncDec(event, srcRawVal, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
-            ed->srcRaw = mixSrcToSourceRef(srcRawVal);
+            ed->srcRaw = checkIncDecSource(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST,
+                EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
           }
-          mixsrc_t absSrc = abs(srcRawVal);
-          if (absSrc >= MIXSRC_FIRST_TELEM) {
-            drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+30, y, (absSrc - MIXSRC_FIRST_TELEM)/3, getValue(srcRawVal), LEFT|(menuHorizontalPosition==1?attr:0));
-            if (attr && menuHorizontalPosition == 1) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(absSrc - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
+          if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
+            uint16_t telemIdx = ed->srcRaw.index;
+            drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+30, y, telemIdx/3, getValue(ed->srcRaw), LEFT|(menuHorizontalPosition==1?attr:0));
+            if (attr && menuHorizontalPosition == 1) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
           }
           else if (attr) {
             menuHorizontalPosition = 0;

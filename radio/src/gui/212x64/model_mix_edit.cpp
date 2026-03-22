@@ -135,11 +135,10 @@ void menuModelMixOne(event_t event)
       case MIX_FIELD_SOURCE:
         {
           lcdDrawTextAlignedLeft(y, STR_SOURCE);
-          mixsrc_t srcRawVal = sourceRefToMixSrc(md2->srcRaw);
-          drawSource(MIXES_2ND_COLUMN, y, mixSrcToSourceRef(srcRawVal), STREXPANDED|attr);
+          drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
           if (attr) {
-            srcRawVal = checkIncDec(event, srcRawVal, 1, MIXSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
-            md2->srcRaw = mixSrcToSourceRef(srcRawVal);
+            md2->srcRaw = checkIncDecSource(event, md2->srcRaw, 1, MIXSRC_LAST,
+                EE_MODEL|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
           }
         }
         break;

@@ -2078,9 +2078,14 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
   }
 }
 
+void getMixSrcRange(const SourceRef& source, int16_t & valMin, int16_t & valMax, LcdFlags * flags)
+{
+  getMixSrcRange(sourceRefToMixSrc(source), valMin, valMax, flags);
+}
+
 bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf)
 {
-  getMixSrcRange(sourceRefToMixSrc(cs->v1.source), v2_min, v2_max, lf);
+  getMixSrcRange(cs->v1.source, v2_min, v2_max, lf);
   if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG)) {
     if (v2_min >= 0) {
       // min >= 0 && max >= 0

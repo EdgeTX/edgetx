@@ -24,6 +24,7 @@
 #include "choice.h"
 #include "form.h"
 #include "numberedit.h"
+#include "sourceref.h"
 
 class TextButton;
 
@@ -35,6 +36,13 @@ class SourceNumberEdit : public Window
                    std::function<void(int32_t)> setValue,
                    int16_t sourceMin,
                    LcdFlags textFlags = 0, int32_t voffset = 0,
+                   int32_t vdefault = 0);
+
+  // Direct ValueOrSource constructor — avoids legacy SourceNumVal bridging
+  SourceNumberEdit(Window* parent, int32_t vmin, int32_t vmax,
+                   ValueOrSource* vos,
+                   std::function<void()> onChanged,
+                   LcdFlags textFlags = 0,
                    int32_t vdefault = 0);
 
   void switchSourceMode();

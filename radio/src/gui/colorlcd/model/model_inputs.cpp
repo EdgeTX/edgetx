@@ -292,7 +292,7 @@ void ModelInputsPage::deleteInput(uint8_t index)
   if (!line) return;
 
   auto expo = expoAddress(index);
-  std::string s(getSourceString(mixSrcToSourceRef(group->getMixSrc())));
+  std::string s(getSourceString(group->getSourceRef()));
   s += " - ";
   if (expo->name[0]) {
     s += expo->name;

@@ -249,7 +249,7 @@ void LogicalSwitchesViewPage::build(Window* window)
 
     if (isActive) {
       auto button = new TextButton(window, {x, y, BTN_WIDTH, btnHeight}, lsString);
-      button->setCheckHandler([=]() { button->check(getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i)); });
+      button->setCheckHandler([=]() { button->check(getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)i})); });
       button->setFocusHandler([=](bool focus) { if (focus) { footer->setIndex(i); } });
     } else {
       if (btnHeight > EdgeTxStyles::STD_FONT_HEIGHT)
