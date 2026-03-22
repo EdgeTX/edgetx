@@ -27,6 +27,13 @@
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
+// Bridge functions for SourceRef/SwitchRef ↔ legacy enum conversion
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+SourceRef mixSrcToSourceRef(mixsrc_t src);
+SwitchRef swSrcToSwitchRef(swsrc_t src);
+
 #define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol
 #define GET_TRAINER_PPM_POLARITY()               g_model.trainerData.pulsePol
 #define GET_SBUS_POLARITY(idx)                   g_model.moduleData[idx].sbus.noninverted
@@ -49,8 +56,8 @@
 
 #define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED || func == FUNC_SET_SCREEN)
 
-#define CFN_EMPTY(p)                   (!(p)->swtch)
-#define CFN_SWITCH(p)                  ((p)->swtch)
+#define CFN_EMPTY(p)                   ((p)->swtch.isNone())
+#define CFN_SWITCH(p)                  (switchRefToSwSrc((p)->swtch))
 #define CFN_FUNC(p)                    ((p)->func)
 #define CFN_ACTIVE(p)                  ((p)->active)
 #define CFN_CH_INDEX(p)                ((p)->all.param)

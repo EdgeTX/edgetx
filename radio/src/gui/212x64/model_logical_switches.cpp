@@ -93,7 +93,7 @@ void menuModelLogicalSwitches(event_t event)
       POPUP_MENU_ADD_ITEM(STR_COPY);
     if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
       POPUP_MENU_ADD_ITEM(STR_PASTE);
-    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || cs->andsw)
+    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || !cs->andsw.isNone())
       POPUP_MENU_ADD_ITEM(STR_CLEAR);
     POPUP_MENU_START(onLogicalSwitchesMenu);
   }
@@ -178,7 +178,7 @@ void menuModelLogicalSwitches(event_t event)
     }
 
     // CSW AND switch
-    drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, horz==LS_FIELD_ANDSW ? attr : 0);
+    drawSwitch(CSW_4TH_COLUMN, y, switchRefToSwSrc(cs->andsw), horz==LS_FIELD_ANDSW ? attr : 0);
 
     // CSW duration
     if (cs->duration > 0)
@@ -253,9 +253,13 @@ void menuModelLogicalSwitches(event_t event)
           cs->v3 = CHECK_INCDEC_PARAM(event, cs->v3, v3_min, v3_max);
           break;
         case LS_FIELD_ANDSW:
+        {
           INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
           INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
-          cs->andsw = CHECK_INCDEC_PARAM(event, cs->andsw, -MAX_LS_ANDSW, MAX_LS_ANDSW);
+          swsrc_t andswVal = switchRefToSwSrc(cs->andsw);
+          andswVal = CHECK_INCDEC_PARAM(event, andswVal, -MAX_LS_ANDSW, MAX_LS_ANDSW);
+          cs->andsw = swSrcToSwitchRef(andswVal);
+        }
           break;
         case LS_FIELD_DURATION:
           CHECK_INCDEC_MODELVAR_ZERO(event, cs->duration, MAX_LS_DURATION);

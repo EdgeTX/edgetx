@@ -197,9 +197,13 @@ void menuModelLogicalSwitchOne(event_t event)
 
       case LS_FIELD_ANDSW:
         lcdDrawTextAlignedLeft(y, STR_AND_SWITCH);
-        drawSwitch(CSWONE_2ND_COLUMN, y, cs->andsw, attr);
-        if (attr) {
-          CHECK_INCDEC_MODELSWITCH(event, cs->andsw, -MAX_LS_ANDSW, MAX_LS_ANDSW, isSwitchAvailableInLogicalSwitches);
+        {
+          swsrc_t andswVal = switchRefToSwSrc(cs->andsw);
+          drawSwitch(CSWONE_2ND_COLUMN, y, andswVal, attr);
+          if (attr) {
+            CHECK_INCDEC_MODELSWITCH(event, andswVal, -MAX_LS_ANDSW, MAX_LS_ANDSW, isSwitchAvailableInLogicalSwitches);
+            cs->andsw = swSrcToSwitchRef(andswVal);
+          }
         }
         break;
 
@@ -259,11 +263,11 @@ void menuModelLogicalSwitches(event_t event)
       s_currIdx = sub;
     if (sub >= 0)
       POPUP_MENU_ADD_ITEM(STR_EDIT);
-    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || cs->andsw)
+    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || !cs->andsw.isNone())
       POPUP_MENU_ADD_ITEM(STR_COPY);
     if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
       POPUP_MENU_ADD_ITEM(STR_PASTE);
-    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || cs->andsw)
+    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || !cs->andsw.isNone())
       POPUP_MENU_ADD_ITEM(STR_CLEAR);
     if (popupMenuItemsCount == 1) {
       popupMenuItemsCount = 0;
@@ -327,7 +331,7 @@ void menuModelLogicalSwitches(event_t event)
       }
 
       // CSW and switch
-      drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, RIGHT);
+      drawSwitch(CSW_4TH_COLUMN, y, switchRefToSwSrc(cs->andsw), RIGHT);
     }
   }
 }

@@ -22,12 +22,8 @@
 #include "edgetx.h"
 #include "mixes.h"
 
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
 extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 
-static SourceRef mixSrcToSourceRef(mixsrc_t src);
-static SwitchRef swSrcToSwitchRef(swsrc_t src);
 static ValueOrSource legacyToValueOrSource(int32_t rawValue);
 
 enum MixFields {
@@ -224,86 +220,6 @@ void menuModelMixOne(event_t event)
     }
     y += FH;
   }
-}
-
-static SourceRef mixSrcToSourceRef(mixsrc_t src)
-{
-  SourceRef ref = {};
-  if (src == MIXSRC_NONE) return ref;
-
-  bool inverted = (src < 0);
-  mixsrc_t absSrc = inverted ? -src : src;
-
-  struct Range { mixsrc_t first; mixsrc_t last; uint8_t type; };
-  static const Range ranges[] = {
-    {MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SOURCE_TYPE_INPUT},
-    {MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SOURCE_TYPE_LUA},
-    {MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SOURCE_TYPE_STICK},
-    {MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SOURCE_TYPE_POT},
-    {MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SOURCE_TYPE_TRIM},
-    {MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SOURCE_TYPE_SWITCH},
-    {MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SOURCE_TYPE_LOGICAL_SWITCH},
-    {MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SOURCE_TYPE_TRAINER},
-    {MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SOURCE_TYPE_CHANNEL},
-    {MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SOURCE_TYPE_GVAR},
-    {MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SOURCE_TYPE_TIMER},
-    {MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SOURCE_TYPE_TELEMETRY},
-    {MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SOURCE_TYPE_HELI},
-  };
-
-  if (absSrc == MIXSRC_MIN) { ref.type = SOURCE_TYPE_MIN; }
-  else if (absSrc == MIXSRC_MAX) { ref.type = SOURCE_TYPE_MAX; }
-  else if (absSrc == MIXSRC_TX_VOLTAGE) { ref.type = SOURCE_TYPE_TX_VOLTAGE; }
-  else if (absSrc == MIXSRC_TX_TIME) { ref.type = SOURCE_TYPE_TX_TIME; }
-  else {
-    for (const auto& r : ranges) {
-      if (absSrc >= r.first && absSrc <= r.last) {
-        ref.type = r.type;
-        ref.index = absSrc - r.first;
-        break;
-      }
-    }
-  }
-
-  if (inverted) ref.flags = SOURCE_FLAG_INVERTED;
-  return ref;
-}
-
-static SwitchRef swSrcToSwitchRef(swsrc_t src)
-{
-  SwitchRef ref = {};
-  if (src == SWSRC_NONE) return ref;
-
-  bool inverted = (src < 0);
-  swsrc_t absSrc = inverted ? -src : src;
-
-  struct Range { swsrc_t first; swsrc_t last; uint8_t type; };
-  static const Range ranges[] = {
-    {SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, SWITCH_TYPE_SWITCH},
-    {SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SWITCH_TYPE_MULTIPOS},
-    {SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SWITCH_TYPE_TRIM},
-    {SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SWITCH_TYPE_LOGICAL},
-    {SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SWITCH_TYPE_FLIGHT_MODE},
-    {SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SWITCH_TYPE_SENSOR},
-  };
-
-  if (absSrc == SWSRC_ON) { ref.type = SWITCH_TYPE_ON; }
-  else if (absSrc == SWSRC_ONE) { ref.type = SWITCH_TYPE_ONE; }
-  else if (absSrc == SWSRC_TELEMETRY_STREAMING) { ref.type = SWITCH_TYPE_TELEMETRY; }
-  else if (absSrc == SWSRC_RADIO_ACTIVITY) { ref.type = SWITCH_TYPE_RADIO_ACTIVITY; }
-  else if (absSrc == SWSRC_TRAINER_CONNECTED) { ref.type = SWITCH_TYPE_TRAINER; }
-  else {
-    for (const auto& r : ranges) {
-      if (absSrc >= r.first && absSrc <= r.last) {
-        ref.type = r.type;
-        ref.index = absSrc - r.first;
-        break;
-      }
-    }
-  }
-
-  if (inverted) ref.flags = SWITCH_FLAG_INVERTED;
-  return ref;
 }
 
 static ValueOrSource legacyToValueOrSource(int32_t rawValue)

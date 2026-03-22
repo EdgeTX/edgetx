@@ -26,9 +26,6 @@
 
 #include "edgetx.h"
 
-// Defined in mixer.cpp
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-
 static uint8_t _nb_mix_lines;
 
 MixData* mixAddress(uint8_t idx) {

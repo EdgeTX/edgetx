@@ -400,7 +400,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         if(!CRSF_ELRS_MIN_VER(module, 4, 0) &&
            (md->crsf.crsfArmingMode != ARMING_MODE_CH5 || md->crsf.crsfArmingMode != SWSRC_NONE)) {
           md->crsf.crsfArmingMode = ARMING_MODE_CH5;
-          md->crsf.crsfArmingTrigger = SWSRC_NONE;
+          md->crsf.crsfArmingTrigger.clear();
 
           storageDirty(EE_MODEL);
         }

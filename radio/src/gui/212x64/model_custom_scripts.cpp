@@ -103,9 +103,13 @@ void menuModelCustomScriptOne(event_t event)
         }
       }
       else {
-        drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, g_model.scriptsData[s_currIdx].inputs[inputIdx].source, attr);
-        if (attr) {
-          CHECK_INCDEC_MODELSOURCE(event, g_model.scriptsData[s_currIdx].inputs[inputIdx].source, 0, MIXSRC_LAST_TELEM);
+        {
+          mixsrc_t srcVal = sourceRefToMixSrc(g_model.scriptsData[s_currIdx].inputs[inputIdx].source);
+          drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcVal, attr);
+          if (attr) {
+            CHECK_INCDEC_MODELSOURCE(event, srcVal, 0, MIXSRC_LAST_TELEM);
+            g_model.scriptsData[s_currIdx].inputs[inputIdx].source = mixSrcToSourceRef(srcVal);
+          }
         }
       }
     }

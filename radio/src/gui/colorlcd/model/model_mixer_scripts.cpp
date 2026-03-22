@@ -132,7 +132,8 @@ class ScriptEditWindow : public Page
               ->setDefault(si.def);
         } else {
           new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                           GET_SET_DEFAULT(sd->inputs[i].source));
+                           [=] { return sourceRefToMixSrc(sd->inputs[i].source); },
+                           [=](int32_t newValue) { sd->inputs[i].source = mixSrcToSourceRef(newValue); SET_DIRTY(); });
         }
       }
     }

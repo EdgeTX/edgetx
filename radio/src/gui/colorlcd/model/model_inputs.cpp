@@ -31,10 +31,6 @@
 #include "menu.h"
 #include "messaging.h"
 
-// Defined in mixer.cpp
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
-
 // Defined in curves.cpp
 extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 

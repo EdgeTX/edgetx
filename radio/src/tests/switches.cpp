@@ -29,7 +29,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 
-void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16_t _v3 = 0, uint8_t _delay = 0, uint8_t _duration = 0, int8_t _andsw = 0)
+void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16_t _v3 = 0, uint8_t _delay = 0, uint8_t _duration = 0, swsrc_t _andsw = 0)
 {
   (*lswAddress(index)).func = _func;
   (*lswAddress(index)).v1 = _v1;
@@ -37,7 +37,7 @@ void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16
   (*lswAddress(index)).v3 = _v3;
   (*lswAddress(index)).delay = _delay;
   (*lswAddress(index)).duration = _duration;
-  (*lswAddress(index)).andsw = _andsw;
+  (*lswAddress(index)).andsw = swSrcToSwitchRef(_andsw);
 }
 
 #define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)

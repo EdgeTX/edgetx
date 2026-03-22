@@ -28,53 +28,6 @@
 #include "static.h"
 #include "switchchoice.h"
 
-// Defined in mixer.cpp
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-
-// Convert legacy mixsrc_t back to SourceRef
-static SourceRef mixSrcToSourceRef(mixsrc_t src)
-{
-  SourceRef ref = {};
-  if (src == MIXSRC_NONE) return ref;
-
-  bool inverted = (src < 0);
-  mixsrc_t absSrc = inverted ? -src : src;
-
-  struct Range { mixsrc_t first; mixsrc_t last; uint8_t type; };
-  static const Range ranges[] = {
-    {MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SOURCE_TYPE_INPUT},
-    {MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SOURCE_TYPE_LUA},
-    {MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SOURCE_TYPE_STICK},
-    {MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SOURCE_TYPE_POT},
-    {MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SOURCE_TYPE_TRIM},
-    {MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SOURCE_TYPE_SWITCH},
-    {MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SOURCE_TYPE_LOGICAL_SWITCH},
-    {MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SOURCE_TYPE_TRAINER},
-    {MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SOURCE_TYPE_CHANNEL},
-    {MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SOURCE_TYPE_GVAR},
-    {MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SOURCE_TYPE_TIMER},
-    {MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SOURCE_TYPE_TELEMETRY},
-    {MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SOURCE_TYPE_HELI},
-  };
-
-  if (absSrc == MIXSRC_MIN) { ref.type = SOURCE_TYPE_MIN; }
-  else if (absSrc == MIXSRC_MAX) { ref.type = SOURCE_TYPE_MAX; }
-  else if (absSrc == MIXSRC_TX_VOLTAGE) { ref.type = SOURCE_TYPE_TX_VOLTAGE; }
-  else if (absSrc == MIXSRC_TX_TIME) { ref.type = SOURCE_TYPE_TX_TIME; }
-  else {
-    for (const auto& r : ranges) {
-      if (absSrc >= r.first && absSrc <= r.last) {
-        ref.type = r.type;
-        ref.index = absSrc - r.first;
-        break;
-      }
-    }
-  }
-
-  if (inverted) ref.flags = SOURCE_FLAG_INVERTED;
-  return ref;
-}
-
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 class SensorValue : public StaticText
