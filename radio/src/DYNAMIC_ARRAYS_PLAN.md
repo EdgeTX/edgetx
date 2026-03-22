@@ -228,16 +228,30 @@ These struct fields reference arena-backed items by index. Their bit widths set 
 
 **Indirect references via enums**: `srcRaw` (10-bit signed) and `swtch` (10-bit signed) encode source/switch indices through the `MixSources` and `SwitchSources` enums. These enums pack multiple item types into ranges (sticks, pots, inputs, channels, telemetry, logical switches, etc.). Raising `MAX_LOGICAL_SWITCHES` beyond 64 would require verifying the enum ranges still fit in 10 bits. Similarly, raising `MAX_INPUTS` beyond 32 needs enum range checks.
 
-**Bottleneck summary for raising hard caps**:
+### MixSources enum overflow (pre-existing bug)
 
-| Arena array | Current hard cap | Bit-field limit | Can raise to |
-|-------------|-----------------|-----------------|-------------|
-| Mixes | 128 | No direct index field (sequential array) | **Limited by arena size only** |
-| Expos | 128 | No direct index field (sequential array) | **Limited by arena size only** |
-| Curves | 64 | `LimitData.curve` (int8_t) = 128; `CurveRef.value` (11-bit) = 2048 | **128** (LimitData.curve is the bottleneck) |
-| Curve points | 1024 | No cross-reference (sequential pool) | **Limited by arena size only** |
-| Logical switches | 64 | `SwitchSources` enum in 10-bit `swtch` fields | **Depends on enum layout** — needs analysis |
-| Special functions | 64 | `func:6` = 64 types (not count); position-indexed | **Limited by arena size only** |
+The `MixSources` enum packs all source types into a single numbering space. The `srcRaw` field stores this as `int16_t:10` (signed, range -512..511, positive range 0-511). The enum size depends on radio configuration:
+
+| Config | MIXSRC_LAST_TELEM | Fits in 0-511? |
+|--------|-------------------|----------------|
+| Non-H7 (60 sensors) | 451 | Yes |
+| H7 (99 sensors) | 568 | **No — overflow by 57** |
+| Max sensors that fit | 80 | 511 |
+
+**This is a pre-existing bug**: on H7 radios, telemetry sensors 81-99 cannot be reliably used as mix/expo sources because their enum values exceed the 10-bit signed field. The `w_mixSrcRawEx` function masks to 10 bits, silently corrupting the value.
+
+**Impact on raising limits**: any increase to `MAX_INPUTS`, `MAX_LOGICAL_SWITCHES`, `MAX_OUTPUT_CHANNELS`, etc. adds entries to the `MixSources` enum, consuming more of the 0-511 range. The enum is already at capacity on H7. Raising arena hard caps for items that are MixSources (inputs, channels, LS, GVars) requires widening `srcRaw` beyond 10 bits.
+
+### Bottleneck summary for raising hard caps
+
+| Arena array | Current hard cap | Limiting factors | Can raise to |
+|-------------|-----------------|------------------|-------------|
+| Mixes | 128 | `uint8_t idx` accessor (255); no cross-ref field | **255** (widen idx to uint16_t for more) |
+| Expos | 128 | `uint8_t idx` accessor (255); no cross-ref field | **255** |
+| Curves | 64 | `LimitData.curve:int8_t` (128); `CurveRef.value:11` (2048) | **128** (widen LimitData.curve for more) |
+| Curve points | 1024 | No cross-reference; `uint8_t idx` in curveAddress | **255 curves** (idx), points pool unlimited by arena |
+| Logical switches | 64 | `SwitchSources` enum in 10-bit `swtch`; `MixSources` enum in 10-bit `srcRaw` | **64** without widening swtch/srcRaw |
+| Special functions | 64 | `uint8_t idx` accessor (255); position-indexed | **255** |
 
 ### Accessor function parameter types
 
