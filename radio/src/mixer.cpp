@@ -354,7 +354,7 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
       continue;
     if (ed->srcRaw.type == SOURCE_TYPE_TRAINER && !isTrainerValid())
       continue;
-    if (getSwitch(switchRefToSwSrc(ed->swtch))) {
+    if (getSwitch(ed->swtch)) {
       int32_t v;
       if (srcRaw == ovwrIdx) {
         v = ovwrValue;
@@ -1027,7 +1027,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       //========== FLIGHT MODE && SWITCH =====
       bool mixCondition = (md->flightModes != 0 || !md->swtch.isNone());
       bool fmEnabled = (md->flightModes & (1 << mixerCurrentFlightMode)) == 0;
-      bool mixLineActive = fmEnabled && getSwitch(switchRefToSwSrc(md->swtch));
+      bool mixLineActive = fmEnabled && getSwitch(md->swtch);
       delayval_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {

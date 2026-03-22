@@ -26,6 +26,7 @@
 
 #include "edgetx_types.h"
 #include "edgetx_constants.h"
+#include "sourceref.h"
 
 enum LogicalSwitchFamilies {
   LS_FAMILY_OFS,
@@ -61,7 +62,13 @@ extern swarnstate_t switches_states;
 swsrc_t getMovedSwitch();
 
 #define GETSWITCH_MIDPOS_DELAY   1
-bool getSwitch(swsrc_t swtch, uint8_t flags=0);
+bool getSwitch(const SwitchRef& ref, uint8_t flags=0);
+
+// Backward-compatible overload: converts swsrc_t to SwitchRef
+extern SwitchRef swSrcToSwitchRef(swsrc_t src);
+inline bool getSwitch(swsrc_t swtch, uint8_t flags=0) {
+  return getSwitch(swSrcToSwitchRef(swtch), flags);
+}
 uint8_t getXPotPosition(uint8_t idx);
 
 div_t switchInfo(int switchPosition);

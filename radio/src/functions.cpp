@@ -178,11 +178,10 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData * cfn = &functions[i];
-    swsrc_t swtch = CFN_SWITCH(cfn);
-    if (swtch) {
+    if (!cfn->swtch.isNone()) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
-      bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      bool active = getSwitch(cfn->swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
       if (CFN_ACTIVE(cfn) == 0)
         active = false;
 

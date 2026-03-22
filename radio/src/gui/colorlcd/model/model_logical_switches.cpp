@@ -393,7 +393,7 @@ class LogicalSwitchButton : public ListLineButton
     else
       lv_obj_clear_state(lsV2, LV_STATE_USER_1);
 
-    if (getSwitch(switchRefToSwSrc(ls->andsw)))
+    if (getSwitch(ls->andsw))
       lv_obj_add_state(lsAnd, LV_STATE_USER_1);
     else
       lv_obj_clear_state(lsAnd, LV_STATE_USER_1);
