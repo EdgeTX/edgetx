@@ -28,15 +28,16 @@ class SpecialFunctionsTest : public EdgeTxTest {};
 
 TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
-  // test the size of swtch member (now SwitchRef, always large enough)
-  (*customFnAddress(0)).swtch = swSrcToSwitchRef(SWSRC_LAST);
-  EXPECT_EQ(switchRefToSwSrc((*customFnAddress(0)).swtch), SWSRC_LAST)
-      << "CustomFunctionData.swtch member is too small to hold all possible "
-         "values";
-  (*customFnAddress(0)).swtch = swSrcToSwitchRef(-SWSRC_LAST);
-  EXPECT_EQ(switchRefToSwSrc((*customFnAddress(0)).swtch), -SWSRC_LAST)
-      << "CustomFunctionData.swtch member is too small to hold all possible "
-         "values";
+  // test that SwitchRef can round-trip through the swtch field
+  auto trainerRef = SwitchRef{SWITCH_TYPE_TRAINER, 0, 0};
+  (*customFnAddress(0)).swtch = trainerRef;
+  EXPECT_EQ((*customFnAddress(0)).swtch, trainerRef)
+      << "CustomFunctionData.swtch member cannot hold SWITCH_TYPE_TRAINER";
+
+  auto trainerInv = SwitchRef{SWITCH_TYPE_TRAINER, SWITCH_FLAG_INVERTED, 0};
+  (*customFnAddress(0)).swtch = trainerInv;
+  EXPECT_EQ((*customFnAddress(0)).swtch, trainerInv)
+      << "CustomFunctionData.swtch member cannot hold inverted SWITCH_TYPE_TRAINER";
 }
 
 TEST_F(SpecialFunctionsTest, FlightReset)
@@ -45,23 +46,23 @@ TEST_F(SpecialFunctionsTest, FlightReset)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+  auto swRef = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw * 3)};
 
-  (*customFnAddress(0)).swtch = swSrcToSwitchRef(swPos);
+  (*customFnAddress(0)).swtch = swRef;
   (*customFnAddress(0)).func = FUNC_RESET;
   (*customFnAddress(0)).all.val = FUNC_RESET_FLIGHT;
   (*customFnAddress(0)).active = true;
 
   mainRequestFlags = 0;
   simuSetSwitch(sw, 0);
-  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(swPos)));
+  EXPECT_FALSE(getSwitch(swRef));
 
   evalFunctions(customFnAddress(0), modelFunctionsContext);
   EXPECT_FALSE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
 
   // now trigger SA0
   simuSetSwitch(sw, -1);
-  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(swPos)));
+  EXPECT_TRUE(getSwitch(swRef));
 
   // flightReset() should be called
   evalFunctions(customFnAddress(0), modelFunctionsContext);
@@ -80,11 +81,11 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+  auto swRef = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw * 3)};
 
   simuSetSwitch(sw, 0);    // SA-
 
-  (*customFnAddress(0)).swtch = swSrcToSwitchRef(swPos);
+  (*customFnAddress(0)).swtch = swRef;
   (*customFnAddress(0)).func = FUNC_ADJUST_GVAR;
   (*customFnAddress(0)).all.mode = FUNC_ADJUST_GVAR_INCDEC;
   (*customFnAddress(0)).all.param = 0; // GV1
