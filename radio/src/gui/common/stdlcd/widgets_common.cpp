@@ -108,7 +108,7 @@ uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t 
   SourceNumVal v;
   v.rawValue = value;
   if (v.isSource) {
-    drawSource(x, y, v.value, attr);
+    drawSource(x, y, mixSrcToSourceRef(v.value), attr);
     if (attr & (~RIGHT)) {
       value = checkIncDec(event, value, sourceMin, sourceMax,
                 EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);

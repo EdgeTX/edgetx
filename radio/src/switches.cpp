@@ -516,8 +516,8 @@ bool getLogicalSwitch(uint8_t idx)
   else {
     uint8_t family = lswFamily(ls->func);
     if (family == LS_FAMILY_BOOL) {
-    bool res1 = getSwitch(ls->v1);
-    bool res2 = getSwitch(ls->v2);
+    bool res1 = getSwitch(swSrcToSwitchRef(ls->v1));
+    bool res2 = getSwitch(swSrcToSwitchRef(ls->v2));
     switch (ls->func) {
       case LS_FUNC_AND:
         result = (res1 && res2);
@@ -976,7 +976,7 @@ void checkSwitches()
             if (warnState != swState) {
               if (++numWarnings < 6) {
                 const char* s = getSwitchWarnSymbol(warnState);
-                drawSource(x, y, MIXSRC_FIRST_SWITCH + i, INVERS);
+                drawSource(x, y, {SOURCE_TYPE_SWITCH, 0, (uint16_t)i}, INVERS);
                 lcdDrawText(lcdNextPos, y, s, INVERS);
                 x = lcdNextPos + 3;
               }
@@ -991,7 +991,7 @@ void checkSwitches()
           if (g_model.potsWarnEnabled & (1 << i)) {
             if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
               if (++numWarnings < 6) {
-                drawSource(x, y, MIXSRC_FIRST_POT + i, INVERS);
+                drawSource(x, y, {SOURCE_TYPE_POT, 0, (uint16_t)i}, INVERS);
                 const char* symbol;
                 auto warn_pos = g_model.potsWarnPosition[i];
                 if (IS_SLIDER(i)) {
@@ -1075,9 +1075,9 @@ void logicalSwitchesTimerTick()
         lastValue.state = s;
         bool now;
         if (s)
-          now = getSwitch(ls->v2);
+          now = getSwitch(swSrcToSwitchRef(ls->v2));
         else
-          now = getSwitch(ls->v1);
+          now = getSwitch(swSrcToSwitchRef(ls->v1));
         if (now)
           lastValue.last |= 1;
         else
@@ -1105,7 +1105,7 @@ void logicalSwitchesTimerTick()
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
             if (ls->v2 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(ls->v2);
+                bool now = getSwitch(swSrcToSwitchRef(ls->v2));
                 if (now != before) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -1116,7 +1116,7 @@ void logicalSwitchesTimerTick()
         }
         else {
             if (ls->v1 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(ls->v1);
+                bool now = getSwitch(swSrcToSwitchRef(ls->v1));
                 if (before != now) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -1135,7 +1135,7 @@ void logicalSwitchesTimerTick()
           lastValue.duration = 0;
         }
         lastValue.state = false;
-        bool state = getSwitch(ls->v1);
+        bool state = getSwitch(swSrcToSwitchRef(ls->v1));
         if (state) {
           if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2))
             lastValue.state = true;

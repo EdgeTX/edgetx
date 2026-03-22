@@ -272,7 +272,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             else if (param == MAX_STICKS + 1)
               lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_CHANS, attr);
             else
-              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_FIRST_STICK + param - 1, attr);
+              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, {SOURCE_TYPE_STICK, 0, (uint16_t)(param - 1)}, attr);
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
@@ -402,7 +402,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
           else if (func == FUNC_PLAY_VALUE) {
             val_max = MIXSRC_LAST_TELEM;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN - (val_displayed == 0 ? 0 : 2 * FW), y, val_displayed, attr);
+            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN - (val_displayed == 0 ? 0 : 2 * FW), y, mixSrcToSourceRef(val_displayed), attr);
             if (active) {
               INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
               INCDEC_ENABLE_CHECK(isSourceAvailable);
@@ -410,7 +410,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
           else if (func == FUNC_VOLUME) {
             val_max = MIXSRC_LAST_CH;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, mixSrcToSourceRef(val_displayed), attr);
             if (active) {
               INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
               INCDEC_ENABLE_CHECK(isSourceAvailable);
@@ -418,7 +418,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
           else if (func == FUNC_BACKLIGHT) {
             val_max = MIXSRC_LAST_CH;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, mixSrcToSourceRef(val_displayed), attr);
             if (active) {
               INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
               INCDEC_ENABLE_CHECK(isSourceAvailable);
@@ -455,7 +455,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               case FUNC_ADJUST_GVAR_SOURCE:
               case FUNC_ADJUST_GVAR_SOURCERAW:
                 val_max = MIXSRC_LAST_CH;
-                drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+                drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, mixSrcToSourceRef(val_displayed), attr);
                 if (active) {
                   INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
                   INCDEC_ENABLE_CHECK(isSourceAvailable);

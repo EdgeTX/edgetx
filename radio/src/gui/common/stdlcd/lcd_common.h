@@ -132,8 +132,6 @@ void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode=0);
 
 void drawModelName(coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att);
 void drawSwitch(coord_t x, coord_t y, const SwitchRef& ref, LcdFlags att=0, bool autoBold = true);
-// Backward-compatible overload
-void drawSwitch(coord_t x, coord_t y, swsrc_t swtch, LcdFlags att=0, bool autoBold = true);
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att=0);
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 

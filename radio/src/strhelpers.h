@@ -127,9 +127,6 @@ const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, const SwitchRef& ref);
 char *getSwitchPositionName(const SwitchRef& ref);
-// Backward-compatible overloads (convert swsrc_t to SwitchRef internally)
-char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly = false);
-char *getSwitchPositionName(swsrc_t idx, bool defaultOnly = false);
 char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly = false);
 int getSwitchIndex(const char* name, bool all);
 int getSourceIndex(const char* name, bool all);
@@ -147,11 +144,6 @@ char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 template <size_t L>
 char *getSourceString(char (&dest)[L], const SourceRef& ref, bool defaultOnly = false);
 char *getSourceString(const SourceRef& ref, bool defaultOnly = false);
-
-// Backward-compatible mixsrc_t overloads (convert via mixSrcToSourceRef)
-template <size_t L>
-char *getSourceString(char (&dest)[L], mixsrc_t idx, bool defaultOnly = false);
-char *getSourceString(mixsrc_t idx, bool defaultOnly = false);
 
 template <size_t L>
 char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,

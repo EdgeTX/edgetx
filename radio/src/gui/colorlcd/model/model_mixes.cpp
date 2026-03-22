@@ -338,7 +338,7 @@ void ModelMixesPage::newMix()
         skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
       }
     } else {
-      std::string ch_name(getSourceString(MIXSRC_FIRST_CH + ch));
+      std::string ch_name(getSourceString({SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch}));
       menu->addLineBuffered(ch_name.c_str(), [=]() { insertMix(ch, index); });
     }
   }
@@ -382,7 +382,7 @@ void ModelMixesPage::deleteMix(uint8_t index)
   if (!line) return;
 
   auto mix = mixAddress(index);
-  std::string s(getSourceString(group->getMixSrc()));
+  std::string s(getSourceString(mixSrcToSourceRef(group->getMixSrc())));
   s += " - ";
   if (mix->name[0]) {
     s += mix->name;

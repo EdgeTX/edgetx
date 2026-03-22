@@ -432,11 +432,6 @@ void drawSwitch(coord_t x, coord_t y, const SwitchRef& ref, LcdFlags flags, bool
   lcdDrawText(x, y, s, flags);
 }
 
-void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold)
-{
-  drawSwitch(x, y, swSrcToSwitchRef(idx), flags, autoBold);
-}
-
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att)
 {
   char s[8];
@@ -452,7 +447,7 @@ void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att)
     else
       mode -= (TMRMODE_COUNT-1);
   }
-  drawSwitch(x, y, mode, att);
+  drawSwitch(x, y, swSrcToSwitchRef(mode), att);
 }
 
 #if defined(RTCLOCK)

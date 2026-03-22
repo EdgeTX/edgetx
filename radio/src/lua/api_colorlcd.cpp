@@ -452,7 +452,7 @@ static int luaLcdDrawSwitch(lua_State *L)
   int s = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
-  luaLcdBuffer->drawSwitch(x, y, s, flags);
+  luaLcdBuffer->drawSwitch(x, y, swSrcToSwitchRef(s), flags);
 
   return 0;
 }
@@ -480,7 +480,7 @@ static int luaLcdDrawSource(lua_State *L)
   int s = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
-  luaLcdBuffer->drawSource(x, y, s, flags);
+  luaLcdBuffer->drawSource(x, y, mixSrcToSourceRef(s), flags);
 
   return 0;
 }

@@ -66,7 +66,7 @@ void menuModelExpoOne(event_t event)
   }
 
   ExpoData * ed = expoAddress(s_currIdx);
-  drawSource(strlen(STR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
+  drawSource(strlen(STR_MENUINPUTS)*FW+FW, 0, {SOURCE_TYPE_INPUT, 0, (uint16_t)ed->chn}, 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   uint8_t old_editMode = s_editMode;
@@ -106,7 +106,7 @@ void menuModelExpoOne(event_t event)
         {
           lcdDrawTextAlignedLeft(y, STR_SOURCE);
           mixsrc_t srcRawVal = sourceRefToMixSrc(ed->srcRaw);
-          drawSource(EXPO_ONE_2ND_COLUMN, y, srcRawVal, STREXPANDED|attr);
+          drawSource(EXPO_ONE_2ND_COLUMN, y, mixSrcToSourceRef(srcRawVal), STREXPANDED|attr);
           if (attr && menuHorizontalPosition==0) {
             srcRawVal = checkIncDec(event, srcRawVal, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
             ed->srcRaw = mixSrcToSourceRef(srcRawVal);

@@ -141,7 +141,7 @@ void FunctionLineButton::refresh()
   switch (func) {
     case FUNC_OVERRIDE_CHANNEL:
       sprintf(s + strlen(s), "%s = %s",
-              getSourceString(MIXSRC_FIRST_CH + CFN_CH_INDEX(cfn)),
+              getSourceString({SOURCE_TYPE_CHANNEL, 0, (uint16_t)CFN_CH_INDEX(cfn)}),
               formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
 
@@ -542,7 +542,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
                                      updateSpecialFunctionOneWindow();
                                    });
       gvarchoice->setTextHandler([](int32_t value) {
-        return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
+        return std::string(getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)value}));
       });
       line = specialFunctionOneWindow->newLine(grid);
 
@@ -591,7 +591,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
           gvarchoice->setTextHandler([](int32_t value) {
-            return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
+            return std::string(getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)value}));
           });
           gvarchoice->setAvailableHandler(
               [=](int value) { return CFN_GVAR_INDEX(cfn) != value; });

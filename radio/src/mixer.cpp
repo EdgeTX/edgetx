@@ -650,7 +650,7 @@ getvalue_t _getValue(const SourceRef& ref, bool* valid)
 #endif
 
     case SOURCE_TYPE_LOGICAL_SWITCH:
-      return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + ref.index) ? 1024 : -1024;
+      return getSwitch({SWITCH_TYPE_LOGICAL, 0, ref.index}) ? 1024 : -1024;
 
     case SOURCE_TYPE_TRAINER: {
       auto idx = ref.index;

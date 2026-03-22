@@ -61,7 +61,7 @@ void menuModelLogicalSwitchOne(event_t event)
 
   LogicalSwitchData * cs = lswAddress(s_currIdx);
 
-  uint8_t sw = SWSRC_FIRST_LOGICAL_SWITCH+s_currIdx;
+  SwitchRef sw = {SWITCH_TYPE_LOGICAL, 0, (uint16_t)s_currIdx};
   uint8_t cstate = lswFamily(cs->func);
 
   drawSwitch(14*FW, 0, sw, (getSwitch(sw) ? BOLD : 0));
@@ -117,7 +117,7 @@ void menuModelLogicalSwitchOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_V1);
         int v1_min=0, v1_max=MIXSRC_LAST_TELEM;
         if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_EDGE) {
-          drawSwitch(CSWONE_2ND_COLUMN, y, cs->v1, attr);
+          drawSwitch(CSWONE_2ND_COLUMN, y, swSrcToSwitchRef(cs->v1), attr);
           v1_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v1_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
           INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
           INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
@@ -128,7 +128,7 @@ void menuModelLogicalSwitchOne(event_t event)
           v1_max = 122;
         }
         else {
-          drawSource(CSWONE_2ND_COLUMN, y, cs->v1, attr);
+          drawSource(CSWONE_2ND_COLUMN, y, mixSrcToSourceRef(cs->v1), attr);
           INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
@@ -144,7 +144,7 @@ void menuModelLogicalSwitchOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_V2);
         int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
         if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
-          drawSwitch(CSWONE_2ND_COLUMN, y, cs->v2, attr);
+          drawSwitch(CSWONE_2ND_COLUMN, y, swSrcToSwitchRef(cs->v2), attr);
           v2_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v2_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
           INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
           INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
@@ -163,7 +163,7 @@ void menuModelLogicalSwitchOne(event_t event)
           v2_min = -129; v2_max = 122;
         }
         else if (cstate == LS_FAMILY_COMP) {
-          drawSource(CSWONE_2ND_COLUMN, y, cs->v2, attr);
+          drawSource(CSWONE_2ND_COLUMN, y, mixSrcToSourceRef(cs->v2), attr);
           INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
@@ -284,7 +284,7 @@ void menuModelLogicalSwitches(event_t event)
     LogicalSwitchData * cs = lswAddress(k);
 
     // CSW name
-    uint8_t sw = SWSRC_FIRST_LOGICAL_SWITCH+k;
+    SwitchRef sw = {SWITCH_TYPE_LOGICAL, 0, (uint16_t)k};
 
     drawSwitch(0, y, sw, (sub==k ? INVERS : 0) | (getSwitch(sw) ? BOLD : 0));
 
@@ -299,15 +299,15 @@ void menuModelLogicalSwitches(event_t event)
       lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, flags);
 
       if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
-        drawSwitch(CSW_2ND_COLUMN, y, cs->v1, 0);
-        drawSwitch(CSW_3RD_COLUMN, y, cs->v2, 0);
+        drawSwitch(CSW_2ND_COLUMN, y, swSrcToSwitchRef(cs->v1), 0);
+        drawSwitch(CSW_3RD_COLUMN, y, swSrcToSwitchRef(cs->v2), 0);
       }
       else if (cstate == LS_FAMILY_COMP) {
-        drawSource(CSW_2ND_COLUMN, y, cs->v1, 0);
-        drawSource(CSW_3RD_COLUMN, y, cs->v2, 0);
+        drawSource(CSW_2ND_COLUMN, y, mixSrcToSourceRef(cs->v1), 0);
+        drawSource(CSW_3RD_COLUMN, y, mixSrcToSourceRef(cs->v2), 0);
       }
       else if (cstate == LS_FAMILY_EDGE) {
-        drawSwitch(CSW_2ND_COLUMN, y, cs->v1, 0);
+        drawSwitch(CSW_2ND_COLUMN, y, swSrcToSwitchRef(cs->v1), 0);
         putsEdgeDelayParam(CSW_3RD_COLUMN, y, cs, 0, 0);
       }
       else if (cstate == LS_FAMILY_TIMER) {
@@ -316,7 +316,7 @@ void menuModelLogicalSwitches(event_t event)
       }
       else {
         mixsrc_t v1 = cs->v1;
-        drawSource(CSW_2ND_COLUMN, y, v1, 0);
+        drawSource(CSW_2ND_COLUMN, y, mixSrcToSourceRef(v1), 0);
         if (v1 >= MIXSRC_FIRST_TELEM) {
           drawSourceCustomValue(CSW_3RD_COLUMN, y, v1, convertLswTelemValue(cs), LEFT);
         }
