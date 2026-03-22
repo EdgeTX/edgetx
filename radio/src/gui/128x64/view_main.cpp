@@ -76,7 +76,7 @@ static bool isAsteriskDisplayed() {
 
 void drawExternalAntennaAndRSSI()
 {
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   if (isModuleXJT(INTERNAL_MODULE) && isExternalAntennaEnabled()) {
     lcdDrawText(VBATT_X - 1, VBATT_Y + 8, "E", TINSIZE);
   }
@@ -514,7 +514,7 @@ void menuMainView(event_t event)
       if (view == VIEW_INPUTS) {
         // Sticks + Pots
         doMainScreenGraphics();
-        
+
         // Switches
         // -> 2 columns: one for each side
         // -> 4 slots on each side
