@@ -53,7 +53,7 @@ class InputMixButtonBase : public ListLineButton
   InputMixButtonBase(Window* parent, uint8_t index);
   ~InputMixButtonBase();
 
-  void setWeight(gvar_t value, gvar_t min, gvar_t max);
+  void setWeight(const ValueOrSource& value, int16_t min, int16_t max);
   void setSource(const SourceRef& ref);
   void setOpts(const char* s);
   void setFlightModes(uint16_t modes);

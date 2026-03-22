@@ -423,35 +423,6 @@ int applyCurrentCurve(int x)
 }
 #endif
 
-// Convert ValueOrSource to legacy SourceNumVal packed format for
-// getValueOrSrcVarString() (temporary bridge until that function is updated)
-gvar_t valueOrSourceToLegacy(const ValueOrSource& vos)
-{
-  if (vos.isSource) {
-    // Reconstruct legacy mixsrc_t from SourceRef type+index
-    int16_t legacyValue = 0;
-    switch (vos.srcType) {
-      case SOURCE_TYPE_GVAR:
-        legacyValue = MIXSRC_FIRST_GVAR + vos.value;
-        break;
-      case SOURCE_TYPE_INPUT:
-        legacyValue = MIXSRC_FIRST_INPUT + vos.value;
-        break;
-      case SOURCE_TYPE_STICK:
-        legacyValue = MIXSRC_FIRST_STICK + vos.value;
-        break;
-      case SOURCE_TYPE_CHANNEL:
-        legacyValue = MIXSRC_FIRST_CH + vos.value;
-        break;
-      default:
-        legacyValue = vos.value;
-        break;
-    }
-    return makeSourceNumVal(legacyValue, true);
-  }
-  return makeSourceNumVal(vos.value, false);
-}
-
 #if defined(COLORLCD)
 char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
 {
@@ -464,12 +435,12 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
     switch (curve.type) {
       case CURVE_REF_DIFF:
         *(s++) = 'D'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, valueOrSourceToLegacy(curve.value), 0, "%");
+        getValueOrSrcVarString(s, len, curve.value, 0, "%");
         return dest;
 
       case CURVE_REF_EXPO:
         *(s++) = 'E'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, valueOrSourceToLegacy(curve.value), 0, "%");
+        getValueOrSrcVarString(s, len, curve.value, 0, "%");
         return dest;
 
       case CURVE_REF_FUNC:

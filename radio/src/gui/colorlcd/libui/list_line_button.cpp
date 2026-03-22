@@ -74,7 +74,7 @@ InputMixButtonBase::~InputMixButtonBase()
   if (fm_buffer) free(fm_buffer);
 }
 
-void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
+void InputMixButtonBase::setWeight(const ValueOrSource& value, int16_t min, int16_t max)
 {
   if (!weight) {
     weight = etx_label_create(lvobj);

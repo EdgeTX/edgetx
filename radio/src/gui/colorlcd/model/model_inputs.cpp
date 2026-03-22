@@ -32,7 +32,6 @@
 #include "messaging.h"
 
 // Defined in curves.cpp
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -52,7 +51,7 @@ class InputLineButton : public InputMixButtonBase
   void refresh() override
   {
     const ExpoData& line = *expoAddress(index);
-    setWeight(valueOrSourceToLegacy(line.weight), -100, 100);
+    setWeight(line.weight, -100, 100);
     setSource(line.srcRaw);
 
     char tmp_str[64];

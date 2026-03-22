@@ -383,24 +383,23 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
   return dest;
 }
 
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
+char *getValueOrSrcVarString(char *dest, size_t len, const ValueOrSource& vos,
                            LcdFlags flags, const char *suffix,
-                           gvar_t offset, bool usePPMUnit)
+                           int16_t offset, bool usePPMUnit)
 {
-  SourceNumVal v;
-  v.rawValue = value;
-  if (v.isSource) {
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      getGVarString(dest, (v.value < 0) ? v.value + MIXSRC_FIRST_GVAR - 1 : v.value - MIXSRC_FIRST_GVAR);
+  if (vos.isSource) {
+    SourceRef ref = vos.toSourceRef();
+    if (ref.type == SOURCE_TYPE_GVAR) {
+      getGVarString(dest, ref.isInverted() ? -(int)ref.index - 1 : ref.index);
     } else {
-      const char* s = getSourceString(mixSrcToSourceRef(v.value));
+      const char* s = getSourceString(ref);
       strncpy(dest, s, len);
     }
   } else {
-    v.value += offset;
+    int16_t val = vos.numericValue() + offset;
     if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
-      v.value = v.value * 128 / 25;
-    formatNumberAsString(dest, len, v.value, flags, 0, nullptr, suffix);
+      val = val * 128 / 25;
+    formatNumberAsString(dest, len, val, flags, 0, nullptr, suffix);
   }
   return dest;
 }

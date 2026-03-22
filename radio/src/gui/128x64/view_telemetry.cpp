@@ -145,7 +145,7 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
         }
 
         if (fieldRef.type == SOURCE_TYPE_TELEMETRY && isSensorUnit(1+fieldRef.index/3, UNIT_DATETIME)) {
-          drawTelemScreenDate(pos[j+1]-36, 6+FH+2*FH*i, sourceRefToMixSrc(fieldRef), SMLSIZE|NO_UNIT);
+          drawTelemScreenDate(pos[j+1]-36, 6+FH+2*FH*i, fieldRef.index/3, SMLSIZE|NO_UNIT);
         }
         else {
           drawSourceValue(pos[j+1]-2, (i==3 ? 1+FH+2*FH*i:FH+2*FH*i), fieldRef, att);
