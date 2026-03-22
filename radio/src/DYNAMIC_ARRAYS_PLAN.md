@@ -2,294 +2,208 @@
 
 ## Context
 
-The `ModelData` struct (`radio/src/datastructs_private.h:753`) uses fixed-size arrays for inputs, mixes, curves, and other components. This wastes memory on simple models (a 4-channel trainer allocates the same ~6.5 KB as a 32-channel heli) while simultaneously limiting power users who hit the hard caps (64 mixes, 64 inputs, 32 curves). Moving to dynamic allocation solves both problems: simple models shrink, complex models can grow.
+The `ModelData` struct used fixed-size arrays for inputs, mixes, curves, and other components. This wasted memory on simple models (a 4-channel trainer allocated the same ~6.5 KB as a 32-channel heli) while simultaneously limiting power users who hit the hard caps (64 mixes, 64 inputs, 32 curves). Moving to dynamic allocation solves both problems: simple models shrink, complex models can grow.
 
-Outputs (`LimitData[MAX_OUTPUT_CHANNELS]`) stay static -- they're physically limited to 32 channels.
-
----
-
-## Current State
-
-### Memory layout (ModelData ~6.3-7.6 KB depending on radio)
-
-| Array | Element | Max | Bytes | Typical use |
-|-------|---------|-----|-------|-------------|
-| `mixData[MAX_MIXERS]` | 20 B | 64 | 1280 | 5-30 entries |
-| `expoData[MAX_EXPOS]` | 18 B | 64 | 1152 | 4-20 entries |
-| `curves[MAX_CURVES]` | 4 B | 32 | 128 | 0-10 entries |
-| `points[MAX_CURVE_POINTS]` | 1 B | 512 | 512 | 0-200 points |
-| `gvars[MAX_GVARS]` | 7 B | 9-15 | 63-105 | 0-9 entries |
-| `logicalSw[64]` | 9 B | 64 | 576 | 5-30 entries |
-| `customFn[64]` | 11 B | 64 | 704 | 0-20 entries |
-
-**Dynamic candidates total: ~4,400 bytes** out of ~6,500 in ModelData.
-
-### Access patterns
-
-- **Accessor functions**: `mixAddress(idx)`, `expoAddress(idx)` return `&g_model.array[idx]`
-- **Insert/delete**: `memmove()` to shift trailing elements (`mixes.cpp:37-80`)
-- **Curves**: shared points pool with `curveEnd[]` offset tracking (`curves.cpp:30-101`)
-- **Mixer hot path**: linear scan, breaks on `srcRaw == 0` (mixes) / `!EXPO_VALID(ed)` (expos)
-- **Parallel state arrays**: `mixState[MAX_MIXERS]` (globals.h:74), `act[MAX_MIXERS]` (globals.h:75), stack-local `activeMixes[MAX_MIXERS]` (mixer.cpp:839) -- must stay in sync
-- **Note**: `mixState[]` serves double duty -- indexed by expo index for `activeExpo`, by mix index for `activeMix`
-
-### Platform constraints
-
-- **STM32F4**: 128 KB RAM + 64 KB CCM. FreeRTOS static-only (`configSUPPORT_DYNAMIC_ALLOCATION = 0`), but libc malloc/free are used elsewhere (modelslist.cpp, USB, FTL driver)
-- **STM32H7**: ~288 KB RAM. More headroom.
-- **RTC backup**: 4 KB battery-backed SRAM, RLE-compressed ModelData + RadioData
-- **Storage**: YAML on SD card (naturally supports variable-length), binary RLC for EEPROM radios
-- **CHKSIZE()**: compile-time size checks in `datastructs.h:40-123` enforce exact struct sizes
+Outputs (`LimitData[MAX_OUTPUT_CHANNELS]`) stay static — physically limited to 32 channels.
 
 ---
 
-## Design: Arena-Backed Dynamic Arrays
+## Completed Work
 
-### Why arena allocation
+### Phase 1: Accessor Abstraction (commit `a019cd6`)
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| malloc per element | Flexible | Fragmentation, overhead per element, cache-unfriendly |
-| Linked lists | Easy insert/delete | 8B overhead/node, cache-unfriendly, breaks memmove pattern |
-| realloc | Simple API | Fragmentation, unpredictable, copies on grow |
-| **Arena** | **No fragmentation, cache-friendly, deterministic, memcpy-safe** | Cascading shift on insert (acceptable -- only during user edits) |
+All ModelData array access routed through accessor functions. No direct `g_model.mixData[i]` etc. remains in non-test code.
 
-### Core architecture
+- `mixAddress(idx)`, `expoAddress(idx)`, `curveHeaderAddress(idx)`, `curvePointsBase()`, `lswAddress(idx)`, `customFnAddress(idx)`
+- Centralized `expos.cpp` (insert/delete/copy/move) mirroring `mixes.cpp`
+- Centralized `customfn.cpp` (insert/delete/clear)
+- `getExpoCount()` / `updateExpoCount()` paralleling `getMixCount()`
 
-Replace the fixed arrays inside `ModelData` with counts + offsets into a separate statically-allocated arena:
+### Phase 2: Arena Allocator (commits `85680d7` through `2977393`)
+
+Six arrays removed from ModelData and stored in a shared arena:
+
+| Array | Element | Per-radio max | Hard cap |
+|-------|---------|---------------|----------|
+| mixData | 20 B | 64 | 128 |
+| expoData | 18 B | 64 | 128 |
+| curves | 4 B | 32 | 64 |
+| points | 1 B | 512 | 1024 |
+| logicalSw | 9 B | 64 | 64 |
+| customFn | 11 B | 64 | 64 |
+
+**ModelData shrunk from ~6.5 KB to ~2.5 KB** (~4.3 KB saved).
+
+Key components:
+- **`ModelArena`** class (`model_arena.h/cpp`): manages a contiguous buffer with section-based layout. Supports `insertSlot`/`deleteSlot` with cascading offset updates. Uses `uint32_t` for capacity/offsets (supports SDRAM).
+- **`ModelDynData`** in `ModelData`: counts for each arena section (mixCount, expoCount, etc.)
+- **YAML `YDT_EXTERN_ARRAY`**: new tree walker node type that redirects data access to arena memory via `get_ptr` callbacks and per-state `data_override` pointers
+- **`CUST_EXTERN_ARRAY`** annotation macro + generator support: `generate_yaml.py` handles `extern_array:` annotations, computing per-element bit sizes from struct definitions
+- **RTC backup**: `RamBackupUncompressed` includes `uint8_t arena[MODEL_ARENA_SIZE]`; write saves arena, restore repopulates it
+- **Parallel state arrays**: `mixState[MAX_MIXERS_HARD]`, `act[MAX_MIXERS_HARD]`, `activeMixes[MAX_MIXERS_HARD]` sized to hard caps
+- **Label operations**: `patchModelYamlLabels()` does direct YAML text patching (no model round-trip); `readModelYaml()` saves/restores arena for temp model reads
+- **Unit tests**: 23 tests covering ModelArena class, accessor functions, insert/delete operations, section non-overlap, model reset
+
+### Current arena layout
+
+The arena is initialized with **max-size layout** (`modelArenaInit`) — all sections pre-allocated at their per-radio `MAX_*` sizes. This makes the arena behavior identical to the old static arrays: same capacity, same memmove semantics. The `ModelDynData` counts in `g_model.dyn` are not yet populated after YAML load (not needed with max-size layout).
 
 ```
-ModelData (shrinks to ~2 KB)          Arena (MODEL_ARENA_SIZE bytes)
-+---------------------------+        +-------+-------+--------+--------+----+----+------+
-| header, timers, flags...  |        | mixes | expos | curves | points | LS | SF | free |
-| mixCount, expoCount, ...  |        | N*20B | M*18B | K*4B   | P*1B   |    |    |      |
-| mixOffset, expoOffset,... |------->+-------+-------+--------+--------+----+----+------+
-| limitData[32] (static)    |
-| flightModeData[9] (static)|
-| modules, failsafe (static)|
-+---------------------------+
+Arena (MODEL_ARENA_SIZE bytes, static buffer)
++----------+----------+---------+--------+------+------+------+
+| mixes    | expos    | curves  | points | LS   | SF   | free |
+| 64×20=   | 64×18=   | 32×4=   | 512×1= | 64×9=| 64×11|      |
+| 1280 B   | 1152 B   | 128 B   | 512 B  | 576 B| 704 B|      |
++----------+----------+---------+--------+------+------+------+
+Total used: 4352 B
 ```
+
+Platform arena sizes:
+| Platform | MODEL_ARENA_SIZE | Default used |
+|----------|-----------------|-------------|
+| STM32F4 | 4096 B | 4352 B (!) |
+| STM32H7 | 8192 B | 4352 B |
+| Companion/Sim | 65536 B | 4352 B |
+
+**Note**: STM32F4 arena (4096) is smaller than the default layout (4352). This works today because `modelArenaInit` doesn't bounds-check. This must be resolved before enabling dynamic sizing — either increase STM32F4 arena or reduce default counts.
+
+---
+
+## Phase 3: Dynamic Arena Sizing
+
+**Goal**: Models use only the arena space they need. Simple models leave room for more entries in other sections. Complex models can exceed per-radio defaults up to the hard caps.
+
+### 3.1 Populate `ModelDynData` counts after model load
+
+After `readModelYaml()` + `postModelLoad()`:
+1. `updateMixCount()` and `updateExpoCount()` already compute packed counts
+2. Add `updateCurveCount()`: count non-empty `CurveHeader` entries
+3. LS and SF are position-indexed (sparse) — always `MAX_LOGICAL_SWITCHES` / `MAX_SPECIAL_FUNCTIONS` slots
+4. Points count: sum of `getCurvePoints(i)` for all curves
+5. Store all counts in `g_model.dyn`
+6. Call `g_modelArena.layout(g_model.dyn)` to compact the layout
+
+### 3.2 Compact arena layout on model load
+
+After counts are computed, `layout()` recomputes section offsets to pack sections tightly. The arena would look like:
+
+```
+Simple 4-channel model:
++-------+-------+---+---+------+------+------ free ------+
+| 4 mix | 4 expo| 0 | 0 | 64LS | 64SF |    ~3 KB free    |
+| 80 B  | 72 B  |   |   |576 B |704 B |                  |
++-------+-------+---+---+------+------+------------------+
+
+Complex heli model:
++----------+---------+--------+------+------+------+free+
+| 40 mixes | 30 expo | 15 crv | 200pt| 64LS | 64SF |    |
+| 800 B    | 540 B   | 60 B   |200 B |576 B |704 B |    |
++----------+---------+--------+------+------+------+----+
+```
+
+### 3.3 Arena-aware insert/delete
+
+Replace raw `memmove` with `g_modelArena.insertInSection()` / `deleteFromSection()`:
+
+**`insertMix(idx, channel)`**:
+```cpp
+if (!g_modelArena.insertInSection(ARENA_MIXES, idx, sizeof(MixData))) {
+    AUDIO_WARNING2();  // "Model memory full"
+    return;
+}
+g_model.dyn.mixCount++;
+// ... initialize the new mix
+```
+
+**`deleteMix(idx)`**:
+```cpp
+g_modelArena.deleteFromSection(ARENA_MIXES, idx, sizeof(MixData));
+g_model.dyn.mixCount--;
+```
+
+These shift all subsequent sections automatically. The `act[]` parallel array still needs its own memmove (it's not in the arena).
+
+**Capacity check**: `g_modelArena.freeBytes() >= sizeof(MixData)` replaces `getMixCount() >= MAX_MIXERS`.
+
+### 3.4 Update loop bounds
+
+Replace `MAX_*` loop bounds with dynamic counts in the mixer hot path:
 
 ```cpp
-// In ModelData (replaces the array fields)
-struct ModelDynData {
-    uint8_t   mixCount;
-    uint8_t   expoCount;
-    uint8_t   curveCount;
-    uint16_t  pointsCount;
-    uint8_t   logicalSwCount;
-    uint8_t   customFnCount;
-    // Byte offsets into arena (order: mix, expo, curve, points, LS, SF)
-    uint16_t  mixOffset;      // always 0 (mixes first)
-    uint16_t  expoOffset;
-    uint16_t  curveOffset;
-    uint16_t  pointsOffset;
-    uint16_t  logicalSwOffset;
-    uint16_t  customFnOffset;
-    uint16_t  usedBytes;      // total arena bytes consumed
-};
+// mixer.cpp applyExpos():
+for (uint8_t i = 0; i < getExpoCount(); i++) {
+    ...
+}
 
-// Arena manager -- abstracts backing storage so it can be static, heap, or SDRAM
-class ModelArena {
-    uint8_t* _base;     // pointer to backing storage (NOT owned)
-    uint16_t _capacity; // current capacity in bytes
-public:
-    void attach(uint8_t* buf, uint16_t capacity);  // bind to a buffer
-    bool grow(uint16_t newCapacity);                // reallocate (future)
-    uint8_t* base() const { return _base; }
-    uint16_t capacity() const { return _capacity; }
-    uint16_t freeBytes() const;
-    // Section management
-    bool insertSlot(uint16_t offset, uint16_t slotSize, uint16_t usedBytes);
-    void deleteSlot(uint16_t offset, uint16_t slotSize, uint16_t usedBytes);
-};
-
-// Phase 2: static backing buffer (can be replaced with malloc/SDRAM later)
-static uint8_t g_modelArenaBuf[MODEL_ARENA_SIZE] __attribute__((aligned(4)));
-extern ModelArena g_modelArena;
-```
-
-**Key design choice**: The `ModelArena` class holds a pointer + capacity, not a fixed array. This means:
-- **Phase 2**: `attach(g_modelArenaBuf, MODEL_ARENA_SIZE)` -- static buffer, zero risk
-- **Future**: `attach(malloc(size), size)` or `attach(sdramAddr, largerSize)` -- the arena can grow at runtime, e.g., when a model is loaded that needs more space, or when SDRAM is available
-- The arena can even be reallocated (allocate new buffer, memcpy, update pointer) as long as this is done outside the mixer hot path (during model load or user edit)
-
-### Arena sizing per platform
-
-Defined per radio type (MCU family, SDRAM presence, etc). Starting points:
-
-| Platform | MODEL_ARENA_SIZE | vs. current static | Effect |
-|----------|-----------------|-------------------|--------|
-| STM32F4 (baseline) | 4096 B | ~4,400 B static today | Similar budget, flexible allocation |
-| STM32H7 | 8192+ B | ~4,400 B static today | ~2x capacity |
-| Radios with SDRAM | TBD (larger) | -- | Much higher limits |
-| Companion/Sim | 65536 B | N/A | Effectively unlimited |
-
-The arena size is a per-radio compile-time constant, allowing fine-tuning based on available RAM.
-
-### New limits model
-
-Replace per-type hard caps with a **shared memory budget**:
-- Each model has `MODEL_ARENA_SIZE` bytes available
-- User can trade off: more mixes means fewer curves, and vice versa
-- Hard safety caps remain (e.g., `MAX_MIXERS_HARD = 128`) to bound parallel state arrays
-- GUI shows "Model memory: X% used" or "X bytes free"
-- Insert operations check `arena.freeBytes() >= sizeof(ElementType)`
-
-### Accessor function changes
-
-Today:
-```cpp
-MixData* mixAddress(uint8_t idx) { return &g_model.mixData[idx]; }
-```
-
-After:
-```cpp
-MixData* mixAddress(uint8_t idx) {
-    return reinterpret_cast<MixData*>(g_modelArena.base() + g_model.dyn.mixOffset) + idx;
+// mixer.cpp evalFlightModeMixes():
+for (uint8_t i = 0; i < getMixCount(); i++) {
+    ...
 }
 ```
 
-The mixer hot path (`mixer.cpp`) already uses `mixAddress(i)` and `expoAddress(i)` exclusively. Loop bounds change from `MAX_MIXERS` to `g_model.dyn.mixCount`. **No allocation in the hot path.**
+For LS/SF (position-indexed), loop bounds stay at `MAX_LOGICAL_SWITCHES` / `MAX_SPECIAL_FUNCTIONS`.
 
-### Insert/delete mechanics
+### 3.5 GUI memory indicator
 
-Inserting a mix at position `idx`:
-1. Check `arena.freeBytes() >= sizeof(MixData)` -- if not, warn "Model memory full"
-2. `mixerTaskStop()` (already done today)
-3. Shift arena content after the mix region forward by `sizeof(MixData)` -- this moves expos, curves, points
-4. Update expoOffset, curveOffset, pointsOffset (add 20)
-5. `memmove()` within the mix region to open a slot at `idx` (same as today)
-6. Increment `mixCount`, update `usedBytes`
-7. `mixerTaskStart()`
+Add a "Model memory" display in the model setup page:
 
-This cascading shift is the main cost of the arena approach. But it only happens during user edits (not in the mixer loop), the total data is <8 KB, and `memmove` on that size is microseconds on ARM Cortex-M.
-
-### Logical switches and special functions
-
-`logicalSw[64]` (576 B) and `customFn[64]` (704 B) move into the arena alongside mixes/expos/curves. Same pattern: count + offset in `ModelDynData`, accessor functions, arena insert/delete. This brings the total dynamic pool to ~4,400 bytes freed from ModelData, all sharing the arena budget.
-
-Arena section order: `mixes | expos | curves | points | logicalSw | customFn | free`
-
-LS and SF have simpler access patterns than mixes/expos (no sorted-by-channel discipline, no parallel state arrays like `act[]`), making them easier to migrate.
-
----
-
-## GVars: Defer
-
-GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Making gvars dynamic means `FlightModeData` becomes variable-size, which cascades into the `flightModeData[9]` array. This is a deeper refactor with less payoff (~105-270 bytes). Defer to a separate effort.
-
----
-
-## Impact Analysis
-
-### YAML storage (radio/src/storage/yaml/)
-YAML already handles variable-length arrays conceptually. Changes:
-- Writer iterates `mixCount` entries instead of `MAX_MIXERS`
-- Reader counts entries during parse, grows arena as needed
-- `NO_IDX` attribute on mix/expo arrays already suppresses index prefixes
-- **Backward compatible**: old YAML files load fine (parser fills what's present). New files work in old firmware up to old limits.
-
-### Binary RTC backup (radio/src/storage/rtc_backup.cpp)
-Backup needs to serialize the arena content alongside ModelData. Two options depending on arena growth:
-- **Static arena (Phase 2)**: Backup struct includes `uint8_t arena[MODEL_ARENA_SIZE]` -- simple, predictable. Unused space is zeros which RLE-compress to nearly nothing.
-- **Growable arena (future)**: Backup serializes only `usedBytes` of arena content, prefixed by a length field. This keeps backup size proportional to actual model complexity, not arena capacity.
-
-```cpp
-// Phase 2 (static)
-PACK(struct RamBackupUncompressed {
-    ModelData model;
-    uint8_t arena[MODEL_ARENA_SIZE];
-    RadioData radio;
-});
+```
+Model memory: 2880 / 4096 bytes (70%)
+[████████████████████░░░░░░░░░]
 ```
 
-### Companion (companion/src/firmwares/)
-Companion has its own `ModelData` class with `CPN_MAX_MIXERS` etc. **No urgent change needed** -- YAML is the interface. Long-term, Companion could switch to `QVector<MixData>` for truly unlimited storage.
+Insert operations show a warning when arena is >90% full and refuse when 100%.
 
-### Simulator
-Uses firmware `ModelData` directly. Gets a large `MODEL_ARENA_SIZE` -- works transparently.
+### 3.6 STM32F4 arena sizing
 
-### Lua API (radio/src/lua/api_model.cpp)
-Uses `mixAddress()`, `expoAddress()`, `getFirstMix()`, `getMixesCount()` exclusively. Works unchanged. `model.getInfo()` could expose available arena space.
+The current STM32F4 arena (4096 B) is smaller than the max-size layout (4352 B). Options:
+1. Increase to 4608 B or 5120 B (uses ~1 KB more RAM but matches old capacity)
+2. Keep 4096 B — simple models fit, complex models get a "memory full" warning earlier than with old static arrays
+3. Define per-radio (some F4 radios have more headroom than others)
 
-### Parallel state arrays
-`mixState[MAX_MIXERS_HARD]`, `act[MAX_MIXERS_HARD]`, stack-local `activeMixes[MAX_MIXERS_HARD]` -- sized to the hard cap (e.g., 128). Only iterated up to `mixCount` / `expoCount` in the hot path.
+### 3.7 YAML `dyn` field serialization
 
----
+To persist the counts across save/load, `ModelDynData` should be serialized in the YAML file. Options:
+1. Serialize `dyn` as a regular YAML struct (simple, but changes file format)
+2. Don't serialize — recompute counts on every load (current approach, no format change)
+3. Serialize only as a comment/metadata field for debugging
 
-## Migration Strategy
+Option 2 (recompute) is preferred — it's robust and doesn't add format dependencies.
 
-### Phase 1: Abstract the Accessor Layer
+### 3.8 Files to modify
 
-**Goal**: All code goes through accessor functions. No direct `g_model.mixData[i]` access remains. Zero data layout change, zero risk.
-
-1. **Centralize expo operations**: Currently `insertExpo()`, `deleteExpo()`, `copyExpo()` are duplicated in GUI code (`gui/colorlcd/model/model_inputs.cpp` and `gui/common/stdlcd/model_inputs.cpp`). Move to a shared `expos.cpp` like `mixes.cpp` already exists.
-
-2. **Add missing accessors**: `curveHeaderAddress(idx)`, `curvePointsBase()`, `curveCount()`, `expoCount()`.
-
-3. **Replace all direct array access**: `g_model.mixData[i]` -> `mixAddress(i)`, `g_model.expoData[i]` -> `expoAddress(i)`, `g_model.curves[i]` -> `curveHeaderAddress(i)`.
-
-4. **Replace loop bounds**: `i < MAX_MIXERS` -> `i < getMixCount()` (already exists for mixes), add equivalent for expos.
-
-5. **Replace capacity checks**: `getMixCount() >= MAX_MIXERS` -> `canInsertMix()`.
-
-Key files:
-- `radio/src/mixes.cpp` -- already centralized, template for expos
-- `radio/src/curves.cpp` -- needs accessor additions
-- `radio/src/mixer.cpp` -- loop bounds (lines 190, 839, 1128)
-- `radio/src/edgetx.cpp` -- expo accessor (line 253), add curveHeader accessor
-- `radio/src/gui/colorlcd/model/model_inputs.cpp` -- move insert/delete/copy to shared code
-- `radio/src/gui/common/stdlcd/model_inputs.cpp` -- same
-- `radio/src/gui/colorlcd/model/input_edit.cpp` -- loop bound (line 272)
-- `radio/src/storage/storage_common.cpp` -- loop bound (line 136)
-
-**Validation**: All CHKSIZE() checks pass unchanged. YAML output is identical. All tests pass.
-
-### Phase 2: Introduce the Arena
-
-**Goal**: Move mixes, expos, curves, points, logical switches, and special functions into the arena. ModelData shrinks. Limits become flexible.
-
-1. Add `ModelDynData dyn` to `ModelData`. Remove `mixData[]`, `expoData[]`, `curves[]`, `points[]`, `logicalSw[]`, `customFn[]` fields.
-2. Add `g_modelArena[]` global, sized per radio via `MODEL_ARENA_SIZE`.
-3. Implement `ModelArena` class: `layout()`, `insertSlot()`, `deleteSlot()`, `freeBytes()`, `canInsert()`.
-4. Update all accessor functions to use arena offsets.
-5. Add accessors for LS and SF (same pattern as mixes/expos).
-6. Update YAML serialization for dynamic arrays.
-7. Update RTC backup to include arena.
-8. Update CHKSIZE() checks (ModelData gets smaller).
-9. Size `mixState[]`, `act[]` to `MAX_MIXERS_HARD`.
-10. Add "Model memory" indicator to GUI.
-11. Update `datacopy` code generator if applicable.
-
-Key files (in addition to Phase 1 files):
-- `radio/src/datastructs_private.h` -- core struct change
-- `radio/src/datastructs.h` -- CHKSIZE updates
-- `radio/src/globals.h` -- parallel array sizing
-- `radio/src/storage/rtc_backup.cpp` -- backup struct
-- `radio/src/storage/yaml/yaml_datastructs_funcs.cpp` -- serialization
-- Per-radio board headers -- `MODEL_ARENA_SIZE` definition
-
-### Phase 3 (Future): GVars + FlightModes
-
-Only if users need more than 15 gvars. Requires making `FlightModeData` variable-size.
+| File | Change |
+|------|--------|
+| `mixes.cpp` | Use `insertInSection`/`deleteFromSection`, update `dyn.mixCount` |
+| `expos.cpp` | Same pattern |
+| `customfn.cpp` | Same pattern |
+| `curves.cpp` | `moveCurve()` → arena point section manipulation |
+| `mixer.cpp` | Loop bounds → `getMixCount()`/`getExpoCount()` |
+| `storage/storage_common.cpp` | `postModelLoad()` → compute dyn counts, compact layout |
+| `model_init.cpp` | `setModelDefaults()` → set dyn counts for default template |
+| `model_arena.cpp` | `modelArenaInit()` → consider not pre-allocating max sizes |
+| GUI model setup pages | Add memory indicator |
+| `dataconstants.h` | Adjust `MODEL_ARENA_SIZE` for STM32F4 if needed |
 
 ---
 
-## Risks and Mitigations
+## Phase 4 (Future): GVars + FlightModes
 
-| Risk | Mitigation |
-|------|-----------|
-| Mixer real-time disruption | Phase 1 proves accessor abstraction before any layout change. No allocation in hot path. |
-| Cascading memmove on insert | Only during user edits (mixerTaskStop already called). <8 KB total, microseconds on ARM. |
-| RTC backup overflow | Unused arena compresses to ~zero with RLE. Worst case = today. |
-| YAML backward compat | YAML inherently variable-length. Old files load fine. New files in old firmware: truncated at old limits. |
-| Stack overflow from `activeMixes[MAX_MIXERS_HARD]` | 128 bytes on stack vs current 64. Verify stack headroom. |
-| Companion divergence | YAML is the interface. Companion unchanged initially. |
+GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Making gvars dynamic means `FlightModeData` becomes variable-size. Defer unless users need more than 15 gvars.
+
+## Phase 5 (Future): Growable Arena
+
+Replace the static arena buffer with a dynamically allocated one:
+- `attach(malloc(size), size)` or `attach(sdramAddr, largerSize)`
+- Arena can grow at runtime when a model is loaded that needs more space
+- Requires allocation outside the mixer hot path (during model load)
 
 ---
 
-## Verification
+## Known Issues
 
-- **Phase 1**: Run full test suite. Compare YAML output before/after (must be byte-identical). Verify CHKSIZE unchanged.
-- **Phase 2**: Unit tests for `ModelArena` (insert/delete at boundaries, arena full, empty model, max model). Integration test: load complex model YAML, verify round-trip. Verify RTC backup/restore. Test on real hardware (STM32F4 and H7). Stress test: fill arena to capacity, verify graceful "memory full" behavior.
+1. **modelslist `updateModelCell()`**: reads a temp model via `readModelYaml()` which writes to the global arena. Arena is saved/restored around the call, but the round-trip is wasteful. Could be replaced with a header-only read.
+
+2. **STM32F4 arena undersize**: `MODEL_ARENA_SIZE` (4096) < default layout (4352). Works because `modelArenaInit` doesn't bounds-check, but prevents using the arena for models that need all 64 of everything.
+
+3. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should be `MAX_CURVES_HARD` (64) if more curves are supported. Both are currently 64 so no issue yet, but should be updated for consistency.
