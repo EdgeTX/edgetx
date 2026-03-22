@@ -51,7 +51,7 @@ class SensorValue : public StaticText
 
     // TODO: check for telemetry available
     if (isTelemetryValue()) {
-      getvalue_t sensorVal = getValue(sourceRefToMixSrc(input->srcRaw));
+      getvalue_t sensorVal = getValue(input->srcRaw);
       if (lastSensorVal != sensorVal) {
         lastSensorVal = sensorVal;
         setText(std::to_string(lastSensorVal));
