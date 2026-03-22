@@ -33,6 +33,82 @@
 #include "switchchoice.h"
 #include "textedit.h"
 
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+
+// Defined in curves.cpp
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
+// Convert legacy swsrc_t back to SwitchRef
+static SwitchRef swSrcToSwitchRef(swsrc_t src)
+{
+  SwitchRef ref = {};
+  if (src == SWSRC_NONE) return ref;
+
+  bool inverted = (src < 0);
+  swsrc_t absSrc = inverted ? -src : src;
+
+  struct Range { swsrc_t first; swsrc_t last; uint8_t type; };
+  static const Range ranges[] = {
+    {SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, SWITCH_TYPE_SWITCH},
+    {SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SWITCH_TYPE_MULTIPOS},
+    {SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SWITCH_TYPE_TRIM},
+    {SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SWITCH_TYPE_LOGICAL},
+    {SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SWITCH_TYPE_FLIGHT_MODE},
+    {SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SWITCH_TYPE_SENSOR},
+  };
+
+  if (absSrc == SWSRC_ON) { ref.type = SWITCH_TYPE_ON; }
+  else if (absSrc == SWSRC_ONE) { ref.type = SWITCH_TYPE_ONE; }
+  else if (absSrc == SWSRC_TELEMETRY_STREAMING) { ref.type = SWITCH_TYPE_TELEMETRY; }
+  else if (absSrc == SWSRC_RADIO_ACTIVITY) { ref.type = SWITCH_TYPE_RADIO_ACTIVITY; }
+  else if (absSrc == SWSRC_TRAINER_CONNECTED) { ref.type = SWITCH_TYPE_TRAINER; }
+  else {
+    for (const auto& r : ranges) {
+      if (absSrc >= r.first && absSrc <= r.last) {
+        ref.type = r.type;
+        ref.index = absSrc - r.first;
+        break;
+      }
+    }
+  }
+
+  if (inverted) ref.flags = SWITCH_FLAG_INVERTED;
+  return ref;
+}
+
+// Convert legacy SourceNumVal rawValue to ValueOrSource
+static ValueOrSource legacyToValueOrSource(int32_t rawValue)
+{
+  ValueOrSource vos = {};
+  SourceNumVal v;
+  v.rawValue = rawValue;
+  if (v.isSource) {
+    vos.isSource = 1;
+    mixsrc_t src = v.value;
+    if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
+      vos.srcType = SOURCE_TYPE_GVAR;
+      vos.value = src - MIXSRC_FIRST_GVAR;
+    } else if (src >= MIXSRC_FIRST_INPUT && src <= MIXSRC_LAST_INPUT) {
+      vos.srcType = SOURCE_TYPE_INPUT;
+      vos.value = src - MIXSRC_FIRST_INPUT;
+    } else if (src >= MIXSRC_FIRST_STICK && src <= MIXSRC_LAST_STICK) {
+      vos.srcType = SOURCE_TYPE_STICK;
+      vos.value = src - MIXSRC_FIRST_STICK;
+    } else if (src >= MIXSRC_FIRST_CH && src <= MIXSRC_LAST_CH) {
+      vos.srcType = SOURCE_TYPE_CHANNEL;
+      vos.value = src - MIXSRC_FIRST_CH;
+    } else {
+      vos.srcType = 0;
+      vos.value = src;
+    }
+  } else {
+    vos.setNumeric(v.value);
+  }
+  return vos;
+}
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #if LANDSCAPE
@@ -78,7 +154,7 @@ class InputEditAdvanced : public Page
                         GET_VALUE(-input->trimSource),
                         SET_VALUE(input->trimSource, -newValue));
 
-    uint16_t srcRaw = input->srcRaw;
+    mixsrc_t srcRaw = sourceRefToMixSrc(input->srcRaw);
     c->setAvailableHandler([=](int value) {
       return value != TRIM_ON || srcRaw <= MIXSRC_LAST_STICK;
     });
@@ -123,10 +199,10 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
+        applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(line->srcRaw), x);
         return anas[line->chn];
       },
-      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
+      [=]() -> int { return getValue(sourceRefToMixSrc(expoAddress(index)->srcRaw)); });
 #else
   body->padAll(PAD_SMALL);
   buildBody(body);
@@ -136,10 +212,10 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
+        applyExpos(anas, e_perout_mode_inactive_flight_mode, sourceRefToMixSrc(line->srcRaw), x);
         return anas[line->chn];
       },
-      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
+      [=]() -> int { return getValue(sourceRefToMixSrc(expoAddress(index)->srcRaw)); });
 #endif
 }
 
@@ -179,9 +255,10 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto gvar =
-      new SourceNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
+      new SourceNumberEdit(line, -100, 100,
+                           [=]() -> int32_t { return valueOrSourceToLegacy(input->weight); },
                            [=](int32_t newValue) {
-                             input->weight = newValue;
+                             input->weight = legacyToValueOrSource(newValue);
                              updatePreview = true;
                              SET_DIRTY();
                            }, MIXSRC_FIRST);
@@ -191,8 +268,9 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_OFFSET);
   gvar = new SourceNumberEdit(line, -100, 100,
-                              GET_DEFAULT(input->offset), [=](int32_t newValue) {
-                                input->offset = newValue;
+                              [=]() -> int32_t { return valueOrSourceToLegacy(input->offset); },
+                              [=](int32_t newValue) {
+                                input->offset = legacyToValueOrSource(newValue);
                                 updatePreview = true;
                                 SET_DIRTY();
                               }, MIXSRC_FIRST);
@@ -202,9 +280,9 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
   new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_DEFAULT(input->swtch),
-                   [=](int newValue) {
-                     input->swtch = newValue;
+                   [=]() -> int16_t { return (int16_t)switchRefToSwSrc(input->swtch); },
+                   [=](int16_t newValue) {
+                     input->swtch = swSrcToSwitchRef((swsrc_t)newValue);
                      updatePreview = true;
                      SET_DIRTY();
                    });
@@ -212,13 +290,14 @@ void InputEditWindow::buildBody(Window* form)
   // Curve
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
+  mixsrc_t srcForCurve = sourceRefToMixSrc(input->srcRaw);
   auto param =
       new CurveParam(line, rect_t{}, &input->curve,
         [=](int32_t newValue) {
-          input->curve.value = newValue;
+          input->curve.value = legacyToValueOrSource(newValue);
           updatePreview = true;
           SET_DIRTY();
-        }, MIXSRC_FIRST, input->srcRaw);
+        }, MIXSRC_FIRST, srcForCurve);
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
 
@@ -239,29 +318,25 @@ void InputEditWindow::checkEvents()
   ExpoData* input = expoAddress(index);
 
   getvalue_t val;
-  SourceNumVal v;
 
-  v.rawValue = input->weight;
-  if (v.isSource) {
-    val = getValue(v.value);
+  if (input->weight.isSource) {
+    val = getValue(sourceRefToMixSrc(input->weight.toSourceRef()));
     if (val != lastWeightVal) {
       lastWeightVal = val;
       updatePreview = true;
     }
   }
 
-  v.rawValue = input->offset;
-  if (v.isSource) {
-    val = getValue(v.value);
+  if (input->offset.isSource) {
+    val = getValue(sourceRefToMixSrc(input->offset.toSourceRef()));
     if (val != lastOffsetVal) {
       lastOffsetVal = val;
       updatePreview = true;
     }
   }
 
-  v.rawValue = input->curve.value;
-  if (v.isSource) {
-    val = getValue(v.value);
+  if (input->curve.value.isSource) {
+    val = getValue(sourceRefToMixSrc(input->curve.value.toSourceRef()));
     if (val != lastCurveVal) {
       lastCurveVal = val;
       updatePreview = true;
@@ -272,7 +347,7 @@ void InputEditWindow::checkEvents()
   for (int i = 0; i < MAX_EXPOS; i += 1) {
     auto inp = expoAddress(i);
     if (inp->chn == input->chn) {
-      if (getSwitch(inp->swtch)) {
+      if (getSwitch(switchRefToSwSrc(inp->swtch))) {
         activeIdx = i;
         break;
       }

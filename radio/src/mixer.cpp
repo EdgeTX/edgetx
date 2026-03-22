@@ -84,7 +84,7 @@ mixsrc_t sourceRefToMixSrc(const SourceRef& ref)
   return result;
 }
 
-static swsrc_t switchRefToSwSrc(const SwitchRef& ref)
+swsrc_t switchRefToSwSrc(const SwitchRef& ref)
 {
   if (ref.isNone()) return SWSRC_NONE;
 

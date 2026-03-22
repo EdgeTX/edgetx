@@ -144,7 +144,7 @@ bool isChannelUsed(int channel)
 {
   for (int i=0; i<MAX_MIXERS; ++i) {
     MixData *md = mixAddress(i);
-    if (md->srcRaw == 0) return false;
+    if (md->srcRaw.isNone()) return false;
     if (md->destCh == channel) return true;
     if (md->destCh > channel) return false;
   }
@@ -157,7 +157,7 @@ int getChannelsUsed()
   int lastCh = -1;
   for (int i=0; i<MAX_MIXERS; ++i) {
     MixData *md = mixAddress(i);
-    if (md->srcRaw == 0) return result;
+    if (md->srcRaw.isNone()) return result;
     if (md->destCh != lastCh) { ++result; lastCh = md->destCh; }
   }
   return result;

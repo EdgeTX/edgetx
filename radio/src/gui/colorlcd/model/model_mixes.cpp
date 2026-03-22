@@ -31,6 +31,13 @@
 #include "mixes.h"
 #include "toggleswitch.h"
 
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+
+// Defined in curves.cpp
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 class MPlexIcon : public Window
@@ -102,8 +109,8 @@ class MixLineButton : public InputMixButtonBase
     check(isActive());
 
     const MixData& line = *mixAddress(index);
-    setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
-    setSource(line.srcRaw);
+    setWeight(valueOrSourceToLegacy(line.weight), MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
+    setSource(sourceRefToMixSrc(line.srcRaw));
 
     char tmp_str[64];
     char *s = tmp_str;
@@ -113,13 +120,13 @@ class MixLineButton : public InputMixButtonBase
       s = strAppend(s, line.name, LEN_EXPOMIX_NAME);
     }
 
-    if (line.swtch) {
+    if (!line.swtch.isNone()) {
       if (tmp_str[0]) s = strAppend(s, " ");
-      char* sw_pos = getSwitchPositionName(line.swtch);
+      char* sw_pos = getSwitchPositionName(switchRefToSwSrc(line.swtch));
       s = strAppend(s, sw_pos);
     }
 
-    if (line.curve.value != 0) {
+    if (line.curve.value.numericValue() != 0 || line.curve.value.isSource) {
       if (tmp_str[0]) s = strAppend(s, " ");
       getCurveRefString(s, sizeof(tmp_str) - (s - tmp_str), line.curve);
     }

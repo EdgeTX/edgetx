@@ -28,6 +28,53 @@
 #include "static.h"
 #include "switchchoice.h"
 
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+
+// Convert legacy mixsrc_t back to SourceRef
+static SourceRef mixSrcToSourceRef(mixsrc_t src)
+{
+  SourceRef ref = {};
+  if (src == MIXSRC_NONE) return ref;
+
+  bool inverted = (src < 0);
+  mixsrc_t absSrc = inverted ? -src : src;
+
+  struct Range { mixsrc_t first; mixsrc_t last; uint8_t type; };
+  static const Range ranges[] = {
+    {MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SOURCE_TYPE_INPUT},
+    {MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SOURCE_TYPE_LUA},
+    {MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SOURCE_TYPE_STICK},
+    {MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SOURCE_TYPE_POT},
+    {MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SOURCE_TYPE_TRIM},
+    {MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SOURCE_TYPE_SWITCH},
+    {MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SOURCE_TYPE_LOGICAL_SWITCH},
+    {MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SOURCE_TYPE_TRAINER},
+    {MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SOURCE_TYPE_CHANNEL},
+    {MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SOURCE_TYPE_GVAR},
+    {MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SOURCE_TYPE_TIMER},
+    {MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SOURCE_TYPE_TELEMETRY},
+    {MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SOURCE_TYPE_HELI},
+  };
+
+  if (absSrc == MIXSRC_MIN) { ref.type = SOURCE_TYPE_MIN; }
+  else if (absSrc == MIXSRC_MAX) { ref.type = SOURCE_TYPE_MAX; }
+  else if (absSrc == MIXSRC_TX_VOLTAGE) { ref.type = SOURCE_TYPE_TX_VOLTAGE; }
+  else if (absSrc == MIXSRC_TX_TIME) { ref.type = SOURCE_TYPE_TX_TIME; }
+  else {
+    for (const auto& r : ranges) {
+      if (absSrc >= r.first && absSrc <= r.last) {
+        ref.type = r.type;
+        ref.index = absSrc - r.first;
+        break;
+      }
+    }
+  }
+
+  if (inverted) ref.flags = SOURCE_FLAG_INVERTED;
+  return ref;
+}
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 class SensorValue : public StaticText
@@ -40,8 +87,9 @@ class SensorValue : public StaticText
 
   bool isTelemetryValue()
   {
-    return input->srcRaw >= MIXSRC_FIRST_TELEM &&
-           input->srcRaw <= MIXSRC_LAST_TELEM;
+    mixsrc_t src = sourceRefToMixSrc(input->srcRaw);
+    return src >= MIXSRC_FIRST_TELEM &&
+           src <= MIXSRC_LAST_TELEM;
   }
 
   void checkEvents() override
@@ -50,7 +98,7 @@ class SensorValue : public StaticText
 
     // TODO: check for telemetry available
     if (isTelemetryValue()) {
-      getvalue_t sensorVal = getValue(input->srcRaw);
+      getvalue_t sensorVal = getValue(sourceRefToMixSrc(input->srcRaw));
       if (lastSensorVal != sensorVal) {
         lastSensorVal = sensorVal;
         setText(std::to_string(lastSensorVal));
@@ -64,7 +112,8 @@ class SensorValue : public StaticText
   {
     LcdFlags prec = 0;
     if (isTelemetryValue()) {
-      uint8_t sensorIndex = (input->srcRaw - MIXSRC_FIRST_TELEM) / 3;
+      mixsrc_t src = sourceRefToMixSrc(input->srcRaw);
+      uint8_t sensorIndex = (src - MIXSRC_FIRST_TELEM) / 3;
       TelemetrySensor sensor = g_model.telemetrySensors[sensorIndex];
       if (sensor.prec > 0) {
         prec |= (sensor.prec == 1 ? PREC1 : PREC2);
@@ -90,9 +139,10 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   lv_obj_set_size(lvobj, lv_pct(100), LV_SIZE_CONTENT);
 
   new SourceChoice(
-      this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST, GET_DEFAULT(input->srcRaw),
-      [=](int32_t newValue) {
-        input->srcRaw = newValue;
+      this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST,
+      [=]() -> int16_t { return (int16_t)sourceRefToMixSrc(input->srcRaw); },
+      [=](int16_t newValue) {
+        input->srcRaw = mixSrcToSourceRef((mixsrc_t)newValue);
         update();
         SET_DIRTY();
       }, true);
@@ -117,8 +167,9 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   line->setWidth(SENSOR_W);
 
   new StaticText(line, rect_t{}, STR_SCALE);
+  mixsrc_t srcRawLegacy = sourceRefToMixSrc(input->srcRaw);
   new NumberEdit(line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
-                 maxTelemValue(input->srcRaw - MIXSRC_FIRST_TELEM + 1),
+                 maxTelemValue(srcRawLegacy - MIXSRC_FIRST_TELEM + 1),
                  GET_SET_DEFAULT(input->scale), sensor->getSensorPrec());
 
   update();
@@ -126,11 +177,12 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
 
 void InputSource::update()
 {
-  if (input->srcRaw > MIXSRC_LAST_STICK && input->trimSource == TRIM_ON) {
+  mixsrc_t src = sourceRefToMixSrc(input->srcRaw);
+  if (src > MIXSRC_LAST_STICK && input->trimSource == TRIM_ON) {
     input->trimSource = TRIM_OFF;
   }
 
   if (sensor_form)
-    sensor_form->show(input->srcRaw >= MIXSRC_FIRST_TELEM &&
-                      input->srcRaw <= MIXSRC_LAST_TELEM);
+    sensor_form->show(src >= MIXSRC_FIRST_TELEM &&
+                      src <= MIXSRC_LAST_TELEM);
 }
