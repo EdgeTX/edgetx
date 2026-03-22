@@ -506,16 +506,16 @@ bool getLogicalSwitch(uint8_t idx)
   LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
   bool result;
 
-  swsrc_t s = switchRefToSwSrc(ls->andsw);
-
-  if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
+  if (ls->func == LS_FUNC_NONE || (!ls->andsw.isNone() && !getSwitch(ls->andsw))) {
     if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
       // AND switch must not affect STICKY and EDGE processing
       context.lastValue = CS_LAST_VALUE_INIT;
     }
     result = false;
   }
-  else if ((s=lswFamily(ls->func)) == LS_FAMILY_BOOL) {
+  else {
+    uint8_t family = lswFamily(ls->func);
+    if (family == LS_FAMILY_BOOL) {
     bool res1 = getSwitch(ls->v1);
     bool res2 = getSwitch(ls->v2);
     switch (ls->func) {
@@ -531,19 +531,19 @@ bool getLogicalSwitch(uint8_t idx)
         break;
     }
   }
-  else if (s == LS_FAMILY_TIMER) {
+  else if (family == LS_FAMILY_TIMER) {
     result = (context.lastValue <= 0);
   }
-  else if (s == LS_FAMILY_STICKY) {
+  else if (family == LS_FAMILY_STICKY) {
     result = (context.lastValue & (1<<0));
   }
-  else if (s == LS_FAMILY_EDGE) {
+  else if (family == LS_FAMILY_EDGE) {
     result = (context.lastValue & (1<<0));
   }
   else {
     getvalue_t x = getValueForLogicalSwitch(ls->v1);
     getvalue_t y;
-    if (s == LS_FAMILY_COMP) {
+    if (family == LS_FAMILY_COMP) {
       y = getValueForLogicalSwitch(ls->v2);
 
       switch (ls->func) {
@@ -639,6 +639,7 @@ bool getLogicalSwitch(uint8_t idx)
       }
     }
   }
+  }
 
 DurationAndDelayProcessing:
 
@@ -681,92 +682,102 @@ DurationAndDelayProcessing:
   return result;
 }
 
-bool getSwitch(swsrc_t swtch, uint8_t flags)
+bool getSwitch(const SwitchRef& ref, uint8_t flags)
 {
+  if (ref.isNone()) return true;  // SWSRC_NONE → always on
+
   bool result;
+  switch (ref.type) {
+    case SWITCH_TYPE_ON:
+      result = true;
+      break;
 
-  if (swtch == SWSRC_NONE)
-    return true;
+    case SWITCH_TYPE_ONE:
+      result = !s_mixer_first_run_done;
+      break;
 
-  uint16_t cs_idx = abs(swtch);
-
-  if (cs_idx == SWSRC_ONE) {
-    result = !s_mixer_first_run_done;
-  }
-  else if (cs_idx == SWSRC_ON) {
-    result = true;
-  }
-#if defined(DEBUG_LATENCY)
-  else if (cs_idx == SWSRC_LATENCY_TOGGLE) {
-    result = latencyToggleSwitch;
-  }
-#endif
-  else if (cs_idx <= SWSRC_LAST_SWITCH) {
-    cs_idx -= SWSRC_FIRST_SWITCH;
+    case SWITCH_TYPE_SWITCH: {
+      uint16_t idx = ref.index;
 #if defined(FUNCTION_SWITCHES)
-    div_t qr = div(cs_idx, 3);
-    if (switchIsCustomSwitch(qr.quot)) {
-      auto value = g_model.cfsState(qr.quot);
-      result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
-    } else
+      div_t qr = div(idx, 3);
+      if (switchIsCustomSwitch(qr.quot)) {
+        auto value = g_model.cfsState(qr.quot);
+        result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
+      } else
 #endif
-    {
-      div_t qr = div(cs_idx, 3);
-      if (SWITCH_EXISTS(qr.quot)) {
-        auto sw_cfg = g_model.getSwitchType(qr.quot);
-        if (flags & GETSWITCH_MIDPOS_DELAY) {
-          result = SWITCH_POSITION(cs_idx);
-          // Handle 2POS switch installed in 3POS slot
-          if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
-            result = SWITCH_POSITION(cs_idx - 1);
+      {
+        div_t qr = div(idx, 3);
+        if (SWITCH_EXISTS(qr.quot)) {
+          auto sw_cfg = g_model.getSwitchType(qr.quot);
+          if (flags & GETSWITCH_MIDPOS_DELAY) {
+            result = SWITCH_POSITION(idx);
+            // Handle 2POS switch installed in 3POS slot
+            if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
+              result = SWITCH_POSITION(idx - 1);
+          } else {
+            result = switchState(idx);
+            // Handle 2POS switch installed in 3POS slot
+            if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
+              result = switchState(idx - 1);
+          }
         } else {
-          result = switchState(cs_idx);
-          // Handle 2POS switch installed in 3POS slot
-          if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
-            result = switchState(cs_idx - 1);
+          result = false;
         }
-      } else {
-         result = false;
       }
+      break;
     }
-  }
-  else if (cs_idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    result = POT_POSITION(cs_idx - SWSRC_FIRST_MULTIPOS_SWITCH);
-  }
-  else if (cs_idx <= SWSRC_LAST_TRIM) {
-    uint8_t idx = cs_idx - SWSRC_FIRST_TRIM;
-    idx = (inputMappingConvertMode(idx/2) << 1) + (idx & 1);
-    result = trimDown(idx);
-  }
-  else if (cs_idx == SWSRC_RADIO_ACTIVITY) {
-    result = (inactivity.counter < 2);
-  }
-  else if (cs_idx == SWSRC_TRAINER_CONNECTED) {
-    result = isTrainerConnected();
-  }
-  else if (cs_idx >= SWSRC_FIRST_SENSOR) {
-    result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
-  }
-  else if (cs_idx == SWSRC_TELEMETRY_STREAMING) {
-    result = TELEMETRY_STREAMING();
-  }
-  else if (cs_idx >= SWSRC_FIRST_FLIGHT_MODE) {
+
+    case SWITCH_TYPE_MULTIPOS:
+      result = POT_POSITION(ref.index);
+      break;
+
+    case SWITCH_TYPE_TRIM: {
+      uint8_t idx = ref.index;
+      idx = (inputMappingConvertMode(idx/2) << 1) + (idx & 1);
+      result = trimDown(idx);
+      break;
+    }
+
+    case SWITCH_TYPE_LOGICAL:
+      result = lswFm[mixerCurrentFlightMode].lsw[ref.index].state;
+      break;
+
+    case SWITCH_TYPE_FLIGHT_MODE: {
 #if defined(FLIGHT_MODES)
-    uint8_t idx = cs_idx - SWSRC_FIRST_FLIGHT_MODE;
-    if (flags & GETSWITCH_MIDPOS_DELAY)
-      result = (idx == flightModeTransitionLast);
-    else
-      result = (idx == mixerCurrentFlightMode);
+      uint8_t idx = ref.index;
+      if (flags & GETSWITCH_MIDPOS_DELAY)
+        result = (idx == flightModeTransitionLast);
+      else
+        result = (idx == mixerCurrentFlightMode);
 #else
-    result = false;
+      result = false;
 #endif
-  }
-  else {
-    cs_idx -= SWSRC_FIRST_LOGICAL_SWITCH;
-    result = lswFm[mixerCurrentFlightMode].lsw[cs_idx].state;
+      break;
+    }
+
+    case SWITCH_TYPE_TELEMETRY:
+      result = TELEMETRY_STREAMING();
+      break;
+
+    case SWITCH_TYPE_SENSOR:
+      result = !telemetryItems[ref.index].isOld();
+      break;
+
+    case SWITCH_TYPE_RADIO_ACTIVITY:
+      result = (inactivity.counter < 2);
+      break;
+
+    case SWITCH_TYPE_TRAINER:
+      result = isTrainerConnected();
+      break;
+
+    default:
+      result = false;
+      break;
   }
 
-  return swtch > 0 ? result : !result;
+  if (ref.isInverted()) result = !result;
+  return result;
 }
 
 uint8_t getXPotPosition(uint8_t idx)

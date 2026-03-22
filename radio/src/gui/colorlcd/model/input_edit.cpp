@@ -305,7 +305,7 @@ void InputEditWindow::checkEvents()
   for (int i = 0; i < MAX_EXPOS; i += 1) {
     auto inp = expoAddress(i);
     if (inp->chn == input->chn) {
-      if (getSwitch(switchRefToSwSrc(inp->swtch))) {
+      if (getSwitch(inp->swtch)) {
         activeIdx = i;
         break;
       }
