@@ -744,3 +744,5 @@ enum Functions {
   FUNC_MAX SKIP = FUNC_TEST
 #endif
 };
+
+static_assert(MIXSRC_LAST_TELEM < (1 << 9), "MIXSRC list above 9 bits");
