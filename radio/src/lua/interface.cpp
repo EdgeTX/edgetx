@@ -600,7 +600,7 @@ static const char * getScriptName(uint8_t idx)
   } else
 #endif
   if (ref <= SCRIPT_FUNC_LAST) {
-    return g_model.customFn[ref - SCRIPT_FUNC_FIRST].play.name;
+    return customFnAddress(ref - SCRIPT_FUNC_FIRST)->play.name;
   }
   else if (ref <= SCRIPT_GFUNC_LAST) {
     return g_eeGeneral.customFn[ref - SCRIPT_GFUNC_FIRST].play.name;
@@ -664,7 +664,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
   if (ref <= SCRIPT_FUNC_LAST) {
     if (modelSFEnabled()) {
       idx = ref - SCRIPT_FUNC_FIRST;
-      fn = &g_model.customFn[idx];
+      fn = customFnAddress(idx);
     } else {
       return false;
     }
@@ -1133,7 +1133,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           if (ref <= SCRIPT_FUNC_LAST) {
             if (!modelSFEnabled()) continue;
             idx = ref - SCRIPT_FUNC_FIRST;
-            fn = &g_model.customFn[idx];
+            fn = customFnAddress(idx);
             functionsContext = &modelFunctionsContext;
           } else {
             if (!radioGFEnabled()) continue;

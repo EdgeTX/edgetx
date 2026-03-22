@@ -34,7 +34,7 @@ uint8_t getCurvePoints(uint8_t index)
   if (index >= MAX_CURVES)
     return 0;
 
-  const auto& curve = g_model.curves[index];
+  const auto& curve = *curveHeaderAddress(index);
   if (curve.type == CURVE_TYPE_STANDARD)
     return STD_CURVE_POINTS(curve.points);
   else if (curve.type == CURVE_TYPE_CUSTOM)
@@ -46,27 +46,27 @@ uint8_t getCurvePoints(uint8_t index)
 void loadCurves()
 {
   bool showWarning= false;
-  int8_t * tmp = g_model.points;
+  int8_t * tmp = curvePointsBase();
   for (int i=0; i<MAX_CURVES; i++) {
-    switch (g_model.curves[i].type) {
+    switch (curveHeaderAddress(i)->type) {
       case CURVE_TYPE_STANDARD:
-        tmp += STD_CURVE_POINTS(g_model.curves[i].points);
+        tmp += STD_CURVE_POINTS(curveHeaderAddress(i)->points);
         break;
       case CURVE_TYPE_CUSTOM:
-        tmp += CUSTOM_CURVE_POINTS(g_model.curves[i].points);
+        tmp += CUSTOM_CURVE_POINTS(curveHeaderAddress(i)->points);
         break;
       default:
         TRACE("Wrong curve type! Fixing...");
-        g_model.curves[i].type = CURVE_TYPE_STANDARD;
-        tmp += STD_CURVE_POINTS(g_model.curves[i].points);
+        curveHeaderAddress(i)->type = CURVE_TYPE_STANDARD;
+        tmp += STD_CURVE_POINTS(curveHeaderAddress(i)->points);
         break;
     }
     // Older version did not check if we exceeded the array
-    int8_t * maxend = &g_model.points[MAX_CURVE_POINTS - 2*(MAX_CURVES-i-1)];
+    int8_t * maxend = curvePointsBase() + MAX_CURVE_POINTS - 2*(MAX_CURVES-i-1);
     if (tmp > maxend) {
       tmp = maxend;
-      g_model.curves[i].type=CURVE_TYPE_STANDARD;
-      g_model.curves[i].points=-3;
+      curveHeaderAddress(i)->type=CURVE_TYPE_STANDARD;
+      curveHeaderAddress(i)->points=-3;
       showWarning=true;
     }
     curveEnd[i] = tmp;
@@ -80,6 +80,11 @@ void loadCurves()
 int8_t * curveAddress(uint8_t idx)
 {
   return idx==0 ? g_model.points : curveEnd[idx-1];
+}
+
+int8_t * curvePointsBase()
+{
+  return g_model.points;
 }
 
 static void curveMove_unsafe(uint8_t index, int8_t shift)
@@ -102,7 +107,7 @@ static void curveMove_unsafe(uint8_t index, int8_t shift)
 
 bool moveCurve(uint8_t index, int8_t shift)
 {
-  if (curveEnd[MAX_CURVES-1] + shift > g_model.points + sizeof(g_model.points)) {
+  if (curveEnd[MAX_CURVES-1] + shift > curvePointsBase() + MAX_CURVE_POINTS) {
     AUDIO_WARNING2();
     return false;
   }
@@ -130,7 +135,7 @@ void curveClear(uint8_t index)
   if (index >= MAX_CURVES)
     return;
   
-  CurveHeader * curve = &g_model.curves[index];
+  CurveHeader * curve = curveHeaderAddress(index);
   int8_t * curvePoints = curveAddress(index);
 
   uint8_t nPoints = getCurvePoints(index);
@@ -150,7 +155,7 @@ void curveMirror(uint8_t index)
   if (index >= MAX_CURVES)
     return;
   
-  CurveHeader & curve = g_model.curves[index];
+  CurveHeader & curve = *curveHeaderAddress(index);
   int8_t * points = curveAddress(index);
 
   // we only mirror Y axis: X axis does not change
@@ -160,7 +165,7 @@ void curveMirror(uint8_t index)
 
 bool isCurveUsed(uint8_t index)
 {
-  return !is_memclear(&g_model.curves[index], sizeof(CurveHeader)) ||
+  return !is_memclear(curveHeaderAddress(index), sizeof(CurveHeader)) ||
          !is_memclear(curveAddress(index), DEFAULT_POINTS);
 }
 
@@ -233,7 +238,7 @@ int32_t compute_tangent(CurveHeader* crv, const int8_t* points, int i)
 */
 int16_t hermite_spline(int16_t x, uint8_t idx)
 {
-  CurveHeader &crv = g_model.curves[idx];
+  CurveHeader &crv = *curveHeaderAddress(idx);
   int8_t *points = curveAddress(idx);
   uint8_t count = STD_CURVE_POINTS(crv.points);
   bool custom = (crv.type == CURVE_TYPE_CUSTOM);
@@ -278,7 +283,7 @@ int16_t hermite_spline(int16_t x, uint8_t idx)
 
 int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
 {
-  CurveHeader& crv = g_model.curves[idx];
+  CurveHeader& crv = *curveHeaderAddress(idx);
   int8_t* points = curveAddress(idx);
   uint8_t count = STD_CURVE_POINTS(crv.points);
   bool custom = (crv.type == CURVE_TYPE_CUSTOM);
@@ -377,7 +382,7 @@ int applyCustomCurve(int x, uint8_t idx)
   if (idx >= MAX_CURVES)
     return 0;
 
-  CurveHeader & crv = g_model.curves[idx];
+  CurveHeader & crv = *curveHeaderAddress(idx);
   if (crv.smooth)
     return hermite_spline(x, idx);
   else
@@ -387,7 +392,7 @@ int applyCustomCurve(int x, uint8_t idx)
 point_t getPoint(uint8_t curveIndex, uint8_t index)
 {
   point_t result = {0, 0};
-  CurveHeader & crv = g_model.curves[curveIndex];
+  CurveHeader & crv = *curveHeaderAddress(curveIndex);
   int8_t * points = curveAddress(curveIndex);
   bool custom = (crv.type == CURVE_TYPE_CUSTOM);
   uint8_t count = STD_CURVE_POINTS(crv.points);

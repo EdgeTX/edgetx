@@ -251,11 +251,6 @@ FlightModeData *flightModeAddress(uint8_t idx)
   return &g_model.flightModeData[idx];
 }
 
-ExpoData *expoAddress(uint8_t idx )
-{
-  return &g_model.expoData[idx];
-}
-
 LimitData *limitAddress(uint8_t idx)
 {
   return &g_model.limitData[idx];
@@ -264,6 +259,16 @@ LimitData *limitAddress(uint8_t idx)
 USBJoystickChData *usbJChAddress(uint8_t idx)
 {
   return &g_model.usbJoystickCh[idx];
+}
+
+CustomFunctionData *customFnAddress(uint8_t idx)
+{
+  return &g_model.customFn[idx];
+}
+
+CurveHeader *curveHeaderAddress(uint8_t idx)
+{
+  return &g_model.curves[idx];
 }
 
 

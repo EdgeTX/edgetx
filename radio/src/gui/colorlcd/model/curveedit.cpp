@@ -69,7 +69,7 @@ class CurveEdit : public Curve
   void updatePreview()
   {
     clearPoints();
-    CurveHeader& curve = g_model.curves[index];
+    CurveHeader& curve = *curveHeaderAddress(index);
     for (uint8_t i = 0; i < 5 + curve.points; i++) {
       addPoint(getPoint(index, i));
     }
@@ -133,7 +133,7 @@ class CurveDataEdit : public Window
 
     memset(numEditX, 0, sizeof(numEditX));
 
-    CurveHeader& curve = g_model.curves[index];
+    CurveHeader& curve = *curveHeaderAddress(index);
     uint8_t curvePointsCount = 5 + curve.points;
 
     coord_t y = 0;
@@ -278,7 +278,7 @@ void CurveEditWindow::buildHeader(Window* window)
 
 void CurveEditWindow::buildBody(Window* window)
 {
-  CurveHeader& curve = g_model.curves[index];
+  CurveHeader& curve = *curveHeaderAddress(index);
   int8_t* points = curveAddress(index);
 
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
@@ -326,11 +326,11 @@ void CurveEditWindow::buildBody(Window* window)
   // Smooth
   auto smooth =
       new TextButton(iLine, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, STR_SMOOTH, [=]() {
-        g_model.curves[index].smooth = !g_model.curves[index].smooth;
+        curveHeaderAddress(index)->smooth = !curveHeaderAddress(index)->smooth;
         Messaging::send(Messaging::CURVE_EDIT);
-        return g_model.curves[index].smooth;
+        return curveHeaderAddress(index)->smooth;
       });
-  smooth->check(g_model.curves[index].smooth);
+  smooth->check(curveHeaderAddress(index)->smooth);
 
   iLine = form->newLine(iGrid);
   iLine->padAll(PAD_TINY);
@@ -341,8 +341,8 @@ void CurveEditWindow::buildBody(Window* window)
   new StaticText(iLine, rect_t{}, STR_TYPE);
   new Choice(
       iLine, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH, 0}, STR_CURVE_TYPES, 0, 1,
-      GET_DEFAULT(g_model.curves[index].type), [=](int32_t newValue) {
-        CurveHeader& curve = g_model.curves[index];
+      GET_DEFAULT(curveHeaderAddress(index)->type), [=](int32_t newValue) {
+        CurveHeader& curve = *curveHeaderAddress(index);
         if (newValue != curve.type) {
           for (int i = 1; i < 4 + curve.points; i++) {
             points[i] = calcRESXto100(applyCustomCurve(
@@ -367,9 +367,9 @@ void CurveEditWindow::buildBody(Window* window)
   // Points count
   auto edit = new Choice(
       iLine, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 2, 17,
-      GET_DEFAULT(g_model.curves[index].points + 5), [=](int32_t newValue) {
+      GET_DEFAULT(curveHeaderAddress(index)->points + 5), [=](int32_t newValue) {
         newValue -= 5;
-        CurveHeader& curve = g_model.curves[index];
+        CurveHeader& curve = *curveHeaderAddress(index);
         int newPoints[MAX_POINTS_PER_CURVE];
         newPoints[0] = points[0];
         newPoints[4 + newValue] = points[4 + curve.points];

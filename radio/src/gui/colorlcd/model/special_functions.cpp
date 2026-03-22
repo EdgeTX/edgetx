@@ -922,7 +922,7 @@ class SpecialFunctionLineButton : public FunctionLineButton
 {
  public:
   SpecialFunctionLineButton(Window *parent, const rect_t &rect, uint8_t index) :
-      FunctionLineButton(parent, rect, &g_model.customFn[index], index, "SF")
+      FunctionLineButton(parent, rect, customFnAddress(index), index, "SF")
   {
   }
 
@@ -957,7 +957,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
   CustomFunctionData *customFunctionData() const override
   {
-    return &g_model.customFn[index];
+    return customFnAddress(index);
   }
 
   bool isAssignableFunctionAvailable(int function) const override
@@ -978,7 +978,7 @@ SpecialFunctionsPage::SpecialFunctionsPage(const PageDef& pageDef) :
 CustomFunctionData *SpecialFunctionsPage::customFunctionData(
     uint8_t index) const
 {
-  return &g_model.customFn[index];
+  return customFnAddress(index);
 }
 
 FunctionEditPage *SpecialFunctionsPage::editPage(uint8_t index) const

@@ -68,7 +68,7 @@ void deleteMix(uint8_t idx)
   mixerTaskStop();
   MixData * mix = mixAddress(idx);
   memmove(mix, mix + 1, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
-  memclear(&g_model.mixData[MAX_MIXERS - 1], sizeof(MixData));
+  memclear(mixAddress(MAX_MIXERS - 1), sizeof(MixData));
   mixerTaskStart();
 
   // Update slow up/down array

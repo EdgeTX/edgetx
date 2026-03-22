@@ -21,30 +21,28 @@
 
 #pragma once
 
-enum BaseCurves {
-  CURVE_NONE,
-  CURVE_X_GT0,
-  CURVE_X_LT0,
-  CURVE_ABS_X,
-  CURVE_F_GT0,
-  CURVE_F_LT0,
-  CURVE_ABS_F,
-  CURVE_BASE
-};
+#include <stdint.h>
 
-void curveClear(uint8_t index);
-void curveMirror(uint8_t index);
-bool isCurveUsed(uint8_t index);
-void loadCurves();
-int8_t * curveAddress(uint8_t idx);
-int8_t * curvePointsBase();
-bool moveCurve(uint8_t index, int8_t shift);
-int8_t getCurveX(int noPoints, int point);
-void resetCustomCurveX(int8_t * points, int noPoints);
-point_t getPoint(uint8_t i);
-point_t getPoint(uint8_t curveIndex, uint8_t index);
-int applyCustomCurve(int x, uint8_t idx);
-int applyCurve(int x, CurveRef & curve);
-int applyCurrentCurve(int x);
+struct ExpoData;
 
-char *getCurveRefString(char *dest, size_t len, const CurveRef& curve);
+// Get a pointer to an expo/input line
+ExpoData* expoAddress(uint8_t idx);
+
+// Insert a new expo/input line at 'idx' for 'input'
+void insertExpo(uint8_t idx, uint8_t input);
+
+// Delete expo/input line at 'idx'
+void deleteExpo(uint8_t idx);
+
+// Duplicate expo/input line from 'source' to 'dest' position
+void copyExpo(uint8_t source, uint8_t dest, uint8_t input);
+
+// Move the expo/input line at 'idx' up or down
+// by one position and return the new index.
+uint8_t moveExpo(uint8_t idx, bool up);
+
+uint8_t getExpoCount();
+
+// Should only be called from storage
+// right after a model has been loaded
+void updateExpoCount();

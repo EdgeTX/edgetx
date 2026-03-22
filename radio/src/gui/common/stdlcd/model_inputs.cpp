@@ -20,30 +20,16 @@
  */
 
 #include "edgetx.h"
-#include "tasks/mixer_task.h"
+#include "expos.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 
 #define _STRING_MAX(x)                     "/" #x
 #define STRING_MAX(x)                     _STRING_MAX(x)
 
-uint8_t getExposCount()
-{
-  uint8_t count = 0;
-  uint8_t ch;
-  
-  for (int i=MAX_EXPOS-1 ; i>=0; i--) {
-    ch = EXPO_VALID(expoAddress(i));
-    if (ch != 0) {
-      count++;
-    }
-  }
-  return count;
-}
-
 bool reachExposLimit()
 {
-  if (getExposCount() >= MAX_EXPOS) {
+  if (getExpoCount() >= MAX_EXPOS) {
     POPUP_WARNING(STR_NOFREEEXPO);
     return true;
   }
@@ -52,93 +38,30 @@ bool reachExposLimit()
 
 // TODO avoid this global s_currCh on ARM boards ...
 int8_t s_currCh;
-void insertExpo(uint8_t idx)
+
+static void insertExpoLocal(uint8_t idx)
 {
-  mixerTaskStop();
-  ExpoData * expo = expoAddress(idx);
-  memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
-  memclear(expo, sizeof(ExpoData));
-  for (int i = s_currCh; i < INPUTSRC_LAST; i++) {
-    if (i > adcGetMaxInputs(ADC_INPUT_MAIN)) {
-      expo->srcRaw = MIXSRC_FIRST_STICK - 1 + i;
-    } else {
-      expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(i - 1);
-    }
-    if (isSourceAvailable(expo->srcRaw)) {
-      break;
-    }
-  }
-  expo->curve.type = CURVE_REF_EXPO;
-  expo->mode = 3; // pos+neg
-  expo->chn = s_currCh - 1;
-  expo->weight = 100;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
+  // s_currCh is 1-based input number
+  insertExpo(idx, s_currCh - 1);
 }
 
-void copyExpo(uint8_t idx)
+static void copyExpoLocal(uint8_t idx)
 {
-  mixerTaskStop();
-  ExpoData * expo = expoAddress(idx);
-  memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
+  uint8_t input = expoAddress(idx)->chn;
+  copyExpo(idx, idx, input);
 }
 
 bool swapExpos(uint8_t & idx, uint8_t up)
 {
-  ExpoData * x, * y;
-  int8_t tgt_idx = (up ? idx-1 : idx+1);
-  
-  x = expoAddress(idx);
-  
-  if (tgt_idx < 0) {
-    if (x->chn == 0)
-      return false;
-    x->chn--;
+  ExpoData* x = expoAddress(idx);
+  uint8_t chnBefore = x->chn;
+  uint8_t newIdx = moveExpo(idx, up);
+  if (newIdx != idx) {
+    idx = newIdx;
     return true;
   }
-  
-  if (tgt_idx == MAX_EXPOS) {
-    if (x->chn == MAX_INPUTS-1)
-      return false;
-    x->chn++;
-    return true;
-  }
-  
-  y = expoAddress(tgt_idx);
-  if (x->chn != y->chn || !EXPO_VALID(y)) {
-    if (up) {
-      if (x->chn>0) x->chn--;
-      else return false;
-    }
-    else {
-      if (x->chn<MAX_INPUTS-1) x->chn++;
-      else return false;
-    }
-    return true;
-  }
-  
-  mixerTaskStop();
-  memswap(x, y, sizeof(ExpoData));
-  mixerTaskStart();
-  
-  idx = tgt_idx;
-  return true;
-}
-
-void deleteExpo(uint8_t idx)
-{
-  mixerTaskStop();
-  ExpoData * expo = expoAddress(idx);
-  int input = expo->chn;
-  memmove(expo, expo+1, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
-  memclear(&g_model.expoData[MAX_EXPOS-1], sizeof(ExpoData));
-  if (!isInputAvailable(input)) {
-    memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
-  }
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
+  // moveExpo may have changed the channel even if index didn't change
+  return (x->chn != chnBefore);
 }
 
 void onDeleteExpoConfirm(const char * result)
@@ -158,7 +81,7 @@ void onExposMenu(const char * result)
     if (!reachExposLimit()) {
       s_currCh = chn;
       if (result == STR_INSERT_AFTER) { s_currIdx++; menuVerticalPosition++; }
-      insertExpo(s_currIdx);
+      insertExpoLocal(s_currIdx);
       pushMenu(menuModelExpoOne);
     }
   }
@@ -312,7 +235,7 @@ void menuModelExposAll(event_t event)
         if (s_copyMode) s_currCh = 0;
         if (s_currCh) {
           if (reachExposLimit()) break;
-          insertExpo(s_currIdx);
+          insertExpoLocal(s_currIdx);
           pushMenu(menuModelExpoOne);
           s_copyMode = 0;
         }
@@ -347,7 +270,7 @@ void menuModelExposAll(event_t event)
     if (s_copyTgtOfs==0 && s_copyMode==COPY_MODE) {
       // insert a mix on the same channel (just above / just below)
       if (!reachExposLimit()) {
-        copyExpo(s_currIdx);
+        copyExpoLocal(s_currIdx);
         if (IS_NEXT_EVENT(event))
           s_currIdx++;
         else if (sub-menuVerticalOffset >= 6)
@@ -370,7 +293,7 @@ void menuModelExposAll(event_t event)
     s_copyTgtOfs = next_ofs;
   }
   
-  lcdDrawNumber(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, getExposCount(), RIGHT);
+  lcdDrawNumber(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, getExpoCount(), RIGHT);
   lcdDrawText(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, STRING_MAX(MAX_EXPOS));
 
 #if LCD_DEPTH > 1

@@ -101,7 +101,7 @@ class MixLineButton : public InputMixButtonBase
   {
     check(isActive());
 
-    const MixData& line = g_model.mixData[index];
+    const MixData& line = *mixAddress(index);
     setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
     setSource(line.srcRaw);
 

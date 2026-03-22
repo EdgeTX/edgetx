@@ -25,80 +25,15 @@
 
 #include "dialog.h"
 #include "edgetx.h"
+#include "expos.h"
 #include "hal/adc_driver.h"
 #include "input_edit.h"
 #include "menu.h"
 #include "messaging.h"
-#include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-uint8_t getExposCount()
-{
-  uint8_t count = 0;
-  uint8_t ch;
-
-  for (int i = MAX_EXPOS - 1; i >= 0; i--) {
-    ch = EXPO_VALID(expoAddress(i));
-    if (ch != 0) {
-      count++;
-    }
-  }
-  return count;
-}
-
-// TODO: these functions need to be added to the generic API
-//       used by all radios, and be removed from UI code
-//
-void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
-{
-  mixerTaskStop();
-  ExpoData sourceExpo;
-  memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
-  ExpoData* expo = expoAddress(dest);
-  size_t trailingExpos = MAX_EXPOS - (dest + 1);
-  memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
-  memcpy(expo, &sourceExpo, sizeof(ExpoData));
-  expo->chn = input;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-void deleteExpo(uint8_t idx)
-{
-  mixerTaskStop();
-  ExpoData* expo = expoAddress(idx);
-  int input = expo->chn;
-  memmove(expo, expo + 1, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
-  memclear(&g_model.expoData[MAX_EXPOS - 1], sizeof(ExpoData));
-  if (!isInputAvailable(input)) {
-    memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
-  }
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-// TODO port: avoid global s_currCh on ARM boards (as done here)...
 int8_t s_currCh;
-
-void insertExpo(uint8_t idx, uint8_t input)
-{
-  mixerTaskStop();
-  ExpoData* expo = expoAddress(idx);
-  memmove(expo + 1, expo, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
-  memclear(expo, sizeof(ExpoData));
-  if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    expo->srcRaw = MIXSRC_FIRST_STICK + input;
-  } else {
-    expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(input);
-  }
-  expo->curve.type = CURVE_REF_EXPO;
-  expo->mode = 3;  // pos+neg
-  expo->chn = input;
-  expo->weight = 100;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
 
 class InputLineButton : public InputMixButtonBase
 {
@@ -113,7 +48,7 @@ class InputLineButton : public InputMixButtonBase
 
   void refresh() override
   {
-    const ExpoData& line = g_model.expoData[index];
+    const ExpoData& line = *expoAddress(index);
     setWeight(line.weight, -100, 100);
     setSource(line.srcRaw);
 
@@ -208,7 +143,7 @@ ModelInputsPage::ModelInputsPage(const PageDef& pageDef) : InputMixPageBase(page
 
 bool ModelInputsPage::reachExposLimit()
 {
-  if (getExposCount() >= MAX_EXPOS) {
+  if (getExpoCount() >= MAX_EXPOS) {
     new MessageDialog(STR_WARNING, STR_NOFREEEXPO);
     return true;
   }
