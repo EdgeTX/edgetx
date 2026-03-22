@@ -102,7 +102,7 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
     etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
   }
 
-  char* s = getSourceString(idx);
+  char* s = getSourceString(mixSrcToSourceRef(idx));
   if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
     lv_obj_add_state(source, LV_STATE_USER_1);
   else
@@ -319,7 +319,7 @@ bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
 
 void InputMixGroupBase::refresh()
 {
-  char* s = getSourceString(idx);
+  char* s = getSourceString(mixSrcToSourceRef(idx));
   if (getTextWidth(s, 0, FONT(STD)) > InputMixButtonBase::LN_X - PAD_TINY)
     lv_obj_add_state(label, LV_STATE_USER_1);
   else

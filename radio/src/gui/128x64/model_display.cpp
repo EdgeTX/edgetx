@@ -213,7 +213,7 @@ void menuModelDisplay(event_t event)
 
         if (IS_BARS_SCREEN(screenIndex)) {
           FrSkyBarData & bar = g_model.screens[screenIndex].bars[lineIndex];
-          drawSource(DISPLAY_COL1, y, bar.source, menuHorizontalPosition==0 ? attr : 0);
+          drawSource(DISPLAY_COL1, y, mixSrcToSourceRef(bar.source), menuHorizontalPosition==0 ? attr : 0);
           int16_t barMax, barMin;
           LcdFlags lf = LEFT;
           getMixSrcRange(bar.source, barMin, barMax, &lf);
@@ -256,7 +256,7 @@ void menuModelDisplay(event_t event)
             LcdFlags cellAttr = (menuHorizontalPosition==c ? attr : 0);
             source_t * value = &g_model.screens[screenIndex].lines[lineIndex].sources[c];
             const coord_t pos[] = {DISPLAY_COL1, DISPLAY_COL2, DISPLAY_COL3};
-            drawSource(pos[c], y, *value, cellAttr);
+            drawSource(pos[c], y, mixSrcToSourceRef(*value), cellAttr);
             if (cellAttr && s_editMode>0) {
               *value = checkIncDec(event, *value, 0, MIXSRC_LAST_TELEM, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable);
             }

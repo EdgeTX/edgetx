@@ -75,7 +75,7 @@ static void showTrims(uint8_t cnt, uint8_t first, coord_t y, LcdFlags attr, even
     drawTrimMode(MIXES_2ND_COLUMN + (t * 2 * FW), y, s_currIdx, t + first,
                   menuHorizontalPosition == t ? attr : 0);
     if (attr && menuHorizontalPosition == t)
-      drawSource(LCD_W, 0, t + first + MIXSRC_FIRST_TRIM, RIGHT);
+      drawSource(LCD_W, 0, {SOURCE_TYPE_TRIM, 0, (uint16_t)(t + first)}, RIGHT);
     if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
       trim_t& v = fm->trim[t + first];
       v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,

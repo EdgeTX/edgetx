@@ -569,7 +569,7 @@ void menuMainView(event_t event)
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
           getvalue_t sw =
               ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-          drawSwitch(x, y, sw, 0, false);
+          drawSwitch(x, y, swSrcToSwitchRef(sw), 0, false);
         }
         else {
           displaySwitch(17 + switch_display.row * 6,
@@ -604,7 +604,7 @@ void menuMainView(event_t event)
         lcdDrawSolidHorizontalLine(x, y+6, 4);
         lcdDrawSolidHorizontalLine(x, y+7, 4);
       }
-      else if (getSwitch(SWSRC_FIRST_LOGICAL_SWITCH+sw)) {
+      else if (getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)sw})) {
         lcdDrawFilledRect(x, y, 4, 8);
       }
       else {

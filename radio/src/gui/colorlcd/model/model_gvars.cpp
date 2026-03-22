@@ -319,7 +319,7 @@ class GVarEditWindow : public Page
       refreshTitle = false;
       lastFlightMode = curFM;
       lastGVar = fmData->gvars[index];
-      sprintf(label, "%s=", getSourceString(index + MIXSRC_FIRST_GVAR));
+      sprintf(label, "%s=", getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)index}));
       if (lastGVar > GVAR_MAX) {
         uint8_t fm = lastGVar - GVAR_MAX - 1;
         if (fm >= curFM) fm++;

@@ -138,23 +138,10 @@ void BitmapBuffer::drawSource(coord_t x, coord_t y, const SourceRef& ref,
   drawText(x, y, s, flags);
 }
 
-void BitmapBuffer::drawSource(coord_t x, coord_t y, mixsrc_t idx,
-                              LcdFlags flags)
-{
-  SourceRef ref = mixSrcToSourceRef(idx);
-  drawSource(x, y, ref, flags);
-}
-
 coord_t BitmapBuffer::drawSwitch(coord_t x, coord_t y, const SwitchRef& ref,
                                  LcdFlags flags)
 {
   return drawText(x, y, getSwitchPositionName(ref), flags);
-}
-
-coord_t BitmapBuffer::drawSwitch(coord_t x, coord_t y, int32_t idx,
-                                 LcdFlags flags)
-{
-  return drawText(x, y, getSwitchPositionName(idx), flags);
 }
 
 void BitmapBuffer::drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags flags)

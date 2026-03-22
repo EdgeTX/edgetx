@@ -244,7 +244,7 @@ void ModelInputsPage::newInput()
     if (!EXPO_VALID(line) || (line->chn > chn)) {
       uint8_t chnEnd = EXPO_VALID(line) ? line->chn : chn + 1;
       for (; chn < chnEnd; chn += 1) {
-        std::string name(getSourceString(chn + 1));
+        std::string name(getSourceString({SOURCE_TYPE_INPUT, 0, (uint16_t)chn}));
         menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
       }
     }
@@ -292,7 +292,7 @@ void ModelInputsPage::deleteInput(uint8_t index)
   if (!line) return;
 
   auto expo = expoAddress(index);
-  std::string s(getSourceString(group->getMixSrc()));
+  std::string s(getSourceString(mixSrcToSourceRef(group->getMixSrc())));
   s += " - ";
   if (expo->name[0]) {
     s += expo->name;

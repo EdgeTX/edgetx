@@ -222,7 +222,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
     // Channel name
     auto line = body->newLine(grid);
     if (ch == start_ch) line->padTop(PAD_TINY);
-    const char* ch_label = getSourceString(MIXSRC_FIRST_CH + ch);
+    const char* ch_label = getSourceString({SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch});
     new StaticText(line, rect_t{}, ch_label);
 
     // Channel value

@@ -50,7 +50,7 @@ void SwitchWarnDialog::checkEvents()
         swarnstate_t swState = g_model.getSwitchStateForWarning(i);
         if (warnState != swState) {
           warn_txt +=
-              getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + warnState - 1);
+              getSwitchPositionName({SWITCH_TYPE_SWITCH, 0, (uint16_t)(i * 3 + warnState - 1)});
           warn_txt += " ";
         }
       }

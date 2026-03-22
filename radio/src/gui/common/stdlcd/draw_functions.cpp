@@ -622,13 +622,6 @@ void drawSource(coord_t x, coord_t y, const SourceRef& ref, LcdFlags att)
   }
 }
 
-// Backward-compatible mixsrc_t overload
-void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
-{
-  SourceRef ref = mixSrcToSourceRef(idx);
-  drawSource(x, y, ref, att);
-}
-
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr)
 {
   if (value)

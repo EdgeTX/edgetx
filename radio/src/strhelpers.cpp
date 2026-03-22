@@ -393,7 +393,7 @@ char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
     if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
       getGVarString(dest, (v.value < 0) ? v.value + MIXSRC_FIRST_GVAR - 1 : v.value - MIXSRC_FIRST_GVAR);
     } else {
-      const char* s = getSourceString(v.value);
+      const char* s = getSourceString(mixSrcToSourceRef(v.value));
       strncpy(dest, s, len);
     }
   } else {
@@ -540,64 +540,6 @@ char *getSwitchPositionName(const SwitchRef& ref)
   return getSwitchPositionName(_static_str_buffer, ref);
 }
 
-char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
-{
-  if (idx == SWSRC_NONE) {
-    return strcpy(dest, STR_EMPTY);
-  } else if (idx == SWSRC_OFF) {
-    return getStringAtIndex(dest, STR_OFFON, 0);
-  }
-
-  char *s = dest;
-  if (idx < 0) {
-    *s++ = '!';
-    idx = -idx;
-  }
-
-  if (idx <= SWSRC_LAST_SWITCH) {
-    div_t swinfo = switchInfo(idx);
-    s = getSwitchName(s, swinfo.quot, defaultOnly);
-    s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
-    *s = '\0';
-  } else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    div_t swinfo =
-        div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
-    s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
-  } else if (idx <= SWSRC_LAST_TRIM) {
-    idx -= SWSRC_FIRST_TRIM;
-    // TODO: 't' or CHAR_TRIM
-    s = strAppend(s, getTrimLabel(idx / 2));
-    *s++ = idx & 1 ? '+' : '-';
-    *s = '\0';
-  } else if (idx <= SWSRC_LAST_LOGICAL_SWITCH) {
-    *s++ = 'L';
-    strAppendUnsigned(s, idx - SWSRC_FIRST_LOGICAL_SWITCH + 1, 2);
-  } else if (idx <= SWSRC_ONE) {
-    idx -= SWSRC_ON;
-    getStringAtIndex(s, STR_ON_ONE_SWITCHES, idx);
-  } else if (idx <= SWSRC_LAST_FLIGHT_MODE) {
-    strAppendStringWithIndex(s, STR_FM, idx - SWSRC_FIRST_FLIGHT_MODE);
-  } else if (idx == SWSRC_TELEMETRY_STREAMING) {
-    strcpy(s, "Tele");
-  } else if (idx == SWSRC_RADIO_ACTIVITY) {
-    strcpy(s, "Act");
-  } else if (idx == SWSRC_TRAINER_CONNECTED) {
-    strcpy(s, "Trn");
-  }
-#if defined(DEBUG_LATENCY)
-  else if (idx == SWSRC_LATENCY_TOGGLE) {
-    strcpy(s, "Ltc");
-  }
-#endif
-  else {
-    strncpy(s, g_model.telemetrySensors[idx - SWSRC_FIRST_SENSOR].label,
-            TELEM_LABEL_LEN);
-    s[TELEM_LABEL_LEN] = '\0';
-  }
-
-  return dest;
-}
-
 bool switchCanHaveCustomName(swsrc_t idx)
 {
   return (idx >= SWSRC_FIRST_SWITCH && idx <= SWSRC_LAST_SWITCH);
@@ -617,11 +559,11 @@ int getSwitchIndex(const char* name, bool all)
       char* s;
       if (switchCanHaveCustomName(idx)) {
         // Check default name
-        s = getSwitchPositionName(idx, true);
+        s = getSwitchPositionName(_static_str_buffer, swSrcToSwitchRef(idx));
         if (!strcasecmp(s, name))
           return negate ? -idx : idx;
       }
-      s = getSwitchPositionName(idx);
+      s = getSwitchPositionName(swSrcToSwitchRef(idx));
       if (!strcasecmp(s, name))
         return negate ? -idx : idx;
     }
@@ -867,7 +809,7 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
 #endif
 
     case SOURCE_TYPE_LOGICAL_SWITCH:
-      getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
+      getSwitchPositionName(dest, SwitchRef{SWITCH_TYPE_LOGICAL, 0, (uint16_t)idx});
       break;
 
     case SOURCE_TYPE_TRAINER:
@@ -936,14 +878,6 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
   return destRef;
 }
 
-// Backward-compatible mixsrc_t template overload
-template <size_t L>
-char *getSourceString(char (&dest)[L], mixsrc_t idx, bool defaultOnly)
-{
-  SourceRef ref = mixSrcToSourceRef(idx);
-  return getSourceString(dest, ref, defaultOnly);
-}
-
 bool sourceCanHaveCustomName(mixsrc_t idx)
 {
   return (idx >= MIXSRC_FIRST_INPUT && idx <= MIXSRC_LAST_INPUT) ||
@@ -958,7 +892,7 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
 
 bool matchSource(const char* name, mixsrc_t idx, bool defaultOnly)
 {
-  char *s = getSourceString(idx, defaultOnly);
+  char *s = getSourceString(mixSrcToSourceRef(idx), defaultOnly);
   if (strcasecmp(s, name) == 0)
     return true;
   // Check for names starting with CHAR_xxx symbol strings
@@ -987,16 +921,9 @@ int getSourceIndex(const char* name, bool all)
 // pre-instantiate for use from external
 // all other instantiations are done from this file
 template char *getSourceString<16>(char (&dest)[16], const SourceRef& ref, bool defaultOnly);
-template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx, bool defaultOnly);
 
 char *getSourceString(const SourceRef& ref, bool defaultOnly)
 {
-  return getSourceString(_static_str_buffer, ref, defaultOnly);
-}
-
-char *getSourceString(mixsrc_t idx, bool defaultOnly)
-{
-  SourceRef ref = mixSrcToSourceRef(idx);
   return getSourceString(_static_str_buffer, ref, defaultOnly);
 }
 
@@ -1013,11 +940,6 @@ char *getTimerString(int32_t tme, TimerOptions timerOptions)
 char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
   return getFormattedTimerString(dest, tme, timerOptions);
-}
-
-char *getSwitchPositionName(swsrc_t idx, bool defaultOnly)
-{
-  return getSwitchPositionName(_static_str_buffer, idx, defaultOnly);
 }
 
 char *getGVarString(int idx) { return getGVarString(_static_str_buffer, idx); }

@@ -83,7 +83,7 @@ class LogicalSwitchEditPage : public Page
   {
     header->setTitle(STR_MENULOGICALSWITCHES);
     headerSwitchName = header->setTitle2(
-        getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
+        getSwitchPositionName({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index}));
 
     etx_txt_color(headerSwitchName->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
                   ETX_STATE_LS_ACTIVE);
@@ -422,7 +422,7 @@ class LogicalSwitchButton : public ListLineButton
     uint8_t lsFamily = lswFamily(ls->func);
 
     lv_label_set_text(
-        lsName, getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
+        lsName, getSwitchPositionName({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index}));
     lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
     // CSW params - V1
@@ -430,7 +430,7 @@ class LogicalSwitchButton : public ListLineButton
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
-        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
+        lv_label_set_text(lsV1, getSwitchPositionName(swSrcToSwitchRef(ls->v1)));
         break;
       case LS_FAMILY_TIMER:
         lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1),
@@ -438,7 +438,7 @@ class LogicalSwitchButton : public ListLineButton
                                     .c_str());
         break;
       default: {
-        char* s = getSourceString(ls->v1);
+        char* s = getSourceString(mixSrcToSourceRef(ls->v1));
         if (getTextWidth(s, 0, FONT(STD)) > 88)
           lv_obj_add_state(lsV1, ETX_STATE_V1_SMALL_FONT);
         else
@@ -452,7 +452,7 @@ class LogicalSwitchButton : public ListLineButton
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
-        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
+        lv_label_set_text(lsV2, getSwitchPositionName(swSrcToSwitchRef(ls->v2)));
         break;
       case LS_FAMILY_EDGE:
         getsEdgeDelayParam(s, ls);
@@ -464,7 +464,7 @@ class LogicalSwitchButton : public ListLineButton
                                     .c_str());
         break;
       case LS_FAMILY_COMP:
-        lv_label_set_text(lsV2, getSourceString(ls->v2));
+        lv_label_set_text(lsV2, getSourceString(mixSrcToSourceRef(ls->v2)));
         break;
       default:
         lv_label_set_text(
@@ -558,7 +558,7 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
     LogicalSwitchData* ls = lswAddress(i);
     if (ls->func == LS_FUNC_NONE) {
       std::string ch_name(
-          getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + i));
+          getSwitchPositionName({SWITCH_TYPE_LOGICAL, 0, (uint16_t)i}));
       menu->addLineBuffered(ch_name.c_str(), [=]() {
         if (pasteLS) {
           *ls = clipboard.data.csw;

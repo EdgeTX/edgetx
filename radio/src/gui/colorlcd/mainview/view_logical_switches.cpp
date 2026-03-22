@@ -126,7 +126,7 @@ class LogicalSwitchDisplayFooter : public Window
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
-        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
+        lv_label_set_text(lsV1, getSwitchPositionName(swSrcToSwitchRef(ls->v1)));
         break;
       case LS_FAMILY_TIMER:
         lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1),
@@ -134,7 +134,7 @@ class LogicalSwitchDisplayFooter : public Window
                                     .c_str());
         break;
       default:
-        lv_label_set_text(lsV1, getSourceString(ls->v1));
+        lv_label_set_text(lsV1, getSourceString(mixSrcToSourceRef(ls->v1)));
         break;
     }
 
@@ -143,7 +143,7 @@ class LogicalSwitchDisplayFooter : public Window
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
-        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
+        lv_label_set_text(lsV2, getSwitchPositionName(swSrcToSwitchRef(ls->v2)));
         break;
       case LS_FAMILY_EDGE:
         getsEdgeDelayParam(s, ls);
@@ -155,7 +155,7 @@ class LogicalSwitchDisplayFooter : public Window
                                     .c_str());
         break;
       case LS_FAMILY_COMP:
-        lv_label_set_text(lsV2, getSourceString(ls->v2));
+        lv_label_set_text(lsV2, getSourceString(mixSrcToSourceRef(ls->v2)));
         break;
       default:
         lv_label_set_text(

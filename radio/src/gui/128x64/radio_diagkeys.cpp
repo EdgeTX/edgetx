@@ -158,7 +158,7 @@ void menuRadioDiagKeys(event_t event)
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
         getvalue_t sw =
             ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-        drawSwitch(sw_x, sw_y, sw, 0, false);
+        drawSwitch(sw_x, sw_y, swSrcToSwitchRef(sw), 0, false);
         if (i == 5) {
           sw_x = 11 * FW - 5;
           sw_y = MENU_HEADER_HEIGHT + 1;

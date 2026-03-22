@@ -127,7 +127,7 @@ void menuModelDisplay(event_t event)
 
       case ITEM_DISPLAY_TOP_BAR_VOLTAGE:
         lcdDrawTextIndented(y, STR_VOLTAGE);
-        drawSource(DISPLAY_COL2, y, g_model.voltsSource ? MIXSRC_FIRST_TELEM+3*(g_model.voltsSource-1) : 0, attr);
+        drawSource(DISPLAY_COL2, y, g_model.voltsSource ? SourceRef{SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3*(g_model.voltsSource-1))} : SourceRef{}, attr);
         if (attr) {
           g_model.voltsSource = checkIncDec(event, g_model.voltsSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVoltsSensor);
         }
@@ -135,7 +135,7 @@ void menuModelDisplay(event_t event)
 
       case ITEM_DISPLAY_TOP_BAR_ALTITUDE:
         lcdDrawTextIndented(y, STR_ALTITUDE);
-        drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? MIXSRC_FIRST_TELEM+3*(g_model.altitudeSource-1) : 0, attr);
+        drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? SourceRef{SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3*(g_model.altitudeSource-1))} : SourceRef{}, attr);
         if (attr) {
           g_model.altitudeSource = checkIncDec(event, g_model.altitudeSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isAltSensor);
         }
@@ -216,7 +216,7 @@ void menuModelDisplay(event_t event)
 
         if (IS_BARS_SCREEN(screenIndex)) {
           FrSkyBarData & bar = g_model.screens[screenIndex].bars[lineIndex];
-          drawSource(DISPLAY_COL1, y, bar.source, menuHorizontalPosition == 0 ? attr : 0);
+          drawSource(DISPLAY_COL1, y, mixSrcToSourceRef(bar.source), menuHorizontalPosition == 0 ? attr : 0);
           int16_t barMax, barMin;
           LcdFlags lf = LEFT;
           getMixSrcRange(bar.source, barMin, barMax, &lf);
@@ -259,7 +259,7 @@ void menuModelDisplay(event_t event)
             LcdFlags cellAttr = (menuHorizontalPosition==c ? attr : 0);
             source_t * value = &g_model.screens[screenIndex].lines[lineIndex].sources[c];
             const coord_t pos[] = {DISPLAY_COL1, DISPLAY_COL2, DISPLAY_COL3};
-            drawSource(pos[c], y, *value, cellAttr);
+            drawSource(pos[c], y, mixSrcToSourceRef(*value), cellAttr);
             if (cellAttr && s_editMode>0) {
               *value = checkIncDec(event, *value, 0, MIXSRC_LAST_TELEM, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable);
             }

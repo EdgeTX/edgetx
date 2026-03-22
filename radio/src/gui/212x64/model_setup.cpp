@@ -803,8 +803,7 @@ void menuModelSetup(event_t event)
               MAX_POTS + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
-        uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, idx, attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN, y, throttleSource2SourceRef(g_model.thrTraceSrc), attr);
         break;
       }
 
@@ -816,7 +815,7 @@ void menuModelSetup(event_t event)
         lcdDrawTextIndented(y, STR_TTRIM_SW);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN, y, mixSrcToSourceRef(g_model.getThrottleStickTrimSource()), attr);
         break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:

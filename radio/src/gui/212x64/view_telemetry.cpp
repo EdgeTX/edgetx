@@ -69,7 +69,7 @@ void displayGaugesTelemetryScreen(TelemetryScreenData & screen)
     }
     if (source) {
       int y = barHeight+6+i*(barHeight+6);
-      drawSource(0, y+barHeight-5, source, 0);
+      drawSource(0, y+barHeight-5, mixSrcToSourceRef(source), 0);
       lcdDrawRect(BAR_LEFT, y, BAR_WIDTH+1, barHeight+2);
       getvalue_t value = getValue(source);
       drawSourceValue(BAR_LEFT+2+BAR_WIDTH, y+barHeight-5, source, LEFT);
@@ -130,14 +130,14 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           if (g_model.gvars[field - MIXSRC_FIRST_GVAR].name[0])
             lcdDrawSizedText(pos[j], 1+FH+2*FH*i,g_model.gvars[field - MIXSRC_FIRST_GVAR].name, LEN_GVAR_NAME, 0);
           else
-            drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+            drawSource(pos[j], 1+FH+2*FH*i, mixSrcToSourceRef(field), 0);
         }
         else if (field >= MIXSRC_FIRST_TELEM && isGPSSensor(1+(field-MIXSRC_FIRST_TELEM)/3) && telemetryItems[(field-MIXSRC_FIRST_TELEM)/3].isAvailable()) {
           // we don't display GPS name, no space for it, but we shift x by some pixel to allow it to fit on max coord
           x -=2;
         }
         else {
-          drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+          drawSource(pos[j], 1+FH+2*FH*i, mixSrcToSourceRef(field), 0);
         }
 
         if (field >= MIXSRC_FIRST_TELEM) {

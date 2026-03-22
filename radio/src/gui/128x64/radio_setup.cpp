@@ -817,7 +817,7 @@ void menuRadioSetup(event_t event)
           auto mode = reusableBuffer.generalSettings.stickMode;
           for (uint8_t i = 0; i < controls; i++) {
             source_t src = MIXSRC_FIRST_STICK + inputMappingConvertMode(mode, i);
-            drawSource((5 * FW - 3) + i * (4 * FW + 2), y, src, 0);
+            drawSource((5 * FW - 3) + i * (4 * FW + 2), y, mixSrcToSourceRef(src), 0);
           }
         }
         if (attr && s_editMode > 0) {
