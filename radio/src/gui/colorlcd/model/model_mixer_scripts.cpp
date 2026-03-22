@@ -131,9 +131,9 @@ class ScriptEditWindow : public Page
                           GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))
               ->setDefault(si.def);
         } else {
-          new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                           [=] { return sourceRefToMixSrc(sd->inputs[i].source); },
-                           [=](int32_t newValue) { sd->inputs[i].source = mixSrcToSourceRef(newValue); SET_DIRTY(); });
+          new SourceChoice(line, rect_t{},
+                           [=]() { return sd->inputs[i].source; },
+                           [=](SourceRef ref) { sd->inputs[i].source = ref; SET_DIRTY(); });
         }
       }
     }

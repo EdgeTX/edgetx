@@ -116,8 +116,10 @@ class LogicalSwitchEditPage : public Page
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         break;
       case LS_FAMILY_COMP:
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_SET_DEFAULT(cs->v1), true);
+        new SourceChoice(line, rect_t{},
+                         [=]() { return mixSrcToSourceRef(cs->v1); },
+                         [=](SourceRef ref) { cs->v1 = sourceRefToMixSrc(ref); SET_DIRTY(); },
+                         true);
         break;
       case LS_FAMILY_TIMER:
         timer =
@@ -128,9 +130,10 @@ class LogicalSwitchEditPage : public Page
         });
         break;
       default:
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_DEFAULT(cs->v1), [=](int32_t newValue) {
-                           cs->v1 = newValue;
+        new SourceChoice(line, rect_t{},
+                         [=]() { return mixSrcToSourceRef(cs->v1); },
+                         [=](SourceRef ref) {
+                           cs->v1 = sourceRefToMixSrc(ref);
                            if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
                              validateLSV2Range(cs, v2_min, v2_max, nullptr);
@@ -185,8 +188,10 @@ class LogicalSwitchEditPage : public Page
         });
       } break;
       case LS_FAMILY_COMP:
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_SET_DEFAULT(cs->v2), true);
+        new SourceChoice(line, rect_t{},
+                         [=]() { return mixSrcToSourceRef(cs->v2); },
+                         [=](SourceRef ref) { cs->v2 = sourceRefToMixSrc(ref); SET_DIRTY(); },
+                         true);
         break;
       case LS_FAMILY_TIMER:
         timer =

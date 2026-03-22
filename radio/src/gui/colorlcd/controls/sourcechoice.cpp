@@ -25,73 +25,269 @@
 #include "menutoolbar.h"
 #include "edgetx.h"
 
+uint16_t SourceChoice::sourceTypeCount(uint8_t type)
+{
+  switch (type) {
+    case SOURCE_TYPE_NONE:
+      return 1;
+    case SOURCE_TYPE_INPUT:
+      return MAX_INPUTS;
+#if defined(LUA_INPUTS)
+    case SOURCE_TYPE_LUA:
+      return MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS;
+#endif
+    case SOURCE_TYPE_STICK:
+      return MAX_STICKS;
+    case SOURCE_TYPE_POT:
+      return MAX_POTS;
+#if defined(IMU)
+    case SOURCE_TYPE_IMU:
+      return 2;
+#endif
+#if defined(PCBHORUS)
+    case SOURCE_TYPE_SPACEMOUSE:
+      return 6;
+#endif
+    case SOURCE_TYPE_MIN:
+      return 1;
+    case SOURCE_TYPE_MAX:
+      return 1;
+#if defined(HELI)
+    case SOURCE_TYPE_HELI:
+      return 3;
+#endif
+    case SOURCE_TYPE_TRIM:
+      return MAX_TRIMS;
+    case SOURCE_TYPE_SWITCH:
+      return MAX_SWITCHES;
+#if defined(FUNCTION_SWITCHES)
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP:
+      return NUM_FUNCTIONS_GROUPS;
+#endif
+    case SOURCE_TYPE_LOGICAL_SWITCH:
+      return MAX_LOGICAL_SWITCHES;
+    case SOURCE_TYPE_TRAINER:
+      return MAX_TRAINER_CHANNELS;
+    case SOURCE_TYPE_CHANNEL:
+      return MAX_OUTPUT_CHANNELS;
+#if defined(GVARS)
+    case SOURCE_TYPE_GVAR:
+      return MAX_GVARS;
+#endif
+    case SOURCE_TYPE_TX_VOLTAGE:
+      return 1;
+    case SOURCE_TYPE_TX_TIME:
+      return 1;
+    case SOURCE_TYPE_TX_GPS:
+      return 1;
+    case SOURCE_TYPE_TIMER:
+      return MAX_TIMERS;
+    case SOURCE_TYPE_TELEMETRY:
+      return 3 * MAX_TELEMETRY_SENSORS;
+#if defined(LUMINOSITY_SENSOR)
+    case SOURCE_TYPE_LIGHT:
+      return 1;
+#endif
+    default:
+      return 0;
+  }
+}
+
+int SourceChoice::findEntry(SourceRef ref) const
+{
+  // Strip inversion for lookup
+  SourceRef lookup = ref;
+  lookup.flags &= ~SOURCE_FLAG_INVERTED;
+
+  for (int i = 0; i < (int)entries.size(); i++) {
+    if (entries[i].type == lookup.type && entries[i].index == lookup.index)
+      return i;
+  }
+  return -1;
+}
+
+void SourceChoice::buildEntries()
+{
+  entries.clear();
+  typeGroups.clear();
+
+  for (uint8_t t = SOURCE_TYPE_NONE; t < SOURCE_TYPE_LAST; t++) {
+    uint16_t count = sourceTypeCount(t);
+    if (count == 0) continue;
+
+    int groupStart = (int)entries.size();
+    bool hasEntries = false;
+
+    for (uint16_t i = 0; i < count; i++) {
+      SourceRef ref = {t, 0, i};
+
+      // Check availability using MIXSRC-based isSourceAvailable
+      mixsrc_t mixsrc = sourceRefToMixSrc(ref);
+      if (!isSourceAvailable(mixsrc)) continue;
+
+      // Check custom SourceRef-based filter
+      if (isRefAvailable && !isRefAvailable(ref)) continue;
+
+      entries.push_back(ref);
+      hasEntries = true;
+    }
+
+    if (hasEntries) {
+      typeGroups.push_back({t, groupStart, (int)entries.size() - 1});
+    }
+  }
+
+  // Update Choice's vmin/vmax to match entry indices
+  vmin = 0;
+  vmax = entries.empty() ? 0 : (int)entries.size() - 1;
+}
+
 class SourceChoiceMenuToolbar : public MenuToolbar
 {
  public:
   SourceChoiceMenuToolbar(SourceChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu, FILTER_COLUMNS)
   {
-    addButton(CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
-              STR_MENU_INPUTS);
+    auto addTypeButton = [&](const char* picto, uint8_t type,
+                             const char* title) {
+      for (auto& g : choice->typeGroups) {
+        if (g.type == type) {
+          addButton(picto, g.startIdx, g.endIdx, nullptr, title);
+          return;
+        }
+      }
+    };
+
+    // Combined filter for multiple types
+    auto addMultiTypeButton = [&](const char* picto,
+                                  std::initializer_list<uint8_t> types,
+                                  const Choice::FilterFct& filterFunc,
+                                  const char* title) {
+      // Find the overall min/max index range covering these types
+      int minIdx = INT_MAX, maxIdx = -1;
+      for (auto& g : choice->typeGroups) {
+        for (auto t : types) {
+          if (g.type == t) {
+            if (g.startIdx < minIdx) minIdx = g.startIdx;
+            if (g.endIdx > maxIdx) maxIdx = g.endIdx;
+          }
+        }
+      }
+      if (maxIdx >= 0) {
+        addButton(picto, minIdx, maxIdx, filterFunc, title);
+      }
+    };
+
+    addTypeButton(CHAR_INPUT, SOURCE_TYPE_INPUT, STR_MENU_INPUTS);
+
 #if defined(LUA_MODEL_SCRIPTS)
     if (modelCustomScriptsEnabled())
-      addButton(CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr,
-                STR_MENU_LUA);
+      addTypeButton(CHAR_LUA, SOURCE_TYPE_LUA, STR_MENU_LUA);
 #endif
-    auto lastSource = MIXSRC_MIN - 1;
-    addButton(
-        CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,
-        [=](int16_t index) {
-          if (index >= MIXSRC_FIRST_POT && index <= MIXSRC_LAST_POT)
-            return false;
-          return index >= MIXSRC_FIRST_STICK && index <= lastSource;
+
+    // Sticks button: sticks but NOT pots (pots have their own button)
+    addMultiTypeButton(
+        CHAR_STICK,
+        {SOURCE_TYPE_STICK,
+#if defined(IMU)
+         SOURCE_TYPE_IMU,
+#endif
+#if defined(PCBHORUS)
+         SOURCE_TYPE_SPACEMOUSE,
+#endif
+        },
+        [choice](int16_t index) {
+          if (index < 0 || index >= (int)choice->entries.size()) return false;
+          uint8_t t = choice->entries[index].type;
+          return t == SOURCE_TYPE_STICK
+#if defined(IMU)
+                 || t == SOURCE_TYPE_IMU
+#endif
+#if defined(PCBHORUS)
+                 || t == SOURCE_TYPE_SPACEMOUSE
+#endif
+              ;
         },
         STR_MENU_STICKS);
-    addButton(CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT, nullptr,
-              STR_MENU_POTS);
-    addButton(
-        CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER,
-        [=](int16_t index) {
+
+    addTypeButton(CHAR_POT, SOURCE_TYPE_POT, STR_MENU_POTS);
+
+    // Other: MIN, MAX, TX_VOLTAGE, TX_TIME, TX_GPS, TIMER, LIGHT
+    {
+      std::initializer_list<uint8_t> otherTypes = {
+          SOURCE_TYPE_MIN, SOURCE_TYPE_MAX,
+          SOURCE_TYPE_TX_VOLTAGE, SOURCE_TYPE_TX_TIME, SOURCE_TYPE_TX_GPS,
+          SOURCE_TYPE_TIMER,
 #if defined(LUMINOSITY_SENSOR)
-          if (index == MIXSRC_LIGHT) return true;
+          SOURCE_TYPE_LIGHT,
 #endif
-          return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) ||
-                 (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
-        },
-        STR_MENU_OTHER);
+      };
+      addMultiTypeButton(
+          CHAR_FUNCTION, otherTypes,
+          [choice, otherTypes](int16_t index) {
+            if (index < 0 || index >= (int)choice->entries.size()) return false;
+            uint8_t t = choice->entries[index].type;
+            for (auto ot : otherTypes) {
+              if (t == ot) return true;
+            }
+            return false;
+          },
+          STR_MENU_OTHER);
+    }
+
 #if defined(HELI)
     if (modelHeliEnabled())
-      addButton(CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, nullptr,
-                STR_MENU_HELI);
+      addTypeButton(CHAR_CYC, SOURCE_TYPE_HELI, STR_MENU_HELI);
 #endif
-    addButton(CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr,
-              STR_MENU_TRIMS);
+
+    addTypeButton(CHAR_TRIM, SOURCE_TYPE_TRIM, STR_MENU_TRIMS);
+
+    // Switches: physical + function switch groups
+    {
+      std::initializer_list<uint8_t> switchTypes = {
+          SOURCE_TYPE_SWITCH,
 #if defined(FUNCTION_SWITCHES)
-    addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_CUSTOMSWITCH_GROUP, nullptr,
-              STR_MENU_SWITCHES);
-#else
-    addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr,
-              STR_MENU_SWITCHES);
+          SOURCE_TYPE_CUSTOM_SWITCH_GROUP,
 #endif
+      };
+      addMultiTypeButton(CHAR_SWITCH, switchTypes,
+          [choice, switchTypes](int16_t index) {
+            if (index < 0 || index >= (int)choice->entries.size()) return false;
+            uint8_t t = choice->entries[index].type;
+            for (auto st : switchTypes) {
+              if (t == st) return true;
+            }
+            return false;
+          },
+          STR_MENU_SWITCHES);
+    }
+
     if (modelLSEnabled())
-      addButton("LS", MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH,
-                nullptr, STR_MENU_LOGICAL_SWITCHES);
-    addButton(CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER,
-              nullptr, STR_MENU_TRAINER);
-    addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
-              STR_MENU_CHANNELS);
+      addTypeButton("LS", SOURCE_TYPE_LOGICAL_SWITCH,
+                    STR_MENU_LOGICAL_SWITCHES);
+
+    addTypeButton(CHAR_TRAINER, SOURCE_TYPE_TRAINER, STR_MENU_TRAINER);
+
+    addTypeButton(CHAR_CHANNEL, SOURCE_TYPE_CHANNEL, STR_MENU_CHANNELS);
+
 #if defined(GVARS)
     if (modelGVEnabled())
-      addButton(CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, nullptr,
-                STR_MENU_GVARS);
+      addTypeButton(CHAR_SLIDER, SOURCE_TYPE_GVAR, STR_MENU_GVARS);
 #endif
-    if (modelTelemetryEnabled())
-      addButton(CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
-                nullptr, STR_MENU_TELEMETRY);
 
-    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
-        choice->isValueAvailable(0))
-      addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
+    if (modelTelemetryEnabled())
+      addTypeButton(CHAR_TELEMETRY, SOURCE_TYPE_TELEMETRY,
+                    STR_MENU_TELEMETRY);
+
+    // "None" button (clear)
+    for (auto& g : choice->typeGroups) {
+      if (g.type == SOURCE_TYPE_NONE) {
+        if ((nxtBtnPos > filterColumns))
+          addButton(STR_SELECT_MENU_CLR, g.startIdx, g.endIdx, nullptr,
+                    nullptr, true);
+        break;
+      }
+    }
 
     if (choice->canInvert) {
       invertBtn = new MenuToolbarButton(this, {0, 0, LV_PCT(100), 0},
@@ -136,27 +332,39 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 bool SourceChoice::onLongPress()
 {
   if (canInvert) {
-    int16_t val = _getValue();
-    if (isValueAvailable && isValueAvailable(-val))
-      setValue(-val);
+    SourceRef ref = _getSourceRef();
+    if (ref.isInverted())
+      ref.flags &= ~SOURCE_FLAG_INVERTED;
+    else
+      ref.flags |= SOURCE_FLAG_INVERTED;
+    _setSourceRef(ref);
+    update();
   }
   return true;
 }
 
 void SourceChoice::setValue(int value)
 {
-  if (inMenu) {
-    if (inverted) value = -value;
+  if (value >= 0 && value < (int)entries.size()) {
+    SourceRef ref = entries[value];
+    if (inMenu && inverted) ref.flags |= SOURCE_FLAG_INVERTED;
     inMenu = false;
+    _setSourceRef(ref);
   }
+  // Call ChoiceBase update path
   Choice::setValue(value);
 }
 
 int SourceChoice::getIntValue() const
 {
-  int value = Choice::getIntValue();
-  if (inMenu) value = abs(value);
-  return value;
+  SourceRef ref = _getSourceRef();
+  return const_cast<SourceChoice*>(this)->findEntry(ref);
+}
+
+void SourceChoice::setAvailableHandler(std::function<bool(SourceRef)> handler)
+{
+  isRefAvailable = std::move(handler);
+  buildEntries();
 }
 
 // defined in gui/gui_common.cpp
@@ -166,7 +374,8 @@ void SourceChoice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
 
-  inverted = getIntValue() < 0;
+  SourceRef cur = _getSourceRef();
+  inverted = cur.isInverted();
   inMenu = true;
 
   auto menu = new Menu();
@@ -180,19 +389,28 @@ void SourceChoice::openMenu()
 
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
-    int16_t val = getMovedSource(vmin);
+    int8_t val = getMovedSource(MIXSRC_FIRST_STICK);
     if (val) {
-      tb->resetFilter();
-      menu->select(getIndexFromValue(val));
+      // Convert MIXSRC to SourceRef, find its index
+      SourceRef movedRef = mixSrcToSourceRef(val);
+      int idx = findEntry(movedRef);
+      if (idx >= 0) {
+        tb->resetFilter();
+        menu->select(idx);
+      }
     }
 #if defined(AUTOSWITCH)
     else {
       swsrc_t swtch = abs(getMovedSwitch());
       if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
         val = switchToMix(swtch);
-        if (val && (val >= vmin) && (val <= vmax)) {
-          tb->resetFilter();
-          menu->select(getIndexFromValue(val));
+        if (val) {
+          SourceRef switchRef = mixSrcToSourceRef(val);
+          int idx = findEntry(switchRef);
+          if (idx >= 0) {
+            tb->resetFilter();
+            menu->select(idx);
+          }
         }
       }
     }
@@ -205,19 +423,52 @@ void SourceChoice::openMenu()
   menu->setCloseHandler([=]() { setEditMode(false); });
 }
 
-SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,
-                           int16_t vmax, std::function<int16_t()> getValue,
-                           std::function<void(int16_t)> setValue, bool allowInvert) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue, STR_SOURCE), canInvert(allowInvert)
+SourceChoice::SourceChoice(Window *parent, const rect_t &rect,
+                           std::function<SourceRef()> getValue,
+                           std::function<void(SourceRef)> setValue,
+                           bool allowInvert) :
+    Choice(parent, rect, 0, 0,
+           nullptr,  // getValue - set below
+           nullptr,  // setValue - set below
+           STR_SOURCE),
+    canInvert(allowInvert),
+    _getSourceRef(std::move(getValue)),
+    _setSourceRef(std::move(setValue))
 {
-  setTextHandler([=](int value) {
-    if (inMenu && inverted) value = -value;
+  // Build the entries vector
+  buildEntries();
 
-    if (isValueAvailable && !isValueAvailable(value))
-      return std::to_string(0);  // we will fix this later
+  // Set up Choice's integer getter: find current SourceRef in entries
+  _getValue = [this]() -> int {
+    return getIntValue();
+  };
 
-    return std::string(getSourceString(value));
+  // Set up Choice's integer setter
+  _setValue = [this](int value) {
+    if (value >= 0 && value < (int)entries.size()) {
+      SourceRef ref = entries[value];
+      if (inMenu && inverted) ref.flags |= SOURCE_FLAG_INVERTED;
+      inMenu = false;
+      _setSourceRef(ref);
+    }
+  };
+
+  setTextHandler([=](int value) -> std::string {
+    if (value < 0 || value >= (int)entries.size()) {
+      // Current value not in entries - show raw source string
+      SourceRef ref = _getSourceRef();
+      return std::string(getSourceString(ref));
+    }
+
+    SourceRef ref = entries[value];
+    if (inMenu && inverted) ref.flags |= SOURCE_FLAG_INVERTED;
+    else if (!inMenu) {
+      // Outside menu, show the actual stored value (may be inverted)
+      ref = _getSourceRef();
+    }
+    return std::string(getSourceString(ref));
   });
 
-  setAvailableHandler([](int v) { return isSourceAvailable(v); });
+  // isValueAvailable always true - pre-filtered via buildEntries
+  Choice::setAvailableHandler([](int) { return true; });
 }

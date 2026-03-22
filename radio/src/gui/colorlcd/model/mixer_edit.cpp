@@ -141,10 +141,10 @@ void MixEditWindow::buildBody(Window *form)
   // Source
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SOURCE);
-  new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
-                   [=]() -> int16_t { return (int16_t)sourceRefToMixSrc(mix->srcRaw); },
-                   [=](int16_t newValue) {
-                     mix->srcRaw = mixSrcToSourceRef((mixsrc_t)newValue);
+  new SourceChoice(line, rect_t{},
+                   [=]() { return mix->srcRaw; },
+                   [=](SourceRef ref) {
+                     mix->srcRaw = ref;
                      SET_DIRTY();
                    }, true);
 
