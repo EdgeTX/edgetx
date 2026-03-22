@@ -36,7 +36,7 @@ MixData* mixAddress(uint8_t idx) {
 uint8_t getMixCount() { return _nb_mix_lines; }
 
 // Slow up/down calculation array
-extern int32_t act [MAX_MIXERS];
+extern int32_t act [MAX_MIXERS_HARD];
 
 void insertMix(uint8_t idx, uint8_t channel)
 {
