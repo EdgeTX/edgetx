@@ -339,10 +339,11 @@ TEST(Lcd, fr_chars)
 TEST(Lcd, DrawSwitch)
 {
   lcdClear();
-  drawSwitch(0,  10, SWSRC_FIRST_SWITCH, 0, false);
-  drawSwitch(30, 10, SWSRC_FIRST_SWITCH, SMLSIZE);
-  // drawSwitch(60, 10, SWSRC_SA0, MIDSIZE); missing arrows in this font
-  drawSwitch(90, 10, SWSRC_FIRST_SWITCH, DBLSIZE);
+  SwitchRef sw = {SWITCH_TYPE_SWITCH, 0, 0};
+  drawSwitch(0,  10, sw, 0, false);
+  drawSwitch(30, 10, sw, SMLSIZE);
+  // drawSwitch(60, 10, sw, MIDSIZE); missing arrows in this font
+  drawSwitch(90, 10, sw, DBLSIZE);
   EXPECT_TRUE(checkScreenshot("drawswitch"));
 }
 #endif
