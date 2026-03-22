@@ -138,7 +138,7 @@ SWITCH_CONFIG = {
         "SA": {"default": "2POS"},
         "SB": {"default": "3POS"},
         "SC": {"default": "3POS"},
-        "SD": {"default": "2POS"},
+        "SD": {"default": "TOGGLE"},
          # custom switches
         "SE": {"default": "2POS"},
         "SF": {"default": "2POS"},

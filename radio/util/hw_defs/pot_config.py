@@ -51,8 +51,7 @@ POT_CONFIG = {
     },
     "v12": {
         "P1": {"default": "POT_CENTER"},
-        "P2": {"default": "POT_CENTER"},
-        "P3": {"default": "MULTIPOS"},
+        "P2": {"default": "POT_CENTER"}
     },
     "v14": {
         "P1": {"default": "POT_CENTER"},
