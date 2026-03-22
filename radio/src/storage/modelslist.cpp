@@ -660,6 +660,11 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
     }
   }
 
+  // TODO: This read-modify-write cycle is problematic with the arena
+  // architecture. For non-current models, readModelYaml populates the
+  // global arena (overwriting active model data), and writeFileYaml
+  // serializes arena arrays from the wrong model. Should be replaced
+  // with direct YAML text manipulation for label changes.
   ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
   if (!modeldata) {
     TRACE("Labels: Out Of Memory");
