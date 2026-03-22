@@ -2,392 +2,192 @@
 
 ## Context
 
-The `ModelData` struct used fixed-size arrays for inputs, mixes, curves, and other components. This wasted memory on simple models (a 4-channel trainer allocated the same ~6.5 KB as a 32-channel heli) while simultaneously limiting power users who hit the hard caps (64 mixes, 64 inputs, 32 curves). Moving to dynamic allocation solves both problems: simple models shrink, complex models can grow.
-
-Outputs (`LimitData[MAX_OUTPUT_CHANNELS]`) stay static — physically limited to 32 channels.
+The `ModelData` struct used fixed-size arrays and bit-packed cross-references that wasted memory on simple models while limiting power users. This project addresses both problems through arena-based dynamic allocation and structured source/switch references.
 
 ---
 
 ## Completed Work
 
-### Phase 1: Accessor Abstraction (commit `a019cd6`)
+### Phase 1: Accessor Abstraction
 
 All ModelData array access routed through accessor functions. No direct `g_model.mixData[i]` etc. remains in non-test code.
 
 - `mixAddress(idx)`, `expoAddress(idx)`, `curveHeaderAddress(idx)`, `curvePointsBase()`, `lswAddress(idx)`, `customFnAddress(idx)`
-- Centralized `expos.cpp` (insert/delete/copy/move) mirroring `mixes.cpp`
-- Centralized `customfn.cpp` (insert/delete/clear)
+- Centralized `expos.cpp`, `customfn.cpp` (insert/delete/copy/move)
 - `getExpoCount()` / `updateExpoCount()` paralleling `getMixCount()`
 
-### Phase 2: Arena Allocator (commits `85680d7` through `2977393`)
+### Phase 2: Arena Allocator
 
-Six arrays removed from ModelData and stored in a shared arena:
+Six arrays removed from ModelData and stored in a shared arena. **ModelData shrunk from ~6.5 KB to ~2.5 KB.**
 
-| Array | Element | Per-radio max | Hard cap |
-|-------|---------|---------------|----------|
-| mixData | 20 B | 64 | 128 |
-| expoData | 18 B | 64 | 128 |
+Key components:
+- **`ModelArena`** class: contiguous buffer with section-based layout, `insertSlot`/`deleteSlot`, `uint32_t` capacity/offsets
+- **YAML `YDT_EXTERN_ARRAY`**: tree walker redirects data access to arena via `get_ptr` callbacks
+- **`CUST_EXTERN_ARRAY`** macro + `generate_yaml.py` support
+- **RTC backup**: arena included in `RamBackupUncompressed`
+- **Label operations**: `patchModelYamlLabels()` for direct YAML text patching
+- Arena initialized with max-size layout (backward-compatible with old static arrays)
+
+### Phase 3b: Structured Source/Switch References
+
+Replaced the monolithic `MixSources`/`SwitchSources` enums and 10-bit packed fields with 32-bit structured types. **Fixes the H7 telemetry sensor overflow bug and removes all source/switch index limits.**
+
+Three new types (`sourceref.h`):
+
+```cpp
+struct SourceRef {        // replaces srcRaw:10 (MixSources enum)
+    uint8_t  type;        // SOURCE_TYPE_NONE, SOURCE_TYPE_INPUT, SOURCE_TYPE_STICK, ...
+    uint8_t  flags;       // SOURCE_FLAG_INVERTED (replaces negative srcRaw encoding)
+    uint16_t index;       // 0-65535 within type
+};
+
+struct SwitchRef {        // replaces swtch:10 (SwitchSources enum)
+    uint8_t  type;        // SWITCH_TYPE_NONE, SWITCH_TYPE_SWITCH, SWITCH_TYPE_LOGICAL, ...
+    uint8_t  flags;       // SWITCH_FLAG_INVERTED (replaces negative swtch encoding)
+    uint16_t index;       // 0-65535 within type
+};
+
+struct ValueOrSource {    // replaces SourceNumVal (11-bit packed)
+    int16_t  value;       // numeric value, or source index when isSource=1
+    uint8_t  isSource;    // 0 = numeric, 1 = source reference
+    uint8_t  srcType;     // SourceType (when isSource=1)
+};
+```
+
+All three are 4 bytes, 32-bit word-aligned.
+
+**Structs migrated:**
+
+| Struct | Old size | New size | Fields changed |
+|--------|----------|----------|----------------|
+| MixData | 20 B | 35 B | srcRaw→SourceRef, swtch→SwitchRef, weight→ValueOrSource, offset→ValueOrSource |
+| ExpoData | 18 B | 33 B | srcRaw→SourceRef, swtch→SwitchRef, weight→ValueOrSource, offset→ValueOrSource |
+| CurveRef | 2 B | 6 B | type→uint8_t, value→ValueOrSource |
+
+**Bridge functions** (temporary, until all code uses structured types natively):
+- `sourceRefToMixSrc()` / `switchRefToSwSrc()` in `mixer.cpp` — convert new→old for `getValue()`/`getSwitch()`/GUI functions that still expect enum integers
+- `mixSrcToSourceRef()` / `swSrcToSwitchRef()` — reverse, used in Lua API SET paths and GUI editors
+- `valueOrSourceToLegacy()` / `legacyToValueOrSource()` — bridge ValueOrSource↔SourceNumVal packed format
+
+**Files updated:** mixer.cpp, mixes.cpp, expos.cpp, model_init.cpp, curves.cpp, edgetx.cpp, all GUI editors (colorlcd + 212x64 + 128x64), Lua API, all test files.
+
+**Current arena element sizes** (updated):
+
+| Array | Element size | Per-radio max | Hard cap |
+|-------|-------------|---------------|----------|
+| mixData | 35 B | 64 | 128 |
+| expoData | 33 B | 64 | 128 |
 | curves | 4 B | 32 | 64 |
 | points | 1 B | 512 | 1024 |
 | logicalSw | 9 B | 64 | 64 |
 | customFn | 11 B | 64 | 64 |
 
-**ModelData shrunk from ~6.5 KB to ~2.5 KB** (~4.3 KB saved).
+Default arena usage: 64×35 + 64×33 + 32×4 + 512 + 64×9 + 64×11 = **6,208 B** (up from 4,352 due to larger MixData/ExpoData).
 
-Key components:
-- **`ModelArena`** class (`model_arena.h/cpp`): manages a contiguous buffer with section-based layout. Supports `insertSlot`/`deleteSlot` with cascading offset updates. Uses `uint32_t` for capacity/offsets (supports SDRAM).
-- **`ModelDynData`** in `ModelData`: counts for each arena section (mixCount, expoCount, etc.)
-- **YAML `YDT_EXTERN_ARRAY`**: new tree walker node type that redirects data access to arena memory via `get_ptr` callbacks and per-state `data_override` pointers
-- **`CUST_EXTERN_ARRAY`** annotation macro + generator support: `generate_yaml.py` handles `extern_array:` annotations, computing per-element bit sizes from struct definitions
-- **RTC backup**: `RamBackupUncompressed` includes `uint8_t arena[MODEL_ARENA_SIZE]`; write saves arena, restore repopulates it
-- **Parallel state arrays**: `mixState[MAX_MIXERS_HARD]`, `act[MAX_MIXERS_HARD]`, `activeMixes[MAX_MIXERS_HARD]` sized to hard caps
-- **Label operations**: `patchModelYamlLabels()` does direct YAML text patching (no model round-trip); `readModelYaml()` saves/restores arena for temp model reads
-- **Unit tests**: 23 tests covering ModelArena class, accessor functions, insert/delete operations, section non-overlap, model reset
+Platform arena sizes need updating:
 
-### Current arena layout
-
-The arena is initialized with **max-size layout** (`modelArenaInit`) — all sections pre-allocated at their per-radio `MAX_*` sizes. This makes the arena behavior identical to the old static arrays: same capacity, same memmove semantics. The `ModelDynData` counts in `g_model.dyn` are not yet populated after YAML load (not needed with max-size layout).
-
-```
-Arena (MODEL_ARENA_SIZE bytes, static buffer)
-+----------+----------+---------+--------+------+------+------+
-| mixes    | expos    | curves  | points | LS   | SF   | free |
-| 64×20=   | 64×18=   | 32×4=   | 512×1= | 64×9=| 64×11|      |
-| 1280 B   | 1152 B   | 128 B   | 512 B  | 576 B| 704 B|      |
-+----------+----------+---------+--------+------+------+------+
-Total used: 4352 B
-```
-
-Platform arena sizes:
-| Platform | MODEL_ARENA_SIZE | Default used |
-|----------|-----------------|-------------|
-| STM32F4 | 4096 B | 4352 B (!) |
-| STM32H7 | 8192 B | 4352 B |
-| Companion/Sim | 65536 B | 4352 B |
-
-**Note**: STM32F4 arena (4096) is smaller than the default layout (4352). This works today because `modelArenaInit` doesn't bounds-check. This must be resolved before enabling dynamic sizing — either increase STM32F4 arena or reduce default counts.
+| Platform | MODEL_ARENA_SIZE | Default used | Status |
+|----------|-----------------|-------------|--------|
+| STM32F4 | 4096 B | 6,208 B | **Needs increase** |
+| STM32H7 | 8192 B | 6,208 B | OK |
+| Companion/Sim | 65536 B | 6,208 B | OK |
 
 ---
 
-## Phase 3: Dynamic Arena Sizing
+## Remaining Work
 
-**Goal**: Models use only the arena space they need. Simple models leave room for more entries in other sections. Complex models can exceed per-radio defaults up to the hard caps.
+### Immediate: Fix STM32F4 arena size
 
-### 3.1 Populate `ModelDynData` counts after model load
+The default arena layout (6,208 B) now exceeds `MODEL_ARENA_SIZE` on STM32F4 (4096 B). Options:
+1. Increase STM32F4 arena to 8192 B (same as H7)
+2. Enable dynamic arena sizing so simple models fit in 4096 B
+3. Reduce per-radio MAX_MIXERS/MAX_EXPOS on F4 boards
 
-After `readModelYaml()` + `postModelLoad()`:
-1. `updateMixCount()` and `updateExpoCount()` already compute packed counts
-2. Add `updateCurveCount()`: count non-empty `CurveHeader` entries
-3. LS and SF are position-indexed (sparse) — always `MAX_LOGICAL_SWITCHES` / `MAX_SPECIAL_FUNCTIONS` slots
-4. Points count: sum of `getCurvePoints(i)` for all curves
-5. Store all counts in `g_model.dyn`
-6. Call `g_modelArena.layout(g_model.dyn)` to compact the layout
+### Immediate: Migrate remaining structs
 
-### 3.2 Compact arena layout on model load
+These structs still use old 10-bit `swtch` fields:
+- `LogicalSwitchData` — `v1:10`, `v3:10`, `andsw:10` (polymorphic: source or switch depending on func)
+- `CustomFunctionData` — `swtch:10`
+- `FlightModeData` — `swtch:10`
+- `TimerData` — `swtch:10`
+- `SwashRingData` — `collectiveSource:8`, `aileronSource:8`, `elevatorSource:8` (uint8_t MixSources)
+- `RadioData` — `backlightSrc:10`, `volumeSrc:10`
+- `ModuleData.crsf` — `crsfArmingTrigger:10`
 
-After counts are computed, `layout()` recomputes section offsets to pack sections tightly. The arena would look like:
+### Immediate: Remove bridge functions
 
-```
-Simple 4-channel model:
-+-------+-------+---+---+------+------+------ free ------+
-| 4 mix | 4 expo| 0 | 0 | 64LS | 64SF |    ~3 KB free    |
-| 80 B  | 72 B  |   |   |576 B |704 B |                  |
-+-------+-------+---+---+------+------+------------------+
+Once all structs are migrated, update `getValue()` and `getSwitch()` to accept `SourceRef`/`SwitchRef` directly instead of `mixsrc_t`/`swsrc_t`. Then remove `sourceRefToMixSrc()`, `switchRefToSwSrc()`, and the reverse bridges. The `MixSources`/`SwitchSources` enums become internal helpers, no longer a storage format.
 
-Complex heli model:
-+----------+---------+--------+------+------+------+free+
-| 40 mixes | 30 expo | 15 crv | 200pt| 64LS | 64SF |    |
-| 800 B    | 540 B   | 60 B   |200 B |576 B |704 B |    |
-+----------+---------+--------+------+------+------+----+
-```
+### Immediate: Update YAML serialization
 
-### 3.3 Arena-aware insert/delete
-
-Replace raw `memmove` with `g_modelArena.insertInSection()` / `deleteFromSection()`:
-
-**`insertMix(idx, channel)`**:
-```cpp
-if (!g_modelArena.insertInSection(ARENA_MIXES, idx, sizeof(MixData))) {
-    AUDIO_WARNING2();  // "Model memory full"
-    return;
-}
-g_model.dyn.mixCount++;
-// ... initialize the new mix
-```
-
-**`deleteMix(idx)`**:
-```cpp
-g_modelArena.deleteFromSection(ARENA_MIXES, idx, sizeof(MixData));
-g_model.dyn.mixCount--;
-```
-
-These shift all subsequent sections automatically. The `act[]` parallel array still needs its own memmove (it's not in the arena).
-
-**Capacity check**: `g_modelArena.freeBytes() >= sizeof(MixData)` replaces `getMixCount() >= MAX_MIXERS`.
-
-### 3.4 Update loop bounds
-
-Replace `MAX_*` loop bounds with dynamic counts in the mixer hot path:
-
-```cpp
-// mixer.cpp applyExpos():
-for (uint8_t i = 0; i < getExpoCount(); i++) {
-    ...
-}
-
-// mixer.cpp evalFlightModeMixes():
-for (uint8_t i = 0; i < getMixCount(); i++) {
-    ...
-}
-```
-
-For LS/SF (position-indexed), loop bounds stay at `MAX_LOGICAL_SWITCHES` / `MAX_SPECIAL_FUNCTIONS`.
-
-### 3.5 GUI memory indicator
-
-Add a "Model memory" display in the model setup page:
-
-```
-Model memory: 2880 / 4096 bytes (70%)
-[████████████████████░░░░░░░░░]
-```
-
-Insert operations show a warning when arena is >90% full and refuse when 100%.
-
-### 3.6 STM32F4 arena sizing
-
-The current STM32F4 arena (4096 B) is smaller than the max-size layout (4352 B). Options:
-1. Increase to 4608 B or 5120 B (uses ~1 KB more RAM but matches old capacity)
-2. Keep 4096 B — simple models fit, complex models get a "memory full" warning earlier than with old static arrays
-3. Define per-radio (some F4 radios have more headroom than others)
-
-### 3.7 YAML `dyn` field serialization
-
-To persist the counts across save/load, `ModelDynData` should be serialized in the YAML file. Options:
-1. Serialize `dyn` as a regular YAML struct (simple, but changes file format)
-2. Don't serialize — recompute counts on every load (current approach, no format change)
-3. Serialize only as a comment/metadata field for debugging
-
-Option 2 (recompute) is preferred — it's robust and doesn't add format dependencies.
-
-### 3.8 Files to modify
-
-| File | Change |
-|------|--------|
-| `mixes.cpp` | Use `insertInSection`/`deleteFromSection`, update `dyn.mixCount` |
-| `expos.cpp` | Same pattern |
-| `customfn.cpp` | Same pattern |
-| `curves.cpp` | `moveCurve()` → arena point section manipulation |
-| `mixer.cpp` | Loop bounds → `getMixCount()`/`getExpoCount()` |
-| `storage/storage_common.cpp` | `postModelLoad()` → compute dyn counts, compact layout |
-| `model_init.cpp` | `setModelDefaults()` → set dyn counts for default template |
-| `model_arena.cpp` | `modelArenaInit()` → consider not pre-allocating max sizes |
-| GUI model setup pages | Add memory indicator |
-| `dataconstants.h` | Adjust `MODEL_ARENA_SIZE` for STM32F4 if needed |
-
----
-
-## Phase 3b: Structured Source/Switch References (Priority)
-
-**This is the top priority** — the current `srcRaw:10` encoding is already broken on H7 radios (telemetry sensors >75 overflow), and it blocks raising any arena limits since most item types are referenced through the `MixSources` enum.
-
-### The problem
-
-All sources (inputs, sticks, pots, channels, logical switches, GVars, telemetry, etc.) are packed into a single `MixSources` enum, stored in a 10-bit signed field. The enum currently reaches 580 on H7 (TX15), overflowing the 0-511 positive range. The negative range encodes "inverted source" via `getValue()`:
-
-```cpp
-getvalue_t getValue(mixsrc_t i, bool* valid) {
-  bool invert = false;
-  if (i < 0) { invert = true; i = -i; }
-  getvalue_t v = _getValue(i, valid);
-  if (invert) v = -v;
-  return v;
-}
-```
-
-### The fix: 32-bit structured references
-
-Replace the monolithic enums with 32-bit word-aligned structs:
-
-```cpp
-PACK(struct SourceRef {
-    uint8_t  type;    // SOURCE_NONE, SOURCE_INPUT, SOURCE_STICK, SOURCE_CH, SOURCE_TELEM, ...
-    uint8_t  flags;   // SRCFLAG_INVERTED, etc. (replaces sign-bit hack in getValue)
-    uint16_t index;   // 0-65535 within that type
-});
-
-PACK(struct SwitchRef {
-    uint8_t  type;    // SWREF_NONE, SWREF_PHYSICAL, SWREF_TRIM, SWREF_LOGICAL, SWREF_FLIGHT_MODE, ...
-    uint8_t  flags;   // SWFLAG_INVERTED, etc. (replaces negative swtch encoding)
-    uint16_t index;   // 0-65535 within that type
-});
-```
-
-### Benefits
-
-- **Fixes the H7 bug**: no enum range pressure, each type gets 0-65535 index space
-- **32-bit word-aligned**: natural fit for ARM Cortex-M, no bit extraction overhead
-- **Independent limits**: adding telemetry sensors doesn't affect input/channel addressing
-- **Explicit flags**: inversion moves from sign-bit hack to dedicated flags byte
-- **Simpler code**: `if (src.type == SOURCE_TELEM)` replaces `if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM)`
-- **Aligns with arena**: type maps to arena section, index selects element
-
-### Size impact
-
-`SourceRef` is 4 bytes vs the current 10-bit field (~1.25 bytes). Fields affected per struct:
-
-| Struct | Fields using SourceRef/SwitchRef | Current bits | New bytes | Delta |
-|--------|--------------------------------|-------------|-----------|-------|
-| MixData | srcRaw, swtch, curve (partially) | 10+10+16=36 bits | 4+4+4=12 bytes | +~7 B |
-| ExpoData | srcRaw, swtch, curve (partially) | 10+10+16=36 bits | 4+4+4=12 bytes | +~7 B |
-| LogicalSwitchData | v1, v3, andsw | 10+10+10=30 bits | 4+4+4=12 bytes | +~8 B |
-| CustomFunctionData | swtch | 10 bits | 4 bytes | +~3 B |
-| FlightModeData | swtch | 10 bits | 4 bytes | +~3 B |
-| TimerData | swtch | 10 bits | 4 bytes | +~3 B |
-
-MixData would grow from ~20 to ~27 bytes. With dynamic arena sizing, total memory depends on actual mix count — a model with 10 mixes uses 270 B instead of 200 B (70 B more, trivial).
-
-### Migration strategy
-
-1. **Define `SourceRef` and `SwitchRef` structs** alongside the existing enums
-2. **Add conversion functions**: `SourceRef fromMixSrc(mixsrc_t)` / `mixsrc_t toMixSrc(SourceRef)` for gradual migration
-3. **Replace fields one struct at a time**: start with MixData.srcRaw, then ExpoData, LogicalSwitchData, etc.
-4. **Update `getValue()`** to take `SourceRef` instead of `mixsrc_t`
-5. **Update YAML serialization**: new CUST read/write for SourceRef/SwitchRef (YAML format change — type+index instead of enum name)
-6. **Update Lua API**: `model.getMix()` etc. return structured source refs
-7. **Keep `MixSources` enum** as internal reference for type classification, but no longer as a storage format
-8. **Update Companion**: its own `RawSource` class already has a type+index design, should map naturally
-
-### Files affected (major)
-
-| Area | Key files |
-|------|-----------|
-| Struct definitions | `datastructs_private.h` — replace bit-fields with SourceRef/SwitchRef |
-| Mixer engine | `mixer.cpp` — `getValue()`, `applyExpos()`, `evalFlightModeMixes()` |
-| Source enums | `dataconstants.h` — MixSources/SwitchSources become type enums |
-| YAML serialization | `yaml_datastructs_funcs.cpp` — new read/write for structured refs |
-| GUI source pickers | `sourcechoice.cpp`, `switchchoice.cpp` — adapt to type+index |
-| Lua API | `api_model.cpp` — source/switch getters/setters |
-| String helpers | `strhelpers.cpp` — `getSourceString()`, `getSwitchPositionName()` |
-| All generated YAML | 22 `yaml_datastructs_*.cpp` files — field definitions change |
+The generated YAML struct definitions still reference the old field layout. With SourceRef/SwitchRef/ValueOrSource, the YAML read/write functions need updating:
+- New custom read/write for SourceRef (type+index format)
+- New custom read/write for SwitchRef (type+index format)
+- New custom read/write for ValueOrSource
+- Regenerate all 22 yaml_datastructs_*.cpp files
+- Backward compatibility: YAML reader should accept both old (enum name) and new (type+index) formats
 
 ---
 
 ## Phase 4: Dynamic Arena Sizing
 
-(Moved from Phase 3 — useful optimization but not blocking)
+Models use only the arena space they need. Simple models leave room for more entries.
 
-### 4.1 - 4.8: Same content as previous Phase 3.1 - 3.8
+1. Populate `ModelDynData` counts after model load
+2. Compact arena layout based on actual usage
+3. Arena-aware insert/delete (`insertInSection`/`deleteFromSection`)
+4. Dynamic loop bounds in mixer hot path
+5. GUI memory indicator
+6. STM32F4 arena sizing resolution
 
 ---
 
 ## Phase 5 (Future): GVars + FlightModes
 
-GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Making gvars dynamic means `FlightModeData` becomes variable-size. Defer unless users need more than 15 gvars.
+GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Defer unless users need more than 15 gvars.
 
 ## Phase 6 (Future): Growable Arena
 
-Replace the static arena buffer with a dynamically allocated one:
-- `attach(malloc(size), size)` or `attach(sdramAddr, largerSize)`
-- Arena can grow at runtime when a model is loaded that needs more space
-- Requires allocation outside the mixer hot path (during model load)
+Replace the static arena buffer with a dynamically allocated one (`malloc`/SDRAM).
 
 ---
 
-## Capacity Limits Analysis
+## Capacity Limits (updated after Phase 3b)
 
-Before raising the hard caps, three categories of limits must be addressed:
+### MixData and ExpoData (migrated to SourceRef/SwitchRef)
 
-### Bit-field cross-references in data structures
+The 10-bit `srcRaw`/`swtch` overflow is **fixed**. Each source/switch type gets 0-65535 index range. No enum range pressure.
 
-These struct fields reference arena-backed items by index. Their bit widths set absolute maximums.
+### Remaining bit-field limits
 
-| Field | Bits | Signed | Range | References | Effective limit |
-|-------|------|--------|-------|------------|----------------|
-| `MixData.destCh` | 5 | no | 0-31 | Output channels | 32 (not arena-backed, fine) |
-| `ExpoData.chn` | 5 | no | 0-31 | Input channels | 32 (not arena-backed, fine) |
-| `CurveRef.value` | 11 | no | 0-2047 | Curve index (when type=CUSTOM) | **2048 curves** — not a bottleneck |
-| `CurveRef.type` | 5 | no | 0-31 | Curve ref type | 4 types defined, plenty of room |
-| `LimitData.curve` | 8 | yes | -1 to 127 | Curve index (-1=none) | **128 curves** |
-| `MixData.srcRaw` | 10 | yes | -512..511 | MixSources enum | Not a direct index limit |
-| `MixData.swtch` | 10 | yes | -512..511 | SwitchSources enum (includes LS) | Not a direct index limit |
-| `ExpoData.srcRaw` | 10 | yes | -512..511 | MixSources enum | Not a direct index limit |
-| `ExpoData.swtch` | 10 | yes | -512..511 | SwitchSources enum | Not a direct index limit |
-| `LogicalSwitchData.v1` | 10 | yes | -512..511 | Source/switch refs | Not a direct index limit |
-| `LogicalSwitchData.andsw` | 10 | yes | -512..511 | SwitchSources enum | Not a direct index limit |
-| `CustomFunctionData.swtch` | 10 | yes | -512..511 | SwitchSources enum | Not a direct index limit |
-| `CustomFunctionData.func` | 6 | no | 0-63 | Functions enum | **64 function types** — limits SF types, not count |
-| `MixData.flightModes` | 9 | no | bitmask | Flight mode bitmask | 9 flight modes (not arena-backed) |
-| `CurveHeader.points` | 6 | yes | -32..31 | Num points minus 5 | Max 36 points per curve |
-
-**Indirect references via enums**: `srcRaw` (10-bit signed) and `swtch` (10-bit signed) encode source/switch indices through the `MixSources` and `SwitchSources` enums. These enums pack multiple item types into ranges (sticks, pots, inputs, channels, telemetry, logical switches, etc.). Raising `MAX_LOGICAL_SWITCHES` beyond 64 would require verifying the enum ranges still fit in 10 bits. Similarly, raising `MAX_INPUTS` beyond 32 needs enum range checks.
-
-### MixSources enum overflow (pre-existing bug)
-
-The `MixSources` enum packs all source types into a single numbering space. The `srcRaw` field stores this as `int16_t:10` (signed, range -512..511, positive range 0-511). The enum size depends on radio configuration:
-
-| Config | MIXSRC_LAST_TELEM | Fits in 0-511? |
-|--------|-------------------|----------------|
-| Non-H7 (60 sensors) | 451 | Yes |
-| H7 (99 sensors) | 568 | **No — overflow by 57** |
-| Max sensors that fit | 80 | 511 |
-
-**This is a pre-existing bug**: on H7 radios, telemetry sensors 81-99 cannot be reliably used as mix/expo sources because their enum values exceed the 10-bit signed field. The `w_mixSrcRawEx` function masks to 10 bits, silently corrupting the value.
-
-**Impact on raising limits**: any increase to `MAX_INPUTS`, `MAX_LOGICAL_SWITCHES`, `MAX_OUTPUT_CHANNELS`, etc. adds entries to the `MixSources` enum, consuming more of the 0-511 range. The enum is already at capacity on H7. Raising arena hard caps for items that are MixSources (inputs, channels, LS, GVars) requires widening `srcRaw` beyond 10 bits.
-
-### Bottleneck summary for raising hard caps
-
-| Arena array | Current hard cap | Limiting factors | Can raise to |
-|-------------|-----------------|------------------|-------------|
-| Mixes | 128 | `uint8_t idx` accessor (255); no cross-ref field | **255** (widen idx to uint16_t for more) |
-| Expos | 128 | `uint8_t idx` accessor (255); no cross-ref field | **255** |
-| Curves | 64 | `LimitData.curve:int8_t` (128); `CurveRef.value:11` (2048) | **128** (widen LimitData.curve for more) |
-| Curve points | 1024 | No cross-reference; `uint8_t idx` in curveAddress | **255 curves** (idx), points pool unlimited by arena |
-| Logical switches | 64 | `SwitchSources` enum in 10-bit `swtch`; `MixSources` enum in 10-bit `srcRaw` | **64** without widening swtch/srcRaw |
-| Special functions | 64 | `uint8_t idx` accessor (255); position-indexed | **255** |
+| Field | Bits | Range | References | Limit |
+|-------|------|-------|------------|-------|
+| `MixData.destCh` | 8 | 0-255 | Output channels | 256 (was 32 with 5 bits) |
+| `ExpoData.chn` | 5 | 0-31 | Input channels | 32 |
+| `MixData.flightModes` | 9 | bitmask | FM bitmask | 9 flight modes |
+| `LimitData.curve` | 8 | -1..127 | Curve index | 128 curves |
+| `CurveHeader.points` | 6 | -32..31 | Points minus 5 | 36 points per curve |
+| `CustomFunctionData.func` | 6 | 0-63 | Function type | 64 function types |
+| `LogicalSwitchData.v1` | 10 | -512..511 | **Still old enum** | **Needs migration** |
+| `LogicalSwitchData.andsw` | 10 | -512..511 | **Still old enum** | **Needs migration** |
+| `CustomFunctionData.swtch` | 10 | -512..511 | **Still old enum** | **Needs migration** |
+| `FlightModeData.swtch` | 10 | -512..511 | **Still old enum** | **Needs migration** |
+| `TimerData.swtch` | 10 | -512..511 | **Still old enum** | **Needs migration** |
 
 ### Accessor function parameter types
 
-All accessor functions use `uint8_t idx`, limiting to 256 elements max:
-
-```
-MixData* mixAddress(uint8_t idx);          // max 255
-ExpoData* expoAddress(uint8_t idx);        // max 255
-CurveHeader* curveHeaderAddress(uint8_t idx); // max 255
-int8_t* curveAddress(uint8_t idx);          // max 255
-LogicalSwitchData* lswAddress(uint8_t idx); // max 255
-CustomFunctionData* customFnAddress(uint8_t idx); // max 255
-```
-
-For the current hard caps (128 max), `uint8_t` is sufficient. If any array exceeds 255 elements, these must change to `uint16_t`. The `insertMix(uint8_t idx, ...)`, `deleteMix(uint8_t idx)`, and similar functions have the same constraint.
-
-### YAML infrastructure limits
-
-| Component | Type | Limit | Impact |
-|-----------|------|-------|--------|
-| `YamlNode.elmts` | `uint16_t : 12` | 4095 elements | Not a bottleneck |
-| `yaml_str2uint()` val_len | `uint8_t` | 255 chars | Not a bottleneck (128 = 3 digits) |
-| `yaml_get_bits()` / `yaml_put_bits()` | `uint32_t` | 32 bits per field | Matches struct bit-fields |
-| `find_node()` tag_len | `uint8_t` | 255 chars | Not a bottleneck |
-| `set_attr()` len | `uint16_t` | 65535 chars | Not a bottleneck |
-
-### Recommendations
-
-1. **Mixes and expos**: can be raised beyond 128 with no bit-field changes — only limited by arena size and `uint8_t` accessor parameter (max 255).
-
-2. **Curves**: hard-capped at 128 by `LimitData.curve` (int8_t). To go beyond 128, change `curve` to `int16_t` (breaks binary compatibility).
-
-3. **Logical switches**: raising beyond 64 requires auditing the `SwitchSources` enum to ensure all SWSRC values fit in the 10-bit `swtch` fields. Currently 64 LS consume SWSRC range [SWSRC_FIRST_LOGICAL_SWITCH .. SWSRC_LAST_LOGICAL_SWITCH] = 128 values (positive + negative). Adding more LS compresses room for other switch sources.
-
-4. **Curve points per curve**: `CurveHeader.points` is 6-bit signed (range -32..31), encoding `actual_points - 5`. Max points per curve = 36. This is independent of the arena point pool size.
+All use `uint8_t idx` (max 255). Sufficient for current hard caps.
 
 ---
 
 ## Known Issues
 
-1. **modelslist `updateModelCell()`**: reads a temp model via `readModelYaml()` which writes to the global arena. Arena is saved/restored around the call, but the round-trip is wasteful. Could be replaced with a header-only read.
+1. **STM32F4 arena undersize**: default layout (6,208 B) exceeds `MODEL_ARENA_SIZE` (4096 B). Must be resolved.
 
-2. **STM32F4 arena undersize**: `MODEL_ARENA_SIZE` (4096) < default layout (4352). Works because `modelArenaInit` doesn't bounds-check, but prevents using the arena for models that need all 64 of everything.
+2. **Bridge functions**: `sourceRefToMixSrc()`, `switchRefToSwSrc()` etc. are temporary. They reconstruct old enum values from structured refs and are used by `getValue()`/`getSwitch()`/GUI code that hasn't been fully migrated.
 
-3. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should be `MAX_CURVES_HARD` (64) if more curves are supported. Both are currently 64 so no issue yet, but should be updated for consistency.
+3. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
+
+4. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
+
+5. **Duplicate bridge functions**: `mixSrcToSourceRef()` and similar are duplicated as `static` in multiple GUI files. Should be consolidated.
