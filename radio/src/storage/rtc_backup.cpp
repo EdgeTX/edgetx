@@ -21,12 +21,14 @@
 
 #include "edgetx.h"
 #include "rtc_backup.h"
+#include "model_arena.h"
 
 namespace Backup {
 #define BACKUP
 #include "datastructs_private.h"
 PACK(struct RamBackupUncompressed {
   ModelData model;
+  uint8_t arena[MODEL_ARENA_SIZE];
   RadioData radio;
 });
 #undef BACKUP
@@ -52,13 +54,24 @@ void rambackupWrite()
 {
   copyRadioData(&ramBackupUncompressed.radio, &g_eeGeneral);
   copyModelData(&ramBackupUncompressed.model, &g_model);
+
+  // Copy arena data
+  uint32_t arenaUsed = g_modelArena.usedBytes();
+  if (arenaUsed > sizeof(ramBackupUncompressed.arena))
+    arenaUsed = sizeof(ramBackupUncompressed.arena);
+  memcpy(ramBackupUncompressed.arena, g_modelArena.base(), arenaUsed);
+  // Zero the rest so RLE compression works well
+  if (arenaUsed < sizeof(ramBackupUncompressed.arena))
+    memset(ramBackupUncompressed.arena + arenaUsed, 0,
+           sizeof(ramBackupUncompressed.arena) - arenaUsed);
+
   ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data),
                              (const uint8_t *)&ramBackupUncompressed,
                              sizeof(ramBackupUncompressed));
 
   TRACE("RamBackupWrite sdsize=%d backupsize=%d rlcsize=%d",
-        sizeof(ModelData) + sizeof(RadioData),
-        sizeof(Backup::RamBackupUncompressed), ramBackup->size);
+        (int)(sizeof(ModelData) + sizeof(RadioData) + arenaUsed),
+        (int)sizeof(Backup::RamBackupUncompressed), ramBackup->size);
 }
 
 bool rambackupRestore()
@@ -73,5 +86,13 @@ bool rambackupRestore()
   memset(&g_model, 0, sizeof(g_model));
   copyRadioData(&g_eeGeneral, &ramBackupUncompressed.radio);
   copyModelData(&g_model, &ramBackupUncompressed.model);
+
+  // Restore arena data
+  g_modelArena.clear();
+  memcpy(g_modelArena.base(), ramBackupUncompressed.arena,
+         sizeof(ramBackupUncompressed.arena));
+  // Restore arena layout from the model's dyn data
+  g_modelArena.layout(g_model.dyn);
+
   return true;
 }

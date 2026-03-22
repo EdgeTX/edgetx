@@ -66,39 +66,44 @@ static inline void check_yaml_funcs()
 #include "expos.h"
 #include "mixes.h"
 
+// YAML extern array callbacks.
+// For reading (parsing): return MAX capacity so the parser accepts up to that many elements.
+// For writing (generating): the walker's isElmtEmpty() skips zero elements, so returning
+// the max count is fine - empty trailing elements won't be written.
+
 static uint8_t* yaml_get_mix_ptr(uint16_t* count)
 {
-  *count = getMixCount();
+  *count = MAX_MIXERS;
   return g_modelArena.sectionBase(ARENA_MIXES);
 }
 
 static uint8_t* yaml_get_expo_ptr(uint16_t* count)
 {
-  *count = getExpoCount();
+  *count = MAX_EXPOS;
   return g_modelArena.sectionBase(ARENA_EXPOS);
 }
 
 static uint8_t* yaml_get_curves_ptr(uint16_t* count)
 {
-  *count = g_model.dyn.curveCount;
+  *count = MAX_CURVES;
   return g_modelArena.sectionBase(ARENA_CURVES);
 }
 
 static uint8_t* yaml_get_points_ptr(uint16_t* count)
 {
-  *count = g_model.dyn.pointsCount;
+  *count = MAX_CURVE_POINTS;
   return g_modelArena.sectionBase(ARENA_POINTS);
 }
 
 static uint8_t* yaml_get_logical_sw_ptr(uint16_t* count)
 {
-  *count = g_model.dyn.logicalSwCount;
+  *count = MAX_LOGICAL_SWITCHES;
   return g_modelArena.sectionBase(ARENA_LOGICAL_SW);
 }
 
 static uint8_t* yaml_get_custom_fn_ptr(uint16_t* count)
 {
-  *count = g_model.dyn.customFnCount;
+  *count = MAX_SPECIAL_FUNCTIONS;
   return g_modelArena.sectionBase(ARENA_CUSTOM_FN);
 }
 
