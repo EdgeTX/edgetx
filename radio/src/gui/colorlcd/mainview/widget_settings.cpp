@@ -155,13 +155,11 @@ WidgetSettings::WidgetSettings(Widget* w) :
       case WidgetOption::Switch:
         new SwitchChoice(
             line, rect_t{},
-            opt->min.signedValue,  // min
-            opt->max.signedValue,  // max
-            [=]() -> int16_t {       // getValue
-              return widgetData->getSignedValue(optIdx);
+            [=]() -> SwitchRef {
+              return swSrcToSwitchRef(widgetData->getSignedValue(optIdx));
             },
-            [=](int16_t newValue) {  // setValue
-              widgetData->setSignedValue(optIdx, newValue);
+            [=](SwitchRef ref) {
+              widgetData->setSignedValue(optIdx, switchRefToSwSrc(ref));
               SET_DIRTY();
             });
         break;

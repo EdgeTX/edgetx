@@ -172,10 +172,10 @@ void MixEditWindow::buildBody(Window *form)
   // Switch
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   [=]() -> int16_t { return (int16_t)switchRefToSwSrc(mix->swtch); },
-                   [=](int16_t newValue) {
-                     mix->swtch = swSrcToSwitchRef((swsrc_t)newValue);
+  new SwitchChoice(line, rect_t{},
+                   [=]() { return mix->swtch; },
+                   [=](SwitchRef ref) {
+                     mix->swtch = ref;
                      SET_DIRTY();
                    });
 

@@ -111,9 +111,12 @@ class LogicalSwitchEditPage : public Page
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
         choice = new SwitchChoice(
-            line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
-            SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+            line, rect_t{},
+            [=]() { return swSrcToSwitchRef(cs->v1); },
+            [=](SwitchRef ref) { cs->v1 = switchRefToSwSrc(ref); SET_DIRTY(); });
+        choice->setAvailableHandler([](SwitchRef ref) {
+          return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+        });
         break;
       case LS_FAMILY_COMP:
         new SourceChoice(line, rect_t{},
@@ -157,9 +160,12 @@ class LogicalSwitchEditPage : public Page
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
         choice = new SwitchChoice(
-            line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
-            SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+            line, rect_t{},
+            [=]() { return swSrcToSwitchRef(cs->v2); },
+            [=](SwitchRef ref) { cs->v2 = switchRefToSwSrc(ref); SET_DIRTY(); });
+        choice->setAvailableHandler([](SwitchRef ref) {
+          return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+        });
         break;
       case LS_FAMILY_EDGE: {
         auto edit1 =
@@ -218,10 +224,12 @@ class LogicalSwitchEditPage : public Page
     // AND switch
     line = logicalSwitchOneWindow->newLine(grid);
     new StaticText(line, rect_t{}, STR_AND_SWITCH);
-    choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW,
-                              [=] { return switchRefToSwSrc(cs->andsw); },
-                              [=](int32_t newValue) { cs->andsw = swSrcToSwitchRef(newValue); SET_DIRTY(); });
-    choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+    choice = new SwitchChoice(line, rect_t{},
+                              [=]() { return cs->andsw; },
+                              [=](SwitchRef ref) { cs->andsw = ref; SET_DIRTY(); });
+    choice->setAvailableHandler([](SwitchRef ref) {
+      return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+    });
 
     // Duration
     line = logicalSwitchOneWindow->newLine(grid);

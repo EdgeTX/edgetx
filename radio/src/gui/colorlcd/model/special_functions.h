@@ -94,7 +94,7 @@ class FunctionEditPage : public Page
   bool active = false;
 
   virtual bool isActive() const = 0;
-  virtual bool isSwitchAvailable(int value) const = 0;
+  virtual bool isSwitchAvailable(SwitchRef ref) const = 0;
   virtual CustomFunctionData *customFunctionData() const = 0;
   virtual bool isAssignableFunctionAvailable(int function) const = 0;
   virtual void setDirty() const = 0;
