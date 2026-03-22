@@ -535,7 +535,7 @@ uint8_t getFlightMode()
 {
   for (uint8_t i=1; i<MAX_FLIGHT_MODES; i++) {
     FlightModeData *phase = &g_model.flightModeData[i];
-    if (phase->swtch && getSwitch(phase->swtch)) {
+    if (!phase->swtch.isNone() && getSwitch(switchRefToSwSrc(phase->swtch))) {
       return i;
     }
   }

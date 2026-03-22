@@ -28,13 +28,13 @@ class SpecialFunctionsTest : public EdgeTxTest {};
 
 TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
-  // test the size of swtch member
-  (*customFnAddress(0)).swtch = SWSRC_LAST;
-  EXPECT_EQ((*customFnAddress(0)).swtch, SWSRC_LAST)
+  // test the size of swtch member (now SwitchRef, always large enough)
+  (*customFnAddress(0)).swtch = swSrcToSwitchRef(SWSRC_LAST);
+  EXPECT_EQ(switchRefToSwSrc((*customFnAddress(0)).swtch), SWSRC_LAST)
       << "CustomFunctionData.swtch member is too small to hold all possible "
          "values";
-  (*customFnAddress(0)).swtch = -SWSRC_LAST;
-  EXPECT_EQ((*customFnAddress(0)).swtch, -SWSRC_LAST)
+  (*customFnAddress(0)).swtch = swSrcToSwitchRef(-SWSRC_LAST);
+  EXPECT_EQ(switchRefToSwSrc((*customFnAddress(0)).swtch), -SWSRC_LAST)
       << "CustomFunctionData.swtch member is too small to hold all possible "
          "values";
 }
@@ -47,7 +47,7 @@ TEST_F(SpecialFunctionsTest, FlightReset)
       break;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
 
-  (*customFnAddress(0)).swtch = swPos;
+  (*customFnAddress(0)).swtch = swSrcToSwitchRef(swPos);
   (*customFnAddress(0)).func = FUNC_RESET;
   (*customFnAddress(0)).all.val = FUNC_RESET_FLIGHT;
   (*customFnAddress(0)).active = true;
@@ -84,7 +84,7 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
 
   simuSetSwitch(sw, 0);    // SA-
 
-  (*customFnAddress(0)).swtch = swPos;
+  (*customFnAddress(0)).swtch = swSrcToSwitchRef(swPos);
   (*customFnAddress(0)).func = FUNC_ADJUST_GVAR;
   (*customFnAddress(0)).all.mode = FUNC_ADJUST_GVAR_INCDEC;
   (*customFnAddress(0)).all.param = 0; // GV1

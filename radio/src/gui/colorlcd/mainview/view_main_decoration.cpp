@@ -99,7 +99,7 @@ static bool canTrimShow(int idx)
 {
   idx = inputMappingConvertMode(idx);
   for (int i = 0; i < MAX_FLIGHT_MODES; i += 1) {
-    if (i == 0 || g_model.flightModeData[i].swtch != SWITCH_NONE) {
+    if (i == 0 || !g_model.flightModeData[i].swtch.isNone()) {
       trim_t v = getRawTrimValue(i, idx);
       if (v.mode != TRIM_MODE_NONE && v.mode != TRIM_MODE_3POS)
         return true;

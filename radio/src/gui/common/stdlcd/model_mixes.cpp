@@ -25,8 +25,6 @@
 #include "input_mapping.h"
 #include "mixes.h"
 
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
 extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 
 #define _STRING_MAX(x)                     "/" #x

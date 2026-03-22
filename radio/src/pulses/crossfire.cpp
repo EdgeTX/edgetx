@@ -124,7 +124,7 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   }
   
   if (armingMode == ARMING_MODE_SWITCH) {
-    swsrc_t sw =  md->crsf.crsfArmingTrigger;
+    swsrc_t sw = switchRefToSwSrc(md->crsf.crsfArmingTrigger);
 
     *buf++ = (sw != SWSRC_NONE) && getSwitch(sw, 0);  // commanded armed status in Switch mode
   }

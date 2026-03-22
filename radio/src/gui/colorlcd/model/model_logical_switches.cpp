@@ -214,7 +214,8 @@ class LogicalSwitchEditPage : public Page
     line = logicalSwitchOneWindow->newLine(grid);
     new StaticText(line, rect_t{}, STR_AND_SWITCH);
     choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW,
-                              GET_SET_DEFAULT(cs->andsw));
+                              [=] { return switchRefToSwSrc(cs->andsw); },
+                              [=](int32_t newValue) { cs->andsw = swSrcToSwitchRef(newValue); SET_DIRTY(); });
     choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
 
     // Duration
@@ -392,7 +393,7 @@ class LogicalSwitchButton : public ListLineButton
     else
       lv_obj_clear_state(lsV2, LV_STATE_USER_1);
 
-    if (getSwitch(ls->andsw))
+    if (getSwitch(switchRefToSwSrc(ls->andsw)))
       lv_obj_add_state(lsAnd, LV_STATE_USER_1);
     else
       lv_obj_clear_state(lsAnd, LV_STATE_USER_1);
@@ -463,7 +464,7 @@ class LogicalSwitchButton : public ListLineButton
     }
 
     // AND switch
-    lv_label_set_text(lsAnd, getSwitchPositionName(ls->andsw));
+    lv_label_set_text(lsAnd, getSwitchPositionName(switchRefToSwSrc(ls->andsw)));
 
     // CSW duration
     if (ls->duration > 0) {

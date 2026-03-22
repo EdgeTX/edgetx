@@ -415,16 +415,16 @@ TEST(BitFieldCapacity, SwitchRefRoundTrip)
   EXPECT_EQ(mix->swtch.index, 10);
 }
 
-TEST(BitFieldCapacity, LegacySwtchCanHoldAllSwitchSources)
+TEST(BitFieldCapacity, SwitchRefCanRoundTrip)
 {
-  // FlightModeData.swtch is still int16_t:10 (signed), range -512..511
-  // SwitchSources enum uses positive values 0..SWSRC_LAST,
-  // negative values for inverted switches
-  constexpr int swtchMaxPositive = 511;
-
-  EXPECT_LE((int)SWSRC_LAST, swtchMaxPositive)
-      << "SwitchSources enum (" << (int)SWSRC_LAST
-      << ") exceeds swtch:10 signed positive range (" << swtchMaxPositive << ")";
+  // FlightModeData.swtch is now SwitchRef (4 bytes), can hold any switch.
+  // Verify round-trip through the bridge functions for extreme values.
+  SwitchRef ref = swSrcToSwitchRef(SWSRC_LAST);
+  EXPECT_EQ(switchRefToSwSrc(ref), SWSRC_LAST)
+      << "SWSRC_LAST should round-trip through SwitchRef";
+  ref = swSrcToSwitchRef(-SWSRC_LAST);
+  EXPECT_EQ(switchRefToSwSrc(ref), -SWSRC_LAST)
+      << "-SWSRC_LAST should round-trip through SwitchRef";
 }
 
 TEST(BitFieldCapacity, CurveRefValueRoundTrip)

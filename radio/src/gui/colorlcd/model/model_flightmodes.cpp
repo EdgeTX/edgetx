@@ -164,7 +164,9 @@ class FlightModeEdit : public Page
       line = body->newLine(grid);
       new StaticText(line, rect_t{}, STR_SWITCH);
       new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES,
-                       SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(p_fm->swtch));
+                       SWSRC_LAST_IN_MIXES,
+                       [=] { return switchRefToSwSrc(p_fm->swtch); },
+                       [=](int32_t newValue) { p_fm->swtch = swSrcToSwitchRef(newValue); SET_DIRTY(); });
     }
 
     // Fade in
@@ -292,9 +294,9 @@ class FlightModeBtn : public ListLineButton
       lv_label_set_text(fmName, "");
     }
 
-    if ((index > 0) && (fm.swtch != SWSRC_NONE)) {
+    if ((index > 0) && !fm.swtch.isNone()) {
       char label[16];
-      getSwitchPositionName(label, fm.swtch);
+      getSwitchPositionName(label, switchRefToSwSrc(fm.swtch));
       lv_label_set_text(fmSwitch, label);
     } else {
       lv_label_set_text(fmSwitch, "");

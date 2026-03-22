@@ -33,50 +33,8 @@
 #include "switchchoice.h"
 #include "textedit.h"
 
-// Defined in mixer.cpp
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
-
 // Defined in curves.cpp
 extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
-
-// Convert legacy swsrc_t back to SwitchRef
-static SwitchRef swSrcToSwitchRef(swsrc_t src)
-{
-  SwitchRef ref = {};
-  if (src == SWSRC_NONE) return ref;
-
-  bool inverted = (src < 0);
-  swsrc_t absSrc = inverted ? -src : src;
-
-  struct Range { swsrc_t first; swsrc_t last; uint8_t type; };
-  static const Range ranges[] = {
-    {SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, SWITCH_TYPE_SWITCH},
-    {SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SWITCH_TYPE_MULTIPOS},
-    {SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SWITCH_TYPE_TRIM},
-    {SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SWITCH_TYPE_LOGICAL},
-    {SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SWITCH_TYPE_FLIGHT_MODE},
-    {SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SWITCH_TYPE_SENSOR},
-  };
-
-  if (absSrc == SWSRC_ON) { ref.type = SWITCH_TYPE_ON; }
-  else if (absSrc == SWSRC_ONE) { ref.type = SWITCH_TYPE_ONE; }
-  else if (absSrc == SWSRC_TELEMETRY_STREAMING) { ref.type = SWITCH_TYPE_TELEMETRY; }
-  else if (absSrc == SWSRC_RADIO_ACTIVITY) { ref.type = SWITCH_TYPE_RADIO_ACTIVITY; }
-  else if (absSrc == SWSRC_TRAINER_CONNECTED) { ref.type = SWITCH_TYPE_TRAINER; }
-  else {
-    for (const auto& r : ranges) {
-      if (absSrc >= r.first && absSrc <= r.last) {
-        ref.type = r.type;
-        ref.index = absSrc - r.first;
-        break;
-      }
-    }
-  }
-
-  if (inverted) ref.flags = SWITCH_FLAG_INVERTED;
-  return ref;
-}
 
 // Convert legacy SourceNumVal rawValue to ValueOrSource
 static ValueOrSource legacyToValueOrSource(int32_t rawValue)

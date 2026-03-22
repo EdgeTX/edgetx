@@ -183,11 +183,12 @@ PACK(struct LimitData {
 PACK(struct LogicalSwitchData {
   uint8_t  func ENUM(LogicalSwitchesFunctions);
   CUST_ATTR(def,r_logicSw,w_logicSw);
-  int32_t  v1:10 SKIP;
-  int32_t  v3:10 SKIP;
-  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t lsPersist:1;
-  uint32_t lsState:1;
+  int16_t  v1 SKIP;
+  int16_t  v3 SKIP;
+  SwitchRef andsw;
+  uint8_t  lsPersist:1;
+  uint8_t  lsState:1;
+  uint8_t  spare:6 SKIP;
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
@@ -198,8 +199,8 @@ PACK(struct LogicalSwitchData {
  */
 
 PACK(struct CustomFunctionData {
-  int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
+  SwitchRef swtch;
+  uint8_t func ENUM(Functions);
   CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {
@@ -223,7 +224,7 @@ PACK(struct CustomFunctionData {
 
   bool isEmpty() const
   {
-    return swtch == 0;
+    return swtch.isNone();
   }
 });
 
@@ -240,8 +241,7 @@ PACK(struct FlightModeData {
   trim_t trim[MAX_TRIMS];
   NOBACKUP(char name[LEN_FLIGHT_MODE_NAME]);
   // swtch of phase[0] is not used
-  int16_t swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
-  int16_t spare:6 SKIP;
+  SwitchRef swtch;
   uint8_t fadeIn;
   uint8_t fadeOut;
   gvar_t gvars[MAX_GVARS] FUNC(gvar_is_active);
@@ -277,15 +277,15 @@ PACK(struct GVarData {
  */
 
 PACK(struct TimerData {
+  SwitchRef swtch;
   uint32_t start:22;
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  int32_t  value:22;
   uint32_t mode:3 ENUM(TimerModes);
   uint32_t countdownBeep:2;
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
-  uint8_t  showElapsed:1; 
+  int32_t  value:22;
+  uint8_t  showElapsed:1;
   uint8_t  extraHaptic:1;
   uint8_t  spare:6 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
@@ -298,9 +298,9 @@ PACK(struct TimerData {
 PACK(struct SwashRingData {
   uint8_t   type ENUM(SwashType);
   uint8_t   value;
-  uint8_t   collectiveSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  uint8_t   aileronSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  uint8_t   elevatorSource CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef collectiveSource;
+  SourceRef aileronSource;
+  SourceRef elevatorSource;
   int8_t    collectiveWeight;
   int8_t    aileronWeight;
   int8_t    elevatorWeight;
@@ -309,7 +309,7 @@ PACK(struct SwashRingData {
 #if MAX_SCRIPTS > 0
 union ScriptDataInput {
   int16_t value;
-  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef source;
 } FUNC(select_script_input);
 
 PACK(struct ScriptData {
@@ -571,8 +571,7 @@ PACK(struct ModuleData {
       uint8_t telemetryBaudrate:3;
       uint8_t crsfArmingMode:1;
       uint8_t spare2:4 SKIP;
-      int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
-      int16_t spare3:6;
+      SwitchRef crsfArmingTrigger;
     }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
@@ -1137,23 +1136,25 @@ PACK(struct RadioData {
   NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
 #endif
 
-  NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(SourceRef backlightSrc);
 
-  NOBACKUP(int16_t radioGFDisabled:1);
-  NOBACKUP(int16_t radioTrainerDisabled:1);
-  NOBACKUP(int16_t modelHeliDisabled:1);
-  NOBACKUP(int16_t modelFMDisabled:1);
-  NOBACKUP(int16_t modelCurvesDisabled:1);
-  NOBACKUP(int16_t modelGVDisabled:1);
+  NOBACKUP(uint8_t radioGFDisabled:1);
+  NOBACKUP(uint8_t radioTrainerDisabled:1);
+  NOBACKUP(uint8_t modelHeliDisabled:1);
+  NOBACKUP(uint8_t modelFMDisabled:1);
+  NOBACKUP(uint8_t modelCurvesDisabled:1);
+  NOBACKUP(uint8_t modelGVDisabled:1);
+  NOBACKUP(uint8_t disableFlags1Spare:2 SKIP);
 
-  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(SourceRef volumeSrc);
 
-  NOBACKUP(int16_t modelLSDisabled:1);
-  NOBACKUP(int16_t modelSFDisabled:1);
-  NOBACKUP(int16_t modelCustomScriptsDisabled:1);
-  NOBACKUP(int16_t modelTelemetryDisabled:1);
-  NOBACKUP(int16_t disableTrainerPoweroffAlarm:1);
-  NOBACKUP(int16_t disablePwrOnOffHaptic:1);
+  NOBACKUP(uint8_t modelLSDisabled:1);
+  NOBACKUP(uint8_t modelSFDisabled:1);
+  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
+  NOBACKUP(uint8_t modelTelemetryDisabled:1);
+  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
+  NOBACKUP(uint8_t disableFlags2Spare:2 SKIP);
 
   NOBACKUP(uint8_t modelQuickSelect:1);
 

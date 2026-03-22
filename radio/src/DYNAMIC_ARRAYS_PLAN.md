@@ -63,13 +63,21 @@ All three are 4 bytes, 32-bit word-aligned.
 | MixData | 20 B | 35 B | srcRaw→SourceRef, swtch→SwitchRef, weight→ValueOrSource, offset→ValueOrSource |
 | ExpoData | 18 B | 33 B | srcRaw→SourceRef, swtch→SwitchRef, weight→ValueOrSource, offset→ValueOrSource |
 | CurveRef | 2 B | 6 B | type→uint8_t, value→ValueOrSource |
+| LogicalSwitchData | 9 B | 14 B | v1/v3 widened to int16_t, andsw→SwitchRef |
+| CustomFunctionData | 11 B | 14 B | swtch→SwitchRef, func widened to uint8_t |
+| FlightModeData | +2 B | +2 B | swtch→SwitchRef (removed spare:6) |
+| TimerData | +3 B | +3 B | swtch→SwitchRef (restructured bit-fields) |
+| SwashRingData | 8 B | 17 B | collectiveSource/aileronSource/elevatorSource→SourceRef |
+| ScriptDataInput | 2 B | 4 B | source→SourceRef (union with int16_t value) |
+| ModuleData.crsf | unchanged | unchanged | crsfArmingTrigger→SwitchRef (within union) |
+| RadioData | +198 B | +198 B | backlightSrc/volumeSrc→SourceRef, customFn[64] +3 each |
 
 **Bridge functions** (temporary, until all code uses structured types natively):
 - `sourceRefToMixSrc()` / `switchRefToSwSrc()` in `mixer.cpp` — convert new→old for `getValue()`/`getSwitch()`/GUI functions that still expect enum integers
-- `mixSrcToSourceRef()` / `swSrcToSwitchRef()` — reverse, used in Lua API SET paths and GUI editors
+- `mixSrcToSourceRef()` / `swSrcToSwitchRef()` in `mixer.cpp` — reverse, declared in `myeeprom.h` for global access
 - `valueOrSourceToLegacy()` / `legacyToValueOrSource()` — bridge ValueOrSource↔SourceNumVal packed format
 
-**Files updated:** mixer.cpp, mixes.cpp, expos.cpp, model_init.cpp, curves.cpp, edgetx.cpp, all GUI editors (colorlcd + 212x64 + 128x64), Lua API, all test files.
+**Files updated:** mixer.cpp, mixes.cpp, expos.cpp, model_init.cpp, curves.cpp, edgetx.cpp, switches.cpp, timers.cpp, all GUI editors (colorlcd + 212x64 + 128x64), Lua API (api_model.cpp, interface.cpp), telemetry/crossfire.cpp, pulses/crossfire.cpp, yaml_datastructs_funcs.cpp, all test files.
 
 **Current arena element sizes** (updated):
 
@@ -190,4 +198,4 @@ All use `uint8_t idx` (max 255). Sufficient for current hard caps.
 
 4. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
 
-5. **Duplicate bridge functions**: `mixSrcToSourceRef()` and similar are duplicated as `static` in multiple GUI files. Should be consolidated.
+5. **Duplicate bridge functions**: RESOLVED — `mixSrcToSourceRef()` and `swSrcToSwitchRef()` are now defined in `mixer.cpp` and declared in `myeeprom.h`. All static duplicates removed.

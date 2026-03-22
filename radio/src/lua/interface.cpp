@@ -1112,7 +1112,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
 
           for (int j = 0; j < inputsCount; j++) {
             if (sio->inputs[j].type == INPUT_TYPE_SOURCE)
-              luaGetValueAndPush(lsScripts, sd.inputs[j].source);
+              luaGetValueAndPush(lsScripts, sourceRefToMixSrc(sd.inputs[j].source));
             else
               lua_pushinteger(lsScripts,
                               sd.inputs[j].value + sio->inputs[j].def);

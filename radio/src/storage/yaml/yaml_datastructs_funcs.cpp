@@ -1570,7 +1570,7 @@ bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
   data += bitoffs >> 3UL;
-  return ((CustomFunctionData*)data)->swtch;
+  return !((CustomFunctionData*)data)->swtch.isNone();
 }
 
 static bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)

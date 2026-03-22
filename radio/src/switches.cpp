@@ -506,7 +506,7 @@ bool getLogicalSwitch(uint8_t idx)
   LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
   bool result;
 
-  swsrc_t s = ls->andsw;
+  swsrc_t s = switchRefToSwSrc(ls->andsw);
 
   if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
     if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {

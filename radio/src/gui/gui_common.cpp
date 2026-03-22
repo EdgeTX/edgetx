@@ -391,7 +391,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
         return true;
       }
       FlightModeData * fm = flightModeAddress(swtch);
-      return (fm->swtch != SWSRC_NONE);
+      return !fm->swtch.isNone();
     }
   }
 
@@ -450,7 +450,7 @@ static bool isSwitchFMAvailable(int swtch, bool invert) {
   if (swtch == 0)
     return true;
   FlightModeData * fm = flightModeAddress(swtch);
-  return (fm->swtch != SWSRC_NONE);
+  return !fm->swtch.isNone();
 }
 
 static bool isSwitchTelemAvailable(int swtch, bool invert) {

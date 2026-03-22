@@ -277,7 +277,8 @@ const static SetupLineDef soundPageSetupLines[] = {
     STR_DEF(STR_CONTROL),
     [](Window* parent, coord_t x, coord_t y) {
       auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-              GET_SET_DEFAULT(g_eeGeneral.volumeSrc), true);
+              [=] { return sourceRefToMixSrc(g_eeGeneral.volumeSrc); },
+              [=](int32_t newValue) { g_eeGeneral.volumeSrc = mixSrcToSourceRef(newValue); SET_DIRTY(); }, true);
       choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
       new ControlTextOverride(parent, x, y, FUNCTION_VOLUME);
       }
@@ -556,7 +557,8 @@ const static SetupLineDef backlightSetupLines[] = {
     STR_DEF(STR_CONTROL),
     [](Window* parent, coord_t x, coord_t y) {
       auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-              GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
+              [=] { return sourceRefToMixSrc(g_eeGeneral.backlightSrc); },
+              [=](int32_t newValue) { g_eeGeneral.backlightSrc = mixSrcToSourceRef(newValue); SET_DIRTY(); }, true);
       choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
       new ControlTextOverride(parent, x, y, FUNCTION_BACKLIGHT);
     }

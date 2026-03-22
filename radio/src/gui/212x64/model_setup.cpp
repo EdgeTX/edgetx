@@ -252,26 +252,26 @@ void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES, timer.mode,
                      menuHorizontalPosition == 0 ? attr : 0);
 
-  drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timer.swtch,
-             menuHorizontalPosition == 1 ? attr : 0);
+  {
+    swsrc_t timerSw = switchRefToSwSrc(timer.swtch);
+    drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timerSw,
+               menuHorizontalPosition == 1 ? attr : 0);
 
-  // drawTimer(MODEL_SETUP_3RD_COLUMN, y, timer.start,
-  //           menuHorizontalPosition == 1 ? attr | TIMEHOUR : TIMEHOUR,
-  //           menuHorizontalPosition == 2 ? attr | TIMEHOUR : TIMEHOUR);
+    if (attr && menuHorizontalPosition < 0) {
+      lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
+    }
 
-  if (attr && menuHorizontalPosition < 0) {
-    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
-  }
-
-  if (attr && s_editMode > 0) {
-    switch (menuHorizontalPosition) {
-      case 0:
-        CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
-        break;
-      case 1:
-        CHECK_INCDEC_MODELSWITCH(event, timer.swtch, SWSRC_FIRST_IN_MIXES,
-                                 SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
-        break;
+    if (attr && s_editMode > 0) {
+      switch (menuHorizontalPosition) {
+        case 0:
+          CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
+          break;
+        case 1:
+          CHECK_INCDEC_MODELSWITCH(event, timerSw, SWSRC_FIRST_IN_MIXES,
+                                   SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
+          timer.swtch = swSrcToSwitchRef(timerSw);
+          break;
+      }
     }
   }
 }
@@ -1284,10 +1284,14 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
-        lcdDrawTextIndented(y, STR_SWITCH);
-        drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
-        if(attr)
-          CHECK_INCDEC_SWITCH(event, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
+        {
+          swsrc_t armSw = switchRefToSwSrc(g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger);
+          lcdDrawTextIndented(y, STR_SWITCH);
+          drawSwitch(MODEL_SETUP_2ND_COLUMN, y, armSw, attr);
+          if(attr)
+            CHECK_INCDEC_SWITCH(event, armSw, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
+          g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = swSrcToSwitchRef(armSw);
+        }
         break;
 #endif
 

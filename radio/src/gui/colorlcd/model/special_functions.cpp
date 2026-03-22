@@ -660,7 +660,8 @@ void FunctionEditPage::buildBody(Window *form)
   auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SF_SWITCH);
   auto switchChoice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
-                                       GET_SET_DEFAULT(CFN_SWITCH(cfn)));
+                                       GET_DEFAULT(CFN_SWITCH(cfn)),
+                                       [=](int32_t newValue) { cfn->swtch = swSrcToSwitchRef(newValue); });
   switchChoice->setAvailableHandler(
       [=](int value) { return isSwitchAvailable(value); });
 
@@ -725,7 +726,7 @@ void FunctionsPage::newSF(Window *window, bool pasteSF)
   // search for unused switches
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData *cfn = customFunctionData(i);
-    if (cfn->swtch == 0) {
+    if (cfn->swtch.isNone()) {
       menu->addLineBuffered(prefix + std::to_string(i + 1), [=]() {
         if (pasteSF) {
           pasteSpecialFunction(window, i, nullptr);
@@ -757,7 +758,7 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
   auto edit = editPage(index);
   edit->setCloseHandler([=]() {
     CustomFunctionData *cfn = customFunctionData(index);
-    if (cfn->swtch != 0) {
+    if (!cfn->swtch.isNone()) {
       focusIndex = index;
       if (button) {
         button->refresh();
@@ -791,7 +792,7 @@ void FunctionsPage::build(Window *window)
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData *cfn = customFunctionData(i);
 
-    bool isActive = (cfn->swtch != 0);
+    bool isActive = (!cfn->swtch.isNone());
 
     if (isActive) {
       auto button = functionButton(

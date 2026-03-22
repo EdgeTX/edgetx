@@ -61,7 +61,8 @@ ModelHeliPage::ModelHeliPage():
   line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_ELEVATOR);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                   GET_SET_DEFAULT(g_model.swashR.elevatorSource));
+                   [=] { return sourceRefToMixSrc(g_model.swashR.elevatorSource); },
+                   [=](int32_t newValue) { g_model.swashR.elevatorSource = mixSrcToSourceRef(newValue); SET_DIRTY(); });
 
   // Elevator weight
   auto w = new StaticText(line, rect_t{}, STR_WEIGHT, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
@@ -73,7 +74,8 @@ ModelHeliPage::ModelHeliPage():
   line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_AILERON);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                   GET_SET_DEFAULT(g_model.swashR.aileronSource));
+                   [=] { return sourceRefToMixSrc(g_model.swashR.aileronSource); },
+                   [=](int32_t newValue) { g_model.swashR.aileronSource = mixSrcToSourceRef(newValue); SET_DIRTY(); });
 
   // Aileron weight
   w = new StaticText(line, rect_t{}, STR_WEIGHT, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
@@ -85,7 +87,8 @@ ModelHeliPage::ModelHeliPage():
   line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_COLLECTIVE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                   GET_SET_DEFAULT(g_model.swashR.collectiveSource));
+                   [=] { return sourceRefToMixSrc(g_model.swashR.collectiveSource); },
+                   [=](int32_t newValue) { g_model.swashR.collectiveSource = mixSrcToSourceRef(newValue); SET_DIRTY(); });
 
   // Collective weight
   w = new StaticText(line, rect_t{}, STR_WEIGHT, COLOR_THEME_PRIMARY1_INDEX, RIGHT);

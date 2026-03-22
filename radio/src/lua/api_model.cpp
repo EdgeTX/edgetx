@@ -34,98 +34,6 @@
 
 #include <storage/sdcard_yaml.h>
 
-// Bridge functions from mixer.cpp for SourceRef/SwitchRef ↔ legacy integer conversion
-extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
-extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
-
-// Reverse of sourceRefToMixSrc: convert legacy MixSources integer to SourceRef
-static SourceRef mixSrcToSourceRef(mixsrc_t src)
-{
-  SourceRef ref = {};
-  if (src == MIXSRC_NONE) return ref;
-
-  bool inverted = (src < 0);
-  if (inverted) src = -src;
-
-  struct Range { mixsrc_t first; mixsrc_t last; uint8_t type; };
-  static const Range ranges[] = {
-    { MIXSRC_FIRST_INPUT,          MIXSRC_LAST_INPUT,          SOURCE_TYPE_INPUT },
-    { MIXSRC_FIRST_LUA,            MIXSRC_LAST_LUA,            SOURCE_TYPE_LUA },
-    { MIXSRC_FIRST_STICK,          MIXSRC_LAST_STICK,          SOURCE_TYPE_STICK },
-    { MIXSRC_FIRST_POT,            MIXSRC_LAST_POT,            SOURCE_TYPE_POT },
-#if defined(IMU)
-    { MIXSRC_TILT_X,               MIXSRC_TILT_Y,              SOURCE_TYPE_IMU },
-#endif
-#if defined(PCBHORUS)
-    { MIXSRC_FIRST_SPACEMOUSE,     MIXSRC_LAST_SPACEMOUSE,     SOURCE_TYPE_SPACEMOUSE },
-#endif
-    { MIXSRC_MIN,                  MIXSRC_MIN,                  SOURCE_TYPE_MIN },
-    { MIXSRC_MAX,                  MIXSRC_MAX,                  SOURCE_TYPE_MAX },
-    { MIXSRC_FIRST_HELI,           MIXSRC_LAST_HELI,           SOURCE_TYPE_HELI },
-    { MIXSRC_FIRST_TRIM,           MIXSRC_LAST_TRIM,           SOURCE_TYPE_TRIM },
-    { MIXSRC_FIRST_SWITCH,         MIXSRC_LAST_SWITCH,         SOURCE_TYPE_SWITCH },
-#if defined(FUNCTION_SWITCHES)
-    { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SOURCE_TYPE_CUSTOM_SWITCH_GROUP },
-#endif
-    { MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SOURCE_TYPE_LOGICAL_SWITCH },
-    { MIXSRC_FIRST_TRAINER,        MIXSRC_LAST_TRAINER,        SOURCE_TYPE_TRAINER },
-    { MIXSRC_FIRST_CH,             MIXSRC_LAST_CH,             SOURCE_TYPE_CHANNEL },
-    { MIXSRC_FIRST_GVAR,           MIXSRC_LAST_GVAR,           SOURCE_TYPE_GVAR },
-    { MIXSRC_TX_VOLTAGE,           MIXSRC_TX_VOLTAGE,          SOURCE_TYPE_TX_VOLTAGE },
-    { MIXSRC_TX_TIME,              MIXSRC_TX_TIME,             SOURCE_TYPE_TX_TIME },
-    { MIXSRC_FIRST_TIMER,          MIXSRC_LAST_TIMER,          SOURCE_TYPE_TIMER },
-    { MIXSRC_FIRST_TELEM,          MIXSRC_LAST_TELEM,          SOURCE_TYPE_TELEMETRY },
-#if defined(LUMINOSITY_SENSOR)
-    { MIXSRC_LIGHT,                MIXSRC_LIGHT,               SOURCE_TYPE_LIGHT },
-#endif
-  };
-
-  for (const auto& r : ranges) {
-    if (src >= r.first && src <= r.last) {
-      ref.type = r.type;
-      ref.index = src - r.first;
-      if (inverted) ref.flags = SOURCE_FLAG_INVERTED;
-      return ref;
-    }
-  }
-  return ref;
-}
-
-// Reverse of switchRefToSwSrc: convert legacy SwitchSources integer to SwitchRef
-static SwitchRef swSrcToSwitchRef(swsrc_t src)
-{
-  SwitchRef ref = {};
-  if (src == SWSRC_NONE) return ref;
-
-  bool inverted = (src < 0);
-  if (inverted) src = -src;
-
-  struct Range { swsrc_t first; swsrc_t last; uint8_t type; };
-  static const Range ranges[] = {
-    { SWSRC_FIRST_SWITCH,          SWSRC_LAST_SWITCH,          SWITCH_TYPE_SWITCH },
-    { SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SWITCH_TYPE_MULTIPOS },
-    { SWSRC_FIRST_TRIM,            SWSRC_LAST_TRIM,            SWITCH_TYPE_TRIM },
-    { SWSRC_FIRST_LOGICAL_SWITCH,  SWSRC_LAST_LOGICAL_SWITCH,  SWITCH_TYPE_LOGICAL },
-    { SWSRC_ON,                    SWSRC_ON,                    SWITCH_TYPE_ON },
-    { SWSRC_ONE,                   SWSRC_ONE,                   SWITCH_TYPE_ONE },
-    { SWSRC_FIRST_FLIGHT_MODE,     SWSRC_LAST_FLIGHT_MODE,     SWITCH_TYPE_FLIGHT_MODE },
-    { SWSRC_TELEMETRY_STREAMING,   SWSRC_TELEMETRY_STREAMING,  SWITCH_TYPE_TELEMETRY },
-    { SWSRC_FIRST_SENSOR,          SWSRC_LAST_SENSOR,          SWITCH_TYPE_SENSOR },
-    { SWSRC_RADIO_ACTIVITY,        SWSRC_RADIO_ACTIVITY,       SWITCH_TYPE_RADIO_ACTIVITY },
-    { SWSRC_TRAINER_CONNECTED,     SWSRC_TRAINER_CONNECTED,    SWITCH_TYPE_TRAINER },
-  };
-
-  for (const auto& r : ranges) {
-    if (src >= r.first && src <= r.last) {
-      ref.type = r.type;
-      ref.index = src - r.first;
-      if (inverted) ref.flags = SWITCH_FLAG_INVERTED;
-      return ref;
-    }
-  }
-  return ref;
-}
-
 // Convert ValueOrSource to Lua integer (replaces sourceNumValToLuaInt)
 // Numeric values pass through; source values get offset by +/-1024
 static int valueOrSourceToLuaInt(const ValueOrSource& vs)
@@ -437,7 +345,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableinteger(L, "persistent", timer.persistent);
     lua_pushtablenstring(L, "name", timer.name);
     lua_pushtableboolean(L, "showElapsed", timer.showElapsed);
-    lua_pushtableinteger(L, "switch", timer.swtch);
+    lua_pushtableinteger(L, "switch", switchRefToSwSrc(timer.swtch));
     lua_pushtableinteger(L, "countdownStart", timer.countdownStart);
     lua_pushtableinteger(L, "extraHaptic", timer.extraHaptic);
   }
@@ -497,7 +405,7 @@ static int luaModelSetTimer(lua_State *L)
         timer.showElapsed = lua_toboolean(L, -1);
       } 
       else if (!strcmp(key, "switch")) {
-        timer.swtch = luaL_checkinteger(L, -1);
+        timer.swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "countdownStart")) {
         timer.countdownStart = luaL_checkinteger(L, -1);
@@ -618,7 +526,7 @@ static int luaModelGetFlightMode(lua_State * L)
     FlightModeData * fm = flightModeAddress(idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", fm->name);
-    lua_pushtableinteger(L, "switch", fm->swtch);
+    lua_pushtableinteger(L, "switch", switchRefToSwSrc(fm->swtch));
     lua_pushtableinteger(L, "fadeIn", fm->fadeIn);
     lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
     lua_pushstring(L, "trimsValues");
@@ -674,7 +582,7 @@ static int luaModelSetFlightMode(lua_State * L)
       strncpy(fm->name, name, sizeof(fm->name));
     }
     else if (!strcmp(key, "switch")) {
-      fm->swtch = luaL_checkinteger(L, -1);
+      fm->swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "fadeIn")) {
       fm->fadeIn = luaL_checkinteger(L, -1);
@@ -1251,7 +1159,7 @@ static int luaModelGetLogicalSwitch(lua_State *L)
     lua_pushtableinteger(L, "v1", sw->v1);
     lua_pushtableinteger(L, "v2", sw->v2);
     lua_pushtableinteger(L, "v3", sw->v3);
-    lua_pushtableinteger(L, "and", sw->andsw);
+    lua_pushtableinteger(L, "and", switchRefToSwSrc(sw->andsw));
     lua_pushtableinteger(L, "delay", sw->delay);
     lua_pushtableinteger(L, "duration", sw->duration); 
     lua_pushtableboolean(L, "state", sw->lsState);
@@ -1303,7 +1211,7 @@ static int luaModelSetLogicalSwitch(lua_State *L)
         sw->v3 = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "and")) {
-        sw->andsw = luaL_checkinteger(L, -1);
+        sw->andsw = swSrcToSwitchRef(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "delay")) {
         sw->delay = luaL_checkinteger(L, -1);
@@ -1657,7 +1565,7 @@ static int luaModelSetCustomFunction(lua_State *L)
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "switch")) {
-        CFN_SWITCH(cfn) = luaL_checkinteger(L, -1);
+        cfn->swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "func")) {
         CFN_FUNC(cfn) = luaL_checkinteger(L, -1);
@@ -2016,9 +1924,9 @@ static int luaModelGetSwashRing(lua_State *L)
   lua_newtable(L);
   lua_pushtableinteger(L, "type", g_model.swashR.type);
   lua_pushtableinteger(L, "value", g_model.swashR.value);
-  lua_pushtableinteger(L, "collectiveSource", g_model.swashR.collectiveSource);
-  lua_pushtableinteger(L, "aileronSource", g_model.swashR.aileronSource);
-  lua_pushtableinteger(L, "elevatorSource", g_model.swashR.elevatorSource);
+  lua_pushtableinteger(L, "collectiveSource", sourceRefToMixSrc(g_model.swashR.collectiveSource));
+  lua_pushtableinteger(L, "aileronSource", sourceRefToMixSrc(g_model.swashR.aileronSource));
+  lua_pushtableinteger(L, "elevatorSource", sourceRefToMixSrc(g_model.swashR.elevatorSource));
   lua_pushtableinteger(L, "collectiveWeight", g_model.swashR.collectiveWeight);
   lua_pushtableinteger(L, "aileronWeight", g_model.swashR.aileronWeight);
   lua_pushtableinteger(L, "elevatorWeight", g_model.swashR.elevatorWeight);
@@ -2050,13 +1958,13 @@ static int luaModelSetSwashRing(lua_State *L)
       g_model.swashR.value = luaL_checkinteger(L, -1);
     }
     else if (!strcmp(key, "collectiveSource")) {
-      g_model.swashR.collectiveSource = luaL_checkinteger(L, -1);
+      g_model.swashR.collectiveSource = mixSrcToSourceRef(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "aileronSource")) {
-      g_model.swashR.aileronSource = luaL_checkinteger(L, -1);
+      g_model.swashR.aileronSource = mixSrcToSourceRef(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "elevatorSource")) {
-      g_model.swashR.elevatorSource = luaL_checkinteger(L, -1);
+      g_model.swashR.elevatorSource = mixSrcToSourceRef(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "collectiveWeight")) {
       g_model.swashR.collectiveWeight = luaL_checkinteger(L, -1);
