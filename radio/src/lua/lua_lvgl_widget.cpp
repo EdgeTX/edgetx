@@ -2949,12 +2949,11 @@ void LvglWidgetSourcePicker::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = 0;
   auto c = new SourceChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      0, MIXSRC_LAST_TELEM,
-      [=]() { return pcallGetIntVal(L, getFunction); },
-      [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); },
+      [=]() -> SourceRef { return mixSrcToSourceRef(pcallGetIntVal(L, getFunction)); },
+      [=](SourceRef ref) { pcallSetIntVal(L, setFunction, sourceRefToMixSrc(ref)); },
       filter & SRC_INVERT);
-  c->setAvailableHandler([=](int value) {
-    return checkSourceAvailable(value, filter);
+  c->setAvailableHandler([=](SourceRef ref) {
+    return checkSourceAvailable(sourceRefToMixSrc(ref), filter);
   });
   window = c;
 }

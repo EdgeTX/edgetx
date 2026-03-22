@@ -276,10 +276,12 @@ const static SetupLineDef soundPageSetupLines[] = {
     // Volume source
     STR_DEF(STR_CONTROL),
     [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-              [=] { return sourceRefToMixSrc(g_eeGeneral.volumeSrc); },
-              [=](int32_t newValue) { g_eeGeneral.volumeSrc = mixSrcToSourceRef(newValue); SET_DIRTY(); }, true);
-      choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
+      auto choice = new SourceChoice(parent, {x, y, 0, 0},
+              [=]() { return g_eeGeneral.volumeSrc; },
+              [=](SourceRef ref) { g_eeGeneral.volumeSrc = ref; SET_DIRTY(); }, true);
+      choice->setAvailableHandler([](SourceRef ref) {
+        return isSourceAvailableForBacklightOrVolume(sourceRefToMixSrc(ref));
+      });
       new ControlTextOverride(parent, x, y, FUNCTION_VOLUME);
       }
   },
@@ -556,10 +558,12 @@ const static SetupLineDef backlightSetupLines[] = {
     // Backlight/Brightness source
     STR_DEF(STR_CONTROL),
     [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-              [=] { return sourceRefToMixSrc(g_eeGeneral.backlightSrc); },
-              [=](int32_t newValue) { g_eeGeneral.backlightSrc = mixSrcToSourceRef(newValue); SET_DIRTY(); }, true);
-      choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
+      auto choice = new SourceChoice(parent, {x, y, 0, 0},
+              [=]() { return g_eeGeneral.backlightSrc; },
+              [=](SourceRef ref) { g_eeGeneral.backlightSrc = ref; SET_DIRTY(); }, true);
+      choice->setAvailableHandler([](SourceRef ref) {
+        return isSourceAvailableForBacklightOrVolume(sourceRefToMixSrc(ref));
+      });
       new ControlTextOverride(parent, x, y, FUNCTION_BACKLIGHT);
     }
   },

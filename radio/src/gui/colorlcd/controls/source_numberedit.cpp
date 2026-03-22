@@ -48,14 +48,14 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
 
   // Source field
   source_field = new SourceChoice(
-      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, sourceMin, INPUTSRC_LAST,
-      [=]() {
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0},
+      [=]() -> SourceRef {
         SourceNumVal v;
         v.rawValue = getValue();
-        return v.value;
+        return mixSrcToSourceRef(v.value);
       },
-      [=](int newValue) {
-        SourceNumVal v = {(int16_t)newValue, true};
+      [=](SourceRef ref) {
+        SourceNumVal v = {(int16_t)sourceRefToMixSrc(ref), true};
         setValue(v.rawValue);
       }, true);
 

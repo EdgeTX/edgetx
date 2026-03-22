@@ -331,8 +331,12 @@ void FunctionEditPage::buildHeader(Window *window, const char *title,
 void FunctionEditPage::addSourceChoice(FormLine *line, const char *title,
                                        CustomFunctionData *cfn, int16_t vmax)
 {
+  (void)vmax;  // No longer used; all sources are enumerated by type
   new StaticText(line, rect_t{}, title);
-  new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)), true);
+  new SourceChoice(line, rect_t{},
+                   [=]() { return mixSrcToSourceRef(CFN_PARAM(cfn)); },
+                   [=](SourceRef ref) { CFN_PARAM(cfn) = sourceRefToMixSrc(ref); SET_DIRTY(); },
+                   true);
 }
 
 NumberEdit *FunctionEditPage::addNumberEdit(FormLine *line, const char *title,

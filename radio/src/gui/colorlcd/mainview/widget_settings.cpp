@@ -82,12 +82,12 @@ WidgetSettings::WidgetSettings(Widget* w) :
 
       case WidgetOption::Source:
         new SourceChoice(
-            line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-            [=]() -> int16_t {
-              return widgetData->getUnsignedValue(optIdx);
+            line, rect_t{},
+            [=]() -> SourceRef {
+              return mixSrcToSourceRef((mixsrc_t)widgetData->getUnsignedValue(optIdx));
             },
-            [=](int16_t newValue) {
-              widgetData->setUnsignedValue(optIdx, (uint32_t)newValue);
+            [=](SourceRef ref) {
+              widgetData->setUnsignedValue(optIdx, (uint32_t)sourceRefToMixSrc(ref));
               SET_DIRTY();
             });
         break;

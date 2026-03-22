@@ -92,10 +92,10 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   lv_obj_set_size(lvobj, lv_pct(100), LV_SIZE_CONTENT);
 
   new SourceChoice(
-      this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST,
-      [=]() -> int16_t { return (int16_t)sourceRefToMixSrc(input->srcRaw); },
-      [=](int16_t newValue) {
-        input->srcRaw = mixSrcToSourceRef((mixsrc_t)newValue);
+      this, rect_t{},
+      [=]() { return input->srcRaw; },
+      [=](SourceRef ref) {
+        input->srcRaw = ref;
         update();
         SET_DIRTY();
       }, true);
