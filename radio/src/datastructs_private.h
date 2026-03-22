@@ -122,7 +122,7 @@ PACK(struct CurveRef {
 });
 
 PACK(struct MixData {
-  SourceRef srcRaw;          // source (type=NONE means unused line)
+  SourceRef srcRaw CUST(r_sourceRefEx, w_sourceRefEx);          // source (type=NONE means unused line, supports inversion)
   SwitchRef swtch;           // activation switch
   ValueOrSource weight;      // weight value or source
   ValueOrSource offset;      // offset value or source
@@ -146,7 +146,7 @@ PACK(struct MixData {
  */
 
 PACK(struct ExpoData {
-  SourceRef srcRaw;          // source
+  SourceRef srcRaw CUST(r_sourceRefEx, w_sourceRefEx);          // source (supports inversion)
   SwitchRef swtch;           // activation switch
   ValueOrSource weight;      // weight value or source
   ValueOrSource offset;      // offset value or source

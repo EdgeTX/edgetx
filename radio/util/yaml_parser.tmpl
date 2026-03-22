@@ -40,7 +40,17 @@ static const struct YamlNode {{ struct.name }}[] = {
     {% elif elmt.type == 'enum' %}
   YAML_ENUM("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}, {{ elmt.func }}),
     {% elif elmt.type == 'struct' %}
+      {% if elmt.f_read and elmt.f_write %}
+  YAML_UNSIGNED_CUST( "{{ max_len(elmt.name) }}", {{ elmt.bits }}, {{ elmt.f_read}}, {{ elmt.f_write}} ),
+      {% elif elmt.var_type == 'struct_SourceRef' %}
+  YAML_UNSIGNED_CUST( "{{ max_len(elmt.name) }}", {{ elmt.bits }}, r_sourceRef, w_sourceRef ),
+      {% elif elmt.var_type == 'struct_SwitchRef' %}
+  YAML_UNSIGNED_CUST( "{{ max_len(elmt.name) }}", {{ elmt.bits }}, r_switchRef, w_switchRef ),
+      {% elif elmt.var_type == 'struct_ValueOrSource' %}
+  YAML_UNSIGNED_CUST( "{{ max_len(elmt.name) }}", {{ elmt.bits }}, r_valOrSrc, w_valOrSrc ),
+      {% else %}
   YAML_STRUCT("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}, {{ elmt.func }}),
+      {% endif %}
     {% elif elmt.type == 'union' %}
   YAML_UNION("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}_elmts, {{ elmt.func}}),
     {% elif elmt.type == 'array' %}
