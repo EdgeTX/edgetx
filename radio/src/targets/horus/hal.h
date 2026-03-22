@@ -1067,9 +1067,6 @@
 #endif
 
 // Internal PXX1 Module:
-//  -> let's assume all internal XJT modules used are either X10 or X12S type
-#define EXTERNAL_ANTENNA
-
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOA, 8) // PA.08
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 6) // PB.06
 #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 7) // PB.07

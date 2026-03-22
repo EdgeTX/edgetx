@@ -81,13 +81,13 @@ USART6: EXTMODULE_USART
 #define KEYS_GPIO_REG_PAGEDN          GPIOI
 #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_11
 #define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5 
+#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5
 #define KEYS_GPIO_REG_EXIT            GPIOK
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5 
+#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5
 #define KEYS_GPIO_REG_SYS             GPIOJ
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3 
+#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3
 #define KEYS_GPIO_REG_TELE            GPIOK
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4 
+#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4
 
 // Trims
 #define TRIMS_GPIO_REG_LHL            GPIOB
@@ -185,11 +185,11 @@ USART6: EXTMODULE_USART
 
 #define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_1      // PC.03 POT2 ADC12_INP10
 #define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_0      // PC.02 POT1 ADC123_INP11
-#define ADC_GPIO_PIN_POT3               LL_GPIO_PIN_5      // PC.02 POT1 ADC123_INP8
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PC.05 ADC12_INP13
+#define ADC_GPIO_PIN_POT3               LL_GPIO_PIN_5      // PC.05 6POS ADC123_INP8
+#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PC.03 BATT ADC12_INP13
 
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV, ADC_GPIO_PIN_STICK_RH, ADC_GPIO_PIN_STICK_RV)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 |ADC_GPIO_PIN_POT3| ADC_GPIO_PIN_BATT )
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_BATT)
 
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_14
 #define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_15
@@ -263,7 +263,7 @@ USART6: EXTMODULE_USART
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12) // 
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12) //
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
@@ -369,8 +369,6 @@ USART6: EXTMODULE_USART
 #define LED_BLUE_GPIO                 GPIO_PIN(GPIOI, 14)
 
 // Internal Module
-#define EXTERNAL_ANTENNA
-
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOG, 13)
 #define INTMODULE_ANTSEL_GPIO           GPIO_PIN(GPIOA, 8)  //ANE SELECT 0=Int 1=Ext
 #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOG, 9)
@@ -444,20 +442,20 @@ USART6: EXTMODULE_USART
 #define I2C_B4_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B4_CLK_RATE                 400000
 
-// Touch
-#define TOUCH_I2C_BUS                 I2C_Bus_4
-#define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 14)  // PJ.14
-#define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)  // PD.11
+// Touch - not present
+// #define TOUCH_I2C_BUS                 I2C_Bus_4
+// #define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 14)  // PJ.14
+// #define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)  // PD.11
 
-#define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
-#define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
-#define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
+// #define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
+// #define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
+// #define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
 
-// TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-#define USE_EXTI15_10_IRQ
-#define EXTI15_10_IRQ_Priority 9
-#endif
+// // TOUCH_INT_EXTI IRQ
+// #if !defined(USE_EXTI15_10_IRQ)
+// #define USE_EXTI15_10_IRQ
+// #define EXTI15_10_IRQ_Priority 9
+// #endif
 
 // IMU
 #define IMU_I2C_BUS                     I2C_Bus_4
