@@ -170,7 +170,7 @@ void FunctionLineButton::refresh()
     case FUNC_VOLUME:
     case FUNC_BACKLIGHT:
     case FUNC_PLAY_VALUE:
-      strcat(s, getSourceString(CFN_PARAM(cfn)));
+      strcat(s, getSourceString(mixSrcToSourceRef(CFN_PARAM(cfn))));
       break;
 
     case FUNC_PLAY_SOUND:
@@ -220,7 +220,7 @@ void FunctionLineButton::refresh()
       break;
 
     case FUNC_ADJUST_GVAR:
-      strcat(s, getSourceString(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR));
+      strcat(s, getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}));
       switch (CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
           sprintf(s + strlen(s), " = %s",
@@ -228,11 +228,11 @@ void FunctionLineButton::refresh()
           break;
         case FUNC_ADJUST_GVAR_SOURCE:
         case FUNC_ADJUST_GVAR_SOURCERAW:
-          sprintf(s + strlen(s), " = %s", getSourceString(CFN_PARAM(cfn)));
+          sprintf(s + strlen(s), " = %s", getSourceString(mixSrcToSourceRef(CFN_PARAM(cfn))));
           break;
         case FUNC_ADJUST_GVAR_GVAR:
           sprintf(s + strlen(s), " = %s",
-                  getSourceString(CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR));
+                  getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_PARAM(cfn)}));
           break;
         case FUNC_ADJUST_GVAR_INCDEC: {
           int16_t value = CFN_PARAM(cfn);

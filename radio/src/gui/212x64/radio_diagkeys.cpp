@@ -75,8 +75,8 @@ void menuRadioDiagKeys(event_t event)
       coord_t x = 4 * FH * qr.quot;
       coord_t y = MENU_HEADER_HEIGHT + 1 + FH * qr.rem;
       getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-      getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-      drawSwitch(8 * FW + x, y, swSrcToSwitchRef(sw), 0);
+      uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
+      drawSwitch(8 * FW + x, y, SwitchRef{SWITCH_TYPE_SWITCH, 0, swIdx}, 0);
     }
   }
 

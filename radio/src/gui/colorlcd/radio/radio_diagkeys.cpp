@@ -199,9 +199,10 @@ class RadioKeyDiagsWindow : public Window
     for (i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-        getvalue_t sw =
-            ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-        lv_label_set_text(switchValues[i], getSwitchPositionName(swSrcToSwitchRef(sw)));
+        // Switch position: 0=down(val<0), 1=mid(val==0), 2=up(val>0)
+        uint16_t pos = (val < 0) ? 0 : ((val == 0) ? 1 : 2);
+        SwitchRef ref = {SWITCH_TYPE_SWITCH, 0, (uint16_t)(3 * i + pos)};
+        lv_label_set_text(switchValues[i], getSwitchPositionName(ref));
       }
     }
   }

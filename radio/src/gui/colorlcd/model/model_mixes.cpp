@@ -382,7 +382,7 @@ void ModelMixesPage::deleteMix(uint8_t index)
   if (!line) return;
 
   auto mix = mixAddress(index);
-  std::string s(getSourceString(mixSrcToSourceRef(group->getMixSrc())));
+  std::string s(getSourceString(group->getSourceRef()));
   s += " - ";
   if (mix->name[0]) {
     s += mix->name;

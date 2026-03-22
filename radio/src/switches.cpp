@@ -462,9 +462,8 @@ uint8_t switchGetMaxRow(uint8_t col)
 getvalue_t getValueForLogicalSwitch(const SourceRef& src)
 {
   getvalue_t result = getValue(src);
-  mixsrc_t i = sourceRefToMixSrc(src);
-  if (i>=MIXSRC_FIRST_INPUT && i<=MIXSRC_LAST_INPUT) {
-    int8_t trimIdx = virtualInputsTrims[i-MIXSRC_FIRST_INPUT];
+  if (src.type == SOURCE_TYPE_INPUT) {
+    int8_t trimIdx = virtualInputsTrims[src.index];
     if (trimIdx >= 0) {
       int16_t trim = trims[trimIdx];
       if (trimIdx == inputMappingConvertMode(inputMappingGetThrottle()) && g_model.throttleReversed)
@@ -560,10 +559,9 @@ bool getLogicalSwitch(uint8_t idx)
       }
     }
     else {
-      mixsrc_t v1 = sourceRefToMixSrc(ls->v1.source);
       // Telemetry
-      if (v1 >= MIXSRC_FIRST_TELEM) {
-        if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1-1)) {
+      if (ls->v1.source.type == SOURCE_TYPE_TELEMETRY) {
+        if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(MIXSRC_FIRST_TELEM + ls->v1.source.index - 1)) {
           result = false;
           goto DurationAndDelayProcessing;
         }
@@ -572,7 +570,7 @@ bool getLogicalSwitch(uint8_t idx)
 
 
       }
-      else if (v1 >= MIXSRC_FIRST_GVAR) {
+      else if (ls->v1.source.type > SOURCE_TYPE_CHANNEL) {
         y = ls->v2.value;
       }
       else {
@@ -585,7 +583,7 @@ bool getLogicalSwitch(uint8_t idx)
           break;
         case LS_FUNC_VALMOSTEQUAL:
 #if defined(GVARS)
-          if (v1 >= MIXSRC_FIRST_GVAR && v1 <= MIXSRC_LAST_GVAR)
+          if (ls->v1.source.type == SOURCE_TYPE_GVAR)
             result = (x==y);
           else
 #endif
@@ -1206,7 +1204,7 @@ void logicalSwitchesReset()
 getvalue_t convertLswTelemValue(LogicalSwitchData * ls)
 {
   getvalue_t val;
-  val = convert16bitsTelemValue(sourceRefToMixSrc(ls->v1.source) - MIXSRC_FIRST_TELEM + 1, ls->v2.value);
+  val = convert16bitsTelemValue(ls->v1.source.index + 1, ls->v2.value);
   return val;
 }
 

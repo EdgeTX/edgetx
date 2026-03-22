@@ -1214,7 +1214,7 @@ void menuModelSetup(event_t event)
         lcdDrawTextIndented(y, STR_TTRIM_SW);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
-        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, mixSrcToSourceRef(g_model.getThrottleStickTrimSource()), attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, g_model.getThrottleStickTrimSourceRef(), attr);
         break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
@@ -1654,9 +1654,8 @@ void menuModelSetup(event_t event)
         {
           drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, attr);
           if(attr) {
-            swsrc_t armSw = switchRefToSwSrc(g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger);
-            CHECK_INCDEC_SWITCH(event, armSw, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
-            g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = swSrcToSwitchRef(armSw);
+            g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
+                g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
           }
         }
         break;

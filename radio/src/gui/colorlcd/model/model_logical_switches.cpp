@@ -63,7 +63,7 @@ class LogicalSwitchEditPage : public Page
 
   bool isActive() const
   {
-    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
+    return getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index});
   }
 
   void checkEvents() override
@@ -379,7 +379,7 @@ class LogicalSwitchButton : public ListLineButton
 
   bool isActive() const override
   {
-    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
+    return getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index});
   }
 
   void checkEvents() override

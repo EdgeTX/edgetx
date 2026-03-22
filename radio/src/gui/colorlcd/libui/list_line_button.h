@@ -24,6 +24,7 @@
 #include "button.h"
 #include "edgetx_types.h"
 #include "pagegroup.h"
+#include "sourceref.h"
 
 class ListLineButton : public ButtonBase
 {
@@ -53,7 +54,6 @@ class InputMixButtonBase : public ListLineButton
   ~InputMixButtonBase();
 
   void setWeight(gvar_t value, gvar_t min, gvar_t max);
-  void setSource(mixsrc_t idx);
   void setSource(const SourceRef& ref);
   void setOpts(const char* s);
   void setFlightModes(uint16_t modes);
@@ -111,6 +111,7 @@ class InputMixGroupBase : public Window
   InputMixGroupBase(Window* parent, mixsrc_t idx);
 
   mixsrc_t getMixSrc() { return idx; }
+  const SourceRef& getSourceRef() { return srcRef; }
   size_t getLineCount() { return lines.size(); }
   int getLineNumber(uint8_t idx);
 
@@ -122,6 +123,7 @@ class InputMixGroupBase : public Window
 
  protected:
   mixsrc_t idx;
+  SourceRef srcRef;
   lv_obj_t* label;
   std::list<InputMixButtonBase*> lines;
 

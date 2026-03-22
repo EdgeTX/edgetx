@@ -93,24 +93,6 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
   lv_label_set_text(weight, s);
 }
 
-void InputMixButtonBase::setSource(mixsrc_t idx)
-{
-  if (!source) {
-    source = etx_label_create(lvobj);
-    lv_obj_set_pos(source, SRC_X, SRC_Y);
-    lv_obj_set_size(source, SRC_W, SRC_H);
-    etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
-  }
-
-  char* s = getSourceString(mixSrcToSourceRef(idx));
-  if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
-    lv_obj_add_state(source, LV_STATE_USER_1);
-  else
-    lv_obj_clear_state(source, LV_STATE_USER_1);
-
-  lv_label_set_text(source, s);
-}
-
 void InputMixButtonBase::setSource(const SourceRef& ref)
 {
   if (!source) {
@@ -261,7 +243,7 @@ static lv_obj_t* group_create(lv_obj_t* parent)
 }
 
 InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
-    Window(parent, rect_t{}, group_create), idx(idx)
+    Window(parent, rect_t{}, group_create), idx(idx), srcRef(mixSrcToSourceRef(idx))
 {
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
@@ -319,7 +301,7 @@ bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
 
 void InputMixGroupBase::refresh()
 {
-  char* s = getSourceString(mixSrcToSourceRef(idx));
+  char* s = getSourceString(srcRef);
   if (getTextWidth(s, 0, FONT(STD)) > InputMixButtonBase::LN_X - PAD_TINY)
     lv_obj_add_state(label, LV_STATE_USER_1);
   else

@@ -366,9 +366,6 @@ void SourceChoice::setAvailableHandler(std::function<bool(SourceRef)> handler)
   buildEntries();
 }
 
-// defined in gui/gui_common.cpp
-uint8_t switchToMix(uint8_t source);
-
 void SourceChoice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
@@ -402,14 +399,13 @@ void SourceChoice::openMenu()
     else {
       swsrc_t swtch = abs(getMovedSwitch());
       if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-        val = switchToMix(swtch);
-        if (val) {
-          SourceRef switchRef = mixSrcToSourceRef(val);
-          int idx = findEntry(switchRef);
-          if (idx >= 0) {
-            tb->resetFilter();
-            menu->select(idx);
-          }
+        // Convert swsrc_t directly to SourceRef (switch index = (swtch-1)/3)
+        div_t qr = div((int)(swtch - 1), 3);
+        SourceRef switchRef = {SOURCE_TYPE_SWITCH, 0, (uint16_t)qr.quot};
+        int idx = findEntry(switchRef);
+        if (idx >= 0) {
+          tb->resetFilter();
+          menu->select(idx);
         }
       }
     }
