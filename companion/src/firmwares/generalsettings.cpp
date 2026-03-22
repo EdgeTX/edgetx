@@ -567,7 +567,8 @@ AbstractStaticItemModel * GeneralSettings::antennaModeItemModel(bool model_setup
   mdl->setName(AIM_GS_ANTENNAMODE);
 
   for (int i = ANTENNA_MODE_FIRST; i <= ANTENNA_MODE_LAST; i++) {
-    mdl->appendToItemList(antennaModeToString(i), i, model_setup ? i != ANTENNA_MODE_PER_MODEL : true);
+    bool enabled = model_setup ? i != ANTENNA_MODE_PER_MODEL : true;
+    mdl->appendToItemList(antennaModeToString(i), i, enabled);
   }
 
   mdl->loadItemList();

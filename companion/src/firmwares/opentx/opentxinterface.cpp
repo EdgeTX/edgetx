@@ -642,6 +642,13 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, EU + FLEX);
 
+  /* HelloRadioSky V12 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("v12"), Firmware::tr("HelloRadioSky V12"), BOARD_HELLORADIOSKY_V12);
+  addOpenTxCommonOptions(firmware);
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
   /* HelloRadioSky V14 board */
   firmware = new OpenTxFirmware(FIRMWAREID("v14"), Firmware::tr("HelloRadioSky V14"), BOARD_HELLORADIOSKY_V14);
   addOpenTxCommonOptions(firmware);

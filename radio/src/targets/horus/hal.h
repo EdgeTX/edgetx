@@ -351,7 +351,7 @@
   #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_3  // PD.03
   #define TRIMS_GPIO_REG_RHR            GPIOD
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_7  // PD.07
-  
+
   // T5/T6 trim assignments
   #if defined(RADIO_V16)
     // T5/T6 trims are in exchanged positions to other handsets
@@ -605,7 +605,7 @@
   #define DEFAULT_6POS_IDX            5
 #endif
 
-  
+
 // Power
 #if defined(RADIO_T18)
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOJ, 1) // PJ.01
@@ -870,7 +870,7 @@
 #define STORAGE_USE_SDIO      // Use SD card for storage with SDIO driver
 //#define STORAGE_USE_SPI_FLASH // Use SPI flash for storage instead of SD card
 
-// SPI NOR Flash 
+// SPI NOR Flash
 #if defined(PCBX12S) && PCBREV >= 13
   #define FLASH_SPI                      SPI1
   #define FLASH_SPI_CS_GPIO              GPIO_PIN(GPIOA, 15) // PA.15
@@ -889,7 +889,7 @@
   // #define FLASH_SPI_TX_DMA_IRQHandler    DMA2_Stream3_IRQHandler
   // #define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF3
   // #define FLASH_SPI_TX_DMA_STATUS_REG    HISR
-  // SPI1_RX: DMA2 Stream 0 / Stream 2 
+  // SPI1_RX: DMA2 Stream 0 / Stream 2
   // #define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_3
   // #define FLASH_SPI_RX_DMA_STREAM        DMA2_Stream5
   // #define FLASH_SPI_RX_DMA_IRQn          DMA2_Stream5_IRQn
@@ -1065,8 +1065,10 @@
 #endif
 
 // Internal PXX1 Module:
-//  -> let's assume all internal XJT modules used are either X10 or X12S type
+//  Only X10 (XJT PXX1) and X12S (XJT PXX1) have external antenna hardware
+#if defined(RADIO_X10) || defined(RADIO_X10E) || defined(PCBX12S)
 #define EXTERNAL_ANTENNA
+#endif
 
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOA, 8) // PA.08
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 6) // PB.06
