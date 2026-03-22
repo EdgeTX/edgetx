@@ -54,14 +54,14 @@ TEST_F(SpecialFunctionsTest, FlightReset)
 
   mainRequestFlags = 0;
   simuSetSwitch(sw, 0);
-  EXPECT_FALSE(getSwitch(swPos));
+  EXPECT_FALSE(getSwitch(swSrcToSwitchRef(swPos)));
 
   evalFunctions(customFnAddress(0), modelFunctionsContext);
   EXPECT_FALSE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
 
   // now trigger SA0
   simuSetSwitch(sw, -1);
-  EXPECT_TRUE(getSwitch(swPos));
+  EXPECT_TRUE(getSwitch(swSrcToSwitchRef(swPos)));
 
   // flightReset() should be called
   evalFunctions(customFnAddress(0), modelFunctionsContext);
