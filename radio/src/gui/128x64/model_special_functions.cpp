@@ -210,21 +210,25 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
       switch (j) {
         case 0:
         {
-          swsrc_t cfnSw = CFN_SWITCH(cfn);
-          if (sub==k && menuHorizontalPosition < 1 && cfnSw == SWSRC_NONE) {
+          if (sub==k && menuHorizontalPosition < 1 && cfn->swtch.isNone()) {
             CFN_ACTIVE(cfn) = 0; // Default is disabled
-            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfnSw, attr | INVERS | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
-            if (active) CHECK_INCDEC_SWITCH(event, cfnSw, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | INVERS | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+            if (active) {
+              swsrc_t cfnSw = CFN_SWITCH(cfn);
+              CHECK_INCDEC_SWITCH(event, cfnSw, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+              cfn->swtch = swSrcToSwitchRef(cfnSw);
+            }
           }
           else {
-            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfnSw, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
             if (active || AUTOSWITCH_ENTER_LONG()) {
+              swsrc_t cfnSw = CFN_SWITCH(cfn);
               if (event == EVT_KEY_LONG(KEY_ENTER))
                 killEvents(event);
               CHECK_INCDEC_SWITCH(event, cfnSw, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+              cfn->swtch = swSrcToSwitchRef(cfnSw);
             }
           }
-          cfn->swtch = swSrcToSwitchRef(cfnSw);
         }
           if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
             func = CFN_FUNC(cfn) = func+1;

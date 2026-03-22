@@ -112,12 +112,12 @@ void onExposMenu(const char * result)
 void displayExpoInfos(coord_t y, ExpoData * ed)
 {
   drawCurveRef(EXPO_LINE_CURVE_POS, y, ed->curve, 0);
-  drawSwitch(EXPO_LINE_SWITCH_POS, y, switchRefToSwSrc(ed->swtch), 0);
+  drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
 }
 
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
-  drawSource(EXPO_LINE_SRC_POS, y, sourceRefToMixSrc(ed->srcRaw), attr);
+  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
 
   if (ed->trimSource != TRIM_ON) {
     if (ed->trimSource > 0) {
@@ -155,7 +155,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 void displayExpoInfos(coord_t y, ExpoData * ed)
 {
   drawCurveRef(EXPO_LINE_CURVE_POS, y, ed->curve, 0);
-  drawSwitch(EXPO_LINE_SWITCH_POS, y, switchRefToSwSrc(ed->swtch), 0);
+  drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
   if (ed->mode != 3) {
     lcdDrawChar(EXPO_LINE_SIDE_POS, y, ed->mode == 2 ? 126 : 127);
   }
@@ -163,7 +163,7 @@ void displayExpoInfos(coord_t y, ExpoData * ed)
 
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
-  drawSource(EXPO_LINE_SRC_POS, y, sourceRefToMixSrc(ed->srcRaw), attr);
+  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
 
   if (ed->name[0])
     lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, attr);

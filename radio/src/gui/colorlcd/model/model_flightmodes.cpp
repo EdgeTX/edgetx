@@ -296,7 +296,7 @@ class FlightModeBtn : public ListLineButton
 
     if ((index > 0) && !fm.swtch.isNone()) {
       char label[16];
-      getSwitchPositionName(label, switchRefToSwSrc(fm.swtch));
+      getSwitchPositionName(label, fm.swtch);
       lv_label_set_text(fmSwitch, label);
     } else {
       lv_label_set_text(fmSwitch, "");

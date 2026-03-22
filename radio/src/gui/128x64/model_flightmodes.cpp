@@ -232,7 +232,7 @@ void menuModelFlightModesAll(event_t event)
     lcdDrawChar(3, y, '0' + i, att | (getFlightMode() == i ? BOLD : 0));
     lcdDrawSizedText(NAME_POS, y, p->name, sizeof(p->name), 0);
     auto trims = min(keysGetMaxTrims(), (uint8_t)MAX_STICKS);
-    if (i > 0) drawSwitch(SWITCH_POS, y, switchRefToSwSrc(p->swtch), 0);
+    if (i > 0) drawSwitch(SWITCH_POS, y, p->swtch, 0);
     for (uint8_t t = 0; t < trims; t++) {
       drawTrimMode(TRIMS_POS + t * FW * 2, y, i, t, 0);
     }

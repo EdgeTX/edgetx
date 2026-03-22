@@ -73,7 +73,7 @@ class InputLineButton : public InputMixButtonBase
     }
 
     if (!line.swtch.isNone()) {
-      char* sw_pos = getSwitchPositionName(switchRefToSwSrc(line.swtch));
+      char* sw_pos = getSwitchPositionName(line.swtch);
       int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
       if ((size_t)cnt >= maxlen)
         maxlen = 0;

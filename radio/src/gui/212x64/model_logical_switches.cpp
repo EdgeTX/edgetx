@@ -178,7 +178,7 @@ void menuModelLogicalSwitches(event_t event)
     }
 
     // CSW AND switch
-    drawSwitch(CSW_4TH_COLUMN, y, switchRefToSwSrc(cs->andsw), horz==LS_FIELD_ANDSW ? attr : 0);
+    drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, horz==LS_FIELD_ANDSW ? attr : 0);
 
     // CSW duration
     if (cs->duration > 0)

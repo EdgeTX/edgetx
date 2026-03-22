@@ -133,7 +133,7 @@ void FunctionLineButton::refresh()
   char s[64];
 
   lv_label_set_text(sfName, (prefix + std::to_string(index + 1)).c_str());
-  lv_label_set_text(sfSwitch, getSwitchPositionName(CFN_SWITCH(cfn)));
+  lv_label_set_text(sfSwitch, getSwitchPositionName(cfn->swtch));
 
   strcpy(s, funcGetLabel(func));
   strcat(s, " - ");

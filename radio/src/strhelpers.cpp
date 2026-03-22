@@ -469,6 +469,77 @@ const char *getSwitchPositionSymbol(uint8_t pos)
   return _switch_state_str[pos + 1];
 }
 
+char *getSwitchPositionName(char *dest, const SwitchRef& ref)
+{
+  if (ref.isNone()) {
+    return strcpy(dest, STR_EMPTY);
+  }
+
+  char *s = dest;
+  if (ref.isInverted()) {
+    *s++ = '!';
+  }
+
+  switch (ref.type) {
+    case SWITCH_TYPE_SWITCH: {
+      uint16_t idx = ref.index;
+      div_t swinfo = div(idx, 3);
+      s = getSwitchName(s, swinfo.quot);
+      s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
+      *s = '\0';
+      break;
+    }
+    case SWITCH_TYPE_MULTIPOS: {
+      div_t swinfo = div(int(ref.index), XPOTS_MULTIPOS_COUNT);
+      s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
+      break;
+    }
+    case SWITCH_TYPE_TRIM: {
+      uint16_t idx = ref.index;
+      s = strAppend(s, getTrimLabel(idx / 2));
+      *s++ = idx & 1 ? '+' : '-';
+      *s = '\0';
+      break;
+    }
+    case SWITCH_TYPE_LOGICAL:
+      *s++ = 'L';
+      strAppendUnsigned(s, ref.index + 1, 2);
+      break;
+    case SWITCH_TYPE_ON:
+      getStringAtIndex(s, STR_ON_ONE_SWITCHES, 0);
+      break;
+    case SWITCH_TYPE_ONE:
+      getStringAtIndex(s, STR_ON_ONE_SWITCHES, 1);
+      break;
+    case SWITCH_TYPE_FLIGHT_MODE:
+      strAppendStringWithIndex(s, STR_FM, ref.index);
+      break;
+    case SWITCH_TYPE_TELEMETRY:
+      strcpy(s, "Tele");
+      break;
+    case SWITCH_TYPE_RADIO_ACTIVITY:
+      strcpy(s, "Act");
+      break;
+    case SWITCH_TYPE_TRAINER:
+      strcpy(s, "Trn");
+      break;
+    case SWITCH_TYPE_SENSOR:
+      strncpy(s, g_model.telemetrySensors[ref.index].label, TELEM_LABEL_LEN);
+      s[TELEM_LABEL_LEN] = '\0';
+      break;
+    default:
+      *s = '\0';
+      break;
+  }
+
+  return dest;
+}
+
+char *getSwitchPositionName(const SwitchRef& ref)
+{
+  return getSwitchPositionName(_static_str_buffer, ref);
+}
+
 char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
 {
   if (idx == SWSRC_NONE) {
@@ -638,78 +709,86 @@ const char *getPotLabel(uint8_t idx, bool defaultOnly)
   return getAnalogLabel(ADC_INPUT_FLEX, idx, defaultOnly);
 }
 
-// this should be declared in header, but it used so much foreign symbols that
-// we declare it in cpp-file and pre-instantiate it for the uses
+// Primary SourceRef-based implementation
 template <size_t L>
-char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
+char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly)
 {
   size_t dest_len = L;
   char* dest = destRef;
 
-  if (idx < 0) {
-    idx = -idx;
-    dest[0] = '-';
+  if (ref.isInverted()) {
+    dest[0] = '!';
     dest += 1;
     dest_len -= 1;
   }
 
-  if (idx == MIXSRC_NONE) {
-    strncpy(dest, STR_EMPTY, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_INPUT) {
-    idx -= MIXSRC_FIRST_INPUT;
-    static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
-    dest_len -= sizeof(CHAR_INPUT) - 1;
-    char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
-    if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
-        (dest_len > sizeof(g_model.inputNames[idx]))) {
-      memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
-      size_t input_len =
-          std::min(dest_len - 1, sizeof(g_model.inputNames[idx]));
-      strncpy(pos, g_model.inputNames[idx], input_len);
-      pos[input_len] = '\0';
-    } else {
-      strAppendUnsigned(pos, idx + 1, 2);
-    }
-  }
-#if defined(LUA_INPUTS)
-  else if (idx <= MIXSRC_LAST_LUA) {
-#if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-    if (qr.quot < MAX_SCRIPTS &&
-        qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
-      dest_len -= sizeof(CHAR_LUA) - 1;
-      char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
+  uint16_t idx = ref.index;
 
-      if (g_model.scriptsData[qr.quot].name[0] != '\0') {
-        // instance Name is not empty : dest = InstanceName/OutputName
-        pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
-      } else {
-        // instance Name is empty : dest = n-ScriptFileName/OutputName
-        pos = strAppendUnsigned(pos, qr.quot + 1);
-        pos = strAppend(pos, "-");
-        pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
+  switch (ref.type) {
+    case SOURCE_TYPE_NONE:
+      strncpy(dest, STR_EMPTY, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_INPUT:
+      static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
+      dest_len -= sizeof(CHAR_INPUT) - 1;
+      {
+        char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
+        if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
+            (dest_len > sizeof(g_model.inputNames[idx]))) {
+          memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
+          size_t input_len =
+              std::min(dest_len - 1, sizeof(g_model.inputNames[idx]));
+          strncpy(pos, g_model.inputNames[idx], input_len);
+          pos[input_len] = '\0';
+        } else {
+          strAppendUnsigned(pos, idx + 1, 2);
+        }
       }
-      pos = strAppend(pos, "/");
-      dest_len = L - (pos - dest);
-      strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
-    }
-#else
-    strncpy(dest, "N/A", dest_len-1);
-#endif
-  }
-#endif
-  else if (idx <= MIXSRC_LAST_POT) {
-    char *pos = dest;
-    idx -= MIXSRC_FIRST_STICK;
+      break;
 
-    const char *name;
-    if (idx < MAX_STICKS) {
-      pos = strAppend(pos, CHAR_STICK, sizeof(CHAR_STICK) - 1);
+#if defined(LUA_INPUTS)
+    case SOURCE_TYPE_LUA:
+    {
+#if defined(LUA_MODEL_SCRIPTS)
+      div_t qr = div((uint16_t)idx, MAX_SCRIPT_OUTPUTS);
+      if (qr.quot < MAX_SCRIPTS &&
+          qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+        static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
+        dest_len -= sizeof(CHAR_LUA) - 1;
+        char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
+
+        if (g_model.scriptsData[qr.quot].name[0] != '\0') {
+          pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
+        } else {
+          pos = strAppendUnsigned(pos, qr.quot + 1);
+          pos = strAppend(pos, "-");
+          pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
+        }
+        pos = strAppend(pos, "/");
+        dest_len = L - (pos - dest);
+        strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
+      }
+#else
+      strncpy(dest, "N/A", dest_len-1);
+#endif
+      break;
+    }
+#endif
+
+    case SOURCE_TYPE_STICK:
+    {
+      char *pos = strAppend(dest, CHAR_STICK, sizeof(CHAR_STICK) - 1);
       dest_len -= sizeof(CHAR_STICK) - 1;
-      name = getMainControlLabel(idx, defaultOnly);
-    } else {
-      idx -= MAX_STICKS;
+      const char *name = getMainControlLabel(idx, defaultOnly);
+      strncpy(pos, name, dest_len - 1);
+      pos[dest_len - 1] = '\0';
+      break;
+    }
+
+    case SOURCE_TYPE_POT:
+    {
+      char *pos = dest;
       if (IS_SLIDER(idx)) {
         pos = strAppend(pos, CHAR_SLIDER, sizeof(CHAR_SLIDER) - 1);
         dest_len -= sizeof(CHAR_SLIDER) - 1;
@@ -717,111 +796,141 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
         pos = strAppend(pos, CHAR_POT, sizeof(CHAR_POT) - 1);
         dest_len -= sizeof(CHAR_POT) - 1;
       }
-      // TODO: AXIS / SWITCH ???
-      name = getPotLabel(idx, defaultOnly);
+      const char *name = getPotLabel(idx, defaultOnly);
+      strncpy(pos, name, dest_len - 1);
+      pos[dest_len - 1] = '\0';
+      break;
     }
-    strncpy(pos, name, dest_len - 1);
-    pos[dest_len - 1] = '\0';
-  }
+
 #if defined(IMU)
-  else if (idx <= MIXSRC_TILT_Y) {
-    idx -= MIXSRC_TILT_X;
-    getStringAtIndex(dest, STR_IMU_VSRCRAW, idx);
-  }
+    case SOURCE_TYPE_IMU:
+      getStringAtIndex(dest, STR_IMU_VSRCRAW, idx);
+      break;
 #endif
+
 #if defined(PCBHORUS)
-  else if (idx <= MIXSRC_LAST_SPACEMOUSE) {
-    idx -= MIXSRC_FIRST_SPACEMOUSE;
-    getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
-  }
+    case SOURCE_TYPE_SPACEMOUSE:
+      getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
+      break;
 #endif
-  else if (idx == MIXSRC_MIN) {
-    strncpy(dest, STR_MENU_MIN, dest_len - 1);
-  } else if (idx == MIXSRC_MAX) {
-    strncpy(dest, STR_MENU_MAX, dest_len - 1);
-  }
+
+    case SOURCE_TYPE_MIN:
+      strncpy(dest, STR_MENU_MIN, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_MAX:
+      strncpy(dest, STR_MENU_MAX, dest_len - 1);
+      break;
+
 #if defined(LUMINOSITY_SENSOR)
-  else if (idx == MIXSRC_LIGHT) {
-    strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
-  }
+    case SOURCE_TYPE_LIGHT:
+      strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
+      break;
 #endif
-  else if (idx <= MIXSRC_LAST_HELI) {
-    idx -= MIXSRC_FIRST_HELI;
-    getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
-  } else if (idx <= MIXSRC_LAST_TRIM) {
-    idx -= MIXSRC_FIRST_TRIM;
-    char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
-    strAppend(pos, getTrimLabel(idx, defaultOnly));
-  } else if (idx <= MIXSRC_LAST_SWITCH) {
-    idx -= MIXSRC_FIRST_SWITCH;
-    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
-    getSwitchName(pos, idx, defaultOnly);
-#if defined(FUNCTION_SWITCHES)
-  } else if (idx <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
-    idx -= MIXSRC_FIRST_CUSTOMSWITCH_GROUP;
-    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
-    getCustomSwitchesGroupName(pos, idx);
-#endif
-  } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
-  } else if (idx <= MIXSRC_LAST_TRAINER) {
-    idx -= MIXSRC_FIRST_TRAINER;
-    strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
-  } else if (idx <= MIXSRC_LAST_CH) {
-    auto ch = idx - MIXSRC_FIRST_CH;
-    if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
-      strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
-    } else {
-      strAppendStringWithIndex(dest, STR_CH, ch + 1);
+
+    case SOURCE_TYPE_HELI:
+      getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
+      break;
+
+    case SOURCE_TYPE_TRIM:
+    {
+      char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
+      strAppend(pos, getTrimLabel(idx, defaultOnly));
+      break;
     }
-  } else if (idx <= MIXSRC_LAST_GVAR) {
-    idx -= MIXSRC_FIRST_GVAR;
+
+    case SOURCE_TYPE_SWITCH:
+    {
+      char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
+      getSwitchName(pos, idx, defaultOnly);
+      break;
+    }
+
+#if defined(FUNCTION_SWITCHES)
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP:
+    {
+      char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
+      getCustomSwitchesGroupName(pos, idx);
+      break;
+    }
+#endif
+
+    case SOURCE_TYPE_LOGICAL_SWITCH:
+      getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
+      break;
+
+    case SOURCE_TYPE_TRAINER:
+      strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
+      break;
+
+    case SOURCE_TYPE_CHANNEL:
+      if (!defaultOnly && g_model.limitData[idx].name[0] != '\0') {
+        strAppend(dest, g_model.limitData[idx].name, LEN_CHANNEL_NAME);
+      } else {
+        strAppendStringWithIndex(dest, STR_CH, idx + 1);
+      }
+      break;
+
+    case SOURCE_TYPE_GVAR:
 #if defined(COLORLCD)
-    char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
-    if (!defaultOnly && g_model.gvars[idx].name[0]) {
-      s = strAppend(s, ":");
-      getGVarString(s, idx);
+    {
+      char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
+      if (!defaultOnly && g_model.gvars[idx].name[0]) {
+        s = strAppend(s, ":");
+        getGVarString(s, idx);
+      }
     }
 #else
-    strAppendStringWithIndex(dest, STR_GV, idx + 1);
+      strAppendStringWithIndex(dest, STR_GV, idx + 1);
 #endif
-  } else if (idx < MIXSRC_FIRST_TIMER) {
-    // Built-in sources: TX Voltage, Time, GPS (+ reserved)
-    const char *src_str;
-    switch (idx) {
-      case MIXSRC_TX_VOLTAGE:
-        src_str = STR_SRC_BATT;
-        break;
-      case MIXSRC_TX_TIME:
-        src_str = STR_SRC_TIME;
-        break;
-      case MIXSRC_TX_GPS:
-        src_str = STR_SRC_GPS;
-        break;
-      default:
-        src_str = "";
-        break;
+      break;
+
+    case SOURCE_TYPE_TX_VOLTAGE:
+      strncpy(dest, STR_SRC_BATT, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_TX_TIME:
+      strncpy(dest, STR_SRC_TIME, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_TX_GPS:
+      strncpy(dest, STR_SRC_GPS, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_TIMER:
+      if (!defaultOnly && g_model.timers[idx].name[0] != '\0') {
+        strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
+      } else {
+        strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
+      }
+      break;
+
+    case SOURCE_TYPE_TELEMETRY:
+    {
+      div_t qr = div((uint16_t)idx, 3);
+      char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
+      pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
+                      sizeof(g_model.telemetrySensors[qr.quot].label));
+      if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
+      *++pos = '\0';
+      break;
     }
-    strncpy(dest, src_str, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_TIMER) {
-    idx -= MIXSRC_FIRST_TIMER;
-    if (!defaultOnly && g_model.timers[idx].name[0] != '\0') {
-      strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
-    } else {
-      strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
-    }
-  } else {
-    idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div((uint16_t)idx, 3);
-    char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
-    pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
-                    sizeof(g_model.telemetrySensors[qr.quot].label));
-    if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
-    *++pos = '\0';
+
+    default:
+      *dest = '\0';
+      break;
   }
+
   destRef[L - 1] = '\0'; // assert the termination
-  return destRef; 
+  return destRef;
+}
+
+// Backward-compatible mixsrc_t template overload
+template <size_t L>
+char *getSourceString(char (&dest)[L], mixsrc_t idx, bool defaultOnly)
+{
+  SourceRef ref = mixSrcToSourceRef(idx);
+  return getSourceString(dest, ref, defaultOnly);
 }
 
 bool sourceCanHaveCustomName(mixsrc_t idx)
@@ -866,11 +975,18 @@ int getSourceIndex(const char* name, bool all)
 
 // pre-instantiate for use from external
 // all other instantiations are done from this file
+template char *getSourceString<16>(char (&dest)[16], const SourceRef& ref, bool defaultOnly);
 template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx, bool defaultOnly);
+
+char *getSourceString(const SourceRef& ref, bool defaultOnly)
+{
+  return getSourceString(_static_str_buffer, ref, defaultOnly);
+}
 
 char *getSourceString(mixsrc_t idx, bool defaultOnly)
 {
-  return getSourceString(_static_str_buffer, idx, defaultOnly);
+  SourceRef ref = mixSrcToSourceRef(idx);
+  return getSourceString(_static_str_buffer, ref, defaultOnly);
 }
 
 char *getCurveString(int idx)

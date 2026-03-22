@@ -205,15 +205,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
       switch (j) {
         case ITEM_CUSTOM_FUNCTIONS_SWITCH:
         {
-          swsrc_t cfnSw = CFN_SWITCH(cfn);
-          if(cfnSw == SWSRC_NONE) CFN_ACTIVE(cfn) = 0; // Disable new function by default
-          drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfnSw, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+          if(cfn->swtch.isNone()) CFN_ACTIVE(cfn) = 0; // Disable new function by default
+          drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
           if (active || AUTOSWITCH_ENTER_LONG()) {
+            swsrc_t cfnSw = CFN_SWITCH(cfn);
             if (event == EVT_KEY_LONG(KEY_ENTER))
               killEvents(event);
             CHECK_INCDEC_SWITCH(event, cfnSw, SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+            cfn->swtch = swSrcToSwitchRef(cfnSw);
           }
-          cfn->swtch = swSrcToSwitchRef(cfnSw);
         }
           if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
             func = CFN_FUNC(cfn) = func+1;

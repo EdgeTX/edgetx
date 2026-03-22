@@ -464,7 +464,7 @@ class LogicalSwitchButton : public ListLineButton
     }
 
     // AND switch
-    lv_label_set_text(lsAnd, getSwitchPositionName(switchRefToSwSrc(ls->andsw)));
+    lv_label_set_text(lsAnd, getSwitchPositionName(ls->andsw));
 
     // CSW duration
     if (ls->duration > 0) {
