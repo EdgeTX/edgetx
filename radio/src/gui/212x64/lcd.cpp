@@ -229,10 +229,9 @@ void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags att)
   }
 }
 
-void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags att)
+void drawTelemScreenDate(coord_t x, coord_t y, uint8_t sensorIndex, LcdFlags att)
 {
-  sensor = (sensor-MIXSRC_FIRST_TELEM) / 3;
-	TelemetryItem & telemetryItem = telemetryItems[sensor];
+	TelemetryItem & telemetryItem = telemetryItems[sensorIndex];
 
   att &= ~FONTSIZE_MASK;
   lcdDrawNumber(x, y+1, telemetryItem.datetime.sec, att|LEADING0, 2);

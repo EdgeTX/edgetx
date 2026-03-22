@@ -32,7 +32,6 @@
 #include "toggleswitch.h"
 
 // Defined in curves.cpp
-extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -105,7 +104,7 @@ class MixLineButton : public InputMixButtonBase
     check(isActive());
 
     const MixData& line = *mixAddress(index);
-    setWeight(valueOrSourceToLegacy(line.weight), MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
+    setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
     setSource(line.srcRaw);
 
     char tmp_str[64];
