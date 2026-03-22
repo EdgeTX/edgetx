@@ -704,6 +704,17 @@ const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src)
   }
 }
 
+const char *getTrimSourceLabel(const SourceRef& ref, int8_t trim_src)
+{
+  if (trim_src < TRIM_ON) {
+    return getTrimLabel(-trim_src - 1);
+  } else if (trim_src == TRIM_ON && ref.type == SOURCE_TYPE_STICK) {
+    return STR_OFFON[1];
+  } else {
+    return STR_OFFON[0];
+  }
+}
+
 const char *getPotLabel(uint8_t idx, bool defaultOnly)
 {
   return getAnalogLabel(ADC_INPUT_FLEX, idx, defaultOnly);

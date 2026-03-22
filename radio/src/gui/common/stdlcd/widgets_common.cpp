@@ -69,6 +69,15 @@ SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
   return mixSrcToSourceRef(src);
 }
 
+SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
+                            mixsrc_t max, unsigned int flags,
+                            IsValueAvailable available)
+{
+  mixsrc_t src = sourceRefToMixSrc(value);
+  src = checkIncDec(event, src, min, max, flags | INCDEC_SOURCE, available);
+  return mixSrcToSourceRef(src);
+}
+
 SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, STR_SWITCH);

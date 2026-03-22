@@ -628,6 +628,19 @@ bool isThrottleSourceAvailable(int src)
      ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
 }
 
+bool isThrottleSourceAvailable(const SourceRef& ref)
+{
+  if (!isSourceAvailable(ref)) return false;
+  if (ref.type == SOURCE_TYPE_STICK &&
+      ref.index == (uint16_t)inputMappingGetThrottle())
+    return true;
+  if (ref.type == SOURCE_TYPE_POT)
+    return true;
+  if (ref.type == SOURCE_TYPE_CHANNEL)
+    return true;
+  return false;
+}
+
 bool isAssignableFunctionAvailable(int function, bool modelFunctions)
 {
   switch (function) {

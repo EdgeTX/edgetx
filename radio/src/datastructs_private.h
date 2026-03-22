@@ -878,6 +878,9 @@ PACK(struct ModelData {
     }
   }
 
+  SourceRef getThrottleStickTrimSourceRef() const;
+  void setThrottleStickTrimSourceRef(const SourceRef& ref);
+
   NOBACKUP(uint8_t usbJoystickExtMode:1);
   NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
   NOBACKUP(uint8_t usbJoystickCircularCut:4);

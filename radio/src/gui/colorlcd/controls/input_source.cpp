@@ -40,9 +40,7 @@ class SensorValue : public StaticText
 
   bool isTelemetryValue()
   {
-    mixsrc_t src = sourceRefToMixSrc(input->srcRaw);
-    return src >= MIXSRC_FIRST_TELEM &&
-           src <= MIXSRC_LAST_TELEM;
+    return input->srcRaw.type == SOURCE_TYPE_TELEMETRY;
   }
 
   void checkEvents() override
@@ -65,8 +63,7 @@ class SensorValue : public StaticText
   {
     LcdFlags prec = 0;
     if (isTelemetryValue()) {
-      mixsrc_t src = sourceRefToMixSrc(input->srcRaw);
-      uint8_t sensorIndex = (src - MIXSRC_FIRST_TELEM) / 3;
+      uint8_t sensorIndex = input->srcRaw.index / 3;
       TelemetrySensor sensor = g_model.telemetrySensors[sensorIndex];
       if (sensor.prec > 0) {
         prec |= (sensor.prec == 1 ? PREC1 : PREC2);
@@ -120,9 +117,8 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   line->setWidth(SENSOR_W);
 
   new StaticText(line, rect_t{}, STR_SCALE);
-  mixsrc_t srcRawLegacy = sourceRefToMixSrc(input->srcRaw);
   new NumberEdit(line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
-                 maxTelemValue(srcRawLegacy - MIXSRC_FIRST_TELEM + 1),
+                 maxTelemValue(input->srcRaw.index + 1),
                  GET_SET_DEFAULT(input->scale), sensor->getSensorPrec());
 
   update();
@@ -130,12 +126,10 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
 
 void InputSource::update()
 {
-  mixsrc_t src = sourceRefToMixSrc(input->srcRaw);
-  if (src > MIXSRC_LAST_STICK && input->trimSource == TRIM_ON) {
+  if (input->srcRaw.type != SOURCE_TYPE_STICK && input->trimSource == TRIM_ON) {
     input->trimSource = TRIM_OFF;
   }
 
   if (sensor_form)
-    sensor_form->show(src >= MIXSRC_FIRST_TELEM &&
-                      src <= MIXSRC_LAST_TELEM);
+    sensor_form->show(input->srcRaw.type == SOURCE_TYPE_TELEMETRY);
 }

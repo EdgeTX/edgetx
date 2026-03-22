@@ -208,3 +208,25 @@ int16_t source2ThrottleSource(int16_t src)
   }
   return -1;
 }
+
+SourceRef throttleSource2SourceRef(int16_t thrSrc)
+{
+  if (thrSrc == 0) {
+    return {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingGetThrottle()};
+  }
+  if (--thrSrc < MAX_POTS)
+    return {SOURCE_TYPE_POT, 0, (uint16_t)thrSrc};
+  return {SOURCE_TYPE_CHANNEL, 0, (uint16_t)(thrSrc - MAX_POTS)};
+}
+
+int16_t sourceRefToThrottleSource(const SourceRef& ref)
+{
+  if (ref.type == SOURCE_TYPE_STICK && ref.index == (uint16_t)inputMappingGetThrottle()) {
+    return 0;
+  } else if (ref.type == SOURCE_TYPE_POT) {
+    return ref.index + 1;
+  } else if (ref.type == SOURCE_TYPE_CHANNEL) {
+    return ref.index + MAX_POTS + 1;
+  }
+  return -1;
+}
