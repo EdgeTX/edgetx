@@ -243,9 +243,17 @@ bool YamlTreeWalker::pop()
 void YamlTreeWalker::rewind()
 {
     if (getNode()->type == YDT_ARRAY
-        || getNode()->type == YDT_UNION) {
+        || getNode()->type == YDT_UNION
+        || getNode()->type == YDT_EXTERN_ARRAY) {
         setAttrIdx(0);
-        setAttrOfs(getLevelOfs());
+        if (getNode()->type == YDT_EXTERN_ARRAY) {
+            // Extern arrays: bit_ofs is relative to the extern base pointer
+            // which is stored in data_override. Element offset is computed
+            // from elmts * size, so base offset is always 0.
+            setAttrOfs(0);
+        } else {
+            setAttrOfs(getLevelOfs());
+        }
     }
 }
 
@@ -305,15 +313,20 @@ bool YamlTreeWalker::toChild()
     if (!attr || isIdxInvalid()
         || (attr->type != YDT_ARRAY
             && attr->type != YDT_UNION
+            && attr->type != YDT_EXTERN_ARRAY
             && !isArrayElmt())) {
         virt_level++;
         return true;
     }
 
     bool is_array = false;
-    if (attr->type == YDT_ARRAY
-        && attr->elmts > 1) {
+    bool is_extern = false;
+    if (attr->type == YDT_ARRAY && attr->elmts > 1) {
         is_array = true;
+    }
+    else if (attr->type == YDT_EXTERN_ARRAY) {
+        is_array = true;
+        is_extern = true;
     }
 
     const YamlNode* parent_node = getNode();
@@ -326,13 +339,26 @@ bool YamlTreeWalker::toChild()
         return false;
     }
 
-    setNode(attr);
-    setAttrOfs(getLevelOfs());
+    if (is_extern) {
+        // For extern arrays: the node is the extern array node itself.
+        // Its child is the element struct definition.
+        // data_override points to the extern memory (arena).
+        // bit_ofs starts at 0 (relative to extern base).
+        setNode(attr);
+        setAttrOfs(0);
+
+        uint16_t count = 0;
+        uint8_t* ext_ptr = attr->u._extern_array.get_ptr(&count);
+        stack[stack_level].data_override = ext_ptr;
+    } else {
+        setNode(attr);
+        setAttrOfs(getLevelOfs());
+    }
 
     attr = getAttr();
     if (!attr)
         return false;
-    
+
     if ((attr->type == YDT_UNION) && (attr->tag_len() == 0)) {
         toChild();
         anon_union++;
@@ -340,7 +366,7 @@ bool YamlTreeWalker::toChild()
 
     if (is_array)
         setArrayElmt(true);
-    
+
     return true;
 }
 
@@ -348,18 +374,27 @@ bool YamlTreeWalker::toNextElmt()
 {
     const struct YamlNode* node = getNode();
     if (!virt_level && (node->type == YDT_ARRAY
-                        || node->type == YDT_UNION)) {
+                        || node->type == YDT_UNION
+                        || node->type == YDT_EXTERN_ARRAY)) {
 
         if (node->type == YDT_UNION) {
             return false;
+        }
+
+        uint16_t maxElmts = node->elmts;
+        if (node->type == YDT_EXTERN_ARRAY) {
+            // For extern arrays, use the actual count from the get_ptr function
+            uint16_t count = 0;
+            node->u._extern_array.get_ptr(&count);
+            maxElmts = count;
         }
 
         if (isIdxInvalid()) {
             setIdxInvalid(false);
             setElmts(0);
         }
-        
-        if (getElmts() < node->elmts - 1) {
+
+        if (getElmts() < maxElmts - 1) {
             incElmts();
             rewind();
         } else {
@@ -370,16 +405,22 @@ bool YamlTreeWalker::toNextElmt()
     return true;
 }
 
-bool YamlTreeWalker::isElmtEmpty(uint8_t* data)
+bool YamlTreeWalker::isElmtEmpty(uint8_t* data_param)
 {
     if (virt_level)
         return true;
 
-    if (!data)
+    uint8_t* effective_data = getData();
+    if (!effective_data)
         return false;
-    
+
     const struct YamlNode* node = getNode();
     uint32_t bit_ofs = 0;
+
+    if (node->type == YDT_EXTERN_ARRAY) {
+        bit_ofs = ((uint32_t)getElmts()) * node->size;
+        return yaml_is_zero(effective_data, bit_ofs, node->size);
+    }
 
     if (node->type == YDT_ARRAY) {
 
@@ -389,9 +430,9 @@ bool YamlTreeWalker::isElmtEmpty(uint8_t* data)
 
         // assume structs aligned on 8bit boundaries
         if (node->u._array.u.is_active)
-            return !node->u._array.u.is_active(this, data, bit_ofs);
+            return !node->u._array.u.is_active(this, effective_data, bit_ofs);
 
-        return yaml_is_zero(data, bit_ofs, node->size);
+        return yaml_is_zero(effective_data, bit_ofs, node->size);
     }
     else if ((node->type == YDT_UNION) && hasParent()) {
 
@@ -418,6 +459,8 @@ void YamlTreeWalker::toNextAttr()
 
         if (attr->type == YDT_ARRAY)
             attr_bit_ofs += ((uint32_t)attr->elmts * attr->size);
+        else if (attr->type == YDT_EXTERN_ARRAY)
+            ; // extern arrays don't consume space in the parent struct
         else
             attr_bit_ofs += attr->size;
 
@@ -465,7 +508,7 @@ void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
         }
     }
     else {
-        yaml_set_attr(this, data, getBitOffset(), attr, buf, len);
+        yaml_set_attr(this, getData(), getBitOffset(), attr, buf, len);
     }
 }
 
@@ -485,7 +528,8 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
         if (attr->type == YDT_NONE) {
 
             const struct YamlNode* node = getNode();
-            if (node->type != YDT_ARRAY && node->type != YDT_UNION)
+            if (node->type != YDT_ARRAY && node->type != YDT_UNION
+                && node->type != YDT_EXTERN_ARRAY)
                 return false; // Error in the structure (probably)
 
             // if parent is a union, no need to output the other elements...
@@ -502,7 +546,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 
                 // walk to next non-empty element
                 while (toNextElmt()) {
-                    if (!isElmtEmpty(data)) {
+                    if (!isElmtEmpty(getData())) {
                         new_elmt = true;
                         break;
                     }
@@ -524,7 +568,8 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             toNextAttr();
             continue;
         }
-        else if (attr->type == YDT_ARRAY || attr->type == YDT_UNION) {
+        else if (attr->type == YDT_ARRAY || attr->type == YDT_UNION
+                 || attr->type == YDT_EXTERN_ARRAY) {
 
             if (!toChild())
                 return false; // TODO: error handling???
@@ -543,7 +588,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
 
                 // grab attr idx...
                 uint8_t idx =
-                    node->u._array.u.select_member(this, data, getBitOffset());
+                    node->u._array.u.select_member(this, getData(), getBitOffset());
                 // TRACE("<idx = %d>", idx);
                 setAttrIdx(idx);
 
@@ -551,11 +596,12 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 for(int i=1; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
-                if (!yaml_output_attr(this, data, getBitOffset(), attr, wf, opaque))
+                if (!yaml_output_attr(this, getData(), getBitOffset(), attr, wf, opaque))
                     return false; // TODO: error handling???
 
                 if (attr->type != YDT_ARRAY
-                    && attr->type != YDT_UNION) {
+                    && attr->type != YDT_UNION
+                    && attr->type != YDT_EXTERN_ARRAY) {
 
                     if (!toParent())
                         return false;
@@ -571,7 +617,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
 
             // walk to next non-empty element
             do {
-                if (!isElmtEmpty(data)) {
+                if (!isElmtEmpty(getData())) {
                     new_elmt = true;
                     break;
                 }
@@ -623,7 +669,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
         else {
 
             if (attr->type == YDT_ENUM && attr->u._enum.is_active) {
-                if (!attr->u._enum.is_active(this, data, getBitOffset())) {
+                if (!attr->u._enum.is_active(this, getData(), getBitOffset())) {
                     toNextAttr();
                     continue;
                 }
@@ -651,7 +697,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                         return false;
             }
             
-            if (!yaml_output_attr(this, data, getBitOffset(), attr, wf, opaque))
+            if (!yaml_output_attr(this, getData(), getBitOffset(), attr, wf, opaque))
                 return false; // TODO: error handling???
         }
 

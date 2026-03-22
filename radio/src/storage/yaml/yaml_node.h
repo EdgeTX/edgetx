@@ -38,7 +38,8 @@ enum YamlDataType {
   YDT_ENUM,
   YDT_UNION,
   YDT_PADDING,
-  YDT_CUSTOM
+  YDT_CUSTOM,
+  YDT_EXTERN_ARRAY
 };
 
 PACK_NOT_SIMU(struct YamlIdStr {
@@ -70,6 +71,9 @@ struct YamlNode {
                                  const char* val, uint8_t val_len);
   typedef bool (*cust_write_func)(void* user, uint8_t* data, uint32_t bitoffs,
                                   yaml_writer_func wf, void* opaque);
+
+  // Returns base pointer and count for externally-stored arrays (arena)
+  typedef uint8_t* (*extern_get_ptr_func)(uint16_t* count_out);
 
   uint16_t size;  // bits
   uint8_t type : 4;
@@ -103,6 +107,11 @@ struct YamlNode {
       cust_read_func read;
       cust_write_func write;
     } _cust_attr;
+
+    struct {
+      const YamlNode* child;
+      extern_get_ptr_func get_ptr;
+    } _extern_array;
   } u;
 
   uint8_t tag_len() const { return tag ? strlen(tag) : 0; }
@@ -180,6 +189,14 @@ struct YamlNode {
     .size = 0, .type = YDT_CUSTOM, .elmts = 0, YAML_TAG(tag), .u = { \
       ._cust_attr = {.read = (f_read), .write = (f_write)}           \
     }                                                                \
+  }
+
+#define YAML_EXTERN_ARRAY(tag, bits, max_elmts, nodes, f_get_ptr)               \
+  {                                                                             \
+    .size = (bits), .type = YDT_EXTERN_ARRAY, .elmts = (max_elmts),             \
+    YAML_TAG(tag), .u = {                                                       \
+      ._extern_array = {.child = (nodes), .get_ptr = (f_get_ptr)}              \
+    }                                                                           \
   }
 
 #define YAML_END {.size = 0, .type = YDT_NONE}
