@@ -339,9 +339,11 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     YamlTreeWalker tree;
     tree.reset(data_nodes, buffer);
 
+    bool is_active_model = (buffer == (uint8_t*)&g_model);
+
     // wipe memory before reading YAML
     memset(buffer,0,size);
-    if (init_model) {
+    if (init_model && is_active_model) {
       g_modelArena.clear();
     }
 
