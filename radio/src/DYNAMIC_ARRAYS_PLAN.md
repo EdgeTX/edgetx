@@ -137,54 +137,98 @@ The generated YAML struct definitions still reference the old field layout. With
 
 ---
 
-## Phase 4: Dynamic Arena Sizing
+## Phase 3b cleanup: Remaining bridge function elimination
 
-Models use only the arena space they need. Simple models leave room for more entries.
+The core runtime, display functions, and GUI widgets now use SourceRef/SwitchRef natively. Bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`) are confined to internal infrastructure. The following items eliminate the remaining ~90 non-Lua bridge usages.
+
+### 3b.1 Convert `isSourceAvailable`/`isSwitchAvailable` to SourceRef/SwitchRef
+
+These filter functions are called from SourceChoice/SwitchChoice availability handlers, GUI editors, and `checkIncDecSource`/`checkIncDecSwitch`. Currently take `mixsrc_t`/`swsrc_t`.
+
+Files: `gui/gui_common.cpp`, `gui_common.h`, all callers.
+
+### 3b.2 Convert `applyExpos()` parameter from `mixsrc_t` to `SourceRef`
+
+`applyExpos(anas, mode, mixsrc_t srcRaw, value)` is called from input_edit preview code (colorlcd + stdlcd). Change to `SourceRef`.
+
+Files: `mixer.cpp` (declaration), `edgetx.h`, `gui/colorlcd/model/input_edit.cpp`, `gui/128x64/model_input_edit.cpp`, `gui/212x64/model_input_edit.cpp`.
+
+### 3b.3 Convert `s_currSrcRaw` from `mixsrc_t` to `SourceRef`
+
+Global variable used by stdlcd input/mix editors for "current source being edited". Change type and all assignments/reads.
+
+Files: `gui/128x64/model_input_edit.cpp`, `gui/128x64/model_mix_edit.cpp`, `gui/212x64/model_input_edit.cpp`, `gui/212x64/model_mix_edit.cpp`.
+
+### 3b.4 Convert `LogicalSwitchData.v1`/`v2` to typed fields
+
+These are currently `int16_t` (widened from `:10` but not yet structured). They're polymorphic — hold either a source or switch depending on `func`. Options:
+- Use a union: `union { SourceRef src; SwitchRef sw; int16_t value; }`
+- Or keep as `int16_t` and bridge at access sites
+
+This is the hardest item due to the polymorphic semantics.
+
+Files: `datastructs_private.h`, `switches.cpp`, `yaml_datastructs_funcs.cpp`, `model_logical_switches.cpp` (all 3 UI variants).
+
+### 3b.5 Convert `getSourceTrimValue`/`calcVolumeValue`/`calcBacklightValue`
+
+Internal mixer functions that take `mixsrc_t`. Change to `SourceRef`.
+
+Files: `mixer.cpp`.
+
+### 3b.6 Convert throttle source accessors
+
+`thrTraceSrc`, `getThrottleStickTrimSource()`, `throttleSource2Source()`, `source2ThrottleSource()` work with `mixsrc_t`. Change to `SourceRef`.
+
+Files: `datastructs_private.h`, `model_setup.cpp`, `throttle_params.cpp`.
+
+### 3b.7 Convert `source_numberedit.cpp`
+
+`SourceNumberEdit` bridges ValueOrSource↔SourceNumVal for the weight/offset editors. Needs native ValueOrSource support.
+
+Files: `gui/colorlcd/controls/source_numberedit.cpp`.
+
+### 3b.8 Convert widget data source/switch storage
+
+Widget option data stores source/switch as integers. Bridge at the widget_settings boundary.
+
+Files: `gui/colorlcd/mainview/widget_settings.cpp`.
+
+### 3b.9 Remove backward-compatible overloads
+
+Once all above items are done:
+- Remove `getValue(mixsrc_t)` overload
+- Remove `getSwitch(swsrc_t)` inline overload
+- Remove `getSourceString(mixsrc_t)` overloads
+- Remove `getSwitchPositionName(swsrc_t)` overloads
+- Remove `drawSource(mixsrc_t)` / `drawSwitch(swsrc_t)` overloads
+- Remove `CFN_SWITCH` macro (callers use `cfn->swtch` directly)
+- Remove bridge function declarations from `myeeprom.h`
+- Keep bridge functions in `mixer.cpp` as `static` (only used by Lua API)
+
+### 3b.10 YAML serialization update
+
+The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
+
+### 3b.11 Lua API (deferred)
+
+Keep bridge functions for Lua API — Lua speaks integers (API contract). Convert to native types in a separate Lua API refactor.
+
+---
+
+## Phase 4: Dynamic Arena Sizing
 
 1. Populate `ModelDynData` counts after model load
 2. Compact arena layout based on actual usage
-3. Arena-aware insert/delete (`insertInSection`/`deleteFromSection`)
+3. Arena-aware insert/delete
 4. Dynamic loop bounds in mixer hot path
 5. GUI memory indicator
-6. STM32F4 arena sizing resolution
+6. STM32F4 arena sizing resolution (now critical: default layout 6,208B > MODEL_ARENA_SIZE 4,096B)
 
 ---
 
 ## Phase 5 (Future): GVars + FlightModes
 
-GVars are entangled with `FlightModeData` because per-FM values live at `flightModeData[fm].gvars[MAX_GVARS]`. Defer unless users need more than 15 gvars.
-
 ## Phase 6 (Future): Growable Arena
-
-Replace the static arena buffer with a dynamically allocated one (`malloc`/SDRAM).
-
----
-
-## Capacity Limits (updated after Phase 3b)
-
-### MixData and ExpoData (migrated to SourceRef/SwitchRef)
-
-The 10-bit `srcRaw`/`swtch` overflow is **fixed**. Each source/switch type gets 0-65535 index range. No enum range pressure.
-
-### Remaining bit-field limits
-
-| Field | Bits | Range | References | Limit |
-|-------|------|-------|------------|-------|
-| `MixData.destCh` | 8 | 0-255 | Output channels | 256 (was 32 with 5 bits) |
-| `ExpoData.chn` | 5 | 0-31 | Input channels | 32 |
-| `MixData.flightModes` | 9 | bitmask | FM bitmask | 9 flight modes |
-| `LimitData.curve` | 8 | -1..127 | Curve index | 128 curves |
-| `CurveHeader.points` | 6 | -32..31 | Points minus 5 | 36 points per curve |
-| `CustomFunctionData.func` | 6 | 0-63 | Function type | 64 function types |
-| `LogicalSwitchData.v1` | 10 | -512..511 | **Still old enum** | **Needs migration** |
-| `LogicalSwitchData.andsw` | 10 | -512..511 | **Still old enum** | **Needs migration** |
-| `CustomFunctionData.swtch` | 10 | -512..511 | **Still old enum** | **Needs migration** |
-| `FlightModeData.swtch` | 10 | -512..511 | **Still old enum** | **Needs migration** |
-| `TimerData.swtch` | 10 | -512..511 | **Still old enum** | **Needs migration** |
-
-### Accessor function parameter types
-
-All use `uint8_t idx` (max 255). Sufficient for current hard caps.
 
 ---
 
