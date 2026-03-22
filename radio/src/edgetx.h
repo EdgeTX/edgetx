@@ -878,3 +878,5 @@ int pwrDelayToYaml(int delay);
 
 void calcBacklightValue(const SourceRef& source);
 void calcVolumeValue(const SourceRef& source);
+void calcBacklightValue(mixsrc_t source);
+void calcVolumeValue(mixsrc_t source);

@@ -189,6 +189,14 @@ union LSValue {
   int32_t    value;    // LS_FAMILY_TIMER: v1/v2 are numeric values
 
   bool isZero() const { return value == 0; }
+
+  // Allow cross-namespace assignment (needed for Backup copy functions)
+  template<typename T>
+  LSValue& operator=(const T& other) {
+    static_assert(sizeof(T) == sizeof(LSValue), "LSValue size mismatch");
+    memcpy(this, &other, sizeof(LSValue));
+    return *this;
+  }
 };
 
 static_assert(sizeof(LSValue) == 4, "LSValue must be 32 bits");
@@ -221,7 +229,7 @@ PACK(struct CustomFunctionData {
     }) play);
 
     PACK(struct {
-      int16_t val;
+      LSValue val;
       uint8_t mode;
       uint8_t param;
       int32_t val2;
@@ -353,26 +361,21 @@ typedef int16_t ls_telemetry_value_t;
 
 #if !defined(COLORLCD)
 PACK(struct FrSkyBarData {
-  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef source;
   ls_telemetry_value_t barMin;           // minimum for bar display
   ls_telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
 });
 
-// This is used to be able to use
-// custom read/write functions in
-// an array made of typdef'ed literal types
-// (YAML generator)
 #if defined(YAML_GENERATOR)
 PACK(struct LineDataSource {
-  source_t val CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef val;
 });
 PACK(struct FrSkyLineData {
   LineDataSource sources[NUM_LINE_ITEMS];
 });
 #else
-// This here is the real structure used at run-time
 PACK(struct FrSkyLineData {
-  source_t sources[NUM_LINE_ITEMS];
+  SourceRef sources[NUM_LINE_ITEMS];
 });
 #endif
 

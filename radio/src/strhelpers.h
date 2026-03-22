@@ -145,6 +145,7 @@ template <size_t L>
 char *getSourceString(char (&dest)[L], const SourceRef& ref, bool defaultOnly = false);
 char *getSourceString(const SourceRef& ref, bool defaultOnly = false);
 
+
 template <size_t L>
 char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags);

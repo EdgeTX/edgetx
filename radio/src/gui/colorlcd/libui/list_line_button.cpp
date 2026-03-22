@@ -242,8 +242,8 @@ static lv_obj_t* group_create(lv_obj_t* parent)
   return etx_create(&group_class, parent);
 }
 
-InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
-    Window(parent, rect_t{}, group_create), idx(idx), srcRef(mixSrcToSourceRef(idx))
+InputMixGroupBase::InputMixGroupBase(Window* parent, const SourceRef& src) :
+    Window(parent, rect_t{}, group_create), srcRef(src)
 {
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
@@ -322,11 +322,11 @@ int InputMixGroupBase::getLineNumber(uint8_t index)
   return -1;
 }
 
-InputMixGroupBase* InputMixPageBase::getGroupBySrc(mixsrc_t src)
+InputMixGroupBase* InputMixPageBase::getGroupBySrc(const SourceRef& src)
 {
   auto g = std::find_if(
       groups.begin(), groups.end(),
-      [=](InputMixGroupBase* g) -> bool { return g->getMixSrc() == src; });
+      [=](InputMixGroupBase* g) -> bool { return g->getSourceRef() == src; });
 
   if (g != groups.end()) return *g;
 
@@ -364,7 +364,7 @@ void InputMixPageBase::removeLine(InputMixButtonBase* l)
   }
 }
 
-void InputMixPageBase::addLineButton(mixsrc_t src, uint8_t index)
+void InputMixPageBase::addLineButton(const SourceRef& src, uint8_t index)
 {
   InputMixGroupBase* group_w = getGroupBySrc(src);
   if (!group_w) {
@@ -376,7 +376,7 @@ void InputMixPageBase::addLineButton(mixsrc_t src, uint8_t index)
       auto g_prev = g;
       ++g_prev;
       while (g_prev != groups.rend()) {
-        if ((*g_prev)->getMixSrc() < (*g)->getMixSrc()) break;
+        if ((*g_prev)->getSourceRef() < (*g)->getSourceRef()) break;
         lv_obj_swap((*g)->getLvObj(), (*g_prev)->getLvObj());
         std::swap(*g, *g_prev);
         ++g;

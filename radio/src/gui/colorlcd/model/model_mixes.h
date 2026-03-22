@@ -37,7 +37,7 @@ class ModelMixesPage : public InputMixPageBase
   InputMixGroupBase* getGroupByIndex(uint8_t index) override;
 
   void addLineButton(uint8_t index) override;
-  InputMixGroupBase* createGroup(Window* form, mixsrc_t src) override;
+  InputMixGroupBase* createGroup(Window* form, const SourceRef& src) override;
   InputMixButtonBase* createLineButton(InputMixGroupBase* group, uint8_t index) override;
 
   void newMix();

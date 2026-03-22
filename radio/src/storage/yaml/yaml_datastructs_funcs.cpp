@@ -1971,7 +1971,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
     // find "," and cut val_len
-    CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
+    cfn->all.val.source = mixSrcToSourceRef(r_mixSrcRawEx(nullptr, val, l_sep));
     break;
 
   case FUNC_PLAY_SOUND:
@@ -2076,7 +2076,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
     case FUNC_ADJUST_GVAR_SOURCERAW:
-      CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
+      cfn->all.val.source = mixSrcToSourceRef(r_mixSrcRawEx(nullptr, val, l_sep));
       break;
     case FUNC_ADJUST_GVAR_GVAR: {
       uint32_t gvar = r_mixSrcRawEx(nullptr, val, l_sep);
@@ -2202,7 +2202,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_VOLUME:
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
-    if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+    if (!w_mixSrcRawExNoQuote(nullptr, sourceRefToMixSrc(cfn->all.val.source), wf, opaque)) return false;
     break;
 
   case FUNC_PLAY_SOUND:
@@ -2270,7 +2270,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
     case FUNC_ADJUST_GVAR_SOURCERAW:
-      if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+      if (!w_mixSrcRawExNoQuote(nullptr, sourceRefToMixSrc(cfn->all.val.source), wf, opaque)) return false;
       break;
     case FUNC_ADJUST_GVAR_GVAR:
       if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;

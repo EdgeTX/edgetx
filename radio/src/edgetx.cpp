@@ -2126,7 +2126,7 @@ bool validateSFGV(CustomFunctionData* cfn)
   bool rv = false;
 
   if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
-    int16_t v = CFN_PARAM(cfn);
+    int32_t v = CFN_PARAM(cfn);
     int16_t vmin, vmax;
     getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, vmin, vmax);
     if (v < vmin) v = vmin;
