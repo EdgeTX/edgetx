@@ -55,6 +55,7 @@ void drawCursor(FnFuncP fn, uint8_t offset = 0);
 void drawCurve(coord_t offset = 0);
 
 void drawSource(coord_t x, coord_t y, const SourceRef& ref, LcdFlags att=0);
+void drawSource(coord_t x, coord_t y, mixsrc_t src, LcdFlags att=0);
 
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr);
 void drawScreenIndex(uint8_t index, uint8_t count, uint8_t attr);

@@ -178,20 +178,20 @@ class MixLineButton : public InputMixButtonBase
 class MixGroup : public InputMixGroupBase
 {
  public:
-  MixGroup(Window* parent, mixsrc_t idx) :
-    InputMixGroupBase(parent, idx)
+  MixGroup(Window* parent, const SourceRef& src) :
+    InputMixGroupBase(parent, src)
   {
     adjustHeight();
 
     lv_obj_set_pos(label, PAD_TINY, -1);
 
     lv_obj_t* chText = nullptr;
-    if (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH &&
-        g_model.limitData[idx - MIXSRC_FIRST_CH].name[0] != '\0') {
+    if (srcRef.type == SOURCE_TYPE_CHANNEL &&
+        g_model.limitData[srcRef.index].name[0] != '\0') {
       chText = etx_label_create(lvobj, FONT_XS_INDEX);
       char chanStr[10];
       char* s = strAppend(chanStr, STR_CH);
-      strAppendUnsigned(s, idx - MIXSRC_FIRST_CH + 1);
+      strAppendUnsigned(s, srcRef.index + 1);
       lv_label_set_text(chText, chanStr);
       lv_obj_set_pos(chText, PAD_TINY, CHNUM_Y-1);
     }
@@ -202,7 +202,7 @@ class MixGroup : public InputMixGroupBase
   void enableMixerMonitor()
   {
     if (!monitor)
-      monitor = new MixerChannelBar(this, {ListLineButton::GRP_W - CHBAR_W - PAD_LARGE, 1, CHBAR_W, CHBAR_H}, idx - MIXSRC_FIRST_CH);
+      monitor = new MixerChannelBar(this, {ListLineButton::GRP_W - CHBAR_W - PAD_LARGE, 1, CHBAR_W, CHBAR_H}, srcRef.index);
     monitorVisible = true;
     monitor->show();
     adjustHeight();
@@ -248,10 +248,10 @@ InputMixGroupBase* ModelMixesPage::getGroupByIndex(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return nullptr;
 
   int ch = mix->destCh;
-  return getGroupBySrc(MIXSRC_FIRST_CH + ch);
+  return getGroupBySrc(SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch});
 }
 
-InputMixGroupBase* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
+InputMixGroupBase* ModelMixesPage::createGroup(Window* form, const SourceRef& src)
 {
   auto group = new MixGroup(form, src);
   if (showMonitors) group->enableMixerMonitor();
@@ -265,7 +265,7 @@ InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, u
   lines.emplace_back(button);
   group->addLine(button);
 
-  uint8_t ch = group->getMixSrc() - MIXSRC_FIRST_CH;
+  uint8_t ch = group->getSourceRef().index;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu();
     menu->addLine(STR_EDIT, [=]() {
@@ -316,7 +316,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return;
   int channel = mix->destCh;
 
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
+  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)channel}, index);
 }
 
 void ModelMixesPage::newMix()
@@ -369,7 +369,7 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
   _copyMode = 0;
 
   ::insertMix(index, channel);
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
+  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)channel}, index);
   editMix(channel, index);
 }
 
@@ -482,7 +482,7 @@ void ModelMixesPage::build(Window * window)
     if (line->destCh == ch && !skip_mix) {
 
       // one group for the complete mixer channel
-      auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
+      auto group = createGroup(form, SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch});
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line

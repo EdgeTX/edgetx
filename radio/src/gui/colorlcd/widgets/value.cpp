@@ -261,7 +261,10 @@ class ValueWidget : public Widget
                                                          : LV_TEXT_ALIGN_LEFT);
 
     // Set label text
-    char* labelTxt = getSourceString(mixSrcToSourceRef(field));
+    SourceRef ref;
+    uint32_t raw = field;
+    memcpy(&ref, &raw, sizeof(ref));
+    char* labelTxt = getSourceString(ref);
     lv_label_set_text(label, labelTxt);
     lv_label_set_text(labelShadow, labelTxt);
 

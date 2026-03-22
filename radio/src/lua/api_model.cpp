@@ -1527,7 +1527,7 @@ static int luaModelGetCustomFunction(lua_State *L)
       lua_pushtablenstring(L, "name", cfn->play.name);
     }
     else {
-      lua_pushtableinteger(L, "value", cfn->all.val);
+      lua_pushtableinteger(L, "value", cfn->all.val.value);
       lua_pushtableinteger(L, "mode", cfn->all.mode);
       lua_pushtableinteger(L, "param", cfn->all.param);
     }
@@ -1575,7 +1575,7 @@ static int luaModelSetCustomFunction(lua_State *L)
         strncpy(cfn->play.name, name, sizeof(cfn->play.name));
       }
       else if (!strcmp(key, "value")) {
-        cfn->all.val = luaL_checkinteger(L, -1);
+        cfn->all.val.value = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "mode")) {
         cfn->all.mode = luaL_checkinteger(L, -1);

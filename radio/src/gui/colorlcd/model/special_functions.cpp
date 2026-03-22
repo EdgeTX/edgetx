@@ -170,7 +170,7 @@ void FunctionLineButton::refresh()
     case FUNC_VOLUME:
     case FUNC_BACKLIGHT:
     case FUNC_PLAY_VALUE:
-      strcat(s, getSourceString(mixSrcToSourceRef(CFN_PARAM(cfn))));
+      strcat(s, getSourceString(cfn->all.val.source));
       break;
 
     case FUNC_PLAY_SOUND:
@@ -228,16 +228,16 @@ void FunctionLineButton::refresh()
           break;
         case FUNC_ADJUST_GVAR_SOURCE:
         case FUNC_ADJUST_GVAR_SOURCERAW:
-          sprintf(s + strlen(s), " = %s", getSourceString(mixSrcToSourceRef(CFN_PARAM(cfn))));
+          sprintf(s + strlen(s), " = %s", getSourceString(cfn->all.val.source));
           break;
         case FUNC_ADJUST_GVAR_GVAR:
           sprintf(s + strlen(s), " = %s",
                   getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_PARAM(cfn)}));
           break;
         case FUNC_ADJUST_GVAR_INCDEC: {
-          int16_t value = CFN_PARAM(cfn);
+          int32_t value = CFN_PARAM(cfn);
           sprintf(s + strlen(s), " %s= %d", (value >= 0) ? "+" : "-",
-                  abs(value));
+                  (int)abs(value));
           break;
         }
       }
@@ -334,8 +334,8 @@ void FunctionEditPage::addSourceChoice(FormLine *line, const char *title,
   (void)vmax;  // No longer used; all sources are enumerated by type
   new StaticText(line, rect_t{}, title);
   new SourceChoice(line, rect_t{},
-                   [=]() { return mixSrcToSourceRef(CFN_PARAM(cfn)); },
-                   [=](SourceRef ref) { CFN_PARAM(cfn) = sourceRefToMixSrc(ref); SET_DIRTY(); },
+                   [=]() { return cfn->all.val.source; },
+                   [=](SourceRef ref) { cfn->all.val.source = ref; SET_DIRTY(); },
                    true);
 }
 
@@ -524,9 +524,9 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
     }
 
     case FUNC_SET_SCREEN:
-      CFN_PARAM(cfn) = (int16_t)max(CFN_PARAM(cfn), (int16_t)1);
-      CFN_PARAM(cfn) = (int16_t)min(
-          CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
+      CFN_PARAM(cfn) = max(CFN_PARAM(cfn), (int32_t)1);
+      CFN_PARAM(cfn) = min(
+          CFN_PARAM(cfn), (int32_t)ViewMain::instance()->getMainViewsCount());
       addNumberEdit(line, STR_VALUE, cfn, 1,
                     ViewMain::instance()->getMainViewsCount());
       break;

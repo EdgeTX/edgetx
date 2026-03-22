@@ -540,6 +540,7 @@ char *getSwitchPositionName(const SwitchRef& ref)
   return getSwitchPositionName(_static_str_buffer, ref);
 }
 
+
 bool switchCanHaveCustomName(swsrc_t idx)
 {
   return (idx >= SWSRC_FIRST_SWITCH && idx <= SWSRC_LAST_SWITCH);
@@ -556,14 +557,15 @@ int getSwitchIndex(const char* name, bool all)
 
   for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
     if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+      SwitchRef ref = swSrcToSwitchRef(idx);
       char* s;
       if (switchCanHaveCustomName(idx)) {
         // Check default name
-        s = getSwitchPositionName(_static_str_buffer, swSrcToSwitchRef(idx));
+        s = getSwitchPositionName(_static_str_buffer, ref);
         if (!strcasecmp(s, name))
           return negate ? -idx : idx;
       }
-      s = getSwitchPositionName(swSrcToSwitchRef(idx));
+      s = getSwitchPositionName(ref);
       if (!strcasecmp(s, name))
         return negate ? -idx : idx;
     }
@@ -890,9 +892,9 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
          (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);
 }
 
-bool matchSource(const char* name, mixsrc_t idx, bool defaultOnly)
+static bool matchSource(const char* name, const SourceRef& ref, bool defaultOnly)
 {
-  char *s = getSourceString(mixSrcToSourceRef(idx), defaultOnly);
+  char *s = getSourceString(ref, defaultOnly);
   if (strcasecmp(s, name) == 0)
     return true;
   // Check for names starting with CHAR_xxx symbol strings
@@ -905,12 +907,13 @@ int getSourceIndex(const char* name, bool all)
 {
   for (mixsrc_t idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
     if (all || isSourceAvailable(idx)) {
+      SourceRef ref = mixSrcToSourceRef(idx);
       if (sourceCanHaveCustomName(idx)) {
         // Check default name
-        if (matchSource(name, idx, true))
+        if (matchSource(name, ref, true))
           return idx;
       }
-      if (matchSource(name, idx, false))
+      if (matchSource(name, ref, false))
         return idx;
     }
   }
@@ -926,6 +929,7 @@ char *getSourceString(const SourceRef& ref, bool defaultOnly)
 {
   return getSourceString(_static_str_buffer, ref, defaultOnly);
 }
+
 
 char *getCurveString(int idx)
 {

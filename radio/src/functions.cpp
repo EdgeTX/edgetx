@@ -291,21 +291,20 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                          mixerCurrentFlightMode);
               }
-            } else if (CFN_PARAM(cfn) >= MIXSRC_FIRST_TRIM &&
-                       CFN_PARAM(cfn) <= MIXSRC_LAST_TRIM) {
-              trimGvar[CFN_PARAM(cfn) - MIXSRC_FIRST_TRIM] =
+            } else if (cfn->all.val.source.type == SOURCE_TYPE_TRIM) {
+              trimGvar[cfn->all.val.source.index] =
                   CFN_GVAR_INDEX(cfn);
             } else {
               if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        calcRESXto100(getValue(CFN_PARAM(cfn))),
+                                        calcRESXto100(getValue(cfn->all.val.source)),
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                         mixerCurrentFlightMode);
               else
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        getValue(CFN_PARAM(cfn)),
+                                        getValue(cfn->all.val.source),
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                         mixerCurrentFlightMode);
             }
@@ -315,7 +314,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(AUDIO)
           case FUNC_VOLUME: {
             newActiveFunctions |= (1u << FUNCTION_VOLUME);
-            calcVolumeValue(mixSrcToSourceRef(CFN_PARAM(cfn)));
+            calcVolumeValue(cfn->all.val.source);
             break;
           }
 #endif
@@ -369,8 +368,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_LOGS:
             if (CFN_PARAM(cfn)) {
               newActiveFunctions |= (1u << FUNCTION_LOGS);
-              logDelay100ms = CFN_PARAM(
-                  cfn);  // logging period is 0..25.5s in 100ms increments
+              logDelay100ms = CFN_PARAM(cfn);  // logging period is 0..25.5s in 100ms increments
             }
             break;
 
@@ -392,12 +390,12 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
           case FUNC_BACKLIGHT: {
             newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
-            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
+            if (cfn->all.val.source.isNone()) {  // When no source is set, backlight works
                                     // like original backlight and turn on
                                     // regardless of backlight settings
               requiredBacklightBright = BACKLIGHT_FORCED_ON;
             } else {
-              calcBacklightValue(mixSrcToSourceRef(CFN_PARAM(cfn)));
+              calcBacklightValue(cfn->all.val.source);
             }
             break;
           }
@@ -429,7 +427,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
 #if defined(COLORLCD)
-              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
+              int8_t screenNumber = max((int32_t)0, CFN_PARAM(cfn) - 1);
               setRequestedMainView(screenNumber);
               mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
 #else

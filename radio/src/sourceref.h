@@ -82,6 +82,10 @@ struct SourceRef {
     return type == other.type && flags == other.flags && index == other.index;
   }
   bool operator!=(const SourceRef& other) const { return !(*this == other); }
+  bool operator<(const SourceRef& other) const {
+    if (type != other.type) return type < other.type;
+    return index < other.index;
+  }
 };
 
 static_assert(sizeof(SourceRef) == 4, "SourceRef must be 32 bits");

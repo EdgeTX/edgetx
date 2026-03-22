@@ -129,8 +129,8 @@ class InputLineButton : public InputMixButtonBase
 class InputGroup : public InputMixGroupBase
 {
  public:
-  InputGroup(Window* parent, mixsrc_t idx) :
-    InputMixGroupBase(parent, idx)
+  InputGroup(Window* parent, const SourceRef& src) :
+    InputMixGroupBase(parent, src)
   {
     adjustHeight();
 
@@ -159,10 +159,10 @@ InputMixGroupBase* ModelInputsPage::getGroupByIndex(uint8_t index)
   if (!EXPO_VALID(expo)) return nullptr;
 
   int input = expo->chn;
-  return getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  return getGroupBySrc(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input});
 }
 
-InputMixGroupBase* ModelInputsPage::createGroup(Window* form, mixsrc_t src)
+InputMixGroupBase* ModelInputsPage::createGroup(Window* form, const SourceRef& src)
 {
   return new InputGroup(form, src);
 }
@@ -176,7 +176,7 @@ InputMixButtonBase* ModelInputsPage::createLineButton(InputMixGroupBase* group,
   lines.emplace_back(button);
   group->addLine(button);
 
-  uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
+  uint8_t input = group->getSourceRef().index;
   button->setPressHandler([=]() -> uint8_t {
     Menu* menu = new Menu();
     menu->addLine(STR_EDIT, [=]() {
@@ -227,7 +227,7 @@ void ModelInputsPage::addLineButton(uint8_t index)
   if (!EXPO_VALID(expo)) return;
   int input = expo->chn;
 
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_INPUT + input, index);
+  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input}, index);
 }
 
 void ModelInputsPage::newInput()
@@ -262,7 +262,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
   _copyMode = 0;
 
-  auto group = getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  auto group = getGroupBySrc(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input});
   if (!group) return;
 
   auto line = getLineByIndex(index);
@@ -279,7 +279,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
 {
   ::insertExpo(index, input);
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_INPUT + input, index);
+  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input}, index);
   editInput(input, index);
 }
 
@@ -381,7 +381,7 @@ void ModelInputsPage::build(Window* window)
 
     if (line->chn == input && EXPO_VALID(line)) {
       // one group for the complete input channel
-      auto group = createGroup(form, MIXSRC_FIRST_INPUT + input);
+      auto group = createGroup(form, SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input});
       groups.emplace_back(group);
       while (index < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         // one button per input line
