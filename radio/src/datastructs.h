@@ -39,10 +39,10 @@
 
 static inline void check_struct()
 {
-  CHKSIZE(CurveRef, 2);
+  CHKSIZE(CurveRef, 6);
   CHKSIZE(VarioData, 5);
-  CHKSIZE(MixData, 20);
-  CHKSIZE(ExpoData, 18);
+  CHKSIZE(MixData, 35);
+  CHKSIZE(ExpoData, 33);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(LogicalSwitchData, 9);
