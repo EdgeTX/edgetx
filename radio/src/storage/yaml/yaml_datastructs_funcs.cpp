@@ -59,6 +59,49 @@ static inline void check_yaml_funcs()
 #endif
 }
 
+//
+// Arena extern array get_ptr callbacks for YAML_EXTERN_ARRAY
+//
+#include "model_arena.h"
+#include "expos.h"
+#include "mixes.h"
+
+static uint8_t* yaml_get_mix_ptr(uint16_t* count)
+{
+  *count = getMixCount();
+  return g_modelArena.sectionBase(ARENA_MIXES);
+}
+
+static uint8_t* yaml_get_expo_ptr(uint16_t* count)
+{
+  *count = getExpoCount();
+  return g_modelArena.sectionBase(ARENA_EXPOS);
+}
+
+static uint8_t* yaml_get_curves_ptr(uint16_t* count)
+{
+  *count = g_model.dyn.curveCount;
+  return g_modelArena.sectionBase(ARENA_CURVES);
+}
+
+static uint8_t* yaml_get_points_ptr(uint16_t* count)
+{
+  *count = g_model.dyn.pointsCount;
+  return g_modelArena.sectionBase(ARENA_POINTS);
+}
+
+static uint8_t* yaml_get_logical_sw_ptr(uint16_t* count)
+{
+  *count = g_model.dyn.logicalSwCount;
+  return g_modelArena.sectionBase(ARENA_LOGICAL_SW);
+}
+
+static uint8_t* yaml_get_custom_fn_ptr(uint16_t* count)
+{
+  *count = g_model.dyn.customFnCount;
+  return g_modelArena.sectionBase(ARENA_CUSTOM_FN);
+}
+
 static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque)
 {
