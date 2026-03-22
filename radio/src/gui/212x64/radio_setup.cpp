@@ -430,7 +430,7 @@ void menuRadioSetup(event_t event)
           if (attr)
             g_eeGeneral.volumeSrc = checkIncDecSource(event, g_eeGeneral.volumeSrc,
                   SRCMASK_THROUGH_SWITCH,
-                  [](SourceRef ref) { return isSourceAvailableForBacklightOrVolume(ref); });
+                  isSourceAvailableForBacklightOrVolume);
         }
         break;
 
@@ -600,7 +600,7 @@ void menuRadioSetup(event_t event)
           if (attr)
             g_eeGeneral.backlightSrc = checkIncDecSource(event, g_eeGeneral.backlightSrc,
                   SRCMASK_THROUGH_SWITCH,
-                  [](SourceRef ref) { return isSourceAvailableForBacklightOrVolume(ref); });
+                  isSourceAvailableForBacklightOrVolume);
         }
         break;
 

@@ -58,29 +58,24 @@ bool isChannelUsed(int channel);
 bool checkSourceAvailable(int source, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
 bool isInputAvailable(int input);
-bool isThrottleSourceAvailable(int source);
-bool isThrottleSourceAvailable(const SourceRef& ref);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
-bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref);
-bool isSourceAvailable(int source);
 bool isSourceAvailable(const SourceRef& ref);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);
 bool isSourceAvailableInGlobalResetSpecialFunction(int index);
-bool isSwitchAvailable(int swtch, SwitchContext context);
 bool isSwitchAvailable(const SwitchRef& ref, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
-bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInLogicalSwitches(const SwitchRef& ref);
-bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableInCustomFunctions(const SwitchRef& ref);
-bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableForArming(const SwitchRef& ref);
-bool isSwitchAvailableInMixes(int swtch);
 bool isSwitchAvailableInMixes(const SwitchRef& ref);
+
+// Thin int wrapper for legacy checkIncDec(int) / INCDEC_ENABLE_CHECK call sites
+bool isSourceAvailableInt(int source);
+
 bool isPxx2IsrmChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
 bool isTrainerUsingModuleBay();

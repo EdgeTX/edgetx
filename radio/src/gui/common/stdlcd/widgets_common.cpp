@@ -274,7 +274,7 @@ SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr, event
   drawSwitch(x, y, value, attr);
   if (attr & (~RIGHT)) {
     value = checkIncDecSwitch(event, value, SWMASK_ALL, EE_MODEL,
-                              [](SwitchRef ref) { return isSwitchAvailableInMixes(ref); });
+                              isSwitchAvailableInMixes);
   }
   return value;
 }

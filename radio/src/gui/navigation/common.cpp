@@ -113,7 +113,7 @@ void onSourceLongEnterPress(const char * result)
 #if defined(LUA_MODEL_SCRIPTS)
   else if (result == STR_MENU_LUA) {
     checkIncDecSelection =
-        getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable);
+        getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailableInt);
   }
 #endif
   else if (result == STR_MENU_STICKS)
@@ -133,7 +133,7 @@ void onSourceLongEnterPress(const char * result)
   else if (result == STR_MENU_TRAINER)
     checkIncDecSelection = MIXSRC_FIRST_TRAINER;
   else if (result == STR_MENU_CHANNELS)
-    checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_CH, MIXSRC_LAST_CH, isSourceAvailable);
+    checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_CH, MIXSRC_LAST_CH, isSourceAvailableInt);
   else if (result == STR_MENU_GVARS)
     checkIncDecSelection = MIXSRC_FIRST_GVAR;
   else if (result == STR_MENU_TELEMETRY) {

@@ -108,7 +108,7 @@ void menuModelExpoOne(event_t event)
           drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
           if (attr && menuHorizontalPosition==0) {
             ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL,
-                [](SourceRef ref) { return isSourceAvailable(ref); });
+                isSourceAvailable);
           }
           if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
             uint16_t telemIdx = ed->srcRaw.index;
@@ -132,17 +132,17 @@ void menuModelExpoOne(event_t event)
 
       case EXPO_FIELD_WEIGHT:
         ed->weight = legacyToValueOrSource(editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, valueOrSourceToLegacy(ed->weight),
-                        -100, 100, attr, event, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST));
+                        -100, 100, attr, event, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST));
         break;
 
       case EXPO_FIELD_OFFSET:
         ed->offset = legacyToValueOrSource(editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, valueOrSourceToLegacy(ed->offset),
-                        -100, 100, attr, event, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST));
+                        -100, 100, attr, event, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST));
         break;
 
       case EXPO_FIELD_CURVE:
         lcdDrawTextAlignedLeft(y, STR_CURVE);
-        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
+        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
 #if defined(FLIGHT_MODES)

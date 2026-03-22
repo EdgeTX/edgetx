@@ -810,21 +810,26 @@ bool isThrottleWarningAlertNeeded()
     return false;
   }
 
-  uint8_t thr_src = throttleSource2Source(g_model.thrTraceSrc);
+  SourceRef thrSrc = g_model.thrTraceSrc;
 
-  // in case an output channel is choosen as throttle source
+  // in case an output channel is chosen as throttle source
   // we assume the throttle stick is the input (no computed channels yet)
-  if (thr_src >= MIXSRC_FIRST_CH) {
-    thr_src = throttleSource2Source(0);
+  if (thrSrc.type == SOURCE_TYPE_CHANNEL) {
+    thrSrc = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingGetThrottle()};
+  }
+
+  // Default (none) means use throttle stick
+  if (thrSrc.isNone()) {
+    thrSrc = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingGetThrottle()};
   }
 
   if (!mixerTaskRunning()) getADC();
   evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
 
-  int16_t v = getValue(thr_src);
+  int16_t v = getValue(thrSrc);
 
   // TODO: this looks fishy....
-  if (g_model.thrTraceSrc && g_model.throttleReversed) {
+  if (!g_model.thrTraceSrc.isNone() && g_model.throttleReversed) {
     v = -v;
   }
 

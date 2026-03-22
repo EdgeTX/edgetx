@@ -210,7 +210,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           if (active || AUTOSWITCH_ENTER_LONG()) {
             if (event == EVT_KEY_LONG(KEY_ENTER))
               killEvents(event);
-            cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, [](SwitchRef ref) { return isSwitchAvailableInCustomFunctions(ref); });
+            cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, isSwitchAvailableInCustomFunctions);
           }
         }
           if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
@@ -291,6 +291,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           int16_t val_displayed = CFN_PARAM(cfn);
           int16_t val_min = 0;
           int16_t val_max = 255;
+          bool sourceHandled = false;
           if (func == FUNC_RESET) {
             val_max = FUNC_RESET_PARAM_FIRST_TELEM+lastUsedTelemetryIndex();
             int param = CFN_PARAM(cfn);
@@ -365,20 +366,20 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             break;
           }
           else if (func == FUNC_PLAY_VALUE) {
-            val_max = MIXSRC_LAST_TELEM;
             drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
             if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
+              cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                      isSourceAvailable);
             }
+            break;
           }
           else if (func == FUNC_VOLUME) {
-            val_max = MIXSRC_LAST_CH;
             drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
             if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
+              cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                      isSourceAvailableForBacklightOrVolume);
             }
+            break;
           }
           else if (func == FUNC_LOGS) {
             val_min = SD_LOGS_PERIOD_MIN; 
@@ -392,12 +393,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawChar(lcdLastRightPos, y, 's');
           }
           else if (func == FUNC_BACKLIGHT) {
-            val_max = MIXSRC_LAST_CH;
             drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
             if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
+              cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                      isSourceAvailableForBacklightOrVolume);
             }
+            break;
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
@@ -411,12 +412,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               }
               case FUNC_ADJUST_GVAR_SOURCE:
               case FUNC_ADJUST_GVAR_SOURCERAW:
-                val_max = MIXSRC_LAST_CH;
                 drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
                 if (active) {
-                  INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-                  INCDEC_ENABLE_CHECK(isSourceAvailable);
+                  cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                          isSourceAvailable);
                 }
+                sourceHandled = true;
                 break;
               case FUNC_ADJUST_GVAR_GVAR:
                 val_max = MAX_GVARS-1;
@@ -435,7 +436,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             repeatLastCursorMove(event);
           }
 
-          if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
+          if (!sourceHandled && (active || event==EVT_KEY_LONG(KEY_ENTER))) {
             CFN_PARAM(cfn) = CHECK_INCDEC_PARAM(event, val_displayed, val_min, val_max);
             if (func == FUNC_ADJUST_GVAR && attr && event==EVT_KEY_LONG(KEY_ENTER)) {
               if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_CONSTANT)

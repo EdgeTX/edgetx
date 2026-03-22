@@ -2615,7 +2615,7 @@ return true if switch is a customisable switch
 static int luaGetSwitchInfo(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
-  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+  if (idx < SWSRC_COUNT && isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext)) {
     lua_newtable(L);
     char* name = getSwitchPositionName(swSrcToSwitchRef(idx));
     lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
@@ -2667,7 +2667,7 @@ static int luaGetSwitchIndex(lua_State * L)
 static int luaGetSwitchName(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext)) {
     char* name = getSwitchPositionName(swSrcToSwitchRef(idx));
     lua_pushstring(L, name);
   }
@@ -2690,7 +2690,7 @@ static int luaGetSwitchName(lua_State * L)
 static int luaGetSwitchValue(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext))
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext))
     lua_pushboolean(L, getSwitch(swSrcToSwitchRef(idx)));
   else
     lua_pushnil(L);
@@ -2715,7 +2715,7 @@ static int luaNextSwitch(lua_State * L)
   swsrc_t idx = luaL_checkinteger(L, 2);
 
   while (++idx <= last) {
-    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+    if (isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext)) {
       char* name = getSwitchPositionName(swSrcToSwitchRef(idx));
       lua_pushinteger(L, idx);
       lua_pushstring(L, name);
@@ -2792,7 +2792,7 @@ static int luaGetSourceIndex(lua_State* const L)
 static int luaGetSourceName(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx <= MIXSRC_LAST_TELEM && isSourceAvailable(idx)) {
+  if (idx <= MIXSRC_LAST_TELEM && isSourceAvailable(mixSrcToSourceRef(idx))) {
     char srcName[maxSourceNameLength];
     getSourceString(srcName, mixSrcToSourceRef(idx));
     lua_pushstring(L, srcName);
@@ -2820,7 +2820,7 @@ static int luaNextSource(lua_State * L)
   mixsrc_t idx = luaL_checkinteger(L, 2);
 
   while (++idx <= last) {
-    if (isSourceAvailable(idx)) {
+    if (isSourceAvailable(mixSrcToSourceRef(idx))) {
       char srcName[maxSourceNameLength];
       getSourceString(srcName, mixSrcToSourceRef(idx));
       lua_pushinteger(L, idx);
