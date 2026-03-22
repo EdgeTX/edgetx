@@ -22,6 +22,14 @@
 #include "edgetx.h"
 #include "mixes.h"
 
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
+static SourceRef mixSrcToSourceRef(mixsrc_t src);
+static SwitchRef swSrcToSwitchRef(swsrc_t src);
+static ValueOrSource legacyToValueOrSource(int32_t rawValue);
+
 enum MixFields {
   MIX_FIELD_NAME,
   MIX_FIELD_SOURCE,
@@ -130,20 +138,25 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_SOURCE:
-        lcdDrawTextAlignedLeft(y, STR_SOURCE);
-        drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
-        if (attr)
-          md2->srcRaw = checkIncDec(event, md2->srcRaw, 1, MIXSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
+        {
+          lcdDrawTextAlignedLeft(y, STR_SOURCE);
+          mixsrc_t srcRawVal = sourceRefToMixSrc(md2->srcRaw);
+          drawSource(MIXES_2ND_COLUMN, y, srcRawVal, STREXPANDED|attr);
+          if (attr) {
+            srcRawVal = checkIncDec(event, srcRawVal, 1, MIXSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
+            md2->srcRaw = mixSrcToSourceRef(srcRawVal);
+          }
+        }
         break;
 
       case MIX_FIELD_WEIGHT:
-        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight, 
-                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        md2->weight = legacyToValueOrSource(editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, valueOrSourceToLegacy(md2->weight),
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST));
         break;
 
       case MIX_FIELD_OFFSET:
-        md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
-                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        md2->offset = legacyToValueOrSource(editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, valueOrSourceToLegacy(md2->offset),
+                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST));
         drawOffsetBar(LCD_W - 33, y, md2);
         break;
 
@@ -155,7 +168,7 @@ void menuModelMixOne(event_t event)
 
       case MIX_FIELD_CURVE:
         lcdDrawTextAlignedLeft(y, STR_CURVE);
-        s_currSrcRaw = md2->srcRaw;
+        s_currSrcRaw = sourceRefToMixSrc(md2->srcRaw);
         s_currScale = 0;
         editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailable, 1, MIXSRC_LAST);
         break;
@@ -168,7 +181,7 @@ void menuModelMixOne(event_t event)
 #endif
 
       case MIX_FIELD_SWITCH:
-        md2->swtch = editSwitch(MIXES_2ND_COLUMN, y, md2->swtch, attr, event);
+        md2->swtch = swSrcToSwitchRef(editSwitch(MIXES_2ND_COLUMN, y, switchRefToSwSrc(md2->swtch), attr, event));
         break;
 
       case MIX_FIELD_WARNING:
@@ -205,4 +218,114 @@ void menuModelMixOne(event_t event)
     }
     y += FH;
   }
+}
+
+static SourceRef mixSrcToSourceRef(mixsrc_t src)
+{
+  SourceRef ref = {};
+  if (src == MIXSRC_NONE) return ref;
+
+  bool inverted = (src < 0);
+  mixsrc_t absSrc = inverted ? -src : src;
+
+  struct Range { mixsrc_t first; mixsrc_t last; uint8_t type; };
+  static const Range ranges[] = {
+    {MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SOURCE_TYPE_INPUT},
+    {MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SOURCE_TYPE_LUA},
+    {MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SOURCE_TYPE_STICK},
+    {MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SOURCE_TYPE_POT},
+    {MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SOURCE_TYPE_TRIM},
+    {MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SOURCE_TYPE_SWITCH},
+    {MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SOURCE_TYPE_LOGICAL_SWITCH},
+    {MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SOURCE_TYPE_TRAINER},
+    {MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SOURCE_TYPE_CHANNEL},
+    {MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SOURCE_TYPE_GVAR},
+    {MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SOURCE_TYPE_TIMER},
+    {MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SOURCE_TYPE_TELEMETRY},
+    {MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SOURCE_TYPE_HELI},
+  };
+
+  if (absSrc == MIXSRC_MIN) { ref.type = SOURCE_TYPE_MIN; }
+  else if (absSrc == MIXSRC_MAX) { ref.type = SOURCE_TYPE_MAX; }
+  else if (absSrc == MIXSRC_TX_VOLTAGE) { ref.type = SOURCE_TYPE_TX_VOLTAGE; }
+  else if (absSrc == MIXSRC_TX_TIME) { ref.type = SOURCE_TYPE_TX_TIME; }
+  else {
+    for (const auto& r : ranges) {
+      if (absSrc >= r.first && absSrc <= r.last) {
+        ref.type = r.type;
+        ref.index = absSrc - r.first;
+        break;
+      }
+    }
+  }
+
+  if (inverted) ref.flags = SOURCE_FLAG_INVERTED;
+  return ref;
+}
+
+static SwitchRef swSrcToSwitchRef(swsrc_t src)
+{
+  SwitchRef ref = {};
+  if (src == SWSRC_NONE) return ref;
+
+  bool inverted = (src < 0);
+  swsrc_t absSrc = inverted ? -src : src;
+
+  struct Range { swsrc_t first; swsrc_t last; uint8_t type; };
+  static const Range ranges[] = {
+    {SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, SWITCH_TYPE_SWITCH},
+    {SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SWITCH_TYPE_MULTIPOS},
+    {SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SWITCH_TYPE_TRIM},
+    {SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SWITCH_TYPE_LOGICAL},
+    {SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SWITCH_TYPE_FLIGHT_MODE},
+    {SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SWITCH_TYPE_SENSOR},
+  };
+
+  if (absSrc == SWSRC_ON) { ref.type = SWITCH_TYPE_ON; }
+  else if (absSrc == SWSRC_ONE) { ref.type = SWITCH_TYPE_ONE; }
+  else if (absSrc == SWSRC_TELEMETRY_STREAMING) { ref.type = SWITCH_TYPE_TELEMETRY; }
+  else if (absSrc == SWSRC_RADIO_ACTIVITY) { ref.type = SWITCH_TYPE_RADIO_ACTIVITY; }
+  else if (absSrc == SWSRC_TRAINER_CONNECTED) { ref.type = SWITCH_TYPE_TRAINER; }
+  else {
+    for (const auto& r : ranges) {
+      if (absSrc >= r.first && absSrc <= r.last) {
+        ref.type = r.type;
+        ref.index = absSrc - r.first;
+        break;
+      }
+    }
+  }
+
+  if (inverted) ref.flags = SWITCH_FLAG_INVERTED;
+  return ref;
+}
+
+static ValueOrSource legacyToValueOrSource(int32_t rawValue)
+{
+  ValueOrSource vos = {};
+  SourceNumVal v;
+  v.rawValue = rawValue;
+  if (v.isSource) {
+    vos.isSource = 1;
+    mixsrc_t src = v.value;
+    if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
+      vos.srcType = SOURCE_TYPE_GVAR;
+      vos.value = src - MIXSRC_FIRST_GVAR;
+    } else if (src >= MIXSRC_FIRST_INPUT && src <= MIXSRC_LAST_INPUT) {
+      vos.srcType = SOURCE_TYPE_INPUT;
+      vos.value = src - MIXSRC_FIRST_INPUT;
+    } else if (src >= MIXSRC_FIRST_STICK && src <= MIXSRC_LAST_STICK) {
+      vos.srcType = SOURCE_TYPE_STICK;
+      vos.value = src - MIXSRC_FIRST_STICK;
+    } else if (src >= MIXSRC_FIRST_CH && src <= MIXSRC_LAST_CH) {
+      vos.srcType = SOURCE_TYPE_CHANNEL;
+      vos.value = src - MIXSRC_FIRST_CH;
+    } else {
+      vos.srcType = 0;
+      vos.value = src;
+    }
+  } else {
+    vos.setNumeric(v.value);
+  }
+  return vos;
 }

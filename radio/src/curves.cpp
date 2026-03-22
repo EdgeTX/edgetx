@@ -423,7 +423,6 @@ int applyCurrentCurve(int x)
 }
 #endif
 
-#if defined(COLORLCD)
 // Convert ValueOrSource to legacy SourceNumVal packed format for
 // getValueOrSrcVarString() (temporary bridge until that function is updated)
 gvar_t valueOrSourceToLegacy(const ValueOrSource& vos)
@@ -453,6 +452,7 @@ gvar_t valueOrSourceToLegacy(const ValueOrSource& vos)
   return makeSourceNumVal(vos.value, false);
 }
 
+#if defined(COLORLCD)
 char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
 {
   if (!len) return dest;
