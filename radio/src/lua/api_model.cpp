@@ -668,14 +668,9 @@ static int luaModelInsertInput(lua_State *L)
   unsigned int first = getFirstInput(chn);
   unsigned int count = getInputsCountFromFirst(chn, first);
 
-  if (chn<MAX_INPUTS && getExposCount()<MAX_EXPOS && idx<=count) {
+  if (chn<MAX_INPUTS && getExpoCount()<MAX_EXPOS && idx<=count) {
     idx = first + idx;
-    s_currCh = chn + 1;
-#if defined(COLORLCD)
     insertExpo(idx, chn);
-#else
-    insertExpo(idx);
-#endif
     ExpoData * expo = expoAddress(idx);
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
@@ -1238,7 +1233,7 @@ static int luaModelGetCurve(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < MAX_CURVES) {
-    CurveHeader & CurveHeader = g_model.curves[idx];
+    CurveHeader & CurveHeader = *curveHeaderAddress(idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", CurveHeader.name);
     lua_pushtableinteger(L, "type", CurveHeader.type);
@@ -1331,7 +1326,7 @@ static int luaModelSetCurve(lua_State *L)
   memset(yPoints, -127, sizeof(yPoints));
 
 
-  CurveHeader &destCurveHeader = g_model.curves[curveIdx];
+  CurveHeader &destCurveHeader = *curveHeaderAddress(curveIdx);
   CurveHeader newCurveHeader;
   memclear(&newCurveHeader, sizeof(CurveHeader));
 
@@ -1495,7 +1490,7 @@ static int luaModelGetCustomFunction(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < MAX_SPECIAL_FUNCTIONS) {
-    CustomFunctionData * cfn = &g_model.customFn[idx];
+    CustomFunctionData * cfn = customFnAddress(idx);
     lua_newtable(L);
     lua_pushtableinteger(L, "switch", CFN_SWITCH(cfn));
     lua_pushtableinteger(L, "func", CFN_FUNC(cfn));
@@ -1534,7 +1529,7 @@ static int luaModelSetCustomFunction(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < MAX_SPECIAL_FUNCTIONS) {
-    CustomFunctionData * cfn = &g_model.customFn[idx];
+    CustomFunctionData * cfn = customFnAddress(idx);
     memclear(cfn, sizeof(CustomFunctionData));
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {

@@ -42,7 +42,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
   uint8_t eeFlags;
 
   if (menuHandlers[menuLevel] == menuModelSpecialFunctions) {
-    cfn = &g_model.customFn[sub];
+    cfn = customFnAddress(sub);
     eeFlags = EE_MODEL;
   }
   else {
@@ -81,7 +81,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
 #if defined(PCBTARANIS)
 void onAdjustGvarSourceLongEnterPress(const char * result)
 {
-  CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
+  CustomFunctionData * cfn = customFnAddress(menuVerticalPosition);
 
   if (result == STR_CONSTANT) {
     CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
@@ -120,7 +120,7 @@ void onCustomFunctionsMenu(const char * result)
   uint8_t eeFlags;
 
   if (menuHandlers[menuLevel] == menuModelSpecialFunctions) {
-    cfn = &g_model.customFn[sub];
+    cfn = customFnAddress(sub);
     eeFlags = EE_MODEL;
   }
   else {
@@ -147,7 +147,7 @@ void onCustomFunctionsMenu(const char * result)
   }
   else if (result == STR_DELETE) {
     memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-    memset(&g_model.customFn[MAX_SPECIAL_FUNCTIONS-1], 0, sizeof(CustomFunctionData));
+    memset(customFnAddress(MAX_SPECIAL_FUNCTIONS-1), 0, sizeof(CustomFunctionData));
     storageDirty(eeFlags);
   }
 }
@@ -549,7 +549,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 void menuModelSpecialFunctions(event_t event)
 {
 #if defined(NAVIGATION_X7)
-  const CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
+  const CustomFunctionData * cfn = customFnAddress(menuVerticalPosition);
   if (!CFN_SWITCH(cfn) && menuHorizontalPosition < 0 && event==EVT_KEY_BREAK(KEY_ENTER)) {
     menuHorizontalPosition = 0;
   }

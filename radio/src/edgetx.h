@@ -95,6 +95,7 @@ enum RotaryEncoderMode {
 
 #include "myeeprom.h"
 #include "curves.h"
+#include "expos.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
@@ -395,10 +396,11 @@ uint16_t anaIn(uint8_t chan);
 #define FLASH_DURATION 20 /*200ms*/
 
 FlightModeData * flightModeAddress(uint8_t idx);
-ExpoData * expoAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
+CustomFunctionData * customFnAddress(uint8_t idx);
+CurveHeader * curveHeaderAddress(uint8_t idx);
 
 void applyDefaultTemplate();
 void instantTrim();

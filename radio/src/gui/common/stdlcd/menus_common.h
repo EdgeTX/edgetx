@@ -192,9 +192,7 @@ void pushMenuTextView(const char *filename);
 void pushModelNotes();
 void readModelNotes();
 
-uint8_t getExposCount();
-void insertExpo(uint8_t idx);
-void deleteExpo(uint8_t idx);
+bool reachExposLimit();
 
 uint8_t switchToMix(uint8_t source);
 

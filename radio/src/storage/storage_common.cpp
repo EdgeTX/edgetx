@@ -159,6 +159,7 @@ static void sanitizeMixerLines()
 {
   bool dirty = sortMixerLines();
   updateMixCount();
+  updateExpoCount();
   if (dirty) storageDirty(EE_MODEL);
 }
 

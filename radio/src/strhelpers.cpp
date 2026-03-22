@@ -337,8 +337,8 @@ char *getCurveString(char *dest, int idx)
     idx = -idx;
   }
 
-  if (g_model.curves[idx - 1].name[0])
-    strAppend(s, g_model.curves[idx - 1].name, LEN_CURVE_NAME);
+  if (curveHeaderAddress(idx - 1)->name[0])
+    strAppend(s, curveHeaderAddress(idx - 1)->name, LEN_CURVE_NAME);
   else
     strAppendStringWithIndex(s, STR_CV, idx);
 

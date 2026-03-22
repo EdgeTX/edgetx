@@ -793,8 +793,8 @@ void evalLogicalSwitches(bool isCurrentFlightmode)
       }
     }
     context.state = result;
-    if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
-      g_model.logicalSw[idx].lsState = result;
+    if ((lswAddress(idx)->func == LS_FUNC_STICKY) && (lswAddress(idx)->lsState != result)) {
+      lswAddress(idx)->lsState = result;
       storageDirty(EE_MODEL);
     }
   }

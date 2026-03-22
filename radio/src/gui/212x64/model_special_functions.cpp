@@ -38,7 +38,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
   uint8_t eeFlags;
 
   if (menuHandlers[menuLevel] == menuModelSpecialFunctions) {
-    cfn = &g_model.customFn[sub];
+    cfn = customFnAddress(sub);
     eeFlags = EE_MODEL;
   }
   else {
@@ -78,7 +78,7 @@ void onCustomFunctionsMenu(const char * result)
   uint8_t eeFlags;
 
   if (menuHandlers[menuLevel] == menuModelSpecialFunctions) {
-    cfn = &g_model.customFn[sub];
+    cfn = customFnAddress(sub);
     eeFlags = EE_MODEL;
   }
   else {
@@ -105,14 +105,14 @@ void onCustomFunctionsMenu(const char * result)
   }
   else if (result == STR_DELETE) {
     memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-    memset(&g_model.customFn[MAX_SPECIAL_FUNCTIONS-1], 0, sizeof(CustomFunctionData));
+    memset(customFnAddress(MAX_SPECIAL_FUNCTIONS-1), 0, sizeof(CustomFunctionData));
     storageDirty(eeFlags);
   }
 }
 
 void onAdjustGvarSourceLongEnterPress(const char * result)
 {
-  CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
+  CustomFunctionData * cfn = customFnAddress(menuVerticalPosition);
 
   if (result == STR_CONSTANT) {
     CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
