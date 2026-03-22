@@ -40,10 +40,10 @@ void setDefaultInputs()
   for (int i = 0; i < max_sticks; i++) {
     uint8_t stick_index = inputMappingChannelOrder(i);
     ExpoData *expo = expoAddress(i);
-    expo->srcRaw = MIXSRC_FIRST_STICK + stick_index;
+    expo->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)stick_index};
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
-    expo->weight = 100;
+    expo->weight.setNumeric(100);
     expo->mode = 3; // TODO constant
     strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
   }
@@ -63,8 +63,8 @@ void setDefaultMixes()
   for (int i = 0; i < max_sticks; i++) {
     MixData * mix = mixAddress(i);
     mix->destCh = i;
-    mix->weight = 100;
-    mix->srcRaw = i+1;
+    mix->weight.setNumeric(100);
+    mix->srcRaw = {SOURCE_TYPE_INPUT, 0, (uint16_t)i};
   }
   storageDirty(EE_MODEL);
 }

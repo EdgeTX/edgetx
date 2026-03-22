@@ -26,6 +26,9 @@
 
 #include "edgetx.h"
 
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+
 static uint8_t _nb_mix_lines;
 
 MixData* mixAddress(uint8_t idx) {
@@ -45,18 +48,18 @@ void insertMix(uint8_t idx, uint8_t channel)
   memmove(mix + 1, mix, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(mix, sizeof(MixData));
   mix->destCh = channel;
-  mix->srcRaw = channel + 1;
-  if (!isSourceAvailable(mix->srcRaw)) {
+  mix->srcRaw = {SOURCE_TYPE_INPUT, 0, (uint16_t)channel};
+  if (!isSourceAvailable(sourceRefToMixSrc(mix->srcRaw))) {
     if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-      mix->srcRaw = MIXSRC_FIRST_STICK + channel;
+      mix->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)channel};
     } else {
-      mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);
+      mix->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingChannelOrder(channel)};
     }
-    while (!isSourceAvailable(mix->srcRaw)) {
-      mix->srcRaw += 1;
+    while (!isSourceAvailable(sourceRefToMixSrc(mix->srcRaw))) {
+      mix->srcRaw.index += 1;
     }
   }
-  mix->weight = 100;
+  mix->weight.setNumeric(100);
   mixerTaskStart();
 
   // Update slow up/down array
@@ -133,7 +136,7 @@ uint8_t moveMix(uint8_t idx, bool up)
   // TODO: check what happens with the mixer
   //       when channel is changed on-the-fly
   //
-  if(!y->srcRaw || destCh != y->destCh) {
+  if(y->srcRaw.isNone() || destCh != y->destCh) {
     if (up) {
       if (destCh > 0) {
 	x->destCh--;
