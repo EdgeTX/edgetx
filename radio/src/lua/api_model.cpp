@@ -1156,8 +1156,8 @@ static int luaModelGetLogicalSwitch(lua_State *L)
     LogicalSwitchData * sw = lswAddress(idx);
     lua_newtable(L);
     lua_pushtableinteger(L, "func", sw->func);
-    lua_pushtableinteger(L, "v1", sw->v1);
-    lua_pushtableinteger(L, "v2", sw->v2);
+    lua_pushtableinteger(L, "v1", sw->v1.value);
+    lua_pushtableinteger(L, "v2", sw->v2.value);
     lua_pushtableinteger(L, "v3", sw->v3);
     lua_pushtableinteger(L, "and", switchRefToSwSrc(sw->andsw));
     lua_pushtableinteger(L, "delay", sw->delay);
@@ -1202,10 +1202,10 @@ static int luaModelSetLogicalSwitch(lua_State *L)
         sw->func = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "v1")) {
-        sw->v1 = luaL_checkinteger(L, -1);
+        sw->v1.value = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "v2")) {
-        sw->v2 = luaL_checkinteger(L, -1);
+        sw->v2.value = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "v3")) {
         sw->v3 = luaL_checkinteger(L, -1);

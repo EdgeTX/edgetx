@@ -459,9 +459,10 @@ uint8_t switchGetMaxRow(uint8_t col)
 }
 #endif
 
-getvalue_t getValueForLogicalSwitch(mixsrc_t i)
+getvalue_t getValueForLogicalSwitch(const SourceRef& src)
 {
-  getvalue_t result = getValue(i);
+  getvalue_t result = getValue(src);
+  mixsrc_t i = sourceRefToMixSrc(src);
   if (i>=MIXSRC_FIRST_INPUT && i<=MIXSRC_LAST_INPUT) {
     int8_t trimIdx = virtualInputsTrims[i-MIXSRC_FIRST_INPUT];
     if (trimIdx >= 0) {
@@ -516,8 +517,8 @@ bool getLogicalSwitch(uint8_t idx)
   else {
     uint8_t family = lswFamily(ls->func);
     if (family == LS_FAMILY_BOOL) {
-    bool res1 = getSwitch(swSrcToSwitchRef(ls->v1));
-    bool res2 = getSwitch(swSrcToSwitchRef(ls->v2));
+    bool res1 = getSwitch(ls->v1.swtch);
+    bool res2 = getSwitch(ls->v2.swtch);
     switch (ls->func) {
       case LS_FUNC_AND:
         result = (res1 && res2);
@@ -541,10 +542,10 @@ bool getLogicalSwitch(uint8_t idx)
     result = (context.lastValue & (1<<0));
   }
   else {
-    getvalue_t x = getValueForLogicalSwitch(ls->v1);
+    getvalue_t x = getValueForLogicalSwitch(ls->v1.source);
     getvalue_t y;
     if (family == LS_FAMILY_COMP) {
-      y = getValueForLogicalSwitch(ls->v2);
+      y = getValueForLogicalSwitch(ls->v2.source);
 
       switch (ls->func) {
         case LS_FUNC_EQUAL:
@@ -559,7 +560,7 @@ bool getLogicalSwitch(uint8_t idx)
       }
     }
     else {
-      mixsrc_t v1 = ls->v1;
+      mixsrc_t v1 = sourceRefToMixSrc(ls->v1.source);
       // Telemetry
       if (v1 >= MIXSRC_FIRST_TELEM) {
         if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1-1)) {
@@ -572,10 +573,10 @@ bool getLogicalSwitch(uint8_t idx)
 
       }
       else if (v1 >= MIXSRC_FIRST_GVAR) {
-        y = ls->v2;
+        y = ls->v2.value;
       }
       else {
-        y = calc100toRESX(ls->v2);
+        y = calc100toRESX(ls->v2.value);
       }
 
       switch (ls->func) {
@@ -1075,9 +1076,9 @@ void logicalSwitchesTimerTick()
         lastValue.state = s;
         bool now;
         if (s)
-          now = getSwitch(swSrcToSwitchRef(ls->v2));
+          now = getSwitch(ls->v2.swtch);
         else
-          now = getSwitch(swSrcToSwitchRef(ls->v1));
+          now = getSwitch(ls->v1.swtch);
         if (now)
           lastValue.last |= 1;
         else
@@ -1094,18 +1095,18 @@ void logicalSwitchesTimerTick()
       if (ls->func == LS_FUNC_TIMER) {
         int16_t *lastValue = &LS_LAST_VALUE(fm, i);
         if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
-          *lastValue = -lswTimerValue(ls->v1);
+          *lastValue = -lswTimerValue(ls->v1.value);
         } else if (*lastValue < 0) {
-          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
+          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2.value);
         } else {  // if (*lastValue > 0)
-          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
+          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1.value);
         }
       } else if (ls->func == LS_FUNC_STICKY) {
         ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
-            if (ls->v2 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(swSrcToSwitchRef(ls->v2));
+            if (!ls->v2.swtch.isNone()) { // only if used / source set
+                bool now = getSwitch(ls->v2.swtch);
                 if (now != before) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -1115,8 +1116,8 @@ void logicalSwitchesTimerTick()
             }
         }
         else {
-            if (ls->v1 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(swSrcToSwitchRef(ls->v1));
+            if (!ls->v1.swtch.isNone()) { // only if used / source set
+                bool now = getSwitch(ls->v1.swtch);
                 if (before != now) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -1135,15 +1136,15 @@ void logicalSwitchesTimerTick()
           lastValue.duration = 0;
         }
         lastValue.state = false;
-        bool state = getSwitch(swSrcToSwitchRef(ls->v1));
+        bool state = getSwitch(ls->v1.swtch);
         if (state) {
-          if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2))
+          if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2.value))
             lastValue.state = true;
           if (lastValue.duration < 1000)
             lastValue.duration++;
         }
         else {
-          if (lastValue.duration > lswTimerValue(ls->v2) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2+ls->v3)))
+          if (lastValue.duration > lswTimerValue(ls->v2.value) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2.value+ls->v3)))
             lastValue.state = true;
           lastValue.duration = 0;
         }
@@ -1205,7 +1206,7 @@ void logicalSwitchesReset()
 getvalue_t convertLswTelemValue(LogicalSwitchData * ls)
 {
   getvalue_t val;
-  val = convert16bitsTelemValue(ls->v1 - MIXSRC_FIRST_TELEM + 1, ls->v2);
+  val = convert16bitsTelemValue(sourceRefToMixSrc(ls->v1.source) - MIXSRC_FIRST_TELEM + 1, ls->v2.value);
   return val;
 }
 

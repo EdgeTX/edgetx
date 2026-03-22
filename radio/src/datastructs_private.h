@@ -180,16 +180,29 @@ PACK(struct LimitData {
  * LogicalSwitch structure
  */
 
+// Logical switch value: can hold a source, switch, or numeric value
+// depending on the LS function type. Context (func) determines which
+// union member is valid.
+union LSValue {
+  SourceRef  source;   // LS_FAMILY_OC, LS_FAMILY_COMP: v1/v2 are sources
+  SwitchRef  swtch;    // LS_FAMILY_BOOL, LS_FAMILY_EDGE, LS_FAMILY_STICKY: v1/v2 are switches
+  int32_t    value;    // LS_FAMILY_TIMER: v1/v2 are numeric values
+
+  bool isZero() const { return value == 0; }
+};
+
+static_assert(sizeof(LSValue) == 4, "LSValue must be 32 bits");
+
 PACK(struct LogicalSwitchData {
   uint8_t  func ENUM(LogicalSwitchesFunctions);
   CUST_ATTR(def,r_logicSw,w_logicSw);
-  int16_t  v1 SKIP;
+  LSValue  v1 SKIP;
+  LSValue  v2 SKIP;
   int16_t  v3 SKIP;
   SwitchRef andsw;
   uint8_t  lsPersist:1;
   uint8_t  lsState:1;
   uint8_t  spare:6 SKIP;
-  int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
 });

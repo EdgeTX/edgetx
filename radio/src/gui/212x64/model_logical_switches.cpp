@@ -46,14 +46,14 @@ enum LogicalSwitchFields {
 void putsEdgeDelayParam(coord_t x, coord_t y, LogicalSwitchData * cs, uint8_t lattr, uint8_t rattr)
 {
   lcdDrawChar(x-4, y, '[');
-  lcdDrawNumber(x, y, lswTimerValue(cs->v2), LEFT|PREC1|lattr);
+  lcdDrawNumber(x, y, lswTimerValue(cs->v2.value), LEFT|PREC1|lattr);
   lcdDrawChar(lcdLastRightPos, y, ':');
   if (cs->v3 < 0)
     lcdDrawText(lcdLastRightPos+3, y, "<<", rattr);
   else if (cs->v3 == 0)
     lcdDrawText(lcdLastRightPos+3, y, "--", rattr);
   else
-    lcdDrawNumber(lcdLastRightPos+3, y, lswTimerValue(cs->v2+cs->v3), LEFT|PREC1|rattr);
+    lcdDrawNumber(lcdLastRightPos+3, y, lswTimerValue(cs->v2.value+cs->v3), LEFT|PREC1|rattr);
   lcdDrawChar(lcdLastRightPos, y, ']');
 }
 
@@ -93,7 +93,7 @@ void menuModelLogicalSwitches(event_t event)
       POPUP_MENU_ADD_ITEM(STR_COPY);
     if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
       POPUP_MENU_ADD_ITEM(STR_PASTE);
-    if (cs->func || cs->v1 || cs->v2 || cs->delay || cs->duration || !cs->andsw.isNone())
+    if (cs->func || !cs->v1.isZero() || !cs->v2.isZero() || cs->delay || cs->duration || !cs->andsw.isNone())
       POPUP_MENU_ADD_ITEM(STR_CLEAR);
     POPUP_MENU_START(onLogicalSwitchesMenu);
   }
@@ -112,7 +112,7 @@ void menuModelLogicalSwitches(event_t event)
 
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
-    mixsrc_t v1_val = cs->v1;
+    mixsrc_t v1_val = sourceRefToMixSrc(cs->v1.source);
     int16_t v1_min = 0, v1_max = MIXSRC_LAST_TELEM;
     int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
     int16_t v3_min =-1, v3_max = 100;
@@ -124,19 +124,19 @@ void menuModelLogicalSwitches(event_t event)
     lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, (horz==0 ? attr : 0) | flags);
 
     if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
-      drawSwitch(CSW_2ND_COLUMN, y, swSrcToSwitchRef(cs->v1), attr1);
-      drawSwitch(CSW_3RD_COLUMN, y, swSrcToSwitchRef(cs->v2), attr2);
+      drawSwitch(CSW_2ND_COLUMN, y, cs->v1.swtch, attr1);
+      drawSwitch(CSW_3RD_COLUMN, y, cs->v2.swtch, attr2);
       v1_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v1_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
       v2_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v2_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
       INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
       INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
     }
     else if (cstate == LS_FAMILY_EDGE) {
-      drawSwitch(CSW_2ND_COLUMN, y, swSrcToSwitchRef(cs->v1), attr1);
+      drawSwitch(CSW_2ND_COLUMN, y, cs->v1.swtch, attr1);
       putsEdgeDelayParam(CSW_3RD_COLUMN, y, cs, attr2, horz==LS_FIELD_V3 ? attr : 0);
       v1_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v1_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
       v2_min=-129; v2_max = 122;
-      v3_max = 222 - cs->v2;
+      v3_max = 222 - cs->v2.value;
       if (horz == 1) {
         INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
         INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
@@ -147,23 +147,23 @@ void menuModelLogicalSwitches(event_t event)
       }
     }
     else if (cstate == LS_FAMILY_COMP) {
-      v1_val = cs->v1;
-      drawSource(CSW_2ND_COLUMN, y, mixSrcToSourceRef(v1_val), attr1);
-      drawSource(CSW_3RD_COLUMN, y, mixSrcToSourceRef(cs->v2), attr2);
+      v1_val = sourceRefToMixSrc(cs->v1.source);
+      drawSource(CSW_2ND_COLUMN, y, cs->v1.source, attr1);
+      drawSource(CSW_3RD_COLUMN, y, cs->v2.source, attr2);
       INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
       INCDEC_ENABLE_CHECK(isSourceAvailable);
     }
     else if (cstate == LS_FAMILY_TIMER) {
-      lcdDrawNumber(CSW_2ND_COLUMN, y, lswTimerValue(cs->v1), LEFT|PREC1|attr1);
-      lcdDrawNumber(CSW_3RD_COLUMN, y, lswTimerValue(cs->v2), LEFT|PREC1|attr2);
+      lcdDrawNumber(CSW_2ND_COLUMN, y, lswTimerValue(cs->v1.value), LEFT|PREC1|attr1);
+      lcdDrawNumber(CSW_3RD_COLUMN, y, lswTimerValue(cs->v2.value), LEFT|PREC1|attr2);
       v1_min = v2_min = -128;
       v1_max = v2_max = 122;
       INCDEC_SET_FLAG(EE_MODEL);
       INCDEC_ENABLE_CHECK(nullptr);
     }
     else {
-      v1_val = cs->v1;
-      drawSource(CSW_2ND_COLUMN, y, mixSrcToSourceRef(v1_val), attr1);
+      v1_val = sourceRefToMixSrc(cs->v1.source);
+      drawSource(CSW_2ND_COLUMN, y, cs->v1.source, attr1);
       if (horz == 1) {
         INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
         INCDEC_ENABLE_CHECK(isSourceAvailable);
@@ -174,7 +174,7 @@ void menuModelLogicalSwitches(event_t event)
       }
       LcdFlags lf = attr2 | LEFT;
       if (validateLSV2Range(cs, v2_min, v2_max, &lf)) storageDirty(EE_MODEL);
-      drawSourceCustomValue(CSW_3RD_COLUMN, y, v1_val, (abs(v1_val) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
+      drawSourceCustomValue(CSW_3RD_COLUMN, y, v1_val, (abs(v1_val) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2.value) : cs->v2.value), lf);
     }
 
     // CSW AND switch
@@ -224,27 +224,27 @@ void menuModelLogicalSwitches(event_t event)
             memset(cs, 0, sizeof(LogicalSwitchData));
             cs->func = save_func;
             if (new_cstate == LS_FAMILY_TIMER) {
-              cs->v1 = cs->v2 = -119;
+              cs->v1.value = cs->v2.value = -119;
             }
             else if (new_cstate == LS_FAMILY_EDGE) {
-              cs->v2 = -129;
+              cs->v2.value = -129;
             }
           }
           break;
         }
         case LS_FIELD_V1:
-          cs->v1 = CHECK_INCDEC_PARAM(event, v1_val, v1_min, v1_max);
+          cs->v1.value = CHECK_INCDEC_PARAM(event, v1_val, v1_min, v1_max);
           break;
         case LS_FIELD_V2:
           if (abs(v1_val) >= MIXSRC_FIRST_TIMER) {
             INCDEC_SET_FLAG(EE_MODEL | INCDEC_REP10 | NO_INCDEC_MARKS);
           }
-          cs->v2 = CHECK_INCDEC_PARAM(event, cs->v2, v2_min, v2_max);
-          if (cstate==LS_FAMILY_OFS && cs->v1!=0 && event==EVT_KEY_LONG(KEY_ENTER)) {
+          cs->v2.value = CHECK_INCDEC_PARAM(event, cs->v2.value, v2_min, v2_max);
+          if (cstate==LS_FAMILY_OFS && !cs->v1.isZero() && event==EVT_KEY_LONG(KEY_ENTER)) {
             killEvents(event);
             getvalue_t x = getValue(v1_val);
             if (abs(v1_val) <= MIXSRC_LAST_CH) {
-              cs->v2 = calcRESXto100(x);
+              cs->v2.value = calcRESXto100(x);
             }
             storageDirty(EE_MODEL);
           }
