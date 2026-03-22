@@ -341,9 +341,7 @@ void menuModelMixAll(event_t event)
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
-          editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, valueOrSourceToLegacy(md->weight),
-                      MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
-                      0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+          drawValueOrSource(MIX_LINE_WEIGHT_POS, y, md->weight, RIGHT | ((isMixActive(i) ? BOLD : 0)));
 
 #if LCD_W >= 212
           displayMixLine(y, md);

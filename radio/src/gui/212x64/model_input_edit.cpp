@@ -131,13 +131,11 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_WEIGHT:
-        ed->weight = legacyToValueOrSource(editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, valueOrSourceToLegacy(ed->weight),
-                        -100, 100, attr, event, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST));
+        editValueOrSource(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, &ed->weight, -100, 100, attr, event);
         break;
 
       case EXPO_FIELD_OFFSET:
-        ed->offset = legacyToValueOrSource(editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, valueOrSourceToLegacy(ed->offset),
-                        -100, 100, attr, event, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST));
+        editValueOrSource(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, &ed->offset, -100, 100, attr, event);
         break;
 
       case EXPO_FIELD_CURVE:

@@ -46,13 +46,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags, IsValueAvailable isValueAvailable,
                 const CheckIncDecStops &stops)
 {
-  return checkIncDec(event, val, i_min, i_max, i_min, i_max, i_flags, isValueAvailable, stops);
-}
-
-int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int srcMax,
-                unsigned int i_flags, IsValueAvailable isValueAvailable,
-                const CheckIncDecStops &stops)
-{
   int newval = val;
   event_t evt_rot_inc = EVT_ROTARY_RIGHT;
   event_t evt_rot_dec = EVT_ROTARY_LEFT;
@@ -63,42 +56,21 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
   }
 #endif
 
-  bool isSource = false;
-  if (i_flags & INCDEC_SOURCE_VALUE) {
-    SourceNumVal v;
-    v.rawValue = val;
-    // Save isSource flag;
-    isSource = v.isSource;
-    // Remove isSource flag;
-    val = v.value;
-    newval = v.value;
-  }
-
   if (s_editMode > 0) {
-    bool invert = false;
-    if ((i_flags & INCDEC_SOURCE_INVERT) && (newval < 0)) {
-      invert = true;
-      newval = -newval;
-      val = -val;
-    }
-
-    int vmin = isSource ? srcMin : i_min;
-    int vmax = isSource ? srcMax : i_max;
-
     if (event == evt_rot_inc || event == EVT_KEY_FIRST(KEY_PLUS) ||
         event == EVT_KEY_REPT(KEY_PLUS)) {
 
       if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-        newval += min(10, vmax - val);
+        newval += min(10, i_max - val);
       } else {
-        newval += min<int>(rotaryEncoderGetAccel(), vmax - val);
+        newval += min<int>(rotaryEncoderGetAccel(), i_max - val);
       }
 
-      while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) && newval <= vmax) {
+      while (isValueAvailable && !isValueAvailable(newval) && newval <= i_max) {
         newval++;
       }
 
-      if (newval > vmax) {
+      if (newval > i_max) {
         newval = val;
         AUDIO_KEY_ERROR();
       }
@@ -106,46 +78,30 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
                event == EVT_KEY_REPT(KEY_MINUS)) {
 
       if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-        newval -= min(10, val - vmin);
+        newval -= min(10, val - i_min);
       } else {
-        newval -= min<int>(rotaryEncoderGetAccel(), val - vmin);
+        newval -= min<int>(rotaryEncoderGetAccel(), val - i_min);
       }
 
-      while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) && newval >= vmin) {
+      while (isValueAvailable && !isValueAvailable(newval) && newval >= i_min) {
         newval--;
       }
 
-      if (newval < vmin) {
+      if (newval < i_min) {
         newval = val;
         AUDIO_KEY_ERROR();
       }
-    }
-
-    auto moved = checkMovedInput(newval, i_flags, isSource);
-    if (!isValueAvailable || isValueAvailable(moved))
-      newval = moved;
-
-    if (invert) {
-      newval = -newval;
-      val = -val;
     }
   }
 
   newval = checkBoolean(event, i_min, i_max, newval, val);
 
-  newval = showPopupMenus(event, newval, srcMin, srcMax, i_flags, isValueAvailable, isSource);
-
   finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
-
-  if (i_flags & INCDEC_SOURCE_VALUE) {
-    SourceNumVal v;
-    v.isSource = isSource;
-    v.value = newval;
-    newval = v.rawValue;
-  }
 
   return newval;
 }
+
+
 
 void onLongMenuPress(const char * result)
 {

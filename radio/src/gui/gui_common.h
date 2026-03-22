@@ -73,8 +73,6 @@ bool isSwitchAvailableInCustomFunctions(const SwitchRef& ref);
 bool isSwitchAvailableForArming(const SwitchRef& ref);
 bool isSwitchAvailableInMixes(const SwitchRef& ref);
 
-// Thin int wrapper for legacy checkIncDec(int) / INCDEC_ENABLE_CHECK call sites
-bool isSourceAvailableInt(int source);
 
 bool isPxx2IsrmChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
@@ -127,6 +125,7 @@ bool isSwitch2POSWarningStateAvailable(int state);
 swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 
 // TODO move this to stdlcd/draw_functions.h ?
+void drawValueOrSource(coord_t x, coord_t y, const ValueOrSource& vos, LcdFlags att);
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags flags=0);
 void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
 void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags flags=0);
