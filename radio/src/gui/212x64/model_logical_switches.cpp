@@ -226,7 +226,7 @@ void menuModelLogicalSwitches(event_t event)
                                               isSourceAvailable);
           }
           else {
-            if (abs(v1_val) >= MIXSRC_FIRST_TIMER) {
+            if (cs->v1.source.type >= SOURCE_TYPE_TIMER) {
               cs->v2.value = checkIncDec(event, cs->v2.value, v2_min, v2_max, EE_MODEL | INCDEC_REP10 | NO_INCDEC_MARKS);
             }
             else {
@@ -234,8 +234,8 @@ void menuModelLogicalSwitches(event_t event)
             }
             if (cstate==LS_FAMILY_OFS && !cs->v1.isZero() && event==EVT_KEY_LONG(KEY_ENTER)) {
               killEvents(event);
-              getvalue_t x = getValue(v1_val);
-              if (abs(v1_val) <= MIXSRC_LAST_CH) {
+              getvalue_t x = getValue(cs->v1.source);
+              if (cs->v1.source.type <= SOURCE_TYPE_CHANNEL) {
                 cs->v2.value = calcRESXto100(x);
               }
               storageDirty(EE_MODEL);
