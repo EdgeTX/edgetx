@@ -472,7 +472,7 @@ void ModelMixesPage::build(Window * window)
 
   bool focusSet = false;
   uint8_t index = 0;
-  MixData* line = g_model.mixData;
+  MixData* line = mixAddress(0);
   for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
 
     bool skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));

@@ -20,6 +20,7 @@
  */
 
 #include "model_arena.h"
+#include "dataconstants.h"
 #include "datastructs_private.h"
 
 static uint8_t g_modelArenaBuf[MODEL_ARENA_SIZE] __attribute__((aligned(4)));
@@ -49,7 +50,7 @@ static uint16_t getSectionCount(const ModelDynData& dyn, ArenaSectionType type)
   }
 }
 
-void ModelArena::attach(uint8_t* buf, uint16_t capacity)
+void ModelArena::attach(uint8_t* buf, uint32_t capacity)
 {
   _base = buf;
   _capacity = capacity;
@@ -77,18 +78,17 @@ void ModelArena::clear()
   if (_base) {
     memset(_base, 0, _capacity);
   }
-  _usedBytes = 0;
-  memset(_offsets, 0, sizeof(_offsets));
+  // Note: preserves layout (offsets and usedBytes) - only zeros data
 }
 
-bool ModelArena::insertSlot(uint16_t byteOffset, uint16_t slotSize)
+bool ModelArena::insertSlot(uint32_t byteOffset, uint32_t slotSize)
 {
   if (_usedBytes + slotSize > _capacity) {
     return false;
   }
 
   // Shift everything from byteOffset forward by slotSize
-  uint16_t tailSize = _usedBytes - byteOffset;
+  uint32_t tailSize = _usedBytes - byteOffset;
   if (tailSize > 0) {
     memmove(_base + byteOffset + slotSize, _base + byteOffset, tailSize);
   }
@@ -99,10 +99,10 @@ bool ModelArena::insertSlot(uint16_t byteOffset, uint16_t slotSize)
   return true;
 }
 
-void ModelArena::deleteSlot(uint16_t byteOffset, uint16_t slotSize)
+void ModelArena::deleteSlot(uint32_t byteOffset, uint32_t slotSize)
 {
-  uint16_t tailStart = byteOffset + slotSize;
-  uint16_t tailSize = _usedBytes - tailStart;
+  uint32_t tailStart = byteOffset + slotSize;
+  uint32_t tailSize = _usedBytes - tailStart;
   if (tailSize > 0) {
     memmove(_base + byteOffset, _base + tailStart, tailSize);
   }
@@ -113,10 +113,10 @@ void ModelArena::deleteSlot(uint16_t byteOffset, uint16_t slotSize)
 }
 
 bool ModelArena::insertInSection(ArenaSectionType section,
-                                 uint16_t indexInSection,
-                                 uint16_t elementSize)
+                                 uint32_t indexInSection,
+                                 uint32_t elementSize)
 {
-  uint16_t byteOffset = _offsets[section] + indexInSection * elementSize;
+  uint32_t byteOffset = _offsets[section] + indexInSection * elementSize;
 
   if (!insertSlot(byteOffset, elementSize))
     return false;
@@ -130,10 +130,10 @@ bool ModelArena::insertInSection(ArenaSectionType section,
 }
 
 void ModelArena::deleteFromSection(ArenaSectionType section,
-                                   uint16_t indexInSection,
-                                   uint16_t elementSize)
+                                   uint32_t indexInSection,
+                                   uint32_t elementSize)
 {
-  uint16_t byteOffset = _offsets[section] + indexInSection * elementSize;
+  uint32_t byteOffset = _offsets[section] + indexInSection * elementSize;
 
   deleteSlot(byteOffset, elementSize);
 
@@ -143,8 +143,21 @@ void ModelArena::deleteFromSection(ArenaSectionType section,
   }
 }
 
-// Initialize arena on startup
+// Initialize arena on startup with default layout
+// Uses maximum static sizes for backward compatibility
 void modelArenaInit()
 {
   g_modelArena.attach(g_modelArenaBuf, MODEL_ARENA_SIZE);
+
+  // Set up default layout with maximum counts
+  // This ensures the arena is usable before a model is loaded
+  ModelDynData defaultDyn = {};
+  defaultDyn.mixCount = MAX_MIXERS;
+  defaultDyn.expoCount = MAX_EXPOS;
+  defaultDyn.curveCount = MAX_CURVES;
+  defaultDyn.pointsCount = MAX_CURVE_POINTS;
+  defaultDyn.logicalSwCount = MAX_LOGICAL_SWITCHES;
+  defaultDyn.customFnCount = MAX_SPECIAL_FUNCTIONS;
+  g_modelArena.layout(defaultDyn);
+  g_modelArena.clear();
 }

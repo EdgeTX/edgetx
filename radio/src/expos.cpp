@@ -22,12 +22,16 @@
 #include "expos.h"
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
+#include "model_arena.h"
 
 #include "edgetx.h"
 
 static uint8_t _nb_expo_lines;
 
-ExpoData* expoAddress(uint8_t idx) { return &g_model.expoData[idx]; }
+ExpoData* expoAddress(uint8_t idx) {
+  return reinterpret_cast<ExpoData*>(
+      g_modelArena.sectionBase(ARENA_EXPOS)) + idx;
+}
 
 uint8_t getExpoCount() { return _nb_expo_lines; }
 

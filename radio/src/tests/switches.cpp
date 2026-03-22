@@ -21,6 +21,9 @@
 
 #include "dataconstants.h"
 #include "gtests.h"
+#include "mixes.h"
+#include "expos.h"
+#include "curves.h"
 #include "myeeprom.h"
 
 #include "hal/adc_driver.h"
@@ -28,13 +31,13 @@
 
 void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16_t _v3 = 0, uint8_t _delay = 0, uint8_t _duration = 0, int8_t _andsw = 0)
 {
-  g_model.logicalSw[index].func = _func;
-  g_model.logicalSw[index].v1 = _v1;
-  g_model.logicalSw[index].v2 = _v2;
-  g_model.logicalSw[index].v3 = _v3;
-  g_model.logicalSw[index].delay = _delay;
-  g_model.logicalSw[index].duration = _duration;
-  g_model.logicalSw[index].andsw = _andsw;
+  (*lswAddress(index)).func = _func;
+  (*lswAddress(index)).v1 = _v1;
+  (*lswAddress(index)).v2 = _v2;
+  (*lswAddress(index)).v3 = _v3;
+  (*lswAddress(index)).delay = _delay;
+  (*lswAddress(index)).duration = _duration;
+  (*lswAddress(index)).andsw = _andsw;
 }
 
 #define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)

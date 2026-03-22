@@ -87,6 +87,11 @@
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
+// Initialize arena early - must happen before any model data access
+static struct ArenaAutoInit {
+  ArenaAutoInit() { modelArenaInit(); }
+} _arenaAutoInit;
+
 Clipboard clipboard;
 
 GlobalData globalData;
@@ -263,12 +268,14 @@ USBJoystickChData *usbJChAddress(uint8_t idx)
 
 CustomFunctionData *customFnAddress(uint8_t idx)
 {
-  return &g_model.customFn[idx];
+  return reinterpret_cast<CustomFunctionData*>(
+      g_modelArena.sectionBase(ARENA_CUSTOM_FN)) + idx;
 }
 
 CurveHeader *curveHeaderAddress(uint8_t idx)
 {
-  return &g_model.curves[idx];
+  return reinterpret_cast<CurveHeader*>(
+      g_modelArena.sectionBase(ARENA_CURVES)) + idx;
 }
 
 

@@ -30,7 +30,8 @@
 
 void clearInputs()
 {
-  memset(g_model.expoData, 0, sizeof(g_model.expoData));
+  memset(g_modelArena.sectionBase(ARENA_EXPOS), 0,
+         getExpoCount() * sizeof(ExpoData));
 }
 
 void setDefaultInputs()
@@ -52,7 +53,8 @@ void setDefaultInputs()
 
 void clearMixes()
 {
-  memset(g_model.mixData, 0, sizeof(g_model.mixData));
+  memset(g_modelArena.sectionBase(ARENA_MIXES), 0,
+         getMixCount() * sizeof(MixData));
 }
 
 void setDefaultMixes()
@@ -181,6 +183,7 @@ void applyDefaultTemplate()
 void setModelDefaults(uint8_t id)
 {
   memset(&g_model, 0, sizeof(g_model));
+  g_modelArena.clear();
   applyDefaultTemplate();
   
   setVendorSpecificModelDefaults(id);

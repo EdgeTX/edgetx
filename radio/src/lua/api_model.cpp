@@ -1006,7 +1006,7 @@ Remove all mixers
 */
 static int luaModelDeleteMixes(lua_State *L)
 {
-  memset(g_model.mixData, 0, sizeof(g_model.mixData));
+  memset(mixAddress(0), 0, sizeof(MixData) * MAX_MIXERS);
   return 0;
 }
 

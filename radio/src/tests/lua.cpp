@@ -21,6 +21,9 @@
 
 #include <math.h>
 #include "gtests.h"
+#include "mixes.h"
+#include "expos.h"
+#include "curves.h"
 
 #if defined(LUA)
 
@@ -120,12 +123,12 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
 #endif
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[0].weight);
-  EXPECT_EQ(3u, g_model.expoData[0].offset);
-  EXPECT_EQ(2, g_model.expoData[0].swtch);
+  EXPECT_EQ(3u, (*expoAddress(0)).chn);
+  EXPECT_STRNEQ("test1", (*expoAddress(0)).name);
+  EXPECT_EQ(MIXSRC_THR, (*expoAddress(0)).srcRaw);
+  EXPECT_EQ(56u, (*expoAddress(0)).weight);
+  EXPECT_EQ(3u, (*expoAddress(0)).offset);
+  EXPECT_EQ(2, (*expoAddress(0)).swtch);
 
   // add another one before existing line on Input4
 #if defined(SURFACE_RADIO)
@@ -133,21 +136,21 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
 #endif
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
+  EXPECT_EQ(3u, (*expoAddress(0)).chn);
+  EXPECT_STRNEQ("test2", (*expoAddress(0)).name);
+  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, (*expoAddress(0)).srcRaw);
   SourceNumVal v;
-  v.rawValue = g_model.expoData[0].weight;
+  v.rawValue = (*expoAddress(0)).weight;
   EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0u, g_model.expoData[0].offset);
-  EXPECT_EQ(0, g_model.expoData[0].swtch);
+  EXPECT_EQ(0u, (*expoAddress(0)).offset);
+  EXPECT_EQ(0, (*expoAddress(0)).swtch);
 
-  EXPECT_EQ(3u, g_model.expoData[1].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[1].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[1].weight);
-  EXPECT_EQ(3u, g_model.expoData[1].offset);
-  EXPECT_EQ(2, g_model.expoData[1].swtch);
+  EXPECT_EQ(3u, (*expoAddress(1)).chn);
+  EXPECT_STRNEQ("test1", (*expoAddress(1)).name);
+  EXPECT_EQ(MIXSRC_THR, (*expoAddress(1)).srcRaw);
+  EXPECT_EQ(56u, (*expoAddress(1)).weight);
+  EXPECT_EQ(3u, (*expoAddress(1)).offset);
+  EXPECT_EQ(2, (*expoAddress(1)).swtch);
 
 
   // add another line after existing lines on Input4
@@ -156,31 +159,31 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
 #endif
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  v.rawValue = g_model.expoData[0].weight;
+  EXPECT_EQ(3u, (*expoAddress(0)).chn);
+  EXPECT_STRNEQ("test2", (*expoAddress(0)).name);
+  EXPECT_EQ(MIXSRC_FIRST_STICK, (*expoAddress(0)).srcRaw);
+  v.rawValue = (*expoAddress(0)).weight;
   EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0u, g_model.expoData[0].offset);
-  EXPECT_EQ(0, g_model.expoData[0].swtch);
+  EXPECT_EQ(0u, (*expoAddress(0)).offset);
+  EXPECT_EQ(0, (*expoAddress(0)).swtch);
 
-  EXPECT_EQ(3u, g_model.expoData[1].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[1].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[1].weight);
-  EXPECT_EQ(3u, g_model.expoData[1].offset);
-  EXPECT_EQ(2, g_model.expoData[1].swtch);
+  EXPECT_EQ(3u, (*expoAddress(1)).chn);
+  EXPECT_STRNEQ("test1", (*expoAddress(1)).name);
+  EXPECT_EQ(MIXSRC_THR, (*expoAddress(1)).srcRaw);
+  EXPECT_EQ(56u, (*expoAddress(1)).weight);
+  EXPECT_EQ(3u, (*expoAddress(1)).offset);
+  EXPECT_EQ(2, (*expoAddress(1)).swtch);
 
-  EXPECT_EQ(3u, g_model.expoData[2].chn);
-  EXPECT_STRNEQ("test3", g_model.expoData[2].name);
+  EXPECT_EQ(3u, (*expoAddress(2)).chn);
+  EXPECT_STRNEQ("test3", (*expoAddress(2)).name);
 #if defined(SURFACE_RADIO)
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[2].srcRaw);
+  EXPECT_EQ(MIXSRC_THR, (*expoAddress(2)).srcRaw);
 #else
-  EXPECT_EQ(MIXSRC_LAST_STICK, g_model.expoData[2].srcRaw);
+  EXPECT_EQ(MIXSRC_LAST_STICK, (*expoAddress(2)).srcRaw);
 #endif
-  EXPECT_EQ(100u, g_model.expoData[2].weight);
-  EXPECT_EQ(0u, g_model.expoData[2].offset);
-  EXPECT_EQ(0, g_model.expoData[2].swtch);
+  EXPECT_EQ(100u, (*expoAddress(2)).weight);
+  EXPECT_EQ(0u, (*expoAddress(2)).offset);
+  EXPECT_EQ(0, (*expoAddress(2)).swtch);
 
   // verify number of lines for Input4
   luaExecStr("noInputs = model.getInputsCount(3)");

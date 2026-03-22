@@ -68,23 +68,23 @@ struct ModelDynData {
 
 class ModelArena {
   uint8_t* _base;
-  uint16_t _capacity;
+  uint32_t _capacity;
 
   // Section byte offsets within the arena (computed from counts + element sizes)
-  uint16_t _offsets[ARENA_NUM_SECTIONS];
-  uint16_t _usedBytes;
+  uint32_t _offsets[ARENA_NUM_SECTIONS];
+  uint32_t _usedBytes;
 
 public:
   ModelArena() : _base(nullptr), _capacity(0), _usedBytes(0) {
     memset(_offsets, 0, sizeof(_offsets));
   }
 
-  void attach(uint8_t* buf, uint16_t capacity);
+  void attach(uint8_t* buf, uint32_t capacity);
 
   uint8_t* base() const { return _base; }
-  uint16_t capacity() const { return _capacity; }
-  uint16_t usedBytes() const { return _usedBytes; }
-  uint16_t freeBytes() const { return _capacity - _usedBytes; }
+  uint32_t capacity() const { return _capacity; }
+  uint32_t usedBytes() const { return _usedBytes; }
+  uint32_t freeBytes() const { return _capacity - _usedBytes; }
 
   // Compute layout from counts (called after model load or on new model)
   void layout(const ModelDynData& dyn);
@@ -93,28 +93,28 @@ public:
   uint8_t* sectionBase(ArenaSectionType type) const {
     return _base + _offsets[type];
   }
-  uint16_t sectionOffset(ArenaSectionType type) const {
+  uint32_t sectionOffset(ArenaSectionType type) const {
     return _offsets[type];
   }
 
   // Insert a slot of 'slotSize' bytes at 'byteOffset' within the arena.
   // Shifts all data after that point forward.
   // Returns false if arena is full.
-  bool insertSlot(uint16_t byteOffset, uint16_t slotSize);
+  bool insertSlot(uint32_t byteOffset, uint32_t slotSize);
 
   // Delete a slot of 'slotSize' bytes at 'byteOffset' within the arena.
   // Shifts all data after that point backward.
-  void deleteSlot(uint16_t byteOffset, uint16_t slotSize);
+  void deleteSlot(uint32_t byteOffset, uint32_t slotSize);
 
   // Insert an element into a specific section
   // Shifts all subsequent sections forward
-  bool insertInSection(ArenaSectionType section, uint16_t indexInSection,
-                       uint16_t elementSize);
+  bool insertInSection(ArenaSectionType section, uint32_t indexInSection,
+                       uint32_t elementSize);
 
   // Delete an element from a specific section
   // Shifts all subsequent sections backward
-  void deleteFromSection(ArenaSectionType section, uint16_t indexInSection,
-                         uint16_t elementSize);
+  void deleteFromSection(ArenaSectionType section, uint32_t indexInSection,
+                         uint32_t elementSize);
 
   // Recalculate offsets from counts (after direct count modification)
   void recalcOffsets(const ModelDynData& dyn);
@@ -124,3 +124,6 @@ public:
 };
 
 extern ModelArena g_modelArena;
+
+// Must be called early in startup before any model data access
+void modelArenaInit();

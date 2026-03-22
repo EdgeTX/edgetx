@@ -234,7 +234,7 @@ void ModelInputsPage::newInput()
 
   uint8_t chn = 0;
   uint8_t index = 0;
-  ExpoData* line = g_model.expoData;
+  ExpoData* line = expoAddress(0);
 
   // search for unused channels
   for (uint8_t i = 0; i < MAX_EXPOS && chn < MAX_INPUTS; i++) {
@@ -372,7 +372,7 @@ void ModelInputsPage::build(Window* window)
 
   bool focusSet = false;
   uint8_t index = 0;
-  ExpoData* line = g_model.expoData;
+  ExpoData* line = expoAddress(0);
   for (uint8_t input = 0; input < MAX_INPUTS; input++) {
     if (index >= MAX_EXPOS) break;
 

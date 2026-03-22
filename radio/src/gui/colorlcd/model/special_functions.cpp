@@ -971,7 +971,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
 //-----------------------------------------------------------------------------
 
 SpecialFunctionsPage::SpecialFunctionsPage(const PageDef& pageDef) :
-    FunctionsPage(g_model.customFn, pageDef, "SF")
+    FunctionsPage(customFnAddress(0), pageDef, "SF")
 {
 }
 

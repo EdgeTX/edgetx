@@ -157,7 +157,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   g_model.cfsResetSFState();
 #endif
 
-  uint8_t playFirstIndex = (functions == g_model.customFn ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
+  uint8_t playFirstIndex = (functions == customFnAddress(0) ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
   #define PLAY_INDEX   (i+playFirstIndex)
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
