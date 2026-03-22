@@ -781,13 +781,13 @@ PACK(struct ModelData {
 
   // Dynamic arrays stored in arena (see model_arena.h)
   ModelDynData dyn;
-  CUST_EXTERN_ARRAY(mixData, struct_MixData, MAX_MIXERS_HARD, yaml_get_mix_ptr);
+  CUST_EXTERN_ARRAY(mixData, struct_MixData, 128, yaml_get_mix_ptr);
   LimitData limitData[MAX_OUTPUT_CHANNELS];
-  CUST_EXTERN_ARRAY(expoData, struct_ExpoData, MAX_EXPOS_HARD, yaml_get_expo_ptr);
-  CUST_EXTERN_ARRAY(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_get_curves_ptr);
-  CUST_EXTERN_ARRAY(points, struct_signed_8, MAX_CURVE_POINTS_HARD, yaml_get_points_ptr);
-  CUST_EXTERN_ARRAY(logicalSw, struct_LogicalSwitchData, MAX_LOGICAL_SWITCHES_HARD, yaml_get_logical_sw_ptr);
-  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_get_custom_fn_ptr);
+  CUST_EXTERN_ARRAY(expoData, struct_ExpoData, 128, yaml_get_expo_ptr);
+  CUST_EXTERN_ARRAY(curves, struct_CurveHeader, 64, yaml_get_curves_ptr);
+  CUST_EXTERN_ARRAY(points, struct_signed_8, 1024, yaml_get_points_ptr);
+  CUST_EXTERN_ARRAY(logicalSw, struct_LogicalSwitchData, 64, yaml_get_logical_sw_ptr);
+  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, 64, yaml_get_custom_fn_ptr);
 
   SwashRingData swashR FUNC(swash_is_active);
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);

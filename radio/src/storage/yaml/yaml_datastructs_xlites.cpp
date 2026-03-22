@@ -418,6 +418,15 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_STRING("name", 3),
   YAML_END
 };
+static const struct YamlNode struct_ModelDynData[] = {
+  YAML_UNSIGNED( "mixCount", 8 ),
+  YAML_UNSIGNED( "expoCount", 8 ),
+  YAML_UNSIGNED( "curveCount", 8 ),
+  YAML_UNSIGNED( "pointsCount", 16 ),
+  YAML_UNSIGNED( "logicalSwCount", 8 ),
+  YAML_UNSIGNED( "customFnCount", 8 ),
+  YAML_END
+};
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 5 ),
   YAML_UNSIGNED_CUST( "value", 11, r_sourceNumVal, w_sourceNumVal ),
@@ -474,20 +483,13 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_END
 };
 static const struct YamlNode struct_CurveHeader[] = {
-  YAML_IDX,
   YAML_UNSIGNED( "type", 1 ),
   YAML_UNSIGNED( "smooth", 1 ),
   YAML_SIGNED( "points", 6 ),
   YAML_STRING("name", 3),
   YAML_END
 };
-static const struct YamlNode struct_signed_8[] = {
-  YAML_IDX,
-  YAML_SIGNED( "val", 8 ),
-  YAML_END
-};
 static const struct YamlNode struct_LogicalSwitchData[] = {
-  YAML_IDX,
   YAML_ENUM("func", 8, enum_LogicalSwitchesFunctions, NULL),
   YAML_CUSTOM("def",r_logicSw,w_logicSw),
   YAML_PADDING( 10 ),
@@ -697,6 +699,11 @@ static const struct YamlNode struct_string_24[] = {
   YAML_STRING("val", 3),
   YAML_END
 };
+static const struct YamlNode struct_signed_8[] = {
+  YAML_IDX,
+  YAML_SIGNED( "val", 8 ),
+  YAML_END
+};
 static const struct YamlNode union_anonymous_14_elmts[] = {
   YAML_UNSIGNED( "id", 16 ),
   YAML_UNSIGNED( "persistentValue", 16 ),
@@ -832,6 +839,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_PADDING( 4 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
+  YAML_STRUCT("dyn", 64, struct_ModelDynData, NULL),
   YAML_EXTERN_ARRAY("mixData", 160, 128, struct_MixData, yaml_get_mix_ptr),
   YAML_ARRAY("limitData", 88, 32, struct_LimitData, NULL),
   YAML_EXTERN_ARRAY("expoData", 144, 128, struct_ExpoData, yaml_get_expo_ptr),
