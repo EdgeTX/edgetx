@@ -72,7 +72,7 @@ void menuModelExpoOne(event_t event)
   uint8_t old_editMode = s_editMode;
 
   SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
-          {0, 0, 0, abs(sourceRefToMixSrc(ed->srcRaw)) >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
+          {0, 0, 0, ed->srcRaw.type == SOURCE_TYPE_TELEMETRY ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
            CASE_FLIGHT_MODES(FM_ROW(LABEL(Flight Mode))) CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
@@ -116,10 +116,10 @@ void menuModelExpoOne(event_t event)
       case EXPO_FIELD_SCALE:
         {
           lcdDrawTextAlignedLeft(y, STR_SCALE);
-          mixsrc_t absSrc = abs(sourceRefToMixSrc(ed->srcRaw));
-          drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, (absSrc - MIXSRC_FIRST_TELEM)/3, convertTelemValue(absSrc - MIXSRC_FIRST_TELEM + 1, ed->scale),  attr);
+          uint16_t telemIdx = ed->srcRaw.index;
+          drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, telemIdx / 3, convertTelemValue(telemIdx + 1, ed->scale),  attr);
           if (attr)
-            ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(absSrc - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
+            ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
         }
         break;
 
@@ -162,14 +162,13 @@ void menuModelExpoOne(event_t event)
       case EXPO_FIELD_TRIM:
         lcdDrawTextAlignedLeft(y, STR_TRIM);
         {
-          mixsrc_t absSrc = abs(sourceRefToMixSrc(ed->srcRaw));
-          const char* trim_str = getTrimSourceLabel(absSrc, ed->trimSource);
+          const char* trim_str = getTrimSourceLabel(ed->srcRaw, ed->trimSource);
           LcdFlags flags = (menuHorizontalPosition==0 ? attr : 0);
           lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
 
           if (attr) {
             int8_t min = TRIM_ON;
-            if (absSrc >= MIXSRC_FIRST_STICK && absSrc <= MIXSRC_LAST_STICK) {
+            if (ed->srcRaw.type == SOURCE_TYPE_STICK) {
               min = -TRIM_OFF;
             }
             ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());

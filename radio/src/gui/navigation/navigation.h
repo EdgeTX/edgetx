@@ -233,6 +233,9 @@ SwitchRef checkIncDecSwitch(event_t event, SwitchRef value, swsrc_t min,
 
 SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
                             mixsrc_t max);
+SourceRef checkIncDecSource(event_t event, SourceRef value, mixsrc_t min,
+                            mixsrc_t max, unsigned int flags,
+                            IsValueAvailable available);
 
 #if defined(AUTOSWITCH)
 swsrc_t checkIncDecMovedSwitch(swsrc_t val);

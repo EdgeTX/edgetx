@@ -42,16 +42,16 @@ static SetupLineDef setupLines[] = {
     STR_DEF(STR_TTRACE),
     [](Window* parent, coord_t x, coord_t y) {
       auto sc = new SourceChoice(parent, {x, y, 0, 0},
-                                []() { return mixSrcToSourceRef(throttleSource2Source(g_model.thrTraceSrc)); },
+                                []() { return throttleSource2SourceRef(g_model.thrTraceSrc); },
                                 [](SourceRef ref) {
-                                  int16_t val = source2ThrottleSource(sourceRefToMixSrc(ref));
+                                  int16_t val = sourceRefToThrottleSource(ref);
                                   if (val >= 0) {
                                     g_model.thrTraceSrc = val;
                                     SET_DIRTY();
                                   }
                                 });
       sc->setAvailableHandler([](SourceRef ref) {
-        return isThrottleSourceAvailable(sourceRefToMixSrc(ref));
+        return isThrottleSourceAvailable(ref);
       });
     }
   },
@@ -68,9 +68,9 @@ static SetupLineDef setupLines[] = {
     [](Window* parent, coord_t x, coord_t y) {
       auto sc = new SourceChoice(
           parent, {x, y, 0, 0},
-          []() { return mixSrcToSourceRef(g_model.getThrottleStickTrimSource()); },
+          []() { return g_model.getThrottleStickTrimSourceRef(); },
           [](SourceRef ref) {
-            g_model.setThrottleStickTrimSource(sourceRefToMixSrc(ref));
+            g_model.setThrottleStickTrimSourceRef(ref);
             SET_DIRTY();
           });
       sc->setAvailableHandler([](SourceRef ref) {
