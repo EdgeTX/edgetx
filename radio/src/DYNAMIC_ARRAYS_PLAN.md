@@ -198,20 +198,33 @@ Replace the monolithic `MixSources` and `SwitchSources` enums with structured `t
 ```cpp
 // Current: one big enum crammed into 10 signed bits
 int16_t srcRaw:10;  // 0=none, 1-32=inputs, 33-86=lua, 87-90=sticks, ...
+                     // negative = inverted source
 
-// Future: structured reference
-struct SourceRef {
-    uint8_t type;    // SOURCE_NONE, SOURCE_INPUT, SOURCE_STICK, SOURCE_CH, SOURCE_TELEM, ...
-    uint8_t index;   // 0-255 within that type
-};
+// Future: 32-bit structured reference (aligned to MCU word size)
+PACK(struct SourceRef {
+    uint8_t  type;    // SOURCE_NONE, SOURCE_INPUT, SOURCE_STICK, SOURCE_CH, SOURCE_TELEM, ...
+    uint8_t  flags;   // SRCFLAG_INVERTED, etc. (replaces sign-bit hack)
+    uint16_t index;   // 0-65535 within that type
+});
+
+// Similarly for switch references:
+PACK(struct SwitchRef {
+    uint8_t  type;    // SWREF_NONE, SWREF_PHYSICAL, SWREF_TRIM, SWREF_LOGICAL, SWREF_FLIGHT_MODE, ...
+    uint8_t  flags;   // SWFLAG_INVERTED, etc.
+    uint16_t index;   // 0-65535 within that type
+});
 ```
 
 Benefits:
-- **Removes enum range pressure**: each type gets a full 0-255 index space. Adding 99 telemetry sensors doesn't eat into input/channel addressing.
-- **Makes limits independent**: `MAX_INPUTS`, `MAX_LOGICAL_SWITCHES`, etc. can grow independently without any bit-field overflow.
+- **32-bit word-aligned**: natural fit for ARM Cortex-M, no bit-field extraction overhead.
+- **65536 items per type**: removes all index limits. Adding 99 or 999 telemetry sensors doesn't affect input/channel addressing.
+- **Makes limits independent**: `MAX_INPUTS`, `MAX_LOGICAL_SWITCHES`, etc. can grow independently.
+- **Explicit flags**: inversion/negation encoding moves from sign-bit hack to a dedicated flags byte. Room for future flags (e.g., absolute value, filtered).
 - **Simplifies range checks**: replace `if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM)` with `if (src.type == SOURCE_TELEM)`.
 - **Aligns with arena**: the type maps directly to an arena section, the index selects the element.
-- **Same applies to SwitchSources**: split into switch type (physical, trim, logical, flight mode, sensor) + index.
+- **Same applies to SwitchSources**: split into switch type + index, same 32-bit layout.
+
+Size impact: `SourceRef` is 4 bytes vs the current 10-bit field (~1.25 bytes). This increases MixData by ~3 bytes per source field (srcRaw + weight source + offset source + curve ref). MixData would grow from 20 to ~30 bytes. With dynamic arena sizing, the total memory impact depends on actual mix count.
 
 This is a large standalone refactoring (the `MixSources` enum is referenced across firmware, Lua API, GUI, YAML, and Companion). It should be tackled as a separate project that complements but doesn't block the arena work.
 
