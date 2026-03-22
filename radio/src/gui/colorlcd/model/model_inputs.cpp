@@ -31,6 +31,13 @@
 #include "menu.h"
 #include "messaging.h"
 
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+
+// Defined in curves.cpp
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 int8_t s_currCh;
@@ -49,8 +56,8 @@ class InputLineButton : public InputMixButtonBase
   void refresh() override
   {
     const ExpoData& line = *expoAddress(index);
-    setWeight(line.weight, -100, 100);
-    setSource(line.srcRaw);
+    setWeight(valueOrSourceToLegacy(line.weight), -100, 100);
+    setSource(sourceRefToMixSrc(line.srcRaw));
 
     char tmp_str[64];
     size_t maxlen = sizeof(tmp_str);
@@ -69,8 +76,8 @@ class InputLineButton : public InputMixButtonBase
       }
     }
 
-    if (line.swtch) {
-      char* sw_pos = getSwitchPositionName(line.swtch);
+    if (!line.swtch.isNone()) {
+      char* sw_pos = getSwitchPositionName(switchRefToSwSrc(line.swtch));
       int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
       if ((size_t)cnt >= maxlen)
         maxlen = 0;
@@ -80,7 +87,7 @@ class InputLineButton : public InputMixButtonBase
       }
     }
 
-    if (line.curve.value != 0) {
+    if (line.curve.value.numericValue() != 0 || line.curve.value.isSource) {
       getCurveRefString(s, maxlen, line.curve);
       int cnt = strnlen(s, maxlen);
       if ((size_t)cnt >= maxlen)

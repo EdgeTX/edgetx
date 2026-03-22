@@ -227,23 +227,23 @@ TEST_F(ArenaAccessorTest, MixDataRoundTrip)
 {
   MixData* mix = mixAddress(3);
   mix->destCh = 7;
-  mix->weight = 50;
-  mix->srcRaw = MIXSRC_MAX;
+  mix->weight.setNumeric(50);
+  mix->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
 
   EXPECT_EQ(mixAddress(3)->destCh, 7);
-  EXPECT_EQ(mixAddress(3)->weight, 50);
-  EXPECT_EQ(mixAddress(3)->srcRaw, MIXSRC_MAX);
+  EXPECT_EQ(mixAddress(3)->weight.numericValue(), 50);
+  EXPECT_EQ(mixAddress(3)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));
 }
 
 TEST_F(ArenaAccessorTest, ExpoDataRoundTrip)
 {
   ExpoData* expo = expoAddress(5);
   expo->chn = 2;
-  expo->weight = 75;
+  expo->weight.setNumeric(75);
   expo->mode = 3;
 
   EXPECT_EQ(expoAddress(5)->chn, 2);
-  EXPECT_EQ(expoAddress(5)->weight, 75);
+  EXPECT_EQ(expoAddress(5)->weight.numericValue(), 75);
   EXPECT_EQ(expoAddress(5)->mode, 3);
 }
 
@@ -273,51 +273,51 @@ TEST_F(ArenaInsertDeleteTest, InsertMixPreservesExisting)
 {
   MixData* mix0 = mixAddress(0);
   mix0->destCh = 0;
-  mix0->srcRaw = MIXSRC_MAX;
-  mix0->weight = 100;
+  mix0->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  mix0->weight.setNumeric(100);
   updateMixCount();
 
   insertMix(0, 0);
 
   // Original mix should have moved to index 1
-  EXPECT_EQ(mixAddress(1)->srcRaw, MIXSRC_MAX);
-  EXPECT_EQ(mixAddress(1)->weight, 100);
+  EXPECT_EQ(mixAddress(1)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));
+  EXPECT_EQ(mixAddress(1)->weight.numericValue(), 100);
   // New mix at index 0
   EXPECT_EQ(mixAddress(0)->destCh, 0);
-  EXPECT_NE(mixAddress(0)->srcRaw, MIXSRC_MAX);  // different default source
+  EXPECT_NE(mixAddress(0)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));  // different default source
 }
 
 TEST_F(ArenaInsertDeleteTest, DeleteMixShiftsRemaining)
 {
   mixAddress(0)->destCh = 0;
-  mixAddress(0)->srcRaw = MIXSRC_FIRST_STICK;
-  mixAddress(0)->weight = 100;
+  mixAddress(0)->srcRaw = {SOURCE_TYPE_STICK, 0, 0};
+  mixAddress(0)->weight.setNumeric(100);
   mixAddress(1)->destCh = 1;
-  mixAddress(1)->srcRaw = MIXSRC_MAX;
-  mixAddress(1)->weight = 50;
+  mixAddress(1)->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  mixAddress(1)->weight.setNumeric(50);
   updateMixCount();
 
   deleteMix(0);
 
   EXPECT_EQ(mixAddress(0)->destCh, 1);
-  EXPECT_EQ(mixAddress(0)->srcRaw, MIXSRC_MAX);
-  EXPECT_EQ(mixAddress(0)->weight, 50);
+  EXPECT_EQ(mixAddress(0)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));
+  EXPECT_EQ(mixAddress(0)->weight.numericValue(), 50);
 }
 
 TEST_F(ArenaInsertDeleteTest, InsertExpoPreservesExisting)
 {
   ExpoData* expo0 = expoAddress(0);
   expo0->chn = 0;
-  expo0->srcRaw = MIXSRC_FIRST_STICK;
-  expo0->weight = 100;
+  expo0->srcRaw = {SOURCE_TYPE_STICK, 0, 0};
+  expo0->weight.setNumeric(100);
   expo0->mode = 3;
   updateExpoCount();
 
   insertExpo(0, 0);
 
   // Original expo should have moved to index 1
-  EXPECT_EQ(expoAddress(1)->srcRaw, MIXSRC_FIRST_STICK);
-  EXPECT_EQ(expoAddress(1)->weight, 100);
+  EXPECT_EQ(expoAddress(1)->srcRaw, (SourceRef{SOURCE_TYPE_STICK, 0, 0}));
+  EXPECT_EQ(expoAddress(1)->weight.numericValue(), 100);
 }
 
 TEST_F(ArenaInsertDeleteTest, InsertDeleteCustomFn)
@@ -364,7 +364,7 @@ TEST_F(ArenaAccessorTest, ModelResetClearsArena)
 {
   // Write data to arena
   mixAddress(0)->destCh = 5;
-  mixAddress(0)->srcRaw = MIXSRC_MAX;
+  mixAddress(0)->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
   expoAddress(0)->chn = 3;
   lswAddress(10)->func = LS_FUNC_VPOS;
 
@@ -379,46 +379,45 @@ TEST_F(ArenaAccessorTest, ModelResetClearsArena)
 // These verify that cross-reference fields can hold all valid values.
 // Failures indicate that the enum range exceeds the bit-field width.
 
-TEST(BitFieldCapacity, SrcRawCanHoldAllMixSources)
+TEST(BitFieldCapacity, SourceRefRoundTrip)
 {
-  // srcRaw is int16_t:10 (signed), positive range 0..511
-  // MixSources enum must fit in this range
-  constexpr int srcRawMaxPositive = 511;  // 2^9 - 1
-
-  EXPECT_LE((int)MIXSRC_LAST_TELEM, srcRawMaxPositive)
-      << "MixSources enum (" << (int)MIXSRC_LAST_TELEM
-      << ") exceeds srcRaw:10 signed positive range (" << srcRawMaxPositive
-      << "). Telemetry sensors beyond index "
-      << (srcRawMaxPositive - (int)MIXSRC_FIRST_TELEM) / 3
-      << " cannot be used as mix/expo sources.";
-}
-
-TEST(BitFieldCapacity, SrcRawRoundTrip)
-{
-  // Verify that storing and reading back source values through
-  // the actual MixData bitfield preserves the value
+  // SourceRef uses full bytes (type=uint8_t, index=uint16_t),
+  // so no bit-field truncation. Verify round-trip works.
   MODEL_RESET();
 
-  // Test first telemetry sensor
   MixData* mix = mixAddress(0);
-  mix->srcRaw = MIXSRC_FIRST_TELEM;
-  EXPECT_EQ(mix->srcRaw, (int)MIXSRC_FIRST_TELEM);
 
-  // Test last telemetry sensor (may fail on H7 with 99 sensors)
-  mix->srcRaw = MIXSRC_LAST_TELEM;
-  if (MIXSRC_LAST_TELEM <= 511) {
-    EXPECT_EQ(mix->srcRaw, (int)MIXSRC_LAST_TELEM)
-        << "Last telemetry source should round-trip through srcRaw:10";
-  } else {
-    EXPECT_NE(mix->srcRaw, (int)MIXSRC_LAST_TELEM)
-        << "Expected corruption: MIXSRC_LAST_TELEM (" << (int)MIXSRC_LAST_TELEM
-        << ") exceeds srcRaw:10 signed range";
-  }
+  // Test telemetry source
+  mix->srcRaw = {SOURCE_TYPE_TELEMETRY, 0, 42};
+  EXPECT_EQ(mix->srcRaw.type, SOURCE_TYPE_TELEMETRY);
+  EXPECT_EQ(mix->srcRaw.index, 42);
+
+  // Test max index value for uint16_t
+  mix->srcRaw = {SOURCE_TYPE_CHANNEL, 0, 255};
+  EXPECT_EQ(mix->srcRaw.type, SOURCE_TYPE_CHANNEL);
+  EXPECT_EQ(mix->srcRaw.index, 255);
 }
 
-TEST(BitFieldCapacity, SwtchCanHoldAllSwitchSources)
+TEST(BitFieldCapacity, SwitchRefRoundTrip)
 {
-  // swtch is int32_t:10 (signed), range -512..511
+  // SwitchRef uses full bytes (type=uint8_t, index=uint16_t),
+  // so no bit-field truncation. Verify round-trip works.
+  MODEL_RESET();
+
+  MixData* mix = mixAddress(0);
+  mix->swtch = {SWITCH_TYPE_SWITCH, 0, 42};
+  EXPECT_EQ(mix->swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ(mix->swtch.index, 42);
+
+  mix->swtch = {SWITCH_TYPE_LOGICAL, SWITCH_FLAG_INVERTED, 10};
+  EXPECT_EQ(mix->swtch.type, SWITCH_TYPE_LOGICAL);
+  EXPECT_EQ(mix->swtch.flags, SWITCH_FLAG_INVERTED);
+  EXPECT_EQ(mix->swtch.index, 10);
+}
+
+TEST(BitFieldCapacity, LegacySwtchCanHoldAllSwitchSources)
+{
+  // FlightModeData.swtch is still int16_t:10 (signed), range -512..511
   // SwitchSources enum uses positive values 0..SWSRC_LAST,
   // negative values for inverted switches
   constexpr int swtchMaxPositive = 511;
@@ -428,14 +427,18 @@ TEST(BitFieldCapacity, SwtchCanHoldAllSwitchSources)
       << ") exceeds swtch:10 signed positive range (" << swtchMaxPositive << ")";
 }
 
-TEST(BitFieldCapacity, CurveRefCanHoldAllCurves)
+TEST(BitFieldCapacity, CurveRefValueRoundTrip)
 {
-  // CurveRef.value is uint16_t:11 (unsigned), range 0..2047
-  // When type=CURVE_REF_CUSTOM, value is curve index (1-based)
-  constexpr int curveRefMax = 2047;
+  // CurveRef.value is now ValueOrSource (int16_t value + uint8_t isSource + uint8_t srcType).
+  // When type=CURVE_REF_CUSTOM, value holds the curve index (1-based).
+  // Verify round-trip for curve indices.
+  MODEL_RESET();
 
-  EXPECT_LE((int)MAX_CURVES_HARD, curveRefMax)
-      << "MAX_CURVES_HARD exceeds CurveRef.value:11 range";
+  MixData* mix = mixAddress(0);
+  mix->curve.type = CURVE_REF_CUSTOM;
+  mix->curve.value.setNumeric(MAX_CURVES_HARD);
+  EXPECT_EQ(mix->curve.value.numericValue(), (int16_t)MAX_CURVES_HARD)
+      << "MAX_CURVES_HARD should round-trip through CurveRef.value";
 }
 
 TEST(BitFieldCapacity, LimitCurveCanHoldAllCurves)

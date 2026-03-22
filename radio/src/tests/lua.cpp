@@ -125,10 +125,13 @@ TEST(Lua, testModelInputs)
 #endif
   EXPECT_EQ(3u, (*expoAddress(0)).chn);
   EXPECT_STRNEQ("test1", (*expoAddress(0)).name);
-  EXPECT_EQ(MIXSRC_THR, (*expoAddress(0)).srcRaw);
-  EXPECT_EQ(56u, (*expoAddress(0)).weight);
-  EXPECT_EQ(3u, (*expoAddress(0)).offset);
-  EXPECT_EQ(2, (*expoAddress(0)).swtch);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
+  EXPECT_EQ(56, (*expoAddress(0)).weight.numericValue());
+  EXPECT_EQ(3, (*expoAddress(0)).offset.numericValue());
+  // switch=2 is legacy SWSRC value 2 = SWSRC_FIRST_SWITCH + 1 → SWITCH_TYPE_SWITCH index 1
+  EXPECT_EQ((*expoAddress(0)).swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ((*expoAddress(0)).swtch.index, 1);
 
   // add another one before existing line on Input4
 #if defined(SURFACE_RADIO)
@@ -138,19 +141,20 @@ TEST(Lua, testModelInputs)
 #endif
   EXPECT_EQ(3u, (*expoAddress(0)).chn);
   EXPECT_STRNEQ("test2", (*expoAddress(0)).name);
-  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, (*expoAddress(0)).srcRaw);
-  SourceNumVal v;
-  v.rawValue = (*expoAddress(0)).weight;
-  EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0u, (*expoAddress(0)).offset);
-  EXPECT_EQ(0, (*expoAddress(0)).swtch);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.index, 0);
+  EXPECT_EQ(-56, (*expoAddress(0)).weight.numericValue());
+  EXPECT_EQ(0, (*expoAddress(0)).offset.numericValue());
+  EXPECT_TRUE((*expoAddress(0)).swtch.isNone());
 
   EXPECT_EQ(3u, (*expoAddress(1)).chn);
   EXPECT_STRNEQ("test1", (*expoAddress(1)).name);
-  EXPECT_EQ(MIXSRC_THR, (*expoAddress(1)).srcRaw);
-  EXPECT_EQ(56u, (*expoAddress(1)).weight);
-  EXPECT_EQ(3u, (*expoAddress(1)).offset);
-  EXPECT_EQ(2, (*expoAddress(1)).swtch);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
+  EXPECT_EQ(56, (*expoAddress(1)).weight.numericValue());
+  EXPECT_EQ(3, (*expoAddress(1)).offset.numericValue());
+  EXPECT_EQ((*expoAddress(1)).swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ((*expoAddress(1)).swtch.index, 1);
 
 
   // add another line after existing lines on Input4
@@ -161,29 +165,33 @@ TEST(Lua, testModelInputs)
 #endif
   EXPECT_EQ(3u, (*expoAddress(0)).chn);
   EXPECT_STRNEQ("test2", (*expoAddress(0)).name);
-  EXPECT_EQ(MIXSRC_FIRST_STICK, (*expoAddress(0)).srcRaw);
-  v.rawValue = (*expoAddress(0)).weight;
-  EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0u, (*expoAddress(0)).offset);
-  EXPECT_EQ(0, (*expoAddress(0)).swtch);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.index, 0);
+  EXPECT_EQ(-56, (*expoAddress(0)).weight.numericValue());
+  EXPECT_EQ(0, (*expoAddress(0)).offset.numericValue());
+  EXPECT_TRUE((*expoAddress(0)).swtch.isNone());
 
   EXPECT_EQ(3u, (*expoAddress(1)).chn);
   EXPECT_STRNEQ("test1", (*expoAddress(1)).name);
-  EXPECT_EQ(MIXSRC_THR, (*expoAddress(1)).srcRaw);
-  EXPECT_EQ(56u, (*expoAddress(1)).weight);
-  EXPECT_EQ(3u, (*expoAddress(1)).offset);
-  EXPECT_EQ(2, (*expoAddress(1)).swtch);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
+  EXPECT_EQ(56, (*expoAddress(1)).weight.numericValue());
+  EXPECT_EQ(3, (*expoAddress(1)).offset.numericValue());
+  EXPECT_EQ((*expoAddress(1)).swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ((*expoAddress(1)).swtch.index, 1);
 
   EXPECT_EQ(3u, (*expoAddress(2)).chn);
   EXPECT_STRNEQ("test3", (*expoAddress(2)).name);
 #if defined(SURFACE_RADIO)
-  EXPECT_EQ(MIXSRC_THR, (*expoAddress(2)).srcRaw);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
 #else
-  EXPECT_EQ(MIXSRC_LAST_STICK, (*expoAddress(2)).srcRaw);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.index, 3);  // MIXSRC_Ail = MIXSRC_LAST_STICK = stick index 3
 #endif
-  EXPECT_EQ(100u, (*expoAddress(2)).weight);
-  EXPECT_EQ(0u, (*expoAddress(2)).offset);
-  EXPECT_EQ(0, (*expoAddress(2)).swtch);
+  EXPECT_EQ(100, (*expoAddress(2)).weight.numericValue());
+  EXPECT_EQ(0, (*expoAddress(2)).offset.numericValue());
+  EXPECT_TRUE((*expoAddress(2)).swtch.isNone());
 
   // verify number of lines for Input4
   luaExecStr("noInputs = model.getInputsCount(3)");

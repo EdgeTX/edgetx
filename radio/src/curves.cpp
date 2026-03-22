@@ -426,7 +426,7 @@ int applyCurrentCurve(int x)
 #if defined(COLORLCD)
 // Convert ValueOrSource to legacy SourceNumVal packed format for
 // getValueOrSrcVarString() (temporary bridge until that function is updated)
-static gvar_t valueOrSourceToLegacy(const ValueOrSource& vos)
+gvar_t valueOrSourceToLegacy(const ValueOrSource& vos)
 {
   if (vos.isSource) {
     // Reconstruct legacy mixsrc_t from SourceRef type+index

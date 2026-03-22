@@ -36,6 +36,128 @@
 #include "switchchoice.h"
 #include "textedit.h"
 
+// Defined in mixer.cpp
+extern mixsrc_t sourceRefToMixSrc(const SourceRef& ref);
+extern swsrc_t switchRefToSwSrc(const SwitchRef& ref);
+
+// Defined in curves.cpp
+extern gvar_t valueOrSourceToLegacy(const ValueOrSource& vos);
+
+// Convert legacy mixsrc_t back to SourceRef
+static SourceRef mixSrcToSourceRef(mixsrc_t src)
+{
+  SourceRef ref = {};
+  if (src == MIXSRC_NONE) return ref;
+
+  bool inverted = (src < 0);
+  mixsrc_t absSrc = inverted ? -src : src;
+
+  struct Range { mixsrc_t first; mixsrc_t last; uint8_t type; };
+  static const Range ranges[] = {
+    {MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SOURCE_TYPE_INPUT},
+    {MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SOURCE_TYPE_LUA},
+    {MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SOURCE_TYPE_STICK},
+    {MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SOURCE_TYPE_POT},
+    {MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SOURCE_TYPE_TRIM},
+    {MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SOURCE_TYPE_SWITCH},
+    {MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SOURCE_TYPE_LOGICAL_SWITCH},
+    {MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SOURCE_TYPE_TRAINER},
+    {MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SOURCE_TYPE_CHANNEL},
+    {MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SOURCE_TYPE_GVAR},
+    {MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SOURCE_TYPE_TIMER},
+    {MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SOURCE_TYPE_TELEMETRY},
+    {MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SOURCE_TYPE_HELI},
+  };
+
+  if (absSrc == MIXSRC_MIN) { ref.type = SOURCE_TYPE_MIN; }
+  else if (absSrc == MIXSRC_MAX) { ref.type = SOURCE_TYPE_MAX; }
+  else if (absSrc == MIXSRC_TX_VOLTAGE) { ref.type = SOURCE_TYPE_TX_VOLTAGE; }
+  else if (absSrc == MIXSRC_TX_TIME) { ref.type = SOURCE_TYPE_TX_TIME; }
+  else {
+    for (const auto& r : ranges) {
+      if (absSrc >= r.first && absSrc <= r.last) {
+        ref.type = r.type;
+        ref.index = absSrc - r.first;
+        break;
+      }
+    }
+  }
+
+  if (inverted) ref.flags = SOURCE_FLAG_INVERTED;
+  return ref;
+}
+
+// Convert legacy swsrc_t back to SwitchRef
+static SwitchRef swSrcToSwitchRef(swsrc_t src)
+{
+  SwitchRef ref = {};
+  if (src == SWSRC_NONE) return ref;
+
+  bool inverted = (src < 0);
+  swsrc_t absSrc = inverted ? -src : src;
+
+  struct Range { swsrc_t first; swsrc_t last; uint8_t type; };
+  static const Range ranges[] = {
+    {SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, SWITCH_TYPE_SWITCH},
+    {SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SWITCH_TYPE_MULTIPOS},
+    {SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SWITCH_TYPE_TRIM},
+    {SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SWITCH_TYPE_LOGICAL},
+    {SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SWITCH_TYPE_FLIGHT_MODE},
+    {SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SWITCH_TYPE_SENSOR},
+  };
+
+  if (absSrc == SWSRC_ON) { ref.type = SWITCH_TYPE_ON; }
+  else if (absSrc == SWSRC_ONE) { ref.type = SWITCH_TYPE_ONE; }
+  else if (absSrc == SWSRC_TELEMETRY_STREAMING) { ref.type = SWITCH_TYPE_TELEMETRY; }
+  else if (absSrc == SWSRC_RADIO_ACTIVITY) { ref.type = SWITCH_TYPE_RADIO_ACTIVITY; }
+  else if (absSrc == SWSRC_TRAINER_CONNECTED) { ref.type = SWITCH_TYPE_TRAINER; }
+  else {
+    for (const auto& r : ranges) {
+      if (absSrc >= r.first && absSrc <= r.last) {
+        ref.type = r.type;
+        ref.index = absSrc - r.first;
+        break;
+      }
+    }
+  }
+
+  if (inverted) ref.flags = SWITCH_FLAG_INVERTED;
+  return ref;
+}
+
+// Convert legacy SourceNumVal rawValue to ValueOrSource
+static ValueOrSource legacyToValueOrSource(int32_t rawValue)
+{
+  ValueOrSource vos = {};
+  SourceNumVal v;
+  v.rawValue = rawValue;
+  if (v.isSource) {
+    vos.isSource = 1;
+    // The legacy value in SourceNumVal.value is a mixsrc_t
+    // We need to extract the type and index
+    mixsrc_t src = v.value;
+    if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
+      vos.srcType = SOURCE_TYPE_GVAR;
+      vos.value = src - MIXSRC_FIRST_GVAR;
+    } else if (src >= MIXSRC_FIRST_INPUT && src <= MIXSRC_LAST_INPUT) {
+      vos.srcType = SOURCE_TYPE_INPUT;
+      vos.value = src - MIXSRC_FIRST_INPUT;
+    } else if (src >= MIXSRC_FIRST_STICK && src <= MIXSRC_LAST_STICK) {
+      vos.srcType = SOURCE_TYPE_STICK;
+      vos.value = src - MIXSRC_FIRST_STICK;
+    } else if (src >= MIXSRC_FIRST_CH && src <= MIXSRC_LAST_CH) {
+      vos.srcType = SOURCE_TYPE_CHANNEL;
+      vos.value = src - MIXSRC_FIRST_CH;
+    } else {
+      vos.srcType = 0;
+      vos.value = src;
+    }
+  } else {
+    vos.setNumeric(v.value);
+  }
+  return vos;
+}
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 class MixerEditStatusBar : public Window
@@ -106,30 +228,51 @@ void MixEditWindow::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SOURCE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
-                   GET_SET_DEFAULT(mix->srcRaw), true);
+                   [=]() -> int16_t { return (int16_t)sourceRefToMixSrc(mix->srcRaw); },
+                   [=](int16_t newValue) {
+                     mix->srcRaw = mixSrcToSourceRef((mixsrc_t)newValue);
+                     SET_DIRTY();
+                   }, true);
 
   // Weight
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto svar = new SourceNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                                   GET_SET_DEFAULT(mix->weight), MIXSRC_FIRST);
+                                   [=]() -> int32_t { return valueOrSourceToLegacy(mix->weight); },
+                                   [=](int32_t newValue) {
+                                     mix->weight = legacyToValueOrSource(newValue);
+                                     SET_DIRTY();
+                                   }, MIXSRC_FIRST);
   svar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
   auto gvar = new SourceNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
-                                   GET_SET_DEFAULT(mix->offset), MIXSRC_FIRST);
+                                   [=]() -> int32_t { return valueOrSourceToLegacy(mix->offset); },
+                                   [=](int32_t newValue) {
+                                     mix->offset = legacyToValueOrSource(newValue);
+                                     SET_DIRTY();
+                                   }, MIXSRC_FIRST);
   gvar->setSuffix("%");
 
   // Switch
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
   new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_SET_DEFAULT(mix->swtch));
+                   [=]() -> int16_t { return (int16_t)switchRefToSwSrc(mix->swtch); },
+                   [=](int16_t newValue) {
+                     mix->swtch = swSrcToSwitchRef((swsrc_t)newValue);
+                     SET_DIRTY();
+                   });
 
   // Curve
+  mixsrc_t srcForCurve = sourceRefToMixSrc(mix->srcRaw);
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), MIXSRC_FIRST, mix->srcRaw);
+  new CurveParam(line, rect_t{}, &mix->curve,
+      [=](int32_t newValue) {
+        mix->curve.value = legacyToValueOrSource(newValue);
+        SET_DIRTY();
+      }, MIXSRC_FIRST, srcForCurve);
 
   line = form->newLine(grid);
   line->padAll(PAD_LARGE);

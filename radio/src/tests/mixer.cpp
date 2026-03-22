@@ -282,7 +282,7 @@ TEST_F(TrimsTest, throttleTrimWithZeroWeightOnThrottle)
   g_model.thrTrim = 1;
   // the input already exists
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->weight = makeSourceNumVal(0);
+  expo->weight.setNumeric(0);
   // stick max + trim max
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
@@ -353,7 +353,7 @@ TEST_F(TrimsTest, invertedThrottlePlusthrottleTrimWithZeroWeightOnThrottle)
   g_model.thrTrim = 1;
   // the input already exists
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->weight = makeSourceNumVal(0);
+  expo->weight.setNumeric(0);
   // stick max + trim max
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
@@ -582,7 +582,7 @@ TEST_F(TrimsTest, InstantTrimNegativeCurve)
 {
   ExpoData *expo = expoAddress(AIL_STICK);
   expo->curve.type = CURVE_REF_CUSTOM;
-  expo->curve.value = makeSourceNumVal(1);
+  expo->curve.value.setNumeric(1);
   curvePointsBase()[0] = -100;
   curvePointsBase()[1] = -75;
   curvePointsBase()[2] = -50;
@@ -618,14 +618,14 @@ TEST(Curves, LinearIntpol)
 TEST_F(MixerTest, InfiniteRecursiveChannels)
 {
   (*mixAddress(0)).destCh = 0;
-  (*mixAddress(0)).srcRaw = MIXSRC_FIRST_CH + 1;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 1};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(1)).destCh = 1;
-  (*mixAddress(1)).srcRaw = MIXSRC_FIRST_CH + 2;
-  (*mixAddress(1)).weight = makeSourceNumVal(100);
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 2};
+  (*mixAddress(1)).weight.setNumeric(100);
   (*mixAddress(2)).destCh = 2;
-  (*mixAddress(2)).srcRaw = MIXSRC_FIRST_CH;
-  (*mixAddress(2)).weight = makeSourceNumVal(100);
+  (*mixAddress(2)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 0};
+  (*mixAddress(2)).weight.setNumeric(100);
   evalFlightModeMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[2], 0);
   EXPECT_EQ(chans[1], 0);
@@ -635,8 +635,8 @@ TEST_F(MixerTest, InfiniteRecursiveChannels)
 TEST_F(MixerTest, BlockingChannel)
 {
   (*mixAddress(0)).destCh = 0;
-  (*mixAddress(0)).srcRaw = MIXSRC_FIRST_CH;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   evalFlightModeMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], 0);
 }
@@ -645,15 +645,15 @@ TEST_F(MixerTest, RecursiveAddChannel)
 {
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(50);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(50);
   (*mixAddress(1)).destCh = 0;
   (*mixAddress(1)).mltpx = MLTPX_ADD;
-  (*mixAddress(1)).srcRaw = MIXSRC_FIRST_CH + 1;
-  (*mixAddress(1)).weight = makeSourceNumVal(100);
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 1};
+  (*mixAddress(1)).weight.setNumeric(100);
   (*mixAddress(2)).destCh = 1;
-  (*mixAddress(2)).srcRaw = MIXSRC_FIRST_STICK;
-  (*mixAddress(2)).weight = makeSourceNumVal(100);
+  (*mixAddress(2)).srcRaw = {SOURCE_TYPE_STICK, 0, 0};
+  (*mixAddress(2)).weight.setNumeric(100);
 
   anaSetFiltered(0, 0);
   evalFlightModeMixes(e_perout_mode_normal, 0);
@@ -668,17 +668,17 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 1;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_FIRST_CH + 1;
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 1};
   (*mixAddress(0)).flightModes = 0b11110;
-  (*mixAddress(0)).weight = makeSourceNumVal(50);
+  (*mixAddress(0)).weight.setNumeric(50);
   (*mixAddress(1)).destCh = 0;
   (*mixAddress(1)).mltpx = MLTPX_ADD;
-  (*mixAddress(1)).srcRaw = MIXSRC_MAX;
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
   (*mixAddress(1)).flightModes = 0b11101;
-  (*mixAddress(1)).weight = makeSourceNumVal(50);
+  (*mixAddress(1)).weight.setNumeric(50);
   (*mixAddress(2)).destCh = 1;
-  (*mixAddress(2)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(2)).weight = makeSourceNumVal(100);
+  (*mixAddress(2)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(2)).weight.setNumeric(100);
   simuSetSwitch(3, -1);
   evalMixes(1);
   EXPECT_EQ(chans[0], CHANNEL_MAX/2);
@@ -695,8 +695,8 @@ TEST_F(MixerTest, SlowOnPhase)
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).flightModes = 0x2 + 0x4 + 0x8 + 0x10 /*only enabled in phase 0*/;
   (*mixAddress(0)).speedUp = 50;
   (*mixAddress(0)).speedDown = 50;
@@ -722,8 +722,8 @@ TEST_F(MixerTest, SlowOnSwitchSource)
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_SWITCH, 0, (uint16_t)sw};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).speedUp = 50;
   (*mixAddress(0)).speedDown = 50;
 
@@ -742,8 +742,8 @@ TEST_F(MixerTest, SlowOnPhasePrec10ms)
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).flightModes = 0x2 + 0x4 + 0x8 + 0x10 /*only enabled in phase 0*/;
   (*mixAddress(0)).speedUp = 50;
   (*mixAddress(0)).speedDown = 50;
@@ -770,8 +770,8 @@ TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_SWITCH, 0, (uint16_t)sw};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).speedUp = 50;
   (*mixAddress(0)).speedDown = 50;
   (*mixAddress(0)).speedPrec = 1;
@@ -790,8 +790,8 @@ TEST_F(MixerTest, SlowDisabledOnStartup)
 {
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).speedUp = 50;
   (*mixAddress(0)).speedDown = 50;
 
@@ -806,13 +806,13 @@ TEST_F(MixerTest, DelayOnSwitch)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
-  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
+  uint16_t swPos = (uint16_t)(sw * 3 + 2);
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
-  (*mixAddress(0)).swtch = swPos;
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
+  (*mixAddress(0)).swtch = {SWITCH_TYPE_SWITCH, 0, swPos};
   (*mixAddress(0)).delayUp = 50;
   (*mixAddress(0)).delayDown = 50;
 
@@ -844,8 +844,8 @@ TEST_F(MixerTest, DelayOnSwitch2)
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_SWITCH, 0, (uint16_t)sw};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).delayUp = 50;
   (*mixAddress(0)).delayDown = 50;
 
@@ -871,13 +871,13 @@ TEST_F(MixerTest, SlowOnMultiply)
 {
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(1)).destCh = 0;
   (*mixAddress(1)).mltpx = MLTPX_MUL;
-  (*mixAddress(1)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(1)).weight = makeSourceNumVal(100);
-  (*mixAddress(1)).swtch = SWSRC_FIRST_SWITCH;
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(1)).weight.setNumeric(100);
+  (*mixAddress(1)).swtch = {SWITCH_TYPE_SWITCH, 0, 0};
   (*mixAddress(1)).speedUp = 50;
   (*mixAddress(1)).speedDown = 50;
 
@@ -897,13 +897,13 @@ TEST_F(MixerTest, SlowOnMultiplyPrec10ms)
 {
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(1)).destCh = 0;
   (*mixAddress(1)).mltpx = MLTPX_MUL;
-  (*mixAddress(1)).srcRaw = MIXSRC_MAX;
-  (*mixAddress(1)).weight = makeSourceNumVal(100);
-  (*mixAddress(1)).swtch = SWSRC_FIRST_SWITCH;
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  (*mixAddress(1)).weight.setNumeric(100);
+  (*mixAddress(1)).swtch = {SWITCH_TYPE_SWITCH, 0, 0};
   (*mixAddress(1)).speedUp = 50;
   (*mixAddress(1)).speedDown = 50;
   (*mixAddress(1)).speedPrec = 1;
@@ -958,16 +958,16 @@ TEST(Heli, BasicTest)
   g_model.swashR.type = SWASH_TYPE_120;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_CYC1;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_HELI, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(1)).destCh = 1;
   (*mixAddress(1)).mltpx = MLTPX_ADD;
-  (*mixAddress(1)).srcRaw = MIXSRC_CYC2;
-  (*mixAddress(1)).weight = makeSourceNumVal(100);
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_HELI, 0, 1};
+  (*mixAddress(1)).weight.setNumeric(100);
   (*mixAddress(2)).destCh = 2;
   (*mixAddress(2)).mltpx = MLTPX_ADD;
-  (*mixAddress(2)).srcRaw = MIXSRC_CYC3;
-  (*mixAddress(2)).weight = makeSourceNumVal(100);
+  (*mixAddress(2)).srcRaw = {SOURCE_TYPE_HELI, 0, 2};
+  (*mixAddress(2)).weight.setNumeric(100);
   anaSetFiltered(inputMappingConvertMode(THR_STICK), 0);
   anaSetFiltered(inputMappingConvertMode(ELE_STICK), 1024);
   anaSetFiltered(inputMappingConvertMode(AIL_STICK), 0);
@@ -994,16 +994,16 @@ TEST(Heli, Mode2Test)
   g_model.swashR.type = SWASH_TYPE_120;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_CYC1;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_HELI, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(1)).destCh = 1;
   (*mixAddress(1)).mltpx = MLTPX_ADD;
-  (*mixAddress(1)).srcRaw = MIXSRC_CYC2;
-  (*mixAddress(1)).weight = makeSourceNumVal(100);
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_HELI, 0, 1};
+  (*mixAddress(1)).weight.setNumeric(100);
   (*mixAddress(2)).destCh = 2;
   (*mixAddress(2)).mltpx = MLTPX_ADD;
-  (*mixAddress(2)).srcRaw = MIXSRC_CYC3;
-  (*mixAddress(2)).weight = makeSourceNumVal(100);
+  (*mixAddress(2)).srcRaw = {SOURCE_TYPE_HELI, 0, 2};
+  (*mixAddress(2)).weight.setNumeric(100);
   anaSetFiltered(inputMappingConvertMode(THR_STICK), 0);
   anaSetFiltered(inputMappingConvertMode(ELE_STICK), 1024);
   anaSetFiltered(inputMappingConvertMode(AIL_STICK), 0);
@@ -1023,8 +1023,8 @@ TEST(Trainer, UnpluggedTest)
   setModelDefaults();
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
-  (*mixAddress(0)).srcRaw = MIXSRC_FIRST_TRAINER;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_TRAINER, 0, 0};
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(0)).delayUp = 50;
   (*mixAddress(0)).delayDown = 50;
   trainerSetTimer(0);
@@ -1052,14 +1052,14 @@ TEST_F(MixerTest, flightModeTransition)
   g_model.flightModeData[1].fadeOut = 100;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_REPL;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
   (*mixAddress(0)).flightModes = 0b11110;
-  (*mixAddress(0)).weight = makeSourceNumVal(100);
+  (*mixAddress(0)).weight.setNumeric(100);
   (*mixAddress(1)).destCh = 0;
   (*mixAddress(1)).mltpx = MLTPX_REPL;
-  (*mixAddress(1)).srcRaw = MIXSRC_MAX;
+  (*mixAddress(1)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
   (*mixAddress(1)).flightModes = 0b11101;
-  (*mixAddress(1)).weight = makeSourceNumVal(-10);
+  (*mixAddress(1)).weight.setNumeric(-10);
   evalMixes(1);
   simuSetSwitch(sw, 1);
   CHECK_FLIGHT_MODE_TRANSITION(0, 1000, 1024, -102);
@@ -1076,9 +1076,9 @@ TEST_F(MixerTest, flightModeOverflow)
   g_model.flightModeData[0].fadeOut = 100;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_REPL;
-  (*mixAddress(0)).srcRaw = MIXSRC_MAX;
+  (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
   (*mixAddress(0)).flightModes = 0;
-  (*mixAddress(0)).weight = makeSourceNumVal(250);
+  (*mixAddress(0)).weight.setNumeric(250);
   evalMixes(1);
   simuSetSwitch(0, 1);
   CHECK_FLIGHT_MODE_TRANSITION(0, 1000, 1024, 1024);
