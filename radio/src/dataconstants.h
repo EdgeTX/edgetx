@@ -94,6 +94,16 @@
 #define MAX_TIMERS                     3
 #define NUM_CAL_PPM                    4
 
+// Hard safety caps for arena-backed arrays.
+// These bound the maximum possible elements regardless of arena size,
+// and are used to size parallel state arrays (mixState, act, etc.)
+#define MAX_MIXERS_HARD                128
+#define MAX_EXPOS_HARD                 128
+#define MAX_CURVES_HARD                64
+#define MAX_CURVE_POINTS_HARD          1024
+#define MAX_LOGICAL_SWITCHES_HARD      64
+#define MAX_SPECIAL_FUNCTIONS_HARD     64
+
 enum CurveType {
   CURVE_TYPE_STANDARD,
   CURVE_TYPE_CUSTOM,

@@ -48,8 +48,8 @@ int16_t trims[MAX_TRIMS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
 BeepANACenter bpanaCenter = 0;
 
-int32_t act [MAX_MIXERS] = {0};
-MixState mixState [MAX_MIXERS];
+int32_t act [MAX_MIXERS_HARD] = {0};
+MixState mixState [MAX_MIXERS_HARD];
 
 uint8_t mixWarning;
 
@@ -836,7 +836,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
   bitfield_channels_t dirtyChannels = all_channels_dirty;
 
   // Calculate locally and then copy to mixState array - prevent UI seeing phantom values while calculating
-  bool activeMixes[MAX_MIXERS];
+  bool activeMixes[MAX_MIXERS_HARD];
 
   do {
     bitfield_channels_t passDirtyChannels = 0;
