@@ -665,7 +665,7 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 {
   if (switchGetMaxAllSwitches() < 4) return;
   
-  g_model.flightModeData[1].swtch = swSrcToSwitchRef(SWSRC_FIRST_SWITCH + 1);
+  g_model.flightModeData[1].swtch = SwitchRef{SWITCH_TYPE_SWITCH, 0, 1};
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
   (*mixAddress(0)).srcRaw = {SOURCE_TYPE_CHANNEL, 0, 1};
@@ -692,7 +692,7 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 
 TEST_F(MixerTest, SlowOnPhase)
 {
-  g_model.flightModeData[1].swtch = swSrcToSwitchRef(SWSRC_FIRST_SWITCH);
+  g_model.flightModeData[1].swtch = SwitchRef{SWITCH_TYPE_SWITCH, 0, 0};
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
   (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
@@ -739,7 +739,7 @@ TEST_F(MixerTest, SlowOnSwitchSource)
 
 TEST_F(MixerTest, SlowOnPhasePrec10ms)
 {
-  g_model.flightModeData[1].swtch = swSrcToSwitchRef(SWSRC_FIRST_SWITCH);
+  g_model.flightModeData[1].swtch = SwitchRef{SWITCH_TYPE_SWITCH, 0, 0};
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
   (*mixAddress(0)).srcRaw = {SOURCE_TYPE_MAX, 0, 0};
@@ -949,9 +949,9 @@ TEST(Heli, BasicTest)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.swashR.collectiveSource = mixSrcToSourceRef(MIXSRC_THR);
-  g_model.swashR.elevatorSource = mixSrcToSourceRef(MIXSRC_ELE);
-  g_model.swashR.aileronSource = mixSrcToSourceRef(MIXSRC_AIL);
+  g_model.swashR.collectiveSource = SourceRef{SOURCE_TYPE_STICK, 0, (uint16_t)THR_CHAN};
+  g_model.swashR.elevatorSource = SourceRef{SOURCE_TYPE_STICK, 0, (uint16_t)ELE_CHAN};
+  g_model.swashR.aileronSource = SourceRef{SOURCE_TYPE_STICK, 0, (uint16_t)AIL_STICK};
   g_model.swashR.collectiveWeight = 100;
   g_model.swashR.elevatorWeight = 100;
   g_model.swashR.aileronWeight = 100;
@@ -985,9 +985,9 @@ TEST(Heli, Mode2Test)
   setModelDefaults();
   g_eeGeneral.templateSetup = 2;
   applyDefaultTemplate();
-  g_model.swashR.collectiveSource = mixSrcToSourceRef(MIXSRC_THR);
-  g_model.swashR.elevatorSource = mixSrcToSourceRef(MIXSRC_ELE);
-  g_model.swashR.aileronSource = mixSrcToSourceRef(MIXSRC_AIL);
+  g_model.swashR.collectiveSource = SourceRef{SOURCE_TYPE_STICK, 0, (uint16_t)THR_CHAN};
+  g_model.swashR.elevatorSource = SourceRef{SOURCE_TYPE_STICK, 0, (uint16_t)ELE_CHAN};
+  g_model.swashR.aileronSource = SourceRef{SOURCE_TYPE_STICK, 0, (uint16_t)AIL_STICK};
   g_model.swashR.collectiveWeight = 100;
   g_model.swashR.elevatorWeight = 100;
   g_model.swashR.aileronWeight = 100;
@@ -1039,13 +1039,11 @@ TEST_F(MixerTest, flightModeTransition)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
-  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
-
   SYSTEM_RESET();
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.flightModeData[1].swtch = swSrcToSwitchRef(swPos);
+  g_model.flightModeData[1].swtch = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw * 3 + 2)};
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
   g_model.flightModeData[1].fadeIn = 100;
@@ -1071,7 +1069,7 @@ TEST_F(MixerTest, flightModeOverflow)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.flightModeData[1].swtch = swSrcToSwitchRef(SWSRC_FIRST_SWITCH + 2);
+  g_model.flightModeData[1].swtch = SwitchRef{SWITCH_TYPE_SWITCH, 0, 2};
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
   (*mixAddress(0)).destCh = 0;
