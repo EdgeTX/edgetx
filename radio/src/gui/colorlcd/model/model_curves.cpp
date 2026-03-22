@@ -104,7 +104,7 @@ ModelCurvesPage::ModelCurvesPage(const PageDef& pageDef) : PageGroupItem(pageDef
 
 // can be called from any other screen to edit a curve.
 // currently called from model_mixes.cpp on longpress.
-void ModelCurvesPage::pushEditCurve(int index, mixsrc_t source)
+void ModelCurvesPage::pushEditCurve(int index, const SourceRef& source)
 {
   if (!isCurveUsed(index)) {
     CurveHeader &curve = *curveHeaderAddress(index);
