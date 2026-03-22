@@ -109,7 +109,7 @@ uint8_t getMaxRxNum(uint8_t idx)
 #if defined(AFHDS3)
   if (isModuleAFHDS3(idx)) return AFHDS3_MAX_MODEL_ID;
 #endif
-  
+
   return MAX_RXNUM;
 }
 
@@ -128,7 +128,7 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
   }
   else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS3) {
     resetAfhds3Options(moduleIdx);
-  } 
+  }
   else if (moduleData.type == MODULE_TYPE_LEMON_DSMP) {
     restartModule(moduleIdx);  // Restart DSMP when switching to it (example PPM->DSMP)
   }

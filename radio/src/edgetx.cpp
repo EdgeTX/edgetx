@@ -761,11 +761,7 @@ void checkAll(bool isBootCheck)
   }
 #endif
 
-#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
-  checkExternalAntenna();
-#endif
-
-#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   checkExternalAntenna();
 #endif
 

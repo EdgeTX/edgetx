@@ -475,7 +475,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   }
   if (attr && s_editMode > 0) {
     switch (menuHorizontalPosition) {
-      case 0: 
+      case 0:
       {
         value = timer.countdownBeep;
         if (timer.extraHaptic) value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
@@ -694,7 +694,7 @@ static void menuModelCFSOne(event_t event)
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
 #endif
     });
-  
+
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;
 
@@ -1223,7 +1223,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_CHECKLIST_DISPLAY:
         g_model.displayChecklist = editCheckBox(g_model.displayChecklist, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST, attr, event, INDENT_WIDTH);
         break;
-      
+
       case ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE:
         g_model.checklistInteractive = editCheckBox(g_model.checklistInteractive, MODEL_SETUP_2ND_COLUMN, y, STR_CHECKLIST_INTERACTIVE, attr, event, INDENT_WIDTH);
         break;
@@ -1637,9 +1637,9 @@ void menuModelSetup(event_t event)
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_MODE:
-#endif 
-        g_model.moduleData[moduleIdx].crsf.crsfArmingMode = 
-          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES, 
+#endif
+        g_model.moduleData[moduleIdx].crsf.crsfArmingMode =
+          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES,
           g_model.moduleData[moduleIdx].crsf.crsfArmingMode, ARMING_MODE_FIRST, ARMING_MODE_LAST, attr, event, INDENT_WIDTH);
         break;
 
@@ -2443,10 +2443,10 @@ void menuModelSetup(event_t event)
 #endif
 #endif
 #if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: 
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS:
 #endif
 #if (defined(MULTIMODULE) | defined(DSMP) | defined(AFHDS3)) && defined(HARDWARE_EXTERNAL_MODULE)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS: 
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS:
       {
         // MultiModule & LemonDSMP & AFHDS3 Status
         lcdDrawTextIndented(y, STR_MODULE_STATUS);
@@ -2462,7 +2462,7 @@ void menuModelSetup(event_t event)
                          MODEL_SETUP_2ND_COLUMN, y, STR_DSMP_ENABLE_AETR, attr,
                          event, INDENT_WIDTH);
         break;
-#endif 
+#endif
 
 
 #if defined(MULTIMODULE)

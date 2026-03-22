@@ -707,8 +707,9 @@ bool isSourceAvailableInResetSpecialFunction(int index)
   }
 }
 
-#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+#if defined(EXTERNAL_ANTENNA)
 
+#if defined(INTERNAL_MODULE_PXX1)
 #if defined(COLORLCD)
 
 class AntennaSelectionMenu : public Menu
@@ -761,17 +762,27 @@ void onAntennaSwitchConfirm(const char * result)
   }
 }
 #endif
+#endif // defined(INTERNAL_MODULE_PXX1)
 
 void checkExternalAntenna()
 {
+#if defined(RADIO_V12)
+  if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
+    INTMODULE_ANTSEL_EXT();
+    LED_ERROR_BEGIN();
+    RAISE_ALERT(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2, STR_PRESS_ANY_KEY_TO_SKIP, AU_WARNING1);
+    globalData.externalAntennaEnabled = true;
+  } else {
+    INTMODULE_ANTSEL_INT();
+    globalData.externalAntennaEnabled = false;
+  }
+#elif defined(INTERNAL_MODULE_PXX1)
   if (isModuleXJT(INTERNAL_MODULE)) {
     if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
-      // TRACE("checkExternalAntenna(): External");
       globalData.externalAntennaEnabled = true;
     } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
                g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
                    ANTENNA_MODE_EXTERNAL) {
-      // TRACE("checkExternalAntenna(): Per Model, External");
       if (!globalData.externalAntennaEnabled) {
 #if defined(COLORLCD)
         if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
@@ -786,10 +797,7 @@ void checkExternalAntenna()
                (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
                 g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
                     ANTENNA_MODE_ASK)) {
-
-      // TRACE("checkExternalAntenna(): Ask");
       globalData.externalAntennaEnabled = false;
-
 #if defined(COLORLCD)
       runAntennaSelectionMenu();
 #else
@@ -801,25 +809,10 @@ void checkExternalAntenna()
   } else {
     globalData.externalAntennaEnabled = false;
   }
-}
 #endif
-#if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
-void  checkExternalAntenna()
-{
-  if(g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL){
-    INTMODULE_ANTSEL_EXT();
-    //if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-        //globalData.externalAntennaEnabled = true;
-    //}
-    LED_ERROR_BEGIN();
-    RAISE_ALERT(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2, STR_PRESS_ANY_KEY_TO_SKIP, AU_WARNING1);
-      globalData.externalAntennaEnabled = true;
-  }
-  else {
-     INTMODULE_ANTSEL_INT();
- }
 }
-#endif
+
+#endif // defined(EXTERNAL_ANTENNA)
 
 #if defined(PXX2)
 bool isPxx2IsrmChannelsCountAllowed(int channels)
