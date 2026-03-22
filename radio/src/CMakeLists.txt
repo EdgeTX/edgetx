@@ -457,6 +457,7 @@ set(SRC
   mixes.cpp
   expos.cpp
   customfn.cpp
+  sourceref.cpp
   model_arena.cpp
   mixer.cpp
   mixer_scheduler.cpp
