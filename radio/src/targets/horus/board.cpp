@@ -53,6 +53,10 @@
   #include "csd203_sensor.h"
 #endif
 
+#if defined(IMU) && defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
+  #define HAS_IMU
+#endif
+
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
@@ -147,6 +151,19 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
     rgbLedColorApply();
   }
   return (4096/5)*(sixPosState);
+}
+#endif
+
+#if defined(HAS_IMU)
+#include "drivers/lsm6ds.h"
+#include "stm32_i2c_driver.h"
+
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 #endif
 
@@ -247,7 +264,7 @@ void boardInit()
   #endif
 #endif
 
-#if defined(IMU)
+#if defined(HAS_IMU)
   gyroInit();
 #endif
 }

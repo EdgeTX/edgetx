@@ -176,10 +176,6 @@ void boardInit()
   hapticInit();
 
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
-
-#if defined(IMU)
-  gyroInit();
-#endif
 }
 
 extern void rtcDisableBackupReg();

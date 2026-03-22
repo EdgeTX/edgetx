@@ -125,6 +125,21 @@ void SDLEDpwrInit()
 }
 #endif
 
+#if defined(IMU) && defined(IMU_I2C_BUS) && defined(IMU_I2C_BUS)
+#include "drivers/lsm6ds.h"
+#include "stm32_i2c_driver.h"
+
+#define HAS_IMU
+
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
+}
+#endif
+
 void boardInit()
 {
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
@@ -276,6 +291,10 @@ void boardInit()
 
 #if defined(RADIO_GX12)
   gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
+#if defined(HAS_IMU)
+  gyroInit();
 #endif
 }
 #endif

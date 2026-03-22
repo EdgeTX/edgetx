@@ -124,10 +124,6 @@ void boardInit()
 
   delay_ms(50); // GT911 is a bit slow on power ON
   touchPanelInit();
-
-#if defined(IMU)
-  gyroInit();
-#endif
 }
 
 extern void rtcDisableBackupReg();

@@ -37,6 +37,3 @@ int16_t gyroScaledX();
 int16_t gyroScaledY();
 
 extern int16_t gyroOutputs[2];
-
-// implemented by the board
-void gyroInit();

@@ -627,7 +627,7 @@ if(USB_CHARGER)
 endif()
 
 if(IMU)
-  target_sources(board PRIVATE drivers/lsm6ds_driver.cpp)
+  target_sources(board PRIVATE drivers/lsm6ds.cpp)
 endif()
 
 if(AUTOUPDATE)

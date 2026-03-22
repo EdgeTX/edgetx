@@ -247,10 +247,6 @@ void lcdSetInvert(bool invert)
 void boardInit()
 {
   switchInit();
-
-#if defined(IMU)
-  gyroInit();
-#endif
 }
 
 uint32_t pwrCheck() { return simu_shutdown ? e_power_off : e_power_on; }

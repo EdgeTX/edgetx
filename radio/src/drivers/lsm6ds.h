@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+* Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "hal/imu.h"
 
-void gyroInit() {}
+extern const etx_imu_driver_t imu_lsm6ds_driver;

@@ -54,6 +54,7 @@
 #include "timers_driver.h"
 
 #include "battery_driver.h"
+#include "drivers/lsm6ds.h"
 
 #include "bitmapbuffer.h"
 #include "colors.h"
@@ -174,6 +175,14 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
+}
+
 void boardInit()
 {
   // enable interrupts
@@ -265,9 +274,7 @@ void boardInit()
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 
-#if defined(IMU)
   gyroInit();
-#endif
 }
 
 extern void rtcDisableBackupReg();

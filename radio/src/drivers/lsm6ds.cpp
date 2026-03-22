@@ -19,10 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/imu.h"
-#include "gyro.h"
-
-#if defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
+#include "lsm6ds.h"
 
 #include "hal/i2c_driver.h"
 #include "delays_driver.h"
@@ -268,16 +265,3 @@ const etx_imu_driver_t imu_lsm6ds_driver = {
   "LSM6DS",
 };
 
-void gyroInit()
-{
-  const etx_imu_t candidates[] = {
-    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
-  };
-  gyroStart(imuDetect(candidates, DIM(candidates)));
-}
-
-#else
-
-void gyroInit() {}
-
-#endif
