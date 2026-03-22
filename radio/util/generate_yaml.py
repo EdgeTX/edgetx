@@ -413,6 +413,32 @@ def parse_field(ast,node):
                 f.func = array_attrs[2]
             elif a['type'] == 'skip':
                 f.skip = True
+            elif a['type'] == 'extern_array':
+                ea_attrs = a['val'].split('|')
+                f.name = ea_attrs[0]  # use the tag name, not _dummy_tag
+                f.type = 'extern_array'
+                f.length = int(ea_attrs[1])
+                f.var_type = ea_attrs[2]
+                f.extern_get_ptr = ea_attrs[3]
+                f.bits = 0  # zero-size in parent struct
+                # Force parsing of the referenced struct type so it's
+                # available for extern_array_bits() at render time.
+                # Skip fake structs like struct_signed_8 (primitive type wrappers)
+                var_type_name = ea_attrs[2]
+                if var_type_name.startswith('struct_') and not RootAST.has_struct(var_type_name):
+                    raw_name = var_type_name[len('struct_'):]
+                    # Check if the type exists as a top-level node before parsing
+                    node = translation_unit.cursor
+                    found = False
+                    for c in node.get_children():
+                        if c.spelling == raw_name:
+                            defn = c.get_definition()
+                            if defn is not None:
+                                parse_node(RootAST, defn)
+                            found = True
+                            break
+                    # If not found, it's a fake struct (e.g. signed_8) -
+                    # extern_array_bits() will handle it via name parsing
 
         if is_enum and not is_cust:
             f.type = 'enum'
@@ -564,12 +590,35 @@ def padding_bits(array):
     array_bits = (array.bits // array.length) * array.length
     return array.bits - array_bits
 
+def extern_array_bits(elmt):
+    """Compute per-element bit size for an extern_array by looking up its struct definition."""
+    name = elmt.var_type
+    st = RootAST.get_struct(name)
+    if st is not None:
+        # Sum the bit sizes of all elements in the struct
+        total = 0
+        for e in st.get_elmts():
+            total += e.bits
+        return total
+    # Fallback: if the struct type is a fake struct (e.g., struct_signed_8),
+    # parse the bit size from the name suffix
+    if name.startswith('struct_'):
+        parts = name.rsplit('_', 1)
+        if len(parts) == 2:
+            try:
+                return int(parts[1])
+            except ValueError:
+                pass
+    print_error("Cannot determine bit size for extern_array type: " + name)
+    return 0
+
 template = jinja2.Template(open(sys.argv[2]).read(), lstrip_blocks=True, trim_blocks=True)
 
 template.globals['max_len'] = max_len
 template.globals['get_max_len'] = get_max_len
 template.globals['max_bits'] = max_bits
 template.globals['padding_bits'] = padding_bits
+template.globals['extern_array_bits'] = extern_array_bits
 
 ## fixme: root_node_name needs to be mangled (contains ',')
 print(template.render(root=RootAST,root_nodes=top_node_names,root_node_name=root_nodes_name))
