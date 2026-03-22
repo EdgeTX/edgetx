@@ -42,14 +42,14 @@ void insertExpo(uint8_t idx, uint8_t input)
   memmove(expo + 1, expo, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
   if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    expo->srcRaw = MIXSRC_FIRST_STICK + input;
+    expo->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)input};
   } else {
-    expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(input);
+    expo->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingChannelOrder(input)};
   }
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3;  // pos+neg
   expo->chn = input;
-  expo->weight = 100;
+  expo->weight.setNumeric(100);
   mixerTaskStart();
 
   _nb_expo_lines += 1;

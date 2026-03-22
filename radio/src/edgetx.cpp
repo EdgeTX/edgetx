@@ -462,7 +462,7 @@ bool isInputRecursive(int index)
       break;
     else if (line->chn < index)
       continue;
-    else if (line->srcRaw >= MIXSRC_FIRST_LOGICAL_SWITCH)
+    else if (line->srcRaw.type >= SOURCE_TYPE_LOGICAL_SWITCH)
       return true;
   }
   return false;
@@ -1247,7 +1247,7 @@ void instantTrim()
         ExpoData * expo = expoAddress(i);
         if (!EXPO_VALID(expo))
           break; // end of list
-        if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
+        if (expo->srcRaw.type == SOURCE_TYPE_STICK && stick == expo->srcRaw.index) {
           if (expo->trimSource < 0) {
             // only default trims will be taken into account
             continue;

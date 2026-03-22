@@ -21,7 +21,7 @@
 
 #include "edgetx.h"
 
-extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
+extern int32_t getSourceNumFieldValue(const ValueOrSource& vos, int16_t min, int16_t max);
 
 constexpr int DEFAULT_POINTS = 5;
 constexpr int STD_CURVE_POINTS(int p) { return p + DEFAULT_POINTS; }
@@ -322,8 +322,7 @@ int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
 
 int applyCurve(int x, CurveRef & curve)
 {
-  SourceNumVal v;
-  v.rawValue = curve.value;
+  int16_t curveVal = curve.value.numericValue();
 
   switch (curve.type) {
     case CURVE_REF_DIFF:
@@ -343,7 +342,7 @@ int applyCurve(int x, CurveRef & curve)
     }
 
     case CURVE_REF_FUNC:
-      switch (v.value) {
+      switch (curveVal) {
         case CURVE_X_GT0:
           if (x < 0) x = 0; //x|x>0
           return x;
@@ -363,7 +362,7 @@ int applyCurve(int x, CurveRef & curve)
 
     case CURVE_REF_CUSTOM:
     {
-      int curveParam = v.value;
+      int curveParam = curveVal;
       if (curveParam < 0) {
         x = -x;
         curveParam = -curveParam;
@@ -425,32 +424,60 @@ int applyCurrentCurve(int x)
 #endif
 
 #if defined(COLORLCD)
+// Convert ValueOrSource to legacy SourceNumVal packed format for
+// getValueOrSrcVarString() (temporary bridge until that function is updated)
+static gvar_t valueOrSourceToLegacy(const ValueOrSource& vos)
+{
+  if (vos.isSource) {
+    // Reconstruct legacy mixsrc_t from SourceRef type+index
+    int16_t legacyValue = 0;
+    switch (vos.srcType) {
+      case SOURCE_TYPE_GVAR:
+        legacyValue = MIXSRC_FIRST_GVAR + vos.value;
+        break;
+      case SOURCE_TYPE_INPUT:
+        legacyValue = MIXSRC_FIRST_INPUT + vos.value;
+        break;
+      case SOURCE_TYPE_STICK:
+        legacyValue = MIXSRC_FIRST_STICK + vos.value;
+        break;
+      case SOURCE_TYPE_CHANNEL:
+        legacyValue = MIXSRC_FIRST_CH + vos.value;
+        break;
+      default:
+        legacyValue = vos.value;
+        break;
+    }
+    return makeSourceNumVal(legacyValue, true);
+  }
+  return makeSourceNumVal(vos.value, false);
+}
+
 char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
 {
   if (!len) return dest;
   char *s = dest;
 
-  SourceNumVal v;
-  v.rawValue = curve.value;
+  int16_t curveVal = curve.value.numericValue();
 
-  if (v.value != 0) {
+  if (curveVal != 0 || curve.value.isSource) {
     switch (curve.type) {
       case CURVE_REF_DIFF:
         *(s++) = 'D'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, curve.value, 0, "%");
+        getValueOrSrcVarString(s, len, valueOrSourceToLegacy(curve.value), 0, "%");
         return dest;
 
       case CURVE_REF_EXPO:
         *(s++) = 'E'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, curve.value, 0, "%");
+        getValueOrSrcVarString(s, len, valueOrSourceToLegacy(curve.value), 0, "%");
         return dest;
 
       case CURVE_REF_FUNC:
-        strAppend(dest, STR_VCURVEFUNC[v.value], len);
+        strAppend(dest, STR_VCURVEFUNC[curveVal], len);
         return dest;
 
       case CURVE_REF_CUSTOM:
-        return getCurveString(dest, v.value);
+        return getCurveString(dest, curveVal);
     }
   }
 

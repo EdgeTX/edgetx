@@ -40,6 +40,97 @@
 #endif
 #define DELAY_POS_MARGIN   3
 
+// Temporary conversion helpers during SourceRef/SwitchRef transition
+mixsrc_t sourceRefToMixSrc(const SourceRef& ref)
+{
+  if (ref.isNone()) return MIXSRC_NONE;
+
+  mixsrc_t base = MIXSRC_NONE;
+  switch (ref.type) {
+    case SOURCE_TYPE_INPUT:          base = MIXSRC_FIRST_INPUT; break;
+    case SOURCE_TYPE_LUA:            base = MIXSRC_FIRST_LUA; break;
+    case SOURCE_TYPE_STICK:          base = MIXSRC_FIRST_STICK; break;
+    case SOURCE_TYPE_POT:            base = MIXSRC_FIRST_POT; break;
+#if defined(IMU)
+    case SOURCE_TYPE_IMU:            base = MIXSRC_TILT_X; break;
+#endif
+#if defined(PCBHORUS)
+    case SOURCE_TYPE_SPACEMOUSE:     base = MIXSRC_FIRST_SPACEMOUSE; break;
+#endif
+    case SOURCE_TYPE_MIN:            return MIXSRC_MIN;
+    case SOURCE_TYPE_MAX:            return MIXSRC_MAX;
+    case SOURCE_TYPE_HELI:           base = MIXSRC_FIRST_HELI; break;
+    case SOURCE_TYPE_TRIM:           base = MIXSRC_FIRST_TRIM; break;
+    case SOURCE_TYPE_SWITCH:         base = MIXSRC_FIRST_SWITCH; break;
+#if defined(FUNCTION_SWITCHES)
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP: base = MIXSRC_FIRST_CUSTOMSWITCH_GROUP; break;
+#endif
+    case SOURCE_TYPE_LOGICAL_SWITCH: base = MIXSRC_FIRST_LOGICAL_SWITCH; break;
+    case SOURCE_TYPE_TRAINER:        base = MIXSRC_FIRST_TRAINER; break;
+    case SOURCE_TYPE_CHANNEL:        base = MIXSRC_FIRST_CH; break;
+    case SOURCE_TYPE_GVAR:           base = MIXSRC_FIRST_GVAR; break;
+    case SOURCE_TYPE_TX_VOLTAGE:     return MIXSRC_TX_VOLTAGE;
+    case SOURCE_TYPE_TX_TIME:        return MIXSRC_TX_TIME;
+    case SOURCE_TYPE_TIMER:          base = MIXSRC_FIRST_TIMER; break;
+    case SOURCE_TYPE_TELEMETRY:      base = MIXSRC_FIRST_TELEM; break;
+#if defined(LUMINOSITY_SENSOR)
+    case SOURCE_TYPE_LIGHT:          return MIXSRC_LIGHT;
+#endif
+    default: return MIXSRC_NONE;
+  }
+
+  mixsrc_t result = base + ref.index;
+  if (ref.isInverted()) result = -result;
+  return result;
+}
+
+static swsrc_t switchRefToSwSrc(const SwitchRef& ref)
+{
+  if (ref.isNone()) return SWSRC_NONE;
+
+  swsrc_t base = SWSRC_NONE;
+  switch (ref.type) {
+    case SWITCH_TYPE_SWITCH:      base = SWSRC_FIRST_SWITCH; break;
+    case SWITCH_TYPE_MULTIPOS:    base = SWSRC_FIRST_MULTIPOS_SWITCH; break;
+    case SWITCH_TYPE_TRIM:        base = SWSRC_FIRST_TRIM; break;
+    case SWITCH_TYPE_LOGICAL:     base = SWSRC_FIRST_LOGICAL_SWITCH; break;
+    case SWITCH_TYPE_ON:          return ref.isInverted() ? -SWSRC_ON : SWSRC_ON;
+    case SWITCH_TYPE_ONE:         return ref.isInverted() ? -SWSRC_ONE : SWSRC_ONE;
+    case SWITCH_TYPE_FLIGHT_MODE: base = SWSRC_FIRST_FLIGHT_MODE; break;
+    case SWITCH_TYPE_TELEMETRY:   return ref.isInverted() ? -SWSRC_TELEMETRY_STREAMING : SWSRC_TELEMETRY_STREAMING;
+    case SWITCH_TYPE_SENSOR:      base = SWSRC_FIRST_SENSOR; break;
+    case SWITCH_TYPE_RADIO_ACTIVITY: return ref.isInverted() ? -SWSRC_RADIO_ACTIVITY : SWSRC_RADIO_ACTIVITY;
+    case SWITCH_TYPE_TRAINER:     return ref.isInverted() ? -SWSRC_TRAINER_CONNECTED : SWSRC_TRAINER_CONNECTED;
+    default: return SWSRC_NONE;
+  }
+
+  swsrc_t result = base + ref.index;
+  if (ref.isInverted()) result = -result;
+  return result;
+}
+
+// Convert ValueOrSource to the value expected by the mixer
+// (replaces the old getSourceNumFieldValue that took int16_t / SourceNumVal)
+static int32_t getValueOrSourceFieldValue(const ValueOrSource& vs, int16_t min, int16_t max)
+{
+  int32_t result;
+  if (vs.isSource) {
+    SourceRef srcRef = vs.toSourceRef();
+    mixsrc_t src = sourceRefToMixSrc(srcRef);
+    result = getValue(src);
+    if (srcRef.type == SOURCE_TYPE_GVAR) {
+      // Mimic behaviour of GET_GVAR_PREC1
+      if (g_model.gvars[srcRef.index].prec == 0)
+        result = result * 10;
+    } else {
+      result = calcRESXto1000(result);
+    }
+  } else {
+    result = vs.value * 10;
+  }
+  return limit<int>(min * 10, result, max * 10);
+}
+
 uint8_t s_mixer_first_run_done = false;
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
@@ -62,23 +153,9 @@ int16_t cyc_anas[3] = {0};
 #endif
 
 // TOOD: find better home for this.
-int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
+int32_t getSourceNumFieldValue(const ValueOrSource& vs, int16_t min, int16_t max)
 {
-  int32_t result;
-  SourceNumVal v; v.rawValue = val;
-  if (v.isSource) {
-    result = getValue(v.value);
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      // Mimic behviour of GET_GVAR_PREC1
-      if (g_model.gvars[abs(v.value) - MIXSRC_FIRST_GVAR].prec == 0)
-        result = result * 10;
-    } else {
-      result = calcRESXto1000(result);
-    }
-  } else {
-    result = v.value * 10;
-  }
-  return limit<int>(min * 10, result, max * 10);
+  return getValueOrSourceFieldValue(vs, min, max);
 }
 
 // #define EXTENDED_EXPO
@@ -190,23 +267,23 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
   for (uint8_t i=0; i<MAX_EXPOS; i++) {
     if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
     ExpoData * ed = expoAddress(i);
-    mixsrc_t srcRaw = ed->srcRaw;
+    mixsrc_t srcRaw = sourceRefToMixSrc(ed->srcRaw);
     mixsrc_t src = abs(srcRaw);
     if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
       continue;
-    if (src >= MIXSRC_FIRST_TRAINER && src <= MIXSRC_LAST_TRAINER && !isTrainerValid())
+    if (ed->srcRaw.type == SOURCE_TYPE_TRAINER && !isTrainerValid())
       continue;
-    if (getSwitch(ed->swtch)) {
+    if (getSwitch(switchRefToSwSrc(ed->swtch))) {
       int32_t v;
       if (srcRaw == ovwrIdx) {
         v = ovwrValue;
       }
       else {
         v = getValue(srcRaw);
-        if (src >= MIXSRC_FIRST_TELEM && ed->scale > 0) {
+        if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY && ed->scale > 0) {
           v = (v * 1024) / convertTelemValue(src-MIXSRC_FIRST_TELEM+1, ed->scale);
         }
         v = limit<int32_t>(-1024, v, 1024);
@@ -216,7 +293,7 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
         cur_chn = ed->chn;
 
         //========== CURVE=================
-        if (ed->curve.value) {
+        if (ed->curve.value.value) {
           v = applyCurve(v, ed->curve);
         }
 
@@ -231,9 +308,8 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
         //========== TRIMS ================
         if (ed->trimSource < TRIM_ON)
           virtualInputsTrims[cur_chn] = -ed->trimSource - 1;
-        else if (ed->trimSource == TRIM_ON && src >= MIXSRC_FIRST_STICK &&
-                 src <= MIXSRC_LAST_STICK)
-          virtualInputsTrims[cur_chn] = src - MIXSRC_FIRST_STICK;
+        else if (ed->trimSource == TRIM_ON && ed->srcRaw.type == SOURCE_TYPE_STICK)
+          virtualInputsTrims[cur_chn] = ed->srcRaw.index;
         else
           virtualInputsTrims[cur_chn] = -1;
         // if (srcRaw < 0) v = -v;
@@ -846,10 +922,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
-      mixsrc_t srcRaw = md->srcRaw;
+      mixsrc_t srcRaw = sourceRefToMixSrc(md->srcRaw);
       mixsrc_t srcRawAbs = abs(srcRaw);
 
-      if (srcRaw == 0) {
+      if (md->srcRaw.isNone()) {
 #if defined(COLORLCD)
         continue;
 #else
@@ -866,23 +942,22 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         chans[md->destCh] = 0;
 
       //========== FLIGHT MODE && SWITCH =====
-      bool mixCondition = (md->flightModes != 0 || md->swtch);
+      bool mixCondition = (md->flightModes != 0 || !md->swtch.isNone());
       bool fmEnabled = (md->flightModes & (1 << mixerCurrentFlightMode)) == 0;
-      bool mixLineActive = fmEnabled && getSwitch(md->swtch);
+      bool mixLineActive = fmEnabled && getSwitch(switchRefToSwSrc(md->swtch));
       delayval_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {
         // disable mixer using trainer channels if not connected
-        if (srcRawAbs >= MIXSRC_FIRST_TRAINER &&
-            srcRawAbs <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
+        if (md->srcRaw.type == SOURCE_TYPE_TRAINER && !isTrainerValid()) {
           mixCondition = true;
           mixEnabled = 0;
         }
 
 #if defined(LUA_MODEL_SCRIPTS)
         // disable mixer if Lua script is used as source and script was killed
-        if (srcRawAbs >= MIXSRC_FIRST_LUA && srcRawAbs <= MIXSRC_LAST_LUA) {
-          div_t qr = div(int(srcRawAbs - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
+        if (md->srcRaw.type == SOURCE_TYPE_LUA) {
+          div_t qr = div(int(md->srcRaw.index), MAX_SCRIPT_OUTPUTS);
           for (int n = 0; n < MAX_SCRIPTS; n += 1) {
             if ((scriptInternalData[n].reference == qr.quot) && (scriptInternalData[n].state != SCRIPT_OK)) {
               mixCondition = true;
@@ -904,9 +979,9 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       } else {
         v = getValue(srcRaw);
 
-        if (srcRawAbs >= MIXSRC_FIRST_CH && srcRawAbs <= MIXSRC_LAST_CH) {
+        if (md->srcRaw.type == SOURCE_TYPE_CHANNEL) {
 
-          auto srcChan = srcRawAbs - MIXSRC_FIRST_CH;
+          auto srcChan = md->srcRaw.index;
           if (srcChan <= MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
 
             // check whether we need to recompute the current channel later
@@ -1033,7 +1108,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       }
 
       //========== CURVES ===============
-      if (applyOffsetAndCurve && md->curve.type != CURVE_REF_DIFF && md->curve.value) {
+      if (applyOffsetAndCurve && md->curve.type != CURVE_REF_DIFF && md->curve.value.value) {
         v = applyCurve(v, md->curve);
       }
 
@@ -1048,7 +1123,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       }
 
       //========== DIFFERENTIAL =========
-      if (md->curve.type == CURVE_REF_DIFF && md->curve.value) {
+      if (md->curve.type == CURVE_REF_DIFF && md->curve.value.value) {
         dv = applyCurve(dv, md->curve);
       }
 

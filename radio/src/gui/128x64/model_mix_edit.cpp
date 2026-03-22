@@ -44,7 +44,7 @@ enum MixFields {
 
 extern uint8_t FM_ROW(uint8_t);
 
-extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
+extern int32_t getSourceNumFieldValue(const ValueOrSource& vs, int16_t min, int16_t max);
 
 void drawOffsetBar(uint8_t x, uint8_t y, MixData * md)
 {
