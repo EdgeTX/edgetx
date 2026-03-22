@@ -50,8 +50,6 @@ swsrc_t checkIncDecMovedSwitch(swsrc_t val)
 }
 #endif
 
-int checkIncDecSelection = 0;
-
 void repeatLastCursorMove(event_t event)
 {
   if (IS_PREVIOUS_MOVE_EVENT(event) || IS_NEXT_MOVE_EVENT(event)) {
@@ -85,71 +83,6 @@ void repeatLastCursorHorMove(event_t event)
   }
 }
 #endif
-
-void onSwitchLongEnterPress(const char * result)
-{
-  if (result == STR_MENU_SWITCHES) {
-    checkIncDecSelection = SWSRC_FIRST_SWITCH;
-  } else if (result == STR_MENU_TRIMS) {
-    checkIncDecSelection = SWSRC_FIRST_TRIM;
-  } else if (result == STR_MENU_LOGICAL_SWITCHES) {
-    checkIncDecSelection =
-        SWSRC_FIRST_LOGICAL_SWITCH +
-        getFirstAvailable(0, MAX_LOGICAL_SWITCHES, isLogicalSwitchAvailable);
-  } else if (result == STR_MENU_OTHER) {
-    checkIncDecSelection = SWSRC_ON;
-  } else if (result == STR_MENU_INVERT) {
-    checkIncDecSelection = SWSRC_INVERT;
-  }
-}
-
-void onSourceLongEnterPress(const char * result)
-{
-  if (result == STR_MENU_INPUTS) {
-    checkIncDecSelection =
-        getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT,
-                          isInputAvailable);
-  }
-#if defined(LUA_MODEL_SCRIPTS)
-  else if (result == STR_MENU_LUA) {
-    checkIncDecSelection =
-        getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailableInt);
-  }
-#endif
-  else if (result == STR_MENU_STICKS)
-    checkIncDecSelection = MIXSRC_FIRST_STICK;
-  else if (result == STR_MENU_POTS)
-    checkIncDecSelection = MIXSRC_FIRST_POT;
-  else if (result == STR_MENU_MIN)
-    checkIncDecSelection = MIXSRC_MIN;
-  else if (result == STR_MENU_MAX)
-    checkIncDecSelection = MIXSRC_MAX;
-  else if (result == STR_MENU_HELI)
-    checkIncDecSelection = MIXSRC_FIRST_HELI;
-  else if (result == STR_MENU_TRIMS)
-    checkIncDecSelection = MIXSRC_FIRST_TRIM;
-  else if (result == STR_MENU_SWITCHES)
-    checkIncDecSelection = MIXSRC_FIRST_SWITCH;
-  else if (result == STR_MENU_TRAINER)
-    checkIncDecSelection = MIXSRC_FIRST_TRAINER;
-  else if (result == STR_MENU_CHANNELS)
-    checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_CH, MIXSRC_LAST_CH, isSourceAvailableInt);
-  else if (result == STR_MENU_GVARS)
-    checkIncDecSelection = MIXSRC_FIRST_GVAR;
-  else if (result == STR_MENU_TELEMETRY) {
-    for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-      TelemetrySensor * sensor = & g_model.telemetrySensors[i];
-      if (sensor->isAvailable()) {
-        checkIncDecSelection = MIXSRC_FIRST_TELEM + 3*i;
-        break;
-      }
-    }
-  } else if (result == STR_MENU_INVERT) {
-    checkIncDecSelection = MIXSRC_INVERT;
-  } else if (result == STR_CONSTANT) {
-    checkIncDecSelection = MIXSRC_VALUE;
-  }
-}
 
 void check_submenu_simple(event_t event, uint8_t rowcount)
 {

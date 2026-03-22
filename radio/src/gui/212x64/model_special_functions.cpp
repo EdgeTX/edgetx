@@ -147,9 +147,6 @@ void onAdjustGvarSourceLongEnterPress(const char * result)
     CFN_PARAM(cfn) = 0;
     storageDirty(EE_MODEL);
   }
-  else if (result != STR_EXIT) {
-    onSourceLongEnterPress(result);
-  }
 }
 
 enum CustomFunctionsItems {
@@ -207,7 +204,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         {
           if(cfn->swtch.isNone()) CFN_ACTIVE(cfn) = 0; // Disable new function by default
           drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
-          if (active || AUTOSWITCH_ENTER_LONG()) {
+          if (active || (attr && event==EVT_KEY_LONG(KEY_ENTER))) {
             if (event == EVT_KEY_LONG(KEY_ENTER))
               killEvents(event);
             cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, isSwitchAvailableInCustomFunctions);

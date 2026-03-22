@@ -95,7 +95,7 @@ static const struct { uint8_t type; uint16_t count; } sourceTypes[] = {
 
 static const struct { uint8_t type; uint16_t count; } switchTypes[] = {
   {SWITCH_TYPE_NONE, 1},
-  {SWITCH_TYPE_SWITCH, switchGetMaxSwitches() * 3},
+  {SWITCH_TYPE_SWITCH, (uint16_t)(switchGetMaxSwitches() * 3)},
 #if defined(MULTIPOS_SWITCH)
   {SWITCH_TYPE_MULTIPOS, XPOTS_MULTIPOS_COUNT * MAX_POTS},
 #endif
@@ -199,23 +199,217 @@ static SwitchRef prevSwitch(SwitchRef cur)
   return cur;
 }
 
+// Source popup selection state
+static SourceRef s_sourcePopupSelection = {};
+static bool s_sourcePopupPending = false;
+
+// Switch popup selection state
+static SwitchRef s_switchPopupSelection = {};
+static bool s_switchPopupPending = false;
+
+static SourceRef firstAvailableSourceOfType(uint8_t type,
+    std::function<bool(SourceRef)> available)
+{
+  for (unsigned t = 0; t < DIM(sourceTypes); t++) {
+    if (sourceTypes[t].type == type) {
+      for (uint16_t i = 0; i < sourceTypes[t].count; i++) {
+        SourceRef ref = {type, 0, i};
+        if (!available || available(ref))
+          return ref;
+      }
+      break;
+    }
+  }
+  return {};
+}
+
+static SwitchRef firstAvailableSwitchOfType(uint8_t type,
+    std::function<bool(SwitchRef)> available)
+{
+  for (unsigned t = 0; t < DIM(switchTypes); t++) {
+    if (switchTypes[t].type == type) {
+      for (uint16_t i = 0; i < switchTypes[t].count; i++) {
+        SwitchRef ref = {type, 0, i};
+        if (!available || available(ref))
+          return ref;
+      }
+      break;
+    }
+  }
+  return {};
+}
+
+static std::function<bool(SourceRef)> s_sourceAvailableForPopup;
+
+static void onSourcePopupSelect(const char* result)
+{
+  auto avail = s_sourceAvailableForPopup;
+  if (result == STR_MENU_INPUTS) {
+    s_sourcePopupSelection = firstAvailableSourceOfType(SOURCE_TYPE_INPUT, avail);
+  }
+#if defined(LUA_INPUTS)
+  else if (result == STR_MENU_LUA) {
+    s_sourcePopupSelection = firstAvailableSourceOfType(SOURCE_TYPE_LUA, avail);
+  }
+#endif
+  else if (result == STR_MENU_STICKS) {
+    s_sourcePopupSelection = {SOURCE_TYPE_STICK, 0, 0};
+  }
+  else if (result == STR_MENU_POTS) {
+    s_sourcePopupSelection = {SOURCE_TYPE_POT, 0, 0};
+  }
+  else if (result == STR_MENU_MIN) {
+    s_sourcePopupSelection = {SOURCE_TYPE_MIN, 0, 0};
+  }
+  else if (result == STR_MENU_MAX) {
+    s_sourcePopupSelection = {SOURCE_TYPE_MAX, 0, 0};
+  }
+#if defined(HELI)
+  else if (result == STR_MENU_HELI) {
+    s_sourcePopupSelection = {SOURCE_TYPE_HELI, 0, 0};
+  }
+#endif
+  else if (result == STR_MENU_TRIMS) {
+    s_sourcePopupSelection = {SOURCE_TYPE_TRIM, 0, 0};
+  }
+  else if (result == STR_MENU_SWITCHES) {
+    s_sourcePopupSelection = {SOURCE_TYPE_SWITCH, 0, 0};
+  }
+  else if (result == STR_MENU_TRAINER) {
+    s_sourcePopupSelection = {SOURCE_TYPE_TRAINER, 0, 0};
+  }
+  else if (result == STR_MENU_CHANNELS) {
+    s_sourcePopupSelection = firstAvailableSourceOfType(SOURCE_TYPE_CHANNEL, avail);
+  }
+#if defined(GVARS)
+  else if (result == STR_MENU_GVARS) {
+    s_sourcePopupSelection = {SOURCE_TYPE_GVAR, 0, 0};
+  }
+#endif
+  else if (result == STR_MENU_TELEMETRY) {
+    for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+      if (g_model.telemetrySensors[i].isAvailable()) {
+        s_sourcePopupSelection = {SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3 * i)};
+        break;
+      }
+    }
+  }
+  if (!s_sourcePopupSelection.isNone()) {
+    s_sourcePopupPending = true;
+  }
+}
+
+static void onSwitchPopupSelect(const char* result)
+{
+  if (result == STR_MENU_SWITCHES) {
+    s_switchPopupSelection = {SWITCH_TYPE_SWITCH, 0, 0};
+  }
+  else if (result == STR_MENU_TRIMS) {
+    s_switchPopupSelection = {SWITCH_TYPE_TRIM, 0, 0};
+  }
+  else if (result == STR_MENU_LOGICAL_SWITCHES) {
+    s_switchPopupSelection = firstAvailableSwitchOfType(SWITCH_TYPE_LOGICAL, nullptr);
+  }
+  else if (result == STR_MENU_OTHER) {
+    s_switchPopupSelection = {SWITCH_TYPE_ON, 0, 0};
+  }
+  else if (result == STR_MENU_INVERT) {
+    // Special handling: invert current value
+    s_switchPopupSelection = {SWITCH_TYPE_NONE, SWITCH_FLAG_INVERTED, 0};
+  }
+  if (s_switchPopupSelection.type != SWITCH_TYPE_NONE ||
+      s_switchPopupSelection.flags != 0) {
+    s_switchPopupPending = true;
+  }
+}
+
+// Source type to popup menu item mapping
+struct SourcePopupEntry {
+  uint8_t type;
+  const char* menuItem;
+};
+
+static const SourcePopupEntry sourcePopupEntries[] = {
+  {SOURCE_TYPE_INPUT, STR_MENU_INPUTS},
+#if defined(LUA_INPUTS)
+  {SOURCE_TYPE_LUA, STR_MENU_LUA},
+#endif
+  {SOURCE_TYPE_STICK, STR_MENU_STICKS},
+  {SOURCE_TYPE_POT, STR_MENU_POTS},
+  {SOURCE_TYPE_MIN, STR_MENU_MIN},
+  {SOURCE_TYPE_MAX, STR_MENU_MAX},
+#if defined(HELI)
+  {SOURCE_TYPE_HELI, STR_MENU_HELI},
+#endif
+  {SOURCE_TYPE_TRIM, STR_MENU_TRIMS},
+  {SOURCE_TYPE_SWITCH, STR_MENU_SWITCHES},
+  {SOURCE_TYPE_TRAINER, STR_MENU_TRAINER},
+  {SOURCE_TYPE_CHANNEL, STR_MENU_CHANNELS},
+#if defined(GVARS)
+  {SOURCE_TYPE_GVAR, STR_MENU_GVARS},
+#endif
+};
+
 SwitchRef checkIncDecSwitch(event_t event, SwitchRef value,
                            SwitchTypeMask allowedTypes, unsigned int flags,
                            std::function<bool(SwitchRef)> available)
 {
   if (s_editMode > 0) {
     SwitchRef newValue = value;
+
+    // Long ENTER: show popup menu
+    if (event == EVT_KEY_LONG(KEY_ENTER)) {
+      killEvents(event);
+      s_switchPopupSelection = {};
+      s_switchPopupPending = false;
+      if (allowedTypes & SW_TYPE_BIT(SWITCH_TYPE_SWITCH))
+        POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
+      if (allowedTypes & SW_TYPE_BIT(SWITCH_TYPE_TRIM))
+        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
+      if (allowedTypes & SW_TYPE_BIT(SWITCH_TYPE_LOGICAL)) {
+        SwitchRef first = firstAvailableSwitchOfType(SWITCH_TYPE_LOGICAL, available);
+        if (!first.isNone())
+          POPUP_MENU_ADD_ITEM(STR_MENU_LOGICAL_SWITCHES);
+      }
+      if (allowedTypes & SW_TYPE_BIT(SWITCH_TYPE_ON))
+        POPUP_MENU_ADD_ITEM(STR_MENU_OTHER);
+      POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
+      POPUP_MENU_START(onSwitchPopupSelect);
+      s_editMode = EDIT_MODIFY_FIELD;
+    }
+
+    // Consume popup selection
+    if (s_switchPopupPending) {
+      if (s_switchPopupSelection.flags & SWITCH_FLAG_INVERTED) {
+        // Invert current value
+        newValue.flags ^= SWITCH_FLAG_INVERTED;
+      } else {
+        newValue = s_switchPopupSelection;
+      }
+      s_switchPopupPending = false;
+      s_editMode = EDIT_MODIFY_FIELD;
+    }
+
+#if defined(AUTOSWITCH)
+    {
+      SwitchRef moved = getMovedSwitch();
+      if (!moved.isNone() && (allowedTypes & SW_TYPE_BIT(moved.type)) &&
+          (!available || available(moved))) {
+        newValue = moved;
+      }
+    }
+#endif
+
     bool forward = (event == EVT_ROTARY_RIGHT || event == EVT_KEY_FIRST(KEY_PLUS) ||
                     event == EVT_KEY_REPT(KEY_PLUS));
     bool backward = (event == EVT_ROTARY_LEFT || event == EVT_KEY_FIRST(KEY_MINUS) ||
                      event == EVT_KEY_REPT(KEY_MINUS));
     if (forward || backward) {
-      // Iterate through allowed switch types/indices
       auto step = [&](SwitchRef cur) {
         return forward ? nextSwitch(cur) : prevSwitch(cur);
       };
       SwitchRef candidate = step(value);
-      int limit = 500;  // safety bound
+      int limit = 500;
       while (candidate != value && --limit > 0) {
         if ((allowedTypes & SW_TYPE_BIT(candidate.type)) &&
             (!available || available(candidate))) {
@@ -240,6 +434,58 @@ SourceRef checkIncDecSource(event_t event, SourceRef value,
 {
   if (s_editMode > 0) {
     SourceRef newValue = value;
+
+    // Long ENTER: show source category popup
+    if (event == EVT_KEY_LONG(KEY_ENTER)) {
+      killEvents(event);
+      s_sourcePopupSelection = {};
+      s_sourcePopupPending = false;
+      s_sourceAvailableForPopup = available;
+
+      for (unsigned i = 0; i < DIM(sourcePopupEntries); i++) {
+        if (allowedTypes & SRC_TYPE_BIT(sourcePopupEntries[i].type)) {
+          SourceRef first = firstAvailableSourceOfType(sourcePopupEntries[i].type, available);
+          if (!first.isNone())
+            POPUP_MENU_ADD_ITEM(sourcePopupEntries[i].menuItem);
+        }
+      }
+      if ((allowedTypes & SRC_TYPE_BIT(SOURCE_TYPE_TELEMETRY)) && modelTelemetryEnabled()) {
+        for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+          if (g_model.telemetrySensors[i].isAvailable()) {
+            POPUP_MENU_ADD_ITEM(STR_MENU_TELEMETRY);
+            break;
+          }
+        }
+      }
+      POPUP_MENU_START(onSourcePopupSelect);
+    }
+
+    // Consume popup selection
+    if (s_sourcePopupPending) {
+      newValue = s_sourcePopupSelection;
+      s_sourcePopupPending = false;
+      s_editMode = EDIT_MODIFY_FIELD;
+    }
+
+#if defined(AUTOSOURCE)
+    {
+      SourceRef moved = getMovedSource();
+      if (!moved.isNone() && (allowedTypes & SRC_TYPE_BIT(moved.type)) &&
+          (!available || available(moved))) {
+        newValue = moved;
+      }
+#if defined(AUTOSWITCH)
+      else {
+        SwitchRef swtch = getMovedSwitch();
+        if (!swtch.isNone() && swtch.type == SWITCH_TYPE_SWITCH &&
+            (allowedTypes & SRC_TYPE_BIT(SOURCE_TYPE_SWITCH))) {
+          newValue = {SOURCE_TYPE_SWITCH, 0, (uint16_t)(swtch.index / 3)};
+        }
+      }
+#endif
+    }
+#endif
+
     bool forward = (event == EVT_ROTARY_RIGHT || event == EVT_KEY_FIRST(KEY_PLUS) ||
                     event == EVT_KEY_REPT(KEY_PLUS));
     bool backward = (event == EVT_ROTARY_LEFT || event == EVT_KEY_FIRST(KEY_MINUS) ||
@@ -249,7 +495,7 @@ SourceRef checkIncDecSource(event_t event, SourceRef value,
         return forward ? nextSource(cur) : prevSource(cur);
       };
       SourceRef candidate = step(value);
-      int limit = 1000;  // safety bound
+      int limit = 1000;
       while (candidate != value && --limit > 0) {
         if ((allowedTypes & SRC_TYPE_BIT(candidate.type)) &&
             (!available || available(candidate))) {
@@ -290,29 +536,25 @@ SourceRef editSource(coord_t x, coord_t y, const char* label, SourceRef value,
   return value;
 }
 
-uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
-                              int16_t min, int16_t max, LcdFlags attr, event_t event,
-                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax)
+
+void editValueOrSource(coord_t x, coord_t y, const char* title, ValueOrSource* vos,
+                       int16_t min, int16_t max, LcdFlags attr, event_t event)
 {
   if (title)
     lcdDrawTextAlignedLeft(y, title);
-  SourceNumVal v;
-  v.rawValue = value;
-  if (v.isSource) {
-    drawSource(x, y, mixSrcToSourceRef(v.value), attr);
+  if (vos->isSource) {
+    drawSource(x, y, vos->toSourceRef(), attr);
     if (attr & (~RIGHT)) {
-      value = checkIncDec(event, value, sourceMin, sourceMax,
-                EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);
+      vos->setSource(checkIncDecSource(event, vos->toSourceRef(), SRCMASK_ALL, isSourceAvailable));
     }
   } else {
-    lcdDrawNumber(x, y, v.value, attr);
+    lcdDrawNumber(x, y, vos->numericValue(), attr);
     if (attr & (~RIGHT)) {
-      value = checkIncDec(event, value, min, max, sourceMin, sourceMax,
-                EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS|INCDEC_SKIP_VAL_CHECK_FUNC,
-                isValueAvailable);
+      int16_t val = vos->numericValue();
+      CHECK_INCDEC_MODELVAR(event, val, min, max);
+      vos->setNumeric(val);
     }
   }
-  return value;
 }
 
 int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int16_t max, LcdFlags attr, uint8_t editflags, event_t event)

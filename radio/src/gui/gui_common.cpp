@@ -363,12 +363,6 @@ bool isSourceAvailable(const SourceRef& ref)
   }
 }
 
-// Thin int wrapper for legacy checkIncDec(int) / INCDEC_ENABLE_CHECK call sites
-bool isSourceAvailableInt(int source)
-{
-  return isSourceAvailable(mixSrcToSourceRef(source));
-}
-
 bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref)
 {
   switch (ref.type) {

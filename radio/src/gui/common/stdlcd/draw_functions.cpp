@@ -378,18 +378,27 @@ void drawFlightMode(coord_t x, coord_t y, int8_t idx, LcdFlags att)
 }
 #endif
 
+void drawValueOrSource(coord_t x, coord_t y, const ValueOrSource& vos, LcdFlags att)
+{
+  if (vos.isSource) {
+    drawSource(x, y, vos.toSourceRef(), att);
+  } else {
+    lcdDrawNumber(x, y, vos.numericValue(), att);
+  }
+}
+
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
 {
   if (curve.value.numericValue() != 0 || curve.value.isSource) {
     switch (curve.type) {
       case CURVE_REF_DIFF:
         lcdDrawText(x, y, "D", att);
-        editSrcVarFieldValue(lcdNextPos, y, nullptr, valueOrSourceToLegacy(curve.value), -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+        drawValueOrSource(lcdNextPos, y, curve.value, LEFT|att);
         break;
 
       case CURVE_REF_EXPO:
         lcdDrawText(x, y, "E", att);
-        editSrcVarFieldValue(lcdNextPos, y, nullptr, valueOrSourceToLegacy(curve.value), -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+        drawValueOrSource(lcdNextPos, y, curve.value, LEFT|att);
         break;
 
       case CURVE_REF_FUNC:
