@@ -112,12 +112,12 @@ class InputEditAdvanced : public Page
                         GET_VALUE(-input->trimSource),
                         SET_VALUE(input->trimSource, -newValue));
 
-    mixsrc_t srcRaw = sourceRefToMixSrc(input->srcRaw);
+    SourceRef srcRef = input->srcRaw;
     c->setAvailableHandler([=](int value) {
-      return value != TRIM_ON || srcRaw <= MIXSRC_LAST_STICK;
+      return value != TRIM_ON || srcRef.type == SOURCE_TYPE_STICK;
     });
     c->setTextHandler([=](int value) -> std::string {
-      return getTrimSourceLabel(srcRaw, -value);
+      return getTrimSourceLabel(srcRef, -value);
     });
 
     // Flight modes

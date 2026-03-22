@@ -949,7 +949,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
   bool isSwitchAvailable(SwitchRef ref) const override
   {
-    return ::isSwitchAvailable(switchRefToSwSrc(ref), ModelCustomFunctionsContext);
+    return ::isSwitchAvailable(ref, ModelCustomFunctionsContext);
   }
 
   CustomFunctionData *customFunctionData() const override
@@ -1029,7 +1029,7 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
   bool isSwitchAvailable(SwitchRef ref) const override
   {
-    return ::isSwitchAvailable(switchRefToSwSrc(ref), GeneralCustomFunctionsContext);
+    return ::isSwitchAvailable(ref, GeneralCustomFunctionsContext);
   }
 
   CustomFunctionData *customFunctionData() const override

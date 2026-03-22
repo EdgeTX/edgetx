@@ -415,6 +415,11 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   return true;
 }
 
+bool isSwitchAvailable(const SwitchRef& ref, SwitchContext context)
+{
+  return isSwitchAvailable(switchRefToSwSrc(ref), context);
+}
+
 static bool switchIsAvailable(int swtch, bool invert)
 {
   return true;
@@ -600,14 +605,29 @@ bool isSwitchAvailableInLogicalSwitches(int swtch)
   return isSwitchAvailable(swtch, LogicalSwitchesContext);
 }
 
+bool isSwitchAvailableInLogicalSwitches(const SwitchRef& ref)
+{
+  return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+}
+
 bool isSwitchAvailableInMixes(int swtch)
 {
   return isSwitchAvailable(swtch, MixesContext);
 }
 
+bool isSwitchAvailableInMixes(const SwitchRef& ref)
+{
+  return isSwitchAvailableInMixes(switchRefToSwSrc(ref));
+}
+
 bool isSwitchAvailableForArming(int swtch)
 {
   return isSwitchAvailable(swtch, ModelCustomFunctionsContext);
+}
+
+bool isSwitchAvailableForArming(const SwitchRef& ref)
+{
+  return isSwitchAvailableForArming(switchRefToSwSrc(ref));
 }
 
 #if defined(COLORLCD)

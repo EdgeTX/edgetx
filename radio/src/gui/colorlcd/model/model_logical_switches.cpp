@@ -115,7 +115,7 @@ class LogicalSwitchEditPage : public Page
             [=]() { return swSrcToSwitchRef(cs->v1); },
             [=](SwitchRef ref) { cs->v1 = switchRefToSwSrc(ref); SET_DIRTY(); });
         choice->setAvailableHandler([](SwitchRef ref) {
-          return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+          return isSwitchAvailableInLogicalSwitches(ref);
         });
         break;
       case LS_FAMILY_COMP:
@@ -164,7 +164,7 @@ class LogicalSwitchEditPage : public Page
             [=]() { return swSrcToSwitchRef(cs->v2); },
             [=](SwitchRef ref) { cs->v2 = switchRefToSwSrc(ref); SET_DIRTY(); });
         choice->setAvailableHandler([](SwitchRef ref) {
-          return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+          return isSwitchAvailableInLogicalSwitches(ref);
         });
         break;
       case LS_FAMILY_EDGE: {
@@ -228,7 +228,7 @@ class LogicalSwitchEditPage : public Page
                               [=]() { return cs->andsw; },
                               [=](SwitchRef ref) { cs->andsw = ref; SET_DIRTY(); });
     choice->setAvailableHandler([](SwitchRef ref) {
-      return isSwitchAvailableInLogicalSwitches(switchRefToSwSrc(ref));
+      return isSwitchAvailableInLogicalSwitches(ref);
     });
 
     // Duration

@@ -21,6 +21,8 @@
 
 #include "widget_settings.h"
 
+#include <cstring>
+
 #include "color_picker.h"
 #include "edgetx.h"
 #include "filechoice.h"
@@ -84,10 +86,15 @@ WidgetSettings::WidgetSettings(Widget* w) :
         new SourceChoice(
             line, rect_t{},
             [=]() -> SourceRef {
-              return mixSrcToSourceRef((mixsrc_t)widgetData->getUnsignedValue(optIdx));
+              uint32_t val = widgetData->getUnsignedValue(optIdx);
+              SourceRef ref;
+              memcpy(&ref, &val, 4);
+              return ref;
             },
             [=](SourceRef ref) {
-              widgetData->setUnsignedValue(optIdx, (uint32_t)sourceRefToMixSrc(ref));
+              uint32_t val;
+              memcpy(&val, &ref, 4);
+              widgetData->setUnsignedValue(optIdx, val);
               SET_DIRTY();
             });
         break;
@@ -156,10 +163,15 @@ WidgetSettings::WidgetSettings(Widget* w) :
         new SwitchChoice(
             line, rect_t{},
             [=]() -> SwitchRef {
-              return swSrcToSwitchRef(widgetData->getSignedValue(optIdx));
+              uint32_t val = (uint32_t)widgetData->getSignedValue(optIdx);
+              SwitchRef ref;
+              memcpy(&ref, &val, 4);
+              return ref;
             },
             [=](SwitchRef ref) {
-              widgetData->setSignedValue(optIdx, switchRefToSwSrc(ref));
+              uint32_t val;
+              memcpy(&val, &ref, 4);
+              widgetData->setSignedValue(optIdx, (int32_t)val);
               SET_DIRTY();
             });
         break;

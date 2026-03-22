@@ -53,7 +53,7 @@ class InputLineButton : public InputMixButtonBase
   {
     const ExpoData& line = *expoAddress(index);
     setWeight(valueOrSourceToLegacy(line.weight), -100, 100);
-    setSource(sourceRefToMixSrc(line.srcRaw));
+    setSource(line.srcRaw);
 
     char tmp_str[64];
     size_t maxlen = sizeof(tmp_str);
