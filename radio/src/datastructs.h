@@ -45,7 +45,7 @@ static inline void check_struct()
   CHKSIZE(ExpoData, 33);
   CHKSIZE(SwashRingData, 17);
   CHKSIZE(CurveHeader, 4);
-  CHKSIZE(LogicalSwitchData, 14);
+  CHKSIZE(LogicalSwitchData, 18);
   CHKSIZE(TelemetrySensor, 14);
   CHKSIZE(ModuleData, 29);
   CHKSIZE(GVarData, 7);
