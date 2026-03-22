@@ -54,7 +54,7 @@
   #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
 #if defined(STM32H7)
-  #define MAX_TELEMETRY_SENSORS        99
+  #define MAX_TELEMETRY_SENSORS        75
 #else
   #define MAX_TELEMETRY_SENSORS        60
 #endif
