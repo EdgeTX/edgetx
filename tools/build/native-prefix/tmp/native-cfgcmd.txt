@@ -1,1 +1,0 @@
-cmd='/usr/bin/cmake;-DCMAKE_RULE_MESSAGES=OFF;-DPCB=X9D+;-DTRANSLATIONS=DE;-Wno-dev;-DCMAKE_BUILD_TYPE=Release;-GUnix Makefiles;-C<TMP_DIR>/native-cache-$<CONFIG>.cmake;-S;<SOURCE_DIR><SOURCE_SUBDIR>;-B;<BINARY_DIR>'
