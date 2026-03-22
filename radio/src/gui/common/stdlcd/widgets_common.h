@@ -61,8 +61,7 @@ void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar,
                    uint8_t flightMode, LcdFlags flags);
 #endif
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags);
 
 extern uint8_t editNameCursorPos;
 

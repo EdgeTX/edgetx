@@ -142,7 +142,7 @@ void menuModelExpoOne(event_t event)
 
       case EXPO_FIELD_CURVE:
         lcdDrawTextAlignedLeft(y, STR_CURVE);
-        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr, isSourceAvailableInt, MIXSRC_FIRST, INPUTSRC_LAST);
+        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr);
         break;
 
 #if defined(FLIGHT_MODES)
