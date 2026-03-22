@@ -25,6 +25,8 @@
 #include "tasks/mixer_task.h"
 #include "mixes.h"
 #include "switches.h"
+#include "easymode.h"
+#include "easymode_convert.h"
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -62,6 +64,8 @@ void storageDirty(uint8_t msk)
 
 void preModelLoad()
 {
+  easyModeClear();
+
   watchdogSuspend(500/*5s*/);
 
   logsClose();
@@ -164,6 +168,12 @@ static void sanitizeMixerLines()
 
 void postModelLoad(bool alarms)
 {
+  // Apply easy mode configuration if active
+  // (regenerates mixes/inputs from stored intent)
+  if (easyModeActive()) {
+    easyModeApply(g_easyMode);
+  }
+
 #if defined(COLORLCD)
   if (!g_model.hasScreenData(0))
     LayoutFactory::loadDefaultLayout();

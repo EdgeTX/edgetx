@@ -41,6 +41,7 @@
 #include "helpers.h"
 
 #include <string>
+#include <sstream>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -124,6 +125,42 @@ static const YamlLookupTable swashTypeLut = {
   {  2, "TYPE_120X"  },
   {  3, "TYPE_140"  },
   {  4, "TYPE_90"  },
+};
+
+static const YamlLookupTable easyModelTypeLut = {
+  {  0, "none"  },
+  {  1, "airplane"  },
+  {  2, "helicopter"  },
+  {  3, "glider"  },
+  {  4, "multirotor"  },
+  {  5, "car"  },
+  {  6, "boat"  },
+};
+
+static const YamlLookupTable easyWingTypeLut = {
+  {  0, "single_ail"  },
+  {  1, "dual_ail"  },
+  {  2, "flaperon"  },
+  {  3, "1ail_1flap"  },
+  {  4, "2ail_1flap"  },
+  {  5, "2ail_2flap"  },
+  {  6, "2ail_4flap"  },
+  {  7, "elevon"  },
+  {  8, "delta"  },
+};
+
+static const YamlLookupTable easyTailTypeLut = {
+  {  0, "normal"  },
+  {  1, "v_tail"  },
+  {  2, "tailless"  },
+  {  3, "dual_elevator"  },
+  {  4, "ailevator"  },
+};
+
+static const YamlLookupTable easyMotorTypeLut = {
+  {  0, "none"  },
+  {  1, "electric"  },
+  {  2, "nitro"  },
 };
 
 static const YamlLookupTable potsWarningModeLut = {
@@ -1142,6 +1179,42 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   if (getCurrentFirmware()->getCapability(Heli))
     node["swashR"] = rhs.swashRingData;
 
+  // Easy Mode data (encoded as top-level keys matching firmware CUST_ATTR format)
+  if (rhs.easyModeData.isActive()) {
+    node["easyModeType"] = easyModelTypeLut << rhs.easyModeData.modelType;
+    node["easyModeWingType"] = easyWingTypeLut << rhs.easyModeData.wingType;
+    node["easyModeTailType"] = easyTailTypeLut << rhs.easyModeData.tailType;
+    node["easyModeMotorType"] = easyMotorTypeLut << rhs.easyModeData.motorType;
+
+    // Channels as comma-separated signed integers
+    std::string chStr;
+    int chArr[] = { rhs.easyModeData.throttle, rhs.easyModeData.aileron,
+                    rhs.easyModeData.aileron2, rhs.easyModeData.elevator,
+                    rhs.easyModeData.elevator2, rhs.easyModeData.rudder,
+                    rhs.easyModeData.flap, rhs.easyModeData.flap2,
+                    rhs.easyModeData.flap3, rhs.easyModeData.flap4,
+                    rhs.easyModeData.steering, rhs.easyModeData.aux1,
+                    rhs.easyModeData.aux2 };
+    for (int i = 0; i < 13; i++) {
+      if (i > 0) chStr += ",";
+      chStr += std::to_string(chArr[i]);
+    }
+    node["easyModeChannels"] = chStr;
+
+    // Options as comma-separated integers
+    std::string optStr;
+    int optArr[] = { rhs.easyModeData.expoAileron, rhs.easyModeData.expoElevator,
+                     rhs.easyModeData.expoRudder, rhs.easyModeData.dualRateLow,
+                     rhs.easyModeData.aileronDifferential, rhs.easyModeData.aileronToRudderMix,
+                     rhs.easyModeData.flapToElevatorComp, (int)rhs.easyModeData.multiChannelOrder,
+                     (int)rhs.easyModeData.swashType, (int)rhs.easyModeData.crowEnabled };
+    for (int i = 0; i < 10; i++) {
+      if (i > 0) optStr += ",";
+      optStr += std::to_string(optArr[i]);
+    }
+    node["easyModeOptions"] = optStr;
+  }
+
   YamlThrTrace thrTrace(rhs.thrTraceSrc);
   node["thrTraceSrc"] = thrTrace.src;
 
@@ -1413,6 +1486,56 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     const auto& swashR = node["swashR"];
     if (!swashR.IsMap()) return false;
     swashR >> rhs.swashRingData;
+  }
+
+  // Easy Mode data
+  if (node["easyModeType"]) {
+    node["easyModeType"] >> easyModelTypeLut >> rhs.easyModeData.modelType;
+  }
+  if (node["easyModeWingType"]) {
+    node["easyModeWingType"] >> easyWingTypeLut >> rhs.easyModeData.wingType;
+  }
+  if (node["easyModeTailType"]) {
+    node["easyModeTailType"] >> easyTailTypeLut >> rhs.easyModeData.tailType;
+  }
+  if (node["easyModeMotorType"]) {
+    node["easyModeMotorType"] >> easyMotorTypeLut >> rhs.easyModeData.motorType;
+  }
+  if (node["easyModeChannels"]) {
+    std::string chStr = node["easyModeChannels"].as<std::string>();
+    int* chArr[] = { &rhs.easyModeData.throttle, &rhs.easyModeData.aileron,
+                     &rhs.easyModeData.aileron2, &rhs.easyModeData.elevator,
+                     &rhs.easyModeData.elevator2, &rhs.easyModeData.rudder,
+                     &rhs.easyModeData.flap, &rhs.easyModeData.flap2,
+                     &rhs.easyModeData.flap3, &rhs.easyModeData.flap4,
+                     &rhs.easyModeData.steering, &rhs.easyModeData.aux1,
+                     &rhs.easyModeData.aux2 };
+    std::istringstream ss(chStr);
+    std::string token;
+    int idx = 0;
+    while (std::getline(ss, token, ',') && idx < 13) {
+      *chArr[idx++] = std::stoi(token);
+    }
+  }
+  if (node["easyModeOptions"]) {
+    std::string optStr = node["easyModeOptions"].as<std::string>();
+    std::istringstream ss(optStr);
+    std::string token;
+    int vals[10] = {};
+    int idx = 0;
+    while (std::getline(ss, token, ',') && idx < 10) {
+      vals[idx++] = std::stoi(token);
+    }
+    rhs.easyModeData.expoAileron = vals[0];
+    rhs.easyModeData.expoElevator = vals[1];
+    rhs.easyModeData.expoRudder = vals[2];
+    rhs.easyModeData.dualRateLow = vals[3];
+    rhs.easyModeData.aileronDifferential = vals[4];
+    rhs.easyModeData.aileronToRudderMix = vals[5];
+    rhs.easyModeData.flapToElevatorComp = vals[6];
+    rhs.easyModeData.multiChannelOrder = vals[7];
+    rhs.easyModeData.swashType = vals[8];
+    rhs.easyModeData.crowEnabled = vals[9];
   }
 
   YamlThrTrace thrTrace;

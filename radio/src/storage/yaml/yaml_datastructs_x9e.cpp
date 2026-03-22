@@ -878,6 +878,12 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_CUSTOM("easyModeType",r_easyModeType,w_easyModeType),
+  YAML_CUSTOM("easyModeWingType",r_easyModeWingType,w_easyModeWingType),
+  YAML_CUSTOM("easyModeTailType",r_easyModeTailType,w_easyModeTailType),
+  YAML_CUSTOM("easyModeMotorType",r_easyModeMotorType,w_easyModeMotorType),
+  YAML_CUSTOM("easyModeChannels",r_easyModeChannels,w_easyModeChannels),
+  YAML_CUSTOM("easyModeOptions",r_easyModeOptions,w_easyModeOptions),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

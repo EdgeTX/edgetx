@@ -28,6 +28,8 @@ if(PXX2 OR LUA OR MULTIMODULE)
   set(GUI_SRC ${GUI_SRC} ../common/stdlcd/radio_tools.cpp)
 endif()
 
+set(GUI_SRC ${GUI_SRC} ../common/stdlcd/model_easymode.cpp)
+
 if(HELI)
   set(GUI_SRC ${GUI_SRC} ../common/stdlcd/model_heli.cpp)
 endif()

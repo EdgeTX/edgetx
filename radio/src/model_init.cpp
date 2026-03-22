@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "easymode.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 #include "mixes.h"
@@ -181,6 +182,7 @@ void applyDefaultTemplate()
 void setModelDefaults(uint8_t id)
 {
   memset(&g_model, 0, sizeof(g_model));
+  easyModeClear();
   applyDefaultTemplate();
   
   setVendorSpecificModelDefaults(id);

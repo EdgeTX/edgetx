@@ -61,6 +61,8 @@ set(GUI_SRC
   model/mixer_edit_adv.cpp
   model/mixer_edit.cpp
   model/model_curves.cpp
+  model/model_easymode.cpp
+  model/easymode_diagram.cpp
   model/model_flightmodes.cpp
   model/model_gvars.cpp
   model/model_inputs.cpp

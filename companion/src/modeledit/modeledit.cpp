@@ -23,6 +23,7 @@
 #include "helpers.h"
 #include "ui_modeledit.h"
 #include "setup.h"
+#include "easymode.h"
 #include "heli.h"
 #include "flightmodes.h"
 #include "inputs.h"
@@ -77,6 +78,9 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   SetupPanel *setupPanel = new SetupPanel(this, model, generalSettings, firmware, sharedItemModels);
   addTab(setupPanel, tr("Setup"));
   s1.report("Setup");
+
+  addTab(new EasyModePanel(this, model, generalSettings, firmware), tr("Easy Mode"));
+  s1.report("EasyMode");
 
   if (firmware->getCapability(Heli)) {
     addTab(new HeliPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Heli"));

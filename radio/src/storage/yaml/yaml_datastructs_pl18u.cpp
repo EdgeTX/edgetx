@@ -116,6 +116,7 @@ const struct YamlIdStr enum_QMPage[] = {
   {  QM_MODEL_SCRIPTS, "MODEL_SCRIPTS"  },
   {  QM_MODEL_TELEMETRY, "MODEL_TELEMETRY"  },
   {  QM_MODEL_NOTES, "MODEL_NOTES"  },
+  {  QM_MODEL_EASYMODE, "MODEL_EASYMODE"  },
   {  QM_RADIO_SETUP, "RADIO_SETUP"  },
   {  QM_RADIO_GF, "RADIO_GF"  },
   {  QM_RADIO_TRAINER, "RADIO_TRAINER"  },
@@ -962,6 +963,12 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_CUSTOM("easyModeType",r_easyModeType,w_easyModeType),
+  YAML_CUSTOM("easyModeWingType",r_easyModeWingType,w_easyModeWingType),
+  YAML_CUSTOM("easyModeTailType",r_easyModeTailType,w_easyModeTailType),
+  YAML_CUSTOM("easyModeMotorType",r_easyModeMotorType,w_easyModeMotorType),
+  YAML_CUSTOM("easyModeChannels",r_easyModeChannels,w_easyModeChannels),
+  YAML_CUSTOM("easyModeOptions",r_easyModeOptions,w_easyModeOptions),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

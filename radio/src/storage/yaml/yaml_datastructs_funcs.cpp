@@ -29,6 +29,7 @@
 #include "switches.h"
 #include "analogs.h"
 #include "stamp.h"
+#include "easymode.h"
 
 #include "hal/switch_driver.h"
 #include "hal/adc_driver.h"
@@ -2879,4 +2880,183 @@ bool switchIsActive(void* user, uint8_t* data, uint32_t bitoffs)
 bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
 {
   return true;
+}
+
+// ---- Easy Mode YAML read/write ----
+
+static const struct YamlIdStr enum_EasyModelType[] = {
+  { EASYMODE_NONE, "none" },
+  { EASYMODE_AIRPLANE, "airplane" },
+  { EASYMODE_HELICOPTER, "helicopter" },
+  { EASYMODE_GLIDER, "glider" },
+  { EASYMODE_MULTIROTOR, "multirotor" },
+  { EASYMODE_CAR, "car" },
+  { EASYMODE_BOAT, "boat" },
+  { 0, NULL }
+};
+
+static const struct YamlIdStr enum_EasyWingType[] = {
+  { EASYWING_SINGLE_AIL, "single_ail" },
+  { EASYWING_DUAL_AIL, "dual_ail" },
+  { EASYWING_FLAPERON, "flaperon" },
+  { EASYWING_1AIL_1FLAP, "1ail_1flap" },
+  { EASYWING_2AIL_1FLAP, "2ail_1flap" },
+  { EASYWING_2AIL_2FLAP, "2ail_2flap" },
+  { EASYWING_2AIL_4FLAP, "2ail_4flap" },
+  { EASYWING_ELEVON, "elevon" },
+  { EASYWING_DELTA, "delta" },
+  { 0, NULL }
+};
+
+static const struct YamlIdStr enum_EasyTailType[] = {
+  { EASYTAIL_NORMAL, "normal" },
+  { EASYTAIL_V_TAIL, "v_tail" },
+  { EASYTAIL_TAILLESS, "tailless" },
+  { EASYTAIL_DUAL_ELEVATOR, "dual_elevator" },
+  { EASYTAIL_AILEVATOR, "ailevator" },
+  { 0, NULL }
+};
+
+static const struct YamlIdStr enum_EasyMotorType[] = {
+  { EASYMOTOR_NONE, "none" },
+  { EASYMOTOR_SINGLE_ELECTRIC, "electric" },
+  { EASYMOTOR_SINGLE_NITRO, "nitro" },
+  { 0, NULL }
+};
+
+void r_easyModeType(void* user, uint8_t* data, uint32_t bitoffs,
+                    const char* val, uint8_t val_len)
+{
+  g_easyMode.modelType = (EasyModelType)yaml_parse_enum(enum_EasyModelType, val, val_len);
+}
+
+bool w_easyModeType(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque)
+{
+  if (g_easyMode.modelType == EASYMODE_NONE) return true;
+  const char* str = yaml_output_enum(g_easyMode.modelType, enum_EasyModelType);
+  if (str) return wf(opaque, str, strlen(str));
+  return true;
+}
+
+void r_easyModeWingType(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  g_easyMode.wingType = (EasyWingType)yaml_parse_enum(enum_EasyWingType, val, val_len);
+}
+
+bool w_easyModeWingType(void* user, uint8_t* data, uint32_t bitoffs,
+                        yaml_writer_func wf, void* opaque)
+{
+  if (g_easyMode.modelType == EASYMODE_NONE) return true;
+  const char* str = yaml_output_enum(g_easyMode.wingType, enum_EasyWingType);
+  if (str) return wf(opaque, str, strlen(str));
+  return true;
+}
+
+void r_easyModeTailType(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  g_easyMode.tailType = (EasyTailType)yaml_parse_enum(enum_EasyTailType, val, val_len);
+}
+
+bool w_easyModeTailType(void* user, uint8_t* data, uint32_t bitoffs,
+                        yaml_writer_func wf, void* opaque)
+{
+  if (g_easyMode.modelType == EASYMODE_NONE) return true;
+  const char* str = yaml_output_enum(g_easyMode.tailType, enum_EasyTailType);
+  if (str) return wf(opaque, str, strlen(str));
+  return true;
+}
+
+void r_easyModeMotorType(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  g_easyMode.motorType = (EasyMotorType)yaml_parse_enum(enum_EasyMotorType, val, val_len);
+}
+
+bool w_easyModeMotorType(void* user, uint8_t* data, uint32_t bitoffs,
+                         yaml_writer_func wf, void* opaque)
+{
+  if (g_easyMode.modelType == EASYMODE_NONE) return true;
+  const char* str = yaml_output_enum(g_easyMode.motorType, enum_EasyMotorType);
+  if (str) return wf(opaque, str, strlen(str));
+  return true;
+}
+
+// Channel map: serialized as comma-separated signed integers
+void r_easyModeChannels(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  int8_t* chMap = (int8_t*)&g_easyMode.channels;
+  int idx = 0;
+  const char* p = val;
+  const char* end = val + val_len;
+
+  while (p < end && idx < (int)sizeof(EasyModeChannelMap)) {
+    int32_t v = yaml_str2int(p, end - p);
+    chMap[idx++] = (int8_t)v;
+    // Skip to next comma or end
+    while (p < end && *p != ',') p++;
+    if (p < end) p++;  // skip comma
+  }
+}
+
+bool w_easyModeChannels(void* user, uint8_t* data, uint32_t bitoffs,
+                        yaml_writer_func wf, void* opaque)
+{
+  if (g_easyMode.modelType == EASYMODE_NONE) return true;
+
+  int8_t* chMap = (int8_t*)&g_easyMode.channels;
+  char buf[128];
+  int pos = 0;
+
+  for (int i = 0; i < (int)sizeof(EasyModeChannelMap); i++) {
+    if (i > 0) buf[pos++] = ',';
+    const char* s = yaml_signed2str(chMap[i]);
+    int slen = strlen(s);
+    if (pos + slen < (int)sizeof(buf)) {
+      memcpy(buf + pos, s, slen);
+      pos += slen;
+    }
+  }
+  return wf(opaque, buf, pos);
+}
+
+// Options: serialized as comma-separated integers
+void r_easyModeOptions(void* user, uint8_t* data, uint32_t bitoffs,
+                       const char* val, uint8_t val_len)
+{
+  uint8_t* opts = (uint8_t*)&g_easyMode.options;
+  int idx = 0;
+  const char* p = val;
+  const char* end = val + val_len;
+
+  while (p < end && idx < (int)sizeof(EasyModeOptions)) {
+    int32_t v = yaml_str2int(p, end - p);
+    opts[idx++] = (uint8_t)v;
+    while (p < end && *p != ',') p++;
+    if (p < end) p++;
+  }
+}
+
+bool w_easyModeOptions(void* user, uint8_t* data, uint32_t bitoffs,
+                       yaml_writer_func wf, void* opaque)
+{
+  if (g_easyMode.modelType == EASYMODE_NONE) return true;
+
+  uint8_t* opts = (uint8_t*)&g_easyMode.options;
+  char buf[128];
+  int pos = 0;
+
+  for (int i = 0; i < (int)sizeof(EasyModeOptions); i++) {
+    if (i > 0) buf[pos++] = ',';
+    const char* s = yaml_signed2str((int8_t)opts[i]);
+    int slen = strlen(s);
+    if (pos + slen < (int)sizeof(buf)) {
+      memcpy(buf + pos, s, slen);
+      pos += slen;
+    }
+  }
+  return wf(opaque, buf, pos);
 }

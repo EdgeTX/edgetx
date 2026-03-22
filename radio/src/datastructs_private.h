@@ -937,6 +937,14 @@ PACK(struct ModelData {
   bool cfsGroupAlwaysOn(uint8_t n) { return bfGet<uint8_t>(cfsGroupOn, n, 1); }
   void cfsSetGroupAlwaysOn(uint8_t n, bool v) { cfsGroupOn = bfSet<uint8_t>(cfsGroupOn, v, n, 1); }
 #endif
+
+  // Easy Mode metadata (stored in YAML only, no binary storage)
+  CUST_ATTR(easyModeType, r_easyModeType, w_easyModeType);
+  CUST_ATTR(easyModeWingType, r_easyModeWingType, w_easyModeWingType);
+  CUST_ATTR(easyModeTailType, r_easyModeTailType, w_easyModeTailType);
+  CUST_ATTR(easyModeMotorType, r_easyModeMotorType, w_easyModeMotorType);
+  CUST_ATTR(easyModeChannels, r_easyModeChannels, w_easyModeChannels);
+  CUST_ATTR(easyModeOptions, r_easyModeOptions, w_easyModeOptions);
 });
 
 /*

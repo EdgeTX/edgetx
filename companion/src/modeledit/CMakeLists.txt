@@ -7,6 +7,7 @@ set(${PROJECT_NAME}_NAMES
   colorcustomscreens
   curves
   customfunctions
+  easymode
   expodialog
   flightmodes
   gvars

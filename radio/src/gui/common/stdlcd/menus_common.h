@@ -107,6 +107,7 @@ enum MenuRadioIndexes
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
   MENU_MODEL_SETUP,
+  MENU_MODEL_EASYMODE,
   CASE_HELI(MENU_MODEL_HELI)
   CASE_FLIGHT_MODES(MENU_MODEL_FLIGHT_MODES)
   MENU_MODEL_INPUTS,
@@ -146,6 +147,7 @@ void menuModelSetup(event_t event);
 void menuModelFailsafe(event_t event);
 void menuModelModuleOptions(event_t event);
 void menuModelReceiverOptions(event_t event);
+void menuModelEasyMode(event_t event);
 void menuModelHeli(event_t event);
 void menuModelFlightModesAll(event_t event);
 void menuModelExpoOne(event_t event);

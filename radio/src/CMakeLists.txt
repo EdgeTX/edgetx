@@ -457,6 +457,8 @@ set(SRC
   timers.cpp
   trainer.cpp
   model_init.cpp
+  easymode.cpp
+  easymode_convert.cpp
   serial.cpp
   audio.cpp
   model_audio.cpp

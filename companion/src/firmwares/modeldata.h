@@ -26,6 +26,7 @@
 #include "customfunctiondata.h"
 #include "gvardata.h"
 #include "flightmodedata.h"
+#include "easymode_data.h"
 #include "heli_data.h"
 #include "input_data.h"
 #include "logicalswitchdata.h"
@@ -165,6 +166,7 @@ class ModelData {
     LogicalSwitchData logicalSw[CPN_MAX_LOGICAL_SWITCHES];
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
     SwashRingData swashRingData;
+    EasyModeData easyModeData;
     unsigned int thrTraceSrc;
     uint64_t switchWarningStates;
     unsigned int thrTrimSwitch;

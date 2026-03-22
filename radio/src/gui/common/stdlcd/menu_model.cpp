@@ -20,10 +20,12 @@
  */
 
 #include "edgetx.h"
+#include "easymode.h"
 
 const MenuHandler menuTabModel[]  = {
   { menuModelSelect, nullptr },
   { menuModelSetup, nullptr },
+  { menuModelEasyMode, easyModeActive },
 #if defined(HELI)
   { menuModelHeli, modelHeliEnabled },
 #endif
