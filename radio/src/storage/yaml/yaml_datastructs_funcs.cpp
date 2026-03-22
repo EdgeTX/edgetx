@@ -2478,7 +2478,8 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   return true;
 }
 
-static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
+// Generic SourceRef YAML read/write (packs/unpacks SourceRef as uint32_t)
+static uint32_t r_sourceRef(const YamlNode* node, const char* val, uint8_t val_len)
 {
   auto src = r_mixSrcRaw(nullptr, val, val_len);
   SourceRef ref = mixSrcToSourceRef(src);
@@ -2487,14 +2488,96 @@ static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
   return packed;
 }
 
-static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                     void* opaque)
+static bool w_sourceRef(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                        void* opaque)
 {
   SourceRef ref;
   memcpy(&ref, &val, sizeof(ref));
   auto src = sourceRefToMixSrc(ref);
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
+
+// Inverted SourceRef (for MixData/ExpoData srcRaw which supports '!' prefix)
+static uint32_t r_sourceRefEx(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  auto src = r_mixSrcRawEx(nullptr, val, val_len);
+  SourceRef ref = mixSrcToSourceRef(src);
+  uint32_t packed;
+  memcpy(&packed, &ref, sizeof(packed));
+  return packed;
+}
+
+static bool w_sourceRefEx(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                          void* opaque)
+{
+  SourceRef ref;
+  memcpy(&ref, &val, sizeof(ref));
+  auto src = sourceRefToMixSrc(ref);
+  return w_mixSrcRawEx(nullptr, src, wf, opaque);
+}
+
+// Generic SwitchRef YAML read/write
+static uint32_t r_switchRef(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  auto sw = r_swtchSrc(nullptr, val, val_len);
+  SwitchRef ref = swSrcToSwitchRef(sw);
+  uint32_t packed;
+  memcpy(&packed, &ref, sizeof(packed));
+  return packed;
+}
+
+static bool w_switchRef(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                        void* opaque)
+{
+  SwitchRef ref;
+  memcpy(&ref, &val, sizeof(ref));
+  auto sw = switchRefToSwSrc(ref);
+  return w_swtchSrc(nullptr, sw, wf, opaque);
+}
+
+// ValueOrSource YAML read/write
+static uint32_t r_valOrSrc(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  // Parse as legacy SourceNumVal, then convert to ValueOrSource
+  uint32_t raw = r_sourceNumVal(node, val, val_len);
+  SourceNumVal snv;
+  snv.rawValue = raw;
+
+  ValueOrSource vos = {};
+  if (snv.isSource) {
+    SourceRef ref = mixSrcToSourceRef(snv.value);
+    vos.isSource = 1;
+    vos.srcType = ref.type;
+    vos.value = ref.index;
+  } else {
+    vos.value = snv.value;
+  }
+
+  uint32_t packed;
+  memcpy(&packed, &vos, sizeof(packed));
+  return packed;
+}
+
+static bool w_valOrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                       void* opaque)
+{
+  ValueOrSource vos;
+  memcpy(&vos, &val, sizeof(vos));
+
+  if (vos.isSource) {
+    SourceRef ref = vos.toSourceRef();
+    auto src = sourceRefToMixSrc(ref);
+    // Use the extended writer for GVar negation support
+    return w_mixSrcRawEx(node, src, wf, opaque);
+  }
+
+  char* s = yaml_signed2str(vos.value);
+  return wf(opaque, s, strlen(s));
+}
+
+// Aliases for backward compat
+static constexpr auto r_thrSrc = r_sourceRef;
+static constexpr auto w_thrSrc = w_sourceRef;
 
 extern const struct YamlIdStr enum_ModuleType[];
 

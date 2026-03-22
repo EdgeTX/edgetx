@@ -104,39 +104,17 @@ Platform arena sizes need updating:
 
 ## Remaining Work (Phase 3b cleanup)
 
-Bridge function usages remain in two boundary categories (YAML, Lua) plus some unconverted GUI/infrastructure code.
+### Phase 3b status: GUI migration COMPLETE
 
-### Permanent boundaries
+All GUI and infrastructure code uses SourceRef/SwitchRef/ValueOrSource natively. **Zero non-boundary bridge calls remain.**
 
-#### YAML format translation (~20 usages)
-`yaml_datastructs_funcs.cpp` — `r_logicSw`/`w_logicSw`, `r_customFn`/`w_customFn`, `r_mixSrcRawEx`/`w_mixSrcRawEx`, `r_swtchSrc`/`w_swtchSrc` use bridges to translate between YAML integer format and SourceRef/SwitchRef. These are the format boundary and remain until YAML format changes.
+Bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`) are now used exclusively at format boundaries:
 
-#### Lua API (~30 usages)
-`lua/api_model.cpp`, `lua/api_general.cpp`, `lua/api_stdlcd.cpp`, `lua/api_colorlcd.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`. SourceRef/SwitchRef are exposed as 32-bit integers to Lua. Bridge functions at this boundary are acceptable.
+#### YAML format boundary (~20 usages)
+`yaml_datastructs_funcs.cpp` — `r_logicSw`/`w_logicSw`, `r_customFn`/`w_customFn`, `r_mixSrcRawEx`/`w_mixSrcRawEx`, `r_swtchSrc`/`w_swtchSrc`. These translate between YAML's integer source/switch format and SourceRef/SwitchRef structs.
 
-### Remaining conversion targets
-
-#### source_t telemetry fields (8 usages)
-`FrSkyBarData.source`, `FrSkyLineData.sources[]` still use `source_t` (uint16_t). Display code bridges via `sourceRefToMixSrc()`.
-
-Files: `model_display.cpp` (128x64, 212x64), `view_telemetry.cpp` (128x64, 212x64).
-
-#### Logical switch display (6 usages)
-`model_logical_switches.cpp` (all 3 UI variants) and `view_logical_switches.cpp` use `sourceRefToMixSrc()` to get integer source values for range-based display logic.
-
-#### strhelpers iteration (3 usages)
-`getValueOrSrcVarString`, `getSwitchIndex`, `getSourceString` backward-compat paths still bridge internally.
-
-Files: `strhelpers.cpp`.
-
-#### getMixSrcRange (1 usage)
-`edgetx.cpp` calls `getMixSrcRange(sourceRefToMixSrc(source), ...)`. Needs native SourceRef overload.
-
-#### checkIncDecMovedSwitch (1 usage)
-`navigation/common.cpp` still has the legacy `checkIncDecMovedSwitch(swsrc_t)` using `switchRefToSwSrc`. Dead code — auto-switch is now handled natively in `checkIncDecSwitch`.
-
-#### myeeprom.h declarations (5 usages)
-Bridge function declarations + `CFN_SWITCH` macro. Can be cleaned up once Lua API is converted.
+#### Lua API boundary (~32 usages)
+`lua/api_model.cpp`, `lua/api_general.cpp`, `lua/api_stdlcd.cpp`, `lua/api_colorlcd.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`, `strhelpers.cpp` (`getSwitchIndex`/`getSourceIndex`). Lua exposes sources/switches as `MIXSRC_*`/`SWSRC_*` integers for backward compatibility.
 
 ### Completed cleanup items
 - ✅ 3b.1: isSourceAvailable/isSwitchAvailable SourceRef overloads
@@ -154,17 +132,26 @@ Bridge function declarations + `CFN_SWITCH` macro. Can be cleaned up once Lua AP
 - ✅ 3b.13: LS/SF stdlcd editors converted to checkIncDecSource/Switch
 - ✅ 3b.14: editValueOrSource for weight/offset (pointer-based, replaces editSrcVarFieldValue)
 - ✅ 3b.15: Native auto-source/auto-switch popups in checkIncDecSource/Switch
-- ✅ 3b.16: Removed legacy navigation popup system (onSourceLongEnterPress, onSwitchLongEnterPress, showPopupMenus, checkMovedInput, checkIncDecSelection)
+- ✅ 3b.16: Removed legacy navigation popup system
 - ✅ 3b.17: Removed INCDEC_SOURCE/SWITCH flags, CHECK_INCDEC_SWITCH macros, isSourceAvailableInt
 - ✅ 3b.18: Removed dead checkIncDec(int, ..., srcMin, srcMax) overload
-- ✅ 3b.19: Simplified navigation_9x/navigation_x7 checkIncDec to standalone (no source/switch handling)
+- ✅ 3b.19: Simplified navigation_9x/navigation_x7 checkIncDec
+- ✅ 3b.20: drawSourceCustomValue/getSourceCustomValueString → SourceRef
+- ✅ 3b.21: drawSourceValue → SourceRef
+- ✅ 3b.22: getMixSrcRange(int) removed, SourceRef-only
+- ✅ 3b.23: Telemetry display (model_display, view_telemetry) → SourceRef
+- ✅ 3b.24: Logical switch display (all 3 UIs) → SourceRef
+- ✅ 3b.25: drawTelemScreenDate → sensor index (no source_t)
+- ✅ 3b.26: getValueOrSrcVarString → ValueOrSource (no legacy SourceNumVal)
+- ✅ 3b.27: setWeight → ValueOrSource, valueOrSourceToLegacy removed
+- ✅ 3b.28: All dead code removed (legacyToValueOrSource, checkIncDecMovedSwitch, stopsSwitch, CATEGORY_END)
 
 ### Next steps
 
-#### 3b.20 YAML serialization update
+#### 3b.29 YAML serialization update
 The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
 
-#### 3b.21 Lua API conversion
+#### 3b.30 Lua API conversion
 SourceRef and SwitchRef are 4 bytes = a 32-bit integer, which Lua supports natively. The Lua API can pack/unpack these directly:
 
 ```cpp
@@ -175,9 +162,6 @@ SourceRef intToSourceRef(uint32_t v);
 No bridge functions needed. Lua scripts use the same type+index addressing as the firmware. The old `MIXSRC_*` / `SWSRC_*` Lua constants become pre-computed 32-bit SourceRef/SwitchRef values.
 
 Files: `lua/api_model.cpp`, `lua/api_general.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`, `lua/api_stdlcd.cpp`, `lua/api_colorlcd.cpp`. Also update Lua constant definitions.
-
-#### 3b.22 Remaining GUI bridge elimination
-Convert telemetry display, logical switch display, and strhelpers to use SourceRef/SwitchRef natively without bridging through MixSources/SwitchSources integers.
 
 ---
 
@@ -202,10 +186,8 @@ Convert telemetry display, logical switch display, and strhelpers to use SourceR
 
 1. **STM32F4 arena undersize**: default layout (6,976 B) exceeds `MODEL_ARENA_SIZE` (4096 B). Must be resolved before merging.
 
-2. **Bridge functions**: `sourceRefToMixSrc()`, `switchRefToSwSrc()` etc. remain for YAML and Lua API boundaries. Non-boundary usage reduced to ~20 sites (telemetry display, logical switch display, strhelpers, getMixSrcRange).
+2. **Bridge functions**: RESOLVED for GUI/infrastructure. Bridges remain only at YAML and Lua API boundaries (~52 usages total). These are permanent until those formats change.
 
 3. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
 
 4. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
-
-5. **Dead code**: RESOLVED — removed `legacyToValueOrSource()`, `checkIncDecMovedSwitch()`, `stopsSwitch`, `CATEGORY_END`, and unused `valueOrSourceToLegacy` extern declarations.
