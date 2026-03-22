@@ -66,7 +66,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
     return std::string(msg);
   });
-  
+
 #if defined(RADIO_V12) && defined(EXTERNAL_ANTENNA)
   if (moduleIdx == INTERNAL_MODULE){
     auto antline = newLine(grid);
@@ -106,7 +106,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   choArmSwitch = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
   choArmSwitch->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
 
-  update();                      
+  update();
 }
 
 void CrossfireSettings::update() {
