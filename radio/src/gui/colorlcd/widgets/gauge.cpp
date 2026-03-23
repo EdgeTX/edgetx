@@ -86,10 +86,8 @@ class GaugeWidget : public Widget
 
     auto widgetData = getPersistentData();
 
-    mixsrc_t index = widgetData->options[0].value.unsignedValue;
-    SourceRef ref;
-    uint32_t raw = index;
-    memcpy(&ref, &raw, sizeof(ref));
+    uint32_t raw = widgetData->options[0].value.unsignedValue;
+    SourceRef ref = SourceRef::fromUint32(raw);
     sourceText->setText(getSourceString(ref));
 
     if (width() < ALIGN_MAX_W)

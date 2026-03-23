@@ -670,9 +670,7 @@ void r_wov_source(void* user, uint8_t* data, uint32_t bitoffs,
   auto widgetData = get_widgetData(user, option);
 
   SourceRef ref = yaml_parse_source(val, val_len);
-  uint32_t packed;
-  memcpy(&packed, &ref, sizeof(packed));
-  widgetData->setUnsignedValue(option, packed);
+  widgetData->setUnsignedValue(option, ref.toUint32());
 }
 
 bool w_wov_source(void* user, uint8_t* data, uint32_t bitoffs,
@@ -681,9 +679,7 @@ bool w_wov_source(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  uint32_t packed = widgetData->getUnsignedValue(option);
-  SourceRef ref;
-  memcpy(&ref, &packed, sizeof(ref));
+  SourceRef ref = SourceRef::fromUint32(widgetData->getUnsignedValue(option));
   return yaml_write_source(ref, wf, opaque);
 }
 
