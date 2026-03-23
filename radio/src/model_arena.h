@@ -121,6 +121,12 @@ public:
   // Returns false if arena doesn't have enough free space.
   bool ensureSectionCapacity(ArenaSectionType section, uint16_t minCount);
 
+  // Remove trailing empty elements from a section.
+  // isEmpty(ptr) returns true if the element at ptr is considered empty.
+  // Returns the number of elements removed.
+  uint16_t trimTrailingEmpty(ArenaSectionType section,
+                             bool (*isEmpty)(const uint8_t*));
+
   // Clear the arena data (preserves layout)
   void clear();
 

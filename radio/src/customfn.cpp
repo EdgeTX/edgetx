@@ -43,6 +43,16 @@ CustomFunctionData *customFnAllocAt(uint8_t idx)
   return customFnAddress(idx);
 }
 
+static bool customFnIsEmpty(const uint8_t* ptr)
+{
+  return reinterpret_cast<const CustomFunctionData*>(ptr)->swtch.isNone();
+}
+
+void customFnTrimTrailing()
+{
+  g_modelArena.trimTrailingEmpty(ARENA_CUSTOM_FN, customFnIsEmpty);
+}
+
 void insertCustomFn(uint8_t idx)
 {
   if (!g_modelArena.insertInSection(ARENA_CUSTOM_FN, idx,

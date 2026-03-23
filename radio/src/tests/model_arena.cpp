@@ -635,3 +635,90 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
     printf("  YAML file left at: %s/MODELS/%s\n", tmpDir, testFile);
   }
 }
+
+// ---- Trim trailing empty tests ----
+
+TEST_F(ArenaInsertDeleteTest, TrimTrailingEmpty)
+{
+  // Allocate 4 LS slots, make 0-1 non-empty, leave 2-3 empty
+  ASSERT_NE(lswAllocAt(3), nullptr);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 4);
+
+  lswAddress(0)->func = LS_FUNC_VPOS;
+  lswAddress(1)->func = LS_FUNC_VPOS;
+
+  uint32_t bytesBefore = g_modelArena.usedBytes();
+
+  lswTrimTrailing();
+
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 2);
+  EXPECT_EQ(g_modelArena.usedBytes(),
+            bytesBefore - 2 * sizeof(LogicalSwitchData));
+  EXPECT_EQ(lswAddress(0)->func, LS_FUNC_VPOS);
+  EXPECT_EQ(lswAddress(1)->func, LS_FUNC_VPOS);
+}
+
+TEST_F(ArenaInsertDeleteTest, TrimPreservesMiddleEmpty)
+{
+  ASSERT_NE(lswAllocAt(3), nullptr);
+  lswAddress(0)->func = LS_FUNC_VPOS;
+  // slot 1 empty
+  lswAddress(2)->func = LS_FUNC_VPOS;
+  lswAddress(3)->func = LS_FUNC_VPOS;
+
+  lswTrimTrailing();
+
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 4);
+  EXPECT_EQ(lswAddress(1)->func, LS_FUNC_NONE);
+}
+
+TEST_F(ArenaInsertDeleteTest, TrimAllEmpty)
+{
+  ASSERT_NE(lswAllocAt(2), nullptr);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 3);
+
+  lswTrimTrailing();
+
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 0);
+}
+
+TEST_F(ArenaInsertDeleteTest, TrimPreservesSubsequentSection)
+{
+  // Set up LS with 3 elements (last empty) and CF with 1 element
+  ASSERT_NE(lswAllocAt(2), nullptr);
+  lswAddress(0)->func = LS_FUNC_VPOS;
+  lswAddress(1)->func = LS_FUNC_VPOS;
+
+  CustomFunctionData* cf = customFnAllocAt(0);
+  ASSERT_NE(cf, nullptr);
+  cf->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
+  cf->func = FUNC_PLAY_SOUND;
+
+  lswTrimTrailing();
+
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 2);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_CUSTOM_FN), 1);
+  EXPECT_EQ(customFnAddress(0)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 1)));
+  EXPECT_EQ(customFnAddress(0)->func, FUNC_PLAY_SOUND);
+}
+
+TEST_F(ArenaInsertDeleteTest, TrimAllocRoundTrip)
+{
+  uint32_t emptyBytes = g_modelArena.usedBytes();
+
+  // Simulate UI: select slot 5, back out without editing
+  ASSERT_NE(lswAllocAt(5), nullptr);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 6);
+
+  lswTrimTrailing();
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 0);
+  EXPECT_EQ(g_modelArena.usedBytes(), emptyBytes);
+
+  // Now allocate slot 2 and make it non-empty
+  ASSERT_NE(lswAllocAt(2), nullptr);
+  lswAddress(2)->func = LS_FUNC_VPOS;
+
+  lswTrimTrailing();
+  // Slots 0,1 are empty but kept because slot 2 is non-empty
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 3);
+}

@@ -23,22 +23,13 @@
 
 #include <stdint.h>
 
-struct CustomFunctionData;
+struct LogicalSwitchData;
 
-// Get a pointer to a model special function (read-only; returns dummy if out of range)
-CustomFunctionData* customFnAddress(uint8_t idx);
+// Get a pointer to a model logical switch (read-only; returns dummy if out of range)
+LogicalSwitchData* lswAddress(uint8_t idx);
 
 // Get a writable pointer, growing the arena section if needed
-CustomFunctionData* customFnAllocAt(uint8_t idx);
+LogicalSwitchData* lswAllocAt(uint8_t idx);
 
-// Remove trailing empty elements (swtch.isNone()) from the custom function section
-void customFnTrimTrailing();
-
-// Insert a blank special function at 'idx', shifting subsequent ones down
-void insertCustomFn(uint8_t idx);
-
-// Delete the special function at 'idx', shifting subsequent ones up
-void deleteCustomFn(uint8_t idx);
-
-// Clear a single special function at 'idx'
-void clearCustomFn(uint8_t idx);
+// Remove trailing empty elements (func == LS_FUNC_NONE) from the logical switch section
+void lswTrimTrailing();

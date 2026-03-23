@@ -770,6 +770,8 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
         button->refresh();
         return; // Skip full rebuild
       }
+    } else {
+      customFnTrimTrailing();
     }
     rebuild(window);
   });
@@ -863,6 +865,7 @@ void FunctionsPage::build(Window *window)
           menu->addLine(STR_CLEAR, [=]() {
             if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) LUA_LOAD_MODEL_SCRIPTS();
             memset(cfn, 0, sizeof(CustomFunctionData));
+            customFnTrimTrailing();
             SET_DIRTY();
             rebuild(window);
           });

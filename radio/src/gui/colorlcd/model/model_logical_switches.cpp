@@ -565,6 +565,8 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
             if (lswAddress(i)->func != LS_FUNC_NONE) {
               focusIndex = i;
               rebuild(window);
+            } else {
+              lswTrimTrailing();
             }
           });
         }
@@ -607,10 +609,12 @@ void ModelLogicalSwitchesPage::build(Window* window)
         menu->addLine(STR_EDIT, [=]() {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (ls->func == LS_FUNC_NONE)
+            if (ls->func == LS_FUNC_NONE) {
+              lswTrimTrailing();
               rebuild(window);
-            else
+            } else {
               button->refresh();
+            }
           });
         });
         menu->addLine(STR_COPY, [=]() {
@@ -625,6 +629,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
           });
         menu->addLine(STR_CLEAR, [=]() {
           memset(ls, 0, sizeof(LogicalSwitchData));
+          lswTrimTrailing();
           storageDirty(EE_MODEL);
           rebuild(window);
         });

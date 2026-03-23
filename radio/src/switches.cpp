@@ -1177,6 +1177,16 @@ LogicalSwitchData * lswAllocAt(uint8_t idx)
   return lswAddress(idx);
 }
 
+static bool lswIsEmpty(const uint8_t* ptr)
+{
+  return reinterpret_cast<const LogicalSwitchData*>(ptr)->func == LS_FUNC_NONE;
+}
+
+void lswTrimTrailing()
+{
+  g_modelArena.trimTrailingEmpty(ARENA_LOGICAL_SW, lswIsEmpty);
+}
+
 uint8_t lswFamily(uint8_t func)
 {
   if (func <= LS_FUNC_ANEG)

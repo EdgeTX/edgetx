@@ -184,6 +184,43 @@ bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
   return true;
 }
 
+uint16_t ModelArena::trimTrailingEmpty(ArenaSectionType section,
+                                       bool (*isEmpty)(const uint8_t*))
+{
+  uint32_t elemSize = sectionElementSize[section];
+  uint16_t count = _counts[section];
+  if (count == 0) return 0;
+
+  // Find last non-empty element
+  uint8_t* base = _base + _offsets[section];
+  int last = count - 1;
+  while (last >= 0 && isEmpty(base + last * elemSize))
+    --last;
+
+  uint16_t newCount = (uint16_t)(last + 1);
+  uint16_t removed = count - newCount;
+  if (removed == 0) return 0;
+
+  uint32_t bytesToRemove = removed * elemSize;
+  uint32_t removeOffset = _offsets[section] + newCount * elemSize;
+
+  // Shift subsequent section data backward
+  uint32_t tailSize = _usedBytes - (removeOffset + bytesToRemove);
+  if (tailSize > 0) {
+    memmove(_base + removeOffset,
+            _base + removeOffset + bytesToRemove, tailSize);
+  }
+  memset(_base + _usedBytes - bytesToRemove, 0, bytesToRemove);
+
+  _usedBytes -= bytesToRemove;
+  _counts[section] = newCount;
+  for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
+    _offsets[i] -= bytesToRemove;
+  }
+
+  return removed;
+}
+
 // Initialize arena on startup with empty layout.
 // Sections are allocated on demand during YAML parsing or via explicit insert.
 void modelArenaInit()
