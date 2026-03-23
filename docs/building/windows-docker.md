@@ -100,4 +100,4 @@ cd src
 
 # References
 
-see [EdgeTX Build Wiki](https://github.com/EdgeTX/build-edgetx)
+see [EdgeTX Build repository](https://github.com/EdgeTX/build-edgetx)

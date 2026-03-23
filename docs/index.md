@@ -1,12 +1,12 @@
 # EdgeTX Developer Documentation
 
-Welcome to the EdgeTX developer wiki!
+Welcome to the EdgeTX developer documentation!
 
 ![EdgeTX Logo](assets/images/EdgeTX_logo.png)
 
 EdgeTX is an open-source firmware for RC radio transmitters. This documentation covers technical topics for developers and contributors: how to build EdgeTX from source, hardware reference material, hardware modification guides, and internal software architecture.
 
-## What's in this wiki
+## What's in this documentation
 
 - **Contributing** — Getting started with Git, the GitHub workflow, and a command reference for common Git operations.
 - **Building EdgeTX** — Step-by-step build instructions for every supported platform (Linux, macOS, Windows, Docker, and GitHub CodeSpaces), plus a reference for all CMake compilation options.
