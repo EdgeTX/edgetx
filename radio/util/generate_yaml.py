@@ -420,6 +420,7 @@ def parse_field(ast,node):
                 f.length = ea_attrs[1]  # may be a number or a C define name
                 f.var_type = ea_attrs[2]
                 f.extern_get_ptr = ea_attrs[3]
+                f.extern_ensure = ea_attrs[4] if len(ea_attrs) > 4 else 'nullptr'
                 f.bits = 0  # zero-size in parent struct
                 # Force parsing of the referenced struct type so it's
                 # available for extern_array_bits() at render time.

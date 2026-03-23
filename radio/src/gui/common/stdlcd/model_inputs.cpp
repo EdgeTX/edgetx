@@ -30,7 +30,8 @@
 
 bool reachExposLimit()
 {
-  if (getExpoCount() >= MAX_EXPOS) {
+  if (getExpoCount() >= MAX_EXPOS_HARD ||
+      g_modelArena.freeBytes() < sizeof(ExpoData)) {
     POPUP_WARNING(STR_NOFREEEXPO);
     return true;
   }

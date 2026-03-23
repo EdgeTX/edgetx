@@ -25,8 +25,11 @@
 
 struct ExpoData;
 
-// Get a pointer to an expo/input line
+// Get a pointer to an expo/input line (read-only; returns dummy if out of range)
 ExpoData* expoAddress(uint8_t idx);
+
+// Get a writable pointer, growing the arena section if needed
+ExpoData* expoAllocAt(uint8_t idx);
 
 // Insert a new expo/input line at 'idx' for 'input'
 void insertExpo(uint8_t idx, uint8_t input);

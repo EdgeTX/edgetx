@@ -347,6 +347,11 @@ bool YamlTreeWalker::toChild()
         setNode(attr);
         setAttrOfs(0);
 
+        // Grow arena section to hold at least the first element
+        if (attr->u._extern_array.ensure_capacity) {
+            attr->u._extern_array.ensure_capacity(1);
+        }
+
         uint16_t count = 0;
         uint8_t* ext_ptr = attr->u._extern_array.get_ptr(&count);
         stack[stack_level].data_override = ext_ptr;
@@ -383,7 +388,11 @@ bool YamlTreeWalker::toNextElmt()
 
         uint16_t maxElmts = node->elmts;
         if (node->type == YDT_EXTERN_ARRAY) {
-            // For extern arrays, use the actual count from the get_ptr function
+            // Grow arena section to hold the next element before bounds check
+            if (node->u._extern_array.ensure_capacity) {
+                node->u._extern_array.ensure_capacity(getElmts() + 2);
+            }
+            // Use the actual count (now grown) as the iteration bound
             uint16_t count = 0;
             node->u._extern_array.get_ptr(&count);
             maxElmts = count;

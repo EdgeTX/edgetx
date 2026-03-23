@@ -143,21 +143,56 @@ void ModelArena::deleteFromSection(ArenaSectionType section,
   }
 }
 
-// Initialize arena on startup with default layout
-// Uses maximum static sizes for backward compatibility
+uint32_t ModelArena::elementSize(ArenaSectionType type)
+{
+  return sectionElementSize[type];
+}
+
+bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
+                                       uint16_t minCount)
+{
+  // Determine current section count from offset difference
+  uint32_t elemSize = sectionElementSize[section];
+  uint32_t endOffset;
+  if (section + 1 < ARENA_NUM_SECTIONS)
+    endOffset = _offsets[section + 1];
+  else
+    endOffset = _usedBytes;
+  uint32_t currentCount = (endOffset - _offsets[section]) / elemSize;
+
+  if (currentCount >= minCount)
+    return true;
+
+  uint32_t needed = minCount - currentCount;
+  uint32_t bytesNeeded = needed * elemSize;
+
+  if (_usedBytes + bytesNeeded > _capacity)
+    return false;
+
+  // Bulk-insert at the end of the section
+  uint32_t insertOffset = endOffset;
+  uint32_t tailSize = _usedBytes - insertOffset;
+  if (tailSize > 0) {
+    memmove(_base + insertOffset + bytesNeeded,
+            _base + insertOffset, tailSize);
+  }
+  memset(_base + insertOffset, 0, bytesNeeded);
+  _usedBytes += bytesNeeded;
+
+  // Update subsequent section offsets
+  for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
+    _offsets[i] += bytesNeeded;
+  }
+
+  return true;
+}
+
+// Initialize arena on startup with empty layout.
+// Sections are allocated on demand during YAML parsing or via explicit insert.
 void modelArenaInit()
 {
   g_modelArena.attach(g_modelArenaBuf, MODEL_ARENA_SIZE);
-
-  // Set up default layout with maximum counts
-  // This ensures the arena is usable before a model is loaded
-  ModelDynData defaultDyn = {};
-  defaultDyn.mixCount = MAX_MIXERS;
-  defaultDyn.expoCount = MAX_EXPOS;
-  defaultDyn.curveCount = MAX_CURVES;
-  defaultDyn.pointsCount = MAX_CURVE_POINTS;
-  defaultDyn.logicalSwCount = MAX_LOGICAL_SWITCHES;
-  defaultDyn.customFnCount = MAX_SPECIAL_FUNCTIONS;
-  g_modelArena.layout(defaultDyn);
+  ModelDynData emptyDyn = {};
+  g_modelArena.layout(emptyDyn);
   g_modelArena.clear();
 }

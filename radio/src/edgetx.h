@@ -399,8 +399,10 @@ uint16_t anaIn(uint8_t chan);
 FlightModeData * flightModeAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
+LogicalSwitchData * lswAllocAt(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 CurveHeader * curveHeaderAddress(uint8_t idx);
+CurveHeader * curveHeaderAllocAt(uint8_t idx);
 
 void applyDefaultTemplate();
 void instantTrim();

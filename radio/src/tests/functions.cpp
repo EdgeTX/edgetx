@@ -23,6 +23,7 @@
 #include "mixes.h"
 #include "expos.h"
 #include "curves.h"
+#include "customfn.h"
 
 class SpecialFunctionsTest : public EdgeTxTest {};
 
@@ -30,7 +31,7 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
   // test that SwitchRef can round-trip through the swtch field
   auto trainerRef = SwitchRef_(SWITCH_TYPE_TRAINER, 0);
-  (*customFnAddress(0)).swtch = trainerRef;
+  (*customFnAllocAt(0)).swtch = trainerRef;
   EXPECT_EQ((*customFnAddress(0)).swtch, trainerRef)
       << "CustomFunctionData.swtch member cannot hold SWITCH_TYPE_TRAINER";
 
@@ -48,7 +49,7 @@ TEST_F(SpecialFunctionsTest, FlightReset)
       break;
   auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
-  (*customFnAddress(0)).swtch = swRef;
+  (*customFnAllocAt(0)).swtch = swRef;
   (*customFnAddress(0)).func = FUNC_RESET;
   (*customFnAddress(0)).all.val = FUNC_RESET_FLIGHT;
   (*customFnAddress(0)).active = true;
@@ -85,7 +86,7 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
 
   simuSetSwitch(sw, 0);    // SA-
 
-  (*customFnAddress(0)).swtch = swRef;
+  (*customFnAllocAt(0)).swtch = swRef;
   (*customFnAddress(0)).func = FUNC_ADJUST_GVAR;
   (*customFnAddress(0)).all.mode = FUNC_ADJUST_GVAR_INCDEC;
   (*customFnAddress(0)).all.param = 0; // GV1

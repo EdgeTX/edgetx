@@ -27,7 +27,7 @@ constexpr int DEFAULT_POINTS = 5;
 constexpr int STD_CURVE_POINTS(int p) { return p + DEFAULT_POINTS; }
 constexpr int CUSTOM_CURVE_POINTS(int p) { return 2 * p + (2 * DEFAULT_POINTS - 2); }
 
-int8_t * curveEnd[MAX_CURVES];
+int8_t * curveEnd[MAX_CURVES_HARD];
 
 uint8_t getCurvePoints(uint8_t index)
 {

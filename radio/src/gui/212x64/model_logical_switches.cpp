@@ -67,6 +67,8 @@ void onLogicalSwitchesMenu(const char *result)
     clipboard.data.csw = *cs;
   }
   else if (result == STR_PASTE) {
+    cs = lswAllocAt(sub);
+    if (!cs) return;
     *cs = clipboard.data.csw;
     storageDirty(EE_MODEL);
   }

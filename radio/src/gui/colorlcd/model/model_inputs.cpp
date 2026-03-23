@@ -145,7 +145,8 @@ ModelInputsPage::ModelInputsPage(const PageDef& pageDef) : InputMixPageBase(page
 
 bool ModelInputsPage::reachExposLimit()
 {
-  if (getExpoCount() >= MAX_EXPOS) {
+  if (getExpoCount() >= MAX_EXPOS_HARD ||
+      g_modelArena.freeBytes() < sizeof(ExpoData)) {
     new MessageDialog(STR_WARNING, STR_NOFREEEXPO);
     return true;
   }

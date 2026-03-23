@@ -110,8 +110,15 @@ public:
   // Recalculate offsets from counts (after direct count modification)
   void recalcOffsets(const ModelDynData& dyn);
 
-  // Clear the arena
+  // Grow a section to hold at least minCount elements.
+  // Returns false if arena doesn't have enough free space.
+  bool ensureSectionCapacity(ArenaSectionType section, uint16_t minCount);
+
+  // Clear the arena data (preserves layout)
   void clear();
+
+  // Return the element size for a given section type
+  static uint32_t elementSize(ArenaSectionType type);
 };
 
 extern ModelArena g_modelArena;

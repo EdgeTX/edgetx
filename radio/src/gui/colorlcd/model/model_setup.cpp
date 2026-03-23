@@ -456,6 +456,7 @@ const static SetupLineDef setupLines[] = {
                      }, false, STR_BITMAP);
     }
   },
+  // TODO: add model memory usage indicator (needs STR_MODEL_MEMORY in translations)
   {nullptr, nullptr},
 };
 

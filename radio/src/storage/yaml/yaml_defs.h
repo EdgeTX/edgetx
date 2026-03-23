@@ -55,9 +55,9 @@
   int _dummy_##tag[0] _yaml_attribute("raw:YAML_IDX_CUST(" _yaml_note( \
       #tag) "," _yaml_note(read) "," _yaml_note(write) ")")
 
-#define CUST_EXTERN_ARRAY(tag, elmt_type, max, get_ptr)   \
+#define CUST_EXTERN_ARRAY(tag, elmt_type, max, get_ptr, ensure)   \
   int _dummy_##tag[0]                                     \
-      _yaml_attribute("extern_array:" #tag "|" #max "|" _yaml_note(elmt_type) "|" _yaml_note(get_ptr))
+      _yaml_attribute("extern_array:" #tag "|" #max "|" _yaml_note(elmt_type) "|" _yaml_note(get_ptr) "|" _yaml_note(ensure))
 
 #else
 
@@ -72,6 +72,6 @@
 #define CUST_ATTR(tag, read, write)
 #define CUST_ARRAY(tag, elmt_type, max, fcn)
 #define CUST_IDX(tag, read, write)
-#define CUST_EXTERN_ARRAY(tag, elmt_type, max, get_ptr)
+#define CUST_EXTERN_ARRAY(tag, elmt_type, max, get_ptr, ensure)
 
 #endif

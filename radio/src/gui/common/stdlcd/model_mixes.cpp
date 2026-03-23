@@ -31,7 +31,8 @@
 
 bool reachMixesLimit()
 {
-  if (getMixCount() >= MAX_MIXERS) {
+  if (getMixCount() >= MAX_MIXERS_HARD ||
+      g_modelArena.freeBytes() < sizeof(MixData)) {
     POPUP_WARNING(STR_NOFREEMIXER);
     return true;
   }
