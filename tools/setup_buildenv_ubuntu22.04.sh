@@ -107,6 +107,8 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing Qt ==="
+sudo mkdir -p /opt/qt
+sudo chown "${USER}:${USER}" /opt/qt
 aqt install-qt --outputdir /opt/qt linux desktop ${QT_VERSION} linux_gcc_64 -m qtmultimedia qtserialport
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
