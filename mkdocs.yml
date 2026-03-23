@@ -59,7 +59,7 @@ nav:
     - Online:
       - In a Web Browser (CodeSpaces): building/codespaces.md
     - Windows:
-      - Windows: building/windows.md
+      - Windows (Native): building/windows.md
       - Windows (Docker): building/windows-docker.md
       - WSL: building/linux-wsl.md
     - Linux:
