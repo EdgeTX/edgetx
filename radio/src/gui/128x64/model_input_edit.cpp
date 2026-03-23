@@ -64,7 +64,7 @@ void menuModelExpoOne(event_t event)
   }
 
   ExpoData * ed = expoAddress(s_currIdx);
-  drawSource(strlen(STR_MENUINPUTS)*FW+FW, 0, {SOURCE_TYPE_INPUT, 0, (uint16_t)ed->chn}, 0);
+  drawSource(strlen(STR_MENUINPUTS)*FW+FW, 0, SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)ed->chn), 0);
 
   uint8_t old_editMode = s_editMode;
 

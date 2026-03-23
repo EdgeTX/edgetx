@@ -339,7 +339,7 @@ TEST(Lcd, fr_chars)
 TEST(Lcd, DrawSwitch)
 {
   lcdClear();
-  SwitchRef sw = {SWITCH_TYPE_SWITCH, 0, 0};
+  SwitchRef sw = SwitchRef_(SWITCH_TYPE_SWITCH, 0);
   drawSwitch(0,  10, sw, 0, false);
   drawSwitch(30, 10, sw, SMLSIZE);
   // drawSwitch(60, 10, sw, MIDSIZE); missing arrows in this font

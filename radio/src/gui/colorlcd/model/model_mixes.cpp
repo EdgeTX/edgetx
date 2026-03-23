@@ -247,7 +247,7 @@ InputMixGroupBase* ModelMixesPage::getGroupByIndex(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return nullptr;
 
   int ch = mix->destCh;
-  return getGroupBySrc(SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch});
+  return getGroupBySrc(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)ch));
 }
 
 InputMixGroupBase* ModelMixesPage::createGroup(Window* form, const SourceRef& src)
@@ -315,7 +315,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return;
   int channel = mix->destCh;
 
-  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)channel}, index);
+  InputMixPageBase::addLineButton(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)channel), index);
 }
 
 void ModelMixesPage::newMix()
@@ -337,7 +337,7 @@ void ModelMixesPage::newMix()
         skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
       }
     } else {
-      std::string ch_name(getSourceString({SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch}));
+      std::string ch_name(getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)ch)));
       menu->addLineBuffered(ch_name.c_str(), [=]() { insertMix(ch, index); });
     }
   }
@@ -368,7 +368,7 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
   _copyMode = 0;
 
   ::insertMix(index, channel);
-  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)channel}, index);
+  InputMixPageBase::addLineButton(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)channel), index);
   editMix(channel, index);
 }
 
@@ -481,7 +481,7 @@ void ModelMixesPage::build(Window * window)
     if (line->destCh == ch && !skip_mix) {
 
       // one group for the complete mixer channel
-      auto group = createGroup(form, SourceRef{SOURCE_TYPE_CHANNEL, 0, (uint16_t)ch});
+      auto group = createGroup(form, SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)ch));
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line

@@ -24,7 +24,7 @@ TEST(SourceRef, DefaultIsNone)
 
 TEST(SourceRef, ClearResetsAll)
 {
-  SourceRef ref = {SOURCE_TYPE_TELEMETRY, SOURCE_FLAG_INVERTED, 42};
+  SourceRef ref = SourceRef_(SOURCE_TYPE_TELEMETRY, 42, SOURCE_FLAG_INVERTED);
   ref.clear();
   EXPECT_TRUE(ref.isNone());
   EXPECT_FALSE(ref.isInverted());
@@ -33,10 +33,10 @@ TEST(SourceRef, ClearResetsAll)
 
 TEST(SourceRef, Equality)
 {
-  SourceRef a = {SOURCE_TYPE_STICK, 0, 2};
-  SourceRef b = {SOURCE_TYPE_STICK, 0, 2};
-  SourceRef c = {SOURCE_TYPE_STICK, 0, 3};
-  SourceRef d = {SOURCE_TYPE_POT, 0, 2};
+  SourceRef a = SourceRef_(SOURCE_TYPE_STICK, 2);
+  SourceRef b = SourceRef_(SOURCE_TYPE_STICK, 2);
+  SourceRef c = SourceRef_(SOURCE_TYPE_STICK, 3);
+  SourceRef d = SourceRef_(SOURCE_TYPE_POT, 2);
 
   EXPECT_EQ(a, b);
   EXPECT_NE(a, c);
@@ -45,7 +45,7 @@ TEST(SourceRef, Equality)
 
 TEST(SourceRef, InvertedFlag)
 {
-  SourceRef ref = {SOURCE_TYPE_STICK, SOURCE_FLAG_INVERTED, 1};
+  SourceRef ref = SourceRef_(SOURCE_TYPE_STICK, 1, SOURCE_FLAG_INVERTED);
   EXPECT_TRUE(ref.isInverted());
   EXPECT_EQ(ref.type, SOURCE_TYPE_STICK);
   EXPECT_EQ(ref.index, 1);
@@ -54,7 +54,7 @@ TEST(SourceRef, InvertedFlag)
 TEST(SourceRef, HighIndex)
 {
   // 16-bit index supports values far beyond old 10-bit limit
-  SourceRef ref = {SOURCE_TYPE_TELEMETRY, 0, 65535};
+  SourceRef ref = SourceRef_(SOURCE_TYPE_TELEMETRY, 65535);
   EXPECT_EQ(ref.type, SOURCE_TYPE_TELEMETRY);
   EXPECT_EQ(ref.index, 65535);
 }
@@ -75,7 +75,7 @@ TEST(SwitchRef, DefaultIsNone)
 
 TEST(SwitchRef, InvertedFlag)
 {
-  SwitchRef ref = {SWITCH_TYPE_LOGICAL, SWITCH_FLAG_INVERTED, 5};
+  SwitchRef ref = SwitchRef_(SWITCH_TYPE_LOGICAL, 5, SWITCH_FLAG_INVERTED);
   EXPECT_TRUE(ref.isInverted());
   EXPECT_EQ(ref.type, SWITCH_TYPE_LOGICAL);
   EXPECT_EQ(ref.index, 5);
@@ -83,9 +83,9 @@ TEST(SwitchRef, InvertedFlag)
 
 TEST(SwitchRef, Equality)
 {
-  SwitchRef a = {SWITCH_TYPE_SWITCH, 0, 10};
-  SwitchRef b = {SWITCH_TYPE_SWITCH, 0, 10};
-  SwitchRef c = {SWITCH_TYPE_LOGICAL, 0, 10};
+  SwitchRef a = SwitchRef_(SWITCH_TYPE_SWITCH, 10);
+  SwitchRef b = SwitchRef_(SWITCH_TYPE_SWITCH, 10);
+  SwitchRef c = SwitchRef_(SWITCH_TYPE_LOGICAL, 10);
 
   EXPECT_EQ(a, b);
   EXPECT_NE(a, c);
@@ -116,7 +116,7 @@ TEST(ValueOrSource, NegativeNumericValue)
 
 TEST(ValueOrSource, SourceReference)
 {
-  SourceRef src = {SOURCE_TYPE_GVAR, 0, 3};
+  SourceRef src = SourceRef_(SOURCE_TYPE_GVAR, 3);
   ValueOrSource v = {};
   v.setSource(src);
 
@@ -132,7 +132,7 @@ TEST(ValueOrSource, SourceReference)
 TEST(ValueOrSource, TelemetrySourceReference)
 {
   // Can hold telemetry sensor indices that overflow old 10-bit field
-  SourceRef src = {SOURCE_TYPE_TELEMETRY, 0, 240};  // sensor 80
+  SourceRef src = SourceRef_(SOURCE_TYPE_TELEMETRY, 240);  // sensor 80
   ValueOrSource v = {};
   v.setSource(src);
 
@@ -148,7 +148,7 @@ TEST(ValueOrSource, TelemetrySourceReference)
 TEST(ValueOrSource, Clear)
 {
   ValueOrSource v = {};
-  v.setSource({SOURCE_TYPE_GVAR, 0, 5});
+  v.setSource(SourceRef_(SOURCE_TYPE_GVAR, 5));
   v.clear();
   EXPECT_EQ(v.value, 0);
   EXPECT_EQ(v.isSource, 0);
@@ -165,7 +165,7 @@ TEST(ValueOrSource, SwitchBetweenModes)
   EXPECT_EQ(v.numericValue(), 75);
 
   // Switch to source
-  v.setSource({SOURCE_TYPE_GVAR, 0, 2});
+  v.setSource(SourceRef_(SOURCE_TYPE_GVAR, 2));
   EXPECT_EQ(v.isSource, 1);
   EXPECT_EQ(v.srcType, SOURCE_TYPE_GVAR);
 

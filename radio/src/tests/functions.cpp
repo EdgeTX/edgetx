@@ -29,12 +29,12 @@ class SpecialFunctionsTest : public EdgeTxTest {};
 TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
   // test that SwitchRef can round-trip through the swtch field
-  auto trainerRef = SwitchRef{SWITCH_TYPE_TRAINER, 0, 0};
+  auto trainerRef = SwitchRef_(SWITCH_TYPE_TRAINER, 0);
   (*customFnAddress(0)).swtch = trainerRef;
   EXPECT_EQ((*customFnAddress(0)).swtch, trainerRef)
       << "CustomFunctionData.swtch member cannot hold SWITCH_TYPE_TRAINER";
 
-  auto trainerInv = SwitchRef{SWITCH_TYPE_TRAINER, SWITCH_FLAG_INVERTED, 0};
+  auto trainerInv = SwitchRef_(SWITCH_TYPE_TRAINER, 0, SWITCH_FLAG_INVERTED);
   (*customFnAddress(0)).swtch = trainerInv;
   EXPECT_EQ((*customFnAddress(0)).swtch, trainerInv)
       << "CustomFunctionData.swtch member cannot hold inverted SWITCH_TYPE_TRAINER";
@@ -46,7 +46,7 @@ TEST_F(SpecialFunctionsTest, FlightReset)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  auto swRef = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw * 3)};
+  auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   (*customFnAddress(0)).swtch = swRef;
   (*customFnAddress(0)).func = FUNC_RESET;
@@ -81,7 +81,7 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  auto swRef = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw * 3)};
+  auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   simuSetSwitch(sw, 0);    // SA-
 

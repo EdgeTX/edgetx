@@ -119,7 +119,7 @@ void SourceChoice::buildEntries()
     bool hasEntries = false;
 
     for (uint16_t i = 0; i < count; i++) {
-      SourceRef ref = {t, 0, i};
+      SourceRef ref = SourceRef_(t, i);
 
       // Check availability
       if (!isSourceAvailable(ref)) continue;
@@ -398,7 +398,7 @@ void SourceChoice::openMenu()
       SwitchRef swtch = getMovedSwitch();
       if (!swtch.isNone() && swtch.type == SWITCH_TYPE_SWITCH) {
         // Convert switch to source (switch index = position / 3)
-        SourceRef switchRef = {SOURCE_TYPE_SWITCH, 0, (uint16_t)(swtch.index / 3)};
+        SourceRef switchRef = SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)(swtch.index / 3));
         int idx = findEntry(switchRef);
         if (idx >= 0) {
           tb->resetFilter();

@@ -29,8 +29,8 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 
-static const SwitchRef SW1_REF = {SWITCH_TYPE_LOGICAL, 0, 0};
-static const SwitchRef SW2_REF = {SWITCH_TYPE_LOGICAL, 0, 1};
+static const SwitchRef SW1_REF = SwitchRef_(SWITCH_TYPE_LOGICAL, 0);
+static const SwitchRef SW2_REF = SwitchRef_(SWITCH_TYPE_LOGICAL, 1);
 static const SwitchRef SWTCH_NONE = {};
 
 #if defined(PCBTARANIS)
@@ -44,7 +44,7 @@ TEST(getSwitch, OldTypeStickyCSW)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  auto swRef = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw * 3)};
+  auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   // LS0: AND(sw_up, NONE)
   lswAddress(0)->func = LS_FUNC_AND;
@@ -99,7 +99,7 @@ TEST(getSwitch, inputWithTrim)
 
   // LS0: VPOS(INPUT0, 0)
   lswAddress(0)->func = LS_FUNC_VPOS;
-  lswAddress(0)->v1.source = SourceRef{SOURCE_TYPE_INPUT, 0, 0};
+  lswAddress(0)->v1.source = SourceRef_(SOURCE_TYPE_INPUT, 0);
   lswAddress(0)->v2.value = 0;
   lswAddress(0)->v3 = 0;
   lswAddress(0)->andsw = SWTCH_NONE;
@@ -157,8 +157,8 @@ TEST(getSwitch, edgeInstant)
   for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
     if (g_model.getSwitchType(sw2) == SWITCH_3POS)
       break;
-  auto sw1Down = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw1 * 3 + 2)};
-  auto sw2Down = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw2 * 3 + 2)};
+  auto sw1Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw1 * 3 + 2));
+  auto sw2Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw2 * 3 + 2));
 
   MODEL_RESET();
   MIXER_RESET();
@@ -288,8 +288,8 @@ TEST(getSwitch, edgeRelease)
   for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
     if (g_model.getSwitchType(sw2) == SWITCH_3POS)
       break;
-  auto sw1Down = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw1 * 3 + 2)};
-  auto sw2Down = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw2 * 3 + 2)};
+  auto sw1Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw1 * 3 + 2));
+  auto sw2Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw2 * 3 + 2));
 
   MODEL_RESET();
   MIXER_RESET();
@@ -438,9 +438,9 @@ TEST(FlexSwitches, getSwitch)
   EXPECT_EQ(SWITCH_3POS, g_model.getSwitchType(sw_idx));
 
   auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
-  auto swUp  = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw_idx * 3)};
-  auto swMid = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw_idx * 3 + 1)};
-  auto swDn  = SwitchRef{SWITCH_TYPE_SWITCH, 0, (uint16_t)(sw_idx * 3 + 2)};
+  auto swUp  = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw_idx * 3));
+  auto swMid = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw_idx * 3 + 1));
+  auto swDn  = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw_idx * 3 + 2));
 
   anaSetFiltered(offset, -1024);
   EXPECT_TRUE(getSwitch(swUp));

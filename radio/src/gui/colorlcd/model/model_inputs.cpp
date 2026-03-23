@@ -158,7 +158,7 @@ InputMixGroupBase* ModelInputsPage::getGroupByIndex(uint8_t index)
   if (!EXPO_VALID(expo)) return nullptr;
 
   int input = expo->chn;
-  return getGroupBySrc(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input});
+  return getGroupBySrc(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input));
 }
 
 InputMixGroupBase* ModelInputsPage::createGroup(Window* form, const SourceRef& src)
@@ -226,7 +226,7 @@ void ModelInputsPage::addLineButton(uint8_t index)
   if (!EXPO_VALID(expo)) return;
   int input = expo->chn;
 
-  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input}, index);
+  InputMixPageBase::addLineButton(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input), index);
 }
 
 void ModelInputsPage::newInput()
@@ -243,7 +243,7 @@ void ModelInputsPage::newInput()
     if (!EXPO_VALID(line) || (line->chn > chn)) {
       uint8_t chnEnd = EXPO_VALID(line) ? line->chn : chn + 1;
       for (; chn < chnEnd; chn += 1) {
-        std::string name(getSourceString({SOURCE_TYPE_INPUT, 0, (uint16_t)chn}));
+        std::string name(getSourceString(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)chn)));
         menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
       }
     }
@@ -261,7 +261,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
   _copyMode = 0;
 
-  auto group = getGroupBySrc(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input});
+  auto group = getGroupBySrc(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input));
   if (!group) return;
 
   auto line = getLineByIndex(index);
@@ -278,7 +278,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
 {
   ::insertExpo(index, input);
-  InputMixPageBase::addLineButton(SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input}, index);
+  InputMixPageBase::addLineButton(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input), index);
   editInput(input, index);
 }
 
@@ -380,7 +380,7 @@ void ModelInputsPage::build(Window* window)
 
     if (line->chn == input && EXPO_VALID(line)) {
       // one group for the complete input channel
-      auto group = createGroup(form, SourceRef{SOURCE_TYPE_INPUT, 0, (uint16_t)input});
+      auto group = createGroup(form, SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input));
       groups.emplace_back(group);
       while (index < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         // one button per input line

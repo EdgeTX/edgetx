@@ -572,7 +572,7 @@ int getSwitchIndex(const char* name, bool all)
 
   for (const auto& tr : types) {
     for (uint16_t i = 0; i < tr.count; i++) {
-      SwitchRef ref = {tr.type, 0, i};
+      SwitchRef ref = SwitchRef_(tr.type, i);
       swsrc_t idx = switchRefToSwSrc(ref);
       if (all || isSwitchAvailable(ref, ModelCustomFunctionsContext)) {
         bool hasCustom = (tr.type == SWITCH_TYPE_SWITCH);
@@ -829,7 +829,7 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
 #endif
 
     case SOURCE_TYPE_LOGICAL_SWITCH:
-      getSwitchPositionName(dest, SwitchRef{SWITCH_TYPE_LOGICAL, 0, (uint16_t)idx});
+      getSwitchPositionName(dest, SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)idx));
       break;
 
     case SOURCE_TYPE_TRAINER:
@@ -962,7 +962,7 @@ int getSourceIndex(const char* name, bool all)
 
   for (const auto& tr : types) {
     for (uint16_t i = 0; i < tr.count; i++) {
-      SourceRef ref = {tr.type, 0, i};
+      SourceRef ref = SourceRef_(tr.type, i);
       mixsrc_t idx = sourceRefToMixSrc(ref);
       if (all || isSourceAvailable(ref)) {
         if (tr.hasCustomName) {

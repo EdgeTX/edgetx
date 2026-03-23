@@ -63,7 +63,7 @@ class LogicalSwitchEditPage : public Page
 
   bool isActive() const
   {
-    return getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index});
+    return getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index));
   }
 
   void checkEvents() override
@@ -83,7 +83,7 @@ class LogicalSwitchEditPage : public Page
   {
     header->setTitle(STR_MENULOGICALSWITCHES);
     headerSwitchName = header->setTitle2(
-        getSwitchPositionName({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index}));
+        getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index)));
 
     etx_txt_color(headerSwitchName->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
                   ETX_STATE_LS_ACTIVE);
@@ -371,7 +371,7 @@ class LogicalSwitchButton : public ListLineButton
 
   bool isActive() const override
   {
-    return getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index});
+    return getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index));
   }
 
   void checkEvents() override
@@ -415,7 +415,7 @@ class LogicalSwitchButton : public ListLineButton
     uint8_t lsFamily = lswFamily(ls->func);
 
     lv_label_set_text(
-        lsName, getSwitchPositionName({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index}));
+        lsName, getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index)));
     lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
     // CSW params - V1
@@ -548,7 +548,7 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
     LogicalSwitchData* ls = lswAddress(i);
     if (ls->func == LS_FUNC_NONE) {
       std::string ch_name(
-          getSwitchPositionName({SWITCH_TYPE_LOGICAL, 0, (uint16_t)i}));
+          getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)i)));
       menu->addLineBuffered(ch_name.c_str(), [=]() {
         if (pasteLS) {
           *ls = clipboard.data.csw;

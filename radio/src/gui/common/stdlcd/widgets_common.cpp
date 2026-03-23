@@ -118,7 +118,7 @@ static SourceRef nextSource(SourceRef cur)
     if (sourceTypes[t].type == cur.type) {
       // Try next index in same type
       if (cur.index + 1 < sourceTypes[t].count) {
-        SourceRef next = {cur.type, 0, (uint16_t)(cur.index + 1)};
+        SourceRef next = SourceRef_(cur.type, (uint16_t)(cur.index + 1));
         if (isSourceAvailable(next)) return next;
         // Skip unavailable, try further
         for (uint16_t i = cur.index + 2; i < sourceTypes[t].count; i++) {
@@ -129,7 +129,7 @@ static SourceRef nextSource(SourceRef cur)
       // Move to next type
       for (unsigned nt = t + 1; nt < DIM(sourceTypes); nt++) {
         for (uint16_t i = 0; i < sourceTypes[nt].count; i++) {
-          SourceRef next = {sourceTypes[nt].type, 0, i};
+          SourceRef next = SourceRef_(sourceTypes[nt].type, i);
           if (isSourceAvailable(next)) return next;
         }
       }
@@ -147,14 +147,14 @@ static SourceRef prevSource(SourceRef cur)
       // Try previous index in same type
       if (cur.index > 0) {
         for (int16_t i = cur.index - 1; i >= 0; i--) {
-          SourceRef prev = {cur.type, 0, (uint16_t)i};
+          SourceRef prev = SourceRef_(cur.type, (uint16_t)i);
           if (isSourceAvailable(prev)) return prev;
         }
       }
       // Move to previous type
       for (int nt = t - 1; nt >= 0; nt--) {
         for (int16_t i = sourceTypes[nt].count - 1; i >= 0; i--) {
-          SourceRef prev = {sourceTypes[nt].type, 0, (uint16_t)i};
+          SourceRef prev = SourceRef_(sourceTypes[nt].type, (uint16_t)i);
           if (isSourceAvailable(prev)) return prev;
         }
       }
@@ -170,11 +170,11 @@ static SwitchRef nextSwitch(SwitchRef cur)
   for (unsigned t = 0; t < DIM(switchTypes); t++) {
     if (switchTypes[t].type == cur.type) {
       if (cur.index + 1 < switchTypes[t].count) {
-        return {cur.type, cur.flags, (uint16_t)(cur.index + 1)};
+        return SwitchRef_(cur.type, (uint16_t)(cur.index + 1), cur.flags);
       }
       for (unsigned nt = t + 1; nt < DIM(switchTypes); nt++) {
         if (switchTypes[nt].count > 0)
-          return {switchTypes[nt].type, cur.flags, 0};
+          return SwitchRef_(switchTypes[nt].type, 0, cur.flags);
       }
       return cur;
     }
@@ -187,11 +187,11 @@ static SwitchRef prevSwitch(SwitchRef cur)
   for (unsigned t = 0; t < DIM(switchTypes); t++) {
     if (switchTypes[t].type == cur.type) {
       if (cur.index > 0) {
-        return {cur.type, cur.flags, (uint16_t)(cur.index - 1)};
+        return SwitchRef_(cur.type, (uint16_t)(cur.index - 1), cur.flags);
       }
       for (int nt = t - 1; nt >= 0; nt--) {
         if (switchTypes[nt].count > 0)
-          return {switchTypes[nt].type, cur.flags, (uint16_t)(switchTypes[nt].count - 1)};
+          return SwitchRef_(switchTypes[nt].type, (uint16_t)(switchTypes[nt].count - 1), cur.flags);
       }
       return cur;
     }
@@ -213,7 +213,7 @@ static SourceRef firstAvailableSourceOfType(uint8_t type,
   for (unsigned t = 0; t < DIM(sourceTypes); t++) {
     if (sourceTypes[t].type == type) {
       for (uint16_t i = 0; i < sourceTypes[t].count; i++) {
-        SourceRef ref = {type, 0, i};
+        SourceRef ref = SourceRef_(type, i);
         if (!available || available(ref))
           return ref;
       }
@@ -229,7 +229,7 @@ static SwitchRef firstAvailableSwitchOfType(uint8_t type,
   for (unsigned t = 0; t < DIM(switchTypes); t++) {
     if (switchTypes[t].type == type) {
       for (uint16_t i = 0; i < switchTypes[t].count; i++) {
-        SwitchRef ref = {type, 0, i};
+        SwitchRef ref = SwitchRef_(type, i);
         if (!available || available(ref))
           return ref;
       }
@@ -253,43 +253,43 @@ static void onSourcePopupSelect(const char* result)
   }
 #endif
   else if (result == STR_MENU_STICKS) {
-    s_sourcePopupSelection = {SOURCE_TYPE_STICK, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_STICK, 0);
   }
   else if (result == STR_MENU_POTS) {
-    s_sourcePopupSelection = {SOURCE_TYPE_POT, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_POT, 0);
   }
   else if (result == STR_MENU_MIN) {
-    s_sourcePopupSelection = {SOURCE_TYPE_MIN, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_MIN, 0);
   }
   else if (result == STR_MENU_MAX) {
-    s_sourcePopupSelection = {SOURCE_TYPE_MAX, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_MAX, 0);
   }
 #if defined(HELI)
   else if (result == STR_MENU_HELI) {
-    s_sourcePopupSelection = {SOURCE_TYPE_HELI, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_HELI, 0);
   }
 #endif
   else if (result == STR_MENU_TRIMS) {
-    s_sourcePopupSelection = {SOURCE_TYPE_TRIM, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_TRIM, 0);
   }
   else if (result == STR_MENU_SWITCHES) {
-    s_sourcePopupSelection = {SOURCE_TYPE_SWITCH, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_SWITCH, 0);
   }
   else if (result == STR_MENU_TRAINER) {
-    s_sourcePopupSelection = {SOURCE_TYPE_TRAINER, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_TRAINER, 0);
   }
   else if (result == STR_MENU_CHANNELS) {
     s_sourcePopupSelection = firstAvailableSourceOfType(SOURCE_TYPE_CHANNEL, avail);
   }
 #if defined(GVARS)
   else if (result == STR_MENU_GVARS) {
-    s_sourcePopupSelection = {SOURCE_TYPE_GVAR, 0, 0};
+    s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_GVAR, 0);
   }
 #endif
   else if (result == STR_MENU_TELEMETRY) {
     for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
       if (g_model.telemetrySensors[i].isAvailable()) {
-        s_sourcePopupSelection = {SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3 * i)};
+        s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3 * i));
         break;
       }
     }
@@ -302,20 +302,20 @@ static void onSourcePopupSelect(const char* result)
 static void onSwitchPopupSelect(const char* result)
 {
   if (result == STR_MENU_SWITCHES) {
-    s_switchPopupSelection = {SWITCH_TYPE_SWITCH, 0, 0};
+    s_switchPopupSelection = SwitchRef_(SWITCH_TYPE_SWITCH, 0);
   }
   else if (result == STR_MENU_TRIMS) {
-    s_switchPopupSelection = {SWITCH_TYPE_TRIM, 0, 0};
+    s_switchPopupSelection = SwitchRef_(SWITCH_TYPE_TRIM, 0);
   }
   else if (result == STR_MENU_LOGICAL_SWITCHES) {
     s_switchPopupSelection = firstAvailableSwitchOfType(SWITCH_TYPE_LOGICAL, nullptr);
   }
   else if (result == STR_MENU_OTHER) {
-    s_switchPopupSelection = {SWITCH_TYPE_ON, 0, 0};
+    s_switchPopupSelection = SwitchRef_(SWITCH_TYPE_ON, 0);
   }
   else if (result == STR_MENU_INVERT) {
     // Special handling: invert current value
-    s_switchPopupSelection = {SWITCH_TYPE_NONE, SWITCH_FLAG_INVERTED, 0};
+    s_switchPopupSelection = SwitchRef_(SWITCH_TYPE_NONE, 0, SWITCH_FLAG_INVERTED);
   }
   if (s_switchPopupSelection.type != SWITCH_TYPE_NONE ||
       s_switchPopupSelection.flags != 0) {
@@ -479,7 +479,7 @@ SourceRef checkIncDecSource(event_t event, SourceRef value,
         SwitchRef swtch = getMovedSwitch();
         if (!swtch.isNone() && swtch.type == SWITCH_TYPE_SWITCH &&
             (allowedTypes & SRC_TYPE_BIT(SOURCE_TYPE_SWITCH))) {
-          newValue = {SOURCE_TYPE_SWITCH, 0, (uint16_t)(swtch.index / 3)};
+          newValue = SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)(swtch.index / 3));
         }
       }
 #endif

@@ -228,11 +228,11 @@ TEST_F(ArenaAccessorTest, MixDataRoundTrip)
   MixData* mix = mixAddress(3);
   mix->destCh = 7;
   mix->weight.setNumeric(50);
-  mix->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
 
   EXPECT_EQ(mixAddress(3)->destCh, 7);
   EXPECT_EQ(mixAddress(3)->weight.numericValue(), 50);
-  EXPECT_EQ(mixAddress(3)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));
+  EXPECT_EQ(mixAddress(3)->srcRaw, (SourceRef_(SOURCE_TYPE_MAX, 0)));
 }
 
 TEST_F(ArenaAccessorTest, ExpoDataRoundTrip)
@@ -273,34 +273,34 @@ TEST_F(ArenaInsertDeleteTest, InsertMixPreservesExisting)
 {
   MixData* mix0 = mixAddress(0);
   mix0->destCh = 0;
-  mix0->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  mix0->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
   mix0->weight.setNumeric(100);
   updateMixCount();
 
   insertMix(0, 0);
 
   // Original mix should have moved to index 1
-  EXPECT_EQ(mixAddress(1)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));
+  EXPECT_EQ(mixAddress(1)->srcRaw, (SourceRef_(SOURCE_TYPE_MAX, 0)));
   EXPECT_EQ(mixAddress(1)->weight.numericValue(), 100);
   // New mix at index 0
   EXPECT_EQ(mixAddress(0)->destCh, 0);
-  EXPECT_NE(mixAddress(0)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));  // different default source
+  EXPECT_NE(mixAddress(0)->srcRaw, (SourceRef_(SOURCE_TYPE_MAX, 0)));  // different default source
 }
 
 TEST_F(ArenaInsertDeleteTest, DeleteMixShiftsRemaining)
 {
   mixAddress(0)->destCh = 0;
-  mixAddress(0)->srcRaw = {SOURCE_TYPE_STICK, 0, 0};
+  mixAddress(0)->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
   mixAddress(0)->weight.setNumeric(100);
   mixAddress(1)->destCh = 1;
-  mixAddress(1)->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  mixAddress(1)->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
   mixAddress(1)->weight.setNumeric(50);
   updateMixCount();
 
   deleteMix(0);
 
   EXPECT_EQ(mixAddress(0)->destCh, 1);
-  EXPECT_EQ(mixAddress(0)->srcRaw, (SourceRef{SOURCE_TYPE_MAX, 0, 0}));
+  EXPECT_EQ(mixAddress(0)->srcRaw, (SourceRef_(SOURCE_TYPE_MAX, 0)));
   EXPECT_EQ(mixAddress(0)->weight.numericValue(), 50);
 }
 
@@ -308,7 +308,7 @@ TEST_F(ArenaInsertDeleteTest, InsertExpoPreservesExisting)
 {
   ExpoData* expo0 = expoAddress(0);
   expo0->chn = 0;
-  expo0->srcRaw = {SOURCE_TYPE_STICK, 0, 0};
+  expo0->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
   expo0->weight.setNumeric(100);
   expo0->mode = 3;
   updateExpoCount();
@@ -316,40 +316,40 @@ TEST_F(ArenaInsertDeleteTest, InsertExpoPreservesExisting)
   insertExpo(0, 0);
 
   // Original expo should have moved to index 1
-  EXPECT_EQ(expoAddress(1)->srcRaw, (SourceRef{SOURCE_TYPE_STICK, 0, 0}));
+  EXPECT_EQ(expoAddress(1)->srcRaw, (SourceRef_(SOURCE_TYPE_STICK, 0)));
   EXPECT_EQ(expoAddress(1)->weight.numericValue(), 100);
 }
 
 TEST_F(ArenaInsertDeleteTest, InsertDeleteCustomFn)
 {
   CustomFunctionData* cf0 = customFnAddress(0);
-  cf0->swtch = {SWITCH_TYPE_SWITCH, 0, 1};
+  cf0->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
   cf0->func = FUNC_OVERRIDE_CHANNEL;
 
   CustomFunctionData* cf1 = customFnAddress(1);
-  cf1->swtch = {SWITCH_TYPE_SWITCH, 0, 2};
+  cf1->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 2);
   cf1->func = FUNC_TRAINER;
 
   insertCustomFn(0);
 
   // Original functions should have shifted
   EXPECT_TRUE(customFnAddress(0)->swtch.isNone());  // new empty
-  EXPECT_EQ(customFnAddress(1)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 1}));  // was cf0
+  EXPECT_EQ(customFnAddress(1)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 1)));  // was cf0
   EXPECT_EQ(customFnAddress(1)->func, FUNC_OVERRIDE_CHANNEL);
-  EXPECT_EQ(customFnAddress(2)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 2}));  // was cf1
+  EXPECT_EQ(customFnAddress(2)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 2)));  // was cf1
 
   deleteCustomFn(0);
 
   // Back to original
-  EXPECT_EQ(customFnAddress(0)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 1}));
+  EXPECT_EQ(customFnAddress(0)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 1)));
   EXPECT_EQ(customFnAddress(0)->func, FUNC_OVERRIDE_CHANNEL);
-  EXPECT_EQ(customFnAddress(1)->swtch, (SwitchRef{SWITCH_TYPE_SWITCH, 0, 2}));
+  EXPECT_EQ(customFnAddress(1)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 2)));
   EXPECT_EQ(customFnAddress(1)->func, FUNC_TRAINER);
 }
 
 TEST_F(ArenaInsertDeleteTest, ClearCustomFn)
 {
-  customFnAddress(3)->swtch = {SWITCH_TYPE_SWITCH, 0, 5};
+  customFnAddress(3)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 5);
   customFnAddress(3)->func = FUNC_PLAY_SOUND;
 
   clearCustomFn(3);
@@ -364,7 +364,7 @@ TEST_F(ArenaAccessorTest, ModelResetClearsArena)
 {
   // Write data to arena
   mixAddress(0)->destCh = 5;
-  mixAddress(0)->srcRaw = {SOURCE_TYPE_MAX, 0, 0};
+  mixAddress(0)->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
   expoAddress(0)->chn = 3;
   lswAddress(10)->func = LS_FUNC_VPOS;
 
@@ -388,12 +388,12 @@ TEST(BitFieldCapacity, SourceRefRoundTrip)
   MixData* mix = mixAddress(0);
 
   // Test telemetry source
-  mix->srcRaw = {SOURCE_TYPE_TELEMETRY, 0, 42};
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_TELEMETRY, 42);
   EXPECT_EQ(mix->srcRaw.type, SOURCE_TYPE_TELEMETRY);
   EXPECT_EQ(mix->srcRaw.index, 42);
 
   // Test max index value for uint16_t
-  mix->srcRaw = {SOURCE_TYPE_CHANNEL, 0, 255};
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_CHANNEL, 255);
   EXPECT_EQ(mix->srcRaw.type, SOURCE_TYPE_CHANNEL);
   EXPECT_EQ(mix->srcRaw.index, 255);
 }
@@ -405,11 +405,11 @@ TEST(BitFieldCapacity, SwitchRefRoundTrip)
   MODEL_RESET();
 
   MixData* mix = mixAddress(0);
-  mix->swtch = {SWITCH_TYPE_SWITCH, 0, 42};
+  mix->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 42);
   EXPECT_EQ(mix->swtch.type, SWITCH_TYPE_SWITCH);
   EXPECT_EQ(mix->swtch.index, 42);
 
-  mix->swtch = {SWITCH_TYPE_LOGICAL, SWITCH_FLAG_INVERTED, 10};
+  mix->swtch = SwitchRef_(SWITCH_TYPE_LOGICAL, 10, SWITCH_FLAG_INVERTED);
   EXPECT_EQ(mix->swtch.type, SWITCH_TYPE_LOGICAL);
   EXPECT_EQ(mix->swtch.flags, SWITCH_FLAG_INVERTED);
   EXPECT_EQ(mix->swtch.index, 10);
@@ -419,10 +419,10 @@ TEST(BitFieldCapacity, SwitchRefCanRoundTrip)
 {
   // FlightModeData.swtch is now SwitchRef (4 bytes), can hold any switch.
   // Verify round-trip through the bridge functions for extreme values.
-  SwitchRef ref = SwitchRef{SWITCH_TYPE_TRAINER, 0, 0};
+  SwitchRef ref = SwitchRef_(SWITCH_TYPE_TRAINER, 0);
   EXPECT_EQ(switchRefToSwSrc(ref), SWSRC_LAST)
       << "SWSRC_LAST should round-trip through SwitchRef";
-  ref = SwitchRef{SWITCH_TYPE_TRAINER, SWITCH_FLAG_INVERTED, 0};
+  ref = SwitchRef_(SWITCH_TYPE_TRAINER, 0, SWITCH_FLAG_INVERTED);
   EXPECT_EQ(switchRefToSwSrc(ref), -SWSRC_LAST)
       << "-SWSRC_LAST should round-trip through SwitchRef";
 }

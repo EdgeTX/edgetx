@@ -82,7 +82,7 @@ void SwitchChoice::buildEntries()
     bool hasEntries = false;
 
     for (uint16_t i = 0; i < count; i++) {
-      SwitchRef ref = {t, 0, i};
+      SwitchRef ref = SwitchRef_(t, i);
 
       if (!isSwitchAvailableInMixes(ref)) continue;
 

@@ -105,7 +105,7 @@ void menuModelLogicalSwitches(event_t event)
     LogicalSwitchData * cs = lswAddress(k);
 
     // CSW name
-    SwitchRef sw = {SWITCH_TYPE_LOGICAL, 0, (uint16_t)k};
+    SwitchRef sw = SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)k);
     drawSwitch(0, y, sw, (getSwitch(sw) ? BOLD : 0) | ((sub==k && CURSOR_ON_LINE()) ? INVERS : 0));
 
     // CSW params

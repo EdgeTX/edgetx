@@ -40,7 +40,7 @@ void setDefaultInputs()
   for (int i = 0; i < max_sticks; i++) {
     uint8_t stick_index = inputMappingChannelOrder(i);
     ExpoData *expo = expoAddress(i);
-    expo->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)stick_index};
+    expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)stick_index);
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
     expo->weight.setNumeric(100);
@@ -64,7 +64,7 @@ void setDefaultMixes()
     MixData * mix = mixAddress(i);
     mix->destCh = i;
     mix->weight.setNumeric(100);
-    mix->srcRaw = {SOURCE_TYPE_INPUT, 0, (uint16_t)i};
+    mix->srcRaw = SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)i);
   }
   storageDirty(EE_MODEL);
 }

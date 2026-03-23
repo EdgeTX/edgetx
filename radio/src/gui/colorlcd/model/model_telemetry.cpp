@@ -342,9 +342,9 @@ class SensorSourceChoice : public SourceChoice
       SourceChoice(window, rect,
                    [=]() -> SourceRef {
                      if (*source == 0)
-                       return {SOURCE_TYPE_NONE, 0, 0};
-                     return {SOURCE_TYPE_TELEMETRY, 0,
-                             (uint16_t)((*source - 1) * 3)};
+                       return SourceRef_(SOURCE_TYPE_NONE, 0);
+                     return SourceRef_(SOURCE_TYPE_TELEMETRY,
+                                     (uint16_t)((*source - 1) * 3));
                    },
                    [=](SourceRef ref) {
                      if (ref.type == SOURCE_TYPE_NONE)
@@ -980,9 +980,9 @@ void ModelTelemetryPage::build(Window* window)
       line, rect_t{},
       [=]() -> SourceRef {
         if (g_model.varioData.source == 0)
-          return {SOURCE_TYPE_NONE, 0, 0};
-        return {SOURCE_TYPE_TELEMETRY, 0,
-                (uint16_t)((g_model.varioData.source - 1) * 3)};
+          return SourceRef_(SOURCE_TYPE_NONE, 0);
+        return SourceRef_(SOURCE_TYPE_TELEMETRY,
+                        (uint16_t)((g_model.varioData.source - 1) * 3));
       },
       [=](SourceRef ref) {
         if (ref.type == SOURCE_TYPE_NONE)

@@ -148,7 +148,7 @@ class ScriptEditWindow : public Page
         auto lbl = new DynamicText(
             line, rect_t{},
             [=]() {
-              char* s = getSourceString({SOURCE_TYPE_LUA, 0, (uint16_t)(idx * MAX_SCRIPT_OUTPUTS + i)});
+              char* s = getSourceString(SourceRef_(SOURCE_TYPE_LUA, (uint16_t)(idx * MAX_SCRIPT_OUTPUTS + i)));
               return std::string(s);
             });
         lbl->padLeft(PAD_LARGE);

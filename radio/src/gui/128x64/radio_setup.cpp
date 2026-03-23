@@ -816,7 +816,7 @@ void menuRadioSetup(event_t event)
           auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
           auto mode = reusableBuffer.generalSettings.stickMode;
           for (uint8_t i = 0; i < controls; i++) {
-            SourceRef src = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingConvertMode(mode, i)};
+            SourceRef src = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingConvertMode(mode, i));
             drawSource((5 * FW - 3) + i * (4 * FW + 2), y, src, 0);
           }
         }

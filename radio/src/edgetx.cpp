@@ -480,7 +480,7 @@ SourceRef getMovedSource()
   for (uint8_t i = 0; i < MAX_INPUTS; i++) {
     if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
       if (!isInputRecursive(i)) {
-        result = {SOURCE_TYPE_INPUT, 0, i};
+        result = SourceRef_(SOURCE_TYPE_INPUT, i);
         break;
       }
     }
@@ -490,7 +490,7 @@ SourceRef getMovedSource()
   if (result.isNone()) {
     for (uint8_t i = 0; i < MAX_TRIMS; i++) {
       if (abs(getTrimValue(mixerCurrentFlightMode, i) - trimStates[i]) > 0) {
-        result = {SOURCE_TYPE_TRIM, 0, i};
+        result = SourceRef_(SOURCE_TYPE_TRIM, i);
         break;
       }
     }
@@ -502,10 +502,10 @@ SourceRef getMovedSource()
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
         auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
         if (i >= offset) {
-          result = {SOURCE_TYPE_POT, 0, (uint16_t)(i - offset)};
+          result = SourceRef_(SOURCE_TYPE_POT, (uint16_t)(i - offset));
           break;
         }
-        result = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingConvertMode(i)};
+        result = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingConvertMode(i));
         break;
       }
     }
@@ -815,12 +815,12 @@ bool isThrottleWarningAlertNeeded()
   // in case an output channel is chosen as throttle source
   // we assume the throttle stick is the input (no computed channels yet)
   if (thrSrc.type == SOURCE_TYPE_CHANNEL) {
-    thrSrc = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingGetThrottle()};
+    thrSrc = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingGetThrottle());
   }
 
   // Default (none) means use throttle stick
   if (thrSrc.isNone()) {
-    thrSrc = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingGetThrottle()};
+    thrSrc = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingGetThrottle());
   }
 
   if (!mixerTaskRunning()) getADC();
@@ -2133,7 +2133,7 @@ bool validateSFGV(CustomFunctionData* cfn)
   if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
     int32_t v = CFN_PARAM(cfn);
     int16_t vmin, vmax;
-    getMixSrcRange({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}, vmin, vmax);
+    getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), vmin, vmax);
     if (v < vmin) v = vmin;
     else if (v > vmax) v = vmax;
     if (CFN_PARAM(cfn) != v) rv = true;
