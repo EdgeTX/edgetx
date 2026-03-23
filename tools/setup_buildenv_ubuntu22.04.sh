@@ -141,8 +141,11 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step $((STEP++)): Adding GNU Arm Embedded Toolchain to PATH of current user ==="
-echo 'export PATH="/opt/gcc-arm-none-eabi/bin:$PATH"' >> ~/.bashrc
+echo "=== Step $((STEP++)): Adding GNU Arm Embedded Toolchain and Qt to PATH of current user ==="
+cat >> ~/.bashrc << EOF
+export PATH="/opt/gcc-arm-none-eabi/bin:\$PATH"
+export PATH="/opt/qt/${QT_VERSION}/gcc_64/bin:\$PATH"
+EOF
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
