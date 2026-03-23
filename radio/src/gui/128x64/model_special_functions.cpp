@@ -135,6 +135,7 @@ void onCustomFunctionsMenu(const char * result)
   }
   else if (result == STR_CLEAR) {
     memset(cfn, 0, sizeof(CustomFunctionData));
+    if (eeFlags == EE_MODEL) customFnTrimTrailing();
     storageDirty(eeFlags);
   }
   else if (result == STR_INSERT) {
@@ -169,6 +170,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
   uint8_t eeFlags = (functions == customFnAddress(0)) ? EE_MODEL : EE_GENERAL;
 
+  // Reclaim trailing empty slots when exiting edit mode
+  if (eeFlags == EE_MODEL &&
+      (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT)))
+    customFnTrimTrailing();
+
 #if defined(PCBTARANIS)
 #if defined(PCBXLITE)
   // ENT LONG on xlite brings up switch type menu, so this menu is activated with SHIFT + ENT LONG
@@ -195,10 +201,18 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
   }
 #endif // PCBTARANIS
 
+  bool isModelFn = (eeFlags == EE_MODEL);
+
   for (uint8_t i=0; i<NUM_BODY_LINES; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     uint8_t k = i+menuVerticalOffset;
 
+    // Grow arena on demand when editing model functions
+    if (isModelFn && sub==k && s_editMode>0) {
+      CustomFunctionData* allocated = customFnAllocAt(k);
+      if (!allocated) continue;  // arena full
+      functions = customFnAddress(0);  // base may have shifted
+    }
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
     for (uint8_t j=0; j<6; j++) {

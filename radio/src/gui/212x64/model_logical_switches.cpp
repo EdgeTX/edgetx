@@ -83,6 +83,10 @@ void menuModelLogicalSwitches(event_t event)
 {
   MENU(STR_MENULOGICALSWITCHES, menuTabModel, MENU_MODEL_LOGICAL_SWITCHES, MAX_LOGICAL_SWITCHES, { NAVIGATION_LINE_BY_LINE|LS_FIELD_LAST/*repeated...*/ });
 
+  // Reclaim trailing empty slots when exiting edit mode
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT))
+    lswTrimTrailing();
+
   int k = 0;
   int sub = menuVerticalPosition;
   horzpos_t horz = menuHorizontalPosition;
@@ -105,7 +109,9 @@ void menuModelLogicalSwitches(event_t event)
     LcdFlags attr = (sub==k ? ((s_editMode>0) ? BLINK|INVERS : INVERS)  : 0);
     LcdFlags attr1 = (horz==1 ? attr : 0);
     LcdFlags attr2 = (horz==2 ? attr : 0);
-    LogicalSwitchData * cs = lswAddress(k);
+    // Use lswAllocAt when editing to grow the arena on demand
+    LogicalSwitchData * cs = (attr && s_editMode>0) ? lswAllocAt(k) : lswAddress(k);
+    if (!cs) continue;  // arena full
 
     // CSW name
     SwitchRef sw = SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)k);
