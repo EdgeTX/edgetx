@@ -886,7 +886,7 @@ static const struct YamlNode struct_ModelData[] = {
 };
 static const struct YamlNode struct_PartialModel[] = {
   YAML_STRUCT("header", 192, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 160, 3, struct_TimerData, NULL),
+  YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_END
 };
 
