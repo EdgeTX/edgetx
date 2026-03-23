@@ -100,32 +100,27 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_SOURCE:
-        {
-          lcdDrawTextAlignedLeft(y, STR_SOURCE);
-          drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
-          if (attr && menuHorizontalPosition==0) {
-            ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL,
-                isSourceAvailable);
-          }
-          if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
-            uint16_t telemIdx = ed->srcRaw.index;
-            drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+30, y, telemIdx/3, getValue(ed->srcRaw), LEFT|(menuHorizontalPosition==1?attr:0));
-            if (attr && menuHorizontalPosition == 1) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
-          }
-          else if (attr) {
-            menuHorizontalPosition = 0;
-          }
+        lcdDrawTextAlignedLeft(y, STR_SOURCE);
+        drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
+        if (attr && menuHorizontalPosition==0) {
+          ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL,
+              isSourceAvailable);
+        }
+        if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
+          uint16_t telemIdx = ed->srcRaw.index;
+          drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+30, y, telemIdx/3, getValue(ed->srcRaw), LEFT|(menuHorizontalPosition==1?attr:0));
+          if (attr && menuHorizontalPosition == 1) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
+        } else if (attr) {
+          menuHorizontalPosition = 0;
         }
         break;
 
-      case EXPO_FIELD_SCALE:
-        {
-          lcdDrawTextAlignedLeft(y, STR_SCALE);
-          uint16_t telemIdx = ed->srcRaw.index;
-          drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, telemIdx / 3, convertTelemValue(telemIdx + 1, ed->scale), LEFT|attr);
-          if (attr) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
-        }
-        break;
+      case EXPO_FIELD_SCALE: {
+        lcdDrawTextAlignedLeft(y, STR_SCALE);
+        uint16_t telemIdx = ed->srcRaw.index;
+        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, telemIdx / 3, convertTelemValue(telemIdx + 1, ed->scale), LEFT|attr);
+        if (attr) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
+      } break;
 
       case EXPO_FIELD_WEIGHT:
         editValueOrSource(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, &ed->weight, -100, 100, attr, event);

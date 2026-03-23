@@ -206,15 +206,13 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
       uint8_t active = (attr && s_editMode > 0);
       switch (j) {
         case 0:
-        {
           if (sub==k && menuHorizontalPosition < 1 && cfn->swtch.isNone()) {
             CFN_ACTIVE(cfn) = 0; // Default is disabled
             drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | INVERS | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
             if (active) {
               cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, isSwitchAvailableInCustomFunctions);
             }
-          }
-          else {
+          } else {
             drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
             if (active || (attr && event==EVT_KEY_LONG(KEY_ENTER))) {
               if (event == EVT_KEY_LONG(KEY_ENTER))
@@ -222,7 +220,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, isSwitchAvailableInCustomFunctions);
             }
           }
-        }
           if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
             func = CFN_FUNC(cfn) = func+1;
           }

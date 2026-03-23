@@ -252,23 +252,21 @@ void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES, timer.mode,
                      menuHorizontalPosition == 0 ? attr : 0);
 
-  {
-    drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timer.swtch,
-               menuHorizontalPosition == 1 ? attr : 0);
+  drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timer.swtch,
+             menuHorizontalPosition == 1 ? attr : 0);
 
-    if (attr && menuHorizontalPosition < 0) {
-      lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
-    }
+  if (attr && menuHorizontalPosition < 0) {
+    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
+  }
 
-    if (attr && s_editMode > 0) {
-      switch (menuHorizontalPosition) {
-        case 0:
-          CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
-          break;
-        case 1: {
-          timer.swtch = checkIncDecSwitch(event, timer.swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
-          break;
-        }
+  if (attr && s_editMode > 0) {
+    switch (menuHorizontalPosition) {
+      case 0:
+        CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
+        break;
+      case 1: {
+        timer.swtch = checkIncDecSwitch(event, timer.swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
+        break;
       }
     }
   }
@@ -1281,13 +1279,11 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
-        {
-          lcdDrawTextIndented(y, STR_SWITCH);
-          drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
-          if(attr) {
-            g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
-                g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, isSwitchAvailableForArming);
-          }
+        lcdDrawTextIndented(y, STR_SWITCH);
+        drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
+        if(attr) {
+          g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
+              g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, isSwitchAvailableForArming);
         }
         break;
 #endif

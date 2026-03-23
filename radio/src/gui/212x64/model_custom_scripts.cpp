@@ -101,15 +101,12 @@ void menuModelCustomScriptOne(event_t event)
                                 scriptInputsOutputs[s_currIdx].inputs[inputIdx].min-scriptInputsOutputs[s_currIdx].inputs[inputIdx].def, \
                                 scriptInputsOutputs[s_currIdx].inputs[inputIdx].max-scriptInputsOutputs[s_currIdx].inputs[inputIdx].def);
         }
-      }
-      else {
-        {
-          SourceRef srcRef = g_model.scriptsData[s_currIdx].inputs[inputIdx].source;
-          drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcRef, attr);
-          if (attr) {
-            g_model.scriptsData[s_currIdx].inputs[inputIdx].source =
-                checkIncDecSource(event, srcRef, SRCMASK_ALL);
-          }
+      } else {
+        SourceRef srcRef = g_model.scriptsData[s_currIdx].inputs[inputIdx].source;
+        drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcRef, attr);
+        if (attr) {
+          g_model.scriptsData[s_currIdx].inputs[inputIdx].source =
+              checkIncDecSource(event, srcRef, SRCMASK_ALL);
         }
       }
     }

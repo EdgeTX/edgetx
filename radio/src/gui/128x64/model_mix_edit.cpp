@@ -131,13 +131,10 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_SOURCE:
-        {
-          lcdDrawTextAlignedLeft(y, STR_SOURCE);
-          drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
-          if (attr) {
-            md2->srcRaw = checkIncDecSource(event, md2->srcRaw, SRCMASK_ALL,
-                isSourceAvailable);
-          }
+        lcdDrawTextAlignedLeft(y, STR_SOURCE);
+        drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
+        if (attr) {
+          md2->srcRaw = checkIncDecSource(event, md2->srcRaw, SRCMASK_ALL, isSourceAvailable);
         }
         break;
 

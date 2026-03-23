@@ -128,9 +128,7 @@ void menuModelFlightModeOne(event_t event)
         break;
 
       case ITEM_MODEL_FLIGHT_MODE_SWITCH:
-        {
-          fm->swtch = editSwitch(MIXES_2ND_COLUMN, y, fm->swtch, attr, event);
-        }
+        fm->swtch = editSwitch(MIXES_2ND_COLUMN, y, fm->swtch, attr, event);
         break;
 
       case ITEM_MODEL_FLIGHT_MODE_TRIMS:

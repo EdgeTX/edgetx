@@ -200,11 +200,9 @@ void menuModelLogicalSwitchOne(event_t event)
 
       case LS_FIELD_ANDSW:
         lcdDrawTextAlignedLeft(y, STR_AND_SWITCH);
-        {
-          drawSwitch(CSWONE_2ND_COLUMN, y, cs->andsw, attr);
-          if (attr) {
-            cs->andsw = checkIncDecSwitch(event, cs->andsw, SWMASK_LOGICAL_AND, EE_MODEL, isSwitchAvailableInLogicalSwitches);
-          }
+        drawSwitch(CSWONE_2ND_COLUMN, y, cs->andsw, attr);
+        if (attr) {
+          cs->andsw = checkIncDecSwitch(event, cs->andsw, SWMASK_LOGICAL_AND, EE_MODEL, isSwitchAvailableInLogicalSwitches);
         }
         break;
 
