@@ -97,8 +97,14 @@
 // Hard safety caps for arena-backed arrays.
 // These bound the maximum possible elements regardless of arena size,
 // and are used to size parallel state arrays (mixState, act, etc.)
-#define MAX_MIXERS_HARD                128
-#define MAX_EXPOS_HARD                 128
+// On F4, the arena is too small for >64 mixes/expos, so keep at 64.
+#if defined(STM32F4)
+  #define MAX_MIXERS_HARD              64
+  #define MAX_EXPOS_HARD               64
+#else
+  #define MAX_MIXERS_HARD              128
+  #define MAX_EXPOS_HARD               128
+#endif
 #define MAX_CURVES_HARD                64
 #define MAX_CURVE_POINTS_HARD          1024
 #define MAX_LOGICAL_SWITCHES_HARD      64
