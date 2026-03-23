@@ -104,14 +104,12 @@ void menuModelExpoOne(event_t event)
         if (attr) ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL, isSourceAvailable);
         break;
 
-      case EXPO_FIELD_SCALE:
-      {
+      case EXPO_FIELD_SCALE: {
         lcdDrawTextAlignedLeft(y, STR_SCALE);
         uint16_t telemIdx = ed->srcRaw.index;
         drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, telemIdx / 3, convertTelemValue(telemIdx + 1, ed->scale),  attr);
         if (attr) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(telemIdx + 1), EE_MODEL);
-        break;
-      }
+      } break;
 
       case EXPO_FIELD_WEIGHT:
         editValueOrSource(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, &ed->weight, -100, 100, attr, event);

@@ -177,6 +177,9 @@ Arena is now dynamically sized to actual model usage after load.
 - ✅ 4.10: GUI capacity checks use `freeBytes() < sizeof(Element)` + HARD max
 - ✅ 4.11: Model memory usage indicator on colorlcd model setup page
 - ✅ 4.12: `curveEnd[]` sized to `MAX_CURVES_HARD` (was `MAX_CURVES`)
+- ✅ 4.13: Fix YAML round-trip for IDX extern arrays — `toNextElmt()` was growing arena during `generate()` (infinite loop producing duplicate output); `toChild()` after IDX lost element index for extern arrays (data written to element 0)
+- ✅ 4.14: `trimTrailingEmpty()` reclaims arena space when UI allocates sparse indexed slots (LS/CF) then backs out without changes or clears trailing slots. Called from close handlers and clear actions.
+- ✅ 4.15: Extract `lswAddress`/`lswAllocAt`/`lswTrimTrailing` into `logicalsw.h` (mirrors `customfn.h`)
 
 ---
 
@@ -190,6 +193,6 @@ Arena is now dynamically sized to actual model usage after load.
 
 1. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
 
-2. **stdlcd LS/CF editing beyond dyn count**: stdlcd logical switch editor writes directly to `lswAddress(idx)` via `checkIncDec`. If idx >= dyn count, writes go to static dummy (lost). Needs grow-on-demand integration in stdlcd edit paths.
+2. ~~**stdlcd LS/CF editing beyond dyn count**~~: Fixed — stdlcd LS editors use `lswAllocAt` when entering edit mode; CF editors call `customFnAllocAt` to grow arena on demand before writing.
 
 3. **Future: eliminate `ramBackupUncompressed` buffer**: replace RLE with LZ4 streaming compression directly from live data. Would save ~4-8 KB on all platforms.

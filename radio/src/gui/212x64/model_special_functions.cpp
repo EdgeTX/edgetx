@@ -96,6 +96,7 @@ void onCustomFunctionsMenu(const char * result)
   }
   else if (result == STR_CLEAR) {
     memset(cfn, 0, sizeof(CustomFunctionData));
+    if (eeFlags == EE_MODEL) customFnTrimTrailing();
     storageDirty(eeFlags);
   }
   else if (result == STR_INSERT) {
@@ -169,6 +170,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 {
   int sub = menuVerticalPosition;
   uint8_t eeFlags = (functions == customFnAddress(0)) ? EE_MODEL : EE_GENERAL;
+
+  // Reclaim trailing empty slots when exiting edit mode
+  if (eeFlags == EE_MODEL &&
+      (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT)))
+    customFnTrimTrailing();
+
   if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
     CustomFunctionData *cfn = &functions[sub];
     if (!CFN_EMPTY(cfn))
@@ -192,8 +199,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     int k = i+menuVerticalOffset;
 
-    drawStringWithIndex(0, y, functions == customFnAddress(0) ? STR_SF : STR_GF, k+1, (sub==k && menuHorizontalPosition<0) ? INVERS : 0);
+    bool isModelFn = (eeFlags == EE_MODEL);
+    drawStringWithIndex(0, y, isModelFn ? STR_SF : STR_GF, k+1, (sub==k && menuHorizontalPosition<0) ? INVERS : 0);
 
+    // Grow arena on demand when editing model functions
+    if (isModelFn && sub==k && s_editMode>0) {
+      CustomFunctionData* allocated = customFnAllocAt(k);
+      if (!allocated) continue;  // arena full
+      functions = customFnAddress(0);  // base may have shifted
+    }
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
     for (uint8_t j=0; j<6; j++) {

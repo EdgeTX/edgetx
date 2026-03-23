@@ -59,7 +59,11 @@ void menuModelLogicalSwitchOne(event_t event)
 {
   title(STR_MENULOGICALSWITCH);
 
-  LogicalSwitchData * cs = lswAddress(s_currIdx);
+  LogicalSwitchData * cs = lswAllocAt(s_currIdx);
+  if (!cs) {
+    popMenu();
+    return;
+  }
 
   SwitchRef sw = SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)s_currIdx);
   uint8_t cstate = lswFamily(cs->func);
@@ -244,6 +248,7 @@ void onLogicalSwitchesMenu(const char *result)
   }
   else if (result == STR_CLEAR) {
     memset(cs, 0, sizeof(LogicalSwitchData));
+    lswTrimTrailing();
     storageDirty(EE_MODEL);
   }
 }
@@ -251,6 +256,10 @@ void onLogicalSwitchesMenu(const char *result)
 void menuModelLogicalSwitches(event_t event)
 {
   SIMPLE_MENU(STR_MENULOGICALSWITCHES, menuTabModel, MENU_MODEL_LOGICAL_SWITCHES, HEADER_LINE+MAX_LOGICAL_SWITCHES);
+
+  // Reclaim trailing empty slots after returning from edit page
+  if (event == EVT_ENTRY_UP)
+    lswTrimTrailing();
 
   coord_t y = 0;
   uint8_t k = 0;
