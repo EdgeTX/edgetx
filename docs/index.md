@@ -22,5 +22,5 @@ EdgeTX is an open-source firmware for RC radio transmitters. This documentation 
 | [Building — CodeSpaces](building/codespaces.md) | Build in a web browser with no local setup |
 | [Building — Linux (Ubuntu 24.04)](building/linux-ubuntu-24.04.md) | Recommended local build environment |
 | [Building — Windows](building/windows.md) | Native Windows build using Visual Studio + Ninja |
-| [Unbrick your radio](mods/unbrick.md) | Recover from a failed flash using STM32CubeProgrammer |
+| [Unbrick your radio](troubleshooting/unbrick.md) | Recover from a failed flash using STM32CubeProgrammer |
 | [Radio Specifications](hardware/radio-specs.md) | Hardware specs for supported radios |

@@ -66,6 +66,6 @@ mv firmware.bin edgetx_main_tx16s_bt_release.bin
 
 In the left file browser tree open the **build** folder and then open **arm-none-eabi** folder. Right click at _edgetx_main_tx16s_bt_release.bin_ and select Download.
 
-Put the downloaded firmware binary into your radio SD card \FIRMWARE subfolder, and flash it to your radio either using EdgeTX bootloader, [EdgeTX Buddy](https://buddy.edgetx.org/), EdgeTX Companion or [STM32CubeProgrammer](../mods/unbrick.md).
+Put the downloaded firmware binary into your radio SD card \FIRMWARE subfolder, and flash it to your radio either using EdgeTX bootloader, [EdgeTX Buddy](https://buddy.edgetx.org/), EdgeTX Companion or [STM32CubeProgrammer](../troubleshooting/unbrick.md).
 
 Use [EdgeTX Buddy](https://buddy.edgetx.org/) or EdgeTX Companion to fill your SD card appropriately for your radio.
