@@ -26,6 +26,7 @@
 #include "model_arena.h"
 #include "mixes.h"
 #include "expos.h"
+#include "customfn.h"
 
 namespace Backup {
 #define BACKUP
@@ -39,6 +40,7 @@ static constexpr uint32_t ARENA_SIZE =
     MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData);
 PACK(struct RamBackupUncompressed {
   ModelData model;
+  ::ModelDynData arenaCounts;
   uint8_t arena[ARENA_SIZE];
   RadioData radio;
 });
@@ -62,33 +64,25 @@ TEST(Storage, BackupArenaRoundTrip)
 {
   MODEL_RESET();
 
-  // Set up arena layout first, then populate data
-  g_model.dyn.mixCount = 1;
-  g_model.dyn.expoCount = 1;
-  g_model.dyn.curveCount = 0;
-  g_model.dyn.pointsCount = 0;
-  g_model.dyn.logicalSwCount = 1;
-  g_model.dyn.customFnCount = 1;
-  g_modelArena.layout(g_model.dyn);
-
-  MixData* mix0 = mixAddress(0);
+  // Allocate arena sections and populate data using AllocAt helpers
+  MixData* mix0 = mixAllocAt(0);
   mix0->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 2);
   mix0->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 3);
   mix0->weight.setNumeric(75);
   mix0->destCh = 0;
   strncpy(mix0->name, "Mix1", sizeof(mix0->name));
 
-  ExpoData* expo0 = expoAddress(0);
+  ExpoData* expo0 = expoAllocAt(0);
   expo0->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
   expo0->weight.setNumeric(100);
   expo0->chn = 0;
   strncpy(expo0->name, "Exp1", sizeof(expo0->name));
 
-  LogicalSwitchData* lsw0 = lswAddress(0);
+  LogicalSwitchData* lsw0 = lswAllocAt(0);
   lsw0->func = LS_FUNC_VPOS;
   lsw0->andsw = SwitchRef_(SWITCH_TYPE_ON, 0);
 
-  CustomFunctionData* cfn0 = customFnAddress(0);
+  CustomFunctionData* cfn0 = customFnAllocAt(0);
   cfn0->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
   cfn0->func = FUNC_PLAY_SOUND;
 
@@ -110,11 +104,11 @@ TEST(Storage, BackupArenaRoundTrip)
   // Restore
   EXPECT_TRUE(rambackupRestore());
 
-  // Verify model dyn counts
-  EXPECT_EQ(g_model.dyn.mixCount, 1);
-  EXPECT_EQ(g_model.dyn.expoCount, 1);
-  EXPECT_EQ(g_model.dyn.logicalSwCount, 1);
-  EXPECT_EQ(g_model.dyn.customFnCount, 1);
+  // Verify arena section counts
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_MIXES), 1);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_EXPOS), 1);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 1);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_CUSTOM_FN), 1);
 
   // Verify arena element data (backup-relevant fields)
   mix0 = mixAddress(0);

@@ -25,7 +25,7 @@
 
 CustomFunctionData *customFnAddress(uint8_t idx)
 {
-  if (idx >= g_model.dyn.customFnCount) {
+  if (idx >= g_modelArena.sectionCount(ARENA_CUSTOM_FN)) {
     static CustomFunctionData dummy = {};
     memset(&dummy, 0, sizeof(dummy));
     return &dummy;
@@ -36,10 +36,9 @@ CustomFunctionData *customFnAddress(uint8_t idx)
 
 CustomFunctionData *customFnAllocAt(uint8_t idx)
 {
-  if (idx >= g_model.dyn.customFnCount) {
+  if (idx >= g_modelArena.sectionCount(ARENA_CUSTOM_FN)) {
     if (!g_modelArena.ensureSectionCapacity(ARENA_CUSTOM_FN, idx + 1))
       return nullptr;
-    g_model.dyn.customFnCount = idx + 1;
   }
   return customFnAddress(idx);
 }
@@ -49,7 +48,6 @@ void insertCustomFn(uint8_t idx)
   if (!g_modelArena.insertInSection(ARENA_CUSTOM_FN, idx,
                                      sizeof(CustomFunctionData)))
     return;
-  g_model.dyn.customFnCount++;
   storageDirty(EE_MODEL);
 }
 
@@ -57,7 +55,6 @@ void deleteCustomFn(uint8_t idx)
 {
   g_modelArena.deleteFromSection(ARENA_CUSTOM_FN, idx,
                                   sizeof(CustomFunctionData));
-  g_model.dyn.customFnCount--;
   storageDirty(EE_MODEL);
 }
 

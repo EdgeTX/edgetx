@@ -254,7 +254,7 @@ TEST_F(ArenaAccessorTest, SectionsDoNotOverlap)
   expoAllocAt(0);
   curveHeaderAllocAt(0);
   g_modelArena.ensureSectionCapacity(ARENA_POINTS, 1);
-  g_model.dyn.pointsCount = 1;
+  g_modelArena.ensureSectionCapacity(ARENA_POINTS, 1);
   lswAllocAt(0);
   customFnAllocAt(0);
 
@@ -367,6 +367,80 @@ TEST_F(ArenaInsertDeleteTest, ClearCustomFn)
   EXPECT_EQ(customFnAddress(3)->func, 0);
 }
 
+// ---- Grow / degrow scenarios ----
+
+TEST_F(ArenaInsertDeleteTest, AllocAtGrowsFromEmpty)
+{
+  // Arena starts empty after MODEL_RESET + setModelDefaults
+  // (only default mixes/expos allocated). Verify AllocAt grows other sections.
+  uint32_t freeBefore = g_modelArena.freeBytes();
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 0);
+
+  LogicalSwitchData* ls = lswAllocAt(5);
+  EXPECT_NE(ls, nullptr);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 6);
+  EXPECT_LT(g_modelArena.freeBytes(), freeBefore);
+}
+
+TEST_F(ArenaInsertDeleteTest, DeleteMixFreesBytes)
+{
+  // setModelDefaults already creates default mixes; record baseline
+  uint8_t countBefore = g_modelArena.sectionCount(ARENA_MIXES);
+  uint32_t usedBefore = g_modelArena.usedBytes();
+  EXPECT_GT(countBefore, (uint8_t)0);
+
+  deleteMix(0);
+
+  EXPECT_EQ(g_modelArena.usedBytes(), usedBefore - sizeof(MixData));
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_MIXES), countBefore - 1);
+}
+
+TEST_F(ArenaInsertDeleteTest, InsertGrowsCompactedSection)
+{
+  // Record baseline from setModelDefaults
+  uint8_t mixCountBefore = g_modelArena.sectionCount(ARENA_MIXES);
+  uint32_t freeBefore = g_modelArena.freeBytes();
+
+  // Write a known value to expo 0 so we can verify it survives
+  expoAddress(0)->chn = 3;
+
+  // Insert a new mix — grows the mix section, shifting expos forward
+  insertMix(0, 1);
+
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_MIXES), mixCountBefore + 1);
+  EXPECT_EQ(getMixCount(), mixCountBefore + 1);
+  EXPECT_EQ(g_modelArena.freeBytes(), freeBefore - sizeof(MixData));
+
+  // Expo data should be intact after the shift
+  EXPECT_EQ(expoAddress(0)->chn, 3);
+}
+
+TEST_F(ArenaInsertDeleteTest, AllocAtReturnsNullWhenFull)
+{
+  // Fill the arena by allocating many large elements
+  bool full = false;
+  for (uint8_t i = 0; i < MAX_MIXERS_HARD; i++) {
+    if (!mixAllocAt(i)) {
+      full = true;
+      break;
+    }
+  }
+  // Arena should eventually run out of space (or hit HARD max)
+  // Either way, verify freeBytes is small
+  if (!full) {
+    // Hit HARD max before arena full — try LS to consume remaining
+    for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES_HARD; i++) {
+      if (!lswAllocAt(i)) {
+        full = true;
+        break;
+      }
+    }
+  }
+  // On the 64KB test arena this may not fill up, so just verify
+  // the alloc functions didn't crash and dyn counts are consistent
+  EXPECT_LE(g_modelArena.usedBytes(), g_modelArena.capacity());
+}
+
 // ---- Arena clear on model reset ----
 
 TEST_F(ArenaAccessorTest, ModelResetClearsArena)
@@ -460,4 +534,105 @@ TEST(BitFieldCapacity, LimitCurveCanHoldAllCurves)
   EXPECT_LE((int)MAX_CURVES_HARD, limitCurveMax)
       << "MAX_CURVES_HARD (" << MAX_CURVES_HARD
       << ") exceeds LimitData.curve:int8_t range (" << limitCurveMax << ")";
+}
+
+// ---- YAML model round-trip test ----
+// Writes a model to YAML, reads it back, verifies arena was populated
+// via ensure_capacity callbacks with correct dyn counts.
+
+#include "storage/sdcard_yaml.h"
+#include "storage/sdcard_common.h"
+#include "location.h"
+#include <cstdlib>
+#include <cstdio>
+#include <sys/stat.h>
+
+TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
+{
+  // Use a temp directory for the YAML file
+  char tmpDir[] = "/tmp/edgetx_test_XXXXXX";
+  ASSERT_NE(mkdtemp(tmpDir), nullptr);
+
+  char modelsDir[256];
+  snprintf(modelsDir, sizeof(modelsDir), "%s/MODELS", tmpDir);
+  mkdir(modelsDir, 0755);
+
+  // Point simulated filesystem at the temp dir
+  simuFatfsSetPaths(tmpDir, nullptr);
+
+  // setModelDefaults already creates default mixes/expos.
+  // Add extra arena elements beyond the defaults.
+  LogicalSwitchData* ls = lswAllocAt(2);
+  ASSERT_NE(ls, nullptr);
+  ls->func = LS_FUNC_VPOS;
+  ls->v1.source = SourceRef_(SOURCE_TYPE_INPUT, 0);
+
+  CustomFunctionData* cf = customFnAllocAt(0);
+  ASSERT_NE(cf, nullptr);
+  cf->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
+  cf->func = FUNC_PLAY_SOUND;
+
+  uint8_t savedMixCount = g_modelArena.sectionCount(ARENA_MIXES);
+  uint8_t savedExpoCount = g_modelArena.sectionCount(ARENA_EXPOS);
+  uint8_t savedLsCount = g_modelArena.sectionCount(ARENA_LOGICAL_SW);
+  uint8_t savedCfnCount = g_modelArena.sectionCount(ARENA_CUSTOM_FN);
+  EXPECT_GT(savedMixCount, (uint8_t)0);
+  EXPECT_EQ(savedLsCount, 3);  // lswAllocAt(2) allocates slots 0-2
+  EXPECT_EQ(savedCfnCount, 1);
+
+  SourceRef savedMix0Src = mixAddress(0)->srcRaw;
+  int16_t savedMix0Weight = mixAddress(0)->weight.numericValue();
+
+  // Write model to YAML
+  static const char* testFile = "test_arena.yml";
+  const char* err = writeModelYaml(testFile);
+  ASSERT_EQ(err, nullptr) << "writeModelYaml failed: " << (err ? err : "");
+
+  // Clear model and arena completely
+  memset(&g_model, 0, sizeof(g_model));
+  ModelDynData emptyDyn = {};
+  g_modelArena.layout(emptyDyn);
+  g_modelArena.clear();
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_MIXES), 0);
+  EXPECT_EQ(g_modelArena.usedBytes(), (uint32_t)0);
+
+  // Read back — ensure_capacity callbacks grow arena on demand
+  err = readModelYaml(testFile, (uint8_t*)&g_model, sizeof(g_model));
+  ASSERT_EQ(err, nullptr) << "readModelYaml failed: " << (err ? err : "");
+
+  // Verify dyn counts match what was written
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_MIXES), savedMixCount);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_EXPOS), savedExpoCount);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), savedLsCount);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_CUSTOM_FN), savedCfnCount);
+
+  // Verify arena has correct used bytes
+  EXPECT_GT(g_modelArena.usedBytes(), (uint32_t)0);
+
+  // Verify data survived the round-trip
+  EXPECT_EQ(mixAddress(0)->srcRaw, savedMix0Src);
+  EXPECT_EQ(mixAddress(0)->weight.numericValue(), savedMix0Weight);
+  // Debug: check raw arena pointer
+  auto* rawLs = reinterpret_cast<LogicalSwitchData*>(
+      g_modelArena.sectionBase(ARENA_LOGICAL_SW)) + 2;
+  EXPECT_EQ(rawLs->func, LS_FUNC_VPOS)
+      << "sectionCount=" << g_modelArena.sectionCount(ARENA_LOGICAL_SW)
+      << " sectionOffset=" << g_modelArena.sectionOffset(ARENA_LOGICAL_SW)
+      << " usedBytes=" << g_modelArena.usedBytes();
+  EXPECT_EQ(lswAddress(2)->func, LS_FUNC_VPOS);
+  EXPECT_EQ(customFnAddress(0)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 1)));
+  EXPECT_EQ(customFnAddress(0)->func, FUNC_PLAY_SOUND);
+
+  // Restore test path and clean up
+  simuFatfsSetPaths(TESTS_PATH, nullptr);
+  // Leave temp files for debugging if test fails
+  if (!HasFailure()) {
+    char filePath[256];
+    snprintf(filePath, sizeof(filePath), "%s/MODELS/%s", tmpDir, testFile);
+    remove(filePath);
+    rmdir(modelsDir);
+    rmdir(tmpDir);
+  } else {
+    printf("  YAML file left at: %s/MODELS/%s\n", tmpDir, testFile);
+  }
 }

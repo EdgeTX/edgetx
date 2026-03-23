@@ -67,98 +67,43 @@ static inline void check_yaml_funcs()
 #include "mixes.h"
 
 // YAML extern array callbacks.
-// get_ptr returns g_model.dyn counts (the allocated section size).
+// get_ptr returns the section base and current element count.
 // ensure_capacity grows the arena section on demand during parsing.
 
-static uint8_t* yaml_get_mix_ptr(uint16_t* count)
-{
-  *count = g_model.dyn.mixCount;
-  return g_modelArena.sectionBase(ARENA_MIXES);
+#define YAML_GET_PTR(name, section) \
+static uint8_t* yaml_get_##name##_ptr(uint16_t* count) { \
+  *count = g_modelArena.sectionCount(section); \
+  return g_modelArena.sectionBase(section); \
 }
 
-static bool yaml_ensure_mix_capacity(uint16_t min_count)
-{
-  if (min_count > MAX_MIXERS_HARD) return false;
-  if (g_model.dyn.mixCount >= min_count) return true;
-  if (!g_modelArena.ensureSectionCapacity(ARENA_MIXES, min_count)) return false;
-  g_model.dyn.mixCount = min_count;
-  return true;
+#define YAML_ENSURE(name, section, hard_max) \
+static bool yaml_ensure_##name##_capacity(uint16_t min_count) { \
+  if (min_count > hard_max) return false; \
+  return g_modelArena.ensureSectionCapacity(section, min_count); \
 }
 
-static uint8_t* yaml_get_expo_ptr(uint16_t* count)
-{
-  *count = g_model.dyn.expoCount;
-  return g_modelArena.sectionBase(ARENA_EXPOS);
-}
+YAML_GET_PTR(mix, ARENA_MIXES)
+YAML_ENSURE(mix, ARENA_MIXES, MAX_MIXERS_HARD)
 
-static bool yaml_ensure_expo_capacity(uint16_t min_count)
-{
-  if (min_count > MAX_EXPOS_HARD) return false;
-  if (g_model.dyn.expoCount >= min_count) return true;
-  if (!g_modelArena.ensureSectionCapacity(ARENA_EXPOS, min_count)) return false;
-  g_model.dyn.expoCount = min_count;
-  return true;
-}
+YAML_GET_PTR(expo, ARENA_EXPOS)
+YAML_ENSURE(expo, ARENA_EXPOS, MAX_EXPOS_HARD)
 
-static uint8_t* yaml_get_curves_ptr(uint16_t* count)
-{
-  *count = g_model.dyn.curveCount;
-  return g_modelArena.sectionBase(ARENA_CURVES);
-}
+YAML_GET_PTR(curves, ARENA_CURVES)
+YAML_ENSURE(curves, ARENA_CURVES, MAX_CURVES_HARD)
 
-static bool yaml_ensure_curves_capacity(uint16_t min_count)
-{
-  if (min_count > MAX_CURVES_HARD) return false;
-  if (g_model.dyn.curveCount >= min_count) return true;
-  if (!g_modelArena.ensureSectionCapacity(ARENA_CURVES, min_count)) return false;
-  g_model.dyn.curveCount = min_count;
-  return true;
-}
+YAML_GET_PTR(points, ARENA_POINTS)
+YAML_ENSURE(points, ARENA_POINTS, MAX_CURVE_POINTS_HARD)
 
-static uint8_t* yaml_get_points_ptr(uint16_t* count)
-{
-  *count = g_model.dyn.pointsCount;
-  return g_modelArena.sectionBase(ARENA_POINTS);
-}
+YAML_GET_PTR(logical_sw, ARENA_LOGICAL_SW)
+YAML_ENSURE(logical_sw, ARENA_LOGICAL_SW, MAX_LOGICAL_SWITCHES_HARD)
 
-static bool yaml_ensure_points_capacity(uint16_t min_count)
-{
-  if (min_count > MAX_CURVE_POINTS_HARD) return false;
-  if (g_model.dyn.pointsCount >= min_count) return true;
-  if (!g_modelArena.ensureSectionCapacity(ARENA_POINTS, min_count)) return false;
-  g_model.dyn.pointsCount = min_count;
-  return true;
-}
+YAML_GET_PTR(custom_fn, ARENA_CUSTOM_FN)
+YAML_ENSURE(custom_fn, ARENA_CUSTOM_FN, MAX_SPECIAL_FUNCTIONS_HARD)
 
-static uint8_t* yaml_get_logical_sw_ptr(uint16_t* count)
-{
-  *count = g_model.dyn.logicalSwCount;
-  return g_modelArena.sectionBase(ARENA_LOGICAL_SW);
-}
+#undef YAML_GET_PTR
+#undef YAML_ENSURE
 
-static bool yaml_ensure_logical_sw_capacity(uint16_t min_count)
-{
-  if (min_count > MAX_LOGICAL_SWITCHES_HARD) return false;
-  if (g_model.dyn.logicalSwCount >= min_count) return true;
-  if (!g_modelArena.ensureSectionCapacity(ARENA_LOGICAL_SW, min_count)) return false;
-  g_model.dyn.logicalSwCount = min_count;
-  return true;
-}
 
-static uint8_t* yaml_get_custom_fn_ptr(uint16_t* count)
-{
-  *count = g_model.dyn.customFnCount;
-  return g_modelArena.sectionBase(ARENA_CUSTOM_FN);
-}
-
-static bool yaml_ensure_custom_fn_capacity(uint16_t min_count)
-{
-  if (min_count > MAX_SPECIAL_FUNCTIONS_HARD) return false;
-  if (g_model.dyn.customFnCount >= min_count) return true;
-  if (!g_modelArena.ensureSectionCapacity(ARENA_CUSTOM_FN, min_count)) return false;
-  g_model.dyn.customFnCount = min_count;
-  return true;
-}
 
 static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque)

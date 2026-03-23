@@ -63,11 +63,13 @@ class ModelArena {
 
   // Section byte offsets within the arena (computed from counts + element sizes)
   uint32_t _offsets[ARENA_NUM_SECTIONS];
+  uint16_t _counts[ARENA_NUM_SECTIONS];
   uint32_t _usedBytes;
 
 public:
   ModelArena() : _base(nullptr), _capacity(0), _usedBytes(0) {
     memset(_offsets, 0, sizeof(_offsets));
+    memset(_counts, 0, sizeof(_counts));
   }
 
   void attach(uint8_t* buf, uint32_t capacity);
@@ -86,6 +88,11 @@ public:
   }
   uint32_t sectionOffset(ArenaSectionType type) const {
     return _offsets[type];
+  }
+
+  // Return the number of elements currently allocated in a section
+  uint16_t sectionCount(ArenaSectionType section) const {
+    return _counts[section];
   }
 
   // Insert a slot of 'slotSize' bytes at 'byteOffset' within the arena.

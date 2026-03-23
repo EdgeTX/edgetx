@@ -345,25 +345,23 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     // to prevent extern array callbacks from overwriting the active model's data.
     uint8_t* arenaSave = nullptr;
     uint32_t arenaSaveSize = 0;
-    ModelDynData savedDyn = {};
+    ModelArena savedArenaState;
     if (init_model && !is_active_model) {
       arenaSaveSize = g_modelArena.usedBytes();
       arenaSave = (uint8_t*)malloc(arenaSaveSize);
       if (arenaSave) {
         memcpy(arenaSave, g_modelArena.base(), arenaSaveSize);
       }
-      savedDyn = g_model.dyn;
+      savedArenaState = g_modelArena;
     }
 
     // Reset arena to empty layout — sections grow on demand during parsing
     // via ensure_capacity callbacks in the YAML walker.
-    if (init_model && is_active_model) {
-      ModelDynData emptyDyn = {};
-      g_modelArena.layout(emptyDyn);
-      g_modelArena.clear();
+    if (init_model) {
+      modelArenaInit();
     }
 
-    // wipe memory before reading YAML (clears g_model.dyn to all zeros)
+    // wipe memory before reading YAML
     memset(buffer,0,size);
 
     if (init_model) {
@@ -391,10 +389,9 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 
     const char* err = readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
 
-    // Restore arena and dyn if this was a temp model read
+    // Restore arena if this was a temp model read
     if (arenaSave) {
-      g_model.dyn = savedDyn;
-      g_modelArena.layout(savedDyn);
+      g_modelArena = savedArenaState;
       memcpy(g_modelArena.base(), arenaSave, arenaSaveSize);
       free(arenaSave);
     }

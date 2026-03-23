@@ -440,6 +440,15 @@ def parse_field(ast,node):
                             break
                     # If not found, it's a fake struct (e.g. signed_8) -
                     # extern_array_bits() will handle it via name parsing
+                # Mark the struct as used in arrays (like regular arrays).
+                # Default to use_idx=True; the CUST_EXTERN_ARRAY 'noidx' flag overrides.
+                use_idx = True
+                if len(ea_attrs) > 5 and ea_attrs[5].strip() == 'noidx':
+                    use_idx = False
+                st = RootAST.get_struct(var_type_name)
+                if st is not None:
+                    st.used_in_arrays = True
+                    st.use_idx = use_idx
 
         if is_enum and not is_cust:
             f.type = 'enum'

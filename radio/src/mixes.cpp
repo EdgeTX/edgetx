@@ -34,10 +34,9 @@ MixData* mixAddress(uint8_t idx) {
 }
 
 MixData* mixAllocAt(uint8_t idx) {
-  if (idx >= g_model.dyn.mixCount) {
+  if (idx >= g_modelArena.sectionCount(ARENA_MIXES)) {
     if (!g_modelArena.ensureSectionCapacity(ARENA_MIXES, idx + 1))
       return nullptr;
-    g_model.dyn.mixCount = idx + 1;
   }
   return mixAddress(idx);
 }
@@ -55,7 +54,6 @@ void insertMix(uint8_t idx, uint8_t channel)
     mixerTaskStart();
     return;
   }
-  g_model.dyn.mixCount++;
 
   MixData * mix = mixAddress(idx);
   mix->destCh = channel;
@@ -91,7 +89,6 @@ void deleteMix(uint8_t idx)
   act[count - 1] = 0;
 
   g_modelArena.deleteFromSection(ARENA_MIXES, idx, sizeof(MixData));
-  g_model.dyn.mixCount--;
   mixerTaskStart();
 
   _nb_mix_lines -= 1;
@@ -108,7 +105,6 @@ void copyMix(uint8_t src, uint8_t dst, uint8_t channel)
     mixerTaskStart();
     return;
   }
-  g_model.dyn.mixCount++;
 
   MixData* mix = mixAddress(dst);
   memcpy(mix, &sourceMix, sizeof(MixData));
@@ -181,7 +177,7 @@ static uint8_t _countMixLines()
 {
   // search for first blank within the allocated section
   uint8_t i = 0;
-  uint8_t limit = g_model.dyn.mixCount;
+  uint8_t limit = g_modelArena.sectionCount(ARENA_MIXES);
   while (i < limit) {
     if (is_memclear(mixAddress(i), sizeof(MixData))) break;
     i++;

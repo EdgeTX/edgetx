@@ -34,10 +34,9 @@ ExpoData* expoAddress(uint8_t idx) {
 }
 
 ExpoData* expoAllocAt(uint8_t idx) {
-  if (idx >= g_model.dyn.expoCount) {
+  if (idx >= g_modelArena.sectionCount(ARENA_EXPOS)) {
     if (!g_modelArena.ensureSectionCapacity(ARENA_EXPOS, idx + 1))
       return nullptr;
-    g_model.dyn.expoCount = idx + 1;
   }
   return expoAddress(idx);
 }
@@ -52,7 +51,6 @@ void insertExpo(uint8_t idx, uint8_t input)
     mixerTaskStart();
     return;
   }
-  g_model.dyn.expoCount++;
 
   ExpoData* expo = expoAddress(idx);
   if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
@@ -76,7 +74,6 @@ void deleteExpo(uint8_t idx)
   int input = expoAddress(idx)->chn;
 
   g_modelArena.deleteFromSection(ARENA_EXPOS, idx, sizeof(ExpoData));
-  g_model.dyn.expoCount--;
 
   if (!isInputAvailable(input)) {
     memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
@@ -97,7 +94,6 @@ void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
     mixerTaskStart();
     return;
   }
-  g_model.dyn.expoCount++;
 
   ExpoData* expo = expoAddress(dest);
   memcpy(expo, &sourceExpo, sizeof(ExpoData));
@@ -161,7 +157,7 @@ uint8_t moveExpo(uint8_t idx, bool up)
 static uint8_t _countExpoLines()
 {
   uint8_t i = 0;
-  uint8_t limit = g_model.dyn.expoCount;
+  uint8_t limit = g_modelArena.sectionCount(ARENA_EXPOS);
   while (i < limit) {
     if (is_memclear(expoAddress(i), sizeof(ExpoData))) break;
     i++;

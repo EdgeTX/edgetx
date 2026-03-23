@@ -586,7 +586,7 @@ TEST_F(TrimsTest, InstantTrimNegativeCurve)
   expo->curve.value.setNumeric(1);
   curveHeaderAllocAt(0);  // allocate curve header
   g_modelArena.ensureSectionCapacity(ARENA_POINTS, 5);
-  g_model.dyn.pointsCount = 5;
+  g_modelArena.ensureSectionCapacity(ARENA_POINTS, 5);
   curvePointsBase()[0] = -100;
   curvePointsBase()[1] = -75;
   curvePointsBase()[2] = -50;
@@ -610,7 +610,7 @@ TEST(Curves, LinearIntpol)
   setModelDefaults();
   curveHeaderAllocAt(0);  // allocate curve header slot 0
   g_modelArena.ensureSectionCapacity(ARENA_POINTS, 5);
-  g_model.dyn.pointsCount = 5;
+  g_modelArena.ensureSectionCapacity(ARENA_POINTS, 5);
   for (int8_t i=-2; i<=2; i++) {
     curvePointsBase()[2+i] = 50*i;
   }

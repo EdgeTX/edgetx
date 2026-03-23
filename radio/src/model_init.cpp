@@ -188,9 +188,7 @@ void setModelDefaults(uint8_t id)
   memset(&g_model, 0, sizeof(g_model));
 
   // Start with empty arena — applyDefaultTemplate allocates sections on demand
-  ModelDynData emptyDyn = {};
-  g_modelArena.layout(emptyDyn);
-  g_modelArena.clear();
+  modelArenaInit();
 
   applyDefaultTemplate();
   

@@ -415,15 +415,6 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_STRING("name", 3),
   YAML_END
 };
-static const struct YamlNode struct_ModelDynData[] = {
-  YAML_UNSIGNED( "mixCount", 8 ),
-  YAML_UNSIGNED( "expoCount", 8 ),
-  YAML_UNSIGNED( "curveCount", 8 ),
-  YAML_UNSIGNED( "pointsCount", 16 ),
-  YAML_UNSIGNED( "logicalSwCount", 8 ),
-  YAML_UNSIGNED( "customFnCount", 8 ),
-  YAML_END
-};
 static const struct YamlNode struct_ValueOrSource[] = {
   YAML_SIGNED( "value", 16 ),
   YAML_UNSIGNED( "isSource", 8 ),
@@ -492,6 +483,7 @@ static const struct YamlNode struct_CurveHeader[] = {
   YAML_END
 };
 static const struct YamlNode struct_LogicalSwitchData[] = {
+  YAML_IDX,
   YAML_ENUM("func", 8, enum_LogicalSwitchesFunctions, NULL),
   YAML_CUSTOM("def",r_logicSw,w_logicSw),
   YAML_PADDING( 32 ),
@@ -840,7 +832,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_PADDING( 4 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
-  YAML_STRUCT("dyn", 64, struct_ModelDynData, NULL),
   YAML_EXTERN_ARRAY("mixData", 280, MAX_MIXERS_HARD, struct_MixData, yaml_get_mix_ptr, yaml_ensure_mix_capacity),
   YAML_ARRAY("limitData", 88, 32, struct_LimitData, NULL),
   YAML_EXTERN_ARRAY("expoData", 264, MAX_EXPOS_HARD, struct_ExpoData, yaml_get_expo_ptr, yaml_ensure_expo_capacity),
