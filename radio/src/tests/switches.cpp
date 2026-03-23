@@ -47,13 +47,13 @@ TEST(getSwitch, OldTypeStickyCSW)
   auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   // LS0: AND(sw_up, NONE)
-  lswAddress(0)->func = LS_FUNC_AND;
+  lswAllocAt(0)->func = LS_FUNC_AND;
   lswAddress(0)->v1.swtch = swRef;
   lswAddress(0)->v2.swtch = SWTCH_NONE;
   lswAddress(0)->andsw = SWTCH_NONE;
 
   // LS1: OR(SW1, SW2)
-  lswAddress(1)->func = LS_FUNC_OR;
+  lswAllocAt(1)->func = LS_FUNC_OR;
   lswAddress(1)->v1.swtch = SW1_REF;
   lswAddress(1)->v2.swtch = SW2_REF;
   lswAddress(1)->andsw = SWTCH_NONE;
@@ -98,7 +98,7 @@ TEST(getSwitch, inputWithTrim)
   MIXER_RESET();
 
   // LS0: VPOS(INPUT0, 0)
-  lswAddress(0)->func = LS_FUNC_VPOS;
+  lswAllocAt(0)->func = LS_FUNC_VPOS;
   lswAddress(0)->v1.source = SourceRef_(SOURCE_TYPE_INPUT, 0);
   lswAddress(0)->v2.value = 0;
   lswAddress(0)->v3 = 0;
@@ -164,13 +164,13 @@ TEST(getSwitch, edgeInstant)
   MIXER_RESET();
   // LS1 setup: EDGE SD down (0:instant)
   // LS2 setup: (EDGE SD down (0:instant)) AND SA down
-  lswAddress(0)->func = LS_FUNC_EDGE;
+  lswAllocAt(0)->func = LS_FUNC_EDGE;
   lswAddress(0)->v1.swtch = sw2Down;
   lswAddress(0)->v2.value = -129;
   lswAddress(0)->v3 = -1;
   lswAddress(0)->andsw = SWTCH_NONE;
 
-  lswAddress(1)->func = LS_FUNC_EDGE;
+  lswAllocAt(1)->func = LS_FUNC_EDGE;
   lswAddress(1)->v1.swtch = sw2Down;
   lswAddress(1)->v2.value = -129;
   lswAddress(1)->v3 = -1;
@@ -296,13 +296,13 @@ TEST(getSwitch, edgeRelease)
   // test for issue #2728
   // LS1 setup: EDGE SDup  (0:release)
   // LS2 setup: (EDGE SDup  (0:release)) AND SAup
-  lswAddress(0)->func = LS_FUNC_EDGE;
+  lswAllocAt(0)->func = LS_FUNC_EDGE;
   lswAddress(0)->v1.swtch = sw2Down;
   lswAddress(0)->v2.value = -129;
   lswAddress(0)->v3 = 0;
   lswAddress(0)->andsw = SWTCH_NONE;
 
-  lswAddress(1)->func = LS_FUNC_EDGE;
+  lswAllocAt(1)->func = LS_FUNC_EDGE;
   lswAddress(1)->v1.swtch = sw2Down;
   lswAddress(1)->v2.value = -129;
   lswAddress(1)->v3 = 0;

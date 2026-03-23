@@ -133,7 +133,7 @@ static bool sortMixerLines()
   
   do {
     swaps = 0;
-    for (int i = 0; i < MAX_MIXERS - 1; i++) {
+    for (int i = 0; i < (int)g_model.dyn.mixCount - 1; i++) {
       auto a = mixAddress(i);
       auto b = mixAddress(i + 1);
 

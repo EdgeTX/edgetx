@@ -234,7 +234,8 @@ ModelMixesPage::ModelMixesPage(const PageDef& pageDef) : InputMixPageBase(pageDe
 
 bool ModelMixesPage::reachMixesLimit()
 {
-  if (getMixCount() >= MAX_MIXERS) {
+  if (getMixCount() >= MAX_MIXERS_HARD ||
+      g_modelArena.freeBytes() < sizeof(MixData)) {
     new MessageDialog(STR_WARNING, STR_NOFREEMIXER);
     return true;
   }

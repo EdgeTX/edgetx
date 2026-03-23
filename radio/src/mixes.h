@@ -25,8 +25,11 @@
 
 struct MixData;
 
-// Get a pointer to a mixer line
+// Get a pointer to a mixer line (read-only; returns dummy if out of range)
 MixData* mixAddress(uint8_t idx);
+
+// Get a writable pointer, growing the arena section if needed
+MixData* mixAllocAt(uint8_t idx);
 
 // Insert a new mixer line at 'idx'
 void insertMix(uint8_t idx, uint8_t channel);

@@ -211,21 +211,21 @@ TEST_F(ArenaAccessorTest, CurvePointsBasePointsToArena)
 
 TEST_F(ArenaAccessorTest, LswAddressPointsToArena)
 {
-  LogicalSwitchData* ls = lswAddress(0);
+  LogicalSwitchData* ls = lswAllocAt(0);
   EXPECT_NE(ls, nullptr);
   EXPECT_GE((uint8_t*)ls, g_modelArena.base());
 }
 
 TEST_F(ArenaAccessorTest, CustomFnAddressPointsToArena)
 {
-  CustomFunctionData* cf = customFnAddress(0);
+  CustomFunctionData* cf = customFnAllocAt(0);
   EXPECT_NE(cf, nullptr);
   EXPECT_GE((uint8_t*)cf, g_modelArena.base());
 }
 
 TEST_F(ArenaAccessorTest, MixDataRoundTrip)
 {
-  MixData* mix = mixAddress(3);
+  MixData* mix = mixAllocAt(3);
   mix->destCh = 7;
   mix->weight.setNumeric(50);
   mix->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
@@ -237,7 +237,7 @@ TEST_F(ArenaAccessorTest, MixDataRoundTrip)
 
 TEST_F(ArenaAccessorTest, ExpoDataRoundTrip)
 {
-  ExpoData* expo = expoAddress(5);
+  ExpoData* expo = expoAllocAt(5);
   expo->chn = 2;
   expo->weight.setNumeric(75);
   expo->mode = 3;
@@ -249,8 +249,15 @@ TEST_F(ArenaAccessorTest, ExpoDataRoundTrip)
 
 TEST_F(ArenaAccessorTest, SectionsDoNotOverlap)
 {
-  // Verify that different section bases are at different addresses
-  // and in the expected order
+  // Allocate 1 element per section via AllocAt helpers
+  mixAllocAt(0);
+  expoAllocAt(0);
+  curveHeaderAllocAt(0);
+  g_modelArena.ensureSectionCapacity(ARENA_POINTS, 1);
+  g_model.dyn.pointsCount = 1;
+  lswAllocAt(0);
+  customFnAllocAt(0);
+
   uint8_t* mixBase = (uint8_t*)mixAddress(0);
   uint8_t* expoBase = (uint8_t*)expoAddress(0);
   uint8_t* curveBase = (uint8_t*)curveHeaderAddress(0);
@@ -271,7 +278,7 @@ class ArenaInsertDeleteTest : public EdgeTxTest {};
 
 TEST_F(ArenaInsertDeleteTest, InsertMixPreservesExisting)
 {
-  MixData* mix0 = mixAddress(0);
+  MixData* mix0 = mixAllocAt(0);
   mix0->destCh = 0;
   mix0->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
   mix0->weight.setNumeric(100);
@@ -289,12 +296,14 @@ TEST_F(ArenaInsertDeleteTest, InsertMixPreservesExisting)
 
 TEST_F(ArenaInsertDeleteTest, DeleteMixShiftsRemaining)
 {
-  mixAddress(0)->destCh = 0;
-  mixAddress(0)->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
-  mixAddress(0)->weight.setNumeric(100);
-  mixAddress(1)->destCh = 1;
-  mixAddress(1)->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
-  mixAddress(1)->weight.setNumeric(50);
+  MixData* m0 = mixAllocAt(0);
+  m0->destCh = 0;
+  m0->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  m0->weight.setNumeric(100);
+  MixData* m1 = mixAllocAt(1);
+  m1->destCh = 1;
+  m1->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  m1->weight.setNumeric(50);
   updateMixCount();
 
   deleteMix(0);
@@ -306,7 +315,7 @@ TEST_F(ArenaInsertDeleteTest, DeleteMixShiftsRemaining)
 
 TEST_F(ArenaInsertDeleteTest, InsertExpoPreservesExisting)
 {
-  ExpoData* expo0 = expoAddress(0);
+  ExpoData* expo0 = expoAllocAt(0);
   expo0->chn = 0;
   expo0->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
   expo0->weight.setNumeric(100);
@@ -322,11 +331,11 @@ TEST_F(ArenaInsertDeleteTest, InsertExpoPreservesExisting)
 
 TEST_F(ArenaInsertDeleteTest, InsertDeleteCustomFn)
 {
-  CustomFunctionData* cf0 = customFnAddress(0);
+  CustomFunctionData* cf0 = customFnAllocAt(0);
   cf0->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
   cf0->func = FUNC_OVERRIDE_CHANNEL;
 
-  CustomFunctionData* cf1 = customFnAddress(1);
+  CustomFunctionData* cf1 = customFnAllocAt(1);
   cf1->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 2);
   cf1->func = FUNC_TRAINER;
 
@@ -349,7 +358,7 @@ TEST_F(ArenaInsertDeleteTest, InsertDeleteCustomFn)
 
 TEST_F(ArenaInsertDeleteTest, ClearCustomFn)
 {
-  customFnAddress(3)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 5);
+  customFnAllocAt(3)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 5);
   customFnAddress(3)->func = FUNC_PLAY_SOUND;
 
   clearCustomFn(3);

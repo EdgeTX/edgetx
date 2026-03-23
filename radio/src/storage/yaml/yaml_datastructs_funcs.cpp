@@ -67,44 +67,97 @@ static inline void check_yaml_funcs()
 #include "mixes.h"
 
 // YAML extern array callbacks.
-// For reading (parsing): return MAX capacity so the parser accepts up to that many elements.
-// For writing (generating): the walker's isElmtEmpty() skips zero elements, so returning
-// the max count is fine - empty trailing elements won't be written.
+// get_ptr returns g_model.dyn counts (the allocated section size).
+// ensure_capacity grows the arena section on demand during parsing.
 
 static uint8_t* yaml_get_mix_ptr(uint16_t* count)
 {
-  *count = MAX_MIXERS;
+  *count = g_model.dyn.mixCount;
   return g_modelArena.sectionBase(ARENA_MIXES);
+}
+
+static bool yaml_ensure_mix_capacity(uint16_t min_count)
+{
+  if (min_count > MAX_MIXERS_HARD) return false;
+  if (g_model.dyn.mixCount >= min_count) return true;
+  if (!g_modelArena.ensureSectionCapacity(ARENA_MIXES, min_count)) return false;
+  g_model.dyn.mixCount = min_count;
+  return true;
 }
 
 static uint8_t* yaml_get_expo_ptr(uint16_t* count)
 {
-  *count = MAX_EXPOS;
+  *count = g_model.dyn.expoCount;
   return g_modelArena.sectionBase(ARENA_EXPOS);
+}
+
+static bool yaml_ensure_expo_capacity(uint16_t min_count)
+{
+  if (min_count > MAX_EXPOS_HARD) return false;
+  if (g_model.dyn.expoCount >= min_count) return true;
+  if (!g_modelArena.ensureSectionCapacity(ARENA_EXPOS, min_count)) return false;
+  g_model.dyn.expoCount = min_count;
+  return true;
 }
 
 static uint8_t* yaml_get_curves_ptr(uint16_t* count)
 {
-  *count = MAX_CURVES;
+  *count = g_model.dyn.curveCount;
   return g_modelArena.sectionBase(ARENA_CURVES);
+}
+
+static bool yaml_ensure_curves_capacity(uint16_t min_count)
+{
+  if (min_count > MAX_CURVES_HARD) return false;
+  if (g_model.dyn.curveCount >= min_count) return true;
+  if (!g_modelArena.ensureSectionCapacity(ARENA_CURVES, min_count)) return false;
+  g_model.dyn.curveCount = min_count;
+  return true;
 }
 
 static uint8_t* yaml_get_points_ptr(uint16_t* count)
 {
-  *count = MAX_CURVE_POINTS;
+  *count = g_model.dyn.pointsCount;
   return g_modelArena.sectionBase(ARENA_POINTS);
+}
+
+static bool yaml_ensure_points_capacity(uint16_t min_count)
+{
+  if (min_count > MAX_CURVE_POINTS_HARD) return false;
+  if (g_model.dyn.pointsCount >= min_count) return true;
+  if (!g_modelArena.ensureSectionCapacity(ARENA_POINTS, min_count)) return false;
+  g_model.dyn.pointsCount = min_count;
+  return true;
 }
 
 static uint8_t* yaml_get_logical_sw_ptr(uint16_t* count)
 {
-  *count = MAX_LOGICAL_SWITCHES;
+  *count = g_model.dyn.logicalSwCount;
   return g_modelArena.sectionBase(ARENA_LOGICAL_SW);
+}
+
+static bool yaml_ensure_logical_sw_capacity(uint16_t min_count)
+{
+  if (min_count > MAX_LOGICAL_SWITCHES_HARD) return false;
+  if (g_model.dyn.logicalSwCount >= min_count) return true;
+  if (!g_modelArena.ensureSectionCapacity(ARENA_LOGICAL_SW, min_count)) return false;
+  g_model.dyn.logicalSwCount = min_count;
+  return true;
 }
 
 static uint8_t* yaml_get_custom_fn_ptr(uint16_t* count)
 {
-  *count = MAX_SPECIAL_FUNCTIONS;
+  *count = g_model.dyn.customFnCount;
   return g_modelArena.sectionBase(ARENA_CUSTOM_FN);
+}
+
+static bool yaml_ensure_custom_fn_capacity(uint16_t min_count)
+{
+  if (min_count > MAX_SPECIAL_FUNCTIONS_HARD) return false;
+  if (g_model.dyn.customFnCount >= min_count) return true;
+  if (!g_modelArena.ensureSectionCapacity(ARENA_CUSTOM_FN, min_count)) return false;
+  g_model.dyn.customFnCount = min_count;
+  return true;
 }
 
 static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,

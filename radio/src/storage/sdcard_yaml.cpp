@@ -344,18 +344,27 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     // For temp model reads (not the active model), save and restore the arena
     // to prevent extern array callbacks from overwriting the active model's data.
     uint8_t* arenaSave = nullptr;
+    uint32_t arenaSaveSize = 0;
+    ModelDynData savedDyn = {};
     if (init_model && !is_active_model) {
-      arenaSave = (uint8_t*)malloc(g_modelArena.usedBytes());
+      arenaSaveSize = g_modelArena.usedBytes();
+      arenaSave = (uint8_t*)malloc(arenaSaveSize);
       if (arenaSave) {
-        memcpy(arenaSave, g_modelArena.base(), g_modelArena.usedBytes());
+        memcpy(arenaSave, g_modelArena.base(), arenaSaveSize);
       }
+      savedDyn = g_model.dyn;
     }
 
-    // wipe memory before reading YAML
-    memset(buffer,0,size);
+    // Reset arena to empty layout — sections grow on demand during parsing
+    // via ensure_capacity callbacks in the YAML walker.
     if (init_model && is_active_model) {
+      ModelDynData emptyDyn = {};
+      g_modelArena.layout(emptyDyn);
       g_modelArena.clear();
     }
+
+    // wipe memory before reading YAML (clears g_model.dyn to all zeros)
+    memset(buffer,0,size);
 
     if (init_model) {
 #if defined(FUNCTION_SWITCHES)
@@ -376,20 +385,17 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
         }
       }
 #endif
-      // is that necessary ???
-      // md->swashR.collectiveWeight = 100;
-      // md->swashR.aileronWeight    = 100;
-      // md->swashR.elevatorWeight   = 100;
-
       md->rfAlarms.warning = 45;
       md->rfAlarms.critical = 42;
     }
 
     const char* err = readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
 
-    // Restore arena if this was a temp model read
+    // Restore arena and dyn if this was a temp model read
     if (arenaSave) {
-      memcpy(g_modelArena.base(), arenaSave, g_modelArena.usedBytes());
+      g_model.dyn = savedDyn;
+      g_modelArena.layout(savedDyn);
+      memcpy(g_modelArena.base(), arenaSave, arenaSaveSize);
       free(arenaSave);
     }
 

@@ -272,6 +272,16 @@ CurveHeader *curveHeaderAddress(uint8_t idx)
       g_modelArena.sectionBase(ARENA_CURVES)) + idx;
 }
 
+CurveHeader *curveHeaderAllocAt(uint8_t idx)
+{
+  if (idx >= g_model.dyn.curveCount) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_CURVES, idx + 1))
+      return nullptr;
+    g_model.dyn.curveCount = idx + 1;
+  }
+  return curveHeaderAddress(idx);
+}
+
 
 void memswap(void * a, void * b, uint8_t size)
 {

@@ -1159,8 +1159,23 @@ void logicalSwitchesTimerTick()
 
 LogicalSwitchData * lswAddress(uint8_t idx)
 {
+  if (idx >= g_model.dyn.logicalSwCount) {
+    static LogicalSwitchData dummy = {};
+    memset(&dummy, 0, sizeof(dummy));
+    return &dummy;
+  }
   return reinterpret_cast<LogicalSwitchData*>(
       g_modelArena.sectionBase(ARENA_LOGICAL_SW)) + idx;
+}
+
+LogicalSwitchData * lswAllocAt(uint8_t idx)
+{
+  if (idx >= g_model.dyn.logicalSwCount) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_LOGICAL_SW, idx + 1))
+      return nullptr;
+    g_model.dyn.logicalSwCount = idx + 1;
+  }
+  return lswAddress(idx);
 }
 
 uint8_t lswFamily(uint8_t func)

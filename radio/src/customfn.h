@@ -25,8 +25,11 @@
 
 struct CustomFunctionData;
 
-// Get a pointer to a model special function
+// Get a pointer to a model special function (read-only; returns dummy if out of range)
 CustomFunctionData* customFnAddress(uint8_t idx);
+
+// Get a writable pointer, growing the arena section if needed
+CustomFunctionData* customFnAllocAt(uint8_t idx);
 
 // Insert a blank special function at 'idx', shifting subsequent ones down
 void insertCustomFn(uint8_t idx);

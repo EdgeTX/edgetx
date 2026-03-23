@@ -545,11 +545,15 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
 
   // search for unused switches
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
-    LogicalSwitchData* ls = lswAddress(i);
-    if (ls->func == LS_FUNC_NONE) {
+    // Check if slot is unused (either beyond current count, or func == NONE)
+    bool unused = (i >= g_model.dyn.logicalSwCount) ||
+                  (lswAddress(i)->func == LS_FUNC_NONE);
+    if (unused) {
       std::string ch_name(
           getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)i)));
       menu->addLineBuffered(ch_name.c_str(), [=]() {
+        LogicalSwitchData* ls = lswAllocAt(i);
+        if (!ls) return;  // arena full
         if (pasteLS) {
           *ls = clipboard.data.csw;
           storageDirty(EE_MODEL);
@@ -558,7 +562,7 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
         } else {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (ls->func != LS_FUNC_NONE) {
+            if (lswAddress(i)->func != LS_FUNC_NONE) {
               focusIndex = i;
               rebuild(window);
             }

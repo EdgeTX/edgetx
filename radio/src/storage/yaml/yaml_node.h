@@ -75,6 +75,11 @@ struct YamlNode {
   // Returns base pointer and count for externally-stored arrays (arena)
   typedef uint8_t* (*extern_get_ptr_func)(uint16_t* count_out);
 
+  // Ensure the extern array section has at least min_count slots.
+  // Called by the walker before accessing each element during parsing.
+  // Returns false if the arena cannot grow (full).
+  typedef bool (*extern_ensure_func)(uint16_t min_count);
+
   uint16_t size;  // bits
   uint8_t type : 4;
   uint16_t elmts : 12;  // maximum number of array elements
@@ -111,6 +116,7 @@ struct YamlNode {
     struct {
       const YamlNode* child;
       extern_get_ptr_func get_ptr;
+      extern_ensure_func ensure_capacity;
     } _extern_array;
   } u;
 
@@ -191,11 +197,12 @@ struct YamlNode {
     }                                                                \
   }
 
-#define YAML_EXTERN_ARRAY(tag, bits, max_elmts, nodes, f_get_ptr)               \
+#define YAML_EXTERN_ARRAY(tag, bits, max_elmts, nodes, f_get_ptr, f_ensure)     \
   {                                                                             \
     .size = (bits), .type = YDT_EXTERN_ARRAY, .elmts = (max_elmts),             \
     YAML_TAG(tag), .u = {                                                       \
-      ._extern_array = {.child = (nodes), .get_ptr = (f_get_ptr)}              \
+      ._extern_array = {.child = (nodes), .get_ptr = (f_get_ptr),              \
+                         .ensure_capacity = (f_ensure)}                         \
     }                                                                           \
   }
 

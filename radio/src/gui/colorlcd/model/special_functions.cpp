@@ -729,9 +729,11 @@ void FunctionsPage::newSF(Window *window, bool pasteSF)
 
   // search for unused switches
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
-    CustomFunctionData *cfn = customFunctionData(i);
-    if (cfn->swtch.isNone()) {
+    bool unused = (i >= g_model.dyn.customFnCount) ||
+                  customFunctionData(i)->swtch.isNone();
+    if (unused) {
       menu->addLineBuffered(prefix + std::to_string(i + 1), [=]() {
+        if (!customFnAllocAt(i)) return;  // arena full
         if (pasteSF) {
           pasteSpecialFunction(window, i, nullptr);
         } else {

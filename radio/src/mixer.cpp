@@ -194,10 +194,9 @@ void applyExpos(int16_t * anas, uint8_t mode, const SourceRef& ovwrSrc, int16_t 
 {
   int8_t cur_chn = -1;
 
-  for (uint8_t i=0; i<MAX_EXPOS; i++) {
+  for (uint8_t i=0; i<getExpoCount(); i++) {
     if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
     ExpoData * ed = expoAddress(i);
-    if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
@@ -846,19 +845,11 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
   do {
     bitfield_channels_t passDirtyChannels = 0;
 
-    for (uint8_t i=0; i<MAX_MIXERS; i++) {
+    for (uint8_t i=0; i<getMixCount(); i++) {
       if (mode == e_perout_mode_normal && pass == 0)
         activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
-
-      if (md->srcRaw.isNone()) {
-#if defined(COLORLCD)
-        continue;
-#else
-        break;
-#endif
-      }
 
       if (!channel_dirty(dirtyChannels, md->destCh))
         continue;
@@ -1127,7 +1118,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
   } while (++pass < 5 && dirtyChannels);
 
-  for (uint8_t i=0; i<MAX_MIXERS; i++)
+  for (uint8_t i=0; i<getMixCount(); i++)
     mixState[i].activeMix = activeMixes[i];
 
   mixWarning = lv_mixWarning;

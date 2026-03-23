@@ -23,6 +23,8 @@
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 #include "mixes.h"
+#include "expos.h"
+#include "model_arena.h"
 
 #if defined(COLORLCD)
 #include "layout.h"
@@ -39,7 +41,7 @@ void setDefaultInputs()
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
     uint8_t stick_index = inputMappingChannelOrder(i);
-    ExpoData *expo = expoAddress(i);
+    ExpoData *expo = expoAllocAt(i);
     expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)stick_index);
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
@@ -47,7 +49,7 @@ void setDefaultInputs()
     expo->mode = 3; // TODO constant
     strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
   }
-
+  updateExpoCount();
   storageDirty(EE_MODEL);
 }
 
@@ -61,11 +63,12 @@ void setDefaultMixes()
 {
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
-    MixData * mix = mixAddress(i);
+    MixData * mix = mixAllocAt(i);
     mix->destCh = i;
     mix->weight.setNumeric(100);
     mix->srcRaw = SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)i);
   }
+  updateMixCount();
   storageDirty(EE_MODEL);
 }
 
@@ -183,7 +186,12 @@ void applyDefaultTemplate()
 void setModelDefaults(uint8_t id)
 {
   memset(&g_model, 0, sizeof(g_model));
+
+  // Start with empty arena — applyDefaultTemplate allocates sections on demand
+  ModelDynData emptyDyn = {};
+  g_modelArena.layout(emptyDyn);
   g_modelArena.clear();
+
   applyDefaultTemplate();
   
   setVendorSpecificModelDefaults(id);

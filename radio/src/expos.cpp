@@ -33,14 +33,28 @@ ExpoData* expoAddress(uint8_t idx) {
       g_modelArena.sectionBase(ARENA_EXPOS)) + idx;
 }
 
+ExpoData* expoAllocAt(uint8_t idx) {
+  if (idx >= g_model.dyn.expoCount) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_EXPOS, idx + 1))
+      return nullptr;
+    g_model.dyn.expoCount = idx + 1;
+  }
+  return expoAddress(idx);
+}
+
 uint8_t getExpoCount() { return _nb_expo_lines; }
 
 void insertExpo(uint8_t idx, uint8_t input)
 {
   mixerTaskStop();
+
+  if (!g_modelArena.insertInSection(ARENA_EXPOS, idx, sizeof(ExpoData))) {
+    mixerTaskStart();
+    return;
+  }
+  g_model.dyn.expoCount++;
+
   ExpoData* expo = expoAddress(idx);
-  memmove(expo + 1, expo, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
-  memclear(expo, sizeof(ExpoData));
   if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
     expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)input);
   } else {
@@ -59,10 +73,11 @@ void insertExpo(uint8_t idx, uint8_t input)
 void deleteExpo(uint8_t idx)
 {
   mixerTaskStop();
-  ExpoData* expo = expoAddress(idx);
-  int input = expo->chn;
-  memmove(expo, expo + 1, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
-  memclear(expoAddress(MAX_EXPOS - 1), sizeof(ExpoData));
+  int input = expoAddress(idx)->chn;
+
+  g_modelArena.deleteFromSection(ARENA_EXPOS, idx, sizeof(ExpoData));
+  g_model.dyn.expoCount--;
+
   if (!isInputAvailable(input)) {
     memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
   }
@@ -77,9 +92,14 @@ void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
   mixerTaskStop();
   ExpoData sourceExpo;
   memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
+
+  if (!g_modelArena.insertInSection(ARENA_EXPOS, dest, sizeof(ExpoData))) {
+    mixerTaskStart();
+    return;
+  }
+  g_model.dyn.expoCount++;
+
   ExpoData* expo = expoAddress(dest);
-  size_t trailingExpos = MAX_EXPOS - (dest + 1);
-  memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
   memcpy(expo, &sourceExpo, sizeof(ExpoData));
   expo->chn = input;
   mixerTaskStart();
@@ -104,7 +124,7 @@ uint8_t moveExpo(uint8_t idx, bool up)
     return idx;
   }
 
-  if (tgt_idx == MAX_EXPOS) {
+  if (tgt_idx == getExpoCount()) {
     if (x->chn < MAX_INPUTS - 1) {
       x->chn++;
       storageDirty(EE_MODEL);
@@ -141,9 +161,11 @@ uint8_t moveExpo(uint8_t idx, bool up)
 static uint8_t _countExpoLines()
 {
   uint8_t i = 0;
-  do {
+  uint8_t limit = g_model.dyn.expoCount;
+  while (i < limit) {
     if (is_memclear(expoAddress(i), sizeof(ExpoData))) break;
-  } while (++i < MAX_EXPOS);
+    i++;
+  }
   return i;
 }
 

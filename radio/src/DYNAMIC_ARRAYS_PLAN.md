@@ -161,13 +161,22 @@ Converted the entire Lua API from `MIXSRC_*`/`SWSRC_*` 16-bit integers to `Sourc
 
 ---
 
-## Phase 4: Dynamic Arena Sizing
+### Phase 4: Dynamic Arena Sizing
 
-1. Populate `ModelDynData` counts after model load
-2. Compact arena layout based on actual usage (critical for F4: default 6,976 B > 4,096 B arena)
-3. Dynamic loop bounds in mixer hot path
-4. GUI memory indicator ("Model memory: X% used")
-5. Insert operations check `arena.freeBytes() >= elementSize`
+Arena is now dynamically sized to actual model usage after load.
+
+- ✅ 4.1: `computeDynCounts()` scans arena contents and populates `ModelDynData` counts
+- ✅ 4.2: `ModelArena::compact()` relocates section data in-place to compacted layout
+- ✅ 4.3: `modelArenaInit()` starts with zero counts (no F4 overflow)
+- ✅ 4.4: `readModelYaml()` uses temp heap buffer for F4 when MAX layout exceeds arena, compacts after parse
+- ✅ 4.5: YAML callbacks return `g_model.dyn` counts (MAX during read, actual during write)
+- ✅ 4.6: `insertMix/deleteMix`, `insertExpo/deleteExpo`, `insertCustomFn/deleteCustomFn` use `insertInSection`/`deleteFromSection` + update dyn counts
+- ✅ 4.7: `ensureSectionCapacity()` for grow-on-demand (LS/CF position-indexed sections)
+- ✅ 4.8: `lswAddress()`/`customFnAddress()` return static dummy for out-of-range reads
+- ✅ 4.9: Mixer hot path uses `getMixCount()`/`getExpoCount()` instead of MAX constants
+- ✅ 4.10: GUI capacity checks use `freeBytes() < sizeof(Element)` + HARD max
+- ✅ 4.11: Model memory usage indicator on colorlcd model setup page
+- ✅ 4.12: `curveEnd[]` sized to `MAX_CURVES_HARD` (was `MAX_CURVES`)
 
 ---
 
@@ -179,10 +188,8 @@ Converted the entire Lua API from `MIXSRC_*`/`SWSRC_*` 16-bit integers to `Sourc
 
 ## Known Issues
 
-1. **STM32F4 arena undersize**: default layout (6,976 B) exceeds `MODEL_ARENA_SIZE` (4,096 B). Phase 4 (dynamic sizing) will compact layout to actual model usage, resolving this. Until then, the arena is initialized at max counts which overflows on F4.
+1. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
 
-2. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
+2. **stdlcd LS/CF editing beyond dyn count**: stdlcd logical switch editor writes directly to `lswAddress(idx)` via `checkIncDec`. If idx >= dyn count, writes go to static dummy (lost). Needs grow-on-demand integration in stdlcd edit paths.
 
-3. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
-
-4. **Future: eliminate `ramBackupUncompressed` buffer**: replace RLE with LZ4 streaming compression directly from live data. Would save ~4-8 KB on all platforms.
+3. **Future: eliminate `ramBackupUncompressed` buffer**: replace RLE with LZ4 streaming compression directly from live data. Would save ~4-8 KB on all platforms.

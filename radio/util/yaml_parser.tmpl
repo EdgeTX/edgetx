@@ -59,7 +59,7 @@ static const struct YamlNode {{ struct.name }}[] = {
   YAML_PADDING({{ padding_bits(elmt) }}),
       {% endif %}
     {% elif elmt.type == 'extern_array' %}
-  YAML_EXTERN_ARRAY("{{ max_len(elmt.name) }}", {{ extern_array_bits(elmt) }}, {{elmt.length}}, {{elmt.var_type}}, {{ elmt.extern_get_ptr }}),
+  YAML_EXTERN_ARRAY("{{ max_len(elmt.name) }}", {{ extern_array_bits(elmt) }}, {{elmt.length}}, {{elmt.var_type}}, {{ elmt.extern_get_ptr }}, {{ elmt.extern_ensure }}),
     {% elif elmt.raw %}
   {{ elmt.raw }},
     {% else %}
