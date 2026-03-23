@@ -590,40 +590,56 @@ void LogsDialog::fileOpen()
   if (!fileName.isEmpty()) {
     g.logDir(fileName);
     ui->FileName_LE->setText(fileName);
+    //Stopwatch s1("LogViewer");
+    //s1.report("Start");
+
     if (cvsFileParse()) {
       ui->FieldsTW->clear();
       ui->logTable->clear();
       ui->FieldsTW->setShowGrid(false);
-      ui->FieldsTW->setContentsMargins(0,0,0,0);
-      ui->FieldsTW->setRowCount(csvlog.at(0).count()-2);
+      ui->FieldsTW->setContentsMargins(0, 0, 0, 0);
+      ui->FieldsTW->setRowCount(csvlog.at(0).count() - 2);
       ui->FieldsTW->setColumnCount(1);
       ui->FieldsTW->setHorizontalHeaderLabels(QStringList(tr("Available fields")));
       ui->logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-      for (int i=2; i<csvlog.at(0).count(); i++) {
+
+      for (int i = 3; i < csvlog.at(0).count(); i++) {
         QTableWidgetItem* item= new QTableWidgetItem(csvlog.at(0).at(i));
-        ui->FieldsTW->setItem(i-2, 0, item);
+        ui->FieldsTW->setItem(i - 3, 0, item);
       }
+
       ui->FieldsTW->resizeRowsToContents();
       ui->logTable->setColumnCount(csvlog.at(0).count());
-      ui->logTable->setRowCount(csvlog.count()-1);
+      ui->logTable->setRowCount(csvlog.count() - 1);
       ui->logTable->setHorizontalHeaderLabels(csvlog.at(0));
+      //s1.report("Load fields");
 
       QAbstractItemModel *model = ui->logTable->model();
-      for (int i=1; i<csvlog.count(); i++) {
-        for (int j=0; j<csvlog.at(0).count(); j++) {
+      for (int i = 1; i < csvlog.count(); i++) {
+        for (int j = 0; j < csvlog.at(0).count(); j++) {
           model->setData(model->index(i - 1, j, QModelIndex()), csvlog.at(i).at(j));
         }
       }
 
+      //s1.report("Load data model");
+
       ui->logTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
       QVarLengthArray<int> sizes;
+
       for (int i = 0; i < ui->logTable->columnCount(); i++) {
         sizes.append(ui->logTable->columnWidth(i));
       }
+
       ui->logTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
       for (int i = 0; i < ui->logTable->columnCount(); i++) {
-        ui->logTable->setColumnWidth(i, sizes.at(i));
+        if (i == 0)
+          ui->logTable->setColumnHidden(i, true); // hide MSecsSinceEpoch column
+        else
+          ui->logTable->setColumnWidth(i, sizes.at(i));
       }
+
+      //s1.report("Adjust headers");
     }
   }
 }
@@ -672,6 +688,8 @@ void LogsDialog::saveSession()
 
 bool LogsDialog::cvsFileParse()
 {
+  //Stopwatch s("Parse");
+
   QFile file(ui->FileName_LE->text());
   int errors=0;
   int lines=-1;
@@ -696,13 +714,39 @@ bool LogsDialog::cvsFileParse()
     while (!file.atEnd()) {
       QString line = file.readLine().trimmed();
       QStringList columns = line.split(',');
-      if (numfields==-1) {
+
+      if (numfields == -1) {
         numfields=columns.count();
       }
-      if (columns.count()==numfields) {
-        csvlog.append(columns);
-      }
-      else {
+
+      if (columns.count() == numfields) {
+        if (lines == -1) {
+          csvlog.append(QStringList("MSecsSinceEpoch") << columns);
+        } else {
+          // Qt v6.2 onwards QDateTime::fromString() is very slow
+          QStringList sDate = columns.at(0).split("-");
+          QStringList sTime = columns.at(1).split(":");
+          QStringList sSecs;
+
+          if (sTime.count() == 3) {
+            sSecs = sTime.at(2).split(".");
+
+            if (sSecs.count() == 1)
+              sSecs.append("0");
+          }
+
+          if (sDate.count() == 3 && sTime.count() == 3 && sSecs.count() == 2) {
+            QDate d(sDate.at(0).toInt(), sDate.at(1).toInt(), sDate.at(2).toInt());
+            QTime t(sTime.at(0).toInt(), sTime.at(1).toInt(), sSecs.at(0).toInt(), sSecs.at(1).toInt());
+            QDateTime dt(d, t);
+            //qDebug() << dt << dt.toString() << dt.toMSecsSinceEpoch() << QDateTime::fromMSecsSinceEpoch(dt.toMSecsSinceEpoch());
+            csvlog.append(QStringList(QString::number(dt.toMSecsSinceEpoch())) << columns);
+            //qDebug() << csvlog.at(csvlog.count() - 1);
+          } else {
+            errors++;
+          }
+        }
+      } else {
         errors++;
       }
       lines++;
@@ -722,9 +766,13 @@ bool LogsDialog::cvsFileParse()
     return false;
   }
 
+  //s.report("Data loaded");
+
   plotLock = true;
   setFlightSessions();
   plotLock = false;
+
+  //s.report("Sessions loaded");
 
   return true;
 }
@@ -736,10 +784,8 @@ struct FlightSession {
 
 QDateTime LogsDialog::getRecordTimeStamp(int index)
 {
-  QString tstamp = csvlog.at(index).at(0) + " " + csvlog.at(index).at(1);
-  if (csvlog.at(index).at(1).contains("."))
-    return QDateTime::fromString(tstamp, "yyyy-MM-dd HH:mm:ss.zzz");
-  return QDateTime::fromString(tstamp, "yyyy-MM-dd HH:mm:ss");
+  //qDebug() << csvlog.at(index).at(0).toLongLong() << QDateTime::fromMSecsSinceEpoch(csvlog.at(index).at(0).toLongLong());
+  return QDateTime::fromMSecsSinceEpoch(csvlog.at(index).at(0).toLongLong());
 }
 
 QString LogsDialog::generateDuration(const QDateTime & start, const QDateTime & end)
@@ -756,6 +802,8 @@ QString LogsDialog::generateDuration(const QDateTime & start, const QDateTime & 
 
 void LogsDialog::setFlightSessions()
 {
+  //Stopwatch s("Sessions");
+
   ui->sessions_CB->clear();
   ui->SaveSession_PB->setEnabled(false);
 
@@ -775,24 +823,28 @@ void LogsDialog::setFlightSessions()
   }
   sessions.push_back(n-1);
 
+  //s.report("Breaks found");
+
   //now construct a list of sessions with their times
   //total time
-  int noSesions = sessions.size()-1;
+  int noSesions = sessions.size() - 1;
   QString label = QString("%1 ").arg(noSesions);
   label += tr(noSesions > 1 ? "sessions" : "session");
-  label += " <" + tr("time span") + generateDuration(getRecordTimeStamp(1), getRecordTimeStamp(n-1)) + ">";
+  label += " <" + tr("time span ") + generateDuration(getRecordTimeStamp(1), getRecordTimeStamp(n - 1)) + ">";
   ui->sessions_CB->addItem(label);
 
   // add individual sessions
   if (sessions.size() > 2) {
     for (int i = 1; i < sessions.size(); i++) {
-      QDateTime sessionStart = getRecordTimeStamp(sessions.at(i-1)+1);
+      QDateTime sessionStart = getRecordTimeStamp(sessions.at(i - 1) + 1);
       QDateTime sessionEnd = getRecordTimeStamp(sessions.at(i));
       QString label = sessionStart.toString("HH:mm:ss") + " <" + tr("duration ") + generateDuration(sessionStart, sessionEnd) + ">";
-      ui->sessions_CB->addItem(label, sessions.at(i-1));
+      ui->sessions_CB->addItem(label, sessions.at(i - 1));
       // qDebug() << "added label" << label << sessions.at(i-1);
     }
   }
+
+  //s.report("List created");
 }
 
 void LogsDialog::sessionsCurrentIndexChanged(int index)
@@ -857,7 +909,7 @@ std::pair<double, double> LogsDialog::GetMinMaxY() const
       bool ok = false;
       const double v = cell->text().toDouble(&ok);
       if (!ok) continue;
-      
+
       if (!found) {
         minVal = maxVal = v;
         found = true;
@@ -881,6 +933,7 @@ void LogsDialog::plotLogs()
     return;
   }
 
+  //Stopwatch s("Plot");
   plotsCollection plots;
 
   QModelIndexList selection = ui->logTable->selectionModel()->selectedRows();
@@ -900,12 +953,14 @@ void LogsDialog::plotLogs()
     rowCount = ui->logTable->rowCount();
   }
 
+  //s.report("Row count");
+
   plots.min_x = INVALID_MIN;
   plots.max_x = 0;
 
   foreach (QTableWidgetItem *plot, ui->FieldsTW->selectedItems()) {
     coords_t plotCoords;
-    int plotColumn = plot->row() + 2; // Date and Time first
+    int plotColumn = plot->row() + 3; // Epoch, Date and Time first
 
     plotCoords.min_y = INVALID_MIN;
     plotCoords.max_y = INVALID_MAX;
@@ -916,16 +971,14 @@ void LogsDialog::plotLogs()
       QTableWidgetItem *logValue;
       double y;
       double time;
-      QString time_str;
+      QDateTime datetime;
 
       if (hasLogSelection) {
         logValue = ui->logTable->item(selectedRows.at(row), plotColumn);
-        time_str = ui->logTable->item(selectedRows.at(row), 0)->text() +
-          QString(" ") + ui->logTable->item(selectedRows.at(row), 1)->text();
+        datetime = QDateTime::fromMSecsSinceEpoch(ui->logTable->item(selectedRows.at(row), 0)->text().toLongLong());
       } else {
         logValue = ui->logTable->item(row, plotColumn);
-        time_str = ui->logTable->item(row, 0)->text() + QString(" ") +
-          ui->logTable->item(row, 1)->text();
+        datetime = QDateTime::fromMSecsSinceEpoch(ui->logTable->item(row, 0)->text().toLongLong());
       }
 
       y = logValue->text().toDouble();
@@ -934,8 +987,7 @@ void LogsDialog::plotLogs()
       if (plotCoords.min_y > y) plotCoords.min_y = y;
       if (plotCoords.max_y < y) plotCoords.max_y = y;
 
-      QString fmt(time_str.contains('.') ? "yyyy-MM-dd HH:mm:ss.zzz" :"yyyy-MM-dd HH:mm:ss");
-      time = QCPAxisTickerDateTime::dateTimeToKey(QDateTime::fromString(time_str, fmt));
+      time = QCPAxisTickerDateTime::dateTimeToKey(datetime);
 
       plotCoords.x.push_back(time);
 
@@ -954,6 +1006,8 @@ void LogsDialog::plotLogs()
 
     plots.coords.append(plotCoords);
   }
+
+  //s.report("Cords");
 
   yAxesRanges[firstLeft].min = plots.coords.at(0).min_y;
   yAxesRanges[firstLeft].max = plots.coords.at(0).max_y;
@@ -1009,6 +1063,8 @@ void LogsDialog::plotLogs()
     }
   }
 
+  //s.report("Check too many ranges");
+
   if (plots.tooManyRanges) {
     yAxesRanges[firstLeft].max = 101;
     yAxesRanges[firstLeft].min = -1;
@@ -1037,6 +1093,8 @@ void LogsDialog::plotLogs()
   }
 
   removeAllGraphs();
+
+  //s.report("Remove existing graphs");
 
   axisRect->axis(QCPAxis::atBottom)->setRange(plots.min_x, plots.max_x);
   if (useCommonAxes) {
@@ -1071,6 +1129,8 @@ void LogsDialog::plotLogs()
       }
     }
   }
+
+  //s.report("Set axis");
 
   for (int i = 0; i < plots.coords.size(); i++) {
     switch (plots.coords[i].yaxis) {
@@ -1113,6 +1173,8 @@ void LogsDialog::plotLogs()
         break;
     }
 
+    //s.report("Legend");
+
     ui->customPlot->graph(i)->setData(plots.coords.at(i).x,
       plots.coords.at(i).y);
     pen.setColor(colors.at(i % colors.size()));
@@ -1130,8 +1192,12 @@ void LogsDialog::plotLogs()
     }
   }
 
+  //s.report("Set graph");
+
   ui->customPlot->legend->setVisible(true);
   ui->customPlot->replot();
+
+  //s.report("Refresh graph");
 }
 
 void LogsDialog::yAxisChangeRanges(QCPRange range)
