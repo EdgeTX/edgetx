@@ -47,7 +47,12 @@ static SetupLineDef setupLines[] = {
                                     g_model.thrTraceSrc = ref;
                                     SET_DIRTY();
                                 });
-      sc->setAvailableHandler(isSourceAvailable);
+      sc->setAvailableHandler([](SourceRef ref) {
+        constexpr SourceTypeMask allowed =
+            SRC_TYPE_BIT(SOURCE_TYPE_NONE) | SRC_TYPE_BIT(SOURCE_TYPE_STICK) |
+            SRC_TYPE_BIT(SOURCE_TYPE_POT) | SRC_TYPE_BIT(SOURCE_TYPE_CHANNEL);
+        return (allowed & SRC_TYPE_BIT(ref.type)) && isSourceAvailable(ref);
+      });
     }
   },
   {
