@@ -86,15 +86,11 @@ WidgetSettings::WidgetSettings(Widget* w) :
         new SourceChoice(
             line, rect_t{},
             [=]() -> SourceRef {
-              uint32_t val = widgetData->getUnsignedValue(optIdx);
-              SourceRef ref;
-              memcpy(&ref, &val, 4);
-              return ref;
+              uint32_t raw = widgetData->getUnsignedValue(optIdx);
+              return SourceRef::fromUint32(raw);
             },
             [=](SourceRef ref) {
-              uint32_t val;
-              memcpy(&val, &ref, 4);
-              widgetData->setUnsignedValue(optIdx, val);
+              widgetData->setUnsignedValue(optIdx, ref.toUint32());
               SET_DIRTY();
             });
         break;
@@ -163,15 +159,11 @@ WidgetSettings::WidgetSettings(Widget* w) :
         new SwitchChoice(
             line, rect_t{},
             [=]() -> SwitchRef {
-              uint32_t val = (uint32_t)widgetData->getSignedValue(optIdx);
-              SwitchRef ref;
-              memcpy(&ref, &val, 4);
-              return ref;
+              uint32_t raw = (uint32_t)widgetData->getSignedValue(optIdx);
+              return SwitchRef::fromUint32(raw);
             },
             [=](SwitchRef ref) {
-              uint32_t val;
-              memcpy(&val, &ref, 4);
-              widgetData->setSignedValue(optIdx, (int32_t)val);
+              widgetData->setSignedValue(optIdx, (int32_t)ref.toUint32());
               SET_DIRTY();
             });
         break;

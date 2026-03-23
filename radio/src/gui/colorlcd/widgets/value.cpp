@@ -84,8 +84,7 @@ class ValueWidget : public Widget
 
     // get source from options[0]
     uint32_t raw = widgetData->options[0].value.unsignedValue;
-    SourceRef field;
-    memcpy(&field, &raw, sizeof(field));
+    SourceRef field = SourceRef::fromUint32(raw);
 
     // if value changed
     auto newValue = getValue(field);
@@ -259,10 +258,7 @@ class ValueWidget : public Widget
                                                          : LV_TEXT_ALIGN_LEFT);
 
     // Set label text
-    SourceRef ref;
-    uint32_t raw = field;
-    memcpy(&ref, &raw, sizeof(ref));
-    char* labelTxt = getSourceString(ref);
+    char* labelTxt = getSourceString(field);
     lv_label_set_text(label, labelTxt);
     lv_label_set_text(labelShadow, labelTxt);
 
