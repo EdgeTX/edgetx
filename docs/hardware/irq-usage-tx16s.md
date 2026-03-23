@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # IRQ Usage of TX16S
 
 | IRQn | IRQ handler acronym                                                | Used for              | Priority | Prio Addr  | Description                                 | Address    |

@@ -6,12 +6,12 @@
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-> [!TIP]
-> Installing Brew via the command above will automatically install the [Xcode Command Line Tools](https://mac.install.guide/commandlinetools/). If for some reason you need to do this manually, run `xcode-select —install` via the Terminal app.
+!!! tip
+    Installing Brew via the command above will automatically install the [Xcode Command Line Tools](https://mac.install.guide/commandlinetools/). If for some reason you need to do this manually, run `xcode-select —install` via the Terminal app.
 
 # Install Qt 6
-> [!NOTE]
-> If you only intend on building the firmware, and not `simu`, `companion` or `simulator`, this is not necessary, and you can skip to the next step.
+!!! note
+    If you only intend on building the firmware, and not `simu`, `companion` or `simulator`, this is not necessary, and you can skip to the next step.
 
 ```
 brew install qt@6
@@ -97,10 +97,11 @@ cmake -DPCB=X10 -DPCBREV=TX16S \
    -DARM_TOOLCHAIN_DIR=/Applications/ArmGNUToolchain/14.2.Rel1/arm-none-eabi/bin/ ..
 ```
 
-> [!NOTE]
-> Please note that the variables `CMAKE_PREFIX_PATH`, `ARM_TOOLCHAIN_DIR` must be specified additionally to what is described in the other compilation HowTos:
-> - `CMAKE_PREFIX_PATH`: this must point to your Qt installation path.
-> - `ARM_TOOLCHAIN_DIR`: this must point to where ARM GCC has been installed (and MUST contain `/` at the end).
+!!! note
+    Please note that the variables `CMAKE_PREFIX_PATH`, `ARM_TOOLCHAIN_DIR` must be specified additionally to what is described in the other compilation HowTos:
+
+    - `CMAKE_PREFIX_PATH`: this must point to your Qt installation path.
+    - `ARM_TOOLCHAIN_DIR`: this must point to where ARM GCC has been installed (and MUST contain `/` at the end).
 
 Configure the compiler for firmware building (parallel limits the number of CPU cores used - you can increase this if your machine can handle more):
 ```

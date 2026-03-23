@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # DMA Mapping of NV14
 
 ## DMA1

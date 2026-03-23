@@ -14,13 +14,14 @@ Summary of the commands available in CLI mode.
 | `play` | `<filename>` | Play a file. |
 | `reboot` | `[wdt]` | Reboot the device. |
 | `set` | `<what> <value>` | Set a configuration parameter. |
+| `trigger_watchdog_reset` | | Trigger a watchdog reset. |
 | `help` | `[<command>]` | Show help for a command. |
 
 ## If `ENABLE_SERIAL_PASSTHROUGH` set
 
 | Function | Parameters (if any) | Description |
 |--|--|--|
-| `serialpassthrough` | `<port type> <port number>` | Enable serial passthrough. |
+| `serialpassthrough` | `<port type> [<port number>] [<baudrate>]` | Enable serial passthrough. |
 
 
 ## If `DEBUG` set
@@ -35,6 +36,7 @@ Summary of the commands available in CLI mode.
 | `trace` | `on \| off` | Enable/disable tracing. |
 | `debugvars` | | Show debug variables. |
 | `repeat` | `<interval> <command>` | Repeat a command. |
+| `testfatfs` | | Test FatFS SD card. |
 
 
 ## If `JITTER_MEASURE` set
@@ -51,11 +53,25 @@ Summary of the commands available in CLI mode.
 | `gps` | `<baudrate>\|$<command>\|trace` | Send a command to the GPS. |
 
 
+## If `SPACEMOUSE` set
+
+| Function | Parameters (if any) | Description |
+|--|--|--|
+| `spacemouse` | `poll \| tare \| startstreaming \| stopstreaming \| trace` | Control the SpaceMouse device. |
+
+
 ## If `BLUETOOTH` set
 
 | Function | Parameters (if any) | Description |
 |--|--|--|
 | `bt` | `<baudrate>\|<command>` | Send a command to the Bluetooth module. |
+
+
+## If `TP_GT911` set
+
+| Function | Parameters (if any) | Description |
+|--|--|--|
+| `reset_gt911` | | Reset the GT911 touchscreen controller. |
 
 
 ## If `ACCESS_DENIED` && `DEBUG_CRYPT` set

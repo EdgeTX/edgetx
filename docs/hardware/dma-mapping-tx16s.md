@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # DMA Mapping of TX16S
 
 ## DMA1

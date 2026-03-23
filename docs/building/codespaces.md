@@ -43,8 +43,8 @@ Next, issue:
 cmake --build . --target arm-none-eabi-configure --parallel 2
 ```
 
-> [!NOTE]
-> The `--parallel 2` in the command above instructs the cmake build system as to how many tasks to execute in parallel. Typically, you would set this to the number of CPU cores your machine has. So if you are using a higher CPU core count GitHub machine type, you can increase this to suit, and get a faster build.
+!!! note
+    The `--parallel 2` in the command above instructs the cmake build system as to how many tasks to execute in parallel. Typically, you would set this to the number of CPU cores your machine has. So if you are using a higher CPU core count GitHub machine type, you can increase this to suit, and get a faster build.
 
 Only a few seconds later, you should be greeted with "-- Generating done" message.
 
@@ -55,8 +55,8 @@ cmake --build arm-none-eabi --target firmware
 
 This time it can take few minutes so until the firmware binary is successfully built. If you see "[100%] Built target firmware" then all went smoothly, and you have just made yourself a custom EdgeTX firmware. If you are making incremental modifications to the firmware, subsequent firmware builds will be a lot faster.
 
-> [!TIP]
-> If you want more information about the firmware binary - such as how big the firmware is in relation to the FLASH memory the target handset has, you can compile the `firmware-size` target instead of firmware, and you'll get a summary at the end of the firmware build.
+!!! tip
+    If you want more information about the firmware binary - such as how big the firmware is in relation to the FLASH memory the target handset has, you can compile the `firmware-size` target instead of firmware, and you'll get a summary at the end of the firmware build.
 
 It's a good idea to rename the binary, so that it is easier later to see the target radio and which options were baked into it. For this, issue in the terminal:
 ```
@@ -66,6 +66,6 @@ mv firmware.bin edgetx_main_tx16s_bt_release.bin
 
 In the left file browser tree open the **build** folder and then open **arm-none-eabi** folder. Right click at _edgetx_main_tx16s_bt_release.bin_ and select Download.
 
-Put the downloaded firmware binary into your radio SD card \FIRMWARE subfolder, and flash it to your radio either using EdgeTX bootloader, [EdgeTX Buddy](https://buddy.edgetx.org/), EdgeTX Companion or [STM32CubeProgrammer](../mods/unbrick.md).
+Put the downloaded firmware binary into your radio SD card \FIRMWARE subfolder, and flash it to your radio either using EdgeTX bootloader, [EdgeTX Buddy](https://buddy.edgetx.org/), EdgeTX Companion or [STM32CubeProgrammer](../troubleshooting/unbrick.md).
 
 Use [EdgeTX Buddy](https://buddy.edgetx.org/) or EdgeTX Companion to fill your SD card appropriately for your radio.

@@ -101,13 +101,14 @@ This finishes the install.
 
 ## Running the SIMU
 
-We have created a SIMU application for the Taranis X9D+ by compiling it for you. If you want to test it, just type the following command to fetch it `wget -q https://raw.githubusercontent.com/wiki/EdgeTX/edgetx/files/simu/simu_x9dplus_ubuntu`.
+We have created a SIMU application for the Taranis X9D+ by compiling it for you. If you want to test it, just type the following command to fetch it `wget -q https://raw.githubusercontent.com/EdgeTX/edgetx/refs/heads/main/docs/assets/simu_x9dplus_ubuntu`.
+
 then `chmod a+x simu_x9dplus_ubuntu` and run it with `./simu_x9dplus_ubuntu`.
 And your X9D+ simple simulator is running in an Ubuntu window on your windows computer. (the key shortcuts can be found in the windows companion help screen: PG-UP->MENU; PG-DN->PAGE; DEL/ESC/BKSP->EXIT; +->+; -->-; ENTER->ENT).
 
 ## Compiling
 
-In order to make the instructions that are on another WIKI page for setting up UBUNTU to compile, there is only one thing you need to do first.
+Before following the Ubuntu build guide, there is one extra step required for WSL:
 
 * You have to enable the support for the i386 libraries by executing the following commands in UBUNTU:
 * `sudo dpkg --add-architecture i386`

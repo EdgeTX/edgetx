@@ -56,17 +56,23 @@ nav:
     - Git Command Reference: contributing/some-git-commands.md
   - Building EdgeTX:
     - Overview: building/index.md
-    - In a Web Browser (CodeSpaces): building/codespaces.md
-    - Windows: building/windows.md
-    - Windows (Docker): building/windows-docker.md
-    - Linux (Ubuntu 22.04): building/linux-ubuntu-22.04.md
-    - Linux (Ubuntu 24.04): building/linux-ubuntu-24.04.md
-    - Linux (WSL / Ubuntu 20.04): building/linux-wsl.md
-    - macOS (Sequoia / Tahoe): building/macos-sequoia.md
-    - macOS (Sonoma): building/macos-sonoma.md
-    - macOS (Catalina): building/macos-catalina.md
-    - Compilation Options: building/compilation-options.md
-    - Qt Creator (Obsolete): building/qt-creator.md
+    - Online:
+      - In a Web Browser (CodeSpaces): building/codespaces.md
+    - Windows:
+      - Windows (Native): building/windows.md
+      - Windows (Docker): building/windows-docker.md
+      - WSL: building/linux-wsl.md
+    - Linux:
+      - Ubuntu 22.04: building/linux-ubuntu-22.04.md
+      - Ubuntu 24.04: building/linux-ubuntu-24.04.md
+    - macOS:
+      - Sequoia / Tahoe: building/macos-sequoia.md
+      - Sonoma: building/macos-sonoma.md
+      - Catalina: building/macos-catalina.md
+    - Reference:
+      - Compilation Options: building/compilation-options.md
+    - Obsolete:
+      - Qt Creator: building/qt-creator.md
   - Hardware Reference:
     - Radio Specifications: hardware/radio-specs.md
     - DMA Mappings:
@@ -80,14 +86,17 @@ nav:
     - Flysky PL18 & PL18EV: mods/flysky-pl18.md
     - Flysky NB4+: mods/flysky-nb4plus.md
     - Flashing EdgeTX to Flysky PL18/Paladin-EV: mods/flashing-flysky-pl18.md
-    - Unbrick Your Radio: mods/unbrick.md
+  - Troubleshooting:
+    - Unbrick Your Radio: troubleshooting/unbrick.md
   - Development:
     - CLI Commands: development/cli-commands.md
-    - Customisable Switches: development/customisable-switches.md
     - Control Inputs: development/control-inputs.md
     - External Module Protocols: development/external-module-protocols.md
     - YAML Parser/Generator: development/yaml-parser-generator.md
     - Mixer Synchronisation: development/mixer-synchronisation.md
+
+exclude_docs: |
+  README.md
 
 extra_css:
   - assets/stylesheets/extra.css

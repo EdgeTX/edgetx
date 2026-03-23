@@ -22,7 +22,7 @@ Due to PL18 and Paladin EV radio hardware differences, when compared to other Ed
 
 * Remove the FRM301 RF-module for now. This module likely will never get official EdgeTX support due to proprietary API that Flysky desires to keep confidential. You can use [Flysky FJR2 JR-micro bay adapter](https://www.flysky-cn.com/b1700-specifications) to attach arbitrary JR micro bay RF-modules to the PL18 or Paladin EV instead. Alternatively, consider ExpressLRS firmware for the FRM301 (see [ExpressLRS pull-request #1811](https://github.com/ExpressLRS/ExpressLRS/pull/1811)) or see the section about supported [external RF modules](#external-rf-module-support) below.
 * Fully charge the battery of your PL18 or Paladin EV before starting with the backup or the flashing steps below.
-* Download and install the latest STM32CubeProgrammer, see for instructions: [Unbrick your radio](unbrick.md) (you need to make an account at ST to be able to download it).
+* Download and install the latest STM32CubeProgrammer, see for instructions: [Unbrick your radio](../troubleshooting/unbrick.md) (you need to make an account at ST to be able to download it).
 * Peel off the left rubber handle on your PL18 or Paladin EV. That should reveal two hidden buttons. The top button is the Device-Firmware-Upgrade (DFU) button, the bottom button is the ultimate master power-off button and will be required to be pressed to exit the DFU mode.
 
 [![PL18 hidden buttons](../assets/images/hw/flysky-pl18/pl18_hidden_buttons.jpg)](../assets/images/hw/flysky-pl18/pl18_hidden_buttons.jpg)
