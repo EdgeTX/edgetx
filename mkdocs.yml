@@ -86,7 +86,8 @@ nav:
     - Flysky PL18 & PL18EV: mods/flysky-pl18.md
     - Flysky NB4+: mods/flysky-nb4plus.md
     - Flashing EdgeTX to Flysky PL18/Paladin-EV: mods/flashing-flysky-pl18.md
-    - Unbrick Your Radio: mods/unbrick.md
+  - Troubleshooting:
+    - Unbrick Your Radio: troubleshooting/unbrick.md
   - Development:
     - CLI Commands: development/cli-commands.md
     - Control Inputs: development/control-inputs.md
