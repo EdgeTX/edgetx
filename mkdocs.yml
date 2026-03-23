@@ -95,6 +95,9 @@ nav:
     - YAML Parser/Generator: development/yaml-parser-generator.md
     - Mixer Synchronisation: development/mixer-synchronisation.md
 
+exclude_docs: |
+  README.md
+
 extra_css:
   - assets/stylesheets/extra.css
 
