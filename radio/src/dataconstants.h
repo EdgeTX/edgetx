@@ -745,4 +745,5 @@ enum Functions {
 #endif
 };
 
-static_assert(MIXSRC_LAST_TELEM < (1 << 9), "MIXSRC list above 10 bits (signed)");
+static_assert(MIXSRC_LAST_TELEM < (1 << 9), ""MIXSRC_LAST_TELEM exceeds max positive value of 10-bit signed srcRaw field (511)"
+");
