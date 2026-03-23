@@ -226,12 +226,10 @@ void menuModelLogicalSwitches(event_t event)
           else if (cstate == LS_FAMILY_COMP) {
             cs->v2.source = checkIncDecSource(event, cs->v2.source, SRCMASK_ALL,
                                               isSourceAvailable);
-          }
-          else {
+          } else {
             if (cs->v1.source.type >= SOURCE_TYPE_TIMER) {
               cs->v2.value = checkIncDec(event, cs->v2.value, v2_min, v2_max, EE_MODEL | INCDEC_REP10 | NO_INCDEC_MARKS);
-            }
-            else {
+            } else {
               CHECK_INCDEC_MODELVAR(event, cs->v2.value, v2_min, v2_max);
             }
             if (cstate==LS_FAMILY_OFS && !cs->v1.isZero() && event==EVT_KEY_LONG(KEY_ENTER)) {
@@ -248,9 +246,7 @@ void menuModelLogicalSwitches(event_t event)
           CHECK_INCDEC_MODELVAR(event, cs->v3, v3_min, v3_max);
           break;
         case LS_FIELD_ANDSW:
-        {
           cs->andsw = checkIncDecSwitch(event, cs->andsw, SWMASK_LOGICAL_AND, EE_MODEL, isSwitchAvailableInLogicalSwitches);
-        }
           break;
         case LS_FIELD_DURATION:
           CHECK_INCDEC_MODELVAR_ZERO(event, cs->duration, MAX_LS_DURATION);

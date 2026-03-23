@@ -948,9 +948,7 @@ void menuModelSetup(event_t event)
               CHECK_INCDEC_MODELVAR_ZERO(event, timer->mode, TMRMODE_MAX);
               break;
             case 1:
-              {
-                timer->swtch = checkIncDecSwitch(event, timer->swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
-              }
+              timer->swtch = checkIncDecSwitch(event, timer->swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
               break;
           }
         }
@@ -1651,12 +1649,10 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
 #endif
         lcdDrawTextIndented(y, STR_SWITCH);
-        {
-          drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, attr);
-          if(attr) {
-            g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
-                g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, isSwitchAvailableForArming);
-          }
+        drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, attr);
+        if(attr) {
+          g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
+              g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, isSwitchAvailableForArming);
         }
         break;
 #endif
