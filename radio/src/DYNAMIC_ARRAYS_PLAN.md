@@ -24,7 +24,7 @@ Key components:
 - **`ModelArena`** class: contiguous buffer with section-based layout, `insertSlot`/`deleteSlot`, `uint32_t` capacity/offsets
 - **YAML `YDT_EXTERN_ARRAY`**: tree walker redirects data access to arena via `get_ptr` callbacks
 - **`CUST_EXTERN_ARRAY`** macro + `generate_yaml.py` support
-- **RTC backup**: arena included in `RamBackupUncompressed`
+- **RTC backup**: arena elements copied field-by-field via `datacopy.inc` templates, stripping NOBACKUP fields (names). Backup arena buffer sized using `Backup::` struct sizes, capped to `MODEL_ARENA_SIZE`.
 - **Label operations**: `patchModelYamlLabels()` for direct YAML text patching
 - Arena initialized with max-size layout (backward-compatible with old static arrays)
 
@@ -72,33 +72,30 @@ All three are 4 bytes, 32-bit word-aligned.
 | ModuleData.crsf | unchanged | unchanged | crsfArmingTrigger→SwitchRef (within union) |
 | RadioData | +198 B | +198 B | backlightSrc/volumeSrc→SourceRef, customFn[64] +3 each |
 
-**Bridge functions** (temporary, until all code uses structured types natively):
-- `sourceRefToMixSrc()` / `switchRefToSwSrc()` in `mixer.cpp` — convert new→old for `getValue()`/`getSwitch()`/GUI functions that still expect enum integers
-- `mixSrcToSourceRef()` / `swSrcToSwitchRef()` in `mixer.cpp` — reverse, declared in `myeeprom.h` for global access
-- `valueOrSourceToLegacy()` / `legacyToValueOrSource()` — bridge ValueOrSource↔SourceNumVal packed format
-
-**Files updated:** mixer.cpp, mixes.cpp, expos.cpp, model_init.cpp, curves.cpp, edgetx.cpp, switches.cpp, timers.cpp, all GUI editors (colorlcd + 212x64 + 128x64), Lua API (api_model.cpp, interface.cpp), telemetry/crossfire.cpp, pulses/crossfire.cpp, yaml_datastructs_funcs.cpp, all test files.
+All bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`, `getValue(mixsrc_t)`) have been removed. All code uses SourceRef/SwitchRef natively.
 
 **Current arena element sizes** (updated):
 
-| Array | Element size | Per-radio max | Hard cap |
-|-------|-------------|---------------|----------|
-| mixData | 35 B | 64 | 128 |
-| expoData | 33 B | 64 | 128 |
-| curves | 4 B | 32 | 64 |
-| points | 1 B | 512 | 1024 |
-| logicalSw | 18 B | 64 | 64 |
-| customFn | 14 B | 64 | 64 |
+| Array | Element size | Per-radio max | Hard cap (F4) | Hard cap (H7+) |
+|-------|-------------|---------------|---------------|----------------|
+| mixData | 35 B | 64 | 64 | 128 |
+| expoData | 33 B | 64 | 64 | 128 |
+| curves | 4 B | 32 | 64 | 64 |
+| points | 1 B | 512 | 1024 | 1024 |
+| logicalSw | 18 B | 64 | 64 | 64 |
+| customFn | 14 B | 64 | 64 | 64 |
 
 Default arena usage: 64×35 + 64×33 + 32×4 + 512 + 64×18 + 64×14 = **6,976 B** (up from 4,352 due to larger structs).
 
-Platform arena sizes need updating:
+Platform arena sizes:
 
 | Platform | MODEL_ARENA_SIZE | Default used | Status |
 |----------|-----------------|-------------|--------|
-| STM32F4 | 4096 B | 6,976 B | **Needs increase** |
-| STM32H7 | 8192 B | 6,976 B | **Needs increase** |
+| STM32F4 | 4096 B | 6,976 B | **Needs Phase 4 dynamic sizing** |
+| STM32H7 | 8192 B | 6,976 B | OK |
 | Companion/Sim | 65536 B | 6,976 B | OK |
+
+**F4 RAM impact**: ~+192 B net vs mainline (ModelData shrink offsets arena + backup additions). `MAX_MIXERS_HARD`/`MAX_EXPOS_HARD` capped at 64 on F4. RTC backup arena capped to `MODEL_ARENA_SIZE`.
 
 ---
 
@@ -167,11 +164,10 @@ Converted the entire Lua API from `MIXSRC_*`/`SWSRC_*` 16-bit integers to `Sourc
 ## Phase 4: Dynamic Arena Sizing
 
 1. Populate `ModelDynData` counts after model load
-2. Compact arena layout based on actual usage
-3. Arena-aware insert/delete
-4. Dynamic loop bounds in mixer hot path
-5. GUI memory indicator
-6. STM32F4 arena sizing resolution (now critical: default layout 6,208B > MODEL_ARENA_SIZE 4,096B)
+2. Compact arena layout based on actual usage (critical for F4: default 6,976 B > 4,096 B arena)
+3. Dynamic loop bounds in mixer hot path
+4. GUI memory indicator ("Model memory: X% used")
+5. Insert operations check `arena.freeBytes() >= elementSize`
 
 ---
 
@@ -183,10 +179,10 @@ Converted the entire Lua API from `MIXSRC_*`/`SWSRC_*` 16-bit integers to `Sourc
 
 ## Known Issues
 
-1. **STM32F4 arena undersize**: default layout (6,976 B) exceeds `MODEL_ARENA_SIZE` (4096 B). Must be resolved before merging.
+1. **STM32F4 arena undersize**: default layout (6,976 B) exceeds `MODEL_ARENA_SIZE` (4,096 B). Phase 4 (dynamic sizing) will compact layout to actual model usage, resolving this. Until then, the arena is initialized at max counts which overflows on F4.
 
-2. **Bridge functions**: FULLY REMOVED. `sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`, and `getValue(mixsrc_t)` overload have been deleted. All code uses SourceRef/SwitchRef natively.
+2. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
 
-3. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
+3. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
 
-4. **`curveEnd[]` parallel array**: sized `MAX_CURVES` (32), should match `MAX_CURVES_HARD` (64).
+4. **Future: eliminate `ramBackupUncompressed` buffer**: replace RLE with LZ4 streaming compression directly from live data. Would save ~4-8 KB on all platforms.

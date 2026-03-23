@@ -26,9 +26,22 @@
 namespace Backup {
 #define BACKUP
 #include "datastructs_private.h"
+
+// Backup arena size: uses Backup:: struct sizes (NOBACKUP fields stripped).
+// Capped to MODEL_ARENA_SIZE since backup data can never exceed live arena.
+static constexpr uint32_t ARENA_SIZE_FORMULA =
+    MAX_MIXERS * sizeof(MixData) +
+    MAX_EXPOS * sizeof(ExpoData) +
+    MAX_CURVES * sizeof(CurveHeader) +
+    MAX_CURVE_POINTS * sizeof(int8_t) +
+    MAX_LOGICAL_SWITCHES * sizeof(LogicalSwitchData) +
+    MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData);
+static constexpr uint32_t ARENA_SIZE =
+    ARENA_SIZE_FORMULA < MODEL_ARENA_SIZE ? ARENA_SIZE_FORMULA : MODEL_ARENA_SIZE;
+
 PACK(struct RamBackupUncompressed {
   ModelData model;
-  uint8_t arena[MODEL_ARENA_SIZE];
+  uint8_t arena[ARENA_SIZE];
   RadioData radio;
 });
 #undef BACKUP
@@ -50,27 +63,114 @@ RamBackup * ramBackup = &_ramBackup;
 RamBackup * ramBackup = (RamBackup *)BKPSRAM_BASE;
 #endif
 
+// Pack live arena elements into backup format (strips NOBACKUP fields like names)
+static uint32_t packArenaForBackup(uint8_t* dst, uint32_t dstSize)
+{
+  uint8_t* start = dst;
+  const ModelDynData& dyn = g_model.dyn;
+
+  // Mixes
+  auto* liveMix = (MixData*)g_modelArena.sectionBase(ARENA_MIXES);
+  auto* bkpMix = (Backup::MixData*)dst;
+  for (int i = 0; i < dyn.mixCount; i++)
+    copyMixData(&bkpMix[i], &liveMix[i]);
+  dst += dyn.mixCount * sizeof(Backup::MixData);
+
+  // Expos
+  auto* liveExpo = (ExpoData*)g_modelArena.sectionBase(ARENA_EXPOS);
+  auto* bkpExpo = (Backup::ExpoData*)dst;
+  for (int i = 0; i < dyn.expoCount; i++)
+    copyExpoData(&bkpExpo[i], &liveExpo[i]);
+  dst += dyn.expoCount * sizeof(Backup::ExpoData);
+
+  // Curves
+  auto* liveCurve = (CurveHeader*)g_modelArena.sectionBase(ARENA_CURVES);
+  auto* bkpCurve = (Backup::CurveHeader*)dst;
+  for (int i = 0; i < dyn.curveCount; i++)
+    copyCurveHeader(&bkpCurve[i], &liveCurve[i]);
+  dst += dyn.curveCount * sizeof(Backup::CurveHeader);
+
+  // Points (raw bytes, no NOBACKUP fields)
+  memcpy(dst, g_modelArena.sectionBase(ARENA_POINTS), dyn.pointsCount);
+  dst += dyn.pointsCount;
+
+  // Logical switches
+  auto* liveLsw = (LogicalSwitchData*)g_modelArena.sectionBase(ARENA_LOGICAL_SW);
+  auto* bkpLsw = (Backup::LogicalSwitchData*)dst;
+  for (int i = 0; i < dyn.logicalSwCount; i++)
+    copyLogicalSwitchData(&bkpLsw[i], &liveLsw[i]);
+  dst += dyn.logicalSwCount * sizeof(Backup::LogicalSwitchData);
+
+  // Custom functions
+  auto* liveCfn = (CustomFunctionData*)g_modelArena.sectionBase(ARENA_CUSTOM_FN);
+  auto* bkpCfn = (Backup::CustomFunctionData*)dst;
+  for (int i = 0; i < dyn.customFnCount; i++)
+    copyCustomFunctionData(&bkpCfn[i], &liveCfn[i]);
+  dst += dyn.customFnCount * sizeof(Backup::CustomFunctionData);
+
+  return dst - start;
+}
+
+// Unpack backup arena elements into live arena (restores NOBACKUP fields as zero)
+static void unpackArenaFromBackup(const uint8_t* src)
+{
+  const ModelDynData& dyn = g_model.dyn;
+
+  // Mixes
+  auto* bkpMix = (Backup::MixData*)src;
+  auto* liveMix = (MixData*)g_modelArena.sectionBase(ARENA_MIXES);
+  for (int i = 0; i < dyn.mixCount; i++)
+    copyMixData(&liveMix[i], &bkpMix[i]);
+  src += dyn.mixCount * sizeof(Backup::MixData);
+
+  // Expos
+  auto* bkpExpo = (Backup::ExpoData*)src;
+  auto* liveExpo = (ExpoData*)g_modelArena.sectionBase(ARENA_EXPOS);
+  for (int i = 0; i < dyn.expoCount; i++)
+    copyExpoData(&liveExpo[i], &bkpExpo[i]);
+  src += dyn.expoCount * sizeof(Backup::ExpoData);
+
+  // Curves
+  auto* bkpCurve = (Backup::CurveHeader*)src;
+  auto* liveCurve = (CurveHeader*)g_modelArena.sectionBase(ARENA_CURVES);
+  for (int i = 0; i < dyn.curveCount; i++)
+    copyCurveHeader(&liveCurve[i], &bkpCurve[i]);
+  src += dyn.curveCount * sizeof(Backup::CurveHeader);
+
+  // Points (raw bytes)
+  memcpy(g_modelArena.sectionBase(ARENA_POINTS), src, dyn.pointsCount);
+  src += dyn.pointsCount;
+
+  // Logical switches
+  auto* bkpLsw = (Backup::LogicalSwitchData*)src;
+  auto* liveLsw = (LogicalSwitchData*)g_modelArena.sectionBase(ARENA_LOGICAL_SW);
+  for (int i = 0; i < dyn.logicalSwCount; i++)
+    copyLogicalSwitchData(&liveLsw[i], &bkpLsw[i]);
+  src += dyn.logicalSwCount * sizeof(Backup::LogicalSwitchData);
+
+  // Custom functions
+  auto* bkpCfn = (Backup::CustomFunctionData*)src;
+  auto* liveCfn = (CustomFunctionData*)g_modelArena.sectionBase(ARENA_CUSTOM_FN);
+  for (int i = 0; i < dyn.customFnCount; i++)
+    copyCustomFunctionData(&liveCfn[i], &bkpCfn[i]);
+}
+
 void rambackupWrite()
 {
   copyRadioData(&ramBackupUncompressed.radio, &g_eeGeneral);
   copyModelData(&ramBackupUncompressed.model, &g_model);
 
-  // Copy arena data
-  uint32_t arenaUsed = g_modelArena.usedBytes();
-  if (arenaUsed > sizeof(ramBackupUncompressed.arena))
-    arenaUsed = sizeof(ramBackupUncompressed.arena);
-  memcpy(ramBackupUncompressed.arena, g_modelArena.base(), arenaUsed);
-  // Zero the rest so RLE compression works well
-  if (arenaUsed < sizeof(ramBackupUncompressed.arena))
-    memset(ramBackupUncompressed.arena + arenaUsed, 0,
-           sizeof(ramBackupUncompressed.arena) - arenaUsed);
+  // Pack arena elements into backup format (strips NOBACKUP fields)
+  memset(ramBackupUncompressed.arena, 0, sizeof(ramBackupUncompressed.arena));
+  uint32_t arenaUsed = packArenaForBackup(
+      ramBackupUncompressed.arena, sizeof(ramBackupUncompressed.arena));
 
   ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data),
                              (const uint8_t *)&ramBackupUncompressed,
                              sizeof(ramBackupUncompressed));
 
-  TRACE("RamBackupWrite sdsize=%d backupsize=%d rlcsize=%d",
-        (int)(sizeof(ModelData) + sizeof(RadioData) + arenaUsed),
+  TRACE("RamBackupWrite arenaUsed=%d backupsize=%d rlcsize=%d",
+        (int)arenaUsed,
         (int)sizeof(Backup::RamBackupUncompressed), ramBackup->size);
 }
 
@@ -79,7 +179,8 @@ bool rambackupRestore()
   if (ramBackup->size == 0)
     return false;
 
-  if (uncompress((uint8_t *)&ramBackupUncompressed, sizeof(ramBackupUncompressed), ramBackup->data, ramBackup->size) != sizeof(ramBackupUncompressed))
+  if (uncompress((uint8_t *)&ramBackupUncompressed, sizeof(ramBackupUncompressed),
+                 ramBackup->data, ramBackup->size) != sizeof(ramBackupUncompressed))
     return false;
 
   memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
@@ -87,12 +188,10 @@ bool rambackupRestore()
   copyRadioData(&g_eeGeneral, &ramBackupUncompressed.radio);
   copyModelData(&g_model, &ramBackupUncompressed.model);
 
-  // Restore arena data
+  // Restore arena: clear first (zeros NOBACKUP fields), then unpack
   g_modelArena.clear();
-  memcpy(g_modelArena.base(), ramBackupUncompressed.arena,
-         sizeof(ramBackupUncompressed.arena));
-  // Restore arena layout from the model's dyn data
   g_modelArena.layout(g_model.dyn);
+  unpackArenaFromBackup(ramBackupUncompressed.arena);
 
   return true;
 }
