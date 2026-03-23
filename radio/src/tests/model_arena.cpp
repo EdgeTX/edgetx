@@ -612,7 +612,6 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
   // Verify data survived the round-trip
   EXPECT_EQ(mixAddress(0)->srcRaw, savedMix0Src);
   EXPECT_EQ(mixAddress(0)->weight.numericValue(), savedMix0Weight);
-  // Debug: check raw arena pointer
   auto* rawLs = reinterpret_cast<LogicalSwitchData*>(
       g_modelArena.sectionBase(ARENA_LOGICAL_SW)) + 2;
   EXPECT_EQ(rawLs->func, LS_FUNC_VPOS)
