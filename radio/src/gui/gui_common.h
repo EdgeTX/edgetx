@@ -56,7 +56,9 @@ int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
 bool isChannelUsed(int channel);
 bool checkSourceAvailable(int source, uint32_t sourceTypes);
+bool checkSourceAvailable(const SourceRef& ref, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
+bool checkSwitchAvailable(const SwitchRef& ref, uint32_t swtchTypes);
 bool isInputAvailable(int input);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);

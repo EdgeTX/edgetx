@@ -188,7 +188,7 @@ class ValueWidget : public Widget
     auto widgetData = getPersistentData();
 
     // get source from options[0]
-    mixsrc_t field = widgetData->options[0].value.unsignedValue;
+    SourceRef field = SourceRef::fromUint32(widgetData->options[0].value.unsignedValue);
 
     // get color from options[1]
     etx_txt_color_from_flags(label, widgetData->options[1].value.unsignedValue);
@@ -228,8 +228,8 @@ class ValueWidget : public Widget
                : (valAlign == ALIGN_CENTER) ? 1
                                             : -PAD_SMALL;
       valueY = VAL_Y2;
-      if (field >= MIXSRC_FIRST_TELEM) {
-        int8_t sensor = 1 + (field - MIXSRC_FIRST_TELEM) / 3;
+      if (field.type == SOURCE_TYPE_TELEMETRY) {
+        int8_t sensor = 1 + field.index / 3;
         if (!isGPSSensor(sensor) && !isSensorUnit(sensor, UNIT_DATETIME) && !isSensorUnit(sensor, UNIT_TEXT)) {
           // Set font to XL
           lv_obj_add_state(value, ETX_STATE_LARGE_FONT);
@@ -237,7 +237,7 @@ class ValueWidget : public Widget
         }
       }
 #if defined(INTERNAL_GPS)
-      else if (field == MIXSRC_TX_GPS) {
+      else if (field.type == SOURCE_TYPE_TX_GPS) {
       }
 #endif
       else {

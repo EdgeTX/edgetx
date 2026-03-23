@@ -6,10 +6,10 @@
 {% set main_inputs = adc_inputs.inputs | selectattr('type', '==', 'STICK') | list %}
 {% for input in main_inputs %}
   {% set label = main_labels[input.name] %}
-  LROT_NUMENTRY( MIXSRC_{{ label.str }}, MIXSRC_FIRST_STICK + {{ loop.index0 }} )
+  LROT_NUMENTRY( MIXSRC_{{ label.str }}, SourceRef_(SOURCE_TYPE_STICK, {{ loop.index0 }}).toUint32() )
 {% endfor %}
 
 {% set regular_switches = switches | selectattr('type','!=','FSWITCH') | list %}
 {% for switch in regular_switches %}
-  LROT_NUMENTRY( MIXSRC_{{ switch.name }}, MIXSRC_FIRST_SWITCH + {{ loop.index0 }} )
+  LROT_NUMENTRY( MIXSRC_{{ switch.name }}, SourceRef_(SOURCE_TYPE_SWITCH, {{ loop.index0 }}).toUint32() )
 {% endfor %}

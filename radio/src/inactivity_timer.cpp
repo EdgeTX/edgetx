@@ -70,11 +70,11 @@ bool inactivityCheckInputs()
   }
 
   for (uint8_t i = 0; i < getSwitchCount(); i++)
-    sum += getValue(MIXSRC_FIRST_SWITCH + i) >> INAC_SWITCHES_SHIFT;
+    sum += getValue(SourceRef_(SOURCE_TYPE_SWITCH, i)) >> INAC_SWITCHES_SHIFT;
 
 #if defined(IMU)
   for (uint8_t i = 0; i < 2; i++)
-    sum += getValue(MIXSRC_TILT_X + i) >> INAC_STICKS_SHIFT;
+    sum += getValue(SourceRef_(SOURCE_TYPE_IMU, i)) >> INAC_STICKS_SHIFT;
 #endif
 
 #if defined(SPACEMOUSE)

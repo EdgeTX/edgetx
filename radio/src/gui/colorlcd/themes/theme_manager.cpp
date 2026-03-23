@@ -533,7 +533,7 @@ void HeaderDateTime::checkEvents()
 #endif
     lv_label_set_text(date, str);
 
-    getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
+    getTimerString(str, getValue(SourceRef_(SOURCE_TYPE_TX_TIME, 0)), timerOptions);
     lv_label_set_text(time, str);
 
     lastTime = t;

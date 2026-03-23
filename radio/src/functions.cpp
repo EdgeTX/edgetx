@@ -63,11 +63,34 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
   if (idx == MIXSRC_NONE)
     return;
 
-  getvalue_t val = getValue(idx);
-  idx = abs(idx); // Don't need negative form any longer
+  // Convert legacy mixsrc_t to SourceRef for getValue
+  SourceRef ref = SourceRef_(SOURCE_TYPE_NONE, 0);
+  mixsrc_t absIdx = abs(idx);
 
-  if (idx >= MIXSRC_FIRST_TELEM) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(idx-MIXSRC_FIRST_TELEM) / 3];
+  // Map known MIXSRC ranges to SourceRef
+  if (absIdx >= MIXSRC_FIRST_TELEM && absIdx <= MIXSRC_LAST_TELEM)
+    ref = SourceRef_(SOURCE_TYPE_TELEMETRY, absIdx - MIXSRC_FIRST_TELEM);
+  else if (absIdx >= MIXSRC_FIRST_TIMER && absIdx <= MIXSRC_LAST_TIMER)
+    ref = SourceRef_(SOURCE_TYPE_TIMER, absIdx - MIXSRC_FIRST_TIMER);
+  else if (absIdx == MIXSRC_TX_TIME)
+    ref = SourceRef_(SOURCE_TYPE_TX_TIME, 0);
+  else if (absIdx == MIXSRC_TX_VOLTAGE)
+    ref = SourceRef_(SOURCE_TYPE_TX_VOLTAGE, 0);
+#if defined(LUMINOSITY_SENSOR)
+  else if (absIdx == MIXSRC_LIGHT)
+    ref = SourceRef_(SOURCE_TYPE_LIGHT, 0);
+#endif
+  else if (absIdx >= MIXSRC_FIRST_CH && absIdx <= MIXSRC_LAST_CH)
+    ref = SourceRef_(SOURCE_TYPE_CHANNEL, absIdx - MIXSRC_FIRST_CH);
+  else if (absIdx >= MIXSRC_FIRST_STICK && absIdx <= MIXSRC_LAST_STICK)
+    ref = SourceRef_(SOURCE_TYPE_STICK, absIdx - MIXSRC_FIRST_STICK);
+  else if (absIdx >= MIXSRC_FIRST_POT && absIdx <= MIXSRC_LAST_POT)
+    ref = SourceRef_(SOURCE_TYPE_POT, absIdx - MIXSRC_FIRST_POT);
+
+  getvalue_t val = getValue(ref);
+
+  if (ref.type == SOURCE_TYPE_TELEMETRY) {
+    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[ref.index / 3];
     uint8_t attr = 0;
 
     // Preserve the sign
@@ -98,22 +121,22 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
 
     PLAY_NUMBER(val, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, attr);
   }
-  else if (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER) {
+  else if (ref.type == SOURCE_TYPE_TIMER) {
     int flag = 0;
     if (abs(val) > LONG_TIMER_DURATION) {
       flag = PLAY_LONG_TIMER;
     }
     PLAY_DURATION(val, flag);
-  } else if (idx == MIXSRC_TX_TIME) {
+  } else if (ref.type == SOURCE_TYPE_TX_TIME) {
     PLAY_DURATION(val * 60, PLAY_TIME);
-  } else if (idx == MIXSRC_TX_VOLTAGE) {
+  } else if (ref.type == SOURCE_TYPE_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
 #if defined(LUMINOSITY_SENSOR)
-  } else if (idx == MIXSRC_LIGHT) {
+  } else if (ref.type == SOURCE_TYPE_LIGHT) {
     PLAY_NUMBER(val, UNIT_RAW, 0);
 #endif
   } else {
-    if (idx <= MIXSRC_LAST_CH) {
+    if (ref.type == SOURCE_TYPE_CHANNEL) {
       val = calcRESXto100(val);
     }
     PLAY_NUMBER(val, 0, 0);

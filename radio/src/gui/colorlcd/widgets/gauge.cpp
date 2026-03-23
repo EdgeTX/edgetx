@@ -64,7 +64,7 @@ class GaugeWidget : public Widget
   {
     auto widgetData = getPersistentData();
 
-    mixsrc_t index = widgetData->options[0].value.unsignedValue;
+    SourceRef index = SourceRef::fromUint32(widgetData->options[0].value.unsignedValue);
     int32_t min = widgetData->options[1].value.signedValue;
     int32_t max = widgetData->options[2].value.signedValue;
 

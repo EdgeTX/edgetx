@@ -418,13 +418,15 @@ TEST(BitFieldCapacity, SwitchRefRoundTrip)
 TEST(BitFieldCapacity, SwitchRefCanRoundTrip)
 {
   // FlightModeData.swtch is now SwitchRef (4 bytes), can hold any switch.
-  // Verify round-trip through the bridge functions for extreme values.
+  // Verify toUint32/fromUint32 round-trip for extreme values.
   SwitchRef ref = SwitchRef_(SWITCH_TYPE_TRAINER, 0);
-  EXPECT_EQ(switchRefToSwSrc(ref), SWSRC_LAST)
-      << "SWSRC_LAST should round-trip through SwitchRef";
+  EXPECT_EQ(SwitchRef::fromUint32(ref.toUint32()), ref)
+      << "SwitchRef should round-trip through toUint32/fromUint32";
   ref = SwitchRef_(SWITCH_TYPE_TRAINER, 0, SWITCH_FLAG_INVERTED);
-  EXPECT_EQ(switchRefToSwSrc(ref), -SWSRC_LAST)
-      << "-SWSRC_LAST should round-trip through SwitchRef";
+  SwitchRef rt = SwitchRef::fromUint32(ref.toUint32());
+  EXPECT_EQ(rt.type, SWITCH_TYPE_TRAINER);
+  EXPECT_TRUE(rt.isInverted())
+      << "Inverted SwitchRef should round-trip through toUint32/fromUint32";
 }
 
 TEST(BitFieldCapacity, CurveRefValueRoundTrip)
