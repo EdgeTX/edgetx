@@ -166,7 +166,7 @@ public:
     bool toParent();
     bool toChild();
 
-    bool toNextElmt();
+    bool toNextElmt(bool grow = false);
     void toNextAttr();
 
     bool isElmtEmpty(uint8_t* data);

@@ -332,6 +332,11 @@ bool YamlTreeWalker::toChild()
     const YamlNode* parent_node = getNode();
     if (isArrayElmt() && attr->type == YDT_IDX) {
         attr = parent_node;
+        if (parent_node->type == YDT_EXTERN_ARRAY) {
+            is_extern = true;
+            // Don't set is_array — we don't want setArrayElmt at
+            // the child level, which would re-trigger IDX handling
+        }
     }
 
     if (!push()) {
@@ -344,8 +349,13 @@ bool YamlTreeWalker::toChild()
         // Its child is the element struct definition.
         // data_override points to the extern memory (arena).
         // bit_ofs starts at 0 (relative to extern base).
+
+        // Preserve element index from parent (set by IDX handler)
+        uint16_t parentElmts = stack[stack_level + 1].elmts;
+
         setNode(attr);
         setAttrOfs(0);
+        setElmts(parentElmts);
 
         // Grow arena section to hold at least the first element
         if (attr->u._extern_array.ensure_capacity) {
@@ -375,7 +385,7 @@ bool YamlTreeWalker::toChild()
     return true;
 }
 
-bool YamlTreeWalker::toNextElmt()
+bool YamlTreeWalker::toNextElmt(bool grow)
 {
     const struct YamlNode* node = getNode();
     if (!virt_level && (node->type == YDT_ARRAY
@@ -388,11 +398,11 @@ bool YamlTreeWalker::toNextElmt()
 
         uint16_t maxElmts = node->elmts;
         if (node->type == YDT_EXTERN_ARRAY) {
-            // Grow arena section to hold the next element before bounds check
-            if (node->u._extern_array.ensure_capacity) {
+            // During parsing, grow arena section to hold the next element
+            if (grow && node->u._extern_array.ensure_capacity) {
                 node->u._extern_array.ensure_capacity(getElmts() + 2);
             }
-            // Use the actual count (now grown) as the iteration bound
+            // Use the actual count as the iteration bound
             uint16_t count = 0;
             node->u._extern_array.get_ptr(&count);
             maxElmts = count;
@@ -743,7 +753,7 @@ static bool to_child(void* ctx)
 
 static bool to_next_elmt(void* ctx)
 {
-    return ((YamlTreeWalker*)ctx)->toNextElmt();
+    return ((YamlTreeWalker*)ctx)->toNextElmt(true);
 }
 
 static bool find_node(void* ctx, const char* buf, uint8_t len)
