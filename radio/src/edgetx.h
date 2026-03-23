@@ -97,6 +97,7 @@ enum RotaryEncoderMode {
 #include "curves.h"
 #include "expos.h"
 #include "customfn.h"
+#include "logicalsw.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
@@ -398,8 +399,6 @@ uint16_t anaIn(uint8_t chan);
 
 FlightModeData * flightModeAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
-LogicalSwitchData * lswAddress(uint8_t idx);
-LogicalSwitchData * lswAllocAt(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 CurveHeader * curveHeaderAddress(uint8_t idx);
 CurveHeader * curveHeaderAllocAt(uint8_t idx);
@@ -878,5 +877,3 @@ int pwrDelayToYaml(int delay);
 
 void calcBacklightValue(const SourceRef& source);
 void calcVolumeValue(const SourceRef& source);
-void calcBacklightValue(mixsrc_t source);
-void calcVolumeValue(mixsrc_t source);

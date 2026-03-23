@@ -74,6 +74,7 @@ void onLogicalSwitchesMenu(const char *result)
   }
   else if (result == STR_CLEAR) {
     memset(cs, 0, sizeof(LogicalSwitchData));
+    lswTrimTrailing();
     storageDirty(EE_MODEL);
   }
 }
