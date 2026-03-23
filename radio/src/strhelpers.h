@@ -128,8 +128,8 @@ const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, const SwitchRef& ref);
 char *getSwitchPositionName(const SwitchRef& ref);
 char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly = false);
-int getSwitchIndex(const char* name, bool all);
-int getSourceIndex(const char* name, bool all);
+uint32_t getSwitchIndex(const char* name, bool all);
+uint32_t getSourceIndex(const char* name, bool all);
 
 const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly = false);
 const char *getAnalogShortLabel(uint8_t idx);

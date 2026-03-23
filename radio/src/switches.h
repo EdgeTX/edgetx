@@ -64,7 +64,6 @@ SwitchRef getMovedSwitch();
 #define GETSWITCH_MIDPOS_DELAY   1
 bool getSwitch(const SwitchRef& ref, uint8_t flags=0);
 
-extern SwitchRef swSrcToSwitchRef(swsrc_t src);
 uint8_t getXPotPosition(uint8_t idx);
 
 div_t switchInfo(int switchPosition);

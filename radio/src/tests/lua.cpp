@@ -118,10 +118,11 @@ TEST(Lua, testModelInputs)
   luaExecStr("if noInputs > 0 then error('getInputsCount()') end");
 
   // add one line on Input4
+  // switch value is packed SwitchRef: SWITCH_TYPE_SWITCH=1, index=1 → (1<<24)|1 = 0x01000001
 #if defined(SURFACE_RADIO)
-  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_TH, weight=56, offset=3, switch=2})");
+  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_TH, weight=56, offset=3, switch=0x01000001})");
 #else
-  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
+  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=0x01000001})");
 #endif
   EXPECT_EQ(3u, (*expoAddress(0)).chn);
   EXPECT_STRNEQ("test1", (*expoAddress(0)).name);

@@ -306,28 +306,29 @@ static void luaPushCells(lua_State* L, TelemetrySensor & telemetrySensor, Teleme
   }
 }
 
-void luaGetValueAndPush(lua_State* L, int src)
+void luaGetValueAndPush(lua_State* L, SourceRef ref)
 {
-  getvalue_t value = getValue(src); // ignored for GPS, DATETIME, and CELLS
+  getvalue_t value = getValue(ref); // ignored for GPS, DATETIME, and CELLS
 
-  if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
-    div_t qr = div(src-MIXSRC_FIRST_TELEM, 3);
+  if (ref.type == SOURCE_TYPE_TELEMETRY) {
+    int sensorIdx = ref.index / 3;
+    int subindex = ref.index % 3;
     // telemetry values
-    if (TELEMETRY_STREAMING() && telemetryItems[qr.quot].isAvailable()) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[qr.quot];
+    if (TELEMETRY_STREAMING() && telemetryItems[sensorIdx].isAvailable()) {
+      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[sensorIdx];
       switch (telemetrySensor.unit) {
         case UNIT_GPS:
-          luaPushLatLon(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushLatLon(L, telemetrySensor, telemetryItems[sensorIdx]);
           break;
         case UNIT_DATETIME:
-          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[sensorIdx]);
           break;
         case UNIT_TEXT:
-          lua_pushstring(L, telemetryItems[qr.quot].text);
+          lua_pushstring(L, telemetryItems[sensorIdx].text);
           break;
         case UNIT_CELLS:
-          if (qr.rem == 0) {
-            luaPushCells(L, telemetrySensor, telemetryItems[qr.quot]);
+          if (subindex == 0) {
+            luaPushCells(L, telemetrySensor, telemetryItems[sensorIdx]);
             break;
           }
           // deliberate no break here to properly return `Cels-` and `Cels+`
@@ -344,16 +345,16 @@ void luaGetValueAndPush(lua_State* L, int src)
       lua_pushinteger(L, (int)0);
     }
   }
-  else if (src == MIXSRC_TX_VOLTAGE) {
+  else if (ref.type == SOURCE_TYPE_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
   }
   #if defined(GVARS)
-  else if(src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
-   if(g_model.gvars[src - MIXSRC_FIRST_GVAR].prec)
-     lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
-  else
-     lua_pushinteger(L, value);                 // prec "0.-"
-  } 
+  else if (ref.type == SOURCE_TYPE_GVAR) {
+    if (g_model.gvars[ref.index].prec)
+      lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
+    else
+      lua_pushinteger(L, value);                 // prec "0.-"
+  }
   #endif
   else {
     lua_pushinteger(L, value);
@@ -361,35 +362,35 @@ void luaGetValueAndPush(lua_State* L, int src)
 }
 
 struct LuaSingleField {
-  uint16_t id;
+  uint32_t id;
   const char* name;
   const char* desc;
 };
 
 const LuaSingleField luaSingleFields[] = {
 #if defined(IMU)
-    {MIXSRC_TILT_X, "tiltx", "Tilt X"},
-    {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
+    {SourceRef_(SOURCE_TYPE_IMU, 0).toUint32(), "tiltx", "Tilt X"},
+    {SourceRef_(SOURCE_TYPE_IMU, 1).toUint32(), "tilty", "Tilt Y"},
 #endif
 
 #if defined(LUMINOSITY_SENSOR)
-    {MIXSRC_LIGHT, "light", "Light Sensor"},
+    {SourceRef_(SOURCE_TYPE_LIGHT, 0).toUint32(), "light", "Light Sensor"},
 #endif
 
 #if defined(PCBHORUS)
-    {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
-    {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
-    {MIXSRC_SPACEMOUSE_C, "smc", "SpaceMouse C"},
-    {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
-    {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
-    {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
+    {SourceRef_(SOURCE_TYPE_SPACEMOUSE, 0).toUint32(), "sma", "SpaceMouse A"},
+    {SourceRef_(SOURCE_TYPE_SPACEMOUSE, 1).toUint32(), "smb", "SpaceMouse B"},
+    {SourceRef_(SOURCE_TYPE_SPACEMOUSE, 2).toUint32(), "smc", "SpaceMouse C"},
+    {SourceRef_(SOURCE_TYPE_SPACEMOUSE, 3).toUint32(), "smd", "SpaceMouse D"},
+    {SourceRef_(SOURCE_TYPE_SPACEMOUSE, 4).toUint32(), "sme", "SpaceMouse E"},
+    {SourceRef_(SOURCE_TYPE_SPACEMOUSE, 5).toUint32(), "smf", "SpaceMouse F"},
 #endif
 
-    {MIXSRC_MIN, "min", "MIN"},
-    {MIXSRC_MAX, "max", "MAX"},
+    {SourceRef_(SOURCE_TYPE_MIN, 0).toUint32(), "min", "MIN"},
+    {SourceRef_(SOURCE_TYPE_MAX, 0).toUint32(), "max", "MAX"},
 
-    {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
-    {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
+    {SourceRef_(SOURCE_TYPE_TX_VOLTAGE, 0).toUint32(), "tx-voltage", "Transmitter battery voltage [volts]"},
+    {SourceRef_(SOURCE_TYPE_TX_TIME, 0).toUint32(), "clock", "RTC clock [minutes from midnight]"},
 };
 
 // Legacy input names
@@ -397,7 +398,7 @@ const LuaSingleField luaSingleFields[] = {
 #include "lua_inputs.inc"
 
 struct LuaMultipleField {
-  uint16_t id;
+  uint32_t id;
   const char* name;
   const char* desc;
   uint8_t count;
@@ -405,15 +406,15 @@ struct LuaMultipleField {
 
 // The list of Lua fields that have a range of values
 const LuaMultipleField luaMultipleFields[] = {
-    {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
-    {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
-    {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
-    {MIXSRC_FIRST_TRAINER, "trn", "Trainer input %d", MAX_TRAINER_CHANNELS},
-    {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
-    {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
-    {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
-    {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
-    {MIXSRC_FIRST_HELI, "cyc", "Cyclic %d", 3},
+    {SourceRef_(SOURCE_TYPE_INPUT, 0).toUint32(), "input", "Input [I%d]", MAX_INPUTS},
+    {SourceRef_(SOURCE_TYPE_LUA, 0).toUint32(), "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
+    {SourceRef_(SOURCE_TYPE_LOGICAL_SWITCH, 0).toUint32(), "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
+    {SourceRef_(SOURCE_TYPE_TRAINER, 0).toUint32(), "trn", "Trainer input %d", MAX_TRAINER_CHANNELS},
+    {SourceRef_(SOURCE_TYPE_CHANNEL, 0).toUint32(), "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
+    {SourceRef_(SOURCE_TYPE_GVAR, 0).toUint32(), "gvar", "Global variable %d", MAX_GVARS},
+    {SourceRef_(SOURCE_TYPE_TELEMETRY, 0).toUint32(), "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
+    {SourceRef_(SOURCE_TYPE_TIMER, 0).toUint32(), "timer", "Timer %d value [seconds]", MAX_TIMERS},
+    {SourceRef_(SOURCE_TYPE_HELI, 0).toUint32(), "cyc", "Cyclic %d", 3},
 };
 
 static bool _searchSingleFieldsByName(const char* name, LuaField& field,
@@ -459,7 +460,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
     auto c = name[1] - 'a' + 'A';
     auto sw_idx = switchLookupIdx(c);
     if (sw_idx >= 0) {
-      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      field.id = SourceRef_(SOURCE_TYPE_SWITCH, sw_idx).toUint32();
       if (flags & FIND_FIELD_DESC) {
         snprintf(field.desc, sizeof(field.desc)-1, "Switch %c", c);
         field.desc[sizeof(field.desc)-1] = '\0';
@@ -515,15 +516,15 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
       int len = strnlen(sensorName, TELEM_LABEL_LEN);
       if (!strncmp(sensorName, name, len)) {
         if (name[len] == '\0') {
-          field.id = MIXSRC_FIRST_TELEM + 3 * i;
+          field.id = SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * i).toUint32();
           field.desc[0] = '\0';
           return true;
         } else if (name[len] == '-' && name[len + 1] == '\0') {
-          field.id = MIXSRC_FIRST_TELEM + 3 * i + 1;
+          field.id = SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * i + 1).toUint32();
           field.desc[0] = '\0';
           return true;
         } else if (name[len] == '+' && name[len + 1] == '\0') {
-          field.id = MIXSRC_FIRST_TELEM + 3 * i + 2;
+          field.id = SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * i + 2).toUint32();
           field.desc[0] = '\0';
           return true;
         }
@@ -534,7 +535,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   return false;  // not found
 }
 
-static bool _searchSingleFieldsById(int id, LuaField& field,
+static bool _searchSingleFieldsById(uint32_t id, LuaField& field,
                                 unsigned int flags,
                                 const LuaSingleField* fields, size_t n_fields)
 {
@@ -553,7 +554,7 @@ static bool _searchSingleFieldsById(int id, LuaField& field,
 }
 
 // Return field data for a given field id
-bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
+bool luaFindFieldById(uint32_t id, LuaField & field, unsigned int flags)
 {
   field.id = id;
   field.name[sizeof(field.name) - 1] = '\0';
@@ -562,20 +563,21 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   // hardware specific inputs
   if (_searchSingleFieldsById(id, field, flags, _lua_inputs, DIM(_lua_inputs)))
     return true;
-  
+
   // well known single fields
   if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
 
   // search in telemetry for configured sensor
-  if (id >= MIXSRC_FIRST_TELEM && id <= MIXSRC_LAST_TELEM) {
-    int i = (id - MIXSRC_FIRST_TELEM) / 3;
+  SourceRef idRef = SourceRef::fromUint32(id);
+  if (idRef.type == SOURCE_TYPE_TELEMETRY) {
+    int i = idRef.index / 3;
     if (isTelemetryFieldAvailable(i)) {
       char* s = strAppend(field.name, g_model.telemetrySensors[i].label, TELEM_LABEL_LEN);
-      int index = (id - MIXSRC_FIRST_TELEM) % 3;
-      if (index == 1)
+      int subindex = idRef.index % 3;
+      if (subindex == 1)
         strAppend(s, "-");
-      else if (index == 2)
+      else if (subindex == 2)
         strAppend(s, "+");
       return true;
     }
@@ -586,7 +588,7 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
     int index = id - luaMultipleFields[n].id;
     if (0 <= index && index < luaMultipleFields[n].count) {
       int index2 = 0;
-      if (luaMultipleFields[n].id == MIXSRC_FIRST_TELEM) {
+      if (SourceRef::fromUint32(luaMultipleFields[n].id).type == SOURCE_TYPE_TELEMETRY) {
         index2 = index % 3;
         index /= 3;
       }
@@ -646,8 +648,9 @@ static int luaGetFieldInfo(lua_State * L)
     lua_pushtableinteger(L, "id", field.id);
     lua_pushtablestring(L, "name", field.name);
     lua_pushtablestring(L, "desc", field.desc);
-    if (field.id >= MIXSRC_FIRST_TELEM && field.id <= MIXSRC_LAST_TELEM) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
+    SourceRef fieldRef = SourceRef::fromUint32(field.id);
+    if (fieldRef.type == SOURCE_TYPE_TELEMETRY) {
+      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[fieldRef.index / 3];
       lua_pushtableinteger(L, "unit", telemetrySensor.unit);
     }
     return 1;
@@ -706,9 +709,9 @@ While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
 */
 static int luaGetValue(lua_State * L)
 {
-  int src = MIXSRC_NONE;
+  SourceRef ref = {};
   if (lua_isnumber(L, 1)) {
-    src = luaL_checkinteger(L, 1);
+    ref = SourceRef::fromUint32(luaL_checkinteger(L, 1));
   }
   else {
     // convert from field name to its id
@@ -716,10 +719,10 @@ static int luaGetValue(lua_State * L)
     LuaField field;
     bool found = luaFindFieldByName(name, field);
     if (found) {
-      src = field.id;
+      ref = SourceRef::fromUint32(field.id);
     }
   }
-  luaGetValueAndPush(L, src);
+  luaGetValueAndPush(L, ref);
   return 1;
 }
 
@@ -776,10 +779,10 @@ While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
 
 static int luaGetSourceValue(lua_State * L)
 {
-  // Get source id
-  int src = MIXSRC_NONE;
+  // Get source ref
+  SourceRef ref = {};
   if (lua_isnumber(L, 1)) {
-    src = luaL_checkinteger(L, 1);
+    ref = SourceRef::fromUint32(luaL_checkinteger(L, 1));
   }
   else {
     // convert from field name to its id
@@ -787,44 +790,45 @@ static int luaGetSourceValue(lua_State * L)
     LuaField field;
     bool found = luaFindFieldByName(name, field);
     if (found) {
-      src = field.id;
+      ref = SourceRef::fromUint32(field.id);
     }
   }
 
   // Get source value. Ignored for GPS, DATETIME, and CELLS
   bool valid = true;
-  getvalue_t value = getValue(src, &valid);
+  getvalue_t value = getValue(ref, &valid);
 
   if (!valid)
   {
     return 0;
   }
 
-  if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
-    div_t qr = div(src-MIXSRC_FIRST_TELEM, 3);
+  if (ref.type == SOURCE_TYPE_TELEMETRY) {
+    int sensorIdx = ref.index / 3;
+    int subindex = ref.index % 3;
     // telemetry values
-    if (telemetryItems[qr.quot].isAvailable()) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[qr.quot];
+    if (telemetryItems[sensorIdx].isAvailable()) {
+      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[sensorIdx];
       switch (telemetrySensor.unit) {
         case UNIT_GPS:
-          luaPushLatLon(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushLatLon(L, telemetrySensor, telemetryItems[sensorIdx]);
           break;
         case UNIT_DATETIME:
-          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[sensorIdx]);
           break;
         case UNIT_TEXT:
-          lua_pushstring(L, telemetryItems[qr.quot].text);
+          lua_pushstring(L, telemetryItems[sensorIdx].text);
           break;
         case UNIT_CELLS:
-          if (qr.rem == 0) {
+          if (subindex == 0) {
             // Return nil if there are no cells
-            if (telemetryItems[qr.quot].cells.count == 0) {
+            if (telemetryItems[sensorIdx].cells.count == 0) {
               lua_pushnil(L);
               lua_pushboolean(L, false);
               lua_pushboolean(L, false);
               return 3;
             }
-            luaPushCells(L, telemetrySensor, telemetryItems[qr.quot]);
+            luaPushCells(L, telemetrySensor, telemetryItems[sensorIdx]);
             break;
           }
           // deliberate no break here to properly return `Cels-` and `Cels+`
@@ -835,14 +839,14 @@ static int luaGetSourceValue(lua_State * L)
             lua_pushinteger(L, value);
           break;
       }
-      lua_pushboolean(L, !telemetryItems[qr.quot].isOld());
-      lua_pushboolean(L, telemetryItems[qr.quot].isFresh());
+      lua_pushboolean(L, !telemetryItems[sensorIdx].isOld());
+      lua_pushboolean(L, telemetryItems[sensorIdx].isFresh());
     }
     else { // telemetry is not available
       return 0;
     }
   }
-  else if (src == MIXSRC_TX_VOLTAGE) {
+  else if (ref.type == SOURCE_TYPE_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
     lua_pushboolean(L, true);
     lua_pushboolean(L, true);
@@ -2614,17 +2618,19 @@ return true if switch is a customisable switch
 
 static int luaGetSwitchInfo(lua_State * L)
 {
-  swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
-  if (idx < SWSRC_COUNT && isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext)) {
-    lua_newtable(L);
-    char* name = getSwitchPositionName(swSrcToSwitchRef(idx));
-    lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
-    lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(idx));
-    lua_pushtablestring(L, "name", name);
+  SourceRef srcRef = SourceRef::fromUint32(luaL_checkinteger(L, 1));
+  if (srcRef.type == SOURCE_TYPE_SWITCH && srcRef.index < MAX_SWITCHES) {
+    SwitchRef swRef = SwitchRef_(SWITCH_TYPE_SWITCH, srcRef.index);
+    if (isSwitchAvailable(swRef, ModelCustomFunctionsContext)) {
+      lua_newtable(L);
+      char* name = getSwitchPositionName(swRef);
+      lua_pushtableinteger(L, "type", g_model.getSwitchType(srcRef.index));
+      lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(srcRef.index));
+      lua_pushtablestring(L, "name", name);
+      return 1;
+    }
   }
-  else
-    lua_pushnil(L);
-
+  lua_pushnil(L);
   return 1;
 }
 
@@ -2643,10 +2649,10 @@ to the fields in the table returned by `model.getLogicalSwitch(switch)` identify
 static int luaGetSwitchIndex(lua_State * L)
 {
   const char * name = luaL_checkstring(L, 1);
-  swsrc_t idx = getSwitchIndex(name, true);
+  uint32_t packed = getSwitchIndex(name, true);
 
-  if (idx != SWSRC_INVERT)
-    lua_pushinteger(L, idx);
+  if (packed != 0)
+    lua_pushinteger(L, packed);
   else
     lua_pushnil(L);
 
@@ -2666,9 +2672,9 @@ static int luaGetSwitchIndex(lua_State * L)
 
 static int luaGetSwitchName(lua_State * L)
 {
-  swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext)) {
-    char* name = getSwitchPositionName(swSrcToSwitchRef(idx));
+  SwitchRef ref = SwitchRef::fromUint32(luaL_checkinteger(L, 1));
+  if (!ref.isNone() && isSwitchAvailable(ref, ModelCustomFunctionsContext)) {
+    char* name = getSwitchPositionName(ref);
     lua_pushstring(L, name);
   }
   else
@@ -2689,9 +2695,9 @@ static int luaGetSwitchName(lua_State * L)
 
 static int luaGetSwitchValue(lua_State * L)
 {
-  swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext))
-    lua_pushboolean(L, getSwitch(swSrcToSwitchRef(idx)));
+  SwitchRef ref = SwitchRef::fromUint32(luaL_checkinteger(L, 1));
+  if (!ref.isNone() && isSwitchAvailable(ref, ModelCustomFunctionsContext))
+    lua_pushboolean(L, getSwitch(ref));
   else
     lua_pushnil(L);
   return 1;
@@ -2709,44 +2715,88 @@ This is an iterator function over switch positions. `for switchIndex, switchName
 @status current Introduced in 2.6
 */
 
+// Switch type iteration table (must match getSwitchIndex order)
+struct SwitchTypeRange { uint8_t type; uint16_t count; };
+static SwitchTypeRange luaSwitchTypes[] = {
+  { SWITCH_TYPE_SWITCH,         0 }, // count filled at runtime
+  { SWITCH_TYPE_MULTIPOS,       MAX_XPOTS_POSITIONS },
+  { SWITCH_TYPE_TRIM,           (uint16_t)(2 * MAX_TRIMS) },
+  { SWITCH_TYPE_LOGICAL,        MAX_LOGICAL_SWITCHES },
+  { SWITCH_TYPE_ON,             1 },
+  { SWITCH_TYPE_ONE,            1 },
+  { SWITCH_TYPE_FLIGHT_MODE,    MAX_FLIGHT_MODES },
+  { SWITCH_TYPE_TELEMETRY,      1 },
+  { SWITCH_TYPE_SENSOR,         MAX_TELEMETRY_SENSORS },
+  { SWITCH_TYPE_RADIO_ACTIVITY, 1 },
+  { SWITCH_TYPE_TRAINER,        1 },
+};
+
 static int luaNextSwitch(lua_State * L)
 {
-  swsrc_t last = luaL_checkinteger(L, 1);
-  swsrc_t idx = luaL_checkinteger(L, 2);
+  uint32_t last = luaL_checkinteger(L, 1);
+  uint32_t packed = luaL_checkinteger(L, 2);
 
-  while (++idx <= last) {
-    if (isSwitchAvailable(swSrcToSwitchRef(idx), ModelCustomFunctionsContext)) {
-      char* name = getSwitchPositionName(swSrcToSwitchRef(idx));
-      lua_pushinteger(L, idx);
-      lua_pushstring(L, name);
-      return 2;
+  // Ensure runtime count is up to date
+  luaSwitchTypes[0].count = switchGetMaxAllSwitches() * 3;
+
+  SwitchRef cur = SwitchRef::fromUint32(packed);
+
+  // Find starting position
+  unsigned startType = 0;
+  uint16_t startIdx = 0;
+  bool found = false;
+  for (unsigned t = 0; t < DIM(luaSwitchTypes); t++) {
+    if (luaSwitchTypes[t].type == cur.type) {
+      startType = t;
+      startIdx = cur.index + 1;
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    startType = 0;
+    startIdx = 0;
+  }
+
+  for (unsigned t = startType; t < DIM(luaSwitchTypes); t++) {
+    auto& tr = luaSwitchTypes[t];
+    uint16_t begin = (t == startType) ? startIdx : 0;
+
+    for (uint16_t i = begin; i < tr.count; i++) {
+      SwitchRef ref = SwitchRef_(tr.type, i);
+      uint32_t p = ref.toUint32();
+      if (p > last) goto done;
+      if (isSwitchAvailable(ref, ModelCustomFunctionsContext)) {
+        char* name = getSwitchPositionName(ref);
+        lua_pushinteger(L, p);
+        lua_pushstring(L, name);
+        return 2;
+      }
     }
   }
 
+done:
   lua_pushnil(L);
   return 1;
 }
 
 static int luaSwitches(lua_State * L)
 {
-  swsrc_t first;
-  swsrc_t last;
+  // Default: iterate all switch types
+  // first = SWITCH_TYPE_NONE (before first valid), last = TRAINER (last type)
+  uint32_t first = SwitchRef_(SWITCH_TYPE_SWITCH, 0).toUint32() - 1;
+  uint32_t last = SwitchRef_(SWITCH_TYPE_TRAINER, 0).toUint32();
 
   if (lua_isnumber(L, 1)) {
-    first = luaL_checkinteger(L, 1) - 1;
-    if (first < SWSRC_FIRST - 1)
-      first = SWSRC_FIRST - 1;
-  } else
-    first = SWSRC_FIRST - 1;
-
+    uint32_t userFirst = luaL_checkinteger(L, 1);
+    if (userFirst > 0) first = userFirst - 1;
+  }
   if (lua_isnumber(L, 2)) {
     last = luaL_checkinteger(L, 2);
-    if (last > SWSRC_LAST)
-      last = SWSRC_LAST;
-  } else
-    last = SWSRC_LAST;
+  }
 
-  lua_pushcfunction(L, luaNextSwitch);  lua_pushinteger(L, last);
+  lua_pushcfunction(L, luaNextSwitch);
+  lua_pushinteger(L, last);
   lua_pushinteger(L, first);
   return 3;
 }
@@ -2767,10 +2817,10 @@ This function is rather time consuming, and should not be used repeatedly in a s
 static int luaGetSourceIndex(lua_State* const L)
 {
   const char* const name = luaL_checkstring(L, 1);
-  mixsrc_t idx = getSourceIndex(name, true);
+  uint32_t packed = getSourceIndex(name, true);
 
-  if (idx >= 0)
-    lua_pushinteger(L, idx);
+  if (packed != 0)
+    lua_pushinteger(L, packed);
   else
     lua_pushnil(L);
 
@@ -2791,10 +2841,10 @@ static int luaGetSourceIndex(lua_State* const L)
 
 static int luaGetSourceName(lua_State * L)
 {
-  mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx <= MIXSRC_LAST_TELEM && isSourceAvailable(mixSrcToSourceRef(idx))) {
+  SourceRef ref = SourceRef::fromUint32(luaL_checkinteger(L, 1));
+  if (!ref.isNone() && isSourceAvailable(ref)) {
     char srcName[maxSourceNameLength];
-    getSourceString(srcName, mixSrcToSourceRef(idx));
+    getSourceString(srcName, ref);
     lua_pushstring(L, srcName);
   } else {
     lua_pushnil(L);
@@ -2814,41 +2864,105 @@ This is an iterator function over value sources. `for sourceIndex, sourceName in
 @status current Introduced in 2.6
 */
 
+// Source type iteration table (must match getSourceIndex order)
+struct SourceTypeRange { uint8_t type; uint16_t count; };
+static const SourceTypeRange luaSourceTypes[] = {
+  { SOURCE_TYPE_INPUT,          MAX_INPUTS },
+#if defined(LUA_INPUTS)
+  { SOURCE_TYPE_LUA,            (uint16_t)(MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS) },
+#endif
+  { SOURCE_TYPE_STICK,          MAX_STICKS },
+  { SOURCE_TYPE_POT,            MAX_POTS },
+#if defined(IMU)
+  { SOURCE_TYPE_IMU,            2 },
+#endif
+#if defined(PCBHORUS)
+  { SOURCE_TYPE_SPACEMOUSE,     6 },
+#endif
+  { SOURCE_TYPE_MIN,            1 },
+  { SOURCE_TYPE_MAX,            1 },
+#if defined(LUMINOSITY_SENSOR)
+  { SOURCE_TYPE_LIGHT,          1 },
+#endif
+  { SOURCE_TYPE_HELI,           3 },
+  { SOURCE_TYPE_TRIM,           MAX_TRIMS },
+  { SOURCE_TYPE_SWITCH,         MAX_SWITCHES },
+#if defined(FUNCTION_SWITCHES)
+  { SOURCE_TYPE_CUSTOM_SWITCH_GROUP, NUM_FUNCTIONS_GROUPS },
+#endif
+  { SOURCE_TYPE_LOGICAL_SWITCH, MAX_LOGICAL_SWITCHES },
+  { SOURCE_TYPE_TRAINER,        MAX_TRAINER_CHANNELS },
+  { SOURCE_TYPE_CHANNEL,        MAX_OUTPUT_CHANNELS },
+  { SOURCE_TYPE_GVAR,           MAX_GVARS },
+  { SOURCE_TYPE_TX_VOLTAGE,     1 },
+  { SOURCE_TYPE_TX_TIME,        1 },
+  { SOURCE_TYPE_TX_GPS,         1 },
+  { SOURCE_TYPE_TIMER,          MAX_TIMERS },
+  { SOURCE_TYPE_TELEMETRY,      (uint16_t)(3 * MAX_TELEMETRY_SENSORS) },
+};
+
 static int luaNextSource(lua_State * L)
 {
-  mixsrc_t last = luaL_checkinteger(L, 1);
-  mixsrc_t idx = luaL_checkinteger(L, 2);
+  uint32_t last = luaL_checkinteger(L, 1);
+  uint32_t packed = luaL_checkinteger(L, 2);
 
-  while (++idx <= last) {
-    if (isSourceAvailable(mixSrcToSourceRef(idx))) {
-      char srcName[maxSourceNameLength];
-      getSourceString(srcName, mixSrcToSourceRef(idx));
-      lua_pushinteger(L, idx);
-      lua_pushstring(L, srcName);
-      return 2;
+  SourceRef cur = SourceRef::fromUint32(packed);
+
+  // Find starting position in type table
+  unsigned startType = 0;
+  uint16_t startIdx = 0;
+  bool found = false;
+  for (unsigned t = 0; t < DIM(luaSourceTypes); t++) {
+    if (luaSourceTypes[t].type == cur.type) {
+      startType = t;
+      startIdx = cur.index + 1;
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    // cur.type not in table (e.g. SOURCE_TYPE_NONE) — start from beginning
+    startType = 0;
+    startIdx = 0;
+  }
+
+  for (unsigned t = startType; t < DIM(luaSourceTypes); t++) {
+    auto& tr = luaSourceTypes[t];
+    uint16_t begin = (t == startType) ? startIdx : 0;
+
+    for (uint16_t i = begin; i < tr.count; i++) {
+      SourceRef ref = SourceRef_(tr.type, i);
+      uint32_t p = ref.toUint32();
+      if (p > last) goto done;
+      if (isSourceAvailable(ref)) {
+        char srcName[maxSourceNameLength];
+        getSourceString(srcName, ref);
+        lua_pushinteger(L, p);
+        lua_pushstring(L, srcName);
+        return 2;
+      }
     }
   }
 
+done:
   lua_pushnil(L);
   return 1;
 }
 
 static int luaSources(lua_State * L)
 {
-  mixsrc_t first;
-  mixsrc_t last;
+  // Default: iterate all source types (INPUT through TELEMETRY)
+  uint32_t first = SourceRef_(SOURCE_TYPE_INPUT, 0).toUint32() - 1;
+  uint32_t last = SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * MAX_TELEMETRY_SENSORS - 1).toUint32();
 
-  if (lua_isnumber(L, 1))
-    first = luaL_checkinteger(L, 1) - 1;
-  else
-    first = MIXSRC_NONE - 1;
+  if (lua_isnumber(L, 1)) {
+    uint32_t userFirst = luaL_checkinteger(L, 1);
+    if (userFirst > 0) first = userFirst - 1;
+  }
 
   if (lua_isnumber(L, 2)) {
     last = luaL_checkinteger(L, 2);
-    if (last > INPUTSRC_LAST)
-      last = INPUTSRC_LAST;
-  } else
-    last = INPUTSRC_LAST;
+  }
 
   lua_pushcfunction(L, luaNextSource);
   lua_pushinteger(L, last);
@@ -3237,12 +3351,12 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( VALUE, INPUT_TYPE_VALUE )
   LROT_NUMENTRY( SOURCE, INPUT_TYPE_SOURCE )
   LROT_NUMENTRY( REPLACE, MLTPX_REPL )
-  LROT_NUMENTRY( MIXSRC_MIN, MIXSRC_MIN )
-  LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
-  LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
+  LROT_NUMENTRY( MIXSRC_MIN, SourceRef_(SOURCE_TYPE_MIN, 0).toUint32() )
+  LROT_NUMENTRY( MIXSRC_MAX, SourceRef_(SOURCE_TYPE_MAX, 0).toUint32() )
+  LROT_NUMENTRY( MIXSRC_FIRST_INPUT, SourceRef_(SOURCE_TYPE_INPUT, 0).toUint32() )
   #include "lua_mixsrc.inc"
-  LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_FIRST_CH )
-  LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST_LOGICAL_SWITCH )
+  LROT_NUMENTRY( MIXSRC_CH1, SourceRef_(SOURCE_TYPE_CHANNEL, 0).toUint32() )
+  LROT_NUMENTRY( SWSRC_LAST, SwitchRef_(SWITCH_TYPE_LOGICAL, MAX_LOGICAL_SWITCHES - 1).toUint32() )
   LROT_NUMENTRY( SWITCH_COUNT, SWSRC_COUNT )
   LROT_NUMENTRY( MAX_SENSORS, MAX_TELEMETRY_SENSORS )
 

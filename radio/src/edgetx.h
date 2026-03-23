@@ -120,7 +120,7 @@ void memswap(void * a, void * b, uint8_t size);
 #define IS_SWITCH_MULTIPOS(x) \
   (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
 
-#define GET_LOWRES_POT_POSITION(i) (getValue(MIXSRC_FIRST_POT + (i)) >> 4)
+#define GET_LOWRES_POT_POSITION(i) (getValue(SourceRef_(SOURCE_TYPE_POT, (i))) >> 4)
 
 #define SAVE_POT_POSITION(i) \
   g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
@@ -280,7 +280,6 @@ extern uint8_t currentBacklightBright;
 void perMain();
 
 getvalue_t getValue(const SourceRef& ref, bool* valid = nullptr);
-getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
 SourceRef getMovedSource();
 

@@ -427,7 +427,7 @@ void onMainViewMenu(const char * result)
 void displaySwitch(coord_t x, coord_t y, int width, unsigned int index)
 {
   if (SWITCH_EXISTS(index)) {
-    int val = getValue(MIXSRC_FIRST_SWITCH+index);
+    int val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, index));
 
     if (val >= 0) {
       lcdDrawSolidHorizontalLine(x, y, width);
@@ -566,7 +566,7 @@ void menuMainView(event_t event)
                       (switch_display.row < 4 ? 0 : 20) +
                       (switch_display.col == 0 ? 0 : shiftright);
           coord_t y = 25 + (switch_display.row % 4) * FH;
-          getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+          getvalue_t val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, i));
           uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
           drawSwitch(x, y, SwitchRef_(SWITCH_TYPE_SWITCH, swIdx), 0, false);
         }

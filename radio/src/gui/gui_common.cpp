@@ -568,6 +568,73 @@ bool checkSwitchAvailable(int swtch, uint32_t swtchTypes)
   return false;
 }
 
+// SourceRef-typed mapping from SOURCE_TYPE_* to SrcTypes bitmask
+static uint32_t sourceTypeToSrcType(uint8_t type)
+{
+  switch (type) {
+    case SOURCE_TYPE_NONE:              return SRC_NONE;
+    case SOURCE_TYPE_INPUT:             return SRC_INPUT;
+    case SOURCE_TYPE_LUA:               return SRC_LUA;
+    case SOURCE_TYPE_STICK:             return SRC_STICK;
+    case SOURCE_TYPE_POT:               return SRC_POT;
+    case SOURCE_TYPE_IMU:               return SRC_TILT;
+    case SOURCE_TYPE_SPACEMOUSE:        return SRC_SPACEMOUSE;
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:               return SRC_MINMAX;
+    case SOURCE_TYPE_LIGHT:             return SRC_LIGHT;
+    case SOURCE_TYPE_HELI:              return SRC_HELI;
+    case SOURCE_TYPE_TRIM:              return SRC_TRIM;
+    case SOURCE_TYPE_SWITCH:            return SRC_SWITCH;
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP: return SRC_FUNC_SWITCH;
+    case SOURCE_TYPE_LOGICAL_SWITCH:    return SRC_LOGICAL_SWITCH;
+    case SOURCE_TYPE_TRAINER:           return SRC_TRAINER;
+    case SOURCE_TYPE_CHANNEL:           return SRC_CHANNEL | SRC_CHANNEL_ALL;
+    case SOURCE_TYPE_GVAR:              return SRC_GVAR;
+    case SOURCE_TYPE_TX_VOLTAGE:
+    case SOURCE_TYPE_TX_TIME:
+    case SOURCE_TYPE_TX_GPS:            return SRC_TX;
+    case SOURCE_TYPE_TIMER:             return SRC_TIMER;
+    case SOURCE_TYPE_TELEMETRY:         return SRC_TELEM;
+    default:                            return 0;
+  }
+}
+
+bool checkSourceAvailable(const SourceRef& ref, uint32_t sourceTypes)
+{
+  uint32_t srcType = sourceTypeToSrcType(ref.type);
+  if (!(srcType & sourceTypes))
+    return false;
+  return isSourceAvailable(ref);
+}
+
+// SwitchRef-typed mapping from SWITCH_TYPE_* to SwitchTypes bitmask
+static uint32_t switchTypeToSwType(uint8_t type)
+{
+  switch (type) {
+    case SWITCH_TYPE_NONE:              return SW_NONE;
+    case SWITCH_TYPE_SWITCH:
+    case SWITCH_TYPE_MULTIPOS:          return SW_SWITCH;
+    case SWITCH_TYPE_TRIM:              return SW_TRIM;
+    case SWITCH_TYPE_LOGICAL:           return SW_LOGICAL_SWITCH;
+    case SWITCH_TYPE_FLIGHT_MODE:       return SW_FLIGHT_MODE;
+    case SWITCH_TYPE_TELEMETRY:
+    case SWITCH_TYPE_SENSOR:            return SW_TELEM;
+    case SWITCH_TYPE_ON:
+    case SWITCH_TYPE_ONE:
+    case SWITCH_TYPE_RADIO_ACTIVITY:
+    case SWITCH_TYPE_TRAINER:           return SW_OTHER;
+    default:                            return 0;
+  }
+}
+
+bool checkSwitchAvailable(const SwitchRef& ref, uint32_t swtchTypes)
+{
+  uint32_t swType = switchTypeToSwType(ref.type);
+  if (!(swType & swtchTypes))
+    return false;
+  return isSwitchAvailable(ref, ModelCustomFunctionsContext);
+}
+
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
 #if defined(USB_SERIAL)

@@ -2929,10 +2929,10 @@ void LvglWidgetSwitchPicker::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = 0;
   auto c = new SwitchChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      [=]() -> SwitchRef { return swSrcToSwitchRef(pcallGetIntVal(L, getFunction)); },
-      [=](SwitchRef ref) { pcallSetIntVal(L, setFunction, switchRefToSwSrc(ref)); });
+      [=]() -> SwitchRef { return SwitchRef::fromUint32(pcallGetIntVal(L, getFunction)); },
+      [=](SwitchRef ref) { pcallSetIntVal(L, setFunction, ref.toUint32()); });
   c->setAvailableHandler([=](SwitchRef ref) {
-    return checkSwitchAvailable(switchRefToSwSrc(ref), filter);
+    return checkSwitchAvailable(ref, filter);
   });
   window = c;
 }
@@ -2953,11 +2953,11 @@ void LvglWidgetSourcePicker::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = 0;
   auto c = new SourceChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      [=]() -> SourceRef { return mixSrcToSourceRef(pcallGetIntVal(L, getFunction)); },
-      [=](SourceRef ref) { pcallSetIntVal(L, setFunction, sourceRefToMixSrc(ref)); },
+      [=]() -> SourceRef { return SourceRef::fromUint32(pcallGetIntVal(L, getFunction)); },
+      [=](SourceRef ref) { pcallSetIntVal(L, setFunction, ref.toUint32()); },
       filter & SRC_INVERT);
   c->setAvailableHandler([=](SourceRef ref) {
-    return checkSourceAvailable(sourceRefToMixSrc(ref), filter);
+    return checkSourceAvailable(ref, filter);
   });
   window = c;
 }

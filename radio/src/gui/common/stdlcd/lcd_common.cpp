@@ -450,7 +450,7 @@ void drawTimerMode(coord_t x, coord_t y, uint8_t mode, const SwitchRef& swtch, L
 #if defined(RTCLOCK)
 void drawRtcTime(coord_t x, coord_t y, LcdFlags att)
 {
-  drawTimer(x, y, getValue(MIXSRC_TX_TIME), att, att);
+  drawTimer(x, y, getValue(SourceRef_(SOURCE_TYPE_TX_TIME, 0)), att, att);
 }
 #endif
 

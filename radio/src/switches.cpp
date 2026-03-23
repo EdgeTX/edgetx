@@ -839,9 +839,9 @@ SwitchRef getMovedSwitch()
       if (switchIsCustomSwitch(i))
         next = g_model.cfsState(i) ? 3 : 1;
       else
-        next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+        next = (1024 + getValue(SourceRef_(SOURCE_TYPE_SWITCH, i))) / 1024 + 1;
 #else
-      next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+      next = (1024 + getValue(SourceRef_(SOURCE_TYPE_SWITCH, i))) / 1024 + 1;
 #endif
       if (prev != next) {
         switches_states =

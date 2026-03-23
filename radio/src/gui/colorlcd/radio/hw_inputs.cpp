@@ -182,7 +182,7 @@ class SwitchDynamicLabel : public StaticText
 
   uint8_t position()
   {
-    auto value = getValue(MIXSRC_FIRST_SWITCH + index);
+    auto value = getValue(SourceRef_(SOURCE_TYPE_SWITCH, index));
     if (value > 0)
       return 2;
     else if (value < 0)

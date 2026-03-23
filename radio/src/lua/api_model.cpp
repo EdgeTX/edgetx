@@ -34,28 +34,24 @@
 
 #include <storage/sdcard_yaml.h>
 
-// Convert ValueOrSource to Lua integer (replaces sourceNumValToLuaInt)
-// Numeric values pass through; source values get offset by +/-1024
-static int valueOrSourceToLuaInt(const ValueOrSource& vs)
+// Convert ValueOrSource to Lua integer
+// Numeric values pass through; source values use packed SourceRef::toUint32()
+// which is always >= 0x01000000, distinguishable from numeric values.
+static int32_t valueOrSourceToLuaInt(const ValueOrSource& vs)
 {
   if (vs.isSource) {
-    SourceRef srcRef = vs.toSourceRef();
-    mixsrc_t src = sourceRefToMixSrc(srcRef);
-    return (int)src + ((src < 0) ? -1024 : 1024);
+    return (int32_t)vs.toSourceRef().toUint32();
   }
   return vs.value;
 }
 
-// Convert Lua integer to ValueOrSource (replaces luaIntToSourceNumval)
-// Values >= 1024 or <= -1024 are source references
-static ValueOrSource luaIntToValueOrSource(int val)
+// Convert Lua integer to ValueOrSource
+// Values >= 0x01000000 are packed SourceRef values
+static ValueOrSource luaIntToValueOrSource(int32_t val)
 {
   ValueOrSource vs = {};
-  if (val >= 1024) {
-    SourceRef ref = mixSrcToSourceRef((mixsrc_t)(val - 1024));
-    vs.setSource(ref);
-  } else if (val <= -1024) {
-    SourceRef ref = mixSrcToSourceRef((mixsrc_t)(val + 1024));
+  if (val >= 0x01000000) {
+    SourceRef ref = SourceRef::fromUint32((uint32_t)val);
     vs.setSource(ref);
   } else {
     vs.setNumeric((int16_t)val);
@@ -345,7 +341,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableinteger(L, "persistent", timer.persistent);
     lua_pushtablenstring(L, "name", timer.name);
     lua_pushtableboolean(L, "showElapsed", timer.showElapsed);
-    lua_pushtableinteger(L, "switch", switchRefToSwSrc(timer.swtch));
+    lua_pushtableinteger(L, "switch", timer.swtch.toUint32());
     lua_pushtableinteger(L, "countdownStart", timer.countdownStart);
     lua_pushtableinteger(L, "extraHaptic", timer.extraHaptic);
   }
@@ -405,7 +401,7 @@ static int luaModelSetTimer(lua_State *L)
         timer.showElapsed = lua_toboolean(L, -1);
       } 
       else if (!strcmp(key, "switch")) {
-        timer.swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
+        timer.swtch = SwitchRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "countdownStart")) {
         timer.countdownStart = luaL_checkinteger(L, -1);
@@ -526,7 +522,7 @@ static int luaModelGetFlightMode(lua_State * L)
     FlightModeData * fm = flightModeAddress(idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", fm->name);
-    lua_pushtableinteger(L, "switch", switchRefToSwSrc(fm->swtch));
+    lua_pushtableinteger(L, "switch", fm->swtch.toUint32());
     lua_pushtableinteger(L, "fadeIn", fm->fadeIn);
     lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
     lua_pushstring(L, "trimsValues");
@@ -582,7 +578,7 @@ static int luaModelSetFlightMode(lua_State * L)
       strncpy(fm->name, name, sizeof(fm->name));
     }
     else if (!strcmp(key, "switch")) {
-      fm->swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
+      fm->swtch = SwitchRef::fromUint32(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "fadeIn")) {
       fm->fadeIn = luaL_checkinteger(L, -1);
@@ -659,11 +655,11 @@ static int luaModelGetInput(lua_State *L)
     lua_newtable(L);
     lua_pushtablenstring(L, "name", expo->name);
     lua_pushtablenstring(L, "inputName", g_model.inputNames[chn]);
-    lua_pushtableinteger(L, "source", sourceRefToMixSrc(expo->srcRaw));
+    lua_pushtableinteger(L, "source", expo->srcRaw.toUint32());
     lua_pushtableinteger(L, "scale", expo->scale);
     lua_pushtableinteger(L, "weight", valueOrSourceToLuaInt(expo->weight));
     lua_pushtableinteger(L, "offset", valueOrSourceToLuaInt(expo->offset));
-    lua_pushtableinteger(L, "switch", switchRefToSwSrc(expo->swtch));
+    lua_pushtableinteger(L, "switch", expo->swtch.toUint32());
     lua_pushtableinteger(L, "curveType", expo->curve.type);
     lua_pushtableinteger(L, "curveValue", valueOrSourceToLuaInt(expo->curve.value));
     lua_pushtableinteger(L, "trimSource", - (int)expo->trimSource);
@@ -714,7 +710,7 @@ static int luaModelInsertInput(lua_State *L)
         strncpy(g_model.inputNames[chn], name, LEN_INPUT_NAME);
       }
       else if (!strcmp(key, "source")) {
-        expo->srcRaw = mixSrcToSourceRef(luaL_checkinteger(L, -1));
+        expo->srcRaw = SourceRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "scale")) {
         expo->scale = luaL_checkinteger(L, -1);
@@ -729,7 +725,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->offset = luaIntToValueOrSource(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        expo->swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
+        expo->swtch = SwitchRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         expo->curve.type = luaL_checkinteger(L, -1);
@@ -890,10 +886,10 @@ static int luaModelGetMix(lua_State *L)
     MixData * mix = mixAddress(first+idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", mix->name);
-    lua_pushtableinteger(L, "source", sourceRefToMixSrc(mix->srcRaw));
+    lua_pushtableinteger(L, "source", mix->srcRaw.toUint32());
     lua_pushtableinteger(L, "weight", valueOrSourceToLuaInt(mix->weight));
     lua_pushtableinteger(L, "offset", valueOrSourceToLuaInt(mix->offset));
-    lua_pushtableinteger(L, "switch", switchRefToSwSrc(mix->swtch));
+    lua_pushtableinteger(L, "switch", mix->swtch.toUint32());
     lua_pushtableinteger(L, "curveType", mix->curve.type);
     lua_pushtableinteger(L, "curveValue", valueOrSourceToLuaInt(mix->curve.value));
     lua_pushtableinteger(L, "multiplex", mix->mltpx);
@@ -947,7 +943,7 @@ static int luaModelInsertMix(lua_State *L)
         strncpy(mix->name, name, sizeof(mix->name));
       }
       else if (!strcmp(key, "source")) {
-        mix->srcRaw = mixSrcToSourceRef(luaL_checkinteger(L, -1));
+        mix->srcRaw = SourceRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "weight")) {
         mix->weight = luaIntToValueOrSource(luaL_checkinteger(L, -1));
@@ -956,7 +952,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->offset = luaIntToValueOrSource(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        mix->swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
+        mix->swtch = SwitchRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         mix->curve.type = luaL_checkinteger(L, -1);
@@ -1159,7 +1155,7 @@ static int luaModelGetLogicalSwitch(lua_State *L)
     lua_pushtableinteger(L, "v1", sw->v1.value);
     lua_pushtableinteger(L, "v2", sw->v2.value);
     lua_pushtableinteger(L, "v3", sw->v3);
-    lua_pushtableinteger(L, "and", switchRefToSwSrc(sw->andsw));
+    lua_pushtableinteger(L, "and", sw->andsw.toUint32());
     lua_pushtableinteger(L, "delay", sw->delay);
     lua_pushtableinteger(L, "duration", sw->duration); 
     lua_pushtableboolean(L, "state", sw->lsState);
@@ -1211,7 +1207,7 @@ static int luaModelSetLogicalSwitch(lua_State *L)
         sw->v3 = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "and")) {
-        sw->andsw = swSrcToSwitchRef(luaL_checkinteger(L, -1));
+        sw->andsw = SwitchRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "delay")) {
         sw->delay = luaL_checkinteger(L, -1);
@@ -1565,7 +1561,7 @@ static int luaModelSetCustomFunction(lua_State *L)
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "switch")) {
-        cfn->swtch = swSrcToSwitchRef(luaL_checkinteger(L, -1));
+        cfn->swtch = SwitchRef::fromUint32(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "func")) {
         CFN_FUNC(cfn) = luaL_checkinteger(L, -1);
@@ -1924,9 +1920,9 @@ static int luaModelGetSwashRing(lua_State *L)
   lua_newtable(L);
   lua_pushtableinteger(L, "type", g_model.swashR.type);
   lua_pushtableinteger(L, "value", g_model.swashR.value);
-  lua_pushtableinteger(L, "collectiveSource", sourceRefToMixSrc(g_model.swashR.collectiveSource));
-  lua_pushtableinteger(L, "aileronSource", sourceRefToMixSrc(g_model.swashR.aileronSource));
-  lua_pushtableinteger(L, "elevatorSource", sourceRefToMixSrc(g_model.swashR.elevatorSource));
+  lua_pushtableinteger(L, "collectiveSource", g_model.swashR.collectiveSource.toUint32());
+  lua_pushtableinteger(L, "aileronSource", g_model.swashR.aileronSource.toUint32());
+  lua_pushtableinteger(L, "elevatorSource", g_model.swashR.elevatorSource.toUint32());
   lua_pushtableinteger(L, "collectiveWeight", g_model.swashR.collectiveWeight);
   lua_pushtableinteger(L, "aileronWeight", g_model.swashR.aileronWeight);
   lua_pushtableinteger(L, "elevatorWeight", g_model.swashR.elevatorWeight);
@@ -1958,13 +1954,13 @@ static int luaModelSetSwashRing(lua_State *L)
       g_model.swashR.value = luaL_checkinteger(L, -1);
     }
     else if (!strcmp(key, "collectiveSource")) {
-      g_model.swashR.collectiveSource = mixSrcToSourceRef(luaL_checkinteger(L, -1));
+      g_model.swashR.collectiveSource = SourceRef::fromUint32(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "aileronSource")) {
-      g_model.swashR.aileronSource = mixSrcToSourceRef(luaL_checkinteger(L, -1));
+      g_model.swashR.aileronSource = SourceRef::fromUint32(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "elevatorSource")) {
-      g_model.swashR.elevatorSource = mixSrcToSourceRef(luaL_checkinteger(L, -1));
+      g_model.swashR.elevatorSource = SourceRef::fromUint32(luaL_checkinteger(L, -1));
     }
     else if (!strcmp(key, "collectiveWeight")) {
       g_model.swashR.collectiveWeight = luaL_checkinteger(L, -1);

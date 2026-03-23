@@ -84,7 +84,7 @@ void initLoggingTimer()
 void writeHeader();
 
 int getSwitchState(uint8_t swtch) {
-  int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
+  int value = getValue(SourceRef_(SOURCE_TYPE_SWITCH, swtch));
   return (value == 0) ? 0 : (value < 0) ? -1 : +1;
 }
 

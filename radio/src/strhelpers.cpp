@@ -545,7 +545,7 @@ bool switchCanHaveCustomName(swsrc_t idx)
   return (idx >= SWSRC_FIRST_SWITCH && idx <= SWSRC_LAST_SWITCH);
 }
 
-int getSwitchIndex(const char* name, bool all)
+uint32_t getSwitchIndex(const char* name, bool all)
 {
   bool negate = false;
 
@@ -573,23 +573,26 @@ int getSwitchIndex(const char* name, bool all)
   for (const auto& tr : types) {
     for (uint16_t i = 0; i < tr.count; i++) {
       SwitchRef ref = SwitchRef_(tr.type, i);
-      swsrc_t idx = switchRefToSwSrc(ref);
       if (all || isSwitchAvailable(ref, ModelCustomFunctionsContext)) {
         bool hasCustom = (tr.type == SWITCH_TYPE_SWITCH);
         char* s;
         if (hasCustom) {
           s = getSwitchPositionName(_static_str_buffer, ref);
-          if (!strcasecmp(s, name))
-            return negate ? -idx : idx;
+          if (!strcasecmp(s, name)) {
+            uint8_t flags = negate ? SWITCH_FLAG_INVERTED : 0;
+            return SwitchRef_(tr.type, i, flags).toUint32();
+          }
         }
         s = getSwitchPositionName(ref);
-        if (!strcasecmp(s, name))
-          return negate ? -idx : idx;
+        if (!strcasecmp(s, name)) {
+          uint8_t flags = negate ? SWITCH_FLAG_INVERTED : 0;
+          return SwitchRef_(tr.type, i, flags).toUint32();
+        }
       }
     }
   }
 
-  return SWSRC_INVERT;  // Not found
+  return 0;  // Not found (SWITCH_TYPE_NONE packed)
 }
 
 const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly)
@@ -921,7 +924,7 @@ static bool matchSource(const char* name, const SourceRef& ref, bool defaultOnly
   return false;
 }
 
-int getSourceIndex(const char* name, bool all)
+uint32_t getSourceIndex(const char* name, bool all)
 {
   // Iterate by SourceType + index, constructing SourceRef directly
   struct TypeRange { uint8_t type; uint16_t count; bool hasCustomName; };
@@ -963,19 +966,18 @@ int getSourceIndex(const char* name, bool all)
   for (const auto& tr : types) {
     for (uint16_t i = 0; i < tr.count; i++) {
       SourceRef ref = SourceRef_(tr.type, i);
-      mixsrc_t idx = sourceRefToMixSrc(ref);
       if (all || isSourceAvailable(ref)) {
         if (tr.hasCustomName) {
           if (matchSource(name, ref, true))
-            return idx;
+            return ref.toUint32();
         }
         if (matchSource(name, ref, false))
-          return idx;
+          return ref.toUint32();
       }
     }
   }
 
-  return -1;
+  return 0;  // Not found (SOURCE_TYPE_NONE packed)
 }
 
 // pre-instantiate for use from external

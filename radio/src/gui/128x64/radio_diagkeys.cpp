@@ -155,7 +155,7 @@ void menuRadioDiagKeys(event_t event)
 
     if (i < switchGetMaxAllSwitches()) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
-        getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+        getvalue_t val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, i));
         uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
         drawSwitch(sw_x, sw_y, SwitchRef_(SWITCH_TYPE_SWITCH, swIdx), 0, false);
         if (i == 5) {

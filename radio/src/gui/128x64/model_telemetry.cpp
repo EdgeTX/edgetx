@@ -162,7 +162,7 @@ void menuModelTelemetry(event_t event)
         lcdNextPos = TELEM_COL2;
         if (isOld)
           lcdDrawChar(lcdNextPos, y, '[');
-        drawSensorCustomValue(lcdNextPos, y, index, getValue(MIXSRC_FIRST_TELEM+3*index), LEFT);
+        drawSensorCustomValue(lcdNextPos, y, index, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3*index)), LEFT);
         if (isOld)
           lcdDrawChar(lcdLastRightPos, y, ']');
       }

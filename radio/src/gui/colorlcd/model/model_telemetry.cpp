@@ -316,7 +316,7 @@ class SensorButton : public ListLineButton
       if (telemetryItem.isAvailable()) {
         isOld = telemetryItem.isOld();
         s = getSensorCustomValue(
-            index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
+            index, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * index)), LEFT);
       } else {
         s = "---";
       }
@@ -434,7 +434,7 @@ class SensorEditWindow : public SubPage
         std::string title2 =
             STR_SENSOR + std::to_string(index + 1) + " = " +
             getSensorCustomValue(
-                index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
+                index, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * index)), LEFT);
         headerValue->setText(title2);
       } else {
         headerValue->setText(STR_SENSOR + std::to_string(index + 1) + " = " +

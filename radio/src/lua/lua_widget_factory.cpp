@@ -153,13 +153,13 @@ void LuaWidgetFactory::translateOptions(WidgetOption * options)
   lua_pop(lsWidgets, 1);
 }
 
-static int switchValue()
+static uint32_t switchValue()
 {
-  int v = SWSRC_INVERT;
+  uint32_t v = 0;
   if (lua_istable(lsWidgets, -1)) {
     // Find first available
     int t = lua_gettop(lsWidgets);
-    for (lua_pushnil(lsWidgets); v == SWSRC_INVERT && lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
+    for (lua_pushnil(lsWidgets); v == 0 && lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
       v = getSwitchIndex(luaL_checkstring(lsWidgets, -1), false);
     }
     lua_settop(lsWidgets, t);
@@ -168,17 +168,16 @@ static int switchValue()
   } else {
     v = luaL_checkinteger(lsWidgets, -1);
   }
-  if (v == SWSRC_INVERT) v = SWSRC_NONE;
-  return v;
+  return v;  // 0 = SWITCH_TYPE_NONE
 }
 
-static int sourceValue()
+static uint32_t sourceValue()
 {
-  int v = -1;
+  uint32_t v = 0;
   if (lua_istable(lsWidgets, -1)) {
     // Find first available
     int t = lua_gettop(lsWidgets);
-    for (lua_pushnil(lsWidgets); v < 0 && lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
+    for (lua_pushnil(lsWidgets); v == 0 && lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
       v = getSourceIndex(luaL_checkstring(lsWidgets, -1), false);
     }
     lua_settop(lsWidgets, t);
@@ -187,8 +186,7 @@ static int sourceValue()
   } else {
     v = luaL_checkunsigned(lsWidgets, -1);
   }
-  if (v == -1) v = MIXSRC_NONE;
-  return v;
+  return v;  // 0 = SOURCE_TYPE_NONE
 }
 
 // Parse the options table to get the default, min and max values

@@ -610,7 +610,7 @@ void perMain()
 
 #if defined(PCBX9E) && !defined(SIMU)
   toplcdRefreshStart();
-  setTopFirstTimer(getValue(MIXSRC_FIRST_TIMER + g_model.toplcdTimer));
+  setTopFirstTimer(getValue(SourceRef_(SOURCE_TYPE_TIMER, g_model.toplcdTimer)));
   setTopSecondTimer(g_eeGeneral.globalTimer + sessionTimer);
   setTopRssi(TELEMETRY_RSSI());
   setTopBatteryValue(g_vbat100mV);

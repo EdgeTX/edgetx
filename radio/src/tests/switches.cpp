@@ -402,25 +402,25 @@ TEST(FlexSwitches, getValue)
 
   auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   anaSetFiltered(offset, -1024);
-  EXPECT_EQ(-1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
+  EXPECT_EQ(-1024, getValue(SourceRef_(SOURCE_TYPE_SWITCH, sw_idx)));
 
   anaSetFiltered(offset, 0);
-  EXPECT_EQ(0, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
+  EXPECT_EQ(0, getValue(SourceRef_(SOURCE_TYPE_SWITCH, sw_idx)));
 
   anaSetFiltered(offset, +1024);
-  EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
+  EXPECT_EQ(+1024, getValue(SourceRef_(SOURCE_TYPE_SWITCH, sw_idx)));
 
   g_eeGeneral.switchSetType(sw_idx, SWITCH_2POS);
   EXPECT_EQ(SWITCH_2POS, g_model.getSwitchType(sw_idx));
 
   anaSetFiltered(offset, -1024);
-  EXPECT_EQ(-1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
+  EXPECT_EQ(-1024, getValue(SourceRef_(SOURCE_TYPE_SWITCH, sw_idx)));
 
   anaSetFiltered(offset, 0);
-  EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
+  EXPECT_EQ(+1024, getValue(SourceRef_(SOURCE_TYPE_SWITCH, sw_idx)));
 
   anaSetFiltered(offset, +1024);
-  EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
+  EXPECT_EQ(+1024, getValue(SourceRef_(SOURCE_TYPE_SWITCH, sw_idx)));
 }
 
 TEST(FlexSwitches, getSwitch)

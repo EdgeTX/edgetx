@@ -104,17 +104,9 @@ Platform arena sizes need updating:
 
 ## Remaining Work (Phase 3b cleanup)
 
-### Phase 3b status: GUI migration COMPLETE
+### Phase 3b status: ALL CONVERSIONS COMPLETE
 
-All GUI and infrastructure code uses SourceRef/SwitchRef/ValueOrSource natively. **Zero non-boundary bridge calls remain.**
-
-Bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`) are now used exclusively at format boundaries:
-
-#### YAML format boundary (~20 usages)
-`yaml_datastructs_funcs.cpp` — `r_logicSw`/`w_logicSw`, `r_customFn`/`w_customFn`, `r_mixSrcRawEx`/`w_mixSrcRawEx`, `r_swtchSrc`/`w_swtchSrc`. These translate between YAML's integer source/switch format and SourceRef/SwitchRef structs.
-
-#### Lua API boundary (~32 usages)
-`lua/api_model.cpp`, `lua/api_general.cpp`, `lua/api_stdlcd.cpp`, `lua/api_colorlcd.cpp`, `lua/interface.cpp`, `lua/lua_lvgl_widget.cpp`, `strhelpers.cpp` (`getSwitchIndex`/`getSourceIndex`). Lua exposes sources/switches as `MIXSRC_*`/`SWSRC_*` integers for backward compatibility.
+All code uses SourceRef/SwitchRef/ValueOrSource natively. **Bridge functions have been fully removed.**
 
 ### Completed cleanup items
 - ✅ 3b.1: isSourceAvailable/isSwitchAvailable SourceRef overloads
@@ -146,112 +138,29 @@ Bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, 
 - ✅ 3b.27: setWeight → ValueOrSource, valueOrSourceToLegacy removed
 - ✅ 3b.28: All dead code removed (legacyToValueOrSource, checkIncDecMovedSwitch, stopsSwitch, CATEGORY_END)
 
-### Next steps
+- ✅ 3b.29: YAML serialization update (custom read/write for SourceRef/SwitchRef/ValueOrSource)
+- ✅ 3b.30: Lua API conversion + full bridge removal
 
-#### 3b.29 YAML serialization update
-The generated YAML struct definitions still reference old field bit widths. Need custom read/write for SourceRef/SwitchRef/ValueOrSource and regeneration of all 22 yaml_datastructs_*.cpp files.
+### 3b.30 Lua API conversion (details)
 
-#### 3b.30 Lua API conversion
+Converted the entire Lua API from `MIXSRC_*`/`SWSRC_*` 16-bit integers to `SourceRef::toUint32()`/`SwitchRef::toUint32()` packed 32-bit values. Also converted all remaining `getValue(MIXSRC_*)` callers and removed bridge functions entirely.
 
-Convert the entire Lua API from `MIXSRC_*`/`SWSRC_*` 16-bit integers to `SourceRef::toUint32()`/`SwitchRef::toUint32()` packed 32-bit values. This is the last bridge function consumer.
+**What changed:**
+- `LuaField.id`, `LuaSingleField.id`, `LuaMultipleField.id`: widened from `uint16_t` to `uint32_t`
+- All Lua field tables use `SourceRef_().toUint32()` instead of `MIXSRC_*` constants
+- `luaGetValueAndPush()` takes `SourceRef` directly (dispatches by `ref.type`)
+- `getSourceIndex()` / `getSwitchIndex()` return packed `uint32_t` (0 = not found)
+- `valueOrSourceToLuaInt()` returns raw `toUint32()` (no ±1024 offset; packed values ≥ 0x01000000 are self-identifying)
+- All `model.getMix/setMix`, `getInput/setInput`, `getTimer/setTimer`, `getFlightMode/setFlightMode`, `getLogicalSwitch/setLogicalSwitch`, `getCustomFunction/setCustomFunction`, `getSwashRing/setSwashRing` use `toUint32()`/`fromUint32()` directly
+- `sources()` / `switches()` iterators walk SourceRef/SwitchRef type tables natively
+- `checkSourceAvailable(SourceRef, uint32_t)` / `checkSwitchAvailable(SwitchRef, uint32_t)` overloads added
+- All ~25 non-Lua `getValue(MIXSRC_*)` callers converted to `getValue(SourceRef_(...))`
+- Jinja templates (`lua_inputs.jinja`, `lua_mixsrc.jinja`) emit `SourceRef_().toUint32()` values
+- Bridge functions removed: `sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`, `getValue(mixsrc_t)` overload
+- `CFN_SWITCH` macro updated to `(p)->swtch.toUint32()`
 
-**Packing format** (already implemented in `sourceref.h`):
-- `toUint32()`: `index | (flags << 16) | (type << 24)` — type in high byte
-- `fromUint32()`: reverse
-- Any non-NONE value packs to >= 0x01000000, distinguishable from legacy 10-bit values
+**Backward compatibility:** Lua scripts using string names (`getSourceIndex("Rud")`, `getValue("Thr")`) work unchanged. Scripts using global constants (`getValue(MIXSRC_Thr)`) get correct packed values. Scripts hardcoding raw integers will break.
 
-**Step 1: Widen LuaField infrastructure**
-
-| File | Change |
-|------|--------|
-| `lua/lua_api.h` | `LuaField.id`: `uint16_t` → `uint32_t` |
-| `lua/api_general.cpp` | `LuaSingleField.id`: `uint16_t` → `uint32_t` |
-| `lua/api_general.cpp` | `LuaMultipleField.id`: `uint16_t` → `uint32_t` |
-
-**Step 2: Convert Lua field tables to use toUint32()**
-
-`luaSingleFields[]` entries like `{MIXSRC_TILT_X, "tiltx", ...}` become
-`{SourceRef_(SOURCE_TYPE_IMU, 0).toUint32(), "tiltx", ...}`.
-
-`luaMultipleFields[]` entries like `{MIXSRC_FIRST_INPUT, "input", ..., MAX_INPUTS}` become
-`{SourceRef_(SOURCE_TYPE_INPUT, 0).toUint32(), "input", ..., MAX_INPUTS}`.
-
-The `id + offset` arithmetic in `luaFindFieldByName`/`luaFindFieldById` works because
-`toUint32()` puts index in bits 0-15, so incrementing by 1 correctly advances the index.
-
-**Step 3: Convert luaPushFieldValue()**
-
-Replace `mixsrc_t src` parameter with `SourceRef`. Replace all `MIXSRC_*` range checks
-with `ref.type == SOURCE_TYPE_*` dispatch. This function handles telemetry precision,
-GVar precision, TX voltage scaling, etc.
-
-**Step 4: Convert Lua constant globals**
-
-`MIXSRC_Rud`, `MIXSRC_Thr`, etc. are generated from `lua_inputs.inc` (Jinja template
-from hardware descriptions). Change the template to emit `toUint32()` packed values:
-```
-{ "MIXSRC_{{ li.lua }}", SourceRef_(SOURCE_TYPE_STICK, {{ loop.index0 }}).toUint32() },
-```
-
-Same for `SWSRC_*` constants in switch-related Lua globals.
-
-**Step 5: Convert API functions**
-
-| Function | File | Change |
-|----------|------|--------|
-| `getValue()` | `api_general.cpp` | Take `uint32_t` from Lua → `SourceRef::fromUint32()` → `getValue(SourceRef)` |
-| `getFieldInfo()` | `api_general.cpp` | Return `toUint32()` in `field.id` |
-| `getSourceName()` | `api_general.cpp` | Take `uint32_t` → `fromUint32()` |
-| `getSwitchName()` | `api_general.cpp` | Take `uint32_t` → `fromUint32()` |
-| `getSwitchValue()` | `api_general.cpp` | Take `uint32_t` → `fromUint32()` |
-| `getSourceIndex()` | `strhelpers.cpp` | Return `toUint32()` (already done) |
-| `getSwitchIndex()` | `strhelpers.cpp` | Return `toUint32()` (already done) |
-| `drawSource()` | `api_stdlcd.cpp`, `api_colorlcd.cpp` | Take `uint32_t` → `fromUint32()` |
-| `drawSwitch()` | `api_stdlcd.cpp`, `api_colorlcd.cpp` | Take `uint32_t` → `fromUint32()` |
-| `model.getInput/setInput` | `api_model.cpp` | Source/switch fields use `toUint32()`/`fromUint32()` |
-| `model.getMix/setMix` | `api_model.cpp` | Same |
-| `model.getTimer/setTimer` | `api_model.cpp` | Switch field |
-| `model.getFlightMode/setFlightMode` | `api_model.cpp` | Switch field |
-| `model.getLogicalSwitch/setLogicalSwitch` | `api_model.cpp` | Source/switch v1/v2/andsw |
-| `model.getCustomFunction` | `api_model.cpp` | Switch field |
-| `model.getSwashRing/setSwashRing` | `api_model.cpp` | Source fields |
-
-**Step 6: Convert lua_widget_factory.cpp**
-
-`sourceValue()` / `switchValue()`: already call `getSourceIndex()`/`getSwitchIndex()` which
-will return `toUint32()` values. Sentinel checks need updating (0 = NONE packed).
-
-**Step 7: Convert lua_lvgl_widget.cpp**
-
-SourceChoice/SwitchChoice lambdas: use `fromUint32()`/`toUint32()` instead of bridge functions.
-Available handlers: same.
-
-**Step 8: Convert interface.cpp**
-
-`luaGetValueAndPush`: pass `toUint32()` packed value.
-
-**Step 9: Update Lua tests**
-
-`tests/lua.cpp`: Update `MIXSRC_Thr`, `SWSRC_FIRST_SWITCH` references. The test Lua scripts
-use global constants which will be automatically updated by step 4.
-
-**Step 10: Remove bridge functions**
-
-Once all consumers are converted:
-- Remove `sourceRefToMixSrc()` / `mixSrcToSourceRef()` from `mixer.cpp`
-- Remove `switchRefToSwSrc()` / `swSrcToSwitchRef()` from `mixer.cpp`/`switches.cpp`
-- Remove declarations from `myeeprom.h`
-- Remove `MixSources` / `SwitchSources` enums if no longer referenced
-
-**Key insight**: `toUint32()` puts `index` in bits 0-15, so `base_id + n` arithmetic
-still works for the `luaMultipleFields` table — incrementing by 1 advances the source
-index within the same type. This preserves the existing field lookup algorithm.
-
-**Backward compatibility**: Lua scripts that use string names (`getSourceIndex("Rud")`,
-`getValue("Thr")`) work unchanged. Scripts that hardcode numeric constants
-(`getValue(MIXSRC_Thr)`) get the correct packed value from the updated Lua globals.
-Scripts that hardcode raw integers (`getValue(4)`) will break — but this was
-undocumented and fragile.
 
 ---
 
@@ -276,7 +185,7 @@ undocumented and fragile.
 
 1. **STM32F4 arena undersize**: default layout (6,976 B) exceeds `MODEL_ARENA_SIZE` (4096 B). Must be resolved before merging.
 
-2. **Bridge functions**: RESOLVED for GUI/infrastructure. Bridges remain only at YAML and Lua API boundaries (~52 usages total). These are permanent until those formats change.
+2. **Bridge functions**: FULLY REMOVED. `sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSrc`, `swSrcToSwitchRef`, and `getValue(mixsrc_t)` overload have been deleted. All code uses SourceRef/SwitchRef natively.
 
 3. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
 
