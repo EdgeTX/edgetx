@@ -104,6 +104,17 @@ struct SourceRef {
 
   void clear() { type = SOURCE_TYPE_NONE; flags = 0; index = 0; }
 
+  // Pack/unpack for widget storage: type in high byte so any non-NONE
+  // source packs to >= 0x01000000, distinguishable from legacy 10-bit
+  // MIXSRC values (0-1023).
+  uint32_t toUint32() const {
+    return (uint32_t)index | ((uint32_t)flags << 16) | ((uint32_t)type << 24);
+  }
+  static SourceRef fromUint32(uint32_t v) {
+    SourceRef ref = {(uint8_t)((v >> 24) & 0xFF), (uint8_t)((v >> 16) & 0xFF), (uint16_t)(v & 0xFFFF)};
+    return ref;
+  }
+
   bool operator==(const SourceRef& other) const {
     return type == other.type && flags == other.flags && index == other.index;
   }
@@ -113,6 +124,12 @@ struct SourceRef {
     return index < other.index;
   }
 };
+
+// Factory function — use instead of constructor to keep SourceRef POD
+inline SourceRef SourceRef_(uint8_t type, uint16_t index, uint8_t flags = 0) {
+  SourceRef ref = {type, flags, index};
+  return ref;
+}
 
 static_assert(sizeof(SourceRef) == 4, "SourceRef must be 32 bits");
 
@@ -193,11 +210,26 @@ struct SwitchRef {
 
   void clear() { type = SWITCH_TYPE_NONE; flags = 0; index = 0; }
 
+  // Pack/unpack for widget storage (same layout as SourceRef)
+  uint32_t toUint32() const {
+    return (uint32_t)index | ((uint32_t)flags << 16) | ((uint32_t)type << 24);
+  }
+  static SwitchRef fromUint32(uint32_t v) {
+    SwitchRef ref = {(uint8_t)((v >> 24) & 0xFF), (uint8_t)((v >> 16) & 0xFF), (uint16_t)(v & 0xFFFF)};
+    return ref;
+  }
+
   bool operator==(const SwitchRef& other) const {
     return type == other.type && flags == other.flags && index == other.index;
   }
   bool operator!=(const SwitchRef& other) const { return !(*this == other); }
 };
+
+// Factory function — use instead of constructor to keep SwitchRef POD
+inline SwitchRef SwitchRef_(uint8_t type, uint16_t index, uint8_t flags = 0) {
+  SwitchRef ref = {type, flags, index};
+  return ref;
+}
 
 static_assert(sizeof(SwitchRef) == 4, "SwitchRef must be 32 bits");
 

@@ -141,7 +141,7 @@ void FunctionLineButton::refresh()
   switch (func) {
     case FUNC_OVERRIDE_CHANNEL:
       sprintf(s + strlen(s), "%s = %s",
-              getSourceString({SOURCE_TYPE_CHANNEL, 0, (uint16_t)CFN_CH_INDEX(cfn)}),
+              getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)CFN_CH_INDEX(cfn))),
               formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
 
@@ -220,7 +220,7 @@ void FunctionLineButton::refresh()
       break;
 
     case FUNC_ADJUST_GVAR:
-      strcat(s, getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}));
+      strcat(s, getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn))));
       switch (CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
           sprintf(s + strlen(s), " = %s",
@@ -232,7 +232,7 @@ void FunctionLineButton::refresh()
           break;
         case FUNC_ADJUST_GVAR_GVAR:
           sprintf(s + strlen(s), " = %s",
-                  getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_PARAM(cfn)}));
+                  getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_PARAM(cfn))));
           break;
         case FUNC_ADJUST_GVAR_INCDEC: {
           int32_t value = CFN_PARAM(cfn);
@@ -542,7 +542,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
                                      updateSpecialFunctionOneWindow();
                                    });
       gvarchoice->setTextHandler([](int32_t value) {
-        return std::string(getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)value}));
+        return std::string(getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)value)));
       });
       line = specialFunctionOneWindow->newLine(grid);
 
@@ -577,7 +577,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       switch (CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT: {
           int16_t val_min, val_max;
-          getMixSrcRange({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}, val_min,
+          getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), val_min,
                          val_max);
           addNumberEdit(line, STR_CONSTANT, cfn, val_min, val_max);
           break;
@@ -591,7 +591,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
           gvarchoice->setTextHandler([](int32_t value) {
-            return std::string(getSourceString({SOURCE_TYPE_GVAR, 0, (uint16_t)value}));
+            return std::string(getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)value)));
           });
           gvarchoice->setAvailableHandler(
               [=](int value) { return CFN_GVAR_INDEX(cfn) != value; });
@@ -599,7 +599,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
         }
         case FUNC_ADJUST_GVAR_INCDEC: {
           int16_t val_min, val_max;
-          getMixSrcRange({SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_GVAR_INDEX(cfn)}, val_min,
+          getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), val_min,
                          val_max);
           getGVarIncDecRange(val_min, val_max);
           auto numedit = addNumberEdit(line, STR_INCDEC, cfn, val_min, val_max);

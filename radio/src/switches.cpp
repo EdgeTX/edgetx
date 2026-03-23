@@ -846,7 +846,7 @@ SwitchRef getMovedSwitch()
       if (prev != next) {
         switches_states =
             (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 2));
-        result = {SWITCH_TYPE_SWITCH, 0, (uint16_t)(3 * i + (next - 1))};
+        result = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(3 * i + (next - 1)));
       }
     }
   }
@@ -865,7 +865,7 @@ SwitchRef getMovedSwitch()
         uint8_t prev = potsPos[i] & 0x0F;
         uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / count);
         if (prev != next) {
-          result = {SWITCH_TYPE_MULTIPOS, 0, (uint16_t)(i * XPOTS_MULTIPOS_COUNT + next)};
+          result = SwitchRef_(SWITCH_TYPE_MULTIPOS, (uint16_t)(i * XPOTS_MULTIPOS_COUNT + next));
         }
       }
     }
@@ -875,8 +875,8 @@ SwitchRef getMovedSwitch()
   for (int i = 0; i < keysGetMaxTrims(); i++) {
     if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
       uint8_t tidx = inputMappingConvertMode(i) * 2;
-      if (trimDown(tidx)) result = {SWITCH_TYPE_TRIM, 0, (uint16_t)(i * 2)};
-      else if (trimDown(tidx+1)) result = {SWITCH_TYPE_TRIM, 0, (uint16_t)(i * 2 + 1)};
+      if (trimDown(tidx)) result = SwitchRef_(SWITCH_TYPE_TRIM, (uint16_t)(i * 2));
+      else if (trimDown(tidx+1)) result = SwitchRef_(SWITCH_TYPE_TRIM, (uint16_t)(i * 2 + 1));
     }
   }
 
@@ -975,7 +975,7 @@ void checkSwitches()
             if (warnState != swState) {
               if (++numWarnings < 6) {
                 const char* s = getSwitchWarnSymbol(warnState);
-                drawSource(x, y, {SOURCE_TYPE_SWITCH, 0, (uint16_t)i}, INVERS);
+                drawSource(x, y, SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)i), INVERS);
                 lcdDrawText(lcdNextPos, y, s, INVERS);
                 x = lcdNextPos + 3;
               }
@@ -990,7 +990,7 @@ void checkSwitches()
           if (g_model.potsWarnEnabled & (1 << i)) {
             if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
               if (++numWarnings < 6) {
-                drawSource(x, y, {SOURCE_TYPE_POT, 0, (uint16_t)i}, INVERS);
+                drawSource(x, y, SourceRef_(SOURCE_TYPE_POT, (uint16_t)i), INVERS);
                 const char* symbol;
                 auto warn_pos = g_model.potsWarnPosition[i];
                 if (IS_SLIDER(i)) {

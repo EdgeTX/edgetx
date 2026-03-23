@@ -217,7 +217,7 @@ uint32_t getLogicalSwitchesStates(uint8_t first)
 {
   uint32_t result = 0;
   for (uint8_t i=0; i<32; i++) {
-    result |= (getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)(first+i)}) << i);
+    result |= (getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)(first+i))) << i);
   }
   return result;
 }

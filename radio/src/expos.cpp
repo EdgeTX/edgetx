@@ -42,9 +42,9 @@ void insertExpo(uint8_t idx, uint8_t input)
   memmove(expo + 1, expo, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
   if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    expo->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)input};
+    expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)input);
   } else {
-    expo->srcRaw = {SOURCE_TYPE_STICK, 0, (uint16_t)inputMappingChannelOrder(input)};
+    expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingChannelOrder(input));
   }
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3;  // pos+neg

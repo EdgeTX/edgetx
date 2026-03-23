@@ -127,7 +127,7 @@ void menuModelDisplay(event_t event)
 
       case ITEM_DISPLAY_TOP_BAR_VOLTAGE:
         lcdDrawTextIndented(y, STR_VOLTAGE);
-        drawSource(DISPLAY_COL2, y, g_model.voltsSource ? SourceRef{SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3*(g_model.voltsSource-1))} : SourceRef{}, attr);
+        drawSource(DISPLAY_COL2, y, g_model.voltsSource ? SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3*(g_model.voltsSource-1))) : SourceRef{}, attr);
         if (attr) {
           g_model.voltsSource = checkIncDec(event, g_model.voltsSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVoltsSensor);
         }
@@ -135,7 +135,7 @@ void menuModelDisplay(event_t event)
 
       case ITEM_DISPLAY_TOP_BAR_ALTITUDE:
         lcdDrawTextIndented(y, STR_ALTITUDE);
-        drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? SourceRef{SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3*(g_model.altitudeSource-1))} : SourceRef{}, attr);
+        drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3*(g_model.altitudeSource-1))) : SourceRef{}, attr);
         if (attr) {
           g_model.altitudeSource = checkIncDec(event, g_model.altitudeSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isAltSensor);
         }

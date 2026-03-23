@@ -324,7 +324,7 @@ void menuModelExposAll(event_t event)
     coord_t y = MENU_HEADER_HEIGHT+1+(cur-menuVerticalOffset)*FH;
     if (i<MAX_EXPOS && (ed=expoAddress(i))->chn+1 == ch && EXPO_VALID(ed)) {
       if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-        drawSource(0, y, {SOURCE_TYPE_INPUT, 0, (uint16_t)(ch - 1)}, ((s_copyMode || sub != cur) ? 0 : INVERS));
+        drawSource(0, y, SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)(ch - 1)), ((s_copyMode || sub != cur) ? 0 : INVERS));
       }
       uint8_t mixCnt = 0;
       do {
@@ -377,7 +377,7 @@ void menuModelExposAll(event_t event)
         }
       }
       if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-        drawSource(0, y, {SOURCE_TYPE_INPUT, 0, (uint16_t)(ch - 1)}, attr);
+        drawSource(0, y, SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)(ch - 1)), attr);
         if (s_copyMode == MOVE_MODE && s_copySrcCh == ch) {
           lcdDrawRect(EXPO_LINE_SELECT_POS, y-1, LCD_W-EXPO_LINE_SELECT_POS, 9, DOTTED);
         }

@@ -76,7 +76,7 @@ class TrimEdit : public Window
     lastTrim = tr->value;
 
     auto tr_btn = new TextButton(
-        this, rect_t{0, 0, TR_BTN_W, 0}, getSourceString({SOURCE_TYPE_TRIM, 0, (uint16_t)trimId}),
+        this, rect_t{0, 0, TR_BTN_W, 0}, getSourceString(SourceRef_(SOURCE_TYPE_TRIM, (uint16_t)trimId)),
         [=]() {
           tr->mode = (tr->mode == TRIM_MODE_NONE) ? 0 : TRIM_MODE_NONE;
           tr_mode->setValue(tr->mode);

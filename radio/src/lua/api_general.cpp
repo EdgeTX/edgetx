@@ -2585,7 +2585,7 @@ static int luaGetLogicalSwitchValue(lua_State * L)
   int id = luaL_checkinteger(L, 1);
 
   if (id >= 0 && id < MAX_LOGICAL_SWITCHES)
-    lua_pushboolean(L, getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)id}));
+    lua_pushboolean(L, getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)id)));
   else
     lua_pushnil(L);
   return 1;

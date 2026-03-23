@@ -201,7 +201,7 @@ class RadioKeyDiagsWindow : public Window
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
         // Switch position: 0=down(val<0), 1=mid(val==0), 2=up(val>0)
         uint16_t pos = (val < 0) ? 0 : ((val == 0) ? 1 : 2);
-        SwitchRef ref = {SWITCH_TYPE_SWITCH, 0, (uint16_t)(3 * i + pos)};
+        SwitchRef ref = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(3 * i + pos));
         lv_label_set_text(switchValues[i], getSwitchPositionName(ref));
       }
     }

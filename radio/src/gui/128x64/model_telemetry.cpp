@@ -257,7 +257,7 @@ void menuModelTelemetry(event_t event)
 
       case ITEM_TELEMETRY_VARIO_SOURCE:
         lcdDrawTextIndented(y, STR_SOURCE);
-        drawSource(TELEM_COL2, y, g_model.varioData.source ? SourceRef{SOURCE_TYPE_TELEMETRY, 0, (uint16_t)(3*(g_model.varioData.source-1))} : SourceRef{}, attr);
+        drawSource(TELEM_COL2, y, g_model.varioData.source ? SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3*(g_model.varioData.source-1))) : SourceRef{}, attr);
         if (attr) {
           g_model.varioData.source = checkIncDec(event, g_model.varioData.source, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVarioSensorAvailable);
         }

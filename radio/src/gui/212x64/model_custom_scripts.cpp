@@ -120,7 +120,7 @@ void menuModelCustomScriptOne(event_t event)
     lcdDrawText(SCRIPT_ONE_3RD_COLUMN_POS, FH+1, STR_OUTPUTS);
 
     for (int i=0; i<scriptInputsOutputs[s_currIdx].outputsCount; i++) {
-      drawSource(SCRIPT_ONE_3RD_COLUMN_POS+INDENT_WIDTH, FH+1+FH+i*FH, {SOURCE_TYPE_LUA, 0, (uint16_t)(s_currIdx*MAX_SCRIPT_OUTPUTS+i)}, 0);
+      drawSource(SCRIPT_ONE_3RD_COLUMN_POS+INDENT_WIDTH, FH+1+FH+i*FH, SourceRef_(SOURCE_TYPE_LUA, (uint16_t)(s_currIdx*MAX_SCRIPT_OUTPUTS+i)), 0);
       lcdDrawNumber(SCRIPT_ONE_3RD_COLUMN_POS+11*FW+3, FH+1+FH+i*FH, calcRESXto1000(scriptInputsOutputs[s_currIdx].outputs[i].value), PREC1|RIGHT);
     }
   }

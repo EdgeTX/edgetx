@@ -240,7 +240,7 @@ static const struct {
 static SourceRef yaml_parse_source(const char* val, uint8_t val_len)
 {
     if (val_len > 0 && val[0] == 'I') {
-        return {SOURCE_TYPE_INPUT, 0, (uint16_t)yaml_str2uint(val+1, val_len-1)};
+        return SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)yaml_str2uint(val+1, val_len-1));
     } else if (val_len > 4 &&
                val[0] == 'l' && val[1] == 'u' && val[2] == 'a' && val[3] == '(') {
       val += 4; val_len -= 4;
@@ -248,28 +248,28 @@ static SourceRef yaml_parse_source(const char* val, uint8_t val_len)
       if (!val_len) return {};
       val++; val_len--;
       uint16_t idx = script * MAX_SCRIPT_OUTPUTS + yaml_str2uint(val, val_len);
-      return {SOURCE_TYPE_LUA, 0, idx};
+      return SourceRef_(SOURCE_TYPE_LUA, idx);
     } else if (val_len > 3 &&
                val[0] == 'l' && val[1] == 's' && val[2] == '(') {
       val += 3; val_len -= 3;
-      return {SOURCE_TYPE_LOGICAL_SWITCH, 0, (uint16_t)(yaml_str2uint(val, val_len) - 1)};
+      return SourceRef_(SOURCE_TYPE_LOGICAL_SWITCH, (uint16_t)(yaml_str2uint(val, val_len) - 1));
     } else if (val_len > 3 &&
                val[0] == 't' && val[1] == 'r' && val[2] == '(') {
       val += 3; val_len -= 3;
-      return {SOURCE_TYPE_TRAINER, 0, (uint16_t)yaml_str2uint(val, val_len)};
+      return SourceRef_(SOURCE_TYPE_TRAINER, (uint16_t)yaml_str2uint(val, val_len));
     } else if (val_len > 3 &&
                val[0] == 'c' && val[1] == 'h' && val[2] == '(') {
       val += 3; val_len -= 3;
-      return {SOURCE_TYPE_CHANNEL, 0, (uint16_t)yaml_str2uint(val, val_len)};
+      return SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)yaml_str2uint(val, val_len));
     } else if (val_len > 3 &&
                val[0] == 'g' && val[1] == 'v' && val[2] == '(') {
       val += 3; val_len -= 3;
-      return {SOURCE_TYPE_GVAR, 0, (uint16_t)yaml_str2uint(val, val_len)};
+      return SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)yaml_str2uint(val, val_len));
 #if defined(FUNCTION_SWITCHES)
     } else if (val_len > 2 &&
                val[0] == 'G' && val[1] == 'R' &&
                val[2] >= '1' && val[2] <= '3') {
-      return {SOURCE_TYPE_CUSTOM_SWITCH_GROUP, 0, (uint16_t)(val[2] - '1')};
+      return SourceRef_(SOURCE_TYPE_CUSTOM_SWITCH_GROUP, (uint16_t)(val[2] - '1'));
 #endif
     } else if (val_len > 5 &&
                val[0] == 't' && val[1] == 'e' && val[2] == 'l' && val[3] == 'e' && val[4] == '(') {
@@ -278,28 +278,28 @@ static SourceRef yaml_parse_source(const char* val, uint8_t val_len)
       if (*val == '-') { sign = 1; val++; val_len--; }
       else if (*val == '+') { sign = 2; val++; val_len--; }
       uint16_t idx = yaml_str2uint(val, val_len) * 3 + sign;
-      return {SOURCE_TYPE_TELEMETRY, 0, idx};
+      return SourceRef_(SOURCE_TYPE_TELEMETRY, idx);
     } else if (val_len > 3 &&
                val[0] == 'C' && val[1] == 'Y' && val[2] == 'C' &&
                val[3] >= '1' && val[3] <= '3') {
-      return {SOURCE_TYPE_HELI, 0, (uint16_t)(val[3] - '1')};
+      return SourceRef_(SOURCE_TYPE_HELI, (uint16_t)(val[3] - '1'));
     } else if (val_len > 3 &&
                val[0] == 'T' && val[1] == 'm' && val[2] == 'r' &&
                val[3] >= '1' && val[3] <= ('0' + MAX_TIMERS)) {
-      return {SOURCE_TYPE_TIMER, 0, (uint16_t)(val[3] - '1')};
+      return SourceRef_(SOURCE_TYPE_TIMER, (uint16_t)(val[3] - '1'));
     } else if (val_len > 1 &&
                val[0] == 'T' && val[1] >= '1' && val[1] <= ('0' + MAX_TRIMS)) {
-      return {SOURCE_TYPE_TRIM, 0, (uint16_t)(val[1] - '1')};
+      return SourceRef_(SOURCE_TYPE_TRIM, (uint16_t)(val[1] - '1'));
     }
 
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
-    if (idx >= 0) return {SOURCE_TYPE_STICK, 0, (uint16_t)idx};
+    if (idx >= 0) return SourceRef_(SOURCE_TYPE_STICK, (uint16_t)idx);
 
     idx = analogLookupCanonicalIdx(ADC_INPUT_FLEX, val, val_len);
-    if (idx >= 0) return {SOURCE_TYPE_POT, 0, (uint16_t)idx};
+    if (idx >= 0) return SourceRef_(SOURCE_TYPE_POT, (uint16_t)idx);
 
     idx = switchLookupIdx(val, val_len);
-    if (idx >= 0) return {SOURCE_TYPE_SWITCH, 0, (uint16_t)idx};
+    if (idx >= 0) return SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)idx);
 
     // Legacy input names (backward compat)
     SourceRef legacy = _legacy_mix_src(val, val_len);
@@ -2193,7 +2193,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     } break;
     case FUNC_ADJUST_GVAR_GVAR:
     {
-      SourceRef ref = {SOURCE_TYPE_GVAR, 0, (uint16_t)CFN_PARAM(cfn)};
+      SourceRef ref = SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_PARAM(cfn));
       if (!yaml_write_source(ref, wf, opaque)) return false;
     } break;
     }
@@ -2496,7 +2496,7 @@ static SwitchRef yaml_parse_switch(const char* val, uint8_t val_len)
 
       auto idx = switchLookupIdx(val, val_len - 1);
       if (idx < 0) return {};
-      ref = {SWITCH_TYPE_SWITCH, 0, (uint16_t)(idx * 3 + yaml_str2int(val + 3, val_len - 3))};
+      ref = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(idx * 3 + yaml_str2int(val + 3, val_len - 3)));
     }
     else if (val_len > 2 && val[0] == 'S'
         && val[1] >= 'A' && val[1] <= 'Z'
@@ -2504,40 +2504,40 @@ static SwitchRef yaml_parse_switch(const char* val, uint8_t val_len)
 
       auto idx = switchLookupIdx(val, val_len - 1);
       if (idx < 0) return {};
-      ref = {SWITCH_TYPE_SWITCH, 0, (uint16_t)(idx * 3 + yaml_str2int(val + 2, val_len - 2))};
+      ref = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(idx * 3 + yaml_str2int(val + 2, val_len - 2)));
     }
     // Multipos: "6P00"
     else if (val_len > 3 && val[0] == '6' && val[1] == 'P'
              && (val[2] >= '0' && val[2] <= '9')
              && (val[3] >= '0' && val[3] < (XPOTS_MULTIPOS_COUNT + '0'))) {
-      ref = {SWITCH_TYPE_MULTIPOS, 0, (uint16_t)((val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0'))};
+      ref = SwitchRef_(SWITCH_TYPE_MULTIPOS, (uint16_t)((val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')));
     }
     // Trim switches: "TR1-", "TR1+", or legacy names like "TrimRudLeft"
     else if (val_len > 3 && val[0] == 'T' && val[1] == 'R'
              && val[2] >= '1' && val[2] <= '9') {
       uint16_t idx = (yaml_str2int(val + 2, val_len - 3) - 1) * 2;
       if (val[val_len - 1] == '+') idx++;
-      ref = {SWITCH_TYPE_TRIM, 0, idx};
+      ref = SwitchRef_(SWITCH_TYPE_TRIM, idx);
     }
     else if (val_len > 4 && (strncmp(val, trimSwitchNames[0], 4) == 0)) {
       for (size_t i = 0; i < sizeof(trimSwitchNames)/sizeof(const char*); i += 1) {
         if (strncmp(val, trimSwitchNames[i], val_len) == 0) {
-          ref = {SWITCH_TYPE_TRIM, 0, (uint16_t)i};
+          ref = SwitchRef_(SWITCH_TYPE_TRIM, (uint16_t)i);
           break;
         }
       }
     }
     // Logical switches: "L1", "L12"
     else if (val_len >= 2 && val[0] == 'L' && (val[1] >= '0' && val[1] <= '9')) {
-      ref = {SWITCH_TYPE_LOGICAL, 0, (uint16_t)(yaml_str2int(val+1, val_len-1) - 1)};
+      ref = SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)(yaml_str2int(val+1, val_len-1) - 1));
     }
     // Flight modes: "FM0"
     else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' && (val[2] >= '0' && val[2] <= '9')) {
-      ref = {SWITCH_TYPE_FLIGHT_MODE, 0, (uint16_t)(val[2] - '0')};
+      ref = SwitchRef_(SWITCH_TYPE_FLIGHT_MODE, (uint16_t)(val[2] - '0'));
     }
     // Telemetry sensors: "T1", "T12"
     else if (val_len >= 2 && val[0] == 'T' && (val[1] >= '0' && val[1] <= '9')) {
-      ref = {SWITCH_TYPE_SENSOR, 0, (uint16_t)(yaml_str2int(val+1, val_len-1) - 1)};
+      ref = SwitchRef_(SWITCH_TYPE_SENSOR, (uint16_t)(yaml_str2int(val+1, val_len-1) - 1));
     }
     else {
       // Singleton enum names (ON, ONE, TELEMETRY_STREAMING, etc.)

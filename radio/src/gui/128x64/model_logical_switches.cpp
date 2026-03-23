@@ -61,7 +61,7 @@ void menuModelLogicalSwitchOne(event_t event)
 
   LogicalSwitchData * cs = lswAddress(s_currIdx);
 
-  SwitchRef sw = {SWITCH_TYPE_LOGICAL, 0, (uint16_t)s_currIdx};
+  SwitchRef sw = SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)s_currIdx);
   uint8_t cstate = lswFamily(cs->func);
 
   drawSwitch(14*FW, 0, sw, (getSwitch(sw) ? BOLD : 0));
@@ -287,7 +287,7 @@ void menuModelLogicalSwitches(event_t event)
     LogicalSwitchData * cs = lswAddress(k);
 
     // CSW name
-    SwitchRef sw = {SWITCH_TYPE_LOGICAL, 0, (uint16_t)k};
+    SwitchRef sw = SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)k);
 
     drawSwitch(0, y, sw, (sub==k ? INVERS : 0) | (getSwitch(sw) ? BOLD : 0));
 

@@ -543,7 +543,7 @@ void menuMainView(event_t event)
               getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
               if (val == 0) x -= 1;
               uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
-              drawSwitch(x, y, SwitchRef{SWITCH_TYPE_SWITCH, 0, swIdx}, CENTERED, false);
+              drawSwitch(x, y, SwitchRef_(SWITCH_TYPE_SWITCH, swIdx), CENTERED, false);
             }
           }
         }
@@ -564,7 +564,7 @@ void menuMainView(event_t event)
         uint8_t y = LCD_H - 20;
         for (uint8_t line = 0; line < 2; line++) {
           for (uint8_t column = 0; column < MAX_LOGICAL_SWITCHES / 2; column++) {
-            int8_t len = getSwitch({SWITCH_TYPE_LOGICAL, 0, (uint16_t)index}) ? 10 : 1;
+            int8_t len = getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index)) ? 10 : 1;
             uint8_t x = (16 + 3 * column);
             lcdDrawSolidVerticalLine(x - 1, y - len, len);
             lcdDrawSolidVerticalLine(x, y - len, len);
