@@ -24,6 +24,7 @@
 
 #include "datastructs.h"
 #include "bitfield.h"
+#include "sourceref.h"
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
