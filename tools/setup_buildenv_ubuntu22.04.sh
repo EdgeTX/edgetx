@@ -5,6 +5,9 @@ set -e
 ## Bash script to setup EdgeTX development environment on Ubuntu 22.04 running on bare-metal or in a virtual machine.
 ## Let it run as normal user and when asked, give sudo credentials
 
+QT_VERSION="6.9.3"
+GCC_ARM_VERSION="14.2.rel1"
+
 PAUSEAFTEREACHLINE="false"
 STEP=1
 # Parse argument(s)
@@ -104,36 +107,35 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing Qt ==="
-aqt install-qt --outputdir qt linux desktop 6.9.3 linux_gcc_64 -m qtmultimedia qtserialport
+aqt install-qt --outputdir /opt/qt linux desktop ${QT_VERSION} linux_gcc_64 -m qtmultimedia qtserialport
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Fetching GNU Arm Embedded Toolchains ==="
-# EdgeTX uses GNU Arm Embedded Toolchain version 14.2.rel1
-wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu/${GCC_ARM_VERSION}/binrel/arm-gnu-toolchain-${GCC_ARM_VERSION}-x86_64-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Unpacking GNU Arm Embedded Toolchains ==="
-pv arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz | tar xJf -
+pv arm-gnu-toolchain-${GCC_ARM_VERSION}-x86_64-arm-none-eabi.tar.xz | tar xJf -
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Removing the downloaded archives ==="
-rm arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+rm arm-gnu-toolchain-${GCC_ARM_VERSION}-x86_64-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Moving GNU Arm Embedded Toolchains to /opt ==="
-sudo mv arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi /opt/gcc-arm-none-eabi
+sudo mv arm-gnu-toolchain-${GCC_ARM_VERSION}-x86_64-arm-none-eabi /opt/gcc-arm-none-eabi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
