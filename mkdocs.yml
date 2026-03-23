@@ -89,7 +89,6 @@ nav:
     - Unbrick Your Radio: mods/unbrick.md
   - Development:
     - CLI Commands: development/cli-commands.md
-    - Customisable Switches: development/customisable-switches.md
     - Control Inputs: development/control-inputs.md
     - External Module Protocols: development/external-module-protocols.md
     - YAML Parser/Generator: development/yaml-parser-generator.md
