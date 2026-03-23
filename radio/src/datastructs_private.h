@@ -727,7 +727,7 @@ PACK(struct customSwitch {
 
 PACK(struct PartialModel {
   ModelHeader header;
-  TimerData timers[MAX_TIMERS];
+  ModuleData moduleData[NUM_MODULES];
 });
 
 /*

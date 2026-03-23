@@ -898,28 +898,28 @@ void ModelMap::updateModelCell(ModelCell *cell)
 {
   modelslabels.removeModels(cell);
 
-  ModelData *model = (ModelData *)malloc(sizeof(ModelData));
-  if (!model) {
-    TRACE("Labels: Out Of Memory");
-    return;
-  }
+  PartialModel partial;
+  memset(&partial, 0, sizeof(partial));
 
   TRACE("Labels: Updating model %s", cell->modelFilename);
-  readModelYaml(cell->modelFilename, (uint8_t *)model, sizeof(ModelData));
-  strncpy(cell->modelName, model->header.name, LEN_MODEL_NAME);
+  readModelYaml(cell->modelFilename, (uint8_t *)&partial, sizeof(partial));
+  strncpy(cell->modelName, partial.header.name, LEN_MODEL_NAME);
   cell->modelName[LEN_MODEL_NAME] = '\0';
-  strncpy(cell->modelBitmap, model->header.bitmap, LEN_BITMAP_NAME);
+  strncpy(cell->modelBitmap, partial.header.bitmap, LEN_BITMAP_NAME);
   cell->modelBitmap[LEN_BITMAP_NAME] = '\0';
-  LabelsVector labels = ModelMap::fromCSV(model->header.labels);
+  LabelsVector labels = ModelMap::fromCSV(partial.header.labels);
   for(const auto &lbl : labels ) {
     modelslabels.addLabelToModel(lbl,cell);
   }
 
   // Save Module Data
-  cell->setRfData(model);
+  for (uint8_t i = 0; i < NUM_MODULES; i++) {
+    cell->modelId[i] = partial.header.modelId[i];
+    cell->setRfModuleData(i, &partial.moduleData[i]);
+  }
+  cell->valid_rfData = true;
 
   cell->_isDirty = false;
-  free(model);
 }
 
 /**
