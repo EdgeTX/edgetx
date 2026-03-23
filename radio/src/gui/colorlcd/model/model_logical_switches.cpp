@@ -546,7 +546,7 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
   // search for unused switches
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     // Check if slot is unused (either beyond current count, or func == NONE)
-    bool unused = (i >= g_model.dyn.logicalSwCount) ||
+    bool unused = (i >= g_modelArena.sectionCount(ARENA_LOGICAL_SW)) ||
                   (lswAddress(i)->func == LS_FUNC_NONE);
     if (unused) {
       std::string ch_name(

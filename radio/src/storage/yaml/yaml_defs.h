@@ -59,6 +59,10 @@
   int _dummy_##tag[0]                                     \
       _yaml_attribute("extern_array:" #tag "|" #max "|" _yaml_note(elmt_type) "|" _yaml_note(get_ptr) "|" _yaml_note(ensure))
 
+#define CUST_EXTERN_ARRAY_NOIDX(tag, elmt_type, max, get_ptr, ensure)   \
+  int _dummy_##tag[0]                                     \
+      _yaml_attribute("extern_array:" #tag "|" #max "|" _yaml_note(elmt_type) "|" _yaml_note(get_ptr) "|" _yaml_note(ensure) "|noidx")
+
 #else
 
 #define ENUM(label)
@@ -73,5 +77,6 @@
 #define CUST_ARRAY(tag, elmt_type, max, fcn)
 #define CUST_IDX(tag, read, write)
 #define CUST_EXTERN_ARRAY(tag, elmt_type, max, get_ptr, ensure)
+#define CUST_EXTERN_ARRAY_NOIDX(tag, elmt_type, max, get_ptr, ensure)
 
 #endif

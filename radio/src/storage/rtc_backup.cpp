@@ -41,6 +41,7 @@ static constexpr uint32_t ARENA_SIZE =
 
 PACK(struct RamBackupUncompressed {
   ModelData model;
+  ::ModelDynData arenaCounts;  // arena section counts (not part of ModelData)
   uint8_t arena[ARENA_SIZE];
   RadioData radio;
 });
@@ -67,98 +68,68 @@ RamBackup * ramBackup = (RamBackup *)BKPSRAM_BASE;
 static uint32_t packArenaForBackup(uint8_t* dst, uint32_t dstSize)
 {
   uint8_t* start = dst;
-  const ModelDynData& dyn = g_model.dyn;
 
-  // Mixes
-  auto* liveMix = (MixData*)g_modelArena.sectionBase(ARENA_MIXES);
-  auto* bkpMix = (Backup::MixData*)dst;
-  for (int i = 0; i < dyn.mixCount; i++)
-    copyMixData(&bkpMix[i], &liveMix[i]);
-  dst += dyn.mixCount * sizeof(Backup::MixData);
+#define PACK_SECTION(section, LiveType, BkpType, copyFn) do { \
+  uint16_t n = g_modelArena.sectionCount(section); \
+  auto* live = (LiveType*)g_modelArena.sectionBase(section); \
+  auto* bkp = (BkpType*)dst; \
+  for (int i = 0; i < n; i++) copyFn(&bkp[i], &live[i]); \
+  dst += n * sizeof(BkpType); \
+} while(0)
 
-  // Expos
-  auto* liveExpo = (ExpoData*)g_modelArena.sectionBase(ARENA_EXPOS);
-  auto* bkpExpo = (Backup::ExpoData*)dst;
-  for (int i = 0; i < dyn.expoCount; i++)
-    copyExpoData(&bkpExpo[i], &liveExpo[i]);
-  dst += dyn.expoCount * sizeof(Backup::ExpoData);
-
-  // Curves
-  auto* liveCurve = (CurveHeader*)g_modelArena.sectionBase(ARENA_CURVES);
-  auto* bkpCurve = (Backup::CurveHeader*)dst;
-  for (int i = 0; i < dyn.curveCount; i++)
-    copyCurveHeader(&bkpCurve[i], &liveCurve[i]);
-  dst += dyn.curveCount * sizeof(Backup::CurveHeader);
+  PACK_SECTION(ARENA_MIXES, MixData, Backup::MixData, copyMixData);
+  PACK_SECTION(ARENA_EXPOS, ExpoData, Backup::ExpoData, copyExpoData);
+  PACK_SECTION(ARENA_CURVES, CurveHeader, Backup::CurveHeader, copyCurveHeader);
 
   // Points (raw bytes, no NOBACKUP fields)
-  memcpy(dst, g_modelArena.sectionBase(ARENA_POINTS), dyn.pointsCount);
-  dst += dyn.pointsCount;
+  uint16_t nPoints = g_modelArena.sectionCount(ARENA_POINTS);
+  memcpy(dst, g_modelArena.sectionBase(ARENA_POINTS), nPoints);
+  dst += nPoints;
 
-  // Logical switches
-  auto* liveLsw = (LogicalSwitchData*)g_modelArena.sectionBase(ARENA_LOGICAL_SW);
-  auto* bkpLsw = (Backup::LogicalSwitchData*)dst;
-  for (int i = 0; i < dyn.logicalSwCount; i++)
-    copyLogicalSwitchData(&bkpLsw[i], &liveLsw[i]);
-  dst += dyn.logicalSwCount * sizeof(Backup::LogicalSwitchData);
+  PACK_SECTION(ARENA_LOGICAL_SW, LogicalSwitchData, Backup::LogicalSwitchData, copyLogicalSwitchData);
+  PACK_SECTION(ARENA_CUSTOM_FN, CustomFunctionData, Backup::CustomFunctionData, copyCustomFunctionData);
 
-  // Custom functions
-  auto* liveCfn = (CustomFunctionData*)g_modelArena.sectionBase(ARENA_CUSTOM_FN);
-  auto* bkpCfn = (Backup::CustomFunctionData*)dst;
-  for (int i = 0; i < dyn.customFnCount; i++)
-    copyCustomFunctionData(&bkpCfn[i], &liveCfn[i]);
-  dst += dyn.customFnCount * sizeof(Backup::CustomFunctionData);
-
+#undef PACK_SECTION
   return dst - start;
 }
 
 // Unpack backup arena elements into live arena (restores NOBACKUP fields as zero)
 static void unpackArenaFromBackup(const uint8_t* src)
 {
-  const ModelDynData& dyn = g_model.dyn;
+#define UNPACK_SECTION(section, LiveType, BkpType, copyFn) do { \
+  uint16_t n = g_modelArena.sectionCount(section); \
+  auto* bkp = (BkpType*)src; \
+  auto* live = (LiveType*)g_modelArena.sectionBase(section); \
+  for (int i = 0; i < n; i++) copyFn(&live[i], &bkp[i]); \
+  src += n * sizeof(BkpType); \
+} while(0)
 
-  // Mixes
-  auto* bkpMix = (Backup::MixData*)src;
-  auto* liveMix = (MixData*)g_modelArena.sectionBase(ARENA_MIXES);
-  for (int i = 0; i < dyn.mixCount; i++)
-    copyMixData(&liveMix[i], &bkpMix[i]);
-  src += dyn.mixCount * sizeof(Backup::MixData);
+  UNPACK_SECTION(ARENA_MIXES, MixData, Backup::MixData, copyMixData);
+  UNPACK_SECTION(ARENA_EXPOS, ExpoData, Backup::ExpoData, copyExpoData);
+  UNPACK_SECTION(ARENA_CURVES, CurveHeader, Backup::CurveHeader, copyCurveHeader);
 
-  // Expos
-  auto* bkpExpo = (Backup::ExpoData*)src;
-  auto* liveExpo = (ExpoData*)g_modelArena.sectionBase(ARENA_EXPOS);
-  for (int i = 0; i < dyn.expoCount; i++)
-    copyExpoData(&liveExpo[i], &bkpExpo[i]);
-  src += dyn.expoCount * sizeof(Backup::ExpoData);
+  uint16_t nPoints = g_modelArena.sectionCount(ARENA_POINTS);
+  memcpy(g_modelArena.sectionBase(ARENA_POINTS), src, nPoints);
+  src += nPoints;
 
-  // Curves
-  auto* bkpCurve = (Backup::CurveHeader*)src;
-  auto* liveCurve = (CurveHeader*)g_modelArena.sectionBase(ARENA_CURVES);
-  for (int i = 0; i < dyn.curveCount; i++)
-    copyCurveHeader(&liveCurve[i], &bkpCurve[i]);
-  src += dyn.curveCount * sizeof(Backup::CurveHeader);
+  UNPACK_SECTION(ARENA_LOGICAL_SW, LogicalSwitchData, Backup::LogicalSwitchData, copyLogicalSwitchData);
+  UNPACK_SECTION(ARENA_CUSTOM_FN, CustomFunctionData, Backup::CustomFunctionData, copyCustomFunctionData);
 
-  // Points (raw bytes)
-  memcpy(g_modelArena.sectionBase(ARENA_POINTS), src, dyn.pointsCount);
-  src += dyn.pointsCount;
-
-  // Logical switches
-  auto* bkpLsw = (Backup::LogicalSwitchData*)src;
-  auto* liveLsw = (LogicalSwitchData*)g_modelArena.sectionBase(ARENA_LOGICAL_SW);
-  for (int i = 0; i < dyn.logicalSwCount; i++)
-    copyLogicalSwitchData(&liveLsw[i], &bkpLsw[i]);
-  src += dyn.logicalSwCount * sizeof(Backup::LogicalSwitchData);
-
-  // Custom functions
-  auto* bkpCfn = (Backup::CustomFunctionData*)src;
-  auto* liveCfn = (CustomFunctionData*)g_modelArena.sectionBase(ARENA_CUSTOM_FN);
-  for (int i = 0; i < dyn.customFnCount; i++)
-    copyCustomFunctionData(&liveCfn[i], &bkpCfn[i]);
+#undef UNPACK_SECTION
 }
 
 void rambackupWrite()
 {
   copyRadioData(&ramBackupUncompressed.radio, &g_eeGeneral);
   copyModelData(&ramBackupUncompressed.model, &g_model);
+
+  // Save arena section counts
+  ramBackupUncompressed.arenaCounts.mixCount = g_modelArena.sectionCount(ARENA_MIXES);
+  ramBackupUncompressed.arenaCounts.expoCount = g_modelArena.sectionCount(ARENA_EXPOS);
+  ramBackupUncompressed.arenaCounts.curveCount = g_modelArena.sectionCount(ARENA_CURVES);
+  ramBackupUncompressed.arenaCounts.pointsCount = g_modelArena.sectionCount(ARENA_POINTS);
+  ramBackupUncompressed.arenaCounts.logicalSwCount = g_modelArena.sectionCount(ARENA_LOGICAL_SW);
+  ramBackupUncompressed.arenaCounts.customFnCount = g_modelArena.sectionCount(ARENA_CUSTOM_FN);
 
   // Pack arena elements into backup format (strips NOBACKUP fields)
   memset(ramBackupUncompressed.arena, 0, sizeof(ramBackupUncompressed.arena));
@@ -188,9 +159,9 @@ bool rambackupRestore()
   copyRadioData(&g_eeGeneral, &ramBackupUncompressed.radio);
   copyModelData(&g_model, &ramBackupUncompressed.model);
 
-  // Restore arena: clear first (zeros NOBACKUP fields), then unpack
+  // Restore arena layout from saved counts, clear (zeros NOBACKUP fields), then unpack
+  g_modelArena.layout(ramBackupUncompressed.arenaCounts);
   g_modelArena.clear();
-  g_modelArena.layout(g_model.dyn);
   unpackArenaFromBackup(ramBackupUncompressed.arena);
 
   return true;

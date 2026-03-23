@@ -509,6 +509,11 @@ void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
             i = yaml_str2uint(buf, len);
 
         const YamlNode* node = getNode();
+        // For extern arrays, grow the section to fit the requested index
+        if (node->type == YDT_EXTERN_ARRAY
+            && node->u._extern_array.ensure_capacity) {
+            node->u._extern_array.ensure_capacity(i + 1);
+        }
         if (i < node->elmts) {
             setElmts(i);
             rewind();

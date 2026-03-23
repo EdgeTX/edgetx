@@ -56,14 +56,16 @@ void ModelArena::attach(uint8_t* buf, uint32_t capacity)
   _capacity = capacity;
   _usedBytes = 0;
   memset(_offsets, 0, sizeof(_offsets));
+  memset(_counts, 0, sizeof(_counts));
 }
 
 void ModelArena::recalcOffsets(const ModelDynData& dyn)
 {
   uint16_t offset = 0;
   for (int i = 0; i < ARENA_NUM_SECTIONS; i++) {
+    _counts[i] = getSectionCount(dyn, (ArenaSectionType)i);
     _offsets[i] = offset;
-    offset += getSectionCount(dyn, (ArenaSectionType)i) * sectionElementSize[i];
+    offset += _counts[i] * sectionElementSize[i];
   }
   _usedBytes = offset;
 }
@@ -121,7 +123,7 @@ bool ModelArena::insertInSection(ArenaSectionType section,
   if (!insertSlot(byteOffset, elementSize))
     return false;
 
-  // Update offsets for all subsequent sections
+  _counts[section]++;
   for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
     _offsets[i] += elementSize;
   }
@@ -137,7 +139,7 @@ void ModelArena::deleteFromSection(ArenaSectionType section,
 
   deleteSlot(byteOffset, elementSize);
 
-  // Update offsets for all subsequent sections
+  _counts[section]--;
   for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
     _offsets[i] -= elementSize;
   }
@@ -151,14 +153,8 @@ uint32_t ModelArena::elementSize(ArenaSectionType type)
 bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
                                        uint16_t minCount)
 {
-  // Determine current section count from offset difference
   uint32_t elemSize = sectionElementSize[section];
-  uint32_t endOffset;
-  if (section + 1 < ARENA_NUM_SECTIONS)
-    endOffset = _offsets[section + 1];
-  else
-    endOffset = _usedBytes;
-  uint32_t currentCount = (endOffset - _offsets[section]) / elemSize;
+  uint32_t currentCount = _counts[section];
 
   if (currentCount >= minCount)
     return true;
@@ -170,7 +166,7 @@ bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
     return false;
 
   // Bulk-insert at the end of the section
-  uint32_t insertOffset = endOffset;
+  uint32_t insertOffset = _offsets[section] + currentCount * elemSize;
   uint32_t tailSize = _usedBytes - insertOffset;
   if (tailSize > 0) {
     memmove(_base + insertOffset + bytesNeeded,
@@ -178,6 +174,7 @@ bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
   }
   memset(_base + insertOffset, 0, bytesNeeded);
   _usedBytes += bytesNeeded;
+  _counts[section] = minCount;
 
   // Update subsequent section offsets
   for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {

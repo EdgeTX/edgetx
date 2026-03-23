@@ -274,10 +274,9 @@ CurveHeader *curveHeaderAddress(uint8_t idx)
 
 CurveHeader *curveHeaderAllocAt(uint8_t idx)
 {
-  if (idx >= g_model.dyn.curveCount) {
+  if (idx >= g_modelArena.sectionCount(ARENA_CURVES)) {
     if (!g_modelArena.ensureSectionCapacity(ARENA_CURVES, idx + 1))
       return nullptr;
-    g_model.dyn.curveCount = idx + 1;
   }
   return curveHeaderAddress(idx);
 }
