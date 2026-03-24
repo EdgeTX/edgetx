@@ -46,6 +46,11 @@ uint8_t getMixCount() { return _nb_mix_lines; }
 // Slow up/down calculation array
 extern int32_t act [MAX_MIXERS_HARD];
 
+constexpr SourceTypeMask insertMixMask =
+  SRC_TYPE_BIT(SOURCE_TYPE_INPUT) |
+  SRC_TYPE_BIT(SOURCE_TYPE_POT) |
+  SRC_TYPE_BIT(SOURCE_TYPE_SWITCH);
+
 void insertMix(uint8_t idx, uint8_t channel)
 {
   mixerTaskStop();
@@ -57,17 +62,7 @@ void insertMix(uint8_t idx, uint8_t channel)
 
   MixData * mix = mixAddress(idx);
   mix->destCh = channel;
-  mix->srcRaw = SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)channel);
-  if (!isSourceAvailable(mix->srcRaw)) {
-    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-      mix->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)channel);
-    } else {
-      mix->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingChannelOrder(channel));
-    }
-    while (!isSourceAvailable(mix->srcRaw)) {
-      mix->srcRaw.index += 1;
-    }
-  }
+  mix->srcRaw = nthAvailableSource(channel, insertMixMask);
   mix->weight.setNumeric(100);
   mixerTaskStart();
 
