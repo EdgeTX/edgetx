@@ -73,6 +73,7 @@ elseif(PCB STREQUAL X9D+)
     set(MODULE_SIZE_STD YES)
     set(FLYSKY_GIMBAL OFF)
     set(GHOST OFF)  # Disabled to fit in flash after struct size increases
+    set(HELI OFF)   # Disabled to fit in flash after arena growable changes
   else()
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
     set(FLAVOUR x9d+)
