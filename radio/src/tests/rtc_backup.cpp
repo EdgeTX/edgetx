@@ -31,13 +31,16 @@
 namespace Backup {
 #define BACKUP
 #include "datastructs_private.h"
-static constexpr uint32_t ARENA_SIZE =
+static constexpr uint32_t ARENA_SIZE_FORMULA =
     MAX_MIXERS * sizeof(MixData) +
     MAX_EXPOS * sizeof(ExpoData) +
     MAX_CURVES * sizeof(CurveHeader) +
     MAX_CURVE_POINTS * sizeof(int8_t) +
     MAX_LOGICAL_SWITCHES * sizeof(LogicalSwitchData) +
     MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData);
+// Must match the cap in rtc_backup.cpp
+static constexpr uint32_t ARENA_SIZE =
+    ARENA_SIZE_FORMULA < MODEL_ARENA_SIZE ? ARENA_SIZE_FORMULA : MODEL_ARENA_SIZE;
 PACK(struct RamBackupUncompressed {
   ModelData model;
   ::ModelDynData arenaCounts;

@@ -180,7 +180,11 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   g_model.cfsResetSFState();
 #endif
 
-  uint8_t playFirstIndex = (functions == customFnAddress(0) ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
+  bool isModelFunctions = (functions == customFnAddress(0));
+  uint8_t playFirstIndex = (isModelFunctions ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
+  uint8_t numFunctions = (isModelFunctions
+      ? g_modelArena.sectionCount(ARENA_CUSTOM_FN)
+      : MAX_SPECIAL_FUNCTIONS);
   #define PLAY_INDEX   (i+playFirstIndex)
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
@@ -199,7 +203,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   bool videoEnabled = false;
 #endif
 
-  for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
+  for (uint8_t i=0; i<numFunctions; i++) {
     CustomFunctionData * cfn = &functions[i];
     if (!cfn->swtch.isNone()) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);

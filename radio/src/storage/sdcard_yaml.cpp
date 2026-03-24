@@ -341,20 +341,6 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 
     bool is_active_model = (buffer == (uint8_t*)&g_model);
 
-    // For temp model reads (not the active model), save and restore the arena
-    // to prevent extern array callbacks from overwriting the active model's data.
-    uint8_t* arenaSave = nullptr;
-    uint32_t arenaSaveSize = 0;
-    ModelArena savedArenaState;
-    if (init_model && !is_active_model) {
-      arenaSaveSize = g_modelArena.usedBytes();
-      arenaSave = (uint8_t*)malloc(arenaSaveSize);
-      if (arenaSave) {
-        memcpy(arenaSave, g_modelArena.base(), arenaSaveSize);
-      }
-      savedArenaState = g_modelArena;
-    }
-
     // Reset arena to empty layout — sections grow on demand during parsing
     // via ensure_capacity callbacks in the YAML walker.
     if (init_model) {
@@ -389,11 +375,9 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 
     const char* err = readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
 
-    // Restore arena if this was a temp model read
-    if (arenaSave) {
-      g_modelArena = savedArenaState;
-      memcpy(g_modelArena.base(), arenaSave, arenaSaveSize);
-      free(arenaSave);
+    if (is_active_model && init_model) {
+      // Active model loaded — shrink heap buffer to actual usage + headroom
+      g_modelArena.shrinkToFit(256);
     }
 
     return err;

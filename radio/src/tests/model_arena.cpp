@@ -15,6 +15,8 @@
 #include "customfn.h"
 #include "curves.h"
 
+#include <cstdlib>
+
 // ---- ModelArena unit tests ----
 
 class ArenaTest : public testing::Test {
@@ -25,7 +27,8 @@ class ArenaTest : public testing::Test {
 
   void SetUp() override {
     memset(buf, 0, sizeof(buf));
-    arena.attach(buf, TEST_ARENA_SIZE);
+    // maxCapacity = capacity — no growth beyond the stack buffer
+    arena.attach(buf, TEST_ARENA_SIZE, TEST_ARENA_SIZE);
   }
 };
 
@@ -721,4 +724,186 @@ TEST_F(ArenaInsertDeleteTest, TrimAllocRoundTrip)
   lswTrimTrailing();
   // Slots 0,1 are empty but kept because slot 2 is non-empty
   EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 3);
+}
+
+// ---- Growable arena tests (Phase 6) ----
+
+class GrowableArenaTest : public testing::Test {
+ protected:
+  ModelArena arena;
+
+  void TearDown() override {
+    arena.release();
+  }
+};
+
+TEST_F(GrowableArenaTest, GrowOnInsert)
+{
+  // Start with a small heap buffer, allow growth
+  static constexpr uint32_t INITIAL = 128;
+  static constexpr uint32_t MAX = 4096;
+  uint8_t* buf = (uint8_t*)malloc(INITIAL);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, INITIAL);
+  arena.attach(buf, INITIAL, MAX);
+  arena.setHeapOwned(true);
+
+  ModelDynData dyn = {};
+  arena.layout(dyn);
+
+  // Fill the initial buffer with mixes
+  uint32_t maxInInitial = INITIAL / sizeof(MixData);
+  for (uint32_t i = 0; i < maxInInitial; i++) {
+    EXPECT_TRUE(arena.insertInSection(ARENA_MIXES, i, sizeof(MixData)))
+        << "insert " << i << " should fit in initial buffer";
+  }
+  EXPECT_EQ(arena.currentFreeBytes(), INITIAL - maxInInitial * sizeof(MixData));
+
+  // Next insert exceeds initial capacity — should succeed via growth
+  EXPECT_TRUE(arena.insertInSection(ARENA_MIXES, maxInInitial, sizeof(MixData)));
+  EXPECT_GT(arena.capacity(), INITIAL);
+  EXPECT_TRUE(arena.isHeapOwned());
+}
+
+TEST_F(GrowableArenaTest, GrowFailsAtMax)
+{
+  // maxCapacity = capacity — no growth allowed
+  static constexpr uint32_t SIZE = 128;
+  uint8_t* buf = (uint8_t*)malloc(SIZE);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, SIZE);
+  arena.attach(buf, SIZE, SIZE);
+  arena.setHeapOwned(true);
+
+  ModelDynData dyn = {};
+  arena.layout(dyn);
+
+  // Fill completely
+  uint32_t maxMixes = SIZE / sizeof(MixData);
+  for (uint32_t i = 0; i < maxMixes; i++) {
+    arena.insertInSection(ARENA_MIXES, i, sizeof(MixData));
+  }
+
+  // Next insert should fail — no room to grow
+  EXPECT_FALSE(arena.insertInSection(ARENA_MIXES, maxMixes, sizeof(MixData)));
+}
+
+TEST_F(GrowableArenaTest, ShrinkToFit)
+{
+  // Must start above MODEL_ARENA_INITIAL_SIZE so shrink actually reallocates
+  static constexpr uint32_t INITIAL = MODEL_ARENA_INITIAL_SIZE * 2;
+  static constexpr uint32_t MAX = MODEL_ARENA_INITIAL_SIZE * 4;
+  uint8_t* buf = (uint8_t*)malloc(INITIAL);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, INITIAL);
+  arena.attach(buf, INITIAL, MAX);
+  arena.setHeapOwned(true);
+
+  ModelDynData dyn = {};
+  dyn.mixCount = 2;
+  arena.layout(dyn);
+  MixData* mix = (MixData*)arena.sectionBase(ARENA_MIXES);
+  mix[0].destCh = 5;
+  mix[1].destCh = 10;
+
+  // Shrink — capacity should drop to MODEL_ARENA_INITIAL_SIZE
+  EXPECT_TRUE(arena.shrinkToFit(64));
+  EXPECT_EQ(arena.capacity(), (uint32_t)MODEL_ARENA_INITIAL_SIZE);
+  EXPECT_TRUE(arena.isHeapOwned());
+
+  // Data should survive the shrink
+  mix = (MixData*)arena.sectionBase(ARENA_MIXES);
+  EXPECT_EQ(mix[0].destCh, 5);
+  EXPECT_EQ(mix[1].destCh, 10);
+}
+
+TEST_F(GrowableArenaTest, ShrinkSkippedBelowInitial)
+{
+  // Start at initial size — shrinkToFit should be a no-op
+  static constexpr uint32_t MAX = MODEL_ARENA_INITIAL_SIZE * 4;
+  uint8_t* buf = (uint8_t*)malloc(MODEL_ARENA_INITIAL_SIZE);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, MODEL_ARENA_INITIAL_SIZE);
+  arena.attach(buf, MODEL_ARENA_INITIAL_SIZE, MAX);
+  arena.setHeapOwned(true);
+
+  ModelDynData dyn = {};
+  dyn.mixCount = 1;
+  arena.layout(dyn);
+
+  uint32_t capBefore = arena.capacity();
+  EXPECT_TRUE(arena.shrinkToFit(64));
+  EXPECT_EQ(arena.capacity(), capBefore);  // no reallocation
+}
+
+TEST_F(GrowableArenaTest, FreeBytesReflectsMaxCapacity)
+{
+  static constexpr uint32_t INITIAL = 256;
+  static constexpr uint32_t MAX = 4096;
+  uint8_t* buf = (uint8_t*)malloc(INITIAL);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, INITIAL);
+  arena.attach(buf, INITIAL, MAX);
+  arena.setHeapOwned(true);
+
+  ModelDynData dyn = {};
+  arena.layout(dyn);
+
+  // freeBytes reflects maxCapacity, not current capacity
+  EXPECT_EQ(arena.freeBytes(), MAX);
+  EXPECT_EQ(arena.currentFreeBytes(), INITIAL);
+
+  // After inserting data, freeBytes decreases from max
+  arena.insertInSection(ARENA_MIXES, 0, sizeof(MixData));
+  EXPECT_EQ(arena.freeBytes(), MAX - sizeof(MixData));
+  EXPECT_EQ(arena.currentFreeBytes(), INITIAL - sizeof(MixData));
+}
+
+TEST_F(GrowableArenaTest, DetachHeapBuffer)
+{
+  static constexpr uint32_t SIZE = 256;
+  uint8_t* buf = (uint8_t*)malloc(SIZE);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, SIZE);
+  arena.attach(buf, SIZE, SIZE);
+  arena.setHeapOwned(true);
+
+  EXPECT_TRUE(arena.isHeapOwned());
+  uint8_t* detached = arena.detachHeapBuffer();
+  EXPECT_EQ(detached, buf);
+  EXPECT_FALSE(arena.isHeapOwned());
+
+  // Detach again returns nullptr (no longer heap-owned)
+  EXPECT_EQ(arena.detachHeapBuffer(), nullptr);
+
+  free(detached);
+}
+
+TEST_F(GrowableArenaTest, EnsureSectionCapacityGrows)
+{
+  static constexpr uint32_t INITIAL = 128;
+  static constexpr uint32_t MAX = 4096;
+  uint8_t* buf = (uint8_t*)malloc(INITIAL);
+  ASSERT_NE(buf, nullptr);
+  memset(buf, 0, INITIAL);
+  arena.attach(buf, INITIAL, MAX);
+  arena.setHeapOwned(true);
+
+  ModelDynData dyn = {};
+  arena.layout(dyn);
+
+  // Request more logical switches than fit in initial buffer
+  uint16_t count = (INITIAL / sizeof(LogicalSwitchData)) + 5;
+  EXPECT_TRUE(arena.ensureSectionCapacity(ARENA_LOGICAL_SW, count));
+  EXPECT_EQ(arena.sectionCount(ARENA_LOGICAL_SW), count);
+  EXPECT_GT(arena.capacity(), INITIAL);
+}
+
+// Test that the ArenaTest fixture (non-growable stack buffer) still works
+TEST_F(ArenaTest, MaxCapacityEqualsCapacity)
+{
+  EXPECT_EQ(arena.maxCapacity(), TEST_ARENA_SIZE);
+  EXPECT_EQ(arena.freeBytes(), TEST_ARENA_SIZE);
+  EXPECT_EQ(arena.currentFreeBytes(), TEST_ARENA_SIZE);
+  EXPECT_FALSE(arena.isHeapOwned());
 }
