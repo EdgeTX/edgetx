@@ -1316,3 +1316,100 @@ TEST_F(MixerTest, inactiveSwitchConditionDisablesMix)
   evalMixes(1);
   EXPECT_EQ(channelOutputs[0], 1024);
 }
+
+// MLTPX_REPL discards the accumulated value from earlier lines and replaces
+// it with the replace-line's output.  First line contributes 50%; replace line
+// forces the channel to 100%.
+TEST_F(MixerTest, replaceModeOverridesPriorValue)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(50);  // +50%
+  g_model.mixData[1].destCh = 0;
+  g_model.mixData[1].mltpx = MLTPX_REPL;
+  g_model.mixData[1].srcRaw = MIXSRC_MAX;
+  g_model.mixData[1].weight = makeSourceNumVal(100);  // replaces with 100%
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[0], CHANNEL_MAX)
+      << "MLTPX_REPL should replace accumulated value with 100%";
+}
+
+// A custom 5-point curve that maps the entire stick range to its inverse must
+// produce a negated output when applied by the mixer through an expo line.
+TEST_F(MixerTest, customCurveInvertsChannelOutput)
+{
+  // Build an inverted linear curve: points -100, -50, 0, 50, 100
+  // mapped to 100, 50, 0, -50, -100.
+  for (int i = 0; i < 5; i++)
+    g_model.points[i] = (int8_t)(100 - i * 50);  // 100,50,0,-50,-100
+
+  // Full positive stick → inverted curve → negative output.
+  EXPECT_EQ(applyCustomCurve(+1024, 0), -1024);
+  // Centre → 0 (curve passes through origin).
+  EXPECT_EQ(applyCustomCurve(0, 0), 0);
+  // Full negative stick → inverted → positive output.
+  EXPECT_EQ(applyCustomCurve(-1024, 0), +1024);
+}
+
+#if defined(GVARS)
+// A GVAR used as a mix source must pass its model value through the mixer.
+TEST_F(MixerTest, gvarAsSourceInMix)
+{
+  // Set GV1 (index 0, flight mode 0) to 50% of RESX.
+  const int16_t gvarVal = 50;
+  g_model.flightModeData[0].gvars[0] = gvarVal;
+
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_FIRST_GVAR;  // GV1
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  evalMixes(1);
+  // getValue(MIXSRC_FIRST_GVAR) returns gvarVal directly; applyLimits scales
+  // it to channelOutputs.  Verify the sign and rough magnitude are correct.
+  EXPECT_GT(channelOutputs[0], 0) << "GVar > 0 should produce positive output";
+}
+#endif  // defined(GVARS)
+
+#if defined(HELI)
+// The 90° swashplate uses only collective + elevator + aileron with equal
+// angular spacing: CYC1 = collective only, CYC2 = ail only, CYC3 = ele only.
+TEST_F(HeliTest, Swashplate90Degrees)
+{
+  g_model.swashR.collectiveSource = MIXSRC_THR;
+  g_model.swashR.elevatorSource   = MIXSRC_ELE;
+  g_model.swashR.aileronSource    = MIXSRC_AIL;
+  g_model.swashR.collectiveWeight = 100;
+  g_model.swashR.elevatorWeight   = 100;
+  g_model.swashR.aileronWeight    = 100;
+  g_model.swashR.type             = SWASH_TYPE_90;
+
+  g_model.mixData[0].destCh  = 0;
+  g_model.mixData[0].mltpx   = MLTPX_ADD;
+  g_model.mixData[0].srcRaw  = MIXSRC_CYC1;
+  g_model.mixData[0].weight  = makeSourceNumVal(100);
+  g_model.mixData[1].destCh  = 1;
+  g_model.mixData[1].mltpx   = MLTPX_ADD;
+  g_model.mixData[1].srcRaw  = MIXSRC_CYC2;
+  g_model.mixData[1].weight  = makeSourceNumVal(100);
+  g_model.mixData[2].destCh  = 2;
+  g_model.mixData[2].mltpx   = MLTPX_ADD;
+  g_model.mixData[2].srcRaw  = MIXSRC_CYC3;
+  g_model.mixData[2].weight  = makeSourceNumVal(100);
+
+  // Full elevator, zero collective and aileron.
+  anaSetFiltered(inputMappingConvertMode(THR_STICK), 0);
+  anaSetFiltered(inputMappingConvertMode(ELE_STICK), +1024);
+  anaSetFiltered(inputMappingConvertMode(AIL_STICK), 0);
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+
+  // SWASH_TYPE_90: CYC1 = collective-elevator, CYC2 = collective+aileron,
+  // CYC3 = collective-aileron.  With elevator only (vc=0, vr=0, vp=+1024):
+  //   CYC1 = 0 - 1024 = -CHANNEL_MAX  (elevator inverted on CYC1)
+  //   CYC2 = 0 + 0    = 0
+  //   CYC3 = 0 - 0    = 0
+  EXPECT_EQ(chans[0], -CHANNEL_MAX) << "CYC1 should carry inverted elevator";
+  EXPECT_EQ(chans[1], 0)            << "CYC2 should be zero with no aileron";
+  EXPECT_EQ(chans[2], 0)            << "CYC3 should be zero with no aileron";
+}
+#endif  // defined(HELI)

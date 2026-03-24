@@ -243,4 +243,68 @@ TEST(Lua, ioSeek)
   std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
 }
 
+// model.insertMix / getMixesCount / getMix / deleteMix round-trip.
+TEST(Lua, modelMixes)
+{
+  MODEL_RESET();
+
+  // Channel 0 should start empty.
+  luaExecStr("assert(model.getMixesCount(0) == 0, 'expected 0 mixes')");
+
+  // Insert one mix on channel 0: source MAX, weight 75.
+  luaExecStr("model.insertMix(0, 0, {source=MIXSRC_MAX, weight=75, name='m1'})");
+  luaExecStr("assert(model.getMixesCount(0) == 1, 'expected 1 mix after insert')");
+
+  // Read it back and verify the key fields (use a global so it persists
+  // across separate luaExecStr chunks).
+  luaExecStr("mix0 = model.getMix(0, 0)");
+  luaExecStr("assert(mix0 ~= nil, 'getMix returned nil')");
+  luaExecStr("assert(mix0.source == MIXSRC_MAX, 'source mismatch')");
+  luaExecStr("assert(mix0.weight == 75, 'weight mismatch: '..tostring(mix0.weight))");
+
+  // Delete and confirm it is gone.
+  luaExecStr("model.deleteMix(0, 0)");
+  luaExecStr("assert(model.getMixesCount(0) == 0, 'expected 0 mixes after delete')");
+}
+
+// model.getOutput / setOutput — name, min and max limits round-trip.
+TEST(Lua, modelOutputLimits)
+{
+  MODEL_RESET();
+
+  // Set output 0: name "CH1", min -80%, max +80%.
+  luaExecStr("model.setOutput(0, {name='CH1', min=-800, max=800})");
+
+  luaExecStr("out0 = model.getOutput(0)");
+  luaExecStr("assert(out0 ~= nil, 'getOutput returned nil')");
+  luaExecStr("assert(out0.name == 'CH1', 'name mismatch')");
+  luaExecStr("assert(out0.min == -800, 'min mismatch: '..tostring(out0.min))");
+  luaExecStr("assert(out0.max ==  800, 'max mismatch: '..tostring(out0.max))");
+}
+
+#if defined(GVARS)
+// model.getGlobalVariable / setGlobalVariable — write then read back a value.
+TEST(Lua, modelGlobalVariables)
+{
+  MODEL_RESET();
+
+  // Set GV1 (index 0) in flight mode 0 to 42, then read it back.
+  luaExecStr("model.setGlobalVariable(0, 0, 42)");
+  luaExecStr("gv0 = model.getGlobalVariable(0, 0)");
+  luaExecStr("assert(gv0 == 42, 'GVar mismatch: '..tostring(gv0))");
+
+  // Negative value round-trip.
+  luaExecStr("model.setGlobalVariable(0, 0, -17)");
+  luaExecStr("gv1 = model.getGlobalVariable(0, 0)");
+  luaExecStr("assert(gv1 == -17, 'GVar negative mismatch: '..tostring(gv1))");
+
+  // Out-of-range value must be clamped / rejected — API silently ignores it,
+  // so the stored value must not change.
+  luaExecStr("model.setGlobalVariable(0, 0, 5)");
+  luaExecStr("model.setGlobalVariable(0, 0, 9999)");  // out of range
+  luaExecStr("gv2 = model.getGlobalVariable(0, 0)");
+  luaExecStr("assert(gv2 == 5, 'out-of-range write should be ignored: '..tostring(gv2))");
+}
+#endif  // defined(GVARS)
+
 #endif   // #if defined(LUA)
