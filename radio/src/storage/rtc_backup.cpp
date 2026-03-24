@@ -28,7 +28,9 @@ namespace Backup {
 #include "datastructs_private.h"
 
 // Backup arena size: uses Backup:: struct sizes (NOBACKUP fields stripped).
-// Capped to MODEL_ARENA_SIZE since backup data can never exceed live arena.
+// Capped to MODEL_ARENA_INITIAL_SIZE — models that grew beyond this on a
+// growable arena will lose arena data on RTC restore (SD card model file is
+// authoritative and will be reloaded on next boot).
 static constexpr uint32_t ARENA_SIZE_FORMULA =
     MAX_MIXERS * sizeof(MixData) +
     MAX_EXPOS * sizeof(ExpoData) +
@@ -64,17 +66,26 @@ RamBackup * ramBackup = &_ramBackup;
 RamBackup * ramBackup = (RamBackup *)BKPSRAM_BASE;
 #endif
 
-// Pack live arena elements into backup format (strips NOBACKUP fields like names)
+// Pack live arena elements into backup format (strips NOBACKUP fields like names).
+// If the packed data would exceed dstSize, packing stops and the remaining
+// sections are zeroed (graceful degradation for models that grew beyond the
+// initial arena size).
 static uint32_t packArenaForBackup(uint8_t* dst, uint32_t dstSize)
 {
   uint8_t* start = dst;
+  uint8_t* end = dst + dstSize;
 
 #define PACK_SECTION(section, LiveType, BkpType, copyFn) do { \
   uint16_t n = g_modelArena.sectionCount(section); \
+  uint32_t needed = n * sizeof(BkpType); \
+  if (dst + needed > end) { \
+    TRACE("RamBackup: arena overflow, skipping section %d", section); \
+    goto pack_done; \
+  } \
   auto* live = (LiveType*)g_modelArena.sectionBase(section); \
   auto* bkp = (BkpType*)dst; \
   for (int i = 0; i < n; i++) copyFn(&bkp[i], &live[i]); \
-  dst += n * sizeof(BkpType); \
+  dst += needed; \
 } while(0)
 
   PACK_SECTION(ARENA_MIXES, MixData, Backup::MixData, copyMixData);
@@ -82,13 +93,20 @@ static uint32_t packArenaForBackup(uint8_t* dst, uint32_t dstSize)
   PACK_SECTION(ARENA_CURVES, CurveHeader, Backup::CurveHeader, copyCurveHeader);
 
   // Points (raw bytes, no NOBACKUP fields)
-  uint16_t nPoints = g_modelArena.sectionCount(ARENA_POINTS);
-  memcpy(dst, g_modelArena.sectionBase(ARENA_POINTS), nPoints);
-  dst += nPoints;
+  {
+    uint16_t nPoints = g_modelArena.sectionCount(ARENA_POINTS);
+    if (dst + nPoints > end) {
+      TRACE("RamBackup: arena overflow at points section");
+      goto pack_done;
+    }
+    memcpy(dst, g_modelArena.sectionBase(ARENA_POINTS), nPoints);
+    dst += nPoints;
+  }
 
   PACK_SECTION(ARENA_LOGICAL_SW, LogicalSwitchData, Backup::LogicalSwitchData, copyLogicalSwitchData);
   PACK_SECTION(ARENA_CUSTOM_FN, CustomFunctionData, Backup::CustomFunctionData, copyCustomFunctionData);
 
+pack_done:
 #undef PACK_SECTION
   return dst - start;
 }

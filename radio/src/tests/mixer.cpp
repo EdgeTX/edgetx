@@ -671,7 +671,8 @@ TEST_F(MixerTest, RecursiveAddChannel)
 TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 {
   if (switchGetMaxAllSwitches() < 4) return;
-  
+  if (adcGetMaxInputs(ADC_INPUT_MAIN) < 3) return;  // needs 3 default mixes
+
   g_model.flightModeData[1].swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;

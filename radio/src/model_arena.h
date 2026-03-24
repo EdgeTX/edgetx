@@ -24,16 +24,44 @@
 #include <stdint.h>
 #include <string.h>
 
-// Arena size per platform (can be overridden per radio in board defs)
-#if !defined(MODEL_ARENA_SIZE)
-  #if defined(SIMU) || defined(COMPANION)
-    #define MODEL_ARENA_SIZE  65536
+// ---------------------------------------------------------------------------
+// Arena sizing per platform
+//
+// SDRAM targets (F429, H7, H7RS, H5): static max-sized buffer in fast
+// internal RAM.  Growth just increases _capacity within the pre-reserved
+// buffer — no allocation, no copy, no pointer invalidation.
+//
+// Non-SDRAM F4 + SIMU/Companion: heap-allocated via malloc().  Start at
+// INITIAL size, grow via allocate-copy-free.  Heap is in the same fast RAM
+// on these targets, so no speed concern.
+// ---------------------------------------------------------------------------
+
+#if defined(SDRAM)
+  #define ARENA_HEAP_GROWABLE  0
+#else
+  #define ARENA_HEAP_GROWABLE  1
+#endif
+
+#if !defined(MODEL_ARENA_INITIAL_SIZE)
+  #define MODEL_ARENA_INITIAL_SIZE  1024
+#endif
+
+#if !defined(MODEL_ARENA_MAX_SIZE)
+  #if defined(SIMU)
+    #define MODEL_ARENA_MAX_SIZE  65536
   #elif defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
-    #define MODEL_ARENA_SIZE  8192
+    #define MODEL_ARENA_MAX_SIZE  32768
+  #elif defined(SDRAM)
+    // F429 with SDRAM — static buffer in internal RAM
+    #define MODEL_ARENA_MAX_SIZE  8192
   #else
-    #define MODEL_ARENA_SIZE  4096
+    // F4 without SDRAM — heap growth in shared RAM
+    #define MODEL_ARENA_MAX_SIZE  6144
   #endif
 #endif
+
+// Backward compat alias used by rtc_backup
+#define MODEL_ARENA_SIZE  MODEL_ARENA_INITIAL_SIZE
 
 // Number of dynamic section types in the arena
 #define ARENA_NUM_SECTIONS 6
@@ -60,24 +88,53 @@ struct ModelDynData {
 class ModelArena {
   uint8_t* _base;
   uint32_t _capacity;
+  uint32_t _maxCapacity;
+  bool     _heapOwned;
 
   // Section byte offsets within the arena (computed from counts + element sizes)
   uint32_t _offsets[ARENA_NUM_SECTIONS];
   uint16_t _counts[ARENA_NUM_SECTIONS];
   uint32_t _usedBytes;
 
+  // Attempt to grow the buffer to at least minCapacity bytes.
+  // Static mode: just increases _capacity (buffer is already large enough).
+  // Heap mode: allocate-copy-free.
+  // Returns false if minCapacity > _maxCapacity or malloc fails.
+  bool grow(uint32_t minCapacity);
+
 public:
-  ModelArena() : _base(nullptr), _capacity(0), _usedBytes(0) {
+  ModelArena() : _base(nullptr), _capacity(0),
+                 _maxCapacity(0), _heapOwned(false), _usedBytes(0) {
     memset(_offsets, 0, sizeof(_offsets));
     memset(_counts, 0, sizeof(_counts));
   }
 
-  void attach(uint8_t* buf, uint32_t capacity);
+  void attach(uint8_t* buf, uint32_t capacity, uint32_t maxCapacity);
 
   uint8_t* base() const { return _base; }
   uint32_t capacity() const { return _capacity; }
+  uint32_t maxCapacity() const { return _maxCapacity; }
   uint32_t usedBytes() const { return _usedBytes; }
-  uint32_t freeBytes() const { return _capacity - _usedBytes; }
+
+  // Total growable headroom (what GUI capacity checks should use)
+  uint32_t freeBytes() const { return _maxCapacity - _usedBytes; }
+
+  // Headroom in current buffer without growing
+  uint32_t currentFreeBytes() const { return _capacity - _usedBytes; }
+
+  bool isHeapOwned() const { return _heapOwned; }
+  void setHeapOwned(bool owned) { _heapOwned = owned; }
+
+  // Free heap buffer if owned, reset to nullptr.
+  void release();
+
+  // Return heap pointer (or nullptr) and set _heapOwned = false.
+  // Used for temp model save/restore to avoid double-free.
+  uint8_t* detachHeapBuffer();
+
+  // Shrink buffer to usedBytes + headroom (heap mode only).
+  // Returns false on alloc failure (non-fatal, keeps current buffer).
+  bool shrinkToFit(uint32_t headroom = 256);
 
   // Compute layout from counts (called after model load or on new model)
   void layout(const ModelDynData& dyn);
@@ -96,8 +153,8 @@ public:
   }
 
   // Insert a slot of 'slotSize' bytes at 'byteOffset' within the arena.
-  // Shifts all data after that point forward.
-  // Returns false if arena is full.
+  // Shifts all data after that point forward.  Attempts to grow if needed.
+  // Returns false if arena cannot accommodate the slot.
   bool insertSlot(uint32_t byteOffset, uint32_t slotSize);
 
   // Delete a slot of 'slotSize' bytes at 'byteOffset' within the arena.
@@ -118,7 +175,8 @@ public:
   void recalcOffsets(const ModelDynData& dyn);
 
   // Grow a section to hold at least minCount elements.
-  // Returns false if arena doesn't have enough free space.
+  // Attempts to grow the buffer if needed.
+  // Returns false if arena cannot accommodate the request.
   bool ensureSectionCapacity(ArenaSectionType section, uint16_t minCount);
 
   // Remove trailing empty elements from a section.

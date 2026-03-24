@@ -23,7 +23,25 @@
 #include "dataconstants.h"
 #include "datastructs_private.h"
 
-static uint8_t g_modelArenaBuf[MODEL_ARENA_SIZE] __attribute__((aligned(4)));
+#include <stdlib.h>
+
+// ---------------------------------------------------------------------------
+// Arena buffer allocation (platform-split)
+// ---------------------------------------------------------------------------
+
+#if !ARENA_HEAP_GROWABLE
+  // Static mode: max-sized buffer in fast internal RAM.
+  // On F4-SDRAM targets, force placement in internal SRAM (.ram section).
+  // On H7/H7RS, default BSS goes to RAM_D1 which is fast internal SRAM.
+  // Section attributes are only valid on ARM targets, not SIMU/Companion.
+  #if defined(STM32F4) && !defined(SIMU)
+    static uint8_t g_modelArenaBuf[MODEL_ARENA_MAX_SIZE]
+        __attribute__((section(".ram"), aligned(4)));
+  #else
+    static uint8_t g_modelArenaBuf[MODEL_ARENA_MAX_SIZE]
+        __attribute__((aligned(4)));
+  #endif
+#endif
 
 ModelArena g_modelArena;
 
@@ -50,13 +68,107 @@ static uint16_t getSectionCount(const ModelDynData& dyn, ArenaSectionType type)
   }
 }
 
-void ModelArena::attach(uint8_t* buf, uint32_t capacity)
+void ModelArena::attach(uint8_t* buf, uint32_t capacity, uint32_t maxCapacity)
 {
   _base = buf;
   _capacity = capacity;
+  _maxCapacity = maxCapacity;
+  _heapOwned = false;
   _usedBytes = 0;
   memset(_offsets, 0, sizeof(_offsets));
   memset(_counts, 0, sizeof(_counts));
+}
+
+void ModelArena::release()
+{
+  if (_heapOwned && _base) {
+    free(_base);
+  }
+  _base = nullptr;
+  _capacity = 0;
+  _heapOwned = false;
+}
+
+uint8_t* ModelArena::detachHeapBuffer()
+{
+  if (!_heapOwned)
+    return nullptr;
+  uint8_t* buf = _base;
+  _heapOwned = false;
+  return buf;
+}
+
+bool ModelArena::shrinkToFit(uint32_t headroom)
+{
+  if (!_heapOwned) {
+    // Static mode: buffer is fixed, nothing to shrink
+    return true;
+  }
+
+  // Don't reallocate if we haven't grown beyond the initial allocation
+  if (_capacity <= MODEL_ARENA_INITIAL_SIZE)
+    return true;
+
+  // Shrink back to initial size at most — avoids realloc churn for
+  // buffers that only grew slightly
+  uint32_t target = (_usedBytes + headroom + 3u) & ~3u;  // 4-byte aligned
+  if (target < MODEL_ARENA_INITIAL_SIZE)
+    target = MODEL_ARENA_INITIAL_SIZE;
+  if (target >= _capacity)
+    return true;  // already right-sized or smaller
+
+  uint8_t* newBuf = (uint8_t*)malloc(target);
+  if (!newBuf)
+    return false;
+
+  memcpy(newBuf, _base, _usedBytes);
+  memset(newBuf + _usedBytes, 0, target - _usedBytes);
+
+  free(_base);
+
+  _base = newBuf;
+  _capacity = target;
+  return true;
+}
+
+bool ModelArena::grow(uint32_t minCapacity)
+{
+  if (minCapacity > _maxCapacity)
+    return false;
+
+  if (minCapacity <= _capacity)
+    return true;
+
+  // Growth policy: double, capped at _maxCapacity
+  uint32_t newCap = _capacity * 2;
+  if (newCap < minCapacity)
+    newCap = minCapacity;
+  if (newCap > _maxCapacity)
+    newCap = _maxCapacity;
+
+  // 4-byte align
+  newCap = (newCap + 3u) & ~3u;
+
+  if (!_heapOwned) {
+    // Static mode: buffer is already MODEL_ARENA_MAX_SIZE, just widen the view.
+    // This is safe because the static buffer was allocated at max size.
+    _capacity = newCap;
+    return true;
+  }
+
+  // Heap mode: allocate new buffer, copy data, free old
+  uint8_t* newBuf = (uint8_t*)malloc(newCap);
+  if (!newBuf)
+    return false;
+
+  memcpy(newBuf, _base, _usedBytes);
+  memset(newBuf + _usedBytes, 0, newCap - _usedBytes);
+
+  free(_base);
+
+  _base = newBuf;
+  _capacity = newCap;
+  return true;
 }
 
 void ModelArena::recalcOffsets(const ModelDynData& dyn)
@@ -86,7 +198,8 @@ void ModelArena::clear()
 bool ModelArena::insertSlot(uint32_t byteOffset, uint32_t slotSize)
 {
   if (_usedBytes + slotSize > _capacity) {
-    return false;
+    if (!grow(_usedBytes + slotSize))
+      return false;
   }
 
   // Shift everything from byteOffset forward by slotSize
@@ -162,8 +275,10 @@ bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
   uint32_t needed = minCount - currentCount;
   uint32_t bytesNeeded = needed * elemSize;
 
-  if (_usedBytes + bytesNeeded > _capacity)
-    return false;
+  if (_usedBytes + bytesNeeded > _capacity) {
+    if (!grow(_usedBytes + bytesNeeded))
+      return false;
+  }
 
   // Bulk-insert at the end of the section
   uint32_t insertOffset = _offsets[section] + currentCount * elemSize;
@@ -225,7 +340,17 @@ uint16_t ModelArena::trimTrailingEmpty(ArenaSectionType section,
 // Sections are allocated on demand during YAML parsing or via explicit insert.
 void modelArenaInit()
 {
-  g_modelArena.attach(g_modelArenaBuf, MODEL_ARENA_SIZE);
+  g_modelArena.release();
+
+#if ARENA_HEAP_GROWABLE
+  uint8_t* buf = (uint8_t*)malloc(MODEL_ARENA_INITIAL_SIZE);
+  g_modelArena.attach(buf, MODEL_ARENA_INITIAL_SIZE, MODEL_ARENA_MAX_SIZE);
+  g_modelArena.setHeapOwned(true);
+#else
+  g_modelArena.attach(g_modelArenaBuf, MODEL_ARENA_INITIAL_SIZE,
+                      MODEL_ARENA_MAX_SIZE);
+#endif
+
   ModelDynData emptyDyn = {};
   g_modelArena.layout(emptyDyn);
   g_modelArena.clear();

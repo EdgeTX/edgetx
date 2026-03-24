@@ -87,15 +87,16 @@ All bridge functions (`sourceRefToMixSrc`, `mixSrcToSourceRef`, `switchRefToSwSr
 
 Default arena usage: 64×35 + 64×33 + 32×4 + 512 + 64×18 + 64×14 = **6,976 B** (up from 4,352 due to larger structs).
 
-Platform arena sizes:
+Platform arena sizes (after Phase 6 growable arena):
 
-| Platform | MODEL_ARENA_SIZE | Default used | Status |
-|----------|-----------------|-------------|--------|
-| STM32F4 | 4096 B | 6,976 B | **Needs Phase 4 dynamic sizing** |
-| STM32H7 | 8192 B | 6,976 B | OK |
-| Companion/Sim | 65536 B | 6,976 B | OK |
+| Platform | Initial | Max | Mode | BSS cost |
+|----------|---------|-----|------|----------|
+| STM32F4 non-SDRAM | 1024 B | 6144 B | heap | 0 (heap-allocated) |
+| STM32F429 (SDRAM) | 1024 B | 8192 B | static | 8192 B in internal RAM |
+| STM32H7/H7RS/H5 | 1024 B | 32768 B | static | 32768 B in RAM_D1 |
+| SIMU | 1024 B | 65536 B | heap | 0 (heap-allocated) |
 
-**F4 RAM impact**: ~+192 B net vs mainline (ModelData shrink offsets arena + backup additions). `MAX_MIXERS_HARD`/`MAX_EXPOS_HARD` capped at 64 on F4. RTC backup arena capped to `MODEL_ARENA_SIZE`.
+**F4 RAM impact**: ~+192 B net vs mainline (ModelData shrink offsets arena + backup additions). `MAX_MIXERS_HARD`/`MAX_EXPOS_HARD` capped at 64 on F4. RTC backup arena capped to `MODEL_ARENA_INITIAL_SIZE`.
 
 ---
 
@@ -185,14 +186,33 @@ Arena is now dynamically sized to actual model usage after load.
 
 ## Phase 5 (Future): GVars + FlightModes
 
-## Phase 6 (Future): Growable Arena
+### Phase 6: Growable Arena
+
+Arena buffer is now dynamically growable using a platform-split strategy:
+
+**SDRAM targets (F429, H7, H7RS, H5):** Static max-sized buffer in fast internal RAM (`.ram` on F4, RAM_D1 on H7). Growth = increase `_capacity` within the pre-reserved buffer. No allocation, no copy, no pointer invalidation.
+
+**Non-SDRAM F4 + SIMU:** Heap-allocated via `malloc()`. Start at 1 KB initial size, grow via allocate-copy-free. Heap is in the same fast RAM on these targets.
+
+| Platform | Initial | Max | Mode |
+|----------|---------|-----|------|
+| STM32F4 non-SDRAM | 1024 | 6144 | heap |
+| STM32F429 (SDRAM) | 1024 | 8192 | static |
+| STM32H7/H7RS/H5 | 1024 | 32768 | static |
+| SIMU | 1024 | 65536 | heap |
+
+- ✅ 6.1: Platform constants (`MODEL_ARENA_INITIAL_SIZE`, `MODEL_ARENA_MAX_SIZE`, `ARENA_HEAP_GROWABLE`)
+- ✅ 6.2: ModelArena class — `_maxCapacity`, `_heapOwned`, `grow()`, `shrinkToFit()`, `release()`, `detachHeapBuffer()`
+- ✅ 6.3: `modelArenaInit()` — platform-split buffer allocation
+- ✅ 6.4: `insertSlot()`/`ensureSectionCapacity()` — auto-grow before failing
+- ✅ 6.5: `freeBytes()` → `_maxCapacity - _usedBytes`; add `currentFreeBytes()`
+- ✅ 6.6: YAML loading — `shrinkToFit()` after active model load; removed dead arena save/restore (only `PartialModel` reads use non-active buffers)
+- ✅ 6.7: RTC backup — cap at `MODEL_ARENA_INITIAL_SIZE`, bounds check in `packArenaForBackup()`
+- 6.8: GUI memory usage indicator (colorlcd + stdlcd)
+- ✅ 6.9: Tests — grow, grow-fail, shrink, shrink-skipped-below-initial, detach, freeBytes semantics
 
 ---
 
 ## Known Issues
 
-1. **modelslist `updateModelCell()`**: reads temp models via `readModelYaml()` with arena save/restore. Could be replaced with header-only read.
-
-2. ~~**stdlcd LS/CF editing beyond dyn count**~~: Fixed — stdlcd LS editors use `lswAllocAt` when entering edit mode; CF editors call `customFnAllocAt` to grow arena on demand before writing.
-
-3. **Future: eliminate `ramBackupUncompressed` buffer**: replace RLE with LZ4 streaming compression directly from live data. Would save ~4-8 KB on all platforms.
+1. **Future: eliminate `ramBackupUncompressed` buffer**: replace RLE with LZ4 streaming compression directly from live data. Would save ~4-8 KB on all platforms.
