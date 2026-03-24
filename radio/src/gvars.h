@@ -31,8 +31,8 @@
 #define MAX_GVARS                    9
 #endif
 
-// GVars have one value per flight mode
-#define GVAR_VALUE(gv, fm)           g_model.flightModeData[fm].gvars[gv]
+// GVars have one value per flight mode (stored in FlightModeData in arena)
+#define GVAR_VALUE(gv, fm)           flightModeAddress(fm)->gvars[gv]
 
 #if defined(GVARS)
     uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv);

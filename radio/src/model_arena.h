@@ -71,7 +71,7 @@
 // ---------------------------------------------------------------------------
 
 // Maximum number of sections any arena can have
-#define ARENA_MAX_SECTIONS 6
+#define ARENA_MAX_SECTIONS 9
 
 // Model arena section indices
 enum {
@@ -81,6 +81,9 @@ enum {
   ARENA_POINTS,
   ARENA_LOGICAL_SW,
   ARENA_CUSTOM_FN,
+  ARENA_FLIGHT_MODES,
+  ARENA_GVAR_DATA,
+  ARENA_GVAR_VALUES,
   MODEL_ARENA_NUM_SECTIONS
 };
 

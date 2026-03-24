@@ -162,7 +162,7 @@ void menuModelFlightModeOne(event_t event)
         if (attr && posHorz > 0 && s_currIdx==0) posHorz++;
 
         drawStringWithIndex(INDENT_WIDTH, y, STR_GV, idx+1, posHorz==0 ? attr : 0);
-        lcdDrawSizedText(4*FW, y,g_model.gvars[idx].name, LEN_GVAR_NAME, 0);
+        lcdDrawSizedText(4*FW, y,gvarDataAddress(idx)->name, LEN_GVAR_NAME, 0);
         if (attr && editMode>0 && posHorz==0) {
           s_currIdxSubMenu = sub - ITEM_MODEL_FLIGHT_MODE_GV1;
           editMode = 0;

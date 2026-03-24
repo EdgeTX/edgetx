@@ -517,7 +517,7 @@ void menuMainView(event_t event)
 
   // Flight Mode Name
   int mode = mixerCurrentFlightMode;
-  lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
+  lcdDrawSizedText(PHASE_X, PHASE_Y, flightModeAddress(mode)->name, sizeof(FlightModeData::name));
 
   // Model Name
   drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -618,7 +618,7 @@ void menuMainView(event_t event)
     lcdDrawFilledRect(BITMAP_X, BITMAP_Y, 64, 32, SOLID, ERASE);
     lcdDrawRect(BITMAP_X, BITMAP_Y, 64, 32);
     drawStringWithIndex(BITMAP_X+FW, BITMAP_Y+FH-1, STR_GV, gvarLastChanged+1);
-    lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
+    lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, gvarDataAddress(gvarLastChanged)->name, LEN_GVAR_NAME);
     lcdDrawText(BITMAP_X+FW, BITMAP_Y+2*FH+3, "[", BOLD);
     drawGVarValue(BITMAP_X+2*FW, BITMAP_Y+2*FH+3, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)), LEFT|BOLD);
     lcdDrawText(lcdLastRightPos, BITMAP_Y+2*FH+3, "]", BOLD);

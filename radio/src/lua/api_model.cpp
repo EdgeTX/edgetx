@@ -488,7 +488,7 @@ Clear all flightModes
 */
 static int luaModelDeleteFlightModes(lua_State *L)
 {
-  memset(g_model.flightModeData, 0, sizeof(g_model.flightModeData));
+  for (int i = 0; i < MAX_FLIGHT_MODES; i++) memset(flightModeAddress(i), 0, sizeof(FlightModeData));
   return 0;
 }
 
@@ -1772,12 +1772,12 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
   unsigned int idx = luaL_checkunsigned(L, 1);
   if (idx < MAX_GVARS) {
     lua_newtable(L);
-    lua_pushtablenstring(L, "name", g_model.gvars[idx].name);
-    lua_pushtableinteger(L, "min", GVAR_MIN + g_model.gvars[idx].min);
-    lua_pushtableinteger(L, "max", GVAR_MAX - g_model.gvars[idx].max);
-    lua_pushtableinteger(L, "prec", g_model.gvars[idx].prec);
-    lua_pushtableinteger(L, "unit", g_model.gvars[idx].unit);
-    lua_pushtableboolean(L, "popup", g_model.gvars[idx].popup);
+    lua_pushtablenstring(L, "name", gvarDataAddress(idx)->name);
+    lua_pushtableinteger(L, "min", GVAR_MIN + gvarDataAddress(idx)->min);
+    lua_pushtableinteger(L, "max", GVAR_MAX - gvarDataAddress(idx)->max);
+    lua_pushtableinteger(L, "prec", gvarDataAddress(idx)->prec);
+    lua_pushtableinteger(L, "unit", gvarDataAddress(idx)->unit);
+    lua_pushtableboolean(L, "popup", gvarDataAddress(idx)->popup);
   }
   else
     lua_pushnil(L);
@@ -1807,22 +1807,22 @@ static int luaModelSetGlobalVariableDetails(lua_State *L)
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
-        strncpy(g_model.gvars[idx].name, name, sizeof(g_model.gvars[idx].name));
+        strncpy(gvarDataAddress(idx)->name, name, sizeof(gvarDataAddress(idx)->name));
       }
       if (!strcmp(key, "min")) {
-        g_model.gvars[idx].min = luaL_checkinteger(L, -1) - GVAR_MIN;
+        gvarDataAddress(idx)->min = luaL_checkinteger(L, -1) - GVAR_MIN;
       }
       if (!strcmp(key, "max")) {
-        g_model.gvars[idx].max = GVAR_MAX - luaL_checkinteger(L, -1);
+        gvarDataAddress(idx)->max = GVAR_MAX - luaL_checkinteger(L, -1);
       }
       if (!strcmp(key, "unit")) {
-        g_model.gvars[idx].unit = luaL_checkinteger(L, -1);
+        gvarDataAddress(idx)->unit = luaL_checkinteger(L, -1);
       }
       if (!strcmp(key, "prec")) {
-        g_model.gvars[idx].prec = luaL_checkinteger(L, -1);
+        gvarDataAddress(idx)->prec = luaL_checkinteger(L, -1);
       }
       if (!strcmp(key, "popup")) {
-        g_model.gvars[idx].popup = lua_toboolean(L, -1);
+        gvarDataAddress(idx)->popup = lua_toboolean(L, -1);
       }
     }
     storageDirty(EE_MODEL);

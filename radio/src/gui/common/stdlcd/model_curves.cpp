@@ -71,7 +71,7 @@ void menuModelCurvesAll(event_t event)
       if (GVAR_SELECTED()) {
         if (attr && s_editMode>0) attr |= BLINK;
         lcdDrawNumber(10*FW, y, GVAR_VALUE(k-MAX_CURVES, -1), attr);
-        if (attr) g_model.gvars[k-MAX_CURVES] = checkIncDec(event, g_model.gvars[k-MAX_CURVES], -1000, 1000, EE_MODEL);
+        if (attr) *gvarDataAddress(k-MAX_CURVES) = checkIncDec(event, *gvarDataAddress(k-MAX_CURVES), -1000, 1000, EE_MODEL);
       }
     }
     else

@@ -253,7 +253,24 @@ void per10ms()
 
 FlightModeData *flightModeAddress(uint8_t idx)
 {
-  return &g_model.flightModeData[idx];
+  return reinterpret_cast<FlightModeData*>(
+    g_modelArena.sectionBase(ARENA_FLIGHT_MODES)) + idx;
+}
+
+GVarData *gvarDataAddress(uint8_t idx)
+{
+  return reinterpret_cast<GVarData*>(
+    g_modelArena.sectionBase(ARENA_GVAR_DATA)) + idx;
+}
+
+uint16_t getFlightModeCount()
+{
+  return g_modelArena.sectionCount(ARENA_FLIGHT_MODES);
+}
+
+uint16_t getGVarCount()
+{
+  return g_modelArena.sectionCount(ARENA_GVAR_DATA);
 }
 
 LimitData *limitAddress(uint8_t idx)
@@ -541,7 +558,7 @@ SourceRef getMovedSource()
 uint8_t getFlightMode()
 {
   for (uint8_t i=1; i<MAX_FLIGHT_MODES; i++) {
-    FlightModeData *phase = &g_model.flightModeData[i];
+    FlightModeData *phase = flightModeAddress(i);
     if (!phase->swtch.isNone() && getSwitch(phase->swtch)) {
       return i;
     }
@@ -1047,8 +1064,8 @@ void checkTrims()
 #if defined(GVARS)
     if (TRIM_REUSED(idx)) {
       int8_t gvar = trimGvar[idx];
-      int16_t vmin = GVAR_MIN + g_model.gvars[gvar].min;
-      int16_t vmax = GVAR_MAX - g_model.gvars[gvar].max;
+      int16_t vmin = GVAR_MIN + gvarDataAddress(gvar)->min;
+      int16_t vmax = GVAR_MAX - gvarDataAddress(gvar)->max;
       if (after < vmin) {
         after = vmin;
         beepTrim = false;
@@ -2053,7 +2070,7 @@ void getMixSrcRange(const SourceRef& source, int16_t & valMin, int16_t & valMax,
     case SOURCE_TYPE_GVAR:
       valMax = min<int>(CFN_GVAR_CST_MAX, MODEL_GVAR_MAX(source.index));
       valMin = max<int>(CFN_GVAR_CST_MIN, MODEL_GVAR_MIN(source.index));
-      if (flags && g_model.gvars[source.index].prec)
+      if (flags && gvarDataAddress(source.index)->prec)
         *flags |= PREC1;
       break;
 #endif

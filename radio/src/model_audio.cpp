@@ -96,7 +96,7 @@ bool matchModeAudioFile(const char* filename, int& index, int& event)
 {
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     auto* c = filename;
-    auto* fm_name = g_model.flightModeData[i].name;
+    auto* fm_name = flightModeAddress(i)->name;
     auto fm_name_len = strnlen(fm_name, LEN_FLIGHT_MODE_NAME);
     if (strncasecmp(c, fm_name, fm_name_len) != 0) continue;
     c += fm_name_len;

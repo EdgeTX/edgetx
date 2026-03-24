@@ -50,7 +50,7 @@ static int32_t getValueOrSourceFieldValue(const ValueOrSource& vs, int16_t min, 
     result = getValue(srcRef);
     if (srcRef.type == SOURCE_TYPE_GVAR) {
       // Mimic behaviour of GET_GVAR_PREC1
-      if (g_model.gvars[srcRef.index].prec == 0)
+      if (gvarDataAddress(srcRef.index)->prec == 0)
         result = result * 10;
     } else {
       result = calcRESXto1000(result);
@@ -1154,7 +1154,7 @@ void evalMixes(uint8_t tick10ms)
       fp_act[fm] = MAX_ACT;
     }
     else {
-      uint8_t fadeTime = max(g_model.flightModeData[lastFlightMode].fadeOut, g_model.flightModeData[fm].fadeIn);
+      uint8_t fadeTime = max(flightModeAddress(lastFlightMode)->fadeOut, flightModeAddress(fm)->fadeIn);
       uint16_t transitionMask = (0x01u << lastFlightMode) + (0x01u << fm);
       if (fadeTime) {
         flightModesFade |= transitionMask;

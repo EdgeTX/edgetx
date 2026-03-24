@@ -17,7 +17,7 @@ fi
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DDISABLE_COMPANION=YES -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
-rm -rf build && mkdir -p build && cd build
+mkdir -p build && cd build
 
 target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
@@ -33,9 +33,8 @@ do
         exit 1
     fi
 
+    rm -f CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     make native-configure
     make -C native yaml_data
-
-    rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done
