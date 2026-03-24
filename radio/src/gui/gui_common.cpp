@@ -413,7 +413,7 @@ uint16_t sourceTypeCount(uint8_t type)
       return MAX_OUTPUT_CHANNELS;
 #if defined(GVARS)
     case SOURCE_TYPE_GVAR:
-      return MAX_GVARS;
+      return getGVarCount();
 #endif
     case SOURCE_TYPE_TX_VOLTAGE:
     case SOURCE_TYPE_TX_TIME:

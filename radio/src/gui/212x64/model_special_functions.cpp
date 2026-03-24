@@ -275,7 +275,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
             if (validateSFGV(cfn)) storageDirty(eeFlags);
-            maxParam = MAX_GVARS-1;
+            maxParam = getGVarCount()-1;
             drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
             if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
             break;
@@ -435,7 +435,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                 sourceHandled = true;
                 break;
               case FUNC_ADJUST_GVAR_GVAR:
-                val_max = MAX_GVARS-1;
+                val_max = getGVarCount()-1;
                 drawStringWithIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_GV, val_displayed+1, attr);
                 break;
               default: // FUNC_ADJUST_GVAR_INC

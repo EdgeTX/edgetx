@@ -42,7 +42,7 @@ uint16_t SwitchChoice::switchTypeCount(uint8_t type)
     case SWITCH_TYPE_ONE:
       return 1;
     case SWITCH_TYPE_FLIGHT_MODE:
-      return MAX_FLIGHT_MODES;
+      return getFlightModeCount();
     case SWITCH_TYPE_TELEMETRY:
       return 1;
     case SWITCH_TYPE_SENSOR:

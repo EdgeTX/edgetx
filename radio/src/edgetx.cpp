@@ -557,7 +557,7 @@ SourceRef getMovedSource()
 #if defined(FLIGHT_MODES)
 uint8_t getFlightMode()
 {
-  for (uint8_t i=1; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=1; i<getFlightModeCount(); i++) {
     FlightModeData *phase = flightModeAddress(i);
     if (!phase->swtch.isNone() && getSwitch(phase->swtch)) {
       return i;
@@ -576,7 +576,7 @@ trim_t getRawTrimValue(uint8_t phase, uint8_t idx)
 int getTrimValue(uint8_t phase, uint8_t idx)
 {
   int result = 0;
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=0; i<getFlightModeCount(); i++) {
     trim_t v = getRawTrimValue(phase, idx);
     if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
       return result;
@@ -599,7 +599,7 @@ int getTrimValue(uint8_t phase, uint8_t idx)
 
 bool setTrimValue(uint8_t phase, uint8_t idx, int trim)
 {
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=0; i<getFlightModeCount(); i++) {
     trim_t & v = flightModeAddress(phase)->trim[idx];
     if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS)
       return false;
@@ -1443,7 +1443,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
     auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
     if (i != thrStick || !g_model.thrTrim) {
       int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);
-      for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
+      for (uint8_t fm=0; fm<getFlightModeCount(); fm++) {
         trim_t trim = getRawTrimValue(fm, i);
         if (trim.mode / 2 == fm)
           setTrimValue(fm, i, trim.value - original_trim);

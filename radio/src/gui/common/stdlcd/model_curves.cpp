@@ -46,7 +46,7 @@ void menuModelCurvesAll(event_t event)
   uint8_t old_editMode = s_editMode;
 
 #if defined(GVARS_IN_CURVES_SCREEN)
-  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES+MAX_GVARS);
+  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES+getGVarCount());
 #else
   SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES);
 #endif

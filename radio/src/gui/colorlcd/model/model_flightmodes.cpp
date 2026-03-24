@@ -41,7 +41,7 @@ static std::string getFMTrimStr(uint8_t mode, bool spacer)
   std::string str((mode & 1) ? "+" : "=");
   if (spacer) str += " ";
   mode >>= 1;
-  if (mode > MAX_FLIGHT_MODES - 1) mode = MAX_FLIGHT_MODES - 1;
+  if (mode > getFlightModeCount() - 1) mode = getFlightModeCount() - 1;
   str += '0' + mode;
   return str;
 }
@@ -87,7 +87,7 @@ class TrimEdit : public Window
 
     if (tr->mode != TRIM_MODE_NONE) tr_btn->check();
 
-    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * MAX_FLIGHT_MODES,
+    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * getFlightModeCount(),
                          GET_DEFAULT(tr->mode), [=](int val) {
                            tr->mode = val;
                            showControls();
@@ -481,7 +481,7 @@ void ModelFlightModesPage::build(Window* form)
   form->padAll(PAD_ZERO);
   form->padBottom(PAD_LARGE);
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (int i = 0; i < getFlightModeCount(); i++) {
     auto btn = new FlightModeBtn(form, i);
     lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_SMALL);
     btn->setWidth(ListLineButton::GRP_W);
@@ -493,7 +493,7 @@ void ModelFlightModesPage::build(Window* form)
   }
 
   trimCheck = new TextButton(
-      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_CHECKTRIMS, [&]() -> uint8_t {
+      form, rect_t{6, getFlightModeCount() * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_CHECKTRIMS, [&]() -> uint8_t {
         if (trimsCheckTimer)
           trimsCheckTimer = 0;
         else

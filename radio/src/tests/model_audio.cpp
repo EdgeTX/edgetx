@@ -25,6 +25,7 @@
 
 TEST(ModelAudio, flightModes)
 {
+  g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
   strncpy(flightModeAddress(0)->name, "One", LEN_FLIGHT_MODE_NAME);
   strncpy(flightModeAddress(1)->name, "Two", LEN_FLIGHT_MODE_NAME);
   strncpy(flightModeAddress(2)->name, "Three", LEN_FLIGHT_MODE_NAME);

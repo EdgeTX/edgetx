@@ -28,9 +28,9 @@ template <class T>
 FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
     ButtonMatrix(parent, r), input(input)
 {
-  initBtnMap(FM_COLS, MAX_FLIGHT_MODES);
+  initBtnMap(FM_COLS, getFlightModeCount());
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (int i = 0; i < getFlightModeCount(); i++) {
     setTextAndState(i);
   }
 
@@ -52,7 +52,7 @@ void FMMatrix<T>::setTextAndState(uint8_t btn_id)
 template <class T>
 void FMMatrix<T>::onPress(uint8_t btn_id)
 {
-  if (btn_id >= MAX_FLIGHT_MODES) return;
+  if (btn_id >= getFlightModeCount()) return;
   BFBIT_FLIP(input->flightModes, bfBit<uint32_t>(btn_id));
   setTextAndState(btn_id);
   storageDirty(EE_MODEL);
@@ -61,7 +61,7 @@ void FMMatrix<T>::onPress(uint8_t btn_id)
 template <class T>
 bool FMMatrix<T>::isActive(uint8_t btn_id)
 {
-  if (btn_id >= MAX_FLIGHT_MODES) return false;
+  if (btn_id >= getFlightModeCount()) return false;
   return !bfSingleBitGet(input->flightModes, btn_id);
 }
 

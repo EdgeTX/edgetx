@@ -38,7 +38,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
 
   // GVAR field
   gvar_field = new Choice(
-      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -MAX_GVARS, MAX_GVARS - 1,
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -getGVarCount(), getGVarCount() - 1,
       [=]() {
         return GV_INDEX_FROM_VALUE(getValue());
       },

@@ -26,7 +26,7 @@ uint8_t gvarLastChanged = 0;
 
 uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv) // TODO change params order to be consistent!
 {
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=0; i<getFlightModeCount(); i++) {
     if (fm == 0) return 0;
     int16_t val = GVAR_VALUE(gv, fm);
     if (val <= GVAR_MAX) return fm;

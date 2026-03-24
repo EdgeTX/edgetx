@@ -366,8 +366,8 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       g_modelArena.ensureSectionCapacity(ARENA_GVAR_DATA, MAX_GVARS);
       g_modelArena.ensureSectionCapacity(ARENA_GVAR_VALUES,
                                          MAX_FLIGHT_MODES * MAX_GVARS);
-      for (int p=1; p<MAX_FLIGHT_MODES; p++) {
-        for (int i=0; i<MAX_GVARS; i++) {
+      for (int p=1; p<getFlightModeCount(); p++) {
+        for (int i=0; i<getGVarCount(); i++) {
           GVAR_VALUE(i, p) = GVAR_MAX+1;
         }
       }

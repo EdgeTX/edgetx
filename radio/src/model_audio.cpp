@@ -94,7 +94,7 @@ void getLogicalSwitchAudioFile(char* filename, int index, unsigned int event)
 // Flight modes Audio Files <flightmodename>-[on|off].wav
 bool matchModeAudioFile(const char* filename, int& index, int& event)
 {
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (int i = 0; i < getFlightModeCount(); i++) {
     auto* c = filename;
     auto* fm_name = flightModeAddress(i)->name;
     auto fm_name_len = strnlen(fm_name, LEN_FLIGHT_MODE_NAME);
