@@ -167,11 +167,13 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
   uint8_t eeFlags = (functions == customFnAddress(0)) ? EE_MODEL : EE_GENERAL;
+  bool isModelFn = (eeFlags == EE_MODEL);
 
   // Reclaim trailing empty slots when exiting edit mode
-  if (eeFlags == EE_MODEL &&
-      (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT)))
-    customFnTrimTrailing();
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT)) {
+    if (isModelFn) customFnTrimTrailing();
+    else           globalFnTrimTrailing();
+  }
 
 #if defined(PCBTARANIS)
 #if defined(PCBXLITE)
@@ -180,17 +182,19 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 #else
   if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
 #endif
-    CustomFunctionData *cfn = &functions[sub];
+    CustomFunctionData *cfn = isModelFn ? customFnAddress(sub) : globalFnAddress(sub);
+    uint8_t fnCount = isModelFn ? getCustomFnCount() : getGlobalFnCount();
     if (!CFN_EMPTY(cfn))
       POPUP_MENU_ADD_ITEM(STR_COPY);
     if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION && isAssignableFunctionAvailable(clipboard.data.cfn.func))
       POPUP_MENU_ADD_ITEM(STR_PASTE);
-    if (!CFN_EMPTY(cfn) && CFN_EMPTY(&functions[MAX_SPECIAL_FUNCTIONS-1]))
+    if (!CFN_EMPTY(cfn) && fnCount < MAX_SPECIAL_FUNCTIONS)
       POPUP_MENU_ADD_ITEM(STR_INSERT);
     if (!CFN_EMPTY(cfn))
       POPUP_MENU_ADD_ITEM(STR_CLEAR);
-    for (int i=sub+1; i<MAX_SPECIAL_FUNCTIONS; i++) {
-      if (!CFN_EMPTY(&functions[i])) {
+    for (int i=sub+1; i<fnCount; i++) {
+      CustomFunctionData *fi = isModelFn ? customFnAddress(i) : globalFnAddress(i);
+      if (!CFN_EMPTY(fi)) {
         POPUP_MENU_ADD_ITEM(STR_DELETE);
         break;
       }
@@ -199,19 +203,23 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
   }
 #endif // PCBTARANIS
 
-  bool isModelFn = (eeFlags == EE_MODEL);
-
   for (uint8_t i=0; i<NUM_BODY_LINES; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     uint8_t k = i+menuVerticalOffset;
 
-    // Grow arena on demand when editing model functions
-    if (isModelFn && sub==k && s_editMode>0) {
-      CustomFunctionData* allocated = customFnAllocAt(k);
-      if (!allocated) continue;  // arena full
-      functions = customFnAddress(0);  // base may have shifted
+    // Grow arena on demand when editing
+    if (sub==k && s_editMode>0) {
+      if (isModelFn) {
+        CustomFunctionData* allocated = customFnAllocAt(k);
+        if (!allocated) continue;  // arena full
+        functions = customFnAddress(0);  // base may have shifted
+      } else {
+        CustomFunctionData* allocated = globalFnAllocAt(k);
+        if (!allocated) continue;  // arena full
+        functions = globalFnAddress(0);  // base may have shifted
+      }
     }
-    CustomFunctionData * cfn = isModelFn ? customFnAddress(k) : &functions[k];
+    CustomFunctionData * cfn = isModelFn ? customFnAddress(k) : globalFnAddress(k);
     uint8_t func = CFN_FUNC(cfn);
     for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);

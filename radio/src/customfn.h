@@ -49,6 +49,7 @@ void clearCustomFn(uint8_t idx);
 // ---- Radio (global) custom function accessors ----
 // Same pattern as model custom functions, backed by g_radioArena.
 
+uint8_t getGlobalFnCount();
 CustomFunctionData* globalFnAddress(uint8_t idx);
 CustomFunctionData* globalFnAllocAt(uint8_t idx);
 void globalFnTrimTrailing();
