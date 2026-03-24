@@ -153,6 +153,7 @@ void rambackupWrite()
   memset(ramBackupUncompressed.arena, 0, sizeof(ramBackupUncompressed.arena));
   uint32_t arenaUsed = packArenaForBackup(
       ramBackupUncompressed.arena, sizeof(ramBackupUncompressed.arena));
+  UNUSED(arenaUsed);
 
   ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data),
                              (const uint8_t *)&ramBackupUncompressed,
