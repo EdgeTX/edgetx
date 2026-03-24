@@ -64,6 +64,14 @@ bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref);
 bool isSourceAvailable(const SourceRef& ref);
+
+// Source type iteration
+uint16_t sourceTypeCount(uint8_t type);
+extern const uint8_t sourceTypeOrder[];
+extern const unsigned sourceTypeOrderCount;
+
+// Return the Nth available source matching the given type mask
+SourceRef nthAvailableSource(uint8_t n, SourceTypeMask allowedTypes);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);

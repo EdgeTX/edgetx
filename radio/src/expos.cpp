@@ -53,10 +53,10 @@ void insertExpo(uint8_t idx, uint8_t input)
   }
 
   ExpoData* expo = expoAddress(idx);
-  if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)input);
-  } else {
+  if (input < adcGetMaxInputs(ADC_INPUT_MAIN)) {
     expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingChannelOrder(input));
+  } else {
+    expo->srcRaw = nthAvailableSource(input, SRCMASK_INPUT & ~SRCMASK_NONE);
   }
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3;  // pos+neg

@@ -25,72 +25,10 @@
 #include "menutoolbar.h"
 #include "edgetx.h"
 
+// Delegate to the shared sourceTypeCount in gui_common
 uint16_t SourceChoice::sourceTypeCount(uint8_t type)
 {
-  switch (type) {
-    case SOURCE_TYPE_NONE:
-      return 1;
-    case SOURCE_TYPE_INPUT:
-      return MAX_INPUTS;
-#if defined(LUA_INPUTS)
-    case SOURCE_TYPE_LUA:
-      return MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS;
-#endif
-    case SOURCE_TYPE_STICK:
-      return MAX_STICKS;
-    case SOURCE_TYPE_POT:
-      return MAX_POTS;
-#if defined(IMU)
-    case SOURCE_TYPE_IMU:
-      return 2;
-#endif
-#if defined(PCBHORUS)
-    case SOURCE_TYPE_SPACEMOUSE:
-      return 6;
-#endif
-    case SOURCE_TYPE_MIN:
-      return 1;
-    case SOURCE_TYPE_MAX:
-      return 1;
-#if defined(HELI)
-    case SOURCE_TYPE_HELI:
-      return 3;
-#endif
-    case SOURCE_TYPE_TRIM:
-      return MAX_TRIMS;
-    case SOURCE_TYPE_SWITCH:
-      return MAX_SWITCHES;
-#if defined(FUNCTION_SWITCHES)
-    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP:
-      return NUM_FUNCTIONS_GROUPS;
-#endif
-    case SOURCE_TYPE_LOGICAL_SWITCH:
-      return MAX_LOGICAL_SWITCHES;
-    case SOURCE_TYPE_TRAINER:
-      return MAX_TRAINER_CHANNELS;
-    case SOURCE_TYPE_CHANNEL:
-      return MAX_OUTPUT_CHANNELS;
-#if defined(GVARS)
-    case SOURCE_TYPE_GVAR:
-      return MAX_GVARS;
-#endif
-    case SOURCE_TYPE_TX_VOLTAGE:
-      return 1;
-    case SOURCE_TYPE_TX_TIME:
-      return 1;
-    case SOURCE_TYPE_TX_GPS:
-      return 1;
-    case SOURCE_TYPE_TIMER:
-      return MAX_TIMERS;
-    case SOURCE_TYPE_TELEMETRY:
-      return 3 * MAX_TELEMETRY_SENSORS;
-#if defined(LUMINOSITY_SENSOR)
-    case SOURCE_TYPE_LIGHT:
-      return 1;
-#endif
-    default:
-      return 0;
-  }
+  return ::sourceTypeCount(type);
 }
 
 int SourceChoice::findEntry(SourceRef ref) const
