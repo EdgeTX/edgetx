@@ -48,7 +48,7 @@ git clone --recursive -b main https://github.com/EdgeTX/edgetx.git edgetx_main
 cd edgetx_main && mkdir build-output
 ```
 
-To build EdgeTX, we need to minimally specify the radio target, but can further select or de-select a number of build-time options. The following command will create a text-file list of all options for you to look at and saves it in current user home directory:
+To build EdgeTX, we need to minimally specify the radio target, but can further select or de-select a number of build-time options. A full list of available options is documented on the [Compilation Options](compilation-options.md) page. You can also generate a text-file list of all options by running:
 ```
 cmake -LAH -S . > ~/edgetx_main-cmake-options.txt
 ```
