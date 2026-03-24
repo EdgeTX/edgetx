@@ -106,6 +106,9 @@ YAML_ENSURE(fmd, ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES)
 YAML_GET_PTR(gvar_data, ARENA_GVAR_DATA)
 YAML_ENSURE(gvar_data, ARENA_GVAR_DATA, MAX_GVARS)
 
+YAML_GET_PTR(gvar_values, ARENA_GVAR_VALUES)
+YAML_ENSURE(gvar_values, ARENA_GVAR_VALUES, MAX_FLIGHT_MODES * MAX_GVARS)
+
 #undef YAML_GET_PTR
 #undef YAML_ENSURE
 
@@ -1496,13 +1499,10 @@ static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
     return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
   }
 
-  // assumes gvars array is last
-  bool is_active = !yaml_is_zero(data, bitoffs, offsetof(FlightModeData, gvars) << 3UL);
+  bool is_active = !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
 
-  data += bitoffs >> 3UL;
-  FlightModeData* fmd = (FlightModeData*)(data);
   for (uint8_t i = 0; i < MAX_GVARS; i++) {
-    is_active |= fmd->gvars[i] != GVAR_MAX + 1; // FM0 -> default
+    is_active |= GVAR_VALUE(i, idx) != GVAR_MAX + 1; // FM0 -> default
   }
 
   return is_active;

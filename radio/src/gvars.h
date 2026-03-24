@@ -31,8 +31,15 @@
 #define MAX_GVARS                    9
 #endif
 
-// GVars have one value per flight mode (stored in FlightModeData in arena)
-#define GVAR_VALUE(gv, fm)           flightModeAddress(fm)->gvars[gv]
+// GVars values stored in flat ARENA_GVAR_VALUES matrix (fm * numGVars + gv)
+#if !defined(YAML_GENERATOR)
+#include "edgetx_types.h"
+#include "model_arena.h"
+inline gvar_t& GVAR_VALUE(uint8_t gv, uint8_t fm) {
+  gvar_t* base = reinterpret_cast<gvar_t*>(g_modelArena.sectionBase(ARENA_GVAR_VALUES));
+  return base[fm * g_modelArena.sectionCount(ARENA_GVAR_DATA) + gv];
+}
+#endif
 
 #if defined(GVARS)
     uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv);

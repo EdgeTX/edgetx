@@ -364,9 +364,11 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       // Arena sections must be pre-allocated before YAML load
       g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
       g_modelArena.ensureSectionCapacity(ARENA_GVAR_DATA, MAX_GVARS);
+      g_modelArena.ensureSectionCapacity(ARENA_GVAR_VALUES,
+                                         MAX_FLIGHT_MODES * MAX_GVARS);
       for (int p=1; p<MAX_FLIGHT_MODES; p++) {
         for (int i=0; i<MAX_GVARS; i++) {
-          flightModeAddress(p)->gvars[i] = GVAR_MAX+1;
+          GVAR_VALUE(i, p) = GVAR_MAX+1;
         }
       }
 #endif
