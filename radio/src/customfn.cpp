@@ -23,6 +23,11 @@
 #include "edgetx.h"
 #include "model_arena.h"
 
+uint8_t getCustomFnCount()
+{
+  return g_modelArena.sectionCount(ARENA_CUSTOM_FN);
+}
+
 CustomFunctionData *customFnAddress(uint8_t idx)
 {
   if (idx >= g_modelArena.sectionCount(ARENA_CUSTOM_FN)) {
