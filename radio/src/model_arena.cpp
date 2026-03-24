@@ -31,16 +31,10 @@
 
 #if !ARENA_HEAP_GROWABLE
   // Static mode: max-sized buffer in fast internal RAM.
-  // On F4-SDRAM targets, force placement in internal SRAM (.ram section).
-  // On H7/H7RS, default BSS goes to RAM_D1 which is fast internal SRAM.
-  // Section attributes are only valid on ARM targets, not SIMU/Companion.
-  #if defined(STM32F4) && !defined(SIMU)
-    static uint8_t g_modelArenaBuf[MODEL_ARENA_MAX_SIZE]
-        __attribute__((section(".ram"), aligned(4)));
-  #else
-    static uint8_t g_modelArenaBuf[MODEL_ARENA_MAX_SIZE]
-        __attribute__((aligned(4)));
-  #endif
+  // BSS goes to internal RAM on all SDRAM targets (RAM on F429, RAM_D1 on H7),
+  // so no section attribute is needed — the buffer naturally lands in fast SRAM.
+  static uint8_t g_modelArenaBuf[MODEL_ARENA_MAX_SIZE]
+      __attribute__((aligned(4)));
 #endif
 
 ModelArena g_modelArena;
