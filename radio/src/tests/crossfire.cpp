@@ -48,6 +48,26 @@ TEST(Crossfire, crc8)
   ASSERT_EQ(frame[frame[1]+1], crc);
 }
 
+// A corrupted (bit-flipped) CRC must not match the computed value.
+TEST(Crossfire, crc8Mismatch)
+{
+  uint8_t frame[] = { 0x00, 0x0C, 0x14, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01, 0x03, 0x00, 0x00, 0x00, 0xF4 };
+  frame[frame[1] + 1] ^= 0xFF;  // corrupt the stored CRC byte
+  uint8_t crc = crc8(&frame[2], frame[1] - 1);
+  ASSERT_NE(frame[frame[1] + 1], crc);
+}
+
+// Single-byte data payload — boundary case for the CRC loop.
+TEST(Crossfire, crc8SingleByte)
+{
+  // frame[1] = 2 means length field = 2, so frame[1]-1 = 1 byte of data
+  uint8_t frame[4] = { 0x00, 0x02, 0xAB, 0x00 };
+  uint8_t crc = crc8(&frame[2], frame[1] - 1);
+  frame[frame[1] + 1] = crc;
+  // Re-check: freshly computed CRC must match the stored one
+  ASSERT_EQ(crc, crc8(&frame[2], frame[1] - 1));
+}
+
 #if defined(HARDWARE_EXTERNAL_MODULE)
 #include "pulses/crossfire.h"
 

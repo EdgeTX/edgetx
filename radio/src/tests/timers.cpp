@@ -180,6 +180,24 @@ TEST(Timers, timerThrottleRelative)
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_STOPPED,-111));
 }
 
+// A non-persistent timer must not write its running value into the model on save.
+TEST(Timers, timerNonPersistentNotSaved)
+{
+  g_model.timers[0].persistent = 0;
+  timerSet(0, 500);
+  saveTimers();
+  EXPECT_EQ(g_model.timers[0].value, 0);
+}
+
+// After a persistent timer reaches TIMER_MAX it must not overflow/wrap.
+TEST(Timers, timerAtMaxDoesNotOverflow)
+{
+  initModelTimer(0, TMRMODE_ON, 0);
+  timerSet(0, TIMER_MAX);
+  // Running another 100 seconds must leave the timer clamped at TIMER_MAX.
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING, TIMER_MAX));
+}
+
 TEST(Timers, timerThrottleTriggered)
 {
   initModelTimer(0, TMRMODE_THR_START, 0);
