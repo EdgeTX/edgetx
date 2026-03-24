@@ -88,7 +88,7 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_size(lvobj, lv_pct(100), LV_SIZE_CONTENT);
 
-  new SourceChoice(
+  auto src = new SourceChoice(
       this, rect_t{},
       [=]() { return input->srcRaw; },
       [=](SourceRef ref) {
@@ -96,6 +96,9 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
         update();
         SET_DIRTY();
       }, true);
+  src->setAvailableHandler([](SourceRef ref) {
+    return ref.type != SOURCE_TYPE_INPUT && ref.type != SOURCE_TYPE_LUA;
+  });
 
   sensor_form = new Window(this, rect_t{});
   sensor_form->padAll(PAD_TINY);

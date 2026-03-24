@@ -103,7 +103,7 @@ void menuModelExpoOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
         drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
         if (attr && menuHorizontalPosition==0) {
-          ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL,
+          ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_INPUT,
               isSourceAvailable);
         }
         if (ed->srcRaw.type == SOURCE_TYPE_TELEMETRY) {
