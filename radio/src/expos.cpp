@@ -43,6 +43,11 @@ ExpoData* expoAllocAt(uint8_t idx) {
 
 uint8_t getExpoCount() { return _nb_expo_lines; }
 
+constexpr SourceTypeMask insertExpoMask =
+  SRC_TYPE_BIT(SOURCE_TYPE_STICK) |
+  SRC_TYPE_BIT(SOURCE_TYPE_POT) |
+  SRC_TYPE_BIT(SOURCE_TYPE_SWITCH);
+
 void insertExpo(uint8_t idx, uint8_t input)
 {
   mixerTaskStop();
@@ -56,7 +61,7 @@ void insertExpo(uint8_t idx, uint8_t input)
   if (input < adcGetMaxInputs(ADC_INPUT_MAIN)) {
     expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingChannelOrder(input));
   } else {
-    expo->srcRaw = nthAvailableSource(input, SRCMASK_INPUT & ~SRCMASK_NONE);
+    expo->srcRaw = nthAvailableSource(input, insertExpoMask);
   }
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3;  // pos+neg
