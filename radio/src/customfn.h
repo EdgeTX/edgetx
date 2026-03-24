@@ -45,3 +45,13 @@ void deleteCustomFn(uint8_t idx);
 
 // Clear a single special function at 'idx'
 void clearCustomFn(uint8_t idx);
+
+// ---- Radio (global) custom function accessors ----
+// Same pattern as model custom functions, backed by g_radioArena.
+
+CustomFunctionData* globalFnAddress(uint8_t idx);
+CustomFunctionData* globalFnAllocAt(uint8_t idx);
+void globalFnTrimTrailing();
+void insertGlobalFn(uint8_t idx);
+void deleteGlobalFn(uint8_t idx);
+void clearGlobalFn(uint8_t idx);

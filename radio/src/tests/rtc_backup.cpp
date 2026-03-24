@@ -41,11 +41,15 @@ static constexpr uint32_t ARENA_SIZE_FORMULA =
 // Must match the cap in rtc_backup.cpp
 static constexpr uint32_t ARENA_SIZE =
     ARENA_SIZE_FORMULA < MODEL_ARENA_SIZE ? ARENA_SIZE_FORMULA : MODEL_ARENA_SIZE;
+static constexpr uint32_t RADIO_ARENA_BKP_SIZE =
+    MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData);
 PACK(struct RamBackupUncompressed {
   ModelData model;
-  ::ModelDynData arenaCounts;
+  uint16_t arenaCounts[MODEL_ARENA_NUM_SECTIONS];
   uint8_t arena[ARENA_SIZE];
   RadioData radio;
+  uint16_t radioArenaCounts[RADIO_ARENA_NUM_SECTIONS];
+  uint8_t radioArena[RADIO_ARENA_BKP_SIZE];
 });
 #undef BACKUP
 };

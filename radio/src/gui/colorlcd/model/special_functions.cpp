@@ -1003,7 +1003,7 @@ class GlobalFunctionLineButton : public FunctionLineButton
 {
  public:
   GlobalFunctionLineButton(Window *parent, const rect_t &rect, uint8_t index) :
-      FunctionLineButton(parent, rect, &g_eeGeneral.customFn[index], index,
+      FunctionLineButton(parent, rect, globalFnAddress(index), index,
                          "GF")
   {
   }
@@ -1039,7 +1039,7 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
   CustomFunctionData *customFunctionData() const override
   {
-    return &g_eeGeneral.customFn[index];
+    return globalFnAddress(index);
   }
 
   bool isAssignableFunctionAvailable(int function) const override
@@ -1053,13 +1053,13 @@ class GlobalFunctionEditPage : public FunctionEditPage
 //-----------------------------------------------------------------------------
 
 GlobalFunctionsPage::GlobalFunctionsPage(const PageDef& pageDef) :
-    FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
+    FunctionsPage(globalFnAddress(0), pageDef, "GF")
 {
 }
 
 CustomFunctionData *GlobalFunctionsPage::customFunctionData(uint8_t index) const
 {
-  return &g_eeGeneral.customFn[index];
+  return globalFnAddress(index);
 }
 
 FunctionEditPage *GlobalFunctionsPage::editPage(uint8_t index) const

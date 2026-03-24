@@ -603,7 +603,7 @@ static const char * getScriptName(uint8_t idx)
     return customFnAddress(ref - SCRIPT_FUNC_FIRST)->play.name;
   }
   else if (ref <= SCRIPT_GFUNC_LAST) {
-    return g_eeGeneral.customFn[ref - SCRIPT_GFUNC_FIRST].play.name;
+    return globalFnAddress(ref - SCRIPT_GFUNC_FIRST)->play.name;
   }
 #if defined(PCBTARANIS)
   else if (ref <= SCRIPT_TELEMETRY_LAST) {
@@ -671,7 +671,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
   }
   else if (radioGFEnabled()) {
     idx = ref - SCRIPT_GFUNC_FIRST;
-    fn = &g_eeGeneral.customFn[idx];
+    fn = globalFnAddress(idx);
   }
   else
     return false;
@@ -1138,7 +1138,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           } else {
             if (!radioGFEnabled()) continue;
             idx = ref - SCRIPT_GFUNC_FIRST;
-            fn = &g_eeGeneral.customFn[idx];
+            fn = globalFnAddress(idx);
             functionsContext = &globalFunctionsContext;
           }
 

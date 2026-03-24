@@ -87,9 +87,9 @@
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
-// Initialize arena early - must happen before any model data access
+// Initialize arenas early - must happen before any model/radio data access
 static struct ArenaAutoInit {
-  ArenaAutoInit() { modelArenaInit(); }
+  ArenaAutoInit() { modelArenaInit(); radioArenaInit(); }
 } _arenaAutoInit;
 
 Clipboard clipboard;

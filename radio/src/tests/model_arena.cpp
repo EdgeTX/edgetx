@@ -28,7 +28,7 @@ class ArenaTest : public testing::Test {
   void SetUp() override {
     memset(buf, 0, sizeof(buf));
     // maxCapacity = capacity — no growth beyond the stack buffer
-    arena.attach(buf, TEST_ARENA_SIZE, TEST_ARENA_SIZE);
+    arena.attach(&modelArenaDesc, buf, TEST_ARENA_SIZE, TEST_ARENA_SIZE);
   }
 };
 
@@ -42,15 +42,15 @@ TEST_F(ArenaTest, AttachSetsCapacity)
 
 TEST_F(ArenaTest, LayoutComputesOffsets)
 {
-  ModelDynData dyn = {};
-  dyn.mixCount = 3;
-  dyn.expoCount = 2;
-  dyn.curveCount = 1;
-  dyn.pointsCount = 5;
-  dyn.logicalSwCount = 4;
-  dyn.customFnCount = 2;
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 3;
+  counts[ARENA_EXPOS] = 2;
+  counts[ARENA_CURVES] = 1;
+  counts[ARENA_POINTS] = 5;
+  counts[ARENA_LOGICAL_SW] = 4;
+  counts[ARENA_CUSTOM_FN] = 2;
 
-  arena.layout(dyn);
+  arena.layout(counts);
 
   EXPECT_EQ(arena.sectionOffset(ARENA_MIXES), (uint32_t)0);
   EXPECT_EQ(arena.sectionOffset(ARENA_EXPOS), 3u * sizeof(MixData));
@@ -70,10 +70,10 @@ TEST_F(ArenaTest, LayoutComputesOffsets)
 
 TEST_F(ArenaTest, ClearZerosDataPreservesLayout)
 {
-  ModelDynData dyn = {};
-  dyn.mixCount = 2;
-  dyn.expoCount = 1;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 2;
+  counts[ARENA_EXPOS] = 1;
+  arena.layout(counts);
 
   // Write some data
   buf[0] = 0xAA;
@@ -94,9 +94,9 @@ TEST_F(ArenaTest, ClearZerosDataPreservesLayout)
 TEST_F(ArenaTest, InsertSlotShiftsData)
 {
   // Set up a small layout
-  ModelDynData dyn = {};
-  dyn.mixCount = 2;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 2;
+  arena.layout(counts);
 
   // Write known data to mix slots
   MixData* mix0 = reinterpret_cast<MixData*>(arena.sectionBase(ARENA_MIXES));
@@ -115,9 +115,9 @@ TEST_F(ArenaTest, InsertSlotShiftsData)
 
 TEST_F(ArenaTest, DeleteSlotShiftsData)
 {
-  ModelDynData dyn = {};
-  dyn.mixCount = 3;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 3;
+  arena.layout(counts);
 
   MixData* mix = reinterpret_cast<MixData*>(arena.sectionBase(ARENA_MIXES));
   mix[0].destCh = 1;
@@ -133,20 +133,20 @@ TEST_F(ArenaTest, DeleteSlotShiftsData)
 TEST_F(ArenaTest, InsertSlotFailsWhenFull)
 {
   // Fill the arena completely
-  ModelDynData dyn = {};
-  dyn.mixCount = TEST_ARENA_SIZE / sizeof(MixData);
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = TEST_ARENA_SIZE / sizeof(MixData);
+  arena.layout(counts);
 
   EXPECT_FALSE(arena.insertSlot(0, sizeof(MixData)));
 }
 
 TEST_F(ArenaTest, InsertInSectionUpdatesSubsequentOffsets)
 {
-  ModelDynData dyn = {};
-  dyn.mixCount = 2;
-  dyn.expoCount = 2;
-  dyn.curveCount = 1;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 2;
+  counts[ARENA_EXPOS] = 2;
+  counts[ARENA_CURVES] = 1;
+  arena.layout(counts);
 
   uint32_t expoOffBefore = arena.sectionOffset(ARENA_EXPOS);
   uint32_t curveOffBefore = arena.sectionOffset(ARENA_CURVES);
@@ -163,10 +163,10 @@ TEST_F(ArenaTest, InsertInSectionUpdatesSubsequentOffsets)
 
 TEST_F(ArenaTest, DeleteFromSectionUpdatesSubsequentOffsets)
 {
-  ModelDynData dyn = {};
-  dyn.mixCount = 3;
-  dyn.expoCount = 2;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 3;
+  counts[ARENA_EXPOS] = 2;
+  arena.layout(counts);
 
   uint32_t expoOffBefore = arena.sectionOffset(ARENA_EXPOS);
 
@@ -593,8 +593,8 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
 
   // Clear model and arena completely
   memset(&g_model, 0, sizeof(g_model));
-  ModelDynData emptyDyn = {};
-  g_modelArena.layout(emptyDyn);
+  uint16_t emptyCounts[MODEL_ARENA_NUM_SECTIONS] = {};
+  g_modelArena.layout(emptyCounts);
   g_modelArena.clear();
   EXPECT_EQ(g_modelArena.sectionCount(ARENA_MIXES), 0);
   EXPECT_EQ(g_modelArena.usedBytes(), (uint32_t)0);
@@ -745,11 +745,11 @@ TEST_F(GrowableArenaTest, GrowOnInsert)
   uint8_t* buf = (uint8_t*)malloc(INITIAL);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, INITIAL);
-  arena.attach(buf, INITIAL, MAX);
+  arena.attach(&modelArenaDesc, buf, INITIAL, MAX);
   arena.setHeapOwned(true);
 
-  ModelDynData dyn = {};
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  arena.layout(counts);
 
   // Fill the initial buffer with mixes
   uint32_t maxInInitial = INITIAL / sizeof(MixData);
@@ -772,11 +772,11 @@ TEST_F(GrowableArenaTest, GrowFailsAtMax)
   uint8_t* buf = (uint8_t*)malloc(SIZE);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, SIZE);
-  arena.attach(buf, SIZE, SIZE);
+  arena.attach(&modelArenaDesc, buf, SIZE, SIZE);
   arena.setHeapOwned(true);
 
-  ModelDynData dyn = {};
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  arena.layout(counts);
 
   // Fill completely
   uint32_t maxMixes = SIZE / sizeof(MixData);
@@ -796,12 +796,12 @@ TEST_F(GrowableArenaTest, ShrinkToFit)
   uint8_t* buf = (uint8_t*)malloc(INITIAL);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, INITIAL);
-  arena.attach(buf, INITIAL, MAX);
+  arena.attach(&modelArenaDesc, buf, INITIAL, MAX);
   arena.setHeapOwned(true);
 
-  ModelDynData dyn = {};
-  dyn.mixCount = 2;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 2;
+  arena.layout(counts);
   MixData* mix = (MixData*)arena.sectionBase(ARENA_MIXES);
   mix[0].destCh = 5;
   mix[1].destCh = 10;
@@ -824,12 +824,12 @@ TEST_F(GrowableArenaTest, ShrinkSkippedBelowInitial)
   uint8_t* buf = (uint8_t*)malloc(MODEL_ARENA_INITIAL_SIZE);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, MODEL_ARENA_INITIAL_SIZE);
-  arena.attach(buf, MODEL_ARENA_INITIAL_SIZE, MAX);
+  arena.attach(&modelArenaDesc, buf, MODEL_ARENA_INITIAL_SIZE, MAX);
   arena.setHeapOwned(true);
 
-  ModelDynData dyn = {};
-  dyn.mixCount = 1;
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  counts[ARENA_MIXES] = 1;
+  arena.layout(counts);
 
   uint32_t capBefore = arena.capacity();
   EXPECT_TRUE(arena.shrinkToFit(64));
@@ -843,11 +843,11 @@ TEST_F(GrowableArenaTest, FreeBytesReflectsMaxCapacity)
   uint8_t* buf = (uint8_t*)malloc(INITIAL);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, INITIAL);
-  arena.attach(buf, INITIAL, MAX);
+  arena.attach(&modelArenaDesc, buf, INITIAL, MAX);
   arena.setHeapOwned(true);
 
-  ModelDynData dyn = {};
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  arena.layout(counts);
 
   // freeBytes reflects maxCapacity, not current capacity
   EXPECT_EQ(arena.freeBytes(), MAX);
@@ -865,7 +865,7 @@ TEST_F(GrowableArenaTest, DetachHeapBuffer)
   uint8_t* buf = (uint8_t*)malloc(SIZE);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, SIZE);
-  arena.attach(buf, SIZE, SIZE);
+  arena.attach(&modelArenaDesc, buf, SIZE, SIZE);
   arena.setHeapOwned(true);
 
   EXPECT_TRUE(arena.isHeapOwned());
@@ -886,11 +886,11 @@ TEST_F(GrowableArenaTest, EnsureSectionCapacityGrows)
   uint8_t* buf = (uint8_t*)malloc(INITIAL);
   ASSERT_NE(buf, nullptr);
   memset(buf, 0, INITIAL);
-  arena.attach(buf, INITIAL, MAX);
+  arena.attach(&modelArenaDesc, buf, INITIAL, MAX);
   arena.setHeapOwned(true);
 
-  ModelDynData dyn = {};
-  arena.layout(dyn);
+  uint16_t counts[MODEL_ARENA_NUM_SECTIONS] = {};
+  arena.layout(counts);
 
   // Request more logical switches than fit in initial buffer
   uint16_t count = (INITIAL / sizeof(LogicalSwitchData)) + 5;
