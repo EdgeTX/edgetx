@@ -1184,7 +1184,7 @@ void evalMixes(uint8_t tick10ms)
   int32_t weight = 0;
   if (flightModesFade) {
     memclear(sum_chans512, sizeof(sum_chans512));
-    for (uint8_t p=0; p<MAX_FLIGHT_MODES; p++) {
+    for (uint8_t p=0; p<getFlightModeCount(); p++) {
       if (flightModesFade & (0x01 << p)) {
         mixerCurrentFlightMode = p;
         evalFlightModeMixes(p==fm ? e_perout_mode_normal : e_perout_mode_inactive_flight_mode, p==fm ? tick10ms : 0);
@@ -1264,7 +1264,7 @@ void evalMixes(uint8_t tick10ms)
 
   if (tick10ms && flightModesFade) {
     uint16_t tick_delta = delta * tick10ms;
-    for (uint8_t p=0; p<MAX_FLIGHT_MODES; p++) {
+    for (uint8_t p=0; p<getFlightModeCount(); p++) {
       uint16_t flightModeMask = (0x01 << p);
       if (flightModesFade & flightModeMask) {
         if (p == fm) {

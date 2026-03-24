@@ -537,7 +537,7 @@ void ModelGVarsPage::build(Window* window)
     yo = GVarHeader::HDR_H;
   }
 
-  for (uint8_t index = 0; index < MAX_GVARS; index++) {
+  for (uint8_t index = 0; index < getGVarCount(); index++) {
     auto button = new GVarButton(window, index);
     lv_obj_set_pos(button->getLvObj(), 0, yo + index * (GVarButton::BTN_H + PAD_OUTLINE));
     button->setPressHandler([=]() {

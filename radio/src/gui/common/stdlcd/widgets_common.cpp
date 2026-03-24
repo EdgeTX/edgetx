@@ -528,7 +528,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
     attr &= ~PREC1;
     int8_t idx = (int16_t)GV_INDEX_FROM_VALUE(value);
     if (invers) {
-      CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
+      CHECK_INCDEC_MODELVAR(event, idx, -getGVarCount(), getGVarCount()-1);
     }
     value = (int16_t)GV_VALUE_FROM_INDEX(idx);
     drawGVarName(x, y, idx, attr);

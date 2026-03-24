@@ -177,7 +177,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
   const lv_font_t* font = getFont(FONT(XS));
   label_dsc.font = font;
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (int i = 0; i < getFlightModeCount(); i++) {
     char s[] = " ";
     s[0] = '0' + i;
     if (fm_modes & (1 << i)) {

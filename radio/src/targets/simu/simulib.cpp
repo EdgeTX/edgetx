@@ -692,7 +692,7 @@ int32_t simuGetFlightMode()
 uint8_t simuGetNumGVars()
 {
 #if defined(GVARS)
-  return MAX_GVARS;
+  return getGVarCount();
 #else
   return 0;
 #endif
@@ -700,13 +700,13 @@ uint8_t simuGetNumGVars()
 
 uint8_t simuGetNumFlightModes()
 {
-  return MAX_FLIGHT_MODES;
+  return getFlightModeCount();
 }
 
 int32_t simuGetGVar(uint8_t gv, uint8_t fm)
 {
 #if defined(GVARS)
-  if (gv < MAX_GVARS && fm < MAX_FLIGHT_MODES) {
+  if (gv < getGVarCount() && fm < getFlightModeCount()) {
     uint8_t prec = gvarDataAddress(gv)->prec;
     uint8_t unit = gvarDataAddress(gv)->unit;
     int16_t value = (int16_t)GVAR_VALUE(gv, getGVarFlightMode(fm, gv));

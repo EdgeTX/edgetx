@@ -353,7 +353,7 @@ char *getGVarString(char *dest, int idx)
     idx = -idx - 1;
   }
 
-  if (idx >= MAX_GVARS) {
+  if (idx >= getGVarCount()) {
     s[0] = '\0';
     return s;
   }
@@ -563,7 +563,7 @@ uint32_t getSwitchIndex(const char* name, bool all)
     { SWITCH_TYPE_LOGICAL,        MAX_LOGICAL_SWITCHES },
     { SWITCH_TYPE_ON,             1 },
     { SWITCH_TYPE_ONE,            1 },
-    { SWITCH_TYPE_FLIGHT_MODE,    MAX_FLIGHT_MODES },
+    { SWITCH_TYPE_FLIGHT_MODE,    getFlightModeCount() },
     { SWITCH_TYPE_TELEMETRY,      1 },
     { SWITCH_TYPE_SENSOR,         MAX_TELEMETRY_SENSORS },
     { SWITCH_TYPE_RADIO_ACTIVITY, 1 },
@@ -955,7 +955,7 @@ uint32_t getSourceIndex(const char* name, bool all)
     { SOURCE_TYPE_LOGICAL_SWITCH, MAX_LOGICAL_SWITCHES,   false },
     { SOURCE_TYPE_TRAINER,        MAX_TRAINER_CHANNELS,   false },
     { SOURCE_TYPE_CHANNEL,        MAX_OUTPUT_CHANNELS,    true },
-    { SOURCE_TYPE_GVAR,           MAX_GVARS,              true },
+    { SOURCE_TYPE_GVAR,           getGVarCount(),          true },
     { SOURCE_TYPE_TX_VOLTAGE,     1,                      false },
     { SOURCE_TYPE_TX_TIME,        1,                      false },
     { SOURCE_TYPE_TX_GPS,         1,                      false },

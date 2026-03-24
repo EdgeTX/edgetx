@@ -1445,7 +1445,7 @@ is not specified (or contains invalid value), then the current flight mode data 
 static int luaGetFlightMode(lua_State * L)
 {
   int mode = luaL_optinteger(L, 1, -1);
-  if (mode < 0 || mode >= MAX_FLIGHT_MODES) {
+  if (mode < 0 || mode >= getFlightModeCount()) {
     mode = mixerCurrentFlightMode;
   }
   lua_pushinteger(L, mode);
@@ -2736,8 +2736,9 @@ static int luaNextSwitch(lua_State * L)
   uint32_t last = luaL_checkinteger(L, 1);
   uint32_t packed = luaL_checkinteger(L, 2);
 
-  // Ensure runtime count is up to date
+  // Ensure runtime counts are up to date
   luaSwitchTypes[0].count = switchGetMaxAllSwitches() * 3;
+  luaSwitchTypes[6].count = getFlightModeCount();  // SWITCH_TYPE_FLIGHT_MODE
 
   SwitchRef cur = SwitchRef::fromUint32(packed);
 

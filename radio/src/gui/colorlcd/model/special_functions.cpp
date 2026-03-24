@@ -534,7 +534,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
     case FUNC_ADJUST_GVAR: {
       if (validateSFGV(cfn)) SET_DIRTY();
       new StaticText(line, rect_t{}, STR_GLOBALVAR);
-      auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
+      auto gvarchoice = new Choice(line, rect_t{}, 0, getGVarCount() - 1,
                                    GET_DEFAULT(CFN_GVAR_INDEX(cfn)),
                                    [=](int32_t newValue){
                                      CFN_GVAR_INDEX(cfn) = newValue;
@@ -588,7 +588,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           break;
         case FUNC_ADJUST_GVAR_GVAR: {
           new StaticText(line, rect_t{}, STR_GLOBALVAR);
-          auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
+          auto gvarchoice = new Choice(line, rect_t{}, 0, getGVarCount() - 1,
                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
           gvarchoice->setTextHandler([](int32_t value) {
             return std::string(getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)value)));

@@ -1289,12 +1289,12 @@ TEST_F(GVarLimitTest, EncodingRoundTrip)
 TEST_F(GVarLimitTest, GVarEncodingRoundTrip)
 {
   // Verify gvar index encoding round-trip
-  for (int idx = 0; idx < MAX_GVARS; idx++) {
+  for (int idx = 0; idx < getGVarCount(); idx++) {
     int16_t encoded = GV_VALUE_FROM_INDEX(idx);
     EXPECT_TRUE(GV_IS_GV_VALUE(encoded)) << "idx=" << idx;
     EXPECT_EQ(GV_INDEX_FROM_VALUE(encoded), idx) << "idx=" << idx;
   }
-  for (int idx = -1; idx >= -MAX_GVARS; idx--) {
+  for (int idx = -1; idx >= -getGVarCount(); idx--) {
     int16_t encoded = GV_VALUE_FROM_INDEX(idx);
     EXPECT_TRUE(GV_IS_GV_VALUE(encoded)) << "idx=" << idx;
     EXPECT_EQ(GV_INDEX_FROM_VALUE(encoded), idx) << "idx=" << idx;

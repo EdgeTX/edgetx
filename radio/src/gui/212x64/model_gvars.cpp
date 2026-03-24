@@ -127,7 +127,7 @@ void menuModelGVars(event_t event)
 
   if (after2seconds) {
     menuTitle = STR_GVARS;
-    for (int i=0; i<MAX_GVARS; i++) {
+    for (int i=0; i<getGVarCount(); i++) {
       drawStringWithIndex(GVARS_FM_COLUMN(i), 1, STR_FM, i, SMLSIZE|(getFlightMode()==i ? INVERS : 0));
     }
   }
@@ -135,7 +135,7 @@ void menuModelGVars(event_t event)
     menuTitle = STR_MENU_GLOBAL_VARS;
   }
 
- MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, MAX_GVARS,
+ MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, getGVarCount(),
            { colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount() });
 
   int sub = menuVerticalPosition;

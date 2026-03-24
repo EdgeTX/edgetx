@@ -488,7 +488,7 @@ Clear all flightModes
 */
 static int luaModelDeleteFlightModes(lua_State *L)
 {
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) memset(flightModeAddress(i), 0, sizeof(FlightModeData));
+  for (int i = 0; i < getFlightModeCount(); i++) memset(flightModeAddress(i), 0, sizeof(FlightModeData));
   return 0;
 }
 
@@ -518,7 +518,7 @@ Return input data for given input and line number
 static int luaModelGetFlightMode(lua_State * L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_FLIGHT_MODES) {
+  if (idx < getFlightModeCount()) {
     FlightModeData * fm = flightModeAddress(idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", fm->name);
@@ -563,7 +563,7 @@ static int luaModelSetFlightMode(lua_State * L)
 {
   unsigned int flightMode = luaL_checkinteger(L, 1);
 
-  if (flightMode >= MAX_FLIGHT_MODES) {
+  if (flightMode >= getFlightModeCount()) {
     lua_pushinteger(L, 2);
     return 1;
   }
@@ -1720,7 +1720,7 @@ static int luaModelGetGlobalVariable(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   unsigned int phase = luaL_checkinteger(L, 2);
-  if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS)
+  if (phase < getFlightModeCount() && idx < getGVarCount())
     lua_pushinteger(L, getGVarValue(idx, phase));
   else
     lua_pushnil(L);
@@ -1748,7 +1748,7 @@ static int luaModelSetGlobalVariable(lua_State *L)
   unsigned int idx = luaL_checkinteger(L, 1);
   unsigned int phase = luaL_checkinteger(L, 2);
   int value = luaL_checkinteger(L, 3);
-  if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS && value >= -GVAR_MAX && value <= GVAR_MAX) {
+  if (phase < getFlightModeCount() && idx < getGVarCount() && value >= -GVAR_MAX && value <= GVAR_MAX) {
     SET_GVAR(idx, value, phase);
     storageDirty(EE_MODEL);
   }
@@ -1770,7 +1770,7 @@ static int luaModelSetGlobalVariable(lua_State *L)
 static int luaModelGetGlobalVariableDetails(lua_State *L)
 {
   unsigned int idx = luaL_checkunsigned(L, 1);
-  if (idx < MAX_GVARS) {
+  if (idx < getGVarCount()) {
     lua_newtable(L);
     lua_pushtablenstring(L, "name", gvarDataAddress(idx)->name);
     lua_pushtableinteger(L, "min", GVAR_MIN + gvarDataAddress(idx)->min);
@@ -1800,7 +1800,7 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
 static int luaModelSetGlobalVariableDetails(lua_State *L)
 {
   unsigned int idx = luaL_checkunsigned(L, 1);
-  if (idx < MAX_GVARS) {
+  if (idx < getGVarCount()) {
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string

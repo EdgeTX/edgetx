@@ -1501,7 +1501,7 @@ static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 
   bool is_active = !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
 
-  for (uint8_t i = 0; i < MAX_GVARS; i++) {
+  for (uint8_t i = 0; i < getGVarCount(); i++) {
     is_active |= GVAR_VALUE(i, idx) != GVAR_MAX + 1; // FM0 -> default
   }
 
