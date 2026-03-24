@@ -547,8 +547,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 #if defined(GVARS)
 void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t flightMode, LcdFlags flags)
 {
-  FlightModeData * fm = flightModeAddress(flightMode);
-  gvar_t * v = &fm->gvars[gvar];
+  gvar_t * v = &GVAR_VALUE(gvar, flightMode);
   int16_t vmin, vmax;
   if (*v > GVAR_MAX) {
     uint8_t fm = *v - GVAR_MAX - 1;

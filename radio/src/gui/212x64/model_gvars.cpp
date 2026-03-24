@@ -105,7 +105,7 @@ void onGVARSMenu(const char * result)
   }
   else if (result == STR_CLEAR) {
     for (int i=0; i<MAX_FLIGHT_MODES; i++) {
-      flightModeAddress(i)->gvars[sub] = 0;
+      GVAR_VALUE(sub, i) = 0;
     }
     storageDirty(EE_MODEL);
   }
@@ -147,8 +147,7 @@ void menuModelGVars(event_t event)
     drawGVarName(0, y, i, (sub==i && menuHorizontalPosition<0) ? INVERS : 0);
 
     for (int j=0; j<numFlightModes(); j++) {
-      FlightModeData * fm = flightModeAddress(j);
-      gvar_t v = fm->gvars[i];
+      gvar_t v = GVAR_VALUE(i, j);
 
       LcdFlags attr = ((sub == i && menuHorizontalPosition == j) ? (s_editMode > 0 ? BLINK | INVERS : INVERS) : 0);
       coord_t x = GVARS_FM_COLUMN(j);

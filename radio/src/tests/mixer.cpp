@@ -1320,7 +1320,7 @@ TEST_F(GVarLimitTest, GVarInOffset)
   mix->weight.setNumeric(100);
 
   // Set GV1 = 200 (offset in tenths, so 20.0)
-  flightModeAddress(0)->gvars[0] = 200;
+  GVAR_VALUE(0, 0) = 200;
 
   // Set limit offset to GV1 (index 0)
   LimitData *ld = limitAddress(0);
@@ -1343,8 +1343,8 @@ TEST_F(GVarLimitTest, GVarInMinMax)
   mix->weight.setNumeric(100);
 
   // GV1 = 800 (in tenths: 80.0%), GV2 = -500 (in tenths: -50.0%)
-  flightModeAddress(0)->gvars[0] = 800;
-  flightModeAddress(0)->gvars[1] = -500;
+  GVAR_VALUE(0, 0) = 800;
+  GVAR_VALUE(1, 0) = -500;
 
   LimitData *ld = limitAddress(0);
 
@@ -1371,7 +1371,7 @@ TEST_F(GVarLimitTest, MixerAppliesGVarLimits)
   mix->weight.setNumeric(100);
 
   // GV1 = 50 -> LIMIT_MAX = prec1(50) = 500 -> calc1000toRESX(500) = 512
-  flightModeAddress(0)->gvars[0] = 50;
+  GVAR_VALUE(0, 0) = 50;
   LimitData *ld = limitAddress(0);
   ld->max = GV_VALUE_FROM_INDEX(0);
   ld->min = GV_ENCODE(0);  // min at default (0 + offset = -100%)

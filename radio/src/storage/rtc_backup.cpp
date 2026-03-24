@@ -39,7 +39,8 @@ static constexpr uint32_t ARENA_SIZE_FORMULA =
     MAX_LOGICAL_SWITCHES * sizeof(LogicalSwitchData) +
     MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData) +
     MAX_FLIGHT_MODES * sizeof(FlightModeData) +
-    MAX_GVARS * sizeof(GVarData);
+    MAX_GVARS * sizeof(GVarData) +
+    MAX_FLIGHT_MODES * MAX_GVARS * sizeof(gvar_t);
 static constexpr uint32_t ARENA_SIZE =
     ARENA_SIZE_FORMULA < MODEL_ARENA_SIZE ? ARENA_SIZE_FORMULA : MODEL_ARENA_SIZE;
 
@@ -116,6 +117,18 @@ static uint32_t packArenaForBackup(uint8_t* dst, uint32_t dstSize)
   PACK_SECTION(ARENA_FLIGHT_MODES, FlightModeData, Backup::FlightModeData, copyFlightModeData);
   PACK_SECTION(ARENA_GVAR_DATA, GVarData, Backup::GVarData, copyGVarData);
 
+  // GVar values (raw gvar_t, no NOBACKUP fields)
+  {
+    uint16_t nGvarValues = g_modelArena.sectionCount(ARENA_GVAR_VALUES);
+    uint32_t nBytes = nGvarValues * sizeof(gvar_t);
+    if (dst + nBytes > end) {
+      TRACE("RamBackup: arena overflow at gvar values section");
+      goto pack_done;
+    }
+    memcpy(dst, g_modelArena.sectionBase(ARENA_GVAR_VALUES), nBytes);
+    dst += nBytes;
+  }
+
 pack_done:
 #undef PACK_SECTION
   return dst - start;
@@ -144,6 +157,14 @@ static void unpackArenaFromBackup(const uint8_t* src)
   UNPACK_SECTION(ARENA_CUSTOM_FN, CustomFunctionData, Backup::CustomFunctionData, copyCustomFunctionData);
   UNPACK_SECTION(ARENA_FLIGHT_MODES, FlightModeData, Backup::FlightModeData, copyFlightModeData);
   UNPACK_SECTION(ARENA_GVAR_DATA, GVarData, Backup::GVarData, copyGVarData);
+
+  // GVar values (raw gvar_t, no NOBACKUP fields)
+  {
+    uint16_t nGvarValues = g_modelArena.sectionCount(ARENA_GVAR_VALUES);
+    memcpy(g_modelArena.sectionBase(ARENA_GVAR_VALUES), src,
+           nGvarValues * sizeof(gvar_t));
+    src += nGvarValues * sizeof(gvar_t);
+  }
 
 #undef UNPACK_SECTION
 }

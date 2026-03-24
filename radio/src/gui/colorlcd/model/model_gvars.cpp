@@ -101,8 +101,7 @@ class GVarButton : public ListLineButton
       }
 
       for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
-        FlightModeData* fmData = flightModeAddress(flightMode);
-        if (values[flightMode] != fmData->gvars[index]) {
+        if (values[flightMode] != GVAR_VALUE(index, flightMode)) {
           updateValueText(flightMode);
         }
       }
@@ -148,7 +147,7 @@ class GVarButton : public ListLineButton
   void updateValueText(uint8_t flightMode)
   {
     lv_obj_t* field = valueTexts[flightMode];
-    gvar_t value = flightModeAddress(flightMode)->gvars[index];
+    gvar_t value = GVAR_VALUE(index, flightMode);
     values[flightMode] = value;
 
     if (value > GVAR_MAX) {
@@ -311,14 +310,13 @@ class GVarEditWindow : public Page
     Page::checkEvents();
 
     auto curFM = getFlightMode();
-    auto fmData = flightModeAddress(curFM);
 
     if (gVarInHeader && ((lastFlightMode != curFM) ||
-                         (lastGVar != fmData->gvars[index]) || refreshTitle)) {
+                         (lastGVar != GVAR_VALUE(index, curFM)) || refreshTitle)) {
       char label[32];
       refreshTitle = false;
       lastFlightMode = curFM;
-      lastGVar = fmData->gvars[index];
+      lastGVar = GVAR_VALUE(index, curFM);
       sprintf(label, "%s=", getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)index)));
       if (lastGVar > GVAR_MAX) {
         uint8_t fm = lastGVar - GVAR_MAX - 1;
@@ -356,17 +354,15 @@ class GVarEditWindow : public Page
       min->update();
       max->update();
     }
-    FlightModeData* fmData;
     for (int fm = 0; fm < numFlightModes(); fm++) {
       if (values[fm] == nullptr)  // KLK: the order of calls has changed and
                                   // this might not be initialized yet.
         continue;
 
       if (onlyForFlightMode >= 0 && fm != onlyForFlightMode) continue;
-      fmData = flightModeAddress(fm);
 
       // custom value
-      if (fmData->gvars[index] <= GVAR_MAX || fm == 0) {
+      if (GVAR_VALUE(index, fm) <= GVAR_MAX || fm == 0) {
         values[fm]->setMin(GVAR_MIN + gvar->min);
         values[fm]->setMax(GVAR_MAX - gvar->max);
         // Update value if outside min/max range
@@ -472,11 +468,8 @@ class GVarEditWindow : public Page
 
     line = window->newLine(grid);
     char flightModeName[16];
-    FlightModeData* fmData;
 
     for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
-      fmData = flightModeAddress(flightMode);
-
       if (modelFMEnabled()) {
         getFMExtName(flightModeName, flightMode + 1);
         new StaticText(line, rect_t{}, flightModeName);
@@ -486,9 +479,9 @@ class GVarEditWindow : public Page
 
       if (flightMode > 0) {
         auto cb = new ToggleSwitch(
-            line, rect_t{}, [=] { return fmData->gvars[index] <= GVAR_MAX; },
+            line, rect_t{}, [=] { return GVAR_VALUE(index, flightMode) <= GVAR_MAX; },
             [=](uint8_t checked) {
-              fmData->gvars[index] = checked ? 0 : GVAR_MAX + 1;
+              GVAR_VALUE(index, flightMode) = checked ? 0 : GVAR_MAX + 1;
               setProperties(flightMode);
             });
         lv_obj_set_style_grid_cell_x_align(cb->getLvObj(), LV_GRID_ALIGN_END,
@@ -500,7 +493,8 @@ class GVarEditWindow : public Page
 
       values[flightMode] = new NumberEdit(
           line, rect_t{}, GVAR_MIN + gvar->min, GVAR_MAX + MAX_FLIGHT_MODES - 1,
-          GET_SET_DEFAULT(fmData->gvars[index]));
+          [=]() -> int32_t { return GVAR_VALUE(index, flightMode); },
+          [=](int32_t v) { GVAR_VALUE(index, flightMode) = v; SET_DIRTY(); });
       values[flightMode]->setAccelFactor(16);
       line = window->newLine(grid);
     }
@@ -554,7 +548,7 @@ void ModelGVarsPage::build(Window* window)
       });
       menu->addLine(STR_CLEAR, [=]() {
         for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-          flightModeAddress(i)->gvars[index] = 0;
+          GVAR_VALUE(index, i) = 0;
         }
         storageDirty(EE_MODEL);
       });

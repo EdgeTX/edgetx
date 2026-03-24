@@ -168,7 +168,7 @@ void menuModelFlightModeOne(event_t event)
           editMode = 0;
           pushMenu(menuModelGVarOne);
         }
-        int16_t v = fm->gvars[idx];
+        int16_t v = GVAR_VALUE(idx, s_currIdx);
         if (v > GVAR_MAX) {
           uint8_t p = v - GVAR_MAX - 1;
           if (p >= s_currIdx) p++;
@@ -182,7 +182,7 @@ void menuModelFlightModeOne(event_t event)
           v = checkIncDec(event, v, GVAR_MAX, GVAR_MAX+MAX_FLIGHT_MODES-1, EE_MODEL);
           if (checkIncDec_Ret) {
             if (v == GVAR_MAX) v = 0;
-            fm->gvars[idx] = v;
+            GVAR_VALUE(idx, s_currIdx) = v;
           }
         }
         editGVarValue(17*FW, y, event, idx, getGVarFlightMode(s_currIdx, idx), posHorz==2 ? attr : 0);
