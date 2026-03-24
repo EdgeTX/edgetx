@@ -363,6 +363,131 @@ bool isSourceAvailable(const SourceRef& ref)
   }
 }
 
+uint16_t sourceTypeCount(uint8_t type)
+{
+  switch (type) {
+    case SOURCE_TYPE_NONE:
+      return 1;
+    case SOURCE_TYPE_INPUT:
+      return MAX_INPUTS;
+#if defined(LUA_INPUTS)
+    case SOURCE_TYPE_LUA:
+      return MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS;
+#endif
+    case SOURCE_TYPE_STICK:
+      return adcGetMaxInputs(ADC_INPUT_MAIN);
+    case SOURCE_TYPE_POT:
+      return adcGetMaxInputs(ADC_INPUT_FLEX);
+#if defined(IMU)
+    case SOURCE_TYPE_IMU:
+      return 2;
+#endif
+#if defined(PCBHORUS)
+    case SOURCE_TYPE_SPACEMOUSE:
+      return 6;
+#endif
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+      return 1;
+#if defined(LUMINOSITY_SENSOR)
+    case SOURCE_TYPE_LIGHT:
+      return 1;
+#endif
+#if defined(HELI)
+    case SOURCE_TYPE_HELI:
+      return 3;
+#endif
+    case SOURCE_TYPE_TRIM:
+      return keysGetMaxTrims();
+    case SOURCE_TYPE_SWITCH:
+      return switchGetMaxSwitches();
+#if defined(FUNCTION_SWITCHES)
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP:
+      return NUM_FUNCTIONS_GROUPS;
+#endif
+    case SOURCE_TYPE_LOGICAL_SWITCH:
+      return MAX_LOGICAL_SWITCHES;
+    case SOURCE_TYPE_TRAINER:
+      return MAX_TRAINER_CHANNELS;
+    case SOURCE_TYPE_CHANNEL:
+      return MAX_OUTPUT_CHANNELS;
+#if defined(GVARS)
+    case SOURCE_TYPE_GVAR:
+      return MAX_GVARS;
+#endif
+    case SOURCE_TYPE_TX_VOLTAGE:
+    case SOURCE_TYPE_TX_TIME:
+    case SOURCE_TYPE_TX_GPS:
+      return 1;
+    case SOURCE_TYPE_TIMER:
+      return MAX_TIMERS;
+    case SOURCE_TYPE_TELEMETRY:
+      return 3 * MAX_TELEMETRY_SENSORS;
+    default:
+      return 0;
+  }
+}
+
+// Source type iteration order
+const uint8_t sourceTypeOrder[] = {
+  SOURCE_TYPE_NONE,
+  SOURCE_TYPE_INPUT,
+#if defined(LUA_INPUTS)
+  SOURCE_TYPE_LUA,
+#endif
+  SOURCE_TYPE_STICK,
+  SOURCE_TYPE_POT,
+#if defined(IMU)
+  SOURCE_TYPE_IMU,
+#endif
+#if defined(PCBHORUS)
+  SOURCE_TYPE_SPACEMOUSE,
+#endif
+  SOURCE_TYPE_MIN,
+  SOURCE_TYPE_MAX,
+#if defined(LUMINOSITY_SENSOR)
+  SOURCE_TYPE_LIGHT,
+#endif
+#if defined(HELI)
+  SOURCE_TYPE_HELI,
+#endif
+  SOURCE_TYPE_TRIM,
+  SOURCE_TYPE_SWITCH,
+#if defined(FUNCTION_SWITCHES)
+  SOURCE_TYPE_CUSTOM_SWITCH_GROUP,
+#endif
+  SOURCE_TYPE_LOGICAL_SWITCH,
+  SOURCE_TYPE_TRAINER,
+  SOURCE_TYPE_CHANNEL,
+#if defined(GVARS)
+  SOURCE_TYPE_GVAR,
+#endif
+  SOURCE_TYPE_TX_VOLTAGE,
+  SOURCE_TYPE_TX_TIME,
+  SOURCE_TYPE_TX_GPS,
+  SOURCE_TYPE_TIMER,
+  SOURCE_TYPE_TELEMETRY,
+};
+const unsigned sourceTypeOrderCount = DIM(sourceTypeOrder);
+
+SourceRef nthAvailableSource(uint8_t n, SourceTypeMask allowedTypes)
+{
+  uint8_t count = 0;
+  for (unsigned t = 0; t < sourceTypeOrderCount; t++) {
+    uint8_t type = sourceTypeOrder[t];
+    if (!(allowedTypes & SRC_TYPE_BIT(type))) continue;
+    uint16_t maxIdx = sourceTypeCount(type);
+    for (uint16_t i = 0; i < maxIdx; i++) {
+      SourceRef ref = SourceRef_(type, i);
+      if (isSourceAvailable(ref)) {
+        if (count == n) return ref;
+        count++;
+      }
+    }
+  }
+  return SourceRef_(SOURCE_TYPE_STICK, 0);
+}
+
 bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref)
 {
   switch (ref.type) {

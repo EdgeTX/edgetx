@@ -52,47 +52,6 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, Lcd
   return editCheckBox(value, x, y, label, attr, event, 0);
 }
 
-// Source/switch type iteration tables
-static const struct { uint8_t type; uint16_t count; } sourceTypes[] = {
-  {SOURCE_TYPE_NONE, 1},
-  {SOURCE_TYPE_INPUT, MAX_INPUTS},
-#if defined(LUA_INPUTS)
-  {SOURCE_TYPE_LUA, MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
-#endif
-  {SOURCE_TYPE_STICK, MAX_STICKS},
-  {SOURCE_TYPE_POT, MAX_POTS},
-#if defined(IMU)
-  {SOURCE_TYPE_IMU, 2},
-#endif
-#if defined(PCBHORUS)
-  {SOURCE_TYPE_SPACEMOUSE, 6},
-#endif
-  {SOURCE_TYPE_MIN, 1},
-  {SOURCE_TYPE_MAX, 1},
-#if defined(LUMINOSITY_SENSOR)
-  {SOURCE_TYPE_LIGHT, 1},
-#endif
-#if defined(HELI)
-  {SOURCE_TYPE_HELI, 3},
-#endif
-  {SOURCE_TYPE_TRIM, MAX_TRIMS},
-  {SOURCE_TYPE_SWITCH, MAX_SWITCHES},
-#if defined(FUNCTION_SWITCHES)
-  {SOURCE_TYPE_CUSTOM_SWITCH_GROUP, NUM_FUNCTIONS_GROUPS},
-#endif
-  {SOURCE_TYPE_LOGICAL_SWITCH, MAX_LOGICAL_SWITCHES},
-  {SOURCE_TYPE_TRAINER, MAX_TRAINER_CHANNELS},
-  {SOURCE_TYPE_CHANNEL, MAX_OUTPUT_CHANNELS},
-#if defined(GVARS)
-  {SOURCE_TYPE_GVAR, MAX_GVARS},
-#endif
-  {SOURCE_TYPE_TX_VOLTAGE, 1},
-  {SOURCE_TYPE_TX_TIME, 1},
-  {SOURCE_TYPE_TX_GPS, 1},
-  {SOURCE_TYPE_TIMER, MAX_TIMERS},
-  {SOURCE_TYPE_TELEMETRY, 3 * MAX_TELEMETRY_SENSORS},
-};
-
 static const struct { uint8_t type; uint16_t count; } switchTypes[] = {
   {SWITCH_TYPE_NONE, 1},
   {SWITCH_TYPE_SWITCH, (uint16_t)(switchGetMaxSwitches() * 3)},
@@ -113,23 +72,19 @@ static const struct { uint8_t type; uint16_t count; } switchTypes[] = {
 // Find next valid SourceRef in the enumeration
 static SourceRef nextSource(SourceRef cur)
 {
-  // Find current position in sourceTypes table
-  for (unsigned t = 0; t < DIM(sourceTypes); t++) {
-    if (sourceTypes[t].type == cur.type) {
+  for (unsigned t = 0; t < sourceTypeOrderCount; t++) {
+    if (sourceTypeOrder[t] == cur.type) {
       // Try next index in same type
-      if (cur.index + 1 < sourceTypes[t].count) {
-        SourceRef next = SourceRef_(cur.type, (uint16_t)(cur.index + 1));
+      uint16_t count = sourceTypeCount(cur.type);
+      for (uint16_t i = cur.index + 1; i < count; i++) {
+        SourceRef next = SourceRef_(cur.type, i);
         if (isSourceAvailable(next)) return next;
-        // Skip unavailable, try further
-        for (uint16_t i = cur.index + 2; i < sourceTypes[t].count; i++) {
-          next.index = i;
-          if (isSourceAvailable(next)) return next;
-        }
       }
       // Move to next type
-      for (unsigned nt = t + 1; nt < DIM(sourceTypes); nt++) {
-        for (uint16_t i = 0; i < sourceTypes[nt].count; i++) {
-          SourceRef next = SourceRef_(sourceTypes[nt].type, i);
+      for (unsigned nt = t + 1; nt < sourceTypeOrderCount; nt++) {
+        uint16_t ntCount = sourceTypeCount(sourceTypeOrder[nt]);
+        for (uint16_t i = 0; i < ntCount; i++) {
+          SourceRef next = SourceRef_(sourceTypeOrder[nt], i);
           if (isSourceAvailable(next)) return next;
         }
       }
@@ -142,19 +97,18 @@ static SourceRef nextSource(SourceRef cur)
 // Find previous valid SourceRef in the enumeration
 static SourceRef prevSource(SourceRef cur)
 {
-  for (unsigned t = 0; t < DIM(sourceTypes); t++) {
-    if (sourceTypes[t].type == cur.type) {
+  for (unsigned t = 0; t < sourceTypeOrderCount; t++) {
+    if (sourceTypeOrder[t] == cur.type) {
       // Try previous index in same type
-      if (cur.index > 0) {
-        for (int16_t i = cur.index - 1; i >= 0; i--) {
-          SourceRef prev = SourceRef_(cur.type, (uint16_t)i);
-          if (isSourceAvailable(prev)) return prev;
-        }
+      for (int16_t i = cur.index - 1; i >= 0; i--) {
+        SourceRef prev = SourceRef_(cur.type, (uint16_t)i);
+        if (isSourceAvailable(prev)) return prev;
       }
       // Move to previous type
       for (int nt = t - 1; nt >= 0; nt--) {
-        for (int16_t i = sourceTypes[nt].count - 1; i >= 0; i--) {
-          SourceRef prev = SourceRef_(sourceTypes[nt].type, (uint16_t)i);
+        int16_t ntCount = (int16_t)sourceTypeCount(sourceTypeOrder[nt]);
+        for (int16_t i = ntCount - 1; i >= 0; i--) {
+          SourceRef prev = SourceRef_(sourceTypeOrder[nt], (uint16_t)i);
           if (isSourceAvailable(prev)) return prev;
         }
       }
@@ -210,15 +164,11 @@ static bool s_switchPopupPending = false;
 static SourceRef firstAvailableSourceOfType(uint8_t type,
     std::function<bool(SourceRef)> available)
 {
-  for (unsigned t = 0; t < DIM(sourceTypes); t++) {
-    if (sourceTypes[t].type == type) {
-      for (uint16_t i = 0; i < sourceTypes[t].count; i++) {
-        SourceRef ref = SourceRef_(type, i);
-        if (!available || available(ref))
-          return ref;
-      }
-      break;
-    }
+  uint16_t count = sourceTypeCount(type);
+  for (uint16_t i = 0; i < count; i++) {
+    SourceRef ref = SourceRef_(type, i);
+    if (!available || available(ref))
+      return ref;
   }
   return {};
 }
