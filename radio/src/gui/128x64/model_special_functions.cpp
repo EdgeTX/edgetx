@@ -213,7 +213,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
       if (!allocated) continue;  // arena full
       functions = customFnAddress(0);  // base may have shifted
     }
-    CustomFunctionData * cfn = &functions[k];
+    CustomFunctionData * cfn = isModelFn ? customFnAddress(k) : &functions[k];
     uint8_t func = CFN_FUNC(cfn);
     for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);
@@ -575,7 +575,8 @@ void menuModelSpecialFunctions(event_t event)
     menuHorizontalPosition = 0;
   }
 #endif
-  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
+  uint8_t sfCount = min<uint8_t>(getCustomFnCount() + 1, MAX_SPECIAL_FUNCTIONS);
+  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+sfCount, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
 
   menuSpecialFunctions(event, customFnAddress(0), &modelFunctionsContext);
 

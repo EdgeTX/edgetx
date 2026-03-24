@@ -25,6 +25,9 @@
 
 struct CustomFunctionData;
 
+// Get the number of allocated model special functions
+uint8_t getCustomFnCount();
+
 // Get a pointer to a model special function (read-only; returns dummy if out of range)
 CustomFunctionData* customFnAddress(uint8_t idx);
 
