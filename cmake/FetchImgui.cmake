@@ -6,6 +6,8 @@ FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
   GIT_TAG        dbb5eeaadffb6a3ba6a60de1290312e5802dba5a # v1.91.8
+  GIT_SHALLOW    TRUE
+  UPDATE_DISCONNECTED TRUE
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -21,7 +23,7 @@ add_library(imgui STATIC
   ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp
 )
 
-include_directories(
+target_include_directories(imgui PUBLIC
   ${imgui_SOURCE_DIR}
   ${imgui_SOURCE_DIR}/backends
 )
