@@ -41,11 +41,17 @@ static constexpr uint32_t ARENA_SIZE_FORMULA =
 static constexpr uint32_t ARENA_SIZE =
     ARENA_SIZE_FORMULA < MODEL_ARENA_SIZE ? ARENA_SIZE_FORMULA : MODEL_ARENA_SIZE;
 
+// Radio arena backup: only custom functions
+static constexpr uint32_t RADIO_ARENA_BKP_SIZE =
+    MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData);
+
 PACK(struct RamBackupUncompressed {
   ModelData model;
-  ::ModelDynData arenaCounts;  // arena section counts (not part of ModelData)
+  uint16_t arenaCounts[MODEL_ARENA_NUM_SECTIONS];
   uint8_t arena[ARENA_SIZE];
   RadioData radio;
+  uint16_t radioArenaCounts[RADIO_ARENA_NUM_SECTIONS];
+  uint8_t radioArena[RADIO_ARENA_BKP_SIZE];
 });
 #undef BACKUP
 };
@@ -142,25 +148,30 @@ void rambackupWrite()
   copyModelData(&ramBackupUncompressed.model, &g_model);
 
   // Save arena section counts
-  ramBackupUncompressed.arenaCounts.mixCount = g_modelArena.sectionCount(ARENA_MIXES);
-  ramBackupUncompressed.arenaCounts.expoCount = g_modelArena.sectionCount(ARENA_EXPOS);
-  ramBackupUncompressed.arenaCounts.curveCount = g_modelArena.sectionCount(ARENA_CURVES);
-  ramBackupUncompressed.arenaCounts.pointsCount = g_modelArena.sectionCount(ARENA_POINTS);
-  ramBackupUncompressed.arenaCounts.logicalSwCount = g_modelArena.sectionCount(ARENA_LOGICAL_SW);
-  ramBackupUncompressed.arenaCounts.customFnCount = g_modelArena.sectionCount(ARENA_CUSTOM_FN);
+  memcpy(ramBackupUncompressed.arenaCounts, g_modelArena.counts(),
+         sizeof(ramBackupUncompressed.arenaCounts));
 
-  // Pack arena elements into backup format (strips NOBACKUP fields)
+  // Pack model arena elements into backup format (strips NOBACKUP fields)
   memset(ramBackupUncompressed.arena, 0, sizeof(ramBackupUncompressed.arena));
-  uint32_t arenaUsed = packArenaForBackup(
-      ramBackupUncompressed.arena, sizeof(ramBackupUncompressed.arena));
-  UNUSED(arenaUsed);
+  packArenaForBackup(ramBackupUncompressed.arena,
+                     sizeof(ramBackupUncompressed.arena));
+
+  // Pack radio arena (custom functions only)
+  memcpy(ramBackupUncompressed.radioArenaCounts, g_radioArena.counts(),
+         sizeof(ramBackupUncompressed.radioArenaCounts));
+  memset(ramBackupUncompressed.radioArena, 0, sizeof(ramBackupUncompressed.radioArena));
+  {
+    uint16_t n = g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN);
+    auto* live = (CustomFunctionData*)g_radioArena.sectionBase(RADIO_ARENA_CUSTOM_FN);
+    auto* bkp = (Backup::CustomFunctionData*)ramBackupUncompressed.radioArena;
+    for (uint16_t i = 0; i < n; i++) copyCustomFunctionData(&bkp[i], &live[i]);
+  }
 
   ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data),
                              (const uint8_t *)&ramBackupUncompressed,
                              sizeof(ramBackupUncompressed));
 
-  TRACE("RamBackupWrite arenaUsed=%d backupsize=%d rlcsize=%d",
-        (int)arenaUsed,
+  TRACE("RamBackupWrite backupsize=%d rlcsize=%d",
         (int)sizeof(Backup::RamBackupUncompressed), ramBackup->size);
 }
 
@@ -178,10 +189,20 @@ bool rambackupRestore()
   copyRadioData(&g_eeGeneral, &ramBackupUncompressed.radio);
   copyModelData(&g_model, &ramBackupUncompressed.model);
 
-  // Restore arena layout from saved counts, clear (zeros NOBACKUP fields), then unpack
+  // Restore model arena layout from saved counts, clear (zeros NOBACKUP fields), then unpack
   g_modelArena.layout(ramBackupUncompressed.arenaCounts);
   g_modelArena.clear();
   unpackArenaFromBackup(ramBackupUncompressed.arena);
+
+  // Restore radio arena (custom functions)
+  g_radioArena.layout(ramBackupUncompressed.radioArenaCounts);
+  g_radioArena.clear();
+  {
+    uint16_t n = g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN);
+    auto* bkp = (Backup::CustomFunctionData*)ramBackupUncompressed.radioArena;
+    auto* live = (CustomFunctionData*)g_radioArena.sectionBase(RADIO_ARENA_CUSTOM_FN);
+    for (uint16_t i = 0; i < n; i++) copyCustomFunctionData(&live[i], &bkp[i]);
+  }
 
   return true;
 }

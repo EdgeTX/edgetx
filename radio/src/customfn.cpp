@@ -78,3 +78,51 @@ void clearCustomFn(uint8_t idx)
   memset(customFnAddress(idx), 0, sizeof(CustomFunctionData));
   storageDirty(EE_MODEL);
 }
+
+// ---- Radio (global) custom function accessors ----
+
+CustomFunctionData *globalFnAddress(uint8_t idx)
+{
+  if (idx >= g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN)) {
+    static CustomFunctionData dummy = {};
+    memset(&dummy, 0, sizeof(dummy));
+    return &dummy;
+  }
+  return reinterpret_cast<CustomFunctionData*>(
+      g_radioArena.sectionBase(RADIO_ARENA_CUSTOM_FN)) + idx;
+}
+
+CustomFunctionData *globalFnAllocAt(uint8_t idx)
+{
+  if (idx >= g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN)) {
+    if (!g_radioArena.ensureSectionCapacity(RADIO_ARENA_CUSTOM_FN, idx + 1))
+      return nullptr;
+  }
+  return globalFnAddress(idx);
+}
+
+void globalFnTrimTrailing()
+{
+  g_radioArena.trimTrailingEmpty(RADIO_ARENA_CUSTOM_FN, customFnIsEmpty);
+}
+
+void insertGlobalFn(uint8_t idx)
+{
+  if (!g_radioArena.insertInSection(RADIO_ARENA_CUSTOM_FN, idx,
+                                     sizeof(CustomFunctionData)))
+    return;
+  storageDirty(EE_GENERAL);
+}
+
+void deleteGlobalFn(uint8_t idx)
+{
+  g_radioArena.deleteFromSection(RADIO_ARENA_CUSTOM_FN, idx,
+                                  sizeof(CustomFunctionData));
+  storageDirty(EE_GENERAL);
+}
+
+void clearGlobalFn(uint8_t idx)
+{
+  memset(globalFnAddress(idx), 0, sizeof(CustomFunctionData));
+  storageDirty(EE_GENERAL);
+}

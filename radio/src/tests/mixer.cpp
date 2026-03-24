@@ -422,7 +422,7 @@ TEST_F(TrimsTest, invertedThrottlePlusthrottleTrimWithZeroWeightOnThrottle)
 TEST_F(TrimsTest, CopyTrimsToOffset)
 {
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, -100); // -100 on elevator/steering
-  evalFunctions(customFnAddress(0), modelFunctionsContext); // it disables all safety channels
+  evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext); // it disables all safety channels
   copyTrimsToOffset(ELE_CHAN);
   EXPECT_EQ(getTrimValue(0, ELE_STICK), -100); // unchanged
   EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195);

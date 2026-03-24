@@ -172,7 +172,7 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   }
 }
 
-void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+void evalFunctions(CustomFunctionData * functions, uint8_t count, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions  = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
@@ -182,9 +182,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
   bool isModelFunctions = (functions == customFnAddress(0));
   uint8_t playFirstIndex = (isModelFunctions ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
-  uint8_t numFunctions = (isModelFunctions
-      ? g_modelArena.sectionCount(ARENA_CUSTOM_FN)
-      : MAX_SPECIAL_FUNCTIONS);
+  uint8_t numFunctions = count;
   #define PLAY_INDEX   (i+playFirstIndex)
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)

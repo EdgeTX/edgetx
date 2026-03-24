@@ -46,7 +46,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     eeFlags = EE_MODEL;
   }
   else {
-    cfn = &g_eeGeneral.customFn[sub];
+    cfn = globalFnAddress(sub);
     eeFlags = EE_GENERAL;
   }
 
@@ -121,7 +121,7 @@ void onCustomFunctionsMenu(const char * result)
     eeFlags = EE_MODEL;
   }
   else {
-    cfn = &g_eeGeneral.customFn[sub];
+    cfn = globalFnAddress(sub);
     eeFlags = EE_GENERAL;
   }
 
@@ -151,9 +151,7 @@ void onCustomFunctionsMenu(const char * result)
     if (eeFlags == EE_MODEL) {
       deleteCustomFn(sub);
     } else {
-      memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-      memset(&g_eeGeneral.customFn[MAX_SPECIAL_FUNCTIONS-1], 0, sizeof(CustomFunctionData));
-      storageDirty(eeFlags);
+      deleteGlobalFn(sub);
     }
   }
 }

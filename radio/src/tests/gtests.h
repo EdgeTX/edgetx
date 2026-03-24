@@ -72,6 +72,7 @@ inline void SYSTEM_RESET()
 #if !defined(STORAGE_MODELSLIST)
   memset(modelHeaders, 0, sizeof(modelHeaders));
 #endif
+  radioArenaInit();
   generalDefault();
   g_eeGeneral.templateSetup = 0;
   for (int i=0; i<switchGetMaxAllSwitches(); i++) {

@@ -103,6 +103,17 @@ YAML_ENSURE(custom_fn, ARENA_CUSTOM_FN, MAX_SPECIAL_FUNCTIONS_HARD)
 #undef YAML_GET_PTR
 #undef YAML_ENSURE
 
+// Radio arena callbacks (separate arena for radio custom functions)
+static uint8_t* yaml_get_radio_cfn_ptr(uint16_t* count) {
+  *count = g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN);
+  return g_radioArena.sectionBase(RADIO_ARENA_CUSTOM_FN);
+}
+
+static bool yaml_ensure_radio_cfn_capacity(uint16_t min_count) {
+  if (min_count > MAX_SPECIAL_FUNCTIONS_HARD) return false;
+  return g_radioArena.ensureSectionCapacity(RADIO_ARENA_CUSTOM_FN, min_count);
+}
+
 
 
 static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,

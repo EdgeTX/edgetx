@@ -1205,12 +1205,16 @@ void evalMixes(uint8_t tick10ms)
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
     if (radioGFEnabled()) {
-      evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
+      evalFunctions(globalFnAddress(0),
+                    g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN),
+                    globalFunctionsContext);
     } else {
       globalFunctionsContext.reset();
     }
     if (modelSFEnabled()) {
-      evalFunctions(customFnAddress(0), modelFunctionsContext);
+      evalFunctions(customFnAddress(0),
+                    g_modelArena.sectionCount(ARENA_CUSTOM_FN),
+                    modelFunctionsContext);
     } else {
       modelFunctionsContext.reset();
     }

@@ -31,9 +31,8 @@
 // internal RAM.  Growth just increases _capacity within the pre-reserved
 // buffer — no allocation, no copy, no pointer invalidation.
 //
-// Non-SDRAM F4 + SIMU/Companion: heap-allocated via malloc().  Start at
-// INITIAL size, grow via allocate-copy-free.  Heap is in the same fast RAM
-// on these targets, so no speed concern.
+// Non-SDRAM F4 + SIMU: heap-allocated via malloc().  Start at INITIAL size,
+// grow via allocate-copy-free.  Heap is in the same fast RAM on these targets.
 // ---------------------------------------------------------------------------
 
 #if defined(SDRAM)
@@ -63,54 +62,72 @@
 // Backward compat alias used by rtc_backup
 #define MODEL_ARENA_SIZE  MODEL_ARENA_INITIAL_SIZE
 
-// Number of dynamic section types in the arena
-#define ARENA_NUM_SECTIONS 6
+// Radio arena sizing — only holds custom functions for now
+#define RADIO_ARENA_INITIAL_SIZE  256
+#define RADIO_ARENA_MAX_SIZE      1024
 
-enum ArenaSectionType {
+// ---------------------------------------------------------------------------
+// Arena section layout
+// ---------------------------------------------------------------------------
+
+// Maximum number of sections any arena can have
+#define ARENA_MAX_SECTIONS 6
+
+// Model arena section indices
+enum {
   ARENA_MIXES = 0,
   ARENA_EXPOS,
   ARENA_CURVES,
   ARENA_POINTS,
   ARENA_LOGICAL_SW,
   ARENA_CUSTOM_FN,
+  MODEL_ARENA_NUM_SECTIONS
 };
 
-// Metadata stored in ModelData describing the arena layout
-struct ModelDynData {
-  uint8_t   mixCount;
-  uint8_t   expoCount;
-  uint8_t   curveCount;
-  uint16_t  pointsCount;
-  uint8_t   logicalSwCount;
-  uint8_t   customFnCount;
+// Radio arena section indices
+enum {
+  RADIO_ARENA_CUSTOM_FN = 0,
+  RADIO_ARENA_NUM_SECTIONS
 };
 
-class ModelArena {
+// Descriptor: defines the number of sections and their element sizes.
+// One const instance per arena type (model, radio).  Stored in flash.
+struct ArenaDesc {
+  uint8_t numSections;
+  const uint8_t* elemSizes;
+};
+
+extern const ArenaDesc modelArenaDesc;
+extern const ArenaDesc radioArenaDesc;
+
+// ---------------------------------------------------------------------------
+// Arena class
+// ---------------------------------------------------------------------------
+
+class Arena {
+  const ArenaDesc* _desc;
   uint8_t* _base;
   uint32_t _capacity;
   uint32_t _maxCapacity;
   bool     _heapOwned;
 
-  // Section byte offsets within the arena (computed from counts + element sizes)
-  uint32_t _offsets[ARENA_NUM_SECTIONS];
-  uint16_t _counts[ARENA_NUM_SECTIONS];
+  uint32_t _offsets[ARENA_MAX_SECTIONS];
+  uint16_t _counts[ARENA_MAX_SECTIONS];
   uint32_t _usedBytes;
 
-  // Attempt to grow the buffer to at least minCapacity bytes.
-  // Static mode: just increases _capacity (buffer is already large enough).
-  // Heap mode: allocate-copy-free.
-  // Returns false if minCapacity > _maxCapacity or malloc fails.
   bool grow(uint32_t minCapacity);
 
 public:
-  ModelArena() : _base(nullptr), _capacity(0),
-                 _maxCapacity(0), _heapOwned(false), _usedBytes(0) {
+  Arena() : _desc(nullptr), _base(nullptr), _capacity(0),
+            _maxCapacity(0), _heapOwned(false), _usedBytes(0) {
     memset(_offsets, 0, sizeof(_offsets));
     memset(_counts, 0, sizeof(_counts));
   }
 
-  void attach(uint8_t* buf, uint32_t capacity, uint32_t maxCapacity);
+  void attach(const ArenaDesc* desc, uint8_t* buf,
+              uint32_t capacity, uint32_t maxCapacity);
 
+  const ArenaDesc* desc() const { return _desc; }
   uint8_t* base() const { return _base; }
   uint32_t capacity() const { return _capacity; }
   uint32_t maxCapacity() const { return _maxCapacity; }
@@ -125,74 +142,53 @@ public:
   bool isHeapOwned() const { return _heapOwned; }
   void setHeapOwned(bool owned) { _heapOwned = owned; }
 
-  // Free heap buffer if owned, reset to nullptr.
   void release();
-
-  // Return heap pointer (or nullptr) and set _heapOwned = false.
-  // Used for temp model save/restore to avoid double-free.
   uint8_t* detachHeapBuffer();
-
-  // Shrink buffer to usedBytes + headroom (heap mode only).
-  // Returns false on alloc failure (non-fatal, keeps current buffer).
   bool shrinkToFit(uint32_t headroom = 256);
 
-  // Compute layout from counts (called after model load or on new model)
-  void layout(const ModelDynData& dyn);
+  // Compute layout from section counts
+  void layout(const uint16_t counts[]);
 
-  // Get section base pointer and current count
-  uint8_t* sectionBase(ArenaSectionType type) const {
-    return _base + _offsets[type];
-  }
-  uint32_t sectionOffset(ArenaSectionType type) const {
-    return _offsets[type];
-  }
+  // Direct access to internal counts array
+  const uint16_t* counts() const { return _counts; }
 
-  // Return the number of elements currently allocated in a section
-  uint16_t sectionCount(ArenaSectionType section) const {
+  // Section accessors (section index is uint8_t, not enum — works for any arena)
+  uint8_t* sectionBase(uint8_t section) const {
+    return _base + _offsets[section];
+  }
+  uint32_t sectionOffset(uint8_t section) const {
+    return _offsets[section];
+  }
+  uint16_t sectionCount(uint8_t section) const {
     return _counts[section];
   }
 
-  // Insert a slot of 'slotSize' bytes at 'byteOffset' within the arena.
-  // Shifts all data after that point forward.  Attempts to grow if needed.
-  // Returns false if arena cannot accommodate the slot.
   bool insertSlot(uint32_t byteOffset, uint32_t slotSize);
-
-  // Delete a slot of 'slotSize' bytes at 'byteOffset' within the arena.
-  // Shifts all data after that point backward.
   void deleteSlot(uint32_t byteOffset, uint32_t slotSize);
 
-  // Insert an element into a specific section
-  // Shifts all subsequent sections forward
-  bool insertInSection(ArenaSectionType section, uint32_t indexInSection,
+  bool insertInSection(uint8_t section, uint32_t indexInSection,
                        uint32_t elementSize);
-
-  // Delete an element from a specific section
-  // Shifts all subsequent sections backward
-  void deleteFromSection(ArenaSectionType section, uint32_t indexInSection,
+  void deleteFromSection(uint8_t section, uint32_t indexInSection,
                          uint32_t elementSize);
 
-  // Recalculate offsets from counts (after direct count modification)
-  void recalcOffsets(const ModelDynData& dyn);
+  bool ensureSectionCapacity(uint8_t section, uint16_t minCount);
 
-  // Grow a section to hold at least minCount elements.
-  // Attempts to grow the buffer if needed.
-  // Returns false if arena cannot accommodate the request.
-  bool ensureSectionCapacity(ArenaSectionType section, uint16_t minCount);
-
-  // Remove trailing empty elements from a section.
-  // isEmpty(ptr) returns true if the element at ptr is considered empty.
-  // Returns the number of elements removed.
-  uint16_t trimTrailingEmpty(ArenaSectionType section,
+  uint16_t trimTrailingEmpty(uint8_t section,
                              bool (*isEmpty)(const uint8_t*));
 
-  // Clear the arena data (preserves layout)
   void clear();
 
-  // Return the element size for a given section type
-  static uint32_t elementSize(ArenaSectionType type);
+  // Element size for a section (from descriptor)
+  uint32_t elementSize(uint8_t section) const {
+    return _desc->elemSizes[section];
+  }
 };
 
-extern ModelArena g_modelArena;
+// Keep ModelArena as a typedef for backward compatibility
+using ModelArena = Arena;
 
-// Must be called early in startup before any model data access
+extern Arena g_modelArena;
+extern Arena g_radioArena;
+
 void modelArenaInit();
+void radioArenaInit();

@@ -1113,7 +1113,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
-  CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
+  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_get_radio_cfn_ptr, yaml_ensure_radio_cfn_capacity);
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);

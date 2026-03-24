@@ -26,44 +26,48 @@
 #include <stdlib.h>
 
 // ---------------------------------------------------------------------------
+// Arena descriptors (const, in flash)
+// ---------------------------------------------------------------------------
+
+static const uint8_t modelElemSizes[MODEL_ARENA_NUM_SECTIONS] = {
+  sizeof(MixData),
+  sizeof(ExpoData),
+  sizeof(CurveHeader),
+  sizeof(int8_t),
+  sizeof(LogicalSwitchData),
+  sizeof(CustomFunctionData),
+};
+
+const ArenaDesc modelArenaDesc = { MODEL_ARENA_NUM_SECTIONS, modelElemSizes };
+
+static const uint8_t radioElemSizes[RADIO_ARENA_NUM_SECTIONS] = {
+  sizeof(CustomFunctionData),
+};
+
+const ArenaDesc radioArenaDesc = { RADIO_ARENA_NUM_SECTIONS, radioElemSizes };
+
+// ---------------------------------------------------------------------------
 // Arena buffer allocation (platform-split)
 // ---------------------------------------------------------------------------
 
 #if !ARENA_HEAP_GROWABLE
-  // Static mode: max-sized buffer in fast internal RAM.
-  // BSS goes to internal RAM on all SDRAM targets (RAM on F429, RAM_D1 on H7),
-  // so no section attribute is needed — the buffer naturally lands in fast SRAM.
   static uint8_t g_modelArenaBuf[MODEL_ARENA_MAX_SIZE]
+      __attribute__((aligned(4)));
+  static uint8_t g_radioArenaBuf[RADIO_ARENA_MAX_SIZE]
       __attribute__((aligned(4)));
 #endif
 
-ModelArena g_modelArena;
+Arena g_modelArena;
+Arena g_radioArena;
 
-// Element sizes for each section type (in bytes)
-static const uint8_t sectionElementSize[ARENA_NUM_SECTIONS] = {
-  sizeof(MixData),              // ARENA_MIXES
-  sizeof(ExpoData),             // ARENA_EXPOS
-  sizeof(CurveHeader),          // ARENA_CURVES
-  sizeof(int8_t),               // ARENA_POINTS
-  sizeof(LogicalSwitchData),    // ARENA_LOGICAL_SW
-  sizeof(CustomFunctionData),   // ARENA_CUSTOM_FN
-};
+// ---------------------------------------------------------------------------
+// Arena implementation
+// ---------------------------------------------------------------------------
 
-static uint16_t getSectionCount(const ModelDynData& dyn, ArenaSectionType type)
+void Arena::attach(const ArenaDesc* desc, uint8_t* buf,
+                   uint32_t capacity, uint32_t maxCapacity)
 {
-  switch (type) {
-    case ARENA_MIXES:      return dyn.mixCount;
-    case ARENA_EXPOS:      return dyn.expoCount;
-    case ARENA_CURVES:     return dyn.curveCount;
-    case ARENA_POINTS:     return dyn.pointsCount;
-    case ARENA_LOGICAL_SW: return dyn.logicalSwCount;
-    case ARENA_CUSTOM_FN:  return dyn.customFnCount;
-    default:               return 0;
-  }
-}
-
-void ModelArena::attach(uint8_t* buf, uint32_t capacity, uint32_t maxCapacity)
-{
+  _desc = desc;
   _base = buf;
   _capacity = capacity;
   _maxCapacity = maxCapacity;
@@ -73,7 +77,7 @@ void ModelArena::attach(uint8_t* buf, uint32_t capacity, uint32_t maxCapacity)
   memset(_counts, 0, sizeof(_counts));
 }
 
-void ModelArena::release()
+void Arena::release()
 {
   if (_heapOwned && _base) {
     free(_base);
@@ -83,7 +87,7 @@ void ModelArena::release()
   _heapOwned = false;
 }
 
-uint8_t* ModelArena::detachHeapBuffer()
+uint8_t* Arena::detachHeapBuffer()
 {
   if (!_heapOwned)
     return nullptr;
@@ -92,24 +96,19 @@ uint8_t* ModelArena::detachHeapBuffer()
   return buf;
 }
 
-bool ModelArena::shrinkToFit(uint32_t headroom)
+bool Arena::shrinkToFit(uint32_t headroom)
 {
-  if (!_heapOwned) {
-    // Static mode: buffer is fixed, nothing to shrink
+  if (!_heapOwned)
     return true;
-  }
 
-  // Don't reallocate if we haven't grown beyond the initial allocation
   if (_capacity <= MODEL_ARENA_INITIAL_SIZE)
     return true;
 
-  // Shrink back to initial size at most — avoids realloc churn for
-  // buffers that only grew slightly
-  uint32_t target = (_usedBytes + headroom + 3u) & ~3u;  // 4-byte aligned
+  uint32_t target = (_usedBytes + headroom + 3u) & ~3u;
   if (target < MODEL_ARENA_INITIAL_SIZE)
     target = MODEL_ARENA_INITIAL_SIZE;
   if (target >= _capacity)
-    return true;  // already right-sized or smaller
+    return true;
 
   uint8_t* newBuf = (uint8_t*)malloc(target);
   if (!newBuf)
@@ -125,7 +124,7 @@ bool ModelArena::shrinkToFit(uint32_t headroom)
   return true;
 }
 
-bool ModelArena::grow(uint32_t minCapacity)
+bool Arena::grow(uint32_t minCapacity)
 {
   if (minCapacity > _maxCapacity)
     return false;
@@ -133,24 +132,19 @@ bool ModelArena::grow(uint32_t minCapacity)
   if (minCapacity <= _capacity)
     return true;
 
-  // Growth policy: double, capped at _maxCapacity
   uint32_t newCap = _capacity * 2;
   if (newCap < minCapacity)
     newCap = minCapacity;
   if (newCap > _maxCapacity)
     newCap = _maxCapacity;
 
-  // 4-byte align
   newCap = (newCap + 3u) & ~3u;
 
   if (!_heapOwned) {
-    // Static mode: buffer is already MODEL_ARENA_MAX_SIZE, just widen the view.
-    // This is safe because the static buffer was allocated at max size.
     _capacity = newCap;
     return true;
   }
 
-  // Heap mode: allocate new buffer, copy data, free old
   uint8_t* newBuf = (uint8_t*)malloc(newCap);
   if (!newBuf)
     return false;
@@ -165,50 +159,42 @@ bool ModelArena::grow(uint32_t minCapacity)
   return true;
 }
 
-void ModelArena::recalcOffsets(const ModelDynData& dyn)
+void Arena::layout(const uint16_t counts[])
 {
-  uint16_t offset = 0;
-  for (int i = 0; i < ARENA_NUM_SECTIONS; i++) {
-    _counts[i] = getSectionCount(dyn, (ArenaSectionType)i);
+  uint32_t offset = 0;
+  for (uint8_t i = 0; i < _desc->numSections; i++) {
+    _counts[i] = counts[i];
     _offsets[i] = offset;
-    offset += _counts[i] * sectionElementSize[i];
+    offset += _counts[i] * _desc->elemSizes[i];
   }
   _usedBytes = offset;
 }
 
-void ModelArena::layout(const ModelDynData& dyn)
-{
-  recalcOffsets(dyn);
-}
-
-void ModelArena::clear()
+void Arena::clear()
 {
   if (_base) {
     memset(_base, 0, _capacity);
   }
-  // Note: preserves layout (offsets and usedBytes) - only zeros data
 }
 
-bool ModelArena::insertSlot(uint32_t byteOffset, uint32_t slotSize)
+bool Arena::insertSlot(uint32_t byteOffset, uint32_t slotSize)
 {
   if (_usedBytes + slotSize > _capacity) {
     if (!grow(_usedBytes + slotSize))
       return false;
   }
 
-  // Shift everything from byteOffset forward by slotSize
   uint32_t tailSize = _usedBytes - byteOffset;
   if (tailSize > 0) {
     memmove(_base + byteOffset + slotSize, _base + byteOffset, tailSize);
   }
 
-  // Clear the new slot
   memset(_base + byteOffset, 0, slotSize);
   _usedBytes += slotSize;
   return true;
 }
 
-void ModelArena::deleteSlot(uint32_t byteOffset, uint32_t slotSize)
+void Arena::deleteSlot(uint32_t byteOffset, uint32_t slotSize)
 {
   uint32_t tailStart = byteOffset + slotSize;
   uint32_t tailSize = _usedBytes - tailStart;
@@ -216,14 +202,12 @@ void ModelArena::deleteSlot(uint32_t byteOffset, uint32_t slotSize)
     memmove(_base + byteOffset, _base + tailStart, tailSize);
   }
 
-  // Clear freed space at the end
   memset(_base + _usedBytes - slotSize, 0, slotSize);
   _usedBytes -= slotSize;
 }
 
-bool ModelArena::insertInSection(ArenaSectionType section,
-                                 uint32_t indexInSection,
-                                 uint32_t elementSize)
+bool Arena::insertInSection(uint8_t section, uint32_t indexInSection,
+                            uint32_t elementSize)
 {
   uint32_t byteOffset = _offsets[section] + indexInSection * elementSize;
 
@@ -231,36 +215,29 @@ bool ModelArena::insertInSection(ArenaSectionType section,
     return false;
 
   _counts[section]++;
-  for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
+  for (uint8_t i = section + 1; i < _desc->numSections; i++) {
     _offsets[i] += elementSize;
   }
 
   return true;
 }
 
-void ModelArena::deleteFromSection(ArenaSectionType section,
-                                   uint32_t indexInSection,
-                                   uint32_t elementSize)
+void Arena::deleteFromSection(uint8_t section, uint32_t indexInSection,
+                              uint32_t elementSize)
 {
   uint32_t byteOffset = _offsets[section] + indexInSection * elementSize;
 
   deleteSlot(byteOffset, elementSize);
 
   _counts[section]--;
-  for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
+  for (uint8_t i = section + 1; i < _desc->numSections; i++) {
     _offsets[i] -= elementSize;
   }
 }
 
-uint32_t ModelArena::elementSize(ArenaSectionType type)
+bool Arena::ensureSectionCapacity(uint8_t section, uint16_t minCount)
 {
-  return sectionElementSize[type];
-}
-
-bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
-                                       uint16_t minCount)
-{
-  uint32_t elemSize = sectionElementSize[section];
+  uint32_t elemSize = _desc->elemSizes[section];
   uint32_t currentCount = _counts[section];
 
   if (currentCount >= minCount)
@@ -274,7 +251,6 @@ bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
       return false;
   }
 
-  // Bulk-insert at the end of the section
   uint32_t insertOffset = _offsets[section] + currentCount * elemSize;
   uint32_t tailSize = _usedBytes - insertOffset;
   if (tailSize > 0) {
@@ -285,22 +261,20 @@ bool ModelArena::ensureSectionCapacity(ArenaSectionType section,
   _usedBytes += bytesNeeded;
   _counts[section] = minCount;
 
-  // Update subsequent section offsets
-  for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
+  for (uint8_t i = section + 1; i < _desc->numSections; i++) {
     _offsets[i] += bytesNeeded;
   }
 
   return true;
 }
 
-uint16_t ModelArena::trimTrailingEmpty(ArenaSectionType section,
-                                       bool (*isEmpty)(const uint8_t*))
+uint16_t Arena::trimTrailingEmpty(uint8_t section,
+                                  bool (*isEmpty)(const uint8_t*))
 {
-  uint32_t elemSize = sectionElementSize[section];
+  uint32_t elemSize = _desc->elemSizes[section];
   uint16_t count = _counts[section];
   if (count == 0) return 0;
 
-  // Find last non-empty element
   uint8_t* base = _base + _offsets[section];
   int last = count - 1;
   while (last >= 0 && isEmpty(base + last * elemSize))
@@ -313,7 +287,6 @@ uint16_t ModelArena::trimTrailingEmpty(ArenaSectionType section,
   uint32_t bytesToRemove = removed * elemSize;
   uint32_t removeOffset = _offsets[section] + newCount * elemSize;
 
-  // Shift subsequent section data backward
   uint32_t tailSize = _usedBytes - (removeOffset + bytesToRemove);
   if (tailSize > 0) {
     memmove(_base + removeOffset,
@@ -323,29 +296,55 @@ uint16_t ModelArena::trimTrailingEmpty(ArenaSectionType section,
 
   _usedBytes -= bytesToRemove;
   _counts[section] = newCount;
-  for (int i = section + 1; i < ARENA_NUM_SECTIONS; i++) {
+  for (uint8_t i = section + 1; i < _desc->numSections; i++) {
     _offsets[i] -= bytesToRemove;
   }
 
   return removed;
 }
 
-// Initialize arena on startup with empty layout.
-// Sections are allocated on demand during YAML parsing or via explicit insert.
-void modelArenaInit()
+// ---------------------------------------------------------------------------
+// Init functions
+// ---------------------------------------------------------------------------
+
+static void arenaInit(Arena& arena, const ArenaDesc* desc,
+                      uint8_t* staticBuf,
+                      uint32_t initialSize, uint32_t maxSize)
 {
-  g_modelArena.release();
+  arena.release();
 
 #if ARENA_HEAP_GROWABLE
-  uint8_t* buf = (uint8_t*)malloc(MODEL_ARENA_INITIAL_SIZE);
-  g_modelArena.attach(buf, MODEL_ARENA_INITIAL_SIZE, MODEL_ARENA_MAX_SIZE);
-  g_modelArena.setHeapOwned(true);
+  (void)staticBuf;
+  uint8_t* buf = (uint8_t*)malloc(initialSize);
+  arena.attach(desc, buf, initialSize, maxSize);
+  arena.setHeapOwned(true);
 #else
-  g_modelArena.attach(g_modelArenaBuf, MODEL_ARENA_INITIAL_SIZE,
-                      MODEL_ARENA_MAX_SIZE);
+  arena.attach(desc, staticBuf, initialSize, maxSize);
 #endif
 
-  ModelDynData emptyDyn = {};
-  g_modelArena.layout(emptyDyn);
-  g_modelArena.clear();
+  uint16_t emptyCounts[ARENA_MAX_SECTIONS] = {};
+  arena.layout(emptyCounts);
+  arena.clear();
+}
+
+void modelArenaInit()
+{
+#if !ARENA_HEAP_GROWABLE
+  arenaInit(g_modelArena, &modelArenaDesc, g_modelArenaBuf,
+            MODEL_ARENA_INITIAL_SIZE, MODEL_ARENA_MAX_SIZE);
+#else
+  arenaInit(g_modelArena, &modelArenaDesc, nullptr,
+            MODEL_ARENA_INITIAL_SIZE, MODEL_ARENA_MAX_SIZE);
+#endif
+}
+
+void radioArenaInit()
+{
+#if !ARENA_HEAP_GROWABLE
+  arenaInit(g_radioArena, &radioArenaDesc, g_radioArenaBuf,
+            RADIO_ARENA_INITIAL_SIZE, RADIO_ARENA_MAX_SIZE);
+#else
+  arenaInit(g_radioArena, &radioArenaDesc, nullptr,
+            RADIO_ARENA_INITIAL_SIZE, RADIO_ARENA_MAX_SIZE);
+#endif
 }
