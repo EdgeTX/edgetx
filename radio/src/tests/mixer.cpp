@@ -425,7 +425,7 @@ TEST_F(TrimsTest, CopyTrimsToOffset)
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext); // it disables all safety channels
   copyTrimsToOffset(ELE_CHAN);
   EXPECT_EQ(getTrimValue(0, ELE_STICK), -100); // unchanged
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195);
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -195);
 }
 
 TEST_F(TrimsTest, CopySticksToOffset)
@@ -434,9 +434,9 @@ TEST_F(TrimsTest, CopySticksToOffset)
   evalMixes(1);
   copySticksToOffset(ELE_CHAN);
 #if defined(STICK_DEAD_ZONE)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -93);
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -93);
 #else
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -97);
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -97);
 #endif
 }
 
@@ -451,9 +451,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsets)
   EXPECT_EQ(channelOutputs[THR_CHAN], TRIM_SCALE(200));  // THR output value is reflecting 100 trim
   moveTrimsToOffsets();
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[THR_CHAN].offset), TRIM_SCALE(195)); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -195); // value transferred
   evalMixes(1);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(channelOutputs[THR_CHAN], 99); // THR output value is still reflecting 100 trim
@@ -481,16 +481,16 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
 
   // Trim affecting Throttle should not be affected
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 100);  // unchanged
-  EXPECT_EQ(g_model.limitData[2].offset, 0); // unchanged
+  EXPECT_EQ(GV_DECODE(g_model.limitData[2].offset), 0); // unchanged
 
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
 #if defined(SURFACE_RADIO)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -195); // value transferred
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
 #else
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -195); // value transferred
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 trim idle
 #endif
@@ -524,9 +524,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   EXPECT_EQ(channelOutputs[THR_CHAN], 200);  // THR output value remains unchanged
 #endif
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[THR_CHAN].offset), TRIM_SCALE(195)); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -195); // value transferred
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
@@ -554,11 +554,11 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
 
   // Trim affecting Throttle (now Ele because of crosstrims) should not be affected
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 100);  // unchanged
-  EXPECT_EQ(g_model.limitData[2].offset, 0); // THR chan offset unchanged
+  EXPECT_EQ(GV_DECODE(g_model.limitData[2].offset), 0); // THR chan offset unchanged
 
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // Ele chan offset transferred
+  EXPECT_EQ(GV_DECODE(g_model.limitData[ELE_CHAN].offset), -195); // Ele chan offset transferred
   evalMixes(1);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is still reflecting 100 trim idle
@@ -1260,3 +1260,154 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
   EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
 }
+
+#if defined(GVARS)
+
+class GVarLimitTest : public EdgeTxTest {};
+
+TEST_F(GVarLimitTest, EncodingRoundTrip)
+{
+  // Verify GV_ENCODE/GV_DECODE round-trip for positive values
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(0)), 0);
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(500)), 500);
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(1000)), 1000);
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(1500)), 1500);
+
+  // Verify round-trip for negative values
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(-1)), -1);
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(-500)), -500);
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(-1000)), -1000);
+  EXPECT_EQ(GV_DECODE(GV_ENCODE(-1500)), -1500);
+
+  // Verify encoded positive values have bit 15 clear (not detected as gvar)
+  EXPECT_FALSE(GV_IS_GV_VALUE(GV_ENCODE(0)));
+  EXPECT_FALSE(GV_IS_GV_VALUE(GV_ENCODE(500)));
+  EXPECT_FALSE(GV_IS_GV_VALUE(GV_ENCODE(-500)));
+  EXPECT_FALSE(GV_IS_GV_VALUE(GV_ENCODE(-1500)));
+}
+
+TEST_F(GVarLimitTest, GVarEncodingRoundTrip)
+{
+  // Verify gvar index encoding round-trip
+  for (int idx = 0; idx < MAX_GVARS; idx++) {
+    int16_t encoded = GV_VALUE_FROM_INDEX(idx);
+    EXPECT_TRUE(GV_IS_GV_VALUE(encoded)) << "idx=" << idx;
+    EXPECT_EQ(GV_INDEX_FROM_VALUE(encoded), idx) << "idx=" << idx;
+  }
+  for (int idx = -1; idx >= -MAX_GVARS; idx--) {
+    int16_t encoded = GV_VALUE_FROM_INDEX(idx);
+    EXPECT_TRUE(GV_IS_GV_VALUE(encoded)) << "idx=" << idx;
+    EXPECT_EQ(GV_INDEX_FROM_VALUE(encoded), idx) << "idx=" << idx;
+  }
+}
+
+TEST_F(GVarLimitTest, GVarNoCollisionWithNumeric)
+{
+  // Verify that valid numeric limit values are never detected as gvar
+  for (int v = -1500; v <= 1500; v++) {
+    int16_t encoded = GV_ENCODE(v);
+    EXPECT_FALSE(GV_IS_GV_VALUE(encoded)) << "value=" << v;
+  }
+}
+
+TEST_F(GVarLimitTest, GVarInOffset)
+{
+  // Set up a simple passthrough mix (input 0 -> channel 0)
+  g_modelArena.ensureSectionCapacity(ARENA_MIXES, 1);
+  MixData *mix = mixAddress(0);
+  mix->destCh = 0;
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  mix->weight.setNumeric(100);
+
+  // Set GV1 = 200 (offset in tenths, so 20.0)
+  g_model.flightModeData[0].gvars[0] = 200;
+
+  // Set limit offset to GV1 (index 0)
+  LimitData *ld = limitAddress(0);
+  ld->offset = GV_VALUE_FROM_INDEX(0);
+
+  EXPECT_TRUE(GV_IS_GV_VALUE(ld->offset));
+  EXPECT_EQ(GV_INDEX_FROM_VALUE(ld->offset), 0);
+
+  // Verify LIMIT_OFS resolves the gvar
+  int32_t ofs = LIMIT_OFS(ld);
+  EXPECT_EQ(ofs, 2000);  // GV1=200, getGVarValuePrec1 returns 200*10=2000
+}
+
+TEST_F(GVarLimitTest, GVarInMinMax)
+{
+  g_modelArena.ensureSectionCapacity(ARENA_MIXES, 1);
+  MixData *mix = mixAddress(0);
+  mix->destCh = 0;
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  mix->weight.setNumeric(100);
+
+  // GV1 = 800 (in tenths: 80.0%), GV2 = -500 (in tenths: -50.0%)
+  g_model.flightModeData[0].gvars[0] = 800;
+  g_model.flightModeData[0].gvars[1] = -500;
+
+  LimitData *ld = limitAddress(0);
+
+  // Set max to GV1 (index 0)
+  ld->max = GV_VALUE_FROM_INDEX(0);
+  EXPECT_TRUE(GV_IS_GV_VALUE(ld->max));
+  int32_t maxVal = LIMIT_MAX(ld);
+  EXPECT_EQ(maxVal, 8000);  // GV1=800, prec1=8000
+
+  // Set min to -GV2 (index -2, i.e., negated GV2)
+  ld->min = GV_VALUE_FROM_INDEX(-2);
+  EXPECT_TRUE(GV_IS_GV_VALUE(ld->min));
+  int32_t minVal = LIMIT_MIN(ld);
+  EXPECT_EQ(minVal, 5000);  // -GV2 = -(-500) = 500, prec1=5000
+}
+
+TEST_F(GVarLimitTest, MixerAppliesGVarLimits)
+{
+  // Set up a passthrough mix
+  g_modelArena.ensureSectionCapacity(ARENA_MIXES, 1);
+  MixData *mix = mixAddress(0);
+  mix->destCh = 0;
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  mix->weight.setNumeric(100);
+
+  // GV1 = 50 -> LIMIT_MAX = prec1(50) = 500 -> calc1000toRESX(500) = 512
+  g_model.flightModeData[0].gvars[0] = 50;
+  LimitData *ld = limitAddress(0);
+  ld->max = GV_VALUE_FROM_INDEX(0);
+  ld->min = GV_ENCODE(0);  // min at default (0 + offset = -100%)
+
+  // Full positive stick
+  anaSetFiltered(inputMappingConvertMode(0), 1024);
+  evalMixes(1);
+
+  // The max limit resolves to GV1*10 = 500 tenths -> RESX 512
+  // Output should be clamped to that limit
+  int16_t output = channelOutputs[0];
+  EXPECT_GT(output, 0);
+  EXPECT_LE(output, 512);  // clamped at ~5% of full range
+}
+
+TEST_F(GVarLimitTest, NumericLimitNegativeValues)
+{
+  // Verify negative numeric values in LimitData work through the mixer
+  g_modelArena.ensureSectionCapacity(ARENA_MIXES, 1);
+  MixData *mix = mixAddress(0);
+  mix->destCh = 0;
+  mix->srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  mix->weight.setNumeric(100);
+
+  LimitData *ld = limitAddress(0);
+  // Set offset to -200 (tenths: -20.0)
+  ld->offset = GV_ENCODE(-200);
+
+  EXPECT_FALSE(GV_IS_GV_VALUE(ld->offset));
+  EXPECT_EQ(GV_DECODE(ld->offset), -200);
+  EXPECT_EQ(LIMIT_OFS(ld), -200);  // numeric offset returned directly
+
+  // Zero stick, offset should shift output negative
+  anaSetFiltered(inputMappingConvertMode(0), 0);
+  evalMixes(1);
+  EXPECT_LT(channelOutputs[0], 0);
+}
+
+#endif // GVARS

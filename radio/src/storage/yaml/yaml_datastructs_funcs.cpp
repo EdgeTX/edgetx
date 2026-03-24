@@ -146,7 +146,7 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
     return GV_VALUE_FROM_INDEX(idx);
   }
 
-  return (uint32_t)yaml_str2int(val, val_len);
+  return (uint32_t)(int16_t)GV_ENCODE(yaml_str2int(val, val_len));
 }
 
 bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
@@ -169,7 +169,7 @@ bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     return wf(opaque, s, strlen(s));
   }
 
-  char* s = yaml_signed2str(sval);
+  char* s = yaml_signed2str(GV_DECODE(sval));
   return wf(opaque, s, strlen(s));
 }
 

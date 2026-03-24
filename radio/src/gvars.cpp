@@ -76,6 +76,9 @@ int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max, int8_t fm)
     int8_t gv = GV_INDEX_FROM_VALUE(val);
     val = getGVarValue(gv, fm);
   }
+  else {
+    val = GV_DECODE(val);
+  }
   return limit(min, val, max);
 }
 
@@ -86,7 +89,7 @@ int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
     val = getGVarValuePrec1(gv, fm);
   }
   else {
-    val *= 10;
+    val = GV_DECODE(val) * 10;
   }
   return limit<int>(min*10, val, max*10);
 }

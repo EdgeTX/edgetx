@@ -165,13 +165,13 @@ PACK(struct ExpoData {
  */
 
 PACK(struct LimitData {
-  int32_t min:11 CUST(in_read_weight,in_write_weight);
-  int32_t max:11 CUST(in_read_weight,in_write_weight);
-  int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11 CUST(in_read_weight,in_write_weight);
+  int16_t min CUST(in_read_weight,in_write_weight);
+  int16_t max CUST(in_read_weight,in_write_weight);
+  int16_t offset CUST(in_read_weight,in_write_weight);
+  int16_t ppmCenter:12;
   uint16_t symetrical:1;
   uint16_t revert:1;
-  uint16_t spare:3 SKIP;
+  uint16_t spare:2 SKIP;
   int8_t curve;
   NOBACKUP(char name[LEN_CHANNEL_NAME]);
 });

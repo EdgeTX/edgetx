@@ -1328,7 +1328,7 @@ void doMixerPeriodicUpdates()
 
 #if defined(PPM_LIMITS_SYMETRICAL)
       if (lim->symetrical) {
-        val -= calc1000toRESX(lim->offset);
+        val -= calc1000toRESX(GV_DECODE(lim->offset));
       }
 #endif
 

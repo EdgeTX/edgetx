@@ -376,7 +376,7 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
     return getGVarString(dest, index);
   }
 
-  value += offset;
+  value = GV_DECODE(value) + offset;
   if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
     value = value * 128 / 25;
   formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);

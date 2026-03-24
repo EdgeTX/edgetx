@@ -533,7 +533,7 @@ if not find_clang.initLibClang():
     sys.exit(-1)
 
 index = find_clang.index
-args = ['-x', 'c++', '-std=c++11', '-Wno-deprecated-register'] + sys.argv[4:]
+args = ['-x', 'c++', '-std=c++14', '-Wno-deprecated-register'] + sys.argv[4:]
 if find_clang.builtin_hdr_path:
     args.append("-I" + find_clang.builtin_hdr_path)
 
@@ -542,7 +542,8 @@ translation_unit = index.parse(sys.argv[1], args)
 def show_tu_diags(diags, prefix=''):
     tu_errors =  0
     for diag in diags:
-        tu_errors = tu_errors + 1
+        if diag.severity >= Diagnostic.Error:
+            tu_errors = tu_errors + 1
         print_error(prefix + str(diag))
         show_tu_diags(diag.children, '  ' + prefix)
     return tu_errors

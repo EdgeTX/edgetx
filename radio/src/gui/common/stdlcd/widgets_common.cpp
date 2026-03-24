@@ -518,9 +518,9 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
     killEvents(event);
     s_editMode = !s_editMode;
     if (attr & PREC1)
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : GV_VALUE_FROM_INDEX(0));
+      value = (GV_IS_GV_VALUE(value) ? GV_ENCODE(GET_GVAR(value, min, max, mixerCurrentFlightMode)*10) : GV_VALUE_FROM_INDEX(0));
     else
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode) : GV_VALUE_FROM_INDEX(0));
+      value = (GV_IS_GV_VALUE(value) ? GV_ENCODE(GET_GVAR(value, min, max, mixerCurrentFlightMode)) : GV_VALUE_FROM_INDEX(0));
     storageDirty(EE_MODEL);
   }
 
@@ -534,12 +534,12 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
     drawGVarName(x, y, idx, attr);
   }
   else {
-    lcdDrawNumber(x, y, value, attr);
-    if (invers) value = checkIncDec(event, value, min, max, EE_MODEL | editflags);
+    lcdDrawNumber(x, y, GV_DECODE(value), attr);
+    if (invers) value = GV_ENCODE(checkIncDec(event, GV_DECODE(value), min, max, EE_MODEL | editflags));
   }
 #else
-  lcdDrawNumber(x, y, value, attr);
-  if (attr&INVERS) value = checkIncDec(event, value, min, max, EE_MODEL);
+  lcdDrawNumber(x, y, GV_DECODE(value), attr);
+  if (attr&INVERS) value = GV_ENCODE(checkIncDec(event, GV_DECODE(value), min, max, EE_MODEL));
 #endif
   return value;
 }

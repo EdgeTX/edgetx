@@ -1300,7 +1300,7 @@ void copySticksToOffset(uint8_t ch)
     lim = LIMIT_MIN(ld);
   }
   zero = (zero*256000 - val*lim) / (1024*256-val);
-  ld->offset = (ld->revert ? -zero : zero);
+  ld->offset = GV_ENCODE(ld->revert ? -zero : zero);
 
   mixerTaskStart();
   storageDirty(EE_MODEL);
@@ -1318,11 +1318,11 @@ void copyTrimsToOffset(uint8_t ch)
   evalFlightModeMixes(e_perout_mode_noinput-e_perout_mode_notrims, 0); // do output loop - only trims
 
   int16_t output = applyLimits(ch, chans[ch]) - zero;
-  int16_t v = g_model.limitData[ch].offset;
+  int16_t v = GV_DECODE(g_model.limitData[ch].offset);
   if (g_model.limitData[ch].revert)
     output = -output;
   v += (output * 125) / 128;
-  g_model.limitData[ch].offset = limit((int16_t)-1000, (int16_t)v, (int16_t)1000); // make sure the offset doesn't go haywire
+  g_model.limitData[ch].offset = GV_ENCODE(limit((int16_t)-1000, (int16_t)v, (int16_t)1000)); // make sure the offset doesn't go haywire
 
   mixerTaskStart();
   storageDirty(EE_MODEL);
@@ -1413,12 +1413,12 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
 
   for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
     int16_t diff = applyLimits(i, chans[i]) - zeros[i];
-    int16_t v = g_model.limitData[i].offset;
+    int16_t v = GV_DECODE(g_model.limitData[i].offset);
     if (g_model.limitData[i].revert)
       diff = -diff;
     v += (diff * 125) / 128;
 
-    g_model.limitData[i].offset = limit((int16_t) -1000, (int16_t) v, (int16_t) 1000); // make sure the offset doesn't go haywire
+    g_model.limitData[i].offset = GV_ENCODE(limit((int16_t) -1000, (int16_t) v, (int16_t) 1000)); // make sure the offset doesn't go haywire
   }
 
   // reset all trims, except throttle (if throttle trim)
