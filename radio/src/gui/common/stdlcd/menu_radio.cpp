@@ -42,8 +42,9 @@ void menuRadioSpecialFunctions(event_t event)
   }
 #endif
 
+  uint8_t sfCount = min<uint8_t>(getGlobalFnCount() + 1, MAX_SPECIAL_FUNCTIONS);
   MENU(STR_MENUSPECIALFUNCS, menuTabGeneral, MENU_RADIO_SPECIAL_FUNCTIONS,
-       HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
+       HEADER_LINE+sfCount, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
   menuSpecialFunctions(event, globalFnAddress(0), &globalFunctionsContext);
 
 #if defined(NAVIGATION_X7)

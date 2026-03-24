@@ -81,6 +81,11 @@ void clearCustomFn(uint8_t idx)
 
 // ---- Radio (global) custom function accessors ----
 
+uint8_t getGlobalFnCount()
+{
+  return g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN);
+}
+
 CustomFunctionData *globalFnAddress(uint8_t idx)
 {
   if (idx >= g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN)) {
