@@ -41,6 +41,47 @@ add_custom_target(tests-radio
   DEPENDS gtests-radio
 )
 
+# Coverage target — configure with -DENABLE_COVERAGE=ON, then build this target.
+# Requires lcov and genhtml to be installed (e.g. apt install lcov).
+find_program(LCOV_EXECUTABLE lcov)
+find_program(GENHTML_EXECUTABLE genhtml)
+if(LCOV_EXECUTABLE AND GENHTML_EXECUTABLE)
+  add_custom_target(coverage-radio
+    COMMENT "Running tests and generating lcov HTML coverage report"
+    # Reset counters
+    COMMAND ${LCOV_EXECUTABLE} --zerocounters --directory ${CMAKE_CURRENT_BINARY_DIR}
+    # Run tests
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-radio
+    # Capture coverage data
+    COMMAND ${LCOV_EXECUTABLE}
+            --capture
+            --directory ${CMAKE_CURRENT_BINARY_DIR}
+            --output-file ${CMAKE_CURRENT_BINARY_DIR}/coverage.info
+            --ignore-errors mismatch
+    # Strip third-party and system headers
+    COMMAND ${LCOV_EXECUTABLE}
+            --remove ${CMAKE_CURRENT_BINARY_DIR}/coverage.info
+            "${CMAKE_CURRENT_BINARY_DIR}/_deps/*"
+            "/usr/*"
+            "*/googletest/*"
+            "*/tests/*"
+            --output-file ${CMAKE_CURRENT_BINARY_DIR}/coverage_filtered.info
+            --ignore-errors unused
+    # Generate HTML report
+    COMMAND ${GENHTML_EXECUTABLE}
+            ${CMAKE_CURRENT_BINARY_DIR}/coverage_filtered.info
+            --output-directory ${CMAKE_CURRENT_BINARY_DIR}/coverage_html
+            --title "EdgeTX Radio Coverage"
+            --legend
+    COMMAND ${CMAKE_COMMAND} -E echo
+            "Coverage report: ${CMAKE_CURRENT_BINARY_DIR}/coverage_html/index.html"
+    DEPENDS gtests-radio
+  )
+  message(STATUS "Added optional coverage-radio target (lcov/genhtml found)")
+else()
+  message(STATUS "coverage-radio target unavailable: lcov=${LCOV_EXECUTABLE} genhtml=${GENHTML_EXECUTABLE}")
+endif()
+
 if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
   add_subdirectory(${COMPANION_SRC_DIRECTORY})
   add_custom_target(tests-companion

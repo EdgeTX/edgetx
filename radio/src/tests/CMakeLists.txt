@@ -11,8 +11,16 @@ set(TESTS_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(${RADIO_SRC_DIR}/tests/location.h.in ${CMAKE_CURRENT_BINARY_DIR}/location.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} -fsanitize=address")
+option(ENABLE_COVERAGE "Build tests with gcov/lcov coverage instrumentation (disables ASAN)" OFF)
+
+if(ENABLE_COVERAGE)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 --coverage -fprofile-arcs -ftest-coverage")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+else()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} -fsanitize=address")
+endif()
 
 file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
   CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
