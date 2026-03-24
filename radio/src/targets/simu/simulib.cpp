@@ -660,12 +660,13 @@ uint8_t simuCopyMixOutputs(int16_t* buf, uint8_t maxCount)
 
 uint8_t simuGetNumLogicalSwitches()
 {
-  return MAX_LOGICAL_SWITCHES;
+  return g_modelArena.sectionCount(ARENA_LOGICAL_SW);
 }
 
 uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
 {
-  uint8_t n = MAX_LOGICAL_SWITCHES < maxCount ? MAX_LOGICAL_SWITCHES : maxCount;
+  uint8_t count = g_modelArena.sectionCount(ARENA_LOGICAL_SW);
+  uint8_t n = count < maxCount ? count : maxCount;
   for (uint8_t i = 0; i < n; i++)
     buf[i] = getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, i), 0) ? 1 : 0;
   return n;
