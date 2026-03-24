@@ -757,6 +757,7 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
 }
 
 uint8_t mixerCurrentFlightMode;
+uint8_t mixerActiveFlightMode;
 
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
@@ -1169,7 +1170,7 @@ void evalMixes(uint8_t tick10ms)
         fp_act[lastFlightMode] = 0;
         fp_act[fm] = MAX_ACT;
       }
-      logicalSwitchesCopyState(lastFlightMode, fm); // push last logical switches state from old to new flight mode
+      lswFreezeState(lastFlightMode);
     }
     lastFlightMode = fm;
   }
@@ -1184,6 +1185,8 @@ void evalMixes(uint8_t tick10ms)
       flightModeTransitionLast = fm;
     }
   }
+
+  mixerActiveFlightMode = fm;
 
   int32_t weight = 0;
   if (flightModesFade) {

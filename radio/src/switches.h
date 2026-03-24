@@ -26,7 +26,6 @@
 
 #include "edgetx_types.h"
 #include "edgetx_constants.h"
-#include "dataconstants.h"
 #include "sourceref.h"
 
 enum LogicalSwitchFamilies {
@@ -47,7 +46,6 @@ int16_t lswTimerValue(delayval_t val);
 
 bool getLSStickyState(uint8_t idx);
 void evalLogicalSwitches(bool isCurrentFlightmode=true);
-void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
 void logicalSwitchesReset();
 void logicalSwitchesTimerTick();
 
@@ -111,22 +109,12 @@ uint8_t getRGBColorIndex(uint32_t color);
 
 void setAllPreflightSwitchStates();
 
-// Per-FM logical switch runtime context
-PACK(struct LogicalSwitchContext {
-  uint8_t state:1;
-  uint8_t timerState:2;
-  uint8_t spare:1;
-  uint8_t deltaTimer:4;
-  uint8_t timer;
-  int16_t lastValue;
-});
+// Freeze current LS state into a bitmap for the given FM slot.
+// Called from mixer on FM transition to preserve pre-transition LS values
+// during fade cross-fade.
+void lswFreezeState(uint8_t fm);
 
-PACK(struct LogicalSwitchesFlightModeContext {
-  LogicalSwitchContext lsw[MAX_LOGICAL_SWITCHES];
-});
-
-extern LogicalSwitchesFlightModeContext lswFm[MAX_FLIGHT_MODES];
-
-inline LogicalSwitchContext& lswContext(uint8_t fm, uint8_t idx) {
-  return lswFm[fm].lsw[idx];
-}
+// Test-only accessors for logical switch internal state
+bool lswGetState(uint8_t idx);
+int16_t lswGetLastValue(uint8_t idx);
+void lswSetState(uint8_t idx, uint8_t state, uint8_t timer, int16_t lastValue);

@@ -458,16 +458,14 @@ TEST(FlexSwitches, getSwitch)
 }
 
 // ---------------------------------------------------------------------------
-// Tests to evidence whether per-FM logical switch state actually diverges.
-// The runtime maintains lswFm[MAX_FLIGHT_MODES] — one LogicalSwitchContext
-// per FM per LS. logicalSwitchesTimerTick() updates timer/sticky/edge state
-// for ALL FMs every tick. These tests check whether the per-FM copies ever
-// diverge from each other.
+// Tests for the flat (single global) logical switch context (lswCtx[]).
+// Verifies that timer, sticky, edge, delay/duration, delta, and comparison
+// LS families work correctly with a single context regardless of FM changes.
 // ---------------------------------------------------------------------------
 
-class LswPerFmTest : public EdgeTxTest {};
+class LswTest : public EdgeTxTest {};
 
-// Helper: tick logical switches for N cycles (eval only, no timer tick)
+// Helper: tick logical switches for N cycles
 static void tickLogicalSwitches(int n)
 {
   for (int i = 0; i < n; i++) {
@@ -491,37 +489,43 @@ static void mixerTickRealistic(int ticks10ms)
   }
 }
 
-// Test: Timer LS state is identical across all FMs when evaluated from reset.
-// All FMs are ticked in parallel by logicalSwitchesTimerTick, so their
-// timer counters should always be in lockstep.
-TEST_F(LswPerFmTest, TimerStateIdenticalAcrossFMs)
+// Test: logicalSwitchesReset initializes the single global context.
+TEST_F(LswTest, ResetInitsSingleContext)
 {
-  // LS0: TIMER with v1=0 (0.5s off), v2=0 (0.5s on)
+  // Dirty the context
+  lswSetState(0, 1, 42, 999);
+
+  logicalSwitchesReset();
+
+  EXPECT_FALSE(lswGetState(0));
+  EXPECT_EQ(-32768, lswGetLastValue(0));  // CS_LAST_VALUE_INIT
+}
+
+// Test: Timer LS oscillates correctly with the single context.
+TEST_F(LswTest, TimerOscillates)
+{
   lswAllocAt(0)->func = LS_FUNC_TIMER;
-  lswAddress(0)->v1.value = 0;  // 0.5s
-  lswAddress(0)->v2.value = 0;  // 0.5s
+  lswAddress(0)->v1.value = -109;  // shortest off period
+  lswAddress(0)->v2.value = -109;  // shortest on period
   lswAddress(0)->andsw = SWTCH_NONE;
 
   logicalSwitchesReset();
 
-  // Run 100 ticks
-  for (int tick = 0; tick < 100; tick++) {
+  // lswTimerValue(-109) = 129+(-109) = 20 ticks per phase
+  // Run enough ticks to see both phases
+  bool sawTrue = false, sawFalse = false;
+  for (int tick = 0; tick < 50; tick++) {
     evalLogicalSwitches();
     logicalSwitchesTimerTick();
-
-    // Check that all FMs have the same lastValue for LS0
-    int16_t fm0val = lswFm[0].lsw[0].lastValue;
-    for (int fm = 1; fm < MAX_FLIGHT_MODES; fm++) {
-      EXPECT_EQ(fm0val, lswFm[fm].lsw[0].lastValue)
-          << "tick=" << tick << " fm=" << fm;
-    }
+    if (lswGetState(0)) sawTrue = true;
+    else sawFalse = true;
   }
+  EXPECT_TRUE(sawTrue) << "Timer should produce true states";
+  EXPECT_TRUE(sawFalse) << "Timer should produce false states";
 }
 
-// Test: Sticky LS state is identical across all FMs.
-// logicalSwitchesTimerTick processes sticky for all FMs with the same
-// getSwitch() inputs, so they should track identically.
-TEST_F(LswPerFmTest, StickyStateIdenticalAcrossFMs)
+// Test: Sticky LS toggles ON/OFF with switch triggers.
+TEST_F(LswTest, StickyToggle)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
@@ -529,7 +533,6 @@ TEST_F(LswPerFmTest, StickyStateIdenticalAcrossFMs)
   auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
   auto swDn = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
 
-  // LS0: STICKY(sw_up, sw_down)
   lswAllocAt(0)->func = LS_FUNC_STICKY;
   lswAddress(0)->v1.swtch = swUp;
   lswAddress(0)->v2.swtch = swDn;
@@ -537,75 +540,106 @@ TEST_F(LswPerFmTest, StickyStateIdenticalAcrossFMs)
 
   logicalSwitchesReset();
 
-  // Start with switch mid (neither trigger)
+  // Start mid — sticky off
   simuSetSwitch(sw, 0);
   tickLogicalSwitches(5);
+  EXPECT_FALSE(lswGetState(0));
 
-  // Trigger sticky ON
+  // Trigger ON
   simuSetSwitch(sw, -1);
   tickLogicalSwitches(5);
+  EXPECT_TRUE(lswGetState(0));
 
-  // All FMs should agree
-  for (int fm = 0; fm < MAX_FLIGHT_MODES; fm++) {
-    EXPECT_EQ(lswFm[0].lsw[0].lastValue, lswFm[fm].lsw[0].lastValue)
-        << "after ON, fm=" << fm;
-  }
-
-  // Switch to mid, then trigger OFF
+  // Release and trigger OFF
   simuSetSwitch(sw, 0);
   tickLogicalSwitches(3);
   simuSetSwitch(sw, 1);
   tickLogicalSwitches(5);
-
-  // All FMs should still agree
-  for (int fm = 0; fm < MAX_FLIGHT_MODES; fm++) {
-    EXPECT_EQ(lswFm[0].lsw[0].lastValue, lswFm[fm].lsw[0].lastValue)
-        << "after OFF, fm=" << fm;
-  }
+  EXPECT_FALSE(lswGetState(0));
 }
 
-// Test: Timer LS state remains identical even when the active FM changes.
-// Switch FM mid-evaluation and verify the background FMs stay in sync.
-TEST_F(LswPerFmTest, TimerStateSurvivesFMSwitch)
-{
-  lswAllocAt(0)->func = LS_FUNC_TIMER;
-  lswAddress(0)->v1.value = 0;  // 0.5s
-  lswAddress(0)->v2.value = 0;  // 0.5s
-  lswAddress(0)->andsw = SWTCH_NONE;
-
-  logicalSwitchesReset();
-
-  // Run 30 ticks in FM0
-  mixerCurrentFlightMode = 0;
-  tickLogicalSwitches(30);
-
-  // Switch to FM2
-  mixerCurrentFlightMode = 2;
-  tickLogicalSwitches(30);
-
-  // Switch back to FM0
-  mixerCurrentFlightMode = 0;
-  tickLogicalSwitches(10);
-
-  // All FMs should still be in lockstep (timer ticked for all FMs throughout)
-  int16_t fm0val = lswFm[0].lsw[0].lastValue;
-  for (int fm = 1; fm < MAX_FLIGHT_MODES; fm++) {
-    EXPECT_EQ(fm0val, lswFm[fm].lsw[0].lastValue) << "fm=" << fm;
-  }
-}
-
-// Test: The only observable effect of per-FM state is the `state` field
-// written by evalLogicalSwitches (which only writes to mixerCurrentFlightMode).
-// Timer lastValue is updated for all FMs, but `state` is only set for the
-// current FM. This test verifies that `state` diverges across FMs.
-TEST_F(LswPerFmTest, EvalStateOnlyWrittenToCurrentFM)
+// Test: Delay runs continuously through FM switches with the single context.
+// Previously, switching FM would restart or corrupt the delay; now the
+// single context is unaffected by FM changes.
+TEST_F(LswTest, DelayContinuesThroughFMSwitch)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
     if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
   auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
-  // LS0: AND(sw_up, NONE) — simple boolean
+  lswAllocAt(0)->func = LS_FUNC_AND;
+  lswAddress(0)->v1.swtch = swUp;
+  lswAddress(0)->v2.swtch = SWTCH_NONE;
+  lswAddress(0)->andsw = SWTCH_NONE;
+  lswAddress(0)->delay = 10;     // 1.0s delay
+  lswAddress(0)->duration = 0;
+
+  logicalSwitchesReset();
+  s_test_100ms_cnt = 0;
+
+  simuSetSwitch(sw, -1);
+
+  // Run 0.5s in FM0 — delay starts
+  mixerCurrentFlightMode = 0;
+  mixerTickRealistic(50);
+  EXPECT_FALSE(lswGetState(0)) << "Delay should still be running";
+
+  // Switch to FM2 for 0.3s — delay continues (single context, no restart)
+  mixerCurrentFlightMode = 2;
+  mixerTickRealistic(30);
+  EXPECT_FALSE(lswGetState(0)) << "Delay should still be running after FM switch";
+
+  // Switch back to FM0 for 0.3s — total 1.1s, delay should expire
+  mixerCurrentFlightMode = 0;
+  mixerTickRealistic(30);
+  EXPECT_TRUE(lswGetState(0)) << "Delay should have expired after 1.1s total";
+}
+
+// Test: Duration runs continuously through FM switches.
+TEST_F(LswTest, DurationContinuesThroughFMSwitch)
+{
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
+  auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
+
+  lswAllocAt(0)->func = LS_FUNC_AND;
+  lswAddress(0)->v1.swtch = swUp;
+  lswAddress(0)->v2.swtch = SWTCH_NONE;
+  lswAddress(0)->andsw = SWTCH_NONE;
+  lswAddress(0)->delay = 0;
+  lswAddress(0)->duration = 10;  // 1.0s duration
+
+  logicalSwitchesReset();
+  s_test_100ms_cnt = 0;
+
+  simuSetSwitch(sw, -1);
+
+  // Run 0.5s in FM0 — LS active, duration counting
+  mixerCurrentFlightMode = 0;
+  mixerTickRealistic(50);
+  EXPECT_TRUE(lswGetState(0)) << "Should be active during duration";
+
+  // Switch FM for 0.3s — duration continues
+  mixerCurrentFlightMode = 1;
+  mixerTickRealistic(30);
+  EXPECT_TRUE(lswGetState(0)) << "Duration should continue after FM switch";
+
+  // 0.3s more — total 1.1s, duration expired
+  mixerTickRealistic(30);
+  EXPECT_FALSE(lswGetState(0)) << "Duration should have expired after 1.1s";
+}
+
+// Test: getSwitch reads from the single global context regardless of FM.
+TEST_F(LswTest, GetSwitchReadsSingleContext)
+{
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
+  auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
+  auto ls0ref = SwitchRef_(SWITCH_TYPE_LOGICAL, 0);
+
   lswAllocAt(0)->func = LS_FUNC_AND;
   lswAddress(0)->v1.swtch = swUp;
   lswAddress(0)->v2.swtch = SWTCH_NONE;
@@ -613,137 +647,72 @@ TEST_F(LswPerFmTest, EvalStateOnlyWrittenToCurrentFM)
 
   logicalSwitchesReset();
 
-  // Activate the switch
   simuSetSwitch(sw, -1);
-
-  // Eval in FM0 only
   mixerCurrentFlightMode = 0;
   evalLogicalSwitches();
+  EXPECT_TRUE(getSwitch(ls0ref));
 
-  // FM0 state should be true, FM1 state should be false (never evaluated)
-  EXPECT_TRUE(lswFm[0].lsw[0].state);
-  EXPECT_FALSE(lswFm[1].lsw[0].state);
+  // Same state visible from any FM — single context (no fade active)
+  mixerCurrentFlightMode = mixerActiveFlightMode = 1;
+  EXPECT_TRUE(getSwitch(ls0ref));
+  mixerCurrentFlightMode = mixerActiveFlightMode = 5;
+  EXPECT_TRUE(getSwitch(ls0ref));
+}
 
-  // Now eval in FM1
-  mixerCurrentFlightMode = 1;
+// Test: DiffEGreater (delta) LS tracks lastValue in the single context.
+TEST_F(LswTest, DeltaTracksLastValue)
+{
+  lswAllocAt(0)->func = LS_FUNC_DIFFEGREATER;
+  lswAddress(0)->v1.source = SourceRef_(SOURCE_TYPE_STICK, 0);
+  lswAddress(0)->v2.value = 10;
+  lswAddress(0)->andsw = SWTCH_NONE;
+
+  logicalSwitchesReset();
+
+  uint8_t stickIdx = inputMappingConvertMode(0);
+  calibratedAnalogs[stickIdx] = 0;
+
+  // Establish baseline
   evalLogicalSwitches();
+  EXPECT_EQ(0, lswGetLastValue(0));
 
-  // Now both should be true
-  EXPECT_TRUE(lswFm[0].lsw[0].state);
-  EXPECT_TRUE(lswFm[1].lsw[0].state);
+  // Move stick — should trigger delta and update lastValue
+  calibratedAnalogs[stickIdx] = 512;
+  evalLogicalSwitches();
+  EXPECT_EQ(512, lswGetLastValue(0));
+
+  // Same context regardless of FM
+  mixerCurrentFlightMode = 3;
+  calibratedAnalogs[stickIdx] = 256;
+  evalLogicalSwitches();
+  EXPECT_EQ(256, lswGetLastValue(0));
 }
 
-// Test: Delay/duration processing runs inside getLogicalSwitch which only
-// executes for mixerCurrentFlightMode. The timerState and timer fields
-// should diverge across FMs when delay or duration is configured.
-TEST_F(LswPerFmTest, DelayDurationDivergesAcrossFMs)
+// Test: Comparison LS (VPOS) — no accumulated state, works with any FM.
+TEST_F(LswTest, ComparisonNoAccumulatedState)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
-  auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
-
-  // LS0: AND(sw_up, NONE) with delay=5 (0.5s) and duration=0
-  lswAllocAt(0)->func = LS_FUNC_AND;
-  lswAddress(0)->v1.swtch = swUp;
-  lswAddress(0)->v2.swtch = SWTCH_NONE;
-  lswAddress(0)->andsw = SWTCH_NONE;
-  lswAddress(0)->delay = 5;     // 0.5s delay
-  lswAddress(0)->duration = 0;  // no duration limit
-
-  logicalSwitchesReset();
-  s_test_100ms_cnt = 0;
-
-  // Activate the switch
-  simuSetSwitch(sw, -1);
-
-  // Run in FM0 for 1 second (100 × 10ms ticks)
-  mixerCurrentFlightMode = 0;
-  mixerTickRealistic(100);
-
-  // FM0 should have progressed through delay and be active
-  // FM1 was never evaluated, so its timerState should still be SWITCH_START(0)
-  EXPECT_NE(lswFm[0].lsw[0].timerState, lswFm[1].lsw[0].timerState)
-      << "timerState should diverge: FM0 evaluated, FM1 never evaluated";
-}
-
-// Test: Timer LS with realistic 10ms eval / 100ms tick timing.
-// Verify timer counters still stay in lockstep across FMs even with
-// the 10:1 ratio between eval and timer tick.
-TEST_F(LswPerFmTest, TimerRealisticTiming)
-{
-  // LS0: TIMER with v1=1 (1.0s off), v2=1 (1.0s on)
-  lswAllocAt(0)->func = LS_FUNC_TIMER;
-  lswAddress(0)->v1.value = 1;  // 1.0s
-  lswAddress(0)->v2.value = 1;  // 1.0s
+  lswAllocAt(0)->func = LS_FUNC_VPOS;
+  lswAddress(0)->v1.source = SourceRef_(SOURCE_TYPE_STICK, 0);
+  lswAddress(0)->v2.value = 50;
   lswAddress(0)->andsw = SWTCH_NONE;
 
   logicalSwitchesReset();
-  s_test_100ms_cnt = 0;
 
-  // Run 500 × 10ms ticks (5 seconds) with FM switches
+  uint8_t stickIdx = inputMappingConvertMode(0);
+
+  calibratedAnalogs[stickIdx] = 1024;
   mixerCurrentFlightMode = 0;
-  mixerTickRealistic(150);  // 1.5s in FM0
+  evalLogicalSwitches();
+  EXPECT_TRUE(lswGetState(0));
 
-  mixerCurrentFlightMode = 2;
-  mixerTickRealistic(200);  // 2.0s in FM2
+  // Same result in different FM
+  mixerCurrentFlightMode = 3;
+  evalLogicalSwitches();
+  EXPECT_TRUE(lswGetState(0));
 
-  mixerCurrentFlightMode = 0;
-  mixerTickRealistic(150);  // 1.5s back in FM0
-
-  // Timer lastValue should be identical across all FMs
-  // (logicalSwitchesTimerTick updates all FMs identically)
-  int16_t fm0val = lswFm[0].lsw[0].lastValue;
-  for (int fm = 1; fm < MAX_FLIGHT_MODES; fm++) {
-    EXPECT_EQ(fm0val, lswFm[fm].lsw[0].lastValue)
-        << "Timer lastValue diverged at fm=" << fm;
-  }
-}
-
-// Test: Sticky LS with realistic timing and FM switching.
-TEST_F(LswPerFmTest, StickyRealisticTiming)
-{
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
-  auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
-  auto swDn = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
-
-  // LS0: STICKY(sw_up, sw_down)
-  lswAllocAt(0)->func = LS_FUNC_STICKY;
-  lswAddress(0)->v1.swtch = swUp;
-  lswAddress(0)->v2.swtch = swDn;
-  lswAddress(0)->andsw = SWTCH_NONE;
-
-  logicalSwitchesReset();
-  s_test_100ms_cnt = 0;
-
-  // Trigger ON in FM0
-  simuSetSwitch(sw, -1);
-  mixerCurrentFlightMode = 0;
-  mixerTickRealistic(50);  // 0.5s
-
-  // Switch to FM1 and release
-  simuSetSwitch(sw, 0);
-  mixerCurrentFlightMode = 1;
-  mixerTickRealistic(50);
-
-  // Trigger OFF while in FM1
-  simuSetSwitch(sw, 1);
-  mixerTickRealistic(50);
-
-  // Switch back to FM0
-  simuSetSwitch(sw, 0);
-  mixerCurrentFlightMode = 0;
-  mixerTickRealistic(20);
-
-  // Check: are sticky lastValues still identical across FMs?
-  // (logicalSwitchesTimerTick processes sticky for all FMs with same inputs)
-  int16_t fm0val = lswFm[0].lsw[0].lastValue;
-  for (int fm = 1; fm < MAX_FLIGHT_MODES; fm++) {
-    EXPECT_EQ(fm0val, lswFm[fm].lsw[0].lastValue)
-        << "Sticky lastValue diverged at fm=" << fm;
-  }
+  calibratedAnalogs[stickIdx] = 0;
+  evalLogicalSwitches();
+  EXPECT_FALSE(lswGetState(0));
 }
 
 // ---------------------------------------------------------------------------
@@ -768,11 +737,11 @@ TEST(getSwitch, perFmLsStateNotEvaluatedDuringFade)
   setModelDefaults();
   MIXER_RESET();
 
-  // Find a 3-position switch to activate FM1
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
-  auto swDown = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
+  // Find a hardware switch to activate FM1
+  int sw = findHwSwitch();
+  ASSERT_GE(sw, 0) << "No usable hardware switch found";
+  // Use "down" position for all types — getSwitch handles 2POS/TOGGLE aliasing
+  auto swActive = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
 
   // LS0: VPOS(stick0 > 0) — true when stick is positive
   lswAllocAt(0)->func = LS_FUNC_VPOS;
@@ -781,13 +750,13 @@ TEST(getSwitch, perFmLsStateNotEvaluatedDuringFade)
   lswAddress(0)->v3 = 0;
   lswAddress(0)->andsw = SWTCH_NONE;
 
-  // FM1: activated by switch down, fadeIn = 10 (1.0s)
-  flightModeAddress(1)->swtch = swDown;
+  // FM1: activated by switch, fadeIn = 10 (1.0s)
+  flightModeAddress(1)->swtch = swActive;
   flightModeAddress(1)->fadeIn = 10;
   flightModeAddress(0)->fadeOut = 10;
 
   // --- Step 1: Start in FM0 with stick positive → LS0 = TRUE ---
-  simuSetSwitch(sw, -1);  // switch up → FM0 active
+  simuSetSwitch(sw, -1);  // switch off → FM0 active
   anaSetFiltered(0, 512); // stick positive → LS0 condition true
 
   evalMixes(1);
@@ -797,7 +766,7 @@ TEST(getSwitch, perFmLsStateNotEvaluatedDuringFade)
   EXPECT_TRUE(getSwitch(SW1_REF)) << "LS0 should be TRUE with positive stick";
 
   // --- Step 2: Trigger FM transition to FM1 (fade begins) ---
-  simuSetSwitch(sw, 1);  // switch down → getFlightMode() returns FM1
+  simuSetSwitch(sw, 1);  // switch on/down → getFlightMode() returns FM1
 
   // First evalMixes detects FM change and starts the fade.
   // LS0 is still TRUE at this point.
@@ -829,8 +798,7 @@ TEST(getSwitch, perFmLsStateNotEvaluatedDuringFade)
 
   mixerCurrentFlightMode = savedFM;
 
-  // [POST-FLATTEN] With a single global context, both FMs see the same
-  // fresh FALSE value. Before the flatten, this was TRUE (stale).
-  EXPECT_FALSE(fadingOutFmResult)
-    << "After flatten: fading-out FM sees fresh FALSE from single context";
+  // With frozen state, FM0 still sees TRUE while FM1 see FALSE.
+  EXPECT_TRUE(fadingOutFmResult)
+    << "fading-out FM sees TRUE from frozen state";
 }

@@ -99,9 +99,25 @@ inline void MIXER_RESET()
   memset(ex_chans, 0, sizeof(ex_chans));
   memset(act, 0, sizeof(act));
   memset(mixState, 0, sizeof(mixState));
-  mixerCurrentFlightMode = lastFlightMode = 0;
+  mixerCurrentFlightMode = mixerActiveFlightMode = lastFlightMode = 0;
   lastAct = 0;
   logicalSwitchesReset();
+}
+
+// Find a hardware switch matching the given type (SWITCH_3POS, SWITCH_2POS,
+// etc.), skipping function switches. Pass SWITCH_NONE to match any type.
+// Returns the switch index, or -1 if none found.
+inline int findHwSwitch(int type = SWITCH_NONE)
+{
+  for (int sw = 0; sw < switchGetMaxAllSwitches(); sw++) {
+    auto swType = g_model.getSwitchType(sw);
+    if (swType == SWITCH_NONE) continue;
+#if defined(FUNCTION_SWITCHES)
+    if (switchIsCustomSwitch(sw)) continue;
+#endif
+    if (type == SWITCH_NONE || swType == type) return sw;
+  }
+  return -1;
 }
 
 inline void TELEMETRY_RESET()

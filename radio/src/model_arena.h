@@ -81,15 +81,15 @@
 // ARENA_EXPOS          ~22         (none — expos share the input pipeline)
 // ARENA_CURVES         4           4-8 (curveEnd[] pointer)
 // ARENA_POINTS         1           (none)
-// ARENA_LOGICAL_SW     ~20         4 (LogicalSwitchContext) × MAX_FLIGHT_MODES = 36 B
+// ARENA_LOGICAL_SW     ~20         4 (LogicalSwitchContext) per LS = 4 × count B
 // ARENA_CUSTOM_FN      16          4 (lastFunctionTime[]) per context × 2 contexts = 8 B
-// ARENA_FLIGHT_MODES   ~28         2 (fp_act[]) + MAX_LOGICAL_SWITCHES×4 (lswFm[]) ≈ 258 B
+// ARENA_FLIGHT_MODES   ~28         2 (fp_act[])
 // ARENA_GVAR_DATA      7           (none)
 // ARENA_GVAR_VALUES    2           (none)
 // ARENA_INPUT_NAMES    3-4         MAX_INPUTS (inputNameIndex[])
 //
-// Largest runtime cost: MAX_FLIGHT_MODES × lswFm = FM × LS × 4 bytes.
-// With 9 FM × 64 LS × 4 = 2304 bytes.  Raising FM to 16 → 4096 bytes.
+// lswCtx[] is a flat global array (not per-FM): LS × 4 bytes.
+// With 64 LS × 4 = 256 bytes (independent of FM count).
 //
 // MAX_OUTPUT_CHANNELS has no arena section but carries runtime cost:
 // chans[32×4] + channelOutputs[32×2] + ex_chans[32×2] + safetyCh[32×2]
