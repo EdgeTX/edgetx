@@ -180,6 +180,29 @@ EXPECT_ZSTREQ("hello", zstring);  // Compare C string with zero-padded fixed-siz
 EXPECT_STRNEQ("hello", nstring);  // Compare C string with null-padded fixed-size string
 ```
 
+## Translation completeness
+
+The `test_*.cpp` files verify that each language file compiles (i.e., defines every string
+referenced in `string_list.h`). For richer analysis — identifying strings identical to English
+(likely untranslated), orphaned strings, and coverage metrics — use the Python script:
+
+```bash
+# Summary table for all languages:
+python3 tools/check-translations.py --summary-only
+
+# Detailed report for one language:
+python3 tools/check-translations.py --lang fr
+
+# Show strings that are identical to English (likely untranslated):
+python3 tools/check-translations.py --lang de --show-identical
+
+# Exit non-zero if any identical strings exist (useful for CI gates):
+python3 tools/check-translations.py --lang fr --strict
+```
+
+The script exits with code 1 if any language is missing a string that exists in English
+(which would also cause a C++ compile failure).
+
 ## Coverage reporting
 
 Coverage instrumentation uses gcov/lcov and is **mutually exclusive with ASAN** (enable one or the other).
