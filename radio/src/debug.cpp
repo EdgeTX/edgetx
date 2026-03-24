@@ -37,10 +37,11 @@ void debugPrintf(const char * format, ...)
   va_start(arglist, format);
   vsnprintf(tmp, PRINTF_BUFFER_SIZE, format, arglist);
   va_end(arglist);
-  fputs(tmp, stdout);
-  fflush(stdout);
   if (traceCallback) {
     traceCallback(tmp);
+  } else {
+    fputs(tmp, stdout);
+    fflush(stdout);
   }
 }
 #endif

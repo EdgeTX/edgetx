@@ -923,10 +923,6 @@ TEST_F(MixerTest, SlowOnMultiplyPrec10ms)
 }
 
 TEST_F(TrimsTest, throttleTrimEle) {
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
   g_eeGeneral.templateSetup = 17; // WARNING: NOT RETA (TAER or TH/ST)
   applyDefaultTemplate();
   g_model.thrTrim = 1;
@@ -936,12 +932,6 @@ TEST_F(TrimsTest, throttleTrimEle) {
   setTrimValue(0, ELE_STICK, TRIM_MIN);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], 1024 - 256);
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
-  g_eeGeneral.templateSetup = 0;
-  applyDefaultTemplate();
 }
 
 #if defined(HELI)

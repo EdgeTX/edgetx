@@ -144,6 +144,9 @@ int main(int argc, char **argv)
   simuInit();
   simuFatfsSetPaths(TESTS_PATH, nullptr);
 
+  // Suppress firmware TRACE output — simuTrace is a no-op stub.
+  traceCallback = simuTrace;
+
 #if !defined(COLORLCD)
   menuLevel = 0;
 #endif
