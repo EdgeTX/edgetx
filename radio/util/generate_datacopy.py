@@ -98,7 +98,7 @@ def main():
         sys.exit(-1)
 
     index = find_clang.index
-    args = ['-x', 'c++', '-std=c++11'] + sys.argv[2:]
+    args = ['-x', 'c++', '-std=c++14'] + sys.argv[2:]
     if find_clang.builtin_hdr_path:
         args.append("-I" + find_clang.builtin_hdr_path)
 
