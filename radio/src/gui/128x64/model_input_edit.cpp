@@ -101,7 +101,7 @@ void menuModelExpoOne(event_t event)
       case EXPO_FIELD_SOURCE:
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
         drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
-        if (attr) ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_ALL, isSourceAvailable);
+        if (attr) ed->srcRaw = checkIncDecSource(event, ed->srcRaw, SRCMASK_INPUT, isSourceAvailable);
         break;
 
       case EXPO_FIELD_SCALE: {

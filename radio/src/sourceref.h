@@ -70,6 +70,7 @@ typedef uint32_t SourceTypeMask;
 // Common source type masks
 #define SRCMASK_NONE         SRC_TYPE_BIT(SOURCE_TYPE_NONE)
 #define SRCMASK_ALL          0xFFFFFFFFu
+#define SRCMASK_INPUT        (SRCMASK_ALL & ~(SRC_TYPE_BIT(SOURCE_TYPE_INPUT) | SRC_TYPE_BIT(SOURCE_TYPE_LUA)))
 #define SRCMASK_THROUGH_CH   (SRCMASK_ALL & ~(SRC_TYPE_BIT(SOURCE_TYPE_GVAR) | \
                               SRC_TYPE_BIT(SOURCE_TYPE_TX_VOLTAGE) | SRC_TYPE_BIT(SOURCE_TYPE_TX_TIME) | \
                               SRC_TYPE_BIT(SOURCE_TYPE_TX_GPS) | SRC_TYPE_BIT(SOURCE_TYPE_TIMER) | \
