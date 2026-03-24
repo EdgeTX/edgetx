@@ -673,7 +673,7 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
   if (switchGetMaxAllSwitches() < 4) return;
   if (adcGetMaxInputs(ADC_INPUT_MAIN) < 3) return;  // needs 3 default mixes
 
-  g_model.flightModeData[1].swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
+  flightModeAddress(1)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
   (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_CHANNEL, 1);
@@ -700,7 +700,7 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 
 TEST_F(MixerTest, SlowOnPhase)
 {
-  g_model.flightModeData[1].swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 0);
+  flightModeAddress(1)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 0);
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
   (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
@@ -747,7 +747,7 @@ TEST_F(MixerTest, SlowOnSwitchSource)
 
 TEST_F(MixerTest, SlowOnPhasePrec10ms)
 {
-  g_model.flightModeData[1].swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 0);
+  flightModeAddress(1)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 0);
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
   (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
@@ -1053,11 +1053,11 @@ TEST_F(MixerTest, flightModeTransition)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.flightModeData[1].swtch = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
-  g_model.flightModeData[0].fadeIn = 100;
-  g_model.flightModeData[0].fadeOut = 100;
-  g_model.flightModeData[1].fadeIn = 100;
-  g_model.flightModeData[1].fadeOut = 100;
+  flightModeAddress(1)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
+  flightModeAddress(0)->fadeIn = 100;
+  flightModeAddress(0)->fadeOut = 100;
+  flightModeAddress(1)->fadeIn = 100;
+  flightModeAddress(1)->fadeOut = 100;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_REPL;
   (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
@@ -1079,9 +1079,9 @@ TEST_F(MixerTest, flightModeOverflow)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.flightModeData[1].swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 2);
-  g_model.flightModeData[0].fadeIn = 100;
-  g_model.flightModeData[0].fadeOut = 100;
+  flightModeAddress(1)->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 2);
+  flightModeAddress(0)->fadeIn = 100;
+  flightModeAddress(0)->fadeOut = 100;
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_REPL;
   (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
@@ -1320,7 +1320,7 @@ TEST_F(GVarLimitTest, GVarInOffset)
   mix->weight.setNumeric(100);
 
   // Set GV1 = 200 (offset in tenths, so 20.0)
-  g_model.flightModeData[0].gvars[0] = 200;
+  flightModeAddress(0)->gvars[0] = 200;
 
   // Set limit offset to GV1 (index 0)
   LimitData *ld = limitAddress(0);
@@ -1343,8 +1343,8 @@ TEST_F(GVarLimitTest, GVarInMinMax)
   mix->weight.setNumeric(100);
 
   // GV1 = 800 (in tenths: 80.0%), GV2 = -500 (in tenths: -50.0%)
-  g_model.flightModeData[0].gvars[0] = 800;
-  g_model.flightModeData[0].gvars[1] = -500;
+  flightModeAddress(0)->gvars[0] = 800;
+  flightModeAddress(0)->gvars[1] = -500;
 
   LimitData *ld = limitAddress(0);
 
@@ -1371,7 +1371,7 @@ TEST_F(GVarLimitTest, MixerAppliesGVarLimits)
   mix->weight.setNumeric(100);
 
   // GV1 = 50 -> LIMIT_MAX = prec1(50) = 500 -> calc1000toRESX(500) = 512
-  g_model.flightModeData[0].gvars[0] = 50;
+  flightModeAddress(0)->gvars[0] = 50;
   LimitData *ld = limitAddress(0);
   ld->max = GV_VALUE_FROM_INDEX(0);
   ld->min = GV_ENCODE(0);  // min at default (0 + offset = -100%)

@@ -547,7 +547,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 #if defined(GVARS)
 void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t flightMode, LcdFlags flags)
 {
-  FlightModeData * fm = &g_model.flightModeData[flightMode];
+  FlightModeData * fm = flightModeAddress(flightMode);
   gvar_t * v = &fm->gvars[gvar];
   int16_t vmin, vmax;
   if (*v > GVAR_MAX) {
@@ -558,8 +558,8 @@ void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t fl
     vmax = GVAR_MAX + MAX_FLIGHT_MODES - 1;
   }
   else {
-    vmin = GVAR_MIN + g_model.gvars[gvar].min;
-    vmax = GVAR_MAX - g_model.gvars[gvar].max;
+    vmin = GVAR_MIN + gvarDataAddress(gvar)->min;
+    vmax = GVAR_MAX - gvarDataAddress(gvar)->max;
     if (*v < vmin) {
       *v = vmin;
       storageDirty(EE_MODEL);

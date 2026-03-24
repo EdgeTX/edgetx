@@ -339,7 +339,7 @@ const static SetupLineDef trimsSetupLines[] = {
     nullptr,
     [](Window* parent, coord_t x, coord_t y) {
       new TextButton(parent, {PAD_TINY, y, LCD_W - PAD_MEDIUM * 2, 0}, STR_RESET_BTN, []() -> uint8_t {
-        for (auto &fm : g_model.flightModeData) memclear(&fm.trim, sizeof(fm.trim));
+        for (int i = 0; i < MAX_FLIGHT_MODES; i++) memclear(&flightModeAddress(i)->trim, sizeof(flightModeAddress(i)->trim));
         SET_DIRTY();
         AUDIO_WARNING1();
         return 0;

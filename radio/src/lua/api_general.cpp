@@ -350,7 +350,7 @@ void luaGetValueAndPush(lua_State* L, SourceRef ref)
   }
   #if defined(GVARS)
   else if (ref.type == SOURCE_TYPE_GVAR) {
-    if (g_model.gvars[ref.index].prec)
+    if (gvarDataAddress(ref.index)->prec)
       lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
     else
       lua_pushinteger(L, value);                 // prec "0.-"
@@ -1449,9 +1449,9 @@ static int luaGetFlightMode(lua_State * L)
     mode = mixerCurrentFlightMode;
   }
   lua_pushinteger(L, mode);
-  char name[sizeof(g_model.flightModeData[0].name)+1];
-  strncpy(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
-  name[sizeof(g_model.flightModeData[0].name)] = '\0';
+  char name[sizeof(FlightModeData::name)+1];
+  strncpy(name, flightModeAddress(mode)->name, sizeof(FlightModeData::name));
+  name[sizeof(FlightModeData::name)] = '\0';
   lua_pushstring(L, name);
   return 2;
 }

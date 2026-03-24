@@ -36,6 +36,9 @@ static const uint8_t modelElemSizes[MODEL_ARENA_NUM_SECTIONS] = {
   sizeof(int8_t),
   sizeof(LogicalSwitchData),
   sizeof(CustomFunctionData),
+  sizeof(FlightModeData),
+  sizeof(GVarData),
+  sizeof(gvar_t),
 };
 
 const ArenaDesc modelArenaDesc = { MODEL_ARENA_NUM_SECTIONS, modelElemSizes };

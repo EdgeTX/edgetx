@@ -80,9 +80,11 @@ void setDefaultModelRegistrationID()
 void setDefaultGVars()
 {
 #if defined(FLIGHT_MODES) && defined(GVARS)
+  g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
+  g_modelArena.ensureSectionCapacity(ARENA_GVAR_DATA, MAX_GVARS);
   for (int fmIdx = 1; fmIdx < MAX_FLIGHT_MODES; fmIdx++) {
     for (int gvarIdx = 0; gvarIdx < MAX_GVARS; gvarIdx++) {
-      g_model.flightModeData[fmIdx].gvars[gvarIdx] = GVAR_MAX + 1;
+      flightModeAddress(fmIdx)->gvars[gvarIdx] = GVAR_MAX + 1;
     }
   }
 #endif

@@ -50,7 +50,7 @@ int16_t getGVarValue(int8_t gv, int8_t fm)
 int32_t getGVarValuePrec1(int8_t gv, int8_t fm)
 {
   int8_t idx = (gv >= 0 ? gv : -gv - 1);
-  int8_t mul = (g_model.gvars[idx].prec == 0 ? 10 : 1); // explicit cast to `int` needed, othervise gv is promoted to double!
+  int8_t mul = (gvarDataAddress(idx)->prec == 0 ? 10 : 1); // explicit cast to `int` needed, othervise gv is promoted to double!
   if (gv < 0) {
     mul = -mul;
   }
@@ -63,7 +63,7 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
   if (GVAR_VALUE(gv, fm) != value) {
     GVAR_VALUE(gv, fm) = value;
     storageDirty(EE_MODEL);
-    if (g_model.gvars[gv].popup) {
+    if (gvarDataAddress(gv)->popup) {
       gvarLastChanged = gv;
       gvarDisplayTimer = GVAR_DISPLAY_TIME;
     }

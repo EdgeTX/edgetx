@@ -358,8 +358,8 @@ char *getGVarString(char *dest, int idx)
     return s;
   }
 
-  if (g_model.gvars[idx].name[0])
-    strAppend(s, g_model.gvars[idx].name, LEN_GVAR_NAME);
+  if (gvarDataAddress(idx)->name[0])
+    strAppend(s, gvarDataAddress(idx)->name, LEN_GVAR_NAME);
   else
     strAppendStringWithIndex(s, STR_GV, idx + 1);
 
@@ -851,7 +851,7 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
 #if defined(COLORLCD)
     {
       char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
-      if (!defaultOnly && g_model.gvars[idx].name[0]) {
+      if (!defaultOnly && gvarDataAddress(idx)->name[0]) {
         s = strAppend(s, ":");
         getGVarString(s, idx);
       }
@@ -1083,7 +1083,7 @@ char *getSourceCustomValueString(char (&dest)[L], const SourceRef& source, int32
 #if defined(GVARS)
     case SOURCE_TYPE_GVAR:
     {
-      auto gvar = &g_model.gvars[source.index];
+      auto gvar = gvarDataAddress(source.index);
       uint8_t prec = gvar->prec;
       if (prec > 0) {
         flags |= (prec == 1 ? PREC1 : PREC2);
@@ -1191,12 +1191,12 @@ std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
 
 std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
 {
-  uint8_t prec = g_model.gvars[gvar].prec;
+  uint8_t prec = gvarDataAddress(gvar)->prec;
   if (prec > 0) {
     flags |= (prec == 1 ? PREC1 : PREC2);
   }
   return getValueWithUnit(
-      value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
+      value, gvarDataAddress(gvar)->unit ? UNIT_PERCENT : UNIT_RAW, flags);
 }
 
 std::string getGPSCoord(int32_t value, const char *direction, bool seconds)

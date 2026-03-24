@@ -126,8 +126,8 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           }
         }
         if (fieldRef.type == SOURCE_TYPE_GVAR) {
-          if (g_model.gvars[fieldRef.index].name[0])
-            lcdDrawSizedText(pos[j], 1+FH+2*FH*i, g_model.gvars[fieldRef.index].name, LEN_GVAR_NAME, 0);
+          if (gvarDataAddress(fieldRef.index)->name[0])
+            lcdDrawSizedText(pos[j], 1+FH+2*FH*i, gvarDataAddress(fieldRef.index)->name, LEN_GVAR_NAME, 0);
           else
             drawSource(pos[j], 1+FH+2*FH*i, fieldRef, 0);
         }

@@ -40,7 +40,7 @@ void getFMExtName(char* dest, int8_t idx)
 {
   getFlightModeString(dest, idx);
 
-  FlightModeData* fmData = &g_model.flightModeData[idx - 1];
+  FlightModeData* fmData = flightModeAddress(idx - 1);
   int userNameLen = zlen(fmData->name, LEN_FLIGHT_MODE_NAME);
 
   if (userNameLen > 0) {
@@ -101,7 +101,7 @@ class GVarButton : public ListLineButton
       }
 
       for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
-        FlightModeData* fmData = &g_model.flightModeData[flightMode];
+        FlightModeData* fmData = flightModeAddress(flightMode);
         if (values[flightMode] != fmData->gvars[index]) {
           updateValueText(flightMode);
         }
@@ -148,7 +148,7 @@ class GVarButton : public ListLineButton
   void updateValueText(uint8_t flightMode)
   {
     lv_obj_t* field = valueTexts[flightMode];
-    gvar_t value = g_model.flightModeData[flightMode].gvars[index];
+    gvar_t value = flightModeAddress(flightMode)->gvars[index];
     values[flightMode] = value;
 
     if (value > GVAR_MAX) {
@@ -159,9 +159,9 @@ class GVarButton : public ListLineButton
 
       lv_label_set_text(field, label);
     } else {
-      uint8_t unit = g_model.gvars[index].unit;
+      uint8_t unit = gvarDataAddress(index)->unit;
       const char* suffix = (unit == 1) ? "%" : "";
-      uint8_t prec = g_model.gvars[index].prec;
+      uint8_t prec = gvarDataAddress(index)->prec;
       if (prec)
         lv_label_set_text_fmt(field, "%d.%01u%s", value / 10,
                               (value < 0) ? (-value) % 10 : value % 10, suffix);
@@ -311,7 +311,7 @@ class GVarEditWindow : public Page
     Page::checkEvents();
 
     auto curFM = getFlightMode();
-    auto fmData = &g_model.flightModeData[curFM];
+    auto fmData = flightModeAddress(curFM);
 
     if (gVarInHeader && ((lastFlightMode != curFM) ||
                          (lastGVar != fmData->gvars[index]) || refreshTitle)) {
@@ -333,7 +333,7 @@ class GVarEditWindow : public Page
 
   void setProperties(int onlyForFlightMode = -1)
   {
-    GVarData* gvar = &g_model.gvars[index];
+    GVarData* gvar = gvarDataAddress(index);
     int32_t minValue = GVAR_MIN + gvar->min;
     int32_t maxValue = GVAR_MAX - gvar->max;
     const char* suffix = gvar->unit ? "%" : "";
@@ -363,7 +363,7 @@ class GVarEditWindow : public Page
         continue;
 
       if (onlyForFlightMode >= 0 && fm != onlyForFlightMode) continue;
-      fmData = &g_model.flightModeData[fm];
+      fmData = flightModeAddress(fm);
 
       // custom value
       if (fmData->gvars[index] <= GVAR_MAX || fm == 0) {
@@ -406,7 +406,7 @@ class GVarEditWindow : public Page
 
     auto line = window->newLine(grid);
 
-    GVarData* gvar = &g_model.gvars[index];
+    GVarData* gvar = gvarDataAddress(index);
 
     new StaticText(line, rect_t{}, STR_NAME);
     grid.nextCell();
@@ -475,7 +475,7 @@ class GVarEditWindow : public Page
     FlightModeData* fmData;
 
     for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
-      fmData = &g_model.flightModeData[flightMode];
+      fmData = flightModeAddress(flightMode);
 
       if (modelFMEnabled()) {
         getFMExtName(flightModeName, flightMode + 1);
@@ -553,8 +553,8 @@ void ModelGVarsPage::build(Window* window)
         editWindow->setCloseHandler([=]() { rebuild(window); });
       });
       menu->addLine(STR_CLEAR, [=]() {
-        for (auto& flightMode : g_model.flightModeData) {
-          flightMode.gvars[index] = 0;
+        for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+          flightModeAddress(i)->gvars[index] = 0;
         }
         storageDirty(EE_MODEL);
       });

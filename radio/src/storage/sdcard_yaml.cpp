@@ -361,11 +361,12 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values
-      // Note: taken from edgetx.cpp::modelDefault()
-      //TODO: new func in gvars
+      // Arena sections must be pre-allocated before YAML load
+      g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
+      g_modelArena.ensureSectionCapacity(ARENA_GVAR_DATA, MAX_GVARS);
       for (int p=1; p<MAX_FLIGHT_MODES; p++) {
         for (int i=0; i<MAX_GVARS; i++) {
-          md->flightModeData[p].gvars[i] = GVAR_MAX+1;
+          flightModeAddress(p)->gvars[i] = GVAR_MAX+1;
         }
       }
 #endif

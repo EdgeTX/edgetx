@@ -71,7 +71,7 @@ class TrimEdit : public Window
     padAll(PAD_TINY);
     setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
 
-    trim_t* tr = &g_model.flightModeData[fmId].trim[trimId];
+    trim_t* tr = &flightModeAddress(fmId)->trim[trimId];
 
     lastTrim = tr->value;
 
@@ -120,7 +120,7 @@ class TrimEdit : public Window
 
   void showControls()
   {
-    uint8_t mode = g_model.flightModeData[fmId].trim[trimId].mode;
+    uint8_t mode = flightModeAddress(fmId)->trim[trimId].mode;
 
     bool checked = (mode != TRIM_MODE_NONE);
     bool showValue = (fmId == 0 && mode != TRIM_MODE_3POS) || ((mode & 1) || (mode >> 1 == fmId));
@@ -131,7 +131,7 @@ class TrimEdit : public Window
 
   void checkEvents() override
   {
-    const auto& fm = g_model.flightModeData[fmId];
+    const auto& fm = *flightModeAddress(fmId);
     if (lastTrim != fm.trim[trimId].value) {
       lastTrim = fm.trim[trimId].value;
       tr_value->setValue(lastTrim);
@@ -152,7 +152,7 @@ class FlightModeEdit : public Page
     FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
     body->setFlexLayout();
 
-    FlightModeData* p_fm = &g_model.flightModeData[index];
+    FlightModeData* p_fm = flightModeAddress(index);
 
     // Flight mode name
     auto line = body->newLine(grid);
@@ -254,9 +254,9 @@ class FlightModeBtn : public ListLineButton
 
   void setTrimValue(uint8_t t)
   {
-    lastTrim[t] = g_model.flightModeData[index].trim[t].value;
+    lastTrim[t] = flightModeAddress(index)->trim[t].value;
 
-    uint8_t mode = g_model.flightModeData[index].trim[t].mode;
+    uint8_t mode = flightModeAddress(index)->trim[t].mode;
     bool checked = (mode != TRIM_MODE_NONE);
     bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
 
@@ -273,7 +273,7 @@ class FlightModeBtn : public ListLineButton
     if (!refreshing && loaded) {
       refreshing = true;
       for (int t = 0; t < keysGetMaxTrims() && t < MAX_FMTRIMS; t += 1) {
-        if (lastTrim[t] != g_model.flightModeData[index].trim[t].value) {
+        if (lastTrim[t] != flightModeAddress(index)->trim[t].value) {
           setTrimValue(t);
         }
       }
@@ -285,7 +285,7 @@ class FlightModeBtn : public ListLineButton
   {
     if (!loaded) return;
 
-    const auto& fm = g_model.flightModeData[index];
+    const auto& fm = *flightModeAddress(index);
 
     if (fm.name[0] != '\0') {
       lv_label_set_text(fmName, fm.name);

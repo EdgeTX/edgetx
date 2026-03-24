@@ -398,6 +398,9 @@ uint16_t anaIn(uint8_t chan);
 #define FLASH_DURATION 20 /*200ms*/
 
 FlightModeData * flightModeAddress(uint8_t idx);
+GVarData * gvarDataAddress(uint8_t idx);
+uint16_t getFlightModeCount();
+uint16_t getGVarCount();
 LimitData * limitAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 CurveHeader * curveHeaderAddress(uint8_t idx);

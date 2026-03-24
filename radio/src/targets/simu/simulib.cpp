@@ -707,8 +707,8 @@ int32_t simuGetGVar(uint8_t gv, uint8_t fm)
 {
 #if defined(GVARS)
   if (gv < MAX_GVARS && fm < MAX_FLIGHT_MODES) {
-    uint8_t prec = g_model.gvars[gv].prec;
-    uint8_t unit = g_model.gvars[gv].unit;
+    uint8_t prec = gvarDataAddress(gv)->prec;
+    uint8_t unit = gvarDataAddress(gv)->unit;
     int16_t value = (int16_t)GVAR_VALUE(gv, getGVarFlightMode(fm, gv));
     // Encode as gVarMode_t: value[15:0] | mode[23:16] | prec[25:24] | unit[27:26]
     return (((unit & 0x3) << 26) | ((prec & 0x3) << 24) |

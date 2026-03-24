@@ -37,7 +37,9 @@ static constexpr uint32_t ARENA_SIZE_FORMULA =
     MAX_CURVES * sizeof(CurveHeader) +
     MAX_CURVE_POINTS * sizeof(int8_t) +
     MAX_LOGICAL_SWITCHES * sizeof(LogicalSwitchData) +
-    MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData);
+    MAX_SPECIAL_FUNCTIONS * sizeof(CustomFunctionData) +
+    MAX_FLIGHT_MODES * sizeof(FlightModeData) +
+    MAX_GVARS * sizeof(GVarData);
 static constexpr uint32_t ARENA_SIZE =
     ARENA_SIZE_FORMULA < MODEL_ARENA_SIZE ? ARENA_SIZE_FORMULA : MODEL_ARENA_SIZE;
 
@@ -111,6 +113,8 @@ static uint32_t packArenaForBackup(uint8_t* dst, uint32_t dstSize)
 
   PACK_SECTION(ARENA_LOGICAL_SW, LogicalSwitchData, Backup::LogicalSwitchData, copyLogicalSwitchData);
   PACK_SECTION(ARENA_CUSTOM_FN, CustomFunctionData, Backup::CustomFunctionData, copyCustomFunctionData);
+  PACK_SECTION(ARENA_FLIGHT_MODES, FlightModeData, Backup::FlightModeData, copyFlightModeData);
+  PACK_SECTION(ARENA_GVAR_DATA, GVarData, Backup::GVarData, copyGVarData);
 
 pack_done:
 #undef PACK_SECTION
@@ -138,6 +142,8 @@ static void unpackArenaFromBackup(const uint8_t* src)
 
   UNPACK_SECTION(ARENA_LOGICAL_SW, LogicalSwitchData, Backup::LogicalSwitchData, copyLogicalSwitchData);
   UNPACK_SECTION(ARENA_CUSTOM_FN, CustomFunctionData, Backup::CustomFunctionData, copyCustomFunctionData);
+  UNPACK_SECTION(ARENA_FLIGHT_MODES, FlightModeData, Backup::FlightModeData, copyFlightModeData);
+  UNPACK_SECTION(ARENA_GVAR_DATA, GVarData, Backup::GVarData, copyGVarData);
 
 #undef UNPACK_SECTION
 }

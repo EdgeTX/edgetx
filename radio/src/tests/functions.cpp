@@ -93,47 +93,47 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
   (*customFnAddress(0)).all.val = -1;   // inc/dec value
   (*customFnAddress(0)).active = true;
 
-  g_model.flightModeData[0].gvars[0] = 10;  // GV1 = 10;
+  flightModeAddress(0)->gvars[0] = 10;  // GV1 = 10;
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 10);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 10);
 
   // now trigger SA0
   simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 9);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 9);
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 9);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 9);
 
   simuSetSwitch(sw, 0);    // SA-
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 9);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 9);
 
   simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 8);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 8);
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 8);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 8);
 
   simuSetSwitch(sw, 0);    // SA-
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 8);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 8);
 
   (*customFnAddress(0)).all.val = 10;   // inc/dec value
  
   simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 18);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 18);
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 18);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 18);
 
   simuSetSwitch(sw, 0);    // SA-
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 18);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 18);
 
   simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 28);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 28);
   evalFunctions(customFnAddress(0), g_modelArena.sectionCount(ARENA_CUSTOM_FN), modelFunctionsContext);
-  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 28);
+  EXPECT_EQ(flightModeAddress(0)->gvars[0], 28);
 }
 #endif // #if defined(GVARS)

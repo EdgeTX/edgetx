@@ -804,13 +804,13 @@ PACK(struct ModelData {
   CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_get_custom_fn_ptr, yaml_ensure_custom_fn_capacity);
 
   SwashRingData swashR FUNC(swash_is_active);
-  FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
+  CUST_EXTERN_ARRAY(flightModeData, struct_FlightModeData, MAX_FLIGHT_MODES, yaml_get_fmd_ptr, yaml_ensure_fmd_capacity);
 
   NOBACKUP(SourceRef thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
   NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
-  GVarData gvars[MAX_GVARS];
+  CUST_EXTERN_ARRAY(gvars, struct_GVarData, MAX_GVARS, yaml_get_gvar_data_ptr, yaml_ensure_gvar_data_capacity);
 
   NOBACKUP(VarioData varioData);
   NOBACKUP(uint8_t rssiSource CUST(r_tele_sensor,w_tele_sensor));
