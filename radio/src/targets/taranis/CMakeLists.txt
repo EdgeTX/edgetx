@@ -71,7 +71,7 @@ elseif(PCB STREQUAL X9D+)
     set(ROTARY_ENCODER YES)
     set(INTERNAL_MODULE_SERIAL YES)
     set(MODULE_SIZE_STD YES)
-    set(FLYSKY_GIMBAL ON)
+    set(FLYSKY_GIMBAL OFF)
     set(GHOST OFF)  # Disabled to fit in flash after struct size increases
   else()
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
