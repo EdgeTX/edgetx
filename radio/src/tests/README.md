@@ -14,7 +14,7 @@ All hardware calls (ADC, switches, audio, LCD) are stubbed out by the simulator 
 
 | Test file | What it covers |
 |-----------|---------------|
-| `mixer.cpp` | Mixer engine: trims, curves, weights, throttle, flight mode transitions |
+| `mixer.cpp` | Mixer engine: trims, curves, weights, throttle, channel limits, multiply mode, flight mode transitions |
 | `switches.cpp` | Logical switches, edge detection, flex switch inputs |
 | `frsky.cpp` | FrSky telemetry protocol: Hub, SPORT, GPS, cell voltage, altitude |
 | `timers.cpp` | Timer modes (ON, THR, THR_REL, THR_START, OFF), countdown, reset |

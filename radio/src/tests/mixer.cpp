@@ -660,7 +660,8 @@ TEST_F(MixerTest, RecursiveAddChannel)
 
 TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 {
-  if (switchGetMaxAllSwitches() < 4) return;
+  if (switchGetMaxAllSwitches() < 4)
+    GTEST_SKIP() << "target has fewer than 4 switches";
   
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 1;
   g_model.mixData[0].destCh = 0;
@@ -715,7 +716,8 @@ TEST_F(MixerTest, SlowOnSwitchSource)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  if (sw >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "no 3-position switch on this target";
 
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -763,7 +765,8 @@ TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  if (sw >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "no 3-position switch on this target";
 
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -802,7 +805,8 @@ TEST_F(MixerTest, DelayOnSwitch)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  if (sw >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "no 3-position switch on this target";
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
 
   g_model.mixData[0].destCh = 0;
@@ -837,7 +841,8 @@ TEST_F(MixerTest, DelayOnSwitch2)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  if (sw >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "no 3-position switch on this target";
 
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -940,12 +945,10 @@ TEST_F(TrimsTest, throttleTrimEle) {
 }
 
 #if defined(HELI)
-TEST(Heli, BasicTest)
+class HeliTest : public EdgeTxTest {};
+
+TEST_F(HeliTest, BasicTest)
 {
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
   g_model.swashR.collectiveSource = MIXSRC_THR;
   g_model.swashR.elevatorSource = MIXSRC_ELE;
   g_model.swashR.aileronSource = MIXSRC_AIL;
@@ -974,12 +977,8 @@ TEST(Heli, BasicTest)
   EXPECT_EQ(chans[2], CHANNEL_MAX/2);
 }
 
-TEST(Heli, Mode2Test)
+TEST_F(HeliTest, Mode2Test)
 {
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
   g_eeGeneral.templateSetup = 2;
   applyDefaultTemplate();
   g_model.swashR.collectiveSource = MIXSRC_THR;
@@ -1008,16 +1007,13 @@ TEST(Heli, Mode2Test)
   EXPECT_EQ(chans[0], -CHANNEL_MAX);
   EXPECT_EQ(chans[1], CHANNEL_MAX/2);
   EXPECT_EQ(chans[2], CHANNEL_MAX/2);
-  SYSTEM_RESET();
 }
 #endif
 
-TEST(Trainer, UnpluggedTest)
+class TrainerTest : public EdgeTxTest {};
+
+TEST_F(TrainerTest, UnpluggedTest)
 {
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_TRAINER;
@@ -1035,13 +1031,10 @@ TEST_F(MixerTest, flightModeTransition)
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  if (sw >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "no 3-position switch on this target";
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
 
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
   g_model.flightModeData[1].swtch = swPos;
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
@@ -1064,10 +1057,6 @@ TEST_F(MixerTest, flightModeTransition)
 
 TEST_F(MixerTest, flightModeOverflow)
 {
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 2;
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
@@ -1248,4 +1237,92 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
+}
+
+// ---------------------------------------------------------------------------
+// Additional coverage: output limits, multiply mode, negative weights,
+// and switch-conditional mixes.
+// ---------------------------------------------------------------------------
+
+// A channel's max limit (< 100%) scales full-deflection output down.
+// LimitData.max stores the delta from LIMIT_STD_MAX (1000), so setting
+// max = -500 gives LIMIT_MAX = 500 (50%) → applyLimits returns 512 RESX.
+TEST_F(MixerTest, channelMaxLimitScalesOutput)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.limitData[0].max = -500;  // 50% positive limit
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 512);
+}
+
+// Symmetric check: a negative min limit of -50% clamps negative deflection.
+// LimitData.min stores the delta from -LIMIT_STD_MAX, so setting
+// min = 500 gives LIMIT_MIN = -500 (−50%) → applyLimits returns −512 RESX.
+TEST_F(MixerTest, channelMinLimitScalesOutput)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_MIN;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.limitData[0].min = 500;  // -50% negative limit
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], -512);
+}
+
+// A negative mix weight inverts the channel output relative to the source.
+TEST_F(MixerTest, negativeWeightInvertsOutput)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(-100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], -1024);
+}
+
+// MLTPX_MUL scales an existing channel value by the mix line's output.
+// First line sets 100%, second line multiplies by 50% → final output 50%.
+TEST_F(MixerTest, multiplyModeScalesOutput)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[1].destCh = 0;
+  g_model.mixData[1].mltpx = MLTPX_MUL;
+  g_model.mixData[1].srcRaw = MIXSRC_MAX;
+  g_model.mixData[1].weight = makeSourceNumVal(50);
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[0], CHANNEL_MAX / 2);
+}
+
+// A mix with a switch condition that is not currently active must contribute
+// zero — the channel output stays at 0.
+TEST_F(MixerTest, inactiveSwitchConditionDisablesMix)
+{
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
+      break;
+  if (sw >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "no 3-position switch on this target";
+
+  // Mix requires the switch in the down position
+  int swPosDown = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].swtch = swPosDown;
+
+  simuSetSwitch(sw, -1);  // switch up — condition not met
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 0);
+
+  simuSetSwitch(sw, 1);   // switch down — condition met
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 1024);
 }
