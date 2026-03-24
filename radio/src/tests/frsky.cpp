@@ -144,15 +144,32 @@ TEST(FrSky, Gps)
   EXPECT_EQ(telemetryItems[0].gps.longitude, 45341666);
 }
 
-TEST(FrSkySPORT, checkCrc)
+struct SportCrcTestCase {
+  uint8_t packet[10];
+  bool valid;
+};
+
+class FrSkySportCrcTest : public ::testing::TestWithParam<SportCrcTestCase> {};
+
+TEST_P(FrSkySportCrcTest, checkCrc)
 {
-  // Packet downstream
-  uint8_t pkt1[] = { 0x7E, 0x98, 0x10, 0x10, 0x00, 0x7E, 0x02, 0x00, 0x00, 0x5F };
-  EXPECT_TRUE(checkSportPacket(pkt1+1));
-  // Packet upstream
-  uint8_t pkt2[] = { 0x7E, 0x1C, 0x31, 0x00, 0x10, 0x85, 0x64, 0x00, 0x00, 0xD4 };
-  EXPECT_TRUE(checkSportPacket(pkt2+1));
+  const auto& tc = GetParam();
+  // checkSportPacket expects a pointer past the leading 0x7E framing byte
+  EXPECT_EQ(tc.valid, checkSportPacket(tc.packet + 1));
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    KnownPackets, FrSkySportCrcTest,
+    ::testing::Values(
+        // Valid packets captured from real SPORT hardware
+        SportCrcTestCase{{0x7E, 0x98, 0x10, 0x10, 0x00, 0x7E, 0x02, 0x00, 0x00, 0x5F}, true},
+        SportCrcTestCase{{0x7E, 0x1C, 0x31, 0x00, 0x10, 0x85, 0x64, 0x00, 0x00, 0xD4}, true},
+        // Same packets with corrupted CRC byte (last byte) — must be rejected
+        SportCrcTestCase{{0x7E, 0x98, 0x10, 0x10, 0x00, 0x7E, 0x02, 0x00, 0x00, 0x00}, false},
+        SportCrcTestCase{{0x7E, 0x1C, 0x31, 0x00, 0x10, 0x85, 0x64, 0x00, 0x00, 0xFF}, false},
+        // CRC off by one in each direction
+        SportCrcTestCase{{0x7E, 0x98, 0x10, 0x10, 0x00, 0x7E, 0x02, 0x00, 0x00, 0x5E}, false},
+        SportCrcTestCase{{0x7E, 0x98, 0x10, 0x10, 0x00, 0x7E, 0x02, 0x00, 0x00, 0x60}, false}));
 
 void setSportPacketCrc(uint8_t * packet)
 {

@@ -334,17 +334,40 @@ TEST(getSwitch, edgeRelease)
 
 uint8_t boardGetMaxSwitches();
 
+// Shared fixture for tests that need a fully configured FLEX switch.
+// Skips automatically on targets with no FLEX inputs or switches.
+class FlexSwitchTest : public EdgeTxTest {
+ protected:
+  uint8_t sw_idx;
+  uint8_t offset;
+
+  void SetUp() override {
+    EdgeTxTest::SetUp();
+    if (adcGetMaxInputs(ADC_INPUT_FLEX) == 0) {
+      GTEST_SKIP() << "No FLEX ADC inputs on this target";
+    }
+    if (MAX_FLEX_SWITCHES == 0) {
+      GTEST_SKIP() << "No FLEX switches on this target";
+    }
+    switchInit();
+    g_eeGeneral.potsConfig = FLEX_SWITCH;
+    sw_idx = boardGetMaxSwitches();
+    switchConfigFlex(sw_idx, 0);
+    offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  }
+};
+
 TEST(FlexSwitches, switchGetPosition)
 {
-  if (adcGetMaxInputs(ADC_INPUT_FLEX) == 0) return;
-  if (MAX_FLEX_SWITCHES == 0) return;
+  if (adcGetMaxInputs(ADC_INPUT_FLEX) == 0) GTEST_SKIP() << "No FLEX ADC inputs on this target";
+  if (MAX_FLEX_SWITCHES == 0) GTEST_SKIP() << "No FLEX switches on this target";
   switchInit();
 
   auto sw_idx = boardGetMaxSwitches();
   auto sw_name = switchGetDefaultName(sw_idx);
   EXPECT_STREQ("FL1", sw_name);
   EXPECT_FALSE(switchIsFlexValid(sw_idx));
-  
+
   // Configure 1st FLEX input as switch
   g_eeGeneral.potsConfig = FLEX_SWITCH;
   switchConfigFlex(sw_idx, 0);
@@ -361,21 +384,11 @@ TEST(FlexSwitches, switchGetPosition)
   EXPECT_EQ(SWITCH_HW_DOWN, switchGetPosition(sw_idx));
 }
 
-TEST(FlexSwitches, getValue)
+TEST_F(FlexSwitchTest, getValue)
 {
-  if (adcGetMaxInputs(ADC_INPUT_FLEX) == 0) return;
-  if (MAX_FLEX_SWITCHES == 0) return;
-  switchInit();
-
-  // Configure 1st FLEX input as switch
-  g_eeGeneral.potsConfig = FLEX_SWITCH;
-  auto sw_idx = boardGetMaxSwitches();
-  switchConfigFlex(sw_idx, 0);
-
   g_eeGeneral.switchSetType(sw_idx, SWITCH_3POS);
   EXPECT_EQ(SWITCH_3POS, g_model.getSwitchType(sw_idx));
 
-  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   anaSetFiltered(offset, -1024);
   EXPECT_EQ(-1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
@@ -398,21 +411,11 @@ TEST(FlexSwitches, getValue)
   EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 }
 
-TEST(FlexSwitches, getSwitch)
+TEST_F(FlexSwitchTest, getSwitch)
 {
-  if (adcGetMaxInputs(ADC_INPUT_FLEX) == 0) return;
-  if (MAX_FLEX_SWITCHES == 0) return;
-  switchInit();
-
-  // Configure 1st FLEX input as switch
-  g_eeGeneral.potsConfig = FLEX_SWITCH;
-  auto sw_idx = boardGetMaxSwitches();
-  switchConfigFlex(sw_idx, 0);
-
   g_eeGeneral.switchSetType(sw_idx, SWITCH_3POS);
   EXPECT_EQ(SWITCH_3POS, g_model.getSwitchType(sw_idx));
 
-  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   anaSetFiltered(offset, -1024);
   EXPECT_TRUE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
   EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
