@@ -48,6 +48,36 @@ static fs::path simuSettingsDirectory;
 // current simulater path
 static fs::path simuCurrentPath;
 
+// -- Storage fault injection --
+
+// op codes: 0=any write-path op, 1=f_write, 2=f_unlink, 3=f_rename
+struct SimuStorageError {
+  bool    active    = false;
+  int     op        = 0;
+  FRESULT result    = FR_DISK_ERR;
+  int     countdown = 0;  // succeed this many matching calls first, then fire
+};
+static SimuStorageError g_storageError;
+
+void simuSetStorageError(bool active, int op, int after)
+{
+  g_storageError = { active, op, FR_DISK_ERR, after };
+}
+
+void simuClearStorageError()
+{
+  g_storageError = {};
+}
+
+// Returns true if the error should fire for the given op code.
+static bool storageErrorFires(int op)
+{
+  if (!g_storageError.active) return false;
+  if (g_storageError.op != 0 && g_storageError.op != op) return false;
+  if (g_storageError.countdown > 0) { g_storageError.countdown--; return false; }
+  return true;
+}
+
 static bool lower_case_equal(unsigned char c1, unsigned char c2)
 {
   return std::tolower(c1) == std::tolower(c2);
@@ -319,6 +349,7 @@ FRESULT f_read(FIL* fil, void* data, UINT size, UINT* read)
 FRESULT f_write(FIL* fil, const void* data, UINT size, UINT* written)
 {
   *written = 0;
+  if (storageErrorFires(1)) return g_storageError.result;
   if (fil && fil->obj.fs) {
     _simu_FIL* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);
     if (sf->stream && sf->stream->is_open()) {
@@ -489,6 +520,7 @@ FRESULT f_mkdir(const TCHAR* name)
 
 FRESULT f_unlink(const TCHAR * name)
 {
+  if (storageErrorFires(2)) return g_storageError.result;
   std::string path = convertToSimuPath(name);
   std::error_code ec;
 
@@ -500,6 +532,7 @@ FRESULT f_unlink(const TCHAR * name)
 
 FRESULT f_rename(const TCHAR *oldname, const TCHAR *newname)
 {
+  if (storageErrorFires(3)) return g_storageError.result;
   std::string old = convertToSimuPath(oldname);
   std::string path = convertToSimuPath(newname);
   std::error_code ec;

@@ -162,6 +162,21 @@ void simuMain();
 std::string simuFatfsGetCurrentPath();
 std::string simuFatfsGetRealPath(const std::string& p);
 
+// Storage fault injection (test use only).
+// op selects which FatFS function to intercept:
+//   SIMU_STORAGE_OP_ANY    (0) — any write-path call (f_write, f_unlink, f_rename)
+//   SIMU_STORAGE_OP_WRITE  (1) — f_write only
+//   SIMU_STORAGE_OP_UNLINK (2) — f_unlink only
+//   SIMU_STORAGE_OP_RENAME (3) — f_rename only
+// after: succeed this many matching calls before injecting the error.
+// simuClearStorageError() disarms the injector.
+static constexpr int SIMU_STORAGE_OP_ANY    = 0;
+static constexpr int SIMU_STORAGE_OP_WRITE  = 1;
+static constexpr int SIMU_STORAGE_OP_UNLINK = 2;
+static constexpr int SIMU_STORAGE_OP_RENAME = 3;
+void simuSetStorageError(bool active, int op = SIMU_STORAGE_OP_ANY, int after = 0);
+void simuClearStorageError();
+
 #if defined(HARDWARE_TOUCH)
   extern struct TouchState simTouchState;
   extern bool simTouchOccured;
