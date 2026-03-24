@@ -69,6 +69,30 @@
 // ---------------------------------------------------------------------------
 // Arena section layout
 // ---------------------------------------------------------------------------
+//
+// Each arena section stores a variable-length array of fixed-size elements.
+// The table below documents the runtime state cost per element for each
+// section — i.e. the RAM outside the arena that scales with the hard limit.
+// This is the cost of raising a hard limit even if a model uses fewer items.
+//
+// Section              Elem bytes  Runtime state per element (outside arena)
+// -------              ----------  -----------------------------------------
+// ARENA_MIXES          ~35         4 (act[]) + 6 (mixState[]) + 1 (activeMixes[]) = 11 B
+// ARENA_EXPOS          ~22         (none — expos share the input pipeline)
+// ARENA_CURVES         4           4-8 (curveEnd[] pointer)
+// ARENA_POINTS         1           (none)
+// ARENA_LOGICAL_SW     ~20         4 (LogicalSwitchContext) × MAX_FLIGHT_MODES = 36 B
+// ARENA_CUSTOM_FN      16          4 (lastFunctionTime[]) per context × 2 contexts = 8 B
+// ARENA_FLIGHT_MODES   ~28         2 (fp_act[]) + MAX_LOGICAL_SWITCHES×4 (lswFm[]) ≈ 258 B
+// ARENA_GVAR_DATA      7           (none)
+// ARENA_GVAR_VALUES    2           (none)
+//
+// Largest runtime cost: MAX_FLIGHT_MODES × lswFm = FM × LS × 4 bytes.
+// With 9 FM × 64 LS × 4 = 2304 bytes.  Raising FM to 16 → 4096 bytes.
+//
+// MAX_OUTPUT_CHANNELS has no arena section but carries runtime cost:
+// chans[32×4] + channelOutputs[32×2] + ex_chans[32×2] + safetyCh[32×2]
+// + sum_chans512[32×4] = 448 bytes (all at hard max 32).
 
 // Maximum number of sections any arena can have
 #define ARENA_MAX_SECTIONS 9
