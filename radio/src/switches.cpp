@@ -55,18 +55,6 @@ enum LogicalSwitchContextState {
   SWITCH_ENABLE
 };
 
-PACK(struct LogicalSwitchContext {
-  uint8_t state:1;
-  uint8_t timerState:2;
-  uint8_t spare:1;
-  uint8_t deltaTimer:4; // Timer for holding delta function state change active
-  uint8_t timer;
-  int16_t lastValue;
-});
-
-PACK(struct LogicalSwitchesFlightModeContext {
-  LogicalSwitchContext lsw[MAX_LOGICAL_SWITCHES];
-});
 LogicalSwitchesFlightModeContext lswFm[MAX_FLIGHT_MODES];
 CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 

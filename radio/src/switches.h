@@ -26,6 +26,7 @@
 
 #include "edgetx_types.h"
 #include "edgetx_constants.h"
+#include "dataconstants.h"
 #include "sourceref.h"
 
 enum LogicalSwitchFamilies {
@@ -109,3 +110,23 @@ uint8_t getRGBColorIndex(uint32_t color);
 #endif
 
 void setAllPreflightSwitchStates();
+
+// Per-FM logical switch runtime context
+PACK(struct LogicalSwitchContext {
+  uint8_t state:1;
+  uint8_t timerState:2;
+  uint8_t spare:1;
+  uint8_t deltaTimer:4;
+  uint8_t timer;
+  int16_t lastValue;
+});
+
+PACK(struct LogicalSwitchesFlightModeContext {
+  LogicalSwitchContext lsw[MAX_LOGICAL_SWITCHES];
+});
+
+extern LogicalSwitchesFlightModeContext lswFm[MAX_FLIGHT_MODES];
+
+inline LogicalSwitchContext& lswContext(uint8_t fm, uint8_t idx) {
+  return lswFm[fm].lsw[idx];
+}
