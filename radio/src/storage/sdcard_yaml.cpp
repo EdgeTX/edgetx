@@ -269,11 +269,19 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 
     // Try to add CRC
     if (checksum != 0) {
-      if (!yaml_writer(&ctx, YAMLFILE_CHECKSUM_TAG_NAME, strlen(YAMLFILE_CHECKSUM_TAG_NAME))) return NULL;
-      if (!yaml_writer(&ctx, ": ", 2)) return SDCARD_ERROR(FR_INVALID_PARAMETER);
-      const char* p_out = NULL;
-      p_out = yaml_unsigned2str((int)checksum);
-      if (p_out && !yaml_writer(&ctx, p_out, strlen(p_out))) return SDCARD_ERROR(FR_INVALID_PARAMETER);
+      if (!yaml_writer(&ctx, YAMLFILE_CHECKSUM_TAG_NAME, strlen(YAMLFILE_CHECKSUM_TAG_NAME))) {
+        f_close(&file);
+        return SDCARD_ERROR(ctx.result);
+      }
+      if (!yaml_writer(&ctx, ": ", 2)) {
+        f_close(&file);
+        return SDCARD_ERROR(ctx.result);
+      }
+      const char* p_out = yaml_unsigned2str((int)checksum);
+      if (p_out && !yaml_writer(&ctx, p_out, strlen(p_out))) {
+        f_close(&file);
+        return SDCARD_ERROR(ctx.result);
+      }
       yaml_writer(&ctx, "\r\n", 2);
     }
 
