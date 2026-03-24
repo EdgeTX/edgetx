@@ -1622,9 +1622,9 @@ static int luaModelGetOutput(lua_State *L)
     LimitData * limit = limitAddress(idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", limit->name);
-    lua_pushtableinteger(L, "min", limit->min-1000);
-    lua_pushtableinteger(L, "max", limit->max+1000);
-    lua_pushtableinteger(L, "offset", limit->offset);
+    lua_pushtableinteger(L, "min", GV_DECODE(limit->min)-1000);
+    lua_pushtableinteger(L, "max", GV_DECODE(limit->max)+1000);
+    lua_pushtableinteger(L, "offset", GV_DECODE(limit->offset));
     lua_pushtableinteger(L, "ppmCenter", limit->ppmCenter);
     lua_pushtableinteger(L, "symetrical", limit->symetrical);
     lua_pushtableinteger(L, "revert", limit->revert);
@@ -1666,13 +1666,13 @@ static int luaModelSetOutput(lua_State *L)
         strncpy(limit->name, name, sizeof(limit->name));
       }
       else if (!strcmp(key, "min")) {
-        limit->min = luaL_checkinteger(L, -1)+1000;
+        limit->min = GV_ENCODE(luaL_checkinteger(L, -1)+1000);
       }
       else if (!strcmp(key, "max")) {
-        limit->max = luaL_checkinteger(L, -1)-1000;
+        limit->max = GV_ENCODE(luaL_checkinteger(L, -1)-1000);
       }
       else if (!strcmp(key, "offset")) {
-        limit->offset = luaL_checkinteger(L, -1);
+        limit->offset = GV_ENCODE(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "ppmCenter")) {
         limit->ppmCenter = luaL_checkinteger(L, -1);

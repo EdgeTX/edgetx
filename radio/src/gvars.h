@@ -52,21 +52,21 @@
   #define GET_GVAR_PREC1(x, ...)       (x*10)
 #endif
 
-// we reserve the space inside the range of values, like offset, weight, etc.
-#define GV_RANGE_MAX                1024
-#define GV_RANGE_POS                (GV_RANGE_MAX - 1 - MAX_GVARS)
-#define GV_RANGE_NEG                (-GV_RANGE_MAX + MAX_GVARS)
+// GVar encoding for LimitData fields.
+// Bit 15 = 1 flags a gvar reference; bits 0-14 hold the gvar index (signed).
+// Bit 15 = 0 means numeric; bits 0-14 hold the value (15-bit signed, ±16383).
+#define GV_FLAG                     ((uint16_t)0x8000)
+#define GV_IS_GV_VALUE(x)          (((uint16_t)(x)) & GV_FLAG)
+#define GV_INDEX_FROM_VALUE(x)     ((int16_t)((uint16_t)(x) << 1) >> 1)
+#define GV_VALUE_FROM_INDEX(idx)   ((int16_t)(GV_FLAG | ((uint16_t)(idx) & 0x7FFF)))
 
-#define GV_IS_GV_VALUE(x)           (x > GV_RANGE_POS || x < GV_RANGE_NEG)
-#define GV_INDEX_FROM_VALUE(x)      ((x & (GV_RANGE_MAX * 2 - 1)) - GV_RANGE_MAX)
-#define GV_VALUE_FROM_INDEX(idx)    ((idx < 0) ? GV_RANGE_MAX + idx : -GV_RANGE_MAX + idx)
+// Encode/decode numeric values for LimitData fields (15-bit signed, bit 15 = 0)
+#define GV_ENCODE(x)               ((int16_t)((uint16_t)(x) & 0x7FFF))
+#define GV_DECODE(x)               ((int16_t)((uint16_t)(x) << 1) >> 1)
 
-// the define GV_RANGE_MAX marks the highest bit value used for this variables
-// because this would give too big numbers for ARM, we limit it further for
-// offset and weight
 constexpr int32_t MIX_WEIGHT_MAX = 500;
 constexpr int32_t MIX_WEIGHT_MIN = -500;
-constexpr int32_t MIX_OFFSET_MAX = 500;       
+constexpr int32_t MIX_OFFSET_MAX = 500;
 constexpr int32_t MIX_OFFSET_MIN = -500;      
 
 void getGVarIncDecRange(int16_t & valMin, int16_t & valMax);

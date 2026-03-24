@@ -169,12 +169,12 @@ void menuModelLimits(event_t event)
           }
 
           if (g_eeGeneral.ppmunit == PPM_US) {
-            lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)ld->offset*128) / 25, attr|PREC1|RIGHT);
+            lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)GV_DECODE(ld->offset)*128) / 25, attr|PREC1|RIGHT);
           } else {
-            lcdDrawNumber(LIMITS_OFFSET_POS, y, ld->offset, attr|PREC1|RIGHT);
+            lcdDrawNumber(LIMITS_OFFSET_POS, y, GV_DECODE(ld->offset), attr|PREC1|RIGHT);
           }
           if (active) {
-            ld->offset = checkIncDec(event, ld->offset, -1000, 1000, EE_MODEL, nullptr, stops1000);
+            ld->offset = GV_ENCODE(checkIncDec(event, GV_DECODE(ld->offset), -1000, 1000, EE_MODEL, nullptr, stops1000));
           }
           else if (attr && event==EVT_KEY_LONG(KEY_MENU)) {
             killEvents(event);
@@ -190,8 +190,8 @@ void menuModelLimits(event_t event)
             ld->min = GVAR_MENU_ITEM(LIMITS_MIN_POS, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
             break;
           }
-          lcdDrawNumber(LIMITS_MIN_POS, y, minMaxDisplay(ld->min-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
-          if (active) ld->min = LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->min-LIMITS_MIN_MAX_OFFSET, -limit, 0, EE_MODEL, nullptr, stops1000);
+          lcdDrawNumber(LIMITS_MIN_POS, y, minMaxDisplay(GV_DECODE(ld->min)-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
+          if (active) ld->min = GV_ENCODE(LIMITS_MIN_MAX_OFFSET + checkIncDec(event, GV_DECODE(ld->min)-LIMITS_MIN_MAX_OFFSET, -limit, 0, EE_MODEL, nullptr, stops1000));
           break;
 
         case ITEM_LIMITS_MAX:
@@ -201,8 +201,8 @@ void menuModelLimits(event_t event)
             ld->max = GVAR_MENU_ITEM(LIMITS_MAX_POS, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
             break;
           }
-          lcdDrawNumber(LIMITS_MAX_POS, y, minMaxDisplay(ld->max+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
-          if (active) ld->max = -LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->max+LIMITS_MIN_MAX_OFFSET, 0, +limit, EE_MODEL, nullptr, stops1000);
+          lcdDrawNumber(LIMITS_MAX_POS, y, minMaxDisplay(GV_DECODE(ld->max)+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
+          if (active) ld->max = GV_ENCODE(-LIMITS_MIN_MAX_OFFSET + checkIncDec(event, GV_DECODE(ld->max)+LIMITS_MIN_MAX_OFFSET, 0, +limit, EE_MODEL, nullptr, stops1000));
           break;
 
         case ITEM_LIMITS_DIRECTION:

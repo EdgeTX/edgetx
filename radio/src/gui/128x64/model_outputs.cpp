@@ -95,9 +95,9 @@ int32_t gvValEdit(const char* title, int32_t val, int32_t offset, int min, int m
       killEvents(event);
     return GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, val, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|flags, 0, event);
   }
-  lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, gvValDisplay(val - offset), attr|PREC1|flags);
+  lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, gvValDisplay(GV_DECODE(val) - offset), attr|PREC1|flags);
   if (active) {
-    return offset + checkIncDec(event, val - offset, min, max, EE_MODEL, nullptr, stops1000);
+    return GV_ENCODE(offset + checkIncDec(event, GV_DECODE(val) - offset, min, max, EE_MODEL, nullptr, stops1000));
   }
   return val;
 }
@@ -277,7 +277,7 @@ void menuModelLimits(event_t event)
             break;
           }
 #endif
-          lcdDrawNumber(LIMITS_OFFSET_POS, y, gvValDisplay(ld->offset), PREC1|RIGHT);
+          lcdDrawNumber(LIMITS_OFFSET_POS, y, gvValDisplay(GV_DECODE(ld->offset)), PREC1|RIGHT);
           break;
 
         case ITEM_OUTPUTS_MIN:
@@ -287,11 +287,11 @@ void menuModelLimits(event_t event)
             break;
           }
 #endif
-          if (ld->min <= precThreshold) {
-            lcdDrawNumber(limitsMinPos, y, gvValDisplay(ld->min-LIMITS_MIN_MAX_OFFSET)/10, RIGHT);
+          if (GV_DECODE(ld->min) <= precThreshold) {
+            lcdDrawNumber(limitsMinPos, y, gvValDisplay(GV_DECODE(ld->min)-LIMITS_MIN_MAX_OFFSET)/10, RIGHT);
           }
           else {
-            lcdDrawNumber(limitsMinPos, y, gvValDisplay(ld->min-LIMITS_MIN_MAX_OFFSET), PREC1|RIGHT);
+            lcdDrawNumber(limitsMinPos, y, gvValDisplay(GV_DECODE(ld->min)-LIMITS_MIN_MAX_OFFSET), PREC1|RIGHT);
           }
           break;
 
@@ -302,11 +302,11 @@ void menuModelLimits(event_t event)
             break;
           }
 #endif
-          if (ld->max >= -precThreshold) {
-            lcdDrawNumber(LIMITS_MAX_POS, y, gvValDisplay(ld->max+LIMITS_MIN_MAX_OFFSET)/10, RIGHT);
+          if (GV_DECODE(ld->max) >= -precThreshold) {
+            lcdDrawNumber(LIMITS_MAX_POS, y, gvValDisplay(GV_DECODE(ld->max)+LIMITS_MIN_MAX_OFFSET)/10, RIGHT);
           }
           else {
-            lcdDrawNumber(LIMITS_MAX_POS, y, gvValDisplay(ld->max+LIMITS_MIN_MAX_OFFSET), PREC1|RIGHT);
+            lcdDrawNumber(LIMITS_MAX_POS, y, gvValDisplay(GV_DECODE(ld->max)+LIMITS_MIN_MAX_OFFSET), PREC1|RIGHT);
           }
           break;
 

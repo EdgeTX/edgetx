@@ -118,17 +118,17 @@ enum CurveRefType {
   (GV_IS_GV_VALUE(lim->max)                                       \
        ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
-       : lim->max + LIMIT_STD_MAX)
+       : GV_DECODE(lim->max) + LIMIT_STD_MAX)
 #define LIMIT_MIN(lim)                                            \
   (GV_IS_GV_VALUE(lim->min)                                       \
        ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
-       : lim->min - LIMIT_STD_MAX)
+       : GV_DECODE(lim->min) - LIMIT_STD_MAX)
 #define LIMIT_OFS(lim)                                               \
   (GV_IS_GV_VALUE(lim->offset)                                       \
        ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
                         mixerCurrentFlightMode)                      \
-       : lim->offset)
+       : GV_DECODE(lim->offset))
 #define LIMIT_MAX_RESX(lim) calc1000toRESX(LIMIT_MAX(lim))
 #define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))
 #define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))
