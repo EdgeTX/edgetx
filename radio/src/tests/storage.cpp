@@ -131,3 +131,41 @@ TEST_F(StorageTest, storageCheckClearsDirtyBitOnSuccess)
   EXPECT_FALSE(storageDirtyMsk & EE_GENERAL)
       << "EE_GENERAL dirty bit should be cleared after a successful write";
 }
+
+// Writing radio settings then reading them back must preserve a known field
+// value — verifying the full write→rename→read YAML round trip.
+TEST_F(StorageTest, writeAndReadBackGeneralSettings)
+{
+  // Use stickMode: a simple 2-bit field that is written to YAML and is not
+  // overwritten by postRadioSettingsLoad() or adcCalibDefaults().
+  // Valid values are 0-3; pick one that differs from the generalDefault value.
+  const uint8_t sentinel = (g_eeGeneral.stickMode == 1) ? 2 : 1;
+  g_eeGeneral.stickMode = sentinel;
+
+  ASSERT_EQ(nullptr, writeGeneralSettings()) << "Write should succeed";
+
+  // Wipe the in-memory struct so we can prove the value came from disk.
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
+
+  const char* err = loadRadioSettings();
+  ASSERT_EQ(nullptr, err) << "Load should succeed: " << (err ? err : "");
+
+  EXPECT_EQ(sentinel, g_eeGeneral.stickMode)
+      << "stickMode should survive a write→read round trip";
+}
+
+// A failed f_unlink should not prevent a successful write: writeGeneralSettings
+// ignores the unlink return value and relies on f_rename to replace the file.
+// On the host filesystem, fs::rename atomically replaces the destination, so
+// even if the unlink "fails" (via our injector) the rename still succeeds.
+TEST_F(StorageTest, unlinkFaultDoesNotPreventWrite)
+{
+  // First write creates radio.yml so the second write's unlink has something
+  // to fail on.
+  ASSERT_EQ(nullptr, writeGeneralSettings());
+
+  simuSetStorageError(true, SIMU_STORAGE_OP_UNLINK);
+  const char* err = writeGeneralSettings();
+  EXPECT_EQ(nullptr, err)
+      << "Write should succeed despite unlink fault (rename replaces atomically)";
+}

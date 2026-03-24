@@ -132,3 +132,97 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 28);
 }
 #endif // #if defined(GVARS)
+
+#if defined(GVARS)
+// Incrementing a GVar past its model maximum must clamp at MODEL_GVAR_MAX,
+// not wrap or exceed the boundary.
+TEST_F(SpecialFunctionsTest, GvarIncSaturatesAtMax)
+{
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
+      break;
+  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  g_model.customFn[0].swtch = swPos;
+  g_model.customFn[0].func = FUNC_ADJUST_GVAR;
+  g_model.customFn[0].all.mode = FUNC_ADJUST_GVAR_INCDEC;
+  g_model.customFn[0].all.param = 0;  // GV1
+  g_model.customFn[0].all.val = 100;  // step = +100
+  g_model.customFn[0].active = true;
+
+  const int16_t maxVal = MODEL_GVAR_MAX(0);  // GVAR_MAX - g_model.gvars[0].max
+
+  // Prime to one step below the ceiling.
+  g_model.flightModeData[0].gvars[0] = maxVal - 50;
+
+  simuSetSwitch(sw, -1);  // switch on (edge trigger: activeSwitches not yet set)
+  evalFunctions(g_model.customFn, modelFunctionsContext);
+  EXPECT_EQ(g_model.flightModeData[0].gvars[0], maxVal)
+      << "GVar should be clamped to MODEL_GVAR_MAX, not exceed it";
+}
+
+// Decrementing a GVar past its model minimum must clamp at MODEL_GVAR_MIN.
+TEST_F(SpecialFunctionsTest, GvarDecSaturatesAtMin)
+{
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
+      break;
+  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  g_model.customFn[0].swtch = swPos;
+  g_model.customFn[0].func = FUNC_ADJUST_GVAR;
+  g_model.customFn[0].all.mode = FUNC_ADJUST_GVAR_INCDEC;
+  g_model.customFn[0].all.param = 0;   // GV1
+  g_model.customFn[0].all.val = -100;  // step = -100
+  g_model.customFn[0].active = true;
+
+  const int16_t minVal = MODEL_GVAR_MIN(0);
+
+  // Prime to one step above the floor.
+  g_model.flightModeData[0].gvars[0] = minVal + 50;
+
+  simuSetSwitch(sw, -1);
+  evalFunctions(g_model.customFn, modelFunctionsContext);
+  EXPECT_EQ(g_model.flightModeData[0].gvars[0], minVal)
+      << "GVar should be clamped to MODEL_GVAR_MIN, not go below it";
+}
+#endif // #if defined(GVARS)
+
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+// When FUNC_OVERRIDE_CHANNEL is active, the mixer must output the override
+// value for that channel regardless of the normal mix result.
+TEST_F(SpecialFunctionsTest, channelOverrideForcesOutput)
+{
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
+      break;
+  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  g_model.customFn[0].swtch = swPos;
+  g_model.customFn[0].func = FUNC_OVERRIDE_CHANNEL;
+  g_model.customFn[0].all.param = 0;   // CH1 (0-based)
+  g_model.customFn[0].all.val = 100;   // override value: +100%
+  g_model.customFn[0].active = true;
+
+  // Switch off — channel output should not be overridden.
+  simuSetSwitch(sw, 0);
+  customFunctionsReset();
+  evalFunctions(g_model.customFn, modelFunctionsContext);
+  EXPECT_EQ(safetyCh[0], OVERRIDE_CHANNEL_UNDEFINED)
+      << "safetyCh should be undefined when switch is inactive";
+
+  // Switch on — safetyCh[0] must be set to the override value.
+  simuSetSwitch(sw, -1);
+  evalFunctions(g_model.customFn, modelFunctionsContext);
+  EXPECT_EQ(safetyCh[0], 100)
+      << "safetyCh should hold the override value when switch is active";
+
+  // Mixer must honour safetyCh and output calc100toRESX(100).
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], calc100toRESX(100))
+      << "channelOutputs[0] should equal calc100toRESX(100) under override";
+}
+#endif // #if defined(OVERRIDE_CHANNEL_FUNCTION)

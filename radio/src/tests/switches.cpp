@@ -431,3 +431,50 @@ TEST_F(FlexSwitchTest, getSwitch)
   EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
   EXPECT_TRUE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
 }
+
+// LS_FUNC_VPOS fires when the source value is strictly greater than the
+// threshold (v2 in 100-unit scale, converted to RESX internally).
+TEST(evalLogicalSwitches, vposTriggersAboveThreshold)
+{
+  MODEL_RESET();
+  setModelDefaults();
+  MIXER_RESET();
+
+  // Threshold = 0 (centre).  v1 = first stick, v2 = 0.
+  setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_STICK, 0);
+
+  // Stick at full positive deflection → above threshold → true.
+  anaSetFiltered(0, +1024);
+  evalMixes(1);
+  evalLogicalSwitches();
+  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+
+  // Stick at full negative deflection → below threshold → false.
+  anaSetFiltered(0, -1024);
+  evalMixes(1);
+  evalLogicalSwitches();
+  EXPECT_FALSE(getSwitch(SWSRC_SW1));
+}
+
+// LS_FUNC_VNEG fires when the source value is strictly less than the threshold.
+TEST(evalLogicalSwitches, vnegTriggersBelowThreshold)
+{
+  MODEL_RESET();
+  setModelDefaults();
+  MIXER_RESET();
+
+  // Threshold = 0 (centre).  v1 = first stick, v2 = 0.
+  setLogicalSwitch(0, LS_FUNC_VNEG, MIXSRC_FIRST_STICK, 0);
+
+  // Stick at full negative deflection → below threshold → VNEG true.
+  anaSetFiltered(0, -1024);
+  evalMixes(1);
+  evalLogicalSwitches();
+  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+
+  // Stick at full positive deflection → above threshold → VNEG false.
+  anaSetFiltered(0, +1024);
+  evalMixes(1);
+  evalLogicalSwitches();
+  EXPECT_FALSE(getSwitch(SWSRC_SW1));
+}

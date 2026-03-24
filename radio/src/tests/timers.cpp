@@ -198,6 +198,19 @@ TEST(Timers, timerAtMaxDoesNotOverflow)
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING, TIMER_MAX));
 }
 
+// A countdown timer that has crossed zero and is running negative must not
+// underflow past TIMER_MIN.
+TEST(Timers, timerAtMinDoesNotUnderflow)
+{
+  initModelTimer(0, TMRMODE_ON, 1);  // 1-second countdown
+  timerSet(0, TIMER_MIN);
+  // timerSet() resets state to TMR_OFF; the first evalTimers() call transitions
+  // it to TMR_RUNNING (TMRMODE_ON), then the val==TIMER_MIN early-exit guard
+  // (timers.cpp line 107) prevents any further value update without changing
+  // state.  The timer therefore stays TMR_RUNNING, clamped at TIMER_MIN.
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING, TIMER_MIN));
+}
+
 TEST(Timers, timerThrottleTriggered)
 {
   initModelTimer(0, TMRMODE_THR_START, 0);
