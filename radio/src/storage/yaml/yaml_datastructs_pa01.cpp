@@ -977,7 +977,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
-  YAML_ARRAY("telemetrySensors", 112, 99, struct_TelemetrySensor, NULL),
+  YAML_ARRAY("telemetrySensors", 112, 75, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 0, 10, struct_CustomScreenData, screen_is_active),
   YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
   YAML_ARRAY("topbarWidgetWidth", 8, 5, struct_unsigned_8, NULL),

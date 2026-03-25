@@ -54,7 +54,7 @@
   #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
 #if defined(STM32H7)
-  #define MAX_TELEMETRY_SENSORS        99
+  #define MAX_TELEMETRY_SENSORS        75
 #else
   #define MAX_TELEMETRY_SENSORS        60
 #endif
@@ -744,3 +744,5 @@ enum Functions {
   FUNC_MAX SKIP = FUNC_TEST
 #endif
 };
+
+static_assert(MIXSRC_LAST_TELEM < (1 << 9), "MIXSRC_LAST_TELEM exceeds max positive value of 10-bit signed srcRaw field (511)");
