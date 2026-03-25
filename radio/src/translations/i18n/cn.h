@@ -1195,6 +1195,7 @@
 #define TR_ALTSENSOR                   "Alt 传感器"
 #define TR_CELLSENSOR                  "Cell 传感器"
 #define TR_GPSSENSOR                   "GPS 传感器"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "传感器"
 #define TR_AUTOOFFSET                  "自动偏移值"
 #define TR_ONLYPOSITIVE                "正向"

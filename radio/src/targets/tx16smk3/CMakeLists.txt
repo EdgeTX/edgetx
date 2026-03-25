@@ -35,6 +35,7 @@ set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 # IMU support
 set(IMU ON)
 add_definitions(-DIMU_ICM4207C)
+add_definitions(-DIMU_SC7U22)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -168,9 +169,9 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
   ${BOARD_SRC_DIR}/luminosity_sensor.cpp
-  drivers/icm42607C.cpp
-  drivers/imu_filter.cpp
   drivers/tas2505.cpp
+  drivers/icm42607C.cpp
+  drivers/sc7u22.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp

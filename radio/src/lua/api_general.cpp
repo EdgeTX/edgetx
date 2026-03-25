@@ -3061,7 +3061,7 @@ static int luaSetIMU_X(lua_State* const L)
     return 1;
   }
 
-  gyro.setIMU_X(offset, range);
+  gyroSetIMU_X(offset, range);
 #endif
   lua_pushboolean(L, true);
   return 1;
@@ -3092,7 +3092,7 @@ static int luaSetIMU_Y(lua_State* const L)
     return 1;
   }
 
-  gyro.setIMU_Y(offset, range);
+  gyroSetIMU_Y(offset, range);
 #endif
   lua_pushboolean(L, true);
   return 1;

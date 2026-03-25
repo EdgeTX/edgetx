@@ -1194,6 +1194,7 @@
 #define TR_ALTSENSOR                   "Altセンサー"
 #define TR_CELLSENSOR                  "セルセンサー"
 #define TR_GPSSENSOR                   "GPSセンサー"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "センサー"
 #define TR_AUTOOFFSET                  "自動オフセット"
 #define TR_ONLYPOSITIVE                "ポジティブ"

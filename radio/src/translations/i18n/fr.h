@@ -1198,6 +1198,7 @@
 #define TR_ALTSENSOR                   "Capteur Alt."
 #define TR_CELLSENSOR                  "Capteur Elém."
 #define TR_GPSSENSOR                   "Capteur GPS"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "Capteur"
 #define TR_AUTOOFFSET                  "Offset auto"
 #define TR_ONLYPOSITIVE                "Positif"

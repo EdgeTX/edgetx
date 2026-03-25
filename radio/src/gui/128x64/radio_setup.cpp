@@ -463,7 +463,7 @@ void menuRadioSetup(event_t event)
           if (attr) {
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuMax, IMU_MAX_DEFAULT - IMU_MAX_RANGE, IMU_MAX_DEFAULT + IMU_MAX_RANGE);
             lcdDrawText(lp, y, ")", RIGHT);
-            lcdDrawNumber(lcdLastLeftPos, y, max(abs(gyro.outputs[0]), abs(gyro.outputs[1])) * 180 / 1024, RIGHT);
+            lcdDrawNumber(lcdLastLeftPos, y, max(abs(gyroOutputs[0]), abs(gyroOutputs[1])) * 180 / 1024, RIGHT);
             lcdDrawText(lcdLastLeftPos, y, "(", RIGHT);
           }
         }
@@ -478,7 +478,7 @@ void menuRadioSetup(event_t event)
           if (attr) {
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuOffset, IMU_OFFSET_MIN, IMU_OFFSET_MAX);
             lcdDrawText(lp, y, ")", RIGHT);
-            lcdDrawNumber(lcdLastLeftPos, y, gyro.outputs[0] * 180 / 1024, RIGHT);
+            lcdDrawNumber(lcdLastLeftPos, y, gyroOutputs[0] * 180 / 1024, RIGHT);
             lcdDrawText(lcdLastLeftPos, y, "(", RIGHT);
           }
         }

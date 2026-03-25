@@ -1198,6 +1198,7 @@
 #define TR_ALTSENSOR                   "Alt sensor"
 #define TR_CELLSENSOR                  "Cell sensor"
 #define TR_GPSSENSOR                   "GPS sensor"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "חיישן"
 #define TR_AUTOOFFSET                  "Auto Offset"
 #define TR_ONLYPOSITIVE                "חיובי"

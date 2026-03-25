@@ -16,7 +16,6 @@ set(SIMU_DRIVERS
   module_drivers.cpp
   led_driver.cpp
   backlight_driver.cpp
-  gyro_driver.cpp
   bt_driver.cpp
   timers_driver.cpp
   abnormal_reboot.cpp

@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
@@ -46,6 +46,7 @@
 #include "globals.h"
 #include "sdcard.h"
 #include "debug.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
@@ -55,6 +56,7 @@
 #include "bitmapbuffer.h"
 #include "colors.h"
 
+#include "drivers/lsm6ds.h"
 
 #include <string.h>
 
@@ -129,6 +131,14 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
+}
+
 bool pwrPressedDebounced()
 {
   static bool debouncedState = 0;
@@ -140,7 +150,7 @@ bool pwrPressedDebounced()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState;
 }
 
@@ -173,7 +183,7 @@ void boardInit()
 
   adcInit(&_adc_driver);
   getADC();
-  
+
   flysky_gimbal_init();
   usbInit();
   rgbChargeInit(); // RTOS was not running, timer_create will prevent the ADC from reading.
@@ -195,7 +205,7 @@ void boardInit()
   // Init debounce
   pwrPressedDebounced();
   pwrPressedDebounced();
-  
+
   // Handle charging state if charger is active
   if (isChargerActive()) {
     static uint32_t adc_sample_time = 0; // Hardware ADC sample tick
@@ -238,7 +248,7 @@ void boardInit()
       }
     }
   }
-  
+
   // Second stage: Detect secondary long-press sequence
   while (1)
   {
@@ -369,7 +379,7 @@ void boardInit()
       }
     }
   }
-#endif  
+#endif
 #endif
   rgbLedInit();
   rgbLedClearAll();
@@ -380,6 +390,8 @@ void boardInit()
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
+
+  gyroInit();
 }
 
 extern void rtcDisableBackupReg();
@@ -412,7 +424,7 @@ void boardOff()
 //    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
 
-  // We reach here only in forced power situations, such as hw-debugging with external power  
+  // We reach here only in forced power situations, such as hw-debugging with external power
   // Enter STM32 stop mode / deep-sleep
   // Code snippet from ST Nucleo PWR_EnterStopMode example
 #define PDMode             0x00000000U
@@ -426,7 +438,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
@@ -445,7 +457,7 @@ int usbPlugged()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState;
 }
 */

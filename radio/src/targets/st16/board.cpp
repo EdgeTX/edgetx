@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
@@ -47,11 +47,13 @@
 #include "globals.h"
 #include "sdcard.h"
 #include "debug.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
 #include "battery_driver.h"
+#include "drivers/lsm6ds.h"
 
 #include "bitmapbuffer.h"
 #include "colors.h"
@@ -119,7 +121,7 @@ static void audio_set_rst_pin(bool set)
 static void audio_set_mute_pin(bool set)
 {
 #if defined(INVERTED_MUTE_PIN)
-  set = !set;  
+  set = !set;
 #endif
   if (set) {
     bsp_output_set(BSP_PA_NMUTE);
@@ -170,6 +172,14 @@ void boardBLInit()
   // register internal & external FLASH for UF2
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
+}
+
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 
 void boardInit()
@@ -237,7 +247,7 @@ void boardInit()
         rotaryEncoderCheck();
         rotenc_t value = rotaryEncoderGetValue();
         if (value != lastEncoderValue) {
-          lastEncoderValue = value;     
+          lastEncoderValue = value;
           press_end_touch = timersGetMsTick();
         }
         press_start = 0;
@@ -262,6 +272,8 @@ void boardInit()
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
+
+  gyroInit();
 }
 
 extern void rtcDisableBackupReg();
@@ -296,7 +308,7 @@ void boardOff()
 //    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
 
-  // We reach here only in forced power situations, such as hw-debugging with external power  
+  // We reach here only in forced power situations, such as hw-debugging with external power
   // Enter STM32 stop mode / deep-sleep
   // Code snippet from ST Nucleo PWR_EnterStopMode example
 #define PDMode             0x00000000U
@@ -310,7 +322,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
@@ -328,7 +340,7 @@ int usbPlugged()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState||1;
 }
 */

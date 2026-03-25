@@ -581,6 +581,7 @@
 #define STR_GPS_COORDS_FORMAT currentLangStrings->STR_GPS_COORDS_FORMAT
 #define STR_GPS currentLangStrings->STR_GPS
 #define STR_GPSSENSOR currentLangStrings->STR_GPSSENSOR
+#define STR_GYRO currentLangStrings->STR_GYRO
 #define STR_GV currentLangStrings->STR_GV
 #define STR_GVARS currentLangStrings->STR_GVARS
 #define STR_HARDWARE currentLangStrings->STR_HARDWARE

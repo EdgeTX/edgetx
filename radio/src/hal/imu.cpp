@@ -19,7 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#include "gyro.h"
+#include "hal/imu.h"
 
-int gyroInit() { return -1; }
-int gyroRead(uint8_t*) { return -1; }
+static const char* s_imu_name = nullptr;
+
+imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count)
+{
+  for (uint8_t i = 0; i < count; i++) {
+    if (candidates[i].driver->init(candidates[i].bus, candidates[i].addr) == 0) {
+      s_imu_name = candidates[i].driver->name;
+      return candidates[i].driver->read;
+    }
+  }
+  return nullptr;
+}
+
+const char* imuGetName()
+{
+  return s_imu_name;
+}
