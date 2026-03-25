@@ -81,6 +81,12 @@ static void loadRadioYamlStr(const char* str)
   yp.parse(str, len);
 }
 
+TEST(Sources, MixSrcLastFitsIn9Bits)
+{
+  // srcRaw is a 10-bit signed field; max positive value is 511
+  EXPECT_LE(MIXSRC_LAST_TELEM, 511);
+}
+
 TEST(Sources, getSourceString)
 {
   loadRadioYamlStr(_radio_config);
