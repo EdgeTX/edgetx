@@ -307,4 +307,152 @@ TEST(Lua, modelGlobalVariables)
 }
 #endif  // defined(GVARS)
 
+// model.getLogicalSwitch / setLogicalSwitch — write fields then read back.
+TEST(Lua, modelLogicalSwitch)
+{
+  MODEL_RESET();
+
+  // Configure LS1 (index 0): func=LS_FUNC_VPOS (2), v1=MIXSRC_FIRST_STICK (1),
+  // v2=0 (threshold), delay=5 (0.5 s).
+  luaExecStr("model.setLogicalSwitch(0, {func=2, v1=1, v2=0, delay=5})");
+
+  luaExecStr("ls0 = model.getLogicalSwitch(0)");
+  luaExecStr("assert(ls0 ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls0.func == 2, 'func mismatch: '..tostring(ls0.func))");
+  luaExecStr("assert(ls0.v1 == 1, 'v1 mismatch: '..tostring(ls0.v1))");
+  luaExecStr("assert(ls0.v2 == 0, 'v2 mismatch: '..tostring(ls0.v2))");
+  luaExecStr("assert(ls0.delay == 5, 'delay mismatch: '..tostring(ls0.delay))");
+
+  // Out-of-range index must return nil.
+  luaExecStr("assert(model.getLogicalSwitch(999) == nil, 'expected nil for OOB index')");
+}
+
+// model.getCurve / setCurve — standard 5-point curve round-trip.
+TEST(Lua, modelCurve)
+{
+  MODEL_RESET();
+  // loadCurves() must be called after MODEL_RESET() to initialise curveEnd[]
+  // pointers; moveCurve() (called by setCurve) dereferences them.
+  loadCurves();
+
+  // Set curve 0: standard type, 5 points, y={-100,-50,0,50,100}.
+  luaExecStr("rc = model.setCurve(0, {type=0, smooth=false, y={-100,-50,0,50,100}})");
+  luaExecStr("assert(rc == 0, 'setCurve failed: '..tostring(rc))");
+
+  luaExecStr("cv = model.getCurve(0)");
+  luaExecStr("assert(cv ~= nil, 'getCurve returned nil')");
+  luaExecStr("assert(cv.points == 5, 'points mismatch: '..tostring(cv.points))");
+  luaExecStr("assert(cv.type == 0, 'type mismatch: '..tostring(cv.type))");
+  luaExecStr("assert(cv.y[1] == -100, 'y[1] mismatch: '..tostring(cv.y[1]))");
+  luaExecStr("assert(cv.y[3] ==    0, 'y[3] mismatch: '..tostring(cv.y[3]))");
+  luaExecStr("assert(cv.y[5] ==  100, 'y[5] mismatch: '..tostring(cv.y[5]))");
+
+  // Out-of-range curve index must return nil.
+  luaExecStr("assert(model.getCurve(999) == nil, 'expected nil for OOB index')");
+}
+
+// model.getCurve / setCurve — 4-point custom curve with explicit x values.
+TEST(Lua, modelCurveCustom)
+{
+  MODEL_RESET();
+  loadCurves();
+
+  // 4-point custom curve with monotonic x values.
+  luaExecStr("rc = model.setCurve(1, {type=1, smooth=true, x={-100,-34,77,100}, y={-70,20,-89,-100}})");
+  luaExecStr("assert(rc == 0, 'setCurve custom failed: '..tostring(rc))");
+
+  luaExecStr("cv2 = model.getCurve(1)");
+  luaExecStr("assert(cv2 ~= nil, 'getCurve custom returned nil')");
+  luaExecStr("assert(cv2.type == 1, 'custom type mismatch')");
+  luaExecStr("assert(cv2.smooth == true, 'smooth mismatch')");
+  luaExecStr("assert(cv2.points == 4, 'custom points mismatch: '..tostring(cv2.points))");
+  // x table must be present for custom curves and first/last fixed at -100/100.
+  luaExecStr("assert(cv2.x ~= nil, 'x table missing for custom curve')");
+  luaExecStr("assert(cv2.x[1] == -100, 'x[1] mismatch: '..tostring(cv2.x[1]))");
+  luaExecStr("assert(cv2.x[4] == 100, 'x[4] mismatch: '..tostring(cv2.x[4]))");
+}
+
+// getVersion() — returns 6 values; osname must be "EdgeTX".
+TEST(Lua, getVersion)
+{
+  luaExecStr("ver, radio, maj, minor, rev, osname = getVersion()");
+  luaExecStr("assert(type(ver) == 'string', 'ver should be string')");
+  luaExecStr("assert(type(radio) == 'string', 'radio should be string')");
+  luaExecStr("assert(type(maj) == 'number', 'maj should be number')");
+  luaExecStr("assert(type(minor) == 'number', 'minor should be number')");
+  luaExecStr("assert(type(rev) == 'number', 'rev should be number')");
+  luaExecStr("assert(osname == 'EdgeTX', 'osname mismatch: '..tostring(osname))");
+}
+
+// getFieldInfo() — look up a known source by name and by id.
+TEST(Lua, getFieldInfo)
+{
+  MODEL_RESET();
+
+  // Look up throttle by its legacy name.
+#if defined(SURFACE_RADIO)
+  luaExecStr("fi = getFieldInfo('thr')");
+#else
+  luaExecStr("fi = getFieldInfo('thr')");
+#endif
+  luaExecStr("assert(fi ~= nil, 'getFieldInfo(thr) returned nil')");
+  luaExecStr("assert(type(fi.id) == 'number', 'id should be number')");
+  luaExecStr("assert(type(fi.name) == 'string', 'name should be string')");
+  luaExecStr("assert(type(fi.desc) == 'string', 'desc should be string')");
+
+  // Look up by numeric id — must return the same name.
+  luaExecStr("fi2 = getFieldInfo(fi.id)");
+  luaExecStr("assert(fi2 ~= nil, 'getFieldInfo(id) returned nil')");
+  luaExecStr("assert(fi2.name == fi.name, 'name mismatch by id: '..tostring(fi2.name))");
+
+  // Unknown name must return nil (getFieldInfo returns 0 values on failure → nil in Lua).
+  luaExecStr("fi3 = getFieldInfo('__no_such_field__')");
+  luaExecStr("assert(fi3 == nil, 'expected nil for unknown field')");
+}
+
+// getFlightMode() — returns current mode number and name.
+TEST(Lua, getFlightMode)
+{
+  MODEL_RESET();
+
+  // Set flight mode 0 name and verify getFlightMode() returns it.
+  strncpy(g_model.flightModeData[0].name, "FM0", LEN_FLIGHT_MODE_NAME);
+
+  luaExecStr("fmnum, fmname = getFlightMode()");
+  luaExecStr("assert(type(fmnum) == 'number', 'fmnum should be number')");
+  luaExecStr("assert(type(fmname) == 'string', 'fmname should be string')");
+  // Current mode in a fresh model should be 0.
+  luaExecStr("assert(fmnum == 0, 'expected FM0, got: '..tostring(fmnum))");
+  luaExecStr("assert(fmname == 'FM0', 'name mismatch: '..tostring(fmname))");
+
+  // Explicit index must return the same data.
+  luaExecStr("fmnum2, fmname2 = getFlightMode(0)");
+  luaExecStr("assert(fmnum2 == 0, 'explicit FM0 num mismatch')");
+  luaExecStr("assert(fmname2 == 'FM0', 'explicit FM0 name mismatch')");
+}
+
+// bit32.extract / replace / btest — basic correctness.
+TEST(Lua, bit32Operations)
+{
+  // extract: pull bits 4-5 (width 2) from 0x30 = 0011 0000b → value 3.
+  luaExecStr("assert(bit32.extract(0x30, 4, 2) == 3, 'extract failed')");
+
+  // replace: insert value 0xF into bits 0-3 of 0x00 → 0x0F.
+  luaExecStr("assert(bit32.replace(0x00, 0xF, 0, 4) == 0x0F, 'replace failed')");
+
+  // replace: overwrite bits 4-7 of 0xFF with 0x0 → 0x0F.
+  luaExecStr("assert(bit32.replace(0xFF, 0x0, 4, 4) == 0x0F, 'replace clear failed')");
+
+  // btest: at least one of bit 0 and bit 1 set in 0x03 → true.
+  luaExecStr("assert(bit32.btest(0x03, 0x01) == true, 'btest true failed')");
+
+  // btest: bit 1 not set in 0x01 → false.
+  luaExecStr("assert(bit32.btest(0x01, 0x02) == false, 'btest false failed')");
+
+  // round-trip: encode two nibbles and decode them back.
+  luaExecStr("packed = bit32.replace(bit32.replace(0, 7, 0, 4), 12, 4, 4)");
+  luaExecStr("assert(bit32.extract(packed, 0, 4) == 7, 'round-trip low nibble')");
+  luaExecStr("assert(bit32.extract(packed, 4, 4) == 12, 'round-trip high nibble')");
+}
+
 #endif   // #if defined(LUA)
