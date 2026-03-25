@@ -81,7 +81,7 @@ jobs:
 
   build:
     name: Run builds
-    needs: [test, check-translations]
+    needs: test
     runs-on: ubuntu-latest
     if: |
       github.event_name != 'pull_request' ||
