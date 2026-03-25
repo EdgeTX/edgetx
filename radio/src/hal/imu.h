@@ -1,5 +1,5 @@
 /*
-* Copyright (C) EdgeTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -49,4 +49,3 @@ imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count);
 
 // Returns the name of the detected IMU, or nullptr if none
 const char* imuGetName();
-

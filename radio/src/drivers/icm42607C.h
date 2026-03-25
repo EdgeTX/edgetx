@@ -1,5 +1,5 @@
 /*
-* Copyright (C) EdgeTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -20,8 +20,9 @@
  */
 
 /*
- WARNING: while this ICM42607C belong to the ICM426xx familly, it is NOT compatible
-                  with code for generic ICM4267XX. All register have different addresses
+ WARNING: While this ICM42607C belong to the ICM426xx familly, it is NOT
+          compatible with code for generic ICM4267XX. All registers have
+          different addresses.
 */
 
 #pragma once
