@@ -21,113 +21,141 @@
 
 #include "edgetx.h"
 #include "hal.h"
-#include "debug.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "hal/usb_driver.h"
 
-#define ACC_LSB_VALUE	0.000488  // 0.488 mg/LSB
+#define _USE_MATH_DEFINES
+#include <math.h>
 
-#define ALPHA 0.98
-#define DT    0.01
-#define SCALE_FACT_ACC  0.005
-#define SCALE_FACT_GYRO 0.0078 // 250deg/s / 32000
+#define COMPLEMENTARY_ALPHA  0.92f
+#define LP_FILTER_ALPHA      0.9f
+#define SAMPLE_TIME_S        0.005f
 
-Gyro gyro;
+int16_t gyroOutputs[2];
 
-#if !defined(IMU_ICM4207C)
-static float deg2RESX(float deg)
+static imu_read_fn readFn;
+static uint8_t errors;
+static int16_t offset_x, offset_y;
+static int16_t range_x = 8192, range_y = 8192;
+static int16_t raw_ax, raw_ay;
+
+// filter state
+static bool filterInitialized;
+static float roll, pitch, yaw;
+static float filteredAccel[3];
+static float prevAccel[3];
+static float filteredGyro[3];
+static float prevGyro[3];
+
+static float lowPass(float val, float prev, float alpha)
 {
-  // [-90 : 90] -> [-RESX : RESX]
-  return (deg * float(RESX)) / 90.0;
+  return alpha * prev + (1.0f - alpha) * val;
 }
-#endif
 
-void Gyro::wakeup()
+static void gyroFilter(etx_imu_data_t* raw)
+{
+  // low-pass
+  filteredAccel[0] = lowPass(raw->accel_x, prevAccel[0], LP_FILTER_ALPHA);
+  filteredAccel[1] = lowPass(raw->accel_y, prevAccel[1], LP_FILTER_ALPHA);
+  filteredAccel[2] = lowPass(raw->accel_z, prevAccel[2], LP_FILTER_ALPHA);
+
+  filteredGyro[0] = lowPass(raw->gyro_x, prevGyro[0], LP_FILTER_ALPHA);
+  filteredGyro[1] = lowPass(raw->gyro_y, prevGyro[1], LP_FILTER_ALPHA);
+  filteredGyro[2] = lowPass(raw->gyro_z, prevGyro[2], LP_FILTER_ALPHA);
+
+  prevAccel[0] = filteredAccel[0];
+  prevAccel[1] = filteredAccel[1];
+  prevAccel[2] = filteredAccel[2];
+
+  prevGyro[0] = filteredGyro[0];
+  prevGyro[1] = filteredGyro[1];
+  prevGyro[2] = filteredGyro[2];
+
+  // complementary filter for attitude
+  float ax = raw->accel_x;
+  float ay = raw->accel_y;
+  float az = raw->accel_z;
+
+  float norm = sqrtf(ax * ax + ay * ay + az * az);
+  if (norm == 0.0f) return;
+  ax /= norm;
+  ay /= norm;
+  az /= norm;
+
+  float accelRoll  = atan2f(ay, sqrtf(ax * ax + az * az));
+  float accelPitch = atan2f(-ax, sqrtf(ay * ay + az * az));
+
+  if (!filterInitialized) {
+    roll  = accelRoll;
+    pitch = accelPitch;
+    yaw   = 0.0f;
+    filterInitialized = true;
+  } else {
+    float dt = SAMPLE_TIME_S;
+    roll  = COMPLEMENTARY_ALPHA * (roll  + raw->gyro_x * dt) +
+            (1.0f - COMPLEMENTARY_ALPHA) * accelRoll;
+    pitch = COMPLEMENTARY_ALPHA * (pitch + raw->gyro_y * dt) +
+            (1.0f - COMPLEMENTARY_ALPHA) * accelPitch;
+    yaw  += raw->gyro_z * dt;
+
+    if (yaw > (float)M_PI) yaw -= 2.0f * (float)M_PI;
+    if (yaw < -(float)M_PI) yaw += 2.0f * (float)M_PI;
+  }
+}
+
+void gyroStart(imu_read_fn fn)
+{
+  readFn = fn;
+}
+
+void gyroWakeup()
 {
   static tmr10ms_t gyroWakeupTime = 0;
 
   tmr10ms_t now = get_tmr10ms();
-  if (errors >= 100 || now < gyroWakeupTime || usbPluggedInStorageMode())
+  if (!readFn || errors >= 100 || now < gyroWakeupTime ||
+      usbPluggedInStorageMode())
     return;
 
   gyroWakeupTime = now + 1; /* 10ms default */
 
-  int16_t values[IMU_VALUES_COUNT];
-  if (gyroRead((uint8_t*)values) < 0) {
+  etx_imu_data_t raw;
+  if (readFn(&raw) < 0) {
     ++errors;
     return;
   }
 
-  // reset error count on each
-  // successful query to avoid
-  // stopping the sensor forever
   errors = 0;
 
-#if defined(IMU_ICM4207C)
-  raw_ax = values[3];
-  raw_ay = values[4];
+  gyroFilter(&raw);
+
+  raw_ax = (int16_t)filteredAccel[0];
+  raw_ay = (int16_t)filteredAccel[1];
+
   int16_t ax = raw_ax - offset_x;
   int16_t ay = raw_ay - offset_y;
 
-  // Use only ACC value, they are really reliable
-  outputs[0] = (ax * float(RESX)) / range_x;
-  outputs[1] = (ay * float(RESX)) / range_y;
-#else
-  int16_t ax = values[3];
-  int16_t ay = values[4];
-  int16_t az = values[5];
-
-  int16_t gx = values[0];
-  int16_t gy = values[1];
-  // int16_t gz = values[2];
-
-  // integrate gyro
-  roll  -= gx * SCALE_FACT_GYRO * DT;
-  pitch += gy * SCALE_FACT_GYRO * DT;
-
-  int32_t magn = abs(ax) + abs(ay) + abs(az);
-  if (magn > 8192 && magn < 32768) {
-
-    if (az < 0) az = -az;
-        
-    float rollAcc  = atan2f((float)ay,(float)az) * 57.3 /* 180/PI */;
-    float pitchAcc = atan2f((float)ax,(float)az) * 57.3 /* 180/PI */;
-
-    roll  = roll  * ALPHA + rollAcc  * (1.0-ALPHA);
-    pitch = pitch * ALPHA + pitchAcc * (1.0-ALPHA);
-  }
-
-  outputs[0] = deg2RESX(roll);
-  outputs[1] = deg2RESX(pitch);
-#endif
+  gyroOutputs[0] = (ax * float(RESX)) / range_x;
+  gyroOutputs[1] = (ay * float(RESX)) / range_y;
 }
 
-int16_t Gyro::scaledX()
+int16_t gyroScaledX()
 {
-  // return limit(-RESX,
-  //              (int)(outputs[0] - g_eeGeneral.imuOffset * RESX / 180) *
-  //                  (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
-  //              RESX);
-  return limit<int16_t>(-RESX, outputs[0], RESX);
+  return limit<int16_t>(-RESX, gyroOutputs[0], RESX);
 }
 
-int16_t Gyro::scaledY()
+int16_t gyroScaledY()
 {
-  // return limit(-RESX,
-  //              outputs[1] * (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
-  //              RESX);
-  return limit<int16_t>(-RESX, outputs[1], RESX);
+  return limit<int16_t>(-RESX, gyroOutputs[1], RESX);
 }
 
-void Gyro::setIMU_X(int16_t offset, int16_t range)
+void gyroSetIMU_X(int16_t offset, int16_t range)
 {
   if (offset == -1) offset_x = raw_ax;
   else offset_x = offset;
   range_x = range * 8192 / 180;
 }
 
-void Gyro::setIMU_Y(int16_t offset, int16_t range)
+void gyroSetIMU_Y(int16_t offset, int16_t range)
 {
   if (offset == -1) offset_y = raw_ay;
   else offset_y = offset;

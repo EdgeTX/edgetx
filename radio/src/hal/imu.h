@@ -21,19 +21,31 @@
 
 #pragma once
 
-#include <inttypes.h>
-#include "hal/imu.h"
+#include <stdint.h>
+#include "hal/i2c_driver.h"
 
-#define IMU_MAX_DEFAULT       30
-#define IMU_MAX_RANGE         60
-#define IMU_OFFSET_MIN       -30
-#define IMU_OFFSET_MAX        10
+struct etx_imu_data_t {
+  float accel_x, accel_y, accel_z;
+  float gyro_x, gyro_y, gyro_z;
+};
 
-void gyroStart(imu_read_fn fn);
-void gyroWakeup();
-void gyroSetIMU_X(int16_t offset, int16_t range);
-void gyroSetIMU_Y(int16_t offset, int16_t range);
-int16_t gyroScaledX();
-int16_t gyroScaledY();
+typedef int (*imu_init_fn)(etx_i2c_bus_t bus, uint16_t addr);
+typedef int (*imu_read_fn)(etx_imu_data_t* data);
 
-extern int16_t gyroOutputs[2];
+struct etx_imu_driver_t {
+  imu_init_fn init;
+  imu_read_fn read;
+  const char* name;
+};
+
+struct etx_imu_t {
+  const etx_imu_driver_t* driver;
+  etx_i2c_bus_t bus;
+  uint16_t addr;
+};
+
+// Generic detection: iterates candidates, returns read fn on success
+imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count);
+
+// Returns the name of the detected IMU, or nullptr if none
+const char* imuGetName();
