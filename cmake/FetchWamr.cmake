@@ -23,6 +23,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/bytecodealliance/wasm-micro-runtime
   GIT_TAG        WAMR-2.4.4
   GIT_SHALLOW    TRUE
+  UPDATE_DISCONNECTED TRUE
 )
 
 # Populate separately so we can patch before building
