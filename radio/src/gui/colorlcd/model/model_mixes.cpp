@@ -476,7 +476,7 @@ void ModelMixesPage::build(Window * window)
   bool focusSet = false;
   uint8_t index = 0;
   MixData* line = mixAddress(0);
-  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
+  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < getMixCount()); ch++) {
 
     bool skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
     if (line->destCh == ch && !skip_mix) {
@@ -484,7 +484,7 @@ void ModelMixesPage::build(Window * window)
       // one group for the complete mixer channel
       auto group = createGroup(form, SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)ch));
       groups.emplace_back(group);
-      while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
+      while (index < getMixCount() && (line->destCh == ch) && !skip_mix) {
         // one button per input line
         auto btn = createLineButton(group, index);
         if (!focusSet) {
