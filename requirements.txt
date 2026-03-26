@@ -1,6 +1,8 @@
+asciitree
 clang
 jinja2
-pillow
 lz4
+pillow
 pydantic
+pyelftools
 typing_extensions
