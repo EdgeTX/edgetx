@@ -11,72 +11,213 @@
         "dev": false
       }
     },
+
     {
       "name": "firmware",
+      "hidden": true,
       "inherits": "default",
-      "displayName": "Firmware",
-      "binaryDir": "build/fw",
+      "binaryDir": "build/${presetName}",
       "toolchainFile": "cmake/toolchain/arm-none-eabi.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
         "NATIVE_BUILD": false
       }
     },
+
     {
-      "name": "companion",
+      "name": "native",
+      "hidden": true,
       "inherits": "default",
-      "displayName": "Companion",
-      "binaryDir": "build/companion",
+      "binaryDir": "build/${presetName}",
       "toolchainFile": "cmake/toolchain/native.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
         "NATIVE_BUILD": true
       }
     },
+
+    {
+      "name": "companion",
+      "displayName": "Companion",
+      "inherits": "native",
+      "binaryDir": "build/companion"
+    },
     {
       "name": "simu",
-      "inherits": "default",
-      "displayName": "SDL Simu",
-      "binaryDir": "build/simu",
-      "toolchainFile": "cmake/toolchain/native.cmake",
-      "cacheVariables": {
-        "EdgeTX_SUPERBUILD": false,
-        "NATIVE_BUILD": true
-      }
+      "displayName": "SDL Simulator",
+      "inherits": "native",
+      "binaryDir": "build/simu"
+    },
+
+    {
+      "name": "tx16s",
+      "displayName": "RadioMaster TX16S",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "TX16S" }
+    },
+    {
+      "name": "tx16smk3",
+      "displayName": "RadioMaster TX16S MK3",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "TX16SMK3" }
+    },
+    {
+      "name": "boxer",
+      "displayName": "RadioMaster Boxer",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "BOXER" }
+    },
+    {
+      "name": "pocket",
+      "displayName": "RadioMaster Pocket",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "POCKET" }
+    },
+    {
+      "name": "mt12",
+      "displayName": "RadioMaster MT12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "MT12" }
+    },
+    {
+      "name": "zorro",
+      "displayName": "RadioMaster Zorro",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "ZORRO" }
+    },
+    {
+      "name": "t14",
+      "displayName": "Jumper T14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T14" }
+    },
+    {
+      "name": "t20",
+      "displayName": "Jumper T20",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T20" }
+    },
+    {
+      "name": "t20v2",
+      "displayName": "Jumper T20 V2",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T20V2" }
+    },
+    {
+      "name": "tpro",
+      "displayName": "Jumper T-Pro",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TPRO" }
+    },
+    {
+      "name": "t15pro",
+      "displayName": "Jumper T15 Pro",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "T15PRO" }
+    },
+    {
+      "name": "x9dp2019",
+      "displayName": "FrSky X9D+ 2019",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X9D+", "PCBREV": "2019" }
+    },
+    {
+      "name": "x9dp",
+      "displayName": "FrSky X9D+",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X9D+" }
+    },
+    {
+      "name": "x10",
+      "displayName": "FrSky X10",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10" }
+    },
+    {
+      "name": "x12s",
+      "displayName": "FrSky X12S",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X12S" }
+    },
+    {
+      "name": "x7",
+      "displayName": "FrSky QX7",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7" }
+    },
+    {
+      "name": "xlite",
+      "displayName": "FrSky X-Lite",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "XLITE" }
+    },
+    {
+      "name": "nv14",
+      "displayName": "FlySky NV14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "NV14" }
+    },
+    {
+      "name": "el18",
+      "displayName": "FlySky EL18",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "EL18" }
+    },
+    {
+      "name": "pl18",
+      "displayName": "FlySky PL18",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18" }
+    },
+    {
+      "name": "nb4p",
+      "displayName": "FlySky NB4+",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "NB4P" }
+    },
+    {
+      "name": "tx12",
+      "displayName": "RadioMaster TX12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TX12" }
+    },
+    {
+      "name": "tx12mk2",
+      "displayName": "RadioMaster TX12 MK2",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TX12MK2" }
+    },
+    {
+      "name": "gx12",
+      "displayName": "RadioMaster GX12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "GX12" }
     }
   ],
   "buildPresets": [
     {
       "name": "firmware",
-      "displayName": "Firmware",
-      "configurePreset": "firmware",
-      "targets": [
-        "firmware"
-      ]
+      "hidden": true,
+      "configurePreset": "tx16s",
+      "targets": ["firmware"]
     },
     {
       "name": "companion",
       "displayName": "Companion",
       "configurePreset": "companion",
-      "targets": [
-        "companion"
-      ]
+      "targets": ["companion"]
     },
     {
       "name": "simu",
-      "displayName": "SDL Simu",
+      "displayName": "SDL Simulator",
       "configurePreset": "simu",
-      "targets": [
-        "simu"
-      ]
+      "targets": ["simu"]
     },
     {
       "name": "tests-radio",
       "displayName": "Radio Tests",
       "configurePreset": "simu",
-      "targets": [
-        "tests-radio"
-      ]
+      "targets": ["tests-radio"]
     }
   ]
 }
