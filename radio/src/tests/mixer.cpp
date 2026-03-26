@@ -1487,6 +1487,129 @@ TEST_F(MixerTest, CascadedWeightMultiplication)
   EXPECT_NEAR(channelOutputs[1], 1024 * 20 / 100, 2);
 }
 
+// Sequencer pattern (rc-soar.com/edgetx/setups/sequencer):
+// CH0 = timebase driven by a switch with slow up/down (linear ramp).
+// CH1 = servo channel reading CH0 through a custom curve.
+// A flat curve segment produces a "pause" where the servo holds position
+// while the timebase continues to ramp.
+TEST_F(MixerTest, SequencerSlowRampThroughCurve)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
+
+  // --- Curve setup: 5-point standard curve on slot 0 ---
+  // Points at x = -100, -50, 0, +50, +100 (standard = evenly spaced)
+  // y-values: -100, -100, 0, 0, +100
+  //   Segment 1 (-100..-50): flat at -100 (pause)
+  //   Segment 2 (-50..0):    ramp from -100 to 0
+  //   Segment 3 (0..+50):    flat at 0 (pause)
+  //   Segment 4 (+50..+100): ramp from 0 to +100
+  curveHeaderAllocAt(0);
+  curveHeaderAddress(0)->type = CURVE_TYPE_STANDARD;
+  curveHeaderAddress(0)->smooth = 0;  // linear interpolation, no smoothing
+  curveHeaderAddress(0)->points = 0;  // 0 means 5 points (default)
+  g_modelArena.ensureSectionCapacity(ARENA_POINTS, 5);
+  int8_t *pts = curvePointsBase();
+  pts[0] = -100;  // x=-100%
+  pts[1] = -100;  // x=-50%  (flat: pause)
+  pts[2] =    0;  // x=0%
+  pts[3] =    0;  // x=+50%  (flat: pause)
+  pts[4] =  100;  // x=+100%
+
+  // --- CH0: timebase — switch source with slow ---
+  // speedUp=10 → 1.0s full traversal (-100% to +100%), 100 ticks
+  *mixAddress(0) = {};
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)sw);
+  (*mixAddress(0)).weight.setNumeric(100);
+  (*mixAddress(0)).speedUp = 10;    // 1.0s
+  (*mixAddress(0)).speedDown = 10;  // 1.0s
+
+  // --- CH1: servo — reads CH0 through curve ---
+  *mixAddress(1) = {};
+  (*mixAddress(1)).destCh = 1;
+  (*mixAddress(1)).mltpx = MLTPX_ADD;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_CHANNEL, 0);
+  (*mixAddress(1)).weight.setNumeric(100);
+  (*mixAddress(1)).curve.type = CURVE_REF_CUSTOM;
+  (*mixAddress(1)).curve.value.setNumeric(1);  // curve index 0 (1-based)
+  updateMixCount();
+
+  s_mixer_first_run_done = true;
+
+  // Start: switch up → CH0 targets -100%
+  simuSetSwitch(sw, -1);
+  for (int i = 0; i < 110; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);  // run limits to populate channelOutputs
+
+  int16_t timebaseStart = channelOutputs[0];
+  int16_t servoStart = channelOutputs[1];
+  // Timebase at -100%, curve maps -100→-100
+  EXPECT_NEAR(timebaseStart, -1024, 20);
+  EXPECT_NEAR(servoStart, -1024, 20);
+
+  // Flip switch down → ramp begins from -100% toward +100%
+  simuSetSwitch(sw, 1);
+
+  // Advance 25 ticks (25% of 1.0s = timebase at ~-50%)
+  // Curve: flat from -100% to -50%, so servo should still be near -100%
+  for (int i = 0; i < 25; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseQ1 = channelOutputs[0];
+  int16_t servoQ1 = channelOutputs[1];
+  EXPECT_GT(timebaseQ1, timebaseStart + 100) << "Timebase should have moved";
+  EXPECT_NEAR(servoQ1, -1024, 60) << "Servo should hold during flat segment (pause)";
+
+  // Advance to 50 ticks total (50% = timebase at ~0%)
+  // Curve: ramp from -100 to 0, so servo should be near 0%
+  for (int i = 0; i < 25; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseMid = channelOutputs[0];
+  int16_t servoMid = channelOutputs[1];
+  EXPECT_NEAR(timebaseMid, 0, 60);
+  EXPECT_NEAR(servoMid, 0, 60);
+
+  // Advance to 75 ticks (75% = timebase at ~+50%)
+  // Curve: flat from 0 to +50%, so servo should hold near 0%
+  for (int i = 0; i < 25; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseQ3 = channelOutputs[0];
+  int16_t servoQ3 = channelOutputs[1];
+  EXPECT_GT(timebaseQ3, timebaseMid + 100) << "Timebase should have advanced";
+  // Servo should be near the flat segment value (0), but may slightly
+  // overshoot into the final ramp segment due to discrete stepping.
+  EXPECT_NEAR(servoQ3, 0, 150) << "Servo should be near flat segment";
+  EXPECT_LT(servoQ3, 512) << "Servo must not yet reach the final ramp";
+
+  // Advance to ~100 ticks (100% = timebase at +100%)
+  // Curve: ramp from 0 to +100, so servo should be near +100%
+  for (int i = 0; i < 30; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseEnd = channelOutputs[0];
+  int16_t servoEnd = channelOutputs[1];
+  EXPECT_NEAR(timebaseEnd, 1024, 20);
+  EXPECT_NEAR(servoEnd, 1024, 40);
+
+  // Reverse: flip switch up — sequence should reverse automatically
+  simuSetSwitch(sw, -1);
+  for (int i = 0; i < 110; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  EXPECT_NEAR(channelOutputs[0], -1024, 20) << "Timebase should return to -100%";
+  EXPECT_NEAR(channelOutputs[1], -1024, 40) << "Servo should return to start via reversed curve";
+}
+
 #if defined(GVARS)
 
 class GVarLimitTest : public EdgeTxTest {};
