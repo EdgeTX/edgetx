@@ -480,7 +480,7 @@ static uint8_t s_test_100ms_cnt = 0;
 static void mixerTickRealistic(int ticks10ms)
 {
   for (int i = 0; i < ticks10ms; i++) {
-    evalLogicalSwitches(true);
+    evalLogicalSwitches();
     s_test_100ms_cnt++;
     if (s_test_100ms_cnt >= 10) {
       s_test_100ms_cnt = 0;
@@ -761,7 +761,7 @@ TEST(getSwitch, perFmLsStateNotEvaluatedDuringFade)
 
   evalMixes(1);
   mixerCurrentFlightMode = 0;
-  evalLogicalSwitches(true);
+  evalLogicalSwitches();
 
   EXPECT_TRUE(getSwitch(SW1_REF)) << "LS0 should be TRUE with positive stick";
 

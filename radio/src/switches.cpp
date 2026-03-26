@@ -798,7 +798,7 @@ uint8_t getXPotPosition(uint8_t idx)
 /**
   @brief Calculates new state of logical switches for mixerCurrentFlightMode
 */
-void evalLogicalSwitches(bool isCurrentFlightmode)
+void evalLogicalSwitches()
 {
   uint16_t lsCount = getLswCount();
   LogicalSwitchData * lsBase = lswAddress(0);
@@ -806,13 +806,11 @@ void evalLogicalSwitches(bool isCurrentFlightmode)
   for (unsigned int idx=0; idx<lsCount; idx++) {
     LogicalSwitchContext & context = lswCtx[idx];
     bool result = getLogicalSwitch(idx);
-    if (isCurrentFlightmode) {
-      if (result) {
-        if (!context.state) PLAY_LOGICAL_SWITCH_ON(idx);
-      }
-      else {
-        if (context.state) PLAY_LOGICAL_SWITCH_OFF(idx);
-      }
+    if (result != context.state) {
+      if (result)
+        PLAY_LOGICAL_SWITCH_ON(idx);
+      else
+        PLAY_LOGICAL_SWITCH_OFF(idx);
     }
     context.state = result;
     LogicalSwitchData * ls = lsBase + idx;
