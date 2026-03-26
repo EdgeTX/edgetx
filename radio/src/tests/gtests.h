@@ -107,9 +107,9 @@ inline void MIXER_RESET()
 // Find a hardware switch matching the given type (SWITCH_3POS, SWITCH_2POS,
 // etc.), skipping function switches. Pass SWITCH_NONE to match any type.
 // Returns the switch index, or -1 if none found.
-inline int findHwSwitch(int type = SWITCH_NONE)
+inline int findHwSwitch(int type = SWITCH_NONE, int startAfter = -1)
 {
-  for (int sw = 0; sw < switchGetMaxAllSwitches(); sw++) {
+  for (int sw = startAfter + 1; sw < switchGetMaxAllSwitches(); sw++) {
     auto swType = g_model.getSwitchType(sw);
     if (swType == SWITCH_NONE) continue;
 #if defined(FUNCTION_SWITCHES)
