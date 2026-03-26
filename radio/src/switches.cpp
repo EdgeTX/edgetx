@@ -512,171 +512,158 @@ bool getLogicalSwitch(uint8_t idx)
       context.lastValue = CS_LAST_VALUE_INIT;
     }
     result = false;
-  }
-  else {
+  } else {
     uint8_t family = lswFamily(ls->func);
     if (family == LS_FAMILY_BOOL) {
-    bool res1 = getSwitch(ls->v1.swtch);
-    bool res2 = getSwitch(ls->v2.swtch);
-    switch (ls->func) {
-      case LS_FUNC_AND:
-        result = (res1 && res2);
-        break;
-      case LS_FUNC_OR:
-        result = (res1 || res2);
-        break;
-      // case LS_FUNC_XOR:
-      default:
-        result = (res1 ^ res2);
-        break;
-    }
-  }
-  else if (family == LS_FAMILY_TIMER) {
-    result = (context.lastValue <= 0);
-  }
-  else if (family == LS_FAMILY_STICKY) {
-    result = (context.lastValue & (1<<0));
-  }
-  else if (family == LS_FAMILY_EDGE) {
-    result = (context.lastValue & (1<<0));
-  }
-  else {
-    getvalue_t x = getValueForLogicalSwitch(ls->v1.source);
-    getvalue_t y;
-    if (family == LS_FAMILY_COMP) {
-      y = getValueForLogicalSwitch(ls->v2.source);
-
+      bool res1 = getSwitch(ls->v1.swtch);
+      bool res2 = getSwitch(ls->v2.swtch);
       switch (ls->func) {
-        case LS_FUNC_EQUAL:
-          result = (x==y);
+        case LS_FUNC_AND:
+          result = (res1 && res2);
           break;
-        case LS_FUNC_GREATER:
-          result = (x>y);
+        case LS_FUNC_OR:
+          result = (res1 || res2);
           break;
+        // case LS_FUNC_XOR:
         default:
-          result = (x<y);
+          result = (res1 ^ res2);
           break;
       }
-    }
-    else {
-      // Telemetry
-      if (ls->v1.source.type == SOURCE_TYPE_TELEMETRY) {
-        if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(MIXSRC_FIRST_TELEM + ls->v1.source.index - 1)) {
-          result = false;
-          goto DurationAndDelayProcessing;
+    } else if (family == LS_FAMILY_TIMER) {
+      result = (context.lastValue <= 0);
+    } else if (family == LS_FAMILY_STICKY) {
+      result = (context.lastValue & (1<<0));
+    } else if (family == LS_FAMILY_EDGE) {
+      result = (context.lastValue & (1<<0));
+    } else {
+      getvalue_t x = getValueForLogicalSwitch(ls->v1.source);
+      getvalue_t y;
+      if (family == LS_FAMILY_COMP) {
+        y = getValueForLogicalSwitch(ls->v2.source);
+
+        switch (ls->func) {
+          case LS_FUNC_EQUAL:
+            result = (x==y);
+            break;
+          case LS_FUNC_GREATER:
+            result = (x>y);
+            break;
+          default:
+            result = (x<y);
+            break;
+        }
+      } else {
+        // Telemetry
+        if (ls->v1.source.type == SOURCE_TYPE_TELEMETRY) {
+          if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(MIXSRC_FIRST_TELEM + ls->v1.source.index - 1)) {
+            result = false;
+            goto DurationAndDelayProcessing;
+          }
+
+          y = convertLswTelemValue(ls);
+
+
+        } else if (ls->v1.source.type > SOURCE_TYPE_CHANNEL) {
+          y = ls->v2.value;
+        } else {
+          y = calc100toRESX(ls->v2.value);
         }
 
-        y = convertLswTelemValue(ls);
-
-
-      }
-      else if (ls->v1.source.type > SOURCE_TYPE_CHANNEL) {
-        y = ls->v2.value;
-      }
-      else {
-        y = calc100toRESX(ls->v2.value);
-      }
-
-      switch (ls->func) {
-        case LS_FUNC_VEQUAL:
-          result = (x==y);
-          break;
-        case LS_FUNC_VALMOSTEQUAL:
-#if defined(GVARS)
-          if (ls->v1.source.type == SOURCE_TYPE_GVAR)
+        switch (ls->func) {
+          case LS_FUNC_VEQUAL:
             result = (x==y);
-          else
-#endif
-          result = (abs(x-y) < (1024 / STICK_TOLERANCE));
-          break;
-        case LS_FUNC_VPOS:
-          result = (x>y);
-          break;
-        case LS_FUNC_VNEG:
-          result = (x<y);
-          break;
-        case LS_FUNC_APOS:
-          result = (abs(x)>y);
-          break;
-        case LS_FUNC_ANEG:
-          result = (abs(x)<y);
-          break;
-        default:
-        {
-          if (context.lastValue == CS_LAST_VALUE_INIT) {
-            context.lastValue = x;
-          }
-          int16_t diff = x - context.lastValue;
-          bool update = false;
-          if (ls->func == LS_FUNC_DIFFEGREATER) {
-            if (y >= 0) {
-              result = (diff >= y);
-              if (diff < 0)
-                update = true;
+            break;
+          case LS_FUNC_VALMOSTEQUAL:
+  #if defined(GVARS)
+            if (ls->v1.source.type == SOURCE_TYPE_GVAR)
+              result = (x==y);
+            else
+  #endif
+            result = (abs(x-y) < (1024 / STICK_TOLERANCE));
+            break;
+          case LS_FUNC_VPOS:
+            result = (x>y);
+            break;
+          case LS_FUNC_VNEG:
+            result = (x<y);
+            break;
+          case LS_FUNC_APOS:
+            result = (abs(x)>y);
+            break;
+          case LS_FUNC_ANEG:
+            result = (abs(x)<y);
+            break;
+          default: {
+            if (context.lastValue == CS_LAST_VALUE_INIT) {
+              context.lastValue = x;
+            }
+            int16_t diff = x - context.lastValue;
+            bool update = false;
+            if (ls->func == LS_FUNC_DIFFEGREATER) {
+              if (y >= 0) {
+                result = (diff >= y);
+                if (diff < 0)
+                  update = true;
+              }
+              else {
+                result = (diff <= y);
+                if (diff > 0)
+                  update = true;
+              }
             }
             else {
-              result = (diff <= y);
-              if (diff > 0)
-                update = true;
+              result = (abs(diff) >= y);
             }
-          }
-          else {
-            result = (abs(diff) >= y);
-          }
-          if (result) {
-            context.deltaTimer = 10;
-          } else if (context.deltaTimer > 0) {
-            // Hold active state for 100ms to ensure state change is seen
-            context.deltaTimer -= 1;
-            result = true;
-          }
-          if (result || update) {
-            context.lastValue = x;
-          }
-          break;
+            if (result) {
+              context.deltaTimer = 10;
+            } else if (context.deltaTimer > 0) {
+              // Hold active state for 100ms to ensure state change is seen
+              context.deltaTimer -= 1;
+              result = true;
+            }
+            if (result || update) {
+              context.lastValue = x;
+            }
+          } break;
         }
       }
     }
-  }
   }
 
 DurationAndDelayProcessing:
 
-    if (ls->delay || ls->duration) {
-      if (result) {
-        if (context.timerState == SWITCH_START) {
-          // set delay timer
-          context.timerState = SWITCH_DELAY;
-          context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
-        }
+  if (ls->delay || ls->duration) {
+    if (result) {
+      if (context.timerState == SWITCH_START) {
+        // set delay timer
+        context.timerState = SWITCH_DELAY;
+        context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
+      }
 
-        if (context.timerState == SWITCH_DELAY) {
-          if (context.timer) {
-            result = false;   // return false while delay timer running
-          }
-          else {
-            // set duration timer
-            context.timerState = SWITCH_ENABLE;
-            context.timer = ls->duration;
-          }
+      if (context.timerState == SWITCH_DELAY) {
+        if (context.timer) {
+          result = false;   // return false while delay timer running
+        } else {
+          // set duration timer
+          context.timerState = SWITCH_ENABLE;
+          context.timer = ls->duration;
         }
+      }
 
-        if (context.timerState == SWITCH_ENABLE) {
-          result = (ls->duration==0 || context.timer>0); // return false after duration timer runs out
-          if (!result && ls->func == LS_FUNC_STICKY) {
-            ls_sticky_struct & lastValue = (ls_sticky_struct &)context.lastValue;
-            lastValue.state = 0;
-          }
+      if (context.timerState == SWITCH_ENABLE) {
+        result = (ls->duration==0 || context.timer>0); // return false after duration timer runs out
+        if (!result && ls->func == LS_FUNC_STICKY) {
+          ls_sticky_struct & lastValue = (ls_sticky_struct &)context.lastValue;
+          lastValue.state = 0;
         }
       }
-      else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 && context.timer > 0) {
-        result = true;
-      }
-      else {
-        context.timerState = SWITCH_START;
-        context.timer = 0;
-      }
+    } else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 && context.timer > 0) {
+      result = true;
+    } else {
+      context.timerState = SWITCH_START;
+      context.timer = 0;
     }
+  }
 
   return result;
 }
