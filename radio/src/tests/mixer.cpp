@@ -1015,6 +1015,32 @@ TEST_F(TrainerTest, UnpluggedTest)
   CHECK_DELAY(0, 5000);
 }
 
+// When a mix is active in FM0 (flightModes bit for FM1+ set) and the flight mode
+// switches to FM1, the mix deactivates. delayDown holds the output frozen at
+// CHANNEL_MAX for the delay period before the channel drops to 0.
+// Mirrors SlowOnPhase but exercises delayDown instead of speedDown.
+TEST_F(MixerTest, delayOnPhaseChange)
+{
+  g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH;
+  g_model.mixData[0].destCh      = 0;
+  g_model.mixData[0].mltpx       = MLTPX_ADD;
+  g_model.mixData[0].srcRaw      = MIXSRC_MAX;
+  g_model.mixData[0].weight      = makeSourceNumVal(100);
+  g_model.mixData[0].flightModes = 0x2 + 0x4 + 0x8 + 0x10; // active only in FM0
+  g_model.mixData[0].delayDown   = 50;  // 50 × 10 ticks = 500 ticks
+
+  s_mixer_first_run_done = true;
+  mixerCurrentFlightMode = 0;
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[0], CHANNEL_MAX) << "FM0 mix active: output should be CHANNEL_MAX";
+
+  // FM1: mix deactivates → delayDown keeps output frozen at CHANNEL_MAX for 500 ticks
+  mixerCurrentFlightMode = 1;
+  CHECK_DELAY(0, 500);
+  evalFlightModeMixes(e_perout_mode_normal, 1);
+  EXPECT_EQ(chans[0], 0) << "after delay, mix inactive: output should be 0";
+}
+
 TEST_F(MixerTest, flightModeTransition)
 {
   int sw;
@@ -1058,6 +1084,112 @@ TEST_F(MixerTest, flightModeOverflow)
   evalMixes(1);
   simuSetSwitch(0, 1);
   CHECK_FLIGHT_MODE_TRANSITION(0, 1000, 1024, 1024);
+}
+
+// Mirrors the model1.yml configuration provided by the user:
+//   FM1 swtch=SA1 (SA middle position), fadeIn=20, fadeOut=20.
+//
+// fadeTime=20 → delta = (MAX_ACT/10)/20 = 2621 → ~200 evalMixes ticks to complete.
+// CH1 in FM0 = +1024 (MIXSRC_MAX × 100%).
+// CH1 in FM1 =  -102 (MIXSRC_MAX × -10%).
+//
+// Tests both transition directions as a round-trip:
+//   1. SA UP → MID  (FM0 → FM1): channel fades +1024 → -102
+//   2. SA MID → UP  (FM1 → FM0): channel fades  -102 → +1024
+TEST_F(MixerTest, flightModeSaMidFade)
+{
+  // SA (switch 0) must be a 3-position switch — true on all standard targets
+  // (set by RADIO_RESET() in SetUp), but guard defensively.
+  if (g_model.getSwitchType(0) != SWITCH_3POS)
+    GTEST_SKIP() << "SA (switch 0) is not 3-position on this target";
+
+  // FM1 activated by SA middle position: SWSRC_FIRST_SWITCH + (0*3) + 1.
+  g_model.flightModeData[1].swtch   = SWSRC_FIRST_SWITCH + 1;
+  g_model.flightModeData[1].fadeIn  = 20;
+  g_model.flightModeData[1].fadeOut = 20;
+
+  // Two REPL mixes on CH1 (destCh=0), each active in exactly one FM:
+  //   mix[0] flightModes=0b10 → excluded from FM1, active in FM0 → output +1024
+  //   mix[1] flightModes=0b01 → excluded from FM0, active in FM1 → output  -102
+  g_model.mixData[0].destCh      = 0;
+  g_model.mixData[0].mltpx       = MLTPX_REPL;
+  g_model.mixData[0].srcRaw      = MIXSRC_MAX;
+  g_model.mixData[0].flightModes = 0b10;
+  g_model.mixData[0].weight      = makeSourceNumVal(100);
+  g_model.mixData[1].destCh      = 0;
+  g_model.mixData[1].mltpx       = MLTPX_REPL;
+  g_model.mixData[1].srcRaw      = MIXSRC_MAX;
+  g_model.mixData[1].flightModes = 0b01;
+  g_model.mixData[1].weight      = makeSourceNumVal(-10);
+
+  // Initialise in FM0 with SA at UP position.
+  simuSetSwitch(0, -1);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 1024) << "initial FM0 output should be +1024";
+
+  // --- Transition 1: SA UP → MID (FM0 → FM1) ---
+  // FM1.fadeIn=20 governs this fade; ~200 evalMixes ticks to complete.
+  simuSetSwitch(0, 0);
+  CHECK_FLIGHT_MODE_TRANSITION(0, 200, 1024, -102);
+  EXPECT_EQ(channelOutputs[0], -102) << "steady FM1 output should be -102";
+
+  // --- Transition 2: SA MID → UP (FM1 → FM0) ---
+  // FM1.fadeOut=20 governs this fade; ~200 evalMixes ticks to complete.
+  simuSetSwitch(0, -1);
+  CHECK_FLIGHT_MODE_TRANSITION(0, 200, -102, 1024);
+  EXPECT_EQ(channelOutputs[0], 1024) << "steady FM0 output should be +1024";
+}
+
+// Verifies that reversing the FM switch mid-fade causes no channel jump.
+// flightModeSaMidFade tests complete start-to-finish transitions; this test
+// interrupts the FM0→FM1 fade halfway (~100 of ~200 ticks) and checks that:
+//   1. The channel is at an intermediate value (partial fade).
+//   2. After reversing (SA MID→UP), the channel recovers monotonically to +1024.
+TEST_F(MixerTest, flightModeMidFadeReversal)
+{
+  if (g_model.getSwitchType(0) != SWITCH_3POS)
+    GTEST_SKIP() << "SA (switch 0) is not 3-position on this target";
+
+  g_model.flightModeData[1].swtch   = SWSRC_FIRST_SWITCH + 1;  // SA MID
+  g_model.flightModeData[1].fadeIn  = 20;
+  g_model.flightModeData[1].fadeOut = 20;
+
+  // Two REPL mixes on CH1: FM0 → +1024, FM1 → -102 (same as flightModeSaMidFade).
+  g_model.mixData[0].destCh      = 0;
+  g_model.mixData[0].mltpx       = MLTPX_REPL;
+  g_model.mixData[0].srcRaw      = MIXSRC_MAX;
+  g_model.mixData[0].flightModes = 0b10;
+  g_model.mixData[0].weight      = makeSourceNumVal(100);
+  g_model.mixData[1].destCh      = 0;
+  g_model.mixData[1].mltpx       = MLTPX_REPL;
+  g_model.mixData[1].srcRaw      = MIXSRC_MAX;
+  g_model.mixData[1].flightModes = 0b01;
+  g_model.mixData[1].weight      = makeSourceNumVal(-10);
+
+  // Establish FM0 steady-state: SA UP, output = +1024.
+  simuSetSwitch(0, -1);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 1024) << "initial FM0 output should be +1024";
+
+  // Begin FM0→FM1 fade (SA MID); stop halfway (~100 of ~200 ticks).
+  simuSetSwitch(0, 0);
+  for (int i = 0; i < 100; i++) evalMixes(1);
+
+  int32_t midValue = channelOutputs[0];
+  EXPECT_LT(midValue, 1024) << "channel should have started fading toward FM1";
+  EXPECT_GT(midValue, -102) << "channel should not yet have reached FM1 steady-state";
+
+  // Reverse: SA back to UP → FM0 re-asserts, fade reverses.
+  simuSetSwitch(0, -1);
+
+  // One tick after reversal: channel must not have jumped instantly to FM0 target.
+  evalMixes(1);
+  EXPECT_LT(channelOutputs[0], 1024) << "channel should still be fading after reversal";
+  EXPECT_GT(channelOutputs[0], -102) << "channel must not have glitched toward FM1";
+
+  // After sufficient recovery ticks the channel reaches FM0 steady-state.
+  for (int i = 0; i < 300; i++) evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 1024) << "channel should reach FM0 steady-state after reversal";
 }
 
 TEST_F(TrimsTest, throttleTrimWithCrossTrims)

@@ -332,6 +332,50 @@ TEST(getSwitch, edgeRelease)
 
 }
 
+// Verifies that the LS delay field postpones activation for exactly the configured
+// number of timer ticks.  Two 3-position switches are AND-ed as a deterministic
+// condition; delay=5 means 5 logicalSwitchesTimerTick() calls before LS0 goes true.
+TEST(evalLogicalSwitches, lsDelayActivation)
+{
+  int sw1, sw2;
+  for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
+    if (g_model.getSwitchType(sw1) == SWITCH_3POS) break;
+  for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
+    if (g_model.getSwitchType(sw2) == SWITCH_3POS) break;
+  if (sw2 >= switchGetMaxAllSwitches())
+    GTEST_SKIP() << "need two 3-position switches";
+
+  int sw1Pos = sw1 * 3 + SWSRC_FIRST_SWITCH;  // UP position
+  int sw2Pos = sw2 * 3 + SWSRC_FIRST_SWITCH;  // UP position
+
+  MODEL_RESET();
+  MIXER_RESET();
+  // LS0 = AND(sw1-up, sw2-up), delay=5 ticks before LS activates.
+  setLogicalSwitch(0, LS_FUNC_AND, sw1Pos, sw2Pos, 0, 5);
+
+  // Condition true: both switches at UP position.
+  simuSetSwitch(sw1, -1);
+  simuSetSwitch(sw2, -1);
+
+  // Cycles 1-5: delay counting down; LS0 must remain false.
+  for (int i = 0; i < 5; i++) {
+    logicalSwitchesTimerTick();
+    evalLogicalSwitches();
+    EXPECT_FALSE(getSwitch(SWSRC_SW1)) << "delay still active at cycle " << (i + 1);
+  }
+
+  // Cycle 6: delay expired; LS0 becomes true.
+  logicalSwitchesTimerTick();
+  evalLogicalSwitches();
+  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+
+  // Releasing the condition resets the delay.
+  simuSetSwitch(sw1, 1);   // sw1 to DOWN → AND condition false
+  logicalSwitchesTimerTick();
+  evalLogicalSwitches();
+  EXPECT_FALSE(getSwitch(SWSRC_SW1));
+}
+
 uint8_t boardGetMaxSwitches();
 
 // Shared fixture for tests that need a fully configured FLEX switch.
