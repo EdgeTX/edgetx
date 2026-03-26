@@ -45,6 +45,7 @@ uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
 bool getLSStickyState(uint8_t idx);
+bool lswSetStickySwitch(uint8_t idx, bool value);
 void evalLogicalSwitches();
 void logicalSwitchesReset();
 void logicalSwitchesTimerTick();

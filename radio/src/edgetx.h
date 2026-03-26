@@ -859,7 +859,7 @@ extern uint8_t latencyToggleSwitch;
 
 #include "module.h"
 
-extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
+
 
 // Radio menu tab state
 #if defined(COLORLCD)

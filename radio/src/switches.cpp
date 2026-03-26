@@ -84,7 +84,29 @@ static inline bool frozenLsGet(uint8_t fm, uint8_t idx)
   return (frozenLsState[fm][idx >> 5] >> (idx & 31)) & 1;
 }
 
-CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
+// SPSC ring buffer for sticky switch requests (GUI task → mixer task).
+// Single producer (Lua/GUI), single consumer (mixer/logicalSwitchesTimerTick).
+#include <atomic>
+
+#define STICKY_SWITCH_BUFFER_SIZE 8
+
+struct StickySwitchMsg {
+  uint8_t idx;
+  bool value;
+};
+static StickySwitchMsg stickySwitchBuffer[STICKY_SWITCH_BUFFER_SIZE];
+static std::atomic<uint8_t> stickySwitchWritePos{0};
+static std::atomic<uint8_t> stickySwitchReadPos{0};
+
+bool lswSetStickySwitch(uint8_t idx, bool value)
+{
+  uint8_t wp = stickySwitchWritePos.load(std::memory_order_relaxed);
+  uint8_t next = (wp + 1) % STICKY_SWITCH_BUFFER_SIZE;
+  if (next == stickySwitchReadPos.load(std::memory_order_acquire)) return false;
+  stickySwitchBuffer[wp] = { idx, value };
+  stickySwitchWritePos.store(next, std::memory_order_release);
+  return true;
+}
 
 #define LS_LAST_VALUE(idx) lswCtx[idx].lastValue
 
@@ -1070,29 +1092,23 @@ void checkSwitches()
 
 void logicalSwitchesTimerTick()
 {
-#if (MAX_LOGICAL_SWITCHES != 64)
-#warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
-#endif
-  // Read messages from Lua in the buffer and flick switches
-  uint8_t msg = luaSetStickySwitchBuffer.read();
-  while(msg) {
-    uint8_t i = msg & 0x3F;
-    uint8_t s = msg >> 7;
+  // Process sticky switch set requests (from Lua/GUI task)
+  uint8_t rp = stickySwitchReadPos.load(std::memory_order_relaxed);
+  while (rp != stickySwitchWritePos.load(std::memory_order_acquire)) {
+    uint8_t i = stickySwitchBuffer[rp].idx;
+    bool s = stickySwitchBuffer[rp].value;
+    rp = (rp + 1) % STICKY_SWITCH_BUFFER_SIZE;
+    stickySwitchReadPos.store(rp, std::memory_order_release);
     LogicalSwitchData * ls = lswAddress(i);
     if (ls->func == LS_FUNC_STICKY) {
       ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(i);
       lastValue.state = s;
-      bool now;
-      if (s)
-        now = getSwitch(ls->v2.swtch);
-      else
-        now = getSwitch(ls->v1.swtch);
+      bool now = getSwitch(s ? ls->v2.swtch : ls->v1.swtch);
       if (now)
         lastValue.last |= 1;
       else
         lastValue.last &= ~1;
     }
-    msg = luaSetStickySwitchBuffer.read();
   }
 
   // Update logical switches
@@ -1233,7 +1249,8 @@ void logicalSwitchesReset()
     LS_LAST_VALUE(i) = CS_LAST_VALUE_INIT;
   }
 
-  luaSetStickySwitchBuffer.clear();
+  stickySwitchWritePos.store(0, std::memory_order_relaxed);
+  stickySwitchReadPos.store(0, std::memory_order_relaxed);
 }
 
 void lswFreezeState(uint8_t fm)
