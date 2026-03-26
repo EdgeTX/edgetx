@@ -455,4 +455,335 @@ TEST(Lua, bit32Operations)
   luaExecStr("assert(bit32.extract(packed, 4, 4) == 12, 'round-trip high nibble')");
 }
 
+// model.setLogicalSwitch / getLogicalSwitch — LS_FUNC_VEQUAL (func=1).
+// Every rc-soar model uses VEQUAL for flight-mode detection, e.g.
+// "L01: I5 == -100" to detect the flight-mode source sitting at -100%.
+TEST(Lua, modelLogicalSwitchVEqual)
+{
+  MODEL_RESET();
+
+  // func=1 (LS_FUNC_VEQUAL): true when v1 == v2.
+  luaExecStr("model.setLogicalSwitch(0, {func=1, v1=2, v2=-100, delay=0, duration=0})");
+
+  luaExecStr("ls = model.getLogicalSwitch(0)");
+  luaExecStr("assert(ls ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls.func == 1, 'func mismatch: '..tostring(ls.func))");
+  luaExecStr("assert(ls.v1 == 2,  'v1 mismatch: '..tostring(ls.v1))");
+  luaExecStr("assert(ls.v2 == -100, 'v2 mismatch: '..tostring(ls.v2))");
+  luaExecStr("assert(ls.delay == 0, 'delay mismatch: '..tostring(ls.delay))");
+}
+
+// model.setLogicalSwitch / getLogicalSwitch — LS_FUNC_VNEG (func=4).
+// rc-soar models use VNEG for launch-detect (e.g. "I5 < -50").
+TEST(Lua, modelLogicalSwitchVNeg)
+{
+  MODEL_RESET();
+
+  // func=4 (LS_FUNC_VNEG): true when v1 < v2.
+  luaExecStr("model.setLogicalSwitch(1, {func=4, v1=3, v2=-500, delay=2})");
+
+  luaExecStr("ls = model.getLogicalSwitch(1)");
+  luaExecStr("assert(ls ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls.func == 4,    'func mismatch: '..tostring(ls.func))");
+  luaExecStr("assert(ls.v1 == 3,      'v1 mismatch: '..tostring(ls.v1))");
+  luaExecStr("assert(ls.v2 == -500,   'v2 mismatch: '..tostring(ls.v2))");
+  luaExecStr("assert(ls.delay == 2,   'delay mismatch: '..tostring(ls.delay))");
+}
+
+// model.setLogicalSwitch / getLogicalSwitch — LS_FUNC_STICKY (func=17).
+// rc-soar models use STICKY for state-latching (e.g. launch-detected latch
+// that stays set until the pilot resets it via a different switch).
+TEST(Lua, modelLogicalSwitchSticky)
+{
+  MODEL_RESET();
+
+  // func=17 (LS_FUNC_STICKY): set by v1 (switch), cleared by v2 (switch).
+  // Use small switch indices that are valid across all target configs.
+  luaExecStr("model.setLogicalSwitch(2, {func=17, v1=1, v2=2})");
+
+  luaExecStr("ls = model.getLogicalSwitch(2)");
+  luaExecStr("assert(ls ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls.func == 17, 'func mismatch: '..tostring(ls.func))");
+  luaExecStr("assert(ls.v1 == 1,   'v1 (set-switch) mismatch: '..tostring(ls.v1))");
+  luaExecStr("assert(ls.v2 == 2,   'v2 (clr-switch) mismatch: '..tostring(ls.v2))");
+}
+
+// model.getCurve / setCurve — 3-point standard curve.
+// rc-soar aileron/elevator differential curves use 3-point standard curves
+// (YAML: points: -2, which stores numPoints-5 = -2 → numPoints = 3).
+TEST(Lua, modelCurve3Point)
+{
+  MODEL_RESET();
+  loadCurves();  // initialise curveEnd[] before any setCurve call
+
+  // Symmetric V-curve: y = {-50, 0, 50} on evenly-spaced x = {-100, 0, 100}.
+  luaExecStr("rc = model.setCurve(0, {type=0, smooth=false, y={-50, 0, 50}})");
+  luaExecStr("assert(rc == 0, 'setCurve 3-pt failed: '..tostring(rc))");
+
+  luaExecStr("cv = model.getCurve(0)");
+  luaExecStr("assert(cv ~= nil, 'getCurve returned nil')");
+  luaExecStr("assert(cv.points == 3, 'expected 3 points, got: '..tostring(cv.points))");
+  luaExecStr("assert(cv.type == 0,   'type mismatch: '..tostring(cv.type))");
+  luaExecStr("assert(cv.y[1] == -50, 'y[1] mismatch: '..tostring(cv.y[1]))");
+  luaExecStr("assert(cv.y[2] ==   0, 'y[2] mismatch: '..tostring(cv.y[2]))");
+  luaExecStr("assert(cv.y[3] ==  50, 'y[3] mismatch: '..tostring(cv.y[3]))");
+  // Standard curve: no x table.
+  luaExecStr("assert(cv.x == nil, 'standard curve should have no x table')");
+}
+
+// model.getOutput / setOutput — curve reference field.
+// All rc-soar limitData entries carry a curve index (e.g. curve: 1, curve: 2).
+// The API stores it as (curve+1) internally and returns (curve-1); the field
+// is absent when the output has no curve assigned.
+TEST(Lua, modelOutputCurveRef)
+{
+  MODEL_RESET();
+
+  // Assign curve 0 (Curve1) to output 0.
+  luaExecStr("model.setOutput(0, {name='AIL', min=-1000, max=1000, curve=0})");
+  luaExecStr("out = model.getOutput(0)");
+  luaExecStr("assert(out ~= nil, 'getOutput returned nil')");
+  luaExecStr("assert(out.curve == 0, 'curve field mismatch: '..tostring(out.curve))");
+
+  // Assign a different curve (index 2) to output 1.
+  luaExecStr("model.setOutput(1, {name='ELE', min=-1000, max=1000, curve=2})");
+  luaExecStr("out1 = model.getOutput(1)");
+  luaExecStr("assert(out1.curve == 2, 'curve 2 mismatch: '..tostring(out1.curve))");
+
+  // Output with no curve assigned must not have the curve field.
+  luaExecStr("model.setOutput(2, {name='RUD', min=-1000, max=1000})");
+  luaExecStr("out2 = model.getOutput(2)");
+  luaExecStr("assert(out2.curve == nil, 'no-curve output should have nil curve')");
+}
+
+#if defined(GVARS)
+// model.setCustomFunction / getCustomFunction — FUNC_ADJUST_GVAR (func=5).
+// Every rc-soar model uses ADJUST_GVAR special functions to change GVar values
+// based on switch position (e.g. set GV9 from channel 10 via a logical switch).
+TEST(Lua, modelCustomFunctionAdjustGVar)
+{
+  MODEL_RESET();
+
+  // func=5 (FUNC_ADJUST_GVAR), switch=1, value=8 (GV9), mode=1 (Source),
+  // param=0, active=1.
+  luaExecStr("model.setCustomFunction(0, {switch=1, func=5, value=8, mode=1, param=0, active=1})");
+
+  luaExecStr("cf = model.getCustomFunction(0)");
+  luaExecStr("assert(cf ~= nil, 'getCustomFunction returned nil')");
+  luaExecStr("assert(cf.func   == 5, 'func mismatch: '..tostring(cf.func))");
+  luaExecStr("assert(cf.switch == 1, 'switch mismatch: '..tostring(cf.switch))");
+  luaExecStr("assert(cf.value  == 8, 'value (GVar index) mismatch: '..tostring(cf.value))");
+  luaExecStr("assert(cf.mode   == 1, 'mode mismatch: '..tostring(cf.mode))");
+  luaExecStr("assert(cf.active == 1, 'active mismatch: '..tostring(cf.active))");
+
+  // Out-of-range index must return nil.
+  luaExecStr("assert(model.getCustomFunction(999) == nil, 'expected nil for OOB index')");
+}
+#endif  // defined(GVARS)
+
+// model.setLogicalSwitch / getLogicalSwitch — LS_FUNC_EDGE (func=10).
+// RC-soar DLG model uses EDGE to detect launch: switch held for a minimum
+// duration triggers the launch-detected latch.  Tests v1 (switch), v2 (min
+// time), v3 (max time), and duration fields together.
+TEST(Lua, modelLogicalSwitchEdge)
+{
+  MODEL_RESET();
+
+  // func=10 (LS_FUNC_EDGE): true while v1 switch held inside [v2,v2+v3].
+  luaExecStr("model.setLogicalSwitch(3, {func=10, v1=1, v2=-100, v3=-50, duration=30})");
+
+  luaExecStr("ls = model.getLogicalSwitch(3)");
+  luaExecStr("assert(ls ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls.func == 10,   'func mismatch: '..tostring(ls.func))");
+  luaExecStr("assert(ls.v1   ==  1,   'v1 mismatch: '..tostring(ls.v1))");
+  luaExecStr("assert(ls.v2   == -100, 'v2 mismatch: '..tostring(ls.v2))");
+  luaExecStr("assert(ls.v3   == -50,  'v3 mismatch: '..tostring(ls.v3))");
+  luaExecStr("assert(ls.duration == 30, 'duration mismatch: '..tostring(ls.duration))");
+}
+
+// model.setLogicalSwitch / getLogicalSwitch — LS_FUNC_OR (func=8).
+// RC-soar F3J, easygee, and F3F models use OR to combine two mode-trigger
+// logical switches, e.g. "L01 OR L02".
+TEST(Lua, modelLogicalSwitchOr)
+{
+  MODEL_RESET();
+
+  // func=8 (LS_FUNC_OR): true when either v1 or v2 switch is active.
+  luaExecStr("model.setLogicalSwitch(4, {func=8, v1=1, v2=2})");
+
+  luaExecStr("ls = model.getLogicalSwitch(4)");
+  luaExecStr("assert(ls ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls.func == 8, 'func mismatch: '..tostring(ls.func))");
+  luaExecStr("assert(ls.v1 == 1,   'v1 mismatch: '..tostring(ls.v1))");
+  luaExecStr("assert(ls.v2 == 2,   'v2 mismatch: '..tostring(ls.v2))");
+}
+
+// model.setLogicalSwitch / getLogicalSwitch — the "and" (AND-switch) field.
+// "and" is a reserved Lua keyword so it must be accessed via bracket syntax:
+// ls["and"]. Virtually every real-world LS uses a non-zero AND-switch, but
+// this code path has never been tested.
+TEST(Lua, modelLogicalSwitchAndField)
+{
+  MODEL_RESET();
+
+  // Set func=1 (VEQUAL) with an AND-switch value of 5.
+  luaExecStr("model.setLogicalSwitch(5, {func=1, v1=2, v2=-100, [\"and\"]=5})");
+
+  luaExecStr("ls = model.getLogicalSwitch(5)");
+  luaExecStr("assert(ls ~= nil, 'getLogicalSwitch returned nil')");
+  luaExecStr("assert(ls.func == 1, 'func mismatch: '..tostring(ls.func))");
+  // "and" is a Lua reserved word — must use bracket syntax to read it.
+  luaExecStr("assert(ls[\"and\"] == 5, 'and field mismatch: '..tostring(ls[\"and\"]))");
+}
+
+// model.setCustomFunction / getCustomFunction — FUNC_PLAY_TRACK (func=11).
+// All rc-soar models use PLAY_TRACK to announce flight-mode changes.
+// This exercises the separate code path in getCustomFunction that returns a
+// "name" string field instead of "value/mode/param".
+TEST(Lua, modelCustomFunctionPlayTrack)
+{
+  MODEL_RESET();
+
+  // func=11 (FUNC_PLAY_TRACK): stores a filename in cfn->play.name.
+  luaExecStr("model.setCustomFunction(1, {switch=1, func=11, name='hello', active=1})");
+
+  luaExecStr("cf = model.getCustomFunction(1)");
+  luaExecStr("assert(cf ~= nil, 'getCustomFunction returned nil')");
+  luaExecStr("assert(cf.func   == 11,      'func mismatch: '..tostring(cf.func))");
+  luaExecStr("assert(cf.name   == 'hello', 'name mismatch: '..tostring(cf.name))");
+  luaExecStr("assert(cf.active == 1,       'active mismatch: '..tostring(cf.active))");
+  // PLAY_TRACK returns name, not value/mode/param.
+  luaExecStr("assert(cf.value == nil, 'value field should be absent for PLAY_TRACK')");
+}
+
+// model.setCustomFunction / getCustomFunction — FUNC_RESET (func=3).
+// DLG and easygee models use RESET to reset Timer1 on arm.
+// This exercises the value/mode/param code path (different from PLAY_TRACK).
+TEST(Lua, modelCustomFunctionReset)
+{
+  MODEL_RESET();
+
+  // func=3 (FUNC_RESET), value=0 (Timer1 reset target), active=1.
+  luaExecStr("model.setCustomFunction(2, {switch=1, func=3, value=0, active=1})");
+
+  luaExecStr("cf = model.getCustomFunction(2)");
+  luaExecStr("assert(cf ~= nil, 'getCustomFunction returned nil')");
+  luaExecStr("assert(cf.func   == 3, 'func mismatch: '..tostring(cf.func))");
+  luaExecStr("assert(cf.value  == 0, 'value (Timer1) mismatch: '..tostring(cf.value))");
+  luaExecStr("assert(cf.active == 1, 'active mismatch: '..tostring(cf.active))");
+  // FUNC_RESET uses value/mode/param, not name.
+  luaExecStr("assert(cf.name == nil, 'name field should be absent for RESET')");
+}
+
+// model.insertMix / getMix — flightModes bitmask and multiplex.
+// The rc-soar "all-except-FM1" pattern (flightModes=509, YAML "101111111")
+// and multiplex REPL (2) are used in every calibration override mix.
+TEST(Lua, modelInsertMixFlightModes)
+{
+  MODEL_RESET();
+
+  // CH1 (index 0), line 0.  flightModes=509 = bits 0,2-8 set (FM1 active).
+  luaExecStr("model.insertMix(0, 0, {source=1, weight=100, multiplex=2, flightModes=509})");
+
+  luaExecStr("mx = model.getMix(0, 0)");
+  luaExecStr("assert(mx ~= nil, 'getMix returned nil')");
+  luaExecStr("assert(mx.flightModes == 509, 'flightModes mismatch: '..tostring(mx.flightModes))");
+  luaExecStr("assert(mx.multiplex  == 2,   'multiplex (REPL) mismatch: '..tostring(mx.multiplex))");
+}
+
+// model.insertMix / getMix — MUL multiplex and non-zero offset.
+// RC-soar speed-compensation mixes use MUL(1) with offset: 100 to bias the
+// output before the multiplication stage.
+TEST(Lua, modelInsertMixMulAndOffset)
+{
+  MODEL_RESET();
+
+  // CH2 (index 1): MUL with offset=50.
+  luaExecStr("model.insertMix(1, 0, {source=1, weight=100, multiplex=1, offset=50, flightModes=0})");
+
+  luaExecStr("mx1 = model.getMix(1, 0)");
+  luaExecStr("assert(mx1 ~= nil, 'getMix (CH2) returned nil')");
+  luaExecStr("assert(mx1.multiplex == 1,  'MUL mismatch: '..tostring(mx1.multiplex))");
+  luaExecStr("assert(mx1.offset    == 50, 'offset mismatch: '..tostring(mx1.offset))");
+}
+
+#if defined(GVARS)
+// model.setGlobalVariable / getGlobalVariable — per-FM GVar isolation.
+// Each FM has its own GVar array.  f3j model: FM0 GV1=80 (cruise),
+// FM2 GV1=0 (launch).  Verifies independence through the Lua API.
+TEST(Lua, modelSetGetGlobalVariablePerFM)
+{
+  MODEL_RESET();
+
+  // GVar index 0 = GV1.
+  luaExecStr("model.setGlobalVariable(0, 0, 80)");  // FM0 GV1 = 80
+  luaExecStr("model.setGlobalVariable(0, 2, 0)");   // FM2 GV1 = 0
+
+  luaExecStr("assert(model.getGlobalVariable(0, 0) == 80, 'FM0 GV1 should be 80')");
+  luaExecStr("assert(model.getGlobalVariable(0, 2) == 0,  'FM2 GV1 should be 0')");
+
+  // Updating FM2 must not affect FM0.
+  luaExecStr("model.setGlobalVariable(0, 2, 600)");
+  luaExecStr("assert(model.getGlobalVariable(0, 0) == 80,  'FM0 GV1 unchanged')");
+  luaExecStr("assert(model.getGlobalVariable(0, 2) == 600, 'FM2 GV1 updated')");
+
+  // Out-of-range GVar index must return nil.
+  luaExecStr("assert(model.getGlobalVariable(999, 0) == nil, 'OOB GVar index')");
+}
+#endif  // defined(GVARS)
+
+// model.setFlightMode / getFlightMode — named FM1 (CAL mode).
+// Every rc-soar model names FM1 "CAL" and assigns it to a switch position.
+// Tests that name, switch, fadeIn, and fadeOut round-trip correctly.
+TEST(Lua, modelGetFlightModeNamed)
+{
+  MODEL_RESET();
+
+  luaExecStr("model.setFlightMode(1, {name='CAL', switch=2, fadeIn=5, fadeOut=5})");
+
+  luaExecStr("fm = model.getFlightMode(1)");
+  luaExecStr("assert(fm ~= nil, 'getFlightMode(1) returned nil')");
+  luaExecStr("assert(fm.name   == 'CAL', 'name mismatch: '..tostring(fm.name))");
+  luaExecStr("assert(fm.switch == 2,     'switch mismatch: '..tostring(fm.switch))");
+  luaExecStr("assert(fm.fadeIn == 5,     'fadeIn mismatch: '..tostring(fm.fadeIn))");
+  luaExecStr("assert(fm.fadeOut == 5,    'fadeOut mismatch: '..tostring(fm.fadeOut))");
+}
+
+// model.setOutput / getOutput — ppmCenter and revert fields.
+// ahi_110 rc-soar model sets ppmCenter: 18 on output channels;
+// revert: 1 is used to reverse servo travel direction.
+TEST(Lua, modelOutputPpmCenterRevert)
+{
+  MODEL_RESET();
+
+  luaExecStr("model.setOutput(0, {name='AIL', min=-1000, max=1000, ppmCenter=18, revert=1})");
+
+  luaExecStr("out = model.getOutput(0)");
+  luaExecStr("assert(out ~= nil, 'getOutput returned nil')");
+  luaExecStr("assert(out.ppmCenter == 18, 'ppmCenter mismatch: '..tostring(out.ppmCenter))");
+  luaExecStr("assert(out.revert    == 1,  'revert mismatch: '..tostring(out.revert))");
+
+  // Default output (no revert, center=0).
+  luaExecStr("model.setOutput(1, {name='ELE', min=-1000, max=1000})");
+  luaExecStr("out1 = model.getOutput(1)");
+  luaExecStr("assert(out1.ppmCenter == 0, 'default ppmCenter should be 0')");
+  luaExecStr("assert(out1.revert    == 0, 'default revert should be 0')");
+}
+
+// model.insertInput / getInput — flightModes bitmask on expo lines.
+// ahi_110 rc-soar model uses flightModes: 011111111 on aileron/elevator
+// inputs so those expo lines are active only in FM0 (normal flight).
+// YAML "011111111" → bits 1-8 set = decimal 510.
+TEST(Lua, modelInsertInputFlightModes)
+{
+  MODEL_RESET();
+
+  // Input 0, line 0; flightModes=510 means FM0 active, FM1-FM8 excluded.
+  luaExecStr("model.insertInput(0, 0, {source=1, weight=100, flightModes=510})");
+
+  luaExecStr("inp = model.getInput(0, 0)");
+  luaExecStr("assert(inp ~= nil, 'getInput returned nil')");
+  luaExecStr("assert(inp.flightModes == 510, 'flightModes mismatch: '..tostring(inp.flightModes))");
+}
+
 #endif   // #if defined(LUA)

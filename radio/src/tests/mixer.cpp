@@ -1413,3 +1413,189 @@ TEST_F(HeliTest, Swashplate90Degrees)
   EXPECT_EQ(chans[2], 0)            << "CYC3 should be zero with no aileron";
 }
 #endif  // defined(HELI)
+
+// CurveHeader.points encodes numPoints-5 in a 6-bit signed field.
+// A 3-point curve (used in rc-soar models for aileron/elevator differential)
+// must store points=-2 and produce correct interpolation via applyCustomCurve().
+TEST(Curves, ThreePointCurveLayout)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+  MIXER_RESET();
+  setModelDefaults();
+  loadCurves();
+
+  // A 3-point curve with points=-2 (numPoints = 3).
+  g_model.curves[0].type   = 0;   // standard (evenly-spaced x)
+  g_model.curves[0].smooth = 0;
+  g_model.curves[0].points = -2;  // numPoints - 5 = 3 - 5 = -2
+  loadCurves();  // re-initialise curveEnd[] after changing header
+
+  // Set y values: -50, 0, +50  (symmetric differential-style curve).
+  int8_t *pts = curveAddress(0);
+  pts[0] = -50;
+  pts[1] =   0;
+  pts[2] =  50;
+
+  // Verify the header encoding.
+  EXPECT_EQ(g_model.curves[0].points, -2) << "points field must be numPoints-5";
+
+  // Standard 3-pt curve: x = {-100, 0, 100}, y = {-50, 0, 50}.
+  // Interpolation at the three knots must be exact.
+  EXPECT_EQ(applyCustomCurve(-1024, 0), -512);  // -100% in → -50% out (scaled)
+  EXPECT_EQ(applyCustomCurve(    0, 0),    0);  // centre → 0
+  EXPECT_EQ(applyCustomCurve(+1024, 0), +512);  // +100% in → +50% out (scaled)
+}
+
+// LimitData.curve stores a 1-indexed curve number: 0 means no curve,
+// 1 means Curve1 (index 0), N means Curve N (index N-1).
+// This encoding is the same one the Lua getOutput/setOutput API relies on
+// (+1 when storing, -1 when returning, absent when zero).
+TEST(Curves, OutputLimitCurveEncoding)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+
+  // Freshly-reset output must have no curve assigned.
+  EXPECT_EQ(g_model.limitData[0].curve, 0) << "default curve must be 0 (none)";
+
+  // Assign Curve1 (index 0): stored as 1.
+  g_model.limitData[0].curve = 1;
+  EXPECT_EQ(g_model.limitData[0].curve, 1) << "Curve1 stored as 1";
+  // The Lua API returns curve-1 = 0 — verify the arithmetic.
+  EXPECT_EQ(g_model.limitData[0].curve - 1, 0) << "Lua-visible index should be 0";
+
+  // Assign Curve3 (index 2): stored as 3.
+  g_model.limitData[1].curve = 3;
+  EXPECT_EQ(g_model.limitData[1].curve, 3) << "Curve3 stored as 3";
+  EXPECT_EQ(g_model.limitData[1].curve - 1, 2) << "Lua-visible index should be 2";
+
+  // Output with no curve (curve==0) must not expose the field — the Lua API
+  // gate is `if (limit->curve)`, so zero must remain falsy.
+  g_model.limitData[2].curve = 0;
+  EXPECT_FALSE(g_model.limitData[2].curve) << "zero curve must be falsy";
+}
+
+// =========================================================================
+// LogicalSwitches / LogicalSwitchData struct tests
+// =========================================================================
+
+// LogicalSwitchData.andsw is a 10-bit signed field storing the AND-switch
+// source index (Lua field "and").  Virtually every real-world logical switch
+// has a non-zero andsw, but the field has never been directly tested at the
+// C++ struct level.
+TEST(LogicalSwitches, AndswitchFieldLayout)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+
+  LogicalSwitchData * ls = lswAddress(0);
+
+  // Freshly-zeroed struct: andsw must default to 0 (SWSRC_NONE).
+  EXPECT_EQ(ls->andsw, 0) << "default andsw must be 0";
+
+  // Positive value round-trip.
+  ls->andsw = 42;
+  EXPECT_EQ(ls->andsw, 42) << "andsw positive round-trip";
+
+  // Negative value round-trip (inverted-switch convention: -ival).
+  ls->andsw = -10;
+  EXPECT_EQ(ls->andsw, -10) << "andsw negative round-trip";
+
+  // Maximum positive value in a 10-bit signed field (+511).
+  ls->andsw = 511;
+  EXPECT_EQ(ls->andsw, 511) << "andsw max positive (+511)";
+
+  // Minimum negative value in a 10-bit signed field (-512).
+  ls->andsw = -512;
+  EXPECT_EQ(ls->andsw, -512) << "andsw min negative (-512)";
+
+  // A second LS entry must be independent.
+  EXPECT_EQ(lswAddress(1)->andsw, 0) << "LS1 andsw should still be 0";
+}
+
+// =========================================================================
+// Mixer / MixData struct tests
+// =========================================================================
+
+// MixData.flightModes is a 9-bit bitmask where bit N=1 means the mix is
+// EXCLUDED from FM N.  The rc-soar "all-except-FM1" pattern sets bits
+// 0 and 2-8 (FM1 is the only active FM), written in YAML as "101111111",
+// which decodes to decimal 509 = 0b1_1111_1101.
+TEST(Mixer, FlightModesBitmaskField)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+
+  // 0 = active in all FMs (no bits set = no FM excluded).
+  g_model.mixData[0].flightModes = 0;
+  EXPECT_EQ(g_model.mixData[0].flightModes, 0u) << "0 means active in all FMs";
+
+  // Bit 1 only: exclude FM1.
+  g_model.mixData[0].flightModes = 0b00000'0010u;
+  EXPECT_EQ(g_model.mixData[0].flightModes, 2u) << "FM1-only exclusion";
+
+  // All-except-FM1 pattern from rc-soar models: bits 0,2-8 set, bit 1 clear.
+  // YAML "101111111" → 1+4+8+16+32+64+128+256 = 509 = 0b1_1111_1101.
+  const uint16_t ALL_EXCEPT_FM1 = 509u;
+  g_model.mixData[0].flightModes = ALL_EXCEPT_FM1;
+  EXPECT_EQ(g_model.mixData[0].flightModes, ALL_EXCEPT_FM1)
+      << "all-except-FM1 bitmask (509) round-trip";
+
+  // All 9 bits set: mix excluded from every FM.
+  g_model.mixData[0].flightModes = 0x1FFu;
+  EXPECT_EQ(g_model.mixData[0].flightModes, 0x1FFu) << "all-FMs-excluded (0x1FF)";
+
+  // Adjacent mix line must be unaffected.
+  EXPECT_EQ(g_model.mixData[1].flightModes, 0u) << "mixData[1] flightModes unchanged";
+}
+
+// MixData.mltpx is a 2-bit enum: ADD=0, MUL=1, REPL=2.  Most existing
+// tests only exercise ADD; MUL and REPL appear in real-world soaring models
+// for speed-compensation and flight-mode-switch override mixes.
+TEST(Mixer, MltpxEncoding)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+
+  g_model.mixData[0].mltpx = MLTPX_ADD;
+  EXPECT_EQ(g_model.mixData[0].mltpx, (uint8_t)MLTPX_ADD) << "ADD (0) encoding";
+
+  g_model.mixData[0].mltpx = MLTPX_MUL;
+  EXPECT_EQ(g_model.mixData[0].mltpx, (uint8_t)MLTPX_MUL) << "MUL (1) encoding";
+
+  g_model.mixData[0].mltpx = MLTPX_REPL;
+  EXPECT_EQ(g_model.mixData[0].mltpx, (uint8_t)MLTPX_REPL) << "REPL (2) encoding";
+
+  // Adjacent mix line must be unaffected (default is ADD=0).
+  EXPECT_EQ(g_model.mixData[1].mltpx, (uint8_t)MLTPX_ADD)
+      << "adjacent mix mltpx unchanged";
+}
+
+#if defined(GVARS)
+// FlightModeData.gvars[] is independent per flight mode.
+// rc-soar f3j model: FM0 GV1=80 (cruise climb rate), FM2 GV1=0 (launch).
+// Verifies that writing one FM's GVar does not corrupt another FM's GVar.
+TEST(GVars, PerFlightModeIsolation)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+
+  g_model.flightModeData[0].gvars[0] = 80;
+  g_model.flightModeData[2].gvars[0] = 0;
+
+  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 80)
+      << "FM0 gvars[0] should be 80";
+  EXPECT_EQ(g_model.flightModeData[2].gvars[0], 0)
+      << "FM2 gvars[0] should be 0";
+
+  // Modify FM2; FM0 must remain unaffected.
+  g_model.flightModeData[2].gvars[0] = 600;
+  EXPECT_EQ(g_model.flightModeData[0].gvars[0], 80)
+      << "FM0 gvars[0] unchanged after FM2 update";
+
+  // Adjacent GVar index in FM0 must be unaffected.
+  EXPECT_EQ(g_model.flightModeData[0].gvars[1], 0)
+      << "FM0 gvars[1] should still be 0";
+}
+#endif  // defined(GVARS)
