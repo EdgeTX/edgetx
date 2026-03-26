@@ -25,6 +25,20 @@
 class TrimsTest : public EdgeTxTest {};
 class MixerTest : public EdgeTxTest {};
 
+// Parameter for the slow-ramp precision test group.
+// speedPrec=0 → 100 ms per unit (×10 ticks); speedPrec=1 → 10 ms per unit (×1 tick).
+// halfIter / fullIter are the CHECK_SLOW_MOVEMENT iteration counts for a half-range or
+// full-range movement respectively; maxDuration is the macro's max_duration argument.
+struct SlowPrecParam {
+  int speedPrec;
+  int halfIter;
+  int fullIter;
+  int maxDuration;
+};
+
+class MixerSlowPrecTest : public MixerTest,
+                          public ::testing::WithParamInterface<SlowPrecParam> {};
+
 #define CHECK_NO_MOVEMENT(channel, value, duration) \
     for (int i=1; i<=(duration); i++) { \
       evalFlightModeMixes(e_perout_mode_normal, 1); \
@@ -688,30 +702,32 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 }
 
 
-TEST_F(MixerTest, SlowOnPhase)
+TEST_P(MixerSlowPrecTest, SlowOnPhase)
 {
+  auto p = GetParam();
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[0].flightModes = 0x2 + 0x4 + 0x8 + 0x10 /*only enabled in phase 0*/;
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
+  g_model.mixData[0].destCh      = 0;
+  g_model.mixData[0].mltpx       = MLTPX_ADD;
+  g_model.mixData[0].srcRaw      = MIXSRC_MAX;
+  g_model.mixData[0].weight      = makeSourceNumVal(100);
+  g_model.mixData[0].flightModes = 0x2 + 0x4 + 0x8 + 0x10; // active only in FM0
+  g_model.mixData[0].speedUp     = 50;
+  g_model.mixData[0].speedDown   = 50;
+  g_model.mixData[0].speedPrec   = p.speedPrec;
 
   s_mixer_first_run_done = true;
   mixerCurrentFlightMode = 0;
   evalFlightModeMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], 0);
 
-  CHECK_SLOW_MOVEMENT(0, +1, 250, 500);
-
+  CHECK_SLOW_MOVEMENT(0, +1, p.halfIter, p.maxDuration);
   mixerCurrentFlightMode = 1;
-  CHECK_SLOW_MOVEMENT(0, -1, 250, 500);
+  CHECK_SLOW_MOVEMENT(0, -1, p.halfIter, p.maxDuration);
 }
 
-TEST_F(MixerTest, SlowOnSwitchSource)
+TEST_P(MixerSlowPrecTest, SlowOnSwitchSource)
 {
+  auto p = GetParam();
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchType(sw) == SWITCH_3POS)
@@ -719,71 +735,21 @@ TEST_F(MixerTest, SlowOnSwitchSource)
   if (sw >= switchGetMaxAllSwitches())
     GTEST_SKIP() << "no 3-position switch on this target";
 
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[0].speedUp = 50;
+  g_model.mixData[0].destCh    = 0;
+  g_model.mixData[0].mltpx     = MLTPX_ADD;
+  g_model.mixData[0].srcRaw    = sw + MIXSRC_FIRST_SWITCH;
+  g_model.mixData[0].weight    = makeSourceNumVal(100);
+  g_model.mixData[0].speedUp   = 50;
   g_model.mixData[0].speedDown = 50;
+  g_model.mixData[0].speedPrec = p.speedPrec;
 
   s_mixer_first_run_done = true;
-
   simuSetSwitch(sw, -1);
-  CHECK_SLOW_MOVEMENT(0, -1, 250, 500);
+  CHECK_SLOW_MOVEMENT(0, -1, p.halfIter, p.maxDuration);
   EXPECT_EQ(chans[0], -CHANNEL_MAX);
 
   simuSetSwitch(sw, 1);
-  CHECK_SLOW_MOVEMENT(0, +1, 500, 500);
-}
-
-TEST_F(MixerTest, SlowOnPhasePrec10ms)
-{
-  g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[0].flightModes = 0x2 + 0x4 + 0x8 + 0x10 /*only enabled in phase 0*/;
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
-  g_model.mixData[0].speedPrec = 1;
-
-  s_mixer_first_run_done = true;
-  mixerCurrentFlightMode = 0;
-  evalFlightModeMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], 0);
-
-  CHECK_SLOW_MOVEMENT(0, +1, 25, 50);
-
-  mixerCurrentFlightMode = 1;
-  CHECK_SLOW_MOVEMENT(0, -1, 25, 50);
-}
-
-TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
-{
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  if (sw >= switchGetMaxAllSwitches())
-    GTEST_SKIP() << "no 3-position switch on this target";
-
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
-  g_model.mixData[0].speedPrec = 1;
-
-  s_mixer_first_run_done = true;
-
-  simuSetSwitch(sw, -1);
-  CHECK_SLOW_MOVEMENT(0, -1, 25, 50);
-  EXPECT_EQ(chans[0], -CHANNEL_MAX);
-
-  simuSetSwitch(sw, 1);
-  CHECK_SLOW_MOVEMENT(0, +1, 50, 50);
+  CHECK_SLOW_MOVEMENT(0, +1, p.fullIter, p.maxDuration);
 }
 
 TEST_F(MixerTest, SlowDisabledOnStartup)
@@ -869,24 +835,25 @@ TEST_F(MixerTest, DelayOnSwitch2)
   EXPECT_EQ(chans[0], 0);
 }
 
-TEST_F(MixerTest, SlowOnMultiply)
+TEST_P(MixerSlowPrecTest, SlowOnMultiply)
 {
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_MUL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
-  g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
-  g_model.mixData[1].speedUp = 50;
+  auto p = GetParam();
+  g_model.mixData[0].destCh    = 0;
+  g_model.mixData[0].mltpx     = MLTPX_ADD;
+  g_model.mixData[0].srcRaw    = MIXSRC_MAX;
+  g_model.mixData[0].weight    = makeSourceNumVal(100);
+  g_model.mixData[1].destCh    = 0;
+  g_model.mixData[1].mltpx     = MLTPX_MUL;
+  g_model.mixData[1].srcRaw    = MIXSRC_MAX;
+  g_model.mixData[1].weight    = makeSourceNumVal(100);
+  g_model.mixData[1].swtch     = SWSRC_FIRST_SWITCH;
+  g_model.mixData[1].speedUp   = 50;
   g_model.mixData[1].speedDown = 50;
+  g_model.mixData[1].speedPrec = p.speedPrec;
 
   s_mixer_first_run_done = true;
-
   simuSetSwitch(0, 1);
-  CHECK_SLOW_MOVEMENT(0, 1, 250, 500);
+  CHECK_SLOW_MOVEMENT(0, 1, p.halfIter, p.maxDuration);
 
   simuSetSwitch(0, -1);
   CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
@@ -895,32 +862,13 @@ TEST_F(MixerTest, SlowOnMultiply)
   CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
 }
 
-TEST_F(MixerTest, SlowOnMultiplyPrec10ms)
-{
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_MUL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
-  g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
-  g_model.mixData[1].speedUp = 50;
-  g_model.mixData[1].speedDown = 50;
-  g_model.mixData[1].speedPrec = 1;
-
-  s_mixer_first_run_done = true;
-
-  simuSetSwitch(0, 1);
-  CHECK_SLOW_MOVEMENT(0, 1, 25, 50);
-
-  simuSetSwitch(0, -1);
-  CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
-
-  simuSetSwitch(0, 1);
-  CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
-}
+INSTANTIATE_TEST_SUITE_P(
+  SpeedPrecision, MixerSlowPrecTest,
+  ::testing::Values(
+    SlowPrecParam{0, 250, 500, 500},  // 100 ms precision (default)
+    SlowPrecParam{1,  25,  50,  50}   // 10 ms precision
+  )
+);
 
 TEST_F(TrimsTest, throttleTrimEle) {
   g_eeGeneral.templateSetup = 17; // WARNING: NOT RETA (TAER or TH/ST)

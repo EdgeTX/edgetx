@@ -37,6 +37,16 @@ void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16
   g_model.logicalSw[index].andsw = _andsw;
 }
 
+// Parameter for threshold-condition LS tests.
+// func is LS_FUNC_VPOS or LS_FUNC_VNEG; posDeflTrue is the expected LS state
+// when the monitored stick is at full positive deflection (+1024).
+struct LSCondParam {
+  uint16_t func;
+  bool posDeflTrue;
+};
+
+class LSCondTest : public ::testing::TestWithParam<LSCondParam> {};
+
 #define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)
 #define SWSRC_SW2 (SWSRC_FIRST_LOGICAL_SWITCH + 1)
 
@@ -478,47 +488,35 @@ TEST_F(FlexSwitchTest, getSwitch)
 
 // LS_FUNC_VPOS fires when the source value is strictly greater than the
 // threshold (v2 in 100-unit scale, converted to RESX internally).
-TEST(evalLogicalSwitches, vposTriggersAboveThreshold)
+// LS_FUNC_VPOS fires when the source is above threshold; LS_FUNC_VNEG fires when below.
+// Both use the same test logic with inverted expectations, so they share a TEST_P suite.
+TEST_P(LSCondTest, ThresholdCondition)
 {
+  auto p = GetParam();
   MODEL_RESET();
   setModelDefaults();
   MIXER_RESET();
 
   // Threshold = 0 (centre).  v1 = first stick, v2 = 0.
-  setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_STICK, 0);
+  setLogicalSwitch(0, p.func, MIXSRC_FIRST_STICK, 0);
 
-  // Stick at full positive deflection → above threshold → true.
+  // Stick at full positive deflection: VPOS → true, VNEG → false.
   anaSetFiltered(0, +1024);
   evalMixes(1);
   evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+  EXPECT_EQ(getSwitch(SWSRC_SW1), p.posDeflTrue);
 
-  // Stick at full negative deflection → below threshold → false.
+  // Stick at full negative deflection: VPOS → false, VNEG → true.
   anaSetFiltered(0, -1024);
   evalMixes(1);
   evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
+  EXPECT_EQ(getSwitch(SWSRC_SW1), !p.posDeflTrue);
 }
 
-// LS_FUNC_VNEG fires when the source value is strictly less than the threshold.
-TEST(evalLogicalSwitches, vnegTriggersBelowThreshold)
-{
-  MODEL_RESET();
-  setModelDefaults();
-  MIXER_RESET();
-
-  // Threshold = 0 (centre).  v1 = first stick, v2 = 0.
-  setLogicalSwitch(0, LS_FUNC_VNEG, MIXSRC_FIRST_STICK, 0);
-
-  // Stick at full negative deflection → below threshold → VNEG true.
-  anaSetFiltered(0, -1024);
-  evalMixes(1);
-  evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-
-  // Stick at full positive deflection → above threshold → VNEG false.
-  anaSetFiltered(0, +1024);
-  evalMixes(1);
-  evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-}
+INSTANTIATE_TEST_SUITE_P(
+  LSConditions, LSCondTest,
+  ::testing::Values(
+    LSCondParam{LS_FUNC_VPOS, true},   // above threshold fires VPOS
+    LSCondParam{LS_FUNC_VNEG, false}   // above threshold does not fire VNEG
+  )
+);
