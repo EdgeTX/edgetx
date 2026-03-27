@@ -56,13 +56,19 @@ void menuModelCurvesAll(event_t event)
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
+  // Reclaim trailing empty slots when exiting
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT))
+    curveTrimTrailing();
+
   if (event == EVT_KEY_BREAK(KEY_ENTER) &&
       CURVE_SELECTED()) {
 
     s_currIdxSubMenu = sub;
     s_currSrcRaw.clear();
-    if (curveAllocAt(sub))
+    if (curveAllocAt(sub)) {
+      setCurveUsed(sub);
       pushMenu(menuModelCurveOne);
+    }
   }
 
   for (uint8_t i=0; i<LCD_LINES-1; i++) {

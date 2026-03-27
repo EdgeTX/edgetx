@@ -112,6 +112,7 @@ void ModelCurvesPage::pushEditCurve(int index, const SourceRef& source)
     CurveHeader &curve = *curveHeaderAddress(index);
     int8_t *points = curveAddress(index);
     initPoints(curve, points);
+    setCurveUsed(index);
     storageDirty(EE_MODEL);
   }
 
@@ -177,6 +178,7 @@ void ModelCurvesPage::newCV(Window *window, bool presetCV)
           CurveHeader &curve = *curveHeaderAddress(i);
           int8_t *points = curveAddress(i);
           initPoints(curve, points);
+          setCurveUsed(i);
           storageDirty(EE_MODEL);
           editCurve(window, i);
         }
@@ -239,6 +241,7 @@ void ModelCurvesPage::build(Window *window)
         });
         menu->addLine(STR_CLEAR, [=]() {
           curveClear(index);
+          curveTrimTrailing();
           storageDirty(EE_MODEL);
           rebuild(window);
         });

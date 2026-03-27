@@ -550,6 +550,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_END
 };
 static const struct YamlNode struct_CurveHeader[] = {
+  YAML_IDX,
   YAML_UNSIGNED( "type", 1 ),
   YAML_UNSIGNED( "smooth", 1 ),
   YAML_SIGNED( "points", 6 ),

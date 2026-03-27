@@ -203,6 +203,10 @@ public:
   uint16_t trimTrailingEmpty(uint8_t section,
                              bool (*isEmpty)(const uint8_t*));
 
+  // Shrink a section to exactly newCount elements, removing from the tail.
+  // Returns number of elements removed. No-op if newCount >= current count.
+  uint16_t trimSectionTo(uint8_t section, uint16_t newCount);
+
   void clear();
 
   // Element size for a section (from descriptor)

@@ -750,6 +750,101 @@ TEST_F(ArenaInsertDeleteTest, TrimAllocRoundTrip)
   EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 3);
 }
 
+TEST_F(ArenaInsertDeleteTest, TrimSectionTo)
+{
+  ASSERT_NE(lswAllocAt(4), nullptr);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 5);
+
+  lswAddress(0)->func = LS_FUNC_VPOS;
+  lswAddress(1)->func = LS_FUNC_VPOS;
+
+  uint32_t bytesBefore = g_modelArena.usedBytes();
+
+  uint16_t removed = g_modelArena.trimSectionTo(ARENA_LOGICAL_SW, 2);
+  EXPECT_EQ(removed, 3);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 2);
+  EXPECT_EQ(g_modelArena.usedBytes(),
+            bytesBefore - 3 * sizeof(LogicalSwitchData));
+  EXPECT_EQ(lswAddress(0)->func, LS_FUNC_VPOS);
+  EXPECT_EQ(lswAddress(1)->func, LS_FUNC_VPOS);
+
+  // No-op when newCount >= current
+  removed = g_modelArena.trimSectionTo(ARENA_LOGICAL_SW, 5);
+  EXPECT_EQ(removed, 0);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 2);
+}
+
+// ---- Curve trim tests ----
+
+TEST_F(ArenaInsertDeleteTest, CurveTrimTrailingEmpty)
+{
+  // Create curves at index 0 and 2
+  ASSERT_TRUE(curveAllocAt(2));
+  EXPECT_EQ(getCurveCount(), 3);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_POINTS), 15);  // 3 × 5
+
+  // Make curve 0 non-empty (identity points)
+  int8_t* pts0 = curveAddress(0);
+  for (uint8_t i = 0; i < 5; i++) pts0[i] = -100 + i * 50;
+  setCurveUsed(0);
+
+  // Curve 1 and 2 are all zeros → trailing empty
+  curveTrimTrailing();
+
+  // Only curve 0 should remain
+  EXPECT_EQ(getCurveCount(), 1);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_POINTS), 5);
+
+  // Curve 0 data intact
+  loadCurves();
+  int8_t* pts = curveAddress(0);
+  for (uint8_t i = 0; i < 5; i++) {
+    EXPECT_EQ(pts[i], -100 + i * 50);
+  }
+}
+
+TEST_F(ArenaInsertDeleteTest, CurveTrimPreservesMiddleEmpty)
+{
+  // Create curves 0, 1, 2 — make 0 and 2 non-empty
+  ASSERT_TRUE(curveAllocAt(2));
+
+  int8_t* pts0 = curveAddress(0);
+  pts0[0] = -100;
+  setCurveUsed(0);
+
+  int8_t* pts2 = curveAddress(2);
+  pts2[0] = -100;
+  setCurveUsed(2);
+
+  // Curve 1 is empty but in the middle
+  curveTrimTrailing();
+
+  // All 3 kept because curve 2 is non-empty
+  EXPECT_EQ(getCurveCount(), 3);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_POINTS), 15);
+}
+
+TEST_F(ArenaInsertDeleteTest, CurveClearAndTrim)
+{
+  // Create curve 0 with identity data
+  ASSERT_TRUE(curveAllocAt(0));
+  int8_t* pts = curveAddress(0);
+  for (uint8_t i = 0; i < 5; i++) pts[i] = -100 + i * 50;
+  setCurveUsed(0);
+
+  EXPECT_TRUE(isCurveUsed(0));
+
+  uint32_t bytesBefore = g_modelArena.usedBytes();
+
+  curveClear(0);
+  EXPECT_FALSE(isCurveUsed(0));
+
+  curveTrimTrailing();
+  EXPECT_EQ(getCurveCount(), 0);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_POINTS), 0);
+  EXPECT_LT(g_modelArena.usedBytes(), bytesBefore);
+}
+
 // ---- Growable arena tests (Phase 6) ----
 
 class GrowableArenaTest : public testing::Test {

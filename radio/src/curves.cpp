@@ -28,6 +28,7 @@ constexpr int STD_CURVE_POINTS(int p) { return p + DEFAULT_POINTS; }
 constexpr int CUSTOM_CURVE_POINTS(int p) { return 2 * p + (2 * DEFAULT_POINTS - 2); }
 
 int8_t * curveEnd[MAX_CURVES_HARD];
+static uint32_t curveUsedFlags[(MAX_CURVES_HARD + 31) / 32];
 
 uint16_t getCurveCount()
 {
@@ -53,24 +54,36 @@ void loadCurves()
   bool showWarning= false;
   int8_t * tmp = curvePointsBase();
   uint16_t count = getCurveCount();
+  memset(curveUsedFlags, 0, sizeof(curveUsedFlags));
+
   for (int i=0; i<MAX_CURVES; i++) {
     if (i >= (int)count) {
       curveEnd[i] = tmp;
       continue;
     }
+    uint8_t nPoints;
     switch (curveHeaderAddress(i)->type) {
       case CURVE_TYPE_STANDARD:
-        tmp += STD_CURVE_POINTS(curveHeaderAddress(i)->points);
+        nPoints = STD_CURVE_POINTS(curveHeaderAddress(i)->points);
         break;
       case CURVE_TYPE_CUSTOM:
-        tmp += CUSTOM_CURVE_POINTS(curveHeaderAddress(i)->points);
+        nPoints = CUSTOM_CURVE_POINTS(curveHeaderAddress(i)->points);
         break;
       default:
         TRACE("Wrong curve type! Fixing...");
         curveHeaderAddress(i)->type = CURVE_TYPE_STANDARD;
-        tmp += STD_CURVE_POINTS(curveHeaderAddress(i)->points);
+        nPoints = STD_CURVE_POINTS(curveHeaderAddress(i)->points);
         break;
     }
+
+    // Mark curve used if header or points are non-zero
+    if (!is_memclear(curveHeaderAddress(i), sizeof(CurveHeader)) ||
+        !is_memclear(tmp, nPoints)) {
+      curveUsedFlags[i / 32] |= (1u << (i % 32));
+    }
+
+    tmp += nPoints;
+
     // Older version did not check if we exceeded the array
     int8_t * maxend = curvePointsBase() + MAX_CURVE_POINTS - 2*(MAX_CURVES-i-1);
     if (tmp > maxend) {
@@ -173,7 +186,7 @@ void curveClear(uint8_t index)
 {
   if (index >= MAX_CURVES)
     return;
-  
+
   CurveHeader * curve = curveHeaderAddress(index);
   int8_t * curvePoints = curveAddress(index);
 
@@ -182,10 +195,34 @@ void curveClear(uint8_t index)
 
   memclear(curve, sizeof(CurveHeader));
   uint8_t newPoints = getCurvePoints(index);
-  
+
   int8_t shift = newPoints - nPoints;
   if (shift != 0) {
     curveMove_unsafe(index, shift);
+  }
+
+  curveUsedFlags[index / 32] &= ~(1u << (index % 32));
+}
+
+static bool curveIsEmpty(const uint8_t* ptr)
+{
+  return is_memclear(const_cast<uint8_t*>(ptr), sizeof(CurveHeader));
+}
+
+void curveTrimTrailing()
+{
+  uint16_t oldCount = getCurveCount();
+  g_modelArena.trimTrailingEmpty(ARENA_CURVES, curveIsEmpty);
+  uint16_t newCount = getCurveCount();
+
+  if (newCount < oldCount) {
+    // Trim orphaned points belonging to removed trailing curves
+    uint16_t totalPoints = 0;
+    for (uint16_t i = 0; i < newCount; i++)
+      totalPoints += getCurvePoints(i);
+
+    g_modelArena.trimSectionTo(ARENA_POINTS, totalPoints);
+    loadCurves();
   }
 }
 
@@ -206,8 +243,12 @@ bool isCurveUsed(uint8_t index)
 {
   if (index >= getCurveCount())
     return false;
-  return !is_memclear(curveHeaderAddress(index), sizeof(CurveHeader)) ||
-         !is_memclear(curveAddress(index), DEFAULT_POINTS);
+  return (curveUsedFlags[index / 32] >> (index % 32)) & 1u;
+}
+
+void setCurveUsed(uint8_t index)
+{
+  curveUsedFlags[index / 32] |= (1u << (index % 32));
 }
 
 #define CUSTOM_POINT_X(points, count, idx) \

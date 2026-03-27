@@ -306,6 +306,32 @@ uint16_t Arena::trimTrailingEmpty(uint8_t section,
   return removed;
 }
 
+uint16_t Arena::trimSectionTo(uint8_t section, uint16_t newCount)
+{
+  uint16_t count = _counts[section];
+  if (newCount >= count) return 0;
+
+  uint32_t elemSize = _desc->elemSizes[section];
+  uint16_t removed = count - newCount;
+  uint32_t bytesToRemove = removed * elemSize;
+  uint32_t removeOffset = _offsets[section] + newCount * elemSize;
+
+  uint32_t tailSize = _usedBytes - (removeOffset + bytesToRemove);
+  if (tailSize > 0) {
+    memmove(_base + removeOffset,
+            _base + removeOffset + bytesToRemove, tailSize);
+  }
+  memset(_base + _usedBytes - bytesToRemove, 0, bytesToRemove);
+
+  _usedBytes -= bytesToRemove;
+  _counts[section] = newCount;
+  for (uint8_t i = section + 1; i < _desc->numSections; i++) {
+    _offsets[i] -= bytesToRemove;
+  }
+
+  return removed;
+}
+
 // ---------------------------------------------------------------------------
 // Init functions
 // ---------------------------------------------------------------------------
