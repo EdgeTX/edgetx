@@ -449,6 +449,11 @@ static const struct YamlNode struct_MixData[] = {
   YAML_STRING("name", 6),
   YAML_END
 };
+static const struct YamlNode struct_MixChName[] = {
+  YAML_IDX,
+  YAML_STRING("name", 4),
+  YAML_END
+};
 static const struct YamlNode struct_LimitData[] = {
   YAML_IDX,
   YAML_SIGNED_CUST( "min", 16, in_read_weight, in_write_weight ),
@@ -459,6 +464,7 @@ static const struct YamlNode struct_LimitData[] = {
   YAML_UNSIGNED( "revert", 1 ),
   YAML_PADDING( 2 ),
   YAML_SIGNED( "curve", 8 ),
+  YAML_SIGNED( "srcCh", 8 ),
   YAML_STRING("name", 4),
   YAML_END
 };
@@ -835,7 +841,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_EXTERN_ARRAY("mixData", 280, MAX_MIXERS_HARD, struct_MixData, yaml_drv_mix),
-  YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
+  YAML_EXTERN_ARRAY("mixChannelNames", 32, MAX_OUTPUT_CHANNELS, struct_MixChName, yaml_drv_mix_ch_names),
+  YAML_ARRAY("limitData", 112, 32, struct_LimitData, NULL),
   YAML_EXTERN_ARRAY("expoData", 264, MAX_EXPOS_HARD, struct_ExpoData, yaml_drv_expo),
   YAML_EXTERN_ARRAY("curves", 32, MAX_CURVES_HARD, struct_CurveHeader, yaml_drv_curves),
   YAML_EXTERN_ARRAY("points", 8, MAX_CURVE_POINTS_HARD, struct_signed_8, yaml_drv_points),

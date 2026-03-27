@@ -1699,6 +1699,47 @@ static int luaModelSetOutput(lua_State *L)
   return 0;
 }
 
+/*luadoc
+@function model.getMixChannelName(index)
+
+Get mix channel name
+
+@param index (unsigned number) channel number (use 0 for CH1)
+
+@retval string channel name or empty string if not set
+
+@status current Introduced in 2.11
+*/
+static int luaModelGetMixChannelName(lua_State *L)
+{
+  unsigned int idx = luaL_checkinteger(L, 1);
+  const char* name = getMixChName(idx);
+  if (name)
+    lua_pushstring(L, name);
+  else
+    lua_pushstring(L, "");
+  return 1;
+}
+
+/*luadoc
+@function model.setMixChannelName(index, name)
+
+Set mix channel name
+
+@param index (unsigned number) channel number (use 0 for CH1)
+
+@param name (string) channel name
+
+@status current Introduced in 2.11
+*/
+static int luaModelSetMixChannelName(lua_State *L)
+{
+  unsigned int idx = luaL_checkinteger(L, 1);
+  const char* name = luaL_checkstring(L, 2);
+  setMixChName(idx, name);
+  return 0;
+}
+
 #if defined(GVARS)
 /*luadoc
 @function model.getGlobalVariable(index, flight_mode)
@@ -2017,6 +2058,8 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( setCurve, luaModelSetCurve )
   LROT_FUNCENTRY( getOutput, luaModelGetOutput )
   LROT_FUNCENTRY( setOutput, luaModelSetOutput )
+  LROT_FUNCENTRY( getMixChannelName, luaModelGetMixChannelName )
+  LROT_FUNCENTRY( setMixChannelName, luaModelSetMixChannelName )
 #if defined (GVARS)
   LROT_FUNCENTRY( getGlobalVariable, luaModelGetGlobalVariable )
   LROT_FUNCENTRY( setGlobalVariable, luaModelSetGlobalVariable )

@@ -407,6 +407,8 @@ inline uint8_t getOutputSrcCh(uint8_t output) {
   if (src <= 0) return output;
   return src - 1;
 }
+const char* getMixChName(uint8_t ch);
+bool setMixChName(uint8_t ch, const char* name);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 CurveHeader * curveHeaderAddress(uint8_t idx);
 CurveHeader * curveHeaderAllocAt(uint8_t idx);

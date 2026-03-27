@@ -161,6 +161,14 @@ PACK(struct ExpoData {
 });
 
 /*
+ * Mix channel name (stored in arena, indexed by channel number)
+ */
+
+PACK(struct MixChName {
+  char name[LEN_CHANNEL_NAME];
+});
+
+/*
  * Limit structure
  */
 
@@ -797,6 +805,7 @@ PACK(struct ModelData {
 
   // Dynamic arrays stored in arena (see model_arena.h)
   CUST_EXTERN_ARRAY_NOIDX(mixData, struct_MixData, MAX_MIXERS_HARD, yaml_drv_mix);
+  CUST_EXTERN_ARRAY(mixChannelNames, struct_MixChName, MAX_OUTPUT_CHANNELS, yaml_drv_mix_ch_names);
   LimitData limitData[MAX_OUTPUT_CHANNELS];
   CUST_EXTERN_ARRAY_NOIDX(expoData, struct_ExpoData, MAX_EXPOS_HARD, yaml_drv_expo);
   CUST_EXTERN_ARRAY(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_drv_curves);

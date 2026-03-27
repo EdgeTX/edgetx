@@ -273,6 +273,36 @@ LimitData *limitAddress(uint8_t idx)
   return &g_model.limitData[idx];
 }
 
+const char* getMixChName(uint8_t ch)
+{
+  if (ch >= g_modelArena.sectionCount(ARENA_MIX_CH_NAMES))
+    return nullptr;
+  auto* entry = (MixChName*)(g_modelArena.sectionBase(ARENA_MIX_CH_NAMES)
+                             + ch * sizeof(MixChName));
+  if (entry->name[0] == '\0')
+    return nullptr;
+  return entry->name;
+}
+
+bool setMixChName(uint8_t ch, const char* name)
+{
+  if (ch >= MAX_OUTPUT_CHANNELS)
+    return false;
+
+  if (!g_modelArena.ensureSectionCapacity(ARENA_MIX_CH_NAMES, ch + 1))
+    return false;
+
+  auto* entry = (MixChName*)(g_modelArena.sectionBase(ARENA_MIX_CH_NAMES)
+                             + ch * sizeof(MixChName));
+  if (name && name[0] != '\0') {
+    strncpy(entry->name, name, LEN_CHANNEL_NAME);
+  } else {
+    memset(entry->name, 0, LEN_CHANNEL_NAME);
+  }
+  storageDirty(EE_MODEL);
+  return true;
+}
+
 USBJoystickChData *usbJChAddress(uint8_t idx)
 {
   return &g_model.usbJoystickCh[idx];
