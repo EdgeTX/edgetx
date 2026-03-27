@@ -89,7 +89,7 @@ fi
 
 echo "=== Step $((STEP++)): Installing Python packages ==="
 # Python 3.12+ enforces PEP 668 (managed environment); --break-system-packages allows pip installs outside a venv
-sudo python3 -m pip install --break-system-packages \
+sudo python3 -m pip install --break-system-packages --ignore-installed \
     asciitree \
     jinja2 \
     pillow \
