@@ -84,10 +84,12 @@ void SwitchChoice::buildEntries()
     for (uint16_t i = 0; i < count; i++) {
       SwitchRef ref = SwitchRef_(t, i);
 
-      if (!isSwitchAvailableInMixes(ref)) continue;
-
-      // Check custom SwitchRef-based filter
-      if (isRefAvailable && !isRefAvailable(ref)) continue;
+      // Use the context-specific filter if set, otherwise fall back to mixes
+      if (isRefAvailable) {
+        if (!isRefAvailable(ref)) continue;
+      } else {
+        if (!isSwitchAvailableInMixes(ref)) continue;
+      }
 
       entries.push_back(ref);
       hasEntries = true;
