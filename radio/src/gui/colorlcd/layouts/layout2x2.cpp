@@ -21,13 +21,16 @@
 
 #include "layout.h"
 
+// Zone map: 2x2 (2 columns, 2 rows)
+// Each zone is 1/2 width, 1/2 height
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
-    LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
+    LAYOUT_MAP_0,    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,  // Top-left
+    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,  // Bottom-left
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,  // Top-right
+    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,  // Bottom-right
 };
+// clang-format on
 
-BaseLayoutFactory<Layout> layout2x2("Layout2x2", "2 x 2",
-                                    defaultLayoutOptions,
+BaseLayoutFactory<Layout> layout2x2("Layout2x2", "2 x 2", defaultLayoutOptions,
                                     4, (uint8_t*)zmap);

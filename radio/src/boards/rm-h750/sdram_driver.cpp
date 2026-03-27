@@ -28,11 +28,7 @@
 
 #define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_3
 
-#define SDCLOCK_PERIOD    FMC_SDRAM_CLOCK_PERIOD_2
-
 #define SDRAM_TIMEOUT     ((uint32_t)0xFFFF)
-
-#define SDRAM_READBURST    FMC_SDRAM_RBURST_DISABLE
 
 #define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
 #define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)
@@ -96,6 +92,9 @@ extern "C" void SDRAM_GPIOConfig(void)
   /* GPIOG configuration */
   gpio_init_af(GPIO_PIN(GPIOG, 0), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 1), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
+#if defined(SDRAM_32M)
+  gpio_init_af(GPIO_PIN(GPIOG, 2), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
+#endif
   gpio_init_af(GPIO_PIN(GPIOG, 4), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 5), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 8), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
@@ -161,10 +160,10 @@ extern "C" void SDRAM_InitSequence(void)
 
   /* Step 8 --------------------------------------------------------------------*/
   /* Set the refresh rate counter */
-  /* (15.62 us x Freq) - 20 */
-  /* Set the device refresh counter */
+  // For 15.62 μs refresh at 160 MHz SDRAM clock
+  // (15.62 × 160) - 20 = 2499 - 20 = 2479
   FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1855);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 2479);
 }
 
 extern "C" void SDRAM_Init(void)
@@ -183,19 +182,23 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAM_TimingTypeDef  FMC_SDRAMTimingInitStructure;
 
   /* FMC SDRAM Bank configuration */
-  /* Timing configuration for 80 Mhz of SD clock */
-  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2;
-  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 7;
-  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 4;
-  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7;
-  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 3;
-  FMC_SDRAMTimingInitStructure.RPDelay              = 2;
-  FMC_SDRAMTimingInitStructure.RCDDelay             = 2;
+  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 3;  // tMRD = 2 clocks min
+  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 11; // tXSR = 70ns / 6.25ns
+  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 7;  // tRAS = 42ns / 6.25ns
+  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 10; // tRC = 60ns / 6.25ns
+  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 2;  // tWR = 1CLK+7.5ns
+  FMC_SDRAMTimingInitStructure.RPDelay              = 3;  // tRP = 18ns / 6.25ns
+  FMC_SDRAMTimingInitStructure.RCDDelay             = 3;  // tRCD = 18ns / 6.25ns
 
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = FMC_SDRAM_BANK2;
+#if defined(SDRAM_32M)
+  FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_9;
+  FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_13;
+#else
   FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_8;
   FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_12;
+#endif
   FMC_SDRAMInitStructure.MemoryDataWidth = FMC_SDRAM_MEM_BUS_WIDTH_16;
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
   FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_3;

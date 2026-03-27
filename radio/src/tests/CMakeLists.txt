@@ -18,7 +18,6 @@ file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
   CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
 
 set(TEST_SRC_FILES ${TEST_SRC_FILES}
-  ${CMAKE_CURRENT_SOURCE_DIR}/location.h
   ${SIMU_SRC}
 )
 

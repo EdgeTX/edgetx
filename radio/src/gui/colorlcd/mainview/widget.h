@@ -106,10 +106,13 @@ class Widget : public ButtonBase
   virtual bool enableFullScreenRE() const { return true; }
 
   // Called when the widget options have changed
-  virtual void update();
+  virtual void updateWithoutRefresh() { update(); }
+  virtual void update() {}
 
-  // Called at regular time interval, even if the widget cannot be seen
+  // Called at regular time interval if the widget is hidden or off screen
   virtual void background() {}
+  // Called at regular time interval if the widget is visible and on screen
+  virtual void foreground() {}
 
   // Update widget 'zone' data (for Lua widgets)
   virtual void updateZoneRect(rect_t rect, bool updateUI = true)
@@ -124,7 +127,6 @@ class Widget : public ButtonBase
   int screenNum;
   int zoneNum;
   bool fullscreen = false;
-  bool fsAllowed = true;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
   lv_style_t borderStyle;
@@ -155,6 +157,7 @@ class WidgetFactory
 
   const WidgetOption* getDefaultOptions() const { return options; }
   virtual const void parseOptionDefaults() const {}
+  virtual const void checkOptions(int screenNum, int zoneNum) const {}
 
   const char* getDisplayName() const
   {

@@ -87,26 +87,21 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     div_t qr;
     switch(type) {
       case SWITCH_TYPE_SWITCH:
-        if (IS_HORUS_OR_TARANIS(board)) {
-          qr = div(index - 1, 3);
-          swName = Boards::getSwitchInfo(qr.quot, board).name.c_str();
-          if (Boards::isSwitchFunc(qr.quot, board)) {
-            if (modelData) {
-              int fsindex = Boards::getSwitchTagNum(qr.quot, board) - 1;
-              custName = QString(modelData->customSwitches[fsindex].name).trimmed();
-            }
+        qr = div(index - 1, 3);
+        swName = Boards::getSwitchInfo(qr.quot, board).name.c_str();
+        if (Boards::isSwitchFunc(qr.quot, board)) {
+          if (modelData) {
+            int fsindex = Boards::getSwitchTagNum(qr.quot, board) - 1;
+            custName = QString(modelData->customSwitches[fsindex].name).trimmed();
           }
-          else {
-            if (generalSettings) {
-              custName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
-            }
-          }
-          return DataHelpers::getCompositeName(swName, custName, prefixCustomName) +
-                 directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
         }
         else {
-          return CHECK_IN_ARRAY(switches9X, index - 1);
+          if (generalSettings) {
+            custName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
+          }
         }
+        return DataHelpers::getCompositeName(swName, custName, prefixCustomName) +
+                directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
 
       case SWITCH_TYPE_VIRTUAL:
         if (modelData)

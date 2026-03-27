@@ -137,13 +137,14 @@
 #define TR_AUX_SERIAL_MODES_1          "DESL"
 #define TR_AUX_SERIAL_MODES_2          "Espelhar Telem"
 #define TR_AUX_SERIAL_MODES_3          "Entr Telem"
-#define TR_AUX_SERIAL_MODES_4          "Trainer SBUS"
-#define TR_AUX_SERIAL_MODES_5          "LUA"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "Debug"
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "External module"
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "Trainer SBUS"
+#define TR_AUX_SERIAL_MODES_6          "LUA"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "Debug"
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "External module"
 #define TR_SWTYPES_1                   "Nenhum"
 #define TR_SWTYPES_2                   "Tátil"
 #define TR_SWTYPES_3                   "2POS"
@@ -371,6 +372,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "DESL"
@@ -672,6 +674,7 @@
 #define TR_MULTI_OPTION                TR("Opção", "Valor opção")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.", "Bind on channel")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disable Ch. map")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "Disable Telemetry")
 #define TR_MULTI_LOWPOWER              TR("Low power", "Low power mode")
 #define TR_MULTI_LNA_DISABLE           "LNA disable"
@@ -713,7 +716,6 @@
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR("Tensão", "Origem tensão")
 #define TR_SELECT_MODEL                "Selec. modelo"
-#define TR_MANAGE_MODELS               "GERENCIAR"
 #define TR_MODELS                      "Modelos"
 #define TR_SELECT_MODE                 "Seleção de modo"
 #define TR_CREATE_MODEL                "Criar Modelo"
@@ -741,6 +743,8 @@
 #define TR_DELETE_MODEL                "Apagar Modelo"
 #define TR_RESTORE_MODEL               "Restaura Modelo"
 #define TR_DELETE_ERROR                "Erro ao apagar"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("Erro SD", "Cartao SD erro")
 #define TR_SDCARD                      "Cartão SD"
 #define TR_NO_FILES_ON_SD              "Sem aquiv. no SD!"
@@ -806,6 +810,8 @@
 #define TR_VOLUME                      "Volume"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Brilho"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "CPU temp."
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."
@@ -969,6 +975,7 @@
 #define TR_USBMODE                     "Modo USB"
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "Idoma da Voz"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Unidades"
 #define TR_UNITS_PPM                   "Unidade PPM"
 #define TR_EDIT                        "Editar"
@@ -981,7 +988,7 @@
 #define TR_PASTE_BEFORE                "Colar depois"
 #define TR_DELETE                      "Apagar"
 #define TR_INSERT                      "Inserir"
-#define TR_RESET_FLIGHT                "Reinic. sessão"
+#define TR_RESET_SESSION               "Reinic. sessão"
 #define TR_RESET_TIMER1                "Reset timer1"
 #define TR_RESET_TIMER2                "Reset timer2"
 #define TR_RESET_TIMER3                "Reset timer3"
@@ -1131,6 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "First channel"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Fill background?"
 #define TR_BG_COLOR                  "BG Color"
 #define TR_SLIDERS_TRIMS             "Sliders+Trims"

@@ -125,12 +125,12 @@ static const uint8_t lz4FontData[] __FLASH = {
 0xf2,0x00,0x0f,0xf5,0x00,0x9f,0xd0,0x00,0x4f,0xf0,0x00,0xdf,0x70,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 1488, .range_length = 27, .glyph_id_start = 1, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 1524, .range_length = 1, .glyph_id_start = 28, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_he_bold_XL = {
+const etxLz4Font lv_font_he_bold_XL __FLASH = {
 .uncomp_size = 3121,
 .comp_size = 1934,
 .line_height = 26,

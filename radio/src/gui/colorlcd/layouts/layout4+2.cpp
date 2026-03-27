@@ -21,15 +21,19 @@
 
 #include "layout.h"
 
+// Zone map: 4+2 (4 small zones + 2 large zones)
+// Left: 4 zones stacked (1/2 width, 1/4 height each), Right: 2 zones stacked
+// (1/2 width, 1/2 height each)
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_0, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_0, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
+    LAYOUT_MAP_0,    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left top
+    LAYOUT_MAP_0,    LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left 2nd
+    LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left 3rd
+    LAYOUT_MAP_0,    LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,  // Left bottom
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0,    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,  // Right top
+    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,  // Right bottom
 };
+// clang-format on
 
-BaseLayoutFactory<Layout> layout4P2("Layout4P2", "4 + 2",
-                                    defaultLayoutOptions,
+BaseLayoutFactory<Layout> layout4P2("Layout4P2", "4 + 2", defaultLayoutOptions,
                                     6, (uint8_t*)zmap);

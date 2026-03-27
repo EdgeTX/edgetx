@@ -21,14 +21,18 @@
 
 #include "layout.h"
 
+// Zone map: 2+3 (2 large zones + 3 small zones)
+// Left: 2 zones stacked (1/2 width, 1/2 height each), Right: 3 zones stacked
+// (1/2 width, 1/3 height each)
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
-    LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_HALF, LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
+    LAYOUT_MAP_0,    LAYOUT_MAP_0,      LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,    // Left top
+    LAYOUT_MAP_0,    LAYOUT_MAP_HALF,   LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,    // Left bottom
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0,      LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Right top
+    LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Right middle
+    LAYOUT_MAP_HALF, LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,  // Right bottom
 };
+// clang-format on
 
-BaseLayoutFactory<Layout> Layout2P3("Layout2P3", "2 + 3",
-                                    defaultLayoutOptions,
+BaseLayoutFactory<Layout> Layout2P3("Layout2P3", "2 + 3", defaultLayoutOptions,
                                     5, (uint8_t*)zmap);

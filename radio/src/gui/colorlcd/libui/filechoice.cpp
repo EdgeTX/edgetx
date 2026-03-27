@@ -20,6 +20,7 @@
 
 #include <algorithm>
 
+#include "dialog.h"
 #include "edgetx.h"
 #include "lib_file.h"
 #include "menu.h"

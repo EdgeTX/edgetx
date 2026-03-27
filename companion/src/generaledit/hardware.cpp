@@ -192,13 +192,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (firmware->getCapability(HasADCJitterFilter)) {
-    addLabel(tr("ADC Filter"));
-    AutoCheckBox *filterEnable = new AutoCheckBox(this);
-    filterEnable->setField(generalSettings.noJitterFilter, this, true);
-    params->append(filterEnable);
-    addParams();
-  }
+  addLabel(tr("ADC Filter"));
+  AutoCheckBox *filterEnable = new AutoCheckBox(this);
+  filterEnable->setField(generalSettings.noJitterFilter, this, true);
+  params->append(filterEnable);
+  addParams();
 
   if (Boards::getCapability(board, Board::HasAudioMuteGPIO)) {
     addLabel(tr("Mute if no sound"));
@@ -208,7 +206,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (firmware->getCapability(HasBluetooth)) {
+  if (Boards::getCapability(board, Board::HasBluetooth)) {
     addLabel(tr("Bluetooth"));
 
     AutoComboBox *bluetoothMode = new AutoComboBox(this);
@@ -284,10 +282,12 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
       this, [=](const QVariant &value) { return value == 0; });
 
-  if (firmware->getCapability(HasAuxSerialMode) || firmware->getCapability(HasAux2SerialMode) || firmware->getCapability(HasVCPSerialMode))
+  if (Boards::getCapability(board, Board::HasAuxSerialMode) ||
+      Boards::getCapability(board, Board::HasAux2SerialMode) ||
+      Boards::getCapability(board, Board::HasVCPSerialMode))
     addSection(tr("Serial ports"));
 
-  if (firmware->getCapability(HasAuxSerialMode)) {
+  if (Boards::getCapability(board, Board::HasAuxSerialMode)) {
     addLabel(tr("AUX1"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX1SERIALMODES));
@@ -302,11 +302,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!firmware->getCapability(HasSoftwareSerialPower))
+    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
       serialPortPower->setVisible(false);
   }
 
-  if (firmware->getCapability(HasAux2SerialMode)) {
+  if (Boards::getCapability(board, Board::HasAux2SerialMode)) {
     addLabel(tr("AUX2"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX2SERIALMODES));
@@ -321,11 +321,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!firmware->getCapability(HasSoftwareSerialPower))
+    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
       serialPortPower->setVisible(false);
   }
 
-  if (firmware->getCapability(HasVCPSerialMode)) {
+  if (Boards::getCapability(board, Board::HasVCPSerialMode)) {
     addLabel(tr("USB-VCP"));
     serialPortUSBVCP = new AutoComboBox(this);
     serialPortUSBVCP->setModel(tabFilteredModels->getItemModel(FIM_VCPSERIALMODES));
@@ -345,16 +345,6 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (firmware->getCapability(HastxCurrentCalibration)) {
-    addLabel(tr("Current Offset"));
-    AutoSpinBox *txCurrentCalibration = new AutoSpinBox(this);
-    FieldRange txCCRng = GeneralSettings::getTxCurrentCalibration();
-    txCurrentCalibration->setSuffix(txCCRng.unit);
-    txCurrentCalibration->setField(generalSettings.txCurrentCalibration);
-    params->append(txCurrentCalibration);
-    addParams();
-  }
-
   if (Boards::getCapability(board, Board::LcdWidth) == 128) {
     addSection(tr("Screen"));
 
@@ -365,6 +355,10 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
+  connect(this, &HardwarePanel::inputFlexTypeChanged, [=](AutoComboBox *cb, int index)
+    { setFlexTypeModel(cb, index); }
+  );
+  connect(this, &HardwarePanel::refreshItemModels, [=]() { updateItemModels(); });
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
@@ -446,6 +440,7 @@ void HardwarePanel::addFlex(int index)
   name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
+  connect(name, &AutoLineEdit::editingFinished, [=] () { emit refreshItemModels(); });
 
   AutoComboBox *type = new AutoComboBox(this);
   setFlexTypeModel(type, index);
@@ -465,10 +460,9 @@ void HardwarePanel::addFlex(int index)
           } else {
             invertToggles[index - Boards::getCapability(board, Board::Sticks)]->show();
           }
-          emit InputFlexTypeChanged();
+          emit inputFlexTypeChanged(type, index);
+          emit refreshItemModels();
   });
-
-  connect(this, &HardwarePanel::InputFlexTypeChanged, [=]() { setFlexTypeModel(type, index); });
 
   params->append(type);
 
@@ -508,6 +502,7 @@ void HardwarePanel::addSwitch(int index)
   name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
+  connect(name, &AutoLineEdit::editingFinished, [=] () { emit refreshItemModels(); });
 
   AutoComboBox *input = nullptr;
 
@@ -538,6 +533,12 @@ void HardwarePanel::addSwitch(int index)
   type->setField(config.type, this);
   params->append(type);
 
+  if (!generalSettings.isSwitchFunc(index)) {
+    connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+            emit refreshItemModels();
+    });
+  }
+
   if (generalSettings.isSwitchFlex(index)) {
     connect(input, &AutoComboBox::currentDataChanged, [=] (int val) {
             if (val < 0) {
@@ -547,6 +548,8 @@ void HardwarePanel::addSwitch(int index)
             }
             else
               type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+
+            emit refreshItemModels();
     });
   }
 
@@ -562,6 +565,7 @@ void HardwarePanel::addSwitch(int index)
 
     connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
             start->setEnabled(val == Board::SWITCH_2POS);
+            emit refreshItemModels();
     });
 
     if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
@@ -676,4 +680,9 @@ void HardwarePanel::updateSerialPortUSBVCP()
     else
       view->setRowHidden(i, false);
   }
+}
+
+void HardwarePanel::updateItemModels()
+{
+  editorItemModels->update(AbstractItemModel::IMUE_Hardware);
 }

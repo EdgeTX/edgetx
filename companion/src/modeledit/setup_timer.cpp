@@ -63,20 +63,10 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   connect(ui->countdownBeep, SIGNAL(currentDataChanged(int)), this, SLOT(onCountdownBeepChanged(int)));
 
   ui->minuteBeep->setField(timer.minuteBeep, this);
-
-  if (firmware->getCapability(PermTimers)) {
-    ui->persistent->setModel(panelItemModels->getItemModel(AIM_TIMER_PERSISTENT));
-    ui->persistent->setField(timer.persistent, this);
-  }
-  else {
-    ui->persistent->hide();
-    ui->persistentValue->hide();
-  }
-
+  ui->persistent->setModel(panelItemModels->getItemModel(AIM_TIMER_PERSISTENT));
+  ui->persistent->setField(timer.persistent, this);
   ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
   ui->countdownStart->setField(timer.countdownStart, this);
-
-
   ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
   ui->showElapsed->setField(timer.showElapsed, this);
 
@@ -126,10 +116,8 @@ void TimerPanel::update()
     ui->countdownStart->setEnabled(true);
   }
 
-  if (firmware->getCapability(PermTimers)) {
-    ui->persistent->updateValue();
-    ui->persistentValue->setText(timer.pvalueToString());
-  }
+  ui->persistent->updateValue();
+  ui->persistentValue->setText(timer.pvalueToString());
 
   if (timer.val) {
     ui->showElapsed->setEnabled(true);

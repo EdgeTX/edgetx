@@ -37,6 +37,12 @@ bool reachMixesLimit()
   return false;
 }
 
+void onDeleteMixConfirm(const char * result)
+{
+  if (result == STR_OK)
+    deleteMix(s_currIdx);
+}
+
 void onMixesMenu(const char * result)
 {
   uint8_t chn = mixAddress(s_currIdx)->destCh + 1;
@@ -59,7 +65,7 @@ void onMixesMenu(const char * result)
     s_copySrcRow = menuVerticalPosition;
   }
   else if (result == STR_DELETE) {
-    deleteMix(s_currIdx);
+    POPUP_CONFIRMATION(STR_DELETE_MIX_LINE, onDeleteMixConfirm);
   }
 }
 

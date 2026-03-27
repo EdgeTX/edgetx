@@ -45,6 +45,8 @@ set(${PROJECT_NAME}_SRCS
   autowidget.cpp
   curveimage.h
   curveimage.cpp
+  semanticversion.h
+  semanticversion.cpp
 )
 
 add_library(${PROJECT_NAME}

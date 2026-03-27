@@ -22,6 +22,7 @@
 #pragma once
 
 #include "bitmaps.h"
+#include "messaging.h"
 #include "quick_menu.h"
 
 class HeaderIcon;
@@ -31,6 +32,7 @@ class PageGroupBase;
 class SelectedTabIcon;
 class PageGroupIconButton;
 #endif
+
 //-----------------------------------------------------------------------------
 
 enum PageDefAction {
@@ -44,7 +46,7 @@ struct PageDef {
   STR_TYP title;
   PageDefAction pageAction;
   QMPage qmPage;
-  std::function<PageGroupItem*(PageDef& pageDef)> create;
+  std::function<PageGroupItem*(const PageDef& pageDef)> create;
   std::function<bool()> enabled;
   std::function<void()> action;
 };
@@ -52,24 +54,6 @@ struct PageDef {
 #if VERSION_MAJOR > 2
 extern PageDef favoritesMenuItems[];
 #endif
-
-enum QMTopDefAction {
-  QM_SUBMENU,
-  QM_ACTION
-};
-
-struct QMTopDef {
-  EdgeTxIcon icon;
-  STR_TYP qmTitle;
-  STR_TYP title;
-  QMTopDefAction pageAction;
-  QMPage qmPage;
-  PageDef* subMenuItems;
-  std::function<void()> action;
-  std::function<bool()> enabled;
-};
-
-extern QMTopDef qmTopItems[];
 
 //-----------------------------------------------------------------------------
 
@@ -80,7 +64,7 @@ class PageGroupItem
       title(std::move(title)), icon(ICON_EDGETX), qmPageId(qmPage), padding(PAD_SMALL)
   {}
 
-  PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
+  PageGroupItem(const PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
       title(STR_VAL(pageDef.title)), icon(pageDef.icon), qmPageId(pageDef.qmPage),
       padding(padding), pageDef(&pageDef)
   {}
@@ -101,7 +85,6 @@ class PageGroupItem
 
   PaddingSize getPadding() const { return padding; }
 
-  virtual void update(uint8_t index) {}
   virtual void cleanup() {}
 
   QMPage pageId() const { return qmPageId; }
@@ -111,7 +94,7 @@ class PageGroupItem
   EdgeTxIcon icon;
   QMPage qmPageId = QM_NONE;
   PaddingSize padding;
-  PageDef* pageDef = nullptr;
+  const PageDef* pageDef = nullptr;
 };
 
 //-----------------------------------------------------------------------------
@@ -129,7 +112,6 @@ class PageGroupHeaderBase : public Window
   void nextTab() { chgTab(1); }
   void prevTab() { chgTab(-1); }
 
-  virtual void removeTab(unsigned index) {}
   void addTab(PageGroupItem* page);
 
   void setCurrentIndex(uint8_t index);
@@ -140,7 +122,7 @@ class PageGroupHeaderBase : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return pages.size(); }
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(ICON_EXTRA_H, 10)
@@ -191,10 +173,8 @@ class PageGroupBase : public NavWindow
   PageGroupHeaderBase* header = nullptr;
   Window* body = nullptr;
   PageGroupItem* currentTab = nullptr;
-  QuickMenu* quickMenu = nullptr;
   EdgeTxIcon icon;
-
-  virtual void openMenu() = 0;
+  Messaging quickMenuMsg;
 
   void checkEvents() override;
 
@@ -219,13 +199,11 @@ class PageGroupBase : public NavWindow
 class PageGroup : public PageGroupBase
 {
  public:
-  explicit PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages);
+  explicit PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroup"; }
 #endif
-
-  void removeTab(unsigned index);
 
   PageGroupItem* getCurrentTab() const { return currentTab; }
 
@@ -235,16 +213,16 @@ class PageGroup : public PageGroupBase
   static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 48)
   static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
   static constexpr coord_t PAGE_GROUP_BACK_BTN_W = 0;
+  static LAYOUT_VAL_SCALED(PAGE_GROUP_BACK_BTN_XO, 45)
 #else
   static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 45)
   static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = 0;
   static constexpr coord_t PAGE_GROUP_BACK_BTN_W = PAGE_GROUP_TOP_BAR_H;
+  static constexpr coord_t PAGE_GROUP_BACK_BTN_XO = PAGE_GROUP_TOP_BAR_H;
 #endif
   static constexpr coord_t PAGE_GROUP_BODY_Y = PAGE_GROUP_TOP_BAR_H + PAGE_GROUP_ALT_TITLE_H;
 
  protected:
-
-  void openMenu() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -260,6 +238,8 @@ class TabsGroup : public PageGroupBase
 
   void hidePageButtons();
 
+  bool isPageGroup() override { return false; }
+
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(TABS_GROUP_TOP_BAR_H, 48)
   static constexpr coord_t TABS_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
@@ -270,6 +250,4 @@ class TabsGroup : public PageGroupBase
   static constexpr coord_t TABS_GROUP_BODY_Y = TABS_GROUP_TOP_BAR_H + TABS_GROUP_ALT_TITLE_H;
 
  protected:
-
-  void openMenu() override;
 };

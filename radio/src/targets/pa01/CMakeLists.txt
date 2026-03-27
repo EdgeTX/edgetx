@@ -46,7 +46,6 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR pa01)
-add_definitions(-DRADIO_PA01)
 
 # Defines internal modules for PL18 via UART7
 set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
@@ -144,7 +143,7 @@ set(CMSIS_SRC ${TARGET_SRC_DIR}/system_clock.c)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/led_driver.cpp
-  ${TARGET_SRC_DIR}/battery_driver.cpp  
+  ${TARGET_SRC_DIR}/battery_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/lsm6ds_driver.cpp

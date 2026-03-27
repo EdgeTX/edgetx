@@ -141,6 +141,12 @@ void deleteExpo(uint8_t idx)
   storageDirty(EE_MODEL);
 }
 
+void onDeleteExpoConfirm(const char * result)
+{
+  if (result == STR_OK)
+    deleteExpo(s_currIdx);
+}
+
 void onExposMenu(const char * result)
 {
   uint8_t chn = expoAddress(s_currIdx)->chn + 1;
@@ -163,7 +169,7 @@ void onExposMenu(const char * result)
     s_copySrcRow = menuVerticalPosition;
   }
   else if (result == STR_DELETE) {
-    deleteExpo(s_currIdx);
+    POPUP_CONFIRMATION(STR_DELETE_INPUT_LINE, onDeleteExpoConfirm);
   }
 }
 
@@ -192,7 +198,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
     if (ed->trimSource > 0) {
       lcdDrawChar(EXPO_LINE_TRIM_POS, y, '-', attr);
     } else {
-      const char* short_label = getAnalogShortLabel(-ed->trimSource);
+      const char* short_label = getAnalogShortLabel(-ed->trimSource - 1);
       lcdDrawChar(EXPO_LINE_TRIM_POS, y, short_label ? short_label[0] : ' ', attr);
     }
   }

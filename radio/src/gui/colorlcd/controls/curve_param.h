@@ -31,7 +31,7 @@ class CurveChoice : public Choice
 {
  public:
   CurveChoice(Window* parent, std::function<int()> getRefValue,
-              std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView,
+              std::function<void(int32_t)> setRefValue,
               mixsrc_t source);
 
   bool onLongPress() override;
@@ -46,8 +46,7 @@ class CurveParam : public Window
  public:
   CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
              std::function<void(int32_t)> setRefValue,
-             int16_t sourceMin, mixsrc_t source,
-             std::function<void(void)> refreshView = nullptr);
+             int16_t sourceMin, mixsrc_t source);
 
  protected:
   // Curve
@@ -58,8 +57,6 @@ class CurveParam : public Window
   Choice* func_choice;
   Choice* cust_choice;
   Window* act_field = nullptr;
-
-  std::function<void(void)> refreshView;
 
   void update();
 };

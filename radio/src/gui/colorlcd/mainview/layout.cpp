@@ -107,7 +107,7 @@ WidgetsContainer* LayoutFactory::loadLayout(
 //
 // Detaches and deletes all custom screens
 //
-void LayoutFactory::deleteCustomScreens(bool clearTopBar)
+void LayoutFactory::deleteCustomScreens()
 {
   for (auto& screen : customScreens) {
     if (screen) {
@@ -115,9 +115,12 @@ void LayoutFactory::deleteCustomScreens(bool clearTopBar)
       screen = nullptr;
     }
   }
+}
 
-  if (clearTopBar)
-    ViewMain::instance()->getTopbar()->removeAllWidgets();
+// Clear top bar
+void LayoutFactory::deleteTopBarWidgets()
+{
+  ViewMain::instance()->getTopbar()->removeAllWidgets();
 }
 
 void LayoutFactory::loadDefaultLayout()
@@ -193,10 +196,8 @@ WidgetsContainer* LayoutFactory::createCustomScreen(
 
   auto& screen = customScreens[customScreenIndex];
 
-  if (screen != nullptr) {
-    screen->deleteLater(true, false);
-    delete screen;
-  }
+  if (screen != nullptr)
+    screen->deleteLater();
 
   auto viewMain = ViewMain::instance();
   screen = create(viewMain, customScreenIndex);
@@ -261,7 +262,7 @@ inline LayoutOptionValueEnum layoutValueEnumFromType(LayoutOption::Type type)
 
   case LayoutOption::Color:
     return LOV_Color;
-    
+
   default:
     return LOV_None;
   }
@@ -309,57 +310,53 @@ Layout::Layout(Window* parent, const LayoutFactory* factory,
                uint8_t* zoneMap) :
     WidgetsContainer(parent, {0, 0, LCD_W, LCD_H}, zoneCount),
     factory(factory),
-    decoration(new ViewMainDecoration(this)),
     zoneMap(zoneMap), screenNum(screenNum)
 {
+  decoration = new ViewMainDecoration(this);
   setWindowFlag(NO_FOCUS);
-  show(true);
+  decorationUpdateMsg.subscribe(Messaging::DECORATION_UPDATE, [=](uint32_t param) { updateDecorations(); });
+  updateDecorations();
+  zoneUpdateRequired = false;
 }
 
-void Layout::setTrimsVisible(bool visible)
+void Layout::updateDecorations()
 {
-  decoration->setTrimsVisible(visible);
-}
-
-void Layout::setSlidersVisible(bool visible)
-{
-  decoration->setSlidersVisible(visible);
-}
-
-void Layout::setFlightModeVisible(bool visible)
-{
-  decoration->setFlightModeVisible(visible);
+  // Set visible decoration
+  decoration->setSlidersVisible(hasSliders());
+  decoration->setTrimsVisible(hasTrims());
+  decoration->setFlightModeVisible(hasFlightMode());
+  zoneUpdateRequired = true;
 }
 
 void Layout::show(bool visible)
 {
-  // Set visible decoration
-  setSlidersVisible(visible && hasSliders());
-  setTrimsVisible(visible && hasTrims());
-  setFlightModeVisible(visible && hasFlightMode());
-
-  if (visible) {
+  decoration->show(visible);
+  if (visible && zoneUpdateRequired) {
+    zoneUpdateRequired = false;
     // and update relevant windows
     updateZones();
   }
 }
 
-rect_t Layout::getMainZone() const
+bool Layout::hasFullScreenWidget() const
 {
-  rect_t zone = decoration->getMainZone();
-  if (hasSliders() || hasTrims() || hasFlightMode()) {
-    // some decoration activated
-    zone.x += PAD_LARGE;
-    zone.y += PAD_LARGE;
-    zone.w -= 2 * PAD_LARGE;
-    zone.h -= 2 * PAD_LARGE;
-  }
-  return ViewMain::instance()->getMainZone(zone, hasTopbar());
+  for (int i = 0; i < zoneCount; i += 1)
+    if (widgets[i] && widgets[i]->isFullscreen())
+      return true;
+  return false;
+}
+
+rect_t Layout::getWidgetsZone() const
+{
+  if (hasFullScreenWidget())
+    return {0, 0, LCD_W, LCD_H};
+
+  return decoration->getWidgetsZone(hasTopbar());
 }
 
 rect_t Layout::getZone(unsigned int index) const
 {
-  rect_t z = getMainZone();
+  rect_t z = getWidgetsZone();
 
   unsigned int i = index * 4;
 
@@ -376,13 +373,11 @@ rect_t Layout::getZone(unsigned int index) const
 void Layout::checkEvents()
 {
   Window::checkEvents();
-  rect_t z = getMainZone();
+  rect_t z = getWidgetsZone();
   if (z.x != lastMainZone.x || z.y != lastMainZone.y || z.w != lastMainZone.w || z.h != lastMainZone.h) {
     lastMainZone = z;
-    for (int i = 0; i < zoneCount; i++)
-      if (widgets[i] && widgets[i]->isFullscreen())
-        return;
-    updateZones();
+    if (!hasFullScreenWidget())
+      updateZones();
   }
 }
 
@@ -409,8 +404,6 @@ Widget* Layout::createWidget(unsigned int index,
     widget = factory->create(this, getZone(index), screenNum, index);
   }
   widgets[index] = widget;
-
-  if (widget) widget->attach(this);
 
   return widget;
 }

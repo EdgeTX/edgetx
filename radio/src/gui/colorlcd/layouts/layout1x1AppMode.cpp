@@ -26,9 +26,8 @@ const LayoutOption OPTIONS_LAYOUT_APPMODE[] = {LAYOUT_OPTIONS_END};
 class LayoutAppMode : public Layout
 {
  public:
-  LayoutAppMode(Window* parent, const LayoutFactory* factory,
-            int screenNum, uint8_t zoneCount,
-            uint8_t* zoneMap) :
+  LayoutAppMode(Window* parent, const LayoutFactory* factory, int screenNum,
+                uint8_t zoneCount, uint8_t* zoneMap) :
       Layout(parent, factory, screenNum, zoneCount, zoneMap)
   {
   }
@@ -43,9 +42,14 @@ class LayoutAppMode : public Layout
  protected:
 };
 
+// Zone map: 1x1 App Mode (single full-screen zone for app mode - disables all
+// other UI elements)
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,  // Full screen
 };
+// clang-format on
 
-BaseLayoutFactory<LayoutAppMode> layoutAppMode("Layout1x1AM", "App mode", OPTIONS_LAYOUT_APPMODE,
-                                       1, (uint8_t*)zmap);
+BaseLayoutFactory<LayoutAppMode> layoutAppMode("Layout1x1AM", "App mode",
+                                               OPTIONS_LAYOUT_APPMODE, 1,
+                                               (uint8_t*)zmap);

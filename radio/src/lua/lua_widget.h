@@ -94,7 +94,7 @@ class LuaScriptManager : public LuaEventHandler
   TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
 
  protected:
-  int luaScriptContextRef = 0;
+  int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
   LvglWidgetObjectBase* tempParent = nullptr;
 #if defined(LUA)
@@ -104,8 +104,6 @@ class LuaScriptManager : public LuaEventHandler
 
 class LuaWidget : public Widget, public LuaScriptManager
 {
-  friend class LuaWidgetFactory;
-
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
             int screenNum, int zoneNum, int zoneRectDataRef,
@@ -120,8 +118,10 @@ class LuaWidget : public Widget, public LuaScriptManager
 
   // Widget interface
   const char* getErrorMessage() const override;
+  void updateWithoutRefresh() override;
   void update() override;
   void background() override;
+  void foreground() override;
 
   void clear() override;
 
@@ -148,12 +148,10 @@ class LuaWidget : public Widget, public LuaScriptManager
   int zoneRectDataRef;
   int optionsDataRef;
   char* errorMessage;
-  bool refreshed = false;
 
   // Window interface
   void onClicked() override;
   void onCancel() override;
-  void checkEvents() override;
   void onEvent(event_t event) override;
 
   // Widget interface

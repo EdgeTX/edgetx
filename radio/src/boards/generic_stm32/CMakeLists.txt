@@ -8,7 +8,7 @@ AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
 
 # Dependencies common to bootloader and firmware
 set(MINIMAL_BOARD_LIB_SRC
-  ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
+  ${RADIO_SRC_DIR}/boards/hw_defs/${HW_DESC_JSON}
   ${CMAKE_CURRENT_BINARY_DIR}/stm32_keys.inc
 
   boards/generic_stm32/inputs.cpp
@@ -33,6 +33,7 @@ set(BOARD_LIB_SRC
   boards/generic_stm32/bor_level.cpp
   boards/generic_stm32/rgb_leds.cpp
   boards/generic_stm32/battery_voltage.cpp
+  boards/generic_stm32/led_driver.cpp
 )
 
 add_library(minimal_board_lib OBJECT EXCLUDE_FROM_ALL ${MINIMAL_BOARD_LIB_SRC})

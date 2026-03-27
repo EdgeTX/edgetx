@@ -1,0 +1,7 @@
+<svg width="24" height="12" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="12" fill="white"/>
+<g style="mix-blend-mode:difference">
+<path d="M22 12H0V0H22V12ZM1 1V11H21V1H1Z" fill="white"/>
+<rect x="21" y="2" width="3" height="8" rx="1" fill="white"/>
+</g>
+</svg>

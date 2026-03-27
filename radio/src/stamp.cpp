@@ -56,7 +56,7 @@
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
   #if defined(VERSION_TAG) // tagged release, possibly mfg build
-    const char vers_stamp[] = "VERS" TAB ": " WITH_FACTORY_RELEASE(VERSION_TAG) "\"" CODENAME "\"";
+    const char vers_stamp[] = "VERS" TAB ": " WITH_FACTORY_RELEASE(VERSION_TAG) " \"" CODENAME "\"";
   #elif defined(FACTORY_RELEASE) // mfg build of non-tagged release, show commit hash only
     const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
   #else // any other build (e.g. self, cloud, PR, nightly) will have prefix/suffix

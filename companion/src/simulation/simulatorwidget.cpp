@@ -104,7 +104,6 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
 
   connect(simulator, &SimulatorInterface::started, this, &SimulatorWidget::onSimulatorStarted);
   connect(simulator, &SimulatorInterface::heartbeat, this, &SimulatorWidget::onSimulatorHeartbeat);
-  connect(simulator, &SimulatorInterface::runtimeError, this, &SimulatorWidget::onSimulatorError);
   connect(simulator, &SimulatorInterface::phaseChanged, this, &SimulatorWidget::onPhaseChanged);
 
   connect((SimulatorMainWindow *)parent, &SimulatorMainWindow::txBatteryVoltageChanged, this, &SimulatorWidget::onTxBatteryVoltageChanged);
@@ -862,8 +861,6 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
     GeneralSettings radioSettings = GeneralSettings();
     if (radioSettings.isInputAvailable(stick)) {
       if (radioSettings.isInputPot(stick)) {
-        if (radioSettings.inputConfig[stick].flexType == Board::FlexType::FLEX_MULTIPOS)
-          stickval += 1024;
         emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
       } else if (radioSettings.isInputSlider(stick)) {
         emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);

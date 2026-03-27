@@ -12,6 +12,7 @@ set(${PROJECT_NAME}_NAMES
   reporeleases
   updatecloudbuild
   updatecompanion
+  updateexpresslrs
   updatefactories
   updatefirmware
   updateinterface

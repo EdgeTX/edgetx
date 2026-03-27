@@ -259,6 +259,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_LEMON_DSMP: {
         Node dsmp;
         dsmp["flags"] = rhs.dsmp.flags;
+        dsmp["enableAETR"] = (int)rhs.dsmp.enableAETR;
         mod["dsmp"] = dsmp;
     } break;
     case PULSES_FLYSKY_AFHDS2A: {
@@ -419,6 +420,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
       } else if (mod["dsmp"]) {
           Node dsmp = mod["dsmp"];
           dsmp["flags"] >> rhs.dsmp.flags;
+          dsmp["enableAETR"] >> rhs.dsmp.enableAETR;
       } else if (mod["flysky"]) {
           Node flysky = mod["flysky"];
           for (int i = 0; i < 4; i++) {

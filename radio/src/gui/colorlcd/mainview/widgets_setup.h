@@ -26,7 +26,7 @@
 class ScreenMenu;
 class WidgetsContainer;
 
-class SetupWidgetsPage : public Window
+class SetupWidgetsPage : public NavWindow
 {
  public:
   SetupWidgetsPage(uint8_t customScreenIdx);
@@ -41,12 +41,22 @@ class SetupWidgetsPage : public Window
   void onClicked() override;
   void onCancel() override;
 
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override {}
+  void onLongPressSYS() override {}
+  void onPressMDL() override {}
+  void onLongPressMDL() override {}
+  void onPressPGUP() override {}
+  void onPressPGDN() override {}
+  void onLongPressPGUP() override {}
+  void onLongPressPGDN() override {}
+#endif
+
  protected:
   uint8_t customScreenIdx;
   unsigned savedView = 0;
 
-  void onEvent(event_t event) override;
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 };
 
 class SetupWidgetsPageSlot : public ButtonBase

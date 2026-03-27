@@ -120,6 +120,11 @@ char *strcat_zchar(char *dest, const char *name, uint8_t size,
 #endif
 
 #if !defined(BOOT)
+std::string getStringAtIndex(const char *const *s, int idx)
+{
+  return std::string(s[idx]);
+}
+
 char *getStringAtIndex(char *dest, const char *const *s, int idx)
 {
   strcpy(dest, s[idx]);
@@ -734,7 +739,13 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_MENU_MIN, dest_len - 1);
   } else if (idx == MIXSRC_MAX) {
     strncpy(dest, STR_MENU_MAX, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_HELI) {
+  }
+#if defined(LUMINOSITY_SENSOR)
+  else if (idx == MIXSRC_LIGHT) {
+    strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
+  }
+#endif
+  else if (idx <= MIXSRC_LAST_HELI) {
     idx -= MIXSRC_FIRST_HELI;
     getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
   } else if (idx <= MIXSRC_LAST_TRIM) {

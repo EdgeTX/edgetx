@@ -29,6 +29,7 @@
 #include "touch.h"
 #include "view_main.h"
 #include "os/time.h"
+#include "keys.h"
 
 #define MAX_INSTRUCTIONS (20000 / 100)
 
@@ -195,7 +196,6 @@ void LuaEventHandler::removeHandler(Window* w)
 void LuaWidget::redraw_cb(lv_event_t* e)
 {
   lv_obj_t* target = lv_event_get_target(e);
-  if (lv_obj_has_flag(target, LV_OBJ_FLAG_HIDDEN)) return;
 
   LuaWidget* widget = (LuaWidget*)lv_obj_get_user_data(target);
 
@@ -251,7 +251,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
   if (lua_pcall(lsWidgets, 3, 1, 0) == LUA_OK) {
     luaScriptContextRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
   } else {
-    luaScriptContextRef = LUA_NOREF;
+    luaScriptContextRef = LUA_REFNIL;
     setErrorMessage("create()");
   }
 
@@ -267,9 +267,9 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 
 LuaWidget::~LuaWidget()
 {
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
-  free(errorMessage);
+  if (errorMessage)
+    free(errorMessage);
 }
 
 void LuaWidget::onClicked()
@@ -292,47 +292,35 @@ void LuaWidget::onCancel()
   LuaScriptManager::onCancelEvent();
 }
 
-void LuaWidget::checkEvents()
+void LuaWidget::foreground()
 {
-  Widget::checkEvents();
-
   if (closeFS) {
     closeFS = false;
     setFullscreen(false);
   }
 
-  // refresh() has not been called
-  if (!refreshed)
-    background();
-
-  refreshed = false;
-
-  if (useLvglLayout()) {
-    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
-      lv_area_t a;
-      lv_obj_get_coords(lvobj, &a);
-      // Check widget is at least partially visible
-      if (a.x2 >= 0 && a.x1 < LCD_W) {
-        auto save = luaScriptManager;
-        PROTECT_LUA() {
-          luaScriptManager = this;
-          refresh(nullptr);
-          if (!errorMessage) {
-            if (!callRefs(lsWidgets)) {
-              setErrorMessage("function");
-            }
+  // Check widget is at least partially visible
+  if (isOnScreen()) {
+    if (useLvglLayout()) {
+      auto save = luaScriptManager;
+      PROTECT_LUA() {
+        luaScriptManager = this;
+        refresh(nullptr);
+        if (!errorMessage) {
+          if (!callRefs(lsWidgets)) {
+            setErrorMessage("foreground calRefs error");
           }
-          refreshInstructionsPercent = instructionsPercent;
-        } else {
-          setErrorMessage("function");
         }
-        luaScriptManager = save;
-        UNPROTECT_LUA();
+        refreshInstructionsPercent = instructionsPercent;
+      } else {
+        setErrorMessage("foreground protect Lua error");
       }
+      luaScriptManager = save;
+      UNPROTECT_LUA();
+    } else {
+      // Force call to redraw_cb()
+      invalidate();
     }
-  } else {
-    // Force call to redraw_cb()
-    invalidate();
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -340,11 +328,9 @@ void LuaWidget::checkEvents()
 #endif
 }
 
-void LuaWidget::update()
+void LuaWidget::updateWithoutRefresh()
 {
-  Widget::update();
-
-  if (lsWidgets == 0 || errorMessage) return;
+  if (lsWidgets == 0 || errorMessage || luaFactory()->updateFunction == LUA_REFNIL) return;
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
@@ -378,6 +364,18 @@ void LuaWidget::update()
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
     setErrorMessage("update()");
 
+  luaScriptManager = save;
+}
+
+void LuaWidget::update()
+{
+  updateWithoutRefresh();
+
+  Widget::update();
+
+  auto save = luaScriptManager;
+  luaScriptManager = this;
+
   if (useLvglLayout()) {
     if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
       lv_area_t a;
@@ -386,10 +384,10 @@ void LuaWidget::update()
       if (a.x2 >= 0 && a.x1 < LCD_W) {
         PROTECT_LUA() {
           if (!callRefs(lsWidgets)) {
-            setErrorMessage("function");
+            setErrorMessage("update callRefs error");
           }
         } else {
-          setErrorMessage("function");
+          setErrorMessage("update protect Lua error");
         }
         UNPROTECT_LUA();
       }
@@ -441,7 +439,7 @@ void LuaWidget::updateZoneRect(rect_t rect, bool updateUI)
     lua_pop(lsWidgets, 1);
 
     if (changed && updateUI)
-      update();
+      updateWithoutRefresh();
   }
 }
 
@@ -464,7 +462,8 @@ void LuaWidget::setErrorMessage(const char* funcName)
         lua_err);
   TRACE("Widget disabled");
 
-  errorMessage = (char*)malloc(err_len + 1);
+  if (!errorMessage)
+    errorMessage = (char*)malloc(err_len + 1);
 
   if (errorMessage) {
     snprintf(errorMessage, err_len, "ERROR in %s: %s", funcName, lua_err);
@@ -481,7 +480,7 @@ const char* LuaWidget::getErrorMessage() const { return errorMessage; }
 
 void LuaWidget::refresh(BitmapBuffer* dc)
 {
-  if (lsWidgets == 0) return;
+  if (lsWidgets == 0 || luaFactory()->refreshFunction == LUA_REFNIL) return;
 
   if (errorMessage) {
     if (dc) {
@@ -537,16 +536,13 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // Remove LCD
   luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
-
-  // mark as refreshed
-  refreshed = true;
 }
 
 void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  if (luaFactory()->backgroundFunction) {
+  if (luaFactory()->backgroundFunction != LUA_REFNIL) {
     luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
@@ -620,6 +616,7 @@ void LuaScriptManager::createTelemetryQueue()
 
 LuaScriptManager::~LuaScriptManager()
 {
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
     deregisterTelemetryQueue(luaInputTelemetryFifo);
     delete luaInputTelemetryFifo;

@@ -40,19 +40,22 @@ class QuickMenuGroup : public Window
   ButtonBase* addButton(EdgeTxIcon icon, const char* title,
                  std::function<void(void)> pressHandler,
                  std::function<bool(void)> visibleHandler = nullptr,
-                 std::function<void(void)> focusHandler = nullptr);
+                 std::function<void(bool)> focusHandler = nullptr);
 
   void setGroup();
   void setFocus();
   void clearFocus();
   void setDisabled(bool all);
   void setEnabled();
+  void activate();
   void setCurrent(ButtonBase* b);
   void setCurrent(int b) { setCurrent(btns[b]); }
   void doLayout(int cols);
   void nextEntry();
   void prevEntry();
   ButtonBase* getFocusedButton();
+
+  void deleteLater() override;
 
 #if PORTRAIT
   static LAYOUT_VAL_SCALED(QM_BUTTON_WIDTH, 72)
@@ -68,6 +71,4 @@ class QuickMenuGroup : public Window
   std::vector<ButtonBase*> btns;
   ButtonBase* curBtn = nullptr;
   lv_group_t* group = nullptr;
-
-  void deleteLater(bool detach = true, bool trash = true) override;
 };

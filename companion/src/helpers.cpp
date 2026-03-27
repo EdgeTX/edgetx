@@ -42,6 +42,7 @@
 #include <QRegularExpression>
 #include <QProcess>
 #include <QtGlobal>
+#include <QFile>
 
 using namespace Helpers;
 
@@ -299,34 +300,49 @@ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsign
   field = (field & ~fieldmask) | (value << (numbits * index + offset));
 }
 
-// return index of 'none' ie zero or first positive data entry in potentially an asymetrical list
+// return index of 'NONE' ie zero or first positive data entry
+// assumes list sequence of [negative] [NONE] positive values
 int Helpers::getFirstPosValueIndex(QComboBox * cbo)
 {
   const int cnt = cbo->count();
+
   if (cnt == 0)
     return -1;
 
-  const int idx = cnt / 2;
+  // no negative values so use 1st entry
+  if (cbo->itemData(0).toInt() >= 0)
+    return 0;
+
+  // no positve values exception NONE so use last entry (safety net)
+  if (cbo->itemData(cnt - 1).toInt() <= 0)
+    return cnt - 1;
+
+  // start search from mid point with positive bias
+  const int idx = (cnt / 2) + 1;
   const int val = cbo->itemData(idx).toInt();
 
   if (val == 0)
     return idx;
 
+  // cannot assume the list has an equal number of +/- values
+  // therefore walk in either direction based on mid point value
   const int step = val > 0 ? -1 : 1;
 
-  for (int i = idx + step; i >= 0 && i < cbo->count(); i += step) {
-    if (cbo->findData(i) == 0)
+  for (int i = idx + step; i >= 0 && i < cnt; i += step) {
+    if (cbo->findData(i) == 0) {
       return i;
-    else if (step < 0 && cbo->itemData(i).toInt() < 0) {
-      if (i++ < cbo->count())
-        return i++;
-      else
-        return -1;
+    } else if (step < 0 && cbo->itemData(i).toInt() < 0) {
+      if (i + 1 < cnt) {
+        return i + 1;
+      } else {
+        return i;
+      }
+    } else if (step > 0 && cbo->itemData(i).toInt() >= 0) {
+      return i;
     }
-    else if (step > 0 && cbo->itemData(i).toInt() > 0)
-      return i;
   }
 
+  // just in case
   return -1;
 }
 
@@ -526,6 +542,67 @@ QSet<QString> getFilesSet(const QString &path, const QStringList &filter, int ma
   return result;
 }
 
+// based on /src/repos/edgetx/edgetx/radio/src/gui/colorlcd/radio/radio_tools.cpp
+// loadLuaTools()
+QStringList getListLuaTools()
+{
+  const QString tdir = g.profile[g.id()].sdPath() + "/SCRIPTS/TOOLS";
+  QStringList result;
+  QDir dir(tdir);
+
+  if (dir.exists()) {
+    foreach (QString name, dir.entryList(QStringList() << "*.lua",
+             QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks)) {
+      QString path = tdir % "/" % name;
+      QFileInfo fi(path);
+      bool inFolder = fi.isDir();
+
+      QString toolname;
+
+      if (inFolder) {
+        // check if .lua with same name exists - skip folder to avoid duplicate entries
+        if (QFileInfo::exists(path % ".lua"))
+          continue;
+        // Default name is folder name
+        toolname = QDir(path).dirName();
+        // must have main.lua
+        path.append("/main.lua");
+        if (!QFileInfo::exists(path))
+          continue;
+      } else {
+        // Default name is file name
+        toolname = QFileInfo(path).completeBaseName();
+      }
+
+      // look for tool name in lua file to override default name
+      QFile file(path);
+
+      if (file.open(QFile::ReadOnly)) {
+        QByteArray ba = file.read(1024);
+        file.close();
+
+        if (ba.size() > 0) {
+          QByteArrayView view("TNS|");
+          int startpos = ba.indexOf(view);
+
+          if (startpos > -1) {
+            view = "|TNE";
+            int endpos = ba.indexOf(view, startpos + 1);
+
+            if (endpos > -1) {
+              toolname = ba.mid(startpos + 4, endpos - (startpos + 4)).data();
+            }
+          }
+        }
+      }
+
+      result.append(toolname);
+    }
+  }
+
+  return result;
+}
+
 bool GpsGlitchFilter::isGlitch(GpsCoord coord)
 {
   if ((fabs(coord.latitude) < 0.1) && (fabs(coord.longitude) < 0.1)) {
@@ -639,6 +716,15 @@ void TableLayout::addWidget(int row, int column, QWidget * widget, Qt::Alignment
   addLayout(row, column, layout);
 #else
   gridWidget->addWidget(widget, row + 1, column, alignment);
+#endif
+}
+
+void TableLayout::addWidget(int fromRow, int fromColumn, int rowSpan, int colSpan,
+                            QWidget * widget, Qt::Alignment alignment)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  gridWidget->addWidget(widget, fromRow + 1, fromColumn, rowSpan, colSpan, alignment);
 #endif
 }
 
@@ -768,226 +854,6 @@ QString Helpers::removeAccents(const QString & str)
       result.replace(it.value().toString(), it.key());
   }
   return result;
-}
-
-/*
-  SemanticVersion
-
-  Based on Semantic Versioning 2.0.0 refer https://semver.org/
-*/
-
-SemanticVersion::SemanticVersion(const QString vers)
-{
-  fromString(vers);
-}
-
-bool SemanticVersion::fromString(QString vers)
-{
-  if (!isValid(vers))
-    return false;
-
-  vers = vers.trimmed();
-
-  if (vers.toLower().startsWith("v"))
-    vers = vers.mid(1);
-
-  QStringList strl = vers.split(".");
-  version.major = strl.at(0).toInt();
-  version.minor = strl.at(1).toInt();
-
-  if (strl.count() > 2) {
-    if (!strl.at(2).contains("-")) {
-      version.patch = strl.at(2).toInt();
-    } else {
-      QStringList ptch = strl.at(2).toLower().split("-");
-      version.patch = ptch.at(0).toInt();
-
-      int offset = 0;
-      QString relType;
-
-      for (int i = 0; i < ptch.at(1).size(); i++) {
-        QString c(ptch.at(1).mid(i, 1));
-        if (c >= "0" && c <= "9") {
-          break;
-        } else if (c == ".") {
-          offset++;
-          break;
-        }
-
-        offset++;
-        relType.append(c);
-      }
-
-      version.preReleaseType = preReleaseTypeToInt(relType);
-
-      if (version.preReleaseType > -1 && offset < ptch.at(1).size())
-        version.preReleaseNumber = ptch.at(1).mid(offset).toInt();
-      else
-        version.preReleaseType = PR_NONE;
-    }
-  }
-
-  //qDebug() << "vers:" << vers << "toString:" << toString() << "toInt:" << toInt();
-
-  return true;
-}
-
-SemanticVersion& SemanticVersion::operator=(const SemanticVersion& rhs)
-{
-  version.major = rhs.version.major;
-  version.minor = rhs.version.minor;
-  version.patch = rhs.version.patch;
-  version.preReleaseType = rhs.version.preReleaseType;
-  version.preReleaseNumber = rhs.version.preReleaseNumber;
-  return *this;
-}
-
-bool SemanticVersion::isValid(const QString vers)
-{
-  QString v(vers.trimmed());
-
-  if (v.isEmpty())
-    return false;
-
-  if (v.toLower().startsWith("v"))
-    v = v.mid(1);
-
-#if 0
-  //  Keep for testing full standard
-  //  Note: regexp adapted for Qt ie extra escaping
-  QRegularExpression rx1("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$");
-
-  //  Qt only test as not all patterns supported and can change in later releases
-  if (!rx1.isValid()) {
-    qDebug() << "Full standard is an invalid Qt regular expression";
-    return false;
-  }
-
-  if (!rx1.match(v).hasMatch()) {
-    qDebug() << vers << "is not a valid Semantic Version - ";
-    return false;
-  }
-#endif // 0
-
-  //  we only support a subset of the standard alpha, beta, rc with period optional and number optional
-  //  format: major.minor.patch[-[alpha|beta|rc][.|][n|]]
-
-  QRegularExpression rx2("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-(alpha|beta|rc)\\.?(0|[1-9]\\d*)?)*$");
-
-  //  Qt only test as not all patterns supported and can change in later releases
-  if (!rx2.isValid()) {
-    qDebug() << "Standard subset is an invalid Qt regular expression";
-    return false;
-  }
-
-  if (!rx2.match(v.toLower()).hasMatch()) {
-    //qDebug() << vers << "is not a valid Semantic Version subset - ";
-    return false;
-  }
-
-  return isValid();
-}
-
-bool SemanticVersion::isValid()
-{
-  //  range checks to support 32 bit OS when components compounded
-  if (version.major < 0 || version.major > 255 || version.minor < 0 || version.minor > 255 || version.patch < 0 || version.patch > 255 ||
-      version.preReleaseType < 0 || version.preReleaseType > PR_NONE || version.preReleaseNumber < 0 || version.preReleaseNumber > 15) {
-    qDebug() << "Cannot convert to supported Semantec Version";
-    version = SemanticVersion().version;
-    return false;
-  }
-
-  return true;
-}
-
-QString SemanticVersion::toString() const
-{
-  QString ret(QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch));
-
-  if (version.preReleaseType != PR_NONE) {
-    ret = QString("%1-%2").arg(ret).arg(preReleaseTypeToString());
-    if (version.preReleaseNumber > 0)
-      ret = QString("%1.%2").arg(ret).arg(version.preReleaseNumber);
-  }
-
-  return ret;
-}
-
-bool SemanticVersion::isEmpty(const QString vers)
-{
-  fromString(vers);
-  return isEmpty();
-}
-
-bool SemanticVersion::isEmpty()
-{
-  if (toInt() == SemanticVersion().toInt() )
-    return true;
-  else
-    return false;
-}
-
-bool SemanticVersion::isPreRelease(const QString vers)
-{
-  fromString(vers);
-  return isPreRelease();
-}
-
-bool SemanticVersion::isPreRelease()
-{
-  if (version.preReleaseType != PR_NONE)
-    return true;
-  else
-    return false;
-}
-
-int SemanticVersion::compare(const SemanticVersion& other)
-{
-  if (version.major != other.version.major) {
-    return version.major - other.version.major;
-  }
-
-  if (version.minor != other.version.minor) {
-    return version.minor - other.version.minor;
-  }
-
-  if (version.patch != other.version.patch) {
-    return version.patch - other.version.patch;
-  }
-
-  if (version.preReleaseType != other.version.preReleaseType) {
-    return version.preReleaseType - other.version.preReleaseType;
-  }
-
-  if (version.preReleaseNumber != other.version.preReleaseNumber) {
-    return version.preReleaseNumber - other.version.preReleaseNumber;
-  }
-
-  return 0;
-}
-
-unsigned int SemanticVersion::toInt() const
-{
-  //  limit to 32 bits for OS backward compatibility
-  unsigned int val = 0;
-  setBitmappedValue(val, version.major, 0, 8, 24);
-  setBitmappedValue(val, version.minor, 0, 8, 16);
-  setBitmappedValue(val, version.patch, 0, 8, 8);
-  setBitmappedValue(val, version.preReleaseType, 0, 4, 4);
-  setBitmappedValue(val, version.preReleaseNumber, 0, 4);
-  return val;
-}
-
-bool SemanticVersion::fromInt(const unsigned int val)
-{
-  //  assumption val was generated by toInt() but validate anyway
-  version.major = Helpers::getBitmappedValue(val, 0, 8, 24);
-  version.minor = Helpers::getBitmappedValue(val, 0, 8, 16);
-  version.patch = Helpers::getBitmappedValue(val, 0, 8, 8);
-  version.preReleaseType = Helpers::getBitmappedValue(val, 0, 4, 4);
-  version.preReleaseNumber = Helpers::getBitmappedValue(val, 0, 4);
-  return isValid();
 }
 
 StatusDialog::StatusDialog(QWidget * parent, const QString title, QString msgtext, const int width) :

@@ -76,6 +76,7 @@
 #define STR_FILE_SIZE currentLangStrings->STR_FILE_SIZE
 #define STR_FILL_BACKGROUND currentLangStrings->STR_FILL_BACKGROUND
 #define STR_FIRST_CHANNEL currentLangStrings->STR_FIRST_CHANNEL
+#define STR_LAST_CHANNEL currentLangStrings->STR_LAST_CHANNEL
 #define STR_FIXED currentLangStrings->STR_FIXED
 #define STR_FLASH_DEVICE currentLangStrings->STR_FLASH_DEVICE
 #define STR_FLIGHT_MODE currentLangStrings->STR_FLIGHT_MODE
@@ -112,7 +113,6 @@
 #define STR_MAIN_MENU_THEMES currentLangStrings->STR_MAIN_MENU_THEMES
 #define STR_MAIN_MODEL_SETTINGS currentLangStrings->STR_MAIN_MODEL_SETTINGS
 #define STR_MAIN_RADIO_SETTINGS currentLangStrings->STR_MAIN_RADIO_SETTINGS
-#define STR_MANAGE_MODELS currentLangStrings->STR_MANAGE_MODELS
 #define STR_MEM_USED_EXTRA currentLangStrings->STR_MEM_USED_EXTRA
 #define STR_MEM_USED_SCRIPT currentLangStrings->STR_MEM_USED_SCRIPT
 #define STR_MEM_USED_WIDGET currentLangStrings->STR_MEM_USED_WIDGET
@@ -330,12 +330,16 @@
 #define STR_MENUCUSTOMSCRIPTS currentLangStrings->STR_MENUCUSTOMSCRIPTS
 #endif
 
-#if defined(DSM2) || defined(PXX)
+#if defined(DSM2) || defined(PXX) || defined(DSMP)
 #define STR_BIND_OK currentLangStrings->STR_BIND_OK
 #define STR_REBIND currentLangStrings->STR_REBIND
 #define STR_RECEIVER_NUM currentLangStrings->STR_RECEIVER_NUM
 #define STR_RECEIVER currentLangStrings->STR_RECEIVER
 #define STR_REG_OK currentLangStrings->STR_REG_OK
+#endif
+
+#if defined(DSMP)
+#define STR_DSMP_ENABLE_AETR currentLangStrings->STR_DSMP_ENABLE_AETR
 #endif
 
 #if defined(AFHDS3)
@@ -464,6 +468,7 @@
 #define STR_CONNECTED currentLangStrings->STR_CONNECTED
 #define STR_CONSTANT currentLangStrings->STR_CONSTANT
 #define STR_CONTRAST currentLangStrings->STR_CONTRAST
+#define STR_CONTROL currentLangStrings->STR_CONTROL
 #define STR_COPROC_TEMP currentLangStrings->STR_COPROC_TEMP
 #define STR_COPROC currentLangStrings->STR_COPROC
 #define STR_COPY_FILE currentLangStrings->STR_COPY_FILE
@@ -499,6 +504,8 @@
 #define STR_DELETE_ERROR currentLangStrings->STR_DELETE_ERROR
 #define STR_DELETE_FILE currentLangStrings->STR_DELETE_FILE
 #define STR_DELETE_MODEL currentLangStrings->STR_DELETE_MODEL
+#define STR_DELETE_INPUT_LINE currentLangStrings->STR_DELETE_INPUT_LINE
+#define STR_DELETE_MIX_LINE currentLangStrings->STR_DELETE_MIX_LINE
 #define STR_DELETE currentLangStrings->STR_DELETE
 #define STR_DELETEMODEL currentLangStrings->STR_DELETEMODEL
 #define STR_DEVICE_DATA_REFUSED currentLangStrings->STR_DEVICE_DATA_REFUSED
@@ -849,7 +856,7 @@
 #define STR_REPEAT_AT_ZERO currentLangStrings->STR_REPEAT_AT_ZERO
 #define STR_REPEAT currentLangStrings->STR_REPEAT
 #define STR_RESET_BTN currentLangStrings->STR_RESET_BTN
-#define STR_RESET_FLIGHT currentLangStrings->STR_RESET_FLIGHT
+#define STR_RESET_SESSION currentLangStrings->STR_RESET_SESSION
 #define STR_RESET_SUBMENU currentLangStrings->STR_RESET_SUBMENU
 #define STR_RESET_TELEMETRY currentLangStrings->STR_RESET_TELEMETRY
 #define STR_RESET_TIMER1 currentLangStrings->STR_RESET_TIMER1
@@ -907,6 +914,7 @@
 #define STR_SF_LCD_TO_VIDEO currentLangStrings->STR_SF_LCD_TO_VIDEO
 #define STR_SF_LOGS currentLangStrings->STR_SF_LOGS
 #define STR_SF_MOD_BIND currentLangStrings->STR_SF_MOD_BIND
+#define STR_SF_OVERRIDDEN currentLangStrings->STR_SF_OVERRIDDEN
 #define STR_SF_PLAY_SCRIPT currentLangStrings->STR_SF_PLAY_SCRIPT
 #define STR_SF_RACING_MODE currentLangStrings->STR_SF_RACING_MODE
 #define STR_SF_RANGE_CHECK currentLangStrings->STR_SF_RANGE_CHECK
@@ -940,6 +948,7 @@
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS
+#define STR_SRC_LIGHT currentLangStrings->STR_SRC_LIGHT
 #define STR_SRC_TIME currentLangStrings->STR_SRC_TIME
 #define STR_SRC_TIMER currentLangStrings->STR_SRC_TIMER
 #define STR_STACK_AUDIO currentLangStrings->STR_STACK_AUDIO
@@ -976,6 +985,7 @@
 #define STR_TEST_NOTSAFE currentLangStrings->STR_TEST_NOTSAFE
 #define STR_TEST_WARNING currentLangStrings->STR_TEST_WARNING
 #define STR_TEXT_COLOR currentLangStrings->STR_TEXT_COLOR
+#define STR_TEXT_LANGUAGE currentLangStrings->STR_TEXT_LANGUAGE
 #define STR_THEME currentLangStrings->STR_THEME
 #define STR_THROTTLE_LABEL currentLangStrings->STR_THROTTLE_LABEL
 #define STR_THROTTLE_NOT_IDLE currentLangStrings->STR_THROTTLE_NOT_IDLE

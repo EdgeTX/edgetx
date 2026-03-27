@@ -357,6 +357,58 @@ static void processMultiProtoDef(uint8_t module, const uint8_t * packet, uint8_t
 #endif
 
  
+static void processMultiDSMBindPacket(uint8_t module, const uint8_t *packet)
+{
+  if (//g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
+      //g_model.moduleData[module].multi.rfProtocol ==
+      //    MODULE_SUBTYPE_MULTI_DSM2 &&
+      g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
+    // Only sets channel etc when in DSM/AUTO mode
+    int channels = packet[5];
+    if (channels > 12) {
+      channels = 12;
+    } else if (channels < 3) {
+      channels = 3;
+    }
+
+    switch (packet[6]) {
+      case 0xa2:
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSMX_22;
+        break;
+      case 0x12:
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSM2_11;
+        if (channels == 7) {
+          channels = 12;  // change the number of channels if 7
+        }
+        break;
+      case 0x01:
+      case 0x02:
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSM2_22;
+        break;
+      default:  // 0xb2 or unknown
+        g_model.moduleData[module].subType = MM_RF_DSM2_SUBTYPE_DSMX_11;
+        if (channels == 7) {
+          channels = 12;  // change the number of channels if 7
+        }
+        break;
+    }
+
+    g_model.moduleData[module].channelsCount = channels - 8;
+    // clear the 11ms servo refresh rate flag
+    g_model.moduleData[module].multi.optionValue &= 0xFD;
+
+    storageDirty(EE_MODEL);
+  }
+
+  /* Finally stop binding as the rx just told us that it is bound */
+  if (getModuleMode(module) == MODULE_MODE_BIND) {
+      setMultiBindStatus(module, MULTI_BIND_FINISHED);
+  }
+
+  // Continue with the common Spektrum Processing
+  processDSMBindPacket(packet);
+}
+
 static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 {
   uint8_t type = packet[0];
@@ -372,7 +424,7 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
     case DSMBindPacket:
       if (len >= 10)
-        processDSMBindPacket(module, data);
+        processMultiDSMBindPacket(module, data);
       break;
 
     case SpektrumTelemetry:

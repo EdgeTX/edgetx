@@ -18,7 +18,11 @@
 
 #pragma once
 
-#include "libopenui_defines.h"
+#include "colors.h"
+
+#if defined(DEBUG)
+#include "debug.h"
+#endif
 
 struct MaskBitmap;
 class TelemetryItem;
@@ -128,11 +132,7 @@ class BitmapBuffer
   coord_t drawSizedText(coord_t x, coord_t y, const char* s, uint8_t len,
                         LcdFlags flags = 0);
 
-  coord_t drawText(coord_t x, coord_t y, const char* s, LcdFlags flags = 0)
-  {
-    if (!s) return x;
-    return drawSizedText(x, y, s, strlen(s), flags);
-  }
+  coord_t drawText(coord_t x, coord_t y, const char* s, LcdFlags flags = 0);
 
   void drawBitmap(coord_t x, coord_t y, const BitmapBuffer* bmp,
                   coord_t srcx = 0, coord_t srcy = 0, coord_t srcw = 0,

@@ -27,7 +27,7 @@
 class ModelLogicalSwitchesPage : public PageGroupItem
 {
  public:
-  ModelLogicalSwitchesPage(PageDef& pageDef);
+  ModelLogicalSwitchesPage(const PageDef& pageDef);
 
   virtual void build(Window* window) override;
 

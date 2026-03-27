@@ -42,6 +42,7 @@ enum {
   ADC_INPUT_FLEX,
   ADC_INPUT_VBAT,
   ADC_INPUT_RTC_BAT,
+  ADC_INPUT_LUX,
   ADC_INPUT_ALL,
 };
 
@@ -77,6 +78,7 @@ struct etx_hal_adc_driver_t {
   potconfig_t default_pots_cfg;
   
   bool (*init)();
+  void (*deinit)();
   bool (*start_conversion)();
   void (*wait_completion)();
 

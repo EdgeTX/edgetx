@@ -58,7 +58,6 @@ class SourceNumberEdit : public Window
   int16_t sourceMin;
   std::function<int32_t()> getValue;
   std::function<void(int32_t)> setValue;
-  LcdFlags textFlags;
   int32_t voffset;
 
   bool isSource();

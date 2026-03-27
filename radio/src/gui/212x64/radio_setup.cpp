@@ -56,6 +56,8 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_SPEAKER_PITCH,
   ITEM_RADIO_SETUP_WAV_VOLUME,
   ITEM_RADIO_SETUP_BACKGROUND_VOLUME,
+  ITEM_RADIO_SETUP_VOLUME_SOURCE,
+  ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE,
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_VOLUME)
@@ -79,6 +81,8 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_BRIGHTNESS,
   ITEM_RADIO_SETUP_CONTRAST,
   CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
+  ITEM_RADIO_SETUP_BACKLIGHT_SOURCE,
+  ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE,
   ITEM_RADIO_SETUP_FLASH_BEEP,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -94,7 +98,10 @@ enum MenuRadioSetupItems {
   CASE_GPS(ITEM_RADIO_SETUP_ADJUST_RTC)
   CASE_GPS(ITEM_RADIO_SETUP_GPSFORMAT)
   CASE_PXX1(ITEM_RADIO_SETUP_COUNTRYCODE)
-  ITEM_RADIO_SETUP_LANGUAGE,
+  ITEM_RADIO_SETUP_VOICE_LANGUAGE,
+#if defined(ALL_LANGS)
+  ITEM_RADIO_SETUP_TEXT_LANGUAGE,
+#endif
   ITEM_RADIO_SETUP_IMPERIAL,
   ITEM_RADIO_SETUP_PPM,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI)
@@ -129,6 +136,8 @@ PACK(struct ExpandState {
 static struct ExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
+static uint8_t SOUND_WARNING_ROW(uint8_t value) { return expandState.sound && isFunctionActive(FUNCTION_VOLUME) ? value : HIDDEN_ROW; }
+static uint8_t BACKLIGHT_WARNING_ROW(uint8_t value) { return isFunctionActive(FUNCTION_BACKLIGHT) ? value : HIDDEN_ROW; }
 
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
 
@@ -186,6 +195,8 @@ void menuRadioSetup(event_t event)
      SOUND_ROW(0), // speaker piutch
      SOUND_ROW(0), // wav volume
      SOUND_ROW(0), // background volume
+     SOUND_ROW(0), // volume control
+     SOUND_WARNING_ROW(LABEL(0)), // volume control override warning
      SOUND_ROW(0), // startup sound
     // Vario
     CASE_VARIO(LABEL(VARIO))
@@ -213,6 +224,8 @@ void menuRadioSetup(event_t event)
       0, // brightness
       0, // contrast
       CASE_PCBX9E_PCBX9DP(0) // backlight color
+      0, // backlight control
+      BACKLIGHT_WARNING_ROW(LABEL(0)), // backlight control override warning
       0, // flash beep
     CASE_SPLASH_PARAM(0) // disable splash
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
@@ -228,6 +241,9 @@ void menuRadioSetup(event_t event)
      CASE_GPS(0)
     CASE_PXX1(0) // country code
     0, // voice language
+#if defined(ALL_LANGS)
+    0, // text language
+#endif
     0, // imperial
     0, // PPM unit
     IF_FAI_CHOICE(0)
@@ -407,6 +423,19 @@ void menuRadioSetup(event_t event)
         }
         break;
 
+      case ITEM_RADIO_SETUP_VOLUME_SOURCE:
+        lcdDrawTextIndented(y, STR_CONTROL);
+        drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.volumeSrc, STREXPANDED|attr);
+        if (attr)
+          g_eeGeneral.volumeSrc = checkIncDec(event, g_eeGeneral.volumeSrc,
+                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+                isSourceAvailableForBacklightOrVolume);
+        break;
+
+      case ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE:
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
+        break;
+
       case ITEM_RADIO_SETUP_START_SOUND:
         g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, RADIO_SETUP_2ND_COLUMN, y, STR_PLAY_HELLO, attr, event, INDENT_WIDTH) ;
         break;
@@ -562,6 +591,19 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
+        lcdDrawTextIndented(y, STR_CONTROL);
+        drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.backlightSrc, STREXPANDED|attr);
+        if (attr)
+          g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
+                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+                isSourceAvailableForBacklightOrVolume);
+        break;
+
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
+        break;
+
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);
         if (SPLASH_NEEDED()) {
@@ -643,7 +685,7 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-      case ITEM_RADIO_SETUP_LANGUAGE:
+      case ITEM_RADIO_SETUP_VOICE_LANGUAGE:
         lcdDrawTextAlignedLeft(y, STR_VOICE_LANGUAGE);
 #if !defined(ALL_LANGS)
         lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, currentLanguagePack->name, attr);
@@ -655,14 +697,26 @@ void menuRadioSetup(event_t event)
           if (checkIncDec_Ret) {
             currentLanguagePack = languagePacks[currentLanguagePackIdx];
             strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
-#if defined(ALL_LANGS)
-            currentLangStrings = langStrings[currentLanguagePackIdx];
-            extern void setLanguageFont(int n);
-            setLanguageFont(currentLanguagePackIdx);
-#endif
           }
         }
         break;
+
+#if defined(ALL_LANGS)
+      case ITEM_RADIO_SETUP_TEXT_LANGUAGE:
+        lcdDrawTextAlignedLeft(y, STR_TEXT_LANGUAGE);
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, languagePacks[getLanguageId(g_eeGeneral.uiLanguage)]->name(), attr);
+        if (attr) {
+          int textLangId = checkIncDec(event, getLanguageId(g_eeGeneral.uiLanguage), 0, DIM(languagePacks)-2, EE_GENERAL, isTextLangAvail);
+          if (checkIncDec_Ret) {
+            currentLanguagePack = languagePacks[currentLanguagePackIdx];
+            strncpy(g_eeGeneral.uiLanguage, languagePacks[textLangId]->id, 2);
+            currentLangStrings = langStrings[textLangId];
+            extern void setLanguageFont(int n);
+            setLanguageFont(textLangId);
+          }
+        }
+        break;
+#endif
 
       case ITEM_RADIO_SETUP_IMPERIAL:
         g_eeGeneral.imperial = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_UNITS_SYSTEM, STR_VUNITSSYSTEM, g_eeGeneral.imperial, 0, 1, attr, event);

@@ -668,6 +668,62 @@ void FlexSwitchesItemModel::update(const int event)
 }
 
 //
+// ControlSourceItemModel
+//
+
+ControlSourceItemModel::ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+  AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
+{
+  setId(IMID_ControlSource);
+  setUpdateMask(IMUE_Hardware);
+
+  // Descending source direction: inverted (!) sources
+  addItems(SOURCE_TYPE_SWITCH, -board->getCapability(Board::Switches));
+  addItems(SOURCE_TYPE_INPUT,  -board->getCapability(Board::Inputs), -board->getCapability(Board::Sticks));
+
+  // Ascending source direction (including zero)
+  addItems(SOURCE_TYPE_NONE,   1);
+  addItems(SOURCE_TYPE_INPUT,  board->getCapability(Board::Inputs), board->getCapability(Board::Sticks));
+  addItems(SOURCE_TYPE_SWITCH, board->getCapability(Board::Switches));
+}
+
+void ControlSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
+{
+  item->setText(src.toString(modelData, generalSettings, boardType));
+  item->setData(src.isAvailable(modelData, generalSettings, boardType, RawSource::AVAILABLE_CONTROLSRC), IMDR_Available);
+}
+
+void ControlSourceItemModel::addItems(const RawSourceType & type, int count, const int start)
+{
+  const int idxAdj = (type == SOURCE_TYPE_NONE ? -1 : 0);
+
+  int first = start + count < 0 ? start + count : start + 1;
+  int last = start + count < 0 ? start : start + count + 1;
+
+  for (int i = first; i < last; ++i) {
+    const RawSource src = RawSource(type, i + idxAdj);
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(src.toValue(), IMDR_Id);
+    modelItem->setData(type, IMDR_Type);
+    setDynamicItemData(modelItem, src);
+    appendRow(modelItem);
+  }
+}
+
+void ControlSourceItemModel::update(const int event)
+{
+  if (doUpdate(event)) {
+    emit aboutToBeUpdated();
+
+    for (int i = 0; i < rowCount(); ++i)
+      setDynamicItemData(item(i), RawSource(item(i)->data(IMDR_Id).toInt()));
+
+    emit updateComplete();
+  }
+}
+
+//
 // CompoundItemModelFactory
 //
 
@@ -721,6 +777,9 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_FlexSwitches:
       registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));
+      break;
+    case AbstractItemModel::IMID_ControlSource:
+      registerItemModel(new ControlSourceItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     default:
       qDebug() << "Error: unknown item model: id";

@@ -24,6 +24,8 @@
 bool boardBacklightOn = false;
 bool isBacklightEnabled() { return boardBacklightOn; }
 
+bool getPeriodicLuxSensorValue() { return true; }
+
 void backlightInit() {}
 
 #if !defined(COLORLCD)

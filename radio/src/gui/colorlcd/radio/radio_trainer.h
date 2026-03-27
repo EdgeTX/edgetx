@@ -27,7 +27,7 @@
 class RadioTrainerPage : public PageGroupItem
 {
  public:
-  RadioTrainerPage(PageDef& pageDef);
+  RadioTrainerPage(const PageDef& pageDef);
 
   void build(Window* window) override;
 };

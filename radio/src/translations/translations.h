@@ -41,6 +41,8 @@
 
 #else
 
+bool isTextLangAvail(int lang);
+
 // Static string
 #define STR(x) extern const char STR_##x[];
 // Static string array

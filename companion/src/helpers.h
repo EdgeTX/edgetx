@@ -142,6 +142,7 @@ bool isTempFileName(const QString & fileName);
 
 QString getSoundsPath(const GeneralSettings &generalSettings);
 QSet<QString> getFilesSet(const QString &path, const QStringList &filter, int maxLen);
+QStringList getListLuaTools();
 
 
 class QTimeS : public QTime
@@ -195,8 +196,12 @@ public:
   TableLayout(QWidget * parent, int rowCount, const QStringList & headerLabels);
   // ~TableLayout() ;
 
-  void addWidget(int row, int column, QWidget * widget, Qt::Alignment alignment = Qt::Alignment());
-  void addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment = Qt::Alignment());
+  void addWidget(int row, int column, QWidget * widget,
+                 Qt::Alignment alignment = Qt::Alignment());
+  void addWidget(int fromRow, int fromColumn, int rowSpan, int colSpan, QWidget * widget,
+                 Qt::Alignment alignment = Qt::Alignment());
+  void addLayout(int row, int column, QLayout * layout,
+                 Qt::Alignment alignment = Qt::Alignment());
 
   void resizeColumnsToContents();
   void setColumnWidth(int col, int width);
@@ -250,76 +255,6 @@ private:
 
 extern Stopwatch gStopwatch;
 
-class SemanticVersion
-{
-  public:
-    explicit SemanticVersion(const QString vers);
-    explicit SemanticVersion() {}
-    ~SemanticVersion() {}
-
-    bool isValid(const QString vers);
-    bool isValid();
-    bool fromString(const QString vers);
-    QString toString() const;
-    unsigned int toInt() const;
-    bool fromInt(const unsigned int val);
-    bool isEmpty(const QString vers);
-    bool isEmpty();
-    bool isPreRelease(const QString vers);
-    bool isPreRelease();
-
-    SemanticVersion& operator=(const SemanticVersion& rhs);
-
-    bool operator==(const SemanticVersion& rhs) {
-      return compare(rhs) == 0;
-    }
-
-    bool operator!=(const SemanticVersion& rhs) {
-      return compare(rhs) != 0;
-    }
-
-    bool operator>(const SemanticVersion& rhs) {
-      return compare(rhs) > 0;
-    }
-
-    bool operator>=(const SemanticVersion& rhs) {
-      return compare(rhs) >= 0;
-    }
-
-    bool operator<(const SemanticVersion& rhs) {
-      return compare(rhs) < 0;
-    }
-
-    bool operator<=(const SemanticVersion& rhs) {
-      return compare(rhs) <= 0;
-    }
-
-  private:
-    enum PreReleaseTypes {
-      PR_ALPHA = 0,
-      PR_BETA,
-      PR_RC,
-      PR_NONE
-    };
-
-    const QStringList PreReleaseTypesStringList = { "alpha", "beta", "rc"};
-
-    struct Version {
-      int major            = 0;
-      int minor            = 0;
-      int patch            = 0;
-      int preReleaseType   = PR_NONE;
-      int preReleaseNumber = 0;
-    };
-
-    Version version;
-
-    int compare(const SemanticVersion& other);
-    inline QString preReleaseTypeToString() const { return PreReleaseTypesStringList.value(version.preReleaseType, ""); }
-    inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
-
-};
-
 class StatusDialog: public QDialog
 {
     Q_OBJECT
@@ -333,3 +268,11 @@ class StatusDialog: public QDialog
   private:
     QLabel *msg;
 };
+
+template <typename T>
+T rangeCheck(T value, T min, T max, T defaultValue) {
+  if (value < min || value > max) {
+      return defaultValue;
+  }
+  return value;
+}

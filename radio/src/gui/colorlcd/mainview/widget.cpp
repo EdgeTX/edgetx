@@ -23,6 +23,7 @@
 
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "menu.h"
 #include "view_main.h"
 #include "widget_settings.h"
 
@@ -50,7 +51,7 @@ inline WidgetOptionValueEnum widgetValueEnumFromType(WidgetOption::Type type)
 
   case WidgetOption::Color:
     return WOV_Color;
-    
+
   default:
     return WOV_Unsigned;
   }
@@ -157,10 +158,7 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
     factory(factory),
     screenNum(screenNum), zoneNum(zoneNum)
 {
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-
-  if (parent->isTopBar()) fsAllowed = false;
+  setWindowFlag(NO_FOCUS | NO_SCROLL);
 
   setPressHandler([&]() -> uint8_t {
     // When ViewMain is in "widget select mode",
@@ -172,16 +170,16 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 
 void Widget::openMenu()
 {
-  if (fsAllowed && ViewMain::instance()->isAppMode())
+  if (!parent->isTopBar() && ViewMain::instance()->isAppMode())
   {
     setFullscreen(true);
     return;
   }
 
-  if (hasOptions() || fsAllowed) {
+  if (hasOptions() || !parent->isTopBar()) {
     Menu* menu = new Menu();
     menu->setTitle(getFactory()->getDisplayName());
-    if (fsAllowed) {
+    if (!parent->isTopBar()) {
       menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
     }
     if (hasOptions()) {
@@ -205,16 +203,15 @@ void Widget::onCancel()
   if (!fullscreen) ButtonBase::onCancel();
 }
 
-void Widget::update() {}
-
 void Widget::setFullscreen(bool enable)
 {
-  if (!fsAllowed || (enable == fullscreen)) return;
+  if (!!parent->isTopBar() || (enable == fullscreen)) return;
 
   fullscreen = enable;
 
   // Show or hide ViewMain widgets and decorations
   ViewMain::instance()->show(!enable);
+  Messaging::send(Messaging::DECORATION_UPDATE);
 
   // Leave Fullscreen Mode
   if (!enable) {
@@ -239,8 +236,6 @@ void Widget::setFullscreen(bool enable)
     updateZoneRect(parent->getRect(), false);
     setRect(parent->getRect());
 
-    bringToTop();
-
     if (!lv_obj_get_group(lvobj))
       lv_group_add_obj(lv_group_get_default(), lvobj);
 
@@ -255,7 +250,8 @@ void Widget::setFullscreen(bool enable)
 
   onFullscreen(enable);
 
-  update();
+  if (fullscreen)
+    updateWithoutRefresh();
 }
 
 bool Widget::onLongPress()
@@ -297,7 +293,6 @@ void Widget::enableFocus(bool enable)
 
       setFocusHandler([=](bool hasFocus) {
         if (hasFocus) {
-          bringToTop();
           lv_obj_clear_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
         } else {
           lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
@@ -381,6 +376,7 @@ Widget* WidgetFactory::create(Window* parent, const rect_t& rect,
     parseOptionDefaults();
   }
   if (options) {
+    checkOptions(screenNum, zoneNum);
     int i = 0;
     for (const WidgetOption* option = options; option->name; option++, i++) {
       TRACE("WidgetFactory::create() setting option '%s'", option->name);

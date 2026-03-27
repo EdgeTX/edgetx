@@ -370,6 +370,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -671,6 +672,7 @@
 #define TR_MULTI_OPTION                TR("Option", "オプション値")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.", "チャンネルバインド")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "CHマップ無効")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "テレメトリー無効")
 #define TR_MULTI_LOWPOWER              TR("Low power", "低出力モード")
 #define TR_MULTI_LNA_DISABLE           "LNA無効"
@@ -712,7 +714,6 @@
 #define TR_CURRENT_CALIB               "現在のキャリブレーション"
 #define TR_VOLTAGE                     TR("Voltage", "電圧ソース")
 #define TR_SELECT_MODEL                "モデル選択"
-#define TR_MANAGE_MODELS               "モデル管理"
 #define TR_MODELS                      "モデル"
 #define TR_SELECT_MODE                 "モード選択"
 #define TR_CREATE_MODEL                "モデル作成"
@@ -740,6 +741,8 @@
 #define TR_DELETE_MODEL                "モデル削除"
 #define TR_RESTORE_MODEL               "モデル復元"
 #define TR_DELETE_ERROR                "削除エラー"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("SD error", "SDカードエラー")
 #define TR_SDCARD                      "SDカード"
 #define TR_NO_FILES_ON_SD              "SDにファイルがありません!!"
@@ -805,6 +808,8 @@
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "輝度"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "CPU温度"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB温度"
@@ -967,6 +972,7 @@
 #define TR_USBMODE                     "USBモード"
 #define TR_JACK_MODE                   "Jackモード"
 #define TR_VOICE_LANGUAGE              "音声言語"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "ユニット"
 #define TR_UNITS_PPM                   "PPMユニット"
 #define TR_EDIT                        "編集"
@@ -979,7 +985,7 @@
 #define TR_PASTE_BEFORE                "前に貼り付け"
 #define TR_DELETE                      "削除"
 #define TR_INSERT                      "挿入"
-#define TR_RESET_FLIGHT                "飛行記録リセット"
+#define TR_RESET_SESSION               "飛行記録リセット"
 #define TR_RESET_TIMER1                "タイマー1 リセット"
 #define TR_RESET_TIMER2                "タイマー2 リセット"
 #define TR_RESET_TIMER3                "タイマー3 リセット"
@@ -1129,6 +1135,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "第1チャンネル"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "背景を塗り潰しますか？"
 #define TR_BG_COLOR                  "背景カラー"
 #define TR_SLIDERS_TRIMS             "スライダー＋トリム"

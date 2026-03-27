@@ -25,6 +25,7 @@
 #include "yaml_calibdata.h"
 #include "yaml_switchconfig.h"
 #include "yaml_moduledata.h"
+#include "yaml_rawsource.h"
 
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
@@ -177,6 +178,7 @@ static const YamlLookupTable QMPageLut = {
   {  GeneralSettings::QM_TOOLS_LS_MON, "TOOLS_LS_MON" },
   {  GeneralSettings::QM_TOOLS_STATS, "TOOLS_STATS" },
   {  GeneralSettings::QM_TOOLS_DEBUG, "TOOLS_DEBUG" },
+  {  GeneralSettings::QM_APP, "APP" },
 };
 
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
@@ -291,6 +293,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["imperial"] = rhs.imperial;
   node["ppmunit"] = rhs.ppmunit;
   node["ttsLanguage"] = rhs.ttsLanguage;
+  node["uiLanguage"] = rhs.uiLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
   node["wavVolume"] = rhs.wavVolume + 2;
   node["varioVolume"] = rhs.varioVolume + 2;
@@ -370,6 +373,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   if (hasColorLcd)
     node["selectedTheme"] = rhs.selectedTheme;
 
+  node["backlightSrc"] = rhs.backlightSrc;
+  node["volumeSrc"] = rhs.volumeSrc;
+
   // Radio level tabs control (global settings)
   if (hasColorLcd)
     node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
@@ -388,11 +394,25 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   if (hasColorLcd) {
     for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
-      if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE)
-        node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
+      if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE) {
+        if (rhs.keyShortcuts[i] != GeneralSettings::QM_APP) {
+          node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
+        } else {
+          std::string s("APP,");
+          s += rhs.keyShortcutTools[i];
+          node["keyShortcuts"][std::to_string(i)]["shortcut"] = s;
+        }
+      }
     for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
-      if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE)
-        node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
+      if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE) {
+        if (rhs.qmFavorites[i] != GeneralSettings::QM_APP) {
+          node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
+        } else {
+          std::string s("APP,");
+          s += rhs.qmFavoritesTools[i];
+          node["qmFavorites"][std::to_string(i)]["shortcut"] = s;
+        }
+      }
   }
 
   return node;
@@ -422,20 +442,28 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   qDebug() << "Settings version:" << radioSettingsVersion.toString();
 
   if (radioSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.");
-    prmpt = prmpt.arg(radioSettingsVersion.toString());
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
-    msgBox.setText(prmpt);
-    msgBox.setIcon(QMessageBox::Warning);
-    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
-    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
-    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
-    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
-    msgBox.setDefaultButton(pbDecline);
-    msgBox.exec();
-    if (msgBox.clickedButton() == pbDecline)
-      return false;
+    //  TODO remove this temporary 2.12 fix check for 3.0 release
+    if (radioSettingsVersion == SemanticVersion("3.0.0") &&
+        SemanticVersion(VERSION) >= SemanticVersion("2.12.0") &&
+        SemanticVersion(VERSION) < SemanticVersion("3.0.0")) {
+      qDebug() << "Version exception override: radio settings" << radioSettingsVersion.toString()
+               << "Companion" << SemanticVersion(VERSION).toString();
+    } else {
+      QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by Companion %2!\n\nModel and radio settings may be corrupted if you continue.");
+      prmpt = prmpt.arg(radioSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
+      QMessageBox msgBox;
+      msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
+      msgBox.setText(prmpt);
+      msgBox.setIcon(QMessageBox::Warning);
+      QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+      QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+      msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+      msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+      msgBox.setDefaultButton(pbDecline);
+      msgBox.exec();
+      if (msgBox.clickedButton() == pbDecline)
+        return false;
+    }
   }
 
   rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
@@ -561,6 +589,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["imperial"] >> rhs.imperial;
   node["ppmunit"] >> rhs.ppmunit;
   node["ttsLanguage"] >> rhs.ttsLanguage;
+  node["uiLanguage"] >> rhs.uiLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
   node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);
   node["varioVolume"] >> ioffset_int(rhs.varioVolume, 2);
@@ -624,8 +653,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // the GeneralSettings struct is initialised to hardware definition defaults which is fine for new settings
   // however when parsing saved settings set all inputs to None and override with parsed values
   // thus any inputs not parsed will be None rather than the default
+  // exceptions:
+  //   preserve those hardware defaults never written to yaml
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
-    rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
+    if (Boards::isInputConfigurable(i))
+      rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
   }
 
   if (node["sticksConfig"]) {
@@ -686,6 +718,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["selectedTheme"] >> rhs.selectedTheme;
 
+  node["backlightSrc"] >> rhs.backlightSrc;
+  node["volumeSrc"] >> rhs.volumeSrc;
+
   // Radio level tabs control (global settings)
   node["radioThemesDisabled"] >> rhs.radioThemesDisabled;
   node["radioGFDisabled"] >> rhs.radioGFDisabled;
@@ -706,12 +741,35 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["favMultiMode"] >> rhs.favMultiMode;
 
   if (node["keyShortcuts"]) {
-    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
-      node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
+    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1) {
+      std::string val = node["keyShortcuts"][std::to_string(i)]["shortcut"].as<std::string>();
+      if (rhs.keyShortcutTools[i]) delete rhs.keyShortcutTools[i];
+      if (val.substr(0, 4) == "APP,") {
+        rhs.keyShortcuts[i] = GeneralSettings::QM_APP;
+        rhs.keyShortcutTools[i] = new char[val.size() - 3];
+        strncpy(rhs.keyShortcutTools[i], val.substr(4).c_str(), val.size() - 4);
+        rhs.keyShortcutTools[i][val.size() - 4] = 0;
+      } else {
+        node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
+        rhs.keyShortcutTools[i] = nullptr;
+      }
+    }
   }
   if (node["qmFavorites"]) {
     for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
-      node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
+      if (node["qmFavorites"][std::to_string(i)]) {
+        std::string val = node["qmFavorites"][std::to_string(i)]["shortcut"].as<std::string>();
+      if (rhs.qmFavoritesTools[i]) delete rhs.qmFavoritesTools[i];
+      if (val.substr(0, 4) == "APP,") {
+        rhs.qmFavorites[i] = GeneralSettings::QM_APP;
+        rhs.qmFavoritesTools[i] = new char[val.size() - 3];
+        strncpy(rhs.qmFavoritesTools[i], val.substr(4).c_str(), val.size() - 4);
+        rhs.qmFavoritesTools[i][val.size() - 4] = 0;
+      } else {
+        node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
+        rhs.qmFavoritesTools[i] = nullptr;
+      }
+    }
   }
 
   //  override critical settings after import

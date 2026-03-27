@@ -154,9 +154,13 @@ GlobalVariablesPanel::GlobalVariablesPanel(QWidget * parent, ModelData & model,
     col += colspan;
   }
 
+  QLabel *lblWarn = new QLabel(this);
+  lblWarn->setText(tr("WARNING: changing ranges or precision can affect configured Logical Switches and Special Functions"));
+  tableLayout->addWidget(gvars, 1, 1, -1, lblWarn);
+
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->pushRowsUp(gvars + 1);
+  tableLayout->pushRowsUp(gvars + 2);
   tableLayout->pushColumnsLeft(col);
 }
 
@@ -595,7 +599,15 @@ void GlobalVariablesPanel::useModeToggled(bool checked)
     int midx = 0;
 
     if (getIndexes(chk, gidx, midx)) {
-      int val = checked ? model->flightModeData->linkedGVarFlightModeZero(midx) : 0;
+      int val = 0;
+
+      if (checked)
+        val = model->flightModeData->linkedGVarFlightModeZero(midx);
+      else if (val < model->gvarData[gidx].getMin())
+        val = model->gvarData[gidx].getMin();
+      else if (val > model->gvarData[gidx].getMax())
+        val = model->gvarData[gidx].getMax();
+
       model->flightModeData[midx].gvars[gidx] = val;
       updateLine(gidx);
       emit modified();

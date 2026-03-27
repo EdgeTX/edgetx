@@ -74,10 +74,8 @@ set(GUI_SRC
   model/output_edit.cpp
   model/preflight_checks.cpp
   model/special_functions.cpp
-  model/throttle_params.cpp
   model/timer_setup.cpp
   model/trainer_setup.cpp
-  model/trims_setup.cpp
 
   module/bind_menu_d16.cpp
   module/custom_failsafe.cpp
@@ -108,6 +106,10 @@ macro(add_gui_src src)
     ${src}
     )
 endmacro(add_gui_src)
+
+if(DSMP)
+   add_gui_src(module/dsmp_settings.cpp)
+endif()
 
 if(LUA)
   add_gui_src(standalone_lua.cpp)
@@ -179,8 +181,6 @@ endif()
 if(USBJ_EX)
   add_gui_src(model/model_usbjoystick.cpp)
 endif()
-
-set(SRC ${SRC} storage/modelslist.cpp)
 
 option(UI_PERF_MONITOR "Draw frame rate and CPU usage" OFF)
 if(UI_PERF_MONITOR)

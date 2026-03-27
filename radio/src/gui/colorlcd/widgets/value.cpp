@@ -71,14 +71,12 @@ class ValueWidget : public Widget
     lv_label_set_text(value, "");
 
     update();
-    checkEvents();
+    foreground();
   }
 
-  void checkEvents() override
+  void foreground() override
   {
-    if (!loaded) return;
-
-    Widget::checkEvents();
+    if (!loaded || _deleted) return;
 
     bool changed = false;
 
@@ -188,7 +186,7 @@ class ValueWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 

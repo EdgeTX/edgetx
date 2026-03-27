@@ -22,8 +22,7 @@
 #pragma once
 
 #include "static.h"
-
-class QuickMenu;
+#include "messaging.h"
 
 class PageHeader : public Window
 {
@@ -56,14 +55,11 @@ class Page : public NavWindow
 
   void enableRefresh();
 
-  void openMenu();
-
  protected:
   PageHeader* header = nullptr;
   Window* body = nullptr;
-  QuickMenu* quickMenu = nullptr;
+  Messaging quickMenuMsg;
 
-  void checkEvents() override;
   bool bubbleEvents() override { return false; }
 
   NavWindow* navWindow();
@@ -83,11 +79,13 @@ class SubPage : public Page
 {
  public:
   SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool pauseRefresh = false);
-  SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount);
+  SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, const SetupLineDef* setupLines);
 
-  Window* setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
+  Window* setupLine(const char* title, std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
 
-  static constexpr coord_t EDT_X = LCD_W * 9 / 20;
+  void useFlexLayout();
+
+  static LAYOUT_SIZE(EDT_X, LCD_W * 9 / 20, LCD_W * 8 / 20)
 
  protected:
   coord_t y = 0;

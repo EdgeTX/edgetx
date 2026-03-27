@@ -82,12 +82,12 @@ static const uint8_t lz4FontData[] __FLASH = {
 0xf0,0x4f,0x70,0x0f,0xa0,0x8f,0x20,0x3f,0x40,0xbc,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 1488, .range_length = 27, .glyph_id_start = 1, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 { .range_start = 1524, .range_length = 1, .glyph_id_start = 28, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_he_bold_STD = {
+const etxLz4Font lv_font_he_bold_STD __FLASH = {
 .uncomp_size = 1489,
 .comp_size = 1243,
 .line_height = 17,

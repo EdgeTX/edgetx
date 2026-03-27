@@ -1,6 +1,6 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
-option(PXX2 "PXX2 protocol support" OFF)
+option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
@@ -10,6 +10,7 @@ option(DISK_CACHE "Enable SD card disk cache" ON)
 option(BLUETOOTH "FrSky BT module support" OFF)
 option(FLYSKY_GIMBAL "Serial gimbal support" OFF)
 option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
+option(INTERNAL_GPS "Support for internal GPS" ON)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -29,6 +30,7 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
+set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
 # BT and serial gimbal share same UART
 if(BLUETOOTH)
@@ -60,7 +62,6 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR tx15)
-add_definitions(-DRADIO_TX15)
 add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules
@@ -89,7 +90,6 @@ add_definitions(
 set(SDRAM ON)
 
 add_definitions(-DRTCLOCK)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
 if(STICK_DEAD_ZONE)
@@ -103,6 +103,13 @@ endif()
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
   add_definitions(-DDISK_CACHE)
+endif()
+
+if(INTERNAL_GPS)
+  message("-- Internal GPS enabled")
+  add_definitions(-DINTERNAL_GPS)
+  set(SRC ${SRC} gps.cpp gps_nmea.cpp gps_ubx.cpp)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 endif()
 
 if(FUNCTION_SWITCHES_WITH_RGB)
@@ -177,7 +184,6 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${BOARD_SRC_DIR}/led_driver.cpp
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
   drivers/icm42607C.cpp

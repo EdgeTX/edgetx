@@ -24,6 +24,10 @@
 #include "input_mapping.h"
 #include "mixes.h"
 
+#if defined(COLORLCD)
+#include "layout.h"
+#endif
+
 void clearInputs()
 {
   memset(g_model.expoData, 0, sizeof(g_model.expoData));
@@ -145,6 +149,8 @@ void applyDefaultTemplate()
 
 #if defined(COLORLCD)
   g_model.resetScreenData();
+  LayoutFactory::deleteCustomScreens();
+  LayoutFactory::deleteTopBarWidgets();
   LayoutFactory::loadDefaultLayout();
 #endif
 

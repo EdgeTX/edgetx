@@ -22,12 +22,15 @@
 #include "output_edit.h"
 
 #include "channel_bar.h"
-#include "curveedit.h"
 #include "curve_param.h"
-#include "gvar_numberedit.h"
+#include "curveedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "gvar_numberedit.h"
 #include "pagegroup.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -182,7 +185,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveChoice(line, GET_SET_DEFAULT(output->curve), nullptr, channel + MIXSRC_FIRST_CH);
+  new CurveChoice(line, GET_SET_DEFAULT(output->curve), channel + MIXSRC_FIRST_CH);
 
   // PPM center
   line = form->newLine(grid);

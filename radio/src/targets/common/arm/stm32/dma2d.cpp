@@ -21,8 +21,8 @@
 
 #include "stm32_hal_ll.h"
 
+#include "colors.h"
 #include "definitions.h"
-#include "libopenui_defines.h"
 #include "dma2d.h"
 
 #if !LV_USE_GPU_STM32_DMA2D

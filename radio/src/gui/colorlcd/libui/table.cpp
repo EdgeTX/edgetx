@@ -18,7 +18,9 @@
 
 #include "table.h"
 
+#include "debug.h"
 #include "etx_lv_theme.h"
+#include "keys.h"
 
 // Table
 const lv_style_const_prop_t table_cell_props[] = {
@@ -235,55 +237,6 @@ void TableField::adjustScroll()
   lv_obj_scroll_by_bounded(lvobj, 0, diff_y, LV_ANIM_OFF);
 }
 
-void TableField::selectNext(int16_t dir)
-{
-  lv_table_t* table = (lv_table_t*)lvobj;
-
-  if (table->col_act == LV_TABLE_CELL_NONE ||
-      table->row_act == LV_TABLE_CELL_NONE) {
-    if (table->col_cnt > 0 && table->row_cnt > 0) {
-      table->col_act = 0;
-      table->row_act = 0;
-    }
-  } else {
-    table->col_act += dir;
-    if (table->col_act >= table->col_cnt) {
-      table->col_act = 0;
-      table->row_act += dir;
-
-      if (table->row_act >= table->row_cnt) {
-        table->col_act = LV_TABLE_CELL_NONE;
-        table->row_act = LV_TABLE_CELL_NONE;
-
-        // wrap around
-        if (table->col_cnt > 0 && table->row_cnt > 0) {
-          if (dir < 0) {
-            table->col_act = table->col_cnt - 1;
-            table->row_act = table->row_cnt - 1;
-          } else {
-            table->col_act = 0;
-            table->row_act = 0;
-          }
-        }
-      }
-    }
-  }
-
-  lv_obj_invalidate(lvobj);
-  adjustScroll();
-}
-
-void TableField::onEvent(event_t event)
-{
-  if (event == EVT_ROTARY_RIGHT) {
-    selectNext(1);
-  } else if (event == EVT_ROTARY_LEFT) {
-    selectNext(-1);
-  } else {
-    Window::onEvent(event);
-  }
-}
-
 int TableField::getSelected() const
 {
   uint16_t row, col;
@@ -305,8 +258,6 @@ bool TableField::onLongPress()
   return true;
 }
 
-extern void _assign_lv_group(lv_group_t* g);
-
 void TableField::setAutoEdit()
 {
   if (autoedit) return;
@@ -316,7 +267,7 @@ void TableField::setAutoEdit()
   oldGroup = lv_group_get_default();
   group = lv_group_create();
   lv_group_add_obj(group, lvobj);
-  _assign_lv_group(group);
+  assignLvGroup(group, true);
 
   lv_group_set_editing(group, true);
 
@@ -329,16 +280,16 @@ void TableField::setAutoEdit()
   });
 }
 
-void TableField::deleteLater(bool detach, bool trash)
+void TableField::deleteLater()
 {
   if (!deleted()) {
     if (autoedit) {
       lv_group_del(group);
       if (oldGroup)
-        _assign_lv_group(oldGroup);
+        assignLvGroup(oldGroup, true);
       else
         lv_group_set_default(nullptr);
     }
-    Window::deleteLater(detach, trash);
+    Window::deleteLater();
   }
 }

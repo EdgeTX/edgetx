@@ -19,9 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "widget.h"
+
 #include "bitmaps.h"
 #include "edgetx.h"
-#include "widget.h"
+#include "static.h"
 
 #define ETX_STATE_BG_WARNING LV_STATE_USER_1
 #define EXT_NAME_ALIGN_RIGHT LV_STATE_USER_1
@@ -100,14 +102,12 @@ class TimerWidget : public Widget
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
     update();
-    checkEvents();
+    foreground();
   }
 
-  void checkEvents() override
+  void foreground() override
   {
-    if (!loaded) return;
-
-    Widget::checkEvents();
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
@@ -236,7 +236,7 @@ class TimerWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 

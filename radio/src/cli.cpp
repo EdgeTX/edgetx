@@ -1442,7 +1442,7 @@ int cliDisplay(const char ** argv)
 
   if (!strcmp(argv[1], "keys")) {
     for (int i = 0; i <= MAX_KEYS; i++) {
-      if (keysGetSupported() & (1 << i)) {
+      if (keyIsSupported((EnumKeys)i)) {
         cliSerialPrint("[Key %s] = %s",
                        keysGetLabel((EnumKeys)i),
                        keysGetState(i) ? "on" : "off");
@@ -1738,6 +1738,9 @@ int cliCrypt(const char ** argv)
 
 int cliTriggerEM(const char** argv)
 {
+  // Wait USB unplug since that could interfere
+  cliSerialPrint("Please unplug USB");
+  while (usbPlugged()) {}
   // Prevent task switching
   vTaskSuspendAll();
   // Trigger watchdog

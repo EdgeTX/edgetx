@@ -137,13 +137,14 @@
 #define TR_AUX_SERIAL_MODES_1  "UIT"
 #define TR_AUX_SERIAL_MODES_2  "Telem Mirror"
 #define TR_AUX_SERIAL_MODES_3  "Telemetría"
-#define TR_AUX_SERIAL_MODES_4  "Entrenador SBUS"
-#define TR_AUX_SERIAL_MODES_5  "LUA"
-#define TR_AUX_SERIAL_MODES_6  "CLI"
-#define TR_AUX_SERIAL_MODES_7  "GPS"
-#define TR_AUX_SERIAL_MODES_8  "Debug"
-#define TR_AUX_SERIAL_MODES_9  "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10 "Módulo externo"
+#define TR_AUX_SERIAL_MODES_4  TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5  "Entrenador SBUS"
+#define TR_AUX_SERIAL_MODES_6  "LUA"
+#define TR_AUX_SERIAL_MODES_7  "CLI"
+#define TR_AUX_SERIAL_MODES_8  "GPS"
+#define TR_AUX_SERIAL_MODES_9  "Debug"
+#define TR_AUX_SERIAL_MODES_10 "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11 "Módulo externo"
 #define TR_SWTYPES_1           "Nada"
 #define TR_SWTYPES_2           "Palanca"
 #define TR_SWTYPES_3           "2POS"
@@ -369,6 +370,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -672,6 +674,7 @@
 #define TR_MULTI_OPTION                TR("Opción", "Valor opción")
 #define TR_MULTI_AUTOBIND              TR("Emp Cnl","Emparejar en canal")
 #define TR_DISABLE_CH_MAP              TR("No ch map", "Desactivar mapa cnl")
+#define TR_DSMP_ENABLE_AETR            TR("Hab. AETR", "Habilitar AETR")
 #define TR_DISABLE_TELEM               TR("No telem", "Desactivar telem.")
 #define TR_MULTI_LOWPOWER              TR("Baja poten.", "Modo de baja poten.")
 #define TR_MULTI_LNA_DISABLE           "LNA desact."
@@ -708,7 +711,6 @@
 #define TR_CURRENT_CALIB               "Calib. actual"
 #define TR_VOLTAGE                     "Voltaje"
 #define TR_SELECT_MODEL                TR("Selec. modelo", "Seleccionar modelo")
-#define TR_MANAGE_MODELS               "MODEL MANAGER"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Crear modelo"
@@ -736,6 +738,8 @@
 #define TR_DELETE_MODEL                "Borrar modelo"
 #define TR_RESTORE_MODEL               "Restaurar modelo"
 #define TR_DELETE_ERROR                "Error de borrado"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                "Error SDCARD"
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"
@@ -801,6 +805,8 @@
 #define TR_VOLUME              "Volumen"
 #define TR_LCD                 "LCD"
 #define TR_BRIGHTNESS          "Brillo"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP            "CPU Temp.\016>"
 #define TR_COPROC              "CoProc."
 #define TR_COPROC_TEMP         "MB Temp. \016>"
@@ -962,6 +968,7 @@
 #define TR_USBMODE                     "Modo USB"
 #define TR_JACK_MODE                    "Modo Jack"
 #define TR_VOICE_LANGUAGE                   "Idioma voces"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                 "Unidades"
 #define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "Editar"
@@ -974,7 +981,7 @@
 #define TR_PASTE_BEFORE                "Paste Before"
 #define TR_DELETE              "Borrar"
 #define TR_INSERT              "Insertar"
-#define TR_RESET_FLIGHT        "Reset Vuelo"
+#define TR_RESET_SESSION       "Reset Vuelo"
 #define TR_RESET_TIMER1        "Reset Reloj 1"
 #define TR_RESET_TIMER2        "Reset Reloj 2"
 #define TR_RESET_TIMER3        "Reset Reloj 3"
@@ -1131,6 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "Primer canal"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Rellenar fondo"
 #define TR_BG_COLOR                  "Color BG"
 #define TR_SLIDERS_TRIMS             "Sliders+Trims"

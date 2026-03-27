@@ -92,6 +92,7 @@ bool GeneralSettings::isInputAvailable(int index) const
   const InputConfig &config = inputConfig[index];
 
   return (config.type == Board::AIT_STICK ||
+          config.type == Board::AIT_LUX ||
           (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
 }
 
@@ -124,10 +125,11 @@ bool GeneralSettings::isInputPot(int index) const
   if (isInputAvailable(index)) {
     const InputConfig &config = inputConfig[index];
 
-    return (config.type == Board::AIT_FLEX &&
+    return (config.type == Board::AIT_LUX ||
+            (config.type == Board::AIT_FLEX &&
            (config.flexType == Board::FLEX_POT ||
             config.flexType == Board::FLEX_POT_CENTER ||
-            config.flexType == Board::FLEX_MULTIPOS));
+            config.flexType == Board::FLEX_MULTIPOS)));
   }
 
   return false;
@@ -213,6 +215,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "st16");
   else if (IS_RADIOMASTER_TX15(board))
     strcpy(bluetoothName, "tx15");
+  else if (IS_RADIOMASTER_TX16SMK3(board))
+    strcpy(bluetoothName, "tx16smk3");
   else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
@@ -225,7 +229,7 @@ void GeneralSettings::init()
   backlightOffBright = IS_FAMILY_HORUS_OR_T16(board) ? 20 : 0;
 
   backgroundVolume = 1;
-  speakerVolume = 12;
+  speakerVolume = 0;
   wavVolume = 2;
 
   hatsMode = HATSMODE_SWITCHABLE;
@@ -233,12 +237,14 @@ void GeneralSettings::init()
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
   QString lang = getCurrentFirmware()->getLanguage();
-  if (lang.size() > 1)
+  if (lang.size() > 1) {
     memcpy(ttsLanguage, lang.toLatin1().data(), 2);
-  else {
+  } else {
     ttsLanguage[0] = 'e';
     ttsLanguage[1] = 'n';
   }
+  ttsLanguage[2] = 0;
+  memcpy(uiLanguage, ttsLanguage, 3);
 
   stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
   setDefaultFavorites();
@@ -422,7 +428,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   }
 
   if (IS_TARANIS(cstate.toType)) {
-    contrast = qBound<int>(getCurrentFirmware()->getCapability(MinContrast), contrast, getCurrentFirmware()->getCapability(MaxContrast));
+    contrast = qBound<int>(Boards::getCapability(cstate.toType, Board::MinContrast),
+               contrast, Boards::getCapability(cstate.toType, Board::MaxContrast));
   }
 
   // TODO: Would be nice at this point to have GUI pause and ask the user to set up any custom hardware they have on the destination radio.
@@ -432,6 +439,11 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
     customFn[i].convert(cstate.withComponentIndex(i));
   }
 
+  cstate.setComponent("");
+  cstate.setSubComp(tr("Backlight Source"));
+  backlightSrc.convert(cstate);
+  cstate.setSubComp(tr("Volume Source"));
+  volumeSrc.convert(cstate);
 }
 
 QString GeneralSettings::antennaModeToString() const
@@ -1051,6 +1063,9 @@ QString GeneralSettings::quickMenuToString(int value, bool keys)
       return tr("Tools - Statistics");
     case QM_TOOLS_DEBUG:
       return tr("Tools - Debug");
+    // Lua stand alone script
+    case QM_APP:
+      return tr("App");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

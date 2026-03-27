@@ -27,6 +27,7 @@
 #include "updatethemes.h"
 #include "updatemultiprotocol.h"
 #include "updatecloudbuild.h"
+#include "updateexpresslrs.h"
 
 UpdateFactories::UpdateFactories(QWidget * parent) :
   QWidget(parent)
@@ -94,6 +95,7 @@ void UpdateFactories::registerUpdateFactories()
   registerUpdateFactory(new UpdateFactory<UpdateThemes>(this));
   registerUpdateFactory(new UpdateFactory<UpdateMultiProtocol>(this));
   registerUpdateFactory(new UpdateFactory<UpdateCloudBuild>(this));
+  registerUpdateFactory(new UpdateFactory<UpdateExpressLRS>(this));
 
   //  Note: Companion must be last as its install requires the app to be closed and thus would interrupt the update loop
   registerUpdateFactory(new UpdateFactory<UpdateCompanion>(this));

@@ -50,6 +50,9 @@ void usbInit();
 void usbStart();
 void usbStop();
 bool usbStarted();
+bool usbPluggedInStorageMode();
+bool usbPluggedInJoystickMode();
+bool usbPluggedInVCPMode();
 
 EXTERN_C(int getSelectedUsbMode());
 void setSelectedUsbMode(int mode);

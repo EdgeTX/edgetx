@@ -21,7 +21,12 @@
 
 #include "hw_bluetooth.h"
 
+#include "choice.h"
+#include "dialog.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "static.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

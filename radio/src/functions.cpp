@@ -23,8 +23,7 @@
 #include "switches.h"
 
 #include "hal/audio_driver.h"
-
-#include "boards/generic_stm32/rgb_leds.h"
+#include "os/time.h"
 
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);
@@ -109,6 +108,10 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
     PLAY_DURATION(val * 60, PLAY_TIME);
   } else if (idx == MIXSRC_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
+#if defined(LUMINOSITY_SENSOR)
+  } else if (idx == MIXSRC_LIGHT) {
+    PLAY_NUMBER(val, UNIT_RAW, 0);
+#endif
   } else {
     if (idx <= MIXSRC_LAST_CH) {
       val = calcRESXto100(val);
@@ -145,9 +148,6 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
     return false;
   }
 }
-
-#define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
-getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
 
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
@@ -315,14 +315,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
 #if defined(AUDIO)
           case FUNC_VOLUME: {
-            getvalue_t raw = getValue(CFN_PARAM(cfn));
-            // only set volume if input changed more than hysteresis
-            if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {
-              requiredSpeakerVolumeRawLast = raw;
-            }
-            requiredSpeakerVolume =
-                ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) /
-                2048;
+            newActiveFunctions |= (1u << FUNCTION_VOLUME);
+            calcVolumeValue(CFN_PARAM(cfn));
             break;
           }
 #endif
@@ -385,9 +379,10 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_PUSH_CUST_SWITCH:
             if (CFN_PARAM(cfn)) {   // Duration is set
               if (! CFN_VAL2(cfn) ) { // Duration not started yet
-                CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
+                CFN_VAL2(cfn) = time_get_ms() + CFN_PARAM(cfn) * 100;
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
-              } else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
+              }
+              else if (time_get_ms() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
               }
             } else { // No duration set
@@ -402,18 +397,9 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                     // like original backlight and turn on
                                     // regardless of backlight settings
               requiredBacklightBright = BACKLIGHT_FORCED_ON;
-              break;
+            } else {
+              calcBacklightValue(CFN_PARAM(cfn));
             }
-
-            getvalue_t raw = limit(-RESX, (int)getValue(CFN_PARAM(cfn)), RESX);
-#if defined(COLORLCD)
-            requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
-                ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
-#elif defined(OLED_SCREEN)
-            requiredBacklightBright = (raw + 1024) * 254 / 2048;
-#else
-            requiredBacklightBright = (1024 - raw) * 100 / 2048;
-#endif
             break;
           }
 
@@ -471,7 +457,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(FUNCTION_SWITCHES)
         if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
           // Handling duration after function is active
-          if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
+          if (time_get_ms() < (uint32_t)CFN_VAL2(cfn)) {
             g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
           }
           else {

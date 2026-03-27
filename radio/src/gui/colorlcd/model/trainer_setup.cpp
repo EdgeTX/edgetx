@@ -20,21 +20,24 @@
  */
 
 #include "trainer_setup.h"
-#include "edgetx.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
-
-#include "form.h"
-#include "menu.h"
-#include "static.h"
 #include "button.h"
-#include "numberedit.h"
 #include "channel_range.h"
+#include "choice.h"
+#include "edgetx.h"
+#include "form.h"
+#include "getset_helpers.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "ppm_settings.h"
+#include "static.h"
+#include "textedit.h"
 
 #if defined(BLUETOOTH)
 #include "trainer_bluetooth.h"
 #endif
+
+#define SET_DIRTY()     storageDirty(EE_MODEL)
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
@@ -114,7 +117,7 @@ void TrainerModuleWindow::update()
 #if defined(BLUETOOTH)
   if (td->mode == TRAINER_MODE_MASTER_BLUETOOTH ||
       td->mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
-    
+
     auto bt = new BluetoothTrainerWindow(this);
     if (td->mode == TRAINER_MODE_SLAVE_BLUETOOTH)
       bt->setMaster(false);
@@ -135,7 +138,7 @@ void TrainerModuleWindow::update()
     line = newLine(grid);
     new StaticText(line, rect_t{}, STR_PPMFRAME);
     auto obj = new PpmFrameSettings<TrainerModuleData>(line, td);
-  
+
     // copy pointer to frame len edit object to channel range
     chRange->setPpmFrameLenEditObject(obj->getPpmFrameLenEditObject());
   }

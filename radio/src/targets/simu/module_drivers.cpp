@@ -122,10 +122,13 @@ static void module_timer_send(void* ctx, const etx_timer_config_t* cfg,
                               const void* pulses, uint16_t length)
 {}
 
+static bool module_timer_tx_completed(void* ctx) { return true; }
+
 const etx_timer_driver_t _fakeTimerDriver = {
   .init = module_timer_init,
   .deinit = module_timer_deinit,
   .send = module_timer_send,
+  .txCompleted = module_timer_tx_completed,
 };
 #endif
 

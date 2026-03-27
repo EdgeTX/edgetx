@@ -32,7 +32,6 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
-
 #if defined(COLORLCD)
 #include "startup_shutdown.h"
 #endif
@@ -55,13 +54,14 @@ bool perMainEnabled = true;
 
 static void menusTask()
 {
-#if defined(COLORLCD)
-  LvglWrapper::instance();
-#endif
-
   edgeTxInit();
 
   mixerTaskInit();
+
+#if defined(COLORLCD) && defined(RTC_BACKUP_RAM)
+  if (UNEXPECTED_SHUTDOWN())
+    drawFatalErrorScreen(STR_EMERGENCY_MODE);
+#endif
 
 #if defined(PWR_BUTTON_PRESS)
   while (task_running()) {
@@ -136,12 +136,35 @@ static void timer10msStart()
   timer_start(&_timer10ms);
 }
 
+#if defined(COLORLCD) && defined(SIMU)
+static timer_handle_t _timer1ms = TIMER_INITIALIZER;
+
+static void _timer_1ms_cb(timer_handle_t* h)
+{
+  // Increment LVGL animation timer
+  lv_tick_inc(1);
+}
+
+static void timer1msStart()
+{
+  if (!timer_is_created(&_timer1ms)) {
+    timer_create(&_timer1ms, _timer_1ms_cb, "1ms", 1, true);
+  }
+
+  timer_start(&_timer1ms);
+}
+#endif
+
 void tasksStart()
 {
   mutex_create(&audioMutex);
 
 #if defined(CLI) && !defined(SIMU)
   cliStart();
+#endif
+
+#if defined(COLORLCD) && defined(SIMU)
+  timer1msStart();
 #endif
 
   timer10msStart();

@@ -21,12 +21,13 @@
 
 #include "page.h"
 
-#include "theme_manager.h"
 #include "etx_lv_theme.h"
-#include "view_main.h"
 #include "keyboard_base.h"
-#include "quick_menu.h"
+#include "mainwindow.h"
 #include "pagegroup.h"
+#include "quick_menu.h"
+#include "theme_manager.h"
+#include "view_main.h"
 
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
@@ -86,7 +87,7 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 #if VERSION_MAJOR == 2
   addCustomButton(0, 0, [=]() { onCancel(); });
 #else
-  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 #endif
@@ -103,41 +104,20 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   pushLayer(true);
 
   body->padAll(padding);
-}
 
-void Page::openMenu()
-{
-  PageGroup* p = (PageGroup*)Layer::getPageGroup();
-  QMPage qmPage = QM_NONE;
-  if (p)
-    qmPage = p->getCurrentTab()->pageId();
-  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
-    [=](bool close) {
-      onCancel();
-      if (p) {
-        while (!Layer::back()->isPageGroup()) {
-          Layer::back()->deleteLater();
-        }
-        if (close)
-          Layer::back()->onCancel();
-      }
-    }, p, qmPage);
+  quickMenuMsg.subscribe(Messaging::QUICK_MENU_ITEM_SELECT,
+      [=](uint32_t param) {
+        onCancel();
+      });
 }
 
 void Page::onCancel()
 {
-  if (quickMenu) quickMenu->closeMenu();
-  quickMenu = nullptr;
-  deleteLater();
+  if (!_deleted)
+    deleteLater();
 }
 
 void Page::onClicked() { Keyboard::hide(false); }
-
-void Page::checkEvents()
-{
-  ViewMain::instance()->runBackground();
-  NavWindow::checkEvents();
-}
 
 void Page::enableRefresh()
 {
@@ -147,7 +127,7 @@ void Page::enableRefresh()
 
 NavWindow* Page::navWindow()
 {
-  auto p = Layer::back();
+  auto p = Window::topWindow();
   if (p->isNavWindow()) return (NavWindow*)p;
   return nullptr;
 }
@@ -157,7 +137,7 @@ void Page::onPressSYS()
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
   if (pg == QM_OPEN_QUICK_MENU) {
-    if (!quickMenu) openMenu();
+    QuickMenu::openQuickMenu();
   } else {
     auto p = navWindow();
     if (p) {
@@ -224,7 +204,7 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool 
   header->setTitle2(subtitle);
 }
 
-SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) :
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, const SetupLineDef* setupLines) :
   Page(icon, PAD_SMALL, true)
 {
   body->padBottom(PAD_LARGE * 2);
@@ -232,14 +212,19 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, Setup
   header->setTitle(title);
   header->setTitle2(subtitle);
 
-  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines, lineCount);
+  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines);
 
   enableRefresh();
 }
 
-Window* SubPage::setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
+Window* SubPage::setupLine(const char* title, std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
 {
   auto w = new SetupLine(body, y, EDT_X, PAD_SMALL, title, createEdit, lblYOffset);
   y += w->height();
   return w;
+}
+
+void SubPage::useFlexLayout()
+{
+  body->setFlexLayout();
 }

@@ -95,7 +95,7 @@ class FormField : public Window
 
   void onClicked() override;
   void onCancel() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
  protected:
   bool editMode = false;

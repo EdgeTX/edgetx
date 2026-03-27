@@ -96,18 +96,18 @@ function(AddHardwareDefTarget output)
   endforeach()
 
   set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
-  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
-  set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
+  # set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
+  # set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
 
-  add_custom_command(OUTPUT ${output}
-    COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
-    )
+  # add_custom_command(OUTPUT ${output}
+  #   COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
+  #   DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+  # )
 
   add_custom_command(OUTPUT ${output}.h
     COMMAND ${GEN_HW_DEFS} > ${output}.h
     DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
-    )
+  )
 endfunction()
 
 function(AddHWGenTarget input template output)
@@ -116,7 +116,7 @@ function(AddHWGenTarget input template output)
   set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
 
   # Inputs
-  set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
+  set(INPUT_JSON ${RADIO_SRC_DIR}/boards/hw_defs/${input})
   set(TEMPLATE ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja)
   set(GEN_PY_DEPS
     ${RADIO_DIRECTORY}/util/hw_defs/generator.py

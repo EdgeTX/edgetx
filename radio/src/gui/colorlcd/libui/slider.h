@@ -42,7 +42,7 @@ class SliderBase : public Window
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
 
-  void deleteLater(bool detach, bool trash) override;
+  void deleteLater() override;
   void checkEvents() override;
 
   static void slider_changed_cb(lv_event_t* e);

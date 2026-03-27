@@ -31,11 +31,11 @@
 
 uint8_t menuCalibrationState;
 
-static const uint8_t stick_pointer[] = {
-#include "alpha_stick_pointer.lbm"
+static const uint8_t stick_pointer[] __FLASH = {
+#include "bmp_radio_stick_pointer.lbm"
 };
-static const uint8_t stick_background[] = {
-#include "alpha_stick_background.lbm"
+static const uint8_t stick_background[] __FLASH = {
+#include "bmp_radio_stick_background.lbm"
 };
 
 class StickCalibrationWindow : public Window
@@ -106,7 +106,7 @@ void RadioCalibrationPage::buildBody(Window *window)
         3, 2);
   }
 
-  std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window, false, true, false));
+  new ViewMainDecoration(window, true);
 
   axisBtn = new TextButton(window, {AXIS_X, PAD_LARGE, AXIS_W, 0}, STR_STICKS,
                  [=]() -> uint8_t {

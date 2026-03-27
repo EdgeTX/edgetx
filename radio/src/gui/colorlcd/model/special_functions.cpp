@@ -22,11 +22,14 @@
 #include "special_functions.h"
 
 #include "filechoice.h"
+#include "getset_helpers.h"
 #include "hal/adc_driver.h"
+#include "menu.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "timeedit.h"
+#include "toggleswitch.h"
 #include "view_main.h"
 
 #define SET_DIRTY() setDirty()
@@ -525,9 +528,15 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       break;
 
     case FUNC_ADJUST_GVAR: {
+      if (validateSFGV(cfn)) SET_DIRTY();
       new StaticText(line, rect_t{}, STR_GLOBALVAR);
       auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
-                                   GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
+                                   GET_DEFAULT(CFN_GVAR_INDEX(cfn)),
+                                   [=](int32_t newValue){
+                                     CFN_GVAR_INDEX(cfn) = newValue;
+                                     SET_DIRTY();
+                                     updateSpecialFunctionOneWindow();
+                                   });
       gvarchoice->setTextHandler([](int32_t value) {
         return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
       });
@@ -691,7 +700,7 @@ void FunctionEditPage::buildBody(Window *form)
 
 //-----------------------------------------------------------------------------
 
-FunctionsPage::FunctionsPage(CustomFunctionData *functions, PageDef& pageDef,
+FunctionsPage::FunctionsPage(CustomFunctionData *functions, const PageDef& pageDef,
                              const char *prefix) :
     PageGroupItem(pageDef), functions(functions), prefix(prefix)
 {
@@ -961,7 +970,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-SpecialFunctionsPage::SpecialFunctionsPage(PageDef& pageDef) :
+SpecialFunctionsPage::SpecialFunctionsPage(const PageDef& pageDef) :
     FunctionsPage(g_model.customFn, pageDef, "SF")
 {
 }
@@ -1041,7 +1050,7 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-GlobalFunctionsPage::GlobalFunctionsPage(PageDef& pageDef) :
+GlobalFunctionsPage::GlobalFunctionsPage(const PageDef& pageDef) :
     FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
 {
 }

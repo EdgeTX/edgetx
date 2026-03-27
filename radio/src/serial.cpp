@@ -218,6 +218,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #endif
 
   case UART_MODE_SBUS_TRAINER:
+  case UART_MODE_SBUS_TRAINER_INV:
     sbusSetReceiveCtx(ctx, drv);
     if (drv && drv->setIdleCb) {
       drv->setIdleCb(ctx, sbusAuxFrameReceived, nullptr);
@@ -315,6 +316,13 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.baudrate = SBUS_BAUDRATE;
     params.encoding = ETX_Encoding_8E2,
     params.direction = ETX_Dir_RX;
+    break;
+
+  case UART_MODE_SBUS_TRAINER_INV:
+    params.baudrate = SBUS_BAUDRATE;
+    params.encoding = ETX_Encoding_8E2,
+    params.direction = ETX_Dir_RX;
+    params.polarity = ETX_Pol_Inverted;
     break;
 
 #if defined(LUA)
@@ -456,12 +464,7 @@ void serialInit(uint8_t port_nr, int mode)
   };
 
   serialSetupPort(mode, params);
-
-  if (mode == UART_MODE_NONE ) {
-    // Even if port has no mode, port power needs to be set
-    serialSetPowerState(port_nr);
-    return;
-  }
+  serialSetPowerState(port_nr);
 
   if (!port || params.baudrate == 0 ||
       !port->uart || !port->uart->init)

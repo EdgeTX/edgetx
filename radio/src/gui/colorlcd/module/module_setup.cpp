@@ -26,12 +26,16 @@
 #include "channel_range.h"
 #include "choice.h"
 #include "custom_failsafe.h"
-#include "form.h"
-#include "mixer_scheduler.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "form.h"
+#include "getset_helpers.h"
+#include "messaging.h"
+#include "mixer_scheduler.h"
+#include "os/sleep.h"
 #include "ppm_settings.h"
 #include "storage/modelslist.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
 #include "pxx1_settings.h"
@@ -62,6 +66,10 @@
 #include "io/multi_protolist.h"
 #include "mpm_settings.h"
 #include "multi_rfprotos.h"
+#endif
+
+#if defined(DSMP)
+#include "dsmp_settings.h"
 #endif
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -113,6 +121,7 @@ class ModuleWindow : public Window
     setFlexLayout();
     updateModule();
     lv_obj_add_event_cb(lvobj, ModuleWindow::mw_refresh_cb, LV_EVENT_REFRESH, this);
+    moduleUpdateMsg.subscribe(Messaging::MODULE_UPDATE, [=](uint32_t param) { updateLayout(); });
   }
 
   void updateModule()
@@ -160,6 +169,11 @@ class ModuleWindow : public Window
     else if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
             g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
       modOpts = new PXX1AntennaSettings(this, grid, moduleIdx);
+    }
+  #endif
+  #if defined(DSMP)
+    else if (isModuleDSMP(moduleIdx)) {
+      modOpts = new DSMPSettings(this, grid, moduleIdx);
     }
   #endif
 
@@ -501,6 +515,7 @@ class ModuleWindow : public Window
   FailsafeChoice* fsChoice = nullptr;
   Choice* rfPower = nullptr;
   StaticText* idUnique = nullptr;
+  Messaging moduleUpdateMsg;
 
   void startRSSIDialog(std::function<void()> closeHandler = nullptr)
   {
@@ -611,15 +626,15 @@ class ModuleSubTypeChoice : public Choice
       MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
       status.invalidate();
 
-      uint32_t startUpdate = lv_tick_get();
-      while (!status.isValid() && (lv_tick_elaps(startUpdate) < 250))
-        ;
+      uint32_t startUpdate = time_get_ms();
+      while (!status.isValid() && (time_get_ms() - startUpdate < 250))
+        sleep_ms(1);
+
       SET_DIRTY();
 #endif
     }
 
-    if (moduleWindow)
-      moduleWindow->updateLayout();
+    Messaging::send(Messaging::MODULE_UPDATE);
   }
 
   void updateLayout()
@@ -719,11 +734,8 @@ class ModuleSubTypeChoice : public Choice
     }
   }
 
-  void setModuleWindow(ModuleWindow* w) { moduleWindow = w; }
-
  protected:
   uint8_t moduleIdx;
-  ModuleWindow* moduleWindow = nullptr;
 };
 
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
@@ -758,8 +770,6 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
   auto moduleWindow = new ModuleWindow(body, moduleIdx);
-
-  subTypeChoice->setModuleWindow(moduleWindow);
 
   // This needs to be after moduleWindow has been created
   moduleChoice->setSetValueHandler([=](int32_t newValue) {

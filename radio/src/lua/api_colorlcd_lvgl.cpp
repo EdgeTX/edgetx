@@ -278,7 +278,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     if (obj) {
       obj->create(L, -1);
       auto ref = obj->getRef(L);
-      if (p.name && refIndex != LUA_REFNIL) {
+      if (p.name && refIndex != 0) {
         lua_pushstring(L, p.name);
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
         lua_settable(L, refIndex - 4);
@@ -287,7 +287,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lua_getfield(L, -1, "children");
         auto prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(obj);
-        buildLvgl(L, -1, (refIndex != LUA_REFNIL) ? refIndex - 3 : LUA_REFNIL);
+        buildLvgl(L, -1, (refIndex != 0) ? refIndex - 3 : LUA_REFNIL);
         lua_pop(L, 1);
         luaScriptManager->setTempParent(prevParent);
       }
@@ -302,7 +302,7 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
     lua_getfield(L, -1, "children");
     auto prevParent = luaScriptManager->getTempParent();
     luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, LUA_REFNIL);
+    buildLvgl(L, -1, 0);
     lua_pop(L, 1);
     luaScriptManager->setTempParent(prevParent);
   }
@@ -495,7 +495,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(SRC_ALL, 0xFFFFFFFF)
   LROT_NUMENTRY(SRC_INPUT, SRC_INPUT)
   LROT_NUMENTRY(SRC_LUA, SRC_LUA)
-  LROT_NUMENTRY(SRC_STICK, SRC_STICK|SRC_TILT|SRC_SPACEMOUSE)
+  LROT_NUMENTRY(SRC_STICK, SRC_STICK|SRC_TILT|SRC_LIGHT|SRC_SPACEMOUSE)
   LROT_NUMENTRY(SRC_POT, SRC_POT)
   LROT_NUMENTRY(SRC_OTHER, SRC_MINMAX|SRC_TX|SRC_TIMER)
   LROT_NUMENTRY(SRC_HELI, SRC_HELI)
@@ -539,7 +539,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(TOGGLE, ETX_TOGGLE)
   LROT_NUMENTRY(TEXT_EDIT, ETX_TEXTEDIT)
   LROT_NUMENTRY(NUMBER_EDIT, ETX_NUMBEREDIT)
-  LROT_NUMENTRY(CHOIDE, ETX_CHOICE)
+  LROT_NUMENTRY(CHOICE, ETX_CHOICE)
   LROT_NUMENTRY(SLIDER, ETX_SLIDER)
   LROT_NUMENTRY(VERTICAL_SLIDER, ETX_VERTICAL_SLIDER)
   LROT_NUMENTRY(PAGE, ETX_PAGE)

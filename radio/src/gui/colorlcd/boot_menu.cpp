@@ -174,7 +174,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     const char* msg = (st == ST_START) ? TR_BL_PLUG_USB : TR_BL_COPY_UF2;
 
     lcd->drawText(LCD_W / 2, LCD_H / 2 - TITLE_Y1, msg, CENTERED | BL_FOREGROUND);
-    lcd->drawText(LCD_W / 2, LCD_H / 2 + TITLE_Y1, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, CENTERED | BL_FOREGROUND);
+    if (st != ST_USB)
+      lcd->drawText(LCD_W / 2, LCD_H / 2 + TITLE_Y1, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, CENTERED | BL_FOREGROUND);
 
     bootloaderDrawVerFooter();
 
@@ -226,12 +227,12 @@ LAYOUT_ORIENTATION_SCALED(VERCHK_Y, 138, 240)
 LAYOUT_ORIENTATION_SCALED(VERCHK_ICN_X, 78, 22)
 
 const uint8_t __bmp_plug_usb[] {
-  #include "bmp_plug_usb.lbm"
+  #include "bmp_bootloader_plug_usb.lbm"
 };
 LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444);
 
 const uint8_t __bmp_usb_plugged[] {
-  #include "bmp_usb_plugged.lbm"
+  #include "bmp_bootloader_usb_plugged.lbm"
 };
 LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444);
 

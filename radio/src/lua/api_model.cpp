@@ -38,6 +38,10 @@
 #include "pulses/multi.h"
 #endif
 
+#if defined(DSMP)
+#include "pulses/dsmp.h"
+#endif
+
 /*luadoc
 @function model.getInfo()
 
@@ -138,6 +142,9 @@ Get RF module parameters
   * 12 R9M_LITE_PRO_PXX2
   * 13 SBUS
   * 14 XJT_LITE_PXX2
+  * 15 MODULE_TYPE_FLYSKY_AFHDS3,
+  * 16 ??
+  * 17 MODULE_TYPE_LEMON_DSMP
 
 `subType` values for XJT_PXX1:
  * -1 OFF
@@ -159,6 +166,8 @@ Get RF module parameters
  * `protocol` (number) protocol number (Multi only)
  * `subProtocol` (number) sub-protocol number (Multi only)
  * `channelsOrder` (number) first 4 channels expected order (Multi only)
+ * if the module type is LemonDSMP additional info is available
+ * `channelsOrder` (number) first 4 channels expected order (DSMP only)
 
 @status current Introduced in 2.2.0
 */
@@ -188,6 +197,16 @@ static int luaModelGetModule(lua_State *L)
       else {
         lua_pushtableinteger(L, "channelsOrder", -1);
       }
+    }
+#endif
+#if defined(DSMP)
+    if (module.type == MODULE_TYPE_LEMON_DSMP) {
+      auto& status = getDSMPStatus(idx);
+      int ch_order = -1;
+      if (status.isValid() && status.ch_order != 0xFF) {
+        ch_order = status.ch_order;
+      }
+      lua_pushtableinteger(L, "channelsOrder", ch_order);
     }
 #endif
   }
@@ -994,6 +1013,94 @@ static int luaModelDeleteMixes(lua_State *L)
 {
   memset(g_model.mixData, 0, sizeof(g_model.mixData));
   return 0;
+}
+
+/*luadoc
+@function model.getSwitchWarning(switch)
+
+Get warning state for a switch
+
+@param switch (unsigned number) switch number (use 0 for SA)
+@param switch (string) switch name
+
+@retval nil when switch is a toggle or does not exist
+@retval number
+0 = no warning
+1 = switch up
+2 = switch middle
+3 = switch down
+
+@status current Introduced in 3.0.0
+*/
+
+static int luaModelGetSwitchWarning(lua_State *L)
+{
+  unsigned int sw = MIXSRC_NONE;
+  if (lua_isnumber(L, 1)) {
+    sw = luaL_checkinteger(L, 1);
+  }
+  else {
+    // convert from field name to its number
+    const char *name = luaL_checkstring(L, 1);
+    LuaField field;
+    bool found = luaFindFieldByName(name, field);
+    if (found) {
+      sw = field.id - MIXSRC_FIRST_SWITCH;
+    }
+  }
+
+  if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw)) {
+    lua_pushinteger(L, g_model.getSwitchWarning(sw));
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.setSwitchWarning(switch, state)
+
+Set warning state for a switch
+
+@param switch (unsigned number) switch number (use 0 for SA)
+@param switch (string) switch name
+
+@param state (number) state
+0 = no warning
+1 = switch up
+2 = switch middle
+3 = switch down
+
+@retval nil when switch is a toggle or does not exist
+
+@status current Introduced in 3.0.0
+*/
+
+static int luaModelSetSwitchWarning(lua_State *L)
+{
+  unsigned int sw = MIXSRC_NONE;
+  if (lua_isnumber(L, 1)) {
+    sw = luaL_checkinteger(L, 1);
+  }
+  else {
+    // convert from field name to its number
+    const char *name = luaL_checkstring(L, 1);
+    LuaField field;
+    bool found = luaFindFieldByName(name, field);
+    if (found) {
+      sw = field.id - MIXSRC_FIRST_SWITCH;
+    }
+  }
+  unsigned int newstate = luaL_checkinteger(L, 2);
+
+  if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw) && newstate < 4) {
+    g_model.setSwitchWarning(sw, newstate);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
 }
 
 /*luadoc
@@ -1874,6 +1981,8 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( insertMix, luaModelInsertMix )
   LROT_FUNCENTRY( deleteMix, luaModelDeleteMix )
   LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
+  LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
+  LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
   LROT_FUNCENTRY( getLogicalSwitch, luaModelGetLogicalSwitch )
   LROT_FUNCENTRY( setLogicalSwitch, luaModelSetLogicalSwitch )
   LROT_FUNCENTRY( getCustomFunction, luaModelGetCustomFunction )

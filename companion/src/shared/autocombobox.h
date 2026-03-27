@@ -29,6 +29,8 @@
 
 #include <QComboBox>
 
+#include <string.h>
+
 /*
     NOTE: Q_OBJECT classes cannot be templated and since we use signals we have no choice but to
           take this approach or create a class per data type
@@ -57,6 +59,8 @@ class AutoComboBox : public QComboBox, public AutoWidget
     void setField(CurveData::CurveType & field, GenericPanel * panel = nullptr);
     void setField(Board::FlexType & field, GenericPanel * panel = nullptr);
     void setField(Board::SwitchType & field, GenericPanel * panel = nullptr);
+    void setField(QString & field, GenericPanel * panel = nullptr);
+    void setField(std::string & field, GenericPanel * panel = nullptr);
 
     void setAutoIndexes();
     void setModel(QAbstractItemModel * model) override;
@@ -76,6 +80,8 @@ class AutoComboBox : public QComboBox, public AutoWidget
     CurveData::CurveType *m_curveType;
     Board::FlexType *m_flexType;
     Board::SwitchType *m_switchType;
+    QString *m_qString;
+    std::string *m_stdString;
 
     void initField();
     void setFieldInit(GenericPanel * panel);

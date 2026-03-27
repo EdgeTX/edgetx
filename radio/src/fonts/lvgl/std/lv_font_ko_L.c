@@ -2862,11 +2862,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0xf9,0x0f,0x2b,0x05,0xf1,0x0e,0x03,0x0a,0x11,0x00,0x50,0x00,0x00,0x00,0x02,0xd0,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 44032, .range_length = 11145, .glyph_id_start = 1, .list_length = 446, .type = 3, .unicode_list = 3576, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_ko_L = {
+const etxLz4Font lv_font_ko_L __FLASH = {
 .uncomp_size = 92036,
 .comp_size = 45728,
 .line_height = 25,

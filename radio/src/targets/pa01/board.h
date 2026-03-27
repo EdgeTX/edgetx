@@ -253,6 +253,7 @@ enum rgb_state_e {
   RGB_STATE_OFF,
   RGB_STATE_POWER_ON,
   RGB_STATE_POWER_OFF,
+  RGB_STATE_BAT_DIS,
 };
 
 enum rgb_color_e {

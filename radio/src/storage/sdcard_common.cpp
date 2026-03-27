@@ -28,6 +28,7 @@
 #include "hal/abnormal_reboot.h"
 
 #if defined(COLORLCD)
+  #include "layout.h"
   #include "theme_manager.h"
 #endif
 
@@ -165,22 +166,19 @@ const char * createModel()
     storageDirty(EE_GENERAL);
     storageDirty(EE_MODEL);
     storageCheck(true);
-#if defined(COLORLCD)
-    // Default layout loaded when setting model defaults - neeed to remove it.
-    LayoutFactory::deleteCustomScreens(true);
-#endif
   }
+
   postModelLoad(false);
 
   return g_eeGeneral.currModelFilename;
 }
 #endif
 
-const char* loadModel(char* filename, bool alarms)
+const char* loadModel(const char* filename, bool alarms, const char* filePath)
 {
   preModelLoad();
 
-  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model));
+  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model), filePath);
   if (error) {
     TRACE("loadModel error=%s", error);
 
@@ -190,37 +188,17 @@ const char* loadModel(char* filename, bool alarms)
     applyDefaultTemplate();
 
     storageCheck(true);
-    postModelLoad(false);
-    return error;
   }
 
-  postModelLoad(alarms);
-  return nullptr;
-}
-
-const char* loadModelTemplate(const char* fileName, const char* filePath)
-{
-  preModelLoad();
-  // Assuming that the template is located in current working directory
-  const char* error = readModel(fileName, (uint8_t*)&g_model, sizeof(g_model), filePath);
-  if (error) {
-    TRACE("loadModel error=%s", error);
-    // just get some clean memory state in "g_model" so the mixer can run safely
-    memset(&g_model, 0, sizeof(g_model));
-    applyDefaultTemplate();
-
-    storageCheck(true);
-    postModelLoad(false);
-    return error;
-  }
-
-  postModelLoad(false);
-  return nullptr;
+  postModelLoad(error ? false : alarms);
+  return error;
 }
 
 void storageReadAll()
 {
   TRACE("storageReadAll");
+
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
 
 #if defined(STORAGE_MODELSLIST)
   // Wipe models list in case
@@ -241,18 +219,16 @@ void storageReadAll()
   }
 #endif
 
-  for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
-    if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
-      currentLanguagePackIdx = i;
-      currentLanguagePack = languagePacks[i];
+  if (g_eeGeneral.uiLanguage[0] == 0)
+    generalDefaultUILanguage();
+  currentLanguagePackIdx = getLanguageId(g_eeGeneral.ttsLanguage);
+  currentLanguagePack = languagePacks[currentLanguagePackIdx];
 #if defined(ALL_LANGS)
-      currentLangStrings = langStrings[currentLanguagePackIdx];
-      extern void setLanguageFont(int n);
-      setLanguageFont(currentLanguagePackIdx);
+  uint8_t uiLangIdx = getLanguageId(g_eeGeneral.uiLanguage);
+  currentLangStrings = langStrings[uiLangIdx];
+  extern void setLanguageFont(int n);
+  setLanguageFont(uiLangIdx);
 #endif
-      break;
-    }
-  }
 
 #if defined(STORAGE_MODELSLIST)
   // and reload the list
@@ -287,4 +263,3 @@ void checkModelIdUnique(uint8_t index, uint8_t module)
   //TODO
 }
 #endif
-

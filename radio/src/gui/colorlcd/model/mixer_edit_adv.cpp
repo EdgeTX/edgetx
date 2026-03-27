@@ -21,11 +21,14 @@
 
 #include "mixer_edit_adv.h"
 
-#include "fm_matrix.h"
-#include "mixes.h"
-#include "numberedit.h"
+#include "choice.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "fm_matrix.h"
+#include "getset_helpers.h"
+#include "mixes.h"
+#include "numberedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

@@ -21,13 +21,16 @@
 
 #include "model_select.h"
 
+#include "choice.h"
+#include "dialog.h"
 #include "edgetx.h"
-#include "model_templates.h"
-#include "standalone_lua.h"
 #include "etx_lv_theme.h"
-#include "view_main.h"
-#include "view_channels.h"
+#include "menu.h"
+#include "model_templates.h"
 #include "screen_setup.h"
+#include "standalone_lua.h"
+#include "view_channels.h"
+#include "view_main.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -63,13 +66,12 @@ class ModelButton : public Button
       m_setSelected(std::move(setSelected))
   {
     padAll(PAD_ZERO);
-
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS);
 
     delayLoad();
   }
 
-  void addDetails()
+  void delayedInit() override
   {
     coord_t w = width() - PAD_SMALL * 2;
 
@@ -96,14 +98,16 @@ class ModelButton : public Button
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
 
-    checkEvents();
+    bool chk = (modelCell == modelslist.getCurrentModel());
+    if (chk != checked()) {
+      check(chk);
+      if (chk)
+        lv_obj_add_state(modelName->getLvObj(), LV_STATE_USER_1);
+      else
+        lv_obj_clear_state(modelName->getLvObj(), LV_STATE_USER_1);
+    }
 
     lv_obj_update_layout(lvobj);
-  }
-
-  void delayedInit() override
-  {
-    addDetails();
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
@@ -165,18 +169,6 @@ class ModelButton : public Button
     LcdFlags font = (modelLayouts[layout].font == FONT(STD)) ? FONT(XS) : FONT(XXS);
     new StaticText(this, {PAD_TINY, h / 2, w, getFontHeight(font)}, errorMsg,
                   COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
-  }
-
-  void checkEvents() override
-  {
-    bool chk = (modelCell == modelslist.getCurrentModel());
-    if (chk != checked()) {
-      check(chk);
-      if (chk)
-        lv_obj_add_state(modelName->getLvObj(), LV_STATE_USER_1);
-      else
-        lv_obj_clear_state(modelName->getLvObj(), LV_STATE_USER_1);
-    }
   }
 
   void onClicked() override
@@ -363,9 +355,7 @@ class ModelsPageBody : public Window
       }
     }
 
-    // Exit to main view
-    auto w = Layer::back();
-    if (w) w->onCancel();
+    closeHandler();
 
     // Skip reloading model if re-selecting the active model
     if (model != modelslist.getCurrentModel()) {
@@ -377,6 +367,10 @@ class ModelsPageBody : public Window
 
       loadModel(g_eeGeneral.currModelFilename, true);
       modelslist.setCurrentModel(model);
+
+      // Main view layout
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::loadCustomScreens();
 
       storageDirty(EE_GENERAL);
       storageCheck(true);
@@ -521,8 +515,6 @@ class ModelLayoutButton : public IconButton
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 {
-  QuickMenu::setCurrentPage(QM_MANAGE_MODELS);
-
   buildHead(header);
   buildBody(body);
 
@@ -623,8 +615,7 @@ void ModelLabelsWindow::newModel()
     createModel();
 
     // Close Window
-    auto w = Layer::back();
-    if (w) w->onCancel();
+    onCancel();
 
     // Check for not 'Blank Model'
     if (name.size() > 0) {
@@ -635,7 +626,9 @@ void ModelLabelsWindow::newModel()
       snprintf(path, LEN_BUFFER, "%s/%s", TEMPLATES_PATH, folder.c_str());
 
       // Read model template
-      loadModelTemplate((name + YAML_EXT).c_str(), path);
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::deleteTopBarWidgets();
+      loadModel((name + YAML_EXT).c_str(), false, path);
       storageFlushCurrentModel();
       storageCheck(true);
 
@@ -651,6 +644,9 @@ void ModelLabelsWindow::newModel()
       }
 #endif
     }
+
+    // Main view layout
+    LayoutFactory::loadCustomScreens();
   });
 }
 
@@ -703,6 +699,7 @@ void ModelLabelsWindow::buildBody(Window *window)
 {
   // Models List
   mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
+  mdlselector->setCloseHandler([=]() { onCancel(); });
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);
@@ -955,6 +952,6 @@ void ModelLabelsWindow::setTitle()
   title2 += ": ";
   title2 += modelName;
 
-  header->setTitle(STR_MANAGE_MODELS);
+  header->setTitle(STR_MAIN_MENU_MANAGE_MODELS);
   header->setTitle2(title2);
 }

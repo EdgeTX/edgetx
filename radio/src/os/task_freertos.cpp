@@ -47,6 +47,13 @@ unsigned task_get_stack_size(task_handle_t* h)
   return h->_stack_size * sizeof(StackType_t);
 }
 
+bool scheduler_is_running()
+{
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+    return true;
+  return false;
+}
+
 void mutex_create(mutex_handle_t* h)
 {
   h->_rtos_handle = xSemaphoreCreateMutexStatic(&h->_mutex_struct);

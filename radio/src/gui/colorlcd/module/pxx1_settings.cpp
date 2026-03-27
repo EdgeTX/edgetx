@@ -23,9 +23,11 @@
 #include "choice.h"
 
 #include "edgetx.h"
+#include "getset_helpers.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+#if defined(EXTERNAL_ANTENNA)
 PXX1AntennaSettings::PXX1AntennaSettings(Window* parent,
                                          const FlexGridLayout& g,
                                          uint8_t moduleIdx) :
@@ -61,3 +63,4 @@ PXX1AntennaSettings::PXX1AntennaSettings(Window* parent,
   antennaChoice->setAvailableHandler(
       [=](int8_t mode) { return mode != ANTENNA_MODE_PER_MODEL; });
 }
+#endif

@@ -21,7 +21,11 @@
 
 #pragma once
 
-void drawFatalErrorScreen(const char* message);
+#include <stdint.h>
+
+class Window;
+
+Window* drawFatalErrorScreen(const char* message);
 void runFatalErrorScreen(const char* message);
 
 // Screen templates

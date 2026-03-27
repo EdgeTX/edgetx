@@ -24,6 +24,7 @@
 #include "debug.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "hal/usb_driver.h"
 
 #define ACC_LSB_VALUE	0.000488  // 0.488 mg/LSB
 
@@ -47,7 +48,7 @@ void Gyro::wakeup()
   static tmr10ms_t gyroWakeupTime = 0;
 
   tmr10ms_t now = get_tmr10ms();
-  if (errors >= 100 || now < gyroWakeupTime)
+  if (errors >= 100 || now < gyroWakeupTime || usbPluggedInStorageMode())
     return;
 
   gyroWakeupTime = now + 1; /* 10ms default */

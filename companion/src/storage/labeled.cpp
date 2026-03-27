@@ -188,7 +188,6 @@ bool LabelsStorageFormat::write(RadioData & radioData)
 
     if (loadRadioSettings(gsCur)) {
       GeneralSettings & gsNew = radioData.generalSettings;
-      gsNew.txCurrentCalibration = gsCur.txCurrentCalibration;
       gsNew.txVoltageCalibration = gsCur.txVoltageCalibration;
 
       for (int i = 0; i < CPN_MAX_INPUTS; i++) {

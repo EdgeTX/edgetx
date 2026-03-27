@@ -189,13 +189,11 @@ QString ModelPrinter::printModule(int idx)
   ModuleData module = model.moduleData[(idx<0 ? CPN_MAX_MODULES : idx)];
   if (idx < 0) {
     str << printLabelValue(tr("Mode"), model.trainerModeToString());
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      if (model.trainerMode == TRAINER_MODE_SLAVE_JACK) {
-        str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
-        str << printLabelValue(tr("Frame length"), QString("%1ms").arg(printPPMFrameLength(module.ppm.frameLength)));
-        str << printLabelValue(tr("PPM delay"), QString("%1us").arg(module.ppm.delay));
-        str << printLabelValue(tr("Polarity"), module.polarityToString());
-      }
+    if (model.trainerMode == TRAINER_MODE_SLAVE_JACK) {
+      str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
+      str << printLabelValue(tr("Frame length"), QString("%1ms").arg(printPPMFrameLength(module.ppm.frameLength)));
+      str << printLabelValue(tr("PPM delay"), QString("%1us").arg(module.ppm.delay));
+      str << printLabelValue(tr("Polarity"), module.polarityToString());
     }
     result = str.join(" ");
   }
@@ -233,6 +231,9 @@ QString ModelPrinter::printModule(int idx)
         }
         if (module.protocol == PULSES_GHOST) {
           str << printLabelValue(tr("Raw 12 bits"), printBoolean(module.ghost.raw12bits, BOOLEAN_YN));
+        }
+        if (module.protocol == PULSES_LEMON_DSMP) {
+          str << printLabelValue(tr("Enable AETR"), printBoolean(module.dsmp.enableAETR, BOOLEAN_YN));
         }
         if (module.protocol == PULSES_CROSSFIRE) {
           str << printLabelValue(tr("Arming mode"), module.crsfArmingModeToString());
@@ -417,8 +418,6 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   else if (mix.carryTrim < 0)
     str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1) + 1).toString(&model, &generalSettings);
 
-  if (firmware->getCapability(HasNoExpo) && mix.noExpo)
-    str += " " + tr("No DR/Expo").toHtmlEscaped();
   if (mix.sOffset)
     str += " " + tr("Offset(%1)").arg(SourceNumRef(mix.sOffset).toString(&model, &generalSettings)).toHtmlEscaped();
   if (mix.curve.value)
@@ -561,7 +560,7 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
         result += " ~ ";
       else
         result += tr(" missing");
-      result += QString::number(range.step * (ls.val2 /*TODO+ source.getRawOffset(model)*/) + range.offset);
+      result += QString::number((double)(range.step * ls.val2 /*TODO+ source.getRawOffset(model)*/) + range.offset, 'f', range.decimals);
       result += range.unit;
       break;
     }
@@ -631,12 +630,11 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
     result += RawSwitch(ls.andsw).toString(getCurrentBoard(), &generalSettings);
   }
 
-  if (firmware->getCapability(LogicalSwitchesExt)) {
-    if (ls.duration)
-      result += " " + tr("Duration") + QString("(%1s)").arg(ls.duration/10.0);
-    if (ls.delay)
-      result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
-  }
+  if (ls.duration)
+    result += " " + tr("Duration") + QString("(%1s)").arg(ls.duration/10.0);
+
+  if (ls.delay)
+    result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
 
   return result;
 }
@@ -743,8 +741,7 @@ QString ModelPrinter::printSettingsOther()
 {
   QStringList str;
   str << printLabelValue(tr("Extended Limits"), printBoolean(model.extendedLimits, BOOLEAN_YESNO));
-  if (firmware->getCapability(HasDisplayText))
-    str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
+  str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
   if (firmware->getCapability(GlobalFunctions))
     str << printLabelValue(tr("Global Functions"), printBoolean(!model.noGlobalFunctions, BOOLEAN_YESNO));
   return str.join(" ");

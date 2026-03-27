@@ -31,6 +31,13 @@
 #include "hal/switch_driver.h"
 #include "hal/audio_driver.h"
 
+#if defined(LUMINOSITY_SENSOR)
+#include "luminosity_sensor.h"
+#endif
+
+#if defined(RADIO_GX12)
+#include "targets/taranis/gx12/bsp_io.h"
+#endif
 #define DELAY_POS_MARGIN   3
 
 uint8_t s_mixer_first_run_done = false;
@@ -402,6 +409,12 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i == MIXSRC_MAX) {
     return RESX;
   }
+
+#if defined(LUMINOSITY_SENSOR)
+  else if (i == MIXSRC_LIGHT) {
+    return getLuxSensorValue() - RESX;
+  }
+#endif
 
   else if (i <= MIXSRC_LAST_HELI) {
 #if defined(HELI)
@@ -1134,6 +1147,11 @@ void evalMixes(uint8_t tick10ms)
   static uint16_t delta = 0;
   static uint16_t flightModesFade = 0;
 
+#if defined(RADIO_GX12)
+  // see #6159
+  _poll_switches();
+#endif
+
   uint8_t fm = getFlightMode();
 
   if (lastFlightMode != fm) {
@@ -1182,7 +1200,6 @@ void evalMixes(uint8_t tick10ms)
         weight += fp_act[p];
       }
     }
-    assert(weight);
     mixerCurrentFlightMode = fm;
   }
   else {
@@ -1194,12 +1211,6 @@ void evalMixes(uint8_t tick10ms)
   // must be done after mixing because some functions use the inputs/channels values
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
-#if defined(AUDIO)
-    requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-#endif
-  
-    requiredBacklightBright = g_eeGeneral.getBrightness();
-
     if (radioGFEnabled()) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
     } else {
@@ -1217,6 +1228,25 @@ void evalMixes(uint8_t tick10ms)
       }
     }
 #endif
+
+#if defined(AUDIO)
+    if (!isFunctionActive(FUNCTION_VOLUME)) {
+      if (g_eeGeneral.volumeSrc) {
+        calcVolumeValue(g_eeGeneral.volumeSrc);
+      } else {
+        requiredSpeakerVolume =
+            limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
+      }
+    }
+#endif
+
+    if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
+      if (g_eeGeneral.backlightSrc) {
+        calcBacklightValue(g_eeGeneral.backlightSrc);
+      } else {
+        requiredBacklightBright = g_eeGeneral.getBrightness();
+      }
+    }  
   }
 
   //========== LIMITS ===============

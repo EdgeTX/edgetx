@@ -136,13 +136,14 @@
 #define TR_AUX_SERIAL_MODES_1          "禁用"
 #define TR_AUX_SERIAL_MODES_2          "回传镜像"
 #define TR_AUX_SERIAL_MODES_3          "回传输入"
-#define TR_AUX_SERIAL_MODES_4          "SBUS教练"
-#define TR_AUX_SERIAL_MODES_5          "LUA脚本"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "Debug"
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "外置发射"
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "SBUS教练"
+#define TR_AUX_SERIAL_MODES_6          "LUA脚本"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "Debug"
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "外置发射"
 #define TR_SWTYPES_1                   "禁用"
 #define TR_SWTYPES_2                   "回弹"
 #define TR_SWTYPES_3                   "2段"
@@ -371,6 +372,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -672,6 +674,7 @@
 #define TR_MULTI_OPTION                TR("选项值", "选项值")
 #define TR_MULTI_AUTOBIND              TR("对频通道", "通道控制对频")
 #define TR_DISABLE_CH_MAP              TR("禁用通道映射", "禁用通道重映射")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("禁用回传", "禁用回传")
 #define TR_MULTI_LOWPOWER              TR("低功率", "低功率模式")
 #define TR_MULTI_LNA_DISABLE           "禁用接收放大器"
@@ -713,7 +716,6 @@
 #define TR_CURRENT_CALIB               "电流校准"
 #define TR_VOLTAGE                     TR("电压源", "电压来源")
 #define TR_SELECT_MODEL                "选择模型"
-#define TR_MANAGE_MODELS               "模型管理"
 #define TR_MODELS                      "个模型"
 #define TR_SELECT_MODE                 "选择模式"
 #define TR_CREATE_MODEL                "创建模型"
@@ -741,6 +743,8 @@
 #define TR_DELETE_MODEL                "删除模型"
 #define TR_RESTORE_MODEL               "恢复模型"
 #define TR_DELETE_ERROR                "删除失败"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("存储卡错误", "存储卡错误")
 #define TR_SDCARD                      "存储卡"
 #define TR_NO_FILES_ON_SD              "存储卡中没有文件!"
@@ -806,6 +810,8 @@
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "亮度"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "CPU 温度"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "主板温度"
@@ -968,6 +974,7 @@
 #define TR_USBMODE                     "USB模式"
 #define TR_JACK_MODE                   "教练插口模式"
 #define TR_VOICE_LANGUAGE              "播报语言"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "单位"
 #define TR_UNITS_PPM                   "PPM 单位"
 #define TR_EDIT                        "编辑"
@@ -980,7 +987,7 @@
 #define TR_PASTE_BEFORE                "粘贴到本条之前"
 #define TR_DELETE                      "删除"
 #define TR_INSERT                      "插入"
-#define TR_RESET_FLIGHT                "复位飞行数据"
+#define TR_RESET_SESSION               "复位飞行数据"
 #define TR_RESET_TIMER1                "复位计时器1"
 #define TR_RESET_TIMER2                "复位计时器2"
 #define TR_RESET_TIMER3                "复位计时器3"
@@ -1130,6 +1137,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "起始通道"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "是否填充背景?"
 #define TR_BG_COLOR                  "背景颜色"
 #define TR_SLIDERS_TRIMS             "滑块和微调"

@@ -984,12 +984,12 @@ struct convert<FrSkyScreenData> {
 };
 
 template <>
-struct convert<customSwitch> {
-  static Node encode(const customSwitch& rhs);
-  static bool decode(const Node& node, customSwitch& rhs);
+struct convert<CustomSwitchData> {
+  static Node encode(const CustomSwitchData& rhs);
+  static bool decode(const Node& node, CustomSwitchData& rhs);
 };
 
-Node convert<customSwitch>::encode(const customSwitch& rhs)
+Node convert<CustomSwitchData>::encode(const CustomSwitchData& rhs)
 {
   Node node;
   node["type"] = cfsSwitchConfig << rhs.type;
@@ -1006,7 +1006,7 @@ Node convert<customSwitch>::encode(const customSwitch& rhs)
   return node;
 }
 
-bool convert<customSwitch>::decode(const Node& node, customSwitch& rhs)
+bool convert<CustomSwitchData>::decode(const Node& node, CustomSwitchData& rhs)
 {
   if (!node.IsMap()) return false;
 
@@ -1029,7 +1029,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   modelSettingsVersion = SemanticVersion(VERSION);
 
   Node node;
-  auto board = getCurrentBoard();
+  auto firmware = getCurrentFirmware();
+  auto board = firmware->getBoard();
 
   bool hasColorLcd = Boards::getCapability(board, Board::HasColorLcd);
 
@@ -1242,8 +1243,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["toplcdTimer"] = rhs.toplcdTimer;
   }
 
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    for (int i=0; i<MAX_CUSTOM_SCREENS; i++) {
+  if (Boards::getCapability(board, Board::HasColorLcd)) {
+    for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
       const auto& csd = rhs.customScreens.customScreenData[i];
       if (!csd.isEmpty()) {
         node["screenData"][std::to_string(i)] = csd;
@@ -1254,9 +1255,11 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     if (topbarData && topbarData.IsMap()) {
       node["topbarData"] = topbarData;
     }
-    for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
-      if (rhs.topbarWidgetWidth[i] > 0)
+    for (int i = 0; i < firmware->getCapability(TopBarZones); i++) {
+      if (rhs.topbarWidgetWidth[i] > 0) {
         node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
+      }
+    }
     node["view"] = rhs.view;
   }
 
@@ -1265,14 +1268,17 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
   if (funcSwCnt) {
-    for (int i = 0; i < funcSwCnt; i += 1) {
+    for (int i = 0; i < funcSwCnt; i++) {
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
       node["customSwitches"][tag] = rhs.customSwitches[i];
     }
 
-    for (int i = 1; i < 4; i += 1) {
-      node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
+    int funcSwGrps = Boards::getCapability(board, Board::FunctionSwitchGroups);
+    if (funcSwGrps) {
+      for (int i = 1; i <= funcSwGrps; i++) {
+        node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
+      }
     }
   }
 
@@ -1308,7 +1314,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 {
   if (!node.IsMap()) return false;
 
-  Board::Type board = getCurrentBoard();
+  auto firmware = getCurrentFirmware();
+  auto board = firmware->getBoard();
 
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
@@ -1340,20 +1347,28 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   //  TODO display model filename in preference to model name as easier for user
   if (modelSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: '%1' has settings version %2 that is not supported by this version of Companion!\n\nModel settings may be corrupted if you continue.");
-    prmpt = prmpt.arg(rhs.name).arg(modelSettingsVersion.toString());
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(QCoreApplication::translate("YamlModelSettings", "Read Model Settings"));
-    msgBox.setText(prmpt);
-    msgBox.setIcon(QMessageBox::Warning);
-    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
-    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
-    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
-    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
-    msgBox.setDefaultButton(pbDecline);
-    msgBox.exec();
-    if (msgBox.clickedButton() == pbDecline)
-      return false;
+    //  TODO remove this check as part of 3.0 release
+    if (modelSettingsVersion == SemanticVersion("3.0.0") &&
+        SemanticVersion(VERSION) >= SemanticVersion("2.12.0") &&
+        SemanticVersion(VERSION) < SemanticVersion("3.0.0")) {
+      qDebug() << "Version exception override: radio settings" << modelSettingsVersion.toString()
+               << "Companion" << SemanticVersion(VERSION).toString();
+    } else {
+      QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: '%1' has settings version %2 that is not supported by Companion %3!\n\nModel settings may be corrupted if you continue.");
+      prmpt = prmpt.arg(rhs.name).arg(modelSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
+      QMessageBox msgBox;
+      msgBox.setWindowTitle(QCoreApplication::translate("YamlModelSettings", "Read Model Settings"));
+      msgBox.setText(prmpt);
+      msgBox.setIcon(QMessageBox::Warning);
+      QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+      QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+      msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+      msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+      msgBox.setDefaultButton(pbDecline);
+      msgBox.exec();
+      if (msgBox.clickedButton() == pbDecline)
+        return false;
+    }
   }
 
   if (node["timers"]) {
@@ -1493,6 +1508,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     rhs.moduleData[i].modelId = modelIds[i];
   }
 
+  // v2.12 CRSF limit external module to 3.75M for older boards
+  if (Boards::getCapability((Board::Type)board, Board::IsF4) &&
+      rhs.moduleData[1].protocol == PULSES_CROSSFIRE &&
+      rhs.moduleData[1].crsf.telemetryBaudrate > 4)
+    rhs.moduleData[1].crsf.telemetryBaudrate = 4;
+
   if (node["failsafeChannels"]) {
     int failsafeChans[CPN_MAX_CHNOUT];
     memset(failsafeChans, 0, sizeof(failsafeChans));
@@ -1551,7 +1572,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
       rhs.customSwitches[i].group = v & 3;
       v >>= 2;
     }
-    for (int i = 0; i < 4; i += 1) {
+    for (int i = 0; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
       rhs.cfsGroupOn[i] = v & 1;
       v >>= 1;
     }
@@ -1593,8 +1614,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
       }
     }
   }
-  int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
   if (node["customSwitches"]) {
+    int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
     for (int i = 0; i < funcSwCnt; i += 1) {
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
@@ -1602,7 +1623,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     }
   }
   if (node["cfsGroupOn"]) {
-    for (int i = 1; i < 4; i += 1) {
+    for (int i = 1; i < CPN_MAX_CUSTOMSWITCH_GROUPS; i += 1) {
       if (node["cfsGroupOn"][std::to_string(i)]) {
         node["cfsGroupOn"][std::to_string(i)]["v"] >> rhs.cfsGroupOn[i];
       }
@@ -1645,6 +1666,22 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   // perform integrity checks and fix-ups
   YamlValidateLabelsNames(rhs, board);
   rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
+
+  //  TODO move to model conversion so any changes reported
+  if (Boards::getCapability(board, Board::HasColorLcd)) {
+    // total width of topbar widgets cannot exceed firmware topbar zones
+    const int fwzones = firmware->getCapability(TopBarZones);
+    int usedzones = 0;
+
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i++) {
+      usedzones += rhs.topbarWidgetWidth[i];
+
+      if (usedzones > fwzones) {
+        rhs.topbarWidgetWidth[i] = 0;
+        rhs.topBarData.zones[i].clear();
+      }
+    }
+  }
 
   return true;
 }
