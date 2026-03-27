@@ -327,6 +327,7 @@ void CurveEditWindow::buildBody(Window* window)
   auto smooth =
       new TextButton(iLine, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, STR_SMOOTH, [=]() {
         curveHeaderAddress(index)->smooth = !curveHeaderAddress(index)->smooth;
+        SET_DIRTY();
         Messaging::send(Messaging::CURVE_EDIT);
         return curveHeaderAddress(index)->smooth;
       });

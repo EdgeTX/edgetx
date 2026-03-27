@@ -107,9 +107,12 @@ ModelCurvesPage::ModelCurvesPage(const PageDef& pageDef) : PageGroupItem(pageDef
 void ModelCurvesPage::pushEditCurve(int index, const SourceRef& source)
 {
   if (!isCurveUsed(index)) {
+    if (!curveAllocAt(index))
+      return;
     CurveHeader &curve = *curveHeaderAddress(index);
     int8_t *points = curveAddress(index);
     initPoints(curve, points);
+    storageDirty(EE_MODEL);
   }
 
   new CurveEditWindow(index, source);
@@ -166,12 +169,15 @@ void ModelCurvesPage::newCV(Window *window, bool presetCV)
       strAppendUnsigned(&s[2], i + 1);
       menu->addLineBuffered(s, [=]() {
         focusIndex = i;
+        if (!curveAllocAt(i))
+          return;
         if (presetCV) {
           presetMenu(window, i);
         } else {
           CurveHeader &curve = *curveHeaderAddress(i);
           int8_t *points = curveAddress(i);
           initPoints(curve, points);
+          storageDirty(EE_MODEL);
           editCurve(window, i);
         }
       });
