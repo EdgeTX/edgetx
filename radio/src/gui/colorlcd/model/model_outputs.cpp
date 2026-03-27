@@ -204,7 +204,7 @@ class OutputLineButton : public ListLineButton
     if (value != newValue) {
       value = newValue;
 
-      int chanVal = calcRESXto100(ex_chans[index]);
+      int chanVal = calcRESXto100(ex_chans[getOutputSrcCh(index)]);
 
       if (chanVal < -DEADBAND) {
         lv_obj_add_state(min, ETX_STATE_MINMAX_BOLD);
@@ -262,6 +262,7 @@ void ModelOutputsPage::build(Window* window)
         output->revert = false;
         output->curve = 0;
         output->symetrical = 0;
+        output->srcCh = 0;
         storageDirty(EE_MODEL);
         btn->refresh();
       });

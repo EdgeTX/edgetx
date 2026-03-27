@@ -173,6 +173,7 @@ PACK(struct LimitData {
   uint16_t revert:1;
   uint16_t spare:2 SKIP;
   int8_t curve;
+  int8_t srcCh;  // 0=default (same as output index), 1..32=mix channel, -1=disabled
   NOBACKUP(char name[LEN_CHANNEL_NAME]);
 });
 

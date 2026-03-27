@@ -402,6 +402,11 @@ GVarData * gvarDataAddress(uint8_t idx);
 uint16_t getFlightModeCount();
 uint16_t getGVarCount();
 LimitData * limitAddress(uint8_t idx);
+inline uint8_t getOutputSrcCh(uint8_t output) {
+  int8_t src = limitAddress(output)->srcCh;
+  if (src <= 0) return output;
+  return src - 1;
+}
 USBJoystickChData * usbJChAddress(uint8_t idx);
 CurveHeader * curveHeaderAddress(uint8_t idx);
 CurveHeader * curveHeaderAllocAt(uint8_t idx);

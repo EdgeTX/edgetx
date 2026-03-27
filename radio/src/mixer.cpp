@@ -1257,13 +1257,23 @@ void evalMixes(uint8_t tick10ms)
     // at the end chans[i] = chans[i]/256 =>  -1024..1024
     // interpolate value with min/max so we get smooth motion from center to stop
     // this limits based on v original values and min=-1024, max=1024  RESX=1024
-    int32_t q = (flightModesFade ? (sum_chans512[i] / weight) << 4 : chans[i]);
 
-    ex_chans[i] = q / 256;
+    // ex_chans always reflects the raw mixer output for this channel index
+    int32_t q_own = (flightModesFade ? (sum_chans512[i] / weight) << 4 : chans[i]);
+    ex_chans[i] = q_own / 256;
 
-    int16_t value = applyLimits(i, q);  // applyLimits will remove the 256 100% basis
+    // channelOutputs follows the output mapping (srcCh)
+    LimitData* lim = limitAddress(i);
+    int8_t src = lim->srcCh;
 
-    channelOutputs[i] = value;  // copy consistent word to int-level
+    if (src < 0) {
+      channelOutputs[i] = 0;
+      continue;
+    }
+
+    uint8_t ch = (src == 0) ? i : (src - 1);
+    int32_t q = (flightModesFade ? (sum_chans512[ch] / weight) << 4 : chans[ch]);
+    channelOutputs[i] = applyLimits(i, q);
   }
 
   if (tick10ms && flightModesFade) {

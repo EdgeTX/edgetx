@@ -236,7 +236,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   new MixerChannelBar(
       this,
       {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, barW, ChannelBar::BAR_HEIGHT},
-      channel);
+      getOutputSrcCh(channel));
 
   // Channel number
   char chanString[10];

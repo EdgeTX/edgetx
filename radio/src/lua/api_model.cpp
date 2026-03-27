@@ -1612,8 +1612,10 @@ Get servo parameters
  * `curve`
    * (number) Curve number (0 for Curve1)
    * or `nil` if no curve set
+ * `srcCh` (number) Source mix channel mapping: 0 = default (same as output index),
+   1..32 = explicit mix channel, -1 = disabled (output 0)
 
-@status current Introduced in 2.0.0
+@status current Introduced in 2.0.0, srcCh added in 2.11
 */
 static int luaModelGetOutput(lua_State *L)
 {
@@ -1630,6 +1632,7 @@ static int luaModelGetOutput(lua_State *L)
     lua_pushtableinteger(L, "revert", limit->revert);
     if (limit->curve)
       lua_pushtableinteger(L, "curve", limit->curve-1);
+    lua_pushtableinteger(L, "srcCh", limit->srcCh);
   }
   else {
     lua_pushnil(L);
@@ -1685,6 +1688,9 @@ static int luaModelSetOutput(lua_State *L)
       }
       else if (!strcmp(key, "curve")) {
         limit->curve = luaL_checkinteger(L, -1) + 1;
+      }
+      else if (!strcmp(key, "srcCh")) {
+        limit->srcCh = luaL_checkinteger(L, -1);
       }
     }
     storageDirty(EE_MODEL);

@@ -73,7 +73,7 @@ void OutputEditWindow::checkEvents()
   if (value != newValue) {
     value = newValue;
 
-    int chanVal = calcRESXto100(ex_chans[channel]);
+    int chanVal = calcRESXto100(ex_chans[getOutputSrcCh(channel)]);
 
     if (chanVal < -DEADBAND) {
       lv_obj_add_state(minText->getLvObj(), ETX_STATE_MINMAX_HIGHLIGHT);
@@ -124,12 +124,27 @@ void OutputEditWindow::buildBody(Window *form)
   int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
   LimitData *output = limitAddress(channel);
 
-  // Name
+  // Source channel
   auto line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SOURCE);
+  auto srcChoice = new Choice(line, rect_t{}, -1, MAX_OUTPUT_CHANNELS,
+                              GET_DEFAULT(output->srcCh),
+                              [=](int newValue) {
+                                output->srcCh = newValue;
+                                SET_DIRTY();
+                              });
+  srcChoice->setTextHandler([=](int value) -> std::string {
+    if (value < 0) return "---";
+    if (value == 0) return STR_DEFAULT;
+    return std::string(getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)(value - 1))));
+  });
+
+  // Name
   new StaticText(line, rect_t{}, STR_NAME);
   new ModelTextEdit(line, rect_t{}, output->name, sizeof(output->name));
 
   // Offset
+  line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_SUBTRIM);
   auto off = new GVarNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                 GET_SET_DEFAULT(output->offset), PREC1);
