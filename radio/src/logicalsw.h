@@ -31,5 +31,8 @@ LogicalSwitchData* lswAddress(uint8_t idx);
 // Get a writable pointer, growing the arena section if needed
 LogicalSwitchData* lswAllocAt(uint8_t idx);
 
+// Number of active logical switch slots in the arena
+uint16_t getLswCount();
+
 // Remove trailing empty elements (func == LS_FUNC_NONE) from the logical switch section
 void lswTrimTrailing();

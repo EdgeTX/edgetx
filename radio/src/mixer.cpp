@@ -193,10 +193,12 @@ int expo(int x, int k)
 void applyExpos(int16_t * anas, uint8_t mode, const SourceRef& ovwrSrc, int16_t ovwrValue)
 {
   int8_t cur_chn = -1;
+  ExpoData * expoBase = expoAddress(0);
+  uint8_t expoCount = getExpoCount();
 
-  for (uint8_t i=0; i<getExpoCount(); i++) {
+  for (uint8_t i=0; i<expoCount; i++) {
     if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
-    ExpoData * ed = expoAddress(i);
+    ExpoData * ed = expoBase + i;
     if (ed->chn == cur_chn)
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
@@ -844,12 +846,14 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
   do {
     bitfield_channels_t passDirtyChannels = 0;
+    MixData * mixBase = mixAddress(0);
+    uint8_t mixCount = getMixCount();
 
-    for (uint8_t i=0; i<getMixCount(); i++) {
+    for (uint8_t i=0; i<mixCount; i++) {
       if (mode == e_perout_mode_normal && pass == 0)
         activeMixes[i] = 0;
 
-      MixData * md = mixAddress(i);
+      MixData * md = mixBase + i;
 
       if (!channel_dirty(dirtyChannels, md->destCh))
         continue;
@@ -1048,14 +1052,14 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       int32_t * ptr = &chans[md->destCh]; // Save calculating address several times
 
       // If first mix line for a channel - ignore Multiplex setting
-      if (i == 0 || mixAddress(i - 1)->destCh != md->destCh) {
+      if (i == 0 || (md - 1)->destCh != md->destCh) {
         *ptr = dv;
       } else {
         switch (md->mltpx) {
           case MLTPX_REPL:
             *ptr = dv;
             if (mode == e_perout_mode_normal) {
-              for (int8_t m = i - 1; m >= 0 && mixAddress(m)->destCh == md->destCh; m--)
+              for (int8_t m = i - 1; m >= 0 && (mixBase + m)->destCh == md->destCh; m--)
                 activeMixes[m] = false;
             }
             break;

@@ -492,8 +492,11 @@ bool getLSStickyState(uint8_t idx)
 
 void logicalSwitchesInit(bool force)
 {
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
-    LogicalSwitchData * ls = lswAddress(idx);
+  uint16_t lsCount = getLswCount();
+  LogicalSwitchData * lsBase = lswAddress(0);
+
+  for (unsigned int idx=0; idx<lsCount; idx++) {
+    LogicalSwitchData * ls = lsBase + idx;
     if (ls->func == LS_FUNC_STICKY && (force || ls->lsPersist)) {
       lswFm[mixerCurrentFlightMode].lsw[idx].lastValue = ls->lsState;
     }
@@ -778,7 +781,10 @@ uint8_t getXPotPosition(uint8_t idx)
 */
 void evalLogicalSwitches(bool isCurrentFlightmode)
 {
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
+  uint16_t lsCount = getLswCount();
+  LogicalSwitchData * lsBase = lswAddress(0);
+
+  for (unsigned int idx=0; idx<lsCount; idx++) {
     LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
     bool result = getLogicalSwitch(idx);
     if (isCurrentFlightmode) {
@@ -790,8 +796,9 @@ void evalLogicalSwitches(bool isCurrentFlightmode)
       }
     }
     context.state = result;
-    if ((lswAddress(idx)->func == LS_FUNC_STICKY) && (lswAddress(idx)->lsState != result)) {
-      lswAddress(idx)->lsState = result;
+    LogicalSwitchData * ls = lsBase + idx;
+    if ((ls->func == LS_FUNC_STICKY) && (ls->lsState != result)) {
+      ls->lsState = result;
       storageDirty(EE_MODEL);
     }
   }
@@ -1074,9 +1081,12 @@ void logicalSwitchesTimerTick()
   }
 
   // Update logical switches
+  uint16_t lsCount = getLswCount();
+  LogicalSwitchData * lsBase = lswAddress(0);
+
   for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
-    for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
-      LogicalSwitchData * ls = lswAddress(i);
+    for (uint8_t i=0; i<lsCount; i++) {
+      LogicalSwitchData * ls = lsBase + i;
       if (ls->func == LS_FUNC_TIMER) {
         int16_t *lastValue = &LS_LAST_VALUE(fm, i);
         if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
@@ -1148,11 +1158,15 @@ LogicalSwitchData * lswAddress(uint8_t idx)
 {
   if (idx >= g_modelArena.sectionCount(ARENA_LOGICAL_SW)) {
     static LogicalSwitchData dummy = {};
-    memset(&dummy, 0, sizeof(dummy));
     return &dummy;
   }
   return reinterpret_cast<LogicalSwitchData*>(
       g_modelArena.sectionBase(ARENA_LOGICAL_SW)) + idx;
+}
+
+uint16_t getLswCount()
+{
+  return g_modelArena.sectionCount(ARENA_LOGICAL_SW);
 }
 
 LogicalSwitchData * lswAllocAt(uint8_t idx)
