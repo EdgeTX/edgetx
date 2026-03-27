@@ -124,26 +124,37 @@ class AnaViewWindow : public Window
       }
     }
 
-#if defined(IMU_ICM4207C) && LANDSCAPE
-    line = newLine(grid);
-    lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+#if defined(IMU) && LANDSCAPE
+    if (imuGetName()) {
+      line = newLine(grid);
+      lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
 
-    grid.setColSpan(2);
-    new StaticText(line, rect_t{}, "Tilt X");
-    grid.setColSpan(1);
-    new DynamicNumber<int16_t>(line, rect_t{},
-           [=]() { return gyro.scaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+      grid.setColSpan(2);
+      new StaticText(line, rect_t{}, STR_GYRO);
+      grid.setColSpan(3);
+      new StaticText(line, rect_t{}, imuGetName());
+      grid.setColSpan(1);
 
-    for (int i = 0; i < 3; i++) {grid.nextCell();}
+      line = newLine(grid);
+      lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
 
-    line = newLine(grid);
-    lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+      grid.setColSpan(2);
+      new StaticText(line, rect_t{}, "Tilt X");
+      grid.setColSpan(1);
+      new DynamicNumber<int16_t>(line, rect_t{},
+             [=]() { return gyroScaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
-    grid.setColSpan(2);
-    new StaticText(line, rect_t{}, "Tilt Y");
-    grid.setColSpan(1);
-    new DynamicNumber<int16_t>(line, rect_t{},
-           [=]() { return gyro.scaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+      for (int i = 0; i < 3; i++) {grid.nextCell();}
+
+      line = newLine(grid);
+      lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+
+      grid.setColSpan(2);
+      new StaticText(line, rect_t{}, "Tilt Y");
+      grid.setColSpan(1);
+      new DynamicNumber<int16_t>(line, rect_t{},
+             [=]() { return gyroScaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+    }
 #endif
 
 #if defined(LUMINOSITY_SENSOR)

@@ -1,7 +1,7 @@
 
-option(SIMU_TARGET "Configure libsimulator/simu targets" ON)
+option(SIMU_TARGET "Configure simu target" ON)
 if(NOT SIMU_TARGET)
-  message(STATUS "libsimulator/simu targets disabled")
+  message(STATUS "simu target disabled")
   return()
 endif()
 
@@ -35,7 +35,6 @@ set(SIMU_DRIVERS
   module_drivers.cpp
   led_driver.cpp
   backlight_driver.cpp
-  gyro_driver.cpp
   bt_driver.cpp
   timers_driver.cpp
   abnormal_reboot.cpp

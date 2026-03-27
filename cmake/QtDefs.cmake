@@ -48,7 +48,7 @@ if(Qt6_FOUND)
     list(APPEND APP_COMMON_DEFINES -D__STDC_LIMIT_MACROS)
   endif()
   if(APP_CUSTOM_DBG_HANDLER)
-    # provide full qDebug log context to our custom handler. This may also affect libsimulator, which is why it is here
+    # provide full qDebug log context to our custom handler.
     list(APPEND APP_COMMON_DEFINES -DQT_MESSAGELOGCONTEXT)
     list(APPEND APP_COMMON_DEFINES -DAPP_DBG_HANDLER_ENABLE=1)
     if(APP_CUSTOM_DBG_LEVEL GREATER -1 AND APP_CUSTOM_DBG_LEVEL LESS 5)

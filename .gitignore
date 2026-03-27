@@ -4,8 +4,8 @@
 /*.user
 /*.user.*
 /doc/
-build*/
-cmake-build-*/
+/build*/
+/cmake-build-*/
 /debian/
 /*.vscode
 radio/src/tests/googletest*
@@ -18,3 +18,9 @@ compile_commands.json
 /.vs
 CMakeUserPresets.json
 .DS_Store
+_deps
+_wasi_sdk_fetch
+*.pyc
+
+# MkDocs
+/site/

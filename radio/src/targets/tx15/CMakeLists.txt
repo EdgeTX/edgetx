@@ -45,6 +45,7 @@ endif()
 # IMU support
 set(IMU ON)
 add_definitions(-DIMU_ICM4207C)
+add_definitions(-DIMU_SC7U22)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -144,6 +145,9 @@ set(BOARD_COMMON_SRC
   ${BOARD_SRC_DIR}/extflash_driver.cpp
   ${BOARD_SRC_DIR}/usb_charger_driver.cpp
   ${TARGET_SRC_DIR}/key_driver.cpp
+  drivers/pca95xx.cpp
+  drivers/icm42607C.cpp
+  drivers/sc7u22.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
@@ -152,7 +156,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
-  drivers/pca95xx.cpp
 )
 
 if(BLUETOOTH)
@@ -186,8 +189,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
-  drivers/icm42607C.cpp
-  drivers/imu_filter.cpp
   drivers/tas2505.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp

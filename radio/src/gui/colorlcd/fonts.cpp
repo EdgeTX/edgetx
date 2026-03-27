@@ -113,6 +113,7 @@ static etxLvglFont en_fontTable[FONTS_COUNT] = {
   { &lv_font_en_L,           nullptr,         false },  /* FONT_L_INDEX */
   { &lv_font_en_bold_XL,     nullptr,         false },  /* FONT_XL_INDEX */
   { nullptr,                 nullptr,         true },   /* FONT_XXL_INDEX */
+  { nullptr,                 nullptr,         true },   /* FONT_LXL_INDEX */
 };
 #endif
 

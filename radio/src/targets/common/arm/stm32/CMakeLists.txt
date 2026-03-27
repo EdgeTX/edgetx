@@ -137,7 +137,7 @@ endif()
 
 if(IMU)
   add_definitions(-DIMU)
-  set(SRC ${SRC} gyro.cpp)
+  set(SRC ${SRC} gyro.cpp hal/imu.cpp)
 endif()
 
 if(AUX_SERIAL OR AUX2_SERIAL)

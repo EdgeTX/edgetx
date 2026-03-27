@@ -99,7 +99,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/tp_gt911.cpp
   ${TARGET_SRC_DIR}/audio_driver.cpp
   drivers/wm8904.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/stm32_i2s.cpp

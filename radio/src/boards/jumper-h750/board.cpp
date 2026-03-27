@@ -47,6 +47,7 @@
 #include "sdcard.h"
 #include "debug.h"
 #include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
