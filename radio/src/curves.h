@@ -32,6 +32,9 @@ enum BaseCurves {
   CURVE_BASE
 };
 
+uint16_t getCurveCount();
+uint8_t getCurvePoints(uint8_t index);
+bool curveAllocAt(uint8_t index);
 void curveClear(uint8_t index);
 void curveMirror(uint8_t index);
 bool isCurveUsed(uint8_t index);

@@ -29,9 +29,14 @@ constexpr int CUSTOM_CURVE_POINTS(int p) { return 2 * p + (2 * DEFAULT_POINTS - 
 
 int8_t * curveEnd[MAX_CURVES_HARD];
 
+uint16_t getCurveCount()
+{
+  return g_modelArena.sectionCount(ARENA_CURVES);
+}
+
 uint8_t getCurvePoints(uint8_t index)
 {
-  if (index >= MAX_CURVES)
+  if (index >= MAX_CURVES || index >= getCurveCount())
     return 0;
 
   const auto& curve = *curveHeaderAddress(index);
@@ -47,7 +52,12 @@ void loadCurves()
 {
   bool showWarning= false;
   int8_t * tmp = curvePointsBase();
+  uint16_t count = getCurveCount();
   for (int i=0; i<MAX_CURVES; i++) {
+    if (i >= (int)count) {
+      curveEnd[i] = tmp;
+      continue;
+    }
     switch (curveHeaderAddress(i)->type) {
       case CURVE_TYPE_STANDARD:
         tmp += STD_CURVE_POINTS(curveHeaderAddress(i)->points);
@@ -131,6 +141,34 @@ void resetCustomCurveX(int8_t * points, int noPoints)
   }
 }
 
+bool curveAllocAt(uint8_t index)
+{
+  if (index >= MAX_CURVES)
+    return false;
+
+  uint16_t oldCount = getCurveCount();
+
+  // Ensure curve header section has enough slots
+  if (!g_modelArena.ensureSectionCapacity(ARENA_CURVES, index + 1))
+    return false;
+
+  // New headers are zero-initialized → type=STANDARD, points=0 → 5 pts each.
+  // Compute total points needed for all curves 0..newCount-1.
+  uint16_t newCount = g_modelArena.sectionCount(ARENA_CURVES);
+  uint16_t totalPoints = 0;
+  for (uint16_t i = 0; i < newCount; i++) {
+    totalPoints += (i < oldCount)
+        ? getCurvePoints(i)
+        : DEFAULT_POINTS;
+  }
+
+  if (!g_modelArena.ensureSectionCapacity(ARENA_POINTS, totalPoints))
+    return false;
+
+  loadCurves();
+  return true;
+}
+
 void curveClear(uint8_t index)
 {
   if (index >= MAX_CURVES)
@@ -166,6 +204,8 @@ void curveMirror(uint8_t index)
 
 bool isCurveUsed(uint8_t index)
 {
+  if (index >= getCurveCount())
+    return false;
   return !is_memclear(curveHeaderAddress(index), sizeof(CurveHeader)) ||
          !is_memclear(curveAddress(index), DEFAULT_POINTS);
 }

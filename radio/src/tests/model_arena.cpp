@@ -575,13 +575,26 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
   cf->swtch = SwitchRef_(SWITCH_TYPE_SWITCH, 1);
   cf->func = FUNC_PLAY_SOUND;
 
+  // Create a default identity curve at index 0
+  ASSERT_TRUE(curveAllocAt(0));
+  int8_t* pts = curveAddress(0);
+  uint8_t nPts = getCurvePoints(0);
+  ASSERT_EQ(nPts, 5);
+  // Fill with identity: f(x) = x
+  for (uint8_t i = 0; i < nPts; i++)
+    pts[i] = -100 + i * 50;
+
   uint8_t savedMixCount = g_modelArena.sectionCount(ARENA_MIXES);
   uint8_t savedExpoCount = g_modelArena.sectionCount(ARENA_EXPOS);
   uint8_t savedLsCount = g_modelArena.sectionCount(ARENA_LOGICAL_SW);
   uint8_t savedCfnCount = g_modelArena.sectionCount(ARENA_CUSTOM_FN);
+  uint16_t savedCurveCount = g_modelArena.sectionCount(ARENA_CURVES);
+  uint16_t savedPointCount = g_modelArena.sectionCount(ARENA_POINTS);
   EXPECT_GT(savedMixCount, (uint8_t)0);
   EXPECT_EQ(savedLsCount, 3);  // lswAllocAt(2) allocates slots 0-2
   EXPECT_EQ(savedCfnCount, 1);
+  EXPECT_EQ(savedCurveCount, 1);
+  EXPECT_EQ(savedPointCount, 5);
 
   SourceRef savedMix0Src = mixAddress(0)->srcRaw;
   int16_t savedMix0Weight = mixAddress(0)->weight.numericValue();
@@ -608,6 +621,8 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
   EXPECT_EQ(g_modelArena.sectionCount(ARENA_EXPOS), savedExpoCount);
   EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), savedLsCount);
   EXPECT_EQ(g_modelArena.sectionCount(ARENA_CUSTOM_FN), savedCfnCount);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_CURVES), savedCurveCount);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_POINTS), savedPointCount);
 
   // Verify arena has correct used bytes
   EXPECT_GT(g_modelArena.usedBytes(), (uint32_t)0);
@@ -624,6 +639,15 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
   EXPECT_EQ(lswAddress(2)->func, LS_FUNC_VPOS);
   EXPECT_EQ(customFnAddress(0)->swtch, (SwitchRef_(SWITCH_TYPE_SWITCH, 1)));
   EXPECT_EQ(customFnAddress(0)->func, FUNC_PLAY_SOUND);
+
+  // Verify curve data survived the round-trip
+  loadCurves();
+  EXPECT_EQ(getCurvePoints(0), 5);
+  int8_t* ptsAfter = curveAddress(0);
+  for (uint8_t i = 0; i < 5; i++) {
+    EXPECT_EQ(ptsAfter[i], -100 + i * 50)
+        << "curve point " << (int)i << " mismatch";
+  }
 
   // Restore test path and clean up
   simuFatfsSetPaths(TESTS_PATH, nullptr);

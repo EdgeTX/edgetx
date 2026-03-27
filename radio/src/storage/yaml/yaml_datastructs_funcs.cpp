@@ -3168,18 +3168,18 @@ static const EADriver yaml_drv_mix =
 static const EADriver yaml_drv_expo =
     { yaml_get_expo_ptr, yaml_ensure_expo_capacity, nullptr };
 static const EADriver yaml_drv_curves =
-    { yaml_get_curves_ptr, yaml_ensure_curves_capacity, nullptr };
+    { yaml_get_curves_ptr, yaml_ensure_curves_capacity, isAlwaysActive };
 static const EADriver yaml_drv_points =
     { yaml_get_points_ptr, yaml_ensure_points_capacity, nullptr };
 static const EADriver yaml_drv_logical_sw =
     { yaml_get_logical_sw_ptr, yaml_ensure_logical_sw_capacity, nullptr };
 static const EADriver yaml_drv_custom_fn =
-    { yaml_get_custom_fn_ptr, yaml_ensure_custom_fn_capacity, nullptr };
+    { yaml_get_custom_fn_ptr, yaml_ensure_custom_fn_capacity, cfn_is_active };
 static const EADriver yaml_drv_fmd =
-    { yaml_get_fmd_ptr, yaml_ensure_fmd_capacity, nullptr };
+    { yaml_get_fmd_ptr, yaml_ensure_fmd_capacity, fmd_is_active };
 static const EADriver yaml_drv_gvar_data =
     { yaml_get_gvar_data_ptr, yaml_ensure_gvar_data_capacity, nullptr };
 static const EADriver yaml_drv_gvar_values =
     { yaml_get_gvar_values_ptr, yaml_ensure_gvar_values_capacity, gvar_is_active };
 static const EADriver yaml_drv_radio_cfn =
-    { yaml_get_radio_cfn_ptr, yaml_ensure_radio_cfn_capacity, nullptr };
+    { yaml_get_radio_cfn_ptr, yaml_ensure_radio_cfn_capacity, cfn_is_active };

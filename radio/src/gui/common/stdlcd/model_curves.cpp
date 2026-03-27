@@ -45,10 +45,13 @@ void menuModelCurvesAll(event_t event)
 {
   uint8_t old_editMode = s_editMode;
 
+  // Show used curves + one empty slot for creating a new one
+  uint8_t curveSlots = min<uint8_t>(getCurveCount() + 1, MAX_CURVES);
+
 #if defined(GVARS_IN_CURVES_SCREEN)
-  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES+getGVarCount());
+  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+curveSlots+getGVarCount());
 #else
-  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES);
+  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+curveSlots);
 #endif
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
@@ -58,7 +61,8 @@ void menuModelCurvesAll(event_t event)
 
     s_currIdxSubMenu = sub;
     s_currSrcRaw.clear();
-    pushMenu(menuModelCurveOne);
+    if (curveAllocAt(sub))
+      pushMenu(menuModelCurveOne);
   }
 
   for (uint8_t i=0; i<LCD_LINES-1; i++) {
@@ -66,28 +70,30 @@ void menuModelCurvesAll(event_t event)
     uint8_t k = i + menuVerticalOffset;
     LcdFlags attr = (sub == k ? INVERS : 0);
 #if defined(GVARS_IN_CURVES_SCREEN)
-    if (k >= MAX_CURVES) {
-      drawStringWithIndex(0, y, STR_GV, k-MAX_CURVES+1);
+    if (k >= curveSlots) {
+      drawStringWithIndex(0, y, STR_GV, k-curveSlots+1);
       if (GVAR_SELECTED()) {
         if (attr && s_editMode>0) attr |= BLINK;
-        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-MAX_CURVES, -1), attr);
-        if (attr) *gvarDataAddress(k-MAX_CURVES) = checkIncDec(event, *gvarDataAddress(k-MAX_CURVES), -1000, 1000, EE_MODEL);
+        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-curveSlots, -1), attr);
+        if (attr) *gvarDataAddress(k-curveSlots) = checkIncDec(event, *gvarDataAddress(k-curveSlots), -1000, 1000, EE_MODEL);
       }
     }
     else
 #endif
     {
       drawStringWithIndex(0, y, STR_CV, k+1, attr);
-      CurveHeader & crv = *curveHeaderAddress(k);
-      editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
+      if (k < getCurveCount()) {
+        CurveHeader & crv = *curveHeaderAddress(k);
+        editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
 #if LCD_W >= 212
-      lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
-      lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);
+        lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
+        lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);
 #endif
+      }
     }
   }
 
-  if (CURVE_SELECTED()) {
+  if (CURVE_SELECTED() && sub < (int8_t)getCurveCount()) {
     s_currIdxSubMenu = sub;
 #if LCD_W >= 212
     drawCurve(23);
