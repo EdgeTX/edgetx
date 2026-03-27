@@ -87,11 +87,6 @@
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
-// Initialize arenas early - must happen before any model/radio data access
-static struct ArenaAutoInit {
-  ArenaAutoInit() { modelArenaInit(); radioArenaInit(); }
-} _arenaAutoInit;
-
 Clipboard clipboard;
 
 GlobalData globalData;
@@ -1463,6 +1458,9 @@ uint8_t startOptions = 0;
 void edgeTxInit()
 {
   TRACE("edgeTxInit");
+
+  modelArenaInit();
+  radioArenaInit();
 
 #if defined(COLORLCD)
   // SD_CARD_PRESENT() does not work properly on most
