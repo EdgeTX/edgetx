@@ -83,11 +83,13 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     else {
       ui->imagePreview->setFixedSize(QSize(64, 32));
     }
+
     QStringList items;
     items.append("");
     QString path = g.profile[g.id()].sdPath();
     path.append("/IMAGES/");
     QDir qd(path);
+
     if (qd.exists()) {
       QStringList filters = firmware->getCapabilityStr(ModelImageFilters).split("|");
       foreach ( QString file, qd.entryList(filters, QDir::Files) ) {
@@ -101,26 +103,28 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
           items.append(temp);
       }
     }
+
     if (!items.contains(model.bitmap)) {
       items.append(model.bitmap);
     }
+
     items.sort(Qt::CaseInsensitive);
+
     foreach (QString file, items) {
       ui->image->addItem(file);
+
       if (file == model.bitmap) {
         ui->image->setCurrentIndex(ui->image->count() - 1);
+
         if (!file.isEmpty()) {
-          QString fileName = path;
-          fileName.append(model.bitmap);
-          if (!firmware->getCapability(ModelImageKeepExtn)) {
-            QString extn = firmware->getCapabilityStr(ModelImageFilters);
-            if (extn.size() > 0)
-              extn.remove(0, 1);  //  remove *
-            fileName.append(extn);
+          if (model.image.isNull()) { // model image not saved with file try to load from sd path
+            QString fileName = path;
+            fileName.append(model.getImageFilename());
+            model.image.load(fileName);
           }
-          QImage image(fileName);
-          if (!image.isNull()) {
-            ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
+
+          if (!model.image.isNull()) {
+            ui->imagePreview->setPixmap(QPixmap::fromImage(model.image.scaled(ui->imagePreview->size())));
           }
         }
       }
@@ -392,25 +396,22 @@ void SetupPanel::on_image_currentIndexChanged(int index)
   if (!lock) {
     memset(model->bitmap, 0, CPN_MAX_BITMAP_LEN);
     strncpy(model->bitmap, ui->image->currentText().toLatin1(), CPN_MAX_BITMAP_LEN);
+
     if (model->bitmap[0] != '\0') {
-      QString path = g.profile[g.id()].sdPath();
-      path.append("/IMAGES/");
-      path.append(model->bitmap);
-      if (!firmware->getCapability(ModelImageKeepExtn)) {
-        QString extn = firmware->getCapabilityStr(ModelImageFilters);
-        if (extn.size() > 0)
-          extn.remove(0, 1);  //  remove *
-        path.append(extn);
-      }
-      QImage image(path);
-      if (!image.isNull())
-        ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
-      else
+      QString path = g.profile[g.id()].sdPath() % "/IMAGES/" % model->getImageFilename();
+      model->image.load(path);
+
+      if (!model->image.isNull()) {
+        ui->imagePreview->setPixmap(QPixmap::fromImage(model->image.scaled(ui->imagePreview->size())));
+      } else {
         ui->imagePreview->clear();
-    }
-    else {
+        model->image = QImage();
+      }
+    } else {
       ui->imagePreview->clear();
+      model->image = QImage();
     }
+
     emit modified();
   }
 }

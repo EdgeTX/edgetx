@@ -35,6 +35,7 @@ bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, boo
 {
   QString path = this->filename + "/" + filename;
   QFile file(path);
+
   if (!file.exists()) {
     if (optional) {
       //qDebug() << "File not found:" << filename;
@@ -48,8 +49,29 @@ bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, boo
     setError(tr("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
     return false;
   }
+
   filedata = file.readAll();
   qDebug() << "File" << path << "read, size:" << filedata.size();
+  return true;
+}
+
+bool SdcardFormat::loadFile(QImage & filedata, const QString & filename, bool optional)
+{
+  QString path = this->filename + "/" + filename;
+  QFile file(path);
+
+  if (!file.exists()) {
+    if (optional)
+      return true;
+    else
+      return false;
+  }
+
+  if (!filedata.load(path)) {
+    setError(tr("Error loading image file %1:\n%2.").arg(path));
+    return false;
+  }
+
   return true;
 }
 
@@ -57,25 +79,42 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
 {
   QString path = this->filename + "/" + filename;
   QFile file(path);
+
   if (!file.open(QFile::WriteOnly)) {
     setError(tr("Error opening file %1 in write mode:\n%2.").arg(path).arg(file.errorString()));
     return false;
   }
+
   file.write(data.data(), data.size());
   file.close();
   qDebug() << "File" << path << "written, size:" << data.size();
   return true;
 }
 
+bool SdcardFormat::writeFile(const QImage & data, const QString & filename)
+{
+  QString path = this->filename + "/" + filename;
+
+  if (!data.save(path)) {
+    setError(tr("Error writing image file: %1").arg(path));
+    return false;
+  }
+
+  return true;
+}
+
 bool SdcardFormat::getFileList(std::list<std::string>& filelist)
 {
   QDir dir(filename);
+
   if (!dir.cd("MODELS")) return false;
 
   QStringList ql = dir.entryList();
+
   for (const auto& str : ql) {
     filelist.push_back("MODELS/" + str.toStdString());
   }
+
   return true;
 }
 
@@ -91,6 +130,11 @@ bool SdcardFormat::deleteFile(const QString & filename)
   qDebug() << "File" << path << "deleted";
   return true;
 }
+
+/*
+
+  class SdcardStorageFactory
+*/
 
 bool SdcardStorageFactory::probe(const QString & path)
 {

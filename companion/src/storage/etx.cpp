@@ -110,9 +110,42 @@ bool EtxFormat::loadFile(QByteArray & filedata, const QString & filename, bool o
   return true;
 }
 
+bool EtxFormat::loadFile(QImage & filedata, const QString & filename, bool optional)
+{
+  size_t size;
+  void * data = mz_zip_reader_extract_file_to_heap(&zip_archive, qPrintable(filename), &size, 0);
+
+  if (!data) {
+    if (optional)
+      return true;
+    else
+      return false;
+  }
+
+  filedata.loadFromData((uchar *)data, size);
+
+  mz_free(data);
+  return true;
+}
+
 bool EtxFormat::writeFile(const QByteArray & filedata, const QString & filename)
 {
   if (!mz_zip_writer_add_mem(&zip_archive, filename.toStdString().c_str(), filedata.data(), filedata.size(), MZ_DEFAULT_LEVEL)) {
+    setError(tr("Error adding %1 to EdgeTX archive").arg(filename));
+    return false;
+  }
+
+  return true;
+}
+
+bool EtxFormat::writeFile(const QImage & filedata, const QString & filename)
+{
+  QByteArray ba;
+  QBuffer buffer(&ba);
+  buffer.open(QIODevice::WriteOnly);
+  filedata.save(&buffer, QFileInfo(filename).suffix().toUpper().toLatin1());
+
+  if (!mz_zip_writer_add_mem(&zip_archive, filename.toStdString().c_str(), ba.data(), ba.size(), MZ_DEFAULT_LEVEL)) {
     setError(tr("Error adding %1 to EdgeTX archive").arg(filename));
     return false;
   }

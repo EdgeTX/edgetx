@@ -234,6 +234,7 @@ class ModelData {
     USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
     QByteArray checklistData;
+    QImage image;
 
     ModelData & operator=(const ModelData & src);
 
@@ -293,6 +294,9 @@ class ModelData {
     const Board::SwitchType getSwitchType(int sw, const GeneralSettings & gs) const;
 
     QString getChecklistFilename() const;
+    QString getImageFilename() const;
+    QString getImageFileExtn() const;
+    static QString getDefaultImageFileExtn();
 
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,

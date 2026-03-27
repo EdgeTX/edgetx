@@ -150,6 +150,9 @@ bool LabelsStorageFormat::load(RadioData & radioData)
     if (!loadChecklist(model))
       return false;
 
+    if (!loadModelImage(model))
+      return false;
+
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
@@ -253,6 +256,9 @@ bool LabelsStorageFormat::write(RadioData & radioData)
 
     if (!writeChecklist(model))
       return false;
+
+    if (!writeModelImage(model))
+      return false;
   }
 
   if (hasLabels) {
@@ -279,11 +285,10 @@ bool LabelsStorageFormat::loadChecklist(ModelData & model)
 
 bool LabelsStorageFormat::writeChecklist(const ModelData & model)
 {
-  const QString fname("MODELS/" + model.getChecklistFilename());
-
-  // not every model has a checklist
   if (!model.checklistData.isEmpty()) {
+    const QString fname("MODELS/" + model.getChecklistFilename());
     //qDebug() << "Writing checklist file:" << fname;
+
     if (!writeFile(model.checklistData, fname)) {
       setError(tr("Cannot write ") + fname);
       return false;
@@ -313,6 +318,34 @@ bool LabelsStorageFormat::loadRadioSettings(GeneralSettings & generalSettings)
   } catch(const std::runtime_error& e) {
     setError(tr("Cannot load %1").arg(filePath) + ":\n" + QString(e.what()));
     return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::loadModelImage(ModelData & model)
+{
+  const QString fname("IMAGES/" + model.getImageFilename());
+  //qDebug() << "Searching for model image file:" << fname;
+
+  if (!loadFile(model.image, fname, true)) {
+    setError(tr("Cannot load model image file: ") + fname);
+    return false;
+  }
+
+  return true;
+}
+
+bool LabelsStorageFormat::writeModelImage(const ModelData & model)
+{
+  if (!model.getImageFilename().isEmpty()) {
+    const QString fname("IMAGES/" + model.getImageFilename());
+    //qDebug() << "Writing model image file:" << fname;
+
+    if (!writeFile(model.image, fname)) {
+      setError(tr("Cannot write model image file: ") + fname);
+      return false;
+    }
   }
 
   return true;
