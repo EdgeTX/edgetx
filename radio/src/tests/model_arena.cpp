@@ -448,17 +448,18 @@ TEST_F(ArenaInsertDeleteTest, AllocAtReturnsNullWhenFull)
 
 TEST_F(ArenaAccessorTest, ModelResetClearsArena)
 {
-  // Write data to arena
+  // Write data to arena (use AllocAt to ensure section is grown)
   mixAddress(0)->destCh = 5;
   mixAddress(0)->srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
   expoAddress(0)->chn = 3;
-  lswAddress(10)->func = LS_FUNC_VPOS;
+  lswAllocAt(10)->func = LS_FUNC_VPOS;
+  EXPECT_EQ(lswAddress(10)->func, LS_FUNC_VPOS);
 
   MODEL_RESET();
 
   // Arena data should be zeroed (default template may populate some entries)
   // but the specific entries we set should be gone
-  EXPECT_EQ(lswAddress(10)->func, 0);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_LOGICAL_SW), 0);
 }
 
 // ---- Bit-field capacity tests ----
@@ -577,6 +578,7 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
 
   // Create a default identity curve at index 0
   ASSERT_TRUE(curveAllocAt(0));
+  setCurveUsed(0);
   int8_t* pts = curveAddress(0);
   uint8_t nPts = getCurvePoints(0);
   ASSERT_EQ(nPts, 5);
