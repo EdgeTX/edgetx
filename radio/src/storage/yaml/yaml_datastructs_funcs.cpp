@@ -1482,6 +1482,12 @@ bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   return !((CustomFunctionData*)data)->swtch.isNone();
 }
 
+static bool curve_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  return isCurveUsed(tw->getElmts());
+}
+
 static bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
   gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
@@ -3168,7 +3174,7 @@ static const EADriver yaml_drv_mix =
 static const EADriver yaml_drv_expo =
     { yaml_get_expo_ptr, yaml_ensure_expo_capacity, nullptr };
 static const EADriver yaml_drv_curves =
-    { yaml_get_curves_ptr, yaml_ensure_curves_capacity, isAlwaysActive };
+    { yaml_get_curves_ptr, yaml_ensure_curves_capacity, curve_is_active };
 static const EADriver yaml_drv_points =
     { yaml_get_points_ptr, yaml_ensure_points_capacity, nullptr };
 static const EADriver yaml_drv_logical_sw =

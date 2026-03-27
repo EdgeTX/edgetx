@@ -798,7 +798,7 @@ PACK(struct ModelData {
   CUST_EXTERN_ARRAY_NOIDX(mixData, struct_MixData, MAX_MIXERS_HARD, yaml_drv_mix);
   LimitData limitData[MAX_OUTPUT_CHANNELS];
   CUST_EXTERN_ARRAY_NOIDX(expoData, struct_ExpoData, MAX_EXPOS_HARD, yaml_drv_expo);
-  CUST_EXTERN_ARRAY_NOIDX(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_drv_curves);
+  CUST_EXTERN_ARRAY(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_drv_curves);
   CUST_EXTERN_ARRAY_NOIDX(points, struct_signed_8, MAX_CURVE_POINTS_HARD, yaml_drv_points);
   CUST_EXTERN_ARRAY(logicalSw, struct_LogicalSwitchData, MAX_LOGICAL_SWITCHES_HARD, yaml_drv_logical_sw);
   CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_drv_custom_fn);
