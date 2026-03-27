@@ -206,7 +206,13 @@ void curveClear(uint8_t index)
 
 static bool curveIsEmpty(const uint8_t* ptr)
 {
-  return is_memclear(const_cast<uint8_t*>(ptr), sizeof(CurveHeader));
+  if (!is_memclear(const_cast<uint8_t*>(ptr), sizeof(CurveHeader)))
+    return false;
+
+  // Compute index from pointer offset into the arena section
+  uint8_t* base = g_modelArena.sectionBase(ARENA_CURVES);
+  uint8_t idx = (ptr - base) / sizeof(CurveHeader);
+  return !isCurveUsed(idx);
 }
 
 void curveTrimTrailing()
