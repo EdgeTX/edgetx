@@ -795,23 +795,23 @@ PACK(struct ModelData {
   BeepANACenter beepANACenter;
 
   // Dynamic arrays stored in arena (see model_arena.h)
-  CUST_EXTERN_ARRAY_NOIDX(mixData, struct_MixData, MAX_MIXERS_HARD, yaml_get_mix_ptr, yaml_ensure_mix_capacity);
+  CUST_EXTERN_ARRAY_NOIDX(mixData, struct_MixData, MAX_MIXERS_HARD, yaml_drv_mix);
   LimitData limitData[MAX_OUTPUT_CHANNELS];
-  CUST_EXTERN_ARRAY_NOIDX(expoData, struct_ExpoData, MAX_EXPOS_HARD, yaml_get_expo_ptr, yaml_ensure_expo_capacity);
-  CUST_EXTERN_ARRAY_NOIDX(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_get_curves_ptr, yaml_ensure_curves_capacity);
-  CUST_EXTERN_ARRAY_NOIDX(points, struct_signed_8, MAX_CURVE_POINTS_HARD, yaml_get_points_ptr, yaml_ensure_points_capacity);
-  CUST_EXTERN_ARRAY(logicalSw, struct_LogicalSwitchData, MAX_LOGICAL_SWITCHES_HARD, yaml_get_logical_sw_ptr, yaml_ensure_logical_sw_capacity);
-  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_get_custom_fn_ptr, yaml_ensure_custom_fn_capacity);
+  CUST_EXTERN_ARRAY_NOIDX(expoData, struct_ExpoData, MAX_EXPOS_HARD, yaml_drv_expo);
+  CUST_EXTERN_ARRAY_NOIDX(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_drv_curves);
+  CUST_EXTERN_ARRAY_NOIDX(points, struct_signed_8, MAX_CURVE_POINTS_HARD, yaml_drv_points);
+  CUST_EXTERN_ARRAY(logicalSw, struct_LogicalSwitchData, MAX_LOGICAL_SWITCHES_HARD, yaml_drv_logical_sw);
+  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_drv_custom_fn);
 
   SwashRingData swashR FUNC(swash_is_active);
-  CUST_EXTERN_ARRAY(flightModeData, struct_FlightModeData, MAX_FLIGHT_MODES, yaml_get_fmd_ptr, yaml_ensure_fmd_capacity);
+  CUST_EXTERN_ARRAY(flightModeData, struct_FlightModeData, MAX_FLIGHT_MODES, yaml_drv_fmd);
 
   NOBACKUP(SourceRef thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
   NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
-  CUST_EXTERN_ARRAY(gvars, struct_GVarData, MAX_GVARS, yaml_get_gvar_data_ptr, yaml_ensure_gvar_data_capacity);
-  CUST_EXTERN_ARRAY(gvarValues, struct_signed_16, MAX_FLIGHT_MODES * MAX_GVARS, yaml_get_gvar_values_ptr, yaml_ensure_gvar_values_capacity);
+  CUST_EXTERN_ARRAY(gvars, struct_GVarData, MAX_GVARS, yaml_drv_gvar_data);
+  CUST_EXTERN_ARRAY(gvarValues, struct_signed_16, MAX_FLIGHT_MODES * MAX_GVARS, yaml_drv_gvar_values);
 
   NOBACKUP(VarioData varioData);
   NOBACKUP(uint8_t rssiSource CUST(r_tele_sensor,w_tele_sensor));
@@ -1114,7 +1114,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
-  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_get_radio_cfn_ptr, yaml_ensure_radio_cfn_capacity);
+  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_drv_radio_cfn);
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
