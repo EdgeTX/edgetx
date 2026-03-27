@@ -86,7 +86,7 @@ void Widget::onCancel()
 
 void Widget::setFullscreen(bool enable)
 {
-  if (!fsAllowed || (enable == fullscreen)) return;
+  if (parent->isTopBar() || (enable == fullscreen)) return;
 
   fullscreen = enable;
 

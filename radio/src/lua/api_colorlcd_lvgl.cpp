@@ -38,12 +38,17 @@ class LvglWidgetParams
       if (!strcmp(key, "type")) {
         if (lua_isinteger(L, -1)) {
           int n = lua_tointeger(L, -1);
-          if (n > ETX_UNDEF && n < ETX_LAST)
+          if (n > ETX_UNDEF && n < ETX_LAST) {
             type = (LuaLvglType)n;
-          else
+          } else {
+            luaL_error(L, "Invalid type '%d'", n);
             type = ETX_UNDEF;
+          }
         } else {
-          type = getType(luaL_checkstring(L, -1));
+          const char* s = luaL_checkstring(L, -1);
+          type = getType(s);
+          if (type == ETX_UNDEF)
+            luaL_error(L, "Invalid type '%s'", s);
         }
       } else if (!strcmp(key, "name")) {
         name = luaL_checkstring(L, -1);
@@ -184,6 +189,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
+    if (p.type == ETX_UNDEF)
+      luaL_error(L, "Missing or bad type");
     if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreen())
       continue;
     LvglWidgetObjectBase *obj = nullptr;
