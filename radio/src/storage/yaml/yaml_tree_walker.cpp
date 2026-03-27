@@ -358,12 +358,13 @@ bool YamlTreeWalker::toChild()
         setElmts(parentElmts);
 
         // Grow arena section to hold at least the first element
-        if (attr->u._extern_array.ensure_capacity) {
-            attr->u._extern_array.ensure_capacity(1);
+        auto* drv = attr->u._extern_array.driver;
+        if (drv->ensure_capacity) {
+            drv->ensure_capacity(1);
         }
 
         uint16_t count = 0;
-        uint8_t* ext_ptr = attr->u._extern_array.get_ptr(&count);
+        uint8_t* ext_ptr = drv->get_ptr(&count);
         stack[stack_level].data_override = ext_ptr;
     } else {
         setNode(attr);
@@ -398,13 +399,14 @@ bool YamlTreeWalker::toNextElmt(bool grow)
 
         uint16_t maxElmts = node->elmts;
         if (node->type == YDT_EXTERN_ARRAY) {
+            auto* drv = node->u._extern_array.driver;
             // During parsing, grow arena section to hold the next element
-            if (grow && node->u._extern_array.ensure_capacity) {
-                node->u._extern_array.ensure_capacity(getElmts() + 2);
+            if (grow && drv->ensure_capacity) {
+                drv->ensure_capacity(getElmts() + 2);
             }
             // Use the actual count as the iteration bound
             uint16_t count = 0;
-            node->u._extern_array.get_ptr(&count);
+            drv->get_ptr(&count);
             maxElmts = count;
         }
 
@@ -438,6 +440,10 @@ bool YamlTreeWalker::isElmtEmpty(uint8_t* data_param)
 
     if (node->type == YDT_EXTERN_ARRAY) {
         bit_ofs = ((uint32_t)getElmts()) * node->size;
+
+        if (node->u._extern_array.driver->is_active)
+            return !node->u._extern_array.driver->is_active(this, effective_data, bit_ofs);
+
         return yaml_is_zero(effective_data, bit_ofs, node->size);
     }
 
@@ -521,8 +527,8 @@ void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
         const YamlNode* node = getNode();
         // For extern arrays, grow the section to fit the requested index
         if (node->type == YDT_EXTERN_ARRAY
-            && node->u._extern_array.ensure_capacity) {
-            node->u._extern_array.ensure_capacity(i + 1);
+            && node->u._extern_array.driver->ensure_capacity) {
+            node->u._extern_array.driver->ensure_capacity(i + 1);
         }
         if (i < node->elmts) {
             setElmts(i);

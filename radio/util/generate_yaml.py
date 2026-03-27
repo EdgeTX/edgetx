@@ -419,8 +419,7 @@ def parse_field(ast,node):
                 f.type = 'extern_array'
                 f.length = ea_attrs[1]  # may be a number or a C define name
                 f.var_type = ea_attrs[2]
-                f.extern_get_ptr = ea_attrs[3]
-                f.extern_ensure = ea_attrs[4] if len(ea_attrs) > 4 else 'nullptr'
+                f.extern_driver = ea_attrs[3]
                 f.bits = 0  # zero-size in parent struct
                 # Force parsing of the referenced struct type so it's
                 # available for extern_array_bits() at render time.
@@ -443,7 +442,7 @@ def parse_field(ast,node):
                 # Mark the struct as used in arrays (like regular arrays).
                 # Default to use_idx=True; the CUST_EXTERN_ARRAY 'noidx' flag overrides.
                 use_idx = True
-                if len(ea_attrs) > 5 and ea_attrs[5].strip() == 'noidx':
+                if len(ea_attrs) > 4 and ea_attrs[4].strip() == 'noidx':
                     use_idx = False
                 st = RootAST.get_struct(var_type_name)
                 if st is not None:

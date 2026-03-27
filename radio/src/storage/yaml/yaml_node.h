@@ -80,6 +80,15 @@ struct YamlNode {
   // Returns false if the arena cannot grow (full).
   typedef bool (*extern_ensure_func)(uint16_t min_count);
 
+  // Driver for externally-stored arrays: bundles callbacks so the union
+  // member stays at two pointers (child + driver) regardless of how many
+  // callbacks are needed.
+  struct ExternArrayDriver {
+    extern_get_ptr_func get_ptr;
+    extern_ensure_func ensure_capacity;
+    is_active_func is_active;  // NULL → fall back to yaml_is_zero
+  };
+
   uint16_t size;  // bits
   uint8_t type : 4;
   uint16_t elmts : 12;  // maximum number of array elements
@@ -115,8 +124,7 @@ struct YamlNode {
 
     struct {
       const YamlNode* child;
-      extern_get_ptr_func get_ptr;
-      extern_ensure_func ensure_capacity;
+      const ExternArrayDriver* driver;
     } _extern_array;
   } u;
 
@@ -197,12 +205,11 @@ struct YamlNode {
     }                                                                \
   }
 
-#define YAML_EXTERN_ARRAY(tag, bits, max_elmts, nodes, f_get_ptr, f_ensure)     \
+#define YAML_EXTERN_ARRAY(tag, bits, max_elmts, nodes, drv)                     \
   {                                                                             \
     .size = (bits), .type = YDT_EXTERN_ARRAY, .elmts = (max_elmts),             \
     YAML_TAG(tag), .u = {                                                       \
-      ._extern_array = {.child = (nodes), .get_ptr = (f_get_ptr),              \
-                         .ensure_capacity = (f_ensure)}                         \
+      ._extern_array = {.child = (nodes), .driver = &(drv)}                    \
     }                                                                           \
   }
 
