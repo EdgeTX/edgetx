@@ -380,7 +380,13 @@ void drawFlightMode(coord_t x, coord_t y, int8_t idx, LcdFlags att)
 void drawValueOrSource(coord_t x, coord_t y, const ValueOrSource& vos, LcdFlags att)
 {
   if (vos.isSource) {
-    drawSource(x, y, vos.toSourceRef(), att);
+    SourceRef ref = vos.toSourceRef();
+    if (ref.type == SOURCE_TYPE_GVAR) {
+      int8_t idx = ref.isInverted() ? -(int8_t)ref.index - 1 : (int8_t)ref.index;
+      drawGVarName(x, y, idx, att);
+    } else {
+      drawSource(x, y, ref, att);
+    }
   } else {
     lcdDrawNumber(x, y, vos.numericValue(), att);
   }
