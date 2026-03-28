@@ -404,9 +404,10 @@ bool YamlTreeWalker::toNextElmt(bool grow)
             if (grow && drv->ensure_capacity) {
                 drv->ensure_capacity(getElmts() + 2);
             }
-            // Use the actual count as the iteration bound
+            // Refresh data_override — ensure_capacity may have
+            // reallocated the arena buffer, invalidating the old pointer.
             uint16_t count = 0;
-            drv->get_ptr(&count);
+            stack[stack_level].data_override = drv->get_ptr(&count);
             maxElmts = count;
         }
 
@@ -529,6 +530,11 @@ void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
         if (node->type == YDT_EXTERN_ARRAY
             && node->u._extern_array.driver->ensure_capacity) {
             node->u._extern_array.driver->ensure_capacity(i + 1);
+            // Refresh data_override — ensure_capacity may have
+            // reallocated the arena buffer, invalidating the old pointer.
+            uint16_t count = 0;
+            stack[stack_level].data_override =
+                node->u._extern_array.driver->get_ptr(&count);
         }
         if (i < node->elmts) {
             setElmts(i);
