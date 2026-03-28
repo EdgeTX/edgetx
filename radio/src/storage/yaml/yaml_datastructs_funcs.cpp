@@ -2663,16 +2663,14 @@ static uint32_t r_valOrSrc(const YamlNode* node, const char* val, uint8_t val_le
       (val[0] >= '0' && val[0] <= '9')) {
     vos.value = (int16_t)yaml_str2int(val, val_len);
   } else if ((val[0] == '-') && (val[1] == 'G')) {
-    // Negative GVar: -GV1 etc.
-    vos.isSource = 1;
-    vos.srcType = SOURCE_TYPE_GVAR;
-    vos.value = -(int16_t)(val[3] - '0');
-    // TODO: handle GVar inversion properly
+    // Legacy negative GVar: -GV1 etc. (1-based → 0-based index)
+    uint16_t idx = (uint16_t)(val[3] - '0' - 1);
+    vos.setSource(SourceRef_(SOURCE_TYPE_GVAR, idx, SOURCE_FLAG_INVERTED));
   } else if (val[0] == 'G') {
-    // Positive GVar: GV1 etc.
+    // Legacy positive GVar: GV1 etc. (1-based → 0-based index)
     vos.isSource = 1;
     vos.srcType = SOURCE_TYPE_GVAR;
-    vos.value = (val[2] - '0');
+    vos.value = (val[2] - '0') - 1;
   } else {
     // Parse as source with possible '!' prefix
     bool invert = false;

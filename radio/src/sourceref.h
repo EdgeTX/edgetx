@@ -154,11 +154,18 @@ struct ValueOrSource {
   void setNumeric(int16_t v) { value = v; isSource = 0; srcType = 0; }
 
   // Access as source reference
+  // For GVar sources, a negative value encodes inversion:
+  //   value = -(index + 1), so index = -value - 1.
   SourceRef toSourceRef() const {
     SourceRef ref = {};
     if (isSource) {
       ref.type = srcType;
-      ref.index = static_cast<uint16_t>(value);
+      if (srcType == SOURCE_TYPE_GVAR && value < 0) {
+        ref.index = static_cast<uint16_t>(-value - 1);
+        ref.flags = SOURCE_FLAG_INVERTED;
+      } else {
+        ref.index = static_cast<uint16_t>(value);
+      }
     }
     return ref;
   }
@@ -166,9 +173,11 @@ struct ValueOrSource {
   void setSource(const SourceRef& ref) {
     isSource = 1;
     srcType = ref.type;
-    value = static_cast<int16_t>(ref.index);
-    // Note: flags (inversion) not stored here — weight/offset inversion
-    // is handled separately via negative numeric values
+    if (ref.type == SOURCE_TYPE_GVAR && ref.isInverted()) {
+      value = -(static_cast<int16_t>(ref.index) + 1);
+    } else {
+      value = static_cast<int16_t>(ref.index);
+    }
   }
 
   void clear() { value = 0; isSource = 0; srcType = 0; }

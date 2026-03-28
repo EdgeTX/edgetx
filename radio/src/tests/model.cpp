@@ -25,6 +25,7 @@
 #include "storage/yaml/yaml_parser.h"
 #include "storage/yaml/yaml_datastructs.h"
 #include "storage/yaml/yaml_bits.h"
+#include "mixes.h"
 
 static const char* _model_config[] =
   {
@@ -78,4 +79,83 @@ TEST(Model, testModelNameParse)
   EXPECT_STREQ(modelName(), "Tst \" Name");
   loadModelYamlStr(_model_config[4]);
   EXPECT_STREQ(modelName(), "\"Tst Name");
+}
+
+// Legacy GVar format: GV1..GV9 (1-based) and -GV1..-GV9
+TEST(Model, testLegacyGVarWeight)
+{
+  modelArenaInit();
+
+  // Positive GVar: GV6 → 0-based index 5
+  loadModelYamlStr(
+    "mixData:\n"
+    " -\n"
+    "   weight: GV6\n"
+    "   destCh: 0\n"
+  );
+
+  MixData* mix = mixAddress(0);
+  ASSERT_NE(mix, nullptr);
+  EXPECT_TRUE(mix->weight.isSource);
+  EXPECT_EQ(mix->weight.srcType, SOURCE_TYPE_GVAR);
+
+  SourceRef ref = mix->weight.toSourceRef();
+  EXPECT_EQ(ref.type, SOURCE_TYPE_GVAR);
+  EXPECT_EQ(ref.index, 5);  // GV6 is 1-based → index 5
+  EXPECT_FALSE(ref.isInverted());
+
+  // Negative GVar: -GV6 → 0-based index 5, inverted
+  modelArenaInit();
+  loadModelYamlStr(
+    "mixData:\n"
+    " -\n"
+    "   weight: -GV6\n"
+    "   destCh: 0\n"
+  );
+
+  mix = mixAddress(0);
+  ASSERT_NE(mix, nullptr);
+  EXPECT_TRUE(mix->weight.isSource);
+  EXPECT_EQ(mix->weight.srcType, SOURCE_TYPE_GVAR);
+
+  ref = mix->weight.toSourceRef();
+  EXPECT_EQ(ref.type, SOURCE_TYPE_GVAR);
+  EXPECT_EQ(ref.index, 5);  // GV6 is 1-based → index 5
+  EXPECT_TRUE(ref.isInverted());
+
+  // New format: gv(5) → 0-based index 5
+  modelArenaInit();
+  loadModelYamlStr(
+    "mixData:\n"
+    " -\n"
+    "   weight: \"gv(5)\"\n"
+    "   destCh: 0\n"
+  );
+
+  mix = mixAddress(0);
+  ASSERT_NE(mix, nullptr);
+  EXPECT_TRUE(mix->weight.isSource);
+
+  ref = mix->weight.toSourceRef();
+  EXPECT_EQ(ref.type, SOURCE_TYPE_GVAR);
+  EXPECT_EQ(ref.index, 5);
+  EXPECT_FALSE(ref.isInverted());
+
+  // New format inverted: !gv(5) → 0-based index 5, inverted
+  modelArenaInit();
+  loadModelYamlStr(
+    "mixData:\n"
+    " -\n"
+    "   weight: \"!gv(5)\"\n"
+    "   destCh: 0\n"
+  );
+
+  mix = mixAddress(0);
+  ASSERT_NE(mix, nullptr);
+  EXPECT_TRUE(mix->weight.isSource);
+
+  ref = mix->weight.toSourceRef();
+  EXPECT_EQ(ref.type, SOURCE_TYPE_GVAR);
+  EXPECT_EQ(ref.index, 5);
+  EXPECT_TRUE(ref.isInverted());
 }
