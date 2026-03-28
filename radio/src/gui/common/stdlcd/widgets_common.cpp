@@ -493,7 +493,13 @@ void editValueOrSource(coord_t x, coord_t y, const char* title, ValueOrSource* v
   if (title)
     lcdDrawTextAlignedLeft(y, title);
   if (vos->isSource) {
-    drawSource(x, y, vos->toSourceRef(), attr);
+    SourceRef ref = vos->toSourceRef();
+    if (ref.type == SOURCE_TYPE_GVAR) {
+      int8_t idx = ref.isInverted() ? -(int8_t)ref.index - 1 : (int8_t)ref.index;
+      drawGVarName(x, y, idx, attr);
+    } else {
+      drawSource(x, y, ref, attr);
+    }
     if (attr & (~RIGHT)) {
       vos->setSource(checkIncDecSource(event, vos->toSourceRef(), SRCMASK_ALL, isSourceAvailable));
     }
