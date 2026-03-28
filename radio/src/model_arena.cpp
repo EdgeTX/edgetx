@@ -152,6 +152,8 @@ bool Arena::grow(uint32_t minCapacity)
   if (!newBuf)
     return false;
 
+  TRACE("Arena::grow %u -> %u (used %u)", _capacity, newCap, _usedBytes);
+
   memcpy(newBuf, _base, _usedBytes);
   memset(newBuf + _usedBytes, 0, newCap - _usedBytes);
 
