@@ -213,6 +213,7 @@ bool rambackupRestore()
 
   memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
   memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
   copyRadioData(&g_eeGeneral, &ramBackupUncompressed.radio);
   copyModelData(&g_model, &ramBackupUncompressed.model);
 

@@ -185,6 +185,7 @@ const char* loadModel(const char* filename, bool alarms, const char* filePath)
     // just get some clean memory state in "g_model"
     // so the mixer can run safely
     memset(&g_model, 0, sizeof(g_model));
+    inputNameIndexReset();
     applyDefaultTemplate();
 
     storageCheck(true);

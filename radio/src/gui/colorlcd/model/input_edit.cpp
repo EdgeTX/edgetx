@@ -158,7 +158,7 @@ void InputEditWindow::buildBody(Window* form)
   // Input Name
   auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_INPUTNAME);
-  new ModelTextEdit(line, rect_t{}, g_model.inputNames[input->chn],
+  new ModelTextEdit(line, rect_t{}, inputNameAlloc(input->chn),
                     LEN_INPUT_NAME,
                     [=]() {
                       setTitle();

@@ -654,7 +654,8 @@ static int luaModelGetInput(lua_State *L)
     ExpoData * expo = expoAddress(first+idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", expo->name);
-    lua_pushtablenstring(L, "inputName", g_model.inputNames[chn]);
+    const char* iName = inputName(chn);
+    lua_pushtablenstring(L, "inputName", iName ? iName : "");
     lua_pushtableinteger(L, "source", expo->srcRaw.toUint32());
     lua_pushtableinteger(L, "scale", expo->scale);
     lua_pushtableinteger(L, "weight", valueOrSourceToLuaInt(expo->weight));
@@ -707,7 +708,11 @@ static int luaModelInsertInput(lua_State *L)
       }
       else if (!strcmp(key, "inputName")) {
         const char * name = luaL_checkstring(L, -1);
-        strncpy(g_model.inputNames[chn], name, LEN_INPUT_NAME);
+        if (name[0]) {
+          strncpy(inputNameAlloc(chn), name, LEN_INPUT_NAME);
+        } else {
+          inputNameClear(chn);
+        }
       }
       else if (!strcmp(key, "source")) {
         expo->srcRaw = SourceRef::fromUint32(luaL_checkinteger(L, -1));

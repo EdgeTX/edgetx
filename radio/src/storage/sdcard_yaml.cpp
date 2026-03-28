@@ -349,6 +349,9 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 
     // wipe memory before reading YAML
     memset(buffer,0,size);
+    if (is_active_model) {
+      inputNameIndexReset();
+    }
 
     if (init_model) {
 #if defined(FUNCTION_SWITCHES)

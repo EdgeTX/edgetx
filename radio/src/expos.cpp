@@ -23,8 +23,11 @@
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
 #include "model_arena.h"
+#include "dataconstants.h"
 
 #include "edgetx.h"
+
+#include <string.h>
 
 static uint8_t _nb_expo_lines;
 
@@ -81,7 +84,7 @@ void deleteExpo(uint8_t idx)
   g_modelArena.deleteFromSection(ARENA_EXPOS, idx, sizeof(ExpoData));
 
   if (!isInputAvailable(input)) {
-    memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
+    inputNameClear(input);
   }
   mixerTaskStart();
 
@@ -173,4 +176,74 @@ static uint8_t _countExpoLines()
 void updateExpoCount()
 {
   _nb_expo_lines = _countExpoLines();
+}
+
+// ---------------------------------------------------------------------------
+// Input name accessors (arena-backed, sparse via side-array index)
+// ---------------------------------------------------------------------------
+
+#define INPUT_NAME_NO_SLOT 0xFF
+
+void inputNameIndexReset()
+{
+  memset(g_model.inputNameIndex, INPUT_NAME_NO_SLOT,
+         sizeof(g_model.inputNameIndex));
+}
+
+static inline char* _inputNameSlot(uint8_t slot)
+{
+  return reinterpret_cast<char*>(
+      g_modelArena.sectionBase(ARENA_INPUT_NAMES)) + slot * LEN_INPUT_NAME;
+}
+
+const char* inputName(uint8_t input)
+{
+  uint8_t slot = g_model.inputNameIndex[input];
+  if (slot == INPUT_NAME_NO_SLOT)
+    return nullptr;
+  return _inputNameSlot(slot);
+}
+
+bool hasInputName(uint8_t input)
+{
+  return g_model.inputNameIndex[input] != INPUT_NAME_NO_SLOT;
+}
+
+char* inputNameAlloc(uint8_t input)
+{
+  uint8_t slot = g_model.inputNameIndex[input];
+  if (slot != INPUT_NAME_NO_SLOT)
+    return _inputNameSlot(slot);
+
+  // Append a new slot
+  uint16_t count = g_modelArena.sectionCount(ARENA_INPUT_NAMES);
+  if (!g_modelArena.ensureSectionCapacity(ARENA_INPUT_NAMES, count + 1))
+    return nullptr;
+
+  g_model.inputNameIndex[input] = count;
+  return _inputNameSlot(count);
+}
+
+void inputNameClear(uint8_t input)
+{
+  uint8_t slot = g_model.inputNameIndex[input];
+  if (slot == INPUT_NAME_NO_SLOT)
+    return;
+
+  uint16_t count = g_modelArena.sectionCount(ARENA_INPUT_NAMES);
+  uint16_t lastSlot = count - 1;
+
+  if (slot != lastSlot) {
+    // Find which input owns the last slot and swap
+    for (uint8_t i = 0; i < MAX_INPUTS; i++) {
+      if (g_model.inputNameIndex[i] == lastSlot) {
+        memcpy(_inputNameSlot(slot), _inputNameSlot(lastSlot), LEN_INPUT_NAME);
+        g_model.inputNameIndex[i] = slot;
+        break;
+      }
+    }
+  }
+
+  g_model.inputNameIndex[input] = INPUT_NAME_NO_SLOT;
+  g_modelArena.trimSectionTo(ARENA_INPUT_NAMES, lastSlot);
 }

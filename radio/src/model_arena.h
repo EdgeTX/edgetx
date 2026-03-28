@@ -86,6 +86,7 @@
 // ARENA_FLIGHT_MODES   ~28         2 (fp_act[]) + MAX_LOGICAL_SWITCHES×4 (lswFm[]) ≈ 258 B
 // ARENA_GVAR_DATA      7           (none)
 // ARENA_GVAR_VALUES    2           (none)
+// ARENA_INPUT_NAMES    3-4         MAX_INPUTS (inputNameIndex[])
 //
 // Largest runtime cost: MAX_FLIGHT_MODES × lswFm = FM × LS × 4 bytes.
 // With 9 FM × 64 LS × 4 = 2304 bytes.  Raising FM to 16 → 4096 bytes.
@@ -95,7 +96,7 @@
 // + sum_chans512[32×4] = 448 bytes (all at hard max 32).
 
 // Maximum number of sections any arena can have
-#define ARENA_MAX_SECTIONS 9
+#define ARENA_MAX_SECTIONS 10
 
 // Model arena section indices
 enum {
@@ -108,6 +109,7 @@ enum {
   ARENA_FLIGHT_MODES,
   ARENA_GVAR_DATA,
   ARENA_GVAR_VALUES,
+  ARENA_INPUT_NAMES,
   MODEL_ARENA_NUM_SECTIONS
 };
 

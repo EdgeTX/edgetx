@@ -608,6 +608,7 @@ TEST_F(ArenaInsertDeleteTest, YamlRoundTrip)
 
   // Clear model and arena completely
   memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
   uint16_t emptyCounts[MODEL_ARENA_NUM_SECTIONS] = {};
   g_modelArena.layout(emptyCounts);
   g_modelArena.clear();
@@ -1027,4 +1028,151 @@ TEST_F(ArenaTest, MaxCapacityEqualsCapacity)
   EXPECT_EQ(arena.freeBytes(), TEST_ARENA_SIZE);
   EXPECT_EQ(arena.currentFreeBytes(), TEST_ARENA_SIZE);
   EXPECT_FALSE(arena.isHeapOwned());
+}
+
+// ---- Input name accessor tests ----
+
+class InputNameTest : public ArenaInsertDeleteTest {
+ protected:
+  void SetUp() override {
+    ArenaInsertDeleteTest::SetUp();
+    for (uint8_t i = 0; i < MAX_INPUTS; i++)
+      inputNameClear(i);
+  }
+};
+
+TEST_F(InputNameTest, AllocAndLookup)
+{
+
+  // Initially no names
+  EXPECT_EQ(inputName(0), nullptr);
+  EXPECT_FALSE(hasInputName(0));
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 0);
+
+  // Alloc name for input 3
+  char* name3 = inputNameAlloc(3);
+  ASSERT_NE(name3, nullptr);
+  strncpy(name3, "Ail", LEN_INPUT_NAME);
+
+  EXPECT_TRUE(hasInputName(3));
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 1);
+  EXPECT_EQ(strncmp(inputName(3), "Ail", LEN_INPUT_NAME), 0);
+  EXPECT_EQ(inputName(0), nullptr);
+
+  // Alloc name for input 0
+  char* name0 = inputNameAlloc(0);
+  ASSERT_NE(name0, nullptr);
+  strncpy(name0, "Ele", LEN_INPUT_NAME);
+
+  EXPECT_TRUE(hasInputName(0));
+  EXPECT_TRUE(hasInputName(3));
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 2);
+  EXPECT_EQ(strncmp(inputName(0), "Ele", LEN_INPUT_NAME), 0);
+  EXPECT_EQ(strncmp(inputName(3), "Ail", LEN_INPUT_NAME), 0);
+
+  // Re-alloc existing returns same pointer
+  char* name3b = inputNameAlloc(3);
+  EXPECT_EQ(name3b, name3);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 2);
+}
+
+TEST_F(InputNameTest, ClearSwapWithLast)
+{
+
+  // Set up names for inputs 0, 2, 5
+  strncpy(inputNameAlloc(0), "Ail", LEN_INPUT_NAME);
+  strncpy(inputNameAlloc(2), "Rud", LEN_INPUT_NAME);
+  strncpy(inputNameAlloc(5), "Thr", LEN_INPUT_NAME);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 3);
+
+  // Clear input 0 — should swap with last (input 5's slot)
+  inputNameClear(0);
+  EXPECT_FALSE(hasInputName(0));
+  EXPECT_EQ(inputName(0), nullptr);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 2);
+
+  // Input 2 and 5 should still be valid
+  EXPECT_EQ(strncmp(inputName(2), "Rud", LEN_INPUT_NAME), 0);
+  EXPECT_EQ(strncmp(inputName(5), "Thr", LEN_INPUT_NAME), 0);
+
+  // Clear input 5
+  inputNameClear(5);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 1);
+  EXPECT_EQ(strncmp(inputName(2), "Rud", LEN_INPUT_NAME), 0);
+
+  // Clear last remaining
+  inputNameClear(2);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 0);
+}
+
+TEST_F(InputNameTest, ClearNoOp)
+{
+
+  // Clear on non-existent name is a no-op
+  inputNameClear(7);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 0);
+}
+
+TEST_F(InputNameTest, IndexReset)
+{
+  strncpy(inputNameAlloc(0), "X", LEN_INPUT_NAME);
+  EXPECT_TRUE(hasInputName(0));
+
+  inputNameIndexReset();
+  // Index is reset but arena section still has data
+  EXPECT_FALSE(hasInputName(0));
+  EXPECT_EQ(inputName(0), nullptr);
+}
+
+TEST_F(InputNameTest, YamlRoundTrip)
+{
+  // Set up names for inputs 1, 5, 10
+  strncpy(inputNameAlloc(1), "Ail", LEN_INPUT_NAME);
+  strncpy(inputNameAlloc(5), "Rud", LEN_INPUT_NAME);
+  strncpy(inputNameAlloc(10), "Thr", LEN_INPUT_NAME);
+  EXPECT_EQ(g_modelArena.sectionCount(ARENA_INPUT_NAMES), 3);
+
+  // Write model to YAML
+  char tmpDir[] = "/tmp/edgetx_iname_XXXXXX";
+  ASSERT_NE(mkdtemp(tmpDir), nullptr);
+  char modelsDir[256];
+  snprintf(modelsDir, sizeof(modelsDir), "%s/MODELS", tmpDir);
+  mkdir(modelsDir, 0755);
+  simuFatfsSetPaths(tmpDir, nullptr);
+
+  static const char* testFile = "test_inames.yml";
+  const char* err = writeModelYaml(testFile);
+  ASSERT_EQ(err, nullptr) << "writeModelYaml failed: " << (err ? err : "");
+
+  // Clear model and arena completely
+  memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
+  uint16_t emptyCounts[MODEL_ARENA_NUM_SECTIONS] = {};
+  g_modelArena.layout(emptyCounts);
+  g_modelArena.clear();
+
+  // Read back
+  err = readModelYaml(testFile, (uint8_t*)&g_model, sizeof(g_model));
+  ASSERT_EQ(err, nullptr) << "readModelYaml failed: " << (err ? err : "");
+
+  // Verify input names survived the round-trip
+  EXPECT_TRUE(hasInputName(1));
+  EXPECT_TRUE(hasInputName(5));
+  EXPECT_TRUE(hasInputName(10));
+  EXPECT_FALSE(hasInputName(0));
+  EXPECT_FALSE(hasInputName(2));
+
+  EXPECT_EQ(strncmp(inputName(1), "Ail", LEN_INPUT_NAME), 0);
+  EXPECT_EQ(strncmp(inputName(5), "Rud", LEN_INPUT_NAME), 0);
+  EXPECT_EQ(strncmp(inputName(10), "Thr", LEN_INPUT_NAME), 0);
+
+  // Clean up
+  simuFatfsSetPaths(TESTS_PATH, nullptr);
+  if (!HasFailure()) {
+    char filePath[256];
+    snprintf(filePath, sizeof(filePath), "%s/MODELS/%s", tmpDir, testFile);
+    remove(filePath);
+    rmdir(modelsDir);
+    rmdir(tmpDir);
+  }
 }

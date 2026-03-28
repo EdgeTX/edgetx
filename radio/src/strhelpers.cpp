@@ -710,12 +710,13 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
       dest_len -= sizeof(CHAR_INPUT) - 1;
       {
         char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
-        if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
-            (dest_len > sizeof(g_model.inputNames[idx]))) {
-          memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
+        const char* iName = inputName(idx);
+        if (!defaultOnly && iName && iName[0] != '\0' &&
+            (dest_len > LEN_INPUT_NAME)) {
+          memset(pos, 0, LEN_INPUT_NAME + 1);
           size_t input_len =
-              std::min(dest_len - 1, sizeof(g_model.inputNames[idx]));
-          strncpy(pos, g_model.inputNames[idx], input_len);
+              std::min(dest_len - 1, (size_t)LEN_INPUT_NAME);
+          strncpy(pos, iName, input_len);
           pos[input_len] = '\0';
         } else {
           strAppendUnsigned(pos, idx + 1, 2);

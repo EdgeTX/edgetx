@@ -49,3 +49,23 @@ uint8_t getExpoCount();
 // Should only be called from storage
 // right after a model has been loaded
 void updateExpoCount();
+
+// --- Input name accessors (arena-backed, sparse) ---
+
+// Read-only lookup. Returns pointer to name or nullptr if input has no name.
+const char* inputName(uint8_t input);
+
+// Returns true if the input has a name allocated.
+bool hasInputName(uint8_t input);
+
+// Ensure a name slot exists for 'input' and return a writable pointer.
+// Allocates a new arena slot if needed. Returns nullptr on arena exhaustion.
+char* inputNameAlloc(uint8_t input);
+
+// Remove the name for 'input', freeing the arena slot (swap-with-last).
+void inputNameClear(uint8_t input);
+
+// Clear the entire inputNameIndex (set all to 0xFF).
+// Called on model init / clear before loading names.
+void inputNameIndexReset();
+

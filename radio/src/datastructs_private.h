@@ -766,6 +766,14 @@ PACK(struct USBJoystickChData {
 #endif
 });
 
+// YAML-visible struct for input name strings (adapts to LEN_INPUT_NAME).
+// CUST_IDX provides custom index read/write so the YAML index is the input
+// number while the arena stores names sparsely.
+PACK(struct InputNameStr {
+  CUST_IDX(inputNames, r_input_name_idx, w_input_name_idx);
+  char val[LEN_INPUT_NAME];
+});
+
 PACK(struct ModelData {
   CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
@@ -834,7 +842,8 @@ PACK(struct ModelData {
 
   SCRIPT_DATA
 
-  NOBACKUP(char inputNames[MAX_INPUTS][LEN_INPUT_NAME]);
+  NOBACKUP(uint8_t inputNameIndex[MAX_INPUTS]) SKIP;
+  CUST_EXTERN_ARRAY_NOIDX(inputNames, struct_InputNameStr, MAX_INPUTS, yaml_drv_input_names);
   NOBACKUP(potwarnen_t potsWarnEnabled);
   NOBACKUP(int8_t potsWarnPosition[MAX_POTS]);
 

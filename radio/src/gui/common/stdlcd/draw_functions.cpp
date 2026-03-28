@@ -561,9 +561,11 @@ void drawSource(coord_t x, coord_t y, const SourceRef& ref, LcdFlags att)
       break;
 
     case SOURCE_TYPE_INPUT:
+    {
+      const char* iName = inputName(idx);
       if (att & RIGHT) {
-        if (g_model.inputNames[idx][0])
-          lcdDrawSizedText(x, y, g_model.inputNames[idx], LEN_INPUT_NAME, att);
+        if (iName && iName[0])
+          lcdDrawSizedText(x, y, iName, LEN_INPUT_NAME, att);
         else
           lcdDrawNumber(x, y, idx + 1, att|LEADING0, 2);
         x = lcdLastLeftPos - 5;
@@ -578,12 +580,13 @@ void drawSource(coord_t x, coord_t y, const SourceRef& ref, LcdFlags att)
         }
         lcdDrawChar(x+1, y+1, CHR_INPUT, TINSIZE);
         lcdDrawSolidFilledRect(x, y, 5, 7);
-        if (g_model.inputNames[idx][0])
-          lcdDrawSizedText(x+6, y, g_model.inputNames[idx], LEN_INPUT_NAME, att);
+        if (iName && iName[0])
+          lcdDrawSizedText(x+6, y, iName, LEN_INPUT_NAME, att);
         else
           lcdDrawNumber(x+6, y, idx + 1, att|LEADING0, 2);
       }
       break;
+    }
 
 #if defined(LUA_INPUTS)
     case SOURCE_TYPE_LUA:

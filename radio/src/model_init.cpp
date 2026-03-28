@@ -47,7 +47,7 @@ void setDefaultInputs()
     expo->chn = i;
     expo->weight.setNumeric(100);
     expo->mode = 3; // TODO constant
-    strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
+    strncpy(inputNameAlloc(i), getMainControlLabel(stick_index), LEN_INPUT_NAME);
   }
   updateExpoCount();
   storageDirty(EE_MODEL);
@@ -190,6 +190,7 @@ void applyDefaultTemplate()
 void setModelDefaults(uint8_t id)
 {
   memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
 
   // Start with empty arena — applyDefaultTemplate allocates sections on demand
   modelArenaInit();

@@ -106,6 +106,7 @@ TEST(Storage, BackupArenaRoundTrip)
 
   // Clear everything
   memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
   g_modelArena.clear();
 
   // Restore

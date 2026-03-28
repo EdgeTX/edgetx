@@ -763,8 +763,8 @@ static const struct YamlNode struct_ScriptData[] = {
   YAML_ARRAY("inputs", 32, 6, union_ScriptDataInput, NULL),
   YAML_END
 };
-static const struct YamlNode struct_string_32[] = {
-  YAML_IDX,
+static const struct YamlNode struct_InputNameStr[] = {
+  YAML_IDX_CUST("inputNames",r_input_name_idx,w_input_name_idx),
   YAML_STRING("val", 4),
   YAML_END
 };
@@ -961,7 +961,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
   YAML_ARRAY("scriptsData", 288, 9, struct_ScriptData, NULL),
-  YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
+  YAML_PADDING( 256 ),
+  YAML_EXTERN_ARRAY("inputNames", 32, MAX_INPUTS, struct_InputNameStr, yaml_drv_input_names),
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),

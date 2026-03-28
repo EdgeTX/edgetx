@@ -109,6 +109,10 @@ YAML_ENSURE(gvar_data, ARENA_GVAR_DATA, MAX_GVARS)
 YAML_GET_PTR(gvar_values, ARENA_GVAR_VALUES)
 YAML_ENSURE(gvar_values, ARENA_GVAR_VALUES, MAX_FLIGHT_MODES * MAX_GVARS)
 
+YAML_GET_PTR(input_names, ARENA_INPUT_NAMES)
+YAML_ENSURE(input_names, ARENA_INPUT_NAMES, MAX_INPUTS)
+
+
 #undef YAML_GET_PTR
 #undef YAML_ENSURE
 
@@ -3185,5 +3189,36 @@ static const EADriver yaml_drv_gvar_data =
     { yaml_get_gvar_data_ptr, yaml_ensure_gvar_data_capacity, nullptr };
 static const EADriver yaml_drv_gvar_values =
     { yaml_get_gvar_values_ptr, yaml_ensure_gvar_values_capacity, gvar_is_active };
+static const EADriver yaml_drv_input_names =
+    { yaml_get_input_names_ptr, yaml_ensure_input_names_capacity, nullptr };
+
+// Custom IDX for inputNames extern array:
+// Read: parse input number → allocate arena slot, return slot index
+// Write: reverse-lookup slot → input number, output input number
+static uint32_t r_input_name_idx(void* user, const char* val, uint8_t val_len)
+{
+  uint32_t input = yaml_str2uint(val, val_len);
+  if (input >= MAX_INPUTS) return 0;
+
+  char* name = inputNameAlloc(input);
+  if (!name) return 0;
+
+  return g_model.inputNameIndex[input];
+}
+
+static bool w_input_name_idx(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto* walker = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t slot = walker->getElmts();
+
+  // Reverse lookup: find which input owns this slot
+  for (uint8_t i = 0; i < MAX_INPUTS; i++) {
+    if (g_model.inputNameIndex[i] == slot) {
+      char* s = yaml_unsigned2str(i);
+      return wf(opaque, s, strlen(s));
+    }
+  }
+  return false;
+}
 static const EADriver yaml_drv_radio_cfn =
     { yaml_get_radio_cfn_ptr, yaml_ensure_radio_cfn_capacity, cfn_is_active };

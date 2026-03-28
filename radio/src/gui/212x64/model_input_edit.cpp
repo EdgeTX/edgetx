@@ -90,7 +90,7 @@ void menuModelExpoOne(event_t event)
     switch (i) {
       case EXPO_FIELD_INPUT_NAME:
         editSingleName(EXPO_ONE_2ND_COLUMN, y, STR_INPUTNAME,
-                       g_model.inputNames[ed->chn], LEN_INPUT_NAME, event, attr,
+                       inputNameAlloc(ed->chn), LEN_INPUT_NAME, event, attr,
                        old_editMode);
         break;
 
