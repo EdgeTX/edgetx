@@ -109,6 +109,9 @@ YAML_ENSURE(gvar_data, ARENA_GVAR_DATA, MAX_GVARS)
 YAML_GET_PTR(gvar_values, ARENA_GVAR_VALUES)
 YAML_ENSURE(gvar_values, ARENA_GVAR_VALUES, MAX_FLIGHT_MODES * MAX_GVARS)
 
+YAML_GET_PTR(mix_ch_name, ARENA_MIX_CH_NAMES)
+YAML_ENSURE(mix_ch_name, ARENA_MIX_CH_NAMES, MAX_OUTPUT_CHANNELS)
+
 #undef YAML_GET_PTR
 #undef YAML_ENSURE
 
@@ -3169,6 +3172,8 @@ using EADriver = YamlNode::ExternArrayDriver;
 
 static const EADriver yaml_drv_mix =
     { yaml_get_mix_ptr, yaml_ensure_mix_capacity, nullptr };
+static const EADriver yaml_drv_mix_ch_names =
+    { yaml_get_mix_ch_name_ptr, yaml_ensure_mix_ch_name_capacity, nullptr };
 static const EADriver yaml_drv_expo =
     { yaml_get_expo_ptr, yaml_ensure_expo_capacity, nullptr };
 static const EADriver yaml_drv_curves =

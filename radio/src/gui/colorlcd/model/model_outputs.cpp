@@ -39,7 +39,7 @@
 
 class OutputLineButton : public ListLineButton
 {
-  lv_obj_t* source = nullptr;
+  lv_obj_t* channel = nullptr;
   lv_obj_t* revert = nullptr;
   lv_obj_t* min = nullptr;
   lv_obj_t* max = nullptr;
@@ -51,14 +51,14 @@ class OutputLineButton : public ListLineButton
   {
     lv_obj_enable_style_refresh(false);
 
-    source = etx_label_create(lvobj);
-    lv_obj_set_pos(source, SRC_X, SRC_Y);
-    lv_obj_set_size(source, SRC_W, SRC_H);
+    channel = etx_label_create(lvobj);
+    lv_obj_set_pos(channel, SRC_X, SRC_Y);
+    lv_obj_set_size(channel, SRC_W, SRC_H);
 
 #if !NARROW_LAYOUT
-    etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_pad_top(source, -PAD_TINY, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_text_line_space(source, -PAD_THREE, ETX_STATE_NAME_FONT_SMALL);
+    etx_font(channel, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_pad_top(channel, -PAD_TINY, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_text_line_space(channel, -PAD_THREE, ETX_STATE_NAME_FONT_SMALL);
 #endif
 
     min = etx_label_create(lvobj);
@@ -122,19 +122,21 @@ class OutputLineButton : public ListLineButton
     const LimitData* output = limitAddress(index);
     if (g_model.limitData[index].name[0] != '\0') {
 #if !NARROW_LAYOUT
-      lv_obj_add_state(source, ETX_STATE_NAME_FONT_SMALL);
+      lv_obj_add_state(channel, ETX_STATE_NAME_FONT_SMALL);
 #endif
       char chanStr[LEN_CHANNEL_NAME + 16];
-      char* s = strAppend(chanStr, getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)index)));
+      char* s = strAppend(chanStr, g_model.limitData[index].name);
       s = strAppend(s, "\n");
       s = strAppend(s, STR_CH);
       strAppendUnsigned(s, index + 1);
-      lv_label_set_text(source, chanStr);
+      lv_label_set_text(channel, chanStr);
     } else {
 #if !NARROW_LAYOUT
-      lv_obj_clear_state(source, ETX_STATE_NAME_FONT_SMALL);
+      lv_obj_clear_state(channel, ETX_STATE_NAME_FONT_SMALL);
 #endif
-      lv_label_set_text(source, getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)index)));
+      char chanStr[8];
+      strAppendStringWithIndex(chanStr, STR_CH, index + 1);
+      lv_label_set_text(channel, chanStr);
     }
     if (output->revert) {
       lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);
@@ -204,7 +206,7 @@ class OutputLineButton : public ListLineButton
     if (value != newValue) {
       value = newValue;
 
-      int chanVal = calcRESXto100(ex_chans[index]);
+      int chanVal = calcRESXto100(ex_chans[getOutputSrcCh(index)]);
 
       if (chanVal < -DEADBAND) {
         lv_obj_add_state(min, ETX_STATE_MINMAX_BOLD);
@@ -262,6 +264,7 @@ void ModelOutputsPage::build(Window* window)
         output->revert = false;
         output->curve = 0;
         output->symetrical = 0;
+        output->srcCh = 0;
         storageDirty(EE_MODEL);
         btn->refresh();
       });

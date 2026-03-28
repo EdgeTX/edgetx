@@ -83,8 +83,13 @@ void onMixesMenu(const char * result)
 
 void displayHeaderChannelName(uint8_t ch)
 {
-  if (g_model.limitData[ch].name[0] != '\0') {
-    lcdDrawSizedText(MIX_HDR_GAUGE_POS_X - FWNUM * 5 - 1, 1, g_model.limitData[ch].name, ZLEN(g_model.limitData[ch].name), SMLSIZE|RIGHT);
+  const char* name = getMixChName(ch);
+  if (!name) {
+    if (g_model.limitData[ch].name[0] != '\0')
+      name = g_model.limitData[ch].name;
+  }
+  if (name) {
+    lcdDrawSizedText(MIX_HDR_GAUGE_POS_X - FWNUM * 5 - 1, 1, name, LEN_CHANNEL_NAME, SMLSIZE|RIGHT);
   }
 }
 
@@ -124,9 +129,13 @@ void displayMixLine(coord_t y, MixData * md)
 
 void displayHeaderChannelName(uint8_t ch)
 {
-  uint8_t len = zlen(g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name));
-  if (len) {
-    lcdDrawSizedText(80, 1, g_model.limitData[ch].name, len, SMLSIZE);
+  const char* name = getMixChName(ch);
+  if (!name) {
+    uint8_t len = zlen(g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name));
+    if (len) name = g_model.limitData[ch].name;
+  }
+  if (name) {
+    lcdDrawSizedText(80, 1, name, LEN_CHANNEL_NAME, SMLSIZE);
   }
 }
 

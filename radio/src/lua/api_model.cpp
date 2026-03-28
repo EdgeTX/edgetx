@@ -1612,8 +1612,10 @@ Get servo parameters
  * `curve`
    * (number) Curve number (0 for Curve1)
    * or `nil` if no curve set
+ * `srcCh` (number) Source mix channel mapping: 0 = default (same as output index),
+   1..32 = explicit mix channel, -1 = disabled (output 0)
 
-@status current Introduced in 2.0.0
+@status current Introduced in 2.0.0, srcCh added in 2.11
 */
 static int luaModelGetOutput(lua_State *L)
 {
@@ -1630,6 +1632,7 @@ static int luaModelGetOutput(lua_State *L)
     lua_pushtableinteger(L, "revert", limit->revert);
     if (limit->curve)
       lua_pushtableinteger(L, "curve", limit->curve-1);
+    lua_pushtableinteger(L, "srcCh", limit->srcCh);
   }
   else {
     lua_pushnil(L);
@@ -1686,10 +1689,54 @@ static int luaModelSetOutput(lua_State *L)
       else if (!strcmp(key, "curve")) {
         limit->curve = luaL_checkinteger(L, -1) + 1;
       }
+      else if (!strcmp(key, "srcCh")) {
+        limit->srcCh = luaL_checkinteger(L, -1);
+      }
     }
     storageDirty(EE_MODEL);
   }
 
+  return 0;
+}
+
+/*luadoc
+@function model.getMixChannelName(index)
+
+Get mix channel name
+
+@param index (unsigned number) channel number (use 0 for CH1)
+
+@retval string channel name or empty string if not set
+
+@status current Introduced in 2.11
+*/
+static int luaModelGetMixChannelName(lua_State *L)
+{
+  unsigned int idx = luaL_checkinteger(L, 1);
+  const char* name = getMixChName(idx);
+  if (name)
+    lua_pushstring(L, name);
+  else
+    lua_pushstring(L, "");
+  return 1;
+}
+
+/*luadoc
+@function model.setMixChannelName(index, name)
+
+Set mix channel name
+
+@param index (unsigned number) channel number (use 0 for CH1)
+
+@param name (string) channel name
+
+@status current Introduced in 2.11
+*/
+static int luaModelSetMixChannelName(lua_State *L)
+{
+  unsigned int idx = luaL_checkinteger(L, 1);
+  const char* name = luaL_checkstring(L, 2);
+  setMixChName(idx, name);
   return 0;
 }
 
@@ -2011,6 +2058,8 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( setCurve, luaModelSetCurve )
   LROT_FUNCENTRY( getOutput, luaModelGetOutput )
   LROT_FUNCENTRY( setOutput, luaModelSetOutput )
+  LROT_FUNCENTRY( getMixChannelName, luaModelGetMixChannelName )
+  LROT_FUNCENTRY( setMixChannelName, luaModelSetMixChannelName )
 #if defined (GVARS)
   LROT_FUNCENTRY( getGlobalVariable, luaModelGetGlobalVariable )
   LROT_FUNCENTRY( setGlobalVariable, luaModelSetGlobalVariable )

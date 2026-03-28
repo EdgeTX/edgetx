@@ -839,13 +839,15 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
       strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
       break;
 
-    case SOURCE_TYPE_CHANNEL:
-      if (!defaultOnly && g_model.limitData[idx].name[0] != '\0') {
-        strAppend(dest, g_model.limitData[idx].name, LEN_CHANNEL_NAME);
+    case SOURCE_TYPE_CHANNEL: {
+      const char* mixName = getMixChName(idx);
+      if (!defaultOnly && mixName) {
+        strAppend(dest, mixName, LEN_CHANNEL_NAME);
       } else {
         strAppendStringWithIndex(dest, STR_CH, idx + 1);
       }
       break;
+    }
 
     case SOURCE_TYPE_GVAR:
 #if defined(COLORLCD)

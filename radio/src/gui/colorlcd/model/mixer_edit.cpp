@@ -21,6 +21,7 @@
 
 #include "mixer_edit.h"
 
+#include "model_arena.h"
 #include "channel_bar.h"
 #include "curve_param.h"
 #include "curveedit.h"
@@ -97,8 +98,15 @@ void MixEditWindow::buildBody(Window *form)
 
   MixData *mix = mixAddress(index);
 
-  // Mix name
+  // Channel name (mix channel, stored in arena)
   auto line = form->newLine(grid);
+  new StaticText(line, rect_t{}, "Ch. name");
+  setMixChName(mix->destCh, getMixChName(mix->destCh) ? getMixChName(mix->destCh) : "");
+  auto* chNameBuf = (char*)(g_modelArena.sectionBase(ARENA_MIX_CH_NAMES)
+                           + mix->destCh * sizeof(MixChName));
+  new ModelTextEdit(line, rect_t{}, chNameBuf, LEN_CHANNEL_NAME);
+
+  // Mix name
   new StaticText(line, rect_t{}, STR_NAME);
   new ModelTextEdit(line, rect_t{}, mix->name, sizeof(mix->name));
 

@@ -63,6 +63,7 @@ enum MenuModelOutputsItems {
 #define MIN_MAX_ATTR          attr
 
 enum MenuModelOutputsOneItems {
+  ITEM_OUTPUTONE_SOURCE,
   ITEM_OUTPUTONE_CH_NAME,
   ITEM_OUTPUTONE_OFFSET,
   ITEM_OUTPUTONE_MIN,
@@ -111,7 +112,7 @@ void menuModelLimitsOne(event_t event)
   lcdDrawNumber(19*FW, 0, PPM_CH_CENTER(s_currIdx)+channelOutputs[s_currIdx]/2, RIGHT);
   lcdDrawText(19*FW, 0, STR_US);
 
-  int chanVal = calcRESXto100(ex_chans[s_currIdx]);
+  int chanVal = calcRESXto100(ex_chans[getOutputSrcCh(s_currIdx)]);
 
   uint8_t old_editMode = s_editMode;
 
@@ -127,6 +128,22 @@ void menuModelLimitsOne(event_t event)
     int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
 
     switch (i) {
+      case ITEM_OUTPUTONE_SOURCE:
+      {
+        lcdDrawTextAlignedLeft(y, STR_SOURCE);
+        if (ld->srcCh < 0) {
+          lcdDrawText(LIMITS_ONE_2ND_COLUMN, y, "---", attr);
+        } else if (ld->srcCh == 0) {
+          lcdDrawText(LIMITS_ONE_2ND_COLUMN, y, "=", attr);
+        } else {
+          putsChn(LIMITS_ONE_2ND_COLUMN, y, ld->srcCh, attr);
+        }
+        if (active) {
+          CHECK_INCDEC_MODELVAR(event, ld->srcCh, -1, MAX_OUTPUT_CHANNELS);
+        }
+        break;
+      }
+
       case ITEM_OUTPUTONE_CH_NAME:
         editSingleName(LIMITS_ONE_2ND_COLUMN, y, STR_NAME, ld->name,
                        sizeof(ld->name), event, attr, old_editMode);
@@ -194,6 +211,7 @@ void onLimitsMenu(const char *result)
     ld->ppmCenter = 0;
     ld->revert = false;
     ld->curve = 0;
+    ld->srcCh = 0;
     storageDirty(EE_MODEL);
   }
   else if (result == STR_COPY_STICKS_TO_OFS) {

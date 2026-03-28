@@ -22,6 +22,7 @@
 #include "edgetx.h"
 
 enum LimitsItems {
+  ITEM_LIMITS_SOURCE,
   ITEM_LIMITS_CH_NAME,
   ITEM_LIMITS_OFFSET,
   ITEM_LIMITS_MIN,
@@ -38,6 +39,7 @@ enum LimitsItems {
   ITEM_LIMITS_MAXROW = ITEM_LIMITS_COUNT-1
 };
 
+#define LIMITS_SOURCE_POS         2*FW
 #define LIMITS_NAME_POS           4*FW
 #define LIMITS_OFFSET_POS         14*FW+4
 #define LIMITS_MIN_POS            20*FW-3
@@ -75,6 +77,7 @@ void onLimitsMenu(const char *result)
     ld->ppmCenter = 0;
     ld->revert = false;
     ld->curve = 0;
+    ld->srcCh = 0;
     storageDirty(EE_MODEL);
   }
   else if (result == STR_COPY_STICKS_TO_OFS) {
@@ -155,6 +158,19 @@ void menuModelLimits(event_t event)
       uint8_t active = (attr && s_editMode>0) ;
       switch(j)
       {
+        case ITEM_LIMITS_SOURCE:
+          if (ld->srcCh < 0) {
+            lcdDrawText(LIMITS_SOURCE_POS, y, "---", attr);
+          } else if (ld->srcCh == 0) {
+            lcdDrawText(LIMITS_SOURCE_POS, y, "=", attr);
+          } else {
+            putsChn(LIMITS_SOURCE_POS, y, ld->srcCh, attr);
+          }
+          if (active) {
+            CHECK_INCDEC_MODELVAR(event, ld->srcCh, -1, MAX_OUTPUT_CHANNELS);
+          }
+          break;
+
         case ITEM_LIMITS_CH_NAME:
           editName(LIMITS_NAME_POS, y, ld->name, sizeof(ld->name), event, attr,
                    0, old_editMode);
