@@ -21,6 +21,18 @@
 
 #pragma once
 
-void IICcsd203init(void);
-void initCSD203(void);
-void readCSD203(void);
+#include "hal/i2c_driver.h"
+
+typedef struct {
+  etx_i2c_bus_t bus;
+  uint16_t addr;
+  bool initialized;
+} csd203_t;
+
+int csd203_init(csd203_t* dev, etx_i2c_bus_t bus, uint16_t addr,
+                uint16_t rshunt, uint16_t current_lsb);
+
+uint16_t csd203_read_voltage(csd203_t* dev);
+uint16_t csd203_read_current(csd203_t* dev);
+
+void csd203_start(etx_i2c_bus_t bus);
