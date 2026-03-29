@@ -33,8 +33,7 @@ static uint16_t s_i2c_addr;
 static constexpr uint32_t RESET_DELAY_MS = 150;
 static constexpr uint32_t READY_TIMEOUT_MS = 200;
 static constexpr uint32_t POWER_DELAY_MS = 20;
-static constexpr uint32_t VERIFY_DELAY_MS = 10;
-static constexpr uint32_t CONFIG_DELAY_US = 100;
+static constexpr uint32_t CONFIG_DELAY_MS = 1;
 static constexpr uint8_t BURST_READ_LEN = 14;
 
 static int write_cmd(uint8_t reg, uint8_t value)
@@ -120,55 +119,49 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     TRACE("ICM42627: failed to write GYRO_CONFIG0");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_ACCEL_CONFIG0_REG, ICM42627_ACCEL_CONFIG) < 0) {
     TRACE("ICM42627: failed to write ACCEL_CONFIG0");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
-
-  if (read_cmd(ICM42627_ACCEL_CONFIG0_REG, &who_am_i) < 0 ||
-      who_am_i != ICM42627_ACCEL_CONFIG) {
-    TRACE("ICM42627: ACCEL_CONFIG0 readback mismatch");
-    return -1;
-  }
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_GYRO_CONFIG1_REG, ICM42627_GYRO_FILTER) < 0) {
     TRACE("ICM42627: failed to write GYRO_CONFIG1");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_ACCEL_GYRO_BW_REG, ICM42627_ACCEL_GYRO_BW) < 0) {
     TRACE("ICM42627: failed to write ACCEL_GYRO_BW");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_ACCEL_CONFIG1_REG, ICM42627_ACCEL_FILTER) < 0) {
     TRACE("ICM42627: failed to write ACCEL_CONFIG1");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK1) < 0) {
     TRACE("ICM42627: failed to select register bank 1");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2) < 0) {
     TRACE("ICM42627: failed to write GYRO_STATIC2");
     return -1;
   }
-  delay_us(CONFIG_DELAY_US);
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK0) < 0) {
     TRACE("ICM42627: failed to restore register bank 0");
     return -1;
   }
-  delay_ms(VERIFY_DELAY_MS);
+  delay_ms(CONFIG_DELAY_MS);
 
   // Re-read WHO_AM_I after reset and banked configuration to catch a device
   // that stopped responding even though the initial probe succeeded.
