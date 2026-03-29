@@ -44,8 +44,9 @@ struct etx_imu_t {
   uint16_t addr;
 };
 
-// Generic detection: iterates candidates, returns read fn on success
-imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count);
+// Generic detection: iterates candidates, returns read fn and bus on success
+imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count,
+                       etx_i2c_bus_t* detected_bus = nullptr);
 
 // Returns the name of the detected IMU, or nullptr if none
 const char* imuGetName();

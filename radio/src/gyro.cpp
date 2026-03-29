@@ -21,22 +21,28 @@
 
 #include "edgetx.h"
 #include "hal.h"
+#include "hal/i2c_driver.h"
 #include "hal/usb_driver.h"
+#include "os/timer.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 
 #define COMPLEMENTARY_ALPHA  0.92f
 #define LP_FILTER_ALPHA      0.9f
-#define SAMPLE_TIME_S        0.005f
+#define SAMPLE_TIME_S        0.01f
+#define GYRO_POLL_PERIOD_MS  10
 
 int16_t gyroOutputs[2];
 
 static imu_read_fn readFn;
+static etx_i2c_bus_t i2cBus;
 static uint8_t errors;
 static int16_t offset_x, offset_y;
 static int16_t range_x = 8192, range_y = 8192;
 static int16_t raw_ax, raw_ay;
+
+static timer_handle_t _gyro_timer = TIMER_INITIALIZER;
 
 // filter state
 static bool filterInitialized;
@@ -102,24 +108,21 @@ static void gyroFilter(etx_imu_data_t* raw)
   }
 }
 
-void gyroStart(imu_read_fn fn)
+static void gyroTimerCb(timer_handle_t* timer)
 {
-  readFn = fn;
-}
+  (void)timer;
 
-void gyroWakeup()
-{
-  static tmr10ms_t gyroWakeupTime = 0;
-
-  tmr10ms_t now = get_tmr10ms();
-  if (!readFn || errors >= 100 || now < gyroWakeupTime ||
-      usbPluggedInStorageMode())
+  if (!readFn || errors >= 100 || usbPluggedInStorageMode())
     return;
 
-  gyroWakeupTime = now + 1; /* 10ms default */
+  if (!i2c_trylock(i2cBus))
+    return;
 
   etx_imu_data_t raw;
-  if (readFn(&raw) < 0) {
+  int rc = readFn(&raw);
+  i2c_unlock(i2cBus);
+
+  if (rc < 0) {
     ++errors;
     return;
   }
@@ -136,6 +139,24 @@ void gyroWakeup()
 
   gyroOutputs[0] = (ax * float(RESX)) / range_x;
   gyroOutputs[1] = (ay * float(RESX)) / range_y;
+}
+
+void gyroStart(imu_read_fn fn, etx_i2c_bus_t bus)
+{
+  readFn = fn;
+  i2cBus = bus;
+
+  if (fn) {
+    timer_create(&_gyro_timer, gyroTimerCb, "gyro",
+                 GYRO_POLL_PERIOD_MS, true);
+    timer_start(&_gyro_timer);
+  }
+}
+
+void gyroStop()
+{
+  timer_stop(&_gyro_timer);
+  readFn = nullptr;
 }
 
 int16_t gyroScaledX()

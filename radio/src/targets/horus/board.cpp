@@ -150,7 +150,8 @@ static void gyroInit()
     { driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
   };
 
-  gyroStart(imuDetect(candidates, DIM(candidates)));
+  etx_i2c_bus_t bus = 0;
+  gyroStart(imuDetect(candidates, DIM(candidates), &bus), bus);
 }
 #endif
 
