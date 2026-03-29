@@ -47,6 +47,11 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate,
 // @return -1 if error, 0 otherwise
 int stm32_i2c_deinit(uint8_t bus);
 
+// Recover I2C bus by SCL bit-banging (per ST AN2824).
+// Clocks SCL up to 9 times to release a stuck slave, then reinits peripheral.
+// @return 0 on success, -1 if SDA still stuck or reinit failed
+int stm32_i2c_bus_recover(uint8_t bus);
+
 // Transmit in master mode (blocking mode)
 // @return -1 if error, 0 otherwise
 int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
