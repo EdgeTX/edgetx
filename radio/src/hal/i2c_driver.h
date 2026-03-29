@@ -28,6 +28,15 @@ typedef uint8_t etx_i2c_bus_t;
 int i2c_init(etx_i2c_bus_t bus);
 int i2c_deinit(etx_i2c_bus_t bus);
 
+// Explicit bus locking — caller must lock before transfer functions.
+//  - i2c_lock: blocking, for regular task context
+//  - i2c_trylock: non-blocking, for timer/ISR context (returns false if busy)
+//  - i2c_unlock: release
+// All are no-ops before the RTOS scheduler starts.
+void i2c_lock(etx_i2c_bus_t bus);
+bool i2c_trylock(etx_i2c_bus_t bus);
+void i2c_unlock(etx_i2c_bus_t bus);
+
 int i2c_dev_ready(etx_i2c_bus_t bus, uint16_t addr);
 
 int i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
