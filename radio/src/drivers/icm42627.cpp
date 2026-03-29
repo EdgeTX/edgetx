@@ -47,11 +47,6 @@ static int read_cmd(uint8_t reg, uint8_t *value)
   return i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, value, 1);
 }
 
-static int read_who_am_i(uint8_t *value)
-{
-  return read_cmd(ICM42627_WHO_AM_I_REG, value);
-}
-
 static int write_checked(uint8_t reg, uint8_t value, const char *error)
 {
   if (write_cmd(reg, value) < 0) {
@@ -103,107 +98,110 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
   s_i2c_bus = bus;
   s_i2c_addr = addr;
 
-  TRACE("ICM42627 I2C Init at address 0x%x", addr);
+  TRACE("ICM42627: probing I2C address 0x%02X", addr);
 
   if (i2c_init(s_i2c_bus) < 0) {
-    TRACE("ICM42627 ERROR: i2c_init bus error");
+    TRACE("ICM42627: i2c_init failed");
     return -1;
   }
 
   if (i2c_dev_ready(s_i2c_bus, s_i2c_addr) < 0) {
-    TRACE("ICM42627 device init error");
+    TRACE("ICM42627: device did not acknowledge on I2C");
     return -1;
   }
 
   uint8_t who_am_i = 0;
-  if (read_who_am_i(&who_am_i) < 0) {
-    TRACE("ICM42627 ERROR: WHO_AM_I read error");
+  if (read_cmd(ICM42627_WHO_AM_I_REG, &who_am_i) < 0) {
+    TRACE("ICM42627: failed to read WHO_AM_I");
     return -1;
   }
 
   if (who_am_i != ICM42627_WHO_AM_I) {
-    TRACE("ICM42627 ERROR: unexpected WHO_AM_I 0x%02X", who_am_i);
+    TRACE("ICM42627: unexpected WHO_AM_I 0x%02X, expected 0x%02X", who_am_i,
+          ICM42627_WHO_AM_I);
     return -1;
   }
 
   if (write_cmd(ICM42627_DEVICE_CONFIG_REG, ICM42627_RESET) < 0) {
-    TRACE("ICM42627 WARN: reset write failed");
+    TRACE("ICM42627: failed to write reset command");
   }
 
   delay_ms(RESET_DELAY_MS);
 
   if (wait_for_device_ready(READY_TIMEOUT_MS) < 0) {
-    TRACE("ICM42627 ERROR: device not ready after reset");
+    TRACE("ICM42627: device did not become ready after reset");
     return -1;
   }
 
   if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1,
-                    "ICM42627 ERROR: PWR_MGMT0 stage1 failed") < 0) {
+                    "ICM42627: failed to write PWR_MGMT0 stage 1") < 0) {
     return -1;
   }
   delay_ms(POWER_DELAY_MS);
 
   if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2,
-                    "ICM42627 ERROR: PWR_MGMT0 stage2 failed") < 0) {
+                    "ICM42627: failed to write PWR_MGMT0 stage 2") < 0) {
     return -1;
   }
   delay_ms(POWER_DELAY_MS);
 
   if (write_verified(ICM42627_GYRO_CONFIG0_REG, ICM42627_GYRO_CONFIG,
-                     "ICM42627 ERROR: GYRO_CONFIG0_REG write failed",
-                     "ICM42627 ERROR: GYRO_CONFIG0_REG verify failed") < 0) {
+                     "ICM42627: failed to write GYRO_CONFIG0",
+                     "ICM42627: GYRO_CONFIG0 readback mismatch") < 0) {
     return -1;
   }
 
   if (write_verified(ICM42627_ACCEL_CONFIG0_REG, ICM42627_ACCEL_CONFIG,
-                     "ICM42627 ERROR: ACCEL_CONFIG0_REG write failed",
-                     "ICM42627 ERROR: ACCEL_CONFIG0_REG verify failed") < 0) {
+                     "ICM42627: failed to write ACCEL_CONFIG0",
+                     "ICM42627: ACCEL_CONFIG0 readback mismatch") < 0) {
     return -1;
   }
 
   if (write_checked(ICM42627_GYRO_CONFIG1_REG, ICM42627_GYRO_FILTER,
-                    "ICM42627 ERROR: GYRO_CONFIG1_REG error") < 0) {
+                    "ICM42627: failed to write GYRO_CONFIG1") < 0) {
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
   if (write_checked(ICM42627_ACCEL_GYRO_BW_REG, ICM42627_ACCEL_GYRO_BW,
-                    "ICM42627 ERROR: ACCEL_GYRO_BW_REG error") < 0) {
+                    "ICM42627: failed to write ACCEL_GYRO_BW") < 0) {
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
   if (write_checked(ICM42627_ACCEL_CONFIG1_REG, ICM42627_ACCEL_FILTER,
-                    "ICM42627 ERROR: ACCEL_CONFIG1_REG error") < 0) {
+                    "ICM42627: failed to write ACCEL_CONFIG1") < 0) {
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
   if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK1) < 0) {
-    TRACE("ICM42627 ERROR: bank1 select failed");
+    TRACE("ICM42627: failed to select register bank 1");
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
   if (write_checked(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2,
-                    "ICM42627 ERROR: GYRO_STATIC2_REG error") < 0) {
+                    "ICM42627: failed to write GYRO_STATIC2") < 0) {
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
   if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK0) < 0) {
-    TRACE("ICM42627 ERROR: bank0 select failed");
+    TRACE("ICM42627: failed to restore register bank 0");
     return -1;
   }
   delay_ms(VERIFY_DELAY_MS);
 
-  if (read_who_am_i(&who_am_i) < 0 ||
+  // Re-read WHO_AM_I after reset and banked configuration to catch a device
+  // that stopped responding even though the initial probe succeeded.
+  if (read_cmd(ICM42627_WHO_AM_I_REG, &who_am_i) < 0 ||
       who_am_i != ICM42627_WHO_AM_I) {
-    TRACE("ICM42627 ERROR: WHO_AM_I verify failed (0x%02X)", who_am_i);
+    TRACE("ICM42627: final WHO_AM_I check failed (0x%02X)", who_am_i);
     return -1;
   }
 
-  TRACE("ICM42627 succeeded");
+  TRACE("ICM42627: init complete");
   return 0;
 }
 
@@ -212,7 +210,7 @@ static int gyro42627Read(etx_imu_data_t *data)
   uint8_t buf[BURST_READ_LEN] = {0};
 
   if (i2c_read(s_i2c_bus, s_i2c_addr, ICM42627_DATA_REG, 1, buf, sizeof(buf)) < 0) {
-    TRACE("ICM42627 ERROR: burst read failed");
+    TRACE("ICM42627: failed to read sensor sample block");
     return -1;
   }
 
