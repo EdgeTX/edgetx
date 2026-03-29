@@ -67,38 +67,43 @@ static int select_bank(uint8_t bank)
   return write_cmd_retry(ICM42627_BANK_SEL_REG, bank);
 }
 
-static int write_cmd_delay_ms(uint8_t reg, uint8_t value, uint32_t delay,
-                              const char *error)
+static int write_checked(uint8_t reg, uint8_t value, const char *error)
 {
   if (write_cmd_retry(reg, value) < 0) {
     TRACE("%s", error);
     return -1;
   }
 
-  delay_ms(delay);
   return 0;
 }
 
-static int write_cmd_delay_us(uint8_t reg, uint8_t value, uint32_t delay,
-                              const char *error)
+static int write_verified(uint8_t reg, uint8_t value, const char *write_error,
+                          const char *verify_error)
 {
-  if (write_cmd_retry(reg, value) < 0) {
-    TRACE("%s", error);
+  uint8_t readback = 0;
+
+  if (write_checked(reg, value, write_error) < 0) {
     return -1;
   }
 
-  delay_us(delay);
+  delay_us(CONFIG_DELAY_US);
+
+  if (read_cmd(reg, &readback) >= 0 && readback == value) {
+    return 0;
+  }
+
+  if (write_checked(reg, value, write_error) < 0) {
+    return -1;
+  }
+
+  delay_us(CONFIG_DELAY_US);
+
+  if (read_cmd(reg, &readback) < 0 || readback != value) {
+    TRACE("%s", verify_error);
+    return -1;
+  }
+
   return 0;
-}
-
-static int write_cmd_twice(uint8_t reg, uint8_t value, const char *first_error,
-                           const char *second_error)
-{
-  if (write_cmd_delay_us(reg, value, CONFIG_DELAY_US, first_error) < 0) {
-    return -1;
-  }
-
-  return write_cmd_delay_us(reg, value, CONFIG_DELAY_US, second_error);
 }
 
 static int wait_for_device_ready(uint32_t timeout_ms)
@@ -173,47 +178,47 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
   }
 
-  if (write_cmd_delay_ms(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1,
-                         POWER_DELAY_MS,
-                         "ICM42627 ERROR: PWR_MGMT0 stage1 failed") < 0) {
+  if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1,
+                    "ICM42627 ERROR: PWR_MGMT0 stage1 failed") < 0) {
+    return -1;
+  }
+  delay_ms(POWER_DELAY_MS);
+
+  if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2,
+                    "ICM42627 ERROR: PWR_MGMT0 stage2 failed") < 0) {
+    return -1;
+  }
+  delay_ms(POWER_DELAY_MS);
+
+  if (write_verified(ICM42627_GYRO_CONFIG0_REG, ICM42627_GYRO_CONFIG,
+                     "ICM42627 ERROR: GYRO_CONFIG0_REG write failed",
+                     "ICM42627 ERROR: GYRO_CONFIG0_REG verify failed") < 0) {
     return -1;
   }
 
-  if (write_cmd_delay_ms(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2,
-                         POWER_DELAY_MS,
-                         "ICM42627 ERROR: PWR_MGMT0 stage2 failed") < 0) {
+  if (write_verified(ICM42627_ACCEL_CONFIG0_REG, ICM42627_ACCEL_CONFIG,
+                     "ICM42627 ERROR: ACCEL_CONFIG0_REG write failed",
+                     "ICM42627 ERROR: ACCEL_CONFIG0_REG verify failed") < 0) {
     return -1;
   }
 
-  if (write_cmd_twice(ICM42627_GYRO_CONFIG0_REG, ICM42627_GYRO_CONFIG,
-                      "ICM42627 ERROR: GYRO_CONFIG0_REG error",
-                      "ICM42627 ERROR: GYRO_CONFIG0_REG retry error") < 0) {
+  if (write_checked(ICM42627_GYRO_CONFIG1_REG, ICM42627_GYRO_FILTER,
+                    "ICM42627 ERROR: GYRO_CONFIG1_REG error") < 0) {
     return -1;
   }
+  delay_us(CONFIG_DELAY_US);
 
-  if (write_cmd_twice(ICM42627_ACCEL_CONFIG0_REG, ICM42627_ACCEL_CONFIG,
-                      "ICM42627 ERROR: ACCEL_CONFIG0_REG error",
-                      "ICM42627 ERROR: ACCEL_CONFIG0_REG retry error") < 0) {
+  if (write_checked(ICM42627_ACCEL_GYRO_BW_REG, ICM42627_ACCEL_GYRO_BW,
+                    "ICM42627 ERROR: ACCEL_GYRO_BW_REG error") < 0) {
     return -1;
   }
+  delay_us(CONFIG_DELAY_US);
 
-  if (write_cmd_delay_us(ICM42627_GYRO_CONFIG1_REG, ICM42627_GYRO_FILTER,
-                         CONFIG_DELAY_US,
-                         "ICM42627 ERROR: GYRO_CONFIG1_REG error") < 0) {
+  if (write_checked(ICM42627_ACCEL_CONFIG1_REG, ICM42627_ACCEL_FILTER,
+                    "ICM42627 ERROR: ACCEL_CONFIG1_REG error") < 0) {
     return -1;
   }
-
-  if (write_cmd_delay_us(ICM42627_ACCEL_GYRO_BW_REG, ICM42627_ACCEL_GYRO_BW,
-                         CONFIG_DELAY_US,
-                         "ICM42627 ERROR: ACCEL_GYRO_BW_REG error") < 0) {
-    return -1;
-  }
-
-  if (write_cmd_delay_us(ICM42627_ACCEL_CONFIG1_REG, ICM42627_ACCEL_FILTER,
-                         CONFIG_DELAY_US,
-                         "ICM42627 ERROR: ACCEL_CONFIG1_REG error") < 0) {
-    return -1;
-  }
+  delay_us(CONFIG_DELAY_US);
 
   if (select_bank(ICM42627_BANK1) < 0) {
     TRACE("ICM42627 ERROR: bank1 select failed");
@@ -221,11 +226,11 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
   }
   delay_us(CONFIG_DELAY_US);
 
-  if (write_cmd_delay_us(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2,
-                         CONFIG_DELAY_US,
-                         "ICM42627 ERROR: GYRO_STATIC2_REG error") < 0) {
+  if (write_checked(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2,
+                    "ICM42627 ERROR: GYRO_STATIC2_REG error") < 0) {
     return -1;
   }
+  delay_us(CONFIG_DELAY_US);
 
   if (select_bank(ICM42627_BANK0) < 0) {
     TRACE("ICM42627 ERROR: bank0 select failed");
