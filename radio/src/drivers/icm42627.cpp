@@ -173,11 +173,6 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
   }
 
-  if (reset_device("ICM42627 WARN: second reset write failed",
-                   "ICM42627 ERROR: device not ready after second reset") < 0) {
-    return -1;
-  }
-
   if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1,
                     "ICM42627 ERROR: PWR_MGMT0 stage1 failed") < 0) {
     return -1;
