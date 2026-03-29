@@ -25,6 +25,7 @@
 #include "stm32_hal.h"
 
 #include "timers_driver.h"
+#include "delays_driver.h"
 #if !defined(BOOT)
 #include "os/task.h"
 #endif
@@ -466,6 +467,108 @@ static int i2c_gpio_deinit(const stm32_i2c_hw_def_t* hw_def)
   return 0;
 }
 
+// Re-initialize I2C peripheral GPIO, clock, and HAL config.
+// Assumes dev->hw_def and dev->handle.Init are already populated.
+static int i2c_periph_init(stm32_i2c_device* dev)
+{
+  auto hw_def = dev->hw_def;
+  auto h = &dev->handle;
+
+  if (i2c_gpio_init(hw_def) < 0) {
+    TRACE("I2C ERROR: i2c_periph_init() GPIO misconfiguration");
+    return -1;
+  }
+
+  if (i2c_enable_clock(hw_def->I2Cx) < 0) {
+    TRACE("I2C ERROR: i2c_periph_init() clock misconfiguration");
+    return -1;
+  }
+
+  if (HAL_I2C_Init(h) != HAL_OK) {
+    TRACE("I2C ERROR: i2c_periph_init() HAL_I2C_Init failed");
+    return -1;
+  }
+
+#if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \
+    defined(STM32H7RS)
+  if (HAL_I2CEx_ConfigAnalogFilter(h, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
+    TRACE("I2C ERROR: i2c_periph_init() analog filter failed");
+    return -1;
+  }
+
+  if (HAL_I2CEx_ConfigDigitalFilter(h, 0) != HAL_OK) {
+    TRACE("I2C ERROR: i2c_periph_init() digital filter failed");
+    return -1;
+  }
+#endif
+
+  return 0;
+}
+
+// I2C bus recovery via SCL bit-banging (per ST AN2824).
+//
+// When a slave holds SDA low (e.g. after an interrupted transaction),
+// the master must clock SCL manually to let the slave finish its byte
+// and release SDA.  Then a STOP condition resets all slaves on the bus.
+//
+// Must be called with the bus mutex held (or before scheduler starts).
+// Returns 0 on success, -1 if SDA still stuck after recovery.
+static int i2c_bus_recover(stm32_i2c_device* dev)
+{
+  auto hw_def = dev->hw_def;
+  auto h = &dev->handle;
+
+  TRACE("I2C bus recovery: starting");
+
+  // Step 1: Deinit the I2C peripheral so we can bit-bang the pins
+  HAL_I2C_DeInit(h);
+
+  // Step 2: Configure SCL and SDA as open-drain GPIO outputs (high)
+  gpio_set(hw_def->SCL_GPIO);
+  gpio_set(hw_def->SDA_GPIO);
+  gpio_init(hw_def->SCL_GPIO, GPIO_OD_PU, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init(hw_def->SDA_GPIO, GPIO_OD_PU, GPIO_PIN_SPEED_MEDIUM);
+
+  // Step 3: Check if SDA is already high — bus may not actually be stuck
+  delay_us(5);
+  if (gpio_read(hw_def->SDA_GPIO)) {
+    TRACE("I2C bus recovery: SDA is high, reinitializing peripheral");
+    return i2c_periph_init(dev);
+  }
+
+  // Step 4: Clock SCL up to 9 times to flush the slave's shift register.
+  // After each rising edge, check if SDA has been released.
+  for (int i = 0; i < 9; i++) {
+    gpio_clear(hw_def->SCL_GPIO);
+    delay_us(5);
+    gpio_set(hw_def->SCL_GPIO);
+    delay_us(5);
+
+    if (gpio_read(hw_def->SDA_GPIO)) {
+      TRACE("I2C bus recovery: SDA released after %d clocks", i + 1);
+      break;
+    }
+  }
+
+  if (!gpio_read(hw_def->SDA_GPIO)) {
+    TRACE("I2C bus recovery: SDA still stuck low after 9 clocks");
+    // Reinit peripheral anyway — best effort
+    i2c_periph_init(dev);
+    return -1;
+  }
+
+  // Step 5: Generate a STOP condition (SDA low→high while SCL is high)
+  gpio_clear(hw_def->SDA_GPIO);
+  delay_us(5);
+  gpio_set(hw_def->SCL_GPIO);
+  delay_us(5);
+  gpio_set(hw_def->SDA_GPIO);
+  delay_us(5);
+
+  // Step 6: Reinitialize the I2C peripheral
+  TRACE("I2C bus recovery: reinitializing peripheral");
+  return i2c_periph_init(dev);
+}
 
 int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* hw_def)
 {
@@ -504,35 +607,7 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
 
-  if (i2c_gpio_init(hw_def) < 0) {
-    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
-    return -2;
-  }
-
-  if (i2c_enable_clock(hw_def->I2Cx) < 0) {
-    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
-    return -3;
-  }
-
-  if (HAL_I2C_Init(h) != HAL_OK) {
-    TRACE("I2C ERROR: HAL_I2C_Init() failed");
-    return -4;
-  }
-
-#if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \
-    defined(STM32H7RS)
-  // Configure Analogue filter
-  if (HAL_I2CEx_ConfigAnalogFilter(h, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
-    TRACE("I2C ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
-    return -1;
-  }
-
-  // Configure Digital filter
-  if (HAL_I2CEx_ConfigDigitalFilter(h, 0) != HAL_OK) {
-    TRACE("I2C ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
-    return -1;
-  }
-#endif
+  if (i2c_periph_init(dev) < 0) return -1;
 
 #if !defined(BOOT)
   dev->mutex_initialized = false;
@@ -560,16 +635,31 @@ int stm32_i2c_deinit(uint8_t bus)
   return 0;
 }
 
+int stm32_i2c_bus_recover(uint8_t bus)
+{
+  auto dev = i2c_get_device(bus);
+  if (!dev || !dev->hw_def) return -1;
+
+#if !defined(BOOT)
+  I2CMutex(bus);
+#endif
+  return i2c_bus_recover(dev);
+}
+
 int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
                         uint32_t timeout)
 {
-  I2C_HandleTypeDef* h = i2c_get_handle(bus);
-  if (!h) return -1;  
-  
+  auto dev = i2c_get_device(bus);
+  if (!dev) return -1;
+  auto h = &dev->handle;
+
   I2CMutex(bus);
-  if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) != HAL_OK) {
+  if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) == HAL_OK)
+    return 0;
+
+  if (i2c_bus_recover(dev) < 0) return -1;
+  if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) != HAL_OK)
     return -1;
-  }
 
   return 0;
 }
@@ -577,13 +667,17 @@ int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
 int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
                         uint32_t timeout)
 {
-  I2C_HandleTypeDef* h = i2c_get_handle(bus);
-  if (!h) return -1;  
-  
+  auto dev = i2c_get_device(bus);
+  if (!dev) return -1;
+  auto h = &dev->handle;
+
   I2CMutex(bus);
-  if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK) {
+  if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) == HAL_OK)
+    return 0;
+
+  if (i2c_bus_recover(dev) < 0) return -1;
+  if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK)
     return -1;
-  }
 
   return 0;
 }
@@ -591,13 +685,17 @@ int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
 int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
                    uint8_t* data, uint16_t len, uint32_t timeout)
 {
-  I2C_HandleTypeDef* h = i2c_get_handle(bus);
-  if (!h) return -1;  
+  auto dev = i2c_get_device(bus);
+  if (!dev) return -1;
+  auto h = &dev->handle;
 
   I2CMutex(bus);
-  if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
+  if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) == HAL_OK)
+    return 0;
+
+  if (i2c_bus_recover(dev) < 0) return -1;
+  if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK)
     return -1;
-  }
 
   return 0;
 }
@@ -605,13 +703,17 @@ int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
 int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
                     uint8_t* data, uint16_t len, uint32_t timeout)
 {
-  I2C_HandleTypeDef* h = i2c_get_handle(bus);
-  if (!h) return -1;  
+  auto dev = i2c_get_device(bus);
+  if (!dev) return -1;
+  auto h = &dev->handle;
 
   I2CMutex(bus);
-  if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
+  if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) == HAL_OK)
+    return 0;
+
+  if (i2c_bus_recover(dev) < 0) return -1;
+  if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK)
     return -1;
-  }
 
   return 0;
 }
@@ -630,6 +732,12 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_
 
 int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
 {
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;
+
   I2CMutex(bus);
-  return stm32_i2c_is_dev_ready(bus, addr, 1, timeout);
+  HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, 1, timeout);
+  if (err != HAL_OK) return -1;
+
+  return 0;
 }
