@@ -28,6 +28,7 @@ bool SdcardFormat::write(RadioData & radioData)
   QDir dir(filename);
   dir.mkdir("RADIO");
   dir.mkdir("MODELS");
+  dir.mkdir("IMAGES");
   return LabelsStorageFormat::write(radioData);
 }
 
