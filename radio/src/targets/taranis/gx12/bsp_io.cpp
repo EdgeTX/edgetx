@@ -20,6 +20,7 @@
  */
 
 #include "drivers/pca95xx.h"
+#include "hal/i2c_driver.h"
 #include "hal/switch_driver.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
@@ -103,9 +104,12 @@ static void _poll_switches(void* param1, uint32_t trigger_source)
   }
 
   if (suspendI2CTasks) return;
+  if (!i2c_trylock(I2C_Bus_2)) return;
 
   _read_io_expander(&_io_switches);
   _read_io_expander(&_io_fs_switches);
+
+  i2c_unlock(I2C_Bus_2);
 }
 
 static void _io_int_handler()
