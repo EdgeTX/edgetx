@@ -47,35 +47,6 @@ static int read_cmd(uint8_t reg, uint8_t *value)
   return i2c_read(s_i2c_bus, s_i2c_addr, reg, 1, value, 1);
 }
 
-static int write_checked(uint8_t reg, uint8_t value, const char *error)
-{
-  if (write_cmd(reg, value) < 0) {
-    TRACE("%s", error);
-    return -1;
-  }
-
-  return 0;
-}
-
-static int write_verified(uint8_t reg, uint8_t value, const char *write_error,
-                          const char *verify_error)
-{
-  uint8_t readback = 0;
-
-  if (write_checked(reg, value, write_error) < 0) {
-    return -1;
-  }
-
-  delay_us(CONFIG_DELAY_US);
-
-  if (read_cmd(reg, &readback) < 0 || readback != value) {
-    TRACE("%s", verify_error);
-    return -1;
-  }
-
-  return 0;
-}
-
 static int wait_for_device_ready(uint32_t timeout_ms)
 {
   while (timeout_ms > 0) {
@@ -133,44 +104,50 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
   }
 
-  if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1,
-                    "ICM42627: failed to write PWR_MGMT0 stage 1") < 0) {
+  if (write_cmd(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1) < 0) {
+    TRACE("ICM42627: failed to write PWR_MGMT0 stage 1");
     return -1;
   }
   delay_ms(POWER_DELAY_MS);
 
-  if (write_checked(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2,
-                    "ICM42627: failed to write PWR_MGMT0 stage 2") < 0) {
+  if (write_cmd(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2) < 0) {
+    TRACE("ICM42627: failed to write PWR_MGMT0 stage 2");
     return -1;
   }
   delay_ms(POWER_DELAY_MS);
 
-  if (write_verified(ICM42627_GYRO_CONFIG0_REG, ICM42627_GYRO_CONFIG,
-                     "ICM42627: failed to write GYRO_CONFIG0",
-                     "ICM42627: GYRO_CONFIG0 readback mismatch") < 0) {
-    return -1;
-  }
-
-  if (write_verified(ICM42627_ACCEL_CONFIG0_REG, ICM42627_ACCEL_CONFIG,
-                     "ICM42627: failed to write ACCEL_CONFIG0",
-                     "ICM42627: ACCEL_CONFIG0 readback mismatch") < 0) {
-    return -1;
-  }
-
-  if (write_checked(ICM42627_GYRO_CONFIG1_REG, ICM42627_GYRO_FILTER,
-                    "ICM42627: failed to write GYRO_CONFIG1") < 0) {
+  if (write_cmd(ICM42627_GYRO_CONFIG0_REG, ICM42627_GYRO_CONFIG) < 0) {
+    TRACE("ICM42627: failed to write GYRO_CONFIG0");
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
-  if (write_checked(ICM42627_ACCEL_GYRO_BW_REG, ICM42627_ACCEL_GYRO_BW,
-                    "ICM42627: failed to write ACCEL_GYRO_BW") < 0) {
+  if (write_cmd(ICM42627_ACCEL_CONFIG0_REG, ICM42627_ACCEL_CONFIG) < 0) {
+    TRACE("ICM42627: failed to write ACCEL_CONFIG0");
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
 
-  if (write_checked(ICM42627_ACCEL_CONFIG1_REG, ICM42627_ACCEL_FILTER,
-                    "ICM42627: failed to write ACCEL_CONFIG1") < 0) {
+  if (read_cmd(ICM42627_ACCEL_CONFIG0_REG, &who_am_i) < 0 ||
+      who_am_i != ICM42627_ACCEL_CONFIG) {
+    TRACE("ICM42627: ACCEL_CONFIG0 readback mismatch");
+    return -1;
+  }
+
+  if (write_cmd(ICM42627_GYRO_CONFIG1_REG, ICM42627_GYRO_FILTER) < 0) {
+    TRACE("ICM42627: failed to write GYRO_CONFIG1");
+    return -1;
+  }
+  delay_us(CONFIG_DELAY_US);
+
+  if (write_cmd(ICM42627_ACCEL_GYRO_BW_REG, ICM42627_ACCEL_GYRO_BW) < 0) {
+    TRACE("ICM42627: failed to write ACCEL_GYRO_BW");
+    return -1;
+  }
+  delay_us(CONFIG_DELAY_US);
+
+  if (write_cmd(ICM42627_ACCEL_CONFIG1_REG, ICM42627_ACCEL_FILTER) < 0) {
+    TRACE("ICM42627: failed to write ACCEL_CONFIG1");
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
@@ -181,8 +158,8 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
   }
   delay_us(CONFIG_DELAY_US);
 
-  if (write_checked(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2,
-                    "ICM42627: failed to write GYRO_STATIC2") < 0) {
+  if (write_cmd(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2) < 0) {
+    TRACE("ICM42627: failed to write GYRO_STATIC2");
     return -1;
   }
   delay_us(CONFIG_DELAY_US);
