@@ -25,7 +25,7 @@
 #include "hal/i2c_driver.h"
 #include "hal.h"
 
-#if !defined(BOOT)
+#if defined(FREE_RTOS)
 #include "os/task.h"
 #endif
 
@@ -34,7 +34,7 @@
 
 #define MAX_I2C_BUSES 2
 
-#if !defined(BOOT)
+#if defined(FREE_RTOS)
 static mutex_handle_t _i2c_mutex[MAX_I2C_BUSES];
 static bool _i2c_mutex_initialized[MAX_I2C_BUSES] = {};
 
@@ -114,7 +114,7 @@ int i2c_deinit(etx_i2c_bus_t bus)
 
 void i2c_lock(etx_i2c_bus_t bus)
 {
-#if !defined(BOOT)
+#if defined(FREE_RTOS)
   i2c_ensure_mutex(bus);
   if (scheduler_is_running())
     mutex_lock(&_i2c_mutex[bus]);
@@ -123,7 +123,7 @@ void i2c_lock(etx_i2c_bus_t bus)
 
 bool i2c_trylock(etx_i2c_bus_t bus)
 {
-#if !defined(BOOT)
+#if defined(FREE_RTOS)
   i2c_ensure_mutex(bus);
   if (scheduler_is_running())
     return mutex_trylock(&_i2c_mutex[bus]);
@@ -133,7 +133,7 @@ bool i2c_trylock(etx_i2c_bus_t bus)
 
 void i2c_unlock(etx_i2c_bus_t bus)
 {
-#if !defined(BOOT)
+#if defined(FREE_RTOS)
   if (bus < MAX_I2C_BUSES && scheduler_is_running())
     mutex_unlock(&_i2c_mutex[bus]);
 #endif
