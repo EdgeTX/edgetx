@@ -155,14 +155,23 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 #endif
 
 #if defined(HAS_IMU)
-#include "drivers/lsm6ds.h"
+#include "gyro.h"
 #include "stm32_i2c_driver.h"
+#include "drivers/icm42627.h"
+#include "drivers/lsm6ds.h"
 
 static void gyroInit()
 {
+#if defined(RADIO_V16)
+  const etx_imu_driver_t *driver = &imu_icm42627_driver;
+#else
+  const etx_imu_driver_t *driver = &imu_lsm6ds_driver;
+#endif
+
   const etx_imu_t candidates[] = {
-    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+    { driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
   };
+
   gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 #endif
