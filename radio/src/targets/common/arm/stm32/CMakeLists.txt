@@ -161,7 +161,7 @@ endif()
 
 if(CSD203_SENSOR)
   set(FIRMWARE_SRC ${FIRMWARE_SRC}
-  targets/common/arm/stm32/csd203_sensor.cpp
+  drivers/csd203.cpp
   )
   add_definitions(-DCSD203_SENSOR)
   message("-- Adding support for Current sensor")

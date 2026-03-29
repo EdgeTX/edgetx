@@ -61,7 +61,8 @@
 #endif
 
 #if defined(CSD203_SENSOR)
-  #include "csd203_sensor.h"
+  #include "drivers/csd203.h"
+  #include "stm32_i2c_driver.h"
 #endif
 
 HardwareOptions hardwareOptions;
@@ -190,8 +191,7 @@ void boardInit()
 #endif
 
 #if defined(CSD203_SENSOR)
-  IICcsd203init();
-  initCSD203();
+  csd203_start(I2C_Bus_1);
 #endif
 
 // If the radio was powered on by dual use USB, halt the boot process, let battery charge
