@@ -26,6 +26,7 @@
 #include "stm32_exti_driver.h"
 
 #include "hal.h"
+#include "hal/i2c_driver.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
 #include "tp_cst340.h"
@@ -510,6 +511,8 @@ TouchState touchPanelRead()
 {
   if (!touchEventOccured) return internalTouchState;
 
+  i2c_lock(TOUCH_I2C_BUS);
+
   touchEventOccured = false;
 
   tmr10ms_t now = get_tmr10ms();
@@ -551,6 +554,7 @@ TouchState touchPanelRead()
   TRACE("%s: Event = %d", touchController == TC_CST340 ? "CST340" : "FT6236", ret.event);
 #endif
 
+  i2c_unlock(TOUCH_I2C_BUS);
   return ret;
 }
 

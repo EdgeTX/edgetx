@@ -25,6 +25,7 @@
 #include "stm32_hal_ll.h"
 #include "stm32_gpio_driver.h"
 #include "stm32_i2c_driver.h"
+#include "hal/i2c_driver.h"
 
 #include "hal.h"
 #include "delays_driver.h"
@@ -174,6 +175,13 @@ void pollKeys()
     return;
   }
 
+  // Timer-context: bail out (keeping cached columns) if the bus is busy
+  if (!i2c_trylock(I2C_Bus_1)) {
+    keyState = col_cache[0] | col_cache[1] | col_cache[2] | col_cache[3] | ent_mask;
+    syncelem.ui8ReadInProgress = 0;
+    return;
+  }
+
   if (bsp_get_shouldReadKeys()) {
     scan_pending = SCAN_COLS;
     idle_cycles = 0;
@@ -196,6 +204,8 @@ void pollKeys()
   read_col = scan_col;
   bsp_output_set(BSP_KEY_OUT_MASK, col_drive[scan_col]);
   scan_col = (scan_col + 1) % SCAN_COLS;
+
+  i2c_unlock(I2C_Bus_1);
 
   uint32_t result = col_cache[0] | col_cache[1] | col_cache[2] | col_cache[3] | ent_mask;
 

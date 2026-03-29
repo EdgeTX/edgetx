@@ -213,9 +213,11 @@ static int gyroSC7U22Read(etx_imu_data_t* data)
 {
   uint8_t buf[6];
 
+  i2c_lock(s_i2c_bus);
   // Read gyroscope: GYR_XH ... GYR_ZL (0x12 ... 0x17, 6 bytes)
   if (read_regs(SC7U22_GYR_XH_REG, buf, 6) < 0) {
     TRACE("SC7U22 ERROR: gyro read error");
+    i2c_unlock(s_i2c_bus);
     return -1;
   }
   data->gyro_x = -((int16_t)(buf[0] << 8) | buf[1]);
@@ -225,8 +227,11 @@ static int gyroSC7U22Read(etx_imu_data_t* data)
   // Read accelerometer: ACC_XH ... ACC_ZL (0x0C ... 0x11, 6 bytes)
   if (read_regs(SC7U22_ACC_XH_REG, buf, 6) < 0) {
     TRACE("SC7U22 ERROR: accel read error");
+    i2c_unlock(s_i2c_bus);
     return -1;
   }
+  i2c_unlock(s_i2c_bus);
+
   data->accel_x = ((int16_t)(buf[0] << 8) | buf[1]);
   data->accel_y = ((int16_t)(buf[2] << 8) | buf[3]);
   data->accel_z = ((int16_t)(buf[4] << 8) | buf[5]);

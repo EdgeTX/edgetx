@@ -14,6 +14,7 @@
  */
 
 #include "seesaw.h"
+#include "hal/i2c_driver.h"
 
 #define STATUS_HW_ID   0x0001
 #define STATUS_VERSION 0x0002
@@ -108,33 +109,44 @@ int seesaw_pin_mode(seesaw_t* dev, uint32_t mask, seesaw_input_mode mode)
 {
   if (!dev->addr) return -1;
 
+  i2c_lock(dev->bus);
+  int rc = -1;
+
   switch (mode) {
     case SEESAW_OUTPUT:
-      return seesaw_write_32bit_be(dev, GPIO_DIRSET_BULK, mask);
+      rc = seesaw_write_32bit_be(dev, GPIO_DIRSET_BULK, mask);
+      break;
 
     case SEESAW_INPUT:
       if (seesaw_write_32bit_be(dev, GPIO_DIRCLR_BULK, mask) == 0 &&
           seesaw_write_32bit_be(dev, GPIO_PULLENCLR, mask) == 0)
-        return 0;
+        rc = 0;
+      break;
 
     case SEESAW_INPUT_PULLUP:
       if (seesaw_write_32bit_be(dev, GPIO_DIRCLR_BULK, mask) == 0 &&
           seesaw_write_32bit_be(dev, GPIO_PULLENSET, mask) == 0 &&
           seesaw_write_32bit_be(dev, GPIO_BULK_SET, mask) == 0)
-        return 0;
+        rc = 0;
+      break;
 
     case SEESAW_INPUT_PULLDOWN:
       if (seesaw_write_32bit_be(dev, GPIO_DIRCLR_BULK, mask) == 0 &&
           seesaw_write_32bit_be(dev, GPIO_PULLENSET, mask) == 0 &&
           seesaw_write_32bit_be(dev, GPIO_BULK_CLR, mask) == 0)
-        return 0;
+        rc = 0;
+      break;
   }
 
-  return -1;
+  i2c_unlock(dev->bus);
+  return rc;
 }
 
 int seesaw_digital_read(seesaw_t* dev, uint32_t pins, uint32_t* value)
 {
   if (!dev->addr) return -1;
-  return seesaw_read_32bit_be(dev, GPIO_BULK, value);  
+  i2c_lock(dev->bus);
+  int rc = seesaw_read_32bit_be(dev, GPIO_BULK, value);
+  i2c_unlock(dev->bus);
+  return rc;
 }

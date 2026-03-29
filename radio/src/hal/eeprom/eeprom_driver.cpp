@@ -93,9 +93,13 @@ static bool I2C_EE_ReadBlock(uint8_t* pBuffer, uint16_t ReadAddr, uint16_t NumBy
 
 void eepromReadBlock(uint8_t * buffer, size_t address, size_t size)
 {
+  i2c_lock(EEPROM_I2C_BUS);
   while (!I2C_EE_ReadBlock(buffer, address, size)) {
+    i2c_unlock(EEPROM_I2C_BUS);
     eepromInit();
+    i2c_lock(EEPROM_I2C_BUS);
   }
+  i2c_unlock(EEPROM_I2C_BUS);
 }
 
 /**
@@ -134,6 +138,7 @@ static void eepromPageWrite(uint8_t* pBuffer, uint16_t WriteAddr, uint8_t NumByt
   */
 void eepromWriteBlock(uint8_t * buffer, size_t address, size_t size)
 {
+  i2c_lock(EEPROM_I2C_BUS);
   uint8_t offset = address % EEPROM_PAGESIZE;
   uint8_t count = EEPROM_PAGESIZE - offset;
   if (size < count) {
@@ -150,6 +155,7 @@ void eepromWriteBlock(uint8_t * buffer, size_t address, size_t size)
       count = size;
     }
   }
+  i2c_unlock(EEPROM_I2C_BUS);
 }
 
 uint8_t eepromIsTransferComplete()

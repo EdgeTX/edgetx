@@ -653,6 +653,8 @@ struct TouchState touchPanelRead()
   uint8_t state = 0;
 
   if (!touchEventOccured) return internalTouchState;
+
+  i2c_lock(TOUCH_I2C_BUS);
 #if defined(CSD203_SENSOR)
   for(int a=0;a<6;a++)
   {//IIC bus preemption
@@ -678,7 +680,8 @@ struct TouchState touchPanelRead()
       if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
     #if defined(CSD203_SENSOR)
       IICReadStatusFlag=false;
-    #endif  
+    #endif
+      i2c_unlock(TOUCH_I2C_BUS);
       return internalTouchState;
     }
 
@@ -706,7 +709,8 @@ struct TouchState touchPanelRead()
         if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
       #if defined(CSD203_SENSOR)
         IICReadStatusFlag=false;
-      #endif  
+      #endif
+        i2c_unlock(TOUCH_I2C_BUS);
         return internalTouchState;
       }
         
@@ -760,6 +764,7 @@ struct TouchState touchPanelRead()
 #if defined(CSD203_SENSOR)
   IICReadStatusFlag=false;
 #endif
+  i2c_unlock(TOUCH_I2C_BUS);
   return internalTouchState;
 }
 
