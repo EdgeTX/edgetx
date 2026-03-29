@@ -145,6 +145,12 @@ void boardInit()
   disableUsbPdPins();
 #endif
 
+#if defined(AUDIO_MUTE_GPIO)
+  // Mute amplifier immediately to prevent noise during boot
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(AUDIO_MUTE_GPIO);
+#endif
+
 #if defined(AUDIO) && defined(AUDIO_RCC_APB1Periph)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
 #endif

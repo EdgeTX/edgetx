@@ -222,7 +222,7 @@ static void dac_dma_init()
   DMA_InitLinkedListStruct.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
   DMA_InitLinkedListStruct.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
   DMA_InitLinkedListStruct.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
-  DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_LAST_LLITEM_TRANSFER;
+  DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
   LL_DMA_List_Init(AUDIO_DMA, AUDIO_DMA_Stream, &DMA_InitLinkedListStruct);
 
 
@@ -243,8 +243,11 @@ static void dac_close_dma_xfer()
 {
   LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
-  // TODO: reset flags
   LL_DMA_DisableChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+
+  // Disable DAC DMA to prevent underrun while DMA is stopped
+  AUDIO_DAC->CR &= ~DAC_CR_DMAEN1;
+  LL_DAC_ClearFlag_DMAUDR1(AUDIO_DAC);
 }
 
 static void dac_start_dma()
@@ -265,6 +268,10 @@ void audioConsumeCurrentBuffer()
 {
   if (!LL_DMA_IsEnabledChannel(AUDIO_DMA, AUDIO_DMA_Stream)) {
     if (!audio_update_dma_buffer(0)) {
+      // Fill second half with silence before starting circular DMA
+      for (unsigned idx = 0; idx < DMA_BUFFER_HALF_LEN; idx++) {
+        _dma_buffer[DMA_BUFFER_HALF_LEN + idx] = AUDIO_DATA_SILENCE;
+      }
 #if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
 #endif
@@ -279,6 +286,13 @@ void audioConsumeCurrentBuffer()
 
 extern "C" void AUDIO_DMA_Stream_IRQHandler()
 {
+#if defined(STM32H5) || defined(STM32H7RS)
+  // Clear error flags to prevent infinite ISR loop
+  LL_DMA_ClearFlag_DTE(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_ULE(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_USE(AUDIO_DMA, AUDIO_DMA_Stream);
+#endif
+
   bool stopDMA = false;
   if(stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
     stopDMA = audio_update_dma_buffer(0);
