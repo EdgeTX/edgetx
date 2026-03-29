@@ -160,7 +160,7 @@ static void audio_update_dma_buffer(uint8_t tc)
   }
 }
 
-// TX15 HP cannot handle the full power of TAS2505
+// Headphones cannot handle the full power of TAS2505
 // max volume is limited to 15db attenuation
 //  Index 0  = silence
 //        1  = low volume
