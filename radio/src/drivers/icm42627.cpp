@@ -29,7 +29,6 @@
 
 static etx_i2c_bus_t s_i2c_bus;
 static uint16_t s_i2c_addr;
-static bool s_trace_first_sample;
 
 static constexpr uint32_t RESET_DELAY_MS = 150;
 static constexpr uint32_t READY_TIMEOUT_MS = 200;
@@ -53,23 +52,9 @@ static int read_who_am_i(uint8_t *value)
   return read_cmd(ICM42627_WHO_AM_I_REG, value);
 }
 
-static int write_cmd_retry(uint8_t reg, uint8_t value)
-{
-  if (write_cmd(reg, value) >= 0) {
-    return 0;
-  }
-
-  return write_cmd(reg, value);
-}
-
-static int select_bank(uint8_t bank)
-{
-  return write_cmd_retry(ICM42627_BANK_SEL_REG, bank);
-}
-
 static int write_checked(uint8_t reg, uint8_t value, const char *error)
 {
-  if (write_cmd_retry(reg, value) < 0) {
+  if (write_cmd(reg, value) < 0) {
     TRACE("%s", error);
     return -1;
   }
@@ -81,16 +66,6 @@ static int write_verified(uint8_t reg, uint8_t value, const char *write_error,
                           const char *verify_error)
 {
   uint8_t readback = 0;
-
-  if (write_checked(reg, value, write_error) < 0) {
-    return -1;
-  }
-
-  delay_us(CONFIG_DELAY_US);
-
-  if (read_cmd(reg, &readback) >= 0 && readback == value) {
-    return 0;
-  }
 
   if (write_checked(reg, value, write_error) < 0) {
     return -1;
@@ -123,27 +98,10 @@ static int wait_for_device_ready(uint32_t timeout_ms)
   return -1;
 }
 
-static int reset_device(const char *write_warning, const char *ready_error)
-{
-  if (write_cmd_retry(ICM42627_DEVICE_CONFIG_REG, ICM42627_RESET) < 0) {
-    TRACE("%s", write_warning);
-  }
-
-  delay_ms(RESET_DELAY_MS);
-
-  if (wait_for_device_ready(READY_TIMEOUT_MS) < 0) {
-    TRACE("%s", ready_error);
-    return -1;
-  }
-
-  return 0;
-}
-
 static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
 {
   s_i2c_bus = bus;
   s_i2c_addr = addr;
-  s_trace_first_sample = true;
 
   TRACE("ICM42627 I2C Init at address 0x%x", addr);
 
@@ -168,8 +126,14 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
   }
 
-  if (reset_device("ICM42627 WARN: reset write failed",
-                   "ICM42627 ERROR: device not ready after reset") < 0) {
+  if (write_cmd(ICM42627_DEVICE_CONFIG_REG, ICM42627_RESET) < 0) {
+    TRACE("ICM42627 WARN: reset write failed");
+  }
+
+  delay_ms(RESET_DELAY_MS);
+
+  if (wait_for_device_ready(READY_TIMEOUT_MS) < 0) {
+    TRACE("ICM42627 ERROR: device not ready after reset");
     return -1;
   }
 
@@ -215,7 +179,7 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
   }
   delay_us(CONFIG_DELAY_US);
 
-  if (select_bank(ICM42627_BANK1) < 0) {
+  if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK1) < 0) {
     TRACE("ICM42627 ERROR: bank1 select failed");
     return -1;
   }
@@ -227,7 +191,7 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
   }
   delay_us(CONFIG_DELAY_US);
 
-  if (select_bank(ICM42627_BANK0) < 0) {
+  if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK0) < 0) {
     TRACE("ICM42627 ERROR: bank0 select failed");
     return -1;
   }
@@ -265,13 +229,6 @@ static int gyro42627Read(etx_imu_data_t *data)
   data->gyro_x = gyro_y;
   data->gyro_y = gyro_x;
   data->gyro_z = -gyro_z;
-
-  if (s_trace_first_sample) {
-    s_trace_first_sample = false;
-    TRACE("ICM42627 first sample: G=(%d,%d,%d) A=(%d,%d,%d)",
-          (int)data->gyro_x, (int)data->gyro_y, (int)data->gyro_z,
-          (int)data->accel_x, (int)data->accel_y, (int)data->accel_z);
-  }
 
   return 0;
 }
