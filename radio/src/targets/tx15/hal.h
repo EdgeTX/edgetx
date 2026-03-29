@@ -81,9 +81,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 // ADC
 #define ADC_VREF_PREC2                  330
 
-// Serial gimbal sync port
-#define HALL_SYNC                   GPIO_PIN(GPIOH, 11)
-
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
 
