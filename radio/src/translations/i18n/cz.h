@@ -1205,6 +1205,7 @@
 #define TR_ALTSENSOR                   "Senzor výšky"
 #define TR_CELLSENSOR                  "Senzor článků"
 #define TR_GPSSENSOR                   "GPS senzor"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "Senzor"
 #define TR_AUTOOFFSET                  "Auto offset"
 #define TR_ONLYPOSITIVE                "Jen kladné"

@@ -47,11 +47,13 @@
 #include "sdcard.h"
 #include "debug.h"
 #include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
 #include "battery_driver.h"
+#include "drivers/lsm6ds.h"
 
 #include <string.h>
 
@@ -124,6 +126,14 @@ void boardBLInit()
   // register internal & external FLASH for UF2
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
+}
+
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 
 bool pwrPressedDebounced()
@@ -377,6 +387,8 @@ void boardInit()
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
+
+  gyroInit();
 }
 
 extern void rtcDisableBackupReg();

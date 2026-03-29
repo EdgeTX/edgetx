@@ -23,5 +23,4 @@ _wasi_sdk_fetch
 *.pyc
 
 # MkDocs
-site/
-.cache/
+/site/

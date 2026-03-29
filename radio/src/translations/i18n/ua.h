@@ -1203,6 +1203,7 @@
 #define TR_ALTSENSOR                   "Сенсор висоти"
 #define TR_CELLSENSOR                  "Сенсор комірки"
 #define TR_GPSSENSOR                   "GPS сенсор"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "Сенсор"
 #define TR_AUTOOFFSET                  "Авто зсув"
 #define TR_ONLYPOSITIVE                "Позитив"

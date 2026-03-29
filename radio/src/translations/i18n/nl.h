@@ -1203,6 +1203,7 @@
 #define TR_ALTSENSOR           "Hoogte Sensor"
 #define TR_CELLSENSOR          "Cellen Sensor"
 #define TR_GPSSENSOR           "GPS Sensor"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR       "Stroomsensor"
 #define TR_AUTOOFFSET          "Auto Offset"
 #define TR_ONLYPOSITIVE        "Enkel positief"

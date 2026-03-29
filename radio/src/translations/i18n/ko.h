@@ -1248,6 +1248,7 @@
 #define TR_ALTSENSOR                      "고도 센서"
 #define TR_CELLSENSOR                     "셀 전압 센서"
 #define TR_GPSSENSOR                      "GPS 센서"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR                  "전류 센서"
 #define TR_AUTOOFFSET                     "자동 오프셋"
 #define TR_ONLYPOSITIVE                   "양수만"
