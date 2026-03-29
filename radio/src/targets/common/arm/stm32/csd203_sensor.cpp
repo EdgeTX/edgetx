@@ -416,6 +416,8 @@ void readCSD203(void)
 
   if (IICReadStatusFlag == true) return;
 
+  if (!i2c_trylock(I2C_Bus_1)) return;
+
   IICReadStatusFlag = true;
   if (GetSenSorStep == 0 && CSD203MainInitFlag == true) {
     CSD203_ReadCurrent(&CSD203_MainSensorCFG);
@@ -429,5 +431,6 @@ void readCSD203(void)
     // TRACE("Vbat=%d\r",csd203extvbus);
   }
   IICReadStatusFlag = false;
+  i2c_unlock(I2C_Bus_1);
   if (++GetSenSorStep >= 3) GetSenSorStep = 0;
 }

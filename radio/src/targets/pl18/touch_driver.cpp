@@ -469,6 +469,8 @@ struct TouchState touchPanelRead()
 {
   if (!touchEventOccured) return internalTouchState;
 
+  i2c_lock(TOUCH_I2C_BUS);
+
   touchEventOccured = false;
 
   uint32_t now = timersGetMsTick();
@@ -557,6 +559,7 @@ struct TouchState touchPanelRead()
   TRACE("%s: event=%d,X=%d,Y=%d", TOUCH_CONTROLLER_STR[touchController], ret.event, ret.x, ret.y);
 #endif
 
+  i2c_unlock(TOUCH_I2C_BUS);
   return ret;
 }
 

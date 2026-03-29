@@ -162,8 +162,10 @@ static int gyro42607Read(etx_imu_data_t* data)
 {
   uint8_t buf[6];
 
+  i2c_lock(s_i2c_bus);
   if (i2c_read(s_i2c_bus, s_i2c_addr, GYRO_DATA_X0_REG, 1, buf, 6) < 0) {
     TRACE("ICM426xx ERROR: gyro read error");
+    i2c_unlock(s_i2c_bus);
     return -1;
   }
   data->gyro_x = -((int16_t)(buf[0] << 8) | buf[1]);
@@ -172,8 +174,11 @@ static int gyro42607Read(etx_imu_data_t* data)
 
   if (i2c_read(s_i2c_bus, s_i2c_addr, ACCEL_DATA_X0_REG, 1, buf, 6) < 0) {
     TRACE("ICM426xx ERROR: accel read error");
+    i2c_unlock(s_i2c_bus);
     return -1;
   }
+  i2c_unlock(s_i2c_bus);
+
   data->accel_x = ((int16_t)(buf[0] << 8) | buf[1]);
   data->accel_y = ((int16_t)(buf[2] << 8) | buf[3]);
   data->accel_z = ((int16_t)(buf[4] << 8) | buf[5]);

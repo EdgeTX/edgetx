@@ -249,6 +249,8 @@ TouchState touchPanelRead()
 {
   if (!touchEventOccured) return internalTouchState;
 
+  i2c_lock(TOUCH_I2C_BUS);
+
   touchEventOccured = false;
 
   uint32_t now = timersGetMsTick();
@@ -286,6 +288,7 @@ TouchState touchPanelRead()
   if (internalTouchState.event == TE_UP ||
       internalTouchState.event == TE_SLIDE_END)
     internalTouchState.event = TE_NONE;
+  i2c_unlock(TOUCH_I2C_BUS);
   return ret;
 }
 

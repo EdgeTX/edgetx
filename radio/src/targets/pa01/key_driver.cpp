@@ -25,6 +25,7 @@
 #include "stm32_hal_ll.h"
 #include "stm32_gpio_driver.h"
 #include "stm32_i2c_driver.h"
+#include "hal/i2c_driver.h"
 
 #include "hal.h"
 #include "delays_driver.h"
@@ -92,7 +93,9 @@ void pollKeys()
 #endif
 
   if (suspendI2CTasks) return;
-  
+
+  if (!i2c_trylock(I2C_Bus_1)) return;
+
   // This function avoids concurrent matrix agitation
 
   uint32_t result = 0;
@@ -173,6 +176,8 @@ void pollKeys()
 
   bsp_output_set(BSP_KEY_OUT_MASK, 0);
   bsp_get_shouldReadKeys();
+
+  i2c_unlock(I2C_Bus_1);
 
   fct_state[0] = (result & 1<<KEY1)?true:false;
   fct_state[1] = (result & 1<<KEY2)?true:false;

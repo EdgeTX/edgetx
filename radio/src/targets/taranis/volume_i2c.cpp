@@ -35,17 +35,23 @@ static const uint8_t volumeScale[VOLUME_LEVEL_MAX + 1] = {
 
 static int32_t read_i2c_volume()
 {
+  i2c_lock(VOLUME_I2C_BUS);
   uint8_t value = 0;
-  if (i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1) < 0)
+  if (i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1) < 0) {
+    i2c_unlock(VOLUME_I2C_BUS);
     return -1;
+  }
 
+  i2c_unlock(VOLUME_I2C_BUS);
   return value;
 }
 
 static void write_i2c_volume(uint8_t volume)
 {
+  i2c_lock(VOLUME_I2C_BUS);
   i2c_init(VOLUME_I2C_BUS);
   i2c_write(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &volume, 1);
+  i2c_unlock(VOLUME_I2C_BUS);
 }
 
 void audioSetVolume(uint8_t volume)
