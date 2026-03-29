@@ -339,7 +339,7 @@ LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, b
   if (p && *p) return *p;
 
   if (required) {
-    luaL_error(L, "Invalid lvgl object (it has been probably been cleared).");
+    luaL_error(L, "Invalid object (it has been probably been cleared).");
   }
 
   return nullptr;
@@ -656,6 +656,8 @@ void LvglWidgetObjectBase::parseParam(lua_State *L, const char *key)
     getPosFunction = ::getRef(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "floating")) {
     floating = getLuaBool(L);
+  } else if (strcmp(key, "children") && strcmp(key, "type") && strcmp(key, "name")) {
+    luaL_error(L, "Invalid property '%s'", key);
   }
 }
 
@@ -860,9 +862,12 @@ void LvglWidgetLabel::setAlign(LcdFlags newAlign)
 {
   if (lvobj) {
     align.flags = newAlign;
-    if (align.flags & VCENTERED) {
-      lv_obj_align(lvobj, LV_ALIGN_LEFT_MID, 0, 0);
-    }
+    if (align.flags & VCENTERED)
+      lv_obj_set_style_align(lvobj, LV_ALIGN_LEFT_MID, LV_PART_MAIN);
+    else if (align.flags & VTOP)
+      lv_obj_set_style_align(lvobj, LV_ALIGN_TOP_LEFT, LV_PART_MAIN);
+    else if (align.flags & VBOTTOM)
+      lv_obj_set_style_align(lvobj, LV_ALIGN_BOTTOM_LEFT, LV_PART_MAIN);
     lv_obj_set_style_text_align(lvobj,
                                 (align.flags & RIGHT)      ? LV_TEXT_ALIGN_RIGHT
                                 : (align.flags & CENTERED) ? LV_TEXT_ALIGN_CENTER

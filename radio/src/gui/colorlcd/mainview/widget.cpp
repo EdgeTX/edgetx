@@ -205,7 +205,7 @@ void Widget::onCancel()
 
 void Widget::setFullscreen(bool enable)
 {
-  if (!!parent->isTopBar() || (enable == fullscreen)) return;
+  if (parent->isTopBar() || (enable == fullscreen)) return;
 
   fullscreen = enable;
 
