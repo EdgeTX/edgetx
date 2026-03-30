@@ -149,8 +149,6 @@ QVariant LogicalSwitchesTableModel::data(const QModelIndex & index, int role) co
     case COL_FUNCTION:
       if (role == Qt::EditRole)
         return (int)lsw.func;
-      if (role == Qt::DisplayRole)
-        return lsw.funcToString();
       break;
 
     case COL_V1:
@@ -173,12 +171,12 @@ QVariant LogicalSwitchesTableModel::data(const QModelIndex & index, int role) co
       break;
 
     case COL_DURATION:
-      if (role == Qt::EditRole || role == Qt::DisplayRole)
+      if (role == Qt::EditRole)
         return lsw.duration / 10.0;
       break;
 
     case COL_DELAY:
-      if (role == Qt::EditRole || role == Qt::DisplayRole)
+      if (role == Qt::EditRole)
         return lsw.delay / 10.0;
       break;
 
