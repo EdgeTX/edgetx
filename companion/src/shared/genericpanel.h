@@ -22,12 +22,14 @@
 #pragma once
 
 #include <QWidget>
+#include <memory>
 
 class ModelData;
 class GeneralSettings;
 class Firmware;
 class QGridLayout;
 class QString;
+class WidgetBindings;
 
 class GenericPanel : public QWidget
 {
@@ -62,4 +64,10 @@ class GenericPanel : public QWidget
     void setFocusFilter(QWidget * w);
     void disableMouseScrolling();
     void updateAutoWidgets();
+
+    WidgetBindings *bindings();
+    void applyBindings();
+
+  private:
+    std::unique_ptr<WidgetBindings> m_bindings;
 };
