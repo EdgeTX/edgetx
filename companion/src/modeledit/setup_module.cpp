@@ -25,6 +25,7 @@
 #include "autolineedit.h"
 #include "multiprotocols.h"
 #include "helpers.h"
+#include "widgetbindings.h"
 
 #define FAILSAFE_CHANNEL_HOLD    2000
 #define FAILSAFE_CHANNEL_NOPULSE 2001
@@ -135,6 +136,109 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   }
 
   setupFailsafes();
+
+  // Visibility/enabled bindings — all reference m_updateMask computed in update()
+  auto mask = [this](unsigned int bit) -> std::function<bool()> {
+    return [this, bit]{ return m_updateMask & bit; };
+  };
+
+  // Protocol
+  bindings()->bindVisible(ui->label_protocol, mask(MASK_PROTOCOL));
+  bindings()->bindVisible(ui->protocol,       mask(MASK_PROTOCOL));
+
+  // Baudrate (external module only)
+  bindings()->bindVisible(ui->label_baudrate,     [this]{ return isExternalModule(moduleIdx) && (m_updateMask & MASK_BAUDRATE); });
+  bindings()->bindVisible(ui->telemetryBaudrate,  [this]{ return isExternalModule(moduleIdx) && (m_updateMask & MASK_BAUDRATE); });
+
+  // Rx number
+  bindings()->bindVisible(ui->label_rxNumber, mask(MASK_RX_NUMBER));
+  bindings()->bindVisible(ui->rxNumber,       mask(MASK_RX_NUMBER));
+
+  // Channels range
+  bindings()->bindVisible(ui->label_channelsStart, mask(MASK_CHANNELS_RANGE));
+  bindings()->bindVisible(ui->channelsStart,       mask(MASK_CHANNELS_RANGE));
+  bindings()->bindVisible(ui->label_channelsCount, mask(MASK_CHANNELS_RANGE));
+  bindings()->bindVisible(ui->channelsCount,       mask(MASK_CHANNELS_RANGE));
+  bindings()->bindEnabled(ui->channelsCount,       mask(MASK_CHANNELS_COUNT));
+
+  // CRSF
+  bindings()->bindVisible(ui->label_crsfArmingMode, mask(MASK_CSRF_ARMING_MODE));
+  bindings()->bindVisible(ui->crsfArmingMode,       mask(MASK_CSRF_ARMING_MODE));
+  bindings()->bindVisible(ui->crsfArmingTrigger,    mask(MASK_CSRF_ARMING_TRIGGER));
+
+  // PPM/SBUS fields
+  bindings()->bindVisible(ui->label_ppmPolarity,    mask(MASK_SBUSPPM_FIELDS));
+  bindings()->bindVisible(ui->ppmPolarity,          mask(MASK_SBUSPPM_FIELDS));
+  bindings()->bindVisible(ui->label_ppmOutputType,  mask(MASK_OPEN_DRAIN));
+  bindings()->bindVisible(ui->ppmOutputType,        mask(MASK_OPEN_DRAIN));
+  bindings()->bindVisible(ui->label_ppmDelay,       mask(MASK_PPM_FIELDS));
+  bindings()->bindVisible(ui->ppmDelay,             mask(MASK_PPM_FIELDS));
+  bindings()->bindVisible(ui->label_ppmFrameLength, mask(MASK_SBUSPPM_FIELDS));
+  bindings()->bindVisible(ui->ppmFrameLength,       mask(MASK_SBUSPPM_FIELDS));
+
+  // Antenna
+  bindings()->bindVisible(ui->antennaLabel, mask(MASK_ANTENNA));
+  bindings()->bindVisible(ui->antennaMode,  mask(MASK_ANTENNA));
+
+  // Racing mode
+  bindings()->bindVisible(ui->racingMode, mask(MASK_RF_RACING_MODE));
+
+  // R9M power
+  bindings()->bindVisible(ui->r9mPower,         mask(MASK_RF_POWER));
+  bindings()->bindVisible(ui->label_r9mPower,   mask(MASK_RF_POWER));
+  bindings()->bindVisible(ui->warning_r9mPower, [this]{ return (m_updateMask & MASK_R9M) && module.subType == MODULE_SUBTYPE_R9M_EU; });
+  bindings()->bindVisible(ui->warning_r9mFlex,  [this]{ return (m_updateMask & MASK_R9M) && module.subType > MODULE_SUBTYPE_R9M_EU; });
+
+  // Subtypes
+  bindings()->bindVisible(ui->label_multiSubType, mask(MASK_SUBTYPES));
+  bindings()->bindVisible(ui->multiSubType,       mask(MASK_SUBTYPES));
+
+  // Multi settings
+  bindings()->bindVisible(ui->label_multiProtocol, mask(MASK_MULTIMODULE));
+  bindings()->bindVisible(ui->multiProtocol,       mask(MASK_MULTIMODULE));
+  bindings()->bindVisible(ui->label_option,        mask(MASK_MULTIOPTION));
+  bindings()->bindVisible(ui->optionValue,         mask(MASK_MULTIOPTION));
+  bindings()->bindVisible(ui->lblChkOption,        mask(MASK_MULTI_DSM_OPT));
+  bindings()->bindVisible(ui->chkOption,           mask(MASK_MULTI_DSM_OPT));
+  bindings()->bindVisible(ui->lblCboOption,        [this]{ return (m_updateMask & MASK_MULTI_DSM_OPT) || (m_updateMask & MASK_MULTI_BAYANG_OPT); });
+  bindings()->bindVisible(ui->cboOption,           [this]{ return (m_updateMask & MASK_MULTI_DSM_OPT) || (m_updateMask & MASK_MULTI_BAYANG_OPT); });
+  bindings()->bindVisible(ui->disableTelem,        mask(MASK_MULTIMODULE));
+  bindings()->bindVisible(ui->disableChMap,        mask(MASK_CHANNELMAP));
+  bindings()->bindVisible(ui->lowPower,            mask(MASK_MULTIMODULE));
+  bindings()->bindVisible(ui->autoBind,            [this]{ return (m_updateMask & MASK_MULTIMODULE) && module.multi.rfProtocol != MODULE_SUBTYPE_MULTI_DSM2; });
+
+  // Ghost
+  bindings()->bindVisible(ui->raw12bits, mask(MASK_GHOST));
+
+  // DSMP
+  bindings()->bindVisible(ui->enableAETR, mask(MASK_ENABLE_AETR));
+
+  // ACCESS
+  bindings()->bindVisible(ui->registrationIdLabel, mask(MASK_ACCESS));
+  bindings()->bindVisible(ui->registrationId,      mask(MASK_ACCESS));
+  bindings()->bindVisible(ui->rx1Label, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 0)); });
+  bindings()->bindVisible(ui->clearRx1, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 0)); });
+  bindings()->bindVisible(ui->rx1,      [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 0)); });
+  bindings()->bindVisible(ui->rx2Label, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 1)); });
+  bindings()->bindVisible(ui->clearRx2, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 1)); });
+  bindings()->bindVisible(ui->rx2,      [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 1)); });
+  bindings()->bindVisible(ui->rx3Label, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 2)); });
+  bindings()->bindVisible(ui->clearRx3, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 2)); });
+  bindings()->bindVisible(ui->rx3,      [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 2)); });
+
+  // AFHDS
+  bindings()->bindVisible(ui->label_afhds,  mask(MASK_AFHDS));
+  bindings()->bindVisible(ui->cboAfhdsOpt1, mask(MASK_AFHDS));
+  bindings()->bindVisible(ui->cboAfhdsOpt2, mask(MASK_AFHDS));
+
+  // Failsafes
+  bindings()->bindVisible(ui->label_failsafeMode, mask(MASK_FAILSAFES));
+  bindings()->bindVisible(ui->failsafeMode,       mask(MASK_FAILSAFES));
+  bindings()->bindVisible(ui->failsafesGroupBox,   [this]{ return (m_updateMask & MASK_FAILSAFES) && module.failsafeMode == FAILSAFE_CUSTOM; });
+
+  // Rx frequency
+  bindings()->bindVisible(ui->label_rxFreq, mask(MASK_RX_FREQ));
+  bindings()->bindVisible(ui->rxFreq,       mask(MASK_RX_FREQ));
 
   disableMouseScrolling();
 
@@ -299,7 +403,7 @@ void ModulePanel::update()
   const auto board = firmware->getBoard();
   const auto & pdef = multiProtocols.getProtocol(module.multi.rfProtocol);
   unsigned int mask = 0;
-  unsigned int max_rx_num = 63;
+  m_maxRxNum = 63;
 
   if (!isTrainerModule(moduleIdx)) {
     mask |= MASK_PROTOCOL;
@@ -319,12 +423,10 @@ void ModulePanel::update()
       case PULSES_PXX_XJT_LR12:
       case PULSES_PXX_DJT:
         mask |= MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
-        // ACCST Rx ID
         if (protocol==PULSES_PXX_XJT_X16 || protocol==PULSES_PXX_XJT_LR12 ||
             protocol==PULSES_PXX_R9M || protocol==PULSES_ACCST_ISRM_D16 ||
             protocol==PULSES_XJT_LITE_X16 || protocol==PULSES_XJT_LITE_LR12)
           mask |= MASK_RX_NUMBER;
-        // ACCESS
         else if (protocol==PULSES_ACCESS_ISRM || protocol==PULSES_ACCESS_R9M ||
                  protocol==PULSES_ACCESS_R9M_LITE || protocol==PULSES_ACCESS_R9M_LITE_PRO)
           mask |= MASK_RX_NUMBER | MASK_ACCESS;
@@ -341,7 +443,7 @@ void ModulePanel::update()
       case PULSES_DSMX:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER;
         module.channelsCount = 6;
-        max_rx_num = 20;
+        m_maxRxNum = 20;
         break;
       case PULSES_CROSSFIRE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
@@ -372,13 +474,13 @@ void ModulePanel::update()
 
         switch (module.multi.rfProtocol) {
           case MODULE_SUBTYPE_MULTI_OLRS:
-            max_rx_num = MODULE_SUBTYPE_MULTI_OLRS_RXNUM;
+            m_maxRxNum = MODULE_SUBTYPE_MULTI_OLRS_RXNUM;
           case MODULE_SUBTYPE_MULTI_BUGS:
-            max_rx_num = MODULE_SUBTYPE_MULTI_BUGS_RXNUM;
+            m_maxRxNum = MODULE_SUBTYPE_MULTI_BUGS_RXNUM;
           case MODULE_SUBTYPE_MULTI_BUGS_MINI:
-            max_rx_num = MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM;
+            m_maxRxNum = MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM;
           default:
-             max_rx_num = 63;
+             m_maxRxNum = 63;
         }
 
         if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
@@ -420,78 +522,37 @@ void ModulePanel::update()
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
   }
 
-  if (isExternalModule(moduleIdx)) {
-    ui->label_baudrate->setVisible(mask & MASK_BAUDRATE);
-    ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
-  } else {
-    ui->label_baudrate->setVisible(false);
-    ui->telemetryBaudrate->setVisible(false);
-  }
+  m_updateMask = mask;
 
-  ui->label_protocol->setVisible(mask & MASK_PROTOCOL);
-  ui->protocol->setVisible(mask & MASK_PROTOCOL);
-  ui->label_rxNumber->setVisible(mask & MASK_RX_NUMBER);
-  ui->rxNumber->setVisible(mask & MASK_RX_NUMBER);
-  ui->rxNumber->setMaximum(max_rx_num);
+  // Data population — values, ranges, combo models
+  ui->rxNumber->setMaximum(m_maxRxNum);
   ui->rxNumber->setValue(module.modelId);
-  ui->label_channelsStart->setVisible(mask & MASK_CHANNELS_RANGE);
-  ui->channelsStart->setVisible(mask & MASK_CHANNELS_RANGE);
   ui->channelsStart->setMaximum(33 - module.channelsCount);
   ui->channelsStart->setValue(module.channelsStart+1);
-  ui->label_channelsCount->setVisible(mask & MASK_CHANNELS_RANGE);
-  ui->channelsCount->setVisible(mask & MASK_CHANNELS_RANGE);
-  ui->channelsCount->setEnabled(mask & MASK_CHANNELS_COUNT);
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
   ui->channelsCount->setSingleStep(1);
 
-  // CRSF
-  ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
-  ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
-  ui->crsfArmingTrigger->setVisible(mask & MASK_CSRF_ARMING_TRIGGER);
-
-  // PPM settings fields
-  ui->label_ppmPolarity->setVisible(mask & MASK_SBUSPPM_FIELDS);
-  ui->ppmPolarity->setVisible(mask & MASK_SBUSPPM_FIELDS);
+  // PPM data
   ui->ppmPolarity->setCurrentIndex(module.ppm.pulsePol);
-  ui->label_ppmOutputType->setVisible(mask & MASK_OPEN_DRAIN);
-  ui->ppmOutputType->setVisible(mask & MASK_OPEN_DRAIN);
   ui->ppmOutputType->setCurrentIndex(module.ppm.outputType);
-  ui->label_ppmDelay->setVisible(mask & MASK_PPM_FIELDS);
-  ui->ppmDelay->setVisible(mask & MASK_PPM_FIELDS);
   ui->ppmDelay->setValue(module.ppm.delay);
-  ui->label_ppmFrameLength->setVisible(mask & MASK_SBUSPPM_FIELDS);
-  ui->ppmFrameLength->setVisible(mask & MASK_SBUSPPM_FIELDS);
   ui->ppmFrameLength->setMinimum(module.channelsCount * (model->extendedLimits ? 2.250 : 2)+3.5);
   ui->ppmFrameLength->setMaximum(firmware->getCapability(PPMFrameLength));
   ui->ppmFrameLength->setValue(22.5 + ((double)module.ppm.frameLength) * 0.5);
 
+  // Antenna
   if (mask & MASK_ANTENNA) {
     if (module.pxx.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
       module.pxx.antennaMode = GeneralSettings::ANTENNA_MODE_INTERNAL;
     ui->antennaMode->setField(module.pxx.antennaMode, this);
-    ui->antennaLabel->show();
-    ui->antennaMode->show();
-  }
-  else {
-    ui->antennaLabel->hide();
-    ui->antennaMode->hide();
   }
 
-  if (mask & MASK_RF_RACING_MODE) {
-    ui->racingMode->show();
+  // Racing mode
+  if (mask & MASK_RF_RACING_MODE)
     ui->racingMode->setChecked(module.access.racingMode);
-  }
-  else {
-    ui->racingMode->hide();
-  }
 
-  // R9M options
-  ui->r9mPower->setVisible(mask & MASK_RF_POWER);
-  ui->label_r9mPower->setVisible(mask & MASK_RF_POWER);
-  ui->warning_r9mPower->setVisible((mask & MASK_R9M) && module.subType == MODULE_SUBTYPE_R9M_EU);
-  ui->warning_r9mFlex->setVisible((mask & MASK_R9M) && module.subType > MODULE_SUBTYPE_R9M_EU);
-
+  // R9M power
   if (mask & MASK_RF_POWER) {
     const QSignalBlocker blocker(ui->r9mPower);
     ui->r9mPower->clear();
@@ -499,11 +560,9 @@ void ModulePanel::update()
     ui->r9mPower->setCurrentIndex(mask & MASK_R9M ? module.pxx.power : module.afhds3.rfPower);
   }
 
-  // module subtype
-  ui->label_multiSubType->setVisible(mask & MASK_SUBTYPES);
-  ui->multiSubType->setVisible(mask & MASK_SUBTYPES);
+  // Subtypes
   if (mask & MASK_SUBTYPES) {
-    unsigned numEntries = 2;  // R9M FCC/EU
+    unsigned numEntries = 2;
     unsigned i = 0;
     switch(protocol){
     case PULSES_MULTIMODULE:
@@ -530,29 +589,13 @@ void ModulePanel::update()
     ui->multiSubType->setCurrentIndex(ui->multiSubType->findData(module.subType));
   }
 
-  // Multi settings fields
-  ui->label_multiProtocol->setVisible(mask & MASK_MULTIMODULE);
-  ui->multiProtocol->setVisible(mask & MASK_MULTIMODULE);
-  ui->label_option->setVisible(mask & MASK_MULTIOPTION);
-  ui->optionValue->setVisible(mask & MASK_MULTIOPTION);
-  ui->lblChkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
-  ui->chkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
-  ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT);
-  ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT);
-  ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
-  ui->disableChMap->setVisible(mask & MASK_CHANNELMAP);
-  ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
-  ui->autoBind->setVisible(mask & MASK_MULTIMODULE);
-  if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-    ui->autoBind->setVisible(false);
-  else
-    ui->autoBind->setText(tr("Bind on channel"));
-
+  // Multi data
   if (mask & MASK_MULTIMODULE) {
     ui->multiProtocol->setCurrentIndex(ui->multiProtocol->findData(module.multi.rfProtocol));
     ui->disableTelem->setChecked(module.multi.disableTelemetry);
     ui->disableChMap->setChecked(module.multi.disableMapping);
     ui->autoBind->setChecked(module.multi.autoBindMode);
+    ui->autoBind->setText(tr("Bind on channel"));
     ui->lowPower->setChecked(module.multi.lowPowerMode);
   }
 
@@ -603,40 +646,22 @@ void ModulePanel::update()
     ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
   }
 
-  // Ghost settings fields
-  ui->raw12bits->setVisible(mask & MASK_GHOST);
-  if (mask & MASK_GHOST) {
+  // Ghost data
+  if (mask & MASK_GHOST)
     ui->raw12bits->setChecked(module.ghost.raw12bits);
-  }
 
-  // DSMP settings fields
-  ui->enableAETR->setVisible(mask & MASK_ENABLE_AETR);
-  if (mask & MASK_ENABLE_AETR) {
+  // DSMP data
+  if (mask & MASK_ENABLE_AETR)
     ui->enableAETR->setChecked(module.dsmp.enableAETR);
-  }
 
+  // ACCESS data
   if (mask & MASK_ACCESS) {
     ui->rx1->setText(module.access.receiverName[0]);
     ui->rx2->setText(module.access.receiverName[1]);
     ui->rx3->setText(module.access.receiverName[2]);
   }
 
-  ui->registrationIdLabel->setVisible(mask & MASK_ACCESS);
-  ui->registrationId->setVisible(mask & MASK_ACCESS);
-
-  ui->rx1Label->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 0)));
-  ui->clearRx1->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 0)));
-  ui->rx1->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 0)));
-
-  ui->rx2Label->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 1)));
-  ui->clearRx2->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 1)));
-  ui->rx2->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 1)));
-
-  ui->rx3Label->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
-  ui->clearRx3->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
-  ui->rx3->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
-
-  // AFHDS2A / AFHDS3
+  // AFHDS2A / AFHDS3 data
   if (mask & MASK_AFHDS) {
     if (protocol == PULSES_FLYSKY_AFHDS2A) {
       ui->label_afhds->setText(tr("Options"));
@@ -656,22 +681,10 @@ void ModulePanel::update()
     }
   }
 
-  ui->label_afhds->setVisible(mask & MASK_AFHDS);
-  ui->cboAfhdsOpt1->setVisible(mask & MASK_AFHDS);
-  ui->cboAfhdsOpt2->setVisible(mask & MASK_AFHDS);
-
-  // Failsafes
-  ui->label_failsafeMode->setVisible(mask & MASK_FAILSAFES);
-  ui->failsafeMode->setVisible(mask & MASK_FAILSAFES);
-
+  // Failsafes data
   if ((mask & MASK_FAILSAFES) && module.failsafeMode == FAILSAFE_CUSTOM) {
-    if (ui->failsafesGroupBox->isHidden()) {
+    if (ui->failsafesGroupBox->isHidden())
       setupFailsafes();
-      ui->failsafesGroupBox->setVisible(true);
-    }
-  }
-  else {
-    ui->failsafesGroupBox->setVisible(false);
   }
 
   if (mask & MASK_FAILSAFES) {
@@ -693,8 +706,7 @@ void ModulePanel::update()
     }
   }
 
-  ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
-  ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
+  applyBindings();
 
   lock = false;
 }

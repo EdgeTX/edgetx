@@ -100,6 +100,8 @@ class ModulePanel : public ModelPanel
     ModuleData & module;
     int moduleIdx;
     Ui::Module *ui;
+    unsigned int m_updateMask = 0;
+    unsigned int m_maxRxNum = 63;
     QMap<int, ChannelFailsafeWidgetsGroup> failsafeGroupsMap;
     static quint8 failsafesValueDisplayType;  // FailsafeValueDisplayTypes
     void updateFailsafeUI(unsigned channel, quint8 updtSb);
