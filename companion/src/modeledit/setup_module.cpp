@@ -147,8 +147,8 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   bindings()->bindVisible(ui->protocol,       mask(MASK_PROTOCOL));
 
   // Baudrate (external module only)
-  bindings()->bindVisible(ui->label_baudrate,     [this]{ return isExternalModule(moduleIdx) && (m_updateMask & MASK_BAUDRATE); });
-  bindings()->bindVisible(ui->telemetryBaudrate,  [this]{ return isExternalModule(moduleIdx) && (m_updateMask & MASK_BAUDRATE); });
+  bindings()->bindVisible(ui->label_baudrate,     [this]{ return isExternalModule(this->moduleIdx) && (m_updateMask & MASK_BAUDRATE); });
+  bindings()->bindVisible(ui->telemetryBaudrate,  [this]{ return isExternalModule(this->moduleIdx) && (m_updateMask & MASK_BAUDRATE); });
 
   // Rx number
   bindings()->bindVisible(ui->label_rxNumber, mask(MASK_RX_NUMBER));
@@ -186,8 +186,8 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   // R9M power
   bindings()->bindVisible(ui->r9mPower,         mask(MASK_RF_POWER));
   bindings()->bindVisible(ui->label_r9mPower,   mask(MASK_RF_POWER));
-  bindings()->bindVisible(ui->warning_r9mPower, [this]{ return (m_updateMask & MASK_R9M) && module.subType == MODULE_SUBTYPE_R9M_EU; });
-  bindings()->bindVisible(ui->warning_r9mFlex,  [this]{ return (m_updateMask & MASK_R9M) && module.subType > MODULE_SUBTYPE_R9M_EU; });
+  bindings()->bindVisible(ui->warning_r9mPower, [this]{ return (m_updateMask & MASK_R9M) && this->module.subType == MODULE_SUBTYPE_R9M_EU; });
+  bindings()->bindVisible(ui->warning_r9mFlex,  [this]{ return (m_updateMask & MASK_R9M) && this->module.subType > MODULE_SUBTYPE_R9M_EU; });
 
   // Subtypes
   bindings()->bindVisible(ui->label_multiSubType, mask(MASK_SUBTYPES));
@@ -205,7 +205,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   bindings()->bindVisible(ui->disableTelem,        mask(MASK_MULTIMODULE));
   bindings()->bindVisible(ui->disableChMap,        mask(MASK_CHANNELMAP));
   bindings()->bindVisible(ui->lowPower,            mask(MASK_MULTIMODULE));
-  bindings()->bindVisible(ui->autoBind,            [this]{ return (m_updateMask & MASK_MULTIMODULE) && module.multi.rfProtocol != MODULE_SUBTYPE_MULTI_DSM2; });
+  bindings()->bindVisible(ui->autoBind,            [this]{ return (m_updateMask & MASK_MULTIMODULE) && this->module.multi.rfProtocol != MODULE_SUBTYPE_MULTI_DSM2; });
 
   // Ghost
   bindings()->bindVisible(ui->raw12bits, mask(MASK_GHOST));
@@ -216,15 +216,15 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   // ACCESS
   bindings()->bindVisible(ui->registrationIdLabel, mask(MASK_ACCESS));
   bindings()->bindVisible(ui->registrationId,      mask(MASK_ACCESS));
-  bindings()->bindVisible(ui->rx1Label, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 0)); });
-  bindings()->bindVisible(ui->clearRx1, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 0)); });
-  bindings()->bindVisible(ui->rx1,      [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 0)); });
-  bindings()->bindVisible(ui->rx2Label, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 1)); });
-  bindings()->bindVisible(ui->clearRx2, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 1)); });
-  bindings()->bindVisible(ui->rx2,      [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 1)); });
-  bindings()->bindVisible(ui->rx3Label, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 2)); });
-  bindings()->bindVisible(ui->clearRx3, [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 2)); });
-  bindings()->bindVisible(ui->rx3,      [this]{ return (m_updateMask & MASK_ACCESS) && (module.access.receivers & (1 << 2)); });
+  bindings()->bindVisible(ui->rx1Label, [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 0)); });
+  bindings()->bindVisible(ui->clearRx1, [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 0)); });
+  bindings()->bindVisible(ui->rx1,      [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 0)); });
+  bindings()->bindVisible(ui->rx2Label, [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 1)); });
+  bindings()->bindVisible(ui->clearRx2, [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 1)); });
+  bindings()->bindVisible(ui->rx2,      [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 1)); });
+  bindings()->bindVisible(ui->rx3Label, [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 2)); });
+  bindings()->bindVisible(ui->clearRx3, [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 2)); });
+  bindings()->bindVisible(ui->rx3,      [this]{ return (m_updateMask & MASK_ACCESS) && (this->module.access.receivers & (1 << 2)); });
 
   // AFHDS
   bindings()->bindVisible(ui->label_afhds,  mask(MASK_AFHDS));
@@ -234,7 +234,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   // Failsafes
   bindings()->bindVisible(ui->label_failsafeMode, mask(MASK_FAILSAFES));
   bindings()->bindVisible(ui->failsafeMode,       mask(MASK_FAILSAFES));
-  bindings()->bindVisible(ui->failsafesGroupBox,   [this]{ return (m_updateMask & MASK_FAILSAFES) && module.failsafeMode == FAILSAFE_CUSTOM; });
+  bindings()->bindVisible(ui->failsafesGroupBox,   [this]{ return (m_updateMask & MASK_FAILSAFES) && this->module.failsafeMode == FAILSAFE_CUSTOM; });
 
   // Rx frequency
   bindings()->bindVisible(ui->label_rxFreq, mask(MASK_RX_FREQ));

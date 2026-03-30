@@ -114,19 +114,19 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   connect(ui->prec, SIGNAL(currentDataChanged(int)), this, SLOT(on_precDataChanged()));
 
   // All lambdas capture 'this' — safe because bindings are owned by this panel
-  auto isCalculated = [this]{ return sensor.type == SensorData::TELEM_TYPE_CALCULATED; };
-  auto isCustom     = [this]{ return sensor.type != SensorData::TELEM_TYPE_CALCULATED; };
-  auto isRpms       = [this]{ return sensor.unit == SensorData::UNIT_RPMS; };
+  // Note: must use this-> to avoid capturing constructor params that shadow members
+  auto isCalculated = [this]{ return this->sensor.type == SensorData::TELEM_TYPE_CALCULATED; };
+  auto isCustom     = [this]{ return this->sensor.type != SensorData::TELEM_TYPE_CALCULATED; };
 
-  auto hasRatio     = [this]{ return sensor.getMask() & SENSOR_HAS_RATIO; };
-  auto hasGps       = [this]{ return sensor.getMask() & SENSOR_HAS_GPS; };
-  auto hasCells     = [this]{ return sensor.getMask() & SENSOR_HAS_CELLS; };
-  auto hasConsOrTot = [this]{ return (sensor.getMask() & SENSOR_HAS_CONSUMPTION) || (sensor.getMask() & SENSOR_HAS_TOTALIZE); };
-  auto hasSrc12     = [this]{ return sensor.getMask() & SENSOR_HAS_SOURCES_12; };
-  auto hasSrc34     = [this]{ return sensor.getMask() & SENSOR_HAS_SOURCES_34; };
-  auto hasPrec      = [this]{ return sensor.getMask() & SENSOR_HAS_PRECISION; };
-  auto isConfig     = [this]{ return sensor.getMask() & SENSOR_ISCONFIGURABLE; };
-  auto hasPositive  = [this]{ return sensor.getMask() & SENSOR_HAS_POSITIVE; };
+  auto hasRatio     = [this]{ return this->sensor.getMask() & SENSOR_HAS_RATIO; };
+  auto hasGps       = [this]{ return this->sensor.getMask() & SENSOR_HAS_GPS; };
+  auto hasCells     = [this]{ return this->sensor.getMask() & SENSOR_HAS_CELLS; };
+  auto hasConsOrTot = [this]{ return (this->sensor.getMask() & SENSOR_HAS_CONSUMPTION) || (this->sensor.getMask() & SENSOR_HAS_TOTALIZE); };
+  auto hasSrc12     = [this]{ return this->sensor.getMask() & SENSOR_HAS_SOURCES_12; };
+  auto hasSrc34     = [this]{ return this->sensor.getMask() & SENSOR_HAS_SOURCES_34; };
+  auto hasPrec      = [this]{ return this->sensor.getMask() & SENSOR_HAS_PRECISION; };
+  auto isConfig     = [this]{ return this->sensor.getMask() & SENSOR_ISCONFIGURABLE; };
+  auto hasPositive  = [this]{ return this->sensor.getMask() & SENSOR_HAS_POSITIVE; };
 
   // Type-driven visibility
   bindings()->bindVisible(ui->idLabel,       isCustom);
@@ -136,17 +136,16 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   bindings()->bindVisible(ui->formula,       isCalculated);
 
   // Origin: visible only for custom sensors with a non-empty origin
-  bindings()->bindVisible(ui->originLabel, [this]{ return sensor.type != SensorData::TELEM_TYPE_CALCULATED && !sensor.getOrigin(model).isEmpty(); });
-  bindings()->bindVisible(ui->origin,      [this]{ return sensor.type != SensorData::TELEM_TYPE_CALCULATED && !sensor.getOrigin(model).isEmpty(); });
-  bindings()->bindText(ui->origin, [this]{ return sensor.getOrigin(model); });
+  bindings()->bindVisible(ui->originLabel, [this]{ return this->sensor.type != SensorData::TELEM_TYPE_CALCULATED && !this->sensor.getOrigin(this->model).isEmpty(); });
+  bindings()->bindVisible(ui->origin,      [this]{ return this->sensor.type != SensorData::TELEM_TYPE_CALCULATED && !this->sensor.getOrigin(this->model).isEmpty(); });
 
   // Mask-driven visibility
-  bindings()->bindVisible(ui->ratioLabel,  [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit != SensorData::UNIT_RPMS; });
-  bindings()->bindVisible(ui->bladesLabel, [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit == SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->ratioLabel,  [this]{ return (this->sensor.getMask() & SENSOR_HAS_RATIO) && this->sensor.unit != SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->bladesLabel, [this]{ return (this->sensor.getMask() & SENSOR_HAS_RATIO) && this->sensor.unit == SensorData::UNIT_RPMS; });
   bindings()->bindVisible(ui->ratio,       hasRatio);
 
-  bindings()->bindVisible(ui->offsetLabel,     [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit != SensorData::UNIT_RPMS; });
-  bindings()->bindVisible(ui->multiplierLabel, [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit == SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->offsetLabel,     [this]{ return (this->sensor.getMask() & SENSOR_HAS_RATIO) && this->sensor.unit != SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->multiplierLabel, [this]{ return (this->sensor.getMask() & SENSOR_HAS_RATIO) && this->sensor.unit == SensorData::UNIT_RPMS; });
   bindings()->bindVisible(ui->offset,          hasRatio);
 
   bindings()->bindVisible(ui->precLabel, hasPrec);
@@ -172,7 +171,7 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   bindings()->bindVisible(ui->source4, hasSrc34);
 
   // Mask-driven enabled state
-  bindings()->bindEnabled(ui->autoOffset,   [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit != SensorData::UNIT_RPMS; });
+  bindings()->bindEnabled(ui->autoOffset,   [this]{ return (this->sensor.getMask() & SENSOR_HAS_RATIO) && this->sensor.unit != SensorData::UNIT_RPMS; });
   bindings()->bindEnabled(ui->onlyPositive, hasPositive);
   bindings()->bindEnabled(ui->filter,       isConfig);
   bindings()->bindEnabled(ui->persistent,   isCalculated);
@@ -198,6 +197,7 @@ void TelemetrySensorPanel::update()
     ui->formula->setCurrentIndex(ui->formula->findData(sensor.formula));
   }
   else {
+    ui->origin->setText(sensor.getOrigin(model));
     FieldRange rng = sensor.getRatioRange();
     ui->ratio->setDecimals(rng.decimals);
     ui->ratio->setMaximum(rng.max);

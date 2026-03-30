@@ -22,6 +22,7 @@
 #include "logicalswitchesdelegates.h"
 #include "logicalswitchestablemodel.h"
 #include "eeprominterface.h"
+#include "filtereditemmodels.h"
 
 #include <TimerEdit>
 #include <QComboBox>
