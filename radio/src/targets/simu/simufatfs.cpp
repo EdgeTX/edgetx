@@ -277,11 +277,18 @@ FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
     if (flag & FA_CREATE_ALWAYS) {
       mode |= std::ios::trunc;
     } else {
-      // For append mode, we need to check if file exists
       if (fs::exists(realPath, ec) && !ec) {
         mode |= std::ios::ate;  // Open at end
       } else {
-        mode |= std::ios::trunc;  // Create new file
+        // Copy-on-write: if the file exists in sdPath, copy it to
+        // settingsPath so appends start from the original content
+        std::string readPath = resolveForRead(name);
+        if (fs::exists(readPath, ec) && !ec) {
+          fs::copy_file(readPath, realPath, ec);
+          mode |= std::ios::ate;
+        } else {
+          mode |= std::ios::trunc;  // Create new file
+        }
       }
     }
   } else {
