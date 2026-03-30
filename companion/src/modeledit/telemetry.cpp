@@ -25,6 +25,7 @@
 #include "helpers.h"
 #include "appdata.h"
 #include "namevalidator.h"
+#include "widgetbindings.h"
 
 constexpr char FIM_RAWSOURCE[]       {"Raw Source"};
 constexpr char FIM_TELEALLSRC[]      {"Tele All Source"};
@@ -111,6 +112,71 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   ui->prec->setModel(panelFilteredItemModels->getItemModel(FIM_SENSORPRECISION));
   ui->prec->setField(sensor.prec);
   connect(ui->prec, SIGNAL(currentDataChanged(int)), this, SLOT(on_precDataChanged()));
+
+  // All lambdas capture 'this' — safe because bindings are owned by this panel
+  auto isCalculated = [this]{ return sensor.type == SensorData::TELEM_TYPE_CALCULATED; };
+  auto isCustom     = [this]{ return sensor.type != SensorData::TELEM_TYPE_CALCULATED; };
+  auto isRpms       = [this]{ return sensor.unit == SensorData::UNIT_RPMS; };
+
+  auto hasRatio     = [this]{ return sensor.getMask() & SENSOR_HAS_RATIO; };
+  auto hasGps       = [this]{ return sensor.getMask() & SENSOR_HAS_GPS; };
+  auto hasCells     = [this]{ return sensor.getMask() & SENSOR_HAS_CELLS; };
+  auto hasConsOrTot = [this]{ return (sensor.getMask() & SENSOR_HAS_CONSUMPTION) || (sensor.getMask() & SENSOR_HAS_TOTALIZE); };
+  auto hasSrc12     = [this]{ return sensor.getMask() & SENSOR_HAS_SOURCES_12; };
+  auto hasSrc34     = [this]{ return sensor.getMask() & SENSOR_HAS_SOURCES_34; };
+  auto hasPrec      = [this]{ return sensor.getMask() & SENSOR_HAS_PRECISION; };
+  auto isConfig     = [this]{ return sensor.getMask() & SENSOR_ISCONFIGURABLE; };
+  auto hasPositive  = [this]{ return sensor.getMask() & SENSOR_HAS_POSITIVE; };
+
+  // Type-driven visibility
+  bindings()->bindVisible(ui->idLabel,       isCustom);
+  bindings()->bindVisible(ui->id,            isCustom);
+  bindings()->bindVisible(ui->instanceLabel, isCustom);
+  bindings()->bindVisible(ui->instance,      isCustom);
+  bindings()->bindVisible(ui->formula,       isCalculated);
+
+  // Origin: visible only for custom sensors with a non-empty origin
+  bindings()->bindVisible(ui->originLabel, [this]{ return sensor.type != SensorData::TELEM_TYPE_CALCULATED && !sensor.getOrigin(model).isEmpty(); });
+  bindings()->bindVisible(ui->origin,      [this]{ return sensor.type != SensorData::TELEM_TYPE_CALCULATED && !sensor.getOrigin(model).isEmpty(); });
+  bindings()->bindText(ui->origin, [this]{ return sensor.getOrigin(model); });
+
+  // Mask-driven visibility
+  bindings()->bindVisible(ui->ratioLabel,  [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit != SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->bladesLabel, [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit == SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->ratio,       hasRatio);
+
+  bindings()->bindVisible(ui->offsetLabel,     [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit != SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->multiplierLabel, [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit == SensorData::UNIT_RPMS; });
+  bindings()->bindVisible(ui->offset,          hasRatio);
+
+  bindings()->bindVisible(ui->precLabel, hasPrec);
+  bindings()->bindVisible(ui->prec,      hasPrec);
+
+  bindings()->bindVisible(ui->unit, isConfig);
+
+  bindings()->bindVisible(ui->gpsSensorLabel, hasGps);
+  bindings()->bindVisible(ui->gpsSensor,      hasGps);
+  bindings()->bindVisible(ui->altSensorLabel, hasGps);
+  bindings()->bindVisible(ui->altSensor,      hasGps);
+
+  bindings()->bindVisible(ui->ampsSensorLabel, hasConsOrTot);
+  bindings()->bindVisible(ui->ampsSensor,      hasConsOrTot);
+
+  bindings()->bindVisible(ui->cellsSensorLabel, hasCells);
+  bindings()->bindVisible(ui->cellsSensor,      hasCells);
+  bindings()->bindVisible(ui->cellsIndex,       hasCells);
+
+  bindings()->bindVisible(ui->source1, hasSrc12);
+  bindings()->bindVisible(ui->source2, hasSrc12);
+  bindings()->bindVisible(ui->source3, hasSrc34);
+  bindings()->bindVisible(ui->source4, hasSrc34);
+
+  // Mask-driven enabled state
+  bindings()->bindEnabled(ui->autoOffset,   [this]{ return (sensor.getMask() & SENSOR_HAS_RATIO) && sensor.unit != SensorData::UNIT_RPMS; });
+  bindings()->bindEnabled(ui->onlyPositive, hasPositive);
+  bindings()->bindEnabled(ui->filter,       isConfig);
+  bindings()->bindEnabled(ui->persistent,   isCalculated);
+
   lock = false;
 
   update();
@@ -124,53 +190,14 @@ TelemetrySensorPanel::~TelemetrySensorPanel()
 void TelemetrySensorPanel::update()
 {
   lock = true;
-  int mask = sensor.getMask();
 
-  ui->name->updateValue();
-  ui->type->updateValue();
-  ui->formula->updateValue();
-  ui->unit->updateValue();
-  ui->id->updateValue();
-  ui->instance->updateValue();
-  ui->ratio->updateValue();
-  ui->offset->updateValue();
-  ui->autoOffset->updateValue();
-  ui->filter->updateValue();
-  ui->logs->updateValue();
-  ui->persistent->updateValue();
-  ui->onlyPositive->updateValue();
-  ui->gpsSensor->updateValue();
-  ui->altSensor->updateValue();
-  ui->ampsSensor->updateValue();
-  ui->cellsSensor->updateValue();
-  ui->cellsIndex->updateValue();
-  ui->prec->updateValue();
+  updateAutoWidgets();
 
   if (sensor.type == SensorData::TELEM_TYPE_CALCULATED) {
     sensor.updateUnit();
-    ui->idLabel->hide();
-    ui->id->hide();
-    ui->instanceLabel->hide();
-    ui->instance->hide();
-    ui->originLabel->hide();
-    ui->origin->hide();
-    ui->formula->show();
     ui->formula->setCurrentIndex(ui->formula->findData(sensor.formula));
-    ui->source1->updateValue();
-    ui->source2->updateValue();
-    ui->source3->updateValue();
-    ui->source4->updateValue();
   }
   else {
-    ui->idLabel->show();
-    ui->id->show();
-    ui->instanceLabel->show();
-    ui->instance->show();
-    QString origin = sensor.getOrigin(model);
-    ui->originLabel->setVisible(!origin.isEmpty());
-    ui->origin->setVisible(!origin.isEmpty());
-    ui->origin->setText(origin);
-    ui->formula->hide();
     FieldRange rng = sensor.getRatioRange();
     ui->ratio->setDecimals(rng.decimals);
     ui->ratio->setMaximum(rng.max);
@@ -183,41 +210,7 @@ void TelemetrySensorPanel::update()
     ui->offset->setSingleStep(rng.step);
   }
 
-  ui->ratioLabel->setVisible(mask & SENSOR_HAS_RATIO && sensor.unit != SensorData::UNIT_RPMS);
-  ui->bladesLabel->setVisible(mask & SENSOR_HAS_RATIO && sensor.unit == SensorData::UNIT_RPMS);
-  ui->ratio->setVisible(mask & SENSOR_HAS_RATIO);
-
-  ui->offsetLabel->setVisible(mask & SENSOR_HAS_RATIO && sensor.unit != SensorData::UNIT_RPMS);
-  ui->multiplierLabel->setVisible(mask & SENSOR_HAS_RATIO && sensor.unit == SensorData::UNIT_RPMS);
-  ui->offset->setVisible(mask & SENSOR_HAS_RATIO);
-
-  ui->precLabel->setVisible(mask & SENSOR_HAS_PRECISION);
-  ui->prec->setVisible(mask & SENSOR_HAS_PRECISION);
-
-  ui->unit->setVisible(mask & SENSOR_ISCONFIGURABLE);
-
-  ui->gpsSensorLabel->setVisible(mask & SENSOR_HAS_GPS);
-  ui->gpsSensor->setVisible(mask & SENSOR_HAS_GPS);
-
-  ui->altSensorLabel->setVisible(mask & SENSOR_HAS_GPS);
-  ui->altSensor->setVisible(mask & SENSOR_HAS_GPS);
-
-  ui->ampsSensorLabel->setVisible(mask & SENSOR_HAS_CONSUMPTION || mask & SENSOR_HAS_TOTALIZE);
-  ui->ampsSensor->setVisible(mask & SENSOR_HAS_CONSUMPTION || mask & SENSOR_HAS_TOTALIZE);
-
-  ui->cellsSensorLabel->setVisible(mask & SENSOR_HAS_CELLS);
-  ui->cellsSensor->setVisible(mask & SENSOR_HAS_CELLS);
-  ui->cellsIndex->setVisible(mask & SENSOR_HAS_CELLS);
-
-  ui->source1->setVisible(mask & SENSOR_HAS_SOURCES_12);
-  ui->source2->setVisible(mask & SENSOR_HAS_SOURCES_12);
-  ui->source3->setVisible(mask & SENSOR_HAS_SOURCES_34);
-  ui->source4->setVisible(mask & SENSOR_HAS_SOURCES_34);
-
-  ui->autoOffset->setEnabled(mask & SENSOR_HAS_RATIO && sensor.unit != SensorData::UNIT_RPMS);
-  ui->onlyPositive->setEnabled(mask & SENSOR_HAS_POSITIVE);
-  ui->filter->setEnabled(mask & SENSOR_ISCONFIGURABLE);
-  ui->persistent->setEnabled(sensor.type == SensorData::TELEM_TYPE_CALCULATED);
+  applyBindings();
 
   lock = false;
 }
