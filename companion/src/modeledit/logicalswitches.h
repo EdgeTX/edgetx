@@ -68,9 +68,6 @@ class LogicalSwitchesPanel : public ModelPanel
     int selectedIndex;
     int modelsUpdateCnt;
 
-    void openPersistentEditorsForRow(int row);
-    void recreateRowEditors(int row);
-    void openAllPersistentEditors();
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;
     bool moveDownAllowed() const;

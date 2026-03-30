@@ -140,6 +140,8 @@ QVariant LogicalSwitchesTableModel::data(const QModelIndex & index, int role) co
   if (role == SourceTypeRole && col == COL_V1)
     return RawSource(lsw.val1).type;
 
+  const unsigned int mask = computeVisibilityMask(row);
+
   switch (col) {
     case COL_INDEX:
       if (role == Qt::DisplayRole)
@@ -147,16 +149,68 @@ QVariant LogicalSwitchesTableModel::data(const QModelIndex & index, int role) co
       break;
 
     case COL_FUNCTION:
+      if (role == Qt::DisplayRole)
+        return lsw.funcToString();
       if (role == Qt::EditRole)
         return (int)lsw.func;
       break;
 
     case COL_V1:
+      if (role == Qt::DisplayRole) {
+        if (lsw.isEmpty()) return QVariant();
+        if (mask & VALUE1_VISIBLE)
+          return QString::number(ValToTim(lsw.val1), 'f', 1);
+        if (mask & SOURCE1_VISIBLE) {
+          CSFunctionFamily family = lsw.getFunctionFamily();
+          if (family == LS_FAMILY_VOFS || family == LS_FAMILY_VCOMP)
+            return RawSource(lsw.val1).toString(m_model, &m_generalSettings);
+          else
+            return RawSwitch(lsw.val1).toString(getCurrentFirmware()->getBoard(), &m_generalSettings, m_model);
+        }
+        return QVariant();
+      }
       if (role == Qt::EditRole)
         return lsw.val1;
       break;
 
     case COL_V2:
+      if (role == Qt::DisplayRole) {
+        if (lsw.isEmpty()) return QVariant();
+        CSFunctionFamily family = lsw.getFunctionFamily();
+        if (mask & SOURCE2_VISIBLE) {
+          if (family == LS_FAMILY_VCOMP)
+            return RawSource(lsw.val2).toString(m_model, &m_generalSettings);
+          else
+            return RawSwitch(lsw.val2).toString(getCurrentFirmware()->getBoard(), &m_generalSettings, m_model);
+        }
+        if (mask & VALUE_TO_VISIBLE) {
+          RawSource source(lsw.val1);
+          RawSourceRange range = source.getRange(m_model, m_generalSettings, lsw.getRangeFlags());
+          return QString::number((int)range.toDisplay(lsw.val2));
+        }
+        if (mask & VALUE2_VISIBLE) {
+          if (family == LS_FAMILY_TIMER) {
+            return QString::number(ValToTim(lsw.val2), 'f', 1);
+          }
+          else if (family == LS_FAMILY_EDGE) {
+            QString s = QString::number(ValToTim(lsw.val2), 'f', 1);
+            s += "  " + QString::number(ValToTim(lsw.val2 + lsw.val3), 'f', 1);
+            if (!lsw.val3)
+              s += tr(" (infinite)");
+            return s;
+          }
+          else {
+            RawSource source(lsw.val1);
+            RawSourceRange range = source.getRange(m_model, m_generalSettings, lsw.getRangeFlags());
+            double value = range.toDisplay(lsw.val2);
+            QString s = QString::number(value, 'f', range.decimals);
+            if (!range.unit.isEmpty())
+              s += " " + range.unit;
+            return s;
+          }
+        }
+        return QVariant();
+      }
       if (role == Qt::EditRole) {
         QVariantMap m;
         m["val2"] = lsw.val2;
@@ -166,23 +220,37 @@ QVariant LogicalSwitchesTableModel::data(const QModelIndex & index, int role) co
       break;
 
     case COL_AND_SWITCH:
+      if (role == Qt::DisplayRole) {
+        if (!(mask & LINE_ENABLED)) return QVariant();
+        return RawSwitch(lsw.andsw).toString(getCurrentFirmware()->getBoard(), &m_generalSettings, m_model);
+      }
       if (role == Qt::EditRole)
         return lsw.andsw;
       break;
 
     case COL_DURATION:
+      if (role == Qt::DisplayRole) {
+        if (!(mask & DURATION_ENABLED)) return QVariant();
+        return QString::number(lsw.duration / 10.0, 'f', 1);
+      }
       if (role == Qt::EditRole)
         return lsw.duration / 10.0;
       break;
 
     case COL_DELAY:
+      if (role == Qt::DisplayRole) {
+        if (!(mask & DELAY_ENABLED)) return QVariant();
+        return QString::number(lsw.delay / 10.0, 'f', 1);
+      }
       if (role == Qt::EditRole)
         return lsw.delay / 10.0;
       break;
 
     case COL_PERSISTENT:
-      if (role == Qt::CheckStateRole)
+      if (role == Qt::CheckStateRole) {
+        if (!(mask & PERSIST_ENABLED)) return QVariant();
         return lsw.lsPersist ? Qt::Checked : Qt::Unchecked;
+      }
       if (role == Qt::EditRole)
         return lsw.lsPersist;
       break;

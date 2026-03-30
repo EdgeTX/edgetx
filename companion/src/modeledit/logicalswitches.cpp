@@ -54,8 +54,8 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget *parent, ModelData & model, G
 
   m_tableView = new QTableView(this);
   m_tableView->setModel(m_tableModel);
-  m_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-  m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+  m_tableView->setSelectionMode(QAbstractItemView::NoSelection);
+  m_tableView->setEditTriggers(QAbstractItemView::AllEditTriggers);
   m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
   m_tableView->verticalHeader()->hide();
   m_tableView->horizontalHeader()->setStretchLastSection(true);
@@ -81,8 +81,6 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget *parent, ModelData & model, G
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_tableView);
 
-  openAllPersistentEditors();
-
   m_tableView->resizeColumnsToContents();
 
   connect(m_tableView, &QWidget::customContextMenuRequested, this, &LogicalSwitchesPanel::onCustomContextMenuRequested);
@@ -98,46 +96,25 @@ LogicalSwitchesPanel::~LogicalSwitchesPanel()
   delete rawSwitchFilteredModel;
 }
 
-void LogicalSwitchesPanel::openPersistentEditorsForRow(int row)
-{
-  for (int col = LogicalSwitchesTableModel::COL_FUNCTION; col < LogicalSwitchesTableModel::COL_COUNT; ++col)
-    m_tableView->openPersistentEditor(m_tableModel->index(row, col));
-}
-
-void LogicalSwitchesPanel::recreateRowEditors(int row)
-{
-  for (int col = LogicalSwitchesTableModel::COL_FUNCTION; col < LogicalSwitchesTableModel::COL_COUNT; ++col) {
-    QModelIndex idx = m_tableModel->index(row, col);
-    m_tableView->closePersistentEditor(idx);
-    m_tableView->openPersistentEditor(idx);
-  }
-}
-
-void LogicalSwitchesPanel::openAllPersistentEditors()
-{
-  for (int row = 0; row < m_tableModel->rowCount(); ++row)
-    openPersistentEditorsForRow(row);
-}
-
 void LogicalSwitchesPanel::update()
 {
   m_tableModel->refreshAllRows();
-  // Recreate all persistent editors since families/visibility may have changed
-  for (int row = 0; row < m_tableModel->rowCount(); ++row)
-    recreateRowEditors(row);
+  m_tableView->resizeColumnsToContents();
 }
 
 void LogicalSwitchesPanel::onFunctionFamilyChanged(int row)
 {
-  recreateRowEditors(row);
+  // Close any open editor since the widget type may need to change
+  m_tableView->closePersistentEditor(m_tableView->currentIndex());
+  m_tableModel->refreshAllRows();
+  m_tableView->resizeColumnsToContents();
 }
 
 void LogicalSwitchesPanel::onV1SourceTypeChanged(int row)
 {
-  // V2 editor type depends on V1 source type in VOFS family
-  QModelIndex idx = m_tableModel->index(row, LogicalSwitchesTableModel::COL_V2);
-  m_tableView->closePersistentEditor(idx);
-  m_tableView->openPersistentEditor(idx);
+  m_tableView->closePersistentEditor(m_tableView->currentIndex());
+  emit m_tableModel->dataChanged(m_tableModel->index(row, LogicalSwitchesTableModel::COL_V2),
+                                  m_tableModel->index(row, LogicalSwitchesTableModel::COL_V2));
 }
 
 void LogicalSwitchesPanel::onLogicalSwitchStateChanged()
