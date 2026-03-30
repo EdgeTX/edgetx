@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+#include <string.h>
+
 namespace fs = std::filesystem;
 
 using sysclock = std::chrono::system_clock;
