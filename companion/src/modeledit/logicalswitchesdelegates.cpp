@@ -68,6 +68,12 @@ static void populateFunctionCB(QComboBox * b)
   b->setMaxVisibleItems(10);
 }
 
+// Helper: ensure editor covers the painted cell text
+static void makeOpaque(QWidget * w)
+{
+  w->setAutoFillBackground(true);
+}
+
 // Helper: configure a timer-param QDoubleSpinBox
 static void setupTimerSpinBox(QDoubleSpinBox * sb, int timer, double minimum = 0.0, double maximum = 175.0)
 {
@@ -98,6 +104,7 @@ QWidget * LogicalSwitchFunctionDelegate::createEditor(QWidget * parent, const QS
   connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, cb]() {
     const_cast<LogicalSwitchFunctionDelegate*>(this)->commitData(cb);
   });
+  makeOpaque(cb);
   return cb;
 }
 
@@ -140,6 +147,7 @@ QWidget * LogicalSwitchV1Delegate::createEditor(QWidget * parent, const QStyleOp
     connect(sb, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this, sb]() {
       const_cast<LogicalSwitchV1Delegate*>(this)->commitData(sb);
     });
+    makeOpaque(sb);
     return sb;
   }
 
@@ -153,6 +161,7 @@ QWidget * LogicalSwitchV1Delegate::createEditor(QWidget * parent, const QStyleOp
     connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, cb]() {
       const_cast<LogicalSwitchV1Delegate*>(this)->commitData(cb);
     });
+    makeOpaque(cb);
     return cb;
   }
 
@@ -210,6 +219,7 @@ QWidget * LogicalSwitchV2Delegate::createEditor(QWidget * parent, const QStyleOp
     connect(te, &TimerEdit::editingFinished, this, [this, te]() {
       const_cast<LogicalSwitchV2Delegate*>(this)->commitData(te);
     });
+    makeOpaque(te);
     return te;
   }
 
@@ -234,6 +244,7 @@ QWidget * LogicalSwitchV2Delegate::createEditor(QWidget * parent, const QStyleOp
     connect(dsbOffset2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this, container]() {
       const_cast<LogicalSwitchV2Delegate*>(this)->commitData(container);
     });
+    makeOpaque(container);
     return container;
   }
 
@@ -246,6 +257,7 @@ QWidget * LogicalSwitchV2Delegate::createEditor(QWidget * parent, const QStyleOp
     connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, cb]() {
       const_cast<LogicalSwitchV2Delegate*>(this)->commitData(cb);
     });
+    makeOpaque(cb);
     return cb;
   }
 
@@ -279,6 +291,7 @@ QWidget * LogicalSwitchV2Delegate::createEditor(QWidget * parent, const QStyleOp
     connect(sb, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this, sb]() {
       const_cast<LogicalSwitchV2Delegate*>(this)->commitData(sb);
     });
+    makeOpaque(sb);
     return sb;
   }
 
@@ -419,6 +432,7 @@ QWidget * LogicalSwitchComboDelegate::createEditor(QWidget * parent, const QStyl
   connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, cb]() {
     const_cast<LogicalSwitchComboDelegate*>(this)->commitData(cb);
   });
+  makeOpaque(cb);
   return cb;
 }
 
@@ -462,6 +476,7 @@ QWidget * LogicalSwitchNumericDelegate::createEditor(QWidget * parent, const QSt
   connect(sb, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this, sb]() {
     const_cast<LogicalSwitchNumericDelegate*>(this)->commitData(sb);
   });
+  makeOpaque(sb);
   return sb;
 }
 
@@ -502,6 +517,7 @@ QWidget * LogicalSwitchPersistDelegate::createEditor(QWidget * parent, const QSt
   connect(cb, &QCheckBox::stateChanged, this, [this, cb]() {
     const_cast<LogicalSwitchPersistDelegate*>(this)->commitData(cb);
   });
+  makeOpaque(cb);
   return cb;
 }
 
