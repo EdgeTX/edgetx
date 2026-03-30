@@ -13,6 +13,8 @@ set(${PROJECT_NAME}_NAMES
   inputs
   heli
   logicalswitches
+  logicalswitchesdelegates
+  logicalswitchestablemodel
   mixerdialog
   mixes
   mixerslistwidget
