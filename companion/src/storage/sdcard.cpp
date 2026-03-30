@@ -73,6 +73,7 @@ bool SdcardFormat::loadFile(QImage & filedata, const QString & filename, bool op
     return false;
   }
 
+  qDebug() << "File" << path << "read";
   return true;
 }
 
@@ -101,6 +102,7 @@ bool SdcardFormat::writeFile(const QImage & data, const QString & filename)
     return false;
   }
 
+  qDebug() << "File" << path << "written";
   return true;
 }
 

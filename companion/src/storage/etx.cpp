@@ -122,9 +122,15 @@ bool EtxFormat::loadFile(QImage & filedata, const QString & filename, bool optio
       return false;
   }
 
-  filedata.loadFromData((uchar *)data, size);
-
+  bool res = filedata.loadFromData((uchar *)data, size);
   mz_free(data);
+
+  if (!res) {
+    qDebug() << QString("Failed to load image with file %1 contents").arg(filename);
+    return false;
+  }
+
+  qDebug() << QString("Extracted file %1").arg(filename);
   return true;
 }
 
@@ -143,13 +149,18 @@ bool EtxFormat::writeFile(const QImage & filedata, const QString & filename)
   QByteArray ba;
   QBuffer buffer(&ba);
   buffer.open(QIODevice::WriteOnly);
-  filedata.save(&buffer, QFileInfo(filename).suffix().toUpper().toLatin1());
+
+  if (!filedata.save(&buffer, QFileInfo(filename).suffix().toUpper().toLatin1())) {
+    setError(tr("Error saving image for %1 to buffer").arg(filename));
+    return false;
+  }
 
   if (!mz_zip_writer_add_mem(&zip_archive, filename.toStdString().c_str(), ba.data(), ba.size(), MZ_DEFAULT_LEVEL)) {
     setError(tr("Error adding %1 to EdgeTX archive").arg(filename));
     return false;
   }
 
+  qDebug() << QString("Added file %1").arg(filename);
   return true;
 }
 
