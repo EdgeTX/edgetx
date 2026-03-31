@@ -286,13 +286,20 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
                                   uint8_t* buf, uint8_t* p_len)
 {
-  if (frame_len < MIN_FRAME_LEN) return;
-
   uint8_t& len = *p_len;
+
   if (len == 0) {
-    // buffer is empty: no re-assembly
+    if (frame_len == 0) return;
+
     if (!_validHdr(frame)) {
       TRACE("[XF] invalid frame start");
+      return;
+    }
+
+    if (frame_len < MIN_FRAME_LEN) {
+      // Too short to process, but valid header: save for reassembly
+      memcpy(buf, frame, frame_len);
+      len = frame_len;
       return;
     }
 
