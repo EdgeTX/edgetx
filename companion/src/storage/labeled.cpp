@@ -338,7 +338,7 @@ bool LabelsStorageFormat::loadModelImage(ModelData & model)
 
 bool LabelsStorageFormat::writeModelImage(const ModelData & model)
 {
-  if (!model.getImageFilename().isEmpty()) {
+  if (!model.image.isNull()) {
     const QString fname("IMAGES/" + model.getImageFilename());
     //qDebug() << "Writing model image file:" << fname;
 
