@@ -245,6 +245,7 @@ class MdiChild : public QWidget
     QAction * actionsSeparator();
     void setupStatusBar();
     void updateStatusBar();
+    void loadModelImages();
 };
 
 // This will draw the drop indicator across all columns of a model View (vs. in just one column), and lets us make the indicator more obvious.
