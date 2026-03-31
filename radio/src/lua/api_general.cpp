@@ -2555,20 +2555,11 @@ Sets the value of a sticky logical switch.
 @status current Introduced in 2.6
 */
 
-#if (MAX_LOGICAL_SWITCHES != 64)
-#warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
-#endif
-
 static int luaSetStickySwitch(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
   bool value = lua_toboolean(L, 2);
-
-  uint8_t msg = (1 << 6);       // This bit is always set to have a non-zero value
-  if (value) msg |= (1 << 7);
-  msg |= (id & 0x3F);
-
-  lua_pushboolean(L, luaSetStickySwitchBuffer.write(msg));
+  lua_pushboolean(L, lswSetStickySwitch(id, value));
   return 1;
 }
 

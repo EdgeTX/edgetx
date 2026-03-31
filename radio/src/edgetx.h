@@ -265,6 +265,7 @@ enum PerOutMode {
 };
 
 extern uint8_t mixerCurrentFlightMode;
+extern uint8_t mixerActiveFlightMode;
 extern uint8_t lastFlightMode;
 extern uint8_t flightModeTransitionLast;
 
@@ -858,7 +859,7 @@ extern uint8_t latencyToggleSwitch;
 
 #include "module.h"
 
-extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
+
 
 // Radio menu tab state
 #if defined(COLORLCD)

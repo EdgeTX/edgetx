@@ -757,13 +757,11 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
 }
 
 uint8_t mixerCurrentFlightMode;
+uint8_t mixerActiveFlightMode;
 
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
-
-  if (tick10ms)
-    evalLogicalSwitches(mode==e_perout_mode_normal);
 
 #if defined(HELI)
   if (modelHeliEnabled()) {
@@ -1169,7 +1167,7 @@ void evalMixes(uint8_t tick10ms)
         fp_act[lastFlightMode] = 0;
         fp_act[fm] = MAX_ACT;
       }
-      logicalSwitchesCopyState(lastFlightMode, fm); // push last logical switches state from old to new flight mode
+      lswFreezeState(lastFlightMode);
     }
     lastFlightMode = fm;
   }
@@ -1185,13 +1183,22 @@ void evalMixes(uint8_t tick10ms)
     }
   }
 
+  mixerCurrentFlightMode = fm;
+  mixerActiveFlightMode = fm;
+
+  if (tick10ms)
+    evalLogicalSwitches();
+
   int32_t weight = 0;
   if (flightModesFade) {
     memclear(sum_chans512, sizeof(sum_chans512));
     for (uint8_t p=0; p<getFlightModeCount(); p++) {
       if (flightModesFade & (0x01 << p)) {
         mixerCurrentFlightMode = p;
-        evalFlightModeMixes(p==fm ? e_perout_mode_normal : e_perout_mode_inactive_flight_mode, p==fm ? tick10ms : 0);
+        if (p == fm)
+          evalFlightModeMixes(e_perout_mode_normal, tick10ms);
+        else
+          evalFlightModeMixes(e_perout_mode_inactive_flight_mode, 0);
         for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++)
           sum_chans512[i] += limit<int32_t>(-0x6fff, chans[i] >> 4, 0x6fff) * fp_act[p];
         weight += fp_act[p];
@@ -1200,7 +1207,6 @@ void evalMixes(uint8_t tick10ms)
     mixerCurrentFlightMode = fm;
   }
   else {
-    mixerCurrentFlightMode = fm;
     evalFlightModeMixes(e_perout_mode_normal, tick10ms);
   }
 

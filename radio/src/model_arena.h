@@ -81,15 +81,17 @@
 // ARENA_EXPOS          ~22         (none — expos share the input pipeline)
 // ARENA_CURVES         4           4-8 (curveEnd[] pointer)
 // ARENA_POINTS         1           (none)
-// ARENA_LOGICAL_SW     ~20         4 (LogicalSwitchContext) × MAX_FLIGHT_MODES = 36 B
+// ARENA_LOGICAL_SW     ~20         4 (lswCtx[]) + 1 bit (frozenLsState per FM) ≈ 4 × count B
 // ARENA_CUSTOM_FN      16          4 (lastFunctionTime[]) per context × 2 contexts = 8 B
-// ARENA_FLIGHT_MODES   ~28         2 (fp_act[]) + MAX_LOGICAL_SWITCHES×4 (lswFm[]) ≈ 258 B
+// ARENA_FLIGHT_MODES   ~28         2 (fp_act[]) + 4 (frozenLsState[] per LS word) ≈ 2 B
 // ARENA_GVAR_DATA      7           (none)
 // ARENA_GVAR_VALUES    2           (none)
 // ARENA_INPUT_NAMES    3-4         MAX_INPUTS (inputNameIndex[])
 //
-// Largest runtime cost: MAX_FLIGHT_MODES × lswFm = FM × LS × 4 bytes.
-// With 9 FM × 64 LS × 4 = 2304 bytes.  Raising FM to 16 → 4096 bytes.
+// lswCtx[] is a flat global array (not per-FM): LS × 4 bytes.
+// With 64 LS × 4 = 256 bytes (independent of FM count).
+// frozenLsState[] is ceil(LS/32) × 4 bytes per FM for fade transitions:
+// 9 FM × 8 bytes = 72 bytes with 64 LS.
 //
 // MAX_OUTPUT_CHANNELS has no arena section but carries runtime cost:
 // chans[32×4] + channelOutputs[32×2] + ex_chans[32×2] + safetyCh[32×2]
