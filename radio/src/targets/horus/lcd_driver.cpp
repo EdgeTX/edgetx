@@ -43,10 +43,10 @@
   #define HFP  8
   #define VFP  8
 #else
-  #define HBP  42
+  #define HBP  53
   #define VBP  12
 
-  #define HSW  2
+  #define HSW  40
   #define VSW  10
 
   #define HFP  3
@@ -286,14 +286,12 @@ void LCD_Init_LTDC()
   //third pam is for LCD
   RCC_PeriphCLKInitTypeDef clkConfig;
   clkConfig.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
-  clkConfig.PLLSAI.PLLSAIN = 192;
-  clkConfig.PLLSAI.PLLSAIR = 3;
+  clkConfig.PLLSAI.PLLSAIN = 240;
+  clkConfig.PLLSAI.PLLSAIR = 4;
   clkConfig.PLLSAIDivQ = 6;
-  #if defined(RADIO_TX16S) || defined(RADIO_F16)
-    clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_8;
-  #else
-    clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_4;
-  #endif
+
+  clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_2;
+ 
   HAL_RCCEx_PeriphCLKConfig(&clkConfig);
 
   /* LTDC Configuration *********************************************************/
@@ -305,7 +303,7 @@ void LCD_Init_LTDC()
   /* Initialize the data enable polarity as active low */
   hltdc.Init.DEPolarity = LTDC_DEPOLARITY_AL;
   /* Initialize the pixel clock polarity as input pixel clock */
-  hltdc.Init.PCPolarity = LTDC_PCPOLARITY_IPC;
+  hltdc.Init.PCPolarity = LTDC_PCPOLARITY_IIPC;
 
   /* Configure R,G,B component values for LCD background color */
   hltdc.Init.Backcolor.Red = 0;

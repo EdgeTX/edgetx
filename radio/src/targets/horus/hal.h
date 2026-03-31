@@ -1252,13 +1252,10 @@
 // SDRAM
 #define SDRAM_BANK2
 
-#if defined(RADIO_T15)
-#define LCD_W                          480
-#define LCD_H                          320
-#else
-#define LCD_W                          480
-#define LCD_H                          272
-#endif
+
+#define LCD_W                          800
+#define LCD_H                          480
+
 
 #define LCD_PHYS_H                     LCD_H
 #define LCD_PHYS_W                     LCD_W

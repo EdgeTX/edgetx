@@ -78,7 +78,7 @@ static inline void check_struct()
   #elif defined(PCBPA01)
     CHKTYPE(TopBarPersistentData, 916);
   #else
-    CHKTYPE(TopBarPersistentData, 1096);
+    CHKTYPE(TopBarPersistentData, 1456);
   #endif
 #else
   #error CHKSIZE not set up
@@ -121,7 +121,7 @@ static inline void check_struct()
 #elif defined(RADIO_T15)
   CHKSIZE(ModelData, 27682);
 #elif defined(PCBHORUS)
-  CHKSIZE(ModelData, 27657);
+  CHKSIZE(ModelData, 28019);
 #else
   #error CHKSIZE not set up
 #endif
