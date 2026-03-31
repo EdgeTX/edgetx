@@ -43,10 +43,8 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   (*customFnAllocAt(0)).swtch = swRef;
@@ -78,10 +76,8 @@ TEST_F(SpecialFunctionsTest, FlightReset)
 #if defined(GVARS)
 TEST_F(SpecialFunctionsTest, GvarsInc)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   simuSetSwitch(sw, 0);    // SA-

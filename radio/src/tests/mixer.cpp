@@ -722,11 +722,8 @@ TEST_F(MixerTest, SlowOnPhase)
 
 TEST_F(MixerTest, SlowOnSwitchSource)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
@@ -770,11 +767,8 @@ TEST_F(MixerTest, SlowOnPhasePrec10ms)
 
 TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
@@ -809,11 +803,8 @@ TEST_F(MixerTest, SlowDisabledOnStartup)
 
 TEST_F(MixerTest, DelayOnSwitch)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   uint16_t swPos = (uint16_t)(sw * 3 + 2);
 
   (*mixAddress(0)).destCh = 0;
@@ -844,11 +835,8 @@ TEST_F(MixerTest, DelayOnSwitch)
 
 TEST_F(MixerTest, DelayOnSwitch2)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
 
   (*mixAddress(0)).destCh = 0;
   (*mixAddress(0)).mltpx = MLTPX_ADD;
@@ -1044,11 +1032,8 @@ TEST(Trainer, UnpluggedTest)
 
 TEST_F(MixerTest, flightModeTransition)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  if (sw >= switchGetMaxAllSwitches()) return;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   SYSTEM_RESET();
   MODEL_RESET();
   MIXER_RESET();
@@ -1259,6 +1244,370 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
+}
+
+// ==========================================================================
+// rc-soar.com documented behavior tests
+// https://rc-soar.com/edgetx/index.php
+// Enshrine mixer, flight-mode, and channel-cascade semantics so that
+// refactoring does not silently break real-world user setups.
+// ==========================================================================
+
+// Multiplex ADD: lines accumulate additively on the same channel.
+TEST_F(MixerTest, MultiplexAdd)
+{
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(0)).weight.setNumeric(60);
+  (*mixAddress(1)).destCh = 0;
+  (*mixAddress(1)).mltpx = MLTPX_ADD;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(1)).weight.setNumeric(40);
+
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[0], CHANNEL_MAX);  // 60% + 40% = 100%
+}
+
+// Multiplex REPL: second line replaces whatever the first produced.
+TEST_F(MixerTest, MultiplexReplace)
+{
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(0)).weight.setNumeric(100);
+  (*mixAddress(1)).destCh = 0;
+  (*mixAddress(1)).mltpx = MLTPX_REPL;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(1)).weight.setNumeric(-50);
+
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);  // REPL overwrites to -50%
+}
+
+// Multiplex MUL: multiplies with the result of all lines above.
+TEST_F(MixerTest, MultiplexMultiplyBasic)
+{
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(0)).weight.setNumeric(100);
+  (*mixAddress(1)).destCh = 0;
+  (*mixAddress(1)).mltpx = MLTPX_MUL;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(1)).weight.setNumeric(50);
+
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[0], CHANNEL_MAX / 2);  // 100% * 50% = 50%
+}
+
+// Multiplex MUL is order-sensitive: ADD+ADD+MUL differs from ADD+MUL+ADD.
+TEST_F(MixerTest, MultiplexMultiplyOrderSensitive)
+{
+  g_modelArena.ensureSectionCapacity(ARENA_MIXES, 3);
+
+  // Case A: ADD(60) + ADD(40) + MUL(50) = (60+40)*50% = 50%
+  *mixAddress(0) = {};
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(0)).weight.setNumeric(60);
+  *mixAddress(1) = {};
+  (*mixAddress(1)).destCh = 0;
+  (*mixAddress(1)).mltpx = MLTPX_ADD;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(1)).weight.setNumeric(40);
+  *mixAddress(2) = {};
+  (*mixAddress(2)).destCh = 0;
+  (*mixAddress(2)).mltpx = MLTPX_MUL;
+  (*mixAddress(2)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(2)).weight.setNumeric(50);
+  updateMixCount();
+
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  int32_t caseA = chans[0];
+  EXPECT_EQ(caseA, CHANNEL_MAX / 2);  // 100% * 50% = 50%
+
+  // Case B: ADD(60) + MUL(50) + ADD(40) = 60*50% + 40 = 30+40 = 70%
+  MIXER_RESET();
+  *mixAddress(0) = {};
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(0)).weight.setNumeric(60);
+  *mixAddress(1) = {};
+  (*mixAddress(1)).destCh = 0;
+  (*mixAddress(1)).mltpx = MLTPX_MUL;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(1)).weight.setNumeric(50);
+  *mixAddress(2) = {};
+  (*mixAddress(2)).destCh = 0;
+  (*mixAddress(2)).mltpx = MLTPX_ADD;
+  (*mixAddress(2)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(2)).weight.setNumeric(40);
+  updateMixCount();
+
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  int32_t caseB = chans[0];
+
+  EXPECT_NE(caseA, caseB);  // order matters
+}
+
+// Weight-then-offset: output = (source * weight) + offset.
+TEST_F(MixerTest, WeightThenOffset)
+{
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  (*mixAddress(0)).weight.setNumeric(50);
+  (*mixAddress(0)).offset.setNumeric(50);
+
+  // Stick at +100%: 50% of 1024 + 50% offset
+  anaSetFiltered(inputMappingConvertMode(0), +1024);
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  int32_t full = chans[0];
+
+  // Stick at 0: 0 + 50% offset
+  anaSetFiltered(inputMappingConvertMode(0), 0);
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  int32_t mid = chans[0];
+
+  // Stick at -100%: -50% + 50% offset = 0
+  anaSetFiltered(inputMappingConvertMode(0), -1024);
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  int32_t low = chans[0];
+
+  // full should be ~100%, mid ~50%, low ~0%
+  EXPECT_NEAR(full, CHANNEL_MAX, CHANNEL_MAX / 100);
+  EXPECT_NEAR(mid, CHANNEL_MAX / 2, CHANNEL_MAX / 100);
+  EXPECT_NEAR(low, 0, CHANNEL_MAX / 100);
+}
+
+// Cascaded channels bypass output clipping: a channel used as a mix source
+// carries its internal (>100%) value, not the clipped output.
+TEST_F(MixerTest, CascadedChannelBypassesOutputClipping)
+{
+  // CH0: stick at 200% weight (overdrives to 200% internally)
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  (*mixAddress(0)).weight.setNumeric(200);
+  // CH1: reads CH0 at 50% weight — if unclipped, 200%*50% = 100%
+  (*mixAddress(1)).destCh = 1;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_CHANNEL, 0);
+  (*mixAddress(1)).weight.setNumeric(50);
+
+  anaSetFiltered(inputMappingConvertMode(0), +1024);
+  evalMixes(1);
+
+  // CH0 output is clipped to 100%
+  EXPECT_EQ(channelOutputs[0], 1024);
+  // CH1 sees the unclipped CH0 (200%), applies 50% → 100%
+  // If CH0 were clipped before cascading, CH1 would be only 50%.
+  EXPECT_GT(channelOutputs[1], 512);  // must be more than 50%
+  EXPECT_NEAR(channelOutputs[1], 1024, 2);  // should be ~100%
+}
+
+// Flight mode priority: FM1 has highest priority, FM0 is fallback.
+// getFlightMode() iterates FM1..FM8, first match wins; FM0 returned if none.
+TEST_F(MixerTest, FlightModePriority)
+{
+  // Find two distinct 3-pos switches
+  int sw1 = findHwSwitch(SWITCH_3POS);
+  int sw2 = findHwSwitch(SWITCH_3POS, sw1);
+  if (sw2 < 0) return;  // not enough switches on this target
+
+  auto sw1Up = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw1 * 3));
+  auto sw2Up = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw2 * 3));
+
+  // FM1 activated by sw1↑, FM2 by sw2↑
+  flightModeAddress(1)->swtch = sw1Up;
+  flightModeAddress(2)->swtch = sw2Up;
+
+  // Three REPL mix lines, one per FM, using distinguishable weights:
+  //   FM0-only: weight=10  FM1-only: weight=20  FM2-only: weight=30
+  // flightModes bitmask: bit set = DISABLED in that FM.
+  g_modelArena.ensureSectionCapacity(ARENA_MIXES, 3);
+  *mixAddress(0) = {};
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_REPL;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(0)).weight.setNumeric(10);
+  (*mixAddress(0)).flightModes = ~1u & 0x1FF;  // enabled only in FM0
+
+  *mixAddress(1) = {};
+  (*mixAddress(1)).destCh = 0;
+  (*mixAddress(1)).mltpx = MLTPX_REPL;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(1)).weight.setNumeric(20);
+  (*mixAddress(1)).flightModes = ~2u & 0x1FF;  // enabled only in FM1
+
+  *mixAddress(2) = {};
+  (*mixAddress(2)).destCh = 0;
+  (*mixAddress(2)).mltpx = MLTPX_REPL;
+  (*mixAddress(2)).srcRaw = SourceRef_(SOURCE_TYPE_MAX, 0);
+  (*mixAddress(2)).weight.setNumeric(30);
+  (*mixAddress(2)).flightModes = ~4u & 0x1FF;  // enabled only in FM2
+  updateMixCount();
+
+  // Neither switch active → FM0 (fallback)
+  simuSetSwitch(sw1, 0);
+  simuSetSwitch(sw2, 0);
+  evalMixes(1);
+  EXPECT_NEAR(channelOutputs[0], 1024 * 10 / 100, 1);
+
+  // Both switches active → FM1 wins (higher priority than FM2)
+  simuSetSwitch(sw1, -1);
+  simuSetSwitch(sw2, -1);
+  evalMixes(1);
+  EXPECT_NEAR(channelOutputs[0], 1024 * 20 / 100, 1);
+
+  // Only sw2 active → FM2
+  simuSetSwitch(sw1, 0);
+  simuSetSwitch(sw2, -1);
+  evalMixes(1);
+  EXPECT_NEAR(channelOutputs[0], 1024 * 30 / 100, 1);
+}
+
+// Cumulative weight through cascaded channels:
+// CH0 = stick * 80%, CH1 = CH0 * 25% → CH1 should be stick * 20%.
+TEST_F(MixerTest, CascadedWeightMultiplication)
+{
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_STICK, 0);
+  (*mixAddress(0)).weight.setNumeric(80);
+  (*mixAddress(1)).destCh = 1;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_CHANNEL, 0);
+  (*mixAddress(1)).weight.setNumeric(25);
+
+  anaSetFiltered(inputMappingConvertMode(0), +1024);
+  evalMixes(1);
+
+  // CH0 = 80% of 1024 ≈ 819
+  EXPECT_NEAR(channelOutputs[0], 1024 * 80 / 100, 2);
+  // CH1 = 25% of CH0 = 20% of 1024 ≈ 205
+  EXPECT_NEAR(channelOutputs[1], 1024 * 20 / 100, 2);
+}
+
+// Sequencer pattern (rc-soar.com/edgetx/setups/sequencer):
+// CH0 = timebase driven by a switch with slow up/down (linear ramp).
+// CH1 = servo channel reading CH0 through a custom curve.
+// A flat curve segment produces a "pause" where the servo holds position
+// while the timebase continues to ramp.
+TEST_F(MixerTest, SequencerSlowRampThroughCurve)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
+
+  // --- Curve setup: 5-point standard curve on slot 0 ---
+  // Points at x = -100, -50, 0, +50, +100 (standard = evenly spaced)
+  // y-values: -100, -100, 0, 0, +100
+  //   Segment 1 (-100..-50): flat at -100 (pause)
+  //   Segment 2 (-50..0):    ramp from -100 to 0
+  //   Segment 3 (0..+50):    flat at 0 (pause)
+  //   Segment 4 (+50..+100): ramp from 0 to +100
+  curveHeaderAllocAt(0);
+  curveHeaderAddress(0)->type = CURVE_TYPE_STANDARD;
+  curveHeaderAddress(0)->smooth = 0;  // linear interpolation, no smoothing
+  curveHeaderAddress(0)->points = 0;  // 0 means 5 points (default)
+  g_modelArena.ensureSectionCapacity(ARENA_POINTS, 5);
+  int8_t *pts = curvePointsBase();
+  pts[0] = -100;  // x=-100%
+  pts[1] = -100;  // x=-50%  (flat: pause)
+  pts[2] =    0;  // x=0%
+  pts[3] =    0;  // x=+50%  (flat: pause)
+  pts[4] =  100;  // x=+100%
+
+  // --- CH0: timebase — switch source with slow ---
+  // speedUp=10 → 1.0s full traversal (-100% to +100%), 100 ticks
+  *mixAddress(0) = {};
+  (*mixAddress(0)).destCh = 0;
+  (*mixAddress(0)).mltpx = MLTPX_ADD;
+  (*mixAddress(0)).srcRaw = SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)sw);
+  (*mixAddress(0)).weight.setNumeric(100);
+  (*mixAddress(0)).speedUp = 10;    // 1.0s
+  (*mixAddress(0)).speedDown = 10;  // 1.0s
+
+  // --- CH1: servo — reads CH0 through curve ---
+  *mixAddress(1) = {};
+  (*mixAddress(1)).destCh = 1;
+  (*mixAddress(1)).mltpx = MLTPX_ADD;
+  (*mixAddress(1)).srcRaw = SourceRef_(SOURCE_TYPE_CHANNEL, 0);
+  (*mixAddress(1)).weight.setNumeric(100);
+  (*mixAddress(1)).curve.type = CURVE_REF_CUSTOM;
+  (*mixAddress(1)).curve.value.setNumeric(1);  // curve index 0 (1-based)
+  updateMixCount();
+
+  s_mixer_first_run_done = true;
+
+  // Start: switch up → CH0 targets -100%
+  simuSetSwitch(sw, -1);
+  for (int i = 0; i < 110; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);  // run limits to populate channelOutputs
+
+  int16_t timebaseStart = channelOutputs[0];
+  int16_t servoStart = channelOutputs[1];
+  // Timebase at -100%, curve maps -100→-100
+  EXPECT_NEAR(timebaseStart, -1024, 20);
+  EXPECT_NEAR(servoStart, -1024, 20);
+
+  // Flip switch down → ramp begins from -100% toward +100%
+  simuSetSwitch(sw, 1);
+
+  // Advance 25 ticks (25% of 1.0s = timebase at ~-50%)
+  // Curve: flat from -100% to -50%, so servo should still be near -100%
+  for (int i = 0; i < 25; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseQ1 = channelOutputs[0];
+  int16_t servoQ1 = channelOutputs[1];
+  EXPECT_GT(timebaseQ1, timebaseStart + 100) << "Timebase should have moved";
+  EXPECT_NEAR(servoQ1, -1024, 60) << "Servo should hold during flat segment (pause)";
+
+  // Advance to 50 ticks total (50% = timebase at ~0%)
+  // Curve: ramp from -100 to 0, so servo should be near 0%
+  for (int i = 0; i < 25; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseMid = channelOutputs[0];
+  int16_t servoMid = channelOutputs[1];
+  EXPECT_NEAR(timebaseMid, 0, 60);
+  EXPECT_NEAR(servoMid, 0, 60);
+
+  // Advance to 75 ticks (75% = timebase at ~+50%)
+  // Curve: flat from 0 to +50%, so servo should hold near 0%
+  for (int i = 0; i < 25; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseQ3 = channelOutputs[0];
+  int16_t servoQ3 = channelOutputs[1];
+  EXPECT_GT(timebaseQ3, timebaseMid + 100) << "Timebase should have advanced";
+  // Servo should be near the flat segment value (0), but may slightly
+  // overshoot into the final ramp segment due to discrete stepping.
+  EXPECT_NEAR(servoQ3, 0, 150) << "Servo should be near flat segment";
+  EXPECT_LT(servoQ3, 512) << "Servo must not yet reach the final ramp";
+
+  // Advance to ~100 ticks (100% = timebase at +100%)
+  // Curve: ramp from 0 to +100, so servo should be near +100%
+  for (int i = 0; i < 30; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  int16_t timebaseEnd = channelOutputs[0];
+  int16_t servoEnd = channelOutputs[1];
+  EXPECT_NEAR(timebaseEnd, 1024, 20);
+  EXPECT_NEAR(servoEnd, 1024, 40);
+
+  // Reverse: flip switch up — sequence should reverse automatically
+  simuSetSwitch(sw, -1);
+  for (int i = 0; i < 110; i++)
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+  evalMixes(1);
+
+  EXPECT_NEAR(channelOutputs[0], -1024, 20) << "Timebase should return to -100%";
+  EXPECT_NEAR(channelOutputs[1], -1024, 40) << "Servo should return to start via reversed curve";
 }
 
 #if defined(GVARS)

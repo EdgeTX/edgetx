@@ -33,17 +33,14 @@ static const SwitchRef SW1_REF = SwitchRef_(SWITCH_TYPE_LOGICAL, 0);
 static const SwitchRef SW2_REF = SwitchRef_(SWITCH_TYPE_LOGICAL, 1);
 static const SwitchRef SWTCH_NONE = {};
 
-#if defined(PCBTARANIS)
 TEST(getSwitch, OldTypeStickyCSW)
 {
   RADIO_RESET();
   MODEL_RESET();
   MIXER_RESET();
 
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;  // no 3-pos switch on this target
   auto swRef = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   // LS0: AND(sw_up, NONE)
@@ -81,7 +78,6 @@ TEST(getSwitch, OldTypeStickyCSW)
   EXPECT_FALSE(getSwitch(SW1_REF));
   EXPECT_FALSE(getSwitch(SW2_REF));
 }
-#endif
 
 TEST(getSwitch, nullSW)
 {
@@ -89,7 +85,6 @@ TEST(getSwitch, nullSW)
   EXPECT_TRUE(getSwitch(SwitchRef{}));
 }
 
-#if defined(PCBTARANIS)
 TEST(getSwitch, inputWithTrim)
 {
   MODEL_RESET();
@@ -113,7 +108,6 @@ TEST(getSwitch, inputWithTrim)
   evalLogicalSwitches();
   EXPECT_TRUE(getSwitch(SW1_REF));
 }
-#endif
 
 TEST(evalLogicalSwitches, playFile)
 {
@@ -149,13 +143,8 @@ TEST(evalLogicalSwitches, playFile)
 
 TEST(getSwitch, edgeInstant)
 {
-  int sw1, sw2;
-  for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
-    if (g_model.getSwitchType(sw1) == SWITCH_3POS)
-      break;
-  for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
-    if (g_model.getSwitchType(sw2) == SWITCH_3POS)
-      break;
+  int sw1 = findHwSwitch(SWITCH_3POS);
+  int sw2 = findHwSwitch(SWITCH_3POS, sw1);
   auto sw1Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw1 * 3 + 2));
   auto sw2Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw2 * 3 + 2));
 
@@ -280,13 +269,8 @@ TEST(getSwitch, edgeInstant)
 
 TEST(getSwitch, edgeRelease)
 {
-  int sw1, sw2;
-  for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
-    if (g_model.getSwitchType(sw1) == SWITCH_3POS)
-      break;
-  for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
-    if (g_model.getSwitchType(sw2) == SWITCH_3POS)
-      break;
+  int sw1 = findHwSwitch(SWITCH_3POS);
+  int sw2 = findHwSwitch(SWITCH_3POS, sw1);
   auto sw1Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw1 * 3 + 2));
   auto sw2Down = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw2 * 3 + 2));
 
@@ -527,9 +511,8 @@ TEST_F(LswTest, TimerOscillates)
 // Test: Sticky LS toggles ON/OFF with switch triggers.
 TEST_F(LswTest, StickyToggle)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
   auto swDn = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
 
@@ -563,9 +546,8 @@ TEST_F(LswTest, StickyToggle)
 // single context is unaffected by FM changes.
 TEST_F(LswTest, DelayContinuesThroughFMSwitch)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   lswAllocAt(0)->func = LS_FUNC_AND;
@@ -599,9 +581,8 @@ TEST_F(LswTest, DelayContinuesThroughFMSwitch)
 // Test: Duration runs continuously through FM switches.
 TEST_F(LswTest, DurationContinuesThroughFMSwitch)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
 
   lswAllocAt(0)->func = LS_FUNC_AND;
@@ -634,9 +615,8 @@ TEST_F(LswTest, DurationContinuesThroughFMSwitch)
 // Test: getSwitch reads from the single global context regardless of FM.
 TEST_F(LswTest, GetSwitchReadsSingleContext)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw++)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS) break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
   auto ls0ref = SwitchRef_(SWITCH_TYPE_LOGICAL, 0);
 
@@ -713,6 +693,68 @@ TEST_F(LswTest, ComparisonNoAccumulatedState)
   calibratedAnalogs[stickIdx] = 0;
   evalLogicalSwitches();
   EXPECT_FALSE(lswGetState(0));
+}
+
+// Sticky LS latches at startup when the set-condition is already satisfied.
+// After logicalSwitchesReset(), lastValue.last starts at 0, so the first
+// logicalSwitchesTimerTick() sees a 0→1 edge and latches immediately.
+// rc-soar.com documents this as NOT latching, but actual firmware behavior
+// does latch — this test enshrines the real behavior.
+TEST_F(LswTest, StickyLatchesAtStartupWhenSetConditionTrue)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;  // no 3-pos switch
+
+  auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
+  auto swDn = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
+
+  // Pre-set the switch to the "set" position BEFORE creating the LS
+  simuSetSwitch(sw, -1);
+
+  lswAllocAt(0)->func = LS_FUNC_STICKY;
+  lswAddress(0)->v1.swtch = swUp;   // set condition
+  lswAddress(0)->v2.swtch = swDn;   // reset condition
+  lswAddress(0)->andsw = SWTCH_NONE;
+
+  // Simulate power-on
+  logicalSwitchesReset();
+
+  // After reset + tick, the set-condition is already true so sticky latches
+  tickLogicalSwitches(10);
+  EXPECT_TRUE(lswGetState(0))
+    << "Sticky latches at startup when set-condition is already true";
+
+  // Reset via the reset-condition (swDn)
+  simuSetSwitch(sw, 1);
+  tickLogicalSwitches(5);
+  EXPECT_FALSE(lswGetState(0)) << "Reset condition should unlatch sticky";
+}
+
+// Sticky LS stays false at startup when the set-condition is NOT satisfied.
+TEST_F(LswTest, StickyFalseAtStartupWhenSetConditionFalse)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
+
+  auto swUp = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3));
+  auto swDn = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(sw * 3 + 2));
+
+  // Switch in mid position — set-condition is false
+  simuSetSwitch(sw, 0);
+
+  lswAllocAt(0)->func = LS_FUNC_STICKY;
+  lswAddress(0)->v1.swtch = swUp;
+  lswAddress(0)->v2.swtch = swDn;
+  lswAddress(0)->andsw = SWTCH_NONE;
+
+  logicalSwitchesReset();
+  tickLogicalSwitches(10);
+  EXPECT_FALSE(lswGetState(0)) << "Sticky should not latch when condition is false";
+
+  // Now trigger a rising edge → should latch
+  simuSetSwitch(sw, -1);
+  tickLogicalSwitches(5);
+  EXPECT_TRUE(lswGetState(0)) << "Sticky should latch on rising edge";
 }
 
 // ---------------------------------------------------------------------------
