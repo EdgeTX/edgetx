@@ -97,12 +97,28 @@ bool SdcardFormat::writeFile(const QImage & data, const QString & filename)
 {
   QString path = this->filename + "/" + filename;
 
+  QFileInfo finfo = QFileInfo(path);
+
+  if (finfo.exists()) {
+    // for performance reasons try to avoid overwriting the same image
+    // TODO consider collecting more image info when initially loading
+    QTemporaryFile tmp("XXXXXX." % finfo.completeSuffix());
+    tmp.open();
+    QFileInfo tinfo = QFileInfo(tmp.fileName());
+    data.save(tinfo.filePath());
+
+    if (finfo.size() == tinfo.size()) {
+      qDebug() << "File" << path << "skipped as same size";
+      return true;
+    }
+  }
+
   if (!data.save(path)) {
     setError(tr("Error writing image file: %1").arg(path));
     return false;
   }
 
-  qDebug() << "File" << path << "written";
+  qDebug() << "File" << path << "written, size:" << finfo.size();
   return true;
 }
 
