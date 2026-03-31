@@ -265,7 +265,9 @@ PACK(struct FlightModeData {
   SwitchRef swtch;
   uint8_t fadeIn;
   uint8_t fadeOut;
-  // gvar values moved to ARENA_GVAR_VALUES (flat matrix indexed by fm * numGVars + gv)
+  // gvar values live in ARENA_GVAR_VALUES (flat matrix indexed by fm * numGVars + gv)
+  // but are serialized nested under each FM for YAML backward compatibility
+  CUST_EXTERN_ARRAY(gvars, struct_signed_16, MAX_GVARS, yaml_drv_fmd_gvar_values);
 });
 
 /*
@@ -819,7 +821,6 @@ PACK(struct ModelData {
   NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
   CUST_EXTERN_ARRAY(gvars, struct_GVarData, MAX_GVARS, yaml_drv_gvar_data);
-  CUST_EXTERN_ARRAY(gvarValues, struct_signed_16, MAX_FLIGHT_MODES * MAX_GVARS, yaml_drv_gvar_values);
 
   NOBACKUP(VarioData varioData);
   NOBACKUP(uint8_t rssiSource CUST(r_tele_sensor,w_tele_sensor));

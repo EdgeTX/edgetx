@@ -72,13 +72,14 @@ struct YamlNode {
   typedef bool (*cust_write_func)(void* user, uint8_t* data, uint32_t bitoffs,
                                   yaml_writer_func wf, void* opaque);
 
-  // Returns base pointer and count for externally-stored arrays (arena)
-  typedef uint8_t* (*extern_get_ptr_func)(uint16_t* count_out);
+  // Returns base pointer and count for externally-stored arrays (arena).
+  // 'user' is the YamlTreeWalker* (available for context lookup).
+  typedef uint8_t* (*extern_get_ptr_func)(void* user, uint16_t* count_out);
 
   // Ensure the extern array section has at least min_count slots.
   // Called by the walker before accessing each element during parsing.
   // Returns false if the arena cannot grow (full).
-  typedef bool (*extern_ensure_func)(uint16_t min_count);
+  typedef bool (*extern_ensure_func)(void* user, uint16_t min_count);
 
   // Driver for externally-stored arrays: bundles callbacks so the union
   // member stays at two pointers (child + driver) regardless of how many

@@ -350,22 +350,29 @@ bool YamlTreeWalker::toChild()
         // data_override points to the extern memory (arena).
         // bit_ofs starts at 0 (relative to extern base).
 
-        // Preserve element index from parent (set by IDX handler)
-        uint16_t parentElmts = stack[stack_level + 1].elmts;
+        // For IDX descent (is_array=false): preserve parent element index.
+        // For direct struct-attribute descent (is_array=true): start at 0.
+        uint16_t parentElmts = is_array ? 0 : stack[stack_level + 1].elmts;
 
         setNode(attr);
         setAttrOfs(0);
         setElmts(parentElmts);
 
-        // Grow arena section to hold at least the first element
-        auto* drv = attr->u._extern_array.driver;
-        if (drv->ensure_capacity) {
-            drv->ensure_capacity(1);
-        }
+        if (is_array) {
+            // Direct descent into an extern array from a struct attribute.
+            // Call get_ptr/ensure to set up data_override for the first time.
+            auto* drv = attr->u._extern_array.driver;
+            if (drv->ensure_capacity) {
+                drv->ensure_capacity(this, 1);
+            }
 
-        uint16_t count = 0;
-        uint8_t* ext_ptr = drv->get_ptr(&count);
-        stack[stack_level].data_override = ext_ptr;
+            uint16_t count = 0;
+            uint8_t* ext_ptr = drv->get_ptr(this, &count);
+            stack[stack_level].data_override = ext_ptr;
+        }
+        // IDX descent: data_override is already set at the parent level
+        // and inherited via getData(). setAttrValue will call
+        // ensure_capacity/get_ptr to refresh it when the index is parsed.
     } else {
         setNode(attr);
         setAttrOfs(getLevelOfs());
@@ -402,12 +409,12 @@ bool YamlTreeWalker::toNextElmt(bool grow)
             auto* drv = node->u._extern_array.driver;
             // During parsing, grow arena section to hold the next element
             if (grow && drv->ensure_capacity) {
-                drv->ensure_capacity(getElmts() + 2);
+                drv->ensure_capacity(this, getElmts() + 2);
             }
             // Refresh data_override — ensure_capacity may have
             // reallocated the arena buffer, invalidating the old pointer.
             uint16_t count = 0;
-            stack[stack_level].data_override = drv->get_ptr(&count);
+            stack[stack_level].data_override = drv->get_ptr(this, &count);
             maxElmts = count;
         }
 
@@ -529,12 +536,12 @@ void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
         // For extern arrays, grow the section to fit the requested index
         if (node->type == YDT_EXTERN_ARRAY
             && node->u._extern_array.driver->ensure_capacity) {
-            node->u._extern_array.driver->ensure_capacity(i + 1);
+            node->u._extern_array.driver->ensure_capacity(this, i + 1);
             // Refresh data_override — ensure_capacity may have
             // reallocated the arena buffer, invalidating the old pointer.
             uint16_t count = 0;
             stack[stack_level].data_override =
-                node->u._extern_array.driver->get_ptr(&count);
+                node->u._extern_array.driver->get_ptr(this, &count);
         }
         if (i < node->elmts) {
             setElmts(i);

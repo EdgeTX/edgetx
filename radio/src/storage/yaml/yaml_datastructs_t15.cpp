@@ -598,6 +598,7 @@ static const struct YamlNode struct_FlightModeData[] = {
   YAML_UNSIGNED_CUST( "swtch", 32, r_switchRef, w_switchRef ),
   YAML_UNSIGNED( "fadeIn", 8 ),
   YAML_UNSIGNED( "fadeOut", 8 ),
+  YAML_EXTERN_ARRAY("gvars", 16, MAX_GVARS, struct_signed_16, yaml_drv_fmd_gvar_values),
   YAML_END
 };
 static const struct YamlNode struct_GVarData[] = {
@@ -948,7 +949,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 2, 32, struct_swtchWarn, nullptr),
   YAML_EXTERN_ARRAY("gvars", 56, MAX_GVARS, struct_GVarData, yaml_drv_gvar_data),
-  YAML_EXTERN_ARRAY("gvarValues", 16, MAX_FLIGHT_MODES * MAX_GVARS, struct_signed_16, yaml_drv_gvar_values),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rssiAlarms", 0, struct_RssiAlarmData, NULL),

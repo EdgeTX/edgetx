@@ -71,13 +71,13 @@ static inline void check_yaml_funcs()
 // ensure_capacity grows the arena section on demand during parsing.
 
 #define YAML_GET_PTR(name, section) \
-static uint8_t* yaml_get_##name##_ptr(uint16_t* count) { \
+static uint8_t* yaml_get_##name##_ptr(void*, uint16_t* count) { \
   *count = g_modelArena.sectionCount(section); \
   return g_modelArena.sectionBase(section); \
 }
 
 #define YAML_ENSURE(name, section, hard_max) \
-static bool yaml_ensure_##name##_capacity(uint16_t min_count) { \
+static bool yaml_ensure_##name##_capacity(void*, uint16_t min_count) { \
   if (min_count > hard_max) return false; \
   return g_modelArena.ensureSectionCapacity(section, min_count); \
 }
@@ -106,9 +106,6 @@ YAML_ENSURE(fmd, ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES)
 YAML_GET_PTR(gvar_data, ARENA_GVAR_DATA)
 YAML_ENSURE(gvar_data, ARENA_GVAR_DATA, MAX_GVARS)
 
-YAML_GET_PTR(gvar_values, ARENA_GVAR_VALUES)
-YAML_ENSURE(gvar_values, ARENA_GVAR_VALUES, MAX_FLIGHT_MODES * MAX_GVARS)
-
 YAML_GET_PTR(input_names, ARENA_INPUT_NAMES)
 YAML_ENSURE(input_names, ARENA_INPUT_NAMES, MAX_INPUTS)
 
@@ -117,12 +114,12 @@ YAML_ENSURE(input_names, ARENA_INPUT_NAMES, MAX_INPUTS)
 #undef YAML_ENSURE
 
 // Radio arena callbacks (separate arena for radio custom functions)
-static uint8_t* yaml_get_radio_cfn_ptr(uint16_t* count) {
+static uint8_t* yaml_get_radio_cfn_ptr(void*, uint16_t* count) {
   *count = g_radioArena.sectionCount(RADIO_ARENA_CUSTOM_FN);
   return g_radioArena.sectionBase(RADIO_ARENA_CUSTOM_FN);
 }
 
-static bool yaml_ensure_radio_cfn_capacity(uint16_t min_count) {
+static bool yaml_ensure_radio_cfn_capacity(void*, uint16_t min_count) {
   if (min_count > MAX_SPECIAL_FUNCTIONS_HARD) return false;
   return g_radioArena.ensureSectionCapacity(RADIO_ARENA_CUSTOM_FN, min_count);
 }
@@ -1498,20 +1495,50 @@ static bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   return *gvar != 0 && *gvar != GVAR_MAX + 1;
 }
 
+// Helper: get the parent FM index from the tree walker.
+// The nested gvars EXTERN_ARRAY sits inside FlightModeData, whose element
+// index (the FM number) is at getElmts(1) — one level up in the stack.
+static uint16_t getFmIdxFromWalker(void* user)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  return tw->getElmts(1);
+}
+
+// Driver for the nested gvars EXTERN_ARRAY inside FlightModeData.
+// Returns the gvar values slice for the current FM (from tree walker parent).
+static uint8_t* yaml_get_fmd_gvar_values_ptr(void* user, uint16_t* count)
+{
+  uint16_t fmIdx = getFmIdxFromWalker(user);
+  *count = getGVarCount();
+  uint8_t* base = g_modelArena.sectionBase(ARENA_GVAR_VALUES);
+  return base + fmIdx * getGVarCount() * sizeof(gvar_t);
+}
+
+static bool yaml_ensure_fmd_gvar_values_capacity(void* user, uint16_t min_count)
+{
+  uint16_t fmIdx = getFmIdxFromWalker(user);
+  if (min_count > MAX_GVARS) return false;
+  return g_modelArena.ensureSectionCapacity(ARENA_GVAR_VALUES,
+      (fmIdx + 1) * getGVarCount());
+}
+
 static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  // FM0 defaults to all 0
-  if (idx == 0) {
-    return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
-  }
-
   bool is_active = !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
 
-  for (uint8_t i = 0; i < getGVarCount(); i++) {
-    is_active |= GVAR_VALUE(i, idx) != GVAR_MAX + 1; // FM0 -> default
+  if (idx == 0) {
+    // FM0 gvar values default to 0
+    for (uint8_t i = 0; i < getGVarCount(); i++) {
+      is_active |= GVAR_VALUE(i, 0) != 0;
+    }
+  } else {
+    // Other FMs default to GVAR_MAX+1 (inherit from FM0)
+    for (uint8_t i = 0; i < getGVarCount(); i++) {
+      is_active |= GVAR_VALUE(i, idx) != GVAR_MAX + 1;
+    }
   }
 
   return is_active;
@@ -3187,8 +3214,8 @@ static const EADriver yaml_drv_fmd =
     { yaml_get_fmd_ptr, yaml_ensure_fmd_capacity, fmd_is_active };
 static const EADriver yaml_drv_gvar_data =
     { yaml_get_gvar_data_ptr, yaml_ensure_gvar_data_capacity, nullptr };
-static const EADriver yaml_drv_gvar_values =
-    { yaml_get_gvar_values_ptr, yaml_ensure_gvar_values_capacity, gvar_is_active };
+static const EADriver yaml_drv_fmd_gvar_values =
+    { yaml_get_fmd_gvar_values_ptr, yaml_ensure_fmd_gvar_values_capacity, gvar_is_active };
 static const EADriver yaml_drv_input_names =
     { yaml_get_input_names_ptr, yaml_ensure_input_names_capacity, nullptr };
 
