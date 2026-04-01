@@ -2339,7 +2339,7 @@ void ModelData::initTopBar()
 
 QString ModelData::getImageFilename() const
 {
-  if (bitmap[0] != '\0') {
+  if (!isBitmapEmpty()) {
     QString extn;
 
     if (!getCurrentFirmware()->getCapability(ModelImageKeepExtn))
@@ -2369,4 +2369,9 @@ QString ModelData::getDefaultImageFileExtn()
     ret = getCurrentFirmware()->getCapabilityStr(ModelImageFilters).replace("*.", "");
 
   return ret;
+}
+
+bool ModelData::isBitmapEmpty() const
+{
+  return bitmap[0] == '\0';
 }

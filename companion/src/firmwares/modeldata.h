@@ -297,6 +297,7 @@ class ModelData {
     QString getImageFilename() const;
     QString getImageFileExtn() const;
     static QString getDefaultImageFileExtn();
+    bool isBitmapEmpty() const;
 
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,

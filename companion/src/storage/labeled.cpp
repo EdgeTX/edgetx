@@ -152,7 +152,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
     if (!loadChecklist(model))
       return false;
 
-    if (model.bitmap[0] != '\0') {
+    if (!model.isBitmapEmpty()) {
       const QString fname(model.getImageFilename());
       bool found = false;
 
@@ -277,7 +277,7 @@ bool LabelsStorageFormat::write(RadioData & radioData)
     if (!writeFile(modelData, modelFilename))
       return false;
 
-    if (model.bitmap[0] != '\0') {
+    if (!model.isBitmapEmpty()) {
       const QString fname(model.getImageFilename());
       bool found = false;
 

@@ -1954,7 +1954,7 @@ void MdiChild::loadModelImages()
 
   if (!path.isEmpty() && QFileInfo(path).exists()) {
     for (auto& model : radioData.models) {
-      if (model.bitmap[0] != '\0' && model.image.isNull()) {
+      if (!model.isBitmapEmpty() && model.image.isNull()) {
         QString fname = path % "/IMAGES/" % model.getImageFilename();
         if (!model.image.load(fname)) {
           model.image = QImage();

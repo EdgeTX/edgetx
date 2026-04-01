@@ -397,7 +397,7 @@ void SetupPanel::on_image_currentIndexChanged(int index)
     memset(model->bitmap, 0, CPN_MAX_BITMAP_LEN);
     strncpy(model->bitmap, ui->image->currentText().toLatin1(), CPN_MAX_BITMAP_LEN);
 
-    if (model->bitmap[0] != '\0') {
+    if (!model->isBitmapEmpty()) {
       QString path = g.profile[g.id()].sdPath() % "/IMAGES/" % model->getImageFilename();
       model->image.load(path);
 
