@@ -351,8 +351,16 @@ static void _crsf_extmodule_frame_received()
 
 // proxy trigger to avoid calling
 // FreeRTOS methods from ISR with prio 0
-static void _soft_irq_trigger(void*)
+static void _soft_irq_trigger(void* param)
 {
+  // detect spurious IDLE IRQ with empty buffer
+  auto mod_rx = (etx_module_driver_t*)param;
+  auto drv = modulePortGetSerialDrv(*mod_rx);
+  auto ctx = modulePortGetCtx(*mod_rx);
+
+  if (!drv || !ctx || !drv->getBufferedBytes) return;
+  if (drv->getBufferedBytes(ctx) == 0) return;
+
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
   stm32_exti_custom_trigger_swi(TELEMETRY_RX_FRAME_EXTI_LINE);
 #else
@@ -403,7 +411,7 @@ static void* crossfireInit(uint8_t module)
 
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
-        drv->setIdleCb(ctx, _soft_irq_trigger, nullptr);
+        drv->setIdleCb(ctx, _soft_irq_trigger, &mod_st->rx);
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
         stm32_exti_custom_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 3,
                           _crsf_extmodule_frame_received);
