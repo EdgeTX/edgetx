@@ -108,6 +108,8 @@ bool LabelsStorageFormat::load(RadioData & radioData)
   if (hasLabels)
     radioData.models.resize(modelFiles.size());
 
+  QList<ImageInfo> imageList;
+
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str();
 
@@ -150,8 +152,26 @@ bool LabelsStorageFormat::load(RadioData & radioData)
     if (!loadChecklist(model))
       return false;
 
-    if (!loadModelImage(model))
-      return false;
+    if (model.bitmap[0] != '\0') {
+      const QString fname(model.getImageFilename());
+      bool found = false;
+
+      for (const auto &img : imageList) {
+        if (img.name == fname) {
+          model.image = *img.data;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        if (!loadModelImage(model))
+          return false;
+
+        ImageInfo img = { QString(model.getImageFilename()), &model.image };
+        imageList.push_back(img);
+      }
+    }
 
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
