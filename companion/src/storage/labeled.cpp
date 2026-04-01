@@ -235,6 +235,9 @@ bool LabelsStorageFormat::write(RadioData & radioData)
   }
 
   EtxModelfiles modelFiles;
+
+  QList<ImageInfo> imageList;
+
   for (const auto& model : radioData.models) {
 
     if (model.isEmpty())
@@ -254,10 +257,29 @@ bool LabelsStorageFormat::write(RadioData & radioData)
     if (!writeFile(modelData, modelFilename))
       return false;
 
+    if (model.bitmap[0] != '\0') {
+      const QString fname(model.getImageFilename());
+      bool found = false;
+
+      for (const auto &img : imageList) {
+        if (img.name == fname) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        ImageInfo img = { QString(model.getImageFilename()), &model.image };
+        imageList.push_back(img);
+      }
+    }
+
     if (!writeChecklist(model))
       return false;
+  }
 
-    if (!writeModelImage(model))
+  for (const auto &img : imageList) {
+    if (!writeModelImage(img))
       return false;
   }
 
@@ -336,16 +358,14 @@ bool LabelsStorageFormat::loadModelImage(ModelData & model)
   return true;
 }
 
-bool LabelsStorageFormat::writeModelImage(const ModelData & model)
+bool LabelsStorageFormat::writeModelImage(const ImageInfo & img)
 {
-  if (!model.image.isNull()) {
-    const QString fname("IMAGES/" + model.getImageFilename());
-    //qDebug() << "Writing model image file:" << fname;
+  const QString fname("IMAGES/" + img.name);
+  //qDebug() << "Writing model image file:" << fname;
 
-    if (!writeFile(model.image, fname)) {
-      setError(tr("Cannot write model image file: ") + fname);
-      return false;
-    }
+  if (!writeFile(*img.data, fname)) {
+    setError(tr("Cannot write model image file: ") + fname);
+    return false;
   }
 
   return true;

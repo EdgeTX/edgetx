@@ -36,6 +36,11 @@ class LabelsStorageFormat : public StorageFormat
   Q_DECLARE_TR_FUNCTIONS(LabelsStorageFormat)
 
   public:
+    struct ImageInfo {
+      QString name;
+      const QImage *data;
+    };
+
     LabelsStorageFormat(const QString & filename):
       StorageFormat(filename)
     {
@@ -58,5 +63,5 @@ class LabelsStorageFormat : public StorageFormat
     bool writeChecklist(const ModelData & model);
     bool loadRadioSettings(GeneralSettings & generalSettings);
     bool loadModelImage(ModelData &model);
-    bool writeModelImage(const ModelData & model);
+    bool writeModelImage(const ImageInfo & img);
 };
