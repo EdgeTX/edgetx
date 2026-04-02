@@ -461,8 +461,8 @@ SWITCH_CONFIG = {
         "SF": {"default": "2POS"},
         "SG": {"default": "3POS"},
         "SH": {"default": "2POS"},
-        "SI": {"default": "2POS"},
-        "SJ": {"default": "2POS"},
+        "SI": {"default": "NONE"},
+        "SJ": {"default": "NONE"},
         # custom switches
         "SK": {"default": "2POS"},
         "SL": {"default": "2POS"},

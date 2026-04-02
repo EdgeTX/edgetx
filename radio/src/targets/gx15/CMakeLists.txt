@@ -156,7 +156,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
   drivers/icm42607C.cpp
-  drivers/imu_filter.cpp
   drivers/tas2505.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
