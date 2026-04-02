@@ -89,15 +89,9 @@ void LcdWidget::doPaint(QPainter &p)
   if (!localBuf) return;
 
   if (lcdDepth == 16) {
-    for (int x = 0; x < lcdWidth; x++) {
-      for (int y = 0; y < lcdHeight; y++) {
-        z = ((uint16_t *)localBuf)[y * lcdWidth + x];
-        rgb = qRgb(255 * ((z & 0xF800) >> 11) / 0x1F,
-                   255 * ((z & 0x07E0) >> 5) / 0x3F, 255 * (z & 0x001F) / 0x1F);
-        p.setPen(rgb);
-        p.drawPoint(x, y);
-      }
-    }
+    QImage img((const uchar*)localBuf, lcdWidth, lcdHeight,
+               lcdWidth * 2, QImage::Format_RGB16);
+    p.drawImage(0, 0, img);
     return;
   }
   if (lcdDepth == 12) {
