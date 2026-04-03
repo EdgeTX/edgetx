@@ -38,12 +38,17 @@ class LvglWidgetParams
       if (!strcmp(key, "type")) {
         if (lua_isinteger(L, -1)) {
           int n = lua_tointeger(L, -1);
-          if (n > ETX_UNDEF && n < ETX_LAST)
+          if (n > ETX_UNDEF && n < ETX_LAST) {
             type = (LuaLvglType)n;
-          else
+          } else {
+            luaL_error(L, "Invalid type '%d'", n);
             type = ETX_UNDEF;
+          }
         } else {
-          type = getType(luaL_checkstring(L, -1));
+          const char* s = luaL_checkstring(L, -1);
+          type = getType(s);
+          if (type == ETX_UNDEF)
+            luaL_error(L, "Invalid type '%s'", s);
         }
       } else if (!strcmp(key, "name")) {
         name = luaL_checkstring(L, -1);
@@ -184,6 +189,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
+    if (p.type == ETX_UNDEF)
+      luaL_error(L, "Missing or bad type");
     if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreen())
       continue;
     LvglWidgetObjectBase *obj = nullptr;
@@ -278,7 +285,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     if (obj) {
       obj->create(L, -1);
       auto ref = obj->getRef(L);
-      if (p.name && refIndex != LUA_REFNIL) {
+      if (p.name && refIndex != 0) {
         lua_pushstring(L, p.name);
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
         lua_settable(L, refIndex - 4);
@@ -287,7 +294,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lua_getfield(L, -1, "children");
         auto prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(obj);
-        buildLvgl(L, -1, (refIndex != LUA_REFNIL) ? refIndex - 3 : LUA_REFNIL);
+        buildLvgl(L, -1, (refIndex != 0) ? refIndex - 3 : LUA_REFNIL);
         lua_pop(L, 1);
         luaScriptManager->setTempParent(prevParent);
       }
@@ -302,7 +309,7 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
     lua_getfield(L, -1, "children");
     auto prevParent = luaScriptManager->getTempParent();
     luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, LUA_REFNIL);
+    buildLvgl(L, -1, 0);
     lua_pop(L, 1);
     luaScriptManager->setTempParent(prevParent);
   }
@@ -495,7 +502,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(SRC_ALL, 0xFFFFFFFF)
   LROT_NUMENTRY(SRC_INPUT, SRC_INPUT)
   LROT_NUMENTRY(SRC_LUA, SRC_LUA)
-  LROT_NUMENTRY(SRC_STICK, SRC_STICK|SRC_TILT|SRC_SPACEMOUSE)
+  LROT_NUMENTRY(SRC_STICK, SRC_STICK|SRC_TILT|SRC_LIGHT|SRC_SPACEMOUSE)
   LROT_NUMENTRY(SRC_POT, SRC_POT)
   LROT_NUMENTRY(SRC_OTHER, SRC_MINMAX|SRC_TX|SRC_TIMER)
   LROT_NUMENTRY(SRC_HELI, SRC_HELI)
@@ -539,7 +546,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(TOGGLE, ETX_TOGGLE)
   LROT_NUMENTRY(TEXT_EDIT, ETX_TEXTEDIT)
   LROT_NUMENTRY(NUMBER_EDIT, ETX_NUMBEREDIT)
-  LROT_NUMENTRY(CHOIDE, ETX_CHOICE)
+  LROT_NUMENTRY(CHOICE, ETX_CHOICE)
   LROT_NUMENTRY(SLIDER, ETX_SLIDER)
   LROT_NUMENTRY(VERTICAL_SLIDER, ETX_VERTICAL_SLIDER)
   LROT_NUMENTRY(PAGE, ETX_PAGE)

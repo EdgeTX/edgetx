@@ -90,8 +90,6 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Vario");
   else if (func == FuncPlayPrompt)
     return tr("Play Track");
-  else if (func == FuncPlayBoth)
-    return tr("Play Both");
   else if (func == FuncPlayValue)
     return tr("Play Value");
   else if (func == FuncPlayScript)
@@ -181,13 +179,8 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func == FuncVolume || func == FuncPlayValue || func == FuncBacklight) {
     return RawSource(param).toString(model);
   }
-  else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
-    if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
-      return QString("%1").arg(param);
-    }
-    else {
-      return paramarm;
-    }
+  else if (func == FuncPlayPrompt) {
+    return paramarm;
   }
   else if (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast) {
     switch (adjustMode) {
@@ -252,22 +245,17 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
   Firmware * fw = getCurrentFirmware();
 
   bool ret = (((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) && !fw->getCapability(SafetyChannelCustomFunction)) ||
-        ((index == FuncVolume || index == FuncBackgroundMusic || index == FuncBackgroundMusicPause) && !fw->getCapability(HasVolume)) ||
-        ((index == FuncPlayScript && !IS_HORUS_OR_TARANIS(fw->getBoard()))) ||
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
-        ((index == FuncPlayBoth) && !fw->getCapability(HasBeeper)) ||
-        ((index == FuncLogs) && !fw->getCapability(HasSDLogs)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
          (index > FuncSetTimer1 + fw->getCapability(Timers) ||
          (model ? model->timers[index - FuncSetTimer1].isModeOff() : false))) ||
-        ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && ((index - FuncAdjustGV1) >= fw->getCapability(Gvars))) ||
-        ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
-        ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
+        ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasBlingLEDS) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
-        ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) && !Boards::getCapability(fw->getBoard(), Board::FunctionSwitches))
+        ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) &&
+          !Boards::isSwitchFunc(Boards::getSwitchIndexForCFSOffset(index - FuncPushCustomSwitch1)))
         );
   return !ret;
 }
@@ -300,7 +288,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   }
 
   if (value < ++step)
-    return tr("Flight");
+    return tr("Session");
 
   if (value < ++step)
     return tr("Telemetry");
@@ -386,7 +374,7 @@ QString CustomFunctionData::gvarAdjustModeToString(const int value)
 {
   switch (value) {
     case FUNC_ADJUST_GVAR_CONSTANT:
-      return tr("Value");
+      return tr("Constant");
     case FUNC_ADJUST_GVAR_SOURCE:
       return tr("Source (%)");
     case FUNC_ADJUST_GVAR_SOURCERAW:
@@ -522,7 +510,6 @@ bool CustomFunctionData::isRepeatParamAvailable(const AssignFunc func)
     FuncPlayHaptic,
     FuncPlayValue,
     FuncPlayPrompt,
-    FuncPlayBoth,
     FuncSetScreen
   };
 

@@ -9633,11 +9633,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0xf1,0x07,0x3e,0x00,0x23,0x4c,0x30,0x73,0x00,0x50,0xf5,0x00,0x00,0x00,0x00,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 12289, .range_length = 28496, .glyph_id_start = 1, .list_length = 645, .type = 3, .unicode_list = 5168, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_tw_bold_XL = {
+const etxLz4Font lv_font_tw_bold_XL __FLASH = {
 .uncomp_size = 310730,
 .comp_size = 154063,
 .line_height = 32,

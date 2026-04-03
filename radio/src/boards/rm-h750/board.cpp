@@ -48,14 +48,21 @@
 #include "globals.h"
 #include "sdcard.h"
 #include "debug.h"
+#include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
-#include "bitmapbuffer.h"
-#include "colors.h"
-
 #include "touch_driver.h"
+
+#if defined(IMU_ICM4207C)
+#include "drivers/icm42607C.h"
+#endif
+#if defined(IMU_SC7U22)
+#include "drivers/sc7u22.h"
+#endif
+
 
 #include <string.h>
 
@@ -64,6 +71,22 @@ extern const etx_hal_adc_driver_t _adc_driver;
 
 // RGB LED timer
 extern const stm32_pulse_timer_t _led_timer;
+
+static const etx_imu_t _imu_candidates[] = {
+#if defined(IMU_ICM4207C)
+  { &imu_icm42607_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR },
+  { &imu_icm42607_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR + 1 },
+#endif
+#if defined(IMU_SC7U22)
+  { &imu_sc7u22_driver, IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR },
+  { &imu_sc7u22_driver, IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR + 1 },
+#endif
+};
+
+static void gyroInit()
+{
+  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
+}
 
 static void led_strip_off()
 {
@@ -180,6 +203,8 @@ void boardInit()
 
   // RTC must be initialized before rambackupRestore() is called
   rtcInit();
+
+  gyroInit();
 }
 
 extern void rtcDisableBackupReg();

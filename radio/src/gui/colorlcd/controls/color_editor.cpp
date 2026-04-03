@@ -23,11 +23,25 @@
 
 #include "button.h"
 #include "etx_lv_theme.h"
+#include "hal/rotary_encoder.h"
 
 static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
 static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};
 
-typedef std::function<uint32_t(int pos)> getRGBFromPos;
+// ColorTypes()
+// A ColorType implements an editor for selecting a color. Currently we support
+// HSV, RGB and SYS (choose from system defined colors)
+class ColorType
+{
+ public:
+  ColorType() {}
+  virtual ~ColorType() {}
+
+  virtual void setText() {};
+  virtual uint32_t getRGB() { return 0; };
+
+ protected:
+};
 
 class ColorBar : public FormField
 {
@@ -92,7 +106,7 @@ class ColorBar : public FormField
     rel_pos.y = point_act.y - obj_coords.y1;
 
     bar->value = bar->screenToValue(rel_pos.y);
-    lv_event_send(target->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+    Messaging::send(Messaging::COLOR_CHANGED);
   }
 
   static void on_key(lv_event_t* e)
@@ -113,7 +127,7 @@ class ColorBar : public FormField
           else
             bar->value -= accel;
         }
-        lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+        Messaging::send(Messaging::COLOR_CHANGED);
       }
     } else if (key == LV_KEY_RIGHT) {
       if (bar->value < bar->maxValue) {
@@ -125,7 +139,7 @@ class ColorBar : public FormField
           else
             bar->value = bar->maxValue;
         }
-        lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+        Messaging::send(Messaging::COLOR_CHANGED);
       }
     }
   }
@@ -188,22 +202,7 @@ class ColorBar : public FormField
 
   uint32_t maxValue = 0;
   uint32_t value = 0;
-  getRGBFromPos getRGB = nullptr;
-};
-
-// ColorTypes()
-// A ColorType implements an editor for selecting a color. Currently we support
-// HSV, RGB and SYS (choose from system defined colors)
-class ColorType
-{
- public:
-  ColorType() {}
-  virtual ~ColorType() {}
-
-  virtual void setText() {};
-  virtual uint32_t getRGB() { return 0; };
-
- protected:
+  std::function<uint32_t(int pos)> getRGB = nullptr;
 };
 
 // Color editor with three bars for selecting color value. Base class for HSV
@@ -390,8 +389,7 @@ class ThemeColorType : public ColorType
     etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
     btn->setPressHandler([=]() {
       m_color = color;
-      lv_event_send(parent->getParent()->getParent()->getLvObj(),
-                    LV_EVENT_VALUE_CHANGED, nullptr);
+      Messaging::send(Messaging::COLOR_CHANGED);
       return 0;
     });
   }
@@ -441,8 +439,7 @@ class FixedColorType : public ColorType
     etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
     btn->setPressHandler([=]() {
       m_color = color;
-      lv_event_send(parent->getParent()->getLvObj(),
-                    LV_EVENT_VALUE_CHANGED, nullptr);
+      Messaging::send(Messaging::COLOR_CHANGED);
       return 0;
     });
   }
@@ -455,9 +452,8 @@ class FixedColorType : public ColorType
 /////////////////////////////////////////////////////////////////////////
 ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
                          std::function<void(uint32_t rgb)> setValue,
-                         std::function<void(uint32_t rgb)> preview,
                          COLOR_EDITOR_FMT fmt, COLOR_EDITOR_TYPE typ) :
-    Window(parent, rect), _setValue(std::move(setValue)), _preview(std::move(preview)),
+    Window(parent, rect), _setValue(std::move(setValue)),
     format(fmt)
 {
   if (format == ETX_RGB565) {
@@ -474,10 +470,9 @@ ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
   _color = color;
   setColorEditorType(typ);
 
-  lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED,
-                      nullptr);
+  Messaging::send(Messaging::COLOR_PREVIEW, _color);
 
-  if (_preview) _preview(_color);  
+  colorUpdateMsg.subscribe(Messaging::COLOR_CHANGED, [=](uint32_t param) { setRGB(); });
 }
 
 void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
@@ -527,12 +522,5 @@ void ColorEditor::setRGB()
   _color = _colorType->getRGB();
   // update bars & labels
   setText();
-  if (_preview) _preview(_color);
-}
-
-void ColorEditor::value_changed(lv_event_t* e)
-{
-  lv_obj_t* target = lv_event_get_target(e);
-  ColorEditor* edit = (ColorEditor*)lv_obj_get_user_data(target);
-  if (edit) edit->setRGB();
+  Messaging::send(Messaging::COLOR_PREVIEW, _color);
 }

@@ -139,6 +139,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   }
   std::string getBulletLabelString(ModelCell *, const char *noresults = "");
   void setDirty(bool save = false);
+  void resetDirty() { _isDirty = false; }
   bool isDirty() { return _isDirty; }
 
   // Currently selected labels in the GUI
@@ -163,24 +164,24 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
                           const std::string &from,
                           const std::string &to);
 
- protected:
-  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
-  bool _isDirty = true;
-  std::set<uint32_t> filtlbls;
-  std::string currentlabel = "";
-
-  void updateModelCell(ModelCell *);
-  bool removeModels(
-      ModelCell *);  // Should only be called from ModelsList remove model
-  bool updateModelFile(ModelCell *);
-  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
-
   void clear()
   {
     _isDirty = true;
     labels.clear();
     std::multimap<uint16_t, ModelCell *>::clear();
   }
+
+  void updateModelCell(ModelCell *);
+  bool removeModels(ModelCell *);
+
+ protected:
+  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
+  bool _isDirty = true;
+  std::set<uint32_t> filtlbls;
+  std::string currentlabel = "";
+
+  bool updateModelFile(ModelCell *);
+  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
 
   int getIndexByLabel(const std::string &str)
   {
@@ -195,8 +196,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     else
       return std::string();
   }
-
-  friend class ModelsList;
 
  private:
   LabelsVector labels;  // Storage space for discovered labels

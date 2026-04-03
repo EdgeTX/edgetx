@@ -42,7 +42,7 @@ class BluetoothTrainerWindow : public Window
 
 public:
   BluetoothTrainerWindow(Window* parent);
-    
+
   void setMaster(bool master);
   void checkEvents() override;
   void refresh();

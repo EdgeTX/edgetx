@@ -276,6 +276,8 @@ class GeneralSettings {
       QM_TOOLS_LS_MON,
       QM_TOOLS_STATS,
       QM_TOOLS_DEBUG,
+      // Lua stand alone script
+      QM_APP,
       QM_COUNT,
     };
 
@@ -302,7 +304,6 @@ class GeneralSettings {
     unsigned int contrast;
     unsigned int vBatWarn;
     int txVoltageCalibration;
-    int txCurrentCalibration;
     int vBatMin;
     int vBatMax;
     int backlightMode;
@@ -326,7 +327,6 @@ class GeneralSettings {
     int timezone;
     int timezoneMinutes;
     bool adjustRTC;
-    bool optrexDisplay;
     unsigned int inactivityTimer;
     unsigned int internalModuleBaudrate;
     bool minuteBeep;
@@ -339,10 +339,8 @@ class GeneralSettings {
     int PPM_Multiplier;
     int hapticLength;
     unsigned int reNavigation;
-    unsigned int stickReverse;
     unsigned int speakerPitch;
     int hapticStrength;
-    unsigned int speakerMode;
     char ownerName[OWNER_NAME_LEN + 1];
     int beeperLength;
     unsigned int gpsFormat;
@@ -367,6 +365,7 @@ class GeneralSettings {
     unsigned int imperial;
     unsigned int ppmunit;
     char ttsLanguage[TTS_LANGUAGE_LEN + 1];
+    char uiLanguage[TTS_LANGUAGE_LEN + 1];
     int beepVolume;
     int wavVolume;
     int varioVolume;
@@ -375,7 +374,6 @@ class GeneralSettings {
     int varioRepeat;
     int backgroundVolume;
     unsigned int mavbaud;
-    unsigned int switchUnlockStates;
     unsigned int serialPort[SP_COUNT];
     bool serialPower[SP_COUNT];
     int antennaMode;
@@ -393,6 +391,9 @@ class GeneralSettings {
     bool disablePwrOnOffHaptic;
 
     char selectedTheme[SELECTED_THEME_NAME_LEN + 1];
+
+    RawSource backlightSrc;
+    RawSource volumeSrc;
 
     // Radio level tabs control (global settings)
     bool radioThemesDisabled;
@@ -452,7 +453,9 @@ class GeneralSettings {
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
     unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
+    char* keyShortcutTools[MAX_KEYSHORTCUTS];
     unsigned int qmFavorites[MAX_QMFAVOURITES];
+    char* qmFavoritesTools[MAX_QMFAVOURITES];
 
     void switchConfigClear();
 

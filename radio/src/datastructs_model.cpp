@@ -197,6 +197,11 @@ void ModelData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
 static TopBarPersistentData _topbarData;
 static CustomScreenData* _screenData[MAX_CUSTOM_SCREENS];
 
+bool ModelData::hasScreenData(int screenNum)
+{
+  return _screenData[screenNum] != nullptr;
+}
+
 CustomScreenData* ModelData::getScreenData(int screenNum)
 {
   if (_screenData[screenNum] == nullptr) {

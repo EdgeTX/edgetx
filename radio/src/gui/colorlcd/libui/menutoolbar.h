@@ -21,6 +21,7 @@
 #include "button.h"
 #include "choice.h"
 #include "listbox.h"
+#include "messaging.h"
 
 class Menu;
 
@@ -34,14 +35,14 @@ class MenuToolbarButton : public ButtonBase
 
 class MenuToolbar : public Window
 {
-  // friend Menu;
-
  public:
   MenuToolbar(Choice* choice, Menu* menu, const int columns);
   ~MenuToolbar();
 
   void resetFilter();
-  void onEvent(event_t event) override;
+
+  void nextFilter();
+  void prevFilter();
 
   virtual void longPress() {}
 
@@ -54,6 +55,7 @@ class MenuToolbar : public Window
   int nxtBtnPos = 0;
   int filterColumns = 0;
   MenuToolbarButton* allBtn = nullptr;
+  Messaging changeFilterMsg;
 
   lv_group_t* group;
 

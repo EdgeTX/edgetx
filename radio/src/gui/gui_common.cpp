@@ -262,6 +262,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
 #if defined(IMU)
   { MIXSRC_TILT_X, MIXSRC_TILT_Y, SRC_TILT, sourceIsAvailable },
 #endif
+#if defined(LUMINOSITY_SENSOR)
+  { MIXSRC_LIGHT, MIXSRC_LIGHT, SRC_LIGHT, sourceIsAvailable },
+#endif
 #if defined(PCBHORUS)
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
 #endif
@@ -298,7 +301,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 }
 
 #define SRC_COMMON \
-            SRC_STICK | SRC_POT | SRC_TILT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
             SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
 
 bool isSourceAvailable(int source)
@@ -306,6 +309,11 @@ bool isSourceAvailable(int source)
   return checkSourceAvailable(source,
             SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
             );
+}
+
+bool isSourceAvailableForBacklightOrVolume(int source)
+{
+  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
 }
 
 bool isLogicalSwitchAvailable(int index)
@@ -547,6 +555,11 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
+#if defined(STM32F4)
+  if (mode == UART_MODE_SBUS_TRAINER_INV)
+    return false;
+#endif
+
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
     return false;
@@ -708,35 +721,33 @@ bool isSourceAvailableInResetSpecialFunction(int index)
 
 #if defined(COLORLCD)
 
+#include "menu.h"
+#include "mainwindow.h"
+
 class AntennaSelectionMenu : public Menu
 {
-  bool& done;
-
-public:
-  AntennaSelectionMenu(bool& done) : Menu(), done(done) {
+ public:
+  AntennaSelectionMenu() : Menu()
+  {
     setTitle(STR_ANTENNA);
     addLine(STR_USE_INTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = false; });
     addLine(STR_USE_EXTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = true; });
-    setCloseHandler([=]() { this->done = true; });
     setCloseWhenClickOutside(false);
   }
-protected:
+
+ protected:
   void onCancel() override {}
 };
 
 static void runAntennaSelectionMenu()
 {
-  bool finished = false;
-  new AntennaSelectionMenu(finished);
+  auto menu = new AntennaSelectionMenu();
 
-  while (!finished) {
-    WDG_RESET();
-    MainWindow::instance()->run();
-    LvglWrapper::runNested();
-    sleep_ms(20);
-  }
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    return menu->deleted();
+  });
 }
 #else
 void onAntennaSelection(const char* result)
@@ -1256,7 +1267,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
 {
   const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-  return STR_VAL(pdef->optionsstr);
+  return STR_SAFE_VAL(pdef->optionsstr);
 }
 
 const char * getMultiOptionTitle(uint8_t moduleIdx)
@@ -1267,7 +1278,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     if (status.optionDisp >= getMaxMultiOptions()) {
       status.optionDisp = 1; // Unknown options are defaulted to type 1 (basic option)
     }
-    return STR_VAL(mm_options_strings::options[status.optionDisp]);
+    return STR_SAFE_VAL(mm_options_strings::options[status.optionDisp]);
   }
 
   return getMultiOptionTitleStatic(moduleIdx);

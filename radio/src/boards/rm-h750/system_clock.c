@@ -94,7 +94,11 @@ BOOTSTRAP void SystemClock_Config(void)
   LL_RCC_PLL3_SetN(4);
   LL_RCC_PLL3_SetP(2);
   LL_RCC_PLL3_SetQ(2);
+#if defined(RADIO_TX16SMK3)
+  LL_RCC_PLL3_SetR(8); // 24 MHz
+#else
   LL_RCC_PLL3_SetR(18);
+#endif
   LL_RCC_PLL3_Enable();
   while (LL_RCC_PLL3_IsReady() != 1) {
   }
@@ -105,7 +109,7 @@ BOOTSTRAP void SystemClock_Config(void)
                            LL_AHB2_GRP1_PERIPH_D2SRAM3);
 
   /* Set periph clock sources */
-  LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL1Q); 
+  LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL1Q);
   LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL1Q);
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);
 }

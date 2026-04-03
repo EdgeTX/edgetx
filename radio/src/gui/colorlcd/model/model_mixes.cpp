@@ -20,12 +20,16 @@
  */
 
 #include "model_mixes.h"
-#include "edgetx.h"
-#include "mixer_edit.h"
-#include "mixes.h"
-#include "channel_bar.h"
 
 #include <algorithm>
+
+#include "channel_bar.h"
+#include "dialog.h"
+#include "edgetx.h"
+#include "menu.h"
+#include "mixer_edit.h"
+#include "mixes.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -81,10 +85,10 @@ class MixLineButton : public InputMixButtonBase
     delayLoad();
   }
 
-  void deleteLater(bool detach = true, bool trash = true) override
+  void deleteLater() override
   {
-    if (mplex) mplex->deleteLater(detach, trash);
-    InputMixButtonBase::deleteLater(detach, trash);
+    if (mplex) mplex->deleteLater();
+    InputMixButtonBase::deleteLater();
   }
 
   void delayedInit() override
@@ -210,14 +214,7 @@ class MixGroup : public InputMixGroupBase
 
   void adjustHeight() override
   {
-    coord_t y = monitorVisible ? CHNUM_Y : PAD_OUTLINE;
-    for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
-      auto line = *it;
-      line->updateHeight();
-      line->updatePos(InputMixButtonBase::LN_X, y);
-      y += line->height() + PAD_OUTLINE;
-    }
-    setHeight(y + PAD_BORDER * 2);
+    _adjustHeight(monitorVisible ? CHNUM_Y : 0);
   }
 
   static LAYOUT_VAL_SCALED(CHNUM_Y, 17)
@@ -229,7 +226,7 @@ class MixGroup : public InputMixGroupBase
   bool monitorVisible = false;
 };
 
-ModelMixesPage::ModelMixesPage(PageDef& pageDef) : InputMixPageBase(pageDef)
+ModelMixesPage::ModelMixesPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 
@@ -375,24 +372,36 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
 
 void ModelMixesPage::deleteMix(uint8_t index)
 {
-  _copyMode = 0;
-
   auto group = getGroupByIndex(index);
   if (!group) return;
 
   auto line = getLineByIndex(index);
   if (!line) return;
 
-  ::deleteMix(index);
-
-  group->removeLine(line);
-  if (group->getLineCount() == 0) {
-    group->deleteLater();
-    removeGroup(group);
+  auto mix = mixAddress(index);
+  std::string s(getSourceString(group->getMixSrc()));
+  s += " - ";
+  if (mix->name[0]) {
+    s += mix->name;
   } else {
-    line->deleteLater();
+    s += "#";
+    s += std::to_string(group->getLineNumber(index));
   }
-  removeLine(line);
+
+  if (confirmationDialog(STR_DELETE_MIX_LINE, s.c_str())) {
+    _copyMode = 0;
+
+    ::deleteMix(index);
+
+    group->removeLine(line);
+    if (group->getLineCount() == 0) {
+      group->deleteLater();
+      removeGroup(group);
+    } else {
+      line->deleteLater();
+    }
+    removeLine(line);
+  }
 }
 
 void ModelMixesPage::pasteMix(uint8_t dst_idx, uint8_t channel)

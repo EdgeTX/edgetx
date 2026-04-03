@@ -136,13 +136,14 @@
 #define TR_AUX_SERIAL_MODES_1         "끔"
 #define TR_AUX_SERIAL_MODES_2         "텔레미러"
 #define TR_AUX_SERIAL_MODES_3         "텔레입력"
-#define TR_AUX_SERIAL_MODES_4         "SBUS 트레이너"
-#define TR_AUX_SERIAL_MODES_5         "LUA"
-#define TR_AUX_SERIAL_MODES_6         "CLI"
-#define TR_AUX_SERIAL_MODES_7         "GPS"
-#define TR_AUX_SERIAL_MODES_8         "디버그"
-#define TR_AUX_SERIAL_MODES_9         "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10        "외부 모듈"
+#define TR_AUX_SERIAL_MODES_4         TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5         "SBUS 트레이너"
+#define TR_AUX_SERIAL_MODES_6         "LUA"
+#define TR_AUX_SERIAL_MODES_7         "CLI"
+#define TR_AUX_SERIAL_MODES_8         "GPS"
+#define TR_AUX_SERIAL_MODES_9         "디버그"
+#define TR_AUX_SERIAL_MODES_10        "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11        "외부 모듈"
 #define TR_SWTYPES_1                  "없음"
 #define TR_SWTYPES_2                  "토글"
 #define TR_SWTYPES_3                  "2단"
@@ -369,6 +370,7 @@
 #define TR_SRC_BATT                   "배터리"
 #define TR_SRC_TIME                   "시간"
 #define TR_SRC_GPS                    "GPS"
+#define	TR_SRC_LIGHT                  "Ambient light"
 #define TR_SRC_TIMER                  "타이머"
 
 
@@ -696,6 +698,7 @@
 #define TR_MULTI_OPTION                 TR("옵션", "옵션 값")
 #define TR_MULTI_AUTOBIND               TR("바인드 채널", "채널에서 자동 바인딩")
 #define TR_DISABLE_CH_MAP               TR("채널 매핑 없음", "채널 매핑 비활성화")
+#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM                TR("텔레메트리 없음", "텔레메트리 비활성화")
 #define TR_MULTI_LOWPOWER               TR("저전력", "저전력 모드")
 #define TR_MULTI_LNA_DISABLE            "LNA 비활성화"
@@ -741,7 +744,6 @@
 #define TR_CURRENT_CALIB                "전류 보정"
 #define TR_VOLTAGE                      TR("전압", "전압 소스")
 #define TR_SELECT_MODEL                 "모델 선택"
-#define TR_MANAGE_MODELS                "모델 관리"
 #define TR_MODELS                       "모델"
 #define TR_SELECT_MODE                  "모드 선택"
 #define TR_CREATE_MODEL                 "모델 생성"
@@ -770,7 +772,8 @@
 #define TR_DELETE_MODEL                   "모델 삭제"
 #define TR_RESTORE_MODEL                  "모델 복원"
 #define TR_DELETE_ERROR                   "삭제 오류"
-
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                   TR("SD 오류", "SD카드 오류")
 #define TR_SDCARD                         "SD 카드"
 #define TR_NO_FILES_ON_SD                 "SD 카드에 파일 없음!"
@@ -841,6 +844,8 @@
 #define TR_VOLUME                         "볼륨"
 #define TR_LCD                            "LCD"
 #define TR_BRIGHTNESS                     "밝기"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                       "CPU 온도"
 #define TR_COPROC                         "보조 프로세서"
 #define TR_COPROC_TEMP                    "메인보드 온도"
@@ -1012,6 +1017,7 @@
 #define TR_USBMODE                        "USB 모드"
 #define TR_JACK_MODE                      "잭 모드"
 #define TR_VOICE_LANGUAGE                 "음성 언어"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                   "단위 체계"
 #define TR_UNITS_PPM                      "PPM 단위"
 #define TR_EDIT                           "편집"
@@ -1024,7 +1030,7 @@
 #define TR_PASTE_BEFORE                   "앞에 붙여넣기"
 #define TR_DELETE                         "삭제"
 #define TR_INSERT                         "삽입"
-#define TR_RESET_FLIGHT                   "세션 초기화"
+#define TR_RESET_SESSION                  "세션 초기화"
 #define TR_RESET_TIMER1                   "타이머1 초기화"
 #define TR_RESET_TIMER2                   "타이머2 초기화"
 #define TR_RESET_TIMER3                   "타이머3 초기화"
@@ -1181,6 +1187,7 @@
 
   // Horus layouts and widgets
 #define TR_FIRST_CHANNEL                "첫 번째 채널"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND              "배경 채우기?"
 #define TR_BG_COLOR                     "배경 색상"
 #define TR_SLIDERS_TRIMS                "슬라이더 + 트림"
@@ -1241,6 +1248,7 @@
 #define TR_ALTSENSOR                      "고도 센서"
 #define TR_CELLSENSOR                     "셀 전압 센서"
 #define TR_GPSSENSOR                      "GPS 센서"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR                  "전류 센서"
 #define TR_AUTOOFFSET                     "자동 오프셋"
 #define TR_ONLYPOSITIVE                   "양수만"

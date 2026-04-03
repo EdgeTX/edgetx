@@ -163,7 +163,7 @@ static void audio_update_dma_buffer(uint8_t tc)
 bool audioHeadphoneDetect()
 {
 #if defined(KCX_BTAUDIO)
-  return gpio_read(AUDIO_HP_DETECT_PIN) || gpio_read(BTAUDIO_LINKED_GPIO);
+  return gpio_read(AUDIO_HP_DETECT_PIN) || btAudioLinked();
 #else
   return gpio_read(AUDIO_HP_DETECT_PIN);
 #endif
@@ -184,7 +184,7 @@ extern "C" void DMA1_Stream4_IRQHandler(void)
   if (stm32_dma_check_ht_flag(I2S_DMA, I2S_DMA_Stream)) {
     audio_update_dma_buffer(0);
   }
-  
+
   if (stm32_dma_check_tc_flag(I2S_DMA, I2S_DMA_Stream)) {
     audio_update_dma_buffer(1);
   }

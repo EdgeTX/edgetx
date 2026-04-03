@@ -142,13 +142,14 @@
 #define TR_AUX_SERIAL_MODES_1          "VYP"
 #define TR_AUX_SERIAL_MODES_2          "Telemetrie zrcadlení"
 #define TR_AUX_SERIAL_MODES_3          "Telemetrie vstup"
-#define TR_AUX_SERIAL_MODES_4          "SBUS Trenér"
-#define TR_AUX_SERIAL_MODES_5          "LUA"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "Debug"
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "Externí modul"
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "SBUS Trenér"
+#define TR_AUX_SERIAL_MODES_6          "LUA"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "Debug"
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "Externí modul"
 #define TR_SWTYPES_1                   "Žádný"
 #define TR_SWTYPES_2                   "Bez aretace"
 #define TR_SWTYPES_3                   "2-polohový"
@@ -372,6 +373,7 @@
 #define TR_SRC_BATT                    "Bat."
 #define TR_SRC_TIME                    "Čas"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Čas"
 
 #define TR_VTMRMODES_1                 "VYP"
@@ -677,6 +679,7 @@
 #define TR_MULTI_OPTION                TR("Možnosti", "Hodnota")
 #define TR_MULTI_AUTOBIND              TR("Bind Ch.","Bind při zapnutí")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Vypnout mapování kanálů")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("No Telem", "Vypnout telemetrii")
 #define TR_MULTI_LOWPOWER              TR("Nízký výkon", "Režim nízkého výkonu")
 #define TR_MULTI_LNA_DISABLE           "LNA vypnuto"
@@ -712,7 +715,6 @@
 #define TR_CURRENT_CALIB               "+=\006Proud"
 #define TR_VOLTAGE                     "Napětí"
 #define TR_SELECT_MODEL                "Vyber model"
-#define TR_MANAGE_MODELS               "NASTAVENÍ MODELU"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"
@@ -740,6 +742,8 @@
 #define TR_DELETE_MODEL                "Smazat model"
 #define TR_RESTORE_MODEL               "Obnov model z SD karty"
 #define TR_DELETE_ERROR                "Nelze odstranit"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                "Chyba SD karty"
 #define TR_SDCARD                      "SD karta"
 #define TR_NO_FILES_ON_SD              "Žádné soubory na SD kartě!"
@@ -805,6 +809,8 @@
 #define TR_VOLUME                      "Hlasitost"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Jas"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "Tepl. CPU\016>"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "Tepl. MB \016>"
@@ -966,6 +972,7 @@
 #define TR_USBMODE                     "Režim USB"
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Jednotky"
 #define TR_UNITS_PPM                   "PPM jednotky"
 #define TR_EDIT                        "Upravit"
@@ -978,7 +985,7 @@
 #define TR_PASTE_BEFORE                "Vložit před"
 #define TR_DELETE                      "Odstranit"
 #define TR_INSERT                      "Přidat"
-#define TR_RESET_FLIGHT                "Reset relace"
+#define TR_RESET_SESSION               "Reset relace"
 #define TR_RESET_TIMER1                "Čas1"
 #define TR_RESET_TIMER2                "Čas2"
 #define TR_RESET_TIMER3                "Čas3"
@@ -1133,6 +1140,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "První kanál"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Vyplnit pozadí?"
 #define TR_BG_COLOR                  "Barva pozadí"
 #define TR_SLIDERS_TRIMS             "Slidery+Trimy"
@@ -1197,6 +1205,7 @@
 #define TR_ALTSENSOR                   "Senzor výšky"
 #define TR_CELLSENSOR                  "Senzor článků"
 #define TR_GPSSENSOR                   "GPS senzor"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "Senzor"
 #define TR_AUTOOFFSET                  "Auto offset"
 #define TR_ONLYPOSITIVE                "Jen kladné"

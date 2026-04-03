@@ -19,10 +19,12 @@
 #include "dialog.h"
 
 #include "edgetx.h"
-#include "mainwindow.h"
-#include "progress.h"
 #include "etx_lv_theme.h"
 #include "keyboard_base.h"
+#include "mainwindow.h"
+#include "progress.h"
+#include "static.h"
+#include "textedit.h"
 
 //-----------------------------------------------------------------------------
 
@@ -174,9 +176,7 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
             std::function<void(std::string)> _saveHandler) :
     ModalWindow(false), saveHandler(std::move(_saveHandler))
 {
-  assert(length <= MAX_LABEL_LENGTH);
-
-  strncpy(this->label, label, length);
+  strncpy(this->label, label, std::min(length, MAX_LABEL_LENGTH));
   this->label[length] = '\0';
 
   auto form = new Window(this, rect_t{});

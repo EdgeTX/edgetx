@@ -138,13 +138,14 @@
 #define TR_AUX_SERIAL_MODES_1          "OFF"
 #define TR_AUX_SERIAL_MODES_2          "Дзерк. телем."
 #define TR_AUX_SERIAL_MODES_3          "Вх. телем."
-#define TR_AUX_SERIAL_MODES_4          "SBUS Трен."
-#define TR_AUX_SERIAL_MODES_5          "LUA"
-#define TR_AUX_SERIAL_MODES_6          "CLI"
-#define TR_AUX_SERIAL_MODES_7          "GPS"
-#define TR_AUX_SERIAL_MODES_8          "Відлаг."
-#define TR_AUX_SERIAL_MODES_9          "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10         "Зовн. модуль"	/* for untranslated - use english */
+#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5          "SBUS Трен."
+#define TR_AUX_SERIAL_MODES_6          "LUA"
+#define TR_AUX_SERIAL_MODES_7          "CLI"
+#define TR_AUX_SERIAL_MODES_8          "GPS"
+#define TR_AUX_SERIAL_MODES_9          "Відлаг."
+#define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11         "Зовн. модуль"	/* for untranslated - use english */
 #define TR_SWTYPES_1                   "Немає"
 #define TR_SWTYPES_2                   "Перемик."
 #define TR_SWTYPES_3                   "2поз. пер."
@@ -372,6 +373,7 @@
 #define TR_SRC_BATT                    "Batt"	/* use english */
 #define TR_SRC_TIME                    "Час"
 #define TR_SRC_GPS                     "GPS"	/* use english */
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Тмр"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -673,6 +675,7 @@
 #define TR_MULTI_OPTION                TR("Опція", "Значення опції")
 #define TR_MULTI_AUTOBIND              TR("Прив'язка до кан.", "Прив'язка до каналу")
 #define TR_DISABLE_CH_MAP              TR("Викл. карту каналів", "Виключити карту каналів")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("Викл. телеметрії", "Виключити телеметрію")
 #define TR_MULTI_LOWPOWER              TR("Низька потужн.", "Режим низької потужності")
 #define TR_MULTI_LNA_DISABLE           "Вимкн. LNA"
@@ -714,7 +717,6 @@
 #define TR_CURRENT_CALIB               "Калібровка струму"
 #define TR_VOLTAGE                     TR("Напруга", "Джерело напруги")
 #define TR_SELECT_MODEL                "Оберіть модель"
-#define TR_MANAGE_MODELS               "КЕРУВАННЯ МОДЕЛЯМИ"
 #define TR_MODELS                      "Моделі"
 #define TR_SELECT_MODE                 "Оберіть режим"
 #define TR_CREATE_MODEL                "Створіть модель"
@@ -742,6 +744,8 @@
 #define TR_DELETE_MODEL                "Видалити модель"
 #define TR_RESTORE_MODEL               "Відновити модель"
 #define TR_DELETE_ERROR                "Видалити помилку"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("помилка SD", "помилка SD карти")
 #define TR_SDCARD                      "SD Карта"
 #define TR_NO_FILES_ON_SD              "Немає файлів на SD!"
@@ -807,6 +811,8 @@
 #define TR_VOLUME                      "Загальна гучн."
 #define TR_LCD                         "LCD"		/*use english*/
 #define TR_BRIGHTNESS                  "Яскравість"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "CPU темп."
 #define TR_COPROC                      "Сопроцессор"
 #define TR_COPROC_TEMP                 "MB темп."
@@ -969,6 +975,7 @@
 #define TR_USBMODE                     "Режим USB"
 #define TR_JACK_MODE                   "Режим коннектора"
 #define TR_VOICE_LANGUAGE              "Мова голосу"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Одиниці"
 #define TR_UNITS_PPM                   "PPM одиниці"
 #define TR_EDIT                        "Редагувати"
@@ -981,7 +988,7 @@
 #define TR_PASTE_BEFORE                "Вставити до"
 #define TR_DELETE                      "Видалити"
 #define TR_INSERT                      "Вставити"
-#define TR_RESET_FLIGHT                "Скинути сесію"
+#define TR_RESET_SESSION               "Скинути сесію"
 #define TR_RESET_TIMER1                "Скинути таймер1"
 #define TR_RESET_TIMER2                "Скинути таймер2"
 #define TR_RESET_TIMER3                "Скинути таймер3"
@@ -1131,6 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "Перший канал"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Заповнити фон?"
 #define TR_BG_COLOR                  "Колір фону"
 #define TR_SLIDERS_TRIMS             "Повзунки+трими"
@@ -1195,6 +1203,7 @@
 #define TR_ALTSENSOR                   "Сенсор висоти"
 #define TR_CELLSENSOR                  "Сенсор комірки"
 #define TR_GPSSENSOR                   "GPS сенсор"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "Сенсор"
 #define TR_AUTOOFFSET                  "Авто зсув"
 #define TR_ONLYPOSITIVE                "Позитив"

@@ -312,14 +312,14 @@ int main(int argc, char *argv[])
   if (cliResult == CommandLineExitErr)
     return finish(1);
 
-  // TODO : defaults should be set in Profile::init()
-  if (simOptions.firmwareId.isEmpty()) {
+  // Always use profile's firmware type and SD path as authoritative source —
+  // the copies in simulatorOptions can become stale.
+  if (!g.profile[profileId].fwType().isEmpty())
     simOptions.firmwareId = g.profile[profileId].fwType();
-  }
 
   if (simOptions.dataFolder.isEmpty())
     simOptions.dataFolder = g.eepromDir();
-  if (simOptions.sdPath.isEmpty())
+  if (!g.profile[profileId].sdPath().isEmpty())
     simOptions.sdPath = g.profile[profileId].sdPath();
 
   // DO NOT use saved simulatorId as could be changed in later releases

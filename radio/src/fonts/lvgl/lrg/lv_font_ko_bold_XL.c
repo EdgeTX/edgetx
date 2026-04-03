@@ -6031,11 +6031,11 @@ static const uint8_t lz4FontData[] __FLASH = {
 0x00,0x00,0x01,0xab,0x30,
 };
 
-static const etxFontCmap cmaps[] = {
+static const etxFontCmap cmaps[] __FLASH = {
 { .range_start = 44032, .range_length = 11145, .glyph_id_start = 1, .list_length = 446, .type = 3, .unicode_list = 3576, .glyph_id_ofs_list = 0 },
 };
 
-const etxLz4Font lv_font_ko_bold_XL = {
+const etxLz4Font lv_font_ko_bold_XL __FLASH = {
 .uncomp_size = 292878,
 .comp_size = 96421,
 .line_height = 45,

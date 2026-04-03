@@ -504,10 +504,13 @@ class Profile: public CompStoreObj
     PROPERTY(bool, telemSimPauseOnHide,     true)
     PROPERTY(bool, telemSimResetRssiOnStop, false)
     PROPERTY(QColor, radioSimCaseColor, QColor(Qt::black))
+    PROPERTY(bool,   simBtnClickedUseOSTheme, true)
+    PROPERTY(QColor, simBtnClickedColor, QColor(Qt::red))
 
     // General settings
     PROPERTYQBA(generalSettings)
     PROPERTYSTR2(timeStamp, "TimeStamp")
+    PROPERTY(bool, useSavedSettings, true)
 
     PROPERTYSTRD(jsName, "")
 
@@ -781,6 +784,7 @@ class AppData: public CompStoreObj
     PROPERTY(bool, tabbedMdi,                  false)
     PROPERTY(bool, appDebugLog,                false)
     PROPERTY(bool, fwTraceLog,                 false)
+    PROPERTY(bool, useSavedSettings,           true)
 
     // Simulator global (non-profile) settings
     PROPERTY(QStringList, simuDbgFilters, QStringList())

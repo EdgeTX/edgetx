@@ -142,6 +142,7 @@ bool isTempFileName(const QString & fileName);
 
 QString getSoundsPath(const GeneralSettings &generalSettings);
 QSet<QString> getFilesSet(const QString &path, const QStringList &filter, int maxLen);
+QStringList getListLuaTools();
 
 
 class QTimeS : public QTime
@@ -195,8 +196,12 @@ public:
   TableLayout(QWidget * parent, int rowCount, const QStringList & headerLabels);
   // ~TableLayout() ;
 
-  void addWidget(int row, int column, QWidget * widget, Qt::Alignment alignment = Qt::Alignment());
-  void addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment = Qt::Alignment());
+  void addWidget(int row, int column, QWidget * widget,
+                 Qt::Alignment alignment = Qt::Alignment());
+  void addWidget(int fromRow, int fromColumn, int rowSpan, int colSpan, QWidget * widget,
+                 Qt::Alignment alignment = Qt::Alignment());
+  void addLayout(int row, int column, QLayout * layout,
+                 Qt::Alignment alignment = Qt::Alignment());
 
   void resizeColumnsToContents();
   void setColumnWidth(int col, int width);
@@ -263,3 +268,11 @@ class StatusDialog: public QDialog
   private:
     QLabel *msg;
 };
+
+template <typename T>
+T rangeCheck(T value, T min, T max, T defaultValue) {
+  if (value < min || value > max) {
+      return defaultValue;
+  }
+  return value;
+}

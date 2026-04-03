@@ -21,8 +21,10 @@
 
 #include "model_curves.h"
 
+#include "button.h"
 #include "curveedit.h"
 #include "edgetx.h"
+#include "menu.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -41,20 +43,13 @@ class CurveButton : public Button
       s = strAppend(s, ":");
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
-    title = new StaticText(this, {PAD_SMALL, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
+    title = new StaticText(this, {0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf,
                            COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
     etx_solid_bg(title->getLvObj(), COLOR_THEME_SECONDARY2_INDEX);
     etx_solid_bg(title->getLvObj(), COLOR_THEME_FOCUS_INDEX,
                  LV_PART_MAIN | LV_STATE_USER_1);
-
-    hdrLeft = new StaticIcon(this, 0, 0, ICON_ROUND_TITLE_LEFT,
-                             COLOR_THEME_SECONDARY2_INDEX);
-    auto mask = getBuiltinIcon(ICON_ROUND_TITLE_RIGHT);
-    hdrRight = new StaticIcon(this, width() - mask->width - PAD_BORDER * 2, 0,
-                              ICON_ROUND_TITLE_RIGHT,
-                              COLOR_THEME_SECONDARY2_INDEX);
 
     // Preview
     preview = new CurveRenderer(
@@ -67,33 +62,27 @@ class CurveButton : public Button
     CurveHeader &curve = g_model.curves[index];
     snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points,
              STR_PTS);
-    new StaticText(this, {0, height() - EdgeTxStyles::STD_FONT_HEIGHT - PAD_MEDIUM, LV_PCT(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
+    new StaticText(this, {0, height() - EdgeTxStyles::STD_FONT_HEIGHT - PAD_MEDIUM, LV_PCT(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf,
                    COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
   }
 
   void update() { preview->update(); }
 
   static LAYOUT_VAL_SCALED(INFO_H, 27)
-  static constexpr coord_t CURVE_BTN_W = (LCD_W - PAD_LARGE * (ModelCurvesPage::PER_ROW + 1)) / ModelCurvesPage::PER_ROW; 
+  static constexpr coord_t CURVE_BTN_W = (LCD_W - PAD_LARGE * (ModelCurvesPage::PER_ROW + 1)) / ModelCurvesPage::PER_ROW;
   static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + EdgeTxStyles::STD_FONT_HEIGHT * 2;
 
  protected:
   uint8_t index;
   StaticText *title;
   CurveRenderer *preview;
-  StaticIcon *hdrLeft = nullptr;
-  StaticIcon *hdrRight = nullptr;
 
   void checkEvents() override
   {
     if (hasFocus()) {
       lv_obj_add_state(title->getLvObj(), LV_STATE_USER_1);
-      hdrLeft->setColor(COLOR_THEME_FOCUS_INDEX);
-      hdrRight->setColor(COLOR_THEME_FOCUS_INDEX);
     } else {
       lv_obj_clear_state(title->getLvObj(), LV_STATE_USER_1);
-      hdrLeft->setColor(COLOR_THEME_SECONDARY2_INDEX);
-      hdrRight->setColor(COLOR_THEME_SECONDARY2_INDEX);
     }
   }
 };
@@ -109,13 +98,13 @@ void initPoints(const CurveHeader &curve, int8_t *points)
   }
 }
 
-ModelCurvesPage::ModelCurvesPage(PageDef& pageDef) : PageGroupItem(pageDef)
+ModelCurvesPage::ModelCurvesPage(const PageDef& pageDef) : PageGroupItem(pageDef)
 {
 }
 
 // can be called from any other screen to edit a curve.
 // currently called from model_mixes.cpp on longpress.
-void ModelCurvesPage::pushEditCurve(int index, std::function<void(void)> refreshView, mixsrc_t source)
+void ModelCurvesPage::pushEditCurve(int index, mixsrc_t source)
 {
   if (!isCurveUsed(index)) {
     CurveHeader &curve = g_model.curves[index];
@@ -123,8 +112,7 @@ void ModelCurvesPage::pushEditCurve(int index, std::function<void(void)> refresh
     initPoints(curve, points);
   }
 
-  auto cv = new CurveEditWindow(index, refreshView);
-  cv->setCurrentSource(source);
+  new CurveEditWindow(index, source);
 }
 
 void ModelCurvesPage::rebuild(Window *window)

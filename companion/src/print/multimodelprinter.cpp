@@ -274,8 +274,7 @@ QString MultiModelPrinter::print(QTextDocument * document)
     document->setDefaultStyleSheet(css.text());
   QString str = "<table cellspacing='0' cellpadding='3' width='100%'>";   // attributes not settable via QT stylesheet
   str.append(printSetup());
-  if (firmware->getCapability(HasDisplayText))
-    str.append(printChecklist());
+  str.append(printChecklist());
   if (firmware->getCapability(Timers)) {
     str.append(printTimers());
   }
@@ -292,18 +291,14 @@ QString MultiModelPrinter::print(QTextDocument * document)
   str.append(printMixers());
   str.append(printOutputs());
   str.append(printCurves(document));
-  if (firmware->getCapability(Gvars) && !firmware->getCapability(GvarsFlightModes))
-    str.append(printGvars());
   str.append(printLogicalSwitches());
   if (firmware->getCapability(GlobalFunctions))
     str.append(printGlobalFunctions());
   str.append(printSpecialFunctions());
-  if (firmware->getCapability(Telemetry)) {
-    str.append(printTelemetry());
-    str.append(printSensors());
-    if (firmware->getCapability(TelemetryCustomScreens)) {
-      str.append(printTelemetryScreens());
-    }
+  str.append(printTelemetry());
+  str.append(printSensors());
+  if (firmware->getCapability(TelemetryCustomScreens)) {
+    str.append(printTelemetryScreens());
   }
   str.append("</table>");
   return str;
@@ -323,9 +318,7 @@ QString MultiModelPrinter::printSetup()
   ROWLABELCOMPARECELL(tr("Trims"), 0, modelPrinter->printSettingsTrim(), 0);
   ROWLABELCOMPARECELL(tr("Center Beep"), 0, modelPrinter->printCenterBeep(), 0);
   ROWLABELCOMPARECELL(tr("Switch Warnings"), 0, modelPrinter->printSwitchWarnings(), 0);
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    ROWLABELCOMPARECELL(tr("Pot Warnings"), 0, modelPrinter->printPotWarnings(), 0);
-  }
+  ROWLABELCOMPARECELL(tr("Pot Warnings"), 0, modelPrinter->printPotWarnings(), 0);
   ROWLABELCOMPARECELL(tr("Other"), 0, modelPrinter->printSettingsOther(), 0);
   columns.appendTableEnd();
   str.append(columns.print());
@@ -463,71 +456,63 @@ QString MultiModelPrinter::printFlightModes()
   // GVars
   int gvars = firmware->getCapability(Gvars);
 
-  if (gvars && firmware->getCapability(GvarsFlightModes)) {
-    MultiColumns columns(modelPrinterMap.size());
-    columns.appendSectionTableStart();
-    QStringList hd = QStringList() << tr("Global vars");
-    if (firmware->getCapability(GvarsFlightModes)) {
-      for (int i = 0; i < gvars; i++) {
-        hd << tr("GV%1").arg(i + 1);
-      }
-    }
-    columns.appendRowHeader(hd);
-    int wd = 80 / gvars;
-    if (firmware->getCapability(GvarsFlightModes)) {
-      columns.appendRowStart(tr("Name"), 20);
-      for (int i = 0; i < gvars; i++) {
-        COMPARECELLWIDTH(model->gvarData[i].name, wd);
-      }
-      columns.appendRowEnd();
-      columns.appendRowStart(tr("Unit"));
-      for (int i = 0; i < gvars; i++) {
-        COMPARECELL(modelPrinter->printGlobalVarUnit(i));
-      }
-      columns.appendRowEnd();
-      columns.appendRowStart(tr("Prec"));
-      for (int i = 0; i < gvars; i++) {
-        COMPARECELL(modelPrinter->printGlobalVarPrec(i));
-      }
-      columns.appendRowEnd();
-      columns.appendRowStart(tr("Min"));
-      for (int i = 0; i < gvars; i++) {
-        COMPARECELL(modelPrinter->printGlobalVarMin(i));
-      }
-      columns.appendRowEnd();
-      columns.appendRowStart(tr("Max"));
-      for (int i = 0; i < gvars; i++) {
-        COMPARECELL(modelPrinter->printGlobalVarMax(i));
-      }
-      columns.appendRowEnd();
-      columns.appendRowStart(tr("Popup"));
-      for (int i = 0; i < gvars; i++) {
-        COMPARECELL(modelPrinter->printGlobalVarPopup(i));
-      }
-      columns.appendRowEnd();
-    }
-
-    columns.appendRowHeader(
-        QStringList() << (Boards::getCapability(getCurrentBoard(), Board::Air)
-                              ? tr("Flight mode")
-                              : tr("Drive mode")));
-
-    for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
-      columns.appendRowStart();
-      columns.appendCellStart(0, true);
-      COMPARE(modelPrinter->printFlightModeName(i));
-      columns.appendCellEnd(true);
-      if (firmware->getCapability(GvarsFlightModes)) {
-        for (int k = 0; k < gvars; k++) {
-          COMPARECELL(modelPrinter->printGlobalVar(i, k));
-        }
-      }
-
-      columns.appendRowEnd();
-    }
-    columns.appendTableEnd();
-    str.append(columns.print());
+  MultiColumns columns(modelPrinterMap.size());
+  columns.appendSectionTableStart();
+  QStringList hd = QStringList() << tr("Global vars");
+  for (int i = 0; i < gvars; i++) {
+    hd << tr("GV%1").arg(i + 1);
   }
+  columns.appendRowHeader(hd);
+  int wd = 80 / gvars;
+  columns.appendRowStart(tr("Name"), 20);
+  for (int i = 0; i < gvars; i++) {
+    COMPARECELLWIDTH(model->gvarData[i].name, wd);
+  }
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Unit"));
+  for (int i = 0; i < gvars; i++) {
+    COMPARECELL(modelPrinter->printGlobalVarUnit(i));
+  }
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Prec"));
+  for (int i = 0; i < gvars; i++) {
+    COMPARECELL(modelPrinter->printGlobalVarPrec(i));
+  }
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Min"));
+  for (int i = 0; i < gvars; i++) {
+    COMPARECELL(modelPrinter->printGlobalVarMin(i));
+  }
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Max"));
+  for (int i = 0; i < gvars; i++) {
+    COMPARECELL(modelPrinter->printGlobalVarMax(i));
+  }
+  columns.appendRowEnd();
+  columns.appendRowStart(tr("Popup"));
+  for (int i = 0; i < gvars; i++) {
+    COMPARECELL(modelPrinter->printGlobalVarPopup(i));
+  }
+  columns.appendRowEnd();
+
+  columns.appendRowHeader(
+      QStringList() << (Boards::getCapability(getCurrentBoard(), Board::Air)
+                            ? tr("Flight mode")
+                            : tr("Drive mode")));
+
+  for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
+    columns.appendRowStart();
+    columns.appendCellStart(0, true);
+    COMPARE(modelPrinter->printFlightModeName(i));
+    columns.appendCellEnd(true);
+    for (int k = 0; k < gvars; k++) {
+      COMPARECELL(modelPrinter->printGlobalVar(i, k));
+    }
+
+    columns.appendRowEnd();
+  }
+  columns.appendTableEnd();
+  str.append(columns.print());
 
   return str;
 }
@@ -538,20 +523,16 @@ QString MultiModelPrinter::printOutputs()
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
   QStringList hd = QStringList() << tr("Channel") << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direct");
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
-    hd << tr("Curve");
+  hd << tr("Curve");
   if (firmware->getCapability(PPMCenter))
     hd << tr("PPM");
-  if (firmware->getCapability(SYMLimits))
-    hd << tr("Linear");
+  hd << tr("Linear");
   columns.appendRowHeader(hd);
   int cols = 4;
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
-    cols++;
+  cols++;
   if (firmware->getCapability(PPMCenter))
     cols++;
-  if (firmware->getCapability(SYMLimits))
-    cols++;
+  cols++;
   int wd = 80/cols;
   for (int i=0; i<firmware->getCapability(Outputs); i++) {
     int count = 0;
@@ -567,38 +548,13 @@ QString MultiModelPrinter::printOutputs()
     COMPARECELLWIDTH(modelPrinter->printOutputMin(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputMax(i), wd);
     COMPARECELLWIDTH(modelPrinter->printOutputRevert(i), wd);
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      COMPARECELLWIDTH(modelPrinter->printOutputCurve(i), wd);
-    }
+    COMPARECELLWIDTH(modelPrinter->printOutputCurve(i), wd);
     if (firmware->getCapability(PPMCenter)) {
       COMPARECELLWIDTH(modelPrinter->printOutputPpmCenter(i), wd);
     }
-    if (firmware->getCapability(SYMLimits)) {
-      COMPARECELLWIDTH(modelPrinter->printOutputSymetrical(i), wd);
-    }
+    COMPARECELLWIDTH(modelPrinter->printOutputSymetrical(i), wd);
     columns.appendRowEnd();
   }
-  columns.appendTableEnd();
-  str.append(columns.print());
-  return str;
-}
-
-QString MultiModelPrinter::printGvars()
-{
-  QString str = printTitle(tr("Global Variables"));
-  int gvars = firmware->getCapability(Gvars);
-  MultiColumns columns(modelPrinterMap.size());
-  columns.appendSectionTableStart();
-  QStringList hd;
-  for (int i=0; i<gvars; i++) {
-    hd << tr("GV%1").arg(i+1);
-  }
-  columns.appendRowHeader(hd);
-
-  for (int i=0; i<gvars; i++) {
-    COMPARECELL(model->flightModeData[0].gvars[i]);
-  }
-  columns.appendRowEnd();
   columns.appendTableEnd();
   str.append(columns.print());
   return str;
@@ -795,12 +751,7 @@ QString MultiModelPrinter::printTelemetry()
   // Altimetry
   if (firmware->getCapability(HasVario)) {
     columns.appendRowStart(tr("Altimetry"), 20);
-    if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      LABELCOMPARECELL(tr("Vario source"), SensorData::sourceToString(model, model->frsky.varioSource), 80);
-    }
-    else {
-      LABELCOMPARECELL(tr("Vario source"), modelPrinter->printVarioSource(model->frsky.varioSource), 80);
-    }
+    LABELCOMPARECELL(tr("Vario source"), SensorData::sourceToString(model, model->frsky.varioSource), 80);
     columns.appendRowEnd();
     columns.appendRowStart("", 20);
     columns.appendCellStart(80);
@@ -817,15 +768,12 @@ QString MultiModelPrinter::printTelemetry()
   }
 
   // Top Bar
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    columns.appendRowStart(tr("Top Bar"), 20);
-    columns.appendCellStart(80);
-    COMPARESTRING(tr("Volts source"), SensorData::sourceToString(model, model->frsky.voltsSource), true);
-    COMPARESTRING(tr("Altitude source"), SensorData::sourceToString(model, model->frsky.altitudeSource), false);
-    columns.appendCellEnd();
-    columns.appendRowEnd();
-  }
-
+  columns.appendRowStart(tr("Top Bar"), 20);
+  columns.appendCellStart(80);
+  COMPARESTRING(tr("Volts source"), SensorData::sourceToString(model, model->frsky.voltsSource), true);
+  COMPARESTRING(tr("Altitude source"), SensorData::sourceToString(model, model->frsky.altitudeSource), false);
+  columns.appendCellEnd();
+  columns.appendRowEnd();
   ROWLABELCOMPARECELL(tr("Multi sensors"), 0, modelPrinter->printIgnoreSensorIds(!model->frsky.ignoreSensorIds), 0);
   ROWLABELCOMPARECELL(tr("Show Instance IDs"), 0, modelPrinter->printIgnoreSensorIds(!model->showInstanceIds), 0);
 

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# ARGV0 is what the AppImage was called as (includes symlink name)
+# APPDIR is set by AppImage runtime to the mount point
+CALLED_AS="$(basename "${ARGV0}")"
+CALLED_AS_LOWER="${CALLED_AS,,}"  # converts to lowercase
+
+# Check if called via symlink with "simulator" in name
+if [[ "$CALLED_AS_LOWER" == *"simulator"* ]]; then
+    exec "${APPDIR}/usr/bin/@SIMULATOR_NAME@" "$@"
+fi
+
+# Check for command-line parameter
+case "$1" in
+    --simulator)
+        shift
+        exec "${APPDIR}/usr/bin/@SIMULATOR_NAME@" "$@"
+        ;;
+    --help)
+        echo "EdgeTX Companion @VERSION@ AppImage"
+        echo ""
+        echo "AppImage Options:"
+        echo "  --simulator      Launch Simulator instead"
+        echo "  --apprun-help    Show AppImage routing help"
+        echo ""
+        echo "Companion Help:"
+        exec "${APPDIR}/usr/bin/@COMPANION_NAME@" --help
+        ;;
+    --apprun-help)
+        echo "EdgeTX Companion AppImage Usage: $0 [OPTIONS]"
+        echo ""
+        echo "Routing Options:"
+        echo "  (no options)     Launch Companion"
+        echo "  --simulator      Launch Simulator"
+        echo "  --help           Show Companion help (with AppImage options)"
+        echo "  --apprun-help    Show this AppImage routing help only"
+        echo ""
+        echo "Symlink Usage:"
+        echo "  Create a symlink with 'simulator' in the name to launch Simulator:"
+        echo "  ln -s @COMPANION_NAME@.AppImage @SIMULATOR_NAME@.AppImage"
+        echo "  ./@SIMULATOR_NAME@.AppImage"
+        echo ""
+        echo "Examples:"
+        echo "  $0                    # Launch Companion"
+        echo "  $0 --simulator        # Launch Simulator"
+        echo "  $0 --simulator --help # Show Simulator help"
+        exit 0
+        ;;
+    *)
+        exec "${APPDIR}/usr/bin/@COMPANION_NAME@" "$@"
+        ;;
+esac

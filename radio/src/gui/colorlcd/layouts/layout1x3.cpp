@@ -21,12 +21,15 @@
 
 #include "layout.h"
 
+// Zone map: 1x3 (1 column, 3 rows)
+// Each zone is full width, 1/3 height
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_0, LAYOUT_MAP_1THIRD, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,
-    LAYOUT_MAP_0, LAYOUT_MAP_2THIRD, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,
+    LAYOUT_MAP_0, LAYOUT_MAP_0,      LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,  // Top
+    LAYOUT_MAP_0, LAYOUT_MAP_1THIRD, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,  // Middle
+    LAYOUT_MAP_0, LAYOUT_MAP_2THIRD, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,  // Bottom
 };
+// clang-format on
 
-BaseLayoutFactory<Layout> Layout1x3("Layout1x3", "1 x 3",
-                                    defaultLayoutOptions,
+BaseLayoutFactory<Layout> Layout1x3("Layout1x3", "1 x 3", defaultLayoutOptions,
                                     3, (uint8_t*)zmap);

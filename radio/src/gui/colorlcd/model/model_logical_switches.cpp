@@ -21,18 +21,22 @@
 
 #include "model_logical_switches.h"
 
-#include "list_line_button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "switches.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_LS_ACTIVE LV_STATE_USER_1
-#define ETX_STATE_V1_SMALL_FONT LV_STATE_USER_1
+#define ETX_STATE_V1_SMALL_FONT LV_STATE_USER_2
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
@@ -86,14 +90,6 @@ class LogicalSwitchEditPage : public Page
     etx_font(headerSwitchName->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_LS_ACTIVE);
   }
 
-  void getV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max)
-  {
-    getMixSrcRange(cs->v1, v2_min, v2_max);
-    if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) ||
-        (cs->func == LS_FUNC_ADIFFEGREATER))
-      v2_min = 0;
-  }
-
   void updateLogicalSwitchOneWindow()
   {
     SwitchChoice* choice;
@@ -137,7 +133,7 @@ class LogicalSwitchEditPage : public Page
                            cs->v1 = newValue;
                            if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
-                             getV2Range(cs, v2_min, v2_max);
+                             validateLSV2Range(cs, v2_min, v2_max, nullptr);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
                              v2Edit->setValue(cs->v2);
@@ -202,7 +198,7 @@ class LogicalSwitchEditPage : public Page
         break;
       default:
         int16_t v2_min = 0, v2_max = 0;
-        getV2Range(cs, v2_min, v2_max);
+        if (validateLSV2Range(cs, v2_min, v2_max, nullptr)) SET_DIRTY();
         v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
                                 GET_SET_DEFAULT(cs->v2));
 
@@ -522,7 +518,7 @@ class LogicalSwitchButton : public ListLineButton
   lv_obj_t* lsDelay = nullptr;
 };
 
-ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(PageDef& pageDef) :
+ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
 }

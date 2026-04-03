@@ -19,8 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "widget.h"
+
+#include "edgetx.h"
+#include "static.h"
 
 class GaugeWidget : public Widget
 {
@@ -35,7 +37,7 @@ class GaugeWidget : public Widget
   void delayedInit() override
   {
     // Gauge label
-    sourceText = new StaticText(this, {0, 0, LV_SIZE_CONTENT, 16}, "", 
+    sourceText = new StaticText(this, {0, 0, LV_SIZE_CONTENT, 16}, "",
                                 COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
 
     valueText = new DynamicNumber<int16_t>(
@@ -80,7 +82,7 @@ class GaugeWidget : public Widget
 
   void update() override
   {
-    if (!loaded) return;
+    if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
@@ -103,11 +105,9 @@ class GaugeWidget : public Widget
   DynamicNumber<int16_t>* valueText = nullptr;
   lv_obj_t* bar = nullptr;
 
-  void checkEvents() override
+  void foreground() override
   {
-    if (!loaded) return;
-
-    Widget::checkEvents();
+    if (!loaded || _deleted) return;
 
     auto newValue = getGuageValue();
     if (lastValue != newValue) {

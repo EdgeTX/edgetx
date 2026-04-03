@@ -231,6 +231,7 @@ class LvglScrollableParams
   int scrolledFunction = LUA_REFNIL;
 
   bool parseScrollableParam(lua_State *L, const char *key);
+  void clearScrollableRefs(lua_State *L);
 };
 
 //-----------------------------------------------------------------------------
@@ -263,6 +264,7 @@ class LvglWidgetObjectBase
   virtual void setOpacity(uint8_t newOpa) {}
   virtual void setPos(coord_t x, coord_t y) {}
   virtual void setSize(coord_t w, coord_t h) {}
+  virtual void setFloating(bool isFloating) {}
 
   void create(lua_State *L, int index);
   void update(lua_State *L);
@@ -285,6 +287,7 @@ class LvglWidgetObjectBase
   int getPosFunction = LUA_REFNIL;
   LvglParamFuncOrValue color = { .function = LUA_REFNIL, .flags = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)};
   LvglParamFuncOrValue opacity = { .function = LUA_REFNIL, .value = LV_OPA_COVER};
+  bool floating = false;
 
   virtual void build(lua_State *L);
   virtual void refresh();
@@ -321,6 +324,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
+  void setFloating(bool isFloating) override;
 
   Window *getWindow() const override { return nullptr; }
 
@@ -481,6 +485,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
+  void setFloating(bool isFloating) override;
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
@@ -490,7 +495,12 @@ class LvglWidgetObject : public LvglWidgetObjectBase
  protected:
   Window *window = nullptr;
   int8_t flexFlow = -1;
-  int8_t flexPad = PAD_TINY;
+  int8_t flexPad = PAD_OUTLINE;
+  bool customPad = false;
+  int8_t borderPadLeft = PAD_ZERO;
+  int8_t borderPadRight = PAD_ZERO;
+  int8_t borderPadTop = PAD_ZERO;
+  int8_t borderPadBottom = PAD_ZERO;
   int getActiveFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
@@ -511,6 +521,10 @@ class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams, publ
   coord_t getScrollX() override;
   coord_t getScrollY() override;
 
+  void setPos(coord_t x, coord_t y) override;
+  void setSize(coord_t w, coord_t h) override;
+  void setPosAndSize();
+
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
@@ -526,9 +540,13 @@ class LvglWidgetSetting : public LvglWidgetObject, public LvglTitleParam
  public:
   LvglWidgetSetting() : LvglWidgetObject() {}
 
+  void setTitle(const char* s);
+
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
+  lv_obj_t* label = nullptr;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -802,6 +820,7 @@ class LvglWidgetNumberEdit : public LvglWidgetObject, public LvglGetSetParams, p
 
  protected:
   int dispFunction = LUA_REFNIL;
+  int editedFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -966,6 +985,7 @@ class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public 
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------

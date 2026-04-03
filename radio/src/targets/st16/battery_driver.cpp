@@ -19,10 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "battery_driver.h"
+
 #include "boards/generic_stm32/rgb_leds.h"
 #include "bsp_io.h"
+#include "edgetx.h"
+#include "mainwindow.h"
+#include "static.h"
+#include "LvglWrapper.h"
 
 #define  __BATTERY_DRIVER_C__
 
@@ -260,6 +264,8 @@ void drawChargingInfo(uint16_t chargeState) {
   }
 
   if (chargeWindow == nullptr) {
+    // Ensure lvgl is initialised before creating windows
+    LvglWrapper::instance();
     chargeWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     etx_solid_bg(chargeWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
@@ -331,7 +337,8 @@ void handle_battery_charge(uint32_t last_press_time)
   if (!lcdInited) {
     lcdInited = true;
     backlightInit();
-    lcdInitDisplayDriver();
+    // Ensure lvgl is initialised before creating windows
+    LvglWrapper::instance();
   }
 
   if (updateTime == 0 || ((timersGetMsTick() - updateTime) >= 500))

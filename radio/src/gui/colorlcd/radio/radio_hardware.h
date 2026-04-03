@@ -28,7 +28,7 @@ class RadioHardwarePage : public PageGroupItem
   void checkEvents() override;
 
  public:
-  RadioHardwarePage(PageDef& pageDef);
+  RadioHardwarePage(const PageDef& pageDef);
 
   void build(Window* window) override;
 

@@ -21,7 +21,6 @@
 
 #include "topbar.h"
 
-#include "layer.h"
 #include "edgetx.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
@@ -73,7 +72,7 @@ bool TopBarPersistentData::isWidget(int idx, const char* s)
 //-----------------------------------------------------------------------------
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage() :
-    Window(ViewMain::instance(), rect_t{})
+    NavWindow(ViewMain::instance(), rect_t{})
 {
   // remember focus
   pushLayer();
@@ -104,10 +103,12 @@ void SetupTopBarWidgetsPage::onClicked()
 
 void SetupTopBarWidgetsPage::onCancel() { deleteLater(); }
 
-void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
+void SetupTopBarWidgetsPage::deleteLater()
 {
+  if (_deleted) return;
+
   // and continue async deletion...
-  Window::deleteLater(detach, trash);
+  Window::deleteLater();
 
   // restore screen setting tab on top
   QuickMenu::openPage(QM_UI_SETUP);
@@ -115,25 +116,7 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
   storageDirty(EE_MODEL);
 }
 
-void SetupTopBarWidgetsPage::onEvent(event_t event)
-{
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_FIRST(KEY_PAGEUP) || event == EVT_KEY_FIRST(KEY_PAGEDN) ||
-      event == EVT_KEY_FIRST(KEY_SYS) || event == EVT_KEY_FIRST(KEY_MODEL)) {
-    killEvents(event);
-  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
-    onCancel();
-  } else {
-    Window::onEvent(event);
-  }
-#else
-  Window::onEvent(event);
-#endif
-}
-
 //-----------------------------------------------------------------------------
-
-constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
 TopBar::TopBar(Window * parent) :
   WidgetsContainer(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, MAX_TOPBAR_ZONES)
@@ -141,7 +124,7 @@ TopBar::TopBar(Window * parent) :
   setWindowFlag(NO_FOCUS);
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  headerIcon = new HeaderIcon(parent, ICON_EDGETX, [=]() { ViewMain::instance()->openMenu(); });
+  headerIcon = new HeaderIcon(parent, ICON_EDGETX, [=]() { QuickMenu::openQuickMenu(); });
 }
 
 unsigned int TopBar::getZonesCount() const
@@ -202,15 +185,6 @@ coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
   return (coord_t)h;
 }
 
-void TopBar::checkEvents()
-{
-  uint32_t now = lv_tick_get();
-  if (now - lastRefresh >= TOPBAR_REFRESH) {
-    lastRefresh = now;
-    WidgetsContainer::checkEvents();
-  }
-}
-
 void TopBar::removeWidget(unsigned int index)
 {
   if (index >= zoneCount) return;
@@ -269,8 +243,6 @@ Widget* TopBar::createWidget(unsigned int index,
     widget = factory->create(this, getZone(index), -1, index);
   }
   widgets[index] = widget;
-
-  if (widget) widget->attach(this);
 
   return widget;
 }

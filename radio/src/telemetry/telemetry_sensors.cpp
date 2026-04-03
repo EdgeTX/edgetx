@@ -617,10 +617,6 @@ void TelemetrySensor::init(const char * label, uint8_t unit, uint8_t prec)
   memclear(this->label, TELEM_LABEL_LEN);
   strncpy(this->label, label, TELEM_LABEL_LEN);
   this->unit = unit;
-  if (prec > 1 && (IS_DISTANCE_UNIT(unit) || IS_SPEED_UNIT(unit))) {
-    // 2 digits precision is not needed here
-    prec = 1;
-  }
   this->prec = prec;
   // Log sensors by default
   this->logs = true;

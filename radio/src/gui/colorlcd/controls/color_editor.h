@@ -21,6 +21,7 @@
 #pragma once
 
 #include "window.h"
+#include "messaging.h"
 
 class ColorType;
 
@@ -39,7 +40,6 @@ class ColorEditor : public Window
  public:
   ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
               std::function<void(uint32_t rgb)> setValue = nullptr,
-              std::function<void(uint32_t rgb)> preview = nullptr,
               COLOR_EDITOR_FMT fmt = ETX_RGB565, COLOR_EDITOR_TYPE typ = HSV_COLOR_EDITOR);
 
 #if defined(DEBUG_WINDOWS)
@@ -57,11 +57,10 @@ class ColorEditor : public Window
  protected:
   ColorType* _colorType = nullptr;
   std::function<void(uint32_t)> _setValue;
-  std::function<void(uint32_t)> _preview;
   uint32_t _color;
   COLOR_EDITOR_FMT format;
+  Messaging colorUpdateMsg;
 
   void setText();
   void setRGB();
-  static void value_changed(lv_event_t* e);
 };

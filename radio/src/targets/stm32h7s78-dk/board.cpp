@@ -40,15 +40,13 @@
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+#include "gyro.h"
 
 #include "timers_driver.h"
 #include "tp_gt911.h"
 
 #include "extram_driver.h"
 #include "extflash_driver.h"
-
-#include "bitmapbuffer.h"
-#include "colors.h"
 
 #include <string.h>
 

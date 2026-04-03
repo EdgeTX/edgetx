@@ -20,8 +20,10 @@
  */
 
 #include "trainer_bluetooth.h"
-#include "edgetx.h"
 
+#include "dialog.h"
+#include "edgetx.h"
+#include "menu.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -33,7 +35,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 class BTDiscoverMenu : public Menu
 {
   uint8_t devCount = 0;
-  
+
   void checkEvents() override;
   void selectAddr(const char* addr);
 
@@ -71,7 +73,7 @@ void BTDiscoverMenu::selectAddr(const char* addr)
 {
   strncpy(bluetooth.distantAddr, addr, LEN_BLUETOOTH_ADDR);
   bluetooth.state = BLUETOOTH_STATE_BIND_REQUESTED;
-  SET_DIRTY();  
+  SET_DIRTY();
 }
 
 BluetoothTrainerWindow::BluetoothTrainerWindow(Window* parent) :

@@ -19,9 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include "startup_shutdown.h"
+
+#include "edgetx.h"
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
-#include "edgetx.h"
+#include "mainwindow.h"
 #include "os/sleep.h"
 #include "stamp.h"
 #include "theme_manager.h"
@@ -41,8 +44,8 @@ const std::string nam_str = strip_leading_hyphen("" VERSION_SUFFIX);
 const std::string git_str = "(" GIT_STR ")";
 #endif
 
-const uint8_t __bmp_splash_logo[]{
-#include "splash_logo.lbm"
+const uint8_t __bmp_splash_logo[] __FLASH = {
+#include "bmp_logo_edgetx_splash.lbm"
 };
 
 static Window* splashScreen = nullptr;
@@ -78,8 +81,8 @@ void drawSplash()
 #endif
   }
 
-  MainWindow::instance()->setActiveScreen();
-  lv_refr_now(nullptr);
+  // Refresh to show splash screen
+  MainWindow::instance()->run();
 }
 
 static tmr10ms_t splashStartTime = 0;
@@ -97,7 +100,6 @@ void cancelSplash()
   if (splashScreen) {
     splashScreen->deleteLater();
     splashScreen = nullptr;
-    MainWindow::instance()->setActiveScreen();
     splashStartTime = 0;
   }
 }
@@ -108,26 +110,17 @@ void waitSplash()
   if (splashStartTime) {
     inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
-    while (splashStartTime >= get_tmr10ms()) {
-      LvglWrapper::instance()->run();
-      MainWindow::instance()->run();
-      WDG_RESET();
-      checkSpeakerVolume();
-      checkBacklight();
-      sleep_ms(10);
+
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      if (splashStartTime < get_tmr10ms())
+        return true;
       auto evt = getEvent();
       if (evt || inactivityCheckInputs()) {
         if (evt) killEvents(evt);
-        break;
+        return true;
       }
-#if defined(SIMU)
-      // Allow simulator to exit if closed while splash showing
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        break;
-      }
-#endif  // defined(SIMU)
-    }
+      return false;
+    });
 
     // Reset timer so special/global functions set to !1x don't get triggered
     START_SILENCE_PERIOD();
@@ -162,7 +155,8 @@ void drawSleepBitmap()
   (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
       ->center(LCD_W, LCD_H);
 
-  LvglWrapper::instance()->run();
+  // Force screen refresh
+  lv_refr_now(nullptr);
 }
 
 void cancelShutdownAnimation()
@@ -212,52 +206,26 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (quarter < 0) quarter = 0;
   for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
 
-  LvglWrapper::instance()->run();
+  MainWindow::instance()->run();
 }
 
-void drawFatalErrorScreen(const char* message)
+Window* drawFatalErrorScreen(const char* message)
 {
-  static Window* fatalErrorWindow = nullptr;
+  auto w = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+  w->setWindowFlag(OPAQUE);
+  etx_solid_bg(w->getLvObj(), COLOR_BLACK_INDEX);
 
-  if (!fatalErrorWindow) {
-    fatalErrorWindow =
-        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
-    fatalErrorWindow->setWindowFlag(OPAQUE);
-    etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
+  new StaticText(w, rect_t{0, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, LCD_W, EdgeTxStyles::STD_FONT_HEIGHT * 2},
+                 message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
 
-    new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, LCD_W, EdgeTxStyles::STD_FONT_HEIGHT * 2},
-                   message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
-  }
-
-  backlightEnable(100);
-  LvglWrapper::instance()->run();
+  return w;
 }
 
 void runFatalErrorScreen(const char* message)
 {
-  lcdInitDisplayDriver();
-
   drawFatalErrorScreen(message);
 
-  // On startup wait for power button to be released
-  while (pwrPressed()) {
-    WDG_RESET();
-  }
-
-  while (true) {
-    drawFatalErrorScreen(message);
-    WDG_RESET();
-
-    // loop as long as PWR button is pressed
-    while (true) {
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        boardOff();
-        return;  // only happens in SIMU, required for proper shutdown
-      } else if (pwr_check == e_power_on) {
-        break;
-      }
-      WDG_RESET();
-    }
-  }
+  MainWindow::instance()->blockUntilClose(true, []() {
+    return false;
+  }, true);
 }

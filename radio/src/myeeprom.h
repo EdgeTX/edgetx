@@ -92,11 +92,6 @@
 
 #define ALTERNATE_VIEW                0x10
 
-#if defined(COLORLCD) && !defined(BOOT)
-  #include "layout.h"
-  #include "topbar.h"
-#endif
-
 #define SWITCHES_DELAY()            uint8_t(15+g_eeGeneral.switchesDelay)
 #define SWITCHES_DELAY_NONE         (-15)
 #define HAPTIC_STRENGTH()           (3+g_eeGeneral.hapticStrength)
@@ -242,8 +237,10 @@ enum DisplayTrims
   DISPLAY_TRIMS_ALWAYS
 };
 
+#if !defined(BOOT)
 extern RadioData g_eeGeneral;
 extern ModelData g_model;
+#endif
 
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;

@@ -20,12 +20,14 @@
 
 #include "view_text.h"
 
-#include "menu.h"
+#include "button.h"
 #include "edgetx.h"
-#include "sdcard.h"
 #include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"
 #include "lib_file.h"
+#include "mainwindow.h"
+#include "menu.h"
+#include "sdcard.h"
 
 // Used on startup to block until checklist is closed.
 static bool checkListOpen = false;
@@ -84,17 +86,11 @@ class TextViewer
     }
   }
 
-  void onEvent(event_t event)
-  {
   #if defined(HARDWARE_KEYS)
+  void changePage(int direction)
+  {
     if (int(bufSize) < fileLength) {
-      if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
-        offset += bufSize;
-      }
-
-      if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
-        offset -= bufSize;
-      }
+      offset = offset + bufSize * direction;
 
       offset = std::max(offset, 0);
       offset = std::min(offset, fileLength - (int)bufSize);
@@ -102,19 +98,17 @@ class TextViewer
       sdReadTextFileBlock(bufSize, offset);
       lv_label_set_text_static(lb, buffer);
     }
-  #endif
   }
+  #endif
 
   void build(Window* window)
   {
     if (openFile()) {
       auto obj = window->getLvObj();
-      lv_obj_add_flag(
-          obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
-                  LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW | LV_OBJ_FLAG_SCROLL_MOMENTUM);
       etx_scrollbar(obj);
       // prevents resetting the group's edit mode
-      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      window->setWindowFlag(NO_FOCUS);
 
       auto g = lv_group_get_default();
       lb = lv_label_create(obj);
@@ -269,14 +263,17 @@ void ViewTextWindow::onCancel()
   checkListOpen = false;
 }
 
-void ViewTextWindow::onEvent(event_t event)
-{
 #if defined(HARDWARE_KEYS)
-  if (textViewer) textViewer->onEvent(event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT)) onCancel();
-#endif
+void ViewTextWindow::onPressPGUP()
+{
+  if (textViewer) textViewer->changePage(-1);
 }
+
+void ViewTextWindow::onPressPGDN()
+{
+  if (textViewer) textViewer->changePage(1);
+}
+#endif
 
 class ViewChecklistWindow : public Page, public TextViewer
 {
@@ -355,13 +352,6 @@ class ViewChecklistWindow : public Page, public TextViewer
     }
   }
 
-  void onEvent(event_t event) override
-  {
-#if defined(HARDWARE_KEYS)
-    if (event == EVT_KEY_BREAK(KEY_EXIT)) onCancel();
-#endif
-  }
-
   static void checkbox_event_handler(lv_event_t* e)
   {
     lv_obj_t* target = lv_event_get_target(e);
@@ -375,12 +365,10 @@ class ViewChecklistWindow : public Page, public TextViewer
   {
     if (openFile()) {
       auto obj = window->getLvObj();
-      lv_obj_add_flag(
-          obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
-                   LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW | LV_OBJ_FLAG_SCROLL_MOMENTUM);
       etx_scrollbar(obj);
       // prevents resetting the group's edit mode
-      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      window->setWindowFlag(NO_FOCUS);
 
       lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
       lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
@@ -497,7 +485,7 @@ static std::string getModelNotesFile()
   return std::string("");
 }
 
-void readModelNotes(bool fromMenu)
+static Window* _readModelNotes(bool fromMenu)
 {
   std::string modelNotesName = getModelNotesFile();
   if (!modelNotesName.empty()) {
@@ -505,53 +493,33 @@ void readModelNotes(bool fromMenu)
 
     if (isFileAvailable(fullPath.c_str())) {
       if (fromMenu || !g_model.checklistInteractive)
-        new ViewTextWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
+        return new ViewTextWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
       else
-        new ViewChecklistWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
-    } else {
+        return new ViewChecklistWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
     }
   }
+  return nullptr;
 }
 
-class CheckListDialog : public FullScreenDialog
+void readModelNotes(bool fromMenu)
 {
- public:
-  CheckListDialog() :
-      FullScreenDialog(WARNING_TYPE_ALERT, "", "", "")
-  {
-    LED_ERROR_BEGIN();
-    checkListOpen = true;
-    setCloseCondition(std::bind(&CheckListDialog::warningInactive, this));
-    readModelNotes();
-  }
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "CheckListDialog"; }
-#endif
-
- protected:
-
-  bool warningInactive()
-  {
-    if (!checkListOpen) {
-      LED_ERROR_END();
-      deleteLater();
-    }
-    return !checkListOpen;
-  }
-};
+  _readModelNotes(fromMenu);
+}
 
 // Blocking version of readModelNotes.
 void readChecklist()
 {
-  std::string s = getModelNotesFile();
-  if (!s.empty()) {
-    auto dialog = new CheckListDialog();
-    dialog->runForever();
+  auto dialog = _readModelNotes(false);
+  if (dialog) {
+    LED_ERROR_BEGIN();
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      return dialog->deleted();
+    });
+    LED_ERROR_END();
   }
 }
 
-ModelNotesPage::ModelNotesPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)
+ModelNotesPage::ModelNotesPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)
 {
 }
 

@@ -26,8 +26,6 @@
 
 class SourceChoiceMenuToolbar;
 
-bool isSourceAvailable(int source);
-
 class SourceChoice : public Choice
 {
  public:

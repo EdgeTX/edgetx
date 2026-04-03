@@ -41,13 +41,12 @@ class WidgetsContainer: public Window
   void updateZones();
   void showWidgets(bool visible = true);
   void hideWidgets() { showWidgets(false); }
-  void runBackground();
+  void refreshWidgets(bool inForeground);
 
   virtual bool isLayout() { return false; }
   virtual bool isAppMode() const { return false; }
-  bool isWidgetsContainer() override { return true; }
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void deleteLater() override;
 
  protected:
   uint8_t zoneCount = 0;

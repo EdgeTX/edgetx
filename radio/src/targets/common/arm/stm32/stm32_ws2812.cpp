@@ -139,6 +139,12 @@ static void _update_dma_buffer(const stm32_pulse_timer_t* tim, uint8_t tc)
     LL_DMA_DisableIT_TC(tim->DMAx, tim->DMA_Stream);
     LL_DMA_DisableIT_HT(tim->DMAx, tim->DMA_Stream);
     LL_DMA_DisableStream(tim->DMAx, tim->DMA_Stream);
+
+    uint32_t timeout = 1000;
+    while (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream) && timeout--) 	{
+      __NOP();  // Wait
+    }
+
     LL_TIM_CC_DisableChannel(tim->TIMx, tim->TIM_Channel);
   }
   WS2812_DBG_LOW;

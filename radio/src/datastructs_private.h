@@ -575,6 +575,7 @@ PACK(struct ModuleData {
     }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
+      uint8_t enableAETR : 1;
     } dsmp);
   } NAME(mod) FUNC(select_mod_type);
 
@@ -835,6 +836,7 @@ PACK(struct ModelData {
   const char* getScreenLayoutId(int screenNum);
   void setScreenLayoutId(int screenNum, const char* s);
   TopBarPersistentData* getTopbarData();
+  bool hasScreenData(int screenNum);
   CustomScreenData* getScreenData(int screenNum);
   LayoutPersistentData* getScreenLayoutData(int screenNum);
   WidgetPersistentData* getWidgetData(int screenNum, int zoneNum);
@@ -1000,8 +1002,13 @@ PACK(struct switchDef {
 #if defined(COLORLCD)
 #define MAX_KEY_SHORTCUTS 6
 #define MAX_QM_FAVORITES 12
-PACK(struct QuickMenuPage {
-  uint8_t shortcut ENUM(QMPage);
+PACK(struct KeyShortcut {
+  CUST_ATTR(shortcut, r_keyShortcut, w_keyShortcut);
+  uint8_t shortcut ENUM(QMPage) SKIP;
+});
+PACK(struct QMFavorite {
+  CUST_ATTR(shortcut, r_qmFavorite, w_qmFavorite);
+  uint8_t shortcut ENUM(QMPage) SKIP;
 });
 #endif
 
@@ -1078,6 +1085,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
 
   NOBACKUP(char     ttsLanguage[2]);
+  NOBACKUP(char     uiLanguage[2]);
   NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   wavVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   varioVolume:4 CUST(r_5pos,w_5pos));
@@ -1126,6 +1134,26 @@ PACK(struct RadioData {
   NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
 #endif
 
+  NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int16_t radioGFDisabled:1);
+  NOBACKUP(int16_t radioTrainerDisabled:1);
+  NOBACKUP(int16_t modelHeliDisabled:1);
+  NOBACKUP(int16_t modelFMDisabled:1);
+  NOBACKUP(int16_t modelCurvesDisabled:1);
+  NOBACKUP(int16_t modelGVDisabled:1);
+
+  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+
+  NOBACKUP(int16_t modelLSDisabled:1);
+  NOBACKUP(int16_t modelSFDisabled:1);
+  NOBACKUP(int16_t modelCustomScriptsDisabled:1);
+  NOBACKUP(int16_t modelTelemetryDisabled:1);
+  NOBACKUP(int16_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(int16_t disablePwrOnOffHaptic:1);
+
+  NOBACKUP(uint8_t modelQuickSelect:1);
+
 #if defined(COLORLCD)
   NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
   NOBACKUP(uint8_t labelMultiMode:1);     // 0 = match all labels (AND), 1 = match any labels (OR)
@@ -1133,37 +1161,19 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
-#endif
-  NOBACKUP(uint8_t radioGFDisabled:1);
-  NOBACKUP(uint8_t radioTrainerDisabled:1);
-  // Model level tabs control (global setting)
-  NOBACKUP(uint8_t modelHeliDisabled:1);
-  NOBACKUP(uint8_t modelFMDisabled:1);
-  NOBACKUP(uint8_t modelCurvesDisabled:1);
-  NOBACKUP(uint8_t modelGVDisabled:1);
-  NOBACKUP(uint8_t modelLSDisabled:1);
-  NOBACKUP(uint8_t modelSFDisabled:1);
-  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
-  NOBACKUP(uint8_t modelTelemetryDisabled:1);
-  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
-  NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
-
-  NOBACKUP(uint8_t modelQuickSelect:1);
-
-#if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:5 SKIP);
+  NOBACKUP(uint8_t spare:1 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:2 SKIP);
+  NOBACKUP(uint8_t spare:6 SKIP);
 #else
-  NOBACKUP(uint8_t spare:3 SKIP);
+  NOBACKUP(uint8_t spare:7 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
-  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
-  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+  NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);
+  NOBACKUP(QMFavorite qmFavorites[MAX_QM_FAVORITES]);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const
@@ -1194,11 +1204,17 @@ PACK(struct RadioData {
 #endif
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && !defined(BACKUP)
+  int getKeyShortcutNum(event_t event);
+  event_t getKeyShortcutEvent(int n);
   QMPage getKeyShortcut(event_t event);
-  bool hasKeyShortcut(QMPage shortcut);
+  bool hasKeyShortcut(QMPage shortcut, event_t event);
   void setKeyShortcut(event_t event, QMPage shortcut);
   void defaultKeyShortcuts();
+  void setKeyToolName(event_t event, const std::string name);
+  const std::string getKeyToolName(event_t event);
+  void setFavoriteToolName(int fav, const std::string name);
+  const std::string getFavoriteToolName(int fav);
 #endif
 });
 

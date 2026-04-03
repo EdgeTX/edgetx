@@ -31,10 +31,12 @@
 typedef const char* STR_TYP;
 #define STR_DEF(x) x
 #define STR_VAL(x) x
+#define STR_SAFE_VAL(x) x
 #else
 typedef const char* (*STR_TYP)();
 #define STR_DEF(x) x##_FN
 #define STR_VAL(x) x()
+#define STR_SAFE_VAL(x) (x ? x() : nullptr)
 #endif
 
 #if !defined(M_PI)

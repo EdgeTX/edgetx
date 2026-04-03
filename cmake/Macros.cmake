@@ -80,7 +80,7 @@ function(GenerateDatacopy source output)
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${GEN_DATACOPY_CMD} > ${output}
-    DEPENDS ${GEN_DATACOPY_DEPEND}
+    DEPENDS ${GEN_DATACOPY_DEPEND} ${CMAKE_BINARY_DIR}/CMakeCache.txt
     )
 endfunction()
 
@@ -96,18 +96,18 @@ function(AddHardwareDefTarget output)
   endforeach()
 
   set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
-  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
-  set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
+  # set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
+  # set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
 
-  add_custom_command(OUTPUT ${output}
-    COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
-    )
+  # add_custom_command(OUTPUT ${output}
+  #   COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
+  #   DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+  # )
 
   add_custom_command(OUTPUT ${output}.h
     COMMAND ${GEN_HW_DEFS} > ${output}.h
     DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
-    )
+  )
 endfunction()
 
 function(AddHWGenTarget input template output)
@@ -116,7 +116,7 @@ function(AddHWGenTarget input template output)
   set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
 
   # Inputs
-  set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
+  set(INPUT_JSON ${RADIO_SRC_DIR}/boards/hw_defs/${input})
   set(TEMPLATE ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja)
   set(GEN_PY_DEPS
     ${RADIO_DIRECTORY}/util/hw_defs/generator.py
@@ -128,7 +128,8 @@ function(AddHWGenTarget input template output)
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_JSON} > ${output}
-    DEPENDS ${INPUT_JSON} ${TEMPLATE} ${GEN_PY_DEPS})
+    DEPENDS ${INPUT_JSON} ${TEMPLATE} ${GEN_PY_DEPS} ${CMAKE_BINARY_DIR}/CMakeCache.txt
+  )
 endfunction()
 
 macro(AddHeadersSources)
@@ -146,3 +147,28 @@ macro(AddHeadersSources)
     )
   endforeach()
 endmacro()
+
+# Collect all user-specified command-line cache variables into a list
+# suitable for forwarding to ExternalProject or sub-project cmake invocations.
+# Optional EXCLUDE parameter: regex to skip matching variable names.
+function(CollectCommandLineArgs out_var)
+  cmake_parse_arguments(_cla "" "EXCLUDE" "" ${ARGN})
+  set(_args "")
+  get_cmake_property(_cache_vars CACHE_VARIABLES)
+  foreach(_var ${_cache_vars})
+    if(_cla_EXCLUDE AND _var MATCHES "${_cla_EXCLUDE}")
+      continue()
+    endif()
+    get_property(_help CACHE ${_var} PROPERTY HELPSTRING)
+    if(_help STREQUAL "No help, variable specified on the command line.")
+      get_property(_type CACHE ${_var} PROPERTY TYPE)
+      if(_type STREQUAL "UNINITIALIZED")
+        set(_type)
+      else()
+        set(_type :${_type})
+      endif()
+      list(APPEND _args "-D${_var}${_type}=${${_var}}")
+    endif()
+  endforeach()
+  set(${out_var} ${_args} PARENT_SCOPE)
+endfunction()

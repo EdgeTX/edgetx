@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#define UF2_NUM_BLOCKS 65536 // at least 32MB
+#define UF2_NUM_BLOCKS 65535
 #define UF2_INVALID_NUM_BLOCKS 0xFFFFFFFF
 
 typedef struct {

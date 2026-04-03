@@ -55,8 +55,6 @@ extern "C" {
 // #include "touch.h"
 // #endif
 
-// Since we may not run FG every time, keep the events in a buffer
-event_t events[EVENT_BUFFER_SIZE] = { 0 };
 // The main thread - lsScripts is now a coroutine
 lua_State * mainState = nullptr;
 lua_State *lsScripts = nullptr;
@@ -327,14 +325,10 @@ void luaDoGc(lua_State * L, bool full)
 void luaFree(lua_State * L, ScriptInternalData & sid)
 {
   PROTECT_LUA() {
-    if (sid.run) {
-      luaL_unref(L, LUA_REGISTRYINDEX, sid.run);
-      sid.run = 0;
-    }
-    if (sid.background) {
-      luaL_unref(L, LUA_REGISTRYINDEX, sid.background);
-      sid.background = 0;
-    }
+    luaL_unref(L, LUA_REGISTRYINDEX, sid.run);
+    sid.run = LUA_REFNIL;
+    luaL_unref(L, LUA_REGISTRYINDEX, sid.background);
+    sid.background = LUA_REFNIL;
   }
   else {
     luaDisable();
@@ -857,7 +851,7 @@ static int luaRegisterFunction(const char * key)
       TRACE_ERROR("luaRegisterFunction(%s): Error: '%.*s' is not a function\n", LEN_SCRIPT_FILENAME, getScriptName(luaScriptsCount - 1), key);
     }
     lua_pop(lsScripts, 1);
-    return LUA_NOREF;
+    return LUA_REFNIL;
   }
 }
 
@@ -877,7 +871,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
     if (luaState == INTERPRETER_PANIC) return;
    
     luaLcdAllowed = false;
-    initFunction = LUA_NOREF;
+    initFunction = LUA_REFNIL;
     luaEmptyEventBuffer();
 
     // Initialize loop over references
@@ -949,11 +943,11 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
       }
       else if (luaStatus == LUA_OK) {
         // Coroutine returned
-        if (initFunction != LUA_NOREF) {
+        if (initFunction != LUA_REFNIL) {
           // init() returned - clean up
           luaL_unref(lsScripts, LUA_REGISTRYINDEX, initFunction);
           lua_settop(lsScripts, 0);
-          initFunction = LUA_NOREF;
+          initFunction = LUA_REFNIL;
         }
         else {
           // chunk() returned
@@ -964,10 +958,10 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             sid.run = luaRegisterFunction("run");
             sid.background = luaRegisterFunction("background");
             initFunction = luaRegisterFunction("init");
-            if (sid.run == LUA_NOREF) {
+            if (sid.run == LUA_REFNIL) {
               snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): No run function\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
-              initFunction = LUA_NOREF;
+              initFunction = LUA_REFNIL;
             }
 #if defined(LUA_MODEL_SCRIPTS)
             // Get input/output tables for mixer scripts              
@@ -985,14 +979,14 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           else {
             snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
-            initFunction = LUA_NOREF;
+            initFunction = LUA_REFNIL;
           }
          
           // Pop the table off the stack
           lua_pop(lsScripts, 1);
          
           // If init(), push it on the stack
-          if (initFunction != LUA_NOREF) {
+          if (initFunction != LUA_REFNIL) {
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, initFunction);
 #if !defined(COLORLCD)
             if (ref == SCRIPT_STANDALONE) {
@@ -1005,9 +999,9 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
       else {
         // Error
         sid.state = SCRIPT_SYNTAX_ERROR;
-        initFunction = LUA_NOREF;
+        initFunction = LUA_REFNIL;
       }
-    } while(initFunction != LUA_NOREF);  
+    } while(initFunction != LUA_REFNIL);  
    
     if (sid.state != SCRIPT_OK) {
       luaError(lsScripts, sid.state);
@@ -1149,14 +1143,14 @@ static bool resumeLua(bool init, bool allowLcdUsage)
               functionsContext->lastFunctionTime[idx] = tmr10ms;
             }
             else {
-              if (sid.background == LUA_NOREF) continue;
+              if (sid.background == LUA_REFNIL) continue;
               lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
             }
           } else continue;
         }
 #if defined(PCBTARANIS)
         else if (ref <= SCRIPT_TELEMETRY_LAST) {
-          if (sid.background == LUA_NOREF) continue;
+          if (sid.background == LUA_REFNIL) continue;
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
         }
 #endif
@@ -1236,8 +1230,8 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           killEvents(evt.event);
         }
-#if defined(KEYS_GPIO_REG_MENU)
-      // TODO find another key and add a #define
+#if !defined(COLORLCD)
+        // TODO find another key
         else if (evt.event == EVT_KEY_LONG(KEY_MENU)) {
           luaEmptyEventBuffer();
           luaDisplayStatistics = !luaDisplayStatistics;

@@ -162,9 +162,7 @@ std::string MultiRfProtocols::getProtoLabel(unsigned int proto) const
     if (status.protocolName[0] && status.isValid()) {
       return std::string(status.protocolName);
     } else if (proto <= MODULE_SUBTYPE_MULTI_LAST) {
-      char tmp[8];
-      getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, proto);
-      return std::string(tmp);
+      return getStringAtIndex(STR_MULTI_PROTOCOLS, proto);
     }
   } else {
     int idx = getIndex(proto);
@@ -322,8 +320,7 @@ void MultiRfProtocols::fillBuiltinProtos()
 
     if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break;  // skip custom proto
 
-    char tmp[8];
-    rfProto.label = getStringAtIndex(tmp, STR_MULTI_PROTOCOLS, pdef->protocol);
+    rfProto.label = getStringAtIndex(STR_MULTI_PROTOCOLS, pdef->protocol);
     rfProto.flags =
         (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
 

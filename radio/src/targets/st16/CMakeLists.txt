@@ -47,7 +47,6 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR st16)
-add_definitions(-DRADIO_ST16)
 
 # Defines internal modules for PL18 via UART7
 # set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
@@ -150,7 +149,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/touch_driver.cpp
   ${TARGET_SRC_DIR}/battery_driver.cpp  
   targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
+  drivers/lsm6ds.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp

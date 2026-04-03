@@ -65,6 +65,7 @@ namespace Board {
     BOARD_JUMPER_T15PRO,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
+    BOARD_RADIOMASTER_TX16SMK3,
     BOARD_RADIOMASTER_TX15,
     BOARD_JUMPER_T18,
     BOARD_JUMPER_T20,
@@ -211,44 +212,58 @@ namespace Board {
 
   enum Capability {
     Air,
-    FactoryInstalledPots,
-    FactoryInstalledSwitches,
+    BacklightLevelMin,
+    CPU,
+    CPUType,
     FlexInputs,
     FlexSwitches,
-    FunctionSwitches,
     FunctionSwitchColors,
+    FunctionSwitches,
     FunctionSwitchGroups,
-    Gyros,
     GyroAxes,
+    Gyros,
     HasAudioMuteGPIO,
+    HasAuxSerialMode,
+    HasAux2SerialMode,
     HasBacklightColor,
+    HasBluetooth,
     HasColorLcd,
     HasExternalModuleSupport,
     HasIMU,
     HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
-    HasLedStripGPIO,
+    HasBlingLEDS,
     HasRTC,
     HasSDCard,
+    HasSoftwareSerialPower,
+    HasSwitchableJack,
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
     HasVBat,
-    LcdOLED,
-    LcdDepth,
-    LcdHeight,
-    LcdWidth,
-    MaxAnalogs,
+    HasVCPSerialMode,
     Inputs,
     InputSwitches,
-    Joysticks,
+    IsF4,
+    IsH5,
+    IsH7,
     JoystickAxes,
+    Joysticks,
     Keys,
+    LcdDepth,
+    LcdHeight,
+    LcdOLED,
+    LcdWidth,
+    MaxContrast,
+    MaxVolume,
+    MinContrast,
     MultiposPots,
     MultiposPotsPositions,
     NumFunctionSwitchesPositions,
     NumTrims,
     NumTrimSwitches,
     Pots,
+    PwrButtonPress,
+    RotaryEncoderNavigation,
     Sliders,
     SportMaxBaudRate,
     StandardSwitches,
@@ -292,6 +307,7 @@ namespace Board {
     AIT_FLEX,
     AIT_VBAT,
     AIT_RTC_BAT,
+    AIT_LUX,
     AIT_SWITCH,
   };
 
@@ -391,12 +407,14 @@ class Boards
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
+    const QString getCapabilityStr(Board::Capability capability) const { return getCapabilityStr(m_boardType, capability); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
+    static QString getCapabilityStr(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
@@ -454,6 +472,7 @@ class Boards
     static bool isInputAvailable(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputCalibrated(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputGyroAxis(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputIgnored(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputPot(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputStick(int index, Board::Type board = Board::BOARD_UNKNOWN);
@@ -469,6 +488,8 @@ class Boards
     static QString getRadioModeString(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
+
+    static void tests();
 
   private:
 
@@ -571,6 +592,11 @@ inline bool IS_RADIOMASTER_TX16S(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_TX16S;
 }
 
+inline bool IS_RADIOMASTER_TX16SMK3(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_TX16SMK3;
+}
+
 inline bool IS_RADIOMASTER_TX15(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_TX15;
@@ -633,13 +659,15 @@ inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T15 ||
+  return board == Board::BOARD_FATFISH_F16 ||
+         board == Board::BOARD_HELLORADIOSKY_V16 ||
+         board == Board::BOARD_JUMPER_T15 ||
+         board == Board::BOARD_JUMPER_T15PRO ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
+         board == Board::BOARD_RADIOMASTER_TX15 ||
          board == Board::BOARD_RADIOMASTER_TX16S ||
-         board == Board::BOARD_FATFISH_F16 ||
-         board == Board::BOARD_HELLORADIOSKY_V16 ||
-         board == Board::BOARD_RADIOMASTER_TX15;
+         board == Board::BOARD_RADIOMASTER_TX16SMK3;
 }
 
 inline bool IS_FAMILY_T12(Board::Type board)
@@ -676,6 +704,11 @@ inline bool IS_FLYSKY_NV14(Board::Type board)
 inline bool IS_FLYSKY_EL18(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_EL18);
+}
+
+inline bool IS_FLYSKY_NB4P(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NB4P);
 }
 
 inline bool IS_FLYSKY_PA01(Board::Type board)
@@ -787,23 +820,8 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
-    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/;
-}
-
-inline bool IS_HORUS_OR_TARANIS(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board);
-}
-
-inline bool IS_STM32(Board::Type board)
-{
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-    IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board);
-}
-
-inline bool IS_ARM(Board::Type board)
-{
-  return IS_STM32(board);
+    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ ||
+    IS_FLYSKY_PA01(board)/*generally*/ || IS_FLYSKY_NB4P(board)/*generally*/;
 }
 
 inline bool HAS_LARGE_LCD(Board::Type board)
@@ -832,22 +850,4 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 {
   return IS_ACCESS_RADIO(board) ||
          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
-}
-
-inline bool HAS_EEPROM_YAML(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board);
-}
-
-inline bool IS_STM32H5(Board::Type board)
-{
-  return false;
-}
-
-inline bool IS_STM32H7(Board::Type board)
-{
-  return IS_FLYSKY_PA01(board) ||
-         IS_FLYSKY_ST16(board) ||
-         IS_JUMPER_T15PRO(board) ||
-         IS_RADIOMASTER_TX15(board);
 }

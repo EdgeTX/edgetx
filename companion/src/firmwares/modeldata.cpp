@@ -312,7 +312,7 @@ void ModelData::clear()
   topBarData.clear();
 
   for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
-    topbarWidgetWidth[i] = 0;
+    topbarWidgetWidth[i] = 1;
 
   view = 0;
   memset(&registrationId, 0, sizeof(registrationId));
@@ -414,9 +414,11 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
   clear();
   used = true;
   sprintf(name, "MODEL%02d", id + 1);
+
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
   }
+
   setDefaultMixes(settings);
   setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
 }
@@ -531,10 +533,7 @@ ModelData ModelData::removeGlobalVars()
 
 int ModelData::getChannelsMax(bool forceExtendedLimits) const
 {
-  if (forceExtendedLimits || extendedLimits)
-    return IS_HORUS_OR_TARANIS(getCurrentBoard()) ? 150 : 125;
-  else
-    return 100;
+  return (forceExtendedLimits || extendedLimits) ?  150 : 100;
 }
 
 bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const
@@ -548,7 +547,7 @@ bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const 
   if (fs == Board::SWITCH_GLOBAL)
     return gs->switchConfig[swIndex].type != Board::SWITCH_NOT_AVAILABLE;
 
-  return true;
+  return fs != Board::SWITCH_NOT_AVAILABLE;
 }
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const
@@ -936,37 +935,36 @@ int ModelData::updateReference()
     //s1.report("Heli");
   }
 
-  if (fw->getCapability(Telemetry)) {
-    updateTelemetryRef(frsky.voltsSource);
-    updateTelemetryRef(frsky.altitudeSource);
-    updateTelemetryRef(frsky.currentSource);
-    updateTelemetryRef(frsky.varioSource);
-    for (int i = 0; i < fw->getCapability(TelemetryCustomScreens); i++) {
-      switch(frsky.screens[i].type) {
-        case TELEMETRY_SCREEN_BARS:
-          for (int j = 0; j < fw->getCapability(TelemetryCustomScreensBars); j++) {
-            FrSkyBarData *fbd = &frsky.screens[i].body.bars[j];
-            updateSourceRef(fbd->source);
-            if (!fbd->source.isSet()) {
-              fbd->barMin = 0;
-              fbd->barMax = 0;
-            }
+  updateTelemetryRef(frsky.voltsSource);
+  updateTelemetryRef(frsky.altitudeSource);
+  updateTelemetryRef(frsky.currentSource);
+  updateTelemetryRef(frsky.varioSource);
+
+  for (int i = 0; i < fw->getCapability(TelemetryCustomScreens); i++) {
+    switch(frsky.screens[i].type) {
+      case TELEMETRY_SCREEN_BARS:
+        for (int j = 0; j < fw->getCapability(TelemetryCustomScreensBars); j++) {
+          FrSkyBarData *fbd = &frsky.screens[i].body.bars[j];
+          updateSourceRef(fbd->source);
+          if (!fbd->source.isSet()) {
+            fbd->barMin = 0;
+            fbd->barMax = 0;
           }
-          break;
-        case TELEMETRY_SCREEN_NUMBERS:
-          for (int j = 0; j < fw->getCapability(TelemetryCustomScreensLines); j++) {
-            FrSkyLineData *fld = &frsky.screens[i].body.lines[j];
-            for (int k = 0; k < fw->getCapability(TelemetryCustomScreensFieldsPerLine); k++) {
-              updateSourceRef(fld->source[k]);
-            }
+        }
+        break;
+      case TELEMETRY_SCREEN_NUMBERS:
+        for (int j = 0; j < fw->getCapability(TelemetryCustomScreensLines); j++) {
+          FrSkyLineData *fld = &frsky.screens[i].body.lines[j];
+          for (int k = 0; k < fw->getCapability(TelemetryCustomScreensFieldsPerLine); k++) {
+            updateSourceRef(fld->source[k]);
           }
-          break;
-        default:
-          break;
-      }
+        }
+        break;
+      default:
+        break;
     }
-    //s1.report("Telemetry");
   }
+  //s1.report("Telemetry");
 
   for (int i = 0; i < CPN_MAX_SENSORS; i++) {
     SensorData *sd = &sensorData[i];

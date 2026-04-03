@@ -152,10 +152,10 @@ if (event == EVT_ENTRY) {
         y += FH;
         continue;
       }
-#if defined(MULTIMODULE)
-      if (isModuleMultimodule(module)) {
+#if defined(MULTIMODULE) || defined(DSMP) 
+      if (isModuleMultimodule(module) || isModuleDSMP(module)) {
         char statusText[64] = "";
-        getMultiModuleStatus(module).getStatusString(statusText);
+        getModuleStatusString(module,statusText);
         lcdDrawText(COLUMN2_X, y, statusText);
         y += FH;
         continue;

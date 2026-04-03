@@ -1293,7 +1293,7 @@ const char *ModelsList::save(LabelsVector newOrder)
 
   f_puts("\r\n", &file);
   f_close(&file);
-  modelslabels._isDirty = false;
+  modelslabels.resetDirty();
 
   return NULL;
 }

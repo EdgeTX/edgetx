@@ -21,31 +21,19 @@
 
 #pragma once
 
-#include <lvgl/lvgl.h>
-#include "edgetx_types.h"
-
-void initLvglTheme();
-
-typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
+#include "lvgl/lvgl.h"
 
 class LvglWrapper
 {
-  static LvglWrapper *_instance;
-  static void pollInputs();
-
-  LvglWrapper();
-  ~LvglWrapper() {}
-
  public:
   static LvglWrapper* instance();
 
   // Called from UI task: executes the LVGL timer handler 
   void run();
 
-  // Call it when running the loop manually from within
-  // the LVGL timer handler (blocking UI code)
-  static void runNested();
-};
+ protected:
+  static LvglWrapper *_instance;
 
-// multiplication factor between 0 and 25
-int8_t rotaryEncoderGetAccel();
+  LvglWrapper();
+  ~LvglWrapper() {}
+};

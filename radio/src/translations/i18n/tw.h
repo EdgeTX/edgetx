@@ -135,13 +135,14 @@
 #define TR_AUX_SERIAL_MODES_1           "禁用"
 #define TR_AUX_SERIAL_MODES_2           "回傳鏡像"
 #define TR_AUX_SERIAL_MODES_3           "回傳輸入"
-#define TR_AUX_SERIAL_MODES_4           "SBUS教練"
-#define TR_AUX_SERIAL_MODES_5           "LUA腳本"
-#define TR_AUX_SERIAL_MODES_6           "CLI"
-#define TR_AUX_SERIAL_MODES_7           "GPS"
-#define TR_AUX_SERIAL_MODES_8           "調試"
-#define TR_AUX_SERIAL_MODES_9           "SpaceMouse"
-#define TR_AUX_SERIAL_MODES_10          "外置發射"
+#define TR_AUX_SERIAL_MODES_4           TR("SBUS Trn Inv.","SBUS Trainer Inv.")
+#define TR_AUX_SERIAL_MODES_5           "SBUS教練"
+#define TR_AUX_SERIAL_MODES_6           "LUA腳本"
+#define TR_AUX_SERIAL_MODES_7           "CLI"
+#define TR_AUX_SERIAL_MODES_8           "GPS"
+#define TR_AUX_SERIAL_MODES_9           "調試"
+#define TR_AUX_SERIAL_MODES_10          "SpaceMouse"
+#define TR_AUX_SERIAL_MODES_11          "外置發射"
 #define TR_SWTYPES_1                    "無"
 #define TR_SWTYPES_2                    "回彈"
 #define TR_SWTYPES_3                    "2段"
@@ -369,6 +370,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
+#define	TR_SRC_LIGHT                   "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES_1                 "OFF"
@@ -669,6 +671,7 @@
 #define TR_MULTI_OPTION                TR("選項值", "選項值")
 #define TR_MULTI_AUTOBIND              TR("對頻通道", "通道控制對頻")
 #define TR_DISABLE_CH_MAP              TR("禁用通道映射", "禁用通道重映射")
+#define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
 #define TR_DISABLE_TELEM               TR("禁用回傳", "禁用回傳")
 #define TR_MULTI_LOWPOWER              TR("低功率", "低功率模式")
 #define TR_MULTI_LNA_DISABLE           "禁用接收放大器"
@@ -710,7 +713,6 @@
 #define TR_CURRENT_CALIB               "電流校準"
 #define TR_VOLTAGE                     TR("電壓源", "電壓來源")
 #define TR_SELECT_MODEL                "選擇模型"
-#define TR_MANAGE_MODELS               "模型管理"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"
@@ -738,6 +740,8 @@
 #define TR_DELETE_MODEL                "刪除模型"
 #define TR_RESTORE_MODEL               "恢復模型"
 #define TR_DELETE_ERROR                "刪除失敗"
+#define TR_DELETE_INPUT_LINE           "Delete input line"
+#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("存儲卡錯誤", "存儲卡錯誤")
 #define TR_SDCARD                      "存儲卡"
 #define TR_NO_FILES_ON_SD              "存儲卡中沒有文件!"
@@ -803,6 +807,8 @@
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "亮度"
+#define TR_CONTROL                     "Control"
+#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_CPU_TEMP                    "CPU 溫度"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "主板溫度"
@@ -965,6 +971,7 @@
 #define TR_USBMODE                     "USB模式"
 #define TR_JACK_MODE                   "教練插口模式"
 #define TR_VOICE_LANGUAGE              "播報語言"
+#define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "單位"
 #define TR_UNITS_PPM                   "PPM 單位"
 #define TR_EDIT                        "編輯"
@@ -977,7 +984,7 @@
 #define TR_PASTE_BEFORE                "貼上到本條之前"
 #define TR_DELETE                      "刪除"
 #define TR_INSERT                      "插入"
-#define TR_RESET_FLIGHT                "復位飛行數據"
+#define TR_RESET_SESSION               "復位飛行數據"
 #define TR_RESET_TIMER1                "重啟計時器1"
 #define TR_RESET_TIMER2                "重啟計時器2"
 #define TR_RESET_TIMER3                "重啟計時器3"
@@ -1128,6 +1135,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "起始通道"
+#define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "是否填充背景?"
 #define TR_BG_COLOR                  "背景顏色"
 #define TR_SLIDERS_TRIMS             "滑塊和微調"
@@ -1192,6 +1200,7 @@
 #define TR_ALTSENSOR                   "Alt 傳感器"
 #define TR_CELLSENSOR                  "Cell 傳感器"
 #define TR_GPSSENSOR                   "GPS 傳感器"
+#define TR_GYRO                        "Gyro"
 #define TR_CURRENTSENSOR               "傳感器"
 #define TR_AUTOOFFSET                  "自動偏移值"
 #define TR_ONLYPOSITIVE                "正向"

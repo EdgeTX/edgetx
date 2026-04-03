@@ -62,6 +62,16 @@
 #include "translations/i18n/en.h"
 #endif
 
+uint8_t getLanguageId(const char* lang)
+{
+  for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
+    if (!strncmp(lang, languagePacks[i]->id, 2)) {
+      return i;
+    }
+  }
+  return LANG_EN;
+}
+
 const char CHR_HOUR = TR_CHR_HOUR;
 const char CHR_INPUT = TR_CHR_INPUT;
 
@@ -79,6 +89,19 @@ const char CHR_INPUT = TR_CHR_INPUT;
 #undef STRARRAY
 
 #else
+
+bool isTextLangAvail(int lang)
+{
+#if defined(COLORLCD)
+  // Skip languages with no translation files
+  return lang != LANG_HU && lang != LANG_SK;
+#else
+  // Skip languages with no translation files or no unicode fonts
+  return lang != LANG_CN && lang != LANG_HE && lang != LANG_HU &&
+         lang != LANG_JP && lang != LANG_KO && lang != LANG_SK &&
+         lang != LANG_TW;
+#endif
+}
 
 // Order must match languagePack[]
 #if defined(COLORLCD)

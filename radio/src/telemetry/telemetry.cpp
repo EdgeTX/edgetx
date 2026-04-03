@@ -29,6 +29,8 @@
 #include "io/multi_protolist.h"
 #include "hal/module_port.h"
 
+#include <list>
+
 #if !defined(SIMU)
   #include <FreeRTOS/include/FreeRTOS.h>
   #include <FreeRTOS/include/timers.h>

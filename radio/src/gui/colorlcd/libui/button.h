@@ -119,7 +119,7 @@ class IconButton : public ButtonBase
  public:
   IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
              std::function<uint8_t(void)> pressHandler = nullptr);
-  
+
   void setIcon(EdgeTxIcon icon);
 
  protected:
@@ -140,9 +140,6 @@ class MomentaryButton : public FormField
   std::string getName() const override { return "MomentaryButton"; }
 #endif
 
-  void onPressed() override;
-  void onReleased() override;
-
   void setText(std::string value)
   {
     if (value != text) {
@@ -161,4 +158,6 @@ class MomentaryButton : public FormField
   std::function<void(void)> releaseHandler;
   std::string text;
   lv_obj_t* label = nullptr;
+
+  bool customEventHandler(lv_event_code_t code) override;
 };

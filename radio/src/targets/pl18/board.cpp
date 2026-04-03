@@ -42,6 +42,7 @@
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+#include "keys.h"
 
 #if defined(AUDIO_SPI)
   #include "vs1053b.h"
@@ -50,9 +51,6 @@
 #include "timers_driver.h"
 #include "battery_driver.h"
 #include "touch_driver.h"
-
-#include "bitmapbuffer.h"
-#include "colors.h"
 
 #include <string.h>
 
@@ -183,7 +181,7 @@ void boardBLPreJump()
 {
   SDRAM_Init();
 #if defined(RADIO_NB4P)
-  LL_ADC_Disable(ADC_MAIN);
+  _adc_driver.deinit();
 #endif
 }
 

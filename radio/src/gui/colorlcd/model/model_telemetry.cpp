@@ -21,12 +21,17 @@
 
 #include "model_telemetry.h"
 
-#include "fullscreen_dialog.h"
-#include "list_line_button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "fullscreen_dialog.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
-#include "etx_lv_theme.h"
+#include "textedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -280,7 +285,7 @@ class SensorButton : public ListLineButton
     lv_obj_set_pos(valLabel, TSStyle::NUM_W + TSStyle::NAME_W + PAD_LARGE * 3, PAD_MEDIUM/2);
 
     lv_obj_update_layout(lvobj);
-  
+
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
@@ -341,6 +346,7 @@ class SensorSourceChoice : public SourceChoice
                      *source = newValue == MIXSRC_NONE
                                    ? 0
                                    : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
+                     SET_DIRTY();
                    })
   {
     setAvailableHandler([=](int16_t value) {
@@ -643,14 +649,14 @@ class SensorEditWindow : public SubPage
         });
 
     paramLines[P_BLADES] = setupLine(STR_BLADES, [=](Window* parent, coord_t x, coord_t y) {
-          new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 1, 30000,
+          new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 1, MIXSRC_MAX_VALUE,
                         GET_SET_DEFAULT(sensor->custom.ratio));
         });
 
     paramLines[P_RATIO] = setupLine(STR_RATIO, [=](Window* parent, coord_t x, coord_t y) {
           auto pct = new StaticText(parent, {x + NUM_EDIT_W + PAD_MEDIUM, y + PAD_MEDIUM, 0, 0}, "");
           auto num = new NumberEdit(
-              parent, {x, y, NUM_EDIT_W, 0}, 0, 30000,
+              parent, {x, y, NUM_EDIT_W, 0}, 0, MIXSRC_MAX_VALUE,
               GET_DEFAULT(sensor->custom.ratio),
               [=](int32_t value) {
                 sensor->custom.ratio = value;
@@ -658,6 +664,7 @@ class SensorEditWindow : public SubPage
                 if (sensor->custom.ratio != 0)
                   s = formatNumberAsString((sensor->custom.ratio * 1000) / 255, PREC1, 0, "", "%");
                 pct->setText(s);
+                SET_DIRTY();
               },
               PREC1);
           num->setZeroText("-");
@@ -685,13 +692,13 @@ class SensorEditWindow : public SubPage
         });
 
     paramLines[P_MULT] = setupLine(STR_MULTIPLIER, [=](Window* parent, coord_t x, coord_t y) {
-          new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 1, 30000,
+          new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 1, MIXSRC_MAX_VALUE,
                         GET_SET_DEFAULT(sensor->custom.offset));
         });
 
     paramLines[P_OFFSET] = setupLine(STR_OFFSET, [=](Window* parent, coord_t x, coord_t y) {
           new NumberEdit(
-              parent, {x, y, NUM_EDIT_W, 0}, -30000, 30000,
+              parent, {x, y, NUM_EDIT_W, 0}, -MIXSRC_MAX_VALUE, MIXSRC_MAX_VALUE,
               GET_SET_DEFAULT(sensor->custom.offset),
               (sensor->prec > 0) ? (sensor->prec == 2 ? PREC2 : PREC1) : 0);
         });
@@ -748,7 +755,7 @@ class SensorEditWindow : public SubPage
   static LAYOUT_SIZE(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(80))
 };
 
-ModelTelemetryPage::ModelTelemetryPage(PageDef& pageDef) :
+ModelTelemetryPage::ModelTelemetryPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
   tsStyle.init();

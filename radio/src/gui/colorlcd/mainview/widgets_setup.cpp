@@ -21,7 +21,6 @@
 
 #include "widgets_setup.h"
 
-#include "layer.h"
 #include "menu.h"
 #include "myeeprom.h"
 #include "storage/storage.h"
@@ -82,7 +81,6 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
 void SetupWidgetsPageSlot::setFocusState()
 {
   if (hasFocus()) {
-    bringToTop();
     lv_obj_add_flag(border, LV_OBJ_FLAG_HIDDEN);
   } else {
     lv_obj_clear_flag(border, LV_OBJ_FLAG_HIDDEN);
@@ -117,7 +115,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
 }
 
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
-    Window(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
+    NavWindow(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
 {
   pushLayer();
 
@@ -158,9 +156,11 @@ void SetupWidgetsPage::onCancel()
   QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + customScreenIdx));
 }
 
-void SetupWidgetsPage::deleteLater(bool detach, bool trash)
+void SetupWidgetsPage::deleteLater()
 {
-  Window::deleteLater(detach, trash);
+  if (_deleted) return;
+
+  Window::deleteLater();
 
   // and continue async deletion...
   auto screen = customScreens[customScreenIdx];
@@ -171,21 +171,4 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
   }
 
   storageDirty(EE_MODEL);
-}
-
-void SetupWidgetsPage::onEvent(event_t event)
-{
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_FIRST(KEY_PAGEUP) ||
-      event == EVT_KEY_FIRST(KEY_PAGEDN) || event == EVT_KEY_FIRST(KEY_SYS) ||
-      event == EVT_KEY_FIRST(KEY_MODEL)) {
-    killEvents(event);
-  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
-    onCancel();
-  } else {
-    Window::onEvent(event);
-  }
-#else
-  Window::onEvent(event);
-#endif
 }

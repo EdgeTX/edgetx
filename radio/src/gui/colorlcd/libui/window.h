@@ -23,13 +23,17 @@
 #include <string>
 
 #include "definitions.h"
-#include "LvglWrapper.h"
-#include "bitmapbuffer.h"
-#include "libopenui_defines.h"
 #include "edgetx_helpers.h"
 #include "etx_lv_theme.h"
+#include "messaging.h"
+
+class FlexGridLayout;
+class FormLine;
+class PageGroup;
 
 typedef uint32_t WindowFlags;
+
+typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
 
 #if !defined(_GNUC_)
 #undef OPAQUE
@@ -37,11 +41,11 @@ typedef uint32_t WindowFlags;
 
 constexpr WindowFlags OPAQUE = 1u << 0u;
 constexpr WindowFlags NO_FOCUS = 1u << 1u;
+constexpr WindowFlags NO_SCROLL = 1u << 2u;
+constexpr WindowFlags NO_CLICK = 1u << 3u;
+constexpr WindowFlags NO_FORCED_SCROLL = 1u << 4u;
 
-typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
-
-class FlexGridLayout;
-class FormLine;
+//-----------------------------------------------------------------------------
 
 class Window
 {
@@ -80,7 +84,7 @@ class Window
   void setScrollHandler(ScrollHandler h) { scrollHandler = std::move(h); }
 
   virtual void clear();
-  virtual void deleteLater(bool detach = true, bool trash = true);
+  virtual void deleteLater();
 
   bool hasFocus() const;
 
@@ -124,15 +128,11 @@ class Window
   }
 
   coord_t left() const { return rect.x; }
-
   coord_t right() const { return rect.x + rect.w; }
-
   coord_t top() const { return rect.y; }
-
   coord_t bottom() const { return rect.y + rect.h; }
 
   coord_t width() const { return rect.w; }
-
   coord_t height() const { return rect.h; }
 
   rect_t getRect() const { return rect; }
@@ -143,21 +143,13 @@ class Window
   void padBottom(coord_t pad);
   void padAll(PaddingSize pad);
 
-  void padRow(coord_t pad);
-  void padColumn(coord_t pad);
-
   virtual void onEvent(event_t event);
   virtual void onClicked();
   virtual void onCancel();
   virtual bool onLongPress();
-  virtual void onPressed() {}
-  virtual void onReleased() {}
+  virtual void checkEvents();
 
   void invalidate();
-
-  void bringToTop();
-
-  virtual void checkEvents();
 
   void attach(Window *window);
 
@@ -173,10 +165,8 @@ class Window
   inline lv_obj_t *getLvObj() { return lvobj; }
 
   virtual bool isTopBar() { return false; }
-  virtual bool isWidgetsContainer() { return false; }
   virtual bool isNavWindow() { return false; }
   virtual bool isPageGroup() { return false; }
-
   virtual bool isBubblePopup() { return false; }
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN,
@@ -187,13 +177,17 @@ class Window
   virtual void show(bool visible = true);
   void hide() { show(false); }
   bool isVisible();
+  bool isOnScreen();
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 
-  void disableForcedScroll() { noForcedScroll = true; }
-
   void pushLayer(bool hideParent = false);
   void popLayer();
+  static Window* topWindow();
+  static Window* firstOpaque();
+  static PageGroup* pageGroup();
+
+  void assignLvGroup(lv_group_t* g, bool setDefault);
 
  protected:
   static std::list<Window *> trash;
@@ -207,10 +201,8 @@ class Window
 
   WindowFlags windowFlags = 0;
   LcdFlags textFlags = 0;
-  bool noForcedScroll = false;
 
   bool _deleted = false;
-  static bool _longPressed;
 
   bool loaded = false;
   bool layerCreated = false;
@@ -218,20 +210,22 @@ class Window
 
   CloseHandler closeHandler;
   FocusHandler focusHandler;
-  std::function<void(coord_t, coord_t)> scrollHandler;
+  ScrollHandler scrollHandler;
 
   void deleteChildren();
 
   virtual void addChild(Window *window);
-  void removeChild(Window *window);
 
   void eventHandler(lv_event_t *e);
   static void window_event_cb(lv_event_t *e);
+  virtual bool customEventHandler(lv_event_code_t code) { return false; }
 
   static void delayLoader(lv_event_t* e);
   void delayLoad();
   virtual void delayedInit() {}
 };
+
+//-----------------------------------------------------------------------------
 
 class NavWindow : public Window
 {
@@ -265,39 +259,39 @@ struct PageButtonDef {
   std::function<void()> createPage;
   std::function<bool()> isActive;
   std::function<bool()> enabled;
-
-  PageButtonDef(
-                STR_TYP title,
-                std::function<void()> createPage,
-                std::function<bool()> isActive = nullptr,
-                std::function<bool()> enabled = nullptr) :
-    title(title), createPage(std::move(createPage)), isActive(std::move(isActive)), enabled(std::move(enabled))
-  {}
 };
+
+//-----------------------------------------------------------------------------
 
 class SetupButtonGroup : public Window
 {
  public:
-  typedef std::list<PageButtonDef> PageDefs;
-
   SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
-                   PaddingSize padding, PageDefs pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
+                   PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
 
  protected:
 };
 
+//-----------------------------------------------------------------------------
+
+class SetupLine;
+
 struct SetupLineDef {
   STR_TYP title;
-  std::function<void(Window*, coord_t, coord_t)> createEdit;
+  std::function<void(SetupLine*, coord_t, coord_t)> createEdit;
 };
 
 class SetupLine : public Window
 {
  public:
   SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
-    std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
+    std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
 
-  static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount);
+  static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const SetupLineDef* setupLines);
+
+  Messaging setupMsg;
 
  protected:
 };
+
+//-----------------------------------------------------------------------------

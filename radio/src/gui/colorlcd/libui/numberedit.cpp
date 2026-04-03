@@ -19,7 +19,10 @@
 #include "numberedit.h"
 
 #include "audio.h"
+#include "debug.h"
+#include "hal/rotary_encoder.h"
 #include "keyboard_number.h"
+#include "keys.h"
 #include "strhelpers.h"
 #include "etx_lv_theme.h"
 
@@ -30,7 +33,7 @@ class NumberArea : public FormField
       FormField(parent, rect, etx_textarea_create),
       numEdit(parent)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    setWindowFlag(NO_FOCUS);
 
     if (parent->getTextFlags() & CENTERED)
       etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
@@ -240,6 +243,7 @@ void NumberEdit::openEdit()
         lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
     edit->setChangeHandler([=]() {
       update();
+      if (onEdited) onEdited(currentValue);
       if (edit->hasFocus())
         lv_group_focus_obj(lvobj);
       edit->hide();

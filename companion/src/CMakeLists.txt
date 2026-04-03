@@ -1,4 +1,5 @@
 set(SIMULATOR_INSTALL_PREFIX "" CACHE STRING "Alternative simulator library search path")
+set(SIMULATOR_WASM_DIR "" CACHE PATH "Directory containing .wasm simulator modules to bundle")
 
 set(COMPANION_NAME "companion")
 set(SIMULATOR_NAME "simulator")
@@ -133,7 +134,8 @@ else()
 endif()
 
 ############# Import radio hardware definitions ###############
-set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+
+set(HWDEFS_DIR "${CMAKE_SOURCE_DIR}/radio/src/boards/hw_defs")
 set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
 set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
@@ -270,6 +272,19 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
 
 PrintTargetReport("${COMPANION_NAME}")
 
+# Copy WASM simulator modules next to executables for local dev
+if(SIMULATOR_WASM_DIR)
+  foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})
+    add_custom_command(TARGET ${_target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND}
+        -DSRC_DIR=${SIMULATOR_WASM_DIR}
+        -DDST_DIR=$<TARGET_FILE_DIR:${_target}>
+        -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
+      COMMENT "Copying WASM simulator modules to ${_target} output"
+    )
+  endforeach()
+endif()
+
 ############# Standalone simulator ###############
 
 set(simu_SRCS simulator.cpp )
@@ -287,22 +302,6 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
 add_subdirectory(tests)
 
 ############# Install ####################
-
-# the current flavour is not automatically added if build in the current cmake iteration, so always
-# add its library name to be sure
-string(TOLOWER ${PCB} FLAVOUR)
-
-if(PCBREV)
-  if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-    set(FLAVOUR x7access)
-  elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-    set(FLAVOUR x9d+2019)
-  elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
-    set(FLAVOUR x10express)
-  else()
-    string(TOLOWER ${PCBREV} FLAVOUR)
-  endif()
-endif(PCBREV)
 
 set(COMPANION_TARGETS_DIR_ROOT "${COMPANION_SRC_DIRECTORY}/../targets")
 
@@ -324,6 +323,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   install(TARGETS ${SIMULATOR_NAME}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+
+  # configure custom AppRun script from template
+  configure_file(${COMPANION_TARGETS_DIR}/AppRun.in ${CMAKE_BINARY_DIR}/AppDir/AppRun @ONLY
+  )
+
+  # Make it executable
+  file(CHMOD ${CMAKE_BINARY_DIR}/AppDir/AppRun
+      PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                  GROUP_READ GROUP_EXECUTE
+                  WORLD_READ WORLD_EXECUTE
+  )
 
   # configure and set variables used by package script
   set(COMPANION_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${COMPANION_NAME}.desktop)
@@ -403,8 +413,8 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   if(TARGET SDL2::SDL2)
-    install(FILES $<TARGET_FILE:SDL2::SDL2>
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
   include(FindMSVCRedist)
@@ -417,22 +427,24 @@ elseif(WIN32)
 elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
   # and trial and error. Do not hesitate to fix it for the better
+  set(COMPANION_DISPLAY_NAME "EdgeTX Companion")
+  # This the name that the user will see in the generated DMG and what the application
+  # will be called under /Applications. We include the version string to make installing
+  # different versions side-by-side
+  set(COMPANION_OSX_APP_BUNDLE_NAME "${COMPANION_DISPLAY_NAME} ${VERSION_FAMILY}")
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
+
   set_target_properties(${COMPANION_NAME} PROPERTIES
+      OUTPUT_NAME "${COMPANION_OSX_APP_BUNDLE_NAME}"
       MACOSX_RPATH TRUE
       MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_BUNDLE_NAME "${COMPANION_DISPLAY_NAME}"
       MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
-
       INSTALL_RPATH "@executable_path/../Frameworks"
       BUILD_WITH_INSTALL_RPATH TRUE
   )
 
-  # This the name that the user will see in the generated DMG and what the application
-  # will be called under /Applications. We include the version string to make installing
-  # different versions side-by-side
-  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_FAMILY}")
-  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
-
-  set(companion_app_dir "companion.app")
+  set(companion_app_dir "${COMPANION_OSX_APP_BUNDLE_NAME}.app")
   set(companion_res_dir "${companion_app_dir}/Contents/Resources")
 
   # Only Companion is distributed for macOS
@@ -459,7 +471,7 @@ elseif(APPLE)
   )
 
   install(FILES ${MAC_ICON_FILE}
-          DESTINATION ${companion_res_dir}
+          DESTINATION "${companion_res_dir}"
           COMPONENT Runtime)
 endif()
 
@@ -547,7 +559,7 @@ elseif(APPLE)
     OUTPUT_SCRIPT qt_deploy_companion
     CONTENT "
       qt_deploy_runtime_dependencies(
-        EXECUTABLE ${companion_app_dir}
+        EXECUTABLE \"${companion_app_dir}\"
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
@@ -558,7 +570,15 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Fix Code Signing and rename bundle
+  # Bundle SDL2
+  if(TARGET SDL2::SDL2)
+    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+            FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
+            LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
+            COMPONENT Runtime)
+  endif()
+
+  # Re-sign bundle after all contents are installed
   install(CODE "
       set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
       execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
@@ -566,7 +586,6 @@ elseif(APPLE)
         COMMAND codesign --remove-signature \${app_dir}
         COMMAND codesign --force --deep -s - \${app_dir}
       )
-      file(RENAME \"\${app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
   " COMPONENT Runtime)
 
 else()
@@ -576,7 +595,7 @@ else()
   else()
     set(LINUXDEPLOY_ARCH "x86_64")
   endif()
-  
+
   set(LINUXDEPLOY_APPIMAGE "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-${LINUXDEPLOY_ARCH}.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
@@ -629,4 +648,3 @@ else()
 endif()
 
 include(CPack)
-

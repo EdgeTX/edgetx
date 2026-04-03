@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 TX16SMK3)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -34,7 +34,6 @@ option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
 option(FAS_PROTOTYPE "Support of old FAS prototypes (different resistors)" OFF)
 option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
-option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
@@ -99,6 +98,8 @@ elseif(PCB STREQUAL PA01)
   include(targets/pa01/CMakeLists.txt)
 elseif(PCB STREQUAL TX15)
   include(targets/tx15/CMakeLists.txt)
+elseif(PCB STREQUAL TX16SMK3)
+    include(targets/tx16smk3/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
 elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
@@ -107,11 +108,18 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
-set(HW_DESC_JSON ${FLAVOUR}.json)
-AddHardwareDefTarget(${HW_DESC_JSON})
+# Add RADIO_xxx definition
+string(TOUPPER ${FLAVOUR} RADIO_NAME)
+string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
+string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
+add_definitions(-D${RADIO_NAME})
+set(${RADIO_NAME} YES)
 
-# enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+add_definitions(
+  -DCPU_TYPE=${CPU_TYPE} -DCPU_TYPE_FULL=${CPU_TYPE_FULL}
+)
+
+set(HW_DESC_JSON ${FLAVOUR}.json)
 
 include(hal/CMakeLists.txt)
 
@@ -138,6 +146,11 @@ endif()
 if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
 endif()
+
+# Generate hardware definitions from hal.h
+# Must be after all add_definitions() so the preprocessor sees all flags
+AddHardwareDefTarget(${HW_DESC_JSON})
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
@@ -424,6 +437,14 @@ if(DISABLE_MCUCHECK)
   add_definitions(-DDISABLE_MCUCHECK)
 endif()
 
+if(SIZE_TARGET_MEM_DEFINE MATCHES 32768)
+  add_definitions(-DSDRAM_32M)
+elseif(SIZE_TARGET_MEM_DEFINE MATCHES 16384)
+  add_definitions(-DSDRAM_16M)
+else(SIZE_TARGET_MEM_DEFINE MATCHES 8192)
+  add_definitions(-DSDRAM_8M)
+endif()
+
 set(SRC
   ${SRC}
   edgetx.cpp
@@ -553,7 +574,10 @@ if(NATIVE_BUILD)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   add_subdirectory(targets/simu)
-  add_subdirectory(tests)
+
+  if(NOT WASI)
+    add_subdirectory(tests)
+  endif()
 endif()
 
 set(SRC ${SRC} ${FIRMWARE_SRC})
@@ -572,6 +596,8 @@ if(NOT USE_UNSUPPORTED_TOOLCHAIN AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUA
   message("CPP Compiler: ${CMAKE_CXX_COMPILER}, version ${CMAKE_CXX_COMPILER_VERSION}")
   message(FATAL_ERROR "Only Arm GNU Toolchain version 14.2.rel1 is supported!!")
 endif()
+
+enable_language(ASM)
 
 set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${FIRMWARE_C_FLAGS_DEBUG}")
@@ -773,5 +799,3 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
-
-AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)

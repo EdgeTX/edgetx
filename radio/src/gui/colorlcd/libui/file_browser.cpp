@@ -197,7 +197,7 @@ void FileBrowser::onSelected(uint16_t row, uint16_t col)
 void FileBrowser::onPress(uint16_t row, uint16_t col)
 {
   bool is_dir = lv_table_has_cell_ctrl(lvobj, row, col, CELL_CTRL_DIR);
-  onPress(lv_table_get_cell_value(lvobj, row, col), is_dir);  
+  onPress(lv_table_get_cell_value(lvobj, row, col), is_dir);
 }
 
 void FileBrowser::onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
@@ -245,7 +245,7 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
   }
 
   const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);  
+  const char* fullpath = getFullPath(name);
   if (fileSelected) fileSelected(path, name, fullpath, is_dir);
   selected = name;
 }
@@ -253,7 +253,7 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
 void FileBrowser::onPress(const char* name, bool is_dir)
 {
   const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);  
+  const char* fullpath = getFullPath(name);
   if (is_dir) {
     f_chdir(fullpath);
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
@@ -266,7 +266,7 @@ void FileBrowser::onPress(const char* name, bool is_dir)
     onSelected(name, is_dir);
     return;
   }
-  
+
   if (fileAction){
     fileAction(path, name, fullpath, is_dir);
   }
@@ -275,12 +275,12 @@ void FileBrowser::onPress(const char* name, bool is_dir)
 void FileBrowser::onPressLong(const char* name, bool is_dir)
 {
   const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);  
+  const char* fullpath = getFullPath(name);
 
   if (!selected || (selected != name)) {
     onSelected(name, is_dir);
   }
-  
+
   if (fileAction){
     fileAction(path, name, fullpath, is_dir);
   }

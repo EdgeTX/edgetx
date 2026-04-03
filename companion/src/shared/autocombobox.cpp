@@ -43,6 +43,8 @@ void AutoComboBox::initField()
   m_curveType = nullptr;
   m_flexType = nullptr;
   m_switchType = nullptr;
+  m_qString = nullptr;
+  m_stdString = nullptr;
 }
 
 void AutoComboBox::clear()
@@ -129,6 +131,20 @@ void AutoComboBox::setField(Board::SwitchType & field, GenericPanel * panel)
   updateValue();
 }
 
+void AutoComboBox::setField(QString & field, GenericPanel * panel)
+{
+  setFieldInit(panel);
+  m_qString = &field;
+  updateValue();
+}
+
+void AutoComboBox::setField(std::string & field, GenericPanel * panel)
+{
+  setFieldInit(panel);
+  m_stdString = &field;
+  updateValue();
+}
+
 void AutoComboBox::setFieldInit(GenericPanel * panel)
 {
   initField();
@@ -170,17 +186,29 @@ void AutoComboBox::updateValue()
     setCurrentIndex(findData(*m_flexType));
   else if (m_switchType)
     setCurrentIndex(findData(*m_switchType));
+  else if (m_qString)
+    setCurrentIndex(findText(*m_qString));
+  else if (m_stdString)
+    setCurrentIndex(findText(QString(m_stdString->c_str())));
 
   setLock(false);
 }
 
 void AutoComboBox::onCurrentIndexChanged(int index)
 {
-  if (lock() || index < 0)
+  if (lock() || index < 0 || index >= count())
     return;
 
   bool ok;
-  const int val = itemData(index).toInt(&ok);
+  int val = 0;
+  QString str;
+
+  if (m_qString || m_stdString) {
+    str = itemText(index);
+    ok = true;
+  } else {
+    val = itemData(index).toInt(&ok);
+  }
 
   if (ok) {
     if (m_field && *m_field != val)
@@ -195,6 +223,10 @@ void AutoComboBox::onCurrentIndexChanged(int index)
       *m_flexType = (Board::FlexType)val;
     else if (m_switchType && *m_switchType != val)
       *m_switchType = (Board::SwitchType)val;
+    else if (m_qString && *m_qString != str)
+      *m_qString = str;
+    else if (m_stdString && *m_stdString != str.toStdString())
+      *m_stdString = str.toStdString();
     else
       return;
 

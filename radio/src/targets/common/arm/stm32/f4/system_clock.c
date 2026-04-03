@@ -58,6 +58,11 @@ void SystemClock_Config(void)
   /* Set FLASH latency */
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_5);
 
+  /* Setup pre-fetch + caches */
+  LL_FLASH_EnablePrefetch();
+  LL_FLASH_EnableInstCache();
+  LL_FLASH_EnableDataCache();
+
   /* Enable PWR clock */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 

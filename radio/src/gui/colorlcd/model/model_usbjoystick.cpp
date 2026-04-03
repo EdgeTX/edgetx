@@ -23,9 +23,13 @@
 
 #include "button_matrix.h"
 #include "channel_bar.h"
-#include "list_line_button.h"
+#include "choice.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "toggleswitch.h"
 #include "usb_joystick.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -100,10 +104,11 @@ class USBChannelButtonSel : public ButtonMatrix
       m_channel(channel),
       m_setValue(std::move(_setValue))
   {
+    padAll(PAD_OUTLINE);
+
     bg_color[0] = makeLvColor(COLOR_THEME_PRIMARY2);  // Unused
     fg_color[0] = makeLvColor(COLOR_THEME_SECONDARY1);
-    bg_color[1] =
-        makeLvColor(COLOR_THEME_DISABLED);  // Used by other channel_bar
+    bg_color[1] = makeLvColor(COLOR_THEME_DISABLED);  // Used by other channel_bar
     fg_color[1] = makeLvColor(COLOR_THEME_PRIMARY1);
     bg_color[2] = makeLvColor(COLOR_THEME_ACTIVE);  // Used by this channel
     fg_color[2] = makeLvColor(COLOR_THEME_PRIMARY1);
@@ -429,7 +434,7 @@ class USBChannelLineButton : public ListLineButton
 
     const char* param = "";
     bool hasCollision = false;
-  
+
     if (cch->mode == USBJOYS_CH_BUTTON) {
       param = STR_VUSBJOYSTICK_CH_BTNMODE[cch->param];
     } else if (cch->mode == USBJOYS_CH_AXIS) {
@@ -535,8 +540,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB, PAD_BORDER)
   auto btngrp = new Window(body, rect_t{});
   btngrp->padAll(PAD_TINY);
   _ChannelsGroup = btngrp;
-  btngrp->setFlexLayout();
-  btngrp->padRow(PAD_SMALL);
+  btngrp->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
   for (uint8_t ch = 0; ch < USBJ_MAX_JOYSTICK_CHANNELS; ch++) {
     // Channel settings
     auto btn = new USBChannelLineButton(btngrp, ch);

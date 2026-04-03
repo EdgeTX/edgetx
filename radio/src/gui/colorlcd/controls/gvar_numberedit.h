@@ -56,10 +56,8 @@ class GVarNumberEdit : public Window
   int32_t vmax;
   std::function<int32_t()> getValue;
   std::function<void(int32_t)> setValue;
-  LcdFlags textFlags;
   int32_t voffset;
 
-  void onEvent(event_t event) override;
   void update();
 
   static void value_changed(lv_event_t* e);

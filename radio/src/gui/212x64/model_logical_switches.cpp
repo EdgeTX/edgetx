@@ -173,9 +173,7 @@ void menuModelLogicalSwitches(event_t event)
         INCDEC_ENABLE_CHECK(nullptr);
       }
       LcdFlags lf = attr2 | LEFT;
-      getMixSrcRange(v1_val, v2_min, v2_max, &lf);
-      if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
-        v2_min = 0;
+      if (validateLSV2Range(cs, v2_min, v2_max, &lf)) storageDirty(EE_MODEL);
       drawSourceCustomValue(CSW_3RD_COLUMN, y, v1_val, (abs(v1_val) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
     }
 

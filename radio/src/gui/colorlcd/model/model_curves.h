@@ -27,9 +27,9 @@
 class ModelCurvesPage : public PageGroupItem
 {
  public:
-  ModelCurvesPage(PageDef& pageDef);
+  ModelCurvesPage(const PageDef& pageDef);
 
-  static void pushEditCurve(int index, std::function<void(void)> refreshView, mixsrc_t source);
+  static void pushEditCurve(int index, mixsrc_t source);
 
   virtual void build(Window* window) override;
 

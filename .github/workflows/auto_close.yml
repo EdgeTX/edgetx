@@ -7,7 +7,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v8
+      - uses: actions/stale@v10
         with:
           # Issue closure message
           close-issue-message: 'This issue has been closed due to no activity in over four weeks after having been marked as closure pending.'

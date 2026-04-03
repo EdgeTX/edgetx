@@ -148,6 +148,7 @@ const struct YamlIdStr enum_QMPage[] = {
   {  QM_TOOLS_LS_MON, "TOOLS_LS_MON"  },
   {  QM_TOOLS_STATS, "TOOLS_STATS"  },
   {  QM_TOOLS_DEBUG, "TOOLS_DEBUG"  },
+  {  QM_APP, "APP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -331,9 +332,16 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_PADDING( 5 ),
   YAML_END
 };
-static const struct YamlNode struct_QuickMenuPage[] = {
+static const struct YamlNode struct_KeyShortcut[] = {
   YAML_IDX,
-  YAML_ENUM("shortcut", 8, enum_QMPage, NULL),
+  YAML_CUSTOM("shortcut",r_keyShortcut,w_keyShortcut),
+  YAML_PADDING( 8 ),
+  YAML_END
+};
+static const struct YamlNode struct_QMFavorite[] = {
+  YAML_IDX,
+  YAML_CUSTOM("shortcut",r_qmFavorite,w_qmFavorite),
+  YAML_PADDING( 8 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -399,6 +407,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "jackMode", 2 ),
   YAML_PADDING( 1 ),
   YAML_STRING("ttsLanguage", 2),
+  YAML_STRING("uiLanguage", 2),
   YAML_SIGNED_CUST( "beepVolume", 4, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "wavVolume", 4, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "varioVolume", 4, r_5pos, w_5pos ),
@@ -425,28 +434,30 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_STRING("selectedTheme", 26),
+  YAML_SIGNED_CUST( "backlightSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
+  YAML_SIGNED( "radioGFDisabled", 1 ),
+  YAML_SIGNED( "radioTrainerDisabled", 1 ),
+  YAML_SIGNED( "modelHeliDisabled", 1 ),
+  YAML_SIGNED( "modelFMDisabled", 1 ),
+  YAML_SIGNED( "modelCurvesDisabled", 1 ),
+  YAML_SIGNED( "modelGVDisabled", 1 ),
+  YAML_SIGNED_CUST( "volumeSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
+  YAML_SIGNED( "modelLSDisabled", 1 ),
+  YAML_SIGNED( "modelSFDisabled", 1 ),
+  YAML_SIGNED( "modelCustomScriptsDisabled", 1 ),
+  YAML_SIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_SIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_SIGNED( "disablePwrOnOffHaptic", 1 ),
+  YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_UNSIGNED( "labelSingleSelect", 1 ),
   YAML_UNSIGNED( "labelMultiMode", 1 ),
   YAML_UNSIGNED( "favMultiMode", 1 ),
   YAML_UNSIGNED( "modelSelectLayout", 2 ),
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
-  YAML_UNSIGNED( "radioGFDisabled", 1 ),
-  YAML_UNSIGNED( "radioTrainerDisabled", 1 ),
-  YAML_UNSIGNED( "modelHeliDisabled", 1 ),
-  YAML_UNSIGNED( "modelFMDisabled", 1 ),
-  YAML_UNSIGNED( "modelCurvesDisabled", 1 ),
-  YAML_UNSIGNED( "modelGVDisabled", 1 ),
-  YAML_UNSIGNED( "modelLSDisabled", 1 ),
-  YAML_UNSIGNED( "modelSFDisabled", 1 ),
-  YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
-  YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
-  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
-  YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
-  YAML_UNSIGNED( "modelQuickSelect", 1 ),
-  YAML_PADDING( 5 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
-  YAML_ARRAY("keyShortcuts", 8, 6, struct_QuickMenuPage, NULL),
-  YAML_ARRAY("qmFavorites", 8, 12, struct_QuickMenuPage, NULL),
+  YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
+  YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -696,6 +707,7 @@ static const struct YamlNode struct_anonymous_12[] = {
 };
 static const struct YamlNode struct_anonymous_13[] = {
   YAML_UNSIGNED( "flags", 8 ),
+  YAML_UNSIGNED( "enableAETR", 1 ),
   YAML_END
 };
 static const struct YamlNode union_anonymous_4_elmts[] = {
@@ -709,7 +721,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 24, struct_anonymous_12, NULL),
-  YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
+  YAML_STRUCT("dsmp", 16, struct_anonymous_13, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ModuleData[] = {

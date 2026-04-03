@@ -452,24 +452,27 @@ static void transpose_trims(uint32_t *keys)
 //  - radios with a SHIFT key
 uint16_t keyMapping(uint16_t event)
 {
+  // TODO: this needs to be done in radio specific code!
 #if defined(RADIO_PA01)
   if (event == EVT_KEY_BREAK(KEY_MODEL)) return EVT_KEY_BREAK(KEY_SYS);
 #endif
+  // TODO: this needs to be done in radio specific code!
 #if defined(RADIO_ST16)
   if (event == EVT_KEY_LONG(KEY_PAGEDN)) return EVT_KEY_BREAK(KEY_SYS);
 #endif
-#if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
+
   // Radio with single PAGEDN key
-  if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
-    // Convert long press PAGEDN to short press PAGEUP
-    killEvents(KEY_PAGEDN);
-    return EVT_KEY_BREAK(KEY_PAGEUP);
+  if (!keyIsSupported(KEY_PAGEUP)) {
+    if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
+      // Convert long press PAGEDN to short press PAGEUP
+      killEvents(KEY_PAGEDN);
+      return EVT_KEY_BREAK(KEY_PAGEUP);
+    }
   }
-#endif
-#if defined(KEYS_GPIO_REG_SHIFT)
+
   // SHIFT key should not trigger REPT events
   if (event == EVT_KEY_REPT(KEY_SHIFT)) return 0;
-#endif
+
   return event;
 }
 

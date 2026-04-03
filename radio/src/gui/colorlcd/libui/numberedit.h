@@ -89,6 +89,11 @@ class NumberEdit : public TextButton
     _getValue = std::move(handler);
   }
 
+  void setOnEditedHandler(std::function<void(int)> handler)
+  {
+    onEdited = std::move(handler);
+  }
+
   int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
 
  protected:
@@ -97,6 +102,7 @@ class NumberEdit : public TextButton
   NumberArea* edit = nullptr;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
+  std::function<void(int)> onEdited;
   int vdefault = 0;
   int vmin;
   int vmax;

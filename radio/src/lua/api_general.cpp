@@ -372,6 +372,10 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
 #endif
 
+#if defined(LUMINOSITY_SENSOR)
+    {MIXSRC_LIGHT, "light", "Light Sensor"},
+#endif
+
 #if defined(PCBHORUS)
     {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
     {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
@@ -1693,12 +1697,13 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
-#if defined(KEYS_GPIO_REG_MENU)
-  #define IS_MASKABLE(key)                                      \
-    ((key) != KEY_EXIT && (key) != KEY_ENTER &&                 \
-     ((scriptInternalData[0].reference == SCRIPT_STANDALONE) || \
-      (key) != KEY_PAGEDN))
+#if !defined(COLORLCD)
+  #define IS_STANDALONE() (scriptInternalData[0].reference == SCRIPT_STANDALONE)
+  #define IS_MASKABLE(key)                      \
+    ((key) != KEY_EXIT && (key) != KEY_ENTER && \
+     (!keyIsSupported(KEY_MENU) || (IS_STANDALONE() || ((key) != KEY_PAGEDN))))
 #else
+  #define IS_STANDALONE() (false)
   #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
 #endif
 
@@ -1710,6 +1715,9 @@ static int luaKillEvents(lua_State * L)
     luaEmptyEventBuffer();
    }
   return 0;
+
+#undef IS_MASKABLE
+#undef IS_STANDALONE
 }
 
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
@@ -1758,7 +1766,15 @@ static int luaGetGeneralSettings(lua_State * L)
   lua_pushtablenumber(L, "battMin", (90+g_eeGeneral.vBatMin) * 0.1f);
   lua_pushtablenumber(L, "battMax", (120+g_eeGeneral.vBatMax) * 0.1f);
   lua_pushtableinteger(L, "imperial", g_eeGeneral.imperial);
+#if defined(ALL_LANGS)
+  char l[3];
+  l[0] = toupper(g_eeGeneral.uiLanguage[0]);
+  l[1] = toupper(g_eeGeneral.uiLanguage[1]);
+  l[2] = 0;
+  lua_pushtablestring(L, "language", l);
+#else
   lua_pushtablestring(L, "language", TRANSLATIONS);
+#endif
   lua_pushtablestring(L, "voice", currentLanguagePack->id);
   lua_pushtableinteger(L, "gtimer", g_eeGeneral.globalTimer);
   return 1;
@@ -2993,7 +3009,7 @@ static int luaSetCFSLedColor(lua_State * L)
 }
 #endif
 
-#if defined(LED_STRIP_LENGTH)
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function applyRGBLedColors()
 
@@ -3004,9 +3020,7 @@ static int luaSetCFSLedColor(lua_State * L)
 
 static int luaApplyRGBLedColors(lua_State * L)
 {
-
   rgbLedColorApply();
-
   return 1;
 }
 #endif
@@ -3051,7 +3065,7 @@ static int luaSetIMU_X(lua_State* const L)
     return 1;
   }
 
-  gyro.setIMU_X(offset, range);
+  gyroSetIMU_X(offset, range);
 #endif
   lua_pushboolean(L, true);
   return 1;
@@ -3082,7 +3096,7 @@ static int luaSetIMU_Y(lua_State* const L)
     return 1;
   }
 
-  gyro.setIMU_Y(offset, range);
+  gyroSetIMU_Y(offset, range);
 #endif
   lua_pushboolean(L, true);
   return 1;
@@ -3195,6 +3209,7 @@ LROT_BEGIN(etxcst, NULL, 0)
 #if defined(COLORLCD)
   LROT_NUMENTRY( STDSIZE, FONT(STD) )
   LROT_NUMENTRY( XXLSIZE, FONT(XXL) )
+  LROT_NUMENTRY( XLSIZE, FONT(LXL) )
   LROT_NUMENTRY( DBLSIZE, FONT(XL) )
   LROT_NUMENTRY( MIDSIZE, FONT(L) )
   LROT_NUMENTRY( SMLSIZE, FONT(XS) )

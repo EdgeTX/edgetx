@@ -18,7 +18,6 @@
 
 #include "modal_window.h"
 
-#include "layer.h"
 #include "etx_lv_theme.h"
 #include "mainwindow.h"
 
