@@ -453,10 +453,6 @@ static void transpose_trims(uint32_t *keys)
 uint16_t keyMapping(uint16_t event)
 {
   // TODO: this needs to be done in radio specific code!
-#if defined(RADIO_PA01)
-  if (event == EVT_KEY_BREAK(KEY_MODEL)) return EVT_KEY_BREAK(KEY_SYS);
-#endif
-  // TODO: this needs to be done in radio specific code!
 #if defined(RADIO_ST16)
   if (event == EVT_KEY_LONG(KEY_PAGEDN)) return EVT_KEY_BREAK(KEY_SYS);
 #endif

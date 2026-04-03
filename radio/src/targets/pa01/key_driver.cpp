@@ -74,6 +74,8 @@ extern bool suspendI2CTasks;
 
 static bool fct_state[4] = {false, false, false, false};
 static uint32_t keyState = 0;
+static bool comboSysPressed = false;   // Track if SYS combo was pressed
+static bool comboTelePressed = false;  // Track if TELE combo was pressed
 #if !defined(BOOT)
 static uint32_t nonReadCount = 0;
 #endif
@@ -192,9 +194,37 @@ uint32_t readKeys()
   uint32_t result = 0;
 
   uint32_t mkeys = keyState;
-  if (mkeys & (1 << PGUP)) result |= 1 << KEY_PAGEUP;
-  if (mkeys & (1 << PGDN)) result |= 1 << KEY_PAGEDN;
-  if (mkeys & (1 << RTN))  result |= 1 << KEY_EXIT;
+
+  // Check for combo keys with EXIT (RTN)
+  bool exitPressed = (mkeys & (1 << RTN));
+  bool pgupPressed = (mkeys & (1 << PGUP));
+  bool pgdnPressed = (mkeys & (1 << PGDN));
+
+  // EXIT + PGUP = TELE
+  if (exitPressed && pgupPressed) {
+    result |= 1 << KEY_TELE;
+    comboTelePressed = true;
+  }
+  
+  // EXIT + PGDN = SYS
+  if (exitPressed && pgdnPressed) {
+    result |= 1 << KEY_SYS;
+    comboSysPressed = true;
+  }
+  
+  // Report individual keys only if no combo is active
+  if (!comboSysPressed && !comboTelePressed) {
+    if (pgupPressed) result |= 1 << KEY_PAGEUP;
+    if (pgdnPressed) result |= 1 << KEY_PAGEDN;
+    if (exitPressed) result |= 1 << KEY_EXIT;
+  }
+  
+  // Reset combo states when EXIT is released
+  if (!exitPressed) {
+    comboSysPressed = false;
+    comboTelePressed = false;
+  }
+  
   if (mkeys & (1 << MODEL)) result |= 1 << KEY_MODEL;
   if (mkeys & (1 << ENT))  result |= 1 << KEY_ENTER;
 
