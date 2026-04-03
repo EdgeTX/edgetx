@@ -20,6 +20,8 @@
  */
 
 #include "sdcard.h"
+#include "helpers.h"
+
 #include <QFile>
 #include <QDir>
 
@@ -47,33 +49,47 @@ bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, boo
   }
 
   if (!file.open(QFile::ReadOnly)) {
-    setError(tr("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
+    setError(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
     return false;
   }
 
   filedata = file.readAll();
-  qDebug() << "File" << path << "read, size:" << filedata.size();
+  qDebug() << "File" << filename << "read, size:" << filedata.size();
   return true;
 }
 
-bool SdcardFormat::loadFile(QImage & filedata, const QString & filename, bool optional)
+bool SdcardFormat::loadImageFile(const QString & filename, bool optional)
 {
-  QString path = this->filename + "/" + filename;
-  QFile file(path);
+  QString srcpath = this->filename + "/IMAGES/" + filename;
+  QFile file(srcpath);
 
-  if (!file.exists()) {
-    if (optional)
-      return true;
-    else
+  if (!file.exists()) return optional;
+
+  if (QDir(Helpers::getImagesCacheDir()).exists()) {
+    QString destpath(Helpers::getImagesCacheDir() % "/" % filename);
+    QFile destfile(destpath);
+
+    // QFile::copy fails if destination file exists
+    if (destfile.exists()) {
+      if (destfile.remove()) {
+        qDebug() << "Deleted file from image cache" << filename;
+      } else {
+        qDebug() << "Unable to delete cached" << filename;
+        return false;
+      }
+    }
+
+    if (file.copy(Helpers::getImagesCacheDir() % "/" % filename)) {
+      qDebug() << "Cached image" << filename;
+    } else {
+      qDebug() << "Failed to cache image" << filename;
       return false;
+    }
+  } else {
+    qDebug() << "Failed to cache" << filename << ". Cache directory" << Helpers::getImagesCacheDir()
+             << "does not exist.";
   }
 
-  if (!filedata.load(path)) {
-    setError(tr("Error loading image file %1:\n%2.").arg(path));
-    return false;
-  }
-
-  qDebug() << "File" << path << "read";
   return true;
 }
 
@@ -93,33 +109,33 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
   return true;
 }
 
-bool SdcardFormat::writeFile(const QImage & data, const QString & filename)
+bool SdcardFormat::writeImageFile(const QString & filename)
 {
-  QString path = this->filename + "/" + filename;
+  QString srcpath(Helpers::getImagePath(filename));
 
-  QFileInfo finfo = QFileInfo(path);
+  if (!srcpath.isEmpty()) {
+    QFileInfo srcinfo(srcpath);
+    QString destpath(this->filename + "/IMAGES/" + filename);
+    QFileInfo destinfo(destpath);
 
-  if (finfo.exists()) {
-    // for performance reasons try to avoid overwriting the same image
-    // TODO consider collecting more image info when initially loading
-    QTemporaryFile tmp("XXXXXX." % finfo.completeSuffix());
-    tmp.open();
-    QFileInfo tinfo = QFileInfo(tmp.fileName());
-    data.save(tinfo.filePath());
-
-    if (finfo.size() == tinfo.size()) {
-      qDebug() << "File" << path << "skipped as same size";
-      return true;
+    if (destinfo.exists()) {
+      // for performance reasons avoid overwriting the same image
+      if (destinfo.size() == srcinfo.size()) {
+        qDebug() << "Image file" << filename << "skipped as same size";
+        return true;
+      }
     }
+
+    if (!QFile(srcpath).copy(destpath)) {
+      setError(tr("Error writing image file: %1").arg(filename));
+      return false;
+    }
+
+    qDebug() << "File" << destpath << "written, size:" << srcinfo.size();
+    return true;
   }
 
-  if (!data.save(path)) {
-    setError(tr("Error writing image file: %1").arg(path));
-    return false;
-  }
-
-  qDebug() << "File" << path << "written, size:" << finfo.size();
-  return true;
+  return false;
 }
 
 bool SdcardFormat::getFileList(std::list<std::string>& filelist)

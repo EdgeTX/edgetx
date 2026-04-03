@@ -232,6 +232,21 @@ int main(int argc, char *argv[])
   registerOpenTxFirmwares();
   SimulatorLoader::registerSimulators();
 
+  QString imgDir = Helpers::getImagesCacheDir();
+  QDir dir(imgDir);
+
+  if (dir.exists()) {
+    if (!dir.removeRecursively())
+      qDebug() << "Unable to delete images cache directory" << imgDir;
+    else
+      qDebug() << "Deleted images cache directory" << imgDir;
+  }
+
+  if (!QDir::temp().mkpath(imgDir))
+    qDebug() << "Unable to create images cache directory" << imgDir;
+  else
+    qDebug() << "Created images cache directory" << imgDir;
+
   Profile & profile = g.currentProfile();
   if (profile.fwType().isEmpty()){
     profile.fwType(Firmware::getDefaultVariant()->getId());

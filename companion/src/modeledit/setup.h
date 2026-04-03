@@ -115,4 +115,6 @@ class SetupPanel : public ModelPanel
     void connectItemModelEvents(const FilteredItemModel * itemModel);
     CompoundItemModelFactory * panelItemModels;
     FilteredItemModelFactory * panelFilteredModels;
+    void loadImageList(QStringList &list, const QString & dir);
+    void loadImagePreview();
 };

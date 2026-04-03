@@ -86,27 +86,11 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
     QStringList items;
     items.append("");
-    QString path = g.profile[g.id()].sdPath();
-    path.append("/IMAGES/");
-    QDir qd(path);
+    loadImageList(items, Helpers::getImagesCacheDir());
+    loadImageList(items, g.currentProfile().sdPath() % "/IMAGES/");
 
-    if (qd.exists()) {
-      QStringList filters = firmware->getCapabilityStr(ModelImageFilters).split("|");
-      foreach ( QString file, qd.entryList(filters, QDir::Files) ) {
-        QFileInfo fi(file);
-        QString temp;
-        if (firmware->getCapability(ModelImageKeepExtn))
-          temp = fi.fileName();
-        else
-          temp = fi.completeBaseName();
-        if (!items.contains(temp) && temp.length() <= firmware->getCapability(ModelImageNameLen))
-          items.append(temp);
-      }
-    }
-
-    if (!items.contains(model.bitmap)) {
+    if (!items.contains(model.bitmap))
       items.append(model.bitmap);
-    }
 
     items.sort(Qt::CaseInsensitive);
 
@@ -115,18 +99,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
       if (file == model.bitmap) {
         ui->image->setCurrentIndex(ui->image->count() - 1);
-
-        if (!file.isEmpty()) {
-          if (model.image.isNull()) { // model image not saved with file try to load from sd path
-            QString fileName = path;
-            fileName.append(model.getImageFilename());
-            model.image.load(fileName);
-          }
-
-          if (!model.image.isNull()) {
-            ui->imagePreview->setPixmap(QPixmap::fromImage(model.image.scaled(ui->imagePreview->size())));
-          }
-        }
+        loadImagePreview();
       }
     }
   }
@@ -396,22 +369,7 @@ void SetupPanel::on_image_currentIndexChanged(int index)
   if (!lock) {
     memset(model->bitmap, 0, CPN_MAX_BITMAP_LEN);
     strncpy(model->bitmap, ui->image->currentText().toLatin1(), CPN_MAX_BITMAP_LEN);
-
-    if (!model->isBitmapEmpty()) {
-      QString path = g.profile[g.id()].sdPath() % "/IMAGES/" % model->getImageFilename();
-      model->image.load(path);
-
-      if (!model->image.isNull()) {
-        ui->imagePreview->setPixmap(QPixmap::fromImage(model->image.scaled(ui->imagePreview->size())));
-      } else {
-        ui->imagePreview->clear();
-        model->image = QImage();
-      }
-    } else {
-      ui->imagePreview->clear();
-      model->image = QImage();
-    }
-
+    loadImagePreview();
     emit modified();
   }
 }
@@ -829,4 +787,38 @@ void SetupPanel::onFunctionSwitchesUpdateItemModels()
 {
   updateStartupSwitches();
   sharedItemModels->update(AbstractItemModel::IMUE_FunctionSwitches);
+}
+
+void SetupPanel::loadImageList(QStringList &list, const QString & path)
+{
+  QDir d(path);
+  const int maxnamelen = firmware->getCapability(ModelImageNameLen);
+  const bool keepextn = firmware->getCapability(ModelImageKeepExtn);
+
+  if (d.exists()) {
+    QStringList filters = firmware->getCapabilityStr(ModelImageFilters).split("|");
+
+    foreach ( QString file, d.entryList(filters, QDir::Files) ) {
+      QFileInfo fi(file);
+      QString temp = keepextn ? fi.fileName() : fi.completeBaseName();
+
+      if (!list.contains(temp) && temp.length() <= maxnamelen)
+        list.append(temp);
+    }
+  }
+}
+
+void SetupPanel::loadImagePreview()
+{
+  if (!model->isBitmapEmpty()) {
+    QImage image;
+    QString filename(model->getImageFilename());
+    QString path(Helpers::getImagePath(filename));
+
+    if (!path.isEmpty() && image.load(path))
+      ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
+    else
+      ui->imagePreview->clear();
+
+  }
 }

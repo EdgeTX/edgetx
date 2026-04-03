@@ -366,6 +366,28 @@ QString Helpers::concatPath(QString & str1, const QString & str2, bool onlyonese
   return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
 }
 
+QString Helpers::getImagesCacheDir()
+{
+  return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) % "/IMAGES";
+}
+
+QString Helpers::getImagePath(const QString & filename)
+{
+  QString srcpath(Helpers::getImagesCacheDir() % "/" % filename);
+
+  if (!QFile(srcpath).exists()) {
+    srcpath = g.currentProfile().sdPath() % "/IMAGES/" % filename;
+
+    if (!QFile(srcpath).exists()) {
+      qDebug() << filename << "not found in image cache or sd path.";
+      srcpath = "";
+    }
+  }
+
+  return srcpath;
+}
+
+
 #ifdef __APPLE__
 // Flag when simulator is running
 static bool simulatorRunning = false;

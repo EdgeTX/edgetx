@@ -234,7 +234,6 @@ class ModelData {
     USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
     QByteArray checklistData;
-    QImage image;
 
     ModelData & operator=(const ModelData & src);
 

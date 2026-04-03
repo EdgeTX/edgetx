@@ -1335,7 +1335,6 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     refresh();
   }
 
-  loadModelImages();
   radioData.validateModels();
   updateStatusBar();
 

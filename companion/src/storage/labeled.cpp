@@ -71,6 +71,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
   QByteArray labelslistBuffer;
   int sortOrder = 0;
+
   if (loadFile(labelslistBuffer, "MODELS/labels.yml")) {
     try {
       if (!loadLabelsListFromYaml(radioData.labels, sortOrder, modelFiles, labelslistBuffer)) {
@@ -108,7 +109,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
   if (hasLabels)
     radioData.models.resize(modelFiles.size());
 
-  QList<ImageInfo> imageList;
+  QList<QString> modelImages;
 
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str();
@@ -129,6 +130,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
+
     if (!loadFile(modelBuffer, filename)) {
       setError(tr("Cannot extract ") + filename);
       return false;
@@ -154,22 +156,9 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
     if (!model.isBitmapEmpty()) {
       const QString fname(model.getImageFilename());
-      bool found = false;
 
-      for (const auto &img : imageList) {
-        if (img.name == fname) {
-          model.image = *img.data;
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        if (!loadModelImage(model))
-          return false;
-
-        ImageInfo img = { QString(model.getImageFilename()), &model.image };
-        imageList.push_back(img);
+      if (!modelImages.contains(fname)) {
+        modelImages.append(fname);
       }
     }
 
@@ -181,6 +170,11 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
     model.used = true;
     modelIdx++;
+  }
+
+  for (const auto &fname : modelImages) {
+    if (!loadImageFile(fname, true))
+      return false;
   }
 
   // Add the labels in the models
@@ -255,11 +249,9 @@ bool LabelsStorageFormat::write(RadioData & radioData)
   }
 
   EtxModelfiles modelFiles;
-
-  QList<ImageInfo> imageList;
+  QList<QString> modelImages;
 
   for (const auto& model : radioData.models) {
-
     if (model.isEmpty())
       continue;
 
@@ -279,18 +271,9 @@ bool LabelsStorageFormat::write(RadioData & radioData)
 
     if (!model.isBitmapEmpty()) {
       const QString fname(model.getImageFilename());
-      bool found = false;
 
-      for (const auto &img : imageList) {
-        if (img.name == fname) {
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        ImageInfo img = { QString(model.getImageFilename()), &model.image };
-        imageList.push_back(img);
+      if (!modelImages.contains(fname)) {
+        modelImages.append(fname);
       }
     }
 
@@ -298,8 +281,8 @@ bool LabelsStorageFormat::write(RadioData & radioData)
       return false;
   }
 
-  for (const auto &img : imageList) {
-    if (!writeModelImage(img))
+  for (const auto &fname : modelImages) {
+    if (!writeImageFile(fname))
       return false;
   }
 
@@ -359,32 +342,6 @@ bool LabelsStorageFormat::loadRadioSettings(GeneralSettings & generalSettings)
     }
   } catch(const std::runtime_error& e) {
     setError(tr("Cannot load %1").arg(filePath) + ":\n" + QString(e.what()));
-    return false;
-  }
-
-  return true;
-}
-
-bool LabelsStorageFormat::loadModelImage(ModelData & model)
-{
-  const QString fname("IMAGES/" + model.getImageFilename());
-  //qDebug() << "Searching for model image file:" << fname;
-
-  if (!loadFile(model.image, fname, true)) {
-    setError(tr("Cannot load model image file: ") + fname);
-    return false;
-  }
-
-  return true;
-}
-
-bool LabelsStorageFormat::writeModelImage(const ImageInfo & img)
-{
-  const QString fname("IMAGES/" + img.name);
-  //qDebug() << "Writing model image file:" << fname;
-
-  if (!writeFile(*img.data, fname)) {
-    setError(tr("Cannot write model image file: ") + fname);
     return false;
   }
 
