@@ -435,4 +435,5 @@ class ModelData {
     }
     void updateResetParam(CustomFunctionData * cfd);
     void updateSourceNumRef(int & value);
+    void initTopBar();
 };
