@@ -307,7 +307,7 @@ bool isSwitchAvailableInCustomFunctions(int swtch)
 
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att)
 {
-  float power_W_PREC1 = powf(10.0, (dBm - 30.0) / 10.0) * 10;
+  float power_W_PREC1 = powf(10.0f, ((float)dBm - 30.0f) / 10.0f) * 10.0f;
   if (dBm >= 30) {
     lcdDrawNumber(x, y, power_W_PREC1, PREC1 | att);
     lcdDrawText(lcdNextPos, y, "W", att);
