@@ -672,6 +672,12 @@ endif()
 
 set(LINKER_SCRIPT firmware.ld)
 
+if(USE_FW_LTO)
+  message("-- Use LTO to compile firmware")
+  target_compile_options(firmware PRIVATE -flto)
+  target_link_options(firmware PRIVATE -Wl,-u,SystemCoreClockUpdate)
+endif()
+
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/${LINKER_SCRIPT}
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
