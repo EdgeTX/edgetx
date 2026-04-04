@@ -1,9 +1,9 @@
 #define OUTX_L_G  0x22
 
-#define ALPHA 0.98
-#define DT    0.01
-#define SCALE_FACT_ACC  0.005
-#define SCALE_FACT_IMU 0.0078 // 250deg/s / 32000
+#define ALPHA 0.98f
+#define DT    0.01f
+#define SCALE_FACT_ACC  0.005f
+#define SCALE_FACT_IMU 0.0078f // 250deg/s / 32000
 
 float roll=0;
 float pitch=0;

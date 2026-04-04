@@ -627,7 +627,7 @@ static int16_t circularCutoutValue(uint8_t chix)
     int32_t pval = channelOutputs[chpair];
     int32_t sum = ((value * value) + (pval * pval));
     if (sum > limit) {
-      double ratio = sqrt((double)limit / (double)sum);
+      float ratio = sqrtf((float)limit / (float)sum);
       value *= ratio;
     }
   }

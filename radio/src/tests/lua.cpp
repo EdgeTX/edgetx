@@ -243,4 +243,157 @@ TEST(Lua, ioSeek)
   std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
 }
 
+TEST(Lua, floatTonumber)
+{
+  // Basic decimal parsing
+  luaExecStr("assert(tonumber('3.14') == 3.14)");
+  luaExecStr("assert(tonumber('0') == 0)");
+  luaExecStr("assert(tonumber('-1.5') == -1.5)");
+
+  // Scientific notation
+  luaExecStr("assert(tonumber('1e10') == 1e10)");
+  luaExecStr("assert(tonumber('1.5e-3') == 1.5e-3)");
+  luaExecStr("assert(tonumber('-2.5e8') == -2.5e8)");
+
+  // Edge cases: 7 significant digits (float precision boundary)
+  luaExecStr("assert(tonumber('0.0000001') == 0.0000001)");
+  luaExecStr("assert(tonumber('9999999') == 9999999)");
+
+  // Float boundaries
+  luaExecStr("assert(tonumber('3.4028235e38') == 3.4028235e38)");  // FLT_MAX
+  luaExecStr("assert(tonumber('1.17549435e-38') == 1.17549435e-38)");  // FLT_MIN
+
+  // Invalid input
+  luaExecStr("assert(tonumber('not_a_number') == nil)");
+  luaExecStr("assert(tonumber('') == nil)");
+
+  // Hex integer (parsed as integer, not float)
+  luaExecStr("assert(tonumber('0xff') == 255)");
+
+  // Hex float
+  luaExecStr("assert(tonumber('0x1.8p0') == 1.5)");
+  luaExecStr("assert(tonumber('0x1p10') == 1024.0)");
+  luaExecStr("assert(tonumber('0x1.0p-1') == 0.5)");
+}
+
+TEST(Lua, floatTostring)
+{
+  // Basic formatting (uses "%.7g")
+  luaExecStr("assert(tostring(3.14) == '3.14')");
+  luaExecStr("assert(tostring(-1.5) == '-1.5')");
+  luaExecStr("assert(tostring(0.0001) == '0.0001')");
+  luaExecStr("assert(tostring(100000.0) == '100000.0', 'got: ' .. tostring(100000.0))");
+
+  // 7 significant digits
+  luaExecStr("assert(tostring(1/3) == '0.3333333', 'got: ' .. tostring(1/3))");
+
+  // Scientific notation threshold
+  luaExecStr("assert(tostring(1e10) == '1e+10', 'got: ' .. tostring(1e10))");
+  luaExecStr("assert(tostring(1000000.0) == '1000000.0', 'got: ' .. tostring(1000000.0))");
+
+  // Special values
+  luaExecStr("assert(tostring(1/0) == 'inf')");
+  luaExecStr("assert(tostring(-1/0) == '-inf')");
+  luaExecStr("assert(tostring(0/0) == '-nan' or tostring(0/0) == 'nan')");
+
+  // Integer vs float distinction (Lua 5.3)
+  luaExecStr("assert(tostring(0) == '0')");        // integer 0
+  luaExecStr("assert(tostring(0.0) == '0.0')");    // float 0.0
+  luaExecStr("assert(tostring(42) == '42')");       // integer
+  luaExecStr("assert(tostring(42.0) == '42.0')");   // float
+}
+
+TEST(Lua, floatStringFormat)
+{
+  // Fixed decimal with precision
+  luaExecStr("assert(string.format('%.3f', 3.14159) == '3.142')");
+  luaExecStr("assert(string.format('%.1f', 2.5) == '2.5')");
+  luaExecStr("assert(string.format('%.0f', 3.7) == '4')");
+
+  // Scientific notation
+  luaExecStr("assert(string.format('%e', 12345.0) == '1.234500e+04')");
+
+  // General format (%g switches at 1e6)
+  luaExecStr("assert(string.format('%g', 100000.0) == '100000')");
+  luaExecStr("assert(string.format('%g', 1000000.0) == '1e+06')");
+
+  // High precision (more digits than float can deliver — exposes float mantissa)
+  luaExecStr("assert(string.format('%.10g', 1/3) == '0.3333333433', 'got: ' .. string.format('%.10g', 1/3))");
+
+  // Hex float output (%a) - verify round-trip
+  luaExecStr("local s = string.format('%a', 1.5); assert(string.find(s, '0x') == 1, 'got: ' .. s)");
+  luaExecStr("assert(tonumber(string.format('%a', 1.5)) == 1.5)");
+  luaExecStr("assert(tonumber(string.format('%a', 0.1)) == 0.1)");
+
+  // Integer formatting of float
+  luaExecStr("assert(string.format('%d', 42) == '42')");
+  luaExecStr("assert(string.format('%d', -7) == '-7')");
+}
+
+TEST(Lua, floatArithmeticRoundTrip)
+{
+  // Values that round-trip through tostring/tonumber exactly
+  luaExecStr("assert(tonumber(tostring(3.14)) == 3.14)");
+  luaExecStr("assert(tonumber(tostring(1e10)) == 1e10)");
+  luaExecStr("assert(tonumber(tostring(0.0001)) == 0.0001)");
+  luaExecStr("assert(tonumber(tostring(-999.5)) == -999.5)");
+
+  // Arithmetic consistency
+  luaExecStr("assert(0.1 + 0.2 == 0.1 + 0.2)");  // same float result both sides
+  luaExecStr("assert(1e10 + 1 == 1e10)");  // float precision: 1 is lost
+  luaExecStr("assert(math.floor(3.7) == 3)");
+  luaExecStr("assert(math.ceil(3.2) == 4)");
+  luaExecStr("assert(math.abs(-5.5) == 5.5)");
+}
+
+TEST(Lua, floatMathRandom)
+{
+  // math.random() returns float in [0, 1)
+  luaExecStr(
+    "for i = 1, 100 do\n"
+    "  local r = math.random()\n"
+    "  assert(r >= 0.0 and r < 1.0, 'random() out of range: ' .. tostring(r))\n"
+    "end"
+  );
+
+  // math.random(n) returns integer in [1, n]
+  luaExecStr(
+    "for i = 1, 100 do\n"
+    "  local r = math.random(10)\n"
+    "  assert(r >= 1 and r <= 10 and r == math.floor(r), 'random(10) bad: ' .. tostring(r))\n"
+    "end"
+  );
+
+  // math.random(low, up) returns integer in [low, up]
+  luaExecStr(
+    "for i = 1, 100 do\n"
+    "  local r = math.random(5, 15)\n"
+    "  assert(r >= 5 and r <= 15 and r == math.floor(r), 'random(5,15) bad: ' .. tostring(r))\n"
+    "end"
+  );
+
+  // Degenerate case
+  luaExecStr("assert(math.random(1, 1) == 1)");
+  luaExecStr("assert(math.random(42, 42) == 42)");
+}
+
+TEST(Lua, floatStringPack)
+{
+  // Pack/unpack float ('f' = 4-byte IEEE 754 single)
+  luaExecStr("assert(string.unpack('f', string.pack('f', 3.14)) == 3.14)");
+  luaExecStr("assert(string.unpack('f', string.pack('f', -1.5)) == -1.5)");
+  luaExecStr("assert(string.unpack('f', string.pack('f', 0.0)) == 0.0)");
+
+  // Pack as 'n' (lua_Number = float in LUA_32BITS)
+  luaExecStr("assert(string.unpack('n', string.pack('n', 3.14)) == 3.14)");
+
+  // Pack as 'd' (8-byte double) - should still work, precision may differ
+  luaExecStr(
+    "local packed = string.pack('d', 3.14)\n"
+    "assert(#packed == 8, 'double pack should be 8 bytes')\n"
+    "local unpacked = string.unpack('d', packed)\n"
+    "assert(unpacked == 3.14, 'double round-trip failed')\n"
+  );
+}
+
 #endif   // #if defined(LUA)

@@ -50,7 +50,7 @@ uint16_t getRTCBatteryVoltage()
 #if (defined(VBAT_DIV_R1) && defined(VBAT_DIV_R2)) || \
     defined(BATTERY_DIVIDER) || defined(BATT_SCALE)
 
-#define VREF_FLOAT ((float)ADC_VREF_PREC2 / 100.0)
+#define VREF_FLOAT ((float)ADC_VREF_PREC2 / 100.0f)
 
 #if defined(VBAT_DIV_R1) && defined(VBAT_DIV_R2)
   // defined as a voltage divider
@@ -63,24 +63,24 @@ uint16_t getRTCBatteryVoltage()
   #define VBAT_DIVIDER VOLTAGE_DIVIDER(VBAT_DIV_R1, VBAT_DIV_R2)
 
   // Scale of Vbat calibration setting
-  #define VBAT_CAL 1000.0
+  #define VBAT_CAL 1000.0f
 
 #elif defined(BATT_SCALE)
   // defined as a simple ratio (old style: mostly taranis targets)
   #define VBAT_DIVIDER                               \
-    (((float)BATT_SCALE * 128.0 * (float)ADC_MAX_FILTERED) / \
-     ((float)BATTERY_DIVIDER * 100.0 * VREF_FLOAT))
+    (((float)BATT_SCALE * 128.0f * (float)ADC_MAX_FILTERED) / \
+     ((float)BATTERY_DIVIDER * 100.0f * VREF_FLOAT))
 
 // Scale of Vbat calibration setting
-#define VBAT_CAL 128.0
+#define VBAT_CAL 128.0f
 
 #elif defined(BATTERY_DIVIDER)
   // defined a a simple factor (old style: mostly color targets)
   #define VBAT_DIVIDER \
-    (((float)ADC_MAX_FILTERED * 10.0) / ((float)BATTERY_DIVIDER * VREF_FLOAT))
+    (((float)ADC_MAX_FILTERED * 10.0f) / ((float)BATTERY_DIVIDER * VREF_FLOAT))
 
   // Scale of Vbat calibration setting
-  #define VBAT_CAL 1000.0
+  #define VBAT_CAL 1000.0f
 
 #endif
 
@@ -107,7 +107,7 @@ __weak uint16_t getBatteryVoltage()
   vbat *= VBAT_DIVIDER * (VREF_FLOAT / (float)ADC_MAX_FILTERED);
 
   // return hundredth of volt (*10 mV)
-  return (uint16_t)(100.0 * vbat) + VBAT_OFFSET;
+  return (uint16_t)(100.0f * vbat) + VBAT_OFFSET;
 }
 
 #endif

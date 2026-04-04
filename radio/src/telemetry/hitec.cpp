@@ -325,7 +325,7 @@ void processHitecPacket(const uint8_t * packet)
       value = (int16_t) ((packet[6] << 8) | packet[5]);
       sensor = getHitecSensor(HITEC_ID_AMP);
       setTelemetryValue(PROTOCOL_TELEMETRY_HITEC, HITEC_ID_AMP, 0, 0, value, sensor->unit, sensor->precision);
-      amp = ((value + 114.875) * 1.441) + 0.5;
+      amp = (int16_t)(((float)value + 114.875f) * 1.441f + 0.5f);
       sensor = getHitecSensor(HITEC_ID_C50);
       setTelemetryValue(PROTOCOL_TELEMETRY_HITEC, HITEC_ID_C50, 0, 0, amp, sensor->unit, sensor->precision);
       amp = value * 3 + 165;
