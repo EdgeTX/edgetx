@@ -262,14 +262,14 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_LINES_COUNT
 };
 
-PACK(struct ExpandState {
+PACK(struct ModelSetupExpandState {
   uint8_t preflight:1;
   uint8_t throttle:1;
   uint8_t viewOpt:1;
   uint8_t functionSwitches:1;
 });
 
-static struct ExpandState expandState;
+static struct ModelSetupExpandState expandState;
 
 static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
 

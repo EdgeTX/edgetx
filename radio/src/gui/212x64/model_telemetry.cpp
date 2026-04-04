@@ -42,11 +42,11 @@ enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_MAX
 };
 
-PACK(struct ExpandState {
+PACK(struct TelemetryExpandState {
   uint8_t sensors:1;
 });
 
-struct ExpandState telemExpandState;
+struct TelemetryExpandState telemExpandState;
 
 uint8_t SENSOR_ROW(uint8_t value)
 {
