@@ -422,7 +422,6 @@ void SimulatorWidget::start()
   emit simulatorInit();  // init simulator default I/O values
 
   setupRadioWidgets();
-  restoreRadioWidgetsState();
 
   bool tests = !(flags & SIMULATOR_FLAGS_NOTX);
   if (!startupData.isEmpty()) {
@@ -457,6 +456,7 @@ void SimulatorWidget::stop()
 
 void SimulatorWidget::onSimulatorStarted()
 {
+  restoreRadioWidgetsState();
   m_heartbeatTimer.start();
   m_timer.start();
 }
