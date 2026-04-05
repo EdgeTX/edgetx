@@ -263,17 +263,21 @@ static int flysky_gimbal_init_uart()
 
 bool flysky_gimbal_init()
 {
+#if defined(HALL_SYNC)
+  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
   if (flysky_gimbal_init_uart() != 0) return false;
 
   _fs_gimbal_detected = false;
 
   // Wait 70ms for serial gimbals to respond
   for (uint16_t i = 0; i < 70; i++) {
-#if defined(HALL_SYNC) && !defined(SIMU)
+#if defined(HALL_SYNC)
     gpio_set(HALL_SYNC);
 #endif
     delay_ms(1);
-#if defined(HALL_SYNC) && !defined(SIMU)
+#if defined(HALL_SYNC)
     gpio_clear(HALL_SYNC);
 #endif
     if (_fs_gimbal_detected) {
@@ -292,7 +296,13 @@ bool flysky_gimbal_init()
 
 void flysky_gimbal_start_read()
 {
-  if(_fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1) {
+  if (!_fs_gimbal_detected) return;
+
+#if defined(HALL_SYNC)
+  gpio_set(HALL_SYNC);
+#endif
+
+  if(_fs_gimbal_version > GIMBAL_V1) {
     _fs_gimbal_lastReadTick = _fs_gimbal_readTick;
     _fs_gimbal_readTick = timersGetUsTick();
     if (_fs_gimbal_lastReadTick != 0) {
@@ -326,16 +336,22 @@ void flysky_gimbal_start_read()
 
 void flysky_gimbal_wait_completion()
 {
-  if(_fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1 && _fs_gimbal_mode != V1_MODE) {
-      auto timeout = timersGetUsTick();
+  if (!_fs_gimbal_detected) return;
+
+  if (_fs_gimbal_version > GIMBAL_V1 && _fs_gimbal_mode != V1_MODE) {
+    auto timeout = timersGetUsTick();
     while(!_fs_gimbal_cmd_finished) {
       // busy wait
       if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
 //        TRACE("Gimbal timeout");
-        return;
+        break;
       }
     }
   }
+
+#if defined(HALL_SYNC)
+  gpio_clear(HALL_SYNC);
+#endif
 }
 
 void flysky_gimbal_force_init()
