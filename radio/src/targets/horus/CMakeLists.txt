@@ -272,12 +272,6 @@ else()
   )
 endif()
 
-if(BLUETOOTH)
-  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp
-  )
-endif()
-
 if (VIDEO_SWITCH)
   add_definitions(-DVIDEO_SWITCH)
   set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
@@ -310,6 +304,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 if(HARDWARE_TOUCH)
   add_definitions(-DHARDWARE_TOUCH)
