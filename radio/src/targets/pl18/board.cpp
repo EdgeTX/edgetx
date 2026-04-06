@@ -187,6 +187,9 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+  rotaryEncoderInit();
+#endif
   SDRAM_Init();
 }
 

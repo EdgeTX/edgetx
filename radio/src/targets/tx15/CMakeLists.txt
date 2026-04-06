@@ -158,12 +158,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/watchdog_driver.cpp
 )
 
-if(BLUETOOTH)
-  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp
-  )
-endif()
-
 if(KCX_BTAUDIO)
   set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
     drivers/kcx_btaudio.cpp
@@ -203,6 +197,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
