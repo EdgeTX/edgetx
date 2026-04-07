@@ -879,6 +879,7 @@
   #define TRAINER_MODULE_CPPM_GPIO_AF             GPIO_AF2
   // Trainer SBUS input on heartbeat pin
   #define TRAINER_MODULE_SBUS_USART               USART6
+  #define TRAINER_MODULE_SBUS_USART_IRQn          USART6_IRQn
   #define TRAINER_MODULE_SBUS_GPIO                INTMODULE_HEARTBEAT_GPIO
   #define TRAINER_MODULE_SBUS_DMA                 DMA2
   #define TRAINER_MODULE_SBUS_DMA_STREAM          DMA2_Stream1

@@ -1255,11 +1255,6 @@
 #define TR_AUTH_FAILURE                "Godkendelse fejlet"
 #define TR_RACING_MODE                 "Ræs tilstand"
 
-#undef  STR_SENSOR_THROTTLE
-#define STR_SENSOR_THROTTLE            "Gas"
-#undef  STR_SENSOR_SPEED
-#define STR_SENSOR_SPEED               "Fart"
-
 #define TR_USE_THEME_COLOR             "Brug tema farve"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Tilføj alle trim til subtrim"
