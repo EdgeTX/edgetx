@@ -9,7 +9,9 @@
 
 #include "lprefix.h"
 
+#if defined(__GNUC__) || defined(__clang__)
 #include <alloca.h>
+#endif
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -21,7 +23,6 @@
 #include "lualib.h"
 #include "lauxlib.h"
 #include "ldebug.h"
-#include "lnodemcu.h"
 #include "lobject.h"
 #include "lstate.h"
 #include "lstring.h"
@@ -163,7 +164,7 @@ static int pmain(lua_State *L) {
   if (argc == 0)
     return 0;
   for (i = 0; i < argc; i++) {
-    const char *filename = IS("-") ? NULL : filelist[i];
+    const char *filename = IS("-") ? NULL : argv[i];
     if (luaL_loadfile(L, filename) != LUA_OK)
       fatal(lua_tostring(L, -1));
   }
