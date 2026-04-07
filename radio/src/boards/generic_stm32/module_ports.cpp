@@ -186,8 +186,8 @@ static void _extmod_init_inverter()
 static const stm32_usart_t sbus_trainer_USART = {
   .USARTx = TRAINER_MODULE_SBUS_USART,
   .rxGPIO = TRAINER_MODULE_SBUS_GPIO,
-  .IRQn = (IRQn_Type)-1,
-  .IRQ_Prio = 0,
+  .IRQn = TRAINER_MODULE_SBUS_USART_IRQn,
+  .IRQ_Prio = 6,
   .txDMA = nullptr,
   .txDMA_Stream = 0,
   .txDMA_Channel = 0,
