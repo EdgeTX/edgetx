@@ -199,9 +199,13 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define SWITCHES_GPIO_REG_J
 #define SWITCHES_GPIO_PIN_J           PCA95XX_P3
 
+//MEMS
+#define PDM_DATA                      GPIO_PIN(GPIOD,4)
+#define PDM_CLK                       GPIO_PIN(GPIOD, 13)
+
 // Expanders
-#define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
-#define IO_RESET_GPIO GPIO_PIN(GPIOG, 10)
+#define IO_INT_GPIO                   GPIO_PIN(GPIOB, 3)
+#define IO_RESET_GPIO                 GPIO_PIN(GPIOG, 10)
 #if !defined(USE_EXTI3_IRQ)
 #define USE_EXTI3_IRQ
 #define EXTI3_IRQ_Priority  9
@@ -217,7 +221,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
 #define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_2      // PH.02 VRC/LS
-#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRD/RS
+#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_5      // PA.05 VRD/RS
 
 #define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_5      // PA.05,ADC1_CH19
 #define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_5      // PH.05,ADC3_CH16
@@ -239,7 +243,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC3_INP17
 #define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_13   // ADC3_INP13
-#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_7    // ADC12_INP7
+#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_19   // ADC12_INP19
 
 #define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_19   // ADC1_IN19
 #define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_16   // ADC3_IN16
