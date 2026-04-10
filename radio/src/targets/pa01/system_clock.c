@@ -26,8 +26,22 @@
 
 #define BOOTSTRAP __attribute__((section(".bootstrap")))
 
+#define delay_us(delay_us) do { \
+    uint32_t __delay_cnt = (delay_us); \
+        SysTick->CTRL = 0; \
+        SysTick->LOAD = 0xFFFFFF; \
+        SysTick->VAL = 0UL; \
+        SysTick->CTRL |= SysTick_CTRL_CLKSOURCE_Msk; \
+        SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk; \
+        uint32_t __sysclk_freq = 64; \
+        uint32_t __delay_systick = ((__sysclk_freq * __delay_cnt) << 8); \
+        uint32_t __tickstart = SysTick->VAL << 8; \
+        while (__tickstart - (SysTick->VAL << 8) < __delay_systick); \
+} while(0)
+
 BOOTSTRAP void SystemClock_Config(void)
 {
+  delay_us(48*1000);
   /* Power Configuration */
   LL_PWR_ConfigSupply(LL_PWR_EXTERNAL_SOURCE_SUPPLY);
   LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
