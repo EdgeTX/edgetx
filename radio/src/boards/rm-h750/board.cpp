@@ -57,6 +57,10 @@
 
 #include "touch_driver.h"
 
+#if defined(PDM_DFSDM_CHANNEL)
+#include "pdm_driver.h"
+#endif
+
 #if defined(IMU_ICM4207C)
 #include "drivers/icm42607C.h"
 #endif
@@ -204,6 +208,10 @@ void boardInit()
   rtcInit();
 
   gyroInit();
+
+#if defined(PDM_DFSDM_CHANNEL)
+  pdmInit();
+#endif
 }
 
 extern void rtcDisableBackupReg();
