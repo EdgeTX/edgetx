@@ -52,7 +52,7 @@ void runPopupCurvePreset(event_t event)
 
   if (warningResult) {
     warningResult = 0;
-    CurveHeader & crv = g_model.curves[s_currIdxSubMenu];
+    CurveHeader & crv = *curveHeaderAddress(s_currIdxSubMenu);
     int8_t * points = curveAddress(s_currIdxSubMenu);
     int k = 25 * reusableBuffer.curveEdit.preset;
     int dx = 2000 / (5+crv.points-1);
@@ -84,7 +84,7 @@ void onCurveOneMenu(const char * result)
 
 void menuModelCurveOne(event_t event)
 {
-  CurveHeader & crv = g_model.curves[s_currIdxSubMenu];
+  CurveHeader & crv = *curveHeaderAddress(s_currIdxSubMenu);
   int8_t * points = curveAddress(s_currIdxSubMenu);
 
   drawStringWithIndex(strlen(STR_MENUCURVES)*FW+FW, 0, STR_CV, s_currIdxSubMenu+1);
@@ -156,7 +156,7 @@ void menuModelCurveOne(event_t event)
   }
 
   drawCurve();
-  if (s_currSrcRaw != MIXSRC_NONE)
+  if (!s_currSrcRaw.isNone())
     drawCursor(applyCurrentCurve);
 
   attr = (s_editMode > 0 ? INVERS|BLINK : INVERS);

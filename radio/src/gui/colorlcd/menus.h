@@ -29,7 +29,3 @@ extern uint8_t menuCalibrationState;
 #define MOVE_MODE 2
 
 extern int8_t s_currCh;
-
-uint8_t getExposCount();
-void deleteExpo(uint8_t idx);
-void insertExpo(uint8_t idx, uint8_t input);

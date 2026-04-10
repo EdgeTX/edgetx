@@ -133,7 +133,7 @@ static bool sortMixerLines()
   
   do {
     swaps = 0;
-    for (int i = 0; i < MAX_MIXERS - 1; i++) {
+    for (int i = 0; i < (int)g_modelArena.sectionCount(ARENA_MIXES) - 1; i++) {
       auto a = mixAddress(i);
       auto b = mixAddress(i + 1);
 
@@ -159,6 +159,7 @@ static void sanitizeMixerLines()
 {
   bool dirty = sortMixerLines();
   updateMixCount();
+  updateExpoCount();
   if (dirty) storageDirty(EE_MODEL);
 }
 

@@ -39,12 +39,14 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
 uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
                      LcdFlags attr, event_t event, coord_t lblX);
 
-swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr,
-                   event_t event);
+SwitchRef editSwitch(coord_t x, coord_t y, SwitchRef value, LcdFlags attr,
+                     event_t event);
 
-uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
-                              int16_t min, int16_t max, LcdFlags attr, event_t event,
-                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
+SourceRef editSource(coord_t x, coord_t y, const char* label, SourceRef value,
+                     SourceTypeMask allowedTypes, LcdFlags attr, event_t event);
+
+void editValueOrSource(coord_t x, coord_t y, const char* title, ValueOrSource* vos,
+                       int16_t min, int16_t max, LcdFlags attr, event_t event);
 
 int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
                            int16_t max, LcdFlags attr, uint8_t editflags,
@@ -58,8 +60,7 @@ void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar,
                    uint8_t flightMode, LcdFlags flags);
 #endif
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags);
 
 extern uint8_t editNameCursorPos;
 

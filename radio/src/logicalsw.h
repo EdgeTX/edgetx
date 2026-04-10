@@ -19,27 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "gtests.h"
+#pragma once
 
-#if defined(RTC_BACKUP_RAM)
-#include "storage/rtc_backup.h"
-namespace Backup {
-#define BACKUP
-#include "datastructs_private.h"
-PACK(struct RamBackupUncompressed {
-  ModelData model;
-  RadioData radio;
-});
-#undef BACKUP
-};
-extern Backup::RamBackupUncompressed ramBackupUncompressed;
-TEST(Storage, BackupAndRestore)
-{
-  rambackupWrite();
-  Backup::RamBackupUncompressed ramBackupRestored;
-  if (uncompress((uint8_t *)&ramBackupRestored, sizeof(ramBackupRestored), ramBackup->data, ramBackup->size) != sizeof(ramBackupUncompressed))
-    TRACE("ERROR uncompress");
-  if (memcmp(&ramBackupUncompressed, &ramBackupRestored, sizeof(ramBackupUncompressed)) != 0)
-    TRACE("ERROR restore");
-}
-#endif
+#include <stdint.h>
+
+struct LogicalSwitchData;
+
+// Get a pointer to a model logical switch (read-only; returns dummy if out of range)
+LogicalSwitchData* lswAddress(uint8_t idx);
+
+// Get a writable pointer, growing the arena section if needed
+LogicalSwitchData* lswAllocAt(uint8_t idx);
+
+// Number of active logical switch slots in the arena
+uint16_t getLswCount();
+
+// Remove trailing empty elements (func == LS_FUNC_NONE) from the logical switch section
+void lswTrimTrailing();

@@ -25,7 +25,7 @@ void displayFlightModes(coord_t x, coord_t y, FlightModesType value)
 {
   lcdDrawText(x, y, STR_FM);
   x = lcdNextPos + 1;
-  for (uint8_t p=0; p<MAX_FLIGHT_MODES; p++) {
+  for (uint8_t p=0; p<getFlightModeCount(); p++) {
     lcdDrawChar(x, y, ((value & (1<<p)) ? '-' : '0'+p));
     x += 5;
   }
@@ -55,14 +55,14 @@ void menuModelFlightModesAll(event_t event)
 {
   uint8_t old_editMode = s_editMode;
   
-  MENU(STR_MENUFLIGHTMODES, menuTabModel, MENU_MODEL_FLIGHT_MODES, MAX_FLIGHT_MODES+1, { NAVIGATION_LINE_BY_LINE|(ITEM_FLIGHT_MODES_LAST-1), NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, 0 });
+  MENU(STR_MENUFLIGHTMODES, menuTabModel, MENU_MODEL_FLIGHT_MODES, getFlightModeCount()+1, { NAVIGATION_LINE_BY_LINE|(ITEM_FLIGHT_MODES_LAST-1), NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, NAVIGATION_LINE_BY_LINE|ITEM_FLIGHT_MODES_LAST, 0 });
 
   int8_t sub = menuVerticalPosition;
 
   horzpos_t posHorz = menuHorizontalPosition;
   if (sub==0 && posHorz > 0) { posHorz += 1; }
 
-  if (sub<MAX_FLIGHT_MODES && posHorz>=0) {
+  if (sub<getFlightModeCount() && posHorz>=0) {
     drawColumnHeader(STR_PHASES_HEADERS, posHorz);
   }
 
@@ -70,11 +70,11 @@ void menuModelFlightModesAll(event_t event)
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     uint8_t k = i+menuVerticalOffset;
 
-    if (k == MAX_FLIGHT_MODES) {
+    if (k == getFlightModeCount()) {
       // last line available - add the "check trims" line
       lcdDrawText(CENTER_OFS, (LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
       drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
-      if (sub == MAX_FLIGHT_MODES) {
+      if (sub == getFlightModeCount()) {
         if (!trimsCheckTimer) {
           if (event == EVT_KEY_BREAK(KEY_ENTER)) {
             trimsCheckTimer = 200; // 2 seconds trims cancelled
@@ -110,7 +110,9 @@ void menuModelFlightModesAll(event_t event)
         case ITEM_FLIGHT_MODES_SWITCH:
           if (k>0) {
             drawSwitch((4+LEN_FLIGHT_MODE_NAME)*FW+FW/2, y, p->swtch, attr);
-            if (active) CHECK_INCDEC_MODELSWITCH(event, p->swtch, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
+            if (active) {
+              p->swtch = checkIncDecSwitch(event, p->swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
+            }
           }
           break;
 
@@ -123,7 +125,7 @@ void menuModelFlightModesAll(event_t event)
           drawTrimMode((4+LEN_FLIGHT_MODE_NAME)*FW+j*(5*FW/2), y, k, t, attr);
           if (active) {
             trim_t & v = p->trim[t];
-            v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, 2*MAX_FLIGHT_MODES, EE_MODEL, isTrimModeAvailable);
+            v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, 2*getFlightModeCount(), EE_MODEL, isTrimModeAvailable);
           }
           break;
         }

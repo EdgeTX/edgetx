@@ -130,18 +130,18 @@ point_t BitmapBuffer::drawTextLines(coord_t left, coord_t top, coord_t width,
   }
 }
 
-void BitmapBuffer::drawSource(coord_t x, coord_t y, mixsrc_t idx,
+void BitmapBuffer::drawSource(coord_t x, coord_t y, const SourceRef& ref,
                               LcdFlags flags)
 {
   char s[16];
-  getSourceString(s, idx);
+  getSourceString(s, ref);
   drawText(x, y, s, flags);
 }
 
-coord_t BitmapBuffer::drawSwitch(coord_t x, coord_t y, int32_t idx,
+coord_t BitmapBuffer::drawSwitch(coord_t x, coord_t y, const SwitchRef& ref,
                                  LcdFlags flags)
 {
-  return drawText(x, y, getSwitchPositionName(idx), flags);
+  return drawText(x, y, getSwitchPositionName(ref), flags);
 }
 
 void BitmapBuffer::drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags flags)

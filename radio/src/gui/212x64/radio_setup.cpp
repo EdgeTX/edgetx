@@ -426,10 +426,11 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_VOLUME_SOURCE:
         lcdDrawTextIndented(y, STR_CONTROL);
         drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.volumeSrc, STREXPANDED|attr);
-        if (attr)
-          g_eeGeneral.volumeSrc = checkIncDec(event, g_eeGeneral.volumeSrc,
-                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+        if (attr) {
+          g_eeGeneral.volumeSrc = checkIncDecSource(event, g_eeGeneral.volumeSrc,
+                SRCMASK_THROUGH_SWITCH,
                 isSourceAvailableForBacklightOrVolume);
+        }
         break;
 
       case ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE:
@@ -594,10 +595,11 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
         lcdDrawTextIndented(y, STR_CONTROL);
         drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.backlightSrc, STREXPANDED|attr);
-        if (attr)
-          g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
-                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+        if (attr) {
+          g_eeGeneral.backlightSrc = checkIncDecSource(event, g_eeGeneral.backlightSrc,
+                SRCMASK_THROUGH_SWITCH,
                 isSourceAvailableForBacklightOrVolume);
+        }
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:

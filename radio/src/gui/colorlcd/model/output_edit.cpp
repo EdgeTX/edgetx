@@ -59,7 +59,7 @@ class OutputEditStatusBar : public Window
 OutputEditWindow::OutputEditWindow(uint8_t channel) :
     Page(ICON_MODEL_OUTPUTS), channel(channel)
 {
-  std::string title2(getSourceString(MIXSRC_FIRST_CH + channel));
+  std::string title2(getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)channel)));
   header->setTitle(STR_MENULIMITS);
   header->setTitle2(title2);
 
@@ -185,7 +185,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveChoice(line, GET_SET_DEFAULT(output->curve), channel + MIXSRC_FIRST_CH);
+  new CurveChoice(line, GET_SET_DEFAULT(output->curve), SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)channel));
 
   // PPM center
   line = form->newLine(grid);

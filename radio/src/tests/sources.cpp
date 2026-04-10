@@ -86,37 +86,37 @@ TEST(Sources, getSourceString)
   loadRadioYamlStr(_radio_config);
 
 #if defined(IMU)
-  EXPECT_STREQ(getSourceString(MIXSRC_TILT_X), "TltX");
-  EXPECT_STREQ(getSourceString(MIXSRC_TILT_Y), "TltY");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_IMU, 0)), "TltX");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_IMU, 1)), "TltY");
 #endif
 
 #if defined(PCBHORUS)
-  EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_A), "smA");
-  EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_B), "smB");
-  EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_C), "smC");
-  EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_D), "smD");
-  EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_E), "smE");
-  EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_F), "smF");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_SPACEMOUSE, 0)), "smA");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_SPACEMOUSE, 1)), "smB");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_SPACEMOUSE, 2)), "smC");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_SPACEMOUSE, 3)), "smD");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_SPACEMOUSE, 4)), "smE");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_SPACEMOUSE, 5)), "smF");
 #endif
 
-  EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
-  EXPECT_STREQ(getSourceString(MIXSRC_MAX), STR_MENU_MAX);
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_MIN, 0)), STR_MENU_MIN);
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_MAX, 0)), STR_MENU_MAX);
 
 #if defined(HELI)
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI), "CYC1");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 1), "CYC2");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 2), "CYC3");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_HELI, 0)), "CYC1");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_HELI, 1)), "CYC2");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_HELI, 2)), "CYC3");
 #else
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI), "[C1]");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 1), "[C2]");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 2), "[C3]");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_HELI, 0)), "[C1]");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_HELI, 1)), "[C2]");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_HELI, 2)), "[C3]");
 #endif
 #if defined(SURFACE_RADIO)
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), CHAR_TRIM "ST");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), CHAR_TRIM "TH");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_TRIM, 0)), CHAR_TRIM "ST");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_TRIM, 1)), CHAR_TRIM "TH");
 #else
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), CHAR_TRIM "Rud");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), CHAR_TRIM "Ele");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 2), CHAR_TRIM "Thr");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_TRIM, 0)), CHAR_TRIM "Rud");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_TRIM, 1)), CHAR_TRIM "Ele");
+  EXPECT_STREQ(getSourceString(SourceRef_(SOURCE_TYPE_TRIM, 2)), CHAR_TRIM "Thr");
 #endif
 }

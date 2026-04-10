@@ -101,11 +101,12 @@ void menuModelCustomScriptOne(event_t event)
                                 scriptInputsOutputs[s_currIdx].inputs[inputIdx].min-scriptInputsOutputs[s_currIdx].inputs[inputIdx].def, \
                                 scriptInputsOutputs[s_currIdx].inputs[inputIdx].max-scriptInputsOutputs[s_currIdx].inputs[inputIdx].def);
         }
-      }
-      else {
-        drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, g_model.scriptsData[s_currIdx].inputs[inputIdx].source, attr);
+      } else {
+        SourceRef srcRef = g_model.scriptsData[s_currIdx].inputs[inputIdx].source;
+        drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcRef, attr);
         if (attr) {
-          CHECK_INCDEC_MODELSOURCE(event, g_model.scriptsData[s_currIdx].inputs[inputIdx].source, 0, MIXSRC_LAST_TELEM);
+          g_model.scriptsData[s_currIdx].inputs[inputIdx].source =
+              checkIncDecSource(event, srcRef, SRCMASK_ALL);
         }
       }
     }
@@ -116,7 +117,7 @@ void menuModelCustomScriptOne(event_t event)
     lcdDrawText(SCRIPT_ONE_3RD_COLUMN_POS, FH+1, STR_OUTPUTS);
 
     for (int i=0; i<scriptInputsOutputs[s_currIdx].outputsCount; i++) {
-      drawSource(SCRIPT_ONE_3RD_COLUMN_POS+INDENT_WIDTH, FH+1+FH+i*FH, MIXSRC_FIRST_LUA+(s_currIdx*MAX_SCRIPT_OUTPUTS)+i, 0);
+      drawSource(SCRIPT_ONE_3RD_COLUMN_POS+INDENT_WIDTH, FH+1+FH+i*FH, SourceRef_(SOURCE_TYPE_LUA, (uint16_t)(s_currIdx*MAX_SCRIPT_OUTPUTS+i)), 0);
       lcdDrawNumber(SCRIPT_ONE_3RD_COLUMN_POS+11*FW+3, FH+1+FH+i*FH, calcRESXto1000(scriptInputsOutputs[s_currIdx].outputs[i].value), PREC1|RIGHT);
     }
   }

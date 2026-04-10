@@ -44,12 +44,9 @@ static int numberField(const char* name, coord_t y, int val, int min, LcdFlags a
   return editNumberField(name, INDENT_WIDTH, MODEL_HELI_2ND_COLUMN, y, val, min, 100, attr, event);
 }
 
-static uint8_t sourceField(const char* name, coord_t y, uint8_t val, LcdFlags attr, event_t event)
+static SourceRef sourceField(const char* name, coord_t y, SourceRef val, LcdFlags attr, event_t event)
 {
-  lcdDrawTextAlignedLeft(y, name);
-  drawSource(MODEL_HELI_2ND_COLUMN, y, val, attr);
-  if (attr) CHECK_INCDEC_MODELSOURCE(event, val, 0, MIXSRC_LAST_CH);
-  return val;
+  return editSource(MODEL_HELI_2ND_COLUMN, y, name, val, SRCMASK_THROUGH_CH, attr, event);
 }
 
 void menuModelHeli(event_t event)

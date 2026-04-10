@@ -74,7 +74,7 @@ InputMixButtonBase::~InputMixButtonBase()
   if (fm_buffer) free(fm_buffer);
 }
 
-void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
+void InputMixButtonBase::setWeight(const ValueOrSource& value, int16_t min, int16_t max)
 {
   if (!weight) {
     weight = etx_label_create(lvobj);
@@ -93,7 +93,7 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
   lv_label_set_text(weight, s);
 }
 
-void InputMixButtonBase::setSource(mixsrc_t idx)
+void InputMixButtonBase::setSource(const SourceRef& ref)
 {
   if (!source) {
     source = etx_label_create(lvobj);
@@ -102,7 +102,7 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
     etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
   }
 
-  char* s = getSourceString(idx);
+  char* s = getSourceString(ref);
   if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
     lv_obj_add_state(source, LV_STATE_USER_1);
   else
@@ -177,7 +177,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
   const lv_font_t* font = getFont(FONT(XS));
   label_dsc.font = font;
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (int i = 0; i < getFlightModeCount(); i++) {
     char s[] = " ";
     s[0] = '0' + i;
     if (fm_modes & (1 << i)) {
@@ -242,8 +242,8 @@ static lv_obj_t* group_create(lv_obj_t* parent)
   return etx_create(&group_class, parent);
 }
 
-InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
-    Window(parent, rect_t{}, group_create), idx(idx)
+InputMixGroupBase::InputMixGroupBase(Window* parent, const SourceRef& src) :
+    Window(parent, rect_t{}, group_create), srcRef(src)
 {
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
@@ -301,7 +301,7 @@ bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
 
 void InputMixGroupBase::refresh()
 {
-  char* s = getSourceString(idx);
+  char* s = getSourceString(srcRef);
   if (getTextWidth(s, 0, FONT(STD)) > InputMixButtonBase::LN_X - PAD_TINY)
     lv_obj_add_state(label, LV_STATE_USER_1);
   else
@@ -322,11 +322,11 @@ int InputMixGroupBase::getLineNumber(uint8_t index)
   return -1;
 }
 
-InputMixGroupBase* InputMixPageBase::getGroupBySrc(mixsrc_t src)
+InputMixGroupBase* InputMixPageBase::getGroupBySrc(const SourceRef& src)
 {
   auto g = std::find_if(
       groups.begin(), groups.end(),
-      [=](InputMixGroupBase* g) -> bool { return g->getMixSrc() == src; });
+      [=](InputMixGroupBase* g) -> bool { return g->getSourceRef() == src; });
 
   if (g != groups.end()) return *g;
 
@@ -364,7 +364,7 @@ void InputMixPageBase::removeLine(InputMixButtonBase* l)
   }
 }
 
-void InputMixPageBase::addLineButton(mixsrc_t src, uint8_t index)
+void InputMixPageBase::addLineButton(const SourceRef& src, uint8_t index)
 {
   InputMixGroupBase* group_w = getGroupBySrc(src);
   if (!group_w) {
@@ -376,7 +376,7 @@ void InputMixPageBase::addLineButton(mixsrc_t src, uint8_t index)
       auto g_prev = g;
       ++g_prev;
       while (g_prev != groups.rend()) {
-        if ((*g_prev)->getMixSrc() < (*g)->getMixSrc()) break;
+        if ((*g_prev)->getSourceRef() < (*g)->getSourceRef()) break;
         lv_obj_swap((*g)->getLvObj(), (*g_prev)->getLvObj());
         std::swap(*g, *g_prev);
         ++g;

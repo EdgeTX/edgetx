@@ -26,6 +26,7 @@
 
 #include "definitions.h"
 #include "edgetx_types.h"
+#include "sourceref.h"
 
 class TelemetryItem;
 
@@ -60,7 +61,7 @@ uint8_t zlen(const char *str, uint8_t size);
 bool zexist(const char *str, uint8_t size);
 char * strcat_zchar(char *dest, const char *name, uint8_t size, const char spaceSym = 0, const char *defaultName=nullptr, uint8_t defaultNameSize=0, uint8_t defaultIdx=0);
 
-#define strcatFlightmodeName(dest, idx) strcat_zchar(dest, g_model.flightModeData[idx].name, LEN_FLIGHT_MODE_NAME, 0, STR_FM, strlen(STR_FM), idx+1)
+#define strcatFlightmodeName(dest, idx) strcat_zchar(dest, flightModeAddress(idx)->name, LEN_FLIGHT_MODE_NAME, 0, STR_FM, strlen(STR_FM), idx+1)
 
 #if !defined(STORAGE_MODELSLIST)
 
@@ -120,32 +121,35 @@ char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
 char *getValueOrGVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
                            const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
-                             const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
+char *getValueOrSrcVarString(char *dest, size_t len, const ValueOrSource& vos, LcdFlags flags = 0,
+                             const char *suffix = nullptr, int16_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
-char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly = false);
-char *getSwitchPositionName(swsrc_t idx, bool defaultOnly = false);
+char *getSwitchPositionName(char *dest, const SwitchRef& ref);
+char *getSwitchPositionName(const SwitchRef& ref);
 char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly = false);
-int getSwitchIndex(const char* name, bool all);
-int getSourceIndex(const char* name, bool all);
+uint32_t getSwitchIndex(const char* name, bool all);
+uint32_t getSourceIndex(const char* name, bool all);
 
 const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly = false);
 const char *getAnalogShortLabel(uint8_t idx);
 const char *getMainControlLabel(uint8_t idx, bool defaultOnly = false);
 const char *getTrimLabel(uint8_t idx, bool defaultOnly = false);
 const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
+const char *getTrimSourceLabel(const SourceRef& ref, int8_t trim_src);
 const char *getPotLabel(uint8_t idx, bool defaultOnly = false);
 char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 
+// Primary SourceRef overloads
 template <size_t L>
-char *getSourceString(char (&dest)[L], mixsrc_t idx, bool defaultOnly = false);
-char *getSourceString(mixsrc_t idx, bool defaultOnly = false);
+char *getSourceString(char (&dest)[L], const SourceRef& ref, bool defaultOnly = false);
+char *getSourceString(const SourceRef& ref, bool defaultOnly = false);
+
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], const SourceRef& source, int32_t val,
                                  LcdFlags flags);
-char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
+char *getSourceCustomValueString(const SourceRef& source, int32_t val, LcdFlags flags);
 
 char *getFlightModeString(char *dest, int8_t idx);
 

@@ -289,16 +289,18 @@ const static SetupLineDef throttleParamsSetupLines[] = {
     // Throttle source
     STR_DEF(STR_TTRACE),
     [](Window* parent, coord_t x, coord_t y) {
-      auto sc = new SourceChoice(parent, {x, y, 0, 0}, 0, MIXSRC_LAST_CH,
-                                []() {return throttleSource2Source(g_model.thrTraceSrc); },
-                                [](int16_t src) {
-                                  int16_t val = source2ThrottleSource(src);
-                                  if (val >= 0) {
-                                    g_model.thrTraceSrc = val;
+      auto sc = new SourceChoice(parent, {x, y, 0, 0},
+                                []() { return g_model.thrTraceSrc; },
+                                [](SourceRef ref) {
+                                    g_model.thrTraceSrc = ref;
                                     SET_DIRTY();
-                                  }
                                 });
-      sc->setAvailableHandler(isThrottleSourceAvailable);
+      sc->setAvailableHandler([](SourceRef ref) {
+        constexpr SourceTypeMask allowed =
+            SRC_TYPE_BIT(SOURCE_TYPE_NONE) | SRC_TYPE_BIT(SOURCE_TYPE_STICK) |
+            SRC_TYPE_BIT(SOURCE_TYPE_POT) | SRC_TYPE_BIT(SOURCE_TYPE_CHANNEL);
+        return (allowed & SRC_TYPE_BIT(ref.type)) && isSourceAvailable(ref);
+      });
     }
   },
   {
@@ -312,13 +314,16 @@ const static SetupLineDef throttleParamsSetupLines[] = {
     // Throttle trim source
     STR_DEF(STR_TTRIM_SW),
     [](Window* parent, coord_t x, coord_t y) {
-      new SourceChoice(
-          parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-          []() { return g_model.getThrottleStickTrimSource(); },
-          [](int16_t src) {
-            g_model.setThrottleStickTrimSource(src);
+      auto sc = new SourceChoice(
+          parent, {x, y, 0, 0},
+          []() { return g_model.getThrottleStickTrimSourceRef(); },
+          [](SourceRef ref) {
+            g_model.setThrottleStickTrimSourceRef(ref);
             SET_DIRTY();
           });
+      sc->setAvailableHandler([](SourceRef ref) {
+        return ref.type == SOURCE_TYPE_TRIM;
+      });
     }
   },
   {nullptr, nullptr},
@@ -334,7 +339,7 @@ const static SetupLineDef trimsSetupLines[] = {
     nullptr,
     [](Window* parent, coord_t x, coord_t y) {
       new TextButton(parent, {PAD_TINY, y, LCD_W - PAD_MEDIUM * 2, 0}, STR_RESET_BTN, []() -> uint8_t {
-        for (auto &fm : g_model.flightModeData) memclear(&fm.trim, sizeof(fm.trim));
+        for (int i = 0; i < MAX_FLIGHT_MODES; i++) memclear(&flightModeAddress(i)->trim, sizeof(flightModeAddress(i)->trim));
         SET_DIRTY();
         AUDIO_WARNING1();
         return 0;
@@ -451,6 +456,7 @@ const static SetupLineDef setupLines[] = {
                      }, false, STR_BITMAP);
     }
   },
+  // TODO: add model memory usage indicator (needs STR_MODEL_MEMORY in translations)
   {nullptr, nullptr},
 };
 

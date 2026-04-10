@@ -22,6 +22,7 @@
 #include "edgetx.h"
 #include "mixes.h"
 
+
 enum MixFields {
   MIX_FIELD_NAME,
   MIX_FIELD_SOURCE,
@@ -44,7 +45,7 @@ enum MixFields {
 
 extern uint8_t FM_ROW(uint8_t);
 
-extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
+extern int32_t getSourceNumFieldValue(const ValueOrSource& vs, int16_t min, int16_t max);
 
 void drawOffsetBar(uint8_t x, uint8_t y, MixData * md)
 {
@@ -132,18 +133,17 @@ void menuModelMixOne(event_t event)
       case MIX_FIELD_SOURCE:
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
         drawSource(MIXES_2ND_COLUMN, y, md2->srcRaw, STREXPANDED|attr);
-        if (attr)
-          md2->srcRaw = checkIncDec(event, md2->srcRaw, 1, MIXSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
+        if (attr) {
+          md2->srcRaw = checkIncDecSource(event, md2->srcRaw, SRCMASK_ALL, isSourceAvailable);
+        }
         break;
 
       case MIX_FIELD_WEIGHT:
-        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight, 
-                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        editValueOrSource(MIXES_2ND_COLUMN, y, STR_WEIGHT, &md2->weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event);
         break;
 
       case MIX_FIELD_OFFSET:
-        md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
-                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        editValueOrSource(MIXES_2ND_COLUMN, y, STR_OFFSET, &md2->offset, MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event);
         drawOffsetBar(LCD_W - 33, y, md2);
         break;
 
@@ -157,7 +157,7 @@ void menuModelMixOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_CURVE);
         s_currSrcRaw = md2->srcRaw;
         s_currScale = 0;
-        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailable, 1, MIXSRC_LAST);
+        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr);
         break;
 
 #if defined(FLIGHT_MODES)

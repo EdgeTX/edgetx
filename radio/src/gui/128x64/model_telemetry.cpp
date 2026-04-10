@@ -162,7 +162,7 @@ void menuModelTelemetry(event_t event)
         lcdNextPos = TELEM_COL2;
         if (isOld)
           lcdDrawChar(lcdNextPos, y, '[');
-        drawSensorCustomValue(lcdNextPos, y, index, getValue(MIXSRC_FIRST_TELEM+3*index), LEFT);
+        drawSensorCustomValue(lcdNextPos, y, index, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3*index)), LEFT);
         if (isOld)
           lcdDrawChar(lcdLastRightPos, y, ']');
       }
@@ -257,7 +257,7 @@ void menuModelTelemetry(event_t event)
 
       case ITEM_TELEMETRY_VARIO_SOURCE:
         lcdDrawTextIndented(y, STR_SOURCE);
-        drawSource(TELEM_COL2, y, g_model.varioData.source ? MIXSRC_FIRST_TELEM+3*(g_model.varioData.source-1) : 0, attr);
+        drawSource(TELEM_COL2, y, g_model.varioData.source ? SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3*(g_model.varioData.source-1))) : SourceRef{}, attr);
         if (attr) {
           g_model.varioData.source = checkIncDec(event, g_model.varioData.source, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVarioSensorAvailable);
         }

@@ -22,41 +22,52 @@
 #include "mixes.h"
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
+#include "model_arena.h"
 
 #include "edgetx.h"
 
 static uint8_t _nb_mix_lines;
 
-MixData* mixAddress(uint8_t idx) { return &g_model.mixData[idx]; }
+MixData* mixAddress(uint8_t idx) {
+  return reinterpret_cast<MixData*>(
+      g_modelArena.sectionBase(ARENA_MIXES)) + idx;
+}
+
+MixData* mixAllocAt(uint8_t idx) {
+  if (idx >= g_modelArena.sectionCount(ARENA_MIXES)) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_MIXES, idx + 1))
+      return nullptr;
+  }
+  return mixAddress(idx);
+}
 
 uint8_t getMixCount() { return _nb_mix_lines; }
 
 // Slow up/down calculation array
-extern int32_t act [MAX_MIXERS];
+extern int32_t act [MAX_MIXERS_HARD];
+
+constexpr SourceTypeMask insertMixMask =
+  SRC_TYPE_BIT(SOURCE_TYPE_INPUT) |
+  SRC_TYPE_BIT(SOURCE_TYPE_POT) |
+  SRC_TYPE_BIT(SOURCE_TYPE_SWITCH);
 
 void insertMix(uint8_t idx, uint8_t channel)
 {
   mixerTaskStop();
-  MixData * mix = mixAddress(idx);
-  memmove(mix + 1, mix, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
-  memclear(mix, sizeof(MixData));
-  mix->destCh = channel;
-  mix->srcRaw = channel + 1;
-  if (!isSourceAvailable(mix->srcRaw)) {
-    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-      mix->srcRaw = MIXSRC_FIRST_STICK + channel;
-    } else {
-      mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);
-    }
-    while (!isSourceAvailable(mix->srcRaw)) {
-      mix->srcRaw += 1;
-    }
+
+  if (!g_modelArena.insertInSection(ARENA_MIXES, idx, sizeof(MixData))) {
+    mixerTaskStart();
+    return;
   }
-  mix->weight = 100;
+
+  MixData * mix = mixAddress(idx);
+  mix->destCh = channel;
+  mix->srcRaw = nthAvailableSource(channel, insertMixMask);
+  mix->weight.setNumeric(100);
   mixerTaskStart();
 
   // Update slow up/down array
-  memmove(&act[idx + 1], &act[idx], (MAX_MIXERS - (idx + 1)) * sizeof(int32_t));
+  memmove(&act[idx + 1], &act[idx], (getMixCount() - idx) * sizeof(int32_t));
   act[idx] = 0;
 
   _nb_mix_lines += 1;
@@ -66,14 +77,14 @@ void insertMix(uint8_t idx, uint8_t channel)
 void deleteMix(uint8_t idx)
 {
   mixerTaskStop();
-  MixData * mix = mixAddress(idx);
-  memmove(mix, mix + 1, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
-  memclear(&g_model.mixData[MAX_MIXERS - 1], sizeof(MixData));
-  mixerTaskStart();
 
-  // Update slow up/down array
-  memmove(&act[idx], &act[idx + 1], (MAX_MIXERS - (idx + 1)) * sizeof(int32_t));
-  act[MAX_MIXERS - 1] = 0;
+  // Update slow up/down array (before section delete changes addresses)
+  uint8_t count = getMixCount();
+  memmove(&act[idx], &act[idx + 1], (count - idx - 1) * sizeof(int32_t));
+  act[count - 1] = 0;
+
+  g_modelArena.deleteFromSection(ARENA_MIXES, idx, sizeof(MixData));
+  mixerTaskStart();
 
   _nb_mix_lines -= 1;
   storageDirty(EE_MODEL);
@@ -84,9 +95,13 @@ void copyMix(uint8_t src, uint8_t dst, uint8_t channel)
   mixerTaskStop();
   MixData sourceMix;
   memcpy(&sourceMix, mixAddress(src), sizeof(MixData));
+
+  if (!g_modelArena.insertInSection(ARENA_MIXES, dst, sizeof(MixData))) {
+    mixerTaskStart();
+    return;
+  }
+
   MixData* mix = mixAddress(dst);
-  size_t trailingMixes = MAX_MIXERS - (dst + 1);
-  memmove(mix + 1, mix, trailingMixes * sizeof(MixData));
   memcpy(mix, &sourceMix, sizeof(MixData));
   mix->destCh = channel;
   mixerTaskStart();
@@ -112,7 +127,7 @@ uint8_t moveMix(uint8_t idx, bool up)
     return idx;
   }
 
-  if (tgt_idx == MAX_MIXERS) {
+  if (tgt_idx == getMixCount()) {
     if (x->destCh < MAX_OUTPUT_CHANNELS - 1) {
       x->destCh++;
       storageDirty(EE_MODEL);
@@ -129,7 +144,7 @@ uint8_t moveMix(uint8_t idx, bool up)
   // TODO: check what happens with the mixer
   //       when channel is changed on-the-fly
   //
-  if(!y->srcRaw || destCh != y->destCh) {
+  if(y->srcRaw.isNone() || destCh != y->destCh) {
     if (up) {
       if (destCh > 0) {
 	x->destCh--;
@@ -155,12 +170,13 @@ uint8_t moveMix(uint8_t idx, bool up)
 
 static uint8_t _countMixLines()
 {
-  // search for first blank
+  // search for first blank within the allocated section
   uint8_t i = 0;
-  do {
+  uint8_t limit = g_modelArena.sectionCount(ARENA_MIXES);
+  while (i < limit) {
     if (is_memclear(mixAddress(i), sizeof(MixData))) break;
-  } while (++i < MAX_MIXERS);
-
+    i++;
+  }
   return i;
 }
 

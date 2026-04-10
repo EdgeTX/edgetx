@@ -423,11 +423,11 @@ void drawModelName(coord_t x, coord_t y, char *name, uint8_t id, LcdFlags att)
   }
 }
 
-void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold)
+void drawSwitch(coord_t x, coord_t y, const SwitchRef& ref, LcdFlags flags, bool autoBold)
 {
   char s[8];
-  getSwitchPositionName(s, idx);
-  if (autoBold && idx != SWSRC_NONE && getSwitch(idx))
+  getSwitchPositionName(s, ref);
+  if (autoBold && !ref.isNone() && getSwitch(ref))
     flags |= BOLD;
   lcdDrawText(x, y, s, flags);
 }
@@ -439,21 +439,18 @@ void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att)
   lcdDrawText(x, y, s, att);
 }
 
-void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att)
+void drawTimerMode(coord_t x, coord_t y, uint8_t mode, const SwitchRef& swtch, LcdFlags att)
 {
-  if (mode >= 0) {
-    if (mode < TMRMODE_COUNT)
-      return lcdDrawTextAtIndex(x, y, STR_VTMRMODES, mode, att);
-    else
-      mode -= (TMRMODE_COUNT-1);
-  }
-  drawSwitch(x, y, mode, att);
+  if (mode < TMRMODE_COUNT)
+    lcdDrawTextAtIndex(x, y, STR_VTMRMODES, mode, att);
+  else
+    drawSwitch(x, y, swtch, att);
 }
 
 #if defined(RTCLOCK)
 void drawRtcTime(coord_t x, coord_t y, LcdFlags att)
 {
-  drawTimer(x, y, getValue(MIXSRC_TX_TIME), att, att);
+  drawTimer(x, y, getValue(SourceRef_(SOURCE_TYPE_TX_TIME, 0)), att, att);
 }
 #endif
 

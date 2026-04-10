@@ -24,6 +24,7 @@
 #include "choice.h"
 #include "form.h"
 #include "numberedit.h"
+#include "sourceref.h"
 
 class TextButton;
 
@@ -31,13 +32,11 @@ class SourceNumberEdit : public Window
 {
  public:
   SourceNumberEdit(Window* parent, int32_t vmin, int32_t vmax,
-                   std::function<int32_t()> getValue,
-                   std::function<void(int32_t)> setValue,
-                   int16_t sourceMin,
-                   LcdFlags textFlags = 0, int32_t voffset = 0,
+                   ValueOrSource* vos,
+                   std::function<void()> onChanged,
+                   LcdFlags textFlags = 0,
                    int32_t vdefault = 0);
 
-  void switchSourceMode();
   void setSuffix(const std::string& value);
 
   void setFastStep(int value) { num_field->setFastStep(value); }
@@ -55,12 +54,5 @@ class SourceNumberEdit : public Window
 
   int32_t vmin;
   int32_t vmax;
-  int16_t sourceMin;
-  std::function<int32_t()> getValue;
-  std::function<void(int32_t)> setValue;
-  int32_t voffset;
-
-  bool isSource();
-
-  static void value_changed(lv_event_t* e);
+  ValueOrSource* vos;
 };

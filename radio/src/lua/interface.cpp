@@ -594,10 +594,10 @@ static const char * getScriptName(uint8_t idx)
   } else
 #endif
   if (ref <= SCRIPT_FUNC_LAST) {
-    return g_model.customFn[ref - SCRIPT_FUNC_FIRST].play.name;
+    return customFnAddress(ref - SCRIPT_FUNC_FIRST)->play.name;
   }
   else if (ref <= SCRIPT_GFUNC_LAST) {
-    return g_eeGeneral.customFn[ref - SCRIPT_GFUNC_FIRST].play.name;
+    return globalFnAddress(ref - SCRIPT_GFUNC_FIRST)->play.name;
   }
 #if defined(PCBTARANIS)
   else if (ref <= SCRIPT_TELEMETRY_LAST) {
@@ -658,14 +658,14 @@ static bool luaLoadFunctionScript(uint8_t ref)
   if (ref <= SCRIPT_FUNC_LAST) {
     if (modelSFEnabled()) {
       idx = ref - SCRIPT_FUNC_FIRST;
-      fn = &g_model.customFn[idx];
+      fn = customFnAddress(idx);
     } else {
       return false;
     }
   }
   else if (radioGFEnabled()) {
     idx = ref - SCRIPT_GFUNC_FIRST;
-    fn = &g_eeGeneral.customFn[idx];
+    fn = globalFnAddress(idx);
   }
   else
     return false;
@@ -1019,7 +1019,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 
 } // luaLoadScripts
 
-void luaGetValueAndPush(lua_State *L, int src);
+void luaGetValueAndPush(lua_State *L, SourceRef ref);
 
 #if !defined(COLORLCD)
 void luaExec(const char * filename)
@@ -1127,18 +1127,18 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           if (ref <= SCRIPT_FUNC_LAST) {
             if (!modelSFEnabled()) continue;
             idx = ref - SCRIPT_FUNC_FIRST;
-            fn = &g_model.customFn[idx];
+            fn = customFnAddress(idx);
             functionsContext = &modelFunctionsContext;
           } else {
             if (!radioGFEnabled()) continue;
             idx = ref - SCRIPT_GFUNC_FIRST;
-            fn = &g_eeGeneral.customFn[idx];
+            fn = globalFnAddress(idx);
             functionsContext = &globalFunctionsContext;
           }
 
-          if (CFN_ACTIVE(fn) && CFN_SWITCH(fn)) {
+          if (CFN_ACTIVE(fn) && !fn->swtch.isNone()) {
             tmr10ms_t tmr10ms = get_tmr10ms();
-            if (getSwitch(CFN_SWITCH(fn)) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
+            if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
               lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
               functionsContext->lastFunctionTime[idx] = tmr10ms;
             }

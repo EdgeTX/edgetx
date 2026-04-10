@@ -316,7 +316,7 @@ class SensorButton : public ListLineButton
       if (telemetryItem.isAvailable()) {
         isOld = telemetryItem.isOld();
         s = getSensorCustomValue(
-            index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
+            index, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * index)), LEFT);
       } else {
         s = "---";
       }
@@ -339,21 +339,25 @@ class SensorSourceChoice : public SourceChoice
  public:
   SensorSourceChoice(Window* window, const rect_t& rect, uint8_t* source,
                      IsValueAvailable isValueAvailable) :
-      SourceChoice(window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
-                   GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1)
-                                       : MIXSRC_NONE),
-                   [=](uint16_t newValue) {
-                     *source = newValue == MIXSRC_NONE
-                                   ? 0
-                                   : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
+      SourceChoice(window, rect,
+                   [=]() -> SourceRef {
+                     if (*source == 0)
+                       return SourceRef_(SOURCE_TYPE_NONE, 0);
+                     return SourceRef_(SOURCE_TYPE_TELEMETRY,
+                                     (uint16_t)((*source - 1) * 3));
+                   },
+                   [=](SourceRef ref) {
+                     if (ref.type == SOURCE_TYPE_NONE)
+                       *source = 0;
+                     else
+                       *source = ref.index / 3 + 1;
                      SET_DIRTY();
                    })
   {
-    setAvailableHandler([=](int16_t value) {
-      if (value == MIXSRC_NONE) return true;
-      if (value < MIXSRC_FIRST_TELEM) return false;
-      auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
-      return qr.rem == 0 && isValueAvailable(qr.quot + 1);
+    setAvailableHandler([=](SourceRef ref) {
+      if (ref.type == SOURCE_TYPE_NONE) return true;
+      if (ref.type != SOURCE_TYPE_TELEMETRY) return false;
+      return ref.index % 3 == 0 && isValueAvailable(ref.index / 3 + 1);
     });
   }
 };
@@ -430,7 +434,7 @@ class SensorEditWindow : public SubPage
         std::string title2 =
             STR_SENSOR + std::to_string(index + 1) + " = " +
             getSensorCustomValue(
-                index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
+                index, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3 * index)), LEFT);
         headerValue->setText(title2);
       } else {
         headerValue->setText(STR_SENSOR + std::to_string(index + 1) + " = " +
@@ -973,19 +977,24 @@ void ModelTelemetryPage::build(Window* window)
   line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_SOURCE);
   auto choice = new SourceChoice(
-      line, rect_t{}, MIXSRC_NONE, MIXSRC_LAST_TELEM,
-      GET_DEFAULT(g_model.varioData.source
-                      ? MIXSRC_FIRST_TELEM + 3 * (g_model.varioData.source - 1)
-                      : MIXSRC_NONE),
-      SET_VALUE(g_model.varioData.source,
-                newValue == MIXSRC_NONE
-                    ? 0
-                    : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1));
-  choice->setAvailableHandler([=](int16_t value) {
-    if (value == MIXSRC_NONE) return true;
-    if (value < MIXSRC_FIRST_TELEM) return false;
-    auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
-    return qr.rem == 0 && isVarioSensorAvailable(qr.quot + 1);
+      line, rect_t{},
+      [=]() -> SourceRef {
+        if (g_model.varioData.source == 0)
+          return SourceRef_(SOURCE_TYPE_NONE, 0);
+        return SourceRef_(SOURCE_TYPE_TELEMETRY,
+                        (uint16_t)((g_model.varioData.source - 1) * 3));
+      },
+      [=](SourceRef ref) {
+        if (ref.type == SOURCE_TYPE_NONE)
+          g_model.varioData.source = 0;
+        else
+          g_model.varioData.source = ref.index / 3 + 1;
+        SET_DIRTY();
+      });
+  choice->setAvailableHandler([=](SourceRef ref) {
+    if (ref.type == SOURCE_TYPE_NONE) return true;
+    if (ref.type != SOURCE_TYPE_TELEMETRY) return false;
+    return ref.index % 3 == 0 && isVarioSensorAvailable(ref.index / 3 + 1);
   });
 
   line = window->newLine(grid5);

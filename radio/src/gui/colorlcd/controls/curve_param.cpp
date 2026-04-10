@@ -31,7 +31,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue,
-        std::function<void(int32_t)> setRefValue, mixsrc_t source) :
+        std::function<void(int32_t)> setRefValue, const SourceRef& source) :
   Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
   source(source)
   {
@@ -50,7 +50,7 @@ bool CurveChoice::onLongPress()
 }
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source) :
+                       const SourceRef& source) :
     Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);
@@ -61,43 +61,37 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
   new Choice(this, rect_t{}, STR_VCURVETYPE, 0, modelCurvesEnabled() ? CURVE_REF_CUSTOM : CURVE_REF_FUNC,
              GET_DEFAULT(ref->type), [=](int32_t newValue) {
                ref->type = newValue;
-               ref->value = 0;
+               ref->value.clear();
                SET_DIRTY();
                update();
              });
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  auto gv = new SourceNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue, sourceMin);
+  auto gv = new SourceNumberEdit(this, -100, 100,
+      &ref->value,
+      [=]() { SET_DIRTY(); });
   gv->setSuffix("%");
   value_edit = gv;
 
   // CURVE_REF_FUNC
   func_choice = new Choice(this, rect_t{}, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
                            [=]() {
-                             SourceNumVal v;
-                             v.rawValue = ref->value;
-                             return v.value;
+                             return ref->value.numericValue();
                            },
                            [=](int32_t newValue) {
-                             SourceNumVal v;
-                             v.isSource = false;
-                             v.value = newValue;
-                             setRefValue(v.rawValue);
+                             ref->value.setNumeric(newValue);
+                             SET_DIRTY();
                            });
 
   // CURVE_REF_CUSTOM
   cust_choice = new CurveChoice(this,
                                 [=]() {
-                                  SourceNumVal v;
-                                  v.rawValue = ref->value;
-                                  return v.value;
+                                  return ref->value.numericValue();
                                 },
                                 [=](int32_t newValue) {
-                                  SourceNumVal v;
-                                  v.isSource = false;
-                                  v.value = newValue;
-                                  setRefValue(v.rawValue);
+                                  ref->value.setNumeric(newValue);
+                                  SET_DIRTY();
                                 }, source);
 
   update();

@@ -64,7 +64,7 @@ class GaugeWidget : public Widget
   {
     auto widgetData = getPersistentData();
 
-    mixsrc_t index = widgetData->options[0].value.unsignedValue;
+    SourceRef index = SourceRef::fromUint32(widgetData->options[0].value.unsignedValue);
     int32_t min = widgetData->options[1].value.signedValue;
     int32_t max = widgetData->options[2].value.signedValue;
 
@@ -86,8 +86,9 @@ class GaugeWidget : public Widget
 
     auto widgetData = getPersistentData();
 
-    mixsrc_t index = widgetData->options[0].value.unsignedValue;
-    sourceText->setText(getSourceString(index));
+    uint32_t raw = widgetData->options[0].value.unsignedValue;
+    SourceRef ref = SourceRef::fromUint32(raw);
+    sourceText->setText(getSourceString(ref));
 
     if (width() < ALIGN_MAX_W)
       lv_obj_add_state(valueText->getLvObj(), LV_STATE_USER_1);

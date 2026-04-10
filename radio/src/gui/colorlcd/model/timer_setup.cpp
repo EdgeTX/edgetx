@@ -54,8 +54,9 @@ TimerWindow::TimerWindow(uint8_t timer) :
   // Timer switch
   setupLine(STR_SWITCH,
     [=](Window* parent, coord_t x, coord_t y) {
-      new SwitchChoice(parent, rect_t{x, y, 0, 0}, SWSRC_FIRST, SWSRC_LAST,
-                       GET_SET_DEFAULT(p_timer->swtch));
+      new SwitchChoice(parent, rect_t{x, y, 0, 0},
+                       [=]() { return p_timer->swtch; },
+                       [=](SwitchRef ref) { p_timer->swtch = ref; SET_DIRTY(); });
     });
 
   // Timer start value

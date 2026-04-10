@@ -25,6 +25,8 @@
 #include <inttypes.h>
 #include "board.h"
 #include "dataconstants.h"
+#include "model_arena.h"
+#include "sourceref.h"
 #include "definitions.h"
 #include "edgetx_types.h"
 #include "globals.h"
@@ -114,24 +116,24 @@ inline uint16_t luaIntToSourceNumval(int val)
  */
 
 PACK(struct CurveRef {
-  uint16_t type:5;
-  uint16_t value:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint8_t type;              // CurveRefType: DIFF, EXPO, FUNC, CUSTOM
+  uint8_t spare;
+  ValueOrSource value;       // curve index, function index, or diff/expo value (possibly from source)
 });
 
 PACK(struct MixData {
-  uint16_t destCh:5;
-  int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
-  uint16_t carryTrim:1;
-  uint16_t mixWarn:2;       // mixer warning
+  SourceRef srcRaw CUST(r_sourceRefEx, w_sourceRefEx);          // source (type=NONE means unused line, supports inversion)
+  SwitchRef swtch;           // activation switch
+  ValueOrSource weight;      // weight value or source
+  ValueOrSource offset;      // offset value or source
+  CurveRef curve;            // curve reference
+  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
   uint16_t mltpx:2 ENUM(MixerMultiplex);
+  uint16_t carryTrim:1;
+  uint16_t mixWarn:2;
   uint16_t delayPrec:1;
   uint16_t speedPrec:1;
-  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:1 SKIP;
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  CurveRef curve;
+  uint8_t  destCh;           // destination channel (was 5 bits, now full byte)
   uint8_t  delayUp;
   uint8_t  delayDown;
   uint8_t  speedUp;
@@ -144,18 +146,17 @@ PACK(struct MixData {
  */
 
 PACK(struct ExpoData {
-  uint16_t mode:2;
-  uint16_t scale:14;
-  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
-  int16_t  trimSource:6;
-  int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  CurveRef curve;
-  uint16_t chn:5;
+  SourceRef srcRaw CUST(r_sourceRefEx, w_sourceRefEx);          // source (supports inversion)
+  SwitchRef swtch;           // activation switch
+  ValueOrSource weight;      // weight value or source
+  ValueOrSource offset;      // offset value or source
+  CurveRef curve;            // curve reference
   uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:2 SKIP;
+  uint16_t mode:2;
+  uint16_t chn:5;            // input channel
+  uint16_t scale;
+  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
+  int8_t   trimSource;       // was 6 bits, now full byte
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
 });
 
@@ -164,13 +165,13 @@ PACK(struct ExpoData {
  */
 
 PACK(struct LimitData {
-  int32_t min:11 CUST(in_read_weight,in_write_weight);
-  int32_t max:11 CUST(in_read_weight,in_write_weight);
-  int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11 CUST(in_read_weight,in_write_weight);
+  int16_t min CUST(in_read_weight,in_write_weight);
+  int16_t max CUST(in_read_weight,in_write_weight);
+  int16_t offset CUST(in_read_weight,in_write_weight);
+  int16_t ppmCenter:12;
   uint16_t symetrical:1;
   uint16_t revert:1;
-  uint16_t spare:3 SKIP;
+  uint16_t spare:2 SKIP;
   int8_t curve;
   NOBACKUP(char name[LEN_CHANNEL_NAME]);
 });
@@ -179,15 +180,37 @@ PACK(struct LimitData {
  * LogicalSwitch structure
  */
 
+// Logical switch value: can hold a source, switch, or numeric value
+// depending on the LS function type. Context (func) determines which
+// union member is valid.
+union LSValue {
+  SourceRef  source;   // LS_FAMILY_OC, LS_FAMILY_COMP: v1/v2 are sources
+  SwitchRef  swtch;    // LS_FAMILY_BOOL, LS_FAMILY_EDGE, LS_FAMILY_STICKY: v1/v2 are switches
+  int32_t    value;    // LS_FAMILY_TIMER: v1/v2 are numeric values
+
+  bool isZero() const { return value == 0; }
+
+  // Allow cross-namespace assignment (needed for Backup copy functions)
+  template<typename T>
+  LSValue& operator=(const T& other) {
+    static_assert(sizeof(T) == sizeof(LSValue), "LSValue size mismatch");
+    memcpy(this, &other, sizeof(LSValue));
+    return *this;
+  }
+};
+
+static_assert(sizeof(LSValue) == 4, "LSValue must be 32 bits");
+
 PACK(struct LogicalSwitchData {
   uint8_t  func ENUM(LogicalSwitchesFunctions);
   CUST_ATTR(def,r_logicSw,w_logicSw);
-  int32_t  v1:10 SKIP;
-  int32_t  v3:10 SKIP;
-  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t lsPersist:1;
-  uint32_t lsState:1;
-  int16_t  v2 SKIP;
+  LSValue  v1 SKIP;
+  LSValue  v2 SKIP;
+  int16_t  v3 SKIP;
+  SwitchRef andsw;
+  uint8_t  lsPersist:1;
+  uint8_t  lsState:1;
+  uint8_t  spare:6 SKIP;
   uint8_t  delay;
   uint8_t  duration;
 });
@@ -197,8 +220,8 @@ PACK(struct LogicalSwitchData {
  */
 
 PACK(struct CustomFunctionData {
-  int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
+  SwitchRef swtch;
+  uint8_t func ENUM(Functions);
   CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {
@@ -206,7 +229,7 @@ PACK(struct CustomFunctionData {
     }) play);
 
     PACK(struct {
-      int16_t val;
+      LSValue val;
       uint8_t mode;
       uint8_t param;
       int32_t val2;
@@ -222,7 +245,7 @@ PACK(struct CustomFunctionData {
 
   bool isEmpty() const
   {
-    return swtch == 0;
+    return swtch.isNone();
   }
 });
 
@@ -239,11 +262,12 @@ PACK(struct FlightModeData {
   trim_t trim[MAX_TRIMS];
   NOBACKUP(char name[LEN_FLIGHT_MODE_NAME]);
   // swtch of phase[0] is not used
-  int16_t swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
-  int16_t spare:6 SKIP;
+  SwitchRef swtch;
   uint8_t fadeIn;
   uint8_t fadeOut;
-  gvar_t gvars[MAX_GVARS] FUNC(gvar_is_active);
+  // gvar values live in ARENA_GVAR_VALUES (flat matrix indexed by fm * numGVars + gv)
+  // but are serialized nested under each FM for YAML backward compatibility
+  CUST_EXTERN_ARRAY(gvars, struct_signed_16, MAX_GVARS, yaml_drv_fmd_gvar_values);
 });
 
 /*
@@ -276,15 +300,15 @@ PACK(struct GVarData {
  */
 
 PACK(struct TimerData {
+  SwitchRef swtch;
   uint32_t start:22;
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  int32_t  value:22;
   uint32_t mode:3 ENUM(TimerModes);
   uint32_t countdownBeep:2;
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
-  uint8_t  showElapsed:1; 
+  int32_t  value:22;
+  uint8_t  showElapsed:1;
   uint8_t  extraHaptic:1;
   uint8_t  spare:6 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
@@ -297,9 +321,9 @@ PACK(struct TimerData {
 PACK(struct SwashRingData {
   uint8_t   type ENUM(SwashType);
   uint8_t   value;
-  uint8_t   collectiveSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  uint8_t   aileronSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  uint8_t   elevatorSource CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef collectiveSource;
+  SourceRef aileronSource;
+  SourceRef elevatorSource;
   int8_t    collectiveWeight;
   int8_t    aileronWeight;
   int8_t    elevatorWeight;
@@ -308,7 +332,7 @@ PACK(struct SwashRingData {
 #if MAX_SCRIPTS > 0
 union ScriptDataInput {
   int16_t value;
-  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef source;
 } FUNC(select_script_input);
 
 PACK(struct ScriptData {
@@ -339,26 +363,21 @@ typedef int16_t ls_telemetry_value_t;
 
 #if !defined(COLORLCD)
 PACK(struct FrSkyBarData {
-  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef source;
   ls_telemetry_value_t barMin;           // minimum for bar display
   ls_telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
 });
 
-// This is used to be able to use
-// custom read/write functions in
-// an array made of typdef'ed literal types
-// (YAML generator)
 #if defined(YAML_GENERATOR)
 PACK(struct LineDataSource {
-  source_t val CUST(r_mixSrcRaw,w_mixSrcRaw);
+  SourceRef val;
 });
 PACK(struct FrSkyLineData {
   LineDataSource sources[NUM_LINE_ITEMS];
 });
 #else
-// This here is the real structure used at run-time
 PACK(struct FrSkyLineData {
-  source_t sources[NUM_LINE_ITEMS];
+  SourceRef sources[NUM_LINE_ITEMS];
 });
 #endif
 
@@ -570,8 +589,7 @@ PACK(struct ModuleData {
       uint8_t telemetryBaudrate:3;
       uint8_t crsfArmingMode:1;
       uint8_t spare2:4 SKIP;
-      int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
-      int16_t spare3:6;
+      SwitchRef crsfArmingTrigger;
     }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
@@ -711,7 +729,7 @@ PACK(struct customSwitch {
 
 PACK(struct PartialModel {
   ModelHeader header;
-  TimerData timers[MAX_TIMERS];
+  ModuleData moduleData[NUM_MODULES];
 });
 
 /*
@@ -750,6 +768,14 @@ PACK(struct USBJoystickChData {
 #endif
 });
 
+// YAML-visible struct for input name strings (adapts to LEN_INPUT_NAME).
+// CUST_IDX provides custom index read/write so the YAML index is the input
+// number while the arena stores names sparsely.
+PACK(struct InputNameStr {
+  CUST_IDX(inputNames, r_input_name_idx, w_input_name_idx);
+  char val[LEN_INPUT_NAME];
+});
+
 PACK(struct ModelData {
   CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
@@ -777,23 +803,24 @@ PACK(struct ModelData {
 #endif
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
-  MixData   mixData[MAX_MIXERS] NO_IDX;
+
+  // Dynamic arrays stored in arena (see model_arena.h)
+  CUST_EXTERN_ARRAY_NOIDX(mixData, struct_MixData, MAX_MIXERS_HARD, yaml_drv_mix);
   LimitData limitData[MAX_OUTPUT_CHANNELS];
-  ExpoData  expoData[MAX_EXPOS] NO_IDX;
+  CUST_EXTERN_ARRAY_NOIDX(expoData, struct_ExpoData, MAX_EXPOS_HARD, yaml_drv_expo);
+  CUST_EXTERN_ARRAY(curves, struct_CurveHeader, MAX_CURVES_HARD, yaml_drv_curves);
+  CUST_EXTERN_ARRAY_NOIDX(points, struct_signed_8, MAX_CURVE_POINTS_HARD, yaml_drv_points);
+  CUST_EXTERN_ARRAY(logicalSw, struct_LogicalSwitchData, MAX_LOGICAL_SWITCHES_HARD, yaml_drv_logical_sw);
+  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_drv_custom_fn);
 
-  CurveHeader curves[MAX_CURVES];
-  int8_t    points[MAX_CURVE_POINTS];
-
-  LogicalSwitchData logicalSw[MAX_LOGICAL_SWITCHES];
-  CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
   SwashRingData swashR FUNC(swash_is_active);
-  FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
+  CUST_EXTERN_ARRAY(flightModeData, struct_FlightModeData, MAX_FLIGHT_MODES, yaml_drv_fmd);
 
-  NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
+  NOBACKUP(SourceRef thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
   NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
-  GVarData gvars[MAX_GVARS];
+  CUST_EXTERN_ARRAY(gvars, struct_GVarData, MAX_GVARS, yaml_drv_gvar_data);
 
   NOBACKUP(VarioData varioData);
   NOBACKUP(uint8_t rssiSource CUST(r_tele_sensor,w_tele_sensor));
@@ -816,7 +843,8 @@ PACK(struct ModelData {
 
   SCRIPT_DATA
 
-  NOBACKUP(char inputNames[MAX_INPUTS][LEN_INPUT_NAME]);
+  NOBACKUP(uint8_t inputNameIndex[MAX_INPUTS]) SKIP;
+  CUST_EXTERN_ARRAY_NOIDX(inputNames, struct_InputNameStr, MAX_INPUTS, yaml_drv_input_names);
   NOBACKUP(potwarnen_t potsWarnEnabled);
   NOBACKUP(int8_t potsWarnPosition[MAX_POTS]);
 
@@ -875,6 +903,9 @@ PACK(struct ModelData {
       thrTrimSw = src - MIXSRC_FIRST_TRIM;
     }
   }
+
+  SourceRef getThrottleStickTrimSourceRef() const;
+  void setThrottleStickTrimSourceRef(const SourceRef& ref);
 
   NOBACKUP(uint8_t usbJoystickExtMode:1);
   NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
@@ -1093,7 +1124,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
-  CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
+  CUST_EXTERN_ARRAY(customFn, struct_CustomFunctionData, MAX_SPECIAL_FUNCTIONS_HARD, yaml_drv_radio_cfn);
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
@@ -1134,23 +1165,25 @@ PACK(struct RadioData {
   NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
 #endif
 
-  NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(SourceRef backlightSrc);
 
-  NOBACKUP(int16_t radioGFDisabled:1);
-  NOBACKUP(int16_t radioTrainerDisabled:1);
-  NOBACKUP(int16_t modelHeliDisabled:1);
-  NOBACKUP(int16_t modelFMDisabled:1);
-  NOBACKUP(int16_t modelCurvesDisabled:1);
-  NOBACKUP(int16_t modelGVDisabled:1);
+  NOBACKUP(uint8_t radioGFDisabled:1);
+  NOBACKUP(uint8_t radioTrainerDisabled:1);
+  NOBACKUP(uint8_t modelHeliDisabled:1);
+  NOBACKUP(uint8_t modelFMDisabled:1);
+  NOBACKUP(uint8_t modelCurvesDisabled:1);
+  NOBACKUP(uint8_t modelGVDisabled:1);
+  NOBACKUP(uint8_t disableFlags1Spare:2 SKIP);
 
-  NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(SourceRef volumeSrc);
 
-  NOBACKUP(int16_t modelLSDisabled:1);
-  NOBACKUP(int16_t modelSFDisabled:1);
-  NOBACKUP(int16_t modelCustomScriptsDisabled:1);
-  NOBACKUP(int16_t modelTelemetryDisabled:1);
-  NOBACKUP(int16_t disableTrainerPoweroffAlarm:1);
-  NOBACKUP(int16_t disablePwrOnOffHaptic:1);
+  NOBACKUP(uint8_t modelLSDisabled:1);
+  NOBACKUP(uint8_t modelSFDisabled:1);
+  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
+  NOBACKUP(uint8_t modelTelemetryDisabled:1);
+  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
+  NOBACKUP(uint8_t disableFlags2Spare:2 SKIP);
 
   NOBACKUP(uint8_t modelQuickSelect:1);
 

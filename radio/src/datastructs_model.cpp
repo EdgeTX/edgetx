@@ -22,6 +22,35 @@
 #include "edgetx.h"
 #include "hal/switch_driver.h"
 
+SourceRef ModelData::getThrottleStickTrimSourceRef() const
+{
+  SourceRef ref;
+  ref.type = SOURCE_TYPE_TRIM;
+  ref.flags = 0;
+  auto thr = inputMappingGetThrottle();
+  if (thrTrimSw == 0) {
+    ref.index = (uint16_t)thr;
+  } else if (thrTrimSw == thr) {
+    ref.index = 0;
+  } else {
+    ref.index = (uint16_t)thrTrimSw;
+  }
+  return ref;
+}
+
+void ModelData::setThrottleStickTrimSourceRef(const SourceRef& ref)
+{
+  if (ref.type != SOURCE_TYPE_TRIM) return;
+  auto thr = inputMappingGetThrottle();
+  if (ref.index == (uint16_t)thr) {
+    thrTrimSw = 0;
+  } else if (ref.index == 0) {
+    thrTrimSw = thr;
+  } else {
+    thrTrimSw = ref.index;
+  }
+}
+
 SwitchConfig ModelData::getSwitchType(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)

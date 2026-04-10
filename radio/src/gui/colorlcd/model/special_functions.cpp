@@ -133,7 +133,7 @@ void FunctionLineButton::refresh()
   char s[64];
 
   lv_label_set_text(sfName, (prefix + std::to_string(index + 1)).c_str());
-  lv_label_set_text(sfSwitch, getSwitchPositionName(CFN_SWITCH(cfn)));
+  lv_label_set_text(sfSwitch, getSwitchPositionName(cfn->swtch));
 
   strcpy(s, funcGetLabel(func));
   strcat(s, " - ");
@@ -141,7 +141,7 @@ void FunctionLineButton::refresh()
   switch (func) {
     case FUNC_OVERRIDE_CHANNEL:
       sprintf(s + strlen(s), "%s = %s",
-              getSourceString(MIXSRC_FIRST_CH + CFN_CH_INDEX(cfn)),
+              getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)CFN_CH_INDEX(cfn))),
               formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
 
@@ -170,7 +170,7 @@ void FunctionLineButton::refresh()
     case FUNC_VOLUME:
     case FUNC_BACKLIGHT:
     case FUNC_PLAY_VALUE:
-      strcat(s, getSourceString(CFN_PARAM(cfn)));
+      strcat(s, getSourceString(cfn->all.val.source));
       break;
 
     case FUNC_PLAY_SOUND:
@@ -220,7 +220,7 @@ void FunctionLineButton::refresh()
       break;
 
     case FUNC_ADJUST_GVAR:
-      strcat(s, getSourceString(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR));
+      strcat(s, getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn))));
       switch (CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
           sprintf(s + strlen(s), " = %s",
@@ -228,16 +228,16 @@ void FunctionLineButton::refresh()
           break;
         case FUNC_ADJUST_GVAR_SOURCE:
         case FUNC_ADJUST_GVAR_SOURCERAW:
-          sprintf(s + strlen(s), " = %s", getSourceString(CFN_PARAM(cfn)));
+          sprintf(s + strlen(s), " = %s", getSourceString(cfn->all.val.source));
           break;
         case FUNC_ADJUST_GVAR_GVAR:
           sprintf(s + strlen(s), " = %s",
-                  getSourceString(CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR));
+                  getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_PARAM(cfn))));
           break;
         case FUNC_ADJUST_GVAR_INCDEC: {
-          int16_t value = CFN_PARAM(cfn);
+          int32_t value = CFN_PARAM(cfn);
           sprintf(s + strlen(s), " %s= %d", (value >= 0) ? "+" : "-",
-                  abs(value));
+                  (int)abs(value));
           break;
         }
       }
@@ -331,8 +331,12 @@ void FunctionEditPage::buildHeader(Window *window, const char *title,
 void FunctionEditPage::addSourceChoice(FormLine *line, const char *title,
                                        CustomFunctionData *cfn, int16_t vmax)
 {
+  (void)vmax;  // No longer used; all sources are enumerated by type
   new StaticText(line, rect_t{}, title);
-  new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)), true);
+  new SourceChoice(line, rect_t{},
+                   [=]() { return cfn->all.val.source; },
+                   [=](SourceRef ref) { cfn->all.val.source = ref; SET_DIRTY(); },
+                   true);
 }
 
 NumberEdit *FunctionEditPage::addNumberEdit(FormLine *line, const char *title,
@@ -520,9 +524,9 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
     }
 
     case FUNC_SET_SCREEN:
-      CFN_PARAM(cfn) = (int16_t)max(CFN_PARAM(cfn), (int16_t)1);
-      CFN_PARAM(cfn) = (int16_t)min(
-          CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
+      CFN_PARAM(cfn) = max(CFN_PARAM(cfn), (int32_t)1);
+      CFN_PARAM(cfn) = min(
+          CFN_PARAM(cfn), (int32_t)ViewMain::instance()->getMainViewsCount());
       addNumberEdit(line, STR_VALUE, cfn, 1,
                     ViewMain::instance()->getMainViewsCount());
       break;
@@ -530,7 +534,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
     case FUNC_ADJUST_GVAR: {
       if (validateSFGV(cfn)) SET_DIRTY();
       new StaticText(line, rect_t{}, STR_GLOBALVAR);
-      auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
+      auto gvarchoice = new Choice(line, rect_t{}, 0, getGVarCount() - 1,
                                    GET_DEFAULT(CFN_GVAR_INDEX(cfn)),
                                    [=](int32_t newValue){
                                      CFN_GVAR_INDEX(cfn) = newValue;
@@ -538,7 +542,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
                                      updateSpecialFunctionOneWindow();
                                    });
       gvarchoice->setTextHandler([](int32_t value) {
-        return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
+        return std::string(getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)value)));
       });
       line = specialFunctionOneWindow->newLine(grid);
 
@@ -573,7 +577,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       switch (CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT: {
           int16_t val_min, val_max;
-          getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
+          getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), val_min,
                          val_max);
           addNumberEdit(line, STR_CONSTANT, cfn, val_min, val_max);
           break;
@@ -584,10 +588,10 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           break;
         case FUNC_ADJUST_GVAR_GVAR: {
           new StaticText(line, rect_t{}, STR_GLOBALVAR);
-          auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
+          auto gvarchoice = new Choice(line, rect_t{}, 0, getGVarCount() - 1,
                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
           gvarchoice->setTextHandler([](int32_t value) {
-            return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
+            return std::string(getSourceString(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)value)));
           });
           gvarchoice->setAvailableHandler(
               [=](int value) { return CFN_GVAR_INDEX(cfn) != value; });
@@ -595,7 +599,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
         }
         case FUNC_ADJUST_GVAR_INCDEC: {
           int16_t val_min, val_max;
-          getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
+          getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), val_min,
                          val_max);
           getGVarIncDecRange(val_min, val_max);
           auto numedit = addNumberEdit(line, STR_INCDEC, cfn, val_min, val_max);
@@ -659,10 +663,11 @@ void FunctionEditPage::buildBody(Window *form)
   // Switch
   auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SF_SWITCH);
-  auto switchChoice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
-                                       GET_SET_DEFAULT(CFN_SWITCH(cfn)));
+  auto switchChoice = new SwitchChoice(line, rect_t{},
+                                       [=]() { return cfn->swtch; },
+                                       [=](SwitchRef ref) { cfn->swtch = ref; });
   switchChoice->setAvailableHandler(
-      [=](int value) { return isSwitchAvailable(value); });
+      [=](SwitchRef ref) { return isSwitchAvailable(ref); });
 
   // Patch function in case not available
   if (!isAssignableFunctionAvailable(CFN_FUNC(cfn))) {
@@ -724,9 +729,11 @@ void FunctionsPage::newSF(Window *window, bool pasteSF)
 
   // search for unused switches
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
-    CustomFunctionData *cfn = customFunctionData(i);
-    if (cfn->swtch == 0) {
+    bool unused = (i >= g_modelArena.sectionCount(ARENA_CUSTOM_FN)) ||
+                  customFunctionData(i)->swtch.isNone();
+    if (unused) {
       menu->addLineBuffered(prefix + std::to_string(i + 1), [=]() {
+        if (!customFnAllocAt(i)) return;  // arena full
         if (pasteSF) {
           pasteSpecialFunction(window, i, nullptr);
         } else {
@@ -757,12 +764,14 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
   auto edit = editPage(index);
   edit->setCloseHandler([=]() {
     CustomFunctionData *cfn = customFunctionData(index);
-    if (cfn->swtch != 0) {
+    if (!cfn->swtch.isNone()) {
       focusIndex = index;
       if (button) {
         button->refresh();
         return; // Skip full rebuild
       }
+    } else {
+      customFnTrimTrailing();
     }
     rebuild(window);
   });
@@ -791,7 +800,7 @@ void FunctionsPage::build(Window *window)
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData *cfn = customFunctionData(i);
 
-    bool isActive = (cfn->swtch != 0);
+    bool isActive = (!cfn->swtch.isNone());
 
     if (isActive) {
       auto button = functionButton(
@@ -845,10 +854,7 @@ void FunctionsPage::build(Window *window)
           for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
             if (!customFunctionData(j)->isEmpty()) {
               menu->addLine(STR_INSERT, [=]() {
-                memmove(cfn + 1, cfn,
-                        (MAX_SPECIAL_FUNCTIONS - i - 1) *
-                            sizeof(CustomFunctionData));
-                memset(cfn, 0, sizeof(CustomFunctionData));
+                insertCustomFn(i);
                 editSpecialFunction(window, i, nullptr);
               });
               break;
@@ -859,6 +865,7 @@ void FunctionsPage::build(Window *window)
           menu->addLine(STR_CLEAR, [=]() {
             if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) LUA_LOAD_MODEL_SCRIPTS();
             memset(cfn, 0, sizeof(CustomFunctionData));
+            customFnTrimTrailing();
             SET_DIRTY();
             rebuild(window);
           });
@@ -867,12 +874,7 @@ void FunctionsPage::build(Window *window)
           if (!customFunctionData(j)->isEmpty()) {
             menu->addLine(STR_DELETE, [=]() {
               if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) LUA_LOAD_MODEL_SCRIPTS();
-              memmove(
-                  cfn, cfn + 1,
-                  (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));
-              memset(customFunctionData(MAX_SPECIAL_FUNCTIONS - 1), 0,
-                     sizeof(CustomFunctionData));
-              SET_DIRTY();
+              deleteCustomFn(i);
               rebuild(window);
             });
             break;
@@ -922,7 +924,7 @@ class SpecialFunctionLineButton : public FunctionLineButton
 {
  public:
   SpecialFunctionLineButton(Window *parent, const rect_t &rect, uint8_t index) :
-      FunctionLineButton(parent, rect, &g_model.customFn[index], index, "SF")
+      FunctionLineButton(parent, rect, customFnAddress(index), index, "SF")
   {
   }
 
@@ -950,14 +952,14 @@ class SpecialFunctionEditPage : public FunctionEditPage
     return modelFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
   }
 
-  bool isSwitchAvailable(int value) const override
+  bool isSwitchAvailable(SwitchRef ref) const override
   {
-    return ::isSwitchAvailable(value, ModelCustomFunctionsContext);
+    return ::isSwitchAvailable(ref, ModelCustomFunctionsContext);
   }
 
   CustomFunctionData *customFunctionData() const override
   {
-    return &g_model.customFn[index];
+    return customFnAddress(index);
   }
 
   bool isAssignableFunctionAvailable(int function) const override
@@ -971,14 +973,14 @@ class SpecialFunctionEditPage : public FunctionEditPage
 //-----------------------------------------------------------------------------
 
 SpecialFunctionsPage::SpecialFunctionsPage(const PageDef& pageDef) :
-    FunctionsPage(g_model.customFn, pageDef, "SF")
+    FunctionsPage(customFnAddress(0), pageDef, "SF")
 {
 }
 
 CustomFunctionData *SpecialFunctionsPage::customFunctionData(
     uint8_t index) const
 {
-  return &g_model.customFn[index];
+  return customFnAddress(index);
 }
 
 FunctionEditPage *SpecialFunctionsPage::editPage(uint8_t index) const
@@ -1001,7 +1003,7 @@ class GlobalFunctionLineButton : public FunctionLineButton
 {
  public:
   GlobalFunctionLineButton(Window *parent, const rect_t &rect, uint8_t index) :
-      FunctionLineButton(parent, rect, &g_eeGeneral.customFn[index], index,
+      FunctionLineButton(parent, rect, globalFnAddress(index), index,
                          "GF")
   {
   }
@@ -1030,14 +1032,14 @@ class GlobalFunctionEditPage : public FunctionEditPage
     return globalFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
   }
 
-  bool isSwitchAvailable(int value) const override
+  bool isSwitchAvailable(SwitchRef ref) const override
   {
-    return ::isSwitchAvailable(value, GeneralCustomFunctionsContext);
+    return ::isSwitchAvailable(ref, GeneralCustomFunctionsContext);
   }
 
   CustomFunctionData *customFunctionData() const override
   {
-    return &g_eeGeneral.customFn[index];
+    return globalFnAddress(index);
   }
 
   bool isAssignableFunctionAvailable(int function) const override
@@ -1051,13 +1053,13 @@ class GlobalFunctionEditPage : public FunctionEditPage
 //-----------------------------------------------------------------------------
 
 GlobalFunctionsPage::GlobalFunctionsPage(const PageDef& pageDef) :
-    FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
+    FunctionsPage(globalFnAddress(0), pageDef, "GF")
 {
 }
 
 CustomFunctionData *GlobalFunctionsPage::customFunctionData(uint8_t index) const
 {
-  return &g_eeGeneral.customFn[index];
+  return globalFnAddress(index);
 }
 
 FunctionEditPage *GlobalFunctionsPage::editPage(uint8_t index) const

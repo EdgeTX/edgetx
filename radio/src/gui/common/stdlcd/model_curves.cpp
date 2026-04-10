@@ -21,6 +21,7 @@
 
 #include "edgetx.h"
 
+
 #if defined(GVARS_IN_CURVES_SCREEN)
   #warning "define still not added to CMakeLists.txt"
   #define CURVE_SELECTED() (sub >= 0 && sub < MAX_CURVES)
@@ -33,7 +34,7 @@ void drawCurve(coord_t offset)
 {
   drawFunction(applyCurrentCurve, offset);
 
-  CurveHeader & crv = g_model.curves[s_currIdxSubMenu];
+  CurveHeader & crv = *curveHeaderAddress(s_currIdxSubMenu);
   for (uint8_t i = 0; i < crv.points + 5; i++) {
     point_t point = getPoint(i);
     lcdDrawFilledRect(point.x - 1 - offset, point.y - 1, 3, 3, SOLID, FORCE); // do markup square
@@ -44,20 +45,30 @@ void menuModelCurvesAll(event_t event)
 {
   uint8_t old_editMode = s_editMode;
 
+  // Show used curves + one empty slot for creating a new one
+  uint8_t curveSlots = min<uint8_t>(getCurveCount() + 1, MAX_CURVES);
+
 #if defined(GVARS_IN_CURVES_SCREEN)
-  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES+MAX_GVARS);
+  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+curveSlots+getGVarCount());
 #else
-  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES);
+  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+curveSlots);
 #endif
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
+
+  // Reclaim trailing empty slots when exiting
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT))
+    curveTrimTrailing();
 
   if (event == EVT_KEY_BREAK(KEY_ENTER) &&
       CURVE_SELECTED()) {
 
     s_currIdxSubMenu = sub;
-    s_currSrcRaw = MIXSRC_NONE;
-    pushMenu(menuModelCurveOne);
+    s_currSrcRaw.clear();
+    if (curveAllocAt(sub)) {
+      setCurveUsed(sub);
+      pushMenu(menuModelCurveOne);
+    }
   }
 
   for (uint8_t i=0; i<LCD_LINES-1; i++) {
@@ -65,28 +76,30 @@ void menuModelCurvesAll(event_t event)
     uint8_t k = i + menuVerticalOffset;
     LcdFlags attr = (sub == k ? INVERS : 0);
 #if defined(GVARS_IN_CURVES_SCREEN)
-    if (k >= MAX_CURVES) {
-      drawStringWithIndex(0, y, STR_GV, k-MAX_CURVES+1);
+    if (k >= curveSlots) {
+      drawStringWithIndex(0, y, STR_GV, k-curveSlots+1);
       if (GVAR_SELECTED()) {
         if (attr && s_editMode>0) attr |= BLINK;
-        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-MAX_CURVES, -1), attr);
-        if (attr) g_model.gvars[k-MAX_CURVES] = checkIncDec(event, g_model.gvars[k-MAX_CURVES], -1000, 1000, EE_MODEL);
+        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-curveSlots, -1), attr);
+        if (attr) *gvarDataAddress(k-curveSlots) = checkIncDec(event, *gvarDataAddress(k-curveSlots), -1000, 1000, EE_MODEL);
       }
     }
     else
 #endif
     {
       drawStringWithIndex(0, y, STR_CV, k+1, attr);
-      CurveHeader & crv = g_model.curves[k];
-      editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
+      if (k < getCurveCount()) {
+        CurveHeader & crv = *curveHeaderAddress(k);
+        editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
 #if LCD_W >= 212
-      lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
-      lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);
+        lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
+        lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);
 #endif
+      }
     }
   }
 
-  if (CURVE_SELECTED()) {
+  if (CURVE_SELECTED() && sub < (int8_t)getCurveCount()) {
     s_currIdxSubMenu = sub;
 #if LCD_W >= 212
     drawCurve(23);
@@ -96,8 +109,7 @@ void menuModelCurvesAll(event_t event)
   }
 }
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax)
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags)
 {
   coord_t x1 = x;
   LcdFlags flags1 = flags;
@@ -122,37 +134,47 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
 
   if (active && menuHorizontalPosition==0) {
     CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, modelCurvesEnabled() ? CURVE_REF_CUSTOM : CURVE_REF_FUNC);
-    if (checkIncDec_Ret) curve.value = 0;
+    if (checkIncDec_Ret) curve.value.clear();
   }
   switch (curve.type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      curve.value = editSrcVarFieldValue(x, y, nullptr, curve.value, -100, 100, flags, event, isValueAvailable, sourceMin, sourceMax);
+      if (curve.value.isSource) {
+        drawSource(x, y, curve.value.toSourceRef(), flags);
+        if (active && menuHorizontalPosition == 1) {
+          curve.value.setSource(checkIncDecSource(event, curve.value.toSourceRef(), SRCMASK_ALL, isSourceAvailable));
+        }
+      } else {
+        lcdDrawNumber(x, y, curve.value.numericValue(), flags);
+        if (active && menuHorizontalPosition == 1) {
+          int16_t val = curve.value.numericValue();
+          CHECK_INCDEC_MODELVAR(event, val, -100, 100);
+          curve.value.setNumeric(val);
+        }
+      }
       break;
     case CURVE_REF_FUNC:
     {
-      SourceNumVal v;
-      v.rawValue = curve.value;
-      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, v.value, flags);
+      int16_t funcVal = curve.value.numericValue();
+      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, funcVal, flags);
       if (active && menuHorizontalPosition==1) {
-        CHECK_INCDEC_MODELVAR_ZERO(event, v.value, CURVE_BASE-1);
-        curve.value = v.rawValue;
+        CHECK_INCDEC_MODELVAR_ZERO(event, funcVal, CURVE_BASE-1);
+        curve.value.setNumeric(funcVal);
       }
       break;
     }
     case CURVE_REF_CUSTOM:
     {
-      SourceNumVal v;
-      v.rawValue = curve.value;
-      drawCurveName(x, y, v.value, flags);
+      int16_t curveVal = curve.value.numericValue();
+      drawCurveName(x, y, curveVal, flags);
       if (active && menuHorizontalPosition == 1) {
-        if (event == EVT_KEY_LONG(KEY_ENTER) && v.value != 0) {
-          s_currIdxSubMenu = abs(v.value) - 1;
+        if (event == EVT_KEY_LONG(KEY_ENTER) && curveVal != 0) {
+          s_currIdxSubMenu = abs(curveVal) - 1;
           pushMenu(menuModelCurveOne);
         }
         else {
-          CHECK_INCDEC_MODELVAR(event, v.value, -MAX_CURVES, MAX_CURVES);
-          curve.value = v.rawValue;
+          CHECK_INCDEC_MODELVAR(event, curveVal, -MAX_CURVES, MAX_CURVES);
+          curve.value.setNumeric(curveVal);
         }
       }
       break;
@@ -188,13 +210,11 @@ void drawFunction(FnFuncP fn, uint8_t offset)
 
 void drawCursor(FnFuncP fn, uint8_t offset)
 {
-  int16_t src = abs(s_currSrcRaw);
-
   int x512 = getValue(s_currSrcRaw);
-  if (src >= MIXSRC_FIRST_TELEM) {
+  if (s_currSrcRaw.type == SOURCE_TYPE_TELEMETRY) {
     if (s_currScale > 0)
-      x512 = (x512 * 1024) / convertTelemValue(src - MIXSRC_FIRST_TELEM + 1, s_currScale);
-    drawSensorCustomValue(LCD_W - FW - offset, 6 * FH, (src - MIXSRC_FIRST_TELEM) / 3, x512, 0);
+      x512 = (x512 * 1024) / convertTelemValue(s_currSrcRaw.index + 1, s_currScale);
+    drawSensorCustomValue(LCD_W - FW - offset, 6 * FH, s_currSrcRaw.index / 3, x512, 0);
   }
   else {
     lcdDrawNumber(LCD_W - FW - offset, 6*FH, calcRESXto1000(x512), RIGHT | PREC1);

@@ -37,6 +37,7 @@ class YamlTreeWalker
         int8_t      attr_idx;
         uint16_t    elmts;
         uint8_t     flags;
+        uint8_t*    data_override; // non-null for extern arrays
 
         inline uint32_t getOfs() {
             return bit_ofs + node->size * elmts;
@@ -49,6 +50,17 @@ class YamlTreeWalker
     uint8_t anon_union;
 
     uint8_t* data;
+
+    // Get the effective data pointer for the current level.
+    // Uses data_override from the nearest state that has one set,
+    // or falls back to the global 'data' pointer.
+    uint8_t* getData() {
+        for (int i = stack_level; i < NODE_STACK_DEPTH; i++) {
+            if (stack[i].data_override)
+                return stack[i].data_override;
+        }
+        return data;
+    }
 
     uint32_t getAttrOfs() { return stack[stack_level].bit_ofs; }
     uint32_t getLevelOfs() {
@@ -126,9 +138,13 @@ public:
 
     const YamlNode* getAttr() {
         int8_t idx = stack[stack_level].attr_idx;
-        if (idx >= 0)
-            return &(stack[stack_level].node->u._array.child[idx]);
-
+        if (idx >= 0) {
+            const YamlNode* node = stack[stack_level].node;
+            const YamlNode* child = (node->type == YDT_EXTERN_ARRAY)
+                ? node->u._extern_array.child
+                : node->u._array.child;
+            return &child[idx];
+        }
         return NULL;
     }
 
@@ -150,7 +166,7 @@ public:
     bool toParent();
     bool toChild();
 
-    bool toNextElmt();
+    bool toNextElmt(bool grow = false);
     void toNextAttr();
 
     bool isElmtEmpty(uint8_t* data);

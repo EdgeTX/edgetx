@@ -41,16 +41,18 @@ static SetupLineDef setupLines[] = {
     // Throttle source
     STR_DEF(STR_TTRACE),
     [](Window* parent, coord_t x, coord_t y) {
-      auto sc = new SourceChoice(parent, {x, y, 0, 0}, 0, MIXSRC_LAST_CH,
-                                []() {return throttleSource2Source(g_model.thrTraceSrc); },
-                                [](int16_t src) {
-                                  int16_t val = source2ThrottleSource(src);
-                                  if (val >= 0) {
-                                    g_model.thrTraceSrc = val;
+      auto sc = new SourceChoice(parent, {x, y, 0, 0},
+                                []() { return g_model.thrTraceSrc; },
+                                [](SourceRef ref) {
+                                    g_model.thrTraceSrc = ref;
                                     SET_DIRTY();
-                                  }
                                 });
-      sc->setAvailableHandler(isThrottleSourceAvailable);
+      sc->setAvailableHandler([](SourceRef ref) {
+        constexpr SourceTypeMask allowed =
+            SRC_TYPE_BIT(SOURCE_TYPE_NONE) | SRC_TYPE_BIT(SOURCE_TYPE_STICK) |
+            SRC_TYPE_BIT(SOURCE_TYPE_POT) | SRC_TYPE_BIT(SOURCE_TYPE_CHANNEL);
+        return (allowed & SRC_TYPE_BIT(ref.type)) && isSourceAvailable(ref);
+      });
     }
   },
   {
@@ -64,13 +66,16 @@ static SetupLineDef setupLines[] = {
     // Throttle trim source
     STR_DEF(STR_TTRIM_SW),
     [](Window* parent, coord_t x, coord_t y) {
-      new SourceChoice(
-          parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-          []() { return g_model.getThrottleStickTrimSource(); },
-          [](int16_t src) {
-            g_model.setThrottleStickTrimSource(src);
+      auto sc = new SourceChoice(
+          parent, {x, y, 0, 0},
+          []() { return g_model.getThrottleStickTrimSourceRef(); },
+          [](SourceRef ref) {
+            g_model.setThrottleStickTrimSourceRef(ref);
             SET_DIRTY();
           });
+      sc->setAvailableHandler([](SourceRef ref) {
+        return ref.type == SOURCE_TYPE_TRIM;
+      });
     }
   },
 };

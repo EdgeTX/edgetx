@@ -83,7 +83,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
   for (uint8_t i=0; i<TIMERS; i++) {
     tmrmode_t timerMode = g_model.timers[i].mode;
     tmrstart_t timerStart = g_model.timers[i].start;
-    int16_t     timerSwtch = g_model.timers[i].swtch;
+    const SwitchRef& timerSwtch = g_model.timers[i].swtch;
     TimerState * timerState = &timersStates[i];
     uint32_t showElapsed = g_model.timers[i].showElapsed;
 
@@ -187,24 +187,3 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
   }
 }
 
-int16_t throttleSource2Source(int16_t thrSrc)
-{
-  if (thrSrc == 0) {
-    return int16_t(MIXSRC_FIRST_STICK + inputMappingGetThrottle());
-  }
-  if (--thrSrc < MAX_POTS)
-    return (int16_t)(thrSrc + MIXSRC_FIRST_POT);
-  return (int16_t)(thrSrc - MAX_POTS + MIXSRC_FIRST_CH);
-}
-
-int16_t source2ThrottleSource(int16_t src)
-{
-  if (src == MIXSRC_FIRST_STICK + inputMappingGetThrottle()) {
-    return 0;
-  } else if (src <= MIXSRC_LAST_POT) {
-    return src - MIXSRC_FIRST_POT + 1;
-  } else if (src <= MIXSRC_LAST_CH) {
-    return src - MIXSRC_FIRST_CH + MAX_POTS + 1;
-  }
-  return -1;
-}

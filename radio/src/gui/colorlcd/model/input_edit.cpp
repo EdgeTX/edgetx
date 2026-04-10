@@ -49,7 +49,7 @@ class InputEditAdvanced : public Page
  public:
   InputEditAdvanced(uint8_t input_n, uint8_t index) : Page(ICON_MODEL_INPUTS)
   {
-    std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
+    std::string title2(getSourceString(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input_n)));
     header->setTitle(STR_MENUINPUTS);
     header->setTitle2(title2);
 
@@ -78,12 +78,12 @@ class InputEditAdvanced : public Page
                         GET_VALUE(-input->trimSource),
                         SET_VALUE(input->trimSource, -newValue));
 
-    uint16_t srcRaw = input->srcRaw;
+    SourceRef srcRef = input->srcRaw;
     c->setAvailableHandler([=](int value) {
-      return value != TRIM_ON || srcRaw <= MIXSRC_LAST_STICK;
+      return value != TRIM_ON || srcRef.type == SOURCE_TYPE_STICK;
     });
     c->setTextHandler([=](int value) -> std::string {
-      return getTrimSourceLabel(srcRaw, -value);
+      return getTrimSourceLabel(srcRef, -value);
     });
 
     // Flight modes
@@ -145,7 +145,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
 
 void InputEditWindow::setTitle()
 {
-  headerSwitchName->setText(getSourceString(MIXSRC_FIRST_INPUT + input));
+  headerSwitchName->setText(getSourceString(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input)));
 }
 
 void InputEditWindow::buildBody(Window* form)
@@ -158,7 +158,7 @@ void InputEditWindow::buildBody(Window* form)
   // Input Name
   auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_INPUTNAME);
-  new ModelTextEdit(line, rect_t{}, g_model.inputNames[input->chn],
+  new ModelTextEdit(line, rect_t{}, inputNameAlloc(input->chn),
                     LEN_INPUT_NAME,
                     [=]() {
                       setTitle();
@@ -179,32 +179,32 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto gvar =
-      new SourceNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
-                           [=](int32_t newValue) {
-                             input->weight = newValue;
+      new SourceNumberEdit(line, -100, 100,
+                           &input->weight,
+                           [=]() {
                              updatePreview = true;
                              SET_DIRTY();
-                           }, MIXSRC_FIRST);
+                           });
   gvar->setSuffix("%");
 
   // Offset
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_OFFSET);
   gvar = new SourceNumberEdit(line, -100, 100,
-                              GET_DEFAULT(input->offset), [=](int32_t newValue) {
-                                input->offset = newValue;
+                              &input->offset,
+                              [=]() {
                                 updatePreview = true;
                                 SET_DIRTY();
-                              }, MIXSRC_FIRST);
+                              });
   gvar->setSuffix("%");
 
   // Switch
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_DEFAULT(input->swtch),
-                   [=](int newValue) {
-                     input->swtch = newValue;
+  new SwitchChoice(line, rect_t{},
+                   [=]() { return input->swtch; },
+                   [=](SwitchRef ref) {
+                     input->swtch = ref;
                      updatePreview = true;
                      SET_DIRTY();
                    });
@@ -212,13 +212,9 @@ void InputEditWindow::buildBody(Window* form)
   // Curve
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
+  const SourceRef& srcForCurve = input->srcRaw;
   auto param =
-      new CurveParam(line, rect_t{}, &input->curve,
-        [=](int32_t newValue) {
-          input->curve.value = newValue;
-          updatePreview = true;
-          SET_DIRTY();
-        }, MIXSRC_FIRST, input->srcRaw);
+      new CurveParam(line, rect_t{}, &input->curve, srcForCurve);
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
 
@@ -239,29 +235,25 @@ void InputEditWindow::checkEvents()
   ExpoData* input = expoAddress(index);
 
   getvalue_t val;
-  SourceNumVal v;
 
-  v.rawValue = input->weight;
-  if (v.isSource) {
-    val = getValue(v.value);
+  if (input->weight.isSource) {
+    val = getValue(input->weight.toSourceRef());
     if (val != lastWeightVal) {
       lastWeightVal = val;
       updatePreview = true;
     }
   }
 
-  v.rawValue = input->offset;
-  if (v.isSource) {
-    val = getValue(v.value);
+  if (input->offset.isSource) {
+    val = getValue(input->offset.toSourceRef());
     if (val != lastOffsetVal) {
       lastOffsetVal = val;
       updatePreview = true;
     }
   }
 
-  v.rawValue = input->curve.value;
-  if (v.isSource) {
-    val = getValue(v.value);
+  if (input->curve.value.isSource) {
+    val = getValue(input->curve.value.toSourceRef());
     if (val != lastCurveVal) {
       lastCurveVal = val;
       updatePreview = true;

@@ -40,7 +40,7 @@ static const char* const _str_units[] = { "-", "%" };
 
 void menuModelGVarOne(event_t event)
 {
-  GVarData * gvar = &g_model.gvars[s_currIdx];
+  GVarData * gvar = gvarDataAddress(s_currIdx);
 
   drawStringWithIndex(strlen(STR_GVARS)*FW+FW, 0, STR_GV, s_currIdx+1, 0);
   drawGVarValue(32*FW, 0, s_currIdx, getGVarValue(s_currIdx, getFlightMode()));
@@ -105,7 +105,7 @@ void onGVARSMenu(const char * result)
   }
   else if (result == STR_CLEAR) {
     for (int i=0; i<MAX_FLIGHT_MODES; i++) {
-      g_model.flightModeData[i].gvars[sub] = 0;
+      GVAR_VALUE(sub, i) = 0;
     }
     storageDirty(EE_MODEL);
   }
@@ -127,7 +127,7 @@ void menuModelGVars(event_t event)
 
   if (after2seconds) {
     menuTitle = STR_GVARS;
-    for (int i=0; i<MAX_GVARS; i++) {
+    for (int i=0; i<getGVarCount(); i++) {
       drawStringWithIndex(GVARS_FM_COLUMN(i), 1, STR_FM, i, SMLSIZE|(getFlightMode()==i ? INVERS : 0));
     }
   }
@@ -135,7 +135,7 @@ void menuModelGVars(event_t event)
     menuTitle = STR_MENU_GLOBAL_VARS;
   }
 
- MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, MAX_GVARS,
+ MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, getGVarCount(),
            { colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount() });
 
   int sub = menuVerticalPosition;
@@ -147,8 +147,7 @@ void menuModelGVars(event_t event)
     drawGVarName(0, y, i, (sub==i && menuHorizontalPosition<0) ? INVERS : 0);
 
     for (int j=0; j<numFlightModes(); j++) {
-      FlightModeData * fm = &g_model.flightModeData[j];
-      gvar_t v = fm->gvars[i];
+      gvar_t v = GVAR_VALUE(i, j);
 
       LcdFlags attr = ((sub == i && menuHorizontalPosition == j) ? (s_editMode > 0 ? BLINK | INVERS : INVERS) : 0);
       coord_t x = GVARS_FM_COLUMN(j);
@@ -156,7 +155,7 @@ void menuModelGVars(event_t event)
       if (v > GVAR_MAX) {
         attr |= SMLSIZE;
       }
-      else if (g_model.gvars[i].prec > 0 || abs(v) >= 100) {
+      else if (gvarDataAddress(i)->prec > 0 || abs(v) >= 100) {
         attr |= TINSIZE | NO_UNIT;
         ++yval;
       }

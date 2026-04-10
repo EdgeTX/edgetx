@@ -459,11 +459,11 @@ uint8_t switchGetMaxRow(uint8_t col)
 }
 #endif
 
-getvalue_t getValueForLogicalSwitch(mixsrc_t i)
+getvalue_t getValueForLogicalSwitch(const SourceRef& src)
 {
-  getvalue_t result = getValue(i);
-  if (i>=MIXSRC_FIRST_INPUT && i<=MIXSRC_LAST_INPUT) {
-    int8_t trimIdx = virtualInputsTrims[i-MIXSRC_FIRST_INPUT];
+  getvalue_t result = getValue(src);
+  if (src.type == SOURCE_TYPE_INPUT) {
+    int8_t trimIdx = virtualInputsTrims[src.index];
     if (trimIdx >= 0) {
       int16_t trim = trims[trimIdx];
       if (trimIdx == inputMappingConvertMode(inputMappingGetThrottle()) && g_model.throttleReversed)
@@ -492,8 +492,11 @@ bool getLSStickyState(uint8_t idx)
 
 void logicalSwitchesInit(bool force)
 {
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
-    LogicalSwitchData * ls = lswAddress(idx);
+  uint16_t lsCount = getLswCount();
+  LogicalSwitchData * lsBase = lswAddress(0);
+
+  for (unsigned int idx=0; idx<lsCount; idx++) {
+    LogicalSwitchData * ls = lsBase + idx;
     if (ls->func == LS_FUNC_STICKY && (force || ls->lsPersist)) {
       lswFm[mixerCurrentFlightMode].lsw[idx].lastValue = ls->lsState;
     }
@@ -506,135 +509,125 @@ bool getLogicalSwitch(uint8_t idx)
   LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
   bool result;
 
-  swsrc_t s = ls->andsw;
-
-  if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
+  if (ls->func == LS_FUNC_NONE || (!ls->andsw.isNone() && !getSwitch(ls->andsw))) {
     if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
       // AND switch must not affect STICKY and EDGE processing
       context.lastValue = CS_LAST_VALUE_INIT;
     }
     result = false;
-  }
-  else if ((s=lswFamily(ls->func)) == LS_FAMILY_BOOL) {
-    bool res1 = getSwitch(ls->v1);
-    bool res2 = getSwitch(ls->v2);
-    switch (ls->func) {
-      case LS_FUNC_AND:
-        result = (res1 && res2);
-        break;
-      case LS_FUNC_OR:
-        result = (res1 || res2);
-        break;
-      // case LS_FUNC_XOR:
-      default:
-        result = (res1 ^ res2);
-        break;
-    }
-  }
-  else if (s == LS_FAMILY_TIMER) {
-    result = (context.lastValue <= 0);
-  }
-  else if (s == LS_FAMILY_STICKY) {
-    result = (context.lastValue & (1<<0));
-  }
-  else if (s == LS_FAMILY_EDGE) {
-    result = (context.lastValue & (1<<0));
-  }
-  else {
-    getvalue_t x = getValueForLogicalSwitch(ls->v1);
-    getvalue_t y;
-    if (s == LS_FAMILY_COMP) {
-      y = getValueForLogicalSwitch(ls->v2);
-
+  } else {
+    uint8_t family = lswFamily(ls->func);
+    if (family == LS_FAMILY_BOOL) {
+      bool res1 = getSwitch(ls->v1.swtch);
+      bool res2 = getSwitch(ls->v2.swtch);
       switch (ls->func) {
-        case LS_FUNC_EQUAL:
-          result = (x==y);
+        case LS_FUNC_AND:
+          result = (res1 && res2);
           break;
-        case LS_FUNC_GREATER:
-          result = (x>y);
+        case LS_FUNC_OR:
+          result = (res1 || res2);
           break;
+        // case LS_FUNC_XOR:
         default:
-          result = (x<y);
+          result = (res1 ^ res2);
           break;
       }
-    }
-    else {
-      mixsrc_t v1 = ls->v1;
-      // Telemetry
-      if (v1 >= MIXSRC_FIRST_TELEM) {
-        if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1-1)) {
-          result = false;
-          goto DurationAndDelayProcessing;
+    } else if (family == LS_FAMILY_TIMER) {
+      result = (context.lastValue <= 0);
+    } else if (family == LS_FAMILY_STICKY) {
+      result = (context.lastValue & (1<<0));
+    } else if (family == LS_FAMILY_EDGE) {
+      result = (context.lastValue & (1<<0));
+    } else {
+      getvalue_t x = getValueForLogicalSwitch(ls->v1.source);
+      getvalue_t y;
+      if (family == LS_FAMILY_COMP) {
+        y = getValueForLogicalSwitch(ls->v2.source);
+
+        switch (ls->func) {
+          case LS_FUNC_EQUAL:
+            result = (x==y);
+            break;
+          case LS_FUNC_GREATER:
+            result = (x>y);
+            break;
+          default:
+            result = (x<y);
+            break;
+        }
+      } else {
+        // Telemetry
+        if (ls->v1.source.type == SOURCE_TYPE_TELEMETRY) {
+          if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(MIXSRC_FIRST_TELEM + ls->v1.source.index - 1)) {
+            result = false;
+            goto DurationAndDelayProcessing;
+          }
+
+          y = convertLswTelemValue(ls);
+
+
+        } else if (ls->v1.source.type > SOURCE_TYPE_CHANNEL) {
+          y = ls->v2.value;
+        } else {
+          y = calc100toRESX(ls->v2.value);
         }
 
-        y = convertLswTelemValue(ls);
-
-
-      }
-      else if (v1 >= MIXSRC_FIRST_GVAR) {
-        y = ls->v2;
-      }
-      else {
-        y = calc100toRESX(ls->v2);
-      }
-
-      switch (ls->func) {
-        case LS_FUNC_VEQUAL:
-          result = (x==y);
-          break;
-        case LS_FUNC_VALMOSTEQUAL:
-#if defined(GVARS)
-          if (v1 >= MIXSRC_FIRST_GVAR && v1 <= MIXSRC_LAST_GVAR)
+        switch (ls->func) {
+          case LS_FUNC_VEQUAL:
             result = (x==y);
-          else
-#endif
-          result = (abs(x-y) < (1024 / STICK_TOLERANCE));
-          break;
-        case LS_FUNC_VPOS:
-          result = (x>y);
-          break;
-        case LS_FUNC_VNEG:
-          result = (x<y);
-          break;
-        case LS_FUNC_APOS:
-          result = (abs(x)>y);
-          break;
-        case LS_FUNC_ANEG:
-          result = (abs(x)<y);
-          break;
-        default:
-        {
-          if (context.lastValue == CS_LAST_VALUE_INIT) {
-            context.lastValue = x;
-          }
-          int16_t diff = x - context.lastValue;
-          bool update = false;
-          if (ls->func == LS_FUNC_DIFFEGREATER) {
-            if (y >= 0) {
-              result = (diff >= y);
-              if (diff < 0)
-                update = true;
+            break;
+          case LS_FUNC_VALMOSTEQUAL:
+  #if defined(GVARS)
+            if (ls->v1.source.type == SOURCE_TYPE_GVAR)
+              result = (x==y);
+            else
+  #endif
+            result = (abs(x-y) < (1024 / STICK_TOLERANCE));
+            break;
+          case LS_FUNC_VPOS:
+            result = (x>y);
+            break;
+          case LS_FUNC_VNEG:
+            result = (x<y);
+            break;
+          case LS_FUNC_APOS:
+            result = (abs(x)>y);
+            break;
+          case LS_FUNC_ANEG:
+            result = (abs(x)<y);
+            break;
+          default: {
+            if (context.lastValue == CS_LAST_VALUE_INIT) {
+              context.lastValue = x;
+            }
+            int16_t diff = x - context.lastValue;
+            bool update = false;
+            if (ls->func == LS_FUNC_DIFFEGREATER) {
+              if (y >= 0) {
+                result = (diff >= y);
+                if (diff < 0)
+                  update = true;
+              }
+              else {
+                result = (diff <= y);
+                if (diff > 0)
+                  update = true;
+              }
             }
             else {
-              result = (diff <= y);
-              if (diff > 0)
-                update = true;
+              result = (abs(diff) >= y);
             }
-          }
-          else {
-            result = (abs(diff) >= y);
-          }
-          if (result) {
-            context.deltaTimer = 10;
-          } else if (context.deltaTimer > 0) {
-            // Hold active state for 100ms to ensure state change is seen
-            context.deltaTimer -= 1;
-            result = true;
-          }
-          if (result || update) {
-            context.lastValue = x;
-          }
-          break;
+            if (result) {
+              context.deltaTimer = 10;
+            } else if (context.deltaTimer > 0) {
+              // Hold active state for 100ms to ensure state change is seen
+              context.deltaTimer -= 1;
+              result = true;
+            }
+            if (result || update) {
+              context.lastValue = x;
+            }
+          } break;
         }
       }
     }
@@ -642,131 +635,138 @@ bool getLogicalSwitch(uint8_t idx)
 
 DurationAndDelayProcessing:
 
-    if (ls->delay || ls->duration) {
-      if (result) {
-        if (context.timerState == SWITCH_START) {
-          // set delay timer
-          context.timerState = SWITCH_DELAY;
-          context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
-        }
+  if (ls->delay || ls->duration) {
+    if (result) {
+      if (context.timerState == SWITCH_START) {
+        // set delay timer
+        context.timerState = SWITCH_DELAY;
+        context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
+      }
 
-        if (context.timerState == SWITCH_DELAY) {
-          if (context.timer) {
-            result = false;   // return false while delay timer running
-          }
-          else {
-            // set duration timer
-            context.timerState = SWITCH_ENABLE;
-            context.timer = ls->duration;
-          }
+      if (context.timerState == SWITCH_DELAY) {
+        if (context.timer) {
+          result = false;   // return false while delay timer running
+        } else {
+          // set duration timer
+          context.timerState = SWITCH_ENABLE;
+          context.timer = ls->duration;
         }
+      }
 
-        if (context.timerState == SWITCH_ENABLE) {
-          result = (ls->duration==0 || context.timer>0); // return false after duration timer runs out
-          if (!result && ls->func == LS_FUNC_STICKY) {
-            ls_sticky_struct & lastValue = (ls_sticky_struct &)context.lastValue;
-            lastValue.state = 0;
-          }
+      if (context.timerState == SWITCH_ENABLE) {
+        result = (ls->duration==0 || context.timer>0); // return false after duration timer runs out
+        if (!result && ls->func == LS_FUNC_STICKY) {
+          ls_sticky_struct & lastValue = (ls_sticky_struct &)context.lastValue;
+          lastValue.state = 0;
         }
       }
-      else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 && context.timer > 0) {
-        result = true;
-      }
-      else {
-        context.timerState = SWITCH_START;
-        context.timer = 0;
-      }
+    } else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 && context.timer > 0) {
+      result = true;
+    } else {
+      context.timerState = SWITCH_START;
+      context.timer = 0;
     }
+  }
 
   return result;
 }
 
-bool getSwitch(swsrc_t swtch, uint8_t flags)
+bool getSwitch(const SwitchRef& ref, uint8_t flags)
 {
+  if (ref.isNone()) return true;  // SWSRC_NONE → always on
+
   bool result;
+  switch (ref.type) {
+    case SWITCH_TYPE_ON:
+      result = true;
+      break;
 
-  if (swtch == SWSRC_NONE)
-    return true;
+    case SWITCH_TYPE_ONE:
+      result = !s_mixer_first_run_done;
+      break;
 
-  uint16_t cs_idx = abs(swtch);
-
-  if (cs_idx == SWSRC_ONE) {
-    result = !s_mixer_first_run_done;
-  }
-  else if (cs_idx == SWSRC_ON) {
-    result = true;
-  }
-#if defined(DEBUG_LATENCY)
-  else if (cs_idx == SWSRC_LATENCY_TOGGLE) {
-    result = latencyToggleSwitch;
-  }
-#endif
-  else if (cs_idx <= SWSRC_LAST_SWITCH) {
-    cs_idx -= SWSRC_FIRST_SWITCH;
+    case SWITCH_TYPE_SWITCH: {
+      uint16_t idx = ref.index;
 #if defined(FUNCTION_SWITCHES)
-    div_t qr = div(cs_idx, 3);
-    if (switchIsCustomSwitch(qr.quot)) {
-      auto value = g_model.cfsState(qr.quot);
-      result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
-    } else
+      div_t qr = div(idx, 3);
+      if (switchIsCustomSwitch(qr.quot)) {
+        auto value = g_model.cfsState(qr.quot);
+        result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
+      } else
 #endif
-    {
-      div_t qr = div(cs_idx, 3);
-      if (SWITCH_EXISTS(qr.quot)) {
-        auto sw_cfg = g_model.getSwitchType(qr.quot);
-        if (flags & GETSWITCH_MIDPOS_DELAY) {
-          result = SWITCH_POSITION(cs_idx);
-          // Handle 2POS switch installed in 3POS slot
-          if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
-            result = SWITCH_POSITION(cs_idx - 1);
+      {
+        div_t qr = div(idx, 3);
+        if (SWITCH_EXISTS(qr.quot)) {
+          auto sw_cfg = g_model.getSwitchType(qr.quot);
+          if (flags & GETSWITCH_MIDPOS_DELAY) {
+            result = SWITCH_POSITION(idx);
+            // Handle 2POS switch installed in 3POS slot
+            if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
+              result = SWITCH_POSITION(idx - 1);
+          } else {
+            result = switchState(idx);
+            // Handle 2POS switch installed in 3POS slot
+            if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
+              result = switchState(idx - 1);
+          }
         } else {
-          result = switchState(cs_idx);
-          // Handle 2POS switch installed in 3POS slot
-          if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
-            result = switchState(cs_idx - 1);
+          result = false;
         }
-      } else {
-         result = false;
       }
+      break;
     }
-  }
-  else if (cs_idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    result = POT_POSITION(cs_idx - SWSRC_FIRST_MULTIPOS_SWITCH);
-  }
-  else if (cs_idx <= SWSRC_LAST_TRIM) {
-    uint8_t idx = cs_idx - SWSRC_FIRST_TRIM;
-    idx = (inputMappingConvertMode(idx/2) << 1) + (idx & 1);
-    result = trimDown(idx);
-  }
-  else if (cs_idx == SWSRC_RADIO_ACTIVITY) {
-    result = (inactivity.counter < 2);
-  }
-  else if (cs_idx == SWSRC_TRAINER_CONNECTED) {
-    result = isTrainerConnected();
-  }
-  else if (cs_idx >= SWSRC_FIRST_SENSOR) {
-    result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
-  }
-  else if (cs_idx == SWSRC_TELEMETRY_STREAMING) {
-    result = TELEMETRY_STREAMING();
-  }
-  else if (cs_idx >= SWSRC_FIRST_FLIGHT_MODE) {
+
+    case SWITCH_TYPE_MULTIPOS:
+      result = POT_POSITION(ref.index);
+      break;
+
+    case SWITCH_TYPE_TRIM: {
+      uint8_t idx = ref.index;
+      idx = (inputMappingConvertMode(idx/2) << 1) + (idx & 1);
+      result = trimDown(idx);
+      break;
+    }
+
+    case SWITCH_TYPE_LOGICAL:
+      result = lswFm[mixerCurrentFlightMode].lsw[ref.index].state;
+      break;
+
+    case SWITCH_TYPE_FLIGHT_MODE: {
 #if defined(FLIGHT_MODES)
-    uint8_t idx = cs_idx - SWSRC_FIRST_FLIGHT_MODE;
-    if (flags & GETSWITCH_MIDPOS_DELAY)
-      result = (idx == flightModeTransitionLast);
-    else
-      result = (idx == mixerCurrentFlightMode);
+      uint8_t idx = ref.index;
+      if (flags & GETSWITCH_MIDPOS_DELAY)
+        result = (idx == flightModeTransitionLast);
+      else
+        result = (idx == mixerCurrentFlightMode);
 #else
-    result = false;
+      result = false;
 #endif
-  }
-  else {
-    cs_idx -= SWSRC_FIRST_LOGICAL_SWITCH;
-    result = lswFm[mixerCurrentFlightMode].lsw[cs_idx].state;
+      break;
+    }
+
+    case SWITCH_TYPE_TELEMETRY:
+      result = TELEMETRY_STREAMING();
+      break;
+
+    case SWITCH_TYPE_SENSOR:
+      result = !telemetryItems[ref.index].isOld();
+      break;
+
+    case SWITCH_TYPE_RADIO_ACTIVITY:
+      result = (inactivity.counter < 2);
+      break;
+
+    case SWITCH_TYPE_TRAINER:
+      result = isTrainerConnected();
+      break;
+
+    default:
+      result = false;
+      break;
   }
 
-  return swtch > 0 ? result : !result;
+  if (ref.isInverted()) result = !result;
+  return result;
 }
 
 uint8_t getXPotPosition(uint8_t idx)
@@ -781,7 +781,10 @@ uint8_t getXPotPosition(uint8_t idx)
 */
 void evalLogicalSwitches(bool isCurrentFlightmode)
 {
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
+  uint16_t lsCount = getLswCount();
+  LogicalSwitchData * lsBase = lswAddress(0);
+
+  for (unsigned int idx=0; idx<lsCount; idx++) {
     LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
     bool result = getLogicalSwitch(idx);
     if (isCurrentFlightmode) {
@@ -793,8 +796,9 @@ void evalLogicalSwitches(bool isCurrentFlightmode)
       }
     }
     context.state = result;
-    if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
-      g_model.logicalSw[idx].lsState = result;
+    LogicalSwitchData * ls = lsBase + idx;
+    if ((ls->func == LS_FUNC_STICKY) && (ls->lsState != result)) {
+      ls->lsState = result;
       storageDirty(EE_MODEL);
     }
   }
@@ -813,10 +817,10 @@ static inline uint8_t _bits_set(uint8_t val, uint8_t bits)
 
 swarnstate_t switches_states = 0;
 
-swsrc_t getMovedSwitch()
+SwitchRef getMovedSwitch()
 {
   static tmr10ms_t s_move_last_time = 0;
-  swsrc_t result = 0;
+  SwitchRef result = {};
 
   // Switches
   auto max_switches = switchGetMaxAllSwitches();
@@ -829,14 +833,14 @@ swsrc_t getMovedSwitch()
       if (switchIsCustomSwitch(i))
         next = g_model.cfsState(i) ? 3 : 1;
       else
-        next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+        next = (1024 + getValue(SourceRef_(SOURCE_TYPE_SWITCH, i))) / 1024 + 1;
 #else
-      next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+      next = (1024 + getValue(SourceRef_(SOURCE_TYPE_SWITCH, i))) / 1024 + 1;
 #endif
       if (prev != next) {
         switches_states =
             (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 2));
-        result = (3 * i) + next;
+        result = SwitchRef_(SWITCH_TYPE_SWITCH, (uint16_t)(3 * i + (next - 1)));
       }
     }
   }
@@ -855,7 +859,7 @@ swsrc_t getMovedSwitch()
         uint8_t prev = potsPos[i] & 0x0F;
         uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / count);
         if (prev != next) {
-          result = SWSRC_FIRST_MULTIPOS_SWITCH + i * XPOTS_MULTIPOS_COUNT + next;
+          result = SwitchRef_(SWITCH_TYPE_MULTIPOS, (uint16_t)(i * XPOTS_MULTIPOS_COUNT + next));
         }
       }
     }
@@ -865,13 +869,13 @@ swsrc_t getMovedSwitch()
   for (int i = 0; i < keysGetMaxTrims(); i++) {
     if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
       uint8_t tidx = inputMappingConvertMode(i) * 2;
-      if (trimDown(tidx)) result = SWSRC_FIRST_TRIM + i * 2;
-      else if (trimDown(tidx+1)) result = SWSRC_FIRST_TRIM + i * 2 + 1;
+      if (trimDown(tidx)) result = SwitchRef_(SWITCH_TYPE_TRIM, (uint16_t)(i * 2));
+      else if (trimDown(tidx+1)) result = SwitchRef_(SWITCH_TYPE_TRIM, (uint16_t)(i * 2 + 1));
     }
   }
 
   if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 100)
-    result = 0;
+    result.clear();
 
   s_move_last_time = get_tmr10ms();
   return result;
@@ -965,7 +969,7 @@ void checkSwitches()
             if (warnState != swState) {
               if (++numWarnings < 6) {
                 const char* s = getSwitchWarnSymbol(warnState);
-                drawSource(x, y, MIXSRC_FIRST_SWITCH + i, INVERS);
+                drawSource(x, y, SourceRef_(SOURCE_TYPE_SWITCH, (uint16_t)i), INVERS);
                 lcdDrawText(lcdNextPos, y, s, INVERS);
                 x = lcdNextPos + 3;
               }
@@ -980,7 +984,7 @@ void checkSwitches()
           if (g_model.potsWarnEnabled & (1 << i)) {
             if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
               if (++numWarnings < 6) {
-                drawSource(x, y, MIXSRC_FIRST_POT + i, INVERS);
+                drawSource(x, y, SourceRef_(SOURCE_TYPE_POT, (uint16_t)i), INVERS);
                 const char* symbol;
                 auto warn_pos = g_model.potsWarnPosition[i];
                 if (IS_SLIDER(i)) {
@@ -1064,9 +1068,9 @@ void logicalSwitchesTimerTick()
         lastValue.state = s;
         bool now;
         if (s)
-          now = getSwitch(ls->v2);
+          now = getSwitch(ls->v2.swtch);
         else
-          now = getSwitch(ls->v1);
+          now = getSwitch(ls->v1.swtch);
         if (now)
           lastValue.last |= 1;
         else
@@ -1077,24 +1081,27 @@ void logicalSwitchesTimerTick()
   }
 
   // Update logical switches
+  uint16_t lsCount = getLswCount();
+  LogicalSwitchData * lsBase = lswAddress(0);
+
   for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
-    for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
-      LogicalSwitchData * ls = lswAddress(i);
+    for (uint8_t i=0; i<lsCount; i++) {
+      LogicalSwitchData * ls = lsBase + i;
       if (ls->func == LS_FUNC_TIMER) {
         int16_t *lastValue = &LS_LAST_VALUE(fm, i);
         if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
-          *lastValue = -lswTimerValue(ls->v1);
+          *lastValue = -lswTimerValue(ls->v1.value);
         } else if (*lastValue < 0) {
-          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
+          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2.value);
         } else {  // if (*lastValue > 0)
-          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
+          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1.value);
         }
       } else if (ls->func == LS_FUNC_STICKY) {
         ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
-            if (ls->v2 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(ls->v2);
+            if (!ls->v2.swtch.isNone()) { // only if used / source set
+                bool now = getSwitch(ls->v2.swtch);
                 if (now != before) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -1104,8 +1111,8 @@ void logicalSwitchesTimerTick()
             }
         }
         else {
-            if (ls->v1 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(ls->v1);
+            if (!ls->v1.swtch.isNone()) { // only if used / source set
+                bool now = getSwitch(ls->v1.swtch);
                 if (before != now) {
                   lastValue.last ^= 1;
                   if (!before) {
@@ -1124,15 +1131,15 @@ void logicalSwitchesTimerTick()
           lastValue.duration = 0;
         }
         lastValue.state = false;
-        bool state = getSwitch(ls->v1);
+        bool state = getSwitch(ls->v1.swtch);
         if (state) {
-          if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2))
+          if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2.value))
             lastValue.state = true;
           if (lastValue.duration < 1000)
             lastValue.duration++;
         }
         else {
-          if (lastValue.duration > lswTimerValue(ls->v2) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2+ls->v3)))
+          if (lastValue.duration > lswTimerValue(ls->v2.value) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2.value+ls->v3)))
             lastValue.state = true;
           lastValue.duration = 0;
         }
@@ -1149,7 +1156,36 @@ void logicalSwitchesTimerTick()
 
 LogicalSwitchData * lswAddress(uint8_t idx)
 {
-  return &g_model.logicalSw[idx];
+  if (idx >= g_modelArena.sectionCount(ARENA_LOGICAL_SW)) {
+    static LogicalSwitchData dummy = {};
+    return &dummy;
+  }
+  return reinterpret_cast<LogicalSwitchData*>(
+      g_modelArena.sectionBase(ARENA_LOGICAL_SW)) + idx;
+}
+
+uint16_t getLswCount()
+{
+  return g_modelArena.sectionCount(ARENA_LOGICAL_SW);
+}
+
+LogicalSwitchData * lswAllocAt(uint8_t idx)
+{
+  if (idx >= g_modelArena.sectionCount(ARENA_LOGICAL_SW)) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_LOGICAL_SW, idx + 1))
+      return nullptr;
+  }
+  return lswAddress(idx);
+}
+
+static bool lswIsEmpty(const uint8_t* ptr)
+{
+  return reinterpret_cast<const LogicalSwitchData*>(ptr)->func == LS_FUNC_NONE;
+}
+
+void lswTrimTrailing()
+{
+  g_modelArena.trimTrailingEmpty(ARENA_LOGICAL_SW, lswIsEmpty);
 }
 
 uint8_t lswFamily(uint8_t func)
@@ -1193,7 +1229,7 @@ void logicalSwitchesReset()
 getvalue_t convertLswTelemValue(LogicalSwitchData * ls)
 {
   getvalue_t val;
-  val = convert16bitsTelemValue(ls->v1 - MIXSRC_FIRST_TELEM + 1, ls->v2);
+  val = convert16bitsTelemValue(ls->v1.source.index + 1, ls->v2.value);
   return val;
 }
 

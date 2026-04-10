@@ -95,6 +95,9 @@ enum RotaryEncoderMode {
 
 #include "myeeprom.h"
 #include "curves.h"
+#include "expos.h"
+#include "customfn.h"
+#include "logicalsw.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
@@ -118,7 +121,7 @@ void memswap(void * a, void * b, uint8_t size);
 #define IS_SWITCH_MULTIPOS(x) \
   (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
 
-#define GET_LOWRES_POT_POSITION(i) (getValue(MIXSRC_FIRST_POT + (i)) >> 4)
+#define GET_LOWRES_POT_POSITION(i) (getValue(SourceRef_(SOURCE_TYPE_POT, (i))) >> 4)
 
 #define SAVE_POT_POSITION(i) \
   g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
@@ -277,9 +280,9 @@ void checkTrims();
 extern uint8_t currentBacklightBright;
 void perMain();
 
-getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
+getvalue_t getValue(const SourceRef& ref, bool* valid = nullptr);
 
-int8_t getMovedSource(uint8_t min);
+SourceRef getMovedSource();
 
 #if defined(FLIGHT_MODES)
   extern uint8_t getFlightMode();
@@ -382,11 +385,11 @@ inline int calcRESXto100(int x)
 
 int expo(int x, int k);
 
-extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
+extern void getMixSrcRange(const SourceRef& source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 extern bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf);
 extern bool validateSFGV(CustomFunctionData* cfn);
 
-void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx=0, int16_t ovwrValue=0);
+void applyExpos(int16_t * anas, uint8_t mode, const SourceRef& ovwrSrc={}, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
 
 void evalInputs(uint8_t mode);
@@ -395,10 +398,13 @@ uint16_t anaIn(uint8_t chan);
 #define FLASH_DURATION 20 /*200ms*/
 
 FlightModeData * flightModeAddress(uint8_t idx);
-ExpoData * expoAddress(uint8_t idx);
+GVarData * gvarDataAddress(uint8_t idx);
+uint16_t getFlightModeCount();
+uint16_t getGVarCount();
 LimitData * limitAddress(uint8_t idx);
-LogicalSwitchData * lswAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
+CurveHeader * curveHeaderAddress(uint8_t idx);
+CurveHeader * curveHeaderAllocAt(uint8_t idx);
 
 void applyDefaultTemplate();
 void instantTrim();
@@ -444,7 +450,7 @@ inline bool isFunctionActive(uint8_t func)
 {
   return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
 }
-void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
+void evalFunctions(CustomFunctionData * functions, uint8_t count, CustomFunctionsContext & functionsContext);
 inline void customFunctionsReset()
 {
   globalFunctionsContext.reset();
@@ -872,5 +878,5 @@ extern bool modelTelemetryEnabled();
 int pwrDelayFromYaml(int delay);
 int pwrDelayToYaml(int delay);
 
-void calcBacklightValue(int16_t source);
-void calcVolumeValue(int16_t source);
+void calcBacklightValue(const SourceRef& source);
+void calcVolumeValue(const SourceRef& source);

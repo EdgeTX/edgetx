@@ -21,6 +21,8 @@
 
 #include "widget_settings.h"
 
+#include <cstring>
+
 #include "color_picker.h"
 #include "edgetx.h"
 #include "filechoice.h"
@@ -82,12 +84,13 @@ WidgetSettings::WidgetSettings(Widget* w) :
 
       case WidgetOption::Source:
         new SourceChoice(
-            line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-            [=]() -> int16_t {
-              return widgetData->getUnsignedValue(optIdx);
+            line, rect_t{},
+            [=]() -> SourceRef {
+              uint32_t raw = widgetData->getUnsignedValue(optIdx);
+              return SourceRef::fromUint32(raw);
             },
-            [=](int16_t newValue) {
-              widgetData->setUnsignedValue(optIdx, (uint32_t)newValue);
+            [=](SourceRef ref) {
+              widgetData->setUnsignedValue(optIdx, ref.toUint32());
               SET_DIRTY();
             });
         break;
@@ -155,13 +158,12 @@ WidgetSettings::WidgetSettings(Widget* w) :
       case WidgetOption::Switch:
         new SwitchChoice(
             line, rect_t{},
-            opt->min.signedValue,  // min
-            opt->max.signedValue,  // max
-            [=]() -> int16_t {       // getValue
-              return widgetData->getSignedValue(optIdx);
+            [=]() -> SwitchRef {
+              uint32_t raw = (uint32_t)widgetData->getSignedValue(optIdx);
+              return SwitchRef::fromUint32(raw);
             },
-            [=](int16_t newValue) {  // setValue
-              widgetData->setSignedValue(optIdx, newValue);
+            [=](SwitchRef ref) {
+              widgetData->setSignedValue(optIdx, (int32_t)ref.toUint32());
               SET_DIRTY();
             });
         break;

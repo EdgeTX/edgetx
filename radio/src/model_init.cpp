@@ -23,6 +23,8 @@
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 #include "mixes.h"
+#include "expos.h"
+#include "model_arena.h"
 
 #if defined(COLORLCD)
 #include "layout.h"
@@ -30,7 +32,8 @@
 
 void clearInputs()
 {
-  memset(g_model.expoData, 0, sizeof(g_model.expoData));
+  memset(g_modelArena.sectionBase(ARENA_EXPOS), 0,
+         getExpoCount() * sizeof(ExpoData));
 }
 
 void setDefaultInputs()
@@ -38,32 +41,34 @@ void setDefaultInputs()
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
     uint8_t stick_index = inputMappingChannelOrder(i);
-    ExpoData *expo = expoAddress(i);
-    expo->srcRaw = MIXSRC_FIRST_STICK + stick_index;
+    ExpoData *expo = expoAllocAt(i);
+    expo->srcRaw = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)stick_index);
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
-    expo->weight = 100;
+    expo->weight.setNumeric(100);
     expo->mode = 3; // TODO constant
-    strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
+    strncpy(inputNameAlloc(i), getMainControlLabel(stick_index), LEN_INPUT_NAME);
   }
-
+  updateExpoCount();
   storageDirty(EE_MODEL);
 }
 
 void clearMixes()
 {
-  memset(g_model.mixData, 0, sizeof(g_model.mixData));
+  memset(g_modelArena.sectionBase(ARENA_MIXES), 0,
+         getMixCount() * sizeof(MixData));
 }
 
 void setDefaultMixes()
 {
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
-    MixData * mix = mixAddress(i);
+    MixData * mix = mixAllocAt(i);
     mix->destCh = i;
-    mix->weight = 100;
-    mix->srcRaw = i+1;
+    mix->weight.setNumeric(100);
+    mix->srcRaw = SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)i);
   }
+  updateMixCount();
   storageDirty(EE_MODEL);
 }
 
@@ -75,9 +80,13 @@ void setDefaultModelRegistrationID()
 void setDefaultGVars()
 {
 #if defined(FLIGHT_MODES) && defined(GVARS)
-  for (int fmIdx = 1; fmIdx < MAX_FLIGHT_MODES; fmIdx++) {
-    for (int gvarIdx = 0; gvarIdx < MAX_GVARS; gvarIdx++) {
-      g_model.flightModeData[fmIdx].gvars[gvarIdx] = GVAR_MAX + 1;
+  g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
+  g_modelArena.ensureSectionCapacity(ARENA_GVAR_DATA, MAX_GVARS);
+  g_modelArena.ensureSectionCapacity(ARENA_GVAR_VALUES,
+                                     MAX_FLIGHT_MODES * MAX_GVARS);
+  for (int fmIdx = 1; fmIdx < getFlightModeCount(); fmIdx++) {
+    for (int gvarIdx = 0; gvarIdx < getGVarCount(); gvarIdx++) {
+      GVAR_VALUE(gvarIdx, fmIdx) = GVAR_MAX + 1;
     }
   }
 #endif
@@ -181,6 +190,11 @@ void applyDefaultTemplate()
 void setModelDefaults(uint8_t id)
 {
   memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
+
+  // Start with empty arena — applyDefaultTemplate allocates sections on demand
+  modelArenaInit();
+
   applyDefaultTemplate();
   
   setVendorSpecificModelDefaults(id);

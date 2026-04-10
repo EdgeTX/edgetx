@@ -63,7 +63,7 @@ class LogicalSwitchEditPage : public Page
 
   bool isActive() const
   {
-    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
+    return getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index));
   }
 
   void checkEvents() override
@@ -83,7 +83,7 @@ class LogicalSwitchEditPage : public Page
   {
     header->setTitle(STR_MENULOGICALSWITCHES);
     headerSwitchName = header->setTitle2(
-        getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
+        getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index)));
 
     etx_txt_color(headerSwitchName->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
                   ETX_STATE_LS_ACTIVE);
@@ -111,32 +111,36 @@ class LogicalSwitchEditPage : public Page
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
         choice = new SwitchChoice(
-            line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
-            SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
+            line, rect_t{},
+            [=]() { return cs->v1.swtch; },
+            [=](SwitchRef ref) { cs->v1.swtch = ref; SET_DIRTY(); });
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         break;
       case LS_FAMILY_COMP:
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_SET_DEFAULT(cs->v1), true);
+        new SourceChoice(line, rect_t{},
+                         [=]() { return cs->v1.source; },
+                         [=](SourceRef ref) { cs->v1.source = ref; SET_DIRTY(); },
+                         true);
         break;
       case LS_FAMILY_TIMER:
         timer =
-            new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v1));
+            new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v1.value));
         timer->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1, 0, nullptr,
                                       "s");
         });
         break;
       default:
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_DEFAULT(cs->v1), [=](int32_t newValue) {
-                           cs->v1 = newValue;
+        new SourceChoice(line, rect_t{},
+                         [=]() { return cs->v1.source; },
+                         [=](SourceRef ref) {
+                           cs->v1.source = ref;
                            if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
                              validateLSV2Range(cs, v2_min, v2_max, nullptr);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
-                             v2Edit->setValue(cs->v2);
+                             v2Edit->setValue(cs->v2.value);
                            }
                            SET_DIRTY();
                          }, true);
@@ -154,19 +158,20 @@ class LogicalSwitchEditPage : public Page
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
         choice = new SwitchChoice(
-            line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
-            SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
+            line, rect_t{},
+            [=]() { return cs->v2.swtch; },
+            [=](SwitchRef ref) { cs->v2.swtch = ref; SET_DIRTY(); });
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
         break;
       case LS_FAMILY_EDGE: {
         auto edit1 =
-            new NumberEdit(line, rect_t{}, -129, 122, GET_DEFAULT(cs->v2));
-        auto edit2 = new NumberEdit(line, rect_t{}, -1, 222 - cs->v2,
+            new NumberEdit(line, rect_t{}, -129, 122, GET_DEFAULT(cs->v2.value));
+        auto edit2 = new NumberEdit(line, rect_t{}, -1, 222 - cs->v2.value,
                                     GET_SET_DEFAULT(cs->v3));
         edit1->setSetValueHandler([=](int32_t newValue) {
-          cs->v2 = newValue;
+          cs->v2.value = newValue;
           SET_DIRTY();
-          edit2->setMax(222 - cs->v2);
+          edit2->setMax(222 - cs->v2.value);
           edit2->setValue(cs->v3);
         });
         edit1->setDisplayHandler([](int32_t value) {
@@ -179,18 +184,20 @@ class LogicalSwitchEditPage : public Page
           else if (value == 0)
             return std::string("--");
           else {
-            return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1, 0,
+            return formatNumberAsString(lswTimerValue(cs->v2.value + value), PREC1, 0,
                                         nullptr, "s");
           }
         });
       } break;
       case LS_FAMILY_COMP:
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_SET_DEFAULT(cs->v2), true);
+        new SourceChoice(line, rect_t{},
+                         [=]() { return cs->v2.source; },
+                         [=](SourceRef ref) { cs->v2.source = ref; SET_DIRTY(); },
+                         true);
         break;
       case LS_FAMILY_TIMER:
         timer =
-            new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v2));
+            new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v2.value));
         timer->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1, 0, nullptr,
                                       "s");
@@ -200,12 +207,11 @@ class LogicalSwitchEditPage : public Page
         int16_t v2_min = 0, v2_max = 0;
         if (validateLSV2Range(cs, v2_min, v2_max, nullptr)) SET_DIRTY();
         v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
-                                GET_SET_DEFAULT(cs->v2));
+                                GET_SET_DEFAULT(cs->v2.value));
 
         v2Edit->setDisplayHandler([=](int value) -> std::string {
-          if (abs(cs->v1) <= MIXSRC_LAST_CH) value = calc100toRESX(value);
-          std::string txt = getSourceCustomValueString(cs->v1, value, 0);
-          return txt;
+          if (cs->v1.source.type <= SOURCE_TYPE_CHANNEL) value = calc100toRESX(value);
+          return getSourceCustomValueString(cs->v1.source, value, 0);
         });
         break;
     }
@@ -213,8 +219,9 @@ class LogicalSwitchEditPage : public Page
     // AND switch
     line = logicalSwitchOneWindow->newLine(grid);
     new StaticText(line, rect_t{}, STR_AND_SWITCH);
-    choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW,
-                              GET_SET_DEFAULT(cs->andsw));
+    choice = new SwitchChoice(line, rect_t{},
+                              [=]() { return cs->andsw; },
+                              [=](SwitchRef ref) { cs->andsw = ref; SET_DIRTY(); });
     choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
 
     // Duration
@@ -267,13 +274,13 @@ class LogicalSwitchEditPage : public Page
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       cs->func = newValue;
       if (lswFamily(cs->func) == LS_FAMILY_TIMER) {
-        cs->v1 = cs->v2 = 0;
+        cs->v1.value = cs->v2.value = 0;
       } else if (lswFamily(cs->func) == LS_FAMILY_EDGE) {
-        cs->v1 = 0;
-        cs->v2 = -129;
+        cs->v1.value = 0;
+        cs->v2.value = -129;
         cs->v3 = 0;
       } else {
-        cs->v1 = cs->v2 = 0;
+        cs->v1.value = cs->v2.value = 0;
       }
       SET_DIRTY();
       updateLogicalSwitchOneWindow();
@@ -287,11 +294,11 @@ class LogicalSwitchEditPage : public Page
 void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
 {
   sprintf(s, "[%s:%s]",
-          formatNumberAsString(lswTimerValue(ls->v2), PREC1, 0, nullptr, "s")
+          formatNumberAsString(lswTimerValue(ls->v2.value), PREC1, 0, nullptr, "s")
               .c_str(),
           (ls->v3 < 0)    ? "<<"
           : (ls->v3 == 0) ? "--"
-                          : formatNumberAsString(lswTimerValue(ls->v2 + ls->v3),
+                          : formatNumberAsString(lswTimerValue(ls->v2.value + ls->v3),
                                                  PREC1, 0, nullptr, "s")
                                 .c_str());
 }
@@ -364,7 +371,7 @@ class LogicalSwitchButton : public ListLineButton
 
   bool isActive() const override
   {
-    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
+    return getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index));
   }
 
   void checkEvents() override
@@ -382,12 +389,12 @@ class LogicalSwitchButton : public ListLineButton
     else
       lv_obj_clear_state(lsFunc, LV_STATE_USER_1);
 
-    if ((lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_EDGE || lsFamily == LS_FAMILY_STICKY) && getSwitch(ls->v1))
+    if ((lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_EDGE || lsFamily == LS_FAMILY_STICKY) && getSwitch(ls->v1.swtch))
       lv_obj_add_state(lsV1, LV_STATE_USER_1);
     else
       lv_obj_clear_state(lsV1, LV_STATE_USER_1);
 
-    if ((lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) && getSwitch(ls->v2))
+    if ((lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) && getSwitch(ls->v2.swtch))
       lv_obj_add_state(lsV2, LV_STATE_USER_1);
     else
       lv_obj_clear_state(lsV2, LV_STATE_USER_1);
@@ -408,7 +415,7 @@ class LogicalSwitchButton : public ListLineButton
     uint8_t lsFamily = lswFamily(ls->func);
 
     lv_label_set_text(
-        lsName, getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
+        lsName, getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index)));
     lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
     // CSW params - V1
@@ -416,15 +423,15 @@ class LogicalSwitchButton : public ListLineButton
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
-        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
+        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1.swtch));
         break;
       case LS_FAMILY_TIMER:
-        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1),
+        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1.value),
                                                      PREC1, 0, nullptr, "s")
                                     .c_str());
         break;
       default: {
-        char* s = getSourceString(ls->v1);
+        char* s = getSourceString(ls->v1.source);
         if (getTextWidth(s, 0, FONT(STD)) > 88)
           lv_obj_add_state(lsV1, ETX_STATE_V1_SMALL_FONT);
         else
@@ -438,27 +445,24 @@ class LogicalSwitchButton : public ListLineButton
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
-        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
+        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2.swtch));
         break;
       case LS_FAMILY_EDGE:
         getsEdgeDelayParam(s, ls);
         lv_label_set_text(lsV2, s);
         break;
       case LS_FAMILY_TIMER:
-        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2),
+        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2.value),
                                                      PREC1, 0, nullptr, "s")
                                     .c_str());
         break;
       case LS_FAMILY_COMP:
-        lv_label_set_text(lsV2, getSourceString(ls->v2));
+        lv_label_set_text(lsV2, getSourceString(ls->v2.source));
         break;
-      default:
-        lv_label_set_text(
-            lsV2,
-            getSourceCustomValueString(
-                ls->v1,
-                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
-                0));
+      default: {
+        int32_t dispVal = (ls->v1.source.type <= SOURCE_TYPE_CHANNEL) ? calc100toRESX(ls->v2.value) : ls->v2.value;
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1.source, dispVal, 0));
+      }
         break;
     }
 
@@ -541,11 +545,15 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
 
   // search for unused switches
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
-    LogicalSwitchData* ls = lswAddress(i);
-    if (ls->func == LS_FUNC_NONE) {
+    // Check if slot is unused (either beyond current count, or func == NONE)
+    bool unused = (i >= g_modelArena.sectionCount(ARENA_LOGICAL_SW)) ||
+                  (lswAddress(i)->func == LS_FUNC_NONE);
+    if (unused) {
       std::string ch_name(
-          getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + i));
+          getSwitchPositionName(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)i)));
       menu->addLineBuffered(ch_name.c_str(), [=]() {
+        LogicalSwitchData* ls = lswAllocAt(i);
+        if (!ls) return;  // arena full
         if (pasteLS) {
           *ls = clipboard.data.csw;
           storageDirty(EE_MODEL);
@@ -554,9 +562,11 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
         } else {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (ls->func != LS_FUNC_NONE) {
+            if (lswAddress(i)->func != LS_FUNC_NONE) {
               focusIndex = i;
               rebuild(window);
+            } else {
+              lswTrimTrailing();
             }
           });
         }
@@ -599,10 +609,12 @@ void ModelLogicalSwitchesPage::build(Window* window)
         menu->addLine(STR_EDIT, [=]() {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (ls->func == LS_FUNC_NONE)
+            if (ls->func == LS_FUNC_NONE) {
+              lswTrimTrailing();
               rebuild(window);
-            else
+            } else {
               button->refresh();
+            }
           });
         });
         menu->addLine(STR_COPY, [=]() {
@@ -617,6 +629,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
           });
         menu->addLine(STR_CLEAR, [=]() {
           memset(ls, 0, sizeof(LogicalSwitchData));
+          lswTrimTrailing();
           storageDirty(EE_MODEL);
           rebuild(window);
         });

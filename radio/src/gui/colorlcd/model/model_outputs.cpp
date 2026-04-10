@@ -125,7 +125,7 @@ class OutputLineButton : public ListLineButton
       lv_obj_add_state(source, ETX_STATE_NAME_FONT_SMALL);
 #endif
       char chanStr[LEN_CHANNEL_NAME + 16];
-      char* s = strAppend(chanStr, getSourceString(MIXSRC_FIRST_CH + index));
+      char* s = strAppend(chanStr, getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)index)));
       s = strAppend(s, "\n");
       s = strAppend(s, STR_CH);
       strAppendUnsigned(s, index + 1);
@@ -134,7 +134,7 @@ class OutputLineButton : public ListLineButton
 #if !NARROW_LAYOUT
       lv_obj_clear_state(source, ETX_STATE_NAME_FONT_SMALL);
 #endif
-      lv_label_set_text(source, getSourceString(MIXSRC_FIRST_CH + index));
+      lv_label_set_text(source, getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)index)));
     }
     if (output->revert) {
       lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);

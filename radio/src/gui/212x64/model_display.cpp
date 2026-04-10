@@ -66,7 +66,7 @@ inline uint8_t SCREEN_LINE_COLUMNS(uint8_t screenIndex, uint8_t lineIndex)
     case TELEMETRY_SCREEN_TYPE_VALUES:
       return 2;
     case TELEMETRY_SCREEN_TYPE_BARS:
-      return g_model.screens[screenIndex].bars[lineIndex].source ? 2 : 0;
+      return !g_model.screens[screenIndex].bars[lineIndex].source.isNone() ? 2 : 0;
     default:
       return HIDDEN_ROW;
     }
@@ -127,7 +127,7 @@ void menuModelDisplay(event_t event)
 
       case ITEM_DISPLAY_TOP_BAR_VOLTAGE:
         lcdDrawTextIndented(y, STR_VOLTAGE);
-        drawSource(DISPLAY_COL2, y, g_model.voltsSource ? MIXSRC_FIRST_TELEM+3*(g_model.voltsSource-1) : 0, attr);
+        drawSource(DISPLAY_COL2, y, g_model.voltsSource ? SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3*(g_model.voltsSource-1))) : SourceRef{}, attr);
         if (attr) {
           g_model.voltsSource = checkIncDec(event, g_model.voltsSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVoltsSensor);
         }
@@ -135,7 +135,7 @@ void menuModelDisplay(event_t event)
 
       case ITEM_DISPLAY_TOP_BAR_ALTITUDE:
         lcdDrawTextIndented(y, STR_ALTITUDE);
-        drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? MIXSRC_FIRST_TELEM+3*(g_model.altitudeSource-1) : 0, attr);
+        drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3*(g_model.altitudeSource-1))) : SourceRef{}, attr);
         if (attr) {
           g_model.altitudeSource = checkIncDec(event, g_model.altitudeSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isAltSensor);
         }
@@ -220,22 +220,19 @@ void menuModelDisplay(event_t event)
           int16_t barMax, barMin;
           LcdFlags lf = LEFT;
           getMixSrcRange(bar.source, barMin, barMax, &lf);
-          if (bar.source) {
-            if (bar.source <= MIXSRC_LAST_CH) {
-              drawSourceCustomValue(DISPLAY_COL2, y, bar.source, calc100toRESX(bar.barMin), (menuHorizontalPosition==1 ? attr : 0) | lf);
-              drawSourceCustomValue(DISPLAY_COL3, y, bar.source, calc100toRESX(bar.barMax), (menuHorizontalPosition==2 ? attr : 0) | lf);
-            }
-            else {
-              drawSourceCustomValue(DISPLAY_COL2, y, bar.source, bar.barMin, (menuHorizontalPosition==1 ? attr : 0) | lf);
-              drawSourceCustomValue(DISPLAY_COL3, y, bar.source, bar.barMax, (menuHorizontalPosition==2 ? attr : 0) | lf);
-            }
+          if (!bar.source.isNone()) {
+            bool isRESX = (bar.source.type <= SOURCE_TYPE_CHANNEL);
+            int32_t dispMin = isRESX ? calc100toRESX(bar.barMin) : bar.barMin;
+            int32_t dispMax = isRESX ? calc100toRESX(bar.barMax) : bar.barMax;
+            drawSourceCustomValue(DISPLAY_COL2, y, bar.source, dispMin, (menuHorizontalPosition==1 ? attr : 0) | lf);
+            drawSourceCustomValue(DISPLAY_COL3, y, bar.source, dispMax, (menuHorizontalPosition==2 ? attr : 0) | lf);
           }
           if (attr && s_editMode>0) {
             switch (menuHorizontalPosition) {
               case 0:
-                bar.source = checkIncDec(event, bar.source, 0, MIXSRC_LAST_TELEM, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable);
+                bar.source = checkIncDecSource(event, bar.source, SRCMASK_ALL, isSourceAvailable);
                 if (checkIncDec_Ret) {
-                  if (bar.source <= MIXSRC_LAST_CH) {
+                  if (bar.source.type <= SOURCE_TYPE_CHANNEL) {
                     bar.barMin = -100;
                     bar.barMax = 100;
                   }
@@ -257,11 +254,11 @@ void menuModelDisplay(event_t event)
         else {
           for (int c=0; c<NUM_LINE_ITEMS; c++) {
             LcdFlags cellAttr = (menuHorizontalPosition==c ? attr : 0);
-            source_t * value = &g_model.screens[screenIndex].lines[lineIndex].sources[c];
+            SourceRef * value = &g_model.screens[screenIndex].lines[lineIndex].sources[c];
             const coord_t pos[] = {DISPLAY_COL1, DISPLAY_COL2, DISPLAY_COL3};
             drawSource(pos[c], y, *value, cellAttr);
             if (cellAttr && s_editMode>0) {
-              *value = checkIncDec(event, *value, 0, MIXSRC_LAST_TELEM, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable);
+              *value = checkIncDecSource(event, *value, SRCMASK_ALL, isSourceAvailable);
             }
           }
           if (attr && menuHorizontalPosition == NUM_LINE_ITEMS) {

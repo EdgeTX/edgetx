@@ -25,11 +25,12 @@
 
 TEST(ModelAudio, flightModes)
 {
-  strncpy(g_model.flightModeData[0].name, "One", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[1].name, "Two", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[2].name, "Three", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[3].name, "Four", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[4].name, "Five", LEN_FLIGHT_MODE_NAME);
+  g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
+  strncpy(flightModeAddress(0)->name, "One", LEN_FLIGHT_MODE_NAME);
+  strncpy(flightModeAddress(1)->name, "Two", LEN_FLIGHT_MODE_NAME);
+  strncpy(flightModeAddress(2)->name, "Three", LEN_FLIGHT_MODE_NAME);
+  strncpy(flightModeAddress(3)->name, "Four", LEN_FLIGHT_MODE_NAME);
+  strncpy(flightModeAddress(4)->name, "Five", LEN_FLIGHT_MODE_NAME);
 
   int idx, event;
   EXPECT_TRUE(matchModeAudioFile("one-on.wav", idx, event));

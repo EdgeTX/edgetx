@@ -24,6 +24,7 @@
 
 #include "datastructs.h"
 #include "bitfield.h"
+#include "sourceref.h"
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
@@ -49,8 +50,8 @@
 
 #define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED || func == FUNC_SET_SCREEN)
 
-#define CFN_EMPTY(p)                   (!(p)->swtch)
-#define CFN_SWITCH(p)                  ((p)->swtch)
+#define CFN_EMPTY(p)                   ((p)->swtch.isNone())
+#define CFN_SWITCH(p)                  ((p)->swtch.toUint32())
 #define CFN_FUNC(p)                    ((p)->func)
 #define CFN_ACTIVE(p)                  ((p)->active)
 #define CFN_CH_INDEX(p)                ((p)->all.param)
@@ -61,13 +62,14 @@
 #define CFN_PLAY_REPEAT_MUL            1
 #define CFN_PLAY_REPEAT_NOSTART        -1
 #define CFN_GVAR_MODE(p)               ((p)->all.mode)
-#define CFN_PARAM(p)                   ((p)->all.val)
+#define CFN_PARAM(p)                   ((p)->all.val.value)
+#define CFN_PARAM_SRC(p)               ((p)->all.val.source)
 #define CFN_VAL2(p)                    ((p)->all.val2)
 #define CFN_RESET(p)                   ((p)->active=0, (p)->clear.val1=0, (p)->clear.val2=0)
 #define CFN_GVAR_CST_MIN               -GVAR_MAX
 #define CFN_GVAR_CST_MAX               GVAR_MAX
-#define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
-#define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
+#define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + gvarDataAddress(idx)->min)
+#define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - gvarDataAddress(idx)->max)
 
 // stick config
 #define STICK_CFG_INV_BITS             1
@@ -116,17 +118,17 @@ enum CurveRefType {
   (GV_IS_GV_VALUE(lim->max)                                       \
        ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
-       : lim->max + LIMIT_STD_MAX)
+       : GV_DECODE(lim->max) + LIMIT_STD_MAX)
 #define LIMIT_MIN(lim)                                            \
   (GV_IS_GV_VALUE(lim->min)                                       \
        ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
-       : lim->min - LIMIT_STD_MAX)
+       : GV_DECODE(lim->min) - LIMIT_STD_MAX)
 #define LIMIT_OFS(lim)                                               \
   (GV_IS_GV_VALUE(lim->offset)                                       \
        ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
                         mixerCurrentFlightMode)                      \
-       : lim->offset)
+       : GV_DECODE(lim->offset))
 #define LIMIT_MAX_RESX(lim) calc1000toRESX(LIMIT_MAX(lim))
 #define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))
 #define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))

@@ -212,13 +212,13 @@ extern uint8_t instructionsPercent;
 #define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
 struct LuaField {
-  uint16_t id;
+  uint32_t id;
   char name[20];
   char desc[50];
 };
 
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags=0);
-bool luaFindFieldById(int id, LuaField & field, unsigned int flags=0);
+bool luaFindFieldById(uint32_t id, LuaField & field, unsigned int flags=0);
 void luaLoadThemes();
 
 // Unregister LUA widget factories

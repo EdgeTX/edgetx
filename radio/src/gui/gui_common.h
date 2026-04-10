@@ -24,6 +24,7 @@
 #include <functional>
 #include "lcd.h"
 #include "keys.h"
+#include "sourceref.h"
 #include "telemetry/telemetry_sensors.h"
 
 #define READONLY_ROW                   ((uint8_t)-1)
@@ -55,23 +56,34 @@ int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
 bool isChannelUsed(int channel);
 bool checkSourceAvailable(int source, uint32_t sourceTypes);
+bool checkSourceAvailable(const SourceRef& ref, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
+bool checkSwitchAvailable(const SwitchRef& ref, uint32_t swtchTypes);
 bool isInputAvailable(int input);
-bool isThrottleSourceAvailable(int source);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
-bool isSourceAvailableForBacklightOrVolume(int source);
-bool isSourceAvailable(int source);
+bool isSourceAvailableForBacklightOrVolume(const SourceRef& ref);
+bool isSourceAvailable(const SourceRef& ref);
+
+// Source type iteration
+uint16_t sourceTypeCount(uint8_t type);
+extern const uint8_t sourceTypeOrder[];
+extern const unsigned sourceTypeOrderCount;
+
+// Return the Nth available source matching the given type mask
+SourceRef nthAvailableSource(uint8_t n, SourceTypeMask allowedTypes);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);
 bool isSourceAvailableInGlobalResetSpecialFunction(int index);
-bool isSwitchAvailable(int swtch, SwitchContext context);
+bool isSwitchAvailable(const SwitchRef& ref, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
-bool isSwitchAvailableInLogicalSwitches(int swtch);
-bool isSwitchAvailableInCustomFunctions(int swtch);
-bool isSwitchAvailableForArming(int swtch);
-bool isSwitchAvailableInMixes(int swtch);
+bool isSwitchAvailableInLogicalSwitches(const SwitchRef& ref);
+bool isSwitchAvailableInCustomFunctions(const SwitchRef& ref);
+bool isSwitchAvailableForArming(const SwitchRef& ref);
+bool isSwitchAvailableInMixes(const SwitchRef& ref);
+
+
 bool isPxx2IsrmChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
 bool isTrainerUsingModuleBay();
@@ -120,17 +132,16 @@ bool isSwitch2POSWarningStateAvailable(int state);
 #define IS_INSTANT_TRIM_ALLOWED()      true
 #endif
 
-swsrc_t checkIncDecMovedSwitch(swsrc_t val);
-
 // TODO move this to stdlcd/draw_functions.h ?
+void drawValueOrSource(coord_t x, coord_t y, const ValueOrSource& vos, LcdFlags att);
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags flags=0);
 void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
-void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags flags=0);
+void drawTelemScreenDate(coord_t x, coord_t y, uint8_t sensorIndex, LcdFlags flags=0);
 void drawGPSPosition(coord_t x, coord_t y, int32_t longitude, int32_t latitude, LcdFlags flags=0);
 void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
 void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, LcdFlags flags=0);
-void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t channel, int32_t val, LcdFlags flags=0);
-void drawSourceValue(coord_t x, coord_t y, source_t channel, LcdFlags flags=0);
+void drawSourceCustomValue(coord_t x, coord_t y, const SourceRef& source, int32_t val, LcdFlags flags=0);
+void drawSourceValue(coord_t x, coord_t y, const SourceRef& source, LcdFlags flags=0);
 
 // model_setup Defines that are used in all uis in the same way
 #define IF_INTERNAL_MODULE_ON(x)                  (IS_INTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)

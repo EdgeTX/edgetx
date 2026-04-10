@@ -427,7 +427,7 @@ void onMainViewMenu(const char * result)
 void displaySwitch(coord_t x, coord_t y, int width, unsigned int index)
 {
   if (SWITCH_EXISTS(index)) {
-    int val = getValue(MIXSRC_FIRST_SWITCH+index);
+    int val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, index));
 
     if (val >= 0) {
       lcdDrawSolidHorizontalLine(x, y, width);
@@ -517,7 +517,7 @@ void menuMainView(event_t event)
 
   // Flight Mode Name
   int mode = mixerCurrentFlightMode;
-  lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
+  lcdDrawSizedText(PHASE_X, PHASE_Y, flightModeAddress(mode)->name, sizeof(FlightModeData::name));
 
   // Model Name
   drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -566,10 +566,9 @@ void menuMainView(event_t event)
                       (switch_display.row < 4 ? 0 : 20) +
                       (switch_display.col == 0 ? 0 : shiftright);
           coord_t y = 25 + (switch_display.row % 4) * FH;
-          getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-          getvalue_t sw =
-              ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-          drawSwitch(x, y, sw, 0, false);
+          getvalue_t val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, i));
+          uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
+          drawSwitch(x, y, SwitchRef_(SWITCH_TYPE_SWITCH, swIdx), 0, false);
         }
         else {
           displaySwitch(17 + switch_display.row * 6,
@@ -604,7 +603,7 @@ void menuMainView(event_t event)
         lcdDrawSolidHorizontalLine(x, y+6, 4);
         lcdDrawSolidHorizontalLine(x, y+7, 4);
       }
-      else if (getSwitch(SWSRC_FIRST_LOGICAL_SWITCH+sw)) {
+      else if (getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)sw))) {
         lcdDrawFilledRect(x, y, 4, 8);
       }
       else {
@@ -619,7 +618,7 @@ void menuMainView(event_t event)
     lcdDrawFilledRect(BITMAP_X, BITMAP_Y, 64, 32, SOLID, ERASE);
     lcdDrawRect(BITMAP_X, BITMAP_Y, 64, 32);
     drawStringWithIndex(BITMAP_X+FW, BITMAP_Y+FH-1, STR_GV, gvarLastChanged+1);
-    lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
+    lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, gvarDataAddress(gvarLastChanged)->name, LEN_GVAR_NAME);
     lcdDrawText(BITMAP_X+FW, BITMAP_Y+2*FH+3, "[", BOLD);
     drawGVarValue(BITMAP_X+2*FW, BITMAP_Y+2*FH+3, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)), LEFT|BOLD);
     lcdDrawText(lcdLastRightPos, BITMAP_Y+2*FH+3, "]", BOLD);

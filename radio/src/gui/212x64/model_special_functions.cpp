@@ -38,11 +38,11 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
   uint8_t eeFlags;
 
   if (menuHandlers[menuLevel] == menuModelSpecialFunctions) {
-    cfn = &g_model.customFn[sub];
+    cfn = customFnAddress(sub);
     eeFlags = EE_MODEL;
   }
   else {
-    cfn = &g_eeGeneral.customFn[sub];
+    cfn = globalFnAddress(sub);
     eeFlags = EE_GENERAL;
   }
 
@@ -78,11 +78,11 @@ void onCustomFunctionsMenu(const char * result)
   uint8_t eeFlags;
 
   if (menuHandlers[menuLevel] == menuModelSpecialFunctions) {
-    cfn = &g_model.customFn[sub];
+    cfn = customFnAddress(sub);
     eeFlags = EE_MODEL;
   }
   else {
-    cfn = &g_eeGeneral.customFn[sub];
+    cfn = globalFnAddress(sub);
     eeFlags = EE_GENERAL;
   }
 
@@ -96,23 +96,30 @@ void onCustomFunctionsMenu(const char * result)
   }
   else if (result == STR_CLEAR) {
     memset(cfn, 0, sizeof(CustomFunctionData));
+    if (eeFlags == EE_MODEL) customFnTrimTrailing();
     storageDirty(eeFlags);
   }
   else if (result == STR_INSERT) {
-    memmove(cfn+1, cfn, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-    memset(cfn, 0, sizeof(CustomFunctionData));
-    storageDirty(eeFlags);
+    if (eeFlags == EE_MODEL) {
+      insertCustomFn(sub);
+    } else {
+      memmove(cfn+1, cfn, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
+      memset(cfn, 0, sizeof(CustomFunctionData));
+      storageDirty(eeFlags);
+    }
   }
   else if (result == STR_DELETE) {
-    memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
-    memset(&g_model.customFn[MAX_SPECIAL_FUNCTIONS-1], 0, sizeof(CustomFunctionData));
-    storageDirty(eeFlags);
+    if (eeFlags == EE_MODEL) {
+      deleteCustomFn(sub);
+    } else {
+      deleteGlobalFn(sub);
+    }
   }
 }
 
 void onAdjustGvarSourceLongEnterPress(const char * result)
 {
-  CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
+  CustomFunctionData * cfn = customFnAddress(menuVerticalPosition);
 
   if (result == STR_CONSTANT) {
     CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
@@ -139,9 +146,6 @@ void onAdjustGvarSourceLongEnterPress(const char * result)
     CFN_PARAM(cfn) = 0;
     storageDirty(EE_MODEL);
   }
-  else if (result != STR_EXIT) {
-    onSourceLongEnterPress(result);
-  }
 }
 
 enum CustomFunctionsItems {
@@ -163,19 +167,29 @@ static bool isAssignableFunctionAvailableSorted(int value)
 void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext)
 {
   int sub = menuVerticalPosition;
-  uint8_t eeFlags = (functions == g_model.customFn) ? EE_MODEL : EE_GENERAL;
+  uint8_t eeFlags = (functions == customFnAddress(0)) ? EE_MODEL : EE_GENERAL;
+  bool isModelFn = (eeFlags == EE_MODEL);
+
+  // Reclaim trailing empty slots when exiting edit mode
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_LONG(KEY_EXIT)) {
+    if (isModelFn) customFnTrimTrailing();
+    else           globalFnTrimTrailing();
+  }
+
   if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
-    CustomFunctionData *cfn = &functions[sub];
+    CustomFunctionData *cfn = isModelFn ? customFnAddress(sub) : globalFnAddress(sub);
+    uint8_t fnCount = isModelFn ? getCustomFnCount() : getGlobalFnCount();
     if (!CFN_EMPTY(cfn))
       POPUP_MENU_ADD_ITEM(STR_COPY);
     if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION && isAssignableFunctionAvailable(clipboard.data.cfn.func))
       POPUP_MENU_ADD_ITEM(STR_PASTE);
-    if (!CFN_EMPTY(cfn) && CFN_EMPTY(&functions[MAX_SPECIAL_FUNCTIONS-1]))
+    if (!CFN_EMPTY(cfn) && fnCount < MAX_SPECIAL_FUNCTIONS)
       POPUP_MENU_ADD_ITEM(STR_INSERT);
     if (!CFN_EMPTY(cfn))
       POPUP_MENU_ADD_ITEM(STR_CLEAR);
-    for (int i=sub+1; i<MAX_SPECIAL_FUNCTIONS; i++) {
-      if (!CFN_EMPTY(&functions[i])) {
+    for (int i=sub+1; i<fnCount; i++) {
+      CustomFunctionData *fi = isModelFn ? customFnAddress(i) : globalFnAddress(i);
+      if (!CFN_EMPTY(fi)) {
         POPUP_MENU_ADD_ITEM(STR_DELETE);
         break;
       }
@@ -187,23 +201,34 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     int k = i+menuVerticalOffset;
 
-    drawStringWithIndex(0, y, functions == g_model.customFn ? STR_SF : STR_GF, k+1, (sub==k && menuHorizontalPosition<0) ? INVERS : 0);
+    drawStringWithIndex(0, y, isModelFn ? STR_SF : STR_GF, k+1, (sub==k && menuHorizontalPosition<0) ? INVERS : 0);
 
-    CustomFunctionData * cfn = &functions[k];
+    // Grow arena on demand when editing
+    if (sub==k && s_editMode>0) {
+      if (isModelFn) {
+        CustomFunctionData* allocated = customFnAllocAt(k);
+        if (!allocated) continue;  // arena full
+        functions = customFnAddress(0);  // base may have shifted
+      } else {
+        CustomFunctionData* allocated = globalFnAllocAt(k);
+        if (!allocated) continue;  // arena full
+        functions = globalFnAddress(0);  // base may have shifted
+      }
+    }
+    CustomFunctionData * cfn = isModelFn ? customFnAddress(k) : globalFnAddress(k);
     uint8_t func = CFN_FUNC(cfn);
     for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);
       uint8_t active = (attr && s_editMode>0);
       switch (j) {
         case ITEM_CUSTOM_FUNCTIONS_SWITCH:
-          if(CFN_SWITCH(cfn) == SWSRC_NONE) CFN_ACTIVE(cfn) = 0; // Disable new function by default
-          drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
-          if (active || AUTOSWITCH_ENTER_LONG()) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
+          if(cfn->swtch.isNone()) CFN_ACTIVE(cfn) = 0; // Disable new function by default
+          drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, cfn->swtch, attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+          if (active || (attr && event==EVT_KEY_LONG(KEY_ENTER))) {
+            if (event == EVT_KEY_LONG(KEY_ENTER)) killEvents(event);
+            cfn->swtch = checkIncDecSwitch(event, cfn->swtch, SWMASK_ALL, eeFlags, isSwitchAvailableInCustomFunctions);
           }
-          if (func == FUNC_OVERRIDE_CHANNEL && functions != g_model.customFn) {
+          if (func == FUNC_OVERRIDE_CHANNEL && functions != customFnAddress(0)) {
             func = CFN_FUNC(cfn) = func+1;
           }
           break;
@@ -245,12 +270,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             else if (param == MAX_STICKS + 1)
               lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_CHANS, attr);
             else
-              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_FIRST_STICK + param - 1, attr);
+              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, SourceRef_(SOURCE_TYPE_STICK, (uint16_t)(param - 1)), attr);
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
             if (validateSFGV(cfn)) storageDirty(eeFlags);
-            maxParam = MAX_GVARS-1;
+            maxParam = getGVarCount()-1;
             drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
             if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
             break;
@@ -281,6 +306,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           int16_t val_displayed = CFN_PARAM(cfn);
           int16_t val_min = 0;
           int16_t val_max = 255;
+          bool sourceHandled = false;
           if (func == FUNC_RESET) {
             val_max = FUNC_RESET_PARAM_FIRST_TELEM+lastUsedTelemetryIndex();
             int param = CFN_PARAM(cfn);
@@ -295,7 +321,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
           else if (func == FUNC_OVERRIDE_CHANNEL) {
-            getMixSrcRange(MIXSRC_FIRST_CH, val_min, val_max);
+            getMixSrcRange(SourceRef_(SOURCE_TYPE_CHANNEL, 0), val_min, val_max);
             lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT);
           }
 #endif
@@ -308,7 +334,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 #endif
           else if (func == FUNC_SET_TIMER) {
             if (timersSetupCount() > 0) {
-              getMixSrcRange(MIXSRC_FIRST_TIMER, val_min, val_max);
+              getMixSrcRange(SourceRef_(SOURCE_TYPE_TIMER, 0), val_min, val_max);
               drawTimer(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT|TIMEHOUR, attr);
             } else if (attr) {
               repeatLastCursorHorMove(event);
@@ -355,20 +381,20 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             break;
           }
           else if (func == FUNC_PLAY_VALUE) {
-            val_max = MIXSRC_LAST_TELEM;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
             if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
+              cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                      isSourceAvailable);
             }
+            break;
           }
           else if (func == FUNC_VOLUME) {
-            val_max = MIXSRC_LAST_CH;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
             if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
+              cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                      isSourceAvailableForBacklightOrVolume);
             }
+            break;
           }
           else if (func == FUNC_LOGS) {
             val_min = SD_LOGS_PERIOD_MIN; 
@@ -382,12 +408,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawChar(lcdLastRightPos, y, 's');
           }
           else if (func == FUNC_BACKLIGHT) {
-            val_max = MIXSRC_LAST_CH;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
             if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
+              cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                      isSourceAvailableForBacklightOrVolume);
             }
+            break;
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
@@ -395,25 +421,25 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               case FUNC_ADJUST_GVAR_CONSTANT:
               {
                 val_displayed = (int16_t)CFN_PARAM(cfn);
-                getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
+                getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), val_min, val_max);
                 drawGVarValue(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, CFN_GVAR_INDEX(cfn), val_displayed, attr|LEFT);
                 break;
               }
               case FUNC_ADJUST_GVAR_SOURCE:
               case FUNC_ADJUST_GVAR_SOURCERAW:
-                val_max = MIXSRC_LAST_CH;
-                drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
+                drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, cfn->all.val.source, attr);
                 if (active) {
-                  INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-                  INCDEC_ENABLE_CHECK(isSourceAvailable);
+                  cfn->all.val.source = checkIncDecSource(event, cfn->all.val.source, SRCMASK_ALL,
+                                                          isSourceAvailable);
                 }
+                sourceHandled = true;
                 break;
               case FUNC_ADJUST_GVAR_GVAR:
-                val_max = MAX_GVARS-1;
+                val_max = getGVarCount()-1;
                 drawStringWithIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_GV, val_displayed+1, attr);
                 break;
               default: // FUNC_ADJUST_GVAR_INC
-                getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
+                getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), val_min, val_max);
                 getGVarIncDecRange(val_min, val_max);
                 lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, (val_displayed < 0 ? "-= " : "+= "), attr);
                 drawGVarValue(lcdNextPos, y, CFN_GVAR_INDEX(cfn), abs(val_displayed), attr|LEFT);
@@ -425,7 +451,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             repeatLastCursorMove(event);
           }
 
-          if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
+          if (!sourceHandled && (active || event==EVT_KEY_LONG(KEY_ENTER))) {
             CFN_PARAM(cfn) = CHECK_INCDEC_PARAM(event, val_displayed, val_min, val_max);
             if (func == FUNC_ADJUST_GVAR && attr && event==EVT_KEY_LONG(KEY_ENTER)) {
               if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_CONSTANT)
@@ -492,6 +518,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
 void menuModelSpecialFunctions(event_t event)
 {
-  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
-  return menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
+  uint8_t sfCount = min<uint8_t>(getCustomFnCount() + 1, MAX_SPECIAL_FUNCTIONS);
+  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, sfCount, { NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
+  return menuSpecialFunctions(event, customFnAddress(0), &modelFunctionsContext);
 }

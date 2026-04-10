@@ -339,8 +339,19 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     YamlTreeWalker tree;
     tree.reset(data_nodes, buffer);
 
+    bool is_active_model = (buffer == (uint8_t*)&g_model);
+
+    // Reset arena to empty layout — sections grow on demand during parsing
+    // via ensure_capacity callbacks in the YAML walker.
+    if (init_model) {
+      modelArenaInit();
+    }
+
     // wipe memory before reading YAML
     memset(buffer,0,size);
+    if (is_active_model) {
+      inputNameIndexReset();
+    }
 
     if (init_model) {
 #if defined(FUNCTION_SWITCHES)
@@ -353,24 +364,29 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values
-      // Note: taken from edgetx.cpp::modelDefault()
-      //TODO: new func in gvars
-      for (int p=1; p<MAX_FLIGHT_MODES; p++) {
-        for (int i=0; i<MAX_GVARS; i++) {
-          md->flightModeData[p].gvars[i] = GVAR_MAX+1;
+      // Arena sections must be pre-allocated before YAML load
+      g_modelArena.ensureSectionCapacity(ARENA_FLIGHT_MODES, MAX_FLIGHT_MODES);
+      g_modelArena.ensureSectionCapacity(ARENA_GVAR_DATA, MAX_GVARS);
+      g_modelArena.ensureSectionCapacity(ARENA_GVAR_VALUES,
+                                         MAX_FLIGHT_MODES * MAX_GVARS);
+      for (int p=1; p<getFlightModeCount(); p++) {
+        for (int i=0; i<getGVarCount(); i++) {
+          GVAR_VALUE(i, p) = GVAR_MAX+1;
         }
       }
 #endif
-      // is that necessary ???
-      // md->swashR.collectiveWeight = 100;
-      // md->swashR.aileronWeight    = 100;
-      // md->swashR.elevatorWeight   = 100;
-
       md->rfAlarms.warning = 45;
       md->rfAlarms.critical = 42;
     }
 
-    return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
+    const char* err = readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
+
+    if (is_active_model && init_model) {
+      // Active model loaded — shrink heap buffer to actual usage + headroom
+      g_modelArena.shrinkToFit(256);
+    }
+
+    return err;
 }
 
 static const char _wrongExtentionError[] = "wrong file extension";
@@ -391,6 +407,97 @@ const char * writeModelYaml(const char* filename)
     char path[256];
     getModelPath(path, filename);
     return writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&g_model,0 );
+}
+
+const char* patchModelYamlLabels(const char* filename, const char* newLabels,
+                                  const char* pathName)
+{
+    char path[256];
+    getModelPath(path, filename, pathName);
+
+    // Read the entire file into a buffer
+    FIL file;
+    FRESULT result = f_open(&file, path, FA_OPEN_EXISTING | FA_READ);
+    if (result != FR_OK)
+        return SDCARD_ERROR(result);
+
+    UINT fileSize = f_size(&file);
+    if (fileSize == 0 || fileSize > 16384) {
+        f_close(&file);
+        return "file too large";
+    }
+
+    // Allocate buffer for read + potential label expansion
+    uint32_t bufSize = fileSize + LABELS_LENGTH + 32;
+    char* buf = (char*)malloc(bufSize);
+    if (!buf) {
+        f_close(&file);
+        return "out of memory";
+    }
+
+    UINT bytesRead;
+    result = f_read(&file, buf, fileSize, &bytesRead);
+    f_close(&file);
+    if (result != FR_OK || bytesRead != fileSize) {
+        free(buf);
+        return "read error";
+    }
+    buf[fileSize] = '\0';
+
+    // Find "labels:" in the buffer
+    // It appears as "   labels: <value>\n" under the header section
+    const char* needle = "labels:";
+    char* pos = strstr(buf, needle);
+    if (!pos) {
+        // No labels field - append one under header section
+        // For now, just skip (model has no labels)
+        free(buf);
+        return nullptr;  // success, nothing to change
+    }
+
+    // Find the start of the value (skip "labels:" and whitespace)
+    char* valStart = pos + strlen(needle);
+    while (*valStart == ' ') valStart++;
+
+    // Find the end of the line
+    char* lineEnd = valStart;
+    while (*lineEnd && *lineEnd != '\r' && *lineEnd != '\n') lineEnd++;
+
+    // Build the new line content: "labels: <newLabels>"
+    // Replace the value between valStart and lineEnd
+    char* afterLine = lineEnd;  // points to \r, \n, or \0
+
+    // Compute sizes
+    size_t prefixLen = valStart - buf;
+    size_t suffixLen = strlen(afterLine);
+    size_t newValLen = strlen(newLabels);
+
+    if (prefixLen + newValLen + suffixLen + 1 > bufSize) {
+        free(buf);
+        return "labels too long";
+    }
+
+    // Shift suffix and insert new value
+    memmove(buf + prefixLen + newValLen, afterLine, suffixLen + 1);
+    memcpy(buf + prefixLen, newLabels, newValLen);
+
+    // Write back
+    UINT newSize = prefixLen + newValLen + suffixLen;
+    result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
+    if (result != FR_OK) {
+        free(buf);
+        return SDCARD_ERROR(result);
+    }
+
+    UINT bytesWritten;
+    result = f_write(&file, buf, newSize, &bytesWritten);
+    f_close(&file);
+    free(buf);
+
+    if (result != FR_OK || bytesWritten != newSize)
+        return "write error";
+
+    return nullptr;  // success
 }
 
 #if !defined(STORAGE_MODELSLIST)

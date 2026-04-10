@@ -38,7 +38,7 @@ static const char* const _str_units[] = { "-", "%" };
 
 void menuModelGVarOne(event_t event)
 {
-  GVarData * gvar = &g_model.gvars[s_currIdxSubMenu];
+  GVarData * gvar = gvarDataAddress(s_currIdxSubMenu);
 
   drawStringWithIndex(strlen(STR_GVARS)*FW+FW, 0, STR_GV, s_currIdxSubMenu+1, 0);
   drawGVarValue(32*FW, 0, s_currIdxSubMenu, getGVarValue(s_currIdxSubMenu, getFlightMode()));

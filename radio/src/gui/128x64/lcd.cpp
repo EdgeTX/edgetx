@@ -235,16 +235,15 @@ void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
       lcdDrawSizedText(xLabel, y + FH, timer.name, len, RIGHT);
     }
     else {
-      drawTimerMode(xLabel, y + FH, timer.mode, RIGHT);
+      drawTimerMode(xLabel, y + FH, timer.mode, timer.swtch, RIGHT);
     }
   }
 }
 
-void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags att)
+void drawTelemScreenDate(coord_t x, coord_t y, uint8_t sensorIndex, LcdFlags att)
 {
   y+=3;
-  sensor = (sensor-MIXSRC_FIRST_TELEM) / 3;
-	TelemetryItem & telemetryItem = telemetryItems[sensor];
+	TelemetryItem & telemetryItem = telemetryItems[sensorIndex];
 
   lcdDrawNumber(x, y, telemetryItem.datetime.hour, att|LEADING0, 2);
   lcdDrawText(lcdNextPos, y, ":", att);

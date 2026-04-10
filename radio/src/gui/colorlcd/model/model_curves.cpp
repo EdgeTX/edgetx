@@ -39,9 +39,9 @@ class CurveButton : public Button
     // Title
     char buf[32];
     char *s = strAppendStringWithIndex(buf, STR_CV, index + 1);
-    if (g_model.curves[index].name[0]) {
+    if (curveHeaderAddress(index)->name[0]) {
       s = strAppend(s, ":");
-      strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
+      strAppend(s, curveHeaderAddress(index)->name, LEN_CURVE_NAME);
     }
     title = new StaticText(this, {0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf,
                            COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
@@ -59,7 +59,7 @@ class CurveButton : public Button
         [=](int x) -> int { return applyCustomCurve(x, index); });
 
     // Curve characteristics
-    CurveHeader &curve = g_model.curves[index];
+    CurveHeader &curve = *curveHeaderAddress(index);
     snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points,
              STR_PTS);
     new StaticText(this, {0, height() - EdgeTxStyles::STD_FONT_HEIGHT - PAD_MEDIUM, LV_PCT(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf,
@@ -104,12 +104,16 @@ ModelCurvesPage::ModelCurvesPage(const PageDef& pageDef) : PageGroupItem(pageDef
 
 // can be called from any other screen to edit a curve.
 // currently called from model_mixes.cpp on longpress.
-void ModelCurvesPage::pushEditCurve(int index, mixsrc_t source)
+void ModelCurvesPage::pushEditCurve(int index, const SourceRef& source)
 {
   if (!isCurveUsed(index)) {
-    CurveHeader &curve = g_model.curves[index];
+    if (!curveAllocAt(index))
+      return;
+    CurveHeader &curve = *curveHeaderAddress(index);
     int8_t *points = curveAddress(index);
     initPoints(curve, points);
+    setCurveUsed(index);
+    storageDirty(EE_MODEL);
   }
 
   new CurveEditWindow(index, source);
@@ -135,7 +139,7 @@ void ModelCurvesPage::presetMenu(Window *window, uint8_t index)
     char label[16];
     strAppend(strAppendSigned(label, angle), "°");
     menu->addLineBuffered(label, [=]() {
-      CurveHeader &curve = g_model.curves[index];
+      CurveHeader &curve = *curveHeaderAddress(index);
       int8_t *points = curveAddress(index);
 
       int dx = 2000 / (5 + curve.points - 1);
@@ -166,12 +170,16 @@ void ModelCurvesPage::newCV(Window *window, bool presetCV)
       strAppendUnsigned(&s[2], i + 1);
       menu->addLineBuffered(s, [=]() {
         focusIndex = i;
+        if (!curveAllocAt(i))
+          return;
         if (presetCV) {
           presetMenu(window, i);
         } else {
-          CurveHeader &curve = g_model.curves[i];
+          CurveHeader &curve = *curveHeaderAddress(i);
           int8_t *points = curveAddress(i);
           initPoints(curve, points);
+          setCurveUsed(i);
+          storageDirty(EE_MODEL);
           editCurve(window, i);
         }
       });
@@ -233,6 +241,7 @@ void ModelCurvesPage::build(Window *window)
         });
         menu->addLine(STR_CLEAR, [=]() {
           curveClear(index);
+          curveTrimTrailing();
           storageDirty(EE_MODEL);
           rebuild(window);
         });

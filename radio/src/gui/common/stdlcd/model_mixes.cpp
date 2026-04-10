@@ -25,12 +25,14 @@
 #include "input_mapping.h"
 #include "mixes.h"
 
+
 #define _STRING_MAX(x)                     "/" #x
 #define STRING_MAX(x)                     _STRING_MAX(x)
 
 bool reachMixesLimit()
 {
-  if (getMixCount() >= MAX_MIXERS) {
+  if (getMixCount() >= MAX_MIXERS_HARD ||
+      g_modelArena.freeBytes() < sizeof(MixData)) {
     POPUP_WARNING(STR_NOFREEMIXER);
     return true;
   }
@@ -90,7 +92,7 @@ void displayMixInfos(coord_t y, MixData * md)
 {
   drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
-  if (md->swtch) {
+  if (!md->swtch.isNone()) {
     drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
   }
 }
@@ -99,7 +101,7 @@ void displayMixLine(coord_t y, MixData * md)
 {
   if (md->name[0])
     lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), 0);
-  if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
+  if (!md->flightModes || ((md->curve.value.numericValue() || !md->swtch.isNone()) && ((get_tmr10ms() / 200) & 1)))
     displayMixInfos(y, md);
   else
     displayFlightModes(MIX_LINE_FM_POS, y, md->flightModes);
@@ -132,7 +134,7 @@ void displayMixInfos(coord_t y, MixData * md)
 {
   drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
-  if (md->swtch) {
+  if (!md->swtch.isNone()) {
     drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
   }
 
@@ -149,7 +151,7 @@ void displayMixLine(coord_t y, MixData * md, bool active)
   if(active && md->name[0]) {
     lcdDrawFilledRect(FW*strlen(STR_MIXES)+FW/2, 0, FW*4+1, MENU_HEADER_HEIGHT, 0xFF, ERASE);
     lcdDrawSizedText(FW*strlen(STR_MIXES)+FW/2, 0, md->name, sizeof(md->name), 0);
-    if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
+    if (!md->flightModes || ((md->curve.value.numericValue() || !md->swtch.isNone()) && ((get_tmr10ms() / 200) & 1)))
       displayMixInfos(y, md);
     else
       displayFlightModes(MIX_LINE_FM_POS, y, md->flightModes);
@@ -157,7 +159,7 @@ void displayMixLine(coord_t y, MixData * md, bool active)
   else {
     if (md->name[0])
       lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), 0);
-    else if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
+    else if (!md->flightModes || ((md->curve.value.numericValue() || !md->swtch.isNone()) && ((get_tmr10ms() / 200) & 1)))
       displayMixInfos(y, md);
     else
       displayFlightModes(MIX_LINE_FM_POS, y, md->flightModes);
@@ -339,9 +341,7 @@ void menuModelMixAll(event_t event)
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
-          editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
-                      MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
-                      0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+          drawValueOrSource(MIX_LINE_WEIGHT_POS, y, md->weight, RIGHT | ((isMixActive(i) ? BOLD : 0)));
 
 #if LCD_W >= 212
           displayMixLine(y, md);

@@ -67,7 +67,7 @@ MixEditWindow::MixEditWindow(int8_t channel, uint8_t index) :
 
 void MixEditWindow::buildHeader(Window *window)
 {
-  std::string title2(getSourceString(MIXSRC_FIRST_CH + channel));
+  std::string title2(getSourceString(SourceRef_(SOURCE_TYPE_CHANNEL, (uint16_t)channel)));
   header->setTitle(STR_MIXES);
   header->setTitle2(title2);
 
@@ -105,31 +105,42 @@ void MixEditWindow::buildBody(Window *form)
   // Source
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SOURCE);
-  new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
-                   GET_SET_DEFAULT(mix->srcRaw), true);
+  new SourceChoice(line, rect_t{},
+                   [=]() { return mix->srcRaw; },
+                   [=](SourceRef ref) {
+                     mix->srcRaw = ref;
+                     SET_DIRTY();
+                   }, true);
 
   // Weight
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto svar = new SourceNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                                   GET_SET_DEFAULT(mix->weight), MIXSRC_FIRST);
+                                   &mix->weight,
+                                   [=]() { SET_DIRTY(); });
   svar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
   auto gvar = new SourceNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
-                                   GET_SET_DEFAULT(mix->offset), MIXSRC_FIRST);
+                                   &mix->offset,
+                                   [=]() { SET_DIRTY(); });
   gvar->setSuffix("%");
 
   // Switch
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_SET_DEFAULT(mix->swtch));
+  new SwitchChoice(line, rect_t{},
+                   [=]() { return mix->swtch; },
+                   [=](SwitchRef ref) {
+                     mix->swtch = ref;
+                     SET_DIRTY();
+                   });
 
   // Curve
+  const SourceRef& srcForCurve = mix->srcRaw;
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), MIXSRC_FIRST, mix->srcRaw);
+  new CurveParam(line, rect_t{}, &mix->curve, srcForCurve);
 
   line = form->newLine(grid);
   line->padAll(PAD_LARGE);

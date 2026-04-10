@@ -24,6 +24,7 @@
 #include "button.h"
 #include "edgetx_types.h"
 #include "pagegroup.h"
+#include "sourceref.h"
 
 class ListLineButton : public ButtonBase
 {
@@ -52,8 +53,8 @@ class InputMixButtonBase : public ListLineButton
   InputMixButtonBase(Window* parent, uint8_t index);
   ~InputMixButtonBase();
 
-  void setWeight(gvar_t value, gvar_t min, gvar_t max);
-  void setSource(mixsrc_t idx);
+  void setWeight(const ValueOrSource& value, int16_t min, int16_t max);
+  void setSource(const SourceRef& ref);
   void setOpts(const char* s);
   void setFlightModes(uint16_t modes);
 
@@ -107,9 +108,9 @@ class InputMixButtonBase : public ListLineButton
 class InputMixGroupBase : public Window
 {
  public:
-  InputMixGroupBase(Window* parent, mixsrc_t idx);
+  InputMixGroupBase(Window* parent, const SourceRef& src);
 
-  mixsrc_t getMixSrc() { return idx; }
+  const SourceRef& getSourceRef() { return srcRef; }
   size_t getLineCount() { return lines.size(); }
   int getLineNumber(uint8_t idx);
 
@@ -120,7 +121,7 @@ class InputMixGroupBase : public Window
   void refresh();
 
  protected:
-  mixsrc_t idx;
+  SourceRef srcRef;
   lv_obj_t* label;
   std::list<InputMixButtonBase*> lines;
 
@@ -140,14 +141,14 @@ class InputMixPageBase : public PageGroupItem
   std::list<InputMixGroupBase*> groups;
 
   virtual void addLineButton(uint8_t index) = 0;
-  void addLineButton(mixsrc_t src, uint8_t index);
+  void addLineButton(const SourceRef& src, uint8_t index);
 
   InputMixButtonBase* getLineByIndex(uint8_t index);
-  InputMixGroupBase* getGroupBySrc(mixsrc_t src);
+  InputMixGroupBase* getGroupBySrc(const SourceRef& src);
   virtual InputMixGroupBase* getGroupByIndex(uint8_t index) = 0;
 
   virtual InputMixButtonBase* createLineButton(InputMixGroupBase* group, uint8_t index) = 0;
-  virtual InputMixGroupBase* createGroup(Window* form, mixsrc_t src) = 0;
+  virtual InputMixGroupBase* createGroup(Window* form, const SourceRef& src) = 0;
 
   void removeLine(InputMixButtonBase* l);
   void removeGroup(InputMixGroupBase* g);

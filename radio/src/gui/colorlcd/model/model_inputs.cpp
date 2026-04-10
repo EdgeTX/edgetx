@@ -25,80 +25,17 @@
 
 #include "dialog.h"
 #include "edgetx.h"
+#include "expos.h"
 #include "hal/adc_driver.h"
 #include "input_edit.h"
 #include "menu.h"
 #include "messaging.h"
-#include "tasks/mixer_task.h"
+
+// Defined in curves.cpp
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-uint8_t getExposCount()
-{
-  uint8_t count = 0;
-  uint8_t ch;
-
-  for (int i = MAX_EXPOS - 1; i >= 0; i--) {
-    ch = EXPO_VALID(expoAddress(i));
-    if (ch != 0) {
-      count++;
-    }
-  }
-  return count;
-}
-
-// TODO: these functions need to be added to the generic API
-//       used by all radios, and be removed from UI code
-//
-void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
-{
-  mixerTaskStop();
-  ExpoData sourceExpo;
-  memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
-  ExpoData* expo = expoAddress(dest);
-  size_t trailingExpos = MAX_EXPOS - (dest + 1);
-  memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
-  memcpy(expo, &sourceExpo, sizeof(ExpoData));
-  expo->chn = input;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-void deleteExpo(uint8_t idx)
-{
-  mixerTaskStop();
-  ExpoData* expo = expoAddress(idx);
-  int input = expo->chn;
-  memmove(expo, expo + 1, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
-  memclear(&g_model.expoData[MAX_EXPOS - 1], sizeof(ExpoData));
-  if (!isInputAvailable(input)) {
-    memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
-  }
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-// TODO port: avoid global s_currCh on ARM boards (as done here)...
 int8_t s_currCh;
-
-void insertExpo(uint8_t idx, uint8_t input)
-{
-  mixerTaskStop();
-  ExpoData* expo = expoAddress(idx);
-  memmove(expo + 1, expo, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
-  memclear(expo, sizeof(ExpoData));
-  if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    expo->srcRaw = MIXSRC_FIRST_STICK + input;
-  } else {
-    expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(input);
-  }
-  expo->curve.type = CURVE_REF_EXPO;
-  expo->mode = 3;  // pos+neg
-  expo->chn = input;
-  expo->weight = 100;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
 
 class InputLineButton : public InputMixButtonBase
 {
@@ -113,7 +50,7 @@ class InputLineButton : public InputMixButtonBase
 
   void refresh() override
   {
-    const ExpoData& line = g_model.expoData[index];
+    const ExpoData& line = *expoAddress(index);
     setWeight(line.weight, -100, 100);
     setSource(line.srcRaw);
 
@@ -134,7 +71,7 @@ class InputLineButton : public InputMixButtonBase
       }
     }
 
-    if (line.swtch) {
+    if (!line.swtch.isNone()) {
       char* sw_pos = getSwitchPositionName(line.swtch);
       int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
       if ((size_t)cnt >= maxlen)
@@ -145,7 +82,7 @@ class InputLineButton : public InputMixButtonBase
       }
     }
 
-    if (line.curve.value != 0) {
+    if (line.curve.value.numericValue() != 0 || line.curve.value.isSource) {
       getCurveRefString(s, maxlen, line.curve);
       int cnt = strnlen(s, maxlen);
       if ((size_t)cnt >= maxlen)
@@ -191,8 +128,8 @@ class InputLineButton : public InputMixButtonBase
 class InputGroup : public InputMixGroupBase
 {
  public:
-  InputGroup(Window* parent, mixsrc_t idx) :
-    InputMixGroupBase(parent, idx)
+  InputGroup(Window* parent, const SourceRef& src) :
+    InputMixGroupBase(parent, src)
   {
     adjustHeight();
 
@@ -208,7 +145,8 @@ ModelInputsPage::ModelInputsPage(const PageDef& pageDef) : InputMixPageBase(page
 
 bool ModelInputsPage::reachExposLimit()
 {
-  if (getExposCount() >= MAX_EXPOS) {
+  if (getExpoCount() >= MAX_EXPOS_HARD ||
+      g_modelArena.freeBytes() < sizeof(ExpoData)) {
     new MessageDialog(STR_WARNING, STR_NOFREEEXPO);
     return true;
   }
@@ -221,10 +159,10 @@ InputMixGroupBase* ModelInputsPage::getGroupByIndex(uint8_t index)
   if (!EXPO_VALID(expo)) return nullptr;
 
   int input = expo->chn;
-  return getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  return getGroupBySrc(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input));
 }
 
-InputMixGroupBase* ModelInputsPage::createGroup(Window* form, mixsrc_t src)
+InputMixGroupBase* ModelInputsPage::createGroup(Window* form, const SourceRef& src)
 {
   return new InputGroup(form, src);
 }
@@ -238,7 +176,7 @@ InputMixButtonBase* ModelInputsPage::createLineButton(InputMixGroupBase* group,
   lines.emplace_back(button);
   group->addLine(button);
 
-  uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
+  uint8_t input = group->getSourceRef().index;
   button->setPressHandler([=]() -> uint8_t {
     Menu* menu = new Menu();
     menu->addLine(STR_EDIT, [=]() {
@@ -289,7 +227,7 @@ void ModelInputsPage::addLineButton(uint8_t index)
   if (!EXPO_VALID(expo)) return;
   int input = expo->chn;
 
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_INPUT + input, index);
+  InputMixPageBase::addLineButton(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input), index);
 }
 
 void ModelInputsPage::newInput()
@@ -299,14 +237,14 @@ void ModelInputsPage::newInput()
 
   uint8_t chn = 0;
   uint8_t index = 0;
-  ExpoData* line = g_model.expoData;
+  ExpoData* line = expoAddress(0);
 
   // search for unused channels
   for (uint8_t i = 0; i < MAX_EXPOS && chn < MAX_INPUTS; i++) {
     if (!EXPO_VALID(line) || (line->chn > chn)) {
       uint8_t chnEnd = EXPO_VALID(line) ? line->chn : chn + 1;
       for (; chn < chnEnd; chn += 1) {
-        std::string name(getSourceString(chn + 1));
+        std::string name(getSourceString(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)chn)));
         menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
       }
     }
@@ -324,7 +262,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
   _copyMode = 0;
 
-  auto group = getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  auto group = getGroupBySrc(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input));
   if (!group) return;
 
   auto line = getLineByIndex(index);
@@ -341,7 +279,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
 {
   ::insertExpo(index, input);
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_INPUT + input, index);
+  InputMixPageBase::addLineButton(SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input), index);
   editInput(input, index);
 }
 
@@ -354,7 +292,7 @@ void ModelInputsPage::deleteInput(uint8_t index)
   if (!line) return;
 
   auto expo = expoAddress(index);
-  std::string s(getSourceString(group->getMixSrc()));
+  std::string s(getSourceString(group->getSourceRef()));
   s += " - ";
   if (expo->name[0]) {
     s += expo->name;
@@ -437,13 +375,13 @@ void ModelInputsPage::build(Window* window)
 
   bool focusSet = false;
   uint8_t index = 0;
-  ExpoData* line = g_model.expoData;
+  ExpoData* line = expoAddress(0);
   for (uint8_t input = 0; input < MAX_INPUTS; input++) {
     if (index >= MAX_EXPOS) break;
 
     if (line->chn == input && EXPO_VALID(line)) {
       // one group for the complete input channel
-      auto group = createGroup(form, MIXSRC_FIRST_INPUT + input);
+      auto group = createGroup(form, SourceRef_(SOURCE_TYPE_INPUT, (uint16_t)input));
       groups.emplace_back(group);
       while (index < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         // one button per input line

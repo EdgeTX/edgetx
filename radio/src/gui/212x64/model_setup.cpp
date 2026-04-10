@@ -255,10 +255,6 @@ void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timer.swtch,
              menuHorizontalPosition == 1 ? attr : 0);
 
-  // drawTimer(MODEL_SETUP_3RD_COLUMN, y, timer.start,
-  //           menuHorizontalPosition == 1 ? attr | TIMEHOUR : TIMEHOUR,
-  //           menuHorizontalPosition == 2 ? attr | TIMEHOUR : TIMEHOUR);
-
   if (attr && menuHorizontalPosition < 0) {
     lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
   }
@@ -268,10 +264,10 @@ void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
       case 0:
         CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
         break;
-      case 1:
-        CHECK_INCDEC_MODELSWITCH(event, timer.swtch, SWSRC_FIRST_IN_MIXES,
-                                 SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
+      case 1: {
+        timer.swtch = checkIncDecSwitch(event, timer.swtch, SWMASK_ALL, EE_MODEL, isSwitchAvailableInMixes);
         break;
+      }
     }
   }
 }
@@ -771,7 +767,7 @@ void menuModelSetup(event_t event)
             killEvents(event);
             START_NO_HIGHLIGHT();
             for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
-              memclear(&g_model.flightModeData[i], TRIMS_ARRAY_SIZE);
+              memclear(flightModeAddress(i), TRIMS_ARRAY_SIZE);
             }
             storageDirty(EE_MODEL);
             AUDIO_WARNING1();
@@ -799,13 +795,12 @@ void menuModelSetup(event_t event)
       {
         lcdDrawTextIndented(y, STR_TTRACE);
         if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO_CHECK(
-              event, g_model.thrTraceSrc,
-              MAX_POTS + MAX_OUTPUT_CHANNELS,
-              isThrottleSourceAvailable);
+          g_model.thrTraceSrc = checkIncDecSource(event, g_model.thrTraceSrc,
+              SRC_TYPE_BIT(SOURCE_TYPE_NONE) | SRC_TYPE_BIT(SOURCE_TYPE_STICK) |
+              SRC_TYPE_BIT(SOURCE_TYPE_POT) | SRC_TYPE_BIT(SOURCE_TYPE_CHANNEL),
+              isSourceAvailable);
 
-        uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, idx, attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.thrTraceSrc, attr);
         break;
       }
 
@@ -817,7 +812,7 @@ void menuModelSetup(event_t event)
         lcdDrawTextIndented(y, STR_TTRIM_SW);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSourceRef(), attr);
         break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
@@ -1286,8 +1281,10 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
         lcdDrawTextIndented(y, STR_SWITCH);
         drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
-        if(attr)
-          CHECK_INCDEC_SWITCH(event, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
+        if(attr) {
+          g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = checkIncDecSwitch(event,
+              g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWMASK_ALL, EE_MODEL, isSwitchAvailableForArming);
+        }
         break;
 #endif
 

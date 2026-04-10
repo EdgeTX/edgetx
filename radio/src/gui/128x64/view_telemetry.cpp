@@ -62,14 +62,14 @@ bool displayGaugesTelemetryScreen(TelemetryScreenData & screen)
   uint8_t barHeight = 5;
   for (int8_t i=3; i>=0; i--) {
     FrSkyBarData & bar = screen.bars[i];
-    source_t source = bar.source;
+    SourceRef source = bar.source;
     getvalue_t barMin = bar.barMin;
     getvalue_t barMax = bar.barMax;
-    if (source <= MIXSRC_LAST_CH) {
+    if (source.type <= SOURCE_TYPE_CHANNEL) {
       barMin = calc100toRESX(barMin);
       barMax = calc100toRESX(barMax);
     }
-    if (source) {
+    if (!source.isNone()) {
       uint8_t y = barHeight+6+i*(barHeight+6);
       drawSource(0, y+barHeight/2-3, source, SMLSIZE);
       lcdDrawRect(BAR_LEFT, y, BAR_WIDTH+1, barHeight+2);
@@ -103,8 +103,8 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
   lcdDrawSolidVerticalLine(63, 8, 48);
   for (uint8_t i=0; i<4; i++) {
     for (uint8_t j=0; j<NUM_LINE_ITEMS; j++) {
-      source_t field = screen.lines[i].sources[j];
-      if (field > 0) {
+      SourceRef fieldRef = screen.lines[i].sources[j];
+      if (!fieldRef.isNone()) {
         fields_count++;
       }
       if (i==3) {
@@ -113,31 +113,29 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           return fields_count;
         }
       }
-      if (field) {
+      if (!fieldRef.isNone()) {
         LcdFlags att = (i==3 ? RIGHT|NO_UNIT : RIGHT|MIDSIZE|NO_UNIT);
         coord_t pos[] = {0, 65, 130};
-        if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER && i != 3) {
-          // there is not enough space on LCD for displaying "Tmr1" or "Tmr2" and still see the - sign, we write "T1" or "T2" instead
-          drawStringWithIndex(pos[j], 1+FH+2*FH*i, "T", field-MIXSRC_FIRST_TIMER+1, 0);
-          drawTimerWithMode(pos[j+1] + 2, 1+FH+2*FH*i, field - MIXSRC_FIRST_TIMER, RIGHT | DBLSIZE);
+        if (fieldRef.type == SOURCE_TYPE_TIMER && i != 3) {
+          drawStringWithIndex(pos[j], 1+FH+2*FH*i, "T", fieldRef.index+1, 0);
+          drawTimerWithMode(pos[j+1] + 2, 1+FH+2*FH*i, fieldRef.index, RIGHT | DBLSIZE);
           continue;
         }
-        if (field >= MIXSRC_FIRST_GVAR && field <= MIXSRC_LAST_GVAR) {
-          if (g_model.gvars[field - MIXSRC_FIRST_GVAR].name[0])
-            lcdDrawSizedText(pos[j], 1+FH+2*FH*i,g_model.gvars[field - MIXSRC_FIRST_GVAR].name, LEN_GVAR_NAME, 0);
+        if (fieldRef.type == SOURCE_TYPE_GVAR) {
+          if (gvarDataAddress(fieldRef.index)->name[0])
+            lcdDrawSizedText(pos[j], 1+FH+2*FH*i, gvarDataAddress(fieldRef.index)->name, LEN_GVAR_NAME, 0);
           else
-            drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+            drawSource(pos[j], 1+FH+2*FH*i, fieldRef, 0);
         }
-        else if (field >= MIXSRC_FIRST_TELEM && isGPSSensor(1+(field-MIXSRC_FIRST_TELEM)/3) && telemetryItems[(field-MIXSRC_FIRST_TELEM)/3].isAvailable()) {
-          // we don't display GPS name, no space for it
-          att = RIGHT|DBLSIZE|NO_UNIT;  //DBLSIZE ensure the telem screen specific display for GPS is used
+        else if (fieldRef.type == SOURCE_TYPE_TELEMETRY && isGPSSensor(1+fieldRef.index/3) && telemetryItems[fieldRef.index/3].isAvailable()) {
+          att = RIGHT|DBLSIZE|NO_UNIT;
         }
         else {
-          drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+          drawSource(pos[j], 1+FH+2*FH*i, fieldRef, 0);
         }
 
-        if (field >= MIXSRC_FIRST_TELEM) {
-          TelemetryItem & telemetryItem = telemetryItems[(field-MIXSRC_FIRST_TELEM)/3]; // TODO macro to convert a source to a telemetry index
+        if (fieldRef.type == SOURCE_TYPE_TELEMETRY) {
+          TelemetryItem & telemetryItem = telemetryItems[fieldRef.index/3];
           if (!telemetryItem.isAvailable()) {
             continue;
           }
@@ -146,11 +144,11 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           }
         }
 
-        if (isSensorUnit(1+(field-MIXSRC_FIRST_TELEM)/3, UNIT_DATETIME) && field >= MIXSRC_FIRST_TELEM) {
-          drawTelemScreenDate(pos[j+1]-36, 6+FH+2*FH*i, field, SMLSIZE|NO_UNIT);
+        if (fieldRef.type == SOURCE_TYPE_TELEMETRY && isSensorUnit(1+fieldRef.index/3, UNIT_DATETIME)) {
+          drawTelemScreenDate(pos[j+1]-36, 6+FH+2*FH*i, fieldRef.index/3, SMLSIZE|NO_UNIT);
         }
         else {
-          drawSourceValue(pos[j+1]-2, (i==3 ? 1+FH+2*FH*i:FH+2*FH*i), field, att);
+          drawSourceValue(pos[j+1]-2, (i==3 ? 1+FH+2*FH*i:FH+2*FH*i), fieldRef, att);
         }
       }
     }

@@ -63,11 +63,34 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
   if (idx == MIXSRC_NONE)
     return;
 
-  getvalue_t val = getValue(idx);
-  idx = abs(idx); // Don't need negative form any longer
+  // Convert legacy mixsrc_t to SourceRef for getValue
+  SourceRef ref = SourceRef_(SOURCE_TYPE_NONE, 0);
+  mixsrc_t absIdx = abs(idx);
 
-  if (idx >= MIXSRC_FIRST_TELEM) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(idx-MIXSRC_FIRST_TELEM) / 3];
+  // Map known MIXSRC ranges to SourceRef
+  if (absIdx >= MIXSRC_FIRST_TELEM && absIdx <= MIXSRC_LAST_TELEM)
+    ref = SourceRef_(SOURCE_TYPE_TELEMETRY, absIdx - MIXSRC_FIRST_TELEM);
+  else if (absIdx >= MIXSRC_FIRST_TIMER && absIdx <= MIXSRC_LAST_TIMER)
+    ref = SourceRef_(SOURCE_TYPE_TIMER, absIdx - MIXSRC_FIRST_TIMER);
+  else if (absIdx == MIXSRC_TX_TIME)
+    ref = SourceRef_(SOURCE_TYPE_TX_TIME, 0);
+  else if (absIdx == MIXSRC_TX_VOLTAGE)
+    ref = SourceRef_(SOURCE_TYPE_TX_VOLTAGE, 0);
+#if defined(LUMINOSITY_SENSOR)
+  else if (absIdx == MIXSRC_LIGHT)
+    ref = SourceRef_(SOURCE_TYPE_LIGHT, 0);
+#endif
+  else if (absIdx >= MIXSRC_FIRST_CH && absIdx <= MIXSRC_LAST_CH)
+    ref = SourceRef_(SOURCE_TYPE_CHANNEL, absIdx - MIXSRC_FIRST_CH);
+  else if (absIdx >= MIXSRC_FIRST_STICK && absIdx <= MIXSRC_LAST_STICK)
+    ref = SourceRef_(SOURCE_TYPE_STICK, absIdx - MIXSRC_FIRST_STICK);
+  else if (absIdx >= MIXSRC_FIRST_POT && absIdx <= MIXSRC_LAST_POT)
+    ref = SourceRef_(SOURCE_TYPE_POT, absIdx - MIXSRC_FIRST_POT);
+
+  getvalue_t val = getValue(ref);
+
+  if (ref.type == SOURCE_TYPE_TELEMETRY) {
+    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[ref.index / 3];
     uint8_t attr = 0;
 
     // Preserve the sign
@@ -98,22 +121,22 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
 
     PLAY_NUMBER(val, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, attr);
   }
-  else if (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER) {
+  else if (ref.type == SOURCE_TYPE_TIMER) {
     int flag = 0;
     if (abs(val) > LONG_TIMER_DURATION) {
       flag = PLAY_LONG_TIMER;
     }
     PLAY_DURATION(val, flag);
-  } else if (idx == MIXSRC_TX_TIME) {
+  } else if (ref.type == SOURCE_TYPE_TX_TIME) {
     PLAY_DURATION(val * 60, PLAY_TIME);
-  } else if (idx == MIXSRC_TX_VOLTAGE) {
+  } else if (ref.type == SOURCE_TYPE_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
 #if defined(LUMINOSITY_SENSOR)
-  } else if (idx == MIXSRC_LIGHT) {
+  } else if (ref.type == SOURCE_TYPE_LIGHT) {
     PLAY_NUMBER(val, UNIT_RAW, 0);
 #endif
   } else {
-    if (idx <= MIXSRC_LAST_CH) {
+    if (ref.type == SOURCE_TYPE_CHANNEL) {
       val = calcRESXto100(val);
     }
     PLAY_NUMBER(val, 0, 0);
@@ -149,7 +172,7 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   }
 }
 
-void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+void evalFunctions(CustomFunctionData * functions, uint8_t count, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions  = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
@@ -157,7 +180,9 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   g_model.cfsResetSFState();
 #endif
 
-  uint8_t playFirstIndex = (functions == g_model.customFn ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
+  bool isModelFunctions = (functions == customFnAddress(0));
+  uint8_t playFirstIndex = (isModelFunctions ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
+  uint8_t numFunctions = count;
   #define PLAY_INDEX   (i+playFirstIndex)
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
@@ -176,13 +201,12 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   bool videoEnabled = false;
 #endif
 
-  for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
+  for (uint8_t i=0; i<numFunctions; i++) {
     CustomFunctionData * cfn = &functions[i];
-    swsrc_t swtch = CFN_SWITCH(cfn);
-    if (swtch) {
+    if (!cfn->swtch.isNone()) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
-      bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      bool active = getSwitch(cfn->swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
       if (CFN_ACTIVE(cfn) == 0)
         active = false;
 
@@ -292,21 +316,20 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                          mixerCurrentFlightMode);
               }
-            } else if (CFN_PARAM(cfn) >= MIXSRC_FIRST_TRIM &&
-                       CFN_PARAM(cfn) <= MIXSRC_LAST_TRIM) {
-              trimGvar[CFN_PARAM(cfn) - MIXSRC_FIRST_TRIM] =
+            } else if (cfn->all.val.source.type == SOURCE_TYPE_TRIM) {
+              trimGvar[cfn->all.val.source.index] =
                   CFN_GVAR_INDEX(cfn);
             } else {
               if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        calcRESXto100(getValue(CFN_PARAM(cfn))),
+                                        calcRESXto100(getValue(cfn->all.val.source)),
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                         mixerCurrentFlightMode);
               else
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        getValue(CFN_PARAM(cfn)),
+                                        getValue(cfn->all.val.source),
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                         mixerCurrentFlightMode);
             }
@@ -316,7 +339,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(AUDIO)
           case FUNC_VOLUME: {
             newActiveFunctions |= (1u << FUNCTION_VOLUME);
-            calcVolumeValue(CFN_PARAM(cfn));
+            calcVolumeValue(cfn->all.val.source);
             break;
           }
 #endif
@@ -370,8 +393,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_LOGS:
             if (CFN_PARAM(cfn)) {
               newActiveFunctions |= (1u << FUNCTION_LOGS);
-              logDelay100ms = CFN_PARAM(
-                  cfn);  // logging period is 0..25.5s in 100ms increments
+              logDelay100ms = CFN_PARAM(cfn);  // logging period is 0..25.5s in 100ms increments
             }
             break;
 
@@ -393,12 +415,12 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
           case FUNC_BACKLIGHT: {
             newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
-            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
+            if (cfn->all.val.source.isNone()) {  // When no source is set, backlight works
                                     // like original backlight and turn on
                                     // regardless of backlight settings
               requiredBacklightBright = BACKLIGHT_FORCED_ON;
             } else {
-              calcBacklightValue(CFN_PARAM(cfn));
+              calcBacklightValue(cfn->all.val.source);
             }
             break;
           }
@@ -430,7 +452,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
 #if defined(COLORLCD)
-              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
+              int8_t screenNumber = max((int32_t)0, CFN_PARAM(cfn) - 1);
               setRequestedMainView(screenNumber);
               mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
 #else

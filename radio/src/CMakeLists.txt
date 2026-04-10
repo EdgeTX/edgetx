@@ -455,6 +455,9 @@ set(SRC
   switches.cpp
   analogs.cpp
   mixes.cpp
+  expos.cpp
+  customfn.cpp
+  model_arena.cpp
   mixer.cpp
   mixer_scheduler.cpp
   stamp.cpp

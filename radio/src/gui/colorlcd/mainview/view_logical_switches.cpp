@@ -126,15 +126,15 @@ class LogicalSwitchDisplayFooter : public Window
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
-        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
+        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1.swtch));
         break;
       case LS_FAMILY_TIMER:
-        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1),
+        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1.value),
                                                      PREC1, 0, nullptr, "s")
                                     .c_str());
         break;
       default:
-        lv_label_set_text(lsV1, getSourceString(ls->v1));
+        lv_label_set_text(lsV1, getSourceString(ls->v1.source));
         break;
     }
 
@@ -143,27 +143,24 @@ class LogicalSwitchDisplayFooter : public Window
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
-        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
+        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2.swtch));
         break;
       case LS_FAMILY_EDGE:
         getsEdgeDelayParam(s, ls);
         lv_label_set_text(lsV2, s);
         break;
       case LS_FAMILY_TIMER:
-        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2),
+        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2.value),
                                                      PREC1, 0, nullptr, "s")
                                     .c_str());
         break;
       case LS_FAMILY_COMP:
-        lv_label_set_text(lsV2, getSourceString(ls->v2));
+        lv_label_set_text(lsV2, getSourceString(ls->v2.source));
         break;
-      default:
-        lv_label_set_text(
-            lsV2,
-            getSourceCustomValueString(
-                ls->v1,
-                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
-                0));
+      default: {
+        int32_t dispVal = (ls->v1.source.type <= SOURCE_TYPE_CHANNEL) ? calc100toRESX(ls->v2.value) : ls->v2.value;
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1.source, dispVal, 0));
+      }
         break;
     }
 
@@ -247,7 +244,7 @@ void LogicalSwitchesViewPage::build(Window* window)
 
     if (isActive) {
       auto button = new TextButton(window, {x, y, BTN_WIDTH, btnHeight}, lsString);
-      button->setCheckHandler([=]() { button->check(getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i)); });
+      button->setCheckHandler([=]() { button->check(getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)i))); });
       button->setFocusHandler([=](bool focus) { if (focus) { footer->setIndex(i); } });
     } else {
       if (btnHeight > EdgeTxStyles::STD_FONT_HEIGHT)

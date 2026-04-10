@@ -60,14 +60,14 @@ void displayGaugesTelemetryScreen(TelemetryScreenData & screen)
   int barHeight = 5;
   for (int i=3; i>=0; i--) {
     FrSkyBarData & bar = screen.bars[i];
-    source_t source = bar.source;
+    SourceRef source = bar.source;
     getvalue_t barMin = bar.barMin;
     getvalue_t barMax = bar.barMax;
-    if (source <= MIXSRC_LAST_CH) {
+    if (source.type <= SOURCE_TYPE_CHANNEL) {
       barMin = calc100toRESX(barMin);
       barMax = calc100toRESX(barMax);
     }
-    if (source) {
+    if (!source.isNone()) {
       int y = barHeight+6+i*(barHeight+6);
       drawSource(0, y+barHeight-5, source, 0);
       lcdDrawRect(BAR_LEFT, y, BAR_WIDTH+1, barHeight+2);
@@ -103,8 +103,8 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
   lcdDrawSolidVerticalLine(141, 8, 48);
   for (uint8_t i=0; i<4; i++) {
     for (uint8_t j=0; j<NUM_LINE_ITEMS; j++) {
-      source_t field = screen.lines[i].sources[j];
-      if (field > 0) {
+      SourceRef fieldRef = screen.lines[i].sources[j];
+      if (!fieldRef.isNone()) {
         fields_count++;
       }
       if (i==3) {
@@ -113,35 +113,33 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           return fields_count;
         }
       }
-      if (field) {
+      if (!fieldRef.isNone()) {
         coord_t x = pos[j+1]-2;
         coord_t y = (i==3 ? 1+FH+2*FH*i:FH+2*FH*i);
         LcdFlags att = RIGHT | (i==3 ? NO_UNIT : DBLSIZE|NO_UNIT);
-        if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER && i!=3) {
-          // there is not enough space on LCD for displaying "Tmr1" or "Tmr2" and still see the - sign, we write "T1" or "T2" instead
-          drawStringWithIndex(pos[j], 1+FH+2*FH*i, "T", field-MIXSRC_FIRST_TIMER+1, 0);
-          if (timersStates[field-MIXSRC_FIRST_TIMER].val > 3600) {
+        if (fieldRef.type == SOURCE_TYPE_TIMER && i!=3) {
+          drawStringWithIndex(pos[j], 1+FH+2*FH*i, "T", fieldRef.index+1, 0);
+          if (timersStates[fieldRef.index].val > 3600) {
             att += TIMEHOUR - DBLSIZE;
             x -= 3*FW;
             y += FH/2;
           }
         }
-        if (field >= MIXSRC_FIRST_GVAR && field <= MIXSRC_LAST_GVAR) {
-          if (g_model.gvars[field - MIXSRC_FIRST_GVAR].name[0])
-            lcdDrawSizedText(pos[j], 1+FH+2*FH*i,g_model.gvars[field - MIXSRC_FIRST_GVAR].name, LEN_GVAR_NAME, 0);
+        if (fieldRef.type == SOURCE_TYPE_GVAR) {
+          if (gvarDataAddress(fieldRef.index)->name[0])
+            lcdDrawSizedText(pos[j], 1+FH+2*FH*i, gvarDataAddress(fieldRef.index)->name, LEN_GVAR_NAME, 0);
           else
-            drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+            drawSource(pos[j], 1+FH+2*FH*i, fieldRef, 0);
         }
-        else if (field >= MIXSRC_FIRST_TELEM && isGPSSensor(1+(field-MIXSRC_FIRST_TELEM)/3) && telemetryItems[(field-MIXSRC_FIRST_TELEM)/3].isAvailable()) {
-          // we don't display GPS name, no space for it, but we shift x by some pixel to allow it to fit on max coord
+        else if (fieldRef.type == SOURCE_TYPE_TELEMETRY && isGPSSensor(1+fieldRef.index/3) && telemetryItems[fieldRef.index/3].isAvailable()) {
           x -=2;
         }
         else {
-          drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+          drawSource(pos[j], 1+FH+2*FH*i, fieldRef, 0);
         }
 
-        if (field >= MIXSRC_FIRST_TELEM) {
-          TelemetryItem & telemetryItem = telemetryItems[(field-MIXSRC_FIRST_TELEM)/3]; // TODO macro to convert a source to a telemetry index
+        if (fieldRef.type == SOURCE_TYPE_TELEMETRY) {
+          TelemetryItem & telemetryItem = telemetryItems[fieldRef.index/3];
           if (!telemetryItem.isAvailable()) {
             continue;
           }
@@ -150,11 +148,11 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           }
         }
 
-        if(isSensorUnit(1+(field-MIXSRC_FIRST_TELEM)/3, UNIT_DATETIME) && field >= MIXSRC_FIRST_TELEM) {
-          drawTelemScreenDate(x, y, field, att);
+        if (fieldRef.type == SOURCE_TYPE_TELEMETRY && isSensorUnit(1+fieldRef.index/3, UNIT_DATETIME)) {
+          drawTelemScreenDate(x, y, fieldRef.index/3, att);
         }
         else {
-          drawSourceValue(x, y, field, att);
+          drawSourceValue(x, y, fieldRef, att);
         }
       }
     }

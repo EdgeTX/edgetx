@@ -316,21 +316,22 @@ static int luaLcdDrawChannel(lua_State *L)
     return 0;
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
-  int channel = -1;
+  SourceRef ref = {};
   if (lua_isnumber(L, 3)) {
-    channel = luaL_checkinteger(L, 3);
+    ref = SourceRef::fromUint32(luaL_checkinteger(L, 3));
   }
   else {
     const char * what = luaL_checkstring(L, 3);
     LuaField field;
     bool found = luaFindFieldByName(what, field);
     if (found) {
-      channel = field.id;
+      ref = SourceRef::fromUint32(field.id);
     }
   }
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  getvalue_t value = getValue(channel);
-  drawSensorCustomValue(x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, att);
+  getvalue_t value = getValue(ref);
+  if (ref.type == SOURCE_TYPE_TELEMETRY)
+    drawSensorCustomValue(x, y, ref.index / 3, value, att);
   return 0;
 }
 
@@ -356,7 +357,7 @@ static int luaLcdDrawSwitch(lua_State *L)
   int y = luaL_checkinteger(L, 2);
   int s = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  drawSwitch(x, y, s, att);
+  drawSwitch(x, y, SwitchRef::fromUint32(s), att);
   return 0;
 }
 
@@ -381,7 +382,7 @@ static int luaLcdDrawSource(lua_State *L)
   int y = luaL_checkinteger(L, 2);
   int s = luaL_checkinteger(L, 3);
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  drawSource(x, y, s, att);
+  drawSource(x, y, SourceRef::fromUint32(s), att);
   return 0;
 }
 

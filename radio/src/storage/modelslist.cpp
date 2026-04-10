@@ -660,13 +660,6 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
     }
   }
 
-  ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
-  if (!modeldata) {
-    TRACE("Labels: Out Of Memory");
-    if (progress != nullptr) progress("", 100); // Kill progress dialog
-    return true;
-  }
-
   // Force a write of any changes in memory
   storageCheck(true);
 
@@ -685,7 +678,6 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
     if(curlen + csvto.size() - csvfrom.size() > LABELS_LENGTH - 1) {
       TRACE("Labels: Rename Error! Labels too long on %s", model->modelName);
       if (progress != nullptr) progress("", 100); // Kill progress dialog
-      free(modeldata);
       return true;
     }
   }
@@ -696,13 +688,8 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
       progress(modcell->modelFilename, (i++) * 100 / mods.size());
     }
 
-    readModelYaml(modcell->modelFilename, (uint8_t *)modeldata,
-                  sizeof(ModelData));
-
-    // Separate Curent CSV
-    LabelsVector lbls = ModelMap::fromCSV(modeldata->header.labels);
-
-    // Replace from->to strings
+    // Build new labels CSV from in-memory label map
+    LabelsVector lbls = getLabelsByModel(modcell);
     for (auto &lbl : lbls) {
       if (lbl == from) lbl = to;
     }
@@ -713,21 +700,20 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
     lbls.erase(last, lbls.end());
     lbls.resize(std::distance(lbls.begin(), last));
 
-    // Write back
-    strncpy(modeldata->header.labels, ModelMap::toCSV(lbls).c_str(), LABELS_LENGTH);
-    modeldata->header.labels[LABELS_LENGTH-1] = '\0';
-
-    char path[256];
-    getModelPath(path, modcell->modelFilename);
+    std::string newLabelsCSV = ModelMap::toCSV(lbls);
 
     if (modcell == modelslist.getCurrentModel()) {
-      // If working on the current model, write current data to file instead
-      memcpy(g_model.header.labels, modeldata->header.labels, LABELS_LENGTH);
+      // Current model: update g_model and write from it
+      strncpy(g_model.header.labels, newLabelsCSV.c_str(), LABELS_LENGTH);
+      g_model.header.labels[LABELS_LENGTH-1] = '\0';
+      char path[256];
+      getModelPath(path, modcell->modelFilename);
       fault = (writeFileYaml(path, get_modeldata_nodes(),
                              (uint8_t *)&g_model, 0) != NULL);
     } else {
-      fault = (writeFileYaml(path, get_modeldata_nodes(),
-                             (uint8_t *)modeldata, 0) != NULL);
+      // Non-current model: patch the YAML file directly (no round-trip)
+      fault = (patchModelYamlLabels(modcell->modelFilename,
+                                    newLabelsCSV.c_str()) != nullptr);
     }
 #if defined(SIMU)
     sleep_ms(100);
@@ -744,8 +730,6 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
 
   // Make sure to leave at 100, to kill rename dialog
   if (progress != nullptr) progress("", 100);
-
-  free(modeldata);
 
   // Issue a rescan all of all models.
   modelslist.clear();
@@ -829,25 +813,9 @@ bool ModelMap::updateModelFile(ModelCell *cell)
     return false;
   }
 
-  ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
-  if (!modeldata) {
-    TRACE("Labels: Out Of Memory");
-    return true;
-  }
-
-  bool fault = false;
-  readModelYaml(cell->modelFilename, (uint8_t *)modeldata, sizeof(ModelData));
-
-  strncpy(modeldata->header.labels, ModelMap::toCSV(getLabelsByModel(cell)).c_str(),
-          LABELS_LENGTH - 1);
-  modeldata->header.labels[LABELS_LENGTH - 1] = '\0';
-
-  char path[256];
-  getModelPath(path, cell->modelFilename);
-  fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t *)modeldata, 0) !=
-           NULL);
-
-  free(modeldata);
+  std::string newLabelsCSV = ModelMap::toCSV(getLabelsByModel(cell));
+  bool fault = (patchModelYamlLabels(cell->modelFilename,
+                                     newLabelsCSV.c_str()) != nullptr);
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
@@ -930,28 +898,28 @@ void ModelMap::updateModelCell(ModelCell *cell)
 {
   modelslabels.removeModels(cell);
 
-  ModelData *model = (ModelData *)malloc(sizeof(ModelData));
-  if (!model) {
-    TRACE("Labels: Out Of Memory");
-    return;
-  }
+  PartialModel partial;
+  memset(&partial, 0, sizeof(partial));
 
   TRACE("Labels: Updating model %s", cell->modelFilename);
-  readModelYaml(cell->modelFilename, (uint8_t *)model, sizeof(ModelData));
-  strncpy(cell->modelName, model->header.name, LEN_MODEL_NAME);
+  readModelYaml(cell->modelFilename, (uint8_t *)&partial, sizeof(partial));
+  strncpy(cell->modelName, partial.header.name, LEN_MODEL_NAME);
   cell->modelName[LEN_MODEL_NAME] = '\0';
-  strncpy(cell->modelBitmap, model->header.bitmap, LEN_BITMAP_NAME);
+  strncpy(cell->modelBitmap, partial.header.bitmap, LEN_BITMAP_NAME);
   cell->modelBitmap[LEN_BITMAP_NAME] = '\0';
-  LabelsVector labels = ModelMap::fromCSV(model->header.labels);
+  LabelsVector labels = ModelMap::fromCSV(partial.header.labels);
   for(const auto &lbl : labels ) {
     modelslabels.addLabelToModel(lbl,cell);
   }
 
   // Save Module Data
-  cell->setRfData(model);
+  for (uint8_t i = 0; i < NUM_MODULES; i++) {
+    cell->modelId[i] = partial.header.modelId[i];
+    cell->setRfModuleData(i, &partial.moduleData[i]);
+  }
+  cell->valid_rfData = true;
 
   cell->_isDirty = false;
-  free(model);
 }
 
 /**

@@ -41,7 +41,7 @@ static std::string getFMTrimStr(uint8_t mode, bool spacer)
   std::string str((mode & 1) ? "+" : "=");
   if (spacer) str += " ";
   mode >>= 1;
-  if (mode > MAX_FLIGHT_MODES - 1) mode = MAX_FLIGHT_MODES - 1;
+  if (mode > getFlightModeCount() - 1) mode = getFlightModeCount() - 1;
   str += '0' + mode;
   return str;
 }
@@ -71,12 +71,12 @@ class TrimEdit : public Window
     padAll(PAD_TINY);
     setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
 
-    trim_t* tr = &g_model.flightModeData[fmId].trim[trimId];
+    trim_t* tr = &flightModeAddress(fmId)->trim[trimId];
 
     lastTrim = tr->value;
 
     auto tr_btn = new TextButton(
-        this, rect_t{0, 0, TR_BTN_W, 0}, getSourceString(MIXSRC_FIRST_TRIM + trimId),
+        this, rect_t{0, 0, TR_BTN_W, 0}, getSourceString(SourceRef_(SOURCE_TYPE_TRIM, (uint16_t)trimId)),
         [=]() {
           tr->mode = (tr->mode == TRIM_MODE_NONE) ? 0 : TRIM_MODE_NONE;
           tr_mode->setValue(tr->mode);
@@ -87,7 +87,7 @@ class TrimEdit : public Window
 
     if (tr->mode != TRIM_MODE_NONE) tr_btn->check();
 
-    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * MAX_FLIGHT_MODES,
+    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * getFlightModeCount(),
                          GET_DEFAULT(tr->mode), [=](int val) {
                            tr->mode = val;
                            showControls();
@@ -120,7 +120,7 @@ class TrimEdit : public Window
 
   void showControls()
   {
-    uint8_t mode = g_model.flightModeData[fmId].trim[trimId].mode;
+    uint8_t mode = flightModeAddress(fmId)->trim[trimId].mode;
 
     bool checked = (mode != TRIM_MODE_NONE);
     bool showValue = (fmId == 0 && mode != TRIM_MODE_3POS) || ((mode & 1) || (mode >> 1 == fmId));
@@ -131,7 +131,7 @@ class TrimEdit : public Window
 
   void checkEvents() override
   {
-    const auto& fm = g_model.flightModeData[fmId];
+    const auto& fm = *flightModeAddress(fmId);
     if (lastTrim != fm.trim[trimId].value) {
       lastTrim = fm.trim[trimId].value;
       tr_value->setValue(lastTrim);
@@ -152,7 +152,7 @@ class FlightModeEdit : public Page
     FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
     body->setFlexLayout();
 
-    FlightModeData* p_fm = &g_model.flightModeData[index];
+    FlightModeData* p_fm = flightModeAddress(index);
 
     // Flight mode name
     auto line = body->newLine(grid);
@@ -163,8 +163,9 @@ class FlightModeEdit : public Page
       // Switch
       line = body->newLine(grid);
       new StaticText(line, rect_t{}, STR_SWITCH);
-      new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES,
-                       SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(p_fm->swtch));
+      new SwitchChoice(line, rect_t{},
+                       [=]() { return p_fm->swtch; },
+                       [=](SwitchRef ref) { p_fm->swtch = ref; SET_DIRTY(); });
     }
 
     // Fade in
@@ -253,9 +254,9 @@ class FlightModeBtn : public ListLineButton
 
   void setTrimValue(uint8_t t)
   {
-    lastTrim[t] = g_model.flightModeData[index].trim[t].value;
+    lastTrim[t] = flightModeAddress(index)->trim[t].value;
 
-    uint8_t mode = g_model.flightModeData[index].trim[t].mode;
+    uint8_t mode = flightModeAddress(index)->trim[t].mode;
     bool checked = (mode != TRIM_MODE_NONE);
     bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
 
@@ -272,7 +273,7 @@ class FlightModeBtn : public ListLineButton
     if (!refreshing && loaded) {
       refreshing = true;
       for (int t = 0; t < keysGetMaxTrims() && t < MAX_FMTRIMS; t += 1) {
-        if (lastTrim[t] != g_model.flightModeData[index].trim[t].value) {
+        if (lastTrim[t] != flightModeAddress(index)->trim[t].value) {
           setTrimValue(t);
         }
       }
@@ -284,7 +285,7 @@ class FlightModeBtn : public ListLineButton
   {
     if (!loaded) return;
 
-    const auto& fm = g_model.flightModeData[index];
+    const auto& fm = *flightModeAddress(index);
 
     if (fm.name[0] != '\0') {
       lv_label_set_text(fmName, fm.name);
@@ -292,7 +293,7 @@ class FlightModeBtn : public ListLineButton
       lv_label_set_text(fmName, "");
     }
 
-    if ((index > 0) && (fm.swtch != SWSRC_NONE)) {
+    if ((index > 0) && !fm.swtch.isNone()) {
       char label[16];
       getSwitchPositionName(label, fm.swtch);
       lv_label_set_text(fmSwitch, label);
@@ -480,7 +481,7 @@ void ModelFlightModesPage::build(Window* form)
   form->padAll(PAD_ZERO);
   form->padBottom(PAD_LARGE);
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (int i = 0; i < getFlightModeCount(); i++) {
     auto btn = new FlightModeBtn(form, i);
     lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_SMALL);
     btn->setWidth(ListLineButton::GRP_W);
@@ -492,7 +493,7 @@ void ModelFlightModesPage::build(Window* form)
   }
 
   trimCheck = new TextButton(
-      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_CHECKTRIMS, [&]() -> uint8_t {
+      form, rect_t{6, getFlightModeCount() * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_CHECKTRIMS, [&]() -> uint8_t {
         if (trimsCheckTimer)
           trimsCheckTimer = 0;
         else

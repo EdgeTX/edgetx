@@ -26,6 +26,7 @@
 
 #include "edgetx_types.h"
 #include "edgetx_constants.h"
+#include "sourceref.h"
 
 enum LogicalSwitchFamilies {
   LS_FAMILY_OFS,
@@ -58,10 +59,11 @@ uint8_t getSwitchCount();
 uint8_t switchGetMaxRow(uint8_t col);
 
 extern swarnstate_t switches_states;
-swsrc_t getMovedSwitch();
+SwitchRef getMovedSwitch();
 
 #define GETSWITCH_MIDPOS_DELAY   1
-bool getSwitch(swsrc_t swtch, uint8_t flags=0);
+bool getSwitch(const SwitchRef& ref, uint8_t flags=0);
+
 uint8_t getXPotPosition(uint8_t idx);
 
 div_t switchInfo(int switchPosition);

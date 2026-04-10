@@ -26,7 +26,7 @@ uint8_t gvarLastChanged = 0;
 
 uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv) // TODO change params order to be consistent!
 {
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=0; i<getFlightModeCount(); i++) {
     if (fm == 0) return 0;
     int16_t val = GVAR_VALUE(gv, fm);
     if (val <= GVAR_MAX) return fm;
@@ -50,7 +50,7 @@ int16_t getGVarValue(int8_t gv, int8_t fm)
 int32_t getGVarValuePrec1(int8_t gv, int8_t fm)
 {
   int8_t idx = (gv >= 0 ? gv : -gv - 1);
-  int8_t mul = (g_model.gvars[idx].prec == 0 ? 10 : 1); // explicit cast to `int` needed, othervise gv is promoted to double!
+  int8_t mul = (gvarDataAddress(idx)->prec == 0 ? 10 : 1); // explicit cast to `int` needed, othervise gv is promoted to double!
   if (gv < 0) {
     mul = -mul;
   }
@@ -63,7 +63,7 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
   if (GVAR_VALUE(gv, fm) != value) {
     GVAR_VALUE(gv, fm) = value;
     storageDirty(EE_MODEL);
-    if (g_model.gvars[gv].popup) {
+    if (gvarDataAddress(gv)->popup) {
       gvarLastChanged = gv;
       gvarDisplayTimer = GVAR_DISPLAY_TIME;
     }
@@ -76,6 +76,9 @@ int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max, int8_t fm)
     int8_t gv = GV_INDEX_FROM_VALUE(val);
     val = getGVarValue(gv, fm);
   }
+  else {
+    val = GV_DECODE(val);
+  }
   return limit(min, val, max);
 }
 
@@ -86,7 +89,7 @@ int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
     val = getGVarValuePrec1(gv, fm);
   }
   else {
-    val *= 10;
+    val = GV_DECODE(val) * 10;
   }
   return limit<int>(min*10, val, max*10);
 }

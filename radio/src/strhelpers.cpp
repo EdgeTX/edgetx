@@ -337,8 +337,8 @@ char *getCurveString(char *dest, int idx)
     idx = -idx;
   }
 
-  if (g_model.curves[idx - 1].name[0])
-    strAppend(s, g_model.curves[idx - 1].name, LEN_CURVE_NAME);
+  if (curveHeaderAddress(idx - 1)->name[0])
+    strAppend(s, curveHeaderAddress(idx - 1)->name, LEN_CURVE_NAME);
   else
     strAppendStringWithIndex(s, STR_CV, idx);
 
@@ -353,13 +353,13 @@ char *getGVarString(char *dest, int idx)
     idx = -idx - 1;
   }
 
-  if (idx >= MAX_GVARS) {
+  if (idx >= getGVarCount()) {
     s[0] = '\0';
     return s;
   }
 
-  if (g_model.gvars[idx].name[0])
-    strAppend(s, g_model.gvars[idx].name, LEN_GVAR_NAME);
+  if (gvarDataAddress(idx)->name[0])
+    strAppend(s, gvarDataAddress(idx)->name, LEN_GVAR_NAME);
   else
     strAppendStringWithIndex(s, STR_GV, idx + 1);
 
@@ -376,31 +376,30 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
     return getGVarString(dest, index);
   }
 
-  value += offset;
+  value = GV_DECODE(value) + offset;
   if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
     value = value * 128 / 25;
   formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
   return dest;
 }
 
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
+char *getValueOrSrcVarString(char *dest, size_t len, const ValueOrSource& vos,
                            LcdFlags flags, const char *suffix,
-                           gvar_t offset, bool usePPMUnit)
+                           int16_t offset, bool usePPMUnit)
 {
-  SourceNumVal v;
-  v.rawValue = value;
-  if (v.isSource) {
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      getGVarString(dest, (v.value < 0) ? v.value + MIXSRC_FIRST_GVAR - 1 : v.value - MIXSRC_FIRST_GVAR);
+  if (vos.isSource) {
+    SourceRef ref = vos.toSourceRef();
+    if (ref.type == SOURCE_TYPE_GVAR) {
+      getGVarString(dest, ref.isInverted() ? -(int)ref.index - 1 : ref.index);
     } else {
-      const char* s = getSourceString(v.value);
+      const char* s = getSourceString(ref);
       strncpy(dest, s, len);
     }
   } else {
-    v.value += offset;
+    int16_t val = vos.numericValue() + offset;
     if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
-      v.value = v.value * 128 / 25;
-    formatNumberAsString(dest, len, v.value, flags, 0, nullptr, suffix);
+      val = val * 128 / 25;
+    formatNumberAsString(dest, len, val, flags, 0, nullptr, suffix);
   }
   return dest;
 }
@@ -469,70 +468,84 @@ const char *getSwitchPositionSymbol(uint8_t pos)
   return _switch_state_str[pos + 1];
 }
 
-char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
+char *getSwitchPositionName(char *dest, const SwitchRef& ref)
 {
-  if (idx == SWSRC_NONE) {
+  if (ref.isNone()) {
     return strcpy(dest, STR_EMPTY);
-  } else if (idx == SWSRC_OFF) {
-    return getStringAtIndex(dest, STR_OFFON, 0);
   }
 
   char *s = dest;
-  if (idx < 0) {
+  if (ref.isInverted()) {
     *s++ = '!';
-    idx = -idx;
   }
 
-  if (idx <= SWSRC_LAST_SWITCH) {
-    div_t swinfo = switchInfo(idx);
-    s = getSwitchName(s, swinfo.quot, defaultOnly);
-    s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
-    *s = '\0';
-  } else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    div_t swinfo =
-        div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
-    s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
-  } else if (idx <= SWSRC_LAST_TRIM) {
-    idx -= SWSRC_FIRST_TRIM;
-    // TODO: 't' or CHAR_TRIM
-    s = strAppend(s, getTrimLabel(idx / 2));
-    *s++ = idx & 1 ? '+' : '-';
-    *s = '\0';
-  } else if (idx <= SWSRC_LAST_LOGICAL_SWITCH) {
-    *s++ = 'L';
-    strAppendUnsigned(s, idx - SWSRC_FIRST_LOGICAL_SWITCH + 1, 2);
-  } else if (idx <= SWSRC_ONE) {
-    idx -= SWSRC_ON;
-    getStringAtIndex(s, STR_ON_ONE_SWITCHES, idx);
-  } else if (idx <= SWSRC_LAST_FLIGHT_MODE) {
-    strAppendStringWithIndex(s, STR_FM, idx - SWSRC_FIRST_FLIGHT_MODE);
-  } else if (idx == SWSRC_TELEMETRY_STREAMING) {
-    strcpy(s, "Tele");
-  } else if (idx == SWSRC_RADIO_ACTIVITY) {
-    strcpy(s, "Act");
-  } else if (idx == SWSRC_TRAINER_CONNECTED) {
-    strcpy(s, "Trn");
-  }
-#if defined(DEBUG_LATENCY)
-  else if (idx == SWSRC_LATENCY_TOGGLE) {
-    strcpy(s, "Ltc");
-  }
-#endif
-  else {
-    strncpy(s, g_model.telemetrySensors[idx - SWSRC_FIRST_SENSOR].label,
-            TELEM_LABEL_LEN);
-    s[TELEM_LABEL_LEN] = '\0';
+  switch (ref.type) {
+    case SWITCH_TYPE_SWITCH: {
+      uint16_t idx = ref.index;
+      div_t swinfo = div(idx, 3);
+      s = getSwitchName(s, swinfo.quot);
+      s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
+      *s = '\0';
+      break;
+    }
+    case SWITCH_TYPE_MULTIPOS: {
+      div_t swinfo = div(int(ref.index), XPOTS_MULTIPOS_COUNT);
+      s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
+      break;
+    }
+    case SWITCH_TYPE_TRIM: {
+      uint16_t idx = ref.index;
+      s = strAppend(s, getTrimLabel(idx / 2));
+      *s++ = idx & 1 ? '+' : '-';
+      *s = '\0';
+      break;
+    }
+    case SWITCH_TYPE_LOGICAL:
+      *s++ = 'L';
+      strAppendUnsigned(s, ref.index + 1, 2);
+      break;
+    case SWITCH_TYPE_ON:
+      getStringAtIndex(s, STR_ON_ONE_SWITCHES, 0);
+      break;
+    case SWITCH_TYPE_ONE:
+      getStringAtIndex(s, STR_ON_ONE_SWITCHES, 1);
+      break;
+    case SWITCH_TYPE_FLIGHT_MODE:
+      strAppendStringWithIndex(s, STR_FM, ref.index);
+      break;
+    case SWITCH_TYPE_TELEMETRY:
+      strcpy(s, "Tele");
+      break;
+    case SWITCH_TYPE_RADIO_ACTIVITY:
+      strcpy(s, "Act");
+      break;
+    case SWITCH_TYPE_TRAINER:
+      strcpy(s, "Trn");
+      break;
+    case SWITCH_TYPE_SENSOR:
+      strncpy(s, g_model.telemetrySensors[ref.index].label, TELEM_LABEL_LEN);
+      s[TELEM_LABEL_LEN] = '\0';
+      break;
+    default:
+      *s = '\0';
+      break;
   }
 
   return dest;
 }
+
+char *getSwitchPositionName(const SwitchRef& ref)
+{
+  return getSwitchPositionName(_static_str_buffer, ref);
+}
+
 
 bool switchCanHaveCustomName(swsrc_t idx)
 {
   return (idx >= SWSRC_FIRST_SWITCH && idx <= SWSRC_LAST_SWITCH);
 }
 
-int getSwitchIndex(const char* name, bool all)
+uint32_t getSwitchIndex(const char* name, bool all)
 {
   bool negate = false;
 
@@ -541,22 +554,45 @@ int getSwitchIndex(const char* name, bool all)
     negate = true;
   }
 
-  for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
-      char* s;
-      if (switchCanHaveCustomName(idx)) {
-        // Check default name
-        s = getSwitchPositionName(idx, true);
-        if (!strcasecmp(s, name))
-          return negate ? -idx : idx;
+  // Iterate by SwitchRefType + index, constructing SwitchRef directly
+  struct TypeRange { uint8_t type; uint16_t count; };
+  const TypeRange types[] = {
+    { SWITCH_TYPE_SWITCH,         (uint16_t)(switchGetMaxAllSwitches() * 3) },
+    { SWITCH_TYPE_MULTIPOS,       MAX_XPOTS_POSITIONS },
+    { SWITCH_TYPE_TRIM,           (uint16_t)(2 * MAX_TRIMS) },
+    { SWITCH_TYPE_LOGICAL,        MAX_LOGICAL_SWITCHES },
+    { SWITCH_TYPE_ON,             1 },
+    { SWITCH_TYPE_ONE,            1 },
+    { SWITCH_TYPE_FLIGHT_MODE,    getFlightModeCount() },
+    { SWITCH_TYPE_TELEMETRY,      1 },
+    { SWITCH_TYPE_SENSOR,         MAX_TELEMETRY_SENSORS },
+    { SWITCH_TYPE_RADIO_ACTIVITY, 1 },
+    { SWITCH_TYPE_TRAINER,        1 },
+  };
+
+  for (const auto& tr : types) {
+    for (uint16_t i = 0; i < tr.count; i++) {
+      SwitchRef ref = SwitchRef_(tr.type, i);
+      if (all || isSwitchAvailable(ref, ModelCustomFunctionsContext)) {
+        bool hasCustom = (tr.type == SWITCH_TYPE_SWITCH);
+        char* s;
+        if (hasCustom) {
+          s = getSwitchPositionName(_static_str_buffer, ref);
+          if (!strcasecmp(s, name)) {
+            uint8_t flags = negate ? SWITCH_FLAG_INVERTED : 0;
+            return SwitchRef_(tr.type, i, flags).toUint32();
+          }
+        }
+        s = getSwitchPositionName(ref);
+        if (!strcasecmp(s, name)) {
+          uint8_t flags = negate ? SWITCH_FLAG_INVERTED : 0;
+          return SwitchRef_(tr.type, i, flags).toUint32();
+        }
       }
-      s = getSwitchPositionName(idx);
-      if (!strcasecmp(s, name))
-        return negate ? -idx : idx;
     }
   }
 
-  return SWSRC_INVERT;  // Not found
+  return 0;  // Not found (SWITCH_TYPE_NONE packed)
 }
 
 const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly)
@@ -633,83 +669,103 @@ const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src)
   }
 }
 
+const char *getTrimSourceLabel(const SourceRef& ref, int8_t trim_src)
+{
+  if (trim_src < TRIM_ON) {
+    return getTrimLabel(-trim_src - 1);
+  } else if (trim_src == TRIM_ON && ref.type == SOURCE_TYPE_STICK) {
+    return STR_OFFON[1];
+  } else {
+    return STR_OFFON[0];
+  }
+}
+
 const char *getPotLabel(uint8_t idx, bool defaultOnly)
 {
   return getAnalogLabel(ADC_INPUT_FLEX, idx, defaultOnly);
 }
 
-// this should be declared in header, but it used so much foreign symbols that
-// we declare it in cpp-file and pre-instantiate it for the uses
+// Primary SourceRef-based implementation
 template <size_t L>
-char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
+char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly)
 {
   size_t dest_len = L;
   char* dest = destRef;
 
-  if (idx < 0) {
-    idx = -idx;
-    dest[0] = '-';
+  if (ref.isInverted()) {
+    dest[0] = '!';
     dest += 1;
     dest_len -= 1;
   }
 
-  if (idx == MIXSRC_NONE) {
-    strncpy(dest, STR_EMPTY, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_INPUT) {
-    idx -= MIXSRC_FIRST_INPUT;
-    static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
-    dest_len -= sizeof(CHAR_INPUT) - 1;
-    char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
-    if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
-        (dest_len > sizeof(g_model.inputNames[idx]))) {
-      memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
-      size_t input_len =
-          std::min(dest_len - 1, sizeof(g_model.inputNames[idx]));
-      strncpy(pos, g_model.inputNames[idx], input_len);
-      pos[input_len] = '\0';
-    } else {
-      strAppendUnsigned(pos, idx + 1, 2);
-    }
-  }
-#if defined(LUA_INPUTS)
-  else if (idx <= MIXSRC_LAST_LUA) {
-#if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-    if (qr.quot < MAX_SCRIPTS &&
-        qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
-      dest_len -= sizeof(CHAR_LUA) - 1;
-      char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
+  uint16_t idx = ref.index;
 
-      if (g_model.scriptsData[qr.quot].name[0] != '\0') {
-        // instance Name is not empty : dest = InstanceName/OutputName
-        pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
-      } else {
-        // instance Name is empty : dest = n-ScriptFileName/OutputName
-        pos = strAppendUnsigned(pos, qr.quot + 1);
-        pos = strAppend(pos, "-");
-        pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
+  switch (ref.type) {
+    case SOURCE_TYPE_NONE:
+      strncpy(dest, STR_EMPTY, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_INPUT:
+      static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
+      dest_len -= sizeof(CHAR_INPUT) - 1;
+      {
+        char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
+        const char* iName = inputName(idx);
+        if (!defaultOnly && iName && iName[0] != '\0' &&
+            (dest_len > LEN_INPUT_NAME)) {
+          memset(pos, 0, LEN_INPUT_NAME + 1);
+          size_t input_len =
+              std::min(dest_len - 1, (size_t)LEN_INPUT_NAME);
+          strncpy(pos, iName, input_len);
+          pos[input_len] = '\0';
+        } else {
+          strAppendUnsigned(pos, idx + 1, 2);
+        }
       }
-      pos = strAppend(pos, "/");
-      dest_len = L - (pos - dest);
-      strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
-    }
-#else
-    strncpy(dest, "N/A", dest_len-1);
-#endif
-  }
-#endif
-  else if (idx <= MIXSRC_LAST_POT) {
-    char *pos = dest;
-    idx -= MIXSRC_FIRST_STICK;
+      break;
 
-    const char *name;
-    if (idx < MAX_STICKS) {
-      pos = strAppend(pos, CHAR_STICK, sizeof(CHAR_STICK) - 1);
+#if defined(LUA_INPUTS)
+    case SOURCE_TYPE_LUA:
+    {
+#if defined(LUA_MODEL_SCRIPTS)
+      div_t qr = div((uint16_t)idx, MAX_SCRIPT_OUTPUTS);
+      if (qr.quot < MAX_SCRIPTS &&
+          qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+        static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
+        dest_len -= sizeof(CHAR_LUA) - 1;
+        char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
+
+        if (g_model.scriptsData[qr.quot].name[0] != '\0') {
+          pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
+        } else {
+          pos = strAppendUnsigned(pos, qr.quot + 1);
+          pos = strAppend(pos, "-");
+          pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
+        }
+        pos = strAppend(pos, "/");
+        dest_len = L - (pos - dest);
+        strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
+      }
+#else
+      strncpy(dest, "N/A", dest_len-1);
+#endif
+      break;
+    }
+#endif
+
+    case SOURCE_TYPE_STICK:
+    {
+      char *pos = strAppend(dest, CHAR_STICK, sizeof(CHAR_STICK) - 1);
       dest_len -= sizeof(CHAR_STICK) - 1;
-      name = getMainControlLabel(idx, defaultOnly);
-    } else {
-      idx -= MAX_STICKS;
+      const char *name = getMainControlLabel(idx, defaultOnly);
+      strncpy(pos, name, dest_len - 1);
+      pos[dest_len - 1] = '\0';
+      break;
+    }
+
+    case SOURCE_TYPE_POT:
+    {
+      char *pos = dest;
       if (IS_SLIDER(idx)) {
         pos = strAppend(pos, CHAR_SLIDER, sizeof(CHAR_SLIDER) - 1);
         dest_len -= sizeof(CHAR_SLIDER) - 1;
@@ -717,111 +773,133 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
         pos = strAppend(pos, CHAR_POT, sizeof(CHAR_POT) - 1);
         dest_len -= sizeof(CHAR_POT) - 1;
       }
-      // TODO: AXIS / SWITCH ???
-      name = getPotLabel(idx, defaultOnly);
+      const char *name = getPotLabel(idx, defaultOnly);
+      strncpy(pos, name, dest_len - 1);
+      pos[dest_len - 1] = '\0';
+      break;
     }
-    strncpy(pos, name, dest_len - 1);
-    pos[dest_len - 1] = '\0';
-  }
+
 #if defined(IMU)
-  else if (idx <= MIXSRC_TILT_Y) {
-    idx -= MIXSRC_TILT_X;
-    getStringAtIndex(dest, STR_IMU_VSRCRAW, idx);
-  }
+    case SOURCE_TYPE_IMU:
+      getStringAtIndex(dest, STR_IMU_VSRCRAW, idx);
+      break;
 #endif
+
 #if defined(PCBHORUS)
-  else if (idx <= MIXSRC_LAST_SPACEMOUSE) {
-    idx -= MIXSRC_FIRST_SPACEMOUSE;
-    getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
-  }
+    case SOURCE_TYPE_SPACEMOUSE:
+      getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
+      break;
 #endif
-  else if (idx == MIXSRC_MIN) {
-    strncpy(dest, STR_MENU_MIN, dest_len - 1);
-  } else if (idx == MIXSRC_MAX) {
-    strncpy(dest, STR_MENU_MAX, dest_len - 1);
-  }
+
+    case SOURCE_TYPE_MIN:
+      strncpy(dest, STR_MENU_MIN, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_MAX:
+      strncpy(dest, STR_MENU_MAX, dest_len - 1);
+      break;
+
 #if defined(LUMINOSITY_SENSOR)
-  else if (idx == MIXSRC_LIGHT) {
-    strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
-  }
+    case SOURCE_TYPE_LIGHT:
+      strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
+      break;
 #endif
-  else if (idx <= MIXSRC_LAST_HELI) {
-    idx -= MIXSRC_FIRST_HELI;
-    getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
-  } else if (idx <= MIXSRC_LAST_TRIM) {
-    idx -= MIXSRC_FIRST_TRIM;
-    char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
-    strAppend(pos, getTrimLabel(idx, defaultOnly));
-  } else if (idx <= MIXSRC_LAST_SWITCH) {
-    idx -= MIXSRC_FIRST_SWITCH;
-    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
-    getSwitchName(pos, idx, defaultOnly);
-#if defined(FUNCTION_SWITCHES)
-  } else if (idx <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
-    idx -= MIXSRC_FIRST_CUSTOMSWITCH_GROUP;
-    char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
-    getCustomSwitchesGroupName(pos, idx);
-#endif
-  } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
-  } else if (idx <= MIXSRC_LAST_TRAINER) {
-    idx -= MIXSRC_FIRST_TRAINER;
-    strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
-  } else if (idx <= MIXSRC_LAST_CH) {
-    auto ch = idx - MIXSRC_FIRST_CH;
-    if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
-      strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
-    } else {
-      strAppendStringWithIndex(dest, STR_CH, ch + 1);
+
+    case SOURCE_TYPE_HELI:
+      getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
+      break;
+
+    case SOURCE_TYPE_TRIM:
+    {
+      char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
+      strAppend(pos, getTrimLabel(idx, defaultOnly));
+      break;
     }
-  } else if (idx <= MIXSRC_LAST_GVAR) {
-    idx -= MIXSRC_FIRST_GVAR;
+
+    case SOURCE_TYPE_SWITCH:
+    {
+      char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
+      getSwitchName(pos, idx, defaultOnly);
+      break;
+    }
+
+#if defined(FUNCTION_SWITCHES)
+    case SOURCE_TYPE_CUSTOM_SWITCH_GROUP:
+    {
+      char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
+      getCustomSwitchesGroupName(pos, idx);
+      break;
+    }
+#endif
+
+    case SOURCE_TYPE_LOGICAL_SWITCH:
+      getSwitchPositionName(dest, SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)idx));
+      break;
+
+    case SOURCE_TYPE_TRAINER:
+      strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
+      break;
+
+    case SOURCE_TYPE_CHANNEL:
+      if (!defaultOnly && g_model.limitData[idx].name[0] != '\0') {
+        strAppend(dest, g_model.limitData[idx].name, LEN_CHANNEL_NAME);
+      } else {
+        strAppendStringWithIndex(dest, STR_CH, idx + 1);
+      }
+      break;
+
+    case SOURCE_TYPE_GVAR:
 #if defined(COLORLCD)
-    char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
-    if (!defaultOnly && g_model.gvars[idx].name[0]) {
-      s = strAppend(s, ":");
-      getGVarString(s, idx);
+    {
+      char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
+      if (!defaultOnly && gvarDataAddress(idx)->name[0]) {
+        s = strAppend(s, ":");
+        getGVarString(s, idx);
+      }
     }
 #else
-    strAppendStringWithIndex(dest, STR_GV, idx + 1);
+      strAppendStringWithIndex(dest, STR_GV, idx + 1);
 #endif
-  } else if (idx < MIXSRC_FIRST_TIMER) {
-    // Built-in sources: TX Voltage, Time, GPS (+ reserved)
-    const char *src_str;
-    switch (idx) {
-      case MIXSRC_TX_VOLTAGE:
-        src_str = STR_SRC_BATT;
-        break;
-      case MIXSRC_TX_TIME:
-        src_str = STR_SRC_TIME;
-        break;
-      case MIXSRC_TX_GPS:
-        src_str = STR_SRC_GPS;
-        break;
-      default:
-        src_str = "";
-        break;
+      break;
+
+    case SOURCE_TYPE_TX_VOLTAGE:
+      strncpy(dest, STR_SRC_BATT, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_TX_TIME:
+      strncpy(dest, STR_SRC_TIME, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_TX_GPS:
+      strncpy(dest, STR_SRC_GPS, dest_len - 1);
+      break;
+
+    case SOURCE_TYPE_TIMER:
+      if (!defaultOnly && g_model.timers[idx].name[0] != '\0') {
+        strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
+      } else {
+        strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
+      }
+      break;
+
+    case SOURCE_TYPE_TELEMETRY:
+    {
+      div_t qr = div((uint16_t)idx, 3);
+      char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
+      pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
+                      sizeof(g_model.telemetrySensors[qr.quot].label));
+      if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
+      *++pos = '\0';
+      break;
     }
-    strncpy(dest, src_str, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_TIMER) {
-    idx -= MIXSRC_FIRST_TIMER;
-    if (!defaultOnly && g_model.timers[idx].name[0] != '\0') {
-      strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
-    } else {
-      strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
-    }
-  } else {
-    idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div((uint16_t)idx, 3);
-    char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
-    pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
-                    sizeof(g_model.telemetrySensors[qr.quot].label));
-    if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
-    *++pos = '\0';
+
+    default:
+      *dest = '\0';
+      break;
   }
+
   destRef[L - 1] = '\0'; // assert the termination
-  return destRef; 
+  return destRef;
 }
 
 bool sourceCanHaveCustomName(mixsrc_t idx)
@@ -836,9 +914,9 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
          (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);
 }
 
-bool matchSource(const char* name, mixsrc_t idx, bool defaultOnly)
+static bool matchSource(const char* name, const SourceRef& ref, bool defaultOnly)
 {
-  char *s = getSourceString(idx, defaultOnly);
+  char *s = getSourceString(ref, defaultOnly);
   if (strcasecmp(s, name) == 0)
     return true;
   // Check for names starting with CHAR_xxx symbol strings
@@ -847,31 +925,71 @@ bool matchSource(const char* name, mixsrc_t idx, bool defaultOnly)
   return false;
 }
 
-int getSourceIndex(const char* name, bool all)
+uint32_t getSourceIndex(const char* name, bool all)
 {
-  for (mixsrc_t idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
-    if (all || isSourceAvailable(idx)) {
-      if (sourceCanHaveCustomName(idx)) {
-        // Check default name
-        if (matchSource(name, idx, true))
-          return idx;
+  // Iterate by SourceType + index, constructing SourceRef directly
+  struct TypeRange { uint8_t type; uint16_t count; bool hasCustomName; };
+  const TypeRange types[] = {
+    { SOURCE_TYPE_INPUT,          MAX_INPUTS,             true },
+#if defined(LUA_INPUTS)
+    { SOURCE_TYPE_LUA,            (uint16_t)(MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS), false },
+#endif
+    { SOURCE_TYPE_STICK,          MAX_STICKS,             true },
+    { SOURCE_TYPE_POT,            MAX_POTS,               true },
+#if defined(IMU)
+    { SOURCE_TYPE_IMU,            2,                      false },
+#endif
+#if defined(PCBHORUS)
+    { SOURCE_TYPE_SPACEMOUSE,     6,                      false },
+#endif
+    { SOURCE_TYPE_MIN,            1,                      false },
+    { SOURCE_TYPE_MAX,            1,                      false },
+#if defined(LUMINOSITY_SENSOR)
+    { SOURCE_TYPE_LIGHT,          1,                      false },
+#endif
+    { SOURCE_TYPE_HELI,           3,                      false },
+    { SOURCE_TYPE_TRIM,           MAX_TRIMS,              true },
+    { SOURCE_TYPE_SWITCH,         MAX_SWITCHES,           true },
+#if defined(FUNCTION_SWITCHES)
+    { SOURCE_TYPE_CUSTOM_SWITCH_GROUP, NUM_FUNCTIONS_GROUPS, false },
+#endif
+    { SOURCE_TYPE_LOGICAL_SWITCH, MAX_LOGICAL_SWITCHES,   false },
+    { SOURCE_TYPE_TRAINER,        MAX_TRAINER_CHANNELS,   false },
+    { SOURCE_TYPE_CHANNEL,        MAX_OUTPUT_CHANNELS,    true },
+    { SOURCE_TYPE_GVAR,           getGVarCount(),          true },
+    { SOURCE_TYPE_TX_VOLTAGE,     1,                      false },
+    { SOURCE_TYPE_TX_TIME,        1,                      false },
+    { SOURCE_TYPE_TX_GPS,         1,                      false },
+    { SOURCE_TYPE_TIMER,          MAX_TIMERS,             true },
+    { SOURCE_TYPE_TELEMETRY,      (uint16_t)(3 * MAX_TELEMETRY_SENSORS), false },
+  };
+
+  for (const auto& tr : types) {
+    for (uint16_t i = 0; i < tr.count; i++) {
+      SourceRef ref = SourceRef_(tr.type, i);
+      if (all || isSourceAvailable(ref)) {
+        if (tr.hasCustomName) {
+          if (matchSource(name, ref, true))
+            return ref.toUint32();
+        }
+        if (matchSource(name, ref, false))
+          return ref.toUint32();
       }
-      if (matchSource(name, idx, false))
-        return idx;
     }
   }
 
-  return -1;
+  return 0;  // Not found (SOURCE_TYPE_NONE packed)
 }
 
 // pre-instantiate for use from external
 // all other instantiations are done from this file
-template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx, bool defaultOnly);
+template char *getSourceString<16>(char (&dest)[16], const SourceRef& ref, bool defaultOnly);
 
-char *getSourceString(mixsrc_t idx, bool defaultOnly)
+char *getSourceString(const SourceRef& ref, bool defaultOnly)
 {
-  return getSourceString(_static_str_buffer, idx, defaultOnly);
+  return getSourceString(_static_str_buffer, ref, defaultOnly);
 }
+
 
 char *getCurveString(int idx)
 {
@@ -886,11 +1004,6 @@ char *getTimerString(int32_t tme, TimerOptions timerOptions)
 char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
 {
   return getFormattedTimerString(dest, tme, timerOptions);
-}
-
-char *getSwitchPositionName(swsrc_t idx, bool defaultOnly)
-{
-  return getSwitchPositionName(_static_str_buffer, idx, defaultOnly);
 }
 
 char *getGVarString(int idx) { return getGVarString(_static_str_buffer, idx); }
@@ -938,70 +1051,77 @@ char *getSensorCustomValueString(char (&dest)[L], uint8_t sensor, int32_t val,
 }
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], const SourceRef& source, int32_t val,
                                  LcdFlags flags)
 {
-  source = abs(source);
   size_t len = L - 1;
-  if (source >= MIXSRC_FIRST_TELEM) {
-    source = (source - MIXSRC_FIRST_TELEM) / 3;
-    return getSensorCustomValueString(dest, source, val, flags);
-  } else if (source >= MIXSRC_FIRST_TIMER || source == MIXSRC_TX_TIME) {
-    if (L < LEN_TIMER_STRING) return dest;
-    if (source == MIXSRC_TX_TIME) flags |= TIMEHOUR;
-
-    TimerOptions timerOptions;
-    timerOptions.options = SHOW_TIMER;
-    if ((flags & TIMEHOUR) != 0) timerOptions.options = SHOW_TIME;
-
-    return getTimerString(dest, val, timerOptions);
-  } else if (source == MIXSRC_TX_VOLTAGE) {
-    formatNumberAsString(dest, len, val, flags | PREC1);
-    return dest;
-  }
-#if defined(INTERNAL_GPS)
-  else if (source == MIXSRC_TX_GPS) {
-    if (gpsData.fix) {
-      std::string s = getGPSSensorValue(gpsData.longitude, gpsData.latitude, flags);
-      strAppend(dest, s.c_str(), L);
-    } else {
-      formatNumberAsString(dest, L, gpsData.numSat, flags, len, "sats: ");
+  switch (source.type) {
+    case SOURCE_TYPE_TELEMETRY:
+      return getSensorCustomValueString(dest, source.index / 3, val, flags);
+    case SOURCE_TYPE_TIMER:
+    case SOURCE_TYPE_TX_TIME:
+    {
+      if (L < LEN_TIMER_STRING) return dest;
+      if (source.type == SOURCE_TYPE_TX_TIME) flags |= TIMEHOUR;
+      TimerOptions timerOptions;
+      timerOptions.options = SHOW_TIMER;
+      if ((flags & TIMEHOUR) != 0) timerOptions.options = SHOW_TIME;
+      return getTimerString(dest, val, timerOptions);
     }
-    return dest;
-  }
+    case SOURCE_TYPE_TX_VOLTAGE:
+      formatNumberAsString(dest, len, val, flags | PREC1);
+      return dest;
+#if defined(INTERNAL_GPS)
+    case SOURCE_TYPE_TX_GPS:
+      if (gpsData.fix) {
+        std::string s = getGPSSensorValue(gpsData.longitude, gpsData.latitude, flags);
+        strAppend(dest, s.c_str(), L);
+      } else {
+        formatNumberAsString(dest, L, gpsData.numSat, flags, len, "sats: ");
+      }
+      return dest;
 #endif
 #if defined(GVARS)
-  else if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) {
-    uint8_t gvar_idx = source - MIXSRC_FIRST_GVAR;
-    auto gvar = &g_model.gvars[gvar_idx];
-    uint8_t prec = gvar->prec;
-    if (prec > 0) {
-      flags |= (prec == 1 ? PREC1 : PREC2);
+    case SOURCE_TYPE_GVAR:
+    {
+      auto gvar = gvarDataAddress(source.index);
+      uint8_t prec = gvar->prec;
+      if (prec > 0) {
+        flags |= (prec == 1 ? PREC1 : PREC2);
+      }
+      uint8_t unit = gvar->unit ? UNIT_PERCENT : UNIT_RAW;
+      getValueWithUnit(dest, len, val, unit, flags);
+      break;
     }
-    uint8_t unit = gvar->unit ? UNIT_PERCENT : UNIT_RAW;
-    getValueWithUnit(dest, len, val, unit, flags);
-  }
 #endif
+    case SOURCE_TYPE_CHANNEL:
+      if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        val = calcRESXto1000(val);
+        formatNumberAsString(dest, len, val, flags | PREC1);
+      } else {
+        val = calcRESXto100(val);
+        formatNumberAsString(dest, len, val, flags);
+      }
+      break;
+    case SOURCE_TYPE_INPUT:
+    case SOURCE_TYPE_STICK:
+    case SOURCE_TYPE_POT:
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+    case SOURCE_TYPE_HELI:
+    case SOURCE_TYPE_TRIM:
+    case SOURCE_TYPE_SWITCH:
+    case SOURCE_TYPE_TRAINER:
 #if defined(LUA_INPUTS)
-  else if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    formatNumberAsString(dest, len, val, flags);
-  }
+    case SOURCE_TYPE_LUA:
 #endif
-  else if (source < MIXSRC_FIRST_CH) {
-    val = calcRESXto100(val);
-    formatNumberAsString(dest, len, val, flags);
-  } else if (source <= MIXSRC_LAST_CH) {
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      val = calcRESXto1000(val);
-      formatNumberAsString(dest, len, val, flags | PREC1);
-    } else {
       val = calcRESXto100(val);
       formatNumberAsString(dest, len, val, flags);
-    }
-  } else {
-    formatNumberAsString(dest, len, val, flags);
+      break;
+    default:
+      formatNumberAsString(dest, len, val, flags);
+      break;
   }
-
   return dest;
 }
 
@@ -1056,7 +1176,7 @@ std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
   return std::string(s);
 }
 
-char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags)
+char *getSourceCustomValueString(const SourceRef& source, int32_t val, LcdFlags flags)
 {
   return getSourceCustomValueString(_static_str_buffer, source, val, flags);
 }
@@ -1072,12 +1192,12 @@ std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
 
 std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
 {
-  uint8_t prec = g_model.gvars[gvar].prec;
+  uint8_t prec = gvarDataAddress(gvar)->prec;
   if (prec > 0) {
     flags |= (prec == 1 ? PREC1 : PREC2);
   }
   return getValueWithUnit(
-      value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
+      value, gvarDataAddress(gvar)->unit ? UNIT_PERCENT : UNIT_RAW, flags);
 }
 
 std::string getGPSCoord(int32_t value, const char *direction, bool seconds)

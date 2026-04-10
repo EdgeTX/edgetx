@@ -22,6 +22,7 @@
 #pragma once
 
 #include "edgetx_types.h"
+#include "sourceref.h"
 #include "keys.h"
 #include "feature_control.h"
 
@@ -175,7 +176,7 @@ extern int8_t s_copySrcRow;
 extern int8_t s_copyTgtOfs;
 extern uint8_t s_currIdx;
 extern uint8_t s_currIdxSubMenu;
-extern mixsrc_t s_currSrcRaw;
+extern SourceRef s_currSrcRaw;
 extern uint16_t s_currScale;
 extern uint8_t s_copySrcIdx;
 extern uint8_t s_copySrcCh;
@@ -192,9 +193,7 @@ void pushMenuTextView(const char *filename);
 void pushModelNotes();
 void readModelNotes();
 
-uint8_t getExposCount();
-void insertExpo(uint8_t idx);
-void deleteExpo(uint8_t idx);
+bool reachExposLimit();
 
 uint8_t switchToMix(uint8_t source);
 

@@ -32,11 +32,17 @@ enum BaseCurves {
   CURVE_BASE
 };
 
+uint16_t getCurveCount();
+uint8_t getCurvePoints(uint8_t index);
+bool curveAllocAt(uint8_t index);
+void setCurveUsed(uint8_t index);
 void curveClear(uint8_t index);
+void curveTrimTrailing();
 void curveMirror(uint8_t index);
 bool isCurveUsed(uint8_t index);
 void loadCurves();
 int8_t * curveAddress(uint8_t idx);
+int8_t * curvePointsBase();
 bool moveCurve(uint8_t index, int8_t shift);
 int8_t getCurveX(int noPoints, int point);
 void resetCustomCurveX(int8_t * points, int noPoints);

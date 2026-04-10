@@ -107,11 +107,12 @@ void menuModelCustomScriptOne(event_t event)
                                 scriptInputsOutputs[s_currIdx].inputs[inputIdx].min-scriptInputsOutputs[s_currIdx].inputs[inputIdx].def, \
                                 scriptInputsOutputs[s_currIdx].inputs[inputIdx].max-scriptInputsOutputs[s_currIdx].inputs[inputIdx].def);
         }
-      }
-      else {
-        drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, g_model.scriptsData[s_currIdx].inputs[inputIdx].source , attr);
+      } else {
+        SourceRef srcRef = g_model.scriptsData[s_currIdx].inputs[inputIdx].source;
+        drawSource(SCRIPT_ONE_2ND_COLUMN_POS, y, srcRef, attr);
         if (attr) {
-          CHECK_INCDEC_MODELSOURCE(event, g_model.scriptsData[s_currIdx].inputs[inputIdx].source, 0, MIXSRC_LAST_TELEM);
+          g_model.scriptsData[s_currIdx].inputs[inputIdx].source =
+              checkIncDecSource(event, srcRef, SRCMASK_ALL);
         }
       }
     } else if (i == ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL +

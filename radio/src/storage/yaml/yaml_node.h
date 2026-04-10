@@ -38,7 +38,8 @@ enum YamlDataType {
   YDT_ENUM,
   YDT_UNION,
   YDT_PADDING,
-  YDT_CUSTOM
+  YDT_CUSTOM,
+  YDT_EXTERN_ARRAY
 };
 
 PACK_NOT_SIMU(struct YamlIdStr {
@@ -70,6 +71,24 @@ struct YamlNode {
                                  const char* val, uint8_t val_len);
   typedef bool (*cust_write_func)(void* user, uint8_t* data, uint32_t bitoffs,
                                   yaml_writer_func wf, void* opaque);
+
+  // Returns base pointer and count for externally-stored arrays (arena).
+  // 'user' is the YamlTreeWalker* (available for context lookup).
+  typedef uint8_t* (*extern_get_ptr_func)(void* user, uint16_t* count_out);
+
+  // Ensure the extern array section has at least min_count slots.
+  // Called by the walker before accessing each element during parsing.
+  // Returns false if the arena cannot grow (full).
+  typedef bool (*extern_ensure_func)(void* user, uint16_t min_count);
+
+  // Driver for externally-stored arrays: bundles callbacks so the union
+  // member stays at two pointers (child + driver) regardless of how many
+  // callbacks are needed.
+  struct ExternArrayDriver {
+    extern_get_ptr_func get_ptr;
+    extern_ensure_func ensure_capacity;
+    is_active_func is_active;  // NULL → fall back to yaml_is_zero
+  };
 
   uint16_t size;  // bits
   uint8_t type : 4;
@@ -103,6 +122,11 @@ struct YamlNode {
       cust_read_func read;
       cust_write_func write;
     } _cust_attr;
+
+    struct {
+      const YamlNode* child;
+      const ExternArrayDriver* driver;
+    } _extern_array;
   } u;
 
   uint8_t tag_len() const { return tag ? strlen(tag) : 0; }
@@ -180,6 +204,14 @@ struct YamlNode {
     .size = 0, .type = YDT_CUSTOM, .elmts = 0, YAML_TAG(tag), .u = { \
       ._cust_attr = {.read = (f_read), .write = (f_write)}           \
     }                                                                \
+  }
+
+#define YAML_EXTERN_ARRAY(tag, bits, max_elmts, nodes, drv)                     \
+  {                                                                             \
+    .size = (bits), .type = YDT_EXTERN_ARRAY, .elmts = (max_elmts),             \
+    YAML_TAG(tag), .u = {                                                       \
+      ._extern_array = {.child = (nodes), .driver = &(drv)}                    \
+    }                                                                           \
   }
 
 #define YAML_END {.size = 0, .type = YDT_NONE}

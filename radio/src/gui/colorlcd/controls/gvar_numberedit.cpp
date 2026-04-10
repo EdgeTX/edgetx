@@ -38,7 +38,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
 
   // GVAR field
   gvar_field = new Choice(
-      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -MAX_GVARS, MAX_GVARS - 1,
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -getGVarCount(), getGVarCount() - 1,
       [=]() {
         return GV_INDEX_FROM_VALUE(getValue());
       },
@@ -49,7 +49,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
       [=](int32_t value) { return getGVarString(value); });
 
   num_field = new NumberEdit(
-      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax, [=]() { return getValue() + voffset; },
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax, [=]() { return GV_DECODE(getValue()) + voffset; },
       nullptr, textFlags);
   num_field->setDefault(vdefault);
 
@@ -75,7 +75,7 @@ void GVarNumberEdit::switchGVarMode()
     int32_t value = getValue();
     setValue(
         GV_IS_GV_VALUE(value)
-            ? ((textFlags & PREC1)
+            ? GV_ENCODE((textFlags & PREC1)
                    ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode)
                    : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode))
             : GV_VALUE_FROM_INDEX(0));
@@ -106,8 +106,8 @@ void GVarNumberEdit::update()
     // number edit mode
     act_field = num_field;
     num_field->setSetValueHandler(
-        [=](int32_t newValue) { return setValue(newValue - voffset); });
-    num_field->setValue(value + voffset);
+        [=](int32_t newValue) { return setValue(GV_ENCODE(newValue - voffset)); });
+    num_field->setValue(GV_DECODE(value) + voffset);
     num_field->show();
   }
 

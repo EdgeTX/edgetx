@@ -131,8 +131,9 @@ class ScriptEditWindow : public Page
                           GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))
               ->setDefault(si.def);
         } else {
-          new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                           GET_SET_DEFAULT(sd->inputs[i].source));
+          new SourceChoice(line, rect_t{},
+                           [=]() { return sd->inputs[i].source; },
+                           [=](SourceRef ref) { sd->inputs[i].source = ref; SET_DIRTY(); });
         }
       }
     }
@@ -147,7 +148,7 @@ class ScriptEditWindow : public Page
         auto lbl = new DynamicText(
             line, rect_t{},
             [=]() {
-              char* s = getSourceString(MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+              char* s = getSourceString(SourceRef_(SOURCE_TYPE_LUA, (uint16_t)(idx * MAX_SCRIPT_OUTPUTS + i)));
               return std::string(s);
             });
         lbl->padLeft(PAD_LARGE);

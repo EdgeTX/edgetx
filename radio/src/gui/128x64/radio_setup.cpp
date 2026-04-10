@@ -390,8 +390,7 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.beepLength = slider_5pos(y, g_eeGeneral.beepLength, event, attr, STR_BEEP_LENGTH);
         break;
 
-      case ITEM_RADIO_SETUP_SPEAKER_PITCH:
-        {
+      case ITEM_RADIO_SETUP_SPEAKER_PITCH: {
           lcdDrawTextIndented(y, STR_BEEP_PITCH);
           lcdDrawNumber(LCD_W-14, y, g_eeGeneral.speakerPitch*15, attr|RIGHT);
           coord_t lp = lcdLastLeftPos - FW;
@@ -400,16 +399,16 @@ void menuRadioSetup(event_t event)
           if (attr) {
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.speakerPitch, 0, 20);
           }
-        }
-        break;
+      } break;
 
       case ITEM_RADIO_SETUP_VOLUME_SOURCE:
         lcdDrawTextIndented(y, STR_CONTROL);
         drawSource(LCD_W-2, y, g_eeGeneral.volumeSrc, STREXPANDED|RIGHT|attr);
-        if (attr)
-          g_eeGeneral.volumeSrc = checkIncDec(event, g_eeGeneral.volumeSrc,
-                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+        if (attr) {
+          g_eeGeneral.volumeSrc = checkIncDecSource(event, g_eeGeneral.volumeSrc,
+                SRCMASK_THROUGH_SWITCH,
                 isSourceAvailableForBacklightOrVolume);
+        }
         break;
 
       case ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE:
@@ -596,10 +595,11 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
         lcdDrawTextIndented(y, STR_CONTROL);
         drawSource(LCD_W-2, y, g_eeGeneral.backlightSrc, STREXPANDED|RIGHT|attr);
-        if (attr)
-          g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
-                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+        if (attr) {
+          g_eeGeneral.backlightSrc = checkIncDecSource(event, g_eeGeneral.backlightSrc,
+                SRCMASK_THROUGH_SWITCH,
                 isSourceAvailableForBacklightOrVolume);
+        }
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:
@@ -812,7 +812,7 @@ void menuRadioSetup(event_t event)
           auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
           auto mode = reusableBuffer.generalSettings.stickMode;
           for (uint8_t i = 0; i < controls; i++) {
-            source_t src = MIXSRC_FIRST_STICK + inputMappingConvertMode(mode, i);
+            SourceRef src = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingConvertMode(mode, i));
             drawSource((5 * FW - 3) + i * (4 * FW + 2), y, src, 0);
           }
         }

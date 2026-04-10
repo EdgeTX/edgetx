@@ -248,12 +248,24 @@ void per10ms()
 
 FlightModeData *flightModeAddress(uint8_t idx)
 {
-  return &g_model.flightModeData[idx];
+  return reinterpret_cast<FlightModeData*>(
+    g_modelArena.sectionBase(ARENA_FLIGHT_MODES)) + idx;
 }
 
-ExpoData *expoAddress(uint8_t idx )
+GVarData *gvarDataAddress(uint8_t idx)
 {
-  return &g_model.expoData[idx];
+  return reinterpret_cast<GVarData*>(
+    g_modelArena.sectionBase(ARENA_GVAR_DATA)) + idx;
+}
+
+uint16_t getFlightModeCount()
+{
+  return g_modelArena.sectionCount(ARENA_FLIGHT_MODES);
+}
+
+uint16_t getGVarCount()
+{
+  return g_modelArena.sectionCount(ARENA_GVAR_DATA);
 }
 
 LimitData *limitAddress(uint8_t idx)
@@ -264,6 +276,21 @@ LimitData *limitAddress(uint8_t idx)
 USBJoystickChData *usbJChAddress(uint8_t idx)
 {
   return &g_model.usbJoystickCh[idx];
+}
+
+CurveHeader *curveHeaderAddress(uint8_t idx)
+{
+  return reinterpret_cast<CurveHeader*>(
+      g_modelArena.sectionBase(ARENA_CURVES)) + idx;
+}
+
+CurveHeader *curveHeaderAllocAt(uint8_t idx)
+{
+  if (idx >= g_modelArena.sectionCount(ARENA_CURVES)) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_CURVES, idx + 1))
+      return nullptr;
+  }
+  return curveHeaderAddress(idx);
 }
 
 
@@ -456,7 +483,7 @@ bool isInputRecursive(int index)
       break;
     else if (line->chn < index)
       continue;
-    else if (line->srcRaw >= MIXSRC_FIRST_LOGICAL_SWITCH)
+    else if (line->srcRaw.type >= SOURCE_TYPE_LOGICAL_SWITCH)
       return true;
   }
   return false;
@@ -465,43 +492,41 @@ bool isInputRecursive(int index)
 #if defined(AUTOSOURCE)
 constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
 
-int8_t getMovedSource(uint8_t min)
+SourceRef getMovedSource()
 {
-  int8_t result = 0;
+  SourceRef result = {};
   static tmr10ms_t s_move_last_time = 0;
 
   static int16_t inputsStates[MAX_INPUTS];
-  if (min <= MIXSRC_FIRST_INPUT) {
-    for (uint8_t i = 0; i < MAX_INPUTS; i++) {
-      if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
-        if (!isInputRecursive(i)) {
-          result = MIXSRC_FIRST_INPUT + i;
-          break;
-        }
+  for (uint8_t i = 0; i < MAX_INPUTS; i++) {
+    if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
+      if (!isInputRecursive(i)) {
+        result = SourceRef_(SOURCE_TYPE_INPUT, i);
+        break;
       }
     }
   }
 
   static int16_t trimStates[MAX_TRIMS];
-  if (result == 0) {
+  if (result.isNone()) {
     for (uint8_t i = 0; i < MAX_TRIMS; i++) {
       if (abs(getTrimValue(mixerCurrentFlightMode, i) - trimStates[i]) > 0) {
-        result = MIXSRC_FIRST_TRIM + i;
+        result = SourceRef_(SOURCE_TYPE_TRIM, i);
         break;
       }
     }
   }
 
   static int16_t sourcesStates[MAX_ANALOG_INPUTS];
-  if (result == 0) {
+  if (result.isNone()) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
         auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
         if (i >= offset) {
-          result = MIXSRC_FIRST_POT + i - offset;
+          result = SourceRef_(SOURCE_TYPE_POT, (uint16_t)(i - offset));
           break;
         }
-        result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
+        result = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingConvertMode(i));
         break;
       }
     }
@@ -509,10 +534,10 @@ int8_t getMovedSource(uint8_t min)
 
   bool recent = ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 10);
   if (recent) {
-    result = 0;
+    result.clear();
   }
 
-  if (result || recent) {
+  if (!result.isNone() || recent) {
     memcpy(inputsStates, anas, sizeof(inputsStates));
     memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
 	for (uint8_t i = 0; i < MAX_TRIMS; i++) trimStates[i] = getTrimValue(mixerCurrentFlightMode, i);
@@ -527,9 +552,9 @@ int8_t getMovedSource(uint8_t min)
 #if defined(FLIGHT_MODES)
 uint8_t getFlightMode()
 {
-  for (uint8_t i=1; i<MAX_FLIGHT_MODES; i++) {
-    FlightModeData *phase = &g_model.flightModeData[i];
-    if (phase->swtch && getSwitch(phase->swtch)) {
+  for (uint8_t i=1; i<getFlightModeCount(); i++) {
+    FlightModeData *phase = flightModeAddress(i);
+    if (!phase->swtch.isNone() && getSwitch(phase->swtch)) {
       return i;
     }
   }
@@ -546,7 +571,7 @@ trim_t getRawTrimValue(uint8_t phase, uint8_t idx)
 int getTrimValue(uint8_t phase, uint8_t idx)
 {
   int result = 0;
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=0; i<getFlightModeCount(); i++) {
     trim_t v = getRawTrimValue(phase, idx);
     if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
       return result;
@@ -569,7 +594,7 @@ int getTrimValue(uint8_t phase, uint8_t idx)
 
 bool setTrimValue(uint8_t phase, uint8_t idx, int trim)
 {
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i=0; i<getFlightModeCount(); i++) {
     trim_t & v = flightModeAddress(phase)->trim[idx];
     if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS)
       return false;
@@ -600,11 +625,11 @@ ls_telemetry_value_t maxTelemValue(source_t channel)
   return MIXSRC_MAX_VALUE;
 }
 
-void calcBacklightValue(int16_t source)
+void calcBacklightValue(const SourceRef& source)
 {
   getvalue_t raw = getValue(source);
 #if defined(COLORLCD)
-  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
       ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
 #elif defined(OLED_SCREEN)
   requiredBacklightBright = (raw + 1024) * 254 / 2048;
@@ -616,7 +641,7 @@ void calcBacklightValue(int16_t source)
 #define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
 getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
 
-void calcVolumeValue(int16_t source)
+void calcVolumeValue(const SourceRef& source)
 {
   getvalue_t raw = getValue(source);
   // only set volume if input changed more than hysteresis
@@ -806,21 +831,26 @@ bool isThrottleWarningAlertNeeded()
     return false;
   }
 
-  uint8_t thr_src = throttleSource2Source(g_model.thrTraceSrc);
+  SourceRef thrSrc = g_model.thrTraceSrc;
 
-  // in case an output channel is choosen as throttle source
+  // in case an output channel is chosen as throttle source
   // we assume the throttle stick is the input (no computed channels yet)
-  if (thr_src >= MIXSRC_FIRST_CH) {
-    thr_src = throttleSource2Source(0);
+  if (thrSrc.type == SOURCE_TYPE_CHANNEL) {
+    thrSrc = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingGetThrottle());
+  }
+
+  // Default (none) means use throttle stick
+  if (thrSrc.isNone()) {
+    thrSrc = SourceRef_(SOURCE_TYPE_STICK, (uint16_t)inputMappingGetThrottle());
   }
 
   if (!mixerTaskRunning()) getADC();
   evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
 
-  int16_t v = getValue(thr_src);
+  int16_t v = getValue(thrSrc);
 
   // TODO: this looks fishy....
-  if (g_model.thrTraceSrc && g_model.throttleReversed) {
+  if (!g_model.thrTraceSrc.isNone() && g_model.throttleReversed) {
     v = -v;
   }
 
@@ -1029,8 +1059,8 @@ void checkTrims()
 #if defined(GVARS)
     if (TRIM_REUSED(idx)) {
       int8_t gvar = trimGvar[idx];
-      int16_t vmin = GVAR_MIN + g_model.gvars[gvar].min;
-      int16_t vmax = GVAR_MAX - g_model.gvars[gvar].max;
+      int16_t vmin = GVAR_MIN + gvarDataAddress(gvar)->min;
+      int16_t vmax = GVAR_MAX - gvarDataAddress(gvar)->max;
       if (after < vmin) {
         after = vmin;
         beepTrim = false;
@@ -1241,7 +1271,7 @@ void instantTrim()
         ExpoData * expo = expoAddress(i);
         if (!EXPO_VALID(expo))
           break; // end of list
-        if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
+        if (expo->srcRaw.type == SOURCE_TYPE_STICK && stick == expo->srcRaw.index) {
           if (expo->trimSource < 0) {
             // only default trims will be taken into account
             continue;
@@ -1282,7 +1312,7 @@ void copySticksToOffset(uint8_t ch)
     lim = LIMIT_MIN(ld);
   }
   zero = (zero*256000 - val*lim) / (1024*256-val);
-  ld->offset = (ld->revert ? -zero : zero);
+  ld->offset = GV_ENCODE(ld->revert ? -zero : zero);
 
   mixerTaskStart();
   storageDirty(EE_MODEL);
@@ -1300,11 +1330,11 @@ void copyTrimsToOffset(uint8_t ch)
   evalFlightModeMixes(e_perout_mode_noinput-e_perout_mode_notrims, 0); // do output loop - only trims
 
   int16_t output = applyLimits(ch, chans[ch]) - zero;
-  int16_t v = g_model.limitData[ch].offset;
+  int16_t v = GV_DECODE(g_model.limitData[ch].offset);
   if (g_model.limitData[ch].revert)
     output = -output;
   v += (output * 125) / 128;
-  g_model.limitData[ch].offset = limit((int16_t)-1000, (int16_t)v, (int16_t)1000); // make sure the offset doesn't go haywire
+  g_model.limitData[ch].offset = GV_ENCODE(limit((int16_t)-1000, (int16_t)v, (int16_t)1000)); // make sure the offset doesn't go haywire
 
   mixerTaskStart();
   storageDirty(EE_MODEL);
@@ -1395,12 +1425,12 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
 
   for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
     int16_t diff = applyLimits(i, chans[i]) - zeros[i];
-    int16_t v = g_model.limitData[i].offset;
+    int16_t v = GV_DECODE(g_model.limitData[i].offset);
     if (g_model.limitData[i].revert)
       diff = -diff;
     v += (diff * 125) / 128;
 
-    g_model.limitData[i].offset = limit((int16_t) -1000, (int16_t) v, (int16_t) 1000); // make sure the offset doesn't go haywire
+    g_model.limitData[i].offset = GV_ENCODE(limit((int16_t) -1000, (int16_t) v, (int16_t) 1000)); // make sure the offset doesn't go haywire
   }
 
   // reset all trims, except throttle (if throttle trim)
@@ -1408,7 +1438,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
     auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
     if (i != thrStick || !g_model.thrTrim) {
       int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);
-      for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
+      for (uint8_t fm=0; fm<getFlightModeCount(); fm++) {
         trim_t trim = getRawTrimValue(fm, i);
         if (trim.mode / 2 == fm)
           setTrimValue(fm, i, trim.value - original_trim);
@@ -1428,6 +1458,9 @@ uint8_t startOptions = 0;
 void edgeTxInit()
 {
   TRACE("edgeTxInit");
+
+  modelArenaInit();
+  radioArenaInit();
 
 #if defined(COLORLCD)
   // SD_CARD_PRESENT() does not work properly on most
@@ -2014,67 +2047,74 @@ bool modelTelemetryEnabled() {
   return FEATURE_ENABLED(modelTelemetryDisabled);
 }
 
-void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags)
+void getMixSrcRange(const SourceRef& source, int16_t & valMin, int16_t & valMax, LcdFlags * flags)
 {
-  int asrc = abs(source);
-
-  if (asrc >= MIXSRC_FIRST_TRIM && asrc <= MIXSRC_LAST_TRIM) {
-    valMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
-    valMin = -valMax;
-  }
+  switch (source.type) {
+    case SOURCE_TYPE_TRIM:
+      valMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
+      valMin = -valMax;
+      break;
 #if defined(LUA_INPUTS)
-  else if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
-    valMax = MIXSRC_MAX_VALUE;
-    valMin = -valMax;
-  }
+    case SOURCE_TYPE_LUA:
+      valMax = MIXSRC_MAX_VALUE;
+      valMin = -valMax;
+      break;
 #endif
-  else if (asrc < MIXSRC_FIRST_CH) {
-    valMax = 100;
-    valMin = -valMax;
-  }
-  else if (asrc <= MIXSRC_LAST_CH) {
-    valMax = g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100;
-    valMin = -valMax;
-  }
+    case SOURCE_TYPE_CHANNEL:
+      valMax = g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100;
+      valMin = -valMax;
+      break;
 #if defined(GVARS)
-  else if (asrc >= MIXSRC_FIRST_GVAR && asrc <= MIXSRC_LAST_GVAR) {
-    valMax = min<int>(CFN_GVAR_CST_MAX, MODEL_GVAR_MAX(asrc-MIXSRC_FIRST_GVAR));
-    valMin = max<int>(CFN_GVAR_CST_MIN, MODEL_GVAR_MIN(asrc-MIXSRC_FIRST_GVAR));
-    if (flags && g_model.gvars[asrc-MIXSRC_FIRST_GVAR].prec)
-      *flags |= PREC1;
-  }
+    case SOURCE_TYPE_GVAR:
+      valMax = min<int>(CFN_GVAR_CST_MAX, MODEL_GVAR_MAX(source.index));
+      valMin = max<int>(CFN_GVAR_CST_MIN, MODEL_GVAR_MIN(source.index));
+      if (flags && gvarDataAddress(source.index)->prec)
+        *flags |= PREC1;
+      break;
 #endif
-  else if (asrc == MIXSRC_TX_VOLTAGE) {
-    valMax =  255;
-    valMin = 0;
-    if (flags)
-      *flags |= PREC1;
-  }
+    case SOURCE_TYPE_TX_VOLTAGE:
+      valMax = 255;
+      valMin = 0;
+      if (flags)
+        *flags |= PREC1;
+      break;
 #if defined(LUMINOSITY_SENSOR)
-  else if (asrc == MIXSRC_LIGHT) {
-    valMax = 100;
-    valMin = -valMax;
-  }
+    case SOURCE_TYPE_LIGHT:
+      valMax = 100;
+      valMin = -valMax;
+      break;
 #endif
-  else if (asrc == MIXSRC_TX_TIME) {
-    valMax =  23 * 60 + 59;
-    valMin = 0;
-  }
-  else if (asrc >= MIXSRC_FIRST_TIMER && asrc <= MIXSRC_LAST_TIMER) {
-    valMax =  9 * 60 * 60 - 1;
-    valMin = -valMax;
-    if (flags)
-      *flags |= TIMEHOUR;
-  }
-  else {
-    valMax = MIXSRC_MAX_VALUE;
-    valMin = -valMax;
+    case SOURCE_TYPE_TX_TIME:
+      valMax = 23 * 60 + 59;
+      valMin = 0;
+      break;
+    case SOURCE_TYPE_TIMER:
+      valMax = 9 * 60 * 60 - 1;
+      valMin = -valMax;
+      if (flags)
+        *flags |= TIMEHOUR;
+      break;
+    case SOURCE_TYPE_INPUT:
+    case SOURCE_TYPE_STICK:
+    case SOURCE_TYPE_POT:
+    case SOURCE_TYPE_MIN:
+    case SOURCE_TYPE_MAX:
+    case SOURCE_TYPE_HELI:
+    case SOURCE_TYPE_SWITCH:
+    case SOURCE_TYPE_TRAINER:
+      valMax = 100;
+      valMin = -valMax;
+      break;
+    default:
+      valMax = MIXSRC_MAX_VALUE;
+      valMin = -valMax;
+      break;
   }
 }
 
 bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf)
 {
-  getMixSrcRange(cs->v1, v2_min, v2_max, lf);
+  getMixSrcRange(cs->v1.source, v2_min, v2_max, lf);
   if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG)) {
     if (v2_min >= 0) {
       // min >= 0 && max >= 0
@@ -2104,8 +2144,8 @@ bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, 
 
   bool rv = false;
 
-  if (cs->v2 < v2_min) { cs->v2 = v2_min; rv = true; }
-  else if (cs->v2 > v2_max) { cs->v2 = v2_max; rv = true; }
+  if (cs->v2.value < v2_min) { cs->v2.value = v2_min; rv = true; }
+  else if (cs->v2.value > v2_max) { cs->v2.value = v2_max; rv = true; }
 
   return rv;
 }
@@ -2115,9 +2155,9 @@ bool validateSFGV(CustomFunctionData* cfn)
   bool rv = false;
 
   if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
-    int16_t v = CFN_PARAM(cfn);
+    int32_t v = CFN_PARAM(cfn);
     int16_t vmin, vmax;
-    getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, vmin, vmax);
+    getMixSrcRange(SourceRef_(SOURCE_TYPE_GVAR, (uint16_t)CFN_GVAR_INDEX(cfn)), vmin, vmax);
     if (v < vmin) v = vmin;
     else if (v > vmax) v = vmax;
     if (CFN_PARAM(cfn) != v) rv = true;

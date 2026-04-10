@@ -23,7 +23,7 @@
 
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value)
 {
-  uint8_t p = MAX_FLIGHT_MODES;
+  uint8_t p = getFlightModeCount();
   do {
     --p;
     if (!(value & (1<<p)))
@@ -75,11 +75,11 @@ static void showTrims(uint8_t cnt, uint8_t first, coord_t y, LcdFlags attr, even
     drawTrimMode(MIXES_2ND_COLUMN + (t * 2 * FW), y, s_currIdx, t + first,
                   menuHorizontalPosition == t ? attr : 0);
     if (attr && menuHorizontalPosition == t)
-      drawSource(LCD_W, 0, t + first + MIXSRC_FIRST_TRIM, RIGHT);
+      drawSource(LCD_W, 0, SourceRef_(SOURCE_TYPE_TRIM, (uint16_t)(t + first)), RIGHT);
     if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
       trim_t& v = fm->trim[t + first];
       v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,
-                            -1, 2 * MAX_FLIGHT_MODES,
+                            -1, 2 * getFlightModeCount(),
                             EE_MODEL, isTrimModeAvailable);
     }
   }
@@ -162,13 +162,13 @@ void menuModelFlightModeOne(event_t event)
         if (attr && posHorz > 0 && s_currIdx==0) posHorz++;
 
         drawStringWithIndex(INDENT_WIDTH, y, STR_GV, idx+1, posHorz==0 ? attr : 0);
-        lcdDrawSizedText(4*FW, y,g_model.gvars[idx].name, LEN_GVAR_NAME, 0);
+        lcdDrawSizedText(4*FW, y,gvarDataAddress(idx)->name, LEN_GVAR_NAME, 0);
         if (attr && editMode>0 && posHorz==0) {
           s_currIdxSubMenu = sub - ITEM_MODEL_FLIGHT_MODE_GV1;
           editMode = 0;
           pushMenu(menuModelGVarOne);
         }
-        int16_t v = fm->gvars[idx];
+        int16_t v = GVAR_VALUE(idx, s_currIdx);
         if (v > GVAR_MAX) {
           uint8_t p = v - GVAR_MAX - 1;
           if (p >= s_currIdx) p++;
@@ -179,10 +179,10 @@ void menuModelFlightModeOne(event_t event)
         }
         if (attr && s_currIdx>0 && posHorz==1 && editMode > 0) {
           if (v < GVAR_MAX) v = GVAR_MAX;
-          v = checkIncDec(event, v, GVAR_MAX, GVAR_MAX+MAX_FLIGHT_MODES-1, EE_MODEL);
+          v = checkIncDec(event, v, GVAR_MAX, GVAR_MAX+getFlightModeCount()-1, EE_MODEL);
           if (checkIncDec_Ret) {
             if (v == GVAR_MAX) v = 0;
-            fm->gvars[idx] = v;
+            GVAR_VALUE(idx, s_currIdx) = v;
           }
         }
         editGVarValue(17*FW, y, event, idx, getGVarFlightMode(s_currIdx, idx), posHorz==2 ? attr : 0);
@@ -201,25 +201,25 @@ void menuModelFlightModeOne(event_t event)
 void menuModelFlightModesAll(event_t event)
 {
   SIMPLE_MENU(STR_MENUFLIGHTMODES, menuTabModel, MENU_MODEL_FLIGHT_MODES,
-              HEADER_LINE+MAX_FLIGHT_MODES+1);
+              HEADER_LINE+getFlightModeCount()+1);
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
   // "Check trims" button
-  if (sub == MAX_FLIGHT_MODES && event == EVT_KEY_BREAK(KEY_ENTER)) {
+  if (sub == getFlightModeCount() && event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_editMode = 0;
     trimsCheckTimer = 200;  // 2 seconds
   }
 
   // Flight mode lines
-  if (sub >= 0 && sub < MAX_FLIGHT_MODES &&
+  if (sub >= 0 && sub < getFlightModeCount() &&
       (event == EVT_KEY_BREAK(KEY_ENTER) || event == EVT_KEY_FIRST(KEY_RIGHT))) {
     s_currIdx = sub;
     pushMenu(menuModelFlightModeOne);
   }
 
   uint8_t att;
-  for (uint8_t i = 0; i < MAX_FLIGHT_MODES; i++) {
+  for (uint8_t i = 0; i < getFlightModeCount(); i++) {
     int8_t y = 1 + (1 + i - menuVerticalOffset) * FH;
     if (y < 1 * FH + 1 || y > (LCD_LINES - 1) * FH + 1) continue;
     att = (i == sub ? INVERS : 0);
@@ -239,11 +239,11 @@ void menuModelFlightModesAll(event_t event)
     }
   }
 
-  if (menuVerticalOffset != MAX_FLIGHT_MODES-(LCD_LINES-2)) return;
+  if (menuVerticalOffset != getFlightModeCount()-(LCD_LINES-2)) return;
 
   lcdDrawText(CENTER_OFS, (LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
   drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
-  if (sub==MAX_FLIGHT_MODES && !trimsCheckTimer) {
+  if (sub==getFlightModeCount() && !trimsCheckTimer) {
     lcdInvertLastLine();
   }
 }

@@ -402,7 +402,7 @@ void guiMain(event_t evt)
     char s[30], *p;
     p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
     p = strAppend(p, " ", 1);
-    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
+    p = strAppend(p, gvarDataAddress(gvarLastChanged)->name, LEN_GVAR_NAME);
     p = strAppend(p, " = ", 3);
     p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
     POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
@@ -610,7 +610,7 @@ void perMain()
 
 #if defined(PCBX9E) && !defined(SIMU)
   toplcdRefreshStart();
-  setTopFirstTimer(getValue(MIXSRC_FIRST_TIMER + g_model.toplcdTimer));
+  setTopFirstTimer(getValue(SourceRef_(SOURCE_TYPE_TIMER, g_model.toplcdTimer)));
   setTopSecondTimer(g_eeGeneral.globalTimer + sessionTimer);
   setTopRssi(TELEMETRY_RSSI());
   setTopBatteryValue(g_vbat100mV);

@@ -21,6 +21,9 @@
 
 #include <math.h>
 #include "gtests.h"
+#include "mixes.h"
+#include "expos.h"
+#include "curves.h"
 
 #if defined(LUA)
 
@@ -115,17 +118,21 @@ TEST(Lua, testModelInputs)
   luaExecStr("if noInputs > 0 then error('getInputsCount()') end");
 
   // add one line on Input4
+  // switch value is packed SwitchRef: SWITCH_TYPE_SWITCH=1, index=1 → (1<<24)|1 = 0x01000001
 #if defined(SURFACE_RADIO)
-  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_TH, weight=56, offset=3, switch=2})");
+  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_TH, weight=56, offset=3, switch=0x01000001})");
 #else
-  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
+  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=0x01000001})");
 #endif
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[0].weight);
-  EXPECT_EQ(3u, g_model.expoData[0].offset);
-  EXPECT_EQ(2, g_model.expoData[0].swtch);
+  EXPECT_EQ(3u, (*expoAddress(0)).chn);
+  EXPECT_STRNEQ("test1", (*expoAddress(0)).name);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
+  EXPECT_EQ(56, (*expoAddress(0)).weight.numericValue());
+  EXPECT_EQ(3, (*expoAddress(0)).offset.numericValue());
+  // switch=2 is legacy SWSRC value 2 = SWSRC_FIRST_SWITCH + 1 → SWITCH_TYPE_SWITCH index 1
+  EXPECT_EQ((*expoAddress(0)).swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ((*expoAddress(0)).swtch.index, 1);
 
   // add another one before existing line on Input4
 #if defined(SURFACE_RADIO)
@@ -133,21 +140,22 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
 #endif
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  SourceNumVal v;
-  v.rawValue = g_model.expoData[0].weight;
-  EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0u, g_model.expoData[0].offset);
-  EXPECT_EQ(0, g_model.expoData[0].swtch);
+  EXPECT_EQ(3u, (*expoAddress(0)).chn);
+  EXPECT_STRNEQ("test2", (*expoAddress(0)).name);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.index, 0);
+  EXPECT_EQ(-56, (*expoAddress(0)).weight.numericValue());
+  EXPECT_EQ(0, (*expoAddress(0)).offset.numericValue());
+  EXPECT_TRUE((*expoAddress(0)).swtch.isNone());
 
-  EXPECT_EQ(3u, g_model.expoData[1].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[1].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[1].weight);
-  EXPECT_EQ(3u, g_model.expoData[1].offset);
-  EXPECT_EQ(2, g_model.expoData[1].swtch);
+  EXPECT_EQ(3u, (*expoAddress(1)).chn);
+  EXPECT_STRNEQ("test1", (*expoAddress(1)).name);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
+  EXPECT_EQ(56, (*expoAddress(1)).weight.numericValue());
+  EXPECT_EQ(3, (*expoAddress(1)).offset.numericValue());
+  EXPECT_EQ((*expoAddress(1)).swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ((*expoAddress(1)).swtch.index, 1);
 
 
   // add another line after existing lines on Input4
@@ -156,31 +164,35 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
 #endif
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  v.rawValue = g_model.expoData[0].weight;
-  EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0u, g_model.expoData[0].offset);
-  EXPECT_EQ(0, g_model.expoData[0].swtch);
+  EXPECT_EQ(3u, (*expoAddress(0)).chn);
+  EXPECT_STRNEQ("test2", (*expoAddress(0)).name);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(0)).srcRaw.index, 0);
+  EXPECT_EQ(-56, (*expoAddress(0)).weight.numericValue());
+  EXPECT_EQ(0, (*expoAddress(0)).offset.numericValue());
+  EXPECT_TRUE((*expoAddress(0)).swtch.isNone());
 
-  EXPECT_EQ(3u, g_model.expoData[1].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[1].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[1].weight);
-  EXPECT_EQ(3u, g_model.expoData[1].offset);
-  EXPECT_EQ(2, g_model.expoData[1].swtch);
+  EXPECT_EQ(3u, (*expoAddress(1)).chn);
+  EXPECT_STRNEQ("test1", (*expoAddress(1)).name);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(1)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
+  EXPECT_EQ(56, (*expoAddress(1)).weight.numericValue());
+  EXPECT_EQ(3, (*expoAddress(1)).offset.numericValue());
+  EXPECT_EQ((*expoAddress(1)).swtch.type, SWITCH_TYPE_SWITCH);
+  EXPECT_EQ((*expoAddress(1)).swtch.index, 1);
 
-  EXPECT_EQ(3u, g_model.expoData[2].chn);
-  EXPECT_STRNEQ("test3", g_model.expoData[2].name);
+  EXPECT_EQ(3u, (*expoAddress(2)).chn);
+  EXPECT_STRNEQ("test3", (*expoAddress(2)).name);
 #if defined(SURFACE_RADIO)
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[2].srcRaw);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.index, (uint16_t)inputMappingGetThrottle());
 #else
-  EXPECT_EQ(MIXSRC_LAST_STICK, g_model.expoData[2].srcRaw);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.type, SOURCE_TYPE_STICK);
+  EXPECT_EQ((*expoAddress(2)).srcRaw.index, 3);  // MIXSRC_Ail = MIXSRC_LAST_STICK = stick index 3
 #endif
-  EXPECT_EQ(100u, g_model.expoData[2].weight);
-  EXPECT_EQ(0u, g_model.expoData[2].offset);
-  EXPECT_EQ(0, g_model.expoData[2].swtch);
+  EXPECT_EQ(100, (*expoAddress(2)).weight.numericValue());
+  EXPECT_EQ(0, (*expoAddress(2)).offset.numericValue());
+  EXPECT_TRUE((*expoAddress(2)).swtch.isNone());
 
   // verify number of lines for Input4
   luaExecStr("noInputs = model.getInputsCount(3)");

@@ -337,7 +337,7 @@ void onMainViewMenu(const char * result)
 void drawSmallSwitch(coord_t x, coord_t y, int width, unsigned int index)
 {
   if (SWITCH_EXISTS(index)) {
-    int val = getValue(MIXSRC_FIRST_SWITCH + index);
+    int val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, index));
 
     if (val >= 0) {
       lcdDrawSolidHorizontalLine(x, y, width);
@@ -540,12 +540,10 @@ void menuMainView(event_t event)
               auto switch_display = switchGetDisplayPosition(i);
               coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
               coord_t y = 33 + switch_display.row * FH;
-              getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+              getvalue_t val = getValue(SourceRef_(SOURCE_TYPE_SWITCH, i));
               if (val == 0) x -= 1;
-              getvalue_t sw =
-                  ((val < 0) ? 3 * i + 1
-                              : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-              drawSwitch(x, y, sw, CENTERED, false);
+              uint16_t swIdx = 3 * i + (val < 0 ? 0 : (val == 0 ? 1 : 2));
+              drawSwitch(x, y, SwitchRef_(SWITCH_TYPE_SWITCH, swIdx), CENTERED, false);
             }
           }
         }
@@ -566,7 +564,7 @@ void menuMainView(event_t event)
         uint8_t y = LCD_H - 20;
         for (uint8_t line = 0; line < 2; line++) {
           for (uint8_t column = 0; column < MAX_LOGICAL_SWITCHES / 2; column++) {
-            int8_t len = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index) ? 10 : 1;
+            int8_t len = getSwitch(SwitchRef_(SWITCH_TYPE_LOGICAL, (uint16_t)index)) ? 10 : 1;
             uint8_t x = (16 + 3 * column);
             lcdDrawSolidVerticalLine(x - 1, y - len, len);
             lcdDrawSolidVerticalLine(x, y - len, len);
@@ -581,7 +579,7 @@ void menuMainView(event_t event)
   if (view_base != VIEW_CHAN_MONITOR) {
     // Flight Mode Name
     uint8_t mode = mixerCurrentFlightMode;
-    lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
+    lcdDrawSizedText(PHASE_X, PHASE_Y, flightModeAddress(mode)->name, sizeof(FlightModeData::name));
 
     // Model Name
     drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -609,11 +607,11 @@ void menuMainView(event_t event)
     gvarDisplayTimer--;
     warningText = STR_GLOBAL_VAR;
     drawMessageBox(warningText);
-    lcdDrawSizedText(16, 5 * FH, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME, 0);
+    lcdDrawSizedText(16, 5 * FH, gvarDataAddress(gvarLastChanged)->name, LEN_GVAR_NAME, 0);
     lcdDrawText(16 + 6 * FW, 5 * FH, "[", BOLD);
     drawGVarValue(lcdLastRightPos, 5 * FH, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)),
                   LEFT | BOLD);
-    if (g_model.gvars[gvarLastChanged].unit) {
+    if (gvarDataAddress(gvarLastChanged)->unit) {
       lcdDrawText(lcdLastRightPos, 5 * FH, "%", BOLD);
     }
     lcdDrawText(lcdLastRightPos, 5 * FH, "]", BOLD);
