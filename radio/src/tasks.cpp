@@ -45,6 +45,7 @@ TASK_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 #endif
 
 mutex_handle_t audioMutex;
+mutex_handle_t I2CMutex;
 
 #define MENU_TASK_PERIOD (50)  // 50ms
 
@@ -158,6 +159,7 @@ static void timer1msStart()
 void tasksStart()
 {
   mutex_create(&audioMutex);
+  mutex_create(&I2CMutex);
 
 #if defined(CLI) && !defined(SIMU)
   cliStart();

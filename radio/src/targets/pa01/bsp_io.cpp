@@ -39,6 +39,26 @@
 
 #define BSP_CHECK(x) if ((x) < 0) return -1
 
+
+
+#ifdef BOOT
+  static void _I2C_lock(){}
+  static void _I2C_unlock(){}
+#else
+  #include "rtos.h"
+  extern mutex_handle_t I2CMutex;
+
+  static void _I2C_lock()
+  {
+    mutex_lock(&I2CMutex);
+  }
+
+  static void _I2C_unlock()
+  {
+    mutex_unlock(&I2CMutex);
+  }
+#endif
+
 static aw9523b_t i2c_exp;
 
 static uint16_t inputState = 0;
@@ -72,7 +92,7 @@ int bsp_io_init()
   // init outputs
   BSP_CHECK(aw9523b_init(&i2c_exp, BSP_I2C_BUS, BSP_I2C_ADDR));
   BSP_CHECK(aw9523b_write(&i2c_exp, BSP_OUT_MASK,
-    BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4));
+  BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4));
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
 
   // setup expanders pin change interrupt
@@ -81,15 +101,17 @@ int bsp_io_init()
   return 0;
 }
 
-void bsp_output_set(uint16_t pin) { aw9523b_write(&i2c_exp, pin, pin); }
+void bsp_output_set(uint16_t pin) { _I2C_lock(); aw9523b_write(&i2c_exp, pin, pin); _I2C_unlock();}
 
-void bsp_output_set(uint16_t mask, uint16_t pin) { aw9523b_write(&i2c_exp, mask, pin); }
+void bsp_output_set(uint16_t mask, uint16_t pin) { _I2C_lock(); aw9523b_write(&i2c_exp, mask, pin); _I2C_unlock();}
 
-void bsp_output_clear(uint16_t pin) { aw9523b_write(&i2c_exp, pin, 0); }
+void bsp_output_clear(uint16_t pin) { _I2C_lock(); aw9523b_write(&i2c_exp, pin, 0); _I2C_unlock(); }
 
 uint16_t bsp_input_get()
 {
+  _I2C_lock();
   bsp_input_read();
+  _I2C_unlock();
   return inputState;
 }
 
