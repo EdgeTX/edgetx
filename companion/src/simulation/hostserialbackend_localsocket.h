@@ -62,6 +62,8 @@ class QLocalSocketBackend : public HostSerialBackend
     void onClientDisconnected();
 
   private:
+    static QString resolveListenName(const QString & name);
+
     QString socketName;
     QLocalServer * server;
     QLocalSocket * client;
