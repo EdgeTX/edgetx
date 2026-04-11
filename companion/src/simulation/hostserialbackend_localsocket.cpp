@@ -40,19 +40,36 @@ QLocalSocketBackend::~QLocalSocketBackend()
   close();
 }
 
+QString QLocalSocketBackend::resolveListenName(const QString & name)
+{
+#ifdef Q_OS_UNIX
+  // Qt defaults to QStandardPaths::TempLocation, which on macOS is
+  // a per-user $TMPDIR (e.g. /var/folders/.../T/) — fine for IPC
+  // between Qt apps, painful when the other end is a Python script
+  // a user is poking from a shell. Pin bare names to /tmp/<name>
+  // so the resolved path is predictable on both macOS and Linux.
+  // Absolute paths supplied by the user are passed through as-is.
+  if (!name.startsWith(QLatin1Char('/')))
+    return QStringLiteral("/tmp/") + name;
+#endif
+  return name;
+}
+
 bool QLocalSocketBackend::open()
 {
   if (server->isListening())
     return true;
 
+  const QString listenName = resolveListenName(socketName);
+
   // A previous run (or another process) may have left a stale socket
   // file behind on Unix; QLocalServer::removeServer is the documented
   // way to clear it before re-listening.
-  QLocalServer::removeServer(socketName);
+  QLocalServer::removeServer(listenName);
 
-  if (!server->listen(socketName)) {
+  if (!server->listen(listenName)) {
     emit errorOccurred(tr("Failed to listen on local socket \"%1\": %2")
-                       .arg(socketName, server->errorString()));
+                       .arg(listenName, server->errorString()));
     return false;
   }
 
