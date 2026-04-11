@@ -403,6 +403,19 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+#if !defined(__wasm__)
+// Native builds (unit-tests, SDL simulator) don't have a WASM host to
+// forward aux-serial traffic to: WASM_IMPORT is a no-op macro off-target,
+// so the declarations in simulib.h become plain externs with no
+// definitions.  Provide no-op stubs so host_drv_* can link — the host
+// bridge is only meaningfully exercised in the WASM simulator, where
+// these symbols are resolved as WAMR imports by Companion.
+void simuAuxSerialStart(uint8_t, uint32_t, uint8_t) {}
+void simuAuxSerialStop(uint8_t) {}
+void simuAuxSerialSetBaudrate(uint8_t, uint32_t) {}
+void simuAuxSerialSendBuffer(uint8_t, const uint8_t*, uint32_t) {}
+#endif
+
 // Per-port bridge state.  TX is forwarded to the host via WASM imports;
 // RX bytes pushed in via simuAuxSerialReceive() are buffered in rxQueue
 // and consumed by the firmware through host_drv_get_byte().
