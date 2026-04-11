@@ -39,13 +39,28 @@ class HostSerialConnector : public QObject
     Q_OBJECT
 
   public:
+    enum BackendKind {
+      BackendNone = 0,
+      BackendSerialPort,
+      BackendLocalSocket,
+    };
+    Q_ENUM(BackendKind)
+
     explicit HostSerialConnector(QObject * parent, SimulatorInterface * simulator);
     ~HostSerialConnector();
 
-    QString getConnectedSerialPortName(int index);
+    BackendKind getBackendKind(int index) const;
+    QString getBackendSpec(int index) const;
+
+    // Convenience: only meaningful when the active backend is a
+    // QLocalSocketBackend. Returns an empty string otherwise.
+    QString getLocalSocketFullName(int index) const;
 
   public slots:
-    void connectSerialPort(int index, QString portName);
+    // kind=BackendNone or empty spec disconnects the port. For
+    // BackendSerialPort, spec is the device name (e.g. "ttyUSB0");
+    // for BackendLocalSocket, spec is the QLocalServer listen name.
+    void connectBackend(int index, int kind, const QString & spec);
     void sendSerialData(const quint8 index, const QByteArray & data);
     void setSerialEncoding(const quint8 index, const quint8 encoding);
     void setSerialBaudRate(const quint8 index, const quint32 baudrate);
@@ -58,12 +73,13 @@ class HostSerialConnector : public QObject
     void backendError(int index, const QString & message);
 
   private:
-    void setBackend(int index, HostSerialBackend * backend);
+    void setBackend(int index, HostSerialBackend * backend, BackendKind kind);
 
     SimulatorInterface * simulator;
 
-    QRecursiveMutex hostAuxPortsMutex;
+    mutable QRecursiveMutex hostAuxPortsMutex;
     HostSerialBackend * hostAuxBackends[MAX_HOST_SERIAL];
+    BackendKind hostAuxBackendKinds[MAX_HOST_SERIAL];
     quint8 hostAuxPortsEncoding[MAX_HOST_SERIAL];
     quint32 hostAuxPortsBaudRate[MAX_HOST_SERIAL];
     bool hostAuxPortsOpen[MAX_HOST_SERIAL];

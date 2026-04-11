@@ -21,6 +21,7 @@ set(${PROJECT_NAME}_NAMES
   widgets/virtualjoystickwidget
   serialportsdialog
   hostserialbackend_serialport
+  hostserialbackend_localsocket
   hostserialconnector
   simulateduiwidgetGeneric
   wasmsimulatorinterface
