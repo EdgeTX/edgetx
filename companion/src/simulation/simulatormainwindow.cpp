@@ -505,8 +505,8 @@ void SimulatorMainWindow::openSerialPortsDialog(bool)
 {
   SerialPortsDialog * dialog = new SerialPortsDialog(this, m_simulator, hostSerialConnector);
   if (dialog->exec() == QDialog::Accepted && m_simulator) {
-    hostSerialConnector->connectSerialPort(0, dialog->aux1);
-    hostSerialConnector->connectSerialPort(1, dialog->aux2);
+    hostSerialConnector->connectBackend(0, dialog->aux1Kind, dialog->aux1Spec);
+    hostSerialConnector->connectBackend(1, dialog->aux2Kind, dialog->aux2Spec);
   }
   dialog->deleteLater();
 }

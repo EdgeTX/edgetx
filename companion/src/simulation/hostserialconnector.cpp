@@ -23,6 +23,7 @@
 
 #include "hostserialbackend.h"
 #include "hostserialbackend_serialport.h"
+#include "hostserialbackend_localsocket.h"
 
 HostSerialConnector::HostSerialConnector(QObject *parent, SimulatorInterface *simulator)
   : QObject(parent),
@@ -30,6 +31,7 @@ HostSerialConnector::HostSerialConnector(QObject *parent, SimulatorInterface *si
 {
   for (int i = 0; i < MAX_HOST_SERIAL; i++) {
     hostAuxBackends[i] = nullptr;
+    hostAuxBackendKinds[i] = BackendNone;
     hostAuxPortsEncoding[i] = SERIAL_ENCODING_8N1;
     hostAuxPortsBaudRate[i] = 9600;
     hostAuxPortsOpen[i] = false;
@@ -46,21 +48,44 @@ HostSerialConnector::~HostSerialConnector()
   }
 }
 
-QString HostSerialConnector::getConnectedSerialPortName(int index)
+HostSerialConnector::BackendKind HostSerialConnector::getBackendKind(int index) const
 {
   if (index >= MAX_HOST_SERIAL)
-    return QString("");
+    return BackendNone;
+
+  QMutexLocker locker(&hostAuxPortsMutex);
+  return hostAuxBackendKinds[index];
+}
+
+QString HostSerialConnector::getBackendSpec(int index) const
+{
+  if (index >= MAX_HOST_SERIAL)
+    return QString();
 
   QMutexLocker locker(&hostAuxPortsMutex);
 
   HostSerialBackend * backend = hostAuxBackends[index];
   if (backend == nullptr)
-    return QString("");
+    return QString();
 
   return backend->displayName();
 }
 
-void HostSerialConnector::setBackend(int index, HostSerialBackend * backend)
+QString HostSerialConnector::getLocalSocketFullName(int index) const
+{
+  if (index >= MAX_HOST_SERIAL)
+    return QString();
+
+  QMutexLocker locker(&hostAuxPortsMutex);
+
+  if (hostAuxBackendKinds[index] != BackendLocalSocket)
+    return QString();
+
+  auto * backend = qobject_cast<QLocalSocketBackend *>(hostAuxBackends[index]);
+  return backend != nullptr ? backend->fullServerName() : QString();
+}
+
+void HostSerialConnector::setBackend(int index, HostSerialBackend * backend, BackendKind kind)
 {
   // Caller holds hostAuxPortsMutex.
   HostSerialBackend * old = hostAuxBackends[index];
@@ -70,6 +95,7 @@ void HostSerialConnector::setBackend(int index, HostSerialBackend * backend)
   }
 
   hostAuxBackends[index] = backend;
+  hostAuxBackendKinds[index] = backend != nullptr ? kind : BackendNone;
 
   if (backend == nullptr)
     return;
@@ -88,19 +114,31 @@ void HostSerialConnector::setBackend(int index, HostSerialBackend * backend)
   backend->setBaudrate(hostAuxPortsBaudRate[index]);
 }
 
-void HostSerialConnector::connectSerialPort(int index, QString portName)
+void HostSerialConnector::connectBackend(int index, int kind, const QString & spec)
 {
   if (index >= MAX_HOST_SERIAL)
     return;
 
   QMutexLocker locker(&hostAuxPortsMutex);
 
-  if (portName.isEmpty()) {
-    setBackend(index, nullptr);
+  if (kind == BackendNone || spec.isEmpty()) {
+    setBackend(index, nullptr, BackendNone);
     return;
   }
 
-  setBackend(index, new QSerialPortBackend(portName, this));
+  HostSerialBackend * backend = nullptr;
+  switch (kind) {
+    case BackendSerialPort:
+      backend = new QSerialPortBackend(spec, this);
+      break;
+    case BackendLocalSocket:
+      backend = new QLocalSocketBackend(spec, this);
+      break;
+    default:
+      return;
+  }
+
+  setBackend(index, backend, static_cast<BackendKind>(kind));
 
   if (hostAuxPortsOpen[index])
     serialStart(index);

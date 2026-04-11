@@ -21,14 +21,17 @@
 
 #pragma once
 
+#include "hostserialconnector.h"
+#include "simulatorinterface.h"
+
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QtWidgets>
 
-#include "simulatorinterface.h"
-#include "hostserialconnector.h"
-
 class QComboBox;
+class QLabel;
+class QLineEdit;
+class QStackedWidget;
 
 namespace Ui {
     class SerialPortsDialog;
@@ -41,19 +44,45 @@ class SerialPortsDialog : public QDialog
   public:
     explicit SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator, HostSerialConnector *connector);
     ~SerialPortsDialog();
-    QString aux1;
-    QString aux2;
+
+    // Output state, read by SimulatorMainWindow on accept().
+    int aux1Kind;
+    QString aux1Spec;
+    int aux2Kind;
+    QString aux2Spec;
+
     SimulatorInterface *simulator;
     HostSerialConnector *connector;
 
   private:
+    // Stack page indices for the per-port spec stack.
+    enum SpecPage {
+      PageNone = 0,
+      PageSerial,
+      PageSocket,
+    };
+
+    struct PortRow {
+      QComboBox * typeCombo = nullptr;
+      QStackedWidget * specStack = nullptr;
+      QComboBox * serialCombo = nullptr;
+      QLineEdit * socketEdit = nullptr;
+      QLabel * socketStatusLabel = nullptr;
+    };
+
+    PortRow auxRows[2];
+
     Ui::SerialPortsDialog *ui;
 
+    void buildPortRow(int row, const QString & label);
+    void loadPortState(int index);
+    void onTypeChanged(int index, int comboIndex);
+    void populateSerialPortCombo(QComboBox * cb, const QString & currentPortName);
+    static QString defaultSocketName(int index);
+    void writeOutputs();
+
   private slots:
-    void populateSerialPortCombo(QComboBox * cb, QString currentPortName);
     void on_cancelButton_clicked();
     void on_okButton_clicked();
     void on_refreshButton_clicked();
-    void on_aux1Combo_currentIndexChanged(int index);
-    void on_aux2Combo_currentIndexChanged(int index);
 };
