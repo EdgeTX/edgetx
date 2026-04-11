@@ -68,11 +68,61 @@ static void host_simuLcdNotify(wasm_exec_env_t exec_env)
     iface->notifyLcdReady();
 }
 
+// WAMR native callbacks: aux serial bridge (firmware -> host).  These run on
+// the WAMR worker thread; the WasmSimulatorInterface methods they call emit
+// Qt signals, which Qt::AutoConnection automatically queues to the GUI
+// thread where HostSerialConnector lives.
+static void host_simuAuxSerialStart(wasm_exec_env_t exec_env, uint32_t port_nr,
+                                    uint32_t baudrate, uint32_t encoding)
+{
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface)
+    iface->onAuxSerialStart((uint8_t)port_nr, baudrate, (uint8_t)encoding);
+}
+
+static void host_simuAuxSerialStop(wasm_exec_env_t exec_env, uint32_t port_nr)
+{
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface)
+    iface->onAuxSerialStop((uint8_t)port_nr);
+}
+
+static void host_simuAuxSerialSetBaudrate(wasm_exec_env_t exec_env,
+                                          uint32_t port_nr, uint32_t baudrate)
+{
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface)
+    iface->onAuxSerialSetBaudrate((uint8_t)port_nr, baudrate);
+}
+
+static void host_simuAuxSerialSendBuffer(wasm_exec_env_t exec_env,
+                                         uint32_t port_nr, uint8_t * data,
+                                         uint32_t len)
+{
+  auto * inst = wasm_runtime_get_module_inst(exec_env);
+  auto * iface = static_cast<WasmSimulatorInterface *>(
+      wasm_runtime_get_custom_data(inst));
+  if (iface && data && len > 0)
+    iface->onAuxSerialSendBuffer((uint8_t)port_nr, data, len);
+}
+
 static NativeSymbol s_nativeSymbols[] = {
     {"simuGetAnalog", (void *)host_simuGetAnalog, "(i)i", nullptr},
     {"simuQueueAudio", (void *)host_simuQueueAudio, "(*~)", nullptr},
     {"simuTrace", (void *)host_simuTrace, "($)", nullptr},
     {"simuLcdNotify", (void *)host_simuLcdNotify, "()", nullptr},
+    {"simuAuxSerialStart", (void *)host_simuAuxSerialStart, "(iii)", nullptr},
+    {"simuAuxSerialStop", (void *)host_simuAuxSerialStop, "(i)", nullptr},
+    {"simuAuxSerialSetBaudrate", (void *)host_simuAuxSerialSetBaudrate,
+     "(ii)", nullptr},
+    {"simuAuxSerialSendBuffer", (void *)host_simuAuxSerialSendBuffer,
+     "(i*~)", nullptr},
 };
 
 WasmSimulatorInterface::WasmSimulatorInterface(const QString & wasmPath,
@@ -337,6 +387,10 @@ bool WasmSimulatorInterface::resolveExports()
       wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchColor");
   m_fnGetCustomSwitchIndex =
       wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchIndex");
+
+  // Aux serial: host -> firmware data injection
+  m_fnAuxSerialReceive =
+      wasm_runtime_lookup_function(m_moduleInst, "simuAuxSerialReceive");
 
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
@@ -844,8 +898,56 @@ void WasmSimulatorInterface::queueAudio(const uint8_t * buf, uint32_t len)
 void WasmSimulatorInterface::receiveAuxSerialData(const quint8 port_num,
                                                   const QByteArray & data)
 {
-  Q_UNUSED(port_num);
-  Q_UNUSED(data);
+  if (!m_fnAuxSerialReceive || !m_execEnv || !m_fnMalloc || !m_fnFree ||
+      data.isEmpty())
+    return;
+
+  QMutexLocker lckr(&m_mutex);
+  uint32_t len = data.size();
+  uint32_t allocArgv[1] = {len};
+  if (!wasm_runtime_call_wasm(m_execEnv, m_fnMalloc, 1, allocArgv) ||
+      !allocArgv[0])
+    return;
+
+  uint32_t wasmBuf = allocArgv[0];
+  void * nativePtr = wasm_runtime_addr_app_to_native(m_moduleInst, wasmBuf);
+  if (nativePtr)
+    memcpy(nativePtr, data.constData(), len);
+
+  uint32_t argv[3] = {(uint32_t)port_num, wasmBuf, len};
+  wasm_runtime_call_wasm(m_execEnv, m_fnAuxSerialReceive, 3, argv);
+
+  uint32_t freeArgv[1] = {wasmBuf};
+  wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
+}
+
+void WasmSimulatorInterface::onAuxSerialStart(uint8_t port_nr,
+                                              uint32_t baudrate,
+                                              uint8_t encoding)
+{
+  emit auxSerialSetEncoding(port_nr, encoding);
+  if (baudrate != 0)
+    emit auxSerialSetBaudrate(port_nr, baudrate);
+  emit auxSerialStart(port_nr);
+}
+
+void WasmSimulatorInterface::onAuxSerialStop(uint8_t port_nr)
+{
+  emit auxSerialStop(port_nr);
+}
+
+void WasmSimulatorInterface::onAuxSerialSetBaudrate(uint8_t port_nr,
+                                                    uint32_t baudrate)
+{
+  emit auxSerialSetBaudrate(port_nr, baudrate);
+}
+
+void WasmSimulatorInterface::onAuxSerialSendBuffer(uint8_t port_nr,
+                                                   const uint8_t * data,
+                                                   uint32_t len)
+{
+  emit auxSerialSendData(port_nr,
+                         QByteArray((const char *)data, (int)len));
 }
 
 void WasmSimulatorInterface::run()
