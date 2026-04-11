@@ -172,6 +172,12 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   connect(m_simulator, &SimulatorInterface::auxSerialSetBaudrate, hostSerialConnector, &HostSerialConnector::setSerialBaudRate);
   connect(m_simulator, &SimulatorInterface::auxSerialStart, hostSerialConnector, &HostSerialConnector::serialStart);
   connect(m_simulator, &SimulatorInterface::auxSerialStop, hostSerialConnector, &HostSerialConnector::serialStop);
+  connect(hostSerialConnector, &HostSerialConnector::backendError, this,
+          [this](int index, const QString & message) {
+            QMessageBox::warning(this, tr("Host Serial Error"),
+                                 tr("AUX%1: %2").arg(index + 1).arg(message),
+                                 QMessageBox::Cancel, QMessageBox::Cancel);
+          });
   connect(m_simulator, &SimulatorInterface::txBatteryVoltageChanged, this, &SimulatorMainWindow::onTxBatteryVoltageChanged);
 }
 

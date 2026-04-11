@@ -23,11 +23,17 @@
 
 #include "simulatorinterface.h"
 
-#include <QSerialPort>
 #include <QMutex>
+
+class HostSerialBackend;
 
 #define MAX_HOST_SERIAL 2
 
+// Owns one HostSerialBackend per simulator aux serial port and
+// shuttles bytes between the simulator and whichever transport the
+// user picked (real serial port, local socket, ...). Per-port
+// encoding / baudrate state is cached here so it survives backend
+// swaps and reconnects.
 class HostSerialConnector : public QObject
 {
     Q_OBJECT
@@ -46,11 +52,18 @@ class HostSerialConnector : public QObject
     void serialStart(const quint8 index);
     void serialStop(const quint8 index);
 
- private:
+  signals:
+    // Surfaced to the UI layer (e.g. SimulatorMainWindow) so it can
+    // show the user a message box. Index identifies the aux port.
+    void backendError(int index, const QString & message);
+
+  private:
+    void setBackend(int index, HostSerialBackend * backend);
+
     SimulatorInterface * simulator;
 
     QRecursiveMutex hostAuxPortsMutex;
-    QSerialPort * hostAuxPorts[MAX_HOST_SERIAL];
+    HostSerialBackend * hostAuxBackends[MAX_HOST_SERIAL];
     quint8 hostAuxPortsEncoding[MAX_HOST_SERIAL];
     quint32 hostAuxPortsBaudRate[MAX_HOST_SERIAL];
     bool hostAuxPortsOpen[MAX_HOST_SERIAL];
