@@ -160,7 +160,7 @@ void writeHeader()
 #endif
 
   char label[TELEM_LABEL_LEN+7];
-  for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+  for (int i=0; i<(int)getSensorCount(); i++) {
     if (isTelemetryFieldAvailable(i)) {
       TelemetrySensor & sensor = *sensorAddress(i);
       if (sensor.logs) {
@@ -277,7 +277,7 @@ void logsWrite()
       f_printf(&g_oLogFile, "%d,", tmr10ms);
 #endif
 
-      for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+      for (int i=0; i<(int)getSensorCount(); i++) {
         if (isTelemetryFieldAvailable(i)) {
           TelemetrySensor & sensor = *sensorAddress(i);
           TelemetryItem telemetryItem;

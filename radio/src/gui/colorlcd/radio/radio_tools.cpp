@@ -167,7 +167,7 @@ void getLuaToolNames(std::vector<std::string>& nameList)
 
 static bool isModelGPSSensorPresent()
 {
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+  for (int i = 0; i < (int)getSensorCount(); i++) {
     if (isGPSSensor(i+1)) return true;
   }
   return false;

@@ -57,14 +57,29 @@ uint8_t SENSOR_ROW(uint8_t value)
 #define TELEM_COL2                    (16*FW)
 #define TELEM_COL3                    (30*FW+2)
 
-#define RSSI_ROWS                     LABEL(RSSI), 0, 0, 0,
-#define SENSOR_ROWS(x)                SENSOR_ROW((isTelemetryFieldAvailable(x) ? (uint8_t)0 : HIDDEN_ROW))
-#define SENSORS_ROWS                  0, SENSOR_ROWS(0), SENSOR_ROWS(1), SENSOR_ROWS(2), SENSOR_ROWS(3), SENSOR_ROWS(4), SENSOR_ROWS(5), SENSOR_ROWS(6), SENSOR_ROWS(7), SENSOR_ROWS(8), SENSOR_ROWS(9), SENSOR_ROWS(10), SENSOR_ROWS(11), SENSOR_ROWS(12), SENSOR_ROWS(13), SENSOR_ROWS(14), SENSOR_ROWS(15), SENSOR_ROWS(16), SENSOR_ROWS(17), SENSOR_ROWS(18), SENSOR_ROWS(19), SENSOR_ROWS(20), SENSOR_ROWS(21), SENSOR_ROWS(22), SENSOR_ROWS(23), SENSOR_ROWS(24), SENSOR_ROWS(25), SENSOR_ROWS(26), SENSOR_ROWS(27), SENSOR_ROWS(28), SENSOR_ROWS(29), SENSOR_ROWS(30), SENSOR_ROWS(31), SENSOR_ROWS(32), SENSOR_ROWS(33), SENSOR_ROWS(34), SENSOR_ROWS(35), SENSOR_ROWS(36), SENSOR_ROWS(37), SENSOR_ROWS(38), SENSOR_ROWS(39), SENSOR_ROWS(40), SENSOR_ROWS(41), SENSOR_ROWS(42), SENSOR_ROWS(43), SENSOR_ROWS(44), SENSOR_ROWS(45), SENSOR_ROWS(46), SENSOR_ROWS(47), SENSOR_ROWS(48), SENSOR_ROWS(49), SENSOR_ROWS(50), SENSOR_ROWS(51), SENSOR_ROWS(52), SENSOR_ROWS(53), SENSOR_ROWS(54), SENSOR_ROWS(55), SENSOR_ROWS(56), SENSOR_ROWS(57), SENSOR_ROWS(58), SENSOR_ROWS(59), 0, 0, 0,
+static void _init_menu_tab_array(uint8_t* tab, size_t len)
+{
+  memset((void*)tab, HIDDEN_ROW, sizeof(MENU_TAB_ARRAY_TYPE) * len);
+  tab += HEADER_LINE;
+
+  tab[ITEM_TELEMETRY_SENSORS_LABEL] = 0;
+  for (int i = 0; i < (int)getSensorCount(); i++)
+    tab[ITEM_TELEMETRY_SENSOR_FIRST + i] =
+        SENSOR_ROW(isTelemetryFieldAvailable(i) ? (uint8_t)0 : HIDDEN_ROW);
+  tab[ITEM_TELEMETRY_NEW_SENSOR] = 0;
+  tab[ITEM_TELEMETRY_DELETE_ALL_SENSORS] = 0;
+  tab[ITEM_TELEMETRY_IGNORE_SENSOR_INSTANCE] = 0;
+  tab[ITEM_TELEMETRY_RSSI_LABEL] = READONLY_ROW;
+  tab[ITEM_TELEMETRY_RSSI_ALARM1] = 0;
+  tab[ITEM_TELEMETRY_RSSI_ALARM2] = 0;
+  tab[ITEM_TELEMETRY_DISABLE_ALARMS] = 0;
 #if defined(VARIO)
-  #define VARIO_ROWS                  LABEL(Vario), 0, 1, 2,
-#else
-  #define VARIO_ROWS
+  tab[ITEM_TELEMETRY_VARIO_LABEL] = READONLY_ROW;
+  tab[ITEM_TELEMETRY_VARIO_SOURCE] = 0;
+  tab[ITEM_TELEMETRY_VARIO_RANGE] = 1;
+  tab[ITEM_TELEMETRY_VARIO_CENTER] = 2;
 #endif
+}
 
 void onSensorMenu(const char * result)
 {
@@ -103,27 +118,19 @@ void onSensorMenu(const char * result)
 void onDeleteAllSensorsConfirm(const char * result)
 {
   if (result == STR_OK) {
-    for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+    for (int i=0; i<(int)getSensorCount(); i++) {
       delTelemetryIndex(i);
     }
   }
 }
 
-uint8_t getTelemetrySensorCount()
-{
-  uint8_t count = 0;
-
-  for (uint8_t index = 0; index <= MAX_TELEMETRY_SENSORS; index++) {
-    if (isTelemetryFieldAvailable(index)) {
-      count++;
-    }
-  }
-  return count;
-}
 
 void menuModelTelemetry(event_t event)
 {
-  MENU(STR_MENUTELEMETRY, menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE+ITEM_TELEMETRY_MAX, { HEADER_LINE_COLUMNS SENSORS_ROWS RSSI_ROWS VARIO_ROWS });
+  uint8_t MENU_TAB_ARRAY_NAME[HEADER_LINE + ITEM_TELEMETRY_MAX];
+  _init_menu_tab_array(MENU_TAB_ARRAY_NAME, HEADER_LINE + ITEM_TELEMETRY_MAX);
+  MENU_CHECK(menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE + ITEM_TELEMETRY_MAX);
+  title(STR_MENUTELEMETRY);
 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
 
@@ -184,7 +191,7 @@ void menuModelTelemetry(event_t event)
       case ITEM_TELEMETRY_SENSORS_LABEL:
       {
         telemExpandState.sensors = expandableSection(y, STR_TELEMETRY_SENSORS, telemExpandState.sensors, attr, event);
-        uint8_t sensorCount = getTelemetrySensorCount();
+        uint8_t sensorCount = getTelemetrySensorsCount();
         if (sensorCount && !telemExpandState.sensors) {
           lcdDrawChar(TELEM_COL3, y, '(', 0);
           lcdDrawNumber(lcdNextPos, y, sensorCount, 0);

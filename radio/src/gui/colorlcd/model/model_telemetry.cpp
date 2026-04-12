@@ -780,7 +780,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
 
   sensorWindow->clear();
 
-  for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
+  for (uint8_t idx = 0; idx < (uint8_t)getSensorCount(); idx++) {
     if (sensorAddress(idx)->isAvailable()) {
       auto button = new SensorButton(sensorWindow, rect_t{}, idx);
 
@@ -806,7 +806,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
         });
         menu->addLine(STR_DELETE, [=]() {
           delTelemetryIndex(idx);  // calls setDirty internally
-          for (uint8_t i = idx + 1; i < MAX_TELEMETRY_SENSORS; i += 1) {
+          for (uint8_t i = idx + 1; i < (uint8_t)getSensorCount(); i += 1) {
             if (sensorAddress(i)->isAvailable()) {
               buildSensorList(i);
               return;
@@ -876,7 +876,7 @@ void ModelTelemetryPage::build(Window* window)
       new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS, [=]() -> uint8_t {
         new ConfirmDialog(STR_DELETE_ALL_SENSORS, STR_CONFIRMDELETE,
                           [=]() {
-                            for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+                            for (int i = 0; i < (int)getSensorCount(); i++) {
                               delTelemetryIndex(i);
                             }
                           });

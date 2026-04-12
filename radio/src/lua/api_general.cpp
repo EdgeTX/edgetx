@@ -510,7 +510,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
 
   // search in telemetry
   field.desc[0] = '\0';
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+  for (int i = 0; i < (int)getSensorCount(); i++) {
     if (isTelemetryFieldAvailable(i)) {
       const char* sensorName = sensorAddress(i)->label;
       int len = strnlen(sensorName, TELEM_LABEL_LEN);
@@ -1014,7 +1014,7 @@ static int luaSportTelemetryPush(lua_State * L)
   uint16_t dataId = luaL_checkinteger(L, 3);
 
   if (outputTelemetryBuffer.isAvailable()) {
-    for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+    for (uint8_t i=0; i<(uint8_t)getSensorCount(); i++) {
       TelemetrySensor & sensor = *sensorAddress(i);
       if (sensor.id == dataId) {
         if (sensor.frskyInstance.rxIndex == TELEMETRY_ENDPOINT_SPORT) {
@@ -1091,7 +1091,7 @@ When called without parameters, it will only return the status of the output buf
 
 bool getDefaultAccessDestination(uint8_t & destination)
 {
-  for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+  for (uint8_t i=0; i<(uint8_t)getSensorCount(); i++) {
     TelemetrySensor & sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CUSTOM) {
       TelemetryItem sensorItem = telemetryItems[i];

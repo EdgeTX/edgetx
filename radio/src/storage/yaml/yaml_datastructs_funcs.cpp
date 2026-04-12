@@ -1833,7 +1833,7 @@ static bool parseSensorIdentity(const char* val, uint8_t val_len,
 // Find sensor slot by identity (protocol, id, subId). Returns 0-based index or -1.
 static int findSensorByIdentity(TelemetryProtocol protocol, uint16_t id, uint8_t subId)
 {
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+  for (int i = 0; i < (int)getSensorCount(); i++) {
     const TelemetrySensor& s = *sensorAddress(i);
     if (s.protocol == protocol && s.id == id && s.subId == subId)
       return i;

@@ -55,7 +55,7 @@ void RadioGpsTool::buildBody(Window* window)
 void RadioGpsTool::init()
 {
   gpsSensorID = -1;
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+  for (int i = 0; i < (int)getSensorCount(); i++) {
     if (isGPSSensor(i+1)) {
       gpsSensorID = i;
       return;

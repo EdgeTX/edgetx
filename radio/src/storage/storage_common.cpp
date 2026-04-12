@@ -278,7 +278,7 @@ if(g_model.rssiSource) {
 
   sensorPreallocate();
 
-  for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+  for (int i=0; i<(int)getSensorCount(); i++) {
     TelemetrySensor & sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CALCULATED && sensor.persistent) {
       telemetryItems[i].value = sensor.persistentValue;
@@ -321,7 +321,7 @@ void storageFlushCurrentModel()
 {
   saveTimers();
 
-  for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+  for (int i=0; i<(int)getSensorCount(); i++) {
     TelemetrySensor & sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CALCULATED && sensor.persistent && sensor.persistentValue != telemetryItems[i].value) {
       sensor.persistentValue = telemetryItems[i].value;

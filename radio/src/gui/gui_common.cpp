@@ -121,9 +121,8 @@ bool isTelemetryFieldAvailable(int index)
 uint8_t getTelemetrySensorsCount()
 {
   uint8_t count = 0;
-  for (int _i = 0; _i < MAX_TELEMETRY_SENSORS; _i++) {
-    TelemetrySensor telemetrySensor = *sensorAddress(_i);
-    if (telemetrySensor.isAvailable()) {
+  for (int i = 0; i < (int)getSensorCount(); i++) {
+    if (sensorAddress(i)->isAvailable()) {
       ++count;
     }
   }
