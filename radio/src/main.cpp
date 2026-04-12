@@ -518,6 +518,11 @@ void initLoggingTimer();
 
 void perMain()
 {
+  // Drain deferred sensor allocations from the telemetry timer
+  if (pendingSensorsAvailable()) {
+    drainPendingSensors();
+  }
+
   DEBUG_TIMER_START(debugTimerPerMain1);
 
   checkSpeakerVolume();

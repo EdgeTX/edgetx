@@ -228,3 +228,21 @@ extern Arena g_radioArena;
 
 void modelArenaInit();
 void radioArenaInit();
+
+// Structural lock: protects the model arena memory layout against
+// concurrent access from lower-priority tasks (e.g. telemetry timer).
+//
+// - UI task: modelArenaLock() before mutations (always uncontended
+//   on HW because the timer finishes before the UI can run).
+// - Timer task: modelArenaTryLock() at callback entry; skip if locked.
+// - Mixer task: does not interact with this lock (excluded via
+//   mixerTaskStop/Start which is orthogonal).
+void modelArenaLock();
+void modelArenaUnlock();
+bool modelArenaTryLock();
+
+// Acquire exclusive access to the model arena for structural mutations
+// (insert/delete/grow).  Excludes both the mixer task (via mixerTaskStop)
+// and the telemetry timer (via arena lock / tryLock).
+void arenaEditBegin();
+void arenaEditEnd();

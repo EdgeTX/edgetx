@@ -53,10 +53,10 @@ constexpr SourceTypeMask insertMixMask =
 
 void insertMix(uint8_t idx, uint8_t channel)
 {
-  mixerTaskStop();
+  arenaEditBegin();
 
   if (!g_modelArena.insertInSection(ARENA_MIXES, idx, sizeof(MixData))) {
-    mixerTaskStart();
+    arenaEditEnd();
     return;
   }
 
@@ -64,7 +64,7 @@ void insertMix(uint8_t idx, uint8_t channel)
   mix->destCh = channel;
   mix->srcRaw = nthAvailableSource(channel, insertMixMask);
   mix->weight.setNumeric(100);
-  mixerTaskStart();
+  arenaEditEnd();
 
   // Update slow up/down array
   memmove(&act[idx + 1], &act[idx], (getMixCount() - idx) * sizeof(int32_t));
@@ -76,7 +76,7 @@ void insertMix(uint8_t idx, uint8_t channel)
 
 void deleteMix(uint8_t idx)
 {
-  mixerTaskStop();
+  arenaEditBegin();
 
   // Update slow up/down array (before section delete changes addresses)
   uint8_t count = getMixCount();
@@ -84,7 +84,7 @@ void deleteMix(uint8_t idx)
   act[count - 1] = 0;
 
   g_modelArena.deleteFromSection(ARENA_MIXES, idx, sizeof(MixData));
-  mixerTaskStart();
+  arenaEditEnd();
 
   _nb_mix_lines -= 1;
   storageDirty(EE_MODEL);
@@ -92,19 +92,19 @@ void deleteMix(uint8_t idx)
 
 void copyMix(uint8_t src, uint8_t dst, uint8_t channel)
 {
-  mixerTaskStop();
+  arenaEditBegin();
   MixData sourceMix;
   memcpy(&sourceMix, mixAddress(src), sizeof(MixData));
 
   if (!g_modelArena.insertInSection(ARENA_MIXES, dst, sizeof(MixData))) {
-    mixerTaskStart();
+    arenaEditEnd();
     return;
   }
 
   MixData* mix = mixAddress(dst);
   memcpy(mix, &sourceMix, sizeof(MixData));
   mix->destCh = channel;
-  mixerTaskStart();
+  arenaEditEnd();
 
   _nb_mix_lines += 1;
   storageDirty(EE_MODEL);
@@ -160,9 +160,9 @@ uint8_t moveMix(uint8_t idx, bool up)
     return idx;
   }
 
-  mixerTaskStop();
+  arenaEditBegin();
   memswap(x, y, sizeof(MixData));
-  mixerTaskStart();
+  arenaEditEnd();
 
   storageDirty(EE_MODEL);
   return tgt_idx;

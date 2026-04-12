@@ -22,6 +22,7 @@
 #include "model_arena.h"
 #include "dataconstants.h"
 #include "datastructs_private.h"
+#include "tasks/mixer_task.h"
 
 #include <stdlib.h>
 
@@ -337,6 +338,12 @@ uint16_t Arena::trimSectionTo(uint8_t section, uint16_t newCount)
 }
 
 // ---------------------------------------------------------------------------
+// Model arena structural lock
+// ---------------------------------------------------------------------------
+
+static mutex_handle_t modelArenaLockMutex;
+
+// ---------------------------------------------------------------------------
 // Init functions
 // ---------------------------------------------------------------------------
 
@@ -362,6 +369,8 @@ static void arenaInit(Arena& arena, const ArenaDesc* desc,
 
 void modelArenaInit()
 {
+  mutex_create(&modelArenaLockMutex);
+
 #if !ARENA_HEAP_GROWABLE
   arenaInit(g_modelArena, &modelArenaDesc, g_modelArenaBuf,
             MODEL_ARENA_INITIAL_SIZE, MODEL_ARENA_MAX_SIZE);
@@ -380,4 +389,39 @@ void radioArenaInit()
   arenaInit(g_radioArena, &radioArenaDesc, nullptr,
             RADIO_ARENA_INITIAL_SIZE, RADIO_ARENA_MAX_SIZE);
 #endif
+}
+
+void modelArenaLock()
+{
+  mutex_lock(&modelArenaLockMutex);
+}
+
+void modelArenaUnlock()
+{
+  mutex_unlock(&modelArenaLockMutex);
+}
+
+bool modelArenaTryLock()
+{
+  return mutex_trylock(&modelArenaLockMutex);
+}
+
+// ---------------------------------------------------------------------------
+// Arena edit helpers
+// ---------------------------------------------------------------------------
+//
+// Acquire exclusive access to the model arena for structural mutations.
+// The arena lock excludes the telemetry timer (which try-locks and skips
+// when the arena is locked).  mixerTaskStop() excludes the mixer task.
+
+void arenaEditBegin()
+{
+  modelArenaLock();
+  mixerTaskStop();
+}
+
+void arenaEditEnd()
+{
+  mixerTaskStart();
+  modelArenaUnlock();
 }

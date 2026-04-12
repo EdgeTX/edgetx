@@ -53,10 +53,10 @@ constexpr SourceTypeMask insertExpoMask =
 
 void insertExpo(uint8_t idx, uint8_t input)
 {
-  mixerTaskStop();
+  arenaEditBegin();
 
   if (!g_modelArena.insertInSection(ARENA_EXPOS, idx, sizeof(ExpoData))) {
-    mixerTaskStart();
+    arenaEditEnd();
     return;
   }
 
@@ -70,7 +70,7 @@ void insertExpo(uint8_t idx, uint8_t input)
   expo->mode = 3;  // pos+neg
   expo->chn = input;
   expo->weight.setNumeric(100);
-  mixerTaskStart();
+  arenaEditEnd();
 
   _nb_expo_lines += 1;
   storageDirty(EE_MODEL);
@@ -78,7 +78,7 @@ void insertExpo(uint8_t idx, uint8_t input)
 
 void deleteExpo(uint8_t idx)
 {
-  mixerTaskStop();
+  arenaEditBegin();
   int input = expoAddress(idx)->chn;
 
   g_modelArena.deleteFromSection(ARENA_EXPOS, idx, sizeof(ExpoData));
@@ -86,7 +86,7 @@ void deleteExpo(uint8_t idx)
   if (!isInputAvailable(input)) {
     inputNameClear(input);
   }
-  mixerTaskStart();
+  arenaEditEnd();
 
   _nb_expo_lines -= 1;
   storageDirty(EE_MODEL);
@@ -94,19 +94,19 @@ void deleteExpo(uint8_t idx)
 
 void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
 {
-  mixerTaskStop();
+  arenaEditBegin();
   ExpoData sourceExpo;
   memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
 
   if (!g_modelArena.insertInSection(ARENA_EXPOS, dest, sizeof(ExpoData))) {
-    mixerTaskStart();
+    arenaEditEnd();
     return;
   }
 
   ExpoData* expo = expoAddress(dest);
   memcpy(expo, &sourceExpo, sizeof(ExpoData));
   expo->chn = input;
-  mixerTaskStart();
+  arenaEditEnd();
 
   _nb_expo_lines += 1;
   storageDirty(EE_MODEL);
@@ -154,9 +154,9 @@ uint8_t moveExpo(uint8_t idx, bool up)
     return idx;
   }
 
-  mixerTaskStop();
+  arenaEditBegin();
   memswap(x, y, sizeof(ExpoData));
-  mixerTaskStart();
+  arenaEditEnd();
 
   storageDirty(EE_MODEL);
   return tgt_idx;

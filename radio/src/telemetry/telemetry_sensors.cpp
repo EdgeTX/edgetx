@@ -54,6 +54,29 @@
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 bool allowNewSensors;
 
+// --- Pending sensor ring buffer ---
+
+struct PendingSensor {
+  uint8_t  protocol;    // TelemetryProtocol
+  uint16_t id;
+  uint8_t  subId;
+  uint8_t  instance;
+  int32_t  value;
+  uint32_t unit;
+  uint32_t prec;
+};
+
+static constexpr uint8_t PENDING_SENSOR_RING_SIZE = 8;
+
+static PendingSensor pendingSensorRing[PENDING_SENSOR_RING_SIZE];
+static volatile uint8_t pendingSensorHead;
+static volatile uint8_t pendingSensorTail;
+
+bool pendingSensorsAvailable()
+{
+  return pendingSensorHead != pendingSensorTail;
+}
+
 // --- Sensor array accessors (arena-backed) ---
 
 #include "model_arena.h"
@@ -90,6 +113,17 @@ static bool sensorIsEmpty(const uint8_t* ptr)
 void sensorTrimTrailing()
 {
   g_modelArena.trimTrailingEmpty(ARENA_TELEM_SENSORS, sensorIsEmpty);
+}
+
+static constexpr uint16_t DEFAULT_SENSOR_SLOTS = 32;
+
+void sensorPreallocate()
+{
+  uint16_t current = getSensorCount();
+  uint16_t target = current > DEFAULT_SENSOR_SLOTS ? current : DEFAULT_SENSOR_SLOTS;
+  if (target > MAX_TELEMETRY_SENSORS)
+    target = MAX_TELEMETRY_SENSORS;
+  g_modelArena.ensureSectionCapacity(ARENA_TELEM_SENSORS, target);
 }
 
 // --- Protocol short-name table for YAML identity references ---
@@ -774,6 +808,36 @@ static bool initSensorFromProtocol(TelemetryProtocol protocol, int index,
   return true;
 }
 
+// --- Pending sensor drain ---
+//
+void drainPendingSensors()
+{
+  arenaEditBegin();
+
+  while (pendingSensorTail != pendingSensorHead) {
+    auto& p = pendingSensorRing[pendingSensorTail & (PENDING_SENSOR_RING_SIZE - 1)];
+
+    int index = availableTelemetryIndex();
+    if (index < 0) break;  // all slots occupied
+
+    TelemetrySensor* ts = sensorAllocAt(index);
+    if (!ts) break;  // arena growth failed
+
+    if (sensorMap.ready) sensorMap.remove(index);
+
+    auto protocol = (TelemetryProtocol)p.protocol;
+    if (initSensorFromProtocol(protocol, index, p.id, p.subId, p.instance)) {
+      if (sensorMap.ready) sensorMap.insert(index);
+    } else {
+      if (sensorMap.ready) sensorMap.insert(index);
+    }
+
+    pendingSensorTail = (pendingSensorTail + 1) & (PENDING_SENSOR_RING_SIZE - 1);
+  }
+
+  arenaEditEnd();
+}
+
 template <class T>
 int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
                       uint8_t instance, T value, uint32_t unit = 0,
@@ -832,19 +896,15 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     return ghostIndex;
   }
 
-  if (!allowNewSensors) {
-    return -1;
-  }
-
+  // Try to allocate a new sensor slot within the pre-allocated arena region.
+  // If the slot is within the current section count, no arena growth is needed.
   int index = availableTelemetryIndex();
-  if (index >= 0) {
-    // Remove stale map entry if this slot was a ghost for a different sensor
+  if (index >= 0 && (uint16_t)index < getSensorCount()) {
+    // Slot is within existing capacity — safe to use from timer context
     if (sensorMap.ready) sensorMap.remove(index);
 
 #if defined(LUA)
     if (protocol == PROTOCOL_TELEMETRY_LUA) {
-      // Sensor will be initialized by calling function
-      // This drops the first value
       sensorAddress(index)->protocol = PROTOCOL_TELEMETRY_LUA;
       if (sensorMap.ready) sensorMap.insert(index);
       return index;
@@ -855,19 +915,28 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
       if (sensorMap.ready) sensorMap.insert(index);
       telemetryItems[index].setValue(*sensorAddress(index), value, unit, prec);
     } else {
-      // Unknown protocol: caller must initialize
       if (sensorMap.ready) sensorMap.insert(index);
     }
     return index;
   }
-  else {
-    allowNewSensors = false;
-#if !defined(COLORLCD)
-    // Not safe on color LCD - handled in telemetry page instead
-    POPUP_WARNING(STR_TELEMETRYFULL);
-#endif
-    return -1;
+
+  // No free slot within current capacity — defer to pending ring buffer.
+  // The UI task will drain this and grow the arena safely.
+  // Only the identity is needed to create the slot; the first value is
+  // dropped (next telemetry update will populate it).
+  uint8_t next = (pendingSensorHead + 1) & (PENDING_SENSOR_RING_SIZE - 1);
+  if (next != pendingSensorTail) {
+    auto& p = pendingSensorRing[pendingSensorHead & (PENDING_SENSOR_RING_SIZE - 1)];
+    p.protocol = protocol;
+    p.id = id;
+    p.subId = subId;
+    p.instance = instance;
+    p.value = 0;
+    p.unit = unit;
+    p.prec = prec;
+    pendingSensorHead = next;
   }
+  return -1;
 }
 
 int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, uint8_t instance, int32_t value, uint32_t unit, uint32_t prec)

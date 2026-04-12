@@ -21,6 +21,7 @@
 
 #include "edgetx.h"
 #include "multi.h"
+#include "model_arena.h"
 #include "os/async.h"
 #include "os/timer.h"
 #include "pulses/afhds3.h"
@@ -210,16 +211,25 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
   _poll_frame_queued[module] = false;
 
   auto mod = pulsesGetModuleDriver(module);
-  if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
+  if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv)) {
+    _telemetryIsPolling = false;
     return;
+  }
 
   auto ctx = mod->ctx;
   auto mod_st = (etx_module_state_t*)ctx;
   auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
   auto serial_ctx = modulePortGetCtx(mod_st->rx);
 
-  if (!serial_drv || !serial_ctx || !serial_drv->copyRxBuffer)
+  if (!serial_drv || !serial_ctx || !serial_drv->copyRxBuffer) {
+    _telemetryIsPolling = false;
     return;
+  }
+
+  if (!modelArenaTryLock()) {
+    _telemetryIsPolling = false;
+    return;
+  }
 
   uint8_t frame[TELEMETRY_RX_PACKET_SIZE];
 
@@ -238,6 +248,7 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
   }
 
   _telemetryIsPolling = false;
+  modelArenaUnlock();
 }
 
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
@@ -288,6 +299,8 @@ static inline void pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, 
 
 void telemetryWakeup()
 {
+  if (!modelArenaTryLock()) return;
+
   _telemetryIsPolling = true;
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
     auto mod = pulsesGetModuleDriver(i);
@@ -296,7 +309,7 @@ void telemetryWakeup()
   }
   _telemetryIsPolling = false;
 
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+  for (int i = 0; i < (int)getSensorCount(); i++) {
     const TelemetrySensor& sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CALCULATED) {
       telemetryItems[i].eval(sensor);
@@ -316,7 +329,7 @@ void telemetryWakeup()
     SCHEDULE_NEXT_ALARMS_CHECK(1 /*second*/);
 
     bool sensorLost = false;
-    for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    for (int i = 0; i < (int)getSensorCount(); i++) {
       if (isTelemetryFieldAvailable(i)) {
         TelemetryItem& item = telemetryItems[i];
         if (item.timeout == 0) {
@@ -383,13 +396,19 @@ void telemetryWakeup()
       }
     }
   }
+
+  modelArenaUnlock();
 }
 
 void telemetryInterrupt10ms()
 {
   if (telemetryStreaming > 0) {
+    if (!modelArenaTryLock()) {
+      telemetryStreaming--;
+      return;
+    }
     bool tick160ms = (telemetryStreaming & 0x0F) == 0;
-    for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+    for (int i = 0; i < (int)getSensorCount(); i++) {
       const TelemetrySensor & sensor = *sensorAddress(i);
       if (sensor.type == TELEM_TYPE_CALCULATED) {
         telemetryItems[i].per10ms(sensor);
@@ -399,6 +418,7 @@ void telemetryInterrupt10ms()
       }
     }
     telemetryStreaming--;
+    modelArenaUnlock();
   }
   else {
 #if !defined(SIMU)

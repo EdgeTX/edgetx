@@ -139,6 +139,10 @@ TelemetrySensor* sensorAllocAt(uint8_t idx);
 uint16_t getSensorCount();
 void sensorTrimTrailing();
 
+// Pre-allocate sensor slots so the telemetry timer can create new
+// sensors without triggering arena growth.  Called from postModelLoad.
+void sensorPreallocate();
+
 // Protocol short-name helpers for YAML identity references
 const char* telemetryProtocolShortName(TelemetryProtocol proto);
 TelemetryProtocol telemetryProtocolFromShortName(const char* name, uint8_t len);
@@ -182,3 +186,16 @@ struct SensorMap {
 };
 
 extern SensorMap sensorMap;
+
+// --- Pending sensor ring buffer ---
+//
+// When setTelemetryValue() encounters a new sensor but all pre-allocated
+// slots are in use, it pushes the sensor identity into this small ring
+// buffer instead of growing the arena (which is unsafe from timer context).
+// The UI task drains the ring periodically.
+
+bool pendingSensorsAvailable();
+
+// Drain all pending sensors into the arena.  Acquires arenaEditBegin/End
+// internally to exclude the mixer and telemetry timer during growth.
+void drainPendingSensors();
