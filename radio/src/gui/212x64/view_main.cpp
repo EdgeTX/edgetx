@@ -285,8 +285,8 @@ void displayTopBar()
         TelemetryItem & altitudeItem = telemetryItems[item];
         if (altitudeItem.isAvailable()) {
           LCD_ICON(altitude_icon_x, BAR_Y, ICON_ALTITUDE);
-          int32_t value = altitudeItem.value / g_model.telemetrySensors[item].getPrecDivisor();
-          drawValueWithUnit(altitude_icon_x+2*FW-1, BAR_Y+1, value, g_model.telemetrySensors[item].unit, LEFT);
+          int32_t value = altitudeItem.value / sensorAddress(item)->getPrecDivisor();
+          drawValueWithUnit(altitude_icon_x+2*FW-1, BAR_Y+1, value, sensorAddress(item)->unit, LEFT);
         }
       }
     }

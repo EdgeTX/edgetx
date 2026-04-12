@@ -40,6 +40,7 @@ static const uint8_t modelElemSizes[MODEL_ARENA_NUM_SECTIONS] = {
   sizeof(GVarData),
   sizeof(gvar_t),
   LEN_INPUT_NAME,
+  sizeof(TelemetrySensor),
 };
 
 const ArenaDesc modelArenaDesc = { MODEL_ARENA_NUM_SECTIONS, modelElemSizes };

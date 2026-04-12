@@ -421,7 +421,9 @@ void processHitecTelemetryData(uint8_t data, uint8_t * rxBuffer, uint8_t &rxBuff
 
 void hitecSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
 {
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor &telemetrySensor = *ts;
   telemetrySensor.id = id;
   telemetrySensor.subId = subId;
   telemetrySensor.instance = instance;
@@ -441,4 +443,14 @@ void hitecSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   }
 
   storageDirty(EE_MODEL);
+}
+
+bool hitecGetCatalogEntry(uint16_t id, CatalogEntry& out)
+{
+  const HitecSensor* sensor = getHitecSensor(id);
+  if (!sensor) return false;
+  out.label = STR_VAL(sensor->name);
+  out.unit = sensor->unit;
+  out.prec = min<uint8_t>(2, sensor->precision);
+  return true;
 }

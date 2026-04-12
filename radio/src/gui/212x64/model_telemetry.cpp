@@ -86,8 +86,8 @@ void onSensorMenu(const char * result)
     else if (result == STR_COPY) {
       int newIndex = availableTelemetryIndex();
       if (newIndex >= 0) {
-        TelemetrySensor & sourceSensor = g_model.telemetrySensors[index];
-        TelemetrySensor & newSensor = g_model.telemetrySensors[newIndex];
+        TelemetrySensor & sourceSensor = *sensorAddress(index);
+        TelemetrySensor & newSensor = *sensorAllocAt(newIndex);
         newSensor = sourceSensor;
         TelemetryItem & sourceItem = telemetryItems[index];
         TelemetryItem & newItem = telemetryItems[newIndex];
@@ -147,7 +147,7 @@ void menuModelTelemetry(event_t event)
       int index = k - ITEM_TELEMETRY_SENSOR_FIRST;
       lcdDrawNumber(INDENT_WIDTH, y, index+1, LEFT|attr);
       lcdDrawChar(lcdLastRightPos, y, ':', attr);
-      lcdDrawSizedText(3*FW, y, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
+      lcdDrawSizedText(3*FW, y, sensorAddress(index)->label, TELEM_LABEL_LEN);
       if (telemetryItems[index].isFresh()) {
         lcdDrawChar(10*FW, y, '*');
       }
@@ -164,7 +164,7 @@ void menuModelTelemetry(event_t event)
       else {
         lcdDrawText(TELEM_COL2, y, "---", 0); // TODO shortcut
       }
-      TelemetrySensor * sensor = & g_model.telemetrySensors[index];
+      TelemetrySensor * sensor = sensorAddress(index);
       if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
         lcdDrawNumber(TELEM_COL3, y, sensor->instance, LEFT);
       }

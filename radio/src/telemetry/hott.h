@@ -22,6 +22,8 @@
 #pragma once
 
 void hottSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+struct CatalogEntry;
+bool hottGetCatalogEntry(uint16_t id, CatalogEntry& out);
 
 // Used by multi protocol
 void processHottPacket(const uint8_t * packet);

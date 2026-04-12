@@ -162,7 +162,7 @@ void writeHeader()
   char label[TELEM_LABEL_LEN+7];
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     if (isTelemetryFieldAvailable(i)) {
-      TelemetrySensor & sensor = g_model.telemetrySensors[i];
+      TelemetrySensor & sensor = *sensorAddress(i);
       if (sensor.logs) {
         memset(label, 0, sizeof(label));
         strncpy(label, sensor.label, TELEM_LABEL_LEN);
@@ -279,7 +279,7 @@ void logsWrite()
 
       for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
         if (isTelemetryFieldAvailable(i)) {
-          TelemetrySensor & sensor = g_model.telemetrySensors[i];
+          TelemetrySensor & sensor = *sensorAddress(i);
           TelemetryItem telemetryItem;
           
           if (sensor.logs) {

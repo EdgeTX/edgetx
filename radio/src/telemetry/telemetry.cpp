@@ -297,7 +297,7 @@ void telemetryWakeup()
   _telemetryIsPolling = false;
 
   for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-    const TelemetrySensor& sensor = g_model.telemetrySensors[i];
+    const TelemetrySensor& sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CALCULATED) {
       telemetryItems[i].eval(sensor);
     }
@@ -320,7 +320,7 @@ void telemetryWakeup()
       if (isTelemetryFieldAvailable(i)) {
         TelemetryItem& item = telemetryItems[i];
         if (item.timeout == 0) {
-          TelemetrySensor* sensor = &g_model.telemetrySensors[i];
+          TelemetrySensor* sensor = sensorAddress(i);
           if (sensor->unit != UNIT_DATETIME) {
             item.setOld();
             sensorLost = true;
@@ -390,7 +390,7 @@ void telemetryInterrupt10ms()
   if (telemetryStreaming > 0) {
     bool tick160ms = (telemetryStreaming & 0x0F) == 0;
     for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-      const TelemetrySensor & sensor = g_model.telemetrySensors[i];
+      const TelemetrySensor & sensor = *sensorAddress(i);
       if (sensor.type == TELEM_TYPE_CALCULATED) {
         telemetryItems[i].per10ms(sensor);
       }

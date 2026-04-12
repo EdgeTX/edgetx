@@ -462,20 +462,20 @@ PACK(struct TelemetrySensor {
       int16_t  offset;
     }) custom);
     NOBACKUP(PACK(struct {
-      uint8_t source;
+      uint8_t source CUST(r_formula_usrc, w_formula_usrc);
       uint8_t index;
       uint16_t spare SKIP;
     }) cell);
     NOBACKUP(PACK(struct {
-      int8_t sources[4];
+      int8_t sources[4] ARRAY(8, struct_formula_src, NULL);
     }) calc);
     NOBACKUP(PACK(struct {
-      uint8_t source;
+      uint8_t source CUST(r_formula_usrc, w_formula_usrc);
       uint8_t spare[3] SKIP;
     }) consumption);
     NOBACKUP(PACK(struct {
-      uint8_t gps;
-      uint8_t alt;
+      uint8_t gps CUST(r_formula_usrc, w_formula_usrc);
+      uint8_t alt CUST(r_formula_usrc, w_formula_usrc);
       uint16_t spare SKIP;
     }) dist);
     uint32_t param;
@@ -849,7 +849,7 @@ PACK(struct ModelData {
   NOBACKUP(potwarnen_t potsWarnEnabled);
   NOBACKUP(int8_t potsWarnPosition[MAX_POTS]);
 
-  NOBACKUP(TelemetrySensor telemetrySensors[MAX_TELEMETRY_SENSORS];)
+  CUST_EXTERN_ARRAY(telemetrySensors, struct_TelemetrySensor, MAX_TELEMETRY_SENSORS, yaml_drv_telem_sensors);
 
   TARANIS_PCBX9E_FIELD(uint8_t toplcdTimer)
 

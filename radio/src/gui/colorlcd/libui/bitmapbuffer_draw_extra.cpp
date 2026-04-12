@@ -212,7 +212,7 @@ void BitmapBuffer::drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor,
   }
 
   TelemetryItem &telemetryItem = telemetryItems[sensor];
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[sensor];
+  TelemetrySensor &telemetrySensor = *sensorAddress(sensor);
 
   if (telemetrySensor.unit == UNIT_DATETIME) {
     drawDate(x, y, telemetryItem, flags);

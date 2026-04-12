@@ -523,7 +523,7 @@ char *getSwitchPositionName(char *dest, const SwitchRef& ref)
       strcpy(s, "Trn");
       break;
     case SWITCH_TYPE_SENSOR:
-      strncpy(s, g_model.telemetrySensors[ref.index].label, TELEM_LABEL_LEN);
+      strncpy(s, sensorAddress(ref.index)->label, TELEM_LABEL_LEN);
       s[TELEM_LABEL_LEN] = '\0';
       break;
     default:
@@ -886,8 +886,8 @@ char *getSourceString(char (&destRef)[L], const SourceRef& ref, bool defaultOnly
     {
       div_t qr = div((uint16_t)idx, 3);
       char* pos = strAppend(dest, CHAR_TELEMETRY, 2);
-      pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
-                      sizeof(g_model.telemetrySensors[qr.quot].label));
+      pos = strAppend(pos, sensorAddress(qr.quot)->label,
+                      sizeof(sensorAddress(qr.quot)->label));
       if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
       *++pos = '\0';
       break;
@@ -1032,7 +1032,7 @@ char *getSensorCustomValueString(char (&dest)[L], uint8_t sensor, int32_t val,
     return dest;
   }
 
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[sensor];
+  TelemetrySensor &telemetrySensor = *sensorAddress(sensor);
 
   size_t len = L - 1;
   // TODO: display TEXT sensors?

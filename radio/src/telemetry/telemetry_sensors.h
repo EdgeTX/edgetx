@@ -133,9 +133,31 @@ extern TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 extern bool allowNewSensors;
 bool isFaiForbidden(source_t idx);
 
+// --- Sensor array accessors (arena-backed) ---
+TelemetrySensor* sensorAddress(uint8_t idx);
+TelemetrySensor* sensorAllocAt(uint8_t idx);
+uint16_t getSensorCount();
+void sensorTrimTrailing();
+
 // Protocol short-name helpers for YAML identity references
 const char* telemetryProtocolShortName(TelemetryProtocol proto);
 TelemetryProtocol telemetryProtocolFromShortName(const char* name, uint8_t len);
+
+// --- Sensor Catalog: compile-time metadata lookup ---
+//
+// Unified interface over per-protocol sensor catalogs.  Returns the
+// catalog-default label, unit and precision for a given identity key.
+
+struct CatalogEntry {
+  const char* label;
+  uint8_t unit;   // TelemetryUnit
+  uint8_t prec;
+};
+
+// Returns true and fills `out` if the sensor is found in the compiled
+// catalog for the given protocol.  Returns false for DIY / unknown IDs.
+bool getCatalogEntry(TelemetryProtocol proto, uint16_t id, uint8_t subId,
+                     CatalogEntry& out);
 
 // --- Sensor Map: O(1) lookup for setTelemetryValue() ---
 //

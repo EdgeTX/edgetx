@@ -315,7 +315,7 @@ void luaGetValueAndPush(lua_State* L, SourceRef ref)
     int subindex = ref.index % 3;
     // telemetry values
     if (TELEMETRY_STREAMING() && telemetryItems[sensorIdx].isAvailable()) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[sensorIdx];
+      TelemetrySensor & telemetrySensor = *sensorAddress(sensorIdx);
       switch (telemetrySensor.unit) {
         case UNIT_GPS:
           luaPushLatLon(L, telemetrySensor, telemetryItems[sensorIdx]);
@@ -512,7 +512,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   field.desc[0] = '\0';
   for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
     if (isTelemetryFieldAvailable(i)) {
-      const char* sensorName = g_model.telemetrySensors[i].label;
+      const char* sensorName = sensorAddress(i)->label;
       int len = strnlen(sensorName, TELEM_LABEL_LEN);
       if (!strncmp(sensorName, name, len)) {
         if (name[len] == '\0') {
@@ -573,7 +573,7 @@ bool luaFindFieldById(uint32_t id, LuaField & field, unsigned int flags)
   if (idRef.type == SOURCE_TYPE_TELEMETRY) {
     int i = idRef.index / 3;
     if (isTelemetryFieldAvailable(i)) {
-      char* s = strAppend(field.name, g_model.telemetrySensors[i].label, TELEM_LABEL_LEN);
+      char* s = strAppend(field.name, sensorAddress(i)->label, TELEM_LABEL_LEN);
       int subindex = idRef.index % 3;
       if (subindex == 1)
         strAppend(s, "-");
@@ -650,7 +650,7 @@ static int luaGetFieldInfo(lua_State * L)
     lua_pushtablestring(L, "desc", field.desc);
     SourceRef fieldRef = SourceRef::fromUint32(field.id);
     if (fieldRef.type == SOURCE_TYPE_TELEMETRY) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[fieldRef.index / 3];
+      TelemetrySensor & telemetrySensor = *sensorAddress(fieldRef.index / 3);
       lua_pushtableinteger(L, "unit", telemetrySensor.unit);
     }
     return 1;
@@ -808,7 +808,7 @@ static int luaGetSourceValue(lua_State * L)
     int subindex = ref.index % 3;
     // telemetry values
     if (telemetryItems[sensorIdx].isAvailable()) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[sensorIdx];
+      TelemetrySensor & telemetrySensor = *sensorAddress(sensorIdx);
       switch (telemetrySensor.unit) {
         case UNIT_GPS:
           luaPushLatLon(L, telemetrySensor, telemetryItems[sensorIdx]);
@@ -1015,7 +1015,7 @@ static int luaSportTelemetryPush(lua_State * L)
 
   if (outputTelemetryBuffer.isAvailable()) {
     for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-      TelemetrySensor & sensor = g_model.telemetrySensors[i];
+      TelemetrySensor & sensor = *sensorAddress(i);
       if (sensor.id == dataId) {
         if (sensor.frskyInstance.rxIndex == TELEMETRY_ENDPOINT_SPORT) {
           SportTelemetryPacket packet;
@@ -1092,7 +1092,7 @@ When called without parameters, it will only return the status of the output buf
 bool getDefaultAccessDestination(uint8_t & destination)
 {
   for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-    TelemetrySensor & sensor = g_model.telemetrySensors[i];
+    TelemetrySensor & sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CUSTOM) {
       TelemetryItem sensorItem = telemetryItems[i];
       if (sensorItem.isFresh()) {
@@ -2038,7 +2038,7 @@ static int luaSetTelemetryValue(lua_State * L)
     int index = setTelemetryValue(PROTOCOL_TELEMETRY_LUA, id, subId, instance,
                                   value, unit, prec);
     if (index >= 0) {
-      TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+      TelemetrySensor &telemetrySensor = *sensorAddress(index);
       telemetrySensor.id = id;
       telemetrySensor.subId = subId;
       telemetrySensor.instance = instance;

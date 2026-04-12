@@ -55,7 +55,7 @@ bool isRssiSensorAvailable(int sensor)
   if (sensor == 0)
     return true;
   else {
-    TelemetrySensor &telemSensor = g_model.telemetrySensors[abs(sensor) - 1];
+    TelemetrySensor &telemSensor = *sensorAddress(abs(sensor) - 1);
     return (telemSensor.isAvailable() && telemSensor.id == RSSI_ID);
   }
 }
@@ -83,7 +83,7 @@ bool isSensorUnit(int sensor, uint8_t unit)
     return true;
   }
   else {
-    return g_model.telemetrySensors[sensor-1].unit == unit;
+    return sensorAddress(sensor-1)->unit == unit;
   }
 }
 
@@ -114,14 +114,15 @@ bool isCurrentSensor(int sensor)
 
 bool isTelemetryFieldAvailable(int index)
 {
-  TelemetrySensor & sensor = g_model.telemetrySensors[index];
+  TelemetrySensor & sensor = *sensorAddress(index);
   return sensor.isAvailable();
 }
 
 uint8_t getTelemetrySensorsCount()
 {
   uint8_t count = 0;
-  for (auto telemetrySensor : g_model.telemetrySensors) {
+  for (int _i = 0; _i < MAX_TELEMETRY_SENSORS; _i++) {
+    TelemetrySensor telemetrySensor = *sensorAddress(_i);
     if (telemetrySensor.isAvailable()) {
       ++count;
     }
@@ -134,7 +135,7 @@ bool isTelemetryFieldComparisonAvailable(int index)
   if (!isTelemetryFieldAvailable(index))
     return false;
 
-  TelemetrySensor & sensor = g_model.telemetrySensors[index];
+  TelemetrySensor & sensor = *sensorAddress(index);
   if (sensor.unit >= UNIT_DATETIME)
     return false;
   return true;
@@ -945,7 +946,7 @@ bool isSourceAvailableInGlobalResetSpecialFunction(int index)
 bool isSourceAvailableInResetSpecialFunction(int index)
 {
   if (index >= FUNC_RESET_PARAM_FIRST_TELEM) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index-FUNC_RESET_PARAM_FIRST_TELEM];
+    TelemetrySensor & telemetrySensor = *sensorAddress(index-FUNC_RESET_PARAM_FIRST_TELEM);
     return telemetrySensor.isAvailable();
   }
   else if (index <= FUNC_RESET_TIMER3) {

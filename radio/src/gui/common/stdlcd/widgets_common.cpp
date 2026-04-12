@@ -238,7 +238,7 @@ static void onSourcePopupSelect(const char* result)
 #endif
   else if (result == STR_MENU_TELEMETRY) {
     for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-      if (g_model.telemetrySensors[i].isAvailable()) {
+      if (sensorAddress(i)->isAvailable()) {
         s_sourcePopupSelection = SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(3 * i));
         break;
       }
@@ -401,7 +401,7 @@ SourceRef checkIncDecSource(event_t event, SourceRef value,
       }
       if ((allowedTypes & SRC_TYPE_BIT(SOURCE_TYPE_TELEMETRY)) && modelTelemetryEnabled()) {
         for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-          if (g_model.telemetrySensors[i].isAvailable()) {
+          if (sensorAddress(i)->isAvailable()) {
             POPUP_MENU_ADD_ITEM(STR_MENU_TELEMETRY);
             break;
           }

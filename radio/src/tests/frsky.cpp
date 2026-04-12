@@ -361,11 +361,11 @@ TEST(FrSkySPORT, frskySetCellVoltageTwoSensors)
   EXPECT_EQ(telemetryItems[1].valueMin, 1635);
   EXPECT_EQ(telemetryItems[1].valueMax, 1635);
 
-  g_model.telemetrySensors[2].type = TELEM_TYPE_CALCULATED;
-  g_model.telemetrySensors[2].formula = TELEM_FORMULA_ADD;
-  g_model.telemetrySensors[2].prec = 1;
-  g_model.telemetrySensors[2].calc.sources[0] = 1;
-  g_model.telemetrySensors[2].calc.sources[1] = 2;
+  sensorAllocAt(2)->type = TELEM_TYPE_CALCULATED;
+  sensorAddress(2)->formula = TELEM_FORMULA_ADD;
+  sensorAddress(2)->prec = 1;
+  sensorAddress(2)->calc.sources[0] = 1;
+  sensorAddress(2)->calc.sources[1] = 2;
 
   telemetryWakeup();
 
@@ -457,7 +457,7 @@ TEST(FrSkySPORT, frskyCurrent)
   // tests for Curr
   generateSportFasCurrentPacket(packet, 0);
   sportProcessTelemetryPacket(0, packet, sizeof(packet));
-  g_model.telemetrySensors[0].custom.offset = -5;  /* unit: 1/10 amps */
+  sensorAddress(0)->custom.offset = -5;  /* unit: 1/10 amps */
   generateSportFasCurrentPacket(packet, 0);
   sportProcessTelemetryPacket(0, packet, sizeof(packet));
   EXPECT_EQ(telemetryItems[0].value, 0);
@@ -493,7 +493,7 @@ TEST(FrSkySPORT, frskyCurrent)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  g_model.telemetrySensors[0].custom.offset = +5;  /* unit: 1/10 amps */
+  sensorAddress(0)->custom.offset = +5;  /* unit: 1/10 amps */
 
   generateSportFasCurrentPacket(packet, 0);
   sportProcessTelemetryPacket(0, packet, sizeof(packet));
@@ -522,7 +522,7 @@ TEST(SensorMap, BasicInsertAndLookup)
   TELEMETRY_RESET();
 
   // Manually set up two sensors with different (id, subId)
-  auto& s0 = g_model.telemetrySensors[0];
+  auto& s0 = *sensorAllocAt(0);
   s0.id = 0x0210;
   s0.subId = 0;
   s0.instance = 0;
@@ -530,7 +530,7 @@ TEST(SensorMap, BasicInsertAndLookup)
   s0.init("VFAS", UNIT_VOLTS, 2);
 
 
-  auto& s1 = g_model.telemetrySensors[1];
+  auto& s1 = *sensorAllocAt(1);
   s1.id = 0x0200;
   s1.subId = 0;
   s1.instance = 0;
@@ -574,7 +574,7 @@ TEST(SensorMap, HashCollisionChain)
   ASSERT_NE(id2, 0) << "Could not find a colliding ID";
 
   // Set up two sensors that collide in the hash table
-  auto& s0 = g_model.telemetrySensors[0];
+  auto& s0 = *sensorAllocAt(0);
   s0.id = id1;
   s0.subId = 0;
   s0.instance = 0;
@@ -582,7 +582,7 @@ TEST(SensorMap, HashCollisionChain)
   s0.init("Sns1", UNIT_VOLTS, 2);
 
 
-  auto& s1 = g_model.telemetrySensors[1];
+  auto& s1 = *sensorAllocAt(1);
   s1.id = id2;
   s1.subId = 0;
   s1.instance = 0;
@@ -617,7 +617,7 @@ TEST(SensorMap, RemoveAndReinsert)
   MODEL_RESET();
   TELEMETRY_RESET();
 
-  auto& s0 = g_model.telemetrySensors[0];
+  auto& s0 = *sensorAllocAt(0);
   s0.id = 0x0100;
   s0.subId = 0;
   s0.instance = 0;
@@ -658,13 +658,13 @@ TEST(SensorMap, GhostSlotInMap)
   sensorMap.rebuild();
   setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,
                     (int32_t)4200, (uint32_t)UNIT_VOLTS, (uint32_t)2);
-  EXPECT_TRUE(g_model.telemetrySensors[0].isAvailable());
-  EXPECT_EQ(g_model.telemetrySensors[0].protocol, PROTOCOL_TELEMETRY_FRSKY_SPORT);
+  EXPECT_TRUE(sensorAddress(0)->isAvailable());
+  EXPECT_EQ(sensorAddress(0)->protocol, PROTOCOL_TELEMETRY_FRSKY_SPORT);
 
   // Delete it (ghost)
   delTelemetryIndex(0);
-  EXPECT_FALSE(g_model.telemetrySensors[0].isAvailable());
-  EXPECT_EQ(g_model.telemetrySensors[0].id, 0x0210);  // identity preserved
+  EXPECT_FALSE(sensorAddress(0)->isAvailable());
+  EXPECT_EQ(sensorAddress(0)->id, 0x0210);  // identity preserved
 
   // Ghost should still be in the map (for reactivation)
   uint8_t h = SensorMap::hash(0x0210, 0);
@@ -677,7 +677,7 @@ TEST(SensorMap, GhostSlotInMap)
   // Re-discover same sensor — should reactivate in slot 0
   setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,
                     (int32_t)3800, (uint32_t)UNIT_VOLTS, (uint32_t)2);
-  EXPECT_TRUE(g_model.telemetrySensors[0].isAvailable());
+  EXPECT_TRUE(sensorAddress(0)->isAvailable());
   EXPECT_EQ(telemetryItems[0].value, 3800);
 }
 
@@ -690,7 +690,7 @@ TEST(SensorMap, ProtocolFieldSetOnDiscovery)
   sensorMap.rebuild();
   setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,
                     (int32_t)4200, (uint32_t)UNIT_VOLTS, (uint32_t)2);
-  EXPECT_EQ(g_model.telemetrySensors[0].protocol, PROTOCOL_TELEMETRY_FRSKY_SPORT);
+  EXPECT_EQ(sensorAddress(0)->protocol, PROTOCOL_TELEMETRY_FRSKY_SPORT);
 
   // Protocol short name round-trip
   const char* name = telemetryProtocolShortName(PROTOCOL_TELEMETRY_FRSKY_SPORT);

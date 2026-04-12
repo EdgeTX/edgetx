@@ -57,7 +57,7 @@ enum SensorFields {
 
 void menuModelSensor(event_t event)
 {
-  TelemetrySensor * sensor = &g_model.telemetrySensors[s_currIdx];
+  TelemetrySensor * sensor = sensorAddress(s_currIdx);
 
   drawStringWithIndex(strlen(STR_MENUSENSOR)*FW+FW, 0, STR_SENSOR, s_currIdx+1);
   drawSensorCustomValue(25*FW, 0, s_currIdx, getValue(SourceRef_(SOURCE_TYPE_TELEMETRY, 3*s_currIdx)));

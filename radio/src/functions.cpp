@@ -90,7 +90,7 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
   getvalue_t val = getValue(ref);
 
   if (ref.type == SOURCE_TYPE_TELEMETRY) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[ref.index / 3];
+    TelemetrySensor & telemetrySensor = *sensorAddress(ref.index / 3);
     uint8_t attr = 0;
 
     // Preserve the sign

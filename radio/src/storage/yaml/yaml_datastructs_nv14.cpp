@@ -814,23 +814,23 @@ static const struct YamlNode struct_anonymous_18[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_19[] = {
-  YAML_UNSIGNED( "source", 8 ),
+  YAML_UNSIGNED_CUST( "source", 8, r_formula_usrc, w_formula_usrc ),
   YAML_UNSIGNED( "index", 8 ),
   YAML_PADDING( 16 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_20[] = {
-  YAML_ARRAY("sources", 8, 4, struct_signed_8, NULL),
+  YAML_ARRAY("sources", 8, 4, struct_formula_src, __null),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_21[] = {
-  YAML_UNSIGNED( "source", 8 ),
+  YAML_UNSIGNED_CUST( "source", 8, r_formula_usrc, w_formula_usrc ),
   YAML_PADDING( 24 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_22[] = {
-  YAML_UNSIGNED( "gps", 8 ),
-  YAML_UNSIGNED( "alt", 8 ),
+  YAML_UNSIGNED_CUST( "gps", 8, r_formula_usrc, w_formula_usrc ),
+  YAML_UNSIGNED_CUST( "alt", 8, r_formula_usrc, w_formula_usrc ),
   YAML_PADDING( 16 ),
   YAML_END
 };
@@ -976,7 +976,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_EXTERN_ARRAY("inputNames", 32, MAX_INPUTS, struct_InputNameStr, yaml_drv_input_names),
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
-  YAML_ARRAY("telemetrySensors", 120, 60, struct_TelemetrySensor, NULL),
+  YAML_EXTERN_ARRAY("telemetrySensors", 120, MAX_TELEMETRY_SENSORS, struct_TelemetrySensor, yaml_drv_telem_sensors),
   YAML_ARRAY("screenData", 0, 10, struct_CustomScreenData, screen_is_active),
   YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
   YAML_ARRAY("topbarWidgetWidth", 8, 4, struct_unsigned_8, NULL),

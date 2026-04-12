@@ -261,7 +261,7 @@ class SensorButton : public ListLineButton
     numLabel = tsStyle.newNum(lvobj, index);
     lv_obj_set_pos(numLabel, PAD_TINY, PAD_TINY);
 
-    TelemetrySensor* sensor = &g_model.telemetrySensors[index];
+    TelemetrySensor* sensor = sensorAddress(index);
     if (sensor->type == TELEM_TYPE_CUSTOM) {
       sprintf(s, "ID: %d", sensor->instance);
 
@@ -271,7 +271,7 @@ class SensorButton : public ListLineButton
 
     setNumIdState();
 
-    strAppend(s, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
+    strAppend(s, sensorAddress(index)->label, TELEM_LABEL_LEN);
     lv_obj_t* nm = tsStyle.newName(lvobj, s);
     lv_obj_set_pos(nm, TSStyle::NUM_W + PAD_SMALL, PAD_MEDIUM/2);
 
@@ -445,7 +445,7 @@ class SensorEditWindow : public SubPage
 
   void updateSensorParameters()
   {
-    TelemetrySensor* sensor = &g_model.telemetrySensors[index];
+    TelemetrySensor* sensor = sensorAddress(index);
 
     for (int i = P_FORMULA; i < P_COUNT; i += 1) {
       paramLines[i]->hide();
@@ -540,7 +540,7 @@ class SensorEditWindow : public SubPage
   {
     window->setFlexLayout();
 
-    TelemetrySensor* sensor = &g_model.telemetrySensors[index];
+    TelemetrySensor* sensor = sensorAddress(index);
 
     // Sensor name
     setupLine(STR_NAME, [=](Window* parent, coord_t x, coord_t y) {
@@ -799,7 +799,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
   sensorWindow->clear();
 
   for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
-    if (g_model.telemetrySensors[idx].isAvailable()) {
+    if (sensorAddress(idx)->isAvailable()) {
       auto button = new SensorButton(sensorWindow, rect_t{}, idx);
 
       if (!first) first = button;
@@ -810,8 +810,8 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
         menu->addLine(STR_COPY, [=]() {
           auto newIndex = availableTelemetryIndex();
           if (newIndex >= 0) {
-            TelemetrySensor& sourceSensor = g_model.telemetrySensors[idx];
-            TelemetrySensor& newSensor = g_model.telemetrySensors[newIndex];
+            TelemetrySensor& sourceSensor = *sensorAddress(idx);
+            TelemetrySensor& newSensor = *sensorAllocAt(newIndex);
             newSensor = sourceSensor;
             TelemetryItem& sourceItem = telemetryItems[idx];
             TelemetryItem& newItem = telemetryItems[newIndex];
@@ -825,13 +825,13 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
         menu->addLine(STR_DELETE, [=]() {
           delTelemetryIndex(idx);  // calls setDirty internally
           for (uint8_t i = idx + 1; i < MAX_TELEMETRY_SENSORS; i += 1) {
-            if (g_model.telemetrySensors[i].isAvailable()) {
+            if (sensorAddress(i)->isAvailable()) {
               buildSensorList(i);
               return;
             }
           }
           for (int8_t i = idx - 1; i >= 0; i -= 1) {
-            if (g_model.telemetrySensors[i].isAvailable()) {
+            if (sensorAddress(i)->isAvailable()) {
               buildSensorList(i);
               return;
             }
@@ -1041,7 +1041,7 @@ void ModelTelemetryPage::build(Window* window)
 std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags)
 {
   TelemetryItem& telemetryItem = telemetryItems[sensor];
-  TelemetrySensor& telemetrySensor = g_model.telemetrySensors[sensor];
+  TelemetrySensor& telemetrySensor = *sensorAddress(sensor);
 
   if (telemetrySensor.unit == UNIT_DATETIME) {
     return getTelemDate(telemetryItem) + " " + getTelemTime(telemetryItem);

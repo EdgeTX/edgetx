@@ -31,7 +31,7 @@ void varioWakeup()
     if (g_model.varioData.source) {
       uint8_t item = g_model.varioData.source-1;
       if (item < MAX_TELEMETRY_SENSORS) {
-        verticalSpeed = telemetryItems[item].value * g_model.telemetrySensors[item].getPrecMultiplier();
+        verticalSpeed = telemetryItems[item].value * sensorAddress(item)->getPrecMultiplier();
       }
     }
 

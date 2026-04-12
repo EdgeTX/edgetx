@@ -417,7 +417,9 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
 void crossfireSetDefault(int index, uint16_t id, uint8_t subId)
 {
-  TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor & telemetrySensor = *ts;
 
   telemetrySensor.id = id;
   telemetrySensor.instance = subId;
@@ -433,4 +435,17 @@ void crossfireSetDefault(int index, uint16_t id, uint8_t subId)
   }
 
   storageDirty(EE_MODEL);
+}
+
+bool crossfireGetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out)
+{
+  const CrossfireSensor& sensor = getCrossfireSensor(id, subId);
+  if (!STR_SAFE_VAL(sensor.name)) return false;
+  TelemetryUnit unit = sensor.unit;
+  if (unit == UNIT_GPS_LATITUDE || unit == UNIT_GPS_LONGITUDE)
+    unit = UNIT_GPS;
+  out.label = STR_VAL(sensor.name);
+  out.unit = unit;
+  out.prec = min<uint8_t>(2, sensor.precision);
+  return true;
 }

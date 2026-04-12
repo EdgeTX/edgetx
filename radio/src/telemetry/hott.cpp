@@ -922,7 +922,9 @@ void processHottPacket(const uint8_t * packet)
 
 void hottSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
 {
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor &telemetrySensor = *ts;
   telemetrySensor.id = id;
   telemetrySensor.subId = subId;
   telemetrySensor.instance = instance;
@@ -942,4 +944,14 @@ void hottSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   }
 
   storageDirty(EE_MODEL);
+}
+
+bool hottGetCatalogEntry(uint16_t id, CatalogEntry& out)
+{
+  const HottSensor* sensor = getHottSensor(id);
+  if (!sensor) return false;
+  out.label = STR_VAL(sensor->name);
+  out.unit = sensor->unit;
+  out.prec = min<uint8_t>(2, sensor->precision);
+  return true;
 }

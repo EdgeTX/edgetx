@@ -487,7 +487,9 @@ const FlySkySensor * getFlySkySensor(uint16_t id)
 
 void flySkySetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
 {
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor &telemetrySensor = *ts;
   telemetrySensor.id = id;
   telemetrySensor.subId = subId;
   telemetrySensor.instance = instance;
@@ -508,6 +510,16 @@ void flySkySetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   }
 
   storageDirty(EE_MODEL);
+}
+
+bool flySkyGetCatalogEntry(uint16_t id, CatalogEntry& out)
+{
+  const FlySkySensor* sensor = getFlySkySensor(id);
+  if (!sensor) return false;
+  out.label = STR_VAL(sensor->name);
+  out.unit = sensor->unit;
+  out.prec = min<uint8_t>(2, sensor->precision);
+  return true;
 }
 
 uint16_t ibusTempToK(int16_t tempertureIbus)

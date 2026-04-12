@@ -23,6 +23,8 @@
 
 void processHitecTelemetryData(uint8_t data, uint8_t* rxBuffer, uint8_t& rxBufferCount);
 void hitecSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+struct CatalogEntry;
+bool hitecGetCatalogEntry(uint16_t id, CatalogEntry& out);
 
 // Used by multi protocol
 void processHitecPacket(const uint8_t *packet);

@@ -1860,7 +1860,7 @@ static int luaModelGetSensor(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < MAX_TELEMETRY_SENSORS) {
-    TelemetrySensor & sensor = g_model.telemetrySensors[idx];
+    TelemetrySensor & sensor = *sensorAddress(idx);
     lua_newtable(L);
     lua_pushtableinteger(L, "type", sensor.type);
     lua_pushtablenstring(L, "name", sensor.label);

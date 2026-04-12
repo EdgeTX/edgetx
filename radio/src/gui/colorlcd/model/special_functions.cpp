@@ -161,8 +161,8 @@ void FunctionLineButton::refresh()
         strcat(s, STR_VFSWRESET[CFN_PARAM(cfn)]);
       } else {
         TelemetrySensor *sensor =
-            &g_model.telemetrySensors[CFN_PARAM(cfn) -
-                                      FUNC_RESET_PARAM_FIRST_TELEM];
+            sensorAddress(CFN_PARAM(cfn) -
+                          FUNC_RESET_PARAM_FIRST_TELEM);
         strAppend(s + strlen(s), sensor->label, TELEM_LABEL_LEN);
       }
       break;
@@ -401,8 +401,8 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
             return std::string(STR_VFSWRESET[value]);
           else
             return std::string(
-                g_model.telemetrySensors[value - FUNC_RESET_PARAM_FIRST_TELEM]
-                    .label,
+                sensorAddress(value - FUNC_RESET_PARAM_FIRST_TELEM)
+                    ->label,
                 TELEM_LABEL_LEN);
         });
       }

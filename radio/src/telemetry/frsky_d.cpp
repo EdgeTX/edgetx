@@ -281,7 +281,9 @@ void processHubPacket(uint8_t id, int16_t value)
 
 void frskyDSetDefault(int index, uint16_t id)
 {
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor &telemetrySensor = *ts;
 
   telemetrySensor.id = id;
   telemetrySensor.instance = 0;
@@ -337,4 +339,14 @@ void frskyDSetDefault(int index, uint16_t id)
   }
 
   storageDirty(EE_MODEL);
+}
+
+bool frskyDGetCatalogEntry(uint16_t id, CatalogEntry& out)
+{
+  const FrSkyDSensor* sensor = getFrSkyDSensor(id);
+  if (!sensor) return false;
+  out.label = STR_VAL(sensor->name);
+  out.unit = sensor->unit;
+  out.prec = min<uint8_t>(2, sensor->prec);
+  return true;
 }

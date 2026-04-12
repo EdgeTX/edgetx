@@ -439,7 +439,9 @@ void sportProcessTelemetryPacketWithoutCrc(uint8_t module, uint8_t origin, const
 
 void frskySportSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
 {
-  TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor & telemetrySensor = *ts;
 
   telemetrySensor.id = id;
   telemetrySensor.subId = subId;
@@ -478,4 +480,14 @@ void frskySportSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instanc
   }
 
   storageDirty(EE_MODEL);
+}
+
+bool sportGetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out)
+{
+  const FrSkySportSensor* sensor = getFrSkySportSensor(id, subId);
+  if (!sensor) return false;
+  out.label = sensor->name;
+  out.unit = sensor->unit;
+  out.prec = min<uint8_t>(2, sensor->prec);
+  return true;
 }

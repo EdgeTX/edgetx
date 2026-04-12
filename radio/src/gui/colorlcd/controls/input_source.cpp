@@ -64,7 +64,7 @@ class SensorValue : public StaticText
     LcdFlags prec = 0;
     if (isTelemetryValue()) {
       uint8_t sensorIndex = input->srcRaw.index / 3;
-      TelemetrySensor sensor = g_model.telemetrySensors[sensorIndex];
+      TelemetrySensor sensor = *sensorAddress(sensorIndex);
       if (sensor.prec > 0) {
         prec |= (sensor.prec == 1 ? PREC1 : PREC2);
       }

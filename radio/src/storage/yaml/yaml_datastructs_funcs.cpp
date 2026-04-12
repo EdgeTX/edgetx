@@ -114,6 +114,13 @@ YAML_ENSURE(gvar_data, ARENA_GVAR_DATA, MAX_GVARS)
 YAML_GET_PTR(input_names, ARENA_INPUT_NAMES)
 YAML_ENSURE(input_names, ARENA_INPUT_NAMES, MAX_INPUTS)
 
+YAML_GET_PTR(telem_sensors, ARENA_TELEM_SENSORS)
+YAML_ENSURE(telem_sensors, ARENA_TELEM_SENSORS, MAX_TELEMETRY_SENSORS)
+
+static bool telem_sensor_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  return reinterpret_cast<const TelemetrySensor*>(data + (bitoffs >> 3))->isAvailable();
+}
 
 #undef YAML_GET_PTR
 #undef YAML_ENSURE
@@ -429,7 +436,7 @@ static bool yaml_write_source(const SourceRef& ref, yaml_writer_func wf, void* o
         else if (sign == 2) { if (!wf(opaque, "+", 1)) return false; }
         // Identity-based reference if protocol is known
         if (sensor < MAX_TELEMETRY_SENSORS &&
-            g_model.telemetrySensors[sensor].protocol != 0) {
+            sensorAddress(sensor)->protocol != 0) {
           if (!writeSensorIdentity(sensor, wf, opaque)) return false;
         } else {
           // Fallback: bare index
@@ -1827,7 +1834,7 @@ static bool parseSensorIdentity(const char* val, uint8_t val_len,
 static int findSensorByIdentity(TelemetryProtocol protocol, uint16_t id, uint8_t subId)
 {
   for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-    const TelemetrySensor& s = g_model.telemetrySensors[i];
+    const TelemetrySensor& s = *sensorAddress(i);
     if (s.protocol == protocol && s.id == id && s.subId == subId)
       return i;
   }
@@ -1838,7 +1845,7 @@ static int findSensorByIdentity(TelemetryProtocol protocol, uint16_t id, uint8_t
 // Returns false on write failure.
 static bool writeSensorIdentity(uint32_t idx, yaml_writer_func wf, void* opaque)
 {
-  const TelemetrySensor& sensor = g_model.telemetrySensors[idx];
+  const TelemetrySensor& sensor = *sensorAddress(idx);
   const char* protoName = telemetryProtocolShortName(
       (TelemetryProtocol)sensor.protocol);
   if (!protoName) return false;
@@ -1886,6 +1893,69 @@ static int parseSensorRef(const char* val, uint8_t val_len)
   return -1;
 }
 
+// --- Formula source handlers (D4): identity-based refs for calc/cell/consumption/dist ---
+
+// Unsigned 1-based formula source (cell.source, consumption.source, dist.gps, dist.alt)
+static uint32_t r_formula_usrc(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  if (val_len == 0 || (val_len == 1 && val[0] == '0')) return 0;
+  int idx = parseSensorRef(val, val_len);
+  if (idx >= 0) return (uint32_t)(idx + 1);
+  return 0;
+}
+
+static bool w_formula_usrc(const YamlNode* node, uint32_t val,
+                           yaml_writer_func wf, void* opaque)
+{
+  if (!val) return wf(opaque, "0", 1);
+  uint32_t idx = val - 1;
+  if (idx < MAX_TELEMETRY_SENSORS && sensorAddress(idx)->protocol != 0)
+    return writeSensorIdentity(idx, wf, opaque);
+  const char* str = yaml_unsigned2str(val);
+  return wf(opaque, str, strlen(str));
+}
+
+// Signed 1-based formula source (calc.sources[]: negative = inverted)
+static uint32_t r_formula_src(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  if (val_len == 0 || (val_len == 1 && val[0] == '0')) return 0;
+
+  int8_t sign = 1;
+  if (val[0] == '-') { sign = -1; val++; val_len--; }
+
+  int idx = parseSensorRef(val, val_len);
+  if (idx >= 0) return (uint32_t)(int32_t)(sign * (idx + 1));
+
+  // Legacy: bare signed integer
+  return (uint32_t)yaml_str2int(val - (sign < 0 ? 1 : 0),
+                                val_len + (sign < 0 ? 1 : 0));
+}
+
+static bool w_formula_src(const YamlNode* node, uint32_t val,
+                          yaml_writer_func wf, void* opaque)
+{
+  int8_t sv = (int8_t)val;
+  if (sv == 0) return wf(opaque, "0", 1);
+
+  if (sv < 0) {
+    if (!wf(opaque, "-", 1)) return false;
+  }
+
+  uint32_t idx = abs(sv) - 1;
+  if (idx < MAX_TELEMETRY_SENSORS && sensorAddress(idx)->protocol != 0)
+    return writeSensorIdentity(idx, wf, opaque);
+
+  const char* str = yaml_signed2str(sv);
+  return wf(opaque, str, strlen(str));
+}
+
+// Element struct for calc.sources[] array — used by generated YAML code
+static const struct YamlNode struct_formula_src[] = {
+  YAML_IDX,
+  YAML_SIGNED_CUST( "val", 8, r_formula_src, w_formula_src ),
+  YAML_END
+};
+
 static uint32_t r_tele_sensor(const YamlNode* node, const char* val, uint8_t val_len)
 {
   int idx = parseSensorRef(val, val_len);
@@ -1905,7 +1975,7 @@ static bool w_tele_sensor(const YamlNode* node, uint32_t val,
 
   // Identity-based reference if protocol is known
   if (idx < MAX_TELEMETRY_SENSORS &&
-      g_model.telemetrySensors[idx].protocol != 0) {
+      sensorAddress(idx)->protocol != 0) {
     return writeSensorIdentity(idx, wf, opaque);
   }
 
@@ -2791,7 +2861,7 @@ static bool yaml_write_switch(const SwitchRef& ref, yaml_writer_func wf, void* o
       case SWITCH_TYPE_SENSOR:
         // T(Proto:0xHHHH:S)
         if (ref.index < MAX_TELEMETRY_SENSORS &&
-            g_model.telemetrySensors[ref.index].protocol != 0) {
+            sensorAddress(ref.index)->protocol != 0) {
           if (!wf(opaque, "T(", 2)) return false;
           if (!writeSensorIdentity(ref.index, wf, opaque)) return false;
           str = ")";
@@ -3369,6 +3439,8 @@ static const EADriver yaml_drv_fmd_gvar_values =
     { yaml_get_fmd_gvar_values_ptr, yaml_ensure_fmd_gvar_values_capacity, gvar_is_active };
 static const EADriver yaml_drv_input_names =
     { yaml_get_input_names_ptr, yaml_ensure_input_names_capacity, nullptr };
+static const EADriver yaml_drv_telem_sensors =
+    { yaml_get_telem_sensors_ptr, yaml_ensure_telem_sensors_capacity, telem_sensor_is_active };
 
 // Custom IDX for inputNames extern array:
 // Read: parse input number → allocate arena slot, return slot index

@@ -25,6 +25,8 @@
 #define DSM_BIND_PACKET_LENGTH 12
 
 void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+struct CatalogEntry;
+bool spektrumGetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out);
 
 // Used directly by multi and DSMP telemetry protocol 
 void processSpektrumPacket(const uint8_t *packet);

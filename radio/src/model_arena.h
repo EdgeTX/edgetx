@@ -98,7 +98,7 @@
 // + sum_chans512[32×4] = 448 bytes (all at hard max 32).
 
 // Maximum number of sections any arena can have
-#define ARENA_MAX_SECTIONS 10
+#define ARENA_MAX_SECTIONS 12
 
 // Model arena section indices
 enum {
@@ -112,6 +112,7 @@ enum {
   ARENA_GVAR_DATA,
   ARENA_GVAR_VALUES,
   ARENA_INPUT_NAMES,
+  ARENA_TELEM_SENSORS,
   MODEL_ARENA_NUM_SECTIONS
 };
 

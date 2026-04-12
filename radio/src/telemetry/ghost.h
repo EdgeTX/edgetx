@@ -163,4 +163,6 @@ enum GhostFrames
 
 void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length);
 void ghostSetDefault(int index, uint8_t id, uint8_t subId);
+struct CatalogEntry;
+bool ghostGetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out);
 

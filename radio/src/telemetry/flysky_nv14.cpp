@@ -110,7 +110,9 @@ const FlyskyNv14Sensor* getFlyskyNv14Sensor(uint16_t id, uint8_t subId)
 void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
                           uint8_t instance)
 {
-  TelemetrySensor& telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor& telemetrySensor = *ts;
   telemetrySensor.id = id;
   telemetrySensor.subId = subId;
   telemetrySensor.instance = instance;
@@ -121,6 +123,16 @@ void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId,
     telemetrySensor.custom.offset = 1;
   }
   storageDirty(EE_MODEL);
+}
+
+bool flySkyNv14GetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out)
+{
+  const FlyskyNv14Sensor* sensor = getFlyskyNv14Sensor(id, subId);
+  if (!STR_SAFE_VAL(sensor->name)) return false;
+  out.label = STR_VAL(sensor->name);
+  out.unit = sensor->unit;
+  out.prec = min<uint8_t>(2, sensor->precision);
+  return true;
 }
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }

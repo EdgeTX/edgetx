@@ -46,6 +46,8 @@ enum {
 #define MLINK_SVC 0         // ID speial value class - can't use in enum as indexes have to start at 0
 
 void mlinkSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+struct CatalogEntry;
+bool mlinkGetCatalogEntry(uint16_t id, CatalogEntry& out);
 
 // Used by multi protocol
 void processMLinkPacket(const uint8_t *packet, bool multi);

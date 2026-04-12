@@ -54,6 +54,44 @@
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 bool allowNewSensors;
 
+// --- Sensor array accessors (arena-backed) ---
+
+#include "model_arena.h"
+
+TelemetrySensor* sensorAddress(uint8_t idx)
+{
+  if (idx >= g_modelArena.sectionCount(ARENA_TELEM_SENSORS)) {
+    static TelemetrySensor dummy = {};
+    return &dummy;
+  }
+  return reinterpret_cast<TelemetrySensor*>(
+      g_modelArena.sectionBase(ARENA_TELEM_SENSORS)) + idx;
+}
+
+TelemetrySensor* sensorAllocAt(uint8_t idx)
+{
+  if (idx >= g_modelArena.sectionCount(ARENA_TELEM_SENSORS)) {
+    if (!g_modelArena.ensureSectionCapacity(ARENA_TELEM_SENSORS, idx + 1))
+      return nullptr;
+  }
+  return sensorAddress(idx);
+}
+
+uint16_t getSensorCount()
+{
+  return g_modelArena.sectionCount(ARENA_TELEM_SENSORS);
+}
+
+static bool sensorIsEmpty(const uint8_t* ptr)
+{
+  return !reinterpret_cast<const TelemetrySensor*>(ptr)->isAvailable();
+}
+
+void sensorTrimTrailing()
+{
+  g_modelArena.trimTrailingEmpty(ARENA_TELEM_SENSORS, sensorIsEmpty);
+}
+
 // --- Protocol short-name table for YAML identity references ---
 
 struct TelemetryProtocolName {
@@ -98,6 +136,61 @@ TelemetryProtocol telemetryProtocolFromShortName(const char* name, uint8_t len)
   return PROTOCOL_TELEMETRY_FIRST;  // 0 = unknown/default
 }
 
+// --- Catalog entry dispatch ---
+
+bool getCatalogEntry(TelemetryProtocol proto, uint16_t id, uint8_t subId,
+                     CatalogEntry& out)
+{
+  switch (proto) {
+    case PROTOCOL_TELEMETRY_FRSKY_SPORT:
+      return sportGetCatalogEntry(id, subId, out);
+
+    case PROTOCOL_TELEMETRY_FRSKY_D:
+    case PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY:
+      return frskyDGetCatalogEntry(id, out);
+
+#if defined(CROSSFIRE)
+    case PROTOCOL_TELEMETRY_CROSSFIRE:
+      return crossfireGetCatalogEntry(id, subId, out);
+#endif
+
+#if defined(GHOST)
+    case PROTOCOL_TELEMETRY_GHOST:
+      return ghostGetCatalogEntry(id, subId, out);
+#endif
+
+    case PROTOCOL_TELEMETRY_SPEKTRUM:
+    case PROTOCOL_TELEMETRY_DSMP:
+      return spektrumGetCatalogEntry(id, subId, out);
+
+#if defined(MULTIMODULE) || defined(AFHDS2) || defined(AFHDS3)
+    case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
+      return flySkyGetCatalogEntry(id, out);
+#endif
+
+#if defined(AFHDS2) && defined(RADIO_NV14_FAMILY)
+    case PROTOCOL_TELEMETRY_FLYSKY_NV14:
+      return flySkyNv14GetCatalogEntry(id, subId, out);
+#endif
+
+#if defined(MULTIMODULE)
+    case PROTOCOL_TELEMETRY_HITEC:
+      return hitecGetCatalogEntry(id, out);
+
+    case PROTOCOL_TELEMETRY_HOTT:
+      return hottGetCatalogEntry(id, out);
+#endif
+
+#if defined(MULTIMODULE) || defined(PPM)
+    case PROTOCOL_TELEMETRY_MLINK:
+      return mlinkGetCatalogEntry(id, out);
+#endif
+
+    default:
+      return false;
+  }
+}
+
 // --- SensorMap implementation ---
 
 SensorMap sensorMap;
@@ -112,8 +205,8 @@ void SensorMap::clear()
 void SensorMap::rebuild()
 {
   clear();
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-    const TelemetrySensor& s = g_model.telemetrySensors[i];
+  for (int i = 0; i < (int)getSensorCount(); i++) {
+    const TelemetrySensor& s = *sensorAddress(i);
     // Insert both active sensors and ghosts (ghosts have id/subId but no label)
     if (s.id != 0 || s.subId != 0 || s.instance != 0) {
       insert(i);
@@ -124,7 +217,7 @@ void SensorMap::rebuild()
 
 void SensorMap::insert(uint8_t slot)
 {
-  const TelemetrySensor& s = g_model.telemetrySensors[slot];
+  const TelemetrySensor& s = *sensorAddress(slot);
   uint8_t h = hash(s.id, s.subId);
   chain[slot] = buckets[h];
   buckets[h] = slot;
@@ -132,7 +225,7 @@ void SensorMap::insert(uint8_t slot)
 
 void SensorMap::remove(uint8_t slot)
 {
-  const TelemetrySensor& s = g_model.telemetrySensors[slot];
+  const TelemetrySensor& s = *sensorAddress(slot);
   uint8_t h = hash(s.id, s.subId);
   int8_t* p = &buckets[h];
   while (*p >= 0) {
@@ -149,7 +242,7 @@ bool isFaiForbidden(source_t idx)
 {
   if (idx < MIXSRC_FIRST_TELEM) return false;
 
-  auto unit = g_model.telemetrySensors[(idx - MIXSRC_FIRST_TELEM) / 3].unit;
+  auto unit = sensorAddress((idx - MIXSRC_FIRST_TELEM) / 3)->unit;
   if (unit == UNIT_VOLTS || unit == UNIT_DB) return false;
 
   return true;
@@ -351,9 +444,9 @@ void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
     }
   }
 
-  for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-    TelemetrySensor & it = g_model.telemetrySensors[i];
-    if (it.type == TELEM_TYPE_CALCULATED && it.formula == TELEM_FORMULA_TOTALIZE && &g_model.telemetrySensors[it.consumption.source-1] == &sensor) {
+  for (int i=0; i<(int)getSensorCount(); i++) {
+    const TelemetrySensor & it = *sensorAddress(i);
+    if (it.type == TELEM_TYPE_CALCULATED && it.formula == TELEM_FORMULA_TOTALIZE && sensorAddress(it.consumption.source-1) == &sensor) {
       TelemetryItem & item = telemetryItems[i];
       int32_t increment = it.getValue(val, unit, prec);
       item.setValue(it, item.value+increment, it.unit, it.prec);
@@ -369,7 +462,7 @@ void TelemetryItem::per10ms(const TelemetrySensor & sensor)
   switch (sensor.formula) {
     case TELEM_FORMULA_CONSUMPTION:
       if (sensor.consumption.source) {
-        TelemetrySensor & currentSensor = g_model.telemetrySensors[sensor.consumption.source-1];
+        const TelemetrySensor & currentSensor = *sensorAddress(sensor.consumption.source-1);
         TelemetryItem & currentItem = telemetryItems[sensor.consumption.source-1];
         if (!currentItem.isAvailable()) {
           return;
@@ -474,7 +567,7 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
         result = isqrt32(result);
 
         if (altItem) {
-          dist = convertTelemetryValue(abs(altItem->value), g_model.telemetrySensors[sensor.dist.alt-1].unit, g_model.telemetrySensors[sensor.dist.alt-1].prec, UNIT_METERS, 0);
+          dist = convertTelemetryValue(abs(altItem->value), sensorAddress(sensor.dist.alt-1)->unit, sensorAddress(sensor.dist.alt-1)->prec, UNIT_METERS, 0);
           result = (dist * dist) + (result * result);
           result = isqrt32(result);
         }
@@ -498,7 +591,7 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
         int8_t source = sensor.calc.sources[i];
         if (source) {
           unsigned int index = abs(source)-1;
-          TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
+          const TelemetrySensor & telemetrySensor = *sensorAddress(index);
           TelemetryItem & telemetryItem = telemetryItems[index];
           if (sensor.formula == TELEM_FORMULA_AVERAGE) {
             if (telemetryItem.isAvailable())
@@ -569,7 +662,7 @@ void ensureSensorIdentity()
 
 void delTelemetryIndex(uint8_t index)
 {
-  TelemetrySensor & sensor = g_model.telemetrySensors[index];
+  TelemetrySensor & sensor = *sensorAddress(index);
 
   // Preserve identity for ghost-slot re-discovery:
   // keep protocol, id, subId, instance so setTelemetryValue() can
@@ -594,20 +687,22 @@ void delTelemetryIndex(uint8_t index)
 
 int availableTelemetryIndex()
 {
-  for (int index=0; index<MAX_TELEMETRY_SENSORS; index++) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
-    if (!telemetrySensor.isAvailable()) {
+  uint16_t count = getSensorCount();
+  for (int index = 0; index < (int)count; index++) {
+    if (!sensorAddress(index)->isAvailable()) {
       return index;
     }
   }
+  // Try to grow: return next slot if arena can accommodate
+  if (count < MAX_TELEMETRY_SENSORS)
+    return count;
   return -1;
 }
 
 int lastUsedTelemetryIndex()
 {
-  for (int index=MAX_TELEMETRY_SENSORS-1; index>=0; index--) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
-    if (telemetrySensor.isAvailable()) {
+  for (int index = (int)getSensorCount() - 1; index >= 0; index--) {
+    if (sensorAddress(index)->isAvailable()) {
       return index;
     }
   }
@@ -675,7 +770,7 @@ static bool initSensorFromProtocol(TelemetryProtocol protocol, int index,
     default:
       return false;
   }
-  g_model.telemetrySensors[index].protocol = protocol;
+  sensorAddress(index)->protocol = protocol;
   return true;
 }
 
@@ -689,7 +784,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
 
   // Inline lambda: check one candidate slot
   auto checkSlot = [&](int index) {
-    TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+    TelemetrySensor &telemetrySensor = *sensorAddress(index);
 
     if (telemetrySensor.type == TELEM_TYPE_CUSTOM && telemetrySensor.id == id &&
         telemetrySensor.subId == subId &&
@@ -719,7 +814,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     }
   } else {
     // Fallback: linear scan (before model load / in tests)
-    for (int index = 0; index < MAX_TELEMETRY_SENSORS; index++) {
+    for (int index = 0; index < (int)getSensorCount(); index++) {
       checkSlot(index);
     }
   }
@@ -732,7 +827,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
   // (preserves slot position; map entry already exists)
   if (ghostIndex >= 0) {
     if (initSensorFromProtocol(protocol, ghostIndex, id, subId, instance)) {
-      telemetryItems[ghostIndex].setValue(g_model.telemetrySensors[ghostIndex], value, unit, prec);
+      telemetryItems[ghostIndex].setValue(*sensorAddress(ghostIndex), value, unit, prec);
     }
     return ghostIndex;
   }
@@ -750,7 +845,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     if (protocol == PROTOCOL_TELEMETRY_LUA) {
       // Sensor will be initialized by calling function
       // This drops the first value
-      g_model.telemetrySensors[index].protocol = PROTOCOL_TELEMETRY_LUA;
+      sensorAddress(index)->protocol = PROTOCOL_TELEMETRY_LUA;
       if (sensorMap.ready) sensorMap.insert(index);
       return index;
     }
@@ -758,7 +853,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
 
     if (initSensorFromProtocol(protocol, index, id, subId, instance)) {
       if (sensorMap.ready) sensorMap.insert(index);
-      telemetryItems[index].setValue(g_model.telemetrySensors[index], value, unit, prec);
+      telemetryItems[index].setValue(*sensorAddress(index), value, unit, prec);
     } else {
       // Unknown protocol: caller must initialize
       if (sensorMap.ready) sensorMap.insert(index);

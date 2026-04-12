@@ -124,8 +124,11 @@ void ensureSensorIdentity();
 
 int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t destUnit, uint8_t destPrec);
 
+struct CatalogEntry;  // defined in telemetry_sensors.h
 void frskySportSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+bool sportGetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out);
 void frskyDSetDefault(int index, uint16_t id);
+bool frskyDGetCatalogEntry(uint16_t id, CatalogEntry& out);
 
 #define IS_DISTANCE_UNIT(unit)         ((unit) == UNIT_METERS || (unit) == UNIT_FEET)
 #define IS_SPEED_UNIT(unit)            ((unit) >= UNIT_KTS && (unit) <= UNIT_MPH)

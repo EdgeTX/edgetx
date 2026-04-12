@@ -128,7 +128,10 @@ inline void TELEMETRY_RESET()
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     telemetryItems[i].clear();
   }
-  memclear(g_model.telemetrySensors, sizeof(g_model.telemetrySensors));
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    TelemetrySensor* s = sensorAllocAt(i);
+    if (s) memclear(s, sizeof(TelemetrySensor));
+  }
   sensorMap.clear();
 }
 

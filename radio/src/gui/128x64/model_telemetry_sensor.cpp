@@ -46,7 +46,7 @@ constexpr coord_t SENSOR_3RD_COLUMN = 17 * FW - 2;
 
 void menuModelSensor(event_t event)
 {
-  TelemetrySensor * sensor = & g_model.telemetrySensors[s_currIdx];
+  TelemetrySensor * sensor = sensorAddress(s_currIdx);
 
   uint8_t old_editMode = s_editMode;
   

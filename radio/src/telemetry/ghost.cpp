@@ -323,7 +323,9 @@ void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length
 
 void ghostSetDefault(int index, uint8_t id, uint8_t subId)
 {
-  TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
+  TelemetrySensor *ts = sensorAllocAt(index);
+  if (!ts) return;
+  TelemetrySensor &telemetrySensor = *ts;
 
   telemetrySensor.id = id;
   telemetrySensor.instance = subId;
@@ -341,4 +343,17 @@ void ghostSetDefault(int index, uint8_t id, uint8_t subId)
     telemetrySensor.init(id);
 
   storageDirty(EE_MODEL);
+}
+
+bool ghostGetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out)
+{
+  const GhostSensor* sensor = getGhostSensor(id);
+  if (!sensor) return false;
+  TelemetryUnit unit = sensor->unit;
+  if (unit == UNIT_GPS_LATITUDE || unit == UNIT_GPS_LONGITUDE)
+    unit = UNIT_GPS;
+  out.label = STR_VAL(sensor->name);
+  out.unit = unit;
+  out.prec = min<uint8_t>(2, sensor->precision);
+  return true;
 }

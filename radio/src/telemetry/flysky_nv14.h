@@ -61,6 +61,8 @@ typedef struct FLYSKY_SENSOR_DATA_S {
 } rx_sensor_t;
 
 void flySkyNv14SetDefault(int index, uint8_t id, uint8_t subId, uint8_t instance);
+struct CatalogEntry;
+bool flySkyNv14GetCatalogEntry(uint16_t id, uint8_t subId, CatalogEntry& out);
 void flySkyNv14ProcessTelemetryPacket(const uint8_t * ptr, uint8_t SensorType );
 void processInternalFlySkyTelemetryData(uint8_t byte);
 uint8_t intmoduleGetByte(uint8_t * byte);

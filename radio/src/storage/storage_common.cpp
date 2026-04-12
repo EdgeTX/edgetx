@@ -277,7 +277,7 @@ if(g_model.rssiSource) {
   ensureSensorIdentity();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-    TelemetrySensor & sensor = g_model.telemetrySensors[i];
+    TelemetrySensor & sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CALCULATED && sensor.persistent) {
       telemetryItems[i].value = sensor.persistentValue;
       telemetryItems[i].timeout = 0; // make value visible even before the first new value is received)
@@ -320,7 +320,7 @@ void storageFlushCurrentModel()
   saveTimers();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-    TelemetrySensor & sensor = g_model.telemetrySensors[i];
+    TelemetrySensor & sensor = *sensorAddress(i);
     if (sensor.type == TELEM_TYPE_CALCULATED && sensor.persistent && sensor.persistentValue != telemetryItems[i].value) {
       sensor.persistentValue = telemetryItems[i].value;
       storageDirty(EE_MODEL);
