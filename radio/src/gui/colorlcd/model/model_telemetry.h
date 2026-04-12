@@ -38,7 +38,6 @@ class ModelTelemetryPage : public PageGroupItem
  protected:
   int lastKnownIndex = 0;
   Window* sensorWindow = nullptr;
-  TextButton* discover = nullptr;
   TextButton* deleteAll = nullptr;
 
   void checkEvents() override;

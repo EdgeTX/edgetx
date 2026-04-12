@@ -52,7 +52,6 @@
 #endif
 
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
-bool allowNewSensors;
 
 // --- Pending sensor ring buffer ---
 

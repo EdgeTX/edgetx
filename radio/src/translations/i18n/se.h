@@ -1222,8 +1222,6 @@
 
 #define TR_IGNORE_INSTANCE              TR("Ej inst.", "Ignorera instansfel")
 #define TR_SHOW_INSTANCE_ID             "Visa instans-ID"
-#define TR_DISCOVER_SENSORS             "Sök nya"
-#define TR_STOP_DISCOVER_SENSORS        "Avbryt sökning"
 #define TR_DELETE_ALL_SENSORS           "Radera alla sensorer"
 #define TR_CONFIRMDELETE                "Radera alla?"
 #define TR_SELECT_WIDGET                "Välj widget"

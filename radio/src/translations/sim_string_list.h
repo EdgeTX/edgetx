@@ -520,7 +520,6 @@
 #define STR_DISABLE_CH_MAP currentLangStrings->STR_DISABLE_CH_MAP
 #define STR_DISABLE_INTERNAL currentLangStrings->STR_DISABLE_INTERNAL
 #define STR_DISABLE_TELEM currentLangStrings->STR_DISABLE_TELEM
-#define STR_DISCOVER_SENSORS currentLangStrings->STR_DISCOVER_SENSORS
 #define STR_DISCOVER currentLangStrings->STR_DISCOVER
 #define STR_DISPLAY_TRIMS currentLangStrings->STR_DISPLAY_TRIMS
 #define STR_DURATION_MS currentLangStrings->STR_DURATION_MS
@@ -964,7 +963,6 @@
 #define STR_STICK_NAMES3 currentLangStrings->STR_STICK_NAMES3
 #define STR_STICKS_POTS_SLIDERS currentLangStrings->STR_STICKS_POTS_SLIDERS
 #define STR_STICKS currentLangStrings->STR_STICKS
-#define STR_STOP_DISCOVER_SENSORS currentLangStrings->STR_STOP_DISCOVER_SENSORS
 #define STR_STOPPING currentLangStrings->STR_STOPPING
 #define STR_STORAGE_FORMAT currentLangStrings->STR_STORAGE_FORMAT
 #define STR_STORAGE_WARNING currentLangStrings->STR_STORAGE_WARNING

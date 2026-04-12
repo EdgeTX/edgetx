@@ -1209,8 +1209,6 @@
 #define TR_TELEMETRYFULL               TR("All slots full!", "テレメトリー枠はすべて埋まりました!!")
 #define TR_IGNORE_INSTANCE             TR("No inst.", "ID識別を無視")
 #define TR_SHOW_INSTANCE_ID            "インスタンスIDの表示"
-#define TR_DISCOVER_SENSORS            "新規検索"
-#define TR_STOP_DISCOVER_SENSORS       "停止"
 #define TR_DELETE_ALL_SENSORS          "すべて削除"
 #define TR_CONFIRMDELETE               "本当に " LCDW_128_LINEBREAK "すべて削除しますか？"
 #define TR_SELECT_WIDGET               "ウィジェット選択"

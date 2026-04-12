@@ -1256,8 +1256,6 @@
 #define TR_TELEMETRYFULL                  TR("슬롯 가득 참!", "텔레메트리 슬롯이 모두 찼습니다!")
 #define TR_IGNORE_INSTANCE                TR("인스턴스 무시", "인스턴스 무시")
 #define TR_SHOW_INSTANCE_ID               "인스턴스 ID 표시"
-#define TR_DISCOVER_SENSORS               "새 센서 탐색"
-#define TR_STOP_DISCOVER_SENSORS          "탐색 중지"
 #define TR_DELETE_ALL_SENSORS             "모든 센서 삭제"
 #define TR_CONFIRMDELETE                  "정말로 " LCDW_128_LINEBREAK "모두 삭제할까요?"
 #define TR_SELECT_WIDGET                  "위젯 선택"

@@ -58,7 +58,7 @@ TEST(FrSky, Vfas_0x39_HiPrecision)
   EXPECT_EQ(telemetryItems[0].value, 0);
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   // normal precision, resolution 0.1V
   processHubPacket(VFAS_ID, 1234);  // set value of 123.4V
@@ -80,7 +80,7 @@ TEST(FrSky, HubAltNegative)
   EXPECT_EQ(telemetryItems[0].value, 0);
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   // altimeter auto offset
   processHubPacket(BARO_ALT_BP_ID, 0);
@@ -126,7 +126,7 @@ TEST(FrSky, Gps)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   EXPECT_EQ(telemetryItems[0].value, 0);
 
@@ -187,7 +187,7 @@ TEST(FrSkySPORT, FrSkyDCells)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   uint8_t pkt1[] = { 0x7E, 0x98, 0x10, 0x06, 0x00, 0x07, 0xD0, 0x00, 0x00, 0x12 };
   EXPECT_TRUE(checkSportPacket(pkt1+1));
@@ -217,7 +217,7 @@ TEST(FrSkySPORT, frskySetCellVoltage)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   // test that simulates 3 cell battery
   generateSportCellPacket(packet, 3, 0, 410, 420);
@@ -329,7 +329,7 @@ TEST(FrSkySPORT, frskySetCellVoltageTwoSensors)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   //sensor 1: 3 cell battery
   generateSportCellPacket(packet, 3, 0, 418, 416);
@@ -407,7 +407,7 @@ TEST(FrSkySPORT, frskyVfas)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   // tests for Vfas
   generateSportFasVoltagePacket(packet, 5000);
@@ -452,7 +452,7 @@ TEST(FrSkySPORT, frskyCurrent)
   TELEMETRY_RESET();
   telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
+
 
   // tests for Curr
   generateSportFasCurrentPacket(packet, 0);
@@ -652,7 +652,7 @@ TEST(SensorMap, GhostSlotInMap)
 {
   MODEL_RESET();
   TELEMETRY_RESET();
-  allowNewSensors = true;
+
 
   // Create a sensor via telemetry discovery
   sensorMap.rebuild();
@@ -685,7 +685,7 @@ TEST(SensorMap, ProtocolFieldSetOnDiscovery)
 {
   MODEL_RESET();
   TELEMETRY_RESET();
-  allowNewSensors = true;
+
 
   sensorMap.rebuild();
   setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,

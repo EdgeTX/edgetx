@@ -1208,8 +1208,6 @@
 #define TR_TELEMETRYFULL               TR("項目已滿!", "回傳項目已滿!")
 #define TR_IGNORE_INSTANCE             TR("忽略ID", "忽略ID鑑別")
 #define TR_SHOW_INSTANCE_ID            "顯示實例ID"
-#define TR_DISCOVER_SENSORS            "掃描新的回傳項目"
-#define TR_STOP_DISCOVER_SENSORS       "停止掃描"
 #define TR_DELETE_ALL_SENSORS          "刪除所有回傳項目"
 #define TR_CONFIRMDELETE               "真的 " LCDW_128_LINEBREAK "要刪除全部嗎 ?"
 #define TR_SELECT_WIDGET               "選擇小部件"

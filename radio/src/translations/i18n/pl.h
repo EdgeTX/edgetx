@@ -1209,8 +1209,6 @@
 //TODO: translation
 #define TR_IGNORE_INSTANCE     "Ignoruj przypadek"
 #define TR_SHOW_INSTANCE_ID    "Pokaż ID instancji"
-#define TR_DISCOVER_SENSORS    "Znajdź nowe czujniki"
-#define TR_STOP_DISCOVER_SENSORS "Szukanie STOP "
 #define TR_DELETE_ALL_SENSORS  "Usuń czujniki     "
 #define TR_CONFIRMDELETE       "Usunąć wszystkie?"
 #define TR_SELECT_WIDGET       "Wybierz widżet"

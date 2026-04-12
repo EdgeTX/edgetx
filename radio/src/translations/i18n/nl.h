@@ -1212,8 +1212,6 @@
 //TODO: translation
 #define TR_IGNORE_INSTANCE     TR("Neg. ID ","Negeer ID's")
 #define TR_SHOW_INSTANCE_ID            "Show instance ID"
-#define TR_DISCOVER_SENSORS    "Ontdek nieuwe sensors"
-#define TR_STOP_DISCOVER_SENSORS "Stop ontdekking"
 #define TR_DELETE_ALL_SENSORS  "Wis alle sensors"
 #define TR_CONFIRMDELETE       "Echt alles wissen?"
 #define TR_SELECT_WIDGET       "Widget kiezen"

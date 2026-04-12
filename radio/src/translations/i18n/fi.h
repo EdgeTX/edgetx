@@ -1210,8 +1210,6 @@
 #define TR_TELEMETRYFULL               TR("All slots full!", "All telemetry slots full!")
 #define TR_IGNORE_INSTANCE             "Ignore instance"
 #define TR_SHOW_INSTANCE_ID            "Show instance ID"
-#define TR_DISCOVER_SENSORS            "Discover new sensors"
-#define TR_STOP_DISCOVER_SENSORS       "Stop discovery"
 #define TR_DELETE_ALL_SENSORS          "Delete all"
 #define TR_CONFIRMDELETE               "Really " LCDW_128_LINEBREAK "delete all ?"
 #define TR_SELECT_WIDGET               "Select widget"

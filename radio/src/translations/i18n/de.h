@@ -1209,8 +1209,6 @@
 #define TR_TELEMETRYFULL               TR("Telem voll!", "Telemetriezeilen voll!")
 #define TR_IGNORE_INSTANCE             TR("Ign. Inst.", "Ignor. Instanzen")
 #define TR_SHOW_INSTANCE_ID            "Zeige Instanz ID"
-#define TR_DISCOVER_SENSORS            "Start Sensorsuche"
-#define TR_STOP_DISCOVER_SENSORS       "Stop Sensorsuche"
 #define TR_DELETE_ALL_SENSORS          "Lösche alle Sensoren"
 #define TR_CONFIRMDELETE               "Wirklich alle " LCDW_128_LINEBREAK "löschen ?"
 #define TR_SELECT_WIDGET               "Widget auswählen"  // grafisches Element

@@ -1211,8 +1211,6 @@
 #define TR_TELEMETRYFULL               TR("Всі слоти повні!", "Всі слоти телеметрії повні!")
 #define TR_IGNORE_INSTANCE             TR("Немає інстанса.", "Ігнорувати інстанси")
 #define TR_SHOW_INSTANCE_ID            "Показати інстанс ID"
-#define TR_DISCOVER_SENSORS            "Пошук нового"
-#define TR_STOP_DISCOVER_SENSORS       "Stop"
 #define TR_DELETE_ALL_SENSORS          "Видалити всі"
 #define TR_CONFIRMDELETE               "Дійсно " LCDW_128_LINEBREAK "видалити всі ?"
 #define TR_SELECT_WIDGET               "Обрати віджет"

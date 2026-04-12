@@ -1213,8 +1213,6 @@
 #define TR_TELEMETRYFULL               TR("All slots full!", "All telemetry slots full!")
 #define TR_IGNORE_INSTANCE             TR("No inst.", "Ignore instances")
 #define TR_SHOW_INSTANCE_ID            "הצג מזהה"
-#define TR_DISCOVER_SENSORS            "גלה הכל"
-#define TR_STOP_DISCOVER_SENSORS       "עצור"
 #define TR_DELETE_ALL_SENSORS          "מחק הכל"
 #define TR_CONFIRMDELETE               "Really " LCDW_128_LINEBREAK "? למחוק הכל"
 #define TR_SELECT_WIDGET               "בחירת וידג'ט"

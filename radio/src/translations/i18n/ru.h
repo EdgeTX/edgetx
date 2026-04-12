@@ -1212,8 +1212,6 @@
 #define TR_TELEMETRYFULL               TR("Слоты заняты!", "Слоты заняты!")
 #define TR_IGNORE_INSTANCE             TR("Нет инстанса", "Игнор инстансы")
 #define TR_SHOW_INSTANCE_ID            "Показать ID инстанса"
-#define TR_DISCOVER_SENSORS            "Поиск нов датч"
-#define TR_STOP_DISCOVER_SENSORS       "Остановить"
 #define TR_DELETE_ALL_SENSORS          "Удалить все"
 #define TR_CONFIRMDELETE               "Удалить все?"
 #define TR_SELECT_WIDGET               "Выбрать виджет"

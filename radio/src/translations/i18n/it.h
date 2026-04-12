@@ -1210,8 +1210,6 @@
 #define TR_TELEMETRYFULL                "Tutti gli slot sono pieni!"
 #define TR_IGNORE_INSTANCE              TR("No inst.", "Ignora instanza")
 #define TR_SHOW_INSTANCE_ID             "Mostra ID dell'istanza"
-#define TR_DISCOVER_SENSORS             "Cerca nuovi sensori"
-#define TR_STOP_DISCOVER_SENSORS        "Ferma ricerca"
 #define TR_DELETE_ALL_SENSORS           "Elimina tutti i sensori"
 #define TR_CONFIRMDELETE                "Confermi " LCDW_128_LINEBREAK "eliminazione?"
 #define TR_SELECT_WIDGET                "Seleziona widget"

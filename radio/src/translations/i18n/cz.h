@@ -1213,8 +1213,6 @@
 #define TR_TELEMETRYFULL               "Všechny sloty jsou plné!"
 #define TR_IGNORE_INSTANCE             TR("Chybné ID", "Ignoruj chyby ID")
 #define TR_SHOW_INSTANCE_ID            "Zobrazit ID instance"
-#define TR_DISCOVER_SENSORS            "Detekovat nové senzory"
-#define TR_STOP_DISCOVER_SENSORS       "Zastavit autodetekci"
 #define TR_DELETE_ALL_SENSORS          "Odebrat všechny senzory"
 #define TR_CONFIRMDELETE               "Opravdu " LCDW_128_LINEBREAK "odstranit vše?"
 #define TR_SELECT_WIDGET               "Zvolit widget"

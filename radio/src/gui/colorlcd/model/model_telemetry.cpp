@@ -40,22 +40,11 @@
 
 std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
 
-#if PORTRAIT || defined(TRANSLATIONS_CZ)
-#define TWOCOLBUTTONS 1
-#else
-#define TWOCOLBUTTONS 0
-#endif
-
 // Overview grid variants
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(14), LV_GRID_FR(6),
                                      LV_GRID_TEMPLATE_LAST};
-#if TWOCOLBUTTONS
 static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                       LV_GRID_TEMPLATE_LAST};
-#else
-static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                      LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#endif
 static const lv_coord_t col_dsc5[] = {LV_GRID_FR(5), LV_GRID_FR(4),
                                       LV_GRID_FR(4), LV_GRID_FR(4),
                                       LV_GRID_TEMPLATE_LAST};
@@ -769,14 +758,7 @@ void ModelTelemetryPage::checkEvents()
 {
   int _lastKnownIndex = availableTelemetryIndex();
 
-  if (_lastKnownIndex < 0) {
-    if (discover->checked()) {
-      buildSensorList(-1);
-      discover->setText(STR_DISCOVER_SENSORS);
-      discover->check(false);
-      POPUP_WARNING(STR_TELEMETRYFULL);
-    }
-  } else if (lastKnownIndex != _lastKnownIndex) {
+  if (lastKnownIndex != _lastKnownIndex) {
     buildSensorList(-1);
     lastKnownIndex = _lastKnownIndex;
   }
@@ -847,11 +829,8 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
     }
   }
 
-  if (!didFocus) {
-    if (first && !allowNewSensors)
-      lv_group_focus_obj(first->getLvObj());
-    else
-      lv_group_focus_obj(discover->getLvObj());
+  if (!didFocus && first) {
+    lv_group_focus_obj(first->getLvObj());
   }
 
   uint8_t sensorsCount = getTelemetrySensorsCount();
@@ -878,26 +857,8 @@ void ModelTelemetryPage::build(Window* window)
 
   FlexGridLayout grid4(col_dsc4, row_dsc);
 
-  // Autodiscover button
-  auto line = window->newLine(grid4);
-  discover = new TextButton(
-      line, rect_t{},
-      (allowNewSensors) ? STR_STOP_DISCOVER_SENSORS : STR_DISCOVER_SENSORS);
-  discover->setPressHandler([=]() {
-    allowNewSensors = !allowNewSensors;
-    if (allowNewSensors) {
-      discover->setText(STR_STOP_DISCOVER_SENSORS);
-      return 1;
-    } else {
-      discover->setText(STR_DISCOVER_SENSORS);
-      return 0;
-    }
-  });
-  lv_obj_set_grid_cell(discover->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_CENTER, 0, 1);
-  discover->check(allowNewSensors);
-
   // New sensor button
+  auto line = window->newLine(grid4);
   auto b =
       new TextButton(line, rect_t{}, STR_TELEMETRY_NEWSENSOR, [=]() -> uint8_t {
         int idx = availableTelemetryIndex();
@@ -907,12 +868,9 @@ void ModelTelemetryPage::build(Window* window)
           POPUP_WARNING(STR_TELEMETRYFULL);
         return 0;
       });
-  lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1,
+  lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if TWOCOLBUTTONS
-  line = window->newLine(grid4);
-#endif
   // Delete all sensors button
   deleteAll =
       new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS, [=]() -> uint8_t {
@@ -924,14 +882,8 @@ void ModelTelemetryPage::build(Window* window)
                           });
         return 0;
       });
-#if TWOCOLBUTTONS
-  deleteAll->setWidth((LCD_W - 16) / 2);
-  lv_obj_set_grid_cell(deleteAll->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 2,
+  lv_obj_set_grid_cell(deleteAll->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1,
                        LV_GRID_ALIGN_CENTER, 0, 1);
-#else
-  lv_obj_set_grid_cell(deleteAll->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1,
-                       LV_GRID_ALIGN_CENTER, 0, 1);
-#endif
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
@@ -1030,7 +982,6 @@ void ModelTelemetryPage::build(Window* window)
   new Choice(line, rect_t{}, STR_VVARIOCENTER, 0, 1,
              GET_SET_DEFAULT(g_model.varioData.centerSilent));
 
-  // Don't call this before the 'discover' button has been created
   buildSensorList(-1);
 }
 

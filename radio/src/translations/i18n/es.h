@@ -1211,8 +1211,6 @@
 #define TR_TELEMETRYFULL       TR("Telem. llena!", "Todas las entradas de telemetría llenas!")
 #define TR_IGNORE_INSTANCE     TR("No inst.", "Ignora instancias")
 #define TR_SHOW_INSTANCE_ID            "Show instance ID"
-#define TR_DISCOVER_SENSORS    "Buscar sensores"
-#define TR_STOP_DISCOVER_SENSORS "Parar busqueda"
 #define TR_DELETE_ALL_SENSORS  "Borrar sensores"
 #define TR_CONFIRMDELETE       "Seguro " LCDW_128_LINEBREAK "borrar todo ?"
 #define TR_SELECT_WIDGET       "Seleccionar widget"

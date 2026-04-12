@@ -1213,8 +1213,6 @@
 #define TR_TELEMETRYFULL               "Plus de capteurs libres!"
 #define TR_IGNORE_INSTANCE             TR("Ign. inst", "Ignorer instance")
 #define TR_SHOW_INSTANCE_ID            "Voir instance ID"
-#define TR_DISCOVER_SENSORS            "Découvrir capteurs"
-#define TR_STOP_DISCOVER_SENSORS       "Terminer découverte"
 #define TR_DELETE_ALL_SENSORS          TR("Suppr. tous capteurs", "Suppr. tous capteurs")
 #define TR_CONFIRMDELETE               TR("Tout effacer?", "Vraiment tout " LCDW_128_LINEBREAK "effacer ?")
 #define TR_SELECT_WIDGET               "Sélection widget"

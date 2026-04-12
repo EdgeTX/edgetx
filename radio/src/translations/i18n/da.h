@@ -1215,8 +1215,6 @@
 #define TR_TELEMETRYFULL               TR("Alle slots fulde!", "Alle telemetri slots fulde!")
 #define TR_IGNORE_INSTANCE             TR("Ingen inst.", "Ignorer instans")
 #define TR_SHOW_INSTANCE_ID            "Show instance ID"
-#define TR_DISCOVER_SENSORS            "Søg efter nye"
-#define TR_STOP_DISCOVER_SENSORS       "Stop"
 #define TR_DELETE_ALL_SENSORS          "Slet alle"
 #define TR_CONFIRMDELETE               "Virkeligt " LCDW_128_LINEBREAK "slet alle ?"
 #define TR_SELECT_WIDGET               "Vælg widget"
