@@ -2707,29 +2707,42 @@ This is an iterator function over switch positions. `for switchIndex, switchName
 */
 
 // Switch type iteration table (must match getSwitchIndex order)
-struct SwitchTypeRange { uint8_t type; uint16_t count; };
-static SwitchTypeRange luaSwitchTypes[] = {
-  { SWITCH_TYPE_SWITCH,         0 }, // count filled at runtime
-  { SWITCH_TYPE_MULTIPOS,       MAX_XPOTS_POSITIONS },
-  { SWITCH_TYPE_TRIM,           (uint16_t)(2 * MAX_TRIMS) },
-  { SWITCH_TYPE_LOGICAL,        MAX_LOGICAL_SWITCHES },
-  { SWITCH_TYPE_ON,             1 },
-  { SWITCH_TYPE_ONE,            1 },
-  { SWITCH_TYPE_FLIGHT_MODE,    MAX_FLIGHT_MODES },
-  { SWITCH_TYPE_TELEMETRY,      1 },
-  { SWITCH_TYPE_SENSOR,         MAX_TELEMETRY_SENSORS },
-  { SWITCH_TYPE_RADIO_ACTIVITY, 1 },
-  { SWITCH_TYPE_TRAINER,        1 },
+static constexpr uint8_t luaSwitchTypeOrder[] = {
+  SWITCH_TYPE_SWITCH,
+  SWITCH_TYPE_MULTIPOS,
+  SWITCH_TYPE_TRIM,
+  SWITCH_TYPE_LOGICAL,
+  SWITCH_TYPE_ON,
+  SWITCH_TYPE_ONE,
+  SWITCH_TYPE_FLIGHT_MODE,
+  SWITCH_TYPE_TELEMETRY,
+  SWITCH_TYPE_SENSOR,
+  SWITCH_TYPE_RADIO_ACTIVITY,
+  SWITCH_TYPE_TRAINER,
 };
+
+static uint16_t luaSwitchTypeCount(uint8_t type)
+{
+  switch (type) {
+    case SWITCH_TYPE_SWITCH:         return switchGetMaxAllSwitches() * 3;
+    case SWITCH_TYPE_MULTIPOS:       return MAX_XPOTS_POSITIONS;
+    case SWITCH_TYPE_TRIM:           return 2 * MAX_TRIMS;
+    case SWITCH_TYPE_LOGICAL:        return MAX_LOGICAL_SWITCHES;
+    case SWITCH_TYPE_ON:             return 1;
+    case SWITCH_TYPE_ONE:            return 1;
+    case SWITCH_TYPE_FLIGHT_MODE:    return getFlightModeCount();
+    case SWITCH_TYPE_TELEMETRY:      return 1;
+    case SWITCH_TYPE_SENSOR:         return MAX_TELEMETRY_SENSORS;
+    case SWITCH_TYPE_RADIO_ACTIVITY: return 1;
+    case SWITCH_TYPE_TRAINER:        return 1;
+    default:                         return 0;
+  }
+}
 
 static int luaNextSwitch(lua_State * L)
 {
   uint32_t last = luaL_checkinteger(L, 1);
   uint32_t packed = luaL_checkinteger(L, 2);
-
-  // Ensure runtime counts are up to date
-  luaSwitchTypes[0].count = switchGetMaxAllSwitches() * 3;
-  luaSwitchTypes[6].count = getFlightModeCount();  // SWITCH_TYPE_FLIGHT_MODE
 
   SwitchRef cur = SwitchRef::fromUint32(packed);
 
@@ -2737,8 +2750,8 @@ static int luaNextSwitch(lua_State * L)
   unsigned startType = 0;
   uint16_t startIdx = 0;
   bool found = false;
-  for (unsigned t = 0; t < DIM(luaSwitchTypes); t++) {
-    if (luaSwitchTypes[t].type == cur.type) {
+  for (unsigned t = 0; t < DIM(luaSwitchTypeOrder); t++) {
+    if (luaSwitchTypeOrder[t] == cur.type) {
       startType = t;
       startIdx = cur.index + 1;
       found = true;
@@ -2750,12 +2763,13 @@ static int luaNextSwitch(lua_State * L)
     startIdx = 0;
   }
 
-  for (unsigned t = startType; t < DIM(luaSwitchTypes); t++) {
-    auto& tr = luaSwitchTypes[t];
+  for (unsigned t = startType; t < DIM(luaSwitchTypeOrder); t++) {
+    uint8_t type = luaSwitchTypeOrder[t];
+    uint16_t count = luaSwitchTypeCount(type);
     uint16_t begin = (t == startType) ? startIdx : 0;
 
-    for (uint16_t i = begin; i < tr.count; i++) {
-      SwitchRef ref = SwitchRef_(tr.type, i);
+    for (uint16_t i = begin; i < count; i++) {
+      SwitchRef ref = SwitchRef_(type, i);
       uint32_t p = ref.toUint32();
       if (p > last) goto done;
       if (isSwitchAvailable(ref, ModelCustomFunctionsContext)) {

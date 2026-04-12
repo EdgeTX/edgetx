@@ -52,22 +52,41 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, Lcd
   return editCheckBox(value, x, y, label, attr, event, 0);
 }
 
-static const struct { uint8_t type; uint16_t count; } switchTypes[] = {
-  {SWITCH_TYPE_NONE, 1},
-  {SWITCH_TYPE_SWITCH, (uint16_t)(switchGetMaxSwitches() * 3)},
+static constexpr uint8_t switchTypeOrder[] = {
+  SWITCH_TYPE_NONE,
+  SWITCH_TYPE_SWITCH,
 #if defined(MULTIPOS_SWITCH)
-  {SWITCH_TYPE_MULTIPOS, XPOTS_MULTIPOS_COUNT * MAX_POTS},
+  SWITCH_TYPE_MULTIPOS,
 #endif
-  {SWITCH_TYPE_TRIM, MAX_TRIMS * 2},
-  {SWITCH_TYPE_LOGICAL, MAX_LOGICAL_SWITCHES},
-  {SWITCH_TYPE_ON, 1},
-  {SWITCH_TYPE_ONE, 1},
-  {SWITCH_TYPE_FLIGHT_MODE, MAX_FLIGHT_MODES},
-  {SWITCH_TYPE_TELEMETRY, 1},
-  {SWITCH_TYPE_SENSOR, MAX_TELEMETRY_SENSORS},
-  {SWITCH_TYPE_RADIO_ACTIVITY, 1},
-  {SWITCH_TYPE_TRAINER, 1},
+  SWITCH_TYPE_TRIM,
+  SWITCH_TYPE_LOGICAL,
+  SWITCH_TYPE_ON,
+  SWITCH_TYPE_ONE,
+  SWITCH_TYPE_FLIGHT_MODE,
+  SWITCH_TYPE_TELEMETRY,
+  SWITCH_TYPE_SENSOR,
+  SWITCH_TYPE_RADIO_ACTIVITY,
+  SWITCH_TYPE_TRAINER,
 };
+
+static uint16_t switchTypeCount(uint8_t type)
+{
+  switch (type) {
+    case SWITCH_TYPE_NONE:           return 1;
+    case SWITCH_TYPE_SWITCH:         return switchGetMaxSwitches() * 3;
+    case SWITCH_TYPE_MULTIPOS:       return XPOTS_MULTIPOS_COUNT * MAX_POTS;
+    case SWITCH_TYPE_TRIM:           return MAX_TRIMS * 2;
+    case SWITCH_TYPE_LOGICAL:        return MAX_LOGICAL_SWITCHES;
+    case SWITCH_TYPE_ON:             return 1;
+    case SWITCH_TYPE_ONE:            return 1;
+    case SWITCH_TYPE_FLIGHT_MODE:    return MAX_FLIGHT_MODES;
+    case SWITCH_TYPE_TELEMETRY:      return 1;
+    case SWITCH_TYPE_SENSOR:         return MAX_TELEMETRY_SENSORS;
+    case SWITCH_TYPE_RADIO_ACTIVITY: return 1;
+    case SWITCH_TYPE_TRAINER:        return 1;
+    default:                         return 0;
+  }
+}
 
 // Find next valid SourceRef in the enumeration
 static SourceRef nextSource(SourceRef cur)
@@ -121,14 +140,15 @@ static SourceRef prevSource(SourceRef cur)
 // Find next valid SwitchRef in the enumeration
 static SwitchRef nextSwitch(SwitchRef cur)
 {
-  for (unsigned t = 0; t < DIM(switchTypes); t++) {
-    if (switchTypes[t].type == cur.type) {
-      if (cur.index + 1 < switchTypes[t].count) {
+  for (unsigned t = 0; t < DIM(switchTypeOrder); t++) {
+    if (switchTypeOrder[t] == cur.type) {
+      uint16_t count = switchTypeCount(cur.type);
+      if (cur.index + 1 < count) {
         return SwitchRef_(cur.type, (uint16_t)(cur.index + 1), cur.flags);
       }
-      for (unsigned nt = t + 1; nt < DIM(switchTypes); nt++) {
-        if (switchTypes[nt].count > 0)
-          return SwitchRef_(switchTypes[nt].type, 0, cur.flags);
+      for (unsigned nt = t + 1; nt < DIM(switchTypeOrder); nt++) {
+        if (switchTypeCount(switchTypeOrder[nt]) > 0)
+          return SwitchRef_(switchTypeOrder[nt], 0, cur.flags);
       }
       return cur;
     }
@@ -138,14 +158,15 @@ static SwitchRef nextSwitch(SwitchRef cur)
 
 static SwitchRef prevSwitch(SwitchRef cur)
 {
-  for (unsigned t = 0; t < DIM(switchTypes); t++) {
-    if (switchTypes[t].type == cur.type) {
+  for (unsigned t = 0; t < DIM(switchTypeOrder); t++) {
+    if (switchTypeOrder[t] == cur.type) {
       if (cur.index > 0) {
         return SwitchRef_(cur.type, (uint16_t)(cur.index - 1), cur.flags);
       }
       for (int nt = t - 1; nt >= 0; nt--) {
-        if (switchTypes[nt].count > 0)
-          return SwitchRef_(switchTypes[nt].type, (uint16_t)(switchTypes[nt].count - 1), cur.flags);
+        uint16_t count = switchTypeCount(switchTypeOrder[nt]);
+        if (count > 0)
+          return SwitchRef_(switchTypeOrder[nt], (uint16_t)(count - 1), cur.flags);
       }
       return cur;
     }
@@ -176,15 +197,11 @@ static SourceRef firstAvailableSourceOfType(uint8_t type,
 static SwitchRef firstAvailableSwitchOfType(uint8_t type,
     std::function<bool(SwitchRef)> available)
 {
-  for (unsigned t = 0; t < DIM(switchTypes); t++) {
-    if (switchTypes[t].type == type) {
-      for (uint16_t i = 0; i < switchTypes[t].count; i++) {
-        SwitchRef ref = SwitchRef_(type, i);
-        if (!available || available(ref))
-          return ref;
-      }
-      break;
-    }
+  uint16_t count = switchTypeCount(type);
+  for (uint16_t i = 0; i < count; i++) {
+    SwitchRef ref = SwitchRef_(type, i);
+    if (!available || available(ref))
+      return ref;
   }
   return {};
 }
