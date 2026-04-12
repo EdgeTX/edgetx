@@ -120,6 +120,7 @@ int setTelemetryText(TelemetryProtocol protocol, uint16_t id, uint8_t subId, uin
 void delTelemetryIndex(uint8_t index);
 int availableTelemetryIndex();
 int lastUsedTelemetryIndex();
+void ensureSensorIdentity();
 
 int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t destUnit, uint8_t destPrec);
 

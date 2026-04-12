@@ -29,6 +29,7 @@
 #include "switches.h"
 #include "analogs.h"
 #include "stamp.h"
+#include "telemetry/telemetry_sensors.h"
 
 #include "hal/switch_driver.h"
 #include "hal/adc_driver.h"
@@ -37,6 +38,10 @@
 #if defined(COLORLCD)
 #include "radio_tools.h"
 #endif
+
+// Forward declarations for sensor identity YAML helpers (defined below)
+static int parseSensorRef(const char* val, uint8_t val_len);
+static bool writeSensorIdentity(uint32_t idx, yaml_writer_func wf, void* opaque);
 
 //
 // WARNING:
@@ -296,8 +301,11 @@ static SourceRef yaml_parse_source(const char* val, uint8_t val_len)
       uint8_t sign = 0;
       if (*val == '-') { sign = 1; val++; val_len--; }
       else if (*val == '+') { sign = 2; val++; val_len--; }
-      uint16_t idx = yaml_str2uint(val, val_len) * 3 + sign;
-      return SourceRef_(SOURCE_TYPE_TELEMETRY, idx);
+      // Strip trailing ')'
+      if (val_len > 0 && val[val_len - 1] == ')') val_len--;
+      int idx = parseSensorRef(val, val_len);
+      if (idx < 0) return {};
+      return SourceRef_(SOURCE_TYPE_TELEMETRY, (uint16_t)(idx * 3 + sign));
     } else if (val_len > 3 &&
                val[0] == 'C' && val[1] == 'Y' && val[2] == 'C' &&
                val[3] >= '1' && val[3] <= '3') {
@@ -419,8 +427,15 @@ static bool yaml_write_source(const SourceRef& ref, yaml_writer_func wf, void* o
         if (!wf(opaque, "tele(", 5)) return false;
         if (sign == 1) { if (!wf(opaque, "-", 1)) return false; }
         else if (sign == 2) { if (!wf(opaque, "+", 1)) return false; }
-        str = yaml_unsigned2str(sensor);
-        if (!wf(opaque, str, strlen(str))) return false;
+        // Identity-based reference if protocol is known
+        if (sensor < MAX_TELEMETRY_SENSORS &&
+            g_model.telemetrySensors[sensor].protocol != 0) {
+          if (!writeSensorIdentity(sensor, wf, opaque)) return false;
+        } else {
+          // Fallback: bare index
+          str = yaml_unsigned2str(sensor);
+          if (!wf(opaque, str, strlen(str))) return false;
+        }
         str = closing_parenthesis;
         break;
       }
@@ -1766,10 +1781,117 @@ static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitof
 }
 #endif
 
+// --- Sensor identity helpers for YAML ---
+
+// Parse "Proto:0xHHHH:S" → (protocol, id, subId)
+// Accepts both closing ')' and bare end.  Returns true if valid.
+static bool parseSensorIdentity(const char* val, uint8_t val_len,
+                                TelemetryProtocol& protocol,
+                                uint16_t& id, uint8_t& subId)
+{
+  // Strip trailing ')' if present
+  if (val_len > 0 && val[val_len - 1] == ')')
+    val_len--;
+
+  // Find first ':'
+  uint8_t colonPos = 0;
+  while (colonPos < val_len && val[colonPos] != ':') colonPos++;
+  if (colonPos == 0 || colonPos >= val_len) return false;
+
+  protocol = telemetryProtocolFromShortName(val, colonPos);
+
+  // Advance past first ':'
+  val += colonPos + 1;
+  val_len -= colonPos + 1;
+
+  // Find second ':'
+  uint8_t colonPos2 = 0;
+  while (colonPos2 < val_len && val[colonPos2] != ':') colonPos2++;
+  if (colonPos2 == 0 || colonPos2 >= val_len) return false;
+
+  // Parse id (supports 0x hex prefix)
+  if (colonPos2 > 2 && val[0] == '0' && (val[1] == 'x' || val[1] == 'X'))
+    id = yaml_hex2uint(val + 2, colonPos2 - 2);
+  else
+    id = yaml_str2uint(val, colonPos2);
+
+  // Parse subId
+  val += colonPos2 + 1;
+  val_len -= colonPos2 + 1;
+  subId = yaml_str2uint(val, val_len);
+
+  return true;
+}
+
+// Find sensor slot by identity (protocol, id, subId). Returns 0-based index or -1.
+static int findSensorByIdentity(TelemetryProtocol protocol, uint16_t id, uint8_t subId)
+{
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    const TelemetrySensor& s = g_model.telemetrySensors[i];
+    if (s.protocol == protocol && s.id == id && s.subId == subId)
+      return i;
+  }
+  return -1;
+}
+
+// Write "Proto:0xHHHH:S" identity for a sensor at the given index.
+// Returns false on write failure.
+static bool writeSensorIdentity(uint32_t idx, yaml_writer_func wf, void* opaque)
+{
+  const TelemetrySensor& sensor = g_model.telemetrySensors[idx];
+  const char* protoName = telemetryProtocolShortName(
+      (TelemetryProtocol)sensor.protocol);
+  if (!protoName) return false;
+
+  if (!wf(opaque, protoName, strlen(protoName))) return false;
+  if (!wf(opaque, ":0x", 3)) return false;
+
+  // Write id as hex
+  char hexBuf[5];
+  uint16_t v = sensor.id;
+  for (int i = 3; i >= 0; i--) {
+    uint8_t nibble = v & 0xF;
+    hexBuf[i] = nibble < 10 ? ('0' + nibble) : ('A' + nibble - 10);
+    v >>= 4;
+  }
+  hexBuf[4] = '\0';
+  if (!wf(opaque, hexBuf, 4)) return false;
+
+  if (!wf(opaque, ":", 1)) return false;
+  const char* subIdStr = yaml_unsigned2str(sensor.subId);
+  return wf(opaque, subIdStr, strlen(subIdStr));
+}
+
+// Parse a sensor reference value that may be:
+//   "Proto:0xHHHH:S"  → identity lookup
+//   "N"               → legacy 0-based index
+// Returns 0-based sensor index, or -1 if not found.
+static int parseSensorRef(const char* val, uint8_t val_len)
+{
+  if (val_len == 0) return -1;
+
+  if (val[0] >= '0' && val[0] <= '9') {
+    // Legacy: bare index
+    return (int)yaml_str2uint(val, val_len);
+  }
+
+  // Identity format "Proto:0xHHHH:S"
+  TelemetryProtocol protocol;
+  uint16_t id;
+  uint8_t subId;
+  if (parseSensorIdentity(val, val_len, protocol, id, subId)) {
+    return findSensorByIdentity(protocol, id, subId);
+  }
+
+  return -1;
+}
+
 static uint32_t r_tele_sensor(const YamlNode* node, const char* val, uint8_t val_len)
 {
-  if (val_len == 0 || val[0] < '0' || val[0] > '9') return 0;
-  return yaml_str2uint(val, val_len) + 1;
+  int idx = parseSensorRef(val, val_len);
+  if (idx >= 0)
+    return (uint32_t)(idx + 1);  // 1-based for the YAML field
+  return 0;
 }
 
 static bool w_tele_sensor(const YamlNode* node, uint32_t val,
@@ -1778,8 +1900,17 @@ static bool w_tele_sensor(const YamlNode* node, uint32_t val,
   if (!val) {
     return wf(opaque, "none", 4);
   }
-  
-  const char* str = yaml_unsigned2str(val-1);  
+
+  uint32_t idx = val - 1;  // convert to 0-based
+
+  // Identity-based reference if protocol is known
+  if (idx < MAX_TELEMETRY_SENSORS &&
+      g_model.telemetrySensors[idx].protocol != 0) {
+    return writeSensorIdentity(idx, wf, opaque);
+  }
+
+  // Fallback: bare index
+  const char* str = yaml_unsigned2str(idx);
   return wf(opaque, str, strlen(str));
 }
 
@@ -2582,9 +2713,20 @@ static SwitchRef yaml_parse_switch(const char* val, uint8_t val_len)
     else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' && (val[2] >= '0' && val[2] <= '9')) {
       ref = SwitchRef_(SWITCH_TYPE_FLIGHT_MODE, (uint16_t)(val[2] - '0'));
     }
-    // Telemetry sensors: "T1", "T12"
-    else if (val_len >= 2 && val[0] == 'T' && (val[1] >= '0' && val[1] <= '9')) {
-      ref = SwitchRef_(SWITCH_TYPE_SENSOR, (uint16_t)(yaml_str2int(val+1, val_len-1) - 1));
+    // Telemetry sensors:
+    //   "T(Sport:0x0210:0)" — identity reference
+    //   "T1", "T12"         — legacy 1-based index
+    else if (val_len >= 2 && val[0] == 'T' &&
+             (val[1] == '(' || (val[1] >= '0' && val[1] <= '9'))) {
+      if (val[1] == '(') {
+        // T(Proto:0xHHHH:S)
+        int idx = parseSensorRef(val + 2, val_len - 2);
+        if (idx >= 0)
+          ref = SwitchRef_(SWITCH_TYPE_SENSOR, (uint16_t)idx);
+      } else {
+        // Legacy: T1 (1-based index)
+        ref = SwitchRef_(SWITCH_TYPE_SENSOR, (uint16_t)(yaml_str2int(val+1, val_len-1) - 1));
+      }
     }
     else {
       // Singleton enum names (ON, ONE, TELEMETRY_STREAMING, etc.)
@@ -2647,8 +2789,17 @@ static bool yaml_write_switch(const SwitchRef& ref, yaml_writer_func wf, void* o
       case SWITCH_TYPE_TELEMETRY:
         return wf(opaque, "TELEMETRY_STREAMING", 19);
       case SWITCH_TYPE_SENSOR:
-        if (!wf(opaque, "T", 1)) return false;
-        str = yaml_unsigned2str(ref.index + 1);
+        // T(Proto:0xHHHH:S)
+        if (ref.index < MAX_TELEMETRY_SENSORS &&
+            g_model.telemetrySensors[ref.index].protocol != 0) {
+          if (!wf(opaque, "T(", 2)) return false;
+          if (!writeSensorIdentity(ref.index, wf, opaque)) return false;
+          str = ")";
+        } else {
+          // Fallback: T1 (1-based)
+          if (!wf(opaque, "T", 1)) return false;
+          str = yaml_unsigned2str(ref.index + 1);
+        }
         break;
       case SWITCH_TYPE_RADIO_ACTIVITY:
         return wf(opaque, "RADIO_ACTIVITY", 14);

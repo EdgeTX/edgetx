@@ -54,6 +54,97 @@
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 bool allowNewSensors;
 
+// --- Protocol short-name table for YAML identity references ---
+
+struct TelemetryProtocolName {
+  TelemetryProtocol protocol;
+  const char* shortName;
+};
+
+static const TelemetryProtocolName telemetryProtocolNames[] = {
+  { PROTOCOL_TELEMETRY_FRSKY_SPORT,       "Sport" },
+  { PROTOCOL_TELEMETRY_FRSKY_D,           "FrD"   },
+  { PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY, "FrD2"  },
+  { PROTOCOL_TELEMETRY_CROSSFIRE,         "CRSF"  },
+  { PROTOCOL_TELEMETRY_SPEKTRUM,          "Spek"  },
+  { PROTOCOL_TELEMETRY_FLYSKY_IBUS,       "IBus"  },
+  { PROTOCOL_TELEMETRY_HITEC,             "Hitec" },
+  { PROTOCOL_TELEMETRY_HOTT,              "HoTT"  },
+  { PROTOCOL_TELEMETRY_MLINK,             "MLnk"  },
+  { PROTOCOL_TELEMETRY_MULTIMODULE,       "Multi" },
+  { PROTOCOL_TELEMETRY_AFHDS3,            "AFHD3" },
+  { PROTOCOL_TELEMETRY_GHOST,             "Ghost" },
+  { PROTOCOL_TELEMETRY_FLYSKY_NV14,       "NV14"  },
+  { PROTOCOL_TELEMETRY_DSMP,              "DSMP"  },
+  { PROTOCOL_TELEMETRY_LUA,              "Lua"   },
+};
+
+const char* telemetryProtocolShortName(TelemetryProtocol proto)
+{
+  for (const auto& entry : telemetryProtocolNames) {
+    if (entry.protocol == proto)
+      return entry.shortName;
+  }
+  return nullptr;
+}
+
+TelemetryProtocol telemetryProtocolFromShortName(const char* name, uint8_t len)
+{
+  for (const auto& entry : telemetryProtocolNames) {
+    if (strlen(entry.shortName) == len &&
+        strncmp(entry.shortName, name, len) == 0)
+      return entry.protocol;
+  }
+  return PROTOCOL_TELEMETRY_FIRST;  // 0 = unknown/default
+}
+
+// --- SensorMap implementation ---
+
+SensorMap sensorMap;
+
+void SensorMap::clear()
+{
+  ready = false;
+  memset(buckets, -1, sizeof(buckets));
+  memset(chain, -1, sizeof(chain));
+}
+
+void SensorMap::rebuild()
+{
+  clear();
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    const TelemetrySensor& s = g_model.telemetrySensors[i];
+    // Insert both active sensors and ghosts (ghosts have id/subId but no label)
+    if (s.id != 0 || s.subId != 0 || s.instance != 0) {
+      insert(i);
+    }
+  }
+  ready = true;
+}
+
+void SensorMap::insert(uint8_t slot)
+{
+  const TelemetrySensor& s = g_model.telemetrySensors[slot];
+  uint8_t h = hash(s.id, s.subId);
+  chain[slot] = buckets[h];
+  buckets[h] = slot;
+}
+
+void SensorMap::remove(uint8_t slot)
+{
+  const TelemetrySensor& s = g_model.telemetrySensors[slot];
+  uint8_t h = hash(s.id, s.subId);
+  int8_t* p = &buckets[h];
+  while (*p >= 0) {
+    if (*p == (int8_t)slot) {
+      *p = chain[slot];
+      chain[slot] = -1;
+      return;
+    }
+    p = &chain[*p];
+  }
+}
+
 bool isFaiForbidden(source_t idx)
 {
   if (idx < MIXSRC_FIRST_TELEM) return false;
@@ -469,9 +560,34 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
   }
 }
 
+void ensureSensorIdentity()
+{
+  // protocol is lazily filled on first telemetry reception
+  // for legacy sensors (protocol == 0)
+  sensorMap.rebuild();
+}
+
 void delTelemetryIndex(uint8_t index)
 {
-  memclear(&g_model.telemetrySensors[index], sizeof(TelemetrySensor));
+  TelemetrySensor & sensor = g_model.telemetrySensors[index];
+
+  // Preserve identity for ghost-slot re-discovery:
+  // keep protocol, id, subId, instance so setTelemetryValue() can
+  // match and reactivate this slot when the same sensor reappears.
+  uint8_t  savedProtocol = sensor.protocol;
+  uint16_t savedId = sensor.id;
+  uint8_t  savedSubId = sensor.subId;
+  uint8_t  savedInstance = sensor.instance;
+
+  memclear(&sensor, sizeof(TelemetrySensor));
+
+  sensor.protocol = savedProtocol;
+  sensor.id = savedId;
+  sensor.subId = savedSubId;
+  sensor.instance = savedInstance;
+  // label is cleared (all zeros) → isAvailable() returns false
+  // type is 0 (TELEM_TYPE_CUSTOM) → matches in setTelemetryValue()
+
   telemetryItems[index].clear();
   storageDirty(EE_MODEL);
 }
@@ -498,14 +614,81 @@ int lastUsedTelemetryIndex()
   return -1;
 }
 
+// Initialize a sensor slot from protocol-specific defaults.
+// Returns false for protocols that require caller initialization (Lua, unknown).
+static bool initSensorFromProtocol(TelemetryProtocol protocol, int index,
+                                   uint16_t id, uint8_t subId, uint8_t instance)
+{
+  switch (protocol) {
+    case PROTOCOL_TELEMETRY_FRSKY_SPORT:
+      frskySportSetDefault(index, id, subId, instance);
+      break;
+
+    case PROTOCOL_TELEMETRY_FRSKY_D:
+      frskyDSetDefault(index, id);
+      break;
+
+#if defined(CROSSFIRE)
+    case PROTOCOL_TELEMETRY_CROSSFIRE:
+      crossfireSetDefault(index, id, instance);
+      break;
+#endif
+
+#if defined(GHOST)
+    case PROTOCOL_TELEMETRY_GHOST:
+      ghostSetDefault(index, id, instance);
+      break;
+#endif
+
+#if defined(MULTIMODULE) || defined(AFHDS3) || defined(AFHDS2)
+    case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
+      flySkySetDefault(index, id, subId, instance);
+      break;
+#endif
+
+#if defined(AFHDS2) && defined(RADIO_NV14_FAMILY)
+    case PROTOCOL_TELEMETRY_FLYSKY_NV14:
+      flySkyNv14SetDefault(index, id, subId, instance);
+      break;
+#endif
+
+    case PROTOCOL_TELEMETRY_SPEKTRUM:
+      spektrumSetDefault(index, id, subId, instance);
+      break;
+
+#if defined(MULTIMODULE)
+    case PROTOCOL_TELEMETRY_HITEC:
+      hitecSetDefault(index, id, subId, instance);
+      break;
+
+    case PROTOCOL_TELEMETRY_HOTT:
+      hottSetDefault(index, id, subId, instance);
+      break;
+#endif
+
+#if defined(MULTIMODULE) || defined(PPM)
+    case PROTOCOL_TELEMETRY_MLINK:
+      mlinkSetDefault(index, id, subId, instance);
+      break;
+#endif
+
+    default:
+      return false;
+  }
+  g_model.telemetrySensors[index].protocol = protocol;
+  return true;
+}
+
 template <class T>
 int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
                       uint8_t instance, T value, uint32_t unit = 0,
                       uint32_t prec = 0)
 {
   bool sensorFound = false;
+  int ghostIndex = -1;
 
-  for (int index = 0; index < MAX_TELEMETRY_SENSORS; index++) {
+  // Inline lambda: check one candidate slot
+  auto checkSlot = [&](int index) {
     TelemetrySensor &telemetrySensor = g_model.telemetrySensors[index];
 
     if (telemetrySensor.type == TELEM_TYPE_CUSTOM && telemetrySensor.id == id &&
@@ -513,83 +696,73 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
         (telemetrySensor.isSameInstance(protocol, instance) ||
          g_model.ignoreSensorIds)) {
 
+      if (!telemetrySensor.isAvailable()) {
+        if (ghostIndex < 0)
+          ghostIndex = index;
+        return;
+      }
+
+      // Lazy protocol migration for sensors loaded from older models
+      if (telemetrySensor.protocol == 0)
+        telemetrySensor.protocol = protocol;
+
       telemetryItems[index].setValue(telemetrySensor, value, unit, prec);
       sensorFound = true;
-      // we continue search here, because sensors can share the same id and
-      // instance
+    }
+  };
+
+  if (sensorMap.ready) {
+    // O(1) path: walk hash chain for (id, subId)
+    uint8_t h = SensorMap::hash(id, subId);
+    for (int8_t slot = sensorMap.buckets[h]; slot >= 0; slot = sensorMap.chain[slot]) {
+      checkSlot(slot);
+    }
+  } else {
+    // Fallback: linear scan (before model load / in tests)
+    for (int index = 0; index < MAX_TELEMETRY_SENSORS; index++) {
+      checkSlot(index);
     }
   }
 
-  if (sensorFound || !allowNewSensors) {
+  if (sensorFound) {
+    return -1;
+  }
+
+  // Reactivate ghost slot: re-initialize via protocol SetDefault
+  // (preserves slot position; map entry already exists)
+  if (ghostIndex >= 0) {
+    if (initSensorFromProtocol(protocol, ghostIndex, id, subId, instance)) {
+      telemetryItems[ghostIndex].setValue(g_model.telemetrySensors[ghostIndex], value, unit, prec);
+    }
+    return ghostIndex;
+  }
+
+  if (!allowNewSensors) {
     return -1;
   }
 
   int index = availableTelemetryIndex();
   if (index >= 0) {
-    switch (protocol) {
-      case PROTOCOL_TELEMETRY_FRSKY_SPORT:
-        frskySportSetDefault(index, id, subId, instance);
-        break;
-
-      case PROTOCOL_TELEMETRY_FRSKY_D:
-        frskyDSetDefault(index, id);
-        break;
-
-#if defined(CROSSFIRE)
-      case PROTOCOL_TELEMETRY_CROSSFIRE:
-        crossfireSetDefault(index, id, instance);
-        break;
-#endif
-
-#if defined(GHOST)
-      case PROTOCOL_TELEMETRY_GHOST:
-        ghostSetDefault(index, id, instance);
-        break;
-#endif
-
-#if defined(MULTIMODULE) || defined(AFHDS3) || defined(AFHDS2)
-      case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
-        flySkySetDefault(index, id, subId, instance);
-        break;
-#endif
-
-#if defined(AFHDS2) && defined(RADIO_NV14_FAMILY)
-      case PROTOCOL_TELEMETRY_FLYSKY_NV14:
-        flySkyNv14SetDefault(index, id, subId, instance);
-        break;
-#endif
-
-      case PROTOCOL_TELEMETRY_SPEKTRUM:
-        spektrumSetDefault(index, id, subId, instance);
-        break;
-
-#if defined(MULTIMODULE)
-      case PROTOCOL_TELEMETRY_HITEC:
-        hitecSetDefault(index, id, subId, instance);
-        break;
-
-      case PROTOCOL_TELEMETRY_HOTT:
-        hottSetDefault(index, id, subId, instance);
-        break;
-#endif
-
-#if defined(MULTIMODULE) || defined(PPM)
-      case PROTOCOL_TELEMETRY_MLINK:
-        mlinkSetDefault(index, id, subId, instance);
-        break;
-#endif
+    // Remove stale map entry if this slot was a ghost for a different sensor
+    if (sensorMap.ready) sensorMap.remove(index);
 
 #if defined(LUA)
-     case PROTOCOL_TELEMETRY_LUA:
-        // Sensor will be initialized by calling function
-        // This drops the first value
-        return index;
+    if (protocol == PROTOCOL_TELEMETRY_LUA) {
+      // Sensor will be initialized by calling function
+      // This drops the first value
+      g_model.telemetrySensors[index].protocol = PROTOCOL_TELEMETRY_LUA;
+      if (sensorMap.ready) sensorMap.insert(index);
+      return index;
+    }
 #endif
 
-      default:
-        return index;
+    if (initSensorFromProtocol(protocol, index, id, subId, instance)) {
+      if (sensorMap.ready) sensorMap.insert(index);
+      telemetryItems[index].setValue(g_model.telemetrySensors[index], value, unit, prec);
+    } else {
+      // Unknown protocol: caller must initialize
+      if (sensorMap.ready) sensorMap.insert(index);
     }
-    telemetryItems[index].setValue(g_model.telemetrySensors[index], value, unit, prec);
     return index;
   }
   else {

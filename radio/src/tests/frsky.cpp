@@ -514,3 +514,188 @@ TEST(FrSkySPORT, frskyCurrent)
   EXPECT_EQ(telemetryItems[0].valueMax, 505);
 }
 
+// --- SensorMap tests ---
+
+TEST(SensorMap, BasicInsertAndLookup)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  // Manually set up two sensors with different (id, subId)
+  auto& s0 = g_model.telemetrySensors[0];
+  s0.id = 0x0210;
+  s0.subId = 0;
+  s0.instance = 0;
+  s0.protocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
+  s0.init("VFAS", UNIT_VOLTS, 2);
+
+
+  auto& s1 = g_model.telemetrySensors[1];
+  s1.id = 0x0200;
+  s1.subId = 0;
+  s1.instance = 0;
+  s1.protocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
+  s1.init("Curr", UNIT_AMPS, 1);
+
+
+  sensorMap.rebuild();
+
+  // Verify lookup via the hash chain
+  uint8_t h0 = SensorMap::hash(0x0210, 0);
+  bool found0 = false;
+  for (int8_t slot = sensorMap.buckets[h0]; slot >= 0; slot = sensorMap.chain[slot]) {
+    if (slot == 0) found0 = true;
+  }
+  EXPECT_TRUE(found0);
+
+  uint8_t h1 = SensorMap::hash(0x0200, 0);
+  bool found1 = false;
+  for (int8_t slot = sensorMap.buckets[h1]; slot >= 0; slot = sensorMap.chain[slot]) {
+    if (slot == 1) found1 = true;
+  }
+  EXPECT_TRUE(found1);
+}
+
+TEST(SensorMap, HashCollisionChain)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  // Find two different IDs that hash to the same bucket
+  uint16_t id1 = 0x0210;
+  uint8_t h1 = SensorMap::hash(id1, 0);
+  uint16_t id2 = 0;
+  for (uint16_t candidate = 1; candidate < 0xFFFF; candidate++) {
+    if (candidate != id1 && SensorMap::hash(candidate, 0) == h1) {
+      id2 = candidate;
+      break;
+    }
+  }
+  ASSERT_NE(id2, 0) << "Could not find a colliding ID";
+
+  // Set up two sensors that collide in the hash table
+  auto& s0 = g_model.telemetrySensors[0];
+  s0.id = id1;
+  s0.subId = 0;
+  s0.instance = 0;
+  s0.protocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
+  s0.init("Sns1", UNIT_VOLTS, 2);
+
+
+  auto& s1 = g_model.telemetrySensors[1];
+  s1.id = id2;
+  s1.subId = 0;
+  s1.instance = 0;
+  s1.protocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
+  s1.init("Sns2", UNIT_AMPS, 1);
+
+
+  sensorMap.rebuild();
+
+  // Both should be in the same bucket chain
+  int count = 0;
+  bool found0 = false, found1 = false;
+  for (int8_t slot = sensorMap.buckets[h1]; slot >= 0; slot = sensorMap.chain[slot]) {
+    if (slot == 0) found0 = true;
+    if (slot == 1) found1 = true;
+    count++;
+  }
+  EXPECT_TRUE(found0);
+  EXPECT_TRUE(found1);
+  EXPECT_GE(count, 2);
+
+  // setTelemetryValue should route to the correct slot despite collision
+  setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, id1, 0, 0, (int32_t)4200, UNIT_VOLTS, 2);
+  EXPECT_EQ(telemetryItems[0].value, 4200);
+
+  setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, id2, 0, 0, (int32_t)1500, UNIT_AMPS, 1);
+  EXPECT_EQ(telemetryItems[1].value, 1500);
+}
+
+TEST(SensorMap, RemoveAndReinsert)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  auto& s0 = g_model.telemetrySensors[0];
+  s0.id = 0x0100;
+  s0.subId = 0;
+  s0.instance = 0;
+  s0.protocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
+  s0.init("Alt", UNIT_METERS, 2);
+
+
+  sensorMap.rebuild();
+
+  uint8_t h = SensorMap::hash(0x0100, 0);
+  EXPECT_GE(sensorMap.buckets[h], 0);
+
+  sensorMap.remove(0);
+
+  // After remove, slot 0 should no longer be in the chain
+  bool found = false;
+  for (int8_t slot = sensorMap.buckets[h]; slot >= 0; slot = sensorMap.chain[slot]) {
+    if (slot == 0) found = true;
+  }
+  EXPECT_FALSE(found);
+
+  // Re-insert
+  sensorMap.insert(0);
+  found = false;
+  for (int8_t slot = sensorMap.buckets[h]; slot >= 0; slot = sensorMap.chain[slot]) {
+    if (slot == 0) found = true;
+  }
+  EXPECT_TRUE(found);
+}
+
+TEST(SensorMap, GhostSlotInMap)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+  allowNewSensors = true;
+
+  // Create a sensor via telemetry discovery
+  sensorMap.rebuild();
+  setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,
+                    (int32_t)4200, (uint32_t)UNIT_VOLTS, (uint32_t)2);
+  EXPECT_TRUE(g_model.telemetrySensors[0].isAvailable());
+  EXPECT_EQ(g_model.telemetrySensors[0].protocol, PROTOCOL_TELEMETRY_FRSKY_SPORT);
+
+  // Delete it (ghost)
+  delTelemetryIndex(0);
+  EXPECT_FALSE(g_model.telemetrySensors[0].isAvailable());
+  EXPECT_EQ(g_model.telemetrySensors[0].id, 0x0210);  // identity preserved
+
+  // Ghost should still be in the map (for reactivation)
+  uint8_t h = SensorMap::hash(0x0210, 0);
+  bool found = false;
+  for (int8_t slot = sensorMap.buckets[h]; slot >= 0; slot = sensorMap.chain[slot]) {
+    if (slot == 0) found = true;
+  }
+  EXPECT_TRUE(found);
+
+  // Re-discover same sensor — should reactivate in slot 0
+  setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,
+                    (int32_t)3800, (uint32_t)UNIT_VOLTS, (uint32_t)2);
+  EXPECT_TRUE(g_model.telemetrySensors[0].isAvailable());
+  EXPECT_EQ(telemetryItems[0].value, 3800);
+}
+
+TEST(SensorMap, ProtocolFieldSetOnDiscovery)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+  allowNewSensors = true;
+
+  sensorMap.rebuild();
+  setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_SPORT, (uint16_t)0x0210, (uint8_t)0, (uint8_t)0,
+                    (int32_t)4200, (uint32_t)UNIT_VOLTS, (uint32_t)2);
+  EXPECT_EQ(g_model.telemetrySensors[0].protocol, PROTOCOL_TELEMETRY_FRSKY_SPORT);
+
+  // Protocol short name round-trip
+  const char* name = telemetryProtocolShortName(PROTOCOL_TELEMETRY_FRSKY_SPORT);
+  EXPECT_STREQ(name, "Sport");
+  EXPECT_EQ(telemetryProtocolFromShortName("Sport", 5), PROTOCOL_TELEMETRY_FRSKY_SPORT);
+  EXPECT_EQ(telemetryProtocolFromShortName("CRSF", 4), PROTOCOL_TELEMETRY_CROSSFIRE);
+}
+

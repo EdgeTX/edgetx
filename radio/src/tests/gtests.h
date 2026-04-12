@@ -29,6 +29,7 @@
 #include "model_init.h"
 #include "switches.h"
 #include "hal/switch_driver.h"
+#include "telemetry/telemetry_sensors.h"
 
 #define CHANNEL_MAX (1024*256)
 
@@ -128,6 +129,7 @@ inline void TELEMETRY_RESET()
     telemetryItems[i].clear();
   }
   memclear(g_model.telemetrySensors, sizeof(g_model.telemetrySensors));
+  sensorMap.clear();
 }
 
 class EdgeTxTest : public testing::Test 

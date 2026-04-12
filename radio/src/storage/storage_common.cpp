@@ -273,6 +273,9 @@ if(g_model.rssiSource) {
 
   restoreTimers();
 
+  // Build sensor identity map (protocol is lazily filled on first telemetry reception)
+  ensureSensorIdentity();
+
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     TelemetrySensor & sensor = g_model.telemetrySensors[i];
     if (sensor.type == TELEM_TYPE_CALCULATED && sensor.persistent) {

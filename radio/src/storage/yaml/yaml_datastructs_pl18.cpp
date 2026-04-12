@@ -227,6 +227,26 @@ const struct YamlIdStr enum_TelemetrySensorFormula[] = {
   {  TELEM_FORMULA_DIST, "FORMULA_DIST"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_TelemetryProtocol[] = {
+  {  PROTOCOL_TELEMETRY_FIRST, "TELEMETRY_FIRST"  },
+  {  PROTOCOL_TELEMETRY_FRSKY_SPORT, "TELEMETRY_FRSKY_SPORT"  },
+  {  PROTOCOL_TELEMETRY_FRSKY_D, "TELEMETRY_FRSKY_D"  },
+  {  PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY, "TELEMETRY_FRSKY_D_SECONDARY"  },
+  {  PROTOCOL_TELEMETRY_CROSSFIRE, "TELEMETRY_CROSSFIRE"  },
+  {  PROTOCOL_TELEMETRY_SPEKTRUM, "TELEMETRY_SPEKTRUM"  },
+  {  PROTOCOL_TELEMETRY_FLYSKY_IBUS, "TELEMETRY_FLYSKY_IBUS"  },
+  {  PROTOCOL_TELEMETRY_HITEC, "TELEMETRY_HITEC"  },
+  {  PROTOCOL_TELEMETRY_HOTT, "TELEMETRY_HOTT"  },
+  {  PROTOCOL_TELEMETRY_MLINK, "TELEMETRY_MLINK"  },
+  {  PROTOCOL_TELEMETRY_MULTIMODULE, "TELEMETRY_MULTIMODULE"  },
+  {  PROTOCOL_TELEMETRY_AFHDS3, "TELEMETRY_AFHDS3"  },
+  {  PROTOCOL_TELEMETRY_GHOST, "TELEMETRY_GHOST"  },
+  {  PROTOCOL_TELEMETRY_FLYSKY_NV14, "TELEMETRY_FLYSKY_NV14"  },
+  {  PROTOCOL_TELEMETRY_DSMP, "TELEMETRY_DSMP"  },
+  {  PROTOCOL_TELEMETRY_LAST, "TELEMETRY_LAST"  },
+  {  PROTOCOL_TELEMETRY_LUA, "TELEMETRY_LUA"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TelemetrySensorType[] = {
   {  TELEM_TYPE_CUSTOM, "TYPE_CUSTOM"  },
   {  TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"  },
@@ -829,6 +849,7 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNION("id2", 8, union_anonymous_15_elmts, select_id2),
   YAML_STRING("label", 4),
   YAML_UNSIGNED( "subId", 8 ),
+  YAML_ENUM("protocol", 8, enum_TelemetryProtocol, NULL),
   YAML_ENUM("type", 1, enum_TelemetrySensorType, NULL),
   YAML_PADDING( 1 ),
   YAML_UNSIGNED( "unit", 6 ),
@@ -955,7 +976,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_EXTERN_ARRAY("inputNames", 32, MAX_INPUTS, struct_InputNameStr, yaml_drv_input_names),
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
-  YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
+  YAML_ARRAY("telemetrySensors", 120, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 0, 10, struct_CustomScreenData, screen_is_active),
   YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
   YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),

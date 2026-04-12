@@ -132,3 +132,31 @@ class TelemetryItem
 extern TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 extern bool allowNewSensors;
 bool isFaiForbidden(source_t idx);
+
+// Protocol short-name helpers for YAML identity references
+const char* telemetryProtocolShortName(TelemetryProtocol proto);
+TelemetryProtocol telemetryProtocolFromShortName(const char* name, uint8_t len);
+
+// --- Sensor Map: O(1) lookup for setTelemetryValue() ---
+//
+// Separate-chaining hash table: (id, subId) → chain of sensor slot indices.
+// Replaces the O(N) linear scan in the telemetry receive path.
+
+struct SensorMap {
+  static constexpr uint8_t MAP_SIZE = 128;  // must be power of 2
+
+  bool ready;                               // false until rebuild(); zero-init safe
+  int8_t buckets[MAP_SIZE];                 // head of chain, or -1 = empty
+  int8_t chain[MAX_TELEMETRY_SENSORS];      // next slot in chain, or -1 = end
+
+  void clear();
+  void rebuild();
+  void insert(uint8_t slot);
+  void remove(uint8_t slot);
+
+  static uint8_t hash(uint16_t id, uint8_t subId) {
+    return ((id * 31) ^ subId) & (MAP_SIZE - 1);
+  }
+};
+
+extern SensorMap sensorMap;

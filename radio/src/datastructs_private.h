@@ -444,6 +444,7 @@ PACK(struct TelemetrySensor {
   } NAME(id2) FUNC(select_id2);
   NOBACKUP(char label[TELEM_LABEL_LEN]); // user defined label
   uint8_t  subId;
+  uint8_t  protocol ENUM(TelemetryProtocol); // telemetry protocol (0 = unknown/legacy)
   uint8_t  type:1 ENUM(TelemetrySensorType); // 0=custom / 1=calculated
                    // user can choose what unit to display each value in
   uint8_t  spare1:1 SKIP;
