@@ -25,6 +25,7 @@
 #include "storage/yaml/yaml_parser.h"
 #include "storage/yaml/yaml_datastructs.h"
 #include "storage/yaml/yaml_bits.h"
+#include "storage/storage.h"
 #include "mixes.h"
 #include "gvars.h"
 
@@ -284,4 +285,179 @@ TEST(Model, gvarYamlRoundTrip)
   // Unset values should remain at defaults
   EXPECT_EQ(GVAR_VALUE(1, 0), 0);           // FM0 default = 0
   EXPECT_EQ(GVAR_VALUE(1, 1), GVAR_MAX + 1); // FM1+ default = inherit
+}
+
+// --- Telemetry sensor YAML tests ---
+
+// Round-trip: create sensor with identity key → write → read → verify
+TEST(Model, sensorYamlRoundTrip)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  // Set up a real (custom) sensor
+  TelemetrySensor* ts = sensorAllocAt(0);
+  ASSERT_NE(ts, nullptr);
+  ts->init("VFAS", UNIT_VOLTS, 2);
+  ts->protocol = PROTOCOL_TELEMETRY_CROSSFIRE;
+  ts->id = 0x0008;
+  ts->subId = 1;
+  ts->instance = 0;
+  ts->type = TELEM_TYPE_CUSTOM;
+
+  // Set up a calculated + persistent sensor
+  TelemetrySensor* ts2 = sensorAllocAt(1);
+  ASSERT_NE(ts2, nullptr);
+  ts2->init("MAH", UNIT_MAH, 0);
+  ts2->type = TELEM_TYPE_CALCULATED;
+  ts2->formula = TELEM_FORMULA_CONSUMPTION;
+  ts2->persistent = 1;
+  ts2->persistentValue = 1234;
+  ts2->consumption.source = 1; // references sensor at index 0
+
+  sensorMap.rebuild();
+
+  // Write to YAML string
+  std::string yaml = writeModelYamlToString();
+
+  // The new format should NOT contain separate id, subId, or protocol fields
+  // for the real sensor — they're embedded in the identity key.
+  EXPECT_NE(yaml.find("CRSF-0x0008-1"), std::string::npos)
+      << "Identity key not found in YAML output";
+  // id1:{id:...} should not appear (suppressed by read-only CUST)
+  EXPECT_EQ(yaml.find("id: "), std::string::npos)
+      << "Separate 'id' field should not appear in new YAML format";
+  EXPECT_EQ(yaml.find("subId"), std::string::npos)
+      << "Separate 'subId' field should not appear in new YAML format";
+
+  // The calculated sensor should still have persistentValue
+  EXPECT_NE(yaml.find("persistentValue: 1234"), std::string::npos)
+      << "persistentValue should be serialized for calculated+persistent sensor";
+
+  // Clear and reload
+  TELEMETRY_RESET();
+  memset(&g_model, 0, sizeof(g_model));
+  inputNameIndexReset();
+  modelArenaInit();
+
+  loadModelYamlStr(yaml.c_str());
+  cleanupSensorGhosts();
+
+  // Verify the real sensor survived the round-trip
+  ts = sensorAddress(0);
+  ASSERT_NE(ts, nullptr);
+  EXPECT_TRUE(ts->isAvailable());
+  EXPECT_EQ(ts->protocol, PROTOCOL_TELEMETRY_CROSSFIRE);
+  EXPECT_EQ(ts->id, 0x0008);
+  EXPECT_EQ(ts->subId, 1);
+  EXPECT_EQ(ts->instance, 0);
+  EXPECT_EQ(strncmp(ts->label, "VFAS", 4), 0);
+
+  // Verify the calculated sensor
+  ts2 = sensorAddress(1);
+  ASSERT_NE(ts2, nullptr);
+  EXPECT_EQ(ts2->type, TELEM_TYPE_CALCULATED);
+  EXPECT_EQ(ts2->persistent, 1);
+  EXPECT_EQ(ts2->persistentValue, 1234);
+}
+
+// Legacy compat: load old-format YAML (bare index, nested id1, separate subId)
+TEST(Model, sensorYamlLegacyFormat)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  // Simulate old YAML format with bare numeric index and nested union
+  loadModelYamlStr(
+    "telemetrySensors:\n"
+    "   0:\n"
+    "      id1:\n"
+    "         id: 528\n"
+    "      id2:\n"
+    "         instance: 7\n"
+    "      label: VFAS\n"
+    "      subId: 2\n"
+    "      type: TYPE_CUSTOM\n"
+    "      unit: 1\n"
+    "      prec: 2\n"
+  );
+
+  cleanupSensorGhosts();
+
+  TelemetrySensor* ts = sensorAddress(0);
+  ASSERT_NE(ts, nullptr);
+  EXPECT_TRUE(ts->isAvailable());
+  EXPECT_EQ(ts->id, 528);
+  EXPECT_EQ(ts->subId, 2);
+  EXPECT_EQ(ts->instance, 7);
+  EXPECT_EQ(ts->type, TELEM_TYPE_CUSTOM);
+  EXPECT_EQ(ts->unit, 1);
+  EXPECT_EQ(ts->prec, 2);
+  EXPECT_EQ(strncmp(ts->label, "VFAS", 4), 0);
+  // protocol was never in old files → stays 0
+  EXPECT_EQ(ts->protocol, 0);
+}
+
+// Legacy compat: calculated sensor with persistentValue in old union format
+TEST(Model, sensorYamlLegacyPersistentValue)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  loadModelYamlStr(
+    "telemetrySensors:\n"
+    "   0:\n"
+    "      id1:\n"
+    "         persistentValue: 5678\n"
+    "      id2:\n"
+    "         formula: FORMULA_CONSUMPTION\n"
+    "      label: MAHs\n"
+    "      type: TYPE_CALCULATED\n"
+    "      persistent: 1\n"
+  );
+
+  cleanupSensorGhosts();
+
+  TelemetrySensor* ts = sensorAddress(0);
+  ASSERT_NE(ts, nullptr);
+  EXPECT_TRUE(ts->isAvailable());
+  EXPECT_EQ(ts->type, TELEM_TYPE_CALCULATED);
+  EXPECT_EQ(ts->formula, TELEM_FORMULA_CONSUMPTION);
+  EXPECT_EQ(ts->persistent, 1);
+  EXPECT_EQ(ts->persistentValue, 5678);
+}
+
+// CRSF backward compat: old model with subId stored in instance field.
+// The runtime fixup in setTelemetryValue should swap them.
+TEST(Model, sensorCrsfLegacySubIdSwap)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+
+  // Simulate old CRSF sensor: subId=0, instance=3 (old code stored subId in instance)
+  TelemetrySensor* ts = sensorAllocAt(0);
+  ASSERT_NE(ts, nullptr);
+  ts->init("RxBt", UNIT_VOLTS, 1);
+  ts->id = 0x0008;
+  ts->subId = 0;       // old code never set subId for CRSF
+  ts->instance = 3;    // old code stored subId here
+  ts->protocol = 0;    // protocol field didn't exist in old versions
+  ts->type = TELEM_TYPE_CUSTOM;
+
+  sensorMap.rebuild();
+
+  // Simulate new runtime: CRSF telemetry arrives with correct field usage
+  // setTelemetryValue(CRSF, id=0x0008, subId=3, instance=0, value=420)
+  setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE,
+                    (uint16_t)0x0008, (uint8_t)3, (uint8_t)0,
+                    (int32_t)420, (uint32_t)UNIT_VOLTS, (uint32_t)1);
+
+  // The fixup should have swapped instance→subId
+  ts = sensorAddress(0);
+  EXPECT_EQ(ts->subId, 3);
+  EXPECT_EQ(ts->instance, 0);
+  EXPECT_EQ(ts->protocol, PROTOCOL_TELEMETRY_CROSSFIRE);
+
+  // The value should have been set
+  EXPECT_EQ(telemetryItems[0].value, 420);
 }

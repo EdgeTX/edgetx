@@ -137,13 +137,27 @@ static bool yaml_output_string(const char* str, uint32_t max_len,
     return true;
 }
 
+// Returns true if a node would produce no output during writing.
+static bool yaml_is_write_suppressed(const YamlNode* node)
+{
+  if (node->type == YDT_PADDING) return true;
+  if (node->type == YDT_CUSTOM && !node->u._cust_attr.write) return true;
+
+  // Read-only custom field: has a reader but no writer → suppress output.
+  // Plain YAML_UNSIGNED (both pointers nullptr) is NOT affected.
+  if ((node->type == YDT_SIGNED || node->type == YDT_UNSIGNED) &&
+      node->u._cust.cust_to_uint && !node->u._cust.uint_to_cust)
+    return true;
+
+  return false;
+}
+
 static bool yaml_output_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
                              const YamlNode* node, yaml_writer_func wf,
                              void* opaque)
 {
   if (node->type == YDT_NONE) return false;
-  if (node->type == YDT_PADDING) return true;
-  if (node->type == YDT_CUSTOM && !node->u._cust_attr.write) return true;
+  if (yaml_is_write_suppressed(node)) return true;
 
   // output tag
   if (!wf(opaque, node->tag, node->tag_len())) return false;
@@ -620,27 +634,33 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             const struct YamlNode* node = getNode();
             if (node->type == YDT_UNION && node->u._array.u.select_member) {
 
-                // output union tag, select member and go up one level
+                // Select variant first to check if it would produce output.
+                uint8_t idx =
+                    node->u._array.u.select_member(this, getData(), getBitOffset());
+                setAttrIdx(idx);
+                attr = getAttr();
+
+                // If selected variant is suppressed, skip the entire union
+                if (yaml_is_write_suppressed(attr)) {
+                    if (!toParent())
+                        return false;
+                    toNextAttr();
+                    continue;
+                }
 
                 // output union tag
                 for(int i=2; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
                 if (!yaml_output_attr(this, NULL, 0, node, wf, opaque))
-                    return false; // TODO: error handling???
+                    return false;
 
-                // grab attr idx...
-                uint8_t idx =
-                    node->u._array.u.select_member(this, getData(), getBitOffset());
-                // TRACE("<idx = %d>", idx);
-                setAttrIdx(idx);
-
-                attr = getAttr();
+                // output selected variant
                 for(int i=1; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))
                         return false;
                 if (!yaml_output_attr(this, getData(), getBitOffset(), attr, wf, opaque))
-                    return false; // TODO: error handling???
+                    return false;
 
                 if (attr->type != YDT_ARRAY
                     && attr->type != YDT_UNION
@@ -732,8 +752,7 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
                 
             new_elmt = false;
 
-            if (attr->type != YDT_PADDING &&
-                (attr->type != YDT_CUSTOM || attr->u._cust_attr.write)) {
+            if (!yaml_is_write_suppressed(attr)) {
 
                 for(int i=1; i < getLevel(); i++)
                     if (!wf(opaque, "   ", 3))

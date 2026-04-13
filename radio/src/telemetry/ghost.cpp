@@ -328,7 +328,7 @@ void ghostSetDefault(int index, uint8_t id, uint8_t subId)
   TelemetrySensor &telemetrySensor = *ts;
 
   telemetrySensor.id = id;
-  telemetrySensor.instance = subId;
+  telemetrySensor.subId = subId;
 
   const GhostSensor * sensor = getGhostSensor(id);
   if (sensor) {

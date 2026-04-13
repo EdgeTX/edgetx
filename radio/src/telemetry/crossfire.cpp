@@ -123,7 +123,7 @@ void processCrossfireTelemetryValue(uint8_t index, int32_t value)
     return;
 
   const CrossfireSensor & sensor = crossfireSensors[index];
-  setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId,
+  setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, sensor.subId, 0,
                     value, sensor.unit, sensor.precision);
 }
 
@@ -359,7 +359,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       const CrossfireSensor & sensor = crossfireSensors[FLIGHT_MODE_INDEX];
       auto textLength = min<int>(16, rxBuffer[1]);
       rxBuffer[textLength] = '\0';
-      setTelemetryText(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId,
+      setTelemetryText(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, sensor.subId, 0,
                        (const char *)rxBuffer + 3);
       break;
     }
@@ -422,7 +422,7 @@ void crossfireSetDefault(int index, uint16_t id, uint8_t subId)
   TelemetrySensor & telemetrySensor = *ts;
 
   telemetrySensor.id = id;
-  telemetrySensor.instance = subId;
+  telemetrySensor.subId = subId;
 
   const CrossfireSensor & sensor = getCrossfireSensor(id, subId);
   TelemetryUnit unit = sensor.unit;

@@ -26,6 +26,25 @@ static const YamlLookupTable sensorType = {
     {SensorData::TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"},
 };
 
+// Must match firmware telemetryProtocolShortName() values
+static const YamlLookupTable sensorProtocol = {
+    {0,  "Sport"},
+    {1,  "FrD"},
+    {2,  "FrD2"},
+    {3,  "CRSF"},
+    {4,  "Spek"},
+    {5,  "IBus"},
+    {6,  "Hitec"},
+    {7,  "HoTT"},
+    {8,  "MLnk"},
+    {9,  "Multi"},
+    {10, "AFHD3"},
+    {11, "Ghost"},
+    {12, "NV14"},
+    {13, "DSMP"},
+    {14, "Lua"},
+};
+
 static const YamlLookupTable sensorFormula = {
     {SensorData::TELEM_FORMULA_ADD, "FORMULA_ADD"},
     {SensorData::TELEM_FORMULA_AVERAGE, "FORMULA_AVERAGE"},
@@ -49,6 +68,7 @@ Node convert<SensorData>::encode(const SensorData& rhs)
   if (rhs.type == SensorData::TELEM_TYPE_CUSTOM) {
     node["id1"]["id"] = rhs.id;
     node["subId"] = rhs.subid;
+    node["protocol"] = LookupValue(sensorProtocol, rhs.protocol);
 
     node["id2"]["instance"] = rhs.instance;
     cfg["custom"]["ratio"] = rhs.ratio;
@@ -119,6 +139,7 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
     id1["persistentValue"] >> rhs.persistentValue;
   }
   node["subId"] >> rhs.subid;
+  node["protocol"] >> sensorProtocol >> rhs.protocol;
   if (node["id2"]) {
     Node id2 = node["id2"];
     id2["instance"] >> rhs.instance;

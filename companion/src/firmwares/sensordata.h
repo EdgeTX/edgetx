@@ -159,6 +159,7 @@ class SensorData {
     unsigned int type; // custom / formula
     unsigned int id;
     unsigned int subid;
+    unsigned int protocol;
     unsigned int instance;
     unsigned int rxIdx;
     unsigned int moduleIdx;

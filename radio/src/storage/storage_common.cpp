@@ -165,6 +165,8 @@ static void sanitizeMixerLines()
 
 void postModelLoad(bool alarms)
 {
+  cleanupSensorGhosts();
+
 #if defined(COLORLCD)
   if (!g_model.hasScreenData(0))
     LayoutFactory::loadDefaultLayout();

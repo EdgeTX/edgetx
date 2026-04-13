@@ -183,26 +183,6 @@ const struct YamlIdStr enum_TelemetrySensorFormula[] = {
   {  TELEM_FORMULA_DIST, "FORMULA_DIST"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_TelemetryProtocol[] = {
-  {  PROTOCOL_TELEMETRY_FIRST, "TELEMETRY_FIRST"  },
-  {  PROTOCOL_TELEMETRY_FRSKY_SPORT, "TELEMETRY_FRSKY_SPORT"  },
-  {  PROTOCOL_TELEMETRY_FRSKY_D, "TELEMETRY_FRSKY_D"  },
-  {  PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY, "TELEMETRY_FRSKY_D_SECONDARY"  },
-  {  PROTOCOL_TELEMETRY_CROSSFIRE, "TELEMETRY_CROSSFIRE"  },
-  {  PROTOCOL_TELEMETRY_SPEKTRUM, "TELEMETRY_SPEKTRUM"  },
-  {  PROTOCOL_TELEMETRY_FLYSKY_IBUS, "TELEMETRY_FLYSKY_IBUS"  },
-  {  PROTOCOL_TELEMETRY_HITEC, "TELEMETRY_HITEC"  },
-  {  PROTOCOL_TELEMETRY_HOTT, "TELEMETRY_HOTT"  },
-  {  PROTOCOL_TELEMETRY_MLINK, "TELEMETRY_MLINK"  },
-  {  PROTOCOL_TELEMETRY_MULTIMODULE, "TELEMETRY_MULTIMODULE"  },
-  {  PROTOCOL_TELEMETRY_AFHDS3, "TELEMETRY_AFHDS3"  },
-  {  PROTOCOL_TELEMETRY_GHOST, "TELEMETRY_GHOST"  },
-  {  PROTOCOL_TELEMETRY_FLYSKY_NV14, "TELEMETRY_FLYSKY_NV14"  },
-  {  PROTOCOL_TELEMETRY_DSMP, "TELEMETRY_DSMP"  },
-  {  PROTOCOL_TELEMETRY_LAST, "TELEMETRY_LAST"  },
-  {  PROTOCOL_TELEMETRY_LUA, "TELEMETRY_LUA"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_TelemetrySensorType[] = {
   {  TELEM_TYPE_CUSTOM, "TYPE_CUSTOM"  },
   {  TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"  },
@@ -728,7 +708,7 @@ static const struct YamlNode struct_signed_8[] = {
   YAML_END
 };
 static const struct YamlNode union_anonymous_14_elmts[] = {
-  YAML_UNSIGNED( "id", 16 ),
+  YAML_UNSIGNED_CUST( "id", 16, r_yamlU16, nullptr ),
   YAML_UNSIGNED( "persistentValue", 16 ),
   YAML_END
 };
@@ -779,12 +759,13 @@ static const struct YamlNode union_anonymous_17_elmts[] = {
   YAML_END
 };
 static const struct YamlNode struct_TelemetrySensor[] = {
-  YAML_IDX,
+  YAML_IDX_CUST("telemetrySensors",r_telem_sensor_idx,w_telem_sensor_idx),
   YAML_UNION("id1", 16, union_anonymous_14_elmts, select_id1),
   YAML_UNION("id2", 8, union_anonymous_15_elmts, select_id2),
   YAML_STRING("label", 4),
-  YAML_UNSIGNED( "subId", 8 ),
-  YAML_ENUM("protocol", 8, enum_TelemetryProtocol, NULL),
+  YAML_CUSTOM("subId",r_legacySubId,nullptr),
+  YAML_PADDING( 8 ),
+  YAML_PADDING( 8 ),
   YAML_ENUM("type", 1, enum_TelemetrySensorType, NULL),
   YAML_PADDING( 1 ),
   YAML_UNSIGNED( "unit", 6 ),

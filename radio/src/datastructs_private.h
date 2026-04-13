@@ -429,9 +429,9 @@ PACK(struct VarioData {
 #define TELEMETRY_ENDPOINT_SPORT   0x07
 
 PACK(struct TelemetrySensor {
+  CUST_IDX(telemetrySensors, r_telem_sensor_idx, w_telem_sensor_idx);
   union {
-    uint16_t id;  // data identifier, for FrSky we can reuse existing ones.
-                  // Source unit is derived from type.
+    uint16_t id CUST(r_yamlU16, nullptr);  // read-only: id is in the identity key
     NOBACKUP(uint16_t persistentValue);
   } NAME(id1) FUNC(select_id1);
   union {
@@ -443,8 +443,9 @@ PACK(struct TelemetrySensor {
     NOBACKUP(uint8_t formula ENUM(TelemetrySensorFormula));
   } NAME(id2) FUNC(select_id2);
   NOBACKUP(char label[TELEM_LABEL_LEN]); // user defined label
-  uint8_t  subId;
-  uint8_t  protocol ENUM(TelemetryProtocol); // telemetry protocol (0 = unknown/legacy)
+  CUST_ATTR(subId, r_legacySubId, nullptr);   // read-only backward compat
+  uint8_t  subId SKIP;
+  uint8_t  protocol SKIP;  // populated by r_telem_sensor_idx from identity key
   uint8_t  type:1 ENUM(TelemetrySensorType); // 0=custom / 1=calculated
                    // user can choose what unit to display each value in
   uint8_t  spare1:1 SKIP;
@@ -849,7 +850,7 @@ PACK(struct ModelData {
   NOBACKUP(potwarnen_t potsWarnEnabled);
   NOBACKUP(int8_t potsWarnPosition[MAX_POTS]);
 
-  CUST_EXTERN_ARRAY(telemetrySensors, struct_TelemetrySensor, MAX_TELEMETRY_SENSORS, yaml_drv_telem_sensors);
+  CUST_EXTERN_ARRAY_NOIDX(telemetrySensors, struct_TelemetrySensor, MAX_TELEMETRY_SENSORS, yaml_drv_telem_sensors);
 
   TARANIS_PCBX9E_FIELD(uint8_t toplcdTimer)
 

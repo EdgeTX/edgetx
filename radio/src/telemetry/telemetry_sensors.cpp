@@ -758,13 +758,13 @@ static bool initSensorFromProtocol(TelemetryProtocol protocol, int index,
 
 #if defined(CROSSFIRE)
     case PROTOCOL_TELEMETRY_CROSSFIRE:
-      crossfireSetDefault(index, id, instance);
+      crossfireSetDefault(index, id, subId);
       break;
 #endif
 
 #if defined(GHOST)
     case PROTOCOL_TELEMETRY_GHOST:
-      ghostSetDefault(index, id, instance);
+      ghostSetDefault(index, id, subId);
       break;
 #endif
 
@@ -879,6 +879,34 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     // Fallback: linear scan (before model load / in tests)
     for (int index = 0; index < (int)getSensorCount(); index++) {
       checkSlot(index);
+    }
+  }
+
+  // Backward compat: old CRSF/Ghost models stored subId in the instance
+  // field.  If the normal lookup missed, try matching with swapped fields.
+  if (!sensorFound && ghostIndex < 0 &&
+      (protocol == PROTOCOL_TELEMETRY_CROSSFIRE ||
+       protocol == PROTOCOL_TELEMETRY_GHOST)) {
+    for (int i = 0; i < (int)getSensorCount(); i++) {
+      TelemetrySensor& ts = *sensorAddress(i);
+      if (ts.type != TELEM_TYPE_CUSTOM || ts.id != id) continue;
+      if (ts.subId != 0 || ts.instance != subId) continue;
+      if (ts.protocol != 0 && ts.protocol != protocol) continue;
+
+      // Fix the swap and update identity
+      if (sensorMap.ready) sensorMap.remove(i);
+      ts.subId = subId;
+      ts.instance = instance;
+      ts.protocol = protocol;
+      if (sensorMap.ready) sensorMap.insert(i);
+
+      if (ts.isAvailable()) {
+        telemetryItems[i].setValue(ts, value, unit, prec);
+        sensorFound = true;
+      } else {
+        ghostIndex = i;
+      }
+      break;
     }
   }
 
@@ -1148,4 +1176,15 @@ bool TelemetrySensor::isSameInstance(TelemetryProtocol protocol, uint8_t instanc
   }
 
   return false;
+}
+
+// Clean up ghost sensor entries that were never matched by real data.
+// A ghost has identity (protocol, id, subId) but no label (!isAvailable).
+void cleanupSensorGhosts()
+{
+  for (int i = 0; i < (int)getSensorCount(); i++) {
+    TelemetrySensor* ts = sensorAddress(i);
+    if (!ts->isAvailable() && ts->protocol != 0)
+      memset(ts, 0, sizeof(TelemetrySensor));
+  }
 }

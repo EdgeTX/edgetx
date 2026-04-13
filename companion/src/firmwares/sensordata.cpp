@@ -53,7 +53,7 @@ QString SensorData::getOrigin(const ModelData * model) const
 
 bool SensorData::isEmpty() const
 {
-  return (!isAvailable() && type == 0 && id == 0 && subid == 0 && instance == 0 && rxIdx == 0 && moduleIdx == 0 && unit == 0 && ratio == 0 && prec == 0 && offset == 0 && autoOffset == 0 && filter == 0 && onlyPositive == 0 && logs == 0);
+  return (!isAvailable() && type == 0 && id == 0 && subid == 0 && protocol == 0 && instance == 0 && rxIdx == 0 && moduleIdx == 0 && unit == 0 && ratio == 0 && prec == 0 && offset == 0 && autoOffset == 0 && filter == 0 && onlyPositive == 0 && logs == 0);
 }
 
 QString SensorData::idToString() const

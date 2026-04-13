@@ -1790,7 +1790,7 @@ static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitof
 
 // --- Sensor identity helpers for YAML ---
 
-// Parse "Proto:0xHHHH:S" → (protocol, id, subId)
+// Parse "Proto-0xHHHH-S" → (protocol, id, subId)
 // Accepts both closing ')' and bare end.  Returns true if valid.
 static bool parseSensorIdentity(const char* val, uint8_t val_len,
                                 TelemetryProtocol& protocol,
@@ -1800,31 +1800,31 @@ static bool parseSensorIdentity(const char* val, uint8_t val_len,
   if (val_len > 0 && val[val_len - 1] == ')')
     val_len--;
 
-  // Find first ':'
-  uint8_t colonPos = 0;
-  while (colonPos < val_len && val[colonPos] != ':') colonPos++;
-  if (colonPos == 0 || colonPos >= val_len) return false;
+  // Find first '-'
+  uint8_t sepPos = 0;
+  while (sepPos < val_len && val[sepPos] != '-') sepPos++;
+  if (sepPos == 0 || sepPos >= val_len) return false;
 
-  protocol = telemetryProtocolFromShortName(val, colonPos);
+  protocol = telemetryProtocolFromShortName(val, sepPos);
 
-  // Advance past first ':'
-  val += colonPos + 1;
-  val_len -= colonPos + 1;
+  // Advance past first '-'
+  val += sepPos + 1;
+  val_len -= sepPos + 1;
 
-  // Find second ':'
-  uint8_t colonPos2 = 0;
-  while (colonPos2 < val_len && val[colonPos2] != ':') colonPos2++;
-  if (colonPos2 == 0 || colonPos2 >= val_len) return false;
+  // Find second '-'
+  uint8_t sepPos2 = 0;
+  while (sepPos2 < val_len && val[sepPos2] != '-') sepPos2++;
+  if (sepPos2 == 0 || sepPos2 >= val_len) return false;
 
   // Parse id (supports 0x hex prefix)
-  if (colonPos2 > 2 && val[0] == '0' && (val[1] == 'x' || val[1] == 'X'))
-    id = yaml_hex2uint(val + 2, colonPos2 - 2);
+  if (sepPos2 > 2 && val[0] == '0' && (val[1] == 'x' || val[1] == 'X'))
+    id = yaml_hex2uint(val + 2, sepPos2 - 2);
   else
-    id = yaml_str2uint(val, colonPos2);
+    id = yaml_str2uint(val, sepPos2);
 
   // Parse subId
-  val += colonPos2 + 1;
-  val_len -= colonPos2 + 1;
+  val += sepPos2 + 1;
+  val_len -= sepPos2 + 1;
   subId = yaml_str2uint(val, val_len);
 
   return true;
@@ -1841,7 +1841,29 @@ static int findSensorByIdentity(TelemetryProtocol protocol, uint16_t id, uint8_t
   return -1;
 }
 
-// Write "Proto:0xHHHH:S" identity for a sensor at the given index.
+// --- Read-only backward compat readers for TelemetrySensor fields ---
+// These fields are now embedded in the identity key (w_telem_sensor_idx),
+// but legacy YAML files still have them as separate fields.
+
+// Trivial unsigned reader — used as a read-only marker for YAML_UNSIGNED_CUST
+// (having a non-null reader with null writer triggers write suppression).
+static uint32_t r_yamlU16(const YamlNode* node, const char* val,
+                          uint8_t val_len)
+{
+  (void)node;
+  return yaml_str2uint(val, val_len);
+}
+
+// YAML_CUSTOM reader for legacy "subId:" field
+static void r_legacySubId(void* user, uint8_t* data, uint32_t bitofs,
+                          const char* val, uint8_t val_len)
+{
+  (void)user;
+  data[bitofs >> 3] = yaml_str2uint(val, val_len);
+}
+
+// Write "Proto-0xHHHH-S" identity for a sensor at the given index.
+// Uses '-' separator so the same format works in YAML keys and values.
 // Returns false on write failure.
 static bool writeSensorIdentity(uint32_t idx, yaml_writer_func wf, void* opaque)
 {
@@ -1851,7 +1873,7 @@ static bool writeSensorIdentity(uint32_t idx, yaml_writer_func wf, void* opaque)
   if (!protoName) return false;
 
   if (!wf(opaque, protoName, strlen(protoName))) return false;
-  if (!wf(opaque, ":0x", 3)) return false;
+  if (!wf(opaque, "-0x", 3)) return false;
 
   // Write id as hex
   char hexBuf[5];
@@ -1864,15 +1886,17 @@ static bool writeSensorIdentity(uint32_t idx, yaml_writer_func wf, void* opaque)
   hexBuf[4] = '\0';
   if (!wf(opaque, hexBuf, 4)) return false;
 
-  if (!wf(opaque, ":", 1)) return false;
+  if (!wf(opaque, "-", 1)) return false;
   const char* subIdStr = yaml_unsigned2str(sensor.subId);
   return wf(opaque, subIdStr, strlen(subIdStr));
 }
 
 // Parse a sensor reference value that may be:
-//   "Proto:0xHHHH:S"  → identity lookup
+//   "Proto-0xHHHH-S"  → identity lookup
 //   "N"               → legacy 0-based index
 // Returns 0-based sensor index, or -1 if not found.
+// When an identity is valid but no sensor exists yet (forward reference),
+// a ghost entry is created so that the returned index is always valid.
 static int parseSensorRef(const char* val, uint8_t val_len)
 {
   if (val_len == 0) return -1;
@@ -1882,12 +1906,27 @@ static int parseSensorRef(const char* val, uint8_t val_len)
     return (int)yaml_str2uint(val, val_len);
   }
 
-  // Identity format "Proto:0xHHHH:S"
+  // Identity format "Proto-0xHHHH-S"
   TelemetryProtocol protocol;
   uint16_t id;
   uint8_t subId;
   if (parseSensorIdentity(val, val_len, protocol, id, subId)) {
-    return findSensorByIdentity(protocol, id, subId);
+    int idx = findSensorByIdentity(protocol, id, subId);
+    if (idx >= 0) return idx;
+
+    // Create ghost entry so forward references resolve immediately.
+    // postModelLoad() merges ghosts with real sensor data.
+    int slot = availableTelemetryIndex();
+    if (slot >= 0) {
+      TelemetrySensor* ts = sensorAllocAt(slot);
+      if (ts) {
+        memset(ts, 0, sizeof(TelemetrySensor));
+        ts->protocol = protocol;
+        ts->id = id;
+        ts->subId = subId;
+        return slot;
+      }
+    }
   }
 
   return -1;
@@ -2784,12 +2823,12 @@ static SwitchRef yaml_parse_switch(const char* val, uint8_t val_len)
       ref = SwitchRef_(SWITCH_TYPE_FLIGHT_MODE, (uint16_t)(val[2] - '0'));
     }
     // Telemetry sensors:
-    //   "T(Sport:0x0210:0)" — identity reference
+    //   "T(Sport-0x0210-0)" — identity reference
     //   "T1", "T12"         — legacy 1-based index
     else if (val_len >= 2 && val[0] == 'T' &&
              (val[1] == '(' || (val[1] >= '0' && val[1] <= '9'))) {
       if (val[1] == '(') {
-        // T(Proto:0xHHHH:S)
+        // T(Proto-0xHHHH-S)
         int idx = parseSensorRef(val + 2, val_len - 2);
         if (idx >= 0)
           ref = SwitchRef_(SWITCH_TYPE_SENSOR, (uint16_t)idx);
@@ -2859,7 +2898,7 @@ static bool yaml_write_switch(const SwitchRef& ref, yaml_writer_func wf, void* o
       case SWITCH_TYPE_TELEMETRY:
         return wf(opaque, "TELEMETRY_STREAMING", 19);
       case SWITCH_TYPE_SENSOR:
-        // T(Proto:0xHHHH:S)
+        // T(Proto-0xHHHH-S)
         if (ref.index < MAX_TELEMETRY_SENSORS &&
             sensorAddress(ref.index)->protocol != 0) {
           if (!wf(opaque, "T(", 2)) return false;
@@ -3441,6 +3480,61 @@ static const EADriver yaml_drv_input_names =
     { yaml_get_input_names_ptr, yaml_ensure_input_names_capacity, nullptr };
 static const EADriver yaml_drv_telem_sensors =
     { yaml_get_telem_sensors_ptr, yaml_ensure_telem_sensors_capacity, telem_sensor_is_active };
+
+// Custom IDX for telemetrySensors extern array.
+// Identity key uses '-' separator ("CRSF-0x0008-0") because ':'
+// is the YAML key/value separator and cannot appear in keys.
+//
+// Read:  identity key → find ghost or allocate slot
+//        bare integer → legacy index (ensure capacity)
+// Write: emit identity key from sensor data, fallback to bare index
+
+static uint32_t r_telem_sensor_idx(void* user, const char* val, uint8_t val_len)
+{
+  if (val_len > 0 && val[0] >= '0' && val[0] <= '9') {
+    // Legacy: bare numeric index
+    uint32_t idx = yaml_str2uint(val, val_len);
+    yaml_ensure_telem_sensors_capacity(nullptr, idx + 1);
+    return idx;
+  }
+
+  TelemetryProtocol protocol;
+  uint16_t id;
+  uint8_t subId;
+  if (parseSensorIdentity(val, val_len, protocol, id, subId)) {
+    int idx = findSensorByIdentity(protocol, id, subId);
+    if (idx >= 0) return (uint32_t)idx;  // reuse ghost slot
+
+    // No ghost — allocate a fresh slot
+    int slot = availableTelemetryIndex();
+    if (slot >= 0) {
+      TelemetrySensor* ts = sensorAllocAt(slot);
+      if (ts) {
+        // Populate identity fields from the key — these fields are
+        // no longer serialized separately in the YAML body.
+        ts->protocol = protocol;
+        ts->id = id;
+        ts->subId = subId;
+      }
+      return (uint32_t)slot;
+    }
+  }
+  return 0;
+}
+
+static bool w_telem_sensor_idx(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto* walker = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t slot = walker->getElmts();
+
+  const TelemetrySensor* ts = sensorAddress(slot);
+  if (ts->protocol != 0)
+    return writeSensorIdentity(slot, wf, opaque);
+
+  // Fallback: bare numeric index
+  const char* str = yaml_unsigned2str(slot);
+  return wf(opaque, str, strlen(str));
+}
 
 // Custom IDX for inputNames extern array:
 // Read: parse input number → allocate arena slot, return slot index
