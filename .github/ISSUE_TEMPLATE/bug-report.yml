@@ -58,7 +58,7 @@ body:
       label: Version
       description: What version of EdgeTX software are you running?
       options:
-        - 2.12.0-RC
+        - 2.12.0
         - 2.11.5
         - 2.11.4
         - 2.11.3
