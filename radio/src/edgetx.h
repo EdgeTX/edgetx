@@ -574,14 +574,14 @@ constexpr uint8_t OPENTX_START_NO_CALIBRATION = 0x02;
 constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 #if defined(STATUS_LEDS)
-  #define LED_ERROR_BEGIN()            ledRed()
+  #define LED_ERROR_BEGIN()            ledWhite()
   // Green "ready to use" if available, unless overridden by user or mfg preference
 #if !defined(POWER_LED_BLUE) && (defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO))
-  #define LED_ERROR_END() ledGreen()
-  #define LED_BIND() ledBlue()
+  #define LED_ERROR_END() ledMagenta()
+  #define LED_BIND() ledMagenta()
 #else
 // Either green is not an option, or blue is preferred "ready to use" color
-  #define LED_ERROR_END()              ledBlue()
+  #define LED_ERROR_END()              ledMagenta()
 #endif
 #else
   #define LED_ERROR_BEGIN()

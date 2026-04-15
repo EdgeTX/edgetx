@@ -163,6 +163,10 @@ void ledOff();
 void ledRed();
 void ledBlue();
 void ledGreen();
+void ledMagenta();
+void ledCyan();
+void ledYellow();
+void ledWhite();
 
 // LCD driver
 void lcdSetInitalFrameBuffer(void* fbAddress);
