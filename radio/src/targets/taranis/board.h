@@ -251,6 +251,10 @@ void ledOff();
 void ledRed();
 void ledGreen();
 void ledBlue();
+void ledMagenta();
+void ledCyan();
+void ledYellow();
+void ledWhite();
 
 // LCD driver
 #if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)

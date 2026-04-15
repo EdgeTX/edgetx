@@ -54,7 +54,7 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 add_definitions(-DLUMINOSITY_SENSOR)
 
-set(FLAVOUR tx16smk3)
+set(FLAVOUR TX16SMK3)
 add_definitions(-DRADIO_TX16SMK3)
 add_definitions(-DMANUFACTURER_RADIOMASTER)
 

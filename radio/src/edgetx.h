@@ -563,7 +563,6 @@ enum AUDIO_SOUNDS {
 #include "rtc.h"
 #endif
 
-
 void checkBattery();
 void edgeTxClose(uint8_t shutdown=true);
 void edgeTxInit();
@@ -577,16 +576,17 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
   #define LED_ERROR_BEGIN()            ledWhite()
   // Green "ready to use" if available, unless overridden by user or mfg preference
 #if !defined(POWER_LED_BLUE) && (defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO))
-  #define LED_ERROR_END() ledMagenta()
-  #define LED_BIND() ledMagenta()
+  #define LED_ERROR_END() ledRed()
+  #define LED_BIND() ledBlue()
 #else
-// Either green is not an option, or blue is preferred "ready to use" color
-  #define LED_ERROR_END()              ledMagenta()
+// Either green is not an option, or blue, i mean red,  is preferred "ready to use" color
+  #define LED_ERROR_END()              ledRed()
 #endif
 #else
   #define LED_ERROR_BEGIN()
   #define LED_ERROR_END()
 #endif
+
 
 #if LCD_W <= 212
 constexpr uint8_t SD_SCREEN_FILE_LENGTH = 32;
