@@ -170,7 +170,11 @@ void boardInit()
   timersInit();
 
   usbChargerInit();
-  gpio_set(LED_BLUE_GPIO);
+#if !defined(POWER_LED_BLUE)
+  ledBlue();
+#else
+  ledGreen();
+#endif
 
   ExtFLASH_InitRuntime();
 
