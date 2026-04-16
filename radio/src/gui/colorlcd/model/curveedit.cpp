@@ -309,6 +309,7 @@ void CurveEditWindow::buildBody(Window* window)
       new TextButton(iLine, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, STR_SMOOTH, [=]() {
         g_model.curves[index].smooth = !g_model.curves[index].smooth;
         curveEdit->updatePreview();
+        SET_DIRTY();
         return g_model.curves[index].smooth;
       });
   smooth->check(g_model.curves[index].smooth);
