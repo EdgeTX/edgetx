@@ -87,6 +87,13 @@ static void afhds2ProcessData(void*, uint8_t data, uint8_t* buffer, uint8_t* len
   processInternalFlySkyTelemetryData(data, buffer, len);
 }
 
+static bool txCompleted(void* ctx)
+{
+  //auto mod_st = (etx_module_state_t*)ctx;
+  //auto p_state = (ProtoState*)mod_st->user_data;
+  return 1;// !p_state->fifoFull();
+}
+
 const etx_proto_driver_t Afhds2InternalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS2A,
   .init = afhds2Init,
@@ -95,4 +102,5 @@ const etx_proto_driver_t Afhds2InternalDriver = {
   .processData = afhds2ProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = txCompleted,
 };
