@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "audio.h"
+#include "hal/audio_driver.h"
 #include "simuaudio.h"
 #include "simulib.h"
 
@@ -32,11 +32,6 @@ static SDL_AudioDeviceID _sdl_audio_device = 0;
 
 void simuQueueAudio(const uint8_t* data, uint32_t len)
 {
-#if !defined(SOFTWARE_VOLUME)
-  int volume = (simuAudioGetVolume() * SDL_MIX_MAXVOLUME ) / VOLUME_LEVEL_MAX;
-  SDL_MixAudioFormat((uint8_t*)data, data, AUDIO_FMT, len, volume);
-#endif
-
   SDL_QueueAudio(_sdl_audio_device, data, len);
 }
 
