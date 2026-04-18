@@ -307,8 +307,7 @@ void OpenTxSimulator::setSdPath(const QString & sdPath, const QString & settings
 
 void OpenTxSimulator::setVolumeGain(const int value)
 {
-  QMutexLocker lckr(&m_mtxSettings);
-  volumeGain = value;
+  simuSetVolumeGain(value);
 }
 
 void OpenTxSimulator::setRadioData(const QByteArray & data)

@@ -116,7 +116,6 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     QMutex m_mtxRadioData;
     QMutex m_mtxSettings;
     QMutex m_mtxTbDevices;
-    int volumeGain;
     bool m_resetOutputsData;
     bool m_stopRequested;
 

@@ -29,12 +29,36 @@
 
 static SDL_AudioDeviceID _sdl_audio_device = 0;
 
+// Companion-side volume gain, stored as user-facing gain (0.5..3.0x) * 10.
+// Default 10 = unity.
+static int _volume_gain = 10;
+
+void simuSetVolumeGain(int value)
+{
+  _volume_gain = value;
+}
+
 void simuQueueAudio(const uint8_t* data, uint32_t len)
 {
 #if !defined(SOFTWARE_VOLUME)
   int volume = (simuAudioGetVolume() * SDL_MIX_MAXVOLUME ) / VOLUME_LEVEL_MAX;
   SDL_MixAudioFormat((uint8_t*)data, data, AUDIO_FMT, len, volume);
 #endif
+
+  int gain = _volume_gain;
+  if (gain != 10) {
+    // SDL_MixAudioFormat cannot amplify above unity, so apply the
+    // Companion gain manually with saturation to support the full
+    // 0.5..3.0x UI range.
+    auto* samples = (int16_t*)data;
+    uint32_t n = len / sizeof(int16_t);
+    for (uint32_t i = 0; i < n; ++i) {
+      int32_t s = ((int32_t)samples[i] * gain) / 10;
+      if (s > INT16_MAX) s = INT16_MAX;
+      else if (s < INT16_MIN) s = INT16_MIN;
+      samples[i] = (int16_t)s;
+    }
+  }
 
   SDL_QueueAudio(_sdl_audio_device, data, len);
 }
