@@ -24,6 +24,10 @@
 #include <stdint.h>
 
 void rgbLedInit();
+// Initialise the WS2812 hardware without starting the periodic refresh
+// timer. Useful for pre-OS contexts (e.g. charging UI) that need the LED
+// strip up before the FreeRTOS scheduler is running.
+void rgbLedHwInit();
 void rgbLedStop();
 
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b);

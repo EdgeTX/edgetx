@@ -24,10 +24,6 @@
 #include "stm32_gpio.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
-#if defined(LED_STRIP_GPIO)
-#undef UNUSED
-#include "stm32_ws2812.h"
-#endif
 
 #define __weak __attribute__((weak))
 
@@ -70,8 +66,8 @@ __weak void ledInit()
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 __weak void fsLedRGB(uint8_t index, uint32_t color)
 {
-   ws2812_set_color(index, GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(index, GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+  rgbLedColorApply();
 }
 
 uint8_t getRGBColorIndex(uint32_t color)

@@ -21,7 +21,6 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -100,9 +99,9 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
   if (dirty) {
     for (uint8_t i = 0; i < 6; i++) {
       if (i == sixPosState)
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        rgbSetLedColor(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       else
-        ws2812_set_color(i, 0, 0, 0);
+        rgbSetLedColor(i, 0, 0, 0);
     }
     rgbLedColorApply();
   }
