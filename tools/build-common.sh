@@ -87,7 +87,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X9D+"
             ;;
         x9dp2019)
-            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
+            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019 -DUSE_FW_LTO=y"
             ;;
         x9e)
             BUILD_OPTIONS+="-DPCB=X9E"
