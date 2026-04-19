@@ -207,13 +207,13 @@ enum MenuModelSetupItems {
 #define MODEL_SETUP_3RD_COLUMN        (MODEL_SETUP_2ND_COLUMN+6*FW)
 #define MODEL_SETUP_SET_FAILSAFE_OFS  10*FW-2
 
-PACK(struct ExpandState {
+PACK(struct ModelSetupExpandState {
   uint8_t preflight:1;
   uint8_t throttle:1;
   uint8_t viewOpt:1;
 });
 
-static struct ExpandState expandState;
+static struct ModelSetupExpandState expandState;
 
 static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
 

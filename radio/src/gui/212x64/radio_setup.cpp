@@ -123,13 +123,13 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_MAX
 };
 
-PACK(struct ExpandState {
+PACK(struct RadioSetupExpandState {
   uint8_t sound:1;
   uint8_t alarms:1;
   uint8_t viewOpt:1;
 });
 
-static struct ExpandState expandState;
+static struct RadioSetupExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
 
