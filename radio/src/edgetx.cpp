@@ -20,6 +20,7 @@
  */
 
 #include "os/sleep.h"
+#include "os/time.h"
 #if !defined(SIMU)
 #include "stm32_ws2812.h"
 #include "boards/generic_stm32/rgb_leds.h"
@@ -1167,7 +1168,12 @@ void edgeTxClose(uint8_t shutdown)
 
   storageCheck(true);
 
+  uint32_t bye_start = time_get_ms();
   while (IS_PLAYING(ID_PLAY_PROMPT_BASE + AU_BYE)) {
+    if (time_get_ms() - bye_start > 5000/*5s*/) {
+      TRACE("shutdown: bye audio timeout");
+      break;
+    }
     sleep_ms(10);
   }
 
