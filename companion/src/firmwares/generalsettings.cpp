@@ -235,6 +235,8 @@ void GeneralSettings::init()
   hatsMode = HATSMODE_SWITCHABLE;
   inactivityTimer = 10;
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
+  stickMode = g.profile[g.sessionId()].defaultMode();
+  templateSetup = g.profile[g.sessionId()].channelOrder();
 
   QString lang = getCurrentFirmware()->getLanguage();
   if (lang.size() > 1) {
