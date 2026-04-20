@@ -233,6 +233,7 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_PST, "paste.png",       SLOT(paste()),           QKeySequence::Paste);
   addAct(ACT_MDL_INS, "list.png",        SLOT(insert()),          QKeySequence::Italic);
   addAct(ACT_MDL_EXP, "save.png",        SLOT(modelExport()),     tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_IMP, "open.png",        SLOT(modelImport()),     tr("Ctrl+Alt+O"));
   addAct(ACT_MDL_ERR, "information.png", SLOT(modelShowErrors()), tr("Ctrl+Alt+E"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
@@ -366,6 +367,8 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
   action[ACT_MDL_EXP]->setEnabled(modelsSelected);
   action[ACT_MDL_EXP]->setText(tr("Export") % (modelsSelected ? sp % modelsRemvTxt : ns));
+  action[ACT_MDL_IMP]->setEnabled(true);
+  action[ACT_MDL_IMP]->setText(tr("Import"));
   action[ACT_MDL_MOV]->setVisible(false);
   action[ACT_MDL_DUP]->setEnabled(singleModelSelected);
   action[ACT_MDL_RTR]->setEnabled(singleModelSelected);
@@ -399,6 +402,8 @@ void MdiChild::retranslateUi()
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
   action[ACT_MDL_EXP]->setText(tr("Export Model"));
   action[ACT_MDL_EXP]->setIconText(tr("Export"));
+  action[ACT_MDL_IMP]->setText(tr("Import Model"));
+  action[ACT_MDL_IMP]->setIconText(tr("Import"));
   action[ACT_MDL_RTR]->setText(tr("Restore from Backup"));
   action[ACT_MDL_WIZ]->setText(tr("Model Wizard"));
   action[ACT_MDL_DFT]->setText(tr("Set as Default"));
@@ -436,6 +441,7 @@ QList<QAction *> MdiChild::getEditActions()
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
   actGrp.append(getAction(ACT_MDL_EXP));
+  actGrp.append(getAction(ACT_MDL_IMP));
   actGrp.append(getAction(ACT_MDL_MOV));
   return actGrp;
 }
@@ -1938,4 +1944,81 @@ void MdiChild::updateStatusBar()
 
   statusBarIcon->setPixmap(p.scaled(QSize(24, 24)));
   statusBarCount->setText(cnt.text());
+}
+
+void MdiChild::modelImport()
+{
+  QString filename = QFileDialog::getOpenFileName(this, tr("Open Model file"), g.eepromDir(), YML_FILES_FILTER);
+
+  if (filename.isEmpty())
+    return;
+
+  if (getStorageType(filename) != STORAGE_TYPE_YML)
+    return;
+
+  RadioData tmpRadioData;
+
+  Storage storage(filename);
+
+  if (!storage.load(tmpRadioData)) {
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+    return;
+  }
+
+  QString warning = storage.warning();
+
+  if (!warning.isEmpty())
+    QMessageBox::warning(this, CPN_STR_TTL_WARNING, warning);
+
+  bool ok = true;
+  int modelIdx = modelsListModel->getModelIndex(getCurrentIndex());
+  ModelData &modelData = tmpRadioData.models[0];
+
+  if (modelIdx == -1 || modelIdx >= (int)radioData.models.size()) {
+    // This handles importing past the end
+    modelIdx = modelAppend(modelData);
+
+    if (modelIdx < 0) {
+      ok = false;
+      showWarning(tr("Cannot import model, out of available model slots."));
+    }
+  } else if (radioData.models[modelIdx].isEmpty()) {
+    radioData.models[modelIdx] = modelData;
+  } else {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(CPN_STR_APP_NAME);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(tr("Model slot in use! Do you want to overwrite or insert into a new slot?"));
+    QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
+    QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
+    QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+    msgBox.setDefaultButton(insertButton);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == overwriteButton) {
+      radioData.models[modelIdx] = modelData;
+    }
+    else if (msgBox.clickedButton() == insertButton) {
+      ok = insertModelRows(modelIdx, 1);
+      if (ok) {
+        radioData.models[modelIdx] = modelData;
+      }
+    }
+    else if (msgBox.clickedButton() == cancelButton) {
+      ok = false;
+    }
+  }
+
+  if (ok) {
+    // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
+    radioData.models[modelIdx].modelIndex = -modelIdx;
+    strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
+    lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
+    setModelModified(modelIdx, false);  // avoid unnecessary refreshes
+    radioData.addLabelsFromModels();
+    radioData.validateModels();
+    refresh();
+    setModified();
+  }
 }
