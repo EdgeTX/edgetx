@@ -37,3 +37,9 @@ void rgbLedClearAll();
 
 bool rgbGetState(uint8_t led);
 void rgbLedColorApply();
+
+// Weak hook invoked by the LED refresh timer task before publishing the
+// next frame. Boards that drive system LEDs (e.g. the 6POS position
+// indicator) implement this to update their LEDs in the timer task
+// context, keeping rgb_leds.cpp's back buffer single-writer.
+void rgbLedOnUpdate();

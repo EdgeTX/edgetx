@@ -123,9 +123,12 @@ void rgbLedClearAll()
   rgbLedColorApply();
 }
 
+__attribute__((weak)) void rgbLedOnUpdate() {}
+
 static void _refresh_cb(timer_handle_t* timer)
 {
   (void)timer;
+  rgbLedOnUpdate();
   _flush_and_update();
 }
 
