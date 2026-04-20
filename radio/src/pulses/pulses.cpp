@@ -565,7 +565,7 @@ void pulsesSendNextFrame(uint8_t module)
     }
 
     // if previous frame not completed, skip this one
-    if (!drv->txCompleted(ctx)) return;
+    if (drv->txCompleted && !drv->txCompleted(ctx)) return;
 
     uint8_t channelStart = g_model.moduleData[module].channelsStart;
     int16_t* channels = &channelOutputs[channelStart];

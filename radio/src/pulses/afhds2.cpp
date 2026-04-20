@@ -95,4 +95,5 @@ const etx_proto_driver_t Afhds2InternalDriver = {
   .processData = afhds2ProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };
