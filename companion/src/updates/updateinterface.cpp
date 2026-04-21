@@ -738,13 +738,6 @@ int UpdateInterface::preparation()
   m_status->setValue(cnt);
   m_status->setMaximum(5);
 
-  if (!setRunFolders()) {
-    m_status->reportProgress(tr("Set run folders failed"), QtDebugMsg);
-    return false;
-  }
-
-  m_status->setValue(++cnt);
-
   if (!m_repo->releases()->retrieveMetaDataAll()) {
     return false;
   }
@@ -753,6 +746,13 @@ int UpdateInterface::preparation()
 
   if (!m_repo->releases()->getSetId(m_params->releaseUpdate)) {
     m_status->reportProgress(tr("Set release id from update release '%1' failed").arg(m_params->releaseUpdate), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->setValue(++cnt);
+
+  if (!setRunFolders()) {
+    m_status->reportProgress(tr("Set run folders failed"), QtDebugMsg);
     return false;
   }
 
