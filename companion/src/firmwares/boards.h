@@ -627,7 +627,7 @@ inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T15 || 
+  return board == Board::BOARD_JUMPER_T15 ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
          board == Board::BOARD_RADIOMASTER_TX16S ||
@@ -830,4 +830,10 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 inline bool HAS_EEPROM_YAML(Board::Type board)
 {
   return IS_FAMILY_HORUS_OR_T16(board);
+}
+
+inline bool IS_STM32H7(Board::Type board)
+{
+  return IS_FLYSKY_PA01(board) ||
+         IS_FLYSKY_ST16(board);
 }
