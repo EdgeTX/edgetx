@@ -284,10 +284,12 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
       this, [=](const QVariant &value) { return value == 0; });
 
-  if (firmware->getCapability(HasAuxSerialMode) || firmware->getCapability(HasAux2SerialMode) || firmware->getCapability(HasVCPSerialMode))
+  if (Boards::getCapability(board, Board::HasAuxSerialMode) ||
+      Boards::getCapability(board, Board::HasAux2SerialMode) ||
+      Boards::getCapability(board, Board::HasVCPSerialMode))
     addSection(tr("Serial ports"));
 
-  if (firmware->getCapability(HasAuxSerialMode)) {
+  if (Boards::getCapability(board, Board::HasAuxSerialMode)) {
     addLabel(tr("AUX1"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX1SERIALMODES));
@@ -306,7 +308,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
       serialPortPower->setVisible(false);
   }
 
-  if (firmware->getCapability(HasAux2SerialMode)) {
+  if (Boards::getCapability(board, Board::HasAux2SerialMode)) {
     addLabel(tr("AUX2"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX2SERIALMODES));
@@ -325,7 +327,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
       serialPortPower->setVisible(false);
   }
 
-  if (firmware->getCapability(HasVCPSerialMode)) {
+  if (Boards::getCapability(board, Board::HasVCPSerialMode)) {
     addLabel(tr("USB-VCP"));
     serialPortUSBVCP = new AutoComboBox(this);
     serialPortUSBVCP->setModel(tabFilteredModels->getItemModel(FIM_VCPSERIALMODES));

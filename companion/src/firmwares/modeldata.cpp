@@ -308,8 +308,14 @@ void ModelData::clear()
     sensorData[i].clear();
 
   toplcdTimer = 0;
-  RadioLayout::init("Layout2P1", customScreens);
-  topBarData.clear();
+
+  if (Boards::getCapability(getCurrentBoard(), Board::HasColorLcd)) {
+    RadioLayout::init("Layout2P1", customScreens);
+    initTopBar();
+  } else {
+    customScreens.clear();
+    topBarData.clear();
+  }
 
   for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
     topbarWidgetWidth[i] = 1;
@@ -2311,5 +2317,26 @@ void ModelData::updateSourceNumRef(int & value)
     SourceNumRef srcnum = SourceNumRef(value);
     if (srcnum.isSource())
       updateSourceIntRef(value);
+  }
+}
+
+void ModelData::initTopBar()
+{
+  topBarData.clear();
+  int zones = RadioLayout::topBarZones();
+
+  if (zones - 1 >= 0) {
+    ZonePersistentData & zone = topBarData.zones[zones - 1];
+    zone.widgetName = "Date Time";
+  }
+
+  if (zones - 2 >= 0) {
+    ZonePersistentData & zone = topBarData.zones[zones - 2];
+    zone.widgetName = "Radio Info";
+  }
+
+  if (zones - 3 >= 0 && Boards::getCapability(getCurrentBoard(), Board::HasInternalGPS)) {
+    ZonePersistentData & zone = topBarData.zones[zones - 3];
+    zone.widgetName = "Internal GPS";
   }
 }

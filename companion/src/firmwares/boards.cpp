@@ -343,6 +343,17 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
 
+    case HasAuxSerialMode:
+      return (IS_FAMILY_HORUS_OR_T16(board) &&
+              !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) ||
+                IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
+             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
+             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_RADIOMASTER_MT12(board);
+
+    case HasAux2SerialMode:
+      return IS_FAMILY_T16(board);
+
     case HasBacklightColor:
       return IS_TARANIS_PLUS(board) || IS_TARANIS_X9DP_2019(board);
 
@@ -357,6 +368,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
+
+    case HasInternalGPS:
+      return ((IS_FAMILY_HORUS_OR_T16(board) && getCapability(board, HasAuxSerialMode)) ||
+              IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board));
 
     case HasLedStripGPIO:
       return (IS_RADIOMASTER_MT12(board) || IS_FAMILY_PL18(board) ||
@@ -375,6 +390,12 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) || IS_JUMPER_T20(board) ||
               IS_JUMPER_BUMBLEBEE(board)) || IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
+
+    case HasVCPSerialMode:
+      return IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_TPRO(board) ||
+             IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_MT12(board) ||
+             IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_RADIOMASTER_ZORRO(board);
 
     case LcdOLED:
       return IS_BETAFPV_LR3PRO(board) || IS_JUMPER_TPROV2(board) || IS_JUMPER_TPROS(board) || IS_JUMPER_T20(board) ||
