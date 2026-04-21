@@ -65,6 +65,7 @@ class MdiChild : public QWidget
       ACT_MDL_INS,
       ACT_MDL_MOV,
       ACT_MDL_EXP,
+      ACT_MDL_IMP,
       ACT_MDL_RTR,  // ResToRe backup
       ACT_MDL_WIZ,
       ACT_MDL_DFT,  // set as DeFaulT
@@ -148,6 +149,7 @@ class MdiChild : public QWidget
     void modelAdd();
     void modelEdit();
     void modelExport();
+    void modelImport();
     void labelAdd();
     void labelDelete();
     void labelRename();
