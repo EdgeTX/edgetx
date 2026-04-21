@@ -83,76 +83,62 @@ void LcdWidget::onLcdChanged(uint8_t* lcdBuf, bool light)
 
 void LcdWidget::doPaint(QPainter &p)
 {
-  QRgb rgb;
-  uint16_t z;
-
   if (!localBuf) return;
 
   if (lcdDepth == 16) {
-    for (int x = 0; x < lcdWidth; x++) {
-      for (int y = 0; y < lcdHeight; y++) {
-        z = ((uint16_t *)localBuf)[y * lcdWidth + x];
-        rgb = qRgb(255 * ((z & 0xF800) >> 11) / 0x1F,
-                   255 * ((z & 0x07E0) >> 5) / 0x3F, 255 * (z & 0x001F) / 0x1F);
-        p.setPen(rgb);
-        p.drawPoint(x, y);
-      }
-    }
+    QImage img((const uchar*)localBuf, lcdWidth, lcdHeight,
+               lcdWidth * 2, QImage::Format_RGB16);
+    p.drawImage(0, 0, img);
     return;
   }
+
   if (lcdDepth == 12) {
-    for (int x = 0; x < lcdWidth; x++) {
-      for (int y = 0; y < lcdHeight; y++) {
-        z = ((uint16_t *)localBuf)[y * lcdWidth + x];
-        rgb = qRgb(255 * ((z & 0xF00) >> 8) / 0x0F,
-                   255 * ((z & 0x0F0) >> 4) / 0x0F, 255 * (z & 0x00F) / 0x0F);
-        p.setPen(rgb);
-        p.drawPoint(x, y);
+    QImage img(lcdWidth, lcdHeight, QImage::Format_RGB32);
+    for (int y = 0; y < lcdHeight; y++) {
+      QRgb* line = (QRgb*)img.scanLine(y);
+      for (int x = 0; x < lcdWidth; x++) {
+        uint16_t z = ((uint16_t *)localBuf)[y * lcdWidth + x];
+        line[x] = qRgb(255 * ((z & 0xF00) >> 8) / 0x0F,
+                        255 * ((z & 0x0F0) >> 4) / 0x0F,
+                        255 * (z & 0x00F) / 0x0F);
       }
     }
+    p.drawImage(0, 0, img);
     return;
   }
 
-  QColor bg;
-  if (lightEnable)
-    bg = bgColor;
-  else
-    bg = bgDefaultColor;
-
-  p.setBackground(QBrush(bg));
-  p.eraseRect(0, 0, 2 * lcdWidth, 2 * lcdHeight);
+  QColor bg = lightEnable ? bgColor : bgDefaultColor;
+  QRgb bgRgb = bg.rgb();
 
   if (lcdDepth == 1) {
-    rgb = fgDefaultColor.rgb();
-    p.setPen(rgb);
-    p.setBrush(QBrush(rgb));
+    QRgb fgRgb = fgDefaultColor.rgb();
+    QImage img(lcdWidth, lcdHeight, QImage::Format_RGB32);
+    for (int y = 0; y < lcdHeight; y++) {
+      QRgb* line = (QRgb*)img.scanLine(y);
+      uint16_t idx = (y / 8) * lcdWidth;
+      uint8_t mask = 1 << (y % 8);
+      for (int x = 0; x < lcdWidth; x++, idx++) {
+        line[x] = (localBuf[idx] & mask) ? fgRgb : bgRgb;
+      }
+    }
+    p.drawImage(QRect(0, 0, 2 * lcdWidth, 2 * lcdHeight), img);
+    return;
   }
 
-  uint16_t idx, mask;
-  uint16_t previousDepth = 0xFF;
-
+  // lcdDepth == 4
+  int bgR = bg.red(), bgG = bg.green(), bgB = bg.blue();
+  QImage img(lcdWidth, lcdHeight, QImage::Format_RGB32);
   for (int y = 0; y < lcdHeight; y++) {
-    idx = (y * lcdDepth / 8) * lcdWidth;
-    mask = (1 << (y % 8));
+    QRgb* line = (QRgb*)img.scanLine(y);
+    uint16_t idx = (y / 2) * lcdWidth;
     for (int x = 0; x < lcdWidth; x++, idx++) {
-      if (lcdDepth == 1) {
-        if (localBuf[idx] & mask) p.drawRect(2 * x, 2 * y, 1, 1);
-        continue;
-      }
-      // lcdDepth == 4
-      z = (y & 1) ? (localBuf[idx] >> 4) : (localBuf[idx] & 0x0F);
-      if (!z) continue;
-      if (z != previousDepth) {
-        previousDepth = z;
-        rgb = qRgb(bg.red() - (z * bg.red()) / 15,
-                   bg.green() - (z * bg.green()) / 15,
-                   bg.blue() - (z * bg.blue()) / 15);
-        p.setPen(rgb);
-        p.setBrush(QBrush(rgb));
-      }
-      p.drawRect(2 * x, 2 * y, 1, 1);
+      uint8_t z = (y & 1) ? (localBuf[idx] >> 4) : (localBuf[idx] & 0x0F);
+      line[x] = qRgb(bgR - (z * bgR) / 15,
+                      bgG - (z * bgG) / 15,
+                      bgB - (z * bgB) / 15);
     }
   }
+  p.drawImage(QRect(0, 0, 2 * lcdWidth, 2 * lcdHeight), img);
 }
 
 void LcdWidget::paintEvent(QPaintEvent *)
