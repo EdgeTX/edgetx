@@ -397,6 +397,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
         node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
   }
 
+  node["oneLogPerDay"] = (int)rhs.oneLogPerDay;
+
   return node;
 }
 
@@ -728,6 +730,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       if (node["qmFavorites"][std::to_string(i)])
         node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
   }
+
+  node["oneLogPerDay"] >> rhs.oneLogPerDay;
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions

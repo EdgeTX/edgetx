@@ -571,6 +571,7 @@
 #define TR_BLOFFBRIGHTNESS             "בהירות כבויה"
 #define TR_KEYS_BACKLIGHT              "תאורת לחצנים"
 #define TR_BLCOLOR                     "צבע"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                "מסך פתיחה"
 #define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"

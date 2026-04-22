@@ -83,6 +83,7 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
   CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
+  ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
@@ -583,6 +584,13 @@ void menuRadioSetup(event_t event)
         }
         break;
 #endif
+
+      case ITEM_RADIO_ONE_LOG_PER_DAY: {
+        lcdDrawTextAlignedLeft(y, STR_ONE_LOG_PER_DAY);
+        g_eeGeneral.oneLogPerDay =
+            editCheckBox(g_eeGeneral.oneLogPerDay, LCD_W - 9, y, nullptr, attr, event);
+        break;
+      }
 
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
       {

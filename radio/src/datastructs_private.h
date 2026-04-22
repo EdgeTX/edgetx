@@ -284,7 +284,7 @@ PACK(struct TimerData {
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
-  uint8_t  showElapsed:1; 
+  uint8_t  showElapsed:1;
   uint8_t  extraHaptic:1;
   uint8_t  spare:6 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
@@ -880,7 +880,7 @@ PACK(struct ModelData {
   NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
   NOBACKUP(uint8_t usbJoystickCircularCut:4);
   NOBACKUP(USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS]);
-  
+
   // Radio level tabs control (model settings)
 #if defined(COLORLCD)
   uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
@@ -1152,14 +1152,15 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
 
   NOBACKUP(uint8_t modelQuickSelect:1);
+  NOBACKUP(uint8_t oneLogPerDay:1);
 
 #if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:5 SKIP);
+  NOBACKUP(uint8_t spare:4 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:2 SKIP);
+  NOBACKUP(uint8_t spare:1 SKIP);
 #else
-  NOBACKUP(uint8_t spare:3 SKIP);
+  NOBACKUP(uint8_t spare:2 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

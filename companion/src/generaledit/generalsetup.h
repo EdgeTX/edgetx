@@ -104,6 +104,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_favMultiMode_CB_currentIndexChanged(int);
 
     void on_pwrOffIfInactiveSB_editingFinished();
+    void on_chkOneLogPerDay_stateChanged(int);
 
   private:
     Ui::GeneralSetup *ui;

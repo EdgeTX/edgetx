@@ -720,6 +720,13 @@ class ManageModelsSetupPage : public SubPage
 
 static SetupLineDef setupLines[] = {
   {
+    // Have only one log per day
+    STR_DEF(STR_ONE_LOG_PER_DAY),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.oneLogPerDay));
+    }
+  },
+  {
     // Splash screen
     STR_DEF(STR_SPLASHSCREEN),
     [](Window* parent, coord_t x, coord_t y) {
