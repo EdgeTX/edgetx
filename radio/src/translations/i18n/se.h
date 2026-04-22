@@ -571,6 +571,7 @@
 #define TR_BLONBRIGHTNESS               "Ljusstyrka på"
 #define TR_BLOFFBRIGHTNESS              "Ljusstyrka av"
 #define TR_KEYS_BACKLIGHT               "Tangentbelysning"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                 "Startbild"
 #define TR_PLAY_HELLO                   "Startljud"
 #define TR_PWR_ON_DELAY                 "Fördröj start"

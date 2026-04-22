@@ -84,6 +84,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_BACKLIGHT_SOURCE,
   ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE,
   ITEM_RADIO_SETUP_FLASH_BEEP,
+  ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
@@ -603,6 +604,13 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:
         lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
         break;
+
+      case ITEM_RADIO_ONE_LOG_PER_DAY: {
+        lcdDrawTextAlignedLeft(y, STR_ONE_LOG_PER_DAY);
+        g_eeGeneral.oneLogPerDay =
+            editCheckBox(g_eeGeneral.oneLogPerDay, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
+        break;
+      }
 
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);
