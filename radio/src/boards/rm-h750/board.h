@@ -208,6 +208,10 @@ bool isBacklightEnabled();
 int audioInit();
 void audioConsumeCurrentBuffer();
 
+#if defined(PDM_CLOCK)
+#include "pdm_software_driver.h"
+#endif
+
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512
 #define TELEMETRY_FIFO_SIZE            512
