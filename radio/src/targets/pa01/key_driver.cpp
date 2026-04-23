@@ -79,7 +79,6 @@ static uint32_t keyState = 0;
                             else keyState &= ~(1UL<<ENT);\
                           }while(0)
 
-// extern RTOS_MUTEX_HANDLE I2CMutex;
 extern bool suspendI2CTasks;
 extern volatile bool errorOccurs;
 static volatile uint32_t pollkey_step;
@@ -91,24 +90,6 @@ void pollKeys()
   volatile static uint32_t result = 0;
   uint16_t bsp_input = 0;
 
-  // if(errorOccurs)
-  // {
-  //   TRACE_ERROR("I2C ERORR\n\r");
-  //   errorOccurs =false;
-  //   int bsp_io_init();
-  //   RTOS_LOCK_MUTEX(I2CMutex);
-  //   (RCC->APB1LENR) |= (RCC_APB1LENR_I2C1EN);
-  //   RCC->APB1LRSTR |= (RCC_APB1LRSTR_I2C1RST);
-  //   delay_us(BSP_READ_AFTER_WRITE_DELAY);
-  //   RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_I2C1RST);
-  //   bsp_io_init();
-  //   RTOS_UNLOCK_MUTEX(I2CMutex);
-  //   bsp_output_set(0, 0);
-  //   TRACE_ERROR("I2C OK\n\r");
-  //   pollkey_step = 0;
-  //   return;
-  // }
-
   if( !pollkey_step )
   {
     pollkey_step = 0x03;
@@ -117,7 +98,6 @@ void pollKeys()
   else if(0x03==pollkey_step)
   {
     pollkey_step = 0x07;
-    // delay_us(BSP_READ_AFTER_WRITE_DELAY);
     bsp_input = bsp_input_get();
     if ((bsp_input & BSP_KEY_IN1) == 0)
       result |= 1<<TR1U;
@@ -133,7 +113,6 @@ void pollKeys()
   else if(0x07==pollkey_step)
   {
     pollkey_step = 0x0F;
-    // delay_us(BSP_READ_AFTER_WRITE_DELAY);
     bsp_input = bsp_input_get();
     if ((bsp_input & BSP_KEY_IN1) == 0)
       result |= 1<<TR3L;
@@ -149,7 +128,6 @@ void pollKeys()
   else if(0x0F==pollkey_step)
   {
     pollkey_step = 0x01;
-    // delay_us(BSP_READ_AFTER_WRITE_DELAY);
     bsp_input = bsp_input_get();
     if ((bsp_input & BSP_KEY_IN1) == 0)
       result |= 1<<PGDN;
@@ -165,7 +143,6 @@ void pollKeys()
   else if(0x01==pollkey_step)
   {
     pollkey_step = 0x03;
-    // delay_us(BSP_READ_AFTER_WRITE_DELAY);
     bsp_input = bsp_input_get();
     if ((bsp_input & BSP_KEY_IN1) == 0)
       result |= 1<<KEY1;
@@ -245,8 +222,7 @@ void pollKeys(){
   if (gpio_read(KEYS_GPIO_ENTER) == 0)
     result |= 1<<ENT;
   bsp_output_set(BSP_KEY_OUT_MASK, 0);
-  bsp_get_shouldReadKeys();
-
+  
   fct_state[0] = (result & 1<<KEY1)?true:false;
   fct_state[1] = (result & 1<<KEY2)?true:false;
   fct_state[2] = (result & 1<<KEY3)?true:false;

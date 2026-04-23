@@ -40,23 +40,10 @@
 #define BSP_CHECK(x) if ((x) < 0) return -1
 
 static aw9523b_t i2c_exp;
-
 static uint16_t inputState = 0;
-static bool shouldReadKeys = false;
-
-static void _io_int_handler()
-{
-  shouldReadKeys = true;
-}
-
-bool bsp_get_shouldReadKeys()
-{
-  bool tmp = shouldReadKeys;
-  shouldReadKeys = false;
-  return tmp;
-}
-
 static volatile bool errorOccurs = false;
+
+
 static void bsp_input_read()
 {
   uint16_t value;
@@ -75,8 +62,6 @@ int bsp_io_init()
     BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4));
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
 
-  // setup expanders pin change interrupt
-  gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
   bsp_output_clear(BSP_U6_SELECT);
   return 0;
 }
