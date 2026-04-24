@@ -887,6 +887,7 @@ extern const char STR_CONFIRM_FORMAT[];
 extern const char STR_CONFIRMRESET[];
 extern const char STR_TOO_MANY_LUA_SCRIPTS[];
 extern const char STR_BLCOLOR[];
+extern const char STR_ONE_LOG_PER_DAY[];
 
 extern const char STR_DIGITAL_SERVO[];
 extern const char STR_ANALOG_SERVO[];

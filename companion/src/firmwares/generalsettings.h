@@ -366,6 +366,14 @@ class GeneralSettings {
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
+    unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
+    char* keyShortcutTools[MAX_KEYSHORTCUTS];
+    unsigned int qmFavorites[MAX_QMFAVOURITES];
+    char* qmFavoritesTools[MAX_QMFAVOURITES];
+    bool oneLogPerDay;
+
+    void switchConfigClear();
+
     bool switchPositionAllowed(int index) const;
     bool switchSourceAllowed(int index) const;
 

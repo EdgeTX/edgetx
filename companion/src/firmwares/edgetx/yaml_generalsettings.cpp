@@ -343,6 +343,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
 
+  node["oneLogPerDay"] = (int)rhs.oneLogPerDay;
+
   return node;
 }
 
@@ -654,6 +656,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["labelSingleSelect"] >> rhs.labelSingleSelect;
   node["labelMultiMode"] >> rhs.labelMultiMode;
   node["favMultiMode"] >> rhs.favMultiMode;
+
+  node["oneLogPerDay"] >> rhs.oneLogPerDay;
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions

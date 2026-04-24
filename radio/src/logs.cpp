@@ -138,7 +138,10 @@ const char * logsOpen()
   }
 
 #if defined(RTCLOCK)
-  tmp = strAppendDate(tmp, true);
+  if (g_eeGeneral.oneLogPerDay)
+    tmp = strAppendDate(tmp);
+  else
+    tmp = strAppendDate(tmp, true);
 #endif
 
   strAppend(tmp, STR_LOGS_EXT);

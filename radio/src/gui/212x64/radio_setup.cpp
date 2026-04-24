@@ -80,6 +80,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_CONTRAST,
   CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
   ITEM_RADIO_SETUP_FLASH_BEEP,
+  ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
@@ -177,7 +178,7 @@ void menuRadioSetup(event_t event)
     0, // battery calibration
     1, // battery range
     // Sound
-    0, 
+    0,
      SOUND_ROW(0), // beep mode
      SOUND_ROW(0), // general volume
      SOUND_ROW(0), // beep volume
@@ -559,6 +560,13 @@ void menuRadioSetup(event_t event)
         if (attr) g_eeGeneral.backlightColor = checkIncDec(event, g_eeGeneral.backlightColor, 0, 20, EE_GENERAL | NO_INCDEC_MARKS);
         break;
 #endif
+
+      case ITEM_RADIO_ONE_LOG_PER_DAY: {
+        lcdDrawTextAlignedLeft(y, STR_ONE_LOG_PER_DAY);
+        g_eeGeneral.oneLogPerDay =
+            editCheckBox(g_eeGeneral.oneLogPerDay, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
+        break;
+      }
 
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);

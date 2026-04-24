@@ -404,6 +404,7 @@
 #define TR_BLOFFBRIGHTNESS             "Jas vypnutého LCD"
 #define TR_KEYS_BACKLIGHT              "Podsvětlení kláves"
 #define TR_BLCOLOR                     "Barva"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                TR("úvodní logo", "Zobrazit úvodní logo")
 #define TR_PLAY_HELLO                  "Zvuk při spuštění"
 #define TR_PWR_ON_DELAY                "Zpoždění zapnutí"

@@ -408,6 +408,7 @@
 #define TR_BLOFFBRIGHTNESS              "꺼짐 밝기"
 #define TR_KEYS_BACKLIGHT               "키 백라이트"
 #define TR_BLCOLOR                      "색상"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                 "시작화면"
 #define TR_PLAY_HELLO                   "시작 사운드"
 

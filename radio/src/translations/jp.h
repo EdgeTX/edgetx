@@ -392,6 +392,7 @@
 #define TR_BLOFFBRIGHTNESS             "バックライトOFF"
 #define TR_KEYS_BACKLIGHT              "キー バックライト"
 #define TR_BLCOLOR                     "カラー"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                "起動イメージ"
 #define TR_PLAY_HELLO                  "起動時サウンド"
 #define TR_PWR_ON_DELAY                "電源ON遅延"
