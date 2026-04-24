@@ -338,7 +338,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
     case HasInternalGPS:
       return ((IS_FAMILY_HORUS_OR_T16(board) && getCapability(board, HasAuxSerialMode)) ||
-              IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board);
+              IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board));
 
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
