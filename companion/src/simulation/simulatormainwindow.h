@@ -89,6 +89,7 @@ class SimulatorMainWindow : public QMainWindow
     // TODO: detect if changed via ui as currently event only on GeneralSettings (re)load
     void onSettingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn);
     void onTxBatteryVoltageChanged(const unsigned int voltage); // something else changed voltage
+    void onHapticChanged(int intensity);
 
   protected:
     void createDockWidgets();

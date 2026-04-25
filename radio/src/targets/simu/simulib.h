@@ -95,6 +95,7 @@ uint8_t  WASM_EXPORT(simuGetNumCustomSwitches)();
 uint8_t  WASM_EXPORT(simuGetCustomSwitchIndex)(uint8_t cfsIdx);
 bool     WASM_EXPORT(simuGetCustomSwitchState)(uint8_t idx);
 uint32_t WASM_EXPORT(simuGetCustomSwitchColor)(uint8_t idx);
+uint32_t WASM_EXPORT(simuGetHaptic)();
 
 // Value-based trim setting: idx is mapped through inputMappingConvertMode.
 void WASM_EXPORT(simuSetTrimValue)(uint8_t idx, int32_t value);
@@ -185,7 +186,11 @@ void WASM_IMPORT(simuAuxSerialStart)(uint8_t port_nr, uint32_t baudrate,
 void WASM_IMPORT(simuAuxSerialStop)(uint8_t port_nr);
 void WASM_IMPORT(simuAuxSerialSetBaudrate)(uint8_t port_nr, uint32_t baudrate);
 void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
-                                          uint32_t len);
+                                         uint32_t len);
+
+// Haptic feedback state export — polled by WasmSimulatorInterface
+uint32_t WASM_EXPORT(simuGetHaptic)();
+
 
 // -- Internal (not exported) --
 void simuMain();

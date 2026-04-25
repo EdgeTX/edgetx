@@ -46,7 +46,34 @@
 #endif
 
 #include <assert.h>
+
 #include <deque>
+
+#include <stdint.h>
+
+// 1. The variable that stores the current haptic state
+// Haptic feedback state for simulator
+// Set to non-zero by hapticQueue::event() when haptic is triggered
+// Auto-resets to 0 after being read by simuGetHaptic()
+// Polled by WasmSimulatorInterface every 50ms to detect haptic events
+uint32_t simuHapticValue = 0;
+
+// Regular C++ functions (Matching EdgeTX board.h)
+void hapticOn(uint32_t pwmPercent) {
+  simuHapticValue = pwmPercent;
+}
+
+void hapticOff() {
+  simuHapticValue = 0;
+}
+
+// C-Linkage function for the WASM bridge to call
+uint32_t WASM_EXPORT(simuGetHaptic)() {
+  uint32_t val = simuHapticValue;
+  simuHapticValue = 0;  // auto-reset after reading
+  return val;
+}
+
 
 int g_snapshot_idx = 0;
 
@@ -361,7 +388,7 @@ void boardOff()
 {
 }
 
-void hapticOff() {}
+
 
 #if defined(HAS_HARDWARE_OPTIONS)
 HardwareOptions hardwareOptions;

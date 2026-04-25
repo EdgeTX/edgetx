@@ -38,6 +38,9 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QtMultimedia/QSoundEffect>
+#include <QPropertyAnimation>
+#include <QTimer>
 
 extern AppData g;  // ensure what "g" means
 
@@ -173,6 +176,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   connect(m_simulator, &SimulatorInterface::auxSerialStart, hostSerialConnector, &HostSerialConnector::serialStart);
   connect(m_simulator, &SimulatorInterface::auxSerialStop, hostSerialConnector, &HostSerialConnector::serialStop);
   connect(m_simulator, &SimulatorInterface::txBatteryVoltageChanged, this, &SimulatorMainWindow::onTxBatteryVoltageChanged);
+  connect(m_simulator, &SimulatorInterface::hapticChanged, this, &SimulatorMainWindow::onHapticChanged);
 }
 
 SimulatorMainWindow::~SimulatorMainWindow()
@@ -612,4 +616,32 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
 void SimulatorMainWindow::onTxBatteryVoltageChanged(const unsigned int voltage)
 {
   m_batVoltage = voltage;
+}
+
+// Haptic feedback handler: provides visual and audible substitutes
+// for physical vibration when running in the simulator.
+// Visual: window jitter to indicate vibration
+// Audible: system beep as substitute for haptic motor sounds
+
+void SimulatorMainWindow::onHapticChanged(int intensity) {
+  if (intensity > 0) {
+    // AUDIBLE feedback
+    QApplication::beep();
+
+    // VISUAL feedback - jitter the simulator widget
+    QWidget* target = m_simulatorWidget ? (QWidget*)m_simulatorWidget : (QWidget*)this;
+    QPoint orig = target->pos();
+    
+
+    target->move(orig + QPoint(4, 0));
+    QTimer::singleShot(40, this, [this, target, orig]() {
+      target->move(orig + QPoint(-4, 0));
+      QTimer::singleShot(40, this, [this, target, orig]() {
+        target->move(orig + QPoint(4, 0));
+        QTimer::singleShot(40, this, [this, target, orig]() {
+          target->move(orig);
+        });
+      });
+    });
+  }
 }

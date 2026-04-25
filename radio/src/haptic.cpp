@@ -22,6 +22,14 @@
 #include "edgetx.h"
 #include "haptic.h"
 
+#if defined(SIMU)
+#include <stdint.h>
+extern uint32_t simuHapticValue;
+#undef IS_PLAYING
+#define IS_PLAYING(id) false
+#endif
+
+
 hapticQueue::hapticQueue()
 {
   buzzTimeLeft = 0;
@@ -35,10 +43,13 @@ hapticQueue::hapticQueue()
 
 void hapticQueue::heartbeat()
 {
-#if defined(SIMU)
-  return;
-#else
-  if (buzzTimeLeft > 0) {
+  #if defined(SIMU)
+    if (simuHapticValue > 0) {
+      simuHapticValue = 0;
+    }
+    return;
+  #else
+  if (buzzTimeLeft >= 0) {
     buzzTimeLeft--; // time gets counted down
 #if defined(HAPTIC_PWM)
     hapticOn(HAPTIC_STRENGTH() * 20);
@@ -71,6 +82,9 @@ void hapticQueue::heartbeat()
 void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
 {
   tLen = getHapticLength(tLen);
+  #if defined(SIMU)
+  simuHapticValue = 100;
+  #endif
 
   if ((tFlags & PLAY_NOW) || (!busy() && empty())) {
     buzzTimeLeft = tLen;
@@ -95,6 +109,15 @@ void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
 
 void hapticQueue::event(uint8_t e)
 {
+  #if defined(SIMU)
+    // In simulator mode, directly set haptic value instead of using
+    // hardware PWM. This is polled by the host (WasmSimulatorInterface)
+    // which emits hapticChanged() to trigger visual and audible feedback
+    // in the Companion simulator window.
+    simuHapticValue = 100;
+    return;
+  #endif
+
   if (g_eeGeneral.hapticMode >= e_mode_nokeys || (g_eeGeneral.hapticMode >= e_mode_alarms && e <= AU_ERROR)) {
     if (e <= AU_ERROR)
       play(15, 3, PLAY_NOW);

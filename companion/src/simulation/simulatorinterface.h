@@ -191,6 +191,7 @@ class SimulatorInterface : public QObject
     void auxSerialStart(const quint8 port_num);
     void auxSerialStop(const quint8 port_num);
     void txBatteryVoltageChanged(const int voltage);
+    void hapticChanged(int intensity);
     void fsColorChange(quint8 index, qint32 color);
 };
 
@@ -215,5 +216,6 @@ class SimulatorLoader
 
   protected:
     static int registerSimulators(const QDir & dir);
+    static SimulatorFactory * loadSimulatorFactory(const QString & path, const QString & name, Board::Type boardType);    
     static QMap<QString, SimulatorFactory *> registeredSimulators;
 };
