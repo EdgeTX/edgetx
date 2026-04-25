@@ -189,6 +189,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnGetMaxTrainerChannels = nullptr;
     wasm_function_inst_t m_fnCopyTrainerInput = nullptr;
     wasm_function_inst_t m_fnSetTrainerTimeout = nullptr;
+    wasm_function_inst_t m_fnGetHaptic = nullptr;
 
     // Backlight and function switch LEDs
     wasm_function_inst_t m_fnGetBacklightState = nullptr;
@@ -208,8 +209,11 @@ class WasmSimulatorInterface : public SimulatorInterface
     // Aux serial: host -> firmware data injection
     wasm_function_inst_t m_fnAuxSerialReceive = nullptr;
 
+    uint32_t m_lastHaptic = 0;
+
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;
+
 };
 
 class WasmSimulatorFactory : public SimulatorFactory
