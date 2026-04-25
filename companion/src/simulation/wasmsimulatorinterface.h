@@ -180,6 +180,8 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnGetMaxTrainerChannels = nullptr;
     wasm_function_inst_t m_fnCopyTrainerInput = nullptr;
     wasm_function_inst_t m_fnSetTrainerTimeout = nullptr;
+    wasm_function_inst_t m_fnGetHaptic = nullptr;
+    wasm_function_inst_t m_fnClearHaptic = nullptr;
 
     // Backlight and function switch LEDs
     wasm_function_inst_t m_fnGetBacklightState = nullptr;
@@ -196,8 +198,12 @@ class WasmSimulatorInterface : public SimulatorInterface
     static constexpr int MAX_FS_LEDS = 8;
     uint32_t m_lastFSLedColors[MAX_FS_LEDS] = {};
 
+    uint32_t m_lastHaptic = 0;
+
+
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;
+
 };
 
 class WasmSimulatorFactory : public SimulatorFactory
