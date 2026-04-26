@@ -61,7 +61,7 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 |-------|-------|------|--------|------------|
 | F16 | 2MB | 256KB + 8MB | Colour | 480×272 |
 
-### FlySky
+### Flysky
 
 | Radio | Flash | SRAM | Screen | Resolution |
 |-------|-------|------|--------|------------|
@@ -133,7 +133,7 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 !!! note "SDRAM"
     All STM32H7 radios include 8MB of external SDRAM in addition to the ~1MB of internal SRAM.
 
-### FlySky
+### Flysky
 
 | Radio | Flash | SRAM | Screen | Resolution |
 |-------|-------|------|--------|------------|
