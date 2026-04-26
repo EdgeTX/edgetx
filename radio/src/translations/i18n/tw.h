@@ -566,6 +566,7 @@
 #define TR_BLOFFBRIGHTNESS             "背光關"
 #define TR_KEYS_BACKLIGHT              "按鍵背光"
 #define TR_BLCOLOR                     "顏色"
+#define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_SPLASHSCREEN                "開機圖片"
 #define TR_PLAY_HELLO                  "開機語音"
 #define TR_PWR_ON_DELAY                "開機延遲"

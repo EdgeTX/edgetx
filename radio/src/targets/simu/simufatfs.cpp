@@ -24,7 +24,6 @@
 #if !defined(SIMU_DISKIO)
 
 #include "ff.h"
-#include "sdcard.h"
 
 #include <algorithm>
 #include <chrono>
@@ -32,7 +31,11 @@
 #include <fstream>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
+#include <vector>
+
+#include <string.h>
 
 namespace fs = std::filesystem;
 
@@ -47,17 +50,6 @@ static fs::path simuSettingsDirectory;
 
 // current simulater path
 static fs::path simuCurrentPath;
-
-static bool lower_case_equal(unsigned char c1, unsigned char c2)
-{
-  return std::tolower(c1) == std::tolower(c2);
-}
-
-static bool starts_with(const std::string& str, const std::string& prefix)
-{
-  if (str.length() < prefix.length()) return false;
-  return std::equal(prefix.begin(), prefix.end(), str.begin(), lower_case_equal);
-}
 
 static std::string to_lower(const std::string& s)
 {
@@ -77,12 +69,6 @@ static ftime_type systime_to_ftime(sysclock::time_point systime)
 {
   return std::chrono::time_point_cast<ftime_type::duration>(
       systime - sysclock::now() + ftime_type::clock::now());
-}
-
-static bool redirectToSettingsDirectory(const fs::path& p)
-{
-  if (simuSettingsDirectory.empty()) return false;
-  return starts_with(p.generic_string(), MODELS_PATH) || starts_with(p.generic_string(), RADIO_PATH);
 }
 
 static fs::path resolveCaseInsensitivePath(
@@ -132,24 +118,43 @@ static fs::path resolveCaseInsensitivePath(
   return current;
 }
 
-static std::string convertToSimuPath(const fs::path& path)
+static fs::path makeAbsolute(const fs::path& path)
 {
-  fs::path p{path};
-  fs::path basePath;
+  return path.is_relative() ? simuCurrentPath / path : path;
+}
 
-  if (p.is_relative()) {
-    p = simuCurrentPath / p;
+static fs::path resolveInBase(const fs::path& base, const fs::path& virtualPath)
+{
+  return resolveCaseInsensitivePath(
+      base, virtualPath.lexically_relative(virtualPath.root_path()));
+}
+
+// Resolve for read: try settingsPath first, fall back to sdPath
+static std::string resolveForRead(const fs::path& path)
+{
+  fs::path p = makeAbsolute(path);
+
+  if (!simuSettingsDirectory.empty()) {
+    auto resolved = resolveInBase(simuSettingsDirectory, p);
+    std::error_code ec;
+    if (fs::exists(resolved, ec) && !ec) {
+      return resolved.string();
+    }
   }
 
-  if (redirectToSettingsDirectory(p)) {
-    basePath = simuSettingsDirectory;
-    p = p.lexically_relative(p.root_path());
-  } else {
-    basePath = simuSdDirectory;
-    p = p.lexically_relative(p.root_path());
+  return resolveInBase(simuSdDirectory, p).string();
+}
+
+// Resolve for write: always use settingsPath if available
+static std::string resolveForWrite(const fs::path& path)
+{
+  fs::path p = makeAbsolute(path);
+
+  if (!simuSettingsDirectory.empty()) {
+    return resolveInBase(simuSettingsDirectory, p).string();
   }
 
-  return resolveCaseInsensitivePath(basePath, p).string();
+  return resolveInBase(simuSdDirectory, p).string();
 }
 
 void simuFatfsSetPaths(const char* sdPath, const char* settingsPath)
@@ -171,7 +176,7 @@ std::string simuFatfsGetCurrentPath() { return simuCurrentPath.string(); }
 
 std::string simuFatfsGetRealPath(const std::string &p)
 {
-  return convertToSimuPath(p);
+  return resolveForRead(p);
 }
 
 FRESULT file_stat(const std::string& realPath, FILINFO* fno)
@@ -226,7 +231,7 @@ FRESULT file_stat(const std::string& realPath, FILINFO* fno)
 
 FRESULT f_stat(const TCHAR* name, FILINFO* fno)
 {
-  std::string realPath = convertToSimuPath(name);
+  std::string realPath = resolveForRead(name);
   return file_stat(realPath, fno);
 }
 
@@ -249,26 +254,47 @@ struct _simu_FIL {
 
 FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
 {
-  std::string realPath = convertToSimuPath(name);
   fil->obj.fs = nullptr;
   fil->fptr = 0;
 
   std::ios::openmode mode = std::ios::binary;
+  std::string realPath;
 
   if (flag & FA_WRITE) {
+    realPath = resolveForWrite(name);
     mode |= std::ios::out | std::ios::in;
+
+    // Ensure parent directories exist in settingsPath,
+    // but only if they exist in the overlay (either layer)
+    std::error_code ec;
+    fs::path virtualParent = makeAbsolute(fs::path{name}).parent_path();
+    std::string readParent = resolveForRead(virtualParent);
+    if (fs::is_directory(readParent, ec) && !ec) {
+      fs::path parentPath = fs::path(realPath).parent_path();
+      if (!parentPath.empty()) {
+        fs::create_directories(parentPath, ec);
+      }
+    }
+
     if (flag & FA_CREATE_ALWAYS) {
       mode |= std::ios::trunc;
     } else {
-      // For append mode, we need to check if file exists
-      std::error_code ec;
       if (fs::exists(realPath, ec) && !ec) {
         mode |= std::ios::ate;  // Open at end
       } else {
-        mode |= std::ios::trunc;  // Create new file
+        // Copy-on-write: if the file exists in sdPath, copy it to
+        // settingsPath so appends start from the original content
+        std::string readPath = resolveForRead(name);
+        if (fs::exists(readPath, ec) && !ec) {
+          fs::copy_file(readPath, realPath, ec);
+          mode |= std::ios::ate;
+        } else {
+          mode |= std::ios::trunc;  // Create new file
+        }
       }
     }
   } else {
+    realPath = resolveForRead(name);
     mode |= std::ios::in;
 
     std::error_code ec;
@@ -370,15 +396,10 @@ UINT f_size(FIL* fil)
 
 FRESULT f_chdir(const TCHAR *name)
 {
-  fs::path p = {name};
-  // TRACE("f_chdir(%s)", name);
-
-  if (p.is_relative()) {
-    p = simuCurrentPath / p;
-  }
+  fs::path p = makeAbsolute(fs::path{name});
 
   std::error_code ec;
-  auto realPath = convertToSimuPath(p);
+  auto realPath = resolveForRead(p);
 
   if (fs::exists(realPath, ec) && !ec) {
     simuCurrentPath = p;
@@ -389,47 +410,59 @@ FRESULT f_chdir(const TCHAR *name)
 }
 
 struct _simu_DIR {
-  std::string name;
-  fs::directory_iterator iter;
-  fs::directory_iterator end_iter;
+  std::vector<fs::path> entries;
+  size_t index = 0;
 
-  _simu_DIR(const std::string& dirName) : name(dirName)
+  void collectEntries(const std::string& dir, std::set<std::string>& seen)
   {
     std::error_code ec;
-    iter = fs::directory_iterator(dirName, ec);
-    if (ec) {
-      iter = end_iter;  // Set to end if error
+    if (!fs::is_directory(dir, ec) || ec) return;
+    for (const auto& entry : fs::directory_iterator(dir, ec)) {
+      if (ec) break;
+      std::string nameLower = to_lower(entry.path().filename().string());
+      if (seen.insert(nameLower).second) {
+        entries.push_back(entry.path());
+      }
     }
   }
 
- public:
-  bool hasNext() const { return iter != end_iter; }
+  bool hasNext() const { return index < entries.size(); }
 
-  std::optional<fs::directory_entry> getNext()
+  std::optional<fs::path> getNext()
   {
-    if (iter == end_iter) {
-      return std::nullopt;
-    }
-
-    auto current = *iter;
-    std::error_code ec;
-    ++iter;
-
-    return current;
+    if (index >= entries.size()) return std::nullopt;
+    return entries[index++];
   }
 };
 
 FRESULT f_opendir(DIR* rep, const TCHAR* name)
 {
-  std::string path = convertToSimuPath(name);
+  fs::path p = makeAbsolute(fs::path{name});
+  fs::path relative = p.lexically_relative(p.root_path());
 
   std::error_code ec;
-  if (!fs::is_directory(path, ec) || ec) {
+  std::string settingsDir, sdDir;
+  bool settingsExists = false, sdExists = false;
+
+  if (!simuSettingsDirectory.empty()) {
+    settingsDir = resolveCaseInsensitivePath(simuSettingsDirectory, relative).string();
+    settingsExists = fs::is_directory(settingsDir, ec) && !ec;
+  }
+  sdDir = resolveCaseInsensitivePath(simuSdDirectory, relative).string();
+  sdExists = fs::is_directory(sdDir, ec) && !ec;
+
+  if (!settingsExists && !sdExists) {
     rep->obj.fs = nullptr;
     return FR_NO_PATH;
   }
 
-  rep->obj.fs = reinterpret_cast<FATFS*>(new _simu_DIR(path));
+  auto sd = new _simu_DIR();
+  std::set<std::string> seen;
+  // Settings entries take priority (added first)
+  if (settingsExists) sd->collectEntries(settingsDir, seen);
+  if (sdExists) sd->collectEntries(sdDir, seen);
+
+  rep->obj.fs = reinterpret_cast<FATFS*>(sd);
   return FR_OK;
 }
 
@@ -451,20 +484,20 @@ FRESULT f_readdir(DIR* rep, FILINFO* fil)
     return FR_NO_FILE;
   }
 
-  auto maybe_entry = sd->getNext();
-  if (!maybe_entry.has_value()) {
+  auto maybe_path = sd->getNext();
+  if (!maybe_path.has_value()) {
     return FR_NO_FILE;
   }
 
-  auto entry = maybe_entry.value();
+  auto entryPath = maybe_path.value();
   if (fil != nullptr) {
     memset(fil->fname, 0, FF_MAX_LFN);
 
-    std::string filename = entry.path().filename().string();
-    size_t copyLen = std::min(filename.length(), size_t(FF_MAX_LFN - 1));
+    std::string filename = entryPath.filename().string();
+    size_t copyLen = std::min(filename.length(), (size_t)(FF_MAX_LFN - 1));
     strncpy(fil->fname, filename.c_str(), copyLen);
 
-    std::string fullPath = entry.path().string();
+    std::string fullPath = entryPath.string();
     return file_stat(fullPath, fil);
   }
 
@@ -478,8 +511,19 @@ FRESULT f_mkfs(const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)
 
 FRESULT f_mkdir(const TCHAR* name)
 {
-  std::string path = convertToSimuPath(name);
+  std::string path = resolveForWrite(name);
   std::error_code ec;
+
+  // Create parent directories in settingsPath if they exist in the overlay
+  fs::path virtualParent = makeAbsolute(fs::path{name}).parent_path();
+  std::string readParent = resolveForRead(virtualParent);
+  if (!fs::is_directory(readParent, ec) || ec) {
+    return FR_NO_PATH;
+  }
+  fs::path parentPath = fs::path(path).parent_path();
+  if (!parentPath.empty()) {
+    fs::create_directories(parentPath, ec);
+  }
 
   bool created = fs::create_directory(path, ec);
   if (ec) return FR_INVALID_NAME;
@@ -489,7 +533,7 @@ FRESULT f_mkdir(const TCHAR* name)
 
 FRESULT f_unlink(const TCHAR * name)
 {
-  std::string path = convertToSimuPath(name);
+  std::string path = resolveForWrite(name);
   std::error_code ec;
 
   bool removed = fs::remove(path, ec);
@@ -500,8 +544,8 @@ FRESULT f_unlink(const TCHAR * name)
 
 FRESULT f_rename(const TCHAR *oldname, const TCHAR *newname)
 {
-  std::string old = convertToSimuPath(oldname);
-  std::string path = convertToSimuPath(newname);
+  std::string old = resolveForWrite(oldname);
+  std::string path = resolveForWrite(newname);
   std::error_code ec;
 
   fs::rename(old.c_str(), path.c_str(), ec);
@@ -516,7 +560,7 @@ FRESULT f_utime(const TCHAR* path, const FILINFO* fno)
         return FR_INVALID_PARAMETER;
     }
 
-    std::string realPath = convertToSimuPath(path);
+    std::string realPath = resolveForWrite(path);
     
     // Convert FatFs time to tm structure
     struct tm ltime = {};

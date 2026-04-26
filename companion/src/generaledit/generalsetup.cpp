@@ -473,6 +473,7 @@ void GeneralSetupPanel::setValues()
   ui->registrationId->setText(generalSettings.registrationId);
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+  ui->chkOneLogPerDay->setChecked(generalSettings.oneLogPerDay);
 
   if (Boards::getCapability(board, Board::HasColorLcd)) {
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
@@ -939,6 +940,14 @@ void GeneralSetupPanel::on_startSoundCB_stateChanged(int)
 {
   if (!lock) {
     generalSettings.dontPlayHello = !ui->startSoundCB->isChecked();
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_chkOneLogPerDay_stateChanged(int)
+{
+  if (!lock) {
+    generalSettings.oneLogPerDay = ui->chkOneLogPerDay->isChecked();
     emit modified();
   }
 }

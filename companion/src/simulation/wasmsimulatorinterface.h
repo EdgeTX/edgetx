@@ -112,7 +112,7 @@ class WasmSimulatorInterface : public SimulatorInterface
 
     // Audio
     SDL_AudioDeviceID m_audioDevice = 0;
-    int m_volumeGain = SDL_MIX_MAXVOLUME;
+    int m_volumeGain = 10;  // unity gain (user gain * 10)
 
     // Host-side analog values (polled by WASM via simuGetAnalog)
     static constexpr int MAX_ANALOGS = 32;

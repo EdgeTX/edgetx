@@ -532,7 +532,8 @@ void WasmSimulatorInterface::setSdPath(const QString & sdPath,
 
 void WasmSimulatorInterface::setVolumeGain(const int value)
 {
-  m_volumeGain = qBound(0, value * SDL_MIX_MAXVOLUME / 100, SDL_MIX_MAXVOLUME);
+  // Stored as user-facing gain (0.5x..3.0x) multiplied by 10.
+  m_volumeGain = value;
 }
 
 void WasmSimulatorInterface::setAnalogValue(uint8_t index, int16_t value)
@@ -834,10 +835,22 @@ void WasmSimulatorInterface::queueAudio(const uint8_t * buf, uint32_t len)
   if (m_audioDevice == 0 || len == 0)
     return;
 
-  // Apply companion volume gain (m_volumeGain is 0..SDL_MIX_MAXVOLUME)
+  // Apply companion volume gain (m_volumeGain = user gain * 10).
+  // SDL_MixAudioFormat cannot amplify above unity, so scale manually
+  // with saturation to support the UI's 0.5..3.0x range.
+  if (m_volumeGain == 10) {
+    SDL_QueueAudio(m_audioDevice, buf, len);
+    return;
+  }
+
   QByteArray scaled(len, 0);
-  SDL_MixAudioFormat((uint8_t *)scaled.data(), buf, AUDIO_S16SYS, len,
-                     m_volumeGain);
+  auto * src = reinterpret_cast<const int16_t *>(buf);
+  auto * dst = reinterpret_cast<int16_t *>(scaled.data());
+  uint32_t n = len / sizeof(int16_t);
+  for (uint32_t i = 0; i < n; ++i) {
+    int32_t s = ((int32_t)src[i] * m_volumeGain) / 10;
+    dst[i] = (int16_t)qBound<int32_t>(INT16_MIN, s, INT16_MAX);
+  }
   SDL_QueueAudio(m_audioDevice, scaled.constData(), len);
 }
 

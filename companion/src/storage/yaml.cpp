@@ -108,7 +108,7 @@ bool YamlFormat::load(RadioData & radioData)
     //  so leave fixing incompatibilities to the user
     radioData.generalSettings.variant = getCurrentBoard();
 
-    setWarning(tr("Please check all radio and model settings as no conversion could be performed."));
+    setWarning(tr("Please check all model settings as minimal conversion performed."));
     return true;
   }
   else if (node["board"].IsScalar()) {
