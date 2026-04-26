@@ -131,6 +131,7 @@ body:
         - RadioMaster TX16S / TX16SMK2
         - RadioMaster TX16S MK3
         - RadioMaster Zorro
+        - DumboRC DRO1
         - Other (Please specify below)
     validations:
       required: true
