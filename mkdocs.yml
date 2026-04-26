@@ -75,6 +75,7 @@ nav:
       - Qt Creator: building/qt-creator.md
   - Hardware Reference:
     - Radio Specifications: hardware/radio-specs.md
+    - STM32 Platform Support: hardware/stm32-platforms.md
     - DMA Mappings:
       - RadioMaster TX16S: hardware/dma-mapping-tx16s.md
       - FlySky NV14: hardware/dma-mapping-nv14.md
