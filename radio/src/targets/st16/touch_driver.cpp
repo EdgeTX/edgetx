@@ -26,6 +26,7 @@
 #include "stm32_exti_driver.h"
 
 #include "hal.h"
+#include "hal/i2c_driver.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
 #include "touch_driver.h"
@@ -114,10 +115,53 @@ static void _touch_exti_isr(void)
   touchEventOccured = true;
 }
 
-static void _touch_exti_stop(void) {}
-static void _touch_exti_config(void) {}
-static void _touch_gpio_config(void) {}
-static void _touch_reset() {}
+static void _touch_exti_stop(void)
+{
+  stm32_exti_disable(TOUCH_INT_EXTI_Line);
+}
+
+static void _touch_exti_config(void)
+{
+  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
+  stm32_exti_enable(TOUCH_INT_EXTI_Line, LL_EXTI_TRIGGER_FALLING,
+                   _touch_exti_isr);
+}
+
+static void _touch_gpio_config(void)
+{
+  // Enable GPIOI clock
+  LL_AHB4_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOI);
+
+  // PI3 - TOUCH_RST: push-pull output, initially HIGH
+  LL_GPIO_InitTypeDef gpioInit;
+  LL_GPIO_StructInit(&gpioInit);
+  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  gpioInit.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
+  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+
+  // PI11 - TOUCH_INT: input with pull-up
+  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_INPUT;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
+
+  // Init I2C bus
+  i2c_init(TOUCH_I2C_BUS);
+}
+
+static void _touch_reset(void)
+{
+  // Assert reset (active low)
+  LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+  delay_ms(10);
+  // Release reset
+  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+  delay_ms(300);
+}
 
 static int _i2c_read(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t* data, uint16_t len, uint32_t timeout, bool forceLong = false)
 {
@@ -177,8 +221,6 @@ static bool ft6236TouchRead(uint16_t * X, uint16_t * Y)
 
 static bool ft6236HasTouchEvent()
 {
-  touchEventOccured = true;
-  return true;
   return touchEventOccured;
 }
 
@@ -280,9 +322,8 @@ static bool cst836uTouchRead(uint16_t * X, uint16_t * Y)
 static bool cst836uHasTouchEvent()
 {
   static bool lastHasTouch = false;
-  touchEventOccured = true;
   bool ret = touchEventOccured;
-  if (ret||1) {
+  if (ret) {
     uint8_t data;
     _i2c_readMultipleRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_TOUCH_NUM_REG, 1, &data, sizeof(data), true);
     uint8_t hasTouch = data;
