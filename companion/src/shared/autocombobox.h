@@ -49,6 +49,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     virtual void insertItems(int index, const QStringList & items);
     // AutoWidget
     virtual void updateValue() override;
+    void setBindText(std::function<QString()> fn) = delete;
 
     void clear();
 
@@ -70,6 +71,11 @@ class AutoComboBox : public QComboBox, public AutoWidget
 
   protected slots:
     void onCurrentIndexChanged(int index);
+
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override {}
+    virtual void setAutoVisible() override;
 
   private:
     int m_next;

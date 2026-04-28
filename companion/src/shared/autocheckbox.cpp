@@ -66,3 +66,21 @@ void AutoCheckBox::updateValue()
     setLock(false);
   }
 }
+
+void AutoCheckBox::setAutoEnabled()
+{
+  if (m_enabled)
+    setEnabled(m_enabled());
+}
+
+void AutoCheckBox::setAutoText()
+{
+  if (m_text)
+    setText(m_text());
+}
+
+void AutoCheckBox::setAutoVisible()
+{
+  if (m_visible)
+    setVisible(m_visible());
+}

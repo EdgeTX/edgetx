@@ -44,6 +44,11 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
   protected slots:
     void onEdited();
 
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override;
+    virtual void setAutoVisible() override;
+
   private:
     char *m_charField;
     QString *m_strField;

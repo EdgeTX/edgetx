@@ -160,3 +160,21 @@ void AutoBitsetCheckBox::initField(int bitmask, bool invert, int toggleMask)
   m_invert = toggleMask ? false : invert;
   updateValue();
 }
+
+void AutoBitsetCheckBox::setAutoEnabled()
+{
+  if (m_enabled)
+    setEnabled(m_enabled());
+}
+
+void AutoBitsetCheckBox::setAutoText()
+{
+  if (m_text)
+    setText(m_text());
+}
+
+void AutoBitsetCheckBox::setAutoVisible()
+{
+  if (m_visible)
+    setVisible(m_visible());
+}
