@@ -68,7 +68,7 @@ void RadioGpsTool::refresh()
   if (gpsSensorID >= 0) {
     static TelemetryItem& gpsItem = telemetryItems[gpsSensorID];
     char gps_uri[64];
-    snprintf(gps_uri, sizeof(gps_uri), "geo:%f,%f", (float)gpsItem.gps.latitude / 1000000, (float)gpsItem.gps.longitude / 1000000);
+    snprintf(gps_uri, sizeof(gps_uri), "geo:%f,%f", (double)((float)gpsItem.gps.latitude / 1000000), (double)((float)gpsItem.gps.longitude / 1000000));
     gpsQR->setData(gps_uri);
     gpsQR->show();
     gpsLabel->setText(getGPSSensorValue(gpsItem, 0));

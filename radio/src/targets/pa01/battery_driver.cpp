@@ -560,7 +560,7 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
 #define BREATH_INTERVAL 7
 #define GAMMA       6
 #define PI 3.14159265358979323846f
-#define BREATH_STEP 0.0089759771428571  // PI / 350.0f; // step size
+#define BREATH_STEP 0.0089759771428571f  // PI / 350.0f; // step size
 
 typedef struct 
 {
@@ -608,8 +608,8 @@ void setLedGroupColor(uint8_t index, uint8_t color, uint8_t brightness) {
 }
 
 uint8_t ledBreathBright(float angle, uint8_t maxBright) {
-  float brightness = sin(angle) * 0.5 + 0.5; // map range 0-1
-  brightness = pow(brightness, GAMMA); // gamma correction
+  float brightness = sinf(angle) * 0.5f + 0.5f; // map range 0-1
+  brightness = powf(brightness, GAMMA); // gamma correction
   uint8_t bright = (uint8_t)(brightness * maxBright);
   return bright;
 }

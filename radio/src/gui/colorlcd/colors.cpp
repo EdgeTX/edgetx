@@ -113,7 +113,7 @@ uint32_t HSVtoRGB(float H, float S, float V)
   float s = S / MAX_SATURATION;
   float v = V / MAX_BRIGHTNESS;
   float C = s * v;
-  float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+  float X = C * (1.0f - fabsf(fmodf(H / 60.0f, 2.0f) - 1.0f));
   float m = v - C;
   float r, g, b;
 
@@ -146,7 +146,7 @@ uint32_t HSVtoRGB32(float H, float S, float V)
   float s = S / MAX_SATURATION;
   float v = V / MAX_BRIGHTNESS;
   float C = s * v;
-  float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+  float X = C * (1.0f - fabsf(fmodf(H / 60.0f, 2.0f) - 1.0f));
   float m = v - C;
   float r, g, b;
 
@@ -181,11 +181,11 @@ void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float &fH, float &fS, float &fV)
 
   if (fDelta > 0) {
     if (fCMax == fR) {
-      fH = 60 * (fmod(((fG - fB) / fDelta), 6));
+      fH = 60.0f * (fmodf(((fG - fB) / fDelta), 6.0f));
     } else if (fCMax == fG) {
-      fH = 60 * (((fB - fR) / fDelta) + 2);
+      fH = 60.0f * (((fB - fR) / fDelta) + 2.0f);
     } else if (fCMax == fB) {
-      fH = 60 * (((fR - fG) / fDelta) + 4);
+      fH = 60.0f * (((fR - fG) / fDelta) + 4.0f);
     }
 
     if (fCMax > 0) {
