@@ -289,10 +289,6 @@ void boardInit()
   lcdSetContrast(true);
 #endif
 
-#if defined(RADIO_GX12)
-  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-#endif
-
 #if defined(HAS_IMU)
   gyroInit();
 #endif

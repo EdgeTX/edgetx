@@ -31,15 +31,6 @@
 
 #include "hal/watchdog_driver.h"
 
-#if defined(HALL_SYNC) && !defined(SIMU)
-#include "stm32_gpio.h"
-#include "hal/gpio.h"
-#endif
-
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
-
 task_handle_t mixerTaskId;
 TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
@@ -214,10 +205,6 @@ void doMixerCalculations()
 
   tmr10ms_t tmr10ms = get_tmr10ms();
 
-#if defined(HALL_SYNC) && !defined(SIMU)
-  gpio_set(HALL_SYNC);
-#endif
-
 #if defined(DEBUG_LATENCY_MIXER_RF) || defined(DEBUG_LATENCY_RF_ONLY)
   static tmr10ms_t lastLatencyToggle = 0;
   if (tmr10ms - lastLatencyToggle >= 10) {
@@ -243,8 +230,4 @@ void doMixerCalculations()
   DEBUG_TIMER_START(debugTimerEvalMixes);
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
-
-#if defined(HALL_SYNC) && !defined(SIMU)
-  gpio_clear(HALL_SYNC);
-#endif
 }
