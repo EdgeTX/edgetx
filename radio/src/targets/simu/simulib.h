@@ -95,6 +95,7 @@ uint8_t  WASM_EXPORT(simuGetNumCustomSwitches)();
 uint8_t  WASM_EXPORT(simuGetCustomSwitchIndex)(uint8_t cfsIdx);
 bool     WASM_EXPORT(simuGetCustomSwitchState)(uint8_t idx);
 uint32_t WASM_EXPORT(simuGetCustomSwitchColor)(uint8_t idx);
+uint32_t WASM_EXPORT(simuGetHaptic)();
 
 // Value-based trim setting: idx is mapped through inputMappingConvertMode.
 void WASM_EXPORT(simuSetTrimValue)(uint8_t idx, int32_t value);
@@ -156,6 +157,8 @@ void WASM_IMPORT(simuTrace)(const char* text);
 // flush callback (color).  On the host side this wakes an Atomics.waitAsync
 // listener so the frame can be rendered without polling.
 void WASM_IMPORT(simuLcdNotify)();
+
+void WASM_EXPORT(simuClearHaptic)();
 
 // -- Internal (not exported) --
 void simuMain();

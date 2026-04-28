@@ -189,6 +189,7 @@ target_link_libraries(common
   Qt::Xml
   Qt::Widgets
   Qt::SerialPort
+  Qt6::Multimedia 
   ${SDL2_LIBRARIES}
 )
 

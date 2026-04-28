@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QElapsedTimer>
+#include <QTimer>
 
 // WAMR native callback: called by WASM module to get analog values in
 // ADC range (0..4096, center=2048).  The WASM ADC driver does a direct
@@ -81,7 +82,8 @@ WasmSimulatorInterface::WasmSimulatorInterface(const QString & wasmPath,
     : SimulatorInterface(),
       m_wasmPath(wasmPath),
       m_boardName(boardName),
-      m_boardType(boardType)
+      m_boardType(boardType),
+      m_lastHaptic(0)
 {
 }
 
@@ -337,6 +339,10 @@ bool WasmSimulatorInterface::resolveExports()
       wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchColor");
   m_fnGetCustomSwitchIndex =
       wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchIndex");
+
+  m_fnGetHaptic = wasm_runtime_lookup_function(m_moduleInst, "simuGetHaptic");
+
+  m_fnClearHaptic = wasm_runtime_lookup_function(m_moduleInst, "simuClearHaptic");
 
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
@@ -908,6 +914,27 @@ void WasmSimulatorInterface::run()
   if (!(loops % 5)) {
     QMutexLocker lckr(&m_mutex);
     checkOutputsChanged();
+
+    // 1. Read the global variable from the WASM module
+    // "simuHapticValue" must match exactly what you wrote in simulib.cpp
+    uint32_t currentHaptic = 0;
+
+    // Poll haptic state from WASM every 50ms.
+    // When haptic fires, emit hapticChanged() to trigger
+    // visual (window jitter) and audible (beep) feedback in the simulatormainwindow.cpp
+    // as a substitute for physical vibration hardware.
+    if (m_fnGetHaptic) {
+      uint32_t argv[1] = {0};
+      if (wasm_runtime_call_wasm(m_execEnv, m_fnGetHaptic, 0, argv)) {
+        uint32_t currentHapticValue = argv[0];
+        if (currentHapticValue != m_lastHaptic) {
+          m_lastHaptic = currentHapticValue;
+          if (currentHapticValue > 0) {
+            emit hapticChanged((int)currentHapticValue);
+          }
+        }
+      }
+    }
   }
 }
 

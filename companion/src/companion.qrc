@@ -1053,6 +1053,7 @@
     <file>sounds/13.wav</file>
     <file>sounds/14.wav</file>
     <file>sounds/15.wav</file>
+    <file>sounds/haptic.wav</file>
   </qresource>
   <qresource prefix="/layouts/">
     <file alias="mask_layout1p2.png">images/layouts/mask_layout1+2.png</file>

@@ -24,7 +24,7 @@
 #include "customdebug.h"
 #include "version.h"
 #include "firmwares/eeprominterface.h"
-
+#include <QLibrary>
 #include <QDebug>
 #include <QLibraryInfo>
 
@@ -35,36 +35,56 @@ QStringList SimulatorLoader::getAvailableSimulators()
   return registeredSimulators.keys();
 }
 
+SimulatorFactory * SimulatorLoader::loadSimulatorFactory(const QString & path, const QString & name, Board::Type boardType)
+{
+  QLibrary lib(path);
+  if (!lib.load()) {
+    qWarning() << "Failed to load simulator library:" << path << lib.errorString();
+    return nullptr;
+  }
+  typedef SimulatorFactory * (*FactoryFunc)(void);
+  FactoryFunc factoryFunc = (FactoryFunc)lib.resolve("simulatorInterfaceLoader");
+  if (!factoryFunc) {
+    qWarning() << "Failed to resolve simulatorInterfaceLoader in:" << path;
+    return nullptr;
+  }
+  return factoryFunc();
+}
+
 int SimulatorLoader::registerSimulators(const QDir & dir)
 {
   QStringList wasmFilters;
-  wasmFilters << "edgetx-*-simulator.wasm";
+  wasmFilters << "edgetx-*-simulator.wasm"
+	      << "libedgetx-*-simulator.so";
 
   qCDebug(simulatorInterfaceLoader) << "Searching for WASM simulators in"
                                     << dir.path();
-
   foreach (QString filename, dir.entryList(wasmFilters, QDir::Files)) {
-    // Extract board name: "edgetx-<name>-simulator.wasm"
     QString simuName = filename;
-    simuName.remove(0, 7);  // remove "edgetx-"
+    bool isSo = filename.endsWith(".so");
+    if (isSo) {
+      simuName.remove(0, 10);  // remove "libedgetx-"
+    } else {
+      simuName.remove(0, 7);   // remove "edgetx-"
+    }
     simuName.truncate(simuName.lastIndexOf("-simulator"));
-
     if (registeredSimulators.contains(simuName))
       continue;
-
-    QString wasmPath = dir.path() + "/" + filename;
-
-    // Resolve board type from name
+    QString simPath = dir.path() + "/" + filename;
     Board::Type boardType = Board::BOARD_UNKNOWN;
     Firmware * fw = Firmware::getFirmwareForId(QString("edgetx-") + simuName);
     if (fw)
       boardType = fw->getBoard();
-
-    auto * factory = new WasmSimulatorFactory(wasmPath, simuName, boardType);
-    registeredSimulators.insert(simuName, factory);
-
-    qCDebug(simulatorInterfaceLoader) << "Registered WASM simulator:"
-                                      << simuName;
+    SimulatorFactory * factory = nullptr;
+    if (isSo) {
+      factory = SimulatorLoader::loadSimulatorFactory(simPath, simuName, boardType);
+    } else {
+      factory = new WasmSimulatorFactory(simPath, simuName, boardType);
+    }
+    if (factory) {
+      registeredSimulators.insert(simuName, factory);
+      qCDebug(simulatorInterfaceLoader) << "Registered simulator:" << simuName;
+    }
   }
 
   qCDebug(simulatorInterfaceLoader)
