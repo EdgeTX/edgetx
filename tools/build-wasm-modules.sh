@@ -81,7 +81,7 @@ file(WRITE "\${CMAKE_CURRENT_BINARY_DIR}/wasi_sdk_path.txt" "\${WASI_SDK_PATH}")
 CMAKEOF
 
     if ! cmake -S "$fetch_dir" -B "$fetch_dir/build" \
-        -DFETCHCONTENT_BASE_DIR="$PWD/_deps" 2>&1; then
+        -DFETCHCONTENT_BASE_DIR="$SRCDIR/.cache/fetchcontent" 2>&1; then
         echo "❌ Failed to fetch WASI SDK"
         return 1
     fi

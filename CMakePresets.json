@@ -2,42 +2,46 @@
   "version": 6,
   "configurePresets": [
     {
+      "name": "default",
+      "hidden": true,
+      "cacheVariables": {
+        "FETCHCONTENT_BASE_DIR": "${sourceDir}/.cache/fetchcontent"
+      },
+      "warnings": {
+        "dev": false
+      }
+    },
+    {
       "name": "firmware",
+      "inherits": "default",
       "displayName": "Firmware",
       "binaryDir": "build/fw",
       "toolchainFile": "cmake/toolchain/arm-none-eabi.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
         "NATIVE_BUILD": false
-      },
-      "warnings": {
-        "dev": false
       }
     },
     {
       "name": "companion",
+      "inherits": "default",
       "displayName": "Companion",
       "binaryDir": "build/companion",
       "toolchainFile": "cmake/toolchain/native.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
         "NATIVE_BUILD": true
-      },
-      "warnings": {
-        "dev": false
       }
     },
     {
       "name": "simu",
+      "inherits": "default",
       "displayName": "SDL Simu",
       "binaryDir": "build/simu",
       "toolchainFile": "cmake/toolchain/native.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
         "NATIVE_BUILD": true
-      },
-      "warnings": {
-        "dev": false
       }
     }
   ],
