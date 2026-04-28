@@ -462,10 +462,12 @@
 #undef lua_str2number
 #define lua_str2number(s,p)	((lua_Number)strtod((s), (p)))
 
+#if !defined(LUA_HOST_BUILD)
 // For print
 #include "debug.h"
 #define lua_writestring(s,l)        TRACE_DEBUG_WP("%s", s);
 #define lua_writeline()             TRACE_DEBUG_WP("\n");
 #define lua_writestringerror(s,p)   TRACE_DEBUG_WP(s, p);
+#endif
 
 #endif
