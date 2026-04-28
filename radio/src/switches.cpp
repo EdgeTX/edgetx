@@ -32,9 +32,6 @@
 #include "inactivity_timer.h"
 #include "tasks/mixer_task.h"
 
-#if defined(RADIO_GX12)
-#include "targets/taranis/gx12/bsp_io.h"
-#endif
 
 #define CS_LAST_VALUE_INIT -32768
 
@@ -938,9 +935,6 @@ void checkSwitches()
 #endif
 
   while (true) {
-#if defined(RADIO_GX12)
-    _poll_switches();
-#endif
     if (!isSwitchWarningRequired(bad_pots))
       break;
 

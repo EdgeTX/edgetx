@@ -19,24 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/imu.h"
+#pragma once
 
-static const char* s_imu_name = nullptr;
+#include "hal/i2c_driver.h"
 
-imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count,
-                       etx_i2c_bus_t* detected_bus)
-{
-  for (uint8_t i = 0; i < count; i++) {
-    if (candidates[i].driver->init(candidates[i].bus, candidates[i].addr) == 0) {
-      s_imu_name = candidates[i].driver->name;
-      if (detected_bus) *detected_bus = candidates[i].bus;
-      return candidates[i].driver->read;
-    }
-  }
-  return nullptr;
-}
+typedef struct {
+  etx_i2c_bus_t bus;
+  uint16_t addr;
+  bool initialized;
+} csd203_t;
 
-const char* imuGetName()
-{
-  return s_imu_name;
-}
+int csd203_init(csd203_t* dev, etx_i2c_bus_t bus, uint16_t addr,
+                uint16_t rshunt, uint16_t current_lsb);
+
+uint16_t csd203_read_voltage(csd203_t* dev);
+uint16_t csd203_read_current(csd203_t* dev);
+
+void csd203_start(etx_i2c_bus_t bus);

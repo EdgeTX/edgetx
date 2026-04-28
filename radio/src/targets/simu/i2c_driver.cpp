@@ -19,8 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal/i2c_driver.h"
 
-void IICcsd203init(void);
-void initCSD203(void);
-void readCSD203(void);
+int i2c_init(etx_i2c_bus_t bus) { return -1; }
+int i2c_deinit(etx_i2c_bus_t bus) { return -1; }
+
+void i2c_lock(etx_i2c_bus_t bus) {}
+bool i2c_trylock(etx_i2c_bus_t bus) { return true; }
+void i2c_unlock(etx_i2c_bus_t bus) {}
+
+int i2c_dev_ready(etx_i2c_bus_t bus, uint16_t addr) { return -1; }
+
+int i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
+             uint8_t* data, uint16_t len) { return -1; }
+
+int i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
+              uint8_t* data, uint16_t len) { return -1; }

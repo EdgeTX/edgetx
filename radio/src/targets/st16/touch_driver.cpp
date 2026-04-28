@@ -22,6 +22,7 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "stm32_i2c_driver.h"
+#include "hal/i2c_driver.h"
 #include "stm32_gpio_driver.h"
 #include "stm32_exti_driver.h"
 
@@ -388,6 +389,8 @@ struct TouchState touchPanelRead()
 {
   if (!touchEventOccured || touchController == TC_NONE) return internalTouchState;
 
+  i2c_lock(TOUCH_I2C_BUS);
+
   touchEventOccured = false;
 
   tmr10ms_t now = get_tmr10ms();
@@ -468,6 +471,7 @@ struct TouchState touchPanelRead()
   TRACE("%s: event=%d,X=%d,Y=%d", TOUCH_CONTROLLER_STR[touchController], ret.event, ret.x, ret.y);
 #endif
 
+  i2c_unlock(TOUCH_I2C_BUS);
   return ret;
 }
 

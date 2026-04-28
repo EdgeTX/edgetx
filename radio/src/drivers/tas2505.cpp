@@ -23,6 +23,7 @@
 #include "stm32_i2s.h"
 #include "timers_driver.h"
 #include "hal/audio_driver.h"
+#include "hal/i2c_driver.h"
 
 #include "debug.h"
 
@@ -138,6 +139,8 @@ void tas2505_set_volume(tas2505_t* dev, uint8_t volume, bool headphone_mode = fa
   if (volume > VOLUME_LEVEL_MAX) {
     volume = VOLUME_LEVEL_MAX;
   }
+
+  i2c_lock(dev->bus);
   // maximum volume is 0x00 and total silence is 0xFE
   if (volume == 0) {
     tas2505_write_reg(dev, TAS2505_SPKVOL1, 0xFE);
@@ -153,4 +156,5 @@ void tas2505_set_volume(tas2505_t* dev, uint8_t volume, bool headphone_mode = fa
       tas2505_write_reg(dev, TAS2505_HP_VOL, 0xFE);
     }
   }
+  i2c_unlock(dev->bus);
 }

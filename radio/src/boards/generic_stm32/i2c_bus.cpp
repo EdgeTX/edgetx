@@ -25,8 +25,28 @@
 #include "hal/i2c_driver.h"
 #include "hal.h"
 
+#if defined(FREE_RTOS)
+#include "os/task.h"
+#endif
+
 #define I2C_DEFAULT_TIMEOUT 10
 #define I2C_DEFAULT_RETRIES 2
+
+#define MAX_I2C_BUSES 2
+
+#if defined(FREE_RTOS)
+static mutex_handle_t _i2c_mutex[MAX_I2C_BUSES];
+static bool _i2c_mutex_initialized[MAX_I2C_BUSES] = {};
+
+static void i2c_ensure_mutex(uint8_t bus)
+{
+  if (bus < MAX_I2C_BUSES && !_i2c_mutex_initialized[bus] &&
+      scheduler_is_running()) {
+    mutex_create(&_i2c_mutex[bus]);
+    _i2c_mutex_initialized[bus] = true;
+  }
+}
+#endif
 
 #if defined(I2C_B1)
 static const stm32_i2c_hw_def_t _i2c1 = {
@@ -90,6 +110,33 @@ int i2c_deinit(etx_i2c_bus_t bus)
 #endif
 
   return -1;
+}
+
+void i2c_lock(etx_i2c_bus_t bus)
+{
+#if defined(FREE_RTOS)
+  i2c_ensure_mutex(bus);
+  if (scheduler_is_running())
+    mutex_lock(&_i2c_mutex[bus]);
+#endif
+}
+
+bool i2c_trylock(etx_i2c_bus_t bus)
+{
+#if defined(FREE_RTOS)
+  i2c_ensure_mutex(bus);
+  if (scheduler_is_running())
+    return mutex_trylock(&_i2c_mutex[bus]);
+#endif
+  return true;
+}
+
+void i2c_unlock(etx_i2c_bus_t bus)
+{
+#if defined(FREE_RTOS)
+  if (bus < MAX_I2C_BUSES && scheduler_is_running())
+    mutex_unlock(&_i2c_mutex[bus]);
+#endif
 }
 
 int i2c_dev_ready(etx_i2c_bus_t bus, uint16_t addr)

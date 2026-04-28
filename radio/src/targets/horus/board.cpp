@@ -50,7 +50,8 @@
 #include <string.h>
 
 #if defined(CSD203_SENSOR)
-  #include "csd203_sensor.h"
+  #include "drivers/csd203.h"
+  #include "stm32_i2c_driver.h"
 #endif
 
 #if defined(IMU) && defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
@@ -163,7 +164,8 @@ static void gyroInit()
   const etx_imu_t candidates[] = {
     { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
   };
-  gyroStart(imuDetect(candidates, DIM(candidates)));
+  etx_i2c_bus_t bus = 0;
+  gyroStart(imuDetect(candidates, DIM(candidates), &bus), bus);
 }
 #endif
 
@@ -224,7 +226,7 @@ void boardInit()
 #endif
 
 #if defined(CSD203_SENSOR)
-  initCSD203();
+  csd203_start(I2C_Bus_1);
 #endif
 
   hapticInit();
