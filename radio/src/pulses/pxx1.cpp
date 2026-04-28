@@ -262,9 +262,9 @@ static void pxx1SportSensorPolling(void* param)
   if (outputTelemetryBuffer.destination != TELEMETRY_ENDPOINT_SPORT)
     return;
 
-  auto mod_st = (etx_module_state_t*)param;
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto ctx = modulePortGetCtx(mod_st->rx);
+  auto mod_rx = (etx_module_driver_t*)param;
+  auto drv = modulePortGetSerialDrv(*mod_rx);
+  auto ctx = modulePortGetCtx(*mod_rx);
 
   // Match sensor polling from the module
   // -> detect <0x7E [Physical ID]> as the last sequence
@@ -341,7 +341,7 @@ static void* pxx1Init(uint8_t module)
     auto drv = modulePortGetSerialDrv(mod_st->rx);
     auto ctx = modulePortGetCtx(mod_st->rx);
     if (drv && ctx && drv->setIdleCb) {
-      drv->setIdleCb(ctx, pxx1SportSensorPolling, mod_st);
+      drv->setIdleCb(ctx, pxx1SportSensorPolling, &mod_st->rx);
     }
   }
 
