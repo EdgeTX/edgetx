@@ -123,6 +123,11 @@ uint8_t  WASM_EXPORT(simuGetNumChannels)();
 uint8_t  WASM_EXPORT(simuCopyChannelOutputs)(int16_t* buf, uint8_t maxCount);
 uint8_t  WASM_EXPORT(simuCopyMixOutputs)(int16_t* buf, uint8_t maxCount);
 
+// Channel/mixer queries.
+bool     WASM_EXPORT(simuIsChannelUsed)(uint8_t channel);
+int      WASM_EXPORT(simuGetChannelsUsed)();
+uint8_t  WASM_EXPORT(simuGetMixCount)();
+
 // Bulk copy logical switch states into buf (uint8_t[], 0 or 1). Returns count.
 uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
 uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
@@ -156,6 +161,14 @@ void WASM_IMPORT(simuTrace)(const char* text);
 // flush callback (color).  On the host side this wakes an Atomics.waitAsync
 // listener so the frame can be rendered without polling.
 void WASM_IMPORT(simuLcdNotify)();
+
+// First-run helper: request default radio.yml + model creation if
+// no settings file exists.  Call before simuStart().  The actual file
+// I/O runs inside storageReadAll() on a worker thread.
+void WASM_EXPORT(simuCreateDefaults)();
+
+// Flag checked by storageReadAll() to silently create defaults.
+extern bool simuCreateDefaultSettings;
 
 // -- Internal (not exported) --
 void simuMain();
