@@ -21,6 +21,10 @@
 
 #pragma once
 
+#include <functional>
+
+#include <QString>
+
 class GenericPanel;
 
 // Note: cannot be a Qt object otherwise it will create a compiler ambiguity in the inheriting class
@@ -32,8 +36,15 @@ class AutoWidget
     explicit AutoWidget();
     ~AutoWidget();
 
+    void setBindVisible(std::function<bool()> pred);
+    void setBindEnabled(std::function<bool()> pred);
+    void setBindText(std::function<QString()> fn);
+
   protected:
     virtual void updateValue() = 0;
+    virtual void setAutoEnabled() = 0;
+    virtual void setAutoText() = 0;
+    virtual void setAutoVisible() = 0;
 
     bool lock();
     void setLock(bool lock);
@@ -42,7 +53,14 @@ class AutoWidget
     void dataChanged();
     bool panelLock();
 
-  private:
+    void applyBindings();
+
+    std::function<bool()> m_enabled;
+    std::function<bool()> m_visible;
+    std::function<QString()> m_text;
+
+    private:
     GenericPanel *m_panel;
     bool m_lock;
+
 };

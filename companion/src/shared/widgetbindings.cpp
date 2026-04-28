@@ -19,32 +19,31 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "widgetbindings.h"
 
-#include "autowidget.h"
-
-#include <QLabel>
-
-class AutoLabel: public QLabel, public AutoWidget
+void WidgetBindings::bindVisible(QWidget *widget, std::function<bool()> pred)
 {
-  Q_OBJECT
+  m_visible.push_back({widget, std::move(pred)});
+}
 
-  public:
-    explicit AutoLabel(QWidget * parent = nullptr);
-    virtual ~AutoLabel();
+void WidgetBindings::bindEnabled(QWidget *widget, std::function<bool()> pred)
+{
+  m_enabled.push_back({widget, std::move(pred)});
+}
 
-    virtual void updateValue() override;
+void WidgetBindings::bindText(QLabel *label, std::function<QString()> fn)
+{
+  m_text.push_back({label, std::move(fn)});
+}
 
-    void setField(char * field, GenericPanel * panel = nullptr);
-    void setField(QString & field, GenericPanel * panel = nullptr);
-    void setWidth(int numChars);
+void WidgetBindings::applyAll()
+{
+  for (const auto &b : m_visible)
+    b.widget->setVisible(b.pred());
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override;
-    virtual void setAutoVisible() override;
+  for (const auto &b : m_enabled)
+    b.widget->setEnabled(b.pred());
 
-  private:
-    char *m_charField;
-    QString *m_strField;
-};
+  for (const auto &b : m_text)
+    b.label->setText(b.fn());
+}

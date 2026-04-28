@@ -27,48 +27,72 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
                        QWidget * prevFocus, FilteredItemModelFactory * panelFilteredModels, CompoundItemModelFactory * panelItemModels):
   ModelPanel(parent, model, generalSettings, firmware),
   timer(timer),
-  ui(new Ui::Timer),
-  modelsUpdateCnt(0)
+  ui(new Ui::Timer)
 {
   ui->setupUi(this);
-  connectItemModelEvents(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
+  imEventHandler = new ItemModelEventHandler(panelFilteredModels->getItemModel(FIM_TIMERSWITCH),
+                                             lock,
+                                             [this] { this->update(); } );
 
   lock = true;
 
   // Name
-  int length = firmware->getCapability(TimersName);
-  if (length == 0)
-    ui->name->hide();
-  else {
-    ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
-    ui->name->setField(timer.name, length, this);
-    connect(ui->name, SIGNAL(currentDataChanged()), this, SLOT(onNameChanged()));
-  }
+  ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
+  ui->name->setField(timer.name, firmware->getCapability(TimersName), this);
+  connect(ui->name, &AutoLineEdit::currentDataChanged, [=]()
+    {
+      emit nameChanged();
+    }
+  );
 
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
-  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=](const int val) {
-    update();
-  });
+  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=]()
+    {
+      update();
+    }
+  );
 
   ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
-  connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onModeChanged(int)));
+  connect(ui->mode, &AutoComboBox::currentDataChanged, [&]()
+    {
+      timer.modeChanged();
+      update();
+      emit modeChanged();
+    }
+  );
 
   ui->swtch->setModel(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
   ui->swtch->setField(timer.swtch, this);
+  ui->swtch->setBindEnabled([this] { return this->timer.mode != TimerData::TIMERMODE_OFF; });
 
   ui->countdownBeep->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNBEEP));
   ui->countdownBeep->setField(timer.countdownBeep, this);
-  connect(ui->countdownBeep, SIGNAL(currentDataChanged(int)), this, SLOT(onCountdownBeepChanged(int)));
+  connect(ui->countdownBeep, &AutoComboBox::currentDataChanged, [&]()
+    {
+      timer.countdownBeepChanged();
+      update();
+    }
+  );
 
   ui->minuteBeep->setField(timer.minuteBeep, this);
+
   ui->persistent->setModel(panelItemModels->getItemModel(AIM_TIMER_PERSISTENT));
   ui->persistent->setField(timer.persistent, this);
+
+  ui->countdownStartLabel->setBindEnabled([this] { return this->timer.countdownBeep != TimerData::COUNTDOWNBEEP_SILENT; });
+
   ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
   ui->countdownStart->setField(timer.countdownStart, this);
+  ui->countdownStart->setBindEnabled([this] { return this->timer.countdownBeep != TimerData::COUNTDOWNBEEP_SILENT; });
+
   ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
   ui->showElapsed->setField(timer.showElapsed, this);
+  ui->showElapsed->setBindEnabled([this] { return this->timer.val; });
+
+  // do not use setField as the raw value is meaningless
+  ui->persistentValue->setBindText([this] { return this->timer.pvalueToString(); });
 
   disableMouseScrolling();
   QWidget::setTabOrder(prevFocus, ui->name);
@@ -81,94 +105,22 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   QWidget::setTabOrder(ui->persistent, ui->showElapsed);
 
   update();
-  lock = false;
 }
 
 TimerPanel::~TimerPanel()
 {
   delete ui;
+  delete imEventHandler;
 }
 
 void TimerPanel::update()
 {
   lock = true;
-
-  ui->name->updateValue();
-  ui->mode->updateValue();
-  ui->swtch->updateValue();
-  ui->value->updateValue();
-  ui->countdownBeep->updateValue();
-  ui->minuteBeep->updateValue();
-  ui->countdownStart->updateValue();
-  ui->showElapsed->updateValue();
-
-  if (timer.mode != TimerData::TIMERMODE_OFF)
-    ui->swtch->setEnabled(true);
-  else
-    ui->swtch->setEnabled(false);
-
-  if (timer.countdownBeep == TimerData::COUNTDOWNBEEP_SILENT) {
-    ui->countdownStartLabel->setEnabled(false);
-    ui->countdownStart->setEnabled(false);
-  }
-  else {
-    ui->countdownStartLabel->setEnabled(true);
-    ui->countdownStart->setEnabled(true);
-  }
-
-  ui->persistent->updateValue();
-  ui->persistentValue->setText(timer.pvalueToString());
-
-  if (timer.val) {
-    ui->showElapsed->setEnabled(true);
-  }
-  else {
-    ui->showElapsed->setEnabled(false);
-  }
-
+  updateAutoWidgets();
   lock = false;
 }
 
 QWidget * TimerPanel::getLastFocus()
 {
   return ui->persistent;
-}
-
-void TimerPanel::connectItemModelEvents(const FilteredItemModel * itemModel)
-{
-  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, this, &TimerPanel::onItemModelAboutToBeUpdated);
-  connect(itemModel, &FilteredItemModel::updateComplete, this, &TimerPanel::onItemModelUpdateComplete);
-}
-
-void TimerPanel::onItemModelAboutToBeUpdated()
-{
-  lock = true;
-  modelsUpdateCnt++;
-}
-
-void TimerPanel::onItemModelUpdateComplete()
-{
-  modelsUpdateCnt--;
-  if (modelsUpdateCnt < 1) {
-    update();
-    lock = false;
-  }
-}
-
-void TimerPanel::onNameChanged()
-{
-  emit nameChanged();
-}
-
-void TimerPanel::onCountdownBeepChanged(int index)
-{
-  timer.countdownBeepChanged();
-  update();
-}
-
-void TimerPanel::onModeChanged(int index)
-{
-  timer.modeChanged();
-  update();
-  emit modeChanged();
 }

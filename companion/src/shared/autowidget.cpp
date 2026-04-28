@@ -22,15 +22,18 @@
 #include "autowidget.h"
 #include "genericpanel.h"
 
+#include <memory>
+
 AutoWidget::AutoWidget():
+  m_enabled(nullptr),
+  m_visible(nullptr),
+  m_text(nullptr),
   m_panel(nullptr),
   m_lock(false)
 {
 }
 
-AutoWidget::~AutoWidget()
-{
-}
+AutoWidget::~AutoWidget() = default;
 
 bool AutoWidget::lock()
 {
@@ -59,4 +62,31 @@ bool AutoWidget::panelLock()
     return m_panel->lock;
   else
     return false;
+}
+
+void AutoWidget::setBindVisible(std::function<bool()> pred)
+{
+  m_visible = std::move(pred);
+}
+
+void AutoWidget::setBindEnabled(std::function<bool()> pred)
+{
+  m_enabled = std::move(pred);
+}
+
+void AutoWidget::setBindText(std::function<QString()> fn)
+{
+  m_text = std::move(fn);
+}
+
+void AutoWidget::applyBindings()
+{
+  if (m_visible)
+    setAutoVisible();
+
+  if (m_enabled)
+    setAutoEnabled();
+
+  if (m_text)
+    setAutoText();
 }

@@ -204,3 +204,15 @@ unsigned int AutoBitMappedComboBox::bitmask()
   mask = ~(mask << m_bits);
   return (unsigned int)mask;
 }
+
+void AutoBitMappedComboBox::setAutoEnabled()
+{
+  if (m_enabled)
+    setEnabled(m_enabled());
+}
+
+void AutoBitMappedComboBox::setAutoVisible()
+{
+  if (m_visible)
+    setVisible(m_visible());
+}

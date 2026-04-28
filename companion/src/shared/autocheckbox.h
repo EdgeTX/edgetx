@@ -34,7 +34,6 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
     virtual ~AutoCheckBox();
 
     virtual void updateValue() override;
-
     void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
     void setInvert(bool invert);
 
@@ -43,6 +42,11 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
 
   protected slots:
     void onToggled(bool checked);
+
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override;
+    virtual void setAutoVisible() override;
 
   private:
     bool *m_field;

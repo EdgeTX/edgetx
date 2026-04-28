@@ -37,6 +37,7 @@ class AutoPrecisionComboBox : public QComboBox, public AutoWidget
     virtual ~AutoPrecisionComboBox();
 
     virtual void updateValue() override;
+    void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", GenericPanel * panel = nullptr);
     void setField(unsigned int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", GenericPanel * panel = nullptr);
@@ -54,6 +55,11 @@ class AutoPrecisionComboBox : public QComboBox, public AutoWidget
 
   protected slots:
     void onCurrentIndexChanged(int index);
+
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override {}
+    virtual void setAutoVisible() override;
 
   private:
     unsigned int *m_field = nullptr;

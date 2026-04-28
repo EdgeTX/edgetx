@@ -21,36 +21,27 @@
 
 #pragma once
 
-#include "autowidget.h"
+#include <QWidget>
+#include <QLabel>
+#include <functional>
+#include <vector>
 
-#include <QTimeEdit>
-
-class AutoTimeEdit : public QTimeEdit, public AutoWidget
+class WidgetBindings
 {
-  Q_OBJECT
-
   public:
-    explicit AutoTimeEdit(QWidget * parent = nullptr);
-    virtual ~AutoTimeEdit();
+    WidgetBindings() = default;
 
-    virtual void updateValue() override;
-    void setBindText(std::function<QString()> fn) = delete;
-
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
-    void setTimeRange(const QTime min, const QTime max);
-
-  signals:
-    void currentDataChanged(unsigned int val);
-
-  protected slots:
-    void onTimeChanged(QTime time);
-
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
+    void bindVisible(QWidget *widget, std::function<bool()> pred);
+    void bindEnabled(QWidget *widget, std::function<bool()> pred);
+    void bindText(QLabel *label, std::function<QString()> fn);
+    void applyAll();
 
   private:
-    unsigned int *m_field;
-};
+    struct VisibleBinding { QWidget *widget; std::function<bool()> pred; };
+    struct EnabledBinding { QWidget *widget; std::function<bool()> pred; };
+    struct TextBinding    { QLabel  *label;  std::function<QString()> fn; };
 
+    std::vector<VisibleBinding> m_visible;
+    std::vector<EnabledBinding> m_enabled;
+    std::vector<TextBinding>    m_text;
+};

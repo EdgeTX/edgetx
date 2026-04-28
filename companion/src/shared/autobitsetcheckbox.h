@@ -59,6 +59,11 @@ class AutoBitsetCheckBox: public QCheckBox, public AutoWidget
   protected slots:
     void onToggled(bool checked);
 
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override;
+    virtual void setAutoVisible() override;
+
   private:
     int *m_field = nullptr;
     int m_bitmask = 0;

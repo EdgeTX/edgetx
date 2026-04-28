@@ -22,6 +22,7 @@ set(${PROJECT_NAME}_NAMES
   scrollarea
   textvalidator
   exclusivecombogroup
+  widgetbindings
 )
 
 AddHeadersSources()

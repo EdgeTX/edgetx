@@ -34,6 +34,7 @@ class AutoSpinBox : public QSpinBox, public AutoWidget
     virtual ~AutoSpinBox();
 
     virtual void updateValue() override;
+    void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, GenericPanel * panel = nullptr);
     void setField(unsigned int & field, GenericPanel * panel = nullptr);
@@ -43,6 +44,11 @@ class AutoSpinBox : public QSpinBox, public AutoWidget
 
   protected slots:
     void onValueChanged(int value);
+
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override {}
+    virtual void setAutoVisible() override;
 
   private:
     int *m_field;

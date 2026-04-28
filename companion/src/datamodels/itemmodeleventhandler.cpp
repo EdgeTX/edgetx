@@ -19,32 +19,32 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "itemmodeleventhandler.h"
 
-#include "autowidget.h"
-
-#include <QLabel>
-
-class AutoLabel: public QLabel, public AutoWidget
+ItemModelEventHandler::ItemModelEventHandler(FilteredItemModel * itemModel,
+                                             bool & lock,
+                                             std::function<void()> updateCallback) :
+  QObject(nullptr),
+  m_lock(lock),
+  m_updateCallback(std::move(updateCallback)),
+  m_cnt(0)
 {
-  Q_OBJECT
+  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, [&] ()
+    {
+      m_lock = true;
+      m_cnt++;
+    }
+  );
 
-  public:
-    explicit AutoLabel(QWidget * parent = nullptr);
-    virtual ~AutoLabel();
+  connect(itemModel, &FilteredItemModel::updateComplete, [&] ()
+    {
+      m_cnt--;
 
-    virtual void updateValue() override;
-
-    void setField(char * field, GenericPanel * panel = nullptr);
-    void setField(QString & field, GenericPanel * panel = nullptr);
-    void setWidth(int numChars);
-
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override;
-    virtual void setAutoVisible() override;
-
-  private:
-    char *m_charField;
-    QString *m_strField;
-};
+      if (m_cnt < 1) {
+        if (m_updateCallback)
+          m_updateCallback();
+        m_lock = false;
+      }
+    }
+  );
+}
