@@ -611,6 +611,20 @@ FRESULT f_getcwd(TCHAR *path, UINT sz_path)
   return FR_OK;
 }
 
+FRESULT f_truncate(FIL* fil)
+{
+  if (fil && fil->obj.fs) {
+    _simu_FIL* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);
+    if (sf->stream && sf->stream->is_open()) {
+      sf->stream->flush();
+      std::error_code ec;
+      fs::resize_file(sf->filepath, fil->fptr, ec);
+      if (ec) return FR_DISK_ERR;
+    }
+  }
+  return FR_OK;
+}
+
 FRESULT f_getfree(const TCHAR* path, DWORD* nclst, FATFS** fatfs)
 {
   // just fake that we always have some clusters free
