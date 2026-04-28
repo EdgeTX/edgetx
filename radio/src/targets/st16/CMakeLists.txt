@@ -67,7 +67,7 @@ add_definitions(
   -DSTM32H750IBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DWS2812_MAX_LEDS=24
+  -DRGBLEDS_MAX_LEDS=24
 )
 
 set(SDRAM ON)
@@ -157,7 +157,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/vs1053b.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+  targets/common/arm/stm32/stm32_rgbleds.cpp
   targets/common/arm/stm32/trainer_driver.cpp
 )
 add_dependencies(board board_lib)

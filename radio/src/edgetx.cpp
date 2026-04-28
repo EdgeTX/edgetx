@@ -22,7 +22,7 @@
 #include "os/sleep.h"
 #include "os/time.h"
 #if !defined(SIMU)
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
