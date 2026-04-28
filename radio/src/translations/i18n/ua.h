@@ -392,6 +392,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        "Слейв/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Майстер/Мульти"
 #define TR_VTRAINER_CRSF               "Майстер/CRSF"
+#define TR_VTRAINER_LUA                "Майстер/Lua"
 #define TR_VFAILSAFE_1                 "Не встан."
 #define TR_VFAILSAFE_2                 "Тримай"
 #define TR_VFAILSAFE_3                 "Корист."

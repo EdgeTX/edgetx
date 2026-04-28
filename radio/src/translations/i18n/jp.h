@@ -390,6 +390,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        "スレーブ/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "マスター/Multi"
 #define TR_VTRAINER_CRSF               "マスター/CRSF"
+#define TR_VTRAINER_LUA                "マスター/Lua"
 #define TR_VFAILSAFE_1                 "設定なし"
 #define TR_VFAILSAFE_2                 "ホールド"
 #define TR_VFAILSAFE_3                 "カスタム"
