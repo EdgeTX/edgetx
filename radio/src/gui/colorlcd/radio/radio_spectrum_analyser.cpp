@@ -32,6 +32,15 @@ constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT -
                                     SCALE_HEIGHT -
                                     EdgeTxStyles::UI_ELEMENT_HEIGHT;
 
+// Empirical full-scale value of bars/max/peak samples. Used to map sample
+// values to chart pixels so bars fill the available height on any LCD.
+constexpr uint8_t SPECTRUM_FULL_SCALE = 90;
+
+static inline coord_t scaleSample(uint16_t value)
+{
+  return (value * SPECTRUM_HEIGHT) / SPECTRUM_FULL_SCALE;
+}
+
 template <uint8_t CNT>
 coord_t getAverage(const uint8_t* value)
 {
@@ -39,16 +48,14 @@ coord_t getAverage(const uint8_t* value)
   for (uint8_t i = 0; i < CNT; i++) {
     sum += value[i];
   }
-  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
-  return sum / CNT;
+  return scaleSample(sum / CNT);
 }
 
 template <>
 coord_t getAverage<4>(const uint8_t* value)
 {
   uint16_t sum = value[0] + value[1] + value[2] + value[3];
-  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
-  return sum / 4;
+  return scaleSample(sum / 4);
 }
 
 class SpectrumFooterWindow : public Window
@@ -238,19 +245,17 @@ class SpectrumWindow : public Window
       lv_coord_t yv =
           SCALE_TOP - 1 -
           limit<int>(0,
-                     getAverage<step>(&reusableBuffer.spectrumAnalyser.bars[x])
-                         << 1,
+                     getAverage<step>(&reusableBuffer.spectrumAnalyser.bars[x]),
                      SCALE_TOP);
       lv_coord_t max_yv =
           SCALE_TOP - 1 -
           limit<int>(
-              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.max[x]) << 1,
+              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.max[x]),
               SCALE_TOP);
       lv_coord_t peak_yv =
           SCALE_TOP - 1 -
           limit<int>(0,
-                     getAverage<step>(&reusableBuffer.spectrumAnalyser.peak[x])
-                         << 1,
+                     getAverage<step>(&reusableBuffer.spectrumAnalyser.peak[x]),
                      SCALE_TOP);
 
       maxPts[i] = {x, max_yv};
