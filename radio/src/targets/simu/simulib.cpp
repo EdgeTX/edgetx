@@ -44,6 +44,7 @@
 #endif
 
 #include <assert.h>
+#include <deque>
 
 int g_snapshot_idx = 0;
 
@@ -68,6 +69,10 @@ extern const etx_hal_adc_driver_t simu_adc_driver;
 void lcdCopy(void * dest, void * src);
 void lcdFlushed();
 
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+static void hostSerialInit();
+#endif
+
 void simuInit()
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -81,6 +86,10 @@ void simuInit()
   adcInit(&simu_adc_driver);
   // Switches
   switchInit();
+
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+  hostSerialInit();
+#endif
 }
 
 bool keysStates[MAX_KEYS] = { false };
@@ -394,35 +403,127 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-static void* null_drv_init(void* hw_def, const etx_serial_init* dev) { return nullptr; }
-static void null_drv_deinit(void* ctx) { }
-static void null_drv_send_byte(void* ctx, uint8_t b) { }
-static void null_drv_send_buffer(void* ctx, const uint8_t* b, uint32_t l) { }
-static bool null_drv_tx_completed(void* ctx) { return true; }
-static int null_drv_get_byte(void* ctx, uint8_t* b) { return 0; }
-static void null_drv_set_baudrate(void* ctx, uint32_t baudrate) { }
+#if !defined(__wasm__)
+// Native builds (unit-tests, SDL simulator) don't have a WASM host to
+// forward aux-serial traffic to: WASM_IMPORT is a no-op macro off-target,
+// so the declarations in simulib.h become plain externs with no
+// definitions.  Provide no-op stubs so host_drv_* can link — the host
+// bridge is only meaningfully exercised in the WASM simulator, where
+// these symbols are resolved as WAMR imports by Companion.
+void simuAuxSerialStart(uint8_t, uint32_t, uint8_t) {}
+void simuAuxSerialStop(uint8_t) {}
+void simuAuxSerialSetBaudrate(uint8_t, uint32_t) {}
+void simuAuxSerialSendBuffer(uint8_t, const uint8_t*, uint32_t) {}
+#endif
 
-const etx_serial_driver_t null_drv = {
-  .init = null_drv_init,
-  .deinit = null_drv_deinit,
-  .sendByte = null_drv_send_byte,
-  .sendBuffer = null_drv_send_buffer,
-  .txCompleted = null_drv_tx_completed,
+// Per-port bridge state.  TX is forwarded to the host via WASM imports;
+// RX bytes pushed in via simuAuxSerialReceive() are buffered in rxQueue
+// and consumed by the firmware through host_drv_get_byte().
+struct host_serial_port_t {
+  uint8_t index;
+  mutex_handle_t rxMutex;
+  std::deque<uint8_t> rxQueue;
+};
+
+static host_serial_port_t hostSerialPorts[MAX_AUX_SERIAL] = {
+  { SP_AUX1, {}, {} },
+  { SP_AUX2, {}, {} },
+};
+
+static void hostSerialInit()
+{
+  for (uint8_t i = 0; i < MAX_AUX_SERIAL; ++i)
+    mutex_create(&hostSerialPorts[i].rxMutex);
+}
+
+static void* host_drv_init(void* hw_def, const etx_serial_init* dev)
+{
+  if (hw_def == nullptr || dev == nullptr) return nullptr;
+
+  auto* port = static_cast<host_serial_port_t*>(hw_def);
+  mutex_lock(&port->rxMutex);
+  port->rxQueue.clear();
+  mutex_unlock(&port->rxMutex);
+  simuAuxSerialStart(port->index, dev->baudrate, dev->encoding);
+  return port;
+}
+
+static void host_drv_deinit(void* ctx)
+{
+  if (ctx == nullptr) return;
+  auto* port = static_cast<host_serial_port_t*>(ctx);
+  simuAuxSerialStop(port->index);
+}
+
+static void host_drv_send_byte(void* ctx, uint8_t b)
+{
+  if (ctx == nullptr) return;
+  auto* port = static_cast<host_serial_port_t*>(ctx);
+  simuAuxSerialSendBuffer(port->index, &b, 1);
+}
+
+static void host_drv_send_buffer(void* ctx, const uint8_t* b, uint32_t l)
+{
+  if (ctx == nullptr || b == nullptr || l == 0) return;
+  auto* port = static_cast<host_serial_port_t*>(ctx);
+  simuAuxSerialSendBuffer(port->index, b, l);
+}
+
+static bool host_drv_tx_completed(void*) { return true; }
+
+static int host_drv_get_byte(void* ctx, uint8_t* b)
+{
+  if (ctx == nullptr || b == nullptr) return 0;
+  auto* port = static_cast<host_serial_port_t*>(ctx);
+  mutex_lock(&port->rxMutex);
+  if (port->rxQueue.empty()) {
+    mutex_unlock(&port->rxMutex);
+    return 0;
+  }
+  *b = port->rxQueue.front();
+  port->rxQueue.pop_front();
+  mutex_unlock(&port->rxMutex);
+  return 1;
+}
+
+static void host_drv_set_baudrate(void* ctx, uint32_t baudrate)
+{
+  if (ctx == nullptr) return;
+  auto* port = static_cast<host_serial_port_t*>(ctx);
+  simuAuxSerialSetBaudrate(port->index, baudrate);
+}
+
+const etx_serial_driver_t host_drv = {
+  .init = host_drv_init,
+  .deinit = host_drv_deinit,
+  .sendByte = host_drv_send_byte,
+  .sendBuffer = host_drv_send_buffer,
+  .txCompleted = host_drv_tx_completed,
   .waitForTxCompleted = nullptr,
   .enableRx = nullptr,
-  .getByte = null_drv_get_byte,
+  .getByte = host_drv_get_byte,
   .getLastByte = nullptr,
   .getBufferedBytes = nullptr,
   .copyRxBuffer = nullptr,
   .clearRxBuffer = nullptr,
   .getBaudrate = nullptr,
-  .setBaudrate = null_drv_set_baudrate,
+  .setBaudrate = host_drv_set_baudrate,
   .setPolarity = nullptr,
   .setHWOption = nullptr,
   .setReceiveCb = nullptr,
   .setIdleCb = nullptr,
   .setBaudrateCb = nullptr,
 };
+
+void simuAuxSerialReceive(uint8_t port_nr, const uint8_t* data, uint32_t len)
+{
+  if (port_nr >= MAX_AUX_SERIAL || data == nullptr || len == 0) return;
+  auto& port = hostSerialPorts[port_nr];
+  mutex_lock(&port.rxMutex);
+  for (uint32_t i = 0; i < len; ++i)
+    port.rxQueue.push_back(data[i]);
+  mutex_unlock(&port.rxMutex);
+}
 
 #if defined(AUX_SERIAL_PWR_GPIO)
 static void null_pwr_aux(uint8_t) {}
@@ -437,8 +538,8 @@ static void null_pwr_aux(uint8_t) {}
 #endif
 static etx_serial_port_t auxSerialPort = {
   "AUX1",
-  &null_drv,
-  nullptr,
+  &host_drv,
+  &hostSerialPorts[SP_AUX1],
   AUX_SERIAL_PWR
 };
 #define AUX_SERIAL_PORT &auxSerialPort
@@ -454,8 +555,8 @@ static etx_serial_port_t auxSerialPort = {
 #endif
 static etx_serial_port_t aux2SerialPort = {
   "AUX2",
-  &null_drv,
-  nullptr,
+  &host_drv,
+  &hostSerialPorts[SP_AUX2],
   AUX2_SERIAL_PWR
 };
 #define AUX2_SERIAL_PORT &aux2SerialPort
