@@ -39,6 +39,7 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
     virtual ~AutoHexSpinBox();
 
     virtual void updateValue();
+    void setBindText(std::function<QString()> fn) = delete;
 
     void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, GenericPanel * panel = nullptr);
     void setField(unsigned int & field, GenericPanel * panel = nullptr);
@@ -54,6 +55,11 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
 
   protected slots:
     void onValueChanged(int value);
+
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override {}
+    virtual void setAutoVisible() override;
 
   private:
     unsigned int *m_field;

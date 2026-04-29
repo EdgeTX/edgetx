@@ -21,36 +21,22 @@
 
 #pragma once
 
-#include "autowidget.h"
+#include "filtereditemmodels.h"
 
-#include <QTimeEdit>
+#include <QObject>
+#include <functional>
 
-class AutoTimeEdit : public QTimeEdit, public AutoWidget
+class ItemModelEventHandler : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
-    explicit AutoTimeEdit(QWidget * parent = nullptr);
-    virtual ~AutoTimeEdit();
-
-    virtual void updateValue() override;
-    void setBindText(std::function<QString()> fn) = delete;
-
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
-    void setTimeRange(const QTime min, const QTime max);
-
-  signals:
-    void currentDataChanged(unsigned int val);
-
-  protected slots:
-    void onTimeChanged(QTime time);
-
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
+    explicit ItemModelEventHandler(FilteredItemModel * filteredModel,
+                                   bool & lock, std::function<void()> callback);
+    virtual ~ItemModelEventHandler() = default;
 
   private:
-    unsigned int *m_field;
+    bool &m_lock;
+    std::function<void()> m_updateCallback;
+    int m_cnt;
 };
-

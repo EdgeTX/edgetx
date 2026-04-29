@@ -35,6 +35,7 @@ class AutoSlider : public QSlider, public AutoWidget
     virtual ~AutoSlider();
 
     virtual void updateValue() override;
+    void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, int min, int max, GenericPanel * panel = nullptr);
     void setField(unsigned int & field, int min, int max, GenericPanel * panel = nullptr);
@@ -45,6 +46,11 @@ class AutoSlider : public QSlider, public AutoWidget
 
   protected slots:
     void onValueChanged(int value);
+
+  protected:
+    virtual void setAutoEnabled() override;
+    virtual void setAutoText() override {}
+    virtual void setAutoVisible() override;
 
   private:
     int *m_field = nullptr;

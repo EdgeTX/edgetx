@@ -82,3 +82,21 @@ void AutoLineEdit::onEdited()
   emit currentDataChanged();
   dataChanged();
 }
+
+void AutoLineEdit::setAutoEnabled()
+{
+  if (m_enabled)
+    setEnabled(m_enabled());
+}
+
+void AutoLineEdit::setAutoText()
+{
+  if (m_text)
+    setText(m_text());
+}
+
+void AutoLineEdit::setAutoVisible()
+{
+  if (m_visible)
+    setVisible(m_visible());
+}

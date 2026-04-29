@@ -66,3 +66,21 @@ void AutoLabel::updateValue()
     setText(m_charField);
   setLock(false);
 }
+
+void AutoLabel::setAutoEnabled()
+{
+  if (m_enabled)
+    setEnabled(m_enabled());
+}
+
+void AutoLabel::setAutoText()
+{
+  if (m_text)
+    setText(m_text());
+}
+
+void AutoLabel::setAutoVisible()
+{
+  if (m_visible)
+    setVisible(m_visible());
+}

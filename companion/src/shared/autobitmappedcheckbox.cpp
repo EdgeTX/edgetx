@@ -101,3 +101,21 @@ unsigned int AutoBitMappedCheckBox::bitmask()
   mask = ~(mask << m_bits);
   return (unsigned int)mask;
 }
+
+void AutoBitMappedCheckBox::setAutoEnabled()
+{
+  if (m_enabled)
+    setEnabled(m_enabled());
+}
+
+void AutoBitMappedCheckBox::setAutoText()
+{
+  if (m_text)
+    setText(m_text());
+}
+
+void AutoBitMappedCheckBox::setAutoVisible()
+{
+  if (m_visible)
+    setVisible(m_visible());
+}
