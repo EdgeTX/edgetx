@@ -26,6 +26,10 @@
 #include "mixes.h"
 #include "switches.h"
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#include "hal/rgbleds.h"
+#endif
+
 #if defined(COLORLCD)
 #include "view_main.h"
 #endif
@@ -73,6 +77,10 @@ void preModelLoad()
   }
 
   stopTrainer();
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  turnOffRGBLeds();
+#endif
 
   if (needDelay) {
     sleep_ms(200);
