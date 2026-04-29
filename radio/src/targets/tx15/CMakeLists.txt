@@ -189,6 +189,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
+  ${BOARD_SRC_DIR}/pdm_software_driver.cpp
   drivers/tas2505.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp

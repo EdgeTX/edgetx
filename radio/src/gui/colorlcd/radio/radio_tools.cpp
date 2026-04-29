@@ -29,6 +29,7 @@
 #include "radio_ghost_module_config.h"
 #include "radio_spectrum_analyser.h"
 #include "radio_gps_tool.h"
+#include "radio_mic_recorder.h"
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
 #include "lib_file.h"
@@ -211,6 +212,13 @@ static void run_ghost_config(const std::string&)
 }
 #endif
 
+#if defined(PDM_CLOCK)
+static void run_mic_recorder(const std::string&)
+{
+  new RadioMicRecorder();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 
 struct ToolButton : public TextButton {
@@ -347,6 +355,10 @@ void RadioToolsPage::rebuild(Window* window)
   if (isModuleGhost(EXTERNAL_MODULE)) {
     tools.emplace_back(ToolEntry{STR_GHOST_MODULE_CONFIG, "", run_ghost_config});
   }
+#endif
+
+#if defined(PDM_CLOCK)
+  tools.emplace_back(ToolEntry{STR_MIC_RECORDER, "", run_mic_recorder});
 #endif
 
 #if defined(LUA)

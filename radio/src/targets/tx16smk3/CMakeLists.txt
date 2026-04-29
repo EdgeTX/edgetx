@@ -172,6 +172,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
+  ${BOARD_SRC_DIR}/pdm_software_driver.cpp
   ${BOARD_SRC_DIR}/luminosity_sensor.cpp
   drivers/tas2505.cpp
   drivers/icm42607C.cpp

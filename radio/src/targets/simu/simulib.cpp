@@ -756,3 +756,13 @@ uint32_t simuGetCustomSwitchColor(uint8_t idx)
 #endif
   return 0;
 }
+
+#if defined(PDM_CLOCK)
+#include "boards/rm-h750/pdm_software_driver.h"
+void pdmStart() {}
+void pdmStop() {}
+bool pdmUpdateSoundLevel() { return false; }
+uint8_t pdmGetSoundLevel() { return 0; }
+bool pdmCapture() { return false; }
+uint32_t pdmConvertToPCM(int16_t*, uint32_t) { return 0; }
+#endif

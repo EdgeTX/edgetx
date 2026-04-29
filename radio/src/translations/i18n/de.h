@@ -965,6 +965,16 @@
 #define TR_POWERMETER_ATTN             "Dämpf."
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   TR_BW_COL("TOOLS", "Tools")
+#define TR_MIC_RECORDER                "Mic recorder"
+#define TR_PUSH_TO_RECORD              "Push to record"
+#define TR_RECORD                      "Record"
+#define TR_STOP                        "Stop"
+#define TR_REC                         "REC"
+#define TR_STARTING_IN                 "Starting in"
+#define TR_GET_READY                   "Get ready..."
+#define TR_SAVED                       "Saved:"
+#define TR_SAVE_AS                     "Save as"
+#define TR_OPEN_ERROR                  "Open error"
 #define TR_TURN_OFF_RECEIVER           "Empf. ausschalten"
 #define TR_STOPPING                    "Stoppe..."
 #define TR_MENU_SPECTRUM_ANALYSER      TR_BW_COL("SPEKTRUM ANALYSATOR", "Spektrum Analysator")
