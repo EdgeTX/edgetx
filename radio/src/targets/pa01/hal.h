@@ -139,7 +139,8 @@
  *  - SDMMC1_CMD   (PD.02)
  */
 #define SD_SDIO                        SDMMC1
-#define SD_SDIO_TRANSFER_CLK_DIV       SDMMC_NSPEED_CLK_DIV  // 25MHz
+#define SD_SDIO_CLK_DIV(fq)            (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
+#define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(24000000) // Hz
 #define STORAGE_USE_SDIO
 
 // Audio
