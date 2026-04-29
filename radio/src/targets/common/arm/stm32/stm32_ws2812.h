@@ -38,8 +38,15 @@
 void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
                  uint8_t strip_len, uint8_t type);
 void ws2812_update(const stm32_pulse_timer_t* timer);
-bool ws2812_get_state(uint8_t led);
 void ws2812_dma_isr(const stm32_pulse_timer_t* timer);
 
-void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
-uint32_t ws2812_get_color(uint8_t led);
+// Returns true if a DMA transfer is currently in progress.
+bool ws2812_is_busy(const stm32_pulse_timer_t* timer);
+
+// Buffer-parameterised setter/getter. The caller owns the buffer; ws2812
+// applies the strip's RGB byte ordering through the offsets configured at
+// init time.
+void ws2812_set_color_in_buf(uint8_t* buf, uint8_t led,
+                             uint8_t r, uint8_t g, uint8_t b);
+uint32_t ws2812_get_color_in_buf(const uint8_t* buf, uint8_t led);
+bool ws2812_get_state_in_buf(const uint8_t* buf, uint8_t led);
