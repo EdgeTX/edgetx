@@ -40,7 +40,10 @@
   #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
 #endif
 
-#define MIN_FRAME_LEN 3
+#define MIN_FRAME_LEN         3                       // Min size of the buffer needed to begin processing (HDR + LEN + 1)
+#define MAX_FRAME_LEN         64                      // A whole CRSF packet including header and length can not exceed 64 bytes
+#define MIN_PAYLOAD_LEN       3                       // Min value for the LEN field (TYPE + 1 payload + CRC)
+#define MAX_PAYLOAD_LEN       (MAX_FRAME_LEN-2)       // Max value for the LEN field (MAX - HDR - LEN)
 
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
@@ -225,15 +228,16 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
-static bool _lenIsSane(uint32_t len)
+static bool _lenIsSane(uint8_t len)
 {
-  // packet len must be at least 3 bytes (type + payload + crc)
-  // and 2 bytes < MAX (hdr + len)
-  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE - 1);
+  // Validate that the declared len in the packet is valid for a CRSF frame
+  return (len >= MIN_PAYLOAD_LEN && len <= MAX_PAYLOAD_LEN);
 }
 
 static bool _validHdr(uint8_t* buf)
 {
+  // All CRSF packets should start with UART_SYNC, but RADIO_ADDRESS is also accepted
+  // for older modules which used the incorrect "destination address" start byte
   return buf[0] == RADIO_ADDRESS || buf[0] == UART_SYNC;
 }
 
@@ -241,45 +245,44 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 {
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
-
-    if (!_validHdr(p_buf)) {
-      TRACE("[XF] skipping invalid start bytes");
-      do { p_buf++; len--; } while(len > 0 && !_validHdr(p_buf));
-      if (len < MIN_FRAME_LEN) break;
+    // Bad telemetry packets frequently are just missing a byte, with the start
+    // of a new packet contained in the data. To avoid dropping multiple packets
+    // for one missed byte, CRC errors or invalid length errors MUST just advance
+    // the buffer by one instead of pkt_len or throwing it all out
+    uint8_t declared_len = p_buf[1];
+    if (!_validHdr(p_buf) || !_lenIsSane(declared_len)) {
+      p_buf++; len--;
+      continue;
     }
 
-    uint32_t pkt_len = p_buf[1] + 2;
-    if (!_lenIsSane(pkt_len)) {
-      TRACE("[XF] pkt len error (%d)", pkt_len);
-      len = 0;
-      break;
-    }
-
+    uint32_t pkt_len = declared_len + 2;
     if (pkt_len > (uint32_t)len) {
-      // incomplete packet
+      // Need to wait for more data
       break;
     }
 
     if (!_checkFrameCRC(p_buf)) {
-      TRACE("[XF] CRC error ");
-    } else {
-#if defined(BLUETOOTH)
-      // TODO: generic telemetry mirror to BT
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
-          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(p_buf, pkt_len);
-      }
-#endif
-      auto mod_st = (etx_module_state_t*)ctx;
-      auto module = modulePortGetModule(mod_st);
-      lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
-      processCrossfireTelemetryFrame(module, p_buf, pkt_len);
+      TRACE("[XF] CRC error");
+      p_buf++; len--;
+      continue;
     }
+
+#if defined(BLUETOOTH)
+    // TODO: generic telemetry mirror to BT
+    if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+      bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+      bluetooth.write(p_buf, pkt_len);
+    }
+#endif
+    auto mod_st = (etx_module_state_t*)ctx;
+    auto module = modulePortGetModule(mod_st);
+    lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
+    processCrossfireTelemetryFrame(module, p_buf, pkt_len);
 
     p_buf += pkt_len;
     len -= pkt_len;
   }
-  
+
   return p_buf;
 }
 
