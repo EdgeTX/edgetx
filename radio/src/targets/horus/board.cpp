@@ -59,12 +59,29 @@
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
+#if defined(VIDEO_SWITCH) || (defined(BLUETOOTH) && defined(BOOT))
+
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
+#endif
 
 void boardBLEarlyInit()
 {
+#if defined(VIDEO_SWITCH)
   videoSwitchInit();
+#endif
+
+#if defined(BLUETOOTH)
+  // Disable the BT module so it will be detected on firmware start
+#if defined(BT_EN_GPIO)
+  gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_write(BT_EN_GPIO, 1);
+#endif
+#if defined(BT_PWR_GPIO)
+  gpio_init(BT_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(BT_PWR_GPIO);
+#endif
+#endif
 }
 #endif
 
@@ -77,6 +94,7 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+  rotaryEncoderInit();
   SDRAM_Init();
 }
 
