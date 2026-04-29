@@ -185,10 +185,6 @@ uint32_t pwrPressedDuration();
 void usbChargerInit();
 bool usbChargerLed();
 
-#if defined(RADIO_V16)
-  uint16_t getSixPosAnalogValue(uint16_t adcValue);
-#endif
-
 // Led driver
 void ledInit();
 void ledOff();
@@ -244,6 +240,10 @@ bool isBacklightEnabled();
 
 #if defined(__cplusplus) && !defined(SIMU)
 }
+#endif
+
+#if defined(RADIO_V16)
+  uint16_t getSixPosAnalogValue(uint16_t adcValue);
 #endif
 
 // Audio driver

@@ -221,30 +221,36 @@ void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
   _init_timer(timer);
 }
 
-void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
+void ws2812_set_color_in_buf(uint8_t* buf, uint8_t led,
+                             uint8_t r, uint8_t g, uint8_t b)
 {
   if (led >= _led_strip_len) return;
 
-  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  uint8_t* pixel = &buf[led * WS2812_BYTES_PER_LED];
   pixel[_r_offset] = r;
   pixel[_g_offset] = g;
   pixel[_b_offset] = b;
 }
 
-uint32_t ws2812_get_color(uint8_t led)
+uint32_t ws2812_get_color_in_buf(const uint8_t* buf, uint8_t led)
 {
   if (led >= _led_strip_len) return 0;
 
-  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
-  return  (pixel[1] << 16) +  (pixel[0] << 8) + pixel[2];
+  const uint8_t* pixel = &buf[led * WS2812_BYTES_PER_LED];
+  return (pixel[1] << 16) + (pixel[0] << 8) + pixel[2];
 }
 
-bool ws2812_get_state(uint8_t led)
+bool ws2812_get_state_in_buf(const uint8_t* buf, uint8_t led)
 {
   if (led >= _led_strip_len) return false;
 
-  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  const uint8_t* pixel = &buf[led * WS2812_BYTES_PER_LED];
   return pixel[0] || pixel[1] || pixel[2];
+}
+
+bool ws2812_is_busy(const stm32_pulse_timer_t* tim)
+{
+  return LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream);
 }
 
 void ws2812_update(const stm32_pulse_timer_t* tim)

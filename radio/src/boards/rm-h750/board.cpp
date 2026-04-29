@@ -23,7 +23,6 @@
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_hal.h"
-#include "stm32_ws2812.h"
 #include "stm32_spi.h"
 
 #include "flash_driver.h"
@@ -69,9 +68,6 @@
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// RGB LED timer
-extern const stm32_pulse_timer_t _led_timer;
-
 static const etx_imu_t _imu_candidates[] = {
 #if defined(IMU_ICM4207C)
   { &imu_icm42607_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR },
@@ -90,10 +86,7 @@ static void gyroInit()
 
 static void led_strip_off()
 {
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
+  rgbLedClearAll();
 }
 
 void INTERNAL_MODULE_ON()
