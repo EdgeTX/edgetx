@@ -107,7 +107,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasMixerNames:
       return (IS_TARANIS_X9(board) ? 8 : 6);
     case HasModelImage:
-      return (board == BOARD_TARANIS_X9D || IS_TARANIS_PLUS(board) || board == BOARD_TARANIS_X9DP_2019 || IS_FAMILY_HORUS_OR_T16(board));
+      return (board == BOARD_TARANIS_X9D || IS_TARANIS_PLUS(board) || board == BOARD_TARANIS_X9DP_2019 ||
+              IS_FAMILY_HORUS_OR_T16(board) || Boards::getCapability(board, Board::HasColorLcd));
     case HasModelLabels:
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasModelsList:

@@ -71,6 +71,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
   QByteArray labelslistBuffer;
   int sortOrder = 0;
+
   if (loadFile(labelslistBuffer, "MODELS/labels.yml")) {
     try {
       if (!loadLabelsListFromYaml(radioData.labels, sortOrder, modelFiles, labelslistBuffer)) {
@@ -108,6 +109,8 @@ bool LabelsStorageFormat::load(RadioData & radioData)
   if (hasLabels)
     radioData.models.resize(modelFiles.size());
 
+  QList<QString> modelImages;
+
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str();
 
@@ -127,6 +130,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
+
     if (!loadFile(modelBuffer, filename)) {
       setError(tr("Cannot extract ") + filename);
       return false;
@@ -150,6 +154,14 @@ bool LabelsStorageFormat::load(RadioData & radioData)
     if (!loadChecklist(model))
       return false;
 
+    if (!model.isBitmapEmpty()) {
+      const QString fname(model.getImageFilename());
+
+      if (!modelImages.contains(fname)) {
+        modelImages.append(fname);
+      }
+    }
+
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
@@ -158,6 +170,11 @@ bool LabelsStorageFormat::load(RadioData & radioData)
 
     model.used = true;
     modelIdx++;
+  }
+
+  for (const auto &fname : modelImages) {
+    if (!loadImageFile(fname, true))
+      return false;
   }
 
   // Add the labels in the models
@@ -232,8 +249,9 @@ bool LabelsStorageFormat::write(RadioData & radioData)
   }
 
   EtxModelfiles modelFiles;
-  for (const auto& model : radioData.models) {
+  QList<QString> modelImages;
 
+  for (const auto& model : radioData.models) {
     if (model.isEmpty())
       continue;
 
@@ -251,7 +269,20 @@ bool LabelsStorageFormat::write(RadioData & radioData)
     if (!writeFile(modelData, modelFilename))
       return false;
 
+    if (!model.isBitmapEmpty()) {
+      const QString fname(model.getImageFilename());
+
+      if (!modelImages.contains(fname)) {
+        modelImages.append(fname);
+      }
+    }
+
     if (!writeChecklist(model))
+      return false;
+  }
+
+  for (const auto &fname : modelImages) {
+    if (!writeImageFile(fname))
       return false;
   }
 
@@ -279,11 +310,10 @@ bool LabelsStorageFormat::loadChecklist(ModelData & model)
 
 bool LabelsStorageFormat::writeChecklist(const ModelData & model)
 {
-  const QString fname("MODELS/" + model.getChecklistFilename());
-
-  // not every model has a checklist
   if (!model.checklistData.isEmpty()) {
+    const QString fname("MODELS/" + model.getChecklistFilename());
     //qDebug() << "Writing checklist file:" << fname;
+
     if (!writeFile(model.checklistData, fname)) {
       setError(tr("Cannot write ") + fname);
       return false;
