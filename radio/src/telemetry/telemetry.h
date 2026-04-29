@@ -132,6 +132,7 @@ void frskyDSetDefault(int index, uint16_t id);
 typedef struct {
   const char *label;
   const char *unit;
+  uint8_t max;
 } rxStatStruct;
 
 rxStatStruct *getRxStatLabels();
