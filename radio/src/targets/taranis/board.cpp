@@ -28,6 +28,7 @@
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
@@ -48,6 +49,28 @@
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
+
+#if defined(BOOT)
+
+#if defined(BLUETOOTH)
+void boardBLEarlyInit()
+{
+  // Disable the BT module so it will be detected on firmware start
+#if defined(BT_EN_GPIO)
+  gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_write(BT_EN_GPIO, 1);
+#endif
+}
+#endif
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+void boardBLInit()
+{
+  rotaryEncoderInit();
+}
+#endif
+
+#endif // BOOT
 
 #if !defined(BOOT)
   #include "edgetx.h"

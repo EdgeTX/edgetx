@@ -616,12 +616,6 @@ if(ROTARY_ENCODER)
   )
 endif()
 
-if(BLUETOOTH)
-  list(APPEND BOARD_COMMON_SRC
-    targets/common/arm/stm32/bluetooth_driver.cpp
-  )
-endif()
-
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
@@ -646,6 +640,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 if(BIND_KEY)
   add_definitions(-DBIND_KEY)

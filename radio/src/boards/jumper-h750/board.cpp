@@ -111,6 +111,10 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  rotaryEncoderInit();
+#endif
+
   ExtFLASH_Init();
   SDRAM_Init();
 
