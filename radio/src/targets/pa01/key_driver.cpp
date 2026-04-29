@@ -70,51 +70,105 @@ enum PhysicalKeys
   ENT  = 16
 };
 
-extern bool suspendI2CTasks;
-
 static bool fct_state[4] = {false, false, false, false};
 static uint32_t keyState = 0;
+
 #if !defined(BOOT)
-static uint32_t nonReadCount = 0;
-#endif
+
+#define READ_ENTER_KEY()  do{if(gpio_read(KEYS_GPIO_ENTER) == 0) keyState |= 1<<ENT;\
+                            else keyState &= ~(1UL<<ENT);\
+                          }while(0)
+
+extern bool suspendI2CTasks;
+extern volatile bool errorOccurs;
+static volatile uint32_t pollkey_step;
 
 void pollKeys()
 {
-#if !defined(BOOT)
-  if(!bsp_get_shouldReadKeys() && nonReadCount < 10)
-  {
-    if (gpio_read(KEYS_GPIO_ENTER) == 0)
-      keyState |= 1<<ENT;
-
-    nonReadCount++;
-  }
-  nonReadCount = 0;
-#endif
-
   if (suspendI2CTasks) return;
   
-  // This function avoids concurrent matrix agitation
-
-  uint32_t result = 0;
+  volatile static uint32_t result = 0;
   uint16_t bsp_input = 0;
 
-  volatile static struct
+  if( !pollkey_step )
   {
-    uint32_t oldResult = 0;
-    uint8_t ui8ReadInProgress = 0;
-  } syncelem;
-
-  if (syncelem.ui8ReadInProgress != 0) {
-    keyState = syncelem.oldResult;
+    pollkey_step = 0x03;
+    bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT1);
   }
-
-  // ui8ReadInProgress was 0, increment it
-  syncelem.ui8ReadInProgress++;
-  // Double check before continuing, as non-atomic, non-blocking so far
-  // If ui8ReadInProgress is above 1, then there was concurrent task calling it, exit
-  if (syncelem.ui8ReadInProgress > 1) {
-    keyState = syncelem.oldResult;
+  else if(0x03==pollkey_step)
+  {
+    pollkey_step = 0x07;
+    bsp_input = bsp_input_get();
+    if ((bsp_input & BSP_KEY_IN1) == 0)
+      result |= 1<<TR1U;
+    if ((bsp_input & BSP_KEY_IN2) == 0)
+      result |= 1<<TR1D;
+    if ((bsp_input & BSP_KEY_IN3) == 0)
+      result |= 1<<TR2U;
+    if ((bsp_input & BSP_KEY_IN4) == 0)
+      result |= 1<<TR2D;
+    READ_ENTER_KEY();
+    bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT2);
   }
+  else if(0x07==pollkey_step)
+  {
+    pollkey_step = 0x0F;
+    bsp_input = bsp_input_get();
+    if ((bsp_input & BSP_KEY_IN1) == 0)
+      result |= 1<<TR3L;
+    if ((bsp_input & BSP_KEY_IN2) == 0)
+      result |= 1<<TR3R;
+    if ((bsp_input & BSP_KEY_IN3) == 0)
+      result |= 1<<TR4L;
+    if ((bsp_input & BSP_KEY_IN4) == 0)
+      result |= 1<<TR4R;
+    READ_ENTER_KEY();
+    bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT3);
+  }
+  else if(0x0F==pollkey_step)
+  {
+    pollkey_step = 0x01;
+    bsp_input = bsp_input_get();
+    if ((bsp_input & BSP_KEY_IN1) == 0)
+      result |= 1<<PGDN;
+    if ((bsp_input & BSP_KEY_IN2) == 0)
+      result |= 1<<PGUP;
+    if ((bsp_input & BSP_KEY_IN3) == 0)
+      result |= 1<<RTN;
+    if ((bsp_input & BSP_KEY_IN4) == 0)
+      result |= 1<<MODEL;
+    READ_ENTER_KEY();
+    bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT4);
+  }
+  else if(0x01==pollkey_step)
+  {
+    pollkey_step = 0x03;
+    bsp_input = bsp_input_get();
+    if ((bsp_input & BSP_KEY_IN1) == 0)
+      result |= 1<<KEY1;
+    if ((bsp_input & BSP_KEY_IN2) == 0)
+      result |= 1<<KEY2;
+    if ((bsp_input & BSP_KEY_IN3) == 0)
+      result |= 1<<KEY3;
+    if ((bsp_input & BSP_KEY_IN4) == 0)
+      result |= 1<<KEY4;
+  
+    keyState = result;
+    READ_ENTER_KEY();
+
+    fct_state[0] = (result & 1<<KEY1)?true:false;
+    fct_state[1] = (result & 1<<KEY2)?true:false;
+    fct_state[2] = (result & 1<<KEY3)?true:false;
+    fct_state[3] = (result & 1<<KEY4)?true:false;
+    bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT1);
+    result = 0;
+  }
+}
+#else
+void pollKeys(){
+  // This function avoids concurrent matrix agitation
+  uint32_t result = 0;
+  uint16_t bsp_input = 0;
 
   // If we land here, we have exclusive access to Matrix
   bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT1);
@@ -167,13 +221,8 @@ void pollKeys()
 
   if (gpio_read(KEYS_GPIO_ENTER) == 0)
     result |= 1<<ENT;
-
-  syncelem.oldResult = result;
-  syncelem.ui8ReadInProgress = 0;
-
   bsp_output_set(BSP_KEY_OUT_MASK, 0);
-  bsp_get_shouldReadKeys();
-
+  
   fct_state[0] = (result & 1<<KEY1)?true:false;
   fct_state[1] = (result & 1<<KEY2)?true:false;
   fct_state[2] = (result & 1<<KEY3)?true:false;
@@ -181,6 +230,9 @@ void pollKeys()
 
   keyState = result;
 }
+#endif
+
+
 
 void keysInit()
 {
