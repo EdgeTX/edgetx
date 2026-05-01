@@ -82,6 +82,11 @@ void AutoComboBox::addItem(const QString & item, int value)
   }
 }
 
+void AutoComboBox::setAutoModel(QAbstractItemModel * model)
+{
+  AutoComboBox::setModel(model);
+}
+
 void AutoComboBox::setField(unsigned int & field, GenericPanel * panel)
 {
   setFieldInit(panel);
@@ -153,11 +158,13 @@ void AutoComboBox::setFieldInit(GenericPanel * panel)
 
 void AutoComboBox::setModel(QAbstractItemModel * model)
 {
-  setLock(true);
-  QComboBox::setModel(model);
-  setLock(false);
-  m_hasModel = true;
-  updateValue();
+  if (QComboBox::model() != model) {
+    setLock(true);
+    QComboBox::setModel(model);
+    setLock(false);
+    m_hasModel = true;
+    updateValue();
+  }
 }
 
 void AutoComboBox::setAutoIndexes()
