@@ -1,0 +1,234 @@
+checksum: 54040
+manuallyEdited: 0
+timezoneMinutes: 0
+ppmunit: 0
+semver: 3.0.0
+board: tx16s
+calib: 
+   LH:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   LV:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   RV:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   RH:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   P1:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   P2:
+      mid: 1023
+      spanNeg: 5388
+      spanPos: 9758
+   P3:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   SL1:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   SL2:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   EXT1:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   EXT2:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   EXT3:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   EXT4:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+vBatWarn: 66
+txVoltageCalibration: 0
+backlightMode: backlight_mode_all
+antennaMode: MODE_PER_MODEL
+disableRtcWarning: 0
+keysBacklight: 0
+dontPlayHello: 0
+internalModule: TYPE_MULTIMODULE
+trainer: 
+   mix: 
+      0:
+         srcChn: 0
+         mode: REPL
+         studWeight: 100
+      1:
+         srcChn: 1
+         mode: REPL
+         studWeight: 100
+      2:
+         srcChn: 2
+         mode: REPL
+         studWeight: 100
+      3:
+         srcChn: 3
+         mode: REPL
+         studWeight: 100
+view: 0
+fai: 0
+beepMode: mode_nokeys
+alarmsFlash: 0
+disableMemoryWarning: 0
+disableAlarmWarning: 0
+stickMode: 0
+timezone: 0
+adjustRTC: 0
+inactivityTimer: 10
+internalModuleBaudrate: 0
+splashMode: 0
+hapticMode: mode_nokeys
+switchesDelay: 0
+lightAutoOff: 2
+templateSetup: 0
+PPM_Multiplier: 0
+hapticLength: 2
+beepLength: 2
+hapticStrength: 2
+gpsFormat: 0
+audioMuteEnable: 1
+speakerPitch: 0
+speakerVolume: 12
+vBatMin: 67
+vBatMax: 83
+backlightBright: 0
+globalTimer: 21
+bluetoothBaudrate: 0
+bluetoothMode: OFF
+countryCode: 0
+pwrOnSpeed: 0
+pwrOffSpeed: 0
+noJitterFilter: 0
+imperial: 0
+disableRssiPoweroffAlarm: 0
+USBMode: 0
+jackMode: 0
+ttsLanguage: "en"
+uiLanguage: "en"
+beepVolume: 2
+wavVolume: 4
+varioVolume: 2
+backgroundVolume: 3
+varioPitch: 0
+varioRange: 0
+varioRepeat: 0
+potsConfig: 
+   P1:
+      type: with_detent
+      inv: 0
+      name: ""
+   P2:
+      type: multipos_switch
+      inv: 0
+      name: ""
+   P3:
+      type: with_detent
+      inv: 0
+      name: ""
+   SL1:
+      type: slider
+      inv: 0
+      name: ""
+   SL2:
+      type: slider
+      inv: 0
+      name: ""
+switchConfig: 
+   SA:
+      name: ""
+      type: 3POS
+   SB:
+      name: ""
+      type: 3POS
+   SC:
+      name: ""
+      type: 3POS
+   SD:
+      name: ""
+      type: 3POS
+   SE:
+      name: ""
+      type: 3POS
+   SF:
+      name: ""
+      type: 2POS
+   SG:
+      name: ""
+      type: 3POS
+   SH:
+      name: ""
+      type: TOGGLE
+   SI:
+      name: ""
+      type: NONE
+   SJ:
+      name: ""
+      type: NONE
+   FL1:
+      name: ""
+      type: NONE
+   FL2:
+      name: ""
+      type: NONE
+currModelFilename: "model1.yml"
+blOffBright: 20
+bluetoothName: ""
+ownerRegistrationID: "-eC!U*U*"
+rotEncMode: 0
+uartSampleMode: 0
+imuMax: 0
+imuOffset: 0
+selectedTheme: "EdgeTX Default"
+backlightSrc: "NONE"
+radioGFDisabled: 0
+radioTrainerDisabled: 0
+modelHeliDisabled: 0
+modelFMDisabled: 0
+modelCurvesDisabled: 0
+modelGVDisabled: 0
+volumeSrc: "NONE"
+modelLSDisabled: 0
+modelSFDisabled: 0
+modelCustomScriptsDisabled: -1
+modelTelemetryDisabled: 0
+disableTrainerPoweroffAlarm: 0
+disablePwrOnOffHaptic: 0
+modelQuickSelect: 0
+labelSingleSelect: 0
+labelMultiMode: 0
+favMultiMode: 0
+modelSelectLayout: 0
+radioThemesDisabled: 0
+oneLogPerDay: 0
+pwrOffIfInactive: 0
+keyShortcuts: 
+   0:
+      shortcut: MODEL_SETUP
+   1:
+      shortcut: OPEN_QUICK_MENU
+   2:
+      shortcut: UI_SCREEN1
+   3:
+      shortcut: MANAGE_MODELS
+   4:
+      shortcut: TOOLS_APPS
+   5:
+      shortcut: TOOLS_CHAN_MON
