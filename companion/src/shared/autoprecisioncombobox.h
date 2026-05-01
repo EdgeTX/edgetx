@@ -37,6 +37,7 @@ class AutoPrecisionComboBox : public QComboBox, public AutoWidget
     virtual ~AutoPrecisionComboBox();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", GenericPanel * panel = nullptr);

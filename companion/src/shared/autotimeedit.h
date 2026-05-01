@@ -34,6 +34,7 @@ class AutoTimeEdit : public QTimeEdit, public AutoWidget
     virtual ~AutoTimeEdit();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
     void setField(unsigned int & field, GenericPanel * panel = nullptr);

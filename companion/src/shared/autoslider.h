@@ -35,6 +35,7 @@ class AutoSlider : public QSlider, public AutoWidget
     virtual ~AutoSlider();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, int min, int max, GenericPanel * panel = nullptr);

@@ -34,6 +34,7 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
     virtual ~AutoLineEdit();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
     void setField(char * field, int len, GenericPanel * panel = nullptr);
     void setField(QString & field, int len = 0, GenericPanel * panel = nullptr);

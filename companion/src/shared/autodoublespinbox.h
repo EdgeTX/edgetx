@@ -38,6 +38,7 @@ class AutoDoubleSpinBox : public QDoubleSpinBox, public AutoWidget
     virtual ~AutoDoubleSpinBox();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, GenericPanel * panel = nullptr);

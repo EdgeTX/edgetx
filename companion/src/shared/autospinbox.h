@@ -34,6 +34,7 @@ class AutoSpinBox : public QSpinBox, public AutoWidget
     virtual ~AutoSpinBox();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
     void setField(int & field, GenericPanel * panel = nullptr);

@@ -34,6 +34,7 @@ class AutoLabel: public QLabel, public AutoWidget
     virtual ~AutoLabel();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
     void setField(char * field, GenericPanel * panel = nullptr);
     void setField(QString & field, GenericPanel * panel = nullptr);
