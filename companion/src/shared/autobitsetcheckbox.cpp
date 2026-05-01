@@ -145,7 +145,7 @@ void AutoBitsetCheckBox::onToggled(bool checked)
   }
 
   emit currentDataChanged(checked);
-  dataChanged();
+  runPostChanged();
 }
 
 void AutoBitsetCheckBox::init()

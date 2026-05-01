@@ -114,9 +114,9 @@ void AutoPrecisionComboBox::setValue(int value)
   const unsigned int val = (unsigned int)value;
   if (*m_field != val) {
     *m_field = rangecheckDecimals(val);
-    updateValue();
     emit currentDataChanged(value);
-    dataChanged();
+    runPostChanged();
+    updateValue();
   }
 }
 
@@ -127,9 +127,9 @@ void AutoPrecisionComboBox::setValue(unsigned int value)
 
   if (*m_field != value) {
     *m_field = rangecheckDecimals(value);
-    updateValue();
     emit currentDataChanged((int)value);
-    dataChanged();
+    runPostChanged();
+    updateValue();
   }
 }
 
@@ -203,7 +203,7 @@ void AutoPrecisionComboBox::onCurrentIndexChanged(int index)
   if (*m_field != itemData(index).toUInt()) {
     *m_field = itemData(index).toUInt();
     emit currentDataChanged(index);
-    dataChanged();
+    runPostChanged();
   }
 }
 

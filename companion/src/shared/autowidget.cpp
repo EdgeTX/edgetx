@@ -140,6 +140,14 @@ bool AutoWidget::panelLock()
   return m_panel ? m_panel->lock : false;
 }
 
+void AutoWidget::runPostChanged()
+{
+  dataChanged();
+
+  if (m_postChanged)
+    m_postChanged();
+}
+
 void AutoWidget::setAutoEnabled(bool enabled)
 {
   QWidget *wgt = dynamic_cast<QWidget *>(this);
@@ -160,6 +168,11 @@ void AutoWidget::setBindEnabled(std::function<bool()> pred)
 void AutoWidget::setBindModel(std::function<QAbstractItemModel*()> fn)
 {
   m_model = std::move(fn);
+}
+
+void AutoWidget::setBindPostChanged(std::function<void()> fn)
+{
+  m_postChanged = std::move(fn);
 }
 
 void AutoWidget::setBindText(std::function<QString()> fn)

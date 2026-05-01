@@ -43,24 +43,24 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer,
   // Name
   ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
   ui->name->setField(timer.name, firmware->getCapability(TimersName), this);
-  connect(ui->name, &AutoLineEdit::currentDataChanged, [=]() {
-    emit nameChanged();
+  ui->name->setBindPostChanged([this] {
+    emit this->nameChanged();
   });
 
   // Start
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
-  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=]() {
-    update();
+  ui->value->setBindPostChanged([this]{
+    this->update();
   });
 
   // Mode
   ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
-  connect(ui->mode, &AutoComboBox::currentDataChanged, [&]() {
-    timer.modeChanged();
-    update();
-    emit modeChanged();
+  ui->mode->setBindPostChanged([this] {
+    this->timer.modeChanged();
+    this->update();
+    emit this->modeChanged();
   });
 
   // Switch
@@ -73,9 +73,9 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer,
   // Countdown
   ui->countdownBeep->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNBEEP));
   ui->countdownBeep->setField(timer.countdownBeep, this);
-  connect(ui->countdownBeep, &AutoComboBox::currentDataChanged, [&]() {
-    timer.countdownBeepChanged();
-    update();
+  ui->countdownBeep->setBindPostChanged([this] {
+    this->timer.countdownBeepChanged();
+    this->update();
   });
   ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
   ui->countdownStart->setField(timer.countdownStart, this);

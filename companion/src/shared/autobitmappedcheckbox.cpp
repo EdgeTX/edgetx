@@ -76,7 +76,7 @@ void AutoBitMappedCheckBox::onToggled(bool checked)
     unsigned int fieldmask = (bitmask() << shiftbits());
     *m_field = (*m_field & ~fieldmask) | (val << shiftbits());
     emit currentDataChanged(val);
-    dataChanged();
+    runPostChanged();
   }
 }
 

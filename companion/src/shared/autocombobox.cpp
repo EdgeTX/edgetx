@@ -238,6 +238,6 @@ void AutoComboBox::onCurrentIndexChanged(int index)
       return;
 
     emit currentDataChanged(val);
-    dataChanged();
+    runPostChanged();
   }
 }

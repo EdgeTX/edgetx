@@ -40,7 +40,7 @@ void AutoCheckBox::onToggled(bool checked)
     const bool val = m_invert ? !checked : checked;
     *m_field = val;
     emit currentDataChanged(val);
-    dataChanged();
+    runPostChanged();
   }
 }
 

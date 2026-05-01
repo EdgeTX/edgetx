@@ -51,6 +51,7 @@ class AutoWidget
     // these are not marked as virtual to support deletion
     void setBindEnabled(std::function<bool()> pred);
     void setBindModel(std::function<QAbstractItemModel*()> fn);
+    void setBindPostChanged(std::function<void()> fn);
     void setBindText(std::function<QString()> fn);
     void setBindVisible(std::function<bool()> pred);
 
@@ -64,9 +65,9 @@ class AutoWidget
     void clearBindEnabled();
     void clearBindVisible();
     void clearBuddyBinds(AutoWidget * wgt);
-    void dataChanged();
     bool lock();
     bool panelLock();
+    void runPostChanged();
     void setAutoEnabled(bool enabled);
     void setAutoVisible(bool visible);
     void setLock(bool lock);
@@ -83,4 +84,7 @@ class AutoWidget
     std::function<QAbstractItemModel*()> m_model;
     std::function<QString()> m_text;
     std::function<bool()> m_visible;
+    std::function<void()> m_postChanged;
+
+    void dataChanged();
 };

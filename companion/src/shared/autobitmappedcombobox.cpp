@@ -197,7 +197,7 @@ void AutoBitMappedComboBox::onCurrentIndexChanged(int index)
     return;
 
   emit currentDataChanged(val);
-  dataChanged();
+  runPostChanged();
 }
 
 unsigned int AutoBitMappedComboBox::shiftbits()

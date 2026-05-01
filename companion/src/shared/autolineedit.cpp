@@ -80,7 +80,7 @@ void AutoLineEdit::onEdited()
     return;
 
   emit currentDataChanged();
-  dataChanged();
+  runPostChanged();
 }
 
 void AutoLineEdit::setAutoText(QString text)
