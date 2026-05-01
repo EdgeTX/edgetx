@@ -70,15 +70,3 @@ void AutoSpinBox::onValueChanged(int value)
     }
   }
 }
-
-void AutoSpinBox::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoSpinBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

@@ -161,20 +161,7 @@ void AutoBitsetCheckBox::initField(int bitmask, bool invert, int toggleMask)
   updateValue();
 }
 
-void AutoBitsetCheckBox::setAutoEnabled()
+void AutoBitsetCheckBox::setAutoText(QString text)
 {
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoBitsetCheckBox::setAutoText()
-{
-  if (m_text)
-    setText(m_text());
-}
-
-void AutoBitsetCheckBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
+  QCheckBox::setText(text);
 }

@@ -60,11 +60,6 @@ class AutoBitMappedComboBox : public QComboBox, public AutoWidget
   protected slots:
     void onCurrentIndexChanged(int index);
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
-
   private:
     int *m_field;
     int m_next;

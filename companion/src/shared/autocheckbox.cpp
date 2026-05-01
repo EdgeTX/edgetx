@@ -34,6 +34,16 @@ AutoCheckBox::~AutoCheckBox()
 {
 }
 
+void AutoCheckBox::onToggled(bool checked)
+{
+  if (m_field && !lock()) {
+    const bool val = m_invert ? !checked : checked;
+    *m_field = val;
+    emit currentDataChanged(val);
+    dataChanged();
+  }
+}
+
 void AutoCheckBox::setField(bool & field, GenericPanel * panel, bool invert)
 {
   m_field = &field;
@@ -48,14 +58,9 @@ void AutoCheckBox::setInvert(bool invert)
   updateValue();
 }
 
-void AutoCheckBox::onToggled(bool checked)
+void AutoCheckBox::setAutoText(QString text)
 {
-  if (m_field && !lock()) {
-    const bool val = m_invert ? !checked : checked;
-    *m_field = val;
-    emit currentDataChanged(val);
-    dataChanged();
-  }
+  QCheckBox::setText(text);
 }
 
 void AutoCheckBox::updateValue()
@@ -65,22 +70,4 @@ void AutoCheckBox::updateValue()
     setChecked(m_invert ? !(*m_field) : *m_field);
     setLock(false);
   }
-}
-
-void AutoCheckBox::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoCheckBox::setAutoText()
-{
-  if (m_text)
-    setText(m_text());
-}
-
-void AutoCheckBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
 }

@@ -45,11 +45,6 @@ class AutoTimeEdit : public QTimeEdit, public AutoWidget
   protected slots:
     void onTimeChanged(QTime time);
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
-
   private:
     unsigned int *m_field;
 };

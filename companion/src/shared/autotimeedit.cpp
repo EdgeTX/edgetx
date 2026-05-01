@@ -70,15 +70,3 @@ void AutoTimeEdit::onTimeChanged(QTime time)
     dataChanged();
   }
 }
-
-void AutoTimeEdit::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoTimeEdit::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

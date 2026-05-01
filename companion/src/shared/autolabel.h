@@ -40,9 +40,7 @@ class AutoLabel: public QLabel, public AutoWidget
     void setWidth(int numChars);
 
   protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override;
-    virtual void setAutoVisible() override;
+    virtual void setAutoText(QString text) override;
 
   private:
     char *m_charField;

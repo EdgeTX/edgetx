@@ -56,11 +56,6 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
   protected slots:
     void onValueChanged(int value);
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
-
   private:
     unsigned int *m_field;
     QRegularExpressionValidator *m_validator;

@@ -95,15 +95,3 @@ QString AutoHexSpinBox::textFromValue(int value) const
 {
   return QString("%1").arg(value, m_length, 16, QChar('0')).toUpper();
 }
-
-void AutoHexSpinBox::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoHexSpinBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

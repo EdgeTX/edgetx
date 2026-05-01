@@ -234,15 +234,3 @@ void AutoComboBox::onCurrentIndexChanged(int index)
     dataChanged();
   }
 }
-
-void AutoComboBox::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoComboBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

@@ -102,20 +102,7 @@ unsigned int AutoBitMappedCheckBox::bitmask()
   return (unsigned int)mask;
 }
 
-void AutoBitMappedCheckBox::setAutoEnabled()
+void AutoBitMappedCheckBox::setAutoText(QString text)
 {
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoBitMappedCheckBox::setAutoText()
-{
-  if (m_text)
-    setText(m_text());
-}
-
-void AutoBitMappedCheckBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
+  QCheckBox::setText(text);
 }

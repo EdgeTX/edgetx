@@ -226,15 +226,3 @@ bool AutoPrecisionComboBox::isValidDecimals(unsigned int value)
   else
     return false;
 }
-
-void AutoPrecisionComboBox::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoPrecisionComboBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

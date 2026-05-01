@@ -61,9 +61,9 @@ void AutoLineEdit::updateValue()
 {
   setLock(true);
   if (m_strField)
-    setText(*m_strField);
+    QLineEdit::setText(*m_strField);
   else if (m_charField)
-    setText(m_charField);
+    QLineEdit::setText(m_charField);
   setLock(false);
 }
 
@@ -83,20 +83,7 @@ void AutoLineEdit::onEdited()
   dataChanged();
 }
 
-void AutoLineEdit::setAutoEnabled()
+void AutoLineEdit::setAutoText(QString text)
 {
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoLineEdit::setAutoText()
-{
-  if (m_text)
-    setText(m_text());
-}
-
-void AutoLineEdit::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
+  QLineEdit::setText(text);
 }

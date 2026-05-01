@@ -56,11 +56,6 @@ class AutoPrecisionComboBox : public QComboBox, public AutoWidget
   protected slots:
     void onCurrentIndexChanged(int index);
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
-
   private:
     unsigned int *m_field = nullptr;
     unsigned int m_minDecimals = 0;

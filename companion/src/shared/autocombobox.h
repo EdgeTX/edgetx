@@ -72,11 +72,6 @@ class AutoComboBox : public QComboBox, public AutoWidget
   protected slots:
     void onCurrentIndexChanged(int index);
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
-
   private:
     int m_next;
     bool m_hasModel;

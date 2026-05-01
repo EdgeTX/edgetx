@@ -45,9 +45,7 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
     void onEdited();
 
   protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override;
-    virtual void setAutoVisible() override;
+    virtual void setAutoText(QString text) override;
 
   private:
     char *m_charField;

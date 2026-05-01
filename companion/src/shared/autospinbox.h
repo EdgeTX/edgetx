@@ -45,11 +45,6 @@ class AutoSpinBox : public QSpinBox, public AutoWidget
   protected slots:
     void onValueChanged(int value);
 
-  protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override {}
-    virtual void setAutoVisible() override;
-
   private:
     int *m_field;
 

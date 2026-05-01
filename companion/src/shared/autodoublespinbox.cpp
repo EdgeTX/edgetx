@@ -91,15 +91,3 @@ void AutoDoubleSpinBox::onValueChanged(double value)
     dataChanged();
   }
 }
-
-void AutoDoubleSpinBox::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoDoubleSpinBox::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

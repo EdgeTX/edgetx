@@ -88,15 +88,3 @@ void AutoSlider::onValueChanged(int value)
     }
   }
 }
-
-void AutoSlider::setAutoEnabled()
-{
-  if (m_enabled)
-    setEnabled(m_enabled());
-}
-
-void AutoSlider::setAutoVisible()
-{
-  if (m_visible)
-    setVisible(m_visible());
-}

@@ -60,9 +60,7 @@ class AutoBitsetCheckBox: public QCheckBox, public AutoWidget
     void onToggled(bool checked);
 
   protected:
-    virtual void setAutoEnabled() override;
-    virtual void setAutoText() override;
-    virtual void setAutoVisible() override;
+    virtual void setAutoText(QString text) override;
 
   private:
     int *m_field = nullptr;
