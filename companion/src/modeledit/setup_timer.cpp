@@ -81,11 +81,10 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   ui->persistent->setModel(panelItemModels->getItemModel(AIM_TIMER_PERSISTENT));
   ui->persistent->setField(timer.persistent, this);
 
-  ui->countdownStartLabel->setBindEnabled([this] { return this->timer.countdownBeep != TimerData::COUNTDOWNBEEP_SILENT; });
-
   ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
   ui->countdownStart->setField(timer.countdownStart, this);
   ui->countdownStart->setBindEnabled([this] { return this->timer.countdownBeep != TimerData::COUNTDOWNBEEP_SILENT; });
+  ui->countdownStart->addBuddyWidget(ui->countdownStartLabel);
 
   ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
   ui->showElapsed->setField(timer.showElapsed, this);
