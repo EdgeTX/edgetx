@@ -23,73 +23,80 @@
 #include "ui_setup_timer.h"
 #include "namevalidator.h"
 
-TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware,
-                       QWidget * prevFocus, FilteredItemModelFactory * panelFilteredModels, CompoundItemModelFactory * panelItemModels):
+TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer,
+                       GeneralSettings & generalSettings, Firmware * firmware,
+                       QWidget * prevFocus,
+                       FilteredItemModelFactory * panelFilteredModels,
+                       CompoundItemModelFactory * panelItemModels):
   ModelPanel(parent, model, generalSettings, firmware),
   timer(timer),
   ui(new Ui::Timer)
 {
   ui->setupUi(this);
-  imEventHandler = new ItemModelEventHandler(panelFilteredModels->getItemModel(FIM_TIMERSWITCH),
-                                             lock,
-                                             [this] { this->update(); } );
-
   lock = true;
+  imEventHandler = new ItemModelEventHandler(
+    panelFilteredModels->getItemModel(FIM_TIMERSWITCH),
+    lock,
+    [this] { this->update(); }
+  );
 
   // Name
   ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
   ui->name->setField(timer.name, firmware->getCapability(TimersName), this);
-  connect(ui->name, &AutoLineEdit::currentDataChanged, [=]()
-    {
-      emit nameChanged();
-    }
-  );
+  connect(ui->name, &AutoLineEdit::currentDataChanged, [=]() {
+    emit nameChanged();
+  });
 
+  // Start
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
-  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=]()
-    {
-      update();
-    }
-  );
+  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=]() {
+    update();
+  });
 
+  // Mode
   ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
-  connect(ui->mode, &AutoComboBox::currentDataChanged, [&]()
-    {
-      timer.modeChanged();
-      update();
-      emit modeChanged();
-    }
-  );
+  connect(ui->mode, &AutoComboBox::currentDataChanged, [&]() {
+    timer.modeChanged();
+    update();
+    emit modeChanged();
+  });
 
+  // Switch
   ui->swtch->setModel(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
   ui->swtch->setField(timer.swtch, this);
-  ui->swtch->setBindEnabled([this] { return this->timer.mode != TimerData::TIMERMODE_OFF; });
+  ui->swtch->setBindEnabled([this] {
+    return this->timer.mode != TimerData::TIMERMODE_OFF;
+  });
 
+  // Countdown
   ui->countdownBeep->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNBEEP));
   ui->countdownBeep->setField(timer.countdownBeep, this);
-  connect(ui->countdownBeep, &AutoComboBox::currentDataChanged, [&]()
-    {
-      timer.countdownBeepChanged();
-      update();
-    }
-  );
+  connect(ui->countdownBeep, &AutoComboBox::currentDataChanged, [&]() {
+    timer.countdownBeepChanged();
+    update();
+  });
+  ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
+  ui->countdownStart->setField(timer.countdownStart, this);
+  ui->countdownStart->setBindEnabled([this] {
+    return this->timer.countdownBeep != TimerData::COUNTDOWNBEEP_SILENT;
+  });
+  ui->countdownStart->addBuddyWidget(ui->countdownStartLabel);
 
+  // Minute call
   ui->minuteBeep->setField(timer.minuteBeep, this);
 
+  // Persistence
   ui->persistent->setModel(panelItemModels->getItemModel(AIM_TIMER_PERSISTENT));
   ui->persistent->setField(timer.persistent, this);
 
-  ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
-  ui->countdownStart->setField(timer.countdownStart, this);
-  ui->countdownStart->setBindEnabled([this] { return this->timer.countdownBeep != TimerData::COUNTDOWNBEEP_SILENT; });
-  ui->countdownStart->addBuddyWidget(ui->countdownStartLabel);
-
+  // Time type
   ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
   ui->showElapsed->setField(timer.showElapsed, this);
   ui->showElapsed->setBindEnabled([this] { return this->timer.val; });
 
+  // Time
   // do not use setField as the raw value is meaningless
   ui->persistentValue->setBindText([this] { return this->timer.pvalueToString(); });
 
