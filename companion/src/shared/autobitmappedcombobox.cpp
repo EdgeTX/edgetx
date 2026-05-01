@@ -135,7 +135,7 @@ void AutoBitMappedComboBox::setBits(const unsigned int numBits, const unsigned i
 
 void AutoBitMappedComboBox::setModel(QAbstractItemModel * model)
 {
-  if (QComboBox::model() != model) {
+  if (model && QComboBox::model() != model) {
     setLock(true);
     QComboBox::setModel(model);
     setLock(false);
