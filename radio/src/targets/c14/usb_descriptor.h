@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -20,18 +21,6 @@
 
 #pragma once
 
-#include <stdint.h>
-// MUST match TR_FS_COLOR_LIST (except 'Custom') -  Custom gets displayed when none match
-//                                    "Off",  "White",    "Red",  "Green", "Yellow", "Orange",   "Blue",   "Pink"
-constexpr uint32_t colorTable[] = {0x000000, 0xFFFFFF, 0xFF0000, 0x00FF00, 0xFFFF00, 0xFF4000, 0x0000FF, 0xFF00FF};
-
-#if defined(FUNCTION_SWITCHES)
-void setFSEditOverride(int index, uint32_t color);
-void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b);
-void setFSLedOFF(uint8_t index);
-void setFSLedON(uint8_t index);
-bool getFSLedState(uint8_t index);
-uint32_t getFSLedRGBColor(uint8_t index);
-#endif
-
-void turnOffRGBLeds();
+#define USB_NAME                     "C14"
+#define USB_MANUFACTURER             'I', 'F', 'l', 'i', 'g', 'h', 't', ' '  /* 8 bytes */
+#define USB_PRODUCT                  'C', '1', '4', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */

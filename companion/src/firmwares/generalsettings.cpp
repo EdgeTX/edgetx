@@ -211,6 +211,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "pl18u");
   else if (IS_FLYSKY_ST16(board))
     strcpy(bluetoothName, "st16");
+  else if (IS_IFLIGHT_C14(board))
+    strcpy(bluetoothName, "c14");
   else if (IS_RADIOMASTER_TX15(board))
     strcpy(bluetoothName, "tx15");
   else if (IS_RADIOMASTER_TX16SMK3(board))

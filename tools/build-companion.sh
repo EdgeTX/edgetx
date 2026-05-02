@@ -224,6 +224,7 @@ declare -a simulator_plugins=(
     tlite tpro tprov2 tpros bumblebee lr3pro t14
     nv14 el18 pl18 pl18ev pl18u st16 pa01
     f16 v14 v16
+    c14
 )
 
 get_platform_config

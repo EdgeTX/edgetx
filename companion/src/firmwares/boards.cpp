@@ -165,6 +165,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4D78746F;
     case BOARD_HELLORADIOSKY_V16:
       return 0x4E78746F;
+    case BOARD_IFLIGHT_C14:
+      return 0x4F78746F;
     default:
       return 0;
   }
@@ -229,6 +231,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
+    case BOARD_IFLIGHT_C14:
       return 0;
     default:
       return 0;
@@ -293,6 +296,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
+    case BOARD_IFLIGHT_C14:
       return FSIZE_2MB;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -714,6 +718,8 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
+    case BOARD_IFLIGHT_C14:
+      return "iFlight C14";
     case BOARD_FATFISH_F16:
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
@@ -775,6 +781,8 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
   } else if (IS_RADIOMASTER_MT12(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
     modules.append((int)MODULE_TYPE_MULTIMODULE);
+  } else if (IS_IFLIGHT_C14(board)) {
+    modules.append((int)MODULE_TYPE_CROSSFIRE);
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
              (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append((int)MODULE_TYPE_XJT_PXX1);
@@ -845,6 +853,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_POCKET:
   case BOARD_RADIOMASTER_TX12_MK2:
   case BOARD_RADIOMASTER_ZORRO:
+  case BOARD_IFLIGHT_C14:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:
@@ -890,6 +899,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       break;
     case BOARD_TARANIS_X9E:
     case BOARD_HORUS_X12S:
+    case BOARD_IFLIGHT_C14:
       BR(85, 115, 87)
       break;
     case BOARD_TARANIS_XLITE:
@@ -938,7 +948,7 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
     return EXTMODSIZE_NONE;
 
   if (getCapability(board, HasColorLcd)) {
-    if (IS_FLYSKY_EL18(board))
+    if (IS_FLYSKY_EL18(board) || IS_IFLIGHT_C14(board))
       return EXTMODSIZE_BOTH;
     else
       return EXTMODSIZE_STD;
