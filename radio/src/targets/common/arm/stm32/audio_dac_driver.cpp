@@ -145,6 +145,12 @@ static void dac_dma_init()
 {
   stm32_dma_enable_clock(AUDIO_DMA);
 
+  // _dma_buffer lives in a NOLOAD section, so it holds random SRAM contents at
+  // power-on. Prime it with silence so the DAC never clocks out garbage (heard
+  // as a crackle) on the very first transfer.
+  for (unsigned i = 0; i < DMA_BUFFER_LEN; i++)
+    _dma_buffer[i] = AUDIO_DATA_SILENCE;
+
   LL_DMA_DeInit(AUDIO_DMA, AUDIO_DMA_Stream);
 
   LL_DMA_InitTypeDef dmaInit;
@@ -218,7 +224,12 @@ static void dac_start_dma()
 void audioConsumeCurrentBuffer()
 {
   if (!LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream)) {
-    if (!audio_update_dma_buffer(0)) {
+    // Prime both halves before starting the circular DMA. The interrupt only
+    // refills one half at a time, so if we left the second half untouched it
+    // would play stale/garbage data for the first lap (a crackle), then a gap.
+    bool empty0 = audio_update_dma_buffer(0);
+    bool empty1 = audio_update_dma_buffer(1);
+    if (!empty0 || !empty1) {
       _empty_dma_halves = 0;
       // prime the second half as well so the first full DMA cycle plays valid
       // data and the half tracking starts aligned (ignore the result: if no

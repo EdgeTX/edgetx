@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/build-common.sh" 
+. "$SCRIPT_DIR/build-common.sh"
 
 SRCDIR=$1
 OUTDIR=$2
@@ -64,7 +64,7 @@ output_error_log() {
         echo "------------------------------------------"
         cat "$log_file"
         echo "------------------------------------------"
-        
+
         # Also append to master log for aggregation
         {
             echo "=== Error from $log_file ($context) ==="
@@ -224,6 +224,7 @@ declare -a simulator_plugins=(
     tlite tpro tprov2 tpros bumblebee lr3pro t14
     nv14 el18 pl18 pl18ev pl18u st16 pa01
     f16 v12 v14 v14lcd v16
+    c14
 )
 
 get_platform_config
@@ -236,7 +237,7 @@ for i in "${!simulator_plugins[@]}"; do
     plugin="${simulator_plugins[$i]}"
     current=$((i + 1))
     percent=$((current * 100 / TOTAL))
-    
+
     # For terminal output, put each plugin on its own line for cleaner display
     if [[ -n "$GITHUB_ACTIONS" ]]; then
         printf "::group::%s %-12s [%2d/%2d] %3d%%\n" "$PACKAGE_EMOJI" "$plugin" "$current" "$TOTAL" "$percent"

@@ -140,12 +140,28 @@ void gyroWakeup()
 
 int16_t gyroScaledX()
 {
-  return limit<int16_t>(-RESX, gyroOutputs[0], RESX);
+#if defined(IMU_SWAP_TILT_XY)
+  float v = gyroOutputs[1];
+#else
+  float v = gyroOutputs[0];
+#endif
+#if defined(IMU_INVERT_TILT_X)
+  v = -v;
+#endif
+  return limit<int16_t>(-RESX, v, RESX);
 }
 
 int16_t gyroScaledY()
 {
-  return limit<int16_t>(-RESX, gyroOutputs[1], RESX);
+#if defined(IMU_SWAP_TILT_XY)
+  float v = gyroOutputs[0];
+#else
+  float v = gyroOutputs[1];
+#endif
+#if defined(IMU_INVERT_TILT_Y)
+  v = -v;
+#endif
+  return limit<int16_t>(-RESX, v, RESX);
 }
 
 void gyroSetIMU_X(int16_t offset, int16_t range)

@@ -207,6 +207,7 @@ DEFINE_STM32_SERIAL_PORT(SbusTrainer, sbus_trainer_USART, 32, 0);
 
 #endif
 
+#if defined(EXTMODULE_TIMER)
 static stm32_pulse_dma_tc_cb_t _ext_timer_DMA_TC_Callback;
 
 static const stm32_pulse_timer_t extmoduleTimer = {
@@ -250,6 +251,7 @@ extern "C" void EXTMODULE_TIMER_IRQHandler()
 }
 
 DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
+#endif // EXTMODULE_TIMER
 
 #if defined(TRAINER_MODULE_CPPM_TIMER)
 
@@ -489,6 +491,7 @@ static const etx_module_port_t _external_ports[] = {
 #endif
   },
 #endif
+#if defined(EXTMODULE_TIMER)
   // Timer output on PPM
   {
     .port = ETX_MOD_PORT_TIMER,
@@ -515,6 +518,7 @@ static const etx_module_port_t _external_ports[] = {
     .set_inverted = nullptr,
 #endif
   },
+#endif // EXTMODULE_TIMER
 #if !defined(EXTMODULE_USART) && defined(TRAINER_MODULE_SBUS_USART)
   // RX on HEARTBEAT
   {

@@ -662,6 +662,13 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, NONE);
 
+  /* iFlight C14 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("c14"), Firmware::tr("iFlight C14"), BOARD_IFLIGHT_C14);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption(opt_bt);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
   /* Jumper T-Lite board */
   firmware = new OpenTxFirmware(FIRMWAREID("tlite"), QCoreApplication::translate("Firmware", "Jumper T-Lite"), BOARD_JUMPER_TLITE);
   addOpenTxCommonOptions(firmware);

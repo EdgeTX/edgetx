@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/gpio.h"
-#include "stm32_gpio.h"
-
 #include "board.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/gpio.h"
+#include "hal/usb_driver.h"
+#include "stm32_gpio.h"
 
 void pwrInit()
 {
@@ -114,6 +114,16 @@ bool pwrForcePressed()
 
 bool pwrPressed()
 {
+#if defined(RADIO_C14) && defined(DEBUG_SEGGER_RTT)
+  // Required to allow powering with USB the MCU for RTT flashing
+  // and not have the radio turn itself off on power on
+  if (usbPlugged()) {
+    return false;
+  }
+  else {
+    return !gpio_read(PWR_SWITCH_GPIO);
+  }
+#endif
 #if defined(PWR_EXTRA_SWITCH_GPIO)
   return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
 #elif defined(PWR_SWITCH_GPIO)

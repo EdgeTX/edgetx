@@ -39,7 +39,7 @@
     #define BL_SELECT_KEY              "[TR4 Dn]"
     #define BL_EXIT_KEY                "[TR4 Up]"
   #endif
-#elif defined(RADIO_ST16)
+#elif defined(RADIO_ST16) || defined(RADIO_C14)
   #define BL_SELECT_KEY                "[ENT]"
   #define BL_EXIT_KEY                  "[EXIT]"
 #else
