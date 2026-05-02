@@ -411,6 +411,10 @@ void generalDefault()
   g_eeGeneral.pwrOffSpeed = 2;
 #endif
 
+#if defined(RADIO_C14)
+  g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
+#endif
+
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
 #if defined(RADIO_TX15)
@@ -1196,7 +1200,7 @@ void edgeTxClose(uint8_t shutdown)
 
   sdDone();
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(RGB_LEDS)
   turnOffRGBLeds();
 #endif
 }
@@ -1725,11 +1729,13 @@ int pwrDelayToYaml(int delay)
 
 inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
 {
-  // Instant off when both power button are pressed
+#if defined(PWR_BUTTON_MANAGED)
+  return 0;
+#else
   if (pwrForcePressed())
     return 0;
-
   return pwrDelayTime(g_eeGeneral.pwrOffSpeed);
+#endif
 }
 
 uint32_t pwr_press_time = 0;
@@ -1782,7 +1788,26 @@ uint32_t pwrCheck()
   if (pwr_check_state == PWR_CHECK_OFF) {
     return e_power_off;
   }
-  else if (pwrPressed() || inactivityShutdown) {
+
+#if defined(PWR_BUTTON_MANAGED)
+  if (pwrPressed()) {
+    bool needConfirm =
+        (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
+        (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
+        (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm);
+    if (!needConfirm) {
+#if defined(HAPTIC)
+      if (!g_eeGeneral.disablePwrOnOffHaptic &&
+          (g_eeGeneral.hapticMode != e_mode_quiet))
+        haptic.play(15, 3, PLAY_NOW);
+#endif
+      pwr_check_state = PWR_CHECK_OFF;
+      return e_power_off;
+    }
+  }
+#endif
+
+  if (pwrPressed() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
 

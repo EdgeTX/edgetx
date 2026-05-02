@@ -14,7 +14,7 @@ set(SRC ${SRC}
   hal/usb_driver.cpp
 )
 
-if(FUNCTION_SWITCHES)
+if(FUNCTION_SWITCHES OR RGB_LEDS)
   set(SRC ${SRC}
     hal/rgbleds.cpp
   )

@@ -408,6 +408,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
 
+  /* iFlight C14 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("c14"), Firmware::tr("iFlight C14"), BOARD_IFLIGHT_C14);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
+
   /* FrSky Horus X10 board */
   firmware = new OpenTxFirmware(FIRMWAREID("x10"), Firmware::tr("FrSky Horus X10 / X10S"), BOARD_X10);
   addOpenTxFrskyOptions(firmware);

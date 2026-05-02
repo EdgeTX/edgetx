@@ -960,6 +960,19 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
+#if !defined(EXTMODULE_USART) && !defined(EXTMODULE_TIMER)
+  // No EXTMODULE PPM/UART pins: only protocols that run over the
+  // S.PORT half-duplex line (TELEMETRY_USART) are usable.
+  switch (moduleType) {
+    case MODULE_TYPE_NONE:
+    case MODULE_TYPE_CROSSFIRE:
+    case MODULE_TYPE_GHOST:
+      break;
+    default:
+      return false;
+  }
+#endif
+
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
   if (isModuleTypeR9MLite(moduleType) || moduleType == MODULE_TYPE_XJT_LITE_PXX2)
     return false;
