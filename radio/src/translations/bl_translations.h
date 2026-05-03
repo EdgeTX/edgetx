@@ -88,10 +88,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pro ukonceni"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE          "DFU mode"
-    #define TR_BL_PLUG_USB          "Plug USB cable"
-    #define TR_BL_COPY_UF2          "Copy firmware.uf2 to EDGETX_UF2 drive"
-    #define TR_BL_NO_VERSION        "No version"
+    #define TR_BL_DFU_MODE "DFU rezim"
+    #define TR_BL_PLUG_USB "Pripojit USB kabel"
+    #define TR_BL_COPY_UF2 "Kopirovat firmware.uf2 na EDGETX_UF2 uloziste"
+    #define TR_BL_NO_VERSION "Zadna verze"
 
 #elif defined(TRANSLATIONS_DA)
 
