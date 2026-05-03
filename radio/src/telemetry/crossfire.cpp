@@ -191,6 +191,26 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       uint8_t hour   = rxBuffer[7];
       uint8_t minute = rxBuffer[8];
       uint8_t sec    = rxBuffer[9];
+      uint16_t msec  = (rxBuffer[10] << 8) + rxBuffer[11];
+      if (msec >= 500) {
+        if (++sec >= 60) {
+          sec = 0;
+          if (++minute >= 60) {
+            minute = 0;
+            if (++hour >= 24) {
+              hour = 0;
+              uint8_t month_days[] = {0, 31, (uint8_t)((((year%4==0) && (year%100!=0)) || (year%400==0)) ? 29:28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+              if (++day > month_days[month]) {
+                day = 1;
+                if (++month > 12) {
+                  month = 1;
+                  ++year;
+                }
+              }
+            }
+          }
+        }
+      }
       // Date record: low byte non-zero (acts as date/time discriminator)
       uint32_t dateVal = ((uint32_t)year << 24) | ((uint32_t)month << 16)
                        | ((uint32_t)day << 8) | 0xFF;
