@@ -90,13 +90,14 @@ rxStatStruct *getRxStatLabels() {
   // default to RSSI/db notation
   rxStat.label = STR_RXSTAT_LABEL_RSSI;
   rxStat.unit  = STR_RXSTAT_UNIT_DBM;
+  rxStat.max   = 99;
 
   // Currently we can only display a single rx stat in settings/telemetry.
   // If both modules are used we choose the internal one
   // TODO: have to rx stat sections in settings/telemetry
   uint8_t moduleToUse = INTERNAL_MODULE;
 
-  if(g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE && 
+  if(g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE &&
      g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE) {
     moduleToUse = EXTERNAL_MODULE;
   }
@@ -113,6 +114,7 @@ rxStatStruct *getRxStatLabels() {
           multiProtocol == MODULE_SUBTYPE_MULTI_MLINK) {
         rxStat.label = STR_RXSTAT_LABEL_RQLY;
         rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
+        rxStat.max = 100;
       }
     } break;
 #endif
@@ -120,6 +122,7 @@ rxStatStruct *getRxStatLabels() {
       if (g_model.moduleData[moduleToUse].subType == PPM_PROTO_TLM_MLINK) {
         rxStat.label = STR_RXSTAT_LABEL_RQLY;
         rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
+        rxStat.max = 100;
       }
       break;
 
@@ -127,6 +130,7 @@ rxStatStruct *getRxStatLabels() {
     case MODULE_TYPE_GHOST:
       rxStat.label = STR_RXSTAT_LABEL_RQLY;
       rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
+      rxStat.max = 100;
       break;
 
 #if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
@@ -137,6 +141,7 @@ rxStatStruct *getRxStatLabels() {
         if (NV14internalModuleFwVersion >= 0x1000E) {
           rxStat.label = STR_RXSTAT_LABEL_SIGNAL;
           rxStat.unit = STR_RXSTAT_UNIT_NOUNIT;
+          rxStat.max = 99;
         }
       }
       break;
@@ -506,7 +511,7 @@ void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
 {
   if (!newRefreshRate)
     return;
-  
+
   if (newRefreshRate < MIN_REFRESH_RATE)
     newRefreshRate = newRefreshRate * (MIN_REFRESH_RATE / (newRefreshRate + 1));
   else if (newRefreshRate > MAX_REFRESH_RATE)
@@ -535,9 +540,9 @@ uint16_t ModuleSyncStatus::getAdjustedRefreshRate()
   if (lag == 0) {
     return refreshRate;
   }
-  
+
   newRefreshRate += lag;
-  
+
   if (newRefreshRate < MIN_REFRESH_RATE) {
       newRefreshRate = MIN_REFRESH_RATE;
   }
@@ -549,7 +554,7 @@ uint16_t ModuleSyncStatus::getAdjustedRefreshRate()
 #if 0
   TRACE("[SYNC] mod rate = %dus; lag = %dus",newRefreshRate,currentLag);
 #endif
-  
+
   return (uint16_t)newRefreshRate;
 }
 
