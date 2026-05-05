@@ -88,10 +88,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pro ukonceni"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE "DFU rezim"
-    #define TR_BL_PLUG_USB "Pripojit USB kabel"
-    #define TR_BL_COPY_UF2 "Kopirovat firmware.uf2 na EDGETX_UF2 uloziste"
-    #define TR_BL_NO_VERSION "Zadna verze"
+    #define TR_BL_DFU_MODE                "DFU rezim"
+    #define TR_BL_PLUG_USB                "Pripojit USB kabel"
+    #define TR_BL_COPY_UF2                "Kopirovat firmware.uf2 na EDGETX_UF2 uloziste"
+    #define TR_BL_NO_VERSION              "Zadna verze"
 
 #elif defined(TRANSLATIONS_DA)
 
@@ -133,16 +133,16 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " for at forlade"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE          "DFU tilstand"
-    #define TR_BL_PLUG_USB          "Forbind USB kabel"
-    #define TR_BL_COPY_UF2          "Kopier firmware.uf2 til EDGETX_UF2 drev"
-    #define TR_BL_NO_VERSION        "Ingen version"
+    #define TR_BL_DFU_MODE                "DFU tilstand"
+    #define TR_BL_PLUG_USB                "Forbind USB kabel"
+    #define TR_BL_COPY_UF2                "Kopier firmware.uf2 til EDGETX_UF2 drev"
+    #define TR_BL_NO_VERSION              "Ingen version"
 
 #elif defined(TRANSLATIONS_DE)
 
     #define TR_BL_USB_CONNECTED           "USB verbunden"
     #define TR_BL_USB_PLUGIN              "oder USB-Kabel anschl."
-    #define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
+    #define TR_BL_USB_MASS_STORE          "fuer den SD-Speicher an"
     #define TR_BL_WRITE_FW                "Schreibe Firmware"
     #define TR_BL_FORK                    "Fork:"
     #define TR_BL_VERSION                 "Version:"
@@ -156,13 +156,13 @@
     #define TR_BL_DISABLE                 "Deaktivieren"
 
     #if !defined(COLORLCD)
-      #define TR_BL_OR_PLUGIN_USB_CABLE    TR(TR_BL_USB_PLUGIN, "Oder schließen Sie ein USB-Kabel " TR_BL_USB_MASS_STORE)
-      #define TR_BL_HOLD_ENTER_TO_START    TR("Zum Starten [ENT] halten", "Halte [ENT] gedrückt, um mit dem Schreiben zu beginnen")
+      #define TR_BL_OR_PLUGIN_USB_CABLE    TR(TR_BL_USB_PLUGIN, "Oder schliessen Sie ein USB-Kabel " TR_BL_USB_MASS_STORE)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Zum Starten [ENT] halten", "Halte [ENT] gedrueckt, um mit dem Schreiben zu beginnen")
     #endif
-    #define TR_BL_INVALID_FIRMWARE         TR("Keine gültige Firmware!", "Keine gültige Firmwaredatei!")
+    #define TR_BL_INVALID_FIRMWARE         TR("Keine gueltige Firmware!", "Keine gueltige Firmwaredatei!")
 
     // Bootloader Taranis specific - ASCII characters only
-    #define TR_BL_POWER_KEY                "Drücke den Power Knopf."
+    #define TR_BL_POWER_KEY                "Druecke den Power Knopf."
     #define TR_BL_FLASH_EXIT               "Verlasse den Flashmodus."
 
     // Bootloader Horus specific - ASCII characters only
@@ -172,17 +172,17 @@
     #define TR_BL_RF_USB_ACCESS            "RF USB Zugriff"
     #define TR_BL_CURRENT_FW               "Aktuelle Firmware:"
 
-    #define TR_BL_SELECT_KEY               BL_SELECT_KEY " um Datei auszuwählen"
-    #define TR_BL_FLASH_KEY                "Halte " BL_SELECT_KEY " gedrückt, zum schreiben"
-    #define TR_BL_ERASE_KEY                "Halte " BL_SELECT_KEY " gedrückt, to erase"
+    #define TR_BL_SELECT_KEY               BL_SELECT_KEY " um Datei auszuwaehlen"
+    #define TR_BL_FLASH_KEY                "Halte " BL_SELECT_KEY " gedrueckt, zum schreiben"
+    #define TR_BL_ERASE_KEY                "Halte " BL_SELECT_KEY " gedrueckt, to erase"
     #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " zum beenden"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE          "DFU mode"
-    #define TR_BL_PLUG_USB          "Plug USB cable"
-    #define TR_BL_COPY_UF2          "Copy firmware.uf2 to EDGETX_UF2 drive"
-    #define TR_BL_NO_VERSION        "No version"
+    #define TR_BL_DFU_MODE                "DFU Modus"
+    #define TR_BL_PLUG_USB                "USB-Kabel einstecken"
+    #define TR_BL_COPY_UF2                "Kopiere firmware.uf2 nach EDGETX_UF2"
+    #define TR_BL_NO_VERSION              "Keine Version"
 
 #elif defined(TRANSLATIONS_FR)
 
@@ -224,10 +224,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pour quitter"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE "Mode DFU"
-    #define TR_BL_PLUG_USB "Inserer cable USB"
-    #define TR_BL_COPY_UF2 "Copier firmware.uf2 vers disque EDGETX_UF2"
-    #define TR_BL_NO_VERSION "Pas de version"
+    #define TR_BL_DFU_MODE                "Mode DFU"
+    #define TR_BL_PLUG_USB                "Inserer cable USB"
+    #define TR_BL_COPY_UF2                "Copier firmware.uf2 vers disque EDGETX_UF2"
+    #define TR_BL_NO_VERSION              "Pas de version"
 
 #elif defined(TRANSLATIONS_IT)
 
@@ -269,10 +269,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " per uscire"
     
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE "Modo DFU"
-    #define TR_BL_PLUG_USB "Inserisci connettore USB"
-    #define TR_BL_COPY_UF2 "Copia firmware.uf2 sul disco EDGETX_UF2"
-    #define TR_BL_NO_VERSION "Nessuna versione"
+    #define TR_BL_DFU_MODE                "Modo DFU"
+    #define TR_BL_PLUG_USB                "Inserisci connettore USB"
+    #define TR_BL_COPY_UF2                "Copia firmware.uf2 sul disco EDGETX_UF2"
+    #define TR_BL_NO_VERSION              "Nessuna versione"
 
 #elif defined(TRANSLATIONS_PL)
 
@@ -314,10 +314,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " aby wyjsc"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE          "DFU mode"
-    #define TR_BL_PLUG_USB          "Plug USB cable"
-    #define TR_BL_COPY_UF2          "Copy firmware.uf2 to EDGETX_UF2 drive"
-    #define TR_BL_NO_VERSION        "No version"
+    #define TR_BL_DFU_MODE                "DFU mode"
+    #define TR_BL_PLUG_USB                "Plug USB cable"
+    #define TR_BL_COPY_UF2                "Copy firmware.uf2 to EDGETX_UF2 drive"
+    #define TR_BL_NO_VERSION              "No version"
 
 #elif defined(TRANSLATIONS_SE)
 
@@ -360,10 +360,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " foer att avbryta"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE          "DFU mode"
-    #define TR_BL_PLUG_USB          "Plug USB cable"
-    #define TR_BL_COPY_UF2          "Copy firmware.uf2 to EDGETX_UF2 drive"
-    #define TR_BL_NO_VERSION        "No version"
+    #define TR_BL_DFU_MODE                "DFU mode"
+    #define TR_BL_PLUG_USB                "Plug USB cable"
+    #define TR_BL_COPY_UF2                "Copy firmware.uf2 to EDGETX_UF2 drive"
+    #define TR_BL_NO_VERSION              "No version"
 
 #else
 
@@ -405,10 +405,10 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " to exit"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE          "DFU mode"
-    #define TR_BL_PLUG_USB          "Plug USB cable"
-    #define TR_BL_COPY_UF2          "Copy firmware.uf2 to EDGETX_UF2 drive"
-    #define TR_BL_NO_VERSION        "No version"
+    #define TR_BL_DFU_MODE                "DFU mode"
+    #define TR_BL_PLUG_USB                "Plug USB cable"
+    #define TR_BL_COPY_UF2                "Copy firmware.uf2 to EDGETX_UF2 drive"
+    #define TR_BL_NO_VERSION              "No version"
 
 #endif
 
