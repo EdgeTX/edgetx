@@ -190,15 +190,15 @@ void ViewMain::updateTopbarVisibility()
     float ratio;
 
     if (leftTopbar && rightTopbar) {
-      ratio = 1.0;
+      ratio = 1.0f;
     } else if (leftTopbar) {
       // scrolling from a screen with Topbar
-      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+      ratio = 1.0f - (float)leftScroll / (float)pageWidth;
     } else if (rightTopbar) {
       // scrolling to a screen with Topbar
       ratio = (float)leftScroll / (float)pageWidth;
     } else {
-      ratio = 0.0;
+      ratio = 0.0f;
     }
 
     setTopbarVisible(ratio);
@@ -209,15 +209,15 @@ void ViewMain::updateTopbarVisibility()
     ratio = (float)leftScroll / (float)pageWidth;
 
     if (leftTopbar && rightTopbar) {
-      ratio = 1.0;
+      ratio = 1.0f;
     } else if (leftTopbar) {
       // scrolling from a screen with Topbar
-      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+      ratio = 1.0f - (float)leftScroll / (float)pageWidth;
     } else if (rightTopbar) {
       // scrolling to a screen with Topbar
       ratio = (float)leftScroll / (float)pageWidth;
     } else {
-      ratio = 0.0;
+      ratio = 0.0f;
     }
 
     setEdgeTxButtonVisible(ratio);

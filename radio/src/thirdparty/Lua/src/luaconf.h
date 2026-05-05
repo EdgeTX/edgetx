@@ -440,7 +440,9 @@
 ** Otherwise, you can leave 'lua_number2strx' undefined and Lua will
 ** provide its own implementation.
 */
-#if !defined(LUA_USE_C89)
+// Use Lua's native hex float formatter (lstrlib.c) instead of snprintf %a
+// to avoid double-precision promotion through LUAI_UACNUMBER
+#if 0 // !defined(LUA_USE_C89)
 #define lua_number2strx(L,b,sz,f,n)  \
 	((void)L, l_sprintf(b,sz,f,(LUAI_UACNUMBER)(n)))
 #endif
@@ -459,8 +461,8 @@
 #define lua_str2number(s,p)	((lua_Number)strtod((s), (p)))
 #endif
 
-#undef lua_str2number
-#define lua_str2number(s,p)	((lua_Number)strtod((s), (p)))
+// strtod override removed: use strtof from line 275 (LUA_FLOAT_FLOAT config)
+// A custom lightweight strtof is provided to avoid newlib's double-precision chain
 
 // For print
 #include "debug.h"
