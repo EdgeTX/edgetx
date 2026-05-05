@@ -11,36 +11,36 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 
 ### BetaFPV
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| LR3Pro | 512KB | 128KB | B&W (OLED) | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| LR3Pro | 512KB | 128KB | B&W (OLED) | 128×64 | No | Yes |
 
 ### FrSky
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| X7 | 512KB | 128KB | B&W | 128×64 |
-| X9D | 512KB | 128KB | Greyscale | 212×64 |
-| X9D+ | 512KB | 128KB | Greyscale | 212×64 |
-| X9Lite | 512KB | 128KB | B&W | 128×64 |
-| X9Lite S | 512KB | 128KB | B&W | 128×64 |
-| XLite | 512KB | 128KB | B&W | 128×64 |
-| XLite S | 512KB | 128KB | B&W | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| X7 | 512KB | 128KB | B&W | 128×64 | No | Yes |
+| X9D | 512KB | 128KB | Greyscale | 212×64 | No | Yes |
+| X9D+ | 512KB | 128KB | Greyscale | 212×64 | No | Yes |
+| X9Lite | 512KB | 128KB | B&W | 128×64 | No | Yes |
+| X9Lite S | 512KB | 128KB | B&W | 128×64 | No | Yes |
+| XLite | 512KB | 128KB | B&W | 128×64 | No | Yes |
+| XLite S | 512KB | 128KB | B&W | 128×64 | No | Yes |
 
 ### Jumper
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| T12 | 512KB | 128KB | B&W | 128×64 |
-| TPro | 512KB | 128KB | B&W | 128×64 |
-| TLite | 512KB | 128KB | B&W | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| T12 | 512KB | 128KB | B&W | 128×64 | No | Yes |
+| TPro | 512KB | 128KB | B&W | 128×64 | No | Yes |
+| TLite | 512KB | 128KB | B&W | 128×64 | No | Yes |
 
 ### RadioMaster
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| T8 | 512KB | 128KB | B&W (OLED) | 128×64 |
-| TX12 | 512KB | 128KB | B&W | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| T8 | 512KB | 128KB | B&W (OLED) | 128×64 | No | Yes |
+| TX12 | 512KB | 128KB | B&W | 128×64 | No | Yes |
 
 ---
 
@@ -57,71 +57,71 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 
 ### Fatfish
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| F16 | 2MB | 256KB + 8MB | Colour | 480×272 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| F16 | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
 
 ### Flysky
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| EL18 | 2MB | 256KB + 8MB | Colour | 320×480 |
-| NB4+ | 2MB | 256KB + 8MB | Colour | 320×480 |
-| NV14 | 2MB | 256KB + 8MB | Colour | 320×480 |
-| PL18 | 2MB | 256KB + 8MB | Colour | 480×320 |
-| PL18EV | 2MB | 256KB + 8MB | Colour | 480×320 |
-| PL18U | 2MB | 256KB + 32MB | Colour | 480×320 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| EL18 | 2MB | 256KB + 8MB | Colour | 320×480 | No | Yes |
+| NB4+ | 2MB | 256KB + 8MB | Colour | 320×480 | Yes | No |
+| NV14 | 2MB | 256KB + 8MB | Colour | 320×480 | No | Yes |
+| PL18 | 2MB | 256KB + 8MB | Colour | 480×320 | Yes | No |
+| PL18EV | 2MB | 256KB + 8MB | Colour | 480×320 | Yes | No |
+| PL18U | 2MB | 256KB + 32MB | Colour | 480×320 | Yes | No |
 
 ### FrSky
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| X7 ACCESS | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 |
-| X9E | <span class="flash-warn">⚠ 512KB</span> | 192KB | Greyscale | 212×64 |
-| X9D+2019 | <span class="flash-warn">⚠ 512KB</span> | 192KB | Greyscale | 212×64 |
-| X10 | 2MB | 256KB + 8MB | Colour | 480×272 |
-| X10 EXPRESS | 2MB | 256KB + 8MB | Colour | 480×272 |
-| X12S | 2MB | 256KB + 8MB | Colour | 480×272 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| X7 ACCESS | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 | No | Yes |
+| X9E | <span class="flash-warn">⚠ 512KB</span> | 192KB | Greyscale | 212×64 | No | Yes |
+| X9D+2019 | <span class="flash-warn">⚠ 512KB</span> | 192KB | Greyscale | 212×64 | No | Yes |
+| X10 | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
+| X10 EXPRESS | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
+| X12S | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
 
 ### HelloRadioSky
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| V14 | 1MB | 192KB | B&W (OLED) | 128×64 |
-| V16 | 2MB | 256KB + 8MB | Colour | 480×272 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| V14 | 1MB | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| V16 | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
 
 ### iFlight
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| Commando8 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| Commando8 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 | No | Yes |
 
 ### Jumper
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| Bumblebee | 1MB | 192KB | B&W (OLED) | 128×64 |
-| T12 MAX | 1MB | 192KB | B&W | 128×64 |
-| T14 | 1MB | 192KB | B&W (OLED) | 128×64 |
-| T15 | 2MB | 256KB + 8MB | Colour | 480×320 |
-| T16 | 2MB | 256KB + 8MB | Colour | 480×272 |
-| T18 | 2MB | 256KB + 8MB | Colour | 480×272 |
-| T20 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W (OLED) | 128×64 |
-| T20 V2 | 1MB | 192KB | B&W (OLED) | 128×64 |
-| TPro S | 1MB | 192KB | B&W (OLED) | 128×64 |
-| TPro V2 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W (OLED) | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| Bumblebee | 1MB | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| T12 MAX | 1MB | 192KB | B&W | 128×64 | No | Yes |
+| T14 | 1MB | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| T15 | 2MB | 256KB + 8MB | Colour | 480×320 | No | Yes |
+| T16 | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
+| T18 | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
+| T20 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| T20 V2 | 1MB | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| TPro S | 1MB | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| TPro V2 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W (OLED) | 128×64 | No | Yes |
 
 ### RadioMaster
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| Boxer | 1MB | 192KB | B&W | 128×64 |
-| GX12 | 1MB | 192KB | B&W (OLED) | 128×64 |
-| MT12 | 1MB | 192KB | B&W | 128×64 |
-| Pocket | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 |
-| TX12 MK2 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 |
-| TX16S | 2MB | 256KB + 8MB | Colour | 480×272 |
-| Zorro | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| Boxer | 1MB | 192KB | B&W | 128×64 | No | Yes |
+| GX12 | 1MB | 192KB | B&W (OLED) | 128×64 | No | Yes |
+| MT12 | 1MB | 192KB | B&W | 128×64 | No | Yes |
+| Pocket | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 | No | Yes |
+| TX12 MK2 | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 | No | Yes |
+| TX16S / TX16S MKII | 2MB | 256KB + 8MB | Colour | 480×272 | No | Yes |
+| Zorro | <span class="flash-warn">⚠ 512KB</span> | 192KB | B&W | 128×64 | No | Yes |
 
 ---
 
@@ -135,26 +135,26 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 
 ### Flysky
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| ST16 | 8MB | 1MB + 8MB | Colour | 480×320 |
-| PA01 | 8MB | 1MB + 8MB | Colour | 320×240 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| ST16 | 8MB | 1MB + 8MB | Colour | 480×320 | No | Yes |
+| PA01 | 8MB | 1MB + 8MB | Colour | 320×240 | Yes | No |
 
 ### HelloRadioSky
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| V12 | 8MB | 1MB + 8MB | Colour | 320×240 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| V12 | 8MB | 1MB + 8MB | Colour | 320×240 | Yes | No |
 
 ### Jumper
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| T15Pro | 16MB | 1MB + 8MB | Colour | 480×320 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| T15Pro | 16MB | 1MB + 8MB | Colour | 480×320 | Yes | No |
 
 ### RadioMaster
 
-| Radio | Flash | SRAM | Screen | Resolution |
-|-------|-------|------|--------|------------|
-| TX15 | 16MB | 1MB + 8MB | Colour | 480×320 |
-| TX16S MK3 | 16MB | 1MB + 8MB | Colour | 800×480 |
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| TX15 | 16MB | 1MB + 8MB | Colour | 480×320 | Yes | Yes |
+| TX16S MK3 | 16MB | 1MB + 8MB | Colour | 800×480 | Yes | Yes |
