@@ -555,6 +555,12 @@ USART6: INTMODULE_USART
 #define BTAUDIO_POWER_GPIO                  GPIO_PIN(GPIOC, 13)
 #define BTAUDIO_LINKED_GPIO                 GPIO_PIN(GPIOB, 11)
 #define BTAUDIO_CONNECT_GPIO                GPIO_PIN(GPIOB, 10)
+#elif defined(BLUETOOTH)
+#define BT_USART                            USART3
+#define BT_USART_IRQn                       USART3_IRQn
+#define BT_TX_GPIO                          GPIO_PIN(GPIOB, 10) // PB.10
+#define BT_RX_GPIO                          GPIO_PIN(GPIOB, 11) // PB.11
+#define BT_EN_GPIO                          GPIO_PIN(GPIOE, 6)  // PE.06
 #endif
 
 // Touch

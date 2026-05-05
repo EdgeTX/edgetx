@@ -31,6 +31,10 @@
   #include "ads79xx.h"
 #endif
 
+#if defined(SIXPOS_SWITCH_INDEX)
+  #include "rgb_leds.h"
+#endif
+
 #include "definitions.h"
 
 #include "myeeprom.h"
@@ -85,6 +89,9 @@ static void adc_wait_completion()
   if (n_ADC_spi > 0) ads79xx_adc_wait_completion(&_ADC_spi[0], _ADC_inputs);
 #endif
   stm32_hal_adc_wait_completion(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
+#if defined(SIXPOS_SWITCH_INDEX)
+  sixPosUpdateFromAdc();
+#endif
 }
 
 const etx_hal_adc_driver_t _adc_driver = {

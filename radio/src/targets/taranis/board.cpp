@@ -21,13 +21,13 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
@@ -48,6 +48,28 @@
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
+
+#if defined(BOOT)
+
+#if defined(BLUETOOTH)
+void boardBLEarlyInit()
+{
+  // Disable the BT module so it will be detected on firmware start
+#if defined(BT_EN_GPIO)
+  gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_write(BT_EN_GPIO, 1);
+#endif
+}
+#endif
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+void boardBLInit()
+{
+  rotaryEncoderInit();
+}
+#endif
+
+#endif // BOOT
 
 #if !defined(BOOT)
   #include "edgetx.h"
@@ -70,46 +92,6 @@ HardwareOptions hardwareOptions;
 
 #if defined(FUNCTION_SWITCHES)
 #include "storage/storage.h"
-#endif
-
-#if defined(SIXPOS_SWITCH_INDEX)
-uint8_t lastADCState = 0;
-uint8_t sixPosState = 0;
-bool dirty = true;
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
-{
-  uint8_t currentADCState = 0;
-  if (adcValue > 3800)
-    currentADCState = 6;
-  else if (adcValue > 3100)
-    currentADCState = 5;
-  else if (adcValue > 2300)
-    currentADCState = 4;
-  else if (adcValue > 1500)
-    currentADCState = 3;
-  else if (adcValue > 1000)
-    currentADCState = 2;
-  else if (adcValue > 400)
-    currentADCState = 1;
-  if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-  if (dirty) {
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState)
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      else
-        ws2812_set_color(i, 0, 0, 0);
-    }
-    rgbLedColorApply();
-    /* FIX (6POS) : Reset the state to reduce the number of refreshes. */
-    dirty = false;
-  }
-  return (4096/5)*(sixPosState);
-}
 #endif
 
 #if defined(SALED_PWR_GPIO)

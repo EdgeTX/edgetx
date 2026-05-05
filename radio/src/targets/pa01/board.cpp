@@ -117,6 +117,8 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+  rotaryEncoderInit();
+
   ExtFLASH_Init();
   SDRAM_Init();
 

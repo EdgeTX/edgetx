@@ -117,19 +117,17 @@ typedef union Value {
 } Value;
 
 
-#define TValuefields	Value value_; int tt_
+#define TValuefields	Value value_; lu_byte tt_
 
-// #ifdef LUA_USE_ESP
-// #  pragma pack(4)
-// #endif
+#if defined(__GNUC__) || defined(__clang__)
+#define LUA_PACKED __attribute__((__packed__))
+#else
+#define LUA_PACKED
+#endif
 
-typedef struct lua_TValue {
+typedef struct LUA_PACKED lua_TValue {
   TValuefields;
 } TValue;
-
-// #ifdef LUA_USE_ESP
-// #  pragma pack()
-// #endif
 
 /* macro defining a nil value */
 #define NILCONSTANT	{NULL}, LUA_TNIL
@@ -509,7 +507,7 @@ typedef union Closure {
 */
 
 typedef union TKey {
-  struct {
+  struct LUA_PACKED {
     TValuefields;
     int next;  /* for chaining (offset for next node) */
   } nk;

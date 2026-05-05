@@ -286,13 +286,20 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
                                   uint8_t* buf, uint8_t* p_len)
 {
-  if (frame_len < MIN_FRAME_LEN) return;
-
   uint8_t& len = *p_len;
+
   if (len == 0) {
-    // buffer is empty: no re-assembly
+    if (frame_len == 0) return;
+
     if (!_validHdr(frame)) {
       TRACE("[XF] invalid frame start");
+      return;
+    }
+
+    if (frame_len < MIN_FRAME_LEN) {
+      // Too short to process, but valid header: save for reassembly
+      memcpy(buf, frame, frame_len);
+      len = frame_len;
       return;
     }
 
@@ -344,8 +351,16 @@ static void _crsf_extmodule_frame_received()
 
 // proxy trigger to avoid calling
 // FreeRTOS methods from ISR with prio 0
-static void _soft_irq_trigger(void*)
+static void _soft_irq_trigger(void* param)
 {
+  // detect spurious IDLE IRQ with empty buffer
+  auto mod_rx = (etx_module_driver_t*)param;
+  auto drv = modulePortGetSerialDrv(*mod_rx);
+  auto ctx = modulePortGetCtx(*mod_rx);
+
+  if (!drv || !ctx || !drv->getBufferedBytes) return;
+  if (drv->getBufferedBytes(ctx) == 0) return;
+
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
   stm32_exti_custom_trigger_swi(TELEMETRY_RX_FRAME_EXTI_LINE);
 #else
@@ -396,7 +411,7 @@ static void* crossfireInit(uint8_t module)
 
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
-        drv->setIdleCb(ctx, _soft_irq_trigger, nullptr);
+        drv->setIdleCb(ctx, _soft_irq_trigger, &mod_st->rx);
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
         stm32_exti_custom_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 3,
                           _crsf_extmodule_frame_received);
