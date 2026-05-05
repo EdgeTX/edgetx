@@ -43,3 +43,9 @@ void rgbLedColorApply();
 // indicator) implement this to update their LEDs in the timer task
 // context, keeping rgb_leds.cpp's back buffer single-writer.
 void rgbLedOnUpdate();
+
+// Invoked by the board ADC wait_completion callback once per conversion
+// on radios with a 6POS switch. Reads the raw sample from adcValues[],
+// runs the sticky-position state machine, and writes the scaled sticky
+// value back in place. Linked only when SIXPOS_SWITCH_INDEX is defined.
+void sixPosUpdateFromAdc();

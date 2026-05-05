@@ -23,29 +23,36 @@
 
 #if defined(SIXPOS_SWITCH_INDEX) && !defined(SIMU)
 
+#include "hal/adc_driver.h"
 #include "rgb_leds.h"
 
 #include <stdint.h>
 
 // 6POS switch position tracking.
 //
-// The ADC path (mixer task) feeds raw samples into getSixPosAnalogValue()
-// which maintains a sticky "last pressed" position — the switch reads
-// ~0 when no button is held, so a plain ADC threshold would bounce back
-// to position 0. The mixer uses the returned value (0..4096) as the pot
-// position for the multipos source.
+// sixPosUpdateFromAdc() runs once per ADC conversion from the board
+// adc_wait_completion callback. It reads the raw sample out of
+// adcValues[SIXPOS_SWITCH_INDEX], maintains a sticky "last pressed"
+// position (the switch reads ~0 when no button is held, so a plain
+// threshold would bounce back to position 0), and writes the scaled
+// 0..4096 sticky value back in place. Downstream consumers
+// (getAnalogValue, diaganas, the mixer multipos source, …) then see a
+// stable value without any of them driving the state machine.
 //
-// The LED update is NOT done here: _six_pos_state is written by the
-// mixer and consumed by rgbLedOnUpdate() below, which runs in the LED
-// refresh timer task. That keeps the rgb_leds.cpp back buffer
-// single-writer (the LED timer task) for the 6POS range, so Lua's
-// applyRGBLedColors pattern cannot race with a mixer-context write.
+// The LED update is NOT done here: _six_pos_state is consumed by
+// rgbLedOnUpdate() below, which runs in the LED refresh timer task.
+// That keeps the rgb_leds.cpp back buffer single-writer (the LED
+// timer task) for the 6POS range, so Lua's applyRGBLedColors pattern
+// cannot race with an ADC-context write.
 
 static uint8_t _last_adc_state = 0;
 static volatile uint8_t _six_pos_state = 0;
 
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
+void sixPosUpdateFromAdc()
 {
+  uint16_t* values = getAnalogValues();
+  uint16_t adcValue = values[SIXPOS_SWITCH_INDEX];
+
   uint8_t current = 0;
   if (adcValue > 3800) current = 6;
   else if (adcValue > 3100) current = 5;
@@ -60,7 +67,7 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
     _six_pos_state = _last_adc_state - 1;
   }
 
-  return (4096 / 5) * _six_pos_state;
+  values[SIXPOS_SWITCH_INDEX] = (4096 / 5) * _six_pos_state;
 }
 
 void rgbLedOnUpdate()

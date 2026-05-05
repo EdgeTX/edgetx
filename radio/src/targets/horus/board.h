@@ -242,10 +242,6 @@ bool isBacklightEnabled();
 }
 #endif
 
-#if defined(RADIO_V16)
-  uint16_t getSixPosAnalogValue(uint16_t adcValue);
-#endif
-
 // Audio driver
 void audioInit();
 
