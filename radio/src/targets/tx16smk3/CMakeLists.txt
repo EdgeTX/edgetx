@@ -7,6 +7,7 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(BLUETOOTH "FrSky BT module support" OFF)
 option(INTERNAL_GPS "Support for internal GPS" ON)
 option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
 
@@ -30,6 +31,16 @@ set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
 set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+
+# BT and serial gimbal share same UART
+if(BLUETOOTH)
+  set(AUX2_SERIAL OFF)
+  set(KCX_BTAUDIO OFF)
+elseif(KCX_BTAUDIO)
+  set(AUX2_SERIAL OFF)
+else()
+  set(AUX2_SERIAL ON)
+endif()
 
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 
@@ -73,11 +84,7 @@ set(SOFTWARE_KEYBOARD ON)
 set(FUNCTION_SWITCHES ON)
 set(USB_CHARGER YES)
 set(AUX_SERIAL YES)
-if(KCX_BTAUDIO)
-  set(AUX2_SERIAL NO)
-else()
-  set(AUX2_SERIAL YES)
-endif()
+
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
@@ -189,6 +196,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
