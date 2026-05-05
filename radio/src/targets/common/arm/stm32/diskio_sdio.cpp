@@ -155,7 +155,16 @@ extern uint32_t _heap_start;
 #define _IS_DMA_BUFFER(addr) \
   ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
 #endif
-#elif defined(STM32H7) || defined(STM32H7RS)
+#elif defined(STM32H7)
+// STM32H750: SDRAM excluded on purpose — DMA into SDRAM can cause
+// SDMMC FIFO overruns, so SDRAM buffers are bounced through scratch.
+extern uint32_t _sram;
+extern uint32_t _s_dram;
+#define _IS_DMA_BUFFER(addr)                                                   \
+  (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
+   ((((intptr_t)(addr)) & 0xFFF60000) ==                                       \
+    (((intptr_t)&_s_dram) & 0xFFF60000)))
+#elif defined(STM32H7RS)
 extern uint32_t _sram;
 extern uint32_t _s_dram;
 extern uint32_t _heap_start;
@@ -332,10 +341,16 @@ static DSTATUS sdio_initialize(BYTE lun)
   return RES_OK;
 }
 
-// #if defined(SRAM_BASE)
-// DMA scratch buffer used in case the input buffer is not aligned
-static uint8_t scratch[BLOCK_SIZE] __DMA;
-// #endif
+// DMA scratch buffer used in case the input buffer is not aligned.
+// On STM32H750 it also handles SDRAM-targeted reads: the SDMMC FIFO
+// overruns when DMA writes directly to the comparatively slow SDRAM,
+// so those reads are bounced through internal SRAM in 8 KB chunks.
+#if defined(STM32H7)
+#define SCRATCH_SECTORS 16
+#else
+#define SCRATCH_SECTORS 1
+#endif
+static uint8_t scratch[SCRATCH_SECTORS * BLOCK_SIZE] __DMA;
 
 typedef enum
 {
@@ -424,11 +439,14 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
   }
 
   if (!_IS_DMA_BUFFER(buff) || !_IS_ALIGNED(buff)) {
-    while (count--) {
-      res = _read_dma(scratch, sector++, 1);
+    while (count) {
+      UINT chunk = (count > SCRATCH_SECTORS) ? SCRATCH_SECTORS : count;
+      res = _read_dma(scratch, sector, chunk);
       if (res != RES_OK) break;
-      memcpy(buff, scratch, BLOCK_SIZE);
-      buff += BLOCK_SIZE;
+      memcpy(buff, scratch, chunk * BLOCK_SIZE);
+      buff   += chunk * BLOCK_SIZE;
+      sector += chunk;
+      count  -= chunk;
     }
     return res;
   }
