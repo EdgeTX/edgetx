@@ -300,3 +300,15 @@ void NumberEdit::setValue(int value)
   updateDisplay();
   if (edit) edit->update();
 }
+
+void NumberEdit::checkEvents()
+{
+  if (_getValue) {
+    int newValue = _getValue();
+    if (newValue != currentValue) {
+      currentValue = newValue;
+      updateDisplay();
+    }
+  }
+  TextButton::checkEvents();
+}
