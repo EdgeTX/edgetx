@@ -579,7 +579,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1595"/>
         <source>Joystick</source>
-        <translation>Joystik</translation>
+        <translation>Joystick</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1374"/>
@@ -610,7 +610,7 @@ Mode 4:
         <location filename="../apppreferencesdialog.cpp" line="307"/>
         <location filename="../apppreferencesdialog.cpp" line="667"/>
         <source>No joysticks found</source>
-        <translation>Joystik er ikke fundet</translation>
+        <translation>Joystick er ikke fundet</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="591"/>
@@ -942,7 +942,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1416"/>
         <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
-        <translation>Skjul advarsel &apos;Kan ikke åbne joystik, joystik afkoblet&apos;</translation>
+        <translation>Skjul advarsel &apos;Kan ikke åbne joystick -&gt; afkoblet&apos;</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1290"/>
@@ -6232,17 +6232,17 @@ Tilstand 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="893"/>
         <source>Joystick (HID)</source>
-        <translation>Joystik (HID)</translation>
+        <translation>USB joystick (HID)</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="898"/>
         <source>USB Mass Storage</source>
-        <translation>USB som lagerenhed</translation>
+        <translation>USB lager (SD)</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="903"/>
         <source>USB Serial (CDC)</source>
-        <translation>Seriel USB (CDC)</translation>
+        <translation>USB seriel (CDC)</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="930"/>
@@ -6572,7 +6572,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../generaledit/hardware.cpp" line="329"/>
         <source>USB-VCP</source>
-        <translation>USB-VCP</translation>
+        <translation>USB-data (VCP)</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="599"/>
@@ -13552,12 +13552,12 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="157"/>
         <source>Joystick Settings</source>
-        <translation>Joystik indstillinger</translation>
+        <translation>Joystick indstillinger</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="160"/>
         <source>Open joystick configuration settings dialog.</source>
-        <translation>Åbn dialog til indstillinger af joystik.</translation>
+        <translation>Åbn dialog til indstillinger af joystick.</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="163"/>
@@ -13971,7 +13971,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="659"/>
         <source>Cannot open joystick, joystick disabled</source>
-        <translation>Joystik kan ikke findes, er afkoblet</translation>
+        <translation>Joystick kan ikke findes, er afkoblet</translation>
     </message>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="755"/>
@@ -17946,7 +17946,7 @@ Model indstillinger kan blive ødelagt, hvis du fortsætter.</translation>
     <message>
         <location filename="../simulation/joystickdialog.ui" line="20"/>
         <source>Configure Joystick</source>
-        <translation>Indstil joystik</translation>
+        <translation>Indstil joystick</translation>
     </message>
     <message>
         <location filename="../simulation/joystickdialog.ui" line="65"/>
@@ -17971,7 +17971,7 @@ Model indstillinger kan blive ødelagt, hvis du fortsætter.</translation>
     <message>
         <location filename="../simulation/joystickdialog.cpp" line="256"/>
         <source>Cannot open joystick.</source>
-        <translation>Kan ikke åbne joystik.</translation>
+        <translation>Kan ikke åbne joystick.</translation>
     </message>
     <message>
         <location filename="../simulation/joystickdialog.ui" line="103"/>
@@ -17997,7 +17997,7 @@ Model indstillinger kan blive ødelagt, hvis du fortsætter.</translation>
     <message>
         <location filename="../simulation/joystickdialog.cpp" line="218"/>
         <source>No joysticks found</source>
-        <translation>Kan ikke finde joystik</translation>
+        <translation>Kan ikke finde joystick</translation>
     </message>
     <message>
         <location filename="../simulation/joystickdialog.cpp" line="301"/>
@@ -18024,7 +18024,7 @@ Tryk på næste når du er klar</translation>
         <location filename="../simulation/joystickdialog.cpp" line="328"/>
         <source>Map joystick channels to controls using comboboxes.
 Press Next when done.</source>
-        <translation>Tildel styring til joystik kanaler med komboboxene.
+        <translation>Tildel styring til joystick kanaler med komboboxene.
 Tryk på næste når du er klar.</translation>
     </message>
     <message>
