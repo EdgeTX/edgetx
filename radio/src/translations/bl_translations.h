@@ -49,6 +49,8 @@
 
 #if defined(TRANSLATIONS_CZ)
 
+    // ASCII characters only
+    
     // Poznamka: nutne pouziti textu bez diakritiky - omezeni velikosti pameti bootloader!
     #define TR_BL_USB_CONNECTED           "USB pripojeno"
     #define TR_BL_USB_PLUGIN              "nebo pripojte USB kabel"
@@ -95,6 +97,8 @@
 
 #elif defined(TRANSLATIONS_DA)
 
+    // ASCII characters only
+
     #define TR_BL_USB_CONNECTED           "USB forbundet"
     #define TR_BL_USB_PLUGIN              "eller brug USB kabel"
     #define TR_BL_USB_MASS_STORE          "for USB disk"
@@ -140,6 +144,8 @@
 
 #elif defined(TRANSLATIONS_DE)
 
+    // ASCII characters only
+    
     #define TR_BL_USB_CONNECTED           "USB verbunden"
     #define TR_BL_USB_PLUGIN              "oder USB-Kabel anschl."
     #define TR_BL_USB_MASS_STORE          "fuer den SD-Speicher an"
@@ -186,6 +192,8 @@
 
 #elif defined(TRANSLATIONS_FR)
 
+    // ASCII characters only
+    
     #define TR_BL_USB_CONNECTED           "USB Connecte"
     #define TR_BL_USB_PLUGIN              "ou branchez cable USB"
     #define TR_BL_USB_MASS_STORE          "pour stockage de masse"
@@ -231,6 +239,8 @@
 
 #elif defined(TRANSLATIONS_IT)
 
+    // ASCII characters only
+    
     #define TR_BL_USB_CONNECTED           "USB Connessa"
     #define TR_BL_USB_PLUGIN              "O connetti il cavo USB"
     #define TR_BL_USB_MASS_STORE          "per memoria di massa"
@@ -276,6 +286,8 @@
 
 #elif defined(TRANSLATIONS_PL)
 
+    // ASCII characters only
+    
     #define TR_BL_USB_CONNECTED           "USB polaczone"
     #define TR_BL_USB_PLUGIN              "lub podlacz kabel USB"
     #define TR_BL_USB_MASS_STORE          "dla trybu danych"
@@ -314,14 +326,15 @@
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " aby wyjsc"
 
     // Bootloader UF2 specific - ASCII characters only
-    #define TR_BL_DFU_MODE                "DFU mode"
-    #define TR_BL_PLUG_USB                "Plug USB cable"
-    #define TR_BL_COPY_UF2                "Copy firmware.uf2 to EDGETX_UF2 drive"
-    #define TR_BL_NO_VERSION              "No version"
+    #define TR_BL_DFU_MODE                "Tryb DFU"
+    #define TR_BL_PLUG_USB                "Podlacz kabel USB"
+    #define TR_BL_COPY_UF2                "Skopiuj firmware.uf2 na dysk EDGETX_UF2"
+    #define TR_BL_NO_VERSION              "Brak wersji"
 
 #elif defined(TRANSLATIONS_SE)
 
-    // Bootloader common
+    // ASCII characters only
+
     #define TR_BL_USB_CONNECTED            "USB ansluten"
     #define TR_BL_USB_PLUGIN               "Eller anslut med USB-kabel"
     #define TR_BL_USB_MASS_STORE           "foer masslagring"
@@ -365,8 +378,10 @@
     #define TR_BL_COPY_UF2                "Kopiera firmware.uf2 till enhet EDGETX_UF2"
     #define TR_BL_NO_VERSION              "Ingen version"
 
-#else
+#else  // EN
 
+    // ASCII characters only
+    
     #define TR_BL_USB_CONNECTED           "USB Connected"
     #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
     #define TR_BL_USB_MASS_STORE          "for mass storage"
