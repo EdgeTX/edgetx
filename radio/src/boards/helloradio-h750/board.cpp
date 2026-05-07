@@ -134,6 +134,8 @@ SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
   if (boardIsCustomSwitch(idx)) {
     return _get_fs_switch_pos(idx);
+  } else if (boardGetSwitchDef(idx)->GPIOx_high != nullptr) {
+    return stm32_switch_get_position(boardGetSwitchDef(idx));
   } else {
     return _get_switch_pos(idx);
   }
