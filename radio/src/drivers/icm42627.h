@@ -26,7 +26,9 @@
 
 #pragma once
 
-#define ICM426xx_I2C_ADDR           0x69
+#include "hal/imu.h"
+
+#define ICM426xx_I2C_BASE_ADDR      0x69
 
 // Register addresses
 #define WHO_AM_I_REG          0x75
@@ -57,13 +59,4 @@
 #define INT_CONFIG_REG        0x14
 #define INT_STATUS2_REG       0x3B
 
-typedef struct {
-  float fTemperatureDegC; //°C
-  float fAccX, fAccY, fAccZ; // m/s^2
-  float fGyroXradps, fGyroYradps, fGyroZradps; // rad/s
-} sIMUoutput;
-
-extern sIMUoutput IMUoutput;
-
-int gyroInit(void);
-int gyroRead(unsigned char*);
+extern const etx_imu_driver_t imu_icm42627_driver;

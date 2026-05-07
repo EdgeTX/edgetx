@@ -35,6 +35,9 @@
 
 #include "stm32_switch_driver.h"
 #include "hal/adc_driver.h"
+#include "hal/imu.h"
+#include "gyro.h"
+#include "drivers/icm42627.h"
 #include "hal/flash_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
@@ -62,9 +65,6 @@
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// RGB LED timer
-extern const stm32_pulse_timer_t _led_timer;
-
 #if defined(SIXPOS_SWITCH_INDEX)
 
 #if defined(FUNCTION_SWITCHES)
@@ -74,10 +74,50 @@ extern uint8_t isSwitch3Pos(uint8_t idx);
 struct _adckey_switches_expander {
     uint8_t state;
 };
-const uint8_t _adckeyidx[8] = {
-  0, 1,2,4,8,0x10, 0x20,0
-};
-static _adckey_switches_expander _adckey_switches;
+// Bitmask of all 6 function switch bits
+#define FS_ALL_BITS 0x3F
+
+// For each 6POS position (0=none, 1-6=SW1-SW6): bit of the active switch,
+// inverted so active switch pin reads low (DOWN) like real PCA95xx hardware.
+// position 0 (none): all bits set = all UP
+// position N: all bits set except SW_N's bit = SW_N is DOWN
+static uint8_t _pos_to_state(uint8_t pos)
+{
+  if (pos == 0) return FS_ALL_BITS;
+  uint8_t active_bit = (1 << (pos - 1));
+  return FS_ALL_BITS & ~active_bit;
+}
+static _adckey_switches_expander _adckey_switches = { FS_ALL_BITS };
+
+void sixPosUpdateFromAdc()
+{
+  uint16_t* values = getAnalogValues();
+  uint16_t adcValue = values[SIXPOS_SWITCH_INDEX];
+
+  uint8_t current = 0;
+  if (adcValue > 3800) current = 1;
+  else if (adcValue > 3100) current = 2;
+  else if (adcValue > 2300) current = 3;
+  else if (adcValue > 1500) current = 4;
+  else if (adcValue > 1000) current = 5;
+  else if (adcValue > 400)  current = 6;
+
+  static uint8_t lastSeen = 0;
+  static uint8_t debounce = 0;
+  static uint8_t sixPosState = 0;
+
+  if (current != lastSeen) {
+    lastSeen = current;
+    debounce = 2;  // require this many more stable samples before committing
+  } else if (debounce > 0) {
+    if (--debounce == 0 && sixPosState != current) {
+      sixPosState = current;
+      _adckey_switches.state = _pos_to_state(sixPosState);
+    }
+  }
+
+  values[SIXPOS_SWITCH_INDEX] = (4096 / 5) * sixPosState;
+}
 
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
@@ -140,74 +180,17 @@ SwitchHwPos boardSwitchGetPosition(uint8_t idx)
     return _get_switch_pos(idx);
   }
 }
+
 #endif
 
-uint8_t lastADCState = 0;
-uint8_t sixPosState = 0;
-
-uint8_t uploadPosState = 5;
-
-bool dirty = true;
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
-{
-  uint8_t currentADCState = 0;
-  if(uploadPosState){
-    uploadPosState--;
-    goto __retposadc__;
-  }
-  else if (adcValue > 3800)
-    currentADCState = 1;
-  else if (adcValue > 3100)
-    currentADCState = 2;
-  else if (adcValue > 2300)
-    currentADCState = 3;
-  else if (adcValue > 1500)
-    currentADCState = 4;
-  else if (adcValue > 1000)
-    currentADCState = 5;
-  else if (adcValue > 400)
-    currentADCState = 6;
-  if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-    uploadPosState=10;
-  }
-#if defined(FUNCTION_SWITCHES)
-  else if (lastADCState != sixPosState) {
-    sixPosState = lastADCState ;
-    dirty = true;
-  }
-#else
-  else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-#endif
-  if (dirty) {
-  #if !defined(FUNCTION_SWITCHES)
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState) {
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      } else {
-        ws2812_set_color(i, 0, 160, 0);
-      }
-    }
-    rgbLedColorApply();
-  #else
-    _adckey_switches.state=_adckeyidx[sixPosState];
-  #endif
-  }
-__retposadc__:  
-
-  return (4096/5)*(sixPosState);
-}
 #endif
 
 static void led_strip_off()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
+    rgbSetLedColor(i, 0, 0, 0);
   }
-  ws2812_update(&_led_timer);
+  rgbLedColorApply();
  }
 
 void INTERNAL_MODULE_ON()
@@ -280,22 +263,22 @@ void USBCharger(uint32_t usbchgstatus)
   }
   switch (++usbchgmode) {
     case 1:
-      ws2812_set_color(0, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      rgbSetLedColor(0, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       break;
     case 2:
-      ws2812_set_color(1, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      rgbSetLedColor(1, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       break;
     case 3:
-      ws2812_set_color(2, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      rgbSetLedColor(2, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       break;
     case 4:
-      ws2812_set_color(3, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      rgbSetLedColor(3, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       break;
     case 5:
-      ws2812_set_color(4, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      rgbSetLedColor(4, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       break;
     case 6:
-      ws2812_set_color(5, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      rgbSetLedColor(5, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       break;
     case 7:
       usbchgmode=0;
@@ -306,6 +289,17 @@ void USBCharger(uint32_t usbchgstatus)
   }
   rgbLedColorApply();
 }
+
+#if defined(IMU)
+static const etx_imu_t _imu_candidates[] = {
+  { &imu_icm42627_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR },
+};
+
+void gyroInit()
+{
+  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
+}
+#endif
 
 void boardInit()
 {
@@ -373,6 +367,10 @@ void boardInit()
   hapticInit();
 
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
+
+#if defined(IMU)
+  gyroInit();
+#endif
 }
 
 extern void rtcDisableBackupReg();
