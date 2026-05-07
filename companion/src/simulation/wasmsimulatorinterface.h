@@ -84,6 +84,15 @@ class WasmSimulatorInterface : public SimulatorInterface
     // Called by WASM import simuLcdNotify (from WAMR thread)
     void notifyLcdReady();
 
+    // Called by WASM aux serial imports (from WAMR thread).  These re-emit
+    // the matching SimulatorInterface signals so that HostSerialConnector
+    // (wired up in SimulatorMainWindow) drives the real host serial port.
+    void onAuxSerialStart(uint8_t port_nr, uint32_t baudrate, uint8_t encoding);
+    void onAuxSerialStop(uint8_t port_nr);
+    void onAuxSerialSetBaudrate(uint8_t port_nr, uint32_t baudrate);
+    void onAuxSerialSendBuffer(uint8_t port_nr, const uint8_t * data,
+                               uint32_t len);
+
   protected slots:
     void run();
     void onLcdNotify();
@@ -195,6 +204,9 @@ class WasmSimulatorInterface : public SimulatorInterface
     // Cached function switch LED colors for change detection
     static constexpr int MAX_FS_LEDS = 8;
     uint32_t m_lastFSLedColors[MAX_FS_LEDS] = {};
+
+    // Aux serial: host -> firmware data injection
+    wasm_function_inst_t m_fnAuxSerialReceive = nullptr;
 
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;

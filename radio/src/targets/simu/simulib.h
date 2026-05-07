@@ -140,6 +140,11 @@ uint8_t  WASM_EXPORT(simuGetNumGVars)();
 uint8_t  WASM_EXPORT(simuGetNumFlightModes)();
 int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
 
+// Aux serial: push bytes received from a host serial port into the firmware's
+// rx queue for the matching aux port (port_nr is 0 for AUX1, 1 for AUX2).
+void WASM_EXPORT(simuAuxSerialReceive)(uint8_t port_nr, const uint8_t* data,
+                                       uint32_t len);
+
 // -- WASM imports (provided by host) --
 
 // simuGetAnalog: return ADC-range value for input at index idx.
@@ -156,6 +161,18 @@ void WASM_IMPORT(simuTrace)(const char* text);
 // flush callback (color).  On the host side this wakes an Atomics.waitAsync
 // listener so the frame can be rendered without polling.
 void WASM_IMPORT(simuLcdNotify)();
+
+// Aux serial bridge (firmware -> host).  port_nr is 0 for AUX1, 1 for AUX2.
+// encoding values match SimulatorSerialEncoding (0=8N1, 1=8E2, 2=PXX1_PWM)
+// and ETX_Encoding_* — they share the same numeric values.  Called when the
+// firmware initialises an aux serial port (start), shuts it down (stop),
+// reconfigures the baudrate, or transmits data.
+void WASM_IMPORT(simuAuxSerialStart)(uint8_t port_nr, uint32_t baudrate,
+                                     uint8_t encoding);
+void WASM_IMPORT(simuAuxSerialStop)(uint8_t port_nr);
+void WASM_IMPORT(simuAuxSerialSetBaudrate)(uint8_t port_nr, uint32_t baudrate);
+void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
+                                          uint32_t len);
 
 // -- Internal (not exported) --
 void simuMain();
