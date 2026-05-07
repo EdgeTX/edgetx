@@ -30,61 +30,61 @@
  */
 
 // Main menu
-#define TR_QM_MANAGE_MODELS             "Manage\nModels"
-#define TR_QM_MODEL_SETUP               "Model\nSetup"
-#define TR_QM_RADIO_SETUP               "Radio\nSetup"
-#define TR_QM_UI_SETUP                  "UI\nSetup"
-#define TR_QM_TOOLS                     "Tools"
-#define TR_QM_MODEL_SETTINGS            "Model\nSettings"
-#define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
-#define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Drive\nModes", "Flight\nModes")
-#define TR_QM_INPUTS                    "Inputs"
-#define TR_QM_MIXES                     "Mixes"
-#define TR_QM_OUTPUTS                   "Outputs"
-#define TR_QM_CURVES                    "Curves"
-#define TR_QM_GLOBAL_VARS               "Global\nVariables"
-#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
-#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
-#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
-#define TR_QM_TELEM                     "Telemetry"
-#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
-#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_MANAGE_MODELS             "Gestione\nModelli"
+#define TR_QM_MODEL_SETUP               "Setta\nModello"
+#define TR_QM_RADIO_SETUP               "Config.\nRadio"
+#define TR_QM_UI_SETUP                  "Settaggi\nSchermo"
+#define TR_QM_TOOLS                     "Strumenti"
+#define TR_QM_MODEL_SETTINGS            "Settaggi\nModello"
+#define TR_QM_RADIO_SETTINGS            "Settaggi\nRadio"
+#define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Modi\nPil.", "Fasi\nVolo")
+#define TR_QM_INPUTS                    "Ingressi"
+#define TR_QM_MIXES                     TR("Mix", "Miscelazioni")
+#define TR_QM_OUTPUTS                   "Uscite"
+#define TR_QM_CURVES                    "Curve"
+#define TR_QM_GLOBAL_VARS               "Variab.\nGlobali"
+#define TR_QM_LOGICAL_SW                "Inter.\nLogici"
+#define TR_QM_SPEC_FUNC                 "Funz.\nSpeciali"
+#define TR_QM_CUSTOM_LUA                "Script\nUtente"
+#define TR_QM_TELEM                     "Telemetria"
+#define TR_QM_GLOB_FUNC                 "Funz.\nGlobali"
+#define TR_QM_TRAINER                   TR("Trainer", "Maestro/Allievo")
 #define TR_QM_HARDWARE                  "Hardware"
-#define TR_QM_ABOUT                     "About\nEdgeTX"
-#define TR_QM_THEMES                    "Themes"
-#define TR_QM_TOP_BAR                   "Top Bar"
-#define TR_QM_SCREEN_1                  "Screen 1"
-#define TR_QM_SCREEN_2                  "Screen 2"
-#define TR_QM_SCREEN_3                  "Screen 3"
-#define TR_QM_SCREEN_4                  "Screen 4"
-#define TR_QM_SCREEN_5                  "Screen 5"
-#define TR_QM_SCREEN_6                  "Screen 6"
-#define TR_QM_SCREEN_7                  "Screen 7"
-#define TR_QM_SCREEN_8                  "Screen 8"
-#define TR_QM_SCREEN_9                  "Screen 9"
-#define TR_QM_SCREEN_10                 "Screen 10"
-#define TR_QM_ADD_SCREEN                "Add\nScreen"
-#define TR_QM_APPS                      "Apps"
-#define TR_QM_STORAGE                   "Storage"
-#define TR_QM_RESET                     TR_SFC_AIR("Drive\nReset", "Flight\nReset")
-#define TR_QM_CHAN_MON                  "Channel\nMonitor"
-#define TR_QM_LS_MON                    "LS\nMonitor"
-#define TR_QM_STATS                     "Statistics"
+#define TR_QM_ABOUT                     "Info su\nEdgeTX"
+#define TR_QM_THEMES                    "Temi"
+#define TR_QM_TOP_BAR                   "Barra sup."
+#define TR_QM_SCREEN_1                  "Schermo 1"
+#define TR_QM_SCREEN_2                  "Schermo 2"
+#define TR_QM_SCREEN_3                  "Schermo 3"
+#define TR_QM_SCREEN_4                  "Schermo 4"
+#define TR_QM_SCREEN_5                  "Schermo 5"
+#define TR_QM_SCREEN_6                  "Schermo 6"
+#define TR_QM_SCREEN_7                  "Schermo 7"
+#define TR_QM_SCREEN_8                  "Schermo 8"
+#define TR_QM_SCREEN_9                  "Schermo 9"
+#define TR_QM_SCREEN_10                 "Schermo 10"
+#define TR_QM_ADD_SCREEN                "Agg.\nSchermo"
+#define TR_QM_APPS                      "App"
+#define TR_QM_STORAGE                   "Memoria"
+#define TR_QM_RESET                     TR_SFC_AIR("Reset\nGuida", "Reset\nVolo")
+#define TR_QM_CHAN_MON                  "Monitor\nCanali"
+#define TR_QM_LS_MON                    "Monitor\nLogici"
+#define TR_QM_STATS                     "Statistiche"
 #define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MODEL_SETTINGS          "Model Settings"
-#define TR_MAIN_RADIO_SETTINGS          "Radio Settings"
+#define TR_MAIN_MODEL_SETTINGS          "Settaggi Modello"
+#define TR_MAIN_RADIO_SETTINGS          "Settaggi Radio"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestione Modelli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Note Modello"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canali"
 #define TR_MONITOR_SWITCHES             "MONITOR INTERRUTTORI LOGICI"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi Modello"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Settaggi Radio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Settaggi Schermo"
 #define TR_MAIN_MENU_STATISTICS         "Statistiche"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Riguardo EdgeTX"
-#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_VIEW_X                  "Schermo "
 #define TR_MAIN_MENU_THEMES                 "TEMI"
-#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MAIN_MENU_APPS               "App"
 #define TR_MENUHELISETUP                "CONFIGURA ELI"
 #define TR_MENUFLIGHTMODES              TR_SFC_AIR("MODI DI PILOTAGGIO", "FASI DI VOLO")
 #define TR_MENUFLIGHTMODE               TR_SFC_AIR("MODO DI PILOTAGGIO", "FASE DI VOLO")
@@ -100,7 +100,7 @@
 #define TR_MENUSPECIALFUNCS             "FUNZIONI GLOBALI"
 #define TR_MENUTRAINER                  "MAESTRO/ALLIEVO"
 #define TR_HARDWARE                     "HARDWARE"
-#define TR_USER_INTERFACE               "Top Bar"
+#define TR_USER_INTERFACE               "Interfaccia utente"
 #define TR_SD_CARD                      "SD Card"
 #define TR_DEBUG                        "Debug"
 #define TR_MENU_RADIO_SWITCHES          "DIAG"
@@ -372,7 +372,7 @@
 #define TR_SRC_BATT                     "Batt"
 #define TR_SRC_TIME                     "Time"
 #define TR_SRC_GPS                      "GPS"
-#define	TR_SRC_LIGHT                    "Ambient light"
+#define	TR_SRC_LIGHT                    "Luce ambiente"
 #define TR_SRC_TIMER                    "Tmr"
 
 #define TR_VTMRMODES_1                    "OFF"
@@ -666,7 +666,7 @@
 #define TR_RECEIVER_NUM                 TR("RxNum", "Ricevente N.")
 #define TR_RECEIVER                     "Ricevente"
 #define TR_MULTI_RFTUNE                 TR("Tune RF", "Tune fine Freq. RF")
-#define TR_MULTI_RFPOWER                "RF power"
+#define TR_MULTI_RFPOWER                "Potenza RF"
 #define TR_MULTI_WBUS                   "Output"
 #define TR_MULTI_TELEMETRY              "Telemetria"
 #define TR_MULTI_VIDFREQ                TR("Freq. video", "Frequenza video")
@@ -675,7 +675,7 @@
 #define TR_MULTI_OPTION                 TR("Opzione", "Opzione valore")
 #define TR_MULTI_AUTOBIND               TR("Ass. Ch.","Associa al canale")
 #define TR_DISABLE_CH_MAP               TR("No Ch. map", "Disab. mappa Ch.")
-#define TR_DSMP_ENABLE_AETR             TR("Enb. AETR", "Enable AETR")
+#define TR_DSMP_ENABLE_AETR             TR("Abil. AETR", "Abilita AETR")
 #define TR_DISABLE_TELEM                TR("No Telem", "Telem. disabil.")
 #define TR_MULTI_LOWPOWER               TR("Bassa pot.", "Modo bassa potenza")
 #define TR_MULTI_LNA_DISABLE            "Disabilita LNA"
@@ -744,8 +744,8 @@
 #define TR_DELETE_MODEL                 TR("Elim. Modello", "Elimina Modello")
 #define TR_RESTORE_MODEL                TR("Ripr. Modello", "Ripristina Modello")
 #define TR_DELETE_ERROR                 "Errore cancell."
-#define TR_DELETE_INPUT_LINE           "Delete input line"
-#define TR_DELETE_MIX_LINE             "Delete mix line"
+#define TR_DELETE_INPUT_LINE           "Elimina riga ingresso"
+#define TR_DELETE_MIX_LINE             "Elimina riga mix"
 #define TR_SDCARD_ERROR                 TR("Errore SD", "Errore SDCard")
 #define TR_SDCARD                       "SD Card"
 #define TR_NO_FILES_ON_SD               "SD senza file!"
@@ -753,7 +753,7 @@
 #define TR_WAITING_FOR_RX               "Attendo la RX..."
 #define TR_WAITING_FOR_TX               "Attendo la TX..."
 #define TR_WAITING_FOR_MODULE           TR("Attendo modulo", "Attendo il modulo...")
-#define TR_NO_TOOLS                     "Tools non disp."
+#define TR_NO_TOOLS                     "Strumenti non disp."
 #define TR_NORMAL                       "Normale"
 #define TR_NOT_INVERTED                 "Non inv."
 #define TR_NOT_CONNECTED                TR("!Connesso", "Non Connesso")
@@ -811,8 +811,8 @@
 #define TR_VOLUME                       "Volume Audio"
 #define TR_LCD                          "LCD"
 #define TR_BRIGHTNESS                   "Luminosità"
-#define TR_CONTROL                     "Control"
-#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
+#define TR_CONTROL                     "Controllo"
+#define TR_SF_OVERRIDDEN               "Sovrascritto da FS/FG"
 #define TR_CPU_TEMP                     "Temp CPU \016>"
 #define TR_COPROC                       "CoProc."
 #define TR_COPROC_TEMP                  "Temp. MB \016>"
@@ -835,7 +835,7 @@
 #define TR_COPY_FILE                    "Copia"
 #define TR_RENAME_FILE                  "Rinomina"
 #define TR_ASSIGN_BITMAP                "Assegna immagine"
-#define TR_ASSIGN_SPLASH                "Splash screen"
+#define TR_ASSIGN_SPLASH                "Schermata d'avvio"
 #define TR_EXECUTE_FILE                 "Esegui"
 #define TR_REMOVED                      " rimosso"
 #define TR_SD_INFO                      "Informazioni"
@@ -885,7 +885,7 @@
 #define TR_BLUETOOTH_PIN_CODE         "Codice PIN"
 #define TR_BLUETOOTH_NODEVICES        "Nessun Dispositivo Trovato"
 #define TR_BLUETOOTH_SCANNING         "Scansione..."
-#define TR_BLUETOOTH_BAUDRATE         "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE         "Baudrate BT"
 #define TR_BLUETOOTH_MODES_1          "---"
 #define TR_BLUETOOTH_MODES_2          "Telemetr."
 #define TR_BLUETOOTH_MODES_3          "Trainer"
@@ -955,11 +955,11 @@
 #define TR_FAILSAFE                     TR("Failsafe", "Modo failsafe")
 #define TR_FAILSAFESET                  TR("FAILSAFE", "IMPOSTAZIONI FAILSAFE")
 #define TR_REG_ID                       "Reg. ID"
-#define TR_OWNER_ID                     "Owner ID"
+#define TR_OWNER_ID                     "ID proprietario"
 #define TR_HOLD                         "tieni"
 #define TR_HOLD_UPPERCASE               "TIENI"
-#define TR_NONE                         "None"
-#define TR_NONE_UPPERCASE               "NONE"
+#define TR_NONE                         "Nessuno"
+#define TR_NONE_UPPERCASE               "NESSUNO"
 #define TR_MENUSENSOR                   "SENSORE"
 #define TR_POWERMETER_PEAK              "Picco"
 #define TR_POWERMETER_POWER             "Potenza"
@@ -975,7 +975,7 @@
 #define TR_USBMODE                      "Modo USB"
 #define TR_JACK_MODE                    "Modo JACK"
 #define TR_VOICE_LANGUAGE               "Lingua vocale"
-#define TR_TEXT_LANGUAGE               "Text language"
+#define TR_TEXT_LANGUAGE               "Lingua testo"
 #define TR_UNITS_SYSTEM                 "Unità"
 #define TR_UNITS_PPM                    "Unità PPM"
 #define TR_EDIT                         "Modifica"
@@ -1022,7 +1022,7 @@
 #define TR_RECEIVER_RESET               "Resetto RX?"
 #define TR_SHARE                        "Condividere"
 #define TR_BIND                         "Bind"
-#define TR_PAIRING                     "Pairing"
+#define TR_PAIRING                     "Associazione"
 #define TR_BTAUDIO                     "BT Audio"
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registrare"))
 #define TR_MODULE_RANGE                 TR("[Rng]","[Range]")
@@ -1138,7 +1138,7 @@
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "Primo canale"
-#define TR_LAST_CHANNEL              "Last channel"
+#define TR_LAST_CHANNEL              "Ultimo canale"
 #define TR_FILL_BACKGROUND           "Riempi lo sfondo?"
 #define TR_BG_COLOR                  "Colore sfondo"
 #define TR_SLIDERS_TRIMS             "Sliders+Trims"
@@ -1158,8 +1158,8 @@
 #define TR_COLOR                     "Colore"
 #define TR_PANEL1_BACKGROUND         "Sfondo Panello 1"
 #define TR_PANEL2_BACKGROUND         "Sfondo Panello 2"
-#define TR_PANEL_BACKGROUND          "Background"
-#define TR_PANEL_COLOR               "  Color"
+#define TR_PANEL_BACKGROUND          "Sfondo"
+#define TR_PANEL_COLOR               "  Colore"
 #define TR_WIDGET_GAUGE              "Indicatore"
 #define TR_WIDGET_MODELBMP           "Immagine e nome modello"
 #define TR_WIDGET_OUTPUTS            "Uscite"
@@ -1272,8 +1272,8 @@
 #define TR_THEME_COLOR_ACTIVE           "ATTIVO"
 #define TR_THEME_COLOR_WARNING          "ATTENZIONE"
 #define TR_THEME_COLOR_DISABLED         "DISABILITATO"
-#define TR_THEME_COLOR_QM_BG           "Quick Menu BG"
-#define TR_THEME_COLOR_QM_FG           "Quick Menu FG"
+#define TR_THEME_COLOR_QM_BG           "Sfondo Menu Rapido"
+#define TR_THEME_COLOR_QM_FG           "Testo Menu Rapido"
 #define TR_THEME_COLOR_CUSTOM           "PERSONALE"
 #define TR_THEME_CHECKBOX               "Casella di spunta"
 #define TR_THEME_ACTIVE                 "Attivo"
@@ -1297,7 +1297,7 @@
 #define TR_VOICE_DEUTSCH                "Tedesco"
 #define TR_VOICE_DUTCH                  "Olandese"
 #define TR_VOICE_ESPANOL                "Spagnolo"
-#define TR_VOICE_FINNISH                "Finnish"
+#define TR_VOICE_FINNISH                "Finlandese"
 #define TR_VOICE_FRANCAIS               "Francese"
 #define TR_VOICE_HUNGARIAN              "Ungherese"
 #define TR_VOICE_ITALIANO               "Italiano"
@@ -1407,7 +1407,7 @@
 #define TR_THEME_EXISTS           "Esiste già una cartella di temi con lo stesso nome."
 
 #define TR_DATE_TIME_WIDGET       "Data & Ora"
-#define TR_RADIO_INFO_WIDGET      "Radio Info"
+#define TR_RADIO_INFO_WIDGET      "Info Radio"
 #define TR_LOW_BATT_COLOR         "Batteria scarica"
 #define TR_MID_BATT_COLOR         "Batteria media"
 #define TR_HIGH_BATT_COLOR        "Batteria carica"
@@ -1416,15 +1416,14 @@
 
 #define TR_DEL_DIR_NOT_EMPTY      "La directory non è vuota!"
 
+#define TR_KEY_SHORTCUTS          "Scorciatoie tasti"
+#define TR_CURRENT_SCREEN         "Schermo corrente"
+#define TR_SHORT_PRESS            "Pressione breve"
+#define TR_LONG_PRESS             "Pressione lunga"
+#define TR_OPEN_QUICK_MENU        "Apri Menu rapido"
+#define TR_QUICK_MENU_FAVORITES   "Preferiti Menu rapido"
+
 /*
  * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
- * Update V2.11.x by: Marco Robustini <robustinimarco@gmail.com>
- * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
+ * Update V2.12.x by: Marco Robustini <robustinimarco@gmail.com>
  */
-
-#define TR_KEY_SHORTCUTS          "Key Shortcuts"
-#define TR_CURRENT_SCREEN         "Current Screen"
-#define TR_SHORT_PRESS            "Short Press"
-#define TR_LONG_PRESS             "Long Press"
-#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
-#define TR_QUICK_MENU_FAVORITES   "Quick Menu Favorites"
