@@ -1026,15 +1026,15 @@ void WasmSimulatorInterface::run()
     // When haptic fires, emit hapticChanged() to trigger
     // visual (window jitter) and audible (beep) feedback in the simulatormainwindow.cpp
     // as a substitute for physical vibration hardware.
-    if (m_fnGetHaptic) {
+    if (m_fnGetHaptic && loops > 200) {  // ignore first ~2 seconds
       uint32_t argv[1] = {0};
       if (wasm_runtime_call_wasm(m_execEnv, m_fnGetHaptic, 0, argv)) {
         uint32_t currentHapticValue = argv[0];
-        if (currentHapticValue != m_lastHaptic) {
+        if (currentHapticValue > 0 && m_lastHaptic == 0) {
           m_lastHaptic = currentHapticValue;
-          if (currentHapticValue > 0) {
-            emit hapticChanged((int)currentHapticValue);
-          }
+          emit hapticChanged((int)currentHapticValue);
+        } else if (currentHapticValue == 0) {
+          m_lastHaptic = 0;
         }
       }
     }
