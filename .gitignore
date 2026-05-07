@@ -24,3 +24,6 @@ _wasi_sdk_fetch
 
 # MkDocs
 /site/
+.venv/
+__pycache__/
+imgui.ini

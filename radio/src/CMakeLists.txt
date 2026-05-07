@@ -575,7 +575,7 @@ if(NATIVE_BUILD)
 
   add_subdirectory(targets/simu)
 
-  if(NOT WASI)
+  if(NOT WASI AND EDGE_TX_BUILD_TESTS)
     add_subdirectory(tests)
   endif()
 endif()

@@ -1,5 +1,6 @@
 
 option(DISABLE_COMPANION "Disable building companion and simulators" OFF)
+option(EDGE_TX_BUILD_TESTS "Build native test targets" ON)
 
 if(NOT DISABLE_COMPANION)
   include(QtDefs)
@@ -34,14 +35,18 @@ if(WIN32)
 endif()
 
 # google tests
-include(FetchGtest)
+if(EDGE_TX_BUILD_TESTS)
+  include(FetchGtest)
+endif()
 
-add_custom_target(tests-radio
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-radio
-  DEPENDS gtests-radio
-)
+if(EDGE_TX_BUILD_TESTS)
+  add_custom_target(tests-radio
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-radio
+    DEPENDS gtests-radio
+  )
+endif()
 
-if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt6Core_FOUND AND NOT DISABLE_COMPANION AND EDGE_TX_BUILD_TESTS)
   add_subdirectory(${COMPANION_SRC_DIRECTORY})
   add_custom_target(tests-companion
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-companion
@@ -54,12 +59,14 @@ if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
     DEPENDS tests-radio tests-companion
   )
 else()
-  add_custom_target(gtests
-    DEPENDS gtests-radio
-  )
-  add_custom_target(tests
-    DEPENDS tests-radio
-  )
+  if(EDGE_TX_BUILD_TESTS)
+    add_custom_target(gtests
+      DEPENDS gtests-radio
+    )
+    add_custom_target(tests
+      DEPENDS tests-radio
+    )
+  endif()
 endif()
 
 set(IGNORE "${ARM_TOOLCHAIN_DIR}")
