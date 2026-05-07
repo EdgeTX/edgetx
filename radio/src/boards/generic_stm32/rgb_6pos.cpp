@@ -48,7 +48,10 @@
 static uint8_t _last_adc_state = 0;
 static volatile uint8_t _six_pos_state = 0;
 
-void sixPosUpdateFromAdc()
+// Called whenever the sticky 6POS position changes. Boards that need to
+// map position to a switch-expander state (e.g. FUNCTION_SWITCHES) can
+// override this to react to position changes without polling adcValues[].
+__attribute__((weak)) void sixPosUpdateFromAdc()
 {
   uint16_t* values = getAnalogValues();
   uint16_t adcValue = values[SIXPOS_SWITCH_INDEX];
