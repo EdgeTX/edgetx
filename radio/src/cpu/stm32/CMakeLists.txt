@@ -12,7 +12,7 @@ add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
 set(LINKER_DIR ${RADIO_SRC_DIR}/boards/generic_stm32/linker)
 add_link_options(-L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR})
 
-set(STM32_DRIVER_DIR targets/common/arm/stm32)
+set(STM32_DRIVER_DIR cpu/stm32)
 include_directories(${STM32_DRIVER_DIR})
 
 if(NOT NATIVE_BUILD)
@@ -142,7 +142,7 @@ endif()
 
 if(AUX_SERIAL OR AUX2_SERIAL)
   # set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-  #   ../common/arm/stm32/aux_serial_driver.cpp
+  #   cpu/stm32/aux_serial_driver.cpp
   #   )
   if(AUX_SERIAL)
     add_definitions(-DAUX_SERIAL)
@@ -154,14 +154,14 @@ endif()
 
 if(FLYSKY_GIMBAL)
   set(FIRMWARE_SRC ${FIRMWARE_SRC}
-    targets/common/arm/stm32/flysky_gimbal_driver.cpp
+    cpu/stm32/flysky_gimbal_driver.cpp
   )
   add_definitions(-DFLYSKY_GIMBAL)
 endif()
 
 if(CSD203_SENSOR)
   set(FIRMWARE_SRC ${FIRMWARE_SRC}
-  targets/common/arm/stm32/csd203_sensor.cpp
+  cpu/stm32/csd203_sensor.cpp
   )
   add_definitions(-DCSD203_SENSOR)
   message("-- Adding support for Current sensor")
@@ -175,7 +175,7 @@ endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
-set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
+set(SRC ${SRC} cpu/stm32/cpu_id.cpp)
 set(SRC ${SRC} io/bootloader_flash.cpp)
 
 if(FIRMWARE_FORMAT_UF2)

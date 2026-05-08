@@ -9,12 +9,12 @@ include_directories(${CMSIS_DIR}/Include)
 if(CPU_TYPE STREQUAL STM32H7RS)
   include_directories(${CMSIS_DIR}/Device/ST/STM32H7RS/Include)
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/h7/system_stm32h7rsxx.c
+    cpu/stm32/h7/system_stm32h7rsxx.c
   )
 else()
   include_directories(${CMSIS_DIR}/Device/ST/STM32H7xx/Include)
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/h7/system_stm32h7xx.c
+    cpu/stm32/h7/system_stm32h7xx.c
   )
 endif()
 
@@ -122,15 +122,15 @@ endif()
 
 if(CPU_TYPE_FULL STREQUAL STM32H750xB)
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/h7/vectors_stm32h750xx.c
+    cpu/stm32/h7/vectors_stm32h750xx.c
   )
 elseif(CPU_TYPE_FULL STREQUAL STM32H747Ix)
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/h7/vectors_stm32h747xx.c
+    cpu/stm32/h7/vectors_stm32h747xx.c
   )
 elseif(CPU_TYPE_FULL STREQUAL STM32H7S7xx OR CPU_TYPE_FULL STREQUAL STM32H7R7xx)
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/h7/vectors_stm32h7s7xx.c
+    cpu/stm32/h7/vectors_stm32h7s7xx.c
   )
 else()
   message(FATAL_ERROR "### ERROR ####: ${CPU_TYPE_FULL}")
@@ -139,13 +139,13 @@ endif()
 add_library(cmsis INTERFACE)
 
 target_sources(cmsis INTERFACE
-  targets/common/arm/stm32/system_init.c
-  targets/common/arm/stm32/cortex_m_isr.c
+  cpu/stm32/system_init.c
+  cpu/stm32/cortex_m_isr.c
   ${CMSIS_SRC}
 )
 
 if(NOT NATIVE_BUILD)
-  include_directories(targets/common/arm/stm32/h7)
+  include_directories(cpu/stm32/h7)
 
   #
   # FreeRTOS port specific include
