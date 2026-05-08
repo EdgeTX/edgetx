@@ -191,7 +191,10 @@ void FileChoice::openMenu()
     constexpr int rowH = ListBox::MENUS_LINE_HEIGHT + 2 * PAD_TABLE_V;
     constexpr size_t maxFilesInMenu = (INT16_MAX / rowH) * 9 / 10;
     if (fileCount > maxFilesInMenu) {
-      new MessageDialog(STR_SDCARD, STR_TOO_MANY_FILES);
+      char info[32];
+      snprintf(info, sizeof(info), "%u / %u", (unsigned)fileCount,
+               (unsigned)maxFilesInMenu);
+      new MessageDialog(STR_SDCARD, STR_TOO_MANY_FILES, info);
       return;
     }
 
