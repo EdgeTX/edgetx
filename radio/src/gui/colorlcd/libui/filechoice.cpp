@@ -19,10 +19,13 @@
 #include "filechoice.h"
 
 #include <algorithm>
+#include <climits>
 
 #include "dialog.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
 #include "lib_file.h"
+#include "listbox.h"
 #include "menu.h"
 #include "menutoolbar.h"
 
@@ -181,11 +184,13 @@ void FileChoice::openMenu()
 
   if (fileCount > 0) {
     // The menu is rendered as an lv_table whose accumulated content height
-    // is tracked in lv_coord_t (int16_t, LV_USE_LARGE_COORD=0). Past
-    // INT16_MAX / row_height rows scrolling and hit-testing break. Warn
-    // the user instead of silently rendering a broken menu.
-    static constexpr size_t MAX_FILES_IN_MENU = 700;
-    if (fileCount > MAX_FILES_IN_MENU) {
+    // is tracked in lv_coord_t (int16_t when LV_USE_LARGE_COORD=0). Once
+    // row_count * row_height exceeds INT16_MAX, scrolling and hit-testing
+    // break. Derive the cap from the actual scaled row height + table
+    // padding so it tracks per-target UI scaling rather than guessing.
+    constexpr int rowH = ListBox::MENUS_LINE_HEIGHT + 2 * PAD_TABLE_V;
+    constexpr size_t maxFilesInMenu = (INT16_MAX / rowH) * 9 / 10;
+    if (fileCount > maxFilesInMenu) {
       new MessageDialog(STR_SDCARD, STR_TOO_MANY_FILES);
       return;
     }
