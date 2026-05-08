@@ -1,7 +1,5 @@
 /opentx.elf
-/simu
 /opentx.map
-/simu.d
 /snapshot_*.png
 /*.sh
 /*.bat
