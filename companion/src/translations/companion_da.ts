@@ -1809,7 +1809,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../storage/appdata.h" line="570"/>
         <source>Nightly</source>
-        <translation>Natlig byg (måske ustabile)</translation>
+        <translation>Nattens byg (måske ustabile)</translation>
     </message>
 </context>
 <context>
@@ -14538,7 +14538,7 @@ For mange fejl - afbryder.</translation>
     <message>
         <location filename="../modeledit/telemetry.ui" line="53"/>
         <source>RF Quality</source>
-        <translation></translation>
+        <translation>Link kvalitet</translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="568"/>
