@@ -73,26 +73,26 @@ add_definitions(-DSTM32F4)
 
 if(CPU_TYPE_FULL STREQUAL STM32F429xI)
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/f4/vectors_stm32f429xx.c
+    cpu/stm32/f4/vectors_stm32f429xx.c
   )
 else()
   set(CMSIS_SRC ${CMSIS_SRC}
-    targets/common/arm/stm32/f4/vectors_stm32f407xx.c
+    cpu/stm32/f4/vectors_stm32f407xx.c
   )  
 endif()
 
 add_library(cmsis INTERFACE)
 
 target_sources(cmsis INTERFACE
-  targets/common/arm/stm32/system_init.c
-  targets/common/arm/stm32/cortex_m_isr.c
-  targets/common/arm/stm32/f4/system_clock.c
-  targets/common/arm/stm32/f4/system_stm32f4xx.c
+  cpu/stm32/system_init.c
+  cpu/stm32/cortex_m_isr.c
+  cpu/stm32/f4/system_clock.c
+  cpu/stm32/f4/system_stm32f4xx.c
   ${CMSIS_SRC}
 )
 
 if(NOT NATIVE_BUILD)
-  include_directories(targets/common/arm/stm32/f4)
+  include_directories(cpu/stm32/f4)
 
   #
   # FreeRTOS port specific include
