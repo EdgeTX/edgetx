@@ -1105,6 +1105,7 @@
 #define TR_INPUTS                      "Tulot"
 #define TR_OUTPUTS                     "Ulostulot"
 #define TR_CONFIRMRESET                "Erase ALL models and settings?"
+#define TR_TOO_MANY_FILES              "Liian monta tiedostoa kansiossa!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "Too many Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

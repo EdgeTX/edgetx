@@ -1002,6 +1002,7 @@
 #define STR_TIMER currentLangStrings->STR_TIMER
 #define STR_TIMEZONE currentLangStrings->STR_TIMEZONE
 #define STR_TMIXMAXMS currentLangStrings->STR_TMIXMAXMS
+#define STR_TOO_MANY_FILES currentLangStrings->STR_TOO_MANY_FILES
 #define STR_TOO_MANY_LUA_SCRIPTS currentLangStrings->STR_TOO_MANY_LUA_SCRIPTS
 #define STR_TOP_BAR currentLangStrings->STR_TOP_BAR
 #define STR_TOPLCDTIMER currentLangStrings->STR_TOPLCDTIMER

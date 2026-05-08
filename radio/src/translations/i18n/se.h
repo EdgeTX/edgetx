@@ -1116,6 +1116,7 @@
 #define TR_INPUTS                       "Inputs"
 #define TR_OUTPUTS                      "Outputs"
 #define TR_CONFIRMRESET                 "Radera ALLA modeller och inställningar?"
+#define TR_TOO_MANY_FILES               "För många filer i mappen!"
 #define TR_TOO_MANY_LUA_SCRIPTS         "För många Lua-skript!"
 #define TR_SPORT_UPDATE_POWER_MODE      "S.Port Pwr"
 #define TR_SPORT_UPDATE_POWER_MODES_1   "Auto"

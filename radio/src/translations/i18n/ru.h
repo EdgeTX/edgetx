@@ -1107,6 +1107,7 @@
 #define TR_INPUTS                      "Входные"
 #define TR_OUTPUTS                     "Выходные"
 #define TR_CONFIRMRESET                TR("Удалить все?", "Удалить все?")
+#define TR_TOO_MANY_FILES              "Слишком много файлов в папке!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "Много Lua-скриптов!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Режим питания"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "Авто"

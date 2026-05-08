@@ -1105,6 +1105,7 @@
 #define TR_INPUTS                      "输入"
 #define TR_OUTPUTS                     "输出"
 #define TR_CONFIRMRESET                TR("是否清除?", "是否清除所有模型和设置数据?")
+#define TR_TOO_MANY_FILES              "文件夹中文件过多!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "LUA脚本数量超出限制!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 电源"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "自动"

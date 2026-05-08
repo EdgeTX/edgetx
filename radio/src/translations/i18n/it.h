@@ -1105,6 +1105,7 @@
 #define TR_INPUTS                          "Ingresso"
 #define TR_OUTPUTS                         "Uscita"
 #define TR_CONFIRMRESET                    "Resettare TUTTI i dati?"
+#define TR_TOO_MANY_FILES                  "Troppi file nella cartella!"
 #define TR_TOO_MANY_LUA_SCRIPTS            "Troppi script Lua!"
 #define TR_SPORT_UPDATE_POWER_MODE         "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1      "AUTO"

@@ -180,6 +180,16 @@ void FileChoice::openMenu()
   loadFiles();
 
   if (fileCount > 0) {
+    // The menu is rendered as an lv_table whose accumulated content height
+    // is tracked in lv_coord_t (int16_t, LV_USE_LARGE_COORD=0). Past
+    // INT16_MAX / row_height rows scrolling and hit-testing break. Warn
+    // the user instead of silently rendering a broken menu.
+    static constexpr size_t MAX_FILES_IN_MENU = 700;
+    if (fileCount > MAX_FILES_IN_MENU) {
+      new MessageDialog(STR_SDCARD, STR_TOO_MANY_FILES);
+      return;
+    }
+
     setEditMode(true);  // this needs to be done first before menu is created.
 
     auto menu = new Menu();

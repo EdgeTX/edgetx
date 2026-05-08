@@ -1106,6 +1106,7 @@
 #define TR_INPUTS                      "Входи"
 #define TR_OUTPUTS                     "Виходи"
 #define TR_CONFIRMRESET                TR("Стерти все", "Стерти налаштування всіх моделей?")
+#define TR_TOO_MANY_FILES              "Забагато файлів у теці!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "Забагато Lua скриптів!"
 #define TR_SPORT_UPDATE_POWER_MODE     "Режим живлення SP"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

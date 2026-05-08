@@ -1104,6 +1104,7 @@
 #define TR_INPUTS                      "Eingaben"
 #define TR_OUTPUTS                     "Ausgaben"
 #define TR_CONFIRMRESET                TR("Alles löschen? ","ALLE Modelle+Einst. löschen?")
+#define TR_TOO_MANY_FILES              "Zu viele Dateien im Ordner!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "Zu viele Skripte!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

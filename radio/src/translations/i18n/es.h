@@ -1106,6 +1106,7 @@
 #define TR_INPUTS              "Entradas"
 #define TR_OUTPUTS             "Salidas"
 #define TR_CONFIRMRESET        "Borrar TODOS los " LCDW_128_LINEBREAK "modelos y conf?"
+#define TR_TOO_MANY_FILES      "Demasiados archivos en la carpeta!"
 #define TR_TOO_MANY_LUA_SCRIPTS "Demasiados Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

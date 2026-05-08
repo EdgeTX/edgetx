@@ -1108,6 +1108,7 @@
 #define TR_INPUTS                      "כניסות"
 #define TR_OUTPUTS                     "יציאות"
 #define TR_CONFIRMRESET                TR("Erase ALL", "Erase ALL models and settings?")
+#define TR_TOO_MANY_FILES              "Too many files in folder!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "Too many Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "אוטומטי"

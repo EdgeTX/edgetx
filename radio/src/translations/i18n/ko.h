@@ -1155,6 +1155,7 @@
 #define TR_INPUTS                         "입력"
 #define TR_OUTPUTS                        "출력"
 #define TR_CONFIRMRESET                   TR("전체 삭제", "모델과 설정을 모두 삭제할까요?")
+#define TR_TOO_MANY_FILES                 "폴더에 파일이 너무 많습니다!"
 #define TR_TOO_MANY_LUA_SCRIPTS           "Lua 스크립트가 너무 많습니다!"
 #define TR_SPORT_UPDATE_POWER_MODE        "S.Port 전원"
 #define TR_SPORT_UPDATE_POWER_MODES_1     "자동"

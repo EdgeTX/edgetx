@@ -1110,6 +1110,7 @@
 #define TR_INPUTS                      "Indgange"
 #define TR_OUTPUTS                     "Udgange"
 #define TR_CONFIRMRESET                TR("Slet ALLE", "Slet ALLE modeller og indstillinger?")
+#define TR_TOO_MANY_FILES              "For mange filer i mappe!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "For mange Lua skript!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Strøm"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

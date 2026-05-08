@@ -1108,6 +1108,7 @@
 #define TR_INPUTS                      "Entrées"
 #define TR_OUTPUTS                     "Sorties"
 #define TR_CONFIRMRESET                TR("Effacer TOUT?","Effacer TOUS modèles/réglages?")
+#define TR_TOO_MANY_FILES               "Trop de fichiers dans le dossier!"
 #define TR_TOO_MANY_LUA_SCRIPTS         "Trop de scripts lua!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

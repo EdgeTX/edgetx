@@ -1106,6 +1106,7 @@
 #define TR_INPUTS              "Inputs"
 #define TR_OUTPUTS             "Outputs"
 #define TR_CONFIRMRESET        TR("Wis Alles?", "Wis ALLE modellen en instellingen?")
+#define TR_TOO_MANY_FILES      "Te veel bestanden in map!"
 #define TR_TOO_MANY_LUA_SCRIPTS "Te veel Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

@@ -1108,6 +1108,7 @@
 #define TR_INPUTS                      "Vstupy"
 #define TR_OUTPUTS                     "Výstupy"
 #define TR_CONFIRMRESET                TR("Smazat vše?", "Smazat modely a nastavení?")
+#define TR_TOO_MANY_FILES              "Příliš mnoho souborů ve složce!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "Příliš mnoho skriptů!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP výkon"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"

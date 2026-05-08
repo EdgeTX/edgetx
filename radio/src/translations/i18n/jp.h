@@ -1104,6 +1104,7 @@
 #define TR_INPUTS                      "入力"
 #define TR_OUTPUTS                     "出力"
 #define TR_CONFIRMRESET                TR("Erase ALL", "全モデルと全設定を消去しますか？")
+#define TR_TOO_MANY_FILES              "フォルダ内のファイルが多すぎます!"
 #define TR_TOO_MANY_LUA_SCRIPTS        "LUAスクリプトが多すぎます!!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 電源"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "自動"
