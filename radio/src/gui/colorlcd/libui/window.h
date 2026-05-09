@@ -236,12 +236,13 @@ class NavWindow : public Window
   bool isNavWindow() override { return true; }
 
 #if defined(HARDWARE_KEYS)
-  virtual void onPressSYS() {}
-  virtual void onLongPressSYS() {}
-  virtual void onPressMDL() {}
-  virtual void onLongPressMDL() {}
-  virtual void onPressTELE() {}
-  virtual void onLongPressTELE() {}
+  virtual void doKeyShortcut(event_t event) {}
+  virtual void onPressSYS();
+  virtual void onLongPressSYS();
+  virtual void onPressMDL();
+  virtual void onLongPressMDL();
+  virtual void onPressTELE();
+  virtual void onLongPressTELE();
   virtual void onPressPGUP() {}
   virtual void onPressPGDN() {}
   virtual void onLongPressPGUP() {}

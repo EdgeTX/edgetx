@@ -364,7 +364,7 @@ void FunctionSwitchesBase::checkEvents()
 
 //-----------------------------------------------------------------------------
 
-ModelFunctionSwitches::ModelFunctionSwitches() : FunctionSwitchesBase(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS)
+ModelFunctionSwitches::ModelFunctionSwitches() : FunctionSwitchesBase(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS)
 {
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i += 1) {
     if (switchIsCustomSwitch(i))

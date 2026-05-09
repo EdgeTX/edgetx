@@ -169,7 +169,7 @@ class QuickSubMenu
     if (mainDef->subMenuItems[n].pageAction == PAGE_CREATE) {
       quickMenu->getTopMenu()->clearFocus();
       int pgIdx = getPageNumber(n);
-      if (quickMenu->getPageGroup() && quickMenu->getPageGroup()->hasSubMenu(mainDef->subMenuItems[n].qmPage)) {
+      if (quickMenu->getPageGroup() && quickMenu->isInMenu(quickMenu->getPageGroup()->getIcon()) && quickMenu->getPageGroup()->hasSubMenu(mainDef->subMenuItems[n].qmPage)) {
         quickMenu->onSelect(false);
         quickMenu->getPageGroup()->setCurrentTab(pgIdx);
       } else {
@@ -318,6 +318,22 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
 #if VERSION_MAJOR > 2
   for (size_t i = 0; i < subMenus.size(); i += 1)
     subMenus[i]->doLayout();
+
+  // If opening from Favorites check that page is still in Favorites list
+  // Handle case where Favorites was edited and Radio Settings was removed
+  // from Favorites list
+  if (newPageGroup && (newPageGroup->getIcon() == ICON_QM_FAVORITES)) {
+    bool hasPage = false;
+    for (int i = 0; favoritesMenuItems[i].icon != EDGETX_ICONS_COUNT; i += 1)
+      if (favoritesMenuItems[i].qmPage == curPage) {
+        hasPage = true;
+        break;
+      }
+    if (!hasPage) {
+      newPageGroup = nullptr;
+      curPage = QM_NONE;
+    }
+  }
 #endif
 
   show();
@@ -626,12 +642,7 @@ void QuickMenu::doKeyShortcut(event_t event)
     QuickMenu::openPage(pg);
   }
 }
-void QuickMenu::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
-void QuickMenu::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
-void QuickMenu::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
-void QuickMenu::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
-void QuickMenu::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
-void QuickMenu::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
+
 void QuickMenu::onLongPressRTN() { closeQM(); }
 
 void QuickMenu::afterPG()

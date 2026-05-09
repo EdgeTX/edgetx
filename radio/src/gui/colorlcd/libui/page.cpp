@@ -133,65 +133,19 @@ NavWindow* Page::navWindow()
 }
 
 #if defined(HARDWARE_KEYS)
-void Page::onPressSYS()
+void Page::doKeyShortcut(event_t event)
 {
-  QMPage pg = g_eeGeneral.getKeyShortcut(EVT_KEY_BREAK(KEY_SYS));
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
   if (pg == QM_OPEN_QUICK_MENU) {
     QuickMenu::openQuickMenu();
   } else {
     auto p = navWindow();
     if (p) {
       onCancel();
-      p->onPressSYS();
+      p->doKeyShortcut(event);
     }
   }
 }
-
-void Page::onLongPressSYS()
-{
-  auto p = navWindow();
-  if (p) {
-    onCancel();
-    p->onLongPressSYS();
-  }
-}
-
-void Page::onPressMDL()
-{
-  auto p = navWindow();
-  if (p) {
-    onCancel();
-    p->onPressMDL();
-  }
-}
-
-void Page::onLongPressMDL()
-{
-  auto p = navWindow();
-  if (p) {
-    onCancel();
-    p->onLongPressMDL();
-  }
-}
-
-void Page::onPressTELE()
-{
-  auto p = navWindow();
-  if (p) {
-    onCancel();
-    p->onPressTELE();
-  }
-}
-
-void Page::onLongPressTELE()
-{
-  auto p = navWindow();
-  if (p) {
-    onCancel();
-    p->onLongPressTELE();
-  }
-}
-
 void Page::onLongPressRTN() { onCancel(); }
 #endif
 

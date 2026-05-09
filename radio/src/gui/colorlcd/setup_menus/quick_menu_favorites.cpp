@@ -31,7 +31,7 @@
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
 QMFavoritesPage::QMFavoritesPage():
-        SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_QUICK_MENU_FAVORITES, true)
+        SubPage(ICON_RADIO, STR_MAIN_RADIO_SETTINGS, STR_QUICK_MENU_FAVORITES, true)
 {
   auto qmPages = QuickMenu::menuPageNames(true);
 
@@ -60,6 +60,8 @@ QMFavoritesPage::QMFavoritesPage():
                   g_eeGeneral.setFavoriteToolName(i, getLuaTool(pg - QM_APP)->label);
                 }
                 changed = true;
+                // Delete quick menu to force rebuild
+                QuickMenu::resetFavorites();
                 SET_DIRTY();
               }, STR_QUICK_MENU_FAVORITES);
 
@@ -90,9 +92,8 @@ void QMFavoritesPage::onCancel()
 {
   SubPage::onCancel();
 
-  if (changed) {
-    // Delete quick menu, and close parent page group (in case it is Favorites group)
-    QuickMenu::resetFavorites();
+  if (changed && QuickMenu::isFavoritesMenu()) {
+    // Close parent page group (in case it is Favorites group)
     QuickMenu::setCurrentPage(QM_NONE);
     Window::topWindow()->onCancel();
   }

@@ -89,13 +89,7 @@ class ViewMain : public NavWindow
   static void ws_timer(lv_timer_t* t);
 
 #if defined(HARDWARE_KEYS)
-  void doKeyShortcut(event_t event);
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
+  void doKeyShortcut(event_t event) override;
   void onPressPGUP() override;
   void onPressPGDN() override;
 #endif

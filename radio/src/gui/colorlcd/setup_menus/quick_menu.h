@@ -98,18 +98,15 @@ class QuickMenu : public NavWindow
   static int pageIndex(QMPage page);
   static std::vector<std::string>& menuPageNames(bool forFavorites);
 
+  static bool isInMenu(EdgeTxIcon icon) { return instance && instance->curIcon == icon; }
+  static bool isFavoritesMenu() { return isInMenu(ICON_QM_FAVORITES); }
+
 #if VERSION_MAJOR > 2
   static void resetFavorites();
 #endif
 
 #if defined(HARDWARE_KEYS)
-  void doKeyShortcut(event_t event);
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
+  void doKeyShortcut(event_t event) override;
   void onLongPressRTN() override;
   void onPressPGDN() override;
   void onPressPGUP() override;
