@@ -27,6 +27,10 @@ endif()
 
 include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
 
+if(EXFAT)
+  add_definitions(-DFF_FS_EXFAT=1)
+endif()
+
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${CMAKE_CURRENT_SOURCE_DIR}/hal/key_driver.cpp
 )
