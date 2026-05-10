@@ -81,13 +81,13 @@ USART6: EXTMODULE_USART
 #define KEYS_GPIO_REG_PAGEDN          GPIOI
 #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_11
 #define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5 
+#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_5
 #define KEYS_GPIO_REG_EXIT            GPIOK
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5 
+#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5
 #define KEYS_GPIO_REG_SYS             GPIOJ
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3 
+#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_3
 #define KEYS_GPIO_REG_TELE            GPIOK
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4 
+#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_4
 
 // Trims
 #define TRIMS_GPIO_REG_LHL            GPIOB
@@ -263,7 +263,7 @@ USART6: EXTMODULE_USART
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12) // 
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12) //
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
@@ -444,20 +444,20 @@ USART6: EXTMODULE_USART
 #define I2C_B4_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B4_CLK_RATE                 400000
 
-// Touch
-#define TOUCH_I2C_BUS                 I2C_Bus_4
-#define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 14)  // PJ.14
-#define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)  // PD.11
+// Touch - not present
+// #define TOUCH_I2C_BUS                 I2C_Bus_4
+// #define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 14)  // PJ.14
+// #define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)  // PD.11
 
-#define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
-#define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
-#define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
+// #define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
+// #define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
+// #define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
 
-// TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-#define USE_EXTI15_10_IRQ
-#define EXTI15_10_IRQ_Priority 9
-#endif
+// // TOUCH_INT_EXTI IRQ
+// #if !defined(USE_EXTI15_10_IRQ)
+// #define USE_EXTI15_10_IRQ
+// #define EXTI15_10_IRQ_Priority 9
+// #endif
 
 // IMU
 #define IMU_I2C_BUS                     I2C_Bus_4
