@@ -184,7 +184,7 @@ void Keyboard::setField(FormField* newField)
       lv_obj_get_coords(obj, &coords);
 
       // place keyboard bellow the field with some margin
-      setTop(max(coords.y2 + 21, LCD_H - height()));
+      setTop(max((coord_t)coords.y2 + 21, LCD_H - height()));
 
       // save scroll position
       scroll_pos = lv_obj_get_scroll_y(fieldContainer->getLvObj());
