@@ -111,8 +111,13 @@ jobs:
           COMMIT_SHA=$(git rev-parse "${TAG}^{commit}")
           echo "Tag $TAG points to commit: $COMMIT_SHA"
 
-          # Get the latest successful run ID for each unique workflow
-          WORKFLOW_RUNS=$(gh run list --commit "$COMMIT_SHA" --status success --json workflowName,databaseId,createdAt --jq 'group_by(.workflowName) | map(sort_by(.createdAt) | last) | .[].databaseId')
+          # Get the latest successful run ID for each unique workflow, filtering to tag-triggered runs only
+          WORKFLOW_RUNS=$(gh run list --branch "$TAG" --status success --json workflowName,databaseId,createdAt --jq 'group_by(.workflowName) | map(sort_by(.createdAt) | last) | .[].databaseId')
+
+          if [ -z "$WORKFLOW_RUNS" ]; then
+            echo "ERROR: No successful workflow runs found for tag $TAG. Ensure the tag-triggered build completed successfully before running this workflow."
+            exit 1
+          fi
 
           mkdir -p release-assets
 
