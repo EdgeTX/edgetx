@@ -1,0 +1,5709 @@
+[
+  {
+    "name": "Fatfish F16",
+    "wasm": "edgetx-f16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Flysky EL18",
+    "wasm": "edgetx-el18-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 480,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "3POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Flysky NB4+",
+    "wasm": "edgetx-nb4p-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 480,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "ST",
+        "type": "STICK",
+        "label": "ST"
+      },
+      {
+        "name": "TH",
+        "type": "STICK",
+        "label": "TH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "VR1L",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "VR1R",
+        "default": "POT"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Flysky NV14",
+    "wasm": "edgetx-nv14-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 480,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "3POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Flysky PA01",
+    "wasm": "edgetx-pa01-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 240,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Flysky PL18",
+    "wasm": "edgetx-pl18-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "3POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      },
+      {
+        "name": "T7"
+      },
+      {
+        "name": "T8"
+      }
+    ],
+    "keys": []
+  },
+  {
+    "name": "Flysky PL18EV",
+    "wasm": "edgetx-pl18ev-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4",
+        "default": "MULTIPOS"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "3POS",
+        "default": "3POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      },
+      {
+        "name": "T7"
+      },
+      {
+        "name": "T8"
+      }
+    ],
+    "keys": []
+  },
+  {
+    "name": "Flysky PL18U",
+    "wasm": "edgetx-pl18u-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "3POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Flysky ST16",
+    "wasm": "edgetx-st16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "FrSky Horus X10",
+    "wasm": "edgetx-x10-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "FrSky Horus X10 Express",
+    "wasm": "edgetx-x10express-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "FrSky Horus X12s",
+    "wasm": "edgetx-x12s-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL3",
+        "type": "FLEX",
+        "label": "L1",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL4",
+        "type": "FLEX",
+        "label": "L2",
+        "default": "SLIDER"
+      },
+      {
+        "name": "JSx",
+        "type": "FLEX",
+        "label": "JSx",
+        "default": "AXIS_X"
+      },
+      {
+        "name": "JSy",
+        "type": "FLEX",
+        "label": "JSy",
+        "default": "AXIS_Y"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "FrSky QX7 Access",
+    "wasm": "edgetx-x7access-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "FrSky X9D Plus 2019",
+    "wasm": "edgetx-x9d+2019-simulator.wasm",
+    "display": {
+      "w": 212,
+      "h": 64,
+      "depth": 4
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "FrSky X9E",
+    "wasm": "edgetx-x9e-simulator.wasm",
+    "display": {
+      "w": 212,
+      "h": 64,
+      "depth": 4
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "F1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "F2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "F3",
+        "default": "NONE"
+      },
+      {
+        "name": "P4",
+        "type": "FLEX",
+        "label": "F4",
+        "default": "NONE"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL3",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL4",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SI",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SK",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SL",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SM",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SN",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SO",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SP",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SQ",
+        "type": "3POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SR",
+        "type": "3POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "HelloRadioSky V14",
+    "wasm": "edgetx-v14-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "MULTIPOS"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "HelloRadioSky V16",
+    "wasm": "edgetx-v16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "iFlight Commando 8",
+    "wasm": "edgetx-commando8-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_PLUS",
+        "label": "Up",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MINUS",
+        "label": "Down",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "BCK",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper Bumblebee",
+    "wasm": "edgetx-bumblebee-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T-Pro S",
+    "wasm": "edgetx-tpros-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T-Pro V2",
+    "wasm": "edgetx-tprov2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T12 MAX",
+    "wasm": "edgetx-t12max-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T14",
+    "wasm": "edgetx-t14-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T15",
+    "wasm": "edgetx-t15-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T15 Pro",
+    "wasm": "edgetx-t15pro-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T16",
+    "wasm": "edgetx-t16-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T18",
+    "wasm": "edgetx-t18-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T20",
+    "wasm": "edgetx-t20-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S4",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL3",
+        "type": "FLEX",
+        "label": "SL",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL4",
+        "type": "FLEX",
+        "label": "SR",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      },
+      {
+        "name": "T7"
+      },
+      {
+        "name": "T8"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T20 V2",
+    "wasm": "edgetx-t20v2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S4",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL3",
+        "type": "FLEX",
+        "label": "SL",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL4",
+        "type": "FLEX",
+        "label": "SR",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      },
+      {
+        "name": "T7"
+      },
+      {
+        "name": "T8"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster Boxer",
+    "wasm": "edgetx-boxer-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "6P",
+        "default": "MULTIPOS"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster GX12",
+    "wasm": "edgetx-gx12-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "P1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "P2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster MT12",
+    "wasm": "edgetx-mt12-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "ST",
+        "type": "STICK",
+        "label": "ST"
+      },
+      {
+        "name": "TH",
+        "type": "STICK",
+        "label": "TH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "NONE"
+      },
+      {
+        "name": "P4",
+        "type": "FLEX",
+        "label": "S4",
+        "default": "NONE"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster Pocket",
+    "wasm": "edgetx-pocket-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster TX12MK2",
+    "wasm": "edgetx-tx12mk2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "3POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster TX15",
+    "wasm": "edgetx-tx15-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster TX16S",
+    "wasm": "edgetx-tx16s-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster TX16S MK3",
+    "wasm": "edgetx-tx16smk3-simulator.wasm",
+    "display": {
+      "w": 800,
+      "h": 480,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1",
+        "default": "NONE"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2",
+        "default": "NONE"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster Zorro",
+    "wasm": "edgetx-zorro-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  }
+]

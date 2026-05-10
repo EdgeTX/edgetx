@@ -123,6 +123,11 @@ uint8_t  WASM_EXPORT(simuGetNumChannels)();
 uint8_t  WASM_EXPORT(simuCopyChannelOutputs)(int16_t* buf, uint8_t maxCount);
 uint8_t  WASM_EXPORT(simuCopyMixOutputs)(int16_t* buf, uint8_t maxCount);
 
+// Channel/mixer queries.
+bool     WASM_EXPORT(simuIsChannelUsed)(uint8_t channel);
+int      WASM_EXPORT(simuGetChannelsUsed)();
+uint8_t  WASM_EXPORT(simuGetMixCount)();
+
 // Bulk copy logical switch states into buf (uint8_t[], 0 or 1). Returns count.
 uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
 uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
@@ -140,6 +145,11 @@ uint8_t  WASM_EXPORT(simuGetNumGVars)();
 uint8_t  WASM_EXPORT(simuGetNumFlightModes)();
 int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
 
+// Aux serial: push bytes received from a host serial port into the firmware's
+// rx queue for the matching aux port (port_nr is 0 for AUX1, 1 for AUX2).
+void WASM_EXPORT(simuAuxSerialReceive)(uint8_t port_nr, const uint8_t* data,
+                                       uint32_t len);
+
 // -- WASM imports (provided by host) --
 
 // simuGetAnalog: return ADC-range value for input at index idx.
@@ -156,6 +166,26 @@ void WASM_IMPORT(simuTrace)(const char* text);
 // flush callback (color).  On the host side this wakes an Atomics.waitAsync
 // listener so the frame can be rendered without polling.
 void WASM_IMPORT(simuLcdNotify)();
+
+// First-run helper: request default radio.yml + model creation if
+// no settings file exists.  Call before simuStart().  The actual file
+// I/O runs inside storageReadAll() on a worker thread.
+void WASM_EXPORT(simuCreateDefaults)();
+
+// Flag checked by storageReadAll() to silently create defaults.
+extern bool simuCreateDefaultSettings;
+
+// Aux serial bridge (firmware -> host).  port_nr is 0 for AUX1, 1 for AUX2.
+// encoding values match SimulatorSerialEncoding (0=8N1, 1=8E2, 2=PXX1_PWM)
+// and ETX_Encoding_* — they share the same numeric values.  Called when the
+// firmware initialises an aux serial port (start), shuts it down (stop),
+// reconfigures the baudrate, or transmits data.
+void WASM_IMPORT(simuAuxSerialStart)(uint8_t port_nr, uint32_t baudrate,
+                                     uint8_t encoding);
+void WASM_IMPORT(simuAuxSerialStop)(uint8_t port_nr);
+void WASM_IMPORT(simuAuxSerialSetBaudrate)(uint8_t port_nr, uint32_t baudrate);
+void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
+                                          uint32_t len);
 
 // -- Internal (not exported) --
 void simuMain();

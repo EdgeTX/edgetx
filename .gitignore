@@ -24,3 +24,5 @@ _wasi_sdk_fetch
 
 # MkDocs
 /site/
+
+output/
