@@ -61,7 +61,6 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
     Qt::Svg
-    Qt::Multimedia
     vmlib
 )
 
