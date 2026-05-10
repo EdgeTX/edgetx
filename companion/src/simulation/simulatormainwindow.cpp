@@ -38,8 +38,6 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
-#include <QtMultimedia/QSoundEffect>
-#include <QPropertyAnimation>
 #include <QTimer>
 
 extern AppData g;  // ensure what "g" means
