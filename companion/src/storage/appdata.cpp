@@ -297,6 +297,12 @@ bool NamedJSData::existsOnDisk()
   return (m_settings.value(settingsPath() % jsName(), -1).toInt() > -1);
 }
 
+// ** ComponentReleaseData class********************
+
+ComponentReleaseData::ComponentReleaseData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
 
 // ** Profile class********************
 
@@ -329,6 +335,22 @@ bool Profile::existsOnDisk()
   return m_settings.contains(settingsPath() % "Name");
 }
 
+ComponentReleaseData & Profile::getCompRelease(int index)
+{
+  if (index > -1 && index < MAX_COMPONENTS)
+    return compRelease[index];
+
+  return compRelease[0];
+}
+
+const ComponentReleaseData & Profile::getCompRelease(int index) const
+{
+  if (index > -1 && index < MAX_COMPONENTS)
+    return compRelease[index];
+
+  return compRelease[0];
+}
+
 // ** ComponentAssetData class********************
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)
@@ -359,6 +381,7 @@ bool ComponentAssetData::existsOnDisk()
 
 ComponentData::ComponentData() : CompStoreObj(), index(-1)
 {
+  qRegisterMetaType<ComponentData::ReleaseChannel>("ComponentData::ReleaseChannel");
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
@@ -379,15 +402,6 @@ ComponentData & ComponentData::operator= (const ComponentData & rhs)
 bool ComponentData::existsOnDisk()
 {
   return (m_settings.contains(settingsPath() % "name"));
-}
-
-void ComponentData::releaseClear()
-{
-  releaseReset();
-  releaseIdReset();
-  prereleaseReset();
-  dateReset();
-  versionReset();
 }
 
 ComponentAssetData & ComponentData::getAsset(int index)
@@ -417,6 +431,10 @@ AppData::AppData() :
   CompStoreObj(),
   m_sessionId(0)
 {
+  qRegisterMetaType<AppData::NewModelAction>("AppData::NewModelAction");
+  qRegisterMetaType<AppData::UpdateCheckFreq>("AppData::UpdateCheckFreq");
+  qRegisterMetaType<AppData::SimuGenericKeysPos>("AppData::SimuGenericKeysPos");
+
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 
   firstUse = !hasCurrentSettings();
@@ -426,18 +444,27 @@ AppData::AppData() :
     qWarning() << "Could not create settings backup path" << CPN_SETTINGS_BACKUP_DIR;
 
   // Configure the profiles
-  for (int i = 0; i < MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].setIndex(i);
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].setIndexes(i, j);
+    }
+  }
 
   // Configure the joysticks
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].setIndex(i);
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].setIndex(i);
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].setIndex(i);
+
     for (int a = 0; a < MAX_JS_AXES; a += 1)
       namedJS[i].joystick[a].setIndex(a, i);
+
     for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
       namedJS[i].jsButton[b].setIndex(b, i);
   }
@@ -445,6 +472,7 @@ AppData::AppData() :
   // Configure the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].setIndex(i);
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].setIndexes(i, j);
     }
@@ -543,23 +571,35 @@ void AppData::initAll()
   // Initialize all variables. Use default values if no saved settings.
   CompStoreObj::initAllProperties(this);
   // Initialize the profiles
-  for (int i = 0; i < MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].init();
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].init();
+    }
+  }
+
   // Initialize the joysticks
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].init();
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].init();
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].init();
+
     for (int a = 0; a < MAX_JS_AXES; a += 1)
       namedJS[i].joystick[a].init();
+
     for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
       namedJS[i].jsButton[b].init();
   }
+
   // Initialize the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].init();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].init();
     }
@@ -570,46 +610,73 @@ void AppData::resetAllSettings()
 {
   resetAll();
   fwRev.resetAll();
-  for (int i = 0; i < MAX_PROFILES; i++)
+
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].resetAll();
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].resetAll();
+    }
+  }
+
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].resetAll();
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].resetAll();
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].resetAll();
+
     for (int a = 0; a < MAX_JS_AXES; a += 1)
       namedJS[i].joystick[a].resetAll();
+
     for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
       namedJS[i].jsButton[b].resetAll();
   }
+
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].resetAll();
     }
   }
+
   firstUse = true;
 }
 
 void AppData::storeAllSettings()
 {
   storeAll();
-  for (int i = 0; i < MAX_PROFILES; i++)
+
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].storeAll();
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].storeAll();
+    }
+  }
+
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].storeAll();
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].storeAll();
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].storeAll();
+
     for (int a = 0; a < MAX_JS_AXES; a += 1)
       namedJS[i].joystick[a].storeAll();
+
     for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
       namedJS[i].jsButton[b].storeAll();
   }
+
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
       component[i].asset[j].storeAll();
   }
@@ -829,8 +896,10 @@ bool AppData::exportSettings(QSettings * toSettings, bool clearDestination)
     return false;
 
   m_settings.sync();
+
   if (clearDestination)
     toSettings->clear();
+
   foreach (const QString & key, m_settings.allKeys()) {
     const QVariant newVal = m_settings.value(key);
     // Skip export if property does not exist or is the default value.
@@ -853,7 +922,9 @@ bool AppData::exportSettingsToFile(const QString & expFile, QString & resultMsg)
     resultMsg = tr("Application Settings have been saved to\n %1").arg(expFile);
     return true;
   }
+
   resultMsg = tr("Could not save Application Settings to file \"%1\"").arg(expFile) % " ";
+
   if (toSettings.status() == QSettings::AccessError)
     resultMsg.append(tr("because the file could not be saved (check access permissions)."));
   else
@@ -865,6 +936,7 @@ ComponentData & AppData::getComponent(int index)
 {
   if (index > -1 && index < MAX_COMPONENTS)
     return component[index];
+
   return component[0];
 }
 
@@ -872,6 +944,7 @@ const ComponentData & AppData::getComponent(int index) const
 {
   if (index > -1 && index < MAX_COMPONENTS)
     return component[index];
+
   return component[0];
 }
 
@@ -888,6 +961,7 @@ void AppData::resetUpdatesSettings()
 
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
       component[i].asset[j].resetAll();
   }

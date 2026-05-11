@@ -650,7 +650,7 @@ const bool UpdateInterface::isReleaseLatest()
 
   // nightlies often have the same version so also check id
   if (isVersionLatest(versionCurrent(), m_repo->releases()->version()) &&
-      g.component[m_id].releaseId() == m_repo->releases()->id())
+      g.currentProfile().getCompRelease(m_id).releaseId() == m_repo->releases()->id())
     return true;
 
   return false;
@@ -788,13 +788,13 @@ void UpdateInterface::radioProfileChanged()
 
 void UpdateInterface::releaseClear()
 {
-  g.component[m_id].releaseClear();
+  g.currentProfile().getCompRelease(m_id).resetAll();
   releaseCurrent();
 }
 
 const QString UpdateInterface::releaseCurrent()
 {
-  m_params->releaseCurrent = g.component[m_id].release();
+  m_params->releaseCurrent = g.currentProfile().getCompRelease(m_id).release();
   return m_params->releaseCurrent;
 }
 
@@ -809,10 +809,10 @@ const QStringList UpdateInterface::releaseList()
 int UpdateInterface::releaseSettingsSave()
 {
   m_status->reportProgress(tr("Save release settings"), QtDebugMsg);
-  g.component[m_id].release(m_repo->releases()->name());
-  g.component[m_id].version(m_repo->releases()->version());
-  g.component[m_id].releaseId(m_repo->releases()->id());
-  g.component[m_id].date(m_repo->releases()->date());
+  g.currentProfile().getCompRelease(m_id).release(m_repo->releases()->name());
+  g.currentProfile().getCompRelease(m_id).version(m_repo->releases()->version());
+  g.currentProfile().getCompRelease(m_id).releaseId(m_repo->releases()->id());
+  g.currentProfile().getCompRelease(m_id).date(m_repo->releases()->date());
 
   return true;
 }
@@ -1277,7 +1277,7 @@ bool UpdateInterface::validateFolder(QString & fldr)
 
 const QString UpdateInterface::versionCurrent()
 {
-  return g.component[m_id].version();
+  return g.currentProfile().getCompRelease(m_id).version();
 }
 
 // static

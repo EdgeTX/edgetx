@@ -459,6 +459,33 @@ class NamedJSData: public CompStoreObj
     int index;
 };
 
+//! \brief ComponentReleaseData class stores release properties related to each updateable component.
+class ComponentReleaseData: public CompStoreObj
+{
+  Q_OBJECT
+  public:
+    ComponentReleaseData & operator=(const ComponentReleaseData & rhs);
+
+  protected:
+    explicit ComponentReleaseData();
+    void setProfileIndex(int idx) { profileIndex = idx; }
+    void setIndex(int idx) { index = idx; }
+    void setIndexes(int profileIdx, int idx) { profileIndex = profileIdx; index = idx; }
+    inline QString propertyGroup() const override { return QString("Profiles/profile%1").arg(profileIndex); }
+    inline QString settingsPath()  const override { return QString("%1/component%2/").arg(propertyGroup()).arg(index); }
+    friend class Profile;
+    friend class AppData;
+
+  private:
+    PROPERTYSTRD(      date,       "")
+    PROPERTY    (bool, prerelease, false)
+    PROPERTYSTRD(      release,    "unknown")
+    PROPERTY    (int,  releaseId,  0)
+    PROPERTYSTRD(      version,    "0")
+
+    int profileIndex;
+    int index;
+};
 
 //! \brief Profile class stores properties related to each Radio Profile.
 //! \todo TODO: Remove or refactor stored radio settings system (#4583)
@@ -468,6 +495,10 @@ class Profile: public CompStoreObj
   public:
     Profile & operator=(const Profile & rhs);
     QString getVariantFromType() const { return fwType().section("-", 1, 1); }
+    ComponentReleaseData & getCompRelease(int index);
+    const ComponentReleaseData & getCompRelease(int index) const;
+
+    ComponentReleaseData compRelease[MAX_COMPONENTS];
 
   public slots:
     bool existsOnDisk();
@@ -475,6 +506,7 @@ class Profile: public CompStoreObj
   protected:
     explicit Profile();
     explicit Profile(const Profile & rhs);
+
     void setIndex(int idx) { index = idx; }
     inline QString propertyGroup() const override { return QStringLiteral("Profiles"); }
     inline QString settingsPath()  const override { return QString("%1/profile%2/").arg(propertyGroup()).arg(index); }
@@ -566,7 +598,6 @@ class ComponentData: public CompStoreObj
     };
     Q_ENUM(ReleaseChannel)
 
-    void releaseClear();
     static QStringList releaseChannelsList() { return { tr("Releases"), tr("Pre-release"), tr("Nightly") } ; }
 
     inline ReleaseChannel boundedReleaseChannel() const {
@@ -591,11 +622,6 @@ class ComponentData: public CompStoreObj
   private:
     PROPERTY    (bool,           checkForUpdate,  false)
     PROPERTY    (ReleaseChannel, releaseChannel,  RELEASE_CHANNEL_STABLE)
-    PROPERTYSTRD(                release,         "unknown")
-    PROPERTY    (int,            releaseId,       0)
-    PROPERTY    (bool,           prerelease,      false)
-    PROPERTYSTRD(                version,         "0")
-    PROPERTYSTRD(                date,            "")
 
     int index;
 
