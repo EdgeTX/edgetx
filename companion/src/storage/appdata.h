@@ -41,7 +41,7 @@
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
-#define CPN_SETTINGS_REVISION       2 // Note: bumped for fix during 2.8 RCs
+#define CPN_SETTINGS_REVISION       3 // Note: bumped for changes during 3.0 dev
 
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
