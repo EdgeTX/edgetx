@@ -748,7 +748,7 @@ static void runAntennaSelectionMenu()
 }
 #else // !COLORLCD
 
-#if defined(INTERNAL_MODULE_PXX1)
+#if defined(EXTERNAL_ANTENNA)
 void onAntennaSelection(const char* result)
 {
   if (result == STR_USE_INTERNAL_ANTENNA) {
@@ -767,7 +767,7 @@ void onAntennaSwitchConfirm(const char * result)
     globalData.externalAntennaEnabled = true;
   }
 }
-#endif // defined(INTERNAL_MODULE_PXX1)
+#endif // defined(EXTERNAL_ANTENNA)
 
 #endif // defined(COLORLCD)
 
@@ -797,7 +797,7 @@ void checkExternalAntenna()
       if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
         globalData.externalAntennaEnabled = true;
       }
-#elif defined(INTERNAL_MODULE_PXX1)
+#elif defined(EXTERNAL_ANTENNA)
       POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
       SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
 #endif
@@ -808,7 +808,7 @@ void checkExternalAntenna()
     globalData.externalAntennaEnabled = false;
 #if defined(COLORLCD)
     runAntennaSelectionMenu();
-#elif defined(INTERNAL_MODULE_PXX1)
+#elif defined(EXTERNAL_ANTENNA)
     POPUP_MENU_START(onAntennaSelection, 2, STR_USE_INTERNAL_ANTENNA, STR_USE_EXTERNAL_ANTENNA);
 #endif
   } else {

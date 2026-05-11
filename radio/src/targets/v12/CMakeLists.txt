@@ -76,6 +76,10 @@ add_definitions(
 
 set(SDRAM ON)
 
+# Handset supports external antenna selection via hardware GPIO switch
+set(EXTERNAL_ANTENNA ON)
+add_definitions(-DEXTERNAL_ANTENNA)
+
 add_definitions(-DAUDIO -DVOICE)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)

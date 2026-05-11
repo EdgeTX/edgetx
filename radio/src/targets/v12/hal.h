@@ -369,8 +369,6 @@ USART6: EXTMODULE_USART
 #define LED_BLUE_GPIO                 GPIO_PIN(GPIOI, 14)
 
 // Internal Module
-#define EXTERNAL_ANTENNA
-
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOG, 13)
 #define INTMODULE_ANTSEL_GPIO           GPIO_PIN(GPIOA, 8)  //ANE SELECT 0=Int 1=Ext
 #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOG, 9)

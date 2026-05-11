@@ -19,16 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "pxx1_settings.h"
+#include "ext_antenna_settings.h"
 #include "choice.h"
 
 #include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-PXX1AntennaSettings::PXX1AntennaSettings(Window* parent,
-                                         const FlexGridLayout& g,
-                                         uint8_t moduleIdx) :
+ExtAntennaSettings::ExtAntennaSettings(Window* parent,
+                                 const FlexGridLayout& g,
+                                 uint8_t moduleIdx) :
     Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
 {
   FlexGridLayout grid(g);

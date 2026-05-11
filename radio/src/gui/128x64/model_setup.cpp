@@ -161,7 +161,7 @@ enum MenuModelSetupItems {
 #endif
   ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_MAPPING,
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_ANTENNA,
 #endif
   ITEM_MODEL_SETUP_INTERNAL_MODULE_POWER,
@@ -407,8 +407,12 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #define TRAINER_BLUETOOTH_S_ROW        (bluetooth.distantAddr[0] == '\0' ? HIDDEN_ROW : LABEL())
 #define IF_BT_TRAINER_ON(x)            (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER ? (uint8_t)(x) : HIDDEN_ROW)
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-#define EXTERNAL_ANTENNA_ROW             ((isModuleXJT(INTERNAL_MODULE) && g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) ? (uint8_t)0 : HIDDEN_ROW),
+#if defined(EXTERNAL_ANTENNA)
+#if defined(INTMODULE_ANTSEL_GPIO)
+#define EXTERNAL_ANTENNA_ROW  ((g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) ? (uint8_t)0 : HIDDEN_ROW),
+#else
+#define EXTERNAL_ANTENNA_ROW  ((isModuleXJT(INTERNAL_MODULE) && g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) ? (uint8_t)0 : HIDDEN_ROW),
+#endif
 void onModelAntennaSwitchConfirm(const char * result)
 {
   if (result == STR_OK) {
@@ -885,7 +889,7 @@ void menuModelSetup(event_t event)
     reusableBuffer.moduleSetup.newType = g_model.moduleData[EXTERNAL_MODULE].type;
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
     reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
 #endif
   }
@@ -2187,7 +2191,7 @@ void menuModelSetup(event_t event)
       }
       break;
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_ANTENNA:
         reusableBuffer.moduleSetup.antennaMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ANTENNA, STR_ANTENNA_MODES,
                                                             reusableBuffer.moduleSetup.antennaMode == ANTENNA_MODE_PER_MODEL ? ANTENNA_MODE_INTERNAL : reusableBuffer.moduleSetup.antennaMode,
