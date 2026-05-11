@@ -24,9 +24,8 @@
 #include <stdint.h>
 
 // Audio volume is defined between 0 and VOLUME_LEVEL_MAX.
-#if !defined(VOLUME_LEVEL_MAX)
+// Targets that need a different range must `#undef` and redefine in their board/hal header.
 #define VOLUME_LEVEL_MAX 23
-#endif
 #define VOLUME_LEVEL_DEF 12
 
 #define AUDIO_SAMPLE_RATE 32000

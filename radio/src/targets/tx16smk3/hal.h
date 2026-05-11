@@ -399,6 +399,7 @@ USART6: INTMODULE_USART
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOH, 14)
+#undef VOLUME_LEVEL_MAX
 #define VOLUME_LEVEL_MAX                20
 #define I2S_DMA                         DMA1
 #define I2S_DMA_Stream                  LL_DMA_STREAM_4
