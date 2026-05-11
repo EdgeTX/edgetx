@@ -167,7 +167,7 @@ void RadioMicRecorder::stopRecording()
   char* dot = strrchr(baseName, '.');
   if (dot) *dot = '\0';
 
-  new LabelDialog(baseName, PATH_MAX_LEN - 1, STR_SAVE_AS, [this](std::string newName) {
+  new LabelDialog(baseName, LEN_FUNCTION_NAME, STR_SAVE_AS, [this](std::string newName) {
     if (newName.empty()) return;
     char dir[sizeof(SOUNDS_PATH) + 1];
     strcpy(dir, SOUNDS_PATH "/");

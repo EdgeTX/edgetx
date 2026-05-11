@@ -617,6 +617,7 @@ FRESULT f_truncate(FIL* fil)
     _simu_FIL* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);
     if (sf->stream && sf->stream->is_open()) {
       sf->stream->flush();
+      if (!sf->stream->good()) return FR_DISK_ERR;
       std::error_code ec;
       fs::resize_file(sf->filepath, fil->fptr, ec);
       if (ec) return FR_DISK_ERR;
