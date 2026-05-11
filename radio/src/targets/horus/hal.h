@@ -1065,11 +1065,6 @@
 #endif
 
 // Internal PXX1 Module:
-//  Only X10 (XJT PXX1) and X12S (XJT PXX1) have external antenna hardware
-#if defined(RADIO_X10) || defined(RADIO_X10E) || defined(PCBX12S)
-#define EXTERNAL_ANTENNA
-#endif
-
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOA, 8) // PA.08
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 6) // PB.06
 #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 7) // PB.07
