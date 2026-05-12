@@ -80,7 +80,7 @@ void CompStoreObj::removeGroupIfEmpty(const QString &group) const
   m_settings.endGroup();
 }
 
-//static void dumpMetadata(QObject *obj) {
+// static void dumpMetadata(QObject *obj) {
 //  for (int i = obj->metaObject()->propertyOffset() /* 0 */, e = obj->metaObject()->propertyCount(); i < e; ++i)
 //    qDebug() << obj->metaObject()->property(i).name() << "=" << obj->metaObject()->property(i).read(obj);
 //  for (int i = obj->metaObject()->methodOffset() /* 0 */, e = obj->metaObject()->methodCount(); i < e; ++i) {
@@ -88,7 +88,7 @@ void CompStoreObj::removeGroupIfEmpty(const QString &group) const
 //    qDebug().noquote() << (a == 0 ? "  private" : a == 1 ? "protected" : "   public") << (t == 1 ? "signal:" : t == 2 ? "slot:  " : ":      ")
 //                       << obj->metaObject()->method(i).typeName() << obj->metaObject()->method(i).methodSignature();
 //  }
-//}
+// }
 
 // static methods
 
@@ -205,7 +205,8 @@ const QString CompStoreObj::propertyKeyName(CompStoreObj * obj, const QString & 
 QPair<QString, QString> CompStoreObj::splitGroupedPath(const QString & path)
 {
   const QStringList list = path.split('/');
-  const QString grp = list.size() > 1 ? list.first() : QStringLiteral("General");  // "General" is the default (no-name) group, used by AppData top-level settings.
+  // grp is propertyGroup() thus why size minus 2
+  const QString grp = list.size() > 1 ? list.mid(0, list.size() - 2).join("/") : QStringLiteral("General");  // "General" is the default (no-name) group, used by AppData top-level settings.
   return QPair<QString, QString>(grp, list.last());
 }
 
@@ -249,7 +250,6 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
 
 JStickData::JStickData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool JStickData::existsOnDisk()
@@ -259,7 +259,6 @@ bool JStickData::existsOnDisk()
 
 JButtonData::JButtonData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool JButtonData::existsOnDisk()
@@ -269,7 +268,6 @@ bool JButtonData::existsOnDisk()
 
 NamedJStickData::NamedJStickData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool NamedJStickData::existsOnDisk()
@@ -279,7 +277,6 @@ bool NamedJStickData::existsOnDisk()
 
 NamedJButtonData::NamedJButtonData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool NamedJButtonData::existsOnDisk()
@@ -289,7 +286,6 @@ bool NamedJButtonData::existsOnDisk()
 
 NamedJSData::NamedJSData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool NamedJSData::existsOnDisk()
@@ -301,14 +297,12 @@ bool NamedJSData::existsOnDisk()
 
 ComponentReleaseData::ComponentReleaseData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 // ** Profile class********************
 
 Profile::Profile() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 Profile::Profile(const Profile & rhs) : CompStoreObj(), index(-1)
@@ -355,7 +349,6 @@ const ComponentReleaseData & Profile::getCompRelease(int index) const
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 // The default copy operator can not be used since the index variable would be destroyed
@@ -382,7 +375,6 @@ bool ComponentAssetData::existsOnDisk()
 ComponentData::ComponentData() : CompStoreObj(), index(-1)
 {
   qRegisterMetaType<ComponentData::ReleaseChannel>("ComponentData::ReleaseChannel");
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 // The default copy operator can not be used since the index variable would be destroyed
@@ -463,10 +455,10 @@ AppData::AppData() :
     namedJS[i].setIndex(i);
 
     for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].setIndex(a, i);
+      namedJS[i].joystick[a].setIndexes(a, i);
 
     for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].setIndex(b, i);
+      namedJS[i].jsButton[b].setIndexes(b, i);
   }
 
   // Configure the updates
@@ -902,6 +894,7 @@ bool AppData::exportSettings(QSettings * toSettings, bool clearDestination)
 
   foreach (const QString & key, m_settings.allKeys()) {
     const QVariant newVal = m_settings.value(key);
+    //qDebug() << key << newVal << newVal.isValid() << CompStoreObj::propertyPathIsValidNonDefault(key, newVal);
     // Skip export if property does not exist or is the default value.
     if (newVal.isValid() && CompStoreObj::propertyPathIsValidNonDefault(key, newVal))
       toSettings->setValue(key, newVal);
