@@ -63,7 +63,7 @@ I18N_PLAY_FUNCTION(en, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(EN_PROMPT_POINT_BASE + qr.rem);
       if (mode == 2 && rem2) {
-	PLAY_NUMBER(rem2, 0, 0);
+        PLAY_NUMBER(rem2, 0, 0);
       }
       number = -1;
     }
