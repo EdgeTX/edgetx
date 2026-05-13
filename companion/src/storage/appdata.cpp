@@ -299,6 +299,20 @@ ComponentReleaseData::ComponentReleaseData() : CompStoreObj(), index(-1)
 {
 }
 
+// The default copy operator can not be used since the index variable would be destroyed
+ComponentReleaseData & ComponentReleaseData::operator= (const ComponentReleaseData & rhs)
+{
+  for (int i = metaObject()->propertyOffset(), e = metaObject()->propertyCount(); i < e; ++i) {
+    const QMetaProperty & prop = metaObject()->property(i);
+    if (!prop.isValid() || !prop.isWritable()) {
+      qWarning() << "Could not copy property" << QString(prop.name()) << "isValid:" << prop.isValid() << "isWritable:" << prop.isWritable();
+      continue;
+    }
+    prop.write(this, prop.read(&rhs));
+  }
+  return *this;
+}
+
 // ** Profile class********************
 
 Profile::Profile() : CompStoreObj(), index(-1)
