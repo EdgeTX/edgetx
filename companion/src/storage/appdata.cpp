@@ -239,7 +239,7 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
           grpMap.insert(key, name);
       }
       map.insert(it.key(), grpMap);
-      //qDebug() << it.key() << grpMap;
+      qDebug() << it.key() << grpMap;
     }
   }
   return map;
@@ -473,11 +473,11 @@ AppData::AppData() :
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].setIndex(i);
 
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].setIndexes(a, i);
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].setIndexes(j, i);
 
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].setIndexes(b, i);
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].setIndexes(j, i);
   }
 
   // Configure the updates
@@ -493,29 +493,32 @@ AppData::AppData() :
 void AppData::saveNamedJS(int i)
 {
   namedJS[i].jsName(currentProfile().jsName());
-  for (int a = 0; a < MAX_JS_AXES; a += 1) {
-    namedJS[i].joystick[a].stick_axe(joystick[a].stick_axe());
-    namedJS[i].joystick[a].stick_max(joystick[a].stick_max());
-    namedJS[i].joystick[a].stick_med(joystick[a].stick_med());
-    namedJS[i].joystick[a].stick_min(joystick[a].stick_min());
-    namedJS[i].joystick[a].stick_min(joystick[a].stick_min());
+
+  for (int j = 0; j < MAX_JS_AXES; j++) {
+    namedJS[i].joystick[j].stick_axe(joystick[j].stick_axe());
+    namedJS[i].joystick[j].stick_max(joystick[j].stick_max());
+    namedJS[i].joystick[j].stick_med(joystick[j].stick_med());
+    namedJS[i].joystick[j].stick_min(joystick[j].stick_min());
+    namedJS[i].joystick[j].stick_min(joystick[j].stick_min());
   }
-  for (int b = 0; b < MAX_JS_BUTTONS; b += 1) {
-    namedJS[i].jsButton[b].button_idx(jsButton[b].button_idx());
+
+  for (int j = 0; j < MAX_JS_BUTTONS; j++) {
+    namedJS[i].jsButton[j].button_idx(jsButton[j].button_idx());
   }
+
   namedJS[i].jsLastUsed(time(NULL));
 }
 
 void AppData::saveNamedJS()
 {
-  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsName() == currentProfile().jsName()) {
       saveNamedJS(i);
       return;
     }
   }
 
-  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsName() == "") {
       saveNamedJS(i);
       return;
@@ -524,7 +527,7 @@ void AppData::saveNamedJS()
 
   unsigned int oldestTime = namedJS[0].jsLastUsed();
   int oldestN = 0;
-  for (int i = 1; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 1; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsLastUsed() < oldestTime) {
       oldestTime = namedJS[i].jsLastUsed();
       oldestN = i;
@@ -535,22 +538,24 @@ void AppData::saveNamedJS()
 
 void AppData::loadNamedJS(int i)
 {
-  for (int a = 0; a < MAX_JS_AXES; a += 1) {
-    joystick[a].stick_axe(namedJS[i].joystick[a].stick_axe());
-    joystick[a].stick_max(namedJS[i].joystick[a].stick_max());
-    joystick[a].stick_med(namedJS[i].joystick[a].stick_med());
-    joystick[a].stick_min(namedJS[i].joystick[a].stick_min());
-    joystick[a].stick_min(namedJS[i].joystick[a].stick_min());
+  for (int j = 0; j < MAX_JS_AXES; j++) {
+    joystick[j].stick_axe(namedJS[i].joystick[j].stick_axe());
+    joystick[j].stick_max(namedJS[i].joystick[j].stick_max());
+    joystick[j].stick_med(namedJS[i].joystick[j].stick_med());
+    joystick[j].stick_min(namedJS[i].joystick[j].stick_min());
+    joystick[j].stick_min(namedJS[i].joystick[j].stick_min());
   }
-  for (int b = 0; b < MAX_JS_BUTTONS; b += 1) {
-    jsButton[b].button_idx(namedJS[i].jsButton[b].button_idx());
+
+  for (int j = 0; j < MAX_JS_BUTTONS; j++) {
+    jsButton[j].button_idx(namedJS[i].jsButton[j].button_idx());
   }
+
   namedJS[i].jsLastUsed(time(NULL));
 }
 
 void AppData::loadNamedJS()
 {
-  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsName() == currentProfile().jsName()) {
       loadNamedJS(i);
       return;
@@ -600,11 +605,11 @@ void AppData::initAll()
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].init();
 
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].init();
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].init();
 
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].init();
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].init();
   }
 
   // Initialize the updates
@@ -639,11 +644,11 @@ void AppData::resetAllSettings()
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].resetAll();
 
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].resetAll();
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].resetAll();
 
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].resetAll();
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].resetAll();
   }
 
   for (int i = 0; i < MAX_COMPONENTS; i++) {
@@ -678,11 +683,11 @@ void AppData::storeAllSettings()
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].storeAll();
 
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].storeAll();
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].storeAll();
 
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].storeAll();
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].storeAll();
   }
 
   for (int i = 0; i < MAX_COMPONENTS; i++) {
@@ -725,10 +730,12 @@ const Profile & AppData::getProfile(int index) const
 QMap<int, QString> AppData::getActiveProfiles() const
 {
   QMap<int, QString> active;
+
   for (int i=0; i<MAX_PROFILES; i++) {
     if (g.profile[i].existsOnDisk())
       active.insert(i, g.profile[i].name());
   }
+
   return active;
 }
 
@@ -736,9 +743,11 @@ void AppData::moveCurrentProfileToTop()
 {
   if (g.sortProfiles() && m_sessionId > 0) {
     Profile tmpProfile(g.profile[m_sessionId]);
-    for (int i = m_sessionId; i > 0; i -= 1) {
+
+    for (int i = m_sessionId; i > 0; i--) {
       g.profile[i] = g.profile[i - 1];
     }
+
     g.profile[0] = tmpProfile;
     id(0);
   }
@@ -747,8 +756,10 @@ void AppData::moveCurrentProfileToTop()
 void AppData::convertSettings(QSettings & settings)
 {
   quint32 savedVer = settings.value(SETTINGS_VERSION_KEY, 0).toUInt();
+
   if (savedVer == CPN_SETTINGS_VERSION)
     return;
+
   if (savedVer > CPN_SETTINGS_VERSION) {
     qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
     return;
@@ -913,11 +924,11 @@ bool AppData::exportSettings(QSettings * toSettings, bool clearDestination)
 
   foreach (const QString & key, m_settings.allKeys()) {
     const QVariant newVal = m_settings.value(key);
-    //qDebug() << key << newVal << newVal.isValid() << CompStoreObj::propertyPathIsValidNonDefault(key, newVal);
+    qDebug() << key << newVal;
     // Skip export if property does not exist or is the default value.
     if (newVal.isValid() && CompStoreObj::propertyPathIsValidNonDefault(key, newVal))
       toSettings->setValue(key, newVal);
-    //else qDebug() << "SKIPPING:" << key << newVal;
+    else qDebug() << "SKIPPING:" << key << newVal;
   }
   // Write the version and timestamp to export file -- they will NOT be imported, but may be useful for converting future imports.
   toSettings->setValue(SETTINGS_VERSION_KEY, m_settings.value(SETTINGS_VERSION_KEY));

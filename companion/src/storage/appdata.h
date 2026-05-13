@@ -346,8 +346,8 @@ class JStickData: public CompStoreObj
   protected:
     explicit JStickData();
     void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
-    inline QString propertyGroup() const override { return QStringLiteral("JsCalibration"); }
-    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    inline QString propertyGroup() const override { return QStringLiteral("Joysticks"); }
+    inline QString settingsPath()  const override { return QString("%1/joystick%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -376,8 +376,8 @@ class JButtonData: public CompStoreObj
   protected:
     explicit JButtonData();
     void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
-    inline QString propertyGroup() const override { return QStringLiteral("JsButton"); }
-    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    inline QString propertyGroup() const override { return QStringLiteral("JSButtons"); }
+    inline QString settingsPath()  const override { return QString("%1/button%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -397,8 +397,8 @@ class NamedJStickData: public CompStoreObj
   protected:
     explicit NamedJStickData();
     void setIndexes(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
-    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
-    inline QString settingsPath()  const override { return QString("%1/JsCalibration/%2/").arg(propertyGroup()).arg(index); }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/name%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/joystick%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -423,8 +423,8 @@ class NamedJButtonData: public CompStoreObj
   protected:
     explicit NamedJButtonData();
     void setIndexes(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
-    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
-    inline QString settingsPath()  const override { return QString("%1/JsButton/%2/").arg(propertyGroup()).arg(index); }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/name%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/button%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -445,7 +445,7 @@ class NamedJSData: public CompStoreObj
     explicit NamedJSData();
     void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QStringLiteral("NamedJSData"); }
-    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    inline QString settingsPath()  const override { return QString("%1/name%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
 
   public:
@@ -468,8 +468,6 @@ class ComponentReleaseData: public CompStoreObj
 
   protected:
     explicit ComponentReleaseData();
-    //void setProfileIndex(int idx) { profileIndex = idx; }
-    //void setIndex(int idx) { index = idx; }
     void setIndexes(int profileIdx, int idx)
     {
       profileIndex = profileIdx;
@@ -566,8 +564,6 @@ class ComponentAssetData: public CompStoreObj
 
   protected:
     explicit ComponentAssetData();
-    //void setCompIndex(int idx) { compIndex = idx; }
-    //void setIndex(int idx) { index = idx; }
     void setIndexes(int compIdx, int idx) { compIndex = compIdx; index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QString("Components/component%1").arg(compIndex); }
     inline QString settingsPath()  const override { return QString("%1/asset%2/").arg(propertyGroup()).arg(index); }
