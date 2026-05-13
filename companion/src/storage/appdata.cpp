@@ -335,6 +335,11 @@ Profile & Profile::operator= (const Profile & rhs)
     }
     prop.write(this, prop.read(&rhs));
   }
+
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
+    compRelease[i] = rhs.compRelease[i];
+  }
+
   return *this;
 }
 
