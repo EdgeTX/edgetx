@@ -972,4 +972,10 @@ void AppData::resetUpdatesSettings()
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
       component[i].asset[j].resetAll();
   }
+
+  for (int i = 0; i < MAX_PROFILES; i++) {
+    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
+      profile[i].compRelease[j].resetAll();
+    }
+  }
 }
