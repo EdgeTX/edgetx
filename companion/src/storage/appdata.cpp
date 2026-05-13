@@ -979,7 +979,7 @@ void AppData::resetUpdatesSettings()
   }
 
   for (int i = 0; i < MAX_PROFILES; i++) {
-    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
       profile[i].compRelease[j].resetAll();
     }
   }
