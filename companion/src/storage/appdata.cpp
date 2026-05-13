@@ -499,7 +499,7 @@ void AppData::saveNamedJS(int i)
     namedJS[i].joystick[j].stick_max(joystick[j].stick_max());
     namedJS[i].joystick[j].stick_med(joystick[j].stick_med());
     namedJS[i].joystick[j].stick_min(joystick[j].stick_min());
-    namedJS[i].joystick[j].stick_min(joystick[j].stick_min());
+    namedJS[i].joystick[j].stick_inv(joystick[j].stick_inv());
   }
 
   for (int j = 0; j < MAX_JS_BUTTONS; j++) {
@@ -543,7 +543,7 @@ void AppData::loadNamedJS(int i)
     joystick[j].stick_max(namedJS[i].joystick[j].stick_max());
     joystick[j].stick_med(namedJS[i].joystick[j].stick_med());
     joystick[j].stick_min(namedJS[i].joystick[j].stick_min());
-    joystick[j].stick_min(namedJS[i].joystick[j].stick_min());
+    joystick[j].stick_inv(namedJS[i].joystick[j].stick_inv());
   }
 
   for (int j = 0; j < MAX_JS_BUTTONS; j++) {
