@@ -55,7 +55,7 @@ TIM7:
 TIM8:   TRAINER_TIMER
 TIM12:  MIXER_SCHEDULER_TIMER
 TIM14:  MS_TIMER
-TIM15:
+TIM15:  PDM
 TIM16:
 TIM17:  ROTARY_ENCODER_TIMER
  */
@@ -199,17 +199,9 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define SWITCHES_GPIO_REG_J
 #define SWITCHES_GPIO_PIN_J              PCA95XX_P3
 
-// PDM MEMS Microphone via DFSDM
-// PD3 = DFSDM1_CKOUT (AF3) — clock output to microphone
-// PE4 = DFSDM1_DATIN3 (AF3) — data input from microphone
-#define PDM_DATA                         GPIO_PIN(GPIOE, 4)
-#define PDM_DATA_AF                      GPIO_AF3  // DFSDM1_DATIN3
-#define PDM_CLK                          GPIO_PIN(GPIOD, 3)
-#define PDM_CLK_AF                       GPIO_AF3  // DFSDM1_CKOUT
-#define PDM_DFSDM_CHANNEL                DFSDM1_Channel3
-#define PDM_DFSDM_FILTER                 DFSDM1_Filter0
-#define PDM_DFSDM_FILTER_IRQn            DFSDM1_FLT0_IRQn
-#define PDM_DFSDM_FILTER_IRQHandler      DFSDM1_FLT0_IRQHandler
+// MEMS
+#define PDM_DATA                         GPIO_PIN(GPIOD, 4)
+#define PDM_CLK                          GPIO_PIN(GPIOD, 13)
 
 // Expanders
 #define IO_INT_GPIO                      GPIO_PIN(GPIOB, 3)
