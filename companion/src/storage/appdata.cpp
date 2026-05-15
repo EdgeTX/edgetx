@@ -839,8 +839,8 @@ void AppData::convertSettings(QSettings & settings)
 
     New structure
     -------------
-    Joysticks
-      |_joystick<n>
+    JsCalibration
+      |_stick<n>
           |_<data>
     JsButtons
       |_button<n>
@@ -848,7 +848,7 @@ void AppData::convertSettings(QSettings & settings)
     NamedJsData
       |_name<n>
         |_<data>
-        |_joystick<n>
+        |_stick<n>
             |_<data>
         |_button<n>
             |_<data>
