@@ -853,8 +853,8 @@ void AppData::convertSettings(QSettings & settings)
         |_button<n>
             |_<data>
  */
-    QString oldpath = "_JsCalibration/%1/%2";
-    QString newpath = "_JsCalibration/stick%1/%2";
+    QString oldpath = "JsCalibration/%1/%2";
+    QString newpath = "JsCalibration/stick%1/%2";
     QStringList keys = { "stick_axe", "stick_min", "stick_med", "stick_max", "stick_inv" };
 
     for (int i = 0; i < MAX_JS_AXES; i++) {
