@@ -346,8 +346,8 @@ class JStickData: public CompStoreObj
   protected:
     explicit JStickData();
     void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
-    inline QString propertyGroup() const override { return QStringLiteral("Joysticks"); }
-    inline QString settingsPath()  const override { return QString("%1/joystick%2/").arg(propertyGroup()).arg(index); }
+    inline QString propertyGroup() const override { return QStringLiteral("JsCalibration"); }
+    inline QString settingsPath()  const override { return QString("%1/stick%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -376,7 +376,7 @@ class JButtonData: public CompStoreObj
   protected:
     explicit JButtonData();
     void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
-    inline QString propertyGroup() const override { return QStringLiteral("JSButtons"); }
+    inline QString propertyGroup() const override { return QStringLiteral("JsButtons"); }
     inline QString settingsPath()  const override { return QString("%1/button%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
@@ -398,7 +398,7 @@ class NamedJStickData: public CompStoreObj
     explicit NamedJStickData();
     void setIndexes(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/name%1").arg(namedIdx); }
-    inline QString settingsPath()  const override { return QString("%1/joystick%2/").arg(propertyGroup()).arg(index); }
+    inline QString settingsPath()  const override { return QString("%1/stick%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 

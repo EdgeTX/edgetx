@@ -810,11 +810,113 @@ void AppData::convertSettings(QSettings & settings)
   }
 
   if (savedMajMin < 0x300) {
-    //  3.0  CloudBuild copy filter changed to cater for uf2
+    // CloudBuild copy filter changed to cater for uf2
     qInfo().noquote() << "Deleting CloudBuild settings to force refresh";
-    static const QString path = QStringLiteral("Components/component6");
+    QString path = QStringLiteral("Components/component6");
     if (settings.contains(path))
       settings.remove(path);
+
+    // Joystick settings paths changed to fix export issue
+    qInfo().noquote() << "Reorganising joystick settings";
+/*
+     Old structure TODO THIS IS NOT CORRECT SO FIX IT
+    -------------
+    JsCalibration
+      |_<n>
+          |_<data>
+    JsButton
+      |_<n>
+          |_<data>
+    NamedJSData
+      |_<n>
+        |_<data>
+        |_JsCalibration
+            |_<n>
+              |_<data>
+        |_JsButton
+            |_<n>
+              |_<data>
+
+    New structure
+    -------------
+    Joysticks
+      |_joystick<n>
+          |_<data>
+    JsButtons
+      |_button<n>
+          |_<data>
+    NamedJsData
+      |_name<n>
+        |_<data>
+        |_joystick<n>
+            |_<data>
+        |_button<n>
+            |_<data>
+ */
+    QString oldpath = "_JsCalibration/%1/%2";
+    QString newpath = "_JsCalibration/stick%1/%2";
+    QStringList keys = { "stick_axe", "stick_min", "stick_med", "stick_max", "stick_inv" };
+
+    for (int i = 0; i < MAX_JS_AXES; i++) {
+      for (int k = 0; k < keys.size(); k++) {
+        if (settings.contains(oldpath.arg(i).arg(keys.at(k)))) {
+          QVariant oldval = settings.value(oldpath.arg(i).arg(keys.at(k)));
+          settings.setValue(newpath.arg(i).arg(keys.at(k)), oldval);
+        }
+      }
+    }
+
+    oldpath = "JsButton/%1/%2";
+    newpath = "JsButtons/button%1/%2";
+    keys = { "button_idx" };
+
+    for (int i = 0; i < MAX_JS_BUTTONS; i++) {
+      for (int k = 0; k < keys.size(); k++) {
+        if (settings.contains(oldpath.arg(i).arg(keys.at(k)))) {
+          QVariant oldval = settings.value(oldpath.arg(i).arg(keys.at(k)));
+          settings.setValue(newpath.arg(i).arg(keys.at(k)), oldval);
+        }
+      }
+    }
+
+    for (int j = 0; j < MAX_NAMED_JOYSTICKS; j++) {
+      oldpath = "NamedJSData/%1/%2";
+      newpath = "NamedJSData/name%1/%2";
+      keys = { "jsName", "jsLastUsed" };
+
+      for (int k = 0; k < keys.size(); k++) {
+        if (settings.contains(oldpath.arg(j).arg(keys.at(k)))) {
+          QVariant oldval = settings.value(oldpath.arg(j).arg(keys.at(k)));
+          settings.setValue(newpath.arg(j).arg(keys.at(k)), oldval);
+        }
+      }
+
+      oldpath = "NamedJSData/%1/JsCalibration/%2/%3";
+      newpath = "NamedJSData/name%1/stick%2/%3";
+      keys = { "stick_axe", "stick_min", "stick_med", "stick_max", "stick_inv" };
+
+      for (int i = 0; i < MAX_JS_AXES; i++) {
+        for (int k = 0; k < keys.size(); k++) {
+          if (settings.contains(oldpath.arg(j).arg(i).arg(keys.at(k)))) {
+            QVariant oldval = settings.value(oldpath.arg(j).arg(i).arg(keys.at(k)));
+            settings.setValue(newpath.arg(j).arg(i).arg(keys.at(k)), oldval);
+          }
+        }
+      }
+
+      oldpath = "NamedJSData/%1/JsButton/%2/%3";
+      newpath = "NamedJSData/name%1/button%2/%3";
+      keys = { "button_idx" };
+
+      for (int i = 0; i < MAX_JS_BUTTONS; i++) {
+        for (int k = 0; k < keys.size(); k++) {
+          if (settings.contains(oldpath.arg(j).arg(i).arg(keys.at(k)))) {
+            QVariant oldval = settings.value(oldpath.arg(j).arg(i).arg(keys.at(k)));
+            settings.setValue(newpath.arg(j).arg(i).arg(keys.at(k)), oldval);
+          }
+        }
+      }
+    }
   }
 
   if (removeUnused)
