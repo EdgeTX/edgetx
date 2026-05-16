@@ -941,13 +941,17 @@ void AppData::clearUnusedSettings(QSettings & settings)
 
 bool AppData::findPreviousVersionSettings(QString * version) const
 {
-  int vmaj = VERSION_MAJOR;
-  int vmin = VERSION_MINOR - 1;  // make sure we do not try to import from ourselves otherwise settings WILL get corrupted
+  // make sure we do not try to import from ourselves otherwise settings WILL get corrupted
+  const int vmax = 30; //abitary maximum minor version
+  int vmaj = VERSION_MINOR > 1 ? VERSION_MAJOR : VERSION_MAJOR - 1;
+  int vmin = VERSION_MINOR > 1 ? VERSION_MINOR - 1 : vmax;
+
+  // qDebug() << "Search start version:" << vmaj << vmin;
 
   for (;(vmaj << 8 | vmin) >= (2 << 8 | 4);) {  // 2.4 earliest EdgeTX version
     const QString ver = QString("%1.%2").arg(vmaj).arg(vmin);
     const QString prod = QString("Companion %1").arg(ver);
-    qDebug() << "Searching for previous version" << ver;
+    // qDebug() << "Searching for previous version" << ver;
     QSettings settings(COMPANY, prod);
     if (settings.contains(SETTINGS_VERSION_KEY)) {
       *version = ver;
@@ -959,7 +963,7 @@ bool AppData::findPreviousVersionSettings(QString * version) const
 
     --vmin;
     if (vmin < 0) {
-      vmin = 30;  //  abitary maximum minor version for earlier major versions
+      vmin = vmax;
       --vmaj;
     }
   }
