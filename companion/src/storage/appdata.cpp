@@ -231,7 +231,7 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
       it.next();
       QHash<QString, QString> grpMap;
       CompStoreObj * obj = it.value();
-      //dumpMetadata(obj);
+      // dumpMetadata(obj);
       for (int i = obj->metaObject()->propertyOffset(), e = obj->metaObject()->propertyCount(); i < e; ++i) {
         const QString name = QString(obj->metaObject()->property(i).name());
         const QString key = propertyKeyName(obj, name);
@@ -239,7 +239,7 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
           grpMap.insert(key, name);
       }
       map.insert(it.key(), grpMap);
-      qDebug() << it.key() << grpMap;
+      // qDebug() << it.key() << grpMap;
     }
   }
   return map;
@@ -571,7 +571,8 @@ static QString fmtHex(quint32 num)
 void AppData::init()
 {
   qInfo().noquote() << "Settings init with" << m_settings.organizationName() << m_settings.applicationName()
-                    << "Saved version:"   << fmtHex(m_settings.value(SETTINGS_VERSION_KEY).toUInt()) << "Current version:" << fmtHex(CPN_SETTINGS_VERSION);
+                    << "Saved version:" << settingsVersionToDisplay(m_settings.value(SETTINGS_VERSION_KEY).toUInt())
+                    << "Current version:" << settingsVersionToDisplay(CPN_SETTINGS_VERSION);
 
   // This connection doesn't work in the constructor because AppData is created before QApplication. Globals suck like that. Compensate by using Qt::UniqueConnection because init() may be called multiple times within app lifetime.
   connect(this, &AppData::idChanged, this, static_cast<void (AppData::*)(int)>(&AppData::sessionId), Qt::UniqueConnection);
@@ -761,7 +762,9 @@ void AppData::convertSettings(QSettings & settings)
     return;
 
   if (savedVer > CPN_SETTINGS_VERSION) {
-    qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
+    qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:"
+      << settingsVersionToDisplay(savedVer) << "Current:"
+      << settingsVersionToDisplay(CPN_SETTINGS_VERSION);
     return;
   }
 
@@ -772,8 +775,9 @@ void AppData::convertSettings(QSettings & settings)
   const bool removeUnused = (savedMajMin < currMajMin);
 
   qInfo().noquote().nospace() << "Converting settings " << settings.applicationName()
-                              << " from v" << fmtHex(savedVer) << " (" << fmtHex(savedMajMin) << ") to v"
-                              <<  fmtHex(CPN_SETTINGS_VERSION) << " (" << fmtHex(currMajMin)  << "). Removing unused: " << removeUnused;
+                              << " from " << settingsVersionToDisplay(savedVer)
+                              << " to " << settingsVersionToDisplay(CPN_SETTINGS_VERSION)
+                              << ". Removing unused: " << removeUnused;
 
   // firmwares renamed from opentx-* to edgetx-* at 2.6
   if (savedMajMin <= 0x207) {        // Note: change merged post 2.6 rc 1 and version bumped to 2.7 the Nightly users also require upgrade
@@ -1100,4 +1104,13 @@ void AppData::resetUpdatesSettings()
       profile[i].compRelease[j].resetAll();
     }
   }
+}
+
+const QString AppData::settingsVersionToDisplay(const unsigned int ver)
+{
+  return QString("v%1.%2.%3.%4")
+                .arg(ver >> 24)
+                .arg((ver >> 16) & ((1U << 8) - 1))
+                .arg((ver >> 8) & ((1U << 8) - 1))
+                .arg(ver & ((1U << 8) - 1));
 }

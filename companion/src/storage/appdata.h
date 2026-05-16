@@ -722,6 +722,8 @@ class AppData: public CompStoreObj
     bool exportSettings(QSettings * toSettings, bool clearDestination = true);
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
 
+    const QString settingsVersionToDisplay(const unsigned int ver);
+
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JS_AXES];
     JButtonData jsButton[MAX_JS_BUTTONS];
