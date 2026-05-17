@@ -544,13 +544,8 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 void ModelLabelsWindow::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg != QM_MANAGE_MODELS) {
-    auto p = navWindow();
-    if (p) {
-      onCancel();
-      p->doKeyShortcut(event);
-    }
-  }
+  if (pg != QM_MANAGE_MODELS)
+    Page::doKeyShortcut(event);
 }
 
 void ModelLabelsWindow::onPressPG(bool isNext)

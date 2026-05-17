@@ -138,12 +138,11 @@ void Page::doKeyShortcut(event_t event)
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
   if (pg == QM_OPEN_QUICK_MENU) {
     QuickMenu::openQuickMenu();
-  } else {
+  } else if (pg != QM_NONE) {
+    onCancel();
     auto p = navWindow();
-    if (p) {
-      onCancel();
+    if (p)
       p->doKeyShortcut(event);
-    }
   }
 }
 void Page::onLongPressRTN() { onCancel(); }
