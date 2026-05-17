@@ -863,9 +863,13 @@ void AppData::convertSettings(QSettings & settings)
 
     for (int i = 0; i < MAX_JS_AXES; i++) {
       for (int k = 0; k < keys.size(); k++) {
-        if (settings.contains(oldpath.arg(i).arg(keys.at(k)))) {
-          QVariant oldval = settings.value(oldpath.arg(i).arg(keys.at(k)));
-          settings.setValue(newpath.arg(i).arg(keys.at(k)), oldval);
+        const QString opath = oldpath.arg(i).arg(keys.at(k));
+        const QString npath = newpath.arg(i).arg(keys.at(k));
+
+        if (settings.contains(opath)) {
+          settings.setValue(npath, settings.value(opath));
+          settings.remove(opath);
+          qInfo().noquote() << "Moved " << opath << " to " << npath;
         }
       }
     }
@@ -876,9 +880,13 @@ void AppData::convertSettings(QSettings & settings)
 
     for (int i = 0; i < MAX_JS_BUTTONS; i++) {
       for (int k = 0; k < keys.size(); k++) {
-        if (settings.contains(oldpath.arg(i).arg(keys.at(k)))) {
-          QVariant oldval = settings.value(oldpath.arg(i).arg(keys.at(k)));
-          settings.setValue(newpath.arg(i).arg(keys.at(k)), oldval);
+        const QString opath = oldpath.arg(i).arg(keys.at(k));
+        const QString npath = newpath.arg(i).arg(keys.at(k));
+
+        if (settings.contains(opath)) {
+          settings.setValue(npath, settings.value(opath));
+          settings.remove(opath);
+          qInfo().noquote() << "Moved " << opath << " to " << npath;
         }
       }
     }
@@ -889,9 +897,13 @@ void AppData::convertSettings(QSettings & settings)
       keys = { "jsName", "jsLastUsed" };
 
       for (int k = 0; k < keys.size(); k++) {
-        if (settings.contains(oldpath.arg(j).arg(keys.at(k)))) {
-          QVariant oldval = settings.value(oldpath.arg(j).arg(keys.at(k)));
-          settings.setValue(newpath.arg(j).arg(keys.at(k)), oldval);
+        const QString opath = oldpath.arg(j).arg(keys.at(k));
+        const QString npath = newpath.arg(j).arg(keys.at(k));
+
+        if (settings.contains(opath)) {
+          settings.setValue(npath, settings.value(opath));
+          settings.remove(opath);
+          qInfo().noquote() << "Moved " << opath << " to " << npath;
         }
       }
 
@@ -901,9 +913,13 @@ void AppData::convertSettings(QSettings & settings)
 
       for (int i = 0; i < MAX_JS_AXES; i++) {
         for (int k = 0; k < keys.size(); k++) {
-          if (settings.contains(oldpath.arg(j).arg(i).arg(keys.at(k)))) {
-            QVariant oldval = settings.value(oldpath.arg(j).arg(i).arg(keys.at(k)));
-            settings.setValue(newpath.arg(j).arg(i).arg(keys.at(k)), oldval);
+          const QString opath = oldpath.arg(j).arg(i).arg(keys.at(k));
+          const QString npath = newpath.arg(j).arg(i).arg(keys.at(k));
+
+          if (settings.contains(opath)) {
+            settings.setValue(npath, settings.value(opath));
+            settings.remove(opath);
+            qInfo().noquote() << "Moved " << opath << " to " << npath;
           }
         }
       }
@@ -914,9 +930,13 @@ void AppData::convertSettings(QSettings & settings)
 
       for (int i = 0; i < MAX_JS_BUTTONS; i++) {
         for (int k = 0; k < keys.size(); k++) {
-          if (settings.contains(oldpath.arg(j).arg(i).arg(keys.at(k)))) {
-            QVariant oldval = settings.value(oldpath.arg(j).arg(i).arg(keys.at(k)));
-            settings.setValue(newpath.arg(j).arg(i).arg(keys.at(k)), oldval);
+          const QString opath = oldpath.arg(j).arg(i).arg(keys.at(k));
+          const QString npath = newpath.arg(j).arg(i).arg(keys.at(k));
+
+          if (settings.contains(opath)) {
+            settings.setValue(npath, settings.value(opath));
+            settings.remove(opath);
+            qInfo().noquote() << "Moved " << opath << " to " << npath;
           }
         }
       }
@@ -933,13 +953,17 @@ void AppData::convertSettings(QSettings & settings)
 void AppData::clearUnusedSettings(QSettings & settings)
 {
   // Go through and clean up anything that doesn't exist or is set to default value.
+  qInfo().noquote() << "Tidy settings by removing redundant and default settings";
+
   foreach (const QString & key, settings.allKeys()) {
     if (key == ".")  // special Windows registry key, don't delete it
       continue;
     const QVariant newVal = settings.value(key);
     // Remove key if property does not exist or is the default value.
-    if (!newVal.isValid() || !CompStoreObj::propertyPathIsValidNonDefault(key, newVal))
+    if (!newVal.isValid() || !CompStoreObj::propertyPathIsValidNonDefault(key, newVal)) {
       settings.remove(key);
+      qInfo().noquote() << "Removed key " << key;
+    }
   }
 }
 
