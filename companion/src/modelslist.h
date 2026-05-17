@@ -81,9 +81,9 @@ class ModelsListModel : public QAbstractItemModel
 
   public:
     struct MimeHeaderData {
-      QUuid instanceId;
-      quint16 dataVersion;
-      Board::Type board;
+      QUuid instanceId{};
+      quint16 dataVersion{0};
+      Board::Type board{Board::BOARD_UNKNOWN};
     };
 
     ModelsListModel(RadioData * radioData, QObject *parent = nullptr);

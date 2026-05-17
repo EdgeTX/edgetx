@@ -516,9 +516,17 @@ bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderDat
   if (header && mimeData->hasFormat("application/x-companion-radiodata-header")) {
     QByteArray data = mimeData->data("application/x-companion-radiodata-header");
     QDataStream stream(&data, QIODevice::ReadOnly);
-    stream >> header->dataVersion >> header->instanceId >> header->board;
-    return true;
+    stream >> header->dataVersion >> header->instanceId;
+
+    if (header->dataVersion >= 2) {
+      stream >> header->board;
+    } else {
+      header->board = Board::BOARD_UNKNOWN;
+    }
+
+    return stream.status() == QDataStream::Ok;
   }
+
   return false;
 }
 
