@@ -168,5 +168,11 @@ void ModelEdit::onTabIndexChanged(int index)
 
 void ModelEdit::launchSimulation()
 {
+  if (!radioData.models[modelId].isValid()) {
+    QMessageBox::critical(this, tr("Simulate Model"),
+      tr("Operation aborted: model has errors that may affect simulation."));
+    return;
+  }
+
   startSimulation(this, radioData, modelId);
 }

@@ -352,7 +352,7 @@ void MdiChild::updateNavigation()
     cboModelSortOrder->setCurrentIndex(radioData.sortOrder);
     cboModelSortOrder->blockSignals(false);
   }
-  action[ACT_GEN_SIM]->setEnabled(!invalidModels());
+  action[ACT_GEN_SIM]->setEnabled(true);
   action[ACT_GEN_SRT]->setVisible(hasLabels);
 
   action[ACT_MDL_DEL]->setEnabled(modelsSelected);
@@ -375,7 +375,7 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_WIZ]->setEnabled(singleModelSelected);
   action[ACT_MDL_DFT]->setEnabled(singleModelSelected && getCurrentModel() != (int)radioData.generalSettings.currModelIndex);
   action[ACT_MDL_PRT]->setEnabled(singleModelSelected);
-  action[ACT_MDL_SIM]->setEnabled(singleModelSelected && !invalidModels());
+  action[ACT_MDL_SIM]->setEnabled(singleModelSelected);
   action[ACT_MDL_ERR]->setEnabled(singleModelSelected && radioData.models[getCurrentModel()].modelErrors);
 
   emit navigationUpdated();
@@ -1267,12 +1267,32 @@ void MdiChild::setDefault()
 
 void MdiChild::radioSimulate()
 {
+  //  safeguard as the menu actions are enabled
+  int cnt = radioData.invalidModels();
+
+  if (cnt) {
+    QMessageBox::critical(this, tr("Simulate Radio"),
+      tr("Operation aborted: %1 models have errors that may affect simulation.").arg(cnt));
+    return;
+  }
+
   startSimulation(this, radioData, -1);
 }
 
 void MdiChild::modelSimulate()
 {
-  startSimulation(this, radioData, getCurrentModel());
+  int currMdlIdx = getCurrentModel();
+
+  if (currMdlIdx > -1 && !radioData.models[currMdlIdx].isValid()) {
+    QMessageBox::critical(this, tr("Simulate Model"),
+      tr("Operation aborted: selected model has errors that may affect simulation."));
+    return;
+  }
+
+  if (currMdlIdx < 0)
+    radioSimulate();
+  else
+    startSimulation(this, radioData, getCurrentModel());
 }
 
 void MdiChild::newFile(bool useProfileSettings)
@@ -1523,7 +1543,7 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
 
 void MdiChild::writeSettings(StatusDialog * status, bool toRadio)
 {
-  //  safeguard as the menu actions should be disabled
+  //  safeguard as the menu actions are enabled
   int cnt = radioData.invalidModels();
 
   if (cnt) {
@@ -1897,9 +1917,9 @@ QAction * MdiChild::actionsSeparator()
   return act;
 }
 
-bool MdiChild::invalidModels()
+int MdiChild::invalidModels()
 {
-  return (bool)radioData.invalidModels();
+  return radioData.invalidModels();
 }
 
 void MdiChild::modelShowErrors()
