@@ -2128,7 +2128,7 @@ void ModelData::validate()
 
 QStringList ModelData::errorsList()
 {
-  QStringList list;
+  QStringList list { "" };
 
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)

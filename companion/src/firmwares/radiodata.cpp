@@ -358,3 +358,18 @@ int RadioData::invalidModels()
 
   return cnt;
 }
+
+QStringList RadioData::modelErrorsList()
+{
+  QStringList ret;
+
+  for(auto &model: models) {
+    if (!model.isValid()) {
+      ret.append("");
+      ret.append(model.name);
+      ret.append(model.errorsList());
+    }
+  }
+
+  return ret;
+}

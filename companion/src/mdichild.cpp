@@ -38,6 +38,17 @@
 #include <algorithm>
 #include <ExportableTableView>
 
+
+void StatusBarIcon::mouseDoubleClickEvent(QMouseEvent * event)
+{
+  QLabel::mouseDoubleClickEvent(event);
+  emit doubleClicked();
+}
+
+/*
+  class MdiChild
+*/
+
 MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   QWidget(parent, f),
   ui(new Ui::MdiChild),
@@ -1272,7 +1283,9 @@ void MdiChild::radioSimulate()
 
   if (cnt) {
     QMessageBox::critical(this, tr("Simulate Radio"),
-      tr("Operation aborted: %1 models have errors that may affect simulation.").arg(cnt));
+      tr("Operation aborted: %1 models have errors that may affect simulation.\n%2")
+      .arg(cnt)
+      .arg(radioData.modelErrorsList().join("\n")));
     return;
   }
 
@@ -1285,7 +1298,8 @@ void MdiChild::modelSimulate()
 
   if (currMdlIdx > -1 && !radioData.models[currMdlIdx].isValid()) {
     QMessageBox::critical(this, tr("Simulate Model"),
-      tr("Operation aborted: selected model has errors that may affect simulation."));
+      tr("Operation aborted: selected model has errors that may affect simulation.\n%1")
+      .arg(radioData.models[currMdlIdx].errorsList().join("\n")));
     return;
   }
 
@@ -1547,7 +1561,10 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)
   int cnt = radioData.invalidModels();
 
   if (cnt) {
-    QMessageBox::critical(this, tr("Write Models and Settings"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    QMessageBox::critical(this, tr("Write Models and Settings"),
+      tr("Operation aborted as %1 models have significant errors that may affect model operation.\n%2")
+      .arg(cnt)
+      .arg(radioData.modelErrorsList().join("\n")));
     return;
   }
 
@@ -1922,6 +1939,11 @@ int MdiChild::invalidModels()
   return radioData.invalidModels();
 }
 
+QStringList MdiChild::modelErrorsList()
+{
+  return radioData.modelErrorsList();
+}
+
 void MdiChild::modelShowErrors()
 {
   ModelData &mdl = radioData.models[getCurrentModel()];
@@ -1940,7 +1962,7 @@ void MdiChild::setupStatusBar()
   ui->statusBarLayout->addWidget(statusBar);
   QLabel *lbl = new QLabel(tr("Models status"));
   statusBar->addPermanentWidget(lbl);
-  statusBarIcon = new QLabel();
+  statusBarIcon = new StatusBarIcon(this);
   statusBar->addPermanentWidget(statusBarIcon);
   statusBarCount = new QLabel();
   statusBar->addPermanentWidget(statusBarCount);
@@ -1951,13 +1973,16 @@ void MdiChild::updateStatusBar()
   QPixmap p;
   QLabel cnt;
   int invalid = radioData.invalidModels();
+  disconnect(statusBarIcon, &StatusBarIcon::doubleClicked, nullptr, nullptr);
 
   if (!invalidModels()) {
     statusBarIcon->setToolTip(tr("No errors"));
     p.load(":/images/png/tick-green.png");
-  }
-  else {
-    statusBarIcon->setToolTip(tr("Errors"));
+  } else {
+    statusBarIcon->setToolTip(tr("Double click to display errors"));
+    connect(statusBarIcon, &StatusBarIcon::doubleClicked, [this] () {
+      QMessageBox::critical(this, tr("Models Status"), radioData.modelErrorsList().join("\n"));
+    });
     p.load(":/images/png/cross-red.png");
     cnt.setText(QString::number(invalid));
   }

@@ -1523,7 +1523,9 @@ void MainWindow::writeSettingsSDPath()
 
     if (cnt) {
       QMessageBox::critical(this, tr("Write Models and Settings to SD Path"),
-        tr("Operation aborted: %1 models have errors that may affect operation.").arg(cnt));
+        tr("Operation aborted: %1 models have errors that may affect operation.\n%2")
+          .arg(cnt)
+          .arg(activeMdiChild()->modelErrorsList().join("\n")));
 
       return;
     }
