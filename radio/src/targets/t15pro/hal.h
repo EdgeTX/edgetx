@@ -498,4 +498,9 @@ USART6: EXTMODULE_USART
 
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 
+// Keys held together to toggle the keyboard lock. Override either define
+// in this file to map the combo to a different pair on this target.
+#define KEYS_LOCK_KEY1                  KEY_PAGEDN
+#define KEYS_LOCK_KEY2                  KEY_ENTER
+
 #endif // _HAL_H_

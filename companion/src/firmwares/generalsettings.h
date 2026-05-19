@@ -458,6 +458,7 @@ class GeneralSettings {
     unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
     unsigned int qmFavorites[MAX_QMFAVOURITES];
     bool oneLogPerDay;
+    bool keyLockEnabled;
 
     void switchConfigClear();
 
