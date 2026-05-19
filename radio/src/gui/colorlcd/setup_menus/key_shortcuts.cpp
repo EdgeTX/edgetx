@@ -28,6 +28,7 @@
 #include "pagegroup.h"
 #include "qmpagechoice.h"
 #include "radio_tools.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -86,6 +87,18 @@ QMKeyShortcutsPage::QMKeyShortcutsPage():
         SubPage(ICON_RADIO, STR_MAIN_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
 {
   auto qmPages = QuickMenu::menuPageNames(false);
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  static char keyLockLabel[32];
+  const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+  const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+  snprintf(keyLockLabel, sizeof(keyLockLabel), STR_KEY_LOCK_FMT,
+           k1 ? k1 : "?", k2 ? k2 : "?");
+  setupLine(keyLockLabel, [=](Window* parent, coord_t x, coord_t y) {
+    new ToggleSwitch(parent, {x, y, 0, 0},
+                     GET_SET_DEFAULT(g_eeGeneral.keyLockEnabled));
+  });
+#endif
 
   setupLine(STR_SHORT_PRESS, nullptr);
   addKey(EVT_KEY_BREAK(KEY_SYS), qmPages, "SYS");

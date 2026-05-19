@@ -667,3 +667,19 @@
 
 // SDRAM
 #define SDRAM_BANK2
+
+// Keys held together to toggle the keyboard lock. Override either define
+// in this file to map the combo to a different pair on this target.
+#if defined(PCBX12S)
+#define KEYS_LOCK_KEY1                 KEY_PAGEUP
+#define KEYS_LOCK_KEY2                 KEY_ENTER
+#elif defined(RADIO_X10) || defined(RADIO_X10E)
+#define KEYS_LOCK_KEY1                 KEY_PAGEDN
+#define KEYS_LOCK_KEY2                 KEY_SYS
+#elif defined(RADIO_T15)
+#define KEYS_LOCK_KEY1                 KEY_SYS
+#define KEYS_LOCK_KEY2                 KEY_TELE
+#else
+#define KEYS_LOCK_KEY1                 KEY_SYS
+#define KEYS_LOCK_KEY2                 KEY_MODEL
+#endif

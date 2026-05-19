@@ -351,4 +351,9 @@ SAI1_Block_A: PDM_CLOCK (1 MHz bit-clock output on SAI1_CK1 / PE5, !FLYSKY_GIMBA
 
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 
+// Keys held together to toggle the keyboard lock. Override either define
+// in this file to map the combo to a different pair on this target.
+#define KEYS_LOCK_KEY1                  KEY_SYS
+#define KEYS_LOCK_KEY2                  KEY_MODEL
+
 #endif // _HAL_H_
