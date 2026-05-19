@@ -28,7 +28,7 @@
 #include "hal/rotary_encoder.h"
 #include "dataconstants.h"
 
-#if !defined(BOOT) && (defined(USE_HATS_AS_KEYS) || defined(PCBXLITE))
+#if !defined(BOOT)
 #include "edgetx.h"
 #endif
 
@@ -182,6 +182,26 @@ void Key::killEvents()
 
 static Key keys[MAX_KEYS];
 static Key trim_keys[MAX_TRIMS * 2];
+
+#if !defined(BOOT)
+// Per-target key combo (from hal.h KEYS_LOCK_KEY1/KEY2) long-pressed together
+// toggles a software key lock.
+static bool s_keys_locked = false;
+static bool s_keys_lock_notify = false;
+static uint8_t s_keys_lock_combo_cnt = 0;
+
+bool areKeysLocked() { return s_keys_locked; }
+
+bool consumeKeysLockToggleEvent()
+{
+  if (!s_keys_lock_notify) return false;
+  s_keys_lock_notify = false;
+  return true;
+}
+#else
+bool areKeysLocked() { return false; }
+bool consumeKeysLockToggleEvent() { return false; }
+#endif
 
 /**
  * @brief returns true if there is an event waiting.
@@ -491,11 +511,48 @@ bool keysPollingCycle()
   trims_input = READ_TRIMS();
 #endif
 
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  // Combo keys (from hal.h) long-pressed together toggle the key lock; killing
+  // the per-key events while both are held prevents their individual actions
+  // from firing.
+  if (g_eeGeneral.keyLockEnabled &&
+      keyIsSupported(KEYS_LOCK_KEY1) && keyIsSupported(KEYS_LOCK_KEY2)) {
+    bool both = (keys_input & (1u << KEYS_LOCK_KEY1)) &&
+                (keys_input & (1u << KEYS_LOCK_KEY2));
+    if (both) {
+      keys[KEYS_LOCK_KEY1].killEvents();
+      keys[KEYS_LOCK_KEY2].killEvents();
+      if (s_keys_lock_combo_cnt < 0xFF) s_keys_lock_combo_cnt++;
+      if (s_keys_lock_combo_cnt == KEY_LONG_DELAY) {
+        s_keys_locked = !s_keys_locked;
+        s_keys_lock_notify = true;
+      }
+    } else {
+      s_keys_lock_combo_cnt = 0;
+    }
+  } else {
+    // Feature disabled: never leave keys stuck locked.
+    s_keys_locked = false;
+    s_keys_lock_combo_cnt = 0;
+  }
+#endif
+
   for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
       evt = keyMapping(evt | i);
+#if !defined(BOOT)
+      if (evt) {
+        if (!s_keys_locked) {
+          pushEvent(evt);
+        } else if ((evt & _MSK_KEY_FLAGS) == _MSK_KEY_FIRST) {
+          // Re-show the "Keys locked" toast on each new key press while locked.
+          s_keys_lock_notify = true;
+        }
+      }
+#else
       if (evt) pushEvent(evt);
+#endif
     }
   }
 

@@ -47,6 +47,12 @@
 #define CASE_BACKLIGHT(x)
 #endif
 
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+#define CASE_KEY_LOCK(x) x,
+#else
+#define CASE_KEY_LOCK(x)
+#endif
+
 #if defined(RTCLOCK)
   #define CASE_RTCLOCK(x) x,
 #else
