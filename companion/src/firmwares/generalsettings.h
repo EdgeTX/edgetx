@@ -457,6 +457,7 @@ class GeneralSettings {
     unsigned int qmFavorites[MAX_QMFAVOURITES];
     char* qmFavoritesTools[MAX_QMFAVOURITES];
     bool oneLogPerDay;
+    bool keyLockEnabled;
 
     void switchConfigClear();
 

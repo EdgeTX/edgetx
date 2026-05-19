@@ -1326,6 +1326,20 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+     <item row="30" column="0">
+      <widget class="QLabel" name="label_keyLockEnabled">
+       <property name="text">
+        <string>Key lock</string>
+       </property>
+      </widget>
+     </item>
+     <item row="30" column="1">
+      <widget class="QCheckBox" name="chkKeyLockEnabled">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="0">

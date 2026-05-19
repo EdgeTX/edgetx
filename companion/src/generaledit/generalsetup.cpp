@@ -474,6 +474,7 @@ void GeneralSetupPanel::setValues()
   ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
   ui->chkOneLogPerDay->setChecked(generalSettings.oneLogPerDay);
+  ui->chkKeyLockEnabled->setChecked(generalSettings.keyLockEnabled);
 
   if (Boards::getCapability(board, Board::HasColorLcd)) {
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
@@ -948,6 +949,14 @@ void GeneralSetupPanel::on_chkOneLogPerDay_stateChanged(int)
 {
   if (!lock) {
     generalSettings.oneLogPerDay = ui->chkOneLogPerDay->isChecked();
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_chkKeyLockEnabled_stateChanged(int)
+{
+  if (!lock) {
+    generalSettings.keyLockEnabled = ui->chkKeyLockEnabled->isChecked();
     emit modified();
   }
 }
