@@ -49,7 +49,7 @@ bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, boo
   }
 
   if (!file.open(QFile::ReadOnly)) {
-    setError(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
+    fatalMsg(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
     return false;
   }
 
@@ -99,7 +99,7 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
   QFile file(path);
 
   if (!file.open(QFile::WriteOnly)) {
-    setError(tr("Error opening file %1 in write mode:\n%2.").arg(path).arg(file.errorString()));
+    fatalMsg(tr("Error opening file %1 in write mode:\n%2.").arg(path).arg(file.errorString()));
     return false;
   }
 
@@ -127,7 +127,7 @@ bool SdcardFormat::writeImageFile(const QString & filename)
     }
 
     if (!QFile(srcpath).copy(destpath)) {
-      setError(tr("Error writing image file: %1").arg(filename));
+      fatalMsg(tr("Error writing image file: %1").arg(filename));
       return false;
     }
 
@@ -158,7 +158,7 @@ bool SdcardFormat::deleteFile(const QString & filename)
   QString path = this->filename + "/" + filename;
 
   if (!QFile::remove(path)) {
-    setError(tr("Error deleting file %1").arg(path));
+    fatalMsg(tr("Error deleting file %1").arg(path));
     return false;
   }
 

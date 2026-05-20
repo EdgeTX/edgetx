@@ -31,7 +31,7 @@ bool EtxFormat::load(RadioData & radioData)
   QFile file(filename);
 
   if (!file.open(QFile::ReadOnly)) {
-    setError(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
+    fatalMsg(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
     return false;
   }
 
@@ -57,7 +57,7 @@ bool EtxFormat::write(RadioData & radioData)
 
   memset(&zip_archive, 0, sizeof(zip_archive));
   if (!mz_zip_writer_init_heap(&zip_archive, 0, MZ_ALLOCATION_SIZE)) {
-    setError(tr("Error initializing EdgeTX archive writer"));
+    fatalMsg(tr("Error initializing EdgeTX archive writer"));
     return false;
   }
 
@@ -73,17 +73,17 @@ bool EtxFormat::write(RadioData & radioData)
       if (file.open(QIODevice::WriteOnly)) {
         qint64 len = file.write(archiveContents, archiveSize);
         if (len != (qint64)archiveSize) {
-          setError(tr("Error writing file %1:\n%2.").arg(filename).arg(file.errorString()));
+          fatalMsg(tr("Error writing file %1:\n%2.").arg(filename).arg(file.errorString()));
           result = false;
         }
       }
       else {
-        setError(tr("Error creating EdgeTX file %1:\n%2.").arg(filename).arg(file.errorString()));
+        fatalMsg(tr("Error creating EdgeTX file %1:\n%2.").arg(filename).arg(file.errorString()));
         result = false;
       }
     }
     else {
-      setError(tr("Error creating EdgeTX archive"));
+      fatalMsg(tr("Error creating EdgeTX archive"));
       result = false;
     }
   }
@@ -128,7 +128,7 @@ bool EtxFormat::loadImageFile(const QString & filename, bool optional)
 
     imgfile.close();
   } else {
-    setError(tr("Unable to write %1 to cache").arg(filename));
+    fatalMsg(tr("Unable to write %1 to cache").arg(filename));
     return false;
   }
 
@@ -139,7 +139,7 @@ bool EtxFormat::loadImageFile(const QString & filename, bool optional)
 bool EtxFormat::writeFile(const QByteArray & filedata, const QString & filename)
 {
   if (!mz_zip_writer_add_mem(&zip_archive, filename.toStdString().c_str(), filedata.data(), filedata.size(), MZ_DEFAULT_LEVEL)) {
-    setError(tr("Error adding %1 to archive").arg(filename));
+    fatalMsg(tr("Error adding %1 to archive").arg(filename));
     return false;
   }
 
@@ -159,14 +159,14 @@ bool EtxFormat::writeImageFile(const QString & filename)
       ba.append(imgfile.readAll());
       imgfile.close();
     } else {
-      setError(tr("Unable to open image %1").arg(filename));
+      fatalMsg(tr("Unable to open image %1").arg(filename));
       return false;
     }
 
     QString destpath("IMAGES/" % filename);
 
     if (!mz_zip_writer_add_mem(&zip_archive, destpath.toStdString().c_str(), ba.data(), ba.size(), MZ_DEFAULT_LEVEL)) {
-      setError(tr("Error adding file %1").arg(destpath));
+      fatalMsg(tr("Error adding file %1").arg(destpath));
       return false;
     }
 
