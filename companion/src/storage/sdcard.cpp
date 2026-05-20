@@ -36,25 +36,25 @@ bool SdcardFormat::write(RadioData & radioData)
 
 bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, bool optional)
 {
+  filedata.clear(); // in case buffer is being reused
   QString path = this->filename + "/" + filename;
   QFile file(path);
 
-  if (!file.exists()) {
-    if (optional) {
-      //qDebug() << "File not found:" << filename;
-      return true;
-    } else {
-      return false;
-    }
-  }
+  if (!file.exists()) return optional;
 
   if (!file.open(QFile::ReadOnly)) {
-    setError(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
+    fatalMsg(tr("Error opening file %1:\n%2.").arg(filename).arg(file.errorString()));
     return false;
   }
 
   filedata = file.readAll();
-  qDebug() << "File" << filename << "read, size:" << filedata.size();
+
+  if (filedata.isEmpty()) {
+    fatalMsg(tr("File empty: %1").arg(filename));
+    return false;
+  }
+
+  statusMsg(tr("File loaded: %1").arg(filename));
   return true;
 }
 
@@ -72,22 +72,22 @@ bool SdcardFormat::loadImageFile(const QString & filename, bool optional)
     // QFile::copy fails if destination file exists
     if (destfile.exists()) {
       if (destfile.remove()) {
-        qDebug() << "Deleted file from image cache" << filename;
+        //qDebug() << "Deleted file from image cache" << filename;
       } else {
-        qDebug() << "Unable to delete cached" << filename;
+        fatalMsg(tr("Unable to delete cached").arg(filename));
         return false;
       }
     }
 
     if (file.copy(Helpers::getImagesCacheDir() % "/" % filename)) {
-      qDebug() << "Cached image" << filename;
+      // qDebug() << "Cached image" << filename;
     } else {
-      qDebug() << "Failed to cache image" << filename;
+      fatalMsg(tr("Failed to cache image: %1").arg(filename));
       return false;
     }
   } else {
-    qDebug() << "Failed to cache" << filename << ". Cache directory" << Helpers::getImagesCacheDir()
-             << "does not exist.";
+    fatalMsg(tr("No application image cache"));
+    return false;
   }
 
   return true;
@@ -99,13 +99,19 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
   QFile file(path);
 
   if (!file.open(QFile::WriteOnly)) {
-    setError(tr("Error opening file %1 in write mode:\n%2.").arg(path).arg(file.errorString()));
+    fatalMsg(tr("Error opening file %1 in write mode:\n%2.").arg(path).arg(file.errorString()));
     return false;
   }
 
-  file.write(data.data(), data.size());
+  qint64 writesz = file.write(data.data(), data.size());
   file.close();
-  qDebug() << "File" << path << "written, size:" << data.size();
+
+  if (!writesz) {
+    fatalMsg(tr("Empty file written: %1").arg(path));
+    return false;
+  }
+
+  statusMsg(tr("File written: %1").arg(path));
   return true;
 }
 
@@ -121,20 +127,26 @@ bool SdcardFormat::writeImageFile(const QString & filename)
     if (destinfo.exists()) {
       // for performance reasons avoid overwriting the same image
       if (destinfo.size() == srcinfo.size()) {
-        qDebug() << "Image file" << filename << "skipped as same size";
+        statusMsg(tr("Duplicate image file: %1 skipped").arg(filename));
         return true;
+      }
+      // Size differs, remove the existing file before copying
+      if (!QFile::remove(destpath)) {
+        fatalMsg(tr("Error removing existing image file: %1").arg(filename));
+        return false;
       }
     }
 
     if (!QFile(srcpath).copy(destpath)) {
-      setError(tr("Error writing image file: %1").arg(filename));
+      fatalMsg(tr("Error writing image file: %1").arg(filename));
       return false;
     }
 
-    qDebug() << "File" << destpath << "written, size:" << srcinfo.size();
+    statusMsg(tr("Image written: %1").arg(filename));
     return true;
   }
 
+  fatalMsg(tr("No application image cache"));
   return false;
 }
 
@@ -158,11 +170,11 @@ bool SdcardFormat::deleteFile(const QString & filename)
   QString path = this->filename + "/" + filename;
 
   if (!QFile::remove(path)) {
-    setError(tr("Error deleting file %1").arg(path));
+    fatalMsg(tr("Error deleting file: %1").arg(path));
     return false;
   }
 
-  qDebug() << "File" << path << "deleted";
+  statusMsg(tr("Deleted file: %1").arg(path));
   return true;
 }
 

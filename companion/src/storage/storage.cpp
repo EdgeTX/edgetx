@@ -60,6 +60,50 @@ void unregisterStorageFactories()
     delete factory;
 }
 
+
+void StorageFormat::statusMsg(const QString & text, const int & type,
+                const bool richText, const bool updateLast)
+{
+  if (_progress)
+    _progress->addMessage(text, type, richText, updateLast);
+
+  if (type == QtCriticalMsg || type == QtFatalMsg)
+    setError(text);
+  else if (type == QtWarningMsg)
+    setWarning(text);
+}
+
+void StorageFormat::fatalMsg(const QString & text, const bool richText)
+{
+  statusMsg(text, QtFatalMsg, richText);
+}
+
+void StorageFormat::progressSetInfoAndMsg(const QString & text, const int & type, const bool richText)
+{
+  progressSetInfo(text);
+  statusMsg(text, type, richText);
+}
+
+void StorageFormat::progressSetInfo(const QString & msg)
+{
+  if (_progress) _progress->setInfo(msg);
+}
+
+void StorageFormat::progressSetLock(const bool lock)
+{
+  if (_progress) _progress->lock(lock);
+}
+
+void StorageFormat::progressSetMaximum(const int max)
+{
+  if (_progress) _progress->setMaximum(max);
+}
+
+void StorageFormat::progressSetValue(const int val)
+{
+  if (_progress) _progress->setValue(val);
+}
+
 bool Storage::load(RadioData & radioData)
 {
   if (!fileExists())
@@ -69,6 +113,8 @@ bool Storage::load(RadioData & radioData)
   StorageFormat *format = getStorageFormat();
 
   if (format) {
+    format->setProgress(_progress);
+
     if (format->load(radioData)) {
       board = format->getBoard();
       setWarning(format->warning());
@@ -89,6 +135,7 @@ bool Storage::write(RadioData & radioData)
   StorageFormat *format = getStorageFormat();
 
   if (format) {
+    format->setProgress(_progress);
     ret = format->write(radioData);
     delete format;
   }
