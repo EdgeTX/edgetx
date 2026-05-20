@@ -98,9 +98,10 @@ class MdiChild : public QWidget
     bool loadFile(const QString & fileName, bool resetCurrentFile=true);
     bool save();
     bool saveAs(bool isNew=false);
-    bool saveFile(const QString & fileName, bool setCurrent=true);
+    bool saveFile(const QString & fileName, bool setCurrent = true, bool toRadio = false);
+    bool saveFileProgress(const QString & fileName);
     void closeFile(bool force = false);
-    void writeSettings(StatusDialog * status, bool toRadio = true);
+    void writeModelsSettings(bool toRadio = true);
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 
