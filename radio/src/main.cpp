@@ -294,7 +294,7 @@ void checkKeysLock()
     audioKeyPress();
     const char* lockedMsg = STR_KEYS_LOCKED;
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-    static char lockedBuf[40];
+    static char lockedBuf[45];
     const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
     const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
     snprintf(lockedBuf, sizeof(lockedBuf), STR_KEYS_LOCKED_FMT,
