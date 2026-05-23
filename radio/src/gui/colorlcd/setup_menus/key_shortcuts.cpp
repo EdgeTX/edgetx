@@ -69,7 +69,7 @@ QMKeyShortcutsPage::QMKeyShortcutsPage():
   std::vector<std::string> qmPages = QuickMenu::menuPageNames(false);
 
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-  static char keyLockLabel[32];
+  static char keyLockLabel[45];
   const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
   const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
   snprintf(keyLockLabel, sizeof(keyLockLabel), STR_KEY_LOCK_FMT,
