@@ -316,11 +316,18 @@ void LogsDialog::exportToGoogleEarth()
   int n = dataPoints.count(); // number of points to export
   if (n==0) return;
 
-  int gpscol=0, altcol=0, speedcol=0;
+  int gpscol=0, altcol=0, speedcol=0, datecol=0, timecol=0;
   double altMultiplier = 1.0;
 
   QSet<int> nondataCols;
   for (int i=1; i<dataPoints.at(0).count(); i++) {
+    // Date and Time
+    if (dataPoints.at(0).at(i) == "Date") {
+      datecol=i;
+    }
+    if (dataPoints.at(0).at(i) == "Time") {
+      timecol=i;
+    }
     // Long,Lat,Course,GPS Speed,GPS Alt
     if (dataPoints.at(0).at(i) == "GPS") {
       gpscol=i;
@@ -372,9 +379,9 @@ void LogsDialog::exportToGoogleEarth()
   outputStream << "\t\t\t<gx:SimpleArrayField name=\"GPSSpeed\" type=\"float\">\n\t\t\t\t<displayName>GPS Speed</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
 
   // declare additional fields
-  for (int i=0; i<dataPoints.at(0).count()-2; i++) {
-    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+2)) {
-      QString origName = dataPoints.at(0).at(i+2);
+  for (int i=0; i<dataPoints.at(0).count()-(timecol+1); i++) {
+    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+timecol+1)) {
+      QString origName = dataPoints.at(0).at(i+timecol+1);
       QString safeName = origName;
       safeName.replace(" ","_");
       outputStream << "\t\t\t<gx:SimpleArrayField name=\""<< safeName <<"\" ";
@@ -396,9 +403,9 @@ void LogsDialog::exportToGoogleEarth()
   outputStream << "\n\t\t\t\t<gx:Track>\n";
   outputStream << "\n\t\t\t\t\t<altitudeMode>absolute</altitudeMode>\n";
 
-  // time data points
+  // date and time data points
   for (int i=1; i<n; i++) {
-    QString tstamp=dataPoints.at(i).at(0)+QString("T")+dataPoints.at(i).at(1)+QString("Z");
+    QString tstamp=dataPoints.at(i).at(datecol)+QString("T")+dataPoints.at(i).at(timecol)+QString("Z");
     outputStream << "\t\t\t\t\t<when>"<< tstamp <<"</when>\n";
   }
 
@@ -424,13 +431,13 @@ void LogsDialog::exportToGoogleEarth()
   }
 
   // add values for additional fields
-  for (int i=0; i<dataPoints.at(0).count()-2; i++) {
-    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+2)) {
-      QString safeName = dataPoints.at(0).at(i+2);;
+  for (int i=0; i<dataPoints.at(0).count()-(timecol+1); i++) {
+    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+timecol+1)) {
+      QString safeName = dataPoints.at(0).at(i+timecol+1);;
       safeName.replace(" ","_");
       outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\""<< safeName <<"\">\n";
       for (int j=1; j<n; j++) {
-        outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(j).at(i+2) <<"</gx:value>\n";
+        outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(j).at(i+timecol+1) <<"</gx:value>\n";
       }
       outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
     }
