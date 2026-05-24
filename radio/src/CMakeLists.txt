@@ -146,8 +146,12 @@ AddHWGenTarget(${HW_DESC_JSON} stm32_pwm_inputs stm32_pwm_inputs.inc)
 AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 
+AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
+add_custom_target(hal_keys_lock_hdr DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/hal_keys_lock.h)
+
 add_dependencies(board hal_settings hal_keys hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
 add_dependencies(board_bl hal_settings hal_keys stm32_keys)
+
 
 include(hal/CMakeLists.txt)
 
@@ -179,6 +183,8 @@ endif()
 # Must be after all add_definitions() so the preprocessor sees all flags
 AddHardwareDefTarget(${HW_DESC_JSON})
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
+
+set(SRC ${SRC} ${CMAKE_CURRENT_BINARY_DIR}/hal_keys_lock.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 

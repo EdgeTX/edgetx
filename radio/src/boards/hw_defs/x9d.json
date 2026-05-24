@@ -372,5 +372,9 @@
   },
   "haptic": {
     "haptic_gpio": "GPIO_PIN(GPIOC, 14)"
-  }
+  },
+  "key_lock_combo": [
+    "KEY_MENU",
+    "KEY_EXIT"
+  ]
 }

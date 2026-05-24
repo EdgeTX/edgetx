@@ -317,5 +317,9 @@
     "haptic_counter_register": "HAPTIC_TIMER->CCR2",
     "haptic_ccmr1": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2",
     "haptic_ccer": "TIM_CCER_CC2E"
-  }
+  },
+  "key_lock_combo": [
+    "KEY_PAGEDN",
+    "KEY_ENTER"
+  ]
 }
