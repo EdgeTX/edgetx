@@ -83,6 +83,7 @@ I18N_PLAY_FUNCTION(ua, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
       number = qr2.quot;
       rem2 = qr2.rem;
     }
+    qr = div((int)number, 10);
     if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(UA_PROMPT_POINT_BASE + qr.rem);
