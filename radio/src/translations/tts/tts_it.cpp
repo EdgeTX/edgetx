@@ -105,8 +105,12 @@ I18N_PLAY_FUNCTION(it, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
       }
     }
     else {
-      if (qr.quot == 1) {
+      if (qr.quot==1) {
         PUSH_NUMBER_PROMPT(IT_PROMPT_UN);
+        if (unit) {
+          PUSH_NUMBER_PROMPT(IT_PROMPT_UNITS_BASE+(unit*2));
+        }
+        return;
       } else {
         PLAY_NUMBER(qr.quot, 0, 0);
       }
