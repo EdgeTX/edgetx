@@ -228,6 +228,7 @@ void menuRadioSetup(event_t event)
       0, // backlight control
       BACKLIGHT_WARNING_ROW(LABEL(0)), // backlight control override warning
       0, // flash beep
+    0,
     CASE_SPLASH_PARAM(0) // disable splash
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed
