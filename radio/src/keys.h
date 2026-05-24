@@ -25,7 +25,7 @@
 #include "edgetx_types.h"
 
 #include "hal/key_driver.h"
-#if !defined(BOOT)
+#if !defined(BOOT) && !defined(SIMU)
 #include "hal_keys_lock.h"
 #endif
 
