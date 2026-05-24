@@ -89,24 +89,24 @@ I18N_PLAY_FUNCTION(it, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
 
   int8_t mode = MODE(att);
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
     div_t qr = div((int)number, 10);
-    if (qr.rem > 0) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(IT_PROMPT_VIRGOLA);
-      if (mode==2 && qr.rem < 10)
-        PUSH_NUMBER_PROMPT(IT_PROMPT_ZERO);
       PLAY_NUMBER(qr.rem, 0, 0);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
     }
     else {
-      if (qr.quot==1) {
+      if (qr.quot == 1) {
         PUSH_NUMBER_PROMPT(IT_PROMPT_UN);
-        if (unit) {
-          PUSH_NUMBER_PROMPT(IT_PROMPT_UNITS_BASE+(unit*2));
-        }
-        return;
       } else {
         PLAY_NUMBER(qr.quot, 0, 0);
       }
@@ -180,4 +180,3 @@ I18N_PLAY_FUNCTION(it, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(it, STR_VOICE_ITALIANO);
-
