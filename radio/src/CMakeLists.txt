@@ -121,6 +121,9 @@ add_definitions(
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
 
+AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
+add_custom_target(hal_keys_lock_hdr DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/hal_keys_lock.h)
+
 include(hal/CMakeLists.txt)
 
 add_subdirectory(bitmaps)
@@ -151,6 +154,8 @@ endif()
 # Must be after all add_definitions() so the preprocessor sees all flags
 AddHardwareDefTarget(${HW_DESC_JSON})
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
+
+set(SRC ${SRC} ${CMAKE_CURRENT_BINARY_DIR}/hal_keys_lock.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 

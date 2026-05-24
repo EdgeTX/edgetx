@@ -1283,27 +1283,3 @@
 #define HAS_BACKLIGHT_COLOR
 #endif
 
-// Keys held together to toggle the keyboard lock. Override either define
-// in this file to map the combo to a different pair on this target.
-#if defined(PCBXLITE) || defined(PCBXLITES) || \
-    defined(RADIO_V12) || defined(RADIO_V14)
-// no combo defined
-#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER) || defined(RADIO_GX12) || \
-    defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_MT12) || \
-    defined(RADIO_POCKET) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-#define KEYS_LOCK_KEY1                  KEY_SYS
-#define KEYS_LOCK_KEY2                  KEY_MODEL
-#elif defined(RADIO_T12MAX)
-#define KEYS_LOCK_KEY1                  KEY_PAGEDN
-#define KEYS_LOCK_KEY2                  KEY_ENTER
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-// T12, TLITE, LR3PRO — only have EXIT/ENTER/UP/DOWN/LEFT/RIGHT
-#define KEYS_LOCK_KEY1                  KEY_ENTER
-#define KEYS_LOCK_KEY2                  KEY_RIGHT
-#elif defined(PCBX7)
-#define KEYS_LOCK_KEY1                  KEY_MENU
-#define KEYS_LOCK_KEY2                  KEY_ENTER
-#else
-#define KEYS_LOCK_KEY1                  KEY_MENU
-#define KEYS_LOCK_KEY2                  KEY_EXIT
-#endif

@@ -25,6 +25,9 @@
 #include "edgetx_types.h"
 
 #include "hal/key_driver.h"
+#if !defined(BOOT)
+#include "hal_keys_lock.h"
+#endif
 
 constexpr event_t EVT_REFRESH =        0x1000;
 constexpr event_t EVT_ENTRY =          0x1001;

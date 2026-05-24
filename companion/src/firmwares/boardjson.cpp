@@ -978,7 +978,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hasKeyLockCombo))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -1015,7 +1015,7 @@ bool BoardJson::loadDefinition()
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware)
+                         HardwareDefn & hardware, bool & hasKeyLockCombo)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1201,6 +1201,9 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
       }
     }
   }
+
+  hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
+                    obj.value("key_lock_combo").toArray().size() == 2;
 
   if (obj.value("trims").isArray()) {
     const QJsonArray &trms = obj.value("trims").toArray();
