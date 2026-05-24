@@ -33,11 +33,11 @@ enum GermanPrompts {
   DE_PROMPT_MINUS,
 };
 
-static inline bool hasDualUnits(uint8_t unit) { // true if unit has a secondary unit for value 1 
+static inline bool hasDualUnits(uint8_t unit) { // true if unit has a secondary unit for value 1
   return (unit == UNIT_HOURS ||                 // example with sec. unit: "null Stunden", "eine Stunde", "zwei Stunden", ...
           unit == UNIT_MINUTES ||               // exmple without sec. unit "null Volt", "ein Volt", "zwei Volt", ...
-          unit == UNIT_SECONDS ||              
-          unit == UNIT_FLOZ ||                
+          unit == UNIT_SECONDS ||
+          unit == UNIT_FLOZ ||
           unit == UNIT_MS ||
           unit == UNIT_US ||
           unit == UNIT_MPH ||
@@ -66,19 +66,23 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
   int8_t mode = MODE(att);
 
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
 
     div_t qr = div((int)number, 10);
-
-    if (qr.rem > 0) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(DE_PROMPT_COMMA);
       PUSH_NUMBER_PROMPT(DE_PROMPT_NUMBERS_BASE + qr.rem);
-      
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
       number = -1;      // force secondary unit if unit has one
-                        // skips the following integer processing 
+                        // skips the following integer processing
     }
     else {
       number = qr.quot;   // no remainder, continue with integer part
@@ -90,7 +94,7 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(DE_PROMPT_TAUSEND);
     number %= 1000;
     if (number == 0)
-      number = -1;       
+      number = -1;
   }
 
   if ((number >= 1000) && (number < 2000)) {
@@ -98,15 +102,15 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(DE_PROMPT_TAUSEND);
     number %= 1000;
     if (number == 0)
-      number = -1;    
+      number = -1;
   }
 
   if ((number >= 200) && (number < 1000)) {
     PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number / 100);
-    PUSH_NUMBER_PROMPT(DE_PROMPT_HUNDERT);	
+    PUSH_NUMBER_PROMPT(DE_PROMPT_HUNDERT);
     number %= 100;
     if (number == 0)
-      number = -1;    
+      number = -1;
   }
 
   if ((number >= 100) && (number < 200)) {
@@ -120,7 +124,7 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
   if (number >= 0) {
     if (number == 1) {
       if(unit) {
-        if(hasDualUnits(unit) && unit != UNIT_RADIANS) 
+        if(hasDualUnits(unit) && unit != UNIT_RADIANS)
           PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);           // value is 1, has unit and unit has secondary unit -> "eine",
                                                         // except radians -> "ein"
         else
@@ -129,12 +133,13 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
       } else
         PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + 1);         // value is 1, has no unit -> regular number "eins"
     } else
-      PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number);      // value is not 1, has no unit or unit has 
+      PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number);      // value is not 1, has no unit or unit has
                                                         // no secondary unit -> regular number
   }
 
-  if(unit)
+  if(unit) {
     DE_PUSH_UNIT_PROMPT(unit, number);
+  }
 }
 
 I18N_PLAY_FUNCTION(de, playDuration, int seconds PLAY_DURATION_ATT)
@@ -165,10 +170,9 @@ I18N_PLAY_FUNCTION(de, playDuration, int seconds PLAY_DURATION_ATT)
   if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
     if (minutes)
       PUSH_NUMBER_PROMPT(DE_PROMPT_UND);
-      
+
     PLAY_NUMBER(seconds, UNIT_SECONDS, 0);
   }
 }
 
 LANGUAGE_PACK_DECLARE(de, STR_VOICE_DEUTSCH);
-

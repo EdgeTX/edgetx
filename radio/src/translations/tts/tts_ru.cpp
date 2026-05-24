@@ -78,12 +78,18 @@ I18N_PLAY_FUNCTION(ru, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
   div_t qr = div((int)number, 10);
   int8_t mode = MODE(att);
   if (mode > 0 && att != RU_FEMALE_UNIT) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
-    if (qr.rem) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(RU_PROMPT_POINT_BASE + qr.rem);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
       number = -1;
     }
     else {
@@ -189,4 +195,3 @@ I18N_PLAY_FUNCTION(ru, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(ru, STR_VOICE_RUSSIAN);
-

@@ -49,7 +49,6 @@ I18N_PLAY_FUNCTION(en, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(EN_PROMPT_MINUS);
     number = -number;
   }
-
   int8_t mode = MODE(att);
   if (mode > 0) {
     uint8_t rem2 = 0;
