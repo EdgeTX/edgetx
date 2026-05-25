@@ -1,11 +1,7 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-# AddHardwareDefTarget(${HW_DESC_JSON})
-AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
-
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-  ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
   ${RADIO_SRC_DIR}/os/time_nortos.cpp
   ${RADIO_SRC_DIR}/os/sleep_nortos.cpp
   ${RADIO_SRC_DIR}/keys.cpp

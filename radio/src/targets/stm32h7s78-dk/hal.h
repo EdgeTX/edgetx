@@ -299,14 +299,14 @@
 
 // Millisecond timer
 #define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM14_IRQHandler
+#define MS_TIMER_IRQN                   TIM14_IRQn
+#define MS_TIMER_IRQHANDLER             TIM14_IRQHandler
 
 // Mixer scheduler timer
 #define MIXER_SCHEDULER_TIMER                TIM12
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM12_IRQHandler
+#define MIXER_SCHEDULER_TIMER_IRQN           TIM12_IRQn
+#define MIXER_SCHEDULER_TIMER_IRQHANDLER     TIM12_IRQHandler
 
 #define LCD_W                           800
 #define LCD_H                           480

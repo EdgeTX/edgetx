@@ -124,7 +124,7 @@ const stm32_pulse_timer_t _led_timer = {
   .DMAx = LED_STRIP_TIMER_DMA,
   .DMA_Stream = LED_STRIP_TIMER_DMA_STREAM,
   .DMA_Channel = LED_STRIP_TIMER_DMA_CHANNEL,
-  .DMA_IRQn = LED_STRIP_TIMER_DMA_IRQn,
+  .DMA_IRQn = LED_STRIP_TIMER_DMA_IRQN,
   .DMA_TC_CallbackPtr = nullptr,
 };
 
@@ -187,11 +187,11 @@ static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(LED_STRIP_TIMER_CHANNEL),
 static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(LED_STRIP_TIMER_DMA_STREAM),
               "Unsupported DMA stream");
 
-#if !defined(LED_STRIP_TIMER_DMA_IRQHandler)
-  #error "Missing LED_STRIP_TIMER_DMA_IRQHandler definition"
+#if !defined(LED_STRIP_TIMER_DMA_IRQHANDLER)
+  #error "Missing LED_STRIP_TIMER_DMA_IRQHANDLER definition"
 #endif
 
-extern "C" void LED_STRIP_TIMER_DMA_IRQHandler()
+extern "C" void LED_STRIP_TIMER_DMA_IRQHANDLER()
 {
   rgbleds_dma_isr(&_led_timer);
 }
