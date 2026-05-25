@@ -21,25 +21,7 @@
 
 #pragma once
 
-#if defined(STM32F413xx)
-  #define CPU_FREQ            100000000
-  #define PERI1_FREQUENCY     50000000
-  #define PERI2_FREQUENCY     100000000
-  #define TIMER_MULT_APB1     1
-  #define TIMER_MULT_APB2     1
-#elif defined(STM32F4)
-  #define CPU_FREQ            168000000
-  #define PERI1_FREQUENCY     42000000
-  #define PERI2_FREQUENCY     84000000
-  #define TIMER_MULT_APB1     2
-  #define TIMER_MULT_APB2     2
-#else
-  #define CPU_FREQ            120000000
-  #define PERI1_FREQUENCY     30000000
-  #define PERI2_FREQUENCY     60000000
-  #define TIMER_MULT_APB1     2
-  #define TIMER_MULT_APB2     2
-#endif
+#include "hal_settings.h"
 
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
@@ -244,158 +226,6 @@
 #else
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 0)  // PD.00
-#endif
-
-#if defined(RADIO_X9DP2019)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_clear
-  #define GPIO_LED_GPIO_OFF             gpio_set
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOA, 13)
-#elif defined(PCBXLITES)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_clear
-  #define GPIO_LED_GPIO_OFF             gpio_set
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 4) // PE.04
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 6) // PE.06
-#elif defined(PCBXLITE)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_clear
-  #define GPIO_LED_GPIO_OFF             gpio_set
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOE, 5) // PE.05
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 4) // PE.04
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 6) // PE.06
-#elif defined(PCBX7ACCESS)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOB, 1) // PB.01
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOC, 4) // PC.04
-#elif defined(RADIO_T8)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOB, 1) // PB.01
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOC, 4) // PC.04
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOC, 5) // PC.05
-#elif defined(RADIO_COMMANDO8)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOC, 0) // PC.00
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOC, 2) // PC.02
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOC, 1) // PC.01
-#elif defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 13) // PE.13
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOA, 7)  // PA.07
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 2)  // PE.02
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 13)  // PE.13
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOA, 7)  // PA.07
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TX12)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOB, 1)  // PB.01
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOC, 5)  // PC.05
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOC, 4)  // PC.04
-#elif defined(RADIO_FAMILY_T20) || defined(RADIO_BUMBLEBEE)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOG, 1)  // PG.01
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOC, 5)  // PC.05
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOC, 4)  // PC.04
-#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_GX12)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOA, 7)  // PA.07
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 13) // PE.13
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 2)  // PE.02
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOE, 14)  // PE.14
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 13) // PE.13
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 2)  // PE.02
-#elif defined(PCBX7)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOC, 4)  // PC.04
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOC, 5)  // PC.05
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOB, 1)  // PB.01
-#elif defined(PCBX9LITES)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 5)  // PE.05
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 6)  // PE.06
-#elif defined(PCBX9LITE)
-  #define STATUS_LEDS
-  #define GPIO_LED_GPIO_ON              gpio_set
-  #define GPIO_LED_GPIO_OFF             gpio_clear
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOE, 4)  // PE.04
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 5)  // PE.05
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 6)  // PE.06
-#endif
-
-  // LED Strip
-#if defined(RGBLEDS)
-#if defined(RADIO_GX12)
-  #define LED_STRIP_LENGTH                  8
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            0
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              8
-  #define CFS_LEDS_PER_SWITCH               1
-#else
-  #define LED_STRIP_LENGTH                  7
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            7
-#endif
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 8) // PA.08 / TIM1_CH1
-  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1   // TIM1 / TIM2
-  #define LED_STRIP_TIMER                   TIM1
-  #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
-  #define LED_STRIP_TIMER_DMA               DMA2
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
-  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
-  #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
-  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
-  #define LED_STRIP_REFRESH_PERIOD          50  //ms
-#elif defined(RADIO_T14) || defined(RADIO_V14) || defined(RADIO_V12)
-#if defined(RADIO_V14)
-  #define LED_STRIP_LENGTH                  38
-  #define BLING_LED_STRIP_START             6
-  #define BLING_LED_STRIP_LENGTH            32
-#elif defined(RADIO_V12)
-  #define LED_STRIP_LENGTH                  6   // 6POS switches only?
-#else
-  #define LED_STRIP_LENGTH                  1
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            1
-#endif
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10) // PA.10 / TIM1_CH3
-  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1
-  #define LED_STRIP_TIMER                   TIM1
-  #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
-  #define LED_STRIP_TIMER_DMA               DMA2
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
-  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
-  #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
-  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
-  #define LED_STRIP_REFRESH_PERIOD          50  //ms
 #endif
 
 #if defined(FUNCTION_SWITCHES)
@@ -950,13 +780,6 @@
 #endif
 
 // LCD driver
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_MT12) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_BUMBLEBEE)
-  #define LCD_VERTICAL_INVERT
-#endif
-#if defined(RADIO_LR3PRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12) || defined(RADIO_V14)
-  #define LCD_HORIZONTAL_INVERT
-  #define OLED_SCREEN
-#endif
 #if defined(RADIO_T14) || defined(RADIO_GX12) || defined(RADIO_V14)
   #define SSD1309_LCD
 #endif
@@ -1255,30 +1078,4 @@
     // To avoid change in modelsize, todo: remove me
     #define STORAGE_BLUETOOTH
   #endif
-#endif
-
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
-// LCD driver
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
-#define LCD_W                           212
-#define LCD_H                           64
-#define LCD_DEPTH                       4
-#else
-#define LCD_W                           128
-#define LCD_H                           64
-#define LCD_DEPTH                       1
-#endif
-
-#if defined(PCBX9DP) || defined(PCBX9E)
-#define HAS_BACKLIGHT_COLOR
 #endif

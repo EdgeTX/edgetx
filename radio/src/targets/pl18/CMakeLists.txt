@@ -203,7 +203,6 @@ add_dependencies(board_bl ${BITMAPS_TARGET})
 
 if(PCBREV STREQUAL NB4P)
   target_sources(board_bl PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}/stm32_adc_inputs.inc
     boards/generic_stm32/analog_inputs.cpp
   )
 endif()

@@ -72,12 +72,7 @@ USART6: INTMODULE_USART
 #ifndef _HAL_H_
 #define _HAL_H_
 
-#define CPU_FREQ                480000000
-
-#define PERI1_FREQUENCY         120000000
-#define PERI2_FREQUENCY         120000000
-#define TIMER_MULT_APB1         2
-#define TIMER_MULT_APB2         2
+#include "hal_settings.h"
 
 // Keys
 #define KEYS_GPIO_REG_PAGEDN          GPIOA
@@ -131,91 +126,6 @@ USART6: INTMODULE_USART
 
 #define TRIMS_GPIO_REG_LSU          GPIOH
 #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_13
-
-// Extender Switches
-#define SWITCHES_A_3POS
-#define SWITCHES_GPIO_REG_A_H
-#define SWITCHES_GPIO_PIN_A_H         PCA95XX_P15
-#define SWITCHES_GPIO_REG_A_L
-#define SWITCHES_GPIO_PIN_A_L         PCA95XX_P14
-
-#define SWITCHES_B_3POS
-#define SWITCHES_GPIO_REG_B_H
-#define SWITCHES_GPIO_PIN_B_H         PCA95XX_P13
-#define SWITCHES_GPIO_REG_B_L
-#define SWITCHES_GPIO_PIN_B_L         PCA95XX_P12
-
-#define SWITCHES_C_3POS
-#define SWITCHES_GPIO_REG_C_H
-#define SWITCHES_GPIO_PIN_C_H         PCA95XX_P11
-#define SWITCHES_GPIO_REG_C_L
-#define SWITCHES_GPIO_PIN_C_L         PCA95XX_P10
-
-#define SWITCHES_D_3POS
-#define SWITCHES_GPIO_REG_D_H
-#define SWITCHES_GPIO_PIN_D_H         PCA95XX_P7
-#define SWITCHES_GPIO_REG_D_L
-#define SWITCHES_GPIO_PIN_D_L         PCA95XX_P6
-
-#define SWITCHES_E_3POS
-#define SWITCHES_GPIO_REG_E_H
-#define SWITCHES_GPIO_PIN_E_H         PCA95XX_P16
-#define SWITCHES_GPIO_REG_E_L
-#define SWITCHES_GPIO_PIN_E_L         PCA95XX_P17
-
-#define SWITCHES_F_2POS
-#define SWITCHES_GPIO_REG_F
-#define SWITCHES_GPIO_PIN_F           PCA95XX_P1
-
-#define SWITCHES_G_3POS
-#define SWITCHES_GPIO_REG_G_H
-#define SWITCHES_GPIO_PIN_G_H         PCA95XX_P4
-#define SWITCHES_GPIO_REG_G_L
-#define SWITCHES_GPIO_PIN_G_L         PCA95XX_P5
-
-#define SWITCHES_H_2POS
-#define SWITCHES_GPIO_REG_H
-#define SWITCHES_GPIO_PIN_H           PCA95XX_P0
-
-#define SWITCHES_I_2POS
-#define SWITCHES_GPIO_REG_I
-#define SWITCHES_GPIO_PIN_I           PCA95XX_P2
-
-#define SWITCHES_J_2POS
-#define SWITCHES_GPIO_REG_J
-#define SWITCHES_GPIO_PIN_J           PCA95XX_P3
-
-// function switches
-//SW1
-#define SWITCHES_GPIO_REG_K
-#define SWITCHES_GPIO_PIN_K           PCA95XX_P0
-#define SWITCHES_K_CFS_IDX            0
-#define FUNCTION_SWITCH_1             SK
-//SW2
-#define SWITCHES_GPIO_REG_L
-#define SWITCHES_GPIO_PIN_L           PCA95XX_P1
-#define SWITCHES_L_CFS_IDX            1
-#define FUNCTION_SWITCH_2             SL
-//SW3
-#define SWITCHES_GPIO_REG_M
-#define SWITCHES_GPIO_PIN_M           PCA95XX_P2
-#define SWITCHES_M_CFS_IDX            2
-#define FUNCTION_SWITCH_3             SM
-//SW4
-#define SWITCHES_GPIO_REG_N
-#define SWITCHES_GPIO_PIN_N           PCA95XX_P3
-#define SWITCHES_N_CFS_IDX            3
-#define FUNCTION_SWITCH_4             SN
-//SW5
-#define SWITCHES_GPIO_REG_O
-#define SWITCHES_GPIO_PIN_O           PCA95XX_P4
-#define SWITCHES_O_CFS_IDX            4
-#define FUNCTION_SWITCH_5             SO
-//SW6
-#define SWITCHES_GPIO_REG_P
-#define SWITCHES_GPIO_PIN_P           PCA95XX_P5
-#define SWITCHES_P_CFS_IDX            5
-#define FUNCTION_SWITCH_6             SP
 
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
@@ -343,18 +253,8 @@ USART6: INTMODULE_USART
 
 // LCD
 
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
-
 #define LCD_RESET_GPIO                  GPIOJ
 #define LCD_RESET_GPIO_PIN              LL_GPIO_PIN_12
-
-// Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 10) // TIM1_CH3
-#define BACKLIGHT_TIMER                 TIM1
-#define BACKLIGHT_TIMER_CHANNEL			LL_TIM_CHANNEL_CH3
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // QSPI Flash
 #define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)
@@ -451,32 +351,6 @@ USART6: INTMODULE_USART
 #define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-
-// LED Strip
-#define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
-#define BLING_LED_STRIP_START             6
-#define BLING_LED_STRIP_LENGTH            20
-#define CFS_LED_STRIP_START               0
-#define CFS_LED_STRIP_LENGTH              6
-#define CFS_LEDS_PER_SWITCH               1
-#define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 0)  // PA.00 / TIM2_CH1
-#define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
-#define LED_STRIP_TIMER                   TIM2
-#define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
-#define LED_STRIP_TIMER_DMA               DMA1
-#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM2_UP
-#define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
-#define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
-#define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
-#define LED_STRIP_REFRESH_PERIOD          50 //ms
-
-#define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_set
-#define GPIO_LED_GPIO_OFF                 gpio_clear
-#define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
-#define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
-#define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
 
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOB, 13) // PB.13
@@ -608,7 +482,6 @@ USART6: INTMODULE_USART
   #define EXTI15_10_IRQ_Priority       6
 #endif
 
-//ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION
 // Rotary Encoder
 #define ROTARY_ENCODER_INVERTED
@@ -634,25 +507,6 @@ USART6: INTMODULE_USART
 #define ROTARY_ENCODER_TIMER            TIM17
 #define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
-#define LCD_W                           800
-#define LCD_H                           480
-
-#define LCD_PHYS_W                      LCD_W
-#define LCD_PHYS_H                      LCD_H
-
-#define LCD_DEPTH                       16
 
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 

@@ -130,6 +130,8 @@ function(AddHWGenTarget input template output)
     COMMAND ${GEN_JSON} > ${output}
     DEPENDS ${INPUT_JSON} ${TEMPLATE} ${GEN_PY_DEPS} ${CMAKE_BINARY_DIR}/CMakeCache.txt
   )
+
+  add_custom_target(${template} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${output})
 endfunction()
 
 macro(AddHeadersSources)

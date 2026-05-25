@@ -119,10 +119,4 @@
   #define CASE_LUA_MODEL_SCRIPTS(x)
 #endif
 
-#if defined(PCBX9DP) || defined(PCBX9E)
-  #define CASE_PCBX9E_PCBX9DP(x) x,
-#else
-  #define CASE_PCBX9E_PCBX9DP(x)
-#endif
-
 #define CASE_SPLASH_PARAM(x) x,

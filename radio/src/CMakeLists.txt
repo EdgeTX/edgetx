@@ -124,6 +124,29 @@ add_definitions(
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
 
+# Generate files from radio JSON
+AddHWGenTarget(${HW_DESC_JSON} hal_settings hal_settings.h)
+
+AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} yaml_inputs yaml_inputs.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} lua_inputs lua_inputs.inc)
+AddHWGenTarget(${HW_DESC_JSON} lua_mixsrc lua_mixsrc.inc)
+AddHWGenTarget(${HW_DESC_JSON} lua_keys lua_keys.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} stm32_keys stm32_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_switches stm32_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_adc_inputs stm32_adc_inputs.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_pwm_inputs stm32_pwm_inputs.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
+
+add_dependencies(board hal_settings hal_keys hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
+add_dependencies(board_bl hal_settings hal_keys stm32_keys)
+
 include(hal/CMakeLists.txt)
 
 add_subdirectory(bitmaps)

@@ -42,8 +42,8 @@ static void _init_1ms_timer()
   MS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
   MS_TIMER->DIER = TIM_DIER_UIE;
 
-  NVIC_EnableIRQ(MS_TIMER_IRQn);
-  NVIC_SetPriority(MS_TIMER_IRQn, 0);
+  NVIC_EnableIRQ(MS_TIMER_IRQN);
+  NVIC_SetPriority(MS_TIMER_IRQN, 0);
 }
 
 void timersInit()
@@ -104,7 +104,7 @@ static inline void _interrupt_1ms()
   }
 }
 
-extern "C" void MS_TIMER_IRQHandler()
+extern "C" void MS_TIMER_IRQHANDLER()
 {
   MS_TIMER->SR &= ~TIM_SR_UIF;
   _interrupt_1ms();

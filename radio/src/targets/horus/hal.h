@@ -21,11 +21,7 @@
 
 #pragma once
 
-#define CPU_FREQ                        168000000
-#define PERI1_FREQUENCY                 42000000
-#define PERI2_FREQUENCY                 84000000
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
+#include "hal_settings.h"
 
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
@@ -141,22 +137,6 @@
 #if defined(PCBREV_TOUCH_GPIO) && !defined(PCBREV_TOUCH_PULL_TYPE)
   #define PCBREV_TOUCH_PULL_TYPE GPIO_IN_PD
   #pragma message "PCBREV_TOUCH_PULL_TYPE not defined, defaulting to GPIO_IN_PD"
-#endif
-
-// Led
-#define STATUS_LEDS
-#if defined(PCBX12S)
-  #define LED_GPIO                      GPIO_PIN(GPIOI, 5) // PI.05
-#elif defined(RADIO_T15)
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOI, 14)  //PI.14
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOC, 13)  //PC.13
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 3)   //PE.03
-#elif defined(PCBX10)
-  #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 2) // PE.02
-  #if !defined(MANUFACTURER_FRSKY)                         // no green on X10/X10 Express
-    #define LED_GREEN_GPIO              GPIO_PIN(GPIOE, 4) // PE.04
-  #endif
-  #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
 #endif
 
 // Customisable switches leds
@@ -300,19 +280,12 @@
   #define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_2  // PE.02
   #define LCD_SPI_MISO_GPIO_PIN           LL_GPIO_PIN_5  // PE.05
   #define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_6  // PE.06
-  #define LTDC_IRQ_PRIO                   4
-  #define DMA_SCREEN_IRQ_PRIO             6
 #else
 #if defined(PCBX12S)
   #define LCD_GPIO_NRST                 GPIO_PIN(GPIOF, 10) // PF.10
 #elif defined(PCBX10)
   #define LCD_GPIO_NRST                 GPIO_PIN(GPIOI, 10) // PI.10
 #endif
-#if defined(PCBX10) && !defined(RADIO_T18) && !defined(RADIO_V16)
-  #define LCD_VERTICAL_INVERT
-#endif
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
 #endif
 
 // Backlight
@@ -534,24 +507,6 @@
   #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 #endif
 
-#if defined(RADIO_V16)
-  // LED Strip
-  #define LED_STRIP_LENGTH                  40
-  #define BLING_LED_STRIP_START             6
-  #define BLING_LED_STRIP_LENGTH            34
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10)  // PA.10 / TIM1_CH3
-  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
-  #define LED_STRIP_TIMER                   TIM1
-  #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
-  #define LED_STRIP_TIMER_DMA               DMA2
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
-  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
-  #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
-  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
-  #define LED_STRIP_REFRESH_PERIOD          50 //ms
-#endif
-
 // Internal PXX1 Module:
 //  -> let's assume all internal XJT modules used are either X10 or X12S type
 #define EXTERNAL_ANTENNA
@@ -691,17 +646,6 @@
   #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
 #endif
 
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM13
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_UP_TIM13_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_UP_TIM13_IRQHandler
-
 // Bluetooth
 #define STORAGE_BLUETOOTH
 #if defined(BLUETOOTH)
@@ -744,15 +688,3 @@
 
 // SDRAM
 #define SDRAM_BANK2
-
-#if defined(RADIO_T15)
-#define LCD_W                          480
-#define LCD_H                          320
-#else
-#define LCD_W                          480
-#define LCD_H                          272
-#endif
-
-#define LCD_PHYS_H                     LCD_H
-#define LCD_PHYS_W                     LCD_W
-#define LCD_DEPTH                      16
