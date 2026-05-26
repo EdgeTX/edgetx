@@ -38,9 +38,10 @@ set(BOARD_LIB_SRC
 )
 
 add_library(minimal_board_lib OBJECT EXCLUDE_FROM_ALL ${MINIMAL_BOARD_LIB_SRC})
+add_dependencies(minimal_board_lib hal_keys_lock_hdr)
 
 add_library(board_lib OBJECT EXCLUDE_FROM_ALL ${BOARD_LIB_SRC})
-add_dependencies(board_lib minimal_board_lib)
+add_dependencies(board_lib minimal_board_lib hal_keys_lock_hdr)
 
 if(DEBUG)
   target_compile_definitions(board_lib PRIVATE DEBUG)

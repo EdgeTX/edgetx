@@ -282,6 +282,54 @@ void checkHatsAsKeys()
 }
 #endif
 
+#if !defined(COLORLCD)
+// Tick count at which to clear our key-lock message. 0 = no message active.
+static tmr10ms_t s_keysLockMsgUntil = 0;
+static const char* s_keysLockMsg = nullptr;
+#endif
+
+void checkKeysLock()
+{
+  if (consumeKeysLockToggleEvent()) {
+    audioKeyPress();
+    const char* lockedMsg = STR_KEYS_LOCKED;
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+    static char lockedBuf[45];
+    const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+    const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+    snprintf(lockedBuf, sizeof(lockedBuf), STR_KEYS_LOCKED_FMT,
+             k1 ? k1 : "?", k2 ? k2 : "?");
+    lockedMsg = lockedBuf;
+#endif
+#if defined(COLORLCD)
+    POPUP_BUBBLE(areKeysLocked() ? lockedMsg : STR_KEYS_UNLOCKED, 1500);
+#else
+    // Can't use a modal POPUP_INFORMATION: keys may be locked, so the user
+    // couldn't dismiss it. Keep our own deadline and re-arm POPUP_WAIT every
+    // tick below — that survives other code clearing warningText (e.g. the
+    // GVAR display in view_main.cpp).
+    s_keysLockMsg = areKeysLocked() ? lockedMsg : STR_KEYS_UNLOCKED;
+    s_keysLockMsgUntil = get_tmr10ms() + 150;
+#endif
+  }
+
+#if !defined(COLORLCD)
+  if (s_keysLockMsgUntil) {
+    if ((int32_t)(get_tmr10ms() - s_keysLockMsgUntil) >= 0) {
+      s_keysLockMsgUntil = 0;
+      // Only clear if our message is still the active one; another popup
+      // may have replaced it in the meantime.
+      if (warningText == s_keysLockMsg) CLEAR_POPUP();
+      s_keysLockMsg = nullptr;
+    } else {
+      // Keep the popup fresh every tick — another path (GVAR, etc.) may
+      // have cleared warningText; just re-arm it.
+      POPUP_WAIT(s_keysLockMsg);
+    }
+  }
+#endif
+}
+
 void checkStorageUpdate()
 {
 #if defined(RTC_BACKUP_RAM) && !defined(SIMU)
@@ -548,6 +596,8 @@ void perMain()
 #if defined(USE_HATS_AS_KEYS)
   checkHatsAsKeys();
 #endif
+
+  checkKeysLock();
 
 #if defined(COLORLCD)
   MainWindow::instance()->run();

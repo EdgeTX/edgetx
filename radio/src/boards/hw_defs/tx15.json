@@ -346,5 +346,9 @@
     "surface": 0,
     "cpu": "STM32H750xB",
     "cpu_type": "STM32H7"
-  }
+  },
+  "key_lock_combo": [
+    "KEY_SYS",
+    "KEY_MODEL"
+  ]
 }

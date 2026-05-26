@@ -121,6 +121,12 @@ add_definitions(
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
 
+AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
+add_custom_target(hal_keys_lock_hdr DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/hal_keys_lock.h)
+if(TARGET board)
+  add_dependencies(board hal_keys_lock_hdr)
+endif()
+
 include(hal/CMakeLists.txt)
 
 add_subdirectory(bitmaps)

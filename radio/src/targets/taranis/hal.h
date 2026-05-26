@@ -1282,3 +1282,4 @@
 #if defined(PCBX9DP) || defined(PCBX9E)
 #define HAS_BACKLIGHT_COLOR
 #endif
+

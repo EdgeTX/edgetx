@@ -439,5 +439,9 @@
     "surface": 0,
     "cpu": "STM32F407xG",
     "cpu_type": "STM32F4"
-  }
+  },
+  "key_lock_combo": [
+    "KEY_SYS",
+    "KEY_MODEL"
+  ]
 }
