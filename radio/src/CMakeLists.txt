@@ -187,8 +187,6 @@ endif()
 AddHardwareDefTarget(${HW_DESC_JSON})
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
-set(SRC ${SRC} ${CMAKE_CURRENT_BINARY_DIR}/hal_keys_lock.h)
-
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
 if(NATIVE_BUILD)
