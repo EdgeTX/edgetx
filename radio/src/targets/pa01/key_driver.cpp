@@ -87,6 +87,8 @@ void pollKeys()
       keyState |= 1<<ENT;
 
     nonReadCount++;
+    //If no interrupt occurs, it means no key is pressed, so no scanning is needed this time,exit.
+    return;
   }
   nonReadCount = 0;
 #endif
@@ -114,6 +116,7 @@ void pollKeys()
   // If ui8ReadInProgress is above 1, then there was concurrent task calling it, exit
   if (syncelem.ui8ReadInProgress > 1) {
     keyState = syncelem.oldResult;
+    return;
   }
 
   // If we land here, we have exclusive access to Matrix
