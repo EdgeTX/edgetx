@@ -170,8 +170,11 @@ static void _i2c_init(void)
 
 static void _i2c_reInit(void)
 {
-//  stm32_i2c_deinit(TOUCH_I2C_BUS);
-//  _i2c_init();
+  TRACE("I2C reinit: bus reset triggered");
+  stm32_i2c_deinit(TOUCH_I2C_BUS);
+  delay_ms(1);
+  _i2c_init();
+  TRACE("I2C reinit: bus reset complete");
 }
 
 static int _i2c_read(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t* data, uint16_t len, uint32_t timeout)
@@ -467,6 +470,13 @@ bool touchPanelEventOccured()
 
 struct TouchState touchPanelRead()
 {
+  static uint8_t reinitPollCnt = 0;
+
+  if (++reinitPollCnt >= 50) {
+    reinitPollCnt = 0;
+    _i2c_reInit();
+  }
+
   if (!touchEventOccured) return internalTouchState;
 
   touchEventOccured = false;
