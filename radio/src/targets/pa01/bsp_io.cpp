@@ -25,6 +25,8 @@
 #include "drivers/aw9523b.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
+#include "delays_driver.h"
+#include "debug.h"
 
 #define BSP_I2C_BUS I2C_Bus_1
 #define BSP_I2C_ADDR 0x5b
@@ -56,14 +58,46 @@ bool bsp_get_shouldReadKeys()
   return tmp;
 }
 
-static volatile bool errorOccurs = false;
+#define I2C_ERROR_RECOVER_THRESHOLD 3
+
+static uint8_t i2c_consecutive_errors = 0;
+
+static void _recover_i2c()
+{
+  TRACE("I2C ERROR: resetting I2C bus");
+  i2c_deinit(BSP_I2C_BUS);
+  delay_ms(1);
+
+  if (i2c_init(BSP_I2C_BUS) < 0) {
+    TRACE("I2C ERROR: i2c_init failed");
+    return;
+  }
+
+  if (aw9523b_init(&i2c_exp, BSP_I2C_BUS, BSP_I2C_ADDR) < 0) {
+    TRACE("I2C ERROR: aw9523b_init failed");
+    return;
+  }
+
+  aw9523b_write(&i2c_exp, BSP_OUT_MASK,
+    BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4);
+  aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK);
+  bsp_output_clear(BSP_U6_SELECT);
+
+  TRACE("I2C recovery complete");
+}
+
 static void bsp_input_read()
 {
   uint16_t value;
   if (aw9523b_read(&i2c_exp, BSP_IN_MASK, &value) < 0) {
-    errorOccurs = true;
+    i2c_consecutive_errors++;
+    if (i2c_consecutive_errors >= I2C_ERROR_RECOVER_THRESHOLD) {
+      _recover_i2c();
+      i2c_consecutive_errors = 0;
+    }
     return;
   }
+  i2c_consecutive_errors = 0;
   inputState = value;
 }
 
