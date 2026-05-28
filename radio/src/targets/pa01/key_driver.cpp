@@ -83,7 +83,8 @@ static uint8_t idle_cycles = 0;
 static uint32_t col_cache[SCAN_COLS] = {0, 0, 0, 0};
 
 static const uint16_t col_drive[SCAN_COLS] = {
-  ~BSP_KEY_OUT1, ~BSP_KEY_OUT2, ~BSP_KEY_OUT3, ~BSP_KEY_OUT4
+  (uint16_t)~BSP_KEY_OUT1, (uint16_t)~BSP_KEY_OUT2,
+  (uint16_t)~BSP_KEY_OUT3, (uint16_t)~BSP_KEY_OUT4
 };
 
 static uint32_t read_col_to_keys(uint8_t col, uint16_t inputs)
