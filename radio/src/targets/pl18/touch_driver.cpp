@@ -473,7 +473,7 @@ bool touchPanelEventOccured()
 
 struct TouchState touchPanelRead()
 {
-#if 1
+#if 0
   // For _i2c_reInit testing
   static uint8_t reinitPollCnt = 0;
   TRACE("Polling count: %d", reinitPollCnt);
