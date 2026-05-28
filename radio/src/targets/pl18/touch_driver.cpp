@@ -171,11 +171,18 @@ static void _i2c_init(void)
 static void _i2c_reInit(void)
 {
   TRACE("I2C reinit: bus reset triggered");
-  i2c_deinit(TOUCH_I2C_BUS);
+
+  if (i2c_deinit(TOUCH_I2C_BUS) < 0) {
+    TRACE("I2C reinit WARNING: i2c_deinit failed, proceeding with reinit");
+  }
 //  __HAL_RCC_I2C1_FORCE_RESET();
 //  __HAL_RCC_I2C1_RELEASE_RESET();
   delay_ms(1);
-  _i2c_init();
+
+  if (i2c_init(TOUCH_I2C_BUS) < 0) {
+    TRACE("I2C reinit ERROR: i2c_init failed");
+    return;
+  }
 //  _touch_reset();
   TRACE("I2C reinit: bus reset complete");
 }
