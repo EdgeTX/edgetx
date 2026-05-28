@@ -172,11 +172,11 @@ static void _i2c_reInit(void)
 {
   TRACE("I2C reinit: bus reset triggered");
   i2c_deinit(TOUCH_I2C_BUS);
-  __HAL_RCC_I2C1_FORCE_RESET();
-  __HAL_RCC_I2C1_RELEASE_RESET();
+//  __HAL_RCC_I2C1_FORCE_RESET();
+//  __HAL_RCC_I2C1_RELEASE_RESET();
   delay_ms(1);
   _i2c_init();
-  _touch_reset();
+//  _touch_reset();
   TRACE("I2C reinit: bus reset complete");
 }
 
@@ -473,12 +473,15 @@ bool touchPanelEventOccured()
 
 struct TouchState touchPanelRead()
 {
+#if 1
+  // For _i2c_reInit testing
   static uint8_t reinitPollCnt = 0;
   TRACE("Polling count: %d", reinitPollCnt);
   if (++reinitPollCnt >= 50) {
     reinitPollCnt = 0;
     _i2c_reInit();
   }
+#endif
 
   if (!touchEventOccured) return internalTouchState;
 
