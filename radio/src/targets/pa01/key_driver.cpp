@@ -27,6 +27,7 @@
 #include "stm32_i2c_driver.h"
 
 #include "hal.h"
+#include "delays_driver.h"
 #include "keys.h"
 
 #define BSP_KEY_OUT_MASK                                      \
@@ -116,6 +117,34 @@ static uint32_t read_col_to_keys(uint8_t col, uint16_t inputs)
 
 void pollKeys()
 {
+#if defined(BOOT)
+  uint32_t ent_mask = 0;
+  if (gpio_read(KEYS_GPIO_ENTER) == 0)
+    ent_mask = (1 << ENT);
+
+  if (suspendI2CTasks) {
+    keyState = ent_mask;
+    return;
+  }
+
+  uint32_t result = 0;
+  for (uint8_t col = 0; col < SCAN_COLS; col++) {
+    bsp_output_set(BSP_KEY_OUT_MASK, col_drive[col]);
+    delay_us(10);
+    result |= read_col_to_keys(col, bsp_input_get());
+  }
+
+  result |= ent_mask;
+  bsp_output_set(BSP_KEY_OUT_MASK, 0);
+  bsp_get_shouldReadKeys();
+
+  fct_state[0] = (result & (1 << KEY1)) ? true : false;
+  fct_state[1] = (result & (1 << KEY2)) ? true : false;
+  fct_state[2] = (result & (1 << KEY3)) ? true : false;
+  fct_state[3] = (result & (1 << KEY4)) ? true : false;
+
+  keyState = result;
+#else
   uint32_t ent_mask = 0;
   if (gpio_read(KEYS_GPIO_ENTER) == 0)
     ent_mask = (1 << ENT);
@@ -177,6 +206,7 @@ void pollKeys()
   fct_state[3] = (result & (1 << KEY4)) ? true : false;
 
   keyState = result;
+#endif
 }
 
 void keysInit()
