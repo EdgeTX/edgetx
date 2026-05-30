@@ -1244,7 +1244,7 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
   if (obj.value("leds").isObject()) {
     const QJsonObject &o = obj.value("leds").toObject();
 
-    int cfs_led_strip_length = o.value("cfs_led_strip_length").toInt() > 0;
+    int cfs_led_strip_length = o.value("cfs_led_strip_length").toInt();
     int cfs_leds_per_switch = o.value("cfs_leds_per_switch").toInt();
     cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
     cfs.rgb_led = cfs.groups > 0;

@@ -303,7 +303,7 @@
     "cfs_led_strip_start": 0,
     "cfs_led_strip_length": 8,
     "cfs_leds_per_switch": 2,
-    "led_strip_gpio": "GPIO_PIN(GPIOF, 06)",
+    "led_strip_gpio": "GPIO_PIN(GPIOF, 6)",
     "led_strip_gpio_af": "LL_GPIO_AF_1",
     "led_strip_timer": "TIM16",
     "led_strip_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
