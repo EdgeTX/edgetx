@@ -145,12 +145,14 @@ static int stm32_flash_erase_sector(uint32_t address)
   int ret = 0;
   uint32_t sector_errors = 0;
 
+  __disable_irq();
   stm32_flash_unlock();
   if (HAL_FLASHEx_Erase(&eraseInit, &sector_errors) != HAL_OK) {
     ret = -1;
   }
 
   stm32_flash_lock();
+  __enable_irq();
   return ret;
 }
 
@@ -174,6 +176,7 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   uint32_t end_addr = address + len;
 
   int ret = 0;
+  __disable_irq();
   stm32_flash_unlock();
   while (address < end_addr) {
     if (_FLASH_PROGRAM(address, p_data) != HAL_OK) {
@@ -186,6 +189,7 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   }
 
   stm32_flash_lock();
+  __enable_irq();
   return ret;
 }
 
