@@ -213,6 +213,8 @@
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
 #if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
+// RX DMA can only be enabled when DAC audio is not used,
+// having DMA conflict with DAC audio
 #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_5
 #define TELEMETRY_DMA_Channel_RX        LL_DMA_CHANNEL_4
 #endif
