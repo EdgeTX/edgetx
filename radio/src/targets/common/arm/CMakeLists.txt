@@ -14,6 +14,7 @@ option(DSM2 "DSM2 TX Module" ON)
 option(DSMP "DSMP LemonRX TX Module" ON)
 option(SBUS "SBUS TX Module" ON)
 option(CROSSFIRE "Crossfire TX Module" ON)
+option(MAVLINK "MAVLink 2 RF protocol support" OFF)
 option(AFHDS2 "Support for AFHDS2" OFF)
 option(AFHDS3 "Support for AFHDS3" OFF)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
@@ -272,6 +273,19 @@ if(GHOST)
   set(SRC
     ${SRC}
     telemetry/ghost.cpp
+    )
+endif()
+
+if(MAVLINK)
+  add_definitions(-DMAVLINK)
+  include_directories(${THIRDPARTY_DIR}/mavlink)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    mavlink.cpp
+    )
+  set(SRC
+    ${SRC}
+    telemetry/mavlink.cpp
     )
 endif()
 

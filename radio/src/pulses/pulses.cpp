@@ -60,6 +60,10 @@
 #include "pulses/ghost.h"
 #endif
 
+#if defined(MAVLINK)
+#include "pulses/mavlink.h"
+#endif
+
 #if defined(MULTIMODULE)
 #include "io/multi_protolist.h"
 #include "pulses/multi.h"
@@ -351,7 +355,13 @@ uint8_t getRequiredProtocol(uint8_t module)
     case MODULE_TYPE_LEMON_DSMP:
       protocol = PROTOCOL_CHANNELS_DSMP;
       break;
-      
+
+#if defined(MAVLINK)
+    case MODULE_TYPE_MAVLINK:
+      protocol = PROTOCOL_CHANNELS_MAVLINK;
+      break;
+#endif
+
     default:
       protocol = PROTOCOL_CHANNELS_NONE;
       break;
@@ -489,6 +499,12 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 #if defined(DSM2)
     case PROTOCOL_CHANNELS_DSMP:
       _init_module(module, &DSMPDriver);
+      break;
+#endif
+
+#if defined(MAVLINK)
+    case PROTOCOL_CHANNELS_MAVLINK:
+      _init_module(module, &MavlinkDriver);
       break;
 #endif
 
