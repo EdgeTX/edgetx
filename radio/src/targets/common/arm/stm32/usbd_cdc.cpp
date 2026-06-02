@@ -113,6 +113,12 @@ static void (*receiveDataCb)(uint8_t*, uint32_t) = nullptr;
 static void (*baudRateCb)(uint32_t) = nullptr;
 // static void* baudRateCbCtx;
 
+static uint8_t usbSerialRxBuffer[512];
+static volatile uint32_t usbSerialRxCount = 0;
+
+static void (*usbSerialIdleCb)(void*) = nullptr;
+static void* usbSerialIdleCbCtx = nullptr;
+
 bool cdcConnected = false;
 
 /* Private functions ---------------------------------------------------------*/
@@ -138,6 +144,9 @@ static int8_t VCP_DeInit_FS(void)
   cdcConnected = false;
   receiveDataCb = nullptr;
   baudRateCb = nullptr;
+  usbSerialIdleCb = nullptr;
+  usbSerialIdleCbCtx = nullptr;
+  usbSerialRxCount = 0;
   APP_Tx_ptr_in = 0;
   APP_Tx_ptr_out = 0;
   return (USBD_OK);
@@ -253,6 +262,8 @@ static int8_t VCP_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 
 static int8_t VCP_StartOfFrame_FS()
 {
+  if (!hUsbDevice.pClassData) return USBD_OK;
+
   uint8_t result = USBD_OK;
   static uint8_t FrameCount = 0;    // modified by OpenTX
 
@@ -320,6 +331,7 @@ void usbSerialPutc(void*, uint8_t c)
   */
 
   if (!cdcConnected) return;
+  if (usbSerialFreeSpace() == 0) return;
 
   /*
     k and associated variables must be modified
@@ -336,6 +348,22 @@ void usbSerialPutc(void*, uint8_t c)
   APP_Tx_ptr_in = (APP_Tx_ptr_in + 1) % APP_TX_DATA_SIZE;
 
   if (!prim) __enable_irq();
+}
+
+static void usbSerialSendBuffer(void* ctx, const uint8_t* data, uint32_t len)
+{
+  if (!cdcConnected) return;
+  if (usbSerialFreeSpace() < len) return;
+
+  while (len--) {
+    usbSerialPutc(ctx, *data++);
+  }
+}
+
+static bool usbSerialTxCompleted(void*)
+{
+  if (!cdcConnected) return true;
+  return APP_Tx_ptr_in == APP_Tx_ptr_out;
 }
 
 /**
@@ -355,10 +383,31 @@ void usbSerialPutc(void*, uint8_t c)
   */
 static int8_t VCP_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
+  if (!cdcConnected) return USBD_OK;
+
   auto _rxCb = receiveDataCb;
   // auto _ctx = receiveDataCbCtx;
 
   if (_rxCb) _rxCb(/*_ctx,*/ Buf, *Len);
+
+  const uint32_t prim = __get_PRIMASK();
+  __disable_irq();
+
+  const uint32_t available = sizeof(usbSerialRxBuffer) - usbSerialRxCount;
+  const uint32_t copyLen = (*Len < available) ? *Len : available;
+
+  if (copyLen > 0) {
+    memcpy(&usbSerialRxBuffer[usbSerialRxCount], Buf, copyLen);
+    usbSerialRxCount += copyLen;
+  }
+
+  if (!prim) __enable_irq();
+
+  const auto _idleCb = usbSerialIdleCb;
+  const auto _idleCtx = usbSerialIdleCbCtx;
+  if (_idleCb) {
+    _idleCb(_idleCtx);
+  }
 
   USBD_CDC_SetRxBuffer(&hUsbDevice, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDevice);
@@ -386,6 +435,53 @@ void usbSerialSetBaudRateCb(void*, void (*cb)(uint32_t))
   baudRateCb = cb;
 }
 
+static int usbSerialCopyRxBuffer(void*, uint8_t* buf, uint32_t len)
+{
+  const uint32_t prim = __get_PRIMASK();
+  __disable_irq();
+
+  uint32_t copyLen = usbSerialRxCount;
+  if (copyLen > len) {
+    copyLen = len;
+  }
+
+  if (copyLen > 0) {
+    memcpy(buf, usbSerialRxBuffer, copyLen);
+
+    const uint32_t remaining = usbSerialRxCount - copyLen;
+    if (remaining > 0) {
+      memmove(usbSerialRxBuffer, usbSerialRxBuffer + copyLen, remaining);
+    }
+
+    usbSerialRxCount = remaining;
+  }
+
+  if (!prim) __enable_irq();
+
+  return copyLen;
+}
+
+static void usbSerialClearRxBuffer(void*)
+{
+  const uint32_t prim = __get_PRIMASK();
+  __disable_irq();
+
+  usbSerialRxCount = 0;
+
+  if (!prim) __enable_irq();
+}
+
+static void usbSerialSetIdleCb(void*, void (*cb)(void*), void* param)
+{
+  usbSerialIdleCb = cb;
+  usbSerialIdleCbCtx = param;
+}
+
+static int usbSerialGetBufferedBytes(void*)
+{
+  return (int)usbSerialRxCount;
+}
+
 // void usbSerialSetCtrlLineStateCb(void (*cb)(uint16_t ctrlLineState))
 // {
 //   ctrlLineStateCb = cb;
@@ -397,16 +493,30 @@ static void* usbSerialInit(void*, const etx_serial_init*)
   return (void*)1;
 }
 
+static void usbSerialDeinit(void*)
+{
+  receiveDataCb = nullptr;
+  baudRateCb = nullptr;
+  usbSerialIdleCb = nullptr;
+  usbSerialIdleCbCtx = nullptr;
+  usbSerialRxCount = 0;
+}
+
 static const etx_serial_driver_t usbSerialDriver = {
   .init = usbSerialInit,
-  .deinit = nullptr,
+  .deinit = usbSerialDeinit,
   .sendByte = usbSerialPutc,
-  .sendBuffer = nullptr,
+  .sendBuffer = usbSerialSendBuffer,
+  .txCompleted = usbSerialTxCompleted,
   .waitForTxCompleted = nullptr,
   .getByte = nullptr,
-  .clearRxBuffer = nullptr,
+  .getLastByte = nullptr,
+  .getBufferedBytes = usbSerialGetBufferedBytes,
+  .copyRxBuffer = usbSerialCopyRxBuffer,
+  .clearRxBuffer = usbSerialClearRxBuffer,
   .getBaudrate = usbSerialBaudRate,
   .setReceiveCb = usbSerialSetReceiveDataCb,
+  .setIdleCb = usbSerialSetIdleCb,
   .setBaudrateCb = usbSerialSetBaudRateCb,
 };
 
