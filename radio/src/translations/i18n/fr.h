@@ -31,27 +31,27 @@
  */
 
 // Main menu
-#define TR_QM_MANAGE_MODELS             "Manage\nModels"
-#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_MANAGE_MODELS             "Gerer\nModels"
+#define TR_QM_MODEL_SETUP               "Modeles\nSetup"
 #define TR_QM_RADIO_SETUP               "Radio\nSetup"
 #define TR_QM_UI_SETUP                  "UI\nSetup"
-#define TR_QM_TOOLS                     "Tools"
-#define TR_QM_MODEL_SETTINGS            "Model\nSettings"
+#define TR_QM_TOOLS                     "Outils"
+#define TR_QM_MODEL_SETTINGS            "Modeles\nSettings"
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
 #define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Drive\nModes", "Flight\nModes")
-#define TR_QM_INPUTS                    "Inputs"
-#define TR_QM_MIXES                     "Mixes"
-#define TR_QM_OUTPUTS                   "Outputs"
-#define TR_QM_CURVES                    "Curves"
+#define TR_QM_INPUTS                    "Entrées"
+#define TR_QM_MIXES                     "Mixeurs"
+#define TR_QM_OUTPUTS                   "Sorties"
+#define TR_QM_CURVES                    "Courbes"
 #define TR_QM_GLOBAL_VARS               "Global\nVariables"
 #define TR_QM_LOGICAL_SW                "Logical\nSwitches"
 #define TR_QM_SPEC_FUNC                 "Special\nFunctions"
 #define TR_QM_CUSTOM_LUA                "Custom\nScripts"
-#define TR_QM_TELEM                     "Telemetry"
-#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
-#define TR_QM_TRAINER                   "Trainer"
-#define TR_QM_HARDWARE                  "Hardware"
-#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_TELEM                     "Télémétrie"
+#define TR_QM_GLOB_FUNC                 "Globales\nFunctions"
+#define TR_QM_TRAINER                   "Elève"
+#define TR_QM_HARDWARE                  "Matériel"
+#define TR_QM_ABOUT                     "A propos\nEdgeTX"
 #define TR_QM_THEMES                    "Themes"
 #define TR_QM_TOP_BAR                   "Top Bar"
 #define TR_QM_SCREEN_1                  "Screen 1"
@@ -72,8 +72,8 @@
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
-#define TR_MAIN_MODEL_SETTINGS          "Model Settings"
-#define TR_MAIN_RADIO_SETTINGS          "Radio Settings"
+#define TR_MAIN_MODEL_SETTINGS          "Param. Modèle"
+#define TR_MAIN_RADIO_SETTINGS          "Param. Radio"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestion Modèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notes Modèles"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Moniteur Voies"
@@ -83,8 +83,8 @@
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_STATISTICS         "Stats"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "A Propos EdgeTX"
-#define TR_MAIN_VIEW_X                  "Screen "
-#define TR_MAIN_MENU_THEMES                 "THÈMES"
+#define TR_MAIN_VIEW_X                  "Ecran "
+#define TR_MAIN_MENU_THEMES             "THÈMES"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               TR("CONF.HÉLI", "CONFIGURATION HÉLICO")
 #define TR_MENUFLIGHTMODES             TR_SFC_AIR("DRIVE MODES", "PHASES DE VOL")
@@ -101,7 +101,7 @@
 #define TR_MENUSPECIALFUNCS            "FONCTIONS GLOBALES"
 #define TR_MENUTRAINER                 "ÉCOLAGE"
 #define TR_HARDWARE                    "MATÉRIEL"
-#define TR_USER_INTERFACE               "Top Bar"
+#define TR_USER_INTERFACE              "Barre sup."
 #define TR_SD_CARD                     "Carte SD"
 #define TR_DEBUG                       "Debug"
 #define TR_MENU_RADIO_SWITCHES         TR("INTERS", "TEST INTERRUPTEURS")
@@ -458,7 +458,7 @@
 #define TR_TIMER                       "Chrono "
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
-#define TR_NEXT                        "Next"
+#define TR_NEXT                        "Suivant"
 #define TR_ELIMITS                     TR("Limites ét.", "Limites étendues")
 #define TR_ETRIMS                      TR("Trims ét.", "Trims étendus")
 #define TR_TRIMINC                     TR("Pas Trim", "Pas du trim")
@@ -572,7 +572,7 @@
 #define TR_BLOFFBRIGHTNESS             "Luminosité OFF"
 #define TR_KEYS_BACKLIGHT              "Rétroéclairage touches"
 #define TR_BLCOLOR                     "Couleur"
-#define TR_ONE_LOG_PER_DAY             "One log per day"
+#define TR_ONE_LOG_PER_DAY             "Un log par jour"
 #define TR_SPLASHSCREEN                "Ecran d'accueil"
 #define TR_PLAY_HELLO                  "Son de démarrage"
 #define TR_PWR_ON_DELAY                "Délai btn ON"
@@ -713,7 +713,7 @@
 #define TR_PITCH_AT_MAX                "Tonalité max"
 #define TR_REPEAT_AT_ZERO              TR("Répét. zéro", "Répéter zéro")
 #define TR_BATT_CALIB                  TR("Calib. batt", "Calib. batterie")
-#define TR_CURRENT_CALIB               "Calib. cour"
+#define TR_CURRENT_CALIB               "Calib. crt."
 #define TR_VOLTAGE                     TR("Tension","Source tension")
 #define TR_SELECT_MODEL                "Sélection Modèle"
 #define TR_MANAGE_MODELS               "GESTION MODÈLES"
@@ -857,8 +857,8 @@
 #define TR_LABELS_SELECT             "Label select"
 #define TR_LABELS_MATCH              "Label matching"
 #define TR_FAV_MATCH                 "Favorites matching"
-#define TR_LABELS_SELECT_MODE_1      "Multi select"
-#define TR_LABELS_SELECT_MODE_2      "Single select"
+#define TR_LABELS_SELECT_MODE_1      "Select. multiple"
+#define TR_LABELS_SELECT_MODE_2      "Select. unique"
 #define TR_LABELS_MATCH_MODE_1       "Match all"
 #define TR_LABELS_MATCH_MODE_2       "Match any"
 #define TR_FAV_MATCH_MODE_1          "Must match"
@@ -1390,9 +1390,9 @@
 #define TR_RADIO_MENU_TABS        "Onglets Menu Radio"
 #define TR_MODEL_MENU_TABS        "Onglets Menu Modèles"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "Tout"
+#define TR_SELECT_MENU_CLR        "Effacer"
+#define TR_SELECT_MENU_INV        "Inverser"
 
 #define TR_SORT_ORDERS_1          "Nom A-Z"
 #define TR_SORT_ORDERS_2          "Nom Z-A"
@@ -1416,9 +1416,9 @@
 
 #define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
 
-#define TR_KEY_SHORTCUTS          "Key Shortcuts"
-#define TR_CURRENT_SCREEN         "Current Screen"
-#define TR_SHORT_PRESS            "Short Press"
-#define TR_LONG_PRESS             "Long Press"
-#define TR_OPEN_QUICK_MENU        "Open Quick Menu"
-#define TR_QUICK_MENU_FAVORITES   "Quick Menu Favorites"
+#define TR_KEY_SHORTCUTS          "Raccourcis Touches"
+#define TR_CURRENT_SCREEN         "Ecran actuel"
+#define TR_SHORT_PRESS            "Appui court"
+#define TR_LONG_PRESS             "Appui long"
+#define TR_OPEN_QUICK_MENU        "Ouvert. Menu Rapide"
+#define TR_QUICK_MENU_FAVORITES   "Menu Favoris Rapide"
