@@ -375,11 +375,13 @@ class ModelsPageBody : public Window
       memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
              LEN_MODEL_FILENAME);
 
+      // Delete old main view layout
+      LayoutFactory::deleteCustomScreens();
+
       loadModel(g_eeGeneral.currModelFilename, true);
       modelslist.setCurrentModel(model);
 
-      // Main view layout
-      LayoutFactory::deleteCustomScreens();
+      // Load new main view layout
       LayoutFactory::loadCustomScreens();
 
       storageDirty(EE_GENERAL);
