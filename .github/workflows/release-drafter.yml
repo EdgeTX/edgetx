@@ -197,7 +197,7 @@ jobs:
             The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
 
             ## Installation Guide
-            https://manual.edgetx.org/edgetx-user-manual/installing-and-updating-edgetx
+            https://manual.edgetx.org/installing-and-updating-edgetx
 
             ## Flash firmware via Chrome based browser
             https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
