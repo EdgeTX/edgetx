@@ -464,6 +464,7 @@ set(SRC
   serial.cpp
   audio.cpp
   model_audio.cpp
+  pdm_wav_recorder.cpp
   sbus.cpp
   input_mapping.cpp
   inactivity_timer.cpp
