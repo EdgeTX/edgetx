@@ -20,7 +20,7 @@
  */
 
 #define WEAK_DEFAULT __attribute__((weak,alias("Default_Handler")))
-#define ISR_VECTOR __attribute__((section(".isr_vector")))
+#define ISR_VECTOR __attribute__((section(".isr_vector"), used))
 
 typedef void (*isr_t)(void);
 extern void* _estack;
