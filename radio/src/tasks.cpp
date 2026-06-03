@@ -28,6 +28,7 @@
 #include "timers_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/watchdog_driver.h"
+#include "pdm_wav_recorder.h"
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
@@ -115,6 +116,12 @@ static void audioTask()
     DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
     DEBUG_TIMER_START(debugTimerAudioDuration);
     audioQueue.wakeup();
+#if defined(PDM_CLOCK)
+    // Drive microphone recording (if any) at the audio-task cadence.
+    // Much shorter than the UI tick interval, so the PDM ring buffer
+    // never fills enough to trigger skip-ahead / sample drops.
+    PdmWavRecorder::audioTick();
+#endif
     DEBUG_TIMER_STOP(debugTimerAudioDuration);
     sleep_until(&next_tick, 4);
   }
