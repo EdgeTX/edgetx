@@ -304,6 +304,7 @@
 #define LCD_SPI                       SPI1
 #define LCD_GPIO_AF                   GPIO_AF8
 #define LCD_SPI_PRESCALER             SPI_CR1_BR_1
+#define OLED_SCREEN
 
 // EEPROM
   // no EEPROM
