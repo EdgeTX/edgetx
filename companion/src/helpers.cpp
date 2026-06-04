@@ -370,17 +370,23 @@ QString Helpers::concatPath(QString & str1, const QString & str2, bool onlyonese
 
 QString Helpers::getImagesCacheDir()
 {
-  return gAppTempPath % "/IMAGES";
+  if (gAppTempPath.isEmpty())
+    return QString();
+
+  return QDir(gAppTempPath).filePath("IMAGES");
 }
 
 QString Helpers::getImagePath(const QString & filename)
 {
+  if (filename.isEmpty())
+    return QString();
+
   QString srcpath(Helpers::getImagesCacheDir() % "/" % filename);
 
-  if (!QFile(srcpath).exists()) {
+  if (srcpath.isEmpty() || !QFileInfo::exists(srcpath) || QFileInfo(srcpath).isDir()) {
     srcpath = g.currentProfile().sdPath() % "/IMAGES/" % filename;
 
-    if (!QFile(srcpath).exists()) {
+    if (!QFileInfo::exists(srcpath) || QFileInfo(srcpath).isDir()) {
       qDebug() << filename << "not found in image cache or sd path.";
       srcpath = "";
     }
