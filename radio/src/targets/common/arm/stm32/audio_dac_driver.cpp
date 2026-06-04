@@ -219,7 +219,7 @@ static void dac_dma_init()
 
   LL_DMA_InitLinkedListTypeDef DMA_InitLinkedListStruct = {0};
   /* Initialize linked list general setup for GPDMA CH0 - the way transfers are done */
-  DMA_InitLinkedListStruct.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+  DMA_InitLinkedListStruct.Priority = LL_DMA_HIGH_PRIORITY;
   DMA_InitLinkedListStruct.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
   DMA_InitLinkedListStruct.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
   DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
@@ -252,6 +252,13 @@ static void dac_close_dma_xfer()
 
 static void dac_start_dma()
 {
+#if defined(STM32H5) || defined(STM32H7RS)
+  // On GPDMA, dac_close_dma_xfer()'s LL_DMA_DisableChannel() sets SUSP|RESET,
+  // which tears the channel down: the linked-list pointer (CxLLR) and the
+  // source/block-length registers are lost.
+  dac_dma_init();
+#endif
+
   // enable DMA stream and transfer complete interrupt
   LL_DMA_EnableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_EnableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
