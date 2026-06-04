@@ -124,6 +124,11 @@ bool SdcardFormat::writeImageFile(const QString & filename)
         qDebug() << "Image file" << filename << "skipped as same size";
         return true;
       }
+      // Size differs, remove the existing file before copying
+      if (!QFile::remove(destpath)) {
+        fatalMsg(tr("Error removing existing image file: %1").arg(filename));
+        return false;
+      }
     }
 
     if (!QFile(srcpath).copy(destpath)) {

@@ -606,7 +606,7 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
   if (!inputStorage.load(radioData)) {
     QString errorMsg = inputStorage.error();
 
-    if (!progress && errorMsg.isEmpty())
+    if (errorMsg.isEmpty())
       errorMsg = TR("Failed to read Models and Settings from")
                     % QDir::toNativeSeparators(radioPath);
 

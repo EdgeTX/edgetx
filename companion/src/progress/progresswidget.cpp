@@ -150,10 +150,11 @@ void ProgressWidget::addHtml(const QString & text, const bool updateLast)
 
 void ProgressWidget::addMessage(const QString & text, const int & type, const bool richText, const bool updateLast)
 {
-  if (m_logLevel == QtInfoMsg) {
-    if (type == QtDebugMsg)
-      return;
-  } else if (type < m_logLevel)
+  const bool allowed = (m_logLevel == QtDebugMsg) ||
+                       (m_logLevel == QtInfoMsg && type > QtDebugMsg) ||
+                       (type < QtInfoMsg && type >= m_logLevel);
+
+  if (!allowed)
     return;
 
   QString color;

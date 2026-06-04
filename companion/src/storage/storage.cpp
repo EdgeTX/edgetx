@@ -66,7 +66,8 @@ void StorageFormat::statusMsg(const QString & text, const int & type,
 {
   if (_progress)
     _progress->addMessage(text, type, richText, updateLast);
-  else if (type == QtCriticalMsg || type == QtFatalMsg)
+
+  if (type == QtCriticalMsg || type == QtFatalMsg)
     setError(text);
   else if (type == QtWarningMsg)
     setWarning(text);

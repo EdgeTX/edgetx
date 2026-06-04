@@ -162,7 +162,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
         return false;
       }
     } catch(const std::runtime_error& e) {
-      fatalMsg(tr("Cannot convert to yaml %1:\n&2").arg(filename).arg(QString(e.what())));
+      fatalMsg(tr("Cannot convert to yaml %1:\n%2").arg(filename).arg(QString(e.what())));
       return false;
     }
 
@@ -244,14 +244,14 @@ bool LabelsStorageFormat::write(RadioData & radioData)
     progressSetInfoAndMsg(tr("Deleting existing models..."));
 
     progressSetValue(++steps);
-    const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)", std::regex_constants::icase);
+    const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)", std::regex_constants::icase);
 
     for (const auto& f : filelist) {
       std::smatch match;
       if (std::regex_match(f, match, yml_regex)) {
         if (match.size() == 3) {
           if (!deleteFile(QString(f.c_str()))) {
-            fatalMsg(tr("Unable to deleted file: %1").arg(QDir::toNativeSeparators(QString(f.c_str()))));
+            fatalMsg(tr("Unable to delete file: %1").arg(QDir::toNativeSeparators(QString(f.c_str()))));
             return false;
           } else {
             statusMsg(tr("Deleted file: %1").arg(QString(f.c_str())));
