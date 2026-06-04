@@ -181,14 +181,14 @@
 #define INTMODULE_USART                  USART10
 #define INTMODULE_USART_IRQHandler       USART10_IRQHandler
 #define INTMODULE_USART_IRQn             USART10_IRQn
-/*  #define INTMODULE_DMA                    GPDMA1
-  #define INTMODULE_DMA_STREAM             LL_DMA_CHANNEL_1
-  #define INTMODULE_DMA_STREAM_IRQ         GPDMA1_Channel1_IRQn
-  #define INTMODULE_DMA_STREAM_IRQHandler  GPDMA1_Channel1_IRQHandler
-  #define INTMODULE_DMA_CHANNEL            LL_GPDMA1_REQUEST_USART10_TX
-  #define INTMODULE_RX_DMA                 GPDMA1
-  #define INTMODULE_RX_DMA_STREAM          LL_DMA_CHANNEL_2
-  #define INTMODULE_RX_DMA_CHANNEL         LL_GPDMA1_REQUEST_USART10_RX*/
+#define INTMODULE_DMA                    GPDMA1
+#define INTMODULE_DMA_STREAM             LL_DMA_CHANNEL_1
+#define INTMODULE_DMA_STREAM_IRQ         GPDMA1_Channel1_IRQn
+#define INTMODULE_DMA_STREAM_IRQHandler  GPDMA1_Channel1_IRQHandler
+#define INTMODULE_DMA_CHANNEL            LL_GPDMA1_REQUEST_USART10_TX
+#define INTMODULE_RX_DMA                 GPDMA1
+#define INTMODULE_RX_DMA_STREAM          LL_DMA_CHANNEL_2
+#define INTMODULE_RX_DMA_CHANNEL         LL_GPDMA1_REQUEST_USART10_RX
 
 // External Module
 #define EXTMODULE_PWR_GPIO                 GPIO_PIN(GPIOD, 0) // PD.00
