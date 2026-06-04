@@ -44,7 +44,12 @@
 
 #define INTMODULE_USART_IRQ_PRIORITY 5
 
-static const stm32_usart_t intmoduleUSART = {
+// NOTE: Must NOT be `const` on STM32H5/H7RS because stm32_usart_init_rx_dma()
+//       writes to the `llNode` field via DMA linked-list initialization.
+//       A `const` declaration would place this in .rodata (flash) on Cortex-M,
+//       and the const-cast writes would either HardFault or silently corrupt
+//       adjacent memory, breaking all serial ports that share the same bus.
+static stm32_usart_t intmoduleUSART = {
   .USARTx = INTMODULE_USART,
   .txGPIO = INTMODULE_TX_GPIO,
   .rxGPIO = INTMODULE_RX_GPIO,
@@ -68,6 +73,12 @@ static const stm32_usart_t intmoduleUSART = {
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
 #endif
+  // Internal module is full-duplex (no direction pin).
+  .set_input = nullptr,
+  // TX DMA is used for half-duplex completion IRQ only. Not needed for
+  // full-duplex; explicit zero avoids the uninitialized -> WWDG_IRQn trap.
+  .txDMA_IRQn = (IRQn_Type)0,
+  .txDMA_IRQ_Prio = 0,
 };
 
 DEFINE_STM32_SERIAL_PORT(InternalModule, intmoduleUSART, INTMODULE_FIFO_SIZE, 0);
@@ -131,7 +142,8 @@ DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 
 #define EXTMODULE_USART_IRQ_PRIORITY 6
 
-static const stm32_usart_t extmoduleUSART = {
+// NOTE: Must NOT be `const` on STM32H5/H7RS - see intmoduleUSART comment.
+static stm32_usart_t extmoduleUSART = {
   .USARTx = EXTMODULE_USART,
   .txGPIO = EXTMODULE_TX_GPIO,
   .rxGPIO = EXTMODULE_RX_GPIO,
@@ -295,7 +307,8 @@ static void _set_sport_input(uint8_t enable)
 #endif
 
 #if defined(TELEMETRY_USART)
-static const stm32_usart_t sportUSART = {
+// NOTE: Must NOT be `const` on STM32H5/H7RS - see intmoduleUSART comment.
+static stm32_usart_t sportUSART = {
   .USARTx = TELEMETRY_USART,
   .txGPIO = TELEMETRY_TX_GPIO,
   .rxGPIO = TELEMETRY_RX_GPIO,
