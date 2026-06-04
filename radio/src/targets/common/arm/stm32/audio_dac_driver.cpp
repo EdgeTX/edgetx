@@ -243,7 +243,24 @@ static void dac_close_dma_xfer()
 {
   LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
+
+#if defined(STM32H5) || defined(STM32H7RS)
+  // GPDMA: a running channel must be SUSPENDED (and the suspend must take
+  // effect) before RESET is honoured. LL_DMA_DisableChannel() writes
+  // SUSP|RESET in one go, which does NOT abort the self-linked circular
+  // channel - it keeps cycling and the ISR refills silence forever.
+  LL_DMA_SuspendChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+  uint32_t timeout = 10000;
+  while (!LL_DMA_IsActiveFlag_SUSP(AUDIO_DMA, AUDIO_DMA_Stream) && --timeout) {
+  }
+  LL_DMA_ResetChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+  // drop any pending transfer flags so no stale IRQ re-arms the refill
+  LL_DMA_ClearFlag_HT(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_TC(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_SUSP(AUDIO_DMA, AUDIO_DMA_Stream);
+#else
   LL_DMA_DisableChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+#endif
 
   // Disable DAC DMA to prevent underrun while DMA is stopped
   AUDIO_DAC->CR &= ~DAC_CR_DMAEN1;
