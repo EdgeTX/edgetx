@@ -21,9 +21,9 @@
 
 #pragma once
 
-#define CPU_FREQ            250000000
-#define PERI1_FREQUENCY     250000000
-#define PERI2_FREQUENCY     250000000
+#define CPU_FREQ            248000000
+#define PERI1_FREQUENCY     248000000
+#define PERI2_FREQUENCY     248000000
 #define TIMER_MULT_APB1     1
 #define TIMER_MULT_APB2     1
 
