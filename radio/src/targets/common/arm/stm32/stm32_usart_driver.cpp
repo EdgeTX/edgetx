@@ -357,7 +357,11 @@ static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
 #endif /* USART3 */
 #if defined(USART6)
   else if (USARTx == USART6) {
+#if defined(STM32H5)
+    periphclk = rcc_clocks.PCLK1_Frequency;
+#else
     periphclk = rcc_clocks.PCLK2_Frequency;
+#endif
   }
 #endif /* USART6 */
 #if defined(UART4)
@@ -508,7 +512,7 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
 
     LL_DMA_InitLinkedListTypeDef DMA_InitLinkedListStruct = {0};
     /* Initialize linked list general setup for GPDMA CH0 - the way transfers are done */
-    DMA_InitLinkedListStruct.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+    DMA_InitLinkedListStruct.Priority = LL_DMA_HIGH_PRIORITY;
     DMA_InitLinkedListStruct.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
     DMA_InitLinkedListStruct.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT0;
     DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_LAST_LLITEM_TRANSFER;
@@ -627,7 +631,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   
   bool half_duplex = usart->set_input;
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   bool one_wire_half_duplex =
       usart->rxGPIO == GPIO_UNDEF && (params->direction & ETX_Dir_RX);
 
