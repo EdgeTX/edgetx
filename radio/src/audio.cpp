@@ -624,7 +624,13 @@ void AudioQueue::wakeup()
       normalContext.setFragment(fragmentsFifo.get());
       _audio_unlock();
     }
+    uint8_t normalPromptId = normalContext.getPromptId();
     result = normalContext.mixBuffer(buffer, g_eeGeneral.beepVolume, g_eeGeneral.wavVolume, fade);
+    // a prompt whose WAV just hit EOF (context now empty) is still draining
+    // from the FIFO/DMA: mark it so isPlaying() covers the tail.
+    if (normalPromptId && normalContext.isEmpty()) {
+      notePromptDrained(normalPromptId);
+    }
     if (result > 0) {
       size = max(size, result);
       fade += 1;
@@ -693,8 +699,29 @@ void AudioQueue::pause(uint16_t len)
   playTone(0, 0, len);
 }
 
+// How long (in 10ms ticks) isPlaying() keeps reporting a prompt as playing
+// after its WAV has been fully read, to cover the buffer FIFO / DMA drain.
+// Must exceed the FIFO depth + DMA double-buffer (AUDIO_BUFFER_COUNT + 2
+// buffers) so the prompt is never seen as "finished" while still audible.
+#define AUDIO_PROMPT_DRAIN_GRACE_10MS  5
+
+void AudioQueue::notePromptDrained(uint8_t id)
+{
+  _lastDrainedId = id;
+  _lastDrainedTime = get_tmr10ms();
+}
+
 bool AudioQueue::isPlaying(uint8_t id)
 {
+  // Keep the prompt "playing" through the FIFO/DMA drain tail: the WAV is
+  // marked drained when fully read, ~1 buffer ahead of the audio actually
+  // finishing. Without this, a repeat whose interval ~= the track length can
+  // re-trigger one tick early (heard as the track playing twice in a row).
+  if (id && id == _lastDrainedId &&
+      (tmr10ms_t)(get_tmr10ms() - _lastDrainedTime) < AUDIO_PROMPT_DRAIN_GRACE_10MS) {
+    return true;
+  }
+
   return normalContext.hasPromptId(id) ||
          (isFunctionActive(FUNCTION_BACKGND_MUSIC) && backgroundContext.hasPromptId(id)) ||
          fragmentsFifo.hasPromptId(id);
