@@ -42,12 +42,13 @@ GPDMA2
 Channel0:  EXTMODULE_TIMER_DMA_STREAM (TIM1_UP)
 Channel1:  EXTMODULE_USART_TX_DMA_STREAM (USART1 TX)
 Channel2:  EXTMODULE_USART_RX_DMA_STREAM (USART1 RX)
-Channel5:  LED_STRIP_TIMER_DMA_STREAM (TIM2_CH4, RGBLEDS)
 
-LCD_DMA: DMA1 Stream7 (legacy naming)
+(RGBLEDS / LED_STRIP not ported to H5 - see LED Strip section)
+LCD: OLED on SPI1 via stm32_spi driver (no DMA at runtime); the LCD_DMA defines
+are legacy F4-style names kept only for the non-OLED LCD_W!=128 code path.
 
 TIM1:	EXTMODULE_TIMER
-TIM2:	HAPTIC_TIMER (CH3) / LED_STRIP_TIMER (CH4, RGBLEDS)
+TIM2:	HAPTIC_TIMER (CH3)
 TIM3:	TRAINER_TIMER
 TIM6:	AUDIO_TIMER
 TIM12:	MIXER_SCHEDULER_TIMER
@@ -206,6 +207,11 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 // LED Strip
 #if defined(RGBLEDS)
+  // NOT ported to STM32H5: the DMA defines below use F4-style names
+  // (DMA2_Stream5_IRQn, LL_DMA_STREAM_5) that don't exist on H5, and
+  // LED_STRIP_TIMER (TIM2) collides with HAPTIC_TIMER. Port to GPDMA + a free
+  // timer before enabling RGBLEDS on this target.
+  #error "RGBLEDS not supported on h5test yet (see hal.h LED Strip section)"
   #define LED_STRIP_LENGTH                  1
   #define BLING_LED_STRIP_START             0
   #define BLING_LED_STRIP_LENGTH            0
@@ -292,7 +298,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #if !defined(FLYSKY_GIMBAL)
   #define HARDWARE_TRAINER_AUX_SERIAL
   #define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOD, 12) // PD.12
-  #define AUX_SERIAL_GPIO                   GPIOB
   #define AUX_SERIAL_TX_GPIO               GPIO_PIN(GPIOE, 7)  // PE.07
   #define AUX_SERIAL_RX_GPIO               GPIO_PIN(GPIOE, 8) // PE.08
   #define AUX_SERIAL_USART                  UART7
