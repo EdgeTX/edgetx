@@ -19,6 +19,42 @@
  * GNU General Public License for more details.
  */
 
+/*
+
+STM32H562
+
+DMA: two GPDMA controllers, 8 channels each. Channels 0-5 are linear-only;
+channels 6-7 are 2D-capable and must NOT be used for circular USART RX
+(the linked-list node misbehaves there).
+
+GPDMA1
+Channel0:  ADC_DMA_STREAM (ADC2)
+Channel1:  INTMODULE_DMA_STREAM (USART10 TX)
+Channel2:  INTMODULE_RX_DMA_STREAM (USART10 RX)
+Channel3:  TELEMETRY_DMA_Stream_TX (UART4 TX)
+Channel4:  FLYSKY_HALL_DMA_Stream_RX (UART7 RX, FLYSKY_GIMBAL) /
+           AUX_SERIAL_DMA_RX_STREAM (UART7 RX, !FLYSKY_GIMBAL) - mutually exclusive
+Channel5:  AUDIO_DMA_Stream (DAC1_CH1)
+Channel6:
+Channel7:
+
+GPDMA2
+Channel0:  EXTMODULE_TIMER_DMA_STREAM (TIM1_UP)
+Channel1:  EXTMODULE_USART_TX_DMA_STREAM (USART1 TX)
+Channel2:  EXTMODULE_USART_RX_DMA_STREAM (USART1 RX)
+Channel5:  LED_STRIP_TIMER_DMA_STREAM (TIM2_CH4, RGBLEDS)
+
+LCD_DMA: DMA1 Stream7 (legacy naming)
+
+TIM1:	EXTMODULE_TIMER
+TIM2:	HAPTIC_TIMER (CH3) / LED_STRIP_TIMER (CH4, RGBLEDS)
+TIM3:	TRAINER_TIMER
+TIM6:	AUDIO_TIMER
+TIM12:	MIXER_SCHEDULER_TIMER
+TIM14:	MS_TIMER
+TIM17:	ROTARY_ENCODER_TIMER
+ */
+
 #pragma once
 
 #define CPU_FREQ            248000000
@@ -262,7 +298,7 @@
   #define AUX_SERIAL_USART                  UART7
   #define AUX_SERIAL_USART_IRQn            UART7_IRQn
   #define AUX_SERIAL_DMA_RX                 GPDMA1
-  #define AUX_SERIAL_DMA_RX_STREAM          LL_DMA_CHANNEL_6
+  #define AUX_SERIAL_DMA_RX_STREAM          LL_DMA_CHANNEL_4 // shared with FLYSKY_HALL (mutually exclusive); linear channel
   #define AUX_SERIAL_DMA_RX_CHANNEL         LL_GPDMA1_REQUEST_UART7_RX
 #endif
 
