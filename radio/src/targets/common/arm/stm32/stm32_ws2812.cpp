@@ -123,12 +123,16 @@ static void _end_of_frame(const stm32_pulse_timer_t* tim)
   WS2812_DBG_HIGH;
 
   LL_DMA_DisableIT_TC(tim->DMAx, tim->DMA_Stream);
+#if defined(STM32H5) || defined(STM32H7RS)
+  LL_DMA_DisableChannel(tim->DMAx, tim->DMA_Stream);
+#else
   LL_DMA_DisableStream(tim->DMAx, tim->DMA_Stream);
 
   uint32_t timeout = 1000;
   while (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream) && timeout--) {
     __NOP();  // Wait
   }
+#endif
 
   // Stop the request source, but leave the channel and the counter running
   // with a null compare value: the output is then actively held low between
@@ -149,27 +153,71 @@ void ws2812_dma_isr(const stm32_pulse_timer_t* tim)
   }
 }
 
-static void _led_set_dma_periph_addr(const stm32_pulse_timer_t* tim)
+static volatile uint32_t* _led_cmp_reg(const stm32_pulse_timer_t* tim)
 {
-  volatile uint32_t* cmp_reg = nullptr;
   switch(tim->TIM_Channel) {
   case LL_TIM_CHANNEL_CH1:
   case LL_TIM_CHANNEL_CH1N:
-    cmp_reg = &tim->TIMx->CCR1;
-    break;
+    return &tim->TIMx->CCR1;
   case LL_TIM_CHANNEL_CH2:
-    cmp_reg = &tim->TIMx->CCR2;
-    break;
+    return &tim->TIMx->CCR2;
   case LL_TIM_CHANNEL_CH3:
-    cmp_reg = &tim->TIMx->CCR3;
-    break;
+    return &tim->TIMx->CCR3;
   case LL_TIM_CHANNEL_CH4:
-    cmp_reg = &tim->TIMx->CCR4;
-    break;
+    return &tim->TIMx->CCR4;
   }
-
-  LL_DMA_SetPeriphAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)cmp_reg);
+  return nullptr;
 }
+
+#if defined(STM32H5) || defined(STM32H7RS)
+
+// GPDMA: one linear block (mem -> CCRx) per frame, triggered by TIMx_UP
+static void _led_setup_dma(const stm32_pulse_timer_t* tim)
+{
+  LL_DMA_DisableChannel(tim->DMAx, tim->DMA_Stream);
+
+  const bool word = (pulse_inc == 2); // 32-bit timer -> 32-bit CCR writes
+
+  LL_DMA_InitTypeDef dmaInit;
+  LL_DMA_StructInit(&dmaInit);
+  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+  dmaInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
+  dmaInit.DataAlignment = LL_DMA_DATA_ALIGN_ZEROPADD;
+  dmaInit.SrcBurstLength = 1;
+  dmaInit.DestBurstLength = 1;
+  dmaInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
+  dmaInit.DestIncMode = LL_DMA_DEST_FIXED;
+  dmaInit.SrcDataWidth = word ? LL_DMA_SRC_DATAWIDTH_WORD
+                              : LL_DMA_SRC_DATAWIDTH_HALFWORD;
+  dmaInit.DestDataWidth = word ? LL_DMA_DEST_DATAWIDTH_WORD
+                               : LL_DMA_DEST_DATAWIDTH_HALFWORD;
+  dmaInit.SrcAddress = (intptr_t)_led_dma_buffer;
+  dmaInit.DestAddress = (intptr_t)_led_cmp_reg(tim);
+  dmaInit.BlkDataLength = _frame_slots * sizeof(led_timer_value_t) * pulse_inc;
+  dmaInit.Request = tim->DMA_Channel;
+  dmaInit.Priority = LL_DMA_HIGH_PRIORITY;
+  dmaInit.TriggerMode = LL_DMA_TRIGM_BLK_TRANSFER;
+  dmaInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
+  dmaInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
+  dmaInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT1;
+  dmaInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT0;
+  dmaInit.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
+  dmaInit.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
+  dmaInit.LinkedListBaseAddr = 0;
+  dmaInit.LinkedListAddrOffset = 0;
+  dmaInit.Mode = LL_DMA_NORMAL;
+  LL_DMA_Init(tim->DMAx, tim->DMA_Stream, &dmaInit);
+}
+
+#else
+
+static void _led_set_dma_periph_addr(const stm32_pulse_timer_t* tim)
+{
+  LL_DMA_SetPeriphAddress(tim->DMAx, tim->DMA_Stream,
+                          (uint32_t)_led_cmp_reg(tim));
+}
+
+#endif
 
 static void _init_timer(const stm32_pulse_timer_t* tim)
 {
@@ -182,12 +230,14 @@ static void _init_timer(const stm32_pulse_timer_t* tim)
   LL_GPIO_SetPinPull(gpio_get_port(tim->GPIO), 1 << gpio_get_pin(tim->GPIO),
                      LL_GPIO_PULL_DOWN);
 
+#if !defined(STM32H5) && !defined(STM32H7RS)
   // pulse driver uses DMA to ARR, but we need CCRx
   _led_set_dma_periph_addr(tim);
 
   // One shot per frame: NDTR and the memory address are re-programmed by
   // ws2812_update() before every transfer.
   LL_DMA_SetMode(tim->DMAx, tim->DMA_Stream, LL_DMA_MODE_NORMAL);
+#endif
 
   // we need to use a higher prio to avoid having
   // issues with some other things used during boot
@@ -250,7 +300,11 @@ bool ws2812_get_state_in_buf(const uint8_t* buf, uint8_t led)
 
 bool ws2812_is_busy(const stm32_pulse_timer_t* tim)
 {
+#if defined(STM32H5) || defined(STM32H7RS)
+  return LL_DMA_IsEnabledChannel(tim->DMAx, tim->DMA_Stream);
+#else
   return LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream);
+#endif
 }
 
 void ws2812_update(const stm32_pulse_timer_t* tim)
@@ -264,13 +318,19 @@ void ws2812_update(const stm32_pulse_timer_t* tim)
   memset(&_led_dma_buffer[_led_strip_len * WS2812_SLOTS_PER_LED * pulse_inc],
          0, WS2812_TRAIL_SLOTS * sizeof(led_timer_value_t) * pulse_inc);
 
-  // NDTR and the address are not reloaded by enabling the stream again
   stm32_dma_clear_flags(tim->DMAx, tim->DMA_Stream);
+#if defined(STM32H5) || defined(STM32H7RS)
+  _led_setup_dma(tim);
+  LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
+  LL_DMA_EnableChannel(tim->DMAx, tim->DMA_Stream);
+#else
+  // NDTR and the address are not reloaded by enabling the stream again
   LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)_led_dma_buffer);
   LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, _frame_slots);
 
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
+#endif
 
   LL_TIM_SetCounter(tim->TIMx, 0);
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
