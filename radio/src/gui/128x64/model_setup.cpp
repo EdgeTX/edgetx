@@ -1254,8 +1254,8 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
           uint8_t switchWarningsCount = getSwitchWarningsCount();
-          // Fix for case when there is only one switch that can trigger a warning (MT12)
-          if (switchWarningsCount == 1 && menuHorizontalPosition >= 1)
+          // Fix for case when there is only one switch that can trigger a warning (MT12).
+          if (attr && switchWarningsCount == 1 && menuHorizontalPosition >= 1)
             menuHorizontalPosition = 0;
           horzpos_t l_posHorz = menuHorizontalPosition;
 
