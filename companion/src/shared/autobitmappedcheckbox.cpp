@@ -23,7 +23,7 @@
 
 AutoBitMappedCheckBox::AutoBitMappedCheckBox(QWidget * parent):
   QCheckBox(parent),
-  AutoWidget(),
+  AutoWidget(parent),
   m_field(nullptr),
   m_invert(false)
 {
@@ -35,7 +35,7 @@ AutoBitMappedCheckBox::~AutoBitMappedCheckBox()
 {
 }
 
-void AutoBitMappedCheckBox::setField(int & field, GenericPanel * panel, bool invert)
+void AutoBitMappedCheckBox::setField(int & field, AbstractPanel * panel, bool invert)
 {
   m_field = &field;
   m_invert = invert;
@@ -43,7 +43,7 @@ void AutoBitMappedCheckBox::setField(int & field, GenericPanel * panel, bool inv
   updateValue();
 }
 
-void AutoBitMappedCheckBox::setField(unsigned int & field, GenericPanel * panel, bool invert)
+void AutoBitMappedCheckBox::setField(unsigned int & field, AbstractPanel * panel, bool invert)
 {
   m_field = (int *)&field;
   m_invert = invert;

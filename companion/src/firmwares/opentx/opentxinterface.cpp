@@ -46,13 +46,15 @@ Firmware * OpenTxFirmware::getFirmwareVariant(const QString &id)
   if (id == getId()) {
     return this;
   }
+  // when registering the base firmware we do not load the linked boards to save unnecessary processing
+  // so create a child instance to force the linked board to be loaded
   else if (id.contains(getId() + "-") || (!id.contains("-") && id.contains(getId()))) {
     Firmware * result = new OpenTxFirmware(id, this);
     // TODO result.variant = firmware->getVariant(id);
     return result;
   }
   else {
-    return NULL;
+    return nullptr;
   }
 }
 

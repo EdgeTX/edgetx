@@ -21,53 +21,28 @@
 
 #pragma once
 
-#include <QWidget>
-#include <memory>
+#include "abstractpanel.h"
 
 class ModelData;
 class GeneralSettings;
 class Firmware;
-class QGridLayout;
-class QString;
-class WidgetBindings;
 
-class GenericPanel : public QWidget
+class GenericPanel : public AbstractPanel
 {
   Q_OBJECT
 
   friend class GVarGroup;
-  friend class AutoWidget;
 
   public:
     GenericPanel(QWidget *parent, ModelData * model, GeneralSettings & generalSettings, Firmware * firmware);
     virtual ~GenericPanel();
 
-  signals:
-    void modified();
-
-  public slots:
-    virtual void update();
+    virtual void save() override {};
+    virtual void update() override {};
 
   protected:
     ModelData * model;
     GeneralSettings & generalSettings;
     Firmware * firmware;
     //Board::Type board;  TODO: as part of refactor to move physical capabilities from Firmware to Boards
-    bool lock;
-
-    void addLabel(QGridLayout * gridLayout, const QString &text, int col, bool mimimize=false);
-    void addEmptyLabel(QGridLayout * gridLayout, int col);
-    void addHSpring(QGridLayout *, int col, int row);
-    void addVSpring(QGridLayout *, int col, int row);
-    void addDoubleSpring(QGridLayout *, int col, int row);
-    virtual bool eventFilter(QObject *obj, QEvent *event);
-    void setFocusFilter(QWidget * w);
-    void disableMouseScrolling();
-    void updateAutoWidgets();
-
-    WidgetBindings *bindings();
-    void applyBindings();
-
-  private:
-    std::unique_ptr<WidgetBindings> m_bindings;
 };

@@ -37,7 +37,7 @@ class AutoTimeEdit : public QTimeEdit, public AutoWidget
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr);
     void setTimeRange(const QTime min, const QTime max);
 
   signals:
