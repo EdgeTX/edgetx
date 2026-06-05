@@ -110,6 +110,11 @@ LL_DMA_LinkNodeTypeDef dacDmaLinkNode;
 static uint16_t _dma_buffer[DMA_BUFFER_LEN] __DMA_NO_CACHE;
 
 static volatile uint32_t _dma_buffer_offset = 0;
+static volatile uint8_t _empty_dma_halves = 0;
+
+// Require sustained silence before stopping DMA to avoid start/stop thrashing
+// when the producer briefly lags behind the consumer.
+constexpr uint8_t DMA_EMPTY_HALVES_STOP_THRESHOLD = 6;
 
 static inline uint32_t _calc_offset(uint8_t tc)
 {
@@ -292,6 +297,7 @@ void audioConsumeCurrentBuffer()
 {
   if (!LL_DMA_IsEnabledChannel(AUDIO_DMA, AUDIO_DMA_Stream)) {
     if (!audio_update_dma_buffer(0)) {
+      _empty_dma_halves = 0;
       // Fill second half with silence before starting circular DMA
       for (unsigned idx = 0; idx < DMA_BUFFER_HALF_LEN; idx++) {
         _dma_buffer[DMA_BUFFER_HALF_LEN + idx] = AUDIO_DATA_SILENCE;
@@ -317,16 +323,29 @@ extern "C" void AUDIO_DMA_Stream_IRQHandler()
   LL_DMA_ClearFlag_USE(AUDIO_DMA, AUDIO_DMA_Stream);
 #endif
 
-  bool stopDMA = false;
+  bool hasData = false;
   if(stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
-    stopDMA = audio_update_dma_buffer(0);
+    if (audio_update_dma_buffer(0)) {
+      if (_empty_dma_halves < 0xFF) _empty_dma_halves++;
+    } else {
+      hasData = true;
+    }
   }
 
   if(stm32_dma_check_tc_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
-    stopDMA |= audio_update_dma_buffer(1);
+    if (audio_update_dma_buffer(1)) {
+      if (_empty_dma_halves < 0xFF) _empty_dma_halves++;
+    } else {
+      hasData = true;
+    }
   }
 
-  if(stopDMA) {
+  if (hasData) {
+    _empty_dma_halves = 0;
+  }
+
+  if(_empty_dma_halves >= DMA_EMPTY_HALVES_STOP_THRESHOLD) {
+    _empty_dma_halves = 0;
     dac_close_dma_xfer();
   }
 }
