@@ -83,7 +83,7 @@ void AutoBitMappedComboBox::setAutoModel(QAbstractItemModel * model)
   AutoBitMappedComboBox::setModel(model);
 }
 
-void AutoBitMappedComboBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoBitMappedComboBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = (int *)&field;
   m_rawSource = nullptr;
@@ -91,7 +91,7 @@ void AutoBitMappedComboBox::setField(unsigned int & field, GenericPanel * panel)
   setFieldInit(panel);
 }
 
-void AutoBitMappedComboBox::setField(int & field, GenericPanel * panel)
+void AutoBitMappedComboBox::setField(int & field, AbstractPanel * panel)
 {
   m_field = &field;
   m_rawSource = nullptr;
@@ -99,7 +99,7 @@ void AutoBitMappedComboBox::setField(int & field, GenericPanel * panel)
   setFieldInit(panel);
 }
 
-void AutoBitMappedComboBox::setField(RawSource & field, GenericPanel * panel)
+void AutoBitMappedComboBox::setField(RawSource & field, AbstractPanel * panel)
 {
   m_rawSource = &field;
   m_rawSwitch = nullptr;
@@ -107,7 +107,7 @@ void AutoBitMappedComboBox::setField(RawSource & field, GenericPanel * panel)
   setFieldInit(panel);
 }
 
-void AutoBitMappedComboBox::setField(RawSwitch & field, GenericPanel * panel)
+void AutoBitMappedComboBox::setField(RawSwitch & field, AbstractPanel * panel)
 {
   m_rawSwitch = &field;
   m_rawSource = nullptr;
@@ -115,7 +115,7 @@ void AutoBitMappedComboBox::setField(RawSwitch & field, GenericPanel * panel)
   setFieldInit(panel);
 }
 
-void AutoBitMappedComboBox::setFieldInit(GenericPanel * panel)
+void AutoBitMappedComboBox::setFieldInit(AbstractPanel * panel)
 {
   setPanel(panel);
   updateValue();

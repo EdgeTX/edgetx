@@ -672,6 +672,7 @@ class AppData: public CompStoreObj
     // refer enum QtMsgType
     static QStringList updateLogLevelsList() { return { tr("Debug"), tr("Warning"), tr("Critical"), tr("Fatal"), tr("Information") } ; }
     static QStringList simuGenericKeysPosList() { return { tr("Default"), tr("Left"), tr("Right") } ; }
+    static QStringList simuBackLightColorList() { return { tr("Blue"), tr("Green"), tr("Red"), tr("Orange"), tr("Yellow") } ; }
 
     explicit AppData();
     void init() override;
@@ -760,6 +761,7 @@ class AppData: public CompStoreObj
     PROPERTYQBA2(mainWinGeo,   "mainWindowGeometry")
     PROPERTYQBA2(mainWinState, "mainWindowState")
     PROPERTYQBA2(modelEditGeo, "modelEditGeometry")
+    PROPERTYQBA2(prefsEditGeo, "prefsEditGeometry")
     PROPERTYQBA (mdiWinGeo)
     PROPERTYQBA (mdiWinState)
     PROPERTYQBA (compareWinGeo)

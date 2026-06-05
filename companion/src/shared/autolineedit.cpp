@@ -25,45 +25,62 @@ AutoLineEdit::AutoLineEdit(QWidget * parent, bool updateOnChange):
   QLineEdit(parent),
   AutoWidget(),
   m_charField(NULL),
-  m_strField(nullptr)
+  m_strField(nullptr),
+  m_value("")
 {
-  if (updateOnChange)
-    connect(this, &QLineEdit::textChanged, this, &AutoLineEdit::onEdited);
-  else
-    connect(this, &QLineEdit::editingFinished, this, &AutoLineEdit::onEdited);
+  setEditSignal(updateOnChange);
 }
 
 AutoLineEdit::~AutoLineEdit()
 {
 }
 
-void AutoLineEdit::setField(char * field, int len, GenericPanel * panel)
+void AutoLineEdit::setField(char * field, int len, AbstractPanel * panel)
 {
   m_charField = field;
   setFieldInit(len, panel);
 }
 
-void AutoLineEdit::setField(QString & field, int len, GenericPanel * panel)
+void AutoLineEdit::setField(QString & field, int len, AbstractPanel * panel)
 {
   m_strField = &field;
   setFieldInit(len, panel);
 }
 
-void AutoLineEdit::setFieldInit(int len, GenericPanel * panel)
+void AutoLineEdit::setFieldInit(int len, AbstractPanel * panel)
 {
   setPanel(panel);
-  if (len)
-    setMaxLength(len);
+  setLength(len);
   updateValue();
+}
+
+void AutoLineEdit::setLength(int len)
+{
+  if (len) setMaxLength(len);
+}
+
+void AutoLineEdit::setEditSignal(bool onChange)
+{
+  disconnect(this, &QLineEdit::textChanged, this, &AutoLineEdit::onEdited);
+  disconnect(this, &QLineEdit::editingFinished, this, &AutoLineEdit::onEdited);
+
+  if (onChange)
+    connect(this, &QLineEdit::textChanged, this, &AutoLineEdit::onEdited);
+  else
+    connect(this, &QLineEdit::editingFinished, this, &AutoLineEdit::onEdited);
 }
 
 void AutoLineEdit::updateValue()
 {
   setLock(true);
+
   if (m_strField)
     QLineEdit::setText(*m_strField);
   else if (m_charField)
     QLineEdit::setText(m_charField);
+  else
+    QLineEdit::setText(m_value);
+
   setLock(false);
 }
 
@@ -76,6 +93,8 @@ void AutoLineEdit::onEdited()
     *m_strField = text();
   else if (m_charField && strcmp(m_charField, text().toLatin1()))
     strcpy(m_charField, text().toLatin1());
+  else if (m_value != text())
+    m_value = text();
   else
     return;
 
@@ -88,4 +107,12 @@ void AutoLineEdit::setAutoText(QString text)
   setLock(true);
   QLineEdit::setText(text);
   setLock(false);
+}
+
+void AutoLineEdit::setValue(QString text, AbstractPanel * panel, int len)
+{
+  if (!m_strField && !m_charField) {
+    m_value = text;
+    setFieldInit(len, panel);
+  }
 }

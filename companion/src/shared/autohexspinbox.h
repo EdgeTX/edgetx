@@ -42,8 +42,8 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
-    void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, GenericPanel * panel = nullptr);
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, AbstractPanel * panel = nullptr);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr);
     void setRange(unsigned int min = 0, unsigned int max = AUTOHEXSPINBOX_MAX_VALUE);
 
   protected:

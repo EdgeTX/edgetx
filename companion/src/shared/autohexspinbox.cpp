@@ -35,7 +35,7 @@ AutoHexSpinBox::~AutoHexSpinBox()
 {
 }
 
-void AutoHexSpinBox::setField(unsigned int & field, const unsigned int min, const unsigned int max, GenericPanel * panel)
+void AutoHexSpinBox::setField(unsigned int & field, const unsigned int min, const unsigned int max, AbstractPanel * panel)
 {
   m_field = &field;
   setRange(min, max);
@@ -43,7 +43,7 @@ void AutoHexSpinBox::setField(unsigned int & field, const unsigned int min, cons
   updateValue();
 }
 
-void AutoHexSpinBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoHexSpinBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = &field;
   setRange(0, AUTOHEXSPINBOX_MAX_VALUE);

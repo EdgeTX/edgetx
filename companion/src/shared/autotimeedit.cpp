@@ -33,7 +33,7 @@ AutoTimeEdit::~AutoTimeEdit()
 {
 }
 
-void AutoTimeEdit::setField(unsigned int & field, GenericPanel * panel)
+void AutoTimeEdit::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = &field;
   setPanel(panel);

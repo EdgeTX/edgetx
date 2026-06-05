@@ -169,11 +169,11 @@ int main(int argc, char *argv[])
   bool doReset = args.contains("--defaults");
 
   if (doExport)
-    Helpers::exportAppSettings();
+    Helpers::exportPreferences();
 
   if (doReset) {
     char ok;
-    printf("%s [Y/N] ", QCoreApplication::translate("Companion", "Reset ALL application settings to default values and remove radio profiles, are you sure?").toUtf8().constData());
+    printf("%s [Y/N] ", QCoreApplication::translate("Companion", "Reset ALL application preferences to default values and remove radio profiles, are you sure?").toUtf8().constData());
     std::cin >> ok;
     if (ok != 'Y' && ok != 'y')
       exit(0);
@@ -181,11 +181,11 @@ int main(int argc, char *argv[])
       printf("%s [Y/N] ", QCoreApplication::translate("Companion", "Would you like to perform a backup first?").toUtf8().constData());
       std::cin >> ok;
       if (ok == 'Y' || ok == 'y')
-        Helpers::exportAppSettings();
+        Helpers::exportPreferences();
     }
     g.resetAllSettings();
     g.storeAllSettings();
-    std::cout << QCoreApplication::translate("Companion", "Application settings were reset and saved.").toUtf8().constData() << std::endl;
+    std::cout << QCoreApplication::translate("Companion", "Application preferences were reset and saved.").toUtf8().constData() << std::endl;
   }
 
   if (doImport)

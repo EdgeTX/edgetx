@@ -33,19 +33,19 @@ AutoSpinBox::~AutoSpinBox()
 {
 }
 
-void AutoSpinBox::setField(int & field, GenericPanel * panel)
+void AutoSpinBox::setField(int & field, AbstractPanel * panel)
 {
   m_field = &field;
   setFieldInit(panel);
 }
 
-void AutoSpinBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoSpinBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = (int *)&field;
   setFieldInit(panel);
 }
 
-void AutoSpinBox::setFieldInit(GenericPanel * panel)
+void AutoSpinBox::setFieldInit(AbstractPanel * panel)
 {
   setPanel(panel);
   updateValue();

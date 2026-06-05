@@ -20,7 +20,7 @@
  */
 
 #include "autowidget.h"
-#include "genericpanel.h"
+#include "abstractpanel.h"
 
 #include <memory>
 
@@ -28,20 +28,29 @@ AutoWidget::AutoWidget():
   m_panel(nullptr),
   m_lock(false),
   m_buddyWidgets(QList<AutoWidget *> {nullptr}),
+  m_parentBuddyWidget(nullptr),
   m_enabled(nullptr),
   m_model(nullptr),
   m_text(nullptr),
-  m_visible(nullptr)
+  m_visible(nullptr),
+  m_postChanged(nullptr),
+  m_save(nullptr)
 {
 }
 
-AutoWidget::~AutoWidget() = default;
+AutoWidget::~AutoWidget()
+{
+}
+
+void AutoWidget::addBuddyParentWidget(AutoWidget * wgt)
+{
+  if (wgt) wgt->addBuddyWidget(this);
+}
 
 void AutoWidget::addBuddyWidget(AutoWidget * wgt)
 {
   if (wgt) {
     m_buddyWidgets.append(wgt);
-    // just in case set as we want parent to control
     clearBuddyBinds(wgt);
   }
 }
@@ -55,7 +64,7 @@ void AutoWidget::addBuddyWidgets(QList<AutoWidget *> wgts)
   }
 }
 
-// Apply bindings to this AutoWidget also enabled and visible to all buddy AutoWidgets
+// Apply bindings to this AutoWidget and selective to all buddy AutoWidgets
 void AutoWidget::applyBindings()
 {
   if (m_enabled) {
@@ -80,17 +89,13 @@ void AutoWidget::applyBindings()
     }
   }
 
-  if (m_text) {
-    // makes no sense to apply parent bind to buddies
-    // leave it to each buddy to apply when it is updated
-    setAutoText(m_text());
-  }
+  // makes no sense to apply parent bind to buddies
+  // leave it to each buddy to apply when it is updated
+  if (m_text) setAutoText(m_text());
 
-  if (m_model) {
-    // makes no sense to apply parent bind to buddies
-    // leave it to each buddy to apply when it is updated
-    setAutoModel(m_model());
-  }
+  // makes no sense to apply parent bind to buddies
+  // leave it to each buddy to apply when it is updated
+  if (m_model) setAutoModel(m_model());
 }
 
 void AutoWidget::clearBindEnabled()
@@ -108,26 +113,14 @@ void AutoWidget::clearBuddyBinds(AutoWidget * wgt)
   if (wgt) {
     wgt->clearBindEnabled();
     wgt->clearBindVisible();
+    // needed for wgt dtor to remove itself from controlling widget
+    wgt->setParentBuddyWidget(this);
   }
-}
-
-void AutoWidget::clearBuddyWidget(AutoWidget * wgt)
-{
-  if (wgt) {
-    if (!m_buddyWidgets.removeOne(wgt))
-      qDebug() << "Warning: widget not removed from list";
-  }
-}
-
-void AutoWidget::clearBuddyWidgets()
-{
-  m_buddyWidgets.clear();
 }
 
 void AutoWidget::dataChanged()
 {
-  if (m_panel)
-    emit m_panel->modified();
+  if (m_panel) emit m_panel->modified();
 }
 
 bool AutoWidget::lock()
@@ -140,12 +133,29 @@ bool AutoWidget::panelLock()
   return m_panel ? m_panel->lock : false;
 }
 
+void AutoWidget::removeBuddyWidget(AutoWidget * wgt)
+{
+  if (wgt) {
+    if (!m_buddyWidgets.removeOne(wgt))
+      qDebug() << "Warning: widget not removed from list";
+  }
+}
+
+void AutoWidget::removeBuddyWidgets()
+{
+  m_buddyWidgets.clear();
+}
+
 void AutoWidget::runPostChanged()
 {
   dataChanged();
 
-  if (m_postChanged)
-    m_postChanged();
+  if (m_postChanged) m_postChanged();
+}
+
+void AutoWidget::saveValue()
+{
+  if (m_save) m_save();
 }
 
 void AutoWidget::setAutoEnabled(bool enabled)
@@ -163,6 +173,11 @@ void AutoWidget::setAutoVisible(bool visible)
 void AutoWidget::setBindEnabled(std::function<bool()> pred)
 {
   m_enabled = std::move(pred);
+}
+
+void AutoWidget::setBindSave(std::function<void()> fn)
+{
+  m_save = std::move(fn);
 }
 
 void AutoWidget::setBindModel(std::function<QAbstractItemModel*()> fn)
@@ -190,7 +205,13 @@ void AutoWidget::setLock(bool lock)
   m_lock = lock;
 }
 
-void AutoWidget::setPanel(GenericPanel * panel)
+void AutoWidget::setPanel(AbstractPanel * panel)
 {
   m_panel = panel;
 }
+
+void AutoWidget::setParentBuddyWidget(AutoWidget * wgt)
+{
+  m_parentBuddyWidget = wgt;
+}
+

@@ -23,7 +23,7 @@
 #include "mdichild.h"
 #include "comparedialog.h"
 #include "logsdialog.h"
-#include "apppreferencesdialog.h"
+#include "prefs_edit.h"
 #include "firmwareinterface.h"
 #include "printdialog.h"
 #include "version.h"
@@ -452,15 +452,15 @@ void MainWindow::loadProfile()
   }
 }
 
-void MainWindow::editAppSettings()
+void MainWindow::editPreferences()
 {
-  AppPreferencesDialog * dialog = new AppPreferencesDialog(this, updateFactories);
-  dialog->setMainWinHasDirtyChild(anyChildrenDirty());
-  connect(dialog, &AppPreferencesDialog::firmwareProfileAboutToChange, this, &MainWindow::saveAll);
-  connect(dialog, &AppPreferencesDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
-  dialog->exec();
-  dialog->deleteLater();
+  PrefsEditDialog * dlg = new PrefsEditDialog(this, updateFactories);
+  dlg->setMainWinHasDirtyChild(anyChildrenDirty());
+  connect(dlg, &PrefsEditDialog::firmwareProfileAboutToChange, this, &MainWindow::saveAll);
+  connect(dlg, &PrefsEditDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
+  dlg->exec();
   updateMenus();
+  // delete dlg or deleteLater() triggers segfault with no debug stack trace in Linux
 }
 
 void MainWindow::sdsync(bool postUpdate)
@@ -816,9 +816,9 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(readSettingsSDPathAct,  tr("Read Models and Settings from SD Path"), tr("Read Models and Settings from SD Path"));
   trAct(exitAct,                tr("Exit"),                                  tr("Exit the application"));
 
-  trAct(editAppSettingsAct,   tr("Edit Settings..."),  tr("Edit %1 and Simulator settings (including radio profiles) settings").arg(CPN_STR_APP_NAME));
-  trAct(exportAppSettingsAct, tr("Export Settings..."), tr("Save all the current %1 and Simulator settings (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
-  trAct(importAppSettingsAct, tr("Import Settings..."), tr("Load %1 and Simulator settings from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
+  trAct(editPreferencesAct,     tr("Edit Preferences..."),  tr("Edit %1 and Simulator preferences (including radio profiles) settings").arg(CPN_STR_APP_NAME));
+  trAct(exportPreferencesAct,   tr("Export Settings..."), tr("Save all the current %1 and Simulator preferences (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
+  trAct(importPreferencesAct,   tr("Import Settings..."), tr("Load %1 and Simulator preferences from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
 
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."),          tr("Edit the splash image of your Radio"));
   trAct(readFlashAct,       tr("Read Firmware from Radio"),            tr("Read firmware from Radio"));
@@ -890,9 +890,9 @@ void MainWindow::createActions()
   readSettingsSDPathAct =  addAct("folder-tree-read.png",   SLOT(readSettingsSDPath()));
   exitAct =                addAct("exit.png",               SLOT(closeAllWindows()),  QKeySequence::Quit, qApp);
 
-  editAppSettingsAct =     addAct("apppreferences.png",     SLOT(editAppSettings()),         QKeySequence::Preferences);
-  exportAppSettingsAct =   addAct("saveas.png",             SLOT(exportAppSettings()));
-  importAppSettingsAct =   addAct("open.png",               SLOT(importAppSettings()));
+  editPreferencesAct =     addAct("apppreferences.png",     SLOT(editPreferences()),         QKeySequence::Preferences);
+  exportPreferencesAct =   addAct("saveas.png",             SLOT(exportPreferences()));
+  importPreferencesAct =   addAct("open.png",               SLOT(importPreferences()));
   radioGetDevicesAct =     addAct("configure.png",          SLOT(radioGetDevices()));
 
   compareAct =             addAct("compare.png",            SLOT(compare()),          tr("Ctrl+Alt+R"));
@@ -930,7 +930,7 @@ void MainWindow::createActions()
 
   exitAct->setMenuRole(QAction::QuitRole);
   aboutAct->setMenuRole(QAction::AboutRole);
-  editAppSettingsAct->setMenuRole(QAction::PreferencesRole);
+  editPreferencesAct->setMenuRole(QAction::PreferencesRole);
   changelogAct->setMenuRole(QAction::ApplicationSpecificRole);
 
   compareAct->setEnabled(false);
@@ -1002,9 +1002,9 @@ void MainWindow::createMenus()
   radioMenu->addAction(radioGetDevicesAct);
 
   settingsMenu = menuBar()->addMenu("");
-  settingsMenu->addAction(editAppSettingsAct);
-  settingsMenu->addAction(exportAppSettingsAct);
-  settingsMenu->addAction(importAppSettingsAct);
+  settingsMenu->addAction(editPreferencesAct);
+  settingsMenu->addAction(exportPreferencesAct);
+  settingsMenu->addAction(importPreferencesAct);
   settingsMenu->addSeparator();
   settingsMenu->addAction(profilesMenuAct);
 
@@ -1088,7 +1088,7 @@ void MainWindow::createToolBars()
 
   settingsToolBar = addToolBar("");
   settingsToolBar->setObjectName("Settings");
-  settingsToolBar->addAction(editAppSettingsAct);
+  settingsToolBar->addAction(editPreferencesAct);
   settingsToolBar->addAction(profilesMenuAct);
 
   if ((btn = qobject_cast<QToolButton *>(settingsToolBar->widgetForAction(profilesMenuAct))))
@@ -1326,7 +1326,7 @@ int MainWindow::newProfile(bool loadProfile)
 
   if (loadProfile) {
     if (loadProfileId(i))
-      editAppSettings();
+      editPreferences();
   }
 
   return i;
@@ -1345,7 +1345,7 @@ void MainWindow::copyProfile()
     g.profile[newId] = g.profile[g.id()];
     g.profile[newId].name(g.profile[newId].name() + tr(" - Copy"));
     if (loadProfileId(newId))
-      editAppSettings();
+      editPreferences();
   }
 }
 
@@ -1380,26 +1380,26 @@ void MainWindow::deleteCurrentProfile()
   deleteProfile(g.id());
 }
 
-void MainWindow::exportAppSettings()
+void MainWindow::exportPreferences()
 {
-  Helpers::exportAppSettings();
+  Helpers::exportPreferences();
 }
 
-void MainWindow::importAppSettings()
+void MainWindow::importPreferences()
 {
   if (anyChildrenDirty()) {
-    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Please save or close all modified files before importing settings"));
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Please save or close all modified files before importing preferences"));
     return;
   }
   QString resultMsg = tr("<html>" \
-    "<p>%1 and Simulator settings can be imported (restored) from a previosly saved export (backup) file. " \
-      "This will replace current settings with any settings found in the file.</p>" \
-    "<p>An automatic backup of the current settings will be attempted. But if the current settings are useful then it is recommended that you make a manual backup first.</p>" \
-    "<p>For best results when importing settings, <b>close any other %1 windows you may have open, and make sure the standalone Simulator application is not running.</p>" \
+    "<p>%1 and Simulator preferences can be imported (restored) from a previosly saved export (backup) file. " \
+      "This will replace current preferences with any preferences found in the file.</p>" \
+    "<p>An automatic backup of the current preferences will be attempted. But if the current preferences are useful then it is recommended that you make a manual backup first.</p>" \
+    "<p>For best results when importing preferences, <b>close any other %1 windows you may have open, and make sure the standalone Simulator application is not running.</p>" \
     "<p>Do you wish to continue?</p>" \
     "</html>").arg(CPN_STR_APP_NAME);
 
-  int ret = QMessageBox::question(this, tr("Confirm Settings Import"), resultMsg);
+  int ret = QMessageBox::question(this, tr("Confirm Preferences Import"), resultMsg);
   if (ret != QMessageBox::Yes)
     return;
 
@@ -1421,17 +1421,17 @@ void MainWindow::importAppSettings()
   // Do the import
   QSettings fromSettings(impFile, QSettings::IniFormat);
   if (!g.importSettings(&fromSettings)) {
-    QMessageBox::critical(this, CPN_STR_APP_NAME, tr("The settings could not be imported."), QMessageBox::Ok);
+    QMessageBox::critical(this, CPN_STR_APP_NAME, tr("The preferences could not be imported."), QMessageBox::Ok);
     return;
   }
   resultMsg = tr("<html>" \
-                 "<p>New settings have been imported from:<br> %1.</p>" \
+                 "<p>New preferences have been imported from:<br> %1.</p>" \
                  "<p>%2 will now re-initialize.</p>" \
-                 "<p>Note that you may need to close and restart %2 before some settings like language and icon theme take effect.</p>" \
+                 "<p>Note that you may need to close and restart %2 before some preferences like language and icon theme take effect.</p>" \
                 ).arg(impFile).arg(CPN_STR_APP_NAME);
 
   if (!expFile.isEmpty())
-    resultMsg.append(tr("<p>The previous settings were backed up to:<br> %1</p>").arg(expFile));
+    resultMsg.append(tr("<p>The previous preferences were backed up to:<br> %1</p>").arg(expFile));
   resultMsg.append("</html>");
   QMessageBox::information(this, CPN_STR_APP_NAME, resultMsg);
 

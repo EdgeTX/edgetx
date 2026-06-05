@@ -21,15 +21,20 @@
 
 #pragma once
 
+#include "autobitmappedcheckbox.h"
+#include "autobitmappedcombobox.h"
 #include "autobitsetcheckbox.h"
 #include "autocheckbox.h"
+#include "autocollapsiblesection.h"
+#include "autocolorselectbutton.h"
 #include "autocombobox.h"
 #include "autodoublespinbox.h"
+#include "autofolderselectbutton.h"
 #include "autohexspinbox.h"
+#include "autolabel.h"
 #include "autolineedit.h"
 #include "autoprecisioncombobox.h"
+#include "autopushbutton.h"
 #include "autoslider.h"
 #include "autospinbox.h"
 #include "autotimeedit.h"
-#include "autobitmappedcheckbox.h"
-#include "autobitmappedcombobox.h"

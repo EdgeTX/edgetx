@@ -30,14 +30,18 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
   Q_OBJECT
 
   public:
-    explicit AutoCheckBox(QWidget * parent = nullptr);
+    explicit AutoCheckBox(QWidget * parent = nullptr, const QString & text = QString());
     virtual ~AutoCheckBox();
 
     virtual void updateValue() override;
+
+    // not applicable to this widget
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
-    void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
+    void setField(bool & field, AbstractPanel * panel = nullptr, bool invert = false);
     void setInvert(bool invert);
+    // use for widget not bound to a memory address
+    void setValue(bool value, AbstractPanel * panel = nullptr, bool invert = false);
 
   signals:
     void currentDataChanged(bool value);
@@ -51,4 +55,7 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
   private:
     bool *m_field;
     bool m_invert;
+    bool m_value;
+
+    void setFieldInit(AbstractPanel * panel, bool invert);
 };

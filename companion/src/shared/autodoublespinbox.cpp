@@ -25,7 +25,8 @@ AutoDoubleSpinBox::AutoDoubleSpinBox(QWidget * parent):
   QDoubleSpinBox(parent),
   AutoWidget(),
   m_field(nullptr),
-  m_offset(0)
+  m_offset(0),
+  m_value(0)
 {
   connect(this, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &AutoDoubleSpinBox::onValueChanged);
 }
@@ -34,14 +35,14 @@ AutoDoubleSpinBox::~AutoDoubleSpinBox()
 {
 }
 
-void AutoDoubleSpinBox::setField(int & field, GenericPanel * panel)
+void AutoDoubleSpinBox::setField(int & field, AbstractPanel * panel)
 {
   m_field = &field;
   setPanel(panel);
   updateValue();
 }
 
-void AutoDoubleSpinBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoDoubleSpinBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = (int *)&field;
   setPanel(panel);
@@ -62,11 +63,14 @@ void AutoDoubleSpinBox::setOffset(int offset)
 
 void AutoDoubleSpinBox::updateValue()
 {
-  if (m_field) {
-    setLock(true);
-    setValue(float(*m_field + m_offset) / multiplier());
-    setLock(false);
-  }
+  setLock(true);
+
+  if (m_field)
+    QDoubleSpinBox::setValue(float(*m_field + m_offset) / multiplier());
+  else
+    QDoubleSpinBox::setValue(float(m_value + m_offset) / multiplier());
+
+  setLock(false);
 }
 
 int AutoDoubleSpinBox::multiplier()
@@ -90,4 +94,11 @@ void AutoDoubleSpinBox::onValueChanged(double value)
     emit currentDataChanged(*m_field);
     runPostChanged();
   }
+}
+
+void AutoDoubleSpinBox::setValue(int val, AbstractPanel * panel)
+{
+  m_value = val;
+  setPanel(panel);
+  updateValue();
 }

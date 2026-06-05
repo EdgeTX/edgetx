@@ -32,7 +32,7 @@ AutoPrecisionComboBox::AutoPrecisionComboBox(QWidget * parent):
   init();
 }
 
-AutoPrecisionComboBox::AutoPrecisionComboBox(unsigned int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, QWidget * parent, GenericPanel * panel):
+AutoPrecisionComboBox::AutoPrecisionComboBox(unsigned int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, QWidget * parent, AbstractPanel * panel):
   QComboBox(parent),
   AutoWidget()
 {
@@ -41,7 +41,7 @@ AutoPrecisionComboBox::AutoPrecisionComboBox(unsigned int & field, unsigned int 
   init();
 }
 
-AutoPrecisionComboBox::AutoPrecisionComboBox(int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, QWidget * parent, GenericPanel * panel):
+AutoPrecisionComboBox::AutoPrecisionComboBox(int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, QWidget * parent, AbstractPanel * panel):
   QComboBox(parent),
   AutoWidget()
 {
@@ -54,14 +54,14 @@ AutoPrecisionComboBox::~AutoPrecisionComboBox()
 {
 }
 
-void AutoPrecisionComboBox::setField(int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, GenericPanel * panel)
+void AutoPrecisionComboBox::setField(int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, AbstractPanel * panel)
 {
   m_field = (unsigned int *)&field;
   setFieldInit(minDecimals, maxDecimals, padding, suffix, panel);
   setPanel(panel);
 }
 
-void AutoPrecisionComboBox::setField(unsigned int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, GenericPanel * panel)
+void AutoPrecisionComboBox::setField(unsigned int & field, unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, AbstractPanel * panel)
 {
   m_field = &field;
   setFieldInit(minDecimals, maxDecimals, padding, suffix, panel);
@@ -161,7 +161,7 @@ void AutoPrecisionComboBox::init()
   connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AutoPrecisionComboBox::onCurrentIndexChanged);
 }
 
-void AutoPrecisionComboBox::setFieldInit(unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, GenericPanel * panel)
+void AutoPrecisionComboBox::setFieldInit(unsigned int minDecimals, unsigned int maxDecimals, bool padding, QString suffix, AbstractPanel * panel)
 {
   setLock(true);
   setMinDecimals(minDecimals);

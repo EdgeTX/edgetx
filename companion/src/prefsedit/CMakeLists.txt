@@ -1,0 +1,31 @@
+
+project(prefsedit)
+
+set(${PROJECT_NAME}_NAMES
+  prefs_panel
+  prefs_edit
+  #prefs_app
+  #prefs_profile
+  prefs_simu
+  #prefs_update
+)
+
+AddHeadersSources()
+
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_HDRS}
+  ${${PROJECT_NAME}_SRCS}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
+)

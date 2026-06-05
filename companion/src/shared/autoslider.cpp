@@ -39,13 +39,13 @@ AutoSlider::~AutoSlider()
 {
 }
 
-void AutoSlider::setField(int & field, int min, int max, GenericPanel * panel)
+void AutoSlider::setField(int & field, int min, int max, AbstractPanel * panel)
 {
   m_field = &field;
   setFieldInit(min, max, panel);
 }
 
-void AutoSlider::setField(unsigned int & field, int min, int max, GenericPanel * panel)
+void AutoSlider::setField(unsigned int & field, int min, int max, AbstractPanel * panel)
 {
   m_field = (int *)&field;
   setFieldInit(min, max, panel);
@@ -71,7 +71,7 @@ void AutoSlider::init()
   connect(this, &QSlider::valueChanged, this, &AutoSlider::onValueChanged);
 }
 
-void AutoSlider::setFieldInit(int min, int max, GenericPanel * panel)
+void AutoSlider::setFieldInit(int min, int max, AbstractPanel * panel)
 {
   setPanel(panel);
   setRange(min, max);

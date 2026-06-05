@@ -45,6 +45,7 @@ void AutoComboBox::initField()
   m_switchType = nullptr;
   m_qString = nullptr;
   m_stdString = nullptr;
+  m_value = 0;
 }
 
 void AutoComboBox::clear()
@@ -87,70 +88,70 @@ void AutoComboBox::setAutoModel(QAbstractItemModel * model)
   AutoComboBox::setModel(model);
 }
 
-void AutoComboBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoComboBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_field = (int *)&field;
   updateValue();
 }
 
-void AutoComboBox::setField(int & field, GenericPanel * panel)
+void AutoComboBox::setField(int & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_field = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(RawSource & field, GenericPanel * panel)
+void AutoComboBox::setField(RawSource & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_rawSource = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(RawSwitch & field, GenericPanel * panel)
+void AutoComboBox::setField(RawSwitch & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_rawSwitch = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(CurveData::CurveType & field, GenericPanel * panel)
+void AutoComboBox::setField(CurveData::CurveType & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_curveType = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(Board::FlexType & field, GenericPanel * panel)
+void AutoComboBox::setField(Board::FlexType & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_flexType = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(Board::SwitchType & field, GenericPanel * panel)
+void AutoComboBox::setField(Board::SwitchType & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_switchType = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(QString & field, GenericPanel * panel)
+void AutoComboBox::setField(QString & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_qString = &field;
   updateValue();
 }
 
-void AutoComboBox::setField(std::string & field, GenericPanel * panel)
+void AutoComboBox::setField(std::string & field, AbstractPanel * panel)
 {
   setFieldInit(panel);
   m_stdString = &field;
   updateValue();
 }
 
-void AutoComboBox::setFieldInit(GenericPanel * panel)
+void AutoComboBox::setFieldInit(AbstractPanel * panel)
 {
   initField();
   setPanel(panel);
@@ -165,6 +166,13 @@ void AutoComboBox::setModel(QAbstractItemModel * model)
     m_hasModel = true;
     updateValue();
   }
+}
+
+void AutoComboBox::setValue(QVariant value, AbstractPanel * panel)
+{
+  setFieldInit(panel);
+  m_value = value;
+  updateValue();
 }
 
 void AutoComboBox::setAutoIndexes()
@@ -197,6 +205,10 @@ void AutoComboBox::updateValue()
     setCurrentIndex(findText(*m_qString));
   else if (m_stdString)
     setCurrentIndex(findText(QString(m_stdString->c_str())));
+  else if (isValueInt())
+    setCurrentIndex(m_value.toInt());
+  else
+    setCurrentIndex(findData(m_value.toString()));
 
   setLock(false);
 }
@@ -208,10 +220,9 @@ void AutoComboBox::onCurrentIndexChanged(int index)
 
   bool ok;
   int val = 0;
-  QString str;
+  QString str(itemText(index));
 
-  if (m_qString || m_stdString) {
-    str = itemText(index);
+  if (m_qString || m_stdString || !isValueInt()) {
     ok = true;
   } else {
     val = itemData(index).toInt(&ok);
@@ -234,10 +245,19 @@ void AutoComboBox::onCurrentIndexChanged(int index)
       *m_qString = str;
     else if (m_stdString && *m_stdString != str.toStdString())
       *m_stdString = str.toStdString();
-    else
-      return;
+    else if (isValueInt() && m_value.toInt() != val)
+      m_value = val;
+    else if (!isValueInt() && m_value.toString() != str)
+      m_value = str;
 
     emit currentDataChanged(val);
     runPostChanged();
   }
+}
+
+bool AutoComboBox::isValueInt()
+{
+  bool ok;
+  m_value.toInt(&ok);
+  return ok;
 }
