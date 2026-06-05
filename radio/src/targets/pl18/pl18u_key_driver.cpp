@@ -27,6 +27,7 @@
 #include "hal.h"
 #include "delays_driver.h"
 #include "keys.h"
+#include "timers_driver.h"
 
 #define REPEAT_DELAY 20
 
@@ -72,7 +73,7 @@ enum PhysicalTrims
 };
 
 volatile uint32_t rotencDt = 0;
-static rotenc_t rotencValue = 0;
+volatile static rotenc_t rotencValue = 0;
 static uint8_t lastRotState = 0;
 static uint8_t stateCount = 0;
 
@@ -215,6 +216,9 @@ uint32_t readKeys()
   } else {
     stateCount++;
     if (stateCount == 3) {
+#if !defined(BOOT)
+      rotencDt = get_tmr10ms();
+#endif
       if (rotState == 1)
         rotencValue++;
       else if (rotState == 2)
