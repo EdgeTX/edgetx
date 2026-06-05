@@ -234,13 +234,15 @@ int main(int argc, char *argv[])
 
   QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
 
-  if (!tempDir.isValid())
+  if (!tempDir.isValid()) {
     qDebug() << "Unable to create application temporary directory";
+    gAppTempPath = "";
+  } else {
+    gAppTempPath = tempDir.path();
 
-  gAppTempPath = tempDir.path();
-
-  if (!QDir(gAppTempPath).mkdir("IMAGES"))
-    qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
+    if (!QDir(gAppTempPath).mkdir("IMAGES"))
+      qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
+  }
 
   Profile & profile = g.currentProfile();
   if (profile.fwType().isEmpty()){
