@@ -7,22 +7,28 @@ set(${PROJECT_NAME}_NAMES
   autobitsetcheckbox
   autocheckbox
   autocollapsiblesection
+  autocolorselectbutton
   autocombobox
   autodoublespinbox
+  autofileselectbutton
+  autodirectoryselectbutton
   autohexspinbox
+  autoimage
   autolabel
   autolineedit
   autoprecisioncombobox
+  autopushbutton
   autoslider
   autospinbox
   autotimeedit
   curveimagewidget
   curvedialog
-  genericpanel
+  exclusivecombogroup
+  gridlayout
   scrollarea
   textvalidator
-  exclusivecombogroup
-  widgetbindings
+  abstractpanel
+  genericpanel
 )
 
 AddHeadersSources()
@@ -48,6 +54,8 @@ set(${PROJECT_NAME}_SRCS
   curveimage.cpp
   semanticversion.h
   semanticversion.cpp
+  widgetbindings.h
+  widgetbindings.cpp
 )
 
 add_library(${PROJECT_NAME}

@@ -24,8 +24,9 @@
 
 AutoHexSpinBox::AutoHexSpinBox(QWidget * parent):
   QSpinBox(parent),
-  AutoWidget(),
-  m_field(nullptr)
+  AutoWidget(parent),
+  m_field(nullptr),
+  m_value(0)
 {
   setRange(0, AUTOHEXSPINBOX_MAX_VALUE);
   connect(this, QOverload<int>::of(&QSpinBox::valueChanged), this, &AutoHexSpinBox::onValueChanged);
@@ -35,7 +36,7 @@ AutoHexSpinBox::~AutoHexSpinBox()
 {
 }
 
-void AutoHexSpinBox::setField(unsigned int & field, const unsigned int min, const unsigned int max, GenericPanel * panel)
+void AutoHexSpinBox::setField(unsigned int & field, const unsigned int min, const unsigned int max, AbstractPanel * panel)
 {
   m_field = &field;
   setRange(min, max);
@@ -43,7 +44,7 @@ void AutoHexSpinBox::setField(unsigned int & field, const unsigned int min, cons
   updateValue();
 }
 
-void AutoHexSpinBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoHexSpinBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = &field;
   setRange(0, AUTOHEXSPINBOX_MAX_VALUE);
@@ -60,23 +61,42 @@ void AutoHexSpinBox::setRange(const unsigned int min, const unsigned int max)
   m_validator = new QRegularExpressionValidator(QRegularExpression(QString("[0-9A-Fa-f]{1,%1}").arg(m_length)), this);
 }
 
+void AutoHexSpinBox::setValue(int val, AbstractPanel * panel)
+{
+  m_value = val;
+  setRange(0, AUTOHEXSPINBOX_MAX_VALUE);
+  setPanel(panel);
+  updateValue();
+}
+
+void AutoHexSpinBox::setValue(int val)
+{
+  setRange(0, AUTOHEXSPINBOX_MAX_VALUE);
+  updateValue();
+}
+
 void AutoHexSpinBox::updateValue()
 {
-  if (m_field) {
-    setLock(true);
-    setValue(*m_field);
-    setLock(false);
-  }
+  setLock(true);
+
+  if (m_field)
+    QSpinBox::setValue(*m_field);
+  else
+    QSpinBox::setValue(m_value);
+
+  setLock(false);
 }
 
 void AutoHexSpinBox::onValueChanged(int value)
 {
   if (m_field && !lock()) {
-    if (*m_field != (unsigned)value) {
+    if (*m_field != (unsigned)value)
       *m_field = (unsigned)value;
-      emit currentDataChanged(value);
-      runPostChanged();
-    }
+    else if (m_value != (unsigned)value)
+      m_value = (unsigned)value;
+
+    emit currentDataChanged(value);
+    runPostChanged();
   }
 }
 
