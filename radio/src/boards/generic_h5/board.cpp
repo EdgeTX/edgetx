@@ -151,6 +151,9 @@ void boardInit()
   gpio_set(AUDIO_MUTE_GPIO);
 #endif
 
+  gpio_init(GPIO_PIN(GPIOD, 12), GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(GPIO_PIN(GPIOD, 12));
+
 #if defined(AUDIO) && defined(AUDIO_RCC_APB1Periph)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
 #endif

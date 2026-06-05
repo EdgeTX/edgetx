@@ -143,6 +143,17 @@
 
 #define ADC_DIRECTION {-1,1,-1,1,  -1,-1, 1,-1}
 
+// Flysky Hall Stick (UART7 on PE7/PE8 - mutually exclusive with AUX_SERIAL)
+#if defined(FLYSKY_GIMBAL)
+  #define FLYSKY_HALL_SERIAL_USART                 UART7
+  #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOE, 8)
+  #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOE, 7)
+  #define FLYSKY_HALL_SERIAL_USART_IRQn            UART7_IRQn
+  // #define FLYSKY_HALL_SERIAL_DMA                GPDMA1
+  // #define FLYSKY_HALL_DMA_Stream_RX             LL_DMA_CHANNEL_6
+  // #define FLYSKY_HALL_DMA_Channel              LL_GPDMA1_REQUEST_UART7_RX
+#endif
+
 // PWR and LED driver
 #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
 #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 6)  // PD.06
@@ -238,17 +249,19 @@
 #define TRAINER_TIMER_IRQHandler      TIM3_IRQHandler
 #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-// Serial Port
-#define HARDWARE_TRAINER_AUX_SERIAL
-#define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOD, 12) // PD.12
-#define AUX_SERIAL_GPIO                   GPIOB
-#define AUX_SERIAL_TX_GPIO                GPIO_PIN(GPIOE, 7)  // PE.07
-#define AUX_SERIAL_RX_GPIO                GPIO_PIN(GPIOE, 8) // PE.08
-#define AUX_SERIAL_USART                  USART7
-#define AUX_SERIAL_USART_IRQn             USART7_IRQn
-#define AUX_SERIAL_DMA_RX                 DMA1
-#define AUX_SERIAL_DMA_RX_STREAM          LL_DMA_STREAM_1
-#define AUX_SERIAL_DMA_RX_CHANNEL         LL_DMA_CHANNEL_4
+// Serial Port (UART7 on PE7/PE8 - mutually exclusive with Flysky Hall Stick)
+#if !defined(FLYSKY_GIMBAL)
+  #define HARDWARE_TRAINER_AUX_SERIAL
+  #define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOD, 12) // PD.12
+  #define AUX_SERIAL_GPIO                   GPIOB
+  #define AUX_SERIAL_TX_GPIO               GPIO_PIN(GPIOE, 7)  // PE.07
+  #define AUX_SERIAL_RX_GPIO               GPIO_PIN(GPIOE, 8) // PE.08
+  #define AUX_SERIAL_USART                  UART7
+  #define AUX_SERIAL_USART_IRQn            UART7_IRQn
+  #define AUX_SERIAL_DMA_RX                 GPDMA1
+  #define AUX_SERIAL_DMA_RX_STREAM          LL_DMA_CHANNEL_6
+  #define AUX_SERIAL_DMA_RX_CHANNEL         LL_GPDMA1_REQUEST_UART7_RX
+#endif
 
 // Telemetry
 // half duplex telem
