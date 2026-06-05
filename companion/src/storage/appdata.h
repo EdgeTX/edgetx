@@ -760,6 +760,7 @@ class AppData: public CompStoreObj
     PROPERTYQBA2(mainWinGeo,   "mainWindowGeometry")
     PROPERTYQBA2(mainWinState, "mainWindowState")
     PROPERTYQBA2(modelEditGeo, "modelEditGeometry")
+    PROPERTYQBA2(settingsEditGeo, "settingsEditGeometry")
     PROPERTYQBA (mdiWinGeo)
     PROPERTYQBA (mdiWinState)
     PROPERTYQBA (compareWinGeo)

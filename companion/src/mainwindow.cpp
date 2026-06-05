@@ -23,7 +23,7 @@
 #include "mdichild.h"
 #include "comparedialog.h"
 #include "logsdialog.h"
-#include "apppreferencesdialog.h"
+#include "settingsedit.h"
 #include "firmwareinterface.h"
 #include "printdialog.h"
 #include "version.h"
@@ -454,10 +454,10 @@ void MainWindow::loadProfile()
 
 void MainWindow::editAppSettings()
 {
-  AppPreferencesDialog * dialog = new AppPreferencesDialog(this, updateFactories);
+  SettingsEditDialog * dialog = new SettingsEditDialog(this, updateFactories);
   dialog->setMainWinHasDirtyChild(anyChildrenDirty());
-  connect(dialog, &AppPreferencesDialog::firmwareProfileAboutToChange, this, &MainWindow::saveAll);
-  connect(dialog, &AppPreferencesDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
+  connect(dialog, &SettingsEditDialog::firmwareProfileAboutToChange, this, &MainWindow::saveAll);
+  connect(dialog, &SettingsEditDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
   dialog->exec();
   dialog->deleteLater();
   updateMenus();
