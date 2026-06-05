@@ -41,20 +41,31 @@
 #define RESAMPLING_SWITCHING_THRESHOLD   200  // us
 #define MODE_CHANGE_DELAY                 50  // ms
 
-static const stm32_usart_t fsUSART = {
+// Not const: on STM32H5/H7RS the circular RX DMA writes its linked-list node
+// into usart->llNode, so this struct must live in RAM (matches intmoduleUSART /
+// extmoduleUSART). A const instance would be placed in flash and the node write
+// would be lost, leaving the RX DMA fetching a garbage descriptor.
+static stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
   .txGPIO = FLYSKY_HALL_SERIAL_TX_GPIO,
   .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 4,
-  .txDMA = FLYSKY_HALL_SERIAL_DMA,
 #if defined(FLYSKY_HALL_DMA_Stream_TX)
+  // TX DMA is optional: when no TX stream is defined the driver falls back to
+  // interrupt-driven TX (commands are tiny). Required on GPDMA parts (e.g.
+  // STM32H5) where TX and RX need distinct peripheral requests.
+  .txDMA = FLYSKY_HALL_SERIAL_DMA,
   .txDMA_Stream = FLYSKY_HALL_DMA_Stream_TX,
   .txDMA_Channel = FLYSKY_HALL_DMA_Channel,
 #endif
+#if defined(FLYSKY_HALL_DMA_Stream_RX)
+  // RX DMA is optional: when no RX stream is defined the driver falls back to
+  // interrupt-driven RX (RXNE), drained from the idle callback.
   .rxDMA = FLYSKY_HALL_SERIAL_DMA,
   .rxDMA_Stream = FLYSKY_HALL_DMA_Stream_RX,
   .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
+#endif
 };
 
 DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, HALLSTICK_CMD_BUFF_SIZE);
@@ -285,7 +296,7 @@ bool flysky_gimbal_init()
       return true;
     }
   }
-  
+
   flysky_gimbal_deinit();
   return false;
 }

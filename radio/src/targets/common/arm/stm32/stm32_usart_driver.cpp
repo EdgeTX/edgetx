@@ -554,6 +554,11 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   // Stream can be enable as the USART has already been enabled
 #if defined(STM32H7RS) || defined(STM32H5)
   LL_DMA_EnableChannel(usart->rxDMA, usart->rxDMA_Stream);
+  // The USART RX was enabled before the DMA channel above; bytes arriving in
+  // that window can latch ORE and lock the receiver. Clear any RX error flags
+  // now so the freshly-armed DMA starts cleanly.
+  WRITE_REG(usart->USARTx->ICR, USART_ICR_ORECF | USART_ICR_NECF |
+                                    USART_ICR_FECF | USART_ICR_PECF);
 #else
   LL_DMA_EnableStream(usart->rxDMA, usart->rxDMA_Stream);
 #endif
@@ -1040,6 +1045,18 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
     // ISR clear sequence
     status = LL_USART_ReceiveData8(usart->USARTx);
     LL_USART_ClearFlag_IDLE(usart->USARTx);
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+    // With DMA RX the RXNE/error handler above is skipped (RXNE IT disabled),
+    // so RX error flags are never acknowledged there. A latched ORE locks the
+    // receiver permanently; clear any pending RX errors here so reception
+    // recovers (notably after the startup race before the DMA channel is on).
+    uint32_t rx_errs =
+        LL_USART_ReadReg(usart->USARTx, USART_STATUS_REG) & USART_FLAG_ERRORS;
+    if (rx_errs) {
+      WRITE_REG(usart->USARTx->ICR, rx_errs);
+      if (cb->on_error) cb->on_error();
+    }
+#endif
     if (cb->on_idle) cb->on_idle(cb->on_idle_ctx);
   }
 }
