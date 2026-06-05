@@ -191,6 +191,15 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
 
 uint8_t modelBitmap[MODEL_BITMAP_SIZE] __DMA;
 
+void loadLogoBitmap(uint8_t* bitmap)
+{
+  RleBitmap pic(logo_taranis, 0);
+  *bitmap++ = pic.getWidth();
+  *bitmap++ = pic.getRawRows();
+  for(int i=0; i < MODEL_BITMAP_SIZE-2; i++)
+    *bitmap++ = pic.getNext();
+}
+
 bool loadModelBitmap(char * name, uint8_t * bitmap)
 {
   uint8_t len = zlen(name, LEN_BITMAP_NAME);
@@ -204,10 +213,6 @@ bool loadModelBitmap(char * name, uint8_t * bitmap)
   }
 
   // In all error cases, we set the default logo
-  RleBitmap pic(logo_taranis, 0);
-  *bitmap++ = pic.getWidth();
-  *bitmap++ = pic.getRawRows();
-  for(int i=0; i < MODEL_BITMAP_SIZE-2; i++)
-    *bitmap++ = pic.getNext();
+  loadLogoBitmap(bitmap);
   return false;
 }

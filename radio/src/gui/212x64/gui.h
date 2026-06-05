@@ -48,6 +48,7 @@
 
 extern uint8_t modelBitmap[MODEL_BITMAP_SIZE];
 bool loadModelBitmap(char * name, uint8_t * bitmap);
+void loadLogoBitmap(uint8_t* bitmap);
 
 // Temporary no highlight
 extern uint8_t noHighlightCounter;
