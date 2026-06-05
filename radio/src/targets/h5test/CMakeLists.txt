@@ -7,7 +7,7 @@ option(INTERNAL_MODULE_PPM "Support for PPM internal module" OFF)
 option(AUTOUPDATE "Auto update internal chips from SD" OFF)
 option(BIND_KEY "Enable bind button" OFF)
 option(BLUETOOTH "FrSky BT module support" OFF)
-option(RGBLEDS "WS2812 addressable LED support" OFF)
+option(RGBLEDS "WS2812 addressable LED support" ON)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
@@ -108,9 +108,12 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
-#  targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(RGBLEDS)
+  target_sources(board PRIVATE targets/common/arm/stm32/stm32_ws2812.cpp)
+endif()
 
 if(USB_CHARGE_LED)
   add_definitions(-DUSB_CHARGE_LED)

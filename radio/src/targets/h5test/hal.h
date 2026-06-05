@@ -42,14 +42,15 @@ GPDMA2
 Channel0:  EXTMODULE_TIMER_DMA_STREAM (TIM1_UP)
 Channel1:  EXTMODULE_USART_TX_DMA_STREAM (USART1 TX)
 Channel2:  EXTMODULE_USART_RX_DMA_STREAM (USART1 RX)
+Channel3:  LED_STRIP_TIMER_DMA_STREAM (TIM5_UP, RGBLEDS)
 
-(RGBLEDS / LED_STRIP not ported to H5 - see LED Strip section)
 LCD: OLED on SPI1 via stm32_spi driver (no DMA at runtime); the LCD_DMA defines
 are legacy F4-style names kept only for the non-OLED LCD_W!=128 code path.
 
 TIM1:	EXTMODULE_TIMER
 TIM2:	HAPTIC_TIMER (CH3)
 TIM3:	TRAINER_TIMER
+TIM5:	LED_STRIP_TIMER (CH4, RGBLEDS)
 TIM6:	AUDIO_TIMER
 TIM12:	MIXER_SCHEDULER_TIMER
 TIM14:	MS_TIMER
@@ -205,26 +206,21 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LED_BLUE_GPIO                 GPIO_PIN(GPIOB, 13)
 #define LED_GREEN_GPIO                GPIO_PIN(GPIOB, 14)
 
-// LED Strip
+// LED Strip (TIM5_CH4 on PA3, driven by GPDMA2 ch3 on the timer UPDATE event)
 #if defined(RGBLEDS)
-  // NOT ported to STM32H5: the DMA defines below use F4-style names
-  // (DMA2_Stream5_IRQn, LL_DMA_STREAM_5) that don't exist on H5, and
-  // LED_STRIP_TIMER (TIM2) collides with HAPTIC_TIMER. Port to GPDMA + a free
-  // timer before enabling RGBLEDS on this target.
-  #error "RGBLEDS not supported on h5test yet (see hal.h LED Strip section)"
-  #define LED_STRIP_LENGTH                  1
+  #define LED_STRIP_LENGTH                  20
   #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            0
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 3) // PA.3 / TIM2_CH4
-  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1
-  #define LED_STRIP_TIMER                   TIM2
-  #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
+  #define BLING_LED_STRIP_LENGTH            20
+  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 3) // PA.3 / TIM5_CH4
+  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_2 // TIM3/4/5
+  #define LED_STRIP_TIMER                   TIM5
+  #define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH4
-  #define LED_STRIP_TIMER_DMA               DMA2
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_GPDMA2_REQUEST_TIM2_CH4
-  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
-  #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
-  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+  #define LED_STRIP_TIMER_DMA               GPDMA2
+  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_GPDMA2_REQUEST_TIM5_UP
+  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_CHANNEL_3
+  #define LED_STRIP_TIMER_DMA_IRQn          GPDMA2_Channel3_IRQn
+  #define LED_STRIP_TIMER_DMA_IRQHandler    GPDMA2_Channel3_IRQHandler
   #define LED_STRIP_REFRESH_PERIOD          50  //ms
 #endif
 
