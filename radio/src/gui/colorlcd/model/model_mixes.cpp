@@ -164,12 +164,12 @@ class MixLineButton : public InputMixButtonBase
     }
   }
 
+  bool isActive() const override { return isMixActive(index); }
+
   static LAYOUT_VAL_SCALED(MPLEX_XO, 28)
 
  protected:
   MPlexIcon* mplex = nullptr;
-
-  bool isActive() const override { return isMixActive(index); }
 };
 
 class MixGroup : public InputMixGroupBase
@@ -301,7 +301,7 @@ InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, u
       uint8_t idx = button->getIndex();
       deleteMix(idx);
     });
-    return 0;
+    return button->isActive();
   });
 
   return button;
