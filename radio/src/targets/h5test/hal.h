@@ -144,14 +144,17 @@
 #define ADC_DIRECTION {-1,1,-1,1,  -1,-1, 1,-1}
 
 // Flysky Hall Stick (UART7 on PE7/PE8 - mutually exclusive with AUX_SERIAL)
+// RX uses GPDMA1 ch4 (a linear-only channel like intmodule's ch2). Channels 6/7
+// are the 2D-capable channels and the circular-RX linked-list node misbehaves
+// there, so RX DMA must stay on channels 0-5. TX is interrupt driven.
 #if defined(FLYSKY_GIMBAL)
   #define FLYSKY_HALL_SERIAL_USART                 UART7
   #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOE, 8)
   #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOE, 7)
   #define FLYSKY_HALL_SERIAL_USART_IRQn            UART7_IRQn
-  // #define FLYSKY_HALL_SERIAL_DMA                GPDMA1
-  // #define FLYSKY_HALL_DMA_Stream_RX             LL_DMA_CHANNEL_6
-  // #define FLYSKY_HALL_DMA_Channel              LL_GPDMA1_REQUEST_UART7_RX
+  #define FLYSKY_HALL_SERIAL_DMA                   GPDMA1
+  #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_CHANNEL_4
+  #define FLYSKY_HALL_DMA_Channel                  LL_GPDMA1_REQUEST_UART7_RX
 #endif
 
 // PWR and LED driver
