@@ -214,6 +214,7 @@ void menuRadioSetup(event_t event)
       0, // contrast
       CASE_PCBX9E_PCBX9DP(0) // backlight color
       0, // flash beep
+    0,
     CASE_SPLASH_PARAM(0) // disable splash
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed

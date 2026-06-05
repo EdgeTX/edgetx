@@ -176,7 +176,7 @@ void menuRadioSetup(event_t event)
     HEADER_LINE_COLUMNS
     CASE_RTCLOCK(2) CASE_RTCLOCK(2)
     // Sound
-    0, 
+    0,
      CASE_AUDIO(SOUND_ROW(0))
      CASE_BUZZER(SOUND_ROW(0))
      SOUND_ROW(0),
@@ -216,6 +216,7 @@ void menuRadioSetup(event_t event)
      CASE_BACKLIGHT(0)
      CASE_CONTRAST(0)
      CASE_BACKLIGHT(0)
+    0,
     CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
