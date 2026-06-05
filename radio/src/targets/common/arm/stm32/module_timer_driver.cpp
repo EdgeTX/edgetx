@@ -62,7 +62,11 @@ static bool module_timer_tx_complete(void* ctx)
 {
   auto tim = (const stm32_pulse_timer_t*)ctx;
 
-  if (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream)) 
+#if defined(STM32H7RS) || defined(STM32H5)
+  if (LL_DMA_IsEnabledChannel(tim->DMAx, tim->DMA_Stream))
+#else
+  if (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream))
+#endif
   {
     return false;
   }
