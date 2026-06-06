@@ -181,7 +181,7 @@ void pwrResetHandler();
 #define pwrForcePressed()   false
 
 // Backlight driver
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
 #define BACKLIGHT_DISABLE()             lcdSetRefVolt(0)
 #define BACKLIGHT_FORCED_ON             255
 #else
@@ -199,7 +199,7 @@ bool isBacklightEnabled();
   void backlightEnable(uint8_t level, uint8_t color);
   #define BACKLIGHT_ENABLE() \
     backlightEnable(currentBacklightBright, g_eeGeneral.backlightColor)
-#elif defined(OLED_SCREEN)
+#elif OLED_SCREEN
   #define BACKLIGHT_ENABLE() lcdSetRefVolt(currentBacklightBright)
 #else
   void backlightEnable(uint8_t level);
@@ -255,7 +255,7 @@ void ledBlue();
 #define LCD_CONTRAST_DEFAULT            25
 #else
 #define IS_LCD_RESET_NEEDED()           true
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
 #define LCD_CONTRAST_MIN                2
 #define LCD_CONTRAST_MAX                254
 #else
@@ -269,7 +269,7 @@ void ledBlue();
 #define LCD_BRIGHTNESS_DEFAULT          30
 #endif
 
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   #define LCD_CONTRAST_DEFAULT          254 // full brightness
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)
   #define LCD_CONTRAST_DEFAULT          20
@@ -278,7 +278,7 @@ void ledBlue();
 #else
   #define LCD_CONTRAST_DEFAULT          15
 #endif
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   // add offset 2px because driver (SH1106) of the 1.3 OLED is for a 132 display
   #define LCD_W_OFFSET                  0x02
 #endif

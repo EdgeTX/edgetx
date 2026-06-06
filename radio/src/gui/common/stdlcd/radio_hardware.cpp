@@ -95,7 +95,7 @@ enum {
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
-#if (defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)) && (LCD_W == 128)
+#if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
   ITEM_RADIO_HARDWARE_SCREEN_LABEL,
   ITEM_RADIO_HARDWARE_SCREEN_INVERT,
 #endif
@@ -367,7 +367,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER] = HIDDEN_ROW;
   }
 
-#if (defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)) && (LCD_W == 128)
+#if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
   tab[ITEM_RADIO_HARDWARE_SCREEN_LABEL] = READONLY_ROW;
   tab[ITEM_RADIO_HARDWARE_SCREEN_INVERT] = 0;
 #endif
@@ -612,7 +612,7 @@ void menuRadioHardware(event_t event)
         }
         break;
 
-#if (defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)) && (LCD_W == 128)
+#if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
       case ITEM_RADIO_HARDWARE_SCREEN_LABEL:
         lcdDrawTextAlignedLeft(y, STR_SCREEN);
         break;

@@ -555,9 +555,9 @@ void menuRadioSetup(event_t event)
         if(attr) g_eeGeneral.inactivityTimer = checkIncDec(event, g_eeGeneral.inactivityTimer, 0, 250, EE_GENERAL); //0..250minutes
         break;
 
-#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
+#if defined(BACKLIGHT_GPIO) || OLED_SCREEN
       case ITEM_RADIO_SETUP_BACKLIGHT_LABEL:
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
         lcdDrawTextAlignedLeft(y, STR_BRIGHTNESS);
 #else
         lcdDrawTextAlignedLeft(y, STR_BACKLIGHT_LABEL);
@@ -581,7 +581,7 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_BRIGHTNESS:
         lcdDrawTextIndented(y, STR_BRIGHTNESS);
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
@@ -610,7 +610,7 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
       case ITEM_RADIO_SETUP_CONTRAST:
         lcdDrawTextIndented(y, STR_CONTRAST);
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
