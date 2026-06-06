@@ -1331,7 +1331,7 @@ int cliSerialPassthrough(const char **argv)
     // TODO:
     //  - external module (S.PORT?)
     default:
-      cliSerialPrint("%s: invalid port # '%i'", port_n);
+      cliSerialPrint("%s: invalid port # '%i'", argv[0], port_n);
       return -1;
     }
   } else if (!strcmp("gimbals", port_type)) {
@@ -1344,11 +1344,11 @@ int cliSerialPassthrough(const char **argv)
     initCB = spGimbalInit;
     deinitCB = spGimbalDeInit;
 #else
-    cliSerialPrint("%s: serial gimbals not supported");
+    cliSerialPrint("%s: serial gimbals not supported", argv[0]);
     return -1;
 #endif
   } else {
-    cliSerialPrint("%s: invalid port type '%s'", port_type);
+    cliSerialPrint("%s: invalid port type '%s'", argv[0], port_type);
     return -1;
   }
 
