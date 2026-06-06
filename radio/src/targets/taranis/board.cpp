@@ -163,7 +163,7 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
-#if defined(STATUS_LEDS)
+#if STATUS_LEDS
   ledInit();
 #if !defined(POWER_LED_BLUE)
   ledBlue();
@@ -201,7 +201,7 @@ void boardInit()
       if (getBatteryVoltage() >= 780) setFSLedON(3);
       if (getBatteryVoltage() >= 820) setFSLedON(4);
       if (getBatteryVoltage() >= 842) setFSLedON(5);
-#elif defined(STATUS_LEDS)
+#elif STATUS_LEDS
       // Use Status LED to indicate battery charge level instead
       if (getBatteryVoltage() <= 660) ledRed();         // low discharge
       else if (getBatteryVoltage() <= 842) ledBlue();   // charging
@@ -290,7 +290,7 @@ void boardOff()
   rgbLedClearAll();
 #endif
 
-#if defined(STATUS_LEDS) && !defined(BOOT)
+#if STATUS_LEDS && !defined(BOOT)
   ledOff();
 #endif
 

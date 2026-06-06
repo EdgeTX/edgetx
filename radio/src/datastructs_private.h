@@ -1181,7 +1181,7 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t getBrightness() const
   {
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
     return contrast;
 #else
     return backlightBright;

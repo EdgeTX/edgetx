@@ -43,7 +43,7 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
   return editChoice(RADIO_SETUP_2ND_COLUMN, y, title, nullptr, value, -2, +2, attr, event, INDENT_WIDTH);
 }
 
-#if defined(HAS_BACKLIGHT_COLOR)
+#if HAS_BACKLIGHT_COLOR
   #define CASE_HAS_BACKLIGHT_COLOR(x) x,
 #else
   #define CASE_HAS_BACKLIGHT_COLOR(x)
@@ -591,7 +591,7 @@ void menuRadioSetup(event_t event)
         }
         break;
 
-#if defined(HAS_BACKLIGHT_COLOR)
+#if HAS_BACKLIGHT_COLOR
       case ITEM_RADIO_SETUP_BACKLIGHT_COLOR:
         lcdDrawTextIndented(y, STR_BLCOLOR);
         drawSlider(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.backlightColor, 20, attr);

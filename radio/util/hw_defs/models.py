@@ -370,7 +370,7 @@ class HardwareDefinition(BaseModel):
     display: Display
     leds: Optional[LEDS] = None
     backlight: Optional[Backlight] = None
-    timers: Optional[Timers] = None
+    timers: Timers
 
     @staticmethod
     def from_json(data: Union[str, bytes, bytearray]) -> "HardwareDefinition":

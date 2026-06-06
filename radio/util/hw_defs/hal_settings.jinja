@@ -9,7 +9,11 @@
 // Timers
 {% for name, val in timers %}
 {% if val is not none %}
+{% if val is sameas true or val is sameas false %}
+#define {{ name | upper }} {{ val | tojson }}
+{% else %}
 #define {{ name | upper }} {{ val }}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif -%}
@@ -19,7 +23,11 @@
 // Display
 {% for name, val in display %}
 {% if val is not none %}
+{% if val is sameas true or val is sameas false %}
+#define {{ name | upper }} {{ val | tojson }}
+{% else %}
 #define {{ name | upper }} {{ val }}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif -%}
@@ -29,7 +37,11 @@
 // Backlight
 {% for name, val in backlight %}
 {% if val is not none %}
+{% if val is sameas true or val is sameas false %}
+#define {{ name | upper }} {{ val | tojson }}
+{% else %}
 #define {{ name | upper }} {{ val }}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif -%}
@@ -39,7 +51,11 @@
 // LEDS
 {% for name, val in leds %}
 {% if val is not none %}
+{% if val is sameas true or val is sameas false %}
+#define {{ name | upper }} {{ val | tojson }}
+{% else %}
 #define {{ name | upper }} {{ val }}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif -%}

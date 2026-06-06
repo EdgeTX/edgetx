@@ -319,7 +319,7 @@ void lcdSetContrast(bool useDefault)
 {
 #if defined(BOOT)
   lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
-#elif defined(OLED_SCREEN)
+#elif OLED_SCREEN
   // Handled by brightness feature
   if (useDefault)
     lcdSetRefVolt(LCD_CONTRAST_DEFAULT);

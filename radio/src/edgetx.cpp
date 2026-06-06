@@ -607,7 +607,7 @@ void calcBacklightValue(int16_t source)
 #if defined(COLORLCD)
   requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
       ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
-#elif defined(OLED_SCREEN)
+#elif OLED_SCREEN
   requiredBacklightBright = (raw + 1024) * 254 / 2048;
 #else
   requiredBacklightBright = (1024 - raw) * 100 / 2048;
