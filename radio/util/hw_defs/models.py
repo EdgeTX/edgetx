@@ -180,7 +180,7 @@ class Timers(BaseModel):
     mixer_scheduler_timer_irqhandler: str
 
 class Backlight(BaseModel):
-    has_backlight_color: Optional[bool] = None
+    has_backlight_color: Optional[bool] = False
     backlight_gpio: Optional[str] = None
     backlight_timer: Optional[str] = None
     backlight_timer_channel: Optional[str] = None
@@ -193,9 +193,9 @@ class Display(BaseModel):
     lcd_phys_w: int
     lcd_phys_h: int
     lcd_depth: int
-    oled_screen: Optional[bool] = None
-    lcd_horizontal_invert: Optional[bool] = None
-    lcd_vertical_invert: Optional[bool] = None
+    oled_screen: Optional[bool] = False
+    lcd_horizontal_invert: Optional[bool] = False
+    lcd_vertical_invert: Optional[bool] = False
     ltdc_irq_prio: Optional[int] = None
     dma_screen_irq_prio: Optional[int] = None
 
@@ -217,7 +217,7 @@ class LEDS(BaseModel):
     led_strip_timer_dma_irqn: Optional[str] = None
     led_strip_timer_dma_irqhandler: Optional[str] = None
     led_strip_refresh_period: Optional[int] = None
-    status_leds: Optional[bool] = None
+    status_leds: Optional[bool] = False
     gpio_led_gpio_on: Optional[str] = None
     gpio_led_gpio_off: Optional[str] = None
     led_red_gpio: Optional[str] = None
