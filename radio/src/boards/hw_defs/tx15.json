@@ -386,8 +386,12 @@
   "imu": {
     "imu_i2c_bus": "I2C_Bus_1",
     "imu_int_gpio": "GPIO_PIN(GPIOG, 13)",
-    "use_exti15_10_irq": true,
-    "exti15_10_irq_priority": 6
+    "exti": [
+      {
+        "irq": "EXTI15_10_IRQ",
+        "priority": 6
+      }
+    ]
   },
   "rotenc": {
     "rotary_encoder_inverted": true,
@@ -398,10 +402,16 @@
     "rotary_encoder_position": "(((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))",
     "rotary_encoder_exti_line1": "LL_EXTI_LINE_7",
     "rotary_encoder_exti_line2": "LL_EXTI_LINE_8",
-    "use_exti7_irq": true,
-    "exti7_irq_priority": 5,
-    "use_exti8_irq": true,
-    "exti8_irq_priority": 5,
+    "exti": [
+      {
+        "irq": "EXTI7_IRQ",
+        "priority": 5
+      },
+      {
+        "irq": "EXTI8_IRQ",
+        "priority": 5
+      }
+    ],
     "rotary_encoder_exti_port_a": "LL_SYSCFG_EXTI_PORTI",
     "rotary_encoder_exti_port_b": "LL_SYSCFG_EXTI_PORTJ",
     "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE7",
