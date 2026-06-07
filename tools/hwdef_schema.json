@@ -301,6 +301,48 @@
         "mixer_scheduler_timer_irqn":        { "type": "string" },
         "mixer_scheduler_timer_irqhandler":  { "type": "string" }
       }
+    },
+
+    "imu": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "imu_i2c_bus":                       { "type": "string" },
+        "imu_int_gpio":                      { "type": "string" },
+        "use_exti15_10_irq":                 { "type": "boolean" },
+        "exti15_10_irq_priority":            { "type": "integer" },
+        "imu_i2c_address":                   { "type": "string" }
+      }
+    },
+
+    "rotenc": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rotary_encoder_inverted":           { "type": "boolean" },
+        "rotary_encoder_gpio":               { "type": "string" },
+        "rotary_encoder_gpio_a":             { "type": "string" },
+        "rotary_encoder_gpio_b":             { "type": "string" },
+        "rotary_encoder_gpio_pin_a":         { "type": "string" },
+        "rotary_encoder_gpio_pin_b":         { "type": "string" },
+        "rotary_encoder_position":           { "type": "string" },
+        "rotary_encoder_exti_line1":         { "type": "string" },
+        "rotary_encoder_exti_line2":         { "type": "string" },
+        "use_exti7_irq":                     { "type": "boolean" },
+        "exti7_irq_priority":                { "type": "integer" },
+        "use_exti8_irq":                     { "type": "boolean" },
+        "exti8_irq_priority":                { "type": "integer" },
+        "use_exti9_5_irq":                   { "type": "boolean" },
+        "exti9_5_irq_priority":              { "type": "integer" },
+        "rotary_encoder_exti_port":          { "type": "string" },
+        "rotary_encoder_exti_port_a":        { "type": "string" },
+        "rotary_encoder_exti_port_b":        { "type": "string" },
+        "rotary_encoder_exti_sys_line1":     { "type": "string" },
+        "rotary_encoder_exti_sys_line2":     { "type": "string" },
+        "rotary_encoder_timer":              { "type": "string" },
+        "rotary_encoder_timer_irqn":         { "type": "string" },
+        "rotary_encoder_timer_irqhandler":   { "type": "string" }
+      }
     }
   }
 }
