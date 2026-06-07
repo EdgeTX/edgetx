@@ -482,8 +482,10 @@ void sendRlink(uint8_t*& p_buf, uint8_t module)
   // Multi_Buffer[5..12] == payload to receiver
   // Multi_Buffer[14]    == 0 RX buffer can be written / >0 Lua has not consumed it
   // Multi_Buffer[15..]  == payload from receiver
-  if (Multi_Buffer && memcmp(Multi_Buffer, "RLnk", 4) == 0 && Multi_Buffer[4] >= 1 && Multi_Buffer[4] <= 8) {
-    for (uint8_t i = 0; i < Multi_Buffer[4]; i++) {
+  if (Multi_Buffer && memcmp(Multi_Buffer, "RLnk", 4) == 0) {
+    uint8_t payloadLen = Multi_Buffer[4];
+    if (payloadLen < 1 || payloadLen > 8) return;
+    for (uint8_t i = 0; i < payloadLen; i++) {
       sendMulti(p_buf, Multi_Buffer[5 + i]);
     }
     Multi_Buffer[4] = 0x00; // Data sent
