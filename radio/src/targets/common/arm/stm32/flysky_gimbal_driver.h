@@ -107,7 +107,6 @@ enum
   GET_ID,
   GET_LENGTH,
   GET_DATA,
-  GET_STATE,
   GET_CHECKSUM,
   CHECKSUM,
 };

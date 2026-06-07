@@ -105,12 +105,14 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
     case GET_LENGTH:
       hallBuffer->length = ch;
       hallBuffer->dataIndex = 0;
-      hallBuffer->status = GET_DATA;
-      if(hallBuffer->length > HALLSTICK_BUFF_SIZE - 5) { // buffer size - header size (1 byte header + 1 byte ID + 1 byte length + 2 bytes CRC = 5 bytes)
+      
+      if (hallBuffer->length > HALLSTICK_BUFF_SIZE - 5) { // buffer size - header size (1 byte header + 1 byte ID + 1 byte length + 2 bytes CRC = 5 bytes)
         hallBuffer->status = GET_START;
       } else if (0 == hallBuffer->length) {
         hallBuffer->status = GET_CHECKSUM;
         hallBuffer->checkSum = 0;
+      } else {
+        hallBuffer->status = GET_DATA; // length is in a valid range, next state should extract data
       }
       break;
 
@@ -119,15 +121,9 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
       if (hallBuffer->dataIndex >= hallBuffer->length) {
         hallBuffer->checkSum = 0;
         hallBuffer->dataIndex = 0;
-        hallBuffer->status = GET_STATE;
+        hallBuffer->status = GET_CHECKSUM;
       }
       break;
-
-    case GET_STATE:
-      hallBuffer->checkSum = 0;
-      hallBuffer->dataIndex = 0;
-      hallBuffer->status = GET_CHECKSUM;
-      // fall through!
 
     case GET_CHECKSUM:
       hallBuffer->checkSum |= ch << ((hallBuffer->dataIndex++) * 8);
