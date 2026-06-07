@@ -422,8 +422,12 @@
     "rotary_encoder_position": "(((ROTARY_ENCODER_GPIO_A->IDR >> 6) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 6) & 0x02))",
     "rotary_encoder_exti_line1": "LL_EXTI_LINE_6",
     "rotary_encoder_exti_line2": "LL_EXTI_LINE_7",
-    "use_exti9_5_irq": true,
-    "exti9_5_irq_priority": 9,
+    "exti": [
+      {
+        "irq": "EXTI9_5_IRQ",
+        "priority": 9
+      }
+    ],
     "rotary_encoder_exti_port_a": "LL_SYSCFG_EXTI_PORTA",
     "rotary_encoder_exti_port_b": "LL_SYSCFG_EXTI_PORTA",
     "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE6",
