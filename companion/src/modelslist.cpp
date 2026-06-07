@@ -706,8 +706,8 @@ void ModelsListModel::refresh()
 
     if (!model.isEmpty() && current) {
       QString modelName;
-      if (strlen(model.name) > 0) {
-        modelName = model.name;
+      if (!model.name.empty()) {
+        modelName = model.name.toQString();
       }
       else {
         /*: Translators: do NOT use accents here, this is a default model name. */
@@ -737,7 +737,7 @@ void ModelsListModel::refresh()
       current->setData(currentColumn++, rxs);
     }
    if (hasLabels) {
-      QStringList labels = RadioData::fromCSV(QString::fromUtf8(model.labels));
+      QStringList labels = RadioData::fromCSV(QString::fromUtf8(model.labels.c_str()));
      current->setData(currentColumn++, labels.join(QChar(0x2022)));
    }
   }

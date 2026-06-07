@@ -50,11 +50,11 @@ ModelData & ModelData::operator=(const ModelData & src)
 
 void ModelData::copy(const ModelData & src)
 {
-  memcpy(&semver, &src.semver, sizeof(semver));
+  semver = src.semver;
   used = src.used;
-  memcpy(&name, &src.name, sizeof(name));
+  name = src.name;
   filename = src.filename;
-  memcpy(&labels, &src.labels, sizeof(labels));
+  labels = src.labels;
   modelIndex = src.modelIndex;
   modelUpdated = src.modelUpdated;
   modelErrors = src.modelErrors;
@@ -230,11 +230,11 @@ void ModelData::clear()
   // memset(reinterpret_cast<void *>(this), 0, sizeof(ModelData));
   // as struct contains complex data types eg std::string
 
-  memset(&semver, 0, sizeof(semver));
+  semver.clear();
   used = false;
-  memset(&name, 0, sizeof(name));
+  name.clear();
   filename.clear();
-  memset(&labels, 0, sizeof(labels));
+  labels.clear();
   modelIndex = -1;  // an invalid index, this is managed by the TreeView data model
   modelUpdated = false;
   modelErrors = false;
@@ -419,7 +419,7 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
 {
   clear();
   used = true;
-  sprintf(name, "MODEL%02d", id + 1);
+  name = QString::asprintf("MODEL%02d", id + 1);
 
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
@@ -592,7 +592,7 @@ void ModelData::convert(RadioDataConversionState & cstate)
 {
   // Here we can add explicit conversions when moving from one board to another
 
-  QString origin = QString(name);
+  QString origin = name.toQString();
   if (origin.isEmpty())
     origin = QString::number(cstate.modelIdx+1);
   cstate.setOrigin(tr("Model: ") % origin);
@@ -2180,7 +2180,7 @@ const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings &
 
 QString ModelData::getChecklistFilename() const
 {
-  return QString(name).replace(" ", "_").append(".txt").toLower();
+  return name.toQString().replace(" ", "_").append(".txt").toLower();
 }
 
 void ModelData::gvarClear(const int index, bool updateRefs)
