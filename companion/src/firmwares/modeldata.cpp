@@ -53,7 +53,7 @@ void ModelData::copy(const ModelData & src)
   memcpy(&semver, &src.semver, sizeof(semver));
   used = src.used;
   memcpy(&name, &src.name, sizeof(name));
-  memcpy(&filename, &src.filename, sizeof(filename));
+  filename = src.filename;
   memcpy(&labels, &src.labels, sizeof(labels));
   modelIndex = src.modelIndex;
   modelUpdated = src.modelUpdated;
@@ -233,7 +233,7 @@ void ModelData::clear()
   memset(&semver, 0, sizeof(semver));
   used = false;
   memset(&name, 0, sizeof(name));
-  memset(&filename, 0, sizeof(filename));
+  filename.clear();
   memset(&labels, 0, sizeof(labels));
   modelIndex = -1;  // an invalid index, this is managed by the TreeView data model
   modelUpdated = false;

@@ -78,10 +78,11 @@ TEST(BoundedString, Comparison)
   BoundedString<16> a("abc");
   BoundedString<16> b("abc");
   BoundedString<16> c("xyz");
-  EXPECT_EQ(a, b);
-  EXPECT_NE(a, c);
-  EXPECT_EQ(a, std::string_view("abc"));
-  EXPECT_NE(a, std::string_view("abcd"));
+  EXPECT_TRUE(a == b);
+  EXPECT_TRUE(a != c);
+  EXPECT_TRUE(a == std::string("abc"));
+  EXPECT_TRUE(a != std::string("abcd"));
+  EXPECT_TRUE(a == "abc");        // const char*
 }
 
 // --- YAML round-trip ------------------------------------------------------

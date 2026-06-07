@@ -151,9 +151,9 @@ bool LabelsStorageFormat::load(RadioData & radioData)
       return false;
 
     model.modelIndex = modelIdx;
-    strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
+    model.filename = mc.filename;
 
-    if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename, model.filename, sizeof(model.filename)))
+    if (hasLabels && model.filename == radioData.generalSettings.currModelFilename)
       radioData.generalSettings.currModelIndex = modelIdx;
 
     model.used = true;

@@ -78,10 +78,15 @@ class BoundedString
   // std::string (and, via QString's std::string ctor, much of the Qt UI).
   operator const std::string&() const { return s_; }
 
-  friend bool operator==(const BoundedString& a, const BoundedString& b) { return a.s_ == b.s_; }
-  friend bool operator!=(const BoundedString& a, const BoundedString& b) { return a.s_ != b.s_; }
-  friend bool operator==(const BoundedString& a, std::string_view b) { return a.s_ == b; }
-  friend bool operator!=(const BoundedString& a, std::string_view b) { return a.s_ != b; }
-  friend bool operator==(std::string_view a, const BoundedString& b) { return a == b.s_; }
-  friend bool operator!=(std::string_view a, const BoundedString& b) { return a != b.s_; }
+  // Explicit comparison overloads (std::string's own operator== is a
+  // non-member template, so the implicit conversion above can't drive it).
+  // The const char* overload binds legacy char[]/literals via array-to-pointer
+  // (a standard conversion), so it wins cleanly over the others rather than
+  // tying with them and producing an ambiguity.
+  bool operator==(const BoundedString& o) const { return s_ == o.s_; }
+  bool operator!=(const BoundedString& o) const { return s_ != o.s_; }
+  bool operator==(const std::string& o) const { return s_ == o; }
+  bool operator!=(const std::string& o) const { return s_ != o; }
+  bool operator==(const char* o) const { return s_ == o; }
+  bool operator!=(const char* o) const { return s_ != o; }
 };

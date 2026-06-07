@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "boundedstring.h"
 #include "constants.h"
 #include "curvedata.h"
 #include "customfunctiondata.h"
@@ -89,6 +90,7 @@ enum TrainerMode {
 };
 
 #define MODEL_NAME_LEN 15
+#define MODEL_FILENAME_LEN 16  // must match radio LEN_MODEL_FILENAME (dataconstants.h)
 #define INPUT_NAME_LEN 4
 #define CPN_MAX_BITMAP_LEN 14
 
@@ -132,7 +134,7 @@ class ModelData {
     char      semver[8 + 1];
     bool      used;
     char      name[MODEL_NAME_LEN + 1];
-    char      filename[16+1];
+    BoundedString<MODEL_FILENAME_LEN> filename;
     char      labels[100];
     int       modelIndex;      // Companion only, temporary index position managed by data model.
     bool      modelUpdated;    // Companion only, used to highlight if changed in models list
