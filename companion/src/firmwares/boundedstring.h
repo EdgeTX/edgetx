@@ -87,6 +87,6 @@ class BoundedString
   bool operator!=(const BoundedString& o) const { return s_ != o.s_; }
   bool operator==(const std::string& o) const { return s_ == o; }
   bool operator!=(const std::string& o) const { return s_ != o; }
-  bool operator==(const char* o) const { return s_ == o; }
-  bool operator!=(const char* o) const { return s_ != o; }
+  bool operator==(const char* o) const { return o ? s_ == o : s_.empty(); }
+  bool operator!=(const char* o) const { return o ? s_ != o : !s_.empty(); }
 };
