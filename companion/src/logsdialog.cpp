@@ -314,31 +314,49 @@ void LogsDialog::exportToGoogleEarth()
   // filter data points
   QList<QStringList> dataPoints = filterGePoints(csvlog);
   int n = dataPoints.count(); // number of points to export
-  if (n==0) return;
+  if (n == 0) return;
 
-  int gpscol=0, altcol=0, speedcol=0;
+  int gpscol = 0, altcol = 0, speedcol = 0, datecol = 0, timecol = 0;
   double altMultiplier = 1.0;
 
-  QSet<int> nondataCols;
-  for (int i=1; i<dataPoints.at(0).count(); i++) {
+  QSet<int> extradataCols;
+
+  for (int i = 1; i < dataPoints.at(0).count(); i++) {
+    // Date and Time
     // Long,Lat,Course,GPS Speed,GPS Alt
-    if (dataPoints.at(0).at(i) == "GPS") {
+    bool incExtraData = true;
+
+    if (dataPoints.at(0).at(i) == "Date") {
+      datecol=i;
+      incExtraData = false;
+    } else if (dataPoints.at(0).at(i) == "Time") {
+      timecol=i;
+      incExtraData = false;
+    } else if (dataPoints.at(0).at(i) == "GPS") {
       gpscol=i;
-    }
-    if (dataPoints.at(0).at(i).contains("GAlt")) {
+      incExtraData = false;
+    } else if (dataPoints.at(0).at(i).contains("GAlt")) {
       altcol = i;
-      nondataCols << i;
+      incExtraData = false;
       if (dataPoints.at(0).at(i).contains("(ft)")) {
         altMultiplier = 0.3048;    // feet to meters
       }
-    }
-    if (dataPoints.at(0).at(i).contains("GSpd")) {
+    } else if (dataPoints.at(0).at(i).contains("GSpd")) {
       speedcol = i;
-      nondataCols << i;
+      incExtraData = false;
+    }
+
+    if (incExtraData) {
+      for (int j = 0; j < ui->FieldsTW->rowCount(); j++) {
+        if (ui->FieldsTW->item(j, 0) && ui->FieldsTW->item(j, 0)->isSelected() &&
+            ui->FieldsTW->item(j, 0)->data(Qt::DisplayRole).toString() == dataPoints.at(0).at(i)) {
+          extradataCols << i; // save data index not selection list index
+        }
+      }
     }
   }
 
-  if (gpscol==0 ) {
+  if (gpscol == 0 ) {
     return;
   }
 
@@ -372,22 +390,20 @@ void LogsDialog::exportToGoogleEarth()
   outputStream << "\t\t\t<gx:SimpleArrayField name=\"GPSSpeed\" type=\"float\">\n\t\t\t\t<displayName>GPS Speed</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
 
   // declare additional fields
-  for (int i=0; i<dataPoints.at(0).count()-2; i++) {
-    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+2)) {
-      QString origName = dataPoints.at(0).at(i+2);
-      QString safeName = origName;
-      safeName.replace(" ","_");
-      outputStream << "\t\t\t<gx:SimpleArrayField name=\""<< safeName <<"\" ";
-      outputStream << "type=\"string\"";   // additional fields have fixed type: string
-      outputStream << ">\n\t\t\t\t<displayName>" << origName << "</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
-    }
+  for (auto i = extradataCols.cbegin(), end = extradataCols.cend(); i != end; ++i) {
+    QString origName = dataPoints.at(0).at(*i);
+    QString safeName = origName;
+    safeName.replace(" ","_");
+    outputStream << "\t\t\t<gx:SimpleArrayField name=\""<< safeName <<"\" ";
+    outputStream << "type=\"string\"";   // additional fields have fixed type: string
+    outputStream << ">\n\t\t\t\t<displayName>" << origName << "</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
   }
 
   QString planeName;
-  if (logFilename.indexOf("-")>0) {
-    planeName=logFilename.left(logFilename.indexOf("-"));
+  if (logFilename.indexOf("-") > 0) {
+    planeName = logFilename.left(logFilename.indexOf("-"));
   } else {
-    planeName=logFilename;
+    planeName = logFilename;
   }
 
   outputStream << "\t\t</Schema>\n";
@@ -396,16 +412,17 @@ void LogsDialog::exportToGoogleEarth()
   outputStream << "\n\t\t\t\t<gx:Track>\n";
   outputStream << "\n\t\t\t\t\t<altitudeMode>absolute</altitudeMode>\n";
 
-  // time data points
-  for (int i=1; i<n; i++) {
-    QString tstamp=dataPoints.at(i).at(0)+QString("T")+dataPoints.at(i).at(1)+QString("Z");
+  // date and time data points
+  for (int i = 1; i < n; i++) {
+    QString tstamp = dataPoints.at(i).at(datecol) + QString("T") + dataPoints.at(i).at(timecol) + QString("Z");
     outputStream << "\t\t\t\t\t<when>"<< tstamp <<"</when>\n";
   }
 
   // coordinate data points
   outputStream.setRealNumberNotation(QTextStream::FixedNotation);
   outputStream.setRealNumberPrecision(8);
-  for (int i=1; i<n; i++) {
+
+  for (int i = 1; i < n; i++) {
     GpsCoord coord = extractGpsCoordinates(dataPoints.at(i).at(gpscol));
     int altitude = altcol ? (dataPoints.at(i).at(altcol).toFloat() * altMultiplier) : 0;
     outputStream << "\t\t\t\t\t<gx:coord>" << coord.longitude << " " << coord.latitude << " " << altitude << " </gx:coord>\n" ;
@@ -417,23 +434,24 @@ void LogsDialog::exportToGoogleEarth()
   if (speedcol) {
     // gps speed data points
     outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\"GPSSpeed\">\n";
-    for (int i=1; i<n; i++) {
+
+    for (int i = 1; i < n; i++) {
       outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(i).at(speedcol) <<"</gx:value>\n";
     }
     outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
   }
 
   // add values for additional fields
-  for (int i=0; i<dataPoints.at(0).count()-2; i++) {
-    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+2)) {
-      QString safeName = dataPoints.at(0).at(i+2);;
-      safeName.replace(" ","_");
-      outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\""<< safeName <<"\">\n";
-      for (int j=1; j<n; j++) {
-        outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(j).at(i+2) <<"</gx:value>\n";
-      }
-      outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
+  for (auto i = extradataCols.cbegin(), end = extradataCols.cend(); i != end; ++i) {
+    QString safeName = dataPoints.at(0).at(*i);
+    safeName.replace(" ","_");
+    outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\""<< safeName <<"\">\n";
+
+    for (int j = 1; j < n; j++) {
+      outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(j).at(*i) <<"</gx:value>\n";
     }
+
+    outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
   }
 
   outputStream << "\t\t\t\t\t\t</SchemaData>\n\t\t\t\t\t</ExtendedData>\n\t\t\t\t</gx:Track>\n\t\t\t</Placemark>\n\t\t</Folder>\n\t</Document>\n</kml>";
