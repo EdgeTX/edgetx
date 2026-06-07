@@ -413,5 +413,23 @@
     "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "rotenc": {
+    "rotary_encoder_gpio_a": "GPIOA",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_6",
+    "rotary_encoder_gpio_b": "GPIOA",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_7",
+    "rotary_encoder_position": "(((ROTARY_ENCODER_GPIO_A->IDR >> 6) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 6) & 0x02))",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_6",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_7",
+    "use_exti9_5_irq": true,
+    "exti9_5_irq_priority": 9,
+    "rotary_encoder_exti_port_a": "LL_SYSCFG_EXTI_PORTA",
+    "rotary_encoder_exti_port_b": "LL_SYSCFG_EXTI_PORTA",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE6",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE7",
+    "rotary_encoder_timer": "TIM17",
+    "rotary_encoder_timer_irqn": "TIM17_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM17_IRQHandler"
   }
 }

@@ -251,29 +251,4 @@
 #define TOUCH_I2C_BUS                   I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE              100000
 
-
-// Rotary Encoder
-#define ROTARY_ENCODER_NAVIGATION
-#define ROTARY_ENCODER_GPIO             GPIOA
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_6 // PA.06
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_7 // PA.07
-#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 6) & 0x03)
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_6
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_7
-// port extender interrupt
-#if !defined(USE_EXTI9_5_IRQ)
-  #define USE_EXTI9_5_IRQ
-  #define EXTI9_5_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTA
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE6
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE7
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
-// IMU / Gyro
-#define IMU_I2C_BUS I2C_Bus_2
-#define IMU_I2C_ADDRESS 0x6A
-
 #endif // _HAL_H_

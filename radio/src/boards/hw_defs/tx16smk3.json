@@ -496,5 +496,32 @@
     "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "imu": {
+    "imu_i2c_bus": "I2C_Bus_2",
+    "imu_int_gpio": "GPIO_PIN(GPIOG, 13)",
+    "use_exti15_10_irq": true,
+    "exti15_10_irq_priority": 6
+  },
+  "rotenc": {
+    "rotary_encoder_inverted": true,
+    "rotary_encoder_gpio_a": "GPIOI",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_7",
+    "rotary_encoder_gpio_b": "GPIOJ",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_8",
+    "rotary_encoder_position": "(((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_7",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_8",
+    "use_exti7_irq": true,
+    "exti7_irq_priority": 5,
+    "use_exti8_irq": true,
+    "exti8_irq_priority": 5,
+    "rotary_encoder_exti_port_a": "LL_SYSCFG_EXTI_PORTI",
+    "rotary_encoder_exti_port_b": "LL_SYSCFG_EXTI_PORTJ",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE7",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE8",
+    "rotary_encoder_timer": "TIM17",
+    "rotary_encoder_timer_irqn": "TIM17_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM17_IRQHandler"
   }
 }

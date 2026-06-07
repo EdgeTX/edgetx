@@ -92,6 +92,8 @@ def generate_from_template(json_filename, template_filename, target):
             leds=hw_def.leds,
             backlight=hw_def.backlight,
             timers=hw_def.timers,
+            imu=hw_def.imu,
+            rotenc=hw_def.rotenc,
         )
 
         try:

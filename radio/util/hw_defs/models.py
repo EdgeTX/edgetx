@@ -224,6 +224,38 @@ class LEDS(BaseModel):
     led_green_gpio: Optional[str] = None
     led_blue_gpio: Optional[str] = None
 
+class IMU(BaseModel):
+    imu_i2c_bus: Optional[str] = None
+    imu_int_gpio: Optional[str] = None
+    use_exti15_10_irq: Optional[bool] = None
+    exti15_10_irq_priority: Optional[int] = None
+    imu_i2c_address: Optional[str] = None
+
+class RotEnc(BaseModel):
+    rotary_encoder_inverted: Optional[bool] = None
+    rotary_encoder_gpio: Optional[str] = None
+    rotary_encoder_gpio_a: Optional[str] = None
+    rotary_encoder_gpio_b: Optional[str] = None
+    rotary_encoder_gpio_pin_a: Optional[str] = None
+    rotary_encoder_gpio_pin_b: Optional[str] = None
+    rotary_encoder_position: Optional[str] = None
+    rotary_encoder_exti_line1: Optional[str] = None
+    rotary_encoder_exti_line2: Optional[str] = None
+    use_exti7_irq: Optional[bool] = None
+    exti7_irq_priority: Optional[int] = None
+    use_exti8_irq: Optional[bool] = None
+    exti8_irq_priority: Optional[int] = None
+    use_exti9_5_irq: Optional[bool] = None
+    exti9_5_irq_priority: Optional[int] = None
+    rotary_encoder_exti_port: Optional[str] = None
+    rotary_encoder_exti_port_a: Optional[str] = None
+    rotary_encoder_exti_port_b: Optional[str] = None
+    rotary_encoder_exti_sys_line1: Optional[str] = None
+    rotary_encoder_exti_sys_line2: Optional[str] = None
+    rotary_encoder_timer: Optional[str] = None
+    rotary_encoder_timer_irqn: Optional[str] = None
+    rotary_encoder_timer_irqhandler: Optional[str] = None
+
 Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 
 
@@ -371,6 +403,8 @@ class HardwareDefinition(BaseModel):
     leds: Optional[LEDS] = None
     backlight: Optional[Backlight] = None
     timers: Timers
+    imu: Optional[IMU] = None
+    rotenc: Optional[RotEnc] = None
 
     @staticmethod
     def from_json(data: Union[str, bytes, bytearray]) -> "HardwareDefinition":
