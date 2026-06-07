@@ -26,3 +26,4 @@ _wasi_sdk_fetch
 /site/
 
 output/
+.devcontainer/devcontainer-lock.json
