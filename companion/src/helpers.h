@@ -34,6 +34,7 @@
 #include <QComboBox>
 
 extern const QColor colors[CPN_MAX_CURVES];
+extern QString gAppTempPath;
 
 #define TMR_NUM_OPTION  (TMRMODE_COUNT+2*9+2*getCurrentFirmware()->getCapability(LogicalSwitches)-1)
 
@@ -118,6 +119,8 @@ namespace Helpers
   QString concatPath(const QString & str1, const QString & str2, bool onlyonesep = true);
   QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
   QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
+  QString getImagesCacheDir();
+  QString getImagePath(const QString & filename);
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace

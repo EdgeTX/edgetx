@@ -44,6 +44,8 @@
 #include <QtGlobal>
 #include <QFile>
 
+QString gAppTempPath;
+
 using namespace Helpers;
 
 Stopwatch gStopwatch("global");
@@ -365,6 +367,34 @@ QString Helpers::concatPath(QString & str1, const QString & str2, bool onlyonese
 {
   return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
 }
+
+QString Helpers::getImagesCacheDir()
+{
+  if (gAppTempPath.isEmpty())
+    return QString();
+
+  return QDir(gAppTempPath).filePath("IMAGES");
+}
+
+QString Helpers::getImagePath(const QString & filename)
+{
+  if (filename.isEmpty())
+    return QString();
+
+  QString srcpath(Helpers::getImagesCacheDir() % "/" % filename);
+
+  if (srcpath.isEmpty() || !QFileInfo::exists(srcpath) || QFileInfo(srcpath).isDir()) {
+    srcpath = g.currentProfile().sdPath() % "/IMAGES/" % filename;
+
+    if (!QFileInfo::exists(srcpath) || QFileInfo(srcpath).isDir()) {
+      qDebug() << filename << "not found in image cache or sd path.";
+      srcpath = "";
+    }
+  }
+
+  return srcpath;
+}
+
 
 #ifdef __APPLE__
 // Flag when simulator is running

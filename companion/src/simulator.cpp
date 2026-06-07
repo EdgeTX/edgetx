@@ -45,6 +45,7 @@
 #include "translations.h"
 #include "version.h"
 #include "boardfactories.h"
+#include "helpers.h"
 
 using namespace Simulator;
 
@@ -366,6 +367,21 @@ int main(int argc, char *argv[])
   // Set global firmware environment
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
+
+  QString imgDir = Helpers::getImagesCacheDir();
+  QDir dir(imgDir);
+
+  if (dir.exists()) {
+    if (!dir.removeRecursively())
+      qDebug() << "Unable to delete images cache directory" << imgDir;
+    else
+      qDebug() << "Deleted images cache directory" << imgDir;
+  }
+
+  if (!QDir::temp().mkpath(imgDir))
+    qDebug() << "Unable to create images cache directory" << imgDir;
+  else
+    qDebug() << "Created images cache directory" << imgDir;
 
   int result = 0;
   SimulatorMainWindow * mainWindow = new SimulatorMainWindow(nullptr, simOptions.simulatorId, (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
