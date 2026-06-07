@@ -337,7 +337,7 @@
     "backlight_timer": "TIM1",
     "backlight_timer_channel": "LL_TIM_CHANNEL_CH3",
     "backlight_gpio_af": "GPIO_AF1",
-    "backlight_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+    "backlight_timer_freq": "(PERI2_FREQUENCY * TIMER_MULT_APB2)"
   },
   "leds": {
     "led_strip_length": 26,
