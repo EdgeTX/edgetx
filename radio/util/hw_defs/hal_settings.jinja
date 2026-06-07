@@ -11,6 +11,10 @@
 {% if val is not none %}
 {% if val is sameas true or val is sameas false %}
 #define {{ name | upper }} {{ val | tojson }}
+{% elif name.endswith('_irqn') %}
+#define {{ name[:name | length - 1 ] | upper }}n {{ val }}
+{% elif name.endswith('_irqhandler') %}
+#define {{ name[:name | length - 7 ] | upper }}Handler {{ val }}
 {% else %}
 #define {{ name | upper }} {{ val }}
 {% endif %}
@@ -53,6 +57,47 @@
 {% if val is not none %}
 {% if val is sameas true or val is sameas false %}
 #define {{ name | upper }} {{ val | tojson }}
+{% elif name.endswith('_irqn') %}
+#define {{ name[:name | length - 1 ] | upper }}n {{ val }}
+{% elif name.endswith('_irqhandler') %}
+#define {{ name[:name | length - 7 ] | upper }}Handler {{ val }}
+{% else %}
+#define {{ name | upper }} {{ val }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}
+
+{% if imu %}
+
+// IMU
+{% for name, val in imu %}
+{% if val is not none and val is not sameas false %}
+{% if val is sameas true %}
+#define {{ name | upper }}
+{% elif name.endswith('irq_priority') %}
+#define {{ name[:name | length - 8 ] | upper }}Priority {{ val }}
+{% else %}
+#define {{ name | upper }} {{ val }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}
+
+{% if rotenc %}
+
+// Rotary Encoder
+#define ROTARY_ENCODER_NAVIGATION
+{% for name, val in rotenc %}
+{% if val is not none and val is not sameas false %}
+{% if val is sameas true %}
+#define {{ name | upper }}
+{% elif name.endswith('_irq_priority') %}
+#define {{ name[:name | length - 8 ] | upper }}Priority {{ val }}
+{% elif name.endswith('_irqn') %}
+#define {{ name[:name | length - 1 ] | upper }}n {{ val }}
+{% elif name.endswith('_irqhandler') %}
+#define {{ name[:name | length - 7 ] | upper }}Handler {{ val }}
 {% else %}
 #define {{ name | upper }} {{ val }}
 {% endif %}

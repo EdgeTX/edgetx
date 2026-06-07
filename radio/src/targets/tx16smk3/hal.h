@@ -473,39 +473,6 @@ USART6: INTMODULE_USART
 #define EXTI2_IRQ_Priority  9
 #endif
 
-#define IMU_I2C_BUS                     I2C_Bus_2
-#define IMU_INT_GPIO                    GPIO_PIN(GPIOG, 13) // PG.13
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority       6
-#endif
-
-#define ROTARY_ENCODER_NAVIGATION
-// Rotary Encoder
-#define ROTARY_ENCODER_INVERTED
-#define ROTARY_ENCODER_GPIO_A           GPIOI
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_7
-#define ROTARY_ENCODER_GPIO_B           GPIOJ
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_8
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_7
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_8
-#if !defined(USE_EXTI7_IRQ)
-  #define USE_EXTI7_IRQ
-  #define EXTI7_IRQ_Priority 5
-#endif
-#if !defined(USE_EXTI8_IRQ)
-  #define USE_EXTI8_IRQ
-  #define EXTI8_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT_A      LL_SYSCFG_EXTI_PORTI
-#define ROTARY_ENCODER_EXTI_PORT_B      LL_SYSCFG_EXTI_PORTJ
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE7
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE8
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 
 #endif // _HAL_H_
