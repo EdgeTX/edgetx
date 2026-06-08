@@ -1020,21 +1020,17 @@ void WasmSimulatorInterface::run()
 
     // 1. Read the global variable from the WASM module
     // "simuHapticValue" must match exactly what you wrote in simulib.cpp
-    uint32_t currentHaptic = 0;
-
     // Poll haptic state from WASM every 50ms.
     // When haptic fires, emit hapticChanged() to trigger
     // visual (window jitter) and audible (beep) feedback in the simulatormainwindow.cpp
     // as a substitute for physical vibration hardware.
-    if (m_fnGetHaptic && loops > 200) {  // ignore first ~2 seconds
+    if (m_fnGetHaptic) {
       uint32_t argv[1] = {0};
       if (wasm_runtime_call_wasm(m_execEnv, m_fnGetHaptic, 0, argv)) {
         uint32_t currentHapticValue = argv[0];
-        if (currentHapticValue > 0 && m_lastHaptic == 0) {
+        if (currentHapticValue != m_lastHaptic) {
           m_lastHaptic = currentHapticValue;
           emit hapticChanged((int)currentHapticValue);
-        } else if (currentHapticValue == 0) {
-          m_lastHaptic = 0;
         }
       }
     }

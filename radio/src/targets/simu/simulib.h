@@ -188,10 +188,6 @@ void WASM_IMPORT(simuAuxSerialSetBaudrate)(uint8_t port_nr, uint32_t baudrate);
 void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
                                          uint32_t len);
 
-// Haptic feedback state export — polled by WasmSimulatorInterface
-uint32_t WASM_EXPORT(simuGetHaptic)();
-
-
 // -- Internal (not exported) --
 void simuMain();
 std::string simuFatfsGetCurrentPath();

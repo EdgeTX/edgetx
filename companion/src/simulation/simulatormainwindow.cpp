@@ -39,6 +39,8 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QTimer>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
 
 extern AppData g;  // ensure what "g" means
 
@@ -622,24 +624,30 @@ void SimulatorMainWindow::onTxBatteryVoltageChanged(const unsigned int voltage)
 // Audible: system beep as substitute for haptic motor sounds
 
 void SimulatorMainWindow::onHapticChanged(int intensity) {
-  if (intensity > 0) {
-    // AUDIBLE feedback
-    QApplication::beep();
+  Q_UNUSED(intensity);
 
-    // VISUAL feedback - jitter the simulator widget
-    QWidget* target = m_simulatorWidget ? (QWidget*)m_simulatorWidget : (QWidget*)this;
-    QPoint orig = target->pos();
-    
+  // AUDIBLE: system beep as substitute for haptic motor sound
+  QApplication::beep();
 
-    target->move(orig + QPoint(4, 0));
-    QTimer::singleShot(40, this, [this, target, orig]() {
-      target->move(orig + QPoint(-4, 0));
-      QTimer::singleShot(40, this, [this, target, orig]() {
-        target->move(orig + QPoint(4, 0));
-        QTimer::singleShot(40, this, [this, target, orig]() {
-          target->move(orig);
-        });
-      });
+  // VISUAL: animate opacity to simulate vibration
+  // Uses QGraphicsEffect which works on Wayland without moving the window
+  if (m_simulatorWidget) {
+    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(m_simulatorWidget);
+    m_simulatorWidget->setGraphicsEffect(effect);
+
+    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity");
+    anim->setDuration(200);
+    anim->setKeyValueAt(0.0, 1.0);
+    anim->setKeyValueAt(0.25, 0.5);
+    anim->setKeyValueAt(0.5, 1.0);
+    anim->setKeyValueAt(0.75, 0.5);
+    anim->setKeyValueAt(1.0, 1.0);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+
+    connect(anim, &QPropertyAnimation::finished, this, [this]() {
+      if (m_simulatorWidget)
+        m_simulatorWidget->setGraphicsEffect(nullptr);
     });
   }
 }
+
