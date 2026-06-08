@@ -311,7 +311,9 @@ class AudioBufferFifo {
 
     bool full() const { return readIdx == nextBufferIdx(writeIdx); }
     bool empty() const { return readIdx == writeIdx; }
-    uint8_t used() const { return (writeIdx - readIdx) % AUDIO_BUFFER_COUNT; }
+    // +AUDIO_BUFFER_COUNT before the modulo so the wrap case (writeIdx <
+    // readIdx) doesn't do signed modulo of a negative and return garbage.
+    uint8_t used() const { return (writeIdx - readIdx + AUDIO_BUFFER_COUNT) % AUDIO_BUFFER_COUNT; }
 
    public:
     AudioBufferFifo() : readIdx(0), writeIdx(0)
@@ -461,6 +463,10 @@ class AudioQueue {
 
     volatile uint8_t   _lastDrainedId = 0;
     volatile tmr10ms_t _lastDrainedTime = 0;
+
+    // Latch so an SD-starvation underrun is traced once per event (on the
+    // FIFO-empty -> still-playing edge), not on every wakeup() while starved.
+    bool _underrunReported = false;
 };
 
 extern uint8_t currentSpeakerVolume;

@@ -488,6 +488,20 @@ static void dac_periph_init()
 
   gpio_init_analog(AUDIO_OUTPUT_GPIO);
 
+#if defined(LL_DAC_HIGH_FREQ_MODE_DISABLE)
+  // STM32H5/H7: the DAC sample/hold timing must be told the bus clock band via
+  // HFSEL, otherwise the analog output is distorted (and marginal => varies
+  // boot-to-boot). Must be written while the channel is disabled (before EN1).
+  // Threshold is on the DAC's APB clock (PERI1_FREQUENCY).
+#if (PERI1_FREQUENCY > 160000000)
+  LL_DAC_SetHighFrequencyMode(AUDIO_DAC, LL_DAC_HIGH_FREQ_MODE_ABOVE_160MHZ);
+#elif (PERI1_FREQUENCY > 80000000)
+  LL_DAC_SetHighFrequencyMode(AUDIO_DAC, LL_DAC_HIGH_FREQ_MODE_ABOVE_80MHZ);
+#else
+  LL_DAC_SetHighFrequencyMode(AUDIO_DAC, LL_DAC_HIGH_FREQ_MODE_DISABLE);
+#endif
+#endif
+
   // set data registre to silence
   AUDIO_DAC->DHR12L1 = AUDIO_DATA_SILENCE;
 
