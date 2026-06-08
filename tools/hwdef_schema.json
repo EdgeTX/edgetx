@@ -262,6 +262,7 @@
         "backlight_timer":        { "type": "string" },
         "backlight_timer_channel":{ "type": "string" },
         "backlight_timer_freq":   { "type": "string" },
+        "backlight_bdtr":         { "type": "string" },
         "has_backlight_color":    { "type": "boolean" }
       }
     },
@@ -347,6 +348,26 @@
         "rotary_encoder_timer_irqn":         { "type": "string" },
         "rotary_encoder_timer_irqhandler":   { "type": "string" },
         "exti":                              { "type": "array", "items": { "$ref": "#/$defs/exti" } }
+      }
+    },
+
+    "haptic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "haptic_pwm":                 { "type": "boolean" },
+        "haptic_gpio":                { "type": "string" },
+        "haptic_gpio_timer":          { "type": "string" },
+        "haptic_gpio_af":             { "type": "string" },
+        "haptic_timer_output_enable": { "type": "string" },
+        "haptic_timer_mode":          { "type": "string" },
+        "haptic_timer_compare_value": { "type": "string" },
+        "haptic_timer":               { "type": "string" },
+        "haptic_timer_freq":          { "type": "string" },
+        "haptic_counter_register":    { "type": "string" },
+        "haptic_ccmr1":               { "type": "string" },
+        "haptic_ccmr2":               { "type": "string" },
+        "haptic_ccer":                { "type": "string" },
       }
     }
   }

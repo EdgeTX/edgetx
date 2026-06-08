@@ -161,13 +161,6 @@
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
 
-
-// Haptic: TIM3_CH2
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 15) // PA.15
-#define HAPTIC_GPIO_TIMER               TIM2
-#define HAPTIC_GPIO_AF                  GPIO_AF1
-
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 USART2
 

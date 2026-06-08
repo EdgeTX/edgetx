@@ -975,39 +975,6 @@
   #endif
 #endif
 
-// Haptic
-#if defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T20V2)  || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12)
-  #define HAPTIC_PWM
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 3) // PB.03
-  #define HAPTIC_GPIO_AF                GPIO_AF1
-  #define HAPTIC_TIMER                  TIM2 // Timer 2 Channel1
-  #define HAPTIC_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR2
-  #define HAPTIC_CCMR1                  TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2
-  #define HAPTIC_CCER                   TIM_CCER_CC2E
-  #define BACKLIGHT_BDTR                TIM_BDTR_MOE
-#elif defined(RADIO_X9DP2019) || defined(RADIO_X7ACCESS)
-  #define HAPTIC_PWM
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOA, 10) // PA.10
-  #define HAPTIC_GPIO_AF                GPIO_AF1
-  #define HAPTIC_TIMER                  TIM1 // Timer1 Channel3
-  #define HAPTIC_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR3
-  #define HAPTIC_CCMR2                  TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2
-  #define HAPTIC_CCER                   TIM_CCER_CC3E
-#elif defined(PCBX9E) || defined(PCBX9DP) || defined(PCBX7)
-  #define HAPTIC_PWM
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 8) // PB.08
-  #define HAPTIC_GPIO_AF                GPIO_AF3
-  #define HAPTIC_TIMER                  TIM10  // Timer 10 Channel1
-  #define HAPTIC_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR1
-  #define HAPTIC_CCMR1                  TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2
-  #define HAPTIC_CCER                   TIM_CCER_CC1E
-#else
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOC, 12) // PC.12
-#endif
-
 #if defined(RADIO_BOXER) || defined(RADIO_FAMILY_T20) || defined(RADIO_X9DP2019) || defined (RADIO_V14) || defined(RADIO_GX12)
   // Flysky Hall Stick
   #define FLYSKY_HALL_SERIAL_USART                 UART4

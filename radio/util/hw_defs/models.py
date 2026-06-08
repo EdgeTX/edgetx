@@ -190,6 +190,7 @@ class Backlight(BaseModel):
     backlight_timer_channel: Optional[str] = None
     backlight_gpio_af: Optional[str] = None
     backlight_timer_freq: Optional[str] = None
+    backlight_bdtr: Optional[str] = None
 
 class Display(BaseModel):
     lcd_w: int
@@ -253,6 +254,21 @@ class RotEnc(BaseModel):
     rotary_encoder_timer_irqn: Optional[str] = None
     rotary_encoder_timer_irqhandler: Optional[str] = None
     exti: Optional[List[EXTI]] = None
+
+class Haptic(BaseModel):
+    haptic_pwm: Optional[bool] = None
+    haptic_gpio: Optional[str] = None
+    haptic_gpio_timer: Optional[str] = None
+    haptic_gpio_af: Optional[str] = None
+    haptic_timer_output_enable: Optional[str] = None
+    haptic_timer_mode: Optional[str] = None
+    haptic_timer_compare_value: Optional[str] = None
+    haptic_timer: Optional[str] = None
+    haptic_timer_freq: Optional[str] = None
+    haptic_counter_register: Optional[str] = None
+    haptic_ccmr1: Optional[str] = None
+    haptic_ccmr2: Optional[str] = None
+    haptic_ccer: Optional[str] = None
 
 Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 
@@ -403,6 +419,7 @@ class HardwareDefinition(BaseModel):
     timers: Timers
     imu: Optional[IMU] = None
     rotenc: Optional[RotEnc] = None
+    haptic: Optional[Haptic] = None
 
     @staticmethod
     def from_json(data: Union[str, bytes, bytearray]) -> "HardwareDefinition":

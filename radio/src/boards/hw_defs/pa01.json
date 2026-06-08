@@ -361,5 +361,11 @@
     "rotary_encoder_timer": "TIM17",
     "rotary_encoder_timer_irqn": "TIM17_IRQn",
     "rotary_encoder_timer_irqhandler": "TIM17_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOA, 15)",
+    "haptic_gpio_timer": "TIM2",
+    "haptic_gpio_af": "GPIO_AF1"
   }
 }

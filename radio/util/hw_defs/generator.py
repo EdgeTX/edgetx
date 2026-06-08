@@ -94,6 +94,7 @@ def generate_from_template(json_filename, template_filename, target):
             timers=hw_def.timers,
             imu=hw_def.imu,
             rotenc=hw_def.rotenc,
+            haptic=hw_def.haptic,
         )
 
         try:
