@@ -635,7 +635,7 @@ void SimulatorMainWindow::onHapticChanged(int intensity) {
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(m_simulatorWidget);
     m_simulatorWidget->setGraphicsEffect(effect);
 
-    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity");
+    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity", effect);
     anim->setDuration(200);
     anim->setKeyValueAt(0.0, 1.0);
     anim->setKeyValueAt(0.25, 0.5);
@@ -644,8 +644,8 @@ void SimulatorMainWindow::onHapticChanged(int intensity) {
     anim->setKeyValueAt(1.0, 1.0);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 
-    connect(anim, &QPropertyAnimation::finished, this, [this]() {
-      if (m_simulatorWidget)
+    connect(anim, &QPropertyAnimation::finished, this, [this, effect]() {
+      if (m_simulatorWidget && m_simulatorWidget->graphicsEffect() == effect)
         m_simulatorWidget->setGraphicsEffect(nullptr);
     });
   }

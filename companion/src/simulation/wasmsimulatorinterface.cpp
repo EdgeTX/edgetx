@@ -488,6 +488,7 @@ void WasmSimulatorInterface::init()
 
   m_lastOutputs.clear();
   m_resetOutputsData = true;
+  m_lastHaptic = 0;
 
   qDebug() << "WASM simulator" << m_boardName << "initialized: LCD"
            << m_lcdWidth << "x" << m_lcdHeight << "depth" << m_lcdDepth;
