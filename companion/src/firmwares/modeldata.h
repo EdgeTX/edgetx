@@ -293,6 +293,10 @@ class ModelData {
     const Board::SwitchType getSwitchType(int sw, const GeneralSettings & gs) const;
 
     QString getChecklistFilename() const;
+    QString getImageFilename() const;
+    QString getImageFileExtn() const;
+    static QString getDefaultImageFileExtn();
+    bool isBitmapEmpty() const;
 
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,

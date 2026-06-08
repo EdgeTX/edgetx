@@ -443,9 +443,11 @@ void drawChargingInfo(uint16_t chargeState) {
 
 void battery_charge_end()
 {
-  chargeWindow->clear();
-  delete chargeWindow;
-  chargeWindow = nullptr;
+  if (chargeWindow) {
+    chargeWindow->clear();
+    delete chargeWindow;
+    chargeWindow = nullptr;
+  }
 }
 
 #define CHARGE_INFO_DURATION 5000 // ms

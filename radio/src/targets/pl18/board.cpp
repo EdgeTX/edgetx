@@ -252,6 +252,7 @@ void boardInit()
         if ((now - press_start) > POWER_ON_DELAY) {
           break;
         }
+        delay_ms(10);
       } else if (!isChargerActive()) {
         boardOff();
       } else {

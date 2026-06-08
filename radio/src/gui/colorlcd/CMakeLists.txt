@@ -98,6 +98,7 @@ set(GUI_SRC
   radio/radio_trainer.cpp
   radio/radio_version.cpp
   radio/radio_gps_tool.cpp
+  radio/radio_mic_recorder.cpp
   )
 
 macro(add_gui_src src)

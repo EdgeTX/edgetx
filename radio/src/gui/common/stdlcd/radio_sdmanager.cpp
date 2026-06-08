@@ -603,7 +603,7 @@ void menuRadioSdManager(event_t _event)
     if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
       if (lastPos != menuVerticalPosition) {
         if (!lcdLoadBitmap(modelBitmap, reusableBuffer.sdManager.lines[index], MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)) {
-          memcpy(modelBitmap, logo_taranis, MODEL_BITMAP_SIZE);
+          loadLogoBitmap(modelBitmap);
         }
       }
       lcdDrawBitmap(22*FW+2, 2*FH+FH/2, modelBitmap);

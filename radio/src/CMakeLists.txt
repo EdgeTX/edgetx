@@ -59,6 +59,7 @@ else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
 endif()
 option(AUDIO "Enable audio" ON)
+option(EXFAT "Enable exFAT filesystem support in FatFs" OFF)
 
 if(NATIVE_BUILD)
   option(ALL_LANGUAGES "Enable runtime language selection" ON)
@@ -468,6 +469,7 @@ set(SRC
   serial.cpp
   audio.cpp
   model_audio.cpp
+  pdm_wav_recorder.cpp
   sbus.cpp
   input_mapping.cpp
   inactivity_timer.cpp

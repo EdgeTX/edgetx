@@ -222,6 +222,12 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
     }
   }
 
+  if (def->inverted) {
+    pos = pos == SWITCH_HW_UP   ? SWITCH_HW_DOWN
+        : pos == SWITCH_HW_DOWN ? SWITCH_HW_UP
+                                : pos;
+  }
+
   return pos;
 }
 

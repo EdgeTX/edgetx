@@ -2334,3 +2334,42 @@ void ModelData::initTopBar()
     zone.widgetName = "Internal GPS";
   }
 }
+
+QString ModelData::getImageFilename() const
+{
+  if (!isBitmapEmpty()) {
+    QString extn;
+
+    if (!getCurrentFirmware()->getCapability(ModelImageKeepExtn))
+      extn = "." % getDefaultImageFileExtn();
+
+    return QString(bitmap).append(extn);
+  } else {
+    return QString();
+  }
+}
+
+QString ModelData::getImageFileExtn() const
+{
+  if (getCurrentFirmware()->getCapability(ModelImageKeepExtn)) {
+    QStringList strl = QString(bitmap).split(".");
+    return strl.count() > 1 ? strl.at(strl.count() - 1) : "";
+  } else {
+    return getDefaultImageFileExtn();
+  }
+}
+
+QString ModelData::getDefaultImageFileExtn()
+{
+  QString ret;
+
+  if (!getCurrentFirmware()->getCapability(ModelImageKeepExtn))
+    ret = getCurrentFirmware()->getCapabilityStr(ModelImageFilters).replace("*.", "");
+
+  return ret;
+}
+
+bool ModelData::isBitmapEmpty() const
+{
+  return bitmap[0] == '\0';
+}
