@@ -25,10 +25,6 @@
 #include "hal/audio_driver.h"
 #include "os/time.h"
 
-#if defined(SIMU)
-#undef IS_PLAYING
-#define IS_PLAYING(id) false
-#endif
 
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);
