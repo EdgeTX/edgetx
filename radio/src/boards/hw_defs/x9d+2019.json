@@ -377,5 +377,15 @@
     "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOA, 10)",
+    "haptic_gpio_af": "GPIO_AF1",
+    "haptic_timer": "TIM1",
+    "haptic_timer_freq": "(PERI2_FREQUENCY * TIMER_MULT_APB2)",
+    "haptic_counter_register": "HAPTIC_TIMER->CCR3",
+    "haptic_ccmr2": "TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2",
+    "haptic_ccer": "TIM_CCER_CC3E"
   }
 }

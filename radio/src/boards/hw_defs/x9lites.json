@@ -281,6 +281,9 @@
     "lcd_phys_h": 64,
     "lcd_depth": 1
   },
+  "backlight": {
+    "backlight_bdtr": "TIM_BDTR_MOE"
+  },
   "leds": {
     "status_leds": true,
     "led_red_gpio": "GPIO_PIN(GPIOE, 5)",
@@ -306,5 +309,15 @@
     "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOB, 3)",
+    "haptic_gpio_af": "GPIO_AF1",
+    "haptic_timer": "TIM2",
+    "haptic_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "haptic_counter_register": "HAPTIC_TIMER->CCR2",
+    "haptic_ccmr1": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2",
+    "haptic_ccer": "TIM_CCER_CC2E"
   }
 }

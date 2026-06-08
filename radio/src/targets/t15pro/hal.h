@@ -255,15 +255,6 @@ USART6: EXTMODULE_USART
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
 
-// Haptic
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOE, 6) // TIM15_CH2
-#define HAPTIC_GPIO_TIMER               TIM15
-#define HAPTIC_GPIO_AF                  GPIO_AF4
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 1)
 #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOD, 7)

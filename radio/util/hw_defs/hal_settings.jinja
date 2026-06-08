@@ -110,3 +110,17 @@
 {% endif %}
 {% endfor %}
 {% endif -%}
+
+{% if haptic %}
+
+// Haptic
+{% for name, val in haptic %}
+{% if val is not none and val is not sameas false %}
+{% if val is sameas true %}
+#define {{ name | upper }}
+{% else %}
+#define {{ name | upper }} {{ val }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}

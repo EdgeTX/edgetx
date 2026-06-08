@@ -369,25 +369,6 @@
   #define EXTI9_5_IRQ_Priority  9
 #endif
 
-// Haptic: TIM1_CH1
-#if defined(RADIO_NB4P)
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 0) // PB.00
-#define HAPTIC_GPIO_TIMER               TIM1
-#define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2NE
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-#else
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 8) // PA.08
-#define HAPTIC_GPIO_TIMER               TIM1
-#define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
-#endif
-
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
 #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4

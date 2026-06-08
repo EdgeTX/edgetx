@@ -474,28 +474,7 @@
 #endif
 
 // Haptic
-#define HAPTIC_PWM
-#if defined(PCBX12S)
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOA, 2) // PA.02
-  #define HAPTIC_GPIO_TIMER             TIM9
-  #define HAPTIC_GPIO_AF                GPIO_AF3
-  #define HAPTIC_TIMER_OUTPUT_ENABLE    TIM_CCER_CC1E
-  #define HAPTIC_TIMER_MODE             TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2
-  #define HAPTIC_TIMER_COMPARE_VALUE    HAPTIC_GPIO_TIMER->CCR1
-#elif defined(RADIO_T15)  // TIM2_CH1
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOA, 5) // PA.05
-  #define HAPTIC_GPIO_TIMER             TIM2
-  #define HAPTIC_GPIO_AF                GPIO_AF1
-  #define HAPTIC_TIMER_OUTPUT_ENABLE    TIM_CCER_CC1E | TIM_CCER_CC1NE;
-  #define HAPTIC_TIMER_MODE             TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
-  #define HAPTIC_TIMER_COMPARE_VALUE    HAPTIC_GPIO_TIMER->CCR1
-#elif defined(PCBX10)
-  #define HAPTIC_GPIO                   GPIO_PIN(GPIOE, 6) // PE.06
-  #define HAPTIC_GPIO_TIMER             TIM9
-  #define HAPTIC_GPIO_AF                GPIO_AF3
-  #define HAPTIC_TIMER_OUTPUT_ENABLE    TIM_CCER_CC2E
-  #define HAPTIC_TIMER_MODE             TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2
-  #define HAPTIC_TIMER_COMPARE_VALUE    HAPTIC_GPIO_TIMER->CCR2
+#if !defined(PCBX12S) && !defined(RADIO_T15) && defined(PCBX10)
   // FlySky Hall Sticks
   #define FLYSKY_HALL_SERIAL_USART                 UART4
   #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
