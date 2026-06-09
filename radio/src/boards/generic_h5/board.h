@@ -36,7 +36,7 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
-#define FLASHSIZE                       0x80000  // 512k
+#define FLASHSIZE                       0x200000  // 2MB
 #define FLASH_PAGESIZE                  256
 
 #define BOOTLOADER_SIZE                 0x10000
@@ -49,12 +49,6 @@ void rotaryEncoderCheck();
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
 # define BOOTLOADER_KEYS                0x42
-
-#if defined(RADIO_FAMILY_T20)
-# define SECONDARY_BOOTLOADER_KEYS      0x1200
-#elif defined(RADIO_H5TEST)
-# define SECONDARY_BOOTLOADER_KEYS      0x10  // TODO: DELETE ME
-#endif
 
 extern uint16_t sessionTimer;
 
