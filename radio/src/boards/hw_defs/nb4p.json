@@ -201,6 +201,26 @@
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
   },
+  "rotenc": {
+    "rotary_encoder_gpio": "GPIOH",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_11",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_10",
+    "rotary_encoder_position": "((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_11",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_10",
+    "exti": [
+      {
+        "irq": "EXTI15_10_IRQ",
+        "priority": 5
+      }
+    ],
+    "rotary_encoder_exti_port": "LL_SYSCFG_EXTI_PORTH",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE11",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE10",
+    "rotary_encoder_timer": "TIM13",
+    "rotary_encoder_timer_irqn": "TIM8_UP_TIM13_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM8_UP_TIM13_IRQHandler"
+  },
   "haptic": {
     "haptic_pwm": true,
     "haptic_gpio": "GPIO_PIN(GPIOB, 0)",
