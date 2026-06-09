@@ -72,6 +72,13 @@ void rtcInit()
 #endif
 
   HAL_PWR_EnableBkUpAccess();
+
+#if defined(STM32H5)
+  // The RTC APB interface clock (RTCAPBEN, in RCC->APB3ENR) is separate from
+  // the RTC kernel clock (RTCEN, in RCC->BDCR, set by __HAL_RCC_RTC_ENABLE()).
+  __HAL_RCC_RTC_CLK_ENABLE();
+#endif
+
 #if defined(LSE_DRIVE_STRENGTH)
   __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
   __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_STRENGTH);

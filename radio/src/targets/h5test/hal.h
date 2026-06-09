@@ -293,7 +293,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 // Serial Port (UART7 on PE7/PE8 - mutually exclusive with Flysky Hall Stick)
 #if !defined(FLYSKY_GIMBAL)
   #define HARDWARE_TRAINER_AUX_SERIAL
-  #define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOD, 12) // PD.12
   #define AUX_SERIAL_TX_GPIO               GPIO_PIN(GPIOE, 7)  // PE.07
   #define AUX_SERIAL_RX_GPIO               GPIO_PIN(GPIOE, 8) // PE.08
   #define AUX_SERIAL_USART                  UART7
@@ -412,3 +411,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM12_IRQHandler
+
+// Drive the 32.768 kHz LSE crystal at high strength for a fast start-up
+#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH

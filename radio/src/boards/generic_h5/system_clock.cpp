@@ -39,14 +39,6 @@ void SystemClock_Config()
   while (LL_RCC_HSE_IsReady() != 1) {
   }
 
-#ifndef BOOT
-  LL_PWR_EnableBkUpAccess();
-//  LL_RCC_LSE_SetExternalClockType(LL_RCC_LSE_ANALOG_TYPE);
-//  LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
-  LL_RCC_LSE_Enable();
-  while (LL_RCC_LSE_IsReady() != 1) {
-  }
-#endif
   /* Set FLASH latency */
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_6);
 
