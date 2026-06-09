@@ -36,6 +36,42 @@ extern mutex_handle_t audioMutex;
 // Only first quadrant values - other quadrants calulated taking advantage of symmetry in sine wave.
 const int16_t sineValues[] =
 {
+    0, 196, 392, 588, 784, 980, 1175, 1370, 1564, 1758,
+    1951, 2143, 2335, 2525, 2715, 2904, 3091, 3278, 3463, 3647,
+    3829, 4011, 4190, 4369, 4545, 4720, 4894, 5065, 5235, 5403,
+    5569, 5733, 5895, 6055, 6213, 6369, 6522, 6673, 6822, 6969,
+    7113, 7255, 7395, 7532, 7667, 7799, 7929, 8056, 8180, 8302,
+    8422, 8539, 8653, 8765, 8874, 8980, 9084, 9185, 9283, 9379,
+    9472, 9562, 9650, 9735, 9818, 9898, 9975, 10050, 10123, 10192,
+    10260, 10324, 10387, 10447, 10504, 10559, 10612, 10663, 10711, 10757,
+    10801, 10843, 10882, 10920, 10955, 10989, 11020, 11050, 11078, 11104,
+    11128, 11151, 11172, 11191, 11209, 11225, 11240, 11254, 11266, 11277,
+    11287, 11296, 11303, 11310, 11316, 11320, 11324, 11327, 11330, 11331,
+    11332, 11333, 11333, 11333, 11332, 11331, 11329, 11328, 11326, 11324,
+    11323, 11321, 11319, 11318, 11316, 11315, 11314, 11313, 11313, 11313,
+    11314, 11315, 11317, 11319, 11323, 11326, 11331, 11336, 11342, 11349,
+    11356, 11365, 11375, 11385, 11397, 11409, 11423, 11437, 11453, 11470,
+    11488, 11507, 11527, 11548, 11571, 11595, 11620, 11646, 11673, 11702,
+    11732, 11763, 11795, 11828, 11863, 11899, 11936, 11974, 12013, 12054,
+    12095, 12138, 12182, 12227, 12273, 12320, 12368, 12417, 12467, 12518,
+    12570, 12623, 12676, 12731, 12786, 12842, 12898, 12956, 13014, 13072,
+    13131, 13191, 13251, 13311, 13372, 13433, 13495, 13556, 13618, 13680,
+    13743, 13805, 13867, 13929, 13991, 14053, 14115, 14177, 14238, 14299,
+    14359, 14419, 14479, 14538, 14597, 14655, 14712, 14768, 14824, 14879,
+    14933, 14986, 15039, 15090, 15140, 15189, 15237, 15284, 15330, 15375,
+    15418, 15460, 15500, 15539, 15577, 15614, 15648, 15682, 15714, 15744,
+    15772, 15799, 15825, 15849, 15871, 15891, 15910, 15927, 15942, 15955,
+    15967, 15977, 15985, 15991, 15996, 15999, 16000,
+};
+
+#if defined(CLI)
+// Distortion-free first-quadrant sine LUT (16000 * sin(i * (PI/2)/256)),
+// selected on demand for a clean reference tone (CLI "beep"). The default
+// sineValues[] above keeps its historical harmonics, which sound better for
+// the vario and general beeps. Only built when the CLI is enabled, so the
+// flash-constrained (no-CLI) targets don't pay for a table they never use.
+const int16_t pureSineValues[] =
+{
     0, 98, 196, 295, 393, 491, 589, 687, 785, 883,
     981, 1079, 1177, 1275, 1373, 1471, 1568, 1666, 1764, 1861,
     1959, 2056, 2153, 2251, 2348, 2445, 2542, 2639, 2735, 2832,
@@ -63,6 +99,7 @@ const int16_t sineValues[] =
     15923, 15932, 15941, 15949, 15957, 15964, 15970, 15976, 15981, 15985,
     15989, 15992, 15995, 15997, 15999, 16000, 16000,
 };
+#endif // CLI
 
 #define SINE_INDEX_Q1 256
 #define SINE_INDEX_Q2 512
@@ -554,17 +591,23 @@ int ToneContext::mixBuffer(AudioBuffer * buffer, int volume, unsigned int fade)
       points = (float(end) - toneIdx) / state.step;
     }
 
+#if defined(CLI)
+    const int16_t * sine = fragment.tone.pure ? pureSineValues : sineValues;
+#else
+    const int16_t * sine = sineValues;
+#endif
+
     for (int i=0; i<points; i++) {
       int16_t sineIdx = ((int)toneIdx) % MAX_SINE_INDEX;
       int16_t sineVal;
       if (sineIdx <= SINE_INDEX_Q1)
-        sineVal = sineValues[sineIdx];
+        sineVal = sine[sineIdx];
       else if (sineIdx <= SINE_INDEX_Q2)
-        sineVal = sineValues[SINE_INDEX_Q2 - sineIdx];
+        sineVal = sine[SINE_INDEX_Q2 - sineIdx];
       else if (sineIdx <= SINE_INDEX_Q3)
-        sineVal = -sineValues[sineIdx - SINE_INDEX_Q2];
+        sineVal = -sine[sineIdx - SINE_INDEX_Q2];
       else
-        sineVal = -sineValues[MAX_SINE_INDEX - sineIdx];
+        sineVal = -sine[MAX_SINE_INDEX - sineIdx];
       int16_t sample = sineVal * state.volume;
       mixSample(&buffer->data[i], sample, fade);
       toneIdx += state.step;
@@ -714,14 +757,15 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
     freq += g_eeGeneral.speakerPitch * 15;
     len = getToneLength(len);
 
+    bool pure = flags & PLAY_PURE;
     if (flags & PLAY_NOW) {
       if (priorityContext.isFree()) {
         priorityContext.clear();
-        priorityContext.setFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume);
+        priorityContext.setFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume, pure);
       }
     }
     else {
-      fragmentsFifo.push(AudioFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume));
+      fragmentsFifo.push(AudioFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume, pure));
     }
   }
 

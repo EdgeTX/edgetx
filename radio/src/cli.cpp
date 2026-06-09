@@ -253,7 +253,7 @@ int cliBeep(const char ** argv)
   int freq = BEEP_DEFAULT_FREQ;
   int duration = 100;
   if (toInt(argv, 1, &freq) >= 0 && toInt(argv, 2, &duration) >= 0) {
-    audioQueue.playTone(freq, duration, 20, PLAY_NOW);
+    audioQueue.playTone(freq, duration, 20, PLAY_NOW | PLAY_PURE);
   }
   return 0;
 }
