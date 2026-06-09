@@ -112,6 +112,7 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 if(RGBLEDS)
   target_sources(board PRIVATE targets/common/arm/stm32/stm32_ws2812.cpp)
+  add_definitions(-DRGBLEDS)
 endif()
 
 if(USB_CHARGE_LED)
