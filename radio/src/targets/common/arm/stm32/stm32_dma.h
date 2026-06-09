@@ -26,6 +26,19 @@
 
 #if defined(STM32H7RS) || defined(STM32H5)
 
+// On GPDMA (H5/H7RS) the "stream" is a linear DMA channel (LL_DMA_CHANNEL_x).
+// H5 has channels 0-7, H7RS has 0-15.
+#if defined(STM32H5)
+#define __STM32_DMA_IS_STREAM_SUPPORTED(stream)                      \
+  ((stream) == LL_DMA_CHANNEL_0 || (stream) == LL_DMA_CHANNEL_1 ||   \
+   (stream) == LL_DMA_CHANNEL_2 || (stream) == LL_DMA_CHANNEL_3 ||   \
+   (stream) == LL_DMA_CHANNEL_4 || (stream) == LL_DMA_CHANNEL_5 ||   \
+   (stream) == LL_DMA_CHANNEL_6 || (stream) == LL_DMA_CHANNEL_7)
+#else // STM32H7RS
+#define __STM32_DMA_IS_STREAM_SUPPORTED(stream)                      \
+  ((stream) >= LL_DMA_CHANNEL_0 && (stream) <= LL_DMA_CHANNEL_15)
+#endif
+
 inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
 {
   if (!LL_DMA_IsActiveFlag_TC(DMAx, DMA_Stream)) return false;
