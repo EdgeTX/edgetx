@@ -50,7 +50,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
   ui->chkDelDecompress->setChecked(g.updDelDecompress());
   ui->leDownloadDir->setText(g.downloadDir());
 
-  connect(ui->chkDecompressDirUseDwnld, &QCheckBox::checkStateChanged, [=](const int checked) {
+  connect(ui->chkDecompressDirUseDwnld, &QCheckBox::stateChanged, [=](const int checked) {
       if (!checked) {
       ui->leDecompressDir->setText(g.decompressDir());
       ui->leDecompressDir->setEnabled(true);
@@ -75,7 +75,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
   ui->chkDecompressDirUseDwnld->setChecked(!ui->chkDecompressDirUseDwnld->isChecked());
   ui->chkDecompressDirUseDwnld->setChecked(g.decompressDirUseDwnld());
 
-  connect(ui->chkUpdateDirUseSD, &QCheckBox::checkStateChanged, [=](const int checked) {
+  connect(ui->chkUpdateDirUseSD, &QCheckBox::stateChanged, [=](const int checked) {
       if (!checked) {
       ui->leUpdateDir->setText(g.updateDir());
       ui->leUpdateDir->setEnabled(true);
@@ -122,7 +122,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     }
   });
 
-  connect(ui->chkDelDecompress, &QCheckBox::checkStateChanged, [=](const int checked) {
+  connect(ui->chkDelDecompress, &QCheckBox::stateChanged, [=](const int checked) {
     if (!checked) {
       if (ui->chkDecompressDirUseDwnld->isChecked()) {
         ui->chkDelDownloads->setEnabled(false);
