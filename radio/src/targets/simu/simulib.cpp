@@ -84,7 +84,6 @@ rotenc_t rotaryEncoderGetValue()
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
-void lcdFlushed();
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
 static void hostSerialInit();
@@ -733,7 +732,7 @@ void simuLuaReloadPermanentScripts()
 
 void simuLcdFlushed()
 {
-  ::lcdFlushed();
+  lcdFlushed();
 }
 
 uint8_t simuGetMaxTrainerChannels()
