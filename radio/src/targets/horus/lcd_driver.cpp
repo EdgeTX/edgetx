@@ -119,19 +119,25 @@ static void _rotate_area_180(lv_area_t& area)
 }
 #endif
 
-static volatile uint8_t _frame_addr_reloaded = 0;
+static volatile uint8_t _frame_addr_reloaded = 1;
 
 static void _update_frame_buffer_addr(uint16_t* addr)
 {
+#if !defined(BOOT)
+  // wait for last reload to finish
+  while(_frame_addr_reloaded == 0);
+#endif
+
   LTDC_Layer1->CFBAR = (uint32_t)addr;
 
   // reload shadow registers on vertical blank
   _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
+#if defined(BOOT)
+  // wait for reload to finish - required for bootloader
   while(_frame_addr_reloaded == 0);
+#endif
 }
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,

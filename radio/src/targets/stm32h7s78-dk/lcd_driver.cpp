@@ -417,13 +417,18 @@ extern "C" void backlightInit()
   LPTIMx_PWM_Init(&hlcd_lptim);
 }
 
-static volatile uint8_t _frame_addr_reloaded = 0;
+static volatile uint8_t _frame_addr_reloaded = 1;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
   (void)disp_drv;
   (void)copy_area;
+
+#if !defined(BOOT)
+  // wait for last reload to finish
+  while(_frame_addr_reloaded == 0);
+#endif
 
   SCB_CleanDCache();
 
@@ -436,9 +441,10 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   __HAL_LTDC_ENABLE_IT(&hlcd_ltdc, LTDC_IT_LI);
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
+#if defined(BOOT)
+  // wait for reload to finish - required for bootloader
   while(_frame_addr_reloaded == 0);
+#endif
 }
 
 extern "C" void lcdSetInitalFrameBuffer(void* fbAddress)

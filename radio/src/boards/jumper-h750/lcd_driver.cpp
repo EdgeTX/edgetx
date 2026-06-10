@@ -24,9 +24,7 @@
 #include "stm32_hal.h"
 #include "stm32_gpio_driver.h"
 #include "edgetx_types.h"
-#include "dma2d.h"
 #include "hal.h"
-#include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_driver.h"
@@ -35,20 +33,24 @@
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
 
-uint8_t TouchControllerType = 0;  // 0: other; 1: CST836U
 static volatile uint16_t lcd_phys_w = LCD_H;
 static volatile uint16_t lcd_phys_h = LCD_W;
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
 
-static volatile uint8_t _frame_addr_reloaded = 0;
+static volatile uint8_t _frame_addr_reloaded = 1;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
   (void)disp_drv;
   (void)copy_area;
+
+#if !defined(BOOT)
+  // wait for last reload to finish
+  while(_frame_addr_reloaded == 0);
+#endif
 
   // given the data cache size, this is probably
   // faster than cleaning by address
@@ -61,17 +63,16 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   LTDC->SRCR = LTDC_SRCR_VBR;
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
+#if defined(BOOT)
+  // wait for reload to finish - required for bootloader
   while(_frame_addr_reloaded == 0);
+#endif
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
 lcdSpiInitFucPtr lcdOffFunction;
 lcdSpiInitFucPtr lcdOnFunction;
 uint32_t lcdPixelClock;
-
-volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 
 static void LCD_Delay(void) {
   volatile unsigned int i;
