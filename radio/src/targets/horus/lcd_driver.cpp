@@ -119,19 +119,26 @@ static void _rotate_area_180(lv_area_t& area)
 }
 #endif
 
+#if defined(BOOT)
 static volatile uint8_t _frame_addr_reloaded = 0;
+#endif
 
 static void _update_frame_buffer_addr(uint16_t* addr)
 {
-  LTDC_Layer1->CFBAR = (uint32_t)addr;
-
-  // reload shadow registers on vertical blank
+#if defined(BOOT)
   _frame_addr_reloaded = 0;
+#endif
+
+  LTDC_Layer1->CFBAR = (uint32_t)addr;
+  // reload shadow registers on vertical blank
   LTDC->SRCR = LTDC_SRCR_VBR;
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
+  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
+
+#if defined(BOOT)
+  // wait for reload to finish - required for bootloader
   while(_frame_addr_reloaded == 0);
+#endif
 }
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
@@ -142,9 +149,9 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   if(hardwareOptions.pcbrev > 0) {
     // Direct mode
     _update_frame_buffer_addr(buffer);
-  } else
+    return;
+  }
 #endif 
-  {
   _copy_rotate_180(_back_buffer, buffer, copy_area);
 
   if (lv_disp_flush_is_last(disp_drv)) {
@@ -184,7 +191,10 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                     src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
                     area_w, area_h);
     }
-  }
+  } else {
+#if !defined(BOOT)
+    lvglFlushed();
+#endif
   }
 #else
   // Direct mode
@@ -337,7 +347,6 @@ void LCD_Init_LTDC()
 
   // Trigger on last line
   HAL_LTDC_ProgramLineEvent(&hltdc, LCD_PHYS_H);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
 #if 0
   DMA2D_ITConfig(DMA2D_CR_TCIE, ENABLE);
@@ -439,11 +448,16 @@ void lcdInit()
   lcdSetFlushCb(startLcdRefresh);
 }
 
-
 extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
+  __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
+
+#if defined(BOOT)
   _frame_addr_reloaded = 1;
+#else
+  lvglFlushed();
+#endif
 }
 

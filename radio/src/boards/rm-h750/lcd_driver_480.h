@@ -19,10 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __LCD_DRIVER_H__
-#define __LCD_DRIVER_H__
-
-#include "bsp_io.h"
+#pragma once
 
 #define HBP  ( 20 )
 #define VBP  ( 10 )
@@ -34,9 +31,6 @@
 #define VFP  ( 10 )
 
 #define LCD_DELAY()         LCD_Delay()
-
-typedef void (*lcdSpiInitFucPtr)(void);
-typedef unsigned int  LcdReadIDFucPtr( void );
 
 #define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
 #define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
@@ -57,9 +51,3 @@ typedef unsigned int  LcdReadIDFucPtr( void );
 #define LCD_MOSI_AS_OUTPUT()          SET_IO_OUTPUT( LCD_SPI_MOSI_GPIO, LCD_SPI_MOSI_GPIO_PIN )
 
 #define LCD_READ_DATA_PIN()           LL_GPIO_IsInputPinSet(LCD_SPI_MOSI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
-
-#endif
-
-
-
-
