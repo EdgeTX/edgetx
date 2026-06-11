@@ -106,8 +106,8 @@ bool SdcardFormat::writeFile(const QByteArray & data, const QString & filename)
   qint64 writesz = file.write(data.data(), data.size());
   file.close();
 
-  if (writesz < data.size()) {
-    fatalMsg(tr("File %1 wrote %2 of %3 bytes").arg(path).arg(writesz).arg(data.size()));
+  if (writesz != data.size()) {
+    fatalMsg(tr("Error writing file %1: wrote %2 of %3 bytes").arg(path).arg(writesz).arg(data.size()));
     return false;
   }
 
