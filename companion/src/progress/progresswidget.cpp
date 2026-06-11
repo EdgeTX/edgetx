@@ -150,6 +150,8 @@ void ProgressWidget::addHtml(const QString & text, const bool updateLast)
 
 void ProgressWidget::addMessage(const QString & text, const int & type, const bool richText, const bool updateLast)
 {
+  // The allowed predicate only lets QtInfoMsg through when m_logLevel is QtDebugMsg or QtInfoMsg;
+  // when m_logLevel is QtWarningMsg, QtCriticalMsg, or QtFatalMsg, QtInfoMsg is always filtered out
   const bool allowed = (m_logLevel == QtDebugMsg) ||
                        (m_logLevel == QtInfoMsg && type > QtDebugMsg) ||
                        (type < QtInfoMsg && type >= m_logLevel);
