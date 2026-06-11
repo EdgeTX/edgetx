@@ -53,7 +53,7 @@ ProgressWidget::ProgressWidget(QWidget *parent) :
   newFont.setPointSize(9);
 #endif
   ui->textEdit->setFont(newFont);
-  QTimer::singleShot(0, [this]() { this->refresh(); })
+  QTimer::singleShot(0, [this]() { this->refresh(); });
 }
 
 ProgressWidget::~ProgressWidget()
