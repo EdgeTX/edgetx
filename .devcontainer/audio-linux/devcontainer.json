@@ -1,0 +1,28 @@
+// EdgeTX devcontainer with host audio passthrough for Linux hosts.
+// Works with both PulseAudio and PipeWire (via its PulseAudio compatibility
+// socket). Keep in sync with ../devcontainer.json — see ../README.md.
+{
+	"name": "edgetx-dev (audio, Linux)",
+	"image": "ghcr.io/edgetx/edgetx-dev:latest",
+	"runArgs": [
+		"--ipc=host",
+		"-v", "${localEnv:XDG_RUNTIME_DIR}/pulse/native:/run/pulse/native",
+		// Auth cookie (classic PulseAudio). If absent on the host (common with
+		// pipewire-pulse), Docker creates an empty dir here and libpulse falls
+		// back to anonymous auth, which pipewire-pulse accepts.
+		"-v", "${localEnv:HOME}/.config/pulse/cookie:/root/.config/pulse/cookie"
+	],
+	"containerEnv": {
+		"PULSE_SERVER": "unix:/run/pulse/native",
+		"PULSE_COOKIE": "/root/.config/pulse/cookie"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools"
+			]
+		}
+	},
+	// Post-create command to set up the environment
+	"postCreateCommand": "git submodule update --init --recursive && mkdir -p build && echo 'EdgeTX development environment ready!'"
+}

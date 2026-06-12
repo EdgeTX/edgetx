@@ -1,0 +1,28 @@
+// EdgeTX devcontainer with host audio passthrough for Windows (WSL2/WSLg).
+// Keep in sync with ../devcontainer.json — see ../README.md for details.
+{
+	"name": "edgetx-dev (audio, WSL2)",
+	"image": "ghcr.io/edgetx/edgetx-dev:latest",
+	"runArgs": [
+		"--ipc=host",
+		// WSLg PulseAudio socket — path depends on the Docker setup, so mount
+		// both candidates; the one that doesn't exist becomes an empty dir.
+		"-v", "/mnt/wslg:/mnt/wslg", // Docker Engine inside the WSL distro
+		"-v", "/run/desktop/mnt/host/wslg:/mnt/wslg-desktop" // Docker Desktop (WSL2 backend)
+	],
+	"containerEnv": {
+		"PULSE_SERVER": "unix:/mnt/wslg/PulseServer"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools"
+			]
+		}
+	},
+	// If the native mount was empty (Docker Desktop case), link the Docker
+	// Desktop socket into the expected location.
+	"postStartCommand": "test -S /mnt/wslg/PulseServer || ln -sf /mnt/wslg-desktop/PulseServer /mnt/wslg/PulseServer",
+	// Post-create command to set up the environment
+	"postCreateCommand": "git submodule update --init --recursive && mkdir -p build && echo 'EdgeTX development environment ready!'"
+}

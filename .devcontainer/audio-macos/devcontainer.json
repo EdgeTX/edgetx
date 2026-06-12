@@ -1,0 +1,22 @@
+// EdgeTX devcontainer with host audio passthrough for macOS.
+// Requires a PulseAudio server running on the Mac (one-time setup, see
+// ../README.md). Keep in sync with ../devcontainer.json.
+{
+	"name": "edgetx-dev (audio, macOS)",
+	"image": "ghcr.io/edgetx/edgetx-dev:latest",
+	"runArgs": [
+		"--ipc=host"
+	],
+	"containerEnv": {
+		"PULSE_SERVER": "tcp:host.docker.internal:4713"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools"
+			]
+		}
+	},
+	// Post-create command to set up the environment
+	"postCreateCommand": "git submodule update --init --recursive && mkdir -p build && echo 'EdgeTX development environment ready!'"
+}
