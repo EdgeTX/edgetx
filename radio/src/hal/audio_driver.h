@@ -24,8 +24,13 @@
 #include <stdint.h>
 
 // Audio volume is defined between 0 and VOLUME_LEVEL_MAX.
+// Targets that need a different range can define it in their board/hal header.
+#ifndef VOLUME_LEVEL_MAX
 #define VOLUME_LEVEL_MAX 23
+#endif
+#ifndef VOLUME_LEVEL_DEF
 #define VOLUME_LEVEL_DEF 12
+#endif
 
 #define AUDIO_SAMPLE_RATE 32000
 
