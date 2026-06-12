@@ -46,10 +46,8 @@
 #endif
 
 #include <assert.h>
-
 #include <deque>
 #include <stdint.h>
-
 
 // Monotonic event counter incremented each time haptic fires.
 // Host (WasmSimulatorInterface) compares against last-seen value to detect new events.
@@ -376,8 +374,6 @@ void serialPutc(char c) { }
 void boardOff()
 {
 }
-
-
 
 #if defined(HAS_HARDWARE_OPTIONS)
 HardwareOptions hardwareOptions;

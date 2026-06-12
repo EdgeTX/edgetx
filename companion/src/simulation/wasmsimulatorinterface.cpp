@@ -390,14 +390,12 @@ bool WasmSimulatorInterface::resolveExports()
   m_fnGetCustomSwitchIndex =
       wasm_runtime_lookup_function(m_moduleInst, "simuGetCustomSwitchIndex");
 
-
-// Aux serial: host -> firmware data injection
+  // Aux serial: host -> firmware data injection
   m_fnAuxSerialReceive =
       wasm_runtime_lookup_function(m_moduleInst, "simuAuxSerialReceive");
 
   // Haptic feedback polling
   m_fnGetHaptic = wasm_runtime_lookup_function(m_moduleInst, "simuGetHaptic");
-
 
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");

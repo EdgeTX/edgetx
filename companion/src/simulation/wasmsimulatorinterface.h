@@ -213,7 +213,6 @@ class WasmSimulatorInterface : public SimulatorInterface
 
     wasm_function_inst_t m_fnMalloc = nullptr;
     wasm_function_inst_t m_fnFree = nullptr;
-
 };
 
 class WasmSimulatorFactory : public SimulatorFactory

@@ -650,4 +650,3 @@ void SimulatorMainWindow::onHapticChanged(int intensity) {
     });
   }
 }
-

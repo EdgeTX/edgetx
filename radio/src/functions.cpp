@@ -25,7 +25,6 @@
 #include "hal/audio_driver.h"
 #include "os/time.h"
 
-
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);
 #endif
