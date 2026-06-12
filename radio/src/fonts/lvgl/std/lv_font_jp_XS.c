@@ -1787,5 +1787,5 @@ const etxLz4Font lv_font_jp_XS __FLASH = {
 .right_class_mapping = 40848,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 41512,
+.lvglFontBufSize = 41520,
 };
