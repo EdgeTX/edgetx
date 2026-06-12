@@ -283,7 +283,9 @@ class OutputsWidgetFactory : public WidgetFactory
   const void checkOptions(int screenNum, int zoneNum) const override
   {
     auto widgetData = g_model.getWidgetData(screenNum, zoneNum);
-    if (widgetData && widgetData->options.size() < 6 && widgetData->options[1].type == WOV_Bool) {
+    if (widgetData && widgetData->options.size() >= 2 &&
+        widgetData->options.size() < 6 &&
+        widgetData->options[1].type == WOV_Bool) {
       WidgetOptionValueTyped v;
       v.type = WOV_Signed;
       v.value.signedValue = MAX_OUTPUT_CHANNELS;
