@@ -26,7 +26,6 @@
 #include "stm32_i2c_driver.h"
 
 #include "stm32_hal_ll.h"
-#include "timers_driver.h"
 
 #include "audio.h"
 #include "debug.h"
@@ -176,7 +175,7 @@ void audioSetVolume(uint8_t volume)
   if (btAudioLinked())
     volume = volume + (volume	>> 2);
 #endif
-  tas2505_set_volume(&_tas2505, volume * 9 / 10, audioHeadphoneDetect()); // TX15 HP cannot handle the full power of TAS2505
+  tas2505_set_volume(&_tas2505, volume, audioHeadphoneDetect());
 }
 
 extern "C" void DMA1_Stream4_IRQHandler(void)

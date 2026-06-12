@@ -197,11 +197,13 @@ SAI1_Block_A: PDM_CLOCK (1 MHz bit-clock output on SAI1_CK1 / PE5, !FLYSKY_GIMBA
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
-#define I2S_DMA                   		DMA1
-#define I2S_DMA_Stream            		LL_DMA_STREAM_4
-#define I2S_DMA_Stream_Request    		LL_DMAMUX1_REQ_SPI2_TX
-#define I2S_DMA_Stream_IRQn       		DMA1_Stream4_IRQn
-#define I2S_DMA_Stream_IRQHandler 		DMA1_Stream4_IRQHandler
+#undef VOLUME_LEVEL_MAX
+#define VOLUME_LEVEL_MAX                20
+#define I2S_DMA                         DMA1
+#define I2S_DMA_Stream                  LL_DMA_STREAM_4
+#define I2S_DMA_Stream_Request          LL_DMAMUX1_REQ_SPI2_TX
+#define I2S_DMA_Stream_IRQn             DMA1_Stream4_IRQn
+#define I2S_DMA_Stream_IRQHandler       DMA1_Stream4_IRQHandler
 
 // MEMS PDM microphone — not available when FLYSKY_GIMBAL is enabled
 #if !defined(FLYSKY_GIMBAL)
