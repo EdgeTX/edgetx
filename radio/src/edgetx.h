@@ -467,6 +467,7 @@ extern Functions cfn_sorted[];
 #define PLAY_REPEAT(x)            (x)                 /* Range 0 to 15 */
 #define PLAY_NOW                  0x10
 #define PLAY_BACKGROUND           0x20
+#define PLAY_PURE                 0x40                /* distortion-free sine */
 
 enum AUDIO_SOUNDS {
   AUDIO_HELLO,
