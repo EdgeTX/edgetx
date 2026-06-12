@@ -2428,5 +2428,5 @@ const etxLz4Font lv_font_jp_bold_STD __FLASH = {
 .right_class_mapping = 56948,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 57612,
+.lvglFontBufSize = 57620,
 };

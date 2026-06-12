@@ -479,5 +479,5 @@ const etxLz4Font lv_font_ua_L __FLASH = {
 .right_class_mapping = 15508,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 15805,
+.lvglFontBufSize = 15813,
 };
