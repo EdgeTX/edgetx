@@ -215,6 +215,6 @@ class SimulatorLoader
     static bool unloadSimulator(const QString & name);
 
   protected:
-    static int registerSimulators(const QDir & dir);    
+    static int registerSimulators(const QDir & dir);
     static QMap<QString, SimulatorFactory *> registeredSimulators;
 };

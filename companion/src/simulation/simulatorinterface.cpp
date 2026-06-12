@@ -24,6 +24,7 @@
 #include "customdebug.h"
 #include "version.h"
 #include "firmwares/eeprominterface.h"
+
 #include <QDebug>
 #include <QLibraryInfo>
 
@@ -33,8 +34,6 @@ QStringList SimulatorLoader::getAvailableSimulators()
 {
   return registeredSimulators.keys();
 }
-
-
 
 int SimulatorLoader::registerSimulators(const QDir & dir)
 {
@@ -63,14 +62,15 @@ int SimulatorLoader::registerSimulators(const QDir & dir)
 
     auto * factory = new WasmSimulatorFactory(wasmPath, simuName, boardType);
     registeredSimulators.insert(simuName, factory);
-    qCDebug(simulatorInterfaceLoader) << "Registered WASM simulator:" << simuName;
+
+    qCDebug(simulatorInterfaceLoader) << "Registered WASM simulator:"
+                                      << simuName;
   }
 
   qCDebug(simulatorInterfaceLoader)
       << "Found WASM modules:"
       << (registeredSimulators.size() ? registeredSimulators.keys()
                                       : QStringList() << "none");
-
   return registeredSimulators.size();
 }
 
