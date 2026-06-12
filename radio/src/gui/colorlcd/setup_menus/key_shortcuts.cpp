@@ -83,7 +83,7 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
 }
 
 QMKeyShortcutsPage::QMKeyShortcutsPage():
-        SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
+        SubPage(ICON_RADIO, STR_MAIN_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
 {
   auto qmPages = QuickMenu::menuPageNames(false);
 

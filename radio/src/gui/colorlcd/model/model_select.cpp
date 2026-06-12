@@ -541,26 +541,13 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelLabelsWindow::onLongPressSYS()
+void ModelLabelsWindow::doKeyShortcut(event_t event)
 {
-  onCancel();
-  Page::onLongPressSYS();
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg != QM_MANAGE_MODELS)
+    Page::doKeyShortcut(event);
 }
-void ModelLabelsWindow::onPressMDL()
-{
-  onCancel();
-  Page::onPressMDL();
-}
-void ModelLabelsWindow::onPressTELE()
-{
-  onCancel();
-  Page::onPressTELE();
-}
-void ModelLabelsWindow::onLongPressTELE()
-{
-  onCancel();
-  Page::onLongPressTELE();
-}
+
 void ModelLabelsWindow::onPressPG(bool isNext)
 {
   int rowcount = lblselector->getRowCount();

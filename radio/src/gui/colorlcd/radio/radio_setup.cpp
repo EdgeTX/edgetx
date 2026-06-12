@@ -1046,19 +1046,19 @@ static bool hasShortcutKeys()
 
 const static PageButtonDef radioSetupButtons[] = {
 #if defined(AUDIO)
-  {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines); }},
+  {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines); }},
 #endif
 #if defined(VARIO)
-  {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines); }},
+  {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines); }},
 #endif
 #if defined(HAPTIC)
-  {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines); }},
+  {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines); }},
 #endif
-  {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines); }},
-  {STR_DEF(STR_BACKLIGHT_LABEL), []() { (new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, backlightSetupLines))->useFlexLayout(); }},
-  {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
-  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
-  {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_MAIN_MENU_MANAGE_MODELS, manageModelsSetupLines); }},
+  {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines); }},
+  {STR_DEF(STR_BACKLIGHT_LABEL), []() { (new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, backlightSetupLines))->useFlexLayout(); }},
+  {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
+  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
+  {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_MAIN_MENU_MANAGE_MODELS, manageModelsSetupLines); }},
 #if VERSION_MAJOR > 2
   {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, []() { return hasShortcutKeys(); }},
   {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},

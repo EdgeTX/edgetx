@@ -639,6 +639,15 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
   setWindowFlag(OPAQUE);
 }
 
+#if defined(HARDWARE_KEYS)
+void NavWindow::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void NavWindow::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void NavWindow::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void NavWindow::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void NavWindow::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void NavWindow::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
+#endif
+
 //-----------------------------------------------------------------------------
 
 class SetupTextButton : public TextButton

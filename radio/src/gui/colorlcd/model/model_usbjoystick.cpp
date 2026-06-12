@@ -495,7 +495,7 @@ class USBChannelLineButton : public ListLineButton
 
 ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB, PAD_BORDER)
 {
-  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
+  header->setTitle(STR_MAIN_MODEL_SETTINGS);
   header->setTitle2(STR_USBJOYSTICK_LABEL);
 
   body->setFlexLayout();

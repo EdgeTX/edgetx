@@ -65,12 +65,8 @@ std::string replaceAll(std::string str, const std::string& from, const std::stri
 
 //-----------------------------------------------------------------------------
 
-#define GRP_W(n) ((QuickMenuGroup::QM_BUTTON_WIDTH + PAD_MEDIUM) * n - PAD_MEDIUM + PAD_OUTLINE * 2)
-#if LANDSCAPE
-#define GRP_H(n) ((QuickMenuGroup::QM_BUTTON_HEIGHT + PAD_MEDIUM) * n - PAD_MEDIUM + PAD_OUTLINE * 2)
-#else
-#define GRP_H(n) ((QuickMenuGroup::QM_BUTTON_HEIGHT + PAD_SMALL) * n - PAD_SMALL + PAD_OUTLINE * 2)
-#endif
+#define GRP_W(n) ((QuickMenu::QM_BUTTON_WIDTH + QuickMenu::QM_HPAD) * n - QuickMenu::QM_HPAD + PAD_OUTLINE * 2)
+#define GRP_H(n) ((QuickMenu::QM_BUTTON_HEIGHT + QuickMenu::QM_VPAD) * n - QuickMenu::QM_VPAD + PAD_OUTLINE * 2)
 
 class QuickMenu : public NavWindow
 {
@@ -98,18 +94,15 @@ class QuickMenu : public NavWindow
   static int pageIndex(QMPage page);
   static std::vector<std::string>& menuPageNames(bool forFavorites);
 
+  static bool isInMenu(EdgeTxIcon icon) { return instance && instance->curIcon == icon; }
+  static bool isFavoritesMenu() { return isInMenu(ICON_QM_FAVORITES); }
+
 #if VERSION_MAJOR > 2
   static void resetFavorites();
 #endif
 
 #if defined(HARDWARE_KEYS)
-  void doKeyShortcut(event_t event);
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
+  void doKeyShortcut(event_t event) override;
   void onLongPressRTN() override;
   void onPressPGDN() override;
   void onPressPGUP() override;
@@ -119,6 +112,12 @@ class QuickMenu : public NavWindow
 #if VERSION_MAJOR == 2
   static LAYOUT_ORIENTATION(QM_MAIN_COLS, 5, 3)
   static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 2, 4)
+#if PORTRAIT
+  static LAYOUT_VAL_SCALED(QM_BUTTON_WIDTH, 72)
+#else
+  static LAYOUT_SIZE_SCALED(QM_BUTTON_WIDTH, 72, 60)
+#endif
+  static LAYOUT_VAL_SCALED(QM_BUTTON_HEIGHT, 70)
   static constexpr int QM_MAIN_W = GRP_W(QM_MAIN_COLS);
   static constexpr int QM_MAIN_H = GRP_H(QM_MAIN_ROWS);
   static constexpr coord_t QM_W = QM_MAIN_W + PAD_LARGE * 2;
@@ -131,6 +130,12 @@ class QuickMenu : public NavWindow
   static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 1, 6)
   static LAYOUT_ORIENTATION(QM_SUB_COLS, 6, 3)
   static LAYOUT_ORIENTATION(QM_SUB_ROWS, 2, 6)
+  static LAYOUT_ORIENTATION(QM_COLS, QM_MAIN_COLS, QM_MAIN_COLS + QM_SUB_COLS)
+  static LAYOUT_ORIENTATION(QM_ROWS, QM_MAIN_ROWS + QM_SUB_ROWS, QM_MAIN_ROWS)
+  static LAYOUT_ORIENTATION(QM_HPAD, PAD_MEDIUM, PAD_MEDIUM)
+  static LAYOUT_ORIENTATION(QM_VPAD, PAD_MEDIUM, PAD_SMALL)
+  static constexpr coord_t QM_BUTTON_WIDTH = ((LCD_W - PAD_OUTLINE * 2) + QuickMenu::QM_HPAD) / QM_COLS - QuickMenu::QM_HPAD;
+  static constexpr coord_t QM_BUTTON_HEIGHT = ((LCD_H - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE * 3 - PAD_LARGE) + QuickMenu::QM_VPAD) / QM_ROWS - QuickMenu::QM_VPAD;
   static constexpr int QM_MAIN_W = GRP_W(QM_MAIN_COLS);
   static constexpr int QM_MAIN_H = GRP_H(QM_MAIN_ROWS);
   static constexpr int QM_SUB_W = GRP_W(QM_SUB_COLS);

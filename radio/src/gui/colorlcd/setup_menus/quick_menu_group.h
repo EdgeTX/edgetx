@@ -57,13 +57,6 @@ class QuickMenuGroup : public Window
 
   void deleteLater() override;
 
-#if PORTRAIT
-  static LAYOUT_VAL_SCALED(QM_BUTTON_WIDTH, 72)
-#else
-  static LAYOUT_SIZE_SCALED(QM_BUTTON_WIDTH, 72, 60)
-#endif
-  static LAYOUT_VAL_SCALED(QM_BUTTON_HEIGHT, 70)
-
   static LAYOUT_VAL_SCALED(QM_ICON_SIZE, 30)
   static LAYOUT_ORIENTATION(QM_ICON_PAD, PAD_MEDIUM, PAD_SMALL)
 

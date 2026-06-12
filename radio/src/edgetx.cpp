@@ -2106,7 +2106,6 @@ bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, 
       v2_min = 0;
     }
   }
-  TRACE(">>>>> %d %d %d",cs->func,v2_min,v2_max);
 
   bool rv = false;
 
