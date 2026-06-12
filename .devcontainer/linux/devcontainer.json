@@ -2,7 +2,7 @@
 // Works with both PulseAudio and PipeWire (via its PulseAudio compatibility
 // socket). Keep in sync with ../devcontainer.json — see ../README.md.
 {
-	"name": "edgetx-dev (audio, Linux)",
+	"name": "edgetx-dev (Linux)",
 	"image": "ghcr.io/edgetx/edgetx-dev:latest",
 	"runArgs": [
 		"--ipc=host",

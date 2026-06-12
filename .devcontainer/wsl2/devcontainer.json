@@ -1,7 +1,7 @@
 // EdgeTX devcontainer with host audio passthrough for Windows (WSL2/WSLg).
 // Keep in sync with ../devcontainer.json — see ../README.md for details.
 {
-	"name": "edgetx-dev (audio, WSL2)",
+	"name": "edgetx-dev (WSL2)",
 	"image": "ghcr.io/edgetx/edgetx-dev:latest",
 	"runArgs": [
 		"--ipc=host",
