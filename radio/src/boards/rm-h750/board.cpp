@@ -167,10 +167,18 @@ void boardInit()
   timersInit();
 
   usbChargerInit();
-#if !defined(POWER_LED_BLUE)
-  ledBlue();
-#else
+#if defined(POWER_LED_WHITE)
+  ledWhite();
+#elif defined(POWER_LED_MAGENTA)
+  ledMagenta();
+#elif defined(POWER_LED_YELLOW)
+  ledYellow();
+#elif defined(POWER_LED_CYAN)
+  ledCyan();
+#elif defined(POWER_LED_GREEN)
   ledGreen();
+#else
+  ledBlue();
 #endif
 
   ExtFLASH_InitRuntime();
