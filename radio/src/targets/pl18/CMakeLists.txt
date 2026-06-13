@@ -40,6 +40,7 @@ set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
 set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
 add_definitions(-DPCBPL18 -DPCBFLYSKY)
+add_definitions(-DSTATUS_LED_STRIP)
 add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
@@ -224,7 +225,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
-  drivers/frftl.cpp  
+  drivers/frftl.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
