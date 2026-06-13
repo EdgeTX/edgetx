@@ -190,9 +190,11 @@ void ledInit();
 void ledOff();
 void ledRed();
 void ledBlue();
-#if defined(LED_GREEN_GPIO)
-  void ledGreen();
-#endif
+void ledGreen();
+void ledYellow();
+void ledMagenta();
+void ledCyan();
+void ledWhite();
 
 // LCD driver
 

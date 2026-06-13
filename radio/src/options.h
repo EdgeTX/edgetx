@@ -106,5 +106,20 @@ static const char * const options[] = {
 #if defined(POWER_LED_BLUE)
     "power_led_blue",
 #endif
+#if defined(POWER_LED_GREEN)
+    "power_led_green",
+#endif
+#if defined(POWER_LED_CYAN)
+    "power_led_cyan",
+#endif
+#if defined(POWER_LED_YELLOW)
+    "power_led_yellow",
+#endif
+#if defined(POWER_LED_MAGENTA)
+    "power_led_magenta",
+#endif
+#if defined(POWER_LED_WHITE)
+    "power_led_white",
+#endif
   nullptr //sentinel
 };
