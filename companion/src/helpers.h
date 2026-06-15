@@ -121,6 +121,7 @@ namespace Helpers
   QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
   QString getImagesCacheDir();
   QString getImagePath(const QString & filename);
+  bool createImagesCacheDir();
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
