@@ -236,12 +236,14 @@ int main(int argc, char *argv[])
 
   if (!tempDir.isValid()) {
     qDebug() << "Unable to create application temporary directory";
-    gAppTempPath = "";
+    gAppTempPath.clear();
   } else {
     gAppTempPath = tempDir.path();
 
     if (!QDir(gAppTempPath).mkdir("IMAGES"))
       qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
+    else
+      qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
   }
 
   Profile & profile = g.currentProfile();
