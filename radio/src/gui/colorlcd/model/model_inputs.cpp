@@ -177,7 +177,6 @@ class InputLineButton : public InputMixButtonBase
     }
   }
 
- protected:
   bool isActive() const override { return isExpoActive(index); }
 };
 
@@ -270,7 +269,7 @@ InputMixButtonBase* ModelInputsPage::createLineButton(InputMixGroupBase* group,
       uint8_t idx = button->getIndex();
       deleteInput(idx);
     });
-    return 0;
+    return button->isActive();
   });
 
   return button;

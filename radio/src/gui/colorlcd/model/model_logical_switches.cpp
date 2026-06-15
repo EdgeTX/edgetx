@@ -616,7 +616,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
           storageDirty(EE_MODEL);
           rebuild(window);
         });
-        return 0;
+        return button->isActive();
       });
 
       if (focusIndex == i) {

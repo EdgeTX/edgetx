@@ -54,10 +54,7 @@ class ButtonBase : public FormField
     longPressHandler = std::move(handler);
   }
 
-  void setCheckHandler(std::function<void(void)> handler)
-  {
-    checkHandler = std::move(handler);
-  }
+  void setCheckHandler(std::function<void(void)> handler);
 
  protected:
   std::function<uint8_t(void)> pressHandler;

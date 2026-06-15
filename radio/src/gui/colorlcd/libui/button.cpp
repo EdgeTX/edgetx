@@ -102,6 +102,12 @@ void ButtonBase::checkEvents()
   if (checkHandler) checkHandler();
 }
 
+void ButtonBase::setCheckHandler(std::function<void(void)> handler)
+{
+  checkHandler = std::move(handler);
+  if (checkHandler) checkHandler();
+}
+
 //-----------------------------------------------------------------------------
 
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
