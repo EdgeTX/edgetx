@@ -91,13 +91,21 @@ static DSTATUS spi_flash_initialize(BYTE lun)
   }
 
 #if defined(USE_FLASH_FTL)
-  int flashSize = flashSpiGetSize();
-  int flashSizeMB = flashSize  / 1024 / 1024;
+  if (frftlInitDone) {
+    // Do flush when trying to reinit spi flash,
+    // because the frftl only need to be initialized once
+    if (!ftlSync(&_frftl)) {
+      return STA_NOINIT;
+    }
+  } else {
+    int flashSize = flashSpiGetSize();
+    int flashSizeMB = flashSize  / 1024 / 1024;
 
-  if (!ftlInit(&_frftl, &_frftl_cb, flashSizeMB)) {
-    return STA_NOINIT;
+    if (!ftlInit(&_frftl, &_frftl_cb, flashSizeMB)) {
+      return STA_NOINIT;
+    }
+    frftlInitDone = true;
   }
-  frftlInitDone = true;
 #endif
 
   return 0;
