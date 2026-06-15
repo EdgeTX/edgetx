@@ -75,6 +75,6 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-ThrottleParams::ThrottleParams() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_THROTTLE_LABEL, setupLines, DIM(setupLines))
+ThrottleParams::ThrottleParams() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_THROTTLE_LABEL, setupLines, DIM(setupLines))
 {
 }

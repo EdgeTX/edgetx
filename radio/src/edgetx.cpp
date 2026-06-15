@@ -614,19 +614,20 @@ void calcBacklightValue(int16_t source)
 #endif
 }
 
-#define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
-getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
+#define VOLUME_SOURCE_DEADZONE 10       // how much must a input value change to actually be considered for new volume setting
 
 void calcVolumeValue(int16_t source)
 {
-  getvalue_t raw = getValue(source);
-  // only set volume if input changed more than hysteresis
-  if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {
-    requiredSpeakerVolumeRawLast = raw;
+  int32_t shifted = 1024 + getValue(source);
+  int32_t v;
+  if (shifted < VOLUME_SOURCE_DEADZONE) {
+    v = 0;
+  } else {
+    v = 1 + ((shifted - VOLUME_SOURCE_DEADZONE) * (VOLUME_LEVEL_MAX - 1)) /
+            (2048 - VOLUME_SOURCE_DEADZONE);
+    if (v > VOLUME_LEVEL_MAX) v = VOLUME_LEVEL_MAX;
   }
-  requiredSpeakerVolume =
-      ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) /
-      2048;
+  requiredSpeakerVolume = (int16_t)v;
 }
 
 void checkBacklight()
@@ -2106,7 +2107,6 @@ bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, 
       v2_min = 0;
     }
   }
-  TRACE(">>>>> %d %d %d",cs->func,v2_min,v2_max);
 
   bool rv = false;
 

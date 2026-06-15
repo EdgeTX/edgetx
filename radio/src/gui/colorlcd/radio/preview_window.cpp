@@ -23,6 +23,7 @@
 
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "quick_menu.h"
 #include "quick_menu_group.h"
 #include "sliders.h"
 #include "textedit.h"
@@ -163,22 +164,22 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   auto mask = getBuiltinIcon(ICON_TOP_LOGO);
   new StaticIcon(qm, (QM_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
 
-  auto qmb = new Window(qm, {PAD_SMALL, mask->height + PAD_SMALL, QuickMenuGroup::QM_BUTTON_WIDTH, QuickMenuGroup::QM_BUTTON_HEIGHT});
+  auto qmb = new Window(qm, {PAD_SMALL, mask->height + PAD_SMALL, QuickMenu::QM_BUTTON_WIDTH, QuickMenu::QM_BUTTON_HEIGHT});
   etx_obj_add_style(qmb->getLvObj(), styles->rounded, LV_PART_MAIN);
   etx_txt_color(qmb->getLvObj(), COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
   etx_solid_bg(qmb->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
-  new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
+  new StaticIcon(qmb, (QuickMenu::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
                   ICON_MODEL_SELECT, COLOR_THEME_QM_FG_INDEX);
-  new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+  new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenu::QM_BUTTON_WIDTH - 1, 0},
                   STR_QM_MANAGE_MODELS, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XS));
 
-  qmb = new Window(qm, {QuickMenuGroup::QM_BUTTON_WIDTH + PAD_SMALL * 2, mask->height + PAD_SMALL, QuickMenuGroup::QM_BUTTON_WIDTH, QuickMenuGroup::QM_BUTTON_HEIGHT});
+  qmb = new Window(qm, {QuickMenu::QM_BUTTON_WIDTH + PAD_SMALL * 2, mask->height + PAD_SMALL, QuickMenu::QM_BUTTON_WIDTH, QuickMenu::QM_BUTTON_HEIGHT});
   etx_obj_add_style(qmb->getLvObj(), styles->rounded, LV_PART_MAIN);
   etx_txt_color(qmb->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_PART_MAIN);
   etx_solid_bg(qmb->getLvObj(), COLOR_THEME_QM_FG_INDEX, LV_PART_MAIN);
-  new StaticIcon(qmb, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
+  new StaticIcon(qmb, (QuickMenu::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL,
                   ICON_MODEL, COLOR_THEME_QM_BG_INDEX);
-  new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+  new StaticText(qmb, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenu::QM_BUTTON_WIDTH - 1, 0},
                   STR_QM_MODEL_SETUP, COLOR_THEME_QM_BG_INDEX, CENTERED | FONT(XS));
 
   lv_group_set_default(def_group);

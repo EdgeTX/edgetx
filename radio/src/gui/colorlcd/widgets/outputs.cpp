@@ -283,16 +283,14 @@ class OutputsWidgetFactory : public WidgetFactory
   const void checkOptions(int screenNum, int zoneNum) const override
   {
     auto widgetData = g_model.getWidgetData(screenNum, zoneNum);
-    if (widgetData && widgetData->options.size() >= 4) {
-      if (widgetData->options[1].type == WOV_Bool) {
-        widgetData->options[5] = widgetData->options[4];
-        widgetData->options[4] = widgetData->options[3];
-        widgetData->options[3] = widgetData->options[2];
-        widgetData->options[2] = widgetData->options[1];
-        widgetData->options[1].type = WOV_Signed;
-        widgetData->options[1].value.signedValue = MAX_OUTPUT_CHANNELS;
-        storageDirty(EE_MODEL);
-      }
+    if (widgetData && widgetData->options.size() >= 2 &&
+        widgetData->options.size() < 6 &&
+        widgetData->options[1].type == WOV_Bool) {
+      WidgetOptionValueTyped v;
+      v.type = WOV_Signed;
+      v.value.signedValue = MAX_OUTPUT_CHANNELS;
+      widgetData->options.insert(widgetData->options.begin() + 1, v);
+      storageDirty(EE_MODEL);
     }
   }
 };

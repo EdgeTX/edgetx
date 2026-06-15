@@ -944,6 +944,10 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   bool hasOwnData = modelsListModel->hasOwnMimeData(mimeData);
   move = (move && hasOwnData);
 
+  bool actionOverwrite = false;
+  bool actionInsert = false;
+  bool actionApplyAll = false;
+
   //qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx;
 
   // Model data
@@ -974,29 +978,40 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
         ok = true;
       }
       else {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(CPN_STR_APP_NAME);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
-        QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
-        QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
-        QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+        if (!actionApplyAll) {
+          actionOverwrite = false;
+          actionInsert = false;
+          QMessageBox msgBox;
+          msgBox.setWindowTitle(CPN_STR_APP_NAME);
+          msgBox.setIcon(QMessageBox::Warning);
+          msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
+          QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
+          QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
+          QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+          QCheckBox *cb = new QCheckBox(tr("Apply to all remaining models"));
+          msgBox.setCheckBox(cb);
+          connect(cb, &QCheckBox::checkStateChanged, [&](const int &state){ actionApplyAll = state; });
 
-        msgBox.exec();
+          msgBox.exec();
 
-        if (msgBox.clickedButton() == overwriteButton) {
+          if (msgBox.clickedButton() == overwriteButton) {
+            actionOverwrite = true;
+          } else if (msgBox.clickedButton() == insertButton) {
+            actionInsert = true;
+          } else if (msgBox.clickedButton() == cancelButton) {
+            break;  // stop all further processing
+          }
+        }
+
+        if (actionOverwrite) {
           radioData.models[modelIdx] = modelsList->at(i);
           ok = true;
-        }
-        else if (msgBox.clickedButton() == insertButton) {
+        } else if (actionInsert) {
           ok = insertModelRows(modelIdx, 1);
           if (ok) {
             radioData.models[modelIdx] = modelsList->at(i);
             // ++inserts;
           }
-        }
-        else if (msgBox.clickedButton() == cancelButton) {
-          ok = false;
         }
       }
     }
@@ -1009,10 +1024,12 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
       modified = true;
       setModelModified(modelIdx, false);  // avoid unnecessary refreshes
+
       if (doMove) {
         deletesList.append(origMdlIdx);
         removeModelFromCutList(origMdlIdx);
       }
+
       radioData.addLabelsFromModels();
     }
     //qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
@@ -1020,6 +1037,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
     ++modelIdx;
   }
 
+  // even if we cancel we need to delete those models already moved
   if (deletesList.size()) {
     deleteModels(deletesList);
   }
