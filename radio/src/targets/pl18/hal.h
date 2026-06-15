@@ -212,9 +212,9 @@
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
+#if defined(USE_VS1053B)
 // RX DMA can only be enabled when DAC audio is not used,
-// having DMA conflict with DAC audio
+// as it would conflict with the DAC audio DMA (DMA1 Stream 5)
 #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_5
 #define TELEMETRY_DMA_Channel_RX        LL_DMA_CHANNEL_4
 #endif
@@ -330,7 +330,7 @@
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC
 
 // Audio
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
+#if defined(USE_VS1053B)
   #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOH, 14) // PH.14
   #define AUDIO_CS_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
   #define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOH, 15) // PH.15
