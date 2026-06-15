@@ -719,10 +719,8 @@ void UpdateInterface::onStatusCancelled()
   m_status->reportProgress(tr("Update cancelled by user"), QtWarningMsg);
   emit stopping();
 
-  if (m_eventLoop.isRunning()) {
-    m_eventLoop.processEvents();
+  if (m_eventLoop.isRunning())
     m_eventLoop.quit();
-  }
 }
 
 UpdateParameters* const UpdateInterface::params() const
