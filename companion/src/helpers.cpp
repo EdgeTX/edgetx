@@ -395,26 +395,6 @@ QString Helpers::getImagePath(const QString & filename)
   return srcpath;
 }
 
-bool Helpers::createImagesCacheDir()
-{
-  QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
-
-  if (!tempDir.isValid()) {
-    qDebug() << "Unable to create application temporary directory";
-    gAppTempPath = "";
-    return false;
-  } else {
-    gAppTempPath = tempDir.path();
-
-    if (!QDir(gAppTempPath).mkdir("IMAGES")) {
-      qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
-      return false;
-    }
-  }
-
-  qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
-  return true;
-}
 
 #ifdef __APPLE__
 // Flag when simulator is running

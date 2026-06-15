@@ -369,11 +369,19 @@ int main(int argc, char *argv[])
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 
   QString imgDir = Helpers::getImagesCacheDir();
+  QDir dir(imgDir);
 
-  if (imgDir.isEmpty() || !QDir(imgDir).exists()) {
-    if (!Helpers::createImagesCacheDir())
-      return finish(1);
+  if (dir.exists()) {
+    if (!dir.removeRecursively())
+      qDebug() << "Unable to delete images cache directory" << imgDir;
+    else
+      qDebug() << "Deleted images cache directory" << imgDir;
   }
+
+  if (!QDir::temp().mkpath(imgDir))
+    qDebug() << "Unable to create images cache directory" << imgDir;
+  else
+    qDebug() << "Created images cache directory" << imgDir;
 
   int result = 0;
   SimulatorMainWindow * mainWindow = new SimulatorMainWindow(nullptr, simOptions.simulatorId, (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
