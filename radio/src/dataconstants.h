@@ -746,4 +746,6 @@ enum Functions {
 #endif
 };
 
+#if !defined(CFN_ONLY)
 static_assert(MIXSRC_LAST_TELEM < (1 << 9), "MIXSRC_LAST_TELEM exceeds max positive value of 10-bit signed srcRaw field (511)");
+#endif
