@@ -21,34 +21,22 @@
 
 #pragma once
 
-#include "autowidget.h"
+#include "filtereditemmodels.h"
 
-#include <QCheckBox>
+#include <QObject>
+#include <functional>
 
-class AutoCheckBox : public QCheckBox, public AutoWidget
+class ItemModelEventHandler : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
-    explicit AutoCheckBox(QWidget * parent = nullptr);
-    virtual ~AutoCheckBox();
-
-    virtual void updateValue() override;
-    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
-
-    void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
-    void setInvert(bool invert);
-
-  signals:
-    void currentDataChanged(bool value);
-
-  protected slots:
-    void onToggled(bool checked);
-
-  protected:
-    virtual void setAutoText(QString text) override;
+    explicit ItemModelEventHandler(FilteredItemModel * filteredModel,
+                                   bool & lock, std::function<void()> callback);
+    virtual ~ItemModelEventHandler() = default;
 
   private:
-    bool *m_field;
-    bool m_invert;
+    bool &m_lock;
+    std::function<void()> m_updateCallback;
+    int m_cnt;
 };

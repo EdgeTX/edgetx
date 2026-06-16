@@ -48,7 +48,7 @@
       <bool>true</bool>
      </property>
      <property name="currentSection">
-      <enum>QDateTimeEdit::HourSection</enum>
+      <enum>QDateTimeEdit::Section::HourSection</enum>
      </property>
      <property name="displayFormat">
       <string notr="true">hh:mm:ss</string>
@@ -62,7 +62,7 @@
     <widget class="AutoComboBox" name="swtch"/>
    </item>
    <item>
-    <widget class="QLabel" name="countdownBeepLabel">
+    <widget class="AutoLabel" name="countdownBeepLabel">
      <property name="text">
       <string>Countdown</string>
      </property>
@@ -72,7 +72,7 @@
     <widget class="AutoComboBox" name="countdownBeep"/>
    </item>
    <item>
-    <widget class="QLabel" name="countdownStartLabel">
+    <widget class="AutoLabel" name="countdownStartLabel">
      <property name="text">
       <string>Start</string>
      </property>
@@ -95,7 +95,7 @@
     <widget class="AutoComboBox" name="showElapsed"/>
    </item>
    <item>
-    <widget class="QLabel" name="persistentValue">
+    <widget class="AutoLabel" name="persistentValue">
      <property name="text">
       <string notr="true"> (00:00:00)</string>
      </property>
@@ -104,7 +104,7 @@
    <item>
     <spacer name="spacer">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -136,6 +136,11 @@
    <class>AutoTimeEdit</class>
    <extends>QTimeEdit</extends>
    <header>autotimeedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AutoLabel</class>
+   <extends>QLabel</extends>
+   <header>autolabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

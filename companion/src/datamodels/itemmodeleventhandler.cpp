@@ -19,36 +19,32 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "itemmodeleventhandler.h"
 
-#include "autowidget.h"
-
-#include <QCheckBox>
-
-class AutoCheckBox : public QCheckBox, public AutoWidget
+ItemModelEventHandler::ItemModelEventHandler(FilteredItemModel * itemModel,
+                                             bool & lock,
+                                             std::function<void()> updateCallback) :
+  QObject(nullptr),
+  m_lock(lock),
+  m_updateCallback(std::move(updateCallback)),
+  m_cnt(0)
 {
-  Q_OBJECT
+  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, this, [this] ()
+    {
+      m_lock = true;
+      m_cnt++;
+    }
+  );
 
-  public:
-    explicit AutoCheckBox(QWidget * parent = nullptr);
-    virtual ~AutoCheckBox();
+  connect(itemModel, &FilteredItemModel::updateComplete, this, [this] ()
+    {
+      m_cnt--;
 
-    virtual void updateValue() override;
-    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
-
-    void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
-    void setInvert(bool invert);
-
-  signals:
-    void currentDataChanged(bool value);
-
-  protected slots:
-    void onToggled(bool checked);
-
-  protected:
-    virtual void setAutoText(QString text) override;
-
-  private:
-    bool *m_field;
-    bool m_invert;
-};
+      if (m_cnt < 1) {
+        if (m_updateCallback)
+          m_updateCallback();
+        m_lock = false;
+      }
+    }
+  );
+}

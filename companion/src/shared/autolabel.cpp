@@ -61,8 +61,13 @@ void AutoLabel::updateValue()
 {
   setLock(true);
   if (m_strField)
-    setText(*m_strField);
+    QLabel::setText(*m_strField);
   else if (m_charField)
-    setText(m_charField);
+    QLabel::setText(m_charField);
   setLock(false);
+}
+
+void AutoLabel::setAutoText(QString text)
+{
+  QLabel::setText(text);
 }

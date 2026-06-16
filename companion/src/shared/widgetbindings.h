@@ -21,34 +21,27 @@
 
 #pragma once
 
-#include "autowidget.h"
+#include <QWidget>
+#include <QLabel>
+#include <functional>
+#include <vector>
 
-#include <QCheckBox>
-
-class AutoCheckBox : public QCheckBox, public AutoWidget
+class WidgetBindings
 {
-  Q_OBJECT
-
   public:
-    explicit AutoCheckBox(QWidget * parent = nullptr);
-    virtual ~AutoCheckBox();
+    WidgetBindings() = default;
 
-    virtual void updateValue() override;
-    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
-
-    void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
-    void setInvert(bool invert);
-
-  signals:
-    void currentDataChanged(bool value);
-
-  protected slots:
-    void onToggled(bool checked);
-
-  protected:
-    virtual void setAutoText(QString text) override;
+    void bindVisible(QWidget *widget, std::function<bool()> pred);
+    void bindEnabled(QWidget *widget, std::function<bool()> pred);
+    void bindText(QLabel *label, std::function<QString()> fn);
+    void applyAll();
 
   private:
-    bool *m_field;
-    bool m_invert;
+    struct VisibleBinding { QWidget *widget; std::function<bool()> pred; };
+    struct EnabledBinding { QWidget *widget; std::function<bool()> pred; };
+    struct TextBinding    { QLabel  *label;  std::function<QString()> fn; };
+
+    std::vector<VisibleBinding> m_visible;
+    std::vector<EnabledBinding> m_enabled;
+    std::vector<TextBinding>    m_text;
 };

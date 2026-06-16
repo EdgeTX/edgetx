@@ -19,36 +19,31 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "widgetbindings.h"
 
-#include "autowidget.h"
-
-#include <QCheckBox>
-
-class AutoCheckBox : public QCheckBox, public AutoWidget
+void WidgetBindings::bindVisible(QWidget *widget, std::function<bool()> pred)
 {
-  Q_OBJECT
+  m_visible.push_back({widget, std::move(pred)});
+}
 
-  public:
-    explicit AutoCheckBox(QWidget * parent = nullptr);
-    virtual ~AutoCheckBox();
+void WidgetBindings::bindEnabled(QWidget *widget, std::function<bool()> pred)
+{
+  m_enabled.push_back({widget, std::move(pred)});
+}
 
-    virtual void updateValue() override;
-    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
+void WidgetBindings::bindText(QLabel *label, std::function<QString()> fn)
+{
+  m_text.push_back({label, std::move(fn)});
+}
 
-    void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
-    void setInvert(bool invert);
+void WidgetBindings::applyAll()
+{
+  for (const auto &b : m_visible)
+    b.widget->setVisible(b.pred());
 
-  signals:
-    void currentDataChanged(bool value);
+  for (const auto &b : m_enabled)
+    b.widget->setEnabled(b.pred());
 
-  protected slots:
-    void onToggled(bool checked);
-
-  protected:
-    virtual void setAutoText(QString text) override;
-
-  private:
-    bool *m_field;
-    bool m_invert;
-};
+  for (const auto &b : m_text)
+    b.label->setText(b.fn());
+}
