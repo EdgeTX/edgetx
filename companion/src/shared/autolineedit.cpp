@@ -85,5 +85,7 @@ void AutoLineEdit::onEdited()
 
 void AutoLineEdit::setAutoText(QString text)
 {
+  setLock(true);
   QLineEdit::setText(text);
+  setLock(false);
 }
