@@ -368,20 +368,22 @@ int main(int argc, char *argv[])
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 
-  QString imgDir = Helpers::getImagesCacheDir();
-  QDir dir(imgDir);
+  QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
 
-  if (dir.exists()) {
-    if (!dir.removeRecursively())
-      qDebug() << "Unable to delete images cache directory" << imgDir;
-    else
-      qDebug() << "Deleted images cache directory" << imgDir;
+  if (!tempDir.isValid()) {
+    qDebug() << "Unable to create application temporary directory";
+    gAppTempPath.clear();
+    return finish(1);
+  } else {
+    gAppTempPath = tempDir.path();
+
+    if (!QDir(gAppTempPath).mkdir("IMAGES")) {
+      qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
+      return finish(1);
+    }
   }
 
-  if (!QDir::temp().mkpath(imgDir))
-    qDebug() << "Unable to create images cache directory" << imgDir;
-  else
-    qDebug() << "Created images cache directory" << imgDir;
+  qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
 
   int result = 0;
   SimulatorMainWindow * mainWindow = new SimulatorMainWindow(nullptr, simOptions.simulatorId, (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
