@@ -675,9 +675,9 @@ void MainWindow::updateMenus()
   saveAsAct->setEnabled(activeChild);
   closeAct->setEnabled(activeChild);
   compareAct->setEnabled(activeChild);
-  writeSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
+  writeSettingsAct->setEnabled(activeChild);
   readSettingsAct->setEnabled(true);
-  writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid() && !activeMdiChild()->invalidModels());
+  writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);
@@ -1516,12 +1516,22 @@ bool MainWindow::readSettingsFromSDPath(const QString & filename)
 
 void MainWindow::writeSettingsSDPath()
 {
-  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to SD path"), tr("In progress..."), 400);
+  if (activeMdiChild()) {
+    int cnt = activeMdiChild()->invalidModels();
 
-  if (activeMdiChild())
+    if (cnt) {
+      QMessageBox::critical(this, tr("Write Models and Settings to SD Path"),
+        tr("Operation aborted: %1 models have errors that may affect operation.\n%2")
+          .arg(cnt)
+          .arg(activeMdiChild()->modelErrorsList().join("\n")));
+
+      return;
+    }
+
+    StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to SD path"), tr("In progress..."), 400);
     activeMdiChild()->writeSettings(status, false);
-
-  delete status;
+    delete status;
+  }
 }
 
 bool MainWindow::isSDPathValid()

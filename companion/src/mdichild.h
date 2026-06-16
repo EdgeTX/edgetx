@@ -44,6 +44,21 @@ class MdiChild;
 class LabelsDelegate;
 class LabelsProxy;
 
+class StatusBarIcon : public QLabel
+{
+    Q_OBJECT
+
+  public:
+    StatusBarIcon(QWidget * parent) : QLabel(parent) {}
+    virtual ~StatusBarIcon() {}
+
+  signals:
+    void doubleClicked();
+
+  protected:
+    virtual void mouseDoubleClickEvent(QMouseEvent * event);
+};
+
 class MdiChild : public QWidget
 {
   Q_OBJECT
@@ -91,7 +106,8 @@ class MdiChild : public QWidget
     QList<QAction *> getModelActions();
     QList<QAction *> getLabelsActions();
     QAction * getAction(const Actions type);
-    bool invalidModels();
+    int invalidModels();
+    QStringList modelErrorsList();
 
   public slots:
     void newFile(bool useProfileSettings = false);
@@ -228,7 +244,7 @@ class MdiChild : public QWidget
     QToolBar * labelsToolbar;
     QLabel *lblLabels;
     QStatusBar *statusBar;
-    QLabel *statusBarIcon;
+    StatusBarIcon *statusBarIcon;
     QLabel *statusBarCount;
 
     Firmware * firmware;
