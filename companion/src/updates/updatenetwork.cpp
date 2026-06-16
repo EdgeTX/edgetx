@@ -315,7 +315,7 @@ void UpdateNetwork::onGetFinished(QNetworkReply * reply, DownloadDataType type)
   }
 
   if (m_reply) {
-    delete m_reply;
+    m_reply->deleteLater();
     m_reply = nullptr;
   }
 }
@@ -330,7 +330,7 @@ void UpdateNetwork::onPostFinished()
   }
 
   if (m_reply) {
-    delete m_reply;
+    m_reply->deleteLater();
     m_reply = nullptr;
   }
 
