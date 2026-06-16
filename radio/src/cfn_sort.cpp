@@ -117,6 +117,7 @@ Functions cfn_sorted[] = {
 #endif
   /* Baggrund musik */ FUNC_BACKGND_MUSIC,
   /* Baggrund musik || */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Højdemåler */ FUNC_VARIO,
 #if defined(COLORLCD)
   /* Ikke berøringsaktiv */ FUNC_DISABLE_TOUCH,
 #endif
@@ -125,7 +126,7 @@ Functions cfn_sorted[] = {
 #if defined(VIDEO_SWITCH)
   /* LCD til Video */ FUNC_LCD_TO_VIDEO,
 #endif
-  /* Lua Script */ FUNC_PLAY_SCRIPT,
+  /* Lua skript */ FUNC_PLAY_SCRIPT,
   /* Lydstyrke */ FUNC_VOLUME,
   /* Modul tilslut */ FUNC_BIND,
   /* Nulstil */ FUNC_RESET,
@@ -150,13 +151,14 @@ Functions cfn_sorted[] = {
   /* Tryk bruger kontakt */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Træner */ FUNC_TRAINER,
-  /* Vario */ FUNC_VARIO,
   /* Vibration */ FUNC_HAPTIC,
   /* Vælg hoved skærm */ FUNC_SET_SCREEN,
 #elif defined(TRANSLATIONS_DE)
   /* Ändere */ FUNC_ADJUST_GVAR,
   /* Audio Verst. Aus */ FUNC_DISABLE_AUDIO_AMP,
+  /* Datei abspielen */ FUNC_PLAY_TRACK,
   /* Haptik */ FUNC_HAPTIC,
+  /* Hauptseite anzeigen */ FUNC_SET_SCREEN,
 #if defined(OLED_SCREEN)
   /* Helligkeit */ FUNC_BACKLIGHT,
 #endif
@@ -169,33 +171,31 @@ Functions cfn_sorted[] = {
   /* LCD Licht */ FUNC_BACKLIGHT,
 #endif
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD zu Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lehrer */ FUNC_TRAINER,
-  /* Lua Skript */ FUNC_PLAY_SCRIPT,
-  /* ModuleBind */ FUNC_BIND,
 #if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+  /* LS setzen */ FUNC_PUSH_CUST_SWITCH,
 #endif
+  /* Lua-Skript */ FUNC_PLAY_SCRIPT,
+  /* ModuleBind */ FUNC_BIND,
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
   /* RGB LED */ FUNC_RGB_LED,
   /* Rücksetz. */ FUNC_RESET,
-  /* Sag Text */ FUNC_PLAY_TRACK,
-  /* Sag Wert */ FUNC_PLAY_VALUE,
   /* Screenshot */ FUNC_SCREENSHOT,
   /* SD-Aufz. */ FUNC_LOGS,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-  /* Set Main Screen */ FUNC_SET_SCREEN,
   /* Setze */ FUNC_SET_TIMER,
   /* Spiel Töne */ FUNC_PLAY_SOUND,
   /* StartMusik */ FUNC_BACKGND_MUSIC,
-  /* Stop Musik */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* StopMusik */ FUNC_BACKGND_MUSIC_PAUSE,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
   /* Überschreibe */ FUNC_OVERRIDE_CHANNEL,
   /* Vario */ FUNC_VARIO,
+  /* Wert ansagen */ FUNC_PLAY_VALUE,
 #elif defined(TRANSLATIONS_ES)
   /* Ajuste */ FUNC_SET_TIMER,
   /* Ajuste */ FUNC_ADJUST_GVAR,
@@ -310,7 +310,7 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Régle Failsafe */ FUNC_SET_FAILSAFE,
+  /* Règle Failsafe */ FUNC_SET_FAILSAFE,
   /* Remise à 0 */ FUNC_RESET,
   /* Remplace */ FUNC_OVERRIDE_CHANNEL,
 #if !defined(OLED_SCREEN)
@@ -372,14 +372,17 @@ Functions cfn_sorted[] = {
   /* Amp Audio Off */ FUNC_DISABLE_AUDIO_AMP,
   /* Azzera */ FUNC_RESET,
   /* BindModulo */ FUNC_BIND,
+#if defined(COLORLCD)
+  /* Disab. touch */ FUNC_DISABLE_TOUCH,
+#endif
   /* Ignora */ FUNC_OVERRIDE_CHANNEL,
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD su video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Leds RGB */ FUNC_RGB_LED,
   /* Leggi Valore */ FUNC_PLAY_VALUE,
-  /* Logs SDCard */ FUNC_LOGS,
+  /* Log scheda SD */ FUNC_LOGS,
 #if defined(OLED_SCREEN)
   /* Luminosità */ FUNC_BACKLIGHT,
 #endif
@@ -387,11 +390,8 @@ Functions cfn_sorted[] = {
   /* Modo Racing */ FUNC_RACING_MODE,
   /* Musica Sf */ FUNC_BACKGND_MUSIC,
   /* Musica Sf || */ FUNC_BACKGND_MUSIC_PAUSE,
-#if defined(COLORLCD)
-  /* No Touch */ FUNC_DISABLE_TOUCH,
-#endif
 #if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+  /* Premi CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Regola */ FUNC_ADJUST_GVAR,
@@ -698,7 +698,7 @@ Functions cfn_sorted[] = {
   /* Spara trimmar */ FUNC_INSTANT_TRIM,
   /* Spela ljud */ FUNC_PLAY_SOUND,
   /* Spela upp */ FUNC_PLAY_TRACK,
-  /* Säg värdet */ FUNC_PLAY_VALUE,
+  /* Säg värde */ FUNC_PLAY_VALUE,
   /* Sätt */ FUNC_SET_TIMER,
   /* Sätt failsafe */ FUNC_SET_FAILSAFE,
   /* Sätt huvudskärm */ FUNC_SET_SCREEN,
