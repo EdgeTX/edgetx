@@ -4,16 +4,13 @@ project(prefsedit)
 set(${PROJECT_NAME}_NAMES
   gridlayout
   prefsedit
-  prefs_app
-  prefs_profile
+  #prefs_app
+  #prefs_profile
   prefs_simu
-  prefs_update
+  #prefs_update
 )
 
 AddHeadersSources()
-
-qt_wrap_cpp(${PROJECT_NAME}_SRCS
-)
 
 add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_HDRS}

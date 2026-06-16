@@ -20,11 +20,12 @@
  */
 
 #include "prefsedit.h"
-#include "prefs_general.h"
-#include "prefs_profile.h"
+//#include "prefs_app.h"
+//#include "prefs_profile.h"
 #include "prefs_simu.h"
-#include "prefs_update.h"
+//#include "prefs_update.h"
 #include "ui_prefsedit.h"
+#include "helpers.h"
 
 /*
     PrefsPanel
@@ -43,7 +44,6 @@ PrefsPanel::PrefsPanel(QWidget * parent):
 
 PrefsScrollArea::PrefsScrollArea(QWidget * parent, PrefsPanel * panel):
   QScrollArea(parent),
-  mainWinHasDirtyChild(false),
   panel(panel)
 {
   setWidgetResizable(true);
@@ -65,17 +65,18 @@ bool PrefsScrollArea::eventFilter(QObject * o, QEvent * e)
 
 PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) :
   QDialog(parent),
-  ui(new Ui::PrefsEditDialog)
+  ui(new Ui::PrefsEdit),
+  mainWinHasDirtyChild(false)
 {
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("apppreferences.png"));
   setAttribute(Qt::WA_DeleteOnClose);
-  restoreGeometry(g.settingsEditGeo());
+  restoreGeometry(g.prefsEditGeo());
 
-  addTab(new PrefsProfilePanel(this), tr("Radio Profile"));
-  addTab(new PrefsGeneralPanel(this), tr("Application"));
+  //addTab(new PrefsProfilePanel(this), tr("Radio Profile"));
+  //addTab(new PrefsAppPanel(this), tr("Application"));
   addTab(new PrefsSimuPanel(this), tr("Simulator"));
-  addTab(new PrefsUpdatePanel(this, factories), tr("Update"));
+  //addTab(new PrefsUpdatePanel(this, factories), tr("Update"));
 
   ui->tabWidget->setCurrentIndex(0);
   shrink();
@@ -111,7 +112,12 @@ void PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
 
 void PrefsEditDialog::closeEvent(QCloseEvent *event)
 {
-  g.settingsEditGeo(saveGeometry());
+  g.prefsEditGeo(saveGeometry());
+}
+
+void PrefsEditDialog::onTabModified()
+{
+  emit modified();
 }
 
 void PrefsEditDialog::shrink()

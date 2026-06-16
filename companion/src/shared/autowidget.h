@@ -44,8 +44,9 @@ class AutoWidget
     // example buddies are AutoLabel and AutoComboBox
     void addBuddyWidget(AutoWidget * wgt);
     void addBuddyWidgets(QList<AutoWidget *> wgts);
-    void clearBuddyWidget(AutoWidget * wgt);
-    void clearBuddyWidgets();
+    void removeBuddyWidget(AutoWidget * wgt);
+    void removeBuddyWidgets();
+    void setParentBuddyWidget(AutoWidget * wgt);
 
     // mark those unsupported by the base Qt widget as deleted in the child widget
     // these are not marked as virtual to support deletion
@@ -79,6 +80,7 @@ class AutoWidget
     bool m_lock;
 
     QList<AutoWidget *> m_buddyWidgets;
+    AutoWidget *m_parentBuddyWidget;
 
     std::function<bool()> m_enabled;
     std::function<QAbstractItemModel*()> m_model;

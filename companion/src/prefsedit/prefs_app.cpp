@@ -19,33 +19,33 @@
  * GNU General Public License for more details.
  */
 
-#include "prefs_general.h"
-#include "ui_prefs_general.h"
+#include "prefs_app.h"
+#include "ui_prefs_app.h"
 #include "appdata.h"
 
-PrefsGeneralPanel::PrefsGeneralPanel(QWidget * parent):
+PrefsAppPanel::PrefsAppPanel(QWidget * parent):
   PrefsPanel(parent),
   ui(new Ui::General)
 {
   ui->setupUi(this);
   lock = true;
 
-  connect(ui->opt_appDebugLog, &QCheckBox::toggled, this, &PrefsGeneralPanel::toggleAppLogPrefs);
-  connect(ui->opt_fwTraceLog, &QCheckBox::toggled, this, &PrefsGeneralPanel::toggleAppLogPrefs);
-  connect(ui->backupPath, &QLineEdit::editingFinished, this, &PrefsGeneralPanel::onBackupPathEditingFinished);
-  connect(ui->backupPathButton, &QPushButton::clicked, this, &PrefsGeneralPanel::onBackupPathButtonClicked);
+  connect(ui->opt_appDebugLog, &QCheckBox::toggled, this, &PrefsAppPanel::toggleAppLogPrefs);
+  connect(ui->opt_fwTraceLog, &QCheckBox::toggled, this, &PrefsAppPanel::toggleAppLogPrefs);
+  connect(ui->backupPath, &QLineEdit::editingFinished, this, &PrefsAppPanel::onBackupPathEditingFinished);
+  connect(ui->backupPathButton, &QPushButton::clicked, this, &PrefsAppPanel::onBackupPathButtonClicked);
 
   update();
   lock = false;
 }
 
-PrefsGeneralPanel::~PrefsGeneralPanel()
+PrefsAppPanel::~PrefsAppPanel()
 {
   delete ui;
 }
 
 
-bool PrefsGeneralPanel::save()
+bool PrefsAppPanel::save()
 {
   g.showSplash(ui->showSplash->isChecked());
   g.sortProfiles(ui->sortProfiles->isChecked());
@@ -67,7 +67,7 @@ bool PrefsGeneralPanel::save()
 
 }
 
-void PrefsGeneralPanel::update()
+void PrefsAppPanel::update()
 {
   ui->showSplash->setChecked(g.showSplash());
   ui->sortProfiles->setChecked(g.sortProfiles());
@@ -98,7 +98,7 @@ void PrefsGeneralPanel::update()
 
 }
 
-void PrefsGeneralPanel::on_libraryPathButton_clicked()
+void PrefsAppPanel::on_libraryPathButton_clicked()
 {
   QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your library folder"), g.libDir());
   if (!fileName.isEmpty()) {
@@ -107,7 +107,7 @@ void PrefsGeneralPanel::on_libraryPathButton_clicked()
   }
 }
 
-void PrefsGeneralPanel::onBackupPathButtonClicked()
+void PrefsAppPanel::onBackupPathButtonClicked()
 {
   QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your global backup folder"), g.backupDir());
   if (!fileName.isEmpty()) {
@@ -125,7 +125,7 @@ void PrefsGeneralPanel::onBackupPathButtonClicked()
   }
 }
 
-void PrefsGeneralPanel::on_btn_appLogsDir_clicked()
+void PrefsAppPanel::on_btn_appLogsDir_clicked()
 {
   QString fileName = QFileDialog::getExistingDirectory(this, tr("Select a folder for application logs"), ui->appLogsDir->text());
   if (!fileName.isEmpty()) {
@@ -133,7 +133,7 @@ void PrefsGeneralPanel::on_btn_appLogsDir_clicked()
   }
 }
 
-void PrefsGeneralPanel::on_ge_pathButton_clicked()
+void PrefsAppPanel::on_ge_pathButton_clicked()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Select Google Earth executable"),ui->ge_lineedit->text());
   if (!fileName.isEmpty()) {
@@ -141,7 +141,7 @@ void PrefsGeneralPanel::on_ge_pathButton_clicked()
   }
 }
 
-bool PrefsGeneralPanel::displayImage(const QString & fileName)
+bool PrefsAppPanel::displayImage(const QString & fileName)
 {
   // Start by clearing the label
   ui->imageLabel->clear();
@@ -159,7 +159,7 @@ bool PrefsGeneralPanel::displayImage(const QString & fileName)
   return true;
 }
 
-void PrefsGeneralPanel::on_SplashSelect_clicked()
+void PrefsAppPanel::on_SplashSelect_clicked()
 {
   QString supportedImageFormats;
   for (int formatIndex = 0; formatIndex < QImageReader::supportedImageFormats().count(); formatIndex++) {
@@ -177,13 +177,13 @@ void PrefsGeneralPanel::on_SplashSelect_clicked()
   }
 }
 
-void PrefsGeneralPanel::on_clearImageButton_clicked()
+void PrefsAppPanel::on_clearImageButton_clicked()
 {
   ui->imageLabel->clear();
   ui->SplashFileName->clear();
 }
 
-void PrefsGeneralPanel::toggleAppLogPrefs()
+void PrefsAppPanel::toggleAppLogPrefs()
 {
   bool vis = (ui->opt_appDebugLog->isChecked() || ui->opt_fwTraceLog->isChecked());
   ui->appLogsDir->setVisible(vis);
@@ -191,7 +191,7 @@ void PrefsGeneralPanel::toggleAppLogPrefs()
   ui->btn_appLogsDir->setVisible(vis);
 }
 
-void PrefsGeneralPanel::onBackupPathEditingFinished()
+void PrefsAppPanel::onBackupPathEditingFinished()
 {
   if(!ui->backupPath->text().isEmpty() && QFileInfo(ui->backupPath->text()).exists()) {
     ui->backupEnable->setEnabled(true);

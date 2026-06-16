@@ -21,12 +21,13 @@
 
 #include "autocheckbox.h"
 
-AutoCheckBox::AutoCheckBox(QWidget * parent):
+AutoCheckBox::AutoCheckBox(QWidget * parent, const QString & text):
   QCheckBox(parent),
   AutoWidget(),
   m_field(nullptr),
   m_invert(false)
 {
+  setText(text);
   connect(this, &QCheckBox::toggled, this, &AutoCheckBox::onToggled);
 }
 

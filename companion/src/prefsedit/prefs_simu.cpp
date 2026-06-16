@@ -37,17 +37,16 @@ PrefsSimuPanel::PrefsSimuPanel(QWidget * parent) :
   lock = true;
 
   grid->addLabel(tr("Screenshot Capture"));
-  AutoCheckBox *chk = new AutoCheckBox(tr("only to clipboard"));
-  chk->setRunPostUpdate([this] { this->update(); });
+  AutoCheckBox *chk = new AutoCheckBox(this, tr("only to clipboard"));
   grid->addWidget(chk);
   grid->append();
 
-  AutoLineEdit *le = new AutoLineEdit();
+  AutoLineEdit *le = new AutoLineEdit(this);
   le->setBindEnabled([&] { return !chk->isChecked(); });
   le->setReadOnly(true);
   grid->addWidget(le);
 
-  AutoFldrSelectBtn *btn = new AutoFldrSelectBtn(tr("Select snapshot folder"), g.snapshotDir());
+  AutoFldrSelectBtn *btn = new AutoFldrSelectBtn(this, tr("Select snapshot folder"), g.snapshotDir());
   btn->setBindEnabled([&] { return !chk->isChecked(); });
   connect(btn, &AutoFldrSelectBtn::folderChanged, [&] (QString &fldr)
   {
@@ -112,7 +111,7 @@ bool PrefsSimuPanel::save()
 
 }
 
-void PrefsSimuPanel::setValues()
+void PrefsSimuPanel::update()
 {
   ui->snapshotPath->setText(g.snapshotDir());
   ui->snapshotPath->setReadOnly(true);

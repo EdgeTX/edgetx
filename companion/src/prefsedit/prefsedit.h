@@ -29,10 +29,6 @@
 
 class UpdateFactories;
 
-namespace Ui {
-  class PrefsEditDialog;
-}
-
 class PrefsEditDialog;
 
 class PrefsPanel : public QWidget
@@ -46,9 +42,7 @@ class PrefsPanel : public QWidget
     virtual ~PrefsPanel() {}
 
     virtual bool save() = 0;
-    virtual void setValues() = 0;
-
-    void update();
+    virtual void update() = 0;
 
   signals:
     void modified();
@@ -72,6 +66,10 @@ class PrefsScrollArea : public QScrollArea
     PrefsPanel * panel;
 };
 
+namespace Ui {
+  class PrefsEdit;
+}
+
 class PrefsEditDialog : public QDialog
 {
     Q_OBJECT
@@ -87,12 +85,16 @@ class PrefsEditDialog : public QDialog
   signals:
     void firmwareProfileChanged();
     void firmwareProfileAboutToChange(bool saveFiles = true);
+    void modified();
 
   protected:
     void closeEvent(QCloseEvent *event);
 
+  private slots:
+    void onTabModified();
+
   private:
-    Ui::PrefsEditDialog *ui;
+    Ui::PrefsEdit *ui;
     bool mainWinHasDirtyChild;
     QList<PrefsPanel *> panels;
 

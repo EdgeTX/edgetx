@@ -24,20 +24,20 @@
 #include "prefsedit.h"
 
 namespace Ui {
-  class General;
+  class App;
 }
 
-class PrefsGeneralPanel : public PrefsPanel
+class PrefsAppPanel : public PrefsPanel
 {
     Q_OBJECT
 
   public:
-    PrefsGeneralPanel(QWidget * parent);
-    virtual ~PrefsGeneralPanel();
+    PrefsAppPanel(QWidget * parent);
+    virtual ~PrefsAppPanel();
 
     virtual bool save() override;
     virtual void update() override;
 
   private:
-    Ui::General * ui;
+    Ui::App * ui;
 };

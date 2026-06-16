@@ -28,6 +28,7 @@ AutoWidget::AutoWidget():
   m_panel(nullptr),
   m_lock(false),
   m_buddyWidgets(QList<AutoWidget *> {nullptr}),
+  m_parentBuddyWidget(nullptr),
   m_enabled(nullptr),
   m_model(nullptr),
   m_text(nullptr),
@@ -35,13 +36,17 @@ AutoWidget::AutoWidget():
 {
 }
 
-AutoWidget::~AutoWidget() = default;
+AutoWidget::~AutoWidget()
+{
+  // avoid dangling pointer in controlling widget
+  if (m_parentBuddyWidget)
+    m_parentBuddyWidget->removeBuddyWidget(this);
+}
 
 void AutoWidget::addBuddyWidget(AutoWidget * wgt)
 {
   if (wgt) {
     m_buddyWidgets.append(wgt);
-    // just in case set as we want parent to control
     clearBuddyBinds(wgt);
   }
 }
@@ -108,20 +113,9 @@ void AutoWidget::clearBuddyBinds(AutoWidget * wgt)
   if (wgt) {
     wgt->clearBindEnabled();
     wgt->clearBindVisible();
+    // needed for wgt dtor to remove itself from controlling widget
+    wgt->setParentBuddyWidget(this);
   }
-}
-
-void AutoWidget::clearBuddyWidget(AutoWidget * wgt)
-{
-  if (wgt) {
-    if (!m_buddyWidgets.removeOne(wgt))
-      qDebug() << "Warning: widget not removed from list";
-  }
-}
-
-void AutoWidget::clearBuddyWidgets()
-{
-  m_buddyWidgets.clear();
 }
 
 void AutoWidget::dataChanged()
@@ -138,6 +132,19 @@ bool AutoWidget::lock()
 bool AutoWidget::panelLock()
 {
   return m_panel ? m_panel->lock : false;
+}
+
+void AutoWidget::removeBuddyWidget(AutoWidget * wgt)
+{
+  if (wgt) {
+    if (!m_buddyWidgets.removeOne(wgt))
+      qDebug() << "Warning: widget not removed from list";
+  }
+}
+
+void AutoWidget::removeBuddyWidgets()
+{
+  m_buddyWidgets.clear();
 }
 
 void AutoWidget::runPostChanged()
@@ -183,6 +190,11 @@ void AutoWidget::setBindText(std::function<QString()> fn)
 void AutoWidget::setBindVisible(std::function<bool()> pred)
 {
   m_visible = std::move(pred);
+}
+
+void AutoWidget::setParentBuddyWidget(AutoWidget * wgt)
+{
+  m_parentBuddyWidget = wgt;
 }
 
 void AutoWidget::setLock(bool lock)
