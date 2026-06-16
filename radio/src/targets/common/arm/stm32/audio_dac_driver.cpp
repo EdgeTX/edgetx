@@ -255,10 +255,11 @@ void audioConsumeCurrentBuffer()
 {
 #if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
   if (!LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream)) {
-    if (!audio_update_dma_buffer(0)) {
 #if defined(AUDIO_MUTE_GPIO)
-      audioUnmute();
+    audioUnmute();
 #endif
+    if (!audio_update_dma_buffer(0)) {
+      audio_update_dma_buffer(1);
 
       LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
       stm32_dma_check_tc_flag(AUDIO_DMA, AUDIO_DMA_Stream);
