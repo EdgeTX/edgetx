@@ -812,7 +812,7 @@
 #define TR_LCD                          "LCD"
 #define TR_BRIGHTNESS                   "Ljusstyrka"
 #define TR_CONTROL                      "Kontroll"
-#define TR_SF_OVERRIDDEN                "Åsidosatt av by SF/GF"
+#define TR_SF_OVERRIDDEN                "Åsidosatt av SF/GF"
 #define TR_CPU_TEMP                     "CPU temp.\016>"
 #define TR_COPROC                       "CoProc."
 #define TR_COPROC_TEMP                  "MB temp. \016>"
