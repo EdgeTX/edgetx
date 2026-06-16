@@ -315,7 +315,7 @@ void UpdateNetwork::onGetFinished(QNetworkReply * reply, DownloadDataType type)
   }
 
   if (m_reply) {
-    delete m_reply;
+    m_reply->deleteLater();
     m_reply = nullptr;
   }
 }
@@ -330,7 +330,7 @@ void UpdateNetwork::onPostFinished()
   }
 
   if (m_reply) {
-    delete m_reply;
+    m_reply->deleteLater();
     m_reply = nullptr;
   }
 
@@ -413,7 +413,8 @@ void UpdateNetwork::submitRequest(const QString & action, const QString & url, Q
 void UpdateNetwork::cancelDownload()
 {
   m_status->reportProgress(tr("Download cancelled"), QtWarningMsg);
-  m_reply->abort();
+  if (m_reply)
+    m_reply->abort();
 }
 
 void UpdateNetwork::updateProgress()
