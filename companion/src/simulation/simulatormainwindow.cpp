@@ -620,9 +620,6 @@ void SimulatorMainWindow::onTxBatteryVoltageChanged(const unsigned int voltage)
 
 // Haptic feedback handler: provides visual and audible substitutes
 // for physical vibration when running in the simulator.
-// Visual: window jitter to indicate vibration
-// Audible: system beep as substitute for haptic motor sounds
-
 void SimulatorMainWindow::onHapticChanged(int intensity) {
   Q_UNUSED(intensity);
 
