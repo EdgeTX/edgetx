@@ -20,7 +20,7 @@ jobs:
           - pl18;pl18ev;pl18u
           - pa01
           - t12max
-          - t15;t16;t18
+          - t15;t16;t18;t22
           - zorro;pocket;mt12;commando8
           - tprov2;tpros;bumblebee
           - t20;t20v2;t14

@@ -822,7 +822,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t20","t20v2"},
+        "targets": {"t20","t20v2", "t22"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
