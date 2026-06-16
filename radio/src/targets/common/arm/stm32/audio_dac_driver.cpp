@@ -182,7 +182,6 @@ static void dac_close_dma_xfer()
 {
   LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
-
   LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
 
   // Wait until DMA EN bit is actually cleared by hardware.
@@ -196,8 +195,14 @@ static void dac_close_dma_xfer()
 
 static void dac_start_dma()
 {
+  // re-arm from the start of the buffer: a mid-transfer stop leaves NDTR and the
+  // memory address partway, which desyncs the HT/TC half tracking
+  LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_SetMemoryAddress(AUDIO_DMA, AUDIO_DMA_Stream, (uintptr_t)_dma_buffer);
+  LL_DMA_SetDataLength(AUDIO_DMA, AUDIO_DMA_Stream, DMA_BUFFER_LEN);
+
   dac_clear_dma_flags();
-  
+
   // enable DMA stream and transfer complete interrupt
   LL_DMA_EnableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_EnableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
@@ -215,6 +220,10 @@ void audioConsumeCurrentBuffer()
   if (!LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream)) {
     if (!audio_update_dma_buffer(0)) {
       _empty_dma_halves = 0;
+      // prime the second half as well so the first full DMA cycle plays valid
+      // data and the half tracking starts aligned (ignore the result: if no
+      // more data is available it is filled with silence)
+      audio_update_dma_buffer(1);
 #if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
 #endif
