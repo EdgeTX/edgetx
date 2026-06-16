@@ -563,11 +563,6 @@ void AppData::loadNamedJS()
   }
 }
 
-static QString fmtHex(quint32 num)
-{
-  return QString::number(num, 16).toUpper();
-}
-
 void AppData::init()
 {
   qInfo().noquote() << "Settings init with" << m_settings.organizationName() << m_settings.applicationName()
