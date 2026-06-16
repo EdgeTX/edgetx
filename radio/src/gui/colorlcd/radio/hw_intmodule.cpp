@@ -42,7 +42,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
   internalModule->setAvailableHandler(
       [](int module) { return isInternalModuleSupported(module); });
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA) && !defined(INTMODULE_ANTSEL_GPIO)
   ant_box = parent->newLine(grid);
   ant_box->padLeft(PAD_SMALL);
   new StaticText(ant_box, rect_t{}, STR_ANTENNA);
@@ -70,10 +70,10 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
 #endif
 
 #if defined(INTMODULE_ANTSEL_GPIO) && defined(EXTERNAL_ANTENNA)
-  auto antline = parent->newLine(grid);
+  ant_box = parent->newLine(grid);
 
-  new StaticText(antline, rect_t{}, STR_ANTENNA);
-  new Choice(antline, rect_t{}, STR_ANTENNA_SELECT, 0, ANTENNA_MODE_EXTERNAL,
+  new StaticText(ant_box, rect_t{}, STR_ANTENNA);
+  new Choice(ant_box, rect_t{}, STR_ANTENNA_SELECT, 0, ANTENNA_MODE_EXTERNAL,
       GET_DEFAULT(g_eeGeneral.antennaMode), [=](int8_t antenna) {
         if (!isExternalAntennaEnabled() && (antenna == ANTENNA_MODE_EXTERNAL)) {
           if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
@@ -86,6 +86,8 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
           checkExternalAntenna();
         }
       });
+
+  updateAntennaLine();
 #endif
 
 #if defined(CROSSFIRE)
@@ -128,7 +130,11 @@ void InternalModuleWindow::updateBaudrateLine()
 
 void InternalModuleWindow::updateAntennaLine()
 {
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-  ant_box->show(isInternalModuleAvailable(MODULE_TYPE_XJT_PXX1));
+#if defined(EXTERNAL_ANTENNA)
+#if defined(INTMODULE_ANTSEL_GPIO)
+  ant_box->show(g_eeGeneral.internalModule != MODULE_TYPE_NONE);
+#else
+  ant_box->show(isModuleXJT(INTERNAL_MODULE));
+#endif
 #endif
 }
