@@ -38,6 +38,7 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
 
     void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
     void setInvert(bool invert);
+    void setValue(bool value, bool invert = false);
 
   signals:
     void currentDataChanged(bool value);
@@ -51,4 +52,5 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
   private:
     bool *m_field;
     bool m_invert;
+    bool m_value;
 };
