@@ -29,14 +29,14 @@ ItemModelEventHandler::ItemModelEventHandler(FilteredItemModel * itemModel,
   m_updateCallback(std::move(updateCallback)),
   m_cnt(0)
 {
-  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, [&] ()
+  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, this, [this] ()
     {
       m_lock = true;
       m_cnt++;
     }
   );
 
-  connect(itemModel, &FilteredItemModel::updateComplete, [&] ()
+  connect(itemModel, &FilteredItemModel::updateComplete, this, [this] ()
     {
       m_cnt--;
 
