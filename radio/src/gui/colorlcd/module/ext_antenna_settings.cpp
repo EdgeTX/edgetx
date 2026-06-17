@@ -46,16 +46,8 @@ ExtAntennaSettings::ExtAntennaSettings(Window* parent,
       line, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
       ANTENNA_MODE_EXTERNAL, GET_DEFAULT(md->antennaMode),
       [=](int32_t antenna) -> void {
-        if (!isExternalAntennaEnabled() && (antenna == ANTENNA_MODE_EXTERNAL)) {
-          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-            md->antennaMode = antenna;
-            SET_DIRTY();
-          }
-        } else {
-          md->antennaMode = antenna;
-          SET_DIRTY();
-          checkExternalAntenna();
-        }
+        setAntennaModeWithConfirm(antenna, EE_MODEL,
+            [=](int8_t mode) { md->antennaMode = mode; });
       });
 
   antennaChoice->setAvailableHandler(

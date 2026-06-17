@@ -113,6 +113,10 @@ static void onHardwareAntennaSwitchConfirm(const char * result)
     // Switch to external antenna confirmation
     g_eeGeneral.antennaMode = reusableBuffer.radioHardware.antennaMode;
     storageDirty(EE_GENERAL);
+    // Consent already obtained above; mark enabled so checkExternalAntenna()
+    // applies the GPIO instead of asking again.
+    globalData.externalAntennaEnabled = true;
+    checkExternalAntenna();
   }
   else {
     reusableBuffer.radioHardware.antennaMode = g_eeGeneral.antennaMode;

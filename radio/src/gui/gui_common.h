@@ -140,6 +140,10 @@ extern uint8_t MODULE_CHANNELS_ROWS(int moduleIdx);
 
 #if defined(EXTERNAL_ANTENNA)
 void checkExternalAntenna();
+#if defined(COLORLCD)
+void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
+                                std::function<void(int8_t)> setter);
+#endif
 #if defined(INTERNAL_MODULE_PXX1) && !defined(COLORLCD)
 void onAntennaSwitchConfirm(const char* result);
 void onAntennaSelection(const char* result);

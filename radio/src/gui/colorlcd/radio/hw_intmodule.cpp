@@ -42,7 +42,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
   internalModule->setAvailableHandler(
       [](int module) { return isInternalModuleSupported(module); });
 
-#if defined(EXTERNAL_ANTENNA) && !defined(INTMODULE_ANTSEL_GPIO)
+#if defined(EXTERNAL_ANTENNA)
   ant_box = parent->newLine(grid);
   ant_box->padLeft(PAD_SMALL);
   new StaticText(ant_box, rect_t{}, STR_ANTENNA);
@@ -50,41 +50,8 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
       ant_box, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
       ANTENNA_MODE_EXTERNAL, GET_DEFAULT(g_eeGeneral.antennaMode),
       [](int antenna) {
-        if (!isExternalAntennaEnabled() &&
-            (antenna == ANTENNA_MODE_EXTERNAL ||
-             (antenna == ANTENNA_MODE_PER_MODEL &&
-              g_model.moduleData[INTERNAL_MODULE].antennaMode ==
-                  ANTENNA_MODE_EXTERNAL))) {
-          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-            g_eeGeneral.antennaMode = antenna;
-            SET_DIRTY();
-          }
-        } else {
-          g_eeGeneral.antennaMode = antenna;
-          checkExternalAntenna();
-          SET_DIRTY();
-        }
-      });
-
-  updateAntennaLine();
-#endif
-
-#if defined(INTMODULE_ANTSEL_GPIO) && defined(EXTERNAL_ANTENNA)
-  ant_box = parent->newLine(grid);
-
-  new StaticText(ant_box, rect_t{}, STR_ANTENNA);
-  new Choice(ant_box, rect_t{}, STR_ANTENNA_SELECT, 0, ANTENNA_MODE_EXTERNAL,
-      GET_DEFAULT(g_eeGeneral.antennaMode), [=](int8_t antenna) {
-        if (!isExternalAntennaEnabled() && (antenna == ANTENNA_MODE_EXTERNAL)) {
-          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-            g_eeGeneral.antennaMode = antenna;
-            SET_DIRTY();
-          }
-        } else {
-          g_eeGeneral.antennaMode = antenna;
-          SET_DIRTY();
-          checkExternalAntenna();
-        }
+        setAntennaModeWithConfirm(antenna, EE_GENERAL,
+            [](int8_t mode) { g_eeGeneral.antennaMode = mode; });
       });
 
   updateAntennaLine();

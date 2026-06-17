@@ -418,8 +418,11 @@ void onModelAntennaSwitchConfirm(const char * result)
   if (result == STR_OK) {
     // Switch to external antenna confirmation
     g_model.moduleData[INTERNAL_MODULE].antennaMode = ANTENNA_MODE_EXTERNAL;
-    globalData.externalAntennaEnabled = true;
     storageDirty(EE_MODEL);
+    // Consent already obtained above; mark enabled so checkExternalAntenna()
+    // applies the GPIO instead of asking again.
+    globalData.externalAntennaEnabled = true;
+    checkExternalAntenna();
   }
   else {
     reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;

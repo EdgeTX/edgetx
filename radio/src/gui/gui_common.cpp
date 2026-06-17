@@ -827,6 +827,35 @@ void checkExternalAntenna()
 #endif
 }
 
+#if defined(COLORLCD)
+// Shared by every antenna-mode Choice widget (radio-level and per-model,
+// GPIO and non-GPIO boards) so the "apply to hardware" step can't be
+// forgotten in just one of the call sites.
+void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
+                                std::function<void(int8_t)> setter)
+{
+  int8_t modelAntennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
+  bool willEnableExternal =
+      newMode == ANTENNA_MODE_EXTERNAL ||
+      (newMode == ANTENNA_MODE_PER_MODEL && modelAntennaMode == ANTENNA_MODE_EXTERNAL);
+
+  if (!isExternalAntennaEnabled() && willEnableExternal) {
+    if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+      setter(newMode);
+      storageDirty(storageId);
+      // Consent already obtained above; mark enabled so checkExternalAntenna()
+      // applies the GPIO instead of asking again.
+      globalData.externalAntennaEnabled = true;
+      checkExternalAntenna();
+    }
+  } else {
+    setter(newMode);
+    storageDirty(storageId);
+    checkExternalAntenna();
+  }
+}
+#endif // defined(COLORLCD)
+
 #endif // defined(EXTERNAL_ANTENNA)
 
 #if defined(PXX2)

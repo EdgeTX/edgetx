@@ -161,21 +161,22 @@ class ModuleWindow : public Window
       modOpts = new MultimoduleSettings(this, grid, moduleIdx);
     }
   #endif
+  #if defined(DSMP)
+    else if (isModuleDSMP(moduleIdx)) {
+      modOpts = new DSMPSettings(this, grid, moduleIdx);
+    }
+  #endif
+
   #if defined(EXTERNAL_ANTENNA)
-    else if (moduleIdx == INTERNAL_MODULE &&
-             g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
+    if (moduleIdx == INTERNAL_MODULE &&
+        g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
       bool antennaModuleOk = isModuleXJT(moduleIdx);
     #if defined(INTMODULE_ANTSEL_GPIO)
       antennaModuleOk = true;
     #endif
       if (antennaModuleOk) {
-        modOpts = new ExtAntennaSettings(this, grid, moduleIdx);
+        new ExtAntennaSettings(this, grid, moduleIdx);
       }
-    }
-  #endif
-  #if defined(DSMP)
-    else if (isModuleDSMP(moduleIdx)) {
-      modOpts = new DSMPSettings(this, grid, moduleIdx);
     }
   #endif
 
