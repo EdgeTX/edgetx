@@ -122,13 +122,7 @@ bool pwrForcePressed()
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-
-  #if defined(RADIO_V12)
-    return pwrForcePressed();
-  #else
-    return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
-  #endif
-
+  return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
 #elif defined(PWR_SWITCH_GPIO)
   return !gpio_read(PWR_SWITCH_GPIO);
 #else

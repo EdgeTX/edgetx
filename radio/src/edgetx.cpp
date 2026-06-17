@@ -1306,6 +1306,18 @@ uint32_t pwrDelayTime(int delay)
   static uint8_t vals[] = { 0, 5, 10, 20, 30 };
   return vals[pwrDelayFromYaml(delay)] * 10;
 }
+
+// On radios requiring a two-button chord (e.g. V12) as accidental-activation
+// protection, only the chord itself should start/continue the on/off delay
+// countdown; a single button held alone must not.
+inline bool pwrDelayHoldActive()
+{
+#if defined(PWR_BUTTON_DUAL)
+  return pwrForcePressed();
+#else
+  return pwrPressed();
+#endif
+}
 #endif
 
 #if defined(STARTUP_ANIMATION)
@@ -1323,7 +1335,7 @@ void runStartupAnimation()
   tmr10ms_t duration = 0;
   bool isPowerOn = false;
 
-  while (pwrPressed()) {
+  while (pwrDelayHoldActive()) {
     duration = get_tmr10ms() - start;
     if (duration < PWR_PRESS_DURATION_MIN()) {
       drawStartupAnimation(duration, PWR_PRESS_DURATION_MIN());
@@ -1687,9 +1699,14 @@ int pwrDelayToYaml(int delay)
 
 inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
 {
-  // Instant off when both power button are pressed
+#if !defined(PWR_BUTTON_DUAL)
+  // Instant off when both power buttons are pressed (panic/force chord).
+  // Not applicable on PWR_BUTTON_DUAL radios, where pressing both buttons
+  // is the normal way to start the shutdown delay, not a separate chord
+  // layered on top of a single-button press.
   if (pwrForcePressed())
     return 0;
+#endif
 
   return pwrDelayTime(g_eeGeneral.pwrOffSpeed);
 }
@@ -1744,7 +1761,7 @@ uint32_t pwrCheck()
   if (pwr_check_state == PWR_CHECK_OFF) {
     return e_power_off;
   }
-  else if (pwrPressed() || inactivityShutdown) {
+  else if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
 
