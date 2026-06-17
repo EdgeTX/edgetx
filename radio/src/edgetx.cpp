@@ -1162,7 +1162,7 @@ void edgeTxClose(uint8_t shutdown)
 
   sdDone();
 
-#if defined(RGB_LEDS)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
   turnOffRGBLeds();
 #endif
 }
@@ -1310,6 +1310,18 @@ uint32_t pwrDelayTime(int delay)
   static uint8_t vals[] = { 0, 5, 10, 20, 30 };
   return vals[pwrDelayFromYaml(delay)] * 10;
 }
+
+// On radios requiring a two-button chord (e.g. V12) as accidental-activation
+// protection, only the chord itself should start/continue the on/off delay
+// countdown; a single button held alone must not.
+inline bool pwrDelayHoldActive()
+{
+#if defined(PWR_BUTTON_DUAL)
+  return pwrForcePressed();
+#else
+  return pwrPressed();
+#endif
+}
 #endif
 
 #if defined(STARTUP_ANIMATION)
@@ -1327,7 +1339,7 @@ void runStartupAnimation()
   tmr10ms_t duration = 0;
   bool isPowerOn = false;
 
-  while (pwrPressed()) {
+  while (pwrDelayHoldActive()) {
     duration = get_tmr10ms() - start;
     if (duration < PWR_PRESS_DURATION_MIN()) {
       drawStartupAnimation(duration, PWR_PRESS_DURATION_MIN());
@@ -1694,8 +1706,15 @@ inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
 #if defined(PWR_BUTTON_MANAGED)
   return 0;
 #else
+#if !defined(PWR_BUTTON_DUAL)
+  // Instant off when both power buttons are pressed (panic/force chord).
+  // Not applicable on PWR_BUTTON_DUAL radios, where pressing both buttons
+  // is the normal way to start the shutdown delay, not a separate chord
+  // layered on top of a single-button press.
   if (pwrForcePressed())
     return 0;
+#endif
+
   return pwrDelayTime(g_eeGeneral.pwrOffSpeed);
 #endif
 }
@@ -1769,7 +1788,7 @@ uint32_t pwrCheck()
   }
 #endif
 
-  if (pwrPressed() || inactivityShutdown) {
+  if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
 
