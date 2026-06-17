@@ -30,9 +30,8 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 
-# IMU support
-set(IMU ON)
-add_definitions(-DIMU_ICM4207C)
+# IMU support (disabled until get update schematic)
+set(IMU OFF)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
