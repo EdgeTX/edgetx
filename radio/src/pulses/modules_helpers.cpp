@@ -68,7 +68,7 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
     return 4;  // 12 channels
   } else if (isModuleDSMP(moduleIdx)) {
-    return 4; //  12 channels
+    return 8; // 16 channels supported for V2
   } else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
@@ -130,6 +130,17 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
     resetAfhds3Options(moduleIdx);
   } 
   else if (moduleData.type == MODULE_TYPE_LEMON_DSMP) {
+    // When changing the Module Type to DSMP.
+    // Check Radio Config to see if it is AETR
+    auto ch1 = inputMappingChannelOrder(0);
+    auto ch3 = inputMappingChannelOrder(2);
+    bool isAETR = (ch1 == 3) && (ch3 == inputMappingGetThrottle());
+#if defined(DEBUG)
+    char *chFun = "RETA";
+    TRACE("DSMP Setup: Ch1=%c, ch3=%c, isAETR=%d",chFun[ch1], chFun[ch3], isAETR);
+#endif
+
+    moduleData.dsmp.enableAETR = isAETR;
     restartModule(moduleIdx);  // Restart DSMP when switching to it (example PPM->DSMP)
   }
   else
