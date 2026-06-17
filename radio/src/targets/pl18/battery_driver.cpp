@@ -298,14 +298,16 @@ uint16_t get_battery_charge_state()
 bool isChargerActive()
 {  
 #if defined(WIRELESS_CHARGER)
-  while (!(uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady))
+  uint16_t timeout = 200;
+  while (!(uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady) && timeout--)
   {
     get_battery_charge_state();
     delay_ms(10);
   }
   return uCharger.hasCharger || wCharger.hasCharger;
 #else
-  while (!uCharger.isChargerDetectionReady)
+  uint16_t timeout = 200;
+  while (!uCharger.isChargerDetectionReady && timeout--)
   {
     get_battery_charge_state();
     delay_ms(10);
