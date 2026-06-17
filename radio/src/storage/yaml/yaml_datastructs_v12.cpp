@@ -173,8 +173,6 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
-  {  MIXSRC_TILT_X, "TILT_X"  },
-  {  MIXSRC_TILT_Y, "TILT_Y"  },
   {  MIXSRC_SPACEMOUSE_A, "SPACEMOUSE_A"  },
   {  MIXSRC_SPACEMOUSE_B, "SPACEMOUSE_B"  },
   {  MIXSRC_SPACEMOUSE_C, "SPACEMOUSE_C"  },
@@ -448,8 +446,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_PADDING( 2 ),
   YAML_PADDING( 3 ),
-  YAML_SIGNED( "imuMax", 8 ),
-  YAML_SIGNED( "imuOffset", 8 ),
   YAML_STRING("selectedTheme", 26),
   YAML_UNSIGNED( "labelSingleSelect", 1 ),
   YAML_UNSIGNED( "labelMultiMode", 1 ),

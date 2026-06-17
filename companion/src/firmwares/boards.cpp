@@ -387,7 +387,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasIMU:
       return (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
               IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board) ||
-              IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board));
+              IS_FLYSKY_PA01(board));
 
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));

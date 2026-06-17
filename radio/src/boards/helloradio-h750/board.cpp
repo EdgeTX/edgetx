@@ -37,7 +37,7 @@
 #include "hal/adc_driver.h"
 #include "hal/imu.h"
 #include "gyro.h"
-#include "drivers/icm42627.h"
+#include "drivers/icm42670.h"
 #include "hal/flash_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
@@ -292,7 +292,7 @@ void USBCharger(uint32_t usbchgstatus)
 
 #if defined(IMU)
 static const etx_imu_t _imu_candidates[] = {
-  { &imu_icm42627_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR },
+  { &imu_icm42670_driver, IMU_I2C_BUS, ICM42670_I2C_BASE_ADDR },
 };
 
 void gyroInit()
