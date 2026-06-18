@@ -43,7 +43,7 @@ jobs:
 
       - name: Setup SDL2
         id: setup-sdl2
-        uses: libsdl-org/setup-sdl@v1
+        uses: libsdl-org/setup-sdl@a966470e7d9b6a5c93eec3f08d5dac370325c860
         with:
           version: ${{ env.SDL_VERSION }}
           build-type: "Release"

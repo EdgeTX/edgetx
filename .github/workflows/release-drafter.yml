@@ -164,7 +164,7 @@ jobs:
           ls -lh release-assets/*.zip
 
       - name: Create draft release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
         with:
           tag_name: ${{ inputs.tag }}
           draft: true
