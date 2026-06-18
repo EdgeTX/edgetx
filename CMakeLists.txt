@@ -4,7 +4,7 @@ project(EdgeTX)
 
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "12")
-set(VERSION_REVISION "1")
+set(VERSION_REVISION "2")
 set(CODENAME "Queen Anne's Revenge")
 string(TIMESTAMP BUILD_YEAR "%Y")
 
