@@ -77,11 +77,13 @@ static uint32_t nonReadCount = 0;
 #define SCAN_COLS 4
 #define IDLE_FORCE_SCAN 25 // cycles (250ms)
 
+#if !defined(BOOT)
 static uint8_t scan_col = 0;
 static uint8_t read_col = 0xFF;
 static uint8_t scan_pending = SCAN_COLS;
 static uint8_t idle_cycles = 0;
 static uint32_t col_cache[SCAN_COLS] = {0, 0, 0, 0};
+#endif
 
 static const uint16_t col_drive[SCAN_COLS] = {
   (uint16_t)~BSP_KEY_OUT1, (uint16_t)~BSP_KEY_OUT2,
