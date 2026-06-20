@@ -1764,7 +1764,14 @@ uint32_t pwrCheck()
   else if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
-
+  #if defined(RADIO_V12)
+    if (!inactivityShutdown) {
+      // SYS+MDL are also used as power combo on V15. Prevent their menu BREAK
+      // events from being emitted while shutdown key sequence is in progress.
+      killEvents(KEY_SYS);
+      killEvents(KEY_MODEL);
+    }
+  #endif
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }
