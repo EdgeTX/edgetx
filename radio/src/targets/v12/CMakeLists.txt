@@ -30,7 +30,7 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 
-# IMU support (disabled until get update schematic)
+# IMU support (not populated in final)
 set(IMU OFF)
 
 # for size report script
@@ -157,7 +157,7 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  drivers/icm42627.cpp
+  drivers/icm42670.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
