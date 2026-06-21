@@ -61,9 +61,9 @@ void AutoLineEdit::updateValue()
 {
   setLock(true);
   if (m_strField)
-    setText(*m_strField);
+    QLineEdit::setText(*m_strField);
   else if (m_charField)
-    setText(m_charField);
+    QLineEdit::setText(m_charField);
   setLock(false);
 }
 
@@ -80,5 +80,12 @@ void AutoLineEdit::onEdited()
     return;
 
   emit currentDataChanged();
-  dataChanged();
+  runPostChanged();
+}
+
+void AutoLineEdit::setAutoText(QString text)
+{
+  setLock(true);
+  QLineEdit::setText(text);
+  setLock(false);
 }

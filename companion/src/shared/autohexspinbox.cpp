@@ -75,7 +75,7 @@ void AutoHexSpinBox::onValueChanged(int value)
     if (*m_field != (unsigned)value) {
       *m_field = (unsigned)value;
       emit currentDataChanged(value);
-      dataChanged();
+      runPostChanged();
     }
   }
 }

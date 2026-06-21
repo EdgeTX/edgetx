@@ -4,6 +4,7 @@ project(datamodels)
 set(${PROJECT_NAME}_NAMES
   compounditemmodels
   filtereditemmodels
+  itemmodeleventhandler
 )
 
 AddHeadersSources()

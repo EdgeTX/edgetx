@@ -76,7 +76,7 @@ void AutoBitMappedCheckBox::onToggled(bool checked)
     unsigned int fieldmask = (bitmask() << shiftbits());
     *m_field = (*m_field & ~fieldmask) | (val << shiftbits());
     emit currentDataChanged(val);
-    dataChanged();
+    runPostChanged();
   }
 }
 
@@ -100,4 +100,9 @@ unsigned int AutoBitMappedCheckBox::bitmask()
   int mask = -1;
   mask = ~(mask << m_bits);
   return (unsigned int)mask;
+}
+
+void AutoBitMappedCheckBox::setAutoText(QString text)
+{
+  QCheckBox::setText(text);
 }

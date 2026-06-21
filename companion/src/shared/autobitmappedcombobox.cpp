@@ -78,6 +78,11 @@ void AutoBitMappedComboBox::addItem(const QString & item, int value)
   updateValue();
 }
 
+void AutoBitMappedComboBox::setAutoModel(QAbstractItemModel * model)
+{
+  AutoBitMappedComboBox::setModel(model);
+}
+
 void AutoBitMappedComboBox::setField(unsigned int & field, GenericPanel * panel)
 {
   m_field = (int *)&field;
@@ -130,11 +135,13 @@ void AutoBitMappedComboBox::setBits(const unsigned int numBits, const unsigned i
 
 void AutoBitMappedComboBox::setModel(QAbstractItemModel * model)
 {
-  setLock(true);
-  QComboBox::setModel(model);
-  setLock(false);
-  m_hasModel = true;
-  updateValue();
+  if (model && QComboBox::model() != model) {
+    setLock(true);
+    QComboBox::setModel(model);
+    setLock(false);
+    m_hasModel = true;
+    updateValue();
+  }
 }
 
 void AutoBitMappedComboBox::setAutoIndexes()
@@ -190,7 +197,7 @@ void AutoBitMappedComboBox::onCurrentIndexChanged(int index)
     return;
 
   emit currentDataChanged(val);
-  dataChanged();
+  runPostChanged();
 }
 
 unsigned int AutoBitMappedComboBox::shiftbits()

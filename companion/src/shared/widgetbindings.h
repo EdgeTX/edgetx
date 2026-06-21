@@ -21,24 +21,27 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <QWidget>
+#include <QLabel>
+#include <functional>
+#include <vector>
 
-#define ROTENC_LOWSPEED   1
-#define ROTENC_MIDSPEED   5
-#define ROTENC_HIGHSPEED 50
+class WidgetBindings
+{
+  public:
+    WidgetBindings() = default;
 
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_T15PRO)  || defined(RADIO_T22) || defined(RADIO_BUMBLEBEE)
-#define ROTARY_ENCODER_GRANULARITY 4
-#else
-#define ROTARY_ENCODER_GRANULARITY 2
-#endif
+    void bindVisible(QWidget *widget, std::function<bool()> pred);
+    void bindEnabled(QWidget *widget, std::function<bool()> pred);
+    void bindText(QLabel *label, std::function<QString()> fn);
+    void applyAll();
 
-typedef int32_t rotenc_t;
+  private:
+    struct VisibleBinding { QWidget *widget; std::function<bool()> pred; };
+    struct EnabledBinding { QWidget *widget; std::function<bool()> pred; };
+    struct TextBinding    { QLabel  *label;  std::function<QString()> fn; };
 
-void rotaryEncoderInit();
-
-// return impulses / granularity
-rotenc_t rotaryEncoderGetValue();
-
-int8_t rotaryEncoderGetAccel();
-void rotaryEncoderResetAccel();
+    std::vector<VisibleBinding> m_visible;
+    std::vector<EnabledBinding> m_enabled;
+    std::vector<TextBinding>    m_text;
+};

@@ -21,6 +21,7 @@
 
 #include "genericpanel.h"
 #include "autowidget.h"
+#include "widgetbindings.h"
 
 #include <TimerEdit>
 #include <QComboBox>
@@ -39,9 +40,7 @@ GenericPanel::GenericPanel(QWidget * parent, ModelData * model, GeneralSettings 
 {
 }
 
-GenericPanel::~GenericPanel()
-{
-}
+GenericPanel::~GenericPanel() = default;
 
 void GenericPanel::update()
 {
@@ -137,6 +136,20 @@ void GenericPanel::updateAutoWidgets()
     AutoWidget *autowdgt = dynamic_cast<AutoWidget *>(wdgt);
     if (autowdgt) {
       autowdgt->updateValue();
+      autowdgt->applyBindings();
     }
   }
+}
+
+WidgetBindings *GenericPanel::bindings()
+{
+  if (!m_bindings)
+    m_bindings = std::make_unique<WidgetBindings>();
+  return m_bindings.get();
+}
+
+void GenericPanel::applyBindings()
+{
+  if (m_bindings)
+    m_bindings->applyAll();
 }

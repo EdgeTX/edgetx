@@ -84,7 +84,7 @@ void AutoSlider::onValueChanged(int value)
     if (*m_field != value) {
       *m_field = value;
       emit currentDataChanged(value);
-      dataChanged();
+      runPostChanged();
     }
   }
 }

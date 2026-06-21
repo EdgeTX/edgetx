@@ -19,26 +19,31 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "widgetbindings.h"
 
-#include <stdint.h>
+void WidgetBindings::bindVisible(QWidget *widget, std::function<bool()> pred)
+{
+  m_visible.push_back({widget, std::move(pred)});
+}
 
-#define ROTENC_LOWSPEED   1
-#define ROTENC_MIDSPEED   5
-#define ROTENC_HIGHSPEED 50
+void WidgetBindings::bindEnabled(QWidget *widget, std::function<bool()> pred)
+{
+  m_enabled.push_back({widget, std::move(pred)});
+}
 
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_T15PRO)  || defined(RADIO_T22) || defined(RADIO_BUMBLEBEE)
-#define ROTARY_ENCODER_GRANULARITY 4
-#else
-#define ROTARY_ENCODER_GRANULARITY 2
-#endif
+void WidgetBindings::bindText(QLabel *label, std::function<QString()> fn)
+{
+  m_text.push_back({label, std::move(fn)});
+}
 
-typedef int32_t rotenc_t;
+void WidgetBindings::applyAll()
+{
+  for (const auto &b : m_visible)
+    b.widget->setVisible(b.pred());
 
-void rotaryEncoderInit();
+  for (const auto &b : m_enabled)
+    b.widget->setEnabled(b.pred());
 
-// return impulses / granularity
-rotenc_t rotaryEncoderGetValue();
-
-int8_t rotaryEncoderGetAccel();
-void rotaryEncoderResetAccel();
+  for (const auto &b : m_text)
+    b.label->setText(b.fn());
+}

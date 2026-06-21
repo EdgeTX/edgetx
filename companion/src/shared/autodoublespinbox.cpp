@@ -88,6 +88,6 @@ void AutoDoubleSpinBox::onValueChanged(double value)
   if (m_field && !lock()) {
     *m_field = round(value * multiplier() - m_offset);
     emit currentDataChanged(*m_field);
-    dataChanged();
+    runPostChanged();
   }
 }

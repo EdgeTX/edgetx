@@ -19,26 +19,32 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "itemmodeleventhandler.h"
 
-#include <stdint.h>
+ItemModelEventHandler::ItemModelEventHandler(FilteredItemModel * itemModel,
+                                             bool & lock,
+                                             std::function<void()> updateCallback) :
+  QObject(nullptr),
+  m_lock(lock),
+  m_updateCallback(std::move(updateCallback)),
+  m_cnt(0)
+{
+  connect(itemModel, &FilteredItemModel::aboutToBeUpdated, this, [this] ()
+    {
+      m_lock = true;
+      m_cnt++;
+    }
+  );
 
-#define ROTENC_LOWSPEED   1
-#define ROTENC_MIDSPEED   5
-#define ROTENC_HIGHSPEED 50
+  connect(itemModel, &FilteredItemModel::updateComplete, this, [this] ()
+    {
+      m_cnt--;
 
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_T15PRO)  || defined(RADIO_T22) || defined(RADIO_BUMBLEBEE)
-#define ROTARY_ENCODER_GRANULARITY 4
-#else
-#define ROTARY_ENCODER_GRANULARITY 2
-#endif
-
-typedef int32_t rotenc_t;
-
-void rotaryEncoderInit();
-
-// return impulses / granularity
-rotenc_t rotaryEncoderGetValue();
-
-int8_t rotaryEncoderGetAccel();
-void rotaryEncoderResetAccel();
+      if (m_cnt < 1) {
+        if (m_updateCallback)
+          m_updateCallback();
+        m_lock = false;
+      }
+    }
+  );
+}

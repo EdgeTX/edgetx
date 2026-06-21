@@ -145,7 +145,7 @@ void AutoBitsetCheckBox::onToggled(bool checked)
   }
 
   emit currentDataChanged(checked);
-  dataChanged();
+  runPostChanged();
 }
 
 void AutoBitsetCheckBox::init()
@@ -159,4 +159,9 @@ void AutoBitsetCheckBox::initField(int bitmask, bool invert, int toggleMask)
   m_toggleMask = toggleMask;
   m_invert = toggleMask ? false : invert;
   updateValue();
+}
+
+void AutoBitsetCheckBox::setAutoText(QString text)
+{
+  QCheckBox::setText(text);
 }
