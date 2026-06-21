@@ -88,8 +88,32 @@ jobs:
           # Generate the changelog using the explicit range
           git-cliff $RANGE --strip all --output CHANGELOG.md
 
-          # Get unique contributors from the same commit range
-          CONTRIBUTORS=$(git log --format='%aN' $CONTRIB_RANGE 2>/dev/null | sort -u | sed 's/^/- /' || echo "")
+          # Get unique contributors from the same commit range, resolving each to their
+          # GitHub username (via the GraphQL API) so they can be @-mentioned, falling
+          # back to the commit author name when no GitHub account can be resolved.
+          mapfile -t CONTRIB_LINES < <(git log --format='%H|%aN|%ae' $CONTRIB_RANGE 2>/dev/null | awk -F'|' '!seen[$2"|"$3]++')
+
+          if [ "${#CONTRIB_LINES[@]}" -eq 0 ]; then
+            CONTRIBUTORS=""
+          else
+            OWNER="${{ github.repository }}"
+            REPO_NAME="${OWNER#*/}"
+            OWNER="${OWNER%/*}"
+
+            QUERY_BODY=""
+            i=0
+            for line in "${CONTRIB_LINES[@]}"; do
+              sha="${line%%|*}"
+              QUERY_BODY+="c$i: repository(owner: \"$OWNER\", name: \"$REPO_NAME\") { object(oid: \"$sha\") { ... on Commit { author { name user { login } } } } } "
+              i=$((i+1))
+            done
+
+            CONTRIBUTORS=$(gh api graphql -f query="query { $QUERY_BODY }" \
+              | jq -r '.data | to_entries[] | (.value.object.author.user.login | if . then "@" + . else null end) // .value.object.author.name' \
+              | awk '!seen[$0]++' \
+              | sort -f \
+              | sed 's/^/- /')
+          fi
 
           # Combine
           CHANGELOG_CONTENT=$(cat CHANGELOG.md)
@@ -97,11 +121,12 @@ jobs:
           {
             echo "changelog<<EOF"
             echo "$CHANGELOG_CONTENT"
-            if [ -n "$CONTRIBUTORS" ]; then
-              echo ""
-              echo "## Thank you to the following contributors who made this release possible!"
-              echo "$CONTRIBUTORS"
-            fi
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+          {
+            echo "contributors<<EOF"
+            echo "$CONTRIBUTORS"
             echo "EOF"
           } >> $GITHUB_OUTPUT
 
@@ -179,10 +204,10 @@ jobs:
             > We **need** _your_ help in testing this release to ensure there are no major bugs or faults that will cause problems during flight.  Please ensure you back up your model and radio settings before updating, fully bench-test your models after updating, and report any issues you encounter. It is only with your feedback and testing by you, our community (and the assistance provided by partner manufacturers) which will allow us to identify and squash both new and old bugs, and progress onto a stable release version!! We simply cannot do this without you! :hugs: :beers:' || '' }}
 
             > [!WARNING]
-            > If you are using a STM32 F2 based radio, *stop right now*, this release is not for you! EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
+            > If you are using a STM32 F2 based radio, EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) or the [Supported Radios list](https://edgetx.org/supportedradios/) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
 
-            > [!WARNING]
-            > Radios based on STM32H7 MCUs update differently to older radios. Do **not** use the "Flash via USB" option in EdgeTX Buddy with them (yet). To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RM TX15 and RM TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
+            > [!TIP]
+            > Radios based on STM32H7 MCUs update differently to older radios. To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RadioMaster TX15 and TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
 
             > [!NOTE]
             > For MacOS users, Companion is now only compiled for MacOS 12 and above. Stay with v2.10.5 or earlier if you need support for an older version of MacOS.
@@ -198,22 +223,26 @@ jobs:
 
             ${{ steps.changelog.outputs.changelog }}
 
-            ## Supported radios
-            The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
-
-            ## Installation Guide
-            https://manual.edgetx.org/installing-and-updating-edgetx
-
-            ## Flash firmware via Chrome based browser
-            https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
-
-            ## Language and Custom builds
-            [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) will allow you build your own (supported) language firmware, with just a few clicks. Additionally, EdgeTX Companion also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can also build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces), request a specific build at TODO or ask on Discord for someone to build one for you.
-
             ## Known Limitations and Issues
             ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
             - Please check TODO during the release candidate phase for any other release candidate-specific issues and status of fixes.' || '' }}
 
             ## UI/UX behavioral changes and/or new capabilities:
+
+            ## Supported radios
+            The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
+
+            ## Installation Guide
+            https://manual.edgetx.org/edgetx-user-manual/installing-and-updating-edgetx
+
+            ## Flash firmware via Chrome based browser
+            https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
+
+            ## Language and Custom builds
+            Custom prebuilt firmware is no longer available. However, the [CloudBuild option in EdgeTX](https://buddy.edgetx.org/) is here to allow you to build your own firmware, with just a few clicks. Additionally, EdgeTX Companion now also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can still build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces), request a specific build at TODO or ask on Discord for someone to build one for you.
+
+            ${{ steps.changelog.outputs.contributors != '' && '## Contributors
+            Thank you to the following contributors who made this release possible!' || '' }}
+            ${{ steps.changelog.outputs.contributors }}
           files: release-assets/*.zip
           fail_on_unmatched_files: true
