@@ -22,14 +22,14 @@
 #pragma once
 
 #include <QtWidgets>
-#include "wizarddata.h"
+#include "wizarddataair.h"
 
 class WizardDialog : public QWizard
 {
   Q_OBJECT
 
   public:
-    WizMix mix;
+    Plane::WizMix mix;
     WizardDialog(const GeneralSettings & settings, const unsigned int modelId, const ModelData & modelData, QWidget *parent = 0);
     const GeneralSettings & settings;
 
@@ -42,7 +42,7 @@ class StandardPage: public QWizardPage
   Q_OBJECT
 
   public:
-    StandardPage(WizardPage curPage, WizardDialog *dlg, QString image, QString title, QString text, int nextPage=-1);
+    StandardPage(int curPage, WizardDialog *dlg, QString image, QString title, QString text, int nextPage=-1);
     WizardDialog *wizDlg;
 
   protected:
@@ -50,15 +50,15 @@ class StandardPage: public QWizardPage
     void releasePreBookings();
     void initializePage();
     void cleanupPage();
-    int getDefaultChannel(const Input input);
+    int getDefaultChannel(const int input);
     int nextFreeChannel(int channel = 0);
     void populateCB(QComboBox * cb, int preferred=-1);
-    bool bookChannel(QComboBox * cb, Input input1, int weight1, Input input2=NO_INPUT, int weight2=0);
+    bool bookChannel(QComboBox * cb, int input1, int weight1, int input2=AirVehicle::NO_INPUT, int weight2=0);
     int totalChannelsAvailable();
 
   private:
     QLabel *topLabel;
-    WizardPage pageCurrent;
+    int pageCurrent;
     int pageFollower;
     int nextId() const;
 };
@@ -362,11 +362,11 @@ class WizardPrinter:QObject
 {
   Q_OBJECT
 public:
-  WizardPrinter( WizMix * );
+  WizardPrinter( Plane::WizMix * );
   QString print();
 private:
-  WizMix *mix;
-  QString inputName( Input );
-  QString vehicleName( Vehicle );
-  QString printChannel( Input, int, Input, int );
+  Plane::WizMix *mix;
+  QString inputName( int );
+  QString vehicleName( int );
+  QString printChannel( int, int, int, int );
 };
