@@ -391,6 +391,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        "教练从机/蓝牙"
 #define TR_VTRAINER_MULTI              "教练主机/多协议"
 #define TR_VTRAINER_CRSF               "教练主机/CRSF"
+#define TR_VTRAINER_LUA                "教练主机/Lua"
 #define TR_VFAILSAFE_1                 "未设置"
 #define TR_VFAILSAFE_2                 "失控保持"
 #define TR_VFAILSAFE_3                 "自定义"

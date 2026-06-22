@@ -391,6 +391,7 @@
 #define TR_VTRAINER_BLUETOOTH_2           "Slave/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI                 "Master/Multi"
 #define TR_VTRAINER_CRSF                  "Master/CRSF"
+#define TR_VTRAINER_LUA                   "Master/Lua"
 #define TR_VFAILSAFE_1                    "Non settato"
 #define TR_VFAILSAFE_2                    "Mantieni"
 #define TR_VFAILSAFE_3                    "Personali"

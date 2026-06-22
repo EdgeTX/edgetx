@@ -393,6 +393,7 @@
 #define TR_VTRAINER_BLUETOOTH_2        "Раб/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Мастер/Мульти"
 #define TR_VTRAINER_CRSF               "Мастер/CRSF"
+#define TR_VTRAINER_LUA                "Мастер/Lua"
 #define TR_VFAILSAFE_1                 "Не устан"
 #define TR_VFAILSAFE_2                 "Удерж"
 #define TR_VFAILSAFE_3                 "Настр"
