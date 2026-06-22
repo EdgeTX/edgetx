@@ -46,6 +46,8 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_SRC_PREFIX}_hal_flash_ex.c
     ${STM32CUBE_SRC_PREFIX}_hal_cortex.c
     ${STM32CUBE_SRC_PREFIX}_hal_gpio.c
+    ${STM32CUBE_SRC_PREFIX}_hal_i2c.c
+    ${STM32CUBE_SRC_PREFIX}_hal_i2c_ex.c
   )
 
   # STM32 HAL/LL library

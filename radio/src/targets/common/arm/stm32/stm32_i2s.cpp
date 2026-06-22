@@ -57,7 +57,9 @@ static void i2s_dma_init(const stm32_i2s_t* i2s)
   dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
   dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
   dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
-#elif defined(STM32H7RS)
+#elif defined(STM32H7RS) || defined(STM32H5)
+  // STM32H5 and STM32H7RS share the same GPDMA LL API. Circular behaviour is
+  // set up by the caller via a linked-list source-address reset node.
   dmaInit.Request = i2s->DMA_PeriphRequest;
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
   dmaInit.Priority = LL_DMA_HIGH_PRIORITY;
@@ -106,7 +108,7 @@ void stm32_i2s_config_dma_stream(const stm32_i2s_t* i2s, void* buffer, uint32_t 
 #if defined(STM32H7)
   LL_DMA_SetMemoryAddress(i2s->DMA, i2s->DMA_Stream, (uintptr_t)buffer);
   LL_DMA_SetDataLength(i2s->DMA, i2s->DMA_Stream, nb_xfer);
-#elif defined(STM32H7RS)
+#elif defined(STM32H7RS) || defined(STM32H5)
   LL_DMA_SetSrcAddress(i2s->DMA, i2s->DMA_Stream, (uintptr_t)buffer);
   LL_DMA_SetBlkDataLength(i2s->DMA, i2s->DMA_Stream, nb_xfer * 2);  // bytes
 #endif
@@ -116,7 +118,7 @@ void stm32_i2s_start_dma_stream(const stm32_i2s_t* i2s)
 {
 #if defined(STM32H7)
   LL_DMA_EnableStream(i2s->DMA, i2s->DMA_Stream);
-#elif defined(STM32H7RS)
+#elif defined(STM32H7RS) || defined(STM32H5)
   LL_DMA_EnableChannel(i2s->DMA, i2s->DMA_Stream);
 #endif
 
