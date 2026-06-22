@@ -164,8 +164,19 @@ class NumberArea : public FormField
     }
   }
 
-  void openKeyboard() { NumberKeyboard::open(this); }
-  void directEdit() { FormField::onClicked(); }
+  void openKeyboard()
+  {
+    editTextIsRaw = numEdit->useDirectKeyboard();
+    lv_textarea_set_text(lvobj, editTextIsRaw ? numEdit->getEditVal().c_str()
+                                              : numEdit->getDisplayVal().c_str());
+    NumberKeyboard::open(this, numEdit);
+  }
+
+  void directEdit()
+  {
+    editTextIsRaw = false;
+    FormField::onClicked();
+  }
 
   void update()
   {
@@ -175,6 +186,18 @@ class NumberArea : public FormField
 
  protected:
   NumberEdit* numEdit = nullptr;
+  bool editTextIsRaw = false;
+
+  void changeEnd(bool forceChanged = false) override
+  {
+    if (lvobj == nullptr) return;
+
+    if (editTextIsRaw) {
+      numEdit->setValueFromEditVal(lv_textarea_get_text(lvobj));
+      editTextIsRaw = false;
+    }
+    FormField::changeEnd(forceChanged);
+  }
 
   void onCancel() override
   {
@@ -217,6 +240,11 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax)
 {
+  if (parent) {
+    const char* title = parent->getFormFieldTitle();
+    if (title) editTitle = title;
+  }
+
   if (rect.w == 0 || rect.w == LV_SIZE_CONTENT) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   setTextFlag(textFlags);
@@ -269,7 +297,7 @@ void NumberEdit::update()
   updateDisplay();
 }
 
-std::string NumberEdit::getDisplayVal()
+std::string NumberEdit::getDisplayVal() const
 {
   std::string str;
   if (displayFunction != nullptr) {
@@ -281,6 +309,92 @@ std::string NumberEdit::getDisplayVal()
                                suffix.c_str());
   }
   return str;
+}
+
+bool NumberEdit::hasDecimalPrecision() const
+{
+  return ((textFlags & PREC2) == PREC2) || (textFlags & PREC1);
+}
+
+bool NumberEdit::useDirectKeyboard() const
+{
+  return directKeyboard;
+}
+
+static int getNumberEditPrecisionScale(LcdFlags flags)
+{
+  if ((flags & PREC2) == PREC2) return 100;
+  if (flags & PREC1) return 10;
+  return 1;
+}
+
+std::string NumberEdit::getEditVal() const
+{
+  int scale = getNumberEditPrecisionScale(textFlags);
+  int value = currentValue;
+
+  if (scale == 1) {
+    return std::to_string(value);
+  }
+
+  bool negative = value < 0;
+  int64_t absValue = negative ? -(int64_t)value : value;
+  int64_t whole = absValue / scale;
+  int64_t fraction = absValue % scale;
+
+  auto text = std::string(negative ? "-" : "") + std::to_string(whole) + ".";
+  if (scale == 100 && fraction < 10) text += "0";
+  text += std::to_string(fraction);
+  return text;
+}
+
+void NumberEdit::setValueFromEditVal(const char* text)
+{
+  if (text == nullptr || *text == '\0') {
+    setValue(0);
+    return;
+  }
+
+  int scale = getNumberEditPrecisionScale(textFlags);
+  bool negative = false;
+  bool afterDecimal = false;
+  int decimalDigits = 0;
+  constexpr int64_t VALUE_LIMIT = 2147483647;
+  int64_t value = 0;
+
+  if (*text == '-' || *text == '+') {
+    negative = *text == '-';
+    text++;
+  }
+
+  while (*text != '\0') {
+    if (*text == '.') {
+      if (afterDecimal) break;
+      afterDecimal = true;
+      text++;
+      continue;
+    }
+
+    if (*text >= '0' && *text <= '9') {
+      if (!afterDecimal) {
+        if (value < VALUE_LIMIT) {
+          value = value * 10 + (*text - '0') * scale;
+          if (value > VALUE_LIMIT) value = VALUE_LIMIT;
+        }
+      } else if (decimalDigits < (scale == 100 ? 2 : scale == 10 ? 1 : 0)) {
+        int digitValue = (*text - '0') * (scale == 100 && decimalDigits == 0 ? 10 : 1);
+        if (value <= VALUE_LIMIT - digitValue)
+          value += digitValue;
+        else
+          value = VALUE_LIMIT;
+        decimalDigits++;
+      }
+    }
+    text++;
+  }
+
+  int32_t parsedValue = (int32_t)value;
+  setValue(negative ? -parsedValue : parsedValue);
 }
 
 void NumberEdit::updateDisplay()

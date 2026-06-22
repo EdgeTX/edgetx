@@ -73,8 +73,10 @@ static void keyboard_event_cb(lv_event_t* e)
 
 static void field_focus_leave(lv_event_t* e) { Keyboard::hide(false); }
 
-Keyboard::Keyboard(coord_t height) :
-    NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height})
+Keyboard::Keyboard(coord_t height, bool fullScreen) :
+    NavWindow(MainWindow::instance(), {0, fullScreen ? 0 : LCD_H - height,
+                                       LCD_W, height}),
+    fullScreen(fullScreen)
 {
 #if defined(USE_HATS_AS_KEYS)
   hasTwoPageKeys = true;
@@ -176,8 +178,14 @@ void Keyboard::setField(FormField* newField)
 
   lv_obj_t* obj = newField->getLvObj();
   if (obj) {
-    fieldContainer = newField->getFullScreenWindow();
-    if (fieldContainer) {
+    if (fullScreen) {
+      setTop(0);
+      lv_obj_set_parent(lvobj, lv_layer_top());
+      fieldContainer = nullptr;
+    } else {
+      fieldContainer = newField->getFullScreenWindow();
+      if (!fieldContainer) return;
+
       attach(fieldContainer);
 
       lv_area_t coords;
@@ -189,15 +197,15 @@ void Keyboard::setField(FormField* newField)
       // save scroll position
       scroll_pos = lv_obj_get_scroll_y(fieldContainer->getLvObj());
       lv_obj_scroll_to_view(lvobj, LV_ANIM_OFF);
-
-      newField->setEditMode(true);
-
-      lv_keyboard_set_textarea(keyboard, obj);
-      lv_obj_add_event_cb(obj, field_focus_leave, LV_EVENT_DEFOCUSED, nullptr);
-      assignLvGroup(group, false);
-
-      field = newField;
-      fieldGroup = (lv_group_t*)lv_obj_get_group(obj);
     }
+
+    newField->setEditMode(true);
+
+    lv_keyboard_set_textarea(keyboard, obj);
+    lv_obj_add_event_cb(obj, field_focus_leave, LV_EVENT_DEFOCUSED, nullptr);
+    assignLvGroup(group, false);
+
+    field = newField;
+    fieldGroup = (lv_group_t*)lv_obj_get_group(obj);
   }
 }

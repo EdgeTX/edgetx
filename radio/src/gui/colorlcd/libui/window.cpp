@@ -714,7 +714,8 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
 
 SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
                     std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset) :
-    Window(parent, {0, y, LCD_W - padding * 2, 0})
+    Window(parent, {0, y, LCD_W - padding * 2, 0}),
+    titleText(title ? title : "")
 {
   padAll(PAD_ZERO);
   coord_t titleY = PAD_LARGE + lblYOffset;
