@@ -21,21 +21,4 @@
 
 #pragma once
 
-#include "page.h"
-#include "pulses/afhds3_config.h"
-
-class AFHDS3_Options : public Page
-{
-  afhds3::Config_u* cfg;
-
- public:
-  AFHDS3_Options(uint8_t moduleIdx);
-};
-
-class AFHDS3_Sensors : public Page
-{
-  afhds3::Config_u* cfg;
-
- public:
-  AFHDS3_Sensors(uint8_t moduleIdx);
-};
+void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
