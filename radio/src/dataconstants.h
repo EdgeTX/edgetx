@@ -554,6 +554,12 @@ enum MixSources {
   MIXSRC_TX_TIME,
   MIXSRC_TX_GPS,
 
+#if defined(VOICE_CONTROL_SENSOR)
+  MIXSRC_VGR,
+  MIXSRC_VFL,
+  MIXSRC_LAST_VOICE SKIP = MIXSRC_VFL,
+#endif
+
   MIXSRC_FIRST_TIMER SKIP,
   MIXSRC_LAST_TIMER SKIP = MIXSRC_FIRST_TIMER + MAX_TIMERS - 1,
 
@@ -596,6 +602,9 @@ enum SrcTypes {
   SRC_TIMER = 1 << 17,
   SRC_TELEM = 1 << 18,
   SRC_LIGHT = 1 << 19,
+#if defined(VOICE_CONTROL_SENSOR)
+  SRC_VOICE = 1 << 20,
+#endif
   SRC_NONE = 1 << 30,
   SRC_INVERT = 1 << 31,
 };

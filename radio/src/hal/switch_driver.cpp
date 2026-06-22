@@ -27,6 +27,9 @@
 #include "dataconstants.h"
 #include "edgetx_helpers.h"
 #include "edgetx.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 
 // Board API
 void boardInitSwitches();
@@ -85,7 +88,11 @@ uint8_t switchGetMaxSwitches()
 
 uint8_t switchGetMaxAllSwitches()
 {
-  return boardGetMaxSwitches() + MAX_FLEX_SWITCHES;
+  uint8_t n = boardGetMaxSwitches() + MAX_FLEX_SWITCHES;
+#if defined(VOICE_CONTROL_SENSOR)
+  n += CI1302_voiceSwitchExtraCount();
+#endif
+  return n;
 }
 
 uint32_t switchState(uint8_t pos_idx)
@@ -99,6 +106,13 @@ uint32_t switchState(uint8_t pos_idx)
 
 SwitchHwPos switchGetPosition(uint8_t sw_idx)
 {
+#if defined(VOICE_CONTROL_SENSOR)
+  SwitchHwPos pos;
+  if (CI1302_voiceSwitchTryGetPosition(sw_idx, &pos)) {
+    return pos;
+  }
+#endif
+
   auto idx = (int)sw_idx;
   auto max_switches = switchGetMaxSwitches();
   if (idx < max_switches) {
@@ -137,6 +151,12 @@ static_assert(DIM(_flex_sw_canon_names) >= MAX_FLEX_SWITCHES,
 
 const char* switchGetDefaultName(uint8_t sw_idx)
 {
+#if defined(VOICE_CONTROL_SENSOR)
+  if (const char* name = CI1302_voiceSwitchTryGetName(sw_idx)) {
+    return name;
+  }
+#endif
+
   auto idx = (int)sw_idx;
   auto max_switches = switchGetMaxSwitches();
   if (idx < max_switches) {
@@ -161,11 +181,27 @@ int8_t switchGetIndexFromName(const char* name)
     if (strcmp(name, boardSwitchGetName(i)) == 0)
       return i;
 
+#if defined(VOICE_CONTROL_SENSOR)
+  {
+    int8_t idx = CI1302_voiceSwitchTryGetIndexFromName(name);
+    if (idx >= 0) {
+      return idx;
+    }
+  }
+#endif
+
   return -1;
 }
 
 SwitchHwType switchGetHwType(uint8_t sw_idx)
 {
+#if defined(VOICE_CONTROL_SENSOR)
+  SwitchHwType type;
+  if (CI1302_voiceSwitchTryGetHwType(sw_idx, &type)) {
+    return type;
+  }
+#endif
+
   auto idx = (int)sw_idx;
   auto max_switches = switchGetMaxSwitches();
   if (idx < max_switches) {
@@ -183,7 +219,13 @@ SwitchHwType switchGetHwType(uint8_t sw_idx)
 bool switchIsFlex(uint8_t idx)
 {
   auto max_switches = switchGetMaxSwitches();
+#if defined(VOICE_CONTROL_SENSOR)
+  if (idx < max_switches) return false;
+  idx -= max_switches;
+  return idx < MAX_FLEX_SWITCHES;
+#else
   return idx >= max_switches && idx < switchGetMaxAllSwitches();
+#endif
 }
 
 void switchConfigFlex_raw(uint8_t idx, int8_t channel)
