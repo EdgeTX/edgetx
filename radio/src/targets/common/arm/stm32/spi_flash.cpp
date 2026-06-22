@@ -24,6 +24,9 @@
 #include "stm32_gpio.h"
 
 #include "hal.h"
+#if !defined(BOOT)
+#include "rtos.h"
+#endif
 
 #define CS_HIGH() stm32_spi_unselect(&_flash_spi)
 #define CS_LOW()  stm32_spi_select(&_flash_spi)
@@ -147,6 +150,13 @@ static void flash_wait_for_not_busy()
   uint8_t status;
   do {
     flash_do_cmd(FLASH_CMD_STATUS, 0, &status, 1);
+    if (status & 0x01) {
+#if !defined(BOOT)
+      RTOS_WAIT_MS(1);
+#else
+      delay_ms(1);
+#endif
+    }
   } while (status & 0x01);
 }
 
