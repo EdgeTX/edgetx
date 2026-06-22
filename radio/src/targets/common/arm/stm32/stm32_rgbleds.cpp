@@ -47,19 +47,20 @@ static uint8_t _b_offset;
 #define RGBLEDS_DMA_BUFFER_LEN       (RGBLEDS_DMA_BUFFER_HALF_LEN * 2)
 #define RGBLEDS_DMA_IRQ_PRIO         3
 
+// Bit timing in ns (period / '1' HIGH / '0' HIGH), converted to timer ticks at
+// init from the actual timer clock so it holds on any clock domain.
 #if defined(RGB_LEDS_900NS)
-// RGBLEDSB have a shorter timing, so we can use a faster timer clock
-#define RGBLEDS_FREQ             1200000UL // tick = 1/12MHz = 83.3 ns
-#define RGBLEDS_TIMER_PERIOD     11UL      // 11 × 83.3 = 916,7 ns period
-#define RGBLEDS_ONE              7         //  7 × 83.3 = 583.3 ns HIGH, 3 × 83.3 = 250.0 ns LOW
-#define RGBLEDS_ZERO             3         //  3 × 83.3 = 250.0 ns HIGH, 7 × 83.3 = 583.3 ns LOW
+#define RGBLEDS_PERIOD_NS        917UL
+#define RGBLEDS_T1H_NS           583UL
+#define RGBLEDS_T0H_NS           250UL
 #else
-// Generic RGBLEDS
-#define RGBLEDS_FREQ             800000UL                       // tick = 1250/20 = 62.5 ns
-#define RGBLEDS_TIMER_PERIOD     20UL                           // 20 × 62.5 = 1250 ns period
-#define RGBLEDS_ONE              (3 * RGBLEDS_TIMER_PERIOD / 4)  // 15 × 62.5 = 937.5 ns HIGH (550–950),  5 × 62.5 = 312.5 ns LOW (220–400)
-#define RGBLEDS_ZERO             (1 * RGBLEDS_TIMER_PERIOD / 4)  //  5 × 62.5 = 312.5 ns HIGH (220–400) , 15 × 62.5 = 937.5 ns LOW (550–950)
+#define RGBLEDS_PERIOD_NS        1250UL
+#define RGBLEDS_T1H_NS           938UL
+#define RGBLEDS_T0H_NS           313UL
 #endif
+
+#define RGBLEDS_NS_TO_TICKS(freq, ns) \
+  (uint32_t)(((uint64_t)(freq) * (ns) + 500000000UL) / 1000000000UL)
 
 
 // Debug facility
@@ -92,6 +93,10 @@ static void _led_dbg_init() {
 typedef uint16_t led_timer_value_t;
 uint8_t pulse_inc = 1;
 
+// HIGH time (timer ticks) for a '1' and a '0' bit, computed at init.
+static led_timer_value_t _led_one;
+static led_timer_value_t _led_zero;
+
 // DMA buffer contains pulses for 2 LED at a time
 // (allows for refill at HT and TC)
 #if defined(STM32_SUPPORT_32BIT_TIMERS)
@@ -105,7 +110,7 @@ static uint8_t _led_seq_cnt;
 static void _fill_byte(uint8_t c, led_timer_value_t* dma_buffer)
 {
   for (int i = 0; i < 8; i++) {
-    dma_buffer[i*pulse_inc] = c & 0x80 ? RGBLEDS_ONE : RGBLEDS_ZERO;
+    dma_buffer[i*pulse_inc] = c & 0x80 ? _led_one : _led_zero;
     c <<= 1;
   }
 }
@@ -197,9 +202,15 @@ static void _led_set_dma_periph_addr(const stm32_pulse_timer_t* tim)
 
 static void _init_timer(const stm32_pulse_timer_t* tim)
 {
-  stm32_pulse_init(tim, RGBLEDS_FREQ * RGBLEDS_TIMER_PERIOD);
+  // Run at the full timer clock (prescaler 0) and derive the periods from it.
+  uint32_t cnt_freq = tim->TIM_Freq;
+  stm32_pulse_init(tim, cnt_freq);
   stm32_pulse_config_output(tim, true, LL_TIM_OCMODE_PWM1, 0);
-  LL_TIM_SetAutoReload(tim->TIMx, RGBLEDS_TIMER_PERIOD - 1);
+
+  uint32_t period = RGBLEDS_NS_TO_TICKS(cnt_freq, RGBLEDS_PERIOD_NS);
+  _led_one  = RGBLEDS_NS_TO_TICKS(cnt_freq, RGBLEDS_T1H_NS);
+  _led_zero = RGBLEDS_NS_TO_TICKS(cnt_freq, RGBLEDS_T0H_NS);
+  LL_TIM_SetAutoReload(tim->TIMx, period - 1);
 
   // pulse driver uses DMA to ARR, but we need CCRx
   _led_set_dma_periph_addr(tim);
