@@ -35,6 +35,19 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION})
 option(EdgeTX_SUPERBUILD "Cross-compile EdgeTX for each toolchain" ON)
 include(ExternalProject)
 
+# Cache FetchContent downloads in a shared directory so that multiple build
+# directories (and rebuilds after a clean) reuse already-fetched dependencies.
+# Priority: -D flag > $ENV{FETCHCONTENT_BASE_DIR} > default (.cache/fetchcontent)
+if(NOT FETCHCONTENT_BASE_DIR)
+  if(DEFINED ENV{FETCHCONTENT_BASE_DIR})
+    set(FETCHCONTENT_BASE_DIR "$ENV{FETCHCONTENT_BASE_DIR}" CACHE PATH
+        "Shared cache for FetchContent downloads" FORCE)
+  else()
+    set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/fetchcontent" CACHE PATH
+        "Shared cache for FetchContent downloads" FORCE)
+  endif()
+endif()
+
 if(EdgeTX_SUPERBUILD)
   include(Macros)
   CollectCommandLineArgs(CMAKE_ARGS)
@@ -53,6 +66,7 @@ if(EdgeTX_SUPERBUILD)
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=1
+      -DFETCHCONTENT_BASE_DIR:PATH=${FETCHCONTENT_BASE_DIR}
     INSTALL_COMMAND  ""
     EXCLUDE_FROM_ALL TRUE
     )
@@ -66,6 +80,7 @@ if(EdgeTX_SUPERBUILD)
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=0
+      -DFETCHCONTENT_BASE_DIR:PATH=${FETCHCONTENT_BASE_DIR}
     INSTALL_COMMAND  ""
     EXCLUDE_FROM_ALL TRUE
   )
@@ -92,6 +107,7 @@ if(EdgeTX_SUPERBUILD)
       -B ${CMAKE_BINARY_DIR}/wasm
       -DEDGETX_SOURCE_DIR=${CMAKE_SOURCE_DIR}
       -DEDGETX_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -DFETCHCONTENT_BASE_DIR=${FETCHCONTENT_BASE_DIR}
       ${CMAKE_ARGS}
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/wasm
   )
