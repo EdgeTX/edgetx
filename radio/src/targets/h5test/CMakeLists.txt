@@ -34,7 +34,7 @@ set(INTERNAL_MODULE_SERIAL YES)
 set(LCD_DRIVER lcd_driver_newspi.cpp)
 set(ROTARY_ENCODER YES)
 set(MODULE_SIZE_SML YES)
-set(USB_CHARGER YES)
+set(USB_CHARGER NO)  # CHG_ON (PD.07) removed; pin reused for OLED_RST
 set(FLAVOUR h5test)
 set(CPU_TYPE_FULL STM32H562xx)
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
@@ -65,7 +65,6 @@ set(BOARD_COMMON_SRC
   ${BOARD_SRC_DIR}/led_driver.cpp
   ${BOARD_SRC_DIR}/backlight_driver.cpp
   ${BOARD_SRC_DIR}/haptic_driver.cpp
-  ${BOARD_SRC_DIR}/usb_charger_driver.cpp
   ${BOARD_SRC_DIR}/${LCD_DRIVER}
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
@@ -98,7 +97,9 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  targets/common/arm/stm32/audio_dac_driver.cpp
+  ${BOARD_SRC_DIR}/audio_driver.cpp
+  drivers/tas2505.cpp
+  targets/common/arm/stm32/stm32_i2s.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
