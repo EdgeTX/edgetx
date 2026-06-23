@@ -133,7 +133,10 @@ void FileBrowser::setFullPath(const char* name)
 FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
     TableField(parent, rect), currentPath((dir && dir[0]) ? dir : "/")
 {
-  f_chdir(currentPath.c_str());
+  if (f_chdir(currentPath.c_str()) != FR_OK) {
+    currentPath = "/";  // keep currentPath in sync with the FatFs CWD
+    f_chdir(currentPath.c_str());
+  }
 
   setAutoEdit();
 
@@ -244,16 +247,17 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
 void FileBrowser::onPress(const char* name, bool is_dir)
 {
   if (is_dir) {
+    std::string nextPath = currentPath;
     if (strcmp(name, "..") == 0) {
       // Go up: trim last segment (f_chdir("..") / f_getcwd are no-ops on exFAT).
-      auto pos = currentPath.find_last_of('/');
-      currentPath = (pos == 0 || pos == std::string::npos) ? "/"
-                                                           : currentPath.substr(0, pos);
+      auto pos = nextPath.find_last_of('/');
+      nextPath = (pos == 0 || pos == std::string::npos) ? "/" : nextPath.substr(0, pos);
     } else {
       setFullPath(name);
-      currentPath = fullPathBuf;
+      nextPath = fullPathBuf;
     }
-    f_chdir(currentPath.c_str());
+    // Only commit the tracked path if the CWD actually changed.
+    if (f_chdir(nextPath.c_str()) == FR_OK) currentPath = nextPath;
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
     selected = nullptr;
     refresh();

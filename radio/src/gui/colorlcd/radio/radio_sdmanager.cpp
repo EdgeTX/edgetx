@@ -471,6 +471,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
     strncpy(clipboard.data.sd.directory, path, CLIPBOARD_PATH_LEN - 1);
     clipboard.data.sd.directory[CLIPBOARD_PATH_LEN - 1] = '\0';
     strncpy(clipboard.data.sd.filename, name, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.filename[CLIPBOARD_PATH_LEN - 1] = '\0';
   });
   if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
     menu->addLine(STR_PASTE, [=]() {
