@@ -83,16 +83,6 @@ bool isExtensionMatching(const char * extension, const char * pattern, char * ma
   return false;
 }
 
-// returns true if current working dir is at the root level
-bool isCwdAtRoot()
-{
-  char path[10];
-  if (f_getcwd(path, sizeof(path)-1) == FR_OK) {
-    return (strcasecmp("/", path) == 0);
-  }
-  return false;
-}
-
 /*
   Wrapper around the f_readdir() function which
   also returns ".." entry for sub-dirs. (FatFS 0.12 does
@@ -101,7 +91,8 @@ bool isCwdAtRoot()
 FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
 {
   FRESULT res;
-  if (firstTime && !isCwdAtRoot()) {
+  // cdir (0 == root) works on FAT and exFAT; f_getcwd() always reports root on exFAT.
+  if (firstTime && dir->obj.fs->cdir != 0) {
     // fake parent directory entry
     strcpy(fno->fname, "..");
     fno->fattrib = AM_DIR;

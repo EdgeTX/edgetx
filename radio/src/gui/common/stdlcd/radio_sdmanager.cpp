@@ -61,9 +61,27 @@ inline bool isFilenameLower(bool isfile, const char * fn, const char * line)
   return (!isfile && IS_FILE(line)) || (isfile==IS_FILE(line) && strcasecmp(fn, line) < 0);
 }
 
+// Current dir, tracked explicitly: on exFAT f_getcwd() and f_chdir("..") are no-ops.
+static char sdManagerPath[FF_MAX_LFN + 1] = "/";
+
+static void sdManagerChdir(const char* name)
+{
+  if (!strcmp(name, "..")) {
+    // go up: drop the last path segment
+    char* sep = strrchr(sdManagerPath, '/');
+    if (sep == sdManagerPath) sep[1] = '\0';  // parent is the root
+    else if (sep) *sep = '\0';
+  } else {
+    // descend into 'name'
+    if (sdManagerPath[1] != '\0') strcat(sdManagerPath, "/");
+    strcat(sdManagerPath, name);
+  }
+  f_chdir(sdManagerPath);  // absolute path: resolves on FAT and exFAT alike
+}
+
 void getSelectionFullPath(char * lfn)
 {
-  f_getcwd(lfn, FF_MAX_LFN);
+  strcpy(lfn, sdManagerPath);
   strcat(lfn, "/");
   strcat(lfn, reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
 }
@@ -121,12 +139,13 @@ void onSdManagerMenu(const char * result)
   }
   else if (result == STR_COPY_FILE) {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+    strncpy(clipboard.data.sd.directory, sdManagerPath, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.directory[CLIPBOARD_PATH_LEN - 1] = '\0';
     strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
   }
   else if (result == STR_PASTE) {
     char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-    f_getcwd(lfn, FF_MAX_LFN);
+    strcpy(lfn, sdManagerPath);
     // if destination is dir, copy into that dir
     if (IS_DIRECTORY(line)) {
       strcat(lfn, "/");
@@ -279,6 +298,7 @@ void menuRadioSdManager(event_t _event)
 
   if (_event == EVT_ENTRY) {
     f_chdir(ROOT_PATH);
+    strcpy(sdManagerPath, ROOT_PATH);
 #if LCD_DEPTH > 1
     lastPos = -1;
 #endif
@@ -325,7 +345,7 @@ void menuRadioSdManager(event_t _event)
       else {
         int index = menuVerticalPosition - HEADER_LINE - menuVerticalOffset;
         if (IS_DIRECTORY(reusableBuffer.sdManager.lines[index])) {
-          f_chdir(reusableBuffer.sdManager.lines[index]);
+          sdManagerChdir(reusableBuffer.sdManager.lines[index]);
           menuVerticalOffset = 0;
           menuVerticalPosition = HEADER_LINE;
           REFRESH_FILES();

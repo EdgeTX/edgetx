@@ -29,22 +29,6 @@
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-static const char* getFullPath(const char* filename)
-{
-  static char full_path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
-  strcat(full_path, "/");
-  strcat(full_path, filename);
-  return full_path;
-}
-
-static const char* getCurrentPath()
-{
-  static char path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)path, FF_MAX_LFN);
-  return path;
-}
-
 static int strnatcasecmp(char const *s1, char const *s2)
 {
   int i1, i2;
@@ -138,10 +122,18 @@ static int scan_files(std::list<std::string>& files,
   return 0;
 }
 
-FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
-    TableField(parent, rect)
+void FileBrowser::setFullPath(const char* name)
 {
-  f_chdir(dir);
+  if (currentPath == "/")
+    fullPathBuf = std::string("/") + name;
+  else
+    fullPathBuf = currentPath + "/" + name;
+}
+
+FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
+    TableField(parent, rect), currentPath((dir && dir[0]) ? dir : "/")
+{
+  f_chdir(currentPath.c_str());
 
   setAutoEdit();
 
@@ -244,18 +236,24 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
     return;
   }
 
-  const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);
-  if (fileSelected) fileSelected(path, name, fullpath, is_dir);
+  setFullPath(name);
+  if (fileSelected) fileSelected(currentPath.c_str(), name, fullPathBuf.c_str(), is_dir);
   selected = name;
 }
 
 void FileBrowser::onPress(const char* name, bool is_dir)
 {
-  const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);
   if (is_dir) {
-    f_chdir(fullpath);
+    if (strcmp(name, "..") == 0) {
+      // Go up: trim last segment (f_chdir("..") / f_getcwd are no-ops on exFAT).
+      auto pos = currentPath.find_last_of('/');
+      currentPath = (pos == 0 || pos == std::string::npos) ? "/"
+                                                           : currentPath.substr(0, pos);
+    } else {
+      setFullPath(name);
+      currentPath = fullPathBuf;
+    }
+    f_chdir(currentPath.c_str());
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
     selected = nullptr;
     refresh();
@@ -268,20 +266,19 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   }
 
   if (fileAction){
-    fileAction(path, name, fullpath, is_dir);
+    setFullPath(name);
+    fileAction(currentPath.c_str(), name, fullPathBuf.c_str(), is_dir);
   }
 }
 
 void FileBrowser::onPressLong(const char* name, bool is_dir)
 {
-  const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);
-
   if (!selected || (selected != name)) {
     onSelected(name, is_dir);
   }
 
   if (fileAction){
-    fileAction(path, name, fullpath, is_dir);
+    setFullPath(name);
+    fileAction(currentPath.c_str(), name, fullPathBuf.c_str(), is_dir);
   }
 }
