@@ -90,7 +90,7 @@
   #define DEFAULT_6POS_CALIB          {3, 12, 21, 30, 38}
   #define DEFAULT_6POS_IDX            5
 #endif
-  
+
 // Power
 #if defined(RADIO_T18)
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOJ, 1) // PJ.01
@@ -355,7 +355,7 @@
 #define STORAGE_USE_SDIO      // Use SD card for storage with SDIO driver
 //#define STORAGE_USE_SPI_FLASH // Use SPI flash for storage instead of SD card
 
-// SPI NOR Flash 
+// SPI NOR Flash
 #if defined(PCBX12S) && PCBREV >= 13
   #define FLASH_SPI                      SPI1
   #define FLASH_SPI_CS_GPIO              GPIO_PIN(GPIOA, 15) // PA.15
@@ -374,7 +374,7 @@
   // #define FLASH_SPI_TX_DMA_IRQHandler    DMA2_Stream3_IRQHandler
   // #define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF3
   // #define FLASH_SPI_TX_DMA_STATUS_REG    HISR
-  // SPI1_RX: DMA2 Stream 0 / Stream 2 
+  // SPI1_RX: DMA2 Stream 0 / Stream 2
   // #define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_3
   // #define FLASH_SPI_RX_DMA_STREAM        DMA2_Stream5
   // #define FLASH_SPI_RX_DMA_IRQn          DMA2_Stream5_IRQn
@@ -491,6 +491,9 @@
  #if defined(PCBX12S)
    #define IMU_I2C_BUS                   I2C_Bus_1
    #define IMU_I2C_ADDRESS               0x6A
+ #elif defined(RADIO_V16)
+   #define IMU_I2C_BUS                   I2C_Bus_1
+   #define IMU_I2C_ADDRESS               0x69
  #elif !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
    #define IMU_I2C_BUS                   I2C_Bus_2
    #define IMU_I2C_ADDRESS               0x6A
