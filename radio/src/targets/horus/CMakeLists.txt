@@ -111,6 +111,8 @@ if (PCB STREQUAL X10)
     set(AUX2_SERIAL OFF)
     set(CSD203_SENSOR ON)
     set(CI1302_SENSOR ON)
+    set(USB_CHARGER YES)
+    set(V16_CHARGE_UI ON)
     set(FLYSKY_GIMBAL ON)
     add_definitions(-DIMU_ICM42627)
     add_definitions(-DIMU_SC7U22)
@@ -348,6 +350,11 @@ if(CI1302_SENSOR)
   # call sites are SIMU-guarded individually.
   set(SRC ${SRC} drivers/CI1302.cpp)
   add_definitions(-DVOICE_CONTROL_SENSOR)
+endif()
+
+if(V16_CHARGE_UI)
+  add_definitions(-DV16_CHARGE_UI)
+  set(SRC ${SRC} ${TARGET_SRC_DIR}/charge_ui.cpp)
 endif()
 
 set(SRC ${SRC}
