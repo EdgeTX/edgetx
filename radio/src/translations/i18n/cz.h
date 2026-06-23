@@ -715,6 +715,8 @@
 #define TR_BATT_CALIB                  "Kalib. bat."
 #define TR_CURRENT_CALIB               "+=\006Proud"
 #define TR_VOLTAGE                     "Napětí"
+#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
+#define TR_MODULE_SENSOR_CURRENT       "Current"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
