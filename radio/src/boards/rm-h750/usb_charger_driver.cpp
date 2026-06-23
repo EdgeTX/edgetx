@@ -36,5 +36,9 @@ void usbChargerInit()
 
 bool usbChargerLed()
 {
+#if defined UCHARGER_INVERTED
+  return (!gpio_read(UCHARGER_GPIO) && usbPlugged());
+#else
   return (gpio_read(UCHARGER_GPIO) && usbPlugged());
+#endif
 }
