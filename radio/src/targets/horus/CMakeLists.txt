@@ -116,6 +116,8 @@ if (PCB STREQUAL X10)
     set(AUX2_SERIAL OFF)
     set(CSD203_SENSOR ON)
     set(FLYSKY_GIMBAL ON)
+    add_definitions(-DIMU_ICM42627)
+    add_definitions(-DIMU_SC7U22)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
     endif()
@@ -295,6 +297,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_rgbleds.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(FLAVOUR STREQUAL v16)
+  target_sources(board PRIVATE drivers/sc7u22.cpp)
+endif()
 
 if(BLUETOOTH)
   target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
