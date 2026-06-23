@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "table.h"
 
 class FileBrowser : public TableField
@@ -52,6 +54,12 @@ class FileBrowser : public TableField
   void onPressLong(const char* name, bool is_dir);
 
  private:
+  // Current dir, tracked explicitly because f_getcwd() is broken on exFAT.
+  std::string currentPath;
+  // Outlives the file-action call: callbacks capture the pointer for later use.
+  std::string fullPathBuf;
+  void setFullPath(const char* name);
+
   const char* selected = nullptr;
   FileAction fileAction;
   FileAction fileSelected;
