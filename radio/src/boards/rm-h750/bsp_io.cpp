@@ -21,7 +21,7 @@
 
 #include "bsp_io.h"
 
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_switch_driver.h"
 #include "stm32_i2c_driver.h"
 #include "hal/switch_driver.h"
