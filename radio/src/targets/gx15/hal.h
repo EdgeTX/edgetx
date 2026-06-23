@@ -286,6 +286,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOD, 11)
 #define UCHARGER_EN_GPIO            GPIO_PIN(GPIOB, 12)
+#define UCHARGER_INVERTED                (true)
 
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
