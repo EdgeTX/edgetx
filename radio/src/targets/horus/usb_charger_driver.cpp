@@ -33,5 +33,26 @@ void usbChargerInit()
 bool usbChargerLed()
 {
   if (!gpio_read(USB_USBDet_GPIO)) return 0;
+#if defined(V16_CHARGE_UI)
+  // Charge-status GPIO can pulse during CV phase: latch on immediately,
+  // require sustained inactive before clearing.
+  static bool debounced = false;
+  static uint8_t offCount = 0;
+
+  const bool charging = !gpio_read(USB_CHARGER_GPIO);
+
+  if (charging) {
+    debounced = true;
+    offCount = 0;
+  } else if (debounced) {
+    if (++offCount >= 150) {  // ~1.5s at 10ms tick
+      debounced = false;
+      offCount = 0;
+    }
+  }
+
+  return debounced;
+#else
   return !gpio_read(USB_CHARGER_GPIO);
+#endif
 }

@@ -72,6 +72,10 @@
 #include "dsmp_settings.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+#include "csd203_sensor.h"
+#endif
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_UNIQUE_ID_WARN LV_STATE_USER_1
@@ -769,6 +773,47 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   });
 
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
+
+#if defined(CSD203_SENSOR)
+  FormLine* sensorVoltLine = nullptr;
+  FormLine* sensorCurrLine = nullptr;
+  if (moduleIdx == INTERNAL_MODULE) {
+    sensorCurrLine = body->newLine(grid);
+    new StaticText(sensorCurrLine, rect_t{}, "current");
+    new DynamicNumber<int16_t>(
+        sensorCurrLine, rect_t{},
+        []() { return getIntModuleCurrent(); },
+        COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+  } else if (moduleIdx == EXTERNAL_MODULE) {
+    sensorVoltLine = body->newLine(grid);
+    new StaticText(sensorVoltLine, rect_t{}, "Voltage");
+    new DynamicNumber<uint16_t>(
+        sensorVoltLine, rect_t{},
+        []() { return getExtModuleVoltage(); },
+        COLOR_THEME_PRIMARY1_INDEX, PREC2, "", "V");
+
+    sensorCurrLine = body->newLine(grid);
+    new StaticText(sensorCurrLine, rect_t{}, "current");
+    new DynamicNumber<int16_t>(
+        sensorCurrLine, rect_t{},
+        []() { return getExtModuleCurrent(); },
+        COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+  }
+
+  auto updateSensorVisibility = [=]() {
+    const bool on = g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE;
+    if (sensorVoltLine) {
+      if (on) sensorVoltLine->show();
+      else sensorVoltLine->hide();
+    }
+    if (sensorCurrLine) {
+      if (on) sensorCurrLine->show();
+      else sensorCurrLine->hide();
+    }
+  };
+  updateSensorVisibility();
+#endif
+
   auto moduleWindow = new ModuleWindow(body, moduleIdx);
 
   // This needs to be after moduleWindow has been created
@@ -777,6 +822,10 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     moduleWindow->updateModule();
     subTypeChoice->updateLayout();
+
+#if defined(CSD203_SENSOR)
+    updateSensorVisibility();
+#endif
 
     SET_DIRTY();
   });
