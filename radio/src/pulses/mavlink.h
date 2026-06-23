@@ -37,3 +37,6 @@ struct MavlinkModuleStatus {
 };
 
 const MavlinkModuleStatus* mavlinkGetStatus(uint8_t module);
+
+bool mavlinkTunnelStage(const uint8_t* frame, uint8_t len);
+bool mavlinkTunnelStageAvailable();
