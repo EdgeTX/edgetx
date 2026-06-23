@@ -21,6 +21,7 @@
 
 #include "csd203_sensor.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -188,7 +189,65 @@ bool CSD203ExtInitFlag = false;
 
 bool IICReadStatusFlag = false;
 
-static uint16_t csd203extvbus = 0;
+static uint16_t csd203BatteryVoltage = 0;
+static int16_t csd203ExtModuleCurrent = 0;
+static uint16_t csd203BatteryMidVoltage = 0;
+static int16_t csd203SystemCurrent = 0;
+static uint16_t csd203ExtModuleVoltage = 0;
+static int16_t csd203IntModuleCurrent = 0;
+
+/** EMA low-pass: new += (sample - new) / 2^shift */
+constexpr uint8_t CSD203_VOLT_EMA_SHIFT = 4;
+constexpr uint8_t CSD203_CURR_EMA_SHIFT = 3;
+
+static int32_t filtBatteryVoltageMv = 0;
+static int32_t filtExtModuleCurrentMa = 0;
+static int32_t filtBatteryMidVoltageMv = 0;
+static int32_t filtSystemCurrentMa = 0;
+static int32_t filtExtModuleVoltageMv = 0;
+static int32_t filtIntModuleCurrentMa = 0;
+static bool filtBatteryVoltageInit = false;
+static bool filtExtModuleCurrentInit = false;
+static bool filtBatteryMidVoltageInit = false;
+static bool filtSystemCurrentInit = false;
+static bool filtExtModuleVoltageInit = false;
+static bool filtIntModuleCurrentInit = false;
+
+static int32_t csd203EmaI32(int32_t* state, bool* inited, int32_t sample,
+                            uint8_t shift)
+{
+  if (!*inited) {
+    *state = sample;
+    *inited = true;
+    return sample;
+  }
+  *state += (sample - *state) >> shift;
+  return *state;
+}
+
+static void csd203ResetFilters()
+{
+  filtBatteryVoltageInit = false;
+  filtExtModuleCurrentInit = false;
+  filtBatteryMidVoltageInit = false;
+  filtSystemCurrentInit = false;
+  filtExtModuleVoltageInit = false;
+  filtIntModuleCurrentInit = false;
+}
+
+static int16_t csd203ClampI16(int32_t value)
+{
+  if (value > INT16_MAX) return INT16_MAX;
+  if (value < INT16_MIN) return INT16_MIN;
+  return (int16_t)value;
+}
+
+static uint16_t csd203ClampU16(int32_t value)
+{
+  if (value < 0) return 0;
+  if (value > UINT16_MAX) return UINT16_MAX;
+  return (uint16_t)value;
+}
 
 static CSD_CONFIG CSD203_MainSensorCFG;
 static CSD_CONFIG CSD203_InSensorCFG;
@@ -338,6 +397,7 @@ void initCSD203(void)
   CSD203MainInitFlag = false;
   CSD203InInitFlag = false;
   CSD203ExtInitFlag = false;
+  csd203ResetFilters();
 
   // TRACE("202 test ...");		//A0=CLK A1=SDA  RadioSky
 
@@ -398,14 +458,44 @@ void initCSD203(void)
   }
 }
 
-static uint16_t getCSD203BatteryVoltage(void)
-{  // 1000=1000mV
-  return csd203extvbus;
+static uint16_t csd203RawToMillivolts(uint16_t raw)
+{
+  return (uint16_t)(raw * 1.25);  // 1000 = 1000mV
+}
+
+static int16_t csd203RawToMilliamps(uint16_t raw, const CSD_CONFIG* cfg)
+{
+  return (int16_t)((int16_t)raw * cfg->CurrentLSB / CSD_CONFIG_CurrentLsb1mA);
 }
 
 uint16_t getBatteryVoltage()
 {
-  return getCSD203BatteryVoltage() / 10;
+  return csd203BatteryVoltage / 10;  // 10mV steps for EdgeTX API
+}
+
+uint16_t getBatteryMidVoltage()
+{
+  return csd203BatteryMidVoltage / 10;
+}
+
+uint16_t getExtModuleVoltage()
+{
+  return csd203ExtModuleVoltage / 10;
+}
+
+int16_t getExtModuleCurrent()
+{
+  return csd203ExtModuleCurrent;
+}
+
+int16_t getSystemCurrent()
+{
+  return csd203SystemCurrent;
+}
+
+int16_t getIntModuleCurrent()
+{
+  return csd203IntModuleCurrent;
 }
 
 void readCSD203(void)
@@ -418,16 +508,54 @@ void readCSD203(void)
 
   IICReadStatusFlag = true;
   if (GetSenSorStep == 0 && CSD203MainInitFlag == true) {
-    CSD203_ReadCurrent(&CSD203_MainSensorCFG);
-    CSD203_ReadVbus(&CSD203_MainSensorCFG);
+    const int32_t rawCurr =
+        csd203RawToMilliamps(CSD203_ReadCurrent(&CSD203_MainSensorCFG),
+                             &CSD203_MainSensorCFG);
+    csd203SystemCurrent = csd203ClampI16(
+        csd203EmaI32(&filtSystemCurrentMa, &filtSystemCurrentInit, rawCurr,
+                     CSD203_CURR_EMA_SHIFT));
+
+    const uint32_t rawVolt = csd203RawToMillivolts(
+        CSD203_ReadVbus(&CSD203_MainSensorCFG));
+    csd203BatteryMidVoltage = csd203ClampU16(
+        csd203EmaI32(&filtBatteryMidVoltageMv, &filtBatteryMidVoltageInit,
+                     (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
   } else if (GetSenSorStep == 1 && CSD203InInitFlag == true) {
-    CSD203_ReadCurrent(&CSD203_InSensorCFG);
-    CSD203_ReadVbus(&CSD203_InSensorCFG);
+    const int32_t rawCurr =
+        csd203RawToMilliamps(CSD203_ReadCurrent(&CSD203_InSensorCFG),
+                             &CSD203_InSensorCFG);
+    csd203IntModuleCurrent = csd203ClampI16(
+        csd203EmaI32(&filtIntModuleCurrentMa, &filtIntModuleCurrentInit, rawCurr,
+                     CSD203_CURR_EMA_SHIFT));
+
+    const uint32_t rawVolt =
+        csd203RawToMillivolts(CSD203_ReadVbus(&CSD203_InSensorCFG));
+    csd203ExtModuleVoltage = csd203ClampU16(
+        csd203EmaI32(&filtExtModuleVoltageMv, &filtExtModuleVoltageInit,
+                     (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
   } else if (GetSenSorStep == 2 && CSD203ExtInitFlag == true) {
-    CSD203_ReadCurrent(&CSD203_ExtSensorCFG);
-    csd203extvbus = (CSD203_ReadVbus(&CSD203_ExtSensorCFG) * 1.25);
-    // TRACE("Vbat=%d\r",csd203extvbus);
+    const int32_t rawCurr =
+        csd203RawToMilliamps(CSD203_ReadCurrent(&CSD203_ExtSensorCFG),
+                             &CSD203_ExtSensorCFG);
+    csd203ExtModuleCurrent = csd203ClampI16(
+        csd203EmaI32(&filtExtModuleCurrentMa, &filtExtModuleCurrentInit, rawCurr,
+                     CSD203_CURR_EMA_SHIFT));
+
+    const uint32_t rawVolt = csd203RawToMillivolts(
+        CSD203_ReadVbus(&CSD203_ExtSensorCFG));
+    csd203BatteryVoltage = csd203ClampU16(
+        csd203EmaI32(&filtBatteryVoltageMv, &filtBatteryVoltageInit,
+                     (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
   }
   IICReadStatusFlag = false;
-  if (++GetSenSorStep >= 3) GetSenSorStep = 0;
+  if (++GetSenSorStep >= 3) {
+    GetSenSorStep = 0;
+
+    //TRACE("csd203BatteryVoltage: %d", csd203BatteryVoltage);
+    //TRACE("csd203SystemCurrent: %d", csd203SystemCurrent);
+    //TRACE("csd203ExtModuleVoltage: %d", csd203ExtModuleVoltage);
+    //TRACE("csd203ExtModuleCurrent: %d", csd203ExtModuleCurrent);  
+    //TRACE("csd203IntModuleCurrent: %d", csd203IntModuleCurrent);
+    //TRACE("csd203BatteryMidVoltage: %d\r\n", csd203BatteryMidVoltage);  
+  }
 }

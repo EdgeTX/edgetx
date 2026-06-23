@@ -72,6 +72,10 @@
 #include "dsmp_settings.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+#include "csd203_sensor.h"
+#endif
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_UNIQUE_ID_WARN LV_STATE_USER_1
@@ -738,6 +742,56 @@ class ModuleSubTypeChoice : public Choice
   uint8_t moduleIdx;
 };
 
+#if defined(CSD203_SENSOR)
+class ModuleSensorLines {
+ public:
+  ModuleSensorLines(Window* parent, FlexGridLayout& grid, uint8_t moduleIdx) :
+      moduleIdx(moduleIdx)
+  {
+    if (moduleIdx == INTERNAL_MODULE) {
+      currLine = parent->newLine(grid);
+      new StaticText(currLine, rect_t{}, "current");
+      new DynamicNumber<int16_t>(
+          currLine, rect_t{},
+          []() { return getIntModuleCurrent(); },
+          COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+    } else if (moduleIdx == EXTERNAL_MODULE) {
+      voltLine = parent->newLine(grid);
+      new StaticText(voltLine, rect_t{}, "Voltage");
+      new DynamicNumber<uint16_t>(
+          voltLine, rect_t{},
+          []() { return getExtModuleVoltage(); },
+          COLOR_THEME_PRIMARY1_INDEX, PREC2, "", "V");
+
+      currLine = parent->newLine(grid);
+      new StaticText(currLine, rect_t{}, "current");
+      new DynamicNumber<int16_t>(
+          currLine, rect_t{},
+          []() { return getExtModuleCurrent(); },
+          COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+    }
+    updateVisibility();
+  }
+
+  void updateVisibility()
+  {
+    const bool on =
+        g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE;
+    if (voltLine) {
+      if (on) voltLine->show(); else voltLine->hide();
+    }
+    if (currLine) {
+      if (on) currLine->show(); else currLine->hide();
+    }
+  }
+
+ private:
+  uint8_t moduleIdx;
+  FormLine* voltLine = nullptr;
+  FormLine* currLine = nullptr;
+};
+#endif
+
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   const char* title2 =
@@ -769,6 +823,14 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   });
 
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
+
+#if defined(CSD203_SENSOR)
+  ModuleSensorLines* sensorLines = nullptr;
+  if (moduleIdx == INTERNAL_MODULE || moduleIdx == EXTERNAL_MODULE) {
+    sensorLines = new ModuleSensorLines(body, grid, moduleIdx);
+  }
+#endif
+
   auto moduleWindow = new ModuleWindow(body, moduleIdx);
 
   // This needs to be after moduleWindow has been created
@@ -777,6 +839,12 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     moduleWindow->updateModule();
     subTypeChoice->updateLayout();
+
+#if defined(CSD203_SENSOR)
+    if (sensorLines) {
+      sensorLines->updateVisibility();
+    }
+#endif
 
     SET_DIRTY();
   });

@@ -24,6 +24,12 @@
 
 #include "board.h"
 
+static bool usbChargerLedRaw()
+{
+  if (!gpio_read(USB_USBDet_GPIO)) return false;
+  return !gpio_read(USB_CHARGER_GPIO);
+}
+
 void usbChargerInit()
 {
   gpio_init(USB_CHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
@@ -32,6 +38,26 @@ void usbChargerInit()
 
 bool usbChargerLed()
 {
-  if (!gpio_read(USB_USBDet_GPIO)) return 0;
-  return !gpio_read(USB_CHARGER_GPIO);
+#if defined(V16_CHARGE_UI)
+  // Charge-status GPIO can pulse during CV phase: latch on immediately,
+  // require sustained inactive before clearing.
+  static bool debounced = false;
+  static uint8_t offCount = 0;
+
+  const bool raw = usbChargerLedRaw();
+
+  if (raw) {
+    debounced = true;
+    offCount = 0;
+  } else if (debounced) {
+    if (++offCount >= 150) {  // ~1.5s at 10ms tick
+      debounced = false;
+      offCount = 0;
+    }
+  }
+
+  return debounced;
+#else
+  return usbChargerLedRaw();
+#endif
 }
