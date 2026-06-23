@@ -703,6 +703,8 @@
 #define TR_REPEAT_AT_ZERO      "Herhalen bij 0"
 #define TR_BATT_CALIB          "Accu Calib"
 #define TR_VOLTAGE             TR("Spg", "Spanningsbron")  //9XR-Pro
+#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
+#define TR_MODULE_SENSOR_CURRENT       "Current"
 #define TR_SELECT_MODEL        "Kies Model"
 #define TR_SELECT_MODE         "Select mode"
 #define TR_CREATE_MODEL        "Nieuw Model"

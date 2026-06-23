@@ -705,6 +705,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Répét. zéro", "Répéter zéro")
 #define TR_BATT_CALIB                  TR("Calib. batt", "Calib. batterie")
 #define TR_VOLTAGE                     TR("Tension","Source tension")
+#define TR_MODULE_SENSOR_VOLTAGE       "Tension"
+#define TR_MODULE_SENSOR_CURRENT       "Courant"
 #define TR_SELECT_MODEL                "Sélection Modèle"
 #define TR_SELECT_MODE                 "Sélection mode"
 #define TR_CREATE_MODEL                "Créer modèle"
