@@ -130,17 +130,6 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
     resetAfhds3Options(moduleIdx);
   } 
   else if (moduleData.type == MODULE_TYPE_LEMON_DSMP) {
-    // When changing the Module Type to DSMP.
-    // Check Radio Config to see if it is AETR
-    auto ch1 = inputMappingChannelOrder(0);
-    auto ch3 = inputMappingChannelOrder(2);
-    bool isAETR = (ch1 == 3) && (ch3 == inputMappingGetThrottle());
-#if defined(DEBUG)
-    char *chFun = "RETA";
-    TRACE("DSMP Setup: Ch1=%c, ch3=%c, isAETR=%d",chFun[ch1], chFun[ch3], isAETR);
-#endif
-
-    moduleData.dsmp.enableAETR = isAETR;
     restartModule(moduleIdx);  // Restart DSMP when switching to it (example PPM->DSMP)
   }
   else
