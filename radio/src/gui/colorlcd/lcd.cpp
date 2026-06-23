@@ -66,7 +66,12 @@ static lv_disp_drv_t* refr_disp = nullptr;
 
 extern "C" void lvglFlushed()
 {
+#if defined(LCD_VERTICAL_INVERT)
+  if (disp_drv.direct_mode)
+    lv_disp_flush_ready(&disp_drv);
+#else
   lv_disp_flush_ready(&disp_drv);
+#endif
 }
 
 void lcdSetFlushCb(void (*cb)(lv_disp_drv_t*, uint16_t*, const rect_t&))

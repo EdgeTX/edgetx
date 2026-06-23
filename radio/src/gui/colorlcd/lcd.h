@@ -57,6 +57,4 @@ void lcdInitDirectDrawing();
 
 void lcdRefresh();
 
-#if !defined(BOOT)
 extern "C" void lvglFlushed();
-#endif
