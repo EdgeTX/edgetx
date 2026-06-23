@@ -91,8 +91,10 @@ bool isExtensionMatching(const char * extension, const char * pattern, char * ma
 FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
 {
   FRESULT res;
-  // cdir (0 == root) works on FAT and exFAT; f_getcwd() always reports root on exFAT.
-  if (firstTime && dir->obj.fs->cdir != 0) {
+  // Fake ".." only when browsing the non-root CWD itself (sclust == cdir, 0 == root).
+  // Filesystem-CWD based so it works on exFAT, where f_getcwd() always returns root;
+  // the sclust check keeps callers that open an arbitrary path (no chdir) unaffected.
+  if (firstTime && dir->obj.fs->cdir != 0 && dir->obj.sclust == dir->obj.fs->cdir) {
     // fake parent directory entry
     strcpy(fno->fname, "..");
     fno->fattrib = AM_DIR;

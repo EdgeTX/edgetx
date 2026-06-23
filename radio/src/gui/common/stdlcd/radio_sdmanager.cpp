@@ -72,18 +72,19 @@ static void sdManagerChdir(const char* name)
     if (sep == sdManagerPath) sep[1] = '\0';  // parent is the root
     else if (sep) *sep = '\0';
   } else {
-    // descend into 'name'
-    if (sdManagerPath[1] != '\0') strcat(sdManagerPath, "/");
-    strcat(sdManagerPath, name);
+    // descend into 'name' (bounded to avoid overflowing sdManagerPath)
+    char tmp[sizeof(sdManagerPath)];
+    snprintf(tmp, sizeof(tmp), "%s%s%s", sdManagerPath,
+             (sdManagerPath[1] != '\0') ? "/" : "", name);
+    strcpy(sdManagerPath, tmp);
   }
   f_chdir(sdManagerPath);  // absolute path: resolves on FAT and exFAT alike
 }
 
 void getSelectionFullPath(char * lfn)
 {
-  strcpy(lfn, sdManagerPath);
-  strcat(lfn, "/");
-  strcat(lfn, reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
+  snprintf(lfn, FF_MAX_LFN + 1, "%s/%s", sdManagerPath,
+           reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
 }
 
 #if defined(PXX2)
@@ -142,6 +143,7 @@ void onSdManagerMenu(const char * result)
     strncpy(clipboard.data.sd.directory, sdManagerPath, CLIPBOARD_PATH_LEN - 1);
     clipboard.data.sd.directory[CLIPBOARD_PATH_LEN - 1] = '\0';
     strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
+    clipboard.data.sd.filename[CLIPBOARD_PATH_LEN - 1] = '\0';
   }
   else if (result == STR_PASTE) {
     char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
