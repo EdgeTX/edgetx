@@ -493,7 +493,6 @@
    #define IMU_I2C_ADDRESS               0x6A
  #elif defined(RADIO_V16)
    #define IMU_I2C_BUS                   I2C_Bus_1
-   #define IMU_I2C_ADDRESS               0x69
  #elif !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
    #define IMU_I2C_BUS                   I2C_Bus_2
    #define IMU_I2C_ADDRESS               0x6A
