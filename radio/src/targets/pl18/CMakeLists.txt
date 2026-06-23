@@ -1,4 +1,4 @@
-option(DISK_CACHE "Enable SD card disk cache" ON)
+option(DISK_CACHE "Enable SD card disk cache" OFF)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
 option(PXX1 "PXX1 protocol support" ON)
