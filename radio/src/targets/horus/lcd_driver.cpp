@@ -119,15 +119,11 @@ static void _rotate_area_180(lv_area_t& area)
 }
 #endif
 
-#if defined(BOOT)
 static volatile uint8_t _frame_addr_reloaded = 0;
-#endif
 
-static void _update_frame_buffer_addr(uint16_t* addr)
+static void _update_frame_buffer_addr(uint16_t* addr, bool direct_mode)
 {
-#if defined(BOOT)
   _frame_addr_reloaded = 0;
-#endif
 
   LTDC_Layer1->CFBAR = (uint32_t)addr;
   // reload shadow registers on vertical blank
@@ -135,9 +131,12 @@ static void _update_frame_buffer_addr(uint16_t* addr)
 
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
+  // wait for reload to finish - required for bootloader & inverted LCD radios
 #if defined(BOOT)
-  // wait for reload to finish - required for bootloader
-  while(_frame_addr_reloaded == 0);
+  while (_frame_addr_reloaded == 0);
+#else
+  if (!direct_mode)
+    while (_frame_addr_reloaded == 0);
 #endif
 }
 
@@ -145,13 +144,11 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
 #if LCD_VERTICAL_INVERT
-#if defined(RADIO_F16)
-  if(hardwareOptions.pcbrev > 0) {
+  if (disp_drv->direct_mode) {
     // Direct mode
-    _update_frame_buffer_addr(buffer);
+    _update_frame_buffer_addr(buffer, true);
     return;
   }
-#endif 
   _copy_rotate_180(_back_buffer, buffer, copy_area);
 
   if (lv_disp_flush_is_last(disp_drv)) {
@@ -166,7 +163,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
     }
 
     // Trigger async refresh
-    _update_frame_buffer_addr(_front_buffer);
+    _update_frame_buffer_addr(_front_buffer, false);
 
     // Copy refreshed & rotated areas into new back buffer
     uint16_t* src = _front_buffer;
@@ -191,14 +188,12 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                     src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
                     area_w, area_h);
     }
-  } else {
-#if !defined(BOOT)
-    lvglFlushed();
-#endif
   }
+
+  lv_disp_flush_ready(disp_drv);
 #else
   // Direct mode
-  _update_frame_buffer_addr(buffer);
+  _update_frame_buffer_addr(buffer, true);
 #endif
 }
 
@@ -454,10 +449,7 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
 
-#if defined(BOOT)
   _frame_addr_reloaded = 1;
-#else
   lvglFlushed();
-#endif
 }
 
