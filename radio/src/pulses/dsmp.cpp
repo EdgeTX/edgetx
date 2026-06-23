@@ -26,7 +26,7 @@
 #include "edgetx.h"
 #include "telemetry/spektrum.h"
 
-#define DSMP_SEND_X_PLUS    0
+#define DSMP_SEND_X_PLUS    1
 
 #define DSMP_BITRATE        115200
 
@@ -62,6 +62,8 @@
 static uint8_t AETR_TAER_MAP[] = {2, 0, 1};  
 
 static DSMPModuleStatus dsmpStatus = DSMPModuleStatus();
+
+
 
 // Power cycle of the DSMP module
 // The DSMP module code has the channel data initialized to 0 and initial number of bits as 10b (ch resolution 1024)
@@ -356,11 +358,19 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
 
 static void processDSMPManufacturerData(uint8_t module, uint8_t* packet) 
 {
-    // Format M,M,M,M, V, V    where M is 4 byte manufacturer data, and V is 2 byte
+    // Format M,M,M,M, V, V, yy,yy, mm, dd, rel    
+    // where M is 4 byte manufacturer data, and V is 2 byte
+
     dsmpStatus.version[0] = packet[4];  // Major
     dsmpStatus.version[1] = packet[5];  // Minor
+    dsmpStatus.fm_year    = (packet[6] << 8) | packet[7]; // FM Year
+    dsmpStatus.fm_mm      = packet[8];  // FM Month
+    dsmpStatus.fm_dd      = packet[9];  // FM Day
+    dsmpStatus.fm_rev     = packet[10]; // FM Rev
 
     TRACE("LemonDSMP: Ver [%d.%d]", dsmpStatus.version[0], dsmpStatus.version[1]);
+    TRACE("LemonDSMP: FW  [%d-%d-%d.%d]", 
+            dsmpStatus.fm_year, dsmpStatus.fm_mm, dsmpStatus.fm_dd, dsmpStatus.fm_rev);
 
     if (dsmpStatus.version[0] > 1 && mixerSchedulerGetPeriod(module) != SCHEDULER_PERIOD_V2) {
       // V2 suppors 11ms 
@@ -448,8 +458,9 @@ static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer,
     }
 
     if (rxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-
+ #if 0
         TRACE("[DSMP] Data 0x%02X, len = %d", data, rxBufferCount);
+ #endif
         buffer[rxBufferCount++] = data;  // Keep building message
     } else {
         TRACE("[DSMP] array size %d error", rxBufferCount);
@@ -465,23 +476,48 @@ static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer,
 
 void DSMPModuleStatus::getStatusString(char* statusText) const
 {
-    if (!isValid()) {
-        strcpy(statusText, STR_MODULE_NO_TELEMETRY);
-        return;
-    }
+  if (!isValid()) {
+    strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    return;
+  }
 
-    const auto& md = g_model.moduleData[EXTERNAL_MODULE];
-    auto channels = md.getChannelsCount();
+  const auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  auto channels = md.getChannelsCount();
 
-    char* tmp = statusText;
+  char* tmp = statusText;
 
-    // Version
-    *tmp = 0;
-    tmp = strAppend(tmp, "v", 1);
+  *tmp = 0;
+
+  const char* mode;
+
+  // Protocol Used
+  mode = (flags & DSMP_FLAGS_DSMX) ? "X" : "2";  // DSMX or DSM2
+  tmp = strAppend(tmp, mode, strlen(mode));
+  mode =
+      (flags & DSMP_FLAGS_11mS) ? "_2F" : "_1F";  // 1 or 2 Frames (11ms/22ms)
+  tmp = strAppend(tmp, mode, strlen(mode));
+
+  // Version
+  tmp = strAppend(tmp, " v", 2);
+  if (dsmpStatus.fm_year > 0) {
+    // Firmware Build Date (Compact, ex:251012.1)
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_year % 100);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_mm / 10);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_mm % 10);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_dd / 10);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_dd % 10);
+    tmp = strAppend(tmp, ".", 1);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_rev);
+  } else {
+    // Simple version format
     tmp = strAppendUnsigned(tmp, dsmpStatus.version[0]);
     tmp = strAppend(tmp, ".", 1);
     tmp = strAppendUnsigned(tmp, dsmpStatus.version[1]);
+  }
 
+#if 0
+    // Already displayin the TAER checkbox, so probably not needed
+    // Channel Order
     char b[] = "?   ";
     if (ch_order != 0xFF) { // Same encoding as MultiModule
         uint8_t temp = ch_order;
@@ -496,14 +532,7 @@ void DSMPModuleStatus::getStatusString(char* statusText) const
 
     tmp = strAppend(tmp, " ", 1);
     tmp = strAppend(tmp, b, strlen(b));
-
-    const char* mode;
-
-    mode = (flags & DSMP_FLAGS_DSMX) ? " X" : " 2"; // DSMX or DSM2
-    tmp = strAppend(tmp, mode, strlen(mode));
-
-    mode = (flags & DSMP_FLAGS_11mS) ? "_2F" : "_1F"; // 1 or 2 Frames (11ms/22ms)
-    tmp = strAppend(tmp, mode, strlen(mode));
+#endif
 
 #if 0
     // Good for Debugging, but not much for regular users
