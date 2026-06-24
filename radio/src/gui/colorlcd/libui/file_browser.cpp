@@ -133,6 +133,10 @@ void FileBrowser::setFullPath(const char* name)
 FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
     TableField(parent, rect), currentPath((dir && dir[0]) ? dir : "/")
 {
+  // Normalize once: drop any trailing slash (except root) so the join/parent
+  // logic never has to deal with it later.
+  while (currentPath.size() > 1 && currentPath.back() == '/') currentPath.pop_back();
+
   if (f_chdir(currentPath.c_str()) != FR_OK) {
     currentPath = "/";  // keep currentPath in sync with the FatFs CWD
     f_chdir(currentPath.c_str());

@@ -72,11 +72,12 @@ static void sdManagerChdir(const char* name)
     if (sep == sdManagerPath) sep[1] = '\0';  // parent is the root
     else if (sep) *sep = '\0';
   } else {
-    // descend into 'name' (bounded to avoid overflowing sdManagerPath)
-    char tmp[sizeof(sdManagerPath)];
-    snprintf(tmp, sizeof(tmp), "%s%s%s", sdManagerPath,
-             (sdManagerPath[1] != '\0') ? "/" : "", name);
-    strcpy(sdManagerPath, tmp);
+    // descend into 'name' (bounded, no duplicate slash at the root)
+    size_t len = strlen(sdManagerPath);
+    if (strcmp(sdManagerPath, ROOT_PATH) != 0 && len + 1 < sizeof(sdManagerPath))
+      sdManagerPath[len++] = '/';
+    strncpy(sdManagerPath + len, name, sizeof(sdManagerPath) - len - 1);
+    sdManagerPath[sizeof(sdManagerPath) - 1] = '\0';
   }
   f_chdir(sdManagerPath);  // absolute path: resolves on FAT and exFAT alike
 }
