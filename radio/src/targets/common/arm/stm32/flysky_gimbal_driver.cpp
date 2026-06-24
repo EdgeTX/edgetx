@@ -121,19 +121,24 @@ void _fs_cmd_start_read()
 
 static void _fs_handle_msg(STRUCT_HALL* hallBuffer)
 {
-  hallBuffer->stickState = hallBuffer->data[hallBuffer->length - 1];
+  uint8_t length = hallBuffer->length;
+  if (length == 0) return;
+
+  hallBuffer->stickState = hallBuffer->data[length - 1];
 
   switch (hallBuffer->hallID.hall_Id.receiverID) {
     case TRANSFER_DIR_TXMCU:
     case TRANSFER_DIR_RFMODULE: {
       int16_t* p_values = (int16_t*)hallBuffer->data;
       if (hallBuffer->hallID.hall_Id.packetID == FLYSKY_PACKET_CHANNEL_ID) {
+        if (length < 4 * 2) break;  // 4 channels of int16_t
         _fs_gimbal_cmd_finished = true;
         uint16_t* adcValues = getAnalogValues();
         for (uint8_t i = 0; i < 4; i++) {
           adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
         }
       } else if (hallBuffer->hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
+        if (length < 8 * 2) break;  // version words read at p_values[6] and [7]
         _fs_gimbal_cmd_finished = true;
         uint16_t minorVersion = p_values[6];
         uint16_t majorVersion = p_values[7];
