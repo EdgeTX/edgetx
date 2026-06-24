@@ -23,7 +23,7 @@
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_hal.h"
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_spi.h"
 
 #include "flash_driver.h"
@@ -254,7 +254,9 @@ void boardOff()
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
 
-  // To avoid HardFault at return address, end in an endless loop
+  // To avoid HardFault at return address, end in an endless loop.
+  // __WFI() actually enters deep sleep (SLEEPDEEP alone keeps the core spinning).
   while (1) {
+    __WFI();
   }
 }

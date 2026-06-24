@@ -23,6 +23,7 @@
 
 #include "bsp_io.h"
 
+// LTDC sync/porch timings
 #define HBP  ( 24 )
 #define VBP  ( 10 )
 #define HSW  ( 4 )
@@ -30,28 +31,3 @@
 #define HFP  ( 140 - HBP )
 #define VFP  ( 22 - VBP )
 #define VSW  10
-
-#define LCD_ST7796S_ID      ( 0x7796 )
-#define LCD_ILI9481_ID      ( 0x9481 )
-#define LCD_ILI9486_ID      ( 0x9486 )
-#define LCD_ILI9488_ID      ( 0x9488 )
-#define LCD_HX8357D_ID      ( 0x99 )
-
-#define LCD_DELAY()         LCD_Delay()
-
-typedef void (*lcdSpiInitFucPtr)(void);
-typedef unsigned int  LcdReadIDFucPtr( void );
-
-extern lcdSpiInitFucPtr lcdInitFunction;
-extern lcdSpiInitFucPtr lcdOffFunction;
-extern lcdSpiInitFucPtr lcdOnFunction;
-
-#define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
-#define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
-
-#define HORIZONTAL_SYNC_WIDTH    ( 4 )
-#define HORIZONTAL_BACK_PORCH    ( 20 )
-#define HORIZONTAL_FRONT_PORCH   ( 60 - HORIZONTAL_BACK_PORCH )
-#define VERTICAL_SYNC_HEIGHT     ( 2 )
-#define VERTICAL_BACK_PORCH      ( 6 )
-#define VERTICAL_FRONT_PORCH     ( 14 - VERTICAL_BACK_PORCH )

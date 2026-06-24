@@ -67,13 +67,10 @@ void backlightEnable(uint8_t dutyCycle)
 {
   stm32_pulse_set_cmp_val(&_bl_timer, dutyCycle);
 
-  if(!dutyCycle) {
-    //experimental to turn off LCD when no backlight
-    if(lcdOffFunction) lcdOffFunction();
-  }
-  else if(!lastDutyCycle) {
-    if(lcdOnFunction) lcdOnFunction();
-    else lcdInit();
+  // The panel is LTDC-only and stays initialised; re-init the controller when
+  // waking from a fully-off backlight.
+  if (dutyCycle && !lastDutyCycle) {
+    lcdInit();
   }
 
   lastDutyCycle = dutyCycle;
@@ -84,8 +81,7 @@ void lcdOff() {
 }
 
 void lcdOn(){
-  if(lcdOnFunction) lcdOnFunction();
-  else lcdInit();
+  lcdInit();
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
