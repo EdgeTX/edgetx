@@ -287,6 +287,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/heartbeat_driver.cpp
   drivers/lsm6ds.cpp
   drivers/icm42627.cpp
+  drivers/sc7u22.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/sticks_pwm_driver.cpp
@@ -297,10 +298,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_rgbleds.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
-
-if(FLAVOUR STREQUAL v16)
-  target_sources(board PRIVATE drivers/sc7u22.cpp)
-endif()
 
 if(BLUETOOTH)
   target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
