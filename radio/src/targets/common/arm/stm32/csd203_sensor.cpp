@@ -460,7 +460,7 @@ void initCSD203(void)
 
 static uint16_t csd203RawToMillivolts(uint16_t raw)
 {
-  return (uint16_t)(raw * 1.25);  // 1000 = 1000mV
+  return (uint16_t)((raw * 5) / 4);  // 1.25 mV/LSB
 }
 
 static int16_t csd203RawToMilliamps(uint16_t raw, const CSD_CONFIG* cfg)

@@ -742,56 +742,6 @@ class ModuleSubTypeChoice : public Choice
   uint8_t moduleIdx;
 };
 
-#if defined(CSD203_SENSOR)
-class ModuleSensorLines {
- public:
-  ModuleSensorLines(Window* parent, FlexGridLayout& grid, uint8_t moduleIdx) :
-      moduleIdx(moduleIdx)
-  {
-    if (moduleIdx == INTERNAL_MODULE) {
-      currLine = parent->newLine(grid);
-      new StaticText(currLine, rect_t{}, "current");
-      new DynamicNumber<int16_t>(
-          currLine, rect_t{},
-          []() { return getIntModuleCurrent(); },
-          COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
-    } else if (moduleIdx == EXTERNAL_MODULE) {
-      voltLine = parent->newLine(grid);
-      new StaticText(voltLine, rect_t{}, "Voltage");
-      new DynamicNumber<uint16_t>(
-          voltLine, rect_t{},
-          []() { return getExtModuleVoltage(); },
-          COLOR_THEME_PRIMARY1_INDEX, PREC2, "", "V");
-
-      currLine = parent->newLine(grid);
-      new StaticText(currLine, rect_t{}, "current");
-      new DynamicNumber<int16_t>(
-          currLine, rect_t{},
-          []() { return getExtModuleCurrent(); },
-          COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
-    }
-    updateVisibility();
-  }
-
-  void updateVisibility()
-  {
-    const bool on =
-        g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE;
-    if (voltLine) {
-      if (on) voltLine->show(); else voltLine->hide();
-    }
-    if (currLine) {
-      if (on) currLine->show(); else currLine->hide();
-    }
-  }
-
- private:
-  uint8_t moduleIdx;
-  FormLine* voltLine = nullptr;
-  FormLine* currLine = nullptr;
-};
-#endif
-
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   const char* title2 =
@@ -825,10 +775,43 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
 
 #if defined(CSD203_SENSOR)
-  ModuleSensorLines* sensorLines = nullptr;
-  if (moduleIdx == INTERNAL_MODULE || moduleIdx == EXTERNAL_MODULE) {
-    sensorLines = new ModuleSensorLines(body, grid, moduleIdx);
+  FormLine* sensorVoltLine = nullptr;
+  FormLine* sensorCurrLine = nullptr;
+  if (moduleIdx == INTERNAL_MODULE) {
+    sensorCurrLine = body->newLine(grid);
+    new StaticText(sensorCurrLine, rect_t{}, "current");
+    new DynamicNumber<int16_t>(
+        sensorCurrLine, rect_t{},
+        []() { return getIntModuleCurrent(); },
+        COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+  } else if (moduleIdx == EXTERNAL_MODULE) {
+    sensorVoltLine = body->newLine(grid);
+    new StaticText(sensorVoltLine, rect_t{}, "Voltage");
+    new DynamicNumber<uint16_t>(
+        sensorVoltLine, rect_t{},
+        []() { return getExtModuleVoltage(); },
+        COLOR_THEME_PRIMARY1_INDEX, PREC2, "", "V");
+
+    sensorCurrLine = body->newLine(grid);
+    new StaticText(sensorCurrLine, rect_t{}, "current");
+    new DynamicNumber<int16_t>(
+        sensorCurrLine, rect_t{},
+        []() { return getExtModuleCurrent(); },
+        COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
   }
+
+  auto updateSensorVisibility = [=]() {
+    const bool on = g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE;
+    if (sensorVoltLine) {
+      if (on) sensorVoltLine->show();
+      else sensorVoltLine->hide();
+    }
+    if (sensorCurrLine) {
+      if (on) sensorCurrLine->show();
+      else sensorCurrLine->hide();
+    }
+  };
+  updateSensorVisibility();
 #endif
 
   auto moduleWindow = new ModuleWindow(body, moduleIdx);
@@ -841,9 +824,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     subTypeChoice->updateLayout();
 
 #if defined(CSD203_SENSOR)
-    if (sensorLines) {
-      sensorLines->updateVisibility();
-    }
+    updateSensorVisibility();
 #endif
 
     SET_DIRTY();

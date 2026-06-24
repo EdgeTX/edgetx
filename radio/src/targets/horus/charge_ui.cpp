@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) EdgeTX
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -67,10 +67,10 @@ static void shutdownChargeModulesOff()
 }
 
 constexpr uint16_t TX2S_EMPTY_MV = 6000;
-/** Pack 鈥渇ull鈥?for %: ~8.35V (incl. display rounding) 鈫?99% after +2; >= this 鈫?100%. */
+/** Pack "full" for %: ~8.35V (incl. display rounding) -> 99% after +2; >= this -> 100%. */
 constexpr uint16_t TX2S_FULL_MV = 8417;
 
-/** 480x272 鈥?sci鈥慺i power HUD: black / forest / neon green (#39FF14 tone) */
+/** 480x272 sci-fi power HUD: black / forest / neon green (#39FF14 tone) */
 constexpr coord_t MARGIN_H = 24;
 
 constexpr coord_t BAT_BODY_W = 352;
@@ -451,7 +451,7 @@ class ChargeDashboardDialog : public Window
       socDisplay_ = rawSoc;
       socFilterInit_ = true;
     } else {
-      /* IIR ~1/8: stable % against pack voltage ripple from charge current */
+      /* IIR ~1/20: stable % against pack voltage ripple from charge current */
       int32_t blend = socDisplay_ * 19 + static_cast<int32_t>(rawSoc);
       socDisplay_ = static_cast<uint8_t>(blend / 20);
     }
