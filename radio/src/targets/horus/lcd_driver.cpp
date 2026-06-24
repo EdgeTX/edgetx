@@ -60,8 +60,8 @@ static void* initialFrameBuffer = nullptr;
 
 #if defined(LCD_VERTICAL_INVERT)
 typedef uint16_t pixel_t;
-static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM;
-static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM;
+static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
+static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
 static pixel_t _line_buffer[LCD_W];
 
