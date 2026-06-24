@@ -716,6 +716,8 @@
 #define TR_BATT_CALIB                  TR("AkkuSpgwert", "Akku Kalibrierung")
 #define TR_CURRENT_CALIB               "Strom abgl."
 #define TR_VOLTAGE                     TR("Spg", "Spannungsquelle")  //9XR-Pro
+#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
+#define TR_MODULE_SENSOR_CURRENT       "Current"
 #define TR_SELECT_MODEL                "Modell auswählen"
 #define TR_MODELS                      "Modelle"
 #define TR_SELECT_MODE                 "Wähle Mode"

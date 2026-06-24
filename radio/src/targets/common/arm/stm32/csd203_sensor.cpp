@@ -233,6 +233,20 @@ static void csd203ResetFilters()
   filtSystemCurrentInit = false;
   filtExtModuleVoltageInit = false;
   filtIntModuleCurrentInit = false;
+
+  csd203BatteryVoltage = 0;
+  csd203ExtModuleCurrent = 0;
+  csd203BatteryMidVoltage = 0;
+  csd203SystemCurrent = 0;
+  csd203ExtModuleVoltage = 0;
+  csd203IntModuleCurrent = 0;
+
+  filtBatteryVoltageMv = 0;
+  filtExtModuleCurrentMa = 0;
+  filtBatteryMidVoltageMv = 0;
+  filtSystemCurrentMa = 0;
+  filtExtModuleVoltageMv = 0;
+  filtIntModuleCurrentMa = 0;
 }
 
 static int16_t csd203ClampI16(int32_t value)

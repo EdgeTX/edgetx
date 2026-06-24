@@ -779,21 +779,21 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   FormLine* sensorCurrLine = nullptr;
   if (moduleIdx == INTERNAL_MODULE) {
     sensorCurrLine = body->newLine(grid);
-    new StaticText(sensorCurrLine, rect_t{}, "current");
+    new StaticText(sensorCurrLine, rect_t{}, STR_MODULE_SENSOR_CURRENT);
     new DynamicNumber<int16_t>(
         sensorCurrLine, rect_t{},
         []() { return getIntModuleCurrent(); },
         COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
   } else if (moduleIdx == EXTERNAL_MODULE) {
     sensorVoltLine = body->newLine(grid);
-    new StaticText(sensorVoltLine, rect_t{}, "Voltage");
+    new StaticText(sensorVoltLine, rect_t{}, STR_MODULE_SENSOR_VOLTAGE);
     new DynamicNumber<uint16_t>(
         sensorVoltLine, rect_t{},
         []() { return getExtModuleVoltage(); },
         COLOR_THEME_PRIMARY1_INDEX, PREC2, "", "V");
 
     sensorCurrLine = body->newLine(grid);
-    new StaticText(sensorCurrLine, rect_t{}, "current");
+    new StaticText(sensorCurrLine, rect_t{}, STR_MODULE_SENSOR_CURRENT);
     new DynamicNumber<int16_t>(
         sensorCurrLine, rect_t{},
         []() { return getExtModuleCurrent(); },

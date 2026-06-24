@@ -184,6 +184,7 @@ uint32_t pwrPressedDuration();
 // USB Charger
 void usbChargerInit();
 bool usbChargerLed();
+bool usbCableConnected();
 
 // Led driver
 void ledInit();

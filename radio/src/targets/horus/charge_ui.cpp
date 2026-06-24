@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) EdgeTX
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -575,9 +575,11 @@ static void chargeUiTaskImpl()
   }
 
   bool led = usbChargerLed();
+  if (!usbCableConnected()) {
+    s_holdOffChargeUiUntilUnplug = false;
+  }
   if (!led) {
     stableOn = 0;
-    s_holdOffChargeUiUntilUnplug = false;
   } else if (stableOn < 255) {
     ++stableOn;
   }

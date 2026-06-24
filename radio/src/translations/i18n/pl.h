@@ -710,6 +710,8 @@
 #define TR_BATT_CALIB          "Kalib:Baterii"
 #define TR_CURRENT_CALIB       " +=\006Kalibracja prądu"
 #define TR_VOLTAGE             TR ("Napięcie","Źródło Napięcia")
+#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
+#define TR_MODULE_SENSOR_CURRENT       "Current"
 #define TR_SELECT_MODEL        "Wybór modelu"
 #define TR_MODELS              "Modele"
 #define TR_SELECT_MODE         "Wybierz tryb"
