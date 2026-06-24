@@ -45,7 +45,7 @@ jobs:
           - id: color-1
             target: [nv14, el18, pl18, pl18ev]
           - id: color-2
-            target: [pl18u, t15, t16, t18]
+            target: [pl18u, t15, t16, t18, t22]
           - id: bw-1
             target: [zorro, pocket, mt12, commando8, tprov2, tpros, bumblebee, t14]
           - id: bw-2
