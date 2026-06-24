@@ -719,8 +719,8 @@
 #define TR_BATT_CALIB                  TR("Batt. calib", "כיול מתח סוללה ידני")
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR("Voltage", "Voltage source")
-#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
-#define TR_MODULE_SENSOR_CURRENT       "Current"
+#define TR_MODULE_SENSOR_VOLTAGE       "מתח"
+#define TR_MODULE_SENSOR_CURRENT       "זרם"
 #define TR_SELECT_MODEL                "בחירת מודל"
 #define TR_MODELS                      "מודלים"
 #define TR_SELECT_MODE                 "בחירת מצב"

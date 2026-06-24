@@ -718,8 +718,8 @@
 #define TR_BATT_CALIB                  TR("Калибр АКБ", "Калибр АКБ")
 #define TR_CURRENT_CALIB               "Калибр тока"
 #define TR_VOLTAGE                     TR("Напряжение", "Напряжение")
-#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
-#define TR_MODULE_SENSOR_CURRENT       "Current"
+#define TR_MODULE_SENSOR_VOLTAGE       "Напряжение"
+#define TR_MODULE_SENSOR_CURRENT       "Ток"
 #define TR_SELECT_MODEL                "Выбор модели"
 #define TR_MODELS                      "Модели"
 #define TR_SELECT_MODE                 "Выбрать модель"
