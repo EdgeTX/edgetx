@@ -399,6 +399,7 @@ class ChargeDashboardDialog : public Window
   int16_t lastImA = INT16_MIN;
   bool lastChgLed = false;
   bool socFilterInit_ = false;
+  uint16_t socDisplayX100_ = 0;
   uint8_t socDisplay_ = 0;
   uint8_t lastPaintedSoc_ = 255;
 
@@ -492,12 +493,15 @@ class ChargeDashboardDialog : public Window
 
     uint8_t rawSoc = estimateSoc2s(vmv);
     if (!socFilterInit_) {
+      socDisplayX100_ = static_cast<uint16_t>(rawSoc) * 100u;
       socDisplay_ = rawSoc;
       socFilterInit_ = true;
     } else {
       /* IIR ~1/20: stable % against pack voltage ripple from charge current */
-      int32_t blend = socDisplay_ * 19 + static_cast<int32_t>(rawSoc);
-      socDisplay_ = static_cast<uint8_t>(blend / 20);
+      uint32_t blend = static_cast<uint32_t>(socDisplayX100_) * 19u +
+                       static_cast<uint32_t>(rawSoc) * 100u;
+      socDisplayX100_ = static_cast<uint16_t>((blend + 10u) / 20u);
+      socDisplay_ = static_cast<uint8_t>((socDisplayX100_ + 50u) / 100u);
     }
     if (rawSoc >= 100) {
       socDisplay_ = 100;
@@ -655,7 +659,7 @@ static void pollShutdownChargeRtnQuit()
 
 void shutdownChargeWait()
 {
-  if (!chargeChargerLedDebounced()) {
+  if (!chargeCableConnected()) {
     return;
   }
 
@@ -686,7 +690,7 @@ void shutdownChargeWait()
   s_chargeDlg = new ChargeDashboardDialog(true);
   s_chargeDlg->setCloseHandler([]() { s_chargeDlg = nullptr; });
 
-  while (chargeChargerLedDebounced() && !s_shutdownChargeForceQuit) {
+  while (chargeCableConnected() && !s_shutdownChargeForceQuit) {
     WDG_RESET();
     pollShutdownChargeRtnQuit();
     pollCsd203Sensors();

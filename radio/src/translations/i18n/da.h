@@ -712,8 +712,8 @@
 #define TR_REPEAT_AT_ZERO              "Gentag nul"
 #define TR_BATT_CALIB                  TR("Bat. kalib", "Batteri kalibering")
 #define TR_VOLTAGE                     TR("Spænding", "Spænding kilde")
-#define TR_MODULE_SENSOR_VOLTAGE       "Voltage"
-#define TR_MODULE_SENSOR_CURRENT       "Current"
+#define TR_MODULE_SENSOR_VOLTAGE       "Spænding"
+#define TR_MODULE_SENSOR_CURRENT       "Strøm"
 #define TR_SELECT_MODEL                "Vælg model"
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
