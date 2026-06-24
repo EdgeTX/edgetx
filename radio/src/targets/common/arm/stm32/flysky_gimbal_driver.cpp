@@ -125,7 +125,7 @@ static void _fs_handle_msg(STRUCT_HALL* hallBuffer)
 
   switch (hallBuffer->hallID.hall_Id.receiverID) {
     case TRANSFER_DIR_TXMCU:
-    case TRANSFER_DIR_RFMODULE:
+    case TRANSFER_DIR_RFMODULE: {
       int16_t* p_values = (int16_t*)hallBuffer->data;
       if (hallBuffer->hallID.hall_Id.packetID == FLYSKY_PACKET_CHANNEL_ID) {
         _fs_gimbal_cmd_finished = true;
@@ -145,7 +145,7 @@ static void _fs_handle_msg(STRUCT_HALL* hallBuffer)
         _fs_gimbal_mode = _fs_gimbal_mode_change;
         TRACE("Flysky Gimbal: Mode changed successfully, mode = %d", _fs_gimbal_mode);
       }
-      break;
+    } break;
   }
   _fs_gimbal_detected = true;
 }
@@ -170,8 +170,12 @@ static void flysky_gimbal_loop(void*)
     }
 
     uint8_t length = frame[2];
-    if (length > HALLSTICK_BUFF_SIZE - 5 || idx + length + 5 > len) {
-      break;  // bogus length or frame not fully present
+    if (length == 0 || length > HALLSTICK_BUFF_SIZE - 5) {
+      idx++;  // bogus length: skip this header and resync
+      continue;
+    }
+    if (idx + length + 5 > len) {
+      break;  // frame not fully present in this batch
     }
 
     uint16_t checkSum = frame[3 + length] | (frame[4 + length] << 8);

@@ -83,34 +83,11 @@ typedef union
 
 typedef  struct
 {
-  unsigned char head;
   STRUCT_ID hallID;
   unsigned char length;
   unsigned char data[HALLSTICK_BUFF_SIZE];
-  unsigned char reserved[15];
-  unsigned short checkSum;
   unsigned char stickState;
-  unsigned char startIndex;
-  unsigned char endIndex;
-  unsigned char index;
-  unsigned char dataIndex;
-  unsigned char deindex;
-  unsigned char completeFlg;
-  unsigned char status;
-  unsigned char recevied;
-  unsigned char msg_OK;
 } STRUCT_HALL;
-
-enum
-{
-  GET_START = 0,
-  GET_ID,
-  GET_LENGTH,
-  GET_DATA,
-  GET_STATE,
-  GET_CHECKSUM,
-  CHECKSUM,
-};
 
 enum HALLSTICK_SEND_STATE_E {
   HALLSTICK_SEND_STATE_IDLE,
