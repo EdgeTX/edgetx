@@ -90,6 +90,7 @@ body:
       multiple: true
       options:
         - BetaFPV LiteRadio3 Pro
+        - iFlight C14
         - iFlight Commando8
         - Fatfish F16
         - Flysky EL18

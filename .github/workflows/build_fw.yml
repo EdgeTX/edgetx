@@ -48,6 +48,7 @@ jobs:
           - t15pro
           - pa01
           - t22
+          - c14
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -93,6 +94,7 @@ jobs:
           - nb4p;st16
           - tx16smk3;t14;t15pro
           - t22
+          - c14
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
