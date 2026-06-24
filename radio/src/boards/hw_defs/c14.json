@@ -300,9 +300,9 @@
   ],
   "display": {
     "w": 480,
-    "h": 320,
-    "phys_w": 320,
-    "phys_h": 480,
+    "h": 272,
+    "phys_w": 480,
+    "phys_h": 272,
     "depth": 16,
     "color": 1,
     "oled": 0,

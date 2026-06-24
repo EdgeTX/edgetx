@@ -710,26 +710,49 @@ struct TouchState touchPanelRead()
         return internalTouchState;
       }
         
+      // Rotate the raw touch point into screen coordinates up-front, so that
+      // position, start position and slide deltas all live in the same
+      // coordinate space. (Computing deltas from raw points against a
+      // previously-rotated internalTouchState would otherwise yield wrong
+      // slide/scroll deltas, e.g. for GT911_ROTATION_MODE == 180.)
+      coord_t px = touchData.points[0].x;
+      coord_t py = touchData.points[0].y;
+      if (gt911_needTranspose) {
+        coord_t rawX = px, rawY = py;
+        switch (GT911_ROTATION_MODE) {
+          case 90:
+            px = LCD_H - rawY - 1;
+            py = rawX;
+            break;
+          case 180:
+            px = LCD_W - rawX - 1;
+            py = LCD_H - rawY - 1;
+            break;
+          case 270:
+            px = rawY;
+            py = LCD_W - rawX - 1;
+            break;
+          default:
+            break;
+        }
+      }
+
       if (internalTouchState.event == TE_NONE ||
           internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {
         internalTouchState.event = TE_DOWN;
-        internalTouchState.startX = internalTouchState.x =
-            touchData.points[0].x;
-        internalTouchState.startY = internalTouchState.y =
-            touchData.points[0].y;
+        internalTouchState.startX = internalTouchState.x = px;
+        internalTouchState.startY = internalTouchState.y = py;
         downTime = now;
       } else {
-        internalTouchState.deltaX =
-            touchData.points[0].x - internalTouchState.x;
-        internalTouchState.deltaY =
-            touchData.points[0].y - internalTouchState.y;
+        internalTouchState.deltaX = px - internalTouchState.x;
+        internalTouchState.deltaY = py - internalTouchState.y;
         if (internalTouchState.event == TE_SLIDE ||
             abs(internalTouchState.deltaX) >= SLIDE_RANGE ||
             abs(internalTouchState.deltaY) >= SLIDE_RANGE) {
           internalTouchState.event = TE_SLIDE;
-          internalTouchState.x = touchData.points[0].x;
-          internalTouchState.y = touchData.points[0].y;
+          internalTouchState.x = px;
+          internalTouchState.y = py;
         }
       }
     } else {
@@ -755,73 +778,6 @@ struct TouchState touchPanelRead()
   if (!I2C_GT911_WriteRegister(GT911_READ_XY_REG, &zero, 1)) {
     TRACE("GT911 ERROR: clearing XY register failed");
   }
- // 应用旋转逻辑
-  if (gt911_needTranspose) 
-    {
-        int rotated_x = internalTouchState.x;
-        int rotated_y = internalTouchState.y;
-        int rotated_deltaX = internalTouchState.deltaX;
-        int rotated_deltaY = internalTouchState.deltaY;
-
-        // Touch sensor is rotated by 90 deg
-        switch (GT911_ROTATION_MODE)
-        {
-            case 0: // 0度，无需旋转
-                // 不做任何处理
-                break;
-
-            case 90: // 90度旋转
-                // 旋转公式：
-                // 新_x = LCD_H - 原始_y - 1
-                // 新_y = 原始_x
-                rotated_x = LCD_H - internalTouchState.y - 1;
-                rotated_y = internalTouchState.x;
-                // 旋转delta
-                rotated_deltaX = -internalTouchState.deltaY;
-                rotated_deltaY = internalTouchState.deltaX;
-                break;
-
-            case 180: // 180度旋转
-                // 旋转公式：
-                // 新_x = LCD_W - 原始_x - 1
-                // 新_y = LCD_H - 原始_y - 1
-                rotated_x = LCD_W - internalTouchState.x - 1;
-                rotated_y = LCD_H - internalTouchState.y - 1;
-                // 旋转delta
-                rotated_deltaX = -internalTouchState.deltaX;
-                rotated_deltaY = -internalTouchState.deltaY;
-
-                break;
-
-            case 270: // 270度旋转
-                // 旋转公式：
-                // 新_x = 原始_y
-                // 新_y = LCD_W - 原始_x - 1
-                rotated_x = internalTouchState.y;
-                rotated_y = LCD_W - internalTouchState.x - 1;
-                // 旋转delta
-                rotated_deltaX = internalTouchState.deltaY;
-                rotated_deltaY = -internalTouchState.deltaX;
-                break;
-
-            default:
-                // 未知旋转模式，不进行旋转
-                TRACE("Unknown rotation mode: %d", GT911_ROTATION_MODE);
-                break;
-        }
-
-        // 更新内部触摸状态
-        internalTouchState.x = rotated_x;
-        internalTouchState.y = rotated_y;
-        internalTouchState.deltaX = rotated_deltaX;
-        internalTouchState.deltaY = rotated_deltaY;
-
-        // 如果是DOWN事件，也需要旋转起始坐标
-        if (internalTouchState.event == TE_DOWN) {
-            internalTouchState.startX = internalTouchState.x;
-            internalTouchState.startY = internalTouchState.y;
-        }
-    }
 
   TRACE("touch event = %s", event2str(internalTouchState.event));
 #if defined(CSD203_SENSOR)
