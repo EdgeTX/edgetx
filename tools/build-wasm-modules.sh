@@ -223,7 +223,7 @@ else
         boxer bumblebee commando8
         gx12 mt12 pocket t12max
         t14 t20 t20v2 tpros tprov2
-        tx12mk2 zorro v12 v14
+        tx12mk2 zorro v12 v14 v14lcd
         x7access x9dp2019 x9e
         # colour
         el18 nb4p nv14 st16 pa01

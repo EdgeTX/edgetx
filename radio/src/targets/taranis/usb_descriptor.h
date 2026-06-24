@@ -101,6 +101,10 @@
   #define USB_NAME                     "HelloRadioSky V14"
   #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'V', '1', '4', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_V14LCD)
+  #define USB_NAME                     "HelloRadioSky V14LCD"
+  #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'V', '1', '4', 'L', 'C', 'D', ' ', ' '  /* 8 Bytes */
 #else
   #define USB_NAME                     "FrSky Taranis"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
