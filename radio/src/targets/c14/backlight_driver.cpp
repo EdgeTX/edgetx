@@ -81,7 +81,8 @@ void lcdOff() {
 }
 
 void lcdOn(){
-  lcdInit();
+  // backlightEnable() re-inits the LTDC on the 0->nonzero transition, so no
+  // separate lcdInit() here (avoids a double init on wake).
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
