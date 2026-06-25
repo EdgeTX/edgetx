@@ -483,7 +483,9 @@ const static PageButtonDef modelSetupButtons[] = {
 
 void ModelSetupPage::build(Window * window)
 {
+  window->padBottom(PAD_LARGE);
+
   coord_t y = SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 
-  new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, modelSetupButtons, BTN_H);
+  new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, BTN_COLS, PAD_TINY, modelSetupButtons, BTN_H);
 }

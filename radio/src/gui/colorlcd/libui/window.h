@@ -267,7 +267,7 @@ struct PageButtonDef {
 class SetupButtonGroup : public Window
 {
  public:
-  SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
+  SetupButtonGroup(Window* parent, const rect_t& rect, int cols,
                    PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
 
  protected:

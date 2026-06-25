@@ -670,45 +670,18 @@ class SetupTextButton : public TextButton
  protected:
 };
 
-SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
+SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, int cols,
                                    PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight) :
     Window(parent, rect)
 {
   padAll(padding);
+  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_SMALL);
+  lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_SPACE_EVENLY);
 
   coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
 
-  int size = 0;
-  for (; pages[size].title; size += 1);
-
-  int rows = (size + cols - 1) / cols;
-  int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
-  if (title) {
-    height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
-  }
-  setHeight(height);
-
-  if (title)
-    new Subtitle(this, title);
-
-  int n = 0;
-  int remaining = size;
-  coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
-  coord_t xw = buttonWidth + PAD_SMALL;
-  coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
-  coord_t x, y;
-  for (int p = 0; p < size; p += 1) {
-    if (remaining < cols && (n % cols == 0)) {
-      coord_t space = ((cols - remaining) * xw) / (remaining + 1);
-      xw += space;
-      xo += space;
-    }
-    x = xo + (n % cols) * xw;
-    y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
-
-    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, pages[p]);
-    n += 1;
-    remaining -= 1;
+  for (int p = 0; pages[p].title; p += 1) {
+    new SetupTextButton(this, {0, 0, buttonWidth, btnHeight}, pages[p]);
   }
 }
 
