@@ -50,11 +50,6 @@ void lcdInitDisplayDriver();
 
 void lcdClear();
 
-#if defined(BOOT)
-// Patch the draw context to allow for direct drawing
-void lcdInitDirectDrawing();
-#endif
-
 void lcdRefresh();
 
 extern "C" void lvglFlushed();

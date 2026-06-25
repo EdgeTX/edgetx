@@ -36,13 +36,7 @@
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H,
-                        (uint16_t*)LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H,
-                        (uint16_t*)LCD_SECOND_FRAME_BUFFER);
-
-BitmapBuffer* lcdFront = &lcdBuffer1;
-BitmapBuffer* lcd = &lcdBuffer2;
+BitmapBuffer lcd(BMP_RGB565, LCD_W, LCD_H, (uint16_t*)LCD_FIRST_FRAME_BUFFER);
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
@@ -53,21 +47,15 @@ static lv_disp_t disp;
 static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
                             const rect_t& area) = nullptr;
 
-extern "C" void lvglFlushed() {}
-
 void lcdSetFlushCb(void (*cb)(lv_disp_drv_t*, uint16_t*, const rect_t&))
 {
   lcd_flush_cb = cb;
 }
 
-static lv_disp_drv_t* refr_disp = nullptr;
-
 static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                      lv_color_t* color_p)
 {
   if (lcd_flush_cb) {
-    refr_disp = disp_drv;
-
     rect_t copy_area = {area->x1, area->y1, area->x2 - area->x1 + 1,
                         area->y2 - area->y1 + 1};
 
@@ -85,7 +73,19 @@ static void clear_frame_buffers()
 
 static void init_lvgl_disp_drv()
 {
-  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W * LCD_H);
+  int direct_mode = 1;
+#if LCD_VERTICAL_INVERT
+#if defined(RADIO_F16)
+  direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
+#else
+  direct_mode = 0;
+#endif
+#endif
+
+  lv_disp_draw_buf_init(&disp_buf,
+                        LCD_FIRST_FRAME_BUFFER,
+                        direct_mode ? LCD_SECOND_FRAME_BUFFER : nullptr,
+                        LCD_W * LCD_H);
   lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
   disp_drv.draw_buf = &disp_buf; /*Set an initialized buffer*/
@@ -95,14 +95,7 @@ static void init_lvgl_disp_drv()
   disp_drv.hor_res = LCD_W; /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
-
-#if !LCD_VERTICAL_INVERT
-  disp_drv.direct_mode = 1;
-#elif defined(RADIO_F16)
-  disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
-#else
-  disp_drv.direct_mode = 0;
-#endif
+  disp_drv.direct_mode = direct_mode;
 }
 
 void lcdInitDisplayDriver()
@@ -121,7 +114,7 @@ void lcdInitDisplayDriver()
 
   // Clear buffers first
   clear_frame_buffers();
-  lcdSetInitalFrameBuffer(lcdFront->getData());
+  lcdSetInitalFrameBuffer(lcd.getData());
 
   // Init hardware LCD driver
   lcdInit();
@@ -143,17 +136,16 @@ void lcdInitDisplayDriver()
   }
 
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
-  lcd->setDrawCtx(draw_ctx);
-  lcdFront->setDrawCtx(draw_ctx);
-
+  lcd.setDrawCtx(draw_ctx);
+    
 #if defined(LCD_BACKLIGHT_INIT_DELAY_MS)
   delay_ms(LCD_BACKLIGHT_INIT_DELAY_MS);
 #endif
-
+    
   backlightInit();
 }
 
-void lcdClear() { lcd->clear(); }
+void lcdClear() { lcd.clear(); }
 
 // Direct drawing - used by boot loader
 
@@ -165,8 +157,8 @@ void lcdInitDirectDrawing()
   draw_ctx->buf = disp_drv.draw_buf->buf_act;
   draw_ctx->buf_area = &screen_area;
   draw_ctx->clip_area = &screen_area;
-  lcd->setData((pixel_t*)draw_ctx->buf);
-  lcd->reset();
+  lcd.setData((pixel_t*)draw_ctx->buf);
+  lcd.reset();
 }
 
 //

@@ -32,6 +32,7 @@
 
 #include "lcd.h"
 #include <lvgl/lvgl.h>
+#include <vector>
 
 #if defined(RADIO_T18)
   #define HBP  43
@@ -61,16 +62,23 @@ static void* initialFrameBuffer = nullptr;
 #if LCD_VERTICAL_INVERT
 typedef uint16_t pixel_t;
 static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
-static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
+// LVGL will only use one buffer when display is inverted so reuse 2nd
+// buffer here
+extern pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
+#define _LCD_BUF_2 LCD_SECOND_FRAME_BUFFER
 
-static pixel_t _line_buffer[LCD_W];
-
+// Frame buffer pointers
 static uint16_t* _front_buffer = _LCD_BUF_1;
 static uint16_t* _back_buffer = _LCD_BUF_2;
+
+// Vector to save areas that need to be copied from front buffer to back buffer
+static std::vector<lv_area_t> dma_areas;
 
 // Copy 2 pixels at once to speed up a little
 static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
 {
+  static pixel_t _line_buffer[LCD_W];
+
   coord_t x1 = LCD_W - copy_area.w - copy_area.x;
   coord_t y1 = LCD_H - copy_area.h - copy_area.y;
 
@@ -106,24 +114,17 @@ static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_ar
     dst -= LCD_W;
   }
 }
-
-static void _rotate_area_180(lv_area_t& area)
-{
-  lv_coord_t tmp_coord;
-  tmp_coord = area.y2;
-  area.y2 = LCD_H - area.y1 - 1;
-  area.y1 = LCD_H - tmp_coord - 1;
-  tmp_coord = area.x2;
-  area.x2 = LCD_W - area.x1 - 1;
-  area.x1 = LCD_W - tmp_coord - 1;
-}
 #endif
 
+#if defined(BOOT)
 static volatile uint8_t _frame_addr_reloaded = 0;
+#endif
 
-static void _update_frame_buffer_addr(uint16_t* addr, bool direct_mode)
+static void _update_frame_buffer_addr(uint16_t* addr)
 {
+#if defined(BOOT)
   _frame_addr_reloaded = 0;
+#endif
 
   LTDC_Layer1->CFBAR = (uint32_t)addr;
   // reload shadow registers on vertical blank
@@ -131,12 +132,9 @@ static void _update_frame_buffer_addr(uint16_t* addr, bool direct_mode)
 
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
-  // wait for reload to finish - required for bootloader & inverted LCD radios
 #if defined(BOOT)
+  // wait for reload to finish - required for bootloader & inverted LCD radios
   while (_frame_addr_reloaded == 0);
-#else
-  if (!direct_mode)
-    while (_frame_addr_reloaded == 0);
 #endif
 }
 
@@ -145,15 +143,28 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 {
 #if LCD_VERTICAL_INVERT
   if (disp_drv->direct_mode) {
-    // Direct mode
-    _update_frame_buffer_addr(buffer, true);
+    // Direct mode / not inverted
+    _update_frame_buffer_addr(buffer);
     return;
   }
+
+  // Copy areas that were updated last frame to the back buffer
+  if (dma_areas.size() > 0) {
+    for (auto a: dma_areas) {
+      DMACopyBitmap(_back_buffer, LCD_W, LCD_H, a.x1, a.y1,
+                    _front_buffer, LCD_W, LCD_H, a.x1, a.y1,
+                    a.x2 - a.x1 + 1, a.y2 - a.y1 + 1);
+    }
+    dma_areas.clear();
+    DMAWait();
+  }
+
+  // Copy changes from LVGL to LCD back buffer with 180 degree rotation
   _copy_rotate_180(_back_buffer, buffer, copy_area);
 
+  // Check for last LVGL update before we need to swap buffers
   if (lv_disp_flush_is_last(disp_drv)) {
-
-    // swap back/front
+    // swap back/front buffers
     if (_front_buffer == _LCD_BUF_1) {
       _front_buffer = _LCD_BUF_2;
       _back_buffer = _LCD_BUF_1;
@@ -163,37 +174,28 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
     }
 
     // Trigger async refresh
-    _update_frame_buffer_addr(_front_buffer, false);
+    _update_frame_buffer_addr(_front_buffer);
 
-    // Copy refreshed & rotated areas into new back buffer
-    uint16_t* src = _front_buffer;
-    uint16_t* dst = _back_buffer;
-
+    // Save areas that need to be updated next time around
     lv_disp_t* disp = _lv_refr_get_disp_refreshing();
     for(int i = 0; i < disp->inv_p; i++) {
       if(disp->inv_area_joined[i]) continue;
 
+      // Rotate area 180 degrees
       lv_area_t refr_area;
-      lv_area_copy(&refr_area, &disp->inv_areas[i]);
+      refr_area.x1 = LCD_W - disp->inv_areas[i].x2 - 1;
+      refr_area.x2 = LCD_W - disp->inv_areas[i].x1 - 1;
+      refr_area.y1 = LCD_H - disp->inv_areas[i].y2 - 1;
+      refr_area.y2 = LCD_H - disp->inv_areas[i].y1 - 1;
 
-      // TRACE("Vert invert refresh {%d,%d,%d,%d}", refr_area.x1,
-      //      refr_area.y1, refr_area.x2 - refr_area.x1 + 1, refr_area.y2 - refr_area.y1 + 1);
-
-      _rotate_area_180(refr_area);
-
-      auto area_w = refr_area.x2 - refr_area.x1 + 1;
-      auto area_h = refr_area.y2 - refr_area.y1 + 1;
-      
-      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
-                    src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
-                    area_w, area_h);
+      dma_areas.push_back(refr_area);
     }
+  } else {
+    lv_disp_flush_ready(disp_drv);
   }
-
-  lv_disp_flush_ready(disp_drv);
 #else
   // Direct mode
-  _update_frame_buffer_addr(buffer, true);
+  _update_frame_buffer_addr(buffer);
 #endif
 }
 
@@ -429,8 +431,8 @@ void lcdInit()
 {
 #if LCD_VERTICAL_INVERT
   // Clear buffer first
-  memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
-  memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
+  memset(_LCD_BUF_1, 0, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+  memset(_LCD_BUF_2, 0, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
 #endif
 
   // Initialize the LCD
@@ -449,7 +451,9 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
 
+#if defined(BOOT)
   _frame_addr_reloaded = 1;
+#else
   lvglFlushed();
+#endif
 }
-

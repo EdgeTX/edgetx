@@ -43,14 +43,6 @@ char* get_lvgl_mem(int nbytes)
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H,
-                        (uint16_t*)LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H,
-                        (uint16_t*)LCD_SECOND_FRAME_BUFFER);
-
-static BitmapBuffer* lcdFront = &lcdBuffer1;
-static BitmapBuffer* lcd = &lcdBuffer2;
-
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
 
@@ -66,12 +58,7 @@ static lv_disp_drv_t* refr_disp = nullptr;
 
 extern "C" void lvglFlushed()
 {
-#if defined(LCD_VERTICAL_INVERT)
-  if (disp_drv.direct_mode)
-    lv_disp_flush_ready(&disp_drv);
-#else
   lv_disp_flush_ready(&disp_drv);
-#endif
 }
 
 void lcdSetFlushCb(void (*cb)(lv_disp_drv_t*, uint16_t*, const rect_t&))
@@ -120,7 +107,18 @@ static void clear_frame_buffers()
 
 static void init_lvgl_disp_drv()
 {
-  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(),
+  int direct_mode = 1;
+#if LCD_VERTICAL_INVERT
+#if defined(RADIO_F16)
+  direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
+#else
+  direct_mode = 0;
+#endif
+#endif
+
+  lv_disp_draw_buf_init(&disp_buf,
+                        LCD_FIRST_FRAME_BUFFER,
+                        direct_mode ? LCD_SECOND_FRAME_BUFFER : nullptr,
                         LCD_W * LCD_H);
   lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
@@ -133,14 +131,7 @@ static void init_lvgl_disp_drv()
   disp_drv.hor_res = LCD_W; /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
-
-#if !LCD_VERTICAL_INVERT
-  disp_drv.direct_mode = 1;
-#elif defined(RADIO_F16)
-  disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
-#else
-  disp_drv.direct_mode = 0;
-#endif
+  disp_drv.direct_mode = direct_mode;
 }
 
 void lcdInitDisplayDriver()
@@ -161,7 +152,7 @@ void lcdInitDisplayDriver()
 
   // Clear buffers first
   clear_frame_buffers();
-  lcdSetInitalFrameBuffer(lcdFront->getData());
+  lcdSetInitalFrameBuffer(LCD_FIRST_FRAME_BUFFER);
 
   // Init hardware LCD driver
   lcdInit();
