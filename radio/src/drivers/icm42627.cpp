@@ -31,8 +31,9 @@ static etx_i2c_bus_t s_i2c_bus;
 static uint16_t s_i2c_addr;
 
 static constexpr uint32_t RESET_DELAY_MS = 150;
-static constexpr uint32_t READY_TIMEOUT_MS = 200;
-static constexpr uint32_t POWER_DELAY_MS = 20;
+static constexpr uint32_t READY_TIMEOUT_MS = 500;
+static constexpr uint32_t POWER_ON_SETTLE_US = 200;
+static constexpr uint32_t GYRO_STARTUP_DELAY_MS = 45;
 static constexpr uint32_t CONFIG_DELAY_MS = 1;
 static constexpr uint8_t BURST_READ_LEN = 14;
 
@@ -75,7 +76,10 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
   }
 
-  if (i2c_dev_ready(s_i2c_bus, s_i2c_addr) < 0) {
+  // The chip can take longer than a couple of quick retries to start
+  // acknowledging on I2C after power-up, so give the initial probe the
+  // same generous retry window used after a soft reset below.
+  if (wait_for_device_ready(READY_TIMEOUT_MS) < 0) {
     TRACE("ICM42627: device did not acknowledge on I2C");
     return -1;
   }
@@ -103,17 +107,27 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
     return -1;
   }
 
-  if (write_cmd(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1) < 0) {
-    TRACE("ICM42627: failed to write PWR_MGMT0 stage 1");
+  // Per datasheet section 12.6 ("Register Values Modification"), registers
+  // other than ODR/FSR/mode selects must only be changed while the
+  // accel/gyro are off. Configure the signal path here, while PWR_MGMT0
+  // still has gyro and accel powered down, then power them on last.
+  if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK1) < 0) {
+    TRACE("ICM42627: failed to select register bank 1");
     return -1;
   }
-  delay_ms(POWER_DELAY_MS);
+  delay_ms(CONFIG_DELAY_MS);
 
-  if (write_cmd(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2) < 0) {
-    TRACE("ICM42627: failed to write PWR_MGMT0 stage 2");
+  if (write_cmd(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2) < 0) {
+    TRACE("ICM42627: failed to write GYRO_STATIC2");
     return -1;
   }
-  delay_ms(POWER_DELAY_MS);
+  delay_ms(CONFIG_DELAY_MS);
+
+  if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK0) < 0) {
+    TRACE("ICM42627: failed to restore register bank 0");
+    return -1;
+  }
+  delay_ms(CONFIG_DELAY_MS);
 
   if (write_cmd(ICM42627_GYRO_CONFIG0_REG, ICM42627_GYRO_CONFIG) < 0) {
     TRACE("ICM42627: failed to write GYRO_CONFIG0");
@@ -145,25 +159,23 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
   }
   delay_ms(CONFIG_DELAY_MS);
 
-  if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK1) < 0) {
-    TRACE("ICM42627: failed to select register bank 1");
+  // Power on gyro and accel in Low Noise mode last, now that the signal
+  // path is fully configured. The datasheet requires no register writes
+  // for 200us after an OFF -> mode transition, and the gyro must be kept
+  // on for at least 45ms before its output is valid.
+  if (write_cmd(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE1) < 0) {
+    TRACE("ICM42627: failed to write PWR_MGMT0 stage 1");
     return -1;
   }
-  delay_ms(CONFIG_DELAY_MS);
+  delay_us(POWER_ON_SETTLE_US);
 
-  if (write_cmd(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2) < 0) {
-    TRACE("ICM42627: failed to write GYRO_STATIC2");
+  if (write_cmd(ICM42627_PWR_MGMT0_REG, ICM42627_PWR_STAGE2) < 0) {
+    TRACE("ICM42627: failed to write PWR_MGMT0 stage 2");
     return -1;
   }
-  delay_ms(CONFIG_DELAY_MS);
+  delay_ms(GYRO_STARTUP_DELAY_MS);
 
-  if (write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK0) < 0) {
-    TRACE("ICM42627: failed to restore register bank 0");
-    return -1;
-  }
-  delay_ms(CONFIG_DELAY_MS);
-
-  // Re-read WHO_AM_I after reset and banked configuration to catch a device
+  // Re-read WHO_AM_I after reset and configuration to catch a device
   // that stopped responding even though the initial probe succeeded.
   if (read_cmd(ICM42627_WHO_AM_I_REG, &who_am_i) < 0 ||
       who_am_i != ICM42627_WHO_AM_I) {
