@@ -119,6 +119,7 @@ static int gyro42627Init(etx_i2c_bus_t bus, uint16_t addr)
 
   if (write_cmd(ICM42627_GYRO_STATIC2_REG, ICM42627_GYRO_STATIC2) < 0) {
     TRACE("ICM42627: failed to write GYRO_STATIC2");
+    write_cmd(ICM42627_BANK_SEL_REG, ICM42627_BANK0);
     return -1;
   }
   delay_ms(CONFIG_DELAY_MS);
