@@ -121,9 +121,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   memory_write(buffer, copy_area.w * copy_area.h);
 
-#if !defined(BOOT)
   lvglFlushed();
-#endif
 }
 
 lcdSpiInitFucPtr lcdInitFunction;

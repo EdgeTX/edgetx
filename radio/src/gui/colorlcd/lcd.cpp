@@ -130,7 +130,6 @@ static void init_lvgl_disp_drv()
 
   disp_drv.hor_res = LCD_W; /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
-  disp_drv.full_refresh = 0;
   disp_drv.direct_mode = direct_mode;
 }
 
