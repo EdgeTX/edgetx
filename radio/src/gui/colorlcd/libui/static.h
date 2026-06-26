@@ -182,7 +182,6 @@ class StaticBitmap : public Window
   bool hasImage() const;
 
  protected:
-  lv_obj_t *canvas = nullptr;
   BitmapBuffer *img = nullptr;
 };
 
