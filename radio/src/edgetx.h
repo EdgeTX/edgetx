@@ -329,6 +329,17 @@ void checkSwitches();
 void checkAlarm();
 void checkAll(bool isBootCheck = false);
 
+// Warning predicates (pure reads) and the input refresh they rely on. The
+// driver (boot/flightReset loops or the model-load state machine) calls
+// refreshInputsForWarnings() once per tick, then queries the predicates.
+void refreshInputsForWarnings();
+bool isThrottleWarningAlertNeeded();
+bool isFailsafeWarningRequired();
+void checkSDfreeStorage();
+#if defined(MULTIMODULE)
+bool isMultiLowPowerWarningRequired();
+#endif
+
 void getADC();
 
 #include "sbus.h"

@@ -519,6 +519,12 @@ void readChecklist()
   }
 }
 
+// Non-blocking version, driven by the model-load state machine view.
+Window* showModelChecklist()
+{
+  return _readModelNotes(false);
+}
+
 ModelNotesPage::ModelNotesPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)
 {
 }

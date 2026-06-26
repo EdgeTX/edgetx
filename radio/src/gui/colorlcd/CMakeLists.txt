@@ -55,6 +55,7 @@ set(GUI_SRC
   lcd.cpp
   LvglWrapper.cpp
   startup_shutdown.cpp
+  model_load_view.cpp
 
   model/curveedit.cpp
   model/input_edit.cpp

@@ -27,6 +27,7 @@
 
 #include "edgetx.h"
 #include "lua/lua_states.h"
+#include "model_load_sm.h"
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -35,6 +36,7 @@
 #include "etx_lv_theme.h"
 #include "menu.h"
 #include "mainwindow.h"
+#include "model_load_view.h"
 #endif
 
 #if defined(CLI)
@@ -537,7 +539,9 @@ void perMain()
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
-  if (mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) {
+  // Don't run flightReset (which calls the blocking checkAll()) while the
+  // model-load state machine is mid-sequence; service it once we're idle again.
+  if ((mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) && modelLoadIdle()) {
     TRACE("Executing requested Flight Reset");
     flightReset();
     mainRequestFlags &= ~(1u << REQUEST_FLIGHT_RESET);
@@ -550,7 +554,12 @@ void perMain()
 #endif
 
 #if defined(COLORLCD)
+  // Advance the post-model-load checks before driving the UI, so any state
+  // change happens outside lv_timer_handler (flat stack, no re-entrancy).
+  modelLoadStateMachineRun();
   MainWindow::instance()->run();
+  // Reflect the machine's current state in the warning dialogs.
+  modelLoadViewSync();
 #endif
 
 #if defined(RTC_BACKUP_RAM)

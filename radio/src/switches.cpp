@@ -877,11 +877,10 @@ swsrc_t getMovedSwitch()
   return result;
 }
 
+// Pure predicate: reads the current switch/pot state. The caller is responsible
+// for refreshing inputs first (refreshInputsForWarnings()).
 bool isSwitchWarningRequired(uint16_t &bad_pots)
 {
-  if (!mixerTaskRunning()) getADC();
-  getMovedSwitch();
-
   bool warn = false;
   for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (SWITCH_WARNING_ALLOWED(i)) {
@@ -896,7 +895,6 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   }
 
   if (g_model.potsWarnMode) {
-    evalFlightModeMixes(e_perout_mode_normal, 0);
     bad_pots = 0;
     for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
@@ -916,14 +914,20 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
 void checkSwitches()
 {
   uint16_t bad_pots = 0;
+  refreshInputsForWarnings();
   if (!isSwitchWarningRequired(bad_pots))
     return;
 
   LED_ERROR_BEGIN();
+  // The dialog is a dumb view; this loop owns the refresh + predicate and closes
+  // when the switches/pots are corrected (predicate clears) or a key is pressed.
   auto dialog = new SwitchWarnDialog();
   MainWindow::instance()->blockUntilClose(true, [=]() {
-    return dialog->deleted();
+    uint16_t bp = 0;
+    refreshInputsForWarnings();
+    return dialog->deleted() || !isSwitchWarningRequired(bp);
   });
+  if (!dialog->deleted()) dialog->deleteLater();
   LED_ERROR_END();
 }
 #elif defined(GUI)
@@ -941,6 +945,7 @@ void checkSwitches()
 #if defined(RADIO_GX12)
     _poll_switches();
 #endif
+    refreshInputsForWarnings();
     if (!isSwitchWarningRequired(bad_pots))
       break;
 

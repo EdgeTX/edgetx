@@ -676,17 +676,20 @@ void resetBacklightTimeout()
 
 
 #if defined(MULTIMODULE)
-void checkMultiLowPower()
+bool isMultiLowPowerWarningRequired()
 {
-  bool low_power_warning = false;
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
     if (isModuleMultimodule(i) &&
         g_model.moduleData[i].multi.lowPowerMode) {
-      low_power_warning = true;
+      return true;
     }
   }
+  return false;
+}
 
-  if (low_power_warning) {
+void checkMultiLowPower()
+{
+  if (isMultiLowPowerWarningRequired()) {
     ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
   }
 }
@@ -706,7 +709,7 @@ void checkSDfreeStorage() {
   }
 }
 
-static void checkFailsafe()
+bool isFailsafeWarningRequired()
 {
   for (int i=0; i<NUM_MODULES; i++) {
 #if defined(MULTIMODULE)
@@ -716,10 +719,17 @@ static void checkFailsafe()
     if (isModuleFailsafeAvailable(i)) {
       ModuleData & moduleData = g_model.moduleData[i];
       if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
-        ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
-        break;
+        return true;
       }
     }
+  }
+  return false;
+}
+
+static void checkFailsafe()
+{
+  if (isFailsafeWarningRequired()) {
+    ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
   }
 }
 
@@ -802,6 +812,17 @@ void checkAll(bool isBootCheck)
 }
 #endif // GUI
 
+// Refresh the input readings the warning predicates rely on. Kept separate from
+// the predicates themselves so they stay pure: the driver (the model-load state
+// machine, or the boot/flightReset blocking loops) refreshes once per tick, then
+// queries the predicates and the warning views read the same fresh state.
+void refreshInputsForWarnings()
+{
+  if (!mixerTaskRunning()) getADC();
+  evalInputs(e_perout_mode_notrainer);
+  getMovedSwitch();
+}
+
 bool isThrottleWarningAlertNeeded()
 {
   if (g_model.disableThrottleWarning) {
@@ -815,9 +836,6 @@ bool isThrottleWarningAlertNeeded()
   if (thr_src >= MIXSRC_FIRST_CH) {
     thr_src = throttleSource2Source(0);
   }
-
-  if (!mixerTaskRunning()) getADC();
-  evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
 
   int16_t v = getValue(thr_src);
 
@@ -844,25 +862,31 @@ bool isThrottleWarningAlertNeeded()
 void checkThrottleStick()
 {
   char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
-  if (isThrottleWarningAlertNeeded()) {
-    if (g_model.enableCustomThrottleWarning) {
+  refreshInputsForWarnings();
+  if (!isThrottleWarningAlertNeeded()) return;
+
+  if (g_model.enableCustomThrottleWarning) {
     sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
-    }
-    else {
-      strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
-    }
-    LED_ERROR_BEGIN();
-    auto dialog = new ThrottleWarnDialog(throttleNotIdle);
-    MainWindow::instance()->blockUntilClose(true, [=]() {
-      return dialog->deleted();
-    });
-    LED_ERROR_END();
+  } else {
+    strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
   }
+
+  LED_ERROR_BEGIN();
+  // The dialog is a dumb view; this loop owns the refresh + predicate and closes
+  // when the stick is lowered (predicate clears) or a key is pressed (deleted).
+  auto dialog = new ThrottleWarnDialog(throttleNotIdle);
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    refreshInputsForWarnings();
+    return dialog->deleted() || !isThrottleWarningAlertNeeded();
+  });
+  if (!dialog->deleted()) dialog->deleteLater();
+  LED_ERROR_END();
 }
 #else
 void checkThrottleStick()
 {
   char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
+  refreshInputsForWarnings();
   if (!isThrottleWarningAlertNeeded()) {
     return;
   }
@@ -881,6 +905,7 @@ void checkThrottleStick()
 #endif
 
   while (!keyDown()) {
+    refreshInputsForWarnings();
     if (!isThrottleWarningAlertNeeded()) {
       return;
     }

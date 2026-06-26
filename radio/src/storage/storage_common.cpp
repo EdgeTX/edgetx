@@ -25,6 +25,7 @@
 #include "tasks/mixer_task.h"
 #include "mixes.h"
 #include "switches.h"
+#include "model_load_sm.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #include "hal/rgbleds.h"
@@ -295,12 +296,28 @@ if(g_model.rssiSource) {
   sanitizeMixerLines();
 
 #if defined(GUI)
+#if defined(COLORLCD)
+  // Runtime model switch (mixer already started, so pulses were stopped in
+  // preModelLoad): hand the post-load warning checks to the polled, core-owned
+  // state machine instead of running checkAll()'s nested blocking UI loop here.
+  // pulses stay stopped (RX holds failsafe) until the machine reaches its
+  // terminal state, which then runs postModelLoadFinish().
+  if (alarms && mixerTaskStarted()) {
+    modelLoadStart();
+    return;
+  }
+#endif
   if (alarms) {
     checkAll();
     PLAY_MODEL_NAME();
   }
 #endif
 
+  postModelLoadFinish();
+}
+
+void postModelLoadFinish()
+{
   // Mixer should only be restarted
   // if we are switching between models,
   // not on first boot (started later on)
