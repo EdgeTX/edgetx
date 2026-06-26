@@ -365,6 +365,9 @@ class ModelsPageBody : public Window
       memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
              LEN_MODEL_FILENAME);
 
+      // Pause widget refresh
+      MainWindow::instance()->enableWidgetRefresh(false);
+
       // Delete old main view layout
       LayoutFactory::deleteCustomScreens();
 
@@ -373,6 +376,9 @@ class ModelsPageBody : public Window
 
       // Load new main view layout
       LayoutFactory::loadCustomScreens();
+
+      // Enable widget refresh
+      MainWindow::instance()->enableWidgetRefresh(true);
 
       storageDirty(EE_GENERAL);
       storageCheck(true);
