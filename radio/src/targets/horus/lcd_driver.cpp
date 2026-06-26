@@ -69,8 +69,8 @@ static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 // LVGL will only use one buffer when display is inverted so reuse 2nd
 // buffer here
 extern pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
-#endif
 #define _LCD_BUF_2 LCD_SECOND_FRAME_BUFFER
+#endif
 
 // Frame buffer pointers
 static uint16_t* _front_buffer = _LCD_BUF_1;
