@@ -40,12 +40,16 @@ BitmapBuffer lcd(BMP_RGB565, LCD_W, LCD_H, (uint16_t*)LCD_FIRST_FRAME_BUFFER);
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
-
 static lv_disp_t disp;
 
 // Call backs
 static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
                             const rect_t& area) = nullptr;
+
+extern "C" void lvglFlushed()
+{
+  lv_disp_flush_ready(&disp_drv);
+}
 
 void lcdSetFlushCb(void (*cb)(lv_disp_drv_t*, uint16_t*, const rect_t&))
 {
@@ -60,9 +64,9 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                         area->y2 - area->y1 + 1};
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
+  } else {
+    lvglFlushed();
   }
-
-  lv_disp_flush_ready(disp_drv);
 }
 
 static void clear_frame_buffers()
@@ -90,11 +94,9 @@ static void init_lvgl_disp_drv()
 
   disp_drv.draw_buf = &disp_buf; /*Set an initialized buffer*/
   disp_drv.flush_cb = flushLcd;  /*Set a flush callback to draw to the display*/
-  disp_drv.wait_cb = nullptr; /*Set a wait callback*/
 
   disp_drv.hor_res = LCD_W; /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
-  disp_drv.full_refresh = 0;
   disp_drv.direct_mode = direct_mode;
 }
 
@@ -138,23 +140,16 @@ void lcdInitDisplayDriver()
 
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
   lcd.setDrawCtx(draw_ctx);
+
+  static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
+  draw_ctx->buf = disp_drv.draw_buf->buf_act;
+  draw_ctx->buf_area = &screen_area;
+  draw_ctx->clip_area = &screen_area;
 }
 
 void lcdClear() { lcd.clear(); }
 
 // Direct drawing - used by boot loader
-
-void lcdInitDirectDrawing()
-{
-  static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
-
-  lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
-  draw_ctx->buf = disp_drv.draw_buf->buf_act;
-  draw_ctx->buf_area = &screen_area;
-  draw_ctx->clip_area = &screen_area;
-  lcd.setData((pixel_t*)draw_ctx->buf);
-  lcd.reset();
-}
 
 //
 // Private code copied and adapted from LVGL / lv_refr.c
@@ -171,21 +166,12 @@ static void _call_flush_cb(lv_disp_drv_t* drv, const lv_area_t* area,
   drv->flush_cb(drv, &offset_area, color_p);
 }
 
-static void _draw_buf_flush(lv_disp_t* disp)
+void lcdRefresh()
 {
+  /* Flush the rendered content to the display */
+  lv_disp_t* disp = _lv_refr_get_disp_refreshing();
   lv_disp_draw_buf_t* draw_buf = lv_disp_get_draw_buf(disp);
-
-  /*Flush the rendered content to the display*/
   lv_draw_ctx_t* draw_ctx = disp->driver->draw_ctx;
-  if (draw_ctx->wait_for_finish) draw_ctx->wait_for_finish(draw_ctx);
-
-  /* In double buffered mode wait until the other buffer is freed
-   * and driver is ready to receive the new buffer */
-  if (draw_buf->buf1 && draw_buf->buf2) {
-    while (draw_buf->flushing) {
-      if (disp->driver->wait_cb) disp->driver->wait_cb(disp->driver);
-    }
-  }
 
   draw_buf->flushing = 1;
   draw_buf->flushing_last = 1;
@@ -197,15 +183,17 @@ static void _draw_buf_flush(lv_disp_t* disp)
 
   /*If there are 2 buffers swap them. */
   if (draw_buf->buf1 && draw_buf->buf2) {
+    /* In double buffered mode wait until the other buffer is freed
+     * and driver is ready to receive the new buffer */
+    while (draw_buf->flushing);
     if (draw_buf->buf_act == draw_buf->buf1)
       draw_buf->buf_act = draw_buf->buf2;
     else
       draw_buf->buf_act = draw_buf->buf1;
   }
-}
 
-void lcdRefresh()
-{
-  lv_disp_t* d = _lv_refr_get_disp_refreshing();
-  _draw_buf_flush(d);
+  // Update draw context and lcd bitmap
+  draw_ctx->buf = draw_buf->buf_act;
+  lcd.setData((pixel_t*)draw_buf->buf_act);
+  lcd.reset();
 }

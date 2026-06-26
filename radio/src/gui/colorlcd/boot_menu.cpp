@@ -38,9 +38,6 @@
 #define BL_FOREGROUND COLOR_WHITE
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
-// Patch the draw context to allow for direct drawing
-extern void lcdInitDirectDrawing();
-
 static constexpr coord_t LINE_H = 2;
 
 LAYOUT_VAL_SCALED(TITLE_Y1, 28)
@@ -160,14 +157,12 @@ void bootloaderInitScreen()
 
 void bootloaderDrawDFUScreen()
 {
-  lcdInitDirectDrawing();
   bootloaderDrawBackground();
   lcd.drawText(LCD_W / 2, LCD_H / 2, TR_BL_DFU_MODE, CENTERED | BL_FOREGROUND);
 }
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-  lcdInitDirectDrawing();
   bootloaderDrawBackground();
 
   bootloaderDrawTitle(BOOTLOADER_TITLE);
@@ -264,7 +259,6 @@ void bootloaderDrawSelected(coord_t boxX2, int opt)
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-  lcdInitDirectDrawing();
   bootloaderDrawBackground();
 
   coord_t y = SYM_Y, boxX2 = 0;

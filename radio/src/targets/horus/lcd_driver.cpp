@@ -62,9 +62,14 @@ static void* initialFrameBuffer = nullptr;
 #if defined(LCD_VERTICAL_INVERT)
 typedef uint16_t pixel_t;
 static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
+#if defined(RADIO_F16)
+// F16 can be either normal or inverted
+static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
+#else
 // LVGL will only use one buffer when display is inverted so reuse 2nd
 // buffer here
 extern pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
+#endif
 #define _LCD_BUF_2 LCD_SECOND_FRAME_BUFFER
 
 // Frame buffer pointers
@@ -116,26 +121,13 @@ static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_ar
 }
 #endif
 
-#if defined(BOOT)
-static volatile uint8_t _frame_addr_reloaded = 0;
-#endif
-
 static void _update_frame_buffer_addr(uint16_t* addr)
 {
-#if defined(BOOT)
-  _frame_addr_reloaded = 0;
-#endif
-
   LTDC_Layer1->CFBAR = (uint32_t)addr;
   // reload shadow registers on vertical blank
   LTDC->SRCR = LTDC_SRCR_VBR;
 
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
-
-#if defined(BOOT)
-  // wait for reload to finish - required for bootloader & inverted LCD radios
-  while (_frame_addr_reloaded == 0);
-#endif
 }
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
@@ -451,9 +443,5 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
 
-#if defined(BOOT)
-  _frame_addr_reloaded = 1;
-#else
   lvglFlushed();
-#endif
 }

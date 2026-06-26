@@ -40,30 +40,17 @@ static void* initialFrameBuffer = nullptr;
 
 #define GPIO_AF_LTDC GPIO_AF14
 
-#if defined(BOOT)
-static volatile uint8_t _frame_addr_reloaded = 0;
-#endif
-
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
   (void)disp_drv;
   (void)copy_area;
 
-#if defined(BOOT)
-  _frame_addr_reloaded = 0;
-#endif
-
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
   // reload shadow registers on vertical blank
   LTDC->SRCR = LTDC_SRCR_VBR;
 
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
-
-#if defined(BOOT)
-  // wait for reload to finish - required for bootloader
-  while(_frame_addr_reloaded == 0);
-#endif
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -2893,9 +2880,5 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
 
-#if defined(BOOT)
-  _frame_addr_reloaded = 1;
-#else
   lvglFlushed();
-#endif
 }
