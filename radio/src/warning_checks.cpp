@@ -346,9 +346,13 @@ void warningChecksRun()
 #endif
 
       case WCS_COMPLETE:
-        // All checks cleared. The terminal action depends on how the machine was
-        // armed (see WarningCheckContext): announce the model, restart pulses/mixer
-        // and/or run the model-load tail, then settle into the silence period.
+        // All checks cleared. Mirror the old blocking order: settle into the
+        // silence period, announce the model, then run the context-specific
+        // terminal action (restart pulses/mixer and/or the model-load tail).
+        // The silence period is started before PLAY_MODEL_NAME() and the tail to
+        // match the pre-refactor sequence (checkAll() ended with
+        // START_SILENCE_PERIOD(), then the caller did PLAY_MODEL_NAME() + restart).
+        if (s_ctx != WCC_STICK_MODE) START_SILENCE_PERIOD();
         if (s_ctx == WCC_MODEL_SWITCH || s_ctx == WCC_BOOT) PLAY_MODEL_NAME();
         switch (s_ctx) {
           case WCC_MODEL_SWITCH:
@@ -369,7 +373,6 @@ void warningChecksRun()
             // flight reset never stopped pulses and must not reload the model
             break;
         }
-        if (s_ctx != WCC_STICK_MODE) START_SILENCE_PERIOD();
         s_state = WCS_IDLE;
         s_warnActive = false;
         s_entered = false;
