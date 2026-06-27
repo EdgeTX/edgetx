@@ -19,33 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _VOICESENSOR_H_
-#define _VOICESENSOR_H_
+#ifndef _CI1302_H_
+#define _CI1302_H_
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    extern "C" void voiceControlPowerOn(void);
-    extern "C" void voiceControlPowerOff(void);
-    extern "C" void voiceSerialPutc(char c);
-    extern "C" int voiceGetByte(uint8_t* byte);
-    extern "C" int GetVoiceInput(uint8_t *rxchar);
-    extern "C" int dbgGetByte(uint8_t* byte);
-    extern "C" void voiceSerialPutstr(uint8_t* byte,uint32_t len);
 
-    extern bool VoiceGearStatus;
-    extern uint8_t VoiceFlapStatus;
-    extern bool VoicePowerStatus;
-
-    extern bool VoiceRunStatus;
-    extern bool MotionControlStatus;
+void voiceControlPowerOn(void);
+void voiceControlPowerOff(void);
+void voiceSerialPutc(char c);
+int voiceGetByte(uint8_t* byte);
+int GetVoiceInput(uint8_t *rxchar);
+int dbgGetByte(uint8_t* byte);
+void voiceSerialPutstr(uint8_t* byte, uint32_t len);
 
 #ifdef __cplusplus
 }
 #endif
 
+#ifdef __cplusplus
+
+extern bool VoiceGearStatus;
+extern uint8_t VoiceFlapStatus;
+extern bool VoicePowerStatus;
+extern bool VoiceRunStatus;
+extern bool MotionControlStatus;
+
 void processUpdataInput(void);
 void processVoiceInput(void);
 void voiceControlInit(void);
+
+#endif
 
 #endif

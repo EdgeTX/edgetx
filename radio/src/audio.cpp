@@ -205,7 +205,7 @@ const char * const audioFilenames[] = {
 #if defined(VOICE_CONTROL_SENSOR)
   "timovr3",
   "helloradio",
-  "oKay"
+  "okay"
 #else
   "timovr3"
 #endif

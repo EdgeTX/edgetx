@@ -2,7 +2,7 @@
  * Copyright (C) EdgeTX
  *
  * CI1302 voice control hooks for shared EdgeTX code (VOICE_CONTROL_SENSOR).
- * Implementation lives in drivers/CI1302.cpp (V16 targets only).
+ * Implementation lives in drivers/CI1302.cpp (CI1302_SENSOR targets).
  */
 
 #pragma once
