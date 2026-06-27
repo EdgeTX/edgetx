@@ -26,3 +26,8 @@
 // into the matching full-screen dialog and reports user "skip" key presses back
 // to the machine. The machine owns all the logic; this is display only.
 void warningChecksViewSync();
+
+// Suspend/restore main-view widget refresh for the whole warning sequence. Must
+// be called *before* MainWindow::run() in perMain() so widgets are never
+// repainted for a tick while a sequence is active (edge-triggered).
+void warningChecksViewUpdateRefresh();

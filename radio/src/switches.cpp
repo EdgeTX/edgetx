@@ -882,6 +882,7 @@ swsrc_t getMovedSwitch()
 bool isSwitchWarningRequired(uint16_t &bad_pots)
 {
   bool warn = false;
+  bad_pots = 0;
   for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       uint8_t warnState = g_model.getSwitchWarning(i);
@@ -895,7 +896,6 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   }
 
   if (g_model.potsWarnMode) {
-    bad_pots = 0;
     for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
       if ((g_model.potsWarnEnabled & (1 << i)) &&

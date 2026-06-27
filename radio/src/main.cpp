@@ -559,6 +559,9 @@ void perMain()
   // Advance the post-model-load checks before driving the UI, so any state
   // change happens outside lv_timer_handler (flat stack, no re-entrancy).
   warningChecksRun();
+  // Suspend widget refresh before run() so the main view isn't repainted for a
+  // tick on the edge where a sequence becomes active.
+  warningChecksViewUpdateRefresh();
   MainWindow::instance()->run();
   // Reflect the machine's current state in the warning dialogs.
   warningChecksViewSync();

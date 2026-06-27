@@ -53,18 +53,23 @@ static FullScreenDialog* makeAckAlert(const char* title, const char* msg)
                               STR_PRESS_ANY_KEY_TO_SKIP);
 }
 
-void warningChecksViewSync()
+void warningChecksViewUpdateRefresh()
 {
   // Suspend main-view widget refresh for the whole model-load sequence: the
   // model is being swapped and the warning view covers the main view anyway.
-  // Edge-triggered so we don't fight other users of the flag (standalone Lua).
+  // Called before MainWindow::run() so the widgets are never repainted for a
+  // tick while a sequence is active. Edge-triggered so we don't fight other
+  // users of the flag (standalone Lua).
   static bool s_seqActive = false;
   bool active = !warningChecksIdle();
   if (active != s_seqActive) {
     s_seqActive = active;
     MainWindow::instance()->enableWidgetRefresh(!active);
   }
+}
 
+void warningChecksViewSync()
+{
   WarningCheckState want = activeWarningCheck();
   if (want == s_shownState) return;
 
