@@ -368,8 +368,12 @@ class ModelsPageBody : public Window
       // Pause widget refresh
       MainWindow::instance()->enableWidgetRefresh(false);
 
-      // Delete old main view layout
+      // Delete old main view layout and top bar widgets: loadModel() can
+      // re-enter the UI refresh loop (throttle / switch warnings spin
+      // MainWindow::run()) while g_model is being reset, and a surviving
+      // widget would then read torn-down persistent data.
       LayoutFactory::deleteCustomScreens();
+      LayoutFactory::deleteTopBarWidgets();
 
       loadModel(g_eeGeneral.currModelFilename, true);
       modelslist.setCurrentModel(model);
