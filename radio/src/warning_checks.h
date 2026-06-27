@@ -89,3 +89,24 @@ void acknowledgeWarningCheck();
 // deferred flight-reset request so it can't restart a sequence already running,
 // and at boot to decide whether pulses are started directly or by the terminal.
 bool warningChecksIdle();
+
+// Warning predicates (pure reads) and the input refresh they rely on. The state
+// machine calls refreshInputsForWarnings() once per tick, then queries the
+// predicates; the warning views read the same fresh state.
+void refreshInputsForWarnings();
+bool isThrottleWarningAlertNeeded();
+bool isFailsafeWarningRequired();
+#if defined(MULTIMODULE)
+bool isMultiLowPowerWarningRequired();
+#endif
+
+// Sound-disabled alarm, shown once at boot.
+void checkAlarm();
+
+#if defined(GUI)
+// Boot-only warning checks that are not part of the runtime warning sequence
+// (stuck keys, low RTC battery, external-antenna configuration). Run once,
+// blocking, in edgeTxInit() before the main loop and before arming the state
+// machine for the post-load checks.
+void checkBootSpecificWarnings();
+#endif

@@ -28,13 +28,176 @@
 #include "pulses/pulses.h"
 #include "tasks/mixer_task.h"
 #include "storage/storage.h"
+#include "hal/adc_driver.h"
+#include "os/sleep.h"
 
 #if defined(GUI)
 #include "gui/gui_common.h"
 #endif
 
+#if defined(COLORLCD)
+#include "libui/fullscreen_dialog.h"
+#include "libui/mainwindow.h"
+#include "libui/popups.h"
+#endif
+
 #include <cstdio>
 #include <cstring>
+
+// Warning predicates and the input refresh they rely on --------------------
+
+// Refresh the input readings the warning predicates rely on. Kept separate from
+// the predicates themselves so they stay pure: the driver (the state machine, or
+// the boot/flightReset blocking loops) refreshes once per tick, then queries the
+// predicates and the warning views read the same fresh state.
+void refreshInputsForWarnings()
+{
+  if (!mixerTaskRunning()) getADC();
+  evalInputs(e_perout_mode_notrainer);
+  getMovedSwitch();
+}
+
+bool isThrottleWarningAlertNeeded()
+{
+  if (g_model.disableThrottleWarning) {
+    return false;
+  }
+
+  uint8_t thr_src = throttleSource2Source(g_model.thrTraceSrc);
+
+  // in case an output channel is choosen as throttle source
+  // we assume the throttle stick is the input (no computed channels yet)
+  if (thr_src >= MIXSRC_FIRST_CH) {
+    thr_src = throttleSource2Source(0);
+  }
+
+  int16_t v = getValue(thr_src);
+
+  // TODO: this looks fishy....
+  if (g_model.thrTraceSrc && g_model.throttleReversed) {
+    v = -v;
+  }
+
+  if (g_model.enableCustomThrottleWarning) {
+    int16_t idleValue = (int32_t)RESX *
+                        (int32_t)g_model.customThrottleWarningPosition /
+                        (int32_t)100;
+    return abs(v - idleValue) > THRCHK_DEADBAND;
+  } else {
+#if defined(SURFACE_RADIO) // surface radio, stick centered
+    return v > THRCHK_DEADBAND;
+#else
+    return v > THRCHK_DEADBAND - RESX;
+#endif
+  }
+}
+
+bool isFailsafeWarningRequired()
+{
+  for (int i=0; i<NUM_MODULES; i++) {
+#if defined(MULTIMODULE)
+    // use delayed check for MPM
+    if (isModuleMultimodule(i)) break;
+#endif
+    if (isModuleFailsafeAvailable(i)) {
+      ModuleData & moduleData = g_model.moduleData[i];
+      if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+#if defined(MULTIMODULE)
+bool isMultiLowPowerWarningRequired()
+{
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    if (isModuleMultimodule(i) &&
+        g_model.moduleData[i].multi.lowPowerMode) {
+      return true;
+    }
+  }
+  return false;
+}
+#endif
+
+void checkAlarm() // added by Gohst
+{
+  if (g_eeGeneral.disableAlarmWarning) {
+    return;
+  }
+
+  if (IS_SOUND_OFF()) {
+    ALERT(STR_ALARMSWARN, STR_ALARMSDISABLED, AU_ERROR);
+  }
+}
+
+#if defined(GUI)
+static void checkRTCBattery()
+{
+  if (!mixerTaskRunning()) getADC();
+  if (getRTCBatteryVoltage() < 200) {
+    ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
+  }
+}
+
+// Boot-only warning checks that are not part of the runtime warning sequence:
+// stuck keys, low RTC battery, external-antenna configuration. Run once, blocking,
+// in edgeTxInit() before the main loop starts and before arming the model-load
+// state machine for the post-load checks. Keys-stuck runs first so a stuck key
+// cannot auto-skip the machine's interactive "press any key to skip" warnings.
+void checkBootSpecificWarnings()
+{
+#if defined(COLORLCD)
+  if (!waitKeysReleased()) {
+    auto dlg = new FullScreenDialog(WARNING_TYPE_ALERT, STR_KEYSTUCK);
+    LED_ERROR_BEGIN();
+    AUDIO_ERROR_MESSAGE(AU_ERROR);
+
+    tmr10ms_t tgtime = get_tmr10ms() + 500;
+    uint32_t keys = readKeys();
+
+    std::string strKeys;
+    for (int i = 0; i < (int)MAX_KEYS; i++) {
+      if (keys & (1 << i)) {
+        strKeys += std::string(keysGetLabel(EnumKeys(i)));
+      }
+    }
+
+    dlg->setMessage(strKeys.c_str());
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      if (dlg->deleted()) return true;
+      if ((tgtime < get_tmr10ms()) || !keyDown()) {
+        dlg->deleteLater();
+        return true;
+      }
+      return false;
+    });
+    LED_ERROR_END();
+  }
+#else
+  if (!waitKeysReleased()) {
+    showMessageBox(STR_KEYSTUCK);
+    tmr10ms_t tgtime = get_tmr10ms() + 500;
+    while (tgtime != get_tmr10ms()) {
+      sleep_ms(1);
+      WDG_RESET();
+    }
+  }
+#endif
+
+  if (!g_eeGeneral.disableRtcWarning) {
+    enableVBatBridge();
+    checkRTCBattery();
+  }
+  disableVBatBridge();
+
+#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+  checkExternalAntenna();
+#endif
+}
+#endif // GUI
 
 static WarningCheckState s_state = WCS_IDLE;
 static WarningCheckContext s_ctx = WCC_MODEL_SWITCH;  // what armed the machine

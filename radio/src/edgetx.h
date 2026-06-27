@@ -323,19 +323,6 @@ void flightReset(uint8_t check=true);
   #define RESET_THR_TRACE() s_timeCum16ThrP = s_timeCumThr = 0
 #endif
 
-void checkLowEEPROM();
-void checkAlarm();
-
-// Warning predicates (pure reads) and the input refresh they rely on. The
-// model-load state machine calls refreshInputsForWarnings() once per tick, then
-// queries the predicates.
-void refreshInputsForWarnings();
-bool isThrottleWarningAlertNeeded();
-bool isFailsafeWarningRequired();
-#if defined(MULTIMODULE)
-bool isMultiLowPowerWarningRequired();
-#endif
-
 void getADC();
 
 #include "sbus.h"
