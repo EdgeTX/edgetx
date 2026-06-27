@@ -27,7 +27,7 @@
 
 #include "edgetx.h"
 #include "lua/lua_states.h"
-#include "model_load_sm.h"
+#include "warning_checks.h"
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -36,7 +36,9 @@
 #include "etx_lv_theme.h"
 #include "menu.h"
 #include "mainwindow.h"
-#include "model_load_view.h"
+#include "warning_checks_view.h"
+#elif defined(GUI)
+#include "gui/common/stdlcd/warning_checks_view.h"
 #endif
 
 #if defined(CLI)
@@ -539,9 +541,9 @@ void perMain()
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
-  // Don't run flightReset (which calls the blocking checkAll()) while the
-  // model-load state machine is mid-sequence; service it once we're idle again.
-  if ((mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) && modelLoadIdle()) {
+  // flightReset arms the model-load state machine for its warning checks; defer
+  // the request while a sequence is already mid-flight so it isn't clobbered.
+  if ((mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) && warningChecksIdle()) {
     TRACE("Executing requested Flight Reset");
     flightReset();
     mainRequestFlags &= ~(1u << REQUEST_FLIGHT_RESET);
@@ -556,10 +558,10 @@ void perMain()
 #if defined(COLORLCD)
   // Advance the post-model-load checks before driving the UI, so any state
   // change happens outside lv_timer_handler (flat stack, no re-entrancy).
-  modelLoadStateMachineRun();
+  warningChecksRun();
   MainWindow::instance()->run();
   // Reflect the machine's current state in the warning dialogs.
-  modelLoadViewSync();
+  warningChecksViewSync();
 #endif
 
 #if defined(RTC_BACKUP_RAM)
@@ -607,12 +609,21 @@ void perMain()
   bindButtonHandler(evt);
 #endif
 
+#if defined(GUI) && !defined(COLORLCD)
+  // Advance the post-model-load checks before driving the menus (flat stack), then
+  // render the active warning. While a warning is up it covers the screen and
+  // consumes the key, so guiMain must not also run for this tick.
+  warningChecksRun();
+  bool mlWarn = (activeWarningCheck() != WCS_IDLE);
+  warningChecksViewSync(evt);
+#endif
+
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);
 #if defined(COLORLCD)
   guiMain(0);
 #else
-  guiMain(evt);
+  if (!mlWarn) guiMain(evt);
 #endif
   DEBUG_TIMER_STOP(debugTimerGuiMain);
 #endif

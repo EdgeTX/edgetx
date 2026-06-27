@@ -19,10 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "model_load_view.h"
+#include "warning_checks_view.h"
 
 #include "edgetx.h"
-#include "model_load_sm.h"
+#include "warning_checks.h"
 #include "controls/switch_warn_dialog.h"
 #include "libui/fullscreen_dialog.h"
 #include "libui/view_text.h"
@@ -30,7 +30,7 @@
 // The single warning dialog currently displayed for the active machine state,
 // and the state it corresponds to (so we only (re)build on state changes).
 static Window* s_shown = nullptr;
-static ModelLoadState s_shownState = MLS_IDLE;
+static WarningCheckState s_shownState = WCS_IDLE;
 // set while we tear a dialog down ourselves, to distinguish a view-initiated
 // close (no acknowledge) from a user/condition close (acknowledge).
 static bool s_tearingDown = false;
@@ -39,11 +39,11 @@ static bool s_tearingDown = false;
 // the dialog we are showing closes — either because its warning condition
 // cleared, or the user pressed a key. We must react here rather than polling
 // s_shown->deleted() afterwards, since perMain's MainWindow::run() empties the
-// trash (freeing the window) before the next modelLoadViewSync().
+// trash (freeing the window) before the next warningChecksViewSync().
 static void onShownClosed()
 {
   s_shown = nullptr;
-  if (!s_tearingDown) modelLoadAcknowledge();
+  if (!s_tearingDown) acknowledgeWarningCheck();
 }
 
 static FullScreenDialog* makeAckAlert(const char* title, const char* msg)
@@ -53,19 +53,19 @@ static FullScreenDialog* makeAckAlert(const char* title, const char* msg)
                               STR_PRESS_ANY_KEY_TO_SKIP);
 }
 
-void modelLoadViewSync()
+void warningChecksViewSync()
 {
   // Suspend main-view widget refresh for the whole model-load sequence: the
   // model is being swapped and the warning view covers the main view anyway.
   // Edge-triggered so we don't fight other users of the flag (standalone Lua).
   static bool s_seqActive = false;
-  bool active = !modelLoadIdle();
+  bool active = !warningChecksIdle();
   if (active != s_seqActive) {
     s_seqActive = active;
     MainWindow::instance()->enableWidgetRefresh(!active);
   }
 
-  ModelLoadState want = modelLoadActiveWarning();
+  WarningCheckState want = activeWarningCheck();
   if (want == s_shownState) return;
 
   // Tear down a dialog that is still up (e.g. the sequence was restarted by a
@@ -79,35 +79,35 @@ void modelLoadViewSync()
 
   Window* dlg = nullptr;
   switch (want) {
-    case MLS_CHECK_THROTTLE:
+    case WCS_CHECK_THROTTLE:
       LED_ERROR_BEGIN();
-      dlg = new ThrottleWarnDialog(modelLoadWarningText());
+      dlg = new ThrottleWarnDialog(warningCheckText());
       break;
-    case MLS_CHECK_SWITCHES:
+    case WCS_CHECK_SWITCHES:
       LED_ERROR_BEGIN();
       dlg = new SwitchWarnDialog();
       break;
-    case MLS_CHECK_SD:
+    case WCS_CHECK_SD:
       LED_ERROR_BEGIN();
       dlg = makeAckAlert(STR_SD_CARD, STR_SDCARD_FULL);
       break;
-    case MLS_CHECK_FAILSAFE:
+    case WCS_CHECK_FAILSAFE:
       LED_ERROR_BEGIN();
       dlg = makeAckAlert(STR_FAILSAFEWARN, STR_NO_FAILSAFE);
       break;
 #if defined(MULTIMODULE)
-    case MLS_CHECK_MULTI:
+    case WCS_CHECK_MULTI:
       LED_ERROR_BEGIN();
       dlg = makeAckAlert("MULTI", STR_WARN_MULTI_LOWPOWER);
       break;
 #endif
-    case MLS_CHECK_CHECKLIST:
+    case WCS_CHECK_CHECKLIST:
       cancelSplash();
       dlg = showModelChecklist();
       // no notes window could be opened: don't stall the sequence
-      if (!dlg) modelLoadAcknowledge();
+      if (!dlg) acknowledgeWarningCheck();
       break;
-    case MLS_IDLE:
+    case WCS_IDLE:
     default:
       // sequence finished: clear the error indication
       LED_ERROR_END();

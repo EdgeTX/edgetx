@@ -909,146 +909,64 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   return warn;
 }
 
-#if defined(COLORLCD)
-#include "switch_warn_dialog.h"
-void checkSwitches()
+#if defined(GUI) && !defined(COLORLCD)
+
+// Draw the full-screen switch/pot warning (one frame). Called once per main-loop
+// tick by the B&W model-load view; refresh, audio and key handling are the
+// view's job (see gui/common/stdlcd/warning_checks_view.cpp).
+void drawSwitchWarningScreen()
 {
-  uint16_t bad_pots = 0;
-  refreshInputsForWarnings();
-  if (!isSwitchWarningRequired(bad_pots))
-    return;
+  drawAlertBox(STR_SWITCHWARN, nullptr, STR_PRESS_ANY_KEY_TO_SKIP);
 
-  LED_ERROR_BEGIN();
-  // The dialog is a dumb view; this loop owns the refresh + predicate and closes
-  // when the switches/pots are corrected (predicate clears) or a key is pressed.
-  auto dialog = new SwitchWarnDialog();
-  MainWindow::instance()->blockUntilClose(true, [=]() {
-    uint16_t bp = 0;
-    refreshInputsForWarnings();
-    return dialog->deleted() || !isSwitchWarningRequired(bp);
-  });
-  if (!dialog->deleted()) dialog->deleteLater();
-  LED_ERROR_END();
-}
-#elif defined(GUI)
-
-void checkSwitches()
-{
-  swarnstate_t last_bad_switches = 0xff;
-  uint16_t bad_pots = 0, last_bad_pots = 0xff;
-
-#if defined(PWR_BUTTON_PRESS)
-  bool refresh = false;
-#endif
-
-  while (true) {
-#if defined(RADIO_GX12)
-    _poll_switches();
-#endif
-    refreshInputsForWarnings();
-    if (!isSwitchWarningRequired(bad_pots))
-      break;
-
-    cancelSplash();
-    LED_ERROR_BEGIN();
-    resetBacklightTimeout();
-
-    // first - display warning
-    if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
-      drawAlertBox(STR_SWITCHWARN, nullptr, STR_PRESS_ANY_KEY_TO_SKIP);
-      if (last_bad_switches == 0xff || last_bad_pots == 0xff) {
-        AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
-      }
-      int x = SWITCH_WARNING_LIST_X;
-      int y = SWITCH_WARNING_LIST_Y;
-      int numWarnings = 0;
-      for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
-        if (SWITCH_WARNING_ALLOWED(i)) {
-          uint8_t warnState = g_model.getSwitchWarning(i);
-          if (warnState) {
-            swarnstate_t swState = g_model.getSwitchStateForWarning(i);
-            if (warnState != swState) {
-              if (++numWarnings < 6) {
-                const char* s = getSwitchWarnSymbol(warnState);
-                drawSource(x, y, MIXSRC_FIRST_SWITCH + i, INVERS);
-                lcdDrawText(lcdNextPos, y, s, INVERS);
-                x = lcdNextPos + 3;
-              }
-            }
+  int x = SWITCH_WARNING_LIST_X;
+  int y = SWITCH_WARNING_LIST_Y;
+  int numWarnings = 0;
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
+    if (SWITCH_WARNING_ALLOWED(i)) {
+      uint8_t warnState = g_model.getSwitchWarning(i);
+      if (warnState) {
+        swarnstate_t swState = g_model.getSwitchStateForWarning(i);
+        if (warnState != swState) {
+          if (++numWarnings < 6) {
+            const char* s = getSwitchWarnSymbol(warnState);
+            drawSource(x, y, MIXSRC_FIRST_SWITCH + i, INVERS);
+            lcdDrawText(lcdNextPos, y, s, INVERS);
+            x = lcdNextPos + 3;
           }
         }
       }
-
-      if (g_model.potsWarnMode) {
-        for (int i = 0; i < MAX_POTS; i++) {
-          if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
-          if (g_model.potsWarnEnabled & (1 << i)) {
-            if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
-              if (++numWarnings < 6) {
-                drawSource(x, y, MIXSRC_FIRST_POT + i, INVERS);
-                const char* symbol;
-                auto warn_pos = g_model.potsWarnPosition[i];
-                if (IS_SLIDER(i)) {
-                  symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
-                    ? CHAR_UP
-                    : CHAR_DOWN;
-                } else {
-                  symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
-                    ? CHAR_RIGHT
-                    : CHAR_LEFT;
-                }
-                lcdDrawText(lcdNextPos, y, symbol, INVERS);
-                x = lcdNextPos + 3;
-              }
-            }
-          }
-        }
-      }
-
-      if (numWarnings >= 6) {
-        lcdDrawText(x, y, "...", 0);
-      }
-
-      last_bad_pots = bad_pots;
-
-      lcdRefresh();
-      lcdSetContrast();
-      waitKeysReleased();
-
-      last_bad_switches = switches_states;
     }
-
-    if (keyDown())
-      break;
-
-#if defined(PWR_BUTTON_PRESS)
-    uint32_t power = pwrCheck();
-    if (power == e_power_off) {
-      drawSleepBitmap();
-      boardOff();
-      break;
-    }
-    else if (power == e_power_press) {
-      refresh = true;
-    }
-    else if (power == e_power_on && refresh) {
-      last_bad_switches = 0xff;
-      last_bad_pots = 0xff;
-      refresh = false;
-    }
-#else
-    if (pwrCheck() == e_power_off) {
-      break;
-    }
-#endif
-
-    checkBacklight();
-
-    WDG_RESET();
-    sleep_ms(10);
   }
 
-  LED_ERROR_END();
+  if (g_model.potsWarnMode) {
+    for (int i = 0; i < MAX_POTS; i++) {
+      if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
+      if (g_model.potsWarnEnabled & (1 << i)) {
+        if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
+          if (++numWarnings < 6) {
+            drawSource(x, y, MIXSRC_FIRST_POT + i, INVERS);
+            const char* symbol;
+            auto warn_pos = g_model.potsWarnPosition[i];
+            if (IS_SLIDER(i)) {
+              symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
+                ? CHAR_UP
+                : CHAR_DOWN;
+            } else {
+              symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
+                ? CHAR_RIGHT
+                : CHAR_LEFT;
+            }
+            lcdDrawText(lcdNextPos, y, symbol, INVERS);
+            x = lcdNextPos + 3;
+          }
+        }
+      }
+    }
+  }
+
+  if (numWarnings >= 6) {
+    lcdDrawText(x, y, "...", 0);
+  }
 }
 #endif // GUI
 

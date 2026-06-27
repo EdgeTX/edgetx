@@ -190,7 +190,7 @@ extern uint8_t noHighlightCounter;
 void menuTextView(event_t event);
 void pushMenuTextView(const char *filename);
 void pushModelNotes();
-void readModelNotes();
+void setModelChecklistFilename();
 
 uint8_t getExposCount();
 void insertExpo(uint8_t idx);
@@ -201,6 +201,7 @@ uint8_t switchToMix(uint8_t source);
 void drawSplash();
 void doMainScreenGraphics();
 void drawAlertBox(const char * title, const char * text, const char * action);
+void drawSwitchWarningScreen();
 
 #if defined(FLIGHT_MODES)
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value);

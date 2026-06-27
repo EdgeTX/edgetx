@@ -19,12 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "model_load_sm.h"
+#include "warning_checks.h"
 
 #include "edgetx.h"
 #include "switches.h"
 #include "sdcard.h"
 #include "audio.h"
+#include "pulses/pulses.h"
+#include "tasks/mixer_task.h"
 #include "storage/storage.h"
 
 #if defined(GUI)
@@ -34,27 +36,31 @@
 #include <cstdio>
 #include <cstring>
 
-static ModelLoadState s_state = MLS_IDLE;
+static WarningCheckState s_state = WCS_IDLE;
+static WarningCheckContext s_ctx = WCC_MODEL_SWITCH;  // what armed the machine
 static bool s_entered = false;     // entry evaluation done for the current state
 static bool s_warnActive = false;  // a warning dialog should be shown for the current state
 static bool s_ack = false;         // view reported a "press any key to skip"
 
 static char s_warnText[64];
 
-bool modelLoadIdle() { return s_state == MLS_IDLE; }
+bool warningChecksIdle() { return s_state == WCS_IDLE; }
 
-ModelLoadState modelLoadActiveWarning()
+WarningCheckState activeWarningCheck()
 {
-  return s_warnActive ? s_state : MLS_IDLE;
+  return s_warnActive ? s_state : WCS_IDLE;
 }
 
-const char* modelLoadWarningText() { return s_warnText; }
+const char* warningCheckText() { return s_warnText; }
 
-void modelLoadAcknowledge() { s_ack = true; }
+void acknowledgeWarningCheck() { s_ack = true; }
 
-void modelLoadStart()
+void warningChecksStart(WarningCheckContext ctx)
 {
-  s_state = MLS_CHECK_SD;
+  s_ctx = ctx;
+  // The stick-mode change only needs the throttle check; every other context
+  // runs the full sequence from the top.
+  s_state = (ctx == WCC_STICK_MODE) ? WCS_CHECK_THROTTLE : WCS_CHECK_SD;
   s_entered = false;
   s_warnActive = false;
   s_ack = false;
@@ -75,43 +81,50 @@ static void gotoNextState()
 {
   s_entered = false;
   s_warnActive = false;
+  // The stick-mode context only runs the throttle check, then terminates.
+  if (s_ctx == WCC_STICK_MODE) {
+    s_state = WCS_COMPLETE;
+    return;
+  }
   switch (s_state) {
-    case MLS_CHECK_SD:        s_state = MLS_CHECK_THROTTLE;  break;
-    case MLS_CHECK_THROTTLE:  s_state = MLS_CHECK_SWITCHES;  break;
-    case MLS_CHECK_SWITCHES:  s_state = MLS_CHECK_FAILSAFE;  break;
-    case MLS_CHECK_FAILSAFE:  s_state = MLS_CHECK_MULTI;     break;
-    case MLS_CHECK_MULTI:     s_state = MLS_CHECK_CHECKLIST; break;
-    case MLS_CHECK_CHECKLIST: s_state = MLS_START_PULSES;    break;
-    default:                  s_state = MLS_START_PULSES;    break;
+    case WCS_CHECK_SD:        s_state = WCS_CHECK_THROTTLE;  break;
+    case WCS_CHECK_THROTTLE:  s_state = WCS_CHECK_SWITCHES;  break;
+    case WCS_CHECK_SWITCHES:  s_state = WCS_CHECK_FAILSAFE;  break;
+    case WCS_CHECK_FAILSAFE:  s_state = WCS_CHECK_MULTI;     break;
+    case WCS_CHECK_MULTI:     s_state = WCS_CHECK_CHECKLIST; break;
+    case WCS_CHECK_CHECKLIST: s_state = WCS_COMPLETE;    break;
+    default:                  s_state = WCS_COMPLETE;    break;
   }
 }
 
-void modelLoadStateMachineRun()
+void warningChecksRun()
 {
-  if (s_state == MLS_IDLE) return;
+  if (s_state == WCS_IDLE) return;
 
   // Refresh the input readings once per tick, then query the pure predicates
   // below; the warning views read the same fresh state.
   refreshInputsForWarnings();
 
   // Loop so that any run of states that don't need a warning collapses into a
-  // single tick (the no-warning case reaches MLS_START_PULSES immediately).
+  // single tick (the no-warning case reaches WCS_COMPLETE immediately).
   for (;;) {
     switch (s_state) {
-      case MLS_IDLE:
+      case WCS_IDLE:
         return;
 
-      case MLS_CHECK_SD:
+      case WCS_CHECK_SD:
         if (!s_entered) { s_entered = true; s_warnActive = sdIsFull(); }
         if (!s_warnActive) { gotoNextState(); continue; }
         if (s_ack) { s_ack = false; gotoNextState(); continue; }
         return;
 
-      case MLS_CHECK_THROTTLE:
+      case WCS_CHECK_THROTTLE:
         if (!s_entered) {
           s_entered = true;
-          // don't check the throttle stick if the radio is not calibrated
-          s_warnActive = (g_eeGeneral.chkSum == evalChkSum()) &&
+          // Don't check the throttle stick if the radio is not calibrated; the
+          // stick-mode change is exempt (its old direct call never gated on it).
+          s_warnActive = (s_ctx == WCC_STICK_MODE ||
+                          g_eeGeneral.chkSum == evalChkSum()) &&
                          isThrottleWarningAlertNeeded();
           if (s_warnActive) buildThrottleText();
         }
@@ -123,7 +136,7 @@ void modelLoadStateMachineRun()
         }
         return;
 
-      case MLS_CHECK_SWITCHES: {
+      case WCS_CHECK_SWITCHES: {
         uint16_t bad_pots = 0;
         if (!s_entered) {
           s_entered = true;
@@ -138,13 +151,13 @@ void modelLoadStateMachineRun()
         return;
       }
 
-      case MLS_CHECK_FAILSAFE:
+      case WCS_CHECK_FAILSAFE:
         if (!s_entered) { s_entered = true; s_warnActive = isFailsafeWarningRequired(); }
         if (!s_warnActive) { gotoNextState(); continue; }
         if (s_ack) { s_ack = false; gotoNextState(); continue; }
         return;
 
-      case MLS_CHECK_MULTI:
+      case WCS_CHECK_MULTI:
 #if defined(MULTIMODULE)
         if (!s_entered) { s_entered = true; s_warnActive = isMultiLowPowerWarningRequired(); }
         if (!s_warnActive) { gotoNextState(); continue; }
@@ -155,7 +168,7 @@ void modelLoadStateMachineRun()
         continue;
 #endif
 
-      case MLS_CHECK_CHECKLIST:
+      case WCS_CHECK_CHECKLIST:
 #if defined(GUI)
         if (!s_entered) {
           s_entered = true;
@@ -169,13 +182,32 @@ void modelLoadStateMachineRun()
         continue;
 #endif
 
-      case MLS_START_PULSES:
-        // all checks cleared: announce the model, restart pulses/mixer and run
-        // the rest of the model-load tail, then settle into the silence period
-        PLAY_MODEL_NAME();
-        postModelLoadFinish();
-        START_SILENCE_PERIOD();
-        s_state = MLS_IDLE;
+      case WCS_COMPLETE:
+        // All checks cleared. The terminal action depends on how the machine was
+        // armed (see WarningCheckContext): announce the model, restart pulses/mixer
+        // and/or run the model-load tail, then settle into the silence period.
+        if (s_ctx == WCC_MODEL_SWITCH || s_ctx == WCC_BOOT) PLAY_MODEL_NAME();
+        switch (s_ctx) {
+          case WCC_MODEL_SWITCH:
+            // runtime switch: pulses were stopped in preModelLoad; restart them
+            // and run the rest of the model-load tail (audio refs, LUA, failsafe)
+            postModelLoadFinish();
+            break;
+          case WCC_BOOT:
+            // boot: postModelLoadFinish() already ran at load time (with the
+            // mixer not yet started, so it skipped pulses); just start pulses now
+            pulsesStart();
+            break;
+          case WCC_STICK_MODE:
+            // stick-mode change: the caller stopped the mixer; restart it
+            mixerTaskStart();
+            break;
+          case WCC_FLIGHT_RESET:
+            // flight reset never stopped pulses and must not reload the model
+            break;
+        }
+        if (s_ctx != WCC_STICK_MODE) START_SILENCE_PERIOD();
+        s_state = WCS_IDLE;
         s_warnActive = false;
         s_entered = false;
         return;

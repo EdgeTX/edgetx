@@ -25,4 +25,4 @@
 // iteration (after MainWindow::run): it mirrors the machine's active warning
 // into the matching full-screen dialog and reports user "skip" key presses back
 // to the machine. The machine owns all the logic; this is display only.
-void modelLoadViewSync();
+void warningChecksViewSync();
