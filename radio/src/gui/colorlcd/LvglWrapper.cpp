@@ -175,6 +175,29 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   }
 }
 
+#if defined(VOICE_CONTROL_SENSOR)
+static bool voiceEnterPending = false;
+
+static void lvglInjectKeyboardEnter()
+{
+  if (!keyboardDevice) return;
+
+  auto obj = get_focus_obj(keyboardDevice);
+  if (obj) {
+    lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
+    return;
+  }
+
+  auto w = Window::topWindow();
+  dispatch_kb_event(w, EVT_KEY_BREAK(KEY_ENTER));
+}
+
+void lvglRequestKeyboardEnter()
+{
+  voiceEnterPending = true;
+}
+#endif
+
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
@@ -367,6 +390,12 @@ void LvglWrapper::run()
   if (!updating) {
     // Normal UI loop - call lgvl timer handler
     updating = true;
+#if defined(VOICE_CONTROL_SENSOR)
+    if (voiceEnterPending) {
+      voiceEnterPending = false;
+      lvglInjectKeyboardEnter();
+    }
+#endif
     lv_timer_handler();
     updating = false;
   } else {

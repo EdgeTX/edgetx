@@ -167,7 +167,7 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
 extern "C" int GetVoiceInput(uint8_t *rxchar)
 {
   auto _getByte = voiceGetByte;
-  while (_getByte && (_getByte(rxchar) > 0)) {
+  if (_getByte && (_getByte(rxchar) > 0)) {
     return 0;
   }
   return -1;
@@ -237,19 +237,9 @@ void processVoiceInput(void)
 #include "module_setup.h"
 #include "quick_menu.h"
 #include "view_channels.h"
+#include "view_main.h"
+#include "LvglWrapper.h"
 #endif
-
-// --- voice command bytes (menu / keys) ---
-
-#define VOICE_CMD_TELEMETRY         0x5B
-#define VOICE_CMD_SENSORSTATUS      0xA2
-#define VOICE_CMD_CHANNEL_MONITOR   0x32
-#define VOICE_CMD_INTERNAL_MODULE   0x33
-#define VOICE_CMD_EXTERNAL_MODULE   0x34
-#define VOICE_CMD_CONFIRM           0x1A
-#define VOICE_CMD_CANCEL            0x1B
-#define VOICE_CMD_MODEL_MENU        0x21
-#define VOICE_CMD_SYSTEM_MENU       0x22
 
 // --- motion control ---
 
@@ -468,7 +458,7 @@ bool CI1302_voiceSwitchTryIsAvailable(int swtch, int context, bool* available)
     return false;
   }
 
-  if (context == 2) {
+  if (context == GeneralCustomFunctionsContext) {
     *available = false;
     return true;
   }
@@ -555,37 +545,54 @@ bool CI1302_voiceSwitchShouldSuppressFunctionAudio(swsrc_t swtch, bool risingEdg
 
 // --- voice menu navigation ---
 
+#if defined(COLORLCD)
+static bool voiceControlGuiOnMainScreen()
+{
+  auto viewMain = ViewMain::instance();
+  if (!viewMain) {
+    return true;
+  }
+
+  Window* top = Window::topWindow();
+  if (!top) {
+    return true;
+  }
+
+  return top == viewMain || top == viewMain->getTopbar();
+}
+#endif
+
 static void voiceControlGuiHandleCmd(uint8_t voiceCmd)
 {
 #if defined(COLORLCD)
   switch (voiceCmd) {
-    case VOICE_CMD_CHANNEL_MONITOR:
+    case VOICE_Channel_Monitor:
       AUDIO_OKAY();
       new ChannelsViewMenu();
       return;
 
-    case VOICE_CMD_TELEMETRY:
-    case VOICE_CMD_SENSORSTATUS:
+    case VOICE_Telemetry:
+    case VOICE_Sensorstatus:
       AUDIO_OKAY();
       QuickMenu::openPage(QM_MODEL_TELEMETRY);
       return;
 
-    case VOICE_CMD_INTERNAL_MODULE:
+    case VOICE_Internal_Module:
       AUDIO_OKAY();
       new ModulePage(INTERNAL_MODULE);
       return;
 
-    case VOICE_CMD_EXTERNAL_MODULE:
+    case VOICE_External_Module:
       AUDIO_OKAY();
       new ModulePage(EXTERNAL_MODULE);
       return;
 
-    case VOICE_CMD_MODEL_MENU:
+    case VOICE_Model_Menu:
       AUDIO_OKAY();
       QuickMenu::openPage(QM_MODEL_SETUP);
       return;
 
-    case VOICE_CMD_SYSTEM_MENU:
+    case VOICE_System_Menu:
       AUDIO_OKAY();
       QuickMenu::openPage(QM_RADIO_SETUP);
       return;
@@ -593,11 +600,26 @@ static void voiceControlGuiHandleCmd(uint8_t voiceCmd)
 #endif
 
   switch (voiceCmd) {
-    case VOICE_CMD_CONFIRM:
+    case VOICE_Confirm:
+      AUDIO_OKAY();
+#if defined(COLORLCD)
+      if (voiceControlGuiOnMainScreen()) {
+        pushEvent(EVT_KEY_BREAK(KEY_ENTER));
+      } else {
+        lvglRequestKeyboardEnter();
+      }
+#else
       pushEvent(EVT_KEY_BREAK(KEY_ENTER));
+#endif
       break;
 
-    case VOICE_CMD_CANCEL:
+    case VOICE_Cancel:
+#if defined(COLORLCD)
+      if (voiceControlGuiOnMainScreen()) {
+        break;
+      }
+#endif
+      AUDIO_OKAY();
       pushEvent(EVT_KEY_BREAK(KEY_EXIT));
       break;
   }
@@ -737,9 +759,9 @@ static const stm32_usart_t _voiceUSART = {
   .txDMA = nullptr,
   .txDMA_Stream = 0,
   .txDMA_Channel = 0,
-  .rxDMA = VOICE_CONTROL_DMA_RX,
-  .rxDMA_Stream = VOICE_CONTROL_DMA_RX_STREAM,
-  .rxDMA_Channel = VOICE_CONTROL_DMA_RX_CHANNEL,
+  .rxDMA = nullptr,
+  .rxDMA_Stream = 0,
+  .rxDMA_Channel = 0,
 };
 
 DEFINE_STM32_SERIAL_PORT(VoiceControl, _voiceUSART, VOICE_RX_BUFFER_SIZE,
