@@ -141,15 +141,17 @@ static void gyroTimerCb(timer_handle_t* timer)
   gyroOutputs[1] = (ay * float(RESX)) / range_y;
 }
 
-void gyroStart(imu_read_fn fn, etx_i2c_bus_t bus)
+void gyroStart(const etx_imu_t* imu)
 {
-  readFn = fn;
-  i2cBus = bus;
+  if (imu) {
+    readFn = imu->driver->read;
+    i2cBus = imu->bus;
 
-  if (fn) {
     timer_create(&_gyro_timer, gyroTimerCb, "gyro",
                  GYRO_POLL_PERIOD_MS, true);
     timer_start(&_gyro_timer);
+  } else {
+    readFn = nullptr;
   }
 }
 

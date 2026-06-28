@@ -81,8 +81,7 @@ static const etx_imu_t _imu_candidates[] = {
 
 static void gyroInit()
 {
-  etx_i2c_bus_t bus = 0;
-  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates), &bus), bus);
+  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
 }
 
 static void led_strip_off()

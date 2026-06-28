@@ -29,7 +29,7 @@
 #define IMU_OFFSET_MIN       -30
 #define IMU_OFFSET_MAX        10
 
-void gyroStart(imu_read_fn fn, etx_i2c_bus_t bus);
+void gyroStart(const etx_imu_t* imu);
 void gyroStop();
 void gyroSetIMU_X(int16_t offset, int16_t range);
 void gyroSetIMU_Y(int16_t offset, int16_t range);

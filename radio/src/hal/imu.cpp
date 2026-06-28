@@ -21,22 +21,24 @@
 
 #include "hal/imu.h"
 
-static const char* s_imu_name = nullptr;
+// Holds a copy of the matched candidate so imuDetect() can return a pointer
+// that outlives the (often stack-local) candidates array. A null driver means
+// nothing was detected.
+static etx_imu_t s_detected = {};
 
-imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count,
-                       etx_i2c_bus_t* detected_bus)
+const etx_imu_t* imuDetect(const etx_imu_t* candidates, uint8_t count)
 {
   for (uint8_t i = 0; i < count; i++) {
     if (candidates[i].driver->init(candidates[i].bus, candidates[i].addr) == 0) {
-      s_imu_name = candidates[i].driver->name;
-      if (detected_bus) *detected_bus = candidates[i].bus;
-      return candidates[i].driver->read;
+      s_detected = candidates[i];
+      return &s_detected;
     }
   }
+  s_detected = {};
   return nullptr;
 }
 
 const char* imuGetName()
 {
-  return s_imu_name;
+  return s_detected.driver ? s_detected.driver->name : nullptr;
 }

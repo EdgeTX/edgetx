@@ -121,8 +121,7 @@ static void gyroInit()
   const etx_imu_t candidates[] = {
     { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
   };
-  etx_i2c_bus_t bus = 0;
-  gyroStart(imuDetect(candidates, DIM(candidates), &bus), bus);
+  gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 #endif
 
