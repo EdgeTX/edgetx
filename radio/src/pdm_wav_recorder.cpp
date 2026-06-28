@@ -130,10 +130,10 @@ bool PdmWavRecorder::tickLocked()
 
 void PdmWavRecorder::audioTick()
 {
-  if (s_active == nullptr) return;
   ensureMutex();
   // Real-time audio task: never block on the owner thread's SD I/O. If start()/
   // stop() holds the lock, skip this chunk rather than stall the audio task.
+  // s_active is read under the lock — start()/stop() write it under the lock too.
   if (!mutex_trylock(&s_mutex)) return;
   if (s_active != nullptr) s_active->tickLocked();
   mutex_unlock(&s_mutex);
