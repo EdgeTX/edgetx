@@ -4,8 +4,8 @@ include(FetchContent)
 
 FetchContent_Declare(
   yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-  GIT_TAG        28f93bdec6387d42332220afa9558060c8016795
+  URL      https://github.com/jbeder/yaml-cpp/archive/28f93bdec6387d42332220afa9558060c8016795.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP true
 )
 
 FetchContent_MakeAvailable(yaml-cpp)

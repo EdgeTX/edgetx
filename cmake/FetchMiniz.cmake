@@ -4,8 +4,8 @@ include(FetchContent)
 
 FetchContent_Declare(
   miniz
-  GIT_REPOSITORY https://github.com/richgel999/miniz
-  GIT_TAG        89d7a5f6c3ce8893ea042b0a9d2a2d9975589ac9
+  URL      https://github.com/richgel999/miniz/archive/89d7a5f6c3ce8893ea042b0a9d2a2d9975589ac9.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP true
 )
 
 FetchContent_MakeAvailable(miniz)

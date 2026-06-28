@@ -4,10 +4,8 @@ include(FetchContent)
 
 FetchContent_Declare(
   imgui
-  GIT_REPOSITORY https://github.com/ocornut/imgui
-  GIT_TAG        dbb5eeaadffb6a3ba6a60de1290312e5802dba5a # v1.91.8
-  GIT_SHALLOW    TRUE
-  UPDATE_DISCONNECTED TRUE
+  URL      https://github.com/ocornut/imgui/archive/refs/tags/v1.92.6.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP true
 )
 
 FetchContent_MakeAvailable(imgui)
