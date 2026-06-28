@@ -115,6 +115,7 @@ int i2c_deinit(etx_i2c_bus_t bus)
 void i2c_lock(etx_i2c_bus_t bus)
 {
 #if defined(FREE_RTOS)
+  if (bus >= MAX_I2C_BUSES) return;
   i2c_ensure_mutex(bus);
   if (scheduler_is_running())
     mutex_lock(&_i2c_mutex[bus]);
@@ -124,6 +125,7 @@ void i2c_lock(etx_i2c_bus_t bus)
 bool i2c_trylock(etx_i2c_bus_t bus)
 {
 #if defined(FREE_RTOS)
+  if (bus >= MAX_I2C_BUSES) return false;
   i2c_ensure_mutex(bus);
   if (scheduler_is_running())
     return mutex_trylock(&_i2c_mutex[bus]);

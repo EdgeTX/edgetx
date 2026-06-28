@@ -171,6 +171,12 @@ void csd203_start(etx_i2c_bus_t bus)
   csd203_init(&csd203_external, bus, CSD203_ADDR_EXTERNAL,
               CSD203_RSHUNT, CSD203_CURRENT_LSB);
 
+  // Prime the external Vbus cache so getBatteryVoltage() doesn't report a
+  // false 0V before the timer's first external-sensor poll. Runs pre-scheduler,
+  // so no bus lock is needed (matches the init reads above).
+  if (csd203_external.initialized)
+    csd203_ext_vbus = (uint16_t)(csd203_read_voltage(&csd203_external) * 1.25f);
+
   if (csd203_main.initialized || csd203_internal.initialized ||
       csd203_external.initialized) {
     timer_create(&csd203_timer, csd203TimerCb, "csd203",

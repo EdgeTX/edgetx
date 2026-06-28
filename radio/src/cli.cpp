@@ -1861,17 +1861,22 @@ int cliI2C(const char** argv)
       cliSerialPrint("Usage: i2c scan <bus>");
       return -1;
     }
+    if (bus < 0 || bus > I2C_Bus_2) {
+      cliSerialPrint("Invalid I2C bus: %d", bus);
+      return -1;
+    }
 
+    auto i2cBus = (etx_i2c_bus_t)bus;
     cliSerialPrint("Scanning I2C bus %d...", bus);
-    i2c_lock(bus);
+    i2c_lock(i2cBus);
     int found = 0;
     for (int addr = 0x08; addr < 0x78; addr++) {
-      if (i2c_dev_ready(bus, addr) >= 0) {
+      if (i2c_dev_ready(i2cBus, addr) >= 0) {
         cliSerialPrint("  0x%02X: ACK", addr);
         found++;
       }
     }
-    i2c_unlock(bus);
+    i2c_unlock(i2cBus);
     cliSerialPrint("Found %d device(s)", found);
     return 0;
   }
@@ -1906,7 +1911,7 @@ const CliCommand cliCommands[] = {
   { "repeat", cliRepeat, "<interval in ms> <command>" },
   { "testfatfs", cliTestFatFsSD, "" },
 #endif
-  { "i2c", cliI2C, "lockup <bus> <addr> | scan <bus> | recover <bus>" },
+  { "i2c", cliI2C, "scan <bus>" },
   { "help", cliHelp, "[<command>]" },
 #if defined(JITTER_MEASURE)
   { "jitter", cliShowJitter, "" },

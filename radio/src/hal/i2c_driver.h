@@ -30,7 +30,8 @@ int i2c_deinit(etx_i2c_bus_t bus);
 
 // Explicit bus locking — caller must lock before transfer functions.
 //  - i2c_lock: blocking, for regular task context
-//  - i2c_trylock: non-blocking, for timer/ISR context (returns false if busy)
+//  - i2c_trylock: non-blocking, for timer-callback/task context (returns false
+//    if busy); task-only, not ISR-safe (uses xSemaphoreTake, no FromISR path)
 //  - i2c_unlock: release
 // All are no-ops before the RTOS scheduler starts.
 void i2c_lock(etx_i2c_bus_t bus);
