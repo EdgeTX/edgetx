@@ -796,12 +796,16 @@ class LvglWidgetTextEdit : public LvglWidgetObject
  public:
   LvglWidgetTextEdit() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
+  static constexpr int DEFAULT_TEXT_EDIT_LEN = 32;
+  static constexpr int MAX_TEXT_EDIT_LEN = 128;
+
  protected:
-  const char *txt = "";
-  char value[129];
-  int maxLen = 32;
+  LvglParamFuncOrString txt = { .function = LUA_REFNIL, .txt = ""};
+  char value[MAX_TEXT_EDIT_LEN + 1];
+  int maxLen = DEFAULT_TEXT_EDIT_LEN;
 
   int setFunction = LUA_REFNIL;
 
