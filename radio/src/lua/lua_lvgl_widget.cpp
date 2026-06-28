@@ -2296,6 +2296,7 @@ void LvglWidgetTextEdit::build(lua_State *L)
                             PROTECT_LUA()
                             {
                               std::string s(value, maxLen); // Ensure string is terminated
+                              txt.changedText(s.c_str());
                               if (!pcallFuncWithString(L, setFunction, 0, s.c_str())) {
                                 lvglManager->luaShowError();
                               }
