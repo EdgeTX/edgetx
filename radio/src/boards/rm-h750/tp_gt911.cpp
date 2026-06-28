@@ -232,6 +232,8 @@ struct TouchState touchPanelRead()
 
   if (!touchEventOccured) return internalTouchState;
 
+  i2c_lock(TOUCH_I2C_BUS);
+
   touchEventOccured = false;
 
   uint32_t startReadStatus = timersGetMsTick();
@@ -241,6 +243,7 @@ struct TouchState touchPanelRead()
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+      i2c_unlock(TOUCH_I2C_BUS);
       return internalTouchState;
     }
 
@@ -266,6 +269,7 @@ struct TouchState touchPanelRead()
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+        i2c_unlock(TOUCH_I2C_BUS);
         return internalTouchState;
       }
         
@@ -316,6 +320,7 @@ struct TouchState touchPanelRead()
   }
 
   TRACE("touch event = %s", event2str(internalTouchState.event));
+  i2c_unlock(TOUCH_I2C_BUS);
   return internalTouchState;
 }
 

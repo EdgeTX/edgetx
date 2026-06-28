@@ -27,12 +27,11 @@
 
 #include "os/task.h"
 
-// Guards against concurrent access from the audio task and the owner thread.
-static PdmWavRecorder* s_active = nullptr;
-static mutex_handle_t s_mutex;
-static bool s_mutexInited = false;
+PdmWavRecorder* PdmWavRecorder::s_active = nullptr;
+mutex_handle_t PdmWavRecorder::s_mutex;
+bool PdmWavRecorder::s_mutexInited = false;
 
-static void ensureMutex()
+void PdmWavRecorder::ensureMutex()
 {
   if (!s_mutexInited) {
     mutex_create(&s_mutex);
@@ -56,9 +55,16 @@ static void writeLE32(uint8_t* p, uint32_t v)
 
 FRESULT PdmWavRecorder::start(const char* path, uint32_t expectedSeconds)
 {
+  // Owner thread (CLI/GUI menu task): blocking lock is fine here.
   ensureMutex();
-  MutexLock lock = MutexLock::MakeInstance(&s_mutex);
+  mutex_lock(&s_mutex);
+  FRESULT res = startLocked(path, expectedSeconds);
+  mutex_unlock(&s_mutex);
+  return res;
+}
 
+FRESULT PdmWavRecorder::startLocked(const char* path, uint32_t expectedSeconds)
+{
   if (s_active != nullptr) return FR_LOCKED;
 
   samplesWritten = 0;
@@ -124,18 +130,25 @@ bool PdmWavRecorder::tickLocked()
 
 void PdmWavRecorder::audioTick()
 {
-  if (s_active == nullptr) return;
   ensureMutex();
-  MutexLock lock = MutexLock::MakeInstance(&s_mutex);
+  // Real-time audio task: never block on the owner thread's SD I/O. If start()/
+  // stop() holds the lock, skip this chunk rather than stall the audio task.
+  // s_active is read under the lock — start()/stop() write it under the lock too.
+  if (!mutex_trylock(&s_mutex)) return;
   if (s_active != nullptr) s_active->tickLocked();
+  mutex_unlock(&s_mutex);
 }
 
 FRESULT PdmWavRecorder::stop()
 {
+  // Owner thread (CLI/GUI menu task): blocking lock is fine here.
   ensureMutex();
-  MutexLock lock = MutexLock::MakeInstance(&s_mutex);
+  mutex_lock(&s_mutex);
 
-  if (s_active != this) return FR_OK;
+  if (s_active != this) {
+    mutex_unlock(&s_mutex);
+    return FR_OK;
+  }
 
   s_active = nullptr;
   recording = false;
@@ -152,7 +165,9 @@ FRESULT PdmWavRecorder::stop()
   f_lseek(&file, 40);
   f_write(&file, buf, 4, &written);
 
-  return f_close(&file);
+  FRESULT res = f_close(&file);
+  mutex_unlock(&s_mutex);
+  return res;
 }
 
 FRESULT PdmWavRecorder::trimSilence(const char* path)

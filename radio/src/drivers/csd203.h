@@ -21,33 +21,18 @@
 
 #pragma once
 
-#include <stdint.h>
 #include "hal/i2c_driver.h"
 
-struct etx_imu_data_t {
-  float accel_x, accel_y, accel_z;
-  float gyro_x, gyro_y, gyro_z;
-};
-
-typedef int (*imu_init_fn)(etx_i2c_bus_t bus, uint16_t addr);
-typedef int (*imu_read_fn)(etx_imu_data_t* data);
-
-struct etx_imu_driver_t {
-  imu_init_fn init;
-  imu_read_fn read;
-  const char* name;
-};
-
-struct etx_imu_t {
-  const etx_imu_driver_t* driver;
+typedef struct {
   etx_i2c_bus_t bus;
   uint16_t addr;
-};
+  bool initialized;
+} csd203_t;
 
-// Generic detection: iterates candidates, returns the matched IMU on success
-// (or nullptr if none responded). The returned pointer stays valid until the
-// next imuDetect() call.
-const etx_imu_t* imuDetect(const etx_imu_t* candidates, uint8_t count);
+int csd203_init(csd203_t* dev, etx_i2c_bus_t bus, uint16_t addr,
+                uint16_t rshunt, uint16_t current_lsb);
 
-// Returns the name of the detected IMU, or nullptr if none
-const char* imuGetName();
+uint16_t csd203_read_voltage(csd203_t* dev);
+uint16_t csd203_read_current(csd203_t* dev);
+
+void csd203_start(etx_i2c_bus_t bus);

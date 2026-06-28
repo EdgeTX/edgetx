@@ -20,15 +20,24 @@
  */
 
 #include "drivers/pca95xx.h"
+#include "hal/i2c_driver.h"
 #include "hal/switch_driver.h"
-#include "myeeprom.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
+#include "delays_driver.h"
 
-constexpr uint8_t MAX_UNREAD_CYCLE = 100; // Force a read every 100 cycles even if no interrupt was triggered
-#define IO_INT_GPIO GPIO_PIN(GPIOE, 14)
+#if !defined(BOOT)
+#include "os/async.h"
+#include "os/timer.h"
+#endif
+
+#include "debug.h"
+
+#define IO_INT_GPIO   GPIO_PIN(GPIOE, 14)
 #define IO_RESET_GPIO GPIO_PIN(GPIOE, 15)
+
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
+extern bool suspendI2CTasks;
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -36,19 +45,26 @@ struct bsp_io_expander {
   uint32_t state;
 };
 
-static volatile uint8_t _poll_switches_cnt = 0;
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
-static void _io_int_handler()
-{
-  _poll_switches_cnt = 0;
-}
+#if !defined(BOOT)
+static volatile bool _poll_switches_in_queue = false;
+static timer_handle_t _poll_timer = TIMER_INITIALIZER;
+#endif
 
 static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 {
   io->mask = mask;
   io->state = 0;
+}
+
+static void _expanders_reset()
+{
+  gpio_clear(IO_RESET_GPIO);
+  delay_us(1);  // Only 6ns needed according to PCA datasheet
+  gpio_set(IO_RESET_GPIO);
+  delay_us(1);  // Chip time to reset is 400ns
 }
 
 static uint32_t _read_io_expander(bsp_io_expander* io)
@@ -57,34 +73,65 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
   } else {
-    gpio_clear(IO_RESET_GPIO);
-    TRACE("PCA95 was reset");
-    delay_us(1);  // Only 6ns are needed according to PCA datasheet, but lets be safe
-    gpio_set(IO_RESET_GPIO);
+    TRACE("ERROR: resetting PCA95XX");
+    _expanders_reset();
+    if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+      io->state = value;
+    } else {
+      TRACE("ERROR: PCA95XX I2C bus recovery");
+      stm32_i2c_bus_recover(I2C_Bus_2);
+      if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+        io->state = value;
+      } else {
+        TRACE("ERROR: Unrecoverable error on PCA95XX");
+      }
+    }
   }
   return io->state;
 }
 
-void _poll_switches()
+#if !defined(BOOT)
+typedef enum {
+  TRIGGERED_BY_TIMER = 0,
+  TRIGGERED_BY_IRQ,
+} trigger_source_t;
+
+static void _poll_switches(void* param1, uint32_t trigger_source)
 {
-  if ( _poll_switches_cnt == 0) {
-    _read_io_expander(&_io_switches);
-    _read_io_expander(&_io_fs_switches);
-    _poll_switches_cnt = MAX_UNREAD_CYCLE;
-  } else {
-    _poll_switches_cnt--;
+  if (trigger_source == TRIGGERED_BY_IRQ) {
+    _poll_switches_in_queue = false;
+    timer_reset(&_poll_timer);
   }
+
+  if (suspendI2CTasks) return;
+  if (!i2c_trylock(I2C_Bus_2)) return;
+
+  _read_io_expander(&_io_switches);
+  _read_io_expander(&_io_fs_switches);
+
+  i2c_unlock(I2C_Bus_2);
 }
 
-uint32_t bsp_io_read_switches()
+static void _io_int_handler()
 {
-  return _read_io_expander(&_io_switches);
+  async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr,
+                 TRIGGERED_BY_IRQ);
 }
 
-uint32_t bsp_io_read_fs_switches()
+static void _poll_cb(timer_handle_t* timer)
 {
-  return _read_io_expander(&_io_fs_switches);
+  (void)timer;
+  _poll_switches(nullptr, TRIGGERED_BY_TIMER);
 }
+
+static void start_poll_timer()
+{
+  timer_create(&_poll_timer, _poll_cb, "portex", 100, true);
+  timer_start(&_poll_timer);
+}
+#else
+static void _io_int_handler() {}
+#endif
 
 int bsp_io_init()
 {
@@ -92,13 +139,13 @@ int bsp_io_init()
     return -1;
   }
 
-  // configure expander 1
+  // configure expander 1 (standard switches)
   _init_io_expander(&_io_switches, 0xFC3F);
   if (pca95xx_init(&_io_switches.exp, I2C_Bus_2, 0x74) < 0) {
     return -1;
   }
 
-  // configure expander 2
+  // configure expander 2 (function switches)
   _init_io_expander(&_io_fs_switches, 0x3F);
   if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_2, 0x75) < 0) {
     return -1;
@@ -111,8 +158,13 @@ int bsp_io_init()
   gpio_init(IO_RESET_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_set(IO_RESET_GPIO);
 
-  bsp_io_read_switches();
-  bsp_io_read_fs_switches();
+  // initial read
+  _read_io_expander(&_io_switches);
+  _read_io_expander(&_io_fs_switches);
+
+#if !defined(BOOT)
+  start_poll_timer();
+#endif
 
   return 0;
 }
@@ -121,11 +173,6 @@ void boardInitSwitches()
 {
   bsp_io_init();
 }
-
-struct bsp_io_sw_def {
-  uint32_t pin_high;
-  uint32_t pin_low;
-};
 
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {

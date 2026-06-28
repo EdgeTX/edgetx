@@ -1845,6 +1845,45 @@ int cliResetGT911(const char** argv)
 }
 #endif
 
+#include "hal/i2c_driver.h"
+
+int cliI2C(const char** argv)
+{
+  if (!argv[1]) {
+    cliSerialPrint("Usage: i2c scan <bus>");
+    return 0;
+  }
+
+  if (!strcmp(argv[1], "scan")) {
+    int bus = 0;
+    if (toInt(argv, 2, &bus) < 0) {
+      cliSerialPrint("Usage: i2c scan <bus>");
+      return -1;
+    }
+    if (bus < 0 || bus >= MAX_I2C_BUSES) {
+      cliSerialPrint("Invalid I2C bus: %d", bus);
+      return -1;
+    }
+
+    auto i2cBus = (etx_i2c_bus_t)bus;
+    cliSerialPrint("Scanning I2C bus %d...", bus);
+    i2c_lock(i2cBus);
+    int found = 0;
+    for (int addr = 0x08; addr < 0x78; addr++) {
+      if (i2c_dev_ready(i2cBus, addr) >= 0) {
+        cliSerialPrint("  0x%02X: ACK", addr);
+        found++;
+      }
+    }
+    i2c_unlock(i2cBus);
+    cliSerialPrint("Found %d device(s)", found);
+    return 0;
+  }
+
+  cliSerialPrint("Unknown subcommand: %s", argv[1]);
+  return -1;
+}
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1871,6 +1910,7 @@ const CliCommand cliCommands[] = {
   { "repeat", cliRepeat, "<interval in ms> <command>" },
   { "testfatfs", cliTestFatFsSD, "" },
 #endif
+  { "i2c", cliI2C, "scan <bus>" },
   { "help", cliHelp, "[<command>]" },
 #if defined(JITTER_MEASURE)
   { "jitter", cliShowJitter, "" },

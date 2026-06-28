@@ -38,6 +38,7 @@ set(SIMU_DRIVERS
   bt_driver.cpp
   timers_driver.cpp
   abnormal_reboot.cpp
+  i2c_driver.cpp
 )
 
 set(HW_DESC_JSON ${FLAVOUR}.json)

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) EdgeTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,4 +21,4 @@
 
 #pragma once
 
-void _poll_switches();
+int bsp_io_init();
