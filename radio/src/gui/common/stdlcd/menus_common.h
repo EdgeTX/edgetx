@@ -201,7 +201,6 @@ uint8_t switchToMix(uint8_t source);
 void drawSplash();
 void doMainScreenGraphics();
 void drawAlertBox(const char * title, const char * text, const char * action);
-void drawSwitchWarningScreen();
 
 #if defined(FLIGHT_MODES)
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value);
