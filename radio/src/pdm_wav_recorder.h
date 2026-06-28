@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include "ff.h"
+#include "os/task.h"
 
 // 16 kHz: PDM_CLOCK_FREQ(1.6 MHz)/PDM_PCM_DECIMATION(100) = 16000 Hz directly.
 // Must also divide AUDIO_SAMPLE_RATE(32 kHz) evenly for the WAV player.
@@ -54,6 +55,16 @@ class PdmWavRecorder
  private:
   static constexpr uint32_t PCM_MAX = 256;
 
+  // Guards the global "which recorder is active" selection (s_active) and its
+  // file against concurrent access from the audio task and the owner thread.
+  // Shared (static), not per-instance: audioTick() must take the lock before it
+  // can even safely read s_active to find the active instance.
+  static PdmWavRecorder* s_active;
+  static mutex_handle_t s_mutex;
+  static bool s_mutexInited;
+  static void ensureMutex();
+
+  FRESULT startLocked(const char* path, uint32_t expectedSeconds);
   bool tickLocked();
 
   FIL file;
