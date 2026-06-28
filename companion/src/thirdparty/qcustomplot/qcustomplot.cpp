@@ -20642,9 +20642,9 @@ void QCPColorScaleAxisRectPrivate::draw(QCPPainter *painter)
   // Qt 6.9.0 fix for depreciated function
   // painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.mirrored(mirrorHorz, mirrorVert));
   if (mirrorHorz)
-    painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.flipped(Qt::Horizontal));
+    painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.mirrored(true, false));
   if (mirrorVert)
-    painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.flipped(Qt::Vertical));
+    painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.mirrored(false, true));
   // end fix
   QCPAxisRect::draw(painter);
 }
@@ -26687,9 +26687,9 @@ void QCPColorMap::updateLegendIcon(Qt::TransformationMode transformMode, const Q
     // mLegendIcon = QPixmap::fromImage(mMapImage.mirrored(mirrorX, mirrorY)).scaled(thumbSize, Qt::KeepAspectRatio, transformMode);
     QImage img = mMapImage;
     if (mirrorX)
-      img = img.flipped(Qt::Horizontal);
+      img = img.mirrored(true, false);
     if (mirrorY)
-      img = img.flipped(Qt::Vertical);
+      img = img.mirrored(false, true);
     mLegendIcon = QPixmap::fromImage(img).scaled(thumbSize, Qt::KeepAspectRatio, transformMode);
     // end fix
   }
@@ -26923,9 +26923,9 @@ void QCPColorMap::draw(QCPPainter *painter)
   //localPainter->drawImage(imageRect, mMapImage.mirrored(mirrorX, mirrorY));
   QImage img = mMapImage;
   if (mirrorX)
-    img = img.flipped(Qt::Horizontal);
+    img = img.mirrored(true, false);
   if (mirrorY)
-    img = img.flipped(Qt::Vertical);
+    img = img.mirrored(false, true);
   localPainter->drawImage(imageRect, img);
   // end fix
   if (mTightBoundary)
@@ -30357,9 +30357,9 @@ void QCPItemPixmap::updateScaledPixmap(QRect finalRect, bool flipHorz, bool flip
       if (flipHorz || flipVert) {
         QImage img = mScaledPixmap.toImage();
         if (flipHorz)
-          img = img.flipped(Qt::Horizontal);
+          img = img.mirrored(true, false);
         if (flipVert)
-          img = img.flipped(Qt::Vertical);
+          img = img.mirrored(false, true);
         mScaledPixmap = QPixmap::fromImage(img);
       }
       // end fix
