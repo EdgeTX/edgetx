@@ -32,8 +32,6 @@
 #define I2C_DEFAULT_TIMEOUT 10
 #define I2C_DEFAULT_RETRIES 2
 
-#define MAX_I2C_BUSES 2
-
 #if defined(FREE_RTOS)
 static mutex_handle_t _i2c_mutex[MAX_I2C_BUSES];
 static bool _i2c_mutex_initialized[MAX_I2C_BUSES] = {};

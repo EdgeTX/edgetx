@@ -25,6 +25,10 @@
 
 typedef uint8_t etx_i2c_bus_t;
 
+// Maximum number of I2C buses addressable via etx_i2c_bus_t; valid bus ids are
+// 0 .. MAX_I2C_BUSES - 1.
+#define MAX_I2C_BUSES 2
+
 int i2c_init(etx_i2c_bus_t bus);
 int i2c_deinit(etx_i2c_bus_t bus);
 

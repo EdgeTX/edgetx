@@ -1846,7 +1846,6 @@ int cliResetGT911(const char** argv)
 #endif
 
 #include "hal/i2c_driver.h"
-#include "stm32_i2c_driver.h"
 
 int cliI2C(const char** argv)
 {
@@ -1861,7 +1860,7 @@ int cliI2C(const char** argv)
       cliSerialPrint("Usage: i2c scan <bus>");
       return -1;
     }
-    if (bus < 0 || bus > I2C_Bus_2) {
+    if (bus < 0 || bus >= MAX_I2C_BUSES) {
       cliSerialPrint("Invalid I2C bus: %d", bus);
       return -1;
     }
