@@ -126,6 +126,17 @@ void gyroWakeup()
 
   errors = 0;
 
+#if defined(IMU_INVERT_X)
+  // Sensor is mounted with its X axis reversed relative to the radio
+  raw.accel_x = -raw.accel_x;
+  raw.gyro_x  = -raw.gyro_x;
+#endif
+#if defined(IMU_INVERT_Y)
+  // Sensor is mounted with its Y axis reversed relative to the radio
+  raw.accel_y = -raw.accel_y;
+  raw.gyro_y  = -raw.gyro_y;
+#endif
+
   gyroFilter(&raw);
 
   raw_ax = (int16_t)filteredAccel[0];

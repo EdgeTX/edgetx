@@ -601,6 +601,8 @@ USART6: INTMODULE_USART
 
 #define IMU_I2C_BUS                     I2C_Bus_2
 #define IMU_INT_GPIO                    GPIO_PIN(GPIOG, 13) // PG.13
+#define IMU_INVERT_X                    // X axis is mounted reversed
+#define IMU_INVERT_Y                    // Y axis is mounted reversed
 #if !defined(USE_EXTI15_10_IRQ)
   #define USE_EXTI15_10_IRQ
   #define EXTI15_10_IRQ_Priority       6
