@@ -22,6 +22,7 @@
 #include "file_browser.h"
 #include "lib_file.h"
 #include "fonts.h"
+#include "sdcard.h"
 
 #include <list>
 #include <string>
@@ -88,7 +89,7 @@ static bool natural_compare_nocase(const std::string & first, const std::string 
   return strnatcasecmp(first.c_str(), second.c_str()) < 0;
 }
 
-static int scan_files(std::list<std::string>& files,
+int FileBrowser::scan_files(std::list<std::string>& files,
                       std::list<std::string>& directories)
 {
   FILINFO fno;
@@ -100,14 +101,18 @@ static int scan_files(std::list<std::string>& files,
   // read all entries
   bool firstTime = true;
   for (;;) {
-    res = sdReadDir(&dir, &fno, firstTime);
+    if (firstTime && currentPath != ROOT_PATH) {
+      strcpy(fno.fname, "..");
+      fno.fattrib = AM_DIR;
+    } else {
+      res = f_readdir(&dir, &fno);
 
-    if (res != FR_OK || fno.fname[0] == 0)
-      break; // Break on error or end of dir
-    // if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
-    //   continue;
-    if (fno.fattrib & (AM_HID|AM_SYS)) continue;     /* Ignore hidden and system files */
-    if (fno.fname[0] == '.' && fno.fname[1] != '.') continue; // Ignore hidden files under UNIX, but not ..
+      if (res != FR_OK || fno.fname[0] == 0)
+        break; // Break on error or end of dir
+      if (fno.fattrib & (AM_HID|AM_SYS)) continue;    /* Ignore hidden and system files */
+      if (fno.fname[0] == '.') continue;              // Ignore hidden files under UNIX
+    }
+    firstTime = false;
 
     if (fno.fattrib & AM_DIR) {
       directories.push_back((char*)fno.fname);
@@ -124,8 +129,8 @@ static int scan_files(std::list<std::string>& files,
 
 void FileBrowser::setFullPath(const char* name)
 {
-  if (currentPath == "/")
-    fullPathBuf = std::string("/") + name;
+  if (currentPath.back() == '/')
+    fullPathBuf = currentPath + name;
   else
     fullPathBuf = currentPath + "/" + name;
 }
@@ -138,7 +143,7 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
   while (currentPath.size() > 1 && currentPath.back() == '/') currentPath.pop_back();
 
   if (f_chdir(currentPath.c_str()) != FR_OK) {
-    currentPath = "/";  // keep currentPath in sync with the FatFs CWD
+    currentPath = ROOT_PATH;  // keep currentPath in sync with the FatFs CWD
     f_chdir(currentPath.c_str());
   }
 

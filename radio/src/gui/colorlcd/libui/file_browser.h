@@ -60,6 +60,9 @@ class FileBrowser : public TableField
   std::string fullPathBuf;
   void setFullPath(const char* name);
 
+  int scan_files(std::list<std::string>& files,
+                 std::list<std::string>& directories);
+
   const char* selected = nullptr;
   FileAction fileAction;
   FileAction fileSelected;
