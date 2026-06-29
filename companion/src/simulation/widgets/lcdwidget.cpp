@@ -71,14 +71,26 @@ void LcdWidget::makeScreenshot(const QString &fileName)
 
 void LcdWidget::onLcdChanged(uint8_t* lcdBuf, bool light)
 {
+  // Ingest only: store the latest frame and let frameTimer drive the repaint.
+  // Sampling on a fixed cadence caps the repaint rate without dropping the
+  // final frame of a burst, regardless of how frames are delivered.
   QMutexLocker locker(&lcdMtx);
   lightEnable = light;
   if (lcdBuf) memcpy(localBuf, lcdBuf, lcdSize);
-  if (!redrawTimer.isValid() ||
-      redrawTimer.hasExpired(LCD_WIDGET_REFRESH_PERIOD)) {
-    update();
-    redrawTimer.start();
+  dirty = true;
+  if (!frameTimer.isActive())
+    frameTimer.start();
+}
+
+void LcdWidget::onFrameTick()
+{
+  QMutexLocker locker(&lcdMtx);
+  if (!dirty) {  // idle: stop until the next frame arrives
+    frameTimer.stop();
+    return;
   }
+  dirty = false;
+  update();
 }
 
 void LcdWidget::doPaint(QPainter &p)
