@@ -100,7 +100,21 @@ enum DirtyConfig {
   DC_RX_CMD_BUS_DIRECTION,
   DC_RX_CMD_BUS_FAILSAFE,
   DC_RX_CMD_GET_VERSION,
-  DC_RX_CMD_GET_RX_VERSION
+  DC_RX_CMD_GET_RX_VERSION,
+  DC_RX_CMD_CALIB_GYRO,
+  DC_RX_CMD_CALIB_ALT,
+  DC_RX_CMD_CALIB_DIST,
+  DC_RX_CMD_CALIB_RPM,
+  DC_RX_CMD_CALIB_IBC_V,
+  DC_RX_CMD_CLEAR_IBC,
+};
+
+enum DirtyIbus2Sensor {
+  IBUS2_SENSOR_RPM,
+  IBUS2_SENSOR_GPS,
+  IBUS2_SENSOR_IBC,
+  IBUS2_SENSOR_PRES,
+  IBUS2_SENSOR_NUM,
 };
 
 #define SET_AND_SYNC(cfg, value, dirtyCmd)  [=](int32_t newValue) { value = newValue; cfg->others.dirtyFlag |= (uint32_t) 1 << dirtyCmd; }
@@ -137,6 +151,8 @@ PACK(struct sDATA_Others {
   tmr10ms_t lastUpdated;    // last updated time
   bool isConnected;         // specify if receiver is connected
   uint32_t dirtyFlag;       // mapped to commands that need to be issued to sync settings
+  short calibData[4];       // sensor Calibration
+  uint8_t sensorOnLine;
 });
 
 union Config_u
