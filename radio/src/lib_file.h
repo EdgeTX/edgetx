@@ -26,7 +26,6 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 
 const char * getFileExtension(const char * filename, uint8_t size = 0, uint8_t extMaxLen = 0, uint8_t * fnlen = nullptr, uint8_t * extlen = nullptr);
 bool isExtensionMatching(const char * extension, const char * pattern, char * match = nullptr);
-FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime);
 
 // comparison, not case sensitive.
 static inline bool compare_nocase(const std::string& first, const std::string& second) {
