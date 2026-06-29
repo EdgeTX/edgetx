@@ -102,6 +102,41 @@ static void gyroFilter(etx_imu_data_t* raw)
   }
 }
 
+// Fixed hardware mounting correction from the target hal.h (X = bit 0, Y = bit 1).
+// This accounts for how the chip is physically positioned and is always applied.
+static uint8_t imuHwInvertMask()
+{
+  uint8_t mask = 0;
+#if defined(IMU_INVERT_X)
+  mask |= (1 << IMU_AXIS_X);
+#endif
+#if defined(IMU_INVERT_Y)
+  mask |= (1 << IMU_AXIS_Y);
+#endif
+  return mask;
+}
+
+// User-selectable inversion, stored verbatim and defaulting to off.
+bool getImuInversion(uint8_t axis)
+{
+  return (g_eeGeneral.imuInvert >> axis) & 1;
+}
+
+void setImuInversion(uint8_t axis, bool value)
+{
+  if (value)
+    g_eeGeneral.imuInvert |= (1 << axis);
+  else
+    g_eeGeneral.imuInvert &= ~(1 << axis);
+}
+
+// Effective inversion applied to sensor data: hardware correction XOR user choice.
+static bool imuAxisInverted(uint8_t axis)
+{
+  uint8_t effective = g_eeGeneral.imuInvert ^ imuHwInvertMask();
+  return (effective >> axis) & 1;
+}
+
 void gyroStart(imu_read_fn fn)
 {
   readFn = fn;
@@ -126,16 +161,14 @@ void gyroWakeup()
 
   errors = 0;
 
-#if defined(IMU_INVERT_X)
-  // Sensor is mounted with its X axis reversed relative to the radio
-  raw.accel_x = -raw.accel_x;
-  raw.gyro_x  = -raw.gyro_x;
-#endif
-#if defined(IMU_INVERT_Y)
-  // Sensor is mounted with its Y axis reversed relative to the radio
-  raw.accel_y = -raw.accel_y;
-  raw.gyro_y  = -raw.gyro_y;
-#endif
+  if (imuAxisInverted(IMU_AXIS_X)) {
+    raw.accel_x = -raw.accel_x;
+    raw.gyro_x  = -raw.gyro_x;
+  }
+  if (imuAxisInverted(IMU_AXIS_Y)) {
+    raw.accel_y = -raw.accel_y;
+    raw.gyro_y  = -raw.gyro_y;
+  }
 
   gyroFilter(&raw);
 

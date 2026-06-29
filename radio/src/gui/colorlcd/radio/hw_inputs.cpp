@@ -25,10 +25,14 @@
 #include "choice.h"
 #include "edgetx.h"
 #include "getset_helpers.h"
+#if defined(IMU)
+  #include "gyro.h"
+#endif
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "layout.h"
 #include "static.h"
+#include "strhelpers.h"
 #include "switches.h"
 #include "textedit.h"
 
@@ -93,6 +97,25 @@ HWSticks::HWSticks(Window* parent) : Window(parent, {0, 0, LV_PCT(100), LV_SIZE_
   dz->setTextHandler([](uint8_t value) {
     return std::to_string(value ? 2 << (value - 1) : 0);
   });
+#endif
+
+#if defined(IMU)
+  int imuRow = max_sticks;
+#if defined(STICK_DEAD_ZONE)
+  imuRow += 1;
+#endif
+  for (int a = 0; a < 2; a++) {
+    int row = imuRow + a;
+    new StaticText(this, {0, S_Y(row) + yo + PAD_MEDIUM, S_LBL_W, 0},
+                   getStringAtIndex(STR_IMU_VSRCRAW, a));
+    new ToggleSwitch(
+          this, {S_INV_X, S_Y(row) + yo, S_INV_W, 0},
+          [=]() -> uint8_t { return (uint8_t)getImuInversion(a); },
+          [=](int8_t newValue) {
+            setImuInversion(a, newValue);
+            SET_DIRTY();
+          });
+  }
 #endif
 }
 
