@@ -72,6 +72,29 @@ if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
 else()
   option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
 endif()
+option(POWER_LED_GREEN   "Override Power LED to be normally Green" OFF)
+option(POWER_LED_CYAN    "Override Power LED to be normally Cyan" OFF)
+option(POWER_LED_YELLOW  "Override Power LED to be normally Yellow" OFF)
+option(POWER_LED_MAGENTA "Override Power LED to be normally Magenta" OFF)
+option(POWER_LED_WHITE   "Override Power LED to be normally White" OFF)
+
+set(POWER_LED_OPTIONS
+  POWER_LED_BLUE
+  POWER_LED_GREEN
+  POWER_LED_CYAN
+  POWER_LED_YELLOW
+  POWER_LED_MAGENTA
+  POWER_LED_WHITE
+)
+set(POWER_LED_OPTION_COUNT 0)
+foreach(POWER_LED_OPTION ${POWER_LED_OPTIONS})
+  if(${POWER_LED_OPTION})
+    math(EXPR POWER_LED_OPTION_COUNT "${POWER_LED_OPTION_COUNT} + 1")
+  endif()
+endforeach()
+if(POWER_LED_OPTION_COUNT GREATER 1)
+  message(FATAL_ERROR "Only one POWER_LED_* color option can be enabled")
+endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -526,9 +549,11 @@ if(USBJ_EX)
   )
 endif()
 
-if(POWER_LED_BLUE)
-  add_definitions(-DPOWER_LED_BLUE)
-endif()
+foreach(POWER_LED_OPTION ${POWER_LED_OPTIONS})
+  if(${POWER_LED_OPTION})
+    add_definitions(-D${POWER_LED_OPTION})
+  endif()
+endforeach()
 
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})
