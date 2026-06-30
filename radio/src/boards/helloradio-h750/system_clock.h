@@ -19,19 +19,5 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+void SystemClock_Config();
 
-#include "window.h"
-#include "module_setup.h"
-
-struct ModuleData;
-
-class PXX1AntennaSettings : public Window, public ModuleOptions
-{
-  ModuleData* md;
-
-  void update() override {}
-  
-public:
-  PXX1AntennaSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
-};

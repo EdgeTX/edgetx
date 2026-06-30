@@ -19,16 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "pxx1_settings.h"
+#include "ext_antenna_settings.h"
 #include "choice.h"
 
 #include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-PXX1AntennaSettings::PXX1AntennaSettings(Window* parent,
-                                         const FlexGridLayout& g,
-                                         uint8_t moduleIdx) :
+ExtAntennaSettings::ExtAntennaSettings(Window* parent,
+                                 const FlexGridLayout& g,
+                                 uint8_t moduleIdx) :
     Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
 {
   FlexGridLayout grid(g);
@@ -37,25 +37,17 @@ PXX1AntennaSettings::PXX1AntennaSettings(Window* parent,
   auto line = newLine(grid);
   new StaticText(line, rect_t{}, STR_ANTENNA);
 
-  if (md->pxx.antennaMode == ANTENNA_MODE_PER_MODEL) {
-    md->pxx.antennaMode = ANTENNA_MODE_INTERNAL;
+  if (md->antennaMode == ANTENNA_MODE_PER_MODEL) {
+    md->antennaMode = ANTENNA_MODE_INTERNAL;
     SET_DIRTY();
   }
 
   auto antennaChoice = new Choice(
       line, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
-      ANTENNA_MODE_EXTERNAL, GET_DEFAULT(md->pxx.antennaMode),
+      ANTENNA_MODE_EXTERNAL, GET_DEFAULT(md->antennaMode),
       [=](int32_t antenna) -> void {
-        if (!isExternalAntennaEnabled() && (antenna == ANTENNA_MODE_EXTERNAL)) {
-          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-            md->pxx.antennaMode = antenna;
-            SET_DIRTY();
-          }
-        } else {
-          md->pxx.antennaMode = antenna;
-          SET_DIRTY();
-          checkExternalAntenna();
-        }
+        setAntennaModeWithConfirm(antenna, EE_MODEL,
+            [=](int8_t mode) { md->antennaMode = mode; });
       });
 
   antennaChoice->setAvailableHandler(

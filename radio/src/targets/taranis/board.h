@@ -241,6 +241,10 @@ void usbChargerInit();
 bool usbChargerLed();
 #endif
 
+#if defined(RADIO_V14)
+  uint16_t getSixPosAnalogValue(uint16_t adcValue);
+#endif
+
 // LED driver
 void ledInit();
 void ledOff();
