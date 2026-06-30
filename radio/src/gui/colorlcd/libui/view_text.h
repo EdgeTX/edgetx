@@ -66,4 +66,7 @@ class ModelNotesPage : public PageGroupItem
 };
 
 void readModelNotes(bool fromMenu = false);
-void readChecklist();
+
+// Opens the model notes/checklist window and returns it (or nullptr if there is
+// none) without spinning a UI loop. Driven by the model-load state machine view.
+Window* showModelChecklist();

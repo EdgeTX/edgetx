@@ -42,6 +42,7 @@
 #include "timers_driver.h"
 
 #include "switches.h"
+#include "warning_checks.h"
 #include "inactivity_timer.h"
 #include "input_mapping.h"
 #include "trainer.h"
@@ -675,257 +676,6 @@ void resetBacklightTimeout()
 }
 
 
-#if defined(MULTIMODULE)
-void checkMultiLowPower()
-{
-  bool low_power_warning = false;
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    if (isModuleMultimodule(i) &&
-        g_model.moduleData[i].multi.lowPowerMode) {
-      low_power_warning = true;
-    }
-  }
-
-  if (low_power_warning) {
-    ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
-  }
-}
-#endif
-
-static void checkRTCBattery()
-{
-  if (!mixerTaskRunning()) getADC();
-  if (getRTCBatteryVoltage() < 200) {
-    ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
-  }
-}
-
-void checkSDfreeStorage() {
-  if(sdIsFull()) {
-    ALERT(STR_SD_CARD, STR_SDCARD_FULL, AU_ERROR);
-  }
-}
-
-static void checkFailsafe()
-{
-  for (int i=0; i<NUM_MODULES; i++) {
-#if defined(MULTIMODULE)
-    // use delayed check for MPM
-    if (isModuleMultimodule(i)) break;
-#endif
-    if (isModuleFailsafeAvailable(i)) {
-      ModuleData & moduleData = g_model.moduleData[i];
-      if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
-        ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
-        break;
-      }
-    }
-  }
-}
-
-#if defined(GUI)
-void checkAll(bool isBootCheck)
-{
-  checkSDfreeStorage();
-  
-  // we don't check the throttle stick if the radio is not calibrated
-  if (g_eeGeneral.chkSum == evalChkSum()) {
-    checkThrottleStick();
-  }
-
-  checkSwitches();
-  checkFailsafe();
-
-  if (isBootCheck && !g_eeGeneral.disableRtcWarning) {
-    // only done once at board start
-    enableVBatBridge();
-    checkRTCBattery();
-  }
-  disableVBatBridge();
-
-  if (g_model.displayChecklist && modelHasNotes()) {
-    cancelSplash();
-#if defined(COLORLCD)
-    readChecklist();
-#else
-    readModelNotes();
-#endif
-  }
-
-#if defined(MULTIMODULE)
-  checkMultiLowPower();
-#endif
-
-#if defined(COLORLCD)
-  if (!waitKeysReleased()) {
-    auto dlg = new FullScreenDialog(WARNING_TYPE_ALERT, STR_KEYSTUCK);
-    LED_ERROR_BEGIN();
-    AUDIO_ERROR_MESSAGE(AU_ERROR);
-
-    tmr10ms_t tgtime = get_tmr10ms() + 500;
-    uint32_t keys = readKeys();
-
-    std::string strKeys;
-    for (int i = 0; i < (int)MAX_KEYS; i++) {
-      if (keys & (1 << i)) {
-        strKeys += std::string(keysGetLabel(EnumKeys(i)));
-      }
-    }
-
-    dlg->setMessage(strKeys.c_str());
-    MainWindow::instance()->blockUntilClose(true, [=]() {
-      if (dlg->deleted()) return true;
-      if ((tgtime < get_tmr10ms()) || !keyDown()) {
-        dlg->deleteLater();
-        return true;
-      }
-      return false;
-    });
-    LED_ERROR_END();
-  }
-#else
-  if (!waitKeysReleased()) {
-    showMessageBox(STR_KEYSTUCK);
-    tmr10ms_t tgtime = get_tmr10ms() + 500;
-    while (tgtime != get_tmr10ms()) {
-      sleep_ms(1);
-      WDG_RESET();
-    }
-  }
-#endif
-
-#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
-  checkExternalAntenna();
-#endif
-
-  START_SILENCE_PERIOD();
-}
-#endif // GUI
-
-bool isThrottleWarningAlertNeeded()
-{
-  if (g_model.disableThrottleWarning) {
-    return false;
-  }
-
-  uint8_t thr_src = throttleSource2Source(g_model.thrTraceSrc);
-
-  // in case an output channel is choosen as throttle source
-  // we assume the throttle stick is the input (no computed channels yet)
-  if (thr_src >= MIXSRC_FIRST_CH) {
-    thr_src = throttleSource2Source(0);
-  }
-
-  if (!mixerTaskRunning()) getADC();
-  evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
-
-  int16_t v = getValue(thr_src);
-
-  // TODO: this looks fishy....
-  if (g_model.thrTraceSrc && g_model.throttleReversed) {
-    v = -v;
-  }
-
-  if (g_model.enableCustomThrottleWarning) {
-    int16_t idleValue = (int32_t)RESX *
-                        (int32_t)g_model.customThrottleWarningPosition /
-                        (int32_t)100;
-    return abs(v - idleValue) > THRCHK_DEADBAND;
-  } else {
-#if defined(SURFACE_RADIO) // surface radio, stick centered
-    return v > THRCHK_DEADBAND;
-#else
-    return v > THRCHK_DEADBAND - RESX;
-#endif
-  }
-}
-
-#if defined(COLORLCD)
-void checkThrottleStick()
-{
-  char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
-  if (isThrottleWarningAlertNeeded()) {
-    if (g_model.enableCustomThrottleWarning) {
-    sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
-    }
-    else {
-      strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
-    }
-    LED_ERROR_BEGIN();
-    auto dialog = new ThrottleWarnDialog(throttleNotIdle);
-    MainWindow::instance()->blockUntilClose(true, [=]() {
-      return dialog->deleted();
-    });
-    LED_ERROR_END();
-  }
-}
-#else
-void checkThrottleStick()
-{
-  char throttleNotIdle[strlen(STR_THROTTLE_NOT_IDLE) + 9];
-  if (!isThrottleWarningAlertNeeded()) {
-    return;
-  }
-  if (g_model.enableCustomThrottleWarning) {
-    sprintf(throttleNotIdle, "%s (%d%%)", STR_THROTTLE_NOT_IDLE, g_model.customThrottleWarningPosition);
-  }
-  else {
-    strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
-  }
-  // first - display warning; also deletes inputs if any have been before
-  LED_ERROR_BEGIN();
-  RAISE_ALERT(STR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
-
-#if defined(PWR_BUTTON_PRESS)
-  bool refresh = false;
-#endif
-
-  while (!keyDown()) {
-    if (!isThrottleWarningAlertNeeded()) {
-      return;
-    }
-
-#if defined(PWR_BUTTON_PRESS)
-    uint32_t power = pwrCheck();
-    if (power == e_power_off) {
-      drawSleepBitmap();
-      boardOff();
-      break;
-    }
-    else if (power == e_power_press) {
-      refresh = true;
-    }
-    else if (power == e_power_on && refresh) {
-      RAISE_ALERT(STR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
-      refresh = false;
-    }
-#else
-    if (pwrCheck() == e_power_off) {
-      break;
-    }
-#endif
-
-    checkBacklight();
-
-    WDG_RESET();
-    sleep_ms(10);
-  }
-
-  LED_ERROR_END();
-}
-#endif
-
-void checkAlarm() // added by Gohst
-{
-  if (g_eeGeneral.disableAlarmWarning) {
-    return;
-  }
-
-  if (IS_SOUND_OFF()) {
-    ALERT(STR_ALARMSWARN, STR_ALARMSDISABLED, AU_ERROR);
-  }
-}
-
 #if !defined(COLORLCD)
 void alert(const char * title, const char * msg , uint8_t sound)
 {
@@ -1134,7 +884,12 @@ void flightReset(uint8_t check)
   logicalSwitchesReset();
 
   if (check) {
-    checkAll();
+    // Run the warning checks through the model-load state machine (pumped by
+    // perMain), non-blocking. Pulses are left running (WCC_FLIGHT_RESET terminal
+    // does not touch them, matching the old behaviour). The REQUEST_FLIGHT_RESET
+    // handler gates this on warningChecksIdle() so it can't clobber a sequence already
+    // in progress.
+    warningChecksStart(WCC_FLIGHT_RESET);
   }
 }
 
@@ -1627,8 +1382,11 @@ void edgeTxInit()
     }
     else if (!(startOptions & OPENTX_START_NO_CHECKS)) {
       checkAlarm();
-      checkAll(true);
-      PLAY_MODEL_NAME();
+      checkBootSpecificWarnings();
+      // Arm the model-load state machine for the post-load warning sequence; it is
+      // pumped by perMain() once the main loop starts. It announces the model and
+      // starts pulses (WCC_BOOT terminal), so pulses stay held until checks clear.
+      warningChecksStart(WCC_BOOT);
     }
 #endif // defined(GUI)
 
@@ -1647,7 +1405,11 @@ void edgeTxInit()
 
   LED_ERROR_END();
 
-  pulsesStart();
+  // The normal-checks branch armed the model-load state machine (warningChecksIdle()
+  // is then false); it starts pulses at its terminal state once perMain() has
+  // pumped it, keeping RF silent until the boot checks clear. The calibration and
+  // OPENTX_START_NO_CHECKS paths don't arm it, so start pulses immediately here.
+  if (warningChecksIdle()) pulsesStart();
   WDG_ENABLE(WDG_DURATION);
 }
 

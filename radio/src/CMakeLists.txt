@@ -451,6 +451,7 @@ endif()
 set(SRC
   ${SRC}
   edgetx.cpp
+  warning_checks.cpp
   datastructs_model.cpp
   datastructs_radio.cpp
   functions.cpp

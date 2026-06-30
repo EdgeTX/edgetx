@@ -26,6 +26,7 @@
 #include "choice.h"
 #include "dialog.h"
 #include "edgetx.h"
+#include "warning_checks.h"
 #include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hal/audio_driver.h"
@@ -1016,8 +1017,10 @@ const static SetupLineDef setupLines[] = {
                             mixerTaskStop();
                             g_eeGeneral.stickMode = newValue;
                             SET_DIRTY();
-                            checkThrottleStick();
-                            mixerTaskStart();
+                            // Throttle warning runs through the model-load state
+                            // machine (pumped by perMain, flat stack — no nested
+                            // LVGL run); its terminal restarts the mixer.
+                            warningChecksStart(WCC_STICK_MODE);
                           });
       choice->setTextHandler([](uint8_t value) {
         auto stick0 = inputMappingConvertMode(value, 0);

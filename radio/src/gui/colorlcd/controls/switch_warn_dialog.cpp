@@ -36,12 +36,9 @@ void SwitchWarnDialog::checkEvents()
 {
   FullScreenDialog::checkEvents();
 
-  uint16_t bad_pots;
-  if (!isSwitchWarningRequired(bad_pots)) {
-    deleteLater();
-    return;
-  };
-
+  // Display only — the driver (boot/flightReset loop or the model-load state
+  // machine) has already refreshed the inputs and owns the close decision. Here
+  // we just rebuild the list of switches/pots still in the wrong position.
   std::string warn_txt;
   for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
@@ -84,13 +81,4 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
 {
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
-}
-
-void ThrottleWarnDialog::checkEvents()
-{
-  FullScreenDialog::checkEvents();
-
-  extern bool isThrottleWarningAlertNeeded();
-  if (!isThrottleWarningAlertNeeded())
-    deleteLater();
 }
