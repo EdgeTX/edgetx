@@ -79,7 +79,7 @@ static void sdManagerChdir(const char* name)
     strncpy(sdManagerPath + len, name, sizeof(sdManagerPath) - len - 1);
     sdManagerPath[sizeof(sdManagerPath) - 1] = '\0';
   }
-  f_chdir(sdManagerPath);  // absolute path: resolves on FAT and exFAT alike
+  etxChdir(sdManagerPath);  // absolute path: resolves on FAT and exFAT alike
 }
 
 void getSelectionFullPath(char * lfn)
@@ -300,7 +300,7 @@ void menuRadioSdManager(event_t _event)
 #endif
 
   if (_event == EVT_ENTRY) {
-    f_chdir(ROOT_PATH);
+    etxChdir(ROOT_PATH);
     strcpy(sdManagerPath, ROOT_PATH);
 #if LCD_DEPTH > 1
     lastPos = -1;

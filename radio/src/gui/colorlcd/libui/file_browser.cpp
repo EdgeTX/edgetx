@@ -142,9 +142,9 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
   // logic never has to deal with it later.
   while (currentPath.size() > 1 && currentPath.back() == '/') currentPath.pop_back();
 
-  if (f_chdir(currentPath.c_str()) != FR_OK) {
+  if (etxChdir(currentPath.c_str()) != FR_OK) {
     currentPath = ROOT_PATH;  // keep currentPath in sync with the FatFs CWD
-    f_chdir(currentPath.c_str());
+    etxChdir(currentPath.c_str());
   }
 
   setAutoEdit();
@@ -266,7 +266,7 @@ void FileBrowser::onPress(const char* name, bool is_dir)
       nextPath = fullPathBuf;
     }
     // Only commit the tracked path if the CWD actually changed.
-    if (f_chdir(nextPath.c_str()) == FR_OK) currentPath = nextPath;
+    if (etxChdir(nextPath.c_str()) == FR_OK) currentPath = nextPath;
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
     selected = nullptr;
     refresh();
