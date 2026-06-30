@@ -116,11 +116,6 @@ constexpr bool IS_KEY_EVENT(event_t event)
   return (event & 0xF000) == 0;  // fired when key is released (short or long), but only if the event was not killed
 }
 
-// constexpr bool IS_TRIM_EVENT(event_t event)
-// {
-//   return (IS_KEY_EVENT(event) && EVT_KEY_MASK(event) >= TRM_BASE);
-// }
-
 inline bool IS_KEY_FIRST(event_t evt)
 {
   return (evt & _MSK_KEY_FLAGS) == _MSK_KEY_FIRST;
@@ -134,11 +129,6 @@ inline bool IS_KEY_REPT(event_t evt)
 inline bool IS_KEY_LONG(event_t evt)
 {
   return (evt & _MSK_KEY_FLAGS) == _MSK_KEY_LONG;
-}
-
-inline bool IS_KEY_BREAK(event_t evt)
-{
-  return (evt & _MSK_KEY_FLAGS) == _MSK_KEY_BREAK;
 }
 
 inline bool IS_KEY_EVT(event_t evt, uint8_t key)
