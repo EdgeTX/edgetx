@@ -75,11 +75,9 @@ BitmapBuffer::~BitmapBuffer()
 lv_obj_t* BitmapBuffer::addCanvas(Window* parent, lv_img_cf_t fmt)
 {
   removeCanvas();
-  if (parent) {
-    canvas = lv_canvas_create(parent->getLvObj());
-    lv_canvas_set_buffer(canvas, data, _width, _height, fmt);
-    lv_obj_center(canvas);
-  }
+  canvas = lv_canvas_create(parent ? parent->getLvObj() : nullptr);
+  lv_canvas_set_buffer(canvas, data, _width, _height, fmt);
+  lv_obj_center(canvas);
   return canvas;
 }
 
