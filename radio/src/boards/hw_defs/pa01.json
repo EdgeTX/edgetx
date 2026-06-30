@@ -284,27 +284,88 @@
     }
   ],
   "display": {
-    "w": 320,
-    "h": 240,
-    "phys_w": 320,
-    "phys_h": 240,
-    "depth": 16,
-    "color": 1,
-    "oled": 0,
-    "backlight_color": 0
+    "lcd_w": 320,
+    "lcd_h": 240,
+    "lcd_phys_w": 320,
+    "lcd_phys_h": 240,
+    "lcd_depth": 16
   },
-  "custom_switches": {
-    "rgb_led": 1,
-    "groups": 2
+  "backlight": {
+    "backlight_gpio": "GPIO_PIN(GPIOB, 3)",
+    "backlight_timer": "TIM2",
+    "backlight_gpio_af": "GPIO_AF1",
+    "backlight_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+  },
+  "leds": {
+    "led_strip_length": 14,
+    "bling_led_strip_start": 10,
+    "bling_led_strip_length": 4,
+    "cfs_led_strip_start": 0,
+    "cfs_led_strip_length": 8,
+    "cfs_leds_per_switch": 2,
+    "led_strip_gpio": "GPIO_PIN(GPIOF, 6)",
+    "led_strip_gpio_af": "LL_GPIO_AF_1",
+    "led_strip_timer": "TIM16",
+    "led_strip_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "led_strip_timer_channel": "LL_TIM_CHANNEL_CH1",
+    "led_strip_timer_dma": "DMA1",
+    "led_strip_timer_dma_channel": "LL_DMAMUX1_REQ_TIM16_UP",
+    "led_strip_timer_dma_stream": "LL_DMA_STREAM_0",
+    "led_strip_timer_dma_irqn": "DMA1_Stream0_IRQn",
+    "led_strip_timer_dma_irqhandler": "DMA1_Stream0_IRQHandler",
+    "led_strip_refresh_period": 50,
+    "status_leds": true
   },
   "hardware": {
-    "has_audio_mute": 1,
-    "has_bling_leds": 4,
-    "has_ext_module_support": 1,
-    "has_int_module_support": 1,
+    "has_audio_mute": true,
+    "has_ext_module_support": true,
+    "has_int_module_support": true,
     "sport_max_baudrate": 400000,
-    "surface": 0,
     "cpu": "STM32H750xB",
     "cpu_type": "STM32H7"
+  },
+  "timers": {
+    "cpu_freq": 400000000,
+    "peri1_frequency": 100000000,
+    "peri2_frequency": 100000000,
+    "timer_mult_apb1": 2,
+    "timer_mult_apb2": 2,
+    "ms_timer": "TIM14",
+    "ms_timer_irqn": "TIM8_TRG_COM_TIM14_IRQn",
+    "ms_timer_irqhandler": "TIM8_TRG_COM_TIM14_IRQHandler",
+    "mixer_scheduler_timer": "TIM12",
+    "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
+    "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "imu": {
+    "imu_i2c_bus": "I2C_Bus_2",
+    "imu_i2c_address": "0x6A"
+  },
+  "rotenc": {
+    "rotary_encoder_gpio": "GPIOA",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_6",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_7",
+    "rotary_encoder_position": "((ROTARY_ENCODER_GPIO->IDR >> 6) & 0x03)",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_6",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_7",
+    "exti": [
+      {
+        "irq": "EXTI9_5_IRQ",
+        "priority": 5
+      }
+    ],
+    "rotary_encoder_exti_port": "LL_SYSCFG_EXTI_PORTA",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE6",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE7",
+    "rotary_encoder_timer": "TIM17",
+    "rotary_encoder_timer_irqn": "TIM17_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM17_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOA, 15)",
+    "haptic_gpio_timer": "TIM2",
+    "haptic_gpio_af": "GPIO_AF1"
   }
 }

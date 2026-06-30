@@ -21,13 +21,7 @@
 
 #pragma once
 
-#define CPU_FREQ                168000000
-
-// HSI is at 168Mhz (over-drive is not enabled!)
-#define PERI1_FREQUENCY                 42000000
-#define PERI2_FREQUENCY                 84000000
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
+#include "hal_settings.h"
 
 /* Timers Allocation:
  * TIM1 = Haptic
@@ -248,40 +242,10 @@
 #define LCD_SPI_SCK_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02
 #define LCD_SPI_MISO_GPIO               GPIO_PIN(GPIOE, 5)  // PE.05
 #define LCD_SPI_MOSI_GPIO               GPIO_PIN(GPIOE, 6)  // PE.06
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
-
-// Backlight
-// TODO TIM3, TIM8, TIM14, review the channel in backlight_driver.cpp according to the chosen timer
-#define BACKLIGHT_RCC_APB2Periph        0
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 15) // PA.15
-#define BACKLIGHT_TIMER                 TIM2
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 //used in BOOTLOADER
 #define SERIAL_RCC_AHB1Periph           0
 #define SERIAL_RCC_APB1Periph           0
-
-#if defined(RADIO_NB4P)
-// Rotary Encoder
-#define ROTARY_ENCODER_GPIO             GPIOH
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_11 // PH.11
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_10 // PH.10
-#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_11
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_10
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTH
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE11
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE10
-#define ROTARY_ENCODER_TIMER            TIM13
-#define ROTARY_ENCODER_TIMER_IRQn       TIM8_UP_TIM13_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM8_UP_TIM13_IRQHandler
-#endif
 
 #if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
   // SD card
@@ -385,25 +349,6 @@
   #define EXTI9_5_IRQ_Priority  9
 #endif
 
-// Haptic: TIM1_CH1
-#if defined(RADIO_NB4P)
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 0) // PB.00
-#define HAPTIC_GPIO_TIMER               TIM1
-#define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2NE
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-#else
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 8) // PA.08
-#define HAPTIC_GPIO_TIMER               TIM1
-#define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
-#endif
-
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
 #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
@@ -419,26 +364,6 @@
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
-
-// LED Strip
-#if !defined(RADIO_NV14_FAMILY)
-  #define LED_STRIP_LENGTH                  4
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            4
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOH, 12)  // PH.12 / TIM5_CH3
-  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_2    // TIM3/4/5
-  #define LED_STRIP_TIMER                   TIM5
-  #define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
-  #define LED_STRIP_TIMER_DMA               DMA1
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
-  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
-  #define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
-  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
-  #define LED_STRIP_REFRESH_PERIOD          50 //ms
-
-  #define STATUS_LEDS
-#endif
 
 // Internal Module
 #if defined(RADIO_PL18) || defined(RADIO_PL18U)
@@ -599,34 +524,8 @@
   #define BT_CMD_MODE_GPIO                GPIO_PIN(GPIOH, 6)  // PH.06
 #endif
 
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
 // SDRAM
 #define SDRAM_BANK1
 #if defined(RADIO_PL18U)
   #define SDRAM_32MB
 #endif
-
-// LCD Settings
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
-  #define LCD_W                         320
-  #define LCD_H                         480
-#else
-  #define LCD_W                         480
-  #define LCD_H                         320
-#endif
-
-#define LCD_PHYS_W                      320
-#define LCD_PHYS_H                      480
-
-#define LCD_DEPTH                       16
-#define LCD_CONTRAST_DEFAULT            20

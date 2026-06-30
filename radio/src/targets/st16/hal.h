@@ -36,13 +36,7 @@
 // - Ext. Mod.  TIM4_UP: DMA2 stream 6
 // 
 
-
-#define CPU_FREQ                400000000
-
-#define PERI1_FREQUENCY         100000000
-#define PERI2_FREQUENCY         100000000
-#define TIMER_MULT_APB1         2
-#define TIMER_MULT_APB2         2
+#include "hal_settings.h"
 
 #define ADC_VREF_PREC2          329
 
@@ -126,14 +120,6 @@
 #define LCD_SPI_GPIO                    GPIOE
 #define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_4  // PE.04
 #define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_3  // PE.03
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
-
-// Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOC, 06) // TIM3_CH1
-#define BACKLIGHT_TIMER                 TIM3
-#define BACKLIGHT_GPIO_AF               GPIO_AF2
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // QSPI Flash
 #define QSPI_MAX_FREQ                   80000000U // 80 MHz
@@ -206,15 +192,6 @@
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
 
-// Haptic: TIM3_CH2
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 5) // PB.05
-#define HAPTIC_GPIO_TIMER               TIM3
-#define HAPTIC_GPIO_AF                  GPIO_AF2
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 USART2
 
@@ -227,25 +204,6 @@
 #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_USART2_RX
 
-// LED Strip
-#define LED_STRIP_LENGTH                  24
-#define BLING_LED_STRIP_START             0
-#define BLING_LED_STRIP_LENGTH            12
-#define CFS_LED_STRIP_START               12
-#define CFS_LED_STRIP_LENGTH              12
-#define CFS_LEDS_PER_SWITCH               2
-#define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 15)  // PA.15 / TIM2_CH1
-#define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
-#define LED_STRIP_TIMER                   TIM2
-#define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
-#define LED_STRIP_TIMER_DMA               DMA1
-#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM2_UP
-#define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
-#define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
-#define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
-#define LED_STRIP_REFRESH_PERIOD          50 //ms
-#define STATUS_LEDS
 #define LED_CHARGING_START                12
 #define LED_CHARGING_END                  23
 
@@ -335,47 +293,3 @@
 
 #define IMU_I2C_BUS                     I2C_Bus_1
 #define IMU_I2C_ADDRESS                 0x6A
-
-//ROTARY emulation for trims as buttons
-#define ROTARY_ENCODER_NAVIGATION
-// Rotary Encoder
-#define ROTARY_ENCODER_INVERTED
-#define ROTARY_ENCODER_GPIO             GPIOG
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_2 // PG.02
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_3 // PG.03
-#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_2
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_3
-#if !defined(USE_EXTI2_IRQ)
-  #define USE_EXTI2_IRQ
-  #define EXTI2_IRQ_Priority 5
-#endif
-#if !defined(USE_EXTI3_IRQ)
-  #define USE_EXTI3_IRQ
-  #define EXTI3_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTG
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE2
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE3
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
-#define LCD_W                           480
-#define LCD_H                           320
-
-#define LCD_PHYS_W                      LCD_H
-#define LCD_PHYS_H                      LCD_W
-
-#define LCD_DEPTH                       16
