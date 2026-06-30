@@ -32,6 +32,7 @@ on:
           - all
           - linux
           - macos
+          - macos-arm64
           - windows
           - wasm
 
@@ -146,6 +147,35 @@ jobs:
         uses: ./.github/actions/build_companion
         with:
           os: 'macos'
+          qt-arch: 'clang_64'
+
+  build-macos-arm64:
+    name: macOS Companion (arm64)
+    runs-on: macos-15
+    needs: modules
+    if: inputs.target == 'all' || inputs.target == 'macos-arm64' || inputs.target == ''
+
+    env:
+      CMAKE_OSX_ARCHITECTURES: 'arm64'
+      CMAKE_OSX_DEPLOYMENT_TARGET: '11.0'
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Download WASM modules
+        uses: actions/download-artifact@v7
+        with:
+          pattern: wasm-modules-*
+          path: wasm-modules
+          merge-multiple: true
+
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
+        with:
+          os: 'macos-arm64'
           qt-arch: 'clang_64'
 
   build-win64:
