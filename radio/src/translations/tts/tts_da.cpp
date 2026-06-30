@@ -9,7 +9,7 @@
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
- * This program is free software; you can redistribute it and/or modify 
+ * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h" 
+#include "edgetx.h"
 
 enum DanishPrompts {
   DA_PROMPT_NUMBERS_BASE = 0,
@@ -30,7 +30,7 @@ enum DanishPrompts {
   DA_PROMPT_MINUS = DA_PROMPT_NUMBERS_BASE+111,
   DA_PROMPT_POINT = DA_PROMPT_NUMBERS_BASE+112,
   DA_PROMPT_UNITS_BASE = 113,
-  DA_PROMPT_POINT_BASE = 165, //.0 - .9
+  DA_PROMPT_POINT_BASE = 167, //.0 - .9
 };
 
 
@@ -51,16 +51,21 @@ I18N_PLAY_FUNCTION(da, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     number = -number;
   }
 
-
   int8_t mode = MODE(att);
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
     div_t qr = div((int)number, 10);
-    if (qr.rem) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(DA_PROMPT_POINT_BASE + qr.rem);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
       number = -1;
     }
     else {
@@ -125,4 +130,3 @@ I18N_PLAY_FUNCTION(da, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(da, STR_VOICE_DANISH);
-
