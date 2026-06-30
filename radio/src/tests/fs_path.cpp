@@ -26,7 +26,10 @@
 // to exist under the sim SD root = radio/src/tests). "/" and "/images" exist.
 static std::string norm(const char* cwd, const char* in)
 {
-  EXPECT_EQ(etxChdir(cwd), FR_OK) << "chdir failed: " << cwd;
+  if (etxChdir(cwd) != FR_OK) {
+    ADD_FAILURE() << "chdir failed: " << cwd;
+    return {};
+  }
   char out[FF_MAX_LFN + 1];
   etxNormalizePath(in, out, sizeof(out));
   return std::string(out);
