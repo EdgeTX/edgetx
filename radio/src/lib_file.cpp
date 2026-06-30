@@ -85,6 +85,72 @@ bool isExtensionMatching(const char * extension, const char * pattern, char * ma
 
 #if !defined(BOOT)
 
+// CWD tracker + path normalizer (see lib_file.h).
+
+static char s_currentDir[FF_MAX_LFN + 1] = "/";
+
+void etxNormalizePath(const char* in, char* out, size_t outLen)
+{
+  if (outLen == 0) return;
+  out[0] = '\0';
+  if (outLen < 2) return;
+  if (!in) in = "";
+
+  // absolute input replaces the CWD; relative input is appended
+  char work[FF_MAX_LFN + 1];
+  if (in[0] == '/') {
+    strncpy(work, in, sizeof(work) - 1);
+    work[sizeof(work) - 1] = '\0';
+  } else {
+    snprintf(work, sizeof(work), "%s/%s", s_currentDir, in);
+  }
+
+  size_t len = 0;
+  bool truncated = false;
+
+  char* p = work;
+  while (*p) {
+    while (*p == '/') p++;
+    if (!*p) break;
+    char* seg = p;
+    while (*p && *p != '/') p++;
+    size_t seglen = (size_t)(p - seg);
+
+    if (seglen == 1 && seg[0] == '.') continue;
+    if (seglen == 2 && seg[0] == '.' && seg[1] == '.') {  // pop, clamp at root
+      while (len > 0 && out[len - 1] != '/') len--;
+      if (len > 0) len--;
+      out[len] = '\0';
+      continue;
+    }
+    if (len + 1 + seglen >= outLen) { truncated = true; break; }
+    out[len++] = '/';
+    memcpy(out + len, seg, seglen);
+    len += seglen;
+    out[len] = '\0';
+  }
+
+  // genuine collapse to root -> "/"; don't fabricate it on truncation
+  if (len == 0 && !truncated) {
+    out[0] = '/';
+    out[1] = '\0';
+  }
+}
+
+FRESULT etxChdir(const char* path)
+{
+  char abs[FF_MAX_LFN + 1];
+  etxNormalizePath(path, abs, sizeof(abs));
+  FRESULT res = f_chdir(abs);
+  if (res == FR_OK) {
+    strncpy(s_currentDir, abs, sizeof(s_currentDir) - 1);
+    s_currentDir[sizeof(s_currentDir) - 1] = '\0';
+  }
+  return res;
+}
+
+const char* etxGetcwd() { return s_currentDir; }
+
 // Replace FatFS implementation of f_puts and f_printf
 
 int f_puts(const char* s, FIL* fp)
