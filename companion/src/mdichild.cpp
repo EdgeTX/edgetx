@@ -1033,7 +1033,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
       //   this is esp. important because otherwise we may delete this model during a move operation (eg. after a cut)
       radioData.models[modelIdx].modelIndex = -modelIdx;
-      strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
+      snprintf(radioData.models[modelIdx].filename, sizeof(radioData.models[modelIdx].filename), "%s", radioData.getNextModelFilename().toStdString().c_str());
       lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
       modified = true;
       setModelModified(modelIdx, false);  // avoid unnecessary refreshes
@@ -2111,7 +2111,7 @@ void MdiChild::modelImport()
   if (ok) {
     // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
     radioData.models[modelIdx].modelIndex = -modelIdx;
-    strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
+    snprintf(radioData.models[modelIdx].filename, sizeof(radioData.models[modelIdx].filename), "%s", radioData.getNextModelFilename().toStdString().c_str());
     lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
     setModelModified(modelIdx, false);  // avoid unnecessary refreshes
     radioData.addLabelsFromModels();
