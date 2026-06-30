@@ -34,6 +34,8 @@
 #include "filtereditemmodels.h"
 #include "labels.h"
 #include "firmwares/edgetx/edgetxinterface.h"
+#include "progress/progressdialog.h"
+#include "progress/progresswidget.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -1424,11 +1426,19 @@ bool MdiChild::saveAs(bool isNew)
   return saveFile(fileName, true);
 }
 
-bool MdiChild::saveFile(const QString & filename, bool setCurrent)
+bool MdiChild::saveFile(const QString & filename, bool setCurrent, bool toRadio)
 {
   radioData.fixModelFilenames();
-  Storage storage(filename);
-  bool result = storage.write(radioData);
+
+  bool result = false;
+
+  if (toRadio)
+    result = saveFileProgress(filename);
+  else {
+    Storage storage(filename);
+    result = storage.write(radioData);
+  }
+
   if (!result) {
     return false;
   }
@@ -1449,6 +1459,29 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   }
 
   return true;
+}
+
+bool MdiChild::saveFileProgress(const QString & filename)
+{
+  ProgressDialog dlg(parentWidget(), tr("Write Models and Settings"),
+                     CompanionIcon("write_eeprom.png"));
+
+  ProgressWidget * progress = dlg.progress();
+  progress->lock(false);
+  dlg.setProcessStarted();
+  progress->updateInfoAndMessages(tr("Initialising"));
+
+  Storage storage(filename);
+  storage.setProgress(progress);
+  bool result = storage.write(radioData);
+
+  dlg.setProcessStopped();
+  progress->updateInfoAndMessages(tr("Finished %1").arg(result ? tr("successfully") : tr("with errors")));
+  progress->setValue(progress->maximum());
+  progress->refresh();
+  QApplication::processEvents();
+  dlg.exec();
+  return result;
 }
 
 void MdiChild::closeFile(bool force)
@@ -1573,7 +1606,7 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings(StatusDialog * status, bool toRadio)
+void MdiChild::writeModelsSettings(bool toRadio)
 {
   //  safeguard as the menu actions are enabled
   int cnt = radioData.invalidModels();
@@ -1605,25 +1638,27 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)
 
   if (toRadio) {
     radioPath = findMassStoragePath("RADIO", true);
-    qDebug() << "Searching for SD card, found" << radioPath;
+    if (radioPath.isEmpty()) {
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
+      return;
+    }
+    qDebug() << "SD card found" << radioPath;
   } else {
     radioPath = g.currentProfile().sdPath();
-    if (!QFile(radioPath % "/RADIO").exists())
-      radioPath.clear();
+    if (!QFile(radioPath % "/RADIO").exists()) {
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD path '%1'!")
+                            .arg(QDir::toNativeSeparators(radioPath % "/RADIO")));
+      return;
+    }
   }
 
-  if (radioPath.isEmpty()) {
-    qDebug() << "Radio SD card not found";
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD card!"));
-    return;
-  }
+  bool ret = saveFile(radioPath, false, toRadio);
 
-  if (saveFile(radioPath, false)) {
-    status->hide();
-    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
-  } else {
-    status->hide();
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
+  if (!toRadio) {
+    if (ret)
+      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
+    else
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
   }
 }
 

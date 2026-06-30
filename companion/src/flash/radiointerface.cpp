@@ -569,26 +569,43 @@ bool readSettings(const QString &filename, ProgressWidget *progress)
 bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
                         bool fromRadio)
 {
+  if (progress) {
+    progress->setValue(0);
+    progress->setMaximum(100);
+    progress->updateInfoAndMessages(TR("Initialising..."));
+  }
+
   QString radioPath;
+
   if (fromRadio) {
     radioPath = findMassStoragePath("RADIO", true, progress);
     qDebug() << "Searching for SD card, found" << radioPath;
   } else {
     radioPath = g.currentProfile().sdPath();
+
     if (!QFile::exists(radioPath % "/RADIO"))
       radioPath.clear();
   }
 
   if (radioPath.isEmpty()) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, TR("Unable to find SD card!"));
+    const QString msg(TR("Unable to find SD card!"));
+    if (progress)
+      progress->addMessage(msg, QtFatalMsg);
+    else
+      QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR, msg);
     return false;
   }
 
+  if (progress)
+    progress->setInfo(TR("Loading models and settings"));
+
   RadioData radioData;
   Storage inputStorage(radioPath);
+  inputStorage.setProgress(progress);
 
   if (!inputStorage.load(radioData)) {
     QString errorMsg = inputStorage.error();
+
     if (errorMsg.isEmpty())
       errorMsg = TR("Failed to read Models and Settings from")
                     % QDir::toNativeSeparators(radioPath);
@@ -597,10 +614,15 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
     return false;
   }
 
+  if (progress)
+    progress->addMessage(TR("Writing models and settings to temporary file..."));
+
   Storage outputStorage(filename);
+  outputStorage.setProgress(progress);
+
   if (!outputStorage.write(radioData)) {
     QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
-                          TR("Failed to write Models and Setting file") % " "
+                          TR("Failed to write Models and Setting to") % " "
                           % QDir::toNativeSeparators(filename));
     return false;
   }

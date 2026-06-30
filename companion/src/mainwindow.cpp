@@ -525,23 +525,13 @@ void MainWindow::customizeSplash()
 
 void MainWindow::writeSettings()
 {
-  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to radio"), tr("In progress..."), 400);
-
   if (activeMdiChild())
-    activeMdiChild()->writeSettings(status);
-
-  delete status;
+    activeMdiChild()->writeModelsSettings();
 }
 
 void MainWindow::readSettings()
 {
-  Board::Type board = getCurrentBoard();
-  QString tempFile;
-  if (Boards::getCapability(board, Board::HasSDCard))
-    tempFile = generateProcessUniqueTempFileName("temp.etx");
-  else
-    tempFile = generateProcessUniqueTempFileName("temp.bin");
-
+  QString tempFile(generateProcessUniqueTempFileName("temp.etx"));
   qDebug() << "Reading models and settings into temp file: " << tempFile;
 
   if (readSettingsFromRadio(tempFile)) {
@@ -568,16 +558,21 @@ bool MainWindow::readFirmwareFromRadio(const QString & filename)
 
 bool MainWindow::readSettingsFromRadio(const QString & filename)
 {
-  ProgressDialog progressDialog(this, tr("Read Models and Settings from Radio"), CompanionIcon("read_eeprom.png"));
-  bool result = ::readSettings(filename, progressDialog.progress());
-  if (!result) {
-    if (!progressDialog.isEmpty()) {
-      progressDialog.exec();
-    }
-  }
-  else {
-    statusBar()->showMessage(tr("Models and Settings read"), 2000);
-  }
+  ProgressDialog dlg(this, tr("Read Models and Settings from Radio"), CompanionIcon("read_eeprom.png"));
+  ProgressWidget * progress = dlg.progress();
+  progress->lock(false);
+  dlg.setProcessStarted();
+  progress->setInfo(tr("Initialising"));
+
+  bool result = ::readSettings(filename, progress);
+
+  dlg.setProcessStopped();
+  progress->setValue(progress->maximum());
+  progress->updateInfoAndMessages(tr("Finished %1").arg(result ? tr("successfully") : tr("with errors")));
+  progress->refresh();
+  QApplication::processEvents();
+  dlg.exec();
+
   return result;
 }
 
@@ -1488,52 +1483,30 @@ void MainWindow::chooseProfile()
 
 void MainWindow::readSettingsSDPath()
 {
+  ProgressDialog progressDialog(this, tr("Read Models and Settings from Profile SD Path"), CompanionIcon("read_eeprom.png"));
   QString tempFile;
   tempFile = generateProcessUniqueTempFileName("temp.etx");
-  qDebug() << "Reading models and settings from SD path into temp file: " << tempFile;
 
-  if (readSettingsFromSDPath(tempFile)) {
+  bool result = ::readSettingsSDCard(tempFile, progressDialog.progress(), false);
+
+  if (!result) {
+    if (!progressDialog.isEmpty())
+      progressDialog.exec();
+  } else {
+    statusBar()->showMessage(tr("Models and Settings read"), 2000);
     MdiChild * child = createMdiChild();
     child->newFile();
     child->loadFile(tempFile, false);
     child->show();
-    qunlink(tempFile);
   }
-}
 
-bool MainWindow::readSettingsFromSDPath(const QString & filename)
-{
-  ProgressDialog progressDialog(this, tr("Read Models and Settings from SD path"), CompanionIcon("read_eeprom.png"));
-  bool result = ::readSettingsSDCard(filename, progressDialog.progress(), false);
-  if (!result) {
-    if (!progressDialog.isEmpty()) {
-      progressDialog.exec();
-    }
-  }
-  else {
-    statusBar()->showMessage(tr("Models and Settings read"), 2000);
-  }
-  return result;
+  qunlink(tempFile);
 }
 
 void MainWindow::writeSettingsSDPath()
 {
-  if (activeMdiChild()) {
-    int cnt = activeMdiChild()->invalidModels();
-
-    if (cnt) {
-      QMessageBox::critical(this, tr("Write Models and Settings to SD Path"),
-        tr("Operation aborted: %1 models have errors that may affect operation.\n%2")
-          .arg(cnt)
-          .arg(activeMdiChild()->modelErrorsList().join("\n")));
-
-      return;
-    }
-
-    StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to SD path"), tr("In progress..."), 400);
-    activeMdiChild()->writeSettings(status, false);
-    delete status;
-  }
+  if (activeMdiChild())
+    activeMdiChild()->writeModelsSettings(false);
 }
 
 bool MainWindow::isSDPathValid()
