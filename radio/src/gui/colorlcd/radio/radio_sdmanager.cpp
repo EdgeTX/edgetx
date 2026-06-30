@@ -467,14 +467,19 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   }
   menu->addLine(STR_COPY_FILE, [=]() {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+    // f_getcwd() is a no-op on exFAT; use the tracked path.
+    strncpy(clipboard.data.sd.directory, path, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.directory[CLIPBOARD_PATH_LEN - 1] = '\0';
     strncpy(clipboard.data.sd.filename, name, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.filename[CLIPBOARD_PATH_LEN - 1] = '\0';
   });
   if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
     menu->addLine(STR_PASTE, [=]() {
       static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
       char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-      f_getcwd((TCHAR*)lfn, FF_MAX_LFN);
+      // f_getcwd() is a no-op on exFAT; use the tracked path.
+      strncpy(lfn, path, FF_MAX_LFN);
+      lfn[FF_MAX_LFN] = '\0';
       // prevent copying to the same directory with the same name
       char* destNamePtr = clipboard.data.sd.filename;
       if (!strcmp(clipboard.data.sd.directory, lfn)) {

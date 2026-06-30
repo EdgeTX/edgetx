@@ -466,15 +466,19 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   memclear(&fnoLuaS, sizeof(FILINFO));
   memclear(&fnoLuaC, sizeof(FILINFO));
 
-  fnamelen = strlen(filename);
+  // resolve to an absolute path (works on exFAT)
+  char normPath[FF_MAX_LFN + 1];
+  etxNormalizePath(filename, normPath, sizeof(normPath));
+
+  fnamelen = strlen(normPath);
   // check if file extension is already in the file name and strip it
-  getFileExtension(filename, fnamelen, 0, nullptr, &extlen);
+  getFileExtension(normPath, fnamelen, 0, nullptr, &extlen);
   fnamelen -= extlen;
   if (fnamelen > sizeof(filenameFull) - sizeof(SCRIPT_BIN_EXT)) {
     TRACE_ERROR("luaLoadScriptFileToState(%s, %s): Error loading script: filename buffer overflow.\n", filename, lmode);
     return ret;
   }
-  strncat(filenameFull, filename, fnamelen);
+  strncat(filenameFull, normPath, fnamelen);
 
   // check if binary version exists
   strcpy(filenameFull + fnamelen, SCRIPT_BIN_EXT);
@@ -535,8 +539,9 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
 
 #else  // !defined(LUA_COMPILER)
 
-  // use passed file name as-is
-  const char *filenameFull = filename;
+  // resolve to an absolute path (works on exFAT)
+  char filenameFull[FF_MAX_LFN + 1];
+  etxNormalizePath(filename, filenameFull, sizeof(filenameFull));
 
 #endif
 
@@ -1404,7 +1409,10 @@ bool readToolName(char * toolName, const char * filename)
   char buffer[1024];
   UINT count;
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  char fullPath[FF_MAX_LFN + 1];
+  etxNormalizePath(filename, fullPath, sizeof(fullPath));
+
+  if (f_open(&file, fullPath, FA_READ) != FR_OK) {
     return false;
   }
 

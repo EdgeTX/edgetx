@@ -61,11 +61,31 @@ inline bool isFilenameLower(bool isfile, const char * fn, const char * line)
   return (!isfile && IS_FILE(line)) || (isfile==IS_FILE(line) && strcasecmp(fn, line) < 0);
 }
 
+// Current dir, tracked explicitly: on exFAT f_getcwd() and f_chdir("..") are no-ops.
+static char sdManagerPath[FF_MAX_LFN + 1] = "/";
+
+static void sdManagerChdir(const char* name)
+{
+  if (!strcmp(name, "..")) {
+    // go up: drop the last path segment
+    char* sep = strrchr(sdManagerPath, '/');
+    if (sep == sdManagerPath) sep[1] = '\0';  // parent is the root
+    else if (sep) *sep = '\0';
+  } else {
+    // descend into 'name' (bounded, no duplicate slash at the root)
+    size_t len = strlen(sdManagerPath);
+    if (strcmp(sdManagerPath, ROOT_PATH) != 0 && len + 1 < sizeof(sdManagerPath))
+      sdManagerPath[len++] = '/';
+    strncpy(sdManagerPath + len, name, sizeof(sdManagerPath) - len - 1);
+    sdManagerPath[sizeof(sdManagerPath) - 1] = '\0';
+  }
+  etxChdir(sdManagerPath);  // absolute path: resolves on FAT and exFAT alike
+}
+
 void getSelectionFullPath(char * lfn)
 {
-  f_getcwd(lfn, FF_MAX_LFN);
-  strcat(lfn, "/");
-  strcat(lfn, reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
+  snprintf(lfn, FF_MAX_LFN + 1, "%s/%s", sdManagerPath,
+           reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
 }
 
 #if defined(PXX2)
@@ -121,12 +141,14 @@ void onSdManagerMenu(const char * result)
   }
   else if (result == STR_COPY_FILE) {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+    strncpy(clipboard.data.sd.directory, sdManagerPath, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.directory[CLIPBOARD_PATH_LEN - 1] = '\0';
     strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
+    clipboard.data.sd.filename[CLIPBOARD_PATH_LEN - 1] = '\0';
   }
   else if (result == STR_PASTE) {
     char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-    f_getcwd(lfn, FF_MAX_LFN);
+    strcpy(lfn, sdManagerPath);
     // if destination is dir, copy into that dir
     if (IS_DIRECTORY(line)) {
       strcat(lfn, "/");
@@ -278,7 +300,8 @@ void menuRadioSdManager(event_t _event)
 #endif
 
   if (_event == EVT_ENTRY) {
-    f_chdir(ROOT_PATH);
+    etxChdir(ROOT_PATH);
+    strcpy(sdManagerPath, ROOT_PATH);
 #if LCD_DEPTH > 1
     lastPos = -1;
 #endif
@@ -325,7 +348,7 @@ void menuRadioSdManager(event_t _event)
       else {
         int index = menuVerticalPosition - HEADER_LINE - menuVerticalOffset;
         if (IS_DIRECTORY(reusableBuffer.sdManager.lines[index])) {
-          f_chdir(reusableBuffer.sdManager.lines[index]);
+          sdManagerChdir(reusableBuffer.sdManager.lines[index]);
           menuVerticalOffset = 0;
           menuVerticalPosition = HEADER_LINE;
           REFRESH_FILES();
@@ -483,11 +506,17 @@ void menuRadioSdManager(event_t _event)
       if (res == FR_OK) {
         bool firstTime = true;
         for (;;) {
-          res = sdReadDir(&dir, &fno, firstTime);
-          if (res != FR_OK || fno.fname[0] == 0) break;              /* Break on error or end of dir */
-          if (strlen(fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-          if (fno.fattrib & (AM_HID|AM_SYS)) continue;               /* Ignore hidden and system files */
-          if (fno.fname[0] == '.' && fno.fname[1] != '.') continue;  /* Ignore UNIX hidden files, but not .. */
+          if (firstTime && (strcmp(sdManagerPath, ROOT_PATH) != 0)) {
+            strcpy(fno.fname, "..");
+            fno.fattrib = AM_DIR;
+          } else {
+            res = f_readdir(&dir, &fno);
+            if (res != FR_OK || fno.fname[0] == 0) break;              /* Break on error or end of dir */
+            if (strlen(fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
+            if (fno.fattrib & (AM_HID|AM_SYS)) continue;               /* Ignore hidden and system files */
+            if (fno.fname[0] == '.') continue;                         /* Ignore UNIX hidden files */
+          }
+          firstTime = false;
 
           reusableBuffer.sdManager.count++;
 
