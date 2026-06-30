@@ -55,6 +55,9 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #if defined(LUMINOSITY_SENSOR)
           if (index == MIXSRC_LIGHT) return true;
 #endif
+#if defined(VOICE_CONTROL_SENSOR)
+          if (index >= MIXSRC_VGR && index <= MIXSRC_LAST_VOICE) return true;
+#endif
           return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) ||
                  (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
         },

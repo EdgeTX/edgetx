@@ -552,6 +552,20 @@
   #define LED_STRIP_REFRESH_PERIOD          50 //ms
 #endif
 
+#if defined(VOICE_CONTROL_SENSOR)
+#if defined(RADIO_V16)
+  #define VOICE_CTRL_BAUD               115200
+  #define VOICE_CONTROL_USART           UART7
+  #define VOICE_CONTROL_USART_IRQn      UART7_IRQn
+  #define VOICE_CONTROL_GPIO            GPIOF
+  #define VOICE_CONTROL_TX_GPIO         GPIO_PIN(GPIOF, 7) // PF.7
+  #define VOICE_CONTROL_RX_GPIO         GPIO_PIN(GPIOF, 6)  // PF.6
+  #define VOICE_CONTROL_PWR_GPIO        GPIO_PIN(GPIOH, 13) // PH.13  1=ON, 0=OFF
+#else
+  #error VOICE_CONTROL_SENSOR is only supported on RADIO_V16
+#endif
+#endif
+
 // Internal PXX1 Module:
 //  -> let's assume all internal XJT modules used are either X10 or X12S type
 #define EXTERNAL_ANTENNA

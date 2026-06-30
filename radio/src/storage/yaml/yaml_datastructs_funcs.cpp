@@ -34,6 +34,10 @@
 #include "hal/adc_driver.h"
 #include "hal/audio_driver.h"
 
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
+
 #if defined(COLORLCD)
 #include "radio_tools.h"
 #endif
@@ -291,6 +295,15 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       return MIXSRC_FIRST_TRIM + (val[1] - '1');
     }
 
+#if defined(VOICE_CONTROL_SENSOR)
+    {
+      uint32_t voiceSrc;
+      if (CI1302_voiceIntegrationMixSrcParseYaml(val, val_len, &voiceSrc)) {
+        return voiceSrc;
+      }
+    }
+#endif
+
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
     if (idx >= 0) return idx + MIXSRC_FIRST_STICK;
 
@@ -407,6 +420,11 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
           return false;
         str = closing_parenthesis;
     }
+#if defined(VOICE_CONTROL_SENSOR)
+    else if (CI1302_voiceIntegrationMixSrcWriteYaml(val, &str)) {
+      // handled
+    }
+#endif
     else if (val >= MIXSRC_FIRST_TIMER
              && val <= MIXSRC_LAST_TIMER) {
         if (!wf(opaque, "Tmr", 3)) return false;
@@ -1395,6 +1413,11 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
       ival += SWSRC_FIRST_SWITCH;
       
     }
+#if defined(VOICE_CONTROL_SENSOR)
+    else if (CI1302_voiceIntegrationSwitchSrcParseYaml(val, val_len, &ival)) {
+      // parsed
+    }
+#endif
     else if (val_len > 3
         && val[0] == '6'
         && val[1] == 'P'
