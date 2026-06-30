@@ -325,6 +325,9 @@ void ThemePersistance::scanForThemes()
       if (res != FR_OK || fno.fname[0] == 0)
         break;  // Break on error or end of dir
 
+      if (fno.fattrib & (AM_HID | AM_SYS)) continue;  // skip hidden/system
+      if (fno.fname[0] == '.') continue;              // skip dot entries
+
       if (fno.fattrib & AM_DIR) {
         if (strlen((const char*)fno.fname) <= SD_SCREEN_FILE_LENGTH)
           scanThemeFolder(fno.fname);

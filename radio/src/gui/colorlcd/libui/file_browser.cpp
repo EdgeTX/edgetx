@@ -286,6 +286,9 @@ void FileBrowser::onPress(const char* name, bool is_dir)
 
 void FileBrowser::onPressLong(const char* name, bool is_dir)
 {
+  // the synthetic parent-directory row is navigation-only
+  if (strcmp(name, "..") == 0) return;
+
   if (!selected || (selected != name)) {
     onSelected(name, is_dir);
   }
