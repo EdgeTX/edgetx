@@ -191,6 +191,7 @@ class SimulatorInterface : public QObject
     void auxSerialStart(const quint8 port_num);
     void auxSerialStop(const quint8 port_num);
     void txBatteryVoltageChanged(const int voltage);
+    void hapticChanged(int intensity);
     void fsColorChange(quint8 index, qint32 color);
 };
 
