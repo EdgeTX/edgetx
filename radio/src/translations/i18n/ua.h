@@ -717,6 +717,8 @@
 #define TR_BATT_CALIB                  TR("Калібр.акум", "Калібрування акумулятора")
 #define TR_CURRENT_CALIB               "Калібровка струму"
 #define TR_VOLTAGE                     TR("Напруга", "Джерело напруги")
+#define TR_MODULE_SENSOR_VOLTAGE       "Напруга"
+#define TR_MODULE_SENSOR_CURRENT       "Струм"
 #define TR_SELECT_MODEL                "Оберіть модель"
 #define TR_MODELS                      "Моделі"
 #define TR_SELECT_MODE                 "Оберіть режим"

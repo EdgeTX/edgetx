@@ -711,6 +711,8 @@
 #define TR_BATT_CALIB                  TR("Calib.bat.", "Calibración batería")
 #define TR_CURRENT_CALIB               "Calib. actual"
 #define TR_VOLTAGE                     "Voltaje"
+#define TR_MODULE_SENSOR_VOLTAGE       "Voltaje"
+#define TR_MODULE_SENSOR_CURRENT       "Corriente"
 #define TR_SELECT_MODEL                TR("Selec. modelo", "Seleccionar modelo")
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"

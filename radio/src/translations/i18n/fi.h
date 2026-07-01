@@ -711,6 +711,8 @@
 #define TR_BATT_CALIB                  "Battery Calib"
 #define TR_CURRENT_CALIB               "Current Calib"
 #define TR_VOLTAGE                     "Jännite"
+#define TR_MODULE_SENSOR_VOLTAGE       "Jännite"
+#define TR_MODULE_SENSOR_CURRENT       "Virta"
 #define TR_SELECT_MODEL                "Select Model"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"

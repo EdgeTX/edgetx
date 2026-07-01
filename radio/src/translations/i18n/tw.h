@@ -713,6 +713,8 @@
 #define TR_BATT_CALIB                  TR("電池校準", "電池電壓校準")
 #define TR_CURRENT_CALIB               "電流校準"
 #define TR_VOLTAGE                     TR("電壓源", "電壓來源")
+#define TR_MODULE_SENSOR_VOLTAGE       "電壓"
+#define TR_MODULE_SENSOR_CURRENT       "電流"
 #define TR_SELECT_MODEL                "選擇模型"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                 "選擇模式"
