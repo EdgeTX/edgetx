@@ -99,6 +99,7 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
   dc.setClippingRect(50, 400, 50, 230);
@@ -113,11 +114,13 @@ TEST(Lcd_colorlcd, lines)
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "lines"));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, vline)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -125,11 +128,13 @@ TEST(Lcd_colorlcd, vline)
     dc.drawVerticalLine(x, x / 2, 12, SOLID, COLOR_THEME_SECONDARY1);
   }
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "vline"));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, primitives)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -156,11 +161,13 @@ TEST(Lcd_colorlcd, primitives)
   dc.drawHorizontalLine(30, 85, 70, SOLID, COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "primitives_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, transparency)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -198,6 +205,7 @@ TEST(Lcd_colorlcd, transparency)
   }
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "transparency_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 
 //
@@ -210,7 +218,8 @@ TEST(Lcd_colorlcd, transparency)
 TEST(Lcd_colorlcd, fonts)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  
+  dc.addCanvas(nullptr);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
@@ -226,12 +235,14 @@ TEST(Lcd_colorlcd, fonts)
   dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "fonts_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 #endif
 
 TEST(Lcd_colorlcd, clipping)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -259,11 +270,13 @@ TEST(Lcd_colorlcd, clipping)
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "clipping"));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -275,6 +288,7 @@ TEST(Lcd_colorlcd, bitmap)
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "bitmap"));
+  dc.removeCanvas();
 }
 
 static const uint8_t mask_menu_radio[] = {
@@ -286,6 +300,7 @@ extern MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed);
 TEST(Lcd_colorlcd, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -299,6 +314,7 @@ TEST(Lcd_colorlcd, masks)
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
   free(mask);
+  dc.removeCanvas();
 }
 
 #if 0
@@ -337,6 +353,7 @@ TEST(Lcd_colorlcd, masks)
 TEST(Lcd_colorlcd, extra_font)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawText(10, 25, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XXS));
@@ -347,6 +364,7 @@ TEST(Lcd_colorlcd, extra_font)
   dc.drawText(10, 184, EXTRA_TEST2, COLOR_THEME_SECONDARY1 | FONT(XXL));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "extra"));
+  dc.removeCanvas();
 }
 
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
@@ -359,6 +377,7 @@ const uint8_t LBM_USB_PLUGGED[] = {
 TEST(Lcd_colorlcd, darkmode)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_BLACK);
 
@@ -370,6 +389,7 @@ TEST(Lcd_colorlcd, darkmode)
                        COLOR2FLAGS(RGB(0, 0, 0xFF)));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 #endif
 

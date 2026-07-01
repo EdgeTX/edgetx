@@ -79,8 +79,6 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #define LOGS_EXT            ".csv"
 #define SOUNDS_EXT          ".wav"
 #define BMP_EXT             ".bmp"
-#define PNG_EXT             ".png"
-#define JPG_EXT             ".jpg"
 #define SCRIPT_EXT          ".lua"
 #define SCRIPT_BIN_EXT      ".luac"
 #define TEXT_EXT            ".txt"
@@ -96,8 +94,7 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #define YAML_EXT            ".yml"
 
 #if defined(COLORLCD)
-#define BITMAPS_EXT         BMP_EXT JPG_EXT PNG_EXT
-#define LEN_BITMAPS_EXT     4
+#define BITMAPS_EXT         BMP_EXT ".png" ".jpg" ".jpeg"
 #else
 #define BITMAPS_EXT         BMP_EXT
 #endif
