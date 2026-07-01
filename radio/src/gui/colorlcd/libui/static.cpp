@@ -284,10 +284,7 @@ StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
 void StaticBitmap::setSource(const char *filename)
 {
   if (filename) {
-    if (img) {
-      img->removeCanvas();
-      delete img;
-    }
+    clearSource();
     img = BitmapBuffer::loadBitmap(filename, BMP_ARGB4444);
     if (img) {
       img->resizeToLVGL(width(), height());
@@ -298,7 +295,10 @@ void StaticBitmap::setSource(const char *filename)
 
 void StaticBitmap::clearSource()
 {
-  if (img) delete img;
+  if (img) {
+    img->removeCanvas();
+    delete img;
+  }
   img = nullptr;
 }
 
