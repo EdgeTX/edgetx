@@ -531,6 +531,9 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
         const int moduleSize = g.currentProfile().externalModuleSize();
         const int moduleType = getTypeFromProtocol(protocol);
 
+        if (IS_IFLIGHT_C14(board))
+          return moduleType == MODULE_TYPE_CROSSFIRE || moduleType == MODULE_TYPE_GHOST;
+
         switch(moduleSize) {
           case Board::EXTMODSIZE_NONE:
             return false;

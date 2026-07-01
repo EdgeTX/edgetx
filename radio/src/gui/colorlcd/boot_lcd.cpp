@@ -123,7 +123,6 @@ void lcdInitDisplayDriver()
 
   // Init hardware LCD driver
   lcdInit();
-  backlightInit();
 
   init_lvgl_disp_drv();
 
@@ -144,6 +143,12 @@ void lcdInitDisplayDriver()
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
   lcd->setDrawCtx(draw_ctx);
   lcdFront->setDrawCtx(draw_ctx);
+
+#if defined(LCD_BACKLIGHT_INIT_DELAY_MS)
+  delay_ms(LCD_BACKLIGHT_INIT_DELAY_MS);
+#endif
+
+  backlightInit();
 }
 
 void lcdClear() { lcd->clear(); }

@@ -746,7 +746,7 @@ static SetupLineDef setupLines[] = {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
     }
   },
-#if defined(PWR_BUTTON_PRESS)
+#if defined(PWR_BUTTON_PRESS) && !defined(PWR_BUTTON_MANAGED)
   {
     // Pwr Off Delay
     STR_DEF(STR_PWR_OFF_DELAY),
@@ -760,7 +760,8 @@ static SetupLineDef setupLines[] = {
           });
     }
   },
-
+#endif
+#if defined(PWR_BUTTON_PRESS)
   // Pwr Off If Inactive
   {
     STR_DEF(STR_PWR_AUTO_OFF),
