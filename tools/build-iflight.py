@@ -13,7 +13,12 @@ boards = {
         "PCBREV": "COMMANDO8",
         "DEFAULT_MODE": "1",
         "IFLIGHT_RELEASE": "YES",
-    }
+    },
+    "C14": {
+        "PCB": "C14",
+        "DEFAULT_MODE": "1",
+        "IFLIGHT_RELEASE": "YES",
+    },
 }
 
 

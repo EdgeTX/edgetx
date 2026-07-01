@@ -226,7 +226,7 @@ else
         tx12mk2 zorro v12 v14
         x7access x9dp2019 x9e
         # colour
-        el18 nb4p nv14 st16 pa01
+        c14 el18 nb4p nv14 st16 pa01
         pl18 pl18ev pl18u
         t15 t15pro t16 t18 t22
         tx15 tx16s tx16smk3 f16 v16

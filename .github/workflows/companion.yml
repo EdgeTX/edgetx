@@ -57,7 +57,7 @@ jobs:
           - id: bw-3
             target: [x7access, x9dp2019, x9e, x9e-hall]
           - id: color-4
-            target: [nb4p, st16, pa01]
+            target: [nb4p, st16, pa01, c14]
           - id: color-5
             target: [t15pro, tx16smk3]
 
