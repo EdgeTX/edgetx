@@ -41,3 +41,12 @@ uint32_t readTrims()
 {
   return 0;
 }
+
+rotenc_t rotaryEncoderGetValue()
+{
+  return 0;
+}
+
+void rotaryEncoderInit()
+{  
+}
