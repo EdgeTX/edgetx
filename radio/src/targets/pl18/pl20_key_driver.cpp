@@ -27,6 +27,9 @@
 #include "hal.h"
 #include "delays_driver.h"
 #include "keys.h"
+#include "timers_driver.h"
+
+volatile uint32_t rotencDt = 0;
 
 void keysInit()
 {
