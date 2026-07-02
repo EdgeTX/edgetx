@@ -160,7 +160,7 @@ void disableVoiceChip()
 
 void boardBLEarlyInit()
 {
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   pwrOn();
 #endif  
   // USB charger status pins

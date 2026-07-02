@@ -96,7 +96,7 @@ extern "C" void SDRAM_Init();
     else                                        \
       gpio_set(INTMODULE_PWR_GPIO);             \
   } while (0)
-#elif defined(RADIO_NB4P) || defined(RADIO_PL18U)
+#elif defined(RADIO_NB4P) || defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
   #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);
 #else

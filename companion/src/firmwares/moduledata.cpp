@@ -85,9 +85,9 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_LR12:
-            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FAMILY_PL18(board) && !IS_FLYSKY_ST16(board);
           case PULSES_PXX_XJT_D8:
-            return !(IS_ACCESS_RADIO(board, id) || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
+            return !(IS_ACCESS_RADIO(board, id) || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FAMILY_PL18(board) && !IS_FLYSKY_ST16(board);
           case PULSES_ACCESS_ISRM:
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);

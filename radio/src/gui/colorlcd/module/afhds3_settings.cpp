@@ -90,7 +90,7 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
   bool hasPowerOption = false;
   int maxPower;
   if (moduleIdx == INTERNAL_MODULE) {    
-  #if defined(RADIO_PL18U) || defined(PCBPA01)
+  #if defined(RADIO_PL18U) || defined(RADIO_PL20) || defined(PCBPA01)
     hasPowerOption = true;
     maxPower = AFHDS3_POWER_500;
   #if  defined(PCBPA01)

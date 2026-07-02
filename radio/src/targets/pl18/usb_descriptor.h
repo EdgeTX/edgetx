@@ -21,7 +21,11 @@
 
 #pragma once
 
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL20)
+  #define USB_NAME                        "FlySky PL20"
+  #define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                     'P', 'L', '2', '0', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_PL18U)
   #define USB_NAME                        "FlySky PL18Ultra"
   #define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                     'P', 'L', '1', '8', 'U', ' ', ' ', ' '  /* 8 Bytes */

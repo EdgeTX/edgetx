@@ -236,7 +236,7 @@
 #else // !defined(RADIO_NB4P) && !defined(RADIO_NV14_FAMILY)
 
 // Keys
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
 #define KEYS_GPIO_PIN_ENTER
 #define KEYS_GPIO_REG_ENTER
 #define KEYS_GPIO_PIN_EXIT
@@ -280,7 +280,7 @@
 #define TRIMS_GPIO_REG_RSU
 #define TRIMS_GPIO_PIN_RSU
 
-#if !defined(RADIO_PL18U)
+#if !defined(RADIO_PL18U) && !defined(RADIO_PL20)
   #define TRIMS_GPIO_REG_T7L
   #define TRIMS_GPIO_PIN_T7L
 
@@ -344,7 +344,7 @@
 
 #define KEYS_GPIOD_PINS (LL_GPIO_PIN_7)
 
-#if !defined(RADIO_PL18U)
+#if !defined(RADIO_PL18U) && !defined(RADIO_PL20)
   #define KEYS_GPIOH_PINS							\
     (LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
 #endif
@@ -355,6 +355,10 @@
   #define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
   #define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_10)
   #define KEYS_OUT_GPIOI_PINS (LL_GPIO_PIN_2)
+#elif defined(RADIO_PL20)
+  #define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
+  #define KEYS_OUT_GPIOH_PINS (0)
+  #define KEYS_OUT_GPIOI_PINS (0)
 #else
   #define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
   #define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_7)
@@ -372,7 +376,7 @@
 //   Especially, as on current dev. state, using PC8 for SDIO D0.
 //   (happy coincidence ;)
 //
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define SWITCHES_GPIO_REG_A_H         GPIOD
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_3 // PD.03
   #define SWITCHES_GPIO_REG_A_L         GPIOB
@@ -390,7 +394,7 @@
 // #define SWITCHES_GPIO_REG_C_L         GPIOC
 // #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11 // PC.11
 
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define SWITCHES_GPIO_REG_C_H         GPIOJ
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_14 // PJ.14
   #define SWITCHES_GPIO_REG_C_L         GPIOH
@@ -508,7 +512,7 @@
     0,       /* SWG */        \
     0        /* SWH */        \
   }
-#elif defined(RADIO_PL18U)
+#elif defined(RADIO_PL18U) || defined(RADIO_PL20)
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
     0,0,0,   /* pots */       \
@@ -548,7 +552,7 @@
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14)   // PB.14 input
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13)   // PB.13 input
 
-#if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U)
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)    // PG.03 output
 #elif defined(RADIO_NV14_FAMILY)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOH, 11)   // PH.11 output
@@ -557,7 +561,7 @@
 
 #if defined (WIRELESS_CHARGER)
   #define WCHARGER_GPIO               GPIO_PIN(GPIOI, 9)    // PI.09 input
-  #if defined(RADIO_PL18U)
+  #if defined(RADIO_PL18U) || defined(RADIO_PL20)
     #define WCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
   #else
     #define WCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOI, 10) // PI.10 input
@@ -645,7 +649,7 @@
 #if defined(RADIO_NV14_FAMILY) 
   #define USB_GPIO_VBUS                 GPIO_PIN(GPIOA, 9)  // PA.09
   #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 10) // PI.10
-#elif defined(RADIO_PL18U)
+#elif defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 5)  // PI.05
 #endif
 
@@ -690,9 +694,9 @@
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM8_UP_TIM13_IRQHandler
 #endif
 
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
+#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U) || defined(RADIO_PL20)
   // SD card
-  #if defined(RADIO_PL18U)
+  #if defined(RADIO_PL18U) || defined(RADIO_PL20)
     #define SD_PRESENT_GPIO               GPIO_PIN(GPIOH, 11) // PH.11
   #else
     #define SD_PRESENT_GPIO               GPIO_PIN(GPIOH, 10) // PH.10
@@ -704,7 +708,7 @@
   #define SD_SDIO_DMA_IRQHANDLER          DMA2_Stream3_IRQHandler
   #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
   #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
-  #if defined(RADIO_PL18U)
+  #if defined(RADIO_PL18U) || defined(RADIO_PL20)
     #define SD_SDIO_TRANSFER_CLK_DIV      SD_SDIO_CLK_DIV(12000000)
   #else
     #define SD_SDIO_TRANSFER_CLK_DIV      SD_SDIO_CLK_DIV(24000000)
@@ -722,7 +726,7 @@
 #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
 #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
 
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
+#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define STORAGE_USE_SDIO
 #else
   #define STORAGE_USE_SPI_FLASH
@@ -733,7 +737,7 @@
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC
 
 // Audio
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
+#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOH, 14) // PH.14
   #define AUDIO_CS_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
   #define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOH, 15) // PH.15
@@ -756,7 +760,7 @@
   #define AUDIO_DMA                       DMA1
 #endif
 
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOI, 10)  // PI.10 audio amp control pin
   #define AUDIO_UNMUTE_DELAY            120  // ms
   #define AUDIO_MUTE_DELAY              500  // ms
@@ -850,9 +854,11 @@
 #endif
 
 // Internal Module
-#if defined(RADIO_PL18) || defined(RADIO_PL18U)
+#if defined(RADIO_PL18) || defined(RADIO_PL18U) || defined(RADIO_PL20)
   #if defined(RADIO_PL18U)
     #define INTMODULE_PWR_GPIO            GPIO_PIN(GPIOI, 3)  // PI.03
+  #elif defined(RADIO_PL20)
+    #define INTMODULE_PWR_GPIO            GPIO_PIN(GPIOI, 4)  // PI.04
   #else
     #define INTMODULE_PWR_GPIO            GPIO_PIN(GPIOI, 0)  // PI.00
   #endif
@@ -926,6 +932,8 @@
 #define EXTMODULE_PULSES
 #if defined(RADIO_PL18U)
   #define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 1) // PI.01
+#elif defined(RADIO_PL20)
+  #define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 7) // PI.07
 #else
   #define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOD, 11) // PD.11
 #endif
@@ -1021,7 +1029,7 @@
 
 // SDRAM
 #define SDRAM_BANK1
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define SDRAM_32MB
 #endif
 

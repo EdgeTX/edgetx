@@ -39,7 +39,7 @@
 #define BATTERY_TOP_INNER (BATTERY_TOP + BATTERY_BORDER)
 
 #define UCHARGER_SAMPLING_CNT                10
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define UCHARGER_CHARGING_SAMPLING_CNT     1
   #define UCHARGER_CHARGE_END_SAMPLING_CNT   250
 #else
@@ -48,7 +48,7 @@
 #endif
 
 #define WCHARGER_SAMPLING_CNT                30
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   #define WCHARGER_CHARGING_SAMPLING_CNT     1
   #define WCHARGER_CHARGE_END_SAMPLING_CNT   250
 #else
@@ -178,7 +178,7 @@ uint16_t get_uCharger_state(uint16_t state)
   {
     if (uCharger.hasCharger)  // USB charger can be detected properly no matter it is enabled or not
     {
-#if !defined(RADIO_PL18U)
+#if !defined(RADIO_PL18U) && !defined(RADIO_PL20)
       // Enable USB charger when USB power is detected
       ENABLE_UCHARGER();
 #endif
@@ -199,7 +199,7 @@ uint16_t get_uCharger_state(uint16_t state)
     {
       resetChargeEndDetection(&uCharger);
 
-#if !defined(RADIO_PL18U)
+#if !defined(RADIO_PL18U) && !defined(RADIO_PL20)
       // Disable USB charger if it is not present, so that wireless charger can be detected properly
       DISABLE_UCHARGER();
 #endif
@@ -217,7 +217,7 @@ uint16_t get_wCharger_state(uint16_t state)
   {
     if (wCharger.hasCharger)  // Wireless charger can only be detected when USB charger is disabled
     {
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
       // Disable USB charger when wireless charger is present, otherwise USB charger detection will be wrong
       DISABLE_UCHARGER();
       ENABLE_WCHARGER();
@@ -250,7 +250,7 @@ uint16_t get_wCharger_state(uint16_t state)
     else
     {
       resetChargeEndDetection(&wCharger);
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
       // Enable USB charger only if wireless charger is not present
       DISABLE_WCHARGER();
       ENABLE_UCHARGER();
@@ -279,8 +279,8 @@ uint16_t get_battery_charge_state()
 {
   uint16_t state = CHARGE_UNKNOWN;
 
-#if defined(RADIO_PL18U)
-  // PL18U wireless charger takes precedence
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
+  // PL18U/PL20 wireless charger takes precedence
   state = get_wCharger_state(state);
   state = get_uCharger_state(state);
 #else
@@ -329,11 +329,11 @@ void battery_charge_init()
 #endif
 
   // USB charger state init
-#if defined(RADIO_PL18U)  
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)  
   DISABLE_UCHARGER();
 #else
   ENABLE_UCHARGER();
-#endif  // defined(RADIO_PL18U)
+#endif  // defined(RADIO_PL18U) || defined(RADIO_PL20)
   uCharger.hasCharger = !IS_UCHARGER_ACTIVE();  // Init for sampling count works
   uCharger.isChargerDetectionReady = false;
   resetChargeEndDetection(&uCharger);

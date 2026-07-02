@@ -24,9 +24,9 @@
 #include "hal/rotary_encoder.h"
 #include "edgetx.h"
 
-#if defined(RADIO_PL18U)
+#if defined(RADIO_PL18U) || defined(RADIO_PL20)
   static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1,
-                                                  10, 11, 8, 9, 12, 13, 14, 15};
+                                                   10, 11, 8, 9, 12, 13, 14, 15};
 #elif defined(RADIO_NB4P)
   static const uint8_t _trimMap[MAX_TRIMS * 2] = {0, 1, 2, 3, 4, 5, 6, 7,
                                                   8, 9, 10, 11, 12, 13, 14, 15};

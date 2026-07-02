@@ -530,6 +530,13 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
 
+  /* FlySky PL20 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("pl20"), Firmware::tr("FlySky PL20"), BOARD_FLYSKY_PL20);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption(opt_bt);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
   /* FlySky ST16 board */
   firmware = new OpenTxFirmware(FIRMWAREID("st16"), Firmware::tr("FlySky ST16"), BOARD_FLYSKY_ST16);
   addOpenTxFrskyOptions(firmware);

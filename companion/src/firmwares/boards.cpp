@@ -158,9 +158,7 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
-      return 0x4878746F;
-    case BOARD_FLYSKY_PA01:
-      return 0x4A78746F;
+    case BOARD_FLYSKY_PL20:
     case BOARD_FLYSKY_ST16:
       return 0x4C78746F;
     case BOARD_HELLORADIOSKY_V14:
@@ -291,6 +289,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_PL20:
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
@@ -531,7 +530,7 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("SL1").toStdString(), "LS"},
                               {tr("SL2").toStdString(), "RS"},
                           });
-  } else if (IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18U(board)) {
+  } else if (IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18U(board) || IS_FLYSKY_PL20(board)) {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "POT1"},
                               {tr("P2").toStdString(), "POT2"},
@@ -680,6 +679,8 @@ QString Boards::getBoardName(Board::Type board)
       return "FlySky PL18EV";
     case BOARD_FLYSKY_PL18U:
       return "FlySky PL18U";
+    case BOARD_FLYSKY_PL20:
+      return "FlySky PL20";
     case BOARD_FLYSKY_ST16:
       return "FlySky ST16";
     case BOARD_BETAFPV_LR3PRO:
@@ -823,6 +824,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
 
   case BOARD_FLYSKY_EL18:
   case BOARD_FLYSKY_PL18U:
+  case BOARD_FLYSKY_PL20:
   case BOARD_FLYSKY_PA01: // ANT
   case BOARD_FLYSKY_ST16: // ANT
     return (int)MODULE_TYPE_FLYSKY_AFHDS3;
@@ -887,6 +889,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_PL20:
       BR(35, 43, 37)
       break;
     case BOARD_FLYSKY_ST16:

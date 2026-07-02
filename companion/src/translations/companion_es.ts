@@ -3752,6 +3752,12 @@ Vacío significa incluir todos. Comodines ?, *, y [...] aceptados.</translation>
         <source>FlySky PL18U</source>
         <translation type="unfinished"></translation>
     </message>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="532"/>
+        <source>FlySky PL20</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="532"/>
         <source>FlySky ST16</source>
