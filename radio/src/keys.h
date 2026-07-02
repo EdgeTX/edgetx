@@ -183,7 +183,14 @@ void killTrimEvents(event_t event);
 bool keysGetState(uint8_t key);
 uint8_t keysGetTrimState(uint8_t trim);
 
-bool keysPollingCycle();
+// Activity flags returned by keysPollingCycle(). Trims are reported
+// separately so they can be treated as controls, not keys, for backlight.
+enum {
+  KEY_ACTIVITY_KEYS  = 0x01,
+  KEY_ACTIVITY_TRIMS = 0x02,
+};
+
+uint8_t keysPollingCycle();
 bool rotaryEncoderPollingCycle();
 
 #if defined(USE_HATS_AS_KEYS)
