@@ -720,6 +720,8 @@ QString Boards::getBoardName(Board::Type board)
       return "HelloRadioSky V16";
     case BOARD_HELLORADIOSKY_V14:
       return "HelloRadioSky V14";
+    case BOARD_HELLORADIOSKY_V14LCD:
+      return "HelloRadioSky V14LCD";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
