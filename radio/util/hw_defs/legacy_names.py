@@ -528,7 +528,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"pl18", "pl18u"},
+        "targets": {"pl18", "pl18u", "pl20"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",

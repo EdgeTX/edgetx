@@ -45,6 +45,13 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
     },
+    "pl20": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
+    },
     "nb4p": {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"}
