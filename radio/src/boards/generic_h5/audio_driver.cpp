@@ -108,6 +108,10 @@ static void audio_codec_reset()
   delay_ms(1);
 }
 
+// Set only once audioInit() fully succeeds. Guards the runtime path from
+// touching SPI1/I2S1 (unclocked -> HardFault) if init bailed early.
+static bool _audio_ready = false;
+
 void audioInit()
 {
   memset(_dma_buffer, 0, sizeof(_dma_buffer));
@@ -130,6 +134,7 @@ void audioInit()
   }
 
   enable_dma_irqs();
+  _audio_ready = true;
 }
 
 static volatile uint32_t _dma_buffer_offset = 0;
@@ -153,6 +158,8 @@ static void copy_into_dma_buffer(const AudioBuffer* buffer)
 
 void audioConsumeCurrentBuffer()
 {
+  if (!_audio_ready) return;  // SPI1 unclocked if init bailed -> avoid HardFault
+
   if (!stm32_i2s_is_xfer_started(&_i2s_dev)) {
 
     auto buffer = audioQueue.buffersFifo.getNextFilledBuffer();
