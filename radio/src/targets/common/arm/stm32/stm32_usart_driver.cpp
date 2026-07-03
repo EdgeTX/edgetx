@@ -596,6 +596,12 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     dmaInit.NbData = size;
     dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;  // TODO: make it configurable
 
+    // Prefetch the frame into the DMA FIFO instead of fetching one byte per
+    // USART request (direct mode), so bus contention from another stream on the
+    // same controller (e.g. SDIO) cannot starve a byte and corrupt the frame.
+    dmaInit.FIFOMode = LL_DMA_FIFOMODE_ENABLE;
+    dmaInit.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_FULL;
+
     LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 
     if (IS_HALF_DUPLEX(usart) && (int32_t)(usart->txDMA_IRQn) >= 0) {
