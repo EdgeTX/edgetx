@@ -87,6 +87,12 @@ static inline uint32_t _get_spi_clocksource(SPI_TypeDef* SPIx)
 
 #if defined(LL_RCC_SPI23_CLKSOURCE)
   if (SPIx == SPI2 || SPIx == SPI3) return LL_RCC_SPI23_CLKSOURCE;
+#elif defined(LL_RCC_SPI2_CLKSOURCE)  // H5: individual SPI2/SPI3 muxes
+  if (SPIx == SPI2) return LL_RCC_SPI2_CLKSOURCE;
+#endif
+
+#if defined(LL_RCC_SPI3_CLKSOURCE)
+  if (SPIx == SPI3) return LL_RCC_SPI3_CLKSOURCE;
 #endif
 
 #if defined(LL_RCC_SPI45_CLKSOURCE)

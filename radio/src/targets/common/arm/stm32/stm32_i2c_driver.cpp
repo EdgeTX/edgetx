@@ -393,6 +393,13 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
   }
 #endif
 
+#if defined(STM32H5) && defined(I2C4)
+  // I2C4 is on PCLK3 (APB3), not PCLK4
+  if (instance == I2C4) {
+    LL_RCC_SetClockSource(LL_RCC_I2C4_CLKSOURCE_PCLK3);
+  }
+#endif
+
   return 0;
 }
 
@@ -503,7 +510,16 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
 
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   i2c_init_clock_source(h->Instance);
-# if defined(LL_RCC_I2C123_CLKSOURCE_PCLK1)
+# if defined(STM32H5)
+  // I2C4 clocks off PCLK3, others off PCLK1: query the instance's own source
+#  if defined(I2C4)
+  uint32_t i2c_clk_src = (h->Instance == I2C4) ? LL_RCC_I2C4_CLKSOURCE
+                                               : LL_RCC_I2C1_CLKSOURCE;
+#  else
+  uint32_t i2c_clk_src = LL_RCC_I2C1_CLKSOURCE;
+#  endif
+  uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(i2c_clk_src);
+# elif defined(LL_RCC_I2C123_CLKSOURCE_PCLK1)
   uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C123_CLKSOURCE_PCLK1);
 # elif defined(LL_RCC_I2C1_CLKSOURCE_PCLK1)
   uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C1_CLKSOURCE_PCLK1);

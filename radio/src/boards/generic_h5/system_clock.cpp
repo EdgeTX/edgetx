@@ -111,6 +111,7 @@ void SystemClock_Config()
 
 
   LL_RCC_SetSPIClockSource(LL_RCC_SPI1_CLKSOURCE_PLL1Q);
+  LL_RCC_SetSPIClockSource(LL_RCC_SPI2_CLKSOURCE_PLL1Q);  // OLED bus
 
   // Only required if using Async ADC clock ???
   LL_RCC_SetADCDACClockSource(LL_RCC_ADCDAC_CLKSOURCE_PLL2R);
