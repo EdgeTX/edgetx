@@ -4911,8 +4911,7 @@ Are you sure?</source>
 Are you sure?</source>
         <translation>VARNING: Säkerhetskopiera inställningarna till profilen.
 
-Are you sure?</source>
-        <translation type="unfinished"></translation>
+Är du säker?</translation>
     </message>
     <message>
         <location filename="../generaledit/generaledit.cpp" line="150"/>
