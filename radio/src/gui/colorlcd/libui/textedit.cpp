@@ -166,6 +166,7 @@ void TextEdit::openEdit()
       edit->hide();
     });
   }
+  edit->update();
   edit->show();
   lv_group_focus_obj(edit->getLvObj());
   edit->openKeyboard();

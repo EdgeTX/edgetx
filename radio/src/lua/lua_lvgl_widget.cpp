@@ -2244,11 +2244,11 @@ void LvglWidgetToggleSwitch::build(lua_State *L)
 void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "value")) {
-    txt = luaL_checkstring(L, -1);
+    txt.parse(L);
   } else if (!strcmp(key, "length")) {
     maxLen = luaL_checkinteger(L, -1);
-    if (maxLen > 128) maxLen = 128;
-    if (maxLen <= 0) maxLen = 32;
+    if (maxLen > MAX_TEXT_EDIT_LEN) maxLen = MAX_TEXT_EDIT_LEN;
+    if (maxLen <= 0) maxLen = DEFAULT_TEXT_EDIT_LEN;
   } else if (!strcmp(key, "set")) {
     setFunction = ::getRef(L, LUA_REGISTRYINDEX);
   } else {
@@ -2256,15 +2256,33 @@ void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
   }
 }
 
+bool LvglWidgetTextEdit::callRefs(lua_State *L)
+{
+  if (!LvglWidgetObject::callRefs(L)) return false;
+
+  if (isVisible()) {
+    if (!pcallUpdateStringVal(L, txt.function, [=](const char* s) {
+              if (txt.changedText(s)) {
+                strAppend(value, txt.chars(), MAX_TEXT_EDIT_LEN);
+                ((TextEdit*)window)->update();
+              }
+            }))
+      return false;
+  }
+
+  return true;
+}
+
 void LvglWidgetTextEdit::clearRefs(lua_State *L)
 {
+  txt.clearRef(L);
   clearRef(L, setFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
 void LvglWidgetTextEdit::build(lua_State *L)
 {
-  strcpy(value, txt);
+  strAppend(value, txt.chars(), MAX_TEXT_EDIT_LEN);
   if (h == LV_SIZE_CONTENT) h = 0;
   window = new TextEdit(lvglManager->getCurrentParent(), {x, y, w, h}, value,
                         maxLen, [=]() {
@@ -2273,6 +2291,7 @@ void LvglWidgetTextEdit::build(lua_State *L)
                             PROTECT_LUA()
                             {
                               std::string s(value, maxLen); // Ensure string is terminated
+                              txt.changedText(s.c_str());
                               if (!pcallFuncWithString(L, setFunction, 0, s.c_str())) {
                                 lvglManager->luaShowError();
                               }
