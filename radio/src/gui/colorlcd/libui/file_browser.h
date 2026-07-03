@@ -46,6 +46,9 @@ class FileBrowser : public TableField
   void onSelected(uint16_t row, uint16_t col) override;
   void onPress(uint16_t row, uint16_t col) override;
 
+  const char* getCurrentPath();
+  const char* getFullPath(const char* filename);
+
  protected:
   void onSelected(const char* name, bool is_dir);
   void onPress(const char* name, bool is_dir);
