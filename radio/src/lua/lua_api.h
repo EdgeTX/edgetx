@@ -208,6 +208,7 @@ extern struct our_longjmp * global_lj;
 
 extern uint16_t maxLuaInterval;
 extern uint16_t maxLuaDuration;
+extern uint32_t lastLuaTime;
 extern uint8_t instructionsPercent;
 #define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
