@@ -137,8 +137,20 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   const CustomFunctionData * cfn = &functions[index];
   tmr10ms_t tmr10ms = get_tmr10ms();
   int8_t repeatParam = CFN_PLAY_REPEAT(cfn);
-  if (!IS_SILENCE_PERIOD_ELAPSED() && repeatParam == CFN_PLAY_REPEAT_NOSTART) {
-    functionsContext.lastFunctionTime[index] = tmr10ms;
+
+  // hold prompts during startup: silence window is the floor, extended while permanent Lua scripts load
+  bool startupBusy = !IS_SILENCE_PERIOD_ELAPSED();
+#if defined(LUA)
+  if (luaState >= INTERPRETER_RELOAD_PERMANENT_SCRIPTS && luaState < INTERPRETER_RUNNING)
+    startupBusy = true;
+#endif
+
+  if (startupBusy) {
+    if (repeatParam == CFN_PLAY_REPEAT_NOSTART) {
+      functionsContext.lastFunctionTime[index] = tmr10ms;  // '!1x': suppress at startup
+    } else {
+      return false;  // defer until startup settles, don't stamp
+    }
   }
   if (!functionsContext.lastFunctionTime[index] || (repeatParam && repeatParam!=CFN_PLAY_REPEAT_NOSTART && (signed)(tmr10ms-functionsContext.lastFunctionTime[index])>=100*repeatParam)) {
     functionsContext.lastFunctionTime[index] = tmr10ms;
