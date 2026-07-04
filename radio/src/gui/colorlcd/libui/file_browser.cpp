@@ -155,8 +155,8 @@ const char* FileBrowser::getFullPath(const char* filename)
         full_path[i] = 0;
         break;
       }
-      if (full_path[0] == 0)
-        strcpy(full_path, ROOT_PATH);
+    if (full_path[0] == 0)
+      strcpy(full_path, ROOT_PATH);
   } else {
     if (full_path[strlen(full_path) - 1] != '/')
       strcat(full_path, "/");
