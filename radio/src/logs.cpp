@@ -32,6 +32,24 @@ FIL g_oLogFile __DMA;
 uint8_t logDelay100ms;
 static tmr10ms_t lastLogTime = 0;
 
+// Last error reported to the user, used only to avoid repeating the popup.
+// Written from both the UI task (logsHandle) and the higher-priority timer
+// task (logsWrite); the two never run concurrently on the target (the UI task
+// cannot preempt the timer task) and a pointer store is atomic, so no lock is
+// needed.
+static const char* error_displayed = nullptr;
+
+static void logsWrite();
+const char* logsOpen();
+
+static void displayLogError(const char* err)
+{
+  if (err != error_displayed) {
+    error_displayed = err;
+    POPUP_WARNING_ON_UI_TASK(err, nullptr);
+  }
+}
+
 #if !defined(SIMU)
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
@@ -76,26 +94,52 @@ void loggingTimerStop()
   }
 }
 
-void initLoggingTimer() {                                       // called cyclically by main.cpp:perMain()
+#endif
+
+void logsHandle()
+{  // called cyclically by main.cpp:perMain(), i.e. from the UI task
   static uint8_t logDelay100msOld = 0;
 
-  if(loggingTimer == nullptr) {                                 // log Timer not running
-    if(isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {  // if SF Logging is active and log rate is valid
-      loggingTimerStart();                                      // start log timer
-    }  
-  } else {                                                      // log timer is already running
-    if(logDelay100msOld != logDelay100ms) {                     // if log rate was changed
-      logDelay100msOld = logDelay100ms;                         // memorize new log rate
+  bool logsActive = sdMounted() && isFunctionActive(FUNCTION_LOGS) &&
+                    logDelay100ms > 0 && !usbPlugged();
 
-      if(logDelay100ms > 0) {
-        if(xTimerChangePeriod( loggingTimer, logDelay100ms*100, 0 ) != pdPASS ) {  // and restart timer with new log rate
-          /* The timer period could not be changed */
-        }
-      }
+  if (!logsActive) {
+#if !defined(SIMU)
+    loggingTimerStop();
+#endif
+    logsClose();
+    error_displayed = nullptr;
+    return;
+  }
+
+  // Open the log file here, in the UI task. f_open() may have to scan a large
+  // LOGS directory and can block for a long time. On firmware logsWrite() runs
+  // on the timer daemon task, which is shared with telemetry frame polling, so
+  // opening there would starve telemetry and cause a brief "telemetry lost".
+  // See issue #7513.
+  if (!g_oLogFile.obj.fs) {
+    const char* result = sdIsFull() ? STR_SDCARD_FULL_EXT : logsOpen();
+    if (result) {
+      displayLogError(result);
+      return;  // keep logging stopped until we have a valid file
     }
   }
-}
+
+#if !defined(SIMU)
+  if (loggingTimer == nullptr) {                                // log timer not running
+    logDelay100msOld = logDelay100ms;
+    loggingTimerStart();                                        // start log timer
+  } else if (logDelay100msOld != logDelay100ms) {              // log rate changed
+    logDelay100msOld = logDelay100ms;                           // memorize new log rate
+    if (xTimerChangePeriod(loggingTimer, logDelay100ms * 100, 0) != pdPASS) {
+      /* The timer period could not be changed */
+    }
+  }
+#else
+  (void)logDelay100msOld;
+  logsWrite();  // SIMU: write directly from the UI task (self rate-limited)
 #endif
+}
 
 void writeHeader();
 
@@ -241,15 +285,20 @@ uint32_t getLogicalSwitchesStates(uint8_t first)
   return result;
 }
 
-void logsWrite()
+static void logsWrite()
 {
-  static const char * error_displayed = nullptr;
+  // Called from the logging timer callback (timer task) on firmware, and
+  // directly from logsHandle() (UI task) in the simulator. The log file is
+  // opened and closed by logsHandle(), so this function only ever appends to
+  // an already-open file and never blocks on f_open().
 
-  if (!sdMounted()) {
+  // stop writing once an error has been reported; logsHandle() clears
+  // error_displayed when logging is toggled off, which resumes logging.
+  if (!sdMounted() || !g_oLogFile.obj.fs || error_displayed) {
     return;
   }
 
-  if (isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0 && !usbPlugged()) {
+  {
     #if defined(SIMU) || !defined(RTCLOCK)
     tmr10ms_t tmr10ms = get_tmr10ms();                                        // tmr10ms works in 10ms increments
     if (lastLogTime == 0 || (tmr10ms_t)(tmr10ms - lastLogTime) >= (tmr10ms_t)(logDelay100ms*10)-1) {
@@ -258,27 +307,10 @@ void logsWrite()
     {
     #endif
 
-      bool sdCardFull = sdIsFull();
-
-      // check if file needs to be opened
-      if (!g_oLogFile.obj.fs) {
-        const char *result = sdCardFull ? STR_SDCARD_FULL_EXT : logsOpen();
-
-        // SD card is full or file open failed
-        if (result) {
-          if (result != error_displayed) {
-            error_displayed = result;
-            POPUP_WARNING_ON_UI_TASK(result, nullptr);
-          }
-          return;
-        }
-      }
-
-      // check at every write cycle
-      if (sdCardFull) {
-        logsClose();  // timer is still running and code above will try to
-                      // open the file again but will fail with error
-                      // which will trigger the warning popup
+      // SD card became full: report and stop writing. The file is left open
+      // and closed later by logsHandle() from the UI task.
+      if (sdIsFull()) {
+        displayLogError(STR_SDCARD_FULL_EXT);
         return;
       }
 
@@ -371,19 +403,11 @@ void logsWrite()
       div_t qr = div(g_vbat100mV, 10);
       int result = f_printf(&g_oLogFile, "%d.%d\n", abs(qr.quot), abs(qr.rem));
 
-      if (result<0 && !error_displayed) {
-        error_displayed = STR_SDCARD_ERROR;
-        POPUP_WARNING_ON_UI_TASK(STR_SDCARD_ERROR, nullptr);
-        logsClose();
+      // Write error: report it and stop writing. The file is left open and
+      // closed later by logsHandle() from the UI task.
+      if (result < 0) {
+        displayLogError(STR_SDCARD_ERROR);
       }
     }
-  }
-  else {
-    error_displayed = nullptr;
-    logsClose();
-    
-    #if !defined(SIMU)
-    loggingTimerStop();
-    #endif
   }
 }
