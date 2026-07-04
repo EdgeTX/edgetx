@@ -112,15 +112,18 @@ void logsHandle()
     return;
   }
 
-  // After an error was reported (by logsWrite or a previous open), tear the
-  // logging down and retry a fresh open below. This releases the file and
-  // stops the no-op timer callbacks; a successful (re)open clears the error
-  // and resumes logging without the user having to toggle it off and on.
+  // An error was reported (by logsWrite or a previous open): release the file
+  // and stop the no-op timer. A full SD card is the one recoverable case -
+  // keep checking cheaply (sdIsFull() needs no directory scan) and resume once
+  // space is freed. Any other error is treated as fatal: give up until the
+  // user re-enables logging, rather than rescanning the LOGS directory on
+  // every cycle for an error that will not fix itself.
   if (error_displayed) {
 #if !defined(SIMU)
     loggingTimerStop();
 #endif
     logsClose();
+    if (error_displayed != STR_SDCARD_FULL_EXT) return;
   }
 
   // Open the log file here, in the UI task. f_open() may have to scan a large
