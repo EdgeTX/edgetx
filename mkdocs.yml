@@ -83,6 +83,7 @@ nav:
   - Hardware Mods:
     - Flysky Hall Sticks: mods/flysky-hall-sticks.md
     - Flysky FRM303 Mod for TX16S: mods/flysky-frm303-tx16s.md
+    - Flysky ST16 Touch Support: mods/flysky-st16-touch-support.md
     - Flysky PL18 & PL18EV: mods/flysky-pl18.md
     - Flysky NB4+: mods/flysky-nb4plus.md
     - Flashing EdgeTX to Flysky PL18/Paladin-EV: mods/flashing-flysky-pl18.md
