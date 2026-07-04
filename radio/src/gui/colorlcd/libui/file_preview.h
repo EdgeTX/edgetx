@@ -33,4 +33,7 @@ class FilePreview : public StaticBitmap
 #endif
 
   void setFile(const char *filename);
+
+ protected:
+  StaticIcon* errorIcon = nullptr;
 };

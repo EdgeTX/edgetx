@@ -139,7 +139,6 @@ const int8_t bmp_shutdown_yo[] = {-SHUTDOWN_CIRCLE_RADIUS, 0, 0,
 static Window* shutdownWindow = nullptr;
 static StaticIcon* shutdownAnim[4] = {nullptr};
 static BitmapBuffer* shutdownSplashImg = nullptr;
-static lv_obj_t* shutdownCanvas = nullptr;
 
 void drawSleepBitmap()
 {
@@ -164,7 +163,6 @@ void cancelShutdownAnimation()
   if (shutdownWindow) {
     shutdownWindow->deleteLater();
     shutdownWindow = nullptr;
-    shutdownCanvas = nullptr;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }
 }
@@ -180,17 +178,13 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-    if (sdMounted() && !shutdownSplashImg)
+    if (sdMounted() && !shutdownSplashImg) {
       shutdownSplashImg = BitmapBuffer::loadBitmap(
           BITMAPS_PATH "/" SHUTDOWN_SPLASH_FILE, BMP_RGB565);
-
-    if (shutdownSplashImg) {
-      shutdownCanvas = lv_canvas_create(shutdownWindow->getLvObj());
-      lv_obj_center(shutdownCanvas);
-      lv_canvas_set_buffer(shutdownCanvas, shutdownSplashImg->getData(),
-                           shutdownSplashImg->width(),
-                           shutdownSplashImg->height(), LV_IMG_CF_TRUE_COLOR);
+      if (shutdownSplashImg)
+        shutdownSplashImg->addCanvas(shutdownWindow);
     }
+
     (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
         ->center(LCD_W, LCD_H);
 
