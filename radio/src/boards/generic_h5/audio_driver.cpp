@@ -33,8 +33,8 @@
 #include "audio.h"
 #include "debug.h"
 
-// TAS2505 default codec setup (matches the rm-h750 / TX15 tuning)
-#define DEFAULT_DAC_VOL -15 // -7dB
+// TAS2505 default codec setup (based on the rm-h750 / TX15 tuning)
+#define DEFAULT_DAC_VOL 0 // 0dB; h5test speaker is quiet (rm-h750 uses -7.5dB)
 #define DEFAULT_HP_VOL 20
 #define DEFAULT_SPK_VOL 40
 
