@@ -330,7 +330,6 @@ void guiMain(event_t evt)
 {
 #if defined(LUA)
   uint32_t t0 = get_tmr10ms();
-  static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
   if (interval > maxLuaInterval) {
@@ -404,7 +403,6 @@ void guiMain(event_t evt)
 #if defined(LUA)
   // TODO better lua stopwatch
   uint32_t t0 = get_tmr10ms();
-  static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
   if (interval > maxLuaInterval) {

@@ -66,6 +66,7 @@ ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 
 uint16_t maxLuaInterval = 0;
 uint16_t maxLuaDuration = 0;
+uint32_t lastLuaTime = 0;
 tmr10ms_t luaCycleStart;
 char lua_warning_info[LUA_WARNING_INFO_LEN+1];
 uint8_t errorState;
