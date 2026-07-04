@@ -364,6 +364,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   if (Boards::getCapability(board, Board::HasIMU)) {
     node["imuMax"] = rhs.imuMax;
     node["imuOffset"] = rhs.imuOffset;
+    node["imuInvert"] = (rhs.imuInvertX ? 1 : 0) | (rhs.imuInvertY ? 2 : 0);
   }
 
   // OneBit sampling (X9D only?)
@@ -696,6 +697,10 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["imuMax"] >> rhs.imuMax;
   node["imuOffset"] >> rhs.imuOffset;
+  int imuInvert = 0;
+  node["imuInvert"] >> imuInvert;
+  rhs.imuInvertX = imuInvert & 0x1;
+  rhs.imuInvertY = imuInvert & 0x2;
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;

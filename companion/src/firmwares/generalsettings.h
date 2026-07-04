@@ -388,6 +388,8 @@ class GeneralSettings {
     char registrationId[REGISTRATION_ID_LEN + 1];
     int imuMax;
     int imuOffset;
+    bool imuInvertX;
+    bool imuInvertY;
     int uartSampleMode;
 
     int pwrOnSpeed;

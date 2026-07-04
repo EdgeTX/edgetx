@@ -1123,6 +1123,7 @@ PACK(struct RadioData {
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);
   NOBACKUP(int8_t imuOffset);
+  NOBACKUP(uint8_t imuInvert);  // user inversion, default off; XORed with hal.h IMU_INVERT_X/Y at apply time (bit0=X, bit1=Y)
 #endif
 
 #if defined(COLORLCD)

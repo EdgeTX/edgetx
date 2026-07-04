@@ -107,6 +107,25 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
+  if (Boards::getCapability(board, Board::HasIMU)) {
+    addSection(tr("IMU"));
+    addLabel("");
+    addLabel(tr("Invert"));
+    addParams();
+
+    addLabel(tr("X"));
+    AutoCheckBox *imuInvertX = new AutoCheckBox(this);
+    imuInvertX->setField(generalSettings.imuInvertX, this);
+    params->append(imuInvertX);
+    addParams();
+
+    addLabel(tr("Y"));
+    AutoCheckBox *imuInvertY = new AutoCheckBox(this);
+    imuInvertY->setField(generalSettings.imuInvertY, this);
+    params->append(imuInvertY);
+    addParams();
+  }
+
   count = Boards::getCapability(board, Board::Inputs);
 
   if (count > 0) {
