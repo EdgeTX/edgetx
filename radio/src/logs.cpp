@@ -97,6 +97,15 @@ void logsHandle()
     return;
   }
 
+  // After an error was reported (by logsWrite or a previous open), tear the
+  // logging down and retry a fresh open below. This releases the file and
+  // stops the no-op timer callbacks; a successful (re)open clears the error
+  // and resumes logging without the user having to toggle it off and on.
+  if (error_displayed) {
+    if (timer_is_active(&loggingTimer)) loggingTimerStop();
+    logsClose();
+  }
+
   // Open the log file here, in the UI task. f_open() may have to scan a large
   // LOGS directory and can block for a long time; doing it from the timer task
   // (logsWrite) would starve telemetry polling, which runs on the same task,
@@ -104,9 +113,10 @@ void logsHandle()
   if (!g_oLogFile.obj.fs) {
     const char* result = sdIsFull() ? STR_SDCARD_FULL_EXT : logsOpen();
     if (result) {
-      displayLogError(result);
+      displayLogError(result);  // deduplicated: no repeated popup
       return;  // keep the timer stopped until we have a valid file
     }
+    error_displayed = nullptr;  // (re)opened successfully
   }
 
   if (!timer_is_active(&loggingTimer)) {                        // log timer not running
