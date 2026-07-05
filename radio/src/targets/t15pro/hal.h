@@ -308,6 +308,8 @@ USART6: EXTMODULE_USART
 
 // Audio
 #define AUDIO_MUTE_GPIO                GPIO_PIN(GPIOH, 4)
+#define AUDIO_MUTE_DELAY               200  // ms
+#define AUDIO_UNMUTE_DELAY             100  // ms
 #define AUDIO_OUTPUT_GPIO              GPIO_PIN(GPIOA, 4)
 #define AUDIO_DAC                      DAC1
 #define AUDIO_DMA_Stream               LL_DMA_STREAM_1
