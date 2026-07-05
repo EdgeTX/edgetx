@@ -434,6 +434,7 @@
 #define TR_FONT_SIZES_5                 "크게"
 #define TR_FONT_SIZES_6                 "아주 크게"
 #define TR_FONT_SIZES_7                 "매우 크게"
+#define TR_FONT_SIZES_8                "LXL"
 
 #define TR_ENTER                       "[ENTER]"
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[확인]", "\010\010\010\010\010[확인]"), "Ok")

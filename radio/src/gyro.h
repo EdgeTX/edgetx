@@ -29,6 +29,15 @@
 #define IMU_OFFSET_MIN       -30
 #define IMU_OFFSET_MAX        10
 
+#define IMU_AXIS_X            0
+#define IMU_AXIS_Y            1
+
+// User-selectable IMU axis inversion, stored verbatim and defaulting to off.
+// The fixed hardware mounting correction (IMU_INVERT_X/Y in the target hal.h) is
+// applied on top of this internally, so the user setting is independent of it.
+bool getImuInversion(uint8_t axis);
+void setImuInversion(uint8_t axis, bool value);
+
 void gyroStart(imu_read_fn fn);
 void gyroWakeup();
 void gyroSetIMU_X(int16_t offset, int16_t range);

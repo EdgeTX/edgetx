@@ -985,7 +985,8 @@ void alert(const char * title, const char * msg , uint8_t sound)
 void checkTrims()
 {
   event_t event = getTrimEvent();
-  if (event && !IS_KEY_BREAK(event)) {
+  // Only use press and repeat trim events
+  if (event && (IS_KEY_FIRST(event) || IS_KEY_REPT(event))) {
     int8_t k = EVT_KEY_MASK(event);
     uint8_t idx = inputMappingConvertMode(uint8_t(k / 2));
     uint8_t phase;

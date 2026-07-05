@@ -820,5 +820,6 @@ void SetupPanel::loadImagePreview()
     else
       ui->imagePreview->clear();
 
-  }
+  } else
+    ui->imagePreview->clear();
 }
