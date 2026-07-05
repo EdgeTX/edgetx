@@ -22,28 +22,13 @@
 #include "file_browser.h"
 #include "lib_file.h"
 #include "fonts.h"
+#include "sdcard.h"
 
 #include <list>
 #include <string>
 
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
-
-static const char* getFullPath(const char* filename)
-{
-  static char full_path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
-  strcat(full_path, "/");
-  strcat(full_path, filename);
-  return full_path;
-}
-
-static const char* getCurrentPath()
-{
-  static char path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)path, FF_MAX_LFN);
-  return path;
-}
 
 static int strnatcasecmp(char const *s1, char const *s2)
 {
@@ -152,6 +137,35 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
   });
 }
 
+const char* FileBrowser::getCurrentPath()
+{
+  static char path[FF_MAX_LFN + 1];
+  f_getcwd((TCHAR*)path, FF_MAX_LFN);
+  return path;
+}
+
+const char* FileBrowser::getFullPath(const char* filename)
+{
+  static char full_path[FF_MAX_LFN + 1];
+  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
+
+  if (strcmp(filename, "..") == 0) {
+    for (int i = strlen(full_path) - 1; i >= 0; i -= 1)
+      if (full_path[i] == '/') {
+        full_path[i] = 0;
+        break;
+      }
+    if (full_path[0] == 0)
+      strcpy(full_path, ROOT_PATH);
+  } else {
+    if (full_path[strlen(full_path) - 1] != '/')
+      strcat(full_path, "/");
+    strcat(full_path, filename);
+  }
+
+  return full_path;
+}
+
 void FileBrowser::setFileAction(FileAction fct) { fileAction = std::move(fct); }
 void FileBrowser::setFileSelected(FileAction fct) { fileSelected = std::move(fct); }
 
@@ -244,15 +258,13 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
     return;
   }
 
-  const char* path = getCurrentPath();
   const char* fullpath = getFullPath(name);  
-  if (fileSelected) fileSelected(path, name, fullpath, is_dir);
+  if (fileSelected) fileSelected(getCurrentPath(), name, fullpath, is_dir);
   selected = name;
 }
 
 void FileBrowser::onPress(const char* name, bool is_dir)
 {
-  const char* path = getCurrentPath();
   const char* fullpath = getFullPath(name);  
   if (is_dir) {
     f_chdir(fullpath);
@@ -268,13 +280,12 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   }
   
   if (fileAction){
-    fileAction(path, name, fullpath, is_dir);
+    fileAction(getCurrentPath(), name, fullpath, is_dir);
   }
 }
 
 void FileBrowser::onPressLong(const char* name, bool is_dir)
 {
-  const char* path = getCurrentPath();
   const char* fullpath = getFullPath(name);  
 
   if (!selected || (selected != name)) {
@@ -282,6 +293,6 @@ void FileBrowser::onPressLong(const char* name, bool is_dir)
   }
   
   if (fileAction){
-    fileAction(path, name, fullpath, is_dir);
+    fileAction(getCurrentPath(), name, fullpath, is_dir);
   }
 }

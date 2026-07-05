@@ -51,6 +51,9 @@ class FileBrowser : public TableField
   void onPress(const char* name, bool is_dir);
   void onPressLong(const char* name, bool is_dir);
 
+  const char* getCurrentPath();
+  const char* getFullPath(const char* filename);
+
  private:
   const char* selected = nullptr;
   FileAction fileAction;
