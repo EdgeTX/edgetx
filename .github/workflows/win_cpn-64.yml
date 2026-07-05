@@ -35,7 +35,8 @@ jobs:
         env:
           AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
         with:
-          cache: true
+          # Caching disabled due to intermittent "Path Validation Error"
+          cache: false
           cache-key-prefix: 'install-qt-action-${{ env.QT_ARCH }}'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.QT_ARCH }}
