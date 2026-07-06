@@ -452,5 +452,5 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_CLEAR_FLAG(&hlcd_ltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hlcd_ltdc, LTDC_IT_LI);
 
-  lvglFlushed();
+  lcdFlushed();
 }

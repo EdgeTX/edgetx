@@ -50,21 +50,24 @@ static lv_disp_drv_t disp_drv;
 static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
                             const rect_t& area) = nullptr;
 
-#if defined(SIMU)
-static void (*lcd_wait_cb)(lv_disp_drv_t*) = nullptr;
-void lcdSetWaitCb(void (*cb)(lv_disp_drv_t*)) { lcd_wait_cb = cb; }
-static lv_disp_drv_t* refr_disp = nullptr;
-#endif
-
-extern "C" void lvglFlushed()
-{
-  lv_disp_flush_ready(&disp_drv);
-}
-
 void lcdSetFlushCb(void (*cb)(lv_disp_drv_t*, uint16_t*, const rect_t&))
 {
   lcd_flush_cb = cb;
 }
+
+#if defined(SIMU)
+// Only used in simulator to prevent lock up when closing simulator
+// TODO: find a better way to handle this
+static void (*lcd_wait_cb)(lv_disp_drv_t*) = nullptr;
+void lcdSetWaitCb(void (*cb)(lv_disp_drv_t*)) { lcd_wait_cb = cb; }
+#endif
+
+extern "C" void lcdFlushed()
+{
+  lv_disp_flush_ready(&disp_drv);
+}
+
+void lcdRefresh() {}
 
 static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                      lv_color_t* color_p)
@@ -86,16 +89,12 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
 #endif
 
   if (lcd_flush_cb) {
-#if defined(SIMU)
-    refr_disp = disp_drv;
-#endif
-
     rect_t copy_area = {area->x1, area->y1, area->x2 - area->x1 + 1,
                         area->y2 - area->y1 + 1};
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
   } else {
-    lvglFlushed();
+    lcdFlushed();
   }
 }
 
@@ -165,17 +164,3 @@ void lcdInitDisplayDriver()
   // remove all styles on default screen (makes it transparent as well)
   lv_obj_remove_style_all(lv_scr_act());
 }
-
-#if defined(SIMU)
-void lcdFlushed()
-{
-  // Only used in simulator
-
-  // its possible to get here before flushLcd is ever called.
-  // so check for nullptr first. (Race condition if you put breakpoints in
-  // startup code)
-  if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
-}
-
-void lcdRefresh() {}
-#endif

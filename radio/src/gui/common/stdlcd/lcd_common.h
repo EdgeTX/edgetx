@@ -174,6 +174,4 @@ void lcdDraw1bitBitmap(coord_t x, coord_t y, const unsigned char * img, uint8_t 
 
 uint8_t getTextWidth(const char * s, uint8_t len=0, LcdFlags flags=0);
 
-#if defined(SIMU)
 void lcdFlushed();
-#endif

@@ -46,7 +46,7 @@ static lv_disp_t disp;
 static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
                             const rect_t& area) = nullptr;
 
-extern "C" void lvglFlushed()
+extern "C" void lcdFlushed()
 {
   lv_disp_flush_ready(&disp_drv);
 }
@@ -65,7 +65,7 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
   } else {
-    lvglFlushed();
+    lcdFlushed();
   }
 }
 

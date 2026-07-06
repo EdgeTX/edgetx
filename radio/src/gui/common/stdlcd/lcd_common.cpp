@@ -41,9 +41,7 @@ coord_t lcdLastRightPos;
 coord_t lcdLastLeftPos;
 coord_t lcdNextPos;
 
-#if defined(SIMU)
 void lcdFlushed() {}
-#endif
 
 void lcdClear()
 {
