@@ -54,7 +54,8 @@ static const uint16_t MAVLINK_PERIODS[MAVLINK_BAUDRATE_COUNT] = {
 };
 
 #define MAVLINK_GCS_SYSID         255
-#define MAVLINK_GCS_COMPID        MAV_COMP_ID_MISSIONPLANNER
+// #define MAVLINK_GCS_COMPID        MAV_COMP_ID_MISSIONPLANNER
+#define MAVLINK_GCS_COMPID        MAV_COMP_ID_RADIO
 #define MAVLINK_HEARTBEAT_TIMEOUT 300
 
 // Cooperative half-duplex timing: the module sends a DEBUG_VECT tagged with
@@ -305,6 +306,7 @@ static void mavlinkHandleMessage(uint8_t module, const mavlink_message_t* msg)
       mavlink_msg_debug_vect_decode(msg, &dv);
       if (strncmp(dv.name, MAVLINK_SYNC_TAG, sizeof(MAVLINK_SYNC_TAG) - 1) == 0) {
         getModuleSyncStatus(module).update((uint16_t)dv.x, (int16_t)dv.y);
+        return;
       }
     } break;
 
@@ -317,6 +319,7 @@ static void mavlinkHandleMessage(uint8_t module, const mavlink_message_t* msg)
           tn.payload[tn.payload_length - 1])
         break;
       pushTelemetryDataToQueues(tn.payload + 1, tn.payload_length - 2);
+      return;
     } break;
 
     default:
