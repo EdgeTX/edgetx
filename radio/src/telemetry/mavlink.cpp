@@ -104,6 +104,8 @@ void mavlinkTelemetryDecode(uint8_t module, const mavlink_message_t* msg)
 
   switch (msg->msgid) {
     case MAVLINK_MSG_ID_HEARTBEAT: {
+      if (msg->compid == MAV_COMP_ID_TELEMETRY_RADIO)
+        break;
       mavlink_heartbeat_t hb;
       mavlink_msg_heartbeat_decode(msg, &hb);
       bool armed = (hb.base_mode & MAV_MODE_FLAG_SAFETY_ARMED) != 0;

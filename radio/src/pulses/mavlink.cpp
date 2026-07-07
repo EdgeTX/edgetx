@@ -290,7 +290,7 @@ static void mavlinkHandleMessage(uint8_t module, const mavlink_message_t* msg)
       mavlink_heartbeat_t hb;
       mavlink_msg_heartbeat_decode(msg, &hb);
 
-      if (hb.type != MAV_TYPE_GCS) {
+      if (hb.type != MAV_TYPE_GCS && msg->compid != MAV_COMP_ID_TELEMETRY_RADIO) {
         st.targetSysId = msg->sysid;
         st.targetCompId = msg->compid;
         st.targetKnown = true;
