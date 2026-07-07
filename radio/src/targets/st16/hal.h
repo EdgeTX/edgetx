@@ -290,6 +290,3 @@
   #define USE_EXTI15_10_IRQ
   #define EXTI15_10_IRQ_Priority 5
 #endif
-
-#define IMU_I2C_BUS                     I2C_Bus_1
-#define IMU_I2C_ADDRESS                 0x6A

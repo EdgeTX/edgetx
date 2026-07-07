@@ -386,6 +386,8 @@
   "imu": {
     "imu_i2c_bus": "I2C_Bus_1",
     "imu_int_gpio": "GPIO_PIN(GPIOG, 13)",
+    "imu_invert_x": true,
+    "imu_invert_y": true,
     "exti": [
       {
         "irq": "EXTI15_10_IRQ",

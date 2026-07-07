@@ -234,6 +234,8 @@ class IMU(BaseModel):
     imu_int_gpio: Optional[str] = None
     imu_i2c_address: Optional[str] = None
     exti: Optional[List[EXTI]] = None
+    imu_invert_x: Optional[bool] = None
+    imu_invert_y: Optional[bool] = None
 
 class RotEnc(BaseModel):
     rotary_encoder_inverted: Optional[bool] = None

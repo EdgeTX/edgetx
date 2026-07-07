@@ -349,18 +349,6 @@ SAI1_Block_A: PDM_CLOCK (1 MHz bit-clock output on SAI1_CK1 / PE5, !FLYSKY_GIMBA
 #define EXTI2_IRQ_Priority  9
 #endif
 
-// IMU
-#define IMU_I2C_BUS                     I2C_Bus_1
-#define IMU_INT_GPIO	                GPIO_PIN(GPIOG, 13) // PG.13
-#define IMU_INVERT_X                    // X axis mounted reversed (default, user-overridable)
-#define IMU_INVERT_Y                    // Y axis mounted reversed (default, user-overridable)
-
-// IMU_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority       6
-#endif
-
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 
 #endif // _HAL_H_
