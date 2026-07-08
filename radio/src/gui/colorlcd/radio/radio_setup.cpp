@@ -1075,7 +1075,7 @@ void RadioSetupPage::build(Window* window)
   new DateTimeWindow(window, {0, 0, LCD_W - padding * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_TINY * 2 + PAD_MEDIUM});
 
   // Sub-pages
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, PAD_TINY, radioSetupButtons, BTN_H);
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, radioSetupButtons, BTN_H);
 
   SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 }

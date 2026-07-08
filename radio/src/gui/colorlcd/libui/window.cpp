@@ -671,14 +671,14 @@ class SetupTextButton : public TextButton
 };
 
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, int cols,
-                                   PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight) :
+                                   const PageButtonDef* pages, coord_t btnHeight) :
     Window(parent, rect)
 {
-  padAll(padding);
+  padAll(PAD_OUTLINE);
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_SMALL);
   lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_SPACE_EVENLY);
 
-  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
+  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_OUTLINE * 2) / cols;
 
   for (int p = 0; pages[p].title; p += 1) {
     new SetupTextButton(this, {0, 0, buttonWidth, btnHeight}, pages[p]);

@@ -211,9 +211,9 @@ void RadioHardwarePage::build(Window* window)
 
   // Calibration
   new Subtitle(window, STR_INPUTS);
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, PAD_ZERO, calibrationButtons);
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, calibrationButtons);
 
   // Debugs
   new Subtitle(window, STR_DEBUG);
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, FS_BTN_COLS, PAD_ZERO, debugButtons);
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, FS_BTN_COLS, debugButtons);
 }
