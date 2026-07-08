@@ -199,7 +199,10 @@ void ScreenSetupPage::build(Window* window)
           // Remove this screen from the model
           g_model.removeScreenLayout(customScreenIndex);
 
-          // Delete and reload custom screens
+          // Delete all custom screens
+          LayoutFactory::deleteCustomScreens();
+
+          // ... and reload
           LayoutFactory::loadCustomScreens();
 
           // adjust index if last screen deleted

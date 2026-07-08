@@ -1594,6 +1594,7 @@ void edgeTxInit()
 #endif // defined(GUI)
 
 #if defined(COLORLCD)
+    LayoutFactory::deleteCustomScreens();
     LayoutFactory::loadCustomScreens();
 #endif
 
