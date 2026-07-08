@@ -320,7 +320,6 @@ bool ViewMain::onLongPress()
     int view = getCurrentMainView();
     if (customScreens[view]->getWidget(0))
       customScreens[view]->getWidget(0)->setFullscreen(true);
-    killEvents(KEY_ENTER);
   } else {
     enableWidgetSelect(true);
   }
