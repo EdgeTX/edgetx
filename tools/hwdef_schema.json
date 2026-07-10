@@ -227,6 +227,7 @@
       "properties": {
         "status_leds":                      { "type": "boolean" },
         "led_red_gpio":                     { "type": "string" },
+        "led_red2_gpio":                    { "type": "string" },
         "led_green_gpio":                   { "type": "string" },
         "led_blue_gpio":                    { "type": "string" },
         "gpio_led_gpio_on":                 { "type": "string" },
@@ -322,6 +323,8 @@
         "imu_i2c_bus":                       { "type": "string" },
         "imu_int_gpio":                      { "type": "string" },
         "imu_i2c_address":                   { "type": "string" },
+        "imu_invert_x":                      { "type": "boolean" },
+        "imu_invert_y":                      { "type": "boolean" },
         "exti":                              { "type": "array", "items": { "$ref": "#/$defs/exti" } }
       }
     },

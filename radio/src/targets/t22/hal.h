@@ -183,8 +183,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_USART3_RX
 
-#define LED_RED2_GPIO                     GPIO_PIN(GPIOJ, 12)
-
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 1)
 #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOD, 7)

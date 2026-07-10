@@ -226,6 +226,7 @@ class LEDS(BaseModel):
     gpio_led_gpio_on: Optional[str] = None
     gpio_led_gpio_off: Optional[str] = None
     led_red_gpio: Optional[str] = None
+    led_red2_gpio: Optional[str] = None
     led_green_gpio: Optional[str] = None
     led_blue_gpio: Optional[str] = None
 

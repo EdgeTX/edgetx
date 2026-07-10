@@ -489,6 +489,7 @@
     "led_strip_refresh_period": 50,
     "status_leds": true,
     "led_red_gpio": "GPIO_PIN(GPIOB, 15)",
+    "led_red2_gpio": "GPIO_PIN(GPIOJ, 12)",
     "led_green_gpio": "GPIO_PIN(GPIOB, 13)",
     "led_blue_gpio": "GPIO_PIN(GPIOB, 12)"
   },
