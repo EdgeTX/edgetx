@@ -1068,16 +1068,14 @@ const static PageButtonDef radioSetupButtons[] = {
 
 void RadioSetupPage::build(Window* window)
 {
-  coord_t y = 0;
-  Window * w;
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, padding);
+  window->padBottom(PAD_LARGE);
 
   // Date & time picker including labels
-  w = new DateTimeWindow(window, {0, y, LCD_W - padding * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_TINY * 2 + PAD_MEDIUM});
-  y += w->height() + padding;
+  new DateTimeWindow(window, {0, 0, LCD_W - padding * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_TINY * 2 + PAD_MEDIUM});
 
   // Sub-pages
-  w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, radioSetupButtons, BTN_H);
-  y += w->height() + padding;
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, radioSetupButtons, BTN_H);
 
-  SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines);
+  SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 }
