@@ -52,6 +52,10 @@ __weak void ledInit()
   gpio_init(LED_RED_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
+#if defined(LED_RED2_GPIO)
+  gpio_init(LED_RED2_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
 #if defined(LED_BLUE_GPIO)
   gpio_init(LED_BLUE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
@@ -100,6 +104,9 @@ __weak void ledOff()
 #if defined(LED_RED_GPIO)
   GPIO_LED_GPIO_OFF(LED_RED_GPIO);
 #endif
+#if defined(LED_RED2_GPIO)
+  GPIO_LED_GPIO_OFF(LED_RED2_GPIO);
+#endif
 #if defined(LED_BLUE_GPIO)
   GPIO_LED_GPIO_OFF(LED_BLUE_GPIO);
 #endif
@@ -113,6 +120,9 @@ __weak void ledRed()
   ledOff();
 #if defined(LED_RED_GPIO)
   GPIO_LED_GPIO_ON(LED_RED_GPIO);
+#endif
+#if defined(LED_RED2_GPIO)
+  GPIO_LED_GPIO_ON(LED_RED2_GPIO);
 #endif
 }
 
