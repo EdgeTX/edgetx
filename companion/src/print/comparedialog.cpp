@@ -123,7 +123,7 @@ void CompareDialog::compare()
 
   for (int i=0; i < modelsList.size(); ++i) {
     multimodelprinter->setModel(i, &modelsList[i].model, &modelsList[i].gs);
-    QString name(modelsList.at(i).model.name);
+    QString name(modelsList.at(i).model.name.toQString());
     if (name.isEmpty())
       name = tr("Unnamed Model %1").arg(i+1);
 

@@ -1033,7 +1033,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
       //   this is esp. important because otherwise we may delete this model during a move operation (eg. after a cut)
       radioData.models[modelIdx].modelIndex = -modelIdx;
-      strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
+      radioData.models[modelIdx].filename = radioData.getNextModelFilename();
       lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
       modified = true;
       setModelModified(modelIdx, false);  // avoid unnecessary refreshes
@@ -1259,7 +1259,7 @@ void MdiChild::openModelEditWindow(int row)
   gStopwatch.report("ModelEdit creation");
   ModelEdit * t = new ModelEdit(this, radioData, (row), firmware);
   gStopwatch.report("ModelEdit created");
-  t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + QString(model.name) + QString("   (%1)").arg(userFriendlyCurrentFile()));
+  t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + model.name.toQString() + QString("   (%1)").arg(userFriendlyCurrentFile()));
   connect(t, &ModelEdit::modified, this, &MdiChild::setCurrentModelModified);
   connect(t, &ModelEdit::closed, this, &MdiChild::onModelEditClosed);
   gStopwatch.report("STARTING MODEL EDIT");
@@ -1922,7 +1922,7 @@ unsigned MdiChild::exportModels(const QVector<int> modelIndices)
     if (idx < 0 || idx >= (int)radioData.models.size())
       continue;
 
-    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
+    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + radioData.models[idx].name.toQString() + ".yml"));
     qDebug() << path;
 
     QString filename;
@@ -2000,7 +2000,7 @@ QStringList MdiChild::modelErrorsList()
 void MdiChild::modelShowErrors()
 {
   ModelData &mdl = radioData.models[getCurrentModel()];
-  QMessageBox::critical(this, QString("%1").arg(mdl.name), mdl.errorsList().join("\n"));
+  QMessageBox::critical(this, QString("%1").arg(mdl.name.toQString()), mdl.errorsList().join("\n"));
 }
 
 void MdiChild::onModelEditClosed(int id)
@@ -2111,7 +2111,7 @@ void MdiChild::modelImport()
   if (ok) {
     // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
     radioData.models[modelIdx].modelIndex = -modelIdx;
-    strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
+    radioData.models[modelIdx].filename = radioData.getNextModelFilename();
     lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
     setModelModified(modelIdx, false);  // avoid unnecessary refreshes
     radioData.addLabelsFromModels();

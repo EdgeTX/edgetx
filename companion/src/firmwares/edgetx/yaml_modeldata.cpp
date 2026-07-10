@@ -46,9 +46,9 @@
 
 void YamlValidateLabelsNames(ModelData& model, Board::Type board)
 {
-  YamlValidateName(model.name, board);
+  model.name = YamlValidateName(model.name.toQString(), board).toLatin1().constData();
 
-  QStringList lst = QString(model.labels).split(',', Qt::SkipEmptyParts);
+  QStringList lst = model.labels.toQString().split(',', Qt::SkipEmptyParts);
 
   for (int i = lst.count() - 1; i >= 0; i--) {
     YamlValidateLabel(lst[i]);
@@ -56,7 +56,7 @@ void YamlValidateLabelsNames(ModelData& model, Board::Type board)
       lst.removeAt(i);
   }
 
-  strcpy(model.labels, QString(lst.join(',')).toLatin1().data());
+  model.labels = QString(lst.join(',')).toLatin1().constData();
 
   for (int i = 0; i < CPN_MAX_CURVES; i++) {
     YamlValidateName(model.curves[i].name, board);
@@ -418,7 +418,7 @@ struct YamlSwitchWarningState {
     std::stringstream ss(src_str);
     while (!ss.eof()) {
       auto c = ss.get();
-      if (c < 'A' && c > 'Z') {
+      if (c < 'A' || c > 'Z') {
         ss.ignore();
         continue;
       }
@@ -1324,12 +1324,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   if (node["semver"]) {
     node["semver"] >> rhs.semver;
-    if (SemanticVersion().isValid(rhs.semver)) {
-      modelSettingsVersion = SemanticVersion(QString(rhs.semver));
+    if (SemanticVersion().isValid(rhs.semver.toQString())) {
+      modelSettingsVersion = SemanticVersion(rhs.semver.toQString());
     }
     else {
-      qDebug() << "Invalid settings version:" << rhs.semver;
-      memset(rhs.semver, 0, sizeof(rhs.semver));
+      qDebug() << "Invalid settings version:" << rhs.semver.c_str();
+      rhs.semver.clear();
     }
   }
 
@@ -1355,7 +1355,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
                << "Companion" << SemanticVersion(VERSION).toString();
     } else {
       QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: '%1' has settings version %2 that is not supported by Companion %3!\n\nModel settings may be corrupted if you continue.");
-      prmpt = prmpt.arg(rhs.name).arg(modelSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
+      prmpt = prmpt.arg(rhs.name.toQString()).arg(modelSettingsVersion.toString()).arg(SemanticVersion(VERSION).toString());
       QMessageBox msgBox;
       msgBox.setWindowTitle(QCoreApplication::translate("YamlModelSettings", "Read Model Settings"));
       msgBox.setText(prmpt);

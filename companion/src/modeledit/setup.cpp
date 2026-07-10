@@ -357,9 +357,9 @@ void SetupPanel::on_throttleTrimSwitch_currentIndexChanged(int index)
 
 void SetupPanel::on_name_editingFinished()
 {
-  if (QString(model->name) != ui->name->text()) {
+  if (model->name.toQString() != ui->name->text()) {
     int length = ui->name->maxLength();
-    strncpy(model->name, ui->name->text().toLatin1(), length);
+    model->name = ui->name->text().left(length).toLatin1().constData();
     emit modified();
   }
 }
@@ -410,7 +410,7 @@ void SetupPanel::populateThrottleTrimSwitchCB()
 
 void SetupPanel::update()
 {
-  ui->name->setText(model->name);
+  ui->name->setText(model->name.toQString());
   ui->throttleReverse->setChecked(model->throttleReversed);
   ui->throttleSource->updateValue();
   populateThrottleTrimSwitchCB();
