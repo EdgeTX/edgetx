@@ -28,10 +28,18 @@ static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_obj_add_style(obj, styles->pad_tiny, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
 
-  etx_std_style(obj, LV_PART_ITEMS, PAD_SMALL);
-  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
-  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_FOCUSED);
+  etx_obj_add_style(obj, styles->border, LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY2_INDEX], LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
+  etx_obj_add_style(obj, styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS);
+  etx_bg_color(obj, COLOR_THEME_ACTIVE_INDEX, LV_PART_ITEMS | LV_STATE_CHECKED);
   etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
+
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
 }
 
 static const lv_obj_class_t keyboard_class = {
