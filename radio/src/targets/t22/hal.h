@@ -393,6 +393,7 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define GPIO_LED_GPIO_ON                  gpio_set
 #define GPIO_LED_GPIO_OFF                 gpio_clear
 #define LED_RED_GPIO                      GPIO_PIN(GPIOB, 15)
+#define LED_RED2_GPIO                     GPIO_PIN(GPIOJ, 12)
 #define LED_GREEN_GPIO                    GPIO_PIN(GPIOB, 13)
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOB, 12)
 
