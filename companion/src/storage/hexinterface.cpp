@@ -46,11 +46,11 @@ int HexInterface::load(uint8_t *data, int maxsize)
     int address = getValueFromLine(line,3,4);
     int recType = getValueFromLine(line,7);
 
-    if (recType==0x02)
-      offset+=0x010000;
-
     if(byteCount<0 || address<0 || recType<0)
       return 0;
+
+    if (recType==0x02)
+      offset+=0x010000;
 
     QByteArray ba;
     ba.clear();
@@ -70,7 +70,7 @@ int HexInterface::load(uint8_t *data, int maxsize)
     if(chkSum!=retV)
       return 0;
 
-    if (address+offset + byteCount <= maxsize) {
+    if ((int64_t)address + offset + byteCount <= maxsize) {
       if (recType == 0x00) { //data record - ba holds record
         memcpy(&data[address+offset],ba.data(),byteCount);
         result = std::max(result, address+offset+byteCount);
