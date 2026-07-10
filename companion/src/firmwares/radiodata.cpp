@@ -366,7 +366,7 @@ QStringList RadioData::modelErrorsList()
   for(auto &model: models) {
     if (!model.isValid()) {
       ret.append("");
-      ret.append(model.name);
+      ret.append(model.name.toQString());
       ret.append(model.errorsList());
     }
   }

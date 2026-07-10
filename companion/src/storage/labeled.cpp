@@ -324,7 +324,7 @@ bool LabelsStorageFormat::write(RadioData & radioData)
 
     QByteArray modelData;
     if (!writeModelToYaml(model, modelData)) {
-      fatalMsg(tr("Error converting model to yaml: %1").arg(model.name));
+      fatalMsg(tr("Error converting model to yaml: %1").arg(model.name.toQString()));
       return false;
     }
 
@@ -344,7 +344,7 @@ bool LabelsStorageFormat::write(RadioData & radioData)
     if (!writeChecklist(model))
       return false;
 
-    statusMsg(tr("Model written: %1").arg(model.name));
+    statusMsg(tr("Model written: %1").arg(model.name.toQString()));
     progressSetValue(++steps);
   }
 

@@ -178,9 +178,12 @@ FirmwareInterface::FirmwareInterface(const QString &filename, QDialog *parent) :
   if (filename.isEmpty()) return;
 
   QFile file(filename);
-  file.open(QIODevice::ReadOnly);
-  initFlash(file.readAll());
-  file.close();
+  if (file.open(QIODevice::ReadOnly)) {
+    initFlash(file.readAll());
+    file.close();
+  } else {
+    // TODO: error handling
+  }
 }
 
 FirmwareInterface::FirmwareInterface(const QByteArray &flashData, QDialog *parent) :
