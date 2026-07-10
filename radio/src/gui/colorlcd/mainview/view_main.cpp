@@ -346,8 +346,8 @@ bool ViewMain::onLongPress()
 {
   if (isAppMode()) {
     int view = getCurrentMainView();
-    customScreens[view]->getWidget(0)->setFullscreen(true);
-    killEvents(KEY_ENTER);
+    if (customScreens[view]->getWidget(0))
+      customScreens[view]->getWidget(0)->setFullscreen(true);
   } else {
     enableWidgetSelect(true);
   }
