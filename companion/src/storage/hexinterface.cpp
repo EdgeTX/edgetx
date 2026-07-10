@@ -36,7 +36,7 @@ int HexInterface::getValueFromLine(const QString &line, int pos, int len)
 int HexInterface::load(uint8_t *data, int maxsize)
 {
   int result = 0;
-  int offset = 0;
+  int64_t offset = 0;
   while (!stream.atEnd()) {
     QString line = stream.readLine();
 
@@ -73,7 +73,7 @@ int HexInterface::load(uint8_t *data, int maxsize)
     if ((int64_t)address + offset + byteCount <= maxsize) {
       if (recType == 0x00) { //data record - ba holds record
         memcpy(&data[address+offset],ba.data(),byteCount);
-        result = std::max(result, address+offset+byteCount);
+        result = std::max(result, static_cast<int>(address+offset+byteCount));
       }
     }
     else {
