@@ -220,6 +220,10 @@ void menuRadioTools(event_t event)
     addRadioModuleToolHandler(index++, "Ghost Menu", menuGhostModuleConfig, EXTERNAL_MODULE);
 #endif
 
+#if defined(SERVO_PWM)
+  addRadioModuleToolHandler(index++, STR_PWM_OUTPUT, menuServoPwmTool, 0);
+#endif
+
 #endif
 
   if (index == 0) {
