@@ -49,7 +49,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     virtual void insertItems(int index, const QStringList & items);
     // AutoWidget
     virtual void updateValue() override;
-    virtual void setAutoModel(QAbstractItemModel * model);
+    void setAutoModel(QAbstractItemModel * model) override;
     void setBindText(std::function<QString()> fn) = delete;
 
     void clear();
