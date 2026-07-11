@@ -293,7 +293,6 @@ class MenuWindowContent : public NavWindow
       NavWindow(parent, rect_t{}, menu_content_create)
   {
     setWindowFlag(OPAQUE);
-    lv_obj_set_style_max_height(lvobj, LCD_H - PAD_LARGE * 2, LV_PART_MAIN);
 
     coord_t w = (popupWidth > 0) ? popupWidth : MENUS_WIDTH;
 
@@ -307,6 +306,7 @@ class MenuWindowContent : public NavWindow
     header->hide();
 
     body = new MenuBody(this, rect_t{0, 0, w, LV_SIZE_CONTENT});
+    lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::STD_FONT_HEIGHT - PAD_SMALL * 2 - PAD_LARGE * 2, LV_PART_MAIN);
   }
 
   virtual void setTitle(const std::string& text)
