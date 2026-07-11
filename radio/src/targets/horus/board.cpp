@@ -101,6 +101,10 @@ void boardBLInit()
 #if !defined(BOOT)
 #include "edgetx.h"
 
+#if defined(VOICE_CONTROL_SENSOR)
+  #include "drivers/CI1302.h"
+#endif
+
 #if defined(PCBX12S)
 static void audio_set_rst_pin(bool set)
 {
@@ -222,6 +226,10 @@ void boardInit()
 
 #if defined(BLUETOOTH)
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
+#endif
+
+#if defined(VOICE_CONTROL_SENSOR)
+  voiceControlInit();
 #endif
 
 #if defined(VIDEO_SWITCH)

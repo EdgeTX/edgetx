@@ -511,6 +511,11 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TRAINER_LOST()     audioEvent(AU_TRAINER_LOST)
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
 
+#if defined(VOICE_CONTROL_SENSOR)
+  #define AUDIO_HELLORADIO()      audioPlay(AU_HELLORADIO)
+  #define AUDIO_OKAY()            audioPlay(AU_OKAY)
+#endif
+
 #else // AUDIO
 
 #define AUDIO_TIMER_COUNTDOWN(idx, val) 

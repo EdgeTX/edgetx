@@ -21,9 +21,18 @@
 
 #include "edgetx.h"
 #include "hal/switch_driver.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 
 SwitchConfig ModelData::getSwitchType(uint8_t n)
 {
+#if defined(VOICE_CONTROL_SENSOR)
+  SwitchConfig voiceType;
+  if (CI1302_voiceIntegrationModelGetSwitchType(n, &voiceType)) {
+    return voiceType;
+  }
+#endif
 #if defined(FUNCTION_SWITCHES)
   if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
     return cfsType(n);
@@ -32,6 +41,11 @@ SwitchConfig ModelData::getSwitchType(uint8_t n)
 }
 
 void ModelData::setSwitchType(uint8_t n, SwitchConfig v) {
+#if defined(VOICE_CONTROL_SENSOR)
+  if (CI1302_voiceIntegrationModelSetSwitchType(n)) {
+    return;
+  }
+#endif
 #if defined(FUNCTION_SWITCHES)
   if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
     cfsSetType(n,v);
