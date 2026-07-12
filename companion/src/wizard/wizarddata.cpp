@@ -46,8 +46,7 @@ WizMix::WizMix(const GeneralSettings & settings, unsigned int modelId, const Mod
   vehicle(NOVEHICLE)
 {
   memset(name, 0, sizeof(name));
-  memcpy(name, originalModelData.name, sizeof(name) - 1);
-  name[sizeof(name) - 1] = '\0';
+  strncpy(name, originalModelData.name.c_str(), sizeof(name) - 1);
 }
 
 void WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int weight)
@@ -87,7 +86,7 @@ WizMix::operator ModelData()
   int throttleChannel = -1;
 
   ModelData model;
-  model.labels[0] = '\0';
+  model.labels.clear();
   model.used = true;
   model.moduleData[0].modelId = modelId;
   model.setDefaultInputs(settings);
@@ -96,9 +95,7 @@ WizMix::operator ModelData()
   int mixIndex = 0;
   int timerIndex = 0;
 
-  memset(model.name, 0, sizeof(model.name));
-  memcpy(model.name, name, sizeof(model.name) - 1);
-  model.name[sizeof(model.name) - 1] = '\0';
+  model.name = name;
 
   // Add the channel mixes
   for (int i=0; i<WIZ_MAX_CHANNELS; i++ )

@@ -308,7 +308,7 @@ int switchLookupIdx(const char* name, size_t len)
   auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
     const char *sw_name = switchGetDefaultName(i);
-    if (strncmp(sw_name, name, len) == 0) return i;
+    if (strlen(sw_name) == len && strncmp(sw_name, name, len) == 0) return i;
   }
 
   return -1;

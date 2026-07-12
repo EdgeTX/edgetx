@@ -310,7 +310,7 @@ QString MultiModelPrinter::printSetup()
 
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
-  ROWLABELCOMPARECELL(tr("Name"), 20, model->name, 80);
+  ROWLABELCOMPARECELL(tr("Name"), 20, model->name.toQString(), 80);
   if (firmware->getCapability(HasModelImage)) {
     ROWLABELCOMPARECELL(tr("Model Image"), 0, model->bitmap, 0);
   }

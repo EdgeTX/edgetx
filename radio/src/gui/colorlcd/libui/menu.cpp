@@ -306,7 +306,7 @@ class MenuWindowContent : public NavWindow
     header->hide();
 
     body = new MenuBody(this, rect_t{0, 0, w, LV_SIZE_CONTENT});
-    lv_obj_set_style_max_height(body->getLvObj(), LCD_H * 0.8, LV_PART_MAIN);
+    lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::STD_FONT_HEIGHT - PAD_SMALL * 2 - PAD_LARGE * 2, LV_PART_MAIN);
   }
 
   virtual void setTitle(const std::string& text)

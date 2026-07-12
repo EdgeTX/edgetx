@@ -549,7 +549,8 @@ int adcGetInputIdx(const char* input, uint8_t len)
 
   do {
     for (uint8_t i = 0; i < _hal_adc_inputs[type].n_inputs; i++, idx++) {
-      if (!strncmp(_hal_adc_inputs[type].inputs[i].name, input, len))
+      const char* input_name = _hal_adc_inputs[type].inputs[i].name;
+      if (strlen(input_name) == len && !strncmp(input_name, input, len))
         return idx;
     }
   } while (++type < ADC_INPUT_ALL);

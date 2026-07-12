@@ -119,6 +119,10 @@ jobs:
         with:
           os: 'linux'
 
+      - name: Run companion unit tests
+        shell: bash
+        run: cmake --build build/native --target tests-companion --parallel
+
   build-macos:
     name: macOS Companion
     runs-on: macos-15

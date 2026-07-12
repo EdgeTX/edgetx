@@ -62,9 +62,12 @@ QString formatTitle(const QString & name)
 void debugHtml(const QString & html)
 {
   QFile file("foo.html");
-  file.open(QIODevice::Truncate | QIODevice::WriteOnly);
-  file.write(html.toUtf8());
-  file.close();
+  if (file.open(QIODevice::Truncate | QIODevice::WriteOnly)) {
+    file.write(html.toUtf8());
+    file.close();
+  } else {
+    // TODO: error handling
+  }
 }
 
 QString addFont(const QString & input, const QString & color, const QString & size, const QString & face)

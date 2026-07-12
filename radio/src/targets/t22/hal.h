@@ -153,6 +153,8 @@ TIM17:	  ROTARY_ENCODER_TIMER
 
 // Audio
 #define AUDIO_MUTE_GPIO                GPIO_PIN(GPIOH, 4)
+#define AUDIO_MUTE_DELAY               200  // ms
+#define AUDIO_UNMUTE_DELAY             100  // ms
 #define AUDIO_OUTPUT_GPIO              GPIO_PIN(GPIOA, 4)
 #define AUDIO_DAC                      DAC1
 #define AUDIO_DMA_Stream               LL_DMA_STREAM_1
@@ -218,6 +220,7 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define GPIO_LED_GPIO_ON                  gpio_set
 #define GPIO_LED_GPIO_OFF                 gpio_clear
 #define LED_RED_GPIO                      GPIO_PIN(GPIOB, 15)
+#define LED_RED2_GPIO                     GPIO_PIN(GPIOJ, 12)
 #define LED_GREEN_GPIO                    GPIO_PIN(GPIOB, 13)
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOB, 12)
 
