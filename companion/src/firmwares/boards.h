@@ -102,6 +102,7 @@ namespace Board {
     BOARD_HELLORADIOSKY_V14LCD,
     BOARD_IFLIGHT_COMMANDO14,
     BOARD_HELLORADIOSKY_V12,
+    BOARD_SENDUWING_H17,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -772,6 +773,11 @@ inline bool IS_IFLIGHT_C14(Board::Type board)
   return (board == Board::BOARD_IFLIGHT_COMMANDO14);
 }
 
+inline bool IS_SENDUWING_H17(Board::Type board)
+{
+  return (board == Board::BOARD_SENDUWING_H17);
+}
+
 inline bool IS_FAMILY_PL18(Board::Type board)
 {
   return IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18EV(board) || IS_FLYSKY_PL18U(board);
@@ -858,7 +864,7 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
     || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ ||
     IS_FLYSKY_PA01(board)/*generally*/ || IS_FLYSKY_NB4P(board)/*generally*/ ||
-    IS_IFLIGHT_C14(board)/*generally*/;
+    IS_IFLIGHT_C14(board)/*generally*/ || IS_SENDUWING_H17(board)/*generally*/;
 }
 
 inline bool HAS_LARGE_LCD(Board::Type board)
