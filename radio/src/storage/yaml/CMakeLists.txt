@@ -101,3 +101,5 @@ add_custom_target(yaml_data
             ${RADIO_DIRECTORY}/src/myeeprom.h
             ${RADIO_DIRECTORY}/util/generate_yaml.py
 )
+
+add_dependencies(yaml_data hal_settings)
