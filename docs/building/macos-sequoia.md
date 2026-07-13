@@ -4,7 +4,7 @@
 
 - Run command in `Terminal`:
 
-```
+```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
@@ -16,13 +16,13 @@
 !!! note
     If you only intend on building the firmware, and not `simu`, `companion` or `simulator`, this is not necessary, and you can skip to the next step.
 
-```
+```bash
 brew install qt@6
 ```
 
 Once Qt has been installed, you should set a couple environment variables (please modify according to the real installation paths):
 
-```
+```bash
 export QTDIR=$(brew --prefix)/opt/qt@6
 export QT_PLUGIN_PATH=$QTDIR/plugins
 ```
@@ -40,7 +40,7 @@ If you install the `.tar.xz` archive manually instead of the `.pkg`, you may nee
 
 # Other tools
 
-```
+```bash
 brew install sdl2 sdl3 cmake uv
 ```
 
@@ -49,20 +49,20 @@ brew install sdl2 sdl3 cmake uv
 
 If you plan to run the standalone simulator for debugging:
 
-```
+```bash
 brew install --cask quartz
 ```
 
-
 # Download EdgeTX code
+-Checkout code
 
-- Checkout code
-```
+```bash
 git clone --recursive https://github.com/EdgeTX/edgetx.git
 ```
 
-- Switch into the source directory:
-```
+-Switch into the source directory:
+
+```bash
 cd edgetx
 ```
 
@@ -70,28 +70,27 @@ cd edgetx
 
 Since Python 3.11+, macOS uses an externally managed Python environment. Create a project virtual environment with [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
-```
+```bash
 uv venv --python 3.14
 source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-
 Activate the virtual environment in every new terminal session before building:
 
-```
+```bash
 source .venv/bin/activate
 ```
 
 # Configure the build
 
-```
+```bash
 mkdir -p build && cd build
 ```
 
 Configure for RadioMaster TX16S ([other radio flags](https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh)):
 
-```
+```bash
 cmake -DPCB=X10 -DPCBREV=TX16S \
    -DCMAKE_PREFIX_PATH=$QTDIR \
    -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
@@ -106,7 +105,7 @@ cmake -DPCB=X10 -DPCBREV=TX16S \
 
 ## Build firmware
 
-```
+```bash
 cmake --build . --target arm-none-eabi-configure --parallel 4
 cmake --build . --target firmware
 ```
@@ -119,7 +118,7 @@ Firmware and Companion are separate targets. Companion requires Qt, SDL2, and SD
 
 From the `build` directory:
 
-```
+```bash
 source ../.venv/bin/activate
 export QTDIR=$(brew --prefix)/opt/qt@6
 export QT_PLUGIN_PATH=$QTDIR/plugins
@@ -135,14 +134,14 @@ The application bundle is created at `build/native/EdgeTX Companion 3.0.app` (th
 
 ## Run Companion from the build directory
 
-```
+```bash
 export QT_PLUGIN_PATH=$(brew --prefix)/opt/qt@6/plugins
 open "native/EdgeTX Companion 3.0.app"
 ```
 
 For the radio simulator to work when running from the build tree, copy the WASM module into the bundle:
 
-```
+```bash
 cp wasm/edgetx-*-simulator.wasm "native/EdgeTX Companion 3.0.app/Contents/MacOS/"
 ```
 
@@ -150,7 +149,7 @@ cp wasm/edgetx-*-simulator.wasm "native/EdgeTX Companion 3.0.app/Contents/MacOS/
 
 The `package` target lives in the `native` build tree, **not** in the top-level `build` directory.
 
-```
+```bash
 mkdir -p native/plugins
 cp wasm/edgetx-*-simulator.wasm native/plugins/ 2>/dev/null || true
 cmake --build native --target package
@@ -160,7 +159,7 @@ The `.dmg` is written to `build/native/edgetx-companion-<version>.dmg` (for exam
 
 Open it and drag **EdgeTX Companion** into `/Applications`:
 
-```
+```bash
 open native/edgetx-companion-3.0.0.dmg
 ```
 
@@ -172,7 +171,7 @@ The packaging step bundles Qt, SDL2, and SDL3 into the `.app` automatically.
 
 When compiling simulator plug-ins (using `cmake --build . --target libsimulator` with the target properly configured), the product of this compilation will be a `.dylib` stored in your build directory. If you want the Companion or Simulator apps to be able to use it, you will need to copy it manually into the respective directories. Here is how it should look with a couple of plug-ins copied:
 
-```
+```bash
 % ls -l companion.app/Contents/MacOS/
 total 411976
 -rwxr-xr-x  1 etx  staff  27908864 Jan  7 11:48 companion
@@ -193,7 +192,8 @@ total 392616
 ## Notes on possible error while trying to run build-companion.sh
 
 If you encounter this error:
-```
+
+```bash
 CPack: - Install project: EdgeTX []
 CMake Error at /opt/homebrew/Cellar/cmake/3.27.7/share/cmake/Modules/BundleUtilities.cmake:458 (message):
   otool -l failed: 1
