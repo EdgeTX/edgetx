@@ -111,6 +111,61 @@ cmake --build . --target arm-none-eabi-configure --parallel 4
 cmake --build . --target firmware
 ```
 
+The firmware binary is written to `build/arm-none-eabi/firmware.bin`.
+
+## Build Companion
+
+Firmware and Companion are separate targets. Companion requires Qt, SDL2, and SDL3 (see above).
+
+From the `build` directory:
+
+```
+source ../.venv/bin/activate
+export QTDIR=$(brew --prefix)/opt/qt@6
+export QT_PLUGIN_PATH=$QTDIR/plugins
+
+cmake --build . --target native-configure --parallel 4
+cmake --build . --target wasi-module --parallel 4
+mkdir -p native/plugins
+cp wasm/edgetx-*-simulator.wasm native/plugins/
+cmake --build . --target companion --parallel 4
+```
+
+The application bundle is created at `build/native/EdgeTX Companion 3.0.app` (the version number matches your EdgeTX release; check with `ls native/*.app`).
+
+## Run Companion from the build directory
+
+```
+export QT_PLUGIN_PATH=$(brew --prefix)/opt/qt@6/plugins
+open "native/EdgeTX Companion 3.0.app"
+```
+
+For the radio simulator to work when running from the build tree, copy the WASM module into the bundle:
+
+```
+cp wasm/edgetx-*-simulator.wasm "native/EdgeTX Companion 3.0.app/Contents/MacOS/"
+```
+
+## Build a distributable `.dmg`
+
+The `package` target lives in the `native` build tree, **not** in the top-level `build` directory.
+
+```
+mkdir -p native/plugins
+cp wasm/edgetx-*-simulator.wasm native/plugins/ 2>/dev/null || true
+cmake --build native --target package
+```
+
+The `.dmg` is written to `build/native/edgetx-companion-<version>.dmg` (for example `edgetx-companion-3.0.0.dmg`).
+
+Open it and drag **EdgeTX Companion** into `/Applications`:
+
+```
+open native/edgetx-companion-3.0.0.dmg
+```
+
+The packaging step bundles Qt, SDL2, and SDL3 into the `.app` automatically.
+
 # Troubleshooting
 
 ## Notes on compiling simulator plug-ins
