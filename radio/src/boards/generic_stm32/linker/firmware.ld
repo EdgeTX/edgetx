@@ -33,6 +33,31 @@ SECTIONS
 
   _isr_load = LOADADDR(.isr_vector);
 
+  /* Hot interrupt-path code (USB device stack, MSC storage glue, SDIO
+     diskio) executed from RAM: on some TX16S units, instruction
+     fetches from the upper flash bank get corrupted under heavy
+     IRQ/DMA load (USB crash, EdgeTX#5899); claimed before .text so
+     these input sections land here. Requires non-LTO objects. */
+  .fastcode :
+  {
+    . = ALIGN(4);
+    _sfastcode = .;
+    *ll_usb*(.text .text.*)
+    *hal_pcd*(.text .text.*)
+    *usb_driver*(.text .text.*)
+    *usbd_conf*(.text .text.*)
+    *usbd_core*(.text .text.*)
+    *usbd_ioreq*(.text .text.*)
+    *usbd_ctlreq*(.text .text.*)
+    *usbd_msc*(.text .text.*)
+    *usbd_storage_msd*(.text .text.*)
+    *diskio_sdio*(.text .text.*)
+    . = ALIGN(4);
+    _efastcode = .;
+  } > REGION_BSS AT> REGION_TEXT_STORAGE
+
+  _fastcode_load = LOADADDR(.fastcode);
+
   /* Main code section */
   .text (READONLY) :
   {
