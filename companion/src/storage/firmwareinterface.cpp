@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "hexinterface.h"
 #include "firmwareinterface.h"
 #include "helpers.h"
 

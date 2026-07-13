@@ -2,13 +2,10 @@
 project(storage)
 
 set(${PROJECT_NAME}_NAMES
-  hexinterface
   mountlist
   appdata
   firmwareinterface
   storage
-  eepe
-  hexeeprom
   labeled
   sdcard
   etx
