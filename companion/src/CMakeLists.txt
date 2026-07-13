@@ -619,9 +619,23 @@ elseif(APPLE)
 
       install(CODE "
         set(_fw \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}/Contents/Frameworks\")
-        execute_process(COMMAND install_name_tool -id \"@executable_path/../Frameworks/${_sdl2_name}\" \"\${_fw}/${_sdl2_name}\")
+        execute_process(
+          COMMAND install_name_tool -id \"@executable_path/../Frameworks/${_sdl2_name}\" \"\${_fw}/${_sdl2_name}\"
+          RESULT_VARIABLE _sdl2_id_result
+          ERROR_VARIABLE _sdl2_id_error
+        )
+        if(NOT _sdl2_id_result EQUAL 0)
+          message(FATAL_ERROR \"install_name_tool failed for ${_sdl2_name}: \${_sdl2_id_error}\")
+        endif()
         if(EXISTS \"\${_fw}/libSDL3.dylib\")
-          execute_process(COMMAND install_name_tool -id \"@executable_path/../Frameworks/libSDL3.dylib\" \"\${_fw}/libSDL3.dylib\")
+          execute_process(
+            COMMAND install_name_tool -id \"@executable_path/../Frameworks/libSDL3.dylib\" \"\${_fw}/libSDL3.dylib\"
+            RESULT_VARIABLE _sdl3_id_result
+            ERROR_VARIABLE _sdl3_id_error
+          )
+          if(NOT _sdl3_id_result EQUAL 0)
+            message(FATAL_ERROR \"install_name_tool failed for libSDL3.dylib: \${_sdl3_id_error}\")
+          endif()
         endif()
       " COMPONENT Runtime)
     endif()
