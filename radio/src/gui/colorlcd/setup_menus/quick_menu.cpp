@@ -353,8 +353,12 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
       setFocus(curPage);
     } else {
 #if VERSION_MAJOR > 2
-      if (curPage == QM_MANAGE_MODELS)
-        mainMenu->setCurrent(favoritesMenuItems[0].icon == EDGETX_ICONS_COUNT ? 0 : 1);
+      for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+        if (qmTopItems[i].qmPage == curPage && qmTopItems[i].pageAction == QM_ACTION) {
+          mainMenu->setCurrent(i);
+          break;
+        }
+      }
 #endif
       focusMainMenu();
     }
