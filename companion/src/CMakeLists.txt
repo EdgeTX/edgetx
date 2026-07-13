@@ -570,12 +570,61 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Bundle SDL2
+  # Bundle SDL2 (copy the real dylib; IMPORTED_RUNTIME_ARTIFACTS keeps
+  # Homebrew symlinks and breaks the app inside a .dmg). Homebrew's
+  # sdl2-compat also loads SDL3 from @loader_path/libSDL3.dylib at runtime.
   if(TARGET SDL2::SDL2)
-    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
-            FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
-            LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
-            COMPONENT Runtime)
+    get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION)
+    if(NOT _sdl2_location)
+      get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION_RELEASE)
+    endif()
+    if(_sdl2_location)
+      get_filename_component(_sdl2_real "${_sdl2_location}" REALPATH)
+      get_filename_component(_sdl2_name "${_sdl2_location}" NAME)
+      install(FILES "${_sdl2_real}"
+              DESTINATION "${companion_app_dir}/Contents/Frameworks"
+              RENAME "${_sdl2_name}"
+              COMPONENT Runtime)
+
+      set(_sdl3_real "")
+      find_package(SDL3 CONFIG QUIET)
+      if(TARGET SDL3::SDL3-Shared)
+        get_target_property(_sdl3_location SDL3::SDL3-Shared IMPORTED_LOCATION)
+        if(_sdl3_location)
+          get_filename_component(_sdl3_real "${_sdl3_location}" REALPATH)
+        endif()
+      endif()
+      if(NOT _sdl3_real)
+        get_filename_component(_sdl2_libdir "${_sdl2_real}" DIRECTORY)
+        get_filename_component(_sdl2_root "${_sdl2_libdir}" DIRECTORY)
+        get_filename_component(_brew_prefix "${_sdl2_root}" DIRECTORY)
+        foreach(_candidate
+            "${_brew_prefix}/sdl3/lib/libSDL3.0.dylib"
+            "/opt/homebrew/opt/sdl3/lib/libSDL3.0.dylib"
+            "/usr/local/opt/sdl3/lib/libSDL3.0.dylib")
+          if(EXISTS "${_candidate}")
+            get_filename_component(_sdl3_real "${_candidate}" REALPATH)
+            break()
+          endif()
+        endforeach()
+      endif()
+      if(_sdl3_real)
+        install(FILES "${_sdl3_real}"
+                DESTINATION "${companion_app_dir}/Contents/Frameworks"
+                RENAME "libSDL3.dylib"
+                COMPONENT Runtime)
+      else()
+        message(WARNING "SDL3 not found; packaged Companion may crash if linked against sdl2-compat")
+      endif()
+
+      install(CODE "
+        set(_fw \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}/Contents/Frameworks\")
+        execute_process(COMMAND install_name_tool -id \"@executable_path/../Frameworks/${_sdl2_name}\" \"\${_fw}/${_sdl2_name}\")
+        if(EXISTS \"\${_fw}/libSDL3.dylib\")
+          execute_process(COMMAND install_name_tool -id \"@executable_path/../Frameworks/libSDL3.dylib\" \"\${_fw}/libSDL3.dylib\")
+        endif()
+      " COMPONENT Runtime)
+    endif()
   endif()
 
   # Re-sign bundle after all contents are installed
