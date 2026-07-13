@@ -35,7 +35,7 @@
   #include "edgetx.h"
 #endif
 
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   #define LCD_CONTRAST_OFFSET            0
 #elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_V14)
   #define LCD_CONTRAST_OFFSET            -10
@@ -158,7 +158,7 @@ void lcdStart()
    gpio_set(OLED_VCC_CS);
 #endif
 #else
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   // T12 and TX12 have the screen inverted.
   #if defined(RADIO_V12)
     lcdWriteCommand(0xe2); // (14) Soft reset
@@ -174,7 +174,7 @@ void lcdStart()
     lcdWriteCommand(0xa6);  // Set display mode
   #else  
     lcdWriteCommand(0xe2); // (14) Soft reset
-#if defined(LCD_HORIZONTAL_INVERT)
+#if LCD_HORIZONTAL_INVERT
     lcdWriteCommand(0xa1); // Set seg
 #else 
     lcdWriteCommand(0xa0); // Set seg
@@ -295,7 +295,7 @@ void lcdRefresh(bool wait)
 #else
     lcdWriteCommand(0x10); // Column addr 0
     lcdWriteCommand(0xB0 | y); // Page addr y
-#if !defined(LCD_VERTICAL_INVERT)
+#if !LCD_VERTICAL_INVERT
     lcdWriteCommand(0x04);
 #endif
 #endif

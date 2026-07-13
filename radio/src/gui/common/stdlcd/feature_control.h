@@ -35,13 +35,13 @@
 #define CASE_IMU(x)
 #endif
 
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
 #define CASE_CONTRAST(x)
 #else
 #define CASE_CONTRAST(x) x,
 #endif
 
-#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
+#if defined(BACKLIGHT_GPIO) || OLED_SCREEN
 #define CASE_BACKLIGHT(x) x,
 #else
 #define CASE_BACKLIGHT(x)
@@ -117,12 +117,6 @@
   #define CASE_LUA_MODEL_SCRIPTS(x) x,
 #else
   #define CASE_LUA_MODEL_SCRIPTS(x)
-#endif
-
-#if defined(PCBX9DP) || defined(PCBX9E)
-  #define CASE_PCBX9E_PCBX9DP(x) x,
-#else
-  #define CASE_PCBX9E_PCBX9DP(x)
 #endif
 
 #define CASE_SPLASH_PARAM(x) x,
