@@ -588,25 +588,46 @@ elseif(APPLE)
 
       set(_sdl3_real "")
       find_package(SDL3 CONFIG QUIET)
-      if(TARGET SDL3::SDL3-Shared)
-        get_target_property(_sdl3_location SDL3::SDL3-Shared IMPORTED_LOCATION)
+      if(TARGET SDL3::SDL3-shared)
+        get_target_property(_sdl3_location SDL3::SDL3-shared IMPORTED_LOCATION_RELEASE)
+        if(NOT _sdl3_location)
+          get_target_property(_sdl3_location SDL3::SDL3-shared IMPORTED_LOCATION)
+        endif()
         if(_sdl3_location)
           get_filename_component(_sdl3_real "${_sdl3_location}" REALPATH)
         endif()
       endif()
       if(NOT _sdl3_real)
-        get_filename_component(_sdl2_libdir "${_sdl2_real}" DIRECTORY)
-        get_filename_component(_sdl2_root "${_sdl2_libdir}" DIRECTORY)
-        get_filename_component(_brew_prefix "${_sdl2_root}" DIRECTORY)
-        foreach(_candidate
-            "${_brew_prefix}/sdl3/lib/libSDL3.0.dylib"
-            "/opt/homebrew/opt/sdl3/lib/libSDL3.0.dylib"
-            "/usr/local/opt/sdl3/lib/libSDL3.0.dylib")
-          if(EXISTS "${_candidate}")
-            get_filename_component(_sdl3_real "${_candidate}" REALPATH)
-            break()
+        set(_sdl3_hints "")
+        if(DEFINED ENV{HOMEBREW_PREFIX})
+          list(APPEND _sdl3_hints
+            "$ENV{HOMEBREW_PREFIX}/opt/sdl3/lib"
+            "$ENV{HOMEBREW_PREFIX}/lib")
+        endif()
+        find_program(_brew_EXECUTABLE brew)
+        if(_brew_EXECUTABLE)
+          execute_process(
+            COMMAND "${_brew_EXECUTABLE}" --prefix sdl3
+            OUTPUT_VARIABLE _brew_sdl3_prefix
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+            RESULT_VARIABLE _brew_sdl3_result
+          )
+          if(_brew_sdl3_result EQUAL 0 AND _brew_sdl3_prefix)
+            list(APPEND _sdl3_hints "${_brew_sdl3_prefix}/lib")
           endif()
-        endforeach()
+        endif()
+        find_library(_sdl3_library
+          NAMES SDL3.0 SDL3
+          HINTS ${_sdl3_hints}
+          NO_DEFAULT_PATH
+        )
+        if(NOT _sdl3_library)
+          find_library(_sdl3_library NAMES SDL3.0 SDL3)
+        endif()
+        if(_sdl3_library)
+          get_filename_component(_sdl3_real "${_sdl3_library}" REALPATH)
+        endif()
       endif()
       if(_sdl3_real)
         install(FILES "${_sdl3_real}"
