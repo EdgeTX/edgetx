@@ -36,6 +36,10 @@
 #include "hal/watchdog_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
+
+#if defined(DIAG_BANK2_FENCE)
+extern "C" void bank2FenceDumpPostMortem(void);
+#endif
 #include "hal/audio_driver.h"
 #include "hal/rgbleds.h"
 
@@ -1502,6 +1506,11 @@ void edgeTxInit()
 
     if (!sdMounted())
       sdInit();
+
+#if defined(DIAG_BANK2_FENCE)
+    // report a bank 2 fence trap from the previous session, if any
+    bank2FenceDumpPostMortem();
+#endif
 
 #if !defined(COLORLCD)
     if (!sdMounted()) {

@@ -65,6 +65,11 @@ ROOT_PATTERNS = [
     r'.*mixerTask.*', r'.*audioTask.*', r'^telemetryTimerCb$',
     r'.*logsTimerCb.*', r'^_Z9logsWritev$', r'^_Z15telemetryWakeupv$',
     r'^_Z13evalFunctions.*',
+    # timers FreeRTOS (indirects via la tache timer, non vus par le
+    # graphe d'appels directs) : chaque callback est une racine
+    r'.*_timer_10ms_cb.*', r'.*per10msv?$', r'.*loggingTimerCb.*',
+    r'.*spacemouseTimerCb.*', r'.*MultiRfProtocols7timerCb.*',
+    r'^_ZL11_refresh_cb.*',  # rgb_leds uniquement
     # tete de perMain : ce qui s'execute AVANT le retour anticipe du
     # gel USB (perMain lui-meme est tronque a l'execution)
     r'^_Z17checkSpeakerVolumev$', r'^_Z16initLoggingTimerv$',
@@ -96,8 +101,11 @@ for line in sys.stdin:
     if m:
         calls[cur].add((m.group(2), int(m.group(1), 16)))
 
+# une racine doit vivre en bank 1 : un symbole apparie en bank 2 est
+# du code UI (gele pendant l'USB), pas un contexte chaud
 roots = [f for f in funcs
-         if any(re.match(p, f) for p in ROOT_PATTERNS)]
+         if any(re.match(p, f) for p in ROOT_PATTERNS)
+         and funcs[f] not in BANK2]
 
 # BFS sur les appels directs, en restant en bank 1 ; une arete vers la
 # bank 2 depuis un appelant non liste = violation
