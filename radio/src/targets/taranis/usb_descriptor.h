@@ -97,7 +97,7 @@
   #define USB_NAME                     "HelloRadioSky V12"
   #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'V', '1', '2', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
-#elif defined(RADIO_V14)||defined(RADIO_V14LCD)
+#elif defined(RADIO_V14) || defined(RADIO_V14LCD)
   #define USB_NAME                     "HelloRadioSky V14"
   #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'V', '1', '4', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */

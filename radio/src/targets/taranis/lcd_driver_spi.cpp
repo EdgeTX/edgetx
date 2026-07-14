@@ -37,7 +37,7 @@
 
 #if defined(OLED_SCREEN)
   #define LCD_CONTRAST_OFFSET            0
-#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_V14)||defined(RADIO_V14LCD)
+#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_V14) || defined(RADIO_V14LCD)
   #define LCD_CONTRAST_OFFSET            -10
 #else
   #define LCD_CONTRAST_OFFSET            160
@@ -172,11 +172,11 @@ void lcdStart()
     lcdWriteCommand(0x81);  // Set contrast
     lcdWriteCommand(0x1F);  // Set Vop
     lcdWriteCommand(0xa6);  // Set display mode
-  #else  
+  #else
     lcdWriteCommand(0xe2); // (14) Soft reset
 #if defined(LCD_HORIZONTAL_INVERT)
     lcdWriteCommand(0xa1); // Set seg
-#else 
+#else
     lcdWriteCommand(0xa0); // Set seg
 #endif
     lcdWriteCommand(0xc8); // Set com
@@ -191,7 +191,7 @@ void lcdStart()
     lcdWriteCommand(0xa6); // Set display mode
   #endif
 #else
-  #if defined(RADIO_V14)||defined(RADIO_V14LCD)
+  #if defined(RADIO_V14) || defined(RADIO_V14LCD)
     lcdWriteCommand(0xe2); // (14) Soft reset
     lcdWriteCommand(0xa1); // Set seg
     lcdWriteCommand(0xc0);  // Set com
@@ -203,7 +203,7 @@ void lcdStart()
     lcdWriteCommand(0x81);  // Set contrast
     lcdWriteCommand(0x1F);  // Set Vop
     lcdWriteCommand(0xa6);  // Set display mode
-  #else  
+  #else
     lcdWriteCommand(0xe2); // (14) Soft reset
     lcdWriteCommand(0xa1); // Set seg
     lcdWriteCommand(0xc0); // Set com
@@ -453,7 +453,7 @@ void lcdSetRefVolt(uint8_t val)
   WAIT_FOR_DMA_END();
 #endif
 
-#if defined(RADIO_V12) || defined(RADIO_V14)||defined(RADIO_V14LCD)
+#if defined(RADIO_V12) || defined(RADIO_V14) || defined(RADIO_V14LCD)
   lcdWriteCommand(0x81);                      // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET+20);// 0-255
 #else
