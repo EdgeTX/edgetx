@@ -387,7 +387,7 @@ void QuickMenu::openPage(QMPage page)
       if (qmTopItems[i].qmPage == page) {
         topMenuAction(i);
         return;
-        }
+      }
     } else {
       const PageDef* sub = qmTopItems[i].subMenuItems;
       for (int j = 0, k = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
