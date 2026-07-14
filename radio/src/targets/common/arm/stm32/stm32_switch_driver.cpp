@@ -45,9 +45,9 @@ SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw)
 
     case SWITCH_HW_ADC: {
       uint16_t value = getAnalogValue(sw->Pin_high);
-      if (value > 3 * 1024)
+      if (value > ADC_MAX_VALUE*2/3)
         ret = SWITCH_HW_DOWN;
-      else if (value >= 1024)
+      else if (value >= ADC_MAX_VALUE/3)
         ret = SWITCH_HW_MID;
     } break;
   }
