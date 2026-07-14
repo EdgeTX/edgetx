@@ -17,7 +17,7 @@
 # sont pas suivis ; la couverture est completee a l'execution par la
 # barriere MPU du build de validation (DIAG_BANK2_FENCE).
 #
-# Usage: bench/check_bank1.sh [chemin/firmware.elf]
+# Usage: tools/check_bank1.sh [chemin/firmware.elf]
 
 set -e
 ELF=${1:-"$(dirname "$0")/../build-bank1/arm-none-eabi/firmware.elf"}
@@ -110,6 +110,8 @@ WHITELIST_EDGES = {
     ('_ZL9menusTaskv', '_Z15drawSleepBitmapv'),
     # initialisation LVGL au demarrage de la tache, avant tout USB
     ('_ZL9menusTaskv', '_ZN11LvglWrapper8instanceEv'),
+    # ecran d'urgence au boot (UNEXPECTED_SHUTDOWN), avant tout USB
+    ('_ZL9menusTaskv', '_Z20drawFatalErrorScreenPKc'),
 }
 
 funcs = {}      # nom -> addr

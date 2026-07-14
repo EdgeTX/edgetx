@@ -9,7 +9,7 @@
 #      inversion de l'ordre de link de deux sources UI (decale la
 #      bank 2 et change la survie des comdats)
 #
-# Chaque build doit passer bench/check_bank1.sh. Les perturbations ne
+# Chaque build doit passer tools/check_bank1.sh. Les perturbations ne
 # sont jamais commitees (restauration git a la fin, arbre propre exige).
 #
 # Usage: bench/test_invariance.sh
@@ -38,7 +38,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain/arm-none-eabi.cmake \
       -DPCB=X10 -DPCBREV=TX16S -DCMAKE_BUILD_TYPE=Release .. > cmake.log 2>&1
 make firmware -j\$(nproc) > make.log 2>&1 || { tail -20 make.log; exit 1; }
 "
-  bench/check_bank1.sh build-invar/arm-none-eabi/firmware.elf
+  tools/check_bank1.sh build-invar/arm-none-eabi/firmware.elf
   echo "=== $label: OK ==="
 }
 
