@@ -228,6 +228,8 @@ class QuickSubMenu
 //-----------------------------------------------------------------------------
 
 QuickMenu* QuickMenu::instance = nullptr;
+QMPage QuickMenu::curPage = QM_NONE;
+EdgeTxIcon QuickMenu::curIcon = EDGETX_ICONS_COUNT;
 
 void QuickMenu::openQuickMenu()
 {
@@ -287,7 +289,7 @@ QuickMenu::QuickMenu() :
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       mainMenu->addButton(qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle),
-                  [=]() { onSelect(true); qmTopItems[i].action(); }, qmTopItems[i].enabled);
+                  [=]() { topMenuAction(i); }, qmTopItems[i].enabled);
 #if VERSION_MAJOR > 2
     } else {
       auto sub = new QuickSubMenu(box, this, &qmTopItems[i]);
@@ -371,26 +373,30 @@ void QuickMenu::selected()
     instance->onSelect(true);
 }
 
+void QuickMenu::topMenuAction(int n)
+{
+  selected();
+  setCurrentPage(qmTopItems[n].qmPage, qmTopItems[n].icon);
+  qmTopItems[n].action();
+}
+
 void QuickMenu::openPage(QMPage page)
 {
   for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
-        QuickMenu::selected();
-        setCurrentPage(page, qmTopItems[i].icon);
-        qmTopItems[i].action();
+        topMenuAction(i);
         return;
         }
     } else {
       const PageDef* sub = qmTopItems[i].subMenuItems;
       for (int j = 0, k = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
         if (sub[j].qmPage == page) {
+          selected();
+          setCurrentPage(page, qmTopItems[i].icon);
           if (sub[j].pageAction == PAGE_ACTION) {
-            QuickMenu::selected();
-            setCurrentPage(page, qmTopItems[i].icon);
             sub[j].action();
           } else {
-            QuickMenu::selected();
             auto pg = new PageGroup(qmTopItems[i].icon, STR_VAL(qmTopItems[i].title), sub);
             pg->setCurrentTab(k);
             return;
@@ -575,10 +581,8 @@ bool QuickMenu::setupFavorite(int favIdx, int favBtn)
 
 void QuickMenu::setCurrentPage(QMPage newPage, EdgeTxIcon newIcon)
 {
-  if (instance) {
-    instance->curPage = newPage;
-    instance->curIcon = newIcon;
-  }
+  curPage = newPage;
+  curIcon = newIcon;
 }
 
 void QuickMenu::focusMainMenu()

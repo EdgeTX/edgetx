@@ -153,14 +153,14 @@ class QuickMenu : public NavWindow
 
  protected:
   static QuickMenu* instance;
+  static QMPage curPage;
+  static EdgeTxIcon curIcon;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
 #if VERSION_MAJOR > 2
   std::vector<QuickSubMenu*> subMenus;
 #endif
   PageGroupBase* pageGroup = nullptr;
-  QMPage curPage = QM_NONE;
-  EdgeTxIcon curIcon = EDGETX_ICONS_COUNT;
 
   void openQM(PageGroupBase* pageGroup, QMPage curPage);
   void closeQM();
@@ -170,6 +170,7 @@ class QuickMenu : public NavWindow
   void deleteLater() override;
 
   static void selected();
+  static void topMenuAction(int n);
 
 #if VERSION_MAJOR > 2
   void updateFavorites();
