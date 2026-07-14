@@ -28,6 +28,8 @@
   *(.text._Z13POPUP_WARNINGPKcS0_ .text._Z17POPUP_INFORMATIONPKc)
   /* fonction speciale SET_SCREEN (mixer) */
   *(.text._Z20setRequestedMainViewh)
+  /* appelee par pwrCheck (menusTask, toutes les 50 ms, gel compris) */
+  *(.text._Z23cancelShutdownAnimationv)
   . = ALIGN(4);
 } > REGION_TEXT AT> REGION_TEXT_STORAGE
 

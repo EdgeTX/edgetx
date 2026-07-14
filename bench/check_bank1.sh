@@ -65,6 +65,9 @@ ROOT_PATTERNS = [
     r'.*mixerTask.*', r'.*audioTask.*', r'^telemetryTimerCb$',
     r'.*logsTimerCb.*', r'^_Z9logsWritev$', r'^_Z15telemetryWakeupv$',
     r'^_Z13evalFunctions.*',
+    # menusTask tourne pendant le gel (seul perMain est tronque) et
+    # appelle pwrCheck a chaque cycle de 50 ms
+    r'.*menusTask.*', r'^pwrCheck$',
     # timers FreeRTOS (indirects via la tache timer, non vus par le
     # graphe d'appels directs) : chaque callback est une racine
     r'.*_timer_10ms_cb.*', r'.*per10msv?$', r'.*loggingTimerCb.*',
@@ -87,6 +90,26 @@ PRUNED = {
     '_Z13POPUP_WARNINGPKcS0_',    # garde _usb_ui_frozen()
     '_Z17POPUP_INFORMATIONPKc',   # garde _usb_ui_frozen()
     '_Z18checkStorageUpdatev',    # garde !usbPlugged dans perMain
+    '_Z17usbSessionCleanupv',     # commence par usbStop() : la bank 2
+    '_Z19usbSessionForceStopv',   # redevient sure (PA12 au repos)
+    '_Z10edgeTxInitv',            # boot uniquement, avant toute session USB
+    '_Z7perMainv',                # gel : retour anticipe avant toute UI ;
+                                  # sa tete est auditee par racines dediees
+    '_Z11edgeTxCloseh',           # extinction (toujours apres
+                                  # usbSessionForceStop) ou pre-usbStart (MSC)
+}
+
+# Aretes tolerees individuellement : gardees a l'execution, mais dont
+# l'appelant doit rester audite pour le reste de son sous-arbre
+WHITELIST_EDGES = {
+    # pwrCheck coupe la session USB (usbSessionForceStop) avant tout
+    # flux d'extinction, et saute l'animation pendant le gel
+    ('pwrCheck', '_Z21drawShutdownAnimationmmPKc'),
+    ('pwrCheck', '_Z18confirmationDialogPKcS0_bRKSt8functionIFbvEE'),
+    # sortie de menusTask = power off, toujours apres usbSessionForceStop
+    ('_ZL9menusTaskv', '_Z15drawSleepBitmapv'),
+    # initialisation LVGL au demarrage de la tache, avant tout USB
+    ('_ZL9menusTaskv', '_ZN11LvglWrapper8instanceEv'),
 }
 
 funcs = {}      # nom -> addr
@@ -118,6 +141,7 @@ while queue:
     if f in PRUNED: continue
     for callee, addr in calls.get(f, ()):
         if addr in BANK2:
+            if (f, callee) in WHITELIST_EDGES: continue
             chain = []
             n = f
             while n is not None:

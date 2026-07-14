@@ -40,6 +40,12 @@
 #if defined(DIAG_BANK2_FENCE)
 extern "C" void bank2FenceDumpPostMortem(void);
 #endif
+
+#if defined(STM32) && !defined(SIMU)
+void usbSessionForceStop();
+#else
+inline void usbSessionForceStop() {}
+#endif
 #include "hal/audio_driver.h"
 #include "hal/rgbleds.h"
 
@@ -1814,6 +1820,10 @@ uint32_t pwrCheck()
       }
       if (get_tmr10ms() - pwr_press_time > PWR_PRESS_SHUTDOWN_DELAY()) {
 #if defined(COLORLCD)
+        // End the USB session before any shutdown UI runs: the UI
+        // lives in flash bank 2, unreadable during USB traffic
+        // (PA12 errata, EdgeTX#5899). Same cleanup as an unplug.
+        usbSessionForceStop();
         bool usbConfirmed = !usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE;
         bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
         bool trainerConfirmed = !isTrainerConnected();
@@ -1923,14 +1933,21 @@ uint32_t pwrCheck()
         return e_power_off;
       }
       else {
-        drawShutdownAnimation(pwrPressedDuration(), PWR_PRESS_SHUTDOWN_DELAY(), message);
+#if defined(COLORLCD)
+        // no drawing while the USB session is active (UI in bank 2)
+        if (!usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE)
+#endif
+          drawShutdownAnimation(pwrPressedDuration(), PWR_PRESS_SHUTDOWN_DELAY(), message);
         return e_power_press;
       }
     }
   }
   else {
 #if defined(COLORLCD)
-    cancelShutdownAnimation();
+    // pinned to bank 1 on TX16S, and skipped while the USB session
+    // is active: menusTask polls this every 50ms (PA12 errata)
+    if (!usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE)
+      cancelShutdownAnimation();
 #endif
     pwr_check_state = PWR_CHECK_ON;
     pwr_press_time = 0;

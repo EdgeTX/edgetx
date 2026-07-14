@@ -255,6 +255,15 @@ void usbSessionCleanup(bool wait_sd)
   TRACE("reset selected USB mode");
   setSelectedUsbMode(USB_UNSELECTED_MODE);
 }
+
+// Shutdown path (PA12 errata, EdgeTX#5899): the shutdown UI lives in
+// flash bank 2 and may only run once USB traffic has stopped.
+void usbSessionForceStop()
+{
+  if (usbStarted() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+    usbSessionCleanup(false);
+  }
+}
 #endif  // defined(STM32) && !defined(SIMU)
 
 void checkSpeakerVolume()
