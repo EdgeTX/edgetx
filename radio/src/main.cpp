@@ -35,6 +35,7 @@
 #include "etx_lv_theme.h"
 #include "menu.h"
 #include "mainwindow.h"
+#include "static.h"
 #endif
 
 #if defined(CLI)
@@ -205,6 +206,21 @@ void handleUsbConnection()
       // freezes as soon as the USB session starts (PA12/bank 2
       // errata, EdgeTX#5899) and will not draw anything anymore
       usbConnectedWindow = new UsbSDConnected();
+      {
+        // name the active mode: the same frozen screen serves all
+        // three modes and the icon alone reads as "mass storage"
+        const char* mode_str = STR_USB_MASS_STORAGE;
+        if (getSelectedUsbMode() == USB_JOYSTICK_MODE)
+          mode_str = STR_USB_JOYSTICK;
+#if defined(USB_SERIAL)
+        else if (getSelectedUsbMode() == USB_SERIAL_MODE)
+          mode_str = STR_USB_SERIAL;
+#endif
+        auto label = new StaticText(
+            usbConnectedWindow, {0, LCD_H - 60, LCD_W, LV_SIZE_CONTENT},
+            mode_str, COLOR_THEME_PRIMARY2_INDEX, FONT(L) | CENTERED);
+        (void)label;
+      }
       lv_refr_now(nullptr);
 #endif
 
