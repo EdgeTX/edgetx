@@ -17,3 +17,8 @@ _heap_end = HEAP_ADDRESS;
 PROVIDE(_sfastcode = 0);
 PROVIDE(_efastcode = 0);
 PROVIDE(_fastcode_load = 0);
+
+/* Same for scripts without a .text.shared section */
+PROVIDE(_stext_shared = 0);
+PROVIDE(_etext_shared = 0);
+PROVIDE(_text_shared_load = 0);

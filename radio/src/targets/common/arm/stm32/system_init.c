@@ -80,6 +80,15 @@ NAKED BOOTSTRAP void Reset_Handler()
     "bl naked_copy      \n"
   );
 
+  // Copy shared C++ comdat code (.text.shared); no-op on XIP
+  // targets where VMA == LMA
+  asm inline (
+    "ldr r0, =_stext_shared \n"
+    "ldr r1, =_etext_shared \n"
+    "ldr r2, =_text_shared_load \n"
+    "bl naked_copy      \n"
+  );
+
 #if defined(BOOT) && defined(REQUIRE_MPU_CONFIG)
   asm inline (
     "bl MPU_Config \n"

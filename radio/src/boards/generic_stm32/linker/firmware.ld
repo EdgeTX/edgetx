@@ -58,6 +58,34 @@ SECTIONS
 
   _fastcode_load = LOADADDR(.fastcode);
 
+  /* C++ comdat sections (templates, inline functions, operator
+     new/delete) from the std:: namespace are instantiated by both UI
+     and core objects, and the linker keeps a single copy whose home
+     object depends on link order. That copy must stay callable at
+     any time, so claim it here, before any target-specific pre-text
+     section can grab it through file patterns (see
+     pre_text_sections.ld). */
+  .text.shared (READONLY) :
+  {
+    . = ALIGN(4);
+    _stext_shared = .;
+    *(.text._ZSt* .text._ZNSt* .text._ZNKSt* .text._ZN9__gnu_cxx*)
+    *(.text._Znwj .text._Znwm .text._Znaj .text._Znam)
+    *(.text._ZdlPv* .text._ZdaPv*)
+    *(.rodata._ZSt* .rodata._ZNSt* .rodata._ZNKSt*)
+    *(.rodata._ZTVSt* .rodata._ZTVNSt*)
+    . = ALIGN(4);
+    _etext_shared = .;
+  } > REGION_TEXT AT> REGION_TEXT_STORAGE
+
+  _text_shared_load = LOADADDR(.text.shared);
+
+  /* Target-specific output sections that must claim their input
+     sections before the .text catch-all (e.g. TX16S UI code
+     relegated to flash bank 2, see
+     stm32f429_sdram/pre_text_sections.ld) */
+  INCLUDE pre_text_sections.ld
+
   /* Main code section */
   .text (READONLY) :
   {
@@ -77,7 +105,8 @@ SECTIONS
 
   INCLUDE common_sections.ld
 
-  /* Assets in FLASH only */
+  /* Assets in FLASH only (REGION_ASSETS: same as REGION_TEXT_STORAGE
+     on most targets, flash bank 2 on TX16S/F429) */
   .flash (READONLY) :
   {
     . = ALIGN(4);
@@ -86,9 +115,10 @@ SECTIONS
 
     . = ALIGN(4);
     _eflash = .;
-  } > REGION_TEXT_STORAGE
+  } > REGION_ASSETS
 
   .text_end_section : {} > REGION_TEXT AT > REGION_TEXT_STORAGE
-  _firmware_length = LOADADDR(.text_end_section) - LOADADDR(.firmware_header);
+  /* .flash is the highest LMA of the image on every target */
+  _firmware_length = (LOADADDR(.flash) + SIZEOF(.flash)) - LOADADDR(.firmware_header);
   _firmware_version = _text_load;
 }
