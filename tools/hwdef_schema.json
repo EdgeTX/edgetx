@@ -370,7 +370,7 @@
         "haptic_counter_register":    { "type": "string" },
         "haptic_ccmr1":               { "type": "string" },
         "haptic_ccmr2":               { "type": "string" },
-        "haptic_ccer":                { "type": "string" },
+        "haptic_ccer":                { "type": "string" }
       }
     }
   }
