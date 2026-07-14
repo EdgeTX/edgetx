@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "hal_settings.h"
+
 /*
 
 STM32H750
@@ -54,14 +56,6 @@ USART3: INTMODULE_USART (CRSF internal module, interrupt-driven; its
 UART5:  TELEMETRY_USART
 
  */
-
-
-#define CPU_FREQ                400000000
-
-#define PERI1_FREQUENCY         100000000
-#define PERI2_FREQUENCY         100000000
-#define TIMER_MULT_APB1         2
-#define TIMER_MULT_APB2         2
 
 
 #define KEYS_GPIO_REG_ENTER           GPIOC
@@ -258,16 +252,8 @@ UART5:  TELEMETRY_USART
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
 #define LCD_DISP_PORT                   GPIOC
 #define LCD_GPIO_NRST                   GPIO_PIN(GPIOC, 7) // PC.7     OK
-
-// Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOC, 06) // TIM3_CH1
-#define BACKLIGHT_TIMER                 TIM3
-#define BACKLIGHT_GPIO_AF               GPIO_AF2
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // QSPI Flash
 #define QSPI_MAX_FREQ                   80000000U // 80 MHz
@@ -332,40 +318,6 @@ UART5:  TELEMETRY_USART
 #define I2C_B2_SCL_GPIO                 GPIO_PIN(GPIOH, 7)  // PH.07
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
-
-// Haptic: TIM3_CH2
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 5) // PB.05
-#define HAPTIC_GPIO_TIMER               TIM3
-#define HAPTIC_GPIO_AF                  GPIO_AF2
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-
-// LED Strip
-#define LED_STRIP_LENGTH                  27
-#define BLING_LED_STRIP_START             0
-#define BLING_LED_STRIP_LENGTH            27
-
-#define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 15)  // PA.15 / TIM2_CH1
-#define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
-#define LED_STRIP_TIMER                   TIM2
-#define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
-#define LED_STRIP_TIMER_DMA               DMA1
-#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM2_UP
-#define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
-#define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
-#define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
-#define LED_STRIP_REFRESH_PERIOD          50 //ms
-
-#define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_set
-#define GPIO_LED_GPIO_OFF                 gpio_clear
-#define LED_RED_GPIO                      GPIO_PIN(GPIOG, 10)
-#define LED_GREEN_GPIO                    GPIO_PIN(GPIOG, 12)
-#define LED_BLUE_GPIO                     GPIO_PIN(GPIOG, 13)
-
 
 // Internal Module
 #define INTMODULE_BOOTCMD_BSP
@@ -434,32 +386,4 @@ UART5:  TELEMETRY_USART
 
 #define TOUCH_I2C_CLK_RATE              100000
 
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
-#define LCD_W                           480
-#define LCD_H                           272
-
-#define LCD_PHYS_W                      LCD_W
-#define LCD_PHYS_H                      LCD_H
-
-#define LCD_DEPTH                       16
-
 #define LSE_DRIVE_STRENGTH     RCC_LSEDRIVE_HIGH
-
-// IMU
-#define IMU_I2C_BUS                     I2C_Bus_2
-#define IMU_INT_GPIO                    GPIO_PIN(GPIOH, 4) // PH.04
-// IMU_INT_EXTI IRQ
-#if !defined(USE_EXTI4_IRQ)
-  #define USE_EXTI4_IRQ
-  #define EXTI4_IRQ_Priority       6
-#endif
