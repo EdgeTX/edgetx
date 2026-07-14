@@ -24,6 +24,7 @@
 #include "dialog.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "hal/usb_driver.h"
 #include "hal/watchdog_driver.h"
 #include "lvgl/src/hal/lv_hal_tick.h"
 #include "mainwindow.h"
@@ -40,13 +41,29 @@ static void _run_popup_dialog(const char* title, const char* msg,
   });
 }
 
+// While a USB session is active the UI is frozen (PA12/bank 2
+// errata, EdgeTX#5899): a nested popup dialog must never run then.
+// These two functions are pinned to flash bank 1 on TX16S (see
+// stm32f429_sdram/pre_text_sections.ld) so callers from non-UI
+// tasks (audio, telemetry) never fetch bank 2 code.
+static inline __attribute__((always_inline)) bool _usb_ui_frozen()
+{
+#if defined(STM32) && !defined(SIMU)
+  return usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE;
+#else
+  return false;
+#endif
+}
+
 void POPUP_INFORMATION(const char* message)
 {
+  if (_usb_ui_frozen()) return;
   _run_popup_dialog("Message", message);
 }
 
 void POPUP_WARNING(const char* message, const char* info)
 {
+  if (_usb_ui_frozen()) return;
   _run_popup_dialog("Warning", message, info);
 }
 

@@ -161,6 +161,8 @@ class UsbSDConnected : public Window
 static UsbSDConnected* usbConnectedWindow = nullptr;
 #endif
 
+void usbSessionCleanup(bool wait_sd = true);
+
 void handleUsbConnection()
 {
 #if defined(STM32) && !defined(SIMU)
@@ -191,14 +193,19 @@ void handleUsbConnection()
     if (getSelectedUsbMode() != USB_UNSELECTED_MODE) {
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
         edgeTxClose(false);
-#if defined(COLORLCD)
-        usbConnectedWindow = new UsbSDConnected();
-#endif
       }
 #if defined(USB_SERIAL)
       else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
         serialInit(SP_VCP, serialGetMode(SP_VCP));
       }
+#endif
+
+#if defined(COLORLCD)
+      // Static USB screen for every mode, rendered now: the UI
+      // freezes as soon as the USB session starts (PA12/bank 2
+      // errata, EdgeTX#5899) and will not draw anything anymore
+      usbConnectedWindow = new UsbSDConnected();
+      lv_refr_now(nullptr);
 #endif
 
       usbStart();
@@ -207,34 +214,48 @@ void handleUsbConnection()
   }
 
   if (usbStarted() && !usbPlugged()) {
-    usbStop();
-    TRACE("USB stopped");
-    if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-#if defined(COLORLCD)
-      usbConnectedWindow->deleteLater();
-      usbConnectedWindow = nullptr;
-      // In case the SD card is removed during the session
-      if (!SD_CARD_PRESENT()) {
-        // Blocks until shutdown or SD card inserted
-        auto w = drawFatalErrorScreen(STR_NO_SDCARD);
-        MainWindow::instance()->blockUntilClose(true, []() {
-          return SD_CARD_PRESENT();
-        }, true);
-        w->deleteLater();
-      }
-      edgeTxResume();
-#else
-      edgeTxResume();
-      pushEvent(EVT_ENTRY);
-#endif
-    } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
-      serialStop(SP_VCP);
-    }
-    TRACE("reset selected USB mode");
-    setSelectedUsbMode(USB_UNSELECTED_MODE);
+    usbSessionCleanup();
   }
 #endif  // defined(STM32) && !defined(SIMU)
 }
+
+#if defined(STM32) && !defined(SIMU)
+// Tear a running USB session down (same cleanup as a physical
+// unplug). wait_sd selects the blocking "no SD card" screen
+// (unplug path only: forced stops must not block on it).
+void usbSessionCleanup(bool wait_sd)
+{
+  usbStop();
+  TRACE("USB stopped");
+#if defined(COLORLCD)
+  if (usbConnectedWindow) {
+    usbConnectedWindow->deleteLater();
+    usbConnectedWindow = nullptr;
+  }
+#endif
+  if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
+#if defined(COLORLCD)
+    // In case the SD card is removed during the session
+    if (wait_sd && !SD_CARD_PRESENT()) {
+      // Blocks until shutdown or SD card inserted
+      auto w = drawFatalErrorScreen(STR_NO_SDCARD);
+      MainWindow::instance()->blockUntilClose(true, []() {
+        return SD_CARD_PRESENT();
+      }, true);
+      w->deleteLater();
+    }
+#endif
+    edgeTxResume();
+#if !defined(COLORLCD)
+    pushEvent(EVT_ENTRY);
+#endif
+  } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+    serialStop(SP_VCP);
+  }
+  TRACE("reset selected USB mode");
+  setSelectedUsbMode(USB_UNSELECTED_MODE);
+}
+#endif  // defined(STM32) && !defined(SIMU)
 
 void checkSpeakerVolume()
 {
@@ -543,6 +564,16 @@ void perMain()
 
   checkBacklight();
 
+#if defined(COLORLCD)
+  // Freeze the whole UI while a USB session is active: on TX16S all
+  // UI code/rodata lives in flash bank 2, which must not be accessed
+  // during USB traffic (PA12 errata, EdgeTX#5899). The static USB
+  // screen was rendered before usbStart().
+  if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
+    return;
+  }
+#endif
+
 #if defined(USE_HATS_AS_KEYS)
   checkHatsAsKeys();
 #endif
@@ -574,15 +605,15 @@ void perMain()
     }
   }
 
-  if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if !defined(COLORLCD)
+  if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
     // disable access to menus
     lcdClear();
     menuMainView(0);
     lcdRefresh();
-#endif
     return;
   }
+#endif
 
 #if defined(MULTIMODULE)
   checkFailsafeMulti();
