@@ -260,6 +260,12 @@ void usbJoystickRestart()
 */
 void usbJoystickUpdate()
 {
+  // Do not touch the report buffer while the previous transfer is
+  // still in flight (DMA reads it), and do not hammer the endpoint
+  // at mixer rate when the host has not polled yet (EdgeTX#5899)
+  if (!USBD_HID_IsReady(&hUsbDevice))
+    return;
+
 #if !defined(USBJ_EX)
    static uint8_t HID_Buffer[HID_IN_PACKET];
 
