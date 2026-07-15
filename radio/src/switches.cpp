@@ -206,7 +206,7 @@ void evalFunctionSwitches()
           }
         }
 
-        fsPreviousState ^= 1 << i;  // Toggle state
+        fsPreviousState ^= uint32_t(1) << i;  // Toggle state
         storageDirty(EE_MODEL);
       }
 
