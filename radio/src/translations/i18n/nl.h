@@ -714,6 +714,8 @@
 #define TR_BATT_CALIB          "Accu Calib"
 #define TR_CURRENT_CALIB       "Stroom Calib"
 #define TR_VOLTAGE             TR("Spg", "Spanningsbron")  //9XR-Pro
+#define TR_MODULE_SENSOR_VOLTAGE       "Spanning"
+#define TR_MODULE_SENSOR_CURRENT       "Stroom"
 #define TR_SELECT_MODEL        "Kies Model"
 #define TR_MODELS              "Models"
 #define TR_SELECT_MODE         "Select mode"

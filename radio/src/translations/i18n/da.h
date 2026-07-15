@@ -722,6 +722,8 @@
 #define TR_BATT_CALIB                  TR("Bat. kalib", "Batteri kalibering")
 #define TR_CURRENT_CALIB               "Aktuel kalib"
 #define TR_VOLTAGE                     TR("Spænding", "Spænding kilde")
+#define TR_MODULE_SENSOR_VOLTAGE       "Spænding"
+#define TR_MODULE_SENSOR_CURRENT       "Strøm"
 #define TR_SELECT_MODEL                "Vælg model"
 #define TR_MODELS                      "Modeller"
 #define TR_SELECT_MODE                 "Vælg tilstand"

@@ -716,6 +716,8 @@
 #define TR_BATT_CALIB                  TR("Batt. calib", "バッテリー\nキャリブレーション")
 #define TR_CURRENT_CALIB               "現在のキャリブレーション"
 #define TR_VOLTAGE                     TR("Voltage", "電圧ソース")
+#define TR_MODULE_SENSOR_VOLTAGE       "電圧"
+#define TR_MODULE_SENSOR_CURRENT       "電流"
 #define TR_SELECT_MODEL                "モデル選択"
 #define TR_MODELS                      "モデル"
 #define TR_SELECT_MODE                 "モード選択"
