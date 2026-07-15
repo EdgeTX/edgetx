@@ -430,7 +430,6 @@ class LogicalSwitchButton : public ListLineButton
     }
 
     // CSW params - V2
-    strcat(s, " ");
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
