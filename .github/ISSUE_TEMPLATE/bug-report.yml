@@ -61,6 +61,7 @@ body:
         - 2.12.2
         - 2.12.1
         - 2.12.0
+        - 2.11.6
         - 2.11.5
         - 2.11.4
         - 2.11.3
@@ -111,6 +112,7 @@ body:
         - FrSky X-Lite / S / Pro
         - HelloRadioSky V12
         - HelloRadioSky V14
+        - HelloRadioSky V14LCD
         - HelloRadioSky V16
         - Jumper T12
         - Jumper T14
