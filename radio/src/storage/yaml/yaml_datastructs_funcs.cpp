@@ -2905,7 +2905,7 @@ bool w_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
-  return wf(opaque, ud->key.c_str(), ud->key.size());
+  return yaml_output_string(ud->key.c_str(), ud->key.size(), wf, opaque);
 }
 
 const struct YamlIdStr enum_UDType[] = {
@@ -2937,7 +2937,7 @@ void r_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
-  ud->str = val;
+  ud->value = val;
 }
 
 bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
@@ -2945,5 +2945,5 @@ bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
-  return yaml_output_string(ud->str.c_str(), ud->str.size(), wf, opaque);
+  return yaml_output_string(ud->value.c_str(), ud->value.size(), wf, opaque);
 }
