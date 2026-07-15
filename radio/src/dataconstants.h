@@ -91,6 +91,7 @@
   #warning "Unknown board!"
 #endif
 
+#define MAX_USER_DATA                  50
 #define MAX_TIMERS                     3
 #define NUM_CAL_PPM                    4
 

@@ -260,3 +260,86 @@ void ModelData::resetScreenData()
   }
 }
 #endif
+
+// User Data store. Each entry is a key/value pair.
+// Can be used by Lua scripts to save configuration data.
+std::vector<UserData> userData;
+
+// Check if userData[n] exists - controls YAML writing
+bool ModelData::hasUserData(int n)
+{
+  return (size_t)n < userData.size() && !userData[n].key.empty();
+}
+
+// Get User Data item at position 'n'
+// Used when parsing YAML files
+UserData* ModelData::getUserData(int n)
+{
+  if ((size_t)n >= userData.size())
+    return nullptr;
+  return &userData[n];
+}
+
+// Get User Data item with specified key
+UserData* ModelData::getUserData(const char* key)
+{
+  for (int i = 0; (size_t)i < userData.size(); i += 1)
+    if (userData[i].key == key)
+      return &userData[i];
+  return nullptr;
+}
+
+static bool setUD(const char* key, const char* val, UDType typ)
+{
+  auto ud = g_model.getUserData(key);
+  if (ud == nullptr) {
+    if (userData.size() >= MAX_USER_DATA) return false;
+    userData.emplace_back(key, val, typ);
+    storageDirty(EE_MODEL);
+  } else if (ud->str != val) {
+    ud->str = val;
+    ud->type = typ;
+    storageDirty(EE_MODEL);
+  }
+  return true;
+}
+
+// Update or add User Data item
+bool ModelData::setUserData(const char* key, const char* str)
+{
+  return setUD(key, str, UD_STRING);
+}
+
+// Update or add User Data item
+bool ModelData::setUserData(const char* key, int32_t num)
+{
+  return setUD(key, std::to_string(num).c_str(), UD_INT);
+}
+
+// Update or add User Data item
+bool ModelData::setUserData(const char* key, float num)
+{
+  return setUD(key, std::to_string(num).c_str(), UD_FLOAT);
+}
+
+void ModelData::deleteUserData(const char* key)
+{
+  for (auto ud = userData.cbegin(); ud != userData.cend(); ud++) {
+    if (ud->key == key) {
+      userData.erase(ud);
+      storageDirty(EE_MODEL);
+      return;
+    }
+  }
+}
+
+// Clear all User Data
+void ModelData::clearUserData()
+{
+  userData.clear();
+}
+
+int ModelData::getUserDataCount()
+{
+  return userData.size();
+}
