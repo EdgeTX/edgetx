@@ -34,6 +34,7 @@ Exit codes:
 """
 
 import json
+import re
 import sys
 import os
 import argparse
@@ -117,25 +118,31 @@ def validate_fw_schema(data):
     return True
 
 
+def natural_sort_key(s):
+    """Split a string into text/number chunks so digit runs compare numerically."""
+    return [int(chunk) if chunk.isdigit() else chunk.lower()
+            for chunk in re.split(r'(\d+)', s)]
+
+
 def validate_fw_alphabetical_order(data):
-    """Validate that fw.json targets are in case-insensitive alphabetical order."""
-    print('🔍 Validating fw.json targets alphabetical order (case-insensitive)...')
-    
+    """Validate that fw.json targets are in case-insensitive natural alphabetical order."""
+    print('🔍 Validating fw.json targets alphabetical order (case-insensitive, natural)...')
+
     # Extract target names (first element of each target pair)
     target_names = [target[0] for target in data['targets']]
-    
-    # Sort case-insensitively
-    sorted_names = sorted(target_names, key=str.lower)
+
+    # Sort case-insensitively, treating embedded digit runs as numbers
+    sorted_names = sorted(target_names, key=natural_sort_key)
     
     # Check if they're in order
     if target_names != sorted_names:
-        print('❌ ERROR: Targets are not in alphabetical order (case-insensitive)!')
+        print('❌ ERROR: Targets are not in alphabetical order (case-insensitive, natural)!')
         print()
         print('Current order:')
         for i, name in enumerate(target_names):
             print(f'  {i+1:2d}. {name}')
         print()
-        print('Expected alphabetical order (case-insensitive):')
+        print('Expected alphabetical order (case-insensitive, natural):')
         for i, name in enumerate(sorted_names):
             print(f'  {i+1:2d}. {name}')
         print()
@@ -155,7 +162,7 @@ def validate_fw_alphabetical_order(data):
         
         return False
     else:
-        print('✅ All targets are in alphabetical order (case-insensitive)!')
+        print('✅ All targets are in alphabetical order (case-insensitive, natural)!')
         print(f'Found {len(target_names)} targets, all properly sorted.')
         return True
 
