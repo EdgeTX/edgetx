@@ -33,7 +33,7 @@
   #if defined(MANUFACTURER_RADIOMASTER) && !defined(RADIO_T8)
     #define NAVIGATION_X7_RM
   #endif
-  #if defined(MANUFACTURER_HELLORADIOSKY)&& !defined(RADIO_T8)
+  #if defined(MANUFACTURER_HELLORADIOSKY)
     #define NAVIGATION_X7_HRS
   #endif
 #endif
