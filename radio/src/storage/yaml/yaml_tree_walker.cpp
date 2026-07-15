@@ -112,8 +112,8 @@ static const char hex_digits[] {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 
-static bool yaml_output_string(const char* str, uint32_t max_len,
-                               yaml_writer_func wf, void* opaque)
+bool yaml_output_string(const char* str, uint32_t max_len,
+                        yaml_writer_func wf, void* opaque)
 {
     if (!wf(opaque, "\"", 1))
         return false;
