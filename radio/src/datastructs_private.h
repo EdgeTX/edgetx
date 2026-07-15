@@ -769,8 +769,8 @@ struct UserData {
 #if !defined(BACKUP)
   std::string key;
   UDType type;
-  std::string str;
-  UserData(const char* k, const char* v, UDType t) { key = k; str = v; type = t; }
+  std::string value;
+  UserData(const char* k, const char* v, UDType t) { key = k; value = v; type = t; }
 #endif
 #endif
 };

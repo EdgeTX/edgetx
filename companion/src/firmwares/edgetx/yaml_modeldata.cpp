@@ -170,6 +170,12 @@ static const YamlLookupTable cfsSwitchLuaOverride = {
   {  1, "ON"  },
 };
 
+static const YamlLookupTable udTypeLut = {
+  {  0, "INT"  },
+  {  1, "FLOAT"  },
+  {  2, "STRING"  },
+};
+
 struct YamlTrim {
   int mode = 0;
   int ref = 0;
@@ -1307,6 +1313,14 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["modelCustomScriptsDisabled"] = globalOnOffFilterLut << rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] = globalOnOffFilterLut << rhs.modelTelemetryDisabled;
 
+  for (int i=0; i<CPN_MAX_USER_DATA; i++) {
+    if (!rhs.userData[i].key.empty()) {
+      node["userData"][std::to_string(i)]["key"] = rhs.userData[i].key;
+      node["userData"][std::to_string(i)]["type"] = udTypeLut << rhs.userData[i].type;
+      node["userData"][std::to_string(i)]["value"] = rhs.userData[i].value;
+    }
+  }
+
   return node;
 }
 
@@ -1649,6 +1663,16 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["modelSFDisabled"] >> globalOnOffFilterLut >> rhs.modelSFDisabled;
   node["modelCustomScriptsDisabled"] >> globalOnOffFilterLut >> rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] >> globalOnOffFilterLut >> rhs.modelTelemetryDisabled;
+
+  if (node["userData"]) {
+    for (int i=0; i<CPN_MAX_USER_DATA; i++) {
+      if (node["userData"][std::to_string(i)]) {
+        node["userData"][std::to_string(i)]["key"] >> rhs.userData[i].key;
+        node["userData"][std::to_string(i)]["type"] >> udTypeLut >> rhs.userData[i].type;
+        node["userData"][std::to_string(i)]["value"] >> rhs.userData[i].value;
+      }
+    }
+  }
 
   //  preferably perform conversions here to avoid cluttering the field decodes
 
