@@ -776,7 +776,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"v12", "v14"},
+        "targets": {"v12", "v14", "v14lcd"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",

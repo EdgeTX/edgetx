@@ -98,6 +98,7 @@ namespace Board {
     BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
     BOARD_HELLORADIOSKY_V14,
+    BOARD_HELLORADIOSKY_V14LCD,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -659,6 +660,11 @@ inline bool IS_HELLORADIOSKY_V14(Board::Type board)
   return board == Board::BOARD_HELLORADIOSKY_V14;
 }
 
+inline bool IS_HELLORADIOSKY_V14LCD(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V14LCD;
+}
+
 inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 {
   return board == Board::BOARD_HELLORADIOSKY_V16;
@@ -681,6 +687,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_HELLORADIOSKY_V14 ||
+         board == Board::BOARD_HELLORADIOSKY_V14LCD ||
          board == Board::BOARD_IFLIGHT_COMMANDO8 ||
          board == Board::BOARD_JUMPER_BUMBLEBEE ||
          board == Board::BOARD_JUMPER_T12 ||
