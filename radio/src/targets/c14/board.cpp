@@ -199,22 +199,6 @@ void boardInit()
 #endif
 
   gyroInit();
-
-  // Honor MODEL SETUP module type at boot: power down RF rails when set to OFF.
-#if defined(HARDWARE_INTERNAL_MODULE) && !defined(BOOT)
-  if (g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {
-    INTERNAL_MODULE_OFF();
-  }
-  INTERNAL_MODULE_BOOTCMD(true);
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE) && !defined(BOOT)
-  if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_NONE) {
-    EXTERNAL_MODULE_OFF();
-  } else {
-    EXTERNAL_MODULE_ON();
-  }
-#endif
 }
 
 extern void rtcDisableBackupReg();
