@@ -296,8 +296,8 @@ static bool setUD(const char* key, const char* val, UDType typ)
     if (userData.size() >= MAX_USER_DATA) return false;
     userData.emplace_back(key, val, typ);
     storageDirty(EE_MODEL);
-  } else if (ud->str != val) {
-    ud->str = val;
+  } else if (ud->type != typ || ud->value != val) {
+    ud->value = val;
     ud->type = typ;
     storageDirty(EE_MODEL);
   }

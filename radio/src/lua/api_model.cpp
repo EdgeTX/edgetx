@@ -1977,11 +1977,11 @@ static int luaGetUserData(lua_State *L)
   auto ud = g_model.getUserData(s);
   if (ud) {
     if (ud->type == UD_INT) {
-      lua_pushinteger(L, std::stoi(ud->str.c_str()));
+      lua_pushinteger(L, strtol(ud->value.c_str(), nullptr, 10));
     } else if (ud->type == UD_FLOAT) {
-      lua_pushnumber(L, std::stof(ud->str));
+      lua_pushnumber(L, strtof(ud->value.c_str(), nullptr));
     } else {
-      lua_pushstring(L, ud->str.c_str());
+      lua_pushstring(L, ud->value.c_str());
     }
   }
   else {
@@ -2007,11 +2007,11 @@ static int luaGetAllUserData(lua_State *L)
     auto ud = g_model.getUserData(i);
     if (ud) {
       if (ud->type == UD_INT) {
-        lua_pushtableinteger(L, ud->key.c_str(), std::stoi(ud->str.c_str()));
+        lua_pushtableinteger(L, ud->key.c_str(), strtol(ud->value.c_str(), nullptr, 10));
       } else if (ud->type == UD_FLOAT) {
-        lua_pushtablenumber(L, ud->key.c_str(), std::stof(ud->str));
+        lua_pushtablenumber(L, ud->key.c_str(), strtof(ud->value.c_str(), nullptr));
       } else {
-        lua_pushtablestring(L, ud->key.c_str(), ud->str.c_str());
+        lua_pushtablestring(L, ud->key.c_str(), ud->value.c_str());
       }
     }
   }
@@ -2036,15 +2036,19 @@ A new User Data entry will be created if the key is not found.
 static int luaSetUserData(lua_State *L)
 {
   const char* k = luaL_checkstring(L, 1);
-  if (lua_isinteger(L, 2)) {
+  if (lua_type(L, 2) == LUA_TSTRING) {
+    const char* v = lua_tostring(L, 2);
+    lua_pushboolean(L, g_model.setUserData(k, v));
+  } else if (lua_isinteger(L, 2)) {
     int32_t n = luaL_checkinteger(L, 2);
     lua_pushboolean(L, g_model.setUserData(k, n));
-  } else if (lua_isnumber(L, 2)) {
+  } else if (lua_type(L, 2) == LUA_TNUMBER) {
     float f = luaL_checknumber(L, 2);
     lua_pushboolean(L, g_model.setUserData(k, f));
   } else {
-    const char* v = luaL_checkstring(L, 2);
-    lua_pushboolean(L, g_model.setUserData(k, v));
+    // Fallback to trigger the standard Lua type error
+    luaL_checkstring(L, 2);
+    return 0;
   }
   return 1;
 }
