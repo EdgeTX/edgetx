@@ -988,6 +988,7 @@
 #define TR_SENSOR                      "传感器"
 #define TR_COUNTRY_CODE                "国别码"
 #define TR_USBMODE                     "USB模式"
+#define TR_USB_CHARGE                 "USB SD/Joystick/VCP charge"
 #define TR_JACK_MODE                   "教练插口模式"
 #define TR_VOICE_LANGUAGE              "播报语言"
 #define TR_TEXT_LANGUAGE               "Text language"

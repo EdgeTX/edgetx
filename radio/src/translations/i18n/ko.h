@@ -1031,6 +1031,7 @@
 #define TR_SENSOR                         "센서"
 #define TR_COUNTRY_CODE                   "국가 코드"
 #define TR_USBMODE                        "USB 모드"
+#define TR_USB_CHARGE                 "USB SD/Joystick/VCP charge"
 #define TR_JACK_MODE                      "잭 모드"
 #define TR_VOICE_LANGUAGE                 "음성 언어"
 #define TR_TEXT_LANGUAGE               "Text language"

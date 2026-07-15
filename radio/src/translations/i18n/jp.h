@@ -987,6 +987,7 @@
 #define TR_SENSOR                      "センサー"
 #define TR_COUNTRY_CODE                "カントリーコード"
 #define TR_USBMODE                     "USBモード"
+#define TR_USB_CHARGE                 "USB SD/Joystick/VCP charge"
 #define TR_JACK_MODE                   "Jackモード"
 #define TR_VOICE_LANGUAGE              "音声言語"
 #define TR_TEXT_LANGUAGE               "Text language"

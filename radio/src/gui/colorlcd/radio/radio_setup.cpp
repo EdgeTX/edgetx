@@ -966,6 +966,16 @@ const static SetupLineDef setupLines[] = {
                 GET_SET_DEFAULT(g_eeGeneral.USBMode));
     }
   },
+#if defined(USB_CHARGE_CONTROL)
+  {
+    // USB SD/Joystick/VCP charge
+    STR_DEF(STR_USB_CHARGE),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_SET_INVERTED(g_eeGeneral.usbChargeDisabled));
+    }
+  },
+#endif
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   {
     STR_DEF(STR_ROTARY_ENC_MODE),

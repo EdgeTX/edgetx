@@ -28,6 +28,11 @@
 #include "edgetx.h"
 #include "lua/lua_states.h"
 
+#if defined(USB_CHARGE_CONTROL)
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#endif
+
 #if defined(COLORLCD)
 #include "view_main.h"
 #include "startup_shutdown.h"
@@ -203,12 +208,26 @@ void handleUsbConnection()
 
       usbStart();
       TRACE("USB started");
+
+#if defined(USB_CHARGE_CONTROL)
+      // When "USB SD/Joystick/VCP charge" is set to OFF, disable charging by
+      // driving the charger-enable pin high while USB is active.
+      if (g_eeGeneral.usbChargeDisabled) {
+        gpio_set(UCHARGER_EN_GPIO);
+      } else {
+        gpio_clear(UCHARGER_EN_GPIO);
+      }
+#endif
     }
   }
 
   if (usbStarted() && !usbPlugged()) {
     usbStop();
     TRACE("USB stopped");
+#if defined(USB_CHARGE_CONTROL)
+    // Restore default charger-enable state on unplug
+    gpio_clear(UCHARGER_EN_GPIO);
+#endif
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();
