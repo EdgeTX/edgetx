@@ -1958,6 +1958,113 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
+/*luadoc
+@function model.getUserData(key)
+
+Get User Data value for given key
+
+@param key (string) name of User Data entry
+
+@retval nil no User Data value defined
+
+@retval User Data value (string or number)
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetUserData(lua_State *L)
+{
+  const char* s = luaL_checkstring(L, 1);
+  auto ud = g_model.getUserData(s);
+  if (ud) {
+    if (ud->type == UD_INT) {
+      lua_pushinteger(L, std::stoi(ud->str.c_str()));
+    } else if (ud->type == UD_FLOAT) {
+      lua_pushnumber(L, std::stof(ud->str));
+    } else {
+      lua_pushstring(L, ud->str.c_str());
+    }
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.getAllUserData()
+
+Get a table of all User Data entries
+
+@retval table of all User Data entries
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetAllUserData(lua_State *L)
+{
+  lua_newtable(L);
+
+  for (int i = 0; i < g_model.getUserDataCount(); i += 1) {
+    auto ud = g_model.getUserData(i);
+    if (ud) {
+      if (ud->type == UD_INT) {
+        lua_pushtableinteger(L, ud->key.c_str(), std::stoi(ud->str.c_str()));
+      } else if (ud->type == UD_FLOAT) {
+        lua_pushtablenumber(L, ud->key.c_str(), std::stof(ud->str));
+      } else {
+        lua_pushtablestring(L, ud->key.c_str(), ud->str.c_str());
+      }
+    }
+  }
+
+  return 1;
+}
+
+/*luadoc
+@function model.setUserData(key, value)
+
+Update User Data string for given key with new value.
+A new User Data entry will be created if the key is not found.
+
+@param key (string) name of User Data entry
+
+@param value (string or number) value to save to User Data entry
+
+@retval boolean - true if user data was saved, false if save failed
+
+@status current Introduced in 3.0.0
+*/
+static int luaSetUserData(lua_State *L)
+{
+  const char* k = luaL_checkstring(L, 1);
+  if (lua_isinteger(L, 2)) {
+    int32_t n = luaL_checkinteger(L, 2);
+    lua_pushboolean(L, g_model.setUserData(k, n));
+  } else if (lua_isnumber(L, 2)) {
+    float f = luaL_checknumber(L, 2);
+    lua_pushboolean(L, g_model.setUserData(k, f));
+  } else {
+    const char* v = luaL_checkstring(L, 2);
+    lua_pushboolean(L, g_model.setUserData(k, v));
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.deleteUserData(key)
+
+Delete User Data entry for given key
+
+@param key (string) name of User Data entry
+
+@status current Introduced in 3.0.0
+*/
+static int luaDeleteUserData(lua_State *L)
+{
+  const char* s = luaL_checkstring(L, 1);
+  g_model.deleteUserData(s);
+  return 0;
+}
+
 extern "C" {
 LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
@@ -2003,5 +2110,9 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getSwashRing, luaModelGetSwashRing )
   LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
+  LROT_FUNCENTRY( getUserData, luaGetUserData )
+  LROT_FUNCENTRY( getAllUserData, luaGetAllUserData )
+  LROT_FUNCENTRY( setUserData, luaSetUserData )
+  LROT_FUNCENTRY( deleteUserData, luaDeleteUserData )
 LROT_END(modellib, NULL, 0)
 }

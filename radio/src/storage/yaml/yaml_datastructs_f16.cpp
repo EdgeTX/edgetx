@@ -903,6 +903,13 @@ static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_UNSIGNED( "switch_npos", 3 ),
   YAML_END
 };
+static const struct YamlNode struct_UserData[] = {
+  YAML_IDX,
+  YAML_CUSTOM("key",r_userdata_key,w_userdata_key),
+  YAML_CUSTOM("type",r_userdata_type,w_userdata_type),
+  YAML_CUSTOM("value",r_userdata_value,w_userdata_value),
+  YAML_END
+};
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
@@ -974,6 +981,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_ARRAY("userData", 0, 50, struct_UserData, userdata_is_active),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {
