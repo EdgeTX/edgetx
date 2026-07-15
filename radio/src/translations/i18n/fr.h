@@ -978,6 +978,7 @@
 #define TR_SENSOR                      "CAPTEUR"
 #define TR_COUNTRY_CODE                 TR("Zone géo.", "Zone géographique")
 #define TR_USBMODE                     "Mode USB"
+#define TR_USB_CHARGE                 "USB SD/JOY/VCP charge"
 #define TR_JACK_MODE                   "Mode Jack"
 #define TR_VOICE_LANGUAGE               TR("Langue voix", "Langue annonces vocales")
 #define TR_TEXT_LANGUAGE               "Text language"

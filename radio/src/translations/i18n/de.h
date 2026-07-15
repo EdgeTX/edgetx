@@ -979,6 +979,7 @@
 #define TR_SENSOR                      TR_BW_COL("SENSOR", "Sensor")
 #define TR_COUNTRY_CODE                "Landescode"
 #define TR_USBMODE                     "USB Modus"
+#define TR_USB_CHARGE                 "USB SD/JOY/VCP charge"
 #define TR_JACK_MODE                   "Klinken-Modus"
 #define TR_VOICE_LANGUAGE              "Sprachansagen"
 #define TR_TEXT_LANGUAGE               "Textsprache"

@@ -977,6 +977,7 @@
 #define TR_SENSOR                      "傳感器"
 #define TR_COUNTRY_CODE                "國別碼"
 #define TR_USBMODE                     "USB模式"
+#define TR_USB_CHARGE                 "USB SD/JOY/VCP charge"
 #define TR_JACK_MODE                   "教練插口模式"
 #define TR_VOICE_LANGUAGE              "播報語言"
 #define TR_TEXT_LANGUAGE               "Text language"

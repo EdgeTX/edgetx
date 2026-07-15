@@ -985,6 +985,7 @@
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Lande kode"
 #define TR_USBMODE                     "USB tilstand"
+#define TR_USB_CHARGE                 "USB SD/JOY/VCP charge"
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"
 #define TR_TEXT_LANGUAGE               "Text language"

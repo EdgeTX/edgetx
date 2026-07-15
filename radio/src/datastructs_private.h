@@ -1155,7 +1155,14 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t oneLogPerDay:1);
 
 #if defined(COLORLCD)
+#if defined(USB_CHARGE_CONTROL)
+  // 0 = charge while USB active (default), 1 = disable charging (drive
+  // UCHARGER_EN_GPIO high) when USB is plugged in SD/Joystick/VCP mode
+  NOBACKUP(uint8_t usbChargeDisabled:1);
+  NOBACKUP(uint8_t spare:3 SKIP);
+#else
   NOBACKUP(uint8_t spare:4 SKIP);
+#endif
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
   NOBACKUP(uint8_t spare:1 SKIP);
