@@ -167,3 +167,4 @@ public:
 // utils
 uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8_t val_len);
 const char* yaml_output_enum(int32_t i, const struct YamlIdStr* choices);
+bool yaml_output_string(const char* str, uint32_t max_len, yaml_writer_func wf, void* opaque);

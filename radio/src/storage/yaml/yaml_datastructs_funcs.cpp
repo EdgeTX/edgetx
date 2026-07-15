@@ -2880,3 +2880,70 @@ bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
 {
   return true;
 }
+
+// Handle User Data save / load
+
+bool userdata_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  return g_model.hasUserData(tw->getElmts());
+}
+
+void r_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (ud == nullptr)
+    g_model.setUserData(val, "");
+  else
+    ud->key = val;
+}
+
+bool w_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  return wf(opaque, ud->key.c_str(), ud->key.size());
+}
+
+const struct YamlIdStr enum_UDType[] = {
+  { UD_INT, "INT" },
+  { UD_FLOAT, "FLOAT" },
+  { UD_STRING, "STRING" },
+  { 0, NULL  }
+};
+
+void r_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  ud->type = (UDType)yaml_parse_enum(enum_UDType, val, val_len);
+}
+
+bool w_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  const char* s = yaml_output_enum(ud->type, enum_UDType);
+  return wf(opaque, s, strlen(s));
+}
+
+void r_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  ud->str = val;
+}
+
+bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  return yaml_output_string(ud->str.c_str(), ud->str.size(), wf, opaque);
+}
