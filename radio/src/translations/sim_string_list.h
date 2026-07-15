@@ -1037,6 +1037,7 @@
 #define STR_UPDATE_RX_OPTIONS currentLangStrings->STR_UPDATE_RX_OPTIONS
 #define STR_UPDATE_TX_OPTIONS currentLangStrings->STR_UPDATE_TX_OPTIONS
 #define STR_US currentLangStrings->STR_US
+#define STR_USB_CHARGE currentLangStrings->STR_USB_CHARGE
 #define STR_USB_JOYSTICK currentLangStrings->STR_USB_JOYSTICK
 #define STR_USB_MASS_STORAGE currentLangStrings->STR_USB_MASS_STORAGE
 #define STR_USB_SERIAL currentLangStrings->STR_USB_SERIAL
