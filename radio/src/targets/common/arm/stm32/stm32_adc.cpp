@@ -40,7 +40,7 @@
   #define OVERSAMPLING 4
 #endif
 
-#define SAMPLING_TIMEOUT_US 200
+#define SAMPLING_TIMEOUT_US 500
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2

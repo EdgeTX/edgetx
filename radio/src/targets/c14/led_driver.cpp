@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -18,20 +19,29 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal/gpio.h"
+#include "hal/rgbleds.h"
+#include "stm32_gpio.h"
+#include "boards/generic_stm32/rgb_leds.h"
+#include "board.h"
 
-#include <stdint.h>
-// MUST match TR_FS_COLOR_LIST (except 'Custom') -  Custom gets displayed when none match
-//                                    "Off",  "White",    "Red",  "Green", "Yellow", "Orange",   "Blue",   "Pink"
-constexpr uint32_t colorTable[] = {0x000000, 0xFFFFFF, 0xFF0000, 0x00FF00, 0xFFFF00, 0xFF4000, 0x0000FF, 0xFF00FF};
+#define GET_RED(color) (((color) & 0xFF0000) >>16)
+#define GET_GREEN(color) (((color) & 0x00FF00) >> 8)
+#define GET_BLUE(color) ((color) & 0x0000FF)
 
-#if defined(FUNCTION_SWITCHES)
-void setFSEditOverride(int index, uint32_t color);
-void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b);
-void setFSLedOFF(uint8_t index);
-void setFSLedON(uint8_t index);
-bool getFSLedState(uint8_t index);
-uint32_t getFSLedRGBColor(uint8_t index);
+#if !defined(CFS_LED_STRIP_START)
+#define CFS_LED_STRIP_START 0
 #endif
 
-void turnOffRGBLeds();
+void fsLedRGB(uint8_t index, uint32_t color)
+{
+  index = (index * 2) + CFS_LED_STRIP_START;
+  rgbSetLedColor(index, GET_RED(color), GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(index+1, GET_RED(color), GET_GREEN(color),GET_BLUE(color));
+}
+
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor((index * 2) + CFS_LED_STRIP_START);
+}
+

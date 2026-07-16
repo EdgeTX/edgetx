@@ -653,7 +653,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* iFlight Commando8 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("commando8"), QCoreApplication::translate("Firmware", "iFlight Commando8"), BOARD_IFLIGHT_COMMANDO8);
+  firmware = new OpenTxFirmware(FIRMWAREID("commando8"), QCoreApplication::translate("Firmware", "iFlight Commando 8"), BOARD_IFLIGHT_COMMANDO8);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
@@ -661,6 +661,13 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, NONE);
+
+  /* iFlight C14 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("c14"), Firmware::tr("iFlight Commando 14"), BOARD_IFLIGHT_COMMANDO14);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption(opt_bt);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
 
   /* Jumper T-Lite board */
   firmware = new OpenTxFirmware(FIRMWAREID("tlite"), QCoreApplication::translate("Firmware", "Jumper T-Lite"), BOARD_JUMPER_TLITE);

@@ -1013,7 +1013,7 @@ LEGACY_NAMES = [
         },
     },
     {
-        "targets": {"st16"},
+        "targets": {"st16","c14"},
         "inputs": {
             "LH": {"yaml": "Rud", "lua": "rud", "description": "Rudder"},
             "LV": {"yaml": "Ele", "lua": "ele", "description": "Elevator"},

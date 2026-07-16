@@ -56,6 +56,8 @@
  #endif
 #elif defined(PCBST16)
  #include "yaml_datastructs_st16.cpp"
+#elif defined(PCBC14)
+ #include "yaml_datastructs_c14.cpp"
 #elif defined(PCBPA01)
  #include "yaml_datastructs_pa01.cpp"
 #elif defined(PCBX7)
