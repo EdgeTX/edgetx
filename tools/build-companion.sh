@@ -118,7 +118,7 @@ elif ! cmake_build_parallel native --target ${PACKAGE_TARGET} >> "$LOG_FILE" 2>&
     cat "$LOG_FILE"
     error_status=1
 else
-    PACKAGE_FILE=$(find native/ -name "${PACKAGE_FILES}" -type f | head -n1)
+    PACKAGE_FILE=$(find native/ -path "native/${PACKAGE_FILES}" -type f | head -n1)
     if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null; then
         echo "    ✅ Build completed successfully!"
         echo "    📁 Package saved to: ${OUTDIR}"
@@ -129,9 +129,7 @@ else
         echo "    ----------------------"
         ls -la native/ || echo "native/ directory not found"
         echo "Looking for files matching: $PACKAGE_FILES"
-        find native/ -name "$PACKAGE_FILES" 2>/dev/null || echo "No matching files found"
-        echo "All .exe files under native/:"
-        find native/ -iname "*.exe" 2>/dev/null || echo "No .exe files found"
+        find native/ -path "native/${PACKAGE_FILES}" 2>/dev/null || echo "No matching files found"
         error_status=1
     fi
 fi
