@@ -25,7 +25,15 @@
 #include "board.h"
 #include "hal/usb_driver.h"
 
-//TODO: charger enable control
+  #if defined(USB_CHARGE_CONTROL)
+void usbChargerEnableCharge(bool enable)
+{
+  if (enable)
+    gpio_clear(UCHARGER_EN_GPIO);
+  else
+    gpio_set(UCHARGER_EN_GPIO);
+}
+#endif
 
 void usbChargerInit()
 {
