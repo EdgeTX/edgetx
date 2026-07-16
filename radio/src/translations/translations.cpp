@@ -96,7 +96,7 @@ bool isTextLangAvail(int lang)
 {
 #if defined(COLORLCD)
   // Skip languages with no translation files
-  return lang != LANG_HU && lang != LANG_SK;
+  return lang != LANG_HU;
 #else
   // Skip languages with no translation files or no unicode fonts
   return lang != LANG_CN && lang != LANG_HE && lang != LANG_HU &&
