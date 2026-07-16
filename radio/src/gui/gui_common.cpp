@@ -960,9 +960,9 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(EXTMODULE_USART) && !defined(EXTMODULE_TIMER)
-  // No EXTMODULE PPM/UART pins: only protocols that run over the
-  // S.PORT half-duplex line (TELEMETRY_USART) are usable.
+#if defined(EXTMODULE_USART) && !defined(EXTMODULE_TIMER)
+  // Serial external bay with no PPM timer (e.g. C14, S.PORT-only): restrict to
+  // the protocols that run over the half-duplex telemetry line.
   switch (moduleType) {
     case MODULE_TYPE_NONE:
     case MODULE_TYPE_CROSSFIRE:
