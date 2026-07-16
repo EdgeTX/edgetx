@@ -250,10 +250,11 @@ void CLEAR_POPUP()
   popupMenuItemsCount = 0;
 }
 
-void POPUP_WAIT(const char * s)
+void POPUP_WAIT(const char * s, const char * info)
 {
   warningText = s;
-  warningInfoText = nullptr;
+  warningInfoText = info;
+  warningInfoLength = info ? strlen(info) : 0;
   warningType = WARNING_TYPE_WAIT;
   popupFunc = runPopupWarning;
 }

@@ -26,6 +26,7 @@
 #include "board.h"
 #include "storage/yaml/yaml_defs.h"
 #include "gvars.h"
+#include "hal_keys_lock.h"
 
 #if defined(EXPORT)
   #define LUA_EXPORT(...)              LEXP(__VA_ARGS__)
@@ -737,6 +738,9 @@ enum Functions {
 #endif
 #if defined(FUNCTION_SWITCHES) || defined(CFN_ONLY)
   FUNC_PUSH_CUST_SWITCH,
+#endif
+#if (defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)) || defined(CFN_ONLY)
+  FUNC_DISABLE_KEYS,
 #endif
   FUNC_TEST, // MUST remain last
 #if defined(DEBUG)

@@ -240,6 +240,7 @@
 #define TR_SF_SCREENSHOT      "Captura"
 #define TR_SF_RACING_MODE     "RacingMode"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
+#define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN      TR_BW_COL("Ajus. pantalla", "Set Main Screen")
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
@@ -571,7 +572,7 @@
 #define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED               "Keys unlocked"
 #define TR_SPLASHSCREEN        "Pantalla inicio"
 #define TR_PLAY_HELLO                  "Startup Sound"

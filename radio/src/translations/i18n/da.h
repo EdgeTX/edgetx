@@ -242,6 +242,7 @@
 #define TR_SF_SCREENSHOT               "Skærm klip"
 #define TR_SF_RACING_MODE              "Ræs tilstand"
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
+#define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
 #define TR_SF_SET_SCREEN               TR_BW_COL("Vis skærm", "Vælg hoved skærm")
 #define TR_SF_PUSH_CUST_SWITCH         TR("Tryk BK", "Tryk bruger kontakt")
@@ -577,7 +578,7 @@
 #define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED               "Keys unlocked"
 #define TR_SPLASHSCREEN                "Start skærm"
 #define TR_PLAY_HELLO                  "Startop lyd"

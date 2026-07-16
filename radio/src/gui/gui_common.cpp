@@ -662,6 +662,10 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_PUSH_CUST_SWITCH:
       return modelFunctions;
 #endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+    case FUNC_DISABLE_KEYS:
+      return g_eeGeneral.keyLockEnabled;
+#endif
 
     default:
       return true;

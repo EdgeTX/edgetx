@@ -241,6 +241,7 @@
 #define TR_SF_SCREENSHOT              "스크린샷 저장"
 #define TR_SF_RACING_MODE             "레이싱 모드"
 #define TR_SF_DISABLE_TOUCH           "터치 비활성화"
+#define TR_SF_DISABLE_KEYS            "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP       "오디오 앰프 끄기"
 #define TR_SF_SET_SCREEN              TR_BW_COL("텔레 화면 설정", "메인 화면 설정")
 #define TR_SF_PUSH_CUST_SWITCH        "커스텀 스위치 실행"
@@ -582,7 +583,7 @@
 #define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED               "Keys unlocked"
 #define TR_SPLASHSCREEN                 "시작화면"
 #define TR_PLAY_HELLO                   "시작 사운드"
