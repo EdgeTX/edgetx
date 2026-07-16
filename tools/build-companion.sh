@@ -126,12 +126,6 @@ else
     else
         echo "    ❌ Failed to copy package files to output directory"
         ls -la native/ || echo "native/ directory not found"
-        if [ "$PACKAGE_TARGET" == "installer" ]; then
-            echo "Contents of companion/ directory:"
-            ls -la companion/ || echo "companion/ directory not found"
-        fi
-        echo "Looking for files matching: $PACKAGE_FILES"
-        find native/ -name "$PACKAGE_FILES" 2>/dev/null || echo "No matching files found"
         error_status=1
     fi
 fi
