@@ -36,8 +36,8 @@ void switchToRadio() {};
 void switchToVideo() {};
 #endif
 #endif
-CustomFunctionsContext modelFunctionsContext = { 0 };
 
+CustomFunctionsContext modelFunctionsContext = { 0 };
 CustomFunctionsContext globalFunctionsContext = { 0 };
 
 #if defined(DEBUG)
@@ -195,8 +195,20 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
       bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
-      if (CFN_ACTIVE(cfn) == 0)
+      if (CFN_ACTIVE(cfn) == 0) {
         active = false;
+      } else {
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+        // 'No Keys' function checks both switch states
+        if (CFN_FUNC(cfn) == FUNC_DISABLE_KEYS) {
+          bool locked = isFunctionActive(FUNCTION_DISABLE_KEYS);
+          if (active != locked)
+            setKeyLockedState(active);
+          if (active)
+            newActiveFunctions |= (1u << FUNCTION_DISABLE_KEYS);
+        }
+#endif
+      }
 
       if (active) {
         switch (CFN_FUNC(cfn)) {
@@ -570,6 +582,10 @@ const char* funcGetLabel(uint8_t func)
 #if defined(COLORLCD)
   case FUNC_DISABLE_TOUCH:
     return STR_SF_DISABLE_TOUCH;
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  case FUNC_DISABLE_KEYS:
+    return STR_SF_DISABLE_KEYS;
 #endif
   case FUNC_SET_SCREEN:
     return STR_SF_SET_SCREEN;
