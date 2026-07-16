@@ -189,9 +189,11 @@ static void flysky_gimbal_loop(void*)
       HallProtocol.length = length;
       memcpy(HallProtocol.data, &frame[3], length);
       _fs_handle_msg(&HallProtocol);
+      idx += length + 5;
+      continue;
     }
 
-    idx += length + 5;
+    idx++;  // CRC mismatch: length is unverified, resync byte-by-byte
   }
 }
 
