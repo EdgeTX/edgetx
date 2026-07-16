@@ -423,6 +423,30 @@ class HardwareDefinition(BaseModel):
     imu: Optional[IMU] = None
     rotenc: Optional[RotEnc] = None
     haptic: Optional[Haptic] = None
+    key_lock_combo: Optional[List[KeyEnum]] = None
+
+    @model_validator(mode="after")
+    def check_key_lock_combo(self: "HardwareDefinition") -> "HardwareDefinition":
+        if self.key_lock_combo is None:
+            return self
+        if len(self.key_lock_combo) != 2:
+            raise PydanticCustomError(
+                "KeyLockComboError",
+                "'key_lock_combo' must list exactly 2 keys",
+            )
+        if self.key_lock_combo[0] == self.key_lock_combo[1]:
+            raise PydanticCustomError(
+                "KeyLockComboError",
+                "'key_lock_combo' entries must be distinct",
+            )
+        defined = {k.key for k in self.keys}
+        for k in self.key_lock_combo:
+            if k not in defined:
+                raise PydanticCustomError(
+                    "KeyLockComboError",
+                    f"'key_lock_combo' references {k} which is not in 'keys'",
+                )
+        return self
 
     @staticmethod
     def from_json(data: Union[str, bytes, bytearray]) -> "HardwareDefinition":

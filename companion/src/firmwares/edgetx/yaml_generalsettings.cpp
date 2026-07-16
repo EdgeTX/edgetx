@@ -417,6 +417,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   }
 
   node["oneLogPerDay"] = (int)rhs.oneLogPerDay;
+  node["keyLockEnabled"] = (int)rhs.keyLockEnabled;
 
   return node;
 }
@@ -780,6 +781,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   }
 
   node["oneLogPerDay"] >> rhs.oneLogPerDay;
+  node["keyLockEnabled"] >> rhs.keyLockEnabled;
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions

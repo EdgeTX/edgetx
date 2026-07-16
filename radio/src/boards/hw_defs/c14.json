@@ -376,5 +376,9 @@
     "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
-  }
+  },
+  "key_lock_combo": [
+    "KEY_SYS",
+    "KEY_MODEL"
+  ]
 }
