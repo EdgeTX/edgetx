@@ -125,7 +125,13 @@ else
         echo "    📄 Copied: $(basename "$PACKAGE_FILE")"
     else
         echo "    ❌ Failed to copy package files to output directory"
+        echo "    📁 Directory Contents:"
+        echo "    ----------------------"
         ls -la native/ || echo "native/ directory not found"
+        echo "Looking for files matching: $PACKAGE_FILES"
+        find native/ -name "$PACKAGE_FILES" 2>/dev/null || echo "No matching files found"
+        echo "All .exe files under native/:"
+        find native/ -iname "*.exe" 2>/dev/null || echo "No .exe files found"
         error_status=1
     fi
 fi
