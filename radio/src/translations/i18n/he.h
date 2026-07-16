@@ -991,6 +991,7 @@
 #define TR_SENSOR                      "חיישן"
 #define TR_COUNTRY_CODE                "קוד ארץ"
 #define TR_USBMODE                     "USB מצב"
+#define TR_USB_CHARGE                 "USB SD/Joystick/VCP charge"
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "שפת שמע"
 #define TR_TEXT_LANGUAGE               "שפת הטקסט"

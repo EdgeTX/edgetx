@@ -203,12 +203,19 @@ void handleUsbConnection()
 
       usbStart();
       TRACE("USB started");
+
+#if defined(USB_CHARGE_CONTROL)
+      usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+#endif
     }
   }
 
   if (usbStarted() && !usbPlugged()) {
     usbStop();
     TRACE("USB stopped");
+#if defined(USB_CHARGE_CONTROL)
+    usbChargerEnableCharge(true);
+#endif
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();

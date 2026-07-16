@@ -25,7 +25,15 @@
 #include "board.h"
 #include "hal/usb_driver.h"
 
-//TODO: charger enable control
+  #if defined(USB_CHARGE_CONTROL)
+void usbChargerEnableCharge(bool enable)
+{
+  if (enable)
+    gpio_clear(UCHARGER_EN_GPIO);
+  else
+    gpio_set(UCHARGER_EN_GPIO);
+}
+#endif
 
 void usbChargerInit()
 {
@@ -36,5 +44,12 @@ void usbChargerInit()
 
 bool usbChargerLed()
 {
+#if defined(USB_CHARGE_CONTROL)
+  // When charging is disabled via the "USB SD/Joystick/VCP charge" setting,
+  // the charger-enable pin is driven high to hold the charger off, so it is
+  // not charging.
+  if (gpio_read(UCHARGER_EN_GPIO))
+    return false;
+#endif
   return (gpio_read(UCHARGER_GPIO) && usbPlugged());
 }
