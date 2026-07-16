@@ -22,5 +22,6 @@
 #include "timers_driver.h"
 
 void watchdogSuspend(unsigned int) {}
+uint32_t timersGetMsTick() { return 0; }
 uint32_t timersGetUsTick() { return 0; }
 
