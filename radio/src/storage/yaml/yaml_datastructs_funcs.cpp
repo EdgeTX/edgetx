@@ -2920,7 +2920,11 @@ void r_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
-  ud->type = (UDType)yaml_parse_enum(enum_UDType, val, val_len);
+  if (ud) {
+    ud->type = (UDType)yaml_parse_enum(enum_UDType, val, val_len);
+  } else {
+    TRACE("Bad model YAML - userData 'type' defined before 'key'");
+  }
 }
 
 bool w_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
@@ -2937,7 +2941,11 @@ void r_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
-  ud->value = val;
+  if (ud) {
+    ud->value = val;
+  } else {
+    TRACE("Bad model YAML - userData 'value' defined before 'key'");
+  }
 }
 
 bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
