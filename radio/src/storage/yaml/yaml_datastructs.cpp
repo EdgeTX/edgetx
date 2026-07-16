@@ -44,6 +44,8 @@
  #include "yaml_datastructs_tx16smk3.cpp"
 #elif defined(RADIO_T22)
   #include "yaml_datastructs_t22.cpp"
+#elif defined(PCBV12)
+ #include "yaml_datastructs_v12.cpp"
 #elif defined(PCBPL18)
  #if defined(RADIO_NB4P)
   #include "yaml_datastructs_nb4p.cpp"
