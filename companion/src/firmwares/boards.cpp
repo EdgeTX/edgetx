@@ -167,7 +167,7 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4F78746F;
     case BOARD_HELLORADIOSKY_V16:
       return 0x4E78746F;
-    case BOARD_IFLIGHT_C14:
+    case BOARD_IFLIGHT_COMMANDO14:
       return 0x4F78746F;
     default:
       return 0;
@@ -234,7 +234,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
-    case BOARD_IFLIGHT_C14:
+    case BOARD_IFLIGHT_COMMANDO14:
       return 0;
     default:
       return 0;
@@ -300,7 +300,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
-    case BOARD_IFLIGHT_C14:
+    case BOARD_IFLIGHT_COMMANDO14:
       return FSIZE_2MB;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -723,8 +723,8 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
-    case BOARD_IFLIGHT_C14:
-      return "iFlight C14";
+    case BOARD_IFLIGHT_COMMANDO14:
+      return "iFlight Commando 14";
     case BOARD_FATFISH_F16:
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
@@ -846,6 +846,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_TX15:
   case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
+  case BOARD_IFLIGHT_COMMANDO14:
   case BOARD_JUMPER_BUMBLEBEE:
   case BOARD_JUMPER_T12MAX:
   case BOARD_JUMPER_T14:
@@ -861,7 +862,6 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_POCKET:
   case BOARD_RADIOMASTER_TX12_MK2:
   case BOARD_RADIOMASTER_ZORRO:
-  case BOARD_IFLIGHT_C14:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:
@@ -908,7 +908,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       break;
     case BOARD_TARANIS_X9E:
     case BOARD_HORUS_X12S:
-    case BOARD_IFLIGHT_C14:
+    case BOARD_IFLIGHT_COMMANDO14:
       BR(85, 115, 87)
       break;
     case BOARD_TARANIS_XLITE:

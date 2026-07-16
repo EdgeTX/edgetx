@@ -99,7 +99,7 @@ namespace Board {
     BOARD_RADIOMASTER_MT12,
     BOARD_HELLORADIOSKY_V14,
     BOARD_HELLORADIOSKY_V14LCD,
-    BOARD_IFLIGHT_C14,
+    BOARD_IFLIGHT_COMMANDO14,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -506,7 +506,7 @@ inline bool IS_IFLIGHT_COMMANDO8(Board::Type board)
 
 inline bool IS_IFLIGHT_C14(Board::Type board)
 {
-  return board == Board::BOARD_IFLIGHT_C14;
+  return board == Board::BOARD_IFLIGHT_COMMANDO14;
 }
 
 inline bool IS_JUMPER_T12(Board::Type board)
