@@ -554,3 +554,8 @@
 #define LCD_PHYS_H                      LCD_W
 
 #define LCD_DEPTH                       16
+
+// Keys held together to toggle the keyboard lock. Override either define
+// in this file to map the combo to a different pair on this target.
+#define KEYS_LOCK_KEY1                  KEY_EXIT
+#define KEYS_LOCK_KEY2                  KEY_ENTER
