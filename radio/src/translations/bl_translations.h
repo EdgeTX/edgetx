@@ -84,7 +84,7 @@
     #define TR_BL_CURRENT_FW               "Aktualni firmware:"
 
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pro vybrani souboru"
-    #define TR_BL_FLASH_KEY                "Drzet dlouze " BL_SELECT_KEY " pro nahrani"
+    #define TR_BL_FLASH_KEY                "Drzet dlouho " BL_SELECT_KEY " pro nahrani"
     #define TR_BL_ERASE_KEY                "Hold " BL_SELECT_KEY " long to erase"
     #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pro ukonceni"
@@ -377,6 +377,52 @@
     #define TR_BL_PLUG_USB                "Plugga in USB-kabeln"
     #define TR_BL_COPY_UF2                "Kopiera firmware.uf2 till enhet EDGETX_UF2"
     #define TR_BL_NO_VERSION              "Ingen version"
+
+#elif defined(TRANSLATIONS_SK)
+
+    // Poznamka: nutne pouzitie textu bez diakritiky - obmedzenie velkosti pameti bootloader!
+    #define TR_BL_USB_CONNECTED           "USB pripojene"
+    #define TR_BL_USB_PLUGIN              "alebo pripojte USB kabel"
+    #define TR_BL_USB_MASS_STORE          "pre pouzitie uloziska"
+    #define TR_BL_WRITE_FW                "Nahrat firmware"
+    #define TR_BL_FORK                    "Fork:"
+    #define TR_BL_VERSION                 "Verzia:"
+    #define TR_BL_RADIO                   "Radio:"
+    #define TR_BL_EXIT                    "Ukoncit"
+    #define TR_BL_DIR_MISSING             "Adresar chyba"
+    #define TR_BL_DIR_EMPTY               "Adresar je prazdny"
+    #define TR_BL_WRITING_FW              "Nahravanie firmware ..."
+    #define TR_BL_WRITING_COMPL           "Nahravanie dokoncene"
+    #define TR_BL_ENABLE                  "Povolene"
+    #define TR_BL_DISABLE                 "Zakazane"
+
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Drzat [ENT] pre zahajenie", "Drzat [ENT] pre zahajenie nahravania")
+    #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Neplatny firmware!", "Neplatny subor s firmwerom")
+
+    // Bootloader Taranis specific - ASCII characters only
+    #define TR_BL_POWER_KEY                "Stlacte tlacitko napajanie."
+    #define TR_BL_FLASH_EXIT               "Ukoncit rezim nahravania."
+
+    // Bootloader Horus specific - ASCII characters only
+    #define TR_BL_ERASE_INT_FLASH          "Vymazat internu pamat Flash"
+    #define TR_BL_ERASE_FLASH              "Vymazat pamat Flash"
+    #define TR_BL_ERASE_FLASH_MSG          "Moze to trvat az 200s"
+    #define TR_BL_RF_USB_ACCESS            "RF USB access"
+    #define TR_BL_CURRENT_FW               "Aktualny firmware:"
+
+    #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pre vybranie suboru"
+    #define TR_BL_FLASH_KEY                "Drzat dlho " BL_SELECT_KEY " pre nahranie"
+    #define TR_BL_ERASE_KEY                "Drzat " BL_SELECT_KEY " pre zmazanie"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " prepnut"
+    #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pre ukoncenie"
+
+    // Bootloader UF2 specific - ASCII characters only
+    #define TR_BL_DFU_MODE                "DFU rezim"
+    #define TR_BL_PLUG_USB                "Pripojit USB kabel"
+    #define TR_BL_COPY_UF2                "Kopirovat firmware.uf2 na EDGETX_UF2 uloziste"
+    #define TR_BL_NO_VERSION              "Zadna verzia"
 
 #else  // EN
 
