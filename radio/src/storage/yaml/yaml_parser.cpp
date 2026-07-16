@@ -243,7 +243,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 break;
             }
             else {
-              char ch = toupper(*c);
+              char ch = toupper((uint8_t)*c);
               if (ch >= 'A' && ch <= 'F') {
                 escHexVal = (ch - 'A' + 10) << 4;
                 state = ps_ValEsc3;
@@ -261,7 +261,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 break;
             }
             else {
-              char ch = toupper(*c);
+              char ch = toupper((uint8_t)*c);
               if (ch >= 'A' && ch <= 'F') {
                 escHexVal |= (ch - 'A' + 10);
                 scratch_buf += escHexVal;
@@ -310,7 +310,7 @@ YamlParser::parse(const char* buffer, unsigned int size)
     if ((state == ps_Val) && eof && node_found) {
         calls->set_attr(ctx, scratch_buf.c_str(), scratch_buf.size());
     }
-    
+
     return CONTINUE_PARSING;
 }
 
