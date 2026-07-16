@@ -322,7 +322,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   {
     temp_str = STR_IMU;
     temp_str += " ";
-    temp_str += TR_CURRENTSENSOR;
+    temp_str += STR_CURRENTSENSOR;
     new StaticText(line, rect_t{}, temp_str);
     auto imu_btn = new TextButton(line, rect_t{}, STR_CALIBRATION);
     imu_btn->setPressHandler([=]() -> uint8_t {
@@ -332,10 +332,10 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     temp_str = "DIST";
     temp_str += " ";
-    temp_str += TR_CURRENTSENSOR;
+    temp_str += STR_CURRENTSENSOR;
     line = body->newLine(grid);
     new StaticText(line, rect_t{}, temp_str);
-    auto dist_btn = new TextButton(line, rect_t{}, TR_RESET);
+    auto dist_btn = new TextButton(line, rect_t{}, STR_RESET);
     dist_btn->setPressHandler([=]() -> uint8_t {
       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_DIST);
       return 0;
@@ -343,10 +343,10 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   }
 
   if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_GPS) || cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_PRES)) {
-    temp_str = TR_ALTSENSOR;
+    temp_str = STR_ALTSENSOR;
     line = body->newLine(grid);
     new StaticText(line, rect_t{}, temp_str);
-    auto alt_btn = new TextButton(line, rect_t{}, TR_RESET);
+    auto alt_btn = new TextButton(line, rect_t{}, STR_RESET);
     alt_btn->setPressHandler([=]() -> uint8_t {
       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_ALT);
       return 0;
@@ -356,7 +356,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   // if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_RPM)) {
   //   temp_str = "RPM";
   //   temp_str += " ";
-  //   temp_str += TR_CURRENTSENSOR;
+  //   temp_str += STR_CURRENTSENSOR;
   //   line = body->newLine(grid);
   //   new StaticText(line, rect_t{}, temp_str);
   //   new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 1, 12, GET_SET_DEFAULT(cfg->others.calibData[afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_RPM]));
