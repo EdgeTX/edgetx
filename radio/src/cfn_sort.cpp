@@ -713,48 +713,48 @@ Functions cfn_sorted[] = {
   /* Volym */ FUNC_VOLUME,
   /* Återställ */ FUNC_RESET,
 #elif defined(TRANSLATIONS_SK)
-  /* Obnoviť */ FUNC_RESET,
-  /* Vypnúť zosilovač zvuku */ FUNC_DISABLE_AUDIO_AMP,
-#if !defined(OLED_SCREEN)
-  /* Podsvietenie */ FUNC_BACKLIGHT,
-#endif
 #if defined(COLORLCD)
   /* Deaktivácia dotyku */ FUNC_DISABLE_TOUCH,
 #endif
-  /* Vibrovanie */ FUNC_HAPTIC,
-  /* Nastaviť GVAR */ FUNC_ADJUST_GVAR,
-  /* Tréner */ FUNC_TRAINER,
-  /* Zámok */ FUNC_OVERRIDE_CHANNEL,
-#if defined(VIDEO_SWITCH)
-  /* LCD na Video */ FUNC_LCD_TO_VIDEO,
-#endif
-#if defined(OLED_SCREEN)
+  /* Hlasitosť */ FUNC_VOLUME,
+  /* Hlásiť stav */ FUNC_PLAY_VALUE,
+  /* Hudba */ FUNC_BACKGND_MUSIC,
+  /* Hudba pauza */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Insta-Trim */ FUNC_INSTANT_TRIM,
+#if OLED_SCREEN
   /* Jas */ FUNC_BACKLIGHT,
 #endif
-  /* Logovanie dát */ FUNC_LOGS,
-  /* Lua-skript */ FUNC_PLAY_SCRIPT,
-  /* Hudba */ FUNC_BACKGND_MUSIC,
-  /* Párovanie */ FUNC_BIND,
-  /* Pauza hudba */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Kontrola dosahu */ FUNC_RANGECHECK,
-  /* RGB led */ FUNC_RGB_LED,
-  /* Hlásiť stav */ FUNC_PLAY_VALUE,
-  /* Nastavenie časovača */ FUNC_SET_TIMER,
-  /* Nastavenie failsafe */ FUNC_SET_FAILSAFE,
-  /* Nastavenie hlavnej obrazovky */ FUNC_SET_SCREEN,
-  /* Snímka obrazovky */ FUNC_SCREENSHOT,
-  /* Okamžitý trim */ FUNC_INSTANT_TRIM,
+#if defined(VIDEO_SWITCH)
+  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+#endif
+  /* Loguj na SD */ FUNC_LOGS,
+  /* Lua Skript */ FUNC_PLAY_SCRIPT,
+  /* Nastav */ FUNC_ADJUST_GVAR,
+  /* Nastaviť Failsafe */ FUNC_SET_FAILSAFE,
+  /* Párovanie Modulu */ FUNC_BIND,
+#if !OLED_SCREEN
+  /* Podsvietenie */ FUNC_BACKLIGHT,
+#endif
+  /* Prehrať wav */ FUNC_PLAY_TRACK,
   /* Prehrať zvuk */ FUNC_PLAY_SOUND,
-  /* Prehrať skladbu */ FUNC_PLAY_TRACK,
-  /* Pretekársky režim*/ FUNC_RACING_MODE,
+  /* Pretekársky režim */ FUNC_RACING_MODE,
+  /* Reset */ FUNC_RESET,
+  /* RGB svetlo */ FUNC_RGB_LED,
+  /* Snímka LCD */ FUNC_SCREENSHOT,
+#if defined(FUNCTION_SWITCHES)
+  /* Stlač CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-#if defined(FUNCTION_SWITCHES)
-  /* Stlač nakonfigurovaný spínač */ FUNC_PUSH_CUST_SWITCH,
-#endif
+  /* Tréner */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
-  /* Hlasitosť */ FUNC_VOLUME,
+  /* Vibrovať */ FUNC_HAPTIC,
+  /* Vybrať hlavnú obrazovku */ FUNC_SET_SCREEN,
+  /* Vypnutie zosilňovača zvuku */ FUNC_DISABLE_AUDIO_AMP,
+  /* Zámok */ FUNC_OVERRIDE_CHANNEL,
+  /* Zmena */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_TW)
   /* Lua腳本 */ FUNC_PLAY_SCRIPT,
 #if defined(FUNCTION_SWITCHES)
