@@ -47,7 +47,7 @@ add_library(simu_drivers OBJECT EXCLUDE_FROM_ALL
   ${SIMU_DRIVERS}
 )
 
-add_dependencies(simu_drivers simu_keys simu_switches hal_settings hal_keys hal_adc_inputs lua_inputs lua_mixsrc lua_keys yaml_inputs)
+add_dependencies(simu_drivers simu_keys simu_switches hal_settings hal_keys hal_keys_lock hal_adc_inputs lua_inputs lua_mixsrc lua_keys yaml_inputs)
 
 get_property(SIMU_SRC_OPTIONS
   TARGET radiolib_native
