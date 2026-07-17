@@ -222,6 +222,11 @@ void per10ms()
   evalFunctionSwitches();
 #endif
 
+  if (radioGFEnabled())
+    evalUIFunctions(g_eeGeneral.customFn, globalFunctionsContext);
+  if (modelSFEnabled())
+    evalUIFunctions(g_model.customFn, modelFunctionsContext);
+
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);

@@ -255,6 +255,7 @@ void POPUP_WAIT(const char * s, const char * info)
   warningText = s;
   warningInfoText = info;
   warningInfoLength = info ? strlen(info) : 0;
+  warningInfoFlags = 0;
   warningType = WARNING_TYPE_WAIT;
   popupFunc = runPopupWarning;
 }
