@@ -33,7 +33,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
         zorro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO -DUSE_FW_LTO=y"
             ;;
         pocket)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
