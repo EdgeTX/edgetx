@@ -195,20 +195,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
       bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
-      if (CFN_ACTIVE(cfn) == 0) {
+      if (CFN_ACTIVE(cfn) == 0)
         active = false;
-      } else {
-#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-        // 'No Keys' function checks both switch states
-        if (CFN_FUNC(cfn) == FUNC_DISABLE_KEYS) {
-          bool locked = isFunctionActive(FUNCTION_DISABLE_KEYS);
-          if (active != locked)
-            setKeyLockedState(active);
-          if (active)
-            newActiveFunctions |= (1u << FUNCTION_DISABLE_KEYS);
-        }
-#endif
-      }
 
       if (active) {
         switch (CFN_FUNC(cfn)) {
@@ -391,14 +379,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-          case FUNC_LOGS:
-            if (CFN_PARAM(cfn)) {
-              newActiveFunctions |= (1u << FUNCTION_LOGS);
-              logDelay100ms = CFN_PARAM(
-                  cfn);  // logging period is 0..25.5s in 100ms increments
-            }
-            break;
-
 #if defined(FUNCTION_SWITCHES)
           case FUNC_PUSH_CUST_SWITCH:
             if (CFN_PARAM(cfn)) {   // Duration is set
@@ -440,35 +420,20 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             }
             break;
 #endif
-#if defined(HARDWARE_TOUCH)
-          case FUNC_DISABLE_TOUCH:
-            newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
-            break;
-#endif
+
 #if defined(AUDIO_MUTE_GPIO)
           case FUNC_DISABLE_AUDIO_AMP:
             newActiveFunctions |= (1u << FUNCTION_DISABLE_AUDIO_AMP);
             break;
 #endif
-          case FUNC_SET_SCREEN:
-            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
-              TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
-#if defined(COLORLCD)
-              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
-              setRequestedMainView(screenNumber);
-              mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
-#else
-              extern void showTelemScreen(uint8_t index);
-              showTelemScreen(CFN_PARAM(cfn));
-#endif
-            }
-            break;
+
 #if defined(VIDEO_SWITCH)
           case FUNC_LCD_TO_VIDEO:
             switchToVideo();
             videoEnabled = true;
             break;
 #endif
+
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();
@@ -516,6 +481,66 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
   functionsContext.activeSwitches   = newActiveSwitches;
   functionsContext.activeFunctions  = newActiveFunctions;
+}
+
+void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+{
+  MASK_FUNC_TYPE newActiveFunctions  = 0;
+
+  for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
+    CustomFunctionData * cfn = &functions[i];
+    swsrc_t swtch = CFN_SWITCH(cfn);
+    if (swtch && CFN_ACTIVE(cfn) != 0) {
+      bool active = getSwitch(swtch, 0);
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+      // 'No Keys' function checks both switch states
+      if (CFN_FUNC(cfn) == FUNC_DISABLE_KEYS) {
+        bool locked = isFunctionActive(FUNCTION_DISABLE_KEYS);
+        if (active != locked)
+          setKeyLockedState(active);
+        if (active)
+          newActiveFunctions |= (1u << FUNCTION_DISABLE_KEYS);
+      }
+#endif
+
+      if (active) {
+        switch (CFN_FUNC(cfn)) {
+          case FUNC_LOGS:
+            if (CFN_PARAM(cfn)) {
+              newActiveFunctions |= (1u << FUNCTION_LOGS);
+              logDelay100ms = CFN_PARAM(cfn);  // logging period is 0..25.5s in 100ms increments
+            }
+            break;
+
+#if defined(HARDWARE_TOUCH)
+          case FUNC_DISABLE_TOUCH:
+            newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
+            break;
+#endif
+
+          case FUNC_SET_SCREEN:
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+              TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
+#if defined(COLORLCD)
+              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
+              setRequestedMainView(screenNumber);
+              mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
+#else
+              extern void showTelemScreen(uint8_t index);
+              showTelemScreen(CFN_PARAM(cfn));
+#endif
+            }
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  functionsContext.activeUIFunctions  =  newActiveFunctions;
 }
 
 const char* funcGetLabel(uint8_t func)
