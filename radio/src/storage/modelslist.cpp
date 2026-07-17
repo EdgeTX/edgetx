@@ -487,45 +487,25 @@ LabelsVector ModelMap::fromCSV(const char* str)
 // TODO - Fix me, ideally there should be no limitations
 void ModelMap::escapeCSV(std::string &str)
 {
-  replace_all(str, "/", "//");
-  replace_all(str, ",", "/c");
+  strReplaceAll(str, "/", "//");
+  strReplaceAll(str, ",", "/c");
 }
 
 // TODO - Fix me, ideally there should be no limitations
 void ModelMap::unEscapeCSV(std::string &str)
 {
-  replace_all(str, "//", "/");
-  replace_all(str, "/c", ",");
+  strReplaceAll(str, "//", "/");
+  strReplaceAll(str, "/c", ",");
 }
 
 // TODO - Fix me, ideally there should be no limitations
 void ModelMap::removeYAMLChars(std::string &str)
 {
-  replace_all(str, "\\", "");
-  replace_all(str, "\"", "");
-  replace_all(str, ":", "");
-  replace_all(str, "\'", "");
-  replace_all(str, "-", "");
-}
-
-/**
- * @brief Replace all occurances of <from> to <to> in <str>
- *
- * @param str String
- * @param from String to search
- * @param to String to replace
- */
-
-void ModelMap::replace_all(std::string &str,
-                           const std::string &from,
-                           const std::string &to)
-{
-  if(from.empty()) return;
-  size_t pos = 0;
-  while((pos = str.find(from, pos)) != std::string::npos) {
-        str.replace(pos, from.length(), to);
-        pos += to.length();
-  }
+  strReplaceAll(str, "\\", "");
+  strReplaceAll(str, "\"", "");
+  strReplaceAll(str, ":", "");
+  strReplaceAll(str, "\'", "");
+  strReplaceAll(str, "-", "");
 }
 
 /**
@@ -771,7 +751,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
 std::string ModelMap::getBulletLabelString(ModelCell *curmod, const char *noresults)
 {
   std::string lbls = ModelMap::toCSV(getLabelsByModel(curmod));
-  replace_all(lbls, ",", "\u2022");
+  strReplaceAll(lbls, ",", "\u2022");
   unEscapeCSV(lbls);
 
   if(lbls.size() == 0) {

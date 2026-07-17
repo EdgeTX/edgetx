@@ -1958,10 +1958,33 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
-/*luadoc
-@function model.getUserData(key)
+static std::string getUDKey(lua_State *L)
+{
+  // generate user data key from supplied 'app' and 'key' values
+  // UD key = "app|key"
 
-Get User Data value for given key
+  const char* a = luaL_checkstring(L, 1);
+  const char* k = luaL_checkstring(L, 2);
+
+  // App name and key are mandataory
+  if (a[0] == 0 || k[0] == 0) {
+    return "";
+  }
+
+  std::string s(a);
+  strReplaceAll(s, "|", "_");
+  s += "|";
+  s += k;
+
+  return s;
+}
+
+/*luadoc
+@function model.getUserData(app, key)
+
+Get User Data value for given app + key
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @param key (string) name of User Data entry
 
@@ -1973,8 +1996,9 @@ Get User Data value for given key
 */
 static int luaGetUserData(lua_State *L)
 {
-  const char* s = luaL_checkstring(L, 1);
-  auto ud = g_model.getUserData(s);
+  std::string s = getUDKey(L);
+
+  auto ud = g_model.getUserData(s.c_str());
   if (ud) {
     if (ud->type == UD_INT) {
       lua_pushinteger(L, strtol(ud->value.c_str(), nullptr, 10));
@@ -2020,10 +2044,12 @@ static int luaGetAllUserData(lua_State *L)
 }
 
 /*luadoc
-@function model.setUserData(key, value)
+@function model.setUserData(app, key, value)
 
-Update User Data string for given key with new value.
-A new User Data entry will be created if the key is not found.
+Update User Data string for given app and key with new value.
+A new User Data entry will be created if the app + key is not found.
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @param key (string) name of User Data entry
 
@@ -2035,28 +2061,37 @@ A new User Data entry will be created if the key is not found.
 */
 static int luaSetUserData(lua_State *L)
 {
-  const char* k = luaL_checkstring(L, 1);
-  if (lua_type(L, 2) == LUA_TSTRING) {
-    const char* v = lua_tostring(L, 2);
-    lua_pushboolean(L, g_model.setUserData(k, v));
-  } else if (lua_isinteger(L, 2)) {
-    int32_t n = luaL_checkinteger(L, 2);
-    lua_pushboolean(L, g_model.setUserData(k, n));
-  } else if (lua_type(L, 2) == LUA_TNUMBER) {
-    float f = luaL_checknumber(L, 2);
-    lua_pushboolean(L, g_model.setUserData(k, f));
+  std::string s = getUDKey(L);
+
+  // App name and key are mandataory
+  if (s.empty()) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  if (lua_type(L, 3) == LUA_TSTRING) {
+    const char* v = lua_tostring(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), v));
+  } else if (lua_isinteger(L, 3)) {
+    int32_t n = luaL_checkinteger(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), n));
+  } else if (lua_type(L, 3) == LUA_TNUMBER) {
+    float f = luaL_checknumber(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), f));
   } else {
     // Fallback to trigger the standard Lua type error
-    luaL_checkstring(L, 2);
+    luaL_checkstring(L, 3);
     return 0;
   }
   return 1;
 }
 
 /*luadoc
-@function model.deleteUserData(key)
+@function model.deleteUserData(app, key)
 
-Delete User Data entry for given key
+Delete User Data entry for given app + key
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @param key (string) name of User Data entry
 
@@ -2064,8 +2099,8 @@ Delete User Data entry for given key
 */
 static int luaDeleteUserData(lua_State *L)
 {
-  const char* s = luaL_checkstring(L, 1);
-  g_model.deleteUserData(s);
+  std::string s = getUDKey(L);
+  g_model.deleteUserData(s.c_str());
   return 0;
 }
 
