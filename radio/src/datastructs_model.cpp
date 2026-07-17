@@ -283,14 +283,18 @@ UserData* ModelData::getUserData(int n)
 // Get User Data item with specified key
 UserData* ModelData::getUserData(const char* key)
 {
-  for (int i = 0; (size_t)i < userData.size(); i += 1)
-    if (userData[i].key == key)
-      return &userData[i];
+  if (key[0]) {
+    for (int i = 0; (size_t)i < userData.size(); i += 1)
+      if (userData[i].key == key)
+        return &userData[i];
+  }
   return nullptr;
 }
 
 static bool setUD(const char* key, const char* val, UDType typ)
 {
+  if (key[0] == 0) return false;
+
   auto ud = g_model.getUserData(key);
   if (ud == nullptr) {
     if (userData.size() >= MAX_USER_DATA) return false;
