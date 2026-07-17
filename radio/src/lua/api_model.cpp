@@ -2035,10 +2035,11 @@ static int luaGetAllUserData(lua_State *L)
   lua_newtable(L);
 
   if (g_model.getUserDataCount() == 0) return 1;
+  if (lua_gettop(L) >= 2 && lua_type(L, 1) != LUA_TSTRING) return 1;
 
   bool matchApp = false;
   std::string s;
-  if (lua_gettop(L) == 2) {
+  if (lua_gettop(L) >= 2) {
     s = luaL_checkstring(L, 1);
     strReplaceAll(s, "|", "_");
     s += "|";
