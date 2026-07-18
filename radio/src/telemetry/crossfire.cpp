@@ -365,19 +365,19 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     case BATTERY_ID:
     {
       uint8_t sensorID = 0;
-      if (rxBufferCount > 12) {
-          if (getCrossfireTelemetryValue<1>(11, value, rxBuffer)) {
-              sensorID = value;
-          }
+      if (crsfPayloadLen > 10) {
+        if (getCrossfireTelemetryValue<1>(11, value, rxBuffer)) {
+          sensorID = value;
+        }
       }
       if (getCrossfireTelemetryValue<2>(3, value, rxBuffer))
-          processCrossfireTelemetryValue(BATT_VOLTAGE_INDEX, value, sensorID);
+        processCrossfireTelemetryValue(BATT_VOLTAGE_INDEX, value, sensorID);
       if (getCrossfireTelemetryValue<2>(5, value, rxBuffer))
-          processCrossfireTelemetryValue(BATT_CURRENT_INDEX, value, sensorID);
+        processCrossfireTelemetryValue(BATT_CURRENT_INDEX, value, sensorID);
       if (getCrossfireTelemetryValue<3>(7, value, rxBuffer))
-          processCrossfireTelemetryValue(BATT_CAPACITY_INDEX, value, sensorID);
+        processCrossfireTelemetryValue(BATT_CAPACITY_INDEX, value, sensorID);
       if (getCrossfireTelemetryValue<1>(10, value, rxBuffer))
-          processCrossfireTelemetryValue(BATT_REMAINING_INDEX, value, sensorID);
+        processCrossfireTelemetryValue(BATT_REMAINING_INDEX, value, sensorID);
     }
       break;
 
