@@ -21,7 +21,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
         tx12mk2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2 -DUSE_FW_LTO=y"
             ;;
         gx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=GX12"
@@ -36,7 +36,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO -DUSE_FW_LTO=y"
             ;;
         pocket)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET -DUSE_FW_LTO=y"
             ;;
         mt12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
