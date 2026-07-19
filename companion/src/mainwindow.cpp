@@ -29,7 +29,6 @@
 #include "version.h"
 #include "customizesplashdialog.h"
 #include "flashfirmwaredialog.h"
-#include "hexinterface.h"
 #include "warnings.h"
 #include "helpers.h"
 #include "appdata.h"

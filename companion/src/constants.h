@@ -77,7 +77,6 @@
 #define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.etx *.yml);;" % ETX_FILES_FILTER % YML_FILES_FILTER
 #define FIRMWARE_FILES_FILTER          "Firmware " % CPN_STR_FILES % " (*.bin *.uf2);;" % BIN_FILES_FILTER % UF2_FILES_FILTER
 #define EXTERNAL_EEPROM_FILES_FILTER   "EEPROM " % CPN_STR_FILES % " (*.bin);;" % BIN_FILES_FILTER
-#define EEPE_EEPROM_FILE_HEADER        "EEPE EEPROM FILE"
 #define SIMU_FILES_FILTER              ETX_FILES_FILTER
 
 #define CPN_STR_APP_SETTINGS           QCoreApplication::translate("Companion", "Application Settings")
