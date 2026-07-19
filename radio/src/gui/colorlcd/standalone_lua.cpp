@@ -149,6 +149,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     lv_label_set_text(lbl, STR_LOADING);
   } else {
     lcdBuffer = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
+    lcdBuffer->addCanvas(this);
 
     lcdBuffer->clear();
     lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, STR_LOADING,
@@ -156,10 +157,8 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-    auto canvas = lv_canvas_create(lvobj);
-    lv_obj_center(canvas);
-    lv_canvas_set_buffer(canvas, lcdBuffer->getData(),
-                         lcdBuffer->width(), lcdBuffer->height(), LV_IMG_CF_TRUE_COLOR);
+    lv_group_add_obj(lv_group_get_default(), lvobj);
+    lv_group_set_editing(lv_group_get_default(), true);
   }
 
   // setup LUA event handler

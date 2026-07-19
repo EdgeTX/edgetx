@@ -22,30 +22,19 @@
 
 struct MaskBitmap;
 class TelemetryItem;
+class Window;
 
 constexpr uint8_t SOLID = 0xFF;
 constexpr uint8_t DOTTED = 0x55;
 constexpr uint8_t STASHED = 0x33;
 
-#define MOVE_OFFSET()              \
-  coord_t offsetX = this->offsetX; \
-  x += offsetX;                    \
-  this->offsetX = 0;               \
-  coord_t offsetY = this->offsetY; \
-  y += offsetY;                    \
-  this->offsetY = 0
-
 #define APPLY_OFFSET() \
   x += this->offsetX;  \
   y += this->offsetY
 
-#define RESTORE_OFFSET() this->offsetX = offsetX, this->offsetY = offsetY
-
 #define MOVE_PIXEL_RIGHT(p, count) p += count
 
 #define MOVE_TO_NEXT_RIGHT_PIXEL(p) MOVE_PIXEL_RIGHT(p, 1)
-
-#define USE_STB
 
 enum BitmapFormats { BMP_INVALID = -1, BMP_RGB565 = 0, BMP_ARGB4444 };
 
@@ -140,19 +129,17 @@ class BitmapBuffer
 
   void clearClippingRect();
 
-  void setOffset(coord_t offsetX, coord_t offsetY);
-
-  inline void clearOffset() { setOffset(0, 0); }
+  inline void setOffset(coord_t offsetX, coord_t offsetY)
+  {
+    this->offsetX = offsetX;
+    this->offsetY = offsetY;
+  }
 
   inline void reset()
   {
-    clearOffset();
+    setOffset(0, 0);
     clearClippingRect();
   }
-
-  coord_t getOffsetX() const { return offsetX; }
-
-  coord_t getOffsetY() const { return offsetY; }
 
   inline uint16_t width() const { return _width; }
   inline uint16_t height() const { return _height; }
@@ -160,6 +147,11 @@ class BitmapBuffer
   inline pixel_t* getData() const { return data; }
 
   uint32_t getDataSize() const { return _width * _height * sizeof(pixel_t); }
+
+#if !defined(BOOT)
+  lv_obj_t* addCanvas(Window* parent, lv_img_cf_t fmt = LV_IMG_CF_TRUE_COLOR);
+  void removeCanvas();
+#endif
 
   // Lua API functions
   void setClippingRect(coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax);
@@ -259,6 +251,8 @@ class BitmapBuffer
 #if defined(DEBUG)
   bool leakReported;
 #endif
+#if !defined(BOOT)
   lv_obj_t* canvas = nullptr;
+#endif
   lv_draw_ctx_t* draw_ctx = nullptr;
 };

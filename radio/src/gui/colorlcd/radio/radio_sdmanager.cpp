@@ -244,6 +244,7 @@ void RadioSdManagerPage::build(Window * window)
   });
   browser->setFileSelected([=](const char* path, const char* name, const char* fullpath, bool isDir) {
       preview->setFile(nullptr);
+      loadPreview = 0;
       loading->hide();
       if (fullpath && !isDir) {
         auto ext = getFileExtension(fullpath);

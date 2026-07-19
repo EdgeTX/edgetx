@@ -41,9 +41,6 @@ MainWindow::MainWindow() : Window(nullptr, {0, 0, LCD_W, LCD_H})
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj);
-
-  background = lv_canvas_create(lvobj);
-  lv_obj_center(background);
 }
 
 void MainWindow::emptyTrash()
@@ -98,15 +95,16 @@ void MainWindow::shutdown()
   clear();
   emptyTrash();
 
-  // Re-add background canvas
-  background = lv_canvas_create(lvobj);
-  lv_obj_center(background);
+  backgroundBitmap = nullptr;
 }
 
 void MainWindow::setBackgroundImage(const char* fileName)
 {
   // ensure you delete old bitmap
-  if (backgroundBitmap != nullptr) delete backgroundBitmap;
+  if (backgroundBitmap != nullptr) {
+    backgroundBitmap->removeCanvas();
+    delete backgroundBitmap;
+  }
 
   if (fileName == nullptr) fileName = "";
 
@@ -123,7 +121,6 @@ void MainWindow::setBackgroundImage(const char* fileName)
   }
 
   if (backgroundBitmap) {
-    lv_canvas_set_buffer(background, backgroundBitmap->getData(), backgroundBitmap->width(),
-                         backgroundBitmap->height(), LV_IMG_CF_TRUE_COLOR);
+    lv_obj_move_background(backgroundBitmap->addCanvas(this));
   }
 }
