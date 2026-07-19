@@ -19,28 +19,5 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HEXEEPROM_H_
-#define _HEXEEPROM_H_
+void SystemClock_Config();
 
-#include "bineeprom.h"
-
-#include <QtCore>
-
-class HexEepromFormat : public BinEepromFormat
-{
-  Q_DECLARE_TR_FUNCTIONS(HexEepromFormat)
-
-  public:
-    HexEepromFormat(const QString & filename):
-      BinEepromFormat(filename)
-    {
-    }
-
-    virtual QString name() { return "hex"; }
-    virtual bool load(RadioData & radioData);
-
-  protected:
-    virtual bool writeToFile(const uint8_t * eeprom, uint32_t size);
-};
-
-#endif // _HEXEEPROM_H_

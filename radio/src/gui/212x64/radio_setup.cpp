@@ -43,6 +43,12 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
   return editChoice(RADIO_SETUP_2ND_COLUMN, y, title, nullptr, value, -2, +2, attr, event, INDENT_WIDTH);
 }
 
+#if HAS_BACKLIGHT_COLOR
+  #define CASE_HAS_BACKLIGHT_COLOR(x) x,
+#else
+  #define CASE_HAS_BACKLIGHT_COLOR(x)
+#endif
+
 enum MenuRadioSetupItems {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_DATE)
   CASE_RTCLOCK(ITEM_RADIO_SETUP_TIME)
@@ -80,10 +86,11 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_BACKLIGHT_DELAY,
   ITEM_RADIO_SETUP_BRIGHTNESS,
   ITEM_RADIO_SETUP_CONTRAST,
-  CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
+  CASE_HAS_BACKLIGHT_COLOR(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
   ITEM_RADIO_SETUP_BACKLIGHT_SOURCE,
   ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE,
   ITEM_RADIO_SETUP_FLASH_BEEP,
+  CASE_KEY_LOCK(ITEM_RADIO_SETUP_KEY_LOCK)
   ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -224,11 +231,12 @@ void menuRadioSetup(event_t event)
       0, // backlight delay
       0, // brightness
       0, // contrast
-      CASE_PCBX9E_PCBX9DP(0) // backlight color
+      CASE_HAS_BACKLIGHT_COLOR(0) // backlight color
       0, // backlight control
       BACKLIGHT_WARNING_ROW(LABEL(0)), // backlight control override warning
       0, // flash beep
     0,
+    CASE_KEY_LOCK(0) // key lock
     CASE_SPLASH_PARAM(0) // disable splash
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed
@@ -585,7 +593,7 @@ void menuRadioSetup(event_t event)
         }
         break;
 
-#if defined(PCBX9DP) || defined(PCBX9E)
+#if HAS_BACKLIGHT_COLOR
       case ITEM_RADIO_SETUP_BACKLIGHT_COLOR:
         lcdDrawTextIndented(y, STR_BLCOLOR);
         drawSlider(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.backlightColor, 20, attr);
@@ -612,6 +620,20 @@ void menuRadioSetup(event_t event)
             editCheckBox(g_eeGeneral.oneLogPerDay, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
         break;
       }
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+      case ITEM_RADIO_SETUP_KEY_LOCK: {
+        static char lbl[45];
+        const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+        const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+        snprintf(lbl, sizeof(lbl), STR_KEY_LOCK_FMT,
+                 k1 ? k1 : "?", k2 ? k2 : "?");
+        lcdDrawTextAlignedLeft(y, lbl);
+        g_eeGeneral.keyLockEnabled =
+            editCheckBox(g_eeGeneral.keyLockEnabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
+        break;
+      }
+#endif
 
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);

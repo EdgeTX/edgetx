@@ -128,6 +128,8 @@ if(NOT NATIVE_BUILD)
       ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
   )
 
+  add_dependencies(stm32_drivers hal_settings)
+
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_fw>)
 

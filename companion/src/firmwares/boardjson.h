@@ -167,6 +167,7 @@ class BoardJson
 
     const Board::KeyInfo getKeyInfo(int index) const;
     const int getKeyIndex(const QString key) const;
+    bool hasKeyLockCombo() const { return m_hasKeyLockCombo; }
 
     const int getSwitchIndex(const QString val, Board::LookupValueType lvt) const;
     const int getCFSIndexForSwitch(int sw) const;
@@ -201,6 +202,7 @@ private:
     DisplayDefn m_display;
     CustomSwitchesDefn m_cfs;
     HardwareDefn m_hardware;
+    bool m_hasKeyLockCombo = false;
 
     struct InputCounts {
       unsigned int flexGyroAxes;
@@ -226,7 +228,7 @@ private:
 
     static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & lcd, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware);
+                         HardwareDefn & hardware, bool & hasKeyLockCombo);
     static void afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches,
                                 KeysTable * keys, TrimsTable * trims);
 

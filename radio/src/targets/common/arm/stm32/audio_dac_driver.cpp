@@ -145,6 +145,12 @@ static void dac_dma_init()
 {
   stm32_dma_enable_clock(AUDIO_DMA);
 
+  // _dma_buffer lives in a NOLOAD section, so it holds random SRAM contents at
+  // power-on. Prime it with silence so the DAC never clocks out garbage (heard
+  // as a crackle) on the very first transfer.
+  for (unsigned i = 0; i < DMA_BUFFER_LEN; i++)
+    _dma_buffer[i] = AUDIO_DATA_SILENCE;
+
   LL_DMA_DeInit(AUDIO_DMA, AUDIO_DMA_Stream);
 
   LL_DMA_InitTypeDef dmaInit;

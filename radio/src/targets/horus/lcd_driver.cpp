@@ -58,7 +58,7 @@
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
 
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
 typedef uint16_t pixel_t;
 static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM;
 static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM;
@@ -137,7 +137,7 @@ static void _update_frame_buffer_addr(uint16_t* addr)
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
 #if defined(RADIO_F16)
   if(hardwareOptions.pcbrev > 0) {
     // Direct mode
@@ -382,7 +382,7 @@ void LCD_LayerInit()
   layer.ImageHeight = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   intptr_t layer_address;
 #if defined(RADIO_F16)
   if (hardwareOptions.pcbrev > 0)
@@ -423,7 +423,7 @@ void LCD_Init(void)
 extern "C"
 void lcdInit()
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   // Clear buffer first
   memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
   memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));

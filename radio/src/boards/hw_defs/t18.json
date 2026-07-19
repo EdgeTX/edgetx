@@ -431,27 +431,53 @@
     }
   ],
   "display": {
-    "w": 480,
-    "h": 272,
-    "phys_w": 480,
-    "phys_h": 272,
-    "depth": 16,
-    "color": 1,
-    "oled": 0,
-    "backlight_color": 0
+    "lcd_w": 480,
+    "lcd_h": 272,
+    "lcd_phys_w": 480,
+    "lcd_phys_h": 272,
+    "lcd_depth": 16,
+    "ltdc_irq_prio": 4,
+    "dma_screen_irq_prio": 6
   },
-  "custom_switches": {
-    "rgb_led": 0,
-    "groups": 0
+  "leds": {
+    "status_leds": true,
+    "led_red_gpio": "GPIO_PIN(GPIOE, 2)",
+    "led_green_gpio": "GPIO_PIN(GPIOE, 4)",
+    "led_blue_gpio": "GPIO_PIN(GPIOE, 5)"
   },
   "hardware": {
-    "has_audio_mute": 1,
-    "has_bling_leds": 0,
-    "has_ext_module_support": 1,
-    "has_int_module_support": 1,
+    "has_audio_mute": true,
+    "has_ext_module_support": true,
+    "has_int_module_support": true,
     "sport_max_baudrate": 400000,
-    "surface": 0,
     "cpu": "STM32F429xI",
     "cpu_type": "STM32F4"
-  }
+  },
+  "timers": {
+    "cpu_freq": 168000000,
+    "peri1_frequency": 42000000,
+    "peri2_frequency": 84000000,
+    "timer_mult_apb1": 2,
+    "timer_mult_apb2": 2,
+    "ms_timer": "TIM14",
+    "ms_timer_irqn": "TIM8_TRG_COM_TIM14_IRQn",
+    "ms_timer_irqhandler": "TIM8_TRG_COM_TIM14_IRQHandler",
+    "mixer_scheduler_timer": "TIM13",
+    "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "mixer_scheduler_timer_irqn": "TIM8_UP_TIM13_IRQn",
+    "mixer_scheduler_timer_irqhandler": "TIM8_UP_TIM13_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOE, 6)",
+    "haptic_gpio_timer": "TIM9",
+    "haptic_gpio_af": "GPIO_AF3",
+    "haptic_timer_output_enable": "TIM_CCER_CC2E",
+    "haptic_timer_mode": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2",
+    "haptic_timer_compare_value": "HAPTIC_GPIO_TIMER->CCR2"
+  },
+  "key_lock_combo": [
+    "KEY_SYS",
+    "KEY_MODEL"
+  ]
 }

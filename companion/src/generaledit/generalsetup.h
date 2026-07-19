@@ -103,6 +103,7 @@ class GeneralSetupPanel : public GeneralPanel
 
     void on_pwrOffIfInactiveSB_editingFinished();
     void on_chkOneLogPerDay_stateChanged(int);
+    void on_chkKeyLockEnabled_stateChanged(int);
 
   private:
     Ui::GeneralSetup *ui;

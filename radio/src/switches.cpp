@@ -92,7 +92,7 @@ uint8_t   potsPos[MAX_POTS];
 // Non pushed : SWSRC_Sx0 = -1024 = Sx(up) = state 0
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1
 
-uint16_t fsPreviousState = 0;
+uint32_t fsPreviousState = 0;
 
 uint8_t isSwitch3Pos(uint8_t idx)
 {
@@ -149,7 +149,7 @@ bool getFSPhysicalState(uint8_t index)
 
 static bool getFSPreviousPhysicalState(uint8_t index)
 {
-  return (uint8_t)(bfSingleBitGet(fsPreviousState, index) >> (index));
+  return (fsPreviousState >> index) & 1;
 }
 
 uint8_t getSwitchCountInFSGroup(uint8_t index)
@@ -206,7 +206,7 @@ void evalFunctionSwitches()
           }
         }
 
-        fsPreviousState ^= 1 << i;  // Toggle state
+        fsPreviousState ^= uint32_t(1) << i;  // Toggle state
         storageDirty(EE_MODEL);
       }
 

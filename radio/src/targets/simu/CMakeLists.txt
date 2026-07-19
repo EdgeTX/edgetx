@@ -40,23 +40,14 @@ set(SIMU_DRIVERS
   abnormal_reboot.cpp
 )
 
-set(HW_DESC_JSON ${FLAVOUR}.json)
-AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
-AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
-AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
-
-set(SIMU_DRIVERS ${SIMU_DRIVERS}
-  ${CMAKE_CURRENT_BINARY_DIR}/simu_keys.inc
-  ${CMAKE_CURRENT_BINARY_DIR}/simu_switches.inc
-  ${CMAKE_CURRENT_BINARY_DIR}/hal_adc_inputs.inc
-)
-
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Pack all simu driver sources into an object lib
 add_library(simu_drivers OBJECT EXCLUDE_FROM_ALL
   ${SIMU_DRIVERS}
 )
+
+add_dependencies(simu_drivers simu_keys simu_switches hal_settings hal_keys hal_keys_lock hal_adc_inputs lua_inputs lua_mixsrc lua_keys yaml_inputs)
 
 get_property(SIMU_SRC_OPTIONS
   TARGET radiolib_native

@@ -25,6 +25,9 @@
 #include "edgetx_types.h"
 
 #include "hal/key_driver.h"
+#if !defined(BOOT)
+#include "hal_keys_lock.h"
+#endif
 
 constexpr event_t EVT_REFRESH =        0x1000;
 constexpr event_t EVT_ENTRY =          0x1001;
@@ -185,6 +188,12 @@ uint8_t keysGetTrimState(uint8_t trim);
 
 bool keysPollingCycle();
 bool rotaryEncoderPollingCycle();
+
+// Holding the per-target combo (KEYS_LOCK_KEY1 + KEYS_LOCK_KEY2 from hal.h)
+// for KEY_LONG_DELAY toggles the key lock. While locked, key events are
+// suppressed; trims/sticks/switches still work.
+bool areKeysLocked();
+bool consumeKeysLockToggleEvent();
 
 #if defined(USE_HATS_AS_KEYS)
 void setHatsAsKeys(bool val);

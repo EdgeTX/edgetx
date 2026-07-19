@@ -19,31 +19,15 @@
  * GNU General Public License for more details.
  */
 
-// TODO not enabled for now
+#pragma once
 
-bool EepeXmlFormat::load(RadioData & radioData)
-{
-  QFile file(filename);
-  
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    qDebug() << "Unable to open" << filename << file.errorString();
-    return false;
-  }
-  
-  QDomDocument doc(ER9X_EEPROM_FILE_TYPE);
-  bool xmlOK = doc.setContent(&file);
-  if (xmlOK) {
-    std::bitset<NUM_ERRORS> errors((unsigned long long) LoadEepromXml(radioData, doc));
-    if (errors.test(ALL_OK)) {
-      return true;
-    }
-    else {
-      qDebug() << "XML parsing error";
-    }
-  }
-  else {
-    qDebug() << "No XML content";
-  }
-  
-  return false;
-}
+#include "bsp_io.h"
+
+// LTDC sync/porch timings
+#define HBP  ( 24 )
+#define VBP  ( 10 )
+#define HSW  ( 4 )
+#define VSH  ( 2 )
+#define HFP  ( 140 - HBP )
+#define VFP  ( 22 - VBP )
+#define VSW  10

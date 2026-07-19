@@ -94,7 +94,7 @@ static void init_lvgl_disp_drv()
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
 
-#if !defined(LCD_VERTICAL_INVERT)
+#if !LCD_VERTICAL_INVERT
   disp_drv.direct_mode = 1;
 #elif defined(RADIO_F16)
   disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
@@ -123,7 +123,6 @@ void lcdInitDisplayDriver()
 
   // Init hardware LCD driver
   lcdInit();
-  backlightInit();
 
   init_lvgl_disp_drv();
 
@@ -144,6 +143,12 @@ void lcdInitDisplayDriver()
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
   lcd->setDrawCtx(draw_ctx);
   lcdFront->setDrawCtx(draw_ctx);
+
+#if defined(LCD_BACKLIGHT_INIT_DELAY_MS)
+  delay_ms(LCD_BACKLIGHT_INIT_DELAY_MS);
+#endif
+
+  backlightInit();
 }
 
 void lcdClear() { lcd->clear(); }

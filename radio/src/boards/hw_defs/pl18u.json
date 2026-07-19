@@ -307,27 +307,66 @@
     }
   ],
   "display": {
-    "w": 480,
-    "h": 320,
-    "phys_w": 320,
-    "phys_h": 480,
-    "depth": 16,
-    "color": 1,
-    "oled": 0,
-    "backlight_color": 0
+    "lcd_w": 480,
+    "lcd_h": 320,
+    "lcd_phys_w": 320,
+    "lcd_phys_h": 480,
+    "lcd_depth": 16,
+    "ltdc_irq_prio": 4,
+    "dma_screen_irq_prio": 6
   },
-  "custom_switches": {
-    "rgb_led": 0,
-    "groups": 0
+  "backlight": {
+    "backlight_gpio": "GPIO_PIN(GPIOA, 15)",
+    "backlight_timer": "TIM2",
+    "backlight_gpio_af": "GPIO_AF1",
+    "backlight_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+  },
+  "leds": {
+    "led_strip_length": 4,
+    "bling_led_strip_start": 0,
+    "bling_led_strip_length": 4,
+    "led_strip_gpio": "GPIO_PIN(GPIOH, 12)",
+    "led_strip_gpio_af": "LL_GPIO_AF_2",
+    "led_strip_timer": "TIM5",
+    "led_strip_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "led_strip_timer_channel": "LL_TIM_CHANNEL_CH3",
+    "led_strip_timer_dma": "DMA1",
+    "led_strip_timer_dma_channel": "LL_DMA_CHANNEL_6",
+    "led_strip_timer_dma_stream": "LL_DMA_STREAM_0",
+    "led_strip_timer_dma_irqn": "DMA1_Stream0_IRQn",
+    "led_strip_timer_dma_irqhandler": "DMA1_Stream0_IRQHandler",
+    "led_strip_refresh_period": 50,
+    "status_leds": true
   },
   "hardware": {
-    "has_audio_mute": 1,
-    "has_bling_leds": 4,
-    "has_ext_module_support": 1,
-    "has_int_module_support": 1,
+    "has_audio_mute": true,
+    "has_ext_module_support": true,
+    "has_int_module_support": true,
     "sport_max_baudrate": 400000,
-    "surface": 0,
     "cpu": "STM32F429xI",
     "cpu_type": "STM32F4"
+  },
+  "timers": {
+    "cpu_freq": 168000000,
+    "peri1_frequency": 42000000,
+    "peri2_frequency": 84000000,
+    "timer_mult_apb1": 2,
+    "timer_mult_apb2": 2,
+    "ms_timer": "TIM14",
+    "ms_timer_irqn": "TIM8_TRG_COM_TIM14_IRQn",
+    "ms_timer_irqhandler": "TIM8_TRG_COM_TIM14_IRQHandler",
+    "mixer_scheduler_timer": "TIM12",
+    "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
+    "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOA, 8)",
+    "haptic_gpio_timer": "TIM1",
+    "haptic_gpio_af": "GPIO_AF1",
+    "haptic_timer_output_enable": "TIM_CCER_CC1E | TIM_CCER_CC1NE",
+    "haptic_timer_mode": "TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE",
+    "haptic_timer_compare_value": "HAPTIC_GPIO_TIMER->CCR1"
   }
 }

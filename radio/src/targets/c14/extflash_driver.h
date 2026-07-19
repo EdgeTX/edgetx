@@ -19,25 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _EEPE_H_
-#define _EEPE_H_
+#pragma once
 
-#include "hexeeprom.h"
+#include "hal/flash_driver.h"
 
-#include <QtCore>
+extern const etx_flash_driver_t extflash_driver;
+extern const void* extflash_dfu_media;
 
-class EepeFormat : public HexEepromFormat
-{
-  Q_DECLARE_TR_FUNCTIONS(EepeFormat)
+// init external FLASH hardware
+int32_t ExtFLASH_Init();
 
-  public:
-    EepeFormat(const QString & filename):
-      HexEepromFormat(filename)
-    {
-    }
-
-    virtual QString name() { return "eepe"; }
-    virtual bool load(RadioData & radioData);
-};
-
-#endif // _EEPE_H_
+// init only runtime structures
+void ExtFLASH_InitRuntime();

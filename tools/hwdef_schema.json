@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://edgetx.org/schemas/hw_defs.schema.json",
+  "title": "EdgeTX radio hardware definition",
+  "description": "Schema describing the per-target hardware definition JSON files under radio/src/boards/hw_defs/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adc_inputs",
+    "switches",
+    "keys",
+    "trims",
+    "display",
+    "hardware",
+    "timers"
+  ],
+  "properties": {
+    "adc_inputs": { "$ref": "#/$defs/adc_inputs" },
+    "switches":   { "type": "array", "items": { "$ref": "#/$defs/switch" } },
+    "keys":       { "type": "array", "items": { "$ref": "#/$defs/key" } },
+    "trims":      { "type": "array", "items": { "$ref": "#/$defs/trim" } },
+    "display":    { "$ref": "#/$defs/display" },
+    "leds":       { "$ref": "#/$defs/leds" },
+    "backlight":  { "$ref": "#/$defs/backlight" },
+    "hardware":   { "$ref": "#/$defs/hardware" },
+    "timers":     { "$ref": "#/$defs/timers" },
+    "imu":        { "$ref": "#/$defs/imu" },
+    "rotenc":     { "$ref": "#/$defs/rotenc" }
+  },
+
+  "$defs": {
+    "gpio_port": {
+      "description": "STM32 LL GPIO port macro, e.g. GPIOA..GPIOK.",
+      "type": "string",
+      "pattern": "^GPIO[A-K]$"
+    },
+    "gpio_pin": {
+      "description": "GPIO pin macro. Usually an STM32 LL macro (LL_GPIO_PIN_0..LL_GPIO_PIN_15), but may also be an I/O expander macro (e.g. PCA95XX_PIN_5, PCA95XX_P14, AW9523B_PIN_0).",
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "gpio_pin_macro": {
+      "description": "Combined GPIO macro form GPIO_PIN(port, n) used by some LED fields.",
+      "type": "string",
+      "pattern": "^GPIO_PIN\\(GPIO[A-K],\\s*\\d+\\)$"
+    },
+
+    "adc_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adcs", "inputs"],
+      "properties": {
+        "adcs":   { "type": "array", "items": { "$ref": "#/$defs/adc" }, "minItems": 1 },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/adc_input" } }
+      }
+    },
+
+    "adc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "adc"],
+      "properties": {
+        "name":                   { "type": "string" },
+        "adc":                    { "type": "string", "pattern": "^(ADC[1-9]|SPI[1-9])$" },
+        "dma":                    { "type": ["string", "null"], "pattern": "^DMA[12]$" },
+        "dma_channel":            { "type": "string" },
+        "dma_stream":             { "type": "string" },
+        "dma_stream_irq":         { "type": "string" },
+        "dma_stream_irq_handler": { "type": "string" },
+        "sample_time":            { "type": "string" },
+        "gpio_pin_cs":            { "type": "string" },
+        "gpio_pin_sck":           { "type": "string" },
+        "gpio_pin_miso":          { "type": "string" },
+        "gpio_pin_mosi":          { "type": "string" }
+      }
+    },
+
+    "adc_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "adc"],
+      "properties": {
+        "name":        { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["STICK", "FLEX", "VBAT", "RTC_BAT", "SWITCH", "LUX", "RAW"]
+        },
+        "adc":         { "type": "string" },
+        "gpio":        { "anyOf": [ { "$ref": "#/$defs/gpio_port" }, { "type": "null" } ] },
+        "pin":         { "anyOf": [ { "$ref": "#/$defs/gpio_pin"  }, { "type": "null" } ] },
+        "channel":     {
+          "anyOf": [
+            { "type": "string", "pattern": "^LL_ADC_CHANNEL_[A-Z0-9_]+$" },
+            { "type": "integer" },
+            { "type": "null" }
+          ]
+        },
+        "inverted":    { "type": "boolean" },
+        "label":       { "type": "string" },
+        "short_label": { "type": "string" },
+        "default": {
+          "type": "string",
+          "enum": ["NONE", "POT", "POT_CENTER", "SLIDER", "MULTIPOS", "AXIS_X", "AXIS_Y"]
+        },
+        "pwm_channel": { "type": "integer" }
+      }
+    },
+
+    "switch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "default", "is_cfs"],
+      "properties": {
+        "name":     { "type": "string" },
+        "type":     { "type": "string", "enum": ["2POS", "3POS", "ADC"] },
+        "flags":    { "type": "integer" },
+        "inverted": { "type": "boolean" },
+        "default":  { "type": "string", "enum": ["NONE", "2POS", "3POS", "TOGGLE"] },
+        "display": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "type": "integer" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        },
+        "is_cfs":    { "type": "boolean" },
+        "cfs_idx":   { "type": "integer" },
+
+        "gpio":      { "anyOf": [ { "$ref": "#/$defs/gpio_port" }, { "type": "null" } ] },
+        "pin":       { "$ref": "#/$defs/gpio_pin" },
+        "gpio_high": { "anyOf": [ { "$ref": "#/$defs/gpio_port" }, { "type": "null" } ] },
+        "pin_high":  { "$ref": "#/$defs/gpio_pin" },
+        "gpio_low":  { "anyOf": [ { "$ref": "#/$defs/gpio_port" }, { "type": "null" } ] },
+        "pin_low":   { "$ref": "#/$defs/gpio_pin" },
+
+        "adc_input": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if":   { "properties": { "type": { "const": "ADC" } }, "required": ["type"] },
+          "then": { "required": ["adc_input"] }
+        }
+      ]
+    },
+
+    "key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["active_low", "key", "name", "label"],
+      "properties": {
+        "gpio":       { "anyOf": [ { "$ref": "#/$defs/gpio_port" }, { "type": "null" } ] },
+        "pin":        { "anyOf": [ { "$ref": "#/$defs/gpio_pin"  }, { "type": "null" } ] },
+        "active_low": { "type": "boolean" },
+        "key": {
+          "type": "string",
+          "enum": [
+            "KEY_MENU", "KEY_EXIT", "KEY_ENTER",
+            "KEY_PAGEUP", "KEY_PAGEDN",
+            "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT",
+            "KEY_PLUS", "KEY_MINUS",
+            "KEY_MODEL", "KEY_SYS", "KEY_TELE",
+            "KEY_SHIFT"
+          ]
+        },
+        "name":  { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+
+    "trim_pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gpio", "pin", "active_low"],
+      "properties": {
+        "gpio":       { "$ref": "#/$defs/gpio_port" },
+        "pin":        { "$ref": "#/$defs/gpio_pin" },
+        "active_low": { "type": "boolean" }
+      }
+    },
+
+    "trim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name":       { "type": "string" },
+        "dec":        { "$ref": "#/$defs/trim_pin" },
+        "inc":        { "$ref": "#/$defs/trim_pin" },
+        "active_low": { "type": "boolean" }
+      }
+    },
+
+    "exti": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "irq":        { "type": "string" },
+        "priority":   { "type": "integer" }
+      }
+    },
+
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lcd_w", "lcd_h", "lcd_phys_w", "lcd_phys_h", "lcd_depth"],
+      "properties": {
+        "lcd_w":                  { "type": "integer", "minimum": 1 },
+        "lcd_h":                  { "type": "integer", "minimum": 1 },
+        "lcd_phys_w":             { "type": "integer", "minimum": 1 },
+        "lcd_phys_h":             { "type": "integer", "minimum": 1 },
+        "lcd_depth":              { "type": "integer", "enum": [1, 4, 8, 16, 24, 32] },
+        "lcd_vertical_invert":    { "type": "boolean" },
+        "lcd_horizontal_invert":  { "type": "boolean" },
+        "ltdc_irq_prio":          { "type": "integer", "minimum": 0, "maximum": 15 },
+        "dma_screen_irq_prio":    { "type": "integer", "minimum": 0, "maximum": 15 },
+        "oled_screen":            { "type": "boolean" }
+      }
+    },
+
+    "leds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status_leds":                      { "type": "boolean" },
+        "led_red_gpio":                     { "type": "string" },
+        "led_red2_gpio":                    { "type": "string" },
+        "led_green_gpio":                   { "type": "string" },
+        "led_blue_gpio":                    { "type": "string" },
+        "gpio_led_gpio_on":                 { "type": "string" },
+        "gpio_led_gpio_off":                { "type": "string" },
+
+        "led_strip_gpio":                   { "type": "string" },
+        "led_strip_gpio_af":                { "type": "string" },
+        "led_strip_length":                 { "type": "integer", "minimum": 0 },
+        "led_strip_refresh_period":         { "type": "integer", "minimum": 0 },
+        "led_strip_timer":                  { "type": "string" },
+        "led_strip_timer_channel":          { "type": "string" },
+        "led_strip_timer_freq":             { "type": "string" },
+        "led_strip_timer_dma":              { "type": "string" },
+        "led_strip_timer_dma_channel":      { "type": "string" },
+        "led_strip_timer_dma_stream":       { "type": "string" },
+        "led_strip_timer_dma_irqn":         { "type": "string" },
+        "led_strip_timer_dma_irqhandler":   { "type": "string" },
+
+        "cfs_led_strip_start":              { "type": "integer", "minimum": 0 },
+        "cfs_led_strip_length":             { "type": "integer", "minimum": 0 },
+        "cfs_leds_per_switch":              { "type": "integer", "minimum": 0 },
+        "bling_led_strip_start":            { "type": "integer", "minimum": 0 },
+        "bling_led_strip_length":           { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "backlight": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backlight_gpio":         { "type": "string" },
+        "backlight_gpio_af":      { "type": "string" },
+        "backlight_timer":        { "type": "string" },
+        "backlight_timer_channel":{ "type": "string" },
+        "backlight_timer_freq":   { "type": "string" },
+        "backlight_bdtr":         { "type": "string" },
+        "has_backlight_color":    { "type": "boolean" }
+      }
+    },
+
+    "hardware": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpu", "cpu_type"],
+      "properties": {
+        "cpu":                     { "type": "string", "pattern": "^STM32[A-Za-z0-9]+$" },
+        "cpu_type":                { "type": "string", "enum": ["STM32F2", "STM32F4", "STM32H7"] },
+        "has_audio_mute":          { "type": "boolean" },
+        "has_ext_module_support":  { "type": "boolean" },
+        "has_int_module_support":  { "type": "boolean" },
+        "sport_max_baudrate":      { "type": "integer", "minimum": 0 },
+        "surface":                 { "type": "boolean" }
+      }
+    },
+
+    "timers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cpu_freq",
+        "peri1_frequency",
+        "peri2_frequency",
+        "timer_mult_apb1",
+        "timer_mult_apb2",
+        "ms_timer",
+        "ms_timer_irqn",
+        "ms_timer_irqhandler",
+        "mixer_scheduler_timer",
+        "mixer_scheduler_timer_freq",
+        "mixer_scheduler_timer_irqn",
+        "mixer_scheduler_timer_irqhandler"
+      ],
+      "properties": {
+        "cpu_freq":                          { "type": "integer", "minimum": 1 },
+        "peri1_frequency":                   { "type": "integer", "minimum": 1 },
+        "peri2_frequency":                   { "type": "integer", "minimum": 1 },
+        "timer_mult_apb1":                   { "type": "integer", "minimum": 1 },
+        "timer_mult_apb2":                   { "type": "integer", "minimum": 1 },
+        "ms_timer":                          { "type": "string" },
+        "ms_timer_irqn":                     { "type": "string" },
+        "ms_timer_irqhandler":               { "type": "string" },
+        "mixer_scheduler_timer":             { "type": "string" },
+        "mixer_scheduler_timer_freq":        { "type": "string" },
+        "mixer_scheduler_timer_irqn":        { "type": "string" },
+        "mixer_scheduler_timer_irqhandler":  { "type": "string" }
+      }
+    },
+
+    "imu": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "imu_i2c_bus":                       { "type": "string" },
+        "imu_int_gpio":                      { "type": "string" },
+        "imu_i2c_address":                   { "type": "string" },
+        "imu_invert_x":                      { "type": "boolean" },
+        "imu_invert_y":                      { "type": "boolean" },
+        "exti":                              { "type": "array", "items": { "$ref": "#/$defs/exti" } }
+      }
+    },
+
+    "rotenc": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rotary_encoder_inverted":           { "type": "boolean" },
+        "rotary_encoder_gpio":               { "type": "string" },
+        "rotary_encoder_gpio_a":             { "type": "string" },
+        "rotary_encoder_gpio_b":             { "type": "string" },
+        "rotary_encoder_gpio_pin_a":         { "type": "string" },
+        "rotary_encoder_gpio_pin_b":         { "type": "string" },
+        "rotary_encoder_position":           { "type": "string" },
+        "rotary_encoder_exti_line1":         { "type": "string" },
+        "rotary_encoder_exti_line2":         { "type": "string" },
+        "rotary_encoder_exti_port":          { "type": "string" },
+        "rotary_encoder_exti_port_a":        { "type": "string" },
+        "rotary_encoder_exti_port_b":        { "type": "string" },
+        "rotary_encoder_exti_sys_line1":     { "type": "string" },
+        "rotary_encoder_exti_sys_line2":     { "type": "string" },
+        "rotary_encoder_timer":              { "type": "string" },
+        "rotary_encoder_timer_irqn":         { "type": "string" },
+        "rotary_encoder_timer_irqhandler":   { "type": "string" },
+        "exti":                              { "type": "array", "items": { "$ref": "#/$defs/exti" } }
+      }
+    },
+
+    "haptic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "haptic_pwm":                 { "type": "boolean" },
+        "haptic_gpio":                { "type": "string" },
+        "haptic_gpio_timer":          { "type": "string" },
+        "haptic_gpio_af":             { "type": "string" },
+        "haptic_timer_output_enable": { "type": "string" },
+        "haptic_timer_mode":          { "type": "string" },
+        "haptic_timer_compare_value": { "type": "string" },
+        "haptic_timer":               { "type": "string" },
+        "haptic_timer_freq":          { "type": "string" },
+        "haptic_counter_register":    { "type": "string" },
+        "haptic_ccmr1":               { "type": "string" },
+        "haptic_ccmr2":               { "type": "string" },
+        "haptic_ccer":                { "type": "string" }
+      }
+    }
+  }
+}

@@ -978,7 +978,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hasKeyLockCombo))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -1015,7 +1015,7 @@ bool BoardJson::loadDefinition()
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware)
+                         HardwareDefn & hardware, bool & hasKeyLockCombo)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1202,6 +1202,9 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     }
   }
 
+  hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
+                    obj.value("key_lock_combo").toArray().size() == 2;
+
   if (obj.value("trims").isArray()) {
     const QJsonArray &trms = obj.value("trims").toArray();
 
@@ -1226,32 +1229,39 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
   if (obj.value("display").isObject()) {
     const QJsonObject &o = obj.value("display").toObject();
 
-    display.w = o.value("w").toInt();
-    display.h = o.value("h").toInt();
-    display.phys_w = o.value("phys_w").toInt();
-    display.phys_h = o.value("phys_h").toInt();
-    display.depth = o.value("depth").toInt();
-    display.color = o.value("color").toInt();
-    display.oled = o.value("oled").toInt();
-    display.backlight_color = o.value("backlight_color").toInt();
+    display.w = o.value("lcd_w").toInt();
+    display.h = o.value("lcd_h").toInt();
+    display.phys_w = o.value("lcd_phys_w").toInt();
+    display.phys_h = o.value("lcd_phys_h").toInt();
+    display.depth = o.value("lcd_depth").toInt();
+    display.color = display.depth == 16 ? 1 : 0;
+    display.oled = o.value("oled_screen").toBool();
   }
 
-  if (obj.value("custom_switches").isObject()) {
-    const QJsonObject &o = obj.value("custom_switches").toObject();
+  if (obj.value("backlight").isObject()) {
+    const QJsonObject &o = obj.value("backlight").toObject();
 
-    cfs.rgb_led = o.value("rgb_led").toInt();
-    cfs.groups = o.value("groups").toInt();
+    display.backlight_color = o.value("has_backlight_color").toBool();
+  }
+
+  if (obj.value("leds").isObject()) {
+    const QJsonObject &o = obj.value("leds").toObject();
+
+    int cfs_led_strip_length = o.value("cfs_led_strip_length").toInt();
+    int cfs_leds_per_switch = o.value("cfs_leds_per_switch").toInt();
+    cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
+    cfs.rgb_led = cfs.groups > 0;
+    hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
   }
 
   if (obj.value("hardware").isObject()) {
     const QJsonObject &o = obj.value("hardware").toObject();
 
-    hardware.has_audio_mute = o.value("has_audio_mute").toInt();
-    hardware.has_bling_leds = o.value("has_bling_leds").toInt();
-    hardware.has_ext_module_support = o.value("has_ext_module_support").toInt();
-    hardware.has_int_module_support = o.value("has_int_module_support").toInt();
+    hardware.has_audio_mute = o.value("has_audio_mute").toBool();
+    hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
+    hardware.has_int_module_support = o.value("has_int_module_support").toBool();
     hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
-    hardware.surface = o.value("surface").toInt();
+    hardware.surface = o.value("surface").toBool();
     hardware.cpu = o.value("cpu").toString().toStdString();
     hardware.cpu_type = o.value("cpu_type").toString().toStdString();
   }

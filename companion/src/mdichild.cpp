@@ -1538,7 +1538,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
 
 void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
 {
-  curFile.replace(QRegularExpression("\\.(eepe|bin|hex|otx|etx)$"), suffix + "." + ext);
+  curFile.replace(QRegularExpression("\\.etx$"), suffix + "." + ext);
 }
 
 bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)

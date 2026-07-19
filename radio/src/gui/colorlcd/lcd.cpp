@@ -71,7 +71,7 @@ static lv_disp_drv_t* refr_disp = nullptr;
 static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                      lv_color_t* color_p)
 {
-#if !defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)
+#if !LCD_VERTICAL_INVERT || defined(RADIO_F16)
 #if defined(RADIO_F16)
   if (hardwareOptions.pcbrev > 0)
 #endif
@@ -126,7 +126,7 @@ static void init_lvgl_disp_drv()
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
 
-#if !defined(LCD_VERTICAL_INVERT)
+#if !LCD_VERTICAL_INVERT
   disp_drv.direct_mode = 1;
 #elif defined(RADIO_F16)
   disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;

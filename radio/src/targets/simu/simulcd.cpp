@@ -53,7 +53,7 @@ void lcdRefresh()
 
 #include <lvgl/lvgl.h>
 
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
 static pixel_t _LCD_BUF1[DISPLAY_BUFFER_SIZE] __SDRAM;
 static pixel_t _LCD_BUF2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
@@ -98,7 +98,7 @@ pixel_t* simuLcdBuf = nullptr;
 
 static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rect_t& copy_area)
 {
-#if !defined(LCD_VERTICAL_INVERT) // rename into "Use direct mode" ???
+#if !LCD_VERTICAL_INVERT // rename into "Use direct mode" ???
   // Direct mode: driver flush is called on final LVGL flush
 
   // simply set LVGL's buffer as our current frame buffer
@@ -162,7 +162,7 @@ void lcdSetInitalFrameBuffer(void*) {}
 
 void lcdInit()
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   memset(_LCD_BUF1, 0, sizeof(_LCD_BUF1));
   memset(_LCD_BUF2, 0, sizeof(_LCD_BUF2));
 #endif

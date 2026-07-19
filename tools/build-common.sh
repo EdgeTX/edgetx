@@ -137,6 +137,9 @@ get_target_build_options() {
         v14)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=V14"
             ;;
+        v14lcd)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=V14LCD"
+            ;;
         v16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=V16"
             ;;
@@ -160,6 +163,9 @@ get_target_build_options() {
             ;;
         st16)
             BUILD_OPTIONS+="-DPCB=ST16"
+            ;;
+        c14)
+            BUILD_OPTIONS+="-DPCB=C14"
             ;;
         pa01)
             BUILD_OPTIONS+="-DPCB=PA01"

@@ -161,8 +161,12 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4A78746F;
     case BOARD_FLYSKY_ST16:
       return 0x4C78746F;
+    case BOARD_IFLIGHT_COMMANDO14:
+      return 0x4F78746F;
     case BOARD_HELLORADIOSKY_V14:
       return 0x4D78746F;
+    case BOARD_HELLORADIOSKY_V14LCD:
+      return 0x4F78746F;
     case BOARD_HELLORADIOSKY_V16:
       return 0x4E78746F;
     case BOARD_DUMBORC_DRO1:
@@ -207,6 +211,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_RADIOMASTER_MT12:
     case BOARD_RADIOMASTER_GX12:
     case BOARD_HELLORADIOSKY_V14:
+    case BOARD_HELLORADIOSKY_V14LCD:
       return EESIZE_TARANIS;
     case BOARD_UNKNOWN:
       return EESIZE_MAX;
@@ -229,6 +234,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_PL18U:
     case BOARD_FLYSKY_NB4P:
     case BOARD_FLYSKY_ST16:
+    case BOARD_IFLIGHT_COMMANDO14:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_DUMBORC_DRO1:
@@ -266,6 +272,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_POCKET:
       return FSIZE_512KB;
     case BOARD_HELLORADIOSKY_V14:
+    case BOARD_HELLORADIOSKY_V14LCD:
     case BOARD_JUMPER_BUMBLEBEE:
     case BOARD_JUMPER_T12MAX:
     case BOARD_JUMPER_T14:
@@ -294,6 +301,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_PL18U:
     case BOARD_FLYSKY_NB4P:
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
+    case BOARD_IFLIGHT_COMMANDO14: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_DUMBORC_DRO1:
@@ -402,7 +410,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_TX16S(board) ||
               IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) ||
               IS_JUMPER_T15PRO(board) || IS_FLYSKY_PA01(board) ||
-              IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX16SMK3(board));
+              IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX16SMK3(board) ||
+              IS_IFLIGHT_C14(board));
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -664,12 +673,16 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
+    case BOARD_IFLIGHT_COMMANDO14:
+      return "iFlight Commando 14";
     case BOARD_FATFISH_F16:
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
       return "HelloRadioSky V16";
     case BOARD_HELLORADIOSKY_V14:
       return "HelloRadioSky V14";
+    case BOARD_HELLORADIOSKY_V14LCD:
+      return "HelloRadioSky V14LCD";
     case BOARD_DUMBORC_DRO1:
       return "DumboRC DRO1";
     default:
@@ -779,10 +792,12 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_BETAFPV_LR3PRO:
   case BOARD_FATFISH_F16:
   case BOARD_HELLORADIOSKY_V14:
+  case BOARD_HELLORADIOSKY_V14LCD:
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
   case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
+  case BOARD_IFLIGHT_COMMANDO14:
   case BOARD_JUMPER_BUMBLEBEE:
   case BOARD_JUMPER_T12MAX:
   case BOARD_JUMPER_T14:
@@ -820,6 +835,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
 {
   switch (board) {
     case BOARD_HELLORADIOSKY_V14:
+    case BOARD_HELLORADIOSKY_V14LCD:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_T14:
     case BOARD_JUMPER_TPRO:
@@ -843,6 +859,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       break;
     case BOARD_TARANIS_X9E:
     case BOARD_HORUS_X12S:
+    case BOARD_IFLIGHT_COMMANDO14:
       BR(85, 115, 87)
       break;
     case BOARD_TARANIS_XLITE:

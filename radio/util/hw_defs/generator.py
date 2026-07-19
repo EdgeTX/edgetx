@@ -88,6 +88,14 @@ def generate_from_template(json_filename, template_filename, target):
             legacy_inputs=legacy_inputs,
             main_labels=MAIN_CONTROL_LUT,
             key_index=key_index,
+            display=hw_def.display,
+            leds=hw_def.leds,
+            backlight=hw_def.backlight,
+            timers=hw_def.timers,
+            imu=hw_def.imu,
+            rotenc=hw_def.rotenc,
+            haptic=hw_def.haptic,
+            key_lock_combo=hw_def.key_lock_combo,
         )
 
         try:

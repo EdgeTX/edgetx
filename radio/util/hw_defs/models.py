@@ -165,6 +165,113 @@ class LuxInput(BaseModel):
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
 
+class EXTI(BaseModel):
+    irq: str
+    priority: int
+
+class Timers(BaseModel):
+    cpu_freq: int
+    peri1_frequency: int
+    peri2_frequency: int
+    timer_mult_apb1: int
+    timer_mult_apb2: int
+    ms_timer: str
+    ms_timer_irqn: str
+    ms_timer_irqhandler: str
+    mixer_scheduler_timer: str
+    mixer_scheduler_timer_freq: str
+    mixer_scheduler_timer_irqn: str
+    mixer_scheduler_timer_irqhandler: str
+
+class Backlight(BaseModel):
+    has_backlight_color: Optional[bool] = False
+    backlight_gpio: Optional[str] = None
+    backlight_timer: Optional[str] = None
+    backlight_timer_channel: Optional[str] = None
+    backlight_gpio_af: Optional[str] = None
+    backlight_timer_freq: Optional[str] = None
+    backlight_bdtr: Optional[str] = None
+
+class Display(BaseModel):
+    lcd_w: int
+    lcd_h: int
+    lcd_phys_w: int
+    lcd_phys_h: int
+    lcd_depth: int
+    oled_screen: Optional[bool] = False
+    lcd_horizontal_invert: Optional[bool] = False
+    lcd_vertical_invert: Optional[bool] = False
+    ltdc_irq_prio: Optional[int] = None
+    dma_screen_irq_prio: Optional[int] = None
+
+class LEDS(BaseModel):
+    led_strip_length: Optional[int] = None
+    bling_led_strip_start: Optional[int] = None
+    bling_led_strip_length: Optional[int] = None
+    cfs_led_strip_start: Optional[int] = None
+    cfs_led_strip_length: Optional[int] = None
+    cfs_leds_per_switch: Optional[int] = None
+    led_strip_gpio: Optional[str] = None
+    led_strip_gpio_af: Optional[str] = None
+    led_strip_timer: Optional[str] = None
+    led_strip_timer_freq: Optional[str] = None
+    led_strip_timer_channel: Optional[str] = None
+    led_strip_timer_dma: Optional[str] = None
+    led_strip_timer_dma_channel: Optional[str] = None
+    led_strip_timer_dma_stream: Optional[str] = None
+    led_strip_timer_dma_irqn: Optional[str] = None
+    led_strip_timer_dma_irqhandler: Optional[str] = None
+    led_strip_refresh_period: Optional[int] = None
+    status_leds: Optional[bool] = False
+    gpio_led_gpio_on: Optional[str] = None
+    gpio_led_gpio_off: Optional[str] = None
+    led_red_gpio: Optional[str] = None
+    led_red2_gpio: Optional[str] = None
+    led_green_gpio: Optional[str] = None
+    led_blue_gpio: Optional[str] = None
+
+class IMU(BaseModel):
+    imu_i2c_bus: Optional[str] = None
+    imu_int_gpio: Optional[str] = None
+    imu_i2c_address: Optional[str] = None
+    exti: Optional[List[EXTI]] = None
+    imu_invert_x: Optional[bool] = None
+    imu_invert_y: Optional[bool] = None
+
+class RotEnc(BaseModel):
+    rotary_encoder_inverted: Optional[bool] = None
+    rotary_encoder_gpio: Optional[str] = None
+    rotary_encoder_gpio_a: Optional[str] = None
+    rotary_encoder_gpio_b: Optional[str] = None
+    rotary_encoder_gpio_pin_a: Optional[str] = None
+    rotary_encoder_gpio_pin_b: Optional[str] = None
+    rotary_encoder_position: Optional[str] = None
+    rotary_encoder_exti_line1: Optional[str] = None
+    rotary_encoder_exti_line2: Optional[str] = None
+    rotary_encoder_exti_port: Optional[str] = None
+    rotary_encoder_exti_port_a: Optional[str] = None
+    rotary_encoder_exti_port_b: Optional[str] = None
+    rotary_encoder_exti_sys_line1: Optional[str] = None
+    rotary_encoder_exti_sys_line2: Optional[str] = None
+    rotary_encoder_timer: Optional[str] = None
+    rotary_encoder_timer_irqn: Optional[str] = None
+    rotary_encoder_timer_irqhandler: Optional[str] = None
+    exti: Optional[List[EXTI]] = None
+
+class Haptic(BaseModel):
+    haptic_pwm: Optional[bool] = None
+    haptic_gpio: Optional[str] = None
+    haptic_gpio_timer: Optional[str] = None
+    haptic_gpio_af: Optional[str] = None
+    haptic_timer_output_enable: Optional[str] = None
+    haptic_timer_mode: Optional[str] = None
+    haptic_timer_compare_value: Optional[str] = None
+    haptic_timer: Optional[str] = None
+    haptic_timer_freq: Optional[str] = None
+    haptic_counter_register: Optional[str] = None
+    haptic_ccmr1: Optional[str] = None
+    haptic_ccmr2: Optional[str] = None
+    haptic_ccer: Optional[str] = None
 
 Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 
@@ -309,6 +416,37 @@ class HardwareDefinition(BaseModel):
     adc_inputs: ADCInputs
     switches: List[Switch]
     keys: List[Key]
+    display: Display
+    leds: Optional[LEDS] = None
+    backlight: Optional[Backlight] = None
+    timers: Timers
+    imu: Optional[IMU] = None
+    rotenc: Optional[RotEnc] = None
+    haptic: Optional[Haptic] = None
+    key_lock_combo: Optional[List[KeyEnum]] = None
+
+    @model_validator(mode="after")
+    def check_key_lock_combo(self: "HardwareDefinition") -> "HardwareDefinition":
+        if self.key_lock_combo is None:
+            return self
+        if len(self.key_lock_combo) != 2:
+            raise PydanticCustomError(
+                "KeyLockComboError",
+                "'key_lock_combo' must list exactly 2 keys",
+            )
+        if self.key_lock_combo[0] == self.key_lock_combo[1]:
+            raise PydanticCustomError(
+                "KeyLockComboError",
+                "'key_lock_combo' entries must be distinct",
+            )
+        defined = {k.key for k in self.keys}
+        for k in self.key_lock_combo:
+            if k not in defined:
+                raise PydanticCustomError(
+                    "KeyLockComboError",
+                    f"'key_lock_combo' references {k} which is not in 'keys'",
+                )
+        return self
 
     @staticmethod
     def from_json(data: Union[str, bytes, bytearray]) -> "HardwareDefinition":

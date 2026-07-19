@@ -28,7 +28,7 @@ jobs:
           - tx16s
           - tx16smk3
           - f16
-          - v16
+          - v14;v14lcd;v16
           - x10;x10express
           - x12s
           - x7access
@@ -37,6 +37,7 @@ jobs:
           - mt12
           - nb4p
           - st16
+          - c14
           - tx15
           - t15pro
           - dro1

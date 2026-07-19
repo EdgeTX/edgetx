@@ -48,6 +48,7 @@ jobs:
           - t15pro
           - pa01
           - t22
+          - c14
           - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
@@ -88,12 +89,13 @@ jobs:
           - t12max;tx12mk2;boxer
           - tx15;tx16s
           - x12s;f16
-          - v12;v14;v16
+          - v14;v14lcd;v16
           - x10;x10express
           - x7access;x9dp2019;x9e;x9e-hall
           - nb4p;st16
           - tx16smk3;t14;t15pro
           - t22
+          - c14
           - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest

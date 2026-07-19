@@ -87,6 +87,7 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
+  CASE_KEY_LOCK(ITEM_RADIO_SETUP_KEY_LOCK)
   ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -228,7 +229,8 @@ void menuRadioSetup(event_t event)
      CASE_BACKLIGHT(0)
      CASE_BACKLIGHT(BACKLIGHT_WARNING_ROW(LABEL(0)))
      CASE_BACKLIGHT(0)
-    0,
+    CASE_KEY_LOCK(0)
+    0, // One log per day
     CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
@@ -555,9 +557,9 @@ void menuRadioSetup(event_t event)
         if(attr) g_eeGeneral.inactivityTimer = checkIncDec(event, g_eeGeneral.inactivityTimer, 0, 250, EE_GENERAL); //0..250minutes
         break;
 
-#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
+#if defined(BACKLIGHT_GPIO) || OLED_SCREEN
       case ITEM_RADIO_SETUP_BACKLIGHT_LABEL:
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
         lcdDrawTextAlignedLeft(y, STR_BRIGHTNESS);
 #else
         lcdDrawTextAlignedLeft(y, STR_BACKLIGHT_LABEL);
@@ -581,7 +583,7 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_BRIGHTNESS:
         lcdDrawTextIndented(y, STR_BRIGHTNESS);
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
@@ -610,7 +612,7 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
       case ITEM_RADIO_SETUP_CONTRAST:
         lcdDrawTextIndented(y, STR_CONTRAST);
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
@@ -627,6 +629,20 @@ void menuRadioSetup(event_t event)
             editCheckBox(g_eeGeneral.oneLogPerDay, LCD_W - 9, y, nullptr, attr, event);
         break;
       }
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+      case ITEM_RADIO_SETUP_KEY_LOCK: {
+        static char lbl[45];
+        const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+        const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+        snprintf(lbl, sizeof(lbl), STR_KEY_LOCK_FMT,
+                 k1 ? k1 : "?", k2 ? k2 : "?");
+        lcdDrawTextAlignedLeft(y, lbl);
+        g_eeGeneral.keyLockEnabled =
+            editCheckBox(g_eeGeneral.keyLockEnabled, LCD_W - 9, y, nullptr, attr, event);
+        break;
+      }
+#endif
 
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
       {

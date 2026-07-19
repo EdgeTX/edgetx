@@ -33,6 +33,9 @@
   #if defined(MANUFACTURER_RADIOMASTER) && !defined(RADIO_T8)
     #define NAVIGATION_X7_RM
   #endif
+  #if defined(MANUFACTURER_HELLORADIOSKY)
+    #define NAVIGATION_X7_HRS
+  #endif
 #endif
 
 #if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
@@ -55,7 +58,7 @@
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
-#elif defined(NAVIGATION_X7_RM)
+#elif defined(NAVIGATION_X7_RM) || defined(NAVIGATION_X7_HRS)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT

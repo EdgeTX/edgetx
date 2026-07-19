@@ -19,23 +19,29 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal/gpio.h"
+#include "hal/rgbleds.h"
+#include "stm32_gpio.h"
+#include "boards/generic_stm32/rgb_leds.h"
+#include "board.h"
 
-#include <QTextStream>
-#include <QString>
+#define GET_RED(color) (((color) & 0xFF0000) >>16)
+#define GET_GREEN(color) (((color) & 0x00FF00) >> 8)
+#define GET_BLUE(color) ((color) & 0x0000FF)
 
-class HexInterface {
-  public:
-    HexInterface(QTextStream &stream);
+#if !defined(CFS_LED_STRIP_START)
+#define CFS_LED_STRIP_START 0
+#endif
 
-    int load(uint8_t * output, int maxsize);
-    bool save(const uint8_t * data, const int size);
+void fsLedRGB(uint8_t index, uint32_t color)
+{
+  index = (index * 2) + CFS_LED_STRIP_START;
+  rgbSetLedColor(index, GET_RED(color), GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(index+1, GET_RED(color), GET_GREEN(color),GET_BLUE(color));
+}
 
-  protected:
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor((index * 2) + CFS_LED_STRIP_START);
+}
 
-    int getValueFromLine(const QString &line, int pos, int len=2);
-    QString iHEXLine(const quint8 * data, quint32 addr, quint8 len);
-    QString iHEXExtRec(quint8 bank);
-
-    QTextStream & stream;
-};

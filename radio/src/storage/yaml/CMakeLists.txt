@@ -38,6 +38,8 @@ elseif(PCB STREQUAL T22)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_t22.cpp)
 elseif(PCB STREQUAL ST16)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_st16.cpp)
+elseif(PCB STREQUAL C14)
+  set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_c14.cpp)
 elseif(PCB STREQUAL PA01)
   set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_pa01.cpp)
 elseif(PCB STREQUAL TX15)
@@ -102,9 +104,4 @@ add_custom_target(yaml_data
             ${RADIO_DIRECTORY}/util/generate_yaml.py
 )
 
-AddHWGenTarget(${HW_DESC_JSON} yaml_inputs yaml_inputs.inc)
-set(SRC ${SRC} ${CMAKE_CURRENT_BINARY_DIR}/yaml_inputs.inc)
-
-# helper target for testing purposes
-add_custom_target(yaml_inputs DEPENDS ${HW_DESC_JSON} yaml_inputs.inc)
-
+add_dependencies(yaml_data hal_settings)

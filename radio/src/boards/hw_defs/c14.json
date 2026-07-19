@@ -1,0 +1,384 @@
+{
+  "adc_inputs": {
+    "adcs": [
+      {
+        "name": "MAIN",
+        "adc": "ADC1",
+        "dma": "DMA2",
+        "dma_channel": "LL_DMAMUX1_REQ_ADC1",
+        "dma_stream": "LL_DMA_STREAM_4",
+        "dma_stream_irq": "DMA2_Stream4_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream4_IRQHandler",
+        "sample_time": "LL_ADC_SAMPLINGTIME_64CYCLES_5"
+      },
+      {
+        "name": "EXT",
+        "adc": "ADC3",
+        "dma": "DMA2",
+        "dma_channel": "LL_DMAMUX1_REQ_ADC3",
+        "dma_stream": "LL_DMA_STREAM_0",
+        "dma_stream_irq": "DMA2_Stream0_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream0_IRQHandler",
+        "sample_time": "LL_ADC_SAMPLINGTIME_64CYCLES_5"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_14",
+        "pwm_channel": 0
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_0",
+        "channel": "LL_ADC_CHANNEL_15",
+        "pwm_channel": 1
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_3",
+        "channel": "LL_ADC_CHANNEL_16",
+        "pwm_channel": 2
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_2",
+        "channel": "LL_ADC_CHANNEL_17",
+        "pwm_channel": 3
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_6",
+        "channel": "LL_ADC_CHANNEL_3",
+        "label": "S1",
+        "short_label": "1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOB",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_5",
+        "label": "S2",
+        "short_label": "2",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOB",
+        "pin": "LL_GPIO_PIN_0",
+        "channel": "LL_ADC_CHANNEL_9",
+        "inverted": true,
+        "label": "LS",
+        "short_label": "L",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_7",
+        "channel": "LL_ADC_CHANNEL_7",
+        "label": "RS",
+        "short_label": "R",
+        "default": "SLIDER"
+      },
+      {
+        "name": "VBAT",
+        "type": "VBAT",
+        "adc": "EXT",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_11"
+      },
+      {
+        "name": "RTC_BAT",
+        "type": "RTC_BAT",
+        "adc": "EXT",
+        "gpio": null,
+        "pin": null,
+        "channel": "LL_ADC_CHANNEL_VBAT"
+      },
+      {
+        "name": "SWA",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_2",
+        "channel": "LL_ADC_CHANNEL_0"
+      },
+      {
+        "name": "SWB",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_3",
+        "channel": "LL_ADC_CHANNEL_1"
+      },
+      {
+        "name": "SWC",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOF",
+        "pin": "LL_GPIO_PIN_9",
+        "channel": "LL_ADC_CHANNEL_2"
+      },
+      {
+        "name": "SWD",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOF",
+        "pin": "LL_GPIO_PIN_7",
+        "channel": "LL_ADC_CHANNEL_3"
+      }
+    ]
+  },
+  "switches": [
+    {
+      "name": "SA",
+      "type": "ADC",
+      "flags": 0,
+      "inverted": false,
+      "default": "3POS",
+      "display": null,
+      "adc_input": "SWA",
+      "is_cfs": false
+    },
+    {
+      "name": "SB",
+      "type": "ADC",
+      "flags": 0,
+      "inverted": false,
+      "default": "3POS",
+      "display": null,
+      "adc_input": "SWB",
+      "is_cfs": false
+    },
+    {
+      "name": "SC",
+      "type": "ADC",
+      "flags": 0,
+      "inverted": false,
+      "default": "3POS",
+      "display": null,
+      "adc_input": "SWC",
+      "is_cfs": false
+    },
+    {
+      "name": "SD",
+      "type": "ADC",
+      "flags": 0,
+      "inverted": false,
+      "default": "3POS",
+      "display": null,
+      "adc_input": "SWD",
+      "is_cfs": false
+    },
+    {
+      "name": "SE",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": "GPIOF",
+      "pin": "LL_GPIO_PIN_8",
+      "is_cfs": false
+    },
+    {
+      "name": "SF",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": "GPIOF",
+      "pin": "LL_GPIO_PIN_6",
+      "is_cfs": false
+    }
+  ],
+  "keys": [
+    {
+      "gpio": "GPIOG",
+      "pin": "LL_GPIO_PIN_14",
+      "active_low": true,
+      "key": "KEY_EXIT",
+      "name": "EXIT",
+      "label": "EXIT"
+    },
+    {
+      "gpio": "GPIOC",
+      "pin": "LL_GPIO_PIN_5",
+      "active_low": true,
+      "key": "KEY_ENTER",
+      "name": "ENTER",
+      "label": "Enter"
+    },
+    {
+      "gpio": "GPIOC",
+      "pin": "LL_GPIO_PIN_13",
+      "active_low": true,
+      "key": "KEY_PAGEUP",
+      "name": "PAGEUP",
+      "label": "PAGE<"
+    },
+    {
+      "gpio": "GPIOA",
+      "pin": "LL_GPIO_PIN_8",
+      "active_low": true,
+      "key": "KEY_PAGEDN",
+      "name": "PAGEDN",
+      "label": "PAGE>"
+    },
+    {
+      "gpio": "GPIOG",
+      "pin": "LL_GPIO_PIN_2",
+      "active_low": true,
+      "key": "KEY_UP",
+      "name": "UP",
+      "label": "Up"
+    },
+    {
+      "gpio": "GPIOG",
+      "pin": "LL_GPIO_PIN_3",
+      "active_low": true,
+      "key": "KEY_DOWN",
+      "name": "DOWN",
+      "label": "Down"
+    },
+    {
+      "gpio": "GPIOA",
+      "pin": "LL_GPIO_PIN_10",
+      "active_low": true,
+      "key": "KEY_MODEL",
+      "name": "MDL",
+      "label": "MDL"
+    },
+    {
+      "gpio": "GPIOC",
+      "pin": "LL_GPIO_PIN_4",
+      "active_low": true,
+      "key": "KEY_SYS",
+      "name": "SYS",
+      "label": "SYS"
+    }
+  ],
+  "trims": [
+    {
+      "name": "T1"
+    },
+    {
+      "name": "T2"
+    },
+    {
+      "name": "T3"
+    },
+    {
+      "name": "T4"
+    }
+  ],
+  "display": {
+    "lcd_w": 480,
+    "lcd_h": 272,
+    "lcd_phys_w": 480,
+    "lcd_phys_h": 272,
+    "lcd_depth": 16,
+    "oled_screen": false,
+    "ltdc_irq_prio": 4,
+    "dma_screen_irq_prio": 6
+  },
+  "leds": {
+    "status_leds": true,
+    "led_red_gpio": "GPIO_PIN(GPIOG, 10)",
+    "led_green_gpio": "GPIO_PIN(GPIOG, 12)",
+    "led_blue_gpio": "GPIO_PIN(GPIOG, 13)",
+    "gpio_led_gpio_on": "gpio_set",
+    "gpio_led_gpio_off": "gpio_clear",
+    "led_strip_gpio": "GPIO_PIN(GPIOA, 15)",
+    "led_strip_gpio_af": "LL_GPIO_AF_1",
+    "led_strip_timer": "TIM2",
+    "led_strip_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "led_strip_timer_channel": "LL_TIM_CHANNEL_CH1",
+    "led_strip_timer_dma": "DMA1",
+    "led_strip_timer_dma_channel": "LL_DMAMUX1_REQ_TIM2_UP",
+    "led_strip_timer_dma_stream": "LL_DMA_STREAM_0",
+    "led_strip_timer_dma_irqn": "DMA1_Stream0_IRQn",
+    "led_strip_timer_dma_irqhandler": "DMA1_Stream0_IRQHandler",
+    "led_strip_length": 27,
+    "led_strip_refresh_period": 50,
+    "bling_led_strip_start": 0,
+    "bling_led_strip_length": 27
+  },
+  "backlight": {
+    "backlight_gpio": "GPIO_PIN(GPIOC, 06)",
+    "backlight_gpio_af": "GPIO_AF2",
+    "backlight_timer": "TIM3",
+    "backlight_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+  },
+  "imu": {
+    "imu_i2c_bus": "I2C_Bus_2",
+    "imu_int_gpio": "GPIO_PIN(GPIOH, 4)",
+    "imu_invert_x": true,
+    "imu_invert_y": true,
+    "exti": [
+      { "irq": "EXTI4_IRQ", "priority": 6 }
+    ]
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOB, 5)",
+    "haptic_gpio_timer": "TIM3",
+    "haptic_gpio_af": "GPIO_AF2",
+    "haptic_timer_output_enable": "TIM_CCER_CC2E | TIM_CCER_CC2NE",
+    "haptic_timer_mode": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE",
+    "haptic_timer_compare_value": "HAPTIC_GPIO_TIMER->CCR2"
+  },
+  "hardware": {
+    "has_audio_mute": true,
+    "has_ext_module_support": true,
+    "has_int_module_support": true,
+    "sport_max_baudrate": 400000,
+    "surface": false,
+    "cpu": "STM32H750xB",
+    "cpu_type": "STM32H7"
+  },
+  "timers": {
+    "cpu_freq": 400000000,
+    "peri1_frequency": 100000000,
+    "peri2_frequency": 100000000,
+    "timer_mult_apb1": 2,
+    "timer_mult_apb2": 2,
+    "ms_timer": "TIM14",
+    "ms_timer_irqn": "TIM8_TRG_COM_TIM14_IRQn",
+    "ms_timer_irqhandler": "TIM8_TRG_COM_TIM14_IRQHandler",
+    "mixer_scheduler_timer": "TIM12",
+    "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
+    "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "key_lock_combo": [
+    "KEY_SYS",
+    "KEY_MODEL"
+  ]
+}

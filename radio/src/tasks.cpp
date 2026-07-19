@@ -95,7 +95,9 @@ static void menusTask()
   toplcdOff();
 #endif
 
+#if !defined(PWR_BUTTON_MANAGED)
   drawSleepBitmap();
+#endif
   edgeTxClose();
   boardOff();
 }
