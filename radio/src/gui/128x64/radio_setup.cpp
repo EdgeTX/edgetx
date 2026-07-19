@@ -229,6 +229,8 @@ void menuRadioSetup(event_t event)
      CASE_BACKLIGHT(0)
      CASE_BACKLIGHT(BACKLIGHT_WARNING_ROW(LABEL(0)))
      CASE_BACKLIGHT(0)
+    CASE_KEY_LOCK(0)
+    0, // One log per day
     CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
@@ -630,7 +632,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       case ITEM_RADIO_SETUP_KEY_LOCK: {
-        static char lbl[24];
+        static char lbl[45];
         const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
         const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
         snprintf(lbl, sizeof(lbl), STR_KEY_LOCK_FMT,

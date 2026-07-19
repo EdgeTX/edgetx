@@ -623,7 +623,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       case ITEM_RADIO_SETUP_KEY_LOCK: {
-        static char lbl[24];
+        static char lbl[45];
         const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
         const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
         snprintf(lbl, sizeof(lbl), STR_KEY_LOCK_FMT,
