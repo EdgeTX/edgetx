@@ -33,12 +33,14 @@
 AbstractPanel::AbstractPanel(QWidget * parent):
   QWidget(parent),
   lock(false),
+  panelItemModels(new FilteredItemModelFactory()),
   m_bindings(nullptr)
 {
 }
 
 AbstractPanel::~AbstractPanel()
 {
+  delete panelItemModels;
 }
 
 void AbstractPanel::addLabel(QGridLayout *gridLayout, const QString &text, int col, bool minimize)

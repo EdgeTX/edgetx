@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "filtereditemmodels.h"
+
 #include <QWidget>
 #include <memory>
 
@@ -48,6 +50,7 @@ class AbstractPanel : public QWidget
 
   protected:
     bool lock;
+    FilteredItemModelFactory *panelItemModels;
 
     void addLabel(QGridLayout * gridLayout, const QString &text, int col, bool mimimize=false);
     void addEmptyLabel(QGridLayout * gridLayout, int col);

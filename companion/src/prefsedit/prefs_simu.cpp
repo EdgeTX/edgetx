@@ -23,10 +23,6 @@
 #include "ui_prefs_simu.h"
 #include "eeprominterface.h"
 
-#include <QColorDialog>
-#include <QFileDialog>
-#include <QPalette>
-
 #if defined(USE_SDL)
 #include "joystick.h"
 #include "joystickdialog.h"

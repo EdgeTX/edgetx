@@ -20,7 +20,7 @@
  */
 
 #include "prefs_edit.h"
-//#include "prefs_profile.h"
+#include "prefs_profile.h"
 //#include "prefs_app.h"
 #include "prefs_simu.h"
 //#include "prefs_update.h"
@@ -37,7 +37,7 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   setAttribute(Qt::WA_DeleteOnClose);
   restoreGeometry(g.prefsEditGeo());
 
-  //addTab(new PrefsProfilePanel(this), tr("Radio Profile"));
+  addTab(new PrefsProfilePanel(this), tr("Radio Profile"));
   //addTab(new PrefsAppPanel(this), tr("Application"));
   addTab(new PrefsSimuPanel(this), tr("Simulator"));
   //addTab(new PrefsUpdatePanel(this, factories), tr("Update"));
