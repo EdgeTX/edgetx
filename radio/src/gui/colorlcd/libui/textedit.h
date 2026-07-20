@@ -41,8 +41,16 @@ class TextEdit : public TextButton
   // Text shown when the value is empty (default "---")
   void setPlaceholder(const char* p);
 
+  // Called after the value is committed with the keyboard "Enter" key
+  // (in addition to the update handler). The "OK" key does not call it.
+  void setEnterHandler(std::function<void(void)> handler)
+  {
+    enterHandler = std::move(handler);
+  }
+
  protected:
   std::function<void(void)> updateHandler = nullptr;
+  std::function<void(void)> enterHandler = nullptr;
   std::string excludedChars = "";
   std::string placeholder = "---";
   TextArea* edit = nullptr;

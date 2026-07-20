@@ -44,6 +44,8 @@ class TextArea : public FormField
         Keyboard::hideKeyboard();
     });
 
+    lv_obj_add_event_cb(lvobj, TextArea::onReady, LV_EVENT_READY, this);
+
     update();
   }
 
@@ -65,6 +67,11 @@ class TextArea : public FormField
     lv_group_focus_obj(lvobj);
     TextKeyboard::open(this);
     setEditMode(true);
+  }
+
+  void setEnterHandler(std::function<void()> handler)
+  {
+    enterHandler = std::move(handler);
   }
 
   void setPlaceholder(const std::string& p)
@@ -89,7 +96,22 @@ class TextArea : public FormField
   char* value;
   uint8_t length;
   std::function<void()> changeHandler = nullptr;
+  std::function<void()> enterHandler = nullptr;
   std::string allowedChars;
+
+  // For a one-line text area, the keyboard "Enter" key sends LV_EVENT_READY
+  // to the text area only. The "OK" key sends it to the keyboard first, which
+  // closes the keyboard and ends edit mode, then to the text area. So a READY
+  // received while still in edit mode can only come from the "Enter" key.
+  static void onReady(lv_event_t* e)
+  {
+    auto ta = (TextArea*)lv_event_get_user_data(e);
+    if (!ta || !ta->editMode) return;
+    auto handler = ta->enterHandler;
+    // Commit the value and close the keyboard, as the "OK" key does
+    Keyboard::hideKeyboard();
+    if (handler) handler();
+  }
 
   void trim()
   {
@@ -175,6 +197,7 @@ void TextEdit::openEdit()
   // Show focus outline around this field since TextArea will be clipped
   lv_obj_add_state(lvobj, LV_STATE_USER_1);
   edit->setPlaceholder(placeholder);
+  edit->setEnterHandler(enterHandler);
   edit->setExcludedChars(excludedChars);
   edit->openKeyboard();
 }
