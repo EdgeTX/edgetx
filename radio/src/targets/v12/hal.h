@@ -424,7 +424,7 @@ USART6: EXTMODULE_USART
 
 // Trainer Port
 #define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 13)  // TIM4_CH2
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH4
+#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
 
 #define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 12)  // TIM4_CH1
 #define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
