@@ -2254,6 +2254,8 @@ void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
     maxLen = luaL_checkinteger(L, -1);
     if (maxLen > MAX_TEXT_EDIT_LEN) maxLen = MAX_TEXT_EDIT_LEN;
     if (maxLen <= 0) maxLen = DEFAULT_TEXT_EDIT_LEN;
+  } else if (!strcmp(key, "placeholder")) {
+    placeholder = luaL_checkstring(L, -1);
   } else if (!strcmp(key, "set")) {
     setFunction = ::getRef(L, LUA_REGISTRYINDEX);
   } else {
@@ -2309,6 +2311,7 @@ void LvglWidgetTextEdit::build(lua_State *L)
                             lua_settop(L, t);
                           }
                         });
+  ((TextEdit*)window)->setPlaceholder(placeholder.c_str());
 }
 
 //-----------------------------------------------------------------------------
