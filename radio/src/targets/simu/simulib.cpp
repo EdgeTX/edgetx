@@ -47,6 +47,20 @@
 
 #include <assert.h>
 #include <deque>
+#include <stdint.h>
+
+// Monotonic event counter incremented each time haptic fires.
+// Host (WasmSimulatorInterface) compares against last-seen value to detect new events.
+uint32_t simuHapticValue = 0;
+
+// Required stubs — called by firmware but no-ops in simulator
+void hapticOn(uint32_t pwmPercent) { (void)pwmPercent; }
+void hapticOff() {}
+
+// WASM export — polled by host every 50ms to detect haptic events
+uint32_t WASM_EXPORT(simuGetHaptic)() {
+  return simuHapticValue;
+}
 
 int g_snapshot_idx = 0;
 
@@ -360,8 +374,6 @@ void serialPutc(char c) { }
 void boardOff()
 {
 }
-
-void hapticOff() {}
 
 #if defined(HAS_HARDWARE_OPTIONS)
 HardwareOptions hardwareOptions;

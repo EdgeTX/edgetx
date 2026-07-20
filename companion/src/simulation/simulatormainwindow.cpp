@@ -38,6 +38,9 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QTimer>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
 
 extern AppData g;  // ensure what "g" means
 
@@ -173,6 +176,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   connect(m_simulator, &SimulatorInterface::auxSerialStart, hostSerialConnector, &HostSerialConnector::serialStart);
   connect(m_simulator, &SimulatorInterface::auxSerialStop, hostSerialConnector, &HostSerialConnector::serialStop);
   connect(m_simulator, &SimulatorInterface::txBatteryVoltageChanged, this, &SimulatorMainWindow::onTxBatteryVoltageChanged);
+  connect(m_simulator, &SimulatorInterface::hapticChanged, this, &SimulatorMainWindow::onHapticChanged);
 }
 
 SimulatorMainWindow::~SimulatorMainWindow()
@@ -612,4 +616,34 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
 void SimulatorMainWindow::onTxBatteryVoltageChanged(const unsigned int voltage)
 {
   m_batVoltage = voltage;
+}
+
+// Haptic feedback handler: provides visual and audible substitutes
+// for physical vibration when running in the simulator.
+void SimulatorMainWindow::onHapticChanged(int intensity) {
+  Q_UNUSED(intensity);
+
+  // AUDIBLE: system beep as substitute for haptic motor sound
+  QApplication::beep();
+
+  // VISUAL: animate opacity to simulate vibration
+  // Uses QGraphicsEffect which works on Wayland without moving the window
+  if (m_simulatorWidget) {
+    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(m_simulatorWidget);
+    m_simulatorWidget->setGraphicsEffect(effect);
+
+    QPropertyAnimation* anim = new QPropertyAnimation(effect, "opacity", effect);
+    anim->setDuration(200);
+    anim->setKeyValueAt(0.0, 1.0);
+    anim->setKeyValueAt(0.25, 0.5);
+    anim->setKeyValueAt(0.5, 1.0);
+    anim->setKeyValueAt(0.75, 0.5);
+    anim->setKeyValueAt(1.0, 1.0);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+
+    connect(anim, &QPropertyAnimation::finished, this, [this, effect]() {
+      if (m_simulatorWidget && m_simulatorWidget->graphicsEffect() == effect)
+        m_simulatorWidget->setGraphicsEffect(nullptr);
+    });
+  }
 }
