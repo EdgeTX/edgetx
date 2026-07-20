@@ -2258,6 +2258,8 @@ void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
     placeholder = luaL_checkstring(L, -1);
   } else if (!strcmp(key, "set")) {
     setFunction = ::getRef(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "enter")) {
+    enterFunction = ::getRef(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2284,6 +2286,7 @@ void LvglWidgetTextEdit::clearRefs(lua_State *L)
 {
   txt.clearRef(L);
   clearRef(L, setFunction);
+  clearRef(L, enterFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
@@ -2312,6 +2315,25 @@ void LvglWidgetTextEdit::build(lua_State *L)
                           }
                         });
   ((TextEdit*)window)->setPlaceholder(placeholder.c_str());
+  // "Enter" key on the keyboard: distinct from committing with the checkmark
+  ((TextEdit*)window)->setEnterHandler([=]() {
+    if (enterFunction != LUA_REFNIL) {
+      int t = lua_gettop(L);
+      PROTECT_LUA()
+      {
+        std::string s(value, maxLen); // Ensure string is terminated
+        if (!pcallFuncWithString(L, enterFunction, 0, s.c_str())) {
+          lvglManager->luaShowError();
+        }
+      }
+      else
+      {
+        lvglManager->luaShowError();
+      }
+      UNPROTECT_LUA();
+      lua_settop(L, t);
+    }
+  });
 }
 
 //-----------------------------------------------------------------------------

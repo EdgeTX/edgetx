@@ -174,6 +174,8 @@ void TextEdit::openEdit()
       lv_group_focus_obj(lvobj);
       edit->hide();
     });
+    // forward the keyboard "Enter" key to this TextEdit's own enter handler
+    edit->setEnterHandler([=]() { onEnter(); });
   }
   edit->update();
   edit->show();

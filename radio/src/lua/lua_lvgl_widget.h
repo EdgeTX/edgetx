@@ -809,6 +809,7 @@ class LvglWidgetTextEdit : public LvglWidgetObject
   std::string placeholder = "---";
 
   int setFunction = LUA_REFNIL;
+  int enterFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
