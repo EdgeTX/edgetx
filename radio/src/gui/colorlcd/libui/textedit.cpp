@@ -39,8 +39,6 @@ class TextArea : public FormField
     setWindowFlag(NO_FOCUS | IS_EDIT_WINDOW);
 
     lv_textarea_set_max_length(lvobj, length);
-    lv_textarea_set_placeholder_text(lvobj, "---");
-
     setFocusHandler([=](bool focus) {
       if (!focus && editMode)
         Keyboard::hideKeyboard();
@@ -67,6 +65,11 @@ class TextArea : public FormField
     lv_group_focus_obj(lvobj);
     TextKeyboard::open(this);
     setEditMode(true);
+  }
+
+  void setPlaceholder(const std::string& p)
+  {
+    lv_textarea_set_placeholder_text(lvobj, p.c_str());
   }
 
   void setExcludedChars(std::string& excludedChars) {
@@ -146,8 +149,15 @@ void TextEdit::update()
     std::string s(text, length);
     setText(s);
   } else {
-    setText("---");
+    setText(placeholder);
   }
+}
+
+void TextEdit::setPlaceholder(const char* p)
+{
+  placeholder = p ? p : "";
+  if (edit) edit->setPlaceholder(placeholder);
+  update();
 }
 
 void TextEdit::openEdit()
@@ -164,6 +174,7 @@ void TextEdit::openEdit()
   }
   // Show focus outline around this field since TextArea will be clipped
   lv_obj_add_state(lvobj, LV_STATE_USER_1);
+  edit->setPlaceholder(placeholder);
   edit->setExcludedChars(excludedChars);
   edit->openKeyboard();
 }
@@ -175,6 +186,7 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
   edit = new TextArea(this,
                       {-(PAD_MEDIUM + PAD_BORDER), -(PAD_TINY + PAD_BORDER), width(), height()},
                       text, length, nullptr);
+  edit->setPlaceholder(placeholder);
   edit->setWindowFlag(NO_CLICK);
   lv_group_focus_obj(edit->getLvObj());
   // Show focus outline around this field since TextArea will be clipped

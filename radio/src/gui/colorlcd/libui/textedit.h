@@ -38,9 +38,13 @@ class TextEdit : public TextButton
 
   void setExcludedCharacters(const char* chars) { excludedChars = chars; }
 
+  // Text shown when the value is empty (default "---")
+  void setPlaceholder(const char* p);
+
  protected:
   std::function<void(void)> updateHandler = nullptr;
   std::string excludedChars = "";
+  std::string placeholder = "---";
   TextArea* edit = nullptr;
   char* text;
   uint8_t length;

@@ -821,11 +821,13 @@ class LvglWidgetTextEdit : public LvglWidgetObject
   LvglParamFuncOrString txt;
   char value[MAX_TEXT_EDIT_LEN + 1];
   int maxLen = DEFAULT_TEXT_EDIT_LEN;
+  std::string placeholder = "---";
 
   LvglFuncRef setFunction;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override;
 };
 
 //-----------------------------------------------------------------------------
