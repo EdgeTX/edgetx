@@ -81,7 +81,7 @@ void EXTERNAL_MODULE_OFF();
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           gpio_clear(BLUETOOTH_ON_GPIO)
 #define BLUETOOTH_MODULE_OFF()          gpio_set(BLUETOOTH_ON_GPIO)
-#define IS_INTERNAL_MODULE_ON()         (false)
+#define IS_INTERNAL_MODULE_ON()         (gpio_read(INTMODULE_PWR_GPIO) ? 1 : 0)
 #define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
 
 #else
