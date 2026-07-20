@@ -110,9 +110,13 @@ void sixPosUpdateFromAdc()
     lastSeen = current;
     debounce = 2;  // require this many more stable samples before committing
   } else if (debounce > 0) {
-    if (--debounce == 0 && current != 0 && sixPosState != current) {
-      sixPosState = current;
-      _adckey_switches.state = _pos_to_state(sixPosState);
+    if (--debounce == 0) {
+      // Switch state always reflects the true debounced position
+      _adckey_switches.state = _pos_to_state(current);
+      if (current != 0) {
+        // Indicator value stays sticky on the last active position
+        sixPosState = current;
+      }
     }
   }
 
