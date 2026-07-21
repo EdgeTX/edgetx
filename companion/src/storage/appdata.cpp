@@ -621,7 +621,6 @@ void AppData::initAll()
 void AppData::resetAllSettings()
 {
   resetAll();
-  fwRev.resetAll();
 
   for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].resetAll();

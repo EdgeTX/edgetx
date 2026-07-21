@@ -310,23 +310,6 @@ class CompStoreObj: public QObject
 class AppData;
 
 
-//! \brief FwRevision class stores data about downloaded firmware binaries. It uses dynamic key names and does not have any properties.
-class FwRevision: public CompStoreObj
-{
-  Q_OBJECT
-  public slots:
-    inline int get(const QString & fwType) const { return m_settings.value(settingsPath() % fwType, 0).toInt(); }
-    inline void set(const QString & fwType, const int fwRevision) const { store(QString("%1").arg(fwRevision), fwType); }
-    inline void remove(const QString & tag) const { clear(tag); }
-    inline void resetAll() override { clear(propertyGroup(), ""); }
-
-  protected:
-    explicit FwRevision() : CompStoreObj() { CompStoreObj::addDynamicPropertyGroup(propertyGroup()); }
-    QString propertyGroup() const override { return QStringLiteral("FwRevisions"); }
-    friend class AppData;
-};
-
-
 //! \brief JStickData class stores properties related to each joystick axis (calibration/assignment/direction).
 class JStickData: public CompStoreObj
 {
@@ -732,7 +715,6 @@ class AppData: public CompStoreObj
     JStickData joystick[MAX_JS_AXES];
     JButtonData jsButton[MAX_JS_BUTTONS];
     NamedJSData namedJS[MAX_NAMED_JOYSTICKS];
-    FwRevision fwRev;
     ComponentData component[MAX_COMPONENTS];
 
     void clearJSData() {
