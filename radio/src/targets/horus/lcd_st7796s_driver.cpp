@@ -36,24 +36,17 @@
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
 
-static volatile uint8_t _frame_addr_reloaded = 0;
-
 static void startLcdRefresh(lv_disp_drv_t* disp_drv, uint16_t* buffer,
                             const rect_t& copy_area)
 {
   (void)disp_drv;
   (void)copy_area;
 
-  LTDC_Layer1->CFBAR &= ~(LTDC_LxCFBAR_CFBADD);
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
   // reload shadow registers on vertical blank
-  _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while (_frame_addr_reloaded == 0);
+  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 uint32_t lcdPixelClock;
@@ -389,7 +382,6 @@ void LCD_Init_LTDC()
 
   // Trigger on last line
   HAL_LTDC_ProgramLineEvent(&hltdc, LCD_W);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 void LCD_LayerInit()
@@ -466,5 +458,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-  _frame_addr_reloaded = 1;
+
+  lcdFlushed();
 }

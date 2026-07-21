@@ -105,7 +105,7 @@ static void memory_write(const uint16_t* data, uint32_t length)
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
-{  
+{
   (void)disp_drv;
 
   // TODO: replace through some smarter mechanism without busy wait
@@ -120,6 +120,8 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   set_row_addr(y1, y2);
 
   memory_write(buffer, copy_area.w * copy_area.h);
+
+  lcdFlushed();
 }
 
 lcdSpiInitFucPtr lcdInitFunction;

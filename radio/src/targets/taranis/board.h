@@ -322,7 +322,6 @@ void lcdSetInvert(bool invert);
 #ifdef __cplusplus
 void lcdSetContrast(bool useDefault = false);
 #endif
-void lcdFlushed();
 
 // Top LCD driver
 #if defined(TOPLCD_GPIO)

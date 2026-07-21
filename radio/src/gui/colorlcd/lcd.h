@@ -39,17 +39,16 @@ struct _lv_disp_drv_t;
 typedef _lv_disp_drv_t lv_disp_drv_t;
 
 // Call backs
-void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *));
 void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&));
+#if defined(SIMU)
+void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *));
+#endif
 
 // Init LVGL and its display driver
 void lcdInitDisplayDriver();
 
 void lcdClear();
 
-// Patch the draw context to allow for direct drawing
-void lcdInitDirectDrawing();
-
 void lcdRefresh();
 
-void lcdFlushed();
+extern "C" void lcdFlushed();
