@@ -28,6 +28,7 @@
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
 #include "hal/module_port.h"
+#include "rtc.h"
 
 #include "crossfire.h"
 #include "telemetry/crossfire.h"
@@ -42,9 +43,13 @@
 
 #define MIN_FRAME_LEN 3
 
+#define ELRS_HANDSET_TIME_SYNC_PERIOD 6000  // 60 seconds in 10ms ticks
+
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
 static bool moduleAlive[NUM_MODULES];                 // module alive status
+static tmr10ms_t lastTimeSync[NUM_MODULES];
+static bool timeSyncSent[NUM_MODULES];
 
 uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
 {
@@ -89,6 +94,30 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
   *buf++ = g_model.header.modelId[moduleIdx];         /* model ID */
   *buf++ = crc8_BA(frame + 2, 6);
   *buf++ = crc8(frame + 2, 7);
+  return buf - frame;
+}
+
+uint8_t createCrossfireTimeFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  (void)moduleIdx;
+
+  struct gtm tm;
+  gettime(&tm);
+
+  uint8_t * buf = frame;
+  *buf++ = MODULE_ADDRESS;
+  *buf++ = 11;                                         // type + destination + origin + field + 6 time bytes + CRC
+  *buf++ = PARAMETER_WRITE_ID;
+  *buf++ = MODULE_ADDRESS;
+  *buf++ = RADIO_ADDRESS;
+  *buf++ = ELRS_HANDSET_TIME_ID;
+  *buf++ = tm.tm_year;
+  *buf++ = tm.tm_mon;
+  *buf++ = tm.tm_mday;
+  *buf++ = tm.tm_hour;
+  *buf++ = tm.tm_min;
+  *buf++ = tm.tm_sec;
+  *buf++ = crc8(frame + 2, 10);
   return buf - frame;
 }
 
@@ -182,6 +211,13 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {
       p_buf += createCrossfireBindFrame(module, p_buf);
       moduleState[module].mode = MODULE_MODE_NORMAL;
+    } else if (crossfireModuleStatus[module].isELRS &&
+               crossfireModuleStatus[module].queryCompleted &&
+               (!timeSyncSent[module] ||
+                (get_tmr10ms() - lastTimeSync[module]) >= ELRS_HANDSET_TIME_SYNC_PERIOD)) {
+      p_buf += createCrossfireTimeFrame(module, p_buf);
+      lastTimeSync[module] = get_tmr10ms();
+      timeSyncSent[module] = true;
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
@@ -373,6 +409,9 @@ static void _soft_irq_trigger(void* param)
 
 static void* crossfireInit(uint8_t module)
 {
+  timeSyncSent[module] = false;
+  lastTimeSync[module] = 0;
+
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(crsfSerialParams);
 
@@ -438,6 +477,9 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+
+  timeSyncSent[modulePortGetModule(mod_st)] = false;
+  lastTimeSync[modulePortGetModule(mod_st)] = 0;
 
   memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0,
          sizeof(CrossfireModuleStatus));

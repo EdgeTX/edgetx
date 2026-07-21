@@ -21,11 +21,13 @@
 
 #include "gtest/gtest.h"
 #include "gtests.h"
+#include "rtc.h"
 #include "telemetry/telemetry.h"
 
 #if defined(CROSSFIRE)
 
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
+uint8_t createCrossfireTimeFrame(uint8_t moduleIdx, uint8_t * frame);
 TEST(Crossfire, createCrossfireChannelsFrame)
 {
   int16_t pulsesStart[MAX_TRAINER_CHANNELS];
@@ -39,6 +41,33 @@ TEST(Crossfire, createCrossfireChannelsFrame)
   createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
 
   // TODO check
+}
+
+TEST(Crossfire, createCrossfireTimeFrame)
+{
+  struct gtm expected = {56, 34, 12, 1, 0, 126, 0, 0};
+  const gtime_t previousTime = g_rtcTime;
+  g_rtcTime = gmktime(&expected);
+
+  uint8_t frame[CROSSFIRE_FRAME_MAXLEN] = {};
+  const uint8_t length = createCrossfireTimeFrame(EXTERNAL_MODULE, frame);
+
+  EXPECT_EQ(length, 13);
+  EXPECT_EQ(frame[0], MODULE_ADDRESS);
+  EXPECT_EQ(frame[1], 11);
+  EXPECT_EQ(frame[2], PARAMETER_WRITE_ID);
+  EXPECT_EQ(frame[3], MODULE_ADDRESS);
+  EXPECT_EQ(frame[4], RADIO_ADDRESS);
+  EXPECT_EQ(frame[5], ELRS_HANDSET_TIME_ID);
+  EXPECT_EQ(frame[6], 126);
+  EXPECT_EQ(frame[7], 0);
+  EXPECT_EQ(frame[8], 1);
+  EXPECT_EQ(frame[9], 12);
+  EXPECT_EQ(frame[10], 34);
+  EXPECT_EQ(frame[11], 56);
+  EXPECT_EQ(frame[12], crc8(&frame[2], frame[1] - 1));
+
+  g_rtcTime = previousTime;
 }
 
 TEST(Crossfire, crc8)
@@ -278,4 +307,3 @@ TEST(Crossfire, frameParser_multipleJumboFrames)
 }
 #endif // HARDWARE_EXTERNAL_MODULE
 #endif
-
