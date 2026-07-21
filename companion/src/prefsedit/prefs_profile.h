@@ -22,13 +22,13 @@
 #pragma once
 
 #include "prefs_edit.h"
-#include "eeprominterface.h"
 
 namespace Ui {
   class PrefsProfile;
 }
 
 class FilteredItemModelFactory;
+class Firmware;
 
 class PrefsProfilePanel : public PrefsPanel
 {
@@ -43,7 +43,12 @@ class PrefsProfilePanel : public PrefsPanel
 
   private:
     Ui::PrefsProfile * ui;
+    int row;
+    int col;
 
+    inline void newRow() { ++row; col = 0; }
     QString getLanguage();
     QStringList languageList();
+    Firmware * getBaseFirmware() const;
+    Firmware * getFirmwareVariant() const;
 };

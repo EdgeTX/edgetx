@@ -21,10 +21,11 @@
 
 #include "autopushbutton.h"
 
-AutoPushButton::AutoPushButton(QWidget * parent):
+AutoPushButton::AutoPushButton(QWidget * parent, const QString & text):
   QPushButton(parent),
   AutoWidget()
 {
+  setText(text);
 }
 
 AutoPushButton::~AutoPushButton()

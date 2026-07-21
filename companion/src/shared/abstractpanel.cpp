@@ -172,3 +172,9 @@ void AbstractPanel::applyBindings()
   if (m_bindings)
     m_bindings->applyAll();
 }
+
+void AbstractPanel::shrink()
+{
+  this->adjustSize();
+  this->resize(0, 0);
+}

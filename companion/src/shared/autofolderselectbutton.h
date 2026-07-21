@@ -30,7 +30,7 @@ class AutoFolderSelectButton : public AutoPushButton
   Q_OBJECT
 
   public:
-    explicit AutoFolderSelectButton(QWidget * parent = nullptr);
+    explicit AutoFolderSelectButton(QWidget * parent = nullptr, const QString & text = tr("Select Folder"));
     virtual ~AutoFolderSelectButton();
 
     virtual void updateValue() override {}

@@ -24,13 +24,15 @@
 #include <QLabel>
 #include <QLineEdit>
 
-AutoFolderSelectButton::AutoFolderSelectButton(QWidget * parent) :
+AutoFolderSelectButton::AutoFolderSelectButton(QWidget * parent, const QString & text) :
   AutoPushButton(parent),
-  m_caption(tr("Select folder")),
+  m_caption(tr("Select existing folder")),
   m_fldr(""),
   m_displayFldr(nullptr),
   m_opts(0)
 {
+  setText(text);
+
   connect(this, &QPushButton::released, [&] ()
   {
     QString fldr = QFileDialog::getExistingDirectory(this, m_caption, m_fldr, m_opts);

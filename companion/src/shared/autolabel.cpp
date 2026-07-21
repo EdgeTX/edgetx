@@ -23,12 +23,13 @@
 
 #include <QFontMetrics>
 
-AutoLabel::AutoLabel(QWidget * parent):
+AutoLabel::AutoLabel(QWidget * parent, const QString & text) :
   QLabel(parent),
   AutoWidget(),
   m_charField(NULL),
   m_strField(nullptr)
 {
+  setText(text);
 }
 
 AutoLabel::~AutoLabel()

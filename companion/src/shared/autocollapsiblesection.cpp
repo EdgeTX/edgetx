@@ -44,7 +44,9 @@
 #include <QPropertyAnimation>
 
 AutoCollapsibleSection::AutoCollapsibleSection(QWidget * parent) :
-  QWidget(parent)
+  QWidget(parent),
+  AutoWidget(),
+  fnResize(nullptr)
 {
   toggleButton = new QToolButton(this);
   headerLine = new QFrame(this);
@@ -84,7 +86,11 @@ AutoCollapsibleSection::AutoCollapsibleSection(QWidget * parent) :
   setLayout(mainLayout);
 
   connect(toggleButton, &QToolButton::toggled, this, &AutoCollapsibleSection::toggle);
-  connect(toggleAnimation, &QParallelAnimationGroup::finished, [this] () { emit resized(); });
+  connect(toggleAnimation, &QParallelAnimationGroup::finished, [this] ()
+  {
+    if (fnResize) fnResize();
+    emit resized();
+  });
 }
 
 void AutoCollapsibleSection::setAnimationDuration(const int duration)
@@ -136,4 +142,9 @@ void AutoCollapsibleSection::updateHeights()
   toggleAnimation->setDirection(isExpanded ? QAbstractAnimation::Forward :
                                              QAbstractAnimation::Backward);
   toggleAnimation->start();
+}
+
+void AutoCollapsibleSection::setBindResize(std::function<void()> fn)
+{
+  fnResize = std::move(fn);
 }

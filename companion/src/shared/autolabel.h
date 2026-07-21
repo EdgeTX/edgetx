@@ -30,7 +30,7 @@ class AutoLabel: public QLabel, public AutoWidget
   Q_OBJECT
 
   public:
-    explicit AutoLabel(QWidget * parent = nullptr);
+    explicit AutoLabel(QWidget * parent = nullptr, const QString & text = QString());
     virtual ~AutoLabel();
 
     virtual void updateValue() override;

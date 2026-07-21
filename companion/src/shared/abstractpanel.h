@@ -65,6 +65,7 @@ class AbstractPanel : public QWidget
 
     WidgetBindings *bindings();
     void applyBindings();
+    void shrink();
 
   private:
     std::unique_ptr<WidgetBindings> m_bindings;

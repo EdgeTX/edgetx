@@ -33,7 +33,7 @@
 
 #include <QTimer>
 
-FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
+FlashFirmwareDialog::FlashFirmwareDialog(QWidget * parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
   fwName(g.profile[g.id()].fwName()),

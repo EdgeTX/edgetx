@@ -30,7 +30,7 @@ class AutoPushButton: public QPushButton, public AutoWidget
   Q_OBJECT
 
   public:
-    explicit AutoPushButton(QWidget * parent = nullptr);
+    explicit AutoPushButton(QWidget * parent = nullptr, const QString & text = "...");
     virtual ~AutoPushButton();
 
     virtual void updateValue() override {}
