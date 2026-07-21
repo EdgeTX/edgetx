@@ -375,7 +375,7 @@ bool RawSource::isAvailable(const ModelData * const model,
       return false;
 
     if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(abs(index) - 1, board) &&
-        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(abs(index) - 1, board) - 1))
+        !model->isFunctionSwitchSourceAllowed(b.getCFSIndexForSwitch(abs(index) - 1, board)))
       return false;
 
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(abs(index) - 1))
