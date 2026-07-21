@@ -173,3 +173,5 @@ void drawTelemetryTopBar();
 void lcdDraw1bitBitmap(coord_t x, coord_t y, const unsigned char * img, uint8_t idx, LcdFlags att=0);
 
 uint8_t getTextWidth(const char * s, uint8_t len=0, LcdFlags flags=0);
+
+void lcdFlushed();

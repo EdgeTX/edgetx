@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __LCD_DRIVER_H__
-#define __LCD_DRIVER_H__
+#pragma once
 
 #define HBP  ( 24 ) // TODO use names from FlySky
 #define VBP  ( 10 )
@@ -66,12 +65,9 @@ extern lcdSpiInitFucPtr lcdOnFunction;
 
 #define LCD_READ_DATA_PIN()           LL_GPIO_IsInputPinSet(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
 
-
 #define HORIZONTAL_SYNC_WIDTH 			       ( 4 )
 #define HORIZONTAL_BACK_PORCH		               ( 24 )
 #define HORIZONTAL_FRONT_PORCH                         ( 140 - HORIZONTAL_BACK_PORCH )
 #define VERTICAL_SYNC_HEIGHT   		               ( 2 )
 #define VERTICAL_BACK_PORCH  		               ( 10 )
 #define VERTICAL_FRONT_PORCH    	               ( 22 - VERTICAL_BACK_PORCH )
-
-#endif
