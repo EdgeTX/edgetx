@@ -766,6 +766,7 @@ void AppData::convertSettings(QSettings & settings)
   // We only want to remove old/deprecated settngs if the {major}{minor} part of the settings version number has changed.
   // This preserves backwards compatiblity within minor version releases (where only revision number changes).
   const unsigned savedMajMin = (savedVer >> 16);
+  const unsigned savedRevision = (savedVer & 0x0F);
   const unsigned currMajMin = (CPN_SETTINGS_VERSION >> 16);
   const bool removeUnused = (savedMajMin < currMajMin);
 
@@ -936,6 +937,40 @@ void AppData::convertSettings(QSettings & settings)
         }
       }
     }
+  }
+
+  if (savedMajMin <= 0x300 && savedRevision < CPN_SETTINGS_REVISION) {
+    // split out profile fwType options and language into separate fields
+    qInfo().noquote() << "Converting profiles firmware type";
+    static const QString profilePath = QStringLiteral("Profiles/profile%1");
+    static const QString profileFwTypePath = QStringLiteral("Profiles/profile%1/fwType");
+    for (int i = 0; i < MAX_PROFILES; i++) {
+      if (settings.contains(profileFwTypePath.arg(i))) {
+        const QVariant oldValue = settings.value(profileFwTypePath.arg(i));
+        if (oldValue.isValid()) {
+          const QStringList oldparts = settings.value(profileFwTypePath.arg(i)).toString().split("-");
+          QString newfwType;
+          QString newfwOpts;
+          QString newfwLang;
+          if (oldparts.count() > 1) {
+            newfwType = oldparts.mid(0, 2).join("-");
+            settings.setValue(profileFwTypePath.arg(i), newfwType);
+          }
+          if (oldparts.count() > 2) {
+            newfwLang = oldparts.last();
+            settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
+          }
+          if (oldparts.count() > 3) {
+            newfwOpts = oldparts.mid(2, oldparts.count() - 3).join("-");
+            settings.setValue(profilePath.arg(i) % "/fwOptions", newfwOpts);
+          }
+          qInfo().noquote() << "Converted entry" << profileFwTypePath.arg(i)
+                            << "from (" << oldValue << ")"
+                            << "to (type:" << newfwType << "opts:" << newfwOpts << "lang:" << newfwLang << ")";
+        }
+      }
+    }
+
   }
 
   if (removeUnused)

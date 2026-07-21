@@ -41,7 +41,7 @@
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
-#define CPN_SETTINGS_REVISION       3 // Note: bumped for changes during 3.0 dev
+#define CPN_SETTINGS_REVISION       4 // Note: bumped for multiple changes during 3.0 dev
 
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
@@ -519,28 +519,31 @@ class Profile: public CompStoreObj
     PROPERTYSTR2(name,       "Name")
     PROPERTYSTR2(splashFile, "SplashFileName")
     PROPERTYSTR(fwName)
-    PROPERTYSTR(fwType)
+    PROPERTYSTR(fwType)     // converted 3.0 split out options and language to own fields
+    PROPERTYSTR(fwOptions)  // added 3.0
+    PROPERTYSTR(fwLanguage) // added 3.0
     PROPERTYSTR(sdPath)
     PROPERTYSTR(pBackupDir)
+    PROPERTYSTR(modelsDir)  // added 3.0
 
     PROPERTY (int, defaultInternalModule, 0)
-    PROPERTY (int, externalModuleSize, 1) // added 2.9 - Board::EXTMODSIZE_STD used for existing profiles
-    PROPERTY4(int, channelOrder, "default_channel_order",  0)
-    PROPERTY4(int, defaultMode,  "default_mode",           1)
-    PROPERTY (int, volumeGain,   10)
+    PROPERTY (int, externalModuleSize,    1) // added 2.9 - Board::EXTMODSIZE_STD used for existing profiles
+    PROPERTY4(int, channelOrder,          "default_channel_order",  0)
+    PROPERTY4(int, defaultMode,           "default_mode",           1)
+    PROPERTY (int, volumeGain,            10) // divided by 10
 
     PROPERTY (bool, burnFirmware,  false)
     PROPERTY (bool, penableBackup, false)
     PROPERTY (bool, runSDSync,  false)
 
     // Simulator variables
-    PROPERTY(SimulatorOptions, simulatorOptions,  SimulatorOptions())
-    PROPERTY(bool, telemSimEnabled,         false)
-    PROPERTY(bool, telemSimPauseOnHide,     true)
-    PROPERTY(bool, telemSimResetRssiOnStop, false)
-    PROPERTY(QColor, radioSimCaseColor, QColor(Qt::black))
-    PROPERTY(bool,   simBtnClickedUseOSTheme, true)
-    PROPERTY(QColor, simBtnClickedColor, QColor(Qt::red))
+    PROPERTY(SimulatorOptions, simulatorOptions,        SimulatorOptions())
+    PROPERTY(bool,             telemSimEnabled,         false)
+    PROPERTY(bool,             telemSimPauseOnHide,     true)
+    PROPERTY(bool,             telemSimResetRssiOnStop, false)
+    PROPERTY(QColor,           radioSimCaseColor,       QColor(Qt::black))
+    PROPERTY(bool,             simBtnClickedUseOSTheme, true)
+    PROPERTY(QColor,           simBtnClickedColor,      QColor(Qt::red))
 
     // General settings
     PROPERTYQBA(generalSettings)
@@ -761,7 +764,7 @@ class AppData: public CompStoreObj
     PROPERTYQBA2(mainWinGeo,   "mainWindowGeometry")
     PROPERTYQBA2(mainWinState, "mainWindowState")
     PROPERTYQBA2(modelEditGeo, "modelEditGeometry")
-    PROPERTYQBA2(prefsEditGeo, "prefsEditGeometry")
+    PROPERTYQBA2(prefsEditGeo, "prefsEditGeometry")   // added 3.0
     PROPERTYQBA (mdiWinGeo)
     PROPERTYQBA (mdiWinState)
     PROPERTYQBA (compareWinGeo)
@@ -777,6 +780,7 @@ class AppData: public CompStoreObj
     PROPERTYSTRD(downloadDir,                           CPN_DOCUMENTS_LOCATION % "/downloads")
     PROPERTYSTRD(decompressDir,                         CPN_DOCUMENTS_LOCATION % "/decompress")
     PROPERTYSTRD(updateDir,                             CPN_DOCUMENTS_LOCATION % "/updates")
+    PROPERTYSTRD(modelsDir,                             CPN_DOCUMENTS_LOCATION % "/models")     // added 3.0
     PROPERTY    (bool, decompressDirUseDwnld,           true)
     PROPERTY    (bool, updateDirUseSD,                  true)
     PROPERTY    (bool, runAppInstaller,                 false)
