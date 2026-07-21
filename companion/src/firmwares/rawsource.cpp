@@ -241,7 +241,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       dfltName = Boards::getSwitchInfo(index - 1, board).name.c_str();
       if (Boards::isSwitchFunc(index - 1, board)) {
         if (model) {
-          int fsindex = Boards::getSwitchTagNum(index - 1, board) - 1;
+          int fsindex = Boards::getCFSIndexForSwitch(index - 1, board);
           if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
             custName = QString(model->customSwitches[fsindex].name).trimmed();
         }
