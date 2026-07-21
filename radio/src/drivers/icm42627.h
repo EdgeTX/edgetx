@@ -23,6 +23,8 @@
 
 #include "hal/imu.h"
 
+#define ICM42627_I2C_BASE_ADDR      0x68
+
 #define ICM42627_WHO_AM_I_REG       0x75
 #define ICM42627_WHO_AM_I           0x20
 
