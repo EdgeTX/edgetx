@@ -42,7 +42,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
   internalModule->setAvailableHandler(
       [](int module) { return isInternalModuleSupported(module); });
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   ant_box = parent->newLine(grid);
   ant_box->padLeft(PAD_SMALL);
   new StaticText(ant_box, rect_t{}, STR_ANTENNA);
@@ -50,20 +50,8 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
       ant_box, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
       ANTENNA_MODE_EXTERNAL, GET_DEFAULT(g_eeGeneral.antennaMode),
       [](int antenna) {
-        if (!isExternalAntennaEnabled() &&
-            (antenna == ANTENNA_MODE_EXTERNAL ||
-             (antenna == ANTENNA_MODE_PER_MODEL &&
-              g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
-                  ANTENNA_MODE_EXTERNAL))) {
-          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-            g_eeGeneral.antennaMode = antenna;
-            SET_DIRTY();
-          }
-        } else {
-          g_eeGeneral.antennaMode = antenna;
-          checkExternalAntenna();
-          SET_DIRTY();
-        }
+        setAntennaModeWithConfirm(antenna, EE_GENERAL,
+            [](int8_t mode) { g_eeGeneral.antennaMode = mode; });
       });
 
   updateAntennaLine();
@@ -109,7 +97,11 @@ void InternalModuleWindow::updateBaudrateLine()
 
 void InternalModuleWindow::updateAntennaLine()
 {
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-  ant_box->show(isInternalModuleAvailable(MODULE_TYPE_XJT_PXX1));
+#if defined(EXTERNAL_ANTENNA)
+#if defined(INTMODULE_ANTSEL_GPIO)
+  ant_box->show(g_eeGeneral.internalModule != MODULE_TYPE_NONE);
+#else
+  ant_box->show(isModuleXJT(INTERNAL_MODULE));
+#endif
 #endif
 }

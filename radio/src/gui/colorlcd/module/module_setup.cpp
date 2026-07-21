@@ -34,8 +34,8 @@
 #include "etx_lv_theme.h"
 #include "os/sleep.h"
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-#include "pxx1_settings.h"
+#if defined(EXTERNAL_ANTENNA)
+#include "ext_antenna_settings.h"
 #endif
 
 #if defined(PXX2)
@@ -161,15 +161,22 @@ class ModuleWindow : public Window
       modOpts = new MultimoduleSettings(this, grid, moduleIdx);
     }
   #endif
-  #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-    else if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
-            g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
-      modOpts = new PXX1AntennaSettings(this, grid, moduleIdx);
-    }
-  #endif
   #if defined(DSMP)
     else if (isModuleDSMP(moduleIdx)) {
       modOpts = new DSMPSettings(this, grid, moduleIdx);
+    }
+  #endif
+
+  #if defined(EXTERNAL_ANTENNA)
+    if (moduleIdx == INTERNAL_MODULE &&
+        g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
+      bool antennaModuleOk = isModuleXJT(moduleIdx);
+    #if defined(INTMODULE_ANTSEL_GPIO)
+      antennaModuleOk = true;
+    #endif
+      if (antennaModuleOk) {
+        new ExtAntennaSettings(this, grid, moduleIdx);
+      }
     }
   #endif
 

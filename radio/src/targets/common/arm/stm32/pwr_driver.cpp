@@ -47,6 +47,13 @@ void pwrInit()
   INTERNAL_MODULE_OFF();
 #endif
 
+  // Internal module select
+#if defined(HARDWARE_INTERNAL_MODULE) && defined(INTMODULE_ANTSEL_GPIO)
+  gpio_init(INTMODULE_ANTSEL_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  //gpio_set(INTMODULE_ANTSEL_GPIO);  //ANT SELECT 0=Int 1=Ext
+  gpio_clear(INTMODULE_ANTSEL_GPIO);
+#endif
+
   // External module power
 #if defined(HARDWARE_EXTERNAL_MODULE) && defined(EXTMODULE_PWR_GPIO)
   gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);

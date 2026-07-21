@@ -66,7 +66,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
     return std::string(msg);
   });
- 
+
   moduleIdx = moduleIdx;
 
   auto armingLine = newLine(grid);
@@ -78,7 +78,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   choArmSwitch = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
   choArmSwitch->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
 
-  update();                      
+  update();
 }
 
 void CrossfireSettings::update() {
