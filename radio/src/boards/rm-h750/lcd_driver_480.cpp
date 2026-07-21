@@ -22,9 +22,7 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "edgetx_types.h"
-#include "dma2d.h"
 #include "hal.h"
-#include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_driver_480.h"
@@ -34,14 +32,8 @@
 #include "stm32_gpio.h"
 #include "stm32_qspi.h"
 
-uint8_t TouchControllerType = 0;  // 0: other; 1: CST836U
-static volatile uint16_t lcd_phys_w = LCD_PHYS_W;
-static volatile uint16_t lcd_phys_h = LCD_PHYS_H;
-
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
-
-static volatile uint8_t _frame_addr_reloaded = 0;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
@@ -55,22 +47,10 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
   // reload shadow registers on vertical blank
-  _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
 
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
-
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frame_addr_reloaded == 0);
 }
-
-lcdSpiInitFucPtr lcdInitFunction;
-lcdSpiInitFucPtr lcdOffFunction;
-lcdSpiInitFucPtr lcdOnFunction;
-uint32_t lcdPixelClock;
-
-volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 
 static void LCD_Delay(void) {
   volatile unsigned int i;
@@ -424,13 +404,13 @@ void LCD_Init_LTDC() {
   /* Configure accumulated vertical back porch */
   hltdc.Init.AccumulatedVBP = VSH+VBP-1;
   /* Configure accumulated active width */
-  hltdc.Init.AccumulatedActiveW = lcd_phys_w + HBP+HSW-1;
+  hltdc.Init.AccumulatedActiveW = LCD_PHYS_W + HBP+HSW-1;
   /* Configure accumulated active height */
-  hltdc.Init.AccumulatedActiveH = lcd_phys_h + VBP+VSH-1;
+  hltdc.Init.AccumulatedActiveH = LCD_PHYS_H + VBP+VSH-1;
   /* Configure total width */
-  hltdc.Init.TotalWidth = lcd_phys_w + HBP + HFP + HSW -1;
+  hltdc.Init.TotalWidth = LCD_PHYS_W + HBP + HFP + HSW -1;
   /* Configure total height */
-  hltdc.Init.TotalHeigh = lcd_phys_h + VBP + VFP+VSH-1;
+  hltdc.Init.TotalHeigh = LCD_PHYS_H + VBP + VFP+VSH-1;
 
   HAL_LTDC_Init(&hltdc);
 
@@ -439,8 +419,7 @@ void LCD_Init_LTDC() {
   NVIC_EnableIRQ(LTDC_IRQn);
   
   // Trigger on last line
-  HAL_LTDC_ProgramLineEvent(&hltdc, lcd_phys_h);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
+  HAL_LTDC_ProgramLineEvent(&hltdc, LCD_PHYS_H);
 }
 
 void LCD_LayerInit() {
@@ -448,9 +427,9 @@ void LCD_LayerInit() {
 
   /* Windowing configuration */
   layer.WindowX0 = 0;
-  layer.WindowX1 = lcd_phys_w;
+  layer.WindowX1 = LCD_PHYS_W;
   layer.WindowY0 = 0;
-  layer.WindowY1 = lcd_phys_h;
+  layer.WindowY1 = LCD_PHYS_H;
 
   /* Pixel Format configuration*/
   layer.PixelFormat = LTDC_PIXEL_FORMAT_RGB565;
@@ -468,8 +447,8 @@ void LCD_LayerInit() {
   layer.BlendingFactor1 = LTDC_BLENDING_FACTOR1_CA;
   layer.BlendingFactor2 = LTDC_BLENDING_FACTOR2_CA;
 
-  layer.ImageWidth = lcd_phys_w;
-  layer.ImageHeight = lcd_phys_h;
+  layer.ImageWidth = LCD_PHYS_W;
+  layer.ImageHeight = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
   layer.FBStartAdress = (intptr_t)initialFrameBuffer;
@@ -508,12 +487,9 @@ void lcdInit(void)
   /* Send LCD initialization commands */
   TRACE("LCD INIT (default): ST7365");
   boardLcdType = "ST7365 (Default)";
-  lcdInitFunction = LCD_ST7365_Init;
-  lcdOffFunction = LCD_ST7365_Off;
-  lcdOnFunction = LCD_ST7365_On;
 
   __HAL_RCC_LTDC_CLK_ENABLE();
-  lcdInitFunction();
+  LCD_ST7365_Init();
 
   LCD_Init_LTDC();
   LCD_LayerInit();
@@ -533,6 +509,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-  _frame_addr_reloaded = 1;
-}
 
+  lcdFlushed();
+}

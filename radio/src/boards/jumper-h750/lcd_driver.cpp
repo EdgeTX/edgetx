@@ -24,9 +24,7 @@
 #include "stm32_hal.h"
 #include "stm32_gpio_driver.h"
 #include "edgetx_types.h"
-#include "dma2d.h"
 #include "hal.h"
-#include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_driver.h"
@@ -35,14 +33,11 @@
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
 
-uint8_t TouchControllerType = 0;  // 0: other; 1: CST836U
 static volatile uint16_t lcd_phys_w = LCD_H;
 static volatile uint16_t lcd_phys_h = LCD_W;
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
-
-static volatile uint8_t _frame_addr_reloaded = 0;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
@@ -54,24 +49,17 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   // faster than cleaning by address
   SCB_CleanDCache();
 
-//  LTDC_Layer1->CFBAR &= ~(LTDC_LxCFBAR_CFBADD);
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
   // reload shadow registers on vertical blank
-  _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frame_addr_reloaded == 0);
+  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
 lcdSpiInitFucPtr lcdOffFunction;
 lcdSpiInitFucPtr lcdOnFunction;
 uint32_t lcdPixelClock;
-
-volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 
 static void LCD_Delay(void) {
   volatile unsigned int i;
@@ -1884,7 +1872,6 @@ void LCD_Init_LTDC() {
 
   // Trigger on last line
   HAL_LTDC_ProgramLineEvent(&hltdc, lcd_phys_h);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 void LCD_LayerInit() {
@@ -2009,5 +1996,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-  _frame_addr_reloaded = 1;
+
+  lcdFlushed();
 }

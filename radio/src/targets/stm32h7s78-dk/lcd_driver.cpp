@@ -417,8 +417,6 @@ extern "C" void backlightInit()
   LPTIMx_PWM_Init(&hlcd_lptim);
 }
 
-static volatile uint8_t _frame_addr_reloaded = 0;
-
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
@@ -427,18 +425,11 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   SCB_CleanDCache();
 
-  LTDC_Layer1->CFBAR &= ~(LTDC_LxCFBAR_CFBADD);
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
-
   // reload shadow registers on vertical blank
-  _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
 
   __HAL_LTDC_ENABLE_IT(&hlcd_ltdc, LTDC_IT_LI);
-
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frame_addr_reloaded == 0);
 }
 
 extern "C" void lcdSetInitalFrameBuffer(void* fbAddress)
@@ -460,5 +451,6 @@ extern "C" void LTDC_IRQHandler(void)
   // clear interrupt flag
   __HAL_LTDC_CLEAR_FLAG(&hlcd_ltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hlcd_ltdc, LTDC_IT_LI);
-  _frame_addr_reloaded = 1;
+
+  lcdFlushed();
 }
