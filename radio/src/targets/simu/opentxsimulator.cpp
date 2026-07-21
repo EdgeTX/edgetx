@@ -20,6 +20,7 @@
  */
 
 #include "opentxsimulator.h"
+#include "simpgmspace.h"
 #include "edgetx.h"
 #include "simulcd.h"
 #include "simuaudio.h"
@@ -511,7 +512,10 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
 
 void OpenTxSimulator::lcdFlushed()
 {
-  ::lcdFlushed();
+  // lcdFlushed() now calls lv_disp_flush_ready() unconditionally, so it must not
+  // run before lcdInitDisplayDriver() has set up disp_drv, nor after shutdown.
+  if (simuIsRunning())
+    ::lcdFlushed();
 }
 
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
