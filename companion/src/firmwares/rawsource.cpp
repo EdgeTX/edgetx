@@ -241,7 +241,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       dfltName = Boards::getSwitchInfo(index - 1, board).name.c_str();
       if (Boards::isSwitchFunc(index - 1, board)) {
         if (model) {
-          int fsindex = Boards::getSwitchTagNum(index - 1, board) - 1;
+          int fsindex = Boards::getCFSIndexForSwitch(index - 1, board);
           if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
             custName = QString(model->customSwitches[fsindex].name).trimmed();
         }
@@ -375,7 +375,7 @@ bool RawSource::isAvailable(const ModelData * const model,
       return false;
 
     if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(abs(index) - 1, board) &&
-        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(abs(index) - 1, board) - 1))
+        !model->isFunctionSwitchSourceAllowed(b.getCFSIndexForSwitch(abs(index) - 1, board)))
       return false;
 
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(abs(index) - 1))
