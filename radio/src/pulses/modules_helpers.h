@@ -495,7 +495,9 @@ inline int8_t minModuleChannels(uint8_t idx)
 inline int8_t defaultModuleChannels_M8(uint8_t idx)
 {
   if (isModulePPM(idx))
-    return 0; // 8 channels
+    return 0;  // 8 channels
+  else if (isModuleDSMP(idx))
+    return 4; // 12 channels
   else
     return maxModuleChannels_M8(idx);
 }

@@ -1035,12 +1035,13 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)
+#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)  // Ignore Standard Size modules
   if (moduleType == MODULE_TYPE_R9M_PXX1 ||
       moduleType == MODULE_TYPE_R9M_PXX2 ||
       moduleType == MODULE_TYPE_XJT_PXX1 ||
-      moduleType == MODULE_TYPE_DSM2 ||
-      moduleType == MODULE_TYPE_LEMON_DSMP )
+      moduleType == MODULE_TYPE_DSM2 // ||
+      //moduleType == MODULE_TYPE_LEMON_DSMP  /* Lemon DSMP now has small/lite size too */ 
+    )
     return false;
 #endif
 
@@ -1075,6 +1076,10 @@ bool isExternalModuleAvailable(int moduleType)
 #if !defined(DSM2)
   if (moduleType == MODULE_TYPE_DSM2)
      return false;
+#endif
+
+#if !defined(DSMP)
+  if (moduleType == MODULE_TYPE_DSMP) return false;
 #endif
 
 #if !defined(SBUS)

@@ -68,7 +68,7 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
     return 4;  // 12 channels
   } else if (isModuleDSMP(moduleIdx)) {
-    return 4; //  12 channels
+    return 8; // 16 channels supported for V2
   } else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
