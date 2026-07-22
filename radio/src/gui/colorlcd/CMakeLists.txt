@@ -162,8 +162,8 @@ if(MULTIMODULE)
   add_gui_src(module/multi_rfprotos.cpp)
 endif()
 
-if(INTERNAL_MODULE_PXX1)
-  add_gui_src(module/pxx1_settings.cpp)
+if(INTERNAL_MODULE_PXX1 OR EXTERNAL_ANTENNA)
+  add_gui_src(module/ext_antenna_settings.cpp)
 endif()
 
 if(PXX2)

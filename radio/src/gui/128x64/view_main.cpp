@@ -76,8 +76,8 @@ static bool isAsteriskDisplayed() {
 
 void drawExternalAntennaAndRSSI()
 {
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-  if (isModuleXJT(INTERNAL_MODULE) && isExternalAntennaEnabled()) {
+#if defined(EXTERNAL_ANTENNA)
+  if (isExternalAntennaEnabled()) {
     lcdDrawText(VBATT_X - 1, VBATT_Y + 8, "E", TINSIZE);
   }
 #endif

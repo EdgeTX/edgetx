@@ -86,7 +86,7 @@ enum {
   ITEM_RADIO_HARDWARE_BLUETOOTH_DISTANT_ADDR,
   ITEM_RADIO_HARDWARE_BLUETOOTH_NAME,
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA,
 #endif
   ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL,
@@ -106,19 +106,23 @@ enum {
   ITEM_RADIO_HARDWARE_MAX
 };
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
 static void onHardwareAntennaSwitchConfirm(const char * result)
 {
   if (result == STR_OK) {
     // Switch to external antenna confirmation
     g_eeGeneral.antennaMode = reusableBuffer.radioHardware.antennaMode;
     storageDirty(EE_GENERAL);
+    // Consent already obtained above; mark enabled so checkExternalAntenna()
+    // applies the GPIO instead of asking again.
+    globalData.externalAntennaEnabled = true;
+    checkExternalAntenna();
   }
   else {
     reusableBuffer.radioHardware.antennaMode = g_eeGeneral.antennaMode;
   }
 }
-#endif
+#endif // defined(EXTERNAL_ANTENNA)
 
 #if defined(FUNCTION_SWITCHES)
 #define RADIO_SETUP_2ND_COLUMN           (LCD_W-11*FW)
@@ -344,9 +348,13 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   tab[ITEM_RADIO_HARDWARE_BLUETOOTH_NAME] = bt_off ? HIDDEN_ROW : 0;
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   tab[ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA] =
+#if defined(INTMODULE_ANTSEL_GPIO)
+    0;
+#else
     g_eeGeneral.internalModule == MODULE_TYPE_XJT_PXX1 ? 0 : HIDDEN_ROW;
+#endif
 #endif
 
   bool has_serial = false;
@@ -409,7 +417,7 @@ void menuRadioHardware(event_t event)
   }
   else if (event == EVT_ENTRY) {
     enableVBatBridge();
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
     reusableBuffer.radioHardware.antennaMode = g_eeGeneral.antennaMode;
 #endif
   }
@@ -560,11 +568,11 @@ void menuRadioHardware(event_t event)
         break;
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
       case ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA:
         reusableBuffer.radioHardware.antennaMode = editChoice(HW_SETTINGS_COLUMN2, y, STR_ANTENNA, STR_ANTENNA_MODES, reusableBuffer.radioHardware.antennaMode, ANTENNA_MODE_INTERNAL, ANTENNA_MODE_EXTERNAL, attr, event);
         if (!s_editMode && reusableBuffer.radioHardware.antennaMode != g_eeGeneral.antennaMode) {
-          if (!isExternalAntennaEnabled() && (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_EXTERNAL || (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_PER_MODEL && g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode == ANTENNA_MODE_EXTERNAL))) {
+          if (!isExternalAntennaEnabled() && (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_EXTERNAL || (reusableBuffer.radioHardware.antennaMode == ANTENNA_MODE_PER_MODEL && g_model.moduleData[INTERNAL_MODULE].antennaMode == ANTENNA_MODE_EXTERNAL))) {
             POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onHardwareAntennaSwitchConfirm);
             SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
           }

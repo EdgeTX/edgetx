@@ -26,12 +26,12 @@
 
 struct ModuleData;
 
-class PXX1AntennaSettings : public Window, public ModuleOptions
+class ExtAntennaSettings : public Window, public ModuleOptions
 {
   ModuleData* md;
 
   void update() override {}
 
 public:
-  PXX1AntennaSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
+  ExtAntennaSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };

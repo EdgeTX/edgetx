@@ -486,8 +486,8 @@
 #endif
 
 // Internal PXX1 Module:
-//  -> let's assume all internal XJT modules used are either X10 or X12S type
-#define EXTERNAL_ANTENNA
+//  -> EXTERNAL_ANTENNA is now set per-PCBREV in CMakeLists.txt (only X10,
+//     X10 EXPRESS and X12S actually have the antenna-select hardware)
 
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOA, 8) // PA.08
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 6) // PB.06
