@@ -1830,12 +1830,12 @@ uint32_t pwrCheck()
   if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
-#if defined(RADIO_V12)
+#if defined(PWR_BUTTON_DUAL_KEY1)
     if (!inactivityShutdown) {
-      // SYS+MDL are also used as power combo on V12. Prevent their menu BREAK
-      // events from being emitted while shutdown key sequence is in progress.
-      killEvents(KEY_SYS);
-      killEvents(KEY_MODEL);
+      killEvents(PWR_BUTTON_DUAL_KEY1);
+#if defined(PWR_BUTTON_DUAL_KEY2)
+      killEvents(PWR_BUTTON_DUAL_KEY2);
+#endif
     }
 #endif
     if (TELEMETRY_STREAMING()) {

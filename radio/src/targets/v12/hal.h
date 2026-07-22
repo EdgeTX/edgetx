@@ -76,10 +76,12 @@ USART6: EXTMODULE_USART
 #define SIXPOS_LED_BLUE               0
 
 // Power
+// SYS+MDL form the dual-button power-on/off chord on this radio.
 #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOJ, 3) // SYS
 #define PWR_EXTRA_SWITCH_GPIO         GPIO_PIN(GPIOE, 5) // MDL
-#define PWR_SWITCH_GPIO1              GPIO_PIN(GPIOE, 5) // MDL
 #define PWR_ON_GPIO                   GPIO_PIN(GPIOE, 2)
+#define PWR_BUTTON_DUAL_KEY1          KEY_SYS
+#define PWR_BUTTON_DUAL_KEY2          KEY_MODEL
 
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)

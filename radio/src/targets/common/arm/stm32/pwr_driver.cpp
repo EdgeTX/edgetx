@@ -50,7 +50,6 @@ void pwrInit()
   // Internal module select
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(INTMODULE_ANTSEL_GPIO)
   gpio_init(INTMODULE_ANTSEL_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  //gpio_set(INTMODULE_ANTSEL_GPIO);  //ANT SELECT 0=Int 1=Ext
   gpio_clear(INTMODULE_ANTSEL_GPIO);
 #endif
 
@@ -133,7 +132,7 @@ bool pwrPressed()
 #endif
 #if defined(PWR_EXTRA_SWITCH_GPIO)
 
-  #if defined(RADIO_V12)
+  #if defined(PWR_BUTTON_DUAL)
     return pwrForcePressed();
   #else
     return !gpio_read(PWR_SWITCH_GPIO) || !gpio_read(PWR_EXTRA_SWITCH_GPIO);
@@ -166,6 +165,6 @@ void pwrResetHandler()
 
 #if defined(BOOT)
 void* _pwr_init_hook[] __INIT_HOOK = {
-  (void*)pwrResetHandler,    
+  (void*)pwrResetHandler,
 };
 #endif
