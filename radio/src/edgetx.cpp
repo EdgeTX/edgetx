@@ -614,7 +614,7 @@ void calcBacklightValue(int16_t source)
 {
   getvalue_t raw = getValue(source);
 #if defined(COLORLCD)
-  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
       ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
 #elif OLED_SCREEN
   requiredBacklightBright = (raw + 1024) * 254 / 2048;
@@ -736,7 +736,7 @@ static void checkFailsafe()
 void checkAll(bool isBootCheck)
 {
   checkSDfreeStorage();
-  
+
   // we don't check the throttle stick if the radio is not calibrated
   if (g_eeGeneral.chkSum == evalChkSum()) {
     checkThrottleStick();
@@ -803,7 +803,7 @@ void checkAll(bool isBootCheck)
   }
 #endif
 
-#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+#if defined(EXTERNAL_ANTENNA)
   checkExternalAntenna();
 #endif
 
@@ -1353,6 +1353,18 @@ uint32_t pwrDelayTime(int delay)
   static uint8_t vals[] = { 0, 5, 10, 20, 30 };
   return vals[pwrDelayFromYaml(delay)] * 10;
 }
+
+// On radios requiring a two-button chord as accidental-activation
+// protection, only the chord itself should start/continue the on/off delay
+// countdown; a single button held alone must not.
+inline bool pwrDelayHoldActive()
+{
+#if defined(PWR_BUTTON_DUAL)
+  return pwrForcePressed();
+#else
+  return pwrPressed();
+#endif
+}
 #endif
 
 #if defined(STARTUP_ANIMATION)
@@ -1370,7 +1382,7 @@ void runStartupAnimation()
   tmr10ms_t duration = 0;
   bool isPowerOn = false;
 
-  while (pwrPressed()) {
+  while (pwrDelayHoldActive()) {
     duration = get_tmr10ms() - start;
     if (duration < PWR_PRESS_DURATION_MIN()) {
       drawStartupAnimation(duration, PWR_PRESS_DURATION_MIN());
@@ -1738,8 +1750,10 @@ inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
 #if defined(PWR_BUTTON_MANAGED)
   return 0;
 #else
+#if !defined(PWR_BUTTON_DUAL)
   if (pwrForcePressed())
     return 0;
+#endif
   return pwrDelayTime(g_eeGeneral.pwrOffSpeed);
 #endif
 }
@@ -1790,7 +1804,7 @@ uint32_t pwrCheck()
   static uint8_t pwr_check_state = PWR_CHECK_ON;
 
   bool inactivityShutdown = pwrOffDueToInactivity();
-  
+
   if (pwr_check_state == PWR_CHECK_OFF) {
     return e_power_off;
   }
@@ -1813,10 +1827,17 @@ uint32_t pwrCheck()
   }
 #endif
 
-  if (pwrPressed() || inactivityShutdown) {
+  if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
-
+#if defined(RADIO_V12)
+    if (!inactivityShutdown) {
+      // SYS+MDL are also used as power combo on V12. Prevent their menu BREAK
+      // events from being emitted while shutdown key sequence is in progress.
+      killEvents(KEY_SYS);
+      killEvents(KEY_MODEL);
+    }
+#endif
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }

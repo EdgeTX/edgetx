@@ -770,6 +770,8 @@ void onAntennaSwitchConfirm(const char * result)
 }
 #endif
 
+#endif // defined(EXTERNAL_ANTENNA)
+
 void checkExternalAntenna()
 {
   if (isModuleXJT(INTERNAL_MODULE)) {
