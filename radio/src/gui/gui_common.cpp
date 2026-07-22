@@ -788,7 +788,7 @@ void checkExternalAntenna()
 
   if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
     globalData.externalAntennaEnabled = true;
-#if defined(INTMODULE_ANTSEL_GPIO)
+#if defined(INTMODULE_ANTSEL_GPIO) && !defined(SIMU)
     INTMODULE_ANTSEL_EXT();
     LED_ERROR_BEGIN();
     RAISE_ALERT(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2, STR_PRESS_ANY_KEY_TO_SKIP, AU_WARNING1);
@@ -818,7 +818,7 @@ void checkExternalAntenna()
     globalData.externalAntennaEnabled = false;
   }
 
-#if defined(INTMODULE_ANTSEL_GPIO)
+#if defined(INTMODULE_ANTSEL_GPIO) && !defined(SIMU)
   // Apply hardware GPIO switch based on result
   if (g_eeGeneral.antennaMode != ANTENNA_MODE_EXTERNAL) {
     if (globalData.externalAntennaEnabled) {
