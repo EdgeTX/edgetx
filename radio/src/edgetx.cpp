@@ -209,8 +209,13 @@ void per10ms()
   }
 #endif
 
-  if (keysPollingCycle()) {
+  uint8_t keyActivity = keysPollingCycle();
+  if (keyActivity & KEY_ACTIVITY_KEYS) {
     inactivityTimerReset(ActivitySource::Keys);
+  }
+  if (keyActivity & KEY_ACTIVITY_TRIMS) {
+    // Trims are controls, not keys, for backlight purposes
+    inactivityTimerReset(ActivitySource::MainControls);
   }
 
 #if defined(FUNCTION_SWITCHES)
