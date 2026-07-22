@@ -105,7 +105,7 @@ static void memory_write(const uint16_t* data, uint32_t length)
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
-{  
+{
   (void)disp_drv;
 
   // TODO: replace through some smarter mechanism without busy wait
@@ -120,6 +120,8 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   set_row_addr(y1, y2);
 
   memory_write(buffer, copy_area.w * copy_area.h);
+
+  lcdFlushed();
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -318,59 +320,59 @@ extern "C" void lcdInit()
 
   // Tear on
   lcdWriteCommand( 0x35 );
-  
+
   // Exit sleep
   lcdWriteCommand( 0x11 );
 
 
   /*
-  lcdWriteCommand(0x11);     
+  lcdWriteCommand(0x11);
 
-  delay_ms(120);  
+  delay_ms(120);
 
-  lcdWriteCommand(0xB2);     
-  lcdWriteData(0x0C);   
-  lcdWriteData(0x0C);   
-  lcdWriteData(0x00);   
-  lcdWriteData(0x33);   
-  lcdWriteData(0x33);  
+  lcdWriteCommand(0xB2);
+  lcdWriteData(0x0C);
+  lcdWriteData(0x0C);
+  lcdWriteData(0x00);
+  lcdWriteData(0x33);
+  lcdWriteData(0x33);
 
-  lcdWriteCommand(0x35);     
-  lcdWriteData(0x00);  
+  lcdWriteCommand(0x35);
+  lcdWriteData(0x00);
 
-  lcdWriteCommand(0x36);     
-  lcdWriteData(0x60);   
+  lcdWriteCommand(0x36);
+  lcdWriteData(0x60);
 
-  lcdWriteCommand(0x3A);     
-  lcdWriteData(0x05);     
+  lcdWriteCommand(0x3A);
+  lcdWriteData(0x05);
 
-  lcdWriteCommand(0xB7);     
-  lcdWriteData(0x35);   
+  lcdWriteCommand(0xB7);
+  lcdWriteData(0x35);
 
-  lcdWriteCommand(0xBB);     
-  lcdWriteData(0x34);   
+  lcdWriteCommand(0xBB);
+  lcdWriteData(0x34);
 
-  lcdWriteCommand(0xC0);     
-  lcdWriteData(0x2C);   
+  lcdWriteCommand(0xC0);
+  lcdWriteData(0x2C);
 
-  lcdWriteCommand(0xC2);     
-  lcdWriteData( 0x01);   
+  lcdWriteCommand(0xC2);
+  lcdWriteData( 0x01);
 
-  lcdWriteCommand(0xC3);     
-  lcdWriteData(0x13);//4.5V   
+  lcdWriteCommand(0xC3);
+  lcdWriteData(0x13);//4.5V
 
-  lcdWriteCommand(0xC4);     
-  lcdWriteData(0x20);    
+  lcdWriteCommand(0xC4);
+  lcdWriteData(0x20);
 
-  lcdWriteCommand(0xC6);     
-  lcdWriteData(0x0F);   
+  lcdWriteCommand(0xC6);
+  lcdWriteData(0x0F);
 
-  lcdWriteCommand(0xD0);     
-  lcdWriteData(0xA4);   
-  lcdWriteData(0xA1);   
+  lcdWriteCommand(0xD0);
+  lcdWriteData(0xA4);
+  lcdWriteData(0xA1);
 
-  lcdWriteCommand(0xD6);     
-  lcdWriteData(0xA1); 
+  lcdWriteCommand(0xD6);
+  lcdWriteData(0xA1);
 
   lcdWriteCommand(0xE0);
   lcdWriteData(0xD0);
@@ -404,9 +406,9 @@ extern "C" void lcdInit()
   lcdWriteData(0x2E);
   lcdWriteData(0x32);
 
-  lcdWriteCommand(0x21);  
+  lcdWriteCommand(0x21);
 
-  lcdWriteCommand(0x29);     
+  lcdWriteCommand(0x29);
 
   lcdWriteCommand(0x2C); */
 

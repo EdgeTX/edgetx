@@ -55,7 +55,7 @@
 #include "colors.h"
 
 
-#include "touch_driver.h"
+// #include "touch_driver.h"
 
 #include <string.h>
 
@@ -354,7 +354,7 @@ void boardInit()
   keysInit();
   switchInit();
   rotaryEncoderInit();
-  touchPanelInit();
+  // touchPanelInit();
   audioInit();
   adcInit(&_adc_driver);
   hapticInit();

@@ -58,7 +58,7 @@ set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
 set(BITMAPS_TARGET bm320_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
-set(HARDWARE_TOUCH YES)
+set(HARDWARE_TOUCH NO)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
@@ -68,7 +68,7 @@ add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DCOLORLCD -DLIBOPENUI
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
   -DINTERNAL_EXTERNAL_ANT
 )
 
@@ -155,7 +155,6 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${BOARD_SRC_DIR}/touch_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp

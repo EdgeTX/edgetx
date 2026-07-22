@@ -68,6 +68,8 @@ USART6: EXTMODULE_USART
 
 #define ADC_VREF_PREC2                  330
 
+// 6POS SW
+#define SIXPOS_SWITCH_INDEX           6
 // 6POS SW indicator color (used while charging / before Lua takes over)
 #define SIXPOS_LED_RED                200
 #define SIXPOS_LED_GREEN              0
@@ -174,20 +176,20 @@ USART6: EXTMODULE_USART
 #define I2C_B4_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B4_CLK_RATE                 400000
 
-// Touch
-#define TOUCH_I2C_BUS                 I2C_Bus_4
-#define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 14)
-#define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)
+// Touch - not present
+// #define TOUCH_I2C_BUS                 I2C_Bus_4
+// #define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 14)
+// #define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)
 
-#define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
-#define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
-#define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
+// #define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
+// #define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
+// #define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
 
 // TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-#define USE_EXTI15_10_IRQ
-#define EXTI15_10_IRQ_Priority 9
-#endif
+// #if !defined(USE_EXTI15_10_IRQ)
+// #define USE_EXTI15_10_IRQ
+// #define EXTI15_10_IRQ_Priority 9
+// #endif
 
 // IMU (not populated on production units; kept disabled -- see CMakeLists IMU option)
 #if defined(IMU)
