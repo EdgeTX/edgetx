@@ -570,15 +570,60 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 #if STATUS_LEDS
   #define LED_ERROR_BEGIN()            ledRed()
-  // Green "ready to use" if available, unless overridden by user or mfg preference
-#if !defined(POWER_LED_BLUE) && (defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO))
-  #define LED_ERROR_END() ledGreen()
-  #define LED_BIND() ledBlue()
+
+  // Check discrete GPIO capability. STATUS_LED_STRIP means a board's
+  // led_driver.cpp drives the status LED through an RGB strip and can
+  // produce any color, so it satisfies every check below.
+  #define LED_HAS_RED     (defined(LED_RED_GPIO) || defined(LED_RED2_GPIO) || defined(STATUS_LED_STRIP))
+  #define LED_HAS_GREEN   (defined(LED_GREEN_GPIO) || defined(STATUS_LED_STRIP))
+  #define LED_HAS_BLUE    (defined(LED_BLUE_GPIO)  || defined(STATUS_LED_STRIP))
+
+  #define LED_HAS_YELLOW  (LED_HAS_RED && LED_HAS_GREEN)
+  #define LED_HAS_MAGENTA (LED_HAS_RED && LED_HAS_BLUE)
+  #define LED_HAS_CYAN    (LED_HAS_GREEN && LED_HAS_BLUE)
+  #define LED_HAS_WHITE   (LED_HAS_RED && LED_HAS_GREEN && LED_HAS_BLUE)
+
+#if defined(POWER_LED_WHITE) && !LED_HAS_WHITE
+  #error "POWER_LED_WHITE requires red, green and blue status LED GPIOs (or a strip-driven status LED)"
+#elif defined(POWER_LED_MAGENTA) && !LED_HAS_MAGENTA
+  #error "POWER_LED_MAGENTA requires red and blue status LED GPIOs (or a strip-driven status LED)"
+#elif defined(POWER_LED_YELLOW) && !LED_HAS_YELLOW
+  #error "POWER_LED_YELLOW requires red and green status LED GPIOs (or a strip-driven status LED)"
+#elif defined(POWER_LED_CYAN) && !LED_HAS_CYAN
+  #error "POWER_LED_CYAN requires green and blue status LED GPIOs (or a strip-driven status LED)"
+#elif defined(POWER_LED_GREEN) && !LED_HAS_GREEN
+  #error "POWER_LED_GREEN requires a green status LED GPIO (or a strip-driven status LED)"
+#endif
+
+#if defined(POWER_LED_WHITE) && LED_HAS_WHITE
+    #define LED_ERROR_END() ledWhite()
+    #define LED_BIND() ledBlue()
+#elif defined(POWER_LED_MAGENTA) && LED_HAS_MAGENTA
+    #define LED_ERROR_END() ledMagenta()
+    #define LED_BIND() ledBlue()
+#elif defined(POWER_LED_YELLOW) && LED_HAS_YELLOW
+    #define LED_ERROR_END() ledYellow()
+    #define LED_BIND() ledBlue()
+#elif defined(POWER_LED_CYAN) && LED_HAS_CYAN
+    #define LED_ERROR_END() ledCyan()
+    #define LED_BIND() ledBlue()
+#elif defined(POWER_LED_GREEN) && LED_HAS_GREEN
+    #define LED_ERROR_END() ledGreen()
+    #define LED_BIND() ledBlue()
 #else
-// Either green is not an option, or blue is preferred "ready to use" color
-  #define LED_ERROR_END()              ledBlue()
+  // No POWER_LED_* override set - default to green if available, else blue.
+  #if !defined(POWER_LED_BLUE) && LED_HAS_GREEN
+    #define LED_ERROR_END() ledGreen()
+    #define LED_BIND() ledBlue()
+  #else
+    #define LED_ERROR_END()            ledBlue()
+  #endif
 #endif
 #else
+#if defined(POWER_LED_BLUE) || defined(POWER_LED_GREEN) || defined(POWER_LED_CYAN) || \
+    defined(POWER_LED_YELLOW) || defined(POWER_LED_MAGENTA) || defined(POWER_LED_WHITE)
+  #error "POWER_LED_* requires a board with a status LED (STATUS_LEDS)"
+#endif
   #define LED_ERROR_BEGIN()
   #define LED_ERROR_END()
 #endif
