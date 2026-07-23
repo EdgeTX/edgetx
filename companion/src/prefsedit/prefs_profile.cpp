@@ -77,6 +77,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   });
   chkUseSettingsBackup->setBindPostChanged([this] { this->update(); });
   layNewFile->addWidget(chkUseSettingsBackup, row, col++);
+
   newRow();
   lblSettingsBackup = new AutoLabel(this);
   lblSettingsBackup->setBindText([this] (){
@@ -91,6 +92,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
     }
   });
   layNewFile->addWidget(lblSettingsBackup, row, 1);
+
   // Stick Mode
   newRow();
   AutoLabel *lblStickMode = new AutoLabel(this, tr("Default Stick Mode"));
@@ -100,6 +102,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   });
   lblStickMode->setBindVisible([this] { return Boards::isAir(); });
   layNewFile->addWidget(lblStickMode, row, col++);
+
   cboStickMode = new AutoComboBox(this);
   cboStickMode->setModel(GeneralSettings::stickModeItemModel());
   cboStickMode->setValue(profile.defaultMode(), this);
@@ -118,6 +121,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
             (this->chkUseSettingsBackup->isChecked() && profile.generalSettings().isEmpty()));
   });
   layNewFile->addWidget(lblChannelOrder, row, col++);
+
   cboChannelOrder = new AutoComboBox(this);
   cboChannelOrder->setModel(panelItemModels->getItemModel(FIM_TEMPLATESETUP));
   cboChannelOrder->setValue(profile.channelOrder(), this);
@@ -140,11 +144,13 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   newRow();
   AutoLabel *lblModuleExternal = new AutoLabel(this, tr("External Module Size"));
   layNewFile->addWidget(lblModuleExternal, row, col++);
+
   cboModuleExternal = new AutoComboBox(this);
   cboModuleExternal->setModel(Boards::externalModuleSizeItemModel());
   cboModuleExternal->setValue(profile.externalModuleSize(), this);
   cboModuleExternal->setBindSave([this] { profile.externalModuleSize(this->cboModuleExternal->currentData().toInt()); });
   layNewFile->addWidget(cboModuleExternal, row, col++);
+
   addHSpring(layNewFile, row, col);
   ui->csectNewFile->setContentLayout(*layNewFile);
   ui->csectNewFile->setBindResize([this] { this->shrink(); });
@@ -154,36 +160,42 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   ui->csectFolders->setTitle(tr("Folders"));
   QGridLayout *layFolders = new QGridLayout();
   // SD Path
-  QLabel *lblSDPath = new QLabel(tr("SD Path"), this);
+  AutoLabel *lblSDPath = new AutoLabel(this, tr("SD Path"));
   layFolders->addWidget(lblSDPath, row, col++);
   leSDPath = new AutoLineEdit(this, true);
   leSDPath->setValue(profile.sdPath(), this);
+  leSDPath->setEditSignal(true);
   leSDPath->setBindSave([this] { profile.sdPath(this->leSDPath->text()); });
   layFolders->addWidget(leSDPath, row, col++);
+
   AutoFolderSelectButton *btnSDPath = new AutoFolderSelectButton(this);
   btnSDPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   btnSDPath->setup(tr("Select SD path folder"), profile.sdPath(), leSDPath);;
   layFolders->addWidget(btnSDPath, row, col++);
   // Models path
   newRow();
-  QLabel *lblModelsPath = new QLabel(tr("Models"), this);
+  AutoLabel *lblModelsPath = new AutoLabel(this, tr("Models"));
   layFolders->addWidget(lblModelsPath, row, col++);
   leModelsPath = new AutoLineEdit(this, true);
   leModelsPath->setValue(profile.modelsDir(), this);
-  leModelsPath->setBindSave([this] { profile.sdPath(this->leModelsPath->text()); });
+  leModelsPath->setEditSignal(true);
+  leModelsPath->setBindSave([this] { profile.modelsDir(this->leModelsPath->text()); });
   layFolders->addWidget(leModelsPath, row, col++);
+
   AutoFolderSelectButton *btnModelsPath = new AutoFolderSelectButton(this);
   btnModelsPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   btnModelsPath->setup(tr("Select models folder"), profile.modelsDir(), leModelsPath);;
   layFolders->addWidget(btnModelsPath, row, col++);
   // Backups path
   newRow();
-  QLabel *lblBackupsPath = new QLabel(tr("Backups"), this);
+  AutoLabel *lblBackupsPath = new AutoLabel(this, tr("Backups"));
   layFolders->addWidget(lblBackupsPath, row, col++);
   leBackupsPath = new AutoLineEdit(this, true);
   leBackupsPath->setValue(profile.pBackupDir(), this);
+  leBackupsPath->setEditSignal(true);
   leBackupsPath->setBindSave([this] { profile.pBackupDir(this->leBackupsPath->text());});
   layFolders->addWidget(leBackupsPath, row, col++);
+
   AutoFolderSelectButton *btnBackupsPath = new AutoFolderSelectButton(this);
   btnBackupsPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   btnBackupsPath->setup(tr("Select backups folder"), profile.pBackupDir(), leBackupsPath);;
@@ -220,18 +232,18 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   leSplashPath->setBindSave([this] { profile.splashFile(this->leSplashPath->text());});
   laySplash->addWidget(leSplashPath, row, col++);
   // Splash folder select
-  AutoFolderSelectButton *btnSplashSelect = new AutoFolderSelectButton(this);
+  AutoFileSelectButton *btnSplashSelect = new AutoFileSelectButton(this);
   btnSplashSelect->setup(tr("Select splash folder"), profile.splashFile(), leSplashPath);;
   laySplash->addWidget(btnSplashSelect, row, col++);
   // Splash image
   newRow();
-  QLabel *lblSplashImage = new QLabel(this);
+  lblSplashImage = new AutoLabel(this);
   laySplash->addWidget(lblSplashImage, row, col++);
   // Splash clear
   AutoPushButton *btnSplashClear = new AutoPushButton(this, tr("Clear"));
   connect(btnSplashClear, &QPushButton::released, this, [this] () {
-
-
+    this->lblSplashImage->clear();
+    this->leSplashPath->clear();
   });
   laySplash->addWidget(btnSplashClear, row, col++);
   addHSpring(laySplash, row, col);

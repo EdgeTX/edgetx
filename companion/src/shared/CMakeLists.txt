@@ -10,6 +10,7 @@ set(${PROJECT_NAME}_NAMES
   autocolorselectbutton
   autocombobox
   autodoublespinbox
+  autofileselectbutton
   autofolderselectbutton
   autohexspinbox
   autolabel

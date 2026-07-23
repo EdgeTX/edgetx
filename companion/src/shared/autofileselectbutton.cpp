@@ -19,52 +19,53 @@
  * GNU General Public License for more details.
  */
 
-#include "autofolderselectbutton.h"
+#include "autofileselectbutton.h"
 
 #include <QLabel>
 #include <QLineEdit>
 
-AutoFolderSelectButton::AutoFolderSelectButton(QWidget * parent) :
+AutoFileSelectButton::AutoFileSelectButton(QWidget * parent, const QString & text) :
   AutoPushButton(parent),
-  m_caption(tr("Select folder")),
-  m_fldr(""),
-  m_displayFldr(nullptr),
-  m_opts(0)
+  m_caption(tr("Select existing file")),
+  m_path(""),
+  m_displayPath(nullptr)
 {
+  setText(text);
+
   connect(this, &QPushButton::released, [&] ()
   {
-    QString fldr = QFileDialog::getExistingDirectory(this, m_caption, m_fldr, m_opts);
+    QString path = QFileDialog::getOpenFileName(this, m_caption, m_path);
 
-    if (!fldr.isEmpty()) {
-      m_fldr = fldr;
+    if (!path.isEmpty()) {
+      m_path = path;
 
-      if (m_displayFldr) {
-        QLabel *lbl = dynamic_cast<QLabel *>(m_displayFldr);
+      if (m_displayPath) {
+        QLabel *lbl = dynamic_cast<QLabel *>(m_displayPath);
 
         if (lbl) {
-          lbl->setText(m_fldr);
+          lbl->setText(m_path);
         } else {
-          QLineEdit *le = dynamic_cast<QLineEdit *>(m_displayFldr);
+          QLineEdit *le = dynamic_cast<QLineEdit *>(m_displayPath);
 
           if (le) {
-            le->setText(m_fldr);
+            le->setText(m_path);
           }
         }
       }
 
-      emit folderChanged(m_fldr);
+      emit folderChanged(m_path);
+      runPostChanged();
     }
   });
 }
 
-AutoFolderSelectButton::~AutoFolderSelectButton()
+AutoFileSelectButton::~AutoFileSelectButton()
 {
 }
 
-void AutoFolderSelectButton::setup(QString caption, QString fldr, QWidget * displayFldr, QFileDialog::Options opts)
+void AutoFileSelectButton::setup(QString caption, QString path, QWidget * displayPath)
 {
   m_caption = caption;
-  m_fldr = fldr;
-  m_displayFldr = displayFldr;
-  m_opts = opts;
+  m_path = path;
+  m_displayPath = displayPath;
 }

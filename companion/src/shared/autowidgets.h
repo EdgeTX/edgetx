@@ -29,6 +29,7 @@
 #include "autocolorselectbutton.h"
 #include "autocombobox.h"
 #include "autodoublespinbox.h"
+#include "autofileselectbutton.h"
 #include "autofolderselectbutton.h"
 #include "autohexspinbox.h"
 #include "autolabel.h"
