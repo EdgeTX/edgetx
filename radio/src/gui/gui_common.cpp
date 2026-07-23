@@ -1197,6 +1197,12 @@ bool isTrainerModeAvailable(int mode)
 #endif
   }
 
+  if (mode == TRAINER_MODE_LUA) {
+#if !defined(LUA)
+    return false;
+#endif
+  }
+
   return true;
 }
 
