@@ -47,6 +47,7 @@ class PrefsProfilePanel : public PrefsPanel
     int col;
 
     AutoCheckBox *chkUseSettingsBackup;
+    AutoLabel    *lblSettingsBackup;
     AutoComboBox *cboStickMode;
     AutoComboBox *cboChannelOrder;
     AutoComboBox *cboModuleInternal;
