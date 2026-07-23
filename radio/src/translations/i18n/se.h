@@ -244,6 +244,7 @@
 #define TR_SF_SCREENSHOT                "Skärmbild"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
+#define TR_SF_DISABLE_KEYS              "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP         TR("Audioförst. av","Audioförstärkare av")
 #define TR_SF_SET_SCREEN                TR_BW_COL("Visa skärm", "Sätt huvudskärm")
 #define TR_SF_PUSH_CUST_SWITCH          "Tryck CS"
@@ -575,7 +576,7 @@
 #define TR_ONE_LOG_PER_DAY              "En logg per dag"
 #define TR_KEY_LOCK_FMT                 "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                  "Keys locked"
-#define TR_KEYS_LOCKED_FMT              "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT              TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED                "Keys unlocked"
 #define TR_SPLASHSCREEN                 "Startbild"
 #define TR_PLAY_HELLO                   "Startljud"

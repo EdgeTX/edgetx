@@ -286,6 +286,7 @@ void checkHatsAsKeys()
 // Tick count at which to clear our key-lock message. 0 = no message active.
 static tmr10ms_t s_keysLockMsgUntil = 0;
 static const char* s_keysLockMsg = nullptr;
+static const char* s_keysLockInfo = nullptr;
 #endif
 
 void checkKeysLock()
@@ -308,7 +309,8 @@ void checkKeysLock()
     // couldn't dismiss it. Keep our own deadline and re-arm POPUP_WAIT every
     // tick below — that survives other code clearing warningText (e.g. the
     // GVAR display in view_main.cpp).
-    s_keysLockMsg = areKeysLocked() ? lockedMsg : STR_KEYS_UNLOCKED;
+    s_keysLockMsg = areKeysLocked() ? STR_KEYS_LOCKED : STR_KEYS_UNLOCKED;
+    s_keysLockInfo = areKeysLocked() ? lockedMsg : nullptr;
     s_keysLockMsgUntil = get_tmr10ms() + 150;
 #endif
   }
@@ -321,10 +323,11 @@ void checkKeysLock()
       // may have replaced it in the meantime.
       if (warningText == s_keysLockMsg) CLEAR_POPUP();
       s_keysLockMsg = nullptr;
+      s_keysLockInfo = nullptr;
     } else {
       // Keep the popup fresh every tick — another path (GVAR, etc.) may
       // have cleared warningText; just re-arm it.
-      POPUP_WAIT(s_keysLockMsg);
+      POPUP_WAIT(s_keysLockMsg, s_keysLockInfo);
     }
   }
 #endif

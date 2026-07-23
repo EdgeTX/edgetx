@@ -104,4 +104,4 @@ add_custom_target(yaml_data
             ${RADIO_DIRECTORY}/util/generate_yaml.py
 )
 
-add_dependencies(yaml_data hal_settings)
+add_dependencies(yaml_data hal_settings hal_keys_lock)

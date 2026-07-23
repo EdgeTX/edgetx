@@ -183,7 +183,7 @@ void Key::killEvents()
 static Key keys[MAX_KEYS];
 static Key trim_keys[MAX_TRIMS * 2];
 
-#if !defined(BOOT)
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
 // Per-target key combo (from hal.h KEYS_LOCK_KEY1/KEY2) long-pressed together
 // toggles a software key lock.
 static bool s_keys_locked = false;
@@ -198,9 +198,18 @@ bool consumeKeysLockToggleEvent()
   s_keys_lock_notify = false;
   return true;
 }
+
+void setKeyLockedState(bool state)
+{
+  if (g_eeGeneral.keyLockEnabled && s_keys_locked != state) {
+    s_keys_locked = state;
+    s_keys_lock_notify = true;
+  }
+}
 #else
 bool areKeysLocked() { return false; }
 bool consumeKeysLockToggleEvent() { return false; }
+void setKeyLockedState(bool state) {}
 #endif
 
 /**
@@ -544,7 +553,7 @@ uint8_t keysPollingCycle()
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
       evt = keyMapping(evt | i);
-#if !defined(BOOT)
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       if (evt) {
         if (!s_keys_locked) {
           pushEvent(evt);

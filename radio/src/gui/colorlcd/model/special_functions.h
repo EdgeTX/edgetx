@@ -28,7 +28,6 @@
 
 struct CustomFunctionData;
 class FunctionEditPage;
-class FunctionLineButton;
 class NumberEdit;
 
 //-----------------------------------------------------------------------------
@@ -75,43 +74,6 @@ class FunctionLineButton : public ListLineButton
   lv_obj_t *sfEnable = nullptr;
 
   virtual bool isActive() const override = 0;
-};
-
-//-----------------------------------------------------------------------------
-
-class FunctionEditPage : public Page
-{
- public:
-  FunctionEditPage(uint8_t index, EdgeTxIcon icon, const char *title,
-                   const char *prefix);
-
-  void delayedInit() override;
-
- protected:
-  uint8_t index;
-  Window *specialFunctionOneWindow = nullptr;
-  StaticText *headerSF = nullptr;
-  bool active = false;
-
-  virtual bool isActive() const = 0;
-  virtual bool isSwitchAvailable(int value) const = 0;
-  virtual CustomFunctionData *customFunctionData() const = 0;
-  virtual bool isAssignableFunctionAvailable(int function) const = 0;
-  virtual void setDirty() const = 0;
-
-  void checkEvents() override;
-
-  void buildHeader(Window *window, const char *title, const char *prefix);
-
-  void addSourceChoice(FormLine *line, const char *title,
-                       CustomFunctionData *cfn, int16_t vmax);
-
-  NumberEdit *addNumberEdit(FormLine *line, const char *title,
-                            CustomFunctionData *cfn, int16_t vmin, int16_t vmax);
-
-  void updateSpecialFunctionOneWindow();
-
-  void buildBody(Window *form);
 };
 
 //-----------------------------------------------------------------------------

@@ -201,6 +201,7 @@ bool rotaryEncoderPollingCycle();
 // suppressed; trims/sticks/switches still work.
 bool areKeysLocked();
 bool consumeKeysLockToggleEvent();
+void setKeyLockedState(bool);
 
 #if defined(USE_HATS_AS_KEYS)
 void setHatsAsKeys(bool val);
