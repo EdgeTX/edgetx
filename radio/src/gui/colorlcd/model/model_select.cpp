@@ -668,6 +668,8 @@ void ModelLabelsWindow::newModel()
         luaExecStandalone(path);
       }
 #endif
+    } else {
+      LayoutFactory::loadDefaultLayout();
     }
 
     // Main view layout
