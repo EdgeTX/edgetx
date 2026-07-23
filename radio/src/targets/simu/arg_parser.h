@@ -9,6 +9,7 @@ private:
   std::string storage_path;
   std::string settings_path;
   bool help_requested = false;
+  bool automation_stdio = false;
   std::string program_name;
 
 public:
@@ -24,6 +25,7 @@ public:
   int getHeight() const;
   const std::string &getStoragePath() const;
   const std::string &getSettingsPath() const;
+  bool isAutomationStdioEnabled() const;
 
   // Check if option was provided
   bool hasWidth() const;

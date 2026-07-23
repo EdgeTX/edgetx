@@ -27,3 +27,7 @@ _wasi_sdk_fetch
 
 output/
 .devcontainer/devcontainer-lock.json
+
+.venv/
+__pycache__/
+imgui.ini

@@ -32,7 +32,14 @@
 #include <fstream>
 #include <filesystem>
 #include <regex>
+#include <sstream>
 #include <string>
+#include <vector>
+
+#if !defined(_WIN32)
+#include <sys/select.h>
+#include <unistd.h>
+#endif
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
@@ -83,6 +90,7 @@
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* screen_frame_buffer;
+static bool automation_stdio = false;
 
 static GimbalState stick_left = {{0.5f, 0.5f}, false};
 static GimbalState stick_right = {{0.5f, 0.5f}, false};
@@ -98,6 +106,194 @@ extern volatile rotenc_t rotencValue;
 #endif
 
 int pots[MAX_POTS] = {0};
+
+static std::string json_escape(const std::string& value)
+{
+  std::string escaped;
+  escaped.reserve(value.size());
+  for (char ch : value) {
+    switch (ch) {
+    case '\\': escaped += "\\\\"; break;
+    case '"': escaped += "\\\""; break;
+    case '\n': escaped += "\\n"; break;
+    case '\r': escaped += "\\r"; break;
+    case '\t': escaped += "\\t"; break;
+    default: escaped += ch; break;
+    }
+  }
+  return escaped;
+}
+
+static void automation_reply_ok(const std::string& extra = "")
+{
+  std::cout << "{\"ok\":true";
+  if (!extra.empty()) std::cout << "," << extra;
+  std::cout << "}" << std::endl;
+}
+
+static void automation_reply_error(const std::string& message)
+{
+  std::cout << "{\"ok\":false,\"error\":\"" << json_escape(message) << "\"}" << std::endl;
+}
+
+static bool key_from_name(const std::string& name, uint8_t& key)
+{
+  static const std::pair<const char*, uint8_t> keys[] = {
+    {"MENU", KEY_MENU}, {"EXIT", KEY_EXIT}, {"ENTER", KEY_ENTER},
+    {"PAGEUP", KEY_PAGEUP}, {"PAGEDN", KEY_PAGEDN}, {"UP", KEY_UP},
+    {"DOWN", KEY_DOWN}, {"LEFT", KEY_LEFT}, {"RIGHT", KEY_RIGHT},
+    {"PLUS", KEY_PLUS}, {"MINUS", KEY_MINUS}, {"MODEL", KEY_MODEL},
+    {"TELE", KEY_TELE}, {"SYS", KEY_SYS}, {"SHIFT", KEY_SHIFT},
+    {"BIND", KEY_BIND},
+  };
+
+  for (const auto& candidate : keys) {
+    if (name == candidate.first) {
+      key = candidate.second;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static bool write_ppm_screenshot(const std::string& path)
+{
+  uint32_t width = simuLcdGetWidth();
+  uint32_t height = simuLcdGetHeight();
+  uint32_t depth = simuLcdGetDepth();
+  uint32_t bytes_per_pixel = depth == 16 ? 2 : 1;
+  std::vector<uint8_t> lcd(width * height * bytes_per_pixel);
+  uint32_t copied = simuLcdCopy(lcd.data(), lcd.size());
+  if (copied == 0) return false;
+
+  std::ofstream out(path, std::ios::binary);
+  if (!out) return false;
+
+  out << "P6\n" << width << " " << height << "\n255\n";
+
+  if (depth == 16) {
+    const uint16_t* pixels = reinterpret_cast<const uint16_t*>(lcd.data());
+    for (uint32_t i = 0; i < width * height; i++) {
+      uint16_t z = pixels[i];
+      uint8_t rgb[3] = {
+        static_cast<uint8_t>(((z & 0xF800) >> 8) + ((z & 0xE000) >> 13)),
+        static_cast<uint8_t>(((z & 0x07E0) >> 3) + ((z & 0x0600) >> 9)),
+        static_cast<uint8_t>(((z & 0x001F) << 3) + ((z & 0x001C) >> 2)),
+      };
+      out.write(reinterpret_cast<const char*>(rgb), sizeof(rgb));
+    }
+  } else {
+    const uint8_t black[3] = {0, 0, 0};
+    const uint8_t white[3] = {255, 255, 255};
+    for (uint32_t i = 0; i < width * height; i++) {
+      out.write(reinterpret_cast<const char*>(lcd[i] ? black : white), 3);
+    }
+  }
+
+  return true;
+}
+
+static void automation_handle_command(const std::string& line)
+{
+  std::istringstream in(line);
+  std::string command;
+  in >> command;
+
+  if (command.empty()) return;
+
+  if (command == "status") {
+    std::ostringstream extra;
+    extra << "\"running\":" << (simuIsRunning() ? "true" : "false")
+          << ",\"width\":" << simuLcdGetWidth()
+          << ",\"height\":" << simuLcdGetHeight()
+          << ",\"depth\":" << simuLcdGetDepth();
+    automation_reply_ok(extra.str());
+  } else if (command == "press" || command == "long_press") {
+    std::string key_name;
+    int duration_ms = command == "long_press" ? 800 : 120;
+    in >> key_name;
+    if (key_name.empty()) {
+      automation_reply_error("missing key name");
+      return;
+    }
+    in >> duration_ms;
+
+    uint8_t key;
+    if (!key_from_name(key_name, key)) {
+      automation_reply_error("unknown key: " + key_name);
+      return;
+    }
+
+    simuSetKey(key, true);
+    SDL_Delay(std::max(1, duration_ms));
+    simuSetKey(key, false);
+    automation_reply_ok();
+  } else if (command == "rotate") {
+    int steps = 0;
+    in >> steps;
+    simuRotaryEncoderEvent(steps);
+    automation_reply_ok();
+  } else if (command == "touch") {
+    int x = 0, y = 0, duration_ms = 120;
+    in >> x >> y >> duration_ms;
+    simuTouchDown(x, y);
+    SDL_Delay(std::max(1, duration_ms));
+    simuTouchUp();
+    automation_reply_ok();
+  } else if (command == "wait") {
+    int duration_ms = 0;
+    in >> duration_ms;
+    SDL_Delay(std::max(0, duration_ms));
+    automation_reply_ok();
+  } else if (command == "screenshot_ppm") {
+    std::string path;
+    in >> path;
+    if (path.empty()) {
+      automation_reply_error("missing screenshot path");
+      return;
+    }
+    if (!write_ppm_screenshot(path)) {
+      automation_reply_error("failed to write screenshot");
+      return;
+    }
+    std::ostringstream extra;
+    extra << "\"path\":\"" << json_escape(path) << "\""
+          << ",\"width\":" << simuLcdGetWidth()
+          << ",\"height\":" << simuLcdGetHeight()
+          << ",\"depth\":" << simuLcdGetDepth();
+    automation_reply_ok(extra.str());
+  } else if (command == "stop") {
+    SDL_Event event;
+    event.type = SDL_QUIT;
+    SDL_PushEvent(&event);
+    automation_reply_ok();
+  } else {
+    automation_reply_error("unknown command: " + command);
+  }
+}
+
+static void automation_poll_stdin()
+{
+  if (!automation_stdio) return;
+
+#if defined(_WIN32)
+  return;
+#else
+  timeval timeout = {0, 0};
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(STDIN_FILENO, &readfds);
+
+  int ready = select(STDIN_FILENO + 1, &readfds, nullptr, nullptr, &timeout);
+  if (ready > 0 && FD_ISSET(STDIN_FILENO, &readfds)) {
+    std::string line;
+    if (std::getline(std::cin, line)) {
+      automation_handle_command(line);
+    }
+  }
+#endif
+}
 
 static bool handleKeyEvents(SDL_Event& event)
 {
@@ -263,6 +459,7 @@ static bool handleEvents()
   }
 
   redraw();
+  automation_poll_stdin();
   return true;
 }
 
@@ -697,6 +894,8 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  automation_stdio = args.isAutomationStdioEnabled();
+
   int window_height = 600;
   if (args.hasHeight()) {
     window_height = args.getHeight();
@@ -746,6 +945,9 @@ int main(int argc, char* argv[])
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
+  if (automation_stdio) {
+    ImGui::GetIO().IniFilename = nullptr;
+  }
 
   // Setup Dear ImGui style
   ImGui::StyleColorsLight();
