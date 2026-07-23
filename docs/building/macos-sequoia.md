@@ -3,22 +3,26 @@
 # Install [Homebrew](https://brew.sh/)
 
 - Run command in `Terminal`:
-```
+
+```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
+
 !!! tip
-    Installing Brew via the command above will automatically install the [Xcode Command Line Tools](https://mac.install.guide/commandlinetools/). If for some reason you need to do this manually, run `xcode-select —install` via the Terminal app.
+    Installing Brew via the command above will automatically install the [Xcode Command Line Tools](https://mac.install.guide/commandlinetools/). If for some reason you need to do this manually, run `xcode-select --install` via the Terminal app.
 
 # Install Qt 6
+
 !!! note
     If you only intend on building the firmware, and not `simu`, `companion` or `simulator`, this is not necessary, and you can skip to the next step.
 
-```
+```bash
 brew install qt@6
 ```
 
 Once Qt has been installed, you should set a couple environment variables (please modify according to the real installation paths):
-```
+
+```bash
 export QTDIR=$(brew --prefix)/opt/qt@6
 export QT_PLUGIN_PATH=$QTDIR/plugins
 ```
@@ -29,89 +33,137 @@ Please note that `QT_PLUGIN_PATH` is required to be able to run Companion from y
 
 Download and install the ARM GCC toolchain [from here](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) (installs in `/Applications/ArmGNUToolchain/`):
 
-- For Intel Mac: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-x86_64-arm-none-eabi.pkg
-- If Mac Silicon (i.e. M1-M5): https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-arm64-arm-none-eabi.pkg
+- Intel Mac: <https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-x86_64-arm-none-eabi.pkg>
+- Apple Silicon (M1–M5): <https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-arm64-arm-none-eabi.pkg>
 
-Please note that this installation takes care of allowing the downloaded binaries to be run and prevents them being quarantined. If you choose to install the `tar.xz` archive to another location, you will have to take care of that yourself (see https://disable-gatekeeper.github.io/ for more details).
+If you install the `.tar.xz` archive manually instead of the `.pkg`, you may need to remove the macOS quarantine flag yourself. See <https://disable-gatekeeper.github.io/> for details.
 
-# Install various dependencies
+# Other tools
 
-- With `brew` in a `Terminal`:
+```bash
+brew install sdl2 sdl3 cmake uv
 ```
-brew install sdl cmake
-```
+
+!!! note
+    Homebrew's `sdl2` package is [sdl2-compat](https://github.com/libsdl-org/sdl2-compat), which depends on **SDL3** at runtime. Both `sdl2` and `sdl3` must be installed before building Companion or a `.dmg`.
 
 If you plan to run the standalone simulator for debugging:
-```
+
+```bash
 brew install --cask quartz
 ```
 
-
 # Download EdgeTX code
+-Checkout code
 
-- Checkout code
-```
+```bash
 git clone --recursive https://github.com/EdgeTX/edgetx.git
 ```
 
-- Switch into the source directory:
-```
+-Switch into the source directory:
+
+```bash
 cd edgetx
 ```
 
 # Install Python dependencies
 
-Since Python 3.11 enabled the "externally managed" flag, it is recommended that you use a virtual environment. [uv](https://docs.astral.sh/uv/getting-started/installation/) is one of the easiest tools to do and manage this, and can be installed with brew. It is recommended you create the virtual environment now rather than earlier in the process, as doing it now will create it in the edgetx directory.
+Since Python 3.11+, macOS uses an externally managed Python environment. Create a project virtual environment with [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
-- Install UV:
-```
-brew install uv
-```
-
-- Create the virtual environment (and use specific version of python for this environment):
-```
+```bash
 uv venv --python 3.14
+source .venv/bin/activate
+uv pip install -r requirements.txt
 ```
 
-- Activate the virtual environment (you will need to run this whenever you want to compile in the future from a new terminal session):
-```
+Activate the virtual environment in every new terminal session before building:
+
+```bash
 source .venv/bin/activate
 ```
 
-- Install the packages:
-```
-uv pip install Pillow clang lz4 jinja2
-```
+# Configure the build
 
-# Compile EdgeTX
-
-- Create and enter build directory:
-```
+```bash
 mkdir -p build && cd build
 ```
 
-Configure build flags using `cmake` (in this case, for RadioMaster TX16S, [see here](https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh) for other possible handset specific flags).
-```
+Configure for RadioMaster TX16S ([other radio flags](https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh)):
+
+```bash
 cmake -DPCB=X10 -DPCBREV=TX16S \
    -DCMAKE_PREFIX_PATH=$QTDIR \
+   -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
    -DARM_TOOLCHAIN_DIR=/Applications/ArmGNUToolchain/14.2.Rel1/arm-none-eabi/bin/ ..
 ```
 
-!!! note
-    Please note that the variables `CMAKE_PREFIX_PATH`, `ARM_TOOLCHAIN_DIR` must be specified additionally to what is described in the other compilation HowTos:
+| Variable | Purpose |
+|----------|---------|
+| `CMAKE_PREFIX_PATH` | Path to your Qt installation (`$QTDIR`) |
+| `CMAKE_OSX_DEPLOYMENT_TARGET` | Minimum macOS version for Companion. Use `14.0` for Sonoma and later. If omitted, the compiler uses the current SDK minimum (for example macOS 26 only) |
+| `ARM_TOOLCHAIN_DIR` | Path to ARM GCC binaries. Must end with `/` |
 
-    - `CMAKE_PREFIX_PATH`: this must point to your Qt installation path.
-    - `ARM_TOOLCHAIN_DIR`: this must point to where ARM GCC has been installed (and MUST contain `/` at the end).
+## Build firmware
 
-Configure the compiler for firmware building (parallel limits the number of CPU cores used - you can increase this if your machine can handle more):
-```
+```bash
 cmake --build . --target arm-none-eabi-configure --parallel 4
-```
-
-Build the firmware!
-```
 cmake --build . --target firmware
 ```
+
+The firmware binary is written to `build/arm-none-eabi/firmware.bin`.
+
+## Build Companion
+
+Firmware and Companion are separate targets. Companion requires Qt, SDL2, and SDL3 (see above).
+
+From the `build` directory:
+
+```bash
+source ../.venv/bin/activate
+export QTDIR=$(brew --prefix)/opt/qt@6
+export QT_PLUGIN_PATH=$QTDIR/plugins
+
+cmake --build . --target native-configure --parallel 4
+cmake --build . --target wasi-module --parallel 4
+mkdir -p native/plugins
+cp wasm/edgetx-*-simulator.wasm native/plugins/
+cmake --build . --target companion --parallel 4
+```
+
+The application bundle is created at `build/native/EdgeTX Companion 3.0.app` (the version number matches your EdgeTX release; check with `ls native/*.app`).
+
+## Run Companion from the build directory
+
+```bash
+export QT_PLUGIN_PATH=$(brew --prefix)/opt/qt@6/plugins
+open "native/EdgeTX Companion 3.0.app"
+```
+
+For the radio simulator to work when running from the build tree, copy the WASM module into the bundle:
+
+```bash
+cp wasm/edgetx-*-simulator.wasm "native/EdgeTX Companion 3.0.app/Contents/MacOS/"
+```
+
+## Build a distributable `.dmg`
+
+The `package` target lives in the `native` build tree, **not** in the top-level `build` directory.
+
+```bash
+mkdir -p native/plugins
+cp wasm/edgetx-*-simulator.wasm native/plugins/ 2>/dev/null || true
+cmake --build native --target package
+```
+
+The `.dmg` is written to `build/native/edgetx-companion-<version>.dmg` (for example `edgetx-companion-3.0.0.dmg`).
+
+Open it and drag **EdgeTX Companion** into `/Applications`:
+
+```bash
+open native/edgetx-companion-3.0.0.dmg
+```
+
+The packaging step bundles Qt, SDL2, and SDL3 into the `.app` automatically.
 
 # Troubleshooting
 
@@ -119,7 +171,7 @@ cmake --build . --target firmware
 
 When compiling simulator plug-ins (using `cmake --build . --target libsimulator` with the target properly configured), the product of this compilation will be a `.dylib` stored in your build directory. If you want the Companion or Simulator apps to be able to use it, you will need to copy it manually into the respective directories. Here is how it should look with a couple of plug-ins copied:
 
-```
+```bash
 % ls -l companion.app/Contents/MacOS/
 total 411976
 -rwxr-xr-x  1 etx  staff  27908864 Jan  7 11:48 companion
@@ -140,7 +192,8 @@ total 392616
 ## Notes on possible error while trying to run build-companion.sh
 
 If you encounter this error:
-```
+
+```bash
 CPack: - Install project: EdgeTX []
 CMake Error at /opt/homebrew/Cellar/cmake/3.27.7/share/cmake/Modules/BundleUtilities.cmake:458 (message):
   otool -l failed: 1
