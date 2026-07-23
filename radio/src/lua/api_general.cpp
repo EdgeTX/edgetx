@@ -2324,6 +2324,39 @@ static int luaSetSerialBaudrate(lua_State * L)
 }
 
 /*luadoc
+@function serialGetLuaPort()
+
+Get the serial port currently configured in LUA mode, if any.
+
+@retval port_nr (number) serial port configured in LUA mode:
+                         0 = AUX1, 1 = AUX2, 2 = USB-VCP
+
+@retval name (string) port name, e.g. "AUX1"
+
+@retval nil no serial port is configured in LUA mode
+
+@status current Introduced in 3.0.0
+*/
+static int luaSerialGetLuaPort(lua_State * L)
+{
+  int port_nr = serialGetModePort(UART_MODE_LUA);
+  if (port_nr < 0) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  lua_pushinteger(L, port_nr);
+
+  const etx_serial_port_t* port = serialGetPort(port_nr);
+  if (port && port->name) {
+    lua_pushstring(L, port->name);
+    return 2;
+  }
+
+  return 1;
+}
+
+/*luadoc
 @function serialWrite(str)
 @param str (string) String to be written to the serial port.
 
@@ -3172,6 +3205,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( multiBuffer, luaMultiBuffer )
 #endif
   LROT_FUNCENTRY( setSerialBaudrate, luaSetSerialBaudrate )
+  LROT_FUNCENTRY( serialGetLuaPort, luaSerialGetLuaPort )
   LROT_FUNCENTRY( serialWrite, luaSerialWrite )
   LROT_FUNCENTRY( serialRead, luaSerialRead )
 #if defined(SWSERIALPOWER) && !defined(SIMU)

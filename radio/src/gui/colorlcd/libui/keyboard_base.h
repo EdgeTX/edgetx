@@ -31,12 +31,17 @@ class Keyboard : public NavWindow
   void clearField(bool wasCancelled);
   static void hide(bool wasCancelled);
 
+  // Commit the field and close the keyboard because the "Enter" key was
+  // pressed (distinct from the "OK" checkmark, so fields can send/submit).
+  void enterField();
+
   static Keyboard* keyboardWindow() { return activeKeyboard; }
 
  protected:
   static Keyboard *activeKeyboard;
 
   bool hasTwoPageKeys;
+  bool enterPressed = false;
   lv_group_t* group = nullptr;
   lv_obj_t* keyboard = nullptr;
 
