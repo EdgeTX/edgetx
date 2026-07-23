@@ -420,7 +420,7 @@ void generalDefault()
   g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
 #endif
 
-#if defined(MANUFACTURER_RADIOMASTER)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_DUMBORC)
   g_eeGeneral.audioMuteEnable = 1;
 #if defined(RADIO_TX15)
   g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
