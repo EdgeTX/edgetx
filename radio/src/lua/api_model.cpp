@@ -1958,6 +1958,175 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
+static std::string getUDKey(lua_State *L)
+{
+  // generate user data key from supplied 'app' and 'key' values
+  // UD key = "app|key"
+
+  const char* a = luaL_checkstring(L, 1);
+  const char* k = luaL_checkstring(L, 2);
+
+  // App name and key are mandatory
+  if (a[0] == 0 || k[0] == 0) {
+    return "";
+  }
+
+  std::string s(a);
+  strReplaceAll(s, "|", "_");
+  s += "|";
+  s += k;
+
+  return s;
+}
+
+/*luadoc
+@function model.getUserData(app, key)
+
+Get User Data value for given app + key
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@param key (string) name of User Data entry
+
+@retval nil no User Data value defined
+
+@retval User Data value (string or number)
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetUserData(lua_State *L)
+{
+  std::string s = getUDKey(L);
+
+  auto ud = g_model.getUserData(s.c_str());
+  if (ud) {
+    if (ud->type == UD_INT) {
+      lua_pushinteger(L, strtol(ud->value.c_str(), nullptr, 10));
+    } else if (ud->type == UD_FLOAT) {
+      lua_pushnumber(L, strtof(ud->value.c_str(), nullptr));
+    } else {
+      lua_pushstring(L, ud->value.c_str());
+    }
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.getAllUserData()
+
+Get a table of all User Data entries
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@retval table of all User Data entries for the named app. If the app name is not supplied returns all entries.
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetAllUserData(lua_State *L)
+{
+  lua_newtable(L);
+
+  if (g_model.getUserDataCount() == 0) return 1;
+  if (lua_gettop(L) >= 2 && lua_type(L, 1) != LUA_TSTRING) return 1;
+
+  bool matchApp = false;
+  std::string s;
+  if (lua_gettop(L) >= 2) {
+    s = luaL_checkstring(L, 1);
+    strReplaceAll(s, "|", "_");
+    s += "|";
+    matchApp = true;
+  }
+
+  for (int i = 0; i < g_model.getUserDataCount(); i += 1) {
+    auto ud = g_model.getUserData(i);
+    if (ud) {
+      std::string k = ud->key;
+      if (matchApp) {
+        if (k.rfind(s, 0) != 0)
+          continue;
+        k = k.substr(s.size(), k.size()-s.size());
+      }
+      if (ud->type == UD_INT) {
+        lua_pushtableinteger(L, k.c_str(), strtol(ud->value.c_str(), nullptr, 10));
+      } else if (ud->type == UD_FLOAT) {
+        lua_pushtablenumber(L, k.c_str(), strtof(ud->value.c_str(), nullptr));
+      } else {
+        lua_pushtablestring(L, k.c_str(), ud->value.c_str());
+      }
+    }
+  }
+
+  return 1;
+}
+
+/*luadoc
+@function model.setUserData(app, key, value)
+
+Update User Data string for given app and key with new value.
+A new User Data entry will be created if the app + key is not found.
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@param key (string) name of User Data entry
+
+@param value (string or number) value to save to User Data entry
+
+@retval boolean - true if user data was saved, false if save failed
+
+@status current Introduced in 3.0.0
+*/
+static int luaSetUserData(lua_State *L)
+{
+  if (lua_type(L, 3) != LUA_TSTRING && !lua_isnumber(L, 3)) {
+    // Fallback to trigger the standard Lua type error before allocating std::string
+    luaL_checkstring(L, 3);
+    return 0;
+  }
+
+  std::string s = getUDKey(L);
+
+  // App name and key are mandatory
+  if (s.empty()) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  if (lua_type(L, 3) == LUA_TSTRING) {
+    const char* v = lua_tostring(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), v));
+  } else if (lua_isinteger(L, 3)) {
+    int32_t n = luaL_checkinteger(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), n));
+  } else {
+    float f = luaL_checknumber(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), f));
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.deleteUserData(app, key)
+
+Delete User Data entry for given app + key
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@param key (string) name of User Data entry
+
+@status current Introduced in 3.0.0
+*/
+static int luaDeleteUserData(lua_State *L)
+{
+  std::string s = getUDKey(L);
+  if (!s.empty())
+    g_model.deleteUserData(s.c_str());
+  return 0;
+}
+
 extern "C" {
 LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
@@ -2003,5 +2172,9 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getSwashRing, luaModelGetSwashRing )
   LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
+  LROT_FUNCENTRY( getUserData, luaGetUserData )
+  LROT_FUNCENTRY( getAllUserData, luaGetAllUserData )
+  LROT_FUNCENTRY( setUserData, luaSetUserData )
+  LROT_FUNCENTRY( deleteUserData, luaDeleteUserData )
 LROT_END(modellib, NULL, 0)
 }
