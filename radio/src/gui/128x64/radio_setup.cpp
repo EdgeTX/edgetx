@@ -22,6 +22,7 @@
 #define LANGUAGE_PACKS_DEFINITION
 
 #include "edgetx.h"
+#include "warning_checks.h"
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
 #include "hal/usb_driver.h"
@@ -848,9 +849,9 @@ void menuRadioSetup(event_t event)
                    g_eeGeneral.stickMode) {
           mixerTaskStop();
           g_eeGeneral.stickMode = reusableBuffer.generalSettings.stickMode;
-          checkThrottleStick();
-          mixerTaskStart();
-          waitKeysReleased();
+          // Throttle warning runs through the model-load state machine (pumped by
+          // perMain); its terminal restarts the mixer we just stopped.
+          warningChecksStart(WCC_STICK_MODE);
         }
         break;
 #endif

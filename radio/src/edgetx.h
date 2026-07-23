@@ -323,12 +323,6 @@ void flightReset(uint8_t check=true);
   #define RESET_THR_TRACE() s_timeCum16ThrP = s_timeCumThr = 0
 #endif
 
-void checkLowEEPROM();
-void checkThrottleStick();
-void checkSwitches();
-void checkAlarm();
-void checkAll(bool isBootCheck = false);
-
 void getADC();
 
 #include "sbus.h"

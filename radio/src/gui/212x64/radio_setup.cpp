@@ -26,6 +26,7 @@
 #define LANGUAGE_PACKS_DEFINITION
 
 #include "edgetx.h"
+#include "warning_checks.h"
 #include "tasks/mixer_task.h"
 #include "input_mapping.h"
 
@@ -833,9 +834,9 @@ void menuRadioSetup(event_t event)
           else if (mode != g_eeGeneral.stickMode) {
             mixerTaskStop();
             g_eeGeneral.stickMode = mode;
-            checkThrottleStick();
-            mixerTaskStart();
-            waitKeysReleased();
+            // Throttle warning runs through the model-load state machine (pumped
+            // by perMain); its terminal restarts the mixer we just stopped.
+            warningChecksStart(WCC_STICK_MODE);
           }
         }
         break;

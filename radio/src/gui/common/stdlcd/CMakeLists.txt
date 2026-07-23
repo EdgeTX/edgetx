@@ -11,6 +11,7 @@ set(GUI_SRC
   ../common/stdlcd/model_mixes.cpp
   ../common/stdlcd/view_text.cpp
   ../common/stdlcd/model_notes.cpp
+  ../common/stdlcd/warning_checks_view.cpp
   ../common/stdlcd/model_curves.cpp
   ../common/stdlcd/radio_hardware.cpp
   ../common/stdlcd/radio_version.cpp
