@@ -24,36 +24,35 @@
 #include <QLabel>
 #include <QLineEdit>
 
-AutoFileSelectButton::AutoFileSelectButton(QWidget * parent, const QString & text) :
-  AutoPushButton(parent),
-  m_caption(tr("Select existing file")),
-  m_path(""),
-  m_displayPath(nullptr)
+AutoFileSelectButton::AutoFileSelectButton(QWidget * parent, const QString & buttonText) :
+  AutoPushButton(parent, buttonText),
+  m_caption(""),
+  m_dir(""),
+  m_filter(""),
+  m_displayFile(nullptr),
+  m_options(QFileDialog::Options())
 {
-  setText(text);
-
   connect(this, &QPushButton::released, [&] ()
   {
-    QString path = QFileDialog::getOpenFileName(this, m_caption, m_path);
+    QString file = QFileDialog::getOpenFileName(this, m_caption, m_dir, m_filter, nullptr, m_options);
 
-    if (!path.isEmpty()) {
-      m_path = path;
+    if (!file.isEmpty()) {
+      m_file = file;
 
-      if (m_displayPath) {
-        QLabel *lbl = dynamic_cast<QLabel *>(m_displayPath);
+      if (m_displayFile) {
+        QLabel *lbl = dynamic_cast<QLabel *>(m_displayFile);
 
         if (lbl) {
-          lbl->setText(m_path);
+          lbl->setText(m_file);
         } else {
-          QLineEdit *le = dynamic_cast<QLineEdit *>(m_displayPath);
+          QLineEdit *le = dynamic_cast<QLineEdit *>(m_displayFile);
 
-          if (le) {
-            le->setText(m_path);
-          }
+          if (le)
+            le->setText(m_file);
         }
       }
 
-      emit folderChanged(m_path);
+      emit fileChanged(m_file);
       runPostChanged();
     }
   });
@@ -63,9 +62,13 @@ AutoFileSelectButton::~AutoFileSelectButton()
 {
 }
 
-void AutoFileSelectButton::setup(QString caption, QString path, QWidget * displayPath)
+void AutoFileSelectButton::setup(const QString dlgCaption, const QString dir,
+                                 const QString filter, QWidget * displayFile,
+                                 QFileDialog::Options options)
 {
-  m_caption = caption;
-  m_path = path;
-  m_displayPath = displayPath;
+  m_caption = dlgCaption;
+  m_dir = dir;
+  m_filter = filter;
+  m_displayFile = displayFile;
+  m_options = options;
 }

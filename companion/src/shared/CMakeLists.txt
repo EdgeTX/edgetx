@@ -11,7 +11,7 @@ set(${PROJECT_NAME}_NAMES
   autocombobox
   autodoublespinbox
   autofileselectbutton
-  autofolderselectbutton
+  autodirectoryselectbutton
   autohexspinbox
   autolabel
   autolineedit

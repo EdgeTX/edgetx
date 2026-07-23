@@ -25,25 +25,25 @@
 
 #include <QFileDialog>
 
-class AutoFolderSelectButton : public AutoPushButton
+class AutoDirectorySelectButton : public AutoPushButton
 {
   Q_OBJECT
 
   public:
-    explicit AutoFolderSelectButton(QWidget * parent = nullptr, const QString & text = tr("Select Folder"));
-    virtual ~AutoFolderSelectButton();
+    explicit AutoDirectorySelectButton(QWidget * parent = nullptr, const QString & buttonText = tr("Select..."));
+    virtual ~AutoDirectorySelectButton();
 
     virtual void updateValue() override {}
 
-    void setup(QString caption, QString fldr, QWidget * displayFldr = nullptr,
-               QFileDialog::Options opts = QFileDialog::ShowDirsOnly);
+    void setup(QString dlgCaption, QString dir, QWidget * displayDir = nullptr,
+               QFileDialog::Options options = QFileDialog::ShowDirsOnly);
 
   signals:
-    void folderChanged(QString fldr);
+    void directoryChanged(QString dir);
 
   private:
     QString m_caption;
-    QString m_fldr;
-    QWidget *m_displayFldr;
-    QFileDialog::Options m_opts;
+    QString m_dir;
+    QWidget *m_displayDir;
+    QFileDialog::Options m_options;
 };

@@ -19,55 +19,54 @@
  * GNU General Public License for more details.
  */
 
-#include "autofolderselectbutton.h"
+#include "autodirectoryselectbutton.h"
 
 #include <QLabel>
 #include <QLineEdit>
 
-AutoFolderSelectButton::AutoFolderSelectButton(QWidget * parent, const QString & text) :
-  AutoPushButton(parent),
-  m_caption(tr("Select existing folder")),
-  m_fldr(""),
-  m_displayFldr(nullptr),
-  m_opts(0)
+AutoDirectorySelectButton::AutoDirectorySelectButton(QWidget * parent, const QString & buttonText) :
+  AutoPushButton(parent, buttonText),
+  m_caption(""),
+  m_dir(""),
+  m_displayDir(nullptr),
+  m_options(QFileDialog::ShowDirsOnly)
 {
-  setText(text);
-
   connect(this, &QPushButton::released, [&] ()
   {
-    QString fldr = QFileDialog::getExistingDirectory(this, m_caption, m_fldr, m_opts);
+    QString dir = QFileDialog::getExistingDirectory(this, m_caption, m_dir, m_options);
 
-    if (!fldr.isEmpty()) {
-      m_fldr = fldr;
+    if (!dir.isEmpty()) {
+      m_dir = dir;
 
-      if (m_displayFldr) {
-        QLabel *lbl = dynamic_cast<QLabel *>(m_displayFldr);
+      if (m_displayDir) {
+        QLabel *lbl = dynamic_cast<QLabel *>(m_displayDir);
 
         if (lbl) {
-          lbl->setText(m_fldr);
+          lbl->setText(m_dir);
         } else {
-          QLineEdit *le = dynamic_cast<QLineEdit *>(m_displayFldr);
+          QLineEdit *le = dynamic_cast<QLineEdit *>(m_displayDir);
 
           if (le) {
-            le->setText(m_fldr);
+            le->setText(m_dir);
           }
         }
       }
 
-      emit folderChanged(m_fldr);
+      emit directoryChanged(m_dir);
       runPostChanged();
     }
   });
 }
 
-AutoFolderSelectButton::~AutoFolderSelectButton()
+AutoDirectorySelectButton::~AutoDirectorySelectButton()
 {
 }
 
-void AutoFolderSelectButton::setup(QString caption, QString fldr, QWidget * displayFldr, QFileDialog::Options opts)
+void AutoDirectorySelectButton::setup(QString dlgCaption, QString dir,
+                                      QWidget * displayDir, QFileDialog::Options options)
 {
-  m_caption = caption;
-  m_fldr = fldr;
-  m_displayFldr = displayFldr;
-  m_opts = opts;
+  m_caption = dlgCaption;
+  m_dir = dir;
+  m_displayDir = displayDir;
+  m_options = options;
 }

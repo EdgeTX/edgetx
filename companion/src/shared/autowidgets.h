@@ -30,7 +30,7 @@
 #include "autocombobox.h"
 #include "autodoublespinbox.h"
 #include "autofileselectbutton.h"
-#include "autofolderselectbutton.h"
+#include "autodirectoryselectbutton.h"
 #include "autohexspinbox.h"
 #include "autolabel.h"
 #include "autolineedit.h"

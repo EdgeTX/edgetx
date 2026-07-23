@@ -30,21 +30,23 @@ class AutoFileSelectButton : public AutoPushButton
   Q_OBJECT
 
   public:
-    explicit AutoFileSelectButton(QWidget *parent = nullptr, const QString &caption = QString(),
-                                  const QString &dir = QString(), const QString &filter = QString(),
-                                  QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
+    explicit AutoFileSelectButton(QWidget * parent = nullptr, const QString & buttonText = tr("Select..."));
     virtual ~AutoFileSelectButton();
 
     virtual void updateValue() override {}
 
-    void setup(const QString &caption = QString(), const QString &dir = QString(), const QString &filter = QString(),
-               QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
+    void setup(const QString dlgCaption = QString(), const QString dir = QString(),
+               const QString filter = QString(), QWidget * displayFile = nullptr,
+               QFileDialog::Options options = QFileDialog::Options());
 
   signals:
-    void folderChanged(QString fldr);
+    void fileChanged(QString file);
 
   private:
     QString m_caption;
-    QString m_path;
-    QWidget *m_displayPath;
+    QString m_dir;
+    QString m_filter;
+    QWidget *m_displayFile;
+    QFileDialog::Options m_options;
+    QString m_file;
 };

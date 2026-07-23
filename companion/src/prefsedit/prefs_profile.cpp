@@ -168,7 +168,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   leSDPath->setBindSave([this] { profile.sdPath(this->leSDPath->text()); });
   layFolders->addWidget(leSDPath, row, col++);
 
-  AutoFolderSelectButton *btnSDPath = new AutoFolderSelectButton(this);
+  AutoDirectorySelectButton *btnSDPath = new AutoDirectorySelectButton(this);
   btnSDPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   btnSDPath->setup(tr("Select SD path folder"), profile.sdPath(), leSDPath);;
   layFolders->addWidget(btnSDPath, row, col++);
@@ -182,7 +182,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   leModelsPath->setBindSave([this] { profile.modelsDir(this->leModelsPath->text()); });
   layFolders->addWidget(leModelsPath, row, col++);
 
-  AutoFolderSelectButton *btnModelsPath = new AutoFolderSelectButton(this);
+  AutoDirectorySelectButton *btnModelsPath = new AutoDirectorySelectButton(this);
   btnModelsPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   btnModelsPath->setup(tr("Select models folder"), profile.modelsDir(), leModelsPath);;
   layFolders->addWidget(btnModelsPath, row, col++);
@@ -196,7 +196,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   leBackupsPath->setBindSave([this] { profile.pBackupDir(this->leBackupsPath->text());});
   layFolders->addWidget(leBackupsPath, row, col++);
 
-  AutoFolderSelectButton *btnBackupsPath = new AutoFolderSelectButton(this);
+  AutoDirectorySelectButton *btnBackupsPath = new AutoDirectorySelectButton(this);
   btnBackupsPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
   btnBackupsPath->setup(tr("Select backups folder"), profile.pBackupDir(), leBackupsPath);;
   layFolders->addWidget(btnBackupsPath, row, col++);
@@ -233,7 +233,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   laySplash->addWidget(leSplashPath, row, col++);
   // Splash folder select
   AutoFileSelectButton *btnSplashSelect = new AutoFileSelectButton(this);
-  btnSplashSelect->setup(tr("Select splash folder"), profile.splashFile(), leSplashPath);;
+  btnSplashSelect->setup(tr("Select splash folder"), profile.splashFile(), getSplashFileFilter(), leSplashPath);;
   laySplash->addWidget(btnSplashSelect, row, col++);
   // Splash image
   newRow();
