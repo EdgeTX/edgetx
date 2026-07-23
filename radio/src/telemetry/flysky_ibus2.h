@@ -19,9 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "timers_driver.h"
+#pragma once
 
-void watchdogSuspend(unsigned int) {}
-uint32_t timersGetMsTick() { return 0; }
-uint32_t timersGetUsTick() { return 0; }
-
+void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
