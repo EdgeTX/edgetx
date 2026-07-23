@@ -47,8 +47,6 @@ extern tmr10ms_t rambackupDirtyTime10ms;
 //
 // Generic storage interface
 //
-void storageEraseAll(bool warn);
-void storageFormat();
 void storageReadAll();
 void storageCheck(bool immediately);
 
