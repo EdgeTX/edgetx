@@ -382,8 +382,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_UNSIGNED( "oneLogPerDay", 1 ),
+  YAML_UNSIGNED( "keyLockEnabled", 1 ),
   YAML_UNSIGNED( "invertLCD", 1 ),
-  YAML_PADDING( 1 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
