@@ -103,6 +103,10 @@ static void cliReceiveData(uint8_t* buf, uint32_t len)
 // Assumes it is called from ISR...
 static void cliDefaultRx(uint8_t *buf, uint32_t len)
 {
+  // FlapLink: When CRSF trainer mode is active, binary CRSF data is still
+  // forwarded to the stream buffer. The CLI task will check flaplinkTrainerActive
+  // and route bytes to the CRSF parser instead of CLI text processing.
+
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
   portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -1486,6 +1490,200 @@ void printAudioVars()
 }
 #endif
 
+/* ====== FlapLink Ground Station Commands ====== */
+/* These commands are always available (no DEBUG required) to support
+   the FlapLink ground station HTML interface communication via USB VCP. */
+
+#include "trainer.h"
+#include "telemetry/crossfire.h"
+#include "telemetry/telemetry_sensors.h"
+
+// CRSF frame reception state for trainer input via USB VCP
+static constexpr uint8_t FLAPLINK_CRSF_MAX_BUF = 64;
+static uint8_t flaplinkCrsfBuf[FLAPLINK_CRSF_MAX_BUF];
+static uint8_t flaplinkCrsfBufLen = 0;
+static bool flaplinkTrainerActive = false;
+
+// CRSF CRC8 lookup table (same as crossfire.cpp)
+static const uint8_t crsfCrc8Table[256] = {
+  0x00, 0xD5, 0x7F, 0xAA, 0xFE, 0x2B, 0x81, 0x54, 0x29, 0xFC, 0x56, 0x83, 0xD7, 0x02, 0xA8, 0x7D,
+  0x52, 0x87, 0x2D, 0xF8, 0xAC, 0x79, 0xD3, 0x06, 0x7B, 0xAE, 0x04, 0xD1, 0x85, 0x50, 0xFA, 0x2F,
+  0xA4, 0x71, 0xDB, 0x0E, 0x5A, 0x8F, 0x25, 0xF0, 0x8D, 0x58, 0xF2, 0x27, 0x73, 0xA6, 0x0C, 0xD9,
+  0xF6, 0x23, 0x89, 0x5C, 0x08, 0xDD, 0x77, 0xA2, 0xDF, 0x0A, 0xA0, 0x75, 0x21, 0xF4, 0x5E, 0x8B,
+  0x9D, 0x48, 0xE2, 0x37, 0x63, 0xB6, 0x1C, 0xC9, 0xB4, 0x61, 0xCB, 0x1E, 0x4A, 0x9F, 0x35, 0xE0,
+  0xCF, 0x1A, 0xB0, 0x65, 0x31, 0xE4, 0x4E, 0x9B, 0xE6, 0x33, 0x99, 0x4C, 0x18, 0xCD, 0x67, 0xB2,
+  0x39, 0xEC, 0x46, 0x93, 0xC7, 0x12, 0xB8, 0x6D, 0x10, 0xC5, 0x6F, 0xBA, 0xEE, 0x3B, 0x91, 0x44,
+  0x6B, 0xBE, 0x14, 0xC1, 0x95, 0x40, 0xEA, 0x3F, 0x42, 0x97, 0x3D, 0xE8, 0xBC, 0x69, 0xC3, 0x16,
+  0xE3, 0x36, 0x9C, 0x49, 0x1D, 0xC8, 0x62, 0xB7, 0xCA, 0x1F, 0xB5, 0x60, 0x34, 0xE1, 0x4B, 0x9E,
+  0xB1, 0x64, 0xCE, 0x1B, 0x4F, 0x9A, 0x30, 0xE5, 0x98, 0x4D, 0xE7, 0x32, 0x66, 0xB3, 0x19, 0xCC,
+  0x47, 0x92, 0x38, 0xED, 0xB9, 0x6C, 0xC6, 0x13, 0x6E, 0xBB, 0x11, 0xC4, 0x90, 0x45, 0xEF, 0x3A,
+  0x15, 0xC0, 0x6A, 0xBF, 0xEB, 0x3E, 0x94, 0x41, 0x3C, 0xE9, 0x43, 0x96, 0xC2, 0x17, 0xBD, 0x68,
+  0x75, 0xA0, 0x0A, 0xDF, 0x8B, 0x5E, 0xF4, 0x21, 0x5C, 0x89, 0x23, 0xF6, 0xA2, 0x77, 0xDD, 0x08,
+  0x27, 0xF2, 0x58, 0x8D, 0xD9, 0x0C, 0xA6, 0x73, 0x0E, 0xDB, 0x71, 0xA4, 0xF0, 0x25, 0x8F, 0x5A,
+  0xD1, 0x04, 0xAE, 0x7B, 0x2F, 0xFA, 0x50, 0x85, 0xF8, 0x2D, 0x87, 0x52, 0x06, 0xD3, 0x79, 0xAC,
+  0x83, 0x56, 0xFC, 0x29, 0x7D, 0xA8, 0x02, 0xD7, 0xAA, 0x7F, 0xD5, 0x00, 0x54, 0x81, 0x2B, 0xFE
+};
+
+static uint8_t flaplinkCrsfCrc8(const uint8_t* ptr, uint8_t len)
+{
+  uint8_t crc = 0;
+  for (uint8_t i = 0; i < len; i++) {
+    crc = crsfCrc8Table[crc ^ *ptr++];
+  }
+  return crc;
+}
+
+// Process a received CRSF frame from ground station
+static void flaplinkProcessCrsfFrame(const uint8_t* frame, uint8_t len)
+{
+  // frame[0] = address, frame[1] = length, frame[2] = type, ... frame[len-1] = CRC
+  if (len < 4) return;
+
+  uint8_t type = frame[2];
+
+  // Verify CRC (covers type + payload, i.e., frame[2..len-2])
+  uint8_t expectedCrc = flaplinkCrsfCrc8(&frame[2], len - 3);
+  if (expectedCrc != frame[len - 1]) return;
+
+  if (type == 0x16) {
+    // CRSF Channel frame - decode 16 channels into trainerInput
+    // Same logic as processCrossfireTelemetryFrame CHANNELS_ID
+    #define FLAPLINK_CRSF_CH_BITS 11
+    #define FLAPLINK_CRSF_CH_MASK ((1 << FLAPLINK_CRSF_CH_BITS) - 1)
+    #define FLAPLINK_CRSF_CH_CENTER 0x3E0
+
+    uint8_t byteIdx = 3;
+    uint32_t inputbits = 0;
+    uint8_t inputbitsavailable = 0;
+    int16_t* pulses = trainerInput;
+
+    for (int i = 0; i < 16; i++) {
+      while (inputbitsavailable < FLAPLINK_CRSF_CH_BITS) {
+        inputbits |= (uint32_t)(frame[byteIdx++]) << inputbitsavailable;
+        inputbitsavailable += 8;
+      }
+      *pulses++ = ((int32_t)(inputbits & FLAPLINK_CRSF_CH_MASK) - FLAPLINK_CRSF_CH_CENTER) * 5 / 8;
+      inputbitsavailable -= FLAPLINK_CRSF_CH_BITS;
+      inputbits >>= FLAPLINK_CRSF_CH_BITS;
+    }
+
+    trainerResetTimer();
+  }
+}
+
+// Feed raw bytes from USB VCP into CRSF frame parser
+static void flaplinkFeedCrsfData(const uint8_t* data, uint8_t len)
+{
+  if (!flaplinkTrainerActive) return;
+
+  for (uint8_t i = 0; i < len; i++) {
+    uint8_t byte = data[i];
+
+    if (flaplinkCrsfBufLen == 0) {
+      // Looking for sync address byte
+      if (byte == 0xEE || byte == 0xEC || byte == 0xEA || byte == 0xC8) {
+        flaplinkCrsfBuf[0] = byte;
+        flaplinkCrsfBufLen = 1;
+      }
+    } else if (flaplinkCrsfBufLen == 1) {
+      // Length byte
+      if (byte >= 2 && byte <= 62) {
+        flaplinkCrsfBuf[1] = byte;
+        flaplinkCrsfBufLen = 2;
+      } else {
+        flaplinkCrsfBufLen = 0; // invalid, reset
+      }
+    } else {
+      // Collecting payload + CRC
+      flaplinkCrsfBuf[flaplinkCrsfBufLen++] = byte;
+      uint8_t totalLen = 2 + flaplinkCrsfBuf[1]; // addr + len + payload
+      if (flaplinkCrsfBufLen >= totalLen) {
+        // Complete frame received
+        flaplinkProcessCrsfFrame(flaplinkCrsfBuf, flaplinkCrsfBufLen);
+        flaplinkCrsfBufLen = 0;
+      } else if (flaplinkCrsfBufLen >= FLAPLINK_CRSF_MAX_BUF) {
+        // Buffer overflow, reset
+        flaplinkCrsfBufLen = 0;
+      }
+    }
+  }
+}
+
+// CLI command: outputs - print channel output values (always available for ground station)
+static int cliOutputs(const char** argv)
+{
+  for (int i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
+    cliSerialPrint("outputs[%d] = %04d", i, (int)channelOutputs[i]);
+  }
+  return 0;
+}
+
+// CLI command: trainer - control ground station trainer mode
+// Usage:
+//   trainer crsf on   - start receiving CRSF frames from USB VCP
+//   trainer crsf off  - stop receiving CRSF frames
+//   trainer status     - show trainer status
+static int cliTrainer(const char** argv)
+{
+  if (!strcmp(argv[1], "crsf")) {
+    if (!strcmp(argv[2], "on") || !strcmp(argv[2], "1")) {
+      flaplinkTrainerActive = true;
+      flaplinkCrsfBufLen = 0;
+      cliSerialPrint("FLAPLINK: CRSF trainer mode ON");
+    } else if (!strcmp(argv[2], "off") || !strcmp(argv[2], "0")) {
+      flaplinkTrainerActive = false;
+      flaplinkCrsfBufLen = 0;
+      // Reset trainer inputs to center
+      for (int i = 0; i < MAX_TRAINER_CHANNELS; i++) {
+        trainerInput[i] = 0;
+      }
+      cliSerialPrint("FLAPLINK: CRSF trainer mode OFF");
+    } else {
+      cliSerialPrint("Usage: trainer crsf on|off");
+    }
+  } else if (!strcmp(argv[1], "status")) {
+    cliSerialPrint("FLAPLINK trainer: %s", flaplinkTrainerActive ? "CRSF ON" : "OFF");
+    cliSerialPrint("Trainer mode: %d", (int)g_model.trainerData.mode);
+    if (flaplinkTrainerActive) {
+      cliSerialPrint("CH1=%d CH2=%d CH3=%d CH4=%d",
+                     (int)trainerInput[0], (int)trainerInput[1],
+                     (int)trainerInput[2], (int)trainerInput[3]);
+    }
+  } else {
+    cliSerialPrint("Usage: trainer crsf on|off | trainer status");
+  }
+  return 0;
+}
+
+// CLI command: telemetry - output telemetry data for ground station
+// Usage:
+//   telemetry on   - start streaming telemetry frames
+//   telemetry off  - stop streaming
+//   telemetry once - output one frame of all sensor values
+static int cliTelemetry(const char** argv)
+{
+  if (!strcmp(argv[1], "on") || !strcmp(argv[1], "1")) {
+    cliSerialPrint("FLAPLINK: telemetry streaming ON (not yet implemented - use CRSF telemetry)");
+  } else if (!strcmp(argv[1], "off") || !strcmp(argv[1], "0")) {
+    cliSerialPrint("FLAPLINK: telemetry streaming OFF");
+  } else if (!strcmp(argv[1], "once")) {
+    // Output current telemetry values in text format
+    cliSerialPrint("FLAPLINK TELEMETRY DUMP:");
+    for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+      TelemetrySensor& sensor = g_model.telemetrySensors[i];
+      if (sensor.isAvailable()) {
+        TelemetryItem& item = telemetryItems[i];
+        cliSerialPrint("sensor[%d] id=%d val=%d", i, (int)sensor.id, (int)item.value);
+      }
+    }
+  } else {
+    cliSerialPrint("Usage: telemetry on|off|once");
+  }
+  return 0;
+}
+
+/* ====== End FlapLink Ground Station Commands ====== */
+
 #if defined(DEBUG)
 
 #include "hal/switch_driver.h"
@@ -1857,6 +2055,9 @@ const CliCommand cliCommands[] = {
 #endif
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
+  { "outputs", cliOutputs, "" },  // FlapLink: print channel outputs
+  { "trainer", cliTrainer, "crsf on|off | status" },  // FlapLink: CRSF trainer via USB
+  { "telemetry", cliTelemetry, "on|off|once" },  // FlapLink: telemetry output
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
   { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>]"},
 #endif
@@ -1969,6 +2170,13 @@ static void cliTask()
     }
 
     if (!xReceivedBytes) {
+      continue;
+    }
+
+    // FlapLink: When CRSF trainer mode is active, feed bytes to CRSF parser
+    // instead of CLI text processing
+    if (flaplinkTrainerActive) {
+      flaplinkFeedCrsfData(&c, 1);
       continue;
     }
 

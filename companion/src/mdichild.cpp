@@ -1629,7 +1629,7 @@ void MdiChild::writeModelsSettings(bool toRadio)
 
     QCheckBox *cb = new QCheckBox(tr("Do not show this message again"));
     msgbox.setCheckBox(cb);
-    connect(cb, &QCheckBox::checkStateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
+    connect(cb, &QCheckBox::stateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
     if (msgbox.exec() == QMessageBox::Abort)
       return;
   }

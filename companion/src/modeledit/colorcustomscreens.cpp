@@ -521,7 +521,7 @@ QGridLayout * addOptionsLayout(T & persistentData, int optioncnt, QString title)
         val = QString("%1").arg(zovt.value.signedValue);
         break;
       case ZOV_String:
-        val = QString("%1").arg(zovt.value.stringValue);
+        val = QString("%1").arg(QString::fromStdString(zovt.value.stringValue));
         break;
       default:
         val = QString("%1").arg(zovt.value.unsignedValue);
