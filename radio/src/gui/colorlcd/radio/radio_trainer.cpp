@@ -73,6 +73,7 @@ void RadioTrainerPage::build(Window* form)
       auto weight = new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -125, 125,
                                    GET_SET_DEFAULT(td->studWeight));
       weight->setSuffix("%");
+      weight->setEditTitle(std::string(getMainControlLabel(chan)) + " " + STR_WEIGHT);
 
 #if PORTRAIT
       line = form->newLine(grid);

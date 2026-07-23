@@ -52,6 +52,7 @@ class DateNumberEdit : public NumberEdit
 {
  public:
   DateNumberEdit(Window* parent, coord_t x, coord_t y, int vmin, int vmax, bool leading0,
+                  const char* editTitle,
                   std::function<int()> getValue,
                   std::function<void(int)> setValue) :
       NumberEdit(parent, {x, y, DT_EDT_W, 0}, vmin, vmax,
@@ -64,7 +65,9 @@ class DateNumberEdit : public NumberEdit
     lastValue = this->getValue();
     if (leading0)
       setDisplayHandler([](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
-}
+    setDirectKeyboard(true);
+    setEditTitle(editTitle);
+  }
 
   static LAYOUT_ORIENTATION(DT_EDT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(52))
 
@@ -137,7 +140,7 @@ class DateTimeWindow : public Window
 
     // Date
     new StaticText(this, rect_t{PAD_TINY, PAD_TINY + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_DATE);
-    new DateNumberEdit(this, SubPage::EDT_X, PAD_TINY, 2023, 2037, false,
+    new DateNumberEdit(this, SubPage::EDT_X, PAD_TINY, 2023, 2037, false, STR_DATE,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
         [=](int32_t newValue) {
           m_tm.tm_year = newValue - TM_YEAR_BASE;
@@ -145,7 +148,7 @@ class DateTimeWindow : public Window
           SET_LOAD_DATETIME(&m_tm);
         });
 
-    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W + PAD_TINY, PAD_TINY, 1, 12, false,
+    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W + PAD_TINY, PAD_TINY, 1, 12, false, STR_DATE,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
           m_tm.tm_mon = newValue - 1;
@@ -153,7 +156,7 @@ class DateTimeWindow : public Window
           SET_LOAD_DATETIME(&m_tm);
         });
 
-    day = new DateNumberEdit(this, SubPage::EDT_X + 2 * DateNumberEdit::DT_EDT_W + PAD_SMALL, PAD_TINY, 1, daysInMonth(), true,
+    day = new DateNumberEdit(this, SubPage::EDT_X + 2 * DateNumberEdit::DT_EDT_W + PAD_SMALL, PAD_TINY, 1, daysInMonth(), true, STR_DATE,
         [=]() -> int32_t { return m_tm.tm_mday; },
         [=](int32_t newValue) {
           m_tm.tm_mday = newValue;
@@ -162,21 +165,21 @@ class DateTimeWindow : public Window
 
     // Time
     new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_TIME);
-    new DateNumberEdit(this, SubPage::EDT_X, DT_Y2, 0, 23, true,
+    new DateNumberEdit(this, SubPage::EDT_X, DT_Y2, 0, 23, true, STR_TIME,
         [=]() -> int32_t { return m_tm.tm_hour; },
         [=](int32_t newValue) {
           m_tm.tm_hour = newValue;
           SET_LOAD_DATETIME(&m_tm);
         });
 
-    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W + PAD_TINY, DT_Y2, 0, 59, true,
+    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W + PAD_TINY, DT_Y2, 0, 59, true, STR_TIME,
         [=]() -> int32_t { return m_tm.tm_min; },
         [=](int32_t newValue) {
           m_tm.tm_min = newValue;
           SET_LOAD_DATETIME(&m_tm);
         });
 
-    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W * 2 + PAD_SMALL, DT_Y2, 0, 59, true,
+    new DateNumberEdit(this, SubPage::EDT_X + DateNumberEdit::DT_EDT_W * 2 + PAD_SMALL, DT_Y2, 0, 59, true, STR_TIME,
         [=]() -> int32_t { return m_tm.tm_sec; },
         [=](int32_t newValue) {
           m_tm.tm_sec = newValue;
@@ -419,6 +422,7 @@ const static SetupLineDef alarmsPageSetupLines[] = {
         suffix = " " + suffix;
         return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
       });
+      edit->setDirectKeyboard(true);
     }
   },
   {
@@ -587,6 +591,7 @@ const static SetupLineDef gpsPageSetupLines[] = {
                                 SET_DIRTY();
                               });
       tz->setDisplayHandler([](int32_t tz) { return timezoneDisplay(tz); });
+      tz->setDirectKeyboard(false);
     }
   },
   {
