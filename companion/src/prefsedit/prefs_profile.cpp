@@ -24,6 +24,9 @@
 #include "eeprominterface.h"
 #include "moduledata.h"
 
+#include <QAbstractItemView>
+#include <QStandardItemModel>
+
 constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
 PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
@@ -36,53 +39,90 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   lock = true;
 
   panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
+                                                                                     GeneralSettings::RadioTypeContextSurface);
 
-    // radio
-/*   QString currType = QStringList(profile.fwType().split('-').mid(0, 2)).join('-');
-  foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
-    ui->boardCB->addItem(firmware->getName(), firmware->getId());
-    if (currType == firmware->getId()) {
-      ui->boardCB->setCurrentIndex(ui->boardCB->count() - 1);
-    }
-  }
- */
   // name
-  ui->leName->setValue(profile.fwName());
-  ui->leName->setBindSave([this] { profile.fwName(ui->leName->text()); });
+  // The profile name may NEVER be empty
+  if (profile.name().isEmpty())
+    profile.name(tr("My Radio"));
 
-  // language
-  ui->cboLanguage->addItems(languageList());
-  ui->cboLanguage->setValue(getLanguage());
+  ui->leName->setValue(profile.name(), this);
+  ui->leName->setBindSave([this] {
+    profile.name(ui->leName->text());
+
+    if (profile.name().isEmpty())
+      profile.name(tr("My Radio"));
+  });
+
+  // radio
+  ui->cboRadio->setModel(firmwareModel());
+  // QComboBox::sizeAdjustPolicy(QCombobox::AdjustToContents) does not resize as requested
+  // due to using a model and nested layouts. Since the list view is correct, use it
+  ui->cboRadio->setMaximumWidth(ui->cboRadio->view()->width());
+  ui->cboRadio->setValue(profile.fwType(), this);
+  ui->cboRadio->setBindSave([this] { profile.fwType(ui->cboRadio->currentData().toString());} );
 
   // new file
   row = col = 0;
   ui->csectNewFile->setTitle(tr("New Models and Settings Files"));
-  ui->csectNewFile->setAnimationDuration(300);
   QGridLayout *layNewFile = new QGridLayout();
-  AutoCheckBox *chkUseSettingsBackup = new AutoCheckBox(this, tr("Use backup settings"));
+  // Use backup settings
+  chkUseSettingsBackup = new AutoCheckBox(this, tr("use backup settings"));
+  chkUseSettingsBackup->setValue(profile.useSavedSettings(), this);
+  chkUseSettingsBackup->setBindSave([this] {
+    profile.useSavedSettings(this->chkUseSettingsBackup->isChecked());
+  });
   layNewFile->addWidget(chkUseSettingsBackup, row, 1);
   newRow();
-  AutoLabel *lblSettingsBackup = new AutoLabel(this, tr("Radio Settings Label"));
+  AutoLabel *lblSettingsBackup = new AutoLabel(this);
+  lblSettingsBackup->setBindText([this] (){
+    if (profile.generalSettings().isEmpty()) {
+      return tr("No backup available for this profile");
+    } else {
+      QString str = profile.timeStamp();
+      if (str.isEmpty())
+        return tr("Backup available of unknown age");
+      else
+        return tr("Backup available dated %1").arg(str);
+    }
+  });
   layNewFile->addWidget(lblSettingsBackup, row, 1);
+  // Stick Mode
   newRow();
-  AutoLabel *lblStickMode = new AutoLabel(this, tr("Stick Mode"));
+  AutoLabel *lblStickMode = new AutoLabel(this, tr("Default Stick Mode"));
   layNewFile->addWidget(lblStickMode, row, col++);
-  AutoComboBox *cboStickMode = new AutoComboBox(this);
+  cboStickMode = new AutoComboBox(this);
+  cboStickMode->setModel(GeneralSettings::stickModeItemModel());
+  cboStickMode->setValue(profile.defaultMode(), this);
+  cboStickMode->setBindSave([this] { profile.defaultMode(this->cboStickMode->currentData().toInt()); });
   layNewFile->addWidget(cboStickMode, row, col++);
+  // Channel Order
   newRow();
-  AutoLabel *lblChannelOrder = new AutoLabel(this, tr("Channel Order"));
+  AutoLabel *lblChannelOrder = new AutoLabel(this, tr("Default Channel Order"));
   layNewFile->addWidget(lblChannelOrder, row, col++);
-  AutoComboBox *cboChannelOrder = new AutoComboBox(this);
+  cboChannelOrder = new AutoComboBox(this);
+  cboChannelOrder->setModel(panelItemModels->getItemModel(FIM_TEMPLATESETUP));
+  cboChannelOrder->setValue(profile.channelOrder(), this);
+  cboChannelOrder->setBindSave([this] { profile.channelOrder(this->cboChannelOrder->currentData().toInt()); });
   layNewFile->addWidget(cboChannelOrder, row, col++);
+  // Internal Module
   newRow();
-  AutoLabel *lblModuleInternal = new AutoLabel(this, tr("Internal Module"));
+  AutoLabel *lblModuleInternal = new AutoLabel(this, tr("Default Internal Module"));
   layNewFile->addWidget(lblModuleInternal, row, col++);
-  AutoComboBox *cboModuleInternal = new AutoComboBox(this);
+  cboModuleInternal = new AutoComboBox(this);
+  cboModuleInternal->setModel(ModuleData::internalModuleItemModel());
+  cboModuleInternal->setValue(profile.defaultInternalModule(), this);
+  cboModuleInternal->setBindSave([this] { profile.defaultInternalModule(this->cboModuleInternal->currentData().toInt()); });
   layNewFile->addWidget(cboModuleInternal, row, col++);
+  // External Module
   newRow();
-  AutoLabel *lblModuleExternal = new AutoLabel(this, tr("External Module"));
+  AutoLabel *lblModuleExternal = new AutoLabel(this, tr("External Module Size"));
   layNewFile->addWidget(lblModuleExternal, row, col++);
-  AutoComboBox *cboModuleExternal = new AutoComboBox(this);
+  cboModuleExternal = new AutoComboBox(this);
+  cboModuleExternal->setModel(Boards::externalModuleSizeItemModel());
+  cboModuleExternal->setValue(profile.externalModuleSize(), this);
+  cboModuleExternal->setBindSave([this] { profile.externalModuleSize(this->cboModuleExternal->currentData().toInt()); });
   layNewFile->addWidget(cboModuleExternal, row, col++);
   addHSpring(layNewFile, row, col);
   ui->csectNewFile->setContentLayout(*layNewFile);
@@ -91,39 +131,59 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   // folders
   row = col = 0;
   ui->csectFolders->setTitle(tr("Folders"));
-  ui->csectFolders->setAnimationDuration(300);
   QGridLayout *layFolders = new QGridLayout();
-  QLabel *lblSDPath = new QLabel(tr("SD Path"), this);
+  // SD Path
+  QLabel *lblSDPath = new QLabel(tr("SD Structure Path"), this);
   layFolders->addWidget(lblSDPath, row, col++);
-  AutoLineEdit *leSDPath = new AutoLineEdit(this, true);
+  leSDPath = new AutoLineEdit(this, true);
+  leSDPath->setValue(profile.sdPath(), this);
+  leSDPath->setBindSave([this] { profile.sdPath(this->leSDPath->text());});
   layFolders->addWidget(leSDPath, row, col++);
   AutoFolderSelectButton *btnSDPath = new AutoFolderSelectButton(this);
   btnSDPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+  btnSDPath->setup(tr("Select SD path folder"), profile.sdPath(), leSDPath);;
   layFolders->addWidget(btnSDPath, row, col++);
+  // Models path
   newRow();
   QLabel *lblModelsPath = new QLabel(tr("Models"), this);
   layFolders->addWidget(lblModelsPath, row, col++);
-  AutoLineEdit *leModelsPath = new AutoLineEdit(this, true);
+  leModelsPath = new AutoLineEdit(this, true);
+  leModelsPath->setValue(profile.modelsDir(), this);
+  leModelsPath->setBindSave([this] { profile.sdPath(this->leModelsPath->text());});
   layFolders->addWidget(leModelsPath, row, col++);
   AutoFolderSelectButton *btnModelsPath = new AutoFolderSelectButton(this);
   btnModelsPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+  btnModelsPath->setup(tr("Select models folder"), profile.modelsDir(), leModelsPath);;
   layFolders->addWidget(btnModelsPath, row, col++);
+  // Backups path
   newRow();
   QLabel *lblBackupsPath = new QLabel(tr("Backups"), this);
   layFolders->addWidget(lblBackupsPath, row, col++);
-  AutoLineEdit *leBackupsPath = new AutoLineEdit(this, true);
+  leBackupsPath = new AutoLineEdit(this, true);
+  leBackupsPath->setValue(profile.pBackupDir(), this);
+  leBackupsPath->setBindSave([this] { profile.pBackupDir(this->leBackupsPath->text());});
   layFolders->addWidget(leBackupsPath, row, col++);
   AutoFolderSelectButton *btnBackupsPath = new AutoFolderSelectButton(this);
   btnBackupsPath->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+  btnBackupsPath->setup(tr("Select backups folder"), profile.pBackupDir(), leBackupsPath);;
   layFolders->addWidget(btnBackupsPath, row, col++);
   addHSpring(layFolders, row, col);
   ui->csectFolders->setContentLayout(*layFolders);
   ui->csectFolders->setBindResize([this] { this->shrink(); });
 
   // options  TODO split into custom and those supported by Cloud Build
+  row = col = 0;
   ui->csectFirmwareOpts->setTitle(tr("Firmware Options"));
-  ui->csectFirmwareOpts->setAnimationDuration(300);
   QGridLayout *layFirmwareOpts = new QGridLayout();
+  // language
+  QLabel *lblLanguage = new QLabel(tr("Language"), this);
+  layFirmwareOpts->addWidget(lblLanguage, row, col++);
+  cboLanguage = new AutoComboBox(this);
+  cboLanguage->addItems(languageList());
+  cboLanguage->setValue(profile.fwLanguage(), this, false);
+  cboLanguage->setBindSave([this] { profile.fwLanguage(this->cboLanguage->currentText()); });
+  layFirmwareOpts->addWidget(cboLanguage, row, col++);
+
   addHSpring(layFirmwareOpts, row, col);
   ui->csectFirmwareOpts->setContentLayout(*layFirmwareOpts);
   ui->csectFirmwareOpts->setBindResize([this] { this->shrink(); });
@@ -131,22 +191,32 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent):
   // B&W firmware splash image
   row = col = 0;
   ui->csectSplash->setTitle(tr("Splash Screen"));
-  ui->csectSplash->setAnimationDuration(300);
   QGridLayout *laySplash = new QGridLayout();
-  AutoLineEdit *leSplashPath = new AutoLineEdit(this, true);
+  // Splash path
+  leSplashPath = new AutoLineEdit(this, true);
+  leSplashPath->setValue(profile.splashFile(), this);
+  leSplashPath->setBindSave([this] { profile.splashFile(this->leSplashPath->text());});
   laySplash->addWidget(leSplashPath, row, col++);
+  // Splash folder select
   AutoFolderSelectButton *btnSplashSelect = new AutoFolderSelectButton(this);
+  btnSplashSelect->setup(tr("Select splash folder"), profile.splashFile(), leSplashPath);;
   laySplash->addWidget(btnSplashSelect, row, col++);
+  // Splash image
   newRow();
   QLabel *lblSplashImage = new QLabel(this);
   laySplash->addWidget(lblSplashImage, row, col++);
-  AutoPushButton *btnSplashClear = new AutoPushButton(this);
+  // Splash clear
+  AutoPushButton *btnSplashClear = new AutoPushButton(this, tr("Clear"));
+  connect(btnSplashClear, &QPushButton::released, this, [this] () {
+
+
+  });
   laySplash->addWidget(btnSplashClear, row, col++);
   addHSpring(laySplash, row, col);
   ui->csectSplash->setContentLayout(*laySplash);
   ui->csectSplash->setBindResize([this] { this->shrink(); });
   ui->csectSplash->setBindVisible([this] {
-    return !Boards::getCapability(getBaseFirmware()->getBoard(), Board::HasColorLcd);
+    return !(Boards::getCapability(this->getFirmwareVariant()->getBoard(), Board::HasColorLcd));
   });
 
   update();
@@ -170,47 +240,44 @@ void PrefsProfilePanel::update()
   AbstractPanel::update();
 }
 
-Firmware *PrefsProfilePanel::getBaseFirmware() const
-{
-  return Firmware::getFirmwareForId(ui->cboRadio->currentData().toString());
-}
-
 Firmware * PrefsProfilePanel::getFirmwareVariant() const
 {
-  QString id = ui->cboRadio->currentData().toString();
-
-/*   foreach(QCheckBox *cb, firmwareOptions.values()) {
-    if (cb->isChecked())
-      id += "-" + cb->text();
-  }
- */
-  if (ui->cboLanguage->count())
-    id += "-" + ui->cboLanguage->currentText();
-
-  return Firmware::getFirmwareForId(id);
+  // TODO check if need -xxx
+  return Firmware::getFirmwareForId(ui->cboRadio->currentData().toString() % "-xxx");
 }
 
 QString PrefsProfilePanel::getLanguage()
 {
-  QString fwLang = Firmware::getCurrentVariant()->getLanguage();
-
-  if (fwLang.isEmpty()) // try to detect os language
-    fwLang = QLocale::languageToString(QLocale().language()).split("_").first();
-
-  return fwLang;
+  return !profile.fwLanguage().isEmpty() ?
+    profile.fwLanguage() :
+    QLocale::languageToString(QLocale().language()).split("_").first();
 }
 
 QStringList PrefsProfilePanel::languageList()
 {
   QStringList strl;
-  QString fwLang(getLanguage());
 
-  //for (const char *lang : firmware->getFirmwareBase()->languageList())
-  //  strl.append(lang);
-
-  if (!strl.contains(fwLang))
-    strl.append(fwLang);
+  for (const char *lang : getFirmwareVariant()->getFirmwareBase()->languageList())
+    strl.append(lang);
 
   strl.sort();
   return strl;
+}
+
+QAbstractItemModel * PrefsProfilePanel::firmwareModel()
+{
+  QStandardItemModel * mdl = new QStandardItemModel(this);
+
+  foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
+    QStandardItem * item =  new QStandardItem();
+    item->setText(firmware->getName());
+    item->setData(firmware->getId(), Qt::UserRole);
+    mdl->appendRow(item);
+  }
+
+  QSortFilterProxyModel *smdl = new QSortFilterProxyModel(this);
+  smdl->setSourceModel(mdl);
+  smdl->setSortCaseSensitivity(Qt::CaseInsensitive);
+  smdl->sort(0);
+  return smdl;
 }

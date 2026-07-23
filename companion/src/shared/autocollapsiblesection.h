@@ -54,7 +54,7 @@ class AutoCollapsibleSection : public QWidget, public AutoWidget
   Q_OBJECT
 
   public:
-    static const int DEFAULT_DURATION = 0;
+    static const int DEFAULT_DURATION = 300;
 
     explicit AutoCollapsibleSection(QWidget * parent = nullptr);
     virtual ~AutoCollapsibleSection() {}

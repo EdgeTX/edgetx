@@ -74,7 +74,7 @@ PrefsSimuPanel::PrefsSimuPanel(QWidget * parent) :
   ui->chkScrollButtons->setBindSave([this] { g.simuScrollButtons(ui->chkScrollButtons->isChecked()); });
 
   ui->cboGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
-  ui->cboGenericKeysPos->setValue(g.simuGenericKeysPos(), this);
+  ui->cboGenericKeysPos->setValue((int)g.simuGenericKeysPos(), this);
   ui->cboGenericKeysPos->setBindSave([this] {
     g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboGenericKeysPos->currentIndex());
   });
@@ -118,7 +118,7 @@ PrefsSimuPanel::PrefsSimuPanel(QWidget * parent) :
   ui->chkJoystickEnable->setBindSave([this] { g.jsSupport(ui->chkJoystickEnable->isChecked()); });
 
   ui->cboJoystick->addItems(joysticksList());
-  ui->cboJoystick->setCurrentText(profile.jsName());
+  ui->cboJoystick->setValue(profile.jsName(), this, false);
   ui->cboJoystick->setBindEnabled([this] { return ui->chkJoystickEnable->isChecked();} );
   ui->cboJoystick->setBindSave([this] {
     if (ui->cboJoystick->isEnabled()) {

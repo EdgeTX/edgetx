@@ -46,9 +46,20 @@ class PrefsProfilePanel : public PrefsPanel
     int row;
     int col;
 
+    AutoCheckBox *chkUseSettingsBackup;
+    AutoComboBox *cboStickMode;
+    AutoComboBox *cboChannelOrder;
+    AutoComboBox *cboModuleInternal;
+    AutoComboBox *cboModuleExternal;
+    AutoLineEdit *leSDPath;
+    AutoLineEdit *leModelsPath;
+    AutoLineEdit *leBackupsPath;
+    AutoComboBox *cboLanguage;
+    AutoLineEdit *leSplashPath;
+
     inline void newRow() { ++row; col = 0; }
     QString getLanguage();
     QStringList languageList();
-    Firmware * getBaseFirmware() const;
     Firmware * getFirmwareVariant() const;
+    QAbstractItemModel *firmwareModel();
 };

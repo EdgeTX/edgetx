@@ -66,6 +66,7 @@ AutoCollapsibleSection::AutoCollapsibleSection(QWidget * parent) :
   headerLine->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   contentArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  contentArea->setFrameStyle(QFrame::NoFrame);
 
   // start out collapsed
   contentArea->setMaximumHeight(0);

@@ -25,9 +25,11 @@ AutoComboBox::AutoComboBox(QWidget * parent):
   QComboBox(parent),
   AutoWidget(),
   m_next(0),
-  m_hasModel(false)
+  m_hasModel(false),
+  m_useFindData(true)
 {
   initField();
+  setSizeAdjustPolicy(QComboBox::AdjustToContents);
   connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AutoComboBox::onCurrentIndexChanged);
 }
 
@@ -46,6 +48,7 @@ void AutoComboBox::initField()
   m_qString = nullptr;
   m_stdString = nullptr;
   m_value = 0;
+
 }
 
 void AutoComboBox::clear()
@@ -78,6 +81,19 @@ void AutoComboBox::addItem(const QString & item, int value)
   if (!m_hasModel) {
     setLock(true);
     QComboBox::addItem(item, value);
+    setLock(false);
+    updateValue();
+  }
+}
+
+void AutoComboBox::addItems(const QStringList & items)
+{
+  if (!m_hasModel) {
+    setLock(true);
+
+    foreach(QString item, items)
+      QComboBox::addItem(item, m_next++);
+
     setLock(false);
     updateValue();
   }
@@ -168,10 +184,11 @@ void AutoComboBox::setModel(QAbstractItemModel * model)
   }
 }
 
-void AutoComboBox::setValue(QVariant value, AbstractPanel * panel)
+void AutoComboBox::setValue(QVariant value, AbstractPanel * panel, bool useFindData)
 {
   setFieldInit(panel);
   m_value = value;
+  m_useFindData = useFindData;
   updateValue();
 }
 
@@ -205,10 +222,11 @@ void AutoComboBox::updateValue()
     setCurrentIndex(findText(*m_qString));
   else if (m_stdString)
     setCurrentIndex(findText(QString(m_stdString->c_str())));
-  else if (isValueInt())
-    setCurrentIndex(m_value.toInt());
+  // default using m_value
+  else if (m_useFindData)
+    setCurrentIndex(findData(m_value));
   else
-    setCurrentIndex(findData(m_value.toString()));
+    setCurrentIndex(findText(m_value.toString()));
 
   setLock(false);
 }
@@ -245,6 +263,7 @@ void AutoComboBox::onCurrentIndexChanged(int index)
       *m_qString = str;
     else if (m_stdString && *m_stdString != str.toStdString())
       *m_stdString = str.toStdString();
+    // default using m_value
     else if (isValueInt() && m_value.toInt() != val)
       m_value = val;
     else if (!isValueInt() && m_value.toString() != str)

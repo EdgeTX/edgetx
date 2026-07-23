@@ -46,6 +46,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     // QComboBox
     virtual void addItem(const QString & item);
     virtual void addItem(const QString & item, int value);
+    virtual void addItems(const QStringList & items);
     virtual void insertItems(int index, const QStringList & items);
 
     // AutoWidget
@@ -71,7 +72,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     void setModel(QAbstractItemModel * model) override;
 
     // use for widget not bound to a memory address
-    void setValue(QVariant value, AbstractPanel * panel = nullptr);
+    void setValue(QVariant value, AbstractPanel * panel = nullptr, bool useFindData = true);
 
   signals:
     void currentDataChanged(int value);
@@ -91,6 +92,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     QString *m_qString;
     std::string *m_stdString;
     QVariant m_value;
+    bool m_useFindData;
 
     void initField();
     void setFieldInit(AbstractPanel * panel);
