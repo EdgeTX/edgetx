@@ -1,4 +1,5 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(DIAG_BANK2_FENCE "MPU fence trapping any flash bank 2 access during USB (validation builds, EdgeTX#5899)" OFF)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(IMU_LSM6DS33 "Enable I2C2 and LSM6DS33 IMU" OFF)
 option(PXX1 "PXX1 protocol support" ON)
@@ -221,6 +222,10 @@ endif()
 if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
+endif()
+
+if(DIAG_BANK2_FENCE)
+  add_definitions(-DDIAG_BANK2_FENCE)
 endif()
 
 if(INTERNAL_GPS)
