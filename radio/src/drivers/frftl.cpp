@@ -159,6 +159,11 @@ static PhysicalPageState getPhysicalPageState(FrFTL* ftl,
 static void setPhysicalPageState(FrFTL* ftl, uint16_t physicalPageNo,
                                  PhysicalPageState state)
 {
+  if (state == ERASE_REQUIRED) {
+    if (ftl->callbacks->isFlashErased(physicalPageNo * PAGE_SIZE)) {
+      state = ERASED;
+    }
+  }
   uint32_t idx = physicalPageNo >> 4;
   uint32_t mask = 0x3 << ((physicalPageNo & 0xf) * 2);
   ftl->physicalPageState[idx] &= ~mask;
@@ -549,10 +554,10 @@ static bool quickErase(FrFTL* ftl, uint32_t addr)
 {
 
   const FrFTLOps* cb = ftl->callbacks;
+  uint16_t ppn = addr / PAGE_SIZE;
   if ((addr & BLOCK_MASK) == 0) {
     // Block aligned
 
-    uint16_t ppn = addr / PAGE_SIZE;
     uint8_t count = 0;
     bool hasUsed = false;
 
@@ -578,7 +583,11 @@ static bool quickErase(FrFTL* ftl, uint32_t addr)
       return ret;
     }
   }
-  return cb->flashErase(addr);
+  if (cb->flashErase(addr)) {
+    setPhysicalPageState(ftl, ppn, ERASED);
+    return true;
+  }
+  return false;
 }
 
 static bool programPage(FrFTL* ftl, PageBuffer* buffer, bool doErase)
@@ -777,7 +786,7 @@ bool ftlSync(FrFTL* ftl)
 bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
               const uint8_t* buf)
 {
-  resolveUnknownState(ftl, ftl->ttPageCount);
+  resolveUnknownState(ftl, ftl->ttPageCount > 16 ? ftl->ttPageCount : 16);
   if (startSectorNo + noOfSectors > ftl->usableSectorCount) {
     return false;
   }
@@ -867,7 +876,6 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
 
 bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
 {
-  //  doGC(ftl, ftl->ttPageCount, 1);
   if (sectorNo >= ftl->usableSectorCount) {
     return false;
   }
@@ -893,7 +901,7 @@ bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
 
 bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
 {
-  resolveUnknownState(ftl, ftl->ttPageCount);
+  resolveUnknownState(ftl, ftl->ttPageCount > 16 ? ftl->ttPageCount : 16);
   if (startSectorNo + noOfSectors > ftl->usableSectorCount) {
     return false;
   }
