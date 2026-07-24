@@ -147,6 +147,13 @@ struct PageBuffer {
 
 static const uint16_t supportedFlashSizes[] = { 4, 8, 16, 32, 64, 128, 256 };
 
+/**
+ * @brief Retrieves the tracked state of a physical flash page.
+ *
+ * @param ftl FTL instance containing the physical page state table.
+ * @param physicalPageNo Physical page number.
+ * @return PhysicalPageState State recorded for the specified physical page.
+ */
 static PhysicalPageState getPhysicalPageState(FrFTL* ftl,
                                               uint16_t physicalPageNo)
 {
@@ -157,12 +164,12 @@ static PhysicalPageState getPhysicalPageState(FrFTL* ftl,
 }
 
 /**
- * @brief Records the state of a physical flash page.
+ * @brief Updates the tracked state of a physical flash page.
  *
- * An erase-required page is recorded as erased when the flash reports that
- * its contents are already erased.
+ * When the requested state is {@c ERASE_REQUIRED}, an already-erased flash
+ * page is recorded as {@c ERASED}.
  *
- * @param ftl FTL instance whose physical page state is updated.
+ * @param ftl FTL instance whose page state is updated.
  * @param physicalPageNo Physical page number to update.
  * @param state State to record.
  */
@@ -194,6 +201,12 @@ static inline uint16_t crc16_x25_ccitt(const void* buf, uint32_t len) {
   return crc16(CRC_1021, (const uint8_t*)buf, len, crc16_ccitt_start);
 }
 
+/**
+ * @brief Calculates the CRC for a translation table header.
+ *
+ * @param header Header whose padding is set before calculating the CRC.
+ * @return CRC-16/X.25 value for the header contents excluding the CRC field.
+ */
 static inline uint16_t calcCRC(TransTableHeader* header)
 {
   header->padding = 0xffff;
@@ -201,11 +214,11 @@ static inline uint16_t calcCRC(TransTableHeader* header)
 }
 
 /**
- * @brief Resolves unknown physical page states starting at the write frontier.
+ * @brief Resolves unknown physical page states from the write frontier.
  *
- * Marks up to `count` unknown pages as requiring erasure. Once all physical
- * pages have been scanned without reaching the requested count, marks the
- * physical page state as resolved.
+ * Marks up to `count` unknown pages as requiring erasure. If the scan reaches
+ * the end of the physical page range before resolving `count` pages, marks
+ * the state information as fully resolved.
  *
  * @param ftl Flash translation layer instance.
  * @param count Maximum number of unknown pages to resolve.
@@ -553,6 +566,12 @@ static bool updatePageInfo(FrFTL* ftl, PageInfo* pageInfo,
   }
 }
 
+/**
+ * @brief Allocates the next physical page that is not marked as used.
+ *
+ * @param ftl FTL instance whose write frontier and page states are updated.
+ * @return uint16_t Allocated physical page number, or `0xffff` if no available page is found.
+ */
 static uint16_t allocatePhysicalPage(FrFTL* ftl)
 {
   uint16_t lookupCount = 0;
@@ -623,12 +642,15 @@ static bool quickErase(FrFTL* ftl, uint32_t addr)
 }
 
 /**
- * @brief Programs the buffered page to flash, optionally erasing it first.
+ * @brief Programs the selected sectors of a buffered page to flash.
+ *
+ * Translation-table pages are programmed in full. When requested, the physical
+ * page is erased before programming.
  *
  * @param ftl Flash translation layer instance.
- * @param buffer Buffered page and its programming metadata.
+ * @param buffer Buffered page and programming metadata.
  * @param doErase Whether to erase the physical page before programming.
- * @return `true` if the page is successfully programmed, `false` if erasing or programming fails.
+ * @return `true` if erasing and programming succeed, `false` otherwise.
  */
 static bool programPage(FrFTL* ftl, PageBuffer* buffer, bool doErase)
 {
@@ -665,6 +687,16 @@ static bool programPage(FrFTL* ftl, PageBuffer* buffer, bool doErase)
   return true;
 }
 
+/**
+ * @brief Programs a buffered page and updates its physical-page state.
+ *
+ * Relocates the page when required, including updating translation-table metadata
+ * and the master translation table location.
+ *
+ * @param buffer Buffered page and programming mode to process.
+ * @return `true` if the page is processed successfully, `false` if allocation,
+ *         erase, or programming fails.
+ */
 static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
 {
   uint16_t oldPhysicalPageNo;
@@ -764,6 +796,12 @@ static bool lockTTPages(FrFTL* ftl, uint16_t logicalPageNo)
   return true;
 }
 
+/**
+ * @brief Flushes pending data and translation-table updates to flash.
+ *
+ * @param ftl FrFTL instance whose locked page buffers are synchronized.
+ * @return true if all pending updates are programmed successfully, false otherwise.
+ */
 bool ftlSync(FrFTL* ftl)
 {
   PageBuffer* pageBuffer = ((PageBuffer*)(ftl->pageBuffer));
@@ -837,13 +875,13 @@ bool ftlSync(FrFTL* ftl)
 }
 
 /**
- * @brief Stages sector data for writing to the flash translation layer.
+ * @brief Stages consecutive logical sectors for writing.
  *
  * @param ftl Translation layer instance.
  * @param startSectorNo First logical sector to write.
  * @param noOfSectors Number of consecutive sectors to write.
- * @param buf Source buffer containing the sector data.
- * @return true if all sectors were staged successfully, false if the range is invalid or a required allocation, read, update, or synchronization operation fails.
+ * @param buf Source data containing one sector for each requested sector.
+ * @return true if all sectors are staged successfully, false if the range is invalid or staging fails.
  */
 bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
               const uint8_t* buf)
@@ -975,12 +1013,12 @@ bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
 }
 
 /**
- * @brief Marks a range of sectors as trimmed and stages the required translation-table updates.
+ * @brief Marks sectors in a range as trimmed and stages the corresponding mapping updates.
  *
  * @param ftl Flash translation layer instance.
  * @param startSectorNo First sector in the range.
  * @param noOfSectors Number of sectors to trim.
- * @return `true` if the range is valid and all trim operations are staged; `false` otherwise.
+ * @return `true` if all trim operations are staged successfully; `false` if the range is invalid or an operation fails.
  */
 bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
 {
@@ -1153,6 +1191,13 @@ void createFTL(FrFTL* ftl)
   ftl->writeFrontier = ftl->ttPageCount;
 }
 
+/**
+ * @brief Loads and validates the newest master translation table from flash.
+ *
+ * @param ftl FTL instance whose flash state and translation-table buffers are initialized.
+ * @return `true` if a valid translation-table set is loaded, `false` if no valid master
+ *         translation table is found or flash access or validation fails.
+ */
 static bool loadFTL(FrFTL* ftl)
 {
   // Scan for MTT
@@ -1241,12 +1286,12 @@ static bool loadFTL(FrFTL* ftl)
 }
 
 /**
- * @brief Initializes the flash translation layer for a supported flash capacity.
+ * @brief Initializes the flash translation layer for the specified flash capacity.
  *
  * @param ftl Translation-layer instance to initialize.
  * @param cb Flash operation callbacks.
  * @param flashSizeInMB Flash capacity in megabytes.
- * @return `true` if initialization succeeds, `false` if the flash capacity is unsupported.
+ * @return `true` if the capacity is supported and initialization proceeds, `false` otherwise.
  */
 bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB)
 {
