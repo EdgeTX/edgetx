@@ -24,6 +24,9 @@
 #include "stm32_gpio.h"
 
 #include "hal.h"
+#if !defined(BOOT)
+#include "rtos.h"
+#endif
 
 #define CS_HIGH() stm32_spi_unselect(&_flash_spi)
 #define CS_LOW()  stm32_spi_select(&_flash_spi)
@@ -147,6 +150,13 @@ static void flash_wait_for_not_busy()
   uint8_t status;
   do {
     flash_do_cmd(FLASH_CMD_STATUS, 0, &status, 1);
+    if (status & 0x01) {
+#if !defined(BOOT)
+      RTOS_WAIT_MS(1);
+#else
+      delay_ms(1);
+#endif
+    }
   } while (status & 0x01);
 }
 
@@ -270,8 +280,10 @@ uint32_t flashSpiGetSize()
 
 bool flashSpiIsErased(uint32_t address)
 {
-  // verify sector alignment
-  if((address & FLASH_SECTOR_MASK) != 0)
+  static uint8_t temp_buffer[FLASH_SECTOR_SIZE] __DMA_NO_CACHE;
+
+  // Verify sector alignment
+  if ((address & FLASH_SECTOR_MASK) != 0)
     return false;
 
   flash_wait_for_not_busy();
@@ -283,17 +295,25 @@ bool flashSpiIsErased(uint32_t address)
     flash_put_cmd_addr(FLASH_CMD_READ, address);
   }
 
-  bool ret = true;
-  for(uint32_t i = 0; i < FLASH_SECTOR_SIZE; i++) {
-    uint8_t byte = flash_rw_byte(0xFF);
-    if (byte != 0xff) {
-      ret = false;
-      break;
+  // Check first 4 bytes
+  for (uint32_t i = 0; i < 4; i++) {
+    if (flash_rw_byte(0xFF) != 0xff) {
+      flash_unselect();
+      return false;
     }
   }
 
+  // First 4 bytes all 0xFF, now need to check the remaining using DMA
+  flash_dma_read_bytes(temp_buffer, FLASH_SECTOR_SIZE - 4);
   flash_unselect();
-  return ret;
+
+  for (uint32_t i = 0; i < FLASH_SECTOR_SIZE - 4; i++) {
+    if (temp_buffer[i] != 0xff) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 uint32_t flashSpiRead(uint32_t address, uint8_t* data, uint32_t size)

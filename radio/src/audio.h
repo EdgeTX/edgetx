@@ -302,18 +302,19 @@ class AudioBufferFifo {
   private:
     volatile uint8_t readIdx;
     volatile uint8_t writeIdx;
+    volatile bool bufferFull;
 
     inline uint8_t nextBufferIdx(uint8_t idx) const
     {
       return (idx >= AUDIO_BUFFER_COUNT - 1 ? 0 : idx + 1);
     }
 
-    bool full() const { return readIdx == nextBufferIdx(writeIdx); }
+    bool full() const { return bufferFull; }
     bool empty() const { return readIdx == writeIdx; }
     uint8_t used() const { return (writeIdx - readIdx) % AUDIO_BUFFER_COUNT; }
 
    public:
-    AudioBufferFifo() : readIdx(0), writeIdx(0)
+    AudioBufferFifo() : readIdx(0), writeIdx(0), bufferFull(false)
     {
       memset(audioBuffers, 0, sizeof(audioBuffers));
     }
@@ -326,10 +327,17 @@ class AudioBufferFifo {
     }
 
     // puts filled buffer into FIFO
-    void audioPushBuffer() { writeIdx = nextBufferIdx(writeIdx); }
+    void audioPushBuffer()
+    {
+      writeIdx = nextBufferIdx(writeIdx);
+      if (writeIdx == readIdx) bufferFull = true;
+    }
 
-    // frees the last played buffer
-    void freeNextFilledBuffer() { readIdx = nextBufferIdx(readIdx); }
+    void freeNextFilledBuffer()
+    {
+      readIdx = nextBufferIdx(readIdx);
+      bufferFull = false;
+    }
 
     // returns a pointer to the audio buffer to be played
     const AudioBuffer *getNextFilledBuffer()
