@@ -52,10 +52,11 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build && mkdir build && cd build
+rm -rf build && mkdir build && cd build || exit
 
 get_platform_config() {
-    local platform=$(uname)
+    local platform
+    platform=$(uname)
     case "$platform" in
         "Darwin")
             PACKAGE_TARGET="package"
@@ -116,13 +117,21 @@ elif ! cmake_build_parallel native --target ${PACKAGE_TARGET} >> "$LOG_FILE" 2>&
     echo "    ❌ Packaging failed"
     cat "$LOG_FILE"
     error_status=1
-elif cp native/$PACKAGE_FILES "${OUTDIR}" 2>/dev/null; then
-    echo "    ✅ Build completed successfully!"
-    echo "    📁 Package saved to: ${OUTDIR}"
 else
-    echo "    ❌ Failed to copy package files to output directory"
-    ls -la native/ || echo "native/ directory not found"
-    error_status=1
+    PACKAGE_FILE=$(find native/ -path "native/${PACKAGE_FILES}" -type f | head -n1)
+    if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null; then
+        echo "    ✅ Build completed successfully!"
+        echo "    📁 Package saved to: ${OUTDIR}"
+        echo "    📄 Copied: $(basename "$PACKAGE_FILE")"
+    else
+        echo "    ❌ Failed to copy package files to output directory"
+        echo "    📁 Directory Contents:"
+        echo "    ----------------------"
+        ls -la native/ || echo "native/ directory not found"
+        echo "Looking for files matching: $PACKAGE_FILES"
+        find native/ -path "native/${PACKAGE_FILES}" 2>/dev/null || echo "No matching files found"
+        error_status=1
+    fi
 fi
 
 if [[ -n "$GITHUB_ACTIONS" ]]; then
