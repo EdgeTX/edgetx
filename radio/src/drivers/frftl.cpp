@@ -171,7 +171,6 @@ static void setPhysicalPageState(FrFTL* ftl, uint16_t physicalPageNo,
       ((state & 0x3) << ((physicalPageNo & 0xf) * 2));
 }
 
-
 static const uint16_t crc16_ccitt_start = 0xFFFF;
 
 static inline uint16_t crc16_x25_ccitt(const void* buf, uint32_t len) {
@@ -196,9 +195,8 @@ static void resolveUnknownState(FrFTL* ftl, uint16_t count)
   const FrFTLOps* cb = ftl->callbacks;
   for (uint16_t i = 0; i < ftl->physicalPageCount; i++) {
     if (getPhysicalPageState(ftl, idx) == UNKNOWN) {
-      PhysicalPageState state =
-          cb->isFlashErased(idx * PAGE_SIZE) ? ERASED : ERASE_REQUIRED;
-      setPhysicalPageState(ftl, idx, state);
+      // Will detect automatically whether a erase is really required
+      setPhysicalPageState(ftl, idx, ERASE_REQUIRED);
       count--;
       if (count == 0) {
         earlyEnd = true;
@@ -1192,6 +1190,7 @@ bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB)
     memset(ftl->physicalPageState, 0, stateSize * sizeof(uint32_t));
     createFTL(ftl);
   }
+
   return true;
 }
 
