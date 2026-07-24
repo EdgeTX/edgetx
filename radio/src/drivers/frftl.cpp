@@ -156,9 +156,24 @@ static PhysicalPageState getPhysicalPageState(FrFTL* ftl,
   return (PhysicalPageState)(result & 0x3);
 }
 
+/**
+ * @brief Records the state of a physical flash page.
+ *
+ * An erase-required page is recorded as erased when the flash reports that
+ * its contents are already erased.
+ *
+ * @param ftl FTL instance whose physical page state is updated.
+ * @param physicalPageNo Physical page number to update.
+ * @param state State to record.
+ */
 static void setPhysicalPageState(FrFTL* ftl, uint16_t physicalPageNo,
                                  PhysicalPageState state)
 {
+  if (state == ERASE_REQUIRED) {
+    if (ftl->callbacks->isFlashErased(physicalPageNo * PAGE_SIZE)) {
+      state = ERASED;
+    }
+  }
   uint32_t idx = physicalPageNo >> 4;
   uint32_t mask = 0x3 << ((physicalPageNo & 0xf) * 2);
   ftl->physicalPageState[idx] &= ~mask;
@@ -166,9 +181,15 @@ static void setPhysicalPageState(FrFTL* ftl, uint16_t physicalPageNo,
       ((state & 0x3) << ((physicalPageNo & 0xf) * 2));
 }
 
-
 static const uint16_t crc16_ccitt_start = 0xFFFF;
 
+/**
+ * @brief Computes the CRC-16/X.25 checksum for a byte sequence.
+ *
+ * @param buf Data to checksum.
+ * @param len Number of bytes in the data.
+ * @return uint16_t Computed CRC-16/X.25 checksum.
+ */
 static inline uint16_t crc16_x25_ccitt(const void* buf, uint32_t len) {
   return crc16(CRC_1021, (const uint8_t*)buf, len, crc16_ccitt_start);
 }
@@ -179,6 +200,16 @@ static inline uint16_t calcCRC(TransTableHeader* header)
   return crc16_x25_ccitt(header, sizeof(TransTableHeader) - 2);
 }
 
+/**
+ * @brief Resolves unknown physical page states starting at the write frontier.
+ *
+ * Marks up to `count` unknown pages as requiring erasure. Once all physical
+ * pages have been scanned without reaching the requested count, marks the
+ * physical page state as resolved.
+ *
+ * @param ftl Flash translation layer instance.
+ * @param count Maximum number of unknown pages to resolve.
+ */
 static void resolveUnknownState(FrFTL* ftl, uint16_t count)
 {
   if (ftl->physicalPageStateResolved) {
@@ -191,9 +222,8 @@ static void resolveUnknownState(FrFTL* ftl, uint16_t count)
   const FrFTLOps* cb = ftl->callbacks;
   for (uint16_t i = 0; i < ftl->physicalPageCount; i++) {
     if (getPhysicalPageState(ftl, idx) == UNKNOWN) {
-      PhysicalPageState state =
-          cb->isFlashErased(idx * PAGE_SIZE) ? ERASED : ERASE_REQUIRED;
-      setPhysicalPageState(ftl, idx, state);
+      // Will detect automatically whether a erase is really required
+      setPhysicalPageState(ftl, idx, ERASE_REQUIRED);
       count--;
       if (count == 0) {
         earlyEnd = true;
@@ -545,14 +575,21 @@ static uint16_t allocatePhysicalPage(FrFTL* ftl)
   return physicalPageNo;
 }
 
+/**
+ * @brief Erases a physical flash page, using block erase when appropriate.
+ *
+ * @param ftl Flash translation layer instance.
+ * @param addr Flash address of the page to erase.
+ * @return `true` if the erase succeeds, `false` otherwise.
+ */
 static bool quickErase(FrFTL* ftl, uint32_t addr)
 {
 
   const FrFTLOps* cb = ftl->callbacks;
+  uint16_t ppn = addr / PAGE_SIZE;
   if ((addr & BLOCK_MASK) == 0) {
     // Block aligned
 
-    uint16_t ppn = addr / PAGE_SIZE;
     uint8_t count = 0;
     bool hasUsed = false;
 
@@ -578,9 +615,21 @@ static bool quickErase(FrFTL* ftl, uint32_t addr)
       return ret;
     }
   }
-  return cb->flashErase(addr);
+  if (cb->flashErase(addr)) {
+    setPhysicalPageState(ftl, ppn, ERASED);
+    return true;
+  }
+  return false;
 }
 
+/**
+ * @brief Programs the buffered page to flash, optionally erasing it first.
+ *
+ * @param ftl Flash translation layer instance.
+ * @param buffer Buffered page and its programming metadata.
+ * @param doErase Whether to erase the physical page before programming.
+ * @return `true` if the page is successfully programmed, `false` if erasing or programming fails.
+ */
 static bool programPage(FrFTL* ftl, PageBuffer* buffer, bool doErase)
 {
   const FrFTLOps* cb = ftl->callbacks;
@@ -680,6 +729,13 @@ static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
   return true;
 }
 
+/**
+ * @brief Locks the translation table pages required to update a logical page.
+ *
+ * @param ftl FTL instance whose translation tables are updated.
+ * @param logicalPageNo Logical page whose translation record will be updated.
+ * @return true if the required translation table pages were loaded and locked, false otherwise.
+ */
 static bool lockTTPages(FrFTL* ftl, uint16_t logicalPageNo)
 {
   // Read TT pages and lock it for later update
@@ -691,11 +747,17 @@ static bool lockTTPages(FrFTL* ftl, uint16_t logicalPageNo)
   }
   ttBuffer =
       loadPhysicalPageInBuffer(ftl, ttPageNo, ttPageInfo.physicalPageNo);
+  if (!ttBuffer) {
+    return false;
+  }
   ttBuffer->lock = LOCKED;
   ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
   if (ttPageNo > 0) {
     // TT page not MTT page, need to lock MTT page as well
     ttBuffer = loadPhysicalPageInBuffer(ftl, 0, ftl->mttPhysicalPageNo);
+    if (!ttBuffer) {
+      return false;
+    }
     ttBuffer->lock = LOCKED;
     ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
   }
@@ -774,11 +836,21 @@ bool ftlSync(FrFTL* ftl)
   return true;
 }
 
+/**
+ * @brief Stages sector data for writing to the flash translation layer.
+ *
+ * @param ftl Translation layer instance.
+ * @param startSectorNo First logical sector to write.
+ * @param noOfSectors Number of consecutive sectors to write.
+ * @param buf Source buffer containing the sector data.
+ * @return true if all sectors were staged successfully, false if the range is invalid or a required allocation, read, update, or synchronization operation fails.
+ */
 bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
               const uint8_t* buf)
 {
-  resolveUnknownState(ftl, ftl->ttPageCount);
-  if (startSectorNo + noOfSectors > ftl->usableSectorCount) {
+  resolveUnknownState(ftl, ftl->ttPageCount > 16 ? ftl->ttPageCount : 16);
+  if (startSectorNo > ftl->usableSectorCount ||
+      noOfSectors > ftl->usableSectorCount - startSectorNo) {
     return false;
   }
 
@@ -798,7 +870,9 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
 
     // Read page info
     PageInfo pageInfo;
-    readPageInfo(ftl, &pageInfo, logicalPageNo);
+    if (!readPageInfo(ftl, &pageInfo, logicalPageNo)) {
+      return false;
+    }
     PageBuffer* dataBuffer;
 
     // Allocate new physical page for uninitialized logical page
@@ -865,9 +939,16 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
   return true;
 }
 
+/**
+ * @brief Reads a sector from the flash translation layer.
+ *
+ * @param ftl Flash translation layer instance.
+ * @param sectorNo Logical sector number to read.
+ * @param buffer Destination buffer for the sector data.
+ * @return true if the sector is read successfully, including when it is unwritten and filled with 0xff; false if the sector is out of range or the mapping or physical read fails.
+ */
 bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
 {
-  //  doGC(ftl, ftl->ttPageCount, 1);
   if (sectorNo >= ftl->usableSectorCount) {
     return false;
   }
@@ -877,7 +958,9 @@ bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
 
   // Read page info
   PageInfo pageInfo;
-  readPageInfo(ftl, &pageInfo, logicalPageNo);
+  if (!readPageInfo(ftl, &pageInfo, logicalPageNo)) {
+    return false;
+  }
 
   // Check if sector written before
   uint8_t sectMask = 1 << pageSectorNo;
@@ -891,10 +974,19 @@ bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
 			    pageInfo.physicalPageNo, pageSectorNo);
 }
 
+/**
+ * @brief Marks a range of sectors as trimmed and stages the required translation-table updates.
+ *
+ * @param ftl Flash translation layer instance.
+ * @param startSectorNo First sector in the range.
+ * @param noOfSectors Number of sectors to trim.
+ * @return `true` if the range is valid and all trim operations are staged; `false` otherwise.
+ */
 bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
 {
-  resolveUnknownState(ftl, ftl->ttPageCount);
-  if (startSectorNo + noOfSectors > ftl->usableSectorCount) {
+  resolveUnknownState(ftl, ftl->ttPageCount > 16 ? ftl->ttPageCount : 16);
+  if (startSectorNo > ftl->usableSectorCount ||
+      noOfSectors > ftl->usableSectorCount - startSectorNo) {
     return false;
   }
 
@@ -914,7 +1006,9 @@ bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
 
     // Read page info
     PageInfo pageInfo;
-    readPageInfo(ftl, &pageInfo, logicalPageNo);
+    if (!readPageInfo(ftl, &pageInfo, logicalPageNo)) {
+      return false;
+    }
 
     // Check if physical page in used
     if (pageInfo.physicalPageNo != 0xffff) {
@@ -1146,6 +1240,14 @@ static bool loadFTL(FrFTL* ftl)
   return false;
 }
 
+/**
+ * @brief Initializes the flash translation layer for a supported flash capacity.
+ *
+ * @param ftl Translation-layer instance to initialize.
+ * @param cb Flash operation callbacks.
+ * @param flashSizeInMB Flash capacity in megabytes.
+ * @return `true` if initialization succeeds, `false` if the flash capacity is unsupported.
+ */
 bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB)
 {
   // Check flash size
@@ -1184,6 +1286,7 @@ bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB)
     memset(ftl->physicalPageState, 0, stateSize * sizeof(uint32_t));
     createFTL(ftl);
   }
+
   return true;
 }
 
