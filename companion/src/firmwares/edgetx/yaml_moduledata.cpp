@@ -138,6 +138,13 @@ static const YamlLookupTable failsafeLut = {
   {  FAILSAFE_RECEIVER, "RECEIVER"  },
 };
 
+static const YamlLookupTable moduleAntennaModeLut = {
+  {  GeneralSettings::ANTENNA_MODE_INTERNAL, "MODE_INTERNAL"  },
+  {  GeneralSettings::ANTENNA_MODE_ASK, "MODE_ASK"  },
+  {  GeneralSettings::ANTENNA_MODE_PER_MODEL, "MODE_PER_MODEL"  },
+  {  GeneralSettings::ANTENNA_MODE_EXTERNAL, "MODE_EXTERNAL"  },
+};
+
 static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
 static int importPpmDelay(int delay) { return 300 + 50 * delay; }
 
@@ -197,6 +204,8 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
   node["channelsStart"] = rhs.channelsStart;
   node["channelsCount"] = rhs.channelsCount;
   node["failsafeMode"] = LookupValue(failsafeLut, rhs.failsafeMode);
+  if (rhs.antennaMode)
+    node["antennaMode"] = LookupValue(moduleAntennaModeLut, rhs.antennaMode);
 
   Node mod;
   switch (protocol) {
@@ -207,7 +216,6 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         pxx["power"] = rhs.pxx.power;
         // pxx["receiverTelemetryOff"] = rhs.pxx.receiverTelemetryOff;
         // pxx["receiverHigherChannels"] = rhs.pxx.receiverHigherChannels;
-        pxx["antennaMode"] = rhs.pxx.antennaMode;
         mod["pxx"] = pxx;
     } break;
     case PULSES_ACCESS_ISRM:
@@ -362,6 +370,8 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
   node["channelsStart"] >> rhs.channelsStart;
   node["channelsCount"] >> rhs.channelsCount;
   node["failsafeMode"] >> failsafeLut >> rhs.failsafeMode;
+  if (node["antennaMode"])
+    node["antennaMode"] >> moduleAntennaModeLut >> rhs.antennaMode;
 
   if (node["mod"]) {
       const Node& mod = node["mod"];
@@ -386,7 +396,10 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           pxx["power"] >> rhs.pxx.power;
           // pxx["receiverTelemetryOff"] >> rhs.pxx.receiverTelemetryOff;
           // pxx["receiverHigherChannels"] >> rhs.pxx.receiverHigherChannels;
-          pxx["antennaMode"] >> rhs.pxx.antennaMode;
+          // Migration: read old pxx.antennaMode into top-level antennaMode
+          if (pxx["antennaMode"]) {
+            pxx["antennaMode"] >> rhs.antennaMode;
+          }
       } else if (mod["sbus"]) {
           mod["sbus"]["refreshRate"] >> rhs.ppm.frameLength;
       } else if (mod["pxx2"]) {
