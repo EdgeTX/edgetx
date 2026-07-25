@@ -378,7 +378,7 @@ class FunctionEditPage : public Page
         choice->setTextHandler([=](int32_t value) {
           if (value == 0)
             return std::string(STR_STICKS);
-          else if (value == MAX_STICKS + 1)
+          else if (value == max_sticks + 1)
             return std::string(STR_CHANS);
 
           return std::string(getMainControlLabel(value - 1));
@@ -467,8 +467,8 @@ class FunctionEditPage : public Page
         break;
       }
 
-      static const char* const strModules[] = { "Int.", "Ext." };
       case FUNC_SET_FAILSAFE:
+        static const char* const strModules[] = { "Int.", "Ext." };
         new StaticText(line, rect_t{}, STR_MODULE);
         new Choice(line, rect_t{}, strModules, 0, NUM_MODULES - 1,
                   GET_SET_DEFAULT(CFN_PARAM(cfn)));
