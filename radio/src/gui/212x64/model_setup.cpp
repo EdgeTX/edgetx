@@ -1211,11 +1211,11 @@ void menuModelSetup(event_t event)
                        MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_EU_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 strlen(TR_MODULE_PROTOCOL_WARN_LINE2), 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               } else {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FCC_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 strlen(TR_MODULE_PROTOCOL_WARN_LINE2), 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               }
 #endif
             }
@@ -1878,7 +1878,7 @@ void menuModelSetup(event_t event)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE:
       lcdDrawTextIndented(y, STR_TYPE);
       lcdDrawText(MODEL_SETUP_2ND_COLUMN, y,
-          g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
+          g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : STR_AFHDS3_ONE_TO_MANY);
       break;
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS:
     {

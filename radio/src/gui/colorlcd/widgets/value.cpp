@@ -26,6 +26,8 @@
 #define ETX_STATE_TELEM_STALE LV_STATE_USER_2
 #define ETX_STATE_LARGE_FONT LV_STATE_USER_3
 
+#define STR_V (STR_VTELEMUNIT[1])
+
 class ValueWidget : public Widget
 {
  public:

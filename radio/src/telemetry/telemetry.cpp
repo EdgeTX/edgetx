@@ -28,6 +28,7 @@
 #include "mixer_scheduler.h"
 #include "io/multi_protolist.h"
 #include "hal/module_port.h"
+#include "sensor_names.h"
 
 #include <list>
 

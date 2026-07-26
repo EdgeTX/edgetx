@@ -678,7 +678,7 @@ union ReusableBuffer
 #endif
 #if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
-    char otaReceiverVersion[64];  // Large enough for TR_CURRENT_VERSION string plus version number
+    char otaReceiverVersion[64];  // Large enough for STR_CURRENT_VERSION string plus version number
 #endif
   } sdManager;
 

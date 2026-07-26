@@ -543,14 +543,14 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
       x = lcdLastLeftPos - 5;
       if (inverted)
         lcdDrawChar(x-5, y, '-');
-      lcdDrawChar(x, y+1, CHR_INPUT, RIGHT|TINSIZE);
+      lcdDrawText(x, y+1, STR_CHR_INPUT, RIGHT|TINSIZE);
       lcdDrawSolidFilledRect(x-1, y, 5, 7);
     } else {
       if (inverted) {
         lcdDrawChar(x-1, y, '-');
         x += 3;
       }
-      lcdDrawChar(x+1, y+1, CHR_INPUT, TINSIZE);
+      lcdDrawText(x+1, y+1, STR_CHR_INPUT, TINSIZE);
       lcdDrawSolidFilledRect(x, y, 5, 7);
       if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
         lcdDrawSizedText(x+6, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
