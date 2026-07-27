@@ -43,6 +43,12 @@ runs:
       shell: pwsh
       run: ${{ github.action_path }}/setup-msvc.ps1
 
+    - name: Install NSIS
+      if: runner.os == 'Windows'
+      uses: repolevedavaj/install-nsis@v1.2.1
+      with:
+        nsis-version: '3.11'
+
     - name: Build
       shell: bash
       env:
