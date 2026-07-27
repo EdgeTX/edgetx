@@ -94,7 +94,9 @@ jobs:
     name: Linux Companion
     runs-on: ubuntu-latest
     needs: modules
-    if: inputs.target == 'all' || inputs.target == 'linux' || inputs.target == ''
+    if: |
+      (inputs.target == 'all' || inputs.target == 'linux' || inputs.target == '') &&
+      (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-linux'))
 
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
@@ -127,7 +129,9 @@ jobs:
     name: macOS Companion
     runs-on: macos-15
     needs: modules
-    if: inputs.target == 'all' || inputs.target == 'macos' || inputs.target == ''
+    if: |
+      (inputs.target == 'all' || inputs.target == 'macos' || inputs.target == '') &&
+      (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-macos'))
 
     env:
       CMAKE_OSX_ARCHITECTURES: 'x86_64;arm64'
@@ -154,9 +158,11 @@ jobs:
 
   build-win64:
     name: Windows Companion
-    runs-on: windows-2022
+    runs-on: windows-latest
     needs: modules
-    if: inputs.target == 'all' || inputs.target == 'windows' || inputs.target == ''
+    if: |
+      (inputs.target == 'all' || inputs.target == 'windows' || inputs.target == '') &&
+      (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-win'))
 
     env:
       CMAKE_GENERATOR: 'Ninja'

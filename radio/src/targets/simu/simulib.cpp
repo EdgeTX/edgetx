@@ -47,6 +47,20 @@
 
 #include <assert.h>
 #include <deque>
+#include <stdint.h>
+
+// Monotonic event counter incremented each time haptic fires.
+// Host (WasmSimulatorInterface) compares against last-seen value to detect new events.
+uint32_t simuHapticValue = 0;
+
+// Required stubs — called by firmware but no-ops in simulator
+void hapticOn(uint32_t pwmPercent) { (void)pwmPercent; }
+void hapticOff() {}
+
+// WASM export — polled by host every 50ms to detect haptic events
+uint32_t WASM_EXPORT(simuGetHaptic)() {
+  return simuHapticValue;
+}
 
 int g_snapshot_idx = 0;
 
@@ -70,7 +84,6 @@ rotenc_t rotaryEncoderGetValue()
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
-void lcdFlushed();
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
 static void hostSerialInit();
@@ -360,8 +373,6 @@ void serialPutc(char c) { }
 void boardOff()
 {
 }
-
-void hapticOff() {}
 
 #if defined(HAS_HARDWARE_OPTIONS)
 HardwareOptions hardwareOptions;
@@ -721,7 +732,8 @@ void simuLuaReloadPermanentScripts()
 
 void simuLcdFlushed()
 {
-  ::lcdFlushed();
+  if (simu_running)
+    lcdFlushed();
 }
 
 uint8_t simuGetMaxTrainerChannels()

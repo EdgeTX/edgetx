@@ -151,7 +151,6 @@ void applyDefaultTemplate()
   g_model.resetScreenData();
   LayoutFactory::deleteCustomScreens();
   LayoutFactory::deleteTopBarWidgets();
-  LayoutFactory::loadDefaultLayout();
 #endif
 
   // enable switch warnings

@@ -127,10 +127,8 @@ HWPots::HWPots(Window* parent) :
   potsChanged = false;
 
   setCloseHandler([=]() {
-    if (potsChanged) {
-      LayoutFactory::deleteCustomScreens();
+    if (potsChanged)
       LayoutFactory::loadCustomScreens();
-    }
   });
 
   new StaticText(this, {P_NM_X, -PAD_TINY, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));

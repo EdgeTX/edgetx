@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QElapsedTimer>
+#include <QTimer>
 
 // WAMR native callback: called by WASM module to get analog values in
 // ADC range (0..4096, center=2048).  The WASM ADC driver does a direct
@@ -131,7 +132,8 @@ WasmSimulatorInterface::WasmSimulatorInterface(const QString & wasmPath,
     : SimulatorInterface(),
       m_wasmPath(wasmPath),
       m_boardName(boardName),
-      m_boardType(boardType)
+      m_boardType(boardType),
+      m_lastHaptic(0)
 {
 }
 
@@ -392,6 +394,9 @@ bool WasmSimulatorInterface::resolveExports()
   m_fnAuxSerialReceive =
       wasm_runtime_lookup_function(m_moduleInst, "simuAuxSerialReceive");
 
+  // Haptic feedback polling
+  m_fnGetHaptic = wasm_runtime_lookup_function(m_moduleInst, "simuGetHaptic");
+
   m_fnMalloc = wasm_runtime_lookup_function(m_moduleInst, "malloc");
   m_fnFree = wasm_runtime_lookup_function(m_moduleInst, "free");
 
@@ -481,6 +486,7 @@ void WasmSimulatorInterface::init()
 
   m_lastOutputs.clear();
   m_resetOutputsData = true;
+  m_lastHaptic = 0;
 
   qDebug() << "WASM simulator" << m_boardName << "initialized: LCD"
            << m_lcdWidth << "x" << m_lcdHeight << "depth" << m_lcdDepth;
@@ -1010,6 +1016,23 @@ void WasmSimulatorInterface::run()
   if (!(loops % 5)) {
     QMutexLocker lckr(&m_mutex);
     checkOutputsChanged();
+
+    // 1. Read the global variable from the WASM module
+    // "simuHapticValue" must match exactly what you wrote in simulib.cpp
+    // Poll haptic state from WASM every 50ms.
+    // When haptic fires, emit hapticChanged() to trigger
+    // visual (window jitter) and audible (beep) feedback in the simulatormainwindow.cpp
+    // as a substitute for physical vibration hardware.
+    if (m_fnGetHaptic) {
+      uint32_t argv[1] = {0};
+      if (wasm_runtime_call_wasm(m_execEnv, m_fnGetHaptic, 0, argv)) {
+        uint32_t currentHapticValue = argv[0];
+        if (currentHapticValue != m_lastHaptic) {
+          m_lastHaptic = currentHapticValue;
+          emit hapticChanged((int)currentHapticValue);
+        }
+      }
+    }
   }
 }
 

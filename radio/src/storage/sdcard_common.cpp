@@ -44,7 +44,22 @@ void getModelPath(char * path, const char * filename, const char* pathName)
   strcpy(&path[len + 1], filename);
 }
 
-void storageEraseAll(bool warn)
+static void forceSave()
+{
+  storageDirty(EE_GENERAL);
+  storageDirty(EE_MODEL);
+  storageCheck(true);
+}
+
+static void storageFormat()
+{
+  sdCheckAndCreateDirectory(RADIO_PATH);
+  sdCheckAndCreateDirectory(MODELS_PATH);
+  generalDefault();
+  setModelDefaults();
+}
+
+static void storageEraseAll()
 {
   TRACE("storageEraseAll");
 
@@ -60,24 +75,11 @@ void storageEraseAll(bool warn)
   g_eeGeneral.blOffBright = 20;
 #endif
 
-  if (warn) {
-    ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
-  }
-
+  ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
   RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
 
   storageFormat();
-  storageDirty(EE_GENERAL);
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-}
-
-void storageFormat()
-{
-  sdCheckAndCreateDirectory(RADIO_PATH);
-  sdCheckAndCreateDirectory(MODELS_PATH);
-  generalDefault();
-  setModelDefaults();
+  forceSave();
 }
 
 void storageCheck(bool immediately)
@@ -166,10 +168,7 @@ const char * createModel()
   if (index > 0) {
     setModelDefaults(index);
     memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));
-
-    storageDirty(EE_GENERAL);
-    storageDirty(EE_MODEL);
-    storageCheck(true);
+    forceSave();
   }
 
   postModelLoad(false);
@@ -222,12 +221,10 @@ void storageReadAll()
       simuCreateDefaultSettings = false;
       storageFormat();
       g_eeGeneral.chkSum = evalChkSum();
-      storageDirty(EE_GENERAL);
-      storageDirty(EE_MODEL);
-      storageCheck(true);
+      forceSave();
     } else
 #endif
-    storageEraseAll(true);
+    storageEraseAll();
   }
 #if !defined(STORAGE_MODELSLIST)
   else {

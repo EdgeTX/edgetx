@@ -496,7 +496,7 @@ uint16_t keyMapping(uint16_t event)
   return event;
 }
 
-bool keysPollingCycle()
+uint8_t keysPollingCycle()
 {
   uint32_t trims_input;
   pollKeys();
@@ -565,7 +565,12 @@ bool keysPollingCycle()
     if (evt) pushTrimEvent(evt | i);
   }
 
-  return keys_input || trims_input;
+  // Report trims separately so they count as controls, not keys, for the
+  // backlight. Nav hats (USE_HATS_AS_KEYS) are folded into keys_input.
+  uint8_t activity = 0;
+  if (keys_input) activity |= KEY_ACTIVITY_KEYS;
+  if (trims_input) activity |= KEY_ACTIVITY_TRIMS;
+  return activity;
 }
 
 #if !defined(COLORLCD)

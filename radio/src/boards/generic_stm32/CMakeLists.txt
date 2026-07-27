@@ -23,11 +23,10 @@ set(BOARD_LIB_SRC
 )
 
 add_library(minimal_board_lib OBJECT EXCLUDE_FROM_ALL ${MINIMAL_BOARD_LIB_SRC})
-add_dependencies(minimal_board_lib stm32_keys)
-add_dependencies(minimal_board_lib hal_keys_lock)
+add_dependencies(minimal_board_lib stm32_keys hal_settings hal_keys_lock)
 
 add_library(board_lib OBJECT EXCLUDE_FROM_ALL ${BOARD_LIB_SRC})
-add_dependencies(board_lib minimal_board_lib hal_keys_lock)
+add_dependencies(board_lib minimal_board_lib stm32_adc_inputs stm32_switches hal_adc_inputs)
 
 if(DEBUG)
   target_compile_definitions(board_lib PRIVATE DEBUG)
