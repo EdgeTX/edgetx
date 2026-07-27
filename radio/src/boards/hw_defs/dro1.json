@@ -452,7 +452,7 @@
     "lcd_phys_w": 480,
     "lcd_phys_h": 272,
     "lcd_depth": 16,
-    "lcd_vertical_invert": true,
+    "lcd_vertical_invert": false,
     "ltdc_irq_prio": 4,
     "dma_screen_irq_prio": 6
   },
