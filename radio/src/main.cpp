@@ -405,6 +405,8 @@ void periodicTick()
 }
 
 #if defined(GUI) && defined(COLORLCD)
+static LAYOUT_VAL_SCALED(GV_POPUP_WIDTH, 200)
+
 void guiMain(event_t evt)
 {
 #if defined(LUA)
@@ -455,7 +457,7 @@ void guiMain(event_t evt)
     p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
     p = strAppend(p, " = ", 3);
     p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
-    POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
+    POPUP_BUBBLE(s, gvarDisplayTimer * 10, GV_POPUP_WIDTH);
     gvarDisplayTimer = 0;
   }
 }

@@ -504,6 +504,16 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
       }
 #endif
 
+#if defined(HARDWARE_TOUCH)
+      if (CFN_FUNC(cfn) == FUNC_DISABLE_TOUCH) {
+        bool locked = isFunctionActive(FUNCTION_DISABLE_TOUCH);
+        if (active != locked)
+          POPUP_BUBBLE(active ? STR_TOUCH_DISABLED : STR_TOUCH_ENABLED, 1500, DEFAULT_BUBBLE_WIDTH, DEFAULT_BUBBLE_Y-BUBBLE_HEIGHT);
+        if (active)
+          newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
+      }
+#endif
+
       if (active) {
         switch (CFN_FUNC(cfn)) {
           case FUNC_LOGS:
@@ -512,12 +522,6 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
               logDelay100ms = CFN_PARAM(cfn);  // logging period is 0..25.5s in 100ms increments
             }
             break;
-
-#if defined(HARDWARE_TOUCH)
-          case FUNC_DISABLE_TOUCH:
-            newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
-            break;
-#endif
 
           case FUNC_SET_SCREEN:
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
