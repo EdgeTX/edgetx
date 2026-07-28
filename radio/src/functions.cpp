@@ -234,18 +234,11 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                 timerReset(CFN_PARAM(cfn));
                 break;
               case FUNC_RESET_FLIGHT:
-                if (!(functionsContext.activeSwitches & switch_mask)) {
-                  mainRequestFlags |=
-                      (1 << REQUEST_FLIGHT_RESET);  // on systems with threads
-                                                    // flightReset() must not be
-                                                    // called from the mixers
-                                                    // thread!
-                }
+                // Handled in evalUIFunctions()
                 break;
               case FUNC_RESET_TELEMETRY:
                 telemetryReset();
                 break;
-
               case FUNC_RESET_TRIMS: {
                 for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
                   setTrimValue(mixerCurrentFlightMode, i, 0);
@@ -407,12 +400,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
           }
 
-          case FUNC_SCREENSHOT:
-            if (!(functionsContext.activeSwitches & switch_mask)) {
-              mainRequestFlags |= (1u << REQUEST_SCREENSHOT);
-            }
-            break;
-
 #if defined(PXX2)
           case FUNC_RACING_MODE:
             if (isRacingModeEnabled()) {
@@ -496,8 +483,7 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       // 'No Keys' function checks both switch states
       if (CFN_FUNC(cfn) == FUNC_DISABLE_KEYS) {
-        bool locked = isFunctionActive(FUNCTION_DISABLE_KEYS);
-        if (active != locked)
+        if (active != isFunctionActive(FUNCTION_DISABLE_KEYS))
           setKeyLockedState(active);
         if (active)
           newActiveFunctions |= (1u << FUNCTION_DISABLE_KEYS);
@@ -506,8 +492,7 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
 
 #if defined(HARDWARE_TOUCH)
       if (CFN_FUNC(cfn) == FUNC_DISABLE_TOUCH) {
-        bool locked = isFunctionActive(FUNCTION_DISABLE_TOUCH);
-        if (active != locked)
+        if (active != isFunctionActive(FUNCTION_DISABLE_TOUCH))
           POPUP_BUBBLE(active ? STR_TOUCH_DISABLED : STR_TOUCH_ENABLED, 1500, DEFAULT_BUBBLE_WIDTH, DEFAULT_BUBBLE_Y-BUBBLE_HEIGHT);
         if (active)
           newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
@@ -527,13 +512,27 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
 #if defined(COLORLCD)
-              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
-              setRequestedMainView(screenNumber);
-              mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
+              setRequestedMainView(max(0, CFN_PARAM(cfn) - 1));
 #else
               extern void showTelemScreen(uint8_t index);
               showTelemScreen(CFN_PARAM(cfn));
 #endif
+            }
+            break;
+
+          case FUNC_SCREENSHOT:
+            if (!isFunctionActive(FUNCTION_SCREENSHOT)) {
+              writeScreenshot();
+            }
+            newActiveFunctions |= (1u << FUNCTION_SCREENSHOT);
+            break;
+
+          case FUNC_RESET:
+            if (CFN_PARAM(cfn) == FUNC_RESET_FLIGHT) {
+              if (!isFunctionActive(FUNCTION_RESET_FLIGHT)) {
+                flightReset();
+              }
+              newActiveFunctions |= (1u << FUNCTION_RESET_FLIGHT);
             }
             break;
 

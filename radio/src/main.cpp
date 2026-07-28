@@ -429,24 +429,6 @@ void guiMain(event_t evt)
   }
 #endif
 
-  bool mainViewRequested = (mainRequestFlags & (1u << REQUEST_MAIN_VIEW));
-  if (mainViewRequested) {
-    auto viewMain = ViewMain::instance();
-    if (g_model.view < viewMain->getMainViewsCount()) {
-      viewMain->setCurrentMainView(g_model.view);
-      storageDirty(EE_MODEL);
-    } else {
-      g_model.view = viewMain->getCurrentMainView();
-    }
-    mainRequestFlags &= ~(1u << REQUEST_MAIN_VIEW);
-  }
-
-  bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
-  if (screenshotRequested) {
-    writeScreenshot();
-    mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
-  }
-
   // For color screens show a popup deferred from another task
   show_ui_popup();
   // Show GVAR popup
@@ -556,11 +538,6 @@ void guiMain(event_t evt)
   }
 
   if (refreshNeeded) lcdRefresh();
-
-  if (mainRequestFlags & (1u << REQUEST_SCREENSHOT)) {
-    writeScreenshot();
-    mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
-  }
 }
 #endif
 
@@ -587,12 +564,6 @@ void perMain()
   checkTrainerSettings();
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
-
-  if (mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) {
-    TRACE("Executing requested Flight Reset");
-    flightReset();
-    mainRequestFlags &= ~(1u << REQUEST_FLIGHT_RESET);
-  }
 
   checkBacklight();
 
@@ -650,6 +621,11 @@ void perMain()
 #if defined(KEYS_GPIO_REG_BIND) && defined(BIND_KEY)
   bindButtonHandler(evt);
 #endif
+
+  if (radioGFEnabled())
+    evalUIFunctions(g_eeGeneral.customFn, globalFunctionsContext);
+  if (modelSFEnabled())
+    evalUIFunctions(g_model.customFn, modelFunctionsContext);
 
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);

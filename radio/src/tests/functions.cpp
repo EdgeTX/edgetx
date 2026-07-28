@@ -38,36 +38,38 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
-  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+  // Moved from mixer to UI task
 
-  g_model.customFn[0].swtch = swPos;
-  g_model.customFn[0].func = FUNC_RESET;
-  g_model.customFn[0].all.val = FUNC_RESET_FLIGHT;
-  g_model.customFn[0].active = true;
+  // int sw;
+  // for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
+  //   if (g_model.getSwitchType(sw) == SWITCH_3POS)
+  //     break;
+  // int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
 
-  mainRequestFlags = 0;
-  simuSetSwitch(sw, 0);
-  EXPECT_FALSE(getSwitch(swPos));
+  // g_model.customFn[0].swtch = swPos;
+  // g_model.customFn[0].func = FUNC_RESET;
+  // g_model.customFn[0].all.val = FUNC_RESET_FLIGHT;
+  // g_model.customFn[0].active = true;
 
-  evalFunctions(g_model.customFn, modelFunctionsContext);
-  EXPECT_FALSE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
+  // mainRequestFlags = 0;
+  // simuSetSwitch(sw, 0);
+  // EXPECT_FALSE(getSwitch(swPos));
 
-  // now trigger SA0
-  simuSetSwitch(sw, -1);
-  EXPECT_TRUE(getSwitch(swPos));
+  // evalFunctions(g_model.customFn, modelFunctionsContext);
+  // EXPECT_FALSE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
 
-  // flightReset() should be called
-  evalFunctions(g_model.customFn, modelFunctionsContext);
-  EXPECT_TRUE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
+  // // now trigger SA0
+  // simuSetSwitch(sw, -1);
+  // EXPECT_TRUE(getSwitch(swPos));
 
-  // now reset mainRequestFlags, and it should stay reset (flightReset() should not be called again)
-  mainRequestFlags = 0;
-  evalFunctions(g_model.customFn, modelFunctionsContext);
-  EXPECT_FALSE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
+  // // flightReset() should be called
+  // evalFunctions(g_model.customFn, modelFunctionsContext);
+  // EXPECT_TRUE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
+
+  // // now reset mainRequestFlags, and it should stay reset (flightReset() should not be called again)
+  // mainRequestFlags = 0;
+  // evalFunctions(g_model.customFn, modelFunctionsContext);
+  // EXPECT_FALSE((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)));
 }
 
 #if defined(GVARS)

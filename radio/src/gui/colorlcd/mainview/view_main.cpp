@@ -144,7 +144,14 @@ void ViewMain::setCurrentMainView(unsigned viewId)
   lv_obj_set_tile_id(tile_view, viewId, 0, LV_ANIM_OFF);
 }
 
-void setRequestedMainView(uint8_t view) { g_model.view = view; }
+void setRequestedMainView(uint8_t view)
+{
+  auto viewMain = ViewMain::instance();
+  if (view < viewMain->getMainViewsCount()) {
+    viewMain->setCurrentMainView(view);
+    saveViewId(view);
+  }
+}
 
 void ViewMain::nextMainView()
 {

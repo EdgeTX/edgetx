@@ -55,12 +55,6 @@ extern uint8_t requiredSpeakerVolume;
 
 extern uint8_t requiredBacklightBright;
 
-enum MainRequest {
-  REQUEST_SCREENSHOT,
-  REQUEST_FLIGHT_RESET,
-  REQUEST_MAIN_VIEW,
-};
-
 extern uint8_t mainRequestFlags;
 
 PACK(struct MixState {
