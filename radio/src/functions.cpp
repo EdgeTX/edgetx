@@ -21,6 +21,7 @@
 
 #include "edgetx.h"
 #include "switches.h"
+#include "tasks/mixer_task.h"
 
 #include "hal/audio_driver.h"
 #include "os/time.h"
@@ -205,7 +206,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_TRAINER: {
             uint8_t param = CFN_CH_INDEX(cfn);
             if (param == 0)
-              newActiveFunctions |= 0x0F;
+              for (int i = 0; i < MAX_STICKS; i += 1)
+                newActiveFunctions |= (1u << i);
             else if (param <= MAX_STICKS)
               newActiveFunctions |= (1 << (param - 1));
             else if (param == MAX_STICKS + 1)
@@ -214,9 +216,9 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           }
 
           case FUNC_INSTANT_TRIM:
-            newActiveFunctions |= (1u << FUNCTION_INSTANT_TRIM);
-            if (!isFunctionActive(FUNCTION_INSTANT_TRIM)) {
-              if (IS_INSTANT_TRIM_ALLOWED()) {
+            if (IS_INSTANT_TRIM_ALLOWED()) {
+              // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
+              if (isRepeatDelayElapsed(functions, functionsContext, i)) {
                 instantTrim();
               }
             }
@@ -384,18 +386,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-          case FUNC_BACKLIGHT: {
-            newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
-            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
-                                    // like original backlight and turn on
-                                    // regardless of backlight settings
-              requiredBacklightBright = BACKLIGHT_FORCED_ON;
-            } else {
-              calcBacklightValue(CFN_PARAM(cfn));
-            }
-            break;
-          }
-
 #if defined(PXX2)
           case FUNC_RACING_MODE:
             if (isRacingModeEnabled()) {
@@ -517,6 +507,7 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
             break;
 
           case FUNC_SCREENSHOT:
+            // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               writeScreenshot();
             }
@@ -524,11 +515,24 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
 
           case FUNC_RESET:
             if (CFN_PARAM(cfn) == FUNC_RESET_FLIGHT) {
+              // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
               if (isRepeatDelayElapsed(functions, functionsContext, i)) {
                 flightReset();
               }
             }
             break;
+
+          case FUNC_BACKLIGHT: {
+            newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
+            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
+                                    // like original backlight and turn on
+                                    // regardless of backlight settings
+              requiredBacklightBright = BACKLIGHT_FORCED_ON;
+            } else {
+              calcBacklightValue(CFN_PARAM(cfn));
+            }
+            break;
+          }
 
           default:
             break;
@@ -538,6 +542,14 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
   }
 
   functionsContext.activeUIFunctions  =  newActiveFunctions;
+
+  if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
+    if (g_eeGeneral.backlightSrc && mixerTaskRunning()) {
+      calcBacklightValue(g_eeGeneral.backlightSrc);
+    } else {
+      requiredBacklightBright = g_eeGeneral.getBrightness();
+    }
+  }
 }
 
 const char* funcGetLabel(uint8_t func)

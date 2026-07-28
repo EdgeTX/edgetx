@@ -1239,14 +1239,6 @@ void evalMixes(uint8_t tick10ms)
       }
     }
 #endif
-
-    if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
-      if (g_eeGeneral.backlightSrc) {
-        calcBacklightValue(g_eeGeneral.backlightSrc);
-      } else {
-        requiredBacklightBright = g_eeGeneral.getBrightness();
-      }
-    }  
   }
 
   //========== LIMITS ===============
