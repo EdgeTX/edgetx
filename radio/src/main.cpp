@@ -55,7 +55,6 @@ bool hpDetected = false;
 
 uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
-uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;
 
