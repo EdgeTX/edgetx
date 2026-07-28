@@ -25,10 +25,6 @@
 #include "hal/audio_driver.h"
 #include "os/time.h"
 
-#if defined(COLORLCD)
-void setRequestedMainView(uint8_t view);
-#endif
-
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
 #if defined(SIMU)
@@ -510,8 +506,8 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
 
           case FUNC_SET_SCREEN:
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
-              TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
 #if defined(COLORLCD)
+              extern void setRequestedMainView(uint8_t view);
               setRequestedMainView(max(0, CFN_PARAM(cfn) - 1));
 #else
               extern void showTelemScreen(uint8_t index);
@@ -521,18 +517,16 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
             break;
 
           case FUNC_SCREENSHOT:
-            if (!isFunctionActive(FUNCTION_SCREENSHOT)) {
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               writeScreenshot();
             }
-            newActiveFunctions |= (1u << FUNCTION_SCREENSHOT);
             break;
 
           case FUNC_RESET:
             if (CFN_PARAM(cfn) == FUNC_RESET_FLIGHT) {
-              if (!isFunctionActive(FUNCTION_RESET_FLIGHT)) {
+              if (isRepeatDelayElapsed(functions, functionsContext, i)) {
                 flightReset();
               }
-              newActiveFunctions |= (1u << FUNCTION_RESET_FLIGHT);
             }
             break;
 
