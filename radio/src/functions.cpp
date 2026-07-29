@@ -316,14 +316,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-#if defined(AUDIO)
-          case FUNC_VOLUME: {
-            newActiveFunctions |= (1u << FUNCTION_VOLUME);
-            calcVolumeValue(CFN_PARAM(cfn));
-            break;
-          }
-#endif
-
           case FUNC_PLAY_SOUND:
           case FUNC_PLAY_TRACK:
           case FUNC_PLAY_VALUE:
@@ -534,6 +526,14 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
             break;
           }
 
+#if defined(AUDIO)
+          case FUNC_VOLUME: {
+            newActiveFunctions |= (1u << FUNCTION_VOLUME);
+            calcVolumeValue(CFN_PARAM(cfn));
+            break;
+          }
+#endif
+
           default:
             break;
         }
@@ -550,6 +550,17 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
       requiredBacklightBright = g_eeGeneral.getBrightness();
     }
   }
+
+#if defined(AUDIO)
+  if (!isFunctionActive(FUNCTION_VOLUME)) {
+    if (g_eeGeneral.volumeSrc && mixerTaskRunning()) {
+      calcVolumeValue(g_eeGeneral.volumeSrc);
+    } else {
+      requiredSpeakerVolume =
+          limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
+    }
+  }
+#endif
 }
 
 const char* funcGetLabel(uint8_t func)
