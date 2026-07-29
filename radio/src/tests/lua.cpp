@@ -198,6 +198,27 @@ TEST(Lua, Switches)
 #endif
 }
 
+#if defined(HARDWARE_TOUCH)
+TEST(Lua, TouchEnabled)
+{
+  globalFunctionsContext.reset();
+  modelFunctionsContext.reset();
+
+  luaExecStr("assert(getTouchEnabled() == true)");
+
+  modelFunctionsContext.activeFunctions =
+      (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+  luaExecStr("assert(getTouchEnabled() == false)");
+
+  modelFunctionsContext.reset();
+  globalFunctionsContext.activeFunctions =
+      (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+  luaExecStr("assert(getTouchEnabled() == false)");
+
+  globalFunctionsContext.reset();
+}
+#endif
+
 TEST(Lua, testLegacyNames)
 {
   MODEL_RESET();

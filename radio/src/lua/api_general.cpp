@@ -1780,6 +1780,25 @@ static int luaGetGeneralSettings(lua_State * L)
   return 1;
 }
 
+#if defined(HARDWARE_TOUCH)
+/*luadoc
+@function getTouchEnabled()
+
+Return whether touch input is enabled.
+
+Touch input can be disabled by an active Disable touch special function.
+
+@retval boolean `true` when touch input is enabled, `false` when it is disabled
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetTouchEnabled(lua_State * L)
+{
+  lua_pushboolean(L, !isFunctionActive(FUNCTION_DISABLE_TOUCH));
+  return 1;
+}
+#endif
+
 /*luadoc
 @function getGlobalTimer()
 
@@ -3119,6 +3138,9 @@ LROT_BEGIN(etxlib, NULL, 0)
 #endif
   LROT_FUNCENTRY( getVersion, luaGetVersion )
   LROT_FUNCENTRY( getGeneralSettings, luaGetGeneralSettings )
+#if defined(HARDWARE_TOUCH)
+  LROT_FUNCENTRY( getTouchEnabled, luaGetTouchEnabled )
+#endif
   LROT_FUNCENTRY( getGlobalTimer, luaGetGlobalTimer )
   LROT_FUNCENTRY( getRotEncSpeed, luaGetRotEncSpeed )
   LROT_FUNCENTRY( getRotEncMode, luaGetRotEncMode )
