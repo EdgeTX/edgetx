@@ -19,9 +19,27 @@
 #include "messaging.h"
 
 #include <list>
-#include <algorithm>
+#include <utility>
 
-static std::list<Messaging*> subscriptions;
+struct MessagingSubscription {
+  uint32_t id;
+  std::function<void(uint32_t)> callback;
+  bool active;
+};
+
+namespace
+{
+
+std::list<MessagingSubscription> subscriptions;
+uint32_t dispatchDepth = 0;
+
+void removeInactiveSubscriptions()
+{
+  subscriptions.remove_if(
+      [](const auto& subscription) { return !subscription.active; });
+}
+
+}  // namespace
 
 Messaging::~Messaging()
 {
@@ -31,21 +49,18 @@ Messaging::~Messaging()
 void Messaging::subscribe(uint32_t _id, std::function<void(uint32_t)> cb)
 {
   unsubscribe();
-  id = _id;
-  callback = cb;
-  subscriptions.emplace_back(this);
+  subscriptions.push_back({_id, std::move(cb), true});
+  subscription = &subscriptions.back();
 }
 
 void Messaging::unsubscribe()
 {
-  if (id) {
-    auto s = std::find_if(subscriptions.begin(), subscriptions.end(),
-                              [=](Messaging* lh) -> bool { return lh == this; });
-    if (s != subscriptions.end()) subscriptions.erase(s);
-  }
+  if (!subscription) return;
 
-  callback = nullptr;
-  id = 0;
+  subscription->active = false;
+  subscription = nullptr;
+
+  if (dispatchDepth == 0) removeInactiveSubscriptions();
 }
 
 void Messaging::send(uint32_t id)
@@ -55,9 +70,18 @@ void Messaging::send(uint32_t id)
 
 void Messaging::send(uint32_t msgId, uint32_t msgData)
 {
-  for (auto it = subscriptions.rbegin(); it != subscriptions.rend(); ++it) {
-    Messaging* m = *it;
-    if (m->id == msgId && m->callback)
-      m->callback(msgData);
+  dispatchDepth++;
+
+  for (auto it = subscriptions.rbegin(); it != subscriptions.rend();) {
+    // Advance first so subscriptions added by the callback wait for the next
+    // send.
+    auto& subscription = *it++;
+    if (subscription.active && subscription.id == msgId &&
+        subscription.callback) {
+      subscription.callback(msgData);
+    }
   }
+
+  dispatchDepth--;
+  if (dispatchDepth == 0) removeInactiveSubscriptions();
 }

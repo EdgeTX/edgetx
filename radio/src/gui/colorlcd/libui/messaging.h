@@ -21,6 +21,8 @@
 #include <functional>
 #include <stdint.h>
 
+struct MessagingSubscription;
+
 class Messaging
 {
  public:
@@ -38,7 +40,9 @@ class Messaging
     REFRESH_OUTPUTS_WIDGET,
   };
 
-  Messaging() {}
+  Messaging() = default;
+  Messaging(const Messaging&) = delete;
+  Messaging& operator=(const Messaging&) = delete;
   ~Messaging();
   void subscribe(uint32_t id, std::function<void(uint32_t)> cb);
   void unsubscribe();
@@ -50,6 +54,5 @@ class Messaging
   static void send(uint32_t id, uint32_t data);
 
  protected:
-  uint32_t id = 0;
-  std::function<void(uint32_t)> callback = nullptr;
+  MessagingSubscription* subscription = nullptr;
 };
