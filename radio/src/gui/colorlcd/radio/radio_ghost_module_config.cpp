@@ -198,6 +198,9 @@ void RadioGhostModuleConfig::checkEvents()
 void RadioGhostModuleConfig::init()
 {
   memclear(&reusableBuffer.ghostMenu, sizeof(reusableBuffer.ghostMenu));
+  strAppend((char *)&reusableBuffer.ghostMenu.line[1].menuText,
+            STR_WAITING_FOR_MODULE, 0);
+  reusableBuffer.ghostMenu.line[1].lineFlags = GHST_LINE_FLAGS_VALUE_EDIT;
   reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
   reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_OPEN;
   moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
