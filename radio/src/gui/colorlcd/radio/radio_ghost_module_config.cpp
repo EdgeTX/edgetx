@@ -63,6 +63,8 @@ class GhostModuleConfigWindow : public Window
 
   void checkEvents() override
   {
+    Window::checkEvents();
+
     for (uint8_t i = 0; i < GHST_MENU_LINES; i += 1) {
       menuLines[i][1]->setText("");
 
@@ -167,6 +169,7 @@ void RadioGhostModuleConfig::onLongPressRTN()
   reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;
   moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
   sleep_ms(10);
+  deleteLater();
 #if defined(TRIMS_EMULATE_BUTTONS)
   setHatsAsKeys(false);  // switch trims back to normal
 #endif
