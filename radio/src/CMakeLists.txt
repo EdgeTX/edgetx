@@ -602,7 +602,9 @@ if(NATIVE_BUILD)
     os/time_native.cpp
     os/timer_native.cpp
   )
-  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
+  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES}
+    hal_settings hal_keys hal_keys_lock hal_adc_inputs
+    yaml_inputs lua_inputs lua_mixsrc lua_keys)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   add_subdirectory(targets/simu)
