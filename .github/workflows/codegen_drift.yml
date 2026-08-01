@@ -43,6 +43,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  JUST_VERSION: '1.57.0'
+
 jobs:
   changes:
     name: Detect changed inputs
@@ -55,6 +58,21 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v7
 
+      - name: Install just
+        run: |
+          wget -qO- "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz -C /usr/local/bin just
+
+      # A Justfile change cannot cause drift, but it can rename a recipe out
+      # from under the jobs below, so check they still resolve rather than
+      # regenerating everything.
+      - name: Check the recipes this workflow calls still resolve
+        run: |
+          just --list >/dev/null
+          for recipe in cfn-sort gen-fonts gen-yaml; do
+            just --show "${recipe}" >/dev/null
+          done
+
       # Skipped on workflow_dispatch, which has no base revision to diff
       # against; the jobs below run unconditionally in that case.
       - name: Filter changed paths
@@ -66,7 +84,6 @@ jobs:
             cfn:
               - '.github/workflows/codegen_drift.yml'
               - '.github/actions/codegen_drift/action.yml'
-              - 'Justfile'
               - 'tools/cfn_sorter.sh'
               - 'tools/cfn_sorter.cpp'
               - 'tools/copyright-header.txt'
@@ -76,13 +93,11 @@ jobs:
             fonts:
               - '.github/workflows/codegen_drift.yml'
               - '.github/actions/codegen_drift/action.yml'
-              - 'Justfile'
               - 'radio/src/fonts/**'
               - 'radio/src/translations/i18n/**'
             yaml:
               - '.github/workflows/codegen_drift.yml'
               - '.github/actions/codegen_drift/action.yml'
-              - 'Justfile'
               - 'tools/generate-yaml.sh'
               - 'tools/build-common.sh'
               - 'radio/src/myeeprom.h'
@@ -113,6 +128,7 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
+          just-version: ${{ env.JUST_VERSION }}
           recipe: cfn-sort
           paths: radio/src/cfn_sort.cpp
           label: Custom function sort order
@@ -136,6 +152,7 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
+          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-fonts
           paths: radio/src/fonts/lvgl
           label: LVGL fonts
@@ -159,6 +176,7 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
+          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-yaml
           paths: radio/src/storage/yaml
           label: YAML parsers
