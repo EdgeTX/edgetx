@@ -1103,6 +1103,5 @@ void ModulePanel::updateTrainerModeItemModel()
 
     trainerModeItemModel = new FilteredItemModel(model->trainerModeItemModel(generalSettings, firmware));
     ui->trainerMode->setModel(trainerModeItemModel);
-    ui->trainerMode->updateValue();
   }
 }
