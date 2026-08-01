@@ -3,9 +3,14 @@
 # These recipes wrap existing scripts that regenerate files COMMITTED to git.
 # After running one, review and commit the result.
 #
-# Reference environment is ghcr.io/edgetx/edgetx-dev:latest (see
-# .devcontainer/devcontainer.json). CI checks committed output for drift
-# against that image.
+# The codegen recipes run on the host and need the tools installed locally. The
+# docker- variants run the same scripts in the dev container instead, which
+# already has them. CI uses the host recipes, as its jobs run in that image.
+
+IMAGE := "ghcr.io/edgetx/edgetx-dev:latest"
+
+# --user keeps generated files owned by the invoking user rather than root
+_docker := 'docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/src -w /src ' + IMAGE
 
 # Show available recipes
 default:
@@ -25,8 +30,8 @@ cfn-sort:
     tools/cfn_sorter.sh
 
 # FLAVOR is a semicolon-separated target list; empty uses the script's default.
-# WARNING: generate-yaml.sh deletes and recreates ./build.
-# Needs the libclang version shipped in the edgetx-dev container.
+# Recreates ./build from scratch, and needs the libclang version from the
+# edgetx-dev container.
 [doc('Regenerate the YAML parsers (radio/src/storage/yaml/yaml_datastructs_*.cpp)')]
 [group('codegen')]
 gen-yaml FLAVOR='':
@@ -35,3 +40,26 @@ gen-yaml FLAVOR='':
 [doc('Regenerate the YAML parsers, LVGL fonts and cfn sort order')]
 [group('codegen')]
 codegen: gen-fonts cfn-sort gen-yaml
+
+[doc('Regenerate the LVGL fonts in the dev container')]
+[group('codegen (docker)')]
+docker-gen-fonts:
+    {{ _docker }} radio/src/fonts/lvgl/make_fonts.sh
+
+[doc('Regenerate the custom-function sort order in the dev container')]
+[group('codegen (docker)')]
+docker-cfn-sort:
+    {{ _docker }} tools/cfn_sorter.sh
+
+# Uses its own FetchContent cache: the default one is inside the repo, so it
+# would be shared with host builds and their CMake state is not portable here.
+[doc('Regenerate the YAML parsers in the dev container')]
+[group('codegen (docker)')]
+docker-gen-yaml FLAVOR='':
+    {{ _docker }} env FLAVOR="{{ FLAVOR }}" \
+        FETCHCONTENT_BASE_DIR=/src/.cache/fetchcontent-docker \
+        tools/generate-yaml.sh
+
+[doc('Regenerate everything in the dev container')]
+[group('codegen (docker)')]
+docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml
