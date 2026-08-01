@@ -1,0 +1,164 @@
+---
+name: Codegen drift
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths: &trigger-paths
+      - '.github/workflows/codegen_drift.yml'
+      - '.github/actions/codegen_drift/action.yml'
+      - 'Justfile'
+      # cfn sort order
+      - 'tools/cfn_sorter.sh'
+      - 'tools/cfn_sorter.cpp'
+      - 'tools/copyright-header.txt'
+      - 'radio/src/dataconstants.h'
+      - 'radio/src/cfn_sort.cpp'
+      # LVGL fonts
+      - 'radio/src/fonts/**'
+      # shared: the i18n headers feed both the fonts and the cfn sort order
+      - 'radio/src/translations/i18n/**'
+      # YAML parsers
+      - 'tools/generate-yaml.sh'
+      - 'tools/build-common.sh'
+      - 'radio/src/myeeprom.h'
+      - 'radio/src/datastructs.h'
+      - 'radio/src/storage/yaml/**'
+      - 'radio/util/generate_yaml.py'
+      - 'radio/util/yaml_parser.tmpl'
+      - 'radio/util/hw_defs/**'
+      - 'radio/src/boards/hw_defs/**'
+  pull_request:
+    paths: *trigger-paths
+  workflow_dispatch:
+
+# These jobs only ever report - they must never block a contributor who does not
+# have the local toolchain, so nothing here fails on drift.
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect changed inputs
+    runs-on: ubuntu-latest
+    outputs:
+      cfn: ${{ steps.filter.outputs.cfn }}
+      fonts: ${{ steps.filter.outputs.fonts }}
+      yaml: ${{ steps.filter.outputs.yaml }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      # Skipped on workflow_dispatch, which has no base revision to diff
+      # against; the jobs below run unconditionally in that case.
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v4
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          filters: |
+            cfn:
+              - '.github/workflows/codegen_drift.yml'
+              - '.github/actions/codegen_drift/action.yml'
+              - 'Justfile'
+              - 'tools/cfn_sorter.sh'
+              - 'tools/cfn_sorter.cpp'
+              - 'tools/copyright-header.txt'
+              - 'radio/src/dataconstants.h'
+              - 'radio/src/cfn_sort.cpp'
+              - 'radio/src/translations/i18n/**'
+            fonts:
+              - '.github/workflows/codegen_drift.yml'
+              - '.github/actions/codegen_drift/action.yml'
+              - 'Justfile'
+              - 'radio/src/fonts/**'
+              - 'radio/src/translations/i18n/**'
+            yaml:
+              - '.github/workflows/codegen_drift.yml'
+              - '.github/actions/codegen_drift/action.yml'
+              - 'Justfile'
+              - 'tools/generate-yaml.sh'
+              - 'tools/build-common.sh'
+              - 'radio/src/myeeprom.h'
+              - 'radio/src/datastructs.h'
+              - 'radio/src/dataconstants.h'
+              - 'radio/src/storage/yaml/**'
+              - 'radio/util/generate_yaml.py'
+              - 'radio/util/yaml_parser.tmpl'
+              - 'radio/util/hw_defs/**'
+              - 'radio/src/boards/hw_defs/**'
+
+  cfn-sort:
+    name: Custom function sort order
+    needs: changes
+    if: needs.changes.outputs.cfn == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Check for drift
+        uses: ./.github/actions/codegen_drift
+        with:
+          recipe: cfn-sort
+          paths: radio/src/cfn_sort.cpp
+          label: Custom function sort order
+
+  fonts:
+    name: LVGL fonts
+    needs: changes
+    if: needs.changes.outputs.fonts == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Check for drift
+        uses: ./.github/actions/codegen_drift
+        with:
+          recipe: gen-fonts
+          paths: radio/src/fonts/lvgl
+          label: LVGL fonts
+
+  yaml:
+    name: YAML parsers
+    needs: changes
+    if: needs.changes.outputs.yaml == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Check for drift
+        uses: ./.github/actions/codegen_drift
+        with:
+          recipe: gen-yaml
+          paths: radio/src/storage/yaml
+          label: YAML parsers
