@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 // RX stat labeling for settings/telemetry, range
 // check and internal/external module setup screens 
 #define STR_RXSTAT_LABEL_RSSI   "RSSI "
@@ -229,10 +231,10 @@
 // di  = direction
 // ns  = number of satellites
 // cp  = capacity
-// u   = voltage (may be followed by numner if device offers more voltage sensors
-// i   = current (may be followed by numner if device offers more current sensors
-// tmp or t = temperature (single t may be followed by numner if device offers more temperature sensors
-// rp or r  = temperature (single r may be followed by numner if device offers more temperature sensors
+// u   = voltage (may be followed by number if device offers more voltage sensors)
+// i   = current (may be followed by number if device offers more current sensors)
+// tmp or t = temperature (single t may be followed by number if device offers more temperature sensors)
+// rp or r  = RPM (single r may be followed by number if device offers more RPM sensors)
 // fl = fuel
 //  
 // TX
