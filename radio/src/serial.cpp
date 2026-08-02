@@ -46,6 +46,10 @@
   #include "telemetry/crossfire.h"
 #endif
 
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
+#endif
+
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger/SEGGER/SEGGER_RTT.h"
 #endif
@@ -298,6 +302,12 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 #if defined(CROSSFIRE)
     if (isModuleCrossfire(EXTERNAL_MODULE) || isModuleCrossfire(INTERNAL_MODULE)) {
       params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
+      break;
+    }
+#endif
+#if defined(GHOST)
+    if (isModuleGhost(EXTERNAL_MODULE) || isModuleGhost(INTERNAL_MODULE)) {
+      params.baudrate = GHOST_TELEM_MIRROR_BAUDRATE;
       break;
     }
 #endif
