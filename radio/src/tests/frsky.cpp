@@ -21,6 +21,8 @@
 
 #include "gtests.h"
 
+#include <cstring>
+
 void frskyDProcessPacket(const uint8_t *packet);
 bool checkSportPacket(const uint8_t *packet);
 bool checkSportPacket(const uint8_t *packet);
@@ -526,10 +528,13 @@ TEST(FrSkySPORT, BetaflightAngleSensors)
 
   // Betaflight S.Port telemetry sends Pitch (0x5230) and Roll (0x5240)
   // as degree * 10, which must be discovered with UNIT_DEGREE and prec 1.
-  packet[0] = 0x52;  // physical ID
+  // S.Port dataId and value are little-endian on the wire.
+  packet[0] = 0x52;  // physical ID (DIY)
   packet[1] = 0x10;  // DATA_FRAME
-  packet[2] = 0x30; packet[3] = 0x52;  // dataId = 0x5230 (little-endian)
-  packet[4] = 0x14; packet[5] = 0x02; packet[6] = 0x00; packet[7] = 0x00;  // 532 (53.2 deg)
+  packet[2] = 0x30;  // dataId 0x5230 (Pitch), low byte
+  packet[3] = 0x52;  // dataId 0x5230, high byte
+  int32_t value = 532;  // 53.2 deg
+  memcpy(packet + 4, &value, sizeof(value));
   setSportPacketCrc(packet);
   sportProcessTelemetryPacket(0, packet, sizeof(packet));
 
@@ -540,8 +545,10 @@ TEST(FrSkySPORT, BetaflightAngleSensors)
 
   packet[0] = 0x52;
   packet[1] = 0x10;
-  *((uint16_t *)(packet+2)) = 0x5240;  // Roll
-  *((int32_t *)(packet+4)) = -124;     // -12.4 deg
+  packet[2] = 0x40;  // dataId 0x5240 (Roll), low byte
+  packet[3] = 0x52;  // dataId 0x5240, high byte
+  value = -124;  // -12.4 deg
+  memcpy(packet + 4, &value, sizeof(value));
   setSportPacketCrc(packet);
   sportProcessTelemetryPacket(0, packet, sizeof(packet));
 
