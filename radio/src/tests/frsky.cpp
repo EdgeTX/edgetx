@@ -514,3 +514,40 @@ TEST(FrSkySPORT, frskyCurrent)
   EXPECT_EQ(telemetryItems[0].valueMax, 505);
 }
 
+TEST(FrSkySPORT, BetaflightAngleSensors)
+{
+  uint8_t packet[FRSKY_SPORT_PACKET_SIZE];
+
+  MODEL_RESET();
+  TELEMETRY_RESET();
+  telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+  telemetryData.telemetryValid = 0x07;
+  allowNewSensors = true;
+
+  // Betaflight S.Port telemetry sends Pitch (0x5230) and Roll (0x5240)
+  // as degree * 10, which must be discovered with UNIT_DEGREE and prec 1.
+  packet[0] = 0x52;  // physical ID (DIY)
+  packet[1] = 0x10;  // DATA_FRAME
+  *((uint16_t *)(packet+2)) = 0x5230;  // Pitch
+  *((int32_t *)(packet+4)) = 532;      // 53.2 deg
+  setSportPacketCrc(packet);
+  sportProcessTelemetryPacket(0, packet, sizeof(packet));
+
+  ASSERT_EQ(g_model.telemetrySensors[0].id, 0x5230);
+  EXPECT_EQ(g_model.telemetrySensors[0].unit, UNIT_DEGREE);
+  EXPECT_EQ(g_model.telemetrySensors[0].prec, 1);
+  EXPECT_EQ(telemetryItems[0].value, 532);
+
+  packet[0] = 0x52;
+  packet[1] = 0x10;
+  *((uint16_t *)(packet+2)) = 0x5240;  // Roll
+  *((int32_t *)(packet+4)) = -124;     // -12.4 deg
+  setSportPacketCrc(packet);
+  sportProcessTelemetryPacket(0, packet, sizeof(packet));
+
+  ASSERT_EQ(g_model.telemetrySensors[1].id, 0x5240);
+  EXPECT_EQ(g_model.telemetrySensors[1].unit, UNIT_DEGREE);
+  EXPECT_EQ(g_model.telemetrySensors[1].prec, 1);
+  EXPECT_EQ(telemetryItems[1].value, -124);
+}
+
