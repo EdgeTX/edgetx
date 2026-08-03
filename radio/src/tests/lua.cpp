@@ -198,6 +198,17 @@ TEST(Lua, Switches)
 #endif
 }
 
+TEST(Lua, testFloatIntegerEquality)
+{
+  // 0.5 is not an integer, so it must not equal 0 (regression #7587)
+  luaExecStr("if 0.5 == 0 then error('0.5 == 0') end");
+  luaExecStr("if 0.50 == 0 then error('0.50 == 0') end");
+  luaExecStr("if 0.50 == 0.0 then error('0.50 == 0.0') end");
+  // integral floats still compare equal to their integer counterpart
+  luaExecStr("if 1.0 ~= 1 then error('1.0 ~= 1') end");
+  luaExecStr("if 0.0 ~= 0 then error('0.0 ~= 0') end");
+}
+
 TEST(Lua, testLegacyNames)
 {
   MODEL_RESET();
