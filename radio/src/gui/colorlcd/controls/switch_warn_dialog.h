@@ -25,6 +25,11 @@
 #include "mainwindow.h"
 #include "edgetx.h"
 
+// Dumb display-only dialogs. Their driver (the boot/flightReset blocking loops
+// or the model-load state machine) owns the input refresh, the warning
+// predicate and the close decision. Closing on a key press self-deletes as
+// usual (default FullScreenDialog behaviour); for the state machine the
+// model-load view reports that close as an acknowledge.
 class SwitchWarnDialog : public FullScreenDialog
 {
  public:
@@ -35,6 +40,7 @@ class SwitchWarnDialog : public FullScreenDialog
 #endif
 
  protected:
+  // rebuilds the bad-switch/pot list text each frame (display only)
   void checkEvents() override;
 };
 
@@ -46,7 +52,4 @@ class ThrottleWarnDialog : public FullScreenDialog
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ThrottleWarnDialog"; }
 #endif
-
- protected:
-  void checkEvents() override;
 };

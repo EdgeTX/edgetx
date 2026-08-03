@@ -59,6 +59,11 @@ void postRadioSettingsLoad();
 void preModelLoad();
 void postModelLoad(bool alarms);
 
+// Final part of model load (mixer/pulses start + post-start setup). Run directly
+// for loads without warning checks (alarms=false), or deferred by the model-load
+// state machine (MLC_MODEL_SWITCH terminal) once all warnings have been cleared.
+void postModelLoadFinish();
+
 #if !defined(STORAGE_MODELSLIST)
 extern ModelHeader modelHeaders[MAX_MODELS];
 

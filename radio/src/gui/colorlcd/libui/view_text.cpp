@@ -506,17 +506,10 @@ void readModelNotes(bool fromMenu)
   _readModelNotes(fromMenu);
 }
 
-// Blocking version of readModelNotes.
-void readChecklist()
+// Non-blocking version, driven by the model-load state machine view.
+Window* showModelChecklist()
 {
-  auto dialog = _readModelNotes(false);
-  if (dialog) {
-    LED_ERROR_BEGIN();
-    MainWindow::instance()->blockUntilClose(true, [=]() {
-      return dialog->deleted();
-    });
-    LED_ERROR_END();
-  }
+  return _readModelNotes(false);
 }
 
 ModelNotesPage::ModelNotesPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO)

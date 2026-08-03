@@ -94,10 +94,11 @@ static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][
   }
 }
 
-void readModelNotes()
+// Build the model checklist/notes filename into reusableBuffer.viewText.filename.
+// Tries "<model>.txt" first, then "<model> .txt", then (modelslist) the stored
+// model filename with a .txt extension. Shared by the model-load checklist view.
+void setModelChecklistFilename()
 {
-  LED_ERROR_BEGIN();
-
   strcpy(reusableBuffer.viewText.filename, MODELS_PATH "/");
   char *buf = strcat_currentmodelname(
       &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
@@ -111,35 +112,12 @@ void readModelNotes()
 #if defined(STORAGE_MODELSLIST)
     if (!isFileAvailable(reusableBuffer.viewText.filename)) {
       buf = strAppendFilename(
-          &reusableBuffer.viewText.filenam[sizeof(MODELS_PATH)],
+          &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)],
           g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
       strcpy(buf, TEXT_EXT);
     }
 #endif
   }
-
-  waitKeysReleased();
-  event_t event = EVT_ENTRY;
-  reusableBuffer.viewText.pushMenu = false;
-  while (true) {
-    uint32_t power = pwrCheck();
-    if (power != e_power_press) {
-      lcdRefreshWait();
-      lcdClear();
-      menuTextView(event);
-      lcdRefresh();
-    }
-    if (power == e_power_off){
-      drawSleepBitmap();
-      boardOff();
-      break;
-    }
-    event = getEvent();
-    WDG_RESET();
-    if (reusableBuffer.viewText.checklistComplete) break;
-  }
-
-  LED_ERROR_END();
 }
 
 void menuTextView(event_t event)

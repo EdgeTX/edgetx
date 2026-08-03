@@ -27,6 +27,7 @@
 
 #include "edgetx.h"
 #include "lua/lua_states.h"
+#include "warning_checks.h"
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -35,6 +36,9 @@
 #include "etx_lv_theme.h"
 #include "menu.h"
 #include "mainwindow.h"
+#include "warning_checks_view.h"
+#elif defined(GUI)
+#include "gui/common/stdlcd/warning_checks_view.h"
 #endif
 
 #if defined(CLI)
@@ -583,7 +587,9 @@ void perMain()
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
-  if (mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) {
+  // flightReset arms the model-load state machine for its warning checks; defer
+  // the request while a sequence is already mid-flight so it isn't clobbered.
+  if ((mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) && warningChecksIdle()) {
     TRACE("Executing requested Flight Reset");
     flightReset();
     mainRequestFlags &= ~(1u << REQUEST_FLIGHT_RESET);
@@ -598,7 +604,15 @@ void perMain()
   checkKeysLock();
 
 #if defined(COLORLCD)
+  // Advance the post-model-load checks before driving the UI, so any state
+  // change happens outside lv_timer_handler (flat stack, no re-entrancy).
+  warningChecksRun();
+  // Suspend widget refresh before run() so the main view isn't repainted for a
+  // tick on the edge where a sequence becomes active.
+  warningChecksViewUpdateRefresh();
   MainWindow::instance()->run();
+  // Reflect the machine's current state in the warning dialogs.
+  warningChecksViewSync();
 #endif
 
 #if defined(RTC_BACKUP_RAM)
@@ -646,12 +660,21 @@ void perMain()
   bindButtonHandler(evt);
 #endif
 
+#if defined(GUI) && !defined(COLORLCD)
+  // Advance the post-model-load checks before driving the menus (flat stack), then
+  // render the active warning. While a warning is up it covers the screen and
+  // consumes the key, so guiMain must not also run for this tick.
+  warningChecksRun();
+  bool mlWarn = (activeWarningCheck() != WCS_IDLE);
+  warningChecksViewSync(evt);
+#endif
+
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);
 #if defined(COLORLCD)
   guiMain(0);
 #else
-  guiMain(evt);
+  if (!mlWarn) guiMain(evt);
 #endif
   DEBUG_TIMER_STOP(debugTimerGuiMain);
 #endif

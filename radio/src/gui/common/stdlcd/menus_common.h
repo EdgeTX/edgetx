@@ -190,7 +190,7 @@ extern uint8_t noHighlightCounter;
 void menuTextView(event_t event);
 void pushMenuTextView(const char *filename);
 void pushModelNotes();
-void readModelNotes();
+void setModelChecklistFilename();
 
 uint8_t getExposCount();
 void insertExpo(uint8_t idx);
