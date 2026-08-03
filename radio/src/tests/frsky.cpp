@@ -526,10 +526,10 @@ TEST(FrSkySPORT, BetaflightAngleSensors)
 
   // Betaflight S.Port telemetry sends Pitch (0x5230) and Roll (0x5240)
   // as degree * 10, which must be discovered with UNIT_DEGREE and prec 1.
-  packet[0] = 0x52;  // physical ID (DIY)
+  packet[0] = 0x52;  // physical ID
   packet[1] = 0x10;  // DATA_FRAME
-  *((uint16_t *)(packet+2)) = 0x5230;  // Pitch
-  *((int32_t *)(packet+4)) = 532;      // 53.2 deg
+  packet[2] = 0x30; packet[3] = 0x52;  // dataId = 0x5230 (little-endian)
+  packet[4] = 0x14; packet[5] = 0x02; packet[6] = 0x00; packet[7] = 0x00;  // 532 (53.2 deg)
   setSportPacketCrc(packet);
   sportProcessTelemetryPacket(0, packet, sizeof(packet));
 
