@@ -139,8 +139,8 @@
 #define TR_AUX_SERIAL_MODES_1          "AUS"
 #define TR_AUX_SERIAL_MODES_2          TR("Telem weiterl.", "Telemetrie weiterleiten")
 #define TR_AUX_SERIAL_MODES_3          TR("Telemetrie In", "Telemetrie Eingang")
-#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
-#define TR_AUX_SERIAL_MODES_5          "SBUS Eingang"
+#define TR_AUX_SERIAL_MODES_4          "SBUS Eingang"
+#define TR_AUX_SERIAL_MODES_5          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
 #define TR_AUX_SERIAL_MODES_6          "LUA"
 #define TR_AUX_SERIAL_MODES_7          "CLI"
 #define TR_AUX_SERIAL_MODES_8          "GPS"

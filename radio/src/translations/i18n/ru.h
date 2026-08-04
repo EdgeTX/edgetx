@@ -139,8 +139,8 @@
 #define TR_AUX_SERIAL_MODES_1          "Выкл"
 #define TR_AUX_SERIAL_MODES_2          "Зерк телем"
 #define TR_AUX_SERIAL_MODES_3          "Телем вход"
-#define TR_AUX_SERIAL_MODES_4          TR("SBUS Трен Инвер.","SBUS Тренер Инв.")
-#define TR_AUX_SERIAL_MODES_5          "SBUS Тренаж"
+#define TR_AUX_SERIAL_MODES_4          "SBUS Тренаж"
+#define TR_AUX_SERIAL_MODES_5          TR("SBUS Трен Инвер.","SBUS Тренер Инв.")
 #define TR_AUX_SERIAL_MODES_6          "LUA"
 #define TR_AUX_SERIAL_MODES_7          "CLI"
 #define TR_AUX_SERIAL_MODES_8          "GPS"

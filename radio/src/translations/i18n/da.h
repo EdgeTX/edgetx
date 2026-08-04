@@ -136,8 +136,8 @@
 #define TR_AUX_SERIAL_MODES_1          "FRA"
 #define TR_AUX_SERIAL_MODES_2          "Telem spejlet"
 #define TR_AUX_SERIAL_MODES_3          "Telemetri ind"
-#define TR_AUX_SERIAL_MODES_4          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
-#define TR_AUX_SERIAL_MODES_5          "SBUS træner"
+#define TR_AUX_SERIAL_MODES_4          "SBUS træner"
+#define TR_AUX_SERIAL_MODES_5          TR("SBUS Trn Inv.","SBUS Trainer Inv.")
 #define TR_AUX_SERIAL_MODES_6          "LUA"
 #define TR_AUX_SERIAL_MODES_7          "CLI"
 #define TR_AUX_SERIAL_MODES_8          "GPS"

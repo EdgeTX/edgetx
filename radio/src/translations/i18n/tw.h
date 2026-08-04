@@ -135,8 +135,8 @@
 #define TR_AUX_SERIAL_MODES_1           "禁用"
 #define TR_AUX_SERIAL_MODES_2           "回傳鏡像"
 #define TR_AUX_SERIAL_MODES_3           "回傳輸入"
-#define TR_AUX_SERIAL_MODES_4           TR("SBUS Trn Inv.","SBUS Trainer Inv.")
-#define TR_AUX_SERIAL_MODES_5           "SBUS教練"
+#define TR_AUX_SERIAL_MODES_4           "SBUS教練"
+#define TR_AUX_SERIAL_MODES_5           TR("SBUS Trn Inv.","SBUS Trainer Inv.")
 #define TR_AUX_SERIAL_MODES_6           "LUA腳本"
 #define TR_AUX_SERIAL_MODES_7           "CLI"
 #define TR_AUX_SERIAL_MODES_8           "GPS"
