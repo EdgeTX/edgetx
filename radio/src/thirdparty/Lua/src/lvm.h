@@ -43,7 +43,12 @@
 #define tointeger(o,i) \
     (ttisinteger(o) ? (*(i) = ivalue(o), 1) : luaV_tointeger(o,i,LUA_FLOORN2I))
 
-/* non-soft conversion: only integral values are converted */
+/* non-soft conversion: only integral values are converted.
+** This is the strict semantic used by equality ('==' and '~='), where a
+** non-integral float such as 0.5 must not compare equal to an integer.
+** 'tointeger' (soft, LUA_FLOORN2I) is intentionally kept for API argument
+** coercion so that EdgeTX API functions accept unrounded floats; do not
+** switch this macro back to the soft conversion. */
 #define tointegerns(o,i) \
     (ttisinteger(o) ? (*(i) = ivalue(o), 1) : luaV_tointeger(o,i,0))
 

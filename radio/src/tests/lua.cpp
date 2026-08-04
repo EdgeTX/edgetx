@@ -204,18 +204,35 @@ TEST(Lua, testFloatIntegerEquality)
   luaExecStr("if 0.5 == 0 then error('0.5 == 0') end");
   luaExecStr("if 0.50 == 0 then error('0.50 == 0') end");
   luaExecStr("if 0.50 == 0.0 then error('0.50 == 0.0') end");
+  // ... even when the value comes from a variable, as in the reported issue
+  luaExecStr("local v = 0.50; if v == 0 then error('v == 0') end");
+  luaExecStr("local v = 0.50; if not (v ~= 0) then error('v ~= 0') end");
+  // negative non-integral floats must not equal integers either
+  luaExecStr("if -0.5 == 0 then error('-0.5 == 0') end");
+  luaExecStr("if not (-0.5 ~= 0) then error('-0.5 ~= 0') end");
+  luaExecStr("if not (-0.5 < 0) then error('-0.5 < 0') end");
+  luaExecStr("if -0.5 > 0 then error('-0.5 > 0') end");
   // integral floats still compare equal to their integer counterpart
   luaExecStr("if 1.0 ~= 1 then error('1.0 ~= 1') end");
   luaExecStr("if 0.0 ~= 0 then error('0.0 ~= 0') end");
+  luaExecStr("if -1.0 ~= -1 then error('-1.0 ~= -1') end");
   // order comparisons on the same values must remain consistent
   luaExecStr("if not (0.5 >= 0) then error('0.5 >= 0') end");
   luaExecStr("if 0.5 <= 0 then error('0.5 <= 0') end");
+  luaExecStr("if not (0.5 > 0) then error('0.5 > 0') end");
+  luaExecStr("if 0.5 < 0 then error('0.5 < 0') end");
   luaExecStr("if not (0.50 >= 0) then error('0.50 >= 0') end");
   luaExecStr("if 0.50 <= 0 then error('0.50 <= 0') end");
   luaExecStr("if not (1.0 >= 1) then error('1.0 >= 1') end");
   luaExecStr("if not (1.0 <= 1) then error('1.0 <= 1') end");
   luaExecStr("if not (0.0 >= 0) then error('0.0 >= 0') end");
   luaExecStr("if not (0.0 <= 0) then error('0.0 <= 0') end");
+  // mixed arithmetic must still yield floats; the fix only affects equality
+  luaExecStr("if math.type(0.5 + 0) ~= 'float' then error('0.5 + 0') end");
+  luaExecStr("if math.type(1.0 + 1) ~= 'float' then error('1.0 + 1') end");
+  luaExecStr("if math.type(1 / 2) ~= 'float' then error('1 / 2') end");
+  luaExecStr("if math.type(7.5 % 2) ~= 'float' then error('7.5 % 2') end");
+  luaExecStr("if math.type(0.5 * 2) ~= 'float' then error('0.5 * 2') end");
 }
 
 TEST(Lua, testLegacyNames)
