@@ -207,6 +207,15 @@ TEST(Lua, testFloatIntegerEquality)
   // integral floats still compare equal to their integer counterpart
   luaExecStr("if 1.0 ~= 1 then error('1.0 ~= 1') end");
   luaExecStr("if 0.0 ~= 0 then error('0.0 ~= 0') end");
+  // order comparisons on the same values must remain consistent
+  luaExecStr("if not (0.5 >= 0) then error('0.5 >= 0') end");
+  luaExecStr("if 0.5 <= 0 then error('0.5 <= 0') end");
+  luaExecStr("if not (0.50 >= 0) then error('0.50 >= 0') end");
+  luaExecStr("if 0.50 <= 0 then error('0.50 <= 0') end");
+  luaExecStr("if not (1.0 >= 1) then error('1.0 >= 1') end");
+  luaExecStr("if not (1.0 <= 1) then error('1.0 <= 1') end");
+  luaExecStr("if not (0.0 >= 0) then error('0.0 >= 0') end");
+  luaExecStr("if not (0.0 <= 0) then error('0.0 <= 0') end");
 }
 
 TEST(Lua, testLegacyNames)
