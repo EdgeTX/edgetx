@@ -566,9 +566,14 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #endif
 
 #if defined(USB_SERIAL)
-  // Telemetry input & SBUS trainer on VCP is not yet supported
-  if (port_nr == SP_VCP &&
-      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
+  // Telemetry input on VCP is not yet supported
+  if (port_nr == SP_VCP && mode == UART_MODE_TELEMETRY)
+    return false;
+
+  // USB CDC carries no line polarity, so the two SBUS trainer modes behave
+  // identically on VCP. Offer only the one the user knows as plain SBUS:
+  // normal SBUS is inverted serial, so that is UART_MODE_SBUS_TRAINER_INV.
+  if (port_nr == SP_VCP && mode == UART_MODE_SBUS_TRAINER)
     return false;
 #endif
 

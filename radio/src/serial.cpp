@@ -221,7 +221,15 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
   case UART_MODE_SBUS_TRAINER_INV:
     sbusSetReceiveCtx(ctx, drv);
     if (drv && drv->setIdleCb) {
+      // Hardware UART: the idle line marks the frame boundaries
       drv->setIdleCb(ctx, sbusAuxFrameReceived, nullptr);
+    } else if (drv && drv->setReceiveCb) {
+      // No idle-line detection (USB-VCP): recover frames from the byte stream
+      sbusStreamStart(ctx, drv);
+    } else {
+      // De-init (ctx == nullptr, hence drv == nullptr), or a port that can do
+      // neither. No-op unless the framer is currently attached.
+      sbusStreamStop();
     }
     break;
 

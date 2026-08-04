@@ -31,7 +31,21 @@ void sbusSetReceiveCtx(void* ctx, const etx_serial_driver_t* drv);
 // SBUS AUX idle callback
 void sbusAuxFrameReceived(void* param);
 
-// Enable / disable SBUS AUX
+// Enable / disable serial trainer input (both the AUX UART and the USB-VCP
+// paths). Driven by TRAINER_MODE_MASTER_SERIAL.
 void sbusAuxSetEnabled(bool enabled);
 
 void sbusFrameReceived(void* param);
+
+//
+// SBUS byte-stream framer.
+//
+// For ports that deliver arbitrarily chunked buffers and have no idle-line
+// detection to mark frame boundaries (USB-VCP). Attach / detach the driver's
+// receive callback, and keep the partial-frame state across chunks.
+//
+void sbusStreamStart(void* ctx, const etx_serial_driver_t* drv);
+void sbusStreamStop();
+
+// Receive callback: feeds a chunk of the byte stream into the framer
+void sbusStreamReceiveData(uint8_t* data, uint32_t len);
