@@ -158,6 +158,21 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   }
 }
 
+static bool isUIFunction(uint16_t f, int16_t p)
+{
+  return f == FUNC_LOGS || f == FUNC_SET_SCREEN || f == FUNC_SCREENSHOT || f == FUNC_BACKLIGHT
+#if defined(AUDIO)
+          || f == FUNC_VOLUME
+#endif
+#if defined(HARDWARE_TOUCH)
+          || f == FUNC_DISABLE_TOUCH
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+          || f == FUNC_DISABLE_KEYS
+#endif
+          || (f == FUNC_RESET && p == FUNC_RESET_FLIGHT);
+}
+
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions  = 0;
@@ -419,7 +434,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           }
         }
 #endif
-        functionsContext.lastFunctionTime[i] = 0;
+        if (!isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn)))
+          functionsContext.lastFunctionTime[i] = 0;
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
         if (functionsContext.activeSwitches & switch_mask) {
           switch (CFN_FUNC(cfn)) {
@@ -537,6 +553,8 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
           default:
             break;
         }
+      } else if (isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn))) {
+        functionsContext.lastFunctionTime[i] = 0;
       }
     }
   }
