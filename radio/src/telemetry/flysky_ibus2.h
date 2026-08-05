@@ -22,3 +22,14 @@
 #pragma once
 
 void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+
+void processFlySkyIbus2AFHDS3Sensor(const uint8_t* packet, uint8_t len);
+
+void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len);
+void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags);
+void flySkyIbus2CalGpsAlt();
+void flySkyIbus2CalGpsDist();
+void Ibus2ParamCheck(uint8_t* packet, uint8_t len);
+void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len);
+bool getIbus2IbcState();
+uint8_t flyskyIbus2SensorOnLine();
