@@ -1068,6 +1068,7 @@
 #define TR_CELLSENSOR                  "Сенсор комірки"
 #define TR_GPSSENSOR                   "GPS сенсор"
 #define TR_CURRENTSENSOR               "Сенсор"
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_AUTOOFFSET                  "Авто зсув"
 #define TR_ONLYPOSITIVE                "Позитив"
 #define TR_FILTER                      "Фільтр"

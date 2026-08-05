@@ -29,7 +29,6 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 
 #define SET_DIRTY()
 
-static const char* const _analog_outputs[] = { "PWM", "PPM" };
 static const char* const _bus_types[] = { "iBUS OUT", "iBUS IN", "SBUS"};
 static const char* const _v1_bus_types[] = { "PWM", "PPM", "SBUS", "iBUS IN", "iBUS OUT", "iBUS2"  };
 static const char* const _v1_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, "SR833HZ", "SFR1000HZ", STR_MULTI_CUSTOM };
@@ -161,7 +160,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     temp_str = STR_CH;
     temp_str += " 1";
     new StaticText(line, rect_t{}, temp_str );
-    new Choice(line, rect_t{}, _analog_outputs,
+    new Choice(line, rect_t{}, STR_FLYSKY_PULSE_PROTO,
                afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
                GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
 
@@ -283,7 +282,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   header->setTitle(title);
 
   title = "AFHDS3 (";
-  title += "SENSORS";
+  title += STR_TELEMETRY_SENSORS;
   title += ")";
   header->setTitle2(title);
 
@@ -308,8 +307,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   auto line = body->newLine(grid);
 
   if (!ibus2_mode) {
-    temp_str = "Only in the iBUS2 mode can the sensors be set.";
-    new StaticText(line, rect_t{}, temp_str);
+    new StaticText(line, rect_t{}, STR_IBUS2_SENSORS_MODE_ONLY);
     return;
   }
 
@@ -325,7 +323,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       return 0;
     });
 
-    temp_str = "DIST";
+    temp_str = STR_SENSOR_DIST;
     temp_str += " ";
     temp_str += STR_CURRENTSENSOR;
     line = body->newLine(grid);
@@ -338,9 +336,8 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   }
 
   if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_GPS) || cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_PRES)) {
-    temp_str = STR_ALTSENSOR;
     line = body->newLine(grid);
-    new StaticText(line, rect_t{}, temp_str);
+    new StaticText(line, rect_t{}, STR_ALTSENSOR);
     auto alt_btn = new TextButton(line, rect_t{}, STR_RESET);
     alt_btn->setPressHandler([=]() -> uint8_t {
       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_ALT);
@@ -367,7 +364,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     temp_str = "IBC01";
     temp_str += " ";
-    temp_str += "Calib";
+    temp_str += STR_CALIBRATION;
     line = body->newLine(grid);
     new StaticText(line, rect_t{}, temp_str);
     auto edit = new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 120, GET_SET_DEFAULT(cfg->others.calibData[afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_IBC]), PREC1);

@@ -1070,6 +1070,7 @@
 #define TR_CELLSENSOR                  "Датчик АКБ"
 #define TR_GPSSENSOR                   "Датчик GPS"
 #define TR_CURRENTSENSOR               "Датчик тока"
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_AUTOOFFSET                  "Авто смещ"
 #define TR_ONLYPOSITIVE                "Положител"
 #define TR_FILTER                      "Фильтр"

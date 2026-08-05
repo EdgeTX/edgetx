@@ -1065,6 +1065,7 @@
 #define TR_CELLSENSOR                  "セルセンサー"
 #define TR_GPSSENSOR                   "GPSセンサー"
 #define TR_CURRENTSENSOR               "センサー"
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_AUTOOFFSET                  "自動オフセット"
 #define TR_ONLYPOSITIVE                "ポジティブ"
 #define TR_FILTER                      "フィルター"

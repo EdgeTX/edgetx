@@ -29,6 +29,7 @@
 #include "../definitions.h"
 
 #include "telemetry/telemetry.h"
+#include "telemetry/flysky_ibus2.h"
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
 #include "hal/module_port.h"
@@ -51,17 +52,7 @@ extern uint16_t  sns_RFCurrentPower;
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
 void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t type);
-void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t type);
 void processFlySkySensor(const uint8_t * packet, uint8_t type);
-
-void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len);
-void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags);
-void flySkyIbus2CalGpsAlt();
-void flySkyIbus2CalGpsDist();
-void Ibus2ParamCheck(uint8_t* packet, uint8_t len);
-void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len);
-bool getIbus2IbcState();
-uint8_t flyskyIbus2SensorOnLine();
 
 namespace afhds3
 {

@@ -1063,6 +1063,7 @@ extern const char STR_ALTSENSOR[];
 extern const char STR_CELLSENSOR[];
 extern const char STR_GPSSENSOR[];
 extern const char STR_CURRENTSENSOR[];
+extern const char STR_IBUS2_SENSORS_MODE_ONLY[];
 extern const char STR_AUTOOFFSET[];
 extern const char STR_ONLYPOSITIVE[];
 extern const char STR_FILTER[];

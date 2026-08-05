@@ -22,11 +22,11 @@
 #include <math.h>
 
 #include "edgetx.h"
+#include "pulses/afhds3_config.h"
+#include "pulses/afhds3_transport.h"
 
 #define FLYSKY_TELEMETRY_LENGTH (2 + 7 * 4)
 #define ALT_PRECISION 15
-#define RX_CMD_CODE_IBUS2_SET_PARAM (0x7025)
-#define RX_CMD_CODE_IBUS2_GET_PARAM (0x7026)
 #define PRESSURE_MASK 0x7FFFF
 #define REMAP_CONST \
   0x1000  // Some parts of OpenTX do not like sensor with
@@ -34,14 +34,6 @@
 #define IBUS2_CALIB_SET_PARAM 0x1234
 #define IBUS2_CALIB_IBC01 0x0003
 #define IBUS2_CALIB_RPM 0xD001
-
-enum Ibus2SensorOnLine {
-  IBUS2_SENSOR_RPM,
-  IBUS2_SENSOR_GPS,
-  IBUS2_SENSOR_IBC,
-  IBUS2_SENSOR_PRES,
-  IBUS2_SENSOR_NUM,
-};
 
 enum {
   GPS_MSG_TYPE_PACK1 = 1,
@@ -729,16 +721,16 @@ uint8_t flyskyIbus2SensorOnLine()
   uint32_t now = timersGetMsTick();
   uint8_t sensor_on_line = 0;
   if (now - ibc_update_tick < 2000) {
-    sensor_on_line |= 1 << IBUS2_SENSOR_IBC;
+    sensor_on_line |= 1 << afhds3::IBUS2_SENSOR_IBC;
   }
   if (now - gps_update_tick < 2000) {
-    sensor_on_line |= 1 << IBUS2_SENSOR_GPS;
+    sensor_on_line |= 1 << afhds3::IBUS2_SENSOR_GPS;
   }
   if (now - rpm_update_tick < 2000) {
-    sensor_on_line |= 1 << IBUS2_SENSOR_RPM;
+    sensor_on_line |= 1 << afhds3::IBUS2_SENSOR_RPM;
   }
   if (now - pres_update_tick < 2000) {
-    sensor_on_line |= 1 << IBUS2_SENSOR_PRES;
+    sensor_on_line |= 1 << afhds3::IBUS2_SENSOR_PRES;
   }
 
   return sensor_on_line;
