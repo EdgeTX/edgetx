@@ -51,6 +51,10 @@
   #include "flysky_ibus.h"
 #endif
 
+#if defined(AFHDS3)
+  #include "flysky_ibus2.h"
+#endif
+
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 bool allowNewSensors;
 
@@ -550,6 +554,12 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
 #if defined(MULTIMODULE) || defined(AFHDS3) || defined(AFHDS2)
       case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
         flySkySetDefault(index, id, subId, instance);
+        break;
+#endif
+
+#if defined(AFHDS3)
+      case PROTOCOL_TELEMETRY_FLYSKY_IBUS2:
+        flySkyIbus2SetDefault(index, id, subId, instance);
         break;
 #endif
 

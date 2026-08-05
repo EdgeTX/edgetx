@@ -1062,6 +1062,7 @@
 #define TR_CELLSENSOR                  "Cell 传感器"
 #define TR_GPSSENSOR                   "GPS 传感器"
 #define TR_CURRENTSENSOR               "传感器"
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_AUTOOFFSET                  "自动偏移值"
 #define TR_ONLYPOSITIVE                "正向"
 #define TR_FILTER                      "滤波器"

@@ -1066,6 +1066,7 @@
 #define TR_CELLSENSOR                   "Sensore Cell"
 #define TR_GPSSENSOR                    "Sensore GPS"
 #define TR_CURRENTSENSOR                "Sensore"
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_AUTOOFFSET                   "Offset Auto"
 #define TR_ONLYPOSITIVE                 "Positivo"
 #define TR_FILTER                       "Filtro"

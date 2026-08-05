@@ -1077,6 +1077,7 @@
 #define TR_CELLSENSOR                  "Senzor článků"
 #define TR_GPSSENSOR                   "GPS senzor"
 #define TR_CURRENTSENSOR               "Senzor"
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_AUTOOFFSET                  "Auto offset"
 #define TR_ONLYPOSITIVE                "Jen kladné"
 #define TR_FILTER                      "Filtr"
