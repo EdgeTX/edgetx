@@ -396,8 +396,8 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           pxx["power"] >> rhs.pxx.power;
           // pxx["receiverTelemetryOff"] >> rhs.pxx.receiverTelemetryOff;
           // pxx["receiverHigherChannels"] >> rhs.pxx.receiverHigherChannels;
-          // Migration: read old pxx.antennaMode into top-level antennaMode
-          if (pxx["antennaMode"]) {
+          // Migration: legacy raw-int antennaMode, only if not already set
+          if (!node["antennaMode"] && pxx["antennaMode"]) {
             pxx["antennaMode"] >> rhs.antennaMode;
           }
       } else if (mod["sbus"]) {
