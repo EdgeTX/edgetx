@@ -68,6 +68,7 @@ sudo apt-get -y install --no-install-recommends \
     unzip \
     file \
     gawk \
+    m4 \
     libsdl2-dev \
     python3-dev \
     python3-pip \
