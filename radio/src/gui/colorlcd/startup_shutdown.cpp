@@ -83,11 +83,13 @@ void drawSplash()
 }
 
 static tmr10ms_t splashStartTime = 0;
+static bool splashRunning = false;
 
 void startSplash()
 {
   if (!UNEXPECTED_SHUTDOWN()) {
     splashStartTime = get_tmr10ms();
+    splashRunning = true;
     drawSplash();
   }
 }
@@ -105,9 +107,21 @@ void cancelSplash()
 void waitSplash()
 {
   // Handle color splash screen
-  if (splashStartTime) {
+  if (splashRunning) {
     inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
+
+#if defined(PWR_BUTTON_DUAL)
+    // Wait for dual power buttons to be released
+    while (pwrPressed()) {
+      WDG_RESET();
+      sleep_ms(10);
+    }
+    // Kill SYS and/or MDL events
+    killAllEvents();
+    MainWindow::instance()->run();
+#endif
+
     while (splashStartTime >= get_tmr10ms()) {
       LvglWrapper::instance()->run();
       MainWindow::instance()->run();
