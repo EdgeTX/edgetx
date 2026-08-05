@@ -203,10 +203,12 @@ void dacInit()
 
   // use TIM6 TRGO as trigger (TSEL1 = TSEL2 = 000)
   // enable DAC & channel 1 trigger
-  AUDIO_DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1;
+  AUDIO_DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1 | DAC_CR_DMAUDRIE1;
 #endif
   NVIC_EnableIRQ(AUDIO_DMA_Stream_IRQn);
   NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
+  NVIC_EnableIRQ(AUDIO_TIM_IRQn);
+  NVIC_SetPriority(AUDIO_TIM_IRQn, 7);
 }
 
 #if defined(AUDIO_MUTE_GPIO)
@@ -299,7 +301,7 @@ void audioConsumeCurrentBuffer()
       AUDIO_DAC->SR = DAC_SR_DMAUDR1;
 
       // enable DAC
-      AUDIO_DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;
+      AUDIO_DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1 | DAC_CR_DMAUDRIE1;
 #endif
     } else {
 #if defined(AUDIO_MUTE_GPIO)
@@ -323,6 +325,15 @@ void audioEnd()
   // Also need to turn off any possible interrupts
   NVIC_DisableIRQ(AUDIO_TIM_IRQn);
   NVIC_DisableIRQ(AUDIO_DMA_Stream_IRQn);
+}
+
+extern "C" void AUDIO_TIM_IRQHandler()
+{
+  DEBUG_INTERRUPT(INT_AUDIO);
+  if (AUDIO_DAC->SR & DAC_SR_DMAUDR1) {
+    AUDIO_DAC->CR &= ~(DAC_CR_DMAEN1 | DAC_CR_DMAUDRIE1);
+    AUDIO_DAC->SR = DAC_SR_DMAUDR1;
+  }
 }
 
 extern "C" void AUDIO_DMA_Stream_IRQHandler()
