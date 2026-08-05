@@ -175,8 +175,9 @@ static bool isUIFunction(uint16_t f, int16_t p)
 
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
-  MASK_FUNC_TYPE newActiveFunctions  = 0;
+  MASK_FUNC_TYPE newActiveFunctions = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
+
 #if defined(FUNCTION_SWITCHES)
   g_model.cfsResetSFState();
 #endif
@@ -202,11 +203,14 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData * cfn = &functions[i];
+    // Skip functions evaluated in UI task
+    if (isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn))) {
+      continue;
+    }
     swsrc_t swtch = CFN_SWITCH(cfn);
     if (swtch) {
-      MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
-
       bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      // Handle case where function is disabled while active
       if (CFN_ACTIVE(cfn) == 0)
         active = false;
 
@@ -299,7 +303,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                                     CFN_PARAM(cfn))),
                        mixerCurrentFlightMode);
             } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_INCDEC) {
-              if (!(functionsContext.activeSwitches & switch_mask)) {
+              if (!functionsContext.isFunctionSwitchActive(i)) {
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                          limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
                                         GVAR_VALUE(CFN_GVAR_INDEX(cfn),
@@ -421,7 +425,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #endif
         }
 
-        newActiveSwitches |= switch_mask;
+        newActiveSwitches |= ((MASK_CFN_TYPE)1 << i);
       } else {
 #if defined(FUNCTION_SWITCHES)
         if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
@@ -434,10 +438,9 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           }
         }
 #endif
-        if (!isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn)))
-          functionsContext.lastFunctionTime[i] = 0;
+        functionsContext.lastFunctionTime[i] = 0;
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
-        if (functionsContext.activeSwitches & switch_mask) {
+        if (functionsContext.isFunctionSwitchActive(i)) {
           switch (CFN_FUNC(cfn)) {
             case FUNC_RANGECHECK:
             case FUNC_BIND:
@@ -466,13 +469,22 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
 void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
-  MASK_FUNC_TYPE newActiveFunctions  = 0;
+  MASK_FUNC_TYPE newActiveFunctions = 0;
+  MASK_CFN_TYPE  newActiveSwitches = 0;
 
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData * cfn = &functions[i];
+    // Skip functions evaluated in mixer task
+    if (!isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn))) {
+      continue;
+    }
     swsrc_t swtch = CFN_SWITCH(cfn);
-    if (swtch && CFN_ACTIVE(cfn) != 0) {
+    if (swtch) {
+
       bool active = getSwitch(swtch, 0);
+      // Handle case where function is disabled while active
+      if (CFN_ACTIVE(cfn) == 0)
+        active = false;
 
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       // 'No Keys' function checks both switch states
@@ -553,13 +565,16 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
           default:
             break;
         }
-      } else if (isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn))) {
+
+        newActiveSwitches |= ((MASK_CFN_TYPE)1 << i);
+      } else {
         functionsContext.lastFunctionTime[i] = 0;
       }
     }
   }
 
-  functionsContext.activeUIFunctions  =  newActiveFunctions;
+  functionsContext.activeUIFunctions  = newActiveFunctions;
+  functionsContext.activeUISwitches   = newActiveSwitches;
 
   if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
     if (g_eeGeneral.backlightSrc && mixerTaskRunning()) {

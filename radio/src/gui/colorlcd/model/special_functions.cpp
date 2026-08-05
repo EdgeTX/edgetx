@@ -942,7 +942,7 @@ class SpecialFunctionLineButton : public FunctionLineButton
  protected:
   bool isActive() const override
   {
-    return modelFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
+    return modelFunctionsContext.isFunctionSwitchActive(index);
   }
 };
 
@@ -960,7 +960,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
  protected:
   bool isActive() const override
   {
-    return modelFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
+    return modelFunctionsContext.isFunctionSwitchActive(index);
   }
 
   bool isSwitchAvailable(int value) const override
@@ -1022,7 +1022,7 @@ class GlobalFunctionLineButton : public FunctionLineButton
  protected:
   bool isActive() const override
   {
-    return globalFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
+    return globalFunctionsContext.isFunctionSwitchActive(index);
   }
 };
 
@@ -1040,7 +1040,7 @@ class GlobalFunctionEditPage : public FunctionEditPage
  protected:
   bool isActive() const override
   {
-    return globalFunctionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << index);
+    return globalFunctionsContext.isFunctionSwitchActive(index);
   }
 
   bool isSwitchAvailable(int value) const override

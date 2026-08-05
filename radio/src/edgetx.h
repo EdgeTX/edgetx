@@ -153,11 +153,17 @@ struct CustomFunctionsContext {
   MASK_FUNC_TYPE activeFunctions;
   MASK_FUNC_TYPE activeUIFunctions;
   MASK_CFN_TYPE  activeSwitches;
+  MASK_CFN_TYPE  activeUISwitches;
   tmr10ms_t lastFunctionTime[MAX_SPECIAL_FUNCTIONS];
 
   inline bool isFunctionActive(uint8_t func)
   {
     return (activeFunctions | activeUIFunctions) & ((MASK_FUNC_TYPE)1 << func);
+  }
+
+  inline bool isFunctionSwitchActive(uint8_t functionIdx)
+  {
+    return (activeSwitches | activeUISwitches) & ((MASK_CFN_TYPE)1 << functionIdx);
   }
 
   void reset()
