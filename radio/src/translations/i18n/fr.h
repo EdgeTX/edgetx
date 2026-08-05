@@ -1067,6 +1067,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Puissance actuelle")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Source puissance")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_ANTENNACONFIRM1             "Vraiment changer?"
 #define TR_ANTENNA_MODES_1             "Interne"
 #define TR_ANTENNA_MODES_2             "Demander"
