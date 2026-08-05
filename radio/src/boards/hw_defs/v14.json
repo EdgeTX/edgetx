@@ -3,22 +3,18 @@
     "adcs": [
       {
         "name": "MAIN",
-        "adc": "ADC1",
+        "adc": "ADC2",
         "dma": "DMA2",
-        "dma_channel": "LL_DMA_CHANNEL_0",
-        "dma_stream": "LL_DMA_STREAM_4",
-        "dma_stream_irq": "DMA2_Stream4_IRQn",
-        "dma_stream_irq_handler": "DMA2_Stream4_IRQHandler",
+        "dma_channel": "LL_DMA_CHANNEL_1",
+        "dma_stream": "LL_DMA_STREAM_3",
+        "dma_stream_irq": "DMA2_Stream3_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream3_IRQHandler",
         "sample_time": "LL_ADC_SAMPLINGTIME_28CYCLES"
       },
       {
         "name": "EXT",
-        "adc": "ADC3",
-        "dma": "DMA2",
-        "dma_channel": "LL_DMA_CHANNEL_2",
-        "dma_stream": "LL_DMA_STREAM_0",
-        "dma_stream_irq": "DMA2_Stream0_IRQn",
-        "dma_stream_irq_handler": "DMA2_Stream0_IRQHandler",
+        "adc": "ADC1",
+        "dma": null,
         "sample_time": "LL_ADC_SAMPLINGTIME_56CYCLES"
       }
     ],
@@ -84,7 +80,7 @@
       {
         "name": "P3",
         "type": "FLEX",
-        "adc": "EXT",
+        "adc": "MAIN",
         "gpio": "GPIOC",
         "pin": "LL_GPIO_PIN_2",
         "channel": "LL_ADC_CHANNEL_12",
@@ -95,7 +91,7 @@
       {
         "name": "RTC_BAT",
         "type": "RTC_BAT",
-        "adc": "MAIN",
+        "adc": "EXT",
         "gpio": null,
         "pin": null,
         "channel": "LL_ADC_CHANNEL_VBAT"
