@@ -324,7 +324,7 @@ static const uint8_t mask_btn_list_two[] __FLASH = {
 
 // gfx for widgets
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
 static const uint8_t mask_topmenu_antenna[] __FLASH = {
 #include "mask_widget_antenna.lbm"
 };
@@ -473,7 +473,7 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 #if defined(USB_CHARGER)
     BI(ICON_TOPMENU_TXBATT_CHARGE, mask_widget_txbatt_charging),
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
     BI(ICON_TOPMENU_ANTENNA, mask_topmenu_antenna),
 #endif
 #if defined(INTERNAL_GPS)

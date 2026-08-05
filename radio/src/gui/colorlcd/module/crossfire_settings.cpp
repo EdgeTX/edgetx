@@ -67,8 +67,6 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     return std::string(msg);
   });
 
-  moduleIdx = moduleIdx;
-
   auto armingLine = newLine(grid);
   lblArmMode = new StaticText(armingLine, rect_t{}, STR_CRSF_ARMING_MODE);
   auto box = new Window(armingLine, rect_t{});

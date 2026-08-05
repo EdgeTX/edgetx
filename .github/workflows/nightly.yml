@@ -40,6 +40,7 @@ jobs:
           - c14
           - tx15
           - t15pro
+          - v12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
