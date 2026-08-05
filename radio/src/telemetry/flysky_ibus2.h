@@ -21,7 +21,8 @@
 
 #pragma once
 
-void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
+void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId,
+                           uint8_t instance);
 
 void processFlySkyIbus2AFHDS3Sensor(const uint8_t* packet, uint8_t len);
 

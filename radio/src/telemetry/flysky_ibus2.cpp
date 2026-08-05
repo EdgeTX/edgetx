@@ -19,108 +19,101 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include <math.h>
+
+#include "edgetx.h"
 #include "pulses/afhds3_config.h"
 #include "pulses/afhds3_transport.h"
 
-#define FLYSKY_TELEMETRY_LENGTH (2+7*4)
+#define FLYSKY_TELEMETRY_LENGTH (2 + 7 * 4)
 #define ALT_PRECISION 15
 #define PRESSURE_MASK 0x7FFFF
-#define REMAP_CONST 0x1000 // Some part of OpenTX does not like sensor with id and instance 0, remap to 0x1000
-#define IBUS2_CALIB_SET_PARAM  0x1234
-#define IBUS2_CALIB_IBC01     0x0003
-#define IBUS2_CALIB_RPM       0xD001
+#define REMAP_CONST   0x1000  // Some part of OpenTX does not like sensor with
+                              // id and instance 0, remap to 0x1000
+#define IBUS2_CALIB_SET_PARAM 0x1234
+#define IBUS2_CALIB_IBC01 0x0003
+#define IBUS2_CALIB_RPM 0xD001
 
-enum
-{
-    GPS_MSG_TYPE_PACK1 = 1,
-    GPS_MSG_TYPE_PACK2,
-    GPS_MSG_TYPE_PACK3,
-    GPS_MSG_TYPE_PACK4,
-    GPS_MSG_TYPE_CALI = 0x0F,
-    GPS_MSG_TYPE_NUM,
+enum {
+  GPS_MSG_TYPE_PACK1 = 1,
+  GPS_MSG_TYPE_PACK2,
+  GPS_MSG_TYPE_PACK3,
+  GPS_MSG_TYPE_PACK4,
+  GPS_MSG_TYPE_CALI = 0x0F,
+  GPS_MSG_TYPE_NUM,
 };
 
-enum 
-{
-    GPS_STATE_GET_POSITION = 3,
-    GPS_STATE_NUM,
+enum {
+  GPS_STATE_GET_POSITION = 3,
+  GPS_STATE_NUM,
 };
 
-typedef struct
-{
-	unsigned char NbSatellites;
-	unsigned char PositionStatus;	//-
-	unsigned char DateDay;
-	unsigned char DateMonth;
-	unsigned short DateYear; // Year from 2000
-	unsigned short Speed; // In 1/100th of meters
-	unsigned long UTCTime; // In milliseconds from midnight
-	int32_t 		  Latitude; // In 1/1000000th of degree from -90 to +90 degrees
-	int32_t			  Longitude; // In 1/1000000th of degree from -180 to +180 degrees
-	int32_t			  Direction; // True direction in 1/10 of degree (0=North)
-	int32_t   		  Altitude; // In 1/100th of meters
-	float		  Pitch;	//-
-	float		  Roll;		//-
-	float		  Yaw;		//-
-	
-	int32_t   		  Distance; //-
-	int16_t           Acceleration;//acc
-	int16_t 		  HeightChange;//
+typedef struct {
+  unsigned char NbSatellites;
+  unsigned char PositionStatus;  //-
+  unsigned char DateDay;
+  unsigned char DateMonth;
+  unsigned short DateYear;  // Year from 2000
+  unsigned short Speed;     // In 1/100th of meters
+  unsigned long UTCTime;    // In milliseconds from midnight
+  int32_t Latitude;         // In 1/1000000th of degree from -90 to +90 degrees
+  int32_t Longitude;     // In 1/1000000th of degree from -180 to +180 degrees
+  int32_t Direction;     // True direction in 1/10 of degree (0=North)
+  int32_t Altitude;      // In 1/100th of meters
+  float Pitch;           //-
+  float Roll;            //-
+  float Yaw;             //-
+  int32_t Distance;      //-
+  int16_t Acceleration;  // acc
+  int16_t HeightChange;  //
 } Ibus2Gps_t;
 
-typedef struct 
-{
-	int32_t 		  Latitude; // In 1/1000000th of degree from -90 to +90 degrees
-	int32_t			  Longitude; // In 1/1000000th of degree from -180 to +180 degrees
-  int32_t   		  Altitude; // In 1/100th of meters
-  int32_t       Boar_Altitude;
+typedef struct {
+  int32_t Latitude;   // In 1/1000000th of degree from -90 to +90 degrees
+  int32_t Longitude;  // In 1/1000000th of degree from -180 to +180 degrees
+  int32_t Altitude;   // In 1/100th of meters
+  int32_t Boar_Altitude;
 } StartPos_t;
 
-typedef struct
-{
-  short Voltage; //unit 0.1V
-	short Current; // unit 0.1A
-	uint16_t UsedCapacity; //unit 1mAh
-	uint16_t RunTime;   //unit 1second
-	short AverageCurrent;   //unit 0.1A
-	short MaxVoltage;   //unit 0.1V
-	short MinVoltage;   //unit 0.1V
-	short MaxCurrent;   //unit 0.1A
+typedef struct {
+  short Voltage;          // unit 0.1V
+  short Current;          // unit 0.1A
+  uint16_t UsedCapacity;  // unit 1mAh
+  uint16_t RunTime;       // unit 1second
+  short AverageCurrent;   // unit 0.1A
+  short MaxVoltage;       // unit 0.1V
+  short MinVoltage;       // unit 0.1V
+  short MaxCurrent;       // unit 0.1A
 } Ibus2Ibc_t;
 
-typedef struct flysky_ibus2
-{
+typedef struct flysky_ibus2 {
   uint8_t id;
   uint16_t type;
   uint8_t ParameterData[16];
 } Ibus2Param_t;
-
 
 Ibus2Gps_t GPSData = {0};
 Ibus2Ibc_t IBCDate = {0};
 StartPos_t StartPos = {0};
 Ibus2Param_t Ibus2DevPara = {0};
 
-struct FlySkySensor
-{
+struct FlySkySensor {
   const uint16_t type;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  const char* name;
 };
-
+// clang-format off
 enum
 {
-	IBDT_INT_VOLTAGE          = 0x00 | REMAP_CONST, 
+	IBDT_INT_VOLTAGE          = 0x00 | REMAP_CONST,
 	IBDT_TEMPERATURE          = 0x01,    // Temperature
 	IBDT_ROTATION_SPEED       = 0x02,    // RPM
 	IBDT_EXT_VOLTAGE          = 0x03,    // Sensor voltage
 	IBDT_GPS                  = 0x40,    // GPS
 	IBDT_PRESSURE             = 0x41,    // Pressure
 	IBDT_COMPASS              = 0x42,
-	IBDT_IBC01				  = 0x43,    // Voltage and current sensor
+	IBDT_IBC01				        = 0x43,    // Voltage and current sensor
 	IBDT_REDUNDANT_RECEIVER   = 0x44,
 	IBDT_REDUNDANT_RECEIVER_E = 0x45,
 	IBDT_FLIGHT               = 0x70,
@@ -157,13 +150,13 @@ enum
 	IBDT_BK_NOISE             = 0xFB,
 	IBDT_RSSI                 = 0xFC,
 	IBDT_SERVO_HUB            = 0xFD,    // i-Bus 1 only
-	IBDT_SIGNAL_STRENGTH      = 0xFE,	
+	IBDT_SIGNAL_STRENGTH      = 0xFE,
 	IBDT_NONE                 = 0xFF,
 
-  VIRTUAL_ALT               = 0x1041,               // virtual
-  VIRTUAL_REL_ALT           = 0x1141,               // virtual
+  VIRTUAL_ALT               = 0x1041,  // virtual
+  VIRTUAL_REL_ALT           = 0x1141,  // virtual
   VIRTUAL_GPS_STAS          = 0x1040,
-  VIRTUAL_GPS_TIME           = 0x1140,
+  VIRTUAL_GPS_TIME          = 0x1140,
   VIRTUAL_GPS_LAT           = 0x1240,
   VIRTUAL_GPS_LON           = 0x1340,
   VIRTUAL_GPS_KMH           = 0x1440,
@@ -172,24 +165,24 @@ enum
   VIRTUAL_GPS_YAW           = 0x1740,
   VIRTUAL_GPS_DIST          = 0x1840,
   VIRTUAL_GPS_ACC           = 0x1940,
-  VIRTUAL_GPS_SPEED          = 0x1A40,
+  VIRTUAL_GPS_SPEED         = 0x1A40,
   VIRTUAL_GPS_ALT           = 0x1B40,
-  VIRTUAL_GPS_REL_ALT           = 0x1C40,
+  VIRTUAL_GPS_REL_ALT       = 0x1C40,
 
-  VIRTUAL_IBC_VOLTS          = 0x1043,
-  VIRTUAL_IBC_CURR           = 0x1143,
-  VIRTUAL_IBC_CAPA           = 0x1243,
-  VIRTUAL_IBC_RUMTIME        = 0x1343,
-  VIRTUAL_IBC_AVG_CURR       = 0x1443,
+  VIRTUAL_IBC_VOLTS         = 0x1043,
+  VIRTUAL_IBC_CURR          = 0x1143,
+  VIRTUAL_IBC_CAPA          = 0x1243,
+  VIRTUAL_IBC_RUMTIME       = 0x1343,
+  VIRTUAL_IBC_AVG_CURR      = 0x1443,
 };
+// clang-format on
 
-// clang-format off
-#define FS(type,name,unit,precision) {type,unit,precision,name}
+#define FS(type, name, unit, precision) {type, unit, precision, name}
 
 extern int32_t getALT(uint32_t value);
 
-void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id);
-void flyskyIbus2IBC(const uint8_t * pData, uint8_t len, uint8_t id);
+void flyskyIbus2GPS(const uint8_t* pData, uint8_t len, uint8_t id);
+void flyskyIbus2IBC(const uint8_t* pData, uint8_t len, uint8_t id);
 void setIbus2Param(uint8_t* pData);
 void getIbus2Param(uint8_t* pData);
 
@@ -210,6 +203,7 @@ uint32_t ibc_update_tick = 0;
 uint32_t rpm_update_tick = 0;
 uint32_t pres_update_tick = 0;
 
+// clang-format off
 const FlySkySensor flySkySensors[] = {
   // flysky start
   FS(IBDT_INT_VOLTAGE,           STR_SENSOR_BATT,       UNIT_VOLTS,   2),
@@ -217,7 +211,7 @@ const FlySkySensor flySkySensors[] = {
   FS(IBDT_ROTATION_SPEED,        STR_SENSOR_RPM,      UNIT_RAW,     0),
   FS(IBDT_EXT_VOLTAGE,           STR_SENSOR_A3,       UNIT_VOLTS,   2),
   FS(IBDT_GPS,                   STR_SENSOR_GPS,      UNIT_GPS,     2),
-  
+
   FS(VIRTUAL_GPS_STAS,           STR_SENSOR_SATELLITES,         UNIT_RAW,     0),
   FS(VIRTUAL_GPS_TIME,           STR_SENSOR_GPSDATETIME,         UNIT_DATETIME,     0),
   FS(VIRTUAL_GPS_LAT,            STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,     0),
@@ -281,6 +275,7 @@ const FlySkySensor flySkySensors[] = {
   FS(IBDT_SIGNAL_STRENGTH,       STR_SENSOR_RX_QUALITY, UNIT_PERCENT, 0),
   FS(IBDT_NONE,                  NULL,                UNIT_RAW,     0),
 };
+// clang-format off
 
 inline int setFlyskyTelemetryValue( int16_t type, uint8_t instance, int32_t value, uint32_t unit, uint32_t prec)
 {
@@ -314,7 +309,7 @@ void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t len )
   if (IBDT_BK_NOISE == type || IBDT_RSSI == type)
   {
     value  = -value;
-  }  
+  }
 
   if ( (IBDT_EXT_VOLTAGE == type) )
   {
@@ -375,7 +370,7 @@ void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t len )
   {
     value -= 400; // Temperature sensors have 40 degree offset
   }
- 
+
   sendFlyskytelemtry(type, id, value);
 }
 
@@ -472,7 +467,7 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
     type = VIRTUAL_GPS_LON;
     sendFlyskytelemtry(type, id, value);
 
-    
+
     type = VIRTUAL_GPS_DIST;
     if (!get_start) {
       value = GpsSensorDistanceGet();
@@ -480,9 +475,9 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
       value = 0;
     }
     sendFlyskytelemtry(type, id, value);
-    
+
   }
-    
+
   if (get_start && GPSData.PositionStatus == 3) {
     get_start = false;
     StartPos.Altitude = GPSData.Altitude;
@@ -507,7 +502,7 @@ void flyskyIbus2IBC(const uint8_t * pData, uint8_t len, uint8_t id) {
   memcpy(&IBCDate, pData, sizeof(IBCDate));
 
   ibc_update_tick = timersGetMsTick();
-  
+
   type = VIRTUAL_IBC_VOLTS;
   value = IBCDate.Voltage;
   sendFlyskytelemtry(type, id, value);
@@ -589,16 +584,16 @@ static double GetDistance(double lat1, double lng1, double lat2, double lng2)
 {
   lat1 =lat1/1000000; lng1= lng1/1000000;
   lat2 =lat2/1000000; lng2= lng2/1000000;
-  
+
   double radLat1 = deg2rad(lat1);
   double radLat2 = deg2rad(lat2);
-  
+
   double a = radLat1 - radLat2;
   double b = deg2rad(lng1) - deg2rad(lng2);
-  
-  float s = 2.0f * asin(sqrt(pow(sin(a/2),2) 
+
+  float s = 2.0f * asin(sqrt(pow(sin(a/2),2)
                     + cos(radLat1)*cos(radLat2)*pow(sin(b/2),2)));
-  
+
   s = s * EARTH_RADIUS * 100; //cm
   return s;
 }
@@ -606,20 +601,20 @@ static double GetDistance(double lat1, double lng1, double lat2, double lng2)
 int32_t GpsSensorDistanceGet()
 {
   double lats ,lngs, late, lnge;
-  
+
   lats = StartPos.Latitude;
-  lngs = StartPos.Longitude;        
+  lngs = StartPos.Longitude;
   late = GPSData.Latitude;
   lnge = GPSData.Longitude;
   return GetDistance(lats, lngs, late, lnge);
 }
 
-int32_t GpsSensorHeighthGet() 
+int32_t GpsSensorHeighthGet()
 {
   return GPSData.Altitude - StartPos.Altitude;
 }
 
-void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len) 
+void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len)
 {
   Ibus2DevPara.type = IBUS2_CALIB_SET_PARAM;
   Ibus2DevPara.id = flyskyGpsId;
@@ -630,18 +625,18 @@ void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len)
   *len = 22;
 }
 
-void flySkyIbus2CalGpsAlt() 
+void flySkyIbus2CalGpsAlt()
 {
   reset_gps_alt = true;
   reset_baro_alt = true;
 }
 
-void flySkyIbus2CalGpsDist() 
+void flySkyIbus2CalGpsDist()
 {
   reset_gps_dist = true;
 }
 
-void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len) 
+void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len)
 {
   Ibus2DevPara.type = IBUS2_CALIB_RPM;
   Ibus2DevPara.id = flyskyRpmId;
@@ -649,7 +644,7 @@ void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len)
   *len = 6;
 }
 
-void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags) 
+void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags)
 {
   Ibus2DevPara.type = IBUS2_CALIB_SET_PARAM;
   Ibus2DevPara.id = flyskyIbcId;
@@ -692,10 +687,10 @@ void getIbus2Param(uint8_t* pData) {
   pData[n++] = 3;//data length
   pData[n++] = Ibus2DevPara.id;
 	pData[n++] = Ibus2DevPara.type;
-	pData[n++] = Ibus2DevPara.type >> 8;				  
+	pData[n++] = Ibus2DevPara.type >> 8;
 }
 
-bool ibc_state = false; 
+bool ibc_state = false;
 void Ibus2ParamCheck(uint8_t* packet, uint8_t len) {
   if (len != 4) {
     return;
@@ -709,7 +704,7 @@ void Ibus2ParamCheck(uint8_t* packet, uint8_t len) {
   } else if (id == flyskyRpmId) {
     // todo
   }
-} 
+}
 
 bool getIbus2IbcState() {
   return ibc_state;
