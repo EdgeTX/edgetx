@@ -24,12 +24,12 @@ jobs:
           xcode-version: '16.0'
 
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Setup Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -72,7 +72,7 @@ jobs:
         run: echo "artifact_name=edgetx-cpn-osx-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output

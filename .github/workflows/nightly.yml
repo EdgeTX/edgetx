@@ -44,7 +44,7 @@ jobs:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -55,7 +55,7 @@ jobs:
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: edgetx-firmware-nightly-${{ matrix.target }}
           path: |
@@ -71,7 +71,7 @@ jobs:
     needs: build
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: edgetx-firmware-nightly-*
           path: edgetx-firmware-nightly
@@ -86,7 +86,7 @@ jobs:
           args: zip -qq -j -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
       - name: Deploy nightly release
-        uses: crowbarmaster/GH-Automatic-Releases@latest
+        uses: crowbarmaster/GH-Automatic-Releases@v1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: 'nightly'
