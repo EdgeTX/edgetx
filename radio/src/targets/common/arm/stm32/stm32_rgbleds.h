@@ -30,11 +30,6 @@
 // RGB
 #define RGBLEDS_BYTES_PER_LED 3
 
-// Number of LED periods used for trailing reset
-#if !defined(RGBLEDS_TRAILING_RESET)
-#  define RGBLEDS_TRAILING_RESET 10
-#endif
-
 void rgbleds_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
                  uint8_t strip_len, uint8_t type);
 void rgbleds_update(const stm32_pulse_timer_t* timer);
