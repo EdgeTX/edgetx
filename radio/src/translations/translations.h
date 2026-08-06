@@ -83,6 +83,7 @@ extern const LangStrings plLangStrings;
 extern const LangStrings ptLangStrings;
 extern const LangStrings ruLangStrings;
 extern const LangStrings seLangStrings;
+extern const LangStrings skLangStrings;
 extern const LangStrings twLangStrings;
 extern const LangStrings uaLangStrings;
 
