@@ -237,6 +237,7 @@ namespace Board {
     HasInternalGPS,
     HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
+    HasKeyLockCombo,
     HasLedStripGPIO,
     HasRTC,
     HasSDCard,

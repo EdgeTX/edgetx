@@ -396,6 +396,12 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return ((IS_FAMILY_HORUS_OR_T16(board) && getCapability(board, HasAuxSerialMode)) ||
               IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board));
 
+    case HasKeyLockCombo:
+      return !(IS_HELLORADIOSKY_V12(board) || IS_TARANIS_XLITE(board) ||
+               IS_FLYSKY_PA01(board) || IS_FLYSKY_NV14(board) ||
+               IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) ||
+               board == Board::BOARD_FLYSKY_NB4P);
+
     case HasLedStripGPIO:
       return (IS_RADIOMASTER_MT12(board) || IS_FAMILY_PL18(board) ||
               IS_HELLORADIOSKY_V16(board));

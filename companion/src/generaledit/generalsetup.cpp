@@ -635,7 +635,16 @@ void GeneralSetupPanel::setValues()
 
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
   ui->chkOneLogPerDay->setChecked(generalSettings.oneLogPerDay);
-  ui->chkKeyLockEnabled->setChecked(generalSettings.keyLockEnabled);
+  {
+    bool hasCombo = Boards::getCapability(board, Board::HasKeyLockCombo);
+    ui->chkKeyLockEnabled->setChecked(hasCombo && generalSettings.keyLockEnabled);
+    ui->chkKeyLockEnabled->setEnabled(hasCombo);
+    ui->label_keyLockEnabled->setEnabled(hasCombo);
+    if (!hasCombo) {
+      ui->chkKeyLockEnabled->setToolTip(tr("Not available on this radio (no key combo defined)"));
+      ui->label_keyLockEnabled->setToolTip(tr("Not available on this radio (no key combo defined)"));
+    }
+  }
 
   if (Boards::getCapability(board, Board::HasColorLcd)) {
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
