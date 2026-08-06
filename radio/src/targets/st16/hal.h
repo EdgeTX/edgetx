@@ -53,9 +53,6 @@
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
-// S.Port update connector
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
 // #define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
@@ -106,13 +103,6 @@
 //#define USE_EXTI15_10_IRQ
 //#define CUSTOM_EXTI_IRQ_Priority 5
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOC, 0)  // PC.00
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
 #define LCD_SPI_CS_GPIO                 GPIOH
@@ -256,37 +246,3 @@
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_6
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream6_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream6_IRQHandler
-
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOE, 6) // PE.06
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM15
-#define TRAINER_TIMER_IRQn              TIM15_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM15_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_4
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
-#define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_I2C_CLK_RATE              100000
-
-// Touch pins: INT -> PI11, RST -> PI3
-#define TOUCH_INT_GPIO                   GPIOI
-#define TOUCH_INT_GPIO_PIN               LL_GPIO_PIN_11
-#define TOUCH_RST_GPIO                   GPIOI
-#define TOUCH_RST_GPIO_PIN               LL_GPIO_PIN_3
-
-#define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_11
-#define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTI
-#define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE11
-
-// TOUCH_INT_EXTI IRQ for lines 15..10
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority 5
-#endif

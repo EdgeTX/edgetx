@@ -439,7 +439,8 @@
     "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE7",
     "rotary_encoder_timer": "TIM17",
     "rotary_encoder_timer_irqn": "TIM17_IRQn",
-    "rotary_encoder_timer_irqhandler": "TIM17_IRQHandler"
+    "rotary_encoder_timer_irqhandler": "TIM17_IRQHandler",
+    "rotary_encoder_granularity": 4
   },
   "haptic": {
     "haptic_pwm": true,

@@ -307,6 +307,25 @@
     "haptic_ccmr1": "TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2",
     "haptic_ccer": "TIM_CCER_CC1E"
   },
+  "usb": {
+    "usb_gpio_vbus": "GPIO_PIN(GPIOA, 9)",
+    "usb_gpio_dm": "GPIO_PIN(GPIOA, 11)",
+    "usb_gpio_dp": "GPIO_PIN(GPIOA, 12)",
+    "usb_gpio_af": "GPIO_AF10"
+  },
+  "trainer": {
+    "trainer_in_gpio": "GPIO_PIN(GPIOC, 8)",
+    "trainer_in_timer_channel": "LL_TIM_CHANNEL_CH3",
+    "trainer_out_gpio": "GPIO_PIN(GPIOC, 9)",
+    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH4",
+    "trainer_timer": "TIM3",
+    "trainer_timer_irqn": "TIM3_IRQn",
+    "trainer_timer_irqhandler": "TIM3_IRQHandler",
+    "trainer_gpio_af": "LL_GPIO_AF_2",
+    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "trainer_detect_gpio": "GPIO_PIN(GPIOA, 8)",
+    "trainer_detect_inverted": true
+  },
   "key_lock_combo": [
     "KEY_SYS",
     "KEY_MODEL"

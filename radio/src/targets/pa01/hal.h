@@ -52,9 +52,6 @@
   #define EXTI4_IRQ_Priority 5
 #endif
 
-// S.Port update connector
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 // Telemetry
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 14)
  #define TELEMETRY_RX_GPIO               GPIO_UNDEF
@@ -78,13 +75,6 @@
 //#define USE_EXTI15_10_IRQ
 //#define CUSTOM_EXTI_IRQ_Priority 5
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 0)  // PB.00
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
 #define LCD_SPI                         SPI1
@@ -225,23 +215,5 @@
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_1
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream1_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream1_IRQHandler
-
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOA, 10) // PA.10
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH3
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOA,  9) // PA.09
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM1
-#define TRAINER_TIMER_IRQn              TIM1_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM1_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_1
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
-#define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_I2C_CLK_RATE              100000
 
 #endif // _HAL_H_

@@ -58,15 +58,6 @@ UART5:  TELEMETRY_USART
 
  */
 
-// Rotary encoder simulated via KEY_UP (PG.02) and KEY_DOWN (PG.03) buttons
-#define ROTARY_ENCODER_NAVIGATION
-#define ROTARY_ENCODER_GPIO             GPIOG
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_2 // PG.02 KEY_UP
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_3 // PG.03 KEY_DOWN
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
 #define ADC_VREF_PREC2                  329
 
 #define PWM_STICKS
@@ -90,9 +81,6 @@ UART5:  TELEMETRY_USART
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
-// S.Port update connector
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 // Telemetry
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 13)
  #define TELEMETRY_RX_GPIO               GPIO_UNDEF //GPIO_PIN(GPIOB, 12)
@@ -113,13 +101,6 @@ UART5:  TELEMETRY_USART
 #define ETH_WKUP_IRQ_Priority 5
 #define CUSTOM_EXTI_IRQ_LINE 86
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOC, 0)  // PC.00
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
 #define LCD_DISP_PORT                   GPIOC
@@ -231,29 +212,3 @@ UART5:  TELEMETRY_USART
 
 #define EXTMODULE_USART_IRQHandler         USART2_IRQHandler
 #define EXTMODULE_USART_IRQn               USART2_IRQn
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOE, 6) // PE.06
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM15
-#define TRAINER_TIMER_IRQn              TIM15_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM15_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_4
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
-// Touch
-#define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOI, 3)  // PI.03   OK
-#define TOUCH_RST_GPIO                  GPIO_PIN(GPIOI, 11)  // PI.11   OK
-#define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_3
-#define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTI
-#define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE3
-#define USE_EXTI3_IRQ
-#define EXTI3_IRQ_Priority  9
-#define GT911_ROTATION_MODE             180
-
-#define TOUCH_I2C_CLK_RATE              100000
