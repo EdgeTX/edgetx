@@ -170,10 +170,18 @@ void handleUsbConnection()
     TRACE("USB unplugged");
     closeUsbMenu();
     _pluggedUsb = false;
+#if defined(USB_CHARGE_CONTROL)
+    usbChargerEnableCharge(true);
+#endif
   } else if (!_pluggedUsb && usbPlugged()) {
     TRACE("USB plugged");
     _pluggedUsb = true;
     _usbDisabled = false;
+#if defined(USB_CHARGE_CONTROL)
+    // Apply on plug, not on usbStart(): the mode popup can sit open for a long
+    // time and the radio would charge until a mode is picked
+    usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+#endif
   }
 
   if (!_usbDisabled && !usbStarted() && usbPlugged()) {
@@ -202,19 +210,12 @@ void handleUsbConnection()
 
       usbStart();
       TRACE("USB started");
-
-#if defined(USB_CHARGE_CONTROL)
-      usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
-#endif
     }
   }
 
   if (usbStarted() && !usbPlugged()) {
     usbStop();
     TRACE("USB stopped");
-#if defined(USB_CHARGE_CONTROL)
-    usbChargerEnableCharge(true);
-#endif
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();
