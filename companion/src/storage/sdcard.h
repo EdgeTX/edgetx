@@ -21,17 +21,17 @@
 
 #pragma once
 
-#include "labeled.h"
+#include "tree.h"
 
 #include <QtCore>
 
-class SdcardFormat : public LabelsStorageFormat
+class SdcardFormat : public TreeStorageFormat
 {
   Q_DECLARE_TR_FUNCTIONS(SdcardFormat)
 
   public:
     SdcardFormat(const QString & filename):
-      LabelsStorageFormat(filename)
+      TreeStorageFormat(filename)
     {
     }
 
