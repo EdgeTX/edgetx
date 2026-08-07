@@ -682,8 +682,8 @@ void MainWindow::updateMenus()
   readSettingsAct->setEnabled(true);
   writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
-  createBUFromRadioAct->setEnabled(false);
-  restoreBUToRadioAct->setEnabled(false);
+  createBUFromRadioAct->setEnabled(true);
+  restoreBUToRadioAct->setEnabled(true);
   editSplashAct->setDisabled(Boards::getBoardCapability(getCurrentBoard(), Board::HasColorLcd));
 
   foreach (QAction * act, fileWindowActions) {
