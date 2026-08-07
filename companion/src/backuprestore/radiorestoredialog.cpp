@@ -20,42 +20,47 @@
  */
 
 #include "radiorestoredialog.h"
-#include "progressdialog.h"
+#include "ui_radiorestoredialog.h"
 
 #include <QFileSystemModel>
 
-RadioRestoreDlg::RadioRestoreDlg(QWidget * parent) :
+RadioRestoreDialog::RadioRestoreDialog(QWidget * parent) :
   QDialog(parent),
   ui(new Ui::RadioRestoreDialog),
   mdlSDCard(nullptr),
   restoreFirmware(false)
 {
-  setupUi();
+  ui->setupUi(this);
 
   if (!loadBackup())
     reject();
 
   scanForRadio();
 
-  ui->btnBackupFileSelector->setup();
+  //ui->btnBackupFileSelector->setup();
 
 
 }
 
-void accepted()
+RadioRestoreDialog::~RadioRestoreDialog()
 {
+  delete ui;
+}
+
+//void RadioRestoreDialog::accepted()
+//{
   // save choices for use next time and restoration eg last backup file
   // progress dialog
   // do it
 
-}
+//}
 
-bool RadioRestoreDlg::loadBackup()
+bool RadioRestoreDialog::loadBackup()
 {
   // select backup file using last saved settings
   QString backupFile;
 
-  ui->btnBackupSelect.setup();
+  //ui->btnBackupSelect.setup();
 
 
   if (backupFile.isEmpty())
@@ -63,17 +68,17 @@ bool RadioRestoreDlg::loadBackup()
 
   // if found populate treeview
   QFileSystemModel *mdlSDCard = new QFileSystemModel();
-  mdlSDCard->setRootPath(ui->leBackupPath.text());
+  mdlSDCard->setRootPath(ui->leBackupFile->text());
   mdlSDCard->setOptions(QFileSystemModel::DontWatchForChanges);
   mdlSDCard->setReadOnly(true);
   mdlSDCard->sort(0);
 
-  ui->tvwBackup->setModel(mdlSDCard);
+  ui->tvwSDCard->setModel(mdlSDCard);
 
   return true;
 }
 
-bool RadioRestoreDlg::scanForRadio()
+bool RadioRestoreDialog::scanForRadio()
 {
 
   return true;

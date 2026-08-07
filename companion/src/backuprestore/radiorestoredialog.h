@@ -21,31 +21,27 @@
 
 #pragma once
 
-#include "progressdialog.h"
-
 #include <QDialog>
 
-class ProgressWidget;
-class QStandardItemModel;
+class QFileSystemModel;
 
 namespace Ui {
   class RadioRestoreDialog;
 }
 
-class RadioRestoreDlg : public QDialog
+class RadioRestoreDialog : public QDialog
 {
     Q_OBJECT
 
   public:
-    RadioRestoreDlg(QWidget * parent = nullptr);
-    virtual ~RadioRestoreDlg() {}
+    RadioRestoreDialog(QWidget * parent = nullptr);
+    virtual ~RadioRestoreDialog();
 
   public slots:
 
   signals:
 
   private slots:
-    void setupUi();
 
   private:
     Ui::RadioRestoreDialog *ui;

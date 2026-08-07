@@ -150,7 +150,7 @@
       <widget class="AutoLineEdit" name="leBackupFile"/>
      </item>
      <item>
-      <widget class="AutoFileSelectorButton" name="btnBackupFileSelect">
+      <widget class="QPushButton" name="btnBackupFileSelect">
        <property name="text">
         <string>Select</string>
        </property>
@@ -175,11 +175,6 @@
    <class>AutoLineEdit</class>
    <extends>QLineEdit</extends>
    <header>autolineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>AutoFileSelectorButton</class>
-   <extends>QPushButton</extends>
-   <header>autofileselectorbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

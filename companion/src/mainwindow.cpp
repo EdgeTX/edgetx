@@ -579,7 +579,7 @@ bool MainWindow::readSettingsFromRadio(const QString & filename)
 
 void MainWindow::writeBackup()
 {
-  RadioBackupDlg * dlg = new RadioBackupDlg(this);
+  RadioBackupDialog *dlg = new RadioBackupDialog(this);
   dlg->exec();
   dlg->deleteLater();
 }

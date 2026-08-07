@@ -20,33 +20,38 @@
  */
 
 #include "radiobackupdialog.h"
-#include "progressdialog.h"
+#include "ui_radiobackupdialog.h"
 
 #include <QFileSystemModel>
 
-RadioBackupDlg::RadioBackupDlg(QWidget * parent) :
+RadioBackupDialog::RadioBackupDialog(QWidget * parent) :
   QDialog(parent),
   ui(new Ui::RadioBackupDialog),
   mdlSDCard(new QFileSystemModel()),
   backupFirmware(false)
 {
-  setupUi();
+  ui->setupUi(this);
   scanForRadio();
 
-  ui->btnBackupFileSelector->setup();
+  //ui->btnBackupFileSelector->setup();
 
 
 }
 
-void accepted()
+RadioBackupDialog::~RadioBackupDialog()
 {
+  delete ui;
+}
+
+//void RadioBackupDialog::accepted()
+//{
   // save choices for use next time and restoration eg last backup file
   // progress dialog
   // do it
 
-}
+//}
 
-void RadioBackupDlg::scanForRadio()
+void RadioBackupDialog::scanForRadio()
 {
   bool found = false;
   QString radioPath;
