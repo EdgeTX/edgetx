@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_NAMES
   filtereditemmodels
   itemmodeleventhandler
   labels
+  modelslist
 )
 
 AddHeadersSources()
