@@ -200,6 +200,7 @@ include(FetchMiniz)
 include(FetchYamlCpp)
 include(FetchMaxLibQt)
 
+add_subdirectory(backuprestore)
 add_subdirectory(datamodels)
 add_subdirectory(firmwares)
 add_subdirectory(flash)
@@ -268,6 +269,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   flash
   wizard
   print
+  backuprestore
 )
 
 PrintTargetReport("${COMPANION_NAME}")

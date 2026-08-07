@@ -44,6 +44,8 @@
 #include "constants.h"
 #include "updates/updates.h"
 #include "updates/updatefactories.h"
+#include "radiobackupdialog.h"
+#include "radiorestoredialog.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -577,7 +579,9 @@ bool MainWindow::readSettingsFromRadio(const QString & filename)
 
 void MainWindow::writeBackup()
 {
-  QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
+  RadioBackupDlg * dlg = new RadioBackupDlg(this);
+  dlg->exec();
+  dlg->deleteLater();
 }
 
 void MainWindow::writeFlash(QString fileToFlash)
