@@ -224,7 +224,6 @@ set(companion_NAMES
   logsdialog
   mainwindow
   mdichild
-  modelslist
   profilechooser
   dialogs/filesyncdialog
   )
