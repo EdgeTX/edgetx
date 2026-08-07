@@ -593,6 +593,9 @@ void MainWindow::writeFlash(QString fileToFlash)
 
 void MainWindow::readBackup()
 {
+  RadioRestoreDialog *dlg = new RadioRestoreDialog(this);
+  dlg->exec();
+  dlg->deleteLater();
 }
 
 void MainWindow::readFlash()
@@ -679,8 +682,8 @@ void MainWindow::updateMenus()
   readSettingsAct->setEnabled(true);
   writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
-  writeBUToRadioAct->setEnabled(false);
-  readBUToFileAct->setEnabled(false);
+  createBUFromRadioAct->setEnabled(false);
+  restoreBUToRadioAct->setEnabled(false);
   editSplashAct->setDisabled(Boards::getBoardCapability(getCurrentBoard(), Board::HasColorLcd));
 
   foreach (QAction * act, fileWindowActions) {
@@ -823,14 +826,14 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(exportAppSettingsAct, tr("Export Settings..."), tr("Save all the current %1 and Simulator settings (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
   trAct(importAppSettingsAct, tr("Import Settings..."), tr("Load %1 and Simulator settings from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
 
-  trAct(editSplashAct,      tr("Edit Radio Splash Image..."),          tr("Edit the splash image of your Radio"));
-  trAct(readFlashAct,       tr("Read Firmware from Radio"),            tr("Read firmware from Radio"));
-  trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
-  trAct(writeSettingsAct,   tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
-  trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
-  trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
-  trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
-  trAct(radioGetDevicesAct, tr("Connected Radios"),                    tr("Get a list of connected radios"));
+  trAct(editSplashAct,        tr("Edit Radio Splash Image..."),          tr("Edit the splash image of your Radio"));
+  trAct(readFlashAct,         tr("Read Firmware from Radio"),            tr("Read firmware from Radio"));
+  trAct(writeFlashAct,        tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
+  trAct(writeSettingsAct,     tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
+  trAct(readSettingsAct,      tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
+  trAct(restoreBUToRadioAct,  tr("Restore Backup to Radio"),             tr("Restore all or some files from a backup to the Radio"));
+  trAct(createBUFromRadioAct, tr("Create Backup from Radio"),            tr("Create a backup of selected files from the Radio"));
+  trAct(radioGetDevicesAct,   tr("Connected Radios"),                    tr("Get a list of connected radios"));
 
   trAct(compareAct,         tr("Compare Models"),         tr("Compare models"));
   trAct(updatesAct,         tr("Update components..."),   tr("Download and update EdgeTX components and supporting resources"));
@@ -913,8 +916,8 @@ void MainWindow::createActions()
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
   readSettingsAct =        addAct("read_eeprom.png",        SLOT(readSettings()));
-  writeBUToRadioAct =      addAct("write_eeprom_file.png",  SLOT(writeBackup()));
-  readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
+  createBUFromRadioAct =   addAct("read_eeprom_file.png",   SLOT(createBackup()));
+  restoreBUToRadioAct =    addAct("write_eeprom_file.png",  SLOT(restoreBackup()));
 
   viewFileToolbarAct =     addAct("",                       SLOT(viewFileToolbar()));
   viewModelsToolbarAct =   addAct("",                       SLOT(viewModelsToolbar()));
@@ -995,8 +998,8 @@ void MainWindow::createMenus()
   radioMenu->addAction(writeSettingsAct);
   radioMenu->addAction(readSettingsAct);
   radioMenu->addSeparator();
-  radioMenu->addAction(writeBUToRadioAct);
-  radioMenu->addAction(readBUToFileAct);
+  radioMenu->addAction(createBUFromRadioAct);
+  radioMenu->addAction(restoreBUToRadioAct);
   radioMenu->addSeparator();
   radioMenu->addAction(writeFlashAct);
   radioMenu->addAction(readFlashAct);
@@ -1082,8 +1085,8 @@ void MainWindow::createToolBars()
   radioToolBar->addAction(writeSettingsAct);
   radioToolBar->addAction(readSettingsAct);
   radioToolBar->addSeparator();
-  radioToolBar->addAction(writeBUToRadioAct);
-  radioToolBar->addAction(readBUToFileAct);
+  radioToolBar->addAction(createBUFromRadioAct);
+  radioToolBar->addAction(restoreBUToRadioAct);
   radioToolBar->addSeparator();
   radioToolBar->addAction(writeFlashAct);
   radioToolBar->addAction(readFlashAct);

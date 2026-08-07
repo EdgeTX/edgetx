@@ -211,8 +211,8 @@ class MainWindow : public QMainWindow
     QAction *radioGetDevicesAct;
     QAction *writeFlashAct;
     QAction *readFlashAct;
-    QAction *writeBUToRadioAct;
-    QAction *readBUToFileAct;
+    QAction *restoreBUToRadioAct;
+    QAction *createBUFromRadioAct;
     QAction *aboutAct;
     QAction *logsAct;
     QAction *profilesMenuAct;
