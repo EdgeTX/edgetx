@@ -21,17 +21,17 @@
 
 #pragma once
 
-#include "labeled.h"
+#include "tree.h"
 
 #include <QtCore>
 
-class EtxFormat : public LabelsStorageFormat
+class EtxFormat : public TreeStorageFormat
 {
   Q_DECLARE_TR_FUNCTIONS(EtxFormat)
 
   public:
     EtxFormat(const QString & filename):
-      LabelsStorageFormat(filename)
+      TreeStorageFormat(filename)
     {
     }
 
